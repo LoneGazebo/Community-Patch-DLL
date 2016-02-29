@@ -323,15 +323,7 @@ function OnShowHide( bHide )
 					Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK" ));
 				elseif (not pActiveTeam:CanDeclareWar(g_iAITeam)) then
 					Controls.WarButton:SetDisabled(true);
-
-					-- change tooltip to accomodate vassals
-					local iMaster = Teams[g_iAITeam]:GetMaster();
-					if (iMaster ~= -1) then
-						local pMaster = Teams[iMaster];
-						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_VASSAL", pMaster:GetName() ));
-					else
-						Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_MOD" ));
-					end
+					Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_MAY_NOT_ATTACK_MOD" ));
 				else
 					Controls.WarButton:SetDisabled(false);
 					Controls.WarButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DECLARES_WAR_TT" ));

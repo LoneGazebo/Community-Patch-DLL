@@ -81,6 +81,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	for buttonNum = 1, maxSmallButtons, 1 do
 		local buttonName = "B"..tostring(buttonNum);
 		thisTechButtonInstance[buttonName]:SetHide(true);
+		thisTechButtonInstance[buttonName]:SetAlpha(1);
 	end
 	
 	if tech == nil then
@@ -422,6 +423,36 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	end
 
 --CBP
+	if tech.Happiness > 0 then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_HAPPINESS_BUMP", tech.Happiness ) );
+			buttonNum = buttonNum + 1;
+		end
+	end
+	if tech.BombardRange > 0 then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_RANGE_INCREASE" ) );
+			buttonNum = buttonNum + 1;
+		end
+	end
+	if tech.BombardIndirect > 0 then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE" ) );
+			buttonNum = buttonNum + 1;
+		end
+	end
 	if tech.CityLessEmbarkCost then
 		local buttonName = "B"..tostring(buttonNum);
 		local thisButton = thisTechButtonInstance[buttonName];
@@ -440,6 +471,18 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 			thisButton:SetHide( false );
 			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING" ) );
 			buttonNum = buttonNum + 1;
+		end
+	end
+	for row in GameInfo.Tech_SpecialistYieldChanges(condition) do
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_SPECIALIST_YIELD_CHANGE", GameInfo.Specialists[row.SpecialistType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString)));
+			buttonNum = buttonNum + 1;
+		else
+			break;
 		end
 	end
 -- END	
@@ -651,6 +694,12 @@ function AdjustArtOnGrantedBuildingButton( thisButton, thisBuildingInfo, texture
 		thisButton:SetTexture( textureSheet );
 		thisButton:SetTextureOffset( textureOffset );
 		thisButton:SetHide( false );
+		--Hide Wonders already taken
+		if (Game.AnyoneHasWonder(thisBuildingInfo.ID) and GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass].MaxGlobalInstances == 1) then
+			thisButton:SetAlpha(0.33);
+		else
+			thisButton:SetAlpha(1);
+		end
 		techPediaSearchStrings[tostring(thisButton)] = Locale.ConvertTextKey(thisBuildingInfo.Description);
 		thisButton:RegisterCallback( Mouse.eRClick, GetTechPedia );
 	end

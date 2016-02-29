@@ -164,33 +164,5 @@
 			<ResponseType>RESPONSE_VASSALAGE_TRADE_REVOKE</ResponseType>
 			<Response>TXT_KEY_GENERIC_RESPONSE_VASSALAGE_TRADE_REVOKE%</Response>
 		</Row>
-		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_VASSALAGE_TRADE_REVOKE</ResponseType>
-			<Response>TXT_KEY_GENERIC_RESPONSE_VASSALAGE_TRADE_REVOKE%</Response>
-		</Row>
-		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_VASSALAGE_LIBERATED_HUMAN</ResponseType>
-			<Response>TXT_KEY_RESPONSE_VASSALAGE_LIBERATED_HUMAN%</Response>
-		</Row>
-		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_VASSAL_TAXES_RAISED_HUMAN_MASTER</ResponseType>
-			<Response>TXT_KEY_RESPONSE_VASSAL_TAXES_RAISED_HUMAN_MASTER%</Response>
-		</Row>
-		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_VASSAL_TAXES_RAISED_AI_MASTER</ResponseType>
-			<Response>TXT_KEY_RESPONSE_VASSAL_TAXES_RAISED_AI_MASTER%</Response>
-		</Row>
-		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_VASSAL_TAXES_LOWERED_HUMAN_MASTER</ResponseType>
-			<Response>TXT_KEY_RESPONSE_VASSAL_TAXES_LOWERED_HUMAN_MASTER%</Response>
-		</Row>
-		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_VASSAL_TAXES_LOWERED_AI_MASTER</ResponseType>
-			<Response>TXT_KEY_RESPONSE_VASSAL_TAXES_LOWERED_AI_MASTER%</Response>
-		</Row>
-		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_LIBERATE_VASSAL</ResponseType>
-			<Response>TXT_KEY_RESPONSE_LIBERATE_VASSAL%</Response>
-		</Row>
 	</Diplomacy_Responses>
 </GameData>
