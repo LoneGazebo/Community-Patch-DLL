@@ -91,7 +91,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 	
 	local strMoodInfo = GetMoodInfo(g_iAIPlayer);
 	Controls.MoodText:SetToolTipString(strMoodInfo);
-	
+
 	local bMyMode = false;
 	
 	local strExtra = "";
@@ -262,7 +262,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				
 				-- End Vassal button valid? (only when human is the Vassal)
 				if (pActiveTeam:IsVassal(g_iAITeam)) then
-					if(pActiveTeam:CanEndVassal(g_iAITeam)) then
+					if(pActiveTeam:canEndVassal(g_iAITeam)) then
 						Controls.Button1:SetDisabled(false);
 					else
 						Controls.Button1:SetDisabled(true);
@@ -378,6 +378,9 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				--  DECLARE WAR (THIRD PARTY) --
 				--------------------------------
 				strButton10Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR" );
+-- CBP
+				strButton10Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_TT" );
+-- END
 				Controls.Button10:SetDisabled(true);
 
 				--------------------
@@ -476,6 +479,10 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_YOU_EXPANSION_WARNING) then
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_SETTLE_WHAT_WE_PLEASE") ;
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_SORRY_FOR_SETTLING") ;
+-- CBP
+			local iTimeOutTurns = Game:GetPromiseDuration();
+			strButton2Tooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DURATION_PROMISE", iTimeOutTurns);
+-- END
 			bHideBackButton = true;
 		-- AI seriously warning human about his plot buying
 		--elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_YOU_PLOT_BUYING_SERIOUS_WARNING) then
@@ -486,6 +493,10 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_YOU_PLOT_BUYING_WARNING) then
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_NOT_YOUR_BUSINESS" );
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_SORRY_FOR_CLAIMING" );
+-- CBP
+			local iTimeOutTurns = Game:GetPromiseDuration();
+			strButton2Tooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DURATION_PROMISE", iTimeOutTurns);
+-- END
 			bHideBackButton = true;
 		-- AI asking player to work with him
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_WORK_WITH_US) then
@@ -504,6 +515,12 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU" );
 			strButton3Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_COOP_WAR_SOON" );
 			strButton4Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_COOP_WAR_YES" );
+-- CBP
+			local pMajor = Players[iData1];
+			if (pMajor ~= nil) then
+				strButton2Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU_TT", pAIPlayer:GetCivilizationShortDescriptionKey(), pMajor:GetCivilizationShortDescriptionKey());
+			end
+-- END
 			bHideBackButton = true;
 		-- AI shows up saying it's time to declare war against someone
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_COOP_WAR_TIME) then
@@ -581,7 +598,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_AI_REVOKE_VASSALAGE) then
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_DONT_ALLOW_VASSAL_INDEPENDENCE" );
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_ALLOW_VASSAL_INDEPENDENCE" );
-			bHideBackButton = true
+			bHideBackButton = true;
 		end
 	    
 		-- Buttons: change text or hide
@@ -996,20 +1013,17 @@ function OnButton2()
     -- Fluff discussion mode
 	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN) then
 -- CBP
-		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_MEAN_RESPONSE, g_iAIPlayer, 0, 0 );
-		--OnBack(true);
+		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_MEAN_RESPONSE, g_iAIPlayer, iButtonID, 0 );
 -- END
     -- Fluff discussion mode 2
 	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI) then
 -- CBP
-		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_MEAN_RESPONSE, g_iAIPlayer, 0, 0 );
-		--OnBack(true);
+		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_MEAN_RESPONSE, g_iAIPlayer, iButtonID, 0 );
 -- END
     -- AI declared war on us!
 	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_AI_DECLARED_WAR) then
 -- CBP
-		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_MEAN_RESPONSE, g_iAIPlayer, 0, 0 );
-		--OnBack(true);
+		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_MEAN_RESPONSE, g_iAIPlayer, iButtonID, 0 );
 -- END
         
     -- AI is telling us he sees a military buildup - we tell him to die
@@ -1289,7 +1303,9 @@ function OnButton7()
 	local pPlayer = Players[Game.GetActivePlayer()];
 	local pAIPlayer = Players[g_iAIPlayer];
 	local pTeam = Teams[pPlayer:GetTeam()];
-	
+-- CBP
+	local iActivePlayer = Game.GetActivePlayer();
+-- END	
 	local iButtonID = 7;
 	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
 		-- Discussion Root Mode
