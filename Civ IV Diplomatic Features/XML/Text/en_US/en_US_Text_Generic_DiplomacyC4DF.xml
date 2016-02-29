@@ -316,7 +316,47 @@
 		<Row Tag="TXT_KEY_GENERIC_RESPONSE_VASSALAGE_TRADE_REVOKE_3">
 			<Text>Independence is a natural right. Come, let us restore balance by coming to an agreement for the sake of your vassals.</Text>
 		</Row>
-		
-		
+		<Row Tag="TXT_KEY_RESPONSE_VASSALAGE_LIBERATED_HUMAN_1">
+			<Text>This gesture of kindness will not soon be forgotten. You have offered my people their freedom. I am forever in your debt.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSALAGE_LIBERATED_HUMAN_2">
+			<Text>It takes a wise and courageous leader to revoke their claims in the name of decency and freedom. My people will celebrate our Independence Day for centuries to come. You have my gratitude.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSALAGE_LIBERATED_HUMAN_3">
+			<Text>We thank you for recognizing our people as an independent state. May our people live on together, joined as allies.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_LIBERATE_VASSAL_1">
+			<Text>We have decided to revoke our claim to your land. You may live on as a free people. You are no longer our vassal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_LIBERATE_VASSAL_2">
+			<Text>I believe our time as your master has come to an end. I grant you your independence. May we remain great allies in the future. You are no longer our vassal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_LIBERATE_VASSAL_3">
+			<Text>After careful consideration, we have decided to end our agreement and give you your freedom. May our empires flourish in the times to come. You are no longer our vassal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_RAISED_HUMAN_MASTER_1">
+			<Text>I am disappointed you have chosen to raise our taxes. That money belongs to my people. Rest assured, our relations have been hurt.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_RAISED_HUMAN_MASTER_2">
+			<Text>I beg you, have mercy on our merchants. Your taxation disrupts our economy. I am disappointed you have chosen to pursue this path.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_RAISED_HUMAN_MASTER_3">
+			<Text>Your increase in our taxes is unacceptable. Is control over our political affairs not enough to satisfy your greed?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_RAISED_AI_MASTER_1">
+			<Text>Ruling over another state incurs a large cost on us. We have decided to raise your taxes. I hope you will understand.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_LOWERED_HUMAN_MASTER_1">
+			<Text>We are pleased to hear you have lowered our taxes. We can only hope this is a sign of goodthings to come.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_LOWERED_HUMAN_MASTER_2">
+			<Text>I thank you for some relief on our taxes. We promise the increase to our economy will help both our nations out in the long run.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_LOWERED_HUMAN_MASTER_3">
+			<Text>We find your decision to lower our taxes to be a move that will bring our people closer together. We thank you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_VASSAL_TAXES_LOWERED_AI_MASTER_1">
+			<Text>I am pleased to announce that I've lowered your taxes. Our empire can thrive just fine without your help, and I see no need to strain our relations unnecessarily.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>
