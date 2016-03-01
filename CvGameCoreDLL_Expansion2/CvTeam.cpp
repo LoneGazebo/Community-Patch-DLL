@@ -9791,7 +9791,7 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 		// Update Happiness for all players
 		if(GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == GetID())
 		{
-			if(GET_PLAYER(eLoopPlayer).isHuman())
+			if(GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).GetID() == GC.getGame().getActivePlayer())
 			{
 				GET_PLAYER(eLoopPlayer).CalculateNetHappiness();
 			}

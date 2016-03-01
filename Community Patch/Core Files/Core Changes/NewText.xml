@@ -567,6 +567,9 @@
 		<Row Tag="TXT_KEY_ABLTY_CITY_RANGE_INCREASE">
 			<Text>City Attack Range: +1</Text>
 		</Row>
+		<Row Tag="TXT_KEY_SPECIALIST_YIELD_CHANGE">
+			<Text>{1_SpecialistName:textkey}s: +{3_Num} {4_IconString} {2_YieldType:textkey}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE">
 			<Text>City Indirect Attack Range: +1</Text>
 		</Row>
@@ -3341,6 +3344,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_HAPPINESS_FROM_VASSALS">
 			<Text>Vassals</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_GOLD_VASSAL_MAINT">
+			<Text>{1_Num} spent on Vassal Maintenance.</Text>
 		</Row>
 
 		<!-- Intrigue sharing (co-op wars)-->

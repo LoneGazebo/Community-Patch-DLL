@@ -39110,7 +39110,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 {
 	TeamTypes eOurTeam = GetPlayer()->getTeam();
 	CvTeam& kOurTeam = GET_TEAM(eOurTeam);
-
+	
 	TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam();
 	CvTeam& kTheirTeam = GET_TEAM(eTheirTeam);
 
@@ -40714,6 +40714,34 @@ int CvDiplomacyAI::GetVassalReligionScore(PlayerTypes ePlayer) const
 		{
 			iOpinionWeight += -10;
 		}
+	}
+	// We do not share a religion, and the master has one
+	else if(eMasterReligion != NO_RELIGION)
+	{
+		bool bVassalFounded = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer() != NO_RELIGION;
+		bool bMasterFounded = GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer() != NO_RELIGION;
+		
+		// We both have a founded religion - at odds
+		if(bVassalFounded && bMasterFounded)
+		{
+			iOpinionWeight += 25;
+		}
+		// We founded a religion
+		else if(bVassalFounded)
+		{
+			iOpinionWeight += 10;
+		}
+		// We didn't found a religion - don't care
+		else
+		{
+			iOpinionWeight += 0;
+		}
+	}
+
+	if(bVoluntaryVassal)
+	{
+		iOpinionWeight *= GC.getOPINION_WEIGHT_VASSALAGE_VOLUNTARY_VASSAL_MOD();
+		iOpinionWeight /= 100;
 	}
 	// We do not share a religion, and the master has one
 	else if(eMasterReligion != NO_RELIGION)
