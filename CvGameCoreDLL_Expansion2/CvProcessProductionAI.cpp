@@ -160,7 +160,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		if(eYield == NO_YIELD)
 			continue;
 
-		if(m_pCity->GetCityStrategyAI()->GetDeficientYield() == eYield)
+		if(m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 		{
 			iModifier += 50;
 		}

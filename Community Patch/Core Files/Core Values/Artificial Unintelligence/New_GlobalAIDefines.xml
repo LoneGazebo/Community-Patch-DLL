@@ -92,10 +92,7 @@
 		
 		<!-- City Specialization Stuff -->
 		<Update>
-			<!-- This seems to be drastically low, but it doesn't actually hurt the AI (worst case is that end turns are bit slower)
-				In fact, this pretty much means the AI reevaluates city spec after completing its current production, which improves
-				AI flexibility. -->
-			<Set Value="20" />
+			<Set Value="35" />
 			<Where Name="AI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL" />
 		</Update>
 		
@@ -107,11 +104,6 @@
 		<Update>
 			<Set Value="15" />
 			<Where Name="AI_CITYSTRATEGY_LARGE_CITY_POP_THRESHOLD" />
-		</Update>
-		<Update>
-			<!-- This was 0 by default, often resulting in perpetual bankruptcy -->
-			<Set Value="0.15" />
-			<Where Name="AI_CITYSTRATEGY_YIELD_DEFICIENT_GOLD" />
 		</Update>
 		
 		<!-- Religion -->

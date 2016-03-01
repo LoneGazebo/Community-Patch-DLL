@@ -788,6 +788,8 @@ protected:
 	static int lGetTurnLastPledgeBrokenByMajor(lua_State* L);
 	static int lGetMinorCivBullyGoldAmount(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
+	static int lSetBullyUnit(lua_State* L);
+	static int lGetBullyUnit(lua_State* L);
 	static int lGetYieldTheftAmount(lua_State* L);
 #endif
 	static int lCanMajorBullyGold(lua_State* L);
@@ -1292,6 +1294,19 @@ protected:
 	LUAAPIEXTN(GetMilitaryAggressivePosture, int, iOtherPlayer);
 	LUAAPIEXTN(MoveRequestTooSoon, bool, iOtherPlayer);
 	LUAAPIEXTN(GetPlayerMoveTroopsRequestCounter, int, iOtherPlayer);
+	LUAAPIEXTN(GetExpensePerTurnFromVassalTaxes, int);
+	LUAAPIEXTN(GetMyShareOfVassalTaxes, int);
+	LUAAPIEXTN(GetVassalTaxContribution, int);
+	LUAAPIEXTN(GetVassalScore, int);
+	LUAAPIEXTN(GetVassalTreatedScore, int);
+	LUAAPIEXTN(GetVassalDemandScore, int);
+	LUAAPIEXTN(GetVassalTaxScore, int);
+	LUAAPIEXTN(GetVassalProtectScore, int);
+	LUAAPIEXTN(GetVassalFailedProtectScore, int);
+	LUAAPIEXTN(GetVassalTreatmentLevel, int);
+	LUAAPIEXTN(GetVassalTreatmentToolTip, CvString, iOtherPlayer);
+	LUAAPIEXTN(GetVassalIndependenceTooltipAsMaster, CvString, iOtherPlayer);
+	LUAAPIEXTN(GetVassalIndependenceTooltipAsVassal, CvString);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetScoreFromMinorAllies, int);

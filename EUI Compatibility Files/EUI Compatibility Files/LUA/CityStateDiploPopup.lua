@@ -1134,7 +1134,7 @@ function PopulateTakeChoices()
 	local iTheftValue = 0;
 	local iBullyUnitInfluenceLost = (-GameDefines.MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS / 100);
 	local pMajor = Players[activePlayerID];
-	local sBullyUnit = GameInfo.Units["UNIT_WORKER"].Description; --antonjs: todo: XML or fn
+	local sBullyUnit = GameInfo.Units[minorPlayer:GetBullyUnit()].Description; --antonjs: todo: XML or fn
 	if(pMajor:IsBullyAnnex()) then
 		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT_ANNEX");
 	else

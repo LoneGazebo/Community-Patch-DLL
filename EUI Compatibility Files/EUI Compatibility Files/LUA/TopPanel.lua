@@ -1047,10 +1047,10 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	local goldPerTurnFromCities = g_activePlayer:GetGoldFromCitiesTimes100()
 	local cityConnectionGold = g_activePlayer:GetCityConnectionGoldTimes100()
 -- C4DF
-	local vassalGold = 0;
-	if g_activePlayer.GetYieldPerTurnFromVassals then
-		vassalGold = (g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD) * 100)
-	end
+	-- Gold from Vassals
+	local iGoldFromVassals = g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD);
+	local iGoldFromVassalTax = math.floor(g_activePlayer:GetMyShareOfVassalTaxes() / 100);
+-- END
 	local playerTraitGold = 0
 	local tradeRouteGold = 0
 	local goldPerTurnFromPolicies = 0
@@ -1059,7 +1059,10 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	local unitSupply = g_activePlayer:CalculateUnitSupply()
 	local buildingMaintenance = g_activePlayer:GetBuildingGoldMaintenance()
 	local improvementMaintenance = g_activePlayer:GetImprovementGoldMaintenance()
-	local vassalMaintenance = g_activePlayer.GetVassalGoldMaintenance and g_activePlayer:GetVassalGoldMaintenance() or 0	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+-- BEGIN C4DF
+	local iExpenseFromVassalTaxes = g_activePlayer:GetExpensePerTurnFromVassalTaxes();
+	local iVassalMaintenance = g_activePlayer:GetVassalGoldMaintenance();
+-- END C4DF
 	local routeMaintenance = 0
 	local beaconEnergyDelta = 0
 
@@ -1081,7 +1084,15 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	local iGoldfromHappiness = (g_activePlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100)
 
 	local totalIncome, totalWealth
-	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold + vassalGold + iGoldfromHappiness + iGoldFromMinors + iInternalRouteGold -- C4DF
+	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold  + iGoldfromHappiness + iGoldFromMinors + iInternalRouteGold -- C4DF
+-- C4DF CHANGE
+	if (iGoldFromVassals > 0) then
+		explicitIncome = explicitIncome + iGoldFromVassals;
+	end
+	if (iGoldFromVassalTax > 0) then
+		explicitIncome = explicitIncome + iGoldFromVassalTax;
+	end
+-- C4DF END CHANGE
 	if civ5_mode then
 		totalWealth = g_activePlayer:GetGold()
 		totalIncome = explicitIncome
@@ -1094,7 +1105,15 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 		beaconEnergyDelta = g_activePlayer:GetBeaconEnergyCostPerTurn()
 	end
 	tips:insert( L( "TXT_KEY_TP_AVAILABLE_GOLD", totalWealth ) )
-	local totalExpenses = unitCost + unitSupply + buildingMaintenance + improvementMaintenance + goldPerTurnToOtherPlayers + vassalMaintenance + routeMaintenance + beaconEnergyDelta
+	local totalExpenses = unitCost + unitSupply + buildingMaintenance + improvementMaintenance + goldPerTurnToOtherPlayers + routeMaintenance + beaconEnergyDelta
+-- BEGIN C4DF
+	if (iVassalMaintenance > 0) then
+		totalExpenses = totalExpenses + iVassalMaintenance;
+	end
+	if (iExpenseFromVassalTaxes > 0) then
+		totalExpenses = totalExpenses + iExpenseFromVassalTaxes;
+	end
+-- END C4DF
 	tips:insert( "" )
 
 	-- Gold per turn
@@ -1123,7 +1142,8 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	end
 -- C4DF
 	-- Gold from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_VASSALS", g_currencyString), vassalGold / 100)
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_VASSALS", g_currencyString), iGoldFromVassals)
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_VASSAL_TAX", g_currencyString), iGoldFromVassalTax)
 -- END
 --CBP
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_INTERNAL_TRADE", g_currencyString), iInternalRouteGold)
@@ -1152,7 +1172,8 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_BUILDING_MAINT", g_currencyString), buildingMaintenance )
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_TILE_MAINT", g_currencyString), improvementMaintenance )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_ROUTE_MAINT", routeMaintenance )
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_VASSAL_MAINT", vassalMaintenance )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_VASSAL_MAINT", iVassalMaintenance )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TOP_GOLD_VASSAL_TAX", iExpenseFromVassalTaxes )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_TO_OTHERS", g_currencyString), goldPerTurnToOtherPlayers )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_TO_BEACON", beaconEnergyDelta )
 -- CBP

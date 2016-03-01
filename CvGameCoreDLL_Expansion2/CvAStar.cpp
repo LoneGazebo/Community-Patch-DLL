@@ -1316,25 +1316,27 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 		{
 			//note: this includes an overkill factor because usually not all enemy units will attack this one unit
 			int iPlotDanger = node->m_kCostCacheData.iPlotDanger;
+			//we should give more weight to the first end-turn plot, the danger values for future stops are less concrete
+			int iFutureFactor = (node->m_iTurns==1) ? 2 : 1;
 
 			if (pUnit->IsCombatUnit())
 			{
 				//combat units can still tolerate some danger
 				//embarkation is handled implicitly because danger value will be higher
 				if (iPlotDanger >= pUnit->GetCurrHitPoints()*3)
-					iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT;
+					iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*iFutureFactor;
 				else if (iPlotDanger >= pUnit->GetCurrHitPoints())
-					iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT;
+					iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
 				else if (iPlotDanger > 0 )
-					iCost += PATH_END_TURN_LOW_DANGER_WEIGHT;
+					iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
 			}
 			else //civilian
 			{
 				//danger usually means capture (INT_MAX), unless embarked
 				if (iPlotDanger > pUnit->GetCurrHitPoints())
-					iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*4;
+					iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*4*iFutureFactor;
 				else if (iPlotDanger > 0)
-					iCost += PATH_END_TURN_LOW_DANGER_WEIGHT;
+					iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
 			}
 		}
 	}
@@ -2128,11 +2130,9 @@ int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 
 	//this is independent of any team!
 	if(kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isImpassable() != kMap.plotUnchecked(node->m_iX, node->m_iY)->isImpassable())
-	{
 		return FALSE;
-	}
 
-	return ((kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater()) ? TRUE : FALSE);
+	return kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater();
 }
 
 
@@ -2159,7 +2159,7 @@ int LandmassValid(const CvAStarNode* parent, const CvAStarNode* node, int, const
 	}
 
 	CvMap& kMap = GC.getMap();
-	return ((kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater()) ? TRUE : FALSE);
+	return kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater();
 }
 
 
@@ -2983,6 +2983,10 @@ int TradeRouteWaterPathCost(const CvAStarNode*, CvAStarNode* node, int, const SP
 
 	// prefer the coastline (not identical with coastal water)
 	if (pToPlot->isWater() && !pToPlot->isAdjacentToLand_Cached())
+		iCost += PATH_BASE_COST/4;
+
+	// avoid cities (just for the looks)
+	if (pToPlot->isCityOrPassableImprovement(pCacheData->GetPlayer(),false))
 		iCost += PATH_BASE_COST/4;
 
 	// avoid enemy territory

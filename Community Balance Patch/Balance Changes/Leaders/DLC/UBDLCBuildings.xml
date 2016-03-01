@@ -84,7 +84,7 @@
 			<Text>Gain 3x the [ICON_PEACE] Faith and [ICON_GOLD] Gold output of the City, respectively, as an [COLOR_POSITIVE_TEXT]Instant Boost[ENDCOLOR] every time a [ICON_CITIZEN] Citizen is born in this City. [NEWLINE][NEWLINE]Boosts [ICON_RELIGION] Religious Pressure and Resistance of this city by 15%. Does not require Walls in order to be built, and can be purchased with [ICON_PEACE] Faith.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MISSION_STRATEGY">
-			<Text>Unique Spanish replacement for the Castle. It is cheaper than the Castle, has no maintenance, does not require Walls in order to be built, and can be purchased with Faith. Grants a bunch of Faith and Gold when Citizens are born in City (based on the current yields of the city when the new citizen is born). Boosts the city's religious pressure by 15% and resistance to foreign conversion by 15%, thus making the city more effective at converting nearby cities and harder for others to convert! Build these unique Castles to quickly boost a City's Defense, bypass the need for Walls, and to bolster your Religion.</Text>
+			<Text>Unique Spanish replacement for the Castle. It is cheaper than the Castle, has no maintenance, does not require Walls in order to be built, and can be purchased with Faith. Grants a bunch of Faith and Gold when Citizens are born in City (based on the current yields of the city when the new citizen is born). Boosts the city's religious pressure by 15% and resistance to foreign conversion by 15%, thus making the city more effective at converting nearby cities. Build these unique Castles to quickly boost a City's Defense, bypass the need for Walls, and to bolster your Religion.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Jelling Stones -->

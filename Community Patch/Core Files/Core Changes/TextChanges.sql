@@ -524,6 +524,18 @@ WHERE RelatedConcept = 'CONCEPT_SOCIAL_POLICY_BRANCH_EXPLORATION';
 DELETE FROM Concepts_RelatedConcept
 WHERE ConceptType = 'CONCEPT_SOCIAL_POLICY_BRANCH_EXPLORATION';
 
+-- CS Stuff
+UPDATE Language_en_US
+SET Text = 'Enslave {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@1_Unit}} - lose {2_NumInfluence} [ICON_INFLUENCE] Influence'
+WHERE Tag = 'TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT';
+
+UPDATE Language_en_US
+SET Text = 'If this City-State is more [COLOR_POSITIVE_TEXT]afraid[ENDCOLOR] of you than they are [COLOR_WARNING_TEXT]resilient[ENDCOLOR], you can demand a tribute of a {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@3_Unit}} at the cost of [ICON_INFLUENCE] Influence.  {1_FearLevel}{2_FactorDetails}'
+WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_UNIT_TT';
+
+UPDATE Language_en_US
+SET Text = '[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be at peace, have {1_InfluenceNeededToPledge} or more [ICON_INFLUENCE] Influence to pledge, and be in the top 60% (in terms of military power) of major civilizations.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_INFLUENCE_TT';
 
 -- Fixed quest text - transitioned to new 'quest rewards' panel
 UPDATE Language_en_US
@@ -531,7 +543,7 @@ SET Text = 'You have successfully destroyed the Barbarian Encampment as requeste
 WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_KILL_CAMP';
 
 UPDATE Language_en_US
-SET Text = '{3_TargetName:textkey} has declared war on {1_CivName:textkey}, citing diplomatic concerns. Assist {3_TargetName:textkey} by [COLOR_NEGATIVE_TEXT]destroying[ENDCOLOR] {1_CivName:textkey}, or [COLOR_POSITIVE_TEXT]ally[ENDCOLOR] both City-States to pacify them. International pressure will force peace in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] turns, so act fast if you intend to intervene!'
+SET Text = '{3_TargetName:textkey} has declared war on {1_CivName:textkey}, citing diplomatic concerns. Receive the [COLOR_POSITIVE_TEXT]full[ENDCOLOR] Quest Reward from {1_TargetName:textkey} by [COLOR_NEGATIVE_TEXT]destroying[ENDCOLOR] {3_CivName:textkey}, or a [COLOR_POSITIVE_TEXT]partial[ENDCOLOR] Quest Reward through [COLOR_POSITIVE_TEXT]allying[ENDCOLOR] both City-States. International pressure will force peace in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] turns, so act fast if you intend to intervene!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_KILL_CITY_STATE';
 
 UPDATE Language_en_US
@@ -547,7 +559,7 @@ SET Text = '{1_TargetName:textkey} defeated by {2_CivName:textkey}!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_KILL_CITY_STATE';
 
 UPDATE Language_en_US
-SET Text = 'Conquer {1_CityStateName:textkey}, or Ally both {1_CityStateName:textkey} and this City-State.'
+SET Text = 'Conquer {1_CityStateName:textkey} (full reward), or Ally both {1_CityStateName:textkey} and this City-State (partial reward).'
 WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_KILL_CITY_STATE_FORMAL';
 
 
@@ -585,7 +597,7 @@ WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_CONTEST_CULTURE';
 
 UPDATE Language_en_US
 SET Text = 'Another civilization has impressed {1_MinorCivName:textkey} with its culture.  Your cultural growth was not enough. Civilizations that succeeded (ties are allowed):[NEWLINE]'
-WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_CONTEST_CULTURE';
+WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_ENDED_CONTEST_CULTURE';
 
 UPDATE Language_en_US
 SET Text = 'The priesthood of {1_MinorCivName:textkey} are moved by your piety.  They shun the inferior faith of other civilizations. Civilizations that succeeded (ties are allowed):[NEWLINE]'

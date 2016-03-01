@@ -6,7 +6,7 @@
 		<Row>
 			<BuildingType>BUILDING_NATIONAL_COLLEGE</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>25</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_HERMITAGE</BuildingType>

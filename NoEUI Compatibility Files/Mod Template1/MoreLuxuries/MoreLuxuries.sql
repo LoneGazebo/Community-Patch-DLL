@@ -57,11 +57,11 @@ SELECT 'BUILDING_ODEON', 'RESOURCE_LAPIS' , 'YIELD_CULTURE' , '2'
 -- Coffee/Tea/Tobacco -- Grocer (and Coffee House)
 
 UPDATE Language_en_US
-SET Text = 'Carries over 25% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct). Reduces [ICON_HAPPINESS_3] Poverty.[NEWLINE]Nearby [ICON_RES_TOBACCO] Tobacco: +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COFFEE] Coffee: +1 [ICON_GOLD] Gold, +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_TEA] Tea: +2 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.'
+SET Text = '15% of the City''s [ICON_FOOD] Food output is added to the City''s [ICON_RESEARCH] Science every turn. Carries over 25% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct). Reduces [ICON_HAPPINESS_3] Poverty.[NEWLINE]Nearby [ICON_RES_TOBACCO] Tobacco: +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COFFEE] Coffee: +1 [ICON_GOLD] Gold, +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_TEA] Tea: +2 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.'
 WHERE Tag = 'TXT_KEY_BUILDING_GROCER_HELP';
 
 UPDATE Language_en_US
-SET Text = '+33% [ICON_GREAT_PEOPLE] Great People generation in this City. Carries over 25% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct). Reduces [ICON_HAPPINESS_3] Poverty. Requires an Aqueduct in the City.[NEWLINE]Nearby [ICON_RES_TOBACCO] Tobacco: +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COFFEE] Coffee: +1 [ICON_GOLD] Gold, +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_TEA] Tea: +2 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production.'
+SET Text = '15% of the City''s [ICON_FOOD] Food output is added to the City''s [ICON_RESEARCH] Science every turn. +33% [ICON_GREAT_PEOPLE] Great People generation in this City, and +25 [ICON_GOLD] Gold (scaling with Era) when a [ICON_GREAT_PEOPLE] Great Person is born.[NEWLINE][NEWLINE] Carries over 25% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct). Reduces [ICON_HAPPINESS_3] Poverty. Requires an Aqueduct in the City.[NEWLINE]Nearby [ICON_RES_TOBACCO] Tobacco: +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COFFEE] Coffee: +1 [ICON_GOLD] Gold, +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_TEA] Tea: +2 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_COFFEE_HOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
@@ -160,7 +160,7 @@ SET Text = 'Whenever you destroy an enemy unit, produce +5 [ICON_GREAT_GENERAL] 
 WHERE Tag = 'TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Unique Roman replacement for the Arena. Build the Colosseum to boost city Culture and Production, and to maximize your gain from the victories of your conquering armies. Every Colosseum slightly increases the Gold value of City Connections, thus allowing Rome to benefit from large, sprawling empires. Each source of [ICON_RES_PERFUME] Perfume and [ICON_RES_OLIVE] Olives worked by this City produces +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold.'
+SET Text = 'Unique Roman replacement for the Arena. Build the Colosseum to boost city Culture and Production, and to maximize your gain from the victories of your conquering armies. Every Colosseum slightly increases the Gold value of City Connections, thus allowing Rome to benefit from large, sprawling empires. Improves nearby [ICON_RES_PERFUME] Perfume and [ICON_RES_OLIVE] Olive Resources.'
 WHERE Tag = 'TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Coral -- Covered by Lighthouse

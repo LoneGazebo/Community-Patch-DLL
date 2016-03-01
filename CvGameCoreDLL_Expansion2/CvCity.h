@@ -818,6 +818,9 @@ public:
 #endif
 	// Base Yield
 	int getBaseYieldRate(YieldTypes eIndex) const;
+#if defined(MOD_BALANCE_CORE)
+	void UpdateCityScienceFromYield(YieldTypes eIndex, int iModifiedYield);
+#endif
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetBaseScienceFromArt() const;
@@ -874,6 +877,12 @@ public:
 
 	int GetYieldFromConstruction(YieldTypes eIndex) const;
 	void ChangeYieldFromConstruction(YieldTypes eIndex, int iChange);
+
+	int GetBuildingScienceFromYield(YieldTypes eIndex1) const;
+	void ChangeBuildingScienceFromYield(YieldTypes eIndex, int iChange);
+
+	int GetScienceFromYield(YieldTypes eIndex1) const;
+	void SetScienceFromYield(YieldTypes eIndex1, int iChange);
 
 	void ChangeSpecialistRateModifier(SpecialistTypes eSpecialist, int iChange);
 	int GetSpecialistRateModifier(SpecialistTypes eSpecialist) const;
@@ -1045,6 +1054,9 @@ public:
 	void changeDomainFreeExperience(DomainTypes eIndex, int iChange);
 
 	int getDomainFreeExperienceFromGreatWorks(DomainTypes eIndex) const;
+#if defined(MOD_BALANCE_CORE)
+	int getDomainFreeExperienceFromGreatWorksGlobal(DomainTypes eIndex) const;
+#endif
 	
 	int getDomainProductionModifier(DomainTypes eIndex) const;
 	void changeDomainProductionModifier(DomainTypes eIndex, int iChange);
@@ -1463,6 +1475,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromWLTKD;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromConstruction;
+	FAutoVariable<std::vector<int>, CvCity> m_aiScienceFromYield;
+	FAutoVariable<std::vector<int>, CvCity> m_aiBuildingScienceFromYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiSpecialistRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiThemingYieldBonus;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesOwned;

@@ -2763,9 +2763,9 @@ CvUnit* CvEconomicAI::FindSeaWorkerToScrap()
 	return NULL;
 }
 
-void CvEconomicAI::DisbandExtraArchaeologists(){
+void CvEconomicAI::DisbandExtraArchaeologists()
+{
 	int iNumSites = GC.getGame().GetNumArchaeologySites();
-	double dMaxRatio = .5; //Ratio of archaeologists to sites
 	int iNumArchaeologists = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_ARCHAEOLOGIST, true);
 	PolicyTypes eExpFinisher = (PolicyTypes) GC.getInfoTypeForString("POLICY_EXPLORATION_FINISHER", true /*bHideAssert*/);
 	if (eExpFinisher != NO_POLICY)	
@@ -2782,10 +2782,14 @@ void CvEconomicAI::DisbandExtraArchaeologists(){
 #else
 	UnitTypes eArch = (UnitTypes) GC.getInfoTypeForString("UNIT_ARCHAEOLOGIST", true /*bHideAssert*/);
 #endif
-	if(eArch == NO_UNIT){
+	if(eArch == NO_UNIT)
+	{
 		return;
 	}
-	if ((double)iNumSites * dMaxRatio + 1 < iNumArchaeologists ){
+
+	//this really shoudn't happen, as we build only a limited number of them, depending on the number of sites
+	if (iNumSites < iNumArchaeologists)
+	{
 		pUnit = FindArchaeologistToScrap();
 	
 		if(!pUnit)
@@ -2803,25 +2807,11 @@ void CvEconomicAI::DisbandExtraWorkers()
 	// Are we running at a deficit?
 	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
 	bool bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
-#if !defined(MOD_BALANCE_CORE)
-	int iGoldSpentOnUnits = m_pPlayer->GetTreasury()->GetExpensePerTurnUnitMaintenance();
-	int iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1,m_pPlayer->getNumUnits()));
-#if defined(MOD_AI_SMART_DISBAND)
-	// Disband more aggressively if at deficit.
-	if(!bInDeficit && iAverageGoldPerUnit <= 3)	
-#else
-	if(!bInDeficit && iAverageGoldPerUnit <= 4)
-#endif
-	{
-		return;
-	}
-#endif
-
-	//antonjs: consider: make calls to GetWorkersToCitiesRatio and GetImprovedToImprovablePlotsRatio instead, is the code similar enough?
 
 	double fWorstCaseRatio = 0.25; // one worker for four cities
 	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
 	int iNumCities = m_pPlayer->getNumCities();
+
 #if defined(MOD_BALANCE_CORE)
 	//If we want workers in any city, don't disband.
 	AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
@@ -2852,6 +2842,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 		return;
 	}
 #endif
+
 	double fCurrentRatio = iNumWorkers / (double)iNumCities;
 	if(fCurrentRatio <= fWorstCaseRatio || iNumWorkers == 1)
 	{
@@ -2893,36 +2884,25 @@ void CvEconomicAI::DisbandExtraWorkers()
 	}
 
 	int iNumUnimprovedPlots = iNumValidPlots - iNumImprovedPlots;
-#if defined(MOD_BALANCE_CORE)
 	int iUnimprovedPlotPerWorkers = 8;
 	int iMinWorkers = iNumUnimprovedPlots / iUnimprovedPlotPerWorkers;
-#endif
+
 	// less than two thirds of the plots are improved, don't discard anybody
-	double fRatio = iNumImprovedPlots / (double)iNumValidPlots;
-	if(fRatio < 2/(double)3)
+	float fRatio = iNumImprovedPlots / (float)iNumValidPlots;
+	if(fRatio < 0.66)
 	{
-#if defined(MOD_BALANCE_CORE)
 		iMinWorkers += 2;
-#else
-		return;
-#endif
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	if((iNumUnimprovedPlots % iUnimprovedPlotPerWorkers) > 0)
-#else
-	int iWorkersPerUnimprovedPlot = 5;
-	int iMinWorkers = iNumUnimprovedPlots / iWorkersPerUnimprovedPlot;
-	if((iNumUnimprovedPlots % iWorkersPerUnimprovedPlot) > 0)
-#endif
 	{
 		iMinWorkers += 1;
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	if(!bInDeficit)
 	{
 		iMinWorkers += 1;
 	}
-#endif
 
 	CvCity* pCapital = m_pPlayer->getCapitalCity();
 	if(!pCapital)
@@ -2962,83 +2942,67 @@ void CvEconomicAI::DisbandExtraWorkers()
 	pUnit->scrap();
 	LogScrapUnit(pUnit, iNumWorkers, iNumCities, iNumImprovedPlots, iNumValidPlots);
 }
+
 #if defined(MOD_AI_SMART_DISBAND)
 // Check for very long obsolete units that didn't get an upgrade (usual suspects are triremes and warriors)
 void CvEconomicAI::DisbandLongObsoleteUnits()
 {
-	CvUnit* pUnit;
 	int iLoop;
-	int unitEra;
-	int ArmyId;
-	int playerCurrentEra;
-	bool movingArmy;
-	CvTechEntry* pkTechInfo;
-	CvArmyAI* pThisArmy;
-	playerCurrentEra = m_pPlayer->GetCurrentEra();
 	// Treat information era as atomic for this checking.
-	playerCurrentEra = min(6, playerCurrentEra);
+	int playerCurrentEra = min(6,(int)m_pPlayer->GetCurrentEra());
 
 	// Loop through our units
-	for(pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
+	for(CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		if (pUnit)
 		{
-			movingArmy = false;
-			ArmyId = pUnit->getArmyID();
-
+			int ArmyId = pUnit->getArmyID();
 			if (ArmyId != -1)
 			{
-				pThisArmy = m_pPlayer->getArmyAI(ArmyId);
-
+				CvArmyAI* pThisArmy = m_pPlayer->getArmyAI(ArmyId);
 				if (pThisArmy)
-				{
-					movingArmy = ((pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION) || (pThisArmy->GetArmyAIState() == ARMYAISTATE_AT_DESTINATION));
-				}
+					if ((pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION) || (pThisArmy->GetArmyAIState() == ARMYAISTATE_AT_DESTINATION))
+						continue;
 			}
 
-			if(!movingArmy)
-			{
-				// The unit must have an upgrade option, if not, then we don't care about this (includes workers, settlers, explorers)
-				UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
-
+			// The unit must have an upgrade option, if not, then we don't care about this (includes workers, settlers, explorers)
+			UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
 				
 #if defined(MOD_BALANCE_CORE_SETTLER)
-				//Fixed for settlers for advanced start.
-				if(eUpgradeUnitType != NO_UNIT && !pUnit->isFound())
-				{
+			//Fixed for settlers for advanced start.
+			if(eUpgradeUnitType != NO_UNIT && !pUnit->isFound())
+			{
 #else
-				if(eUpgradeUnitType != NO_UNIT)
-				{
+			if(eUpgradeUnitType != NO_UNIT)
+			{
 #endif
-					// Check out unit era based on the prerequirement tech, defaults at ancient era.
-					unitEra = 0;
-					UnitTypes currentUnitType = pUnit->getUnitType();
-					TechTypes ePrereqTech = (TechTypes)GC.getUnitInfo(currentUnitType)->GetPrereqAndTech();
+				// Check out unit era based on the prerequirement tech, defaults at ancient era.
+				int unitEra = 0;
+				UnitTypes currentUnitType = pUnit->getUnitType();
+				TechTypes ePrereqTech = (TechTypes)GC.getUnitInfo(currentUnitType)->GetPrereqAndTech();
 
-					if (ePrereqTech != NO_TECH)
+				if (ePrereqTech != NO_TECH)
+				{
+					CvTechEntry* pkTechInfo = GC.getTechInfo(ePrereqTech);
+					if (pkTechInfo)
 					{
-						pkTechInfo = GC.getTechInfo(ePrereqTech);
+						unitEra = pkTechInfo->GetEra();
+					}
+				}
 
-						if (pkTechInfo)
-						{
-							unitEra = pkTechInfo->GetEra();
-						}
+				// Too much era difference for that unit, lets scrap it.
+				if ((playerCurrentEra - unitEra) > 2)
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Disbanding long obsolete unit. %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+						m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 
-					// Too much era difference for that unit, lets scrap it.
-					if ((playerCurrentEra - unitEra) > 3)
-					{
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Disbanding long obsolete unit. %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
-							m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-						}
-
-						pUnit->scrap();
-						// Only one unit scrap per turn.
-						return;
-					}
+					pUnit->scrap();
+					// Only one unit scrap per turn.
+					return;
 				}
 			}
 		}
@@ -3121,8 +3085,6 @@ void CvEconomicAI::UpdatePlots()
 	if (pLog)
 		pLog->Close();
 #endif
-
-
 
 	//keep all of them - GetBestExplorePlot will only look at the n best candidates anyway
 	std::stable_sort(m_vPlotsToExploreLand.begin(),m_vPlotsToExploreLand.end());
@@ -4699,7 +4661,7 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandLikeCrazy(EconomicAIStrategyTypes e
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	int iBestArea, iSecondBestArea;
 	int iNumSettleAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
 	if (iNumSettleAreas == 0)
@@ -4711,22 +4673,6 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandLikeCrazy(EconomicAIStrategyTypes e
 	{
 		return false;
 	}
-#endif
-#ifndef AUI_ECONOMIC_FIX_EXPAND_LIKE_CRAZY_REMOVE_HOLDOVER_CULTURE_CHECK
-	// Never run this if we are going for a cultural victory since it will derail that
-	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
-	if(eGrandStrategy != NO_AIGRANDSTRATEGY)
-	{
-		if(pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == eGrandStrategy)
-		{
-			// Does number of cities matter?
-			if(GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() > 0)
-			{
-				return false;
-			}
-		}
-	}
-#endif // AUI_ECONOMIC_FIX_EXPAND_LIKE_CRAZY_REMOVE_HOLDOVER_CULTURE_CHECK
 
 	int iFlavorExpansion = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
 	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);

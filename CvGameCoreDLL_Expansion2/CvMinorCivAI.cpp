@@ -55,6 +55,7 @@ CvMinorCivQuest::CvMinorCivQuest()
 	m_iTourism = 0;
 	m_iGeneralPoints = 0;
 	m_iAdmiralPoints = 0;
+	m_bPartialQuest = false;
 #endif
 }
 
@@ -85,6 +86,7 @@ CvMinorCivQuest::CvMinorCivQuest(PlayerTypes eMinor, PlayerTypes eAssignedPlayer
 	m_iTourism = 0;
 	m_iGeneralPoints = 0;
 	m_iAdmiralPoints = 0;
+	m_bPartialQuest = false;
 #endif
 }
 
@@ -131,6 +133,10 @@ int CvMinorCivQuest::GetEndTurn() const
 		{
 			int iDuration = pkSmallAwardInfo->GetDuration();
 			// Modify for Game Speed
+			if(MINOR_CIV_QUEST_HORDE || MINOR_CIV_QUEST_REBELLION)
+			{
+				return (m_iStartTurn + iDuration);
+			}
 			iDuration *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
 			iDuration /= 100;
 			return (m_iStartTurn + iDuration);
@@ -357,216 +363,446 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		return;
 	}
 	float fDelay = 1.0f;
-	if(GetInfluence() > 0)
+	if(IsPartialQuest())
 	{
-		GET_PLAYER(m_eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(m_eAssignedPlayer, GetInfluence(), /*bFromQuest*/ true);
-		if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+		SetInfluence(GetInfluence() / 2);
+		if(GetInfluence() > 0)
 		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_INFLUENCE]", GetInfluence());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
-		}
-	}
-	if(GetAdmiralPoints() > 0)
-	{
-		kPlayer.changeNavalCombatExperience(GetAdmiralPoints());
-		if(kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_ADMIRAL]", GetAdmiralPoints());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
-		}
-	}
-	if(GetGeneralPoints() > 0)
-	{
-		kPlayer.changeCombatExperience(GetGeneralPoints());
-		if(kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", GetGeneralPoints());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
-		}
-	}
-	if(GetCulture() > 0)
-	{
-		kPlayer.changeJONSCulture(GetCulture());
-		if(kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", GetCulture());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
-		}
-	}
-	if(GetExperience() > 0)
-	{
-		int iLoop;
-		for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
-		{
-			if(pLoopUnit && pLoopUnit->IsCombatUnit())
+			GET_PLAYER(m_eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(m_eAssignedPlayer, GetInfluence(), /*bFromQuest*/ true);
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 			{
-				pLoopUnit->changeExperience(GetExperience());
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_INFLUENCE]", GetInfluence());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
 			}
 		}
-	}
-	if(GetFaith() > 0)
-	{
-		kPlayer.ChangeFaith(GetFaith());
-		if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+		SetAdmiralPoints(GetAdmiralPoints() / 2);
+		if(GetAdmiralPoints() > 0)
 		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GetFaith());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
-		}
-	}		
-	if(GetFood() > 0)
-	{
-		kPlayer.getCapitalCity()->changeFood(GetFood());
-		if(kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", GetFood());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
-		}
-	}
-	
-	if(GetGoldenAgePoints() > 0)
-	{
-		kPlayer.ChangeGoldenAgeProgressMeter(GetGoldenAgePoints());
-		if(kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", GetGoldenAgePoints());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
-		}
-	}
-	if(GetGold() > 0)
-	{
-		kPlayer.GetTreasury()->ChangeGold(GetGold());
-		if(kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", GetGold());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
-		}
-	}
-	if(GetGP() > 0)
-	{
-		SpecialistTypes eBestSpecialist = NO_SPECIALIST;
-		for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
-		{
-			const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
-			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-			if(pkSpecialistInfo)
+			kPlayer.changeNavalCombatExperience(GetAdmiralPoints());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 			{
-				// Does this Specialist spawn a GP?
-				if(pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
-				{				
-					kPlayer.getCapitalCity()->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, GetGP() * 100);
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_ADMIRAL]", GetAdmiralPoints());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		SetGeneralPoints(GetGeneralPoints() / 2);
+		if(GetGeneralPoints() > 0)
+		{
+			kPlayer.changeCombatExperience(GetGeneralPoints());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", GetGeneralPoints());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		SetCulture(GetCulture() / 2);
+		if(GetCulture() > 0)
+		{
+			kPlayer.changeJONSCulture(GetCulture());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", GetCulture());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		SetExperience(GetExperience() / 2);
+		if(GetExperience() > 0)
+		{
+			int iLoop;
+			for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
+			{
+				if(pLoopUnit && pLoopUnit->IsCombatUnit())
+				{
+					pLoopUnit->changeExperience(GetExperience());
 				}
 			}
 		}
-		if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+		SetFaith(GetFaith() / 2);
+		if(GetFaith() > 0)
 		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", GetGP());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
-		}
-	}
-	if(GetGPGlobal() > 0)
-	{
-		CvCity* pLoopCity;
-		int iLoop;
-		// Find the closest City to us
-		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-		{
-			if(pLoopCity != NULL)
+			kPlayer.ChangeFaith(GetFaith());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 			{
-				SpecialistTypes eBestSpecialist = NO_SPECIALIST;
-				for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GetFaith());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		SetFood(GetFood() / 2);
+		if(GetFood() > 0)
+		{
+			kPlayer.getCapitalCity()->changeFood(GetFood());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", GetFood());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		SetGoldenAgePoints(GetGoldenAgePoints() / 2);
+		if(GetGoldenAgePoints() > 0)
+		{
+			kPlayer.ChangeGoldenAgeProgressMeter(GetGoldenAgePoints());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", GetGoldenAgePoints());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		SetGold(GetGold() / 2);
+		if(GetGold() > 0)
+		{
+			kPlayer.GetTreasury()->ChangeGold(GetGold());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", GetGold());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		SetGP(GetGP() / 2);
+		if(GetGP() > 0)
+		{
+			SpecialistTypes eBestSpecialist = NO_SPECIALIST;
+			for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
+			{
+				const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
+				CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+				if(pkSpecialistInfo)
 				{
-					const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
-					CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-					if(pkSpecialistInfo)
+					// Does this Specialist spawn a GP?
+					if(pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
+					{				
+						kPlayer.getCapitalCity()->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, GetGP() * 100);
+					}
+				}
+			}
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", GetGP());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		SetGPGlobal(GetGPGlobal() / 2);
+		if(GetGPGlobal() > 0)
+		{
+			CvCity* pLoopCity;
+			int iLoop;
+			// Find the closest City to us
+			for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					SpecialistTypes eBestSpecialist = NO_SPECIALIST;
+					for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
 					{
-						// Does this Specialist spawn a GP?
-						if(pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
-						{				
-							pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, GetGPGlobal() * 100);
+						const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
+						CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+						if(pkSpecialistInfo)
+						{
+							// Does this Specialist spawn a GP?
+							if(pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
+							{				
+								pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, GetGPGlobal() * 100);
+							}
 						}
 					}
 				}
 			}
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", GetGPGlobal());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
 		}
-		if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+		SetHappiness(GetHappiness() / 2);
+		if(GetHappiness() > 0)
 		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", GetGPGlobal());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			kPlayer.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(GetHappiness());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_HAPPINESS_1]", GetHappiness());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		SetTourism(GetTourism() / 2);
+		if(GetTourism() > 0)
+		{
+			int iTourism = GetTourism();
+			kPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
+			if(m_eAssignedPlayer == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				float fDelay = 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		SetProduction(GetProduction() / 2);
+		if(GetProduction() > 0)
+		{
+			kPlayer.getCapitalCity()->changeProduction(GetProduction());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", GetProduction());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		SetScience(GetScience() / 2);
+		if(GetScience() > 0)
+		{
+			TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
+			if(eCurrentTech == NO_TECH)
+			{
+				kPlayer.changeOverflowResearch(GetScience());
+			}
+			else
+			{
+				GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, GetScience(), ePlayer);
+			}
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", GetScience());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
 		}
 	}
-	if(GetHappiness() > 0)
+	else
 	{
-		kPlayer.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(GetHappiness());
-		if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+		if(GetInfluence() > 0)
 		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_HAPPINESS_1]", GetHappiness());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			GET_PLAYER(m_eMinor).GetMinorCivAI()->ChangeFriendshipWithMajor(m_eAssignedPlayer, GetInfluence(), /*bFromQuest*/ true);
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_INFLUENCE]", GetInfluence());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		if(GetAdmiralPoints() > 0)
+		{
+			kPlayer.changeNavalCombatExperience(GetAdmiralPoints());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_ADMIRAL]", GetAdmiralPoints());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		if(GetGeneralPoints() > 0)
+		{
+			kPlayer.changeCombatExperience(GetGeneralPoints());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", GetGeneralPoints());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		if(GetCulture() > 0)
+		{
+			kPlayer.changeJONSCulture(GetCulture());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", GetCulture());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		if(GetExperience() > 0)
+		{
+			int iLoop;
+			for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
+			{
+				if(pLoopUnit && pLoopUnit->IsCombatUnit())
+				{
+					pLoopUnit->changeExperience(GetExperience());
+				}
+			}
+		}
+		if(GetFaith() > 0)
+		{
+			kPlayer.ChangeFaith(GetFaith());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GetFaith());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}		
+		if(GetFood() > 0)
+		{
+			kPlayer.getCapitalCity()->changeFood(GetFood());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", GetFood());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+	
+		if(GetGoldenAgePoints() > 0)
+		{
+			kPlayer.ChangeGoldenAgeProgressMeter(GetGoldenAgePoints());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", GetGoldenAgePoints());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		if(GetGold() > 0)
+		{
+			kPlayer.GetTreasury()->ChangeGold(GetGold());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", GetGold());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		if(GetGP() > 0)
+		{
+			SpecialistTypes eBestSpecialist = NO_SPECIALIST;
+			for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
+			{
+				const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
+				CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+				if(pkSpecialistInfo)
+				{
+					// Does this Specialist spawn a GP?
+					if(pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
+					{				
+						kPlayer.getCapitalCity()->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, GetGP() * 100);
+					}
+				}
+			}
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", GetGP());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		if(GetGPGlobal() > 0)
+		{
+			CvCity* pLoopCity;
+			int iLoop;
+			// Find the closest City to us
+			for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					SpecialistTypes eBestSpecialist = NO_SPECIALIST;
+					for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
+					{
+						const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
+						CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+						if(pkSpecialistInfo)
+						{
+							// Does this Specialist spawn a GP?
+							if(pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
+							{				
+								pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, GetGPGlobal() * 100);
+							}
+						}
+					}
+				}
+			}
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", GetGPGlobal());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		if(GetHappiness() > 0)
+		{
+			kPlayer.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(GetHappiness());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_HAPPINESS_1]", GetHappiness());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		if(GetTourism() > 0)
+		{
+			int iTourism = GetTourism();
+			kPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
+			if(m_eAssignedPlayer == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				float fDelay = 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		if(GetProduction() > 0)
+		{
+			kPlayer.getCapitalCity()->changeProduction(GetProduction());
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", GetProduction());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
+		}
+		if(GetScience() > 0)
+		{
+			TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
+			if(eCurrentTech == NO_TECH)
+			{
+				kPlayer.changeOverflowResearch(GetScience());
+			}
+			else
+			{
+				GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, GetScience(), ePlayer);
+			}
+			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", GetScience());
+				DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
+			}
 		}
 	}
-	if(GetTourism() > 0)
-	{
-		int iTourism = GetTourism();
-		kPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
-		if(m_eAssignedPlayer == GC.getGame().getActivePlayer())
-		{
-			char text[256] = {0};
-			float fDelay = 0.5f;
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
-		}
-	}
-	if(GetProduction() > 0)
-	{
-		kPlayer.getCapitalCity()->changeProduction(GetProduction());
-		if(kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", GetProduction());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
-		}
-	}
-	if(GetScience() > 0)
-	{
-		TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
-		if(eCurrentTech == NO_TECH)
-		{
-			kPlayer.changeOverflowResearch(GetScience());
-		}
-		else
-		{
-			GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, GetScience(), ePlayer);
-		}
-		if(kPlayer.GetID() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", GetScience());
-			DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), text, fDelay);
-		}
-	}	
 }
 void CvMinorCivQuest:: SetInfluence(int iValue)
 {
@@ -689,6 +925,14 @@ int CvMinorCivQuest::GetAdmiralPoints() const
 {
 	return m_iAdmiralPoints;
 }
+void CvMinorCivQuest::SetPartialQuest(bool bValue)
+{
+	m_bPartialQuest = bValue;
+}
+bool CvMinorCivQuest::IsPartialQuest() const
+{
+	return m_bPartialQuest;
+}
 void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 {
 	if(ePlayer == NO_PLAYER || m_eMinor == NO_PLAYER)
@@ -753,7 +997,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 		}
 		if(pkSmallAwardInfo->GetAdmiralPoints() > 0)
 		{
-			int iBonus = iEra * pkSmallAwardInfo->GetAdmiralPoints();
+			int iBonus = pkSmallAwardInfo->GetAdmiralPoints();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
 				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
@@ -802,7 +1046,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 		}
 		if(pkSmallAwardInfo->GetGeneralPoints() > 0)
 		{
-			int iBonus = iEra * pkSmallAwardInfo->GetGeneralPoints();
+			int iBonus = pkSmallAwardInfo->GetGeneralPoints();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
 				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
@@ -1858,6 +2102,7 @@ bool CvMinorCivQuest::IsComplete()
 				//Allied to both? Let's do it!
 				if(pTargetCityState->GetMinorCivAI()->IsAllies(m_eAssignedPlayer) && pMinor->GetMinorCivAI()->IsAllies(m_eAssignedPlayer))
 				{
+					SetPartialQuest(true);
 					return true;
 				}
 #endif
@@ -4172,6 +4417,8 @@ bool CvMinorCivQuest::DoCancelQuest()
 			}
 			else
 			{
+				GET_TEAM(pMinor->getTeam()).makePeace(GET_PLAYER(eTargetCityState).getTeam());
+				GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).makePeace(pMinor->getTeam());
 				pMinor->GetMinorCivAI()->SetPermanentWar(GET_PLAYER(eTargetCityState).getTeam(), false);
 				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetPermanentWar(pMinor->getTeam(), false);
 
@@ -4403,6 +4650,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvMinorCivQuest& writeTo)
 	loadFrom >> writeTo.m_iTourism;
 	loadFrom >> writeTo.m_iGeneralPoints;
 	loadFrom >> writeTo.m_iAdmiralPoints;
+	loadFrom >> writeTo.m_bPartialQuest;
 #endif
 
 	return loadFrom;
@@ -4437,6 +4685,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvMinorCivQuest& readFrom)
 	saveTo << readFrom.m_iTourism;
 	saveTo << readFrom.m_iGeneralPoints;
 	saveTo << readFrom.m_iAdmiralPoints;
+	saveTo << readFrom.m_bPartialQuest;
 #endif
 	return saveTo;
 }
@@ -4478,6 +4727,9 @@ void CvMinorCivAI::Reset()
 	m_ePersonality = NO_MINOR_CIV_PERSONALITY_TYPE;
 	m_eStatus = NO_MINOR_CIV_STATUS_TYPE;
 	m_eUniqueUnit = NO_UNIT;
+#if defined(MOD_BALANCE_CORE)
+	m_eBullyUnit = NO_UNITCLASS;
+#endif
 
 	m_iTurnsSinceThreatenedByBarbarians = -1;
 	m_iGlobalQuestCountdown = -1;
@@ -4592,6 +4844,9 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_ePersonality;
 	kStream >> m_eStatus;
 	kStream >> m_eUniqueUnit;
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_eBullyUnit;
+#endif
 
 	kStream >> m_iTurnsSinceThreatenedByBarbarians;
 
@@ -4693,6 +4948,9 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_ePersonality;
 	kStream << m_eStatus;
 	kStream << m_eUniqueUnit; // Version 14
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_eBullyUnit;
+#endif
 
 	kStream << m_iTurnsSinceThreatenedByBarbarians;
 
@@ -4795,7 +5053,34 @@ MinorCivPersonalityTypes CvMinorCivAI::GetPersonality() const
 {
 	return m_ePersonality;
 }
-
+#if defined(MOD_BALANCE_CORE)
+UnitClassTypes CvMinorCivAI::GetBullyUnit() const
+{
+	return m_eBullyUnit;
+}
+void CvMinorCivAI::SetBullyUnit(UnitClassTypes eUnitClassType)
+{
+	if(eUnitClassType == NO_UNITCLASS)
+	{
+		CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+		if(pkMinorCivInfo)
+		{
+			if((UnitClassTypes)pkMinorCivInfo->GetBullyUnit() != NO_UNIT)
+			{
+				m_eBullyUnit = (UnitClassTypes)pkMinorCivInfo->GetBullyUnit();
+			}
+			else
+			{
+				m_eBullyUnit = (UnitClassTypes)GetPlayer()->GetSpecificUnitType("UNITCLASS_WORKER");
+			}
+		}
+	}
+	else
+	{
+		 m_eBullyUnit = eUnitClassType;
+	}
+}
+#endif
 #if defined(MOD_API_EXTENSIONS)
 /// Set a Personality for this minor
 void CvMinorCivAI::SetPersonality(MinorCivPersonalityTypes ePersonality)
@@ -4835,6 +5120,9 @@ void CvMinorCivAI::DoPickPersonality()
 	SetPersonality(eRandPersonality);
 #else
 	m_ePersonality = eRandPersonality;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	SetBullyUnit();
 #endif
 
 	switch(eRandPersonality)
@@ -7991,27 +8279,27 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	{
 		if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)					// Militaristic
 		{
-			iCount *= 250;
+			iCount *= 150;
 			iCount /= 100;
 		}
 		else if(eTrait != MINOR_CIV_TRAIT_RELIGIOUS)
 		{
-			iCount *= 50;
+			iCount *= 33;
 			iCount /= 100;
 		}
 		if(ePersonality == MINOR_CIV_PERSONALITY_HOSTILE)		// Hostile
 		{
-			iCount *= 250;
+			iCount *= 150;
 			iCount /= 100;
 		}
 		else if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)		// Neutral
 		{
-			iCount *= 125;
+			iCount *= 75;
 			iCount /= 100;
 		}
 		else if(ePersonality != MINOR_CIV_PERSONALITY_FRIENDLY)		// Neutral
 		{
-			iCount *= 50;
+			iCount *= 33;
 			iCount /= 100;
 		}
 	}
@@ -9406,9 +9694,9 @@ void CvMinorCivAI::SetTurnsSinceRebellion(int iValue)
 void CvMinorCivAI::DoRebellion()
 {
 	// In hundreds
-	int iNumRebels = (GetPlayer()->getNumMilitaryUnits() * 75); //Based on number of military units of CS.
+	int iNumRebels = (GetPlayer()->getNumMilitaryUnits() * 60); //Based on number of military units of CS.
 	int iExtraRoll = 100; //1+ Rebels maximum
-	iExtraRoll += (GC.getGame().getCurrentEra() * 50); //Increase possible rebel spawns as game continues.
+	iExtraRoll += (GC.getGame().getCurrentEra() * 40); //Increase possible rebel spawns as game continues.
 	iNumRebels += GC.getGame().getJonRandNum(iExtraRoll, "Rebel count rand roll");
 	iNumRebels /= 100;
 	CvGame& theGame = GC.getGame();
@@ -12078,7 +12366,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 	{
 		//human player wants to see the effect at once, otherwise update at next turn start is good enough
-		if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
+		if(GET_PLAYER(ePlayer).isHuman())
 		{
 			GET_PLAYER(ePlayer).CalculateNetHappiness();
 		}
@@ -12655,7 +12943,33 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 			return false;
 		}
 	}
-#endif				
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
+	PlayerTypes eMajorLoop;
+	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	{
+		eMajorLoop = (PlayerTypes) iMajorLoop;
+		if(GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
+		{
+			veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight()); // Don't recalculate within a turn, can cause inconsistency
+		}
+	}
+	CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
+	veMilitaryRankings.SortItems();
+	for(int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
+	{
+		if(veMilitaryRankings.GetElement(iRanking) == eMajor)
+		{
+			float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
+			if(fRankRatio < 0.6)
+			{
+				return false;
+			}
+		}
+	}
+#endif
 	
 	return true;
 }
@@ -12889,7 +13203,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			{
 				bSomethingChanged = true;
 				//human player wants to see the effect at once, otherwise update at next turn start is good enough
-				if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
+				if(GET_PLAYER(ePlayer).isHuman())
 				{
 					GET_PLAYER(ePlayer).CalculateNetHappiness();
 				}
@@ -12908,7 +13222,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			{
 				bSomethingChanged = true;
 				//human player wants to see the effect at once, otherwise update at next turn start is good enough
-				if(GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
+				if(GET_PLAYER(ePlayer).isHuman())
 				{
 					GET_PLAYER(ePlayer).CalculateNetHappiness();
 				}
@@ -14639,7 +14953,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 #if defined(MOD_BALANCE_CORE_MINORS)
 			if(MOD_BALANCE_CORE_MINORS)
 			{
-				iGlobalMilitaryScore = (int)(fRankRatio * 50); // A score between 50*(1 / num majors alive) and 50, with the highest rank major getting 50
+				iGlobalMilitaryScore = (int)(fRankRatio * 100); // A score between 50*(1 / num majors alive) and 100, with the highest rank major getting 100
 			}
 			else
 			{
@@ -14732,23 +15046,23 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	{
 		if(fLocalPowerRatio >= 4.0)
 		{
-			iLocalPowerScore += 50;
+			iLocalPowerScore += 150;
 		}
 		if(fLocalPowerRatio >= 3.5)
 		{
-			iLocalPowerScore += 50;
+			iLocalPowerScore += 130;
 		}
 		if(fLocalPowerRatio >= 3.0)
 		{
-			iLocalPowerScore += 50;
+			iLocalPowerScore += 110;
 		}
 		if(fLocalPowerRatio >= 2.5)
 		{
-			iLocalPowerScore += 50;
+			iLocalPowerScore += 90;
 		}
 		if(fLocalPowerRatio >= 2.0)
 		{
-			iLocalPowerScore += 50;
+			iLocalPowerScore += 70;
 		}
 		if(fLocalPowerRatio >= 1.5)
 		{
@@ -14756,11 +15070,11 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		}
 		if(fLocalPowerRatio >= 1.0)
 		{
-			iLocalPowerScore += 50;
+			iLocalPowerScore += 30;
 		}
 		if(fLocalPowerRatio >= 0.5)
 		{
-			iLocalPowerScore += 50;
+			iLocalPowerScore += 10;
 		}
 	}
 	else
@@ -14936,7 +15250,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 			iLimit /= 100;
 			if(iDuration <= iLimit)
 			{
-				int iBulliedRecentlyScore = -1000;
+				int iBulliedRecentlyScore = -100;
 				if (sTooltipSink)
 				{
 					Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
@@ -15228,12 +15542,20 @@ CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
 	int iScore = CalculateBullyMetric(ePlayer, /*bForUnit*/true, &sFactors);
 	bool bCanBully = CanMajorBullyUnit(ePlayer, iScore);
 #if defined(MOD_BALANCE_CORE)
-	UnitTypes eUnitType = (UnitTypes) GC.getUNITCLASS_FOR_CS_BULLY();
-	if(eUnitType == NO_UNITCLASS)
+	UnitClassTypes eUnitClassType = GetBullyUnit();
+	if(eUnitClassType == NO_UNITCLASS)
 	{
-#endif
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
-	eUnitType = GET_PLAYER(ePlayer).GetSpecificUnitType("UNITCLASS_WORKER");
+		return "";
+	}
+	UnitTypes eUnitType = NO_UNIT;
+	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClassType);
+	if(pkUnitClassInfo != NULL)
+	{
+		eUnitType = ((UnitTypes)(GetPlayer()->getCivilizationInfo().getCivilizationUnits((int)eUnitClassType)));
+	}
+	if(eUnitType == NO_UNIT)
+	{
+		return "";
 	}
 #else
 	UnitTypes eUnitType = (UnitTypes) GC.getInfoTypeForString("UNIT_WORKER"); //antonjs: todo: XML/function
@@ -15444,7 +15766,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 #if defined(MOD_BALANCE_CORE)
 int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 {
-	int iValue = 30;
+	int iValue = 50;
 	iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iValue /= 100;
 	CvCity* pCapital = GetPlayer()->getCapitalCity();
@@ -15495,11 +15817,11 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 			}
 			break;
 	}
-	int iNumTurns = min(600, GC.getGame().getMaxTurns()) + min(400, GC.getGame().getGameTurn());
+	int iNumTurns = min(600, GC.getGame().getMaxTurns()) + min(500, GC.getGame().getGameTurn());
 	if(iNumTurns > 0)
 	{
 		iValue *= (iNumTurns + 100);
-		iValue /= max(500, GC.getGame().getMaxTurns());
+		iValue /= max(400, GC.getGame().getMaxTurns());
 	}
 	return iValue;
 }
@@ -17644,6 +17966,9 @@ CvMinorCivInfo::CvMinorCivInfo() :
 	m_iDefaultPlayerColor(NO_PLAYERCOLOR),
 	m_iArtStyleType(NO_ARTSTYLE),
 	m_iMinorCivTrait(NO_MINOR_CIV_TRAIT_TYPE),
+#if defined(MOD_BALANCE_CORE)
+	m_iBullyUnit(NO_UNITCLASS),
+#endif
 	m_piFlavorValue(NULL)
 {
 }
@@ -17741,6 +18066,12 @@ int CvMinorCivInfo::GetMinorCivTrait() const
 {
 	return m_iMinorCivTrait;
 }
+#if defined(MOD_BALANCE_CORE)
+int CvMinorCivInfo::GetBullyUnit() const
+{
+	return m_iBullyUnit;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvMinorCivInfo::getFlavorValue(int i) const
 {
@@ -17796,6 +18127,11 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	szTextVal = kResults.GetText("MinorCivTrait");
 	m_iMinorCivTrait = GC.getInfoTypeForString(szTextVal, true);
+
+#if defined(MOD_BALANCE_CORE)
+	szTextVal = kResults.GetText("BullyUnitClass");
+	m_iBullyUnit = GC.getInfoTypeForString(szTextVal, true);
+#endif
 
 	//Arrays
 	const char* szType = GetType();

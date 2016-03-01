@@ -401,6 +401,11 @@
 		</Row>
 		<Row>
 			<TraitType>TRAIT_FIGHT_WELL_DAMAGED</TraitType>
+			<UnitClassType>UNITCLASS_IRONCLAD</UnitClassType>
+			<BuildType>BUILD_FISHING_BOATS</BuildType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_FIGHT_WELL_DAMAGED</TraitType>
 			<UnitClassType>UNITCLASS_DESTROYER</UnitClassType>
 			<BuildType>BUILD_FISHING_BOATS</BuildType>
 		</Row>

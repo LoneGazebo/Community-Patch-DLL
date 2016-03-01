@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context ColorSet="Beige_Black_Alpha" Font="TwCenMT16" FontStyle="Shadow">
+	<Instance Name="GPInstance">
+		<Box Anchor="R,C" Color="255.255.255.0" Offset="0,0" Size="355,35" ID="Root">
+			<Button Size="355,35" Anchor="L,C" ID="Button"  >
+				<Stack Size="355,35" Anchor="L,C" StackGrowth="Right" ID="GPStack" >
+					<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="320,35">
+						<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="166,35">
+							<Label Anchor="L,C" ID="CityName" Offset="0,0" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow" />
+						</Box>
+						<Box Anchor="L,C" Color="255.255.255.0" Offset="76,0" Size="143,35" ID="GPInfoBox">
+							<Label Anchor="L,C" ID="GPTurns" Offset="0,0" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow" />
+						</Box>
+						<Box Anchor="L,C" Color="255.255.255.0" Offset="145,0" Size="143,35" ID="GPInfoMeter">
+						<Image Anchor="C,C" Size="214,29" Offset="0,0" Texture="MeterBarGreatPersonBack.dds">
+							<TextureBar Anchor="L,T"  Offset="0,0"  Texture="MeterBarGreatPersonGold.dds" Size="214,29" ID="GPMeter"/>
+							<Image Anchor="L,C" Size="214,29" Offset="0,0" Texture="MeterBarFrame.dds"/>
+						 </Image>
+						</Box>
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="L,C" Size="340,35" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Size="340,39" Offset="0,-2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Box>
+				</Stack>
+			</Button>
+		</Box>
+	</Instance>
+
+	<!--=======================================================================================================================-->
+	<!--=======================================================================================================================-->
+
+	<Grid Size="390,400" Anchor="L,T" Offset="-7,4" Style="Grid9DetailFive140" ConsumeMouse="1" >
+		<Box Offset="18,44" Anchor="L,T" Size="355,24" Color="255,255,255,0" >
+			<Stack Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="0" >
+				<Button Offset="0,0" Anchor="R,C" Size="150,24" ID="SortCity" ToolTip="TXT_KEY_GP_SORT_CITY">
+					<Label Anchor="C,C" Offset="0,-1" String="TXT_KEY_GP_CITY" ColorSet="Beige_Black_Alpha" Font="TwCenMT20" FontStyle="Shadow" />
+
+					<ShowOnMouseOver>
+						<AlphaAnim Anchor="L,C" Size="150,32" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+							<Grid Size="150,32" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL" />
+						</AlphaAnim>
+					</ShowOnMouseOver>
+				</Button>
+
+				<Button Offset="0,0" Anchor="L,C" Size="210,24" ID="SortTurns" ToolTip="TXT_KEY_GP_SORT_TURNS">
+					<Label Anchor="C,C" Offset="0,-1" String="TXT_KEY_MODDING_HEADING_PROGRESS" ColorSet="Beige_Black_Alpha" Font="TwCenMT20" FontStyle="Shadow" />
+
+					<ShowOnMouseOver>
+						<AlphaAnim Anchor="L,C" Size="210,32" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+							<Grid Size="210,32" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL" />
+						</AlphaAnim>
+					</ShowOnMouseOver>
+				</Button>
+			</Stack>
+
+			<Image Anchor="L,T" Offset="0,24" Texture="HorizontalTrim.dds" Size="355.5" />
+		</Box>
+
+		<ScrollPanel Anchor="L,T" Offset="18,72" Size="412,220" Vertical="1" ID="ScrollPanel" AutoScrollBar="0" HideScrollBar="0" >
+			<Stack Anchor="L,T" StackGrowth="B" Padding="0" ID="MainStack" >
+
+				<Stack Size="355,24" Anchor="L,C" StackGrowth="B" Color="255,255,255,0" ID="ArtistHeader">
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+
+					<Button Size="355,24" Offset="25,0" Anchor="L,C" TextAnchor="L,C" Font="TwCenMT18" TextOffset="0,0" ID="ArtistToggle" String="TXT_KEY_GP_ARTIST_DETAILS_COLLAPSE">
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="L,C" Size="350,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Size="350,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL" />
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+				</Stack>
+
+				<Stack Anchor="L,T" Size="0,0" Offset="25,0" StackGrowth="Bottom" Padding="0" ID="ArtistStack" >
+				</Stack>
+			
+				<!--CID Dignitary-->
+				<Stack Size="355,24" Anchor="L,C" StackGrowth="B" Color="255,255,255,0" ID="DignitaryHeader">
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+
+					<Button Size="355,24" Offset="25,0" Anchor="L,C" TextAnchor="L,C" Font="TwCenMT18" TextOffset="0,0" ID="DignitaryToggle" String="TXT_KEY_GP_DIGNITARY_DETAILS_COLLAPSE">
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="L,C" Size="350,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Size="350,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL" />
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+				</Stack>
+
+				<Stack Anchor="L,T" Size="0,0" Offset="25,0" StackGrowth="Bottom" Padding="0" ID="DignitaryStack" >
+				</Stack>
+				
+				<!--CSD Diplomat-->
+				<Stack Size="355,24" Anchor="L,C" StackGrowth="B" Color="255,255,255,0" ID="DiplomatHeader">
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+
+					<Button Size="355,24" Offset="25,0" Anchor="L,C" TextAnchor="L,C" Font="TwCenMT18" TextOffset="0,0" ID="DiplomatToggle" String="TXT_KEY_GP_DIPLOMAT_DETAILS_COLLAPSE">
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="L,C" Size="350,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Size="350,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL" />
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+				</Stack>
+
+				<Stack Anchor="L,T" Size="0,0" Offset="25,0" StackGrowth="Bottom" Padding="0" ID="DiplomatStack" >
+				</Stack>
+				
+				<!--CID Doctor-->
+				<Stack Size="355,24" Anchor="L,C" StackGrowth="B" Color="255,255,255,0" ID="DoctorHeader">
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+
+					<Button Size="355,24" Offset="25,0" Anchor="L,C" TextAnchor="L,C" Font="TwCenMT18" TextOffset="0,0" ID="DoctorToggle" String="TXT_KEY_GP_DOCTOR_DETAILS_COLLAPSE">
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="L,C" Size="350,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Size="350,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL" />
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+				</Stack>
+
+				<Stack Anchor="L,T" Size="0,0" Offset="25,0" StackGrowth="Bottom" Padding="0" ID="DoctorStack" >
+				</Stack>
+
+				<Stack Size="355,24" Anchor="L,C" StackGrowth="B" Color="255,255,255,0" ID="EngineerHeader">
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+
+					<Button Size="355,24" Offset="25,0" Anchor="L,C" TextAnchor="L,C" Font="TwCenMT18" TextOffset="0,0" ID="EngineerToggle" String="TXT_KEY_GP_ENGINEER_DETAILS_COLLAPSE">
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="L,C" Size="350,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Size="350,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL" />
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+				</Stack>
+
+				<Stack Anchor="L,T" Size="0,0" Offset="25,0" StackGrowth="Bottom" Padding="0" ID="EngineerStack" >
+				</Stack>
+
+				<!--CID Magistrate-->
+				<Stack Size="355,24" Anchor="L,C" StackGrowth="B" Color="255,255,255,0" ID="MagistrateHeader">
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+
+					<Button Size="355,24" Offset="25,0" Anchor="L,C" TextAnchor="L,C" Font="TwCenMT18" TextOffset="0,0" ID="MagistrateToggle" String="TXT_KEY_GP_MAGISTRATE_DETAILS_COLLAPSE">
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="L,C" Size="350,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Size="350,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL" />
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+				</Stack>
+
+				<Stack Anchor="L,T" Size="0,0" Offset="25,0" StackGrowth="Bottom" Padding="0" ID="MagistrateStack" >
+				</Stack>
+				
+				<Stack Size="355,24" Anchor="L,C" StackGrowth="B" Color="255,255,255,0" ID="MerchantHeader">
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+
+					<Button Size="355,24" Offset="25,0" Anchor="L,C" TextAnchor="L,C" Font="TwCenMT18" TextOffset="0,0" ID="MerchantToggle" String="TXT_KEY_GP_MERCHANT_DETAILS_COLLAPSE">
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="L,C" Size="350,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Size="350,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL" />
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+				</Stack>
+
+				<Stack Anchor="L,T" Size="0,0" Offset="25,0" StackGrowth="Bottom" Padding="0" ID="MerchantStack" >
+				</Stack>
+				
+				<Stack Size="355,24" Anchor="L,C" StackGrowth="B" Color="255,255,255,0" ID="MusicianHeader">
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1"/>
+					<Button Size="355,24" Offset="25,0" Anchor="L,C" TextAnchor="L,C" Font="TwCenMT18" TextOffset="0,0" ID="MusicianToggle" String="TXT_KEY_GP_MUSICIAN_DETAILS_COLLAPSE">
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="L,C" Size="350,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Size="350,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1"/>
+				</Stack>
+				
+				<Stack Anchor="L,T" Size="0,0" Offset="25,0" StackGrowth="Bottom" Padding="0" ID="MusicianStack">
+				</Stack>
+
+				<Stack Size="355,24" Anchor="L,C" StackGrowth="B" Color="255,255,255,0" ID="ScientistHeader">
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+
+					<Button Size="355,24" Offset="25,0" Anchor="L,C" TextAnchor="L,C" Font="TwCenMT18" TextOffset="0,0" ID="ScientistToggle" String="TXT_KEY_GP_SCIENTIST_DETAILS_COLLAPSE">
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="L,C" Size="350,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Size="350,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL" />
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+				</Stack>
+
+				<Stack Anchor="L,T" Size="0,0" Offset="25,0" StackGrowth="Bottom" Padding="0" ID="ScientistStack" >
+				</Stack>
+				
+				<!--CID Prophet-->
+				<Stack Size="355,24" Anchor="L,C" StackGrowth="B" Color="255,255,255,0" ID="ProphetHeader">
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+
+					<Button Size="355,24" Offset="25,0" Anchor="L,C" TextAnchor="L,C" Font="TwCenMT18" TextOffset="0,0" ID="ProphetToggle" String="TXT_KEY_GP_PROPHET_DETAILS_COLLAPSE">
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="L,C" Size="350,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Size="350,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL" />
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1" />
+				</Stack>
+
+				<Stack Anchor="L,T" Size="0,0" Offset="25,0" StackGrowth="Bottom" Padding="0" ID="ProphetStack" >
+				</Stack>
+				
+				<Stack Size="355,24" Anchor="L,C" StackGrowth="B" Color="255,255,255,0" ID="WriterHeader">
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1"/>
+					<Button Size="355,24" Offset="25,0" Anchor="L,C" TextAnchor="L,C" Font="TwCenMT18" TextOffset="0,0" ID="WriterToggle" String="TXT_KEY_GP_WRITER_DETAILS_COLLAPSE">
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="L,C" Size="350,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Size="350,28" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1"/>
+				</Stack>
+				
+				<Stack Anchor="L,T" Size="0,0" Offset="25,0" StackGrowth="Bottom" Padding="0" ID="WriterStack">
+				</Stack>
+			</Stack>
+
+			<ScrollBar Offset="0,0" Style="VertSlider" Anchor="L,T" Length="220" ID="ScrollBar" />
+			<UpButton Offset="-222,0" Style="ScrollBarUp" Anchor="L,T" ID="UpButton" />
+			<DownButton Offset="-222,261" Style="ScrollBarDown" Anchor="L,T" ID="DownButton" />
+		</ScrollPanel>		
+
+		<Box Offset="18,76" Anchor="L,B" Size="355,22"  Color="255,255,255,0" >
+			<Grid Anchor="R,C" Offset="0,0" Size="355,22" Padding="0,0" Style="Grid9FrameTurns" ID="GAFrame">
+				<Bar Anchor="L,T" Offset="1,2" Direction="R" Size="357,18" FGColor="0,255,0,100" ID="GAMeter"/>
+				<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_GA_PROGRESS" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow" ID="GALabel"/>
+
+				<ShowOnMouseOver>
+					<AlphaAnim Anchor="L,C" Size="350,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+						<Grid Size="350,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL" />
+					</AlphaAnim>
+				</ShowOnMouseOver>
+			</Grid>
+
+			<Image Anchor="L,B" Offset="0,24" Texture="HorizontalTrim.dds" Size="355.5" />
+		</Box>
+
+
+		<Box Offset="18,44" Anchor="L.B" Size="355,22"  Color="255,255,255,0" >
+			<Grid Anchor="R,C" Offset="0,0" Size="355,22" Padding="0,0" Style="Grid9FrameTurns" ID="GGFrame">
+				<Bar Anchor="L,T" Offset="1,2" Direction="R" Size="357,18" FGColor="0,255,0,100" ID="GGMeter"/>
+				<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_GG_PROGRESS" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow" ID="GGLabel"/>
+
+				<ShowOnMouseOver>
+					<AlphaAnim Anchor="L,C" Size="350,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+						<Grid Size="350,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL" />
+					</AlphaAnim>
+				</ShowOnMouseOver>
+			</Grid>
+
+
+			<Image Anchor="L,B" Offset="0,24" Texture="HorizontalTrim.dds" Size="355.5" />
+		</Box>
+
+		<TextButton Offset="0,22" Anchor="C,B" Style="Font14or20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_CLOSE" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="CloseButton" Hidden="0" />
+	</Grid>
+</Context>

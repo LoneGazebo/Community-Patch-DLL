@@ -298,7 +298,7 @@ SET Text = 'The East India Company increases the amount of [ICON_GOLD] Gold a ci
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_TREASURY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The School of Philosophy National Wonder produces +1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in the City, and it provides +1 [ICON_CULTURE] Culture. A city must have a library before it can construct a School of Philosophy. Requires a national population of at least 35 before it can be constructed.'
+SET Text = 'The School of Philosophy National Wonder produces +1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City, and it provides +1 [ICON_CULTURE] Culture. A city must have a library before it can construct a School of Philosophy. Requires a national population of at least 35 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_COLLEGE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -344,7 +344,7 @@ SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty. Receive an additional copy of al
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_TREASURY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must have built a Library in the city.[NEWLINE][NEWLINE]+1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in the City. Contains 1 slot for a Great Work of Writing. The cost goes up the more cities there are in the empire.[NEWLINE][NEWLINE]Requires a national population of at least 35 before it can be constructed.'
+SET Text = 'Must have built a Library in the city.[NEWLINE][NEWLINE]+1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City. Contains 1 slot for a Great Work of Writing. The cost goes up the more cities there are in the empire.[NEWLINE][NEWLINE]Requires a national population of at least 35 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_COLLEGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US

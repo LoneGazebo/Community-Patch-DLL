@@ -437,6 +437,11 @@ protected:
 	LUAAPIEXTN(GetMinimumVoluntaryVassalTurns, int);
 	LUAAPIEXTN(GetMinimumVassalTurns, int);
 	LUAAPIEXTN(GetNumTurnsBetweenVassals, int);
+	LUAAPIEXTN(GetMinimumVassalTax, int);
+	LUAAPIEXTN(GetMaximumVassalTax, int);
+	LUAAPIEXTN(GetMinimumVassalLiberateTurns, int);
+	LUAAPIEXTN(GetMinimumVassalTaxTurns, int);
+	LUAAPIEXTN(GetVassalageEnabledEra, int);
 #endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)

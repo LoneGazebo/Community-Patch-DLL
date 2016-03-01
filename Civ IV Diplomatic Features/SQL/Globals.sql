@@ -27,17 +27,33 @@ INSERT INTO Defines ('Name', 'Value')	VALUES	('VASSAL_SCORE_PERCENT', 50);						
 INSERT INTO Defines ('Name', 'Value')	VALUES	('VASSALAGE_VASSAL_CITY_POP_EXPONENT', 0.8);				-- How much does each population affect your vassal maintenance?
 INSERT INTO Defines ('Name', 'Value')	VALUES	('VASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT', 10);			-- How much does the master pay for the vassal's units?
 INSERT INTO Defines ('Name', 'Value')	VALUES	('VASSAL_RELIGIOUS_PRESSURE_MODIFIER', 33);					-- How much extra pressure does the Master's religion exert on the Vassal?
+INSERT INTO Defines ('Name', 'Value')	VALUES	('VASSAL_TOURISM_MODIFIER', 33);							-- How much extra pressure does the Master's religion exert on the Vassal?
 -- DANGER! DO NOT SET TO ZERO!
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT', 50);			-- YOU AREN'T COOL FOR DIVIDING BY ZERO. BE SMART.
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT', 50);	-- ...YOU TRIED ANYWAY, DIDN'T YOU, YOU FOOL? WARNED YOU....
 -- DANGER CLEARED! FEEL FREE TO SET THESE TO ZERO!
-INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_FAILED_PROTECT_CITY_DISTANCE', 2);				-- ...okay, you can set this zero. No really. No danger anymore! (How close to a vassal city must a vassal unit be to a city for it to count for failed protect value.)
+INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_FAILED_PROTECT_CITY_DISTANCE', 3);				-- ...okay, you can set this zero. No really. No danger anymore! (How close to a vassal city must a vassal unit be to a city for it to count for failed protect value.)
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_FAILED_PROTECT_PER_TURN_DECAY', 25);			-- How much the failed protect score decays per turn. .25 a turn. CvDiplomacyAI::DoCounters()
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_PROTECTED_PER_TURN_DECAY', 25);					-- How much the protect score decays per turn. .25 a turn. CvDiplomacyAI::DoCounters()
-INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_VASSAL_LOST_CITIES_THRESHOLD', 100);				-- Percentage of cities that must be lost before Vassalage can be ended.
-INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_VASSAL_POPULATION_THRESHOLD', 200);				-- Percentage of population that must be lost before Vassalage can be ended.
-INSERT INTO Defines ('Name', 'Value')	VALUES	('VASSALAGE_VASSAL_CITY_THRESHOLD', 50);					-- Percentage of cities that must be lost before Vassalage can be ended.
+INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_VASSAL_LOST_CITIES_THRESHOLD', 75);				-- Percentage of cities that must be lost before Vassalage can be ended.
+INSERT INTO	Defines ('Name', 'Value')	VALUES	('VASSALAGE_VASSAL_POPULATION_THRESHOLD', 300);				-- Percentage of population over what we started with before Vassalage can be ended.
+INSERT INTO Defines ('Name', 'Value')	VALUES	('VASSALAGE_VASSAL_MASTER_CITY_PERCENT_THRESHOLD', 60);		-- Percentage of cities that must be 
+INSERT INTO Defines ('Name', 'Value')	VALUES	('VASSALAGE_VASSAL_MASTER_POP_PERCENT_THRESHOLD', 60);		-- Percentage of cities that must be lost before Vassalage can be ended.
 INSERT INTO Defines ('Name', 'Value')	VALUES	('VASSALAGE_CAPITULATE_BASE_THRESHOLD', 100);				-- How likely are we to capitulate?
+INSERT INTO Defines ('Name', 'Value')	VALUES	('VASSALAGE_VASSAL_TAX_PERCENT_MINIMUM', 0);				-- Minimum percent we can tax a vassal. Negative values may cause undefined behavior.
+INSERT INTO Defines ('Name', 'Value')	VALUES	('VASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM', 25);				-- Maximum percent we can tax a vassal's income. Values greater than 100% will do nothing. Make sure this is a multiple of 5 please!
+
+-- How much we view we are being treated
+INSERT INTO Defines ('Name', 'Value')	VALUES	('VASSALAGE_TREATMENT_THRESHOLD_DISAGREE', 10);
+INSERT INTO Defines ('Name', 'Value')	VALUES	('VASSALAGE_TREATMENT_THRESHOLD_MISTREATED', 30);
+INSERT INTO Defines ('Name', 'Value')	VALUES	('VASSALAGE_TREATMENT_THRESHOLD_UNHAPPY', 60);
+INSERT INTO Defines ('Name', 'Value')	VALUES	('VASSALAGE_TREATMENT_THRESHOLD_ENSLAVED', 100);
+
+INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_VOLUNTARY_VASSAL_MOD', 120);		-- Modifier to negative weights due to being voluntary vassal
+INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_DEMANDED_WHILE_VASSAL', 20);				-- Opinion weight change each time you demand from a civ while their vassal
+INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSAL_TAX_EXPONENT', 1.5);				-- Exponent to tax rate for determining negative opinion
+INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSAL_TAX_DIVISOR',  4);					-- Divisor (dont' set to zero!) for determining negative opinion for tax rate
+INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSAL_CURRENT_TAX_MODIFIER', 50);
 INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_WE_ARE_VOLUNTARY_VASSAL', -5);	-- Opinion Weight for AI voluntary vassal
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_WE_ARE_VASSAL', 0);				-- Opinion Weight for AI being your Vassal
 INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_WE_ARE_MASTER', 20);				-- Opinion Weight for AI being your Master
@@ -49,6 +65,7 @@ INSERT INTO	Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_PEACEFUL
 INSERT INTO	Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_FORCIBLY_REVOKED_NUM_TURNS_UNTIL_FORGIVEN', 100);	-- How many turns until we forgive that you forcibly revoked our vassalage?
 INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_BROKEN_VASSAL_AGREEMENT_OPINION_WEIGHT', 40);
 INSERT INTO Defines	('Name', 'Value')	VALUES	('OPINION_WEIGHT_VASSALAGE_TOO_MANY_VASSALS', 10);			-- Opinion weight change per vassal
+INSERT INTO Defines ('Name', 'Value')	VALUES	('OPINION_WEIGHT_MASTER_LIBERATED_ME_FROM_VASSALAGE', -50);	-- Opinion weight for liberating a vassal
 INSERT INTO Defines ('Name', 'Value')	VALUES	('APPROACH_HOSTILE_WE_ARE_VASSAL', 1);
 INSERT INTO Defines ('Name', 'Value')	VALUES	('APPROACH_GUARDED_WE_ARE_VASSAL', 1);
 INSERT INTO Defines ('Name', 'Value')	VALUES	('APPROACH_DECEPTIVE_WE_ARE_VASSAL', 2);
@@ -63,48 +80,48 @@ INSERT INTO Defines ('Name', 'Value')	VALUES	('APPROACH_WAR_TOO_MANY_VASSALS', 1
 INSERT INTO Defines ('Name', 'Value')	VALUES	('APPROACH_WAR_MY_VASSAL', 60);								-- How likely are we to go war with our vassal? (60 = 60%)
 
 -- Global State Evaluation (warning, these values will affect the way the AI plays, be careful!
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_NEARLY_DEFEATED_WEIGHT', -20);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_DEFENSIVE_WEIGHT', -5);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_STALEMATE_WEIGHT', 0);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_CALM_WEIGHT', 0);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_OFFENSIVE_WEIGHT', 5);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_NEARLY_WON_WEIGHT', 20);
-
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_NUM_VASSALS_MULTIPLIER', 6);
-
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_MIL_STRENGTH_IMMENSE_WEIGHT', -20);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_MIL_STRENGTH_POWERFUL_WEIGHT', -14);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_MIL_STRENGTH_STRONG_WEIGHT', -8);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_MIL_STRENGTH_AVERAGE_WEIGHT', 0);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_MIL_STRENGTH_WEAK_WEIGHT', 8);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_MIL_STRENGTH_POOR_WEIGHT', 14);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_MIL_STRENGTH_PATHETIC_WEIGHT', 20);
-
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_ECON_STRENGTH_IMMENSE_WEIGHT', -12);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_ECON_STRENGTH_POWERFUL_WEIGHT', -7);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_ECON_STRENGTH_STRONG_WEIGHT', -3);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_ECON_STRENGTH_AVERAGE_WEIGHT', 0);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_ECON_STRENGTH_WEAK_WEIGHT', 3);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_ECON_STRENGTH_POOR_WEIGHT', 7);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_ECON_STRENGTH_PATHETIC_WEIGHT', 12);
-
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_TECH_PERCENT_VERY_GOOD_WEIGHT', 12);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_TECH_PERCENT_GOOD_WEIGHT', 6);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_TECH_PERCENT_AVERAGE_WEIGHT', 0);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_TECH_PERCENT_BAD_WEIGHT', -6);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_TECH_PERCENT_VERY_BAD_WEIGHT', -12);
-
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_PER_POLICY_WEIGHT', 3);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_PER_ALLY_WEIGHT', 2);
-
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_SCORE_PERCENT_EXTREMELY_GOOD_WEIGHT', 20);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_SCORE_PERCENT_VERY_GOOD_WEIGHT', 8);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_SCORE_PERCENT_GOOD_WEIGHT', 4);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_SCORE_PERCENT_AVERAGE_WEIGHT', 0);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_SCORE_PERCENT_BAD_WEIGHT', -4);
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_SCORE_PERCENT_VERY_BAD_WEIGHT', -8);
-
-INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_MIN_TURNS_BEFORE_PROCESS_STATE', 20);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_NEARLY_DEFEATED_WEIGHT', -20);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_DEFENSIVE_WEIGHT', -5);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_STALEMATE_WEIGHT', 0);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_CALM_WEIGHT', 0);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_OFFENSIVE_WEIGHT', 5);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_NEARLY_WON_WEIGHT', 20);
+--
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_NUM_VASSALS_MULTIPLIER', 6);
+--
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_MIL_STRENGTH_IMMENSE_WEIGHT', -20);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_MIL_STRENGTH_POWERFUL_WEIGHT', -14);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_MIL_STRENGTH_STRONG_WEIGHT', -8);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_MIL_STRENGTH_AVERAGE_WEIGHT', 0);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_MIL_STRENGTH_WEAK_WEIGHT', 8);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_MIL_STRENGTH_POOR_WEIGHT', 14);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_MIL_STRENGTH_PATHETIC_WEIGHT', 20);
+--
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_ECON_STRENGTH_IMMENSE_WEIGHT', -12);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_ECON_STRENGTH_POWERFUL_WEIGHT', -7);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_ECON_STRENGTH_STRONG_WEIGHT', -3);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_ECON_STRENGTH_AVERAGE_WEIGHT', 0);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_ECON_STRENGTH_WEAK_WEIGHT', 3);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_ECON_STRENGTH_POOR_WEIGHT', 7);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_ECON_STRENGTH_PATHETIC_WEIGHT', 12);
+--
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_TECH_PERCENT_VERY_GOOD_WEIGHT', 12);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_TECH_PERCENT_GOOD_WEIGHT', 6);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_TECH_PERCENT_AVERAGE_WEIGHT', 0);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_TECH_PERCENT_BAD_WEIGHT', -6);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_TECH_PERCENT_VERY_BAD_WEIGHT', -12);
+--
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_PER_POLICY_WEIGHT', 3);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_PER_ALLY_WEIGHT', 2);
+--
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_SCORE_PERCENT_EXTREMELY_GOOD_WEIGHT', 20);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_SCORE_PERCENT_VERY_GOOD_WEIGHT', 8);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_SCORE_PERCENT_GOOD_WEIGHT', 4);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_SCORE_PERCENT_AVERAGE_WEIGHT', 0);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_SCORE_PERCENT_BAD_WEIGHT', -4);
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_SCORE_PERCENT_VERY_BAD_WEIGHT', -8);
+--
+--INSERT INTO Defines ('Name', 'Value')	VALUES	('GLOBAL_STATE_MIN_TURNS_BEFORE_PROCESS_STATE', 20);
 
 -- The following lines tell the AI how favorable a target is based on their vassal's strength/proximity
 -- Additives

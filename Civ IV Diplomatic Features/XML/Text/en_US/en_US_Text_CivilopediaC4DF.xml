@@ -12,13 +12,13 @@
 			<Text>Allows you to make rival civilizations your vassal state.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ABLTY_MAP_TRADING_STRING">
-			<Text>Allows Map Trading (if enabled)</Text>
+			<Text>Allows Map Trading</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ABLTY_TECH_TRADING_STRING">
-			<Text>Allows Tech Trading (if enabled)</Text>
+			<Text>Allows Tech Trading</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ABLTY_VASSALAGE_STRING">
-			<Text>Allows Vassalage (if enabled)</Text>
+			<Text>Allows Vassalage</Text>
 		</Row>		
 		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_TOPIC">
 			<Text>Map Trading</Text>

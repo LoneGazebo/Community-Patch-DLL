@@ -711,6 +711,9 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_POPULAR_TOUR_TARGET_S">
 			<Text>Popular musicians arrive from {1_PlayerAdj!}</Text>
 		</Row>
-		
+
+		<Row Tag="TXT_KEY_YIELD_FROM_CITY_YIELDS">
+			<Text>{1_Num} {2_IconString} from City Yields</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

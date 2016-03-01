@@ -510,6 +510,13 @@
 			<Yield>25</Yield>
 		</Row>
 	</Building_YieldFromGPExpend>
+	<Building_ScienceFromYield>
+		<Row>
+			<BuildingType>BUILDING_COFFEE_HOUSE</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>15</Yield>
+		</Row>
+	</Building_ScienceFromYield>
 	<Building_ClassesNeededInCity>
 		<Row>
 			<BuildingType>BUILDING_COFFEE_HOUSE</BuildingType>

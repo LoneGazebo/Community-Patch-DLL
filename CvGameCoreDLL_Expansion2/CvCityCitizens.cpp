@@ -314,7 +314,13 @@ void CvCityCitizens::DoTurn()
 			SetNoAutoAssignSpecialists(false);
 			SetForcedAvoidGrowth(false);
 		}
-		else if(m_pCity->getPopulation() < 8 && !m_pCity->isCapital())  // we want a balanced growth
+		else if(m_pCity->getPopulation() < 10 && !m_pCity->isCapital())  // we want a balanced growth
+		{
+			SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+			SetNoAutoAssignSpecialists(true);
+			SetForcedAvoidGrowth(false);
+		}
+		else if(m_pCity->getPopulation() < 8 && m_pCity->isCapital())  // we want a balanced growth
 		{
 			SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 			SetNoAutoAssignSpecialists(true);
@@ -335,17 +341,22 @@ void CvCityCitizens::DoTurn()
 			if (eStrategyBuildingReligion != NO_ECONOMICAISTRATEGY)
 			{
 				bBuildingReligion = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion);
-				if(thisPlayer.GetReligions()->GetReligionCreatedByPlayer() == NO_RELIGION)
-				{
-					bBuildingReligion = false;
-				}
 			}
 			
 			ProcessTypes eProcess = m_pCity->getProductionProcess();
 			ProjectTypes eProject = m_pCity->getProductionProject();
-			if(bInDeficit)
+
+			bool bNeedFood = m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_FOOD);
+
+			if(bInDeficit && !bNeedFood)
 			{
 				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+				SetNoAutoAssignSpecialists(false);
+				SetForcedAvoidGrowth(false);
+			}
+			else if(bInDeficit && bNeedFood)
+			{
+				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
 				SetNoAutoAssignSpecialists(false);
 				SetForcedAvoidGrowth(false);
 			}
@@ -362,10 +373,14 @@ void CvCityCitizens::DoTurn()
 				if(eGoodGP != NO_AICITYSTRATEGY)
 				{
 					bGPCity = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eGoodGP);
-					bGPCity = thisPlayer.GetDiplomacyAI()->IsGoingForCultureVictory();
+					if(!bGPCity)
+					{
+						bGPCity = thisPlayer.GetDiplomacyAI()->IsGoingForCultureVictory();
+					}
 				}
 				SetNoAutoAssignSpecialists(false);
 				SetForcedAvoidGrowth(false);
+
 				CitySpecializationTypes eSpecialization = m_pCity->GetCityStrategyAI()->GetSpecialization();
 				if(eSpecialization != -1)
 				{
@@ -377,11 +392,19 @@ void CvCityCitizens::DoTurn()
 						{
 							SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
 						}
-						else if(eYield == YIELD_PRODUCTION)
+						else if(eYield == YIELD_PRODUCTION && bNeedFood)
+						{
+							SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
+						}
+						else if(eYield == YIELD_PRODUCTION && !bNeedFood)
 						{
 							SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
 						}
-						else if(eYield == YIELD_GOLD)
+						else if(eYield == YIELD_GOLD && bNeedFood)
+						{
+							SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+						}
+						else if(eYield == YIELD_GOLD && !bNeedFood)
 						{
 							SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
 						}
@@ -393,11 +416,11 @@ void CvCityCitizens::DoTurn()
 						{
 							SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
 						}
-						else if(eYield == YIELD_CULTURE)
+						else if(eYield == YIELD_CULTURE && !bGPCity)
 						{
 							SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
 						}
-						else if(bGPCity)
+						else if(eYield == YIELD_CULTURE && bGPCity)
 						{
 							SetFocusType(CITY_AI_FOCUS_TYPE_GREAT_PEOPLE);
 						}
@@ -630,7 +653,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 
 		if(iYield > 0)
 		{
-			if (m_pCity->GetCityStrategyAI()->GetDeficientYield() == eYield)
+			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
 				iValue *= 2;
 			}
@@ -867,10 +890,10 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 		}
 	}
 
-	// If we're deficient in Production then we're less likely to want Specialists
-	if(m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_PRODUCTION))
+	// If we're deficient in Food then we're less likely to want Specialists
+	if(m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_FOOD))
 	{
-		iWeight *= 50;
+		iWeight *= 75;
 		iWeight /= 100;
 	}
 	// if we've got some slackers in town (since they provide Production)
@@ -1335,7 +1358,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 					}
 				}
 			}
-			if (m_pCity->GetCityStrategyAI()->GetDeficientYield() == eYield)
+			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
 				iValue *= 2;
 			}
@@ -2000,7 +2023,7 @@ void CvCityCitizens::DoReallocateCitizens()
 		DoAddBestCitizenFromUnassigned(specialistValueCache);
 	}
 
-	if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
+	if(GET_PLAYER(GetCity()->getOwner()).isHuman())
 	{
 		GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
 	}
@@ -2777,7 +2800,7 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 			m_aiNumForcedSpecialistsInBuilding[eBuilding]++;
 		}
 
-		if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
+		if(GET_PLAYER(GetCity()->getOwner()).isHuman())
 		{
 			GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
 		}
@@ -2837,7 +2860,7 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 			m_aiNumForcedSpecialistsInBuilding[eBuilding]--;
 		}
 
-		if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
+		if(GET_PLAYER(GetCity()->getOwner()).isHuman())
 		{
 			GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
 		}
@@ -2903,7 +2926,7 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 		m_aiNumSpecialistsInBuilding[eBuilding]--;
 		GetCity()->processSpecialist(eSpecialist, -1);
 
-		if(GET_PLAYER(GetCity()->getOwner()).isHuman() && GetCity()->getOwner() == GC.getGame().getActivePlayer())
+		if(GET_PLAYER(GetCity()->getOwner()).isHuman())
 		{
 			GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
 		}

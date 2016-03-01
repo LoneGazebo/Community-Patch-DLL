@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v72 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 72)
+#define MOD_DLL_NAME "Community Patch v73 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 73)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -57,7 +57,7 @@
 /// use globally unique ids for cities, units etc
 #define MOD_BALANCE_CORE_GLOBAL_IDS
 /// ships on land tiles (city, fort) cannot attack
-#define MOD_BALANCE_EMBARKED_SHIPS
+#define MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN
 
 #define AUI_DANGER_PLOTS_SHOULD_IGNORE_UNIT_MINORS_SEE_MAJORS (5)
 #define AUI_DANGER_PLOTS_SHOULD_IGNORE_UNIT_MAJORS_SEE_BARBARIANS_IN_FOG
@@ -76,16 +76,12 @@
 #define AUI_HOMELAND_ALWAYS_MOVE_SCOUTS
 /// Fixes the code that checks for cramped status (it always triggered originally, now it only triggers if we really are cramped)
 #define AUI_GS_CONQUEST_FIX_CRAMPED
-/// Removes the check for a cultural grand strategy that's a holdover from pre-BNW when cultural victories were won through policies, not tourism
-#define AUI_ECONOMIC_FIX_EXPAND_LIKE_CRAZY_REMOVE_HOLDOVER_CULTURE_CHECK
 /// Priorities for sneak attack military units are no longer artificially inflated at the highest difficulty levels
 #define AUI_CITYSTRATEGY_CHOOSE_PRODUCTION_NO_HIGH_DIFFICULTY_SKEW
 /// The AI wants an expensive tech if it's selecting a free tech
 #define AUI_TECHAI_CHOOSE_NEXT_TECH_FREE_TECH_WANTS_EXPENSIVE
 /// Buildings that contribute towards getting an ideology act as a unique building for the purposes of tech scoring
 #define AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE
-/// If a civilian retargets and an escort cannot get to the new target (ignoring units), then the operation is aborted
-#define AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT
 
 /// When calculating the expected damage on a target from a melee unit, the AI will now use pTargetPlot and pDefender parameters when appropriate (instead of having them as NULL)
 #define AUI_TACTICAL_FIX_FIND_PARATROOPER_WITHIN_STRIKING_DISTANCE_MELEE_STRENGTH
@@ -101,10 +97,6 @@
 #define AUI_TACTICAL_FIX_ALL_OPERATION_MOVES_CATCH_UP_TURNS
 /// When finding naval units to move to a target, the AI no longer ignores units for its pathfinder portion (so it now essentially works the same way as the land-based one)
 #define AUI_TACTICAL_FIX_FIND_CLOSEST_NAVAL_OPERATION_UNIT_DOESNT_IGNORE_UNITS
-/// Distance dropoff only starts taking place at 4 tile range instead of immediately
-#define AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_LIMITED_DISTANCE_DROPOFF
-/// Uses pathfinding turns instead of raw distance for strength multipliers - extremely slow!
-//#define AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_USE_PATHFINDER
 /// Civilians that are not moved with BarbarianCivilianEscortMove now move using passive barbarian move
 #define AUI_TACTICAL_EXECUTE_BARBARIAN_MOVES_CIVILIANS_MOVE_PASSIVELY
 

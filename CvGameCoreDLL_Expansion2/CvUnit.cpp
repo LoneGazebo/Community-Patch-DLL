@@ -349,6 +349,7 @@ CvUnit::CvUnit() :
 	, m_iChangeDamage("CvUnit::m_iForcedDamage", m_syncArchive)
 	, m_PromotionDuration("CvUnit::m_PromotionDuration", m_syncArchive)
 	, m_TurnPromotionGained("CvUnit::m_TurnPromotionGained", m_syncArchive)
+	, m_iNumTilesRevealedThisTurn("CvUnit::m_iNumTilesRevealedThisTurn", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	, m_iExtraReconRange("CvUnit::m_iExtraReconRange", m_syncArchive)
@@ -3293,27 +3294,40 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				CvCity* pLoopCity;
 				int iCityLoop;
 				bool bNearLoserCity = false;
+				bool bInMyTerritory = false;
 				PlayerTypes eLoopPlayer;
 
-				// Loop through loser's cities.
-				for(pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
-				{
-					if(plotDistance(plot()->getX(), plot()->getY(), pLoopCity->getX(), pLoopCity->getY()) <= GC.getVASSALAGE_FAILED_PROTECT_CITY_DISTANCE())
-					{
-						bNearLoserCity = true;
-						break;
+				TeamTypes eMaster =  GET_TEAM(getTeam()).GetMaster();
+
+				// Check to see if Master failed to protect one of our units...
+				if(eMaster != NO_TEAM) {
+					// Unit killed inside my territory
+					if(plot()->getOwner() == getOwner()) {
+						bInMyTerritory = true;
 					}
-				}
+					// Unit killed near one of my cities
+					else if(plot()->getOwner() != ePlayer) {
+						// Loop through loser's cities.
+						for(pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
+						{
+							if(plotDistance(plot()->getX(), plot()->getY(), pLoopCity->getX(), pLoopCity->getY()) <= GC.getVASSALAGE_FAILED_PROTECT_CITY_DISTANCE())
+							{
+								bNearLoserCity = true;
+								break;
+							}
+						}
+					}
 
-				for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
-				{
-					eLoopPlayer = (PlayerTypes) iPlayerLoop;
+					// Something actually happened to warrant this check
+					if(bInMyTerritory || bNearLoserCity) {
+						for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+						{
+							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-					// Is loser's team the vassal of ePlayer?
-					if(GET_TEAM(GET_PLAYER(getOwner()).getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()) && bNearLoserCity)
-					{
-						// Master's failed protect score goes up for Vassal
-						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(ePlayer, iValue);
+							if(GET_PLAYER(eLoopPlayer).getTeam() == eMaster) {
+								GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iValue);
+							}
+						}
 					}
 				}
 			}
@@ -9764,6 +9778,21 @@ bool CvUnit::pillage()
 						iValue *= 2;
 					}
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+					// Loser a vassal?
+					TeamTypes eMaster = GET_TEAM(pPlot->getTeam()).GetMaster();
+					if(eMaster != NO_TEAM)
+					{
+						// master failing to protect territory
+						for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++) {
+							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							if(GET_PLAYER(eLoopPlayer).getTeam() == eMaster) {
+								GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(eLoopPlayer, iValue);
+							}
+						}
+					}
+#endif
+
 					// My viewpoint
 					GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(pPlot->getOwner(), getOwner(), iValue);
 					// Bad guy's viewpoint
@@ -13945,7 +13974,7 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return !pPlot->isWater();
+		return !pPlot->isWater() && !isCargo();
 		break;
 	case DOMAIN_AIR:
 		return true;
@@ -18281,7 +18310,11 @@ if (!bDoEvade)
 
 			pOldPlot->area()->changeUnitsPerPlayer(getOwner(), -1);
 
+#if defined(MOD_BALANCE_CORE)
+			setLastMoveTurn(GC.getGame().getGameTurn());
+#else
 			setLastMoveTurn(GC.getGame().getTurnSlice());
+#endif
 
 			pOldCity = pOldPlot->getPlotCity();
 		}
@@ -24670,8 +24703,8 @@ bool CvUnit::canRangeStrike() const
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_EMBARKED_SHIPS)
-    if(getDomainType() == DOMAIN_SEA && !plot()->isWater())
+#if defined(MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN)
+    if(!isNativeDomain(plot()))
     {
         return false;
     }
@@ -24774,6 +24807,13 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 			return false;
 		}
 	}
+
+#if defined(MOD_BALANCE_RANGED_ATTACK_ONLY_IN_NATIVE_DOMAIN)
+    if(!isNativeDomain(plot()))
+    {
+        return false;
+    }
+#endif
 
 	return true;
 }
@@ -26698,12 +26738,6 @@ bool CvUnit::IsCanAttackWithMove() const
     {
         return false;
     }
-#if defined(MOD_BALANCE_EMBARKED_SHIPS)
-    else if(getDomainType() == DOMAIN_SEA && !plot()->isWater())
-    {
-        return false;
-    }
-#endif
     else
     {
         return !isOnlyDefensive();
@@ -26880,18 +26914,18 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 		TeamTypes eTeam = getTeam();
 
 		// Get the state of the plots in the path, they determine how much of the path is re-usable.
-		// KWG: Have the path finder do this for us?
-		for (uint uiIndex = m_kLastPath.size(); uiIndex--; )
+		// Watch out for overflow/underflow with the indices here, it's tricky
+		for (int iIndex = m_kLastPath.size()-1; iIndex>=0; iIndex--)
 		{
-			CvPathNode& kNode = m_kLastPath[uiIndex];
+			CvPathNode& kNode = m_kLastPath[iIndex];
 			CvPlot* pkPlot = kMap.plotCheckInvalid(kNode.m_iX, kNode.m_iY);
 			if (pkPlot)
 			{
 				if (!pkPlot->isVisible(eTeam))
 				{
 					kNode.SetFlag(CvPathNode::PLOT_INVISIBLE);
-					if (uiIndex < (m_kLastPath.size() - 2))
-						m_kLastPath[uiIndex + 1].SetFlag(CvPathNode::PLOT_ADJACENT_INVISIBLE);
+					if (iIndex + 1 < (int)m_kLastPath.size())
+						m_kLastPath[iIndex + 1].SetFlag(CvPathNode::PLOT_ADJACENT_INVISIBLE);
 
 					// Also determine the destination visibility.  This will be checked in UnitPathTo to see if the destination's visibility has changed and do a re-evaluate again if it has.
 					// This will help a unit to stop early in its pathing if the destination is blocked.

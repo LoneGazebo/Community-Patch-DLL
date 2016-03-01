@@ -912,7 +912,7 @@ void CvTacticalAnalysisMap::AddToDominanceZones(int iIndex, CvTacticalAnalysisCe
 				}
 				pZone->AddFriendlyStrength(iStrength * m_iUnitStrengthMultiplier);
 				
-				int iRangedStrength = pFriendlyUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true);
+				int iRangedStrength = pFriendlyUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true) / 100;
 				pZone->AddFriendlyRangedStrength(iRangedStrength * m_iUnitStrengthMultiplier);
 				pZone->AddFriendlyUnitCount(1);
 
@@ -942,7 +942,7 @@ void CvTacticalAnalysisMap::AddToDominanceZones(int iIndex, CvTacticalAnalysisCe
 					iStrength = pEnemyUnit->GetBaseCombatStrength(true);
 				}
 #if defined(MOD_BALANCE_CORE_MILITARY)
-				int iRangedStrength = pEnemyUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true);
+				int iRangedStrength = pEnemyUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true) / 100;
 
 				if (!pCell->IsVisible())
 				{
@@ -1061,27 +1061,11 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 							(pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) ||
 							(pLoopUnit->getDomainType() == DOMAIN_SEA && pZone->IsWater()))
 						{
-#ifdef AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_USE_PATHFINDER
-							iDistance = MAX_INT;
-							if (pLoopUnit->isRanged() && pLoopUnit->canEverRangeStrikeAt(pClosestCity->plot()->getX(),pClosestCity->plot()->getY()))
-								iDistance = 0;
-							else
-							{
-								iDistance = pLoopUnit->TurnsToReachTarget(pClosestCity->plot(), true, true, true) + pLoopUnit->getMustSetUpToRangedAttackCount();
-								if (pLoopUnit->GetRange() > 1)
-									iDistance -= 1;
-							}
-#else
 							iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pClosestCity->getX(), pClosestCity->getY());
-#endif // AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_USE_PATHFINDER
 
 							if (iDistance <= m_iTacticalRange)
 							{
-#ifdef AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_LIMITED_DISTANCE_DROPOFF
-								iMultiplier = m_iTacticalRange + MIN(4 - iDistance, 0);  // 4 because action may still be spread out over the zone
-#else
-								iMultiplier = (m_iTacticalRange + 4 - iDistance);  // "4" so unit strength isn't totally dominated by proximity to city
-#endif // AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_LIMITED_DISTANCE_DROPOFF
+								iMultiplier = m_iTacticalRange + MIN(3 - iDistance, 0);  // 3 because action may still be spread out over the zone
 								if(iMultiplier > 0)
 								{
 									int iUnitStrength = pLoopUnit->GetBaseCombatStrengthConsideringDamage();
@@ -1103,7 +1087,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 									pZone->AddFriendlyStrength(iUnitStrength * iMultiplier * m_iUnitStrengthMultiplier);
 #endif
 
-									int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true);
+									int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true) / 100;
 									pZone->AddFriendlyRangedStrength(iRangedStrength*iMultiplier*m_iUnitStrengthMultiplier);
 									pZone->AddFriendlyUnitCount(1);
 
@@ -1146,26 +1130,10 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 									if(pPlot)
 									{
 										bool bVisible = true;
-#ifdef AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_USE_PATHFINDER
-										iDistance = MAX_INT;
-										if (pLoopUnit->isRanged() && pLoopUnit->canEverRangeStrikeAt(pClosestCity->plot()->getX(),pClosestCity->plot()->getY()))
-											iDistance = 0;
-										else
-										{
-											iDistance = pLoopUnit->TurnsToReachTarget(pClosestCity->plot(), true, true, true) + pLoopUnit->getMustSetUpToRangedAttackCount();
-											if (pLoopUnit->GetRange() > 1)
-												iDistance -= 1;
-										}
-#else
 										iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pClosestCity->getX(), pClosestCity->getY());
-#endif // AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_USE_PATHFINDER
 										if (iDistance <= m_iTacticalRange)
 										{
-#ifdef AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_LIMITED_DISTANCE_DROPOFF
-											iMultiplier = m_iTacticalRange + MIN(4 - iDistance, 0);  // 4 because action may still be spread out over the zone
-#else
-											iMultiplier = (m_iTacticalRange + 4 - iDistance);  // "4" so unit strength isn't totally dominated by proximity to city
-#endif // AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_LIMITED_DISTANCE_DROPOFF
+											iMultiplier = m_iTacticalRange + MIN(3 - iDistance, 0);  // 3 because action may still be spread out over the zone
 											if(!pPlot->isVisible(eTeam) && !pPlot->isAdjacentVisible(eTeam, false))
 											{
 												bVisible = false;
@@ -1199,7 +1167,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 												pZone->AddEnemyStrength(iUnitStrength * iMultiplier * m_iUnitStrengthMultiplier);
 #endif
 
-												int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true);
+												int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true) / 100;
 												if(!bVisible)
 												{
 													iRangedStrength /= 2;
@@ -1234,7 +1202,10 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 								}
 							}
 						}
+					}
 #if defined(MOD_BALANCE_CORE_MILITARY)
+					else
+					{
 						//not at war
 						for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 						{
@@ -1254,8 +1225,8 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 								}
 							}
 						}
-#endif
 					}
+#endif
 				}
 			}
 		}

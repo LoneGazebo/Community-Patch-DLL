@@ -62,6 +62,18 @@
 	<Policy_ImprovementYieldChanges>
 		<Row>
 			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType>
+			<ImprovementType>IMPROVEMENT_LUMBERMILL</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType>
+			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType>
 			<ImprovementType>IMPROVEMENT_TERRACE_FARM</ImprovementType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>

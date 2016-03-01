@@ -921,7 +921,7 @@ bool CvArmyAI::DoDelayedDeath()
 
 CvPlot* CvArmyAI::DetectNearbyEnemy(PlayerTypes eEnemy, bool bNaval)
 {
-	CvString strMsg;
+	bool bAtWar = GET_PLAYER(m_eOwner).IsAtWarWith(eEnemy);
 	UnitHandle pUnit = GetFirstUnit();
 	while(pUnit)
 	{
@@ -930,13 +930,24 @@ CvPlot* CvArmyAI::DetectNearbyEnemy(PlayerTypes eEnemy, bool bNaval)
 			CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDirectionLoop));
 			if(pAdjacentPlot != NULL && pAdjacentPlot->isWater()==bNaval )
 			{
-				UnitHandle pOtherUnit = pAdjacentPlot->getBestDefender(eEnemy);
-				if(pOtherUnit || pAdjacentPlot->getOwner() == eEnemy)
+				if( pAdjacentPlot->getOwner() == eEnemy && !bAtWar )
 				{
-					// We ran into a potential enemy unit duing a sneak attack. The jig is probably up, so let's DOW.
 					if(GC.getLogging() && GC.getAILogging())
 					{
-						strMsg.Format("Ran into enemy during sneak attack on (x=%d y=%d). Time to fight!", GetGoalX(), GetGoalY());
+						CvString strMsg;
+						strMsg.Format("Ran into enemy territory during sneak attack on (x=%d y=%d). Need to declare war to continue!", GetGoalX(), GetGoalY());
+						GET_PLAYER(m_eOwner).getAIOperation(m_iOperationID)->LogOperationSpecialMessage(strMsg);
+					}
+
+					return pAdjacentPlot;
+				}
+				UnitHandle pOtherUnit = pAdjacentPlot->getBestDefender(eEnemy);
+				if( pOtherUnit && bAtWar )
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strMsg;
+						strMsg.Format("Ran into enemy unit during attack on (x=%d y=%d). Time to fight!", GetGoalX(), GetGoalY());
 						GET_PLAYER(m_eOwner).getAIOperation(m_iOperationID)->LogOperationSpecialMessage(strMsg);
 					}
 
@@ -972,9 +983,19 @@ CvPlot* CvArmyAI::CheckTargetReached(PlayerTypes eEnemy, bool bNavalOp, int iMax
 
 				if (!bNavalOp && pCity->area()==pTargetPlot->area())
 					pEnemyPlot = pCity->plot();
-			}
 
-			return pEnemyPlot;
+				if (pEnemyPlot!=GetGoalPlot())
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strMsg;
+						strMsg.Format("Switching target from %d,%d to closest city at %d,%d", GetGoalX(), GetGoalY(), pEnemyPlot->getX(), pEnemyPlot->getY() );
+						GET_PLAYER(m_eOwner).getAIOperation(m_iOperationID)->LogOperationSpecialMessage(strMsg);
+					}
+				}
+
+				return pEnemyPlot;
+			}
 		}
 	}
 

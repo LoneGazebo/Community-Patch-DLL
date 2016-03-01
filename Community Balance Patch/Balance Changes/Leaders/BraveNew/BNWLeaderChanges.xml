@@ -45,6 +45,23 @@
 		</Row>
 	</Unit_FreePromotions>
 <!-- Ashurbanipal -->
+	<Building_DomainFreeExperiencePerGreatWorkGlobal>
+		<Row>
+			<BuildingType>BUILDING_ROYAL_LIBRARY</BuildingType>
+			<DomainType>DOMAIN_LAND</DomainType>
+			<Experience>5</Experience>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_ROYAL_LIBRARY</BuildingType>
+			<DomainType>DOMAIN_SEA</DomainType>
+			<Experience>5</Experience>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_ROYAL_LIBRARY</BuildingType>
+			<DomainType>DOMAIN_AIR</DomainType>
+			<Experience>5</Experience>
+		</Row>
+	</Building_DomainFreeExperiencePerGreatWorkGlobal>
 	<Trait_GreatWorkYieldChanges>
 		<Row>
 			<TraitType>TRAIT_SLAYER_OF_TIAMAT</TraitType>
@@ -83,7 +100,7 @@
 		<Row>
 			<BuildingType>BUILDING_ROYAL_LIBRARY</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_ThemingBonuses>
@@ -125,6 +142,13 @@
 		</Row>
 	</Improvement_TechYieldChanges>
 	<!-- Candi-->
+	<Building_ScienceFromYield>
+		<Row>
+			<BuildingType>BUILDING_CANDI</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>10</Yield>
+		</Row>
+	</Building_ScienceFromYield>
 	<Building_ResourceYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_CANDI</BuildingType>

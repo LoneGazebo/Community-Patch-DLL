@@ -447,6 +447,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	// Base yield rate from League
 	Method(GetBaseYieldRateFromLeague);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	Method(GetScienceFromCityYield);
+#endif
 
 	Method(GetBaseYieldRateFromReligion);
 	Method(ChangeBaseYieldRateFromReligion);
@@ -3812,7 +3815,25 @@ int CvLuaCity::lGetBaseYieldRateFromLeague(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::GetBaseYieldRateFromLeague);
 }
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaCity::lGetScienceFromCityYield(lua_State* L)
+{
+	int iResult = 0;
+	CvCity* pkCity = GetInstance(L);
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eIndex = (YieldTypes)iI;
+		if(eIndex == NO_YIELD)
+		{
+			continue;
+		}
+		iResult += pkCity->GetScienceFromYield(eIndex);
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaCity::lGetBaseYieldRateFromReligion(lua_State* L)
 {

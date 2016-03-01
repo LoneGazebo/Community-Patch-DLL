@@ -1415,6 +1415,12 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	end
 	tips:insertIf( #techs > 0 and L"TXT_KEY_PEDIA_PREREQ_TECH_LABEL" .. " " .. techs:concat( ", " ) )
 
+	-- CBP Num Social Policies
+	local iNumPolicies = building.NumPoliciesNeeded;
+	if(iNumPolicies > 0) then
+		tips:insert(L("TXT_KEY_PEDIA_NUM_POLICY_NEEDED_LABEL", iNumPolicies))
+	end
+
 	-- Required Buildings:
 	local buildings = table()
 	for row in GameInfo.Building_PrereqBuildingClasses( thisBuildingType ) do
@@ -1845,7 +1851,12 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_RELIGION", city:GetBaseYieldRateFromReligion( yieldID ), yieldIconString )
 	end
 
--- CBP 
+-- CBP
+	-- Yield Increase from City Yields
+	if(yieldID == YieldTypes.YIELD_SCIENCE) then
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_CITY_YIELDS", city:GetScienceFromCityYield( yieldID ), yieldIconString)
+	end
+
 	-- Yield Increase from CS Alliance (Germany)
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_CS_ALLIANCE", city:GetBaseYieldRateFromCSAlliance( yieldID ), yieldIconString)
 

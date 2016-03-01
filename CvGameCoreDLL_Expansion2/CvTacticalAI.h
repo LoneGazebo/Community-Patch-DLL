@@ -889,7 +889,7 @@ private:
 
 	int GetRecruitRange() const;
 	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL, int iMaxUnits=INT_MAX);
-	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bNoRanged, bool bRanged, int iMaxTurns=5, int iMinHitpoints=10, int iMaxUnits=INT_MAX, bool bCombatExpected=true);
+	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bNoRanged, bool bRanged, int iMaxTurns=3, int iMinHitpoints=10, int iMaxUnits=INT_MAX, bool bOffensiveCombatExpected=true);
 	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, bool bEscortedUnits, int iMaxTurns=3);
 
 #if defined(MOD_AI_SMART_AIR_TACTICS)
@@ -943,16 +943,18 @@ private:
 	CvString GetLogFileName(CvString& playerName) const;
 	CvString GetTacticalMissionName(AITacticalMission eMission) const;
 
-	// Class data
+	// Class data - most of it only temporary, does not need to be persisted (with some exceptions)
 	CvPlayer* m_pPlayer;
 	CvTacticalAnalysisMap* m_pMap;
 	std::list<int> m_CurrentTurnUnits;
+
 #if defined(MOD_AI_SMART_AIR_TACTICS)
 	std::vector<CvTacticalUnit> m_CurrentAirUnits;
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	std::set<int> m_HealingUnits;
+	std::set<int> m_HealingUnits; //persistent!
+
 	CTacticalUnitArray m_CurrentMoveUnits;
 	CTacticalUnitArray m_CurrentMoveHighPriorityUnits;
 #else
@@ -967,7 +969,7 @@ private:
 	TacticalList m_AllTargets;
 	TacticalList m_ZoneTargets;
 
-	FStaticVector<CvTacticalTarget, RING5_PLOTS, true, c_eCiv5GameplayDLL, 0> m_TempTargets;
+	FStaticVector<CvTacticalPosture, SAFE_ESTIMATE_NUM_CITIES, true, c_eCiv5GameplayDLL, 0> m_Postures; //persistent!
 
 	// Targeting ranges (pulled in from GlobalAIDefines.XML)
 	int m_iRecruitRange;
@@ -983,10 +985,10 @@ private:
 	int m_eCurrentTargetType;
 	int m_iCurrentTargetIndex;
 	int m_iCurrentUnitTargetIndex;
-	FStaticVector<CvTacticalPosture, SAFE_ESTIMATE_NUM_CITIES, true, c_eCiv5GameplayDLL, 0> m_Postures;
-	FStaticVector<CvTacticalPosture, SAFE_ESTIMATE_NUM_CITIES, true, c_eCiv5GameplayDLL, 0> m_NewPostures;
+
 	int m_iCurrentTempZoneIndex;
 	FStaticVector<CvTemporaryZone, SAFE_ESTIMATE_NUM_TEMP_ZONES, true, c_eCiv5GameplayDLL, 0> m_TempZones;
+	FStaticVector<CvTacticalTarget, RING5_PLOTS, true, c_eCiv5GameplayDLL, 0> m_TempTargets;
 
 	// Blocking (and flanking) position data
 	FStaticVector<CvBlockingUnit, SAFE_ESTIMATE_NUM_BLOCKING_UNITS, true, c_eCiv5GameplayDLL, 0> m_PotentialBlocks;
@@ -1025,5 +1027,6 @@ namespace TacticalAIHelpers
 }
 
 extern const char* barbarianMoveNames[];
+extern const char* postureNames[];
 
 #endif //CIV5_TACTICAL_AI_H

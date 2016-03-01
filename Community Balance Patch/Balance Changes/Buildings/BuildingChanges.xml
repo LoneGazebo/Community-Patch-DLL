@@ -35,6 +35,13 @@
 		</Row>
 	</Building_FeatureYieldChanges>
 	<!-- Garden-->
+	<Building_ScienceFromYield>
+		<Row>
+			<BuildingType>BUILDING_GARDEN</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>10</Yield>
+		</Row>
+	</Building_ScienceFromYield>
 	<Building_ResourceYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_GARDEN</BuildingType>
@@ -61,6 +68,14 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
+	<!-- Shrine-->
+	<Building_ScienceFromYield>
+		<Row>
+			<BuildingType>BUILDING_SHRINE</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>20</Yield>
+		</Row>
+	</Building_ScienceFromYield>
 	<!-- Temple -->
 	<Building_ResourceYieldChanges>
 		<Row>
@@ -160,11 +175,6 @@
 			<BuildingType>BUILDING_BROADCAST_TOWER</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>25</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_AMPHITHEATER</BuildingType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>15</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_OPERA_HOUSE</BuildingType>
@@ -289,6 +299,12 @@
 		</Row>
 	</Building_SeaPlotYieldChanges>
 	<!-- Caravansary -->
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_CARAVANSARY</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_CARAVANSARY</BuildingType>
@@ -331,13 +347,15 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
-	<Building_YieldChangesPerPop>
 	<!-- Market -->
+	<Building_ScienceFromYield>
 		<Row>
 			<BuildingType>BUILDING_MARKET</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>15</Yield>
+			<Yield>10</Yield>
 		</Row>
+	</Building_ScienceFromYield>
+	<Building_YieldChangesPerPop>
 	<!-- Bank -->
 		<Row>
 			<BuildingType>BUILDING_BANK</BuildingType>
@@ -452,6 +470,20 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
+	<!-- Library-->
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_LIBRARY</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_GROVE</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_LIBRARY</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_YieldChanges>
 	<!-- University, Windmill, Research Lab -->
 	<Building_FeatureYieldChanges>
 		<Row>
@@ -499,7 +531,20 @@
 			<Yield>33</Yield>
 		</Row>
 	</Building_GrowthExtraYield>
-
+	<Building_BuildingClassLocalYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_WINDMILL</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_GROCER</BuildingClassType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WINDMILL</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_GRANARY</BuildingClassType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+	</Building_BuildingClassLocalYieldChanges>
 	<!-- Lighthouse -->
 	<Building_SeaPlotYieldChanges>
 		<Row>
@@ -617,15 +662,29 @@
 			<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
 		</Row>
 	</Building_ClassesNeededInCity>
-	<!-- Forge -->
+	<!-- Barracks-->
 	<Building_ImprovementYieldChanges>
 		<Row>
-			<BuildingType>BUILDING_FORGE</BuildingType>
+			<BuildingType>BUILDING_BARRACKS</BuildingType>
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_IKANDA</BuildingType>
 			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Building_ImprovementYieldChanges>
+	<!-- Forge -->
+	<Building_ScienceFromYield>
+		<Row>
+			<BuildingType>BUILDING_FORGE</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>10</Yield>
+		</Row>
+	</Building_ScienceFromYield>
 	<!-- Factory -->
 	<Building_YieldChangesPerPop>
 		<Row>

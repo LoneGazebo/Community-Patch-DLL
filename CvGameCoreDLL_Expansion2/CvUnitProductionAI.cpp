@@ -408,22 +408,15 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if(pkResourceInfo != NULL)
 			{	
 				//Aluminum Check
-				ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
-				if(eApolloProgram != NO_PROJECT)
+				ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
+				if(eResourceLoop == eAluminumResource)
 				{
-					if(GET_TEAM(m_pCity->getTeam()).getProjectCount(eApolloProgram) > 0)
+					if(pkUnitEntry->GetResourceQuantityRequirement(eResourceLoop) > 0)
 					{
-						ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
-						if(eResourceLoop == eAluminumResource)
+						//We need at least 5 aluminum to get off the planet, so let's save that much if we've got the Apollo.
+						if(kPlayer.getNumResourceAvailable(eResourceLoop, false) <= 5)
 						{
-							//We need at least 5 aluminum to get off the planet, so let's save that much if we've got the Apollo.
-							if(kPlayer.getNumResourceAvailable(eResourceLoop, false) <= 5)
-							{
-								if(pkUnitEntry->GetResourceQuantityRequirement(eResourceLoop) > 0)
-								{
-									return 0;
-								}
-							}
+							return 0;
 						}
 					}
 				}
@@ -757,7 +750,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if(!m_pCity->isCapital())
 		{
-			if(m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_GOLD))
+			if(m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == YIELD_GOLD)
 			{
 				iBonus += 75;
 			}
@@ -768,7 +761,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if(m_pCity->isCapital())
 		{
-			if(m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_GOLD))
+			if(m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == YIELD_GOLD)
 			{
 				iBonus += 150;
 			}
@@ -1015,6 +1008,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					if(m_pCity->getDomainFreeExperienceFromGreatWorks(eTestDomain) > 0)
 					{
 						iBonus += max(1, (m_pCity->getDomainFreeExperienceFromGreatWorks(eTestDomain) / 2));
+					}
+					if(m_pCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain) > 0)
+					{
+						iBonus += max(1, (m_pCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain) / 2));
 					}
 					if(m_pCity->getDomainProductionModifier(eTestDomain) > 0)
 					{
