@@ -2,6 +2,10 @@
 <!-- edited with notepad by bc1 -->
 <GameData>
 	<Language_en_US>
+		<!-- C4DF Support-->
+		<Row Tag="TXT_KEY_C4DF_VASSAL_OVERVIEW">
+			<Text>Vassal Overview</Text>
+		</Row>
 <!-- UNIT attributes -->
 		<Row Tag="TXT_KEY_EUI_UNIT_MOVEAFTERPURCHASE">
 			<Text>Can move after purchase</Text>
