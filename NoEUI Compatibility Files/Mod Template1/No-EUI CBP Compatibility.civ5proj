@@ -7,7 +7,7 @@
     <Guid>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(2-22b) Community Balance Patch - Compatibility Files (No EUI)</Teaser>
+    <Teaser>(3-1b) Community Balance Patch - Compatibility Files (No EUI)</Teaser>
     <Description>LUA and mod compatibility files for CBP if not using EUI. Includes support for More Luxuries, CSD, and C4DF. Must use all three mods in order to use this mod.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
@@ -105,6 +105,20 @@
         <MaxVersion>999</MaxVersion>
       </Association>
     </ModDependencies>
+    <ModContent>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>VassalOverview</Name>
+        <Description>VassalOverview</Description>
+        <FileName>LUA/VassalageOverview.lua</FileName>
+      </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>VassalOverview</Name>
+        <Description>VassalOverview</Description>
+        <FileName>LUA/VassalageOverview.xml</FileName>
+      </Content>
+    </ModContent>
     <ModBlockers>
       <Association>
         <Type>Mod</Type>
@@ -140,6 +154,14 @@
     <Content Include="C4DFCompatibility\C4DFCompatibility.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="C4DFCompatibility\vassal80.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="C4DFCompatibility\vassal80hl.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Corporations\Corporations.xml">
       <SubType>Lua</SubType>
@@ -238,6 +260,14 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\Demographics.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\DiploCorner.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\DiploCorner.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -387,11 +417,11 @@
     </Content>
     <Content Include="LUA\VassalageOverview.lua">
       <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
+      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="LUA\VassalageOverview.xml">
       <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
+      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="LUA\WhosWinningPopup.lua">
       <SubType>Lua</SubType>

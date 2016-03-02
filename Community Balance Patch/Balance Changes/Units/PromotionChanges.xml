@@ -866,6 +866,8 @@
 			<Description>TXT_KEY_PROMOTION_SCOUTING_1</Description>
 			<Help>TXT_KEY_PROMOTION_SCOUTING_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_WOODLAND_TRAILBLAZER_II</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_SURVIVALISM_2</PromotionPrereqOr2>
 			<OrderPriority>1</OrderPriority>
 			<VisibilityChange>1</VisibilityChange>
 			<PortraitIndex>37</PortraitIndex>
@@ -878,7 +880,9 @@
 			<Description>TXT_KEY_PROMOTION_SCOUTING_2</Description>
 			<Help>TXT_KEY_PROMOTION_SCOUTING_2_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_SCOUTING_1</PromotionPrereqOr1>
+			<PromotionPrereq>PROMOTION_SCOUTING_1</PromotionPrereq>
+			<PromotionPrereqOr1>PROMOTION_WOODLAND_TRAILBLAZER_II</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_SURVIVALISM_2</PromotionPrereqOr2>
 			<OrderPriority>1</OrderPriority>
 			<VisibilityChange>1</VisibilityChange>
 			<PortraitIndex>38</PortraitIndex>
@@ -891,7 +895,9 @@
 			<Description>TXT_KEY_PROMOTION_SCOUTING_3</Description>
 			<Help>TXT_KEY_PROMOTION_SCOUTING_3_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_SCOUTING_2</PromotionPrereqOr1>
+			<PromotionPrereq>PROMOTION_SCOUTING_2</PromotionPrereq>
+			<PromotionPrereqOr1>PROMOTION_WOODLAND_TRAILBLAZER_III</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_SURVIVALISM_3</PromotionPrereqOr2>
 			<OrderPriority>1</OrderPriority>
 			<MovesChange>1</MovesChange>
 			<PortraitIndex>39</PortraitIndex>
@@ -1879,6 +1885,7 @@
 			<Description>TXT_KEY_PROMOTION_HOVERING_UNIT</Description>
 			<Help>TXT_KEY_PROMOTION_HOVERING_UNIT_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
+			<LostWithUpgrade>true</LostWithUpgrade>
 			<CanMoveImpassable>true</CanMoveImpassable>
 			<HoveringUnit>true</HoveringUnit>
 			<PortraitIndex>58</PortraitIndex>

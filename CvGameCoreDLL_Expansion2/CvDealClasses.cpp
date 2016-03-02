@@ -3356,7 +3356,6 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									iTurns = iTurns * (100 + iLengthModifier) / 100;
 								}
 								GET_PLAYER(eAcceptedToPlayer).changeGoldenAgeTurns(iTurns);
-								bDone = true;
 							}
 
 							int iTourism = GET_PLAYER(eAcceptedToPlayer).GetEventTourism();
@@ -3390,7 +3389,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									}
 								}
 							}
-
+							bDone = true;
 						}
 						else if((kDeal.GetSurrenderingPlayer() == eAcceptedToPlayer) && !bDone)
 						{
@@ -3435,7 +3434,6 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									iTurns = iTurns * (100 + iLengthModifier) / 100;
 								}
 								GET_PLAYER(eAcceptedFromPlayer).changeGoldenAgeTurns(iTurns);
-								bDone = true;
 							}
 
 							int iTourism = GET_PLAYER(eAcceptedFromPlayer).GetEventTourism();
@@ -3469,6 +3467,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									}
 								}
 							}
+							bDone = true;
 						}
 					}
 #endif

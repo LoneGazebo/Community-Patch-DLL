@@ -66,6 +66,7 @@
 					<!-- C4DF Button -->
 					<!--=======================================================================================================================-->
 					<Button ID="VassalButton" ConsumeMouse="1" Anchor="C,T" Size="45,45" Texture="DC45_VassalOverview.dds" ToolTip="TXT_KEY_C4DF_VASSAL_OVERVIEW" Hidden="1" >
+						<Label Anchor="C,C" Offset="0,4" Font="TwCenMT24" FontStyle="Stroke" ID="VassalTaxesAvailableLabel" Hidden="1"/>
 					</Button>
 					<!--=======================================================================================================================-->
 					<!-- Notification Log DropDownButtons -->

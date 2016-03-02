@@ -497,16 +497,29 @@
 		<Row>
 			<BuildingType>BUILDING_UNIVERSITY</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
-	<Building_YieldChangesPerPop>
+	<Building_BuildingClassLocalYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_LABORATORY</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_HOSPITAL</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>25</Yield>
+			<YieldChange>2</YieldChange>
 		</Row>
-	</Building_YieldChangesPerPop>
+		<Row>
+			<BuildingType>BUILDING_LABORATORY</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_MEDICAL_LAB</BuildingClassType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_LABORATORY</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+	</Building_BuildingClassLocalYieldChanges>
 	<!-- Observatory-->
 	<Building_YieldChanges>
 		<Row>

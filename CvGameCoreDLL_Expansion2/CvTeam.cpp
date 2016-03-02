@@ -9791,7 +9791,7 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 		// Update Happiness for all players
 		if(GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == GetID())
 		{
-			if(GET_PLAYER(eLoopPlayer).isHuman())
+			if(GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).GetID() == GC.getGame().getActivePlayer())
 			{
 				GET_PLAYER(eLoopPlayer).CalculateNetHappiness();
 			}
@@ -10093,14 +10093,27 @@ bool CvTeam::CanMakeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 {
 	Localization::String locString, summaryString;
-	int iI;
 
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 
-	// we must be able to become heir vassal
+	// we must be able to become their vassal
 	if(!canBecomeVassal(eTeam, /*bIgnoreAlreadyVassal*/ true))
 		return;
+
+	std::vector<PlayerTypes> aMasterTeam;
+	std::vector<PlayerTypes> aVassalTeam;
+
+	PlayerTypes eLoopPlayer;
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(GET_PLAYER(eLoopPlayer).isAlive())
+		{
+			if(GET_PLAYER(eLoopPlayer).getTeam() == GetID()) aVassalTeam.push_back(eLoopPlayer);
+			if(GET_PLAYER(eLoopPlayer).getTeam() == eTeam) aMasterTeam.push_back(eLoopPlayer);
+		}
+	}
 
 	// Let's check if we have a vassal already, if so they must become eTeam's vassals as well
 	TeamTypes eOtherTeam;
@@ -10146,53 +10159,38 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 		{
 			GET_TEAM((TeamTypes)iTeamLoop).DoUpdateVassalWarPeaceRelationships();
 		}
-	}
 
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
-	{
-		if(GET_PLAYER((PlayerTypes)iI).getTeam() == GetID())
+		// Remove any defensive pacts with this team
+		for(int iOtherTeam = 0; iOtherTeam < MAX_MAJOR_CIVS; iOtherTeam++)
 		{
-			if(GET_PLAYER((PlayerTypes)iI).isAlive())
+			TeamTypes eOtherTeam = (TeamTypes) iOtherTeam;
+			if(GET_TEAM(eOtherTeam).isAlive())
 			{
-				if(!GET_PLAYER((PlayerTypes)iI).isMinorCiv())
+				if(eOtherTeam != GetID())
 				{
-					// Notify DiploAI that we are now eTeam's vassal
-					GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->DoWeMadeVassalageWithSomeone(eTeam, bVoluntary);
-#if defined(MOD_BALANCE_CORE)
-					if(IsHasDefensivePact(GET_PLAYER((PlayerTypes)iI).getTeam()))
+					if(IsHasDefensivePact(eOtherTeam))
 					{
-						GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).SetHasDefensivePact(GetID(), false);
-						SetHasDefensivePact(GET_PLAYER((PlayerTypes)iI).getTeam(), false);
+						SetHasDefensivePact(eOtherTeam, false);
+						GET_TEAM(eOtherTeam).SetHasDefensivePact(GetID(), false);
 					}
-#endif
 				}
 			}
 		}
 	}
 
-	// Update Happiness for all players
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	for(std::vector<PlayerTypes>::iterator it = aVassalTeam.begin(); it != aVassalTeam.end(); it++)
 	{
-		if(GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive() && GET_PLAYER((PlayerTypes) iPlayerLoop).getTeam() == GetID())
-		{
-			if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman())
-			{
-				GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateNetHappiness();
-			}
-		}
-	}
-	
-	// Notify eTeam to set taxes
-	PlayerTypes eVassal;
-	for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		eVassal = (PlayerTypes) iI;
-		if(GET_PLAYER(eVassal).getTeam() == GetID())
-		{
-			Localization::String locString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAXES_AVAILABLE");
-			locString << GET_PLAYER(eVassal).getName();
-			GET_TEAM(eTeam).AddNotification(NOTIFICATION_PEACE_ACTIVE_PLAYER, locString.toUTF8(), locString.toUTF8(), -1, -1, eVassal);
-		}
+		// Notify DiploAI that we are now eTeam's vassal
+		GET_PLAYER(*it).GetDiplomacyAI()->DoWeMadeVassalageWithSomeone(eTeam, bVoluntary);
+		
+		// Update Happiness for all players
+		if(GET_PLAYER(*it).isHuman())
+			GET_PLAYER(*it).CalculateNetHappiness();
+
+		// Send notification to master to set taxes for player
+		Localization::String locString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAXES_AVAILABLE");
+		locString << GET_PLAYER(*it).getName();
+		GET_TEAM(eTeam).AddNotification(NOTIFICATION_PEACE_ACTIVE_PLAYER, locString.toUTF8(), locString.toUTF8(), -1, -1, *it);
 	}
 
 	if(GC.getGame().isFinalInitialized())
@@ -10202,7 +10200,7 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 		{
 			{
 				PlayerTypes ePlayer;
-				for(iI = 0; iI < MAX_PLAYERS; iI++)
+				for(int iI = 0; iI < MAX_PLAYERS; iI++)
 				{
 					ePlayer = (PlayerTypes) iI;
 

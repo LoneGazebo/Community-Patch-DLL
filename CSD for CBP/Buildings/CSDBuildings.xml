@@ -131,7 +131,7 @@
 			<Type>BUILDING_FINANCE_CENTER</Type>
 			<BuildingClass>BUILDINGCLASS_FINANCE_CENTER</BuildingClass>
 			<Cost>125</Cost>
-			<PrereqTech>TECH_COMBUSTION</PrereqTech>
+			<PrereqTech>TECH_BIOLOGY</PrereqTech>
 			<Help>TXT_KEY_BUILDING_FINANCE_CENTER_HELP</Help>
 			<Description>TXT_KEY_BUILDING_FINANCE_CENTER</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_FINANCE_CENTER_TEXT</Civilopedia>

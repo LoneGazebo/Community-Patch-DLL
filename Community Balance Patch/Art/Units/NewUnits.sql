@@ -115,6 +115,10 @@ INSERT INTO Unit_AITypes (UnitType, UnitAIType)
 	SELECT 'UNIT_MOUNTED_BOWMAN', 'UNITAI_RANGED'
 	FROM Unit_AITypes WHERE (UnitType = 'UNIT_HUN_HORSE_ARCHER');
 
+INSERT INTO Unit_AITypes (UnitType, UnitAIType)
+	SELECT 'UNIT_MOUNTED_BOWMAN', 'UNITAI_COUNTER'
+	FROM Unit_AITypes WHERE (UnitType = 'UNIT_HUN_HORSE_ARCHER');
+
 INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
 	SELECT 'UNIT_MOUNTED_BOWMAN', 'UNITCLASS_CUIRASSIER'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
@@ -185,6 +189,10 @@ INSERT INTO Unit_AITypes (UnitType, UnitAIType)
 	SELECT 'UNIT_CUIRASSIER', 'UNITAI_RANGED'
 	FROM Unit_AITypes WHERE (UnitType = 'UNIT_HUN_HORSE_ARCHER');
 
+INSERT INTO Unit_AITypes (UnitType, UnitAIType)
+	SELECT 'UNIT_CUIRASSIER', 'UNITAI_COUNTER'
+	FROM Unit_AITypes WHERE (UnitType = 'UNIT_HUN_HORSE_ARCHER');
+
 INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
 	SELECT 'UNIT_CUIRASSIER', 'UNITCLASS_CAVALRY'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
@@ -230,7 +238,7 @@ INSERT INTO Language_en_US (Tag, Text)
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Tag, Text)
-	SELECT 'TXT_KEY_CIV5_CUIRASSIER_STRATEGY', 'Cuirassiers are powerful Renaissance-Era units capable of rapid movement and deadly ranged attacks. Use them to harass the enemy and support your war effort. They are the strongest (and last) Mounted Ranged Unit available.'
+	SELECT 'TXT_KEY_CIV5_CUIRASSIER_STRATEGY', 'Cuirassiers are powerful Renaissance-Era units capable of rapid movement and deadly ranged attacks. Use them to harass the enemy and support your war effort.'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Tag, Text)

@@ -524,7 +524,7 @@
 			<Text>Baths</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROVE">
-			<Text>Elder</Text>
+			<Text>Council</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HERBALIST">
 			<Text>Herbalist</Text>
@@ -545,7 +545,7 @@
 			<Text>Mine Field</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROVE_STRATEGY">
-			<Text>The Elder offers a small sum of Science, but is availble very early. Build this building if you wish to have a technological advantage over your rivals.</Text>
+			<Text>The Council offers a small sum of Science, but is availble very early. Build this building if you wish to have a technological advantage over your rivals.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_STRATEGY">
 			<Text>The Bath increases the speed at which Great People are generated in the city by 20% (5% less than the Garden), generates Science based on the City's Culture rate, and boosts the yields of Citrus and Cocoa resources. Baths can be constructed only in cities not next to a river. Requires an Aqueduct in order to be constructed.</Text>
@@ -599,7 +599,7 @@
 			<Text>Requires 1 [ICON_RES_IRON] Iron. Enemy Naval Units and Embarked Units must expend 1 extra [ICON_MOVES] movement per Tile if they move into a Tile worked by this City.[NEWLINE][NEWLINE]City must be built on the coast.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GROVE_TEXT">
-			<Text>Elder is a role played in the organised community that is most common in subsistence cultures, Elderhood being the condition or quality of being an elder. It is essentially the state of being in the latter portion of one's life and being looked to for leadership of either a passive or active nature by your peers and\or subordinates due almost exclusively to this fact. Sometimes it involves a ceremonial investiture of some kind, and other times it does not. Sometimes it involves a definite chronological milestone which must be surpassed, while at other times the required age is simply relative to the ages of all of the other members of the group in question. Once having met the peculiar requirements of their individual groups, however, all elders are generally expected to mentor, share their experience, create a sense of oneness for their followings and, most especially, act as the spiritual embodiments of their communities.</Text>
+			<Text>A Council is a governing body in an organised community. It is most common in subsistence cultures, with council membership being the condition or quality of being a political leader of a community. Over time, as communities grew, the importance of councils diminished in favor of larger governing institutions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BATH_TEXT">
 			<Text>Throughout history, societies devised systems to enable water to be brought to population centres. Ancient Greece utilized small bathtubs, wash basins, and foot baths for personal cleanliness. The earliest findings of baths date from the mid-2nd millennium BC in the palace complex at Knossos, Crete, and the luxurious alabaster bathtubs excavated in Akrotiri, Santorini. The Greeks established public baths and showers within gymnasiums for relaxation and personal hygiene. In fact, the word gymnasium comes from the Greek word gymnos, meaning naked. Ancient Rome developed a network of aqueducts to supply water to all large towns and population centres and had indoor plumbing, with pipes that terminated in homes and at public wells and fountains. The Roman public baths were called thermae. With the fall of the Roman Empire the aqueduct network fell into disrepair and most of it ceased to be used. In the Middle Ages, bathing commonly took place in public bathhouses. However, public nudity was frowned upon by liturgical factions of the period. Public baths were also havens for prostitution, which created opposition to the public baths. Rich people bathed at home, most likely in their bedroom, as 'bath' rooms were not common. Bathing was done in large, wooden tubs with a linen cloth laid in it to protect the bather from splinters. Additionally, during the Renaissance and Protestant Reformation, the quality and condition of the clothing (as opposed to the actual cleanliness of the body itself) were thought to reflect the soul of an individual. Clean clothing also reflected one's social status; clothes made the man or woman. Additionally, from the late Middle Ages through to the end of the 18th century, etiquette and medical manuals advised people to only wash the parts of the body that were visible to the public; for example, the ears, hands, feet, and face and neck. This did away with the public baths and left the cleaning of oneself to the privacy of one's home.</Text>

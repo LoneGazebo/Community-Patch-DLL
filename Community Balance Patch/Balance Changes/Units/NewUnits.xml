@@ -125,6 +125,13 @@
 			<DefaultUnit>UNIT_EXPLORER</DefaultUnit>
 		</Row>
 	</UnitClasses>
+	<UnitClasses>
+		<Row>
+			<Type>UNITCLASS_ZEPPELIN</Type>
+			<Description>TXT_KEY_UNIT_ZEPPELIN</Description>
+			<DefaultUnit>UNIT_ZEPPELIN</DefaultUnit>
+		</Row>
+	</UnitClasses>
 	<Units>
 		<Row>
 			<Class>UNITCLASS_EXPLORER</Class>
@@ -134,8 +141,8 @@
 			<FaithCost>200</FaithCost>
 			<RequiresFaithPurchaseEnabled>true</RequiresFaithPurchaseEnabled>
 			<Moves>3</Moves>
-			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
-			<ObsoleteTech>TECH_ATOMIC_THEORY</ObsoleteTech>
+			<PrereqTech>TECH_COMPASS</PrereqTech>
+			<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
 			<CombatClass>UNITCOMBAT_RECON</CombatClass>
 			<Domain>DOMAIN_LAND</Domain>
 			<NoBadGoodies>true</NoBadGoodies>
@@ -146,12 +153,12 @@
 			<Help>TXT_KEY_UNIT_HELP_EXPLORER_CBP</Help>
 			<Pillage>true</Pillage>
 			<MilitarySupport>true</MilitarySupport>
-			<GoodyHutUpgradeUnitClass>UNITCLASS_VOLLEY_GUN</GoodyHutUpgradeUnitClass>
+			<GoodyHutUpgradeUnitClass>UNITCLASS_ZEPPELIN</GoodyHutUpgradeUnitClass>
 			<MilitaryProduction>true</MilitaryProduction>
 			<AdvancedStartCost>30</AdvancedStartCost>
 			<XPValueAttack>3</XPValueAttack>
 			<XPValueDefense>3</XPValueDefense>
-			<UnitArtInfo>ART_DEF_UNIT_EXPLORER</UnitArtInfo>
+			<UnitArtInfo>ART_DEF_UNIT_U_SPANISH_TERCIO</UnitArtInfo>
 			<UnitFlagAtlas>EXPANSION2_UNIT_FLAG_ATLAS</UnitFlagAtlas>
 			<UnitFlagIconOffset>5</UnitFlagIconOffset>
 			<PortraitIndex>58</PortraitIndex>
@@ -179,10 +186,6 @@
 		<Row>
 			<UnitType>UNIT_SHOSHONE_PATHFINDER</UnitType>
 			<UnitClassType>UNITCLASS_EXPLORER</UnitClassType>
-		</Row>
-		<Row>
-			<UnitType>UNIT_EXPLORER</UnitType>
-			<UnitClassType>UNITCLASS_PARATROOPER</UnitClassType>
 		</Row>
 	</Unit_ClassUpgrades>
 	<Unit_Flavors>
@@ -215,13 +218,111 @@
 			<Text>Explorer</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_EXPLORER_STRATEGY_CBP">
-			<Text>Explorers are a useful counterpart to Caravels when setting out to explore across the ocean during the Renaissance and Industrial periods. They are fairly weak and, therefore, are easily defeated by contemporary military units, however their reconaissance abilities are unparalleled.</Text>
+			<Text>Explorers are a useful counterpart to Caravels when setting out to explore across the ocean during the Medieval and Renaissance periods. They are fairly weak and, therefore, are easily defeated by contemporary military units, however their reconaissance abilities are unparalleled.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HELP_EXPLORER_CBP">
-			<Text>Mid-game exploration unit that is stronger while embarked, has additional sight while embarked, and can cross Oceans. Use these units to discover new lands.</Text>
+			<Text>Mid-game exploration unit that is stronger and has additional sight while embarked. Use these units to discover new lands.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_EXPLORER_TEXT_CBP">
 			<Text>Exploration is the act of searching for the purpose of discovery of information or resources. Exploration occurs in all non-sessile animal species, including humans. In human history, its most dramatic rise was during the Age of Discovery when European explorers sailed and charted much of the rest of the world, largely in a pursuit of material wealth. Since then, major explorations after the Age of Discovery have occurred for reasons mostly aimed at information discovery.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Explorer -->
+
+	<Units>
+		<Row>
+			<Class>UNITCLASS_ZEPPELIN</Class>
+			<Type>UNIT_ZEPPELIN</Type>
+			<Combat>25</Combat>
+			<Cost>300</Cost>
+			<FaithCost>300</FaithCost>
+			<RequiresFaithPurchaseEnabled>true</RequiresFaithPurchaseEnabled>
+			<Moves>3</Moves>
+			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+			<ObsoleteTech>TECH_ROCKETRY</ObsoleteTech>
+			<CombatClass>UNITCOMBAT_RECON</CombatClass>
+			<Domain>DOMAIN_LAND</Domain>
+			<NoBadGoodies>true</NoBadGoodies>
+			<DefaultUnitAI>UNITAI_EXPLORE</DefaultUnitAI>
+			<Description>TXT_KEY_UNIT_ZEPPELIN_CBP</Description>
+			<Civilopedia>TXT_KEY_CIV5_ZEPPELIN_TEXT_CBP</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_ZEPPELIN_STRATEGY_CBP</Strategy>
+			<Help>TXT_KEY_UNIT_HELP_ZEPPELIN_CBP</Help>
+			<Pillage>true</Pillage>
+			<MilitarySupport>true</MilitarySupport>
+			<GoodyHutUpgradeUnitClass>UNITCLASS_PARATROOPER</GoodyHutUpgradeUnitClass>
+			<MilitaryProduction>true</MilitaryProduction>
+			<AdvancedStartCost>30</AdvancedStartCost>
+			<XPValueAttack>3</XPValueAttack>
+			<XPValueDefense>3</XPValueDefense>
+			<UnitArtInfo>ART_DEF_UNIT_SMOKEY_STEAM_AIRSHIP_LEVEL_1</UnitArtInfo>
+			<MoveRate>WHEELED</MoveRate>
+			<UnitFlagIconOffset>7</UnitFlagIconOffset>
+			<UnitFlagAtlas>EXPANSION_SCEN_UNIT_FLAG_ATLAS</UnitFlagAtlas>
+			<PortraitIndex>7</PortraitIndex>
+			<IconAtlas>EXPANSION_SCEN_UNIT_ATLAS</IconAtlas>
+		</Row>
+	</Units>
+	<UnitGameplay2DScripts>
+		<Row>
+			<UnitType>UNIT_ZEPPELIN</UnitType>
+			<SelectionSound>AS2D_SELECT_SCOUT</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_SCOUT</FirstSelectionSound>
+		</Row>
+	</UnitGameplay2DScripts>
+	<Unit_AITypes>
+		<Row>
+			<UnitType>UNIT_ZEPPELIN</UnitType>
+			<UnitAIType>UNITAI_EXPLORE</UnitAIType>
+		</Row>
+	</Unit_AITypes>
+	<Unit_ClassUpgrades>
+		<Row>
+			<UnitType>UNIT_EXPLORER</UnitType>
+			<UnitClassType>UNITCLASS_ZEPPELIN</UnitClassType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_ZEPPELIN</UnitType>
+			<UnitClassType>UNITCLASS_PARATROOPER</UnitClassType>
+		</Row>
+	</Unit_ClassUpgrades>
+	<Unit_Flavors>
+		<Row>
+			<UnitType>UNIT_ZEPPELIN</UnitType>
+			<FlavorType>FLAVOR_RECON</FlavorType>
+			<Flavor>15</Flavor>
+		</Row>
+	</Unit_Flavors>
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_ZEPPELIN</UnitType>
+			<PromotionType>PROMOTION_HOVERING_UNIT</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_ZEPPELIN</UnitType>
+			<PromotionType>PROMOTION_IGNORE_TERRAIN_COST</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_ZEPPELIN</UnitType>
+			<PromotionType>PROMOTION_RECON_EXPERIENCE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_ZEPPELIN</UnitType>
+			<PromotionType>PROMOTION_EXTRA_SIGHT_I</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_UNIT_ZEPPELIN_CBP">
+			<Text>Zeppelin</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_ZEPPELIN_STRATEGY_CBP">
+			<Text>Zeppelins are a useful exploration unit that appears during the Industrial Era. They are fairly weak and, therefore, are easily defeated by contemporary military units, however their reconaissance abilities are unparalleled.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_HELP_ZEPPELIN_CBP">
+			<Text>Industrial-era exploration unit that can hover over all terrains, but cannot embark. Use these units to explore or to monitor your borders.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_ZEPPELIN_TEXT_CBP">
+			<Text>A Zeppelin was a type of rigid airship named after the German Count Ferdinand von Zeppelin who pioneered rigid airship development at the beginning of the 20th century. Zeppelin's ideas were first formulated in 1874 and developed in detail in 1893. They were patented in Germany in 1895 and in the United States in 1899. After the outstanding success of the Zeppelin design, the word zeppelin came to be commonly used to refer to all rigid airships. Zeppelins were first flown commercially in 1910 by Deutsche Luftschiffahrts-AG (DELAG), the world's first airline in revenue service. By mid-1914, DELAG had carried over 10,000 fare-paying passengers on over 1,500 flights. During World War I the German military made extensive use of Zeppelins as bombers and scouts, killing over 500 people in bombing raids in Britain.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

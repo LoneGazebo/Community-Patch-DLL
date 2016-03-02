@@ -504,38 +504,40 @@ void CvCitySpecializationAI::WeightSpecializations()
 				iFaithYieldWeight += iYieldAverage;
 			}
 
-			iGeneralEconomicWeight += (iYieldAverage / 2);
+			iGeneralEconomicWeight += (iYieldAverage / 3);
 
 			//Then Lowest
 			YieldTypes eLowestYield = pLoopCity->GetCityStrategyAI()->GetMostDeficientYield();
-			iYieldAverage = (int)citystrategyround(pLoopCity->GetCityStrategyAI()->GetYieldAverage(eLowestYield) * 100);
+			int iLowestYieldAverage = (int)citystrategyround(pLoopCity->GetCityStrategyAI()->GetYieldAverage(eLowestYield) * 100);
+
+			int iDelta = iYieldAverage - iLowestYieldAverage;
 
 			if(eLowestYield == YIELD_FOOD)
 			{
-				iFoodYieldWeight += iYieldAverage;
+				iFoodYieldWeight += iDelta;
 			}
 			else if(eLowestYield == YIELD_PRODUCTION)
 			{
-				iProductionYieldWeight += iYieldAverage;
+				iProductionYieldWeight += iDelta;
 			}
 			else if(eLowestYield == YIELD_GOLD)
 			{
-				iGoldYieldWeight += iYieldAverage;
+				iGoldYieldWeight += iDelta;
 			}
 			else if(eLowestYield == YIELD_SCIENCE)
 			{
-				iScienceYieldWeight += iYieldAverage;
+				iScienceYieldWeight += iDelta;
 			}
 			else if(eLowestYield == YIELD_CULTURE)
 			{
-				iCultureYieldWeight += iYieldAverage;
+				iCultureYieldWeight += iDelta;
 			}
 			else if(eLowestYield == YIELD_FAITH)
 			{
-				iFaithYieldWeight += iYieldAverage;
+				iFaithYieldWeight += iDelta;
 			}
 
-			iGeneralEconomicWeight += (iYieldAverage / 2);
+			iGeneralEconomicWeight += (iDelta / 3);
 		}			
 
 		//   Add in any contribution from the current grand strategy
@@ -585,7 +587,7 @@ void CvCitySpecializationAI::WeightSpecializations()
 		iFoodYieldWeight /= 100;
 
 		//Subtype considerations for Production (instead of flavor)
-		iProductionYieldWeight *= (100 + (WeightProductionSubtypes(iFlavorWonder, iFlavorSpaceship) / 100));
+		iProductionYieldWeight *= (100 + (WeightProductionSubtypes(iFlavorWonder, iFlavorSpaceship) / 125));
 		iProductionYieldWeight /= 100;
 
 		//Gold
