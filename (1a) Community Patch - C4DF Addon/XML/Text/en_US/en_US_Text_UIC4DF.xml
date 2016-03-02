@@ -612,6 +612,9 @@
 		<Row Tag="TXT_KEY_VO_NO_VASSALS">
 			<Text>You have no vassals.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_VO_TAXES_AVAILABLE_TT">
+			<Text>There are {1_Num} vassals available to set taxes for.</Text>
+		</Row>
 		
 		<!-- Vassal Overview: Master -->
 		<Row Tag="TXT_KEY_VO_INDEPENDENCE_POSSIBLE_MASTER">
