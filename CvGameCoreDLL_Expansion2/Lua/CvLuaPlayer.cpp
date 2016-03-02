@@ -8162,7 +8162,7 @@ int CvLuaPlayer::lGetLuxuryBonusPlusOne(lua_State* L)
 	int iNumLux = iNumHappinessResources + iIncrease;
 	if(iNumLux > 0)
 	{
-		iExtraHappiness = ((iNumLux * iHappiness * 100) / /*8*/ GC.getBALANCE_HAPPINESS_LUXURY_BASE());
+		iExtraHappiness = ((iNumLux * iHappiness * 100) / /*8*/ std::max(1,GC.getBALANCE_HAPPINESS_LUXURY_BASE()));
 	}
 
 	const int iResult = iExtraHappiness;

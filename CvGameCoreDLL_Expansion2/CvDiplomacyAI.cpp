@@ -39110,7 +39110,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 {
 	TeamTypes eOurTeam = GetPlayer()->getTeam();
 	CvTeam& kOurTeam = GET_TEAM(eOurTeam);
-
+	
 	TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam();
 	CvTeam& kTheirTeam = GET_TEAM(eTheirTeam);
 
@@ -40542,54 +40542,32 @@ CvString CvDiplomacyAI::GetVassalTreatmentToolTip(PlayerTypes ePlayer) const
 
 		// Demands made of them
 		iScore = GetVassalDemandScore(ePlayer);
-		if(iScore != 0)
-		{
-			szColor = (iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]";
-			szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_DEMAND", -iScore) + "[ENDCOLOR]";
-		}
+		szColor = ((iScore == 0) ? "[COLOR_GREY]" : ((iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]"));
+		szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_DEMAND", -iScore) + "[ENDCOLOR]";
+		
 		// Taxation policies
 		iScore = GetVassalTaxScore(ePlayer);
-		if(iScore != 0)
-		{
-			szColor = (iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]";
-			szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_TAX", -iScore) + "[ENDCOLOR]";
-		}
+		szColor = ((iScore == 0) ? "[COLOR_GREY]" : ((iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]"));
+		szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_TAX", -iScore) + "[ENDCOLOR]";
+		
 		// Protection of them
 		iScore = GetVassalFailedProtectScore(ePlayer) - GetVassalProtectScore(ePlayer);
-		if(iScore != 0)
-		{
-			szColor = (iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]";
-			szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_PROTECT", -iScore) + "[ENDCOLOR]";
-		}
+		szColor = ((iScore == 0) ? "[COLOR_GREY]" : ((iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]"));
+		szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_PROTECT", -iScore) + "[ENDCOLOR]";
+		
 		// Trade routes made with them
 		iScore = GetVassalTradeRouteScore(ePlayer);
-		if(iScore != 0)
-		{
-			szColor = (iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]";
-			szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_TRADE_ROUTE", -iScore) + "[ENDCOLOR]";
-		}
+		szColor = ((iScore == 0) ? "[COLOR_GREY]" : ((iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]"));
+		szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_TRADE_ROUTE", -iScore) + "[ENDCOLOR]";
+		
 		// Shared religion interests
 		iScore = GetVassalReligionScore(ePlayer);
-		if(iScore != 0)
-		{
-			szColor = (iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]";
-			szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_RELIGION", -iScore) + "[ENDCOLOR]";
-		}
+		szColor = ((iScore == 0) ? "[COLOR_GREY]" : ((iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]"));
+		szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_RELIGION", -iScore) + "[ENDCOLOR]";
 
-		if(iTotalScore == 0)
-			szColor = "[COLOR_GREY]";
-		else if(iTotalScore < 0)
-			szColor = "[COLOR_POSITIVE_TEXT]";
-		else
-			szColor = "[COLOR_NEGATIVE_TEXT]";
-
+		// Total score
+		szColor = ((iTotalScore == 0) ? "[COLOR_GREY]" : ((iTotalScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]"));
 		szRtnValue += "[NEWLINE][NEWLINE][TAB]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_TOTAL", -iTotalScore) + "[ENDCOLOR]";
-
-		/*szRtnValue += "[NEWLINE]" + GetLocalizedText("TXT_KEY_VO_TREATMENT_THRESHOLDS",
-			-GC.getVASSALAGE_TREATMENT_THRESHOLD_DISAGREE(),
-			-GC.getVASSALAGE_TREATMENT_THRESHOLD_MISTREATED(),
-			-GC.getVASSALAGE_TREATMENT_THRESHOLD_UNHAPPY(),
-			-GC.getVASSALAGE_TREATMENT_THRESHOLD_ENSLAVED());*/
 	}
 
 	return szRtnValue;
@@ -40714,6 +40692,34 @@ int CvDiplomacyAI::GetVassalReligionScore(PlayerTypes ePlayer) const
 		{
 			iOpinionWeight += -10;
 		}
+	}
+	// We do not share a religion, and the master has one
+	else if(eMasterReligion != NO_RELIGION)
+	{
+		bool bVassalFounded = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer() != NO_RELIGION;
+		bool bMasterFounded = GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer() != NO_RELIGION;
+		
+		// We both have a founded religion - at odds
+		if(bVassalFounded && bMasterFounded)
+		{
+			iOpinionWeight += 25;
+		}
+		// We founded a religion
+		else if(bVassalFounded)
+		{
+			iOpinionWeight += 10;
+		}
+		// We didn't found a religion - don't care
+		else
+		{
+			iOpinionWeight += 0;
+		}
+	}
+
+	if(bVoluntaryVassal)
+	{
+		iOpinionWeight *= GC.getOPINION_WEIGHT_VASSALAGE_VOLUNTARY_VASSAL_MOD();
+		iOpinionWeight /= 100;
 	}
 	// We do not share a religion, and the master has one
 	else if(eMasterReligion != NO_RELIGION)
