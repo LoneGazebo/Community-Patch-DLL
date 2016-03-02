@@ -1653,6 +1653,7 @@ local predefined = {
 	[L"TXT_KEY_RELIGION_OVERVIEW"] = "",--"DC45_ReligionOverview.dds",
 	[L"TXT_KEY_LEAGUE_OVERVIEW"] = "DC45_WorldCongress.dds",
 	[L"TXT_KEY_INFOADDICT_MAIN_TITLE"] = "DC45_InfoAddict.dds",
+	[L"TXT_KEY_C4DF_VASSAL_OVERVIEW"] = "DC45_VassalOverview.dds",
 }
 
 LuaEvents.AdditionalInformationDropdownGatherEntries.Add(

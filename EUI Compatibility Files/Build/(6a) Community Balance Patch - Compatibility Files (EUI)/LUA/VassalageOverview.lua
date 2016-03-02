@@ -24,7 +24,7 @@ local g_IdeologyBackgrounds = {
 }
 
 local g_SelectedVassal = nil;
-local g_SelectedMaster = nill;
+local g_SelectedMaster = nil;
 
 -----------------------------------------------------------------
 -- Add Vassal Overview to Dropdown (if enabled)
@@ -32,7 +32,7 @@ local g_SelectedMaster = nill;
 LuaEvents.AdditionalInformationDropdownGatherEntries.Add( function(entries)
 	if(not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_VASSALAGE)) then
 		table.insert(entries, {
-			text = Locale.Lookup("TXT_KEY_VO"),
+			text = Locale.Lookup("TXT_KEY_C4DF_VASSAL_OVERVIEW"),
 			call = function()
 				Events.SerialEventGameMessagePopup {
 					Type = ButtonPopupTypes.BUTTONPOPUP_MODDER_11,
