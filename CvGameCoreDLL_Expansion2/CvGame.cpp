@@ -3042,7 +3042,11 @@ void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt)
 				if(pLoopUnit->canMove())
 				{
 					CvPlayerAI* pOwnerPlayer = &(GET_PLAYER(pLoopUnit->getOwner()));
+#if defined(MOD_BALANCE_CORE)
+					if( !pOwnerPlayer->isSimultaneousTurns() || getGameTurn() - pLoopUnit->getLastMoveTurn() >= 1)
+#else
 					if( !pOwnerPlayer->isSimultaneousTurns() || getTurnSlice() - pLoopUnit->getLastMoveTurn() > GC.getMIN_TIMER_UNIT_DOUBLE_MOVES())
+#endif
 					{
 						if(bAlt || (pLoopUnit->getUnitType() == pUnit->getUnitType()))
 						{
@@ -3584,7 +3588,11 @@ void CvGame::doControl(ControlTypes eControl)
 
 				if(pUnit->getOwner() == getActivePlayer())
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(!GET_PLAYER(pUnit->getOwner()).isSimultaneousTurns() || getGameTurn() - pUnit->getLastMoveTurn() >= 1)
+#else
 					if(!GET_PLAYER(pUnit->getOwner()).isSimultaneousTurns() || getTurnSlice() - pUnit->getLastMoveTurn() > GC.getMIN_TIMER_UNIT_DOUBLE_MOVES())
+#endif
 					{
 						if(pUnit->IsHurt())
 						{
@@ -11274,17 +11282,24 @@ void CvGame::DoMinorBullyUnit(PlayerTypes eBully, PlayerTypes eMinor)
 	CvAssertMsg(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
 	CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
 
-#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
-	UnitTypes eUnitType = (UnitTypes) GC.getUNITCLASS_FOR_CS_BULLY();
-	if(eUnitType == NO_UNITCLASS)
+#if defined(MOD_BALANCE_CORE)
+	UnitClassTypes eUnitClassType = GET_PLAYER(eMinor).GetMinorCivAI()->GetBullyUnit();
+	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClassType);
+	UnitTypes eUnitType = NO_UNIT;
+	if(pkUnitClassInfo != NULL)
 	{
-		eUnitType = GET_PLAYER(eBully).GetSpecificUnitType("UNITCLASS_WORKER");
+		eUnitType = ((UnitTypes)(GET_PLAYER(eMinor).getCivilizationInfo().getCivilizationUnits((int)eUnitClassType)));
 	}
+	if(eUnitType != NO_UNIT)
+	{
 #else
 	UnitTypes eUnitType = (UnitTypes) GC.getInfoTypeForString("UNIT_WORKER"); //antonjs: todo: XML/function
 #endif
 
 	gDLL->sendMinorBullyUnit(eBully, eMinor, eUnitType);
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------

@@ -158,6 +158,11 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			end
 		end
 		
+		-- CBP Num Social Policies
+		local iNumPolicies = pBuildingInfo.NumPoliciesNeeded;
+		if(iNumPolicies > 0) then
+			table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POLICY_NEEDED_LABEL", iNumPolicies));
+		end
 	end
 	
 	-- Happiness (from all sources)
@@ -1376,7 +1381,16 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 	end
 
-	-- CBP -- Yield Increase from CS Alliance (Germany)
+
+	-- Yield Increase from City Yields
+	if (iYieldType == YieldTypes.YIELD_SCIENCE) then
+		local iYieldFromYields = pCity:GetScienceFromCityYield(iYieldType);
+		if (iYieldFromYields ~= 0) then
+			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_CITY_YIELDS", iYieldFromYields, strIconString);
+			strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+		end
+	end
+		-- CBP -- Yield Increase from CS Alliance (Germany)
 	local iYieldFromCSAlliance = pCity:GetBaseYieldRateFromCSAlliance(iYieldType);
 	if (iYieldFromCSAlliance ~= 0) then
 		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_CS_ALLIANCE", iYieldFromCSAlliance, strIconString);
@@ -1457,13 +1471,17 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 
 	-- WLTKD MOD
 	local iYieldFromWLTKD = pCity:GetModFromWLTKD(iYieldType);
-	strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_WLTKD", iYieldType, strIconString);
-	strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+	if(iYieldFromWLTKD ~= 0) then
+		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_WLTKD", iYieldFromWLTKD, strIconString);
+		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+	end
 
 	-- Golden Age MOD
 	local iYieldFromGA = pCity:GetModFromGoldenAge(iYieldType);
-	strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_GOLDEN_AGE", iYieldType, strIconString);
-	strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+	if(iYieldFromGA ~= 0) then
+		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_GOLDEN_AGE", iYieldFromGA, strIconString);
+		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+	end
 -- END CBP
 
 	local strExtraBaseString = "";

@@ -70,6 +70,9 @@ public:
 	int GetDomesticGreatGeneralRateModifier() const;
 	int GetExtraHappiness() const;
 	int GetExtraHappinessPerCity() const;
+#if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
+	int GetExtraNaturalWonderHappiness() const;
+#endif
 	int GetUnhappinessMod() const;
 	int GetCityCountUnhappinessMod() const;
 	int GetOccupiedPopulationUnhappinessMod() const;
@@ -381,6 +384,9 @@ private:
 	int m_iDomesticGreatGeneralRateModifier;
 	int m_iExtraHappiness;
 	int m_iExtraHappinessPerCity;
+#if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
+	int m_iExtraNaturalWonderHappiness;
+#endif
 	int m_iUnhappinessMod;
 	int m_iCityCountUnhappinessMod;
 	int m_iOccupiedPopulationUnhappinessMod;
@@ -723,6 +729,9 @@ enum PolicyModifierType
 {
     POLICYMOD_EXTRA_HAPPINESS = 0,
     POLICYMOD_EXTRA_HAPPINESS_PER_CITY,
+#if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
+	POLICYMOD_EXTRA_NATURALWONDER_HAPPINESS,
+#endif
     POLICYMOD_GREAT_PERSON_RATE,
     POLICYMOD_GREAT_GENERAL_RATE,
     POLICYMOD_DOMESTIC_GREAT_GENERAL_RATE,
@@ -807,7 +816,11 @@ public:
 	// Accessor functions
 	bool HasPolicy(PolicyTypes eIndex) const;
 	void SetPolicy(PolicyTypes eIndex, bool bNewValue);
+#if defined(MOD_BALANCE_CORE)
+	int GetNumPoliciesOwned(bool bSkipFinisher = false) const;
+#else
 	int GetNumPoliciesOwned() const;
+#endif
 	int GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) const;
 	CvPolicyXMLEntries* GetPolicies() const;
 

@@ -10,7 +10,7 @@
 		<Row>
 			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Trait_YieldFromHistoricEvent>
 	<!-- Aztec -->
@@ -80,64 +80,7 @@
 			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
-	<!-- Arabia -->
-	<Language_en_US>
-		<Row Tag="TXT_KEY_PROMOTION_DESERT_SHIPS">
-			<Text>Arabian Terrain Bonus</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_DESERT_SHIPS_HELP">
-			<Text>Double movement on Desert tiles, double healing on Plains tiles.</Text>
-		</Row>
-		<!-- Germany -->
-		<Row Tag="TXT_KEY_YIELD_FROM_CS_ALLIANCE">
-			<Text>{1_Num} {2_IconString} from City-State Alliances</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_TRAIT_VOTES">
-			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Civilization Trait</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_FROM_CONNECTION">
-			<Text>{1_Num} {2_IconString} from [ICON_CONNECTED] City Connections</Text>
-		</Row>
-	</Language_en_US>
-	<!--<Trait_FreePromotionUnitCombats>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
-			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
-			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
-			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
-			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
-			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
-			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
-			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
-		</Row>
-	</Trait_FreePromotionUnitCombats>
-	-->
-
+	
 	<!-- Egypt -->
 	<Trait_ArtifactYieldChanges>
 		<Row>
@@ -229,50 +172,8 @@
 			<Yield>10</Yield>
 		</Row>
 	</Building_YieldFromVictory>
-	<Unit_FreePromotions>
-		<Row>
-			<UnitType>UNIT_EGYPTIAN_WARCHARIOT</UnitType>
-			<PromotionType>PROMOTION_ENSLAVEMENT</PromotionType>
-		</Row>
-	</Unit_FreePromotions>
+	
 	<!-- Iroquois -->
-	<Trait_FreePromotionUnitCombats>
-		<Row>
-			<TraitType>TRAIT_IGNORE_TERRAIN_IN_FOREST</TraitType>
-			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-			<PromotionType>PROMOTION_WOODSMAN</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_IGNORE_TERRAIN_IN_FOREST</TraitType>
-			<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
-			<PromotionType>PROMOTION_WOODSMAN</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_IGNORE_TERRAIN_IN_FOREST</TraitType>
-			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
-			<PromotionType>PROMOTION_WOODSMAN</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_IGNORE_TERRAIN_IN_FOREST</TraitType>
-			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
-			<PromotionType>PROMOTION_WOODSMAN</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_IGNORE_TERRAIN_IN_FOREST</TraitType>
-			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
-			<PromotionType>PROMOTION_WOODSMAN</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_IGNORE_TERRAIN_IN_FOREST</TraitType>
-			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
-			<PromotionType>PROMOTION_WOODSMAN</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_IGNORE_TERRAIN_IN_FOREST</TraitType>
-			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
-			<PromotionType>PROMOTION_WOODSMAN</PromotionType>
-		</Row>
-	</Trait_FreePromotionUnitCombats>
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_LONGHOUSE</BuildingType>
@@ -351,21 +252,22 @@
 		<Row Tag="TXT_KEY_CULTURE_FROM_CS_ALLIANCE">
 			<Text>{1_Num} [ICON_CULTURE] from City-State Alliances</Text>
 		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_CS_ALLIANCE">
+			<Text>{1_Num} {2_IconString} from City-State Alliances</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_TRAIT_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Civilization Trait</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_CONNECTION">
+			<Text>{1_Num} {2_IconString} from [ICON_CONNECTED] City Connections</Text>
+		</Row>
 	</Language_en_US>
-	<!-- Greece -->
-	<Unit_FreePromotions>
-		<Row>
-			<UnitType>UNIT_GREEK_HOPLITE</UnitType>
-			<PromotionType>PROMOTION_SPAWN_GENERALS_II</PromotionType>
-		</Row>
-	</Unit_FreePromotions>
 	<!-- India -->
-	<Trait_NoTrain>
-		<Row>
-			<TraitType>TRAIT_POPULATION_GROWTH</TraitType>
-			<UnitClassType>UNITCLASS_MISSIONARY</UnitClassType>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_TRAIT_POPULATION_GROWTH_SHORT_CBP">
+			<Text>Font of Dharma</Text>
 		</Row>
-	</Trait_NoTrain>
+	</Language_en_US>
 	<!-- Oda -->
 	<Language_en_US>
 		<Row Tag="TXT_KEY_EUPANEL_BUSHIDO">
@@ -388,28 +290,6 @@
 			<Yield>1</Yield>
 		</Row>
 	</Trait_UnimprovedFeatureYieldChanges>
-	<Trait_BuildsUnitClasses>
-		<Row>
-			<TraitType>TRAIT_FIGHT_WELL_DAMAGED</TraitType>
-			<UnitClassType>UNITCLASS_TRIREME</UnitClassType>
-			<BuildType>BUILD_FISHING_BOATS</BuildType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_FIGHT_WELL_DAMAGED</TraitType>
-			<UnitClassType>UNITCLASS_CARAVEL</UnitClassType>
-			<BuildType>BUILD_FISHING_BOATS</BuildType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_FIGHT_WELL_DAMAGED</TraitType>
-			<UnitClassType>UNITCLASS_DESTROYER</UnitClassType>
-			<BuildType>BUILD_FISHING_BOATS</BuildType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_FIGHT_WELL_DAMAGED</TraitType>
-			<UnitClassType>UNITCLASS_PRIVATEER</UnitClassType>
-			<BuildType>BUILD_FISHING_BOATS</BuildType>
-		</Row>
-	</Trait_BuildsUnitClasses>
 	<!-- Siam -->
 	<Building_YieldChanges>
 		<Row>
@@ -456,13 +336,7 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_FeatureYieldChanges>
-	<!-- Askia -->
-	<Unit_FreePromotions>
-		<Row>
-			<UnitType>UNIT_SONGHAI_MUSLIMCAVALRY</UnitType>
-			<PromotionType>PROMOTION_RAIDER</PromotionType>
-		</Row>
-	</Unit_FreePromotions>
+	<!-- Songhai -->
 	<Civilization_Start_Along_River>
 		<Row>
 			<CivilizationType>CIVILIZATION_SONGHAI</CivilizationType>
@@ -612,20 +486,6 @@
 			<ResourceQuantityModifier>100</ResourceQuantityModifier>
 		</Row>
 	</Trait_ResourceQuantityModifiers>
-	<!-- England -->
-	<Unit_FreePromotions>
-		<Row>
-			<UnitType>UNIT_ENGLISH_SHIPOFTHELINE</UnitType>
-			<PromotionType>PROMOTION_LOGISTICS</PromotionType>
-		</Row>
-	</Unit_FreePromotions>
-	<!-- Germany -->
-	<Unit_FreePromotions>
-		<Row>
-			<UnitType>UNIT_GERMAN_PANZER</UnitType>
-			<PromotionType>PROMOTION_ARMOR_PLATING_1</PromotionType>
-		</Row>
-	</Unit_FreePromotions>
 	<!-- Persia -->
 	<Building_YieldChangesPerPop>
 		<Row>
@@ -634,9 +494,4 @@
 			<Yield>20</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_TRAIT_POPULATION_GROWTH_SHORT_CBP">
-			<Text>Font of Dharma</Text>
-		</Row>
-	</Language_en_US>
 </GameData>

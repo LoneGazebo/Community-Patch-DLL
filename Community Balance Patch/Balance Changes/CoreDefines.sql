@@ -1,3 +1,12 @@
+-- Science
+	UPDATE Defines
+	SET Value = '0'
+	WHERE Name = 'SCIENCE_PER_POPULATION';
+
+	UPDATE Defines
+	SET Value = '40'
+	WHERE Name = 'TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER';
+
 -- Trade Routes
 	UPDATE Defines
 	SET Value = '60'
@@ -26,6 +35,10 @@
 	UPDATE Defines
 	SET Value = '50'
 	WHERE Name = 'TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE';
+
+	UPDATE Defines
+	SET Value = '8'
+	WHERE Name = 'TRADE_ROUTE_BASE_LAND_DISTANCE';
 
 -- Deal Durations
 	UPDATE GameSpeeds

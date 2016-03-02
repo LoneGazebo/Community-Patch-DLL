@@ -82,6 +82,7 @@
 			<MilitaryProduction>true</MilitaryProduction>
 			<IgnoreBuildingDefense>true</IgnoreBuildingDefense>
 			<Mechanized>true</Mechanized>
+			<ShowInPedia>false</ShowInPedia>
 			<AdvancedStartCost>50</AdvancedStartCost>
 			<AirUnitCap>1</AirUnitCap>
 			<RangedCombatLimit>100</RangedCombatLimit>
@@ -104,6 +105,7 @@
 			<Moves>2</Moves>
 			<Immobile>true</Immobile>
 			<Range>6</Range>
+			<ShowInPedia>false</ShowInPedia>
 			<AirInterceptRange>6</AirInterceptRange>
 			<Special>SPECIALUNIT_FIGHTER</Special>
 			<CombatClass>UNITCOMBAT_FIGHTER</CombatClass>
@@ -136,6 +138,7 @@
 			<Combat>60</Combat>
 			<Cost>400</Cost>
 			<Moves>2</Moves>
+			<ShowInPedia>false</ShowInPedia>
 			<CombatClass>UNITCOMBAT_GUN</CombatClass>
 			<PolicyType>POLICY_PATRIOTIC_WAR</PolicyType>
 			<Domain>DOMAIN_LAND</Domain>
@@ -168,6 +171,7 @@
 			<RangedCombat>18</RangedCombat>
 			<Cost>-1</Cost>
 			<Moves>2</Moves>
+			<ShowInPedia>false</ShowInPedia>
 			<Range>2</Range>
 			<CombatClass>UNITCOMBAT_ARCHER</CombatClass>
 			<Domain>DOMAIN_LAND</Domain>
@@ -201,6 +205,7 @@
 			<CombatClass>UNITCOMBAT_MOUNTED</CombatClass>
 			<MinorCivGift>true</MinorCivGift>
 			<Domain>DOMAIN_LAND</Domain>
+			<ShowInPedia>false</ShowInPedia>
 			<DefaultUnitAI>UNITAI_FAST_ATTACK</DefaultUnitAI>
 			<Description>TXT_KEY_UNIT_GREEK_COMPANIONCAVALRY</Description>
 			<Civilopedia>TXT_KEY_CIV5_ANTIQUITY_COMPANIONCAVALRY_TEXT</Civilopedia>
@@ -226,6 +231,7 @@
 			<PrereqTech>TECH_METALLURGY</PrereqTech>
 			<Combat>32</Combat>
 			<Cost>-1</Cost>
+			<ShowInPedia>false</ShowInPedia>
 			<Moves>5</Moves>
 			<CombatClass>UNITCOMBAT_MOUNTED</CombatClass>
 			<Domain>DOMAIN_LAND</Domain>
@@ -258,6 +264,7 @@
 			<RangedCombat>12</RangedCombat>
 			<Cost>-1</Cost>
 			<Moves>2</Moves>
+			<ShowInPedia>false</ShowInPedia>
 			<HurryCostModifier>20</HurryCostModifier>
 			<Range>2</Range>
 			<CombatClass>UNITCOMBAT_SIEGE</CombatClass>
@@ -290,6 +297,7 @@
 			<Combat>26</Combat>
 			<Cost>-1</Cost>
 			<Moves>2</Moves>
+			<ShowInPedia>false</ShowInPedia>
 			<CombatClass>UNITCOMBAT_MELEE</CombatClass>
 			<Domain>DOMAIN_LAND</Domain>
 			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
@@ -319,6 +327,7 @@
 			<PrereqTech>TECH_METALLURGY</PrereqTech>
 			<Combat>32</Combat>
 			<Cost>-1</Cost>
+			<ShowInPedia>false</ShowInPedia>
 			<Moves>4</Moves>
 			<CombatClass>UNITCOMBAT_MOUNTED</CombatClass>
 			<Domain>DOMAIN_LAND</Domain>
@@ -350,6 +359,7 @@
 			<Combat>42</Combat>
 			<Cost>-1</Cost>
 			<Moves>4</Moves>
+			<ShowInPedia>false</ShowInPedia>
 			<CombatClass>UNITCOMBAT_MOUNTED</CombatClass>
 			<Domain>DOMAIN_LAND</Domain>
 			<MinorCivGift>true</MinorCivGift>
@@ -384,6 +394,7 @@
 			<Moves>2</Moves>
 			<CombatClass>UNITCOMBAT_MELEE</CombatClass>
 			<Domain>DOMAIN_LAND</Domain>
+			<ShowInPedia>false</ShowInPedia>
 			<DefaultUnitAI>UNITAI_CITY_BOMBARD</DefaultUnitAI>
 			<Description>TXT_KEY_UNIT_HUN_BATTERING_RAM</Description>
 			<Civilopedia>TXT_KEY_CIV5_HUN_BATTERING_RAM_TEXT</Civilopedia>

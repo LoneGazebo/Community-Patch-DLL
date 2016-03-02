@@ -319,7 +319,7 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		// We're offering help to a player
-		if (MOD_DIPLOMACY_CIV4_FEATURES)
+		if (MOD_DIPLOMACY_CIV4_FEATURES && (GetPlayer()->GetDiplomacyAI()->IsOfferingGift(eFromPlayer) || GetPlayer()->GetDiplomacyAI()->IsOfferedGift(eFromPlayer)))
 		{
 			//End the gift exchange after this.
 			GetPlayer()->GetDiplomacyAI()->SetOfferingGift(eFromPlayer, false);
@@ -426,17 +426,11 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 				//Vassals give in to demands more often, and give more away.
 				if(MOD_DIPLOMACY_CIV4_FEATURES)
 				{
-					if(GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).IsVassalOfSomeone())
+					TeamTypes eMasterTeam = GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).GetMaster();
+					if(eMasterTeam == GET_PLAYER(eFromPlayer).getTeam())
 					{
-						TeamTypes eMasterTeam = GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).GetMaster();
-						if(eMasterTeam != NO_TEAM)
-						{
-							if(eMasterTeam == GET_PLAYER(eFromPlayer).getTeam())
-							{
-								iOddsOfGivingIn += 100;
-								iValueWillingToGiveUp += 500;
-							}
-						}
+						iOddsOfGivingIn += 100;
+						iValueWillingToGiveUp += 500;
 					}
 				}
 #endif
@@ -3809,7 +3803,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			else if(eWarProjection == WAR_PROJECTION_GOOD)
 				iItemValue += 300;
 			else if(eWarProjection >= WAR_PROJECTION_STALEMATE)
-				iItemValue += 400;
+				iItemValue += 500;
 			else if(eWarProjection < WAR_PROJECTION_STALEMATE)
 				return INT_MAX;
 		}
@@ -3842,7 +3836,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				iItemValue *= 90;
 				iItemValue /= 100;
 			}
-			else if(eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_GUARDED && eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_FRIENDLY)
+			else if(eMajorApproachTowardsWarPlayer < MAJOR_CIV_APPROACH_GUARDED && eApproachTowardsAskingPlayer == MAJOR_CIV_APPROACH_FRIENDLY)
 			{
 				iItemValue *= 150;
 				iItemValue /= 100;
@@ -3906,7 +3900,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 						if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eWarPlayer).getTeam()))
 						{
 							WarStateTypes eWarState = pDiploAI->GetWarState(eWarPlayer);
-							if(eWarState <= WAR_STATE_STALEMATE)
+							if(eWarState <= WAR_STATE_CALM)
 							{
 								return INT_MAX;
 							}
@@ -3918,70 +3912,75 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					}
 				}
 			}
-			bool bTargetLand = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_SNEAK_CITY_ATTACK);
-			bool bTargetSeaPure = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_PURE_NAVAL_CITY_ATTACK);
-			bool bTargetSea = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_SNEAK_ATTACK);
-			if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
+			if(!GET_PLAYER(eOtherPlayer).isHuman())
 			{
-				CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTarget2(AI_OPERATION_SNEAK_CITY_ATTACK, eWithPlayer);
-				if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
+				bool bTargetLand = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_SNEAK_CITY_ATTACK);
+				bool bTargetSeaPure = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_PURE_NAVAL_CITY_ATTACK);
+				bool bTargetSea = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_SNEAK_ATTACK);
+				if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
 				{
-					if(!target.m_bAttackBySea)
+					CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTarget2(AI_OPERATION_SNEAK_CITY_ATTACK, eWithPlayer);
+					if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
 					{
-						bTargetLand = true;
+						if(!target.m_bAttackBySea)
+						{
+							bTargetLand = true;
+						}
+						else
+						{
+							bTargetSea = true;
+						}
 					}
-					else
+				}
+				//No target? Abort!
+				if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
+				{
+					return INT_MAX;
+				}
+				else if(!GetPlayer()->CanCrossOcean())
+				{
+					switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
 					{
-						bTargetSea = true;
+						case PLAYER_PROXIMITY_DISTANT:
+							return INT_MAX;
+						case PLAYER_PROXIMITY_FAR:
+							iItemValue *= 125;
+							break;
+						case PLAYER_PROXIMITY_CLOSE:
+							iItemValue *= 300;
+							break;
+						case PLAYER_PROXIMITY_NEIGHBORS:
+							iItemValue *= 500;
+							break;
+						default:
+							CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
+							iItemValue *= 100;
+							break;
 					}
+					iItemValue /= 100;
 				}
-			}
-			//No target? Abort!
-			if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
-			{
-				return INT_MAX;
-			}
-			else if(!GetPlayer()->CanCrossOcean())
-			{
-				switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
+				else
 				{
-					case PLAYER_PROXIMITY_DISTANT:
-					case PLAYER_PROXIMITY_FAR:
-						return INT_MAX;
-					case PLAYER_PROXIMITY_CLOSE:
-						iItemValue *= 250;
-						break;
-					case PLAYER_PROXIMITY_NEIGHBORS:
-						iItemValue *= 125;
-						break;
-					default:
-						CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
-						iItemValue *= 100;
-						break;
+					switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
+					{
+						case PLAYER_PROXIMITY_DISTANT:
+							return INT_MAX;
+						case PLAYER_PROXIMITY_FAR:
+							iItemValue *= 200;
+							break;
+						case PLAYER_PROXIMITY_CLOSE:
+							iItemValue *= 400;
+							break;
+						case PLAYER_PROXIMITY_NEIGHBORS:
+							iItemValue *= 500;
+							break;
+						default:
+							CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
+							iItemValue *= 100;
+							break;
+					}
+					iItemValue /= 100;
 				}
-				iItemValue /= 100;
-			}
-			else
-			{
-				switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
-				{
-					case PLAYER_PROXIMITY_DISTANT:
-						return INT_MAX;
-					case PLAYER_PROXIMITY_FAR:
-						iItemValue *= 400;
-						break;
-					case PLAYER_PROXIMITY_CLOSE:
-						iItemValue *= 300;
-						break;
-					case PLAYER_PROXIMITY_NEIGHBORS:
-						iItemValue *= 150;
-						break;
-					default:
-						CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
-						iItemValue *= 100;
-						break;
-				}
-				iItemValue /= 100;
 			}
 		}
 #else
@@ -4090,7 +4089,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					return INT_MAX;
 				}
 			}
-			else if(eMajorApproachTowardsWarPlayer <= MAJOR_CIV_APPROACH_DECEPTIVE)
+			else if(eMajorApproachTowardsWarPlayer < MAJOR_CIV_APPROACH_DECEPTIVE)
 			{
 				if(eApproachTowardsAskingPlayer <= MAJOR_CIV_APPROACH_HOSTILE)
 				{
@@ -4113,9 +4112,9 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		else if(eWarProjection2 >= WAR_PROJECTION_GOOD)
 			iItemValue += 200;
 		else if(eWarProjection2 == WAR_PROJECTION_UNKNOWN)
-			iItemValue += 300;
-		else if(eWarProjection2 == WAR_PROJECTION_STALEMATE)
 			iItemValue += 400;
+		else if(eWarProjection2 == WAR_PROJECTION_STALEMATE)
+			iItemValue += 500;
 		else if(eWarProjection2 < WAR_PROJECTION_STALEMATE)
 			return INT_MAX;
 
@@ -6343,20 +6342,18 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	pDeal->SetSurrenderingPlayer(eLosingPlayer);
 	int iWarScore = pLosingPlayer->GetDiplomacyAI()->GetWarScore(eWinningPlayer);
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	bool bVassalageOK = ((iWarScore <= -85) && GET_TEAM(pLosingPlayer->getTeam()).GetNumVassals() <= 0);
-	bool bBecomeMyVassal = false;
-	bool bEndVassalage = false;
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(MOD_DIPLOMACY_CIV4_FEATURES && bVassalageOK)
+	bool bBecomeMyVassal = pLosingPlayer->GetDiplomacyAI()->IsVassalageAcceptable(eWinningPlayer, true);
+	bool bRevokeMyVassals = false;
+	// Reduce war score if losing player wants to become winning player's vassal
+	if(MOD_DIPLOMACY_CIV4_FEATURES && bBecomeMyVassal)
 	{
-		bBecomeMyVassal = pLosingPlayer->GetDiplomacyAI()->IsVassalageAcceptable(eWinningPlayer, true);
 		iWarScore /= 2;
 	}
+	// Is losing player willing to revoke his vassals?
 	if(MOD_DIPLOMACY_CIV4_FEATURES && iWarScore <= -85 && GET_TEAM(pLosingPlayer->getTeam()).GetNumVassals() > 0)
 	{
 		//If we're willing to do this, give less below.
-		bEndVassalage = true;
+		bRevokeMyVassals = true;
 		iWarScore /= max(2, GET_TEAM(pLosingPlayer->getTeam()).GetNumVassals());
 	}
 	if(iWarScore < 0)
@@ -6665,7 +6662,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			pDeal->AddVassalageTrade(eLosingPlayer);
 		}
 	}
-	if(MOD_DIPLOMACY_CIV4_FEATURES && bEndVassalage)
+	if(MOD_DIPLOMACY_CIV4_FEATURES && bRevokeMyVassals)
 	{
 		if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_VASSALAGE_REVOKE))
 		{
@@ -7618,13 +7615,13 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 
 	// Don't ask for a war if we're hostile or planning a war
 	MajorCivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
-	if(eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR || eApproach == MAJOR_CIV_APPROACH_GUARDED)
+	if(eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR || eApproach == MAJOR_CIV_APPROACH_GUARDED || eApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
 	{
 		return false;
 	}
 
 	// Don't ask for war if they are weaker than us
-	if(GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) < STRENGTH_AVERAGE)
+	if(GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) <= STRENGTH_AVERAGE)
 	{
 		return false;
 	}
@@ -8744,8 +8741,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 
 	if(bFromMe)						
 	{
-		// Don't want to capitulate
-		if(!bWar && !m_pDiploAI->IsVassalageAcceptable(eOtherPlayer))
+		if(!m_pDiploAI->IsVassalageAcceptable(eOtherPlayer, bWar))
 		{
 			return INT_MAX;
 		}
@@ -8757,6 +8753,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 		{
 			return iItemValue;
 		}
+
 		// Add deal value based on number of wars player is currently fighting (including with minors)
 		iItemValue += iItemValue * min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getAtWarCount(true));
 
@@ -8824,10 +8821,10 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 				iItemValue *= 130;
 				break;
 			case MAJOR_CIV_APPROACH_AFRAID:
-				iItemValue *= 80;
+				iItemValue *= 75;
 				break;
 			case MAJOR_CIV_APPROACH_FRIENDLY:
-				iItemValue *= 90;
+				iItemValue *= 85;
 				break;
 			case MAJOR_CIV_APPROACH_NEUTRAL:
 				iItemValue *= 100;
@@ -9252,7 +9249,7 @@ bool CvDealAI::IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	}
 	else
 	{
-		CvAssertMsg(false, "Don't ask a human to become a vassal!");
+		CvAssertMsg(false, "Don't ask humans for vassalage!");
 	}
 
 	return bDealAcceptable;
@@ -9317,7 +9314,9 @@ bool CvDealAI::IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* p
 		}
 		else
 		{
-			CvAssertMsg(false, "Don't ask a human to become a vassal!");
+			bool bUselessReferenceVariable;
+			bool bCantMatchOffer;
+			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ false, /*bDontChangeTheirExistingItems*/ true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 	}
 

@@ -679,6 +679,52 @@ bool CvCityStrategyAI::IsYieldDeficient(YieldTypes eYieldType)
 		return false;
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+/// Determines if the yield is below a sustainable amount
+YieldTypes CvCityStrategyAI::GetMostDeficientYield()
+{
+	int iBestDiff = 0;
+	YieldTypes eBestYield = NO_YIELD;
+	for(uint ui = 0; ui < YIELD_TOURISM; ui++)
+	{
+		YieldTypes yield = (YieldTypes)ui;
+		double fDesiredYield = GetDeficientYieldValue(yield);
+		double fYieldAverage = GetYieldAverage(yield);
+
+		int iDesiredYield = (int)citystrategyround(fDesiredYield * 100);
+		int iYieldAverage = (int)citystrategyround(fYieldAverage * 100);
+		
+		int iDiff = iDesiredYield - iYieldAverage;
+
+		if(iDiff > iBestDiff)
+		{
+			eBestYield = yield;
+			iBestDiff = iDiff;
+		}
+	}
+	return eBestYield;
+}
+/// Determines if the yield is the best
+YieldTypes CvCityStrategyAI::GetHighestYield()
+{
+	int iBestDiff = 0;
+	YieldTypes eBestYield = NO_YIELD;
+	for(uint ui = 0; ui < YIELD_TOURISM; ui++)
+	{
+		YieldTypes yield = (YieldTypes)ui;
+		double fYieldAverage = GetYieldAverage(yield);
+
+		int iYieldAverage = (int)citystrategyround(fYieldAverage * 100);
+		
+		if(iYieldAverage > iBestDiff)
+		{
+			eBestYield = yield;
+			iBestDiff = iYieldAverage;
+		}
+	}
+	return eBestYield;
+}
+#endif
 
 // Determines what yield type is in a deficient state. If none, then NO_YIELD is returned
 YieldTypes CvCityStrategyAI::GetDeficientYield(void)
@@ -693,7 +739,7 @@ YieldTypes CvCityStrategyAI::GetDeficientYield(void)
 	}
 	else
 	{
-		for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+		for(uint ui = 0; ui < YIELD_TOURISM; ui++)
 		{
 			YieldTypes yield = (YieldTypes)ui;
 			if(IsYieldDeficient(yield))
@@ -712,7 +758,22 @@ void CvCityStrategyAI::PrecalcYieldAverages()
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes) iI;
+#if defined(MOD_BALANCE_CORE)
+		if(eYield > YIELD_FAITH)
+		{
+			return;
+		}
+		int iYield = m_pCity->getYieldRate(eYield, false);
+		if(eYield == YIELD_FOOD)
+		{
+			iYield -= m_pCity->foodConsumption();
+		}
+		
+		iYield /= min(1, m_pCity->getPopulation());
 
+		m_adYieldAvg[iI] = iYield;
+#endif
+#if !defined(MOD_BALANCE_CORE)
 		int iTilesWorked = 0;
 		int iYieldAmount = 0;
 		const std::vector<int>& vWorkedPlots =  m_pCity->GetCityCitizens()->GetWorkedPlots();
@@ -722,11 +783,11 @@ void CvCityStrategyAI::PrecalcYieldAverages()
 			iTilesWorked++;
 			iYieldAmount += pPlot->calculateYield(eYield);
 		}
-
 		if(iTilesWorked > 0)
 			m_adYieldAvg[iI] = iYieldAmount / (double)iTilesWorked;
 		else
 			m_adYieldAvg[iI] = 0;
+#endif
 	}
 }
 
@@ -756,6 +817,10 @@ double CvCityStrategyAI::GetDeficientYieldValue(YieldTypes eYieldType)
 		break;
 		// OK if deficient in the newer (bonus) yields
 	case YIELD_CULTURE:
+#if defined(MOD_BALANCE_CORE)
+		//No it isn't!
+		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_CULTURE();
+#endif
 		break;
 	case YIELD_FAITH:
 		break;
@@ -1970,11 +2035,20 @@ void CvCityStrategyAI::UpdateBestYields()
 			case CITY_AI_FOCUS_TYPE_CULTURE:
 				strLookup = "CITYSPECIALIZATION_CULTURE";
 				break;
+			case CITY_AI_FOCUS_TYPE_GREAT_PEOPLE:
+				strLookup = "CITYSPECIALIZATION_CULTURE";
+				break;
 			case CITY_AI_FOCUS_TYPE_FAITH:
 				strLookup = "CITYSPECIALIZATION_FAITH";
 				break;
 			case NO_CITY_AI_FOCUS_TYPE:
 				strLookup = "CITYSPECIALIZATION_GENERAL_ECONOMIC";
+				break;
+			case CITY_AI_FOCUS_TYPE_PROD_GROWTH:
+				strLookup = "CITYSPECIALIZATION_GENERAL_ECONOMIC";
+				break;
+			case CITY_AI_FOCUS_TYPE_GOLD_GROWTH:
+				strLookup = "CITYSPECIALIZATION_COMMERCE";
 				break;
 #endif
 			}
@@ -3391,7 +3465,11 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 /// "Need Improvement" City Strategy: if we need to get an improvement that increases a yield amount
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedImprovement(CvCity* pCity, YieldTypes yield)
 {
+#if defined(MOD_BALANCE_CORE)
+	if(pCity->GetCityStrategyAI()->GetMostDeficientYield() == yield)
+#else
 	if(pCity->GetCityStrategyAI()->GetDeficientYield() == yield)
+#endif
 	{
 		return true;
 	}
@@ -4276,7 +4354,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	//Note: values are weighted based on static per turn values and instant or % values. This is for control.
 	if(pkBuildingInfo->GetYieldChange(eYield) > 0)
 	{
-		iYieldValue += (pkBuildingInfo->GetYieldChange(eYield) * 10);
+		iYieldValue += (pkBuildingInfo->GetYieldChange(eYield) * 100);
+	}
+	if(pkBuildingInfo->GetScienceFromYield(eYield) > 0)
+	{
+		iYieldValue += (pkBuildingInfo->GetScienceFromYield(eYield) * 10);
 	}
 	if(pkBuildingInfo->GetYieldChangePerPop(eYield) > 0)
 	{
@@ -4574,7 +4656,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 
 	//Deficient Yield?
-	if(pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
+	if(pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
+	{
+		iYieldValue *= 2;
+	}
+	if(pCity->GetCityStrategyAI()->GetFocusYield() == eYield)
 	{
 		iYieldValue *= 2;
 	}

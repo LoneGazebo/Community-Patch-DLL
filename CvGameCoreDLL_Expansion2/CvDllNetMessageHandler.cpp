@@ -1024,7 +1024,7 @@ void CvDllNetMessageHandler::ResponseUpdatePolicies(PlayerTypes ePlayer, bool bN
 			kPlayer.setHasPolicy(ePolicy, bValue);
 
 			//human player wants to see the effect at once, otherwise update at next turn start is good enough
-			if(kPlayer.isHuman() && ePlayer == GC.getGame().getActivePlayer())
+			if(kPlayer.isHuman())
 			{
 				kPlayer.CalculateNetHappiness();
 			}

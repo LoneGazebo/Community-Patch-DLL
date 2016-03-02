@@ -472,7 +472,17 @@
 		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_THEM">
 			<Text>[COLOR_POSITIVE_TEXT]They have opened their borders to us.[ENDCOLOR]</Text>
 		</Row>
-		
+
+		<Row Tag="TXT_KEY_DIPLO_SAME_POLICIES">
+			<Text>[COLOR_POSITIVE_TEXT]We have similar Social Policies.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DIFFERENT_POLICIES">
+			<Text>[COLOR_NEGATIVE_TEXT]We have divergent Social Policies.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_SAME_PTP">
+			<Text>[COLOR_NEGATIVE_TEXT]We have Pledged to Protect the same City-States.[ENDCOLOR]</Text>
+		</Row>
+
 		<!-- Aggressive Posture -->
 		<Row Tag="TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM">
 			<Text>[COLOR_NEGATIVE_TEXT]Your military deployment is threatening.[ENDCOLOR]</Text>
@@ -3870,6 +3880,14 @@
 		<!-- Team Tourism -->
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_SAME_TEAM">
 			<Text>+{1_Num}% Bonus for Same Team[NEWLINE]</Text>
+		</Row>
+		
+		<!-- Building Tooltip -->
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_POLICIES">
+			<Text>Additional Policies needed to unlock: {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_NUM_POLICY_NEEDED_LABEL">
+			<Text>OR required number of Social Policies: [COLOR_CYAN]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

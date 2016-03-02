@@ -604,9 +604,10 @@ CvPlayer::CvPlayer() :
 	, m_aiYieldGPExpend("CvPlayer::m_aiYieldGPExpend", m_syncArchive)
 	, m_aiConquerorYield("CvPlayer::m_aiConquerorYield", m_syncArchive)
 	, m_aiFounderYield("CvPlayer::m_aiFounderYield", m_syncArchive)
-	, m_aiReligionYieldRateModifier("CvCity::m_aiReligionYieldRateModifier", m_syncArchive)
-	, m_aiGoldenAgeYieldMod("CvCity::m_aiGoldenAgeYieldMod", m_syncArchive)
-	, m_paiBuildingClassCulture("CvCity::m_paiBuildingClassCulture", m_syncArchive)
+	, m_aiReligionYieldRateModifier("CvPlayer::m_aiReligionYieldRateModifier", m_syncArchive)
+	, m_aiGoldenAgeYieldMod("CvPlayer::m_aiGoldenAgeYieldMod", m_syncArchive)
+	, m_paiBuildingClassCulture("CvPlayer::m_paiBuildingClassCulture", m_syncArchive)
+	, m_aiDomainFreeExperiencePerGreatWorkGlobal("CvPlayer::m_aiDomainFreeExperiencePerGreatWorkGlobal", m_syncArchive)
 	, m_iGarrisonsOccupiedUnhapppinessMod("CvPlayer::m_iGarrisonsOccupiedUnhapppinessMod", m_syncArchive)
 	, m_iBestRangedUnitSpawnSettle("CvPlayer::m_iBestRangedUnitSpawnSettle", m_syncArchive)
 	, m_iExtraMoves("CvPlayer::m_iExtraMoves", m_syncArchive)
@@ -1697,6 +1698,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_paiBuildingClassCulture.clear();
 	m_paiBuildingClassCulture.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiDomainFreeExperiencePerGreatWorkGlobal.clear();
+	m_aiDomainFreeExperiencePerGreatWorkGlobal.resize(NUM_DOMAIN_TYPES, 0);
 #endif
 
 	m_aiCapitalYieldRateModifier.clear();
@@ -2130,7 +2134,7 @@ void CvPlayer::initFreeState(CvGameInitialItemsOverrides& kOverrides)
 
 	}
 
-	if(isHuman() && GetID() == GC.getGame().getActivePlayer())
+	if(isHuman())
 	{
 		CalculateNetHappiness();
 	}
@@ -2720,28 +2724,35 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			if (MOD_DIPLOMACY_CIV4_FEATURES) {
-				// Vassalage stuff
-				for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-				{
-					ePlayer = (PlayerTypes) iPlayerLoop;
-
-					// Notify Diplo AI that our master has failed to protect us, the vassal
-					// Is loser's team the vassal of this team?
-					if(GET_TEAM(GET_PLAYER(pOldCity->getOwner()).getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
-					{
-						// Master's failed protect score goes up for Vassal
-						GET_PLAYER(pOldCity->getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(ePlayer, iValue);
-					}
-
-					// Notify Diplo AI that our master has killed a city in a civ near our empire
-					// Is this civ the vassal of winner's team?
-					if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
-					{
-						// They were neighbors to us
-						if(GET_PLAYER(ePlayer).GetProximityToPlayer(pOldCity->getOwner()) <= PLAYER_PROXIMITY_CLOSE)
+				// Only on conquest
+				if(bConquest) {
+					// Vassalage stuff
+					TeamTypes eMaster = GET_TEAM(GET_PLAYER(pOldCity->getOwner()).getTeam()).GetMaster();
+					if(eMaster != NO_TEAM) {
+						for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 						{
-							// Master protected us against our enemy!
-							GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeVassalProtectValue(GetID(), iValue);
+							ePlayer = (PlayerTypes) iPlayerLoop;
+						
+							if(GET_PLAYER(ePlayer).getTeam() == eMaster) {
+								// This team was the master of the loser's team
+								if(GET_PLAYER(pOldCity->getOwner()).getTeam() == eMaster)
+								{
+									// Master's failed protect score goes up for Vassal
+									GET_PLAYER(pOldCity->getOwner()).GetDiplomacyAI()->ChangeVassalFailedProtectValue(ePlayer, iValue);
+								}
+
+								// Notify Diplo AI that our master has killed a city in a civ near our empire
+								// Conquering team is the master
+								if(getTeam() == eMaster)
+								{
+									// Old city was neighbors to us
+									if(GET_PLAYER(ePlayer).GetProximityToPlayer(pOldCity->getOwner()) <= PLAYER_PROXIMITY_CLOSE)
+									{
+										// Master protected us against our enemy!
+										GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeVassalProtectValue(GetID(), iValue);
+									}
+								}
+							}
 						}
 					}
 				}
@@ -6340,6 +6351,10 @@ void CvPlayer::doTurnPostDiplomacy()
 	// Gold
 	GetTreasury()->DoGold();
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	// Tax out from after we've calculated our gold for this turn
+	GetTreasury()->CalculateExpensePerTurnFromVassalTaxes();
+#endif
 	// Culture
 
 	// Prevent exploits in turn timed MP games - no accumulation of culture if player hasn't picked yet
@@ -6837,7 +6852,7 @@ void CvPlayer::UpdateNotifications()
 //	--------------------------------------------------------------------------------
 void CvPlayer::UpdateReligion()
 {
-	if(isHuman() && GetID() == GC.getGame().getActivePlayer())
+	if(isHuman())
 	{
 		CalculateNetHappiness();
 	}
@@ -7718,7 +7733,7 @@ void CvPlayer::raze(CvCity* pCity)
 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), szBuffer, pCity->getX(), pCity->getY());
 
 	pCity->SetIgnoreCityForHappiness(false);
-	if(isHuman() && GetID() == GC.getGame().getActivePlayer())
+	if(isHuman())
 	{
 		CalculateNetHappiness();
 	}
@@ -10191,12 +10206,35 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 		}
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	//If # of policies will do it, then we need to see the either/or here.
+	int iNumPolicies = GetPlayerPolicies()->GetNumPoliciesOwned(true);
+	if(pBuildingInfo.GetNumPoliciesNeeded() > 0)
+	{
+		bool bValid = false;
+		if((currentTeam.GetTeamTechs()->HasTech((TechTypes)(pBuildingInfo.GetPrereqAndTech()))))
+		{
+			bValid = true;
+		}
+		if(iNumPolicies >= pBuildingInfo.GetNumPoliciesNeeded())
+		{
+			bValid = true;
+		}
+		if(!bValid)
+		{
+			return false;
+		}
+	}
+	else
+	{
+#endif
 	if(!(currentTeam.GetTeamTechs()->HasTech((TechTypes)(pBuildingInfo.GetPrereqAndTech()))))
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 	for(iI = 0; iI < GC.getNUM_BUILDING_AND_TECH_PREREQS(); iI++)
 	{
 		if(pBuildingInfo.GetPrereqAndTechs(iI) != NO_TECH)
@@ -10360,6 +10398,33 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 		{
 			return false;
 		}
+#if defined(MOD_BALANCE_CORE)
+		//If # of policies will do it, then we need to see the either/or here.
+		if(pBuildingInfo.GetNumPoliciesNeeded() > 0)
+		{
+			bool bValid = false;
+			if((currentTeam.GetTeamTechs()->HasTech((TechTypes)(pBuildingInfo.GetPrereqAndTech()))))
+			{
+				bValid = true;
+			}
+			if(iNumPolicies >= pBuildingInfo.GetNumPoliciesNeeded())
+			{
+				bValid = true;
+			}
+			if(currentTeam.GetTeamTechs()->HasTech((TechTypes)(pBuildingInfo.GetPrereqAndTech())) && (iNumPolicies < pBuildingInfo.GetNumPoliciesNeeded()))
+			{
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_POLICIES", pkBuildingInfo->GetTextKey(), "", pBuildingInfo.GetNumPoliciesNeeded() - iNumPolicies);
+			}
+			else if(pBuildingInfo.GetNumPoliciesNeeded() - iNumPolicies == 1)
+			{
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_POLICIES", pkBuildingInfo->GetTextKey(), "", pBuildingInfo.GetNumPoliciesNeeded() - iNumPolicies);
+			}
+			if(!bValid)
+			{
+				return false;
+			}
+		}
+#endif
 
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 		//Requires a certain population size, nationally.
@@ -11552,6 +11617,16 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
+	for(int iDomains = 0; iDomains < NUM_DOMAIN_TYPES; iDomains++)
+	{
+		if((DomainTypes)iDomains != NO_DOMAIN)
+		{
+			if(pBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(iDomains) > 0)
+			{
+				ChangeDomainFreeExperiencePerGreatWorkGlobal((DomainTypes)iDomains, pBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(iDomains));
+			}
+		}
+	}	
 	if(pBuildingInfo->IsSecondaryPantheon())
 	{
 		ChangeSecondReligionPantheonCount((pBuildingInfo->IsSecondaryPantheon()) ? iChange : 0);
@@ -11800,7 +11875,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
 				if(pkBuilding)
 				{
-					iBuildingCount = pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding);
+					iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 					if(iBuildingCount > 0)
 					{
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
@@ -15025,7 +15100,8 @@ int CvPlayer::GetUnhappiness() const
 
 void CvPlayer::CalculateNetHappiness()
 {
-	if(isMinorCiv() || isBarbarian())
+	//Not active player, or a barb, or a minor? Get out!
+	if(isMinorCiv() || isBarbarian() || GC.getGame().getActivePlayer() != GetID())
 	{
 		return;
 	}
@@ -15107,6 +15183,10 @@ int CvPlayer::GetYieldPerTurnFromHappiness(YieldTypes eYield, int iValue) const
 	//LUA Functions
 int CvPlayer::CalculateUnhappinessTooltip(YieldTypes eYield) const
 {
+	if(GC.getGame().getActivePlayer() != GetID() && GC.getGame().isNetworkMultiPlayer())
+	{
+		return 0;
+	}
 	//Mechanic to allow for growth malus from happiness/unhappiness.
 	int iHappiness = GetExcessHappiness();
 
@@ -15781,6 +15861,12 @@ int CvPlayer::GetHappinessFromPolicies() const
 	int iHappiness = m_pPlayerPolicies->GetNumericModifier(POLICYMOD_EXTRA_HAPPINESS);
 	iHappiness += (getNumCities() * m_pPlayerPolicies->GetNumericModifier(POLICYMOD_EXTRA_HAPPINESS_PER_CITY));
 
+#ifdef HH_MOD_NATURAL_WONDER_MODULARITY
+	/*
+	see CvPlayer::GetHappinessFromNaturalWonders()
+	*/
+#endif
+
 	int iHappinessPerXPopulation;
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int m_iHappinessPerXPopulationGlobal;
@@ -16116,6 +16202,11 @@ int CvPlayer::GetHappinessFromNaturalWonders() const
 	int iNumWonders = GET_TEAM(getTeam()).GetNumNaturalWondersDiscovered();
 
 	int iHappiness = iNumWonders* /*1*/ GC.getHAPPINESS_PER_NATURAL_WONDER();
+	
+#if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
+	int iBonusHappiness = iNumWonders* (m_pPlayerPolicies->GetNumericModifier(POLICYMOD_EXTRA_NATURALWONDER_HAPPINESS));
+	iHappiness += iBonusHappiness;
+#endif
 
 	// Trait boosts this further?
 	if(m_pTraits->GetNaturalWonderHappinessModifier() > 0)
@@ -16123,6 +16214,7 @@ int CvPlayer::GetHappinessFromNaturalWonders() const
 		iHappiness *= (100 + m_pTraits->GetNaturalWonderHappinessModifier());
 		iHappiness /= 100;
 	}
+
 
 	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
@@ -16400,7 +16492,7 @@ int CvPlayer::DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssu
 {
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if(MOD_BALANCE_CORE_HAPPINESS && (isMinorCiv() || isBarbarian()))
+	if(isMinorCiv() || isBarbarian() || GC.getGame().getActivePlayer() != GetID())
 	{
 		return 0;
 	}
@@ -21857,6 +21949,24 @@ void CvPlayer::changeHalfSpecialistFoodCapitalCount(int iChange)
 		m_iHalfSpecialistFoodCapitalCount = (m_iHalfSpecialistFoodCapitalCount + iChange);
 		CvAssert(getHalfSpecialistFoodCapitalCount() >= 0);
 	}
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+	return m_aiDomainFreeExperiencePerGreatWorkGlobal[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
+	m_aiDomainFreeExperiencePerGreatWorkGlobal.setAt(eIndex, m_aiDomainFreeExperiencePerGreatWorkGlobal[eIndex] + iChange);
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -28542,7 +28652,7 @@ void CvPlayer::changeResourceExport(ResourceTypes eIndex, int iChange)
 		m_paiResourceExport.setAt(eIndex, m_paiResourceExport[eIndex] + iChange);
 		CvAssert(getResourceExport(eIndex) >= 0);
 
-		if(isHuman() && GetID() == GC.getGame().getActivePlayer())
+		if(isHuman())
 		{
 			CalculateNetHappiness();
 		}
@@ -28568,7 +28678,7 @@ void CvPlayer::changeResourceImport(ResourceTypes eIndex, int iChange)
 		m_paiResourceImport.setAt(eIndex, m_paiResourceImport[eIndex] + iChange);
 		CvAssert(getResourceImport(eIndex) >= 0);
 
-		if(isHuman() && GetID() == GC.getGame().getActivePlayer())
+		if(isHuman())
 		{
 			CalculateNetHappiness();
 		}
@@ -28604,7 +28714,7 @@ void CvPlayer::changeResourceFromMinors(ResourceTypes eIndex, int iChange)
 		m_paiResourceFromMinors.setAt(eIndex, m_paiResourceFromMinors[eIndex] + iChange);
 		CvAssert(getResourceFromMinors(eIndex) >= 0);
 
-		if(isHuman() && GetID() == GC.getGame().getActivePlayer())
+		if(isHuman())
 		{
 			CalculateNetHappiness();
 		}
@@ -28633,7 +28743,7 @@ void CvPlayer::changeResourceSiphoned(ResourceTypes eIndex, int iChange)
 		m_paiResourcesSiphoned.setAt(eIndex, m_paiResourcesSiphoned[eIndex] + iChange);
 		CvAssert(getResourceSiphoned(eIndex) >= 0);
 
-		if(isHuman() && GetID() == GC.getGame().getActivePlayer())
+		if(isHuman())
 		{
 			CalculateNetHappiness();
 		}
@@ -33651,7 +33761,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 	}
-	if(isHuman() && GetID() == GC.getGame().getActivePlayer())
+	if(isHuman())
 	{
 		CalculateNetHappiness();
 	}
@@ -37117,7 +37227,6 @@ int CvPlayer::GetHappinessFromVassal(PlayerTypes ePlayer) const
 /// Special bonus for having a vassal
 int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
 {
-	int iNumVassals = 0;
 	int iFreeYield = 0;
 	int iYield = 0;
 	PlayerTypes ePlayer;
@@ -37128,13 +37237,14 @@ int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
 		// ePlayer vassal of ours?
 		if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
 		{
-			iNumVassals++;
+			iFreeYield = 0;
 			switch(eYield)
 			{
+				// We now collect gold from taxes
 				case YIELD_GOLD:
-					iFreeYield = GET_PLAYER(ePlayer).calculateGoldRate();
-					iFreeYield *= /*33*/GC.getVASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT();
-					iFreeYield /= 100;
+					//iFreeYield = GET_PLAYER(ePlayer).calculateGoldRate();
+					//iFreeYield *= /*33*/GC.getVASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT();
+					//iFreeYield /= 100;
 					break;
 
 				case YIELD_CULTURE:
@@ -37171,12 +37281,6 @@ int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
 			iYield += iFreeYield;
 		}
 	}
-
-	if(iNumVassals == 0) 
-	{
-		return 0;
-	}
-
 	return iYield;
 }
 #if defined(MOD_BALANCE_CORE)
@@ -37261,6 +37365,131 @@ void CvPlayer::ChangeVassalGoldMaintenanceMod(int iChange)
 		m_iVassalGoldMaintenanceMod = (m_iVassalGoldMaintenanceMod + iChange);
 	}
 }
+
+//	--------------------------------------------------------------------------------
+// Generate tooltip displayed for whether or not our vassal can declare independence from us
+CvString CvPlayer::GetVassalIndependenceTooltipAsMaster(PlayerTypes ePlayer) const
+{
+	CvTeam& kVassalTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam());
+
+	TeamTypes eMaster = kVassalTeam.GetMaster();
+	if(eMaster != getTeam())
+		return "";
+
+	CvTeam& kMasterTeam = GET_TEAM(eMaster);
+	
+	CvString szTooltip = "";
+	
+	szTooltip += GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_TT") + "[NEWLINE][NEWLINE]";
+
+	bool bVoluntary = kVassalTeam.IsVoluntaryVassal(getTeam());
+	bool bSatisfied = false;
+
+	int iMinimumVassalTurns = bVoluntary ? GC.getGame().getGameSpeedInfo().getMinimumVoluntaryVassalTurns() : GC.getGame().getGameSpeedInfo().getMinimumVassalTurns();
+
+	int iNumTurnsIsVassal = kVassalTeam.GetNumTurnsIsVassal();
+
+	bSatisfied = (iNumTurnsIsVassal >= iMinimumVassalTurns);
+	szTooltip += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_TURNS_TT", iMinimumVassalTurns) + "[ENDCOLOR][NEWLINE]";
+	
+	// Rules only for capitulated vassals
+	if(!bVoluntary)
+	{
+		CvString szTemp = "";
+		bool bAnySatisfied = false;
+
+		int iNumCitiesWhenVassalMade = kVassalTeam.getNumCitiesWhenVassalMade();
+		int iPopulationWhenVassalMade = kVassalTeam.getTotalPopulationWhenVassalMade();
+
+		int iCityPercent = 0;
+		int iPopPercent = 0;
+
+		iCityPercent = kVassalTeam.getNumCities() * 100 / std::max(1, iNumCitiesWhenVassalMade);
+		iPopPercent = kVassalTeam.getTotalPopulation() * 100 / std::max(1, iPopulationWhenVassalMade);
+
+		bSatisfied = iCityPercent <= GC.getVASSALAGE_VASSAL_LOST_CITIES_THRESHOLD();
+		bAnySatisfied = bAnySatisfied || bSatisfied;
+		szTemp += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_CITY_PERCENT_TT", GC.getVASSALAGE_VASSAL_LOST_CITIES_THRESHOLD(),iCityPercent) + "[ENDCOLOR][NEWLINE]";
+
+		bSatisfied = iPopPercent >= GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD();
+		bAnySatisfied = bAnySatisfied || bSatisfied;
+		szTemp += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_CITY_PERCENT_TT", GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD(), iPopPercent) + "[ENDCOLOR][NEWLINE]";
+		
+		int iMasterCityPercent = 0;
+		int iMasterPopPercent = 0;
+
+		iMasterCityPercent = kVassalTeam.getNumCities() * 100 / std::max(1, kMasterTeam.getNumCities());
+		iMasterPopPercent = kVassalTeam.getTotalPopulation() * 100 / std::max(1, kMasterTeam.getTotalPopulation());
+
+		bSatisfied = iMasterCityPercent >= GC.getVASSALAGE_VASSAL_MASTER_CITY_PERCENT_THRESHOLD() && iMasterPopPercent >= GC.getVASSALAGE_VASSAL_MASTER_POP_PERCENT_THRESHOLD();
+		bAnySatisfied = bAnySatisfied || bSatisfied;
+		szTemp += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_MASTER_PERCENT_TT", GC.getVASSALAGE_VASSAL_MASTER_CITY_PERCENT_THRESHOLD(), GC.getVASSALAGE_VASSAL_MASTER_POP_PERCENT_THRESHOLD(), iMasterCityPercent, iMasterPopPercent) + "[ENDCOLOR][NEWLINE]";
+
+		szTooltip += (bAnySatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_OR_HEADER_TT") + "[NEWLINE]";
+		szTooltip += szTemp;
+	}
+
+	return szTooltip;
+}
+
+// Generate tooltip displayed for whether or not we can declare independence from master
+CvString CvPlayer::GetVassalIndependenceTooltipAsVassal() const
+{
+	CvTeam& kVassalTeam = GET_TEAM(getTeam());
+
+	TeamTypes eMaster = kVassalTeam.GetMaster();
+	if(eMaster == NO_TEAM)
+		return "";
+
+	CvTeam& kMasterTeam = GET_TEAM(eMaster);
+	
+	CvString szTooltip = "";
+	
+	szTooltip += GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_MASTER_TT") + "[NEWLINE][NEWLINE]";
+
+	bool bVoluntary = kVassalTeam.IsVoluntaryVassal(getTeam());
+	bool bSatisfied = false;
+
+	int iMinimumVassalTurns = bVoluntary ? GC.getGame().getGameSpeedInfo().getMinimumVoluntaryVassalTurns() : GC.getGame().getGameSpeedInfo().getMinimumVassalTurns();
+
+	int iNumTurnsIsVassal = kVassalTeam.GetNumTurnsIsVassal();
+
+	bSatisfied = (iNumTurnsIsVassal >= iMinimumVassalTurns);
+	szTooltip += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_TURNS_TT", iMinimumVassalTurns) + "[ENDCOLOR][NEWLINE]";
+	
+	// Rules only for capitulated vassals
+	if(!bVoluntary)
+	{
+		szTooltip += GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_OR_HEADER_TT") + "[NEWLINE]";
+
+		int iNumCitiesWhenVassalMade = kVassalTeam.getNumCitiesWhenVassalMade();
+		int iPopulationWhenVassalMade = kVassalTeam.getTotalPopulationWhenVassalMade();
+
+		int iCityPercent = 0;
+		int iPopPercent = 0;
+
+		iCityPercent = kVassalTeam.getNumCities() * 100 / std::max(1, iNumCitiesWhenVassalMade);
+		iPopPercent = kVassalTeam.getTotalPopulation() * 100 / std::max(1, iPopulationWhenVassalMade);
+
+		bSatisfied = iCityPercent <= GC.getVASSALAGE_VASSAL_LOST_CITIES_THRESHOLD();
+		szTooltip += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_CITY_PERCENT_TT", GC.getVASSALAGE_VASSAL_LOST_CITIES_THRESHOLD(),iCityPercent) + "[ENDCOLOR][NEWLINE]";
+
+		bSatisfied = iPopPercent >= GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD();
+		szTooltip += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_CITY_PERCENT_TT", GC.getVASSALAGE_VASSAL_POPULATION_THRESHOLD(), iPopPercent) + "[ENDCOLOR][NEWLINE]";
+		
+		int iMasterCityPercent = 0;
+		int iMasterPopPercent = 0;
+
+		iMasterCityPercent = kVassalTeam.getNumCities() * 100 / std::max(1, kMasterTeam.getNumCities());
+		iMasterPopPercent = kVassalTeam.getTotalPopulation() * 100 / std::max(1, kMasterTeam.getTotalPopulation());
+
+		bSatisfied = iMasterCityPercent >= GC.getVASSALAGE_VASSAL_MASTER_CITY_PERCENT_THRESHOLD() && iMasterPopPercent >= GC.getVASSALAGE_VASSAL_MASTER_POP_PERCENT_THRESHOLD();
+		szTooltip += (bSatisfied ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_GREY]") + GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_MASTER_PERCENT_TT", GC.getVASSALAGE_VASSAL_MASTER_CITY_PERCENT_THRESHOLD(), GC.getVASSALAGE_VASSAL_MASTER_POP_PERCENT_THRESHOLD(), iMasterCityPercent, iMasterPopPercent) + "[ENDCOLOR][NEWLINE]";
+	}
+
+	return szTooltip;
+}
+
 #endif
 
 #if defined(MOD_API_EXTENSIONS)

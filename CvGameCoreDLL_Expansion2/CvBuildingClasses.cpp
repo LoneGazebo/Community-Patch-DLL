@@ -46,6 +46,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iResourceType(NO_RESOURCE),
+	m_iNumPoliciesNeeded(0),
 	m_iGrantsRandomResourceTerritory(0),
 	m_bPuppetPurchaseOverride(false),
 	m_bAllowsPuppetPurchase(false),
@@ -283,6 +284,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piThemingYieldBonus(NULL),
 	m_piYieldFromTech(NULL),
 	m_piYieldFromConstruction(NULL),
+	m_piScienceFromYield(NULL),
 #endif
 	m_piYieldChange(NULL),
 	m_piYieldChangePerPop(NULL),
@@ -295,6 +297,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piUnitCombatProductionModifiers(NULL),
 	m_piDomainFreeExperience(NULL),
 	m_piDomainFreeExperiencePerGreatWork(NULL),
+#if defined(MOD_BALANCE_CORE)
+	m_piDomainFreeExperiencePerGreatWorkGlobal(NULL),
+#endif
 	m_piDomainProductionModifier(NULL),
 	m_piPrereqNumOfBuildingClass(NULL),
 	m_piFlavorValue(NULL),
@@ -379,6 +384,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piGreatWorkYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
+	SAFE_DELETE_ARRAY(m_piScienceFromYield);
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerPop);
@@ -391,6 +397,9 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piUnitCombatProductionModifiers);
 	SAFE_DELETE_ARRAY(m_piDomainFreeExperience);
 	SAFE_DELETE_ARRAY(m_piDomainFreeExperiencePerGreatWork);
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_piDomainFreeExperiencePerGreatWorkGlobal);
+#endif
 	SAFE_DELETE_ARRAY(m_piDomainProductionModifier);
 	SAFE_DELETE_ARRAY(m_piPrereqNumOfBuildingClass);
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
@@ -763,6 +772,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
 	m_bAllowsPuppetPurchase = kResults.GetBool("AllowsPuppetPurchase");
 	m_iGetCooldown = kResults.GetInt("PurchaseCooldown");
+	m_iNumPoliciesNeeded = kResults.GetInt("NumPoliciesNeeded");
 #endif
 
 	szTextVal = kResults.GetText("SpecialistType");
@@ -813,6 +823,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		kUtility.SetYields(m_piGreatWorkYieldChange, "Building_GreatWorkYieldChanges", "BuildingType", szBuildingType);
 		kUtility.SetYields(m_piYieldFromTech, "Building_YieldFromTech", "BuildingType", szBuildingType);
 		kUtility.SetYields(m_piYieldFromConstruction, "Building_YieldFromConstruction", "BuildingType", szBuildingType);
+		kUtility.SetYields(m_piScienceFromYield, "Building_ScienceFromYield", "BuildingType", szBuildingType);
 	}
 #endif
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
@@ -839,6 +850,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByValue(m_piUnitCombatProductionModifiers, "UnitCombatInfos", "Building_UnitCombatProductionModifiers", "UnitCombatType", "BuildingType", szBuildingType, "Modifier");
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperience, "Domains", "Building_DomainFreeExperiences", "DomainType", "BuildingType", szBuildingType, "Experience", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperiencePerGreatWork, "Domains", "Building_DomainFreeExperiencePerGreatWork", "DomainType", "BuildingType", szBuildingType, "Experience", 0, NUM_DOMAIN_TYPES);
+#if defined(MOD_BALANCE_CORE)
+	kUtility.PopulateArrayByValue(m_piDomainFreeExperiencePerGreatWorkGlobal, "Domains", "Building_DomainFreeExperiencePerGreatWorkGlobal", "DomainType", "BuildingType", szBuildingType, "Experience", 0, NUM_DOMAIN_TYPES);
+#endif
 	kUtility.PopulateArrayByValue(m_piDomainProductionModifier, "Domains", "Building_DomainProductionModifiers", "DomainType", "BuildingType", szBuildingType, "Modifier", 0, NUM_DOMAIN_TYPES);
 
 	kUtility.PopulateArrayByValue(m_piPrereqNumOfBuildingClass, "BuildingClasses", "Building_PrereqBuildingClasses", "BuildingClassType", "BuildingType", szBuildingType, "NumBuildingNeeded");
@@ -1287,6 +1301,11 @@ int CvBuildingEntry::GetPolicyType() const
 int CvBuildingEntry::GetResourceType() const
 {
 	return m_iResourceType;
+}
+//Num Policies required for this building
+int CvBuildingEntry::GetNumPoliciesNeeded() const
+{
+	return m_iNumPoliciesNeeded;
 }
 /// Does this building grant a random resource around the territory?
 int CvBuildingEntry::GrantsRandomResourceTerritory() const
@@ -2450,6 +2469,18 @@ int* CvBuildingEntry::GetYieldFromConstructionArray() const
 {
 	return m_piYieldFromConstruction;
 }
+/// Does this Policy grant yields from constructing buildings?
+int CvBuildingEntry::GetScienceFromYield(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piScienceFromYield[i];
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetScienceFromYieldArray() const
+{
+	return m_piScienceFromYield;
+}
 /// Array of yield changes
 int CvBuildingEntry::GetThemingYieldBonus(int i) const
 {
@@ -2648,6 +2679,15 @@ int CvBuildingEntry::GetDomainFreeExperiencePerGreatWork(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piDomainFreeExperiencePerGreatWork ? m_piDomainFreeExperiencePerGreatWork[i] : -1;
 }
+#if defined(MOD_BALANCE_CORE)
+/// Free experience gained for units in this domain for each Great Work in this building
+int CvBuildingEntry::GetDomainFreeExperiencePerGreatWorkGlobal(int i) const
+{
+	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piDomainFreeExperiencePerGreatWorkGlobal ? m_piDomainFreeExperiencePerGreatWorkGlobal[i] : -1;
+}
+#endif
 
 /// Production modifier in this domain
 int CvBuildingEntry::GetDomainProductionModifier(int i) const

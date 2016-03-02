@@ -12,20 +12,20 @@
 			<BeliefType>BELIEF_EARTH_MOTHER</BeliefType>
 			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_SUN_GOD</BeliefType>
 			<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Belief_ImprovementYieldChanges>
 	<Belief_CoastalCityYieldChanges>
 		<Row>
 			<BeliefType>BELIEF_GOD_SEA</BeliefType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Belief_CoastalCityYieldChanges>
 	<Belief_YieldChangeAnySpecialist>
@@ -45,7 +45,7 @@
 			<BeliefType>BELIEF_TEARS_OF_GODS</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>3</YieldChange>
+			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_ANCESTOR_WORSHIP</BeliefType>
@@ -57,7 +57,7 @@
 			<BeliefType>BELIEF_FERTILITY_RITES</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_WELL</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldChange>1</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_FERTILITY_RITES</BeliefType>
@@ -75,7 +75,7 @@
 			<BeliefType>BELIEF_FERTILITY_RITES</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldChange>1</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_EARTH_MOTHER</BeliefType>
@@ -85,9 +85,21 @@
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GODDESS_STRATEGY</BeliefType>
+			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_GODDESS_STRATEGY</BeliefType>
+			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_GODDESS_STRATEGY</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldChange>1</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GODDESS_STRATEGY</BeliefType>
@@ -99,7 +111,7 @@
 			<BeliefType>BELIEF_GODDESS_STRATEGY</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldChange>1</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GODDESS_STRATEGY</BeliefType>
@@ -137,7 +149,7 @@
 		<Row>
 			<BeliefType>BELIEF_ANCESTOR_WORSHIP</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>3</Yield>
+			<Yield>4</Yield>
 		</Row>
 	</Belief_YieldPerPop>
 	<Belief_YieldPerGPT>
@@ -151,7 +163,7 @@
 		<Row>
 			<BeliefType>BELIEF_GOD_FESTIVALS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GOD_FESTIVALS</BeliefType>
@@ -175,14 +187,14 @@
 		<Row>
 			<BeliefType>BELIEF_MESSENGER_GODS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Belief_YieldChangeTradeRoute>
 	<Belief_YieldChangeWorldWonder>
 		<Row>
 			<BeliefType>BELIEF_MONUMENT_GODS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>4</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_MONUMENT_GODS</BeliefType>
@@ -221,7 +233,7 @@
 			<BeliefType>BELIEF_GOD_SEA</BeliefType>
 			<FeatureType>FEATURE_ATOLL</FeatureType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Belief_FeatureYieldChanges>
 	<Belief_LakePlotYield>

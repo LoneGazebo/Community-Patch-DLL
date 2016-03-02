@@ -183,6 +183,11 @@ public:
 #endif
 
 	bool IsYieldDeficient(YieldTypes yieldType);
+#if defined(MOD_BALANCE_CORE)
+	YieldTypes GetMostDeficientYield();
+	YieldTypes GetHighestYield();
+#endif
+
 	YieldTypes GetDeficientYield(void);  // returns if any yield is deficient, starting with food, then production. Returns NO_YIELD if the city is fine
 	double GetYieldAverage(YieldTypes eYieldType);
 	double GetDeficientYieldValue(YieldTypes eYieldType);

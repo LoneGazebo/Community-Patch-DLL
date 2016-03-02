@@ -1937,7 +1937,7 @@ function ResetDisplay()
 		Controls.UsTableVassalage:SetText(strName);
 		Controls.ThemTableVassalage:SetText(strName);
 
-		-- Us
+		-- Us : can we become their vassal?
 		
 		local bVassalageAllowed = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_VASSALAGE, g_iDealDuration);
 		local bUsCan, bTheyCan;
@@ -1948,49 +1948,64 @@ function ResetDisplay()
 			Controls.UsPocketVassalage:SetDisabled(true);
 			Controls.UsPocketVassalage:GetTextControl():SetColorByName("Gray_Black");
 		
-			bTheyCan = g_pThemTeam:CanBecomeVassal(g_iUsTeam);
-			--print("bTheyCan = " .. tostring(bTheyCan));
+			bUsCan = g_pUsTeam:CanBecomeVassal(g_iThemTeam);
 
-			-- They haven't reached the Medieval Era yet
-			if (not g_pThemTeam:IsVassalageTradingAllowed()) then
-				--print("Don't have vassal tech.");
-				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_NOT_YET_ENABLED_OTHER_PLAYER" ) .. "[ENDCOLOR]";
-			end
-
-			-- Already have a vassal
-			if (g_pUsTeam:IsVassalOfSomeone()) then
-				-- Who is the master?
-				local iMasterTeam = g_pUsTeam:GetMaster();
-				local pMasterTeam = Teams[ iMasterTeam ];
-				local masterName;
-				
-				if (pMasterTeam == g_iUsTeam) then
-					masterName = "TXT_KEY_YOUR_CIV";
-				else
-					masterName = pMasterTeam:GetName();
-				end
-				-- Is someone's vassal already
-				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_YOU_HAVE", masterName ) .. "[ENDCOLOR]";
-			end
-
-			print("Num turns between vassals: " .. tostring(Game.GetNumTurnsBetweenVassals()));
-			print("last vassal ended turns: " .. tostring(g_pUsTeam:GetNumTurnsSinceVassalEnded(g_iThemTeam)));
-
-			if(g_pUsTeam:IsTooSoonForVassal(g_pThemTeam)) then
-				local iLockedCapitulationTurns = Game.GetNumTurnsBetweenVassals() - g_pUsTeam:GetNumTurnsSinceVassalEnded(g_iThemTeam);
-				--print("Locked cap. turns: " .. tostring(iLockedCapitulationTurns));
-				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_YOU_TOO_SOON", iLockedCapitulationTurns) .. "[ENDCOLOR]";
-			end
-
-			-- Human vassals are disabled
-			if (not Game.IsOption("GAMEOPTION_HUMAN_VASSALS")) then
-				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_HUMAN_DISABLED" ) .. "[ENDCOLOR]";
-			end
+			-- We cannot become their vassal - why not?
+			if ( not bUsCan ) then
+				local bSomeTooltip = false;
 			
-			-- We have no cities or population
-			if (g_pUsTeam:GetNumCities() == 0 or g_pUsTeam:GetTotalPopulation() == 0) then
-				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_NO_POPULATION" ) .. "[ENDCOLOR]";
-			end
+				-- Human vassals are disabled
+				if (not Game.IsOption("GAMEOPTION_HUMAN_VASSALS")) then
+					strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_HUMAN_DISABLED" ) .. "[ENDCOLOR]";
+					bSomeTooltip = true;
+				end
+			
+				-- They haven't reached the Medieval Era yet
+				if (not g_pThemTeam:IsVassalageTradingAllowed()) then
+					--print("Don't have vassal tech.");
+					strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_THEM_NOT_YET_ENABLED" ) .. "[ENDCOLOR]";
+					bSomeTooltip = true;
+				end
+
+				-- We have a vassal already
+				if (g_pUsTeam:GetMaster() ~= -1) then
+					-- We are already their vassal
+					if (g_pUsTeam:GetMaster() == g_iThemTeam) then
+						strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_US_ALREADY_THEIR_VASSAL" ) .. "[ENDCOLOR]";
+					else
+						strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_US_ALREADY_A_VASSAL", Teams[g_pUsTeam:GetMaster()]:GetName() ) .. "[ENDCOLOR]";
+					end
+					bSomeTooltip = true;
+				end
+
+				-- They are already a vassal and can't adopt other vassals themselves
+				if (g_pThemTeam:IsVassalOfSomeone()) then
+					local iMasterTeam = g_pThemTeam:GetMaster();
+					local pMasterTeam = Teams[ iMasterTeam ];
+					local masterName = pMasterTeam:GetName();
+						
+					strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_THEY_ARE_VASSAL", masterName ) .. "[ENDCOLOR]";
+					bSomeTooltip = true;
+				end
+
+				-- we cannot become their vassal because it's been too quick since we last were their vassal
+				if (g_pUsTeam:IsTooSoonForVassal(g_iThemTeam)) then
+					local iNumTurnsLeft = Game.GetNumTurnsBetweenVassals() - g_pUsTeam:GetNumTurnsSinceVassalEnded(g_iThemTeam);
+					strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_YOU_TOO_SOON", iNumTurnsLeft ) .. "[ENDCOLOR]";
+					bSomeTooltip = true;
+				end
+				
+				-- We have no cities or population
+				if (g_pUsTeam:GetNumCities() == 0 or g_pUsTeam:GetTotalPopulation() == 0) then
+					strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_YOU_NO_POPULATION" ) .. "[ENDCOLOR]";
+					bSomeTooltip = true;
+				end
+				
+				-- Special tooltip in case nothing was shown to player
+				if (not bSomeTooltip) then
+					strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_YOU_SPECIAL_RULE" ) .. "[ENDCOLOR]";
+				end
+			end			
 		else
 			Controls.UsPocketVassalage:SetDisabled(false);
 			Controls.UsPocketVassalage:GetTextControl():SetColorByName("Beige_Black");
@@ -1998,7 +2013,7 @@ function ResetDisplay()
 		
 		Controls.UsPocketVassalage:SetToolTipString(strOurTooltip);
 
-		-- Them
+		-- Them : Can they become our vassal?
 
 		bVassalageAllowed = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_VASSALAGE, g_iDealDuration);
 
@@ -2010,43 +2025,55 @@ function ResetDisplay()
 			Controls.ThemPocketVassalage:SetDisabled(true);
 			Controls.ThemPocketVassalage:GetTextControl():SetColorByName("Gray_Black");
 
-			bUsCan = g_pUsTeam:CanBecomeVassal(g_iThemTeam);
-			print("bUsCan = " .. tostring(bUsCan));
+			bTheyCan = g_pThemTeam:CanBecomeVassal(g_iUsTeam);
 
-			-- We haven't reached the Medieval Era yet
-			if (not g_pUsTeam:IsVassalageTradingAllowed()) then
-				--print("Don't have vassal tech.");
-				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_NOT_YET_ENABLED" ) .. "[ENDCOLOR]";
-			end
-
-			-- Already have a vassal
-			if (g_pThemTeam:IsVassalOfSomeone()) then
-				-- Who is the master?
-				local iMasterTeam = g_pThemTeam:GetMaster();
-				local pMasterTeam = Teams[ iMasterTeam ];
-				local masterName;
+			if ( not bTheyCan ) then
+				local bSomeTooltip = false;
 				
-				if (pMasterTeam == g_iUsTeam) then
-					masterName = "TXT_KEY_YOUR_CIV";
-				else
-					masterName = pMasterTeam:GetName();
+				-- We haven't reached the Medieval Era yet
+				if (not g_pUsTeam:IsVassalageTradingAllowed()) then
+					--print("Don't have vassal tech.");
+					strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_US_NOT_YET_ENABLED" ) .. "[ENDCOLOR]";
+					bSomeTooltip = true;
 				end
-				-- Is someone's vassal already
-				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_THEY_HAVE", masterName ) .. "[ENDCOLOR]";
-			end
+				
+				if (g_pThemTeam:GetMaster() ~= -1) then
+					-- They are already your vassal
+					if (g_pThemTeam:GetMaster() == g_iUsTeam) then
+						strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_THEM_ALREADY_YOUR_VASSAL" ) .. "[ENDCOLOR]";
+					else
+						strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_THEM_ALREADY_A_VASSAL", Teams[g_pThemTeam:GetMaster()]:GetName() ) .. "[ENDCOLOR]";
+					end
+					bSomeTooltip = true;
+				end
+				
+				-- We are already a vassal and can't adopt other vassals ourselves
+				if (g_pUsTeam:IsVassalOfSomeone()) then
+					local iMasterTeam = g_pUsTeam:GetMaster();
+					local pMasterTeam = Teams[ iMasterTeam ];
+					local masterName = pMasterTeam:GetName();
+						
+					strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_YOU_ARE_VASSAL", masterName ) .. "[ENDCOLOR]";
+					bSomeTooltip = true;
+				end
 
-			print("Num turns between vassals: " .. tostring(Game.GetNumTurnsBetweenVassals()));
-			print("last vassal ended turns: " .. tostring(g_pThemTeam:GetNumTurnsSinceVassalEnded(g_iUsTeam)));
-
-			if(g_pThemTeam:IsTooSoonForVassal(g_pUsTeam)) then
-				local iLockedCapitulationTurns = Game.GetNumTurnsBetweenVassals() - g_pThemTeam:GetNumTurnsSinceVassalEnded(g_iUsTeam);
-				--print("Locked cap. turns: " .. tostring(iLockedCapitulationTurns));
-				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_TOO_SOON", iLockedCapitulationTurns) .. "[ENDCOLOR]";
-			end
-			
-			-- We have no cities or population
-			if (g_pThemTeam:GetNumCities() == 0 or g_pThemTeam:GetTotalPopulation() == 0) then
-				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_THEY_NO_POPULATION" ) .. "[ENDCOLOR]";
+				-- they cannot become their vassal because it's been too quick since they last were their vassal
+				if (g_pThemTeam:IsTooSoonForVassal(g_iUsTeam)) then
+					local iNumTurnsLeft = Game.GetNumTurnsBetweenVassals() - g_pThemTeam:GetNumTurnsSinceVassalEnded(g_iUsTeam);
+					strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_THEM_TOO_SOON", iNumTurnsLeft ) .. "[ENDCOLOR]";
+					bSomeTooltip = true;
+				end
+				
+				-- They have no cities or population
+				if (g_pThemTeam:GetNumCities() == 0 or g_pThemTeam:GetTotalPopulation() == 0) then
+					strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_THEM_NO_POPULATION" ) .. "[ENDCOLOR]";
+					bSomeTooltip = true;
+				end
+				
+				-- Special tooltip in case nothing was shown to player
+				if (not bSomeTooltip) then
+					strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_THEM_SPECIAL_RULE" ) .. "[ENDCOLOR]";
+				end
 			end
 		else
 			Controls.ThemPocketVassalage:SetDisabled(false);
@@ -2097,18 +2124,14 @@ function ResetDisplay()
 			Controls.UsPocketRevokeVassalage:SetDisabled(true);
 			Controls.UsPocketRevokeVassalage:GetTextControl():SetColorByName("Gray_Black");
 		
-			bTheyCan = g_pThemTeam:canEndAllVassal();
-			--print("bTheyCan = " .. tostring(bTheyCan));
-
-			-- They haven't reached the Medieval Era yet
-			if (not g_pThemTeam:IsVassalageTradingAllowed()) then
-				--print("Don't have vassal tech.");
-				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_NOT_YET_ENABLED_OTHER_PLAYER" ) .. "[ENDCOLOR]";
+			-- Do we have vassals?
+			if (g_pUsTeam:GetNumVassals() <= 0) then
+				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_REVOKE_US_NO_VASSALS" ) .. "[ENDCOLOR]";
 			end
-
-			-- Vassals are disabled
-			if (not bTheyCan) then
-				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_REVOKE_UNABLE_THEY" ) .. "[ENDCOLOR]";
+			
+			-- Are we their master?
+			if (g_pThemTeam:GetMaster() == g_iUsTeam) then
+				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_REVOKE_US_THEIR_MASTER" ) .. "[ENDCOLOR]";
 			end
 
 		else
@@ -2130,18 +2153,16 @@ function ResetDisplay()
 			Controls.ThemPocketRevokeVassalage:SetDisabled(true);
 			Controls.ThemPocketRevokeVassalage:GetTextControl():SetColorByName("Gray_Black");
 
-			bUsCan = g_pUsTeam:canEndAllVassal();
+			bUsCan = g_pUsTeam:CanEndVassal();
 			
-
-			-- We haven't reached the Medieval Era yet
-			if (not g_pUsTeam:IsVassalageTradingAllowed()) then
-				--print("Don't have vassal tech.");
-				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_NOT_YET_ENABLED" ) .. "[ENDCOLOR]";
+			-- Do they have vassals?
+			if (g_pThemTeam:GetNumVassals() <= 0) then
+				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_REVOKE_US_NO_VASSALS" ) .. "[ENDCOLOR]";
 			end
-
-			-- Vassals are disabled
-			if (not bUsCan) then
-				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_REVOKE_UNABLE_WE" ) .. "[ENDCOLOR]";
+			
+			-- Are they our master?
+			if (g_pUsTeam:GetMaster() == g_iThemTeam) then
+				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_REVOKE_US_THEIR_MASTER" ) .. "[ENDCOLOR]";
 			end
 		else
 			Controls.ThemPocketRevokeVassalage:SetDisabled(false);

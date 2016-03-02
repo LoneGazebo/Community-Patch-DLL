@@ -1086,7 +1086,7 @@ function PopulateTakeChoices()
 -- CBP
 	local iTheftValue = 0;
 	local pMajor = Players[iActivePlayer];
-	local sBullyUnit = GameInfo.Units["UNIT_WORKER"].Description; --antonjs: todo: XML or fn
+	local sBullyUnit = GameInfo.Units[pPlayer:GetBullyUnit()].Description; --antonjs: todo: XML or fn
 	if(pMajor:IsBullyAnnex()) then
 		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT_ANNEX");
 	else

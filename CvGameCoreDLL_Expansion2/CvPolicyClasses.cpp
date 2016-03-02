@@ -59,6 +59,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iDomesticGreatGeneralRateModifier(0),
 	m_iExtraHappiness(0),
 	m_iExtraHappinessPerCity(0),
+#if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
+	m_iExtraNaturalWonderHappiness(0),
+#endif
 	m_iUnhappinessMod(0),
 	m_iCityCountUnhappinessMod(0),
 	m_iOccupiedPopulationUnhappinessMod(0),
@@ -415,6 +418,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iDomesticGreatGeneralRateModifier = kResults.GetInt("DomesticGreatGeneralRateModifier");
 	m_iExtraHappiness = kResults.GetInt("ExtraHappiness");
 	m_iExtraHappinessPerCity = kResults.GetInt("ExtraHappinessPerCity");
+#if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
+	m_iExtraNaturalWonderHappiness = kResults.GetInt("ExtraNaturalWonderHappiness");
+#endif
 	m_iUnhappinessMod = kResults.GetInt("UnhappinessMod");
 	m_iCityCountUnhappinessMod = kResults.GetInt("CityCountUnhappinessMod");
 	m_iOccupiedPopulationUnhappinessMod = kResults.GetInt("OccupiedPopulationUnhappinessMod");
@@ -1352,6 +1358,14 @@ int CvPolicyEntry::GetExtraHappinessPerCity() const
 {
 	return m_iExtraHappinessPerCity;
 }
+
+#if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
+///  Extra happiness per known Natural Wonder
+int CvPolicyEntry::GetExtraNaturalWonderHappiness() const
+{
+	return m_iExtraNaturalWonderHappiness;
+}
+#endif
 
 ///  Unhappiness mod (-50 = 50% of normal Unhappiness)
 int CvPolicyEntry::GetUnhappinessMod() const
@@ -3504,7 +3518,11 @@ void CvPlayerPolicies::SetOneShotFreeUnitsFired(PolicyTypes eIndex, bool bFired)
 }
 
 /// Returns number of policies purchased by this player
+#if defined(MOD_BALANCE_CORE)
+int CvPlayerPolicies::GetNumPoliciesOwned(bool bSkipFinisher) const
+#else
 int CvPlayerPolicies::GetNumPoliciesOwned() const
+#endif
 {
 	int rtnValue = 0;
 
@@ -3517,6 +3535,20 @@ int CvPlayerPolicies::GetNumPoliciesOwned() const
 		if(m_pabHasPolicy[i])
 #endif
 		{
+#if defined(MOD_BALANCE_CORE)
+			//Skipping finishers?
+			if(bSkipFinisher)
+			{
+				CvPolicyBranchEntry* pkBranchEntry = m_pPolicies->GetPolicyBranchEntry(m_pPolicies->GetPolicyEntry(i)->GetPolicyBranchType());
+				if(pkBranchEntry)
+				{
+					if(pkBranchEntry->GetFreeFinishingPolicy() == i)
+					{
+						continue;
+					}
+				}
+			}
+#endif
 			rtnValue++;
 		}
 	}
@@ -3566,6 +3598,11 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_EXTRA_HAPPINESS_PER_CITY:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetExtraHappinessPerCity();
 				break;
+#if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
+			case POLICYMOD_EXTRA_NATURALWONDER_HAPPINESS:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetExtraNaturalWonderHappiness();
+				break;
+#endif
 			case POLICYMOD_GREAT_PERSON_RATE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatPeopleRateModifier();
 				break;

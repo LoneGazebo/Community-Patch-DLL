@@ -68,7 +68,7 @@ UPDATE SmallAwards SET RandomMod = '40' WHERE Type = 'MINOR_CIV_QUEST_CONTEST_TE
 -- Bully
 UPDATE SmallAwards SET Influence = '15' WHERE Type = 'MINOR_CIV_QUEST_BULLY_CITY_STATE';
 UPDATE SmallAwards SET Gold = '60' WHERE Type = 'MINOR_CIV_QUEST_BULLY_CITY_STATE';
-UPDATE SmallAwards SET GlobalExperience = '5' WHERE Type = 'MINOR_CIV_QUEST_KILL_CITY_STATE';
+UPDATE SmallAwards SET GlobalExperience = '5' WHERE Type = 'MINOR_CIV_QUEST_BULLY_CITY_STATE';
 UPDATE SmallAwards SET RandomMod = '20' WHERE Type = 'MINOR_CIV_QUEST_BULLY_CITY_STATE';
 
 -- Denounce

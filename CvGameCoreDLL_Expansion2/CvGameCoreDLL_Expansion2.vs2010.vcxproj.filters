@@ -15,6 +15,9 @@
     <Filter Include="Lua">
       <UniqueIdentifier>{42994bec-0f25-4200-ae4c-b7c751a5a152}</UniqueIdentifier>
     </Filter>
+    <Filter Include="HHMods">
+      <UniqueIdentifier>{a57a0e9e-828c-4afc-a896-e9ddcc6e0866}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="_precompile.cpp">
@@ -1058,6 +1061,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TContainer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HHMods.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -617,25 +617,37 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			DomainTypes eTestDomain = (DomainTypes)iDomainLoop;
 			if(eTestDomain != NO_DOMAIN)
 			{
-				if(pkBuildingInfo->GetDomainFreeExperience(eTestDomain) > 0)
+				if(pkBuildingInfo->GetDomainFreeExperience(eTestDomain) > 0 || pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain))
 				{
 					if(m_pCity->getDomainFreeExperience(eTestDomain) > 0)
 					{
-						iBonus += m_pCity->getDomainFreeExperience(eTestDomain);
+						iBonus += (m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain)) * 2;
+					}
+					else
+					{
+						iBonus += m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain);
 					}
 				}		
-				if(pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(DOMAIN_LAND) > 0)
-				{
-					if(m_pCity->getDomainFreeExperienceFromGreatWorks(eTestDomain) > 0)
-					{
-						iBonus += m_pCity->getDomainFreeExperienceFromGreatWorks(eTestDomain);
-					}
-				}
-				if(pkBuildingInfo->GetDomainProductionModifier(DOMAIN_AIR) > 0)
+				if(pkBuildingInfo->GetDomainProductionModifier(eTestDomain) > 0)
 				{
 					if(m_pCity->getDomainProductionModifier(eTestDomain) > 0)
 					{
+						iBonus += m_pCity->getDomainProductionModifier(eTestDomain) * 2;
+					}
+					else
+					{
 						iBonus += m_pCity->getDomainProductionModifier(eTestDomain);
+					}
+				}
+				if(pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain) > 0)
+				{
+					if(m_pCity->getDomainFreeExperience(eTestDomain) > 0)
+					{
+						iBonus += (m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain)) * 2;
+					}
+					else
+					{
+						iBonus += m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain);
 					}
 				}
 			}
@@ -820,6 +832,25 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			}
 		}
 	}
+
+	///////
+	///Era Difference
+	/////////
+
+	TechTypes eTech = (TechTypes)pkBuildingInfo->GetPrereqAndTech();
+	if(eTech != NO_TECH)
+	{
+		CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
+		if(pEntry)
+		{
+			EraTypes eEra = (EraTypes)pEntry->GetEra();
+			if(eEra != NO_ERA && eEra < kPlayer.GetCurrentEra())
+			{
+				iBonus *= ((kPlayer.GetCurrentEra() + 1) - eEra);
+			}
+		}
+	}
+
 	/////
 	///WEIGHT
 	//////

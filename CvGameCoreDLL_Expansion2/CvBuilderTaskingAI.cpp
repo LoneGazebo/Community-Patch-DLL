@@ -1129,9 +1129,8 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 		if(pkImprovementInfo == NULL)
 			continue;
 
-		if(pkImprovementInfo->IsImprovementResourceTrade(eResource) || pkImprovementInfo->IsAdjacentCity())
+		if(pkImprovementInfo->IsImprovementResourceTrade(eResource) || pkImprovementInfo->IsAdjacentCity() || pkImprovementInfo->IsCreatedByGreatPerson())
 		{
-
 			if(eImprovement == eExistingPlotImprovement)
 			{
 				if(pPlot->IsImprovementPillaged())

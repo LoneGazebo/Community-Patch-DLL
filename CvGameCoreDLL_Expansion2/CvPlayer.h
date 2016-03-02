@@ -1178,6 +1178,9 @@ public:
 	int getHalfSpecialistFoodCapitalCount() const;
 	bool isHalfSpecialistFoodCapital() const;
 	void changeHalfSpecialistFoodCapitalCount(int iChange);
+
+	void ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain, int iChange);
+	int GetDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain) const;
 #endif
 
 	int getMilitaryFoodProductionCount() const;
@@ -2418,6 +2421,9 @@ public:
 	int GetScoreFromMilitarySize() const;
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	CvString GetVassalIndependenceTooltipAsMaster(PlayerTypes ePlayer) const;
+	CvString GetVassalIndependenceTooltipAsVassal() const;
+
 	int GetScoreFromVassals() const;
 	int GetScoreFromVassal(PlayerTypes ePlayer) const;
 
@@ -2931,6 +2937,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiReligionYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiBuildingClassCulture;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiDomainFreeExperiencePerGreatWorkGlobal;
 #endif
 
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldRateModifier;

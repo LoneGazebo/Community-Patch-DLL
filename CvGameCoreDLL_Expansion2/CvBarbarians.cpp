@@ -1121,13 +1121,7 @@ void CvBarbarians::DoUnits()
 
 					GET_PLAYER(eOtherMinor).GetMinorCivAI()->ChangeTurnsSinceRebellion(-1);
 
-					bool bQuick = false;
-					if(GC.getGame().getGameSpeedInfo().getGreatPeoplePercent() < 100)
-					{
-						bQuick = true;
-					}
-
-					//Rebel Spawn - once every 4 turns (on default speed)
+					//Rebel Spawn - once every 4 turns
 					if (iRebellionSpawn == /*20*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 100) / 100)
 					{
 						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
@@ -1144,7 +1138,7 @@ void CvBarbarians::DoUnits()
 					{
 						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
 					}
-					else if(!bQuick && iRebellionSpawn == /*4*/ (GC.getMINOR_QUEST_REBELLION_TIMER() * 20) / 100)
+					else if(iRebellionSpawn == /*4*/ (GC.getMINOR_QUEST_REBELLION_TIMER() * 20) / 100)
 					{
 						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
 					}

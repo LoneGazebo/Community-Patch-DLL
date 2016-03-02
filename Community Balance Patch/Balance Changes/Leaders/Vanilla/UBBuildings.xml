@@ -22,13 +22,13 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
-	<Building_YieldChangesPerPop>
+	<Building_ScienceFromYield>
 		<Row>
 			<BuildingType>BUILDING_BAZAAR</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>25</Yield>
+			<Yield>10</Yield>
 		</Row>
-	</Building_YieldChangesPerPop>
+	</Building_ScienceFromYield>
 	<!-- Bazaar -->
 	<Building_ResourceYieldChanges>
 		<Row>
@@ -154,7 +154,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_HELP">
-			<Text>Unique Indian replacement for the Aqueduct. Carries over 30% of [ICON_FOOD] Food after City growth. Grants +1 [ICON_PRODUCTION] Food from Flood Plains and, +1 [ICON_FOOD] Food from Farms. Reduces [ICON_HAPPINESS_3] Poverty slightly.</Text>
+			<Text>Unique Indian replacement for the Aqueduct. Carries over 30% of [ICON_FOOD] Food after City growth. Grants +1 [ICON_PRODUCTION] Production from Flood Plains and, +1 [ICON_FOOD] Food from Farms. Reduces [ICON_HAPPINESS_3] Poverty slightly.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY">
 			<Text>Build these unique Aqueducts to rapidly increase your city's population size and productivity, especially if the city is settled on or near Flood Plainss.</Text>
@@ -327,16 +327,9 @@
 		<Row>
 			<BuildingType>BUILDING_ODEON</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
-	<Building_YieldChangesPerPop>
-		<Row>
-			<BuildingType>BUILDING_ODEON</BuildingType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>20</Yield>
-		</Row>
-	</Building_YieldChangesPerPop>
 	<Building_YieldFromVictory>
 		<Row>
 			<BuildingType>BUILDING_ODEON</BuildingType>
@@ -685,14 +678,13 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
-	<Building_ImprovementYieldChanges>
+	<Building_ScienceFromYield>
 		<Row>
 			<BuildingType>BUILDING_SIEGE_WORKSHOP</BuildingType>
-			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>15</Yield>
 		</Row>
-	</Building_ImprovementYieldChanges>
+	</Building_ScienceFromYield>
 	<Civilization_BuildingClassOverrides>
 		<Row>
 			<CivilizationType>CIVILIZATION_OTTOMAN</CivilizationType>
@@ -710,10 +702,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SIEGE_WORKSHOP_HELP">
-			<Text>+50% [ICON_PRODUCTION] Production towards Siege units. All Siege units trained in this City receive the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free.[NEWLINE][NEWLINE]Nearby Mines gain +1 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_IRON] Iron: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COPPER] Copper: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.</Text>
+			<Text>15% of the City's [ICON_PRODUCTION] Production output is added to the City's [ICON_RESEARCH] Science every turn. +50% [ICON_PRODUCTION] Production towards Siege units. All Siege units trained in this City receive the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free.[NEWLINE]Nearby [ICON_RES_IRON] Iron: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COPPER] Copper: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SIEGE_WORKSHOP_STRATEGY">
-			<Text>Unique Ottoman replacement for the Forge. Produces Siege units much more quickly than normal, and grants them the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free. Use these attributes to build a massive force of artillery to take down an enemy's walls and conquer their lands!</Text>
+			<Text>Unique Ottoman replacement for the Forge. Generates more Science than the Forge, produces Siege units much more quickly than normal, and grants them the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free. Use these attributes to build a massive force of artillery to take down an enemy's walls and conquer their lands!</Text>
 		</Row>
 	</Language_en_US>
 	<!-- MOMA -->
@@ -828,7 +820,7 @@
 			<Text>Unique American replacement for the Hermitage. A city must have a Museum before it can construct the Smithsonian. Requires a national population of at least 65 before it can be constructed. [NEWLINE][NEWLINE]+25% [ICON_CULTURE] Culture in the City, and 50% of the [ICON_CULTURE] Culture from Great Works, World Wonders, Natural Wonders, and Improvements is added to the [ICON_TOURISM] Tourism output of the city. Boosts [ICON_CULTURE] Culture and [ICON_RESEARCH] Science output of Museums in all Cities by +5. Contains 3 Slots for Great Works of Art or Artifacts.[NEWLINE][NEWLINE]+5 [ICON_RESEARCH] Science and +5 [ICON_CULTURE] Culture if Themed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOMA_STRATEGY">
-			<Text>Unique American replacement for the Hermitage. In addition to the bonuses of the Hermitage, the Smithsonian boosts Culture and Tourism in the City greatly. The Smithsonianalso boosts the Culture and Science output of all Museums in your Empire. The Smithsonian is avaialable later than the Hermitage, however, and requires a Museum instead of an Opera House. Also requires a national population of at least 65.</Text>
+			<Text>Unique American replacement for the Hermitage. In addition to the bonuses of the Hermitage, the Smithsonian boosts Culture and Tourism in the City greatly. The Smithsonian also boosts the Culture and Science output of all Museums in your Empire. The Smithsonian is avaialable later than the Hermitage, however, and requires a Museum instead of an Opera House. Also requires a national population of at least 65. The cost goes up the more cities there are in the empire.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

@@ -45,6 +45,23 @@
 		</Row>
 	</Unit_FreePromotions>
 <!-- Ashurbanipal -->
+	<Building_DomainFreeExperiencePerGreatWorkGlobal>
+		<Row>
+			<BuildingType>BUILDING_ROYAL_LIBRARY</BuildingType>
+			<DomainType>DOMAIN_LAND</DomainType>
+			<Experience>5</Experience>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_ROYAL_LIBRARY</BuildingType>
+			<DomainType>DOMAIN_SEA</DomainType>
+			<Experience>5</Experience>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_ROYAL_LIBRARY</BuildingType>
+			<DomainType>DOMAIN_AIR</DomainType>
+			<Experience>5</Experience>
+		</Row>
+	</Building_DomainFreeExperiencePerGreatWorkGlobal>
 	<Trait_GreatWorkYieldChanges>
 		<Row>
 			<TraitType>TRAIT_SLAYER_OF_TIAMAT</TraitType>
@@ -52,38 +69,11 @@
 			<Yield>2</Yield>
 		</Row>
 	</Trait_GreatWorkYieldChanges>
-	<Unit_FreePromotions>
-		<Row>
-			<UnitType>UNIT_ASSYRIAN_SIEGE_TOWER</UnitType>
-			<PromotionType>PROMOTION_MEDIC</PromotionType>
-		</Row>
-	</Unit_FreePromotions>
-	<Unit_AITypes>
-		<Row>
-			<UnitType>UNIT_ASSYRIAN_SIEGE_TOWER</UnitType>
-			<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
-		</Row>
-	</Unit_AITypes>
-	<UnitClasses>
-		<Row>
-			<Type>UNITCLASS_ASSYRIAN_SIEGE_TOWER</Type>
-			<Description>TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER</Description>
-			<DefaultUnit>NONE</DefaultUnit>
-			<MaxPlayerInstances>2</MaxPlayerInstances>
-		</Row>
-	</UnitClasses>
-	<Civilization_UnitClassOverrides>
-		<Row>
-			<CivilizationType>CIVILIZATION_ASSYRIA</CivilizationType>
-			<UnitClassType>UNITCLASS_ASSYRIAN_SIEGE_TOWER</UnitClassType>
-			<UnitType>UNIT_ASSYRIAN_SIEGE_TOWER</UnitType>
-		</Row>
-	</Civilization_UnitClassOverrides>
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_ROYAL_LIBRARY</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_ThemingBonuses>
@@ -125,6 +115,13 @@
 		</Row>
 	</Improvement_TechYieldChanges>
 	<!-- Candi-->
+	<Building_ScienceFromYield>
+		<Row>
+			<BuildingType>BUILDING_CANDI</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>10</Yield>
+		</Row>
+	</Building_ScienceFromYield>
 	<Building_ResourceYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_CANDI</BuildingType>
@@ -179,12 +176,7 @@
 			<Yield>1</Yield>
 		</Row>
 	</Improvement_Yields>
-	<Unit_FreePromotions>
-		<Row>
-			<UnitType>UNIT_BRAZILIAN_PRACINHA</UnitType>
-			<PromotionType>PROMOTION_SURVIVALISM_1</PromotionType>
-		</Row>
-	</Unit_FreePromotions>
+	
 	<!-- Brazil UA -->
 	<Trait_GoldenAgeGreatPersonRateModifier>
 		<Row>

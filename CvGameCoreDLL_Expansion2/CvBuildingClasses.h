@@ -116,6 +116,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int GetResourceType() const;
+	int GetNumPoliciesNeeded() const;
 	int GrantsRandomResourceTerritory() const;
 	bool IsPuppetPurchaseOverride() const;
 	bool IsAllowsPuppetPurchase() const;
@@ -383,6 +384,9 @@ public:
 	int GetYieldFromConstruction(int i) const;
 	int* GetYieldFromConstructionArray() const;
 
+	int GetScienceFromYield(int i) const;
+	int* GetScienceFromYieldArray() const;
+
 	int GetThemingYieldBonus(int i) const;
 	int* GetThemingYieldBonusArray() const;
 #endif
@@ -414,6 +418,9 @@ public:
 	int GetUnitCombatProductionModifier(int i) const;
 	int GetDomainFreeExperience(int i) const;
 	int GetDomainFreeExperiencePerGreatWork(int i) const;
+#if defined(MOD_BALANCE_CORE)
+	int GetDomainFreeExperiencePerGreatWorkGlobal(int i) const;
+#endif
 	int GetDomainProductionModifier(int i) const;
 	int GetLockedBuildingClasses(int i) const;
 	int GetPrereqAndTechs(int i) const;
@@ -511,6 +518,7 @@ private:
 	int m_iPolicyType;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int m_iNumPoliciesNeeded;
 	int m_iResourceType;
 	int m_iGrantsRandomResourceTerritory;
 	bool m_bPuppetPurchaseOverride;
@@ -778,6 +786,7 @@ private:
 	int* m_piThemingYieldBonus;
 	int* m_piYieldFromTech;
 	int* m_piYieldFromConstruction;
+	int* m_piScienceFromYield;
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;
@@ -790,6 +799,9 @@ private:
 	int* m_piUnitCombatProductionModifiers;
 	int* m_piDomainFreeExperience;
 	int* m_piDomainFreeExperiencePerGreatWork;
+#if defined(MOD_BALANCE_CORE)
+	int* m_piDomainFreeExperiencePerGreatWorkGlobal;
+#endif
 	int* m_piDomainProductionModifier;
 	int* m_piPrereqNumOfBuildingClass;
 	int* m_piFlavorValue;

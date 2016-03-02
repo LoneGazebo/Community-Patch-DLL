@@ -227,8 +227,9 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	Method(IsVassal);
 	Method(CanBecomeVassal);
-	Method(canEndVassal);
-	Method(canEndAllVassal);
+	Method(CanMakeVassal);
+	Method(CanEndVassal);
+	Method(CanEndAllVassal);
 	Method(IsVassalageTradingAllowed);
 	Method(GetNumTurnsIsVassal);
 	Method(GetNumTurnsSinceVassalEnded);
@@ -239,6 +240,15 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(IsVoluntaryVassal);
 	Method(DoBecomeVassal);
 	Method(DoEndVassal);
+	Method(GetNumCitiesWhenVassalMade);
+	Method(GetTotalPopulationWhenVassalMade);
+	Method(CanLiberateVassal);
+	Method(DoLiberateVassal);
+	Method(CanSetVassalTax);
+	Method(GetVassalTax);
+	Method(GetNumTurnsSinceVassalTaxSet);
+	Method(DoApplyVassalTax);
+	Method(GetNumVassals);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -1399,19 +1409,25 @@ int CvLuaTeam::lIsVassal(lua_State* L)
 	return BasicLuaMethod(L, &CvTeam::IsVassal);
 }
 //------------------------------------------------------------------------------
-// bool CanMakeVassal(TeamTypes eIndex) const;
+// bool CanBecomeVassal(TeamTypes eIndex, bool bIgnoreAlreadyVassal) const;
 int CvLuaTeam::lCanBecomeVassal(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::canBecomeVassal);
 }
 //------------------------------------------------------------------------------
+// bool CanMakeVassal(TeamTypes eIndex, bool bIgnoreAlreadyVassal) const;
+int CvLuaTeam::lCanMakeVassal(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvTeam::CanMakeVassal);
+}
+//------------------------------------------------------------------------------
 // bool canEndVassal(TeamTypes eIndex) const;
-int CvLuaTeam::lcanEndVassal(lua_State* L)
+int CvLuaTeam::lCanEndVassal(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::canEndVassal);
 }
 // bool canEndVassal(TeamTypes eIndex) const;
-int CvLuaTeam::lcanEndAllVassal(lua_State* L)
+int CvLuaTeam::lCanEndAllVassal(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::canEndAllVassal);
 }
@@ -1440,13 +1456,13 @@ int CvLuaTeam::lGetMaster(lua_State* L)
 	return BasicLuaMethod(L, &CvTeam::GetMaster);
 }
 //------------------------------------------------------------------------------
-// bool IsVoluntaryVassal() const;
+// bool IsVoluntaryVassal(TeamTypes eTeam) const;
 int CvLuaTeam::lIsVoluntaryVassal(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::IsVoluntaryVassal);
 }
 // ---------------------------------------------------------------------
-// void DoBecomeVassal(TeamTypes eTeam)
+// void DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 int CvLuaTeam::lDoBecomeVassal(lua_State *L)
 {
 	CvTeam* pkTeam = GetInstance(L);
@@ -1461,5 +1477,59 @@ int CvLuaTeam::lDoBecomeVassal(lua_State *L)
 int CvLuaTeam::lDoEndVassal(lua_State *L)
 {
 	return BasicLuaMethod(L, &CvTeam::DoEndVassal);
+}
+// ---------------------------------------------------------------------
+// int GetNumCitiesWhenVassalMade()
+int CvLuaTeam::lGetNumCitiesWhenVassalMade(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::getNumCitiesWhenVassalMade);
+}
+// ---------------------------------------------------------------------
+// int GetTotalPopulationWhenVassalMade()
+int CvLuaTeam::lGetTotalPopulationWhenVassalMade(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::getTotalPopulationWhenVassalMade);
+}
+// ---------------------------------------------------------------------
+// bool CanLiberateVassal()
+int CvLuaTeam::lCanLiberateVassal(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::CanLiberateVassal);
+}
+// ---------------------------------------------------------------------
+// void DoLiberateVassal()
+int CvLuaTeam::lDoLiberateVassal(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::DoLiberateVassal);
+}
+// ---------------------------------------------------------------------
+// bool CanSetVassalTax(PlayerTypes ePlayer)
+int CvLuaTeam::lCanSetVassalTax(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::CanSetVassalTax);
+}
+// ---------------------------------------------------------------------
+// int GetVassalTax(PlayerTypes ePlayer)
+int CvLuaTeam::lGetVassalTax(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::GetVassalTax);
+}
+// ---------------------------------------------------------------------
+// void GetNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer)
+int CvLuaTeam::lGetNumTurnsSinceVassalTaxSet(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::GetNumTurnsSinceVassalTaxSet);
+}
+// ---------------------------------------------------------------------
+// void DoApplyVassalTax(PlayerTypes ePlayer, int iAmount)
+int CvLuaTeam::lDoApplyVassalTax(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::DoApplyVassalTax);
+}
+// ---------------------------------------------------------------------
+// int GetNumVassals()
+int CvLuaTeam::lGetNumVassals(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::GetNumVassals);
 }
 #endif

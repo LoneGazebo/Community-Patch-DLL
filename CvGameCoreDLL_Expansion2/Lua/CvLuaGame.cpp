@@ -442,6 +442,11 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetMinimumVassalTurns);
 	Method(GetNumTurnsBetweenVassals);
 	Method(GetMinimumVoluntaryVassalTurns);
+	Method(GetMinimumVassalTax);
+	Method(GetMaximumVassalTax);
+	Method(GetMinimumVassalLiberateTurns);
+	Method(GetMinimumVassalTaxTurns);
+	Method(GetVassalageEnabledEra);
 #endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)
@@ -3429,6 +3434,43 @@ int CvLuaGame::lGetMinimumVassalTurns(lua_State* L)
 int CvLuaGame::lGetNumTurnsBetweenVassals(lua_State* L)
 {
 	lua_pushinteger(L, GC.getGame().getGameSpeedInfo().getNumTurnsBetweenVassals());
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetMinimumVassalTax(lua_State* L)
+{
+	lua_pushinteger(L, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MINIMUM());
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetMaximumVassalTax(lua_State* L)
+{
+	lua_pushinteger(L, GC.getVASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM());
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetMinimumVassalLiberateTurns(lua_State* L)
+{
+	lua_pushinteger(L, GC.getGame().getGameSpeedInfo().getMinimumVassalLiberateTurns());
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetMinimumVassalTaxTurns(lua_State* L)
+{
+	lua_pushinteger(L, GC.getGame().getGameSpeedInfo().getMinimumVassalTaxTurns());
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetVassalageEnabledEra(lua_State* L)
+{
+	int iEra = -1;
+	for(int iLoopEra = 0; iLoopEra < GC.getNumEraInfos(); iLoopEra++) {
+		if(GC.getEraInfo(static_cast<EraTypes>(iLoopEra))->getVassalageEnabled()) {
+			iEra = iLoopEra;
+			break;
+		}
+	}
+	lua_pushinteger(L, iEra);
 	return 1;
 }
 #endif

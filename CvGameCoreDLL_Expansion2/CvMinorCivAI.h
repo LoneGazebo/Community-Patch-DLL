@@ -166,6 +166,9 @@ public:
 	int GetTourism() const;
 	int GetGeneralPoints() const;
 	int GetAdmiralPoints() const;
+
+	void SetPartialQuest(bool bValue);
+	bool IsPartialQuest() const;
 #endif
 
 	// Contest helper functions
@@ -217,6 +220,7 @@ void DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer = NO_PLAYER);
 	int m_iTourism;
 	int m_iGeneralPoints;
 	int m_iAdmiralPoints;
+	bool m_bPartialQuest;
 #endif
 };
 FDataStream& operator>>(FDataStream&, CvMinorCivQuest&);
@@ -258,6 +262,10 @@ public:
 	MinorCivTypes GetMinorCivType() const;
 
 	MinorCivPersonalityTypes GetPersonality() const;
+#if defined(MOD_BALANCE_CORE)
+	UnitClassTypes GetBullyUnit() const;
+	void SetBullyUnit(UnitClassTypes eUnitClass = NO_UNITCLASS);
+#endif
 #if defined(MOD_API_EXTENSIONS)
 	void SetPersonality(MinorCivPersonalityTypes ePersonality);
 #endif
@@ -764,6 +772,9 @@ private:
 	CvPlayer* m_pPlayer;
 	MinorCivTypes m_minorCivType;
 	MinorCivPersonalityTypes m_ePersonality;
+#if defined(MOD_BALANCE_CORE)
+	UnitClassTypes m_eBullyUnit;
+#endif
 	MinorCivStatusTypes m_eStatus;
 	UnitTypes m_eUniqueUnit;
 
@@ -861,6 +872,9 @@ public:
 	void setArtStyleSuffix(const char* szVal);
 
 	int GetMinorCivTrait() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetBullyUnit() const;
+#endif
 
 	// Deprecated Members
 	const char* getAdjectiveKeyWide() const;
@@ -877,6 +891,9 @@ protected:
 	int m_iArtStyleType;
 	int m_iNumLeaders;				 // the number of leaders the Civ has, this is needed so that random leaders can be generated easily
 	int m_iMinorCivTrait;
+#if defined(MOD_BALANCE_CORE)
+	int m_iBullyUnit;
+#endif
 
 	bool m_bAIPlayable;
 	bool m_bPlayable;

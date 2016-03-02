@@ -492,7 +492,7 @@ function ScienceTipHandler( control )
 	
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_RESEARCH_AGREEMENTS", iScienceFromRAs / 100);
 		end
-
+		
 		-- C4DF
 		-- Science from Vassals
 		local iScienceFromVassals = pPlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_SCIENCE);
@@ -629,9 +629,17 @@ function GoldTipHandler( control )
 -- C4DF
 	-- Gold from Vassals
 	local iGoldFromVassals = pPlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD);
+	local iGoldFromVassalTax = math.floor(pPlayer:GetMyShareOfVassalTaxes() / 100);
 -- END
-	local fTotalIncome = fGoldPerTurnFromCities + iGoldPerTurnFromOtherPlayers + fCityConnectionGold + iGoldPerTurnFromReligion + fTradeRouteGold + fTraitGold + iGoldFromVassals + iMinorGold + iGoldChange + iInternalRouteGold;
-	
+-- C4DF CHANGE
+	local fTotalIncome = fGoldPerTurnFromCities + iGoldPerTurnFromOtherPlayers + fCityConnectionGold + iGoldPerTurnFromReligion + fTradeRouteGold + fTraitGold + iMinorGold + iGoldChange + iInternalRouteGold;
+	if (iGoldFromVassals > 0) then
+		fTotalIncome = fTotalIncome + iGoldFromVassals;
+	end
+	if (iGoldFromVassalTax > 0) then
+		fTotalIncome = fTotalIncome + iGoldFromVassalTax;
+	end
+-- C4DF END CHANGE	
 	if (pPlayer:IsAnarchy()) then
 		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_ANARCHY", pPlayer:GetAnarchyNumTurns());
 		strText = strText .. "[NEWLINE][NEWLINE]";
@@ -665,6 +673,11 @@ function GoldTipHandler( control )
 	if (iGoldFromVassals > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_VASSALS", iGoldFromVassals);
 	end
+
+	-- Gold from Vassal Tax
+	if (iGoldFromVassalTax > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_VASSAL_TAX", iGoldFromVassalTax);
+	end
 --  END
 -- COMMUNITY PATCH CHANGE
 	if (iMinorGold > 0) then
@@ -681,7 +694,19 @@ function GoldTipHandler( control )
 	local iUnitSupply = pPlayer:CalculateUnitSupply();
 	local iBuildingMaintenance = pPlayer:GetBuildingGoldMaintenance();
 	local iImprovementMaintenance = pPlayer:GetImprovementGoldMaintenance();
+-- BEGIN C4DF
+	local iExpenseFromVassalTaxes = pPlayer:GetExpensePerTurnFromVassalTaxes();
+	local iVassalMaintenance = pPlayer:GetVassalGoldMaintenance();
+-- END C4DF
 	local iTotalExpenses = iUnitCost + iUnitSupply + iBuildingMaintenance + iImprovementMaintenance + iGoldPerTurnToOtherPlayers;
+-- BEGIN C4DF
+	if (iVassalMaintenance > 0) then
+		iTotalExpenses = iTotalExpenses + iVassalMaintenance;
+	end
+	if (iExpenseFromVassalTaxes > 0) then
+		iTotalExpenses = iTotalExpenses + iExpenseFromVassalTaxes;
+	end
+-- END C4DF
 -- COMMUNITY PATCH CHANGE
 	if (iGoldChange < 0) then
 		iGoldChange = (iGoldChange * -1);
@@ -713,6 +738,16 @@ function GoldTipHandler( control )
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_LOST_FROM_UNHAPPINESS", (iGoldChange * -1));
 	end
 --END
+-- C4DF
+	if (iVassalMaintenance > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_VASSAL_MAINT", iVassalMaintenance);
+	end
+
+	-- Gold from Vassal Tax
+	if (iExpenseFromVassalTaxes > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TOP_GOLD_VASSAL_TAX", iExpenseFromVassalTaxes);
+	end
+--  END
 	strText = strText .. "[/COLOR]";
 	
 	if (fTotalIncome + iTotalGold < 0) then
@@ -810,11 +845,16 @@ function HappinessTipHandler( control )
 
 -- C4DF
 		-- Happiness from Vassals
-		local happinessFromVassals = pPlayer:GetHappinessFromVassals();	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+		local iHappinessFromVassals = pPlayer:GetHappinessFromVassals();	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 --  END
 
-		local iTotalHappiness = iPoliciesHappiness + iResourcesHappiness + iCityHappiness + iBuildingHappiness + iMinorCivHappiness + iHandicapHappiness + iTradeRouteHappiness + iReligionHappiness + iNaturalWonderHappiness + iExtraHappinessPerCity + iLeagueHappiness + happinessFromVassals + iHappinessFromBonusResources + iHappinessFromMonopoly;
+		local iTotalHappiness = iPoliciesHappiness + iResourcesHappiness + iCityHappiness + iBuildingHappiness + iMinorCivHappiness + iHandicapHappiness + iTradeRouteHappiness + iReligionHappiness + iNaturalWonderHappiness + iExtraHappinessPerCity + iLeagueHappiness + iHappinessFromBonusResources + iHappinessFromMonopoly;
 		
+-- C4DF
+		if(iHappinessFromVassals > 0) then
+			iTotalHappiness = iTotalHappiness + iHappinessFromVassals;
+		end
+-- C4DF END
 		strText = strText .. "[NEWLINE][NEWLINE]";
 		strText = strText .. "[COLOR:150:255:150:255]";
 		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_SOURCES", iTotalHappiness);
@@ -858,11 +898,12 @@ function HappinessTipHandler( control )
 		end
 -- END
 -- C4DF
-		if (happinessFromVassals > 0) then
+		if (iHappinessFromVassals > 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. "          +" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_VASSALS", happinessFromVassals);
+			strText = strText .. "          +" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_VASSALS", iHappinessFromVassals);
 		end
 -- END
+	
 		-- Happiness from Luxury Variety
 		local iHappinessFromExtraResources = pPlayer:GetHappinessFromResourceVariety();
 		if (iHappinessFromExtraResources > 0) then

@@ -331,6 +331,8 @@ CvCity::CvCity() :
 	, m_aiGoldenAgeYieldMod("CvCity::m_aiGoldenAgeYieldMod", m_syncArchive)
 	, m_aiYieldFromWLTKD("CvCity::m_aiYieldFromWLTKD", m_syncArchive)
 	, m_aiYieldFromConstruction("CvCity::m_aiYieldFromConstruction", m_syncArchive)
+	, m_aiScienceFromYield("CvCity::m_aiScienceFromYield", m_syncArchive)
+	, m_aiBuildingScienceFromYield("CvCity::m_aiBuildingScienceFromYield", m_syncArchive)
 	, m_aiSpecialistRateModifier("CvCity::m_aiSpecialistRateModifier", m_syncArchive)
 	, m_aiNumTimesOwned("CvCity::m_aiNumTimesOwned", m_syncArchive)
 	, m_aiThemingYieldBonus("CvCity::m_aiThemingYieldBonus", m_syncArchive)
@@ -962,7 +964,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 #endif
 
 	//human player wants to see the effect at once, otherwise update at next turn start is good enough
-	if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
+	if(owningPlayer.isHuman())
 	{
 		owningPlayer.CalculateNetHappiness();
 	}
@@ -1511,6 +1513,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiGoldenAgeYieldMod.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromWLTKD.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromConstruction.resize(NUM_YIELD_TYPES);
+	m_aiScienceFromYield.resize(NUM_YIELD_TYPES);
+	m_aiBuildingScienceFromYield.resize(NUM_YIELD_TYPES);
 	m_aiThemingYieldBonus.resize(NUM_YIELD_TYPES);
 	m_aiNumTimesOwned.resize(REALLY_MAX_PLAYERS);
 #endif
@@ -1570,6 +1574,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiGoldenAgeYieldMod.setAt(iI, 0);
 		m_aiYieldFromWLTKD.setAt(iI, 0);
 		m_aiYieldFromConstruction.setAt(iI, 0);
+		m_aiScienceFromYield.setAt(iI, 0);
+		m_aiBuildingScienceFromYield.setAt(iI, 0);
 		m_aiThemingYieldBonus.setAt(iI, 0);
 #endif
 		m_aiBaseYieldRateFromReligion.setAt(iI, 0);
@@ -2335,7 +2341,7 @@ void CvCity::PostKill(bool bCapital, CvPlot* pPlot, PlayerTypes eOwner)
 	CvPlayer& owningPlayer = GET_PLAYER(eOwner);
 
 	//human player wants to see the effect at once, otherwise update at next turn start is good enough
-	if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
+	if(owningPlayer.isHuman())
 	{
 		owningPlayer.CalculateNetHappiness();
 	}
@@ -5668,6 +5674,9 @@ int CvCity::getProductionExperience(UnitTypes eUnit)
 			}
 			iExperience += getDomainFreeExperience((DomainTypes)(pkUnitInfo->GetDomainType()));
 			iExperience += getDomainFreeExperienceFromGreatWorks((DomainTypes)(pkUnitInfo->GetDomainType()));
+#if defined(MOD_BALANCE_CORE)
+			iExperience += getDomainFreeExperienceFromGreatWorksGlobal((DomainTypes)(pkUnitInfo->GetDomainType()));
+#endif
 
 			iExperience += getSpecialistFreeExperience();
 		}
@@ -9298,6 +9307,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromConstruction(eYield, pBuildingInfo->GetYieldFromConstruction(eYield) * iChange);
 			}
 
+			if(MOD_BALANCE_CORE && (pBuildingInfo->GetScienceFromYield(eYield) > 0))
+			{
+				ChangeBuildingScienceFromYield(eYield, (pBuildingInfo->GetScienceFromYield(eYield) * iChange));
+			}
+
 			if(MOD_BALANCE_CORE && (pBuildingInfo->GetThemingYieldBonus(eYield) > 0))
 			{
 				ChangeThemingYieldBonus(eYield, pBuildingInfo->GetThemingYieldBonus(eYield) * iChange);
@@ -9538,7 +9552,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #endif
 
 	//human player wants to see the effect at once, otherwise update at next turn start is good enough
-	if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
+	if(GET_PLAYER(getOwner()).isHuman())
 	{
 		GET_PLAYER(getOwner()).CalculateNetHappiness();
 	}
@@ -11190,7 +11204,7 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 		{
 			ChangeJONSCulturePerTurnFromPolicies(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
 			//human wants instant stat update, otherwise beginning of next turns is good enough
-			if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
+			if(GET_PLAYER(getOwner()).isHuman())
 			{
 				GET_PLAYER(getOwner()).CalculateNetHappiness();
 			}
@@ -11205,7 +11219,7 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 		{
 			ChangeJONSCulturePerTurnFromPolicies(-(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON)));
 			//human wants instant stat update, otherwise beginning of next turns is good enough
-			if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
+			if(GET_PLAYER(getOwner()).isHuman())
 			{
 				GET_PLAYER(getOwner()).CalculateNetHappiness();
 			}
@@ -12037,7 +12051,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 		GET_PLAYER(getOwner()).UpdateUnitProductionMaintenanceMod();
 
 		//human player wants to see the effect at once, otherwise update at next turn start is good enough
-		if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
+		if(GET_PLAYER(getOwner()).isHuman())
 		{
 			GET_PLAYER(getOwner()).CalculateNetHappiness();
 		}
@@ -15032,7 +15046,7 @@ void CvCity::DoCreatePuppet()
 	}
 
 	//human player wants to see the effect at once, otherwise update at next turn start is good enough
-	if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
+	if(GET_PLAYER(getOwner()).isHuman())
 	{
 		GET_PLAYER(getOwner()).CalculateNetHappiness();
 	}
@@ -15091,7 +15105,7 @@ void CvCity::DoAnnex()
 	setProductionAutomated(false, true);
 
 	//human player wants to see the effect at once, otherwise update at next turn start is good enough
-	if(GET_PLAYER(getOwner()).isHuman() && getOwner() == GC.getGame().getActivePlayer())
+	if(GET_PLAYER(getOwner()).isHuman())
 	{
 		GET_PLAYER(getOwner()).CalculateNetHappiness();
 	}
@@ -17226,6 +17240,7 @@ int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 
 #if defined(MOD_PROCESS_STOCKPILE)
 	int iYield = getBasicYieldRateTimes100(eIndex, bIgnoreTrade) + iProcessYield;
+
 	return iYield;
 }
 
@@ -17252,7 +17267,30 @@ int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) cons
 
 	return iModifiedYield;
 }
-
+#if defined(MOD_BALANCE_CORE)
+void CvCity::UpdateCityScienceFromYield(YieldTypes eIndex, int iModifiedYield)
+{
+	if(iModifiedYield > 0)
+	{
+		if(GetBuildingScienceFromYield(eIndex) > 0)
+		{
+			int iBonusYield = (iModifiedYield * GetBuildingScienceFromYield(eIndex) / 100);
+			if(iBonusYield > 0)
+			{
+				SetScienceFromYield(eIndex, iBonusYield);
+			}
+			else if(GetScienceFromYield(eIndex) > 0)
+			{
+				SetScienceFromYield(eIndex, 0);
+			}
+		}
+	}
+	else if(GetScienceFromYield(eIndex) > 0)
+	{
+		SetScienceFromYield(eIndex, 0);
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::getBaseYieldRate(YieldTypes eIndex) const
@@ -17316,6 +17354,29 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 		if(GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eMajority)
 		{	
 			iValue += GET_PLAYER(getOwner()).getReligionYieldRateModifier(eIndex);
+		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	//Update Science from yields
+	if(eIndex != YIELD_SCIENCE)
+	{
+		CvCity* pCity = this->plot()->getPlotCity();
+		if(pCity)
+		{
+			pCity->UpdateCityScienceFromYield(eIndex, iValue);
+		}
+	}
+	else if(eIndex == YIELD_SCIENCE)
+	{
+		for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eIndex = (YieldTypes)iI;
+			if(eIndex == NO_YIELD)
+			{
+				continue;
+			}
+			iValue += GetScienceFromYield(eIndex);
 		}
 	}
 #endif
@@ -17391,7 +17452,6 @@ int CvCity::GetBaseYieldRateFromBuildings(YieldTypes eIndex) const
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-
 	return m_aiBaseYieldRateFromBuildings[eIndex];
 }
 
@@ -17691,6 +17751,52 @@ void CvCity::ChangeYieldFromConstruction(YieldTypes eIndex, int iChange)
 	{
 		m_aiYieldFromConstruction.setAt(eIndex, m_aiYieldFromConstruction[eIndex] + iChange);
 		CvAssert(GetYieldFromConstruction(eIndex) >= 0);
+	}
+}
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+int CvCity::GetScienceFromYield(YieldTypes eIndex1) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_aiScienceFromYield[eIndex1];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::SetScienceFromYield(YieldTypes eIndex1, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	m_aiScienceFromYield.setAt(eIndex1, iChange);
+	CvAssert(GetScienceFromYield(eIndex1) >= 0);
+}
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+int CvCity::GetBuildingScienceFromYield(YieldTypes eIndex1) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	return m_aiBuildingScienceFromYield[eIndex1];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeBuildingScienceFromYield(YieldTypes eIndex1, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex1 >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	if(iChange != 0)
+	{
+		m_aiBuildingScienceFromYield.setAt(eIndex1, m_aiBuildingScienceFromYield[eIndex1] + iChange);
+		CvAssert(GetBuildingScienceFromYield(eIndex1) >= 0);
 	}
 }
 
@@ -18841,7 +18947,35 @@ int CvCity::getDomainFreeExperienceFromGreatWorks(DomainTypes eIndex) const
 
 	return iXP;
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvCity::getDomainFreeExperienceFromGreatWorksGlobal(DomainTypes eIndex) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex expected to be < NUM_DOMAIN_TYPES");
 
+	int iMod = GET_PLAYER(getOwner()).GetDomainFreeExperiencePerGreatWorkGlobal(eIndex);
+	if(iMod <= 0)
+	{
+		return iMod;
+	}
+	GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
+	int iXP = 0;
+	int iLoop = 0;
+	int iGreatWorks = 0;
+	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+	{
+		if(pLoopCity != NULL)
+		{
+			iGreatWorks += GetCityBuildings()->GetNumGreatWorks(eWritingClass);
+		}
+	}
+	iXP += (iGreatWorks * iMod);
+
+	return iXP;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::getDomainProductionModifier(DomainTypes eIndex) const
@@ -20612,7 +20746,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 			iTempValue += iYield* /*10*/ GC.getAI_PLOT_VALUE_YIELD_MULTIPLIER();
 
 		// Deficient? If so, give it a boost
-		if(pCityStrategyAI->IsYieldDeficient(eYield))
+		if(pCityStrategyAI->GetMostDeficientYield() == eYield)
 			iTempValue *= /*5*/ GC.getAI_PLOT_VALUE_DEFICIENT_YIELD_MULTIPLIER();
 
 		iYieldValue += iTempValue;
@@ -25934,6 +26068,11 @@ int CvCity::CountNumWorkedRiverTiles(TerrainTypes eTerrain)
 
 		// Invalid plot or not owned by this player
 		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) 
+		{
+			continue;
+		}
+
+		if(!pLoopPlot->isRiver())
 		{
 			continue;
 		}

@@ -559,7 +559,7 @@
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_ACADEMY</ImprovementType>
-			<TechType>TECH_SATELLITES</TechType>
+			<TechType>TECH_NUCLEAR_FISSION</TechType>
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>3</Yield>
 		</Row>

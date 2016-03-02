@@ -300,7 +300,7 @@
 		<Row>
 			<BuildingType>BUILDING_MAUSOLEUM</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>5</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_HEAVENLY_THRONE</BuildingType>
@@ -335,12 +335,12 @@
 		<Row>
 			<BuildingType>BUILDING_GREAT_ALTAR</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>5</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_RELIQUARY</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>4</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_RELIQUARY</BuildingType>
@@ -350,22 +350,22 @@
 		<Row>
 			<BuildingType>BUILDING_DIVINE_COURT</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>4</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_SACRED_GARDEN</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_HOLY_COUNCIL</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>4</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_APOSTOLIC_PALACE</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>4</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_APOSTOLIC_PALACE</BuildingType>
@@ -375,7 +375,7 @@
 		<Row>
 			<BuildingType>BUILDING_GRAND_OSSUARY</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>10</Yield>
+			<Yield>6</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_DIVINE_COURT</BuildingType>
@@ -424,13 +424,13 @@
 			<BuildingType>BUILDING_MAUSOLEUM</BuildingType>
 			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>5</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_HEAVENLY_THRONE</BuildingType>
 			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>5</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_GREAT_ALTAR</BuildingType>

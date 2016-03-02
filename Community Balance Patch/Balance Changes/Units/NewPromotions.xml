@@ -336,6 +336,43 @@
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_KNOCKOUT_II</PediaEntry>
 		</Row>
+		<Row>
+			<Type>PROMOTION_WOODLAND_TRAILBLAZER_I</Type>
+			<Description>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_I</Description>
+			<Help>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_I_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>1</OrderPriority>
+			<PortraitIndex>44</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_I</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_WOODLAND_TRAILBLAZER_II</Type>
+			<Description>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_II</Description>
+			<Help>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_II_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_WOODLAND_TRAILBLAZER_I</PromotionPrereqOr1>
+			<OrderPriority>1</OrderPriority>
+			<PortraitIndex>45</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_II</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_WOODLAND_TRAILBLAZER_III</Type>
+			<Description>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III</Description>
+			<Help>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_WOODLAND_TRAILBLAZER_II</PromotionPrereqOr1>
+			<OrderPriority>1</OrderPriority>
+			<IgnoreZOC>true</IgnoreZOC>
+			<EnemyRoute>true</EnemyRoute>
+			<PortraitIndex>46</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III</PediaEntry>
+		</Row>
 	</UnitPromotions>
 	<UnitPromotions_YieldFromKills>
 		<Row>
@@ -356,7 +393,49 @@
 			<Modifier>25</Modifier>
 		</Row>
 	</UnitPromotions_UnitCombatMods>
+	<UnitPromotions_Features>
+		<Row>
+			<PromotionType>PROMOTION_WOODLAND_TRAILBLAZER_I</PromotionType>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+			<DoubleMove>true</DoubleMove>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODLAND_TRAILBLAZER_I</PromotionType>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+			<DoubleMove>true</DoubleMove>
+		</Row>
+	</UnitPromotions_Features>
+	<UnitPromotions_Terrains>
+		<Row>
+			<PromotionType>PROMOTION_WOODLAND_TRAILBLAZER_II</PromotionType>
+			<TerrainType>TERRAIN_DESERT</TerrainType>
+			<DoubleMove>true</DoubleMove>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODLAND_TRAILBLAZER_II</PromotionType>
+			<TerrainType>TERRAIN_SNOW</TerrainType>
+			<DoubleMove>true</DoubleMove>
+		</Row>
+	</UnitPromotions_Terrains>
 	<Language_en_US>
+		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_I">
+			<Text>Trailblazer I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_I_HELP">
+			<Text>Double Movement in Jungles and Forests</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_II">
+			<Text>Trailblazer II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_II_HELP">
+			<Text>Double Movement in Desert and Snow</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III">
+			<Text>Trailblazer III</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III_HELP">
+			<Text>Ignores Zone of Control, Can Use Enemy Roads/Railroads</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_I">
 			<Text>Bonus v. Gun (25)</Text>
 		</Row>
@@ -364,10 +443,10 @@
 			<Text>+20% [ICON_STRENGTH] Strength VS Gun (Melee) Units</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_II">
-			<Text>Bonus v. Gun (25)</Text>
+			<Text>Bonus v. Siege (25)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_II_HELP">
-			<Text>+25% [ICON_STRENGTH] Strength VS Gun (Melee) Units</Text>
+			<Text>+25% [ICON_STRENGTH] Strength VS Siege Units</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_COERCION">
@@ -653,6 +732,18 @@
 		<Row>
 			<PromotionType>PROMOTION_FORMATION_2</PromotionType>
 			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODLAND_TRAILBLAZER_I</PromotionType>
+			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODLAND_TRAILBLAZER_II</PromotionType>
+			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODLAND_TRAILBLAZER_III</PromotionType>
+			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
 		</Row>
 	</UnitPromotions_UnitCombats>
 </GameData>

@@ -7619,7 +7619,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
-							if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
+							if(owningPlayer.isHuman())
 							{
 								owningPlayer.CalculateNetHappiness();
 							}
@@ -7732,7 +7732,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
-							if(owningPlayer.isHuman() && getOwner() == GC.getGame().getActivePlayer())
+							if(owningPlayer.isHuman())
 							{
 								owningPlayer.CalculateNetHappiness();
 							}
@@ -10519,7 +10519,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 									}
 								}
 
-								if(playerI.isHuman() && playerI.GetID() == GC.getGame().getActivePlayer())
+								if(playerI.isHuman())
 								{
 									playerI.CalculateNetHappiness();
 								}

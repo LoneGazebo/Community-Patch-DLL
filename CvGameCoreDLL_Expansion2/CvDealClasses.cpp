@@ -686,6 +686,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(pFromTeam->isAtWar(eToTeam))
 			return false;
 #endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		// If we're a vassal, can't
+		if(pFromTeam->IsVassalOfSomeone())
+			return false;
+#endif
 
 		// Check to see if the other player can trade this item to us as well.  If we can't, we can't trade it either
 		if(bCheckOtherPlayerValidity)
@@ -1288,7 +1293,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 		// Can we become the vassal of eToTeam?
-		if(!pToTeam->canBecomeVassal(eFromTeam))
+		if(!pFromTeam->canBecomeVassal(eToTeam))
 			return false;
 
 		//Does the offering team have a vassal?
@@ -3192,6 +3197,13 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 #endif
 #if defined(MOD_BALANCE_CORE)
 					GET_PLAYER(eAcceptedFromPlayer).GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
+					
+					if(!CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActiveTeam() == eTargetTeam)
+					{
+						const char* strText = GET_PLAYER(eAcceptedFromPlayer).GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_DOW_ROOT, GET_TEAM(eTargetTeam).getLeaderID());
+						gDLL->GameplayDiplomacyAILeaderMessage(eAcceptedFromPlayer, DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_DECLARE_WAR);
+					}
+
 					PlayerTypes eLoopPlayer;
 					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
@@ -3344,7 +3356,6 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									iTurns = iTurns * (100 + iLengthModifier) / 100;
 								}
 								GET_PLAYER(eAcceptedToPlayer).changeGoldenAgeTurns(iTurns);
-								bDone = true;
 							}
 
 							int iTourism = GET_PLAYER(eAcceptedToPlayer).GetEventTourism();
@@ -3378,7 +3389,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									}
 								}
 							}
-
+							bDone = true;
 						}
 						else if((kDeal.GetSurrenderingPlayer() == eAcceptedToPlayer) && !bDone)
 						{
@@ -3423,7 +3434,6 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									iTurns = iTurns * (100 + iLengthModifier) / 100;
 								}
 								GET_PLAYER(eAcceptedFromPlayer).changeGoldenAgeTurns(iTurns);
-								bDone = true;
 							}
 
 							int iTourism = GET_PLAYER(eAcceptedFromPlayer).GetEventTourism();
@@ -3457,6 +3467,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									}
 								}
 							}
+							bDone = true;
 						}
 					}
 #endif
