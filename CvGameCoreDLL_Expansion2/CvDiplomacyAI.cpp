@@ -40542,54 +40542,32 @@ CvString CvDiplomacyAI::GetVassalTreatmentToolTip(PlayerTypes ePlayer) const
 
 		// Demands made of them
 		iScore = GetVassalDemandScore(ePlayer);
-		if(iScore != 0)
-		{
-			szColor = (iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]";
-			szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_DEMAND", -iScore) + "[ENDCOLOR]";
-		}
+		szColor = ((iScore == 0) ? "[COLOR_GREY]" : ((iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]"));
+		szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_DEMAND", -iScore) + "[ENDCOLOR]";
+		
 		// Taxation policies
 		iScore = GetVassalTaxScore(ePlayer);
-		if(iScore != 0)
-		{
-			szColor = (iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]";
-			szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_TAX", -iScore) + "[ENDCOLOR]";
-		}
+		szColor = ((iScore == 0) ? "[COLOR_GREY]" : ((iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]"));
+		szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_TAX", -iScore) + "[ENDCOLOR]";
+		
 		// Protection of them
 		iScore = GetVassalFailedProtectScore(ePlayer) - GetVassalProtectScore(ePlayer);
-		if(iScore != 0)
-		{
-			szColor = (iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]";
-			szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_PROTECT", -iScore) + "[ENDCOLOR]";
-		}
+		szColor = ((iScore == 0) ? "[COLOR_GREY]" : ((iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]"));
+		szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_PROTECT", -iScore) + "[ENDCOLOR]";
+		
 		// Trade routes made with them
 		iScore = GetVassalTradeRouteScore(ePlayer);
-		if(iScore != 0)
-		{
-			szColor = (iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]";
-			szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_TRADE_ROUTE", -iScore) + "[ENDCOLOR]";
-		}
+		szColor = ((iScore == 0) ? "[COLOR_GREY]" : ((iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]"));
+		szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_TRADE_ROUTE", -iScore) + "[ENDCOLOR]";
+		
 		// Shared religion interests
 		iScore = GetVassalReligionScore(ePlayer);
-		if(iScore != 0)
-		{
-			szColor = (iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]";
-			szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_RELIGION", -iScore) + "[ENDCOLOR]";
-		}
+		szColor = ((iScore == 0) ? "[COLOR_GREY]" : ((iScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]"));
+		szRtnValue += "[NEWLINE][TAB][ICON_BULLET]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_RELIGION", -iScore) + "[ENDCOLOR]";
 
-		if(iTotalScore == 0)
-			szColor = "[COLOR_GREY]";
-		else if(iTotalScore < 0)
-			szColor = "[COLOR_POSITIVE_TEXT]";
-		else
-			szColor = "[COLOR_NEGATIVE_TEXT]";
-
+		// Total score
+		szColor = ((iTotalScore == 0) ? "[COLOR_GREY]" : ((iTotalScore < 0) ? "[COLOR_POSITIVE_TEXT]" : "[COLOR_NEGATIVE_TEXT]"));
 		szRtnValue += "[NEWLINE][NEWLINE][TAB]" + szColor + GetLocalizedText("TXT_KEY_VO_TREATMENT_TOTAL", -iTotalScore) + "[ENDCOLOR]";
-
-		/*szRtnValue += "[NEWLINE]" + GetLocalizedText("TXT_KEY_VO_TREATMENT_THRESHOLDS",
-			-GC.getVASSALAGE_TREATMENT_THRESHOLD_DISAGREE(),
-			-GC.getVASSALAGE_TREATMENT_THRESHOLD_MISTREATED(),
-			-GC.getVASSALAGE_TREATMENT_THRESHOLD_UNHAPPY(),
-			-GC.getVASSALAGE_TREATMENT_THRESHOLD_ENSLAVED());*/
 	}
 
 	return szRtnValue;
