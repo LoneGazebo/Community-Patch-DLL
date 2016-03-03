@@ -14,6 +14,7 @@
 #include "CvLuaUnit.h"
 #include "../CvMinorCivAI.h"
 #include "../CvUnitCombat.h"
+#include "../CustomMods.h"
 
 //Utility macro for registering methods
 #define Method(Name)			\

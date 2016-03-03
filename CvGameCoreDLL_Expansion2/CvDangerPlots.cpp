@@ -1006,11 +1006,16 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 		int iCityDanger = GetDanger(pFriendlyCity, (pUnit->getDomainType() == DOMAIN_LAND ? pUnit : NULL));
 		if (iCityDanger + pFriendlyCity->getDamage() < pFriendlyCity->GetMaxHitPoints())
 		{
-			// Reconstruct the amount of damage the garrison would absorb for the city
-			int iUnitShare = (iCityDanger*2*pUnit->GetMaxHitPoints()) / pFriendlyCity->GetMaxHitPoints();
+			if (pUnit->CanGarrison())
+			{
+				// Reconstruct the amount of damage the garrison would absorb for the city
+				int iUnitShare = (iCityDanger*2*pUnit->GetMaxHitPoints()) / pFriendlyCity->GetMaxHitPoints();
 
-			// Damage from features
-			return iUnitShare + GetDamageFromFeatures(pUnit->getOwner());
+				// Damage from features
+				return iUnitShare + GetDamageFromFeatures(pUnit->getOwner());
+			}
+			else
+				return 0;
 		}
 		else
 		{

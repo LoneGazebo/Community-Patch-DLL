@@ -8435,13 +8435,13 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 			std::set<int> candidates;
 			for (std::vector<CvPlot*>::iterator it=vAttackPlots.begin(); it!=vAttackPlots.end(); ++it)
 			{
-				//may happen
-				if ( *it == NULL )
+				//can only do range attacks from native domain (no ships in harbor, embarked etc)
+				if ( *it == NULL || !pUnit->isNativeDomain(*it) )
 					continue;
 
 				//must be halfway safe
-				int iUnitDanger = pUnit->GetDanger(*it); 
-				if( iUnitDanger<pUnit->GetCurrHitPoints()/2 && IsExpectedToDamageWithRangedAttack(pUnit, pTargetPlot, 5))
+				bool bIsSafeEnough = (pUnit->GetDanger(*it) < pUnit->GetCurrHitPoints()*0.8) || pUnit->isSuicide();
+				if( bIsSafeEnough && IsExpectedToDamageWithRangedAttack(pUnit, pTargetPlot, 3))
 					candidates.insert( (*it)->GetPlotIndex() );
 			}
 

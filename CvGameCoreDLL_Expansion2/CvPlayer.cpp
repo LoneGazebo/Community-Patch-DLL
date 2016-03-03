@@ -34101,6 +34101,10 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_cityNames;
 
 	kStream >> m_cities;
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	SetClosestCityMapDirty();
+#endif
+
 	kStream >> m_units;
 	kStream >> m_armyAIs;
 
