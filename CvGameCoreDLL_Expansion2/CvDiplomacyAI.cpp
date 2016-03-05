@@ -26457,7 +26457,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					else
 					{
 						strText = GetDiploStringForMessage(DIPLO_MESSAGE_VASSALAGE_REVOKED_FORCEFUL);
-						gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_ATTACKED);
+						gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_ATTACKED); // Anim attacked correct. Not ideal, but otherwise leader won't react to your request
 					}
 				}
 			}

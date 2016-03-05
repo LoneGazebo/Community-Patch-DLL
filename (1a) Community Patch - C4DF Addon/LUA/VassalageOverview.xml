@@ -32,17 +32,27 @@
 				</Grid>
 				<Image Anchor="L,C" AnchorSide="o,i" Offset="-264,32" Texture="VerticalTrim.dds" Size="5,472" ID="Vert"/>
 				<!-- Vassal List -->
-				<ScrollPanel Offset="0,30" AutoScrollBar="1" Size="236,464" OffsetX="8,0" Vertical="1" ID="ScrollPanel">
-					<Label Anchor="C,C" WrapWidth="216" ID="LabelNoVassals" String="{TXT_KEY_VO_NO_VASSALS:upper}" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				<ScrollPanel Offset="0,30" AutoScrollBar="1" Size="236,200" OffsetX="8,0" Vertical="1" ID="ScrollPanel">
+					<Label Anchor="C,C" Offset="12,-16" WrapWidth="216" ID="LabelNoVassals" String="{TXT_KEY_VO_NO_VASSALS:upper}" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 					
 					<!-- Scroll Controls -->
-					<ScrollBar Style="VertSlider" Length="428" Offset="0.18" Anchor="R,T" AnchorSide="O,I"/>
+					<ScrollBar Style="VertSlider" Length="196" Offset="0.18" Anchor="R,T" AnchorSide="O,I"/>
 					<UpButton Offset="0.0" Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
 					<DownButton Offset="0.0" Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
 					<Stack Anchor="L,T" Offset="0,0" Size="260,216" StackGrowth="Bottom" Padding="0" ID="VassalStack">
 
 					</Stack>
 				</ScrollPanel>
+				<Image Anchor="L,C" Offset="0,0" Texture="HorizontalTrim.dds" Size="260.5" ID="Horiz"/>
+				<!-- VassalBenefits -->
+				<Box Size="260,45" Offset="0,220" Color="Beige,0" Anchor="L,T" ID="BenefitsHeader">
+					<Grid Size="260,27" Style="Grid9FrameTurns" Anchor="C,B"/>
+					<Label Offset="0,8" Font="TwCenMT20" Anchor="C,B" String="{TXT_KEY_VO_VASSAL_BENEFITS}"/>
+				</Box>
+				<Box Anchor ="L,B" Offset="0,0" Size="260,232" Color="255,255,255,0" ID="VassalBenefitsBox">
+					<Label Anchor="L,C" Offset="4,0" ID="VassalBenefits" ColorSet="Beige_Black_Alpha" Font="TwCenMT16" FontStyle="Shadow"/>
+				</Box>
+				
 				<!-- Vassal Description -->
 				<Box Anchor="L,T" Offset="270,30" Size="646,464" Color="255,255,255,0">
 					<Box ID="VassalDescBox" Anchor="L,T" Size="646,464" Offset="0,0" Color="255,255,255,0" Hidden="1" >
@@ -173,7 +183,9 @@
 									</Box>
 									<Box Anchor="L,T" Size="290,128" Color="255,255,255,0">
 										<Label String="TXT_KEY_VO_TAX_RATE" Font="TwCenMT20" Anchor="L,T" Offset="4,8" ID="TaxSliderValue"/>
-										<Slider Length="300" Anchor="C,T" Offset="0,28" Style="Slider" ID="TaxSlider" WheelSteps="10"/>
+										<Box Anchor="C,T" Size="296,40" Offset="0,28" Color="255,255,255,0" ID="TaxSliderValueToolTip">
+											<Slider Length="300" Anchor="C,T" Style="Slider" ID="TaxSlider" WheelSteps="10"/>
+										</Box>
 
 										<Label Font="TwCenMT18" Anchor="L,T" Offset="4,68" ID="TaxesTurnSet" />
 										<Label Font="TwCenMT18" Anchor="L,T" Offset="4,88" ID="TaxesAvailableTurn" />
@@ -236,6 +248,7 @@
 									<Label Anchor="L,T"  Offset="0,98" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="MasterDeclareIndependence"/>
 								</Box>
 							</Stack>
+							<Label Anchor="R,B"  Offset="4,4" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="MasterVassalType"/>
 						</Box>
 						<Box Size="646, 334" Offset="0,132" Color="255,255,255,0">
 							<Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0">
@@ -291,21 +304,27 @@
 										</Stack>
 									</Box>
 									<Box Anchor="L,T" ID="MasterManagementBox" Size="323,310" Offset="0,0" Color="255,255,255,0">
-										<Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0">
-											<!-- Vassal Population Overview -->
-											<Box Size="300,45" Color="Beige,0" Anchor="C,T">
-												<Grid Size="320,27" Style="Grid9FrameTurns" Anchor="C,B"/>
-												<Label Offset="0,8" Font="TwCenMT20" Anchor="C,B" String="{TXT_KEY_VO_TAXES}"/>
-											</Box>
-											<Box Anchor="L,T" Size="319,128" Color="255,255,255,0">	
-												<Label String="TXT_KEY_VO_TAX_RATE" Font="TwCenMT20" Anchor="C,T" Offset="4,8" ID="LabelMasterTaxRate"/>
-												<Slider Length="300" Anchor="C,T" Offset="0,28" Style="Slider" ID="MasterTaxSlider" WheelSteps="10"/>
+										<ScrollPanel Offset="0,0" AutoScrollBar="1" Size="296,271" Vertical="1" ID="MasterScrollPanel">
+											<!-- Scroll Controls -->
+											<ScrollBar Style="VertSlider" Length="235" Offset="0.18" Anchor="R,T" AnchorSide="O,I" ID="VertSlider"/>
+											<UpButton Offset="0.0" Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I" ID="UpButton"/>
+											<DownButton Offset="0.0" Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I" ID="DownButton"/>
+											<Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0">
+												<!-- Vassal Population Overview -->
+												<Box Size="300,45" Color="Beige,0" Anchor="C,T">
+													<Grid Size="320,27" Style="Grid9FrameTurns" Anchor="C,B"/>
+													<Label Offset="0,8" Font="TwCenMT20" Anchor="C,B" String="{TXT_KEY_VO_TAXES}"/>
+												</Box>
+												<Box Anchor="L,T" Size="319,128" Color="255,255,255,0">
+													<Label String="TXT_KEY_VO_TAX_RATE" Font="TwCenMT20" Anchor="C,T" Offset="4,8" ID="LabelMasterTaxRate"/>
+													<Slider Length="300" Anchor="C,T" Offset="0,28" Style="Slider" ID="MasterTaxSlider" WheelSteps="10"/>
 
-												<Label ID="MasterTaxesTurnSet" Font="TwCenMT18" Anchor="C,T" Offset="4,68" String="Turn Taxes Set: X"/>
-												<Label ID="MasterAvailableTurn" Font="TwCenMT18" Anchor="C,T" Offset="4,88" String="Master can set taxes on turn: X"/>
-												<Label ID="MasterTaxesCurrentGPT" Font="TwCenMT18" Anchor="C,T" Offset="4,108" String="Master getting: X gold from us"/>
-											</Box>
-										</Stack>
+													<Label ID="MasterTaxesTurnSet" Font="TwCenMT18" Anchor="C,T" Offset="4,68" String="Turn Taxes Set: X"/>
+													<Label ID="MasterAvailableTurn" Font="TwCenMT18" Anchor="C,T" Offset="4,88" String="Master can set taxes on turn: X"/>
+													<Label ID="MasterTaxesCurrentGPT" Font="TwCenMT18" Anchor="C,T" Offset="4,108" String="Master getting: X gold from us"/>
+												</Box>
+											</Stack>
+										</ScrollPanel>
 										<GridButton Anchor="C,B" ID="RequestIndependence" Offset="0,0" Style="SmallButton" Size="200,45" String="TXT_KEY_VO_REQUEST_INDEPENDENCE" />
 									</Box>
 								</Stack>

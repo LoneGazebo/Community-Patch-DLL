@@ -2157,7 +2157,7 @@ function ResetDisplay()
 			
 			-- Do they have vassals?
 			if (g_pThemTeam:GetNumVassals() <= 0) then
-				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_REVOKE_US_NO_VASSALS" ) .. "[ENDCOLOR]";
+				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_NO_VASSALS" ) .. "[ENDCOLOR]";
 			end
 			
 			-- Are they our master?

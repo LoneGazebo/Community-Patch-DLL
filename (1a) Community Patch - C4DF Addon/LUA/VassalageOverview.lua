@@ -284,38 +284,6 @@ function MasterSelected( ePlayer )
 	-- Build Independence tooltip
 	Controls.MasterDeclareIndependence:LocalizeAndSetText( "TXT_KEY_VO_INDEPENDENCE_POSSIBLE_MASTER", strIndependencePossible );
 	Controls.MasterDeclareIndependence:LocalizeAndSetToolTip( g_pPlayer:GetVassalIndependenceTooltipAsVassal(ePlayer) );
-	
-	UpdateMasterStatistics( ePlayer );
-	
-	local iNumTurnsForTax = Game.GetMinimumVassalTaxTurns();
-	local iNumTurnsSinceSet = pMasterTeam:GetNumTurnsSinceVassalTaxSet( g_iPlayer );
-	local iNumTurnsLeft = iNumTurnsForTax - iNumTurnsSinceSet;
-	
-	local iTurnTaxesSet = Game.GetGameTurn() - iNumTurnsSinceSet;
-	local iTurnTaxesAvailable = Game.GetGameTurn() + iNumTurnsLeft;
-	local availableStr = "";
-	local taxesSetTurnStr = "";
-	if ( iNumTurnsLeft <= 0 or iNumTurnsSinceSet == -1 ) then
-		availableStr = Locale.ConvertTextKey("TXT_KEY_VO_TAX_CHANGE_READY_MASTER");
-	else
-		availableStr = Locale.ConvertTextKey("TXT_KEY_VO_TAX_TURN_AVAILABLE", iTurnTaxesAvailable);
-	end
-	
-	if ( iNumTurnsSinceSet == -1 ) then	
-		taxesSetTurnStr = Locale.ConvertTextKey("TXT_KEY_VO_TAX_TURN_NOT_SET_EVER_MASTER");
-	else
-		taxesSetTurnStr = Locale.ConvertTextKey("TXT_KEY_VO_TAX_TURN_SET", iTurnTaxesSet);
-	end
-	
-	Controls.LabelMasterTaxRate:LocalizeAndSetText("TXT_KEY_VO_TAX_RATE", pMasterTeam:GetVassalTax( g_iPlayer ) );
-	
-	Controls.MasterTaxSlider:SetDisabled(false);
-	Controls.MasterTaxSlider:SetValue( TaxValueToPercent( pMasterTeam:GetVassalTax( g_iPlayer ) ) );
-	Controls.MasterTaxSlider:SetDisabled(true);
-	
-	Controls.MasterTaxesTurnSet:LocalizeAndSetText( taxesSetTurnStr );
-	Controls.MasterAvailableTurn:LocalizeAndSetText( availableStr );
-	Controls.MasterTaxesCurrentGPT:LocalizeAndSetText( "TXT_KEY_VO_TAX_CONTRIBUTION_MASTER", g_pPlayer:GetExpensePerTurnFromVassalTaxes());
 
 	-- Request Independence button
 	local bCanRequestIndependence = g_pTeam:CanEndVassal( iMasterTeam );
@@ -342,6 +310,23 @@ function MasterSelected( ePlayer )
 
 	Controls.RequestIndependence:SetDisabled( not bCanRequestIndependence );
 	Controls.RequestIndependence:SetToolTipString( strTooltip );
+	Controls.RequestIndependence:SetVoid1( pMasterTeam:GetLeaderID() );
+	Controls.RequestIndependence:RegisterCallback( Mouse.eLClick, OnRequestIndependenceClicked );
+
+	UpdateMasterStatistics( ePlayer );
+	UpdateMasterTaxes( ePlayer );
+
+	local strType, strTypeTooltip;
+	if( g_pTeam:IsVoluntaryVassal( iMasterTeam ) ) then
+		strType = Locale.ConvertTextKey( "TXT_KEY_VO_VASSAL_TYPE_VOLUNTARY" );
+		strTypeTooltip = Locale.ConvertTextKey( "TXT_KEY_VO_MASTER_TYPE_VOLUNTARY_TT" );
+	else
+		strType = Locale.ConvertTextKey( "TXT_KEY_VO_VASSAL_TYPE_CAPITULATED" );
+		strTypeTooltip = Locale.ConvertTextKey( "TXT_KEY_VO_MASTER_TYPE_CAPITULATED_TT" );
+	end
+
+	Controls.MasterVassalType:SetText(strType);
+	Controls.MasterVassalType:SetToolTipString(strTypeTooltip);
 end
 
 function VassalSelected( ePlayer )
@@ -463,10 +448,10 @@ function VassalSelected( ePlayer )
 
 	if( not g_pTeam:CanSetVassalTax( ePlayer ) ) then
 		Controls.TaxSlider:SetDisabled( true );
-		Controls.TaxSliderValue:LocalizeAndSetToolTip( "TXT_KEY_VO_TAX_TOO_SOON", iNumTurnsForTax, iNumTurnsLeft );
+		Controls.TaxSliderValueToolTip:LocalizeAndSetToolTip( "TXT_KEY_VO_TAX_TOO_SOON", iNumTurnsForTax, iNumTurnsLeft );
 	else
 		Controls.TaxSlider:SetDisabled( false );
-		Controls.TaxSliderValue:SetToolTipString( "" );
+		Controls.TaxSliderValueToolTip:SetToolTipString( "" );
 	end
 	
 	local iTurnTaxesSet = Game.GetGameTurn() - iNumTurnsSinceSet;
@@ -543,6 +528,16 @@ function OnApplyChangesClicked( iVassalPlayer )
 	Controls.BGBlock:SetHide( true );
 	
 	Controls.Yes:SetVoid1( 1 );
+	Controls.Yes:SetVoid2( iVassalPlayer );
+	Controls.Yes:RegisterCallback( Mouse.eLClick, OnYes );
+end
+
+function OnRequestIndependenceClicked( iVassalPlayer )
+	Controls.ConfirmLabel:LocalizeAndSetText( "TXT_KEY_VO_CONFIRM_REQUEST_INDEPENDENCE", Teams[ Players[iVassalPlayer]:GetTeam() ]:GetName() );
+	Controls.Confirm:SetHide( false );
+	Controls.BGBlock:SetHide( true );
+	
+	Controls.Yes:SetVoid1( 2 );
 	Controls.Yes:SetVoid2( iVassalPlayer );
 	Controls.Yes:RegisterCallback( Mouse.eLClick, OnYes );
 end
@@ -759,7 +754,9 @@ function UpdateMasterStatistics( ePlayer )
 	local iTheirPopulationTeam = pMasterTeam:GetTotalPopulation();
 	
 	Controls.MasterStatsYourPopulation:LocalizeAndSetText( "TXT_KEY_VO_MASTER_VALUE_DISPLAY", iYourPopulation, iYourPopulationTeam );
+	Controls.MasterStatsYourPopulation:LocalizeAndSetToolTip( "TXT_KEY_VO_MASTER_YOUR_POP_TT" );
 	Controls.MasterStatsTheirPopulation:LocalizeAndSetText( "TXT_KEY_VO_MASTER_VALUE_DISPLAY", iTheirPopulation, iTheirPopulationTeam );
+	Controls.MasterStatsTheirPopulation:LocalizeAndSetToolTip( "TXT_KEY_VO_MASTER_THEIR_POP_TT" );
 	
 	local iPopPercent = 0;
 	if( iTheirPopulation ~= 0 ) then
@@ -771,14 +768,16 @@ function UpdateMasterStatistics( ePlayer )
 		iPopTeamPercent = math.floor(iYourPopulationTeam * 100 / iTheirPopulationTeam);
 	end
 	Controls.MasterStatsPopulationPercent:LocalizeAndSetText( "TXT_KEY_VO_MASTER_VALUE_DISPLAY_PERCENT_PLAYER", iPopPercent, iPopTeamPercent );
-	
+	Controls.MasterStatsPopulationPercent:LocalizeAndSetToolTip( "TXT_KEY_VO_MASTER_VIEW_POP_PERCENT_TT", pMasterPlayer:GetName() );
+
 	local iYourPopWhenVassalStarted = g_pTeam:GetTotalPopulationWhenVassalMade();
 	local iPopFromStartPercent = 0;
 	if( iYourPopWhenVassalStarted ~= 0 ) then
 		iPopFromStartPercent = math.floor( iYourPopulationTeam * 100 / iYourPopWhenVassalStarted );
 	end
 	Controls.MasterStatsPopStartedPercent:LocalizeAndSetText( "TXT_KEY_VO_MASTER_VALUE_DISPLAY_PERCENT", iPopFromStartPercent);
-	
+	Controls.MasterStatsPopStartedPercent:LocalizeAndSetToolTip( "TXT_KEY_VO_MASTER_POP_STARTED_PERCENT_TT", pMasterTeam:GetName() );
+
 	-- Cities
 	local iYourCities = g_pPlayer:GetNumCities();
 	local iYourCitiesTeam = g_pTeam:GetNumCities();
@@ -786,7 +785,9 @@ function UpdateMasterStatistics( ePlayer )
 	local iTheirCitiesTeam = pMasterTeam:GetNumCities();
 	
 	Controls.MasterStatsYourCities:LocalizeAndSetText( "TXT_KEY_VO_MASTER_VALUE_DISPLAY", iYourCities, iYourCitiesTeam  );
+	Controls.MasterStatsYourCities:LocalizeAndSetToolTip( "TXT_KEY_VO_MASTER_YOUR_CITIES_TT"  );
 	Controls.MasterStatsTheirCities:LocalizeAndSetText( "TXT_KEY_VO_MASTER_VALUE_DISPLAY", iTheirCities, iTheirCitiesTeam );
+	Controls.MasterStatsTheirCities:LocalizeAndSetToolTip( "TXT_KEY_VO_MASTER_THEIR_CITIES_TT" );
 	
 	local iCityPercent = 0;
 	if( iTheirCitiesTeam ~= 0 ) then
@@ -798,6 +799,7 @@ function UpdateMasterStatistics( ePlayer )
 		iCityTeamPercent = math.floor(iYourCitiesTeam * 100 / iTheirCitiesTeam);
 	end
 	Controls.MasterStatsCitiesPercent:LocalizeAndSetText( "TXT_KEY_VO_MASTER_VALUE_DISPLAY_PERCENT_PLAYER", iCityPercent, iCityTeamPercent );
+	Controls.MasterStatsCitiesPercent:LocalizeAndSetToolTip( "TXT_KEY_VO_MASTER_CITIES_PERCENT_TT", pMasterPlayer:GetName() );
 	
 	local iYourCitiesWhenVassalStarted = g_pTeam:GetNumCitiesWhenVassalMade();
 	local iCityFromStartPercent = 0;
@@ -805,35 +807,49 @@ function UpdateMasterStatistics( ePlayer )
 		iCityFromStartPercent = math.floor( iYourCitiesTeam * 100 / iYourCitiesWhenVassalStarted );
 	end
 	Controls.MasterStatsCitiesStartedPercent:LocalizeAndSetText( "TXT_KEY_VO_MASTER_VALUE_DISPLAY_PERCENT",  iCityFromStartPercent);
+	Controls.MasterStatsCitiesStartedPercent:LocalizeAndSetToolTip( "TXT_KEY_VO_MASTER_CITIES_STARTED_PERCENT_TT", pMasterTeam:GetName());
 
---	local iYourHappinessTeam = 0;
---	local iTheirHappinessTeam = 0;
---
---	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
---	
---		local pOtherPlayer = Players[iPlayerLoop];
---		if pOtherPlayer:IsEverAlive() then
---			local iOtherTeam = pOtherPlayer:GetTeam();
---			
---			-- player on my team
---			if( iOtherTeam == g_iTeam ) then
---				iYourHappinessTeam = iYourHappinessTeam + pOtherPlayer:GetExcessHappiness();
---			end
---
---			-- player on their team
---			if( iOtherTeam == iMasterTeam ) then
---				iTheirHappinessTeam = iTheirHappinessTeam + pOtherPlayer:GetExcessHappiness();
---			end
---		end
---	end
---
---	-- Happiness
---	local iYourHappiness = g_pPlayer:GetExcessHappiness();
---	local iTheirHappiness = pMasterPlayer:GetExcessHappiness();
---
---	Controls.MasterYourHappiness:LocalizeAndSetText( iYourHappiness );
---	Controls.MasterTheirHappiness:LocalizeAndSetText( iTheirHappiness );
---	
+end
+
+-- Update our master's taxes on us
+function UpdateMasterTaxes( ePlayer )
+	local pMasterPlayer = Players[ePlayer];
+	local iMasterTeam = pMasterPlayer:GetTeam();
+	local pMasterTeam = Teams[iMasterTeam];
+
+	local iNumTurnsForTax = Game.GetMinimumVassalTaxTurns();
+	local iNumTurnsSinceSet = pMasterTeam:GetNumTurnsSinceVassalTaxSet( g_iPlayer );
+	local iNumTurnsLeft = iNumTurnsForTax - iNumTurnsSinceSet;
+	
+	local iTurnTaxesSet = Game.GetGameTurn() - iNumTurnsSinceSet;
+	local iTurnTaxesAvailable = Game.GetGameTurn() + iNumTurnsLeft;
+	local availableStr = "";
+	local taxesSetTurnStr = "";
+	if ( iNumTurnsLeft <= 0 or iNumTurnsSinceSet == -1 ) then
+		availableStr = Locale.ConvertTextKey("TXT_KEY_VO_TAX_CHANGE_READY_MASTER");
+	else
+		availableStr = Locale.ConvertTextKey("TXT_KEY_VO_TAX_TURN_AVAILABLE", iTurnTaxesAvailable);
+	end
+	
+	if ( iNumTurnsSinceSet == -1 ) then	
+		taxesSetTurnStr = Locale.ConvertTextKey("TXT_KEY_VO_TAX_TURN_NOT_SET_EVER_MASTER");
+	else
+		taxesSetTurnStr = Locale.ConvertTextKey("TXT_KEY_VO_TAX_TURN_SET", iTurnTaxesSet);
+	end
+
+	local iTaxRate = pMasterTeam:GetVassalTax( g_iPlayer );
+	
+	Controls.LabelMasterTaxRate:LocalizeAndSetText("TXT_KEY_VO_TAX_RATE", iTaxRate );
+	Controls.LabelMasterTaxRate:LocalizeAndSetToolTip("TXT_KEY_VO_TAX_RATE_MASTER_TT", iTaxRate, pMasterTeam:GetName() );
+	
+	Controls.MasterTaxSlider:SetDisabled(false);
+	Controls.MasterTaxSlider:SetValue( TaxValueToPercent( pMasterTeam:GetVassalTax( g_iPlayer ) ) );
+	Controls.MasterTaxSlider:SetDisabled(true);
+	
+	Controls.MasterTaxesTurnSet:LocalizeAndSetText( taxesSetTurnStr );
+	Controls.MasterAvailableTurn:LocalizeAndSetText( availableStr );
+	Controls.MasterTaxesCurrentGPT:LocalizeAndSetText( "TXT_KEY_VO_TAX_CONTRIBUTION_MASTER", g_pPlayer:GetExpensePerTurnFromVassalTaxes());
+	Controls.MasterTaxesCurrentGPT:LocalizeAndSetToolTip( "TXT_KEY_VO_TAX_GPT_TAKEN_TT", g_pPlayer:GetExpensePerTurnFromVassalTaxes(), iTaxRate, g_pPlayer:CalculateGrossGold() );
 end
 
 -------------------------------------------------
@@ -881,8 +897,11 @@ function OnYes( type, iValue )
 		g_pTeam:DoApplyVassalTax( iValue, iTaxRate );
 		VassalSelected( iValue );
 		UpdateApplyChanges();
+	-- Request Independence
+	elseif ( type == 2 ) then
+		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_ENDS_VASSALAGE, iValue, 2, 0 );
+		OnClose();
 	end
-
 end
 
 function OnNo( )
@@ -928,6 +947,17 @@ function ShowHideHandler( bIsHide, bInitState )
     end
 end
 ContextPtr:SetShowHideHandler( ShowHideHandler );
+
+-- Build vassal benefit text
+local strBenefits = "";
+strBenefits = strBenefits .. "[NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_VO_BENEFITS_OPEN_BORDERS" );
+strBenefits = strBenefits .. "[NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_VO_BENEFITS_YIELD_PERCENTAGE" );
+strBenefits = strBenefits .. "[NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_VO_BENEFITS_RELIGION_MOD" );
+strBenefits = strBenefits .. "[NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_VO_BENEFITS_TOURISM_MOD" );
+strBenefits = strBenefits .. "[NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_VO_BENEFITS_DIPLOMAT" );
+strBenefits = strBenefits .. "[NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_VO_BENEFITS_IDEOLOGY" );
+strBenefits = strBenefits .. "[NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_VO_BENEFITS_LEVY" );
+Controls.VassalBenefits:SetText(strBenefits);
 
 -- Just in case :)
 LuaEvents.RequestRefreshAdditionalInformationDropdownEntries();

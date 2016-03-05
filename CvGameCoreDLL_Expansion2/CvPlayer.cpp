@@ -37254,7 +37254,7 @@ int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
 					iFreeYield = GET_PLAYER(ePlayer).GetTotalJONSCulturePerTurn();
 					iFreeYield *= /*33*/GC.getVASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT();
 					iFreeYield /= 100;
-
+				
 					break;
 
 				case YIELD_FAITH:
