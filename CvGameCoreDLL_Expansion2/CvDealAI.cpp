@@ -1196,9 +1196,9 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_TECHS)
 		iItemValue = GetTechValue(/*TechType*/ (TechTypes) iData1, bFromMe, eOtherPlayer);
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_VASSALAGE)
-		iItemValue = GetVassalageValue(bFromMe, eOtherPlayer, bUseEvenValue);
+		iItemValue = GetVassalageValue(bFromMe, eOtherPlayer, bUseEvenValue, GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam()));
 	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_VASSALAGE_REVOKE)
-		iItemValue = GetRevokeVassalageValue(bFromMe, eOtherPlayer, bUseEvenValue);
+		iItemValue = GetRevokeVassalageValue(bFromMe, eOtherPlayer, bUseEvenValue, GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam()));
 #endif
 
 	CvAssertMsg(iItemValue >= 0, "DEAL_AI: Trade Item value is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -8840,7 +8840,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	if(bUseEvenValue)
 	{
-		int iReverseValue = GET_PLAYER(eOtherPlayer).GetDealAI()->GetVassalageValue(!bFromMe, GetPlayer()->GetID(), /*bUseEvenValue*/ false);
+		int iReverseValue = GET_PLAYER(eOtherPlayer).GetDealAI()->GetVassalageValue(!bFromMe, GetPlayer()->GetID(), /*bUseEvenValue*/ false, bWar);
 
 		if (iReverseValue == INT_MAX)
 			//no deal, can't agree on a value
@@ -9054,7 +9054,7 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	if(bUseEvenValue)
 	{
-		int iReverseValue = GET_PLAYER(eOtherPlayer).GetDealAI()->GetRevokeVassalageValue(!bFromMe, GetPlayer()->GetID(), /*bUseEvenValue*/ false);
+		int iReverseValue = GET_PLAYER(eOtherPlayer).GetDealAI()->GetRevokeVassalageValue(!bFromMe, GetPlayer()->GetID(), /*bUseEvenValue*/ false, bWar);
 
 		if (iReverseValue == INT_MAX)
 			//no deal, can't agree on a value
