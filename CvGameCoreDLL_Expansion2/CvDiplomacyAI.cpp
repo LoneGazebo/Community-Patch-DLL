@@ -41194,6 +41194,10 @@ void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 	CvAssertMsg(eOtherTeam >= 0, "DIPLOMACY AI: Invalid Team Index. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eOtherTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
+	// Only do this if we are a vassal
+	if(!GET_TEAM(GetPlayer()->getTeam()).IsVassal(eTeam))
+		return;
+
 	// Get players from Master's team
 	for(int iMasterPlayer = 0; iMasterPlayer < MAX_MAJOR_CIVS; iMasterPlayer++)
 	{
@@ -41201,11 +41205,7 @@ void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 		if(GET_PLAYER(eMasterPlayer).getTeam() == eTeam)
 		{
 			SetMasterLiberatedMeFromVassalage(eMasterPlayer, true);
-		}
 
-		// We are not on master team - send notification
-		if(!GetPlayer()->getTeam() != eTeam)
-		{
 #if defined(MOD_ACTIVE_DIPLOMACY)
 			// JdH => deciding whether to send a notification or pop up directy is done in SendRequest
 			{
