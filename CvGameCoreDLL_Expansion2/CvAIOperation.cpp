@@ -1774,7 +1774,7 @@ const char* CvAIOperation::GetInfoString()
 		if(thisArmy)
 			iUnitsInOperation += thisArmy->GetNumSlotsFilled();
 	}
-	strTemp3.Format(" (T%d-M%d-B%d)", iUnitsInOperation, GetNumUnitsNeededToBeBuilt(), GetNumUnitsCommittedToBeBuilt());
+	strTemp3.Format(" (R%d-M%d-B%d)", iUnitsInOperation, GetNumUnitsNeededToBeBuilt(), GetNumUnitsCommittedToBeBuilt());
 
 	m_strInfoString = strTemp0+strTemp1+strTemp2+strTemp3;
 	return m_strInfoString.c_str();

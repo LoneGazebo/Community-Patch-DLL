@@ -6649,25 +6649,10 @@ void CvPlayer::DoUnitReset()
 
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
-		// HEAL UNIT?
-		if(!pLoopUnit->isEmbarked())
-		{
-			if(pLoopUnit->hasMoved())
-			{
-				if(pLoopUnit->isAlwaysHeal())
-				{
-					pLoopUnit->doHeal();
-				}
-			}
-			else
-			{
-				if(pLoopUnit->IsHurt())
-				{
-					pLoopUnit->doHeal();
-				}
-			}
-		}
+		// First heal the unit
+		pLoopUnit->doHeal();
 
+		// then damage it again
 		int iCitadelDamage;
 		if(pLoopUnit->IsNearEnemyCitadel(iCitadelDamage))
 		{
@@ -15101,7 +15086,7 @@ int CvPlayer::GetUnhappiness() const
 void CvPlayer::CalculateNetHappiness()
 {
 	//Not active player, or a barb, or a minor? Get out!
-	if(isMinorCiv() || isBarbarian() || GC.getGame().getActivePlayer() != GetID())
+	if(isMinorCiv() || isBarbarian())
 	{
 		return;
 	}

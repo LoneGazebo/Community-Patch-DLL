@@ -694,18 +694,6 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 	}
 }
 
-int CorrectWeight(int iWeight)
-{
-	if(iWeight < -1000)
-	{
-		return MAX_INT;
-	}
-	else
-	{
-		return iWeight;
-	}
-}
-
 int CvBuilderTaskingAI::CheckAlternativeWorkers(const std::vector<CvUnit*>& otherWorkers, const CvPlot* pTarget) const
 {
 	int iAlternativeTurnsAway = INT_MAX;
@@ -1189,24 +1177,24 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 
 			int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild), iInvestedImprovementTime + iMoveTurnsAway);
 			iWeight += iBuildTimeWeight;
-			iWeight = CorrectWeight(iWeight);
 
 			iWeight += GetResourceWeight(eResource, eImprovement, pPlot->getNumResource());
+
 #if defined(MOD_BALANCE_CORE)
+			iWeight = min(iWeight,0xFFFF);
 			iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
 #endif
-			iWeight = CorrectWeight(iWeight);
 
 			UpdateProjectedPlotYields(pPlot, eBuild);
 #if defined(MOD_BALANCE_CORE)
 			int iScore = ScorePlot(eImprovement, eBuild);
+			iScore = min(iScore,0xFFFF);
 #else
 			int iScore = ScorePlot();
 #endif
 			if(iScore > 0)
 			{
 				iWeight *= iScore;
-				iWeight = CorrectWeight(iWeight);
 			}
 
 			{
@@ -1501,10 +1489,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			iWeight = iWeight / 8;
 		}
 
-		iWeight = CorrectWeight(iWeight);
-
 		BuilderDirective directive;
-
 		directive.m_eDirective = eDirectiveType;
 		directive.m_eBuild = eBuild;
 		directive.m_eResource = NO_RESOURCE;
@@ -1616,7 +1601,6 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 	iWeight += GetBuildTimeWeight(pUnit, pPlot, eRouteBuild, false, iMoveTurnsAway);
 	iWeight *= pPlot->GetBuilderAIScratchPadValue();
 	iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
-	iWeight = CorrectWeight(iWeight);
 
 	BuilderDirective directive;
 	directive.m_eDirective = eDirectiveType;
@@ -1829,8 +1813,6 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 	{
 		iWeight = iWeight * 2;
 	}
-
-	iWeight = CorrectWeight(iWeight);
 
 	if(iWeight > 0)
 	{
@@ -2623,7 +2605,7 @@ int CvBuilderTaskingAI::ScorePlot()
 
 		if (pCity->isCapital()) // this is our capital and needs emphasis
 		{
-			iScore *= 8;
+			iScore *= 4;
 		}
 		else if (pCity->IsOriginalCapital()) // this was a particularly good city and needs a little emphasis
 		{
@@ -2836,11 +2818,7 @@ int CvBuilderTaskingAI::ScorePlot()
 		}
 	}
 #endif
-	//Let's push AI to make mines on hills.
-	if(m_pTargetPlot->isHills() && pImprovement->IsHillsMakesValid())
-	{
-		iScore *= 5;
-	}
+
 	//Let's get route things on routes, and not elsewhere.
 	bool bRouteBenefit = false;
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -2864,29 +2842,21 @@ int CvBuilderTaskingAI::ScorePlot()
 		{
 			if(m_pTargetPlot->IsRouteRailroad() || m_pTargetPlot->IsRouteRoad())
 			{
-				iScore *= 10;
+				iScore *= 4;
 			}
-			else
-			{
-				iScore /= 100;
-			}
-		}
-		else
-		{
-			iScore /= 100;
 		}
 	}
 
 	//Great improvements are great!
 	if(pImprovement->IsCreatedByGreatPerson())
 	{
-		iScore *= 5;
+		iScore *= 4;
 	}
 
 	//City adjacenct improvment? Ramp it up!
 	if(pImprovement->IsAdjacentCity() && m_pTargetPlot->GetAdjacentCity() != NULL)
 	{
-		iScore *= 10;
+		iScore *= 4;
 	}
 	//Holy Sites should be built near Holy Cities.
 	ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
@@ -2897,11 +2867,7 @@ int CvBuilderTaskingAI::ScorePlot()
 		{
 			if(m_pTargetPlot->getWorkingCity() != NULL && m_pTargetPlot->getWorkingCity()->GetCityReligions()->IsHolyCityForReligion(eReligion))
 			{
-				iScore *= 10;
-			}
-			else
-			{
-				iScore /= 2;
+				iScore *= 4;
 			}
 		}
 	}
@@ -2911,7 +2877,7 @@ int CvBuilderTaskingAI::ScorePlot()
 	{
 		if(pImprovement->IsImprovementResourceMakesValid(eResource))
 		{
-			iScore *= 50;
+			iScore *= 20;
 		}
 	}
 	//Do we have unimproved plots nearby? If so, let's not worry about replacing improvements right now.

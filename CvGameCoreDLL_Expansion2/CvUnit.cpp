@@ -7293,13 +7293,19 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 {
 	VALIDATE_OBJECT
 
-	// No barb healing
-	if(isBarbarian())
+	if(!IsHurt())
 	{
 		return false;
 	}
 
-	if(!IsHurt())
+	// No healing after movement, except for exceptions
+	if(hasMoved() && !isAlwaysHeal())
+	{
+		return false;
+	}
+
+	// No barb healing
+	if(isBarbarian())
 	{
 		return false;
 	}
@@ -7327,11 +7333,6 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 		}
 	}
 #endif
-
-	if(isWaiting())
-	{
-		return false;
-	}
 
 #if defined(MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
 	if (MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
@@ -7645,6 +7646,10 @@ void CvUnit::doHeal()
 	VALIDATE_OBJECT
 	if(!isBarbarian())
 	{
+		//this always returns false for barbarians, therefore inside the conditional
+		if(!canHeal(plot()))
+			return;
+
 #if defined(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
 		if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && !GET_PLAYER(getOwner()).isMinorCiv())
 		{
@@ -7724,7 +7729,7 @@ void CvUnit::doHeal()
 		if(IsCombatUnit())
 		{
 			ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
-			if( !hasMoved() && IsHurt() && plot()->getImprovementType()==eCamp )
+			if( IsHurt() && !hasMoved() && plot()->getImprovementType()==eCamp )
 			{
 				changeDamage( -GC.getBALANCE_BARBARIAN_HEAL_RATE() );
 			}

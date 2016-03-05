@@ -19502,8 +19502,7 @@ void CvCity::updateStrengthValue()
 	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
 	if(pGarrisonedUnit)
 	{
-		int iMaxHits = GC.getMAX_HIT_POINTS();
-		iStrengthFromUnits = pGarrisonedUnit->GetBaseCombatStrength() * 100 * (iMaxHits - pGarrisonedUnit->getDamage()) / iMaxHits;
+		iStrengthFromUnits = ((pGarrisonedUnit->GetBaseCombatStrength() * 100 * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR());
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		if(MOD_BALANCE_CORE_MILITARY)
@@ -19521,7 +19520,7 @@ void CvCity::updateStrengthValue()
 #endif
 	}
 
-	iStrengthValue += ((iStrengthFromUnits * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR());
+	iStrengthValue += iStrengthFromUnits;
 
 	// Tech Progress increases City Strength
 	int iTechProgress = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 / GC.getNumTechInfos();
