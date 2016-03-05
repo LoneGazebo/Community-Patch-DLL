@@ -667,13 +667,6 @@
 		<Row Tag="TXT_KEY_GAME_OPTION_ADVANCED_DIPLOMACY_HELP">
 			<Text>Display raw numbers next to diplomatic modifiers. In addition, AI leaders will never hide negative modifiers when they are Friendly.</Text>
 		</Row>
-
-		<Row Tag="TXT_KEY_TP_GOLD_VASSAL_TAX">
-			<Text>{1_Num} from the collection of Vassal Taxes.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TP_GOLD_VASSAL_TAX_EXPENSE">
-			<Text>{1_Num} spent on Vassal Taxes.</Text>
-		</Row>
 		
 		<!-- End Vassalage Resolution -->
 		<Row Tag="TXT_KEY_RESOLUTION_PLAYER_VASSAL_TAX">

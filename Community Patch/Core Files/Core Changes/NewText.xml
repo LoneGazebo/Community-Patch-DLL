@@ -3339,6 +3339,16 @@
 		<Row Tag="TXT_KEY_TP_FAITH_VASSALS">
 			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from Vassals.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TP_GOLD_VASSAL_TAX">
+			<Text>{1_Num} from the collection of Vassal Taxes.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_GOLD_VASSAL_TAX_EXPENSE">
+			<Text>{1_Num} spent on Vassal Taxes.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_GOLD_VASSAL_MAINT">
+			<Text>{1_Num} spent on Vassal Maintenance.</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_HAPPINESS_FROM_VASSALS">
 			<Text>Vassals</Text>
 		</Row>
