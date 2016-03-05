@@ -2486,13 +2486,6 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 	// Player Opinion & Approach
 	DoUpdateApproachTowardsUsGuesses();
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		//DoUpdateGlobalStates();
-		DoDetermineTaxRateForVassals();
-	}
-#endif
-
 	DoUpdateOpinions();
 	DoUpdateMajorCivApproaches();
 	DoUpdateMinorCivApproaches();
@@ -2524,6 +2517,8 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 	if(MOD_DIPLOMACY_CIV4_FEATURES)
 	{
 		DoMakePeaceWithVassals();
+		//DoUpdateGlobalStates();
+		DoDetermineTaxRateForVassals();
 	}
 #endif
 
