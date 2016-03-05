@@ -567,6 +567,9 @@
 		<Row Tag="TXT_KEY_VO_SCIENCE_STAT">
 			<Text>[ICON_RESEARCH] Science</Text>
 		</Row>
+		<Row Tag="TXT_KEY_VO_CITIES">
+			<Text>Cities</Text>
+		</Row>
 		<Row Tag="TXT_KEY_VO_POPULATION">
 			<Text>Population</Text>
 		</Row>
@@ -620,29 +623,38 @@
 		<Row Tag="TXT_KEY_VO_INDEPENDENCE_POSSIBLE_MASTER">
 			<Text>Can Declare Independence: {1_Str}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VO_YOUR_POP_MASTER">
-			<Text>Your Population: {1_Num} [ICON_CITIZEN] ({2_TeamPop} [ICON_CITIZEN])</Text>
+		<Row Tag="TXT_KEY_VO_MASTER_VALUE_DISPLAY">
+			<Text>{1_Num} ({2_iTeamNum})</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VO_THEIR_POP_MASTER">
-			<Text>Their Population: {1_Num} [ICON_CITIZEN] ({2_TeamPop} [ICON_CITIZEN])</Text>
+		<Row Tag="TXT_KEY_VO_MASTER_VALUE_DISPLAY_PERCENT">
+			<Text>{1_iTeamNum}%</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VO_POP_PERCENT_VASSAL_STARTED_MASTER">
-			<Text>[ICON_CITIZEN] Population Since Vassal Start Percent: {1_Num}%</Text>
+		<Row Tag="TXT_KEY_VO_MASTER_VALUE_DISPLAY_PERCENT_PLAYER">
+			<Text>{1_Num}% ({2_iTeamNum}%)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VO_POP_PERCENT_MASTER">
-			<Text>Master [ICON_CITIZEN] Population Percent: {1_Num}%</Text>
+		<Row Tag="TXT_KEY_VO_MASTER_YOUR_POP">
+			<Text>Your [ICON_CITIZEN] Population</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VO_YOUR_CITIES_MASTER">
-			<Text>Your Cities: {1_Num} ({2_TeamCities})</Text>
+		<Row Tag="TXT_KEY_VO_MASTER_THEIR_POP">
+			<Text>Their [ICON_CITIZEN] Population</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VO_THEIR_CITIES_MASTER">
-			<Text>Their Cities: {1_Num} ({2_TeamCities})</Text>
+		<Row Tag="TXT_KEY_VO_MASTER_VIEW_POP_PERCENT">
+			<Text>[ICON_CITIZEN] Population %</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VO_CITIES_PERCENT_VASSAL_STARTED_MASTER">
-			<Text>Cities Since Vassal Start Percent: {1_Num}%</Text>
+		<Row Tag="TXT_KEY_VO_MASTER_POP_STARTED_PERCENT">
+			<Text>[ICON_CITIZEN] Population Since Vassal Started %</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VO_CITIES_PERCENT_MASTER">
-			<Text>Master Cities Percent: {1_Num}%</Text>
+		<Row Tag="TXT_KEY_VO_MASTER_YOUR_CITIES">
+			<Text>Your # of Cities</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_MASTER_THEIR_CITIES">
+			<Text>Their # of Cities</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_MASTER_CITIES_PERCENT">
+			<Text># of Cities %</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_MASTER_CITIES_STARTED_PERCENT">
+			<Text># of Cities Since Vassal Started %</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_TAX_CHANGE_READY_MASTER">
 			<Text>[COLOR_GREY]Your master may change your taxes this turn.[ENDCOLOR]</Text>
@@ -652,6 +664,18 @@
 		</Row>
 		<Row Tag="TXT_KEY_VO_TAX_CONTRIBUTION_MASTER">
 			<Text>Receiving {1_Num} [ICON_GOLD] GPT from you!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_REQUEST_INDEPENDENCE">
+			<Text>Request Independence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_REQUEST_INDEPENDENCE_TT">
+			<Text>Request independence from your Master. After performing this action, your vassalage ends with {1_TeamName}.[NEWLINE][NEWLINE]Your Master will have the choice of accepting or refusing your request for independence. If your request is rejected, you will go to war with the other player! The chance of peaceful independence increases the stronger your are in comparison to your Master.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_REQUEST_INDEPENDENCE_TOO_SOON">
+			<Text>[COLOR_NEGATIVE_TEXT]You cannot request independence until you have been a vassal for {1_MinimumTurns} turns. You can perform this action in {2_iNumTurns} turn(s).[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_REQUEST_INDEPENDENCE_CONDITION_NOT_MET">
+			<Text>[COLOR_NEGATIVE_TEXT]You cannot request independence until you have met all of the required conditions for independence. Hover over the "Can Declare Independence" to view the necessary requirements for independence.[ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- Version 9 -->

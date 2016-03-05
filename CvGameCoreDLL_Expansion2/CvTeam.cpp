@@ -10416,6 +10416,9 @@ void CvTeam::DoApplyVassalTax(PlayerTypes ePlayer, int iPercent)
 	SetNumTurnsSinceVassalTaxSet(ePlayer, 0);
 	SetVassalTax(ePlayer, iPercent);
 
+	// Note: using EspionageScreen dirty for this.
+	GC.GetEngineUserInterface()->setDirty(EspionageScreen_DIRTY_BIT, true);
+
 	// notify diplo AI if there was some change		
 	if(iPercent != iCurrentTaxRate)
 	{

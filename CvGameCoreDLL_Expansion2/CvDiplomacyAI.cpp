@@ -2493,6 +2493,12 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 	// These functions actually DO things, and we don't want the shadow AI behind a human player doing things for him
 	if(!GetPlayer()->isHuman())
 	{
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if(MOD_DIPLOMACY_CIV4_FEATURES)
+		{
+			DoDetermineTaxRateForVassals();
+		}
+#endif
 #if defined(MOD_ACTIVE_DIPLOMACY)
 		GC.getGame().GetGameDeals()->DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID(), DIPLO_ALL_PLAYERS);
 #endif
@@ -2518,7 +2524,6 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 	{
 		DoMakePeaceWithVassals();
 		//DoUpdateGlobalStates();
-		DoDetermineTaxRateForVassals();
 	}
 #endif
 
