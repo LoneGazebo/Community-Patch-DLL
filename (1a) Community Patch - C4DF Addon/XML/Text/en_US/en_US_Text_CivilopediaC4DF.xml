@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 5/5/2013 12:20:29 PM -->
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_ALLOWS_MAP_TRADING">
+			<Text>Allows the sale of world maps to other civilizations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALLOWS_TECH_TRADING">
+			<Text>Allows technology to be sold to other civilizations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALLOWS_VASSALAGE">
+			<Text>Allows you to make rival civilizations your vassal state.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_MAP_TRADING_STRING">
+			<Text>Allows Map Trading</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_TECH_TRADING_STRING">
+			<Text>Allows Tech Trading</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_VASSALAGE_STRING">
+			<Text>Allows Vassalage</Text>
+		</Row>		
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_TOPIC">
+			<Text>Map Trading</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_SUMMARY">
+			<Text>A civilization's World Map details every island, ocean, Natural Wonder and civilization that a civilization's explorers have discovered and charted. The trade of a civilization's World Map is available upon the discovery of Military Science, and it will reveal every tile that civilization has explored. World Maps do not provide contact with foreign civilizations, but it will chart their location and allow you to meet them! The value of a World Map goes up depending on how much undiscovered land that civilization can reveal to you: Natural Wonders and Resources are worth far more than vast, featureless oceans. World Maps can become expensive, so be sure to explore the world and cash in on the discovery income!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_ADVISOR_QUESTION">
+			<Text>What is Map Trading?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_TOPIC">
+			<Text>Tech Trading</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_SUMMARY">
+			<Text>Once you have acquired the Replaceable Parts tech, you may sell your technological discoveries with another civ, as long as you have an Embassy in their capital.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_ADVISOR_QUESTION">
+			<Text>What is Tech Trading?</Text>
+		</Row>	
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_TOPIC">
+			<Text>What is Vassalage?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_SUMMARY">
+			<Text>Vassalage can be described as an "asymmetric alliance", where one civilization collects tribute from the weaker civilization, the vassal. A civilization can create vassals after they've entered the Medieval Era. The vassal forfeits diplomacy options, such as the ability to declare war and make peace on their own, in exchange for protection from their masters. Vassal states can conduct other diplomacy for themselves, such as denouncements, declaration of friendships, and trades, and even have the ability to spy on their master, and can even win the game as a vassal, although this is very unlikely.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_ADV_QUEST">
+			<Text>What is Vassalage?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_MAKING_VASSALS_TOPIC">
+			<Text>Making Vassals</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_MAKING_VASSALS_SUMMARY">
+			<Text>A civilization can create a vassal state by entering the Medieval Era. There are different circumstances that a vassal can be made: voluntary and wartime. On the trade screen, during peacetime, the "Vassal State" option will become available (during wartime this button is replaced with "Capitulation". A peacetime vassalage agreement must be made with the consent of the civilization, which usually occurs when your civilization is dominating them, or they require protection while pursuing a "smaller" victory condition. The other form of vassalage agreement is wartime capitulation. In this event, the loser in a war may opt to capitulate to the winner if they feel the war is hopeless. In any event, as soon as capitulation occurs, the vassal civ will immediately make peace will all civilizations that they are at war with and their master is at peace with (and declare war on all civilizations the master is at war with that the vassal is not).[NEWLINE][NEWLINE]A civilization cannot capitulate if Vassalage had ended between the two civilizations too soon ago. The default time is 100 turns before capitulation becomes available again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_MAKING_VASSALS_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_MAKING_VASSALS_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_MAKING_VASSALS_ADVISOR_QUESTION">
+			<Text>How do I make vassals?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_TOPIC">
+			<Text>Ending Vassalage</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_SUMMARY">
+			<Text>A vassal is locked into his Vassalage Agreement for a minimum amount of time, depending on the type of vassalage agreement. Voluntary vassals may break their agreement anytime after ten turns (on Standard), while capitulated civilizations must wait 50 turns (on Standard) to break their agreement. During this window, his master cannot relinquish his vassalage, and his vassal cannot request independence from his master. After this period has expired, a master may dismiss his vassal peacefully at any time, or a vassal may choose to seek independence from his master if the following conditions are met: an Ideology has been founded by a player in the game, the vassal grows to 50% of the his master's land and population, or the vassal loses more than half of the cities the vassal had when the vassalage agreement was signed. If any of those conditions are satisfied, the vassal may request independence from his master. In this event, the Vassalage Agreement is immediately nullified, and the master has a choice to allow the vassal to leave peacefully (in which the vassal will be grateful for), or declare war (making the vassal resent the master).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_ADVISOR_QUESTION">
+			<Text>How do I end vassalage?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_TOPIC">
+			<Text>Vassal Benefits</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_SUMMARY">
+			<Text>There are many benefits associated to owning vassals. The master receives a percentage of the vassal's empire-wide yields (Culture, Gold, Science and Faith), receives bonus Happiness proportional to the amount of Population in his vassal's cities, and receives a score bonus equivalent to half of his vassal's score. In addition, the Master receives a free Open Borders agreement from the vassal (this is not returned by the master), a Rank 3 Diplomat in the Vassal's Capital, and immediately reveals the the vassal's territory to the master.[NEWLINE][NEWLINE]Vassal cities incur a small maintenance penalty upon their master. This penalty is stronger based on the number of cities the vassal has, so it is cheaper and more preferrable to allow your vassal to grow tall and not wide (population does increase the maintenance cost, but number of cities carries more weight). The master also pays for a percentage of his vassal's unit maintenance (this amount is subtracted from the vassal's unit maintenance costs). Every era, your vassal also sends levies to your capital, granting you one of every available type of military unit (much like the Terracotta Army Wonder).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_ADVISOR_QUESTION">
+			<Text>What benefits do I receive from Vassalage?</Text>
+		</Row>
+	</Language_en_US>
+</GameData>
