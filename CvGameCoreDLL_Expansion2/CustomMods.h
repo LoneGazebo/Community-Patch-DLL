@@ -72,8 +72,6 @@
 
 /// Flavors that weren't previously fetched but were still (attempted to be) used in processing later are now fetched
 #define AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS
-/// Disables the code that would start fortifying scouts if recon state was set as "enough"
-#define AUI_HOMELAND_ALWAYS_MOVE_SCOUTS
 /// Fixes the code that checks for cramped status (it always triggered originally, now it only triggers if we really are cramped)
 #define AUI_GS_CONQUEST_FIX_CRAMPED
 /// Priorities for sneak attack military units are no longer artificially inflated at the highest difficulty levels

@@ -726,20 +726,27 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		{
 			//make sure there are no rounding errors
 			int iGarrisonShare = (iDamage*2*pGarrison->GetMaxHitPoints()) / (pCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
-			iDamage -= iGarrisonShare;
 
-			//add the garrison as a bystander
-			int iDamageMembers = 0;
-			CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkCombatInfo->getDamageMembers(), &iDamageMembers, pkCombatInfo->getMaxDamageMemberCount(), pGarrison);
-			if(pkDamageEntry)
+			//garrison can not be killed, only reduce to 10 hp
+			iGarrisonShare = min(iGarrisonShare,pGarrison->GetCurrHitPoints()-10);
+
+			if (iGarrisonShare>0)
 			{
+				iDamage -= iGarrisonShare;
+
+				//add the garrison as a bystander
+				int iDamageMembers = 0;
+				CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkCombatInfo->getDamageMembers(), &iDamageMembers, pkCombatInfo->getMaxDamageMemberCount(), pGarrison);
+				if(pkDamageEntry)
+				{
 #if defined(MOD_EVENTS_BATTLES)
-				BATTLE_JOINED(pGarrison, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
+					BATTLE_JOINED(pGarrison, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
 #endif
-				pkDamageEntry->SetDamage(iGarrisonShare);
-				pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), GC.getMAX_HIT_POINTS()));
-				pkDamageEntry->SetMaxHitPoints(GC.getMAX_HIT_POINTS());
-				pkCombatInfo->setDamageMemberCount(iDamageMembers);
+					pkDamageEntry->SetDamage(iGarrisonShare);
+					pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), GC.getMAX_HIT_POINTS()));
+					pkDamageEntry->SetMaxHitPoints(GC.getMAX_HIT_POINTS());
+					pkCombatInfo->setDamageMemberCount(iDamageMembers);
+				}
 			}
 		}
 #endif

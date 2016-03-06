@@ -259,7 +259,7 @@ public:
 	bool isSetUpForRangedAttack() const;
 	void setSetUpForRangedAttack(bool bValue);
 
-	bool IsCityAttackOnly() const;
+	bool IsCityAttackSupport() const;
 	void ChangeCityAttackOnlyCount(int iChange);
 
 	bool IsCaptureDefeatedEnemy() const;
@@ -1044,7 +1044,7 @@ public:
 	bool IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot = NULL) const;
 
 	// Great General Stuff
-	bool IsNearCityAttackOnly(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
+	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	bool IsStackedGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	int GetGreatGeneralStackMovement(const CvPlot* pAtPlot = NULL) const;

@@ -4850,7 +4850,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		}
 
 		// Does unit only attack cities?
-		if(IsCityAttackOnly() && !plot.isEnemyCity(*this) && plot.getBestDefender(NO_PLAYER))
+		if(IsCityAttackSupport() && !plot.isEnemyCity(*this) && plot.getBestDefender(NO_PLAYER))
 		{
 			return false;
 		}
@@ -6437,11 +6437,11 @@ void CvUnit::ChangeRangeAttackIgnoreLOSCount(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::IsCityAttackOnly() const
+bool CvUnit::IsCityAttackSupport() const
 {
 	VALIDATE_OBJECT
 #if defined(MOD_BALANCE_CORE)
-	if(getUnitInfo().IsCityAttackOnly())
+	if(getUnitInfo().IsCityAttackSupport())
 	{
 		return true;
 	}
@@ -21654,7 +21654,7 @@ bool CvUnit::IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot) cons
 //	--------------------------------------------------------------------------------
 /// Great General close enough to give us a bonus?
 #if defined(MOD_BALANCE_CORE_MILITARY)
-bool CvUnit::IsNearCityAttackOnly(const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
+bool CvUnit::IsNearCityAttackSupport(const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
 {
 	VALIDATE_OBJECT
 
@@ -21672,7 +21672,7 @@ bool CvUnit::IsNearCityAttackOnly(const CvPlot* pAtPlot, const CvUnit* pIgnoreTh
 	{
 		UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(*it);
 
-		if (pUnit && pUnit != pIgnoreThisGeneral && pUnit->IsCityAttackOnly())
+		if (pUnit && pUnit != pIgnoreThisGeneral && pUnit->IsCityAttackSupport())
 		{
 			// Same domain
 			if(pUnit->getDomainType() == getDomainType())
@@ -21704,7 +21704,7 @@ bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThis
 	{
 		UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(*it);
 
-		if (pUnit && pUnit != pIgnoreThisGeneral && !pUnit->IsCityAttackOnly())
+		if (pUnit && pUnit != pIgnoreThisGeneral && !pUnit->IsCityAttackSupport())
 		{
 			// Same domain
 			if(pUnit->getDomainType() == getDomainType())
@@ -24182,7 +24182,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 		ChangeEmbarkDeepWaterCount((thisPromotion.IsEmbarkedDeepWater()) ? iChange: 0);
 #endif
-		ChangeCityAttackOnlyCount((thisPromotion.IsCityAttackOnly()) ? iChange: 0);
+		ChangeCityAttackOnlyCount((thisPromotion.IsCityAttackSupport()) ? iChange: 0);
 		ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange: 0);
 #if defined(MOD_BALANCE_CORE)
 		ChangeCannotBeCapturedCount((thisPromotion.CannotBeCaptured()) ? iChange: 0);
@@ -25868,7 +25868,7 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 
 	if(bAdjacent || (getDomainType() == DOMAIN_AIR))
 	{
-		if(!isOutOfAttacks() && (!IsCityAttackOnly() || pDestPlot->isEnemyCity(*this) || !pDestPlot->getBestDefender(NO_PLAYER)))
+		if(!isOutOfAttacks() && (!IsCityAttackSupport() || pDestPlot->isEnemyCity(*this) || !pDestPlot->getBestDefender(NO_PLAYER)))
 		{
 			// don't allow an attack if we already have one
 			if(isFighting() || pDestPlot->isFighting())
@@ -26340,7 +26340,7 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 	case INTERFACEMODE_ATTACK:
 		if(IsCanAttackWithMove() && !isOutOfAttacks())
 		{
-			if(IsEnemyInMovementRange(false, IsCityAttackOnly()) || bTestVisibility)
+			if(IsEnemyInMovementRange(false, IsCityAttackSupport()) || bTestVisibility)
 			{
 				return true;
 			}

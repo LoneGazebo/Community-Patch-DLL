@@ -35461,7 +35461,7 @@ void CvPlayer::UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell)
 		if (!pLoopUnit)
 			continue;
 		
-		if (pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsCityAttackOnly())
+		if (pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsCityAttackSupport())
 			m_unitsAreaEffectPositive.push_back( pLoopUnit->GetID() );
 
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
