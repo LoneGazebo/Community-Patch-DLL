@@ -298,16 +298,34 @@ void CvCityCitizens::DoTurn()
 		if(!(MOD_UI_CITY_PRODUCTION && thisPlayer.isHuman()))
 		{
 #endif
-			SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
-			SetNoAutoAssignSpecialists(false);
-			SetForcedAvoidGrowth(false);
+			if(GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+			{
+				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+			}
+			if(IsNoAutoAssignSpecialists())
+			{
+				SetNoAutoAssignSpecialists(false);
+			}
+			if(IsForcedAvoidGrowth())
+			{
+				SetForcedAvoidGrowth(false);
+			}
 #if defined(MOD_UI_CITY_PRODUCTION)
 		}
 		if(!thisPlayer.isHuman())
 		{
-			SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
-			SetNoAutoAssignSpecialists(false);
-			SetForcedAvoidGrowth(false);
+			if(GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+			{
+				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+			}
+			if(IsNoAutoAssignSpecialists())
+			{
+				SetNoAutoAssignSpecialists(false);
+			}
+			if(IsForcedAvoidGrowth())
+			{
+				SetForcedAvoidGrowth(false);
+			}
 		}
 #endif
 	}
@@ -317,7 +335,10 @@ void CvCityCitizens::DoTurn()
 
 		if((m_pCity->GetCityStrategyAI()->GetSpecialization() == eWonderSpecializationType) || bWonder)
 		{
-			SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+			if(GetFocusType() != CITY_AI_FOCUS_TYPE_PRODUCTION)
+			{
+				SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+			}
 			if(IsNoAutoAssignSpecialists())
 			{
 				SetNoAutoAssignSpecialists(false);
@@ -329,7 +350,10 @@ void CvCityCitizens::DoTurn()
 		}
 		else if(pkUnitInfo != NULL && pkUnitInfo->IsFound()) // we want production for settlers
 		{
-			SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+			if(GetFocusType() != CITY_AI_FOCUS_TYPE_PRODUCTION)
+			{
+				SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+			}
 			if(IsNoAutoAssignSpecialists())
 			{
 				SetNoAutoAssignSpecialists(false);
@@ -341,7 +365,10 @@ void CvCityCitizens::DoTurn()
 		}
 		else if(m_pCity->getPopulation() < 10 && !m_pCity->isCapital())  // we want a balanced growth
 		{
-			SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+			if(GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
+			{
+				SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+			}
 			if(IsNoAutoAssignSpecialists())
 			{
 				SetNoAutoAssignSpecialists(false);
@@ -353,7 +380,10 @@ void CvCityCitizens::DoTurn()
 		}
 		else if(m_pCity->getPopulation() < 8 && m_pCity->isCapital())  // we want a balanced growth
 		{
-			SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+			if(GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
+			{
+				SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+			}
 			if(IsNoAutoAssignSpecialists())
 			{
 				SetNoAutoAssignSpecialists(false);
@@ -387,7 +417,10 @@ void CvCityCitizens::DoTurn()
 
 			if(bInDeficit && !bNeedFood)
 			{
-				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+				if(GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD)
+				{
+					SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+				}
 				if(IsNoAutoAssignSpecialists())
 				{
 					SetNoAutoAssignSpecialists(false);
@@ -399,7 +432,10 @@ void CvCityCitizens::DoTurn()
 			}
 			else if(bInDeficit && bNeedFood)
 			{
-				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+				if(GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+				{
+					SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+				}
 				if(IsNoAutoAssignSpecialists())
 				{
 					SetNoAutoAssignSpecialists(false);
@@ -411,7 +447,10 @@ void CvCityCitizens::DoTurn()
 			}
 			else if((eProcess != NO_PROCESS) || (eProject != NO_PROJECT))
 			{
-				SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+				if(GetFocusType() != CITY_AI_FOCUS_TYPE_PRODUCTION)
+				{
+					SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+				}
 				if(IsNoAutoAssignSpecialists())
 				{
 					SetNoAutoAssignSpecialists(false);
@@ -451,53 +490,89 @@ void CvCityCitizens::DoTurn()
 						YieldTypes eYield = pCitySpecializationEntry->GetYieldType();
 						if(eYield == YIELD_FOOD)
 						{
-							SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
+							if(GetFocusType() != CITY_AI_FOCUS_TYPE_FOOD)
+							{
+								SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
+							}
 						}
 						else if(eYield == YIELD_PRODUCTION && bNeedFood)
 						{
-							SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
+							if(GetFocusType() != CITY_AI_FOCUS_TYPE_PROD_GROWTH)
+							{
+								SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
+							}
 						}
 						else if(eYield == YIELD_PRODUCTION && !bNeedFood)
 						{
-							SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+							if(GetFocusType() != CITY_AI_FOCUS_TYPE_PRODUCTION)
+							{
+								SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+							}
 						}
 						else if(eYield == YIELD_GOLD && bNeedFood)
 						{
-							SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+							if(GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+							{
+								SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+							}
 						}
 						else if(eYield == YIELD_GOLD && !bNeedFood)
 						{
-							SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+							if(GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD)
+							{
+								SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+							}
 						}
 						else if(eYield == YIELD_SCIENCE)
 						{
-							SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
+							if(GetFocusType() != CITY_AI_FOCUS_TYPE_SCIENCE)
+							{
+								SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
+							}
 						}
 						else if(eYield == YIELD_FAITH && bBuildingReligion)
 						{
-							SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
+							if(GetFocusType() != CITY_AI_FOCUS_TYPE_FAITH)
+							{
+								SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
+							}
 						}
 						else if(eYield == YIELD_CULTURE && !bGPCity)
 						{
-							SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
+							if(GetFocusType() != CITY_AI_FOCUS_TYPE_CULTURE)
+							{
+								SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
+							}
 						}
 						else if(eYield == YIELD_CULTURE && bGPCity)
 						{
-							SetFocusType(CITY_AI_FOCUS_TYPE_GREAT_PEOPLE);
+							if(GetFocusType() != CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
+							{
+								SetFocusType(CITY_AI_FOCUS_TYPE_GREAT_PEOPLE);
+							}
 						}
 						else
 						{
-							SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+							if(GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
+							{
+								SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+							}
 						}
 					}
 					else
 					{
-						SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+						if(GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
+						{
+							SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+						}
 					}
 				}
 				else
 				{
-					SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+					if(GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
+					{
+						SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+					}
 				}
 			}
 		}

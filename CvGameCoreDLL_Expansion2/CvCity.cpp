@@ -3194,8 +3194,13 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 	case TASK_REMOVE_SLACKER:
 		if (GetCityCitizens()->GetNumDefaultSpecialists() > 0)
 		{
+#if defined(MOD_BALANCE_CORE)
+			GetCityCitizens()->ChangeNumDefaultSpecialists(-1, false);
+			GetCityCitizens()->DoReallocateCitizens(true);
+#else
 			GetCityCitizens()->ChangeNumDefaultSpecialists(-1);
 			GetCityCitizens()->DoReallocateCitizens();
+#endif
 		}
 		break;
 
