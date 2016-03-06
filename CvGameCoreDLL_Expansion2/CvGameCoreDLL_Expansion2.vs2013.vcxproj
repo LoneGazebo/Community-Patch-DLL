@@ -75,7 +75,6 @@
     <CodeAnalysisRules />
     <CodeAnalysisRuleAssemblies />
     <TargetName>JdH's MP AI</TargetName>
-    <NuGetPackageImportStamp>1184fa1d</NuGetPackageImportStamp>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -616,38 +615,30 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\boost.1.59.0.0\build\native\boost.targets" Condition="Exists('..\packages\boost.1.59.0.0\build\native\boost.targets')" />
-    <Import Project="..\packages\boost_log-vc90.1.59.0.0\build\native\boost_log-vc90.targets" Condition="Exists('..\packages\boost_log-vc90.1.59.0.0\build\native\boost_log-vc90.targets')" />
-    <Import Project="..\packages\boost_log_setup-vc90.1.59.0.0\build\native\boost_log_setup-vc90.targets" Condition="Exists('..\packages\boost_log_setup-vc90.1.59.0.0\build\native\boost_log_setup-vc90.targets')" />
-    <Import Project="..\packages\boost_regex-vc90.1.59.0.0\build\native\boost_regex-vc90.targets" Condition="Exists('..\packages\boost_regex-vc90.1.59.0.0\build\native\boost_regex-vc90.targets')" />
-    <Import Project="..\packages\boost_unit_test_framework-vc90.1.59.0.0\build\native\boost_unit_test_framework-vc90.targets" Condition="Exists('..\packages\boost_unit_test_framework-vc90.1.59.0.0\build\native\boost_unit_test_framework-vc90.targets')" />
-    <Import Project="..\packages\boost_wave-vc90.1.59.0.0\build\native\boost_wave-vc90.targets" Condition="Exists('..\packages\boost_wave-vc90.1.59.0.0\build\native\boost_wave-vc90.targets')" />
-    <Import Project="..\packages\boost_test_exec_monitor-vc90.1.59.0.0\build\native\boost_test_exec_monitor-vc90.targets" Condition="Exists('..\packages\boost_test_exec_monitor-vc90.1.59.0.0\build\native\boost_test_exec_monitor-vc90.targets')" />
     <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-    <Import Project="..\packages\boost_atomic-vc90.1.59.0.0\build\native\boost_atomic-vc90.targets" Condition="Exists('..\packages\boost_atomic-vc90.1.59.0.0\build\native\boost_atomic-vc90.targets')" />
-    <Import Project="..\packages\boost_thread-vc90.1.59.0.0\build\native\boost_thread-vc90.targets" Condition="Exists('..\packages\boost_thread-vc90.1.59.0.0\build\native\boost_thread-vc90.targets')" />
-    <Import Project="..\packages\boost_system-vc90.1.59.0.0\build\native\boost_system-vc90.targets" Condition="Exists('..\packages\boost_system-vc90.1.59.0.0\build\native\boost_system-vc90.targets')" />
-    <Import Project="..\packages\boost_date_time-vc90.1.59.0.0\build\native\boost_date_time-vc90.targets" Condition="Exists('..\packages\boost_date_time-vc90.1.59.0.0\build\native\boost_date_time-vc90.targets')" />
-    <Import Project="..\packages\boost_chrono-vc90.1.59.0.0\build\native\boost_chrono-vc90.targets" Condition="Exists('..\packages\boost_chrono-vc90.1.59.0.0\build\native\boost_chrono-vc90.targets')" />
+    <Import Project="..\packages\boost.1.60.0.0\build\native\boost.targets" Condition="Exists('..\packages\boost.1.60.0.0\build\native\boost.targets')" />
+    <Import Project="..\packages\boost_atomic-vc90.1.60.0.0\build\native\boost_atomic-vc90.targets" Condition="Exists('..\packages\boost_atomic-vc90.1.60.0.0\build\native\boost_atomic-vc90.targets')" />
+    <Import Project="..\packages\boost_chrono-vc90.1.60.0.0\build\native\boost_chrono-vc90.targets" Condition="Exists('..\packages\boost_chrono-vc90.1.60.0.0\build\native\boost_chrono-vc90.targets')" />
+    <Import Project="..\packages\boost_thread-vc90.1.60.0.0\build\native\boost_thread-vc90.targets" Condition="Exists('..\packages\boost_thread-vc90.1.60.0.0\build\native\boost_thread-vc90.targets')" />
+    <Import Project="..\packages\boost_system-vc90.1.60.0.0\build\native\boost_system-vc90.targets" Condition="Exists('..\packages\boost_system-vc90.1.60.0.0\build\native\boost_system-vc90.targets')" />
   </ImportGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JdH Lib\JdH Lib.vcxproj">
       <Project>{a6ec2f1a-d537-4b1e-b9e4-6d8e440c9d56}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\boost.1.59.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost.1.59.0.0\build\native\boost.targets'))" />
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-    <Error Condition="!Exists('..\packages\boost_atomic-vc90.1.59.0.0\build\native\boost_atomic-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_atomic-vc90.1.59.0.0\build\native\boost_atomic-vc90.targets'))" />
-    <Error Condition="!Exists('..\packages\boost_thread-vc90.1.59.0.0\build\native\boost_thread-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_thread-vc90.1.59.0.0\build\native\boost_thread-vc90.targets'))" />
-    <Error Condition="!Exists('..\packages\boost_system-vc90.1.59.0.0\build\native\boost_system-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_system-vc90.1.59.0.0\build\native\boost_system-vc90.targets'))" />
-    <Error Condition="!Exists('..\packages\boost_date_time-vc90.1.59.0.0\build\native\boost_date_time-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_date_time-vc90.1.59.0.0\build\native\boost_date_time-vc90.targets'))" />
-    <Error Condition="!Exists('..\packages\boost_chrono-vc90.1.59.0.0\build\native\boost_chrono-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_chrono-vc90.1.59.0.0\build\native\boost_chrono-vc90.targets'))" />
+    <Error Condition="!Exists('..\packages\boost.1.60.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost.1.60.0.0\build\native\boost.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_atomic-vc90.1.60.0.0\build\native\boost_atomic-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_atomic-vc90.1.60.0.0\build\native\boost_atomic-vc90.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_chrono-vc90.1.60.0.0\build\native\boost_chrono-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_chrono-vc90.1.60.0.0\build\native\boost_chrono-vc90.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_thread-vc90.1.60.0.0\build\native\boost_thread-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_thread-vc90.1.60.0.0\build\native\boost_thread-vc90.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_system-vc90.1.60.0.0\build\native\boost_system-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_system-vc90.1.60.0.0\build\native\boost_system-vc90.targets'))" />
   </Target>
 </Project>

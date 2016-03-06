@@ -841,7 +841,7 @@ void CvGame::regenerateMap()
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		GC.getGame().GetGameDeals()->DoCancelAllDealsWithPlayer((PlayerTypes) iI);
+		GC.getGame().GetGameDeals().DoCancelAllDealsWithPlayer((PlayerTypes) iI);
 	}
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
@@ -10023,9 +10023,9 @@ CvStartPositioner* CvGame::GetStartPositioner()
 }
 
 //	--------------------------------------------------------------------------------
-CvGameDeals* CvGame::GetGameDeals()
+CvGameDeals& CvGame::GetGameDeals()
 {
-	return &m_kGameDeals;
+	return m_kGameDeals;
 }
 
 //	--------------------------------------------------------------------------------

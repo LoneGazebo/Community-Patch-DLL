@@ -246,7 +246,7 @@ void CvDiplomacyRequests::Remove(int iLookupIndex)
 		{
 			// remove potential deals...
 			if (isDealDiploType(iter->m_eDiploType))
-				GC.getGame().GetGameDeals()->FinalizeDeal(iter->m_eFromPlayer, m_ePlayer, false);
+				GC.getGame().GetGameDeals().FinalizeDeal(iter->m_eFromPlayer, m_ePlayer, false);
 			m_aRequests.erase(iter);
 			break;
 		}
@@ -257,13 +257,13 @@ void CvDiplomacyRequests::Activate(CvDiplomacyRequests::Request& kRequest)
 	JDHLOG_FUNC_BEGIN(jdh::INFO, m_ePlayer, kRequest.m_eFromPlayer, kRequest.m_eDiploType);
 	if (isDealDiploType(kRequest.m_eDiploType))
 	{
-		CvDeal* pkDeal = GC.getGame().GetGameDeals()->GetProposedDeal(kRequest.m_eFromPlayer, m_ePlayer);
+		CvDeal* pkDeal = GC.getGame().GetGameDeals().GetProposedDeal(kRequest.m_eFromPlayer, m_ePlayer);
 		if (pkDeal)
 		{
 			auto_ptr<ICvDeal1> pDeal = GC.WrapDealPointer(pkDeal);
 			DLLUI->SetScratchDeal(pDeal.get());
 			// we are using the scratch deal from now on, delete the proposed deal...
-			GC.getGame().GetGameDeals()->FinalizeDeal(kRequest.m_eFromPlayer, m_ePlayer, false);
+			GC.getGame().GetGameDeals().FinalizeDeal(kRequest.m_eFromPlayer, m_ePlayer, false);
 		}
 		else
 		{
@@ -382,7 +382,7 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 	if (pDiploRequests && pkDeal)
 	{
 		CvAssert(isDealDiploType(eDiploType));
-		GC.getGame().GetGameDeals()->AddProposedDeal(*pkDeal); // propose the deal (needed for activation...)
+		GC.getGame().GetGameDeals().AddProposedDeal(*pkDeal); // propose the deal (needed for activation...)
 		pDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, -1);
 	}
 

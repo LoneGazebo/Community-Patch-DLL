@@ -482,7 +482,7 @@ public:
 	CvSiteEvaluatorForSettler* GetSettlerSiteEvaluator();
 	CvSiteEvaluatorForStart* GetStartSiteEvaluator();
 	CvStartPositioner* GetStartPositioner();
-	CvGameDeals* GetGameDeals();
+	CvGameDeals& GetGameDeals();
 	CvGameReligions* GetGameReligions();
 	CvGameCulture* GetGameCulture();
 	CvGameLeagues* GetGameLeagues();

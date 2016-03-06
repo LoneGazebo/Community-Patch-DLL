@@ -1961,7 +1961,7 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 	{
 		// JdH => cleanup, as ai now uses proposed deals to store data between ai and human turns
 		// TODO: move this cleanup to the human players end turn processing
-		GC.getGame().GetGameDeals()->DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID(), DIPLO_ALL_PLAYERS);
+		GC.getGame().GetGameDeals().DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID(), DIPLO_ALL_PLAYERS);
 		// JdH <=
 		MakeWar();
 		DoMakePeaceWithMinors();
@@ -1972,7 +1972,7 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 		DoContactMinorCivs();
 		DoContactMajorCivs();
 		// JdH => cleanup AI to AI deals (was all deals before)
-		GC.getGame().GetGameDeals()->DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID(), DIPLO_AI_PLAYERS);
+		GC.getGame().GetGameDeals().DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID(), DIPLO_AI_PLAYERS);
 		// JdH <=
 	}
 
@@ -7294,7 +7294,7 @@ void CvDiplomacyAI::DoAddWantsResearchAgreementWithPlayer(PlayerTypes ePlayer)
 	SetWantsResearchAgreementWithPlayer(ePlayer, true);
 
 	// Start saving the Gold
-	int iGoldAmount = GC.getGame().GetGameDeals()->GetTradeItemGoldCost(TRADE_ITEM_RESEARCH_AGREEMENT, GetPlayer()->GetID(), ePlayer);
+	int iGoldAmount = GC.getGame().GetGameDeals().GetTradeItemGoldCost(TRADE_ITEM_RESEARCH_AGREEMENT, GetPlayer()->GetID(), ePlayer);
 	GetPlayer()->GetEconomicAI()->StartSaveForPurchase(PURCHASE_TYPE_MAJOR_CIV_TRADE, iGoldAmount, /*Priority*/ 1);
 
 	LogWantRA(ePlayer);
@@ -7344,7 +7344,7 @@ bool CvDiplomacyAI::IsCanMakeResearchAgreementRightNow(PlayerTypes ePlayer)
 		return false;
 	}
 
-	int iGoldAmount = GC.getGame().GetGameDeals()->GetTradeItemGoldCost(TRADE_ITEM_RESEARCH_AGREEMENT, GetPlayer()->GetID(), ePlayer);
+	int iGoldAmount = GC.getGame().GetGameDeals().GetTradeItemGoldCost(TRADE_ITEM_RESEARCH_AGREEMENT, GetPlayer()->GetID(), ePlayer);
 
 	// We don't have enough Gold
 	if(GetPlayer()->GetTreasury()->GetGold() < iGoldAmount)
@@ -10653,8 +10653,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 			CvDeal kDeal = *pDeal;
 
-			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
 		}
 	}
 
@@ -10673,8 +10673,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 			CvDeal kDeal = *pDeal;
 
-			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
 		}
 	}
 
@@ -10692,8 +10692,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDeal kDeal = *pDeal;
 
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
 		}
 	}
 
@@ -10710,8 +10710,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDeal kDeal = *pDeal;
 
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
 		}
 	}
 
@@ -10728,8 +10728,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDeal kDeal = *pDeal;
 
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
 		}
 	}
 
@@ -10747,8 +10747,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDeal kDeal = *pDeal;
 
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
 		}
 	}
 
@@ -10766,8 +10766,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDeal kDeal = *pDeal;
 
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
 		}
 	}
 
@@ -10801,8 +10801,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDeal kDeal = *pDeal;
 
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
 		}
 	}
 
@@ -10872,8 +10872,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			}
 
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
 		}
 	}
 
@@ -11397,8 +11397,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDeal kDeal = *pDeal;
 
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
 
 			LogPeaceMade(ePlayer);
 		}
@@ -11602,7 +11602,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	DiploStatementTypes eStatement;
 
 	// We can use this deal pointer to form a trade offer
-	CvDeal* pDeal = GC.getGame().GetGameDeals()->GetTempDeal();
+	CvDeal* pDeal = GC.getGame().GetGameDeals().GetTempDeal();
 
 	// These can be used for info about deal items, e.g. what Minor Civ we're telling the guy to stay away from, etc.
 	int iData1;
@@ -13718,18 +13718,18 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 		}
 
 		CvDeal* pTargetDeal = NULL;
-		CvGameDeals* pGameDeals = GC.getGame().GetGameDeals();
+		CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
 
 		for(int iDealTypes = 0; iDealTypes < 2; iDealTypes++)
 		{
 			int iNumDeals = 0;
 			if(iDealTypes == 0)
 			{
-				iNumDeals = pGameDeals->GetNumHistoricDeals(ePlayer);
+				iNumDeals = kGameDeals.GetNumHistoricDeals(ePlayer);
 			}
 			else
 			{
-				iNumDeals = pGameDeals->GetNumCurrentDeals(ePlayer);
+				iNumDeals = kGameDeals.GetNumCurrentDeals(ePlayer);
 			}
 
 			for(int iDeal = 0; iDeal < iNumDeals; iDeal++)
@@ -13737,11 +13737,11 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 				CvDeal* pCurrentDeal = NULL;
 				if(iDealTypes == 0)
 				{
-					pCurrentDeal = pGameDeals->GetHistoricDeal(ePlayer, iDeal);
+					pCurrentDeal = kGameDeals.GetHistoricDeal(ePlayer, iDeal);
 				}
 				else
 				{
-					pCurrentDeal = pGameDeals->GetCurrentDeal(ePlayer, iDeal);
+					pCurrentDeal = kGameDeals.GetCurrentDeal(ePlayer, iDeal);
 				}
 
 				// if this deal has already been renewed or cancelled, then move along
@@ -23074,7 +23074,7 @@ void CvDiplomacyAI::ChangeDeclarationLogTurnForIndex(int iIndex, int iChange)
 CvDeal* CvDiplomacyAI::GetDealToRenew(int* piDealType)
 {
 	CvDeal* pTargetDeal = NULL;
-	CvGameDeals* pGameDeals = GC.getGame().GetGameDeals();
+	CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
 
 	if (piDealType)
 	{
@@ -23086,11 +23086,11 @@ CvDeal* CvDiplomacyAI::GetDealToRenew(int* piDealType)
 		int iNumDeals = 0;
 		if(iDealTypes == 0)
 		{
-			iNumDeals = pGameDeals->GetNumHistoricDeals(m_pPlayer->GetID());
+			iNumDeals = kGameDeals.GetNumHistoricDeals(m_pPlayer->GetID());
 		}
 		else
 		{
-			iNumDeals = pGameDeals->GetNumCurrentDeals(m_pPlayer->GetID());
+			iNumDeals = kGameDeals.GetNumCurrentDeals(m_pPlayer->GetID());
 		}
 
 		for(int iDeal = 0; iDeal < iNumDeals; iDeal++)
@@ -23098,11 +23098,11 @@ CvDeal* CvDiplomacyAI::GetDealToRenew(int* piDealType)
 			CvDeal* pCurrentDeal = NULL;
 			if(iDealTypes == 0)
 			{
-				pCurrentDeal = pGameDeals->GetHistoricDeal(m_pPlayer->GetID(), iDeal);
+				pCurrentDeal = kGameDeals.GetHistoricDeal(m_pPlayer->GetID(), iDeal);
 			}
 			else
 			{
-				pCurrentDeal = pGameDeals->GetCurrentDeal(m_pPlayer->GetID(), iDeal);
+				pCurrentDeal = kGameDeals.GetCurrentDeal(m_pPlayer->GetID(), iDeal);
 			}
 
 			if (pCurrentDeal->m_bConsideringForRenewal)
@@ -23125,7 +23125,7 @@ CvDeal* CvDiplomacyAI::GetDealToRenew(int* piDealType)
 
 void CvDiplomacyAI::ClearDealToRenew()
 {
-	CvGameDeals* pGameDeals = GC.getGame().GetGameDeals();
+	CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
 	int iNumMarkedToRenew = 0;
 
 	for(int iDealTypes = 0; iDealTypes < 2; iDealTypes++)
@@ -23133,11 +23133,11 @@ void CvDiplomacyAI::ClearDealToRenew()
 		int iNumDeals = 0;
 		if(iDealTypes == 0)
 		{
-			iNumDeals = pGameDeals->GetNumHistoricDeals(m_pPlayer->GetID());
+			iNumDeals = kGameDeals.GetNumHistoricDeals(m_pPlayer->GetID());
 		}
 		else
 		{
-			iNumDeals = pGameDeals->GetNumCurrentDeals(m_pPlayer->GetID());
+			iNumDeals = kGameDeals.GetNumCurrentDeals(m_pPlayer->GetID());
 		}
 
 		for(int iDeal = 0; iDeal < iNumDeals; iDeal++)
@@ -23145,11 +23145,11 @@ void CvDiplomacyAI::ClearDealToRenew()
 			CvDeal* pCurrentDeal = NULL;
 			if(iDealTypes == 0)
 			{
-				pCurrentDeal = pGameDeals->GetHistoricDeal(m_pPlayer->GetID(), iDeal);
+				pCurrentDeal = kGameDeals.GetHistoricDeal(m_pPlayer->GetID(), iDeal);
 			}
 			else
 			{
-				pCurrentDeal = pGameDeals->GetCurrentDeal(m_pPlayer->GetID(), iDeal);
+				pCurrentDeal = kGameDeals.GetCurrentDeal(m_pPlayer->GetID(), iDeal);
 			}
 
 			if (pCurrentDeal->m_bConsideringForRenewal)

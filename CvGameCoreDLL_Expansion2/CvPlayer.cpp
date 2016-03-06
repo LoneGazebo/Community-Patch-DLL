@@ -15656,7 +15656,7 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 				SetIncomingUnitType(eLoopPlayer, NO_UNIT);
 			}
 
-			GC.getGame().GetGameDeals()->DoCancelAllDealsWithPlayer(GetID());
+			GC.getGame().GetGameDeals().DoCancelAllDealsWithPlayer(GetID());
 
 			// Reset relationships with minor civs
 			for(int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)

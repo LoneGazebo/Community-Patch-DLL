@@ -1680,9 +1680,8 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	case NOTIFICATION_PLAYER_DEAL:
 	{
 		CvGame& game = GC.getGame();
-		CvGameDeals* pDeals = game.GetGameDeals();
 
-		if(!pDeals->ProposedDealExists(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX)))
+		if(!game.GetGameDeals().ProposedDealExists(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX)))
 		{
 			return true;
 		}
@@ -1691,7 +1690,6 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	case NOTIFICATION_PLAYER_DEAL_RECEIVED:
 	{
 		CvGame& game = GC.getGame();
-		CvGameDeals* pDeals = game.GetGameDeals();
 
 		// JdH =>
 		PlayerTypes eFrom = static_cast<PlayerTypes>(m_aNotifications[iIndex].m_iX);
@@ -1699,7 +1697,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		{
 			return false;
 		}
-		else if (!pDeals->ProposedDealExists(eFrom, m_ePlayer))
+		else if (!game.GetGameDeals().ProposedDealExists(eFrom, m_ePlayer))
 		{
 			return true;
 		}

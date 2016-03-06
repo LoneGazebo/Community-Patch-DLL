@@ -288,7 +288,7 @@ int CvDeal::GetGoldAvailable(PlayerTypes ePlayer, TradeableItems eItemToBeChange
 		{
 			if(it->m_eFromPlayer == ePlayer)
 			{
-				iGoldCost = GC.getGame().GetGameDeals()->GetTradeItemGoldCost(it->m_eItemType, m_eFromPlayer, m_eToPlayer);
+				iGoldCost = GC.getGame().GetGameDeals().GetTradeItemGoldCost(it->m_eItemType, m_eFromPlayer, m_eToPlayer);
 
 				if(iGoldCost != 0)		// Negative cost valid?  Maybe ;-O
 				{
@@ -323,7 +323,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	int iGoldAvailable = GetGoldAvailable(ePlayer, eItem);
 
 	// Some items require gold be spent (e.g. Research and Trade Agreements)
-	int iCost = GC.getGame().GetGameDeals()->GetTradeItemGoldCost(eItem, ePlayer, eToPlayer);
+	int iCost = GC.getGame().GetGameDeals().GetTradeItemGoldCost(eItem, ePlayer, eToPlayer);
 	if(iCost > 0 && iGoldAvailable < iCost)
 		return false;
 
