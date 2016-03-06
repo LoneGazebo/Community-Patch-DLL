@@ -1,11 +1,8 @@
-#ignore everything except h and cpp files
-*
-!*/
-!*.h
-!*.cpp
-
-#NuGet
-packages/
-!packages.config
-!.nuget/*
-.nuget/NuGet.exe
+/BuildTemp
+/BuildOutput
+*.user
+*.filters
+/.vs
+*.sdf
+/Packages
+/.nuget/NuGet.exe

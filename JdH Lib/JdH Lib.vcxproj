@@ -1,0 +1,333 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseAssert|Win32">
+      <Configuration>ReleaseAssert</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Assert|Win32">
+      <Configuration>Assert</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>JdH Lib</ProjectName>
+    <ProjectGuid>{A6EC2F1A-D537-4B1E-B9E4-6D8E440C9D56}</ProjectGuid>
+    <RootNamespace>JdH Lib</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v90</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Assert|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v90</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseAssert|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v90</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v90</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Assert|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseAssert|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir>$(SolutionDir)\BuildOutput\VS2013_$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)\BuildTemp\VS2013_$(ProjectName)$(Configuration)$(Platform)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules />
+    <CodeAnalysisRuleAssemblies />
+    <TargetName>JdH's MP AI</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/EHsc %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)CvWorldBuilderMap\include\;$(SolutionDir)CvGameCoreDLLUtil\include\;$(SolutionDir)CvLocalization\include\;$(SolutionDir)CvGameDatabase\include\;$(SolutionDir)FirePlace\include\;$(SolutionDir)FirePlace\include\FireWorks\;$(SolutionDir)ThirdPartyLibs\Lua51\include\;$(SolutionDir)CvGameCoreDLL_Expansion2\;$(SolutionDir)JdH Lib\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FXS_IS_DLL;WIN32;_WINDOWS;_USRDLL;CVGAMECOREDLL_EXPORTS;__JDHLOGFILE="JdH's Mod.log";_CRT_SECURE_NO_WARNINGS;_ITERATOR_DEBUG_LEVEL=0;FINAL_RELEASE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FloatingPointModel>Strict</FloatingPointModel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <EnablePREfast>true</EnablePREfast>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <TreatSpecificWarningsAsErrors>4002;4003</TreatSpecificWarningsAsErrors>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>CvWorldBuilderMapWin32.lib;CvGameCoreDLLUtilWin32.lib;CvLocalizationWin32.lib;CvGameDatabaseWin32.lib;FireWorksWin32.lib;FLuaWin32.lib;lua51_Win32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>$(SolutionDir)\CvWorldBuilderMap\lib\;$(SolutionDir)\CvGameCoreDLLUtil\lib\;$(SolutionDir)\CvLocalization\lib\;$(SolutionDir)\CvGameDatabase\lib\;$(SolutionDir)FirePlace\lib\;$(SolutionDir)ThirdPartyLibs\Lua51\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ModuleDefinitionFile>$(ProjectDir)CvGameCoreDLL.def</ModuleDefinitionFile>
+      <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+    <ProjectReference />
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)JdH Lib\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Assert|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/EHsc %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>$(SolutionDir)CvWorldBuilderMap\include\;$(SolutionDir)CvGameCoreDLLUtil\include\;$(SolutionDir)CvLocalization\include\;$(SolutionDir)CvGameDatabase\include\;$(SolutionDir)FirePlace\include\;$(SolutionDir)FirePlace\include\FireWorks\;$(SolutionDir)ThirdPartyLibs\Lua51\include\;$(SolutionDir)CvGameCoreDLL_Expansion2\;$(SolutionDir)JdH Lib\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FXS_IS_DLL;WIN32;_WINDOWS;_USRDLL;CVGAMECOREDLL_EXPORTS;__JDHLOGFILE="JdH's Mod.log";JDH_ASSERT_ENABLE;_CRT_SECURE_NO_WARNINGS;PROFILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FloatingPointModel>Strict</FloatingPointModel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <EnablePREfast>true</EnablePREfast>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <TreatSpecificWarningsAsErrors>4002;4003</TreatSpecificWarningsAsErrors>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>CvWorldBuilderMapWin32.lib;CvGameCoreDLLUtilWin32.lib;CvLocalizationWin32.lib;CvGameDatabaseWin32.lib;FireWorksWin32.lib;FLuaWin32.lib;lua51_Win32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>$(SolutionDir)\CvWorldBuilderMap\lib\;$(SolutionDir)\CvGameCoreDLLUtil\lib\;$(SolutionDir)\CvLocalization\lib\;$(SolutionDir)\CvGameDatabase\lib\;$(SolutionDir)FirePlace\lib\;$(SolutionDir)ThirdPartyLibs\Lua51\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ModuleDefinitionFile>$(ProjectDir)CvGameCoreDLL.def</ModuleDefinitionFile>
+      <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <TreatLinkerWarningAsErrors Condition="'$(Configuration)|$(Platform)'=='ModAssert|Win32'">true</TreatLinkerWarningAsErrors>
+    </Link>
+    <ProjectReference />
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)JdH Lib\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseAssert|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/EHsc %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>$(SolutionDir)CvWorldBuilderMap\include\;$(SolutionDir)CvGameCoreDLLUtil\include\;$(SolutionDir)CvLocalization\include\;$(SolutionDir)CvGameDatabase\include\;$(SolutionDir)FirePlace\include\;$(SolutionDir)FirePlace\include\FireWorks\;$(SolutionDir)ThirdPartyLibs\Lua51\include\;$(SolutionDir)CvGameCoreDLL_Expansion2\;$(SolutionDir)JdH Lib\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FXS_IS_DLL;WIN32;_WINDOWS;_USRDLL;CVGAMECOREDLL_EXPORTS;__JDHLOGFILE="JdH's Mod.log";_CRT_SECURE_NO_WARNINGS;_ITERATOR_DEBUG_LEVEL=0;FINAL_RELEASE;NDEBUG;JDH_ASSERT_ENABLE;CVASSERT_ENABLE;FASSERT_ENABLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FloatingPointModel>Strict</FloatingPointModel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <EnablePREfast>true</EnablePREfast>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <TreatSpecificWarningsAsErrors>4002;4003</TreatSpecificWarningsAsErrors>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>CvWorldBuilderMapWin32.lib;CvGameCoreDLLUtilWin32.lib;CvLocalizationWin32.lib;CvGameDatabaseWin32.lib;FireWorksWin32.lib;FLuaWin32.lib;lua51_Win32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>$(SolutionDir)\CvWorldBuilderMap\lib\;$(SolutionDir)\CvGameCoreDLLUtil\lib\;$(SolutionDir)\CvLocalization\lib\;$(SolutionDir)\CvGameDatabase\lib\;$(SolutionDir)FirePlace\lib\;$(SolutionDir)ThirdPartyLibs\Lua51\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+      <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+    <ProjectReference />
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)JdH Lib\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/EHsc %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)CvWorldBuilderMap\include\;$(SolutionDir)CvGameCoreDLLUtil\include\;$(SolutionDir)CvLocalization\include\;$(SolutionDir)CvGameDatabase\include\;$(SolutionDir)FirePlace\include\;$(SolutionDir)FirePlace\include\FireWorks\;$(SolutionDir)ThirdPartyLibs\Lua51\include\;$(SolutionDir)CvGameCoreDLL_Expansion2\;$(SolutionDir)JdH Lib\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>FXS_IS_DLL;WIN32;_WINDOWS;_USRDLL;CVGAMECOREDLL_EXPORTS;__JDHLOGFILE="JdH's Mod.log";JDH_ASSERT_ENABLE;MOD_DEBUG;PROFILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FloatingPointModel>Strict</FloatingPointModel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <EnablePREfast>true</EnablePREfast>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SmallerTypeCheck>true</SmallerTypeCheck>
+      <TreatSpecificWarningsAsErrors>4002;4003</TreatSpecificWarningsAsErrors>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>CvWorldBuilderMapWin32.lib;CvGameCoreDLLUtilWin32.lib;CvLocalizationWin32.lib;CvGameDatabaseWin32.lib;FireWorksWin32.lib;FLuaWin32.lib;lua51_Win32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>$(SolutionDir)\CvWorldBuilderMap\lib\;$(SolutionDir)\CvGameCoreDLLUtil\lib\;$(SolutionDir)\CvLocalization\lib\;$(SolutionDir)\CvGameDatabase\lib\;$(SolutionDir)FirePlace\lib\;$(SolutionDir)ThirdPartyLibs\Lua51\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>false</OptimizeReferences>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+      <ModuleDefinitionFile>$(ProjectDir)CvGameCoreDLL.def</ModuleDefinitionFile>
+      <Profile>true</Profile>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+    <ProjectReference />
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)JdH Lib\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Lib>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+    <Import Project="..\packages\boost.1.60.0.0\build\native\boost.targets" Condition="Exists('..\packages\boost.1.60.0.0\build\native\boost.targets')" />
+    <Import Project="..\packages\boost_atomic-vc90.1.60.0.0\build\native\boost_atomic-vc90.targets" Condition="Exists('..\packages\boost_atomic-vc90.1.60.0.0\build\native\boost_atomic-vc90.targets')" />
+    <Import Project="..\packages\boost_chrono-vc90.1.60.0.0\build\native\boost_chrono-vc90.targets" Condition="Exists('..\packages\boost_chrono-vc90.1.60.0.0\build\native\boost_chrono-vc90.targets')" />
+    <Import Project="..\packages\boost_date_time-vc90.1.60.0.0\build\native\boost_date_time-vc90.targets" Condition="Exists('..\packages\boost_date_time-vc90.1.60.0.0\build\native\boost_date_time-vc90.targets')" />
+    <Import Project="..\packages\boost_system-vc90.1.60.0.0\build\native\boost_system-vc90.targets" Condition="Exists('..\packages\boost_system-vc90.1.60.0.0\build\native\boost_system-vc90.targets')" />
+    <Import Project="..\packages\boost_thread-vc90.1.60.0.0\build\native\boost_thread-vc90.targets" Condition="Exists('..\packages\boost_thread-vc90.1.60.0.0\build\native\boost_thread-vc90.targets')" />
+  </ImportGroup>
+  <ItemGroup>
+    <ClCompile Include="assert.cpp" />
+    <ClCompile Include="log.cpp" />
+    <ClCompile Include="tostring.cpp" />
+    <ClCompile Include="utils.cpp" />
+    <ClCompile Include="_precompile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Assert|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseAssert|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\jdh\assert.h" />
+    <ClInclude Include="include\jdh\log.h" />
+    <ClInclude Include="include\jdh\pp.h" />
+    <ClInclude Include="include\jdh\resource.h" />
+    <ClInclude Include="include\jdh\tostring.h" />
+    <ClInclude Include="include\jdh\tostring_enums.h" />
+    <ClInclude Include="include\jdh\utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="include\jdh\JdH.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+    <Error Condition="!Exists('..\packages\boost.1.60.0.0\build\native\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost.1.60.0.0\build\native\boost.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_atomic-vc90.1.60.0.0\build\native\boost_atomic-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_atomic-vc90.1.60.0.0\build\native\boost_atomic-vc90.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_chrono-vc90.1.60.0.0\build\native\boost_chrono-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_chrono-vc90.1.60.0.0\build\native\boost_chrono-vc90.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_date_time-vc90.1.60.0.0\build\native\boost_date_time-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_date_time-vc90.1.60.0.0\build\native\boost_date_time-vc90.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_system-vc90.1.60.0.0\build\native\boost_system-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_system-vc90.1.60.0.0\build\native\boost_system-vc90.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_thread-vc90.1.60.0.0\build\native\boost_thread-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_thread-vc90.1.60.0.0\build\native\boost_thread-vc90.targets'))" />
+  </Target>
+</Project>
