@@ -50,3 +50,8 @@ UPDATE	Technologies	SET	'TechTrading'				= 1		WHERE Type = 'TECH_SCIENTIFIC_THEO
 ---------------------------------------------------------------------------------------------
 -- Eras
 UPDATE	Eras	SET	'VassalageEnabled'					= 1		WHERE	Type = 'ERA_MEDIEVAL';
+
+-- Taken from CBP Compatibilty files to enable levies
+UPDATE Buildings
+SET VassalLevyEra = '1'
+WHERE Type = 'BUILDING_PALACE';
