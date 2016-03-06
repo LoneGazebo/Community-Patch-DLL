@@ -203,7 +203,7 @@ public:
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	bool IsEmbarkedDeepWater() const;
 #endif
-	bool IsCityAttackOnly() const;
+	bool IsCityAttackSupport() const;
 	bool IsCaptureDefeatedEnemy() const;
 	bool IsIgnoreGreatGeneralBenefit() const;
 	bool IsIgnoreZOC() const;

@@ -903,7 +903,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 						}
 						break;
 					case YIELD_GREAT_GENERAL_POINTS:
+#if defined(MOD_API_XP_TIMES_100)
+						owningPlayer.changeCombatExperienceTimes100(iYield * 100);
+#else
 						owningPlayer.changeCombatExperience(iYield);
+#endif
 						if(owningPlayer.GetID() == GC.getGame().getActivePlayer())
 						{
 							char text[256] = {0};
@@ -913,7 +917,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 						}
 						break;
 					case YIELD_GREAT_ADMIRAL_POINTS:
+#if defined(MOD_API_XP_TIMES_100)
+						owningPlayer.changeNavalCombatExperienceTimes100(iYield * 100);
+#else
 						owningPlayer.changeNavalCombatExperience(iYield);
+#endif
 						if(owningPlayer.GetID() == GC.getGame().getActivePlayer())
 						{
 							char text[256] = {0};
@@ -5760,7 +5768,11 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bConscript)
 
 	if(pUnit->canAcquirePromotionAny())
 	{
+#if defined(MOD_API_XP_TIMES_100)
+		pUnit->changeExperienceTimes100(getProductionExperience(pUnit->getUnitType()) * 100 / ((bConscript) ? 2 : 1));
+#else
 		pUnit->changeExperience(getProductionExperience(pUnit->getUnitType()) / ((bConscript) ? 2 : 1));
+#endif
 		
 #if !defined(NO_ACHIEVEMENTS)
 		// XP2 Achievement
@@ -5770,7 +5782,11 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bConscript)
 			if (!GC.getGame().isGameMultiPlayer() && kOwner.isHuman() && kOwner.isLocalPlayer())
 			{
 				// This unit begins with a promotion from XP, and part of that XP came from filled Great Work slots
+#if defined(MOD_API_XP_TIMES_100)
+				if ((pUnit->getExperienceTimes100() / 100) >= pUnit->experienceNeeded() && getDomainFreeExperienceFromGreatWorks((DomainTypes)pUnit->getUnitInfo().GetDomainType()) > 0)
+#else
 				if (pUnit->getExperience() >= pUnit->experienceNeeded() && getDomainFreeExperienceFromGreatWorks((DomainTypes)pUnit->getUnitInfo().GetDomainType()) > 0)
+#endif
 				{
 					// We have a Royal Library
 					BuildingTypes eRoyalLibrary = (BuildingTypes) GC.getInfoTypeForString("BUILDING_ROYAL_LIBRARY", true);
@@ -8955,14 +8971,22 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						int iYield = pBuildingInfo->GetInstantYield(YIELD_GREAT_GENERAL_POINTS);
 						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 						iYield /= 100;
+#if defined(MOD_API_XP_TIMES_100)
+						GET_PLAYER(getOwner()).changeCombatExperienceTimes100(iYield * 100, 0);
+#else
 						GET_PLAYER(getOwner()).changeCombatExperience(iYield, 0);
+#endif
 					}
 					if(pBuildingInfo->GetInstantYield(YIELD_GREAT_ADMIRAL_POINTS) > 0)
 					{
 						int iYield = pBuildingInfo->GetInstantYield(YIELD_GREAT_ADMIRAL_POINTS);
 						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 						iYield /= 100;
+#if defined(MOD_API_XP_TIMES_100)
+						GET_PLAYER(getOwner()).changeNavalCombatExperienceTimes100(iYield * 100, 0);
+#else
 						GET_PLAYER(getOwner()).changeNavalCombatExperience(iYield, 0);
+#endif
 					}
 					if(pBuildingInfo->GetInstantYield(YIELD_POPULATION) > 0)
 					{
@@ -12589,7 +12613,11 @@ void CvCity::DoJONSCultureLevelIncrease()
 				iYield /= 100;
 				if(iYield > 0)
 				{
+#if defined(MOD_API_XP_TIMES_100)
+					GET_PLAYER(getOwner()).changeCombatExperienceTimes100(iYield * 100);
+#else
 					GET_PLAYER(getOwner()).changeCombatExperience(iYield);
+#endif
 					if(getOwner() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
@@ -12718,7 +12746,11 @@ void CvCity::DoJONSCultureLevelIncrease()
 		iYield /= 100;
 		if(iYield > 0)
 		{
+#if defined(MOD_API_XP_TIMES_100)
+			GET_PLAYER(getOwner()).changeCombatExperienceTimes100(iYield * 100);
+#else
 			GET_PLAYER(getOwner()).changeCombatExperience(iYield);
+#endif
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
@@ -16903,7 +16935,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
 		if(pReligion)
 		{
-			if(pReligion->m_Beliefs.GetYieldFromKnownPantheons(eYield) > 0)
+			if(pReligion->m_Beliefs.GetYieldFromKnownPantheons(eYield) > 0 && isCapital())
 			{
 				iPantheon = GC.getGame().GetGameReligions()->GetNumPantheonsCreated();
 				if(iPantheon > 0)
@@ -16922,7 +16954,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, getOwner());
 			if(pReligion)
 			{
-				if(pReligion->m_Beliefs.GetYieldFromKnownPantheons(eYield) > 0)
+				if(pReligion->m_Beliefs.GetYieldFromKnownPantheons(eYield) > 0 && isCapital())
 				{
 					iPantheon = GC.getGame().GetGameReligions()->GetNumPantheonsCreated();
 					if(iPantheon > 0)

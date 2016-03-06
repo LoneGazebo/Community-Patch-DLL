@@ -443,7 +443,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//////////////////////
 	
 	//Sanity check for buildable support units.
-	if(pkUnitEntry->IsCityAttackOnly())
+	if(pkUnitEntry->IsCityAttackSupport())
 	{
 		int iNum = kPlayer.GetNumUnitsWithUnitAI(UNITAI_CITY_BOMBARD, true, true);
 		if(iNum >= kPlayer.getNumCities())

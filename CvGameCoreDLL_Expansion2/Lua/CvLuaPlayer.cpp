@@ -8640,43 +8640,96 @@ int CvLuaPlayer::lSetResearchingTech(lua_State* L)
 //int getCombatExperience();
 int CvLuaPlayer::lGetCombatExperience(lua_State* L)
 {
+#if defined(MOD_API_XP_TIMES_100)
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	lua_pushinteger(L, pkPlayer->getCombatExperienceTimes100() / 100);
+	return 1;
+#else
 	return BasicLuaMethod(L, &CvPlayerAI::getCombatExperience);
+#endif
 }
 //------------------------------------------------------------------------------
 //void changeCombatExperience(int iChange);
 int CvLuaPlayer::lChangeCombatExperience(lua_State* L)
 {
+#if defined(MOD_API_XP_TIMES_100)
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iExperience = lua_tointeger(L, 2);
+
+	pkPlayer->changeCombatExperienceTimes100(iExperience * 100);
+	return 0;
+#else
 	return BasicLuaMethod(L, &CvPlayerAI::changeCombatExperience);
+#endif
 }
 //------------------------------------------------------------------------------
 //void setCombatExperience(int iExperience);
 int CvLuaPlayer::lSetCombatExperience(lua_State* L)
 {
+#if defined(MOD_API_XP_TIMES_100)
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iExperience = lua_tointeger(L, 2);
+
+	pkPlayer->setCombatExperienceTimes100(iExperience * 100);
+	return 0;
+#else
 	return BasicLuaMethod(L, &CvPlayerAI::setCombatExperience);
+#endif
 }
 //------------------------------------------------------------------------------
 //int getLifetimeCombatExperience();
 int CvLuaPlayer::lGetLifetimeCombatExperience(lua_State* L)
 {
+#if defined(MOD_API_XP_TIMES_100)
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	lua_pushinteger(L, pkPlayer->getLifetimeCombatExperienceTimes100() / 100);
+	return 1;
+#else
 	return BasicLuaMethod(L, &CvPlayerAI::getLifetimeCombatExperience);
+#endif
 }
 //------------------------------------------------------------------------------
 //int getNavalCombatExperience();
 int CvLuaPlayer::lGetNavalCombatExperience(lua_State* L)
 {
+#if defined(MOD_API_XP_TIMES_100)
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	lua_pushinteger(L, pkPlayer->getNavalCombatExperienceTimes100() / 100);
+	return 1;
+#else
 	return BasicLuaMethod(L, &CvPlayerAI::getNavalCombatExperience);
+#endif
 }
 //------------------------------------------------------------------------------
 //void changeNavalCombatExperience(int iChange);
 int CvLuaPlayer::lChangeNavalCombatExperience(lua_State* L)
 {
+#if defined(MOD_API_XP_TIMES_100)
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iExperience = lua_tointeger(L, 2);
+
+	pkPlayer->changeNavalCombatExperienceTimes100(iExperience * 100);
+	return 0;
+#else
 	return BasicLuaMethod(L, &CvPlayerAI::changeNavalCombatExperience);
+#endif
 }
 //------------------------------------------------------------------------------
 //void setCombatExperience(int iExperience);
 int CvLuaPlayer::lSetNavalCombatExperience(lua_State* L)
 {
+#if defined(MOD_API_XP_TIMES_100)
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iExperience = lua_tointeger(L, 2);
+
+	pkPlayer->setNavalCombatExperienceTimes100(iExperience * 100);
+	return 0;
+#else
 	return BasicLuaMethod(L, &CvPlayerAI::setNavalCombatExperience);
+#endif
 }
 //------------------------------------------------------------------------------
 //int getSpecialistExtraYield(SpecialistTypes  eIndex1, YieldTypes  eIndex2);

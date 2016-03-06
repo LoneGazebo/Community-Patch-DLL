@@ -259,7 +259,7 @@ public:
 	bool isSetUpForRangedAttack() const;
 	void setSetUpForRangedAttack(bool bValue);
 
-	bool IsCityAttackOnly() const;
+	bool IsCityAttackSupport() const;
 	void ChangeCityAttackOnlyCount(int iChange);
 
 	bool IsCaptureDefeatedEnemy() const;
@@ -309,6 +309,10 @@ public:
 	void DoAttrition();
 	int GetDanger(CvPlot* pAtPlot=NULL) const;
 
+#if defined(MOD_GLOBAL_RELOCATION)
+	const CvPlot* getAirliftFromPlot(const CvPlot* pPlot) const;
+	const CvPlot* getAirliftToPlot(const CvPlot* pPlot, bool bIncludeCities) const;
+#endif
 	bool canAirlift(const CvPlot* pPlot) const;
 	bool canAirliftAt(const CvPlot* pPlot, int iX, int iY) const;
 	bool airlift(int iX, int iY);
@@ -847,9 +851,15 @@ public:
 	bool IsInFriendlyTerritory() const;
 	bool IsUnderEnemyRangedAttack() const;
 
+#if defined(MOD_API_XP_TIMES_100)
+	int getExperienceTimes100() const;
+	void setExperienceTimes100(int iNewValueTimes100, int iMax = -1);
+	void changeExperienceTimes100(int iChangeTimes100, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false);
+#else
 	int getExperience() const;
 	void setExperience(int iNewValue, int iMax = -1);
 	void changeExperience(int iChange, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false);
+#endif
 
 	int getLevel() const;
 	void setLevel(int iNewValue);
@@ -1051,7 +1061,7 @@ public:
 	bool IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot = NULL) const;
 
 	// Great General Stuff
-	bool IsNearCityAttackOnly(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
+	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	bool IsStackedGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	int GetGreatGeneralStackMovement(const CvPlot* pAtPlot = NULL) const;
@@ -1566,6 +1576,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_iMoves;
 	FAutoVariable<bool, CvUnit> m_bImmobile;
 	FAutoVariable<int, CvUnit> m_iExperience;
+#if defined(MOD_API_XP_TIMES_100)
+	FAutoVariable<int, CvUnit> m_iExperienceTimes100;
+#endif
 	FAutoVariable<int, CvUnit> m_iLevel;
 	FAutoVariable<int, CvUnit> m_iCargo;
 	FAutoVariable<int, CvUnit> m_iCargoCapacity;

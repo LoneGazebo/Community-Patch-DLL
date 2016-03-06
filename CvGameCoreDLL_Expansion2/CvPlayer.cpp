@@ -331,6 +331,11 @@ CvPlayer::CvPlayer() :
 	, m_iCombatExperience("CvPlayer::m_iCombatExperience", m_syncArchive)
 	, m_iLifetimeCombatExperience("CvPlayer::m_iLifetimeCombatExperience", m_syncArchive)
 	, m_iNavalCombatExperience("CvPlayer::m_iNavalCombatExperience", m_syncArchive)
+#if defined(MOD_API_XP_TIMES_100)
+	, m_iCombatExperienceTimes100("CvPlayer::m_iCombatExperienceTimes100", m_syncArchive)
+	, m_iLifetimeCombatExperienceTimes100("CvPlayer::m_iLifetimeCombatExperienceTimes100", m_syncArchive)
+	, m_iNavalCombatExperienceTimes100("CvPlayer::m_iNavalCombatExperienceTimes100", m_syncArchive)
+#endif
 	, m_iBorderObstacleCount("CvPlayer::m_iBorderObstacleCount", m_syncArchive)
 	, m_iPopRushHurryCount("CvPlayer::m_iPopRushHurryCount", m_syncArchive)
 	, m_iTotalImprovementsBuilt("CvPlayer::m_iTotalImprovementsBuilt", m_syncArchive)
@@ -1545,6 +1550,11 @@ void CvPlayer::uninit()
 	m_iCombatExperience = 0;
 	m_iLifetimeCombatExperience = 0;
 	m_iNavalCombatExperience = 0;
+#if defined(MOD_API_XP_TIMES_100)
+	m_iCombatExperienceTimes100 = 0;
+	m_iLifetimeCombatExperienceTimes100 = 0;
+	m_iNavalCombatExperienceTimes100 = 0;
+#endif
 	m_iBorderObstacleCount = 0;
 	m_iPopRushHurryCount = 0;
 	m_uiStartTime = 0;
@@ -5272,7 +5282,11 @@ void CvPlayer::disbandUnit(bool)
 
 						iValue += (pLoopUnit->getUnitInfo().GetProductionCost() * 5);
 
+#if defined(MOD_API_XP_TIMES_100)
+						iValue += (pLoopUnit->getExperienceTimes100() / 100 * 20);
+#else
 						iValue += (pLoopUnit->getExperience() * 20);
+#endif
 						iValue += (pLoopUnit->getLevel() * 100);
 
 						if(pLoopUnit->IsGarrisoned())
@@ -9024,7 +9038,11 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	// Experience
 	if(pUnit != NULL)
 	{
+#if defined(MOD_API_XP_TIMES_100)
+		pUnit->changeExperienceTimes100(kGoodyInfo.getExperience() * 100);
+#else
 		pUnit->changeExperience(kGoodyInfo.getExperience());
+#endif
 	}
 
 	// Unit Heal
@@ -13840,7 +13858,11 @@ void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledU
 							case YIELD_GREAT_GENERAL_POINTS:
 								if(pDefendingUnit && pDefendingUnit->getDomainType() == DOMAIN_LAND)
 								{
+#if defined(MOD_API_XP_TIMES_100)
+									changeCombatExperienceTimes100(iYieldFromVictory * 100);
+#else
 									changeCombatExperience(iYieldFromVictory);
+#endif
 									if(GetID() == GC.getGame().getActivePlayer())
 									{
 										char text[256] = {0};
@@ -13853,7 +13875,11 @@ void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledU
 							case YIELD_GREAT_ADMIRAL_POINTS:
 								if(pDefendingUnit && pDefendingUnit->getDomainType() == DOMAIN_SEA)
 								{
+#if defined(MOD_API_XP_TIMES_100)
+									changeNavalCombatExperienceTimes100(iYieldFromVictory * 100);
+#else
 									changeNavalCombatExperience(iYieldFromVictory);
+#endif
 									if(GetID() == GC.getGame().getActivePlayer())
 									{
 										char text[256] = {0};
@@ -18913,9 +18939,17 @@ void CvPlayer::DoChangeGreatGeneralRate()
 		}
 	}
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
-	changeCombatExperience(iGreatGeneralPoints);
+#if defined(MOD_API_XP_TIMES_100)
+	changeCombatExperienceTimes100(iGreatGeneralPoints * 100);
 #else
 	changeCombatExperience(iGreatGeneralPoints);
+#endif
+#else
+#if defined(MOD_API_XP_TIMES_100)
+	changeCombatExperienceTimes100(iGreatGeneralPoints * 100);
+#else
+	changeCombatExperience(iGreatGeneralPoints);
+#endif
 #endif
 }
 void CvPlayer::DoChangeGreatAdmiralRate()
@@ -18985,9 +19019,17 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 		}
 	}
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
-	changeNavalCombatExperience(iGreatAdmiralPoints);
+#if defined(MOD_API_XP_TIMES_100)
+	changeNavalCombatExperienceTimes100(iGreatAdmiralPoints * 100);
 #else
 	changeNavalCombatExperience(iGreatAdmiralPoints);
+#endif
+#else
+#if defined(MOD_API_XP_TIMES_100)
+	changeNavalCombatExperienceTimes100(iGreatAdmiralPoints * 100);
+#else
+	changeNavalCombatExperience(iGreatAdmiralPoints);
+#endif
 #endif
 }
 #endif
@@ -24674,30 +24716,61 @@ int CvPlayer::calculateProductionMight() const
 	return iMight;
 }
 
-//	--------------------------------------------------------------------------------
+#if defined(MOD_API_XP_TIMES_100)
+int CvPlayer::getCombatExperienceTimes100() const
+#else
 int CvPlayer::getCombatExperience() const
+#endif
 {
+#if defined(MOD_API_XP_TIMES_100)
+	return m_iCombatExperienceTimes100;
+#else
 	return m_iCombatExperience;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
+#if defined(MOD_API_XP_TIMES_100)
+void CvPlayer::setCombatExperienceTimes100(int iExperienceTimes100, CvUnit* pFromUnit)
+#else
 void CvPlayer::setCombatExperience(int iExperience, CvUnit* pFromUnit)
+#endif
+#else
+#if defined(MOD_API_XP_TIMES_100)
+void CvPlayer::setCombatExperienceTimes100(int iExperienceTimes100)
 #else
 void CvPlayer::setCombatExperience(int iExperience)
 #endif
+#endif
 {
-	CvAssert(iExperience >= 0);
 
-	if(iExperience != getCombatExperience())
+#if defined(MOD_API_XP_TIMES_100)
+	CvAssert(iExperienceTimes100 >= 0);
+	
+	if (iExperienceTimes100 != getCombatExperienceTimes100())
+#else
+	CvAssert(iExperience >= 0);
+	
+	if (iExperience != getCombatExperience())
+#endif
 	{
+#if defined(MOD_API_XP_TIMES_100)
+		m_iCombatExperienceTimes100 = iExperienceTimes100;
+#else
 		m_iCombatExperience = iExperience;
+#endif
 
 		// Enough XP for a Great General to appear?
 		if(!isBarbarian())
 		{
+#if defined(MOD_API_XP_TIMES_100)
+			int iExperienceThresholdTimes100 = greatGeneralThreshold() * 100;
+			if (m_iCombatExperienceTimes100 >= iExperienceThresholdTimes100 && iExperienceThresholdTimes100 > 0)
+#else
 			int iExperienceThreshold = greatGeneralThreshold();
-			if(m_iCombatExperience >= iExperienceThreshold && iExperienceThreshold > 0)
+			if (m_iCombatExperience >= iExperienceThreshold && iExperienceThreshold > 0)
+#endif
 			{
 				// create great person
 				CvCity* pBestCity = NULL;
@@ -24786,7 +24859,11 @@ void CvPlayer::setCombatExperience(int iExperience)
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
 										}
 #endif
+#if defined(MOD_API_XP_TIMES_100)
+										setCombatExperienceTimes100(getCombatExperienceTimes100() - iExperienceThresholdTimes100);
+#else
 										setCombatExperience(getCombatExperience() - iExperienceThreshold);
+#endif
 										break;
 									}
 								}
@@ -24801,51 +24878,110 @@ void CvPlayer::setCombatExperience(int iExperience)
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
+#if defined(MOD_API_XP_TIMES_100)
+void CvPlayer::changeCombatExperienceTimes100(int iChangeTimes100, CvUnit* pFromUnit)
+#else
 void CvPlayer::changeCombatExperience(int iChange, CvUnit* pFromUnit)
+#endif
+#else
+#if defined(MOD_API_XP_TIMES_100)
+void CvPlayer::changeCombatExperienceTimes100(int iChangeTimes100)
 #else
 void CvPlayer::changeCombatExperience(int iChange)
 #endif
+#endif
 {
-	if(getCombatExperience() + iChange < 0)
+#if defined(MOD_API_XP_TIMES_100)
+	if (getCombatExperienceTimes100() + iChangeTimes100 < 0)
+#else
+	if (getCombatExperience() + iChange < 0)
+#endif
 	{
+#if defined(MOD_API_XP_TIMES_100)
+		setCombatExperienceTimes100(0);
+#else
 		setCombatExperience(0);
+#endif
 	}
 	else
 	{
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
+#if defined(MOD_API_XP_TIMES_100)
+		setCombatExperienceTimes100(getCombatExperienceTimes100() + iChangeTimes100, pFromUnit);
+#else
 		setCombatExperience(getCombatExperience() + iChange, pFromUnit);
+#endif
+#else
+#if defined(MOD_API_XP_TIMES_100)
+		setCombatExperienceTimes100(getCombatExperienceTimes100() + iChangeTimes100);
 #else
 		setCombatExperience(getCombatExperience() + iChange);
 #endif
+#endif
 	}
 
+#if defined(MOD_API_XP_TIMES_100)
+	m_iLifetimeCombatExperienceTimes100 += iChangeTimes100;
+#else
 	m_iLifetimeCombatExperience += iChange;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_API_XP_TIMES_100)
+int CvPlayer::getNavalCombatExperienceTimes100() const
+#else
 int CvPlayer::getNavalCombatExperience() const
+#endif
 {
+#if defined(MOD_API_XP_TIMES_100)
+	return m_iNavalCombatExperienceTimes100;
+#else
 	return m_iNavalCombatExperience;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
+#if defined(MOD_API_XP_TIMES_100)
+void CvPlayer::setNavalCombatExperienceTimes100(int iExperienceTimes100, CvUnit* pFromUnit)
+#else
 void CvPlayer::setNavalCombatExperience(int iExperience, CvUnit* pFromUnit)
+#endif
+#else
+#if defined(MOD_API_XP_TIMES_100)
+void CvPlayer::setNavalCombatExperienceTimes100(int iExperienceTimes100)
 #else
 void CvPlayer::setNavalCombatExperience(int iExperience)
 #endif
+#endif
 {
+#if defined(MOD_API_XP_TIMES_100)
+	CvAssert(iExperienceTimes100 >= 0);
+
+	if (iExperienceTimes100 != getNavalCombatExperienceTimes100())
+#else
 	CvAssert(iExperience >= 0);
 
-	if(iExperience != getNavalCombatExperience())
+	if (iExperience != getNavalCombatExperience())
+#endif
 	{
+#if defined(MOD_API_XP_TIMES_100)
+		m_iNavalCombatExperienceTimes100 = iExperienceTimes100;
+#else
 		m_iNavalCombatExperience = iExperience;
+#endif
 
 		// Enough XP for a Great Admiral to appear?
 		if(!isBarbarian())
 		{
+#if defined(MOD_API_XP_TIMES_100)
+			int iExperienceThresholdTimes100 = greatAdmiralThreshold() * 100;
+			if (m_iNavalCombatExperienceTimes100 >= iExperienceThresholdTimes100 && iExperienceThresholdTimes100 > 0)
+#else
 			int iExperienceThreshold = greatAdmiralThreshold();
-			if(m_iNavalCombatExperience >= iExperienceThreshold && iExperienceThreshold > 0)
+			if (m_iNavalCombatExperience >= iExperienceThreshold && iExperienceThreshold > 0)
+#endif
 			{
 				// create great person
 				CvCity* pBestCity = NULL;
@@ -24944,7 +25080,11 @@ void CvPlayer::setNavalCombatExperience(int iExperience)
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
 										}
 #endif
+#if defined(MOD_API_XP_TIMES_100)
+										setNavalCombatExperienceTimes100(getNavalCombatExperienceTimes100() - iExperienceThresholdTimes100);
+#else
 										setNavalCombatExperience(getNavalCombatExperience() - iExperienceThreshold);
+#endif
 										break;
 									}
 								}
@@ -24955,6 +25095,70 @@ void CvPlayer::setNavalCombatExperience(int iExperience)
 			}
 		}
 	}
+}
+//	--------------------------------------------------------------------------------
+#if defined(MOD_GLOBAL_LOCAL_GENERALS)
+#if defined(MOD_API_XP_TIMES_100)
+void CvPlayer::changeNavalCombatExperienceTimes100(int iChangeTimes100, CvUnit* pFromUnit)
+#else
+void CvPlayer::changeNavalCombatExperience(int iChange, CvUnit* pFromUnit)
+#endif
+#else
+#if defined(MOD_API_XP_TIMES_100)
+void CvPlayer::changeNavalCombatExperienceTimes100(int iChangeTimes100)
+#else
+void CvPlayer::changeNavalCombatExperience(int iChange)
+#endif
+#endif
+{
+#if defined(MOD_API_XP_TIMES_100)
+	if (getNavalCombatExperienceTimes100() + iChangeTimes100 < 0)
+#else
+	if (getNavalCombatExperience() + iChange < 0)
+#endif
+	{
+#if defined(MOD_API_XP_TIMES_100)
+		setNavalCombatExperienceTimes100(0);
+#else
+		setNavalCombatExperience(0);
+#endif
+	}
+	else
+	{
+#if defined(MOD_GLOBAL_LOCAL_GENERALS)
+#if defined(MOD_API_XP_TIMES_100)
+		setNavalCombatExperienceTimes100(getNavalCombatExperienceTimes100() + iChangeTimes100, pFromUnit);
+#else
+		setNavalCombatExperience(getNavalCombatExperience() + iChange, pFromUnit);
+#endif
+#else
+#if defined(MOD_API_XP_TIMES_100)
+		setNavalCombatExperienceTimes100(getNavalCombatExperienceTimes100() + iChangeTimes100);
+#else
+		setNavalCombatExperience(getNavalCombatExperience() + iChange);
+#endif
+#endif
+	}
+
+#if defined(MOD_API_XP_TIMES_100)
+	m_iLifetimeCombatExperienceTimes100 += iChangeTimes100;
+#else
+	m_iLifetimeCombatExperience += iChange;
+#endif
+}
+
+//	--------------------------------------------------------------------------------
+#if defined(MOD_API_XP_TIMES_100)
+int CvPlayer::getLifetimeCombatExperienceTimes100() const
+#else
+int CvPlayer::getLifetimeCombatExperience() const
+#endif
+{
+#if defined(MOD_API_XP_TIMES_100)
+	return m_iLifetimeCombatExperienceTimes100;
+#else
+	return m_iLifetimeCombatExperience;
+#endif
 }
 
 #if defined(MOD_GLOBAL_NO_CONQUERED_SPACESHIPS)
@@ -24980,35 +25184,6 @@ void CvPlayer::disassembleSpaceship(CvPlot* pPlot) {
 	}
 }
 #endif
-//	--------------------------------------------------------------------------------
-#if defined(MOD_GLOBAL_LOCAL_GENERALS)
-void CvPlayer::changeNavalCombatExperience(int iChange, CvUnit* pFromUnit)
-#else
-void CvPlayer::changeNavalCombatExperience(int iChange)
-#endif
-{
-	if(getNavalCombatExperience() + iChange < 0)
-	{
-		setNavalCombatExperience(0);
-	}
-	else
-	{
-#if defined(MOD_GLOBAL_LOCAL_GENERALS)
-		setNavalCombatExperience(getNavalCombatExperience() + iChange, pFromUnit);
-#else
-		setNavalCombatExperience(getNavalCombatExperience() + iChange);
-#endif
-	}
-
-	m_iLifetimeCombatExperience += iChange;
-}
-
-//	--------------------------------------------------------------------------------
-int CvPlayer::getLifetimeCombatExperience() const
-{
-	return m_iLifetimeCombatExperience;
-}
-
 //	--------------------------------------------------------------------------------
 int CvPlayer::getBorderObstacleCount() const
 {
@@ -34594,7 +34769,11 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 			if(pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND)
 			{
 				pLoopUnit->changeDamage(-pLoopUnit->getDamage());
+#if defined(MOD_API_XP_TIMES_100)
+				pLoopUnit->changeExperienceTimes100(10 * 100);
+#else
 				pLoopUnit->changeExperience(10);
+#endif
 			}
 		}
 	}
@@ -35581,7 +35760,7 @@ void CvPlayer::UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell)
 		if (!pLoopUnit)
 			continue;
 		
-		if (pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsCityAttackOnly())
+		if (pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsCityAttackSupport())
 			m_unitsAreaEffectPositive.push_back( pLoopUnit->GetID() );
 
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)

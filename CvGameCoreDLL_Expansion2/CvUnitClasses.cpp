@@ -112,7 +112,7 @@ CvUnitEntry::CvUnitEntry(void) :
 #if defined(MOD_BALANCE_CORE)
 	m_bFoundMid(false),
 	m_bFoundLate(false),
-	m_bIsCityAttackOnly(false),
+	m_bIsCityAttackSupport(false),
 	m_iGPExtra(0),
 #endif
 	m_iCultureBombRadius(0),
@@ -291,7 +291,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	if (MOD_BALANCE_CORE) {
 		m_bFoundMid = kResults.GetBool("FoundMid");
 		m_bFoundLate = kResults.GetBool("FoundLate");
-		m_bIsCityAttackOnly = kResults.GetBool("CityAttackOnly");
+		m_bIsCityAttackSupport = kResults.GetBool("CityAttackOnly");
 		m_iGPExtra = kResults.GetInt("GPExtra");
 	}
 #endif
@@ -1062,9 +1062,9 @@ bool CvUnitEntry::IsFoundLate() const
 }
 
 /// City Attack Only?
-bool CvUnitEntry::IsCityAttackOnly() const
+bool CvUnitEntry::IsCityAttackSupport() const
 {
-	return m_bIsCityAttackOnly;
+	return m_bIsCityAttackSupport;
 }
 int CvUnitEntry::IsGPExtra() const
 {

@@ -131,7 +131,7 @@ public:
 #if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	bool IsFoundMid() const;
 	bool IsFoundLate() const;
-	bool IsCityAttackOnly() const;
+	bool IsCityAttackSupport() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int IsGPExtra() const;
@@ -315,7 +315,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	bool m_bFoundMid;
 	bool m_bFoundLate;
-	bool m_bIsCityAttackOnly;
+	bool m_bIsCityAttackSupport;
 	int m_iGPExtra;
 #endif
 #if defined(MOD_BALANCE_CORE)

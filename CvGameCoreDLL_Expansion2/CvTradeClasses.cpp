@@ -1911,7 +1911,11 @@ bool CvGameTrade::MoveUnit (int iIndex)
 					case YIELD_GREAT_GENERAL_POINTS:
 						if(pkUnit->getDomainType() == DOMAIN_LAND)
 						{
+#if defined(MOD_API_XP_TIMES_100)
+							GET_PLAYER(pkUnit->getOwner()).changeCombatExperienceTimes100(iYieldFromRouteMovement * 100);
+#else
 							GET_PLAYER(pkUnit->getOwner()).changeCombatExperience(iYieldFromRouteMovement);
+#endif
 							if(pkUnit->getOwner() == GC.getGame().getActivePlayer() && pkUnit->plot()->isActiveVisible(false))
 							{
 								char text[256] = {0};
@@ -1924,7 +1928,11 @@ bool CvGameTrade::MoveUnit (int iIndex)
 					case YIELD_GREAT_ADMIRAL_POINTS:
 						if(pkUnit->getDomainType() == DOMAIN_SEA)
 						{
+#if defined(MOD_API_XP_TIMES_100)
+							GET_PLAYER(pkUnit->getOwner()).changeNavalCombatExperienceTimes100(iYieldFromRouteMovement * 100);
+#else
 							GET_PLAYER(pkUnit->getOwner()).changeNavalCombatExperience(iYieldFromRouteMovement);
+#endif
 							if(pkUnit->getOwner() == GC.getGame().getActivePlayer() && pkUnit->plot()->isActiveVisible(false))
 							{
 								char text[256] = {0};
@@ -2561,7 +2569,11 @@ void CvPlayerTrade::MoveUnits (void)
 								case YIELD_GREAT_GENERAL_POINTS:
 									if(pTradeConnection->m_eDomain == DOMAIN_LAND)
 									{
+#if defined(MOD_API_XP_TIMES_100)
+										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeCombatExperienceTimes100(iYieldFromStartingRoute * 100);
+#else
 										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeCombatExperience(iYieldFromStartingRoute);
+#endif
 										if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
 										{
 											char text[256] = {0};
@@ -2574,7 +2586,11 @@ void CvPlayerTrade::MoveUnits (void)
 								case YIELD_GREAT_ADMIRAL_POINTS:
 									if(pTradeConnection->m_eDomain == DOMAIN_SEA)
 									{
+#if defined(MOD_API_XP_TIMES_100)
+										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeNavalCombatExperienceTimes100(iYieldFromStartingRoute * 100);
+#else
 										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeNavalCombatExperience(iYieldFromStartingRoute);
+#endif
 										if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
 										{
 											char text[256] = {0};

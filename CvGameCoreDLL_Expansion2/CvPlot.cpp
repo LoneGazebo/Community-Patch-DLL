@@ -4088,12 +4088,12 @@ bool CvPlot::isFriendlyCity(const CvUnit& kUnit, bool) const
 	return false;
 }
 
-bool CvPlot::isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer) const
+bool CvPlot::isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer, const CvUnit* pUnit) const
 {
-	return isCityOrPassableImprovement(ePlayer, true);
+	return isCityOrPassableImprovement(ePlayer, true, pUnit);
 }
 
-bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly) const
+bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly, const CvUnit* pUnit) const
 {
 	ImprovementTypes eImprovement = getImprovementType();
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
@@ -4110,7 +4110,28 @@ bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriend
 
 	// In friendly lands (ours, an allied CS or a major with open borders)
 	if (IsFriendlyTerritory(ePlayer))
+	{
+		CvCity* pPlotCity = getPlotCity();
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+		if (pPlotCity && MOD_EVENTS_MINORS_INTERACTION && GET_PLAYER(pPlotCity->getOwner()).isMinorCiv()) {
+			if (pUnit) 
+			{
+				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanTransitMinorCity, ePlayer, pUnit->GetID(), pPlotCity->getOwner(), pPlotCity->GetID(), getX(), getY()) == GAMEEVENTRETURN_FALSE) 
+				{
+					return false;
+				}
+			} 
+			else 
+			{
+				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanTransitMinorCity, ePlayer, pPlotCity->getOwner(), pPlotCity->GetID(), getX(), getY()) == GAMEEVENTRETURN_FALSE) 
+				{
+					return false;
+				}
+			}
+		}
+#endif
 		return true;
+	}
 
 	if ( getTeam() == NO_TEAM)
 	{
@@ -4856,7 +4877,7 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 	switch(unit.getDomainType())
 	{
 	case DOMAIN_SEA:
-		return (isWater() || isCityOrPassableImprovement(unit.getOwner(), true));
+		return (isWater() || isCityOrPassableImprovement(unit.getOwner(), true, &unit));
 		break;
 
 	case DOMAIN_AIR:
@@ -4890,7 +4911,7 @@ bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
 	switch(unit.getDomainType())
 	{
 	case DOMAIN_SEA:
-		return (isWater() || isCityOrPassableImprovement(unit.getOwner(), false));
+		return (isWater() || isCityOrPassableImprovement(unit.getOwner(), false, &unit));
 		break;
 
 	case DOMAIN_AIR:
@@ -10085,7 +10106,11 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 #if defined(MOD_BALANCE_CORE)
 					if(pUnit && pUnit->IsGainsXPFromScouting() && !GET_TEAM(eTeam).isBarbarian() && !GET_TEAM(eTeam).isMinorCiv())
 					{
+#if defined(MOD_API_XP_TIMES_100)
+						if(pUnit->getExperienceTimes100() < (GC.getBALANCE_SCOUT_XP_MAXIMUM() * 100))
+#else
 						if(pUnit->getExperience() < GC.getBALANCE_SCOUT_XP_MAXIMUM())
+#endif
 						{
 							if(IsNaturalWonder())
 							{

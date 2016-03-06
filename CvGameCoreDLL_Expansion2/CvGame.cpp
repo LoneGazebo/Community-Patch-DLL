@@ -9675,7 +9675,11 @@ int CvGame::calculateSyncChecksum()
 					iMultiplier += (pLoopUnit->getX() * 876543);
 					iMultiplier += (pLoopUnit->getY() * 985310);
 					iMultiplier += (pLoopUnit->getDamage() * 736373);
+#if defined(MOD_API_XP_TIMES_100)
+					iMultiplier += ((pLoopUnit->getExperienceTimes100() / 100) * 820622);
+#else
 					iMultiplier += (pLoopUnit->getExperience() * 820622);
+#endif
 					iMultiplier += (pLoopUnit->getLevel() * 367291);
 				}
 				break;
@@ -9757,7 +9761,11 @@ void CvGame::debugSyncChecksum()
 			int iLoop=0;
 			for(CvUnit* pLoopUnit = GET_PLAYER((PlayerTypes)iI).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER((PlayerTypes)iI).nextUnit(&iLoop))
 				pLog->Msg( CvString::format("unit %d: x %02d, y %02d, damage %02d, exp %02d, level %02d\n",
+#if defined(MOD_API_XP_TIMES_100)
+					iLoop, pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getDamage(), (pLoopUnit->getExperienceTimes100() / 100), pLoopUnit->getLevel() ).c_str() );
+#else
 					iLoop, pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getDamage(), pLoopUnit->getExperience(), pLoopUnit->getLevel() ).c_str() );
+#endif
 		}
 	}
 

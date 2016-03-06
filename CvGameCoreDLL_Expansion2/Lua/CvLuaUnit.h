@@ -405,6 +405,11 @@ protected:
 	static int lGetExperience(lua_State* L);
 	static int lSetExperience(lua_State* L);
 	static int lChangeExperience(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_XP_TIMES_100)
+	LUAAPIEXTN(GetExperienceTimes100, int);
+	LUAAPIEXTN(SetExperienceTimes100, void, iExpTimes100, iMax);
+	LUAAPIEXTN(ChangeExperienceTimes100, void, iExpTimes100, iMax, bFromCombat, bInBorders, bUpdateGlobal);
+#endif
 	static int lGetLevel(lua_State* L);
 	static int lSetLevel(lua_State* L);
 	static int lChangeLevel(lua_State* L);

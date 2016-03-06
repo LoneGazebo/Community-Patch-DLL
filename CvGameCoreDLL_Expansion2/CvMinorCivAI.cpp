@@ -380,7 +380,11 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		SetAdmiralPoints(GetAdmiralPoints() / 2);
 		if(GetAdmiralPoints() > 0)
 		{
+#if defined(MOD_API_XP_TIMES_100)
+			kPlayer.changeNavalCombatExperienceTimes100(GetAdmiralPoints() * 100);
+#else
 			kPlayer.changeNavalCombatExperience(GetAdmiralPoints());
+#endif
 			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
@@ -392,7 +396,11 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		SetGeneralPoints(GetGeneralPoints() / 2);
 		if(GetGeneralPoints() > 0)
 		{
+#if defined(MOD_API_XP_TIMES_100)
+			kPlayer.changeCombatExperienceTimes100(GetGeneralPoints() * 100);
+#else
 			kPlayer.changeCombatExperience(GetGeneralPoints());
+#endif
 			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
@@ -421,7 +429,11 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 			{
 				if(pLoopUnit && pLoopUnit->IsCombatUnit())
 				{
+#if defined(MOD_API_XP_TIMES_100)
+					pLoopUnit->changeExperienceTimes100(GetExperience() * 100);
+#else
 					pLoopUnit->changeExperience(GetExperience());
+#endif
 				}
 			}
 		}
@@ -605,7 +617,11 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		}
 		if(GetAdmiralPoints() > 0)
 		{
+#if defined(MOD_API_XP_TIMES_100)
+			kPlayer.changeNavalCombatExperienceTimes100(GetAdmiralPoints() * 100);
+#else
 			kPlayer.changeNavalCombatExperience(GetAdmiralPoints());
+#endif
 			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
@@ -616,7 +632,11 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		}
 		if(GetGeneralPoints() > 0)
 		{
+#if defined(MOD_API_XP_TIMES_100)
+			kPlayer.changeCombatExperienceTimes100(GetGeneralPoints() * 100);
+#else
 			kPlayer.changeCombatExperience(GetGeneralPoints());
+#endif
 			if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
@@ -643,7 +663,11 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 			{
 				if(pLoopUnit && pLoopUnit->IsCombatUnit())
 				{
+#if defined(MOD_API_XP_TIMES_100)				
+					pLoopUnit->changeExperienceTimes100(GetExperience() * 100);
+#else
 					pLoopUnit->changeExperience(GetExperience());
+#endif
 				}
 			}
 		}
@@ -5694,7 +5718,11 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 									if (GC.getGame().getJonRandNum(100, "Minor Civ AI: Decide if we give a unit to the meeting player") < iUnitGift) {
 										CvUnit* pUnit = DoSpawnUnit(ePlayer, true, true);
 										if (pUnit != NULL) {
+#if defined(MOD_API_XP_TIMES_100)
+											pUnit->changeExperienceTimes100(100 * (pPlayer->GetCurrentEra() * GC.getMINOR_CIV_FIRST_CONTACT_XP_PER_ERA() + GC.getGame().getJonRandNum(GC.getMINOR_CIV_FIRST_CONTACT_XP_RANDOM(), "Minor Civ AI: Random XP for unit")));
+#else
 											pUnit->changeExperience(pPlayer->GetCurrentEra() * GC.getMINOR_CIV_FIRST_CONTACT_XP_PER_ERA() + GC.getGame().getJonRandNum(GC.getMINOR_CIV_FIRST_CONTACT_XP_RANDOM(), "Minor Civ AI: Random XP for unit"));
+#endif
 											iGift = pUnit->getUnitType();
 										}
 									}
@@ -11403,30 +11431,15 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	}
 	else if (iBaseFriendship > iFriendshipAnchor)
 	{
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-		//Decay if capital is taking damage during war (CSs are fickle allies if they're on the recieving end of war).
-		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer) && IsProtectedByMajor(ePlayer))
-		{
-			if(GetPlayer()->getCapitalCity() != NULL)
-			{
-				if(GetPlayer()->getCapitalCity()->getDamage() > 0 && !GetPlayer()->getCapitalCity()->IsResistance())
-				{
-					if(GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
-						iChangeThisTurn += (/*-150*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN_HOSTILE()  * 3);
-					// Aggressor!
-					else if(GET_TEAM(kPlayer.getTeam()).IsMinorCivAggressor())
-						iChangeThisTurn += (/*-200*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN_AGGRESSOR() * 3);
-					// Normal decay
-					else
-						iChangeThisTurn += (/*-100*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN() * 3);
-				}
-			}
-		}
-#endif
 		// Hostile Minors have Friendship decay quicker
 		if(GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
 			iChangeThisTurn += /*-150*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN_HOSTILE();
 		// Aggressor!
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		//Decay if capital is taking damage during war (CSs are fickle allies if they're on the recieving end of war).
+		else if(MOD_DIPLOMACY_CITYSTATES_QUESTS && (GetPlayer()->getCapitalCity()->getDamage() > 0) && IsProtectedByMajor(ePlayer))
+			iChangeThisTurn += /*-600*/ (GC.getMINOR_FRIENDSHIP_DROP_PER_TURN_AGGRESSOR() * 3);
+#endif
 		else if(GET_TEAM(kPlayer.getTeam()).IsMinorCivAggressor())
 			iChangeThisTurn += /*-200*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN_AGGRESSOR();
 		// Normal decay
@@ -14527,7 +14540,11 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 			// If player trait is to enhance minor bonuses, give this unit some free experience
 			if(GET_PLAYER(eMajor).GetPlayerTraits()->GetCityStateBonusModifier() > 0)
 			{
+#if defined(MOD_API_XP_TIMES_100)
+				pNewUnit->changeExperienceTimes100(GC.getMAX_EXPERIENCE_PER_COMBAT() * 100);
+#else
 				pNewUnit->changeExperience(GC.getMAX_EXPERIENCE_PER_COMBAT());
+#endif
 			}
 
 			if (pNewUnit->jumpToNearestValidPlot())

@@ -97,6 +97,11 @@ CvImprovementEntry::CvImprovementEntry(void):
 #endif
 	m_iImprovementPillage(NO_IMPROVEMENT),
 	m_iImprovementUpgrade(NO_IMPROVEMENT),
+#if defined(MOD_GLOBAL_RELOCATION)
+	m_bAllowsRebaseTo(false),
+	m_bAllowsAirliftFrom(false),
+	m_bAllowsAirliftTo(false),
+#endif
 	m_bHillsMakesValid(false),
 #if defined(MOD_GLOBAL_ALPINE_PASSES)
 	m_bMountainsMakesValid(false),
@@ -243,6 +248,11 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_iAdditionalUnits = kResults.GetInt("AdditionalUnits");
 #endif
 	m_iCultureAdjacentSameType = kResults.GetInt("CultureAdjacentSameType");
+#if defined(MOD_GLOBAL_RELOCATION)
+	m_bAllowsRebaseTo = kResults.GetBool("AllowsRebaseTo");
+	m_bAllowsAirliftFrom = kResults.GetBool("AllowsAirliftFrom");
+	m_bAllowsAirliftTo = kResults.GetBool("AllowsAirliftTo");
+#endif
 	m_bHillsMakesValid = kResults.GetBool("HillsMakesValid");
 #if defined(MOD_GLOBAL_ALPINE_PASSES)
 	m_bMountainsMakesValid = kResults.GetBool("MountainsMakesValid");
@@ -782,6 +792,23 @@ void CvImprovementEntry::SetImprovementUpgrade(int i)
 {
 	m_iImprovementUpgrade = i;
 }
+
+#if defined(MOD_GLOBAL_RELOCATION)
+bool CvImprovementEntry::IsAllowsRebaseTo() const
+{
+	return m_bAllowsRebaseTo;
+}
+
+bool CvImprovementEntry::IsAllowsAirliftFrom() const
+{
+	return m_bAllowsAirliftFrom;
+}
+
+bool CvImprovementEntry::IsAllowsAirliftTo() const
+{
+	return m_bAllowsAirliftTo;
+}
+#endif
 
 /// Requires hills to be constructed
 bool CvImprovementEntry::IsHillsMakesValid() const

@@ -1740,7 +1740,7 @@ bool CvPromotionEntry::IsEmbarkedDeepWater() const
 #endif
 
 /// Accessor: Does this unit only attack cities
-bool CvPromotionEntry::IsCityAttackOnly() const
+bool CvPromotionEntry::IsCityAttackSupport() const
 {
 	return m_bCityAttackOnly;
 }
