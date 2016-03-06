@@ -68,13 +68,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <OutDir>$(SolutionDir)\BuildOutput\VS2013_$(Platform)\</OutDir>
+    <OutDir>$(SolutionDir)\BuildOutput\VS2013_$(Platform)\lib\</OutDir>
     <IntDir>$(SolutionDir)\BuildTemp\VS2013_$(ProjectName)$(Configuration)$(Platform)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules />
     <CodeAnalysisRuleAssemblies />
-    <TargetName>JdH's MP AI</TargetName>
+    <TargetName>jdhLib</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

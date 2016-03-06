@@ -6,3 +6,5 @@
 *.sdf
 /Packages
 /.nuget/NuGet.exe
+*.opendb
+/ipch

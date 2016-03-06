@@ -621,6 +621,7 @@
     <Import Project="..\packages\boost_chrono-vc90.1.60.0.0\build\native\boost_chrono-vc90.targets" Condition="Exists('..\packages\boost_chrono-vc90.1.60.0.0\build\native\boost_chrono-vc90.targets')" />
     <Import Project="..\packages\boost_thread-vc90.1.60.0.0\build\native\boost_thread-vc90.targets" Condition="Exists('..\packages\boost_thread-vc90.1.60.0.0\build\native\boost_thread-vc90.targets')" />
     <Import Project="..\packages\boost_system-vc90.1.60.0.0\build\native\boost_system-vc90.targets" Condition="Exists('..\packages\boost_system-vc90.1.60.0.0\build\native\boost_system-vc90.targets')" />
+    <Import Project="..\packages\boost_date_time-vc90.1.60.0.0\build\native\boost_date_time-vc90.targets" Condition="Exists('..\packages\boost_date_time-vc90.1.60.0.0\build\native\boost_date_time-vc90.targets')" />
   </ImportGroup>
   <ItemGroup>
     <ProjectReference Include="..\JdH Lib\JdH Lib.vcxproj">
@@ -640,5 +641,6 @@
     <Error Condition="!Exists('..\packages\boost_chrono-vc90.1.60.0.0\build\native\boost_chrono-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_chrono-vc90.1.60.0.0\build\native\boost_chrono-vc90.targets'))" />
     <Error Condition="!Exists('..\packages\boost_thread-vc90.1.60.0.0\build\native\boost_thread-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_thread-vc90.1.60.0.0\build\native\boost_thread-vc90.targets'))" />
     <Error Condition="!Exists('..\packages\boost_system-vc90.1.60.0.0\build\native\boost_system-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_system-vc90.1.60.0.0\build\native\boost_system-vc90.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_date_time-vc90.1.60.0.0\build\native\boost_date_time-vc90.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_date_time-vc90.1.60.0.0\build\native\boost_date_time-vc90.targets'))" />
   </Target>
 </Project>
