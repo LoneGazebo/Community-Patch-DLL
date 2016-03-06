@@ -2181,12 +2181,12 @@ function ResetDisplay()
 			
 			-- Do they have vassals?
 			if (g_pThemTeam:GetNumVassals() <= 0) then
-				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_REVOKE_US_NO_VASSALS" ) .. "[ENDCOLOR]";
+				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_NO_VASSALS" ) .. "[ENDCOLOR]";
 			end
 			
 			-- Are they our master?
 			if (g_pUsTeam:GetMaster() == g_iThemTeam) then
-				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_REVOKE_US_THEIR_MASTER" ) .. "[ENDCOLOR]";
+				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_YOUR_MASTER" ) .. "[ENDCOLOR]";
 			end
 		else
 			Controls.ThemPocketRevokeVassalage:SetDisabled(false);

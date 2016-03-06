@@ -464,7 +464,7 @@ function DoUpdateVassalButton()
 	
 	Controls.VassalButton:SetToolTipString(strToolTip);
 end
-Events.ActivePlayerTurnStart.Add(DoUpdateVassalButton);
+Events.SerialEventEspionageScreenDirty.Add(DoUpdateVassalButton); -- not a typo! do not change!
 --END
 --------------------------------------------------------------------
 function HandleNotificationAdded(notificationId, notificationType, toolTip, summary, gameValue, extraGameData)
@@ -565,16 +565,14 @@ end
 --C4DF
 function CheckVassalageStarted()
 	function TestVassalageStarted()
-		local g_iPlayer = Game.GetActivePlayer();
-		local g_pPlayer = Players[ g_iPlayer ];
-		local g_iTeam = g_pPlayer:GetTeam();
-		local g_pTeam = Teams[ g_iTeam ];
-		return (g_pTeam:GetCurrentEra() >= Game.GetVassalageEnabledEra()) or g_pTeam:IsVassalOfSomeone();
+		local player = Players[Game.GetActivePlayer()];
+		local team = Teams[player:GetTeam()];
+		return (team:GetCurrentEra() >= Game.GetVassalageEnabledEra()) or team:IsVassalOfSomeone();
 	end
 
-	local bVassalageStarted = TestVassalageStarted();
-	Controls.VassalButton:SetHide(not bVassalageStarted);
-	if(bVassalageStarted) then
+	local bVassalStarted = TestVassalageStarted();
+	Controls.VassalButton:SetHide(not bVassalStarted);
+	if(bVassalStarted) then
 		DoUpdateVassalButton();
 	end
 end
