@@ -4557,5 +4557,2669 @@
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
 			<Response>TXT_KEY_LEADER_SHAKA_TRADE_CANT_MATCH%</Response>
 		</Row>
+<<<<<<< HEAD
 	</Diplomacy_Responses>
+=======
+		<Row Tag="TXT_KEY_GENERIC_GREETING_HOSTILE_HUMAN_FEW_CITIES_2">
+			<Text>I'm surprised to see you here. Shouldn't you be out settling new cities or something?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_HOSTILE_HUMAN_SMALL_ARMY_2">
+			<Text>I think I saw your only soldiers walking around the other day. They looked sad and lonely. Perhaps you should train a few friends for them?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_HOSTILE_HUMAN_IS_WARMONGER_2">
+			<Text>Your arrogance shall be your downfall, warmonger.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_DENOUNCED_BY_AI_3">
+			<Text>You disgust me. What makes you think I want to talk to you?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_DENOUNCED_BY_AI_4">
+			<Text>You should leave, before things get ugly.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_DENOUNCED_AI_3">
+			<Text>You've already made clear your feelings about me. What more is there to discuss?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_DENOUNCED_AI_4">
+			<Text>I have nothing to say to you, especially after what you did.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_OUR_DOF_WITH_ENEMY_OF_AI_2">
+			<Text>What do you want? Any friend of {1_PlayerName} is no friend of mine.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_OUR_DOF_WITH_FRIEND_OF_AI_2">
+			<Text>{1_PlayerName} was just here earlier. We talked at length about how wonderful you are.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_DENOUNCED_FRIEND_OF_AI_2">
+			<Text>The enemy of my friend is also MY enemy. If you don't like {1_PlayerName}, then I don't like you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_DENOUNCED_ENEMY_OF_AI_2">
+			<Text>The enemy of my enemy is my friend. In this case, our mutual hatred of {1_PlayerName} makes us allies. For now.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_DOF_3">
+			<Text>Friends? Already? We barely know each other.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_DOF_4">
+			<Text>Look, you are really nice, but I need some time to think about this level of commitment.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_AI_DENOUNCE_REQUEST_2">
+			<Text>{1_CivName} has crossed the line, and needs to be admonished publicly. Can I count on you to join me in denouncing him?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_AI_WAR_REQUEST_2">
+			<Text>I have decided that my conflicts with {1_CivName} must be solved through war. As one of my oldest allies, can I count on you to join me? (WILL DECLARE WAR IMMEDIATELY)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_NOT_HONORED_3">
+			<Text>You have proven to be an unworthy and traitorous coward. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_NOT_HONORED_4">
+			<Text>Of all the people to betray me, I did not think it would be you. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DENOUNCING_FRIEND_3">
+			<Text>I tried to overlook your misdeeds, but I can do so no longer. You are a tyrant, and tyrants must be admonished.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DENOUNCING_FRIEND_4">
+			<Text>There is no point in hiding it any longer: I used to like you, but now I hate you.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_TO_BEING_DENOUNCED_5">
+			<Text>Your cruel words have no power here. Begone!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_TO_BEING_DENOUNCED_6">
+			<Text>You shall soon learn the magnitude of the mistake you have just made.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_TO_BEING_DENOUNCED_7">
+			<Text>You are an absolute fool.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_TO_BEING_DENOUNCED_8">
+			<Text>You may be honest, but that doesn't make you any less of a terrible, awful person.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOFED_FRIEND_2">
+			<Text>Greetings, friend. I just wanted to let you know that your good opinion of {1_CivName} mirrors my own.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOFED_FRIEND_3">
+			<Text>Your friendship with {1_CivName} has reinforced my opinion that you are a wise and noble leader.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOFED_FRIEND_4">
+			<Text>{1_CivName} and I agree that you are a worthwhile friend to have in this world.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOFED_FRIEND_5">
+			<Text>The mutual friendship you and I share with {1_CivName} makes our friendship all the stronger.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOFED_ENEMY_2">
+			<Text>{1_CivName} is nothing but trouble. If you seek an alliance with them, you will soon find yourself isolated on the world stage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOFED_ENEMY_3">
+			<Text>I'm not sure what you see in {1_CivName}. Whatever it is, it reinforces my feeling that you are of dubious intellect.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOFED_ENEMY_4">
+			<Text>I would be careful around {1_CivName}. Sticking close to them will end badly for you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DENOUNCED_FRIEND_2">
+			<Text>Denouncing {1_CivName} was a big mistake. I, and others, will not stand idly by while you say such foolish and false things.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DENOUNCED_FRIEND_3">
+			<Text>While your lies about {1_CivName} may fool some, they haven't fooled me. I'm watching you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DENOUNCED_ENEMY_2">
+			<Text>{1_CivName} really is awful, no? Hopefully your harsh words will teach them a lesson.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DENOUNCED_ENEMY_3">
+			<Text>It is about time someone else denounced {1_CivName}. I was beginning to think that I am the only reasonable person on this planet.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOF_SO_AI_DOF_2">
+			<Text>Your declaration of friendship with {1_CivName} inspired me to do the same. I hope such fair and honest actions will persist well into the future.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOF_SO_AI_DOF_3">
+			<Text>It is good to know that {1_CivName} has friends like you. Together, I truly believe we can make the world a better place.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOF_SO_AI_DOF_4">
+			<Text>Your friendship with {1_CivName} is an example to us all, and I want to be a part of it. I hope that others will see the benefit of such cooperation.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DENOUNCE_SO_AI_DENOUNCE_2">
+			<Text>{1_CivName} is terrible, and I'm glad you agree. Come, let us retire to my office so we can conspire against them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DENOUNCE_SO_AI_DENOUNCE_3">
+			<Text>Denouncing {1_CivName} was the best decision I've made in a long time, and I have your example to thank for it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOF_SO_AI_DENOUNCE_2">
+			<Text>Any friend of {1_CivName} is not to be trusted. I've got my eye on you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOF_SO_AI_DENOUNCE_3">
+			<Text>Are you sure you want to align yourself with {1_CivName}? This won't end well for you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOF_SO_AI_DENOUNCE_4">
+			<Text>How can you be so foolish? An alliance with {1_CivName} will bring you nothing but hardship.</Text>
+		</Row>
+		<!-- Generic Diplo Text -->
+		<Row Tag="TXT_KEY_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>If you wish to fight, do so boldly. Sneak attacks are for cowards.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALEXANDER_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>You would dare challenge the greatest warrior who ever lived?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WASHINGTON_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>I will not tolerate your bullying any longer. Remove your forces from my border, or else.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HARUN_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>You think yourself wise, but only the fool fights the warriors of the desert. Bring war, or depart.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MONTEZUMA_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>This can only end in your death. Your armies shall be led like lambs to the slaughter.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WUZETIAN_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>We do not fear your foolish posturing. If you wish to provoke the dragon, do so.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RAMESSES_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>There is no victory in war for you. Do you still wish to fight?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ELIZABETH_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>England will not be bullied. Do you bring war, or are you as cowardly as I think you are?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NAPOLEON_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>Declaring war on me will be the last mistake you ever make. Test me, if you dare.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BISMARCK_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>Your armies stand near Germany's borders. If you wish to go to war, know that it will bring nothing but ruin.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GANDHI_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>Though I follow the path of peace, I will not tolerate wanton aggression. India does not fear a brute such as yourself.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HIAWATHA_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>These woods are filled with innumerable Iroquois soldiers. Do wish to test them?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ODA_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>You think you move with the grace of the ninja, but your actions are plain to me. Either declare war, or be gone.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SULEIMAN_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>The Ottomans laugh at your foolish posturing. Do you really think you can defeat us?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DARIUS_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>The armies of Persia will not back down from a fight. If you wish to test this, do so now.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_AUGUSTUS_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>Think clearly about your next move: only the wisest and greatest warriors cross the Rubicon and live to tell the tale.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CATHERINE_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>I will not tolerate your military posturing any longer. Do you wish to fight Russia, or not?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RAMKHAMHAENG_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>The Siamese people will not tolerate your aggression any longer. If you wish to fight, do not attempt to hide it any longer.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ASKIA_HOSTILE_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>It is good that your armies are massed on my border, as it will save my soldiers the trouble of chasing them down. That is, of course, if you do, in fact, wish to fight.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_AGGRESSIVE_MILITARY_WARNING_2">
+			<Text>Your military aggression must come to an end. Withdraw your troops, or prepare for war.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_KILLED_PROTECTED_CITY_STATE_2">
+			<Text>You have captured {@1_MinorCivName}, a people you promised to protect. Are you always so untrustworthy?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ATTACKED_PROTECTED_CITY_STATE_2">
+			<Text>Your war against {@1_MinorCivName} will not be tolerated any longer. They are under our protection, and we mean to enforce that promise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EXPANSION_SERIOUS_WARNING_2">
+			<Text>You are reckless and wasteful. Your empire may be large, but it is a paper tiger.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALEXANDER_EXPANSION_SERIOUS_WARNING_2">
+			<Text>An entire world to conquer, and you claim territory on my doorstep? I am beginning to dislike you.</Text>
+		</Row>
+		<!--- STOPPED HERE -->
+		<Row Tag="TXT_KEY_WASHINGTON_EXPANSION_SERIOUS_WARNING_2">
+			<Text>I will not warn you again: you are settling in lands claimed by the United State of America.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HARUN_EXPANSION_SERIOUS_WARNING_2">
+			<Text>I shall have your head if you take one more piece of land near our borders.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MONTEZUMA_EXPANSION_SERIOUS_WARNING_2">
+			<Text>Build another settlement near my borders. I dare you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WUZETIAN_EXPANSION_SERIOUS_WARNING_2">
+			<Text>The Chinese need the land that you just settled. Immediately.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RAMESSES_EXPANSION_SERIOUS_WARNING_2">
+			<Text>You steal the lands that belong to a god? Fool.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ELIZABETH_EXPANSION_SERIOUS_WARNING_2">
+			<Text>Your expansionist actions will be your downfall, knave.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NAPOLEON_EXPANSION_SERIOUS_WARNING_2">
+			<Text>Your reckless expansion is playing right into my trap. Go ahead, take more land. I dare you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BISMARCK_EXPANSION_SERIOUS_WARNING_2">
+			<Text>Germany will not tolerate your aggressive expansion much longer.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GANDHI_EXPANSION_SERIOUS_WARNING_2">
+			<Text>Do not force me to become angry. You won't like me when I'm angry.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HIAWATHA_EXPANSION_SERIOUS_WARNING_2">
+			<Text>The lands you settled are rightfully mine. Your settlement is unwelcome.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ODA_EXPANSION_SERIOUS_WARNING_2">
+			<Text>Your expansionist behavior is neither noble nor honorable. You are nothing less than common filth.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SULEIMAN_EXPANSION_SERIOUS_WARNING_2">
+			<Text>The Throne of Osman will soon sweep away your pathetic claims near our borders.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DARIUS_EXPANSION_SERIOUS_WARNING_2">
+			<Text>Your continued expansion is the final straw. Consider our relationship strained to the breaking point.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_AUGUSTUS_EXPANSION_SERIOUS_WARNING_2">
+			<Text>Wherever Rome conquers, it inhabits. Soon, I shall inhabit that which you currently claim.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CATHERINE_EXPANSION_SERIOUS_WARNING_2">
+			<Text>How thoughtful! You settled that land just so you could give it to me, right? No? Well, how rude.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RAMKHAMHAENG_EXPANSION_SERIOUS_WARNING_2">
+			<Text>Petty thieves like you will perish along with all the other filth in this world.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ASKIA_EXPANSION_SERIOUS_WARNING_2">
+			<Text>I look forward to burning your newly-settled cities to the ground.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EXPANSION_WARNING_5">
+			<Text>Your continued expansion is intolerable, and must be ceased immediately.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EXPANSION_WARNING_6">
+			<Text>I hope your obsession with land ends soon enough, as it is beginning to strain our relationship.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EXPANSION_WARNING_7">
+			<Text>There can be no peace between us if you continue claiming territory that is rightfully mine.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EXPANSION_WARNING_8">
+			<Text>Your greedy expansion has fouled my impression of you. I thought you noble, but I see now that you are a fool.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EXPANSION_BROKEN_PROMISE_2">
+			<Text>Though I thought my opinion of you could not be lower, it seems I was wrong. Not only are you a thief, you are also a liar.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EXPANSION_BROKEN_PROMISE_3">
+			<Text>Your broken promise is but the latest crime you have committed against my people. I will not forget this injustice.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLOT_BUYING_SERIOUS_WARNING_2">
+			<Text>You foolishly squander money buying up land, but for what purpose? It will all be mine soon enough.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLOT_BUYING_WARNING_2">
+			<Text>Cease purchasing land near our borders immediately. Failure to do so will have serious consequences.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLOT_BUYING_WARNING_3">
+			<Text>If you don't stop buying land near our borders we are going to have a problem. A serious problem.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLOT_BUYING_BROKEN_PROMISE_3">
+			<Text>Your promise to stop purchasing land near our borders was, naturally, a lie. I saw this coming.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLOT_BUYING_BROKEN_PROMISE_4">
+			<Text>You are a dishonorable person. I take promises, especially broken promises, very seriously.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HOSTILE_WE_ATTACKED_YOUR_MINOR_4">
+			<Text>The lands of {@1_MinorCivName} will soon be mine. Care to do something about it?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HOSTILE_WE_ATTACKED_YOUR_MINOR_5">
+			<Text>{@1_MinorCivName} will fall to my armies soon enough. How will you respond? With silence? How appropriate.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WE_ATTACKED_YOUR_MINOR_4">
+			<Text>I've recently learned that {@1_MinorCivName} is under your protection. Do not take my actions against this city-state personally.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WE_ATTACKED_YOUR_MINOR_5">
+			<Text>I sincerely hope that my war with {@1_MinorCivName} will not make you think less of me.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_5">
+			<Text>Shall we make a public Declaration of Friendship? Such an act would be a model of civility for the lesser empires of the world.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_6">
+			<Text>I believe that you are an honorable and righteous leader. Let us make a Declaration of Friendship, so that others may look upon our pact with fear.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_7">
+			<Text>This world can be a lonely and isolating place, and we could each use a strong ally. Shall we make a Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_8">
+			<Text>A Declaration of Friendship would be of great benefit to both of us. Come, let us show the other empires of the world what 'civilization' truly means.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DENOUNCE_4">
+			<Text>You are an awful person, did you know that?[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DENOUNCE_5">
+			<Text>There can be no peace in the world, so long as you exist.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DENOUNCE_6">
+			<Text>Why must you behave like such an imbecile?[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DENOUNCE_7">
+			<Text>There are only a few words that describe you, and they aren't very nice.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DENOUNCE_8">
+			<Text>I cannot bite my tongue any longer. You are a tyrant.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DENOUNCE_9">
+			<Text>I hope death comes swiftly for you, knave.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DENOUNCE_10">
+			<Text>Don't take this personally, but...wait, no, take this personally: you are terrible.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_COOP_WAR_REQUEST_4">
+			<Text>The time for war against {1_PlayerName:textkey} is nigh. Shall we combine our arms and strike down this villain?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_COOP_WAR_REQUEST_5">
+			<Text>{1_PlayerName:textkey} has gone too far, and must be stopped. I look to you for assistance: shall we fight this menace together?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_COOP_WAR_REQUEST_6">
+			<Text>The actions of {1_PlayerName:textkey} have forced my hand. War is inevitable, and I need an ally. Will you join me?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_COOP_WAR_TIME_2">
+			<Text>The war against {1_PlayerName:textkey} has come. Shall we?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_2">
+			<Text>Your treachery will bring the wrath of fate itself upon you. Our vengeance will be absolute.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_3">
+			<Text>Of all the people in the world to betray me...so long as I breathe, we shall never be friends again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_4">
+			<Text>You have gone too far this time. I thought we were friends, but now I see the truth.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOW_ENEMY_2">
+			<Text>Time and again, you have shown to be my enemy, not my friend. I suppose it is only logical that I consider you as such.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_COMPLIMENT_2">
+			<Text>Hail, friend? I wanted to stop by and let you know how much I like you. That's all.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_BOOT_KISSING_3">
+			<Text>Your power and majesty are unparalleled. I hope to one day become a powerful ruler like you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_BOOT_KISSING_4">
+			<Text>I must admit that I both admire and fear your great power. You are an example to us all.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_WARMONGER_5">
+			<Text>Your conquests have lessened my opinion of you. Greatly.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_WARMONGER_6">
+			<Text>Why must you be such a brute? Such warmongering will only lead to sour relations between us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_WARMONGER_7">
+			<Text>Your continued aggression draws great interest around the world. And not in a good way.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_WARMONGER_8">
+			<Text>Just so you know, I have my eye on you. Bloodthirsty conquerors never win in the end.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MINOR_CIV_COMPETITION_3">
+			<Text>Your relationship with {1_MinorCivName:textkey} is intolerable. Send your diplomats elsewhere, or face the consequences.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MINOR_CIV_COMPETITION_4">
+			<Text>{1_MinorCivName:textkey} told me recently that they think you are a foul and terrible person. Perhaps you should focus on a different city-state, and leave this one to me?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MINOR_CIV_COMPETITION_5">
+			<Text>I see that you are friends with {1_MinorCivName:textkey}. So am I. This is quite awkward, is it not? You should probably leave them alone.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MINOR_CIV_COMPETITION_6">
+			<Text>I found {1_MinorCivName:textkey} first, therefore I have the right to work with them, not you. Can't you find a different city-state to lay claim to?</Text>
+		</Row>
+		<!--Insults-->
+		<Row Tag="TXT_KEY_GENERIC_INSULT_GENERIC_5">
+			<Text>You are a cruel and miserable person.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_GENERIC_6">
+			<Text>I would compare you to a city-state, but at least city-states have integrity.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_GENERIC_7">
+			<Text>You are like a bad dream that simply won't go away.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_GENERIC_8">
+			<Text>I'm surprised someone hasn't wiped you off the map yet. A pity.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_MILITARY_3">
+			<Text>The weakness of your army is an embarrassment matched only by your pathetic leadership.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_MILITARY_4">
+			<Text>Your walls will do you no good if you have no soldiers to defend them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_MILITARY_5">
+			<Text>You have far too much faith in the goodwill of your neighbors. Your lack of an army makes you a juicy target.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_NUKE_2">
+			<Text>We have the bomb, and we are not afraid to use it!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_BULLY_2">
+			<Text>Harassing the weak simply shows the world how petty and miserable you really are.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_BULLY_3">
+			<Text>You are a bully, and bullies always end up on the dust heap of history.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_UNHAPPINESS_3">
+			<Text>The amount of human misery in your empire is appalling. I might have to come over there and show your people what real leadership looks like.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_UNHAPPINESS_4">
+			<Text>Are really that bad of a leader, or are you simply cruel? How barbaric.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_CITIES_2">
+			<Text>The size of your empire is worrisome. Are you trying to be a city-state or something?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_CITIES_3">
+			<Text>You really need to expand, if only so that there are more cities in the world for me to conquer.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_POPULATION_2">
+			<Text>Your economy is the laughing stock of the world. Do you need some help or something?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_POPULATION_3">
+			<Text>When I look at your pathetic economy, it makes me sad. I'd help, but I'm too busy being rich and powerful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_CULTURE_3">
+			<Text>You are barbaric and crude. Shall I send one my artists over to show you what real culture looks like?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_CULTURE_4">
+			<Text>Your culture is the embodiment of darkness and solitude. And no, that isn't a compliment.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INSULT_CULTURE_5">
+			<Text>I've met barbarians that are more cultured than you.</Text>
+		</Row>
+		<!--Human is asking the AI for something-->
+		<Row Tag="TXT_KEY_GENERIC_REPEAT_NO_2">
+			<Text>The answer is still no.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DONT_SETTLE_YES_3">
+			<Text>I promise not to settle near your lands. For now.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DONT_SETTLE_YES_4">
+			<Text>I will not settle near your lands, but only because you asked nicely.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DONT_SETTLE_NO_5">
+			<Text>You are foolish to think that you can tell me what to do.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DONT_SETTLE_NO_6">
+			<Text>I settle where I please, when I please. The answer is no.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DONT_SETTLE_NO_7">
+			<Text>No way. I have plans for that territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DONT_SETTLE_NO_8">
+			<Text>Impossible. My people need that land.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_WORK_WITH_US_YES_4">
+			<Text>I agree. Our friendship will be a model for others to follow.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_WORK_WITH_US_YES_5">
+			<Text>Wonderful idea. Let us celebrate the occasion with a feast!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_WORK_WITH_US_YES_6">
+			<Text>Fine, but I'm telling everyone that it was my idea.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DECLINE_4">
+			<Text>Sorry, but the answer is no.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DECLINE_5">
+			<Text>That simply won't work.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DECLINE_6">
+			<Text>I do not see the value of that agreement, so no, I think not.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_COOP_WAR_YES_2">
+			<Text>My soldiers are excited at the prospect of war. To arms, ally!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_COOP_WAR_SOON_2">
+			<Text>War, you say? Give me 10 turns to muster my troops.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_YES_4">
+			<Text>I will acquiesce to your demands, this time.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_YES_5">
+			<Text>You ask for too much, but I must accept.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_YES_6">
+			<Text>Your demands are harsh, but I cannot refuse. Our relationship will suffer as a result of this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_WEAK_5">
+			<Text>No way. You are weak and lack the force to make such demands.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_WEAK_6">
+			<Text>You and I both know you can't enforce that demand.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_WEAK_7">
+			<Text>You are a fool if you think I'll give you anything for free.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_WEAK_8">
+			<Text>Not a chance. Perhaps you should try such tactics on someone less capable than I.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_HOSTILE_6">
+			<Text>You will get nothing from me, tyrant.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_HOSTILE_7">
+			<Text>Never!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_HOSTILE_8">
+			<Text>Impossible.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_HOSTILE_9">
+			<Text>You must be joking. No way.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_HOSTILE_10">
+			<Text>Absurd. Is this a joke?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_TOO_MUCH_4">
+			<Text>Your demands are too great. I cannot agree to them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_TOO_MUCH_5">
+			<Text>I will not cave to your greed. The answer is no.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_TOO_MUCH_6">
+			<Text>Do you think I am a pushover? I will give you nothing.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_TOO_SOON_4">
+			<Text>This barrage of insane demands can only lead to war.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_TOO_SOON_5">
+			<Text>You are a barbaric and greedy person, did you know that?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_DEMAND_REFUSE_TOO_SOON_6">
+			<Text>You are an avaricious knave. I will give you nothing.</Text>
+		</Row>
+		<!--Deal Offers and related-->
+		<Row Tag="TXT_KEY_GENERIC_LETS_HEAR_IT_3">
+			<Text>What did you have in mind?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_LETS_HEAR_IT_4">
+			<Text>Yes?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_PEACE_OFFER_4">
+			<Text>This war must end sooner or later. How does this agreement look?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_PEACE_OFFER_5">
+			<Text>I am tired of battle. Come, let us settle this in the boardroom, instead of on the battlefield.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_PEACE_OFFER_6">
+			<Text>Let us end this war, as it is ruining us both. Would you agree to this?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DEMAND_2">
+			<Text>No offense, but you have something I want, and I'm fairly certain that I can take it from you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_REQUEST_ITEM_4">
+			<Text>I have fallen on hard times, and I could use some help. Can you spare this, friend?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_REQUEST_ITEM_5">
+			<Text>I have nowhere else to turn. Could you give this to me, as a friend?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_REQUEST_ITEM_6">
+			<Text>My people need assistance, and they look to you. Surely you cannot deny them this help?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ALEXANDER_RESPONSE_REQUEST_2">
+			<Text>Mighty Alexander...needs help. Will you give me aid?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_WASHINGTON_RESPONSE_REQUEST_2">
+			<Text>Your help at this time would be invaluable.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_HARUN_RESPONSE_REQUEST_2">
+			<Text>I have fallen on hard times, and am in dire need of assistance.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_MONTEZUMA_RESPONSE_REQUEST_2">
+			<Text>Your assistance will keep our fires burning and our altars filled with blood. Won't you help?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_WUZETIAN_RESPONSE_REQUEST_2">
+			<Text>It pains me to ask, but could you help the Empress Dowager of China?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_RAMESSES_RESPONSE_REQUEST_2">
+			<Text>Though gods rarely ask mere mortals for assistance, I must ask for such from you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ELIZABETH_RESPONSE_REQUEST_2">
+			<Text>The English people need your help. Will you heed their call?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_NAPOLEON_RESPONSE_REQUEST_2">
+			<Text>A gift to France will be repaid with kindness. Come, do not hoard your wealth.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_BISMARCK_RESPONSE_REQUEST_2">
+			<Text>Germany is in dire need. Will you heed the call?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_GANDHI_RESPONSE_REQUEST_2">
+			<Text>Karma is earned by those who share their wealth with the less fortunate.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_HIAWATHA_RESPONSE_REQUEST_2">
+			<Text>The forests are lean this season, and I could use some help.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ODA_RESPONSE_REQUEST_2">
+			<Text>Even the mightiest warrior is sometimes in need of assistance.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_SULEIMAN_RESPONSE_REQUEST_2">
+			<Text>The Throne of Osman asks for your help at this time.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DARIUS_RESPONSE_REQUEST_2">
+			<Text>A gift to the Persian Empire would cement our lasting friendship.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_AUGUSTUS_RESPONSE_REQUEST_2">
+			<Text>Mighty Rome needs a helping hand. Can you spare this?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_CATHERINE_RESPONSE_REQUEST_2">
+			<Text>I am embarrassed to say this, but Russia needs your help.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_RAMKHAMHAENG_RESPONSE_REQUEST_2">
+			<Text>A gift to Siam at this time would greatly improve our relationship.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ASKIA_RESPONSE_REQUEST_2">
+			<Text>The Songhai people need your help. Please, do not turn us away.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_LUXURY_TRADE_2">
+			<Text>Let us trade. You have a Luxury Resource that I would like.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_LUXURY_TRADE_3">
+			<Text>My people have expressed interest in one of your Luxury Resources. Shall we trade?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_LUXURY_TRADE_4">
+			<Text>You have a fine assortment of Luxury Resources. Shall we make a deal?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_LUXURY_TRADE_5">
+			<Text>You have a Luxury Resource that my people want. On their behalf, let's trade, shall we?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ALEXANDER_LUXURY_TRADE_2">
+			<Text>Though the Greeks are wealthy beyond compare, we do enjoy a good trade now and then.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_WASHINGTON_LUXURY_TRADE_2">
+			<Text>Trade is the first step on the road to peace, friend.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_HARUN_LUXURY_TRADE_2">
+			<Text>Arabian merchants are legendary for their trading prowess. Come, let me show you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_MONTEZUMA_LUXURY_TRADE_2">
+			<Text>Trade is the gateway to glory, don't you agree?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_WUZETIAN_LUXURY_TRADE_2">
+			<Text>The riches of China are yours to command. For a price.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_RAMESSES_LUXURY_TRADE_2">
+			<Text>Egypt is interested in one of your trade goods.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ELIZABETH_LUXURY_TRADE_2">
+			<Text>Trade is the most civilized endeavor to which humans can aspire, is it not?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_NAPOLEON_LUXURY_TRADE_2">
+			<Text>Only the greatest warlords dirty their hands in trade and bartering.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_BISMARCK_LUXURY_TRADE_2">
+			<Text>Trade is the counterpart of industry. Come, let us forge a deal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_GANDHI_LUXURY_TRADE_2">
+			<Text>Through trade comes understanding, and through understanding, peace.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_HIAWATHA_LUXURY_TRADE_2">
+			<Text>Trade is one of the many great attributes of civilization.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ODA_LUXURY_TRADE_2">
+			<Text>We are honor-bound to complete a trade agreement at this time.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_SULEIMAN_LUXURY_TRADE_2">
+			<Text>The Ottoman Empire thrives on trade. Come, let us make a deal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DARIUS_LUXURY_TRADE_2">
+			<Text>The Persian people are famous for their fine crafts. Come, let me show you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_AUGUSTUS_LUXURY_TRADE_2">
+			<Text>Trade is the first step towards understanding and friendship.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_CATHERINE_LUXURY_TRADE_2">
+			<Text>The riches of Russia are open to you, for the right price.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_RAMKHAMHAENG_LUXURY_TRADE_2">
+			<Text>Siam wishes to trade. Will you?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ASKIA_LUXURY_TRADE_2">
+			<Text>Do not let the scene before you fool you. I am a trader first, and a warlord second.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_OPEN_BORDERS_EXCHANGE_3">
+			<Text>Let us open our borders to one another. We have nothing to fear from each other, right?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_OPEN_BORDERS_EXCHANGE_4">
+			<Text>Come, let us open our borders as a sign of goodwill and faith.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ALEXANDER_OPEN_BORDERS_EXCHANGE_2">
+			<Text>Even great empires like mine must open their borders to empires like yours.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_WASHINGTON_OPEN_BORDERS_EXCHANGE_2">
+			<Text>America desires to open its borders to you. Will you do the same?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_HARUN_OPEN_BORDERS_EXCHANGE_2">
+			<Text>The Arabian people desire open borders. Come, let us come to an agreement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_MONTEZUMA_OPEN_BORDERS_EXCHANGE_2">
+			<Text>The great Montezuma desires open borders. Would you defy him?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_WUZETIAN_OPEN_BORDERS_EXCHANGE_2">
+			<Text>An open borders agreement will lead to great things.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_RAMESSES_OPEN_BORDERS_EXCHANGE_2">
+			<Text>The gates of Egypt are open to you, if yours are open to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ELIZABETH_OPEN_BORDERS_EXCHANGE_2">
+			<Text>England is a free land, and, as such, desires to share open borders with you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_NAPOLEON_OPEN_BORDERS_EXCHANGE_2">
+			<Text>An open borders agreement is essential to the tactical flexibility of both our armies, wouldn't you agree?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_BISMARCK_OPEN_BORDERS_EXCHANGE_2">
+			<Text>I believe that an open borders agreement is essential to our future relationship.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_GANDHI_OPEN_BORDERS_EXCHANGE_2">
+			<Text>A closed border is symbolic of a closed mind. Come, let us share our borders, and our ideas.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_HIAWATHA_OPEN_BORDERS_EXCHANGE_2">
+			<Text>The wilderness knows no borders. As such, let us make an agreement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ODA_OPEN_BORDERS_EXCHANGE_2">
+			<Text>The samurai code demands that I open my borders to you. Will you do the same?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_SULEIMAN_OPEN_BORDERS_EXCHANGE_2">
+			<Text>The Ottomans wish to venture into your lands. Will you agree to this?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DARIUS_OPEN_BORDERS_EXCHANGE_2">
+			<Text>Knowledge is power, and I believe we could both use more knowledge. Shall we open our borders to each other?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_AUGUSTUS_OPEN_BORDERS_EXCHANGE_2">
+			<Text>The glory of Rome knows no boundaries...except for yours. Shall we open our borders to each other?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_CATHERINE_OPEN_BORDERS_EXCHANGE_2">
+			<Text>An open border will benefit you far more than it benefits Russia. Come, now, isn't this a generous offer?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_RAMKHAMHAENG_OPEN_BORDERS_EXCHANGE_2">
+			<Text>Cooperation is the gateway to enlightenment. Come, let us share our lands with each other.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ASKIA_OPEN_BORDERS_EXCHANGE_2">
+			<Text>My people desire to open their borders to you. Will you deny the Songhai?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_OPEN_BORDERS_OFFER_2">
+			<Text>An open borders agreement would benefit us both.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_OPEN_BORDERS_OFFER_3">
+			<Text>Will you allow my troops to enter your lands?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_OPEN_BORDERS_OFFER_4">
+			<Text>I need to cross your borders. Will you agree to this?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_OPEN_BORDERS_OFFER_5">
+			<Text>Please consider my request for open borders.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_RENEW_DEAL_4">
+			<Text>We have both prospered greatly as a result of this deal. Shall we renew it?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_RENEW_DEAL_5">
+			<Text>It is time to renew this deal. Shall we?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_RENEW_DEAL_6">
+			<Text>I hope that you have benefited from this deal as much as I have. Do you want to continue this arrangement?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_WANT_MORE_RENEW_DEAL_4">
+			<Text>Unfortunately, I'm not sure this deal is as beneficial to us as it once was. Perhaps you could sweeten the deal?</Text>
+		</Row>
+
+		<!--Trade Dialogue-->
+		<Row Tag="TXT_KEY_GENERIC_TRADE_ACCEPT_GENEROUS_4">
+			<Text>Really? Absolutely!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_ACCEPT_GENEROUS_5">
+			<Text>Are you sure? I won't turn down such generosity.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_ACCEPT_GENEROUS_6">
+			<Text>I am humbled by this agreement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_ACCEPT_ACCEPTABLE_4">
+			<Text>Looks good to me.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_ACCEPT_ACCEPTABLE_5">
+			<Text>I find this acceptable.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_ACCEPT_ACCEPTABLE_6">
+			<Text>You drive a hard bargain. I accept.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_ACCEPT_AI_DEMAND_3">
+			<Text>Wonderful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_ACCEPT_AI_DEMAND_4">
+			<Text>You made a wise decision.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_ACCEPT_HUMAN_CONCESSIONS_3">
+			<Text>That was a wise move.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_ACCEPT_HUMAN_CONCESSIONS_4">
+			<Text>I thank you for your cooperation.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_REJECT_UNACCEPTABLE_4">
+			<Text>Impossible. I know you can offer more than that.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_REJECT_UNACCEPTABLE_5">
+			<Text>This deal will not work if you won't offer a bit more.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_REJECT_UNACCEPTABLE_6">
+			<Text>You and I both know that you can offer a bit more.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_REJECT_INSULTING_4">
+			<Text>You must be joking. Right?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_REJECT_INSULTING_5">
+			<Text>You can do better than that.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_REJECT_INSULTING_6">
+			<Text>Do you take me for a fool?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_DEAL_UNCHANGED_4">
+			<Text>Excellent.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_DEAL_UNCHANGED_5">
+			<Text>Why not?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_DEAL_UNCHANGED_6">
+			<Text>I'm fine with this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_AI_MAKES_OFFER_4">
+			<Text>Does this suit you?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_AI_MAKES_OFFER_5">
+			<Text>I have a proposal for you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_AI_MAKES_OFFER_6">
+			<Text>Are you interested in this deal?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_NO_DEAL_POSSIBLE_3">
+			<Text>We are not open to your offer at this time.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_NO_DEAL_POSSIBLE_4">
+			<Text>I have no interest in this agreement.</Text>
+		</Row>
+		<!-- AI Attacked by another player -->
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_HOSTILE_6">
+			<Text>What an awful decision on your part.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_HOSTILE_7">
+			<Text>You are a buffoon.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_HOSTILE_8">
+			<Text>You would attack us? How foolish.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_HOSTILE_9">
+			<Text>History will mock you for this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_HOSTILE_10">
+			<Text>You have made a terrible decision.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_WEAK_HOSTILE_6">
+			<Text>You are strong, but you lack conviction. I shall seize the day.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_WEAK_HOSTILE_7">
+			<Text>Your hubris will be your downfall.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_WEAK_HOSTILE_8">
+			<Text>You are misled if you think you can defeat me.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_WEAK_HOSTILE_9">
+			<Text>My armies will not be so easily defeated.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_WEAK_HOSTILE_10">
+			<Text>You will not defeat me.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_STRONG_HOSTILE_8">
+			<Text>This is going to be fun.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_STRONG_HOSTILE_9">
+			<Text>Death comes for you, fool.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_STRONG_HOSTILE_10">
+			<Text>You have condemned your people to defeat.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_STRONG_HOSTILE_11">
+			<Text>That was the last mistake you will ever make.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_STRONG_HOSTILE_12">
+			<Text>Excellent. Right into my trap.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_STRONG_HOSTILE_13">
+			<Text>I have been looking forward to this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_STRONG_HOSTILE_14">
+			<Text>Your end is nigh.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_EXCITED_5">
+			<Text>May the best warrior win!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_EXCITED_6">
+			<Text>I must admit, I've been looking forward to this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_EXCITED_7">
+			<Text>It is about time that our armies meet on the battlefield.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_EXCITED_8">
+			<Text>I shall sow my fields with your blood.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_WEAK_EXCITED_3">
+			<Text>This will be my moment of triumph.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_STRONG_EXCITED_3">
+			<Text>You didn't really think this through, did you?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_SAD_5">
+			<Text>My people wail in horror at this decision. Why?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_SAD_6">
+			<Text>What have I done to deserve this?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_SAD_7">
+			<Text>We could have been allies, yet you chose the path of violence. A pity.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_SAD_8">
+			<Text>You are a miserable tyrant.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_BETRAYED_2">
+			<Text>Only the lowest people betray their friends. You are a monster.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_BETRAYED_3">
+			<Text>I cannot fathom why you would do this. Unbelievable.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_BETRAYED_4">
+			<Text>Treachery! This is truly a dark day for civilization.</Text>
+		</Row>
+		<!-- AI Declaring War-->
+		<Row Tag="TXT_KEY_GENERIC_DOW_GENERIC_4">
+			<Text>War is the only solution to our current disagreements.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_GENERIC_5">
+			<Text>The time for diplomacy is over. I bring war to your doorstep.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_GENERIC_6">
+			<Text>We must fight. Prepare yourself!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_ATTACKED_MILITARY_PROMISE_BROKEN_2">
+			<Text>Your treachery shall not be forgotten.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_LAND_4">
+			<Text>My empire needs more land. Your land, to be precise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_LAND_5">
+			<Text>It is unfortunate for you that we are neighbors.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_LAND_6">
+			<Text>Your lands shall soon be mine!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_WORLD_CONQUEST_7">
+			<Text>The world shall be mine!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_WORLD_CONQUEST_8">
+			<Text>There is not room on this planet for both of us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_WORLD_CONQUEST_9">
+			<Text>Mine shall be an empire to circle the globe!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_WORLD_CONQUEST_10">
+			<Text>There can be only one leader on this planet...and it will be me.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_OPPORTUNITY_9">
+			<Text>You have played right into my trap.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_OPPORTUNITY_10">
+			<Text>There's no use in hiding it any more: I seek to destroy you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_OPPORTUNITY_11">
+			<Text>The day of your defeat is nigh!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_OPPORTUNITY_12">
+			<Text>You shall be but a footnote of history.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_OPPORTUNITY_13">
+			<Text>Your defeat is inevitable. Surrender now, or else.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_OPPORTUNITY_14">
+			<Text>Your armies will be wiped clean from the face of the earth.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_OPPORTUNITY_15">
+			<Text>I saw an opportunity, and I have taken it. Don't take it personally.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_OPPORTUNITY_16">
+			<Text>You are weak, and I am strong. This was inevitable.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_DESPERATE_9">
+			<Text>I will die before I give in to your tyranny.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_DESPERATE_10">
+			<Text>Your strength does not compensate for your wickedness.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_DESPERATE_11">
+			<Text>If I am to die, I will die with dignity. You wouldn't understand.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_DESPERATE_12">
+			<Text>For those who are about to die, I salute you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_DESPERATE_13">
+			<Text>Today is a good day to die.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_DESPERATE_14">
+			<Text>This war will serve as a clarion call to those who can, and will, defeat you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_DESPERATE_15">
+			<Text>Fortune favors the bold, not the strong.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_DESPERATE_16">
+			<Text>History honors the brave, not the wicked. You shall be nothing but a footnote.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_BETRAYAL_5">
+			<Text>You should have seen this coming. You didn't? I almost feel bad. Almost.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_BETRAYAL_6">
+			<Text>I was never your friend. Consider this a lesson in politics.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_BETRAYAL_7">
+			<Text>Come now, don't be upset. This is only betrayal if you are a fool.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_BETRAYAL_8">
+			<Text>I felt a little guilty leading you on like that, but the reward will be oh so sweet.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_WEAK_BETRAYAL_2">
+			<Text>I see no choice but to fight you. I am sorry that it must end like this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_REGRET_4">
+			<Text>Friendships fade, but glory is eternal. I intend to last forever.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_REGRET_5">
+			<Text>We go to war, not as enemies, but as former friends who have lost their way. Forgive me.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_DOW_REGRET_6">
+			<Text>Why has it come to this? History will not look upon this moment fondly.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DEMAND_REFUSED_3">
+			<Text>No? I shall send a more forceful emissary, then.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DEMAND_REFUSED_4">
+			<Text>I planned for this. Prepare yourself.</Text>
+		</Row>
+		<!--AI Responses to a human peace offer-->
+		<Row Tag="TXT_KEY_GENERIC_PEACE_WHAT_WILL_HUMAN_OFFER_4">
+			<Text>Yes?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_PEACE_WHAT_WILL_HUMAN_OFFER_5">
+			<Text>What is your proposal?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_PEACE_WHAT_WILL_HUMAN_OFFER_6">
+			<Text>What will it take to end this war?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_PEACE_MADE_BY_HUMAN_GRACIOUS_3">
+			<Text>Let us celebrate peace in our time.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_PEACE_MADE_BY_HUMAN_GRACIOUS_4">
+			<Text>I hope this is the last war we fight.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_NO_PEACE_4">
+			<Text>My armies cannot be stopped.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_NO_PEACE_5">
+			<Text>The time for diplomacy is long gone.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_NO_PEACE_6">
+			<Text>Not a chance.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_NO_PEACE_2">
+			<Text>Impossible.</Text>
+		</Row>
+		<!--AI Responses to a discussion mode topics-->
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_RESPONSE_PLEASED_5">
+			<Text>Great!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_RESPONSE_PLEASED_6">
+			<Text>Fantastic.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_RESPONSE_PLEASED_7">
+			<Text>Perfect.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_RESPONSE_PLEASED_8">
+			<Text>Really? Wonderful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_RESPONSE_THANKFUL_4">
+			<Text>Thank you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_RESPONSE_THANKFUL_5">
+			<Text>I am grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_RESPONSE_THANKFUL_6">
+			<Text>You have made a wise choice.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_RESPONSE_DISAPPOINTED_4">
+			<Text>I cannot hide my disappointment.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_RESPONSE_DISAPPOINTED_5">
+			<Text>Really? Oh well.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_RESPONSE_DISAPPOINTED_6">
+			<Text>I am saddened by your decision.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SO_BE_IT_4">
+			<Text>Impossible.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SO_BE_IT_5">
+			<Text>What a foolish decision.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SO_BE_IT_6">
+			<Text>You are in the wrong here.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_RETURNED_CIVILIAN_4">
+			<Text>Thank you for returning our citizens.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_RETURNED_CIVILIAN_5">
+			<Text>You are a wise leader. My people sing your praises.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_RETURNED_CIVILIAN_6">
+			<Text>You have returned my citizens, and for that I am eternally grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_CULTURE_BOMBED_3">
+			<Text>What a brazen act of theft. The world will hear of this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_CULTURE_BOMBED_4">
+			<Text>That was a huge mistake.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_AGGRESSIVE_MILITARY_WARNING_BAD_2">
+			<Text>I knew this day would come.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_AGGRESSIVE_MILITARY_WARNING_BAD_3">
+			<Text>So it is. We are prepared for war. Are you?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_AGGRESSIVE_MILITARY_WARNING_GOOD_2">
+			<Text>We'll see about that.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_AGGRESSIVE_MILITARY_WARNING_GOOD_3">
+			<Text>I believe you...for now.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_AGGRESSIVE_MILITARY_WARNING_BAD_2">
+			<Text>Oh dear.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_AGGRESSIVE_MILITARY_WARNING_BAD_3">
+			<Text>Seems my fears were well-placed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_AGGRESSIVE_MILITARY_WARNING_GOOD_2">
+			<Text>We shall see how honest you really are.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_AGGRESSIVE_MILITARY_WARNING_GOOD_3">
+			<Text>Let's see if your actions betray your words.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_WE_ATTACKED_MINOR_BAD_2">
+			<Text>Sure. Whatever.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_WE_ATTACKED_MINOR_BAD_3">
+			<Text>A foolish statement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_WE_ATTACKED_MINOR_BAD_4">
+			<Text>I'm not surprised you said that.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_WE_ATTACKED_MINOR_GOOD_2">
+			<Text>A wise choice.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_WE_ATTACKED_MINOR_GOOD_3">
+			<Text>You are a coward.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_WE_ATTACKED_MINOR_GOOD_4">
+			<Text>Just as I suspected.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_WE_ATTACKED_MINOR_BAD_2">
+			<Text>You wouldn't understand. I did what had to be done.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_WE_ATTACKED_MINOR_BAD_3">
+			<Text>You have proven your diplomatic ignorance.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_RESPONSE_BAD_5">
+			<Text>You isolate yourself with such statements.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_RESPONSE_BAD_6">
+			<Text>I have nothing else to say to you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_RESPONSE_BAD_7">
+			<Text>How can you be so brazenly foolish?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_RESPONSE_BAD_8">
+			<Text>You are a brute.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_RESPONSE_BAD_9">
+			<Text>This will not end well.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_ATTACKED_MINOR_GOOD_2">
+			<Text>We shall see.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_ATTACKED_MINOR_GOOD_3">
+			<Text>I hope your actions do not betray your words.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_KILLED_MINOR_GOOD_2">
+			<Text>How can you justify this?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_SERIOUS_EXPANSION_WARNING_GOOD_2">
+			<Text>What gives you the right?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_EXPANSION_WARNING_GOOD_2">
+			<Text>Great. It is settled, then.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_EXPANSION_WARNING_GOOD_3">
+			<Text>I hope that this is the last time we have to discuss this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_SERIOUS_PLOT_BUYING_WARNING_GOOD_2">
+			<Text>Really? What makes you say that?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_PLOT_BUYING_WARNING_GOOD_2">
+			<Text>You made the right choice.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_PLOT_BUYING_WARNING_GOOD_3">
+			<Text>I'm glad this won't become an issue.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_WILL_ACCEPT_SURRENDER_4">
+			<Text>I assume you are here to admit defeat?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_WILL_ACCEPT_SURRENDER_5">
+			<Text>Your destruction is complete. Admit it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_WILL_ACCEPT_SURRENDER_6">
+			<Text>Why do you still fight? The war is over.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_OFFER_3">
+			<Text>I'll take it, but I'm not sure this is a fair deal for you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_OFFER_4">
+			<Text>I'm sorry, but I can't match your offer. I can, however, offer you this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_OFFER_5">
+			<Text>This is all I can afford to offer you in exchange for your substantial offer.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_OFFER_6">
+			<Text>It saddens me that I cannot offer you more for your great bounty.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GENERIC_WE_LIKE_HUMAN_PROPOSAL_3">
+			<Text>Your proposal to the {1_LeagueName} was very wise. This shall be a profitable diplomatic alliance.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_WE_LIKE_HUMAN_PROPOSAL_4">
+			<Text>What an excellent proposal to the {1_LeagueName}. I hope you understand how much I appreciate this action.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_WE_DISLIKE_HUMAN_PROPOSAL_3">
+			<Text>You are a fool. Your proposal to the {1_LeagueName} will do nothing but sow conflict between us. Is that what you want?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_WE_DISLIKE_HUMAN_PROPOSAL_4">
+			<Text>I cannot view your proposal to the {1_LeagueName} as anything but an insult. You would be wise to reconsider your views.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_SUPPORTED_OUR_PROPOSAL_3">
+			<Text>Your support of our proposal to the {1_LeagueName} was essential. I hope we can work together again in the future.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_SUPPORTED_OUR_PROPOSAL_4">
+			<Text>You made a wise choice, supporting our proposal to the {1_LeagueName}. My people are indebted to you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_FOILED_OUR_PROPOSAL_3">
+			<Text>You foiled our proposal to the {1_LeagueName}. I'll make you pay for this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_FOILED_OUR_PROPOSAL_4">
+			<Text>I just learned that you are largely to blame for the failure of our proposal to the {1_LeagueName}. You are a terrible person.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_SUPPORTED_OUR_HOSTING_2">
+			<Text>We are the host of the {1_LeagueName} thanks to you. I promise to do my best to support your proposals in the future.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HUMAN_SUPPORTED_OUR_HOSTING_3">
+			<Text>The {1_LeagueName} is under our control because of wise leaders like you. Together, we can make the world a better place.</Text>
+		</Row>
+		
+		<!-- DOF Layers -->
+		<Row Tag="TXT_KEY_DOF_UNTRUSTWORTHY_1">
+			<Text>We have not always seen eye to eye in the past. A Declaration of Friendship could change that. What do you say?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_UNTRUSTWORTHY_2">
+			<Text>I do not trust you, yet my advisors tell me that a Declaration of Friendship with you is a shrewd diplomatic move. Shall we?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_UNTRUSTWORTHY_3">
+			<Text>A Declaration of Friendship might show the world that we are willing to put past transgressions behind us. Do you agree?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_UNTRUSTWORTHY_4">
+			<Text>Our history is filled with strife and conflict. Why don't we put it all behind us with a public Declaration of Friendship?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_DOF_FRIENDS_1">
+			<Text>Our people have grown close over the years. It would be a shame to see this relationship decay. Shall we renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_FRIENDS_2">
+			<Text>You have proven to be a trustworthy friend, a rare trait in this world. Do you wish to renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_FRIENDS_3">
+			<Text>We have shown the world that cooperation is possible. Come, let us show them again. Shall we renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_FRIENDS_4">
+			<Text>Our Declaration of Friendship has lapsed. Much good came from the previous arrangement, thus I believe we should try again. Shall we?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_DOF_OLD_FRIENDS_1">
+			<Text>Greetings, old friend. My advisors tell me that our Declaration of Friendship has lapsed. Surely this is simply a clerical error, yes? Shall we renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_OLD_FRIENDS_2">
+			<Text>Our friendship has stood the test of time. It would be a shame to see it end now. Do you want to renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_OLD_FRIENDS_3">
+			<Text>There are few people in the world I trust more than you. It would be wise of us to renew our Declaration of Friendship. Do you agree?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_OLD_FRIENDS_4">
+			<Text>You are a great friend, and I cannot remember a time that we were at odds with each other. Shall we renew our Declaration of Friendship one more time?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_DOF_BATTLE_BROTHERS_1">
+			<Text>Once more into the breach, dear friend. Shall we renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_BATTLE_BROTHERS_2">
+			<Text>I have been, and always shall be, your friend. Will you reciprocate this sentiment, and renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_BATTLE_BROTHERS_3">
+			<Text>We have forged a legendary alliance over the years, have we not? Come, let us renew our Declaration of Friendship.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DOF_BATTLE_BROTHERS_4">
+			<Text>The future will tell tales of our historic alliance. Shall we renew our Declaration of Friendship?</Text>
+		</Row>
+
+		<!-- ESSENTIAL TEXTS - DO NOT CHANGE -->
+
+		<!-- New Building Pop Requirements -->
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_NATIONAL_POP">
+			<Text>[NEWLINE]{2_BuildingName:textkey} requires {1_Num} more national citizens to be constructed.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_LOCAL_POP">
+			<Text>[NEWLINE]{2_BuildingName:textkey} requires {1_Num} more local citizens to be constructed.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_FOLLOWER_POP">
+			<Text>[NEWLINE]{2_BuildingName:textkey} requires {1_Num} more national followers of your [ICON_RELIGION] Religion to be constructed.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_GLOBAL_FOLLOWER_POP">
+			<Text>[NEWLINE]{2_BuildingName:textkey} requires {1_Num}% more global followers of your [ICON_RELIGION] Religion to be constructed.</Text>
+		</Row>
+
+		<!-- New Spy Action Texts -->
+		<!-- Spy Killed -->
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_KILLED_S_ADVANCED">
+			<Text>{1_SpyName} killed in {2_CityName}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_KILLED_ADVANCED">
+			<Text>Your spy {1_SpyRank} {2_SpyName} was killed by {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {3_CivAdj}} counterspy while operating out of {4_CityName}!</Text>
+		</Row>
+
+		<!-- Killed a Spy -->
+		<Row Tag="TXT_KEY_NOTIFICATION_KILLED_A_SPY_ADVANCED">
+			<Text>Your spy {1_SpyRank} {2_SpyName} killed {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {3_CivAdj}} spy operating out of {4_CityName}!</Text>
+		</Row>
+
+		<!-- Building Damaged -->
+
+		<!-- Spy Owner Notification (Wonder)  -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_WONDER_S">
+			<Text>Wonder construction sabotaged in {1_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_WONDER">
+			<Text>{1_SpyRank} {2_SpyName} in {3_CityName} sabotaged a Wonder, costing the city {4_Setback} [ICON_PRODUCTION] Production!</Text>
+		</Row>
+
+		<!-- Spy Owner Notification (Building)  -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_BUILDING_S">
+			<Text>Building project sabotaged in {1_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_BUIDLING">
+			<Text>{1_SpyRank} {2_SpyName} in {3_CityName} sabotaged a building project, costing the city {4_Setback} [ICON_PRODUCTION] Production!</Text>
+		</Row>
+
+		<!-- Detected-->
+		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_DETECTED_S">
+			<Text>{1_BuildingName} sabotaged in {2_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_DETECTED_W_TIP">
+			<Text>An unidentified spy sabotaged your {1_Building} in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_DETECTED">
+			<Text>An unidentified spy sabotaged your {1_Building} in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production!</Text>
+		</Row>
+		<!-- Identified  -->
+		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_IDENTIFIED_S">
+			<Text>{1_CivShortDesc} sabotaged your {2_BuildingName} in {3_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_IDENTIFIED_W_TIP">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy sabotaged your {2_Building} in {3_CityName}, costing you {4_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_IDENTIFIED">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy sabotaged your {2_Building} in {3_CityName}, costing you {4_Lost} [ICON_PRODUCTION] Production!</Text>
+		</Row>
+		<!-- Unit Damaged -->
+
+		<!-- Spy Owner Notification (Unit)  -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_UNIT_S">
+			<Text>Military plans stolen from {1_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_UNIT">
+			<Text>{1_SpyRank} {2_SpyName} stole military plans from {3_CityName}, costing the city {4_Setback} [ICON_PRODUCTION] Production towards their current military unit!</Text>
+		</Row>
+
+		<!-- Detected-->
+		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_DETECTED_S">
+			<Text>{1_UnitName} delayed in {2_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_DETECTED_W_TIP">
+			<Text>An unidentified spy stole military plans from {2_CityName}, costing your {1_Unit} {3_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_DETECTED">
+			<Text>An unidentified spy stole military plans from {2_CityName}, costing your {1_Unit} {3_Lost} [ICON_PRODUCTION] Production!!</Text>
+		</Row>
+		<!-- Identified  -->
+		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_IDENTIFIED_S">
+			<Text>{1_CivShortDesc} delayed your {2_UnitName} in {3_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_IDENTIFIED_W_TIP">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy stole military plans from {3_CityName}, costing your {2_Unit} {4_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_IDENTIFIED">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy stole  military plans from {3_CityName}, costing your {2_Unit} {4_Lost} [ICON_PRODUCTION] Production!</Text>
+		</Row>
+		<!-- City Damaged -->
+
+		<!-- Spy Owner Notification (City)  -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_RESISTANCE_S">
+			<Text>Riot in {1_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_RESISTANCE">
+			<Text>{1_SpyRank} {2_SpyName} incited a riot in {3_CityName}, causing temporary resistance and destroying the city's [ICON_FOOD] Food supply!</Text>
+		</Row>
+
+		<!-- Detected-->
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_DETECTED_S">
+			<Text>Riot provoked in {1_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_DETECTED_W_TIP">
+			<Text>An unidentified spy provoked a riot in {1_CityName}, causing temporary resistance and destroying the city's [ICON_FOOD] Food supply![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_DETECTED">
+			<Text>An unidentified spy provoked a riot in {1_CityName}, causing temporary resistance and destroying the city's [ICON_FOOD] Food supply!</Text>
+		</Row>
+		<!-- Identified  -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_IDENTIFIED_S">
+			<Text>{1_CivShortDesc} has provoked a riot in {2_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_IDENTIFIED_W_TIP">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy provoked a riot in {2_CityName}, causing temporary resistance and destroying the city's [ICON_FOOD] Food supply![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_IDENTIFIED">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy provoked a riot in in {2_CityName}, causing temporary resistance and destroying the city's [ICON_FOOD] Food supply!</Text>
+		</Row>
+		<!-- GP Damaged -->
+
+		<!-- Spy Owner Notification (City)  -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_GP_S">
+			<Text>Successful assassination in {1_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_GP">
+			<Text>{1_SpyRank} {2_SpyName} has successfully committed an assassination in {3_CityName}, delaying [ICON_GREAT_PEOPLE] Great Person progress by {4_Num}!</Text>
+		</Row>
+
+		<!-- Detected-->
+		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_DETECTED_S">
+			<Text>Assassination in {1_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_DETECTED_W_TIP">
+			<Text>An unidentified spy committed an assassination in {2_CityName}, reducing the city's [ICON_GREAT_PEOPLE] {1_Unit} Points by {3_Num}![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_DETECTED">
+			<Text>An unidentified spy committed an assassination in {2_CityName}, reducing the city's [ICON_GREAT_PEOPLE] {1_Unit} Points by {3_Num}!</Text>
+		</Row>
+		<!-- Identified  -->
+		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_IDENTIFIED_S">
+			<Text>{1_CivShortDesc} committed an assassination in {2_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_IDENTIFIED_W_TIP">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy committed an assassination in {3_CityName}, reducing the city's [ICON_GREAT_PEOPLE] {2_Unit} Points by {4_Num}![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_IDENTIFIED">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy committed an assassination in {3_CityName}, reducing the city's [ICON_GREAT_PEOPLE] {2_Unit} Points by {4_Num}!!</Text>
+		</Row>
+		<!-- Rebellion Trigger -->
+		<!-- Spy Owner Notification (Rebellion)  -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_REBELLION_S">
+			<Text>Arming rebels in {1_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_REBELLION_RESISTANCE">
+			<Text>{1_SpyRank} {2_SpyName} has armed rebels in {3_CityName}, allowing them to damage the city and spawn nearby!</Text>
+		</Row>
+
+		<!-- Detected-->
+		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_DETECTED_S">
+			<Text>Rebellion brewing in {1_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_DETECTED_W_TIP">
+			<Text>An unidentified spy helped rebels in {1_CityName}, allowing them to damage the city and spawn nearby![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_DETECTED">
+			<Text>An unidentified spy helped rebels in {1_CityName}, allowing them to damage the city and spawn nearby!</Text>
+		</Row>
+		<!-- Identified  -->
+		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_IDENTIFIED_S">
+			<Text>{1_CivShortDesc} armed rebels in {2_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_IDENTIFIED_W_TIP">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy helped rebels in {2_CityName}, allowing them to damage the city and spawn nearby![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_IDENTIFIED">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy helped rebels in {2_CityName}, allowing them to damage the city and spawn nearby!</Text>
+		</Row>
+
+		<!-- Gold Theft -->
+		<!-- Spy Owner Notification (Gold)  -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_GOLD_S">
+			<Text>Successful robbery in {1_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_GOLD">
+			<Text>{1_SpyRank} {2_SpyName} robbed the treasury of {3_CityName}, taking {4_Gold} [ICON_GOLD] Gold!</Text>
+		</Row>
+
+		<!-- Detected-->
+		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_DETECTED_S">
+			<Text>Treasury robbed in {1_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_DETECTED_W_TIP">
+			<Text>An unidentified spy robbed the treasury of {1_CityName}, taking {2_Gold} [ICON_GOLD] Gold![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_DETECTED">
+			<Text>An unidentified spy robbed the treasury of {1_CityName}, taking {2_Gold} [ICON_GOLD] Gold!</Text>
+		</Row>
+		<!-- Identified  -->
+		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_IDENTIFIED_S">
+			<Text>{1_CivShortDesc} robbed the treasury of {2_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_IDENTIFIED_W_TIP">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy robbed the treasury of {2_CityName}, taking {3_Gold} [ICON_GOLD] Gold![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_IDENTIFIED">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy robbed the treasury of {2_CityName}, taking {3_Gold} [ICON_GOLD] Gold!</Text>
+		</Row>
+		
+		<!-- Science Pilfered -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_SCIENCE_S">
+			<Text>Research stolen from {1_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_SCIENCE">
+			<Text>{1_SpyRank} {2_SpyName} stole research from {3_CityName}, boosting our [ICON_RESEARCH] Science by {4_Science}!</Text>
+		</Row>
+
+		<!-- Detected-->
+		<Row Tag="TXT_KEY_NOTIFICATION_SCIENCE_STOLEN_SPY_DETECTED_S">
+			<Text>Research stolen from {1_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SCIENCE_STOLEN_SPY_DETECTED_W_TIP">
+			<Text>An unidentified spy stole research secrets from {1_CityName} worth {2_Science} [ICON_RESEARCH] Science![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SCIENCE_STOLEN_SPY_DETECTED">
+			<Text>An unidentified spy stole research secrets from {1_CityName} worth {2_Science} [ICON_RESEARCH] Science!</Text>
+		</Row>
+		<!-- Identified  -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SCIENCE_STOLEN_SPY_IDENTIFIED_S">
+			<Text>{1_CivShortDesc} stole research from {2_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SCIENCE_STOLEN_SPY_IDENTIFIED_W_TIP">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy stole research secrets from {2_CityName} worth {3_Science} [ICON_RESEARCH] Science![NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SCIENCE_STOLEN_SPY_IDENTIFIED">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy stole research secrets from {2_CityName} worth {3_Science} [ICON_RESEARCH] Science!</Text>
+		</Row>
+		
+		<!-- Generic Message -->
+		
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_NOTHING_S">
+			<Text>Spy mission aborted in {1_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_NOTHING">
+			<Text>{1_SpyRank} {2_SpyName} failed their mission in {3_CityName}, and they may have been detected.</Text>
+		</Row>
+		
+		<!-- Detected-->
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_DETECTED_S">
+			<Text>Foreign Spies detected in {1_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_DETECTED_W_TIP">
+			<Text>Foreign Spies are rumored to be operating out of {1_CityName}.[NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_DETECTED">
+			<Text>Foreign Spies are rumored to be operating out of {1_CityName}.</Text>
+		</Row>
+		<!-- Identified  -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_IDENTIFIED_S">
+			<Text>A Spy loyal to {1_CivShortDesc} was detected in {2_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_IDENTIFIED_W_TIP">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy was detected in {2_CityName}, but the spy failed to do anything nefarious...for now.[NEWLINE]You may want to place one of your own spies in this city to protect it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_IDENTIFIED">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy was detected in {2_CityName}, but the spy failed to do anything nefarious...for now.</Text>
+		</Row>
+
+		<!-- City Rank Increasing -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RANK_INCREASING">
+			<Text>{1_CityName} is [COLOR_NEGATIVE_TEXT]increasingly vulnerable[ENDCOLOR] to foreign [ICON_SPY] Spies.[NEWLINE]The City is currently [COLOR_NEGATIVE_TEXT]Rank {2_Num} of 10[ENDCOLOR], with higher ranks making it easier for foreign Spies to operate in the city.[NEWLINE]Move a Spy to this city and build Espionage buildings here to [COLOR_POSITIVE_TEXT]reduce[ENDCOLOR] the City's rank.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RANK_INCREASING_SUMMARY">
+			<Text>Espionage update for {1_CityName}.</Text>
+		</Row>
+		
+		<!-- Trade Route for Land Modifiers -->
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_DOMAIN_LAND_MODIFIER">
+			<Text>Land route: {1_Num}x</Text>
+		</Row>
+		<!-- Global Domination Resistance -->
+		<Row Tag="TXT_KEY_EUPANEL_RESISTANCE_POWER">
+			<Text>Resistance (Domination)</Text>
+		</Row>
+		
+		<!-- Tooltips for required resource monopolies-->
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_MONOPOLY">
+			<Text>[NEWLINE]Requires a Monopoly of {2_ResourceIcon} {1_ResourceName:textkey}. You currently control {3_Percent}%.</Text>
+		</Row>
+
+		<!-- tooltip for purchase cooldown -->
+		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING">
+			<Text>[NEWLINE]You recently made a [ICON_GOLD] Gold purchase in this city, and must wait for {1_Num} more turn(s) to do so again.</Text>
+		</Row>
+		
+		<!-- Tooltips for CBP Austria Ability -->
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE">
+			<Text>Marriage between {@2_MinorCivName} and {@1_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_1">
+			<Text>A beautiful princess of {@1_CivName} has been married off to a nobleman of {@2_MinorCivName}.  With a diplomatic relationship united by marriage, {@2_MinorCivName} grants {@1_CivName} an additional Delegate in the World Congress, boosts their [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate, and their [ICON_INFLUENCE] Influence with the City-State no longer decays.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_2">
+			<Text>A handsome prince of {@1_CivName} has been married off to a noblewoman of {@2_MinorCivName}.  With a diplomatic relationship united by marriage, {@2_MinorCivName} grants {@1_CivName} an additional Delegate in the World Congress, boosts their [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate, and their [ICON_INFLUENCE] Influence with the City-State no longer decays.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_MARRIED_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_Num} from Diplomatic Marriages</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_TT">
+			<Text>You may spend {1_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +10% [ICON_GREAT_PEOPLE] Great Person rate in [ICON_CAPITAL] Capital, and [ICON_INFLUENCE] Influence with the City-State no longer decays.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_TT">
+			<Text>You may spend {2_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +10% [ICON_GREAT_PEOPLE] Great Person rate in [ICON_CAPITAL] Capital, and [ICON_INFLUENCE] Influence with the City-State no longer decays.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns and have {2_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_ALLY_TT">
+			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +10% [ICON_GREAT_PEOPLE] Great Person rate in [ICON_CAPITAL] Capital, and [ICON_INFLUENCE] Influence with the City-State no longer decays.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} turns so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- Attack City -->
+		<Row Tag="TXT_KEY_MISC_YOU_ATTACKED_CITY_CP">
+			<Text>Your {@2_UnitName} bombarded the enemy City of {@1_CityName} ({3_Num} damage)!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_BY_AIR_ACTUALLY">
+			<Text>Your {@1_UnitName} bombarded the enemy City of {@2_CityName}, and was not intercepted ({3_Num} damage)!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_BY_AIR_INTERCEPTED">
+			<Text>While attacking {@4_CityName), an enemy {@1_UnitName} intercepted your {@2_DefUnitName} ({3_Num} damage)!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR_CITY">
+			<Text>The City of {@1_CityName} ({3_Num} damage) was bombarded by an enemy {@2_EnUName}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MISC_ENEMY_AIR_UNIT_INTERCEPTED_CITY">
+			<Text>Thanks to your intercepting {@1_UnitName}, we damaged the {@2_owner_adjective} {@3_EnUName} ({4_Num} damage) attacking your City of {@5_CityName}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_DECLARE_WAR_DPS_CP">
+			<Text>DEFENSIVE PACTS</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DP_WITH_CBP">
+			<Text>[COLOR_POSITIVE_TEXT]Defensive Pact with {1_CivName:textkey}[ENDCOLOR]</Text>
+		</Row>
+		
+		<!--Revolutions-->
+		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP">
+			<Text>Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness, a city will revolt in {1_Turns} turns. Based on current Unhappiness levels, the city most likely to revolt is {2_CityName}. If this city revolts, it will restore the sovereignty of {3_CivName}. Try to get your empire's Happiness level out of this range as soon as possible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY">
+			<Text>Revolutionary Unrest Brewing</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CIV_REVOLUTION_CP">
+			<Text>{1_CityName} has risen up and restored {2_CivAdj} sovereignty. The flame of the {3_CivName}, once extinguished, burns again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CIV_REVOLUTION_SHORT_CP">
+			<Text>{1_PlayerName} restored!</Text>
+		</Row>
+		
+		<!-- Denounce Statements -->
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_WARMONGER_1">
+			<Text>I have stood by long enough while your armies lay waste to this world. I can only hope this denouncement will finally put a stop to your ambitions. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_WARMONGER_2">
+			<Text>Your thirst for blood is an abomination, tyrant. As long as I have breath, the entire world will know of the cruelty you have inflicted upon it. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_IDEOLOGY_1">
+			<Text>Surely, even you must understand that there is only one path for this world's future. And you are travelling down the wrong one. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_IDEOLOGY_2">
+			<Text>You have betrayed not only me, but also your own people, by accepting this ideology. Listen to us both before your actions lead to even worse conflicts. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_FREEDOM_1">
+			<Text>Even from this far, I hear your people calling out for liberty and justice! If you will not heed their words, these may be the last ones we speak in peace. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_FREEDOM_2">
+			<Text>Democracy, a free press, and a free market are the rights of all people. Our nation shall no longer watch while you continue to trample on the hearts of your citizens! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_ORDER_1">
+			<Text>Your people's voices call out for economic justice and social equality. As long as you deny the righteous path of Order, we will never be able to see eye to eye. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_ORDER_2">
+			<Text>Why do you continue to deny the rights of your workers to live without the evils of hunger and poverty? If it takes this denouncement to end their suffering, so be it. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_AUTOCRACY_1">
+			<Text>Without a strong leader to guide them, your nation stands on the edge of a knife. It is not too late to accept the path of security and stability - do not force my hand. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_AUTOCRACY_2">
+			<Text>Your choices have made it clear that only one nation has the strength to lead this world to prosperity: mine. Join me or suffer the consequences. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_FREEDOM_1">
+			<Text>The greed and ambition of your people will only destroy them in the end. Allow your people to throw off the yoke of Freedom, and stop spreading your lies before it is too late. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_FREEDOM_2">
+			<Text>Your imperialist aggression has grown tiresome. Cease trying to convince my people to follow the path of Freedom before I am forced to take drastic action. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_ORDER_1">
+			<Text>I know that you are trying to cause a worker's revolution in my lands. For my nation's stability and yours, cease this envangelizing of Order at once. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_ORDER_2">
+			<Text>Keep your radical Order beliefs away from my people's ears before I show you what 'better dead than red' really means. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_AUTOCRACY_1" >
+			<Text>Your supposed military might is not enough to hide the cruelty you inflict upon your own people from the world. Cease your tyranny before we are forced to declare war against you! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_AUTOCRACY_2" >
+			<Text>Other nations may hesitate in fear of you, but for the sake of this world, ours shall be the one to take a stand. Renounce your belief in Autocracy before it is too late! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_FAITH_1">
+			<Text>Your people's sacrilegious beliefs are a plague upon this land. I wished this day would not come, but if your people will not see the light, then we are fated to be enemies. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_FAITH_2">
+			<Text>That I have allowed your heathen faith to spread this far fills me with disgust. Any nation that willingly believes in such falsehoods can never be trusted. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_MINORS_1">
+			<Text>I have made it clear that those City-States you have been rubbing shoulders with are mine, not yours. You may make alliances with them, but you shall never have one with me. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_MINORS_2">
+			<Text>If you think it is diplomacy to steal my allied City-States, you are sorely mistaken. For every alliance you have wrested from me, I will ensure you have made another enemy in return. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_WONDERS_1">
+			<Text>So many years spent planning and building those Wonders... how could someone like you have built them first? Have you stolen secrets from me?! The world will know of this treachery! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_WONDERS_2">
+			<Text>Those are some incredible Wonders you've built. It would be such a shame if something were to... happen to them. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_VICTORY_DISPUTE_1">
+			<Text>Do we not seek the same ends? It seems like such a shame that we cannot see past our differences and work together for the betterment of the world. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_VICTORY_DISPUTE_2">
+			<Text>You and I both know who is destined to win this competition. For the sake of both of our peoples, give up before this esclates into further conflict. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_VICTORY_BLOCK_1">
+			<Text>You are coming too close to victory for comfort. I have spoken to the other leaders and we agree that the time has come to take a stand against you. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_VICTORY_BLOCK_2">
+			<Text>Allowing you to take control of the world would be a grave mistake. The time has come to put an end to your ambitions - at any cost. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_NUKE_1">
+			<Text>Those weapons of war you have used are an abomination to humanity. Anyone willing to commit such atrocities against innocent civilians is clearly beyond redemption. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_NUKE_2">
+			<Text>Nothing I can say or do will make up for the horror of your crimes. I can only hope that this denouncement will discourage other leaders from ever using such awful weapons again. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>	
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_SPIES_1">
+			<Text>Your attempts to steal my technological secrets can no longer be tolerated. I have spoken to the other leaders about your attempted espionage and they will be prepared in the future. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_SPIES_2">
+			<Text>I have always believed in transparency and honesty, but it is clear that you do not. If you prefer to work in the dark, then it is up to me to shed a light on your deeds. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_DOGPILE_1">
+			<Text>Other leaders have told me you aren't to be trusted. I may not know all the details, but I believe them more than I believe you. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_DOGPILE_2">
+			<Text>Whatever you have done to invoke the wrath of the other leaders, I am confident that you deserve it. May our denouncements serve as a lesson to you. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>		
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_ENEMY_FRIENDSHIP_1">
+			<Text>I warned you that declaring your allegiance with my enemy would be a mistake. Now face the consequences of your actions! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_ENEMY_FRIENDSHIP_2">
+			<Text>The Declaration of Friendship you have made with my enemy is a betrayal I cannot accept. Your people are no longer welcome in my court. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>			
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_PROMISE_BROKEN_1">
+			<Text>The only thing worse than a tyrant is a scheming one. If you are incapable of speaking the truth, then I will have to do it for you. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_PROMISE_BROKEN_2">
+			<Text>Your behavior is beyond despicable. May this denouncement teach you that dishonesty and avarice are poor examples of foreign policy. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_PROMISE_BROKEN_3">
+			<Text>You have proven to be a danger to my people, and you must be admonished for this. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_PROMISE_BROKEN_4">
+			<Text>Of all the people to be deemed unfit for this world, I did not think it would be you. Too bad. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_PROMISE_BROKEN_5">
+			<Text>I tried to overlook your actions, but I can do so no longer. You are a tyrant, and tyrants must be admonished.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_PROMISE_BROKEN_6">
+			<Text>There is no point in hiding it any longer: I used to like you, but now I hate you.[NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BETRAYAL_1">
+			<Text>You have proven beyond doubt that your friendships mean nothing. Spare us your prattering - there will be no more words between us. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BETRAYAL_2">
+			<Text>Unlike you, I am honest about who my friends and enemies are. For instance: you have just made yourself my enemy. Never return to this court again. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BETRAYAL_3">
+			<Text>The genocide you have committed against my people can never be forgiven. All the world shall know the horrors of what you have done. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BETRAYAL_4">
+			<Text>Do you even stop to think of the innocents you killed? My people will not be able to rest until their families and loved ones are avenged... and neither will I. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_COVET_1">
+			<Text>I have made it clear that those lands you have taken are rightfully mine. If we cannot settle these land disputes diplomatically, pray we don't have to settle them on the battlefield. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_COVET_2">
+			<Text>You can call it 'coveting' your lands if you wish. But as far as I am concerned, I cannot covet what you have stolen from me. I believe the other leaders will see it the same way. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_ARTIFACTS_1">
+			<Text>Your disrespect for our borders and cultural artifacts has reached a breaking point. From now on, neither your archaeologists nor your diplomats will be welcome here. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_ARTIFACTS_2">
+			<Text>The cultural artifacts of my people are not yours for the taking. The other leaders will soon know of your brazen theft. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_MINORS_BULLY_1">
+			<Text>You are a vicious bully and I have had enough of you preying on the weak. Face me, coward, if you have the guts to stand against someone your own size. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_MINORS_BULLY_2">
+			<Text>I have appointed myself the protector of those City-States and yet you continue to torment and oppress them. I have informed the other leaders of your cowardice - do not invoke my wrath further. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST_1">
+			<Text>You possess a Strategic Resource that my empire could make use of. Shall we trade?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST_2">
+			<Text>My military is in need of one of your Strategic Resources. Care to trade?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST_3">
+			<Text>It seems you have a Strategic Resource that I need. Can you spare it?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST_4">
+			<Text>My advisors tell me that you have a Strategic Resource of some value. Will you share it with me?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST_5">
+			<Text>Does this exchange suit you? It doesn't look like you are using this Strategic Resource, and I need it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST_6">
+			<Text>You have a plentiful supply of Strategic Resources in your territory. Would you like to share them?</Text>
+		</Row>
+	
+		<!-- Denounce Notifications -->
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_IDEOLOGY">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} due to ideological divisions!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_WARMONGER">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey}, citing concerns over warmongering!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_MINORS">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} due to competition over City-States!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_NUKED">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} due to the use of nuclear weapons!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_LAND">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey}, citing border disputes!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_DOF">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} out of respect towards the opinions of friends!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_DOGPILE">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} due to their poor global reputation!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_UNTRUSTWORTHY">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} due to a breakdown in foreign relations!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_DIGGING">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} as a result of archaeological theft!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_FAITH">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} due to religious differences!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_WONDERS">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey} as a result of World Wonder competition!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_VICTORY">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey}, citing competition over global supremacy!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_UNFORGIVEABLE">
+			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey}, stating that they are unforgiveable!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEADER_ASKIA_TRADE_CANT_MATCH">
+			<Text>The Songhai people agree to your terms, though we must admit they are unfair to you.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEADER_AUGUSTUS_TRADE_CANT_MATCH">
+			<Text>Regrettably, the auspices are unfavorable to that course of action for you. Continue, if you must.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEADER_BISMARCK_TRADE_CANT_MATCH">
+			<Text>With all of the goodwill in the world, I must inform you that our offer cannot match yours.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEADER_CATHERINE_TRADE_CANT_MATCH">
+			<Text>I hope you do not think I seek to take advantage of our intimacy with our lesser offer.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DARIUS_TRADE_CANT_MATCH">
+			<Text>I am most regretfully unable to match to your terms.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ELIZABETH_TRADE_CANT_MATCH">
+			<Text>I have offered everything we possess, unto our very last farthing. It seems we cannot match your offer.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ALEXANDER_TRADE_CANT_MATCH">
+			<Text>I am honor-bound by the gods to inform you that our offer is not as valuable as yours.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_GANDHI_TRADE_CANT_MATCH">
+			<Text>Honesty is a great virtue, thus I must admit that our offer is nowhere as good as yours.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_HARUN_TRADE_CANT_MATCH">
+			<Text>I have sent for our finest offerings, yet this is all I can muster. Do you like it?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_HIAWATHA_TRADE_CANT_MATCH">
+			<Text>Such a grand offer...it is a pity that this is all we can offer you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_MONTEZUMA_TRADE_CANT_MATCH">
+			<Text>The sacrificial pits seem to be a bit empty today...is this offer good enough for you?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_NAPOLEON_TRADE_CANT_MATCH">
+			<Text>Great as I am, it seems I cannot match your offer. Is this at least suitable for you?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ODA_TRADE_CANT_MATCH">
+			<Text>Unfortunately, your kind and generous offer cannot be matched by us. Is it acceptable anyways?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_RAMESSES_TRADE_CANT_MATCH">
+			<Text>A living God should want for nothing, yet it seems I cannot match your offer. Is this offer suitable?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_RAMKHAMHAENG_TRADE_CANT_MATCH">
+			<Text>I mean no disrespect with this offer, it is simply all that I can scrounge up at the moment.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_SULEIMAN_TRADE_CANT_MATCH">
+			<Text>This is all we can offer you. I would give you my turban as well, but I cannot live without it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_WASHINGTON_TRADE_CANT_MATCH">
+			<Text>I do not wish to set a precendent for unfair deals with other nations, therefore I admit that our offer is less valuable than yours.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_WUZETIAN_TRADE_CANT_MATCH">
+			<Text>The Heavenly Throne is, shamefully, unable to match your glorious offer. We can, however, offer you this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_GENGHIS_TRADE_CANT_MATCH">
+			<Text>This is as much as we are able to offer you at this time. Take it or leave it - I do not care either way.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ISABELLA_TRADE_CANT_MATCH">
+			<Text>The bounties of trade and empire seem to be on your side. Despite this, do you like our offer?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_PACHACUTI_TRADE_CANT_MATCH">
+			<Text>You flatter me with your offer. Unfortunately, I am not sure that I can reciprocate such flattery.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_KAMEHAMEHA_TRADE_CANT_MATCH">
+			<Text>Like a great wave, your offer is bounteous yet disturbing. I cannot match it, but I can offer this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_HARALD_TRADE_CANT_MATCH">
+			<Text>I seem to have left the rest of our trade goods in another longboat...is this deal acceptable in spite of this?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_SEJONG_TRADE_CANT_MATCH">
+			<Text>My advisors inform me that our offer is underwhelming. I disagree, but anyways, what do you think?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_CANT_MATCH">
+			<Text>What? Who? I'm sorry, the voices in my head tell me that our offer is bad. Is it? I'm not sure.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ATTILA_TRADE_CANT_MATCH">
+			<Text>I would offer more, but I've spent to much time talking and not enough time pillaging. Is this acceptable?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_BOUDICCA_TRADE_CANT_MATCH">
+			<Text>I wish I could offer more, but I cannot. Is this acceptable?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DIDO_TRADE_CANT_MATCH">
+			<Text>Unlike Iarbas's hide, I cannot stretch this deal any further. Is our underwhelming offer acceptable in spite of this?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRADE_CANT_MATCH">
+			<Text>The Lion of the North has little more to offer than this. Do you accept?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_MARIA_TRADE_CANT_MATCH">
+			<Text>Your offer is so much better than ours that it has ruined my appetite. Do you like it anyways?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_PACAL_TRADE_CANT_MATCH">
+			<Text>You offer many great things, yet we do not. Do you like our offer anyways?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_THEODORA_TRADE_CANT_MATCH">
+			<Text>Oh darling, what a wonderful offer! It is a shame that we can only offer you such trinkets in exchange.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_SELASSIE_TRADE_CANT_MATCH">
+			<Text>My great wisdom demands that I tell you that your offer is better than ours. Do you like our offer in spite of this knowledge?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_WILLIAM_TRADE_CANT_MATCH">
+			<Text>I want what you offer, but I am not sure you will want what I offer. In spite of this, do you accept?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_AHMAD_ALMANSUR_TRADE_CANT_MATCH">
+			<Text>As a trader, I must inform you that our offer cannot match yours. This is the best we can do.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ASHURBANIPAL_TRADE_CANT_MATCH">
+			<Text>I would add a few scrolls and books to our offer if it would sweeten the deal, but I doubt it. Do you accept our lesser offer?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_CASIMIR_TRADE_CANT_MATCH">
+			<Text>I knowingly make a poor offer to you, but I've now admitted it, so therefore it is your fault if you accept it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ENRICO_DANDOLO_TRADE_CANT_MATCH">
+			<Text>Even I can see that your offer is better than mine. I still wish to trade, though - do you?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_GAJAH_MADA_TRADE_CANT_MATCH">
+			<Text>What a grand gesture. I would reciprocate if I could, but this is the best we can do.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_MARIA_I_TRADE_CANT_MATCH">
+			<Text>I'm so sorry, but this is all we can offer. Do you like it?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_PEDRO_TRADE_CANT_MATCH">
+			<Text>Our offer is inferior to yours, but, if you accept it, I will invite you to Carnival next year. Agreed?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_POCATELLO_TRADE_CANT_MATCH">
+			<Text>I cannot lie to you - our offer is inferior. In spite of this, do you like it?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_SHAKA_TRADE_CANT_MATCH">
+			<Text>A warrior's word is his honor. Because of this, I must admit that we cannot match your trade.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_1">
+			<Text>This is the most we can stomach to offer to you for your outrageous offer. Take it or leave it, fiend.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_2">
+			<Text>Bah! You are a fool to offer us so much. We will offer you far less, as you can see.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_3">
+			<Text>What makes you think we would match you offer, even if we could? This is what we will offer you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_4">
+			<Text>An impossible offer that we cannot hope to match. You are simply embarassing yourself, especially if you accept this trade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_5">
+			<Text>This is the best we can do. If you accept this, you will be a laughing stock at home and in our country.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_6">
+			<Text>Want more? Too bad, this is all we can offer you. Go somewhere else if you don't like it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_7">
+			<Text>You need to improve your pathetic trading skils. There is no way we can match your offer.</Text>
+		</Row>
+		
+		<!-- C4DF Compatibility -->
+		<Row Tag="TXT_KEY_TP_HAPPINESS_VASSALS">
+			<Text>{1_Num} from Vassal Happiness.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_CULTURE_VASSALS">
+			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from Vassals.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_SCIENCE_VASSALS">
+			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] [ICON_RESEARCH] from Vassals.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_GOLD_VASSALS">
+			<Text>{1_Num} from Vassals.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_FAITH_VASSALS">
+			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from Vassals.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_GOLD_VASSAL_TAX">
+			<Text>{1_Num} from the collection of Vassal Taxes.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_GOLD_VASSAL_TAX_EXPENSE">
+			<Text>{1_Num} spent on Vassal Taxes.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_GOLD_VASSAL_MAINT">
+			<Text>{1_Num} spent on Vassal Maintenance.</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_HAPPINESS_FROM_VASSALS">
+			<Text>Vassals</Text>
+		</Row>
+
+		<!-- Intrigue sharing (co-op wars)-->
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU_TT">
+			<Text>Choosing this option will alert {2_CivName:textkey} to the war preparations of {1_CivName:textkey}. This is a breach of diplomatic secrecy, which will anger {1_CivName:textkey} and please {2_CivName:textkey}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_TT">
+			<Text>Choosing this option may alert the targeted player to your war preparations if the AI refuses to help and has a positive relationship with the targeted player.</Text>
+		</Row>
+
+		<!-- Tourism and League Stuff -->
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION_CBP">
+			<Text>Prevented by an active or proposed resolution.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_TOURISM">
+			<Text>Global [ICON_TOURISM] Tourism Modifiers adjusted by {1_UnitMaintenancePercent}%.</Text>
+		</Row>
+		
+		<!-- MP Denounce -->
+		<Row Tag="TXT_KEY_CBP_DENOUNCE_HUMAN">
+			<Text>Denounce</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CBP_DENOUNCE_HUMAN_TT">
+			<Text>Clicking this button will [COLOR_NEGATIVE_TEXT]DENOUNCE[ENDCOLOR] the other player.</Text>
+		</Row>
+
+		<!-- Espionage Overview Screen -->
+		<Row Tag="TXT_KEY_CAPITAL_CBP_SPY">
+			<Text>{1_CityName} is the [ICON_CAPITAL] Capital of {@2_CivShortDesc}. You can send either [ICON_SPY] Spies or [ICON_DIPLOMAT] Diplomats to this City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YOUR_CAPITAL_CBP_SPY">
+			<Text>{1_CityName} is your [ICON_CAPITAL] Capital. It is a high priority target for enemy [ICON_SPY] Spies.</Text>
+		</Row>
+
+		<!-- Warmonger Strings-->
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_HEADER">
+			<Text>Repercussions from [COLOR_NEGATIVE_TEXT]conquering[ENDCOLOR] this city:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_HEADER">
+			<Text>Bonuses from [COLOR_POSITIVE_TEXT]liberating[ENDCOLOR] this city:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_1000">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be extremely upset.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_800">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be greatly upset.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_600">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be quite upset.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_400">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be somewhat upset.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_200">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be mildly upset.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_NIL">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will barely notice.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_1000">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be extremely grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_800">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be very grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_600">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be quite grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_400">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be mildly grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_200">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will be a little grateful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_CARE_NIL">
+			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will barely notice.</Text>
+		</Row>
+		
+		<!--AI Return Unit Text -->
+		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_RETURNED_AI">
+			<Text>{1_Player:textkey} returned your captured {@2_UnitName} to you. How nice!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_RETURNED_AI_SUMMARY">
+			<Text>{@2_UnitName} saved by {1_Player:textkey}!</Text>
+		</Row>
+
+		<!-- Razing -->
+		<Row Tag="TXT_KEY_DIPLO_RAZED">
+			<Text>[COLOR_NEGATIVE_TEXT]You killed or captured our civilians![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_RAZED_OTHER">
+			<Text>[COLOR_NEGATIVE_TEXT]You killed or captured civilians during war![ENDCOLOR]</Text>
+		</Row>
+
+		<!-- Tooltip for 'You'll Pay' Text -->
+		<Row Tag ="TXT_KEY_DIPLO_DISCUSS_MESSAGE_YOULL_PAY_TT">
+			<Text>Selecting this insulting response may result in [COLOR_NEGATIVE_TEXT]war[ENDCOLOR]! If this insult does not result in war, the leader will be humbled, and their opinion of you will temporarily be reset to Neutral.</Text>
+		</Row>
+
+		<!-- Tourism -->
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_EMPIRE_SIZE">
+			<Text>+{1_Num}% Bonus for having fewer Cities[NEWLINE]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_BOREDOM">
+			<Text>+{1_Num}% Bonus from Boredom in their Empire[NEWLINE]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CO_TOURISM_THEME_BONUS">
+			<Text>[COLOR_POSITIVE_TEXT]Active Theme Bonus:[ENDCOLOR] +{1_Num} {2_YieldIcon} {3_YieldName}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_TOURISM_THEME_BONUS_NEEDED">
+			<Text>[COLOR_POSITIVE_TEXT]If you meet Theme requirements on this Building, gain:[ENDCOLOR] +{1_Num} {2_YieldIcon} {3_YieldName}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY">
+			<Text>Historic Event</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_ERA">
+			<Text>Because your Civilization entered a new [ICON_RESEARCH] Era, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_WAR">
+			<Text>Because your Civilization won a [ICON_VICTORY_DOMINATION] War, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP">
+			<Text>Because a [ICON_GREAT_PEOPLE] Great Person was born in your Civilization, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_WW">
+			<Text>Because your Civilization constructed a [ICON_GOLDEN_AGE] World Wonder, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_CS">
+			<Text>Because your Civilization completed a Global [ICON_CITY_STATE] City-State Quest, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_ARCHAEOLOGY">
+			<Text>Because your Civilization completed an [ICON_RES_ARTIFACTS] Archaeological Dig, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GOLDEN_AGE">
+			<Text>Because your Civilization entered a [ICON_GOLDEN_AGE] Golden Age, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+		</Row>
+		
+		<!-- Arabia -->
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS">
+			<Text>Scheherazade's stories draw brilliant minds from around the world to your land. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} towards a [ICON_GREAT_PEOPLE] Great Person!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_SCIENTIST">
+			<Text>Legends and folklore surrounding strange creatures and artifacts draw wise thinkers to your lands. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_SCIENTIST] Great Scientist progress!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_WRITER">
+			<Text>The tales of Scheherazade have inspired generations of your best authors. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_WRITER] Great Writer progress!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_ARTIST">
+			<Text>Painters from around the world have come to your lands in order to depict scenes from Scheherazade's stories. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_ARTIST] Great Artist progress!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_MUSICIAN">
+			<Text>Scheherazade's poetry has led to a musical renaissance in your empire. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_MUSICIAN] Great Musician progress!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_MERCHANT">
+			<Text>Powerful and wealthy people flock to your court to listen to the tales of Scheherazade. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_MERCHANT] Great Merchant progress!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_ENGINEER">
+			<Text>Architects and engineers draw inspiration from the legendary heroes of Scheherazade's stories. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_GREAT_ENGINEER] Great Engineer progress!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GP_BONUS_DIPLOMAT">
+			<Text>Courtiers from around the world beg for an audience with you and Scheherazade. Your [ICON_CAPITAL] Capital gains +1 [ICON_CULTURE] Culture and +2 [ICON_RESEARCH] Science, and +{1_Num} to [ICON_DIPLOMAT] Great Diplomat progress!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY_GP_BONUS">
+			<Text>Another Night, Another Tale...</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE">
+			<Text>Tourism and Trade</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_SEA">
+			<Text>Citizens from the {2_Adj} City of {4_Dest} used your naval Trade Route to visit the City of {3_Num}. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_LAND">
+			<Text>Citizens from the {2_Adj} City of {4_Dest} used your land Trade Route to visit the City of {3_Num}. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE_CS">
+			<Text>City-State Tourism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_CS_BONUS">
+			<Text>Because your Civilization completed a [ICON_INTERNATIONAL_TRADE] Trade Route with {2_Name}, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
+		</Row>
+		
+
+		<!-- Great Work Gold (LUA)-->
+		<Row Tag="TXT_KEY_YIELD_FROM_ART_CBP">
+			<Text>{1_Num} {2_IconString} from Great Works and Themes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_ART_CBP_CULTURE">
+			<Text>+{1_Num} [ICON_CULTURE] from Great Works and Themes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_ART_CBP_FAITH">
+			<Text>+{1_Num} [ICON_PEACE] from Great Works and Themes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_TRAIT_BONUS">
+			<Text>+{1_Num} {2_IconString} from Trait</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_LEAGUE">
+			<Text>+{1_Num}% Bonus due to Active League Proposals[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_LEAGUE_NEGATIVE">
+			<Text>{1_Num}% Penalty due to Active League Proposals[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CULTURE_VICTORY_SOMEONE_NO_LONGER_INFLUENTIAL">
+			<Text>Global Influence Shift</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CULTURE_VICTORY_SOMEONE_NO_LONGER_INFLUENTIAL_TT">
+			<Text>{1_CivName} {1_CivName: plural 1?is; other?are;} are no longer Influential over another player.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CULTURE_VICTORY_UNMET_NO_LONGER_INFLUENTIAL_TT">
+			<Text>An unmet civilization is no longer Influential over another player.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CO_EXOTIC_THEY">
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Exotic[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_FAMILIAR_THEY">
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Familiar[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_POPULAR_THEY">
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Popular[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_INFLUENTIAL_THEY">
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Influential[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_DOMINANT_THEY">
+			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Dominant[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CO_STATIC_THEM">
+			<Text>[NEWLINE][ICON_TOURISM] Tourism Influence Trend: Static</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_RISING_SLOWLY_THEM">
+			<Text>[NEWLINE][ICON_TOURISM] Tourism Influence Trend: [COLOR_POSITIVE_TEXT]Rising Slowly[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_RISING_THEM">
+			<Text>[NEWLINE][ICON_TOURISM] Tourism Influence Trend: [COLOR_POSITIVE_TEXT]Rising[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_FALLING_THEM">
+			<Text>[NEWLINE][ICON_TOURISM] Tourism Influence Trend: [COLOR_NEGATIVE_TEXT]Falling[ENDCOLOR]</Text>
+		</Row>
+		
+		
+		
+		<!-- Tourism Update -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CULTURE_VICTORY_SUMMARY">
+			<Text>Influence Shift!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_INFLUENCE_US_1">
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Exotic[ENDCOLOR] to {1_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_2">
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Familiar[ENDCOLOR] to {1_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_3">
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Popular[ENDCOLOR] to {1_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_4">
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Influential[ENDCOLOR] to {1_Num}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_5">
+			<Text>Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Dominant[ENDCOLOR] to {1_Num}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_INFLUENCE_US_1_BAD">
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Exotic[ENDCOLOR] to {1_Num}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_2_BAD">
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Familiar[ENDCOLOR] to {1_Num}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_3_BAD">
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Popular[ENDCOLOR] to {1_Num}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_4_BAD">
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Influential[ENDCOLOR] to {1_Num}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_US_5_BAD">
+			<Text>Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Dominant[ENDCOLOR] to {1_Num}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_1">
+			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Exotic[ENDCOLOR] to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_2">
+			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Familiar[ENDCOLOR] to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_3">
+			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Popular[ENDCOLOR] to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_4">
+			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Influential[ENDCOLOR] to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_5">
+			<Text>{1_Num} [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Dominant[ENDCOLOR] to us.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_1_BAD">
+			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Exotic[ENDCOLOR] to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_2_BAD">
+			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Familiar[ENDCOLOR] to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_3_BAD">
+			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Popular[ENDCOLOR] to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_4_BAD">
+			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Influential[ENDCOLOR] to us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INFLUENCE_THEM_5_BAD">
+			<Text>{1_Num} [ICON_CULTURE] Culture is [COLOR_POSITIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Dominant[ENDCOLOR] to us.</Text>
+		</Row>		
+		
+		<!-- Anarchy -->
+		<Row Tag="TXT_KEY_ANARCHY_BEGINS_SUMMARY">
+			<Text>Anarchy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ANARCHY_BEGINS">
+			<Text>Your empire has entered a state of anarchy! This will last for {1_num} turns.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_POLICIES">
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Policies): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_BUILDINGS">
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Buildings): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_TOURISM">
+			<Text>[NEWLINE][ICON_BULLET][ICON_TOURISM] Tourism Modifier (Trade Routes): {1_Num}%</Text>
+		</Row>
+
+
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_BUILDINGS">
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Buildings): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_POLICIES">
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Policies): {1_Num}%</Text>
+		</Row>
+		
+		<!-- Lua for Buildings -->
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_LOCAL_FEATURE">
+			<Text>[NEWLINE]Requires {1_FeatureName:textkey} near this City.</Text>
+		</Row>
+
+		<!-- LUA for Espionage -->
+		<Row Tag="TXT_KEY_EO_SPY_COUP_DISABLED_COOLDOWN_TT">
+			<Text>{1_SpyRank} {2_SpyName} may not attempt a coup in {3_CityName} because of a recent attempt in this City. Cooldown ends in {4_Num} Turn(s).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_SPY_COUP_DISABLED_COOLDOWN_TT_EXTRA">
+			<Text>[COLOR_NEGATIVE_TEXT]Spies may not attempt a coup here because of a recent attempt in this City. Cooldown ends in {1_Num} Turn(s).[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_COUP_COOLDOWN_TT">
+			<Text>A Coup was recently attempted in this City, and cannot be attempted again for another {1_Num} turn(s).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALLY_CBP_SPY">
+			<Text>Allied with the {1_Player}.</Text>
+		</Row>
+		
+		<!-- Text for 3rd Party Brokering -->
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME">
+			<Text>Your intelligence service reports that {1_CivName:textkey} bribed {2_CivName:textkey} to go to war with you!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME_S">
+			<Text>{1_CivName:textkey} brokered war against you!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_NAME">
+			<Text>Your diplomats have learned that {1_CivName:textkey} paid {2_CivName:textkey} to make peace with you!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_NAME_S">
+			<Text>{1_CivName:textkey} brokered peace on your behalf!</Text>
+		</Row>
+		
+		<!-- CS -->
+		<Row Tag="TXT_KEY_POP_CSTATE_RECENTLY_LIBERATED">
+			<Text>Recently liberated</Text>
+		</Row>
+
+		<!-- LUA for Warscore -->
+		<Row Tag="TXT_KEY_WAR_SCORE">
+			<Text>[COLOR_POSITIVE_TEXT]War Score: {1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_SCORE_EXPLANATION">
+			<Text>This value indiates how well your war is going. Ranges between [COLOR_NEGATIVE_TEXT]-100[ENDCOLOR] and [COLOR_POSITIVE_TEXT]100[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Current war information:[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_PATHETIC">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are pathetic!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_WEAK">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are very weak.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_POOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are weaker.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_AVERAGE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] We are equals.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_STRONG">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are strong.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_POWERFUL">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are mighty.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_STRENGTH_IMMENSE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_STRENGTH] Military Power:[ENDCOLOR] They are immense!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_WAR_ECONOMY_PATHETIC">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They're in shambles!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_WEAK">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are pathetic.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_POOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are poor.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_AVERAGE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] We are equal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_STRONG">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are robust.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_POWERFUL">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They are wealthy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_ECONOMY_IMMENSE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_GOLD] Economic Power:[ENDCOLOR] They're very wealthy!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MINOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] The war goes well.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_MAJOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] We are winning.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_SERIOUS">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] Our victory is assured.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_US_CRIPPLED">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] War Status:[ENDCOLOR] They are overwhelmed!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MINOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] The war goes poorly.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_MAJOR">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] They are winning.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_SERIOUS">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] Defeat is likely.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DAMAGE_THEM_CRIPPLED">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_RAZING] War Status:[ENDCOLOR] Destruction is imminent!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_WAR_NO_PEACE_OFFER">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Impossible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_WHITE_PEACE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] White Peace.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_ARMISTICE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Armistice.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_SETTLEMENT">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Small settlement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_BACKDOWN">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Large settlement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_SUBMISSION">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Minor concessions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_SURRENDER">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Some concessions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_CESSION">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Major concessions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_CAPITULATION">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Huge concessions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFER_PEACE_TREATY_UNCONDITIONAL_SURRENDER">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_PEACE] Their Peace Offer:[ENDCOLOR] Total Surrender!</Text>
+		</Row>
+
+
+
+		<Row Tag="TXT_KEY_TECH_HELP_UNITS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Units Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_BUILDINGS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Buildings Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_WONDERS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Wonders Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_PROJECTS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Projects Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_PROCESSES_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Processes Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_RESOURCES_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Resources Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_BUILDS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Builds Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_ACTIONS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Unique Actions:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_YIELDS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Yield Changes:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		
+		
+		<!-- Plague for JFD-->
+		<Row Tag="TXT_KEY_UNIT_PLAGUE_TRANSFER">
+			<Text>A virulent plague was spread from your {1_Unit} to their {2_Unit} during combat!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_PLAGUE_TRANSFER_S">
+			<Text>Your {1_Unit} is spreading plague!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_PLAGUE_TRANSFER_THEM">
+			<Text>A virulent plague was spread to our {1_Unit} from their {2_Unit} during combat!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_PLAGUE_TRANSFER_THEM_S">
+			<Text>Plague spreads to your {1_Unit}!</Text>
+		</Row>
+
+		<!-- Team Tourism -->
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_SAME_TEAM">
+			<Text>+{1_Num}% Bonus for Same Team[NEWLINE]</Text>
+		</Row>
+		
+		<!-- Building Tooltip -->
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_POLICIES">
+			<Text>Additional Policies needed to unlock: {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_NUM_POLICY_NEEDED_LABEL">
+			<Text>OR required number of Social Policies: [COLOR_CYAN]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+	</Language_en_US>
+>>>>>>> origin/master
 </GameData>

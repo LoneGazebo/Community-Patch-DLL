@@ -1,4 +1,4 @@
-print("This is the modded TradeLogic from CBP- C4DF")
+print("This is the modded TradeLogic from CBP - C4DF");
 ----------------------------------------------------------------        
 ----------------------------------------------------------------        
 include( "IconSupport" );
