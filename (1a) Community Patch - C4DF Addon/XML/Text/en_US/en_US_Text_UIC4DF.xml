@@ -388,7 +388,7 @@
 			<Text>If a vassal can declare independence, they may revoke their status of being your vassal at any time . If you refuse this request, you will declare war on your vassal. They are more likely to ask if they feel they have a good chance at succeeding in their revolution.[NEWLINE][NEWLINE]Your vassal may declare independence after the following conditions are satisfied:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_INDEPENDENCE_POSSIBLE_MASTER_TT">
-			<Text>If you can declare independence, you may revoke your status of being their vassal at any time. Be careful, as if they refuse your request, they can declare war on you. They are more likely to respect your declaration of independence if you have a strong military presence.[NEWLINE][NEWLINE]Your may declare independence after the following conditions are satisfied:</Text>
+			<Text>If you can declare independence, you may revoke your status of being their vassal at any time. Be careful, as if they refuse your request, they will declare war on you. They are more likely to respect your declaration of independence if you have a strong military presence.[NEWLINE][NEWLINE]Your may declare independence after the following conditions are satisfied:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_INDEPENDENCE_POSSIBLE_TURNS_TT">
 			<Text>1. Vassal for {1_NumTurns} Turns</Text>
@@ -522,6 +522,9 @@
 		<Row Tag="TXT_KEY_VO_CONFIRM_LIBERATE">
 			<Text>Are you sure you want to liberate {1_TeamName}? This will liberate ALL civilizations in this team from your control. [COLOR_WARNING_TEXT]This action CANNOT be undone.[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_VO_CONFIRM_REQUEST_INDEPENDENCE">
+			<Text>Are you sure you want to request independence from {1_TeamName}. If refused, your civilizations will enter [COLOR_WARNING_TEXT]War[ENDCOLOR]. [COLOR_WARNING_TEXT]This action CANNOT be undone.[ENDCOLOR]</Text>
+		</Row>
 		<Row Tag="TXT_KEY_VO_VASSAL_TYPE_VOLUNTARY">
 			<Text>Voluntary Vassal</Text>
 		</Row>
@@ -566,6 +569,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_VO_SCIENCE_STAT">
 			<Text>[ICON_RESEARCH] Science</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_CITIES">
+			<Text>Cities</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_POPULATION">
 			<Text>Population</Text>
@@ -620,29 +626,62 @@
 		<Row Tag="TXT_KEY_VO_INDEPENDENCE_POSSIBLE_MASTER">
 			<Text>Can Declare Independence: {1_Str}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VO_YOUR_POP_MASTER">
-			<Text>Your Population: {1_Num} [ICON_CITIZEN] ({2_TeamPop} [ICON_CITIZEN])</Text>
+		<Row Tag="TXT_KEY_VO_MASTER_VALUE_DISPLAY">
+			<Text>{1_Num} ({2_iTeamNum})</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VO_THEIR_POP_MASTER">
-			<Text>Their Population: {1_Num} [ICON_CITIZEN] ({2_TeamPop} [ICON_CITIZEN])</Text>
+		<Row Tag="TXT_KEY_VO_MASTER_VALUE_DISPLAY_PERCENT">
+			<Text>{1_iTeamNum}%</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VO_POP_PERCENT_VASSAL_STARTED_MASTER">
-			<Text>[ICON_CITIZEN] Population Since Vassal Start Percent: {1_Num}%</Text>
+		<Row Tag="TXT_KEY_VO_MASTER_VALUE_DISPLAY_PERCENT_PLAYER">
+			<Text>{1_Num}% ({2_iTeamNum}%)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VO_POP_PERCENT_MASTER">
-			<Text>Master [ICON_CITIZEN] Population Percent: {1_Num}%</Text>
+		<Row Tag="TXT_KEY_VO_MASTER_YOUR_POP">
+			<Text>Your [ICON_CITIZEN] Population</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VO_YOUR_CITIES_MASTER">
-			<Text>Your Cities: {1_Num} ({2_TeamCities})</Text>
+		<Row Tag="TXT_KEY_VO_MASTER_YOUR_POP_TT">
+			<Text>Our [ICON_CITIZEN] Population (Team [ICON_CITIZEN] Population)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VO_THEIR_CITIES_MASTER">
-			<Text>Their Cities: {1_Num} ({2_TeamCities})</Text>
+		<Row Tag="TXT_KEY_VO_MASTER_THEIR_POP">
+			<Text>Their [ICON_CITIZEN] Population</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VO_CITIES_PERCENT_VASSAL_STARTED_MASTER">
-			<Text>Cities Since Vassal Start Percent: {1_Num}%</Text>
+		<Row Tag="TXT_KEY_VO_MASTER_THEIR_POP_TT">
+			<Text>Their [ICON_CITIZEN] Population (Team [ICON_CITIZEN] Population)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VO_CITIES_PERCENT_MASTER">
-			<Text>Master Cities Percent: {1_Num}%</Text>
+		<Row Tag="TXT_KEY_VO_MASTER_VIEW_POP_PERCENT">
+			<Text>[ICON_CITIZEN] Population %</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_MASTER_VIEW_POP_PERCENT_TT">
+			<Text>Ratio between our [ICON_CITIZEN] Population and {1_MasterPlayer}'s [ICON_CITIZEN] Population.[NEWLINE][NEWLINE]Ratio between player [ICON_CITIZEN] Population (Ratio between team [ICON_CITIZEN] Population)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_MASTER_POP_STARTED_PERCENT">
+			<Text>[ICON_CITIZEN] Population Since Vassal Started %</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_MASTER_POP_STARTED_PERCENT_TT">
+			<Text>Ratio between our team's [ICON_CITIZEN] Population now and our team's [ICON_CITIZEN] Population when we became the vassal of {1_TeamName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_MASTER_YOUR_CITIES">
+			<Text>Your # of Cities</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_MASTER_YOUR_CITIES_TT">
+			<Text>Number of Our Cities (Number of Our Team Cities)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_MASTER_THEIR_CITIES">
+			<Text>Their # of Cities</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_MASTER_THEIR_CITIES_TT">
+			<Text>Number of Their Cities (Number of Their Team Cities)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_MASTER_CITIES_PERCENT">
+			<Text># of Cities %</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_MASTER_CITIES_PERCENT_TT">
+			<Text>Ratio between our Number of Cities and {1_MasterPlayer}'s Number of Cities.[NEWLINE][NEWLINE]Ratio between player Number of Cities (Ratio between team Number of Cities)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_MASTER_CITIES_STARTED_PERCENT">
+			<Text># of Cities Since Vassal Started %</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_MASTER_CITIES_STARTED_PERCENT_TT">
+			<Text>Ratio between our team's Number of Cities now and our team's Number of Cities when we became the vassal of {1_TeamName}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_TAX_CHANGE_READY_MASTER">
 			<Text>[COLOR_GREY]Your master may change your taxes this turn.[ENDCOLOR]</Text>
@@ -652,6 +691,56 @@
 		</Row>
 		<Row Tag="TXT_KEY_VO_TAX_CONTRIBUTION_MASTER">
 			<Text>Receiving {1_Num} [ICON_GOLD] GPT from you!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_REQUEST_INDEPENDENCE">
+			<Text>Request Independence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_REQUEST_INDEPENDENCE_TT">
+			<Text>Request independence from your Master. After performing this action, your vassalage ends with {1_TeamName}.[NEWLINE][NEWLINE]Your Master will have the choice of accepting or refusing your request for independence. If your request is rejected, you will go to war with the other player! The chance of peaceful independence increases the stronger your are in comparison to your Master.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_REQUEST_INDEPENDENCE_TOO_SOON">
+			<Text>[COLOR_NEGATIVE_TEXT]You cannot request independence until you have been a vassal for {1_MinimumTurns} turns. You can perform this action in {2_iNumTurns} turn(s).[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_REQUEST_INDEPENDENCE_CONDITION_NOT_MET">
+			<Text>[COLOR_NEGATIVE_TEXT]You cannot request independence until you have met all of the required conditions for independence. Hover over the "Can Declare Independence" to view the necessary requirements for independence.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_TAX_RATE_MASTER_TT">
+			<Text>You are being taxed {1_Num}% of your [ICON_GOLD] Gross Gold Per Turn. You have no control over the Tax Rate {2_TeamName} sets for you. Taxes are set individually on each vassal team member.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_TAX_GPT_TAKEN_TT">
+			<Text>They are receiving {1_Num} [ICON_GOLD] Gold Per Turn from you, based on {2_TaxRate}% of your {3_Num} [ICON_GOLD] Gross Gold Per Turn.[NEWLINE][NEWLINE]Your taxed income is calculated at the start of your turn.</Text>
+		</Row>
+		
+		<!-- Vassal Benefits -->
+		<Row Tag="TXT_KEY_VO_VASSAL_BENEFITS">
+			<Text>Vassal Benefits</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_BENEFITS_OPEN_BORDERS">
+			<Text>[ICON_BULLET] Open Borders</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_BENEFITS_RELIGION_MOD">
+			<Text>[ICON_BULLET] Double [ICON_PEACE] Religious Pressure</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_BENEFITS_TOURISM_MOD">
+			<Text>[ICON_BULLET] +33% [ICON_TOURISM] Tourism Spread</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_BENEFITS_DIPLOMAT">
+			<Text>[ICON_BULLET] [ICON_DIPLOMAT] Diplomat in [ICON_CAPITAL] Capital</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_BENEFITS_YIELD_PERCENTAGE">
+			<Text>[ICON_BULLET] +20% Vassal's [ICON_RESEARCH], [ICON_CULTURE], [ICON_PEACE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_BENEFITS_IDEOLOGY">
+			<Text>[ICON_BULLET] Vassals adopt Master's Ideology</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_BENEFITS_LEVY">
+			<Text>[ICON_BULLET] Military levy on era advance</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_MASTER_TYPE_VOLUNTARY_TT">
+			<Text>As a vassal of choice, you are relying on {1_Name} to provide protection from your lands. You do not suffer restrictions that would prevent you from leaving vassalage as capitulated vassals do.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_MASTER_TYPE_CAPITULATED_TT">
+			<Text>As a capitulated vassal of {1_Name}, you are heavily restricted in your ability to declare independence. Your suffer restrictions requiring you to grow your [ICON_CITIZEN] Population and cities to become competitive with your master, or your master must have failed to protect your cities from enemy capture.</Text>
 		</Row>
 		
 		<!-- Version 9 -->
@@ -666,13 +755,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_ADVANCED_DIPLOMACY_HELP">
 			<Text>Display raw numbers next to diplomatic modifiers. In addition, AI leaders will never hide negative modifiers when they are Friendly.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_TP_GOLD_VASSAL_TAX">
-			<Text>{1_Num} from the collection of Vassal Taxes.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TP_GOLD_VASSAL_TAX_EXPENSE">
-			<Text>{1_Num} spent on Vassal Taxes.</Text>
 		</Row>
 		
 		<!-- End Vassalage Resolution -->

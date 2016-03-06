@@ -2486,13 +2486,6 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 	// Player Opinion & Approach
 	DoUpdateApproachTowardsUsGuesses();
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		//DoUpdateGlobalStates();
-		DoDetermineTaxRateForVassals();
-	}
-#endif
-
 	DoUpdateOpinions();
 	DoUpdateMajorCivApproaches();
 	DoUpdateMinorCivApproaches();
@@ -2500,6 +2493,12 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 	// These functions actually DO things, and we don't want the shadow AI behind a human player doing things for him
 	if(!GetPlayer()->isHuman())
 	{
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if(MOD_DIPLOMACY_CIV4_FEATURES)
+		{
+			DoDetermineTaxRateForVassals();
+		}
+#endif
 #if defined(MOD_ACTIVE_DIPLOMACY)
 		GC.getGame().GetGameDeals()->DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID(), DIPLO_ALL_PLAYERS);
 #endif
@@ -2524,6 +2523,7 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 	if(MOD_DIPLOMACY_CIV4_FEATURES)
 	{
 		DoMakePeaceWithVassals();
+		//DoUpdateGlobalStates();
 	}
 #endif
 
@@ -26457,7 +26457,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					else
 					{
 						strText = GetDiploStringForMessage(DIPLO_MESSAGE_VASSALAGE_REVOKED_FORCEFUL);
-						gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_ATTACKED);
+						gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_ATTACKED); // Anim attacked correct. Not ideal, but otherwise leader won't react to your request
 					}
 				}
 			}
@@ -41194,6 +41194,10 @@ void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 	CvAssertMsg(eOtherTeam >= 0, "DIPLOMACY AI: Invalid Team Index. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eOtherTeam < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
+	// Only do this if we are a vassal
+	if(!GET_TEAM(GetPlayer()->getTeam()).IsVassal(eTeam))
+		return;
+
 	// Get players from Master's team
 	for(int iMasterPlayer = 0; iMasterPlayer < MAX_MAJOR_CIVS; iMasterPlayer++)
 	{
@@ -41201,11 +41205,7 @@ void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam)
 		if(GET_PLAYER(eMasterPlayer).getTeam() == eTeam)
 		{
 			SetMasterLiberatedMeFromVassalage(eMasterPlayer, true);
-		}
 
-		// We are not on master team - send notification
-		if(!GetPlayer()->getTeam() != eTeam)
-		{
 #if defined(MOD_ACTIVE_DIPLOMACY)
 			// JdH => deciding whether to send a notification or pop up directy is done in SendRequest
 			{

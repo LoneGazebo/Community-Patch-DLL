@@ -430,6 +430,7 @@ function DoUpdateEspionageButton()
 end
 Events.SerialEventEspionageScreenDirty.Add(DoUpdateEspionageButton);
 
+-- C4DF
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function DoUpdateVassalButton()
@@ -463,7 +464,7 @@ function DoUpdateVassalButton()
 	
 	Controls.VassalButton:SetToolTipString(strToolTip);
 end
-Events.ActivePlayerTurnStart.Add(DoUpdateVassalButton);
+Events.SerialEventEspionageScreenDirty.Add(DoUpdateVassalButton); -- not a typo! do not change!
 
 --------------------------------------------------------------------
 function HandleNotificationAdded(notificationId, notificationType, toolTip, summary, gameValue, extraGameData)
@@ -472,6 +473,10 @@ function HandleNotificationAdded(notificationId, notificationType, toolTip, summ
 	if(ContextPtr:IsHidden() == false) then
 		if(notificationType == NotificationTypes.NOTIFICATION_SPY_CREATED_ACTIVE_PLAYER) then
 			CheckEspionageStarted();
+		end
+		-- C4DF
+		if(notificationType == NotificationTypes.NOTIFICATION_GENERIC) then
+			CheckVassalageStarted();
 		end
 	end
 end
@@ -557,9 +562,28 @@ function CheckEspionageStarted()
 	end
 end
 
+--C4DF
+function CheckVassalageStarted()
+	function TestVassalageStarted()
+		local player = Players[Game.GetActivePlayer()];
+		local team = Teams[player:GetTeam()];
+		return (team:GetCurrentEra() >= Game.GetVassalageEnabledEra()) or team:IsVassalOfSomeone();
+	end
+
+	local bVassalStarted = TestVassalageStarted();
+	Controls.VassalButton:SetHide(not bVassalStarted);
+	if(bVassalStarted) then
+		DoUpdateVassalButton();
+	end
+end
+--END
+
+
 function OnActivePlayerTurnStart()
 	CheckEspionageStarted();
-	
+	--C4DF
+	CheckVassalageStarted();
+	--END
 end
 Events.ActivePlayerTurnStart.Add(OnActivePlayerTurnStart);
 
