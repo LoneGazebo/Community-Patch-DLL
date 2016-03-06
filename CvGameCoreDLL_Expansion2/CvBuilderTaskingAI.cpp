@@ -1181,14 +1181,14 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 			iWeight += GetResourceWeight(eResource, eImprovement, pPlot->getNumResource());
 
 #if defined(MOD_BALANCE_CORE)
-			iWeight = min(iWeight,0xFFFF);
+			iWeight = min(iWeight,0x7FFF);
 			iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
 #endif
 
 			UpdateProjectedPlotYields(pPlot, eBuild);
 #if defined(MOD_BALANCE_CORE)
 			int iScore = ScorePlot(eImprovement, eBuild);
-			iScore = min(iScore,0xFFFF);
+			iScore = min(iScore,0x7FFF);
 #else
 			int iScore = ScorePlot();
 #endif
@@ -1441,6 +1441,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		UpdateProjectedPlotYields(pPlot, eBuild);
 #if defined(MOD_BALANCE_CORE)
 		int iScore = ScorePlot(eImprovement, eBuild);
+		iScore = min(iScore,0x7FFF);
 #else
 		int iScore = ScorePlot();
 #endif
@@ -1479,15 +1480,17 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 
 		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild), iMoveTurnsAway);
 		iWeight += iBuildTimeWeight;
-		iWeight *= iScore;
+
+		if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && bWillRemoveForestOrJungle)
+			iWeight /= 4;
+
 #if defined(MOD_BALANCE_CORE)
+		iWeight = min(iWeight,0x7FFF);
 		iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
 #endif
 
-		if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && bWillRemoveForestOrJungle)
-		{
-			iWeight = iWeight / 8;
-		}
+		//overflow danger here
+		iWeight *= iScore;
 
 		BuilderDirective directive;
 		directive.m_eDirective = eDirectiveType;
@@ -2214,17 +2217,8 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, ImprovementTy
 	{
 		int iModifier = GC.getBUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE() * pkResource->getHappiness();
 
-		//if (m_pPlayer->IsEmpireUnhappy() || m_pPlayer->GetExcessHappiness() <= 2)
-		//{
-		//}
-		if(m_pPlayer->getNumResourceAvailable(eResource) == 0)
-		{
-			// full bonus
-		}
-		else
-		{
-			iModifier = (iModifier * 3) / 4; // 3/4ths the awesome bonus, so that we pick up extra resources 
-		}
+		if(m_pPlayer->getNumResourceAvailable(eResource) > 0)
+			iModifier /= 2; 
 
 		iWeight *= iModifier;
 	}
@@ -2238,18 +2232,7 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, ImprovementTy
 
 			// if we don't have any currently available
 			if(m_pPlayer->getNumResourceAvailable(eResource) == 0)
-			{
-				// if we have some of the strategic resource, but all is used
-				if(m_pPlayer->getNumResourceUsed(eResource) > 0)
-				{
-					iMultiplyingAmount *= 4;
-				}
-				else
-				{
-					// if we don't have any of it
-					iMultiplyingAmount *= 4;
-				}
-			}
+				iMultiplyingAmount *= 4;
 
 			iWeight *= iMultiplyingAmount;
 		}
@@ -2838,13 +2821,10 @@ int CvBuilderTaskingAI::ScorePlot()
 	}
 	if(bRouteBenefit)
 	{
-		if(m_pTargetPlot->IsCityConnection(m_pPlayer->GetID()))
-		{
-			if(m_pTargetPlot->IsRouteRailroad() || m_pTargetPlot->IsRouteRoad())
-			{
-				iScore *= 4;
-			}
-		}
+		if(m_pTargetPlot->IsCityConnection(m_pPlayer->GetID()) && (m_pTargetPlot->IsRouteRailroad() || m_pTargetPlot->IsRouteRoad()))
+			iScore *= 4;
+		else
+			iScore /= 2;
 	}
 
 	//Great improvements are great!
@@ -2853,7 +2833,7 @@ int CvBuilderTaskingAI::ScorePlot()
 		iScore *= 4;
 	}
 
-	//City adjacenct improvment? Ramp it up!
+	//City adjacenct improvement? Ramp it up!
 	if(pImprovement->IsAdjacentCity() && m_pTargetPlot->GetAdjacentCity() != NULL)
 	{
 		iScore *= 4;
@@ -2877,7 +2857,7 @@ int CvBuilderTaskingAI::ScorePlot()
 	{
 		if(pImprovement->IsImprovementResourceMakesValid(eResource))
 		{
-			iScore *= 20;
+			iScore *= 10;
 		}
 	}
 	//Do we have unimproved plots nearby? If so, let's not worry about replacing improvements right now.

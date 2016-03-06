@@ -3115,7 +3115,7 @@ UnitHandle CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPla
 		{
 			if((eOwner ==  NO_PLAYER) || (pLoopUnit->getOwner() == eOwner))
 			{
-				if((eAttackingPlayer == NO_PLAYER) || !(pLoopUnit->isInvisible(GET_PLAYER(eAttackingPlayer).getTeam(), false)))
+				if((eAttackingPlayer == NO_PLAYER) || (!(pLoopUnit->isInvisible(GET_PLAYER(eAttackingPlayer).getTeam(), false)) && isVisible(GET_PLAYER(eAttackingPlayer).getTeam())))
 				{
 					if(!bTestAtWar || eAttackingPlayer == NO_PLAYER || pLoopUnit->isEnemy(GET_PLAYER(eAttackingPlayer).getTeam(), this) || (NULL != pAttacker && pAttacker->isEnemy(GET_PLAYER(pLoopUnit->getOwner()).getTeam(), this)))
 					{
@@ -4248,11 +4248,15 @@ inline static bool isOtherTeam(const CvUnit* pUnit, TeamTypes eOtherTeam)
 //	-----------------------------------------------------------------------------------------------
 bool CvPlot::isVisibleEnemyDefender(const CvUnit* pUnit) const
 {
+	TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
+
+	if (!isVisible(eTeam))
+		return false;
+
 	CvAssertMsg(pUnit, "Source unit must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnit && pUnitNode)
 	{
-		TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
 		bool bAlwaysHostile = pUnit->isAlwaysHostile(*this);
 
 		do
@@ -4277,10 +4281,14 @@ bool CvPlot::isVisibleEnemyDefender(const CvUnit* pUnit) const
 //	-----------------------------------------------------------------------------------------------
 CvUnit* CvPlot::getVisibleEnemyDefender(PlayerTypes ePlayer) const
 {
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	if (!isVisible(eTeam))
+		return false;
+
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnitNode)
 	{
-		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 		do
 		{
 			CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
@@ -4330,11 +4338,15 @@ int CvPlot::getNumDefenders(PlayerTypes ePlayer) const
 //	-----------------------------------------------------------------------------------------------
 int CvPlot::getNumVisibleEnemyDefenders(const CvUnit* pUnit) const
 {
+	TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
+
+	if (!isVisible(eTeam))
+		return false;
+
 	CvAssertMsg(pUnit, "Source unit must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnit && pUnitNode)
 	{
-		TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
 		bool bAlwaysHostile = pUnit->isAlwaysHostile(*this);
 		int iCount = 0;
 
@@ -4360,12 +4372,16 @@ int CvPlot::getNumVisibleEnemyDefenders(const CvUnit* pUnit) const
 //	-----------------------------------------------------------------------------------------------
 int CvPlot::getNumVisiblePotentialEnemyDefenders(const CvUnit* pUnit) const
 {
+	TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
+
+	if (!isVisible(eTeam))
+		return false;
+
 	CvAssertMsg(pUnit, "Source unit must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnit && pUnitNode)
 	{
 		int iCount = 0;
-		TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
 		bool bAlwaysHostile = pUnit->isAlwaysHostile(*this);
 
 		do
@@ -4391,12 +4407,15 @@ int CvPlot::getNumVisiblePotentialEnemyDefenders(const CvUnit* pUnit) const
 //	-----------------------------------------------------------------------------------------------
 bool CvPlot::isVisibleEnemyUnit(PlayerTypes ePlayer) const
 {
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	if (!isVisible(eTeam))
+		return false;
+
 	CvAssertMsg(ePlayer != NO_PLAYER, "Source player must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnitNode)
 	{
-		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-
 		do
 		{
 			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
@@ -4419,11 +4438,15 @@ bool CvPlot::isVisibleEnemyUnit(PlayerTypes ePlayer) const
 //	-----------------------------------------------------------------------------------------------
 bool CvPlot::isVisibleEnemyUnit(const CvUnit* pUnit) const
 {
+	TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
+
+	if (!isVisible(eTeam))
+		return false;
+
 	CvAssertMsg(pUnit, "Source unit must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnit && pUnitNode)
 	{
-		TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
 		bool bAlwaysHostile = pUnit->isAlwaysHostile(*this);
 
 		do
@@ -4448,12 +4471,15 @@ bool CvPlot::isVisibleEnemyUnit(const CvUnit* pUnit) const
 //	-----------------------------------------------------------------------------------------------
 bool CvPlot::isVisibleOtherUnit(PlayerTypes ePlayer) const
 {
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	if (!isVisible(eTeam))
+		return false;
+
 	CvAssertMsg(ePlayer != NO_PLAYER, "Source player must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnitNode)
 	{
-		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-
 		do
 		{
 			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);

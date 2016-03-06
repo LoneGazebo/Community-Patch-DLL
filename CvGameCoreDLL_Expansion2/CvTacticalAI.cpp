@@ -3823,6 +3823,17 @@ void CvTacticalAI::PlotSteamrollMoves()
 	m_TempTargets.clear();
 	bool bAttackMade;
 
+#if defined(MOD_BALANCE_CORE_NEW_TACTICAL_AI)
+	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
+	{
+		CvTacticalTarget kTarget = m_ZoneTargets[iI];
+		if(!kTarget.IsTargetStillAlive(m_pPlayer->GetID()))
+			continue;
+
+		if(kTarget.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT || kTarget.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT)
+			ExecuteSafeBombards(kTarget);
+	}
+#else
 	// Loop through unit targets finding advantageous attacks for this turn
 	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
 	{
@@ -3836,6 +3847,7 @@ void CvTacticalAI::PlotSteamrollMoves()
 			}
 		}
 	}
+#endif
 
 	// See if there are any other anti-unit attacks we can make.
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false);
@@ -3856,9 +3868,8 @@ void CvTacticalAI::PlotSteamrollMoves()
 void CvTacticalAI::PlotSurgicalCityStrikeMoves()
 {
 	CvTacticalTarget target;
-	bool bAttackUnderway;
-
 	CvTacticalDominanceZone* pZone = m_pMap->GetZone(m_iCurrentZoneIndex);
+
 	if(pZone->GetZoneCity() != NULL)
 	{
 		target.SetTargetType(AI_TACTICAL_TARGET_CITY);
@@ -3866,9 +3877,22 @@ void CvTacticalAI::PlotSurgicalCityStrikeMoves()
 		target.SetTargetX(pZone->GetZoneCity()->plot()->getX());
 		target.SetTargetY(pZone->GetZoneCity()->plot()->getY());
 		target.SetDominanceZone(pZone->GetDominanceZoneID());
-		bAttackUnderway = PlotCaptureCityMoves();
+
+		//try capture first! will only do something if we have enough firepower.
+		PlotCaptureCityMoves();
 
 		// Any unit targets adjacent to city?
+#if defined(MOD_BALANCE_CORE_NEW_TACTICAL_AI)
+		for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
+		{
+			CvTacticalTarget kTarget = m_ZoneTargets[iI];
+			if(!kTarget.IsTargetStillAlive(m_pPlayer->GetID()))
+				continue;
+
+			if(kTarget.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT || kTarget.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT)
+				ExecuteSafeBombards(kTarget);
+		}
+#else
 		for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
 		{
 			if(m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
@@ -3884,19 +3908,15 @@ void CvTacticalAI::PlotSurgicalCityStrikeMoves()
 				}
 			}
 		}
+#endif
 
 		if(target.IsTargetStillAlive(m_pPlayer->GetID()))
-		{
 			PlotDamageCityMoves();
-		}
 
 		// Take any other really good attacks we've set up
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		if (MOD_BALANCE_CORE_MILITARY) 
-		{
-			PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false);
-			PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false);
-		}
+		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false);
+		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false);
 #else
 		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
 		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
@@ -3911,6 +3931,17 @@ void CvTacticalAI::PlotSurgicalCityStrikeMoves()
 void CvTacticalAI::PlotHedgehogMoves()
 {
 	// Attack priority unit targets
+#if defined(MOD_BALANCE_CORE_NEW_TACTICAL_AI)
+	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
+	{
+		CvTacticalTarget kTarget = m_ZoneTargets[iI];
+		if(!kTarget.IsTargetStillAlive(m_pPlayer->GetID()))
+			continue;
+
+		if(kTarget.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT || kTarget.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT)
+			ExecuteSafeBombards(kTarget);
+	}
+#else
 	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
 	{
 		if(m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
@@ -3922,16 +3953,10 @@ void CvTacticalAI::PlotHedgehogMoves()
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	if (MOD_BALANCE_CORE_MILITARY) 
-	{
-		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false);
-		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false);
-	}
-#else
+#endif
+
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
-#endif
 
 	// But after best attacks are exhausted, go right to playing defense
 	CvTacticalDominanceZone* pZone = m_pMap->GetZone(m_iCurrentZoneIndex);
@@ -3951,6 +3976,17 @@ void CvTacticalAI::PlotHedgehogMoves()
 void CvTacticalAI::PlotCounterattackMoves()
 {
 	// Attack priority unit targets
+#if defined(MOD_BALANCE_CORE_NEW_TACTICAL_AI)
+	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
+	{
+		CvTacticalTarget kTarget = m_ZoneTargets[iI];
+		if(!kTarget.IsTargetStillAlive(m_pPlayer->GetID()))
+			continue;
+
+		if(kTarget.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT || kTarget.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT)
+			ExecuteSafeBombards(kTarget);
+	}
+#else
 	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
 	{
 		if(m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
@@ -3962,20 +3998,10 @@ void CvTacticalAI::PlotCounterattackMoves()
 			}
 		}
 	}
+#endif
+
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
-
-	// Now low priority targets
-	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
-	{
-		if(m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
-		{
-			if(m_ZoneTargets[iI].IsTargetStillAlive(m_pPlayer->GetID()))
-			{
-				ExecutePriorityAttacksOnUnitTarget(m_ZoneTargets[iI]);
-			}
-		}
-	}
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
 
 	// Now targets we can't destroy
