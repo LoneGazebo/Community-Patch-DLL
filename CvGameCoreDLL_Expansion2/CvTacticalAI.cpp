@@ -129,35 +129,22 @@ void CvTacticalMoveXMLEntries::DeleteArray()
 // CvTacticalTarget
 //=====================================
 
-int CvTacticalTarget::GetCurrentHitpoints(PlayerTypes eAttackingPlayer)
+bool CvTacticalTarget::IsReadyForCapture()
 {
 	AITacticalTargetType eType = GetTargetType();
-	if(eType == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT ||
-	        eType == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
-	        eType == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
-	{
-		CvPlot* pPlot = GC.getMap().plot(m_iTargetX, m_iTargetY);
-		CvUnit* pUnit = pPlot->getVisibleEnemyDefender(eAttackingPlayer);
-		if(pUnit != NULL && !pUnit->isDelayedDeath())
-		{
-			return pUnit->GetCurrHitPoints();
-		}
-		else
-			return 0;
-	}
-	else if(eType == AI_TACTICAL_TARGET_CITY)
+	if(eType == AI_TACTICAL_TARGET_CITY)
 	{
 		CvPlot *pPlot = GC.getMap().plot(m_iTargetX, m_iTargetY);
 		CvCity *pCity = pPlot->getPlotCity();
 		if(pCity != NULL)
 		{
-			return pCity->GetMaxHitPoints() - pCity->getDamage();
+			//if there's only one hitpoint left
+			int iCurHp = pCity->GetMaxHitPoints() - pCity->getDamage();
+			return iCurHp<=1;
 		}
-		else
-			return 0;
 	}
 
-	return 0;
+	return false;
 }
 
 /// Still a living target?
@@ -614,14 +601,10 @@ void CvTacticalAI::Update()
 {
 	AI_PERF_FORMAT("AI-perf.csv", ("Tactical AI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
-	FindTacticalTargets();
+	//do this after updating the danger plots (happens in CvPlayer::doTurnPostDiplomacy)
+	GC.getGame().GetTacticalAnalysisMap()->RefreshDataForNextPlayer(m_pPlayer);
 
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	if(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	{
-		GC.getGame().GetTacticalAnalysisMap()->Dump();
-	}
-#endif
+	FindTacticalTargets();
 
 	// Loop through each dominance zone assigning moves
 	ProcessDominanceZones();
@@ -829,8 +812,8 @@ bool CvTacticalAI::PerformAttack(CvUnit* pAttacker, CvTacticalTarget* pTarget)
 		iMovesLeft -= pAttacker->canMoveAfterAttacking() ? GC.getMOVE_DENOMINATOR() : iMovesLeft;
 		iAttacksLeft -= 1;
 
-		//a city target can have zero hitpoints and still be "alive", meaning uncaptured
-		if (!pTarget->IsTargetStillAlive(m_pPlayer->GetID()) || pTarget->GetCurrentHitpoints(m_pPlayer->GetID())==0 )
+		//ranged units can't capture, so give up when a city is down to one hitpoint
+		if (!pTarget->IsTargetStillAlive(m_pPlayer->GetID()) || (pAttacker->isRanged() && pTarget->IsReadyForCapture()))
 		{
 			bSuccess = true;
 			break;
@@ -1761,12 +1744,14 @@ void CvTacticalAI::FindTacticalTargets()
 	// Sort remaining targets by aux data (if used for that target type)
 	std::stable_sort(m_AllTargets.begin(), m_AllTargets.end());
 
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	if(MOD_BALANCE_CORE_MILITARY_LOGGING)
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
+	if(MOD_BALANCE_CORE_DEBUGGING)
 	{
 		// mark the targets in the tactical map
 		for (TacticalList::const_iterator i=m_AllTargets.begin(); i!=m_AllTargets.end(); ++i)
 			m_pMap->GetCell( GC.getMap().plotNum( i->GetTargetX(), i->GetTargetY() ) )->SetTargetType( i->GetTargetType() ); 
+
+		GC.getGame().GetTacticalAnalysisMap()->Dump();
 	}
 #endif
 
@@ -7023,7 +7008,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 		// Start by sending possible air sweeps
 		for(unsigned int iI = 0; iI < m_CurrentAirUnits.size(); iI++)
 		{
-			UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentAirUnits[iI].GetID());
+			CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentAirUnits[iI].GetID());
 
 			if(pUnit && !pUnit->TurnProcessed())
 			{
@@ -7079,7 +7064,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 	// Loop for melee units just to reposition.
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
-		UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
+		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
 		if(!pUnit || !pUnit->canMove())
 			continue;
 
@@ -7130,7 +7115,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 				if (!pFriendlyUnit)
 				{
 					//don't walk into certain death
-					if (m_pPlayer->GetPlotDanger(*(*it),pUnit.pointer()) > pUnit->GetCurrHitPoints()*3)
+					if (pUnit->GetDanger(*it) > pUnit->GetCurrHitPoints()*3)
 						continue;
 
 					//see if we can go there this turn

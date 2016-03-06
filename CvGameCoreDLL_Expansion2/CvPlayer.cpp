@@ -6267,9 +6267,6 @@ void CvPlayer::doTurnPostDiplomacy()
 			GET_TEAM(getTeam()).ClearWarDeclarationCache();
 			UpdateCurrentAndFutureWars();
 		}
-		
-		//do this after updating the danger plots
-		kGame.GetTacticalAnalysisMap()->RefreshDataForNextPlayer(this);
 
 		if(!isBarbarian())
 		{
