@@ -3559,6 +3559,9 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		m_iData1 = pPlot->getX();
 		m_iData2 = pPlot->getY();
 
+		//Set the plot's area ID on the minor civ so that no one else goes for it.
+		pMinor->GetMinorCivAI()->SetTargetedAreaID(m_eAssignedPlayer, pPlot->getArea());
+
 		pPlot->setRevealed(pAssignedPlayer->getTeam(), true);
 
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_DISCOVERY_PLOT");
@@ -4282,6 +4285,9 @@ bool CvMinorCivQuest::DoFinishQuest()
 	{
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_DISCOVERY_PLOT_COMPLETE");
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_DISCOVERY_PLOT_COMPLETE");
+
+		pMinor->GetMinorCivAI()->SetTargetedAreaID(m_eAssignedPlayer, -1);
+
 	}
 	else if(m_eType == MINOR_CIV_QUEST_BUILD_X_BUILDINGS)
 	{
@@ -4547,6 +4553,8 @@ bool CvMinorCivQuest::DoCancelQuest()
 		{
 			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_PLOT_DISCOVERY_FAILED");
 			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_PLOT_DISCOVERY_FAILED_S");
+
+			pMinor->GetMinorCivAI()->SetTargetedAreaID(m_eAssignedPlayer, -1);
 		}
 #endif
 
@@ -4786,6 +4794,7 @@ void CvMinorCivAI::Reset()
 		m_abIsMarried[iI] = false;
 		m_abSiphoned[iI] = false;
 		m_abCoupAttempted[iI] = false;
+		m_aiAssignedPlotAreaID[iI] = -1;
 #endif
 	}
 
@@ -4908,6 +4917,7 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_abSiphoned;
 	kStream >> m_abCoupAttempted;
 	kStream >> m_iTurnLiberated;
+	kStream >> m_aiAssignedPlotAreaID;
 #endif
 
 	// List of quests given
@@ -5001,6 +5011,7 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_abSiphoned;
 	kStream << m_abCoupAttempted;
 	kStream << m_iTurnLiberated;
+	kStream << m_aiAssignedPlotAreaID;
 #endif
 
 	// List of quests given
@@ -5325,6 +5336,7 @@ void CvMinorCivAI::DoTurn()
 							{
 								SetJerk(eLoopTeam, 0);
 							}
+							TestChangeProtectionFromMajor(ePlayer);
 						}
 					}
 				}
@@ -5802,6 +5814,14 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 							}
 						}
 					}
+
+#if defined(MOD_GLOBAL_CS_GIFTS)
+					if (MOD_GLOBAL_CS_GIFTS && MOD_EVENTS_MINORS_GIFTS)
+					{
+						// Send an event with the details
+						GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorGift, GetPlayer()->GetID(), ePlayer, iGift, iFriendshipBoost, 0, bFirstMajorCiv, false, szTxtKeySuffix);
+					}
+#endif
 				}
 			}
 #if defined(MOD_GLOBAL_CS_GIFTS)
@@ -10599,8 +10619,12 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 					iValue += pLoopCity->getNumWorldWonders();
 					iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
 					iValue += pLoopCity->getBaseYieldRate(YIELD_SCIENCE);
-					iValue -= pLoopCity->getStrengthValue() / 100;
 					iValue += GC.getGame().getJonRandNum(100, "MINOR CIV AI: Random Quest Target.");
+					iValue -= pLoopCity->getStrengthValue() / 100;
+					if(iValue <= 0)
+					{
+						iValue = 1;
+					}
 					if(iValue > iBestValue)
 					{
 						iBestValue = iValue;
@@ -10700,6 +10724,20 @@ bool CvMinorCivAI::IsCoupAttempted(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
 	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return 0;  // as defined in Reset()
 	return m_abCoupAttempted[ePlayer];
+}
+void CvMinorCivAI::SetTargetedAreaID(PlayerTypes ePlayer, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
+	
+	m_aiAssignedPlotAreaID[ePlayer] = iValue;
+}
+int CvMinorCivAI::GetTargetedAreaID(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
+	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return -1;  // as defined in Reset()
+	return m_aiAssignedPlotAreaID[ePlayer];
 }
 
 CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
@@ -10886,6 +10924,32 @@ CvPlot* CvMinorCivAI::GetTargetPlot(PlayerTypes ePlayer)
 
 		//Can't do super small islands!
 		if(pLoopArea->getNumTiles() <= 3)
+		{
+			continue;
+		}
+
+		bool bBad = false;
+		//Check for other minors that are currently targeting this landmass
+		for(int iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes) iTargetLoop;
+
+			if(GET_PLAYER(eMinor).isAlive())
+				continue;
+
+			if(GetPlayer()->getTeam() == GET_PLAYER(eMinor).getTeam())
+				continue;
+
+			if(!GET_PLAYER(eMinor).isMinorCiv())
+				continue;
+
+			if(GET_PLAYER(eMinor).GetMinorCivAI()->GetTargetedAreaID(ePlayer) == pLoopArea->GetID())
+			{
+				bBad = true;
+				break;
+			}
+		}
+		if(bBad)
 		{
 			continue;
 		}
@@ -12365,11 +12429,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	// Mercantile
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 	{
-		//human player wants to see the effect at once, otherwise update at next turn start is good enough
-		if(GET_PLAYER(ePlayer).isHuman())
-		{
-			GET_PLAYER(ePlayer).CalculateNetHappiness();
-		}
+		GET_PLAYER(ePlayer).CalculateNetHappiness();
 	}
 	// Religious
 	if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
@@ -12863,6 +12923,72 @@ int CvMinorCivAI::GetTurnLiberated()
 {
 	return m_iTurnLiberated;
 }
+void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
+{
+	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
+	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+
+	if(!MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+		return;
+
+	bool bProtect = IsProtectedByMajor(eMajor);
+
+	if(bProtect)
+	{
+		CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
+		PlayerTypes eMajorLoop;
+		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		{
+			eMajorLoop = (PlayerTypes) iMajorLoop;
+			if(GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
+			{
+				veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight()); // Don't recalculate within a turn, can cause inconsistency
+			}
+		}
+		CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
+		veMilitaryRankings.SortItems();
+		for(int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
+		{
+			if(veMilitaryRankings.GetElement(iRanking) == eMajor)
+			{
+				float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
+				if(fRankRatio <= 0.5)
+				{
+					m_abPledgeToProtect[eMajor] = false;
+					SetTurnLastPledgeBrokenByMajor(eMajor, GC.getGame().getGameTurn());
+					ChangeFriendshipWithMajorTimes100(eMajor, (GC.getMINOR_FRIENDSHIP_DROP_DISHONOR_PLEDGE_TO_PROTECT() / 2));
+
+					CvCity* pCity = m_pPlayer->getCapitalCity();
+					if(pCity != NULL)
+					{
+						pCity->updateStrengthValue();
+					}
+					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED");
+					strMessage << GetPlayer()->getNameKey();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT");
+					strSummary << GetPlayer()->getNameKey();
+
+					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+					break;
+				}
+				else if(fRankRatio < 0.6)
+				{
+					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING");
+					strMessage << GetPlayer()->getNameKey();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT");
+					strSummary << GetPlayer()->getNameKey();
+
+					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+					break;
+				}
+			}
+		}
+	}
+
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+}
 #endif
 void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect, bool bPledgeNowBroken)
 {
@@ -12946,26 +13072,29 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
-	PlayerTypes eMajorLoop;
-	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	if(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 	{
-		eMajorLoop = (PlayerTypes) iMajorLoop;
-		if(GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
+		CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
+		PlayerTypes eMajorLoop;
+		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
-			veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight()); // Don't recalculate within a turn, can cause inconsistency
-		}
-	}
-	CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
-	veMilitaryRankings.SortItems();
-	for(int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
-	{
-		if(veMilitaryRankings.GetElement(iRanking) == eMajor)
-		{
-			float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
-			if(fRankRatio < 0.6)
+			eMajorLoop = (PlayerTypes) iMajorLoop;
+			if(GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
 			{
-				return false;
+				veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight()); // Don't recalculate within a turn, can cause inconsistency
+			}
+		}
+		CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
+		veMilitaryRankings.SortItems();
+		for(int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
+		{
+			if(veMilitaryRankings.GetElement(iRanking) == eMajor)
+			{
+				float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
+				if(fRankRatio < 0.6)
+				{
+					return false;
+				}
 			}
 		}
 	}
@@ -13202,11 +13331,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldHappiness != iNewHappiness)
 			{
 				bSomethingChanged = true;
-				//human player wants to see the effect at once, otherwise update at next turn start is good enough
-				if(GET_PLAYER(ePlayer).isHuman())
-				{
-					GET_PLAYER(ePlayer).CalculateNetHappiness();
-				}
+				GET_PLAYER(ePlayer).CalculateNetHappiness();
 			}
 		}
 
@@ -13221,11 +13346,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldHappiness != iNewHappiness)
 			{
 				bSomethingChanged = true;
-				//human player wants to see the effect at once, otherwise update at next turn start is good enough
-				if(GET_PLAYER(ePlayer).isHuman())
-				{
-					GET_PLAYER(ePlayer).CalculateNetHappiness();
-				}
+				GET_PLAYER(ePlayer).CalculateNetHappiness();
 			}
 		}
 	}
@@ -14909,7 +15030,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 
 	int iScore = 0;
 #if defined(MOD_BALANCE_CORE_MINORS)
-	const int iFailScore = -500;
+	const int iFailScore = -1000;
 #else
 	const int iFailScore = -300;
 #endif

@@ -350,6 +350,8 @@ CvUnit::CvUnit() :
 	, m_PromotionDuration("CvUnit::m_PromotionDuration", m_syncArchive)
 	, m_TurnPromotionGained("CvUnit::m_TurnPromotionGained", m_syncArchive)
 	, m_iNumTilesRevealedThisTurn("CvUnit::m_iNumTilesRevealedThisTurn", m_syncArchive)
+	, m_iGainsXPFromScouting("CvUnit::m_iGainsXPFromScouting", m_syncArchive)
+	, m_iBarbCombatBonus("CvUnit::m_iBarbCombatBonus", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	, m_iExtraReconRange("CvUnit::m_iExtraReconRange", m_syncArchive)
@@ -2648,6 +2650,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iNumTilesRevealedThisTurn = 0;
+	m_iGainsXPFromScouting = 0;
+	m_iBarbCombatBonus = 0;
 #endif
 	m_iRoughTerrainEndsTurnCount = 0;
 	m_iEmbarkAbilityCount = 0;
@@ -3259,11 +3263,11 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				{
 					if(IsGreatPerson())
 					{
-						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (6 * iEra));
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (4 * iEra));
 					}
 					else
 					{
-						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (3 * iEra));
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (1 * iEra));
 					}
 				}
 			}
@@ -3274,11 +3278,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				{
 					if(IsGreatPerson())
 					{
-						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (2 * iEra));
-					}
-					else
-					{
-						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, iEra);
+						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumTimesRazed(ePlayer, (3 * iEra));
 					}
 				}
 			}
@@ -3823,7 +3823,6 @@ void CvUnit::doTurn()
 		SetActivityType(ACTIVITY_AWAKE);
 	}
 #if defined(MOD_BALANCE_CORE)
-	SetNumTilesRevealedThisTurn(0);
 	if((getDomainType() == DOMAIN_AIR) && (eActivityType != ACTIVITY_HEAL) && (eActivityType != ACTIVITY_INTERCEPT) && isHuman() && !IsHurt() && SentryAlert())
 	{
 		SetActivityType(ACTIVITY_AWAKE);
@@ -7293,13 +7292,19 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 {
 	VALIDATE_OBJECT
 
-	// No barb healing
-	if(isBarbarian())
+	if(!IsHurt())
 	{
 		return false;
 	}
 
-	if(!IsHurt())
+	// No healing after movement, except for exceptions
+	if(hasMoved() && !isAlwaysHeal())
+	{
+		return false;
+	}
+
+	// No barb healing
+	if(isBarbarian())
 	{
 		return false;
 	}
@@ -7327,11 +7332,6 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 		}
 	}
 #endif
-
-	if(isWaiting())
-	{
-		return false;
-	}
 
 #if defined(MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
 	if (MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
@@ -7645,6 +7645,10 @@ void CvUnit::doHeal()
 	VALIDATE_OBJECT
 	if(!isBarbarian())
 	{
+		//this always returns false for barbarians, therefore inside the conditional
+		if(!canHeal(plot()))
+			return;
+
 #if defined(MOD_BALANCE_CORE_MILITARY_RESISTANCE)
 		if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && !GET_PLAYER(getOwner()).isMinorCiv())
 		{
@@ -7724,7 +7728,7 @@ void CvUnit::doHeal()
 		if(IsCombatUnit())
 		{
 			ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
-			if( !hasMoved() && IsHurt() && plot()->getImprovementType()==eCamp )
+			if( IsHurt() && !hasMoved() && plot()->getImprovementType()==eCamp )
 			{
 				changeDamage( -GC.getBALANCE_BARBARIAN_HEAL_RATE() );
 			}
@@ -8950,6 +8954,14 @@ bool CvUnit::createGreatWork()
 			gDLL->GameplayUnitActivate(pDllUnit.get());
 		}
 #if defined(MOD_BALANCE_CORE)
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes) iI;
+			if(eYield == NO_YIELD)
+				continue;
+
+			pCity->UpdateCityYields(eYield);
+		}
 		pCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 		pCity->GetCityCulture()->CalculateBaseTourism();
 #endif
@@ -12560,7 +12572,7 @@ bool CvUnit::blastTourism()
 			if (pNotifications) 
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR");
-				localizedText << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
+				localizedText << GET_PLAYER(eOwner).getCivilizationTypeKey();
 				localizedText << iHappiness;
 				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_S");
 				localizedSummary << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
@@ -12570,7 +12582,7 @@ bool CvUnit::blastTourism()
 			if (pNotifications2) 
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET");
-				localizedText << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
+				localizedText << GET_PLAYER(getOwner()).getCivilizationTypeKey();
 				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET_S");
 				localizedSummary << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
 				pNotifications2->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), eOwner);
@@ -13515,6 +13527,12 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 		// Must be in territory owned by the player
 		if(pPlot->getOwner() != getOwner())
 			return false;
+#endif
+#if defined(MOD_BALANCE_CORE)
+		if(isEmbarked() || (plot()->isWater() && getDomainType() != DOMAIN_SEA))
+		{
+			return false;
+		}
 #endif
 
 		CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
@@ -15110,6 +15128,11 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			iTempModifier = kPlayer.GetBarbarianCombatBonus();
 			iModifier += iTempModifier;
 
+#if defined(MOD_BALANCE_CORE)
+			iTempModifier = GetBarbarianCombatBonus();
+			iModifier += iTempModifier;
+#endif
+
 			CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
 
 			// Human bonus
@@ -15118,6 +15141,14 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 				iTempModifier = thisGameHandicap.getBarbarianCombatModifier();
 				iModifier += iTempModifier;
 			}
+#if defined(MOD_BALANCE_CORE)
+			// Minor bonus
+			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv())
+			{
+				iTempModifier = (thisGameHandicap.getAIBarbarianCombatModifier() / 4);
+				iModifier += iTempModifier;
+			}
+#endif
 			// AI bonus
 			else
 			{
@@ -16981,6 +17012,45 @@ int CvUnit::GetNumTilesRevealedThisTurn()
 	VALIDATE_OBJECT
 	return m_iNumTilesRevealedThisTurn;
 }
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsGainsXPFromScouting() const
+{
+	VALIDATE_OBJECT
+	return GetGainsXPFromScouting() > 0;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetGainsXPFromScouting() const
+{
+	VALIDATE_OBJECT
+	return m_iGainsXPFromScouting;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeGainsXPFromScouting(int iValue)
+{
+	VALIDATE_OBJECT
+	if(iValue != 0)
+	{
+		m_iGainsXPFromScouting += iValue;
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvUnit::GetBarbarianCombatBonus() const
+{
+	VALIDATE_OBJECT
+	return m_iBarbCombatBonus;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeBarbarianCombatBonus(int iValue)
+{
+	VALIDATE_OBJECT
+	if(iValue != 0)
+	{
+		m_iBarbCombatBonus += iValue;
+	}
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -18380,21 +18450,7 @@ if (!bDoEvade)
 			GC.getMap().plotManager().AddUnit(GetIDInfo(), iX, iY, iMapLayer);
 		}
 #if defined(MOD_BALANCE_CORE)
-		bool bScout = false;
-		for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
-		{
-			const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
-			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkPromotionInfo)
-			{
-				if(!bScout && isHasPromotion(ePromotion) && pkPromotionInfo->IsGainsXPFromScouting())
-				{
-					bScout = true;
-					break;
-				}
-			}
-		}
-		if(bScout && GC.getGame().getActivePlayer() == getOwner())
+		if(IsGainsXPFromScouting())
 		{
 			if(getExperience() <= GC.getBALANCE_SCOUT_XP_MAXIMUM())
 			{
@@ -18406,6 +18462,7 @@ if (!bDoEvade)
 					//Up to max barb value - rest has to come through combat!
 					changeExperience(iExperience);
 				}
+				SetNumTilesRevealedThisTurn(0);
 			}
 		}
 #endif
@@ -22174,14 +22231,9 @@ bool CvUnit::IsNearSapper(const CvCity* pTargetCity) const
 			if(pLoopPlot != NULL)
 			{
 				// Units in our plot do not count
-#if defined(MOD_BALANCE_CORE)
-				if(IsCombatUnit())
-				{
-#endif
+#if !defined(MOD_BALANCE_CORE)
 				if (pLoopPlot->getX() == getX() && pLoopPlot->getY() == getY())
 					continue;
-#if defined(MOD_BALANCE_CORE)
-				}
 #endif
 
 				// If there are Units here, loop through them
@@ -22243,17 +22295,6 @@ bool CvUnit::IsHalfNearSapper(const CvCity* pTargetCity) const
 
 			if(pLoopPlot != NULL)
 			{
-				// Units in our plot do not count
-#if defined(MOD_BALANCE_CORE)
-				if(IsCombatUnit())
-				{
-#endif
-				if (pLoopPlot->getX() == getX() && pLoopPlot->getY() == getY())
-					continue;
-#if defined(MOD_BALANCE_CORE)
-				}
-#endif
-
 				// If there are Units here, loop through them
 				if(pLoopPlot->getNumUnits() > 0)
 				{
@@ -24180,6 +24221,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeCityAttackOnlyCount((thisPromotion.IsCityAttackOnly()) ? iChange: 0);
 		ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange: 0);
 #if defined(MOD_BALANCE_CORE)
+		ChangeBarbarianCombatBonus((thisPromotion.GetBarbarianCombatBonus()) * iChange);
+		ChangeGainsXPFromScouting((thisPromotion.IsGainsXPFromScouting()) ? iChange: 0);
 		ChangeCannotBeCapturedCount((thisPromotion.CannotBeCaptured()) ? iChange: 0);
 		ChangeForcedDamageValue((thisPromotion.ForcedDamageValue()) * iChange);
 		ChangeChangeDamageValue((thisPromotion.ChangeDamageValue()) * iChange);

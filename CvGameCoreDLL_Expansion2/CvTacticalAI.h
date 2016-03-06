@@ -365,7 +365,7 @@ public:
 		m_iDominanceZoneID = iZone;
 	};
 
-	int GetCurrentHitpoints(PlayerTypes eAttackingPlayer);
+	bool IsReadyForCapture();
 	bool IsTargetStillAlive(PlayerTypes eAttackingPlayer);
 	bool IsTargetValidInThisDomain(DomainTypes eDomain);
 

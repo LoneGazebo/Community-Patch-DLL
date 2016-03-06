@@ -77,8 +77,16 @@ public:
 	bool isCitySelected();
 	bool canBeSelected() const;
 	void updateSelectedCity();
-
+#if defined(MOD_BALANCE_CORE)
+	void updateYield(bool bSkipCity = false);
+#else
 	void updateYield();
+#endif
+#if defined(MOD_BALANCE_CORE)
+	void UpdateCityYields(YieldTypes eYield);
+	void SetStaticYield(YieldTypes eYield, int iValue);
+	int GetStaticYield(YieldTypes eYield) const;
+#endif
 
 	bool IsIndustrialRouteToCapital() const;
 	void SetIndustrialRouteToCapital(bool bValue);
@@ -327,7 +335,11 @@ public:
 	void processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, bool bObsolete = false, bool bApplyingAllCitiesBonus = false);
 #endif
 	void processProcess(ProcessTypes eProcess, int iChange);
+#if defined(MOD_BALANCE_CORE)
+	void processSpecialist(SpecialistTypes eSpecialist, int iChange, bool bSkip = false);
+#else
 	void processSpecialist(SpecialistTypes eSpecialist, int iChange);
+#endif
 
 #if defined(MOD_BALANCE_CORE)
 	void UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields=true);
@@ -467,7 +479,11 @@ public:
 	void DoJONSCultureLevelIncrease();
 	int GetJONSCultureThreshold() const;
 
+#if defined(MOD_BALANCE_CORE)
+	int getJONSCulturePerTurn(bool bStatic = true) const;
+#else
 	int getJONSCulturePerTurn() const;
+#endif
 
 	int GetBaseJONSCulturePerTurn() const;
 
@@ -514,8 +530,11 @@ public:
 	int getTourismRateModifier() const;
 	void changeTourismRateModifier(int iChange);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	int GetFaithPerTurn(bool bStatic = true) const;
+#else
 	int GetFaithPerTurn() const;
+#endif
 	int GetFaithPerTurnFromBuildings() const;
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	void ChangeFaithPerTurnFromBuildings(int iChange);
@@ -793,11 +812,19 @@ public:
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldPerTurnFromReligion(ReligionTypes eReligion, YieldTypes eYield) const;
+	void UpdateSpecialReligionYields(YieldTypes eYield);
+	int GetSpecialReligionYields(YieldTypes eIndex) const;
+	void SetSpecialReligionYields(YieldTypes eIndex, int iValue);
 #endif
 
 	int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0, CvString* toolTipSink = NULL) const;
+#if defined(MOD_BALANCE_CORE)
+	int getYieldRate(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic = true) const;
+	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic = true) const;
+#else
 	int getYieldRate(YieldTypes eIndex, bool bIgnoreTrade) const;
 	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
+#endif
 #if defined(MOD_PROCESS_STOCKPILE)
 	int getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
 #endif
@@ -903,21 +930,6 @@ public:
 
 	int GetMinorityUnhappiness() const;
 	void ChangeMinorityUnhappiness(int iChange);
-
-	int GetPovertyUnhappinessGlobal() const;
-	void ChangePovertyUnhappinessGlobal(int iChange);
-
-	int GetDefenseUnhappinessGlobal() const;
-	void ChangeDefenseUnhappinessGlobal(int iChange);
-
-	int GetUnculturedUnhappinessGlobal() const;
-	void ChangeUnculturedUnhappinessGlobal(int iChange);
-
-	int GetIlliteracyUnhappinessGlobal() const;
-	void ChangeIlliteracyUnhappinessGlobal(int iChange);
-
-	int GetMinorityUnhappinessGlobal() const;
-	void ChangeMinorityUnhappinessGlobal(int iChange);
 #endif
 
 	int GetBaseYieldRateFromReligion(YieldTypes eIndex) const;
@@ -973,6 +985,8 @@ public:
 	bool IsBastion() const;
 	void SetBastion(bool bValue);
 	void TestBastion();
+
+	void DoBarbIncursion();
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void ChangeBlockBuildingDestruction(int iNewValue);
@@ -1471,6 +1485,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeGrowthExtraYield;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromKnownPantheons;
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeYieldFromVictory;
 	FAutoVariable<std::vector<int>, CvCity> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromWLTKD;
@@ -1480,6 +1495,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiSpecialistRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiThemingYieldBonus;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesOwned;
+	FAutoVariable<std::vector<int>, CvCity> m_aiStaticCityYield;
 	FAutoVariable<int, CvCity> m_iUnhappyCitizen;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iBuildingPurchaseCooldown;
@@ -1513,11 +1529,6 @@ protected:
 	FAutoVariable<int, CvCity> m_iChangeUnculturedUnhappiness;
 	FAutoVariable<int, CvCity> m_iChangeIlliteracyUnhappiness;
 	FAutoVariable<int, CvCity> m_iChangeMinorityUnhappiness;
-	FAutoVariable<int, CvCity> m_iChangePovertyUnhappinessGlobal;
-	FAutoVariable<int, CvCity> m_iChangeDefenseUnhappinessGlobal;
-	FAutoVariable<int, CvCity> m_iChangeUnculturedUnhappinessGlobal;
-	FAutoVariable<int, CvCity> m_iChangeIlliteracyUnhappinessGlobal;
-	FAutoVariable<int, CvCity> m_iChangeMinorityUnhappinessGlobal;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromReligion;
 #if defined(MOD_BALANCE_CORE)

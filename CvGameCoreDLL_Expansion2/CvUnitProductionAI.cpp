@@ -456,6 +456,22 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 	}
 
+	//Suicide units? Hmm...
+	if(pkUnitEntry->IsSuicide())
+	{
+		//Nukes!!!
+		if(pkUnitEntry->GetNukeDamageLevel() > 0)
+		{
+			iBonus += 100;
+		}
+		//Cruise Missiles? Only if we don't have any nukes lying around...
+		else if(pkUnitEntry->GetRangedCombat() > 0 && kPlayer.getNumNukeUnits() > 0)
+		{
+			iBonus -= 50;
+		}
+	}
+
+
 	//Policy unlock or move-on-purchase? These are usually cheap and good, so get em!
 	if(pkUnitEntry->GetPolicyType() != NO_POLICY || pkUnitEntry->CanMoveAfterPurchase())
 	{
@@ -526,12 +542,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		MilitaryAIStrategyTypes eNeedBoatsCritical = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_NAVAL_UNITS_CRITICAL");
 		if(eNeedBoatsCritical != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eNeedBoatsCritical))
 		{
-			iBonus += 50;
+			iBonus += 66;
 		}
 		MilitaryAIStrategyTypes eNeedBoats = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_NAVAL_UNITS");
 		if(eNeedBoats != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eNeedBoats))
 		{
-			iBonus += 25;
+			iBonus += 33;
 		}
 	}
 	//Land Units Critically Needed?
@@ -542,11 +558,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if(pkUnitEntry->GetCombat() > 0)
 			{
-				iBonus += 50;
+				iBonus += 66;
 			}
 			else
 			{
-				iBonus -= 25;
+				iBonus -= 33;
 			}
 		}
 		MilitaryAIStrategyTypes eNeedLand = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_EMPIRE_DEFENSE");
@@ -554,11 +570,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if(pkUnitEntry->GetCombat() > 0)
 			{
-				iBonus += 25;
+				iBonus += 33;
 			}
 			else
 			{
-				iBonus -= 10;
+				iBonus -= 15;
 			}
 		}
 		MilitaryAIStrategyTypes eBarb = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS");
@@ -1087,7 +1103,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Uniques? They're generally good enough to spam.
 	if((UnitTypes)kPlayer.getCivilizationInfo().isCivilizationUnitOverridden(eUnit))
 	{
-		iBonus += 50;
+		iBonus += 66;
 	}
 
 	//Have an army that needs this unit? Boost it quite a bit.
@@ -1095,7 +1111,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	{
 		if(pArmy != NULL && pArmy->GetGoalPlot() != NULL)
 		{
-			iBonus += 75;
+			iBonus += 100;
 		}
 	}
 	//For an operation? Build it!
@@ -1103,12 +1119,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	{
 		if(bForOperation)
 		{
-			iBonus += 75;
+			iBonus += 100;
 		}
 		//////Let's get the land military unit AI type we have the least of and boost the lowest type.
 		if(kPlayer.GetArmyDiversity() == (int)pkUnitEntry->GetDefaultUnitAIType())
 		{
-			iBonus += 25;
+			iBonus += 50;
 		}
 	}
 	//Tiny army? Eek!
@@ -1116,12 +1132,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	{
 		if(pkUnitEntry->GetCombat() > 0)
 		{
-			iBonus += 50;
+			iBonus += 66;
 		}
 		//Fewer civilians til we rectify this!
 		else
 		{
-			iBonus -= 50;
+			iBonus -= 66;
 		}
 	}
 	//Debt is worth considering.
@@ -1130,8 +1146,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		int iGPT = (int)kPlayer.GetTreasury()->AverageIncome(10);
 		if(iGPT < 0)
 		{
-			//Every -1 GPT = -7% bonus
-			iBonus += (iGPT * 7);
+			//Every -1 GPT = -5% bonus
+			iBonus += (iGPT * 5);
 		}
 	}
 	

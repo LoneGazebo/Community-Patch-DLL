@@ -232,23 +232,89 @@
 								<Box Anchor="L,T" Size="240, 128" Offset="0,0" Color="255,255,255,0">
 									<Label Anchor="L,T" Offset="0,32" Font="TwCenMT24" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_DIPLO_LEADER_NAME" ID="MasterInfoLeaderName"/>
 									<Label Anchor="L,T" Offset="0,58" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_DIPLO_CIVILIZATION_NAME" ID="MasterInfoCivName"/>
+									<Label Anchor="L,T"  Offset="0,78" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="MasterTurnsYouAreVassal"/>
+									<Label Anchor="L,T"  Offset="0,98" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="MasterDeclareIndependence"/>
 								</Box>
 							</Stack>
 						</Box>
 						<Box Size="646, 334" Offset="0,132" Color="255,255,255,0">
 							<Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0">
-								<Box Anchor="C,T" Size="646,140" Color="255,255,255,0">
-									<Label Anchor="C,T" ID="MasterTurnsYouAreVassal" Offset="0,0" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="Vassal for X Turns"/>
-									<Label Anchor="C,T" ID="MasterDeclareIndependence" Offset="0,24" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="Can Declare Independence"/>
+								<Grid Anchor="LC,T" Style="WindowGrid" Size="646,24">
+									<Stack Anchor="L,T" Offset="0,0" StackGrowth="Right" Padding="0">
+										<Box Anchor="C,C" Color="White.0" Size="323,24" Offset="0,0">
+											<Label Anchor="C,C" String="{TXT_KEY_VO_STATISTICS}" WrapWidth="160" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+										</Box>
+										<Box Anchor="C,C" Color="White.0" Size="323,24" Offset="0,0">
+											<Label Anchor="C,C" String="{TXT_KEY_VO_MANAGEMENT}" WrapWidth="160" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+										</Box>
+									</Stack>
+								</Grid>
+								<Stack Anchor="L,T" Offset="0,0" StackGrowth="Right" Padding="0">
+									<Box Anchor="L,T" ID="MasterStatsBox" Size="323,310" Offset="0,0" Color="255,255,255,0">
+										<Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0">
+											<!-- Population Overview -->
+											<Box Size="300,45" Color="Beige,0" Anchor="C,T">
+												<Grid Size="320,27" Style="Grid9FrameTurns" Anchor="C,B"/>
+												<Label Offset="0,8" Font="TwCenMT20" Anchor="C,B" String="{TXT_KEY_VO_POPULATION}"/>
+											</Box>
+											<Box Anchor="L,T" Size="319,96" Color="255,255,255,0">
+												<Label Anchor="L,T" Offset="4,8" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="{TXT_KEY_VO_MASTER_YOUR_POP}"/>
+												<Label Anchor="R,T" Offset="4,8" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="0" ID="MasterStatsYourPopulation"/>
 
-									<Label Anchor="L,T" ID="MasterYourPop" Offset="0,60" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
-									<Label Anchor="L,T" ID="MasterTheirPop" Offset="0,80" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+												<Label Anchor="L,T" Offset="4,30" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="{TXT_KEY_VO_MASTER_THEIR_POP}"/>
+												<Label Anchor="R,T" Offset="4,30" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="0" ID="MasterStatsTheirPopulation"/>
+
+												<Label Anchor="L,T" Offset="4,52" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="{TXT_KEY_VO_MASTER_VIEW_POP_PERCENT}"/>
+												<Label Anchor="R,T" Offset="4,52" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="0" ID="MasterStatsPopulationPercent"/>
+												
+												<Label Anchor="L,T" Offset="4,74" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="{TXT_KEY_VO_MASTER_POP_STARTED_PERCENT}"/>
+												<Label Anchor="R,T" Offset="4,74" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="0" ID="MasterStatsPopStartedPercent"/>
+											</Box>
+											<!-- Cities Overview -->
+											<Box Size="300,45" Color="Beige,0" Anchor="C,T">
+												<Grid Size="320,27" Style="Grid9FrameTurns" Anchor="C,B"/>
+												<Label Offset="0,8" Font="TwCenMT20" Anchor="C,B" String="{TXT_KEY_VO_CITIES}"/>
+											</Box>
+											<Box Anchor="L,T" Size="319,96" Color="255,255,255,0">
+												<Label Anchor="L,T" Offset="4,8" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="{TXT_KEY_VO_MASTER_YOUR_CITIES}"/>
+												<Label Anchor="R,T" Offset="4,8" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="0" ID="MasterStatsYourCities"/>
+
+												<Label Anchor="L,T" Offset="4,30" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="{TXT_KEY_VO_MASTER_THEIR_CITIES}"/>
+												<Label Anchor="R,T" Offset="4,30" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="0" ID="MasterStatsTheirCities"/>
+
+												<Label Anchor="L,T" Offset="4,52" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="{TXT_KEY_VO_MASTER_CITIES_PERCENT}"/>
+												<Label Anchor="R,T" Offset="4,52" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="0" ID="MasterStatsCitiesPercent"/>
+
+												<Label Anchor="L,T" Offset="4,74" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="{TXT_KEY_VO_MASTER_CITIES_STARTED_PERCENT}"/>
+												<Label Anchor="R,T" Offset="4,74" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="0" ID="MasterStatsCitiesStartedPercent"/>
+											</Box>
+										</Stack>
+									</Box>
+									<Box Anchor="L,T" ID="MasterManagementBox" Size="323,310" Offset="0,0" Color="255,255,255,0">
+										<Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0">
+											<!-- Vassal Population Overview -->
+											<Box Size="300,45" Color="Beige,0" Anchor="C,T">
+												<Grid Size="320,27" Style="Grid9FrameTurns" Anchor="C,B"/>
+												<Label Offset="0,8" Font="TwCenMT20" Anchor="C,B" String="{TXT_KEY_VO_TAXES}"/>
+											</Box>
+											<Box Anchor="L,T" Size="319,128" Color="255,255,255,0">	
+												<Label String="TXT_KEY_VO_TAX_RATE" Font="TwCenMT20" Anchor="C,T" Offset="4,8" ID="LabelMasterTaxRate"/>
+												<Slider Length="300" Anchor="C,T" Offset="0,28" Style="Slider" ID="MasterTaxSlider" WheelSteps="10"/>
+
+												<Label ID="MasterTaxesTurnSet" Font="TwCenMT18" Anchor="C,T" Offset="4,68" String="Turn Taxes Set: X"/>
+												<Label ID="MasterAvailableTurn" Font="TwCenMT18" Anchor="C,T" Offset="4,88" String="Master can set taxes on turn: X"/>
+												<Label ID="MasterTaxesCurrentGPT" Font="TwCenMT18" Anchor="C,T" Offset="4,108" String="Master getting: X gold from us"/>
+											</Box>
+										</Stack>
+										<GridButton Anchor="C,B" ID="RequestIndependence" Offset="0,0" Style="SmallButton" Size="200,45" String="TXT_KEY_VO_REQUEST_INDEPENDENCE" />
+									</Box>
+								</Stack>
+							</Stack>			
+							<!--
+								<Box Anchor="C,T" Size="646,140" Color="255,255,255,0">									
 									<Label Anchor="L,T" ID="MasterPopPercentStart" Offset="0,100" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
-									<Label Anchor="L,T" ID="MasterPopPercent" Offset="0,120" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
-									<Label Anchor="R,T" ID="MasterYourCities" Offset="0,60" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
-									<Label Anchor="R,T" ID="MasterTheirCities" Offset="0,80" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
 									<Label Anchor="R,T" ID="MasterCityPercentStart" Offset="0,100" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
-									<Label Anchor="R,T" ID="MasterCityPercent" Offset="0,120" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+									
 								</Box>
 								<Box Anchor="C,T" Size="646,128" Color="255,255,255,0">
 									<Label String="TXT_KEY_VO_TAX_RATE" Font="TwCenMT20" Anchor="C,T" Offset="4,8" ID="LabelMasterTaxRate"/>
@@ -258,7 +324,7 @@
 									<Label ID="MasterAvailableTurn" Font="TwCenMT18" Anchor="C,T" Offset="4,88" String="Master can set taxes on turn: X"/>
 									<Label ID="MasterTaxesCurrentGPT" Font="TwCenMT18" Anchor="C,T" Offset="4,108" String="Master getting: X gold from us"/>
 								</Box>
-							</Stack>
+-->
 						</Box>
 					</Box>
 				</Box>

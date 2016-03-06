@@ -538,6 +538,10 @@
 //   GameEvents.MinorAlliesChanged.Add(function(iMinor, iMajor, bIsAlly, iOldFriendship, iNewFriendship) end)
 #define MOD_EVENTS_MINORS                           gCustomMods.isEVENTS_MINORS()
 
+// Event sent upon a City State giving a gift (v73)
+//   GameEvents.MinorGift.Add(function(iMinor, iMajor, ???) end)
+#define MOD_EVENTS_MINORS_GIFTS                     gCustomMods.isEVENTS_MINORS_GIFTS()
+
 // Events sent on interaction with City States (v68)
 //   GameEvents.PlayerCanProtect.Add(function(iPlayer, iCS) return true end)
 //   GameEvents.PlayerProtected.Add(function(iPlayer, iCS) end)
@@ -700,6 +704,10 @@
 //   GameEvents.CitySoldBuilding.Add(function(iPlayer, iCity, iBuilding) end)
 #define MOD_EVENTS_CITY                             gCustomMods.isEVENTS_CITY()
 
+// Event sent after a civilization moves their capital (v73)
+//   GameEvents.CapitalChanged.Add(function(iPlayer, iNewCapital, iOldCapital) end)
+#define MOD_EVENTS_CITY_CAPITAL                     gCustomMods.isEVENTS_CITY_CAPITAL()
+
 // Event sent to ascertain if a city can acquire a plot (v20)
 //   GameEvents.CityCanAcquirePlot.Add(function(iPlayer, iCity, iPlotX, iPlotY) return true end)
 #define MOD_EVENTS_CITY_BORDERS                     gCustomMods.isEVENTS_CITY_BORDERS()
@@ -788,6 +796,8 @@
 #define MOD_BUGFIX_RESEARCH_OVERFLOW                gCustomMods.isBUGFIX_RESEARCH_OVERFLOW()
 // Fixes the bug where a city doesn't work its centre tile (v45)
 #define MOD_BUGFIX_CITY_CENTRE_WORKING              (true)
+// Fixes the bug of creating a capital from a puppet city, and leaving it that way (v73)
+#define MOD_BUGFIX_NO_PUPPET_CAPITALS               (true)
 // Adds missing policy events when adopting an ideology (v33)
 #define MOD_BUGFIX_MISSING_POLICY_EVENTS			(true)
 // Fixes trade routes sticking to coastal water when the player has the EmbarkAllWater trait (v33)
@@ -945,6 +955,10 @@ enum BattleTypeTypes
 #define GAMEEVENTRETURN_HOOK   GAMEEVENTRETURN_TRUE
 #define GAMEEVENTRETURN_VALUE  GAMEEVENTRETURN_TRUE
 
+// Pairs of event names and (optional) parameter types
+//    iii means three int params
+//    ibi means an int, then a bool, then a final int
+//    s means a string (char*) and is only allowed as the last parameter
 #define GAMEEVENT_AiOverrideChooseNextTech		"AiOverrideChooseNextTech",		"ib"
 #define GAMEEVENT_AreaCanHaveAnyResource		"AreaCanHaveAnyResource",		"ii"
 #define GAMEEVENT_BarbariansCanFoundCamp		"BarbariansCanFoundCamp",		"ii"
@@ -967,6 +981,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CanParadropFrom				"CanParadropFrom",				"iiii"
 #define GAMEEVENT_CanRebaseInCity				"CanRebaseInCity",				"iiii"
 #define GAMEEVENT_CanRebaseTo					"CanRebaseTo",					"iiiib"
+#define GAMEEVENT_CapitalChanged				"CapitalChanged",				"iii"
 #define GAMEEVENT_CircumnavigatedGlobe			"CircumnavigatedGlobe",			"i"
 #define GAMEEVENT_CityBoughtPlot				"CityBoughtPlot",				"iiiibb"
 #define GAMEEVENT_CityCanAcquirePlot			"CityCanAcquirePlot",			"iiii"
@@ -1005,6 +1020,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_MakePeace						"MakePeace",					"iib"
 #define GAMEEVENT_MinorAlliesChanged			"MinorAlliesChanged",			"iibii"
 #define GAMEEVENT_MinorFriendsChanged			"MinorFriendsChanged",			"iibii"
+#define GAMEEVENT_MinorGift						"MinorGift",					"iiiiibbs"
 #define GAMEEVENT_NaturalWonderDiscovered		"NaturalWonderDiscovered",		"iiiib"
 #define GAMEEVENT_NuclearDetonation				"NuclearDetonation",			"iiibb"
 #define GAMEEVENT_PantheonFounded				"PantheonFounded",				"iiii"
@@ -1344,6 +1360,7 @@ public:
 	MOD_OPT_DECL(EVENTS_DIPLO_EVENTS);
 	MOD_OPT_DECL(EVENTS_DIPLO_MODIFIERS);
 	MOD_OPT_DECL(EVENTS_MINORS);
+	MOD_OPT_DECL(EVENTS_MINORS_GIFTS);
 	MOD_OPT_DECL(EVENTS_MINORS_INTERACTION);
 	MOD_OPT_DECL(EVENTS_BARBARIANS);
 	MOD_OPT_DECL(EVENTS_GOODY_CHOICE);
@@ -1357,6 +1374,7 @@ public:
 	MOD_OPT_DECL(EVENTS_PLOT);
 	MOD_OPT_DECL(EVENTS_GOLDEN_AGE);
 	MOD_OPT_DECL(EVENTS_CITY);
+	MOD_OPT_DECL(EVENTS_CITY_CAPITAL);
 	MOD_OPT_DECL(EVENTS_CITY_BORDERS);
 	MOD_OPT_DECL(EVENTS_LIBERATION);
 	MOD_OPT_DECL(EVENTS_CITY_FOUNDING);

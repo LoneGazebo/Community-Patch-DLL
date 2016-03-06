@@ -249,8 +249,6 @@ void CvAIOperation::SetStartCityPlot(CvPlot* pStartCity)
 
 int CvAIOperation::GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const
 {
-	CvTacticalAnalysisCell* pCell;
-	CvTacticalAnalysisMap* pMap = GC.getGame().GetTacticalAnalysisMap();
 	int iRtnValue = 1;
 	int iValidPlotsNearby = 0;
 
@@ -269,20 +267,20 @@ int CvAIOperation::GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const
 		{
 			for(int iY = -iRange; iY <= iRange; iY++)
 			{
-				int iPlotIndex = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
-				pCell = pMap->GetCell(iPlotIndex);
+				CvPlot* pLoopPlot = GC.getMap().plot(pPlot->getX()+iX, pPlot->getY()+iY);
 
-				if(IsNavalOperation() && !pCell->CanUseForOperationGatheringCheckWater(true))
+				if(IsNavalOperation() && !pLoopPlot->isWater())
 				{
 					continue;
 				}
 
-				if(IsNavalOperation() && !pArmy->IsAllOceanGoing() && pCell->IsOcean())
+				if(IsNavalOperation() && !pArmy->IsAllOceanGoing() && pLoopPlot->isDeepWater())
 				{
 					continue;
 				}
 
-				iValidPlotsNearby++;
+				if (pLoopPlot->canPlaceUnit(GetOwner()))
+					iValidPlotsNearby++;
 			}
 		}
 
@@ -292,7 +290,6 @@ int CvAIOperation::GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const
 			// If so, just use normal range for this many units
 			iRtnValue = iRange;
 		}
-
 		// Something constrained here, give ourselves a lot of leeway
 		else
 		{
@@ -1774,7 +1771,7 @@ const char* CvAIOperation::GetInfoString()
 		if(thisArmy)
 			iUnitsInOperation += thisArmy->GetNumSlotsFilled();
 	}
-	strTemp3.Format(" (T%d-M%d-B%d)", iUnitsInOperation, GetNumUnitsNeededToBeBuilt(), GetNumUnitsCommittedToBeBuilt());
+	strTemp3.Format(" (R%d-M%d-B%d)", iUnitsInOperation, GetNumUnitsNeededToBeBuilt(), GetNumUnitsCommittedToBeBuilt());
 
 	m_strInfoString = strTemp0+strTemp1+strTemp2+strTemp3;
 	return m_strInfoString.c_str();
@@ -7858,9 +7855,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	}
 
 	//check if the unit is engaged with the enemy ...
-	CvTacticalAnalysisCell* pCell = GC.getGame().GetTacticalAnalysisMap()->GetCell( pLoopUnit->plot()->GetPlotIndex() );
-	CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( pCell->GetDominanceZone() );
-	if (pZone && pZone->GetDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+	if (pLoopUnit->IsEnemyInMovementRange())
 		return false;
 
 	//don't take explorers

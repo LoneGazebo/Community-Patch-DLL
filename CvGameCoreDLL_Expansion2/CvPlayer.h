@@ -561,6 +561,21 @@ public:
 	//LUA Functions
 	int GetYieldPerTurnFromHappiness(YieldTypes eYield, int iValue) const;
 	int CalculateUnhappinessTooltip(YieldTypes eYield) const;
+
+	int GetPovertyUnhappinessGlobal() const;
+	void ChangePovertyUnhappinessGlobal(int iChange);
+
+	int GetDefenseUnhappinessGlobal() const;
+	void ChangeDefenseUnhappinessGlobal(int iChange);
+
+	int GetUnculturedUnhappinessGlobal() const;
+	void ChangeUnculturedUnhappinessGlobal(int iChange);
+
+	int GetIlliteracyUnhappinessGlobal() const;
+	void ChangeIlliteracyUnhappinessGlobal(int iChange);
+
+	int GetMinorityUnhappinessGlobal() const;
+	void ChangeMinorityUnhappinessGlobal(int iChange);
 #endif
 	int GetExcessHappiness() const;
 	bool IsEmpireUnhappy() const;
@@ -2517,6 +2532,11 @@ protected:
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	FAutoVariable<int, CvPlayer> m_iUnhappiness;
 	FAutoVariable<int, CvPlayer> m_iHappinessTotal;
+	FAutoVariable<int, CvPlayer> m_iChangePovertyUnhappinessGlobal;
+	FAutoVariable<int, CvPlayer> m_iChangeDefenseUnhappinessGlobal;
+	FAutoVariable<int, CvPlayer> m_iChangeUnculturedUnhappinessGlobal;
+	FAutoVariable<int, CvPlayer> m_iChangeIlliteracyUnhappinessGlobal;
+	FAutoVariable<int, CvPlayer> m_iChangeMinorityUnhappinessGlobal;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;

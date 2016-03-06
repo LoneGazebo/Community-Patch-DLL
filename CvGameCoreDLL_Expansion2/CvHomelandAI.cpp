@@ -2785,6 +2785,9 @@ void CvHomelandAI::PlotAirliftMoves()
 	// Create list of empty land plots we own adjacent to airlift cities that are not endangered
 	vector<CvPlot *> aAirliftPlots;
 	CvTacticalAnalysisMap* pMap = GC.getGame().GetTacticalAnalysisMap();
+	if (pMap->GetCurrentPlayer()!=m_pPlayer->GetID())
+		pMap->RefreshDataForNextPlayer(m_pPlayer);
+
 	CvTacticalDominanceZone *pZone;
 	vector<CvCity *>::const_iterator it;
 	for (it = aAirliftCities.begin(); it != aAirliftCities.end(); it++)
@@ -5204,7 +5207,6 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 				if(pUnit->IsNearCityAttackOnly(pCandidate, pUnit.pointer())) //near another general
 					continue;
-					
 
 				//we want to have many neighboring units in danger, but our plot should be relatively safe
 				//(look at the danger for the defender, the general danger is zero unless the defender is projected to die)
@@ -5225,10 +5227,8 @@ void CvHomelandAI::ExecuteGeneralMoves()
 					if (!pSupportedUnit)
 						continue;
 
-					if(pLoopPlot->isCity())
-					{
+					if(pLoopPlot->IsEnemyCityAdjacent(pUnit->getTeam(),NULL))
 						iScore += 10000;
-					}
 
 					iSupportedDanger += m_pPlayer->GetPlotDanger(*pLoopPlot,pSupportedUnit.pointer());
 				}
@@ -5271,7 +5271,8 @@ void CvHomelandAI::ExecuteGeneralMoves()
 #endif
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		if(pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE || (pUnit->IsCityAttackOnly() && pUnit->canRecruitFromTacticalAI() && ((pUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS()) < GC.getGame().getGameTurn())))
+		if( pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE || 
+			(pUnit->IsCityAttackOnly() && pUnit->canRecruitFromTacticalAI() && ((pUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS()) < GC.getGame().getGameTurn())) )
 		{
 			int iUnitLoop = 0;
 			int iTotalGenerals = 0;

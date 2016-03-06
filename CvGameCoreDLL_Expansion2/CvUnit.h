@@ -655,6 +655,13 @@ public:
 	void ChangeNumTilesRevealedThisTurn(int iValue);
 	void SetNumTilesRevealedThisTurn(int iValue);
 	int GetNumTilesRevealedThisTurn();
+
+	bool IsGainsXPFromScouting() const;
+	int GetGainsXPFromScouting() const;
+	void ChangeGainsXPFromScouting(int iValue);
+
+	int GetBarbarianCombatBonus() const;
+	void ChangeBarbarianCombatBonus(int iValue);
 #endif
 
 	bool IsRoughTerrainEndsTurn() const;
@@ -1676,6 +1683,8 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iNumTilesRevealedThisTurn;
+	FAutoVariable<int, CvUnit> m_iGainsXPFromScouting;
+	FAutoVariable<int, CvUnit> m_iBarbCombatBonus;
 #endif
 	FAutoVariable<int, CvUnit> m_iRoughTerrainEndsTurnCount;
 	FAutoVariable<int, CvUnit> m_iEmbarkAbilityCount;

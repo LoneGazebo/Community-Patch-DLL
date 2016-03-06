@@ -235,28 +235,18 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				end
 
 				-- AI vassal
-				-- Voluntary
-				if (pAITeam:IsVassal(activePlayer) and pActiveTeam:IsVoluntaryVassal(g_iAITeam) and (pActiveTeam:GetNumTurnsIsVassal(activePlayer) > Game.GetMinimumVoluntaryVassalTurns())) then
-					strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_VASSAL", strLeaderName );
-					strButton1Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_VASSAL_TT", strLeaderName );
-				-- Capitulated
-				elseif (pAITeam:IsVassal(activePlayer) and (pAITeam:GetNumTurnsIsVassal(activePlayer) > Game.GetMinimumVassalTurns())) then
+				if (pAITeam:CanEndVassal(Game.GetActiveTeam())) then
 					strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_VASSAL", strLeaderName );
 					strButton1Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_VASSAL_TT", strLeaderName );
 				-- Human vassal
-				-- Voluntary
-				elseif (pActiveTeam:IsVassal(g_iAITeam) and pActiveTeam:IsVoluntaryVassal(g_iAITeam) and (pActiveTeam:GetNumTurnsIsVassal(g_iAITeam) > Game.GetMinimumVoluntaryVassalTurns())) then
-					strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_HUMAN_END_VASSAL", strLeaderName );
-					strButton1Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_HUMAN_END_VASSAL_TT", strLeaderName );
-				-- Capitulated
-				elseif (pActiveTeam:IsVassal(g_iAITeam) and (pActiveTeam:GetNumTurnsIsVassal(g_iAITeam) > Game.GetMinimumVassalTurns())) then
+				elseif (pActiveTeam:CanEndVassal(g_iAITeam)) then
 					strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_HUMAN_END_VASSAL", strLeaderName );
 					strButton1Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_HUMAN_END_VASSAL_TT", strLeaderName );
 				end
 				
 				-- End Vassal button valid? (only when human is the Vassal)
 				if (pActiveTeam:IsVassal(g_iAITeam)) then
-					if(pActiveTeam:canEndVassal(g_iAITeam)) then
+					if(pActiveTeam:CanEndVassal(g_iAITeam)) then
 						Controls.Button1:SetDisabled(false);
 					else
 						Controls.Button1:SetDisabled(true);

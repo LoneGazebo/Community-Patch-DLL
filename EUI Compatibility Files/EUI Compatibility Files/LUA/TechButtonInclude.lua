@@ -452,8 +452,12 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 
 	-- units unlocked by this tech
 	for row in GameInfo.Units( thisPrereqTech ) do
-		if validUnitBuilds[row.Class] == row.Type and not addSmallArtButton( AdjustArtOnGrantedUnitButton, row ) then
-			break
+		local unitType = row.Type
+		if(unitType) then
+			local iMinorCivGift = row.MinorCivGift
+			if (iMinorCivGift ~= 1) and (validUnitBuilds[row.Class] == unitType ) then
+				addSmallArtButton( AdjustArtOnGrantedUnitButton, row )
+			end
 		end
 	end
 
@@ -512,10 +516,18 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 	end
 
+
+	local playerID = Game.GetActivePlayer();	
+	local player = Players[playerID];
+	local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
+
 	-- Some improvements can have multiple yield changes, group them and THEN add buttons.
 	local improvementTypesChanged = {}
 	for row in GameInfo.Improvement_TechYieldChanges( thisTechType ) do
-		improvementTypesChanged[ row.ImprovementType or -1 ] = true
+		local thisImprovement = GameInfo.Improvements[ row.ImprovementType ]
+		if thisImprovement and (not thisImprovement.CivilizationType or thisImprovement.CivilizationType == civType) then
+			improvementTypesChanged[ row.ImprovementType or -1 ] = true
+		end
 	end
 	-- Let's sort the yield change buttons!
 	local sortedImprovements = table()

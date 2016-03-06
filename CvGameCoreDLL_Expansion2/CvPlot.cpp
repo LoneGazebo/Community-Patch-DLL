@@ -35,7 +35,6 @@
 #include "CvUnitMovement.h"
 #include "CvTargeting.h"
 #include "CvTypes.h"
-
 // Include this after all other headers.
 #include "LintFree.h"
 
@@ -7197,6 +7196,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					pWorkingCity->ChangeNumImprovementWorked(eNewValue, 1);
 				}
 			}
+			pWorkingCity->GetCityCitizens()->SetDirty(true);
 		}
 #endif
 		PlayerTypes owningPlayerID = getOwner();
@@ -7619,10 +7619,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
-							if(owningPlayer.isHuman())
-							{
-								owningPlayer.CalculateNetHappiness();
-							}
+							owningPlayer.CalculateNetHappiness();
 						}
 					}
 				}
@@ -7732,10 +7729,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
-							if(owningPlayer.isHuman())
-							{
-								owningPlayer.CalculateNetHappiness();
-							}
+							owningPlayer.CalculateNetHappiness();
 						}
 					}
 				}
@@ -9488,6 +9482,12 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 	{
 		return 0;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(isIce())
+	{
+		return 0;
+	}
+#endif
 
 	if(!isPotentialCityWork())
 	{
@@ -9517,7 +9517,8 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 	iYield = calculateNatureYield(eYield, ePlayer);
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-	if (ePlayer != NO_PLAYER) {
+	if (ePlayer != NO_PLAYER) 
+	{
 		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 #if defined(MOD_API_PLOT_YIELDS)
 		iYield += kPlayer.GetPlayerTraits()->GetPlotYieldChange(getPlotType(), eYield);
@@ -9887,11 +9888,12 @@ void CvPlot::updateYield()
 				{
 					pWorkingCity->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), (getYield((YieldTypes)iI) - iOldYield));
 #if defined(MOD_BALANCE_CORE)
+					pWorkingCity->UpdateCityYields((YieldTypes)iI);
 					if((((YieldTypes)iI == YIELD_CULTURE) || ((YieldTypes)iI == YIELD_TOURISM)) && (iOldYield != iNewYield))
 					{
 						pWorkingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 						pWorkingCity->GetCityCulture()->CalculateBaseTourism();
-					}
+					}				
 #endif
 				}
 				// JON: New City Citizens AI shoulud update here 08/17/09
@@ -10081,15 +10083,18 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 								playerI.GetEconomicAI()->SetExplorationPlotsDirty();
 					}
 #if defined(MOD_BALANCE_CORE)
-					if(pUnit && GC.getGame().getActivePlayer() == pUnit->getOwner())
+					if(pUnit && pUnit->IsGainsXPFromScouting() && !GET_TEAM(eTeam).isBarbarian() && !GET_TEAM(eTeam).isMinorCiv())
 					{
-						if(IsNaturalWonder())
+						if(pUnit->getExperience() < GC.getBALANCE_SCOUT_XP_MAXIMUM())
 						{
-							pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE());
-						}
-						else
-						{
-							pUnit->ChangeNumTilesRevealedThisTurn(1);
+							if(IsNaturalWonder())
+							{
+								pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE());
+							}
+							else
+							{
+								pUnit->ChangeNumTilesRevealedThisTurn(1);
+							}
 						}
 					}
 #endif
@@ -10518,11 +10523,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 										playerI.ChangeNumNaturalWondersDiscoveredInArea(1);
 									}
 								}
-
-								if(playerI.isHuman())
-								{
-									playerI.CalculateNetHappiness();
-								}
+								playerI.CalculateNetHappiness();
 
 								// Add World Anchor
 								if(eTeam == eActiveTeam)

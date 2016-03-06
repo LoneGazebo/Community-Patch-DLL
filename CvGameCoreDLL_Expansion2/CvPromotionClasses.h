@@ -131,6 +131,7 @@ public:
 	int GetTradeMissionInfluenceModifier() const;
 	int GetTradeMissionGoldModifier() const;
 #if defined(MOD_BALANCE_CORE)
+	int GetBarbarianCombatBonus() const;
 	bool IsGainsXPFromScouting() const;
 	int NegatesPromotion() const;
 	bool CannotBeCaptured() const;
@@ -342,6 +343,7 @@ protected:
 	int m_iTradeMissionGoldModifier;
 
 #if defined(MOD_BALANCE_CORE)
+	int m_iBarbarianCombatBonus;
 	bool m_bGainsXPFromScouting;
 	bool m_bCannotBeCaptured;
 	int m_iNegatesPromotion;

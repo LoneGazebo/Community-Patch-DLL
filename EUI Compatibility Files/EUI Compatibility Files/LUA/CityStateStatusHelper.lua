@@ -436,7 +436,7 @@ function GetCityStateStatusToolTip( majorPlayerID, minorPlayerID, isFullInfo )
 -- CBP
 		local iJerk = minorPlayer:GetJerk(majorPlayerID);
 		if(iJerk > 0) then
-			table.insert( tips, L"TXT_KEY_CSTATE_JERK_STATUS", iJerk )
+			table.insert( tips, L("TXT_KEY_CSTATE_JERK_STATUS", iJerk ))
 		end
 -- END
 		if isFullInfo then

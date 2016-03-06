@@ -840,47 +840,42 @@ void CvTacticalAnalysisMap::AddToDominanceZones(int iIndex, CvTacticalAnalysisCe
 
 	// Compute zone data for this cell
 	m_TempZone.SetAreaID(pPlot->getArea());
-	m_TempZone.SetOwner(pPlot->getOwner());
 	m_TempZone.SetWater(pPlot->isWater());
-	if(!pPlot->isOwned())
+
+	int iCityDistance = GC.getGame().GetClosestCityDistance(pPlot);
+	CvCity* pCity = GC.getGame().GetClosestCity(pPlot);
+	PlayerTypes eOwnerPlayer = NO_PLAYER;
+	TeamTypes eOwnerTeam = NO_TEAM;
+
+	//for plots far away from a city, check the owner
+	if (iCityDistance>3)
+	{
+		eOwnerTeam = pPlot->getTeam();
+		eOwnerPlayer = pPlot->getOwner();
+	}
+	else //look at the city
+	{
+		eOwnerTeam = pCity->getTeam();
+		eOwnerPlayer = pCity->getOwner();
+	}
+
+	m_TempZone.SetOwner(eOwnerPlayer);
+	m_TempZone.SetZoneCity(pCity);
+	if(eOwnerTeam==NO_TEAM)
 	{
 		m_TempZone.SetTerritoryType(TACTICAL_TERRITORY_NO_OWNER);
 	}
-	else if(pPlot->getTeam() == m_pPlayer->getTeam())
+	else if(eOwnerTeam == m_pPlayer->getTeam())
 	{
 		m_TempZone.SetTerritoryType(TACTICAL_TERRITORY_FRIENDLY);
 	}
-	else if(GET_TEAM(m_pPlayer->getTeam()).isAtWar(pPlot->getTeam()))
+	else if(GET_TEAM(m_pPlayer->getTeam()).isAtWar(eOwnerTeam))
 	{
 		m_TempZone.SetTerritoryType(TACTICAL_TERRITORY_ENEMY);
 	}
 	else
 	{
 		m_TempZone.SetTerritoryType(TACTICAL_TERRITORY_NEUTRAL);
-	}
-	m_TempZone.SetZoneCity(NULL);
-	if(m_TempZone.GetTerritoryType() == TACTICAL_TERRITORY_ENEMY ||
-	        m_TempZone.GetTerritoryType() == TACTICAL_TERRITORY_NEUTRAL ||
-	        m_TempZone.GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
-	{
-		int iLoop;
-		int iBestDistance = MAX_INT;
-		CvCity* pBestCity = NULL;
-
-		for(CvCity* pLoopCity = GET_PLAYER(m_TempZone.GetOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_TempZone.GetOwner()).nextCity(&iLoop))
-		{
-			int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY());
-			if(iDistance < iBestDistance)
-			{
-				iBestDistance = iDistance;
-				pBestCity = pLoopCity;
-			}
-		}
-
-		if(pBestCity != NULL)
-		{
-			m_TempZone.SetZoneCity(pBestCity);
-		}
 	}
 
 	// Now see if we already have a matching zone
@@ -1606,7 +1601,7 @@ void CvTacticalAnalysisMap::Dump()
 	if (m_pPlayer==NULL)
 		return;
 
-	bool bLogging = false; //GC.getLogging() && GC.getAILogging() && (m_pPlayer->isMajorCiv() || m_pPlayer->isBarbarian());
+	bool bLogging = GC.getLogging() && GC.getAILogging() && (m_pPlayer->isMajorCiv() || m_pPlayer->isBarbarian()) && m_pPlayer->IsAtWar();
 	if (bLogging)
 	{
 		CvString fname = CvString::format( "TacticalCells_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn() );

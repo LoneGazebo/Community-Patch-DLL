@@ -14,6 +14,7 @@
 #include "CvLuaUnit.h"
 #include "../CvMinorCivAI.h"
 #include "../CvUnitCombat.h"
+#include "../CustomMods.h"
 
 //Utility macro for registering methods
 #define Method(Name)			\
@@ -345,6 +346,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(UnitCombatModifier);
 #if defined(MOD_BALANCE_CORE)
 	Method(IsMounted);
+	Method(BarbarianCombatBonus);
 #endif
 	Method(DomainModifier);
 	Method(GetStrategicResourceCombatPenalty);
@@ -3474,6 +3476,17 @@ int CvLuaUnit::lUnitCombatModifier(lua_State* L)
 	return 1;
 }
 #if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//int unitCombatModifier(int /*UnitCombatTypes*/ eUnitCombat);
+int CvLuaUnit::lBarbarianCombatBonus(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->GetBarbarianCombatBonus();
+	
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 //------------------------------------------------------------------------------
 int CvLuaUnit::lIsMounted(lua_State* L)
 {

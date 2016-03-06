@@ -59,6 +59,9 @@ public:
 	// Specialist AI
 	bool IsAIWantSpecialistRightNow();
 	BuildingTypes GetAIBestSpecialistBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache);
+#if defined(MOD_BALANCE_CORE)
+	BuildingTypes GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache);
+#endif
 	int GetSpecialistValue(SpecialistTypes eSpecialist);
 	bool IsBetterThanDefaultSpecialist(SpecialistTypes eSpecialist);
 
@@ -69,23 +72,46 @@ public:
 	void ChangeNumCitizensWorkingPlots(int iChange);
 
 	bool DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, int>& specialistValueCache);
+#if defined(MOD_BALANCE_CORE)
+	bool DoRemoveWorstCitizen(bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST, int iCurrentCityPopulation = -1, bool bUpdateNow = true);
+#else
 	bool DoRemoveWorstCitizen(bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST, int iCurrentCityPopulation = -1);
-
+#endif
+#if defined(MOD_BALANCE_CORE)
+	void SetDirty(bool bValue);
+	bool IsDirty();
+	void DoReallocateCitizens(bool bForce = false);
+#else
 	void DoReallocateCitizens();
-
+#endif
+#if defined(MOD_BALANCE_CORE)
+	bool NeedReworkCitizens();
+#endif
 	CvPlot* GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked);
 
 	// Worked Plots
 	bool IsWorkingPlot(const CvPlot* pPlot) const;
+#if defined(MOD_BALANCE_CORE)
+	void SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnassignedPool = true, bool bUpdateNow = true);
+#else
 	void SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnassignedPool = true);
+#endif
 	void DoAlterWorkingPlot(int iIndex);
 
 	// Forced Working Plots (human override)
 	bool IsForcedWorkingPlot(const CvPlot* pPlot) const;
 	void SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue);
 
+#if defined(MOD_BALANCE_CORE)
+	bool DoValidateForcedWorkingPlots();
+#else
 	void DoValidateForcedWorkingPlots();
+#endif
+#if defined(MOD_BALANCE_CORE)
+	bool DoDemoteWorstForcedWorkingPlot();
+#else
 	void DoDemoteWorstForcedWorkingPlot();
+#endif
 
 	int GetNumForcedWorkingPlots() const;
 	void ChangeNumForcedWorkingPlots(int iChange);
@@ -107,12 +133,24 @@ public:
 
 	bool IsCanAddSpecialistToBuilding(BuildingTypes eBuilding);
 	void DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bForced);
+#if defined(MOD_BALANCE_CORE)
+	void DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, bool bForced, bool bEliminatePopulation = false, bool bUpdateNow = true);
+#else
 	void DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, bool bForced, bool bEliminatePopulation = false);
+#endif
 	void DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding, bool bEliminatePopulation = false);
+#if defined(MOD_BALANCE_CORE)
+	bool DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpecialist, const BuildingTypes eDontRemoveFromBuilding = NO_BUILDING, bool bUpdateNow = true);
+#else
 	bool DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpecialist, const BuildingTypes eDontRemoveFromBuilding = NO_BUILDING);
+#endif
 
 	int GetNumDefaultSpecialists() const;
+#if defined(MOD_BALANCE_CORE)
+	void ChangeNumDefaultSpecialists(int iChange, bool bUpdateNow = true);
+#else
 	void ChangeNumDefaultSpecialists(int iChange);
+#endif
 	int GetNumForcedDefaultSpecialists() const;
 	void ChangeNumForcedDefaultSpecialists(int iChange);
 
@@ -147,6 +185,9 @@ private:
 
 	bool m_bAutomated;
 	bool m_bNoAutoAssignSpecialists;
+#if defined(MOD_BALANCE_CORE)
+	bool m_bIsDirty;
+#endif
 
 	int m_iNumUnassignedCitizens;
 	int m_iNumCitizensWorkingPlots;

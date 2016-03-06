@@ -7,7 +7,7 @@
     <Guid>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(3-1b) CBP Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(3-6b) CBP Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains compatibility files for CBP, CSD, C4DF and EUI - required if you intend to use any mod aside from the CP and CBP by themselves.
 
 NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Description>
@@ -26,27 +26,12 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>CSD/CSDCompatibility.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>CSD/CSDCompatibility.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>CSD/CSDCompatibilityDE.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>EUI/NeededText.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Corporations/Corporations.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -66,12 +51,42 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>MoreLuxuries/MoreLuxuries.xml</FileName>
+        <FileName>EUI/EUI_text_en_us.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>EUI/EUI_text_en_us.xml</FileName>
+        <FileName>Corporations/Text/CorpText_en_US.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Corporations/Text/CorpText_en_US.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>CSD/CompatibilityText/Compatibility_DE.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>CSD/CompatibilityText/Compatibility_en_US.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>CSD/CompatibilityText/Compatibility_en_US.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>MoreLuxuries/Text/Text_en_US.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>C4DFCompatibility/C4DFText_en_US.sql</FileName>
       </Action>
     </ModActions>
     <Homepage>
@@ -158,6 +173,10 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="C4DFCompatibility\C4DFText_en_US.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="C4DFCompatibility\vassal80.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -170,19 +189,27 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Corporations\Corporations.xml">
+    <Content Include="Corporations\Text\CorpText_en_US.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Corporations\Text\CorpText_en_US.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\CompatibilityText\Compatibility_en_US.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\CompatibilityText\Compatibility_en_US.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSD\CompatibilityText\Compatibility_DE.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="CSD\CSDCompatibility.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="CSD\CSDCompatibility.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="CSD\CSDCompatibilityDE.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -462,22 +489,21 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="MoreLuxuries\MoreLuxuries.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="README.txt">
+    <Content Include="MoreLuxuries\Text\Text_en_US.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Corporations\Text" />
     <Folder Include="CSD" />
+    <Folder Include="CSD\CompatibilityText" />
     <Folder Include="LUA" />
     <Folder Include="EUI" />
     <Folder Include="Corporations" />
     <Folder Include="MoreLuxuries" />
     <Folder Include="C4DFCompatibility" />
+    <Folder Include="MoreLuxuries\Text" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Firaxis\ModBuddy\Civ5Mod.targets" />
 </Project>

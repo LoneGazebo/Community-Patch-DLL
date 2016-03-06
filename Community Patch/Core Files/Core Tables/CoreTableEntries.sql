@@ -46,6 +46,9 @@ ALTER TABLE Buildings ADD COLUMN 'NumPoliciesNeeded' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Beliefs ADD COLUMN 'RequiresImprovement' BOOLEAN DEFAULT 0;
 
+-- Belief Tooltip for LUA
+ALTER TABLE Beliefs ADD COLUMN 'Tooltip' TEXT DEFAULT "";
+
 -- Belief requires a resource (improved or not) on a terrain type to grant its yield.
 
 ALTER TABLE Beliefs ADD COLUMN 'RequiresResource' BOOLEAN DEFAULT 0;
@@ -550,6 +553,9 @@ ALTER TABLE UnitPromotions ADD 'ChangeDamageValue' INTEGER DEFAULT 0;
 -- A unit cannot be captured by another player (i.e. from prize ships, etc.). Does not apply to civilians.
 ALTER TABLE UnitPromotions ADD 'CannotBeCaptured' BOOLEAN DEFAULT 0;
 
+-- A unit gains a combat bonus VS barbarians
+ALTER TABLE UnitPromotions ADD COLUMN 'BarbarianCombatBonus' INTEGER DEFAULT 0;
+
 -- Promotion bonuses restricted to Barbarians.
 
 ALTER TABLE UnitPromotions ADD COLUMN 'BarbarianOnly' BOOLEAN DEFAULT 0;
@@ -655,6 +661,9 @@ ALTER TABLE Policies ADD COLUMN 'FreedomCorporation' BOOLEAN DEFAULT 0;
 
 -- Minor Civs
 ALTER TABLE MinorCivilizations ADD COLUMN 'BullyUnitClass' TEXT DEFAULT NULL;
+
+-- CSD
+ALTER TABLE Buildings ADD COLUMN 'DPToVotes' integer default 0;
 
 -- GameSpeed for JFD
 ALTER TABLE GameSpeeds ADD COLUMN 'PietyMin' INTEGER DEFAULT 0;

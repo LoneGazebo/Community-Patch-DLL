@@ -23,9 +23,14 @@ int CustomMods::eventHook(const char* szName, const char* p, ...) {
 		if (*it == 'b') {
 			// It's a boolean
 			args->Push(va_arg(vl, bool));
-		} else {
-			// Assume it's an int
+		} else if (*it == 'i') {
+			// It's an int
 			args->Push(va_arg(vl, int));
+		} else {
+			// Assume it's a string (char *)
+			char* s = va_arg(vl, char*);
+			args->Push(s, strlen(s));
+			break;
 		}
 	}
 
@@ -44,9 +49,14 @@ int CustomMods::eventTestAll(const char* szName, const char* p, ...) {
 		if (*it == 'b') {
 			// It's a boolean
 			args->Push(va_arg(vl, bool));
-		} else {
-			// Assume it's an int
+		} else if (*it == 'i') {
+			// It's an int
 			args->Push(va_arg(vl, int));
+		} else {
+			// Assume it's a string (char *)
+			char* s = va_arg(vl, char*);
+			args->Push(s, strlen(s));
+			break;
 		}
 	}
 
@@ -65,9 +75,14 @@ int CustomMods::eventTestAny(const char* szName, const char* p, ...) {
 		if (*it == 'b') {
 			// It's a boolean
 			args->Push(va_arg(vl, bool));
-		} else {
-			// Assume it's an int
+		} else if (*it == 'i') {
+			// It's an int
 			args->Push(va_arg(vl, int));
+		} else {
+			// Assume it's a string (char *)
+			char* s = va_arg(vl, char*);
+			args->Push(s, strlen(s));
+			break;
 		}
 	}
 
@@ -86,9 +101,14 @@ int CustomMods::eventAccumulator(int &iValue, const char* szName, const char* p,
 		if (*it == 'b') {
 			// It's a boolean
 			args->Push(va_arg(vl, bool));
-		} else {
-			// Assume it's an int
+		} else if (*it == 'i') {
+			// It's an int
 			args->Push(va_arg(vl, int));
+		} else {
+			// Assume it's a string (char *)
+			char* s = va_arg(vl, char*);
+			args->Push(s, strlen(s));
+			break;
 		}
 	}
 
@@ -427,6 +447,7 @@ int CustomMods::getOption(string sOption, int defValue) {
 		MOD_OPT_CACHE(EVENTS_DIPLO_EVENTS);
 		MOD_OPT_CACHE(EVENTS_DIPLO_MODIFIERS);
 		MOD_OPT_CACHE(EVENTS_MINORS);
+		MOD_OPT_CACHE(EVENTS_MINORS_GIFTS);
 		MOD_OPT_CACHE(EVENTS_MINORS_INTERACTION);
 		MOD_OPT_CACHE(EVENTS_BARBARIANS);
 		MOD_OPT_CACHE(EVENTS_GOODY_CHOICE);
@@ -440,6 +461,7 @@ int CustomMods::getOption(string sOption, int defValue) {
 		MOD_OPT_CACHE(EVENTS_PLOT);
 		MOD_OPT_CACHE(EVENTS_GOLDEN_AGE);
 		MOD_OPT_CACHE(EVENTS_CITY);
+		MOD_OPT_CACHE(EVENTS_CITY_CAPITAL);
 		MOD_OPT_CACHE(EVENTS_CITY_BORDERS);
 		MOD_OPT_CACHE(EVENTS_CITY_FOUNDING);
 		MOD_OPT_CACHE(EVENTS_LIBERATION);

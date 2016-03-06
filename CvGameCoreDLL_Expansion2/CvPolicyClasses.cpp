@@ -3530,7 +3530,7 @@ int CvPlayerPolicies::GetNumPoliciesOwned() const
 	{
 		// Do we have this policy?
 #if defined(MOD_BALANCE_CORE)
-		if(m_pabHasPolicy[i] && !m_pPolicies->GetPolicyEntry(i)->IsDummy())
+		if(m_pabHasPolicy[i] && m_pPolicies->GetPolicyEntry(i) && !m_pPolicies->GetPolicyEntry(i)->IsDummy())
 #else
 		if(m_pabHasPolicy[i])
 #endif
@@ -3540,7 +3540,7 @@ int CvPlayerPolicies::GetNumPoliciesOwned() const
 			if(bSkipFinisher)
 			{
 				CvPolicyBranchEntry* pkBranchEntry = m_pPolicies->GetPolicyBranchEntry(m_pPolicies->GetPolicyEntry(i)->GetPolicyBranchType());
-				if(pkBranchEntry)
+				if(pkBranchEntry != NULL)
 				{
 					if(pkBranchEntry->GetFreeFinishingPolicy() == i)
 					{

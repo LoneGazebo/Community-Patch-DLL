@@ -4253,6 +4253,17 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 				m_pPlayer->GetTreasury()->DoInternalTradeRouteGoldBonus();
 			}
 #endif
+#if defined(MOD_BALANCE_CORE)
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes) iI;
+				if(eYield == NO_YIELD)
+					continue;
+
+				pOriginCity->UpdateCityYields(eYield);
+				pDestCity->UpdateCityYields(eYield);
+			}
+#endif
 		}
 	}
 
@@ -4705,6 +4716,20 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	{
 		return false;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(pOriginCity != NULL && pDestCity != NULL)
+	{
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes) iI;
+			if(eYield == NO_YIELD)
+				continue;
+
+			pOriginCity->UpdateCityYields(eYield);
+			pDestCity->UpdateCityYields(eYield);
+		}
+	}
+#endif
 
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int iPlunderGoldValue = GD_INT_GET(TRADE_ROUTE_BASE_PLUNDER_GOLD);

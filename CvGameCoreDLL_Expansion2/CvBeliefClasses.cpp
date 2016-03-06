@@ -93,6 +93,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piYieldFromWLTKD(NULL),
 	m_piYieldFromProposal(NULL),
 	m_piYieldFromHost(NULL),
+	m_piYieldFromKnownPantheons(NULL),
 	m_iCombatVersusOtherReligionOwnLands(0),
 	m_iCombatVersusOtherReligionTheirLands(0),
 	m_iMissionaryInfluenceCS(0),
@@ -617,6 +618,13 @@ int CvBeliefEntry::GetYieldFromHost(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldFromHost ? m_piYieldFromHost[i] : -1;
 }
+/// Accessor:: Yield from Known Pantheons
+int CvBeliefEntry::GetYieldFromKnownPantheons(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromKnownPantheons ? m_piYieldFromKnownPantheons[i] : -1;
+}
 /// Accessor:: Yield from Followers
 int CvBeliefEntry::GetMaxYieldPerFollower(int i) const
 {
@@ -686,6 +694,19 @@ void CvBeliefEntry::setShortDescription(const char* szVal)
 {
 	m_strShortDescription = szVal;
 }
+#if defined(MOD_BALANCE_CORE)
+/// Accessor:: Get brief text description
+const char* CvBeliefEntry::getTooltip() const
+{
+	return m_strTooltip;
+}
+
+/// Accessor:: Set brief text description
+void CvBeliefEntry::setTooltip(const char* szVal)
+{
+	m_strTooltip = szVal;
+}
+#endif
 
 /// Accessor:: Additional yield
 int CvBeliefEntry::GetCityYieldChange(int i) const
@@ -1013,6 +1034,9 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	//Basic Properties
 	setShortDescription(kResults.GetText("ShortDescription"));
+#if defined(MOD_BALANCE_CORE)
+	setTooltip(kResults.GetText("Tooltip"));
+#endif
 
 	m_iMinPopulation                  = kResults.GetInt("MinPopulation");
 	m_iMinFollowers                   = kResults.GetInt("MinFollowers");
@@ -1117,6 +1141,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromWLTKD, "Belief_YieldFromWLTKD", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromProposal, "Belief_YieldFromProposal", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromHost, "Belief_YieldFromHost", "BeliefType", szBeliefType);
+	kUtility.SetYields(m_piYieldFromKnownPantheons, "Belief_YieldFromKnownPantheons", "BeliefType", szBeliefType);
 	kUtility.PopulateArrayByValue(m_piMaxYieldPerFollower, "Yields", "Belief_MaxYieldPerFollower", "YieldType", "BeliefType", szBeliefType, "Max");
 #endif
 	kUtility.PopulateArrayByValue(m_piMaxYieldModifierPerFollower, "Yields", "Belief_MaxYieldModifierPerFollower", "YieldType", "BeliefType", szBeliefType, "Max");
@@ -3122,6 +3147,23 @@ int CvReligionBeliefs::GetYieldFromHost(YieldTypes eYieldType) const
 
 	return rtnValue;
 }
+/// Get yield modifier from beliefs from Hosting WC
+int CvReligionBeliefs::GetYieldFromKnownPantheons(YieldTypes eYieldType) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			rtnValue += pBeliefs->GetEntry(i)->GetYieldFromKnownPantheons(eYieldType);
+		}
+	}
+
+	return rtnValue;
+}
+
 /// Get yield from beliefs from # of followers
 int CvReligionBeliefs::GetMaxYieldPerFollower(YieldTypes eYieldType) const
 {

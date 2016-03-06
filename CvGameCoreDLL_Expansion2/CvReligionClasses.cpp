@@ -4556,6 +4556,9 @@ void CvCityReligions::DoPopulationChange(int iChange)
 	{
 		RecomputeFollowers(FOLLOWER_CHANGE_POP_CHANGE, eMajorityReligion);
 	}
+#if defined(MOD_BALANCE_CORE)
+	m_pCity->GetCityCitizens()->SetDirty(true);
+#endif
 }
 
 /// Note that a religion was founded here
@@ -5902,7 +5905,7 @@ BeliefTypes CvReligionAI::ChooseFounderBelief()
 
 	// Choose from weighted vector
 	beliefChoices.SortItems();
-	int iNumChoices = MIN(beliefChoices.size(),3);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 3
+	int iNumChoices = MIN(beliefChoices.size(),4);   // Throw out 1/4 of the choices -- this was way too loose as choices way down were being selected now only top 4
 
 #if defined(MOD_BALANCE_CORE)
 	BeliefTypes rtnValue = NO_BELIEF;
@@ -8131,6 +8134,16 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		{
 			iTempValue *= 3;
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(pCity->GetCityCitizens()->GetTotalSpecialistCount() > 0)
+		{
+			iTempValue *= 2;
+		}
+		else
+		{
+			iTempValue /= 4;
+		}
+#endif
 		iRtnValue += iTempValue;
 
 		// Building class yield change
@@ -8507,6 +8520,10 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 		if(pEntry->GetYieldPerXFollowers(iI) > 0)
 		{
 			iRtnValue += ((iFlavorGrowth + m_pPlayer->getTotalPopulation() * 2) / pEntry->GetYieldPerXFollowers(iI));
+		}
+		if(pEntry->GetYieldFromKnownPantheons(iI) > 0)
+		{
+			iRtnValue += (iFlavorDiplomacy * max(2, GC.getGame().GetGameReligions()->GetNumPantheonsCreated()));
 		}
 		if(pEntry->GetYieldFromHost(iI) > 0)
 		{

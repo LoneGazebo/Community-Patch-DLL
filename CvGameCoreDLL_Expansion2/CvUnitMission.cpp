@@ -1098,7 +1098,7 @@ bool CvUnitMission::CanStartMission(UnitHandle hUnit, int iMission, int iData1, 
 	}
 	else if(iMission == CvTypes::getMISSION_HEAL())
 	{
-		if(hUnit->canHeal(pPlot, bTestVisible))
+		if(hUnit->canHeal(pPlot, bTestVisible) && !hUnit->isWaiting())
 		{
 			return true;
 		}

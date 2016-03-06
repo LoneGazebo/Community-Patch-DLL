@@ -103,6 +103,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iTradeMissionInfluenceModifier(0),
 	m_iTradeMissionGoldModifier(0),
 #if defined(MOD_BALANCE_CORE)
+	m_iBarbarianCombatBonus(0),
 	m_bGainsXPFromScouting(false),
 	m_bCannotBeCaptured(false),
 	m_bIsLostOnMove(false),
@@ -264,6 +265,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 	//Basic Properties
 #if defined(MOD_BALANCE_CORE)
+	m_iBarbarianCombatBonus = kResults.GetInt("BarbarianCombatBonus");
 	m_bGainsXPFromScouting = kResults.GetBool("GainsXPFromScouting");
 	m_bCannotBeCaptured = kResults.GetBool("CannotBeCaptured");
 	m_bIsLostOnMove = kResults.GetBool("IsLostOnMove");
@@ -1399,6 +1401,11 @@ int CvPromotionEntry::GetTradeMissionGoldModifier() const
 bool CvPromotionEntry::IsGainsXPFromScouting() const
 {
 	return m_bGainsXPFromScouting;
+}
+/// Accessor: Can this Promotion grant bonuses v. barbarians?
+int CvPromotionEntry::GetBarbarianCombatBonus() const
+{
+	return m_iBarbarianCombatBonus;
 }
 //Cannot be captured
 bool CvPromotionEntry::CannotBeCaptured() const

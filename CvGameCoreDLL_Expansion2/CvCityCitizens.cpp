@@ -73,6 +73,9 @@ void CvCityCitizens::Reset()
 {
 	m_bAutomated = false;
 	m_bNoAutoAssignSpecialists = false;
+#if defined(MOD_BALANCE_CORE)
+	m_bIsDirty = false;
+#endif
 	m_iNumUnassignedCitizens = 0;
 	m_iNumCitizensWorkingPlots = 0;
 	m_iNumForcedWorkingPlots = 0;
@@ -140,6 +143,9 @@ void CvCityCitizens::Read(FDataStream& kStream)
 
 	kStream >> m_bAutomated;
 	kStream >> m_bNoAutoAssignSpecialists;
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_bIsDirty;
+#endif
 	kStream >> m_iNumUnassignedCitizens;
 	kStream >> m_iNumCitizensWorkingPlots;
 	kStream >> m_iNumForcedWorkingPlots;
@@ -187,6 +193,9 @@ void CvCityCitizens::Write(FDataStream& kStream)
 
 	kStream << m_bAutomated;
 	kStream << m_bNoAutoAssignSpecialists;
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_bIsDirty;
+#endif
 	kStream << m_iNumUnassignedCitizens;
 	kStream << m_iNumCitizensWorkingPlots;
 	kStream << m_iNumForcedWorkingPlots;
@@ -242,7 +251,11 @@ void CvCityCitizens::DoFoundCity()
 	if(pHomePlot != NULL)
 	{
 		bool bWorkPlot = IsCanWork(pHomePlot);
+#if defined(MOD_BALANCE_CORE)
+		SetWorkingPlot(pHomePlot, bWorkPlot, /*bUseUnassignedPool*/ false, /*bUpdateNow */ false );
+#else
 		SetWorkingPlot(pHomePlot, bWorkPlot, /*bUseUnassignedPool*/ false);
+#endif
 	}
 }
 
@@ -305,26 +318,50 @@ void CvCityCitizens::DoTurn()
 		if((m_pCity->GetCityStrategyAI()->GetSpecialization() == eWonderSpecializationType) || bWonder)
 		{
 			SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
-			SetNoAutoAssignSpecialists(false);
-			SetForcedAvoidGrowth(false);
+			if(IsNoAutoAssignSpecialists())
+			{
+				SetNoAutoAssignSpecialists(false);
+			}
+			if(IsForcedAvoidGrowth())
+			{
+				SetForcedAvoidGrowth(false);
+			}
 		}
 		else if(pkUnitInfo != NULL && pkUnitInfo->IsFound()) // we want production for settlers
 		{
 			SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
-			SetNoAutoAssignSpecialists(false);
-			SetForcedAvoidGrowth(false);
+			if(IsNoAutoAssignSpecialists())
+			{
+				SetNoAutoAssignSpecialists(false);
+			}
+			if(IsForcedAvoidGrowth())
+			{
+				SetForcedAvoidGrowth(false);
+			}
 		}
 		else if(m_pCity->getPopulation() < 10 && !m_pCity->isCapital())  // we want a balanced growth
 		{
 			SetFocusType(NO_CITY_AI_FOCUS_TYPE);
-			SetNoAutoAssignSpecialists(true);
-			SetForcedAvoidGrowth(false);
+			if(IsNoAutoAssignSpecialists())
+			{
+				SetNoAutoAssignSpecialists(false);
+			}
+			if(IsForcedAvoidGrowth())
+			{
+				SetForcedAvoidGrowth(false);
+			}
 		}
 		else if(m_pCity->getPopulation() < 8 && m_pCity->isCapital())  // we want a balanced growth
 		{
 			SetFocusType(NO_CITY_AI_FOCUS_TYPE);
-			SetNoAutoAssignSpecialists(true);
-			SetForcedAvoidGrowth(false);
+			if(IsNoAutoAssignSpecialists())
+			{
+				SetNoAutoAssignSpecialists(false);
+			}
+			if(IsForcedAvoidGrowth())
+			{
+				SetForcedAvoidGrowth(false);
+			}
 		}
 		else
 		{
@@ -351,20 +388,38 @@ void CvCityCitizens::DoTurn()
 			if(bInDeficit && !bNeedFood)
 			{
 				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
-				SetNoAutoAssignSpecialists(false);
-				SetForcedAvoidGrowth(false);
+				if(IsNoAutoAssignSpecialists())
+				{
+					SetNoAutoAssignSpecialists(false);
+				}
+				if(IsForcedAvoidGrowth())
+				{
+					SetForcedAvoidGrowth(false);
+				}
 			}
 			else if(bInDeficit && bNeedFood)
 			{
 				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
-				SetNoAutoAssignSpecialists(false);
-				SetForcedAvoidGrowth(false);
+				if(IsNoAutoAssignSpecialists())
+				{
+					SetNoAutoAssignSpecialists(false);
+				}
+				if(IsForcedAvoidGrowth())
+				{
+					SetForcedAvoidGrowth(false);
+				}
 			}
 			else if((eProcess != NO_PROCESS) || (eProject != NO_PROJECT))
 			{
 				SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
-				SetNoAutoAssignSpecialists(false);
-				SetForcedAvoidGrowth(false);
+				if(IsNoAutoAssignSpecialists())
+				{
+					SetNoAutoAssignSpecialists(false);
+				}
+				if(IsForcedAvoidGrowth())
+				{
+					SetForcedAvoidGrowth(false);
+				}
 			}
 			else // no special cases? Alright, let's pick a function to follow...
 			{
@@ -378,8 +433,14 @@ void CvCityCitizens::DoTurn()
 						bGPCity = thisPlayer.GetDiplomacyAI()->IsGoingForCultureVictory();
 					}
 				}
-				SetNoAutoAssignSpecialists(false);
-				SetForcedAvoidGrowth(false);
+				if(IsNoAutoAssignSpecialists())
+				{
+					SetNoAutoAssignSpecialists(false);
+				}
+				if(IsForcedAvoidGrowth())
+				{
+					SetForcedAvoidGrowth(false);
+				}
 
 				CitySpecializationTypes eSpecialization = m_pCity->GetCityStrategyAI()->GetSpecialization();
 				if(eSpecialization != -1)
@@ -464,7 +525,14 @@ void CvCityCitizens::DoTurn()
 		}
 		if(pWorstCity != NULL && pWorstCity->GetID() == m_pCity->GetID())
 		{
-			SetForcedAvoidGrowth(true);
+			if(!IsForcedAvoidGrowth())
+			{
+				SetForcedAvoidGrowth(true);
+			}
+			if(!IsNoAutoAssignSpecialists())
+			{
+				SetNoAutoAssignSpecialists(true);
+			}
 		}
 	}
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
@@ -794,8 +862,11 @@ void CvCityCitizens::SetNoAutoAssignSpecialists(bool bValue)
 		{
 			DoClearForcedSpecialists();
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		DoReallocateCitizens(true);
+#else
 		DoReallocateCitizens();
+#endif
 	}
 }
 
@@ -828,7 +899,11 @@ void CvCityCitizens::SetForcedAvoidGrowth(bool bAvoidGrowth)
 	if(m_bForceAvoidGrowth != bAvoidGrowth)
 	{
 		m_bForceAvoidGrowth = bAvoidGrowth;
+#if defined(MOD_BALANCE_CORE)
+		DoReallocateCitizens(true);
+#else
 		DoReallocateCitizens();
+#endif
 	}
 }
 
@@ -848,7 +923,11 @@ void CvCityCitizens::SetFocusType(CityAIFocusTypes eFocus)
 	{
 		m_eCityAIFocusTypes = eFocus;
 		// Reallocate with our new focus
+#if defined(MOD_BALANCE_CORE)
+		DoReallocateCitizens(true);
+#else
 		DoReallocateCitizens();
+#endif
 	}
 }
 
@@ -1234,6 +1313,58 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 	iSpecialistValue = iBestUnmodifiedSpecialistValue;
 	return eBestBuilding;
 }
+#if defined(MOD_BALANCE_CORE)
+/// What is the Building Type the AI likes the Specialist of most right now?
+BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpecialistValue, std::map<SpecialistTypes, int>& specialistValueCache)
+{
+	BuildingTypes eBestBuilding = NO_BUILDING;
+	int iBestSpecialistValue = -1;
+	int iBestUnmodifiedSpecialistValue = -1;
+
+	SpecialistTypes eSpecialist;
+	int iValue;
+
+	// Loop through all Buildings
+	for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	{
+		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+		if(pkBuildingInfo)
+		{
+			// Have this Building in the City, and there's a specialist in it?
+			if(GetCity()->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 && GetCity()->GetCityCitizens()->GetNumSpecialistsInBuilding(eBuilding) > 0)
+			{
+				eSpecialist = (SpecialistTypes) pkBuildingInfo->GetSpecialistType();
+
+				std::map<SpecialistTypes, int>::iterator it = specialistValueCache.find(eSpecialist);
+				if (it != specialistValueCache.end())
+					iValue = specialistValueCache[eSpecialist];
+				else
+				{
+					iValue = GetSpecialistValue(eSpecialist);
+					specialistValueCache[eSpecialist] = iValue;
+				}
+
+				// Add a bit more weight to a Building if it has more slots (10% per).  This will bias the AI to fill a single building over spreading Specialists out
+				int iTemp = ((GetNumSpecialistsAllowedByBuilding(*pkBuildingInfo) - 1) * iValue * 15);
+				iTemp /= 100;
+				iValue += iTemp;
+
+				if(iValue > iBestSpecialistValue)
+				{
+					eBestBuilding = eBuilding;
+					iBestSpecialistValue = iValue;
+					iBestUnmodifiedSpecialistValue = iValue - iTemp;
+				}
+			}
+		}
+	}
+
+	iSpecialistValue = iBestUnmodifiedSpecialistValue;
+	return eBestBuilding;
+}
+#endif
 
 /// How valuable is eSpecialist?
 int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
@@ -1805,7 +1936,11 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(std::map<SpecialistTypes, in
 }
 
 /// Pick the worst Plot to stop working
+#if defined(MOD_BALANCE_CORE)
+bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTypes eDontChangeSpecialist, int iCurrentCityPopulation, bool bUpdateNow)
+#else
 bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTypes eDontChangeSpecialist, int iCurrentCityPopulation)
+#endif
 {
 	if (iCurrentCityPopulation == -1)
 	{
@@ -1845,14 +1980,14 @@ bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTy
 		// If we were force-working this Plot, turn it off
 		if(bRemoveForcedStatus && IsForcedWorkingPlot(pWorstPlot))
 		{
-			SetWorkingPlot(pWorstPlot, false);
+			SetWorkingPlot(pWorstPlot, false, true, bUpdateNow);
 			SetForcedWorkingPlot(pWorstPlot, false);
 
 			return true;
 		}
 		else if(!IsForcedWorkingPlot(pWorstPlot))
 		{
-			SetWorkingPlot(pWorstPlot, false);
+			SetWorkingPlot(pWorstPlot, false, true, bUpdateNow);
 			return true;
 		}
 #else
@@ -1877,7 +2012,11 @@ bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTy
 	else
 #endif
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(DoRemoveWorstSpecialist(eDontChangeSpecialist, NO_BUILDING, bUpdateNow))
+#else
 		if(DoRemoveWorstSpecialist(eDontChangeSpecialist))
+#endif
 		{
 			return true;
 		}
@@ -1970,18 +2109,100 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 
 	return GetCityPlotFromIndex(iBestPlotID);
 }
-
-/// Optimize our Citizen Placement
-void CvCityCitizens::DoReallocateCitizens()
+#if defined(MOD_BALANCE_CORE)
+bool CvCityCitizens::NeedReworkCitizens()
 {
+	if(IsDirty())
+	{
+		SetDirty(false);
+		return true;
+	}
+	int iBestWorkedPlotValue = 0;
+	CvPlot* pBestworkedPlot = GetBestCityPlotWithValue(iBestWorkedPlotValue, /*bBest*/ true, /*bWorked*/ true);
+
+	int iBestUnworkedPlotValue = 0;
+	CvPlot* pBestUnworkedPlot = GetBestCityPlotWithValue(iBestUnworkedPlotValue, /*bBest*/ true, /*bWorked*/ false);
+
+	//First let's look at plots - if there is a better plot not being worked, we need to reallocate.
+	if(pBestworkedPlot != NULL && pBestUnworkedPlot != NULL)
+	{
+		if(iBestUnworkedPlotValue > iBestWorkedPlotValue)
+		{
+			return true;
+		}
+	}
+
+	//Second let's look at specialists - if there is a better specialist not being worked, we need to reallocate.
+	int iSpecialistValue = 0;
+	BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
+
+	// don't calculate specialist value over and over ...
+	std::map<SpecialistTypes, int> specialistValueCache;
+
+	if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
+	{
+		eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue,specialistValueCache);
+	}
+	if(eBestSpecialistBuilding == NO_BUILDING)
+	{
+		return false;
+	}
+	bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iBestWorkedPlotValue);
+	if (bSpecialistBetterThanPlot)
+	{
+		return true;
+	}
+
+	int iSpecialistInCityValue = 0;
+	BuildingTypes eBestSpecialistInCityBuilding = NO_BUILDING;
+
+	if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
+	{
+		eBestSpecialistInCityBuilding = GetAIBestSpecialistCurrentlyInBuilding(iSpecialistInCityValue,specialistValueCache);
+	}
+	bool bSpecialistBetterThanExistingSpecialist = (eBestSpecialistInCityBuilding != NO_BUILDING && eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iSpecialistInCityValue);
+	if (bSpecialistBetterThanExistingSpecialist)
+	{
+		return true;
+	}
+	return false;
+}
+#endif
+/// Optimize our Citizen Placement
+#if defined(MOD_BALANCE_CORE)
+void CvCityCitizens::SetDirty(bool bValue)
+{
+	m_bIsDirty = bValue;
+}
+bool CvCityCitizens::IsDirty()
+{
+	return m_bIsDirty;
+}
+void CvCityCitizens::DoReallocateCitizens(bool bForce)
+#else
+void CvCityCitizens::DoReallocateCitizens()
+#endif
+{
+#if defined(MOD_BALANCE_CORE)
+	//Let's check if we need to do this.
+	if(!DoValidateForcedWorkingPlots() && !bForce && !NeedReworkCitizens())
+	{
+		return;
+	}
+#else
 	// Make sure we don't have more forced working plots than we have citizens working.  If so, clean it up before reallocating
 	DoValidateForcedWorkingPlots();
+#endif
 
 	// Remove all of the allocated guys
 	int iNumCitizensToRemove = GetNumCitizensWorkingPlots();
 	for(int iWorkerLoop = 0; iWorkerLoop < iNumCitizensToRemove; iWorkerLoop++)
 	{
+#if defined(MOD_BALANCE_CORE)
+		DoRemoveWorstCitizen(false, NO_SPECIALIST, -1, false);
+#else
 		DoRemoveWorstCitizen();
+#endif
 	}
 
 	int iSpecialistLoop;
@@ -2001,7 +2222,11 @@ void CvCityCitizens::DoReallocateCitizens()
 			// Loop through guys to remove (if there are any)
 			for(iSpecialistLoop = 0; iSpecialistLoop < iNumSpecialistsToRemove; iSpecialistLoop++)
 			{
+#if defined(MOD_BALANCE_CORE)
+				DoRemoveSpecialistFromBuilding(eBuilding, /*bForced*/ false, false);
+#else
 				DoRemoveSpecialistFromBuilding(eBuilding, /*bForced*/ false);
+#endif
 			}
 		}
 	}
@@ -2010,9 +2235,25 @@ void CvCityCitizens::DoReallocateCitizens()
 	int iNumDefaultsToRemove = GetNumDefaultSpecialists() - GetNumForcedDefaultSpecialists();
 	for(iSpecialistLoop = 0; iSpecialistLoop < iNumDefaultsToRemove; iSpecialistLoop++)
 	{
+#if defined(MOD_BALANCE_CORE)
+		ChangeNumDefaultSpecialists(-1, false);
+#else
 		ChangeNumDefaultSpecialists(-1);
+#endif
 	}
+#if defined(MOD_BALANCE_CORE)
+	//We deferred all recalculations to this spot for optimization purposes (doesn't matter if we're just nuking the entire city's population above).
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eYield = (YieldTypes) iI;
+		if(eYield == NO_YIELD)
+			continue;
 
+		m_pCity->UpdateCityYields(eYield);
+	}
+	m_pCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+	m_pCity->GetCityCulture()->CalculateBaseTourism();
+#endif
 	// don't calculate specialist value over and over ...
 	std::map<SpecialistTypes, int> specialistValueCache;
 
@@ -2023,10 +2264,7 @@ void CvCityCitizens::DoReallocateCitizens()
 		DoAddBestCitizenFromUnassigned(specialistValueCache);
 	}
 
-	if(GET_PLAYER(GetCity()->getOwner()).isHuman())
-	{
-		GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
-	}
+	GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
 }
 
 
@@ -2053,7 +2291,11 @@ bool CvCityCitizens::IsWorkingPlot(const CvPlot* pPlot) const
 }
 
 /// Tell a City to start or stop working a Plot.  Citizens will go to/from the Unassigned Pool if the 3rd argument is true
+#if defined(MOD_BALANCE_CORE)
+void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnassignedPool, bool bUpdateNow)
+#else
 void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnassignedPool)
+#endif
 {
 	int iI;
 
@@ -2186,7 +2428,25 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 #endif
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		//Let's only worry about yield changes if we need to update, or we're human (humans want instant feedback, whereas the AI doesn't always need that).
+		if(bUpdateNow || GET_PLAYER(GetCity()->getOwner()).isHuman())
+		{
+			if(iIndex != CITY_HOME_PLOT)
+			{
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				{
+					YieldTypes eYield = (YieldTypes) iI;
+					if(eYield == NO_YIELD)
+						continue;
 
+					GetCity()->UpdateCityYields(eYield);
+				}
+				GetCity()->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+				GetCity()->GetCityCulture()->CalculateBaseTourism();
+			}
+		}
+#endif
 		if(GetCity()->isCitySelected())
 		{
 			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
@@ -2230,8 +2490,11 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 
 		// Reset Forced Default Specialists
 		ChangeNumForcedDefaultSpecialists(-GetNumForcedDefaultSpecialists());
-
+#if defined(MOD_BALANCE_CORE)
+		DoReallocateCitizens(true);
+#else
 		DoReallocateCitizens();
+#endif
 	}
 	else
 	{
@@ -2354,21 +2617,40 @@ void CvCityCitizens::SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue)
 }
 
 /// Make sure we don't have more forced working plots than we have citizens to work
+#if defined(MOD_BALANCE_CORE)
+bool CvCityCitizens::DoValidateForcedWorkingPlots()
+#else
 void CvCityCitizens::DoValidateForcedWorkingPlots()
+#endif
 {
+#if defined(MOD_BALANCE_CORE)
+	bool bValue = false;
+#endif
 	int iNumForcedWorkingPlotsToDemote = GetNumForcedWorkingPlots() - GetNumCitizensWorkingPlots();
 
 	if(iNumForcedWorkingPlotsToDemote > 0)
 	{
 		for(int iLoop = 0; iLoop < iNumForcedWorkingPlotsToDemote; iLoop++)
 		{
+#if defined(MOD_BALANCE_CORE)
+			bValue = DoDemoteWorstForcedWorkingPlot();
+#else
 			DoDemoteWorstForcedWorkingPlot();
+#endif
+
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	return bValue;
+#endif
 }
 
 /// Remove the Forced status from the worst ForcedWorking plot
+#if defined(MOD_BALANCE_CORE)
+bool CvCityCitizens::DoDemoteWorstForcedWorkingPlot()
+#else
 void CvCityCitizens::DoDemoteWorstForcedWorkingPlot()
+#endif
 {
 	int iValue;
 
@@ -2414,7 +2696,13 @@ void CvCityCitizens::DoDemoteWorstForcedWorkingPlot()
 	{
 		pLoopPlot = GetCityPlotFromIndex(iBestPlotID);
 		SetForcedWorkingPlot(pLoopPlot, false);
+#if defined(MOD_BALANCE_CORE)
+		return true;
+#endif
 	}
+#if defined(MOD_BALANCE_CORE)
+	return false;
+#endif
 }
 
 /// How many plots have we forced to be worked?
@@ -2504,7 +2792,11 @@ void CvCityCitizens::DoVerifyWorkingPlot(CvPlot* pPlot)
 		{
 			if(!IsCanWork(pPlot))
 			{
+#if defined(MOD_BALANCE_CORE)
+				SetWorkingPlot(pPlot, false, true, false);
+#else
 				SetWorkingPlot(pPlot, false);
+#endif
 				std::map<SpecialistTypes, int> specialistValueCache;
 				DoAddBestCitizenFromUnassigned(specialistValueCache);
 			}
@@ -2780,11 +3072,19 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 		// If we don't already have an Unassigned Citizen to turn into a Specialist, find one from somewhere
 		if(GetNumUnassignedCitizens() == 0)
 		{
+#if defined(MOD_BALANCE_CORE)
+			DoRemoveWorstCitizen(true, /*Don't remove this type*/ eSpecialist, -1, false);
+#else
 			DoRemoveWorstCitizen(true, /*Don't remove this type*/ eSpecialist);
+#endif
 			if(GetNumUnassignedCitizens() == 0)
 			{
 				// Still nobody, all the citizens may be assigned to the eSpecialist we are looking for, try again
+#if defined(MOD_BALANCE_CORE)
+				if(!DoRemoveWorstSpecialist(NO_SPECIALIST, eBuilding, false))
+#else
 				if(!DoRemoveWorstSpecialist(NO_SPECIALIST, eBuilding))
+#endif
 				{
 					return; // For some reason we can't do this, we must exit, else we will be going over the population count
 				}
@@ -2800,10 +3100,7 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 			m_aiNumForcedSpecialistsInBuilding[eBuilding]++;
 		}
 
-		if(GET_PLAYER(GetCity()->getOwner()).isHuman())
-		{
-			GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
-		}
+		GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
 
 #if defined(MOD_BALANCE_CORE)
 		GetCity()->processSpecialist(eSpecialist, 1);
@@ -2833,7 +3130,11 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 }
 
 /// Removes and uninitializes a Specialist for this building
+#if defined(MOD_BALANCE_CORE)
+void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, bool bForced, bool bEliminatePopulation, bool bUpdateNow)
+#else
 void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, bool bForced, bool bEliminatePopulation)
+#endif
 {
 	CvAssert(eBuilding > -1);
 	CvAssert(eBuilding < GC.getNumBuildingInfos());
@@ -2860,17 +3161,19 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 			m_aiNumForcedSpecialistsInBuilding[eBuilding]--;
 		}
 
-		if(GET_PLAYER(GetCity()->getOwner()).isHuman())
-		{
-			GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
-		}
+		GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
 
 #if defined(MOD_BALANCE_CORE)
-		GetCity()->processSpecialist(eSpecialist, -1);
-
 		//we removed the last specialist, this may have religious effects
 		if (GetTotalSpecialistCount()==0)
+		{
+			GetCity()->processSpecialist(eSpecialist, -1, true);
 			GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority(),false);
+		}
+		else
+		{
+			GetCity()->processSpecialist(eSpecialist, -1, bUpdateNow);
+		}
 #else
 		GetCity()->processSpecialist(eSpecialist, -1);
 		GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority());
@@ -2926,10 +3229,7 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 		m_aiNumSpecialistsInBuilding[eBuilding]--;
 		GetCity()->processSpecialist(eSpecialist, -1);
 
-		if(GET_PLAYER(GetCity()->getOwner()).isHuman())
-		{
-			GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
-		}
+		GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
 
 		// Do we kill this population or reassign him?
 		if(bEliminatePopulation)
@@ -2953,7 +3253,11 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 
 
 /// Find the worst Specialist and remove him from duty
+#if defined(MOD_BALANCE_CORE)
+bool CvCityCitizens::DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpecialist, const BuildingTypes eDontRemoveFromBuilding /* = NO_BUILDING */, bool bUpdateNow)
+#else
 bool CvCityCitizens::DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpecialist, const BuildingTypes eDontRemoveFromBuilding /* = NO_BUILDING */)
+#endif
 {
 	for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
@@ -2978,7 +3282,11 @@ bool CvCityCitizens::DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpeciali
 
 		if(GetNumSpecialistsInBuilding(eBuilding) > 0)
 		{
+#if defined(MOD_BALANCE_CORE)
+			DoRemoveSpecialistFromBuilding(eBuilding, true, false, bUpdateNow);
+#else
 			DoRemoveSpecialistFromBuilding(eBuilding, true);
+#endif
 
 			return true;
 		}
@@ -2994,14 +3302,21 @@ int CvCityCitizens::GetNumDefaultSpecialists() const
 }
 
 /// Changes how many Default Specialists are assigned in this City
+#if defined(MOD_BALANCE_CORE)
+void CvCityCitizens::ChangeNumDefaultSpecialists(int iChange, bool bUpdateNow)
+#else
 void CvCityCitizens::ChangeNumDefaultSpecialists(int iChange)
+#endif
 {
 	m_iNumDefaultSpecialists += iChange;
 
 	SpecialistTypes eSpecialist = (SpecialistTypes) GC.getDEFAULT_SPECIALIST();
 	m_aiSpecialistCounts[eSpecialist] += iChange;
-
+#if defined(MOD_BALANCE_CORE)
+	GetCity()->processSpecialist(eSpecialist, iChange, bUpdateNow);
+#else
 	GetCity()->processSpecialist(eSpecialist, iChange);
+#endif
 
 	ChangeNumUnassignedCitizens(-iChange);
 }

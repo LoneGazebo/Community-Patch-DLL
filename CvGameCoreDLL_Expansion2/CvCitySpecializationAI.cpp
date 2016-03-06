@@ -382,6 +382,15 @@ void CvCitySpecializationAI::SetSpecializationsDirty(CitySpecializationUpdateTyp
 	{
 		m_bSpecializationsDirty = true;
 		LogSpecializationUpdate(eUpdateType);
+#if defined(MOD_BALANCE_CORE)
+		//Set all city citizens dirty too, we want them to reasses after a new specialization is set.
+		CvCity* pLoopCity;
+		int iLoop;
+		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		{
+			pLoopCity->GetCityCitizens()->SetDirty(true);
+		}
+#endif
 
 		switch(eUpdateType)
 		{

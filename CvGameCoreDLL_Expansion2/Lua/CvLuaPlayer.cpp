@@ -5779,10 +5779,18 @@ int CvLuaPlayer::lGetPolicyBranchChosen(lua_State* L)
 int CvLuaPlayer::lGetNumPolicies(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-
-	const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned();
-	lua_pushinteger(L, iResult);
-	return 1;
+#if defined(MOD_BALANCE_CORE)
+	bool bIgnoreFinishers = luaL_optbool(L, 2, false);
+	if(pkPlayer->GetPlayerPolicies())
+	{
+		const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(bIgnoreFinishers);
+#else
+		const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned();
+#endif
+		lua_pushinteger(L, iResult);
+		return 1;
+	}
+	return 0;
 }
 
 //------------------------------------------------------------------------------

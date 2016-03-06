@@ -104,6 +104,7 @@ public:
 	int GetYieldFromWLTKD(int i) const;
 	int GetYieldFromProposal(int i) const;
 	int GetYieldFromHost(int i) const;
+	int GetYieldFromKnownPantheons(int i) const;
 	int GetCombatVersusOtherReligionOwnLands() const;
 	int GetCombatVersusOtherReligionTheirLands() const;
 	int GetMissionaryInfluenceCS()const;
@@ -121,6 +122,11 @@ public:
 
 	const char* getShortDescription() const;
 	void setShortDescription(const char* szVal);
+
+#if defined(MOD_BALANCE_CORE)
+	const char* getTooltip() const;
+	void setTooltip(const char* szVal);
+#endif
 
 	// Arrays
 	int GetCityYieldChange(int i) const;
@@ -238,6 +244,10 @@ protected:
 	TechTypes m_eSpreadModifierDoublingTech;
 
 	CvString m_strShortDescription;
+#if defined(MOD_BALANCE_CORE)
+	CvString m_strTooltip;
+#endif
+
 
 	// Arrays
 	int* m_paiCityYieldChange;
@@ -311,6 +321,7 @@ protected:
 	int* m_piYieldFromWLTKD;
 	int* m_piYieldFromProposal;
 	int* m_piYieldFromHost;
+	int* m_piYieldFromKnownPantheons;
 	int* m_piMaxYieldPerFollower;
 	int m_iCombatVersusOtherReligionOwnLands;
 	int m_iCombatVersusOtherReligionTheirLands;
@@ -601,6 +612,7 @@ public:
 	int GetYieldFromProposal(YieldTypes eYieldType) const;
 	int GetYieldFromHost(YieldTypes eYieldType) const;
 	int GetMaxYieldPerFollower(YieldTypes eYieldType) const;
+	int GetYieldFromKnownPantheons(YieldTypes eYieldType) const;
 	CivilizationTypes GetUniqueCiv() const;
 #endif
 

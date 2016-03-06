@@ -2,20 +2,6 @@
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_CARAVAN','BUILDINGCLASS_CARAVANSARY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_CARGO_SHIP','BUILDINGCLASS_HARBOR'; 
 
--- Ancient
---INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ARCHER','BUILDINGCLASS_BARRACKS'; 
---INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_HUN_BATTERING_RAM','BUILDINGCLASS_BARRACKS'; 
---INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BYZANTINE_CATAPHRACT','BUILDINGCLASS_STABLE'; 
---INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_CHARIOT_ARCHER','BUILDINGCLASS_STABLE'; 
---INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_GREEK_HOPLITE','BUILDINGCLASS_BARRACKS'; 
---INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_HORSEMAN','BUILDINGCLASS_STABLE'; 
---INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_PERSIAN_IMMORTAL','BUILDINGCLASS_BARRACKS'; 
---INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_CELT_PICTISH_WARRIOR','BUILDINGCLASS_BARRACKS'; 
---INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ASSYRIAN_SIEGE_TOWER','BUILDINGCLASS_BARRACKS'; 
---INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_INCAN_SLINGER','BUILDINGCLASS_BARRACKS'; 
---INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_SPEARMAN','BUILDINGCLASS_BARRACKS'; 
---INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_EGYPTIAN_WARCHARIOT','BUILDINGCLASS_STABLE'; 
---INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ELEPHANT_RIDER','BUILDINGCLASS_STABLE'; 
 -- Classical 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_DANISH_BERSERKER','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BABYLONIAN_BOWMAN','BUILDINGCLASS_BARRACKS'; 
@@ -30,7 +16,6 @@ INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SE
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_POLYNESIAN_MAORI_WARRIOR','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_SWORDSMAN','BUILDINGCLASS_BARRACKS'; 
 -- Medieval
-
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ARABIAN_CAMELARCHER','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_CARAVEL','BUILDINGCLASS_HARBOR'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_CHINESE_CHUKONU','BUILDINGCLASS_BARRACKS'; 
@@ -65,7 +50,6 @@ INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SE
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ENGLISH_SHIPOFTHELINE','BUILDINGCLASS_HARBOR'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_POLISH_WINGED_HUSSAR','BUILDINGCLASS_STABLE'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_POLISH_WINGED_HUSSAR','BUILDINGCLASS_ARMORY'; 
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_VOLLEY_GUN','BUILDINGCLASS_ARMORY'; 
 -- Industrial
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ARTILLERY','BUILDINGCLASS_ARMORY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BERBER_CAVALRY','BUILDINGCLASS_ARMORY'; 

@@ -1,3 +1,270 @@
+-- New Improvement
+
+INSERT INTO Improvements
+	(Type, Description, Civilopedia, ArtDefineTag, RequiresFeature, PillageGold, PortraitIndex, IconAtlas)
+VALUES
+	('IMPROVEMENT_LUMBERMILL_JUNGLE', 'TXT_KEY_IMPROVEMENT_LUMBERMILL_JUNGLE', 'TXT_KEY_CIV5_IMPROVEMENTS_LUMBERMILL_TEXT_JUNGLE', 'ART_DEF_IMPROVEMENT_LUMBERMILL', 1, 10, 25, 'TERRAIN_ATLAS');
+
+INSERT INTO Improvement_Yields
+	(ImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_LUMBERMILL_JUNGLE', 'YIELD_GOLD', 1);
+
+INSERT INTO Improvement_ValidFeatures
+	(ImprovementType, FeatureType)
+VALUES
+	('IMPROVEMENT_LUMBERMILL_JUNGLE', 'FEATURE_JUNGLE');
+
+INSERT INTO Improvement_TechFreshWaterYieldChanges
+	(ImprovementType, TechType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_LUMBERMILL_JUNGLE', 'TECH_INDUSTRIALIZATION', 'YIELD_FOOD', 1);
+
+INSERT INTO Improvement_TechNoFreshWaterYieldChanges
+	(ImprovementType, TechType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_LUMBERMILL_JUNGLE', 'TECH_COMBUSTION', 'YIELD_PRODUCTION', 1);
+
+INSERT INTO Builds
+	(Type, PrereqTech, Time, ImprovementType, Description, Recommendation, EntityEvent, HotKey, OrderPriority, IconIndex, IconAtlas)
+VALUES
+	('BUILD_LUMBERMILL_JUNGLE', 'TECH_MACHINERY', 800, 'IMPROVEMENT_LUMBERMILL_JUNGLE', 'TXT_KEY_BUILD_LUMBERMILL_JUNGLE', 'TXT_KEY_BUILD_LUMBERMILL_REC_JUNGLE', 'ENTITY_EVENT_BUILD', 'KB_L', 98, 28, 'UNIT_ACTION_ATLAS');
+
+INSERT INTO Unit_Builds
+	(UnitType, BuildType)
+VALUES
+	('UNIT_WORKER', 'BUILD_LUMBERMILL_JUNGLE');
+
+-- Yield Data
+
+INSERT INTO Improvement_YieldAdjacentTwoSameType
+	(ImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_FARM', 'YIELD_FOOD', 1);
+
+-- Delete things we replace below.
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_URANIUM';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_STONE';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_FISH';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_BANANA';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_BISON';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_DEER';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_COW';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_HORSE';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_SHEEP';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_SALT';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_TRUFFLES';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_CITRUS';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_COCOA';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_COPPER';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_COTTON';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_DYE';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_GEMS';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_GOLD';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_INCENSE';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_IVORY';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_MARBLE';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_PEARLS';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_SALT';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_SILK';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_SILVER';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_SPICES';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_SUGAR';
+DELETE FROM Improvement_ResourceType_Yields WHERE ResourceType = 'RESOURCE_WINE';
+
+INSERT INTO Improvement_ResourceType_Yields
+	(ImprovementType, ResourceType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_MINE', 'RESOURCE_URANIUM', 'YIELD_SCIENCE', 1),
+	('IMPROVEMENT_QUARRY', 'RESOURCE_STONE', 'YIELD_PRODUCTION', 2),
+	('IMPROVEMENT_FISHING_BOATS', 'RESOURCE_FISH', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_BANANA', 'YIELD_FOOD', 3),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_BANANA', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_CAMP', 'RESOURCE_BISON', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_CAMP', 'RESOURCE_BISON', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_CAMP', 'RESOURCE_DEER', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_PASTURE', 'RESOURCE_COW', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_PASTURE', 'RESOURCE_COW', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_PASTURE', 'RESOURCE_HORSE', 'YIELD_PRODUCTION', 2),
+	('IMPROVEMENT_PASTURE', 'RESOURCE_SHEEP', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_PASTURE', 'RESOURCE_SHEEP', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_MINE', 'RESOURCE_SALT', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_CAMP', 'RESOURCE_TRUFFLES', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_CAMP', 'RESOURCE_TRUFFLES', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_CITRUS', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_CITRUS', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_COCOA', 'YIELD_GOLD', 2),
+	('IMPROVEMENT_MINE', 'RESOURCE_COPPER', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_COTTON', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_COTTON', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_DYE', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_DYE', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_MINE', 'RESOURCE_GEMS', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_MINE', 'RESOURCE_GEMS', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_MINE', 'RESOURCE_GOLD', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_INCENSE', 'YIELD_FAITH', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_INCENSE', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_CAMP', 'RESOURCE_IVORY', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_CAMP', 'RESOURCE_IVORY', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_QUARRY', 'RESOURCE_MARBLE', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_FISHING_BOATS', 'RESOURCE_PEARLS', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_FISHING_BOATS', 'RESOURCE_PEARLS', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_MINE', 'RESOURCE_SALT', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_SILK', 'YIELD_GOLD', 2),
+	('IMPROVEMENT_MINE', 'RESOURCE_SILVER', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_SPICES', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_SPICES', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_SUGAR', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_SUGAR', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_WINE', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_PLANTATION', 'RESOURCE_WINE', 'YIELD_GOLD', 1);
+
+DELETE FROM Improvement_ValidTerrains WHERE ImprovementType= 'IMPROVEMENT_FARM' AND TerrainType= 'TERRAIN_DESERT';
+
+INSERT INTO Improvement_ValidFeatures
+	(ImprovementType, FeatureType)
+VALUES
+	('IMPROVEMENT_FISHING_BOATS', 'FEATURE_ATOLL'),
+	('IMPROVEMENT_FISHING_BOATS', 'FEATURE_REEF'),
+	('IMPROVEMENT_FISHING_BOATS', 'FEATURE_ICE');
+
+INSERT INTO Improvement_Yields
+	(ImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_HOLY_SITE', 'YIELD_CULTURE', 3),
+	('IMPROVEMENT_HOLY_SITE', 'YIELD_TOURISM', 3),
+	('IMPROVEMENT_TRADING_POST', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_CHATEAU', 'YIELD_FOOD', 3),
+	('IMPROVEMENT_FEITORIA', 'YIELD_PRODUCTION', 3),
+	('IMPROVEMENT_FEITORIA', 'YIELD_GOLD', 3),
+	('IMPROVEMENT_FEITORIA', 'YIELD_CULTURE', 3),
+	('IMPROVEMENT_CITADEL', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_CITADEL', 'YIELD_SCIENCE', 1),
+	('IMPROVEMENT_WELL', 'YIELD_GOLD', 3),
+	('IMPROVEMENT_OFFSHORE_PLATFORM', 'YIELD_GOLD', 4);
+
+INSERT INTO Improvement_YieldPerEra
+	(ImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_LANDMARK', 'YIELD_GOLD', 1);
+
+DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_LUMBERMILL';
+DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_MINE';
+DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_QUARRY';
+DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_TRADING_POST';
+DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_CITADEL';
+DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_LANDMARK';
+DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_ACADEMY';
+DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_CUSTOMS_HOUSE';
+DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_MANUFACTORY';
+DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_PLANTATION';
+DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_PASTURE';
+DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_FISHING_BOATS';
+DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_CAMP';
+DELETE FROM Improvement_TechYieldChanges WHERE ImprovementType = 'IMPROVEMENT_CHATEAU';
+
+INSERT INTO Improvement_TechYieldChanges
+	(ImprovementType, TechType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_MINE', 'TECH_STEAM_POWER', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_MINE', 'TECH_MACHINERY', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_MOAI', 'TECH_ARCHITECTURE', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_MOAI', 'TECH_ASTRONOMY', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_POLDER', 'TECH_CHEMISTRY', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_CHATEAU', 'TECH_PRINTING_PRESS', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_FEITORIA', 'TECH_ASTRONOMY', 'YIELD_GOLD', 2),
+	('IMPROVEMENT_FEITORIA', 'TECH_PRINTING_PRESS', 'YIELD_CULTURE', 2),
+	('IMPROVEMENT_FEITORIA', 'TECH_INDUSTRIALIZATION', 'YIELD_PRODUCTION', 2),
+	('IMPROVEMENT_CHATEAU', 'TECH_FLIGHT', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_CHATEAU', 'TECH_FLIGHT', 'YIELD_CULTURE', 2),
+	('IMPROVEMENT_BRAZILWOOD_CAMP', 'TECH_PHYSICS', 'YIELD_CULTURE', 2),
+	('IMPROVEMENT_BRAZILWOOD_CAMP', 'TECH_RADIO', 'YIELD_CULTURE', 2),
+	('IMPROVEMENT_MANUFACTORY', 'TECH_METAL_CASTING', 'YIELD_PRODUCTION', 2),
+	('IMPROVEMENT_MANUFACTORY', 'TECH_FERTILIZER', 'YIELD_PRODUCTION', 2),
+	('IMPROVEMENT_MANUFACTORY', 'TECH_COMBINED_ARMS', 'YIELD_PRODUCTION', 2),
+	('IMPROVEMENT_ACADEMY', 'TECH_PHYSICS', 'YIELD_SCIENCE', 3),
+	('IMPROVEMENT_ACADEMY', 'TECH_SCIENTIFIC_THEORY', 'YIELD_SCIENCE', 3),
+	('IMPROVEMENT_ACADEMY', 'TECH_BALLISTICS', 'YIELD_SCIENCE', 3),
+	('IMPROVEMENT_ACADEMY', 'TECH_NUCLEAR_FISSION', 'YIELD_SCIENCE', 3),
+	('IMPROVEMENT_CUSTOMS_HOUSE', 'TECH_BANKING', 'YIELD_GOLD', 2),
+	('IMPROVEMENT_CUSTOMS_HOUSE', 'TECH_RAILROAD', 'YIELD_FOOD', 2),
+	('IMPROVEMENT_CUSTOMS_HOUSE', 'TECH_ARCHITECTURE', 'YIELD_FOOD', 2),
+	('IMPROVEMENT_CUSTOMS_HOUSE', 'TECH_REFRIGERATION', 'YIELD_GOLD', 2),
+	('IMPROVEMENT_CITADEL', 'TECH_CHEMISTRY', 'YIELD_SCIENCE', 2),
+	('IMPROVEMENT_CITADEL', 'TECH_MILITARY_SCIENCE', 'YIELD_PRODUCTION', 2),
+	('IMPROVEMENT_CITADEL', 'TECH_ADVANCED_BALLISTICS', 'YIELD_SCIENCE', 2),
+	('IMPROVEMENT_CITADEL', 'TECH_MOBILE_TACTICS', 'YIELD_SCIENCE', 2),
+	('IMPROVEMENT_LANDMARK', 'TECH_SATELLITES', 'YIELD_CULTURE', 2),
+	('IMPROVEMENT_LANDMARK', 'TECH_TELECOM', 'YIELD_CULTURE', 2),
+	('IMPROVEMENT_HOLY_SITE', 'TECH_ACOUSTICS', 'YIELD_FAITH', 3),
+	('IMPROVEMENT_HOLY_SITE', 'TECH_ARCHAEOLOGY', 'YIELD_CULTURE', 3),
+	('IMPROVEMENT_HOLY_SITE', 'TECH_FLIGHT', 'YIELD_TOURISM', 3),
+	('IMPROVEMENT_FISHING_BOATS', 'TECH_COMPASS', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_FISHING_BOATS', 'TECH_NAVIGATION', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_FISHING_BOATS', 'TECH_REFRIGERATION', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_FISHING_BOATS', 'TECH_REFRIGERATION', 'YIELD_SCIENCE', 1);
+
+INSERT INTO Improvement_TechFreshWaterYieldChanges
+	(ImprovementType, TechType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_TRADING_POST', 'TECH_PRINTING_PRESS', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_WELL', 'TECH_PLASTIC', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_MINE', 'TECH_STEEL', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_LUMBERMILL', 'TECH_INDUSTRIALIZATION', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_PLANTATION', 'TECH_CHEMISTRY', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_PASTURE', 'TECH_BANKING', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_QUARRY', 'TECH_METALLURGY', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_CAMP', 'TECH_GUNPOWDER', 'YIELD_GOLD', 1);
+
+INSERT INTO Improvement_TechNoFreshWaterYieldChanges
+	(ImprovementType, TechType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_WELL', 'TECH_ELECTRONICS', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_TRADING_POST', 'TECH_RAILROAD', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_MINE', 'TECH_INDUSTRIALIZATION', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_PASTURE', 'TECH_BIOLOGY', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_QUARRY', 'TECH_DYNAMITE', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_CAMP', 'TECH_RIFLING', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_PLANTATION', 'TECH_PLASTIC', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_LUMBERMILL', 'TECH_COMBUSTION', 'YIELD_PRODUCTION', 1);
+
+INSERT INTO Route_TechMovementChanges
+	(RouteType, TechType, MovementChange)
+VALUES
+	('ROUTE_ROAD', 'TECH_CONSTRUCTION', -10),
+	('ROUTE_ROAD', 'TECH_GUNPOWDER', -5),
+	('ROUTE_RAILROAD', 'TECH_COMBUSTION', -10),
+	('ROUTE_RAILROAD', 'TECH_COMBINED_ARMS', -5),
+	('ROUTE_RAILROAD', 'TECH_MOBILE_TACTICS', -5);
+
+INSERT INTO Improvement_RouteYieldChanges
+	(ImprovementType, RouteType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_TRADING_POST', 'ROUTE_ROAD', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_TRADING_POST', 'ROUTE_ROAD', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_TRADING_POST', 'ROUTE_RAILROAD', 'YIELD_GOLD', 2),
+	('IMPROVEMENT_TRADING_POST', 'ROUTE_RAILROAD', 'YIELD_PRODUCTION', 2),
+	('IMPROVEMENT_CUSTOMS_HOUSE', 'ROUTE_ROAD', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_CUSTOMS_HOUSE', 'ROUTE_ROAD', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_CUSTOMS_HOUSE', 'ROUTE_RAILROAD', 'YIELD_GOLD', 2),
+	('IMPROVEMENT_CUSTOMS_HOUSE', 'ROUTE_RAILROAD', 'YIELD_PRODUCTION', 2);
+
+-- Fix some Improvement Errata
+UPDATE Improvements SET NearbyEnemyDamage = '30' WHERE Type = 'IMPROVEMENT_CITADEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+UPDATE Improvements SET DestroyedWhenPillaged = 'false' WHERE Type = 'IMPROVEMENT_OFFSHORE_PLATFORM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+UPDATE Improvements SET PillageGold = '50' WHERE Type = 'IMPROVEMENT_OFFSHORE_PLATFORM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+
+-- Yields for other improvements.
+UPDATE Improvement_Yields SET Yield = '1' WHERE YieldType = 'YIELD_PRODUCTION' AND ImprovementType = 'IMPROVEMENT_MINE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+UPDATE Improvement_Yields SET Yield = '1' WHERE YieldType = 'YIELD_PRODUCTION' AND ImprovementType = 'IMPROVEMENT_LUMBERMILL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+UPDATE Improvement_Yields SET Yield = '3' WHERE YieldType = 'YIELD_GOLD' AND ImprovementType = 'IMPROVEMENT_TRADING_POST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+UPDATE Improvement_Yields SET Yield = '7' WHERE YieldType = 'YIELD_SCIENCE' AND ImprovementType = 'IMPROVEMENT_ACADEMY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+UPDATE Improvement_Yields SET Yield = '4' WHERE YieldType = 'YIELD_GOLD' AND ImprovementType = 'IMPROVEMENT_CUSTOMS_HOUSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+UPDATE Improvement_Yields SET Yield = '4' WHERE YieldType = 'YIELD_PRODUCTION' AND ImprovementType = 'IMPROVEMENT_MANUFACTORY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+UPDATE Improvement_Yields SET Yield = '4' WHERE YieldType = 'YIELD_CULTURE' AND ImprovementType = 'IMPROVEMENT_LANDMARK' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+UPDATE Improvement_Yields SET Yield = '3' WHERE YieldType = 'YIELD_FAITH' AND ImprovementType = 'IMPROVEMENT_HOLY_SITE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+UPDATE Improvement_Yields SET Yield = '2' WHERE YieldType = 'YIELD_GOLD' AND ImprovementType = 'IMPROVEMENT_CHATEAU' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+
 -- Improvements -- Trading Post -- Available at Currency
 
 UPDATE Builds
@@ -28,23 +295,9 @@ UPDATE Builds
 SET Help = 'TXT_KEY_BUILD_FARM_HELP'
 WHERE Type = 'BUILD_FARM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
 
-INSERT INTO Language_en_US (
-Tag, Text)
-SELECT 'TXT_KEY_BUILD_FARM_HELP', 'Gain an additional +1 [ICON_FOOD] Food for every 2 Farms adjacent to one another.'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 UPDATE Builds
 SET Recommendation = 'TXT_KEY_BUILD_FARM_REC'
 WHERE Type = 'BUILD_FARM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
-
-INSERT INTO Language_en_US (
-Tag, Text)
-SELECT 'TXT_KEY_BUILD_FARM_REC', 'It will boost your [ICON_FOOD] Food output on this tile. For every two Farms adjacent to this one, it will gain an additional +1 [ICON_FOOD] Food!'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Farms can be constructed on most any land to improve the output of food on the tile. For every two Farms adjacent to each other, Farms gain additional Food.[NEWLINE][NEWLINE]Farming is one of the earliest and most important of all human professions, as it allowed mankind to stop migrating and settle in one location without depleting the local resources.'
-WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_FARM_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 
 	-- Forts and Citadels 'no two adjacent' and no outside borders for Fort - cannot be built on resources (helps AI quite a bit)
@@ -79,54 +332,6 @@ WHERE Type = 'IMPROVEMENT_CITADEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Typ
 UPDATE Improvements
 SET NoTwoAdjacent = '1'
 WHERE Type = 'IMPROVEMENT_TRADING_POST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
-
--- Trading Post - name change
-
-UPDATE Language_en_US
-SET Text = 'Villages are smaller settlements scattered around the countryside of a civilization, representative of the people that live off of the land and trade. They can generate a lot of wealth for a society, particularly when placed on Roads, Railroads, or on Trade Routes.[NEWLINE][NEWLINE]Receive [ICON_GOLD] Gold [ICON_PRODUCTION] Production if built on a Road or Railroad that connects two owned Cities.[NEWLINE][NEWLINE]Receive additional [ICON_GOLD] Gold and [ICON_PRODUCTION] Production (+1 pre-Industrial Era, +2 Industrial Era or later) if a Trade Route, either internal or international, passes over this Village.'
-WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_TRADING_POST_TEXT';
-
-UPDATE Language_en_US
-SET Text = 'Village'
-WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_TRADINGPOST';
-
-UPDATE Language_en_US
-SET Text = 'Village'
-WHERE Tag = 'TXT_KEY_IMPROVEMENT_TRADING_POST';
-
-UPDATE Language_en_US
-SET Text = 'Construct a [LINK=IMPROVEMENT_TRADING_POST]Village[\LINK]'
-WHERE Tag = 'TXT_KEY_BUILD_TRADING_POST';
-
-UPDATE Language_en_US
-SET Text = 'Does the village provide gold?'
-WHERE Tag = 'TXT_KEY_GOLD_TRADINGPOST_ADV_QUEST';
-
-UPDATE Language_en_US
-SET Text = 'Construct a Village improvement in a tile to increase its gold output. Earns additional gold and production if placed on a Road or Railroad that connects two owned cities and/or if a Trade Route, either internal or international, passes over it. Cannot be built adjacent to one another.'
-WHERE Tag = 'TXT_KEY_GOLD_TRADINGPOST_HEADING3_BODY';
-
-UPDATE Language_en_US
-SET Text = 'The village increases output of a tile by 3 gold and 1 culture. It does not access a resource. It generates additional gold and production if on a route and/or if built on a trade route.[NEWLINE]Technology Required: Currency[NEWLINE]Construction Time: 5 Turns[NEWLINE]May Be Constructed On: Any land tile but ice. Cannot be built adjacent to one another.'
-WHERE Tag = 'TXT_KEY_WORKERS_TRADINGPOST_HEADING3_BODY';
-
-UPDATE Language_en_US
-SET Text = 'The Village'
-WHERE Tag = 'TXT_KEY_GOLD_TRADINGPOST_HEADING3_TITLE';
-
-UPDATE Language_en_US
-SET Text = 'During a game, you will create "workers" - non-military units who will "improve" the land around your cities, increasing productivity or providing access to a nearby "resource." Improvements include farms, villages, lumber mills, quarries, mines, and more. During wartime your enemy may "pillage" (destroy) your improvements. Pillaged improvements are ineffective until a worker has "repaired" them.'
-WHERE Tag = 'TXT_KEY_PEDIA_IMPROVEMENT_HELP_TEXT';
-
--- Fort
-UPDATE Language_en_US
-SET Text = 'A fort is a special improvement that improves the defensive bonus of the tile by 50% for units stationed in that tile. However, forts do not provide a defensive bonus to units in enemy territory. Cannot be built adjacent to one another.'
-WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_FORT_TEXT';
-
--- Landmark
-UPDATE Language_en_US
-SET Text = 'A Landmark is any magnificent artifact, structure, work of art, or wonder of nature that draws visitors to a location. Nelson''s Column in London is a landmark, as is Mount Rushmore in the United States. Not every significantly sized object, however, is a landmark: the World''s Largest Ball of Twine may never rise to that stature (though it might well be worth a visit). Landmarks provide +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold for each additional Era that has passed in comparison to the original Era of the Artifact.'
-WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_LANDMARK_TEXT';
 
 -- Shrink Trading Post
 UPDATE ArtDefine_Landmarks
