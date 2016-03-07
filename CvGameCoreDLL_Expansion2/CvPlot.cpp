@@ -4284,7 +4284,7 @@ CvUnit* CvPlot::getVisibleEnemyDefender(PlayerTypes ePlayer) const
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
 	if (!isVisible(eTeam))
-		return false;
+		return NULL;
 
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnitNode)
@@ -4341,7 +4341,7 @@ int CvPlot::getNumVisibleEnemyDefenders(const CvUnit* pUnit) const
 	TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
 
 	if (!isVisible(eTeam))
-		return false;
+		return 0;
 
 	CvAssertMsg(pUnit, "Source unit must be valid");
 	const IDInfo* pUnitNode = m_units.head();
@@ -4375,7 +4375,7 @@ int CvPlot::getNumVisiblePotentialEnemyDefenders(const CvUnit* pUnit) const
 	TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
 
 	if (!isVisible(eTeam))
-		return false;
+		return 0;
 
 	CvAssertMsg(pUnit, "Source unit must be valid");
 	const IDInfo* pUnitNode = m_units.head();

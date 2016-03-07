@@ -11518,12 +11518,19 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 			}
 
 			//ok, one last attempt
+			int iMoveFlags = CvUnit::MOVEFLAG_IGNORE_DANGER;
 			if(pBestPlot == NULL)
 			{
+				//try to go to a city
 				CvCity* pCity = m_pPlayer->GetMilitaryAI()->GetMostThreatenedCity();
+				if(!pCity)
+					pCity = m_pPlayer->GetClosestCity(pGeneral->plot());
+
 				if(pCity != NULL)
 				{
+					iMoveFlags = CvUnit::MOVEFLAG_SAFE_EMBARK;
 					pBestPlot = pCity->plot();
+
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strMsg;
@@ -11538,7 +11545,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 			if(pBestPlot != NULL)
 			{
 				UnitHandle pDefender(NULL);
-				pGeneral->GeneratePath(pBestPlot,CvUnit::MOVEFLAG_IGNORE_DANGER);
+				pGeneral->GeneratePath(pBestPlot,iMoveFlags);
 				CvPlot *pMovePlot = pGeneral->GetPathEndTurnPlot();
 				bool bSafe = false;
 				if(pMovePlot != NULL)
