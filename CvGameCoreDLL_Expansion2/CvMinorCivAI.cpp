@@ -3600,6 +3600,8 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 
 		FAssertMsg(pCity != NULL, "MINOR CIV AI: For some reason we got NO_PLAYER when starting a quest for a major to liberate a City State.");
 
+		if (!pCity)
+			return;
 		int iActionAmount = GC.getGame().getJonRandNum(4, "Minor Civ AI: Number of Actions");
 		if(iActionAmount <= 0)
 		{
@@ -3622,6 +3624,8 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 
 		FAssertMsg(pCity != NULL, "MINOR CIV AI: For some reason we got NO_PLAYER when starting a quest for a major to liberate a City State.");
 
+		if (!pCity)
+			return;
 		m_iData1 = pCity->getOwner();
 
 		const char* strTargetNameKey = pCity->getNameKey();
@@ -3640,6 +3644,8 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 
 		FAssertMsg(pCity != NULL, "MINOR CIV AI: For some reason we got NO_PLAYER when starting a quest for a major to liberate a City State.");
 
+		if (!pCity)
+			return;
 		m_iData1 = pCity->plot()->getX();
 		m_iData2 = pCity->plot()->getY();
 		m_iData3 = pCity->getOwner();
