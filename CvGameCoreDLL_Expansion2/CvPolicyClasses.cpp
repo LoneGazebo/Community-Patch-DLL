@@ -4279,7 +4279,11 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 	}
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-	ReligionTypes eReligionFounded = GetPlayer()->GetReligions()->GetReligionCreatedByPlayer();
+	ReligionTypes eReligionFounded = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(GetPlayer()->GetID());
+	if(eReligionFounded == NO_RELIGION)
+	{
+		eReligionFounded = GetPlayer()->GetReligions()->GetReligionInMostCities();
+	}
 	if(eReligionFounded > RELIGION_PANTHEON)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, GetPlayer()->GetID());
@@ -4290,15 +4294,15 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 			{
 				iEra = 1;
 			}
-			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_FAITH) > 0)
+			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_FAITH, GetPlayer()->GetID()) > 0)
 			{
 				GetPlayer()->ChangeFaith(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_FAITH) * iEra);
 			}
-			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLD) > 0)
+			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLD, GetPlayer()->GetID()) > 0)
 			{
 				GetPlayer()->GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLD) * iEra);
 			}
-			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE) > 0)
+			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE, GetPlayer()->GetID()) > 0)
 			{
 				TechTypes eCurrentTech = GetPlayer()->GetPlayerTechs()->GetCurrentResearch();
 				if(eCurrentTech == NO_TECH)
@@ -4310,11 +4314,11 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 					GET_TEAM(GET_PLAYER(GetPlayer()->GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE) * iEra, GetPlayer()->GetID());
 				}
 			}
-			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_CULTURE) > 0)
+			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_CULTURE, GetPlayer()->GetID()) > 0)
 			{
 				GetPlayer()->changeJONSCulture(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_CULTURE) * iEra);
 			}
-			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLDEN_AGE_POINTS) > 0)
+			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLDEN_AGE_POINTS, GetPlayer()->GetID()) > 0)
 			{
 				GetPlayer()->ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
 			}

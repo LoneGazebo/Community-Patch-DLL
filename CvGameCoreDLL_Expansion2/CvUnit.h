@@ -1107,6 +1107,11 @@ public:
 	bool IsCanHeavyCharge() const;
 	void ChangeCanHeavyChargeCount(int iChange);
 
+#if defined(MOD_BALANCE_CORE)
+	int GetMoraleBreakChance() const;
+	void ChangeMoraleBreakChance(int iChange);
+#endif
+
 	int getFriendlyLandsModifier() const;
 	void changeFriendlyLandsModifier(int iChange);
 
@@ -1739,6 +1744,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_iEverSelectedCount;
 	FAutoVariable<int, CvUnit> m_iSapperCount;
 	FAutoVariable<int, CvUnit> m_iCanHeavyCharge;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvUnit> m_iCanMoraleBreak;
+#endif
 	FAutoVariable<int, CvUnit> m_iNumExoticGoods;
 	FAutoVariable<bool, CvUnit> m_bPromotionReady;
 	FAutoVariable<bool, CvUnit> m_bDeathDelay;
@@ -1861,6 +1869,10 @@ protected:
 	// these are do to a unit using Heavy Charge against you
 	bool CanFallBackFromMelee(CvUnit& pAttacker);
 	bool DoFallBackFromMelee(CvUnit& pAttacker);
+#if defined(MOD_BALANCE_CORE)
+	bool CanFallBackFromRanged(CvUnit& pAttacker);
+	bool DoFallBackFromRanged(CvUnit& pAttacker);
+#endif
 
 private:
 

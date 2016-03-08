@@ -13,20 +13,6 @@ UPDATE sqlite_sequence
 SET seq = (SELECT COUNT(ID) FROM HandicapInfos)-1
 WHERE name = 'HandicapInfos';
 
-INSERT INTO HandicapInfos
-	(ID, Type, Description, Help, StartingLocPercent, AdvancedStartPointsMod, HappinessDefault, NumCitiesUnhappinessMod, PopulationUnhappinessMod, Gold, GoldFreeUnits, ProductionFreeUnits, ProductionFreeUnitsPopulationPercent, ProductionFreeUnitsPerCity, RouteCostPercent, UnitCostPercent, BuildingCostPercent, ResearchPercent, PolicyPercent, ImprovementCostPercent, CityProductionNumOptionsConsidered, TechNumOptionsConsidered, PolicyNumOptionsConsidered, AttitudeChange, NoTechTradeModifier, BarbCampGold, BarbSpawnMod, StartingMinorDefenseUnits, BarbarianBonus, AIBarbarianBonus, EarliestBarbarianReleaseTurn, BarbarianLandTargetRange, BarbarianSeaTargetRange, AIStartingDefenseUnits, AIDeclareWarProb, AIWorkRateModifier, AIUnhappinessPercent, AIGrowthPercent, AITrainPercent, AIWorldTrainPercent, AIConstructPercent, AIWorldConstructPercent, AICreatePercent, AIWorldCreatePercent, AIBuildingCostPercent, AIUnitCostPercent, AIUnitSupplyPercent, AIUnitUpgradePercent, AIPerEraModifier, AIAdvancedStartPercent, AIFreeXP, DifficultyBonus, IconAtlas, PortraitIndex)
-VALUES
-	(0, 'HANDICAP_SETTLER', 'TXT_KEY_HANDICAP_SETTLER', 'TXT_KEY_HANDICAP_SETTLER_HELP', 50, 90, 8, 100, 100, 0, 0, 7, 50, 3, 75, 90, 100, 98, 90, 100, 3, 3, 3, 1, 50, 30, 0, 0, 60, 50, 0, 5, 14, 1, 80, 5, 100, 110, 110, 110, 110, 110, 110, 110, 100, 100, 0, 50, 0, 100, 0, 0, 'DIFFICULTY_ATLAS', 0),
-	(NULL, 'HANDICAP_CHIEFTAIN', 'TXT_KEY_HANDICAP_CHIEFTAIN', 'TXT_KEY_HANDICAP_CHIEFTAIN_HELP', 50, 80, 6, 100, 100, 0, 0, 6, 50, 2, 100, 100, 100, 100, 100, 100, 3, 3, 3, -1, 40, 30, 0, 0, 40, 40, 0, 6, 16, 1, 100, 10, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 5, 100, -2, 135, 5, 10, 'DIFFICULTY_ATLAS', 1),
-	(NULL, 'HANDICAP_WARLORD', 'TXT_KEY_HANDICAP_WARLORD', 'TXT_KEY_HANDICAP_WARLORD_HELP', 50, 80, 6, 100, 100, 0, 0, 6, 50, 2, 100, 100, 100, 100, 100, 100, 3, 3, 3, -1, 30, 30, 0, 1, 30, 40, 0, 7, 18, 1, 100, 20, 95, 95, 100, 100, 100, 100, 100, 100, 90, 90, 10, 100, -4, 150, 10, 30, 'DIFFICULTY_ATLAS', 2),
-	(NULL, 'HANDICAP_PRINCE', 'TXT_KEY_HANDICAP_PRINCE', 'TXT_KEY_HANDICAP_PRINCE_HELP', 50, 75, 5, 100, 100, 0, 0, 5, 50, 2, 100, 100, 100, 100, 100, 100, 3, 3, 3, -1, 20, 30, 0, 1, 30, 40, 0, 8, 20, 1, 100, 30, 90, 90, 95, 95, 95, 100, 95, 100, 85, 85, 15, 95, -6, 170, 15, 50, 'DIFFICULTY_ATLAS', 3),
-	(NULL, 'HANDICAP_KING', 'TXT_KEY_HANDICAP_KING', 'TXT_KEY_HANDICAP_KING_HELP', 50, 65, 5, 100, 100, 0, 0, 5, 45, 2, 100, 100, 100, 100, 100, 100, 3, 3, 3, -1, 15, 20, 0, 1, 20, 50, 0, 9, 22, 1, 105, 40, 85, 90, 90, 100, 90, 100, 90, 100, 80, 80, 20, 90, -7, 185, 20, 70, 'DIFFICULTY_ATLAS', 4),
-	(NULL, 'HANDICAP_EMPEROR', 'TXT_KEY_HANDICAP_EMPEROR', 'TXT_KEY_HANDICAP_EMPEROR_HELP', 50, 55, 5, 100, 100, 0, 0, 4, 40, 1, 100, 100, 100, 100, 100, 100, 3, 3, 3, -1, 10, 20, 0, 2, 20, 50, 0, 10, 24, 1, 110, 50, 80, 90, 90, 100, 90, 100, 90, 100, 75, 75, 30, 90, -8, 200, 20, 80, 'DIFFICULTY_ATLAS', 5),
-	(NULL, 'HANDICAP_IMMORTAL', 'TXT_KEY_HANDICAP_IMMORTAL', 'TXT_KEY_HANDICAP_IMMORTAL_HELP', 50, 50, 4, 100, 100, 0, 0, 3, 35, 1, 100, 100, 100, 100, 100, 100, 3, 3, 3, -1, 5, 20, 0, 2, 10, 60, 0, 11, 26, 2, 125, 60, 75, 80, 80, 100, 80, 100, 80, 100, 70, 70, 40, 80, -9, 215, 25, 100, 'DIFFICULTY_ATLAS', 6),
-	(NULL, 'HANDICAP_DEITY', 'TXT_KEY_HANDICAP_DEITY', 'TXT_KEY_HANDICAP_DEITY_HELP', 50, 45, 4, 100, 100, 0, 0, 2, 30, 1, 100, 100, 100, 100, 100, 100, 3, 3, 3, -1, 1, 15, 0, 3, 0, 70, 0, 12, 28, 3, 150, 70, 70, 70, 70, 100, 70, 100, 70, 100, 60, 60, 50, 75, -10, 230, 30, 125, 'DIFFICULTY_ATLAS', 7),
-	(NULL, 'HANDICAP_AI_DEFAULT', 'TXT_KEY_HANDICAP_AI_DEFAULT', 'TXT_KEY_HANDICAP_AI_DEFAULT_HELP', 50, 100, 7, 100, 100, 0, 0, 6, 50, 2, 100, 100, 100, 100, 100, 100, 2, 2, 2, -1, 70, 50, 0, 0, 0, 50, 0, 6, 18, 0, 100, 0, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 0, 100, 0, 100, 0, 0, 'DIFFICULTY_ATLAS', 0);
-
-
 -- Minor Civ Free Units
 
 UPDATE Eras

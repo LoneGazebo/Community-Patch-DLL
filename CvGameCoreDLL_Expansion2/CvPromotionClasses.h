@@ -141,6 +141,7 @@ public:
 	int PromotionDuration() const;
 	bool IsCityStateOnly() const;
 	bool IsBarbarianOnly() const;
+	int GetMoraleBreakChance() const;
 #endif
 	bool IsCannotBeChosen() const;
 	bool IsLostWithUpgrade() const;
@@ -350,6 +351,7 @@ protected:
 	int m_iForcedDamageValue;
 	int m_iChangeDamageValue;
 	int m_iPromotionDuration;
+	int m_iMoraleBreakChance;
 	bool m_bIsLostOnMove;
 	bool m_bCityStateOnly;
 	bool m_bBarbarianOnly;

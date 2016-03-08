@@ -355,6 +355,7 @@ CvUnit::CvUnit() :
 	, m_iNumTilesRevealedThisTurn("CvUnit::m_iNumTilesRevealedThisTurn", m_syncArchive)
 	, m_iGainsXPFromScouting("CvUnit::m_iGainsXPFromScouting", m_syncArchive)
 	, m_iBarbCombatBonus("CvUnit::m_iBarbCombatBonus", m_syncArchive)
+	, m_iCanMoraleBreak("CvUnit::m_iCanMoraleBreak", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	, m_iExtraReconRange("CvUnit::m_iExtraReconRange", m_syncArchive)
@@ -574,6 +575,11 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 		if(getUnitInfo().GetFreePromotions(iI))
 		{
 			ePromotion = (PromotionTypes) iI;
+
+#if defined(MOD_BALANCE_CORE)
+			if(GC.getPromotionInfo(ePromotion)->GetBarbarianCombatBonus() > 0 && isBarbarian())
+				continue;
+#endif
 
 			if(!GC.getPromotionInfo(ePromotion)->IsHoveringUnit())	// Hovering units handled above
 				setHasPromotion(ePromotion, true);
@@ -2663,6 +2669,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iNumTilesRevealedThisTurn = 0;
 	m_iGainsXPFromScouting = 0;
 	m_iBarbCombatBonus = 0;
+	m_iCanMoraleBreak = 0;
 #endif
 	m_iRoughTerrainEndsTurnCount = 0;
 	m_iEmbarkAbilityCount = 0;
@@ -7465,13 +7472,17 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	{
 		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL && (plot()->getOwner() == getOwner()))
 		{
-			ReligionTypes eMajority = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
+			ReligionTypes eMajority = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(getOwner());
+			if(eMajority == NO_RELIGION)
+			{
+				eMajority = GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities();
+			}
 			if(eMajority != NO_RELIGION)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
 				if(pReligion)
 				{
-					iReligionMod = pReligion->m_Beliefs.GetFriendlyHealChange();
+					iReligionMod = pReligion->m_Beliefs.GetFriendlyHealChange(getOwner());
 					BeliefTypes eSecondaryPantheon = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 					if (eSecondaryPantheon != NO_BELIEF)
 					{
@@ -7503,7 +7514,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
 			if(pReligion)
 			{
-				iReligionMod = pReligion->m_Beliefs.GetFriendlyHealChange();
+				iReligionMod = pReligion->m_Beliefs.GetFriendlyHealChange(getOwner());
 				BeliefTypes eSecondaryPantheon = pClosestCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
@@ -7717,7 +7728,11 @@ void CvUnit::doHeal()
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL && (plot()->getOwner() == getOwner()) && (plot()->getTurnDamage(false, false, true, true) == 0))
 		{
-			ReligionTypes eMajority = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
+			ReligionTypes eMajority = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(getOwner());
+			if(eMajority == NO_RELIGION)
+			{
+				eMajority = GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities();
+			}
 			if(eMajority != NO_RELIGION)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
@@ -7728,14 +7743,14 @@ void CvUnit::doHeal()
 					{
 						iEra = 1;
 					}
-					if(pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH) > 0)
+					if(pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner()) > 0)
 					{
-						GET_PLAYER(getOwner()).ChangeFaith(pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH) * iEra);
+						GET_PLAYER(getOwner()).ChangeFaith(pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner()) * iEra);
 						if(getOwner() == GC.getGame().getActivePlayer())
 						{
 							char text[256] = {0};
 							float fDelay = 0.0f;
-							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH)* iEra);
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner())* iEra);
 							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
 						}
 					}
@@ -7749,7 +7764,7 @@ void CvUnit::doHeal()
 							{
 								char text[256] = {0};
 								float fDelay = 0.0f;
-								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH) * iEra);
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerHeal(YIELD_FAITH) * iEra);
 								DLLUI->AddPopupText(getX(),getY(), text, fDelay);
 							}
 						}
@@ -10792,11 +10807,11 @@ bool CvUnit::DoSpreadReligion()
 								continue;
 							}
 							
-							int iYieldBonus = pReligion->m_Beliefs.GetYieldPerOtherReligionFollower(eYield);
+							int iYieldBonus = pReligion->m_Beliefs.GetYieldPerOtherReligionFollower(eYield, getOwner());
 
 							if (eYield == YIELD_SCIENCE)
 							{
-								iYieldBonus += pReligion->m_Beliefs.GetSciencePerOtherReligionFollower();
+								iYieldBonus += pReligion->m_Beliefs.GetSciencePerOtherReligionFollower(getOwner());
 							}
 
 							if (iYieldBonus > 0)
@@ -10867,11 +10882,11 @@ bool CvUnit::DoSpreadReligion()
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
-					iGoldenAgeBonus = pReligion->m_Beliefs.GetYieldFromSpread(YIELD_GOLDEN_AGE_POINTS) * iEra;
+					iGoldenAgeBonus = pReligion->m_Beliefs.GetYieldFromSpread(YIELD_GOLDEN_AGE_POINTS, getOwner()) * iEra;
 #endif
-					iCSInfluence = (pReligion->m_Beliefs.GetMissionaryInfluenceCS() * iEra);
+					iCSInfluence = (pReligion->m_Beliefs.GetMissionaryInfluenceCS(getOwner()) * iEra);
 #if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
-					iTourism = pReligion->m_Beliefs.GetYieldFromForeignSpread(YIELD_TOURISM) * iEra;
+					iTourism = pReligion->m_Beliefs.GetYieldFromForeignSpread(YIELD_TOURISM, getOwner()) * iEra;
 					iTourism *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 					iTourism /= 100;
 #endif
@@ -11234,11 +11249,11 @@ int CvUnit::GetConversionStrength() const
 			int iStrengthMod;
 			if (IsGreatPerson())
 			{
-				iStrengthMod = pReligion->m_Beliefs.GetProphetStrengthModifier();
+				iStrengthMod = pReligion->m_Beliefs.GetProphetStrengthModifier(getOwner());
 			}
 			else
 			{
-				iStrengthMod = pReligion->m_Beliefs.GetMissionaryStrengthModifier();
+				iStrengthMod = pReligion->m_Beliefs.GetMissionaryStrengthModifier(getOwner());
 			}
 
 			if(iStrengthMod != 0)
@@ -14999,7 +15014,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(kPlayer.GetID());
+	ReligionTypes eFoundedReligion = kPlayer.GetReligions()->GetReligionInMostCities();
 
 	// If the empire is unhappy, then Units get a combat penalty
 #if defined(MOD_GLOBAL_CS_RAZE_RARELY)
@@ -15163,7 +15178,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 					const CvReligion* pCityReligion = pReligions->GetReligion(eReligion, pPlotCity->getOwner());
 					if(pCityReligion)
 					{
-						iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierFriendlyCities();
+						iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierFriendlyCities(getOwner());
 						iModifier += iTempModifier;
 					}
 				}
@@ -15175,7 +15190,17 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		{
 			if(!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
 			{
-				if(GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities() != NO_RELIGION)
+				ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
+				if(eFoundedReligion == NO_RELIGION)
+				{
+					eFoundedReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
+				}
+				ReligionTypes eTheirReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pOtherUnit->getOwner());
+				if(eTheirReligion == NO_RELIGION)
+				{
+					eTheirReligion = GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+				} 
+				if(eTheirReligion != NO_RELIGION)
 				{
 					if(eFoundedReligion != NO_RELIGION)
 					{
@@ -15183,18 +15208,20 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 						if(pReligion)
 						{
 							//Other religion! Full bonus.
-							if((GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities() != eFoundedReligion) && GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities() != NO_RELIGION)
+							if(eTheirReligion != eFoundedReligion)
 							{			
 								// Bonus in own land
-								if((pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands() > 0) && pBattlePlot->IsFriendlyTerritory(getOwner()))
+								int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner());
+								int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner());
+								if((iOtherOwn > 0) && pBattlePlot->IsFriendlyTerritory(getOwner()))
 								{
-										iTempModifier = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands();
+										iTempModifier = iOtherOwn;
 										iModifier += iTempModifier;
 								}
 								//Bonus in their land
-								else if((pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands() > 0) && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
+								else if((iOtherTheir > 0) && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
 								{
-									iTempModifier = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands();
+									iTempModifier = iOtherTheir;
 									iModifier += iTempModifier;
 								}
 							}
@@ -15202,15 +15229,18 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 							else
 							{
 								// Bonus in own land
-								if((pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands() > 0) && pBattlePlot->IsFriendlyTerritory(getOwner()))
+								int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner());
+								int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner());
+
+								if((iOtherOwn > 0) && pBattlePlot->IsFriendlyTerritory(getOwner()))
 								{
-										iTempModifier = (pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands() / 2);
+										iTempModifier = (iOtherOwn / 2);
 										iModifier += iTempModifier;
 								}
 								//Bonus in their land
-								else if((pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands() > 0) && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
+								else if((iOtherTheir > 0) && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
 								{
-									iTempModifier = (pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands() / 2);
+									iTempModifier = (iOtherTheir / 2);
 									iModifier += iTempModifier;
 								}
 							}
@@ -15246,7 +15276,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 						const CvReligion* pCityReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pPlotCity->getOwner());
 						if(pCityReligion)
 						{
-							iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierEnemyCities();
+							iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierEnemyCities(getOwner());
 							iModifier += iTempModifier;
 						}
 					}
@@ -15870,7 +15900,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(kPlayer.GetID());
+	ReligionTypes eFoundedReligion = kPlayer.GetReligions()->GetReligionInMostCities();
 
 	int iStr = isRangedSupportFire() ? GetBaseCombatStrength() / 2 : GetBaseRangedCombatStrength();
 
@@ -15992,7 +16022,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 					const CvReligion* pCityReligion = pReligions->GetReligion(eReligion, pPlotCity->getOwner());
 					if (pCityReligion)
 					{
-						iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierFriendlyCities();
+						iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierFriendlyCities(getOwner());
 						iModifier += iTempModifier;
 					}
 				}
@@ -16017,7 +16047,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 						const CvReligion* pCityReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pPlotCity->getOwner());
 						if (pCityReligion)
 						{
-							iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierEnemyCities();
+							iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierEnemyCities(getOwner());
 							iModifier += iTempModifier;
 						}
 					}
@@ -18869,9 +18899,13 @@ if (!bDoEvade)
 				{
 					if (getUnitClassType() == eMissionary)
 					{
-						ReligionTypes eFoundedReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
+						ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
+						if(eFoundedReligion == NO_RELIGION)
+						{
+							eFoundedReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+						}
 						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, kPlayer.GetID());
-						if (pReligion && pReligion->m_Beliefs.IsConvertsBarbarians())
+						if (pReligion && pReligion->m_Beliefs.IsConvertsBarbarians(getOwner()))
 						{
 							UnitHandle pAdjacentUnit = pAdjacentPlot->getBestDefender(BARBARIAN_PLAYER);
 							if(pAdjacentUnit)
@@ -18895,9 +18929,13 @@ if (!bDoEvade)
 								if (adjUnit && adjUnit->getUnitClassType() == eMissionary)
 								{
 									CvPlayer &adjUnitPlayer = GET_PLAYER(adjUnit->getOwner());
-									ReligionTypes eFoundedReligion = adjUnitPlayer.GetReligions()->GetReligionCreatedByPlayer();
+									ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(adjUnitPlayer.GetID());
+									if(eFoundedReligion == NO_RELIGION)
+									{
+										eFoundedReligion = adjUnitPlayer.GetReligions()->GetReligionInMostCities();
+									}
 									const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, adjUnitPlayer.GetID());
-									if (pReligion && pReligion->m_Beliefs.IsConvertsBarbarians())
+									if (pReligion && pReligion->m_Beliefs.IsConvertsBarbarians(getOwner()))
 									{
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
 										if (CvBeliefHelpers::ConvertBarbarianUnit(adjUnit, this))
@@ -22680,7 +22718,19 @@ void CvUnit::ChangeCanHeavyChargeCount(int iChange)
 {
 	m_iCanHeavyCharge += iChange;
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvUnit::GetMoraleBreakChance() const
+{
+	return m_iCanMoraleBreak;
+}
 
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeMoraleBreakChance(int iChange)
+{
+	m_iCanMoraleBreak += iChange;
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvUnit::getFriendlyLandsModifier() const
 {
@@ -24571,7 +24621,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeCannotBeCapturedCount((thisPromotion.CannotBeCaptured()) ? iChange: 0);
 		ChangeForcedDamageValue((thisPromotion.ForcedDamageValue()) * iChange);
 		ChangeChangeDamageValue((thisPromotion.ChangeDamageValue()) * iChange);
-
+		ChangeMoraleBreakChance((thisPromotion.GetMoraleBreakChance()) * iChange);
 
 		ChangePromotionDuration(eIndex, (thisPromotion.PromotionDuration()) * iChange);
 		if(getPromotionDuration(eIndex) > 0)
@@ -27707,7 +27757,88 @@ bool CvUnit::DoFallBackFromMelee(CvUnit& attacker)
 	}
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+bool CvUnit::CanFallBackFromRanged(CvUnit& attacker)
+{
+	VALIDATE_OBJECT
+	// Are some of the retreat hexes away from the attacker blocked?
+	int iBlockedHexes = 0;
+	CvPlot* pAttackerFromPlot = attacker.plot();
+	DirectionTypes eAttackDirection = directionXY(pAttackerFromPlot, plot());
+	int iBiases[3] = {0,-1,1};
+	int x = plot()->getX();
+	int y = plot()->getY();
 
+	for(int i = 0; i < 3; i++)
+	{
+		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + iBiases[i]) % NUM_DIRECTION_TYPES;
+		CvPlot* pDestPlot = plotDirection(x, y, (DirectionTypes) iMovementDirection);
+
+		if(pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION))
+		{
+			iBlockedHexes++;
+		}
+	}
+
+	// If all three hexes away from attacker blocked, we can't withdraw
+	if(iBlockedHexes >= 3)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::DoFallBackFromRanged(CvUnit& attacker)
+{
+	VALIDATE_OBJECT
+
+	CvPlot* pAttackerFromPlot = attacker.plot();
+	DirectionTypes eAttackDirection = directionXY(pAttackerFromPlot, plot());
+
+	int iRightOrLeftBias = (GC.getGame().getJonRandNum(100, "right or left bias") < 50) ? 1 : -1;
+	int iBiases[5] = {0,-1,1,-2,2};
+	int x = plot()->getX();
+	int y = plot()->getY();
+
+	// try to retreat as close to away from the attacker as possible
+	for(int i = 0; i < 5; i++)
+	{
+		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + (iBiases[i] * iRightOrLeftBias)) % NUM_DIRECTION_TYPES;
+		CvPlot* pDestPlot = plotDirection(x, y, (DirectionTypes) iMovementDirection);
+
+		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION) && isMatchingDomain(pDestPlot))
+		{
+			setXY(pDestPlot->getX(), pDestPlot->getY(), false, false, true, false);
+			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+			if(pNotifications)
+			{
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK");
+				strMessage << attacker.getUnitInfo().GetTextKey();
+				strMessage << getUnitInfo().GetTextKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK_S");
+				strSummary << getUnitInfo().GetTextKey();
+				pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), (int) getUnitType(), getOwner());
+			}
+			CvNotifications* pNotificationsOther = GET_PLAYER(attacker.getOwner()).GetNotifications();
+			if(pNotificationsOther)
+			{
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK_THEM");
+				strMessage << attacker.getUnitInfo().GetTextKey();
+				strMessage << getUnitInfo().GetTextKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK_S");
+				strSummary << getUnitInfo().GetTextKey();
+
+				pNotificationsOther->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), (int) getUnitType(), getOwner());
+			}
+			return true;
+		}
+	}
+	return false;
+}
+#endif
 //	--------------------------------------------------------------------------------
 UnitAITypes CvUnit::AI_getUnitAIType() const
 {

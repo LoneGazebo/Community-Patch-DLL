@@ -2747,7 +2747,7 @@ int CvLuaCity::lGetFaithBuildingTourism(lua_State* L)
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
 	if(pReligion)
 	{
-		iRtnValue = pReligion->m_Beliefs.GetFaithBuildingTourism();
+		iRtnValue = pReligion->m_Beliefs.GetFaithBuildingTourism(pkCity->getOwner());
 	}
 	lua_pushinteger(L, iRtnValue);
 	return 1;
@@ -4962,13 +4962,12 @@ int CvLuaCity::lGetModFromWLTKD(lua_State* L)
 	{
 		const PlayerTypes ePlayer = pkCity->getOwner();
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(ePlayer);
-		if(eFoundedReligion != NO_RELIGION)
+		ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer();
+		if(eReligion != NO_RELIGION)
 		{
-			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
+			const CvReligion* pReligion = pReligions->GetReligion(eReligion, ePlayer);
 			iRtnValue = pReligion->m_Beliefs.GetYieldFromWLTKD((YieldTypes)eYield);
 		}
-		iRtnValue += pkCity->GetYieldFromWLTKD((YieldTypes)eYield);
 	}
 	lua_pushinteger(L, iRtnValue);
 
@@ -4984,7 +4983,7 @@ int CvLuaCity::lGetModFromGoldenAge(lua_State* L)
 	if(GET_PLAYER(ePlayer).getGoldenAgeTurns() > 0)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(ePlayer);
+		ReligionTypes eFoundedReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer();
 		if(eFoundedReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);

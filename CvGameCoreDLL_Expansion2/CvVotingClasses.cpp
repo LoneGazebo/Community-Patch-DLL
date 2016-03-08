@@ -4289,17 +4289,22 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 		{
 			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 			ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(ePlayer);
+			if(eFoundedReligion == NO_RELIGION)
+			{
+				eFoundedReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
+			}
 			if(eFoundedReligion != NO_RELIGION)
 			{
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
 				if(pReligion)
 				{
-					if(pReligion->m_Beliefs.GetExtraVotes() > 0)
+					int iExtraVotes = pReligion->m_Beliefs.GetExtraVotes(ePlayer);
+					if(iExtraVotes > 0)
 					{
 						int iNumMinor = (GC.getGame().GetNumMinorCivsEver() / 8);
 						if((iNumMinor) > 0)
 						{
-							iReligionVotes = (pReligion->m_Beliefs.GetExtraVotes() * iNumMinor);
+							iReligionVotes = (iExtraVotes * iNumMinor);
 						}
 						iVotes += iReligionVotes;
 					}
@@ -6989,6 +6994,10 @@ void CvLeague::FinishSession()
 #if defined(MOD_BALANCE_CORE)
 				CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 				ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(eProposer);
+				if(eFoundedReligion == NO_RELIGION)
+				{
+					eFoundedReligion = GET_PLAYER(eProposer).GetReligions()->GetReligionInMostCities();
+				}
 				if(eFoundedReligion != NO_RELIGION)
 				{
 					int iEra = GET_PLAYER(eProposer).GetCurrentEra();
@@ -7014,7 +7023,7 @@ void CvLeague::FinishSession()
 								pHolyCity = pLoopCity;
 							}
 						}
-						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) > 0)
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH, eProposer) > 0)
 						{
 							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) * iEra);
 							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -7028,7 +7037,7 @@ void CvLeague::FinishSession()
 								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 							}
 						}
-						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) > 0)
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD, eProposer) > 0)
 						{
 							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) * iEra);
 							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -7042,7 +7051,7 @@ void CvLeague::FinishSession()
 								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 							}
 						}
-						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) > 0)
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE, eProposer) > 0)
 						{
 							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) * iEra);
 							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -7064,7 +7073,7 @@ void CvLeague::FinishSession()
 								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 							}
 						}
-						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) > 0)
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE, eProposer) > 0)
 						{
 							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) * iEra);
 							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -7079,7 +7088,7 @@ void CvLeague::FinishSession()
 								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 							}
 						}
-						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) > 0)
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS, eProposer) > 0)
 						{
 							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) * iEra);
 							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -7135,6 +7144,10 @@ void CvLeague::FinishSession()
 #if defined(MOD_BALANCE_CORE)
 				CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 				ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(eProposer);
+				if(eFoundedReligion == NO_RELIGION)
+				{
+					eFoundedReligion = GET_PLAYER(eProposer).GetReligions()->GetReligionInMostCities();
+				}
 				if(eFoundedReligion != NO_RELIGION)
 				{
 					int iEra = GET_PLAYER(eProposer).GetCurrentEra();
@@ -7160,7 +7173,7 @@ void CvLeague::FinishSession()
 								pHolyCity = pLoopCity;
 							}
 						}
-						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) > 0)
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH, eProposer) > 0)
 						{
 							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_FAITH) * iEra);
 							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -7174,7 +7187,7 @@ void CvLeague::FinishSession()
 								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 							}
 						}
-						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) > 0)
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD, eProposer) > 0)
 						{
 							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLD) * iEra);
 							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -7188,7 +7201,7 @@ void CvLeague::FinishSession()
 								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 							}
 						}
-						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) > 0)
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE, eProposer) > 0)
 						{
 							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_SCIENCE) * iEra);
 							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -7210,7 +7223,7 @@ void CvLeague::FinishSession()
 								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 							}
 						}
-						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) > 0)
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE, eProposer) > 0)
 						{
 							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_CULTURE) * iEra);
 							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -7225,7 +7238,7 @@ void CvLeague::FinishSession()
 								DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 							}
 						}
-						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) > 0)
+						if(pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS, eProposer) > 0)
 						{
 							int iValue = (pReligion->m_Beliefs.GetYieldFromProposal(YIELD_GOLDEN_AGE_POINTS) * iEra);
 							iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();

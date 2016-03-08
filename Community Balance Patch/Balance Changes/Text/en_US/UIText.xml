@@ -141,22 +141,6 @@
 			<Text>Total: {1_Num} [ICON_RESEARCH] Science (due to [ICON_INFLUENCE] Influence over this City-State)</Text>
 		</Row>
 
-		<!-- Pantheons -->
-		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE">
-			<Text>Because you have founded a Religion, Citizens throughout your empire no longer value your former Pantheon. Pantheons with an empire-wide bonus (i.e. God-King) will remain inactive until you convert a majority of Cities to your new Religion!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE_S">
-			<Text>Decline of Your Pantheon</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE_B">
-			<Text>Because you have founded a Religion, Citizens throughout your empire no longer value your former Pantheon. Pantheons with an empire-wide yield bonus will remain inactive until you convert a majority of Cities to your new Religion!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE_S_B">
-			<Text>Decline of Your Pantheon</Text>
-		</Row>
-
-
 		<!-- WLTKD LUA -->
 		<Row Tag="TXT_KEY_PRODUCTION_WLTKD_BUILDING">
 			<Text>[NEWLINE] [ICON_BULLET]Building Modifier from 'We Love the King Day:' {1_Num}%</Text>

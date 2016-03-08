@@ -11415,6 +11415,11 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 {
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	int iChangeThisTurn = 0;
+	if(ePlayer == NO_PLAYER)
+		return 0;
+
+	if(GetPlayer()->getCapitalCity() == NULL)
+		return 0;
 
 	// Modifier to rate based on traits and religion
 	int iTraitMod = kPlayer.GetPlayerTraits()->GetCityStateFriendshipModifier();
@@ -11687,7 +11692,7 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 	CvCityReligions* pMinorCapitalReligions = pMinorCapital->GetCityReligions();
 	CvAssertMsg(pMinorCapitalReligions, "MINOR CIV AI: pMinorCapitalReligions not expected to be NULL.  Please send Anton your save file and version.");
 	if (!pMinorCapitalReligions) return iAnchor;
-	iAnchor += pMajorReligions->GetCityStateMinimumInfluence(pMinorCapitalReligions->GetReligiousMajority());
+	iAnchor += pMajorReligions->GetCityStateMinimumInfluence(pMinorCapitalReligions->GetReligiousMajority(), eMajor);
 
 	return iAnchor;
 }
@@ -16894,7 +16899,7 @@ int CvMinorCivAI::GetFriendshipFromGoldGift(PlayerTypes eMajor, int iGold)
 
 	// Mod (Policies, etc.)
 	int iFriendshipMod = GET_PLAYER(eMajor).getMinorGoldFriendshipMod();
-	iFriendshipMod += GET_PLAYER(eMajor).GetReligions()->GetCityStateInfluenceModifier();
+	iFriendshipMod += GET_PLAYER(eMajor).GetReligions()->GetCityStateInfluenceModifier(eMajor);
 	if(iFriendshipMod != 0)
 	{
 		iFriendship *= (100 + iFriendshipMod);

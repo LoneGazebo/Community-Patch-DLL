@@ -702,7 +702,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	////////////
 	if(pkUnitEntry->GetCombat() > 0)
 	{
-		ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+		ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pCity->getOwner());
+		if(eReligion == NO_RELIGION)
+		{
+			eReligion = GET_PLAYER(m_pCity->getOwner()).GetReligions()->GetReligionInMostCities();
+		}
 		if(eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pCity->getOwner());
@@ -714,7 +718,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 					CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-					if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief))
+					if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pCity->getOwner()))
 					{
 						if(pEntry->GetFaithFromKills() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK)))
 						{

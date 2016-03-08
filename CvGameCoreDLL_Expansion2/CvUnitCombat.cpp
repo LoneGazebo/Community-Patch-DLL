@@ -706,6 +706,12 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		{
 			iDamage = GC.getMAX_HIT_POINTS() - pkDefender->getDamage();
 		}
+#if defined(MOD_BALANCE_CORE)
+		if (kAttacker.GetMoraleBreakChance() > 0 && !pkDefender->CanFallBackFromRanged(kAttacker))
+		{
+			iDamage = (iDamage * 150) / 100;
+		}
+#endif
 
 		iTotalDamage = std::max(pkDefender->getDamage(), pkDefender->getDamage() + iDamage);
 	}
@@ -1032,6 +1038,14 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						if(pkDefender->IsFortifiedThisTurn() || (pkDefender->GetActivityType() == ACTIVITY_HEAL))
 						{
 							pkDefender->SetActivityType(ACTIVITY_AWAKE, false);
+						}
+						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath())
+						{
+							int iRand = GC.getGame().getJonRandNum(100, "Retreat Rand");
+							if(iRand <= pkAttacker->GetMoraleBreakChance())
+							{
+								pkDefender->DoFallBackFromRanged(*pkAttacker);
+							}
 						}
 #endif
 					}

@@ -85,8 +85,10 @@ WHERE Type = 'TRAIT_GREAT_ANDEAN_ROAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE
 
 -- Denmark -- Unique National Epic (Jelling Stones) -- Replace Ski Infantry
 
--- Korea -- Replace Turtle Ship with UB
-
+-- Korea -- Replace Turtle Ship with UB, adjust UA
+UPDATE Trait_SpecialistYieldChanges
+Set Yield = '1'
+WHERE TraitType = 'TRAIT_SCHOLARS_JADE_HALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- New Changes
 
@@ -103,7 +105,7 @@ VALUES
 INSERT INTO Building_YieldChangesPerPop
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_WALLS_OF_BABYLON', 'YIELD_SCIENCE', 20);
+	('BUILDING_WALLS_OF_BABYLON', 'YIELD_SCIENCE', 10);
 
 INSERT INTO Building_Flavors
 	(BuildingType, FlavorType, Flavor)
@@ -199,13 +201,15 @@ INSERT INTO Building_YieldChanges
 VALUES
 	('BUILDING_SEOWON', 'YIELD_SCIENCE', 3),
 	('BUILDING_SEOWON', 'YIELD_FAITH', 2),
+	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 2),
 	('BUILDING_YURT', 'YIELD_FAITH', 1);
 
 INSERT INTO Building_GrowthExtraYield
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_MISSION', 'YIELD_GOLD', 300),
-	('BUILDING_MISSION', 'YIELD_FAITH', 300);
+	('BUILDING_MISSION', 'YIELD_FAITH', 300),
+	('BUILDING_SEOWON', 'YIELD_SCIENCE', 50);
 
 INSERT INTO Building_FeatureYieldChanges
 	(BuildingType, FeatureType, YieldType, Yield)

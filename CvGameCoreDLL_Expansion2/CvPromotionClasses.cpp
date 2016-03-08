@@ -113,6 +113,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iForcedDamageValue(0),
 	m_iChangeDamageValue(0),
 	m_iPromotionDuration(0),
+	m_iMoraleBreakChance(0),
 #endif
 	m_bCannotBeChosen(false),
 	m_bLostWithUpgrade(false),
@@ -276,6 +277,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iForcedDamageValue = kResults.GetInt("ForcedDamageValue");
 	m_iChangeDamageValue = kResults.GetInt("ChangeDamageValue");
 	m_iPromotionDuration = kResults.GetInt("PromotionDuration");
+	m_iMoraleBreakChance = kResults.GetInt("MoraleBreakChance");
 #endif
 	m_bCannotBeChosen = kResults.GetBool("CannotBeChosen");
 	m_bLostWithUpgrade = kResults.GetBool("LostWithUpgrade");
@@ -1442,6 +1444,10 @@ int CvPromotionEntry::ChangeDamageValue() const
 int CvPromotionEntry::PromotionDuration() const
 {
 	return m_iPromotionDuration;
+}
+int CvPromotionEntry::GetMoraleBreakChance() const
+{
+	return m_iMoraleBreakChance;
 }
 #endif
 /// Accessor: Can this Promotion be earned through normal leveling?

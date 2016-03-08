@@ -6195,6 +6195,16 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 			}
 		}
 	}
+	//Buildings with Tourism
+	int iTourismFromWW = GET_PLAYER(m_pCity->getOwner()).GetYieldChangeWorldWonder(YIELD_TOURISM);
+	if(iTourismFromWW > 0)
+	{
+		iTourismFromWW *= m_pCity->getNumWorldWonders();
+		if(iTourismFromWW > 0)
+		{
+			iBase += iTourismFromWW;
+		}
+	}
 #endif
 
 	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent();
@@ -6211,7 +6221,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 	if(pReligion)
 	{
-		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism();
+		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism(m_pCity->getOwner());
 		if (iFaithBuildingTourism > 0)
 		{
 			iBase += m_pCity->GetCityBuildings()->GetNumBuildingsFromFaith() * iFaithBuildingTourism;
@@ -6235,7 +6245,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 			{
 				if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
-					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner()) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 				}
 			}
 		}
@@ -6359,6 +6369,18 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 	// Add in all the tourism from yields
 	iBase += m_pCity->getYieldRate(YIELD_TOURISM, false);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	//Buildings with Tourism
+	int iTourismFromWW = GET_PLAYER(m_pCity->getOwner()).GetYieldChangeWorldWonder(YIELD_TOURISM);
+	if(iTourismFromWW > 0)
+	{
+		iTourismFromWW *= m_pCity->getNumWorldWonders();
+		if(iTourismFromWW > 0)
+		{
+			iBase += iTourismFromWW;
+		}
+	}
+#endif
 
 	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent();
 	if (iPercent > 0)
@@ -6378,7 +6400,7 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 	if(pReligion)
 	{
-		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism();
+		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism(m_pCity->getOwner());
 		if (iFaithBuildingTourism > 0)
 		{
 			iBase += m_pCity->GetCityBuildings()->GetNumBuildingsFromFaith() * iFaithBuildingTourism;
@@ -6403,7 +6425,7 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 				if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
 #if defined(MOD_BUGFIX_MINOR)
-					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner()) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 #else
 					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass);
 #endif
@@ -6754,7 +6776,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 	if(pReligion)
 	{
-		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism();
+		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism(m_pCity->getOwner());
 		if (iFaithBuildingTourism > 0)
 		{
 			iSacredSitesTourism = m_pCity->GetCityBuildings()->GetNumBuildingsFromFaith() * iFaithBuildingTourism;
@@ -6783,7 +6805,7 @@ CvString CvCityCulture::GetTourismTooltip()
 				if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
 #if defined(MOD_BUGFIX_MINOR)
-					iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner()) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 #else
 					iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass);
 #endif
@@ -6852,13 +6874,14 @@ CvString CvCityCulture::GetTourismTooltip()
 			szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS", iTourismFromWW);
 		}
 	}
-	if((m_pCity->getYieldRate(YIELD_TOURISM, false) - iTourismFromWW - iTraitBonuses) > 0)
+	int iRemainder = (m_pCity->getYieldRate(YIELD_TOURISM, false) - iTraitBonuses);
+	if(iRemainder > 0)
 	{
 		if (szRtnValue.length() > 0)
 		{
 			szRtnValue += "[NEWLINE][NEWLINE]";
 		}
-		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_GENERAL", m_pCity->getYieldRate(YIELD_TOURISM, false));
+		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_GENERAL", iRemainder);
 	}
 #endif
 

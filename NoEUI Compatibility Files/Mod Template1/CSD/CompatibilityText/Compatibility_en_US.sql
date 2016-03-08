@@ -112,11 +112,11 @@ WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_DIPLOMACY_HELP';
 
 
 UPDATE Language_en_US
-SET Text = 'You are [COLOR_POSITIVE_TEXT]Allies[ENDCOLOR] with {1_CityStateName:textkey}. Each turn, your [ICON_INFLUENCE] Influence with them will change by {2_Num}. If {1_CityStateName:textkey} is damaged by enemy units, this decay value will triple.'
+SET Text = 'You are [COLOR_POSITIVE_TEXT]Allies[ENDCOLOR] with {1_CityStateName:textkey}. Each turn, your [ICON_INFLUENCE] Influence with them will change by {2_Num}. If {1_CityStateName:textkey} is damaged and you have a [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] with them, this decay value will triple.'
 WHERE Tag = 'TXT_KEY_ALLIES_CSTATE_TT';
 
 UPDATE Language_en_US
-SET Text = 'Each turn, your [ICON_INFLUENCE] Influence with them will change by {1_InfluenceRate}.  It rests at {2_InfluenceAnchor}. If the City is damaged by enemy units, this decay value will triple.'
+SET Text = 'Each turn, your [ICON_INFLUENCE] Influence with them will change by {1_InfluenceRate}.  It rests at {2_InfluenceAnchor}. If their Capital is damaged and you have a [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] with them, this decay value will triple.'
 WHERE Tag = 'TXT_KEY_CSTATE_INFLUENCE_RATE';
 
 -- Policy Changes

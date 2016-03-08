@@ -741,7 +741,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	/////////
 	//RELIGION CHECKS
 	////////////
-	ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
+	if (eReligion == NO_RELIGION)
+	{
+		eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+	}
 	if(eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pCity->getOwner());

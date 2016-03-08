@@ -152,11 +152,11 @@ WHERE BuildingType = 'BUILDING_DUCAL_STABLE' AND EXISTS (SELECT * FROM COMMUNITY
 -- Pedro -- Improve Brazilwood Camp, increase all GP production during GA
 
 UPDATE Traits
-SET GoldenAgeTourismModifier = '25'
+SET GoldenAgeTourismModifier = '33'
 WHERE Type = 'TRAIT_CARNIVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET TourismGABonus = '50'
+SET TourismGABonus = '33'
 WHERE Type = 'TRAIT_CARNIVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
@@ -236,6 +236,11 @@ VALUES
 	('BUILDING_ROYAL_LIBRARY', 'DOMAIN_SEA', 5),
 	('BUILDING_ROYAL_LIBRARY', 'DOMAIN_AIR', 5);
 
+INSERT INTO Building_ClassesNeededInCity
+	(BuildingType, BuildingClassType)
+VALUES
+	('BUILDING_ROYAL_LIBRARY', 'BUILDINGCLASS_LIBRARY');
+
 INSERT INTO Trait_GreatWorkYieldChanges
 	(TraitType, YieldType, Yield)
 VALUES
@@ -248,8 +253,13 @@ VALUES
 	('BUILDING_DUCAL_STABLE', 'YIELD_PRODUCTION', 3),
 	('BUILDING_DOGE_PALACE', 'YIELD_GOLD', 7),
 	('BUILDING_DOGE_PALACE', 'YIELD_PRODUCTION', 5),
-	('BUILDING_DOGE_PALACE', 'YIELD_SCIENCE', 6),
+	('BUILDING_DOGE_PALACE', 'YIELD_SCIENCE', 5),
 	('BUILDING_DOGE_PALACE', 'YIELD_CULTURE', 2);
+
+INSERT INTO Building_YieldChangesPerPop
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_DOGE_PALACE', 'YIELD_SCIENCE', 34);
 
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description, Bonus, RequiresAnyButOwner, AIPriority)

@@ -664,8 +664,8 @@
 		<Row>
 			<Type>BUILDING_BATH</Type>
 			<BuildingClass>BUILDINGCLASS_BATH</BuildingClass>
-			<Cost>225</Cost>
-			<GoldMaintenance>3</GoldMaintenance>
+			<Cost>200</Cost>
+			<GoldMaintenance>1</GoldMaintenance>
 			<PrereqTech>TECH_METAL_CASTING</PrereqTech>
 			<Description>TXT_KEY_BUILDING_BATH</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_BATH_TEXT</Civilopedia>
@@ -675,8 +675,8 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<MutuallyExclusiveGroup>2</MutuallyExclusiveGroup>
 			<ConquestProb>66</ConquestProb>
-			<IsNoRiver>true</IsNoRiver>
-			<GreatPeopleRateModifier>20</GreatPeopleRateModifier>
+			<FreshWater>true</FreshWater>
+			<GreatPeopleRateModifier>25</GreatPeopleRateModifier>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>EXPANSION2_BUILDING_ATLAS</IconAtlas>
 			<PortraitIndex>11</PortraitIndex>

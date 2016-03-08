@@ -7925,7 +7925,12 @@ void CvGame::doTurn()
 		SetHighestPotential();
 	}
 #endif
-
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	if(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	{
+		DoBarbCountdown();
+	}
+#endif
 	GC.GetEngineUserInterface()->setCanEndTurn(false);
 	GC.GetEngineUserInterface()->setHasMovedUnit(false);
 

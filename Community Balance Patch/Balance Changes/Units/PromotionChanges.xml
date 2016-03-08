@@ -3139,5 +3139,17 @@
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BARBARIAN_BONUS</PediaEntry>
 		</Row>
+		<Row>
+			<Type>PROMOTION_ESPRIT_DE_CORPS</Type>
+			<Description>TXT_KEY_PROMOTION_ESPRIT_DE_CORPS</Description>
+			<Help>TXT_KEY_PROMOTION_ESPRIT_DE_CORPS_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>1</OrderPriority>
+			<MoraleBreakChance>25</MoraleBreakChance>
+			<PortraitIndex>3</PortraitIndex>
+			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ESPRIT_DE_CORPS</PediaEntry>
+		</Row>
 	</UnitPromotions>
 </GameData>

@@ -3338,7 +3338,7 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
 		if(pReligion)
 		{
-			iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100;
+			iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID()) * 100;
 			BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
@@ -6015,7 +6015,11 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	int iTechDelta = iTechDifferenceP1fromP2 - iTechDifferenceP2fromP1;
 
 	// religion
-	ReligionTypes eOwnerFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+	ReligionTypes eOwnerFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
+	if (eOwnerFoundedReligion == NO_RELIGION)
+	{
+		eOwnerFoundedReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
+	}
 	int iReligionDelta = 0;
 	if (eOwnerFoundedReligion != NO_RELIGION)
 	{

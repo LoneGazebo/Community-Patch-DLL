@@ -1557,10 +1557,11 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 				if(pReligion)
 				{
-					iYield += pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield);
-					if(GetTotalSpecialistCount() <= 0 && pReligion->m_Beliefs.GetYieldChangeAnySpecialist(eYield) > 0)
+					iYield += pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield, m_pCity->getOwner());
+					int iYield1Specialist = pReligion->m_Beliefs.GetYieldChangeAnySpecialist(eYield, m_pCity->getOwner());
+					if(GetTotalSpecialistCount() <= 0 && iYield1Specialist > 0)
 					{
-						iYield += pReligion->m_Beliefs.GetYieldChangeAnySpecialist(eYield);
+						iYield += iYield1Specialist;
 					}
 				}
 			}
@@ -2338,7 +2339,19 @@ void CvCityCitizens::DoReallocateCitizens()
 	{
 		DoAddBestCitizenFromUnassigned(specialistValueCache);
 	}
+#if defined(MOD_BALANCE_CORE)
+	//And then we do it again after everyone is allocated.
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eYield = (YieldTypes) iI;
+		if(eYield == NO_YIELD)
+			continue;
 
+		GetCity()->UpdateCityYields(eYield);
+	}
+	GetCity()->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+	GetCity()->GetCityCulture()->CalculateBaseTourism();
+#endif
 	GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
 }
 
@@ -2505,7 +2518,7 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 		}
 #if defined(MOD_BALANCE_CORE)
 		//Let's only worry about yield changes if we need to update, or we're human (humans want instant feedback, whereas the AI doesn't always need that).
-		if(bUpdateNow || GET_PLAYER(GetCity()->getOwner()).isHuman())
+		if(bUpdateNow)
 		{
 			if(iIndex != CITY_HOME_PLOT)
 			{
@@ -3019,7 +3032,7 @@ void CvCityCitizens::DoSpecialists()
 							const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, GetCity()->getOwner());
 							if(pReligion)
 							{
-								iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+								iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, GetCity()->getOwner());
 								BeliefTypes eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 								if (eSecondaryPantheon != NO_BELIEF)
 								{

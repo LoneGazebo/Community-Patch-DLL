@@ -3323,7 +3323,7 @@ int CvLuaPlayer::lGetFoundedReligionEnemyCityCombatMod(lua_State* L)
 		{
 			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 			ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
-			ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(pkPlayer->GetID());
+			ReligionTypes eFoundedReligion = GET_PLAYER(pkPlayer->GetID()).GetReligions()->GetReligionCreatedByPlayer();
 			if(eFoundedReligion != NO_RELIGION && eReligion == eFoundedReligion)
 			{
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkPlayer->GetID());
@@ -3354,7 +3354,7 @@ int CvLuaPlayer::lGetFoundedReligionFriendlyCityCombatMod(lua_State* L)
 		{
 			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 			ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
-			ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(pkPlayer->GetID());
+			ReligionTypes eFoundedReligion = GET_PLAYER(pkPlayer->GetID()).GetReligions()->GetReligionCreatedByPlayer();
 			if(eFoundedReligion != NO_RELIGION && eReligion == eFoundedReligion)
 			{
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkPlayer->GetID());

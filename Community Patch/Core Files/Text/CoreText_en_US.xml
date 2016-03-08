@@ -5785,6 +5785,13 @@
 			<Text>Because your Civilization completed a [ICON_INTERNATIONAL_TRADE] Trade Route with {2_Name}, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num}!</Text>
 		</Row>
 
+		<!-- Religion Majority Est. -->
+		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_MAJORITY_S">
+			<Text>{1_ReligionName} now your [ICON_RELIGION] majority Religion!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_MAJORITY">
+			<Text>{1_ReligionName} has become your new national religious majority.</Text>
+		</Row>
 
 		<!-- Great Work Gold (LUA)-->
 		<Row Tag="TXT_KEY_YIELD_FROM_ART_CBP">
@@ -6145,6 +6152,22 @@
 		<Row Tag="TXT_KEY_UNIT_PLAGUE_TRANSFER_THEM_S">
 			<Text>Plague spreads to your {1_Unit}!</Text>
 		</Row>
+		
+		<!-- Morale Hit -->
+		<Row Tag="TXT_KEY_UNIT_MORALE_FALL_BACK">
+			<Text>Our {2_Unit} was forced to retreat by an enemy {1_Unit}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_MORALE_FALL_BACK_S">
+			<Text>{1_Unit} has routed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_MORALE_FALL_BACK_THEM">
+			<Text>Our {1_Unit} forced an enemy {2_Unit} to retreat!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_MORALE_FALL_BACK_THEM_S">
+			<Text>Enemy {1_Unit} forced to retreat!</Text>
+		</Row>
+
+		
 
 		<!-- Team Tourism -->
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_SAME_TEAM">

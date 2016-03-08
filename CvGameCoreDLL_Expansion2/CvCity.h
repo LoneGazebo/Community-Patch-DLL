@@ -811,7 +811,7 @@ public:
 	void changeSeaResourceYield(YieldTypes eIndex, int iChange);
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-	int GetYieldPerTurnFromReligion(ReligionTypes eReligion, YieldTypes eYield) const;
+	int GetYieldPerTurnFromReligion(YieldTypes eYield) const;
 	void UpdateSpecialReligionYields(YieldTypes eYield);
 	int GetSpecialReligionYields(YieldTypes eIndex) const;
 	void SetSpecialReligionYields(YieldTypes eIndex, int iValue);

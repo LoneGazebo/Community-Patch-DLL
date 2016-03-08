@@ -257,14 +257,14 @@ VALUES
 INSERT INTO Belief_YieldPerBorderGrowth
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_EPONA', 'YIELD_SCIENCE', 20),
-	('BELIEF_EPONA', 'YIELD_CULTURE', 20),
-	('BELIEF_EPONA', 'YIELD_FOOD', 20);
+	('BELIEF_EPONA', 'YIELD_SCIENCE', 15),
+	('BELIEF_EPONA', 'YIELD_CULTURE', 15),
+	('BELIEF_EPONA', 'YIELD_FOOD', 15);
 
 INSERT INTO Belief_YieldPerScience
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_NUADA', 'YIELD_GOLDEN_AGE_POINTS', 12);
+	('BELIEF_NUADA', 'YIELD_GOLDEN_AGE_POINTS', 10);
 
 INSERT INTO Belief_YieldPerGPT
 	(BeliefType, YieldType, Yield)
@@ -280,9 +280,9 @@ VALUES
 INSERT INTO Belief_YieldChangeAnySpecialist
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_LUGH', 'YIELD_CULTURE', 5),
-	('BELIEF_LUGH', 'YIELD_GOLD', 5),
-	('BELIEF_LUGH', 'YIELD_SCIENCE', 5);
+	('BELIEF_LUGH', 'YIELD_CULTURE', 4),
+	('BELIEF_LUGH', 'YIELD_GOLD', 4),
+	('BELIEF_LUGH', 'YIELD_SCIENCE', 4);
 
 INSERT INTO Belief_YieldChangeWorldWonder
 	(BeliefType, YieldType, Yield)
@@ -292,9 +292,9 @@ VALUES
 INSERT INTO Belief_YieldPerFollowingCity
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_RHIANNON', 'YIELD_GOLD', 3),
-	('BELIEF_RHIANNON', 'YIELD_SCIENCE', 3),
-	('BELIEF_RHIANNON', 'YIELD_GOLDEN_AGE_POINTS', 3),
+	('BELIEF_RHIANNON', 'YIELD_GOLD', 2),
+	('BELIEF_RHIANNON', 'YIELD_SCIENCE', 2),
+	('BELIEF_RHIANNON', 'YIELD_GOLDEN_AGE_POINTS', 2),
 	('BELIEF_BRAN', 'YIELD_CULTURE', 1);
 
 INSERT INTO Belief_CoastalCityYieldChanges
@@ -307,19 +307,20 @@ VALUES
 INSERT INTO Belief_YieldPerPop
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_OGMA', 'YIELD_SCIENCE', 2);
+	('BELIEF_OGMA', 'YIELD_SCIENCE', 4);
 
 INSERT INTO Belief_YieldPerBirth
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_OGMA', 'YIELD_CULTURE', 6);
+	('BELIEF_OGMA', 'YIELD_CULTURE', 8);
 
 INSERT INTO Belief_YieldPerXFollowers
 	(BeliefType, YieldType, PerXFollowers)
 VALUES
-	('BELIEF_DAGDA', 'YIELD_GOLD', 3),
-	('BELIEF_DAGDA', 'YIELD_CULTURE', 3),
-	('BELIEF_DAGDA', 'YIELD_SCIENCE', 3);
+	('BELIEF_DAGDA', 'YIELD_GOLD', 6),
+	('BELIEF_DAGDA', 'YIELD_CULTURE', 6),
+	('BELIEF_DAGDA', 'YIELD_PRODUCTION', 6),
+	('BELIEF_DAGDA', 'YIELD_SCIENCE', 6);
 
 INSERT INTO Trait_YieldFromOwnPantheon
 	(TraitType, YieldType, Yield)
@@ -340,7 +341,13 @@ INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
 VALUES
 	('IMPROVEMENT_POLDER', 'YIELD_GOLD', 2),
-	('IMPROVEMENT_POLDER', 'YIELD_PRODUCTION', 1);
+	('IMPROVEMENT_POLDER', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_EKI', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_EKI', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_EKI', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_KUNA', 'YIELD_SCIENCE', 1),
+	('IMPROVEMENT_KUNA', 'YIELD_FAITH', 2);
+
 
 INSERT INTO Improvement_AdjacentImprovementYieldChanges
 	(ImprovementType, OtherImprovementType, YieldType, Yield)
@@ -383,11 +390,6 @@ INSERT INTO Building_YieldFromGPExpend
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_COFFEE_HOUSE', 'YIELD_GOLD', 25);
-
-INSERT INTO Building_ScienceFromYield
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_COFFEE_HOUSE', 'YIELD_FOOD', 15);
 
 INSERT INTO Building_ClassesNeededInCity
 	(BuildingType, BuildingClassType)
@@ -472,16 +474,7 @@ INSERT INTO Improvement_ValidFeatures
 VALUES
 	('IMPROVEMENT_KUNA', 'FEATURE_FOREST'),
 	('IMPROVEMENT_KUNA', 'FEATURE_JUNGLE');
-
-INSERT INTO Improvement_Yields
-	(ImprovementType, YieldType, Yield)
-VALUES
-	('IMPROVEMENT_EKI', 'YIELD_PRODUCTION', 1),
-	('IMPROVEMENT_EKI', 'YIELD_FOOD', 1),
-	('IMPROVEMENT_EKI', 'YIELD_CULTURE', 1),
-	('IMPROVEMENT_KUNA', 'YIELD_SCIENCE', 2),
-	('IMPROVEMENT_KUNA', 'YIELD_FAITH', 2);
-
+	
 INSERT INTO Improvement_YieldAdjacentTwoSameType
 	(ImprovementType, YieldType, Yield)
 VALUES

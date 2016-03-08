@@ -556,6 +556,9 @@ ALTER TABLE UnitPromotions ADD 'CannotBeCaptured' BOOLEAN DEFAULT 0;
 -- A unit gains a combat bonus VS barbarians
 ALTER TABLE UnitPromotions ADD COLUMN 'BarbarianCombatBonus' INTEGER DEFAULT 0;
 
+-- Ranged units have a % chance to force another unit to retreat, taking additional damage if they cannot do so.
+ALTER TABLE UnitPromotions ADD COLUMN 'MoraleBreakChance' INTEGER DEFAULT 0;
+
 -- Promotion bonuses restricted to Barbarians.
 
 ALTER TABLE UnitPromotions ADD COLUMN 'BarbarianOnly' BOOLEAN DEFAULT 0;

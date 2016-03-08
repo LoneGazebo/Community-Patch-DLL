@@ -171,6 +171,12 @@
 		<Row Tag="TXT_KEY_PROMOTION_RAIDER_HELP">
 			<Text>Flank attack bonus increased by 100%. Steal gold equal to 50% of the damage inflicted on a city. Is able to use enemy roads.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ESPRIT_DE_CORPS">
+			<Text>Esprit de Corps</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ESPRIT_DE_CORPS_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]20%[ENDCOLOR] Chance to force an enemy Unit to retreat after taking [ICON_RANGE_STRENGTH] Ranged Damage. If the Unit cannot retreat, it takes [COLOR_POSITIVE_TEXT]50%[ENDCOLOR] more damage than normal.</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FALLOUT_REDUCTION">
 			<Text>Fallout Resistance</Text>
