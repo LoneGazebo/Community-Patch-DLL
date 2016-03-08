@@ -5179,6 +5179,13 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			{
 				//we know we can reach it in one turn
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
+				pUnit->finishMoves();
+				UnitProcessed(pUnit->GetID());
+				//make sure our defender doesn't run away
+				UnitHandle pDefender = pBestPlot->getBestDefender(pUnit->getOwner());
+				if (pDefender->canMove())
+					pDefender->finishMoves();
+				UnitProcessed(pDefender->GetID());
 			}
 			else
 			{
@@ -5269,6 +5276,11 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
 				pUnit->finishMoves();
 				UnitProcessed(pUnit->GetID());
+				//make sure our defender doesn't run away
+				UnitHandle pDefender = pBestPlot->getBestDefender(pUnit->getOwner());
+				if (pDefender->canMove())
+					pDefender->finishMoves();
+				UnitProcessed(pDefender->GetID());
 				continue;
 			}
 		}

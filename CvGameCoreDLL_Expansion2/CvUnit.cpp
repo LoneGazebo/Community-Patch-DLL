@@ -7289,7 +7289,7 @@ int CvUnit::GetPower() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
+bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible, bool bCheckMovement) const
 {
 	VALIDATE_OBJECT
 
@@ -7299,7 +7299,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 	}
 
 	// No healing after movement, except for exceptions
-	if(hasMoved() && !isAlwaysHeal())
+	if(bCheckMovement && hasMoved() && !isAlwaysHeal())
 	{
 		return false;
 	}
