@@ -331,6 +331,9 @@
 		<Row Tag="TXT_KEY_MISC_VASSAL_LIBERATION_POSSIBLE">
 			<Text>Because they have been our vassal for many years, we are now able to liberate {1_TeamName}!</Text>
 		</Row>
+		<Row Tag="TXT_KEY_MISC_SOMEONE_MAKES_VASSAL">
+			<Text>{1_TeamName} has become the vassal of {2_TeamName}!</Text>
+		</Row>
 		<!-- UI -->
 		<Row Tag="TXT_KEY_GAME_OPTION_NO_VASSALAGE">
 			<Text>No Vassalage</Text>
@@ -541,7 +544,7 @@
 			<Text>Capitulated Vassal</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_VASSAL_TYPE_CAPITULATED_TT">
-			<Text>Capitulated vassals are vassals acquired as the result of being crippled in war. Capitulated vassals are completely subservient to the master and leave their masters until they have satisfied a series of requirements. Capitulated vassals count toward a Domination victory!</Text>
+			<Text>Capitulated vassals are vassals acquired as the result of being crippled in war. Capitulated vassals are completely subservient to the master and cannot leave their masters until they have satisfied a series of requirements.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_POPULATION_STAT">
 			<Text>[ICON_CITIZEN] Population</Text>
