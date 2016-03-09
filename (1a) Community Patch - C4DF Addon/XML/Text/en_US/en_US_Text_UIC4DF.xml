@@ -325,6 +325,12 @@
 		<Row Tag="TXT_KEY_MISC_VASSAL_TAX_DECREASED">
 			<Text>{1_TeamName} has decreased your taxes from {2_Num}% to {3_Num}%!</Text>
 		</Row>
+		<Row Tag="TXT_KEY_MISC_VASSAL_LIBERATION_POSSIBLE_SUMMARY">
+			<Text>Liberation Possible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_VASSAL_LIBERATION_POSSIBLE">
+			<Text>Because they have been our vassal for many years, we are now able to liberate {1_TeamName}!</Text>
+		</Row>
 		<!-- UI -->
 		<Row Tag="TXT_KEY_GAME_OPTION_NO_VASSALAGE">
 			<Text>No Vassalage</Text>
