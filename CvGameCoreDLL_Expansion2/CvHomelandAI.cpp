@@ -244,11 +244,12 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 	//sorts by the first element of the iterator ... which is our distance. nice.
 	std::stable_sort(vPlotsByDistance.begin(), vPlotsByDistance.end());
 
+	int iValidCandidates = 0;
 	for (size_t idx=0; idx<vPlotsByDistance.size(); idx++)
 	{
 		//after looking at the N closest candidates
 		//if we found something, bail
-		if (pBestPlot && idx>(size_t)nMinCandidates)
+		if (pBestPlot && iValidCandidates>nMinCandidates)
 			break;
 
 		CvPlot* pEvalPlot = vPlotsByDistance[idx].second.pPlot;
@@ -278,6 +279,8 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 
 		int iDistance = GC.GetPathFinder().GetPathLength();
 		int iPlotScore = (1000 * iRating) / max(1,iDistance);
+
+		iValidCandidates++;
 
 		if (iPlotScore>iBestPlotScore)
 		{
@@ -3370,7 +3373,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				if(iDanger > iAcceptableDanger/2)
 					iTotalScore /= 2;
 
-				if(iTotalScore > iBestPlotScore )
+				if(iTotalScore > iBestPlotScore)
 				{
 					//make sure we can actually reach it - shouldn't happen, but sometimes does because of blocks
 					if (!pUnit->CanReachInXTurns(pEvalPlot,1))
@@ -3396,8 +3399,8 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 
 		//if we didn't find a worthwhile plot among our adjacent plots, check the global targets
 		if(!pBestPlot && pUnit->movesLeft() > 0)
-			//check at least the three closest candidates
-			pBestPlot = GetBestExploreTarget(pUnit.pointer(),3);
+			//check at least 5 candidates
+			pBestPlot = GetBestExploreTarget(pUnit.pointer(),5);
 
 		//make sure we're not in an endless loop
 		if(pBestPlot)
