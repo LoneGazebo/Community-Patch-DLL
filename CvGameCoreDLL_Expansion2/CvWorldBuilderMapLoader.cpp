@@ -751,7 +751,11 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 				pkGameplayUnit->setDamage(iMaxHitPoints - iHitPoints);
 			}
 
+#if defined(MOD_API_XP_TIMES_100)
+			pkGameplayUnit->setExperienceTimes100(((int)kSavedUnit.m_uiExperience) * 100);
+#else
 			pkGameplayUnit->setExperience((int)kSavedUnit.m_uiExperience);
+#endif
 
 			const int iPromotionTypeCount = GC.getNumPromotionInfos();
 			for(int iPromotion = 0; iPromotion < iPromotionTypeCount; ++iPromotion)

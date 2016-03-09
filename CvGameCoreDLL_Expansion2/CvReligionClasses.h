@@ -379,14 +379,14 @@ public:
 	ReligionTypes GetStateReligion() const;
 	int GetNumCitiesWithStateReligion(ReligionTypes eReligion);
 #endif
-	int GetCityStateMinimumInfluence(ReligionTypes eReligion) const;
-	int GetCityStateInfluenceModifier() const;
-	int GetSpyPressure() const;
-	int GetNumForeignCitiesFollowing() const;
-	int GetNumForeignFollowers(bool bAtPeace) const;
+	int GetCityStateMinimumInfluence(ReligionTypes eReligion, PlayerTypes ePlayer) const;
+	int GetCityStateInfluenceModifier(PlayerTypes ePlayer) const;
+	int GetSpyPressure(PlayerTypes ePlayer) const;
+	int GetNumForeignCitiesFollowing(ReligionTypes eReligion) const;
+	int GetNumForeignFollowers(bool bAtPeace, ReligionTypes eReligion) const;
 
 #if defined(MOD_BALANCE_CORE)
-	bool ComputeMajority();
+	bool ComputeMajority(bool bNotifications = false);
 #endif
 
 private:
@@ -495,7 +495,7 @@ public:
 	ReligionInCityList m_SimulatedStatus;
 
 #if defined(MOD_BALANCE_CORE)
-	bool ComputeReligiousMajority();
+	bool ComputeReligiousMajority(bool bNotifications = false);
 #endif
 
 private:

@@ -14,6 +14,7 @@
 #include "CvLuaUnit.h"
 #include "../CvMinorCivAI.h"
 #include "../CvUnitCombat.h"
+#include "../CustomMods.h"
 
 //Utility macro for registering methods
 #define Method(Name)			\
@@ -345,6 +346,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(UnitCombatModifier);
 #if defined(MOD_BALANCE_CORE)
 	Method(IsMounted);
+	Method(BarbarianCombatBonus);
 #endif
 	Method(DomainModifier);
 	Method(GetStrategicResourceCombatPenalty);
@@ -392,6 +394,11 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetExperience);
 	Method(SetExperience);
 	Method(ChangeExperience);
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_XP_TIMES_100)
+	Method(GetExperienceTimes100);
+	Method(SetExperienceTimes100);
+	Method(ChangeExperienceTimes100);
+#endif
 	Method(GetLevel);
 	Method(SetLevel);
 	Method(ChangeLevel);
@@ -1414,26 +1421,37 @@ int CvLuaUnit::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
 	if(pkUnit && pkOtherUnit)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(pkUnit->getOwner());
-		if(eFoundedReligion != NO_RELIGION)
+		ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pkUnit->getOwner());
+		if(eFoundedReligion == NO_RELIGION)
+		{
+			eFoundedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+		}
+		ReligionTypes eTheirReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pkOtherUnit->getOwner());
+		if(eTheirReligion == NO_RELIGION)
+		{
+			eTheirReligion = GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+		} 
+		if(eFoundedReligion != NO_RELIGION && eTheirReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkUnit->getOwner());
 			if(pReligion)
 			{
-				if((GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities() != eFoundedReligion) && (GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
+				if(eTheirReligion != eFoundedReligion)
 				{			
+					int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(pkUnit->getOwner());
 					// Bonus in own land
-					if((pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands() > 0) && pkUnit->plot()->IsFriendlyTerritory(pkUnit->getOwner()))
+					if((iOtherOwn > 0) && pkUnit->plot()->IsFriendlyTerritory(pkUnit->getOwner()))
 					{
-						iRtnValue = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands();
+						iRtnValue = iOtherOwn;
 					}
 				}
 				else
 				{
+					int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(pkUnit->getOwner());
 					// Bonus in own land
-					if((pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands() > 0) && pkUnit->plot()->IsFriendlyTerritory(pkUnit->getOwner()))
+					if((iOtherOwn > 0) && pkUnit->plot()->IsFriendlyTerritory(pkUnit->getOwner()))
 					{
-						iRtnValue = (pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands() / 2);
+						iRtnValue = (iOtherOwn / 2);
 					}
 				}
 			}
@@ -1454,26 +1472,37 @@ int CvLuaUnit::lGetCombatVersusOtherReligionTheirLands(lua_State* L)
 	if(pkUnit && pkOtherUnit)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(pkUnit->getOwner());
-		if(eFoundedReligion != NO_RELIGION)
+		ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pkUnit->getOwner());
+		if(eFoundedReligion == NO_RELIGION)
+		{
+			eFoundedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+		}
+		ReligionTypes eTheirReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pkOtherUnit->getOwner());
+		if(eTheirReligion == NO_RELIGION)
+		{
+			eTheirReligion = GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+		} 
+		if(eFoundedReligion != NO_RELIGION && eTheirReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkUnit->getOwner());
 			if(pReligion)
 			{
-				if((GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities() != eFoundedReligion) && (GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
+				if(eTheirReligion != eFoundedReligion)
 				{			
+					int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(pkUnit->getOwner());
 					//Bonus in their land
-					if((pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands() > 0) && pkOtherUnit->plot()->IsFriendlyTerritory(pkOtherUnit->getOwner()))
+					if((iOtherTheir > 0) && pkOtherUnit->plot()->IsFriendlyTerritory(pkOtherUnit->getOwner()))
 					{
-						iRtnValue = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands();
+						iRtnValue = iOtherTheir;
 					}
 				}
 				else
 				{
+					int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(pkUnit->getOwner());
 					//Bonus in their land
-					if((pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands() > 0) && pkOtherUnit->plot()->IsFriendlyTerritory(pkOtherUnit->getOwner()))
+					if((iOtherTheir > 0) && pkOtherUnit->plot()->IsFriendlyTerritory(pkOtherUnit->getOwner()))
 					{
-						iRtnValue = (pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands() / 2);
+						iRtnValue = (iOtherTheir / 2);
 					}
 				}
 			}
@@ -1581,7 +1610,8 @@ int CvLuaUnit::lIsRangeAttackOnlyInDomain(lua_State* L)
 int CvLuaUnit::lIsCityAttackOnly(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const bool bResult = pkUnit->IsCityAttackOnly();
+	//for historical reasons, we keep the lua name, but in the dll we use a better one
+	const bool bResult = pkUnit->IsCityAttackSupport();
 	lua_pushboolean(L, bResult);
 	return 1;
 }
@@ -3475,6 +3505,17 @@ int CvLuaUnit::lUnitCombatModifier(lua_State* L)
 }
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
+//int unitCombatModifier(int /*UnitCombatTypes*/ eUnitCombat);
+int CvLuaUnit::lBarbarianCombatBonus(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->GetBarbarianCombatBonus();
+	
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
 int CvLuaUnit::lIsMounted(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
@@ -3871,7 +3912,11 @@ int CvLuaUnit::lGetExperience(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
+#if defined(MOD_API_XP_TIMES_100)
+	const int iResult = pkUnit->getExperienceTimes100() / 100;
+#else
 	const int iResult = pkUnit->getExperience();
+#endif
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3883,7 +3928,11 @@ int CvLuaUnit::lSetExperience(lua_State* L)
 	const int iNewValue = lua_tointeger(L, 2);
 	const int iMax = luaL_optint(L, 3, -1);
 
+#if defined(MOD_API_XP_TIMES_100)
+	pkUnit->setExperienceTimes100(iNewValue * 100, iMax);
+#else
 	pkUnit->setExperience(iNewValue, iMax);
+#endif
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -3897,9 +3946,50 @@ int CvLuaUnit::lChangeExperience(lua_State* L)
 	const bool bInBorders = luaL_optint(L, 5, 0);
 	const bool bUpdateGlobal = luaL_optint(L, 6, 0);
 
+#if defined(MOD_API_XP_TIMES_100)
+	pkUnit->changeExperienceTimes100(iChange * 100, iMax, bFromCombat, bInBorders, bUpdateGlobal);
+#else
 	pkUnit->changeExperience(iChange, iMax, bFromCombat, bInBorders, bUpdateGlobal);
+#endif
 	return 0;
 }
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_XP_TIMES_100)
+//------------------------------------------------------------------------------
+//int getExperience();
+int CvLuaUnit::lGetExperienceTimes100(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->getExperienceTimes100();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//void setExperience(int iNewValue, int iMax = -1);
+int CvLuaUnit::lSetExperienceTimes100(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iNewValueTimes100 = lua_tointeger(L, 2);
+	const int iMax = luaL_optint(L, 3, -1);
+
+	pkUnit->setExperienceTimes100(iNewValueTimes100, iMax);
+	return 0;
+}
+//------------------------------------------------------------------------------
+//void changeExperience(int iChange, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false);
+int CvLuaUnit::lChangeExperienceTimes100(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iChangeTimes100 = lua_tointeger(L, 2);
+	const int iMax = luaL_optint(L, 3, -1);
+	const bool bFromCombat = luaL_optint(L, 4, 0);
+	const bool bInBorders = luaL_optint(L, 5, 0);
+	const bool bUpdateGlobal = luaL_optint(L, 6, 0);
+
+	pkUnit->changeExperienceTimes100(iChangeTimes100, iMax, bFromCombat, bInBorders, bUpdateGlobal);
+	return 0;
+}
+#endif
 //------------------------------------------------------------------------------
 //int getLevel();
 int CvLuaUnit::lGetLevel(lua_State* L)

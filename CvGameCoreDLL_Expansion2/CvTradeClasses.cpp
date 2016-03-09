@@ -1911,7 +1911,11 @@ bool CvGameTrade::MoveUnit (int iIndex)
 					case YIELD_GREAT_GENERAL_POINTS:
 						if(pkUnit->getDomainType() == DOMAIN_LAND)
 						{
+#if defined(MOD_API_XP_TIMES_100)
+							GET_PLAYER(pkUnit->getOwner()).changeCombatExperienceTimes100(iYieldFromRouteMovement * 100);
+#else
 							GET_PLAYER(pkUnit->getOwner()).changeCombatExperience(iYieldFromRouteMovement);
+#endif
 							if(pkUnit->getOwner() == GC.getGame().getActivePlayer() && pkUnit->plot()->isActiveVisible(false))
 							{
 								char text[256] = {0};
@@ -1924,7 +1928,11 @@ bool CvGameTrade::MoveUnit (int iIndex)
 					case YIELD_GREAT_ADMIRAL_POINTS:
 						if(pkUnit->getDomainType() == DOMAIN_SEA)
 						{
+#if defined(MOD_API_XP_TIMES_100)
+							GET_PLAYER(pkUnit->getOwner()).changeNavalCombatExperienceTimes100(iYieldFromRouteMovement * 100);
+#else
 							GET_PLAYER(pkUnit->getOwner()).changeNavalCombatExperience(iYieldFromRouteMovement);
+#endif
 							if(pkUnit->getOwner() == GC.getGame().getActivePlayer() && pkUnit->plot()->isActiveVisible(false))
 							{
 								char text[256] = {0};
@@ -2561,7 +2569,11 @@ void CvPlayerTrade::MoveUnits (void)
 								case YIELD_GREAT_GENERAL_POINTS:
 									if(pTradeConnection->m_eDomain == DOMAIN_LAND)
 									{
+#if defined(MOD_API_XP_TIMES_100)
+										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeCombatExperienceTimes100(iYieldFromStartingRoute * 100);
+#else
 										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeCombatExperience(iYieldFromStartingRoute);
+#endif
 										if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
 										{
 											char text[256] = {0};
@@ -2574,7 +2586,11 @@ void CvPlayerTrade::MoveUnits (void)
 								case YIELD_GREAT_ADMIRAL_POINTS:
 									if(pTradeConnection->m_eDomain == DOMAIN_SEA)
 									{
+#if defined(MOD_API_XP_TIMES_100)
+										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeNavalCombatExperienceTimes100(iYieldFromStartingRoute * 100);
+#else
 										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeNavalCombatExperience(iYieldFromStartingRoute);
+#endif
 										if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
 										{
 											char text[256] = {0};
@@ -3322,7 +3338,7 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
 		if(pReligion)
 		{
-			iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100;
+			iValue += pReligion->m_Beliefs.GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield, kPlayer.GetID()) * 100;
 			BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
@@ -4253,6 +4269,17 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 				m_pPlayer->GetTreasury()->DoInternalTradeRouteGoldBonus();
 			}
 #endif
+#if defined(MOD_BALANCE_CORE)
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes) iI;
+				if(eYield == NO_YIELD)
+					continue;
+
+				pOriginCity->UpdateCityYields(eYield);
+				pDestCity->UpdateCityYields(eYield);
+			}
+#endif
 		}
 	}
 
@@ -4705,6 +4732,20 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	{
 		return false;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(pOriginCity != NULL && pDestCity != NULL)
+	{
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes) iI;
+			if(eYield == NO_YIELD)
+				continue;
+
+			pOriginCity->UpdateCityYields(eYield);
+			pDestCity->UpdateCityYields(eYield);
+		}
+	}
+#endif
 
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int iPlunderGoldValue = GD_INT_GET(TRADE_ROUTE_BASE_PLUNDER_GOLD);
@@ -5974,7 +6015,11 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	int iTechDelta = iTechDifferenceP1fromP2 - iTechDifferenceP2fromP1;
 
 	// religion
-	ReligionTypes eOwnerFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+	ReligionTypes eOwnerFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
+	if (eOwnerFoundedReligion == NO_RELIGION)
+	{
+		eOwnerFoundedReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
+	}
 	int iReligionDelta = 0;
 	if (eOwnerFoundedReligion != NO_RELIGION)
 	{

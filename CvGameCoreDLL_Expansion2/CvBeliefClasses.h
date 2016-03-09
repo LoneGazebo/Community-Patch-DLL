@@ -104,6 +104,7 @@ public:
 	int GetYieldFromWLTKD(int i) const;
 	int GetYieldFromProposal(int i) const;
 	int GetYieldFromHost(int i) const;
+	int GetYieldFromKnownPantheons(int i) const;
 	int GetCombatVersusOtherReligionOwnLands() const;
 	int GetCombatVersusOtherReligionTheirLands() const;
 	int GetMissionaryInfluenceCS()const;
@@ -121,6 +122,11 @@ public:
 
 	const char* getShortDescription() const;
 	void setShortDescription(const char* szVal);
+
+#if defined(MOD_BALANCE_CORE)
+	const char* getTooltip() const;
+	void setTooltip(const char* szVal);
+#endif
 
 	// Arrays
 	int GetCityYieldChange(int i) const;
@@ -238,6 +244,10 @@ protected:
 	TechTypes m_eSpreadModifierDoublingTech;
 
 	CvString m_strShortDescription;
+#if defined(MOD_BALANCE_CORE)
+	CvString m_strTooltip;
+#endif
+
 
 	// Arrays
 	int* m_paiCityYieldChange;
@@ -311,6 +321,7 @@ protected:
 	int* m_piYieldFromWLTKD;
 	int* m_piYieldFromProposal;
 	int* m_piYieldFromHost;
+	int* m_piYieldFromKnownPantheons;
 	int* m_piMaxYieldPerFollower;
 	int m_iCombatVersusOtherReligionOwnLands;
 	int m_iCombatVersusOtherReligionTheirLands;
@@ -373,235 +384,150 @@ public:
 	void Uninit();
 	void Reset();
 	void AddBelief(BeliefTypes eBelief);
+#if defined(MOD_BALANCE_CORE)
+	void SetReligion(ReligionTypes eReligion);
+	ReligionTypes GetReligion() const;
+#endif
 
 	// Accessor functions
 	bool HasBelief(BeliefTypes eBelief) const;
 	BeliefTypes GetBelief(int iIndex) const;
 	int GetNumBeliefs() const;
+#if defined(MOD_BALANCE_CORE)
+	bool IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligion, PlayerTypes ePlayer) const;
+#endif
 
-	int GetFaithFromDyingUnits() const
-	{
-		return m_iFaithFromDyingUnits;
-	};
-	int GetRiverHappiness() const
-	{
-		return m_iRiverHappiness;
-	};
-	int GetPlotCultureCostModifier() const
-	{
-		return m_iPlotCultureCostModifier;
-	};
-	int GetCityRangeStrikeModifier() const
-	{
-		return m_iCityRangeStrikeModifier;
-	};
-	int GetCombatModifierEnemyCities() const
-	{
-		return m_iCombatModifierEnemyCities;
-	};
-	int GetCombatModifierFriendlyCities() const
-	{
-		return m_iCombatModifierFriendlyCities;
-	};
-	int GetFriendlyHealChange() const
-	{
-		return m_iFriendlyHealChange;
-	};
-	int GetCityStateFriendshipModifier() const
-	{
-		return m_iCityStateFriendshipModifier;
-	};
-	int GetLandBarbarianConversionPercent() const
-	{
-		return m_iLandBarbarianConversionPercent;
-	};
-	int GetSpreadDistanceModifier() const
-	{
-		return m_iSpreadDistanceModifier;
-	};
-	int GetSpreadStrengthModifier() const
-	{
-		return m_iSpreadStrengthModifier;
-	};
-	int GetProphetStrengthModifier() const
-	{
-		return m_iProphetStrengthModifier;
-	};
-	int GetProphetCostModifier() const
-	{
-		return m_iProphetCostModifier;
-	};
-	int GetMissionaryStrengthModifier() const
-	{
-		return m_iMissionaryStrengthModifier;
-	};
-	int GetMissionaryCostModifier() const
-	{
-		return m_iMissionaryCostModifier;
-	};
-	int GetFriendlyCityStateSpreadModifier() const
-	{
-		return m_iFriendlyCityStateSpreadModifier;
-	};
-	int GetGreatPersonExpendedFaith() const
-	{
-		return m_iGreatPersonExpendedFaith;
-	};
-	int GetCityStateMinimumInfluence() const
-	{
-		return m_iCityStateMinimumInfluence;
-	}
-	int GetCityStateInfluenceModifier() const
-	{
-		return m_iCityStateInfluenceModifier;
-	}
-	int GetOtherReligionPressureErosion() const
-	{
-		return m_iOtherReligionPressureErosion;
-	}
-	int GetSpyPressure() const
-	{
-		return m_iSpyPressure;
-	}
-	int GetInquisitorPressureRetention() const
-	{
-		return m_iInquisitorPressureRetention;
-	}
-	int GetFaithBuildingTourism() const
-	{
-		return m_iFaithBuildingTourism;
-	}
+	int GetFaithFromDyingUnits(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetRiverHappiness(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetPlotCultureCostModifier(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetCityRangeStrikeModifier(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetCombatModifierEnemyCities(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetCombatModifierFriendlyCities(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetFriendlyHealChange(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetCityStateFriendshipModifier(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetLandBarbarianConversionPercent(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetSpreadDistanceModifier(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetSpreadStrengthModifier(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetProphetStrengthModifier(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetProphetCostModifier(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetMissionaryStrengthModifier(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetMissionaryCostModifier(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetFriendlyCityStateSpreadModifier(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetGreatPersonExpendedFaith(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetCityStateMinimumInfluence(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetCityStateInfluenceModifier(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetOtherReligionPressureErosion(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetSpyPressure(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetInquisitorPressureRetention(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetFaithBuildingTourism(PlayerTypes ePlayer = NO_PLAYER) const;
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-	int GetCombatVersusOtherReligionOwnLands() const
-	{
-		return m_iCombatVersusOtherReligionOwnLands;
-	}
-	int GetCombatVersusOtherReligionTheirLands() const
-	{
-		return m_iCombatVersusOtherReligionTheirLands;
-	}
-	int GetMissionaryInfluenceCS() const
-	{
-		return m_iMissionaryInfluenceCS;
-	}
-	int GetHappinessPerPantheon() const
-	{
-		return m_iHappinessPerPantheon;
-	}
-	int GetExtraVotes() const
-	{
-		return m_iExtraVotes;
-	}
+	int GetCombatVersusOtherReligionOwnLands(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetCombatVersusOtherReligionTheirLands(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetMissionaryInfluenceCS(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetHappinessPerPantheon(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetExtraVotes(PlayerTypes ePlayer = NO_PLAYER) const;
 #endif
-	EraTypes GetObsoleteEra() const
-	{
-		return m_eObsoleteEra;
-	};
-	ResourceTypes GetResourceRevealed() const
-	{
-		return m_eResourceRevealed;
-	};
-	TechTypes GetSpreadModifierDoublingTech() const
-	{
-		return m_eSpreadModifierDoublingTech;
-	};
+	EraTypes GetObsoleteEra(PlayerTypes ePlayer = NO_PLAYER) const;
+	ResourceTypes GetResourceRevealed(PlayerTypes ePlayer = NO_PLAYER) const;
+	TechTypes GetSpreadModifierDoublingTech(PlayerTypes ePlayer = NO_PLAYER) const;
 
-	int GetFaithFromKills(int iDistance) const;
-	int GetHappinessPerCity(int iPopulation) const;
-	int GetHappinessPerXPeacefulForeignFollowers() const;
-	int GetWonderProductionModifier(EraTypes eWonderEra) const;
-	int GetPlayerHappiness(bool bAtPeace) const;
-	int GetPlayerCultureModifier(bool bAtPeace) const;
-	float GetHappinessPerFollowingCity() const;
-	int GetGoldPerFollowingCity() const;
-	int GetGoldPerXFollowers() const;
-	int GetGoldWhenCityAdopts() const;
-	int GetSciencePerOtherReligionFollower() const;
-	int GetCityGrowthModifier(bool bAtPeace) const;
+	int GetFaithFromKills(int iDistance , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetHappinessPerCity(int iPopulation, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetHappinessPerXPeacefulForeignFollowers(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetWonderProductionModifier(EraTypes eWonderEra, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetPlayerHappiness(bool bAtPeace , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetPlayerCultureModifier(bool bAtPeace , PlayerTypes ePlayer = NO_PLAYER) const;
+	float GetHappinessPerFollowingCity(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetGoldPerFollowingCity(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetGoldPerXFollowers(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetGoldWhenCityAdopts(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetSciencePerOtherReligionFollower(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetCityGrowthModifier(bool bAtPeace , PlayerTypes ePlayer = NO_PLAYER) const;
 
-	int GetCityYieldChange(int iPopulation, YieldTypes eYield) const;
-	int GetHolyCityYieldChange(YieldTypes eYield) const;
-	int GetYieldChangePerForeignCity(YieldTypes eYield) const;
-	int GetYieldChangePerXForeignFollowers(YieldTypes eYield) const;
+	int GetCityYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetHolyCityYieldChange(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldChangePerForeignCity(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldChangePerXForeignFollowers(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
 #if defined(MOD_API_UNIFIED_YIELDS)
-	int GetYieldPerFollowingCity(YieldTypes eYield) const;
-	int GetYieldPerXFollowers(YieldTypes eYield) const;
-	int GetYieldPerOtherReligionFollower(YieldTypes eYield) const;
+	int GetYieldPerFollowingCity(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldPerXFollowers(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldPerOtherReligionFollower(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
 #endif
-	int GetResourceQuantityModifier(ResourceTypes eResource) const;
-	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
-	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, int iFollowers) const;
-	int GetBuildingClassHappiness(BuildingClassTypes eBuildingClass, int iFollowers) const;
-	int GetBuildingClassTourism(BuildingClassTypes eBuildingClass) const;
-	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType) const;
+	int GetResourceQuantityModifier(ResourceTypes eResource , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, int iFollowers, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetBuildingClassHappiness(BuildingClassTypes eBuildingClass, int iFollowers, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetBuildingClassTourism(BuildingClassTypes eBuildingClass, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
 #if defined(MOD_API_UNIFIED_YIELDS)
-	int GetYieldPerXTerrainTimes100(TerrainTypes eTerrain, YieldTypes eYieldType) const;
-	int GetYieldPerXFeatureTimes100(FeatureTypes eFeature, YieldTypes eYieldType) const;
-	int GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYieldType) const;
-	int GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType) const;
-	int GetLakePlotYieldChange(YieldTypes eYieldType) const;
+	int GetYieldPerXTerrainTimes100(TerrainTypes eTerrain, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldPerXFeatureTimes100(FeatureTypes eFeature, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetLakePlotYieldChange(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
 #endif
-	int GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYieldType) const;
-	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYieldType) const;
+	int GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
 #if defined(MOD_API_UNIFIED_YIELDS)
-	int GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYieldType) const;
-	int GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYieldType) const;
-	int GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType) const;
-	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
-	int GetCapitalYieldChange(int iPopulation, YieldTypes eYield) const;
-	int GetCoastalCityYieldChange(int iPopulation, YieldTypes eYield) const;
-	int GetGreatWorkYieldChange(int iPopulation, YieldTypes eYield) const;
-	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
-	int GetYieldFromKills(YieldTypes eYield) const;
+	int GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetCapitalYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetCoastalCityYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetGreatWorkYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldFromBarbarianKills(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldFromKills(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
 #endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)
-	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType) const;
+	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
 #endif
-	int GetResourceHappiness(ResourceTypes eResource) const;
-	int GetYieldChangeAnySpecialist(YieldTypes eYieldType) const;
-	int GetYieldChangeTradeRoute(YieldTypes eYieldType) const;
-	int GetYieldChangeNaturalWonder(YieldTypes eYieldType) const;
-	int GetYieldChangeWorldWonder(YieldTypes eYieldType) const;
-	int GetYieldModifierNaturalWonder(YieldTypes eYieldType) const;
-	int GetMaxYieldModifierPerFollower(YieldTypes eYieldType) const;
+	int GetResourceHappiness(ResourceTypes eResource , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldChangeAnySpecialist(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldChangeTradeRoute(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldChangeNaturalWonder(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldChangeWorldWonder(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldModifierNaturalWonder(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetMaxYieldModifierPerFollower(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
 
 	bool IsBuildingClassEnabled(BuildingClassTypes eType) const;
-	bool IsFaithBuyingEnabled(EraTypes eEra) const;
+	bool IsFaithBuyingEnabled(EraTypes eEra, PlayerTypes ePlayer = NO_PLAYER) const;
 #if defined(MOD_BALANCE_CORE)
-	bool IsSpecificFaithBuyingEnabled(UnitTypes eUnit) const;
+	bool IsSpecificFaithBuyingEnabled(UnitTypes eUnit, PlayerTypes ePlayer = NO_PLAYER) const;
 #endif
-	bool IsConvertsBarbarians() const;
-	bool IsFaithPurchaseAllGreatPeople() const;
+	bool IsConvertsBarbarians(PlayerTypes ePlayer = NO_PLAYER) const;
+	bool IsFaithPurchaseAllGreatPeople(PlayerTypes ePlayer = NO_PLAYER) const;
 
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
-	bool RequiresImprovement() const;
-	bool RequiresResource() const;
-	bool RequiresNoImprovement() const;
-	bool RequiresNoImprovementFeature() const;
+	bool RequiresImprovement(PlayerTypes ePlayer = NO_PLAYER) const;
+	bool RequiresResource(PlayerTypes ePlayer = NO_PLAYER) const;
+	bool RequiresNoImprovement(PlayerTypes ePlayer = NO_PLAYER) const;
+	bool RequiresNoImprovementFeature(PlayerTypes ePlayer = NO_PLAYER) const;
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-	bool IsHalvedFollowers() const;
-	int GetYieldPerPop(YieldTypes eYieldType) const;
-	int GetYieldPerGPT(YieldTypes eYieldType) const;
-	int GetYieldPerLux(YieldTypes eYieldType) const;
-	int GetYieldPerBorderGrowth(YieldTypes eYieldType) const;
-	int GetYieldPerHeal(YieldTypes eYieldType) const;
-	int GetYieldPerBirth(YieldTypes eYieldType) const;
-	int GetYieldPerScience(YieldTypes eYieldType) const;
-	int GetYieldFromGPUse(YieldTypes eYieldType) const;
-	int GetYieldBonusGoldenAge(YieldTypes eYieldType) const;
-	int GetYieldFromSpread(YieldTypes eYieldType) const;
-	int GetYieldFromForeignSpread(YieldTypes eYieldType) const;
-	int GetYieldFromConquest(YieldTypes eYieldType) const;
-	int GetYieldFromPolicyUnlock(YieldTypes eYieldType) const;
-	int GetYieldFromEraUnlock(YieldTypes eYieldType) const;
-	int GetYieldFromConversion(YieldTypes eYieldType) const;
-	int GetYieldFromWLTKD(YieldTypes eYieldType) const;
-	int GetYieldFromProposal(YieldTypes eYieldType) const;
-	int GetYieldFromHost(YieldTypes eYieldType) const;
-	int GetMaxYieldPerFollower(YieldTypes eYieldType) const;
-	CivilizationTypes GetUniqueCiv() const;
+	bool IsHalvedFollowers(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldPerPop(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldPerGPT(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldPerLux(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldPerBorderGrowth(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldPerHeal(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldPerBirth(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldPerScience(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldFromGPUse(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldBonusGoldenAge(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldFromSpread(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldFromForeignSpread(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldFromConquest(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldFromPolicyUnlock(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldFromEraUnlock(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldFromConversion(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldFromWLTKD(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldFromProposal(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldFromHost(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetMaxYieldPerFollower(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldFromKnownPantheons(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	CivilizationTypes GetUniqueCiv(PlayerTypes ePlayer = NO_PLAYER) const;
 #endif
 
 	// Serialization
@@ -610,6 +536,7 @@ public:
 
 private:
 	// Cached data about this religion's beliefs
+#if !defined(MOD_BALANCE_CORE)
 	int m_iFaithFromDyingUnits;
 	int m_iRiverHappiness;
 	int m_iPlotCultureCostModifier;
@@ -646,9 +573,11 @@ private:
 	EraTypes m_eObsoleteEra;
 	ResourceTypes m_eResourceRevealed;
 	TechTypes m_eSpreadModifierDoublingTech;
+#endif
 
 	BeliefList m_ReligionBeliefs;
 #if defined(MOD_BALANCE_CORE)
+	ReligionTypes m_eReligion;
 	std::vector<int> m_BeliefLookup;
 #endif
 

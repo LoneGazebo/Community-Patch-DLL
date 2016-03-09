@@ -23,8 +23,6 @@ UPDATE BuildFeatures
 SET PrereqTech = 'TECH_MACHINERY'
 WHERE FeatureType = 'FEATURE_MARSH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
 
-
-
 -- Defense Changes
 
 UPDATE Features
@@ -56,11 +54,6 @@ WHERE Type = 'FEATURE_FALLOUT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='C
 UPDATE BuildFeatures
 SET Time = '400'
 WHERE BuildType = 'BUILD_SCRUB_FALLOUT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]Fallout deals 15 Damage to Units that end their turn on a tile with Fallout.[ENDCOLOR][NEWLINE][NEWLINE]Fallout is the residual radiation left over following a nuclear explosion. The fallout "falls out" of the air as a layer of radioactive particles which are highly dangerous to plants and animals, killing them immediately or damaging their DNA, giving them cancer, other diseases, or unfortunate mutations. Depending upon the type of nuclear explosion, the land may remain poisoned for decades, possibly centuries. Cleanup requires the replacement of the contaminated buildings, soil and vegetation.'
-WHERE Tag = 'TXT_KEY_FEATURE_FALLOUT_PEDIA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 
 -- Buff jungles and forests
 INSERT INTO BuildFeatures (BuildType, FeatureType, PrereqTech, Time, Remove)
@@ -102,3 +95,29 @@ WHERE Type = 'YIELD_PRODUCTION';
 UPDATE Yields
 SET LakeChange = '1'
 WHERE Type = 'YIELD_FOOD';
+
+-- Changed Feature Yields
+
+DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_ATOLL';
+DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_FLOOD_PLAINS';
+DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_FOREST';
+DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_JUNGLE';
+DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_MARSH';
+DELETE FROM Feature_YieldChanges WHERE FeatureType = 'FEATURE_OASIS';
+
+INSERT INTO Feature_YieldChanges
+	(FeatureType, YieldType, Yield)
+VALUES
+	('FEATURE_ATOLL', 'YIELD_PRODUCTION', 2),
+	('FEATURE_ATOLL', 'YIELD_FOOD', 2),
+	('FEATURE_FLOOD_PLAINS', 'YIELD_FOOD', 3),
+	('FEATURE_FOREST', 'YIELD_PRODUCTION', 1),
+	('FEATURE_JUNGLE', 'YIELD_FOOD', 1),
+	('FEATURE_MARSH', 'YIELD_FOOD', 1),
+	('FEATURE_OASIS', 'YIELD_GOLD', 2),
+	('FEATURE_OASIS', 'YIELD_FOOD', 3);
+
+INSERT INTO Feature_TerrainBooleans
+	(FeatureType, TerrainType)
+VALUES
+	('FEATURE_JUNGLE', 'TERRAIN_PLAINS');

@@ -4412,29 +4412,36 @@ void CvMilitaryAI::UpdateOperations()
 					else 
 					{
 						bool bRollForNuke = false;
-						WarProjectionTypes eLastWarProjection = m_pPlayer->GetDiplomacyAI()->GetLastWarProjection(eLoopPlayer);
 						WarProjectionTypes eCurrentWarProjection = m_pPlayer->GetDiplomacyAI()->GetWarProjection(eLoopPlayer);
-						if (eCurrentWarProjection == WAR_PROJECTION_DESTRUCTION)
+						if(GET_PLAYER(eLoopPlayer).isMajorCiv())
 						{
-							// roll every turn
-							bRollForNuke = true;
-						}
-						else if (eCurrentWarProjection != WAR_PROJECTION_UNKNOWN && eCurrentWarProjection != NO_WAR_PROJECTION_TYPE && 
-							eLastWarProjection != WAR_PROJECTION_UNKNOWN && eLastWarProjection != NO_WAR_PROJECTION_TYPE && 
-							eCurrentWarProjection < eLastWarProjection)
-						{
-							// roll for nukes!
-							bRollForNuke = true;
-						}
-
-						if (bRollForNuke)
-						{
-							int iFlavorNuke = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_USE_NUKE"));
-							int iRoll  = GC.getGame().getJonRandNum(10, "Roll to see if we're going to nuke!");
-							int iRoll2 = GC.getGame().getJonRandNum(10, "Second roll to see if we're going to nuke!");
-							if (iRoll < iFlavorNuke && iRoll2 < iFlavorNuke)
+							MajorCivOpinionTypes eMajorCivOpinion = m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer);
+							if (eCurrentWarProjection <= WAR_PROJECTION_DEFEAT)
 							{
-								bLaunchNuke = true;
+								// roll every turn
+								bRollForNuke = true;
+							}
+							else if(eMajorCivOpinion <= MAJOR_CIV_OPINION_ENEMY)
+							{
+								bRollForNuke = true;
+							}
+							else if(m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
+							{
+								bRollForNuke = true;
+							}
+							else if(m_pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_POWERFUL)
+							{
+								bRollForNuke = true;
+							}
+							if (bRollForNuke)
+							{
+								int iFlavorNuke = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_USE_NUKE"));
+								int iRoll  = GC.getGame().getJonRandNum(10, "Roll to see if we're going to nuke!");
+								int iRoll2 = GC.getGame().getJonRandNum(10, "Second roll to see if we're going to nuke!");
+								if (iRoll < iFlavorNuke && iRoll2 < iFlavorNuke)
+								{
+									bLaunchNuke = true;
+								}
 							}
 						}
 					}
@@ -5872,7 +5879,7 @@ void CvMilitaryAI::LogAvailableForces()
 			}
 
 			// Now down to land and sea units ... in these groups our unit must have a base combat strength ... or be a great general/admiral
-			else if(!pLoopUnit->IsCombatUnit() && !(pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsCityAttackOnly()))
+			else if(!pLoopUnit->IsCombatUnit() && !(pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsCityAttackSupport()))
 			{
 				continue;
 			}

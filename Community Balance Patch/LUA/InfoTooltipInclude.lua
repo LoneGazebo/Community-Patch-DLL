@@ -160,8 +160,23 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		
 		-- CBP Num Social Policies
 		local iNumPolicies = pBuildingInfo.NumPoliciesNeeded;
-		if(iNumPolicies > 0) then
-			table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POLICY_NEEDED_LABEL", iNumPolicies));
+		if(pActivePlayer and iNumPolicies > 0) then
+			local iNumHave = pActivePlayer:GetNumPolicies(true);
+			table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POLICY_NEEDED_LABEL", iNumPolicies, iNumHave));
+		end
+		--- National/Local Population
+		local iNumNationalPop = pBuildingInfo.NationalPopRequired;
+		if(iNumNationalPop > 0) then
+			local iNumHave = pActivePlayer:GetCurrentTotalPop();
+			table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POPULATION_NATIONAL_NEEDED_LABEL", iNumNationalPop, iNumHave));
+		end
+
+		local iNumLocalPop = pBuildingInfo.LocalPopRequired;
+		if(iNumLocalPop > 0) then
+			if (pCity ~= nil) then
+				local iNumHave = pCity:GetPopulation();
+				table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POPULATION_LOCAL_NEEDED_LABEL", iNumLocalPop, iNumHave));
+			end
 		end
 	end
 	
@@ -777,20 +792,6 @@ function GetCultureTooltip(pCity)
 			end
 			
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_SPECIALISTS", iCultureFromSpecialists);
-		end
-		
-		-- Culture from Great Works
-		local iCultureFromGreatWorks = pCity:GetJONSCulturePerTurnFromGreatWorks();
-		if (iCultureFromGreatWorks ~= 0) then
-			
-			-- Spacing
-			if (bFirst) then
-				bFirst = false;
-			else
-				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
-			end
-			
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_GREAT_WORKS", iCultureFromGreatWorks);
 		end
 		
 		-- Culture from Religion

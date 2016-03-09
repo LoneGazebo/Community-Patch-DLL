@@ -2033,7 +2033,11 @@ void CvHomelandAI::PlotUpgradeMoves()
 
 #if defined(MOD_BALANCE_CORE)
 						//Add in experience - we should promote veterans.
+#if defined(MOD_API_XP_TIMES_100)
+						iPriority += pUnit->getExperienceTimes100();
+#else
 						iPriority += pUnit->getExperience();
+#endif
 #endif
 
 						unit.SetAuxIntData(iPriority);
@@ -2624,7 +2628,7 @@ void CvHomelandAI::PlotGeneralMoves()
 		if(pUnit)
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-			if(pUnit->IsGreatGeneral() || pUnit->IsCityAttackOnly())
+			if(pUnit->IsGreatGeneral() || pUnit->IsCityAttackSupport())
 #else
 			if(pUnit->AI_getUnitAIType() == UNITAI_GENERAL)
 #endif
@@ -2785,6 +2789,9 @@ void CvHomelandAI::PlotAirliftMoves()
 	// Create list of empty land plots we own adjacent to airlift cities that are not endangered
 	vector<CvPlot *> aAirliftPlots;
 	CvTacticalAnalysisMap* pMap = GC.getGame().GetTacticalAnalysisMap();
+	if (pMap->GetCurrentPlayer()!=m_pPlayer->GetID())
+		pMap->RefreshDataForNextPlayer(m_pPlayer);
+
 	CvTacticalDominanceZone *pZone;
 	vector<CvCity *>::const_iterator it;
 	for (it = aAirliftCities.begin(); it != aAirliftCities.end(); it++)
@@ -5122,7 +5129,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND && !pUnit->IsCityAttackOnly())
+		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND && !pUnit->IsCityAttackSupport())
 		{
 			int iBestScore = 0;
 			CvPlot* pBestPlot = 0;
@@ -5176,6 +5183,13 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			{
 				//we know we can reach it in one turn
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
+				pUnit->finishMoves();
+				UnitProcessed(pUnit->GetID());
+				//make sure our defender doesn't run away
+				UnitHandle pDefender = pBestPlot->getBestDefender(pUnit->getOwner());
+				if (pDefender->canMove())
+					pDefender->finishMoves();
+				UnitProcessed(pDefender->GetID());
 			}
 			else
 			{
@@ -5183,7 +5197,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				pUnit->SetGreatPeopleDirective(NO_GREAT_PEOPLE_DIRECTIVE_TYPE);
 			}
 		}
-		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND && pUnit->IsCityAttackOnly() && m_pPlayer->IsAtWar())
+		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND && pUnit->IsCityAttackSupport() && m_pPlayer->IsAtWar())
 		{
 			int iBestScore = 0;
 			CvPlot* pBestPlot = 0;
@@ -5202,9 +5216,8 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				if (!pDefender)
 					continue;
 
-				if(pUnit->IsNearCityAttackOnly(pCandidate, pUnit.pointer())) //near another general
+				if(pUnit->IsNearCityAttackSupport(pCandidate, pUnit.pointer())) //near another general
 					continue;
-					
 
 				//we want to have many neighboring units in danger, but our plot should be relatively safe
 				//(look at the danger for the defender, the general danger is zero unless the defender is projected to die)
@@ -5225,13 +5238,15 @@ void CvHomelandAI::ExecuteGeneralMoves()
 					if (!pSupportedUnit)
 						continue;
 
-					if(pLoopPlot->isCity())
-					{
-						iScore += 10000;
-					}
+					if(pLoopPlot->IsEnemyCityAdjacent(pUnit->getTeam(),NULL))
+						iScore += 5000;
 
 					iSupportedDanger += m_pPlayer->GetPlotDanger(*pLoopPlot,pSupportedUnit.pointer());
 				}
+
+				//don't forget adjacency bonus for the candidate plot itself
+				if(pCandidate->IsEnemyCityAdjacent(pUnit->getTeam(),NULL))
+					iScore += 5000;
 
 				CvCity* pClosestEnemyCity = m_pPlayer->GetTacticalAI()->GetNearestTargetCity(pUnit->plot());
 				if(pClosestEnemyCity != NULL)
@@ -5265,19 +5280,25 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
 				pUnit->finishMoves();
 				UnitProcessed(pUnit->GetID());
+				//make sure our defender doesn't run away
+				UnitHandle pDefender = pBestPlot->getBestDefender(pUnit->getOwner());
+				if (pDefender->canMove())
+					pDefender->finishMoves();
+				UnitProcessed(pDefender->GetID());
 				continue;
 			}
 		}
 #endif
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		if(pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE || (pUnit->IsCityAttackOnly() && pUnit->canRecruitFromTacticalAI() && ((pUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS()) < GC.getGame().getGameTurn())))
+		if( pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE || 
+			(pUnit->IsCityAttackSupport() && pUnit->canRecruitFromTacticalAI() && ((pUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS()) < GC.getGame().getGameTurn())) )
 		{
 			int iUnitLoop = 0;
 			int iTotalGenerals = 0;
 			for (const CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 			{
-				if (pLoopUnit != NULL && (pLoopUnit->IsGreatGeneral() || pLoopUnit->IsCityAttackOnly()))
+				if (pLoopUnit != NULL && (pLoopUnit->IsGreatGeneral() || pLoopUnit->IsCityAttackSupport()))
 				{
 					iTotalGenerals++;
 				}
@@ -6962,19 +6983,13 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 			UnitHandle pLoopUnit = m_pPlayer->getUnit(*it);
 			if(pLoopUnit && !pLoopUnit->isHuman())
 			{
-				// Civilians aren't useful for any of these moves
-				if(!pLoopUnit->IsCombatUnit())
+				// Civilians or units in armies aren't useful for any of these moves
+				if(!pLoopUnit->canMove() || !pLoopUnit->IsCombatUnit() || pLoopUnit->getArmyID() != -1)
 				{
 					continue;
 				}
-
-#ifndef AUI_HOMELAND_ALWAYS_MOVE_SCOUTS
-				// Scouts aren't useful unless recon is entirely shut off
-				if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && m_pPlayer->GetEconomicAI()->GetReconState() != RECON_STATE_ENOUGH)
-				{
+				if(pLoopUnit->getDomainType()!=DOMAIN_LAND)
 					continue;
-				}
-#endif // AUI_HOMELAND_ALWAYS_MOVE_SCOUTS
 
 				bool bSuitableUnit = false;
 				bool bHighPriority = false;
@@ -6984,14 +6999,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 				case AI_HOMELAND_MOVE_GARRISON:
 				case AI_HOMELAND_MOVE_GARRISON_CITY_STATE:
 					// Want to put ranged units in cities to give them a ranged attack
-#if defined(MOD_BALANCE_CORE)
-					if(pLoopUnit->getDomainType()!=DOMAIN_LAND)
-						continue;
-
 					if(pLoopUnit->isRanged())
-#else
-					if(pLoopUnit->isRanged() && !pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_CITY_BOMBARD))
-#endif
 					{
 						bSuitableUnit = true;
 						bHighPriority = true;
@@ -7001,71 +7009,28 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 					else if(pLoopUnit->IsCanAttack())
 					{
 						// Don't put units with a combat strength boosted from promotions in cities, these boosts are ignored
-#if defined(MOD_BALANCE_CORE)
-						if(!pLoopUnit->IsCityAttackOnly())
+						if(pLoopUnit->getDefenseModifier() == 0 )
 						{
-#else
-						if(pLoopUnit->getDefenseModifier() == 0 &&
-						        pLoopUnit->getAttackModifier() == 0 &&
-						        pLoopUnit->getExtraCombatPercent() == 0)
-						{
-#endif
 							bSuitableUnit = true;
 						}
 					}
-#if defined(MOD_BALANCE_CORE)
-					if(pLoopUnit->getArmyID() != -1)
-					{
-						bSuitableUnit = false;
-						bHighPriority = false;
-					}
-#endif
 					break;
 
 				case AI_HOMELAND_MOVE_SENTRY:
 					// No ranged units as sentries
-#if defined(MOD_BALANCE_CORE)
 					if(pLoopUnit->isFortifyable() && !pLoopUnit->noDefensiveBonus() && (UnitAITypes)pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE)
-#else
-					if(!pLoopUnit->isRanged() && !pLoopUnit->noDefensiveBonus())
-#endif
 					{
 						bSuitableUnit = true;
 
-						
-#if defined(MOD_BALANCE_CORE)
 						// Units with extra defense are especially valuable
-						if((pLoopUnit->getDefenseModifier() > 0) || (pLoopUnit->getExtraRangedDefenseModifier() > 0))
-#else
-						// Units with extra sight are especially valuable
-						if(pLoopUnit->getExtraVisibilityRange() > 0)
-#endif
+						if((pLoopUnit->getDefenseModifier() > 0) || (pLoopUnit->getExtraRangedDefenseModifier() > 0) || (pLoopUnit->getExtraVisibilityRange() > 0))
 						{
 							bHighPriority = true;
 						}
 					}
-#if defined(MOD_BALANCE_CORE)
-#else
-					else if(pLoopUnit->noDefensiveBonus() && pLoopUnit->getExtraVisibilityRange() > 0)
-					{
-						bSuitableUnit = true;
-						bHighPriority = true;
-					}
-#endif
-#if defined(MOD_BALANCE_CORE)
-					if(pLoopUnit->getArmyID() != -1)
-					{
-						bSuitableUnit = false;
-						bHighPriority = false;
-					}
-#endif
 					break;
 
 				case AI_HOMELAND_MOVE_MOBILE_RESERVE:
-#if defined(MOD_BALANCE_CORE)
-					if(pLoopUnit->getDomainType()!=DOMAIN_LAND)
-						continue;
-#endif
 					// Ranged units are excellent in the mobile reserve as are fast movers
 					if(pLoopUnit->isRanged() || pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK))
 					{
@@ -7076,43 +7041,14 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 					{
 						bSuitableUnit = true;
 					}
-#if defined(MOD_BALANCE_CORE)
-					if(pLoopUnit->getArmyID() != -1)
-					{
-						bSuitableUnit = false;
-						bHighPriority = false;
-					}
-#endif
 					break;
 
 				case AI_HOMELAND_MOVE_ANCIENT_RUINS:
-#if defined(MOD_BALANCE_CORE)
-					if(pLoopUnit->getDomainType()!=DOMAIN_LAND)
-						continue;
-#endif
 					// Fast movers are top priority
 					if(pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK))
-					{
-						bSuitableUnit = true;
 						bHighPriority = true;
-					}
-					else if(pLoopUnit->IsCanAttack())
-					{
-						bSuitableUnit = true;
-					}
-#if defined(MOD_BALANCE_CORE)
-					else if(pLoopUnit->IsCombatUnit())
-					{
-						bSuitableUnit = true;
-					}
-#endif
-#if defined(MOD_BALANCE_CORE)
-					if(pLoopUnit->getArmyID() != -1)
-					{
-						bSuitableUnit = false;
-						bHighPriority = false;
-					}
-#endif
+
+					bSuitableUnit = true;
 					break;
 				}
 

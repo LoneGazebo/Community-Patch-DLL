@@ -92,11 +92,14 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
   	for thisUnitInfo in GameInfo.Units(string.format("PreReqTech = '%s'", techType)) do
  		-- if this tech grants this player the ability to make this unit
 		if validUnitBuilds[thisUnitInfo.Class] == thisUnitInfo.Type then
-			local buttonName = "B"..tostring(buttonNum);
-			local thisButton = thisTechButtonInstance[buttonName];
-			if thisButton then
-				AdjustArtOnGrantedUnitButton( thisButton, thisUnitInfo, textureSize );
-				buttonNum = buttonNum + 1;
+			local iMinorCivGift = thisUnitInfo.MinorCivGift
+			if (iMinorCivGift ~= 1) then
+				local buttonName = "B"..tostring(buttonNum);
+				local thisButton = thisTechButtonInstance[buttonName];
+				if thisButton then
+					AdjustArtOnGrantedUnitButton( thisButton, thisUnitInfo, textureSize );
+					buttonNum = buttonNum + 1;
+				end
 			end
 		end
  	end
@@ -184,19 +187,27 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 	end	
 	
+
+	local playerID = Game.GetActivePlayer();	
+	local player = Players[playerID];
+	local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
+
 	-- Some improvements can have multiple yield changes, group them and THEN add buttons.
 	local yieldChanges = {};
 	for row in GameInfo.Improvement_TechYieldChanges(condition) do
 		local improvementType = row.ImprovementType;
-		
-		if(yieldChanges[improvementType] == nil) then
-			yieldChanges[improvementType] = {};
-		end
-		
+
 		local improvement = GameInfo.Improvements[row.ImprovementType];
-		local yield = GameInfo.Yields[row.YieldType];
+		if improvement and (not improvement.CivilizationType or improvement.CivilizationType == civType) then
+
+			if(yieldChanges[improvementType] == nil) then
+				yieldChanges[improvementType] = {};
+			end
+
+			local yield = GameInfo.Yields[row.YieldType];
 		
-		table.insert(yieldChanges[improvementType], Locale.Lookup( "TXT_KEY_YIELD_IMPROVED", improvement.Description , yield.Description, row.Yield));
+			table.insert(yieldChanges[improvementType], Locale.Lookup( "TXT_KEY_YIELD_IMPROVED", improvement.Description , yield.Description, row.Yield));
+		end
 	end
 	
 	-- Let's sort the yield change butons!

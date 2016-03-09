@@ -6284,6 +6284,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					for(pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 					{
 						pLoopCity->updateStrengthValue();
+#if defined(MOD_BALANCE_CORE)
+						pLoopCity->GetCityCitizens()->SetDirty(true);
+#endif
 					}
 				}
 			}
@@ -6612,8 +6615,12 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						}
 						if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 						{
-							ReligionTypes eReligionFounded = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
-							if(eReligionFounded > RELIGION_PANTHEON)
+							ReligionTypes eReligionFounded = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
+							if(eReligionFounded == NO_RELIGION)
+							{
+								eReligionFounded = kPlayer.GetReligions()->GetReligionInMostCities();
+							}
+							if(eReligionFounded != NO_RELIGION)
 							{
 								const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, kPlayer.GetID());
 								if(pReligion)
@@ -6629,13 +6636,13 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 										}
 									}
 									float fDelay = 3.0;
-									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) > 0)
+									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH, kPlayer.GetID()) > 0)
 									{
 										int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) * iEra;
 										iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 										iValue /= 100;
 										kPlayer.ChangeFaith(iValue);
-										if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+										if(kPlayer.GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 										{
 											char text[256] = {0};
 											fDelay += 0.5f;
@@ -6643,13 +6650,13 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 										}
 									}
-									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) > 0)
+									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD, kPlayer.GetID()) > 0)
 									{
 										int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) * iEra;
 										iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 										iValue /= 100;
 										kPlayer.GetTreasury()->ChangeGold(iValue);
-										if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+										if(kPlayer.GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 										{
 											char text[256] = {0};
 											fDelay += 0.5f;
@@ -6657,7 +6664,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 										}
 									}
-									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) > 0)
+									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE, kPlayer.GetID()) > 0)
 									{
 										int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) * iEra;
 										iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -6667,7 +6674,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 										{
 											kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
 										}
-										if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+										if(kPlayer.GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 										{
 											char text[256] = {0};
 											fDelay += 0.5f;
@@ -6675,7 +6682,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 										}
 									}
-									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) > 0)
+									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE, kPlayer.GetID()) > 0)
 									{
 										int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra;
 										iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -6689,7 +6696,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 										{
 											GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, kPlayer.GetID());
 										}
-										if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+										if(kPlayer.GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 										{
 											char text[256] = {0};
 											fDelay += 0.5f;
@@ -6698,13 +6705,13 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 										}
 									}
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
-									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) > 0)
+									if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS, kPlayer.GetID()) > 0)
 									{
 										int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra;
 										iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 										iValue /= 100;
 										kPlayer.ChangeGoldenAgeProgressMeter(iValue);
-										if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+										if(kPlayer.GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 										{
 											char text[256] = {0};
 											fDelay += 0.5f;
@@ -6917,8 +6924,12 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									}
 									if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 									{
-										ReligionTypes eReligionFounded = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
-										if(eReligionFounded > RELIGION_PANTHEON)
+										ReligionTypes eReligionFounded = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
+										if(eReligionFounded == NO_RELIGION)
+										{
+											eReligionFounded = kPlayer.GetReligions()->GetReligionInMostCities();
+										}
+										if(eReligionFounded != NO_RELIGION)
 										{
 											const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, kPlayer.GetID());
 											if(pReligion)
@@ -6934,13 +6945,13 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 													}
 												}
 												float fDelay = 3.0;
-												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) > 0)
+												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH, kPlayer.GetID()) > 0)
 												{
 													int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) * iEra;
 													iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 													iValue /= 100;
 													kPlayer.ChangeFaith(iValue);
-													if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+													if(kPlayer.GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 													{
 														char text[256] = {0};
 														fDelay += 0.5f;
@@ -6948,13 +6959,13 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 														DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 													}
 												}
-												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) > 0)
+												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD, kPlayer.GetID()) > 0)
 												{
 													int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) * iEra;
 													iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 													iValue /= 100;
 													kPlayer.GetTreasury()->ChangeGold(iValue);
-													if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+													if(kPlayer.GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 													{
 														char text[256] = {0};
 														fDelay += 0.5f;
@@ -6962,7 +6973,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 														DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 													}
 												}
-												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) > 0)
+												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE, kPlayer.GetID()) > 0)
 												{
 													int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) * iEra;
 													iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -6972,7 +6983,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 													{
 														kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
 													}
-													if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+													if(kPlayer.GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 													{
 														char text[256] = {0};
 														fDelay += 0.5f;
@@ -6980,7 +6991,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 														DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
 													}
 												}
-												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) > 0)
+												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE, kPlayer.GetID()) > 0)
 												{
 													int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra;
 													iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -6994,7 +7005,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 													{
 														GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, kPlayer.GetID());
 													}
-													if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+													if(kPlayer.GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 													{
 														char text[256] = {0};
 														fDelay += 0.5f;
@@ -7003,13 +7014,13 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 													}
 												}
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
-												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) > 0)
+												if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS, kPlayer.GetID()) > 0)
 												{
 													int iValue = pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra;
 													iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 													iValue /= 100;
 													kPlayer.ChangeGoldenAgeProgressMeter(iValue);
-													if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+													if(kPlayer.GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
 													{
 														char text[256] = {0};
 														fDelay += 0.5f;
@@ -7406,10 +7417,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 		{
 			if(GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive() && GET_PLAYER((PlayerTypes) iPlayerLoop).getTeam() == GetID())
 			{
-				if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman())
-				{
-					GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateNetHappiness();
-				}
+				GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateNetHappiness();
 			}
 		}
 
@@ -8284,6 +8292,10 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			{
 				if(pLoopCity2 != NULL)
 				{
+					for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+					{
+						pLoopCity2->UpdateCityYields((YieldTypes)iJ);
+					}
 					pLoopCity2->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 					pLoopCity2->GetCityCulture()->CalculateBaseTourism();
 				}
@@ -9801,10 +9813,7 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 		// Update Happiness for all players
 		if(GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == GetID())
 		{
-			if(GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).GetID() == GC.getGame().getActivePlayer())
-			{
-				GET_PLAYER(eLoopPlayer).CalculateNetHappiness();
-			}
+			GET_PLAYER(eLoopPlayer).CalculateNetHappiness();
 		}
 	}
 
@@ -10194,8 +10203,7 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 		GET_PLAYER(*it).GetDiplomacyAI()->DoWeMadeVassalageWithSomeone(eTeam, bVoluntary);
 		
 		// Update Happiness for all players
-		if(GET_PLAYER(*it).isHuman())
-			GET_PLAYER(*it).CalculateNetHappiness();
+		GET_PLAYER(*it).CalculateNetHappiness();
 
 		// Send notification to master to set taxes for player
 		Localization::String locString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAXES_AVAILABLE");

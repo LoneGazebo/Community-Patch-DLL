@@ -139,20 +139,27 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		{
 			//make sure there are no rounding errors
 			int iGarrisonShare = (iAttackerDamageInflicted*2*pGarrison->GetMaxHitPoints()) / (pkCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
-			iAttackerDamageInflicted -= iGarrisonShare;
 
-			//add the garrison as a bystander
-			int iDamageMembers = 0;
-			CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkCombatInfo->getDamageMembers(), &iDamageMembers, pkCombatInfo->getMaxDamageMemberCount(), pGarrison);
-			if(pkDamageEntry)
+			//garrison can not be killed, only reduce to 10 hp
+			iGarrisonShare = min(iGarrisonShare,pGarrison->GetCurrHitPoints()-10);
+
+			if (iGarrisonShare>0)
 			{
+				iAttackerDamageInflicted -= iGarrisonShare;
+
+				//add the garrison as a bystander
+				int iDamageMembers = 0;
+				CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkCombatInfo->getDamageMembers(), &iDamageMembers, pkCombatInfo->getMaxDamageMemberCount(), pGarrison);
+				if(pkDamageEntry)
+				{
 #if defined(MOD_EVENTS_BATTLES)
-				BATTLE_JOINED(pGarrison, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
+					BATTLE_JOINED(pGarrison, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
 #endif
-				pkDamageEntry->SetDamage(iGarrisonShare);
-				pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), GC.getMAX_HIT_POINTS()));
-				pkDamageEntry->SetMaxHitPoints(GC.getMAX_HIT_POINTS());
-				pkCombatInfo->setDamageMemberCount(iDamageMembers);
+					pkDamageEntry->SetDamage(iGarrisonShare);
+					pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), GC.getMAX_HIT_POINTS()));
+					pkDamageEntry->SetMaxHitPoints(GC.getMAX_HIT_POINTS());
+					pkCombatInfo->setDamageMemberCount(iDamageMembers);
+				}
 			}
 		}
 #endif
@@ -437,14 +444,22 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 #endif
 
 		// Update experience for both sides.
+#if defined(MOD_API_XP_TIMES_100)
+		pkDefender->changeExperienceTimes100(100 *
+#else
 		pkDefender->changeExperience(
+#endif
 		    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
 		    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 		    true,
 		    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
 		    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER));
 
+#if defined(MOD_API_XP_TIMES_100)
+		pkAttacker->changeExperienceTimes100(100 * 
+#else
 		pkAttacker->changeExperience(
+#endif
 		    kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
 		    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 		    true,
@@ -691,6 +706,12 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		{
 			iDamage = GC.getMAX_HIT_POINTS() - pkDefender->getDamage();
 		}
+#if defined(MOD_BALANCE_CORE)
+		if (kAttacker.GetMoraleBreakChance() > 0 && !pkDefender->CanFallBackFromRanged(kAttacker))
+		{
+			iDamage = (iDamage * 150) / 100;
+		}
+#endif
 
 		iTotalDamage = std::max(pkDefender->getDamage(), pkDefender->getDamage() + iDamage);
 	}
@@ -719,20 +740,27 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		{
 			//make sure there are no rounding errors
 			int iGarrisonShare = (iDamage*2*pGarrison->GetMaxHitPoints()) / (pCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
-			iDamage -= iGarrisonShare;
 
-			//add the garrison as a bystander
-			int iDamageMembers = 0;
-			CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkCombatInfo->getDamageMembers(), &iDamageMembers, pkCombatInfo->getMaxDamageMemberCount(), pGarrison);
-			if(pkDamageEntry)
+			//garrison can not be killed, only reduce to 10 hp
+			iGarrisonShare = min(iGarrisonShare,pGarrison->GetCurrHitPoints()-10);
+
+			if (iGarrisonShare>0)
 			{
+				iDamage -= iGarrisonShare;
+
+				//add the garrison as a bystander
+				int iDamageMembers = 0;
+				CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkCombatInfo->getDamageMembers(), &iDamageMembers, pkCombatInfo->getMaxDamageMemberCount(), pGarrison);
+				if(pkDamageEntry)
+				{
 #if defined(MOD_EVENTS_BATTLES)
-				BATTLE_JOINED(pGarrison, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
+					BATTLE_JOINED(pGarrison, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
 #endif
-				pkDamageEntry->SetDamage(iGarrisonShare);
-				pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), GC.getMAX_HIT_POINTS()));
-				pkDamageEntry->SetMaxHitPoints(GC.getMAX_HIT_POINTS());
-				pkCombatInfo->setDamageMemberCount(iDamageMembers);
+					pkDamageEntry->SetDamage(iGarrisonShare);
+					pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), GC.getMAX_HIT_POINTS()));
+					pkDamageEntry->SetMaxHitPoints(GC.getMAX_HIT_POINTS());
+					pkCombatInfo->setDamageMemberCount(iDamageMembers);
+				}
 			}
 		}
 #endif
@@ -1011,6 +1039,14 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						{
 							pkDefender->SetActivityType(ACTIVITY_AWAKE, false);
 						}
+						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath())
+						{
+							int iRand = GC.getGame().getJonRandNum(100, "Retreat Rand");
+							if(iRand <= pkAttacker->GetMoraleBreakChance())
+							{
+								pkDefender->DoFallBackFromRanged(*pkAttacker);
+							}
+						}
 #endif
 					}
 
@@ -1030,7 +1066,11 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 #endif
 
 					// Update experience
+#if defined(MOD_API_XP_TIMES_100)
+					pkDefender->changeExperienceTimes100(100 * 
+#else
 					pkDefender->changeExperience(
+#endif
 					    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
 					    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 					    true,
@@ -1095,7 +1135,11 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 		// Unit gains XP for executing a Range Strike
 		if(iDamage > 0) // && iDefenderStrength > 0)
 		{
+#if defined(MOD_API_XP_TIMES_100)
+			pkAttacker->changeExperienceTimes100(100 * 
+#else
 			pkAttacker->changeExperience(
+#endif
 			    kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
 			    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 			    true,
@@ -1191,7 +1235,11 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 #endif
 
 					// Update experience
+#if defined(MOD_API_XP_TIMES_100)
+					pkDefender->changeExperienceTimes100(100 * 
+#else
 					pkDefender->changeExperience(
+#endif
 					    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
 					    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 					    true,
@@ -1250,7 +1298,11 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 		pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted);
 #endif
 
+#if defined(MOD_API_XP_TIMES_100)
+		pkAttacker->changeExperienceTimes100(100 * kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
+#else
 		pkAttacker->changeExperience(kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
+#endif
 		                             kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 		                             true,
 		                             false,
@@ -1526,20 +1578,27 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		{
 			//make sure there are no rounding errors
 			int iGarrisonShare = (iAttackerDamageInflicted*2*pGarrison->GetMaxHitPoints()) / (pCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
-			iAttackerDamageInflicted -= iGarrisonShare;
 
-			//add the garrison as a bystander
-			int iDamageMembers = 0;
-			CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkCombatInfo->getDamageMembers(), &iDamageMembers, pkCombatInfo->getMaxDamageMemberCount(), pGarrison);
-			if(pkDamageEntry)
+			//garrison can not be killed, only reduce to 10 hp
+			iGarrisonShare = min(iGarrisonShare,pGarrison->GetCurrHitPoints()-10);
+
+			if (iGarrisonShare>0)
 			{
+				iAttackerDamageInflicted -= iGarrisonShare;
+
+				//add the garrison as a bystander
+				int iDamageMembers = 0;
+				CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkCombatInfo->getDamageMembers(), &iDamageMembers, pkCombatInfo->getMaxDamageMemberCount(), pGarrison);
+				if(pkDamageEntry)
+				{
 #if defined(MOD_EVENTS_BATTLES)
-				BATTLE_JOINED(pGarrison, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
+					BATTLE_JOINED(pGarrison, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
 #endif
-				pkDamageEntry->SetDamage(iGarrisonShare);
-				pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), GC.getMAX_HIT_POINTS()));
-				pkDamageEntry->SetMaxHitPoints(GC.getMAX_HIT_POINTS());
-				pkCombatInfo->setDamageMemberCount(iDamageMembers);
+					pkDamageEntry->SetDamage(iGarrisonShare);
+					pkDamageEntry->SetFinalDamage(std::min(iGarrisonShare + pGarrison->getDamage(), GC.getMAX_HIT_POINTS()));
+					pkDamageEntry->SetMaxHitPoints(GC.getMAX_HIT_POINTS());
+					pkCombatInfo->setDamageMemberCount(iDamageMembers);
+				}
 			}
 		}
 #endif
@@ -1675,7 +1734,11 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 	{
 		pInterceptor->setMadeInterception(true);
 		pInterceptor->setCombatUnit(NULL);
+#if defined(MOD_API_XP_TIMES_100)
+		pInterceptor->changeExperienceTimes100(100 * 
+#else
 		pInterceptor->changeExperience(
+#endif
 			kCombatInfo.getExperience(BATTLE_UNIT_INTERCEPTOR),
 			kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_INTERCEPTOR),
 			true,
@@ -1719,7 +1782,11 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 #endif
 
 					// Update experience
+#if defined(MOD_API_XP_TIMES_100)
+					pkDefender->changeExperienceTimes100(100 * 
+#else
 					pkDefender->changeExperience(
+#endif
 					    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
 					    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 					    true,
@@ -1919,7 +1986,11 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 			// Experience
 			if(iAttackerDamageInflicted > 0)
 			{
+#if defined(MOD_API_XP_TIMES_100)
+				pkAttacker->changeExperienceTimes100(100 * kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
+#else
 				pkAttacker->changeExperience(kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
+#endif
 				                             kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 				                             true,
 				                             kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
@@ -2116,14 +2187,22 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 			pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner());
 
 			// Update experience for both sides.
+#if defined(MOD_API_XP_TIMES_100)
+			pkDefender->changeExperienceTimes100(100 *
+#else
 			pkDefender->changeExperience(
+#endif
 			    kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
 			    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 			    true,
 			    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
 			    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER));
 
+#if defined(MOD_API_XP_TIMES_100)
+			pkAttacker->changeExperienceTimes100(100 * 
+#else
 			pkAttacker->changeExperience(
+#endif
 			    kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
 			    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 			    true,

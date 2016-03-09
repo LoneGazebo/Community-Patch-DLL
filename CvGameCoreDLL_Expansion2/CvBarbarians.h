@@ -38,11 +38,11 @@ public:
 
 	static void Read(FDataStream& kStream, uint uiParentVersion);
 	static void Write(FDataStream& kStream);
-
-private:
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	static void DoCityActivationNotice(CvPlot* pPlot);
 #endif
+private:
+
 	static bool CanBarbariansSpawn();
 	static bool IsPlotValidForBarbCamp(CvPlot* pPlot);
 #if defined(MOD_EVENTS_BARBARIANS)

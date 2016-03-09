@@ -8,14 +8,6 @@ UPDATE Traits
 SET RazeSpeedModifier = '0'
 WHERE Type = 'TRAIT_RAZE_AND_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Mounted melee units deal more flanking damage and capture units, and defeated Barbarians in Encampments join you. When you gain Grassland or Plains tiles naturally, adjacent unowned tiles of the same type are also claimed.'
-WHERE Tag = 'TXT_KEY_TRAIT_RAZE_AND_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'The barbarians in this Encampment have joined your army! All hail glorious Attila!'
-WHERE Tag = 'TXT_KEY_NOTIFICATION_BARB_CAMP_CONVERTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 DELETE FROM Civilization_FreeTechs
 WHERE TechType = 'TECH_ANIMAL_HUSBANDRY' AND CivilizationType = 'CIVILIZATION_HUNS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
@@ -45,10 +37,6 @@ UPDATE Buildings
 SET Help = 'TXT_KEY_BUILDING_CEILIDH_HALL_HELP'
 WHERE Type = 'BUILDING_CEILIDH_HALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_CEILIDH_HALL_HELP', 'Reduces [ICON_HAPPINESS_3] Boredom, and provides a modest sum of [ICON_CULTURE] Culture when completed.[NEWLINE] Nearby [ICON_RES_IVORY] Ivory: +3 [ICON_CULTURE] Culture.'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
 SELECT 'BUILDING_CEILIDH_HALL', 'RESOURCE_IVORY' , 'YIELD_CULTURE' , '3'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
@@ -76,14 +64,6 @@ WHERE BuildingType = 'BUILDING_CEILIDH_HALL' AND EXISTS (SELECT * FROM COMMUNITY
 UPDATE Building_ClassesNeededInCity
 Set BuildingClassType = 'BUILDINGCLASS_COLOSSEUM'
 WHERE BuildingType = 'BUILDING_CEILIDH_HALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-	
-UPDATE Language_en_US
-SET Text = 'The Ceilidh Hall is a Medieval-era building unique to the Celts, replacing the Circus. Reduces [ICON_HAPPINESS_3] Boredom slightly and increases City [ICON_CULTURE] Culture and [ICON_PEACE] Faith. Nearby sources of Ivory gain +3 [ICON_CULTURE] Culture. Provides 1 Musician Specialist slot, and contains a slot for a Great Work of Music.'
-WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-	
-UPDATE Language_en_US
-SET Text = 'Has a unique set of Pantheon Beliefs. Cities with your Pantheon or founded Religion generate nor receive foreign Religious Pressure. +3 [ICON_PEACE] Faith in owned Cities where your Pantheon (or Religion, if a Founder) is the majority.'
-WHERE Tag = 'TXT_KEY_TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
 SET UniqueBeliefsOnly = '1'
@@ -98,9 +78,6 @@ SET FaithFromUnimprovedForest = '0'
 WHERE Type = 'TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Dido -- Delete African Forest Elephant, remove mountain bonus (given to incans)
-UPDATE Language_en_US
-SET Text = 'Cities produce a large sum of [ICON_GOLD] Gold when founded. Bonus scales with Era. All owned coastal Cities receive a free Harbor.'
-WHERE Tag = 'TXT_KEY_TRAIT_PHOENICIAN_HERITAGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
 Set CrossesMountainsAfterGreatGeneral = '0'
@@ -125,23 +102,7 @@ UPDATE Traits
 SET InspirationalLeader = '1'
 WHERE Type = 'TRAIT_DIPLOMACY_GREAT_PEOPLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Land melee units receive +10% [ICON_STRENGTH] Strength when Attacking, and Siege Units gain +1 [ICON_MOVES] Movement. If a [ICON_GREAT_GENERAL] Great General is born while at war, all Military Units are healed and receive +10 XP.'
-WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Lion of the North'
-WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 -- Selassie -- Peace Treaty Bonuss
-
-UPDATE Language_en_US
-SET Text = 'When you complete a Policy Branch, adopt a Belief, or choose your first Ideology, receive a free Technology.'
-WHERE Tag = 'TXT_KEY_TRAIT_BONUS_AGAINST_TECH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Solomonic Wisdom'
-WHERE Tag = 'TXT_KEY_TRAIT_BONUS_AGAINST_TECH_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
 SET IsAdoptionFreeTech = '1'
@@ -162,15 +123,8 @@ WHERE Type = 'BUILDING_STELE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='CO
 UPDATE Buildings
 SET PlotCultureCostModifier = '-33'
 WHERE Type = 'BUILDING_STELE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
- 
-INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_STELE_HELP', '[ICON_CULTURE] Culture costs of acquiring new tiles reduced by 33% in this city. +25% [ICON_PEACE] Faith during [ICON_GOLDEN_AGE] Golden Ages.'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 -- Theodora -- Basilica UB (Replace Dromon)
-UPDATE Language_en_US
-SET Text = 'Is always eligible to found a Religion, and receives an additional Belief when founding a Religion. Is allowed to choose from Beliefs already in other Religions.'
-WHERE Tag = 'TXT_KEY_TRAIT_EXTRA_BELIEF' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
 SET AnyBelief = '1'
@@ -200,27 +154,9 @@ UPDATE Improvement_Yields
 SET Yield = '3'
 WHERE ImprovementType = 'IMPROVEMENT_POLDER' AND YieldType = 'YIELD_FOOD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = '+4 [ICON_CULTURE] Culture for each different Luxury Resource you import from other Civilizations and City-States, +4 [ICON_GOLD] Gold for each different Luxury Resource you export to other Civilizations. Bonuses scale with Era.'
-WHERE Tag = 'TXT_KEY_TRAIT_LUXURY_RETENTION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'A Polder can be built on tiles with access to fresh water. It generates [ICON_FOOD] Food, [ICON_GOLD] Gold, and [ICON_PRODUCTION] Production, and grants [ICON_GOLD] Gold to adjacent Villages and Towns. Provides additional yields once later techs are researched.'
-WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_POLDER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'A Polder can be built on tiles with access to fresh water. It generates [ICON_FOOD] Food, [ICON_GOLD] Gold, and [ICON_PRODUCTION] Production, and grants [ICON_GOLD] Gold to adjacent Villages and Towns. Provides additional yields once later techs are researched.[NEWLINE][NEWLINE]A polder is a low-lying tract enclosed by dikes with the water drained. In general, polder is land reclaimed from a lake or seabed, from flood plains, or from marshes. In time, the drained land subsides so that all polder is eventually below the surrounding water level. Because of this, water seeps into the drained area and must be pumped out or otherwise drained. The dikes are usually made of readily available materials, earth or sand; in modern times these barriers might be covered or completely composed of concrete. The drained land is extremely fertile and makes excellent pasturage or cropland.[NEWLINE][NEWLINE]The first polders of reclaimed land were constructed in the 11th Century AD, although building embankments as barriers to water date back to the Romans. The Dutch have a long history of reclaiming marshes and fenland, and even the seabed, and possess half of the polder acreage in Europe. Although there are polders in other countries of Europe, and examples can be found in Asia and North America, Holland has some 3000 polders accounting for about 27 percent of the country''s land. Amsterdam itself is built largely upon polder. As the Dutch homily states, "God made the world, but the Dutch made Holland."'
-WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_POLDER_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 -- Maria Theresa -- Coffee House +2 Production, +2 Food.
 
-UPDATE Language_en_US
-SET Text = 'Use [ICON_GOLD] Gold to arrange Marriages to City-States. While at peace with the City-State, Marriages eliminate [ICON_INFLUENCE] Influence decay, grant +1 Delegate to World Congress, and +10% [ICON_GREAT_PEOPLE] Great Person Rate in your [ICON_CAPITAL] Capital.'
-WHERE Tag = 'TXT_KEY_TRAIT_ANNEX_CITY_STATE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Habsburg Diplomacy'
-WHERE Tag = 'TXT_KEY_TRAIT_ANNEX_CITY_STATE_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+UPDATE Defines SET Value = '20' WHERE Name = 'MINOR_CIV_BUYOUT_TURNS';
 
 UPDATE Traits
 SET DiplomaticMarriage = '1'
@@ -262,23 +198,15 @@ UPDATE Buildings
 SET SpecialistType = 'SPECIALIST_MERCHANT'
 WHERE Type = 'BUILDING_COFFEE_HOUSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = '15% of the City''s [ICON_FOOD] Food output is added to the City''s [ICON_RESEARCH] Science every turn. +33% [ICON_GREAT_PEOPLE] Great People generation in this City, and +25 [ICON_GOLD] Gold (scaling with Era) when a [ICON_GREAT_PEOPLE] Great Person is born.[NEWLINE][NEWLINE]Carries over 25% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct), and reduces [ICON_HAPPINESS_3] Poverty.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.'
-WHERE Tag = 'TXT_KEY_BUILDING_COFFEE_HOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'The Coffee House is a Renaissance-era building unique to Austria, replacing the Grocer. It increases the city''s [ICON_GROWTH] Growth and speed at which [ICON_GREAT_PEOPLE] Great People are generated by 33%.'
-WHERE Tag = 'TXT_KEY_BUILDING_COFFEE_HOUSE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+UPDATE Buildings
+SET PrereqTech = 'TECH_CHEMISTRY'
+WHERE Type = 'BUILDING_COFFEE_HOUSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Maya -- Move Pyramid to Agriculture, Bring UA back to Mathematics
 
 UPDATE Traits
 SET PrereqTech = 'TECH_MATHEMATICS'
 WHERE Type = 'TRAIT_LONG_COUNT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'After researching Mathematics, receive a bonus Great Person at the end of every Maya Long Count cycle (every 394 years). Each bonus person can only be chosen once.'
-WHERE Tag = 'TXT_KEY_TRAIT_LONG_COUNT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Buff Atlatl, move to Classical Age
 -- Eki
@@ -303,3 +231,268 @@ WHERE BuildingType = 'BUILDING_MAYA_PYRAMID';
 UPDATE Civilization_Start_Region_Priority
 SET RegionType = 'REGION_JUNGLE'
 WHERE CivilizationType = 'CIVILIZATION_MAYA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+-- NEW
+INSERT INTO Beliefs
+	(Type, Description, ShortDescription, Pantheon, CivilizationType)
+VALUES
+	('BELIEF_MORRIGAN', 'TXT_KEY_BELIEF_MORRIGAN', 'TXT_KEY_BELIEF_MORRIGAN_SHORT', '1', 'CIVILIZATION_CELTS'),
+	('BELIEF_EPONA', 'TXT_KEY_BELIEF_EPONA', 'TXT_KEY_BELIEF_EPONA_SHORT', '1', 'CIVILIZATION_CELTS'),
+	('BELIEF_NUADA', 'TXT_KEY_BELIEF_NUADA', 'TXT_KEY_BELIEF_NUADA_SHORT', '1', 'CIVILIZATION_CELTS'),
+	('BELIEF_CERNUNNOS', 'TXT_KEY_BELIEF_CERNUNNOS', 'TXT_KEY_BELIEF_CERNUNNOS_SHORT', '1', 'CIVILIZATION_CELTS'),
+	('BELIEF_LUGH', 'TXT_KEY_BELIEF_LUGH', 'TXT_KEY_BELIEF_LUGH_SHORT', '1', 'CIVILIZATION_CELTS'),
+	('BELIEF_RHIANNON', 'TXT_KEY_BELIEF_RHIANNON', 'TXT_KEY_BELIEF_RHIANNON_SHORT', '1', 'CIVILIZATION_CELTS'),
+	('BELIEF_MANANNAN', 'TXT_KEY_BELIEF_MANANNAN', 'TXT_KEY_BELIEF_MANANNAN_SHORT', '1', 'CIVILIZATION_CELTS'),
+	('BELIEF_OGMA', 'TXT_KEY_BELIEF_OGMA', 'TXT_KEY_BELIEF_OGMA_SHORT', '1', 'CIVILIZATION_CELTS'),
+	('BELIEF_BRAN', 'TXT_KEY_BELIEF_BRAN', 'TXT_KEY_BELIEF_BRAN_SHORT', '1', 'CIVILIZATION_CELTS'),
+	('BELIEF_DAGDA', 'TXT_KEY_BELIEF_DAGDA', 'TXT_KEY_BELIEF_DAGDA_SHORT', '1', 'CIVILIZATION_CELTS');
+
+INSERT INTO Belief_YieldFromKills
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_MORRIGAN', 'YIELD_GOLD', 70),
+	('BELIEF_MORRIGAN', 'YIELD_CULTURE', 70),
+	('BELIEF_MORRIGAN', 'YIELD_GOLDEN_AGE_POINTS', 50);
+
+INSERT INTO Belief_YieldPerBorderGrowth
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_EPONA', 'YIELD_SCIENCE', 15),
+	('BELIEF_EPONA', 'YIELD_CULTURE', 15),
+	('BELIEF_EPONA', 'YIELD_FOOD', 15);
+
+INSERT INTO Belief_YieldPerScience
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_NUADA', 'YIELD_GOLDEN_AGE_POINTS', 10);
+
+INSERT INTO Belief_YieldPerGPT
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_NUADA', 'YIELD_CULTURE', 15);
+
+INSERT INTO Belief_FeatureYieldChanges
+	(BeliefType, FeatureType, YieldType, Yield)
+VALUES
+	('BELIEF_CERNUNNOS', 'FEATURE_FOREST', 'YIELD_FOOD', 1),
+	('BELIEF_CERNUNNOS', 'FEATURE_JUNGLE', 'YIELD_PRODUCTION', 1);
+
+INSERT INTO Belief_YieldChangeAnySpecialist
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_LUGH', 'YIELD_CULTURE', 4),
+	('BELIEF_LUGH', 'YIELD_GOLD', 4),
+	('BELIEF_LUGH', 'YIELD_SCIENCE', 4);
+
+INSERT INTO Belief_YieldChangeWorldWonder
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_LUGH', 'YIELD_CULTURE', 1);
+
+INSERT INTO Belief_YieldPerFollowingCity
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_RHIANNON', 'YIELD_GOLD', 2),
+	('BELIEF_RHIANNON', 'YIELD_SCIENCE', 2),
+	('BELIEF_RHIANNON', 'YIELD_GOLDEN_AGE_POINTS', 2),
+	('BELIEF_BRAN', 'YIELD_CULTURE', 1);
+
+INSERT INTO Belief_CoastalCityYieldChanges
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_MANANNAN', 'YIELD_FOOD', 2),
+	('BELIEF_MANANNAN', 'YIELD_PRODUCTION', 3),
+	('BELIEF_MANANNAN', 'YIELD_GOLD', 4);
+
+INSERT INTO Belief_YieldPerPop
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_OGMA', 'YIELD_SCIENCE', 4);
+
+INSERT INTO Belief_YieldPerBirth
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_OGMA', 'YIELD_CULTURE', 8);
+
+INSERT INTO Belief_YieldPerXFollowers
+	(BeliefType, YieldType, PerXFollowers)
+VALUES
+	('BELIEF_DAGDA', 'YIELD_GOLD', 6),
+	('BELIEF_DAGDA', 'YIELD_CULTURE', 6),
+	('BELIEF_DAGDA', 'YIELD_PRODUCTION', 6),
+	('BELIEF_DAGDA', 'YIELD_SCIENCE', 6);
+
+INSERT INTO Trait_YieldFromOwnPantheon
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_FAITH_FROM_NATURE', 'YIELD_FAITH', 3);
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CEILIDH_HALL', 'YIELD_FAITH', 1);
+
+INSERT INTO Building_InstantYield
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CEILIDH_HALL', 'YIELD_CULTURE', 100);
+
+INSERT INTO Improvement_Yields
+	(ImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_POLDER', 'YIELD_GOLD', 2),
+	('IMPROVEMENT_POLDER', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_EKI', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_EKI', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_EKI', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_KUNA', 'YIELD_SCIENCE', 1),
+	('IMPROVEMENT_KUNA', 'YIELD_FAITH', 2);
+
+
+INSERT INTO Improvement_AdjacentImprovementYieldChanges
+	(ImprovementType, OtherImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_POLDER', 'IMPROVEMENT_TRADING_POST', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_POLDER', 'IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_GOLD', 1);
+
+INSERT INTO Civilization_Start_Along_River
+	(CivilizationType, StartAlongRiver)
+VALUES
+	('CIVILIZATION_NETHERLANDS', 1);
+
+INSERT INTO Trait_YieldFromImport
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_LUXURY_RETENTION', 'YIELD_CULTURE', 4);
+
+INSERT INTO Trait_YieldFromExport
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_LUXURY_RETENTION', 'YIELD_GOLD', 4);
+
+INSERT INTO Trait_YieldFromSettle
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_PHOENICIAN_HERITAGE', 'YIELD_GOLD', 200);
+
+INSERT INTO Trait_TerrainClaimBoost
+	(TraitType, TerrainType)
+VALUES
+	('TRAIT_RAZE_AND_HORSES', 'TERRAIN_GRASS'),
+	('TRAIT_RAZE_AND_HORSES', 'TERRAIN_PLAINS');
+
+INSERT INTO Building_GoldenAgeYieldMod
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_STELE', 'YIELD_FAITH', 25);
+
+INSERT INTO Building_YieldFromGPExpend
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_COFFEE_HOUSE', 'YIELD_GOLD', 25);
+
+INSERT INTO Building_ClassesNeededInCity
+	(BuildingType, BuildingClassType)
+VALUES
+	('BUILDING_COFFEE_HOUSE', 'BUILDINGCLASS_AQUEDUCT');
+
+INSERT INTO Building_ClassesNeededInCity
+	(BuildingType, BuildingClassType)
+VALUES
+	('BUILDING_SKOLA', 'BUILDINGCLASS_UNIVERSITY'),
+	('BUILDING_BASILICA', 'BUILDINGCLASS_MONUMENT'),
+	('BUILDING_GREAT_COTHON', 'BUILDINGCLASS_MARKET');
+
+INSERT INTO Building_Flavors
+	(BuildingType, FlavorType, Flavor)
+VALUES
+	('BUILDING_SKOLA', 'FLAVOR_SCIENCE', 100),
+	('BUILDING_SKOLA', 'FLAVOR_GREAT_PEOPLE', 5),
+	('BUILDING_SKOLA', 'FLAVOR_HAPPINESS', 25),
+	('BUILDING_BASILICA', 'FLAVOR_RELIGION', 100),
+	('BUILDING_BASILICA', 'FLAVOR_GOLD', 10),
+	('BUILDING_GREAT_COTHON', 'FLAVOR_GOLD', 75),
+	('BUILDING_GREAT_COTHON', 'FLAVOR_I_TRADE_ORIGIN', 75),
+	('BUILDING_GREAT_COTHON', 'FLAVOR_I_TRADE_DESTINATION', 75);
+
+INSERT INTO Civilization_BuildingClassOverrides
+	(CivilizationType, BuildingClassType, BuildingType)
+VALUES
+	('CIVILIZATION_SWEDEN', 'BUILDINGCLASS_PUBLIC_SCHOOL', 'BUILDING_SKOLA'),
+	('CIVILIZATION_BYZANTIUM', 'BUILDINGCLASS_TEMPLE', 'BUILDING_BASILICA'),
+	('CIVILIZATION_CARTHAGE', 'BUILDINGCLASS_NATIONAL_TREASURY', 'BUILDING_GREAT_COTHON');
+
+INSERT INTO Building_YieldChangesPerPop
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_SKOLA', 'YIELD_SCIENCE', 34),
+	('BUILDING_SKOLA', 'YIELD_CULTURE', 20),
+	('BUILDING_BASILICA', 'YIELD_FAITH', 34);
+
+INSERT INTO Building_ResourceYieldChanges
+	(BuildingType, ResourceType, YieldType, Yield)
+VALUES
+	('BUILDING_BASILICA', 'RESOURCE_INCENSE', 'YIELD_CULTURE', 1),
+	('BUILDING_BASILICA', 'RESOURCE_INCENSE', 'YIELD_FAITH', 1),
+	('BUILDING_BASILICA', 'RESOURCE_WINE', 'YIELD_CULTURE', 1),
+	('BUILDING_BASILICA', 'RESOURCE_WINE', 'YIELD_FAITH', 1);
+
+INSERT INTO Building_BuildingClassYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	('BUILDING_GREAT_COTHON', 'BUILDINGCLASS_HARBOR', 'YIELD_PRODUCTION', 3);
+
+-- New Improvements
+
+INSERT INTO Builds
+	(Type, Time, ImprovementType, PrereqTech, Description, Help, Recommendation, EntityEvent, HotKey, OrderPriority, IconIndex, IconAtlas)
+VALUES
+	('BUILD_EKI', 800, 'IMPROVEMENT_EKI', 'TECH_HORSEBACK_RIDING', 'TXT_KEY_BUILD_EKI', 'TXT_KEY_BUILD_EKI_HELP', 'TXT_KEY_BUILD_EKI_REC', 'ENTITY_EVENT_BUILD', 'KB_E', 1, 0, 'UNIT_ACTION_EKI'),
+	('BUILD_KUNA', 700, 'IMPROVEMENT_KUNA', 'TECH_AGRICULTURE', 'TXT_KEY_BUILD_KUNA', 'TXT_KEY_BUILD_KUNA_HELP', 'TXT_KEY_BUILD_KUNA_REC', 'ENTITY_EVENT_BUILD', 'KB_E', 1, 0, 'UNIT_ACTION_KUNA');
+
+INSERT INTO BuildFeatures
+	(BuildType, FeatureType, PrereqTech, Time, Production, Remove)
+VALUES
+	('BUILD_EKI', 'FEATURE_JUNGLE', 'TECH_IRON_WORKING', 700, 15, 1),
+	('BUILD_EKI', 'FEATURE_FOREST', 'TECH_BRONZE_WORKING', 400, 20, 1),
+	('BUILD_EKI', 'FEATURE_MARSH', 'TECH_MACHINERY', 400, 0, 1);
+
+INSERT INTO Improvements
+	(Type, Description, Civilopedia, Help, ArtDefineTag, SpecificCivRequired, CivilizationType, InAdjacentFriendly, NoFreshWater, RequiresFlatlands, PortraitIndex, PillageGold, IconAtlas)
+VALUES
+	('IMPROVEMENT_EKI', 'TXT_KEY_IMPROVEMENT_EKI', 'TXT_KEY_CIV5_IMPROVEMENTS_EKI_TEXT', 'TXT_KEY_CIV5_IMPROVEMENTS_EKI_HELP', 'ART_DEF_IMPROVEMENT_EKI', 1, 'CIVILIZATION_HUNS', 1, 1, 1, 0, 20, 'TERRAIN_IMPROVEMENT_EKI'),
+	('IMPROVEMENT_KUNA', 'TXT_KEY_IMPROVEMENT_KUNA', 'TXT_KEY_CIV5_IMPROVEMENTS_KUNA_TEXT', 'TXT_KEY_CIV5_IMPROVEMENTS_KUNA_HELP', 'ART_DEF_IMPROVEMENT_KUNA', 1, 'CIVILIZATION_MAYA', 0, 0, 0, 0, 40, 'TERRAIN_IMPROVEMENT_KUNA');
+
+INSERT INTO Improvement_ValidTerrains
+	(ImprovementType, TerrainType)
+VALUES
+	('IMPROVEMENT_EKI', 'TERRAIN_GRASS'),
+	('IMPROVEMENT_EKI', 'TERRAIN_PLAINS');
+
+INSERT INTO Improvement_ValidFeatures
+	(ImprovementType, FeatureType)
+VALUES
+	('IMPROVEMENT_KUNA', 'FEATURE_FOREST'),
+	('IMPROVEMENT_KUNA', 'FEATURE_JUNGLE');
+	
+INSERT INTO Improvement_YieldAdjacentTwoSameType
+	(ImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_EKI', 'YIELD_PRODUCTION', 1);
+
+INSERT INTO Improvement_TechYieldChanges
+	(ImprovementType, TechType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_EKI', 'TECH_ECONOMICS', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_EKI', 'TECH_FERTILIZER', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_EKI', 'TECH_ECOLOGY', 'YIELD_PRODUCTION', 2),
+	('IMPROVEMENT_KUNA', 'TECH_MATHEMATICS', 'YIELD_SCIENCE', 1),
+	('IMPROVEMENT_KUNA', 'TECH_ASTRONOMY', 'YIELD_SCIENCE', 1),
+	('IMPROVEMENT_KUNA', 'TECH_FLIGHT', 'YIELD_CULTURE', 2),
+	('IMPROVEMENT_KUNA', 'TECH_ARCHAEOLOGY', 'YIELD_SCIENCE', 2);
+
+INSERT INTO Unit_Builds
+	(UnitType, BuildType)
+VALUES
+	('UNIT_WORKER', 'BUILD_EKI'),
+	('UNIT_WORKER', 'BUILD_KUNA');

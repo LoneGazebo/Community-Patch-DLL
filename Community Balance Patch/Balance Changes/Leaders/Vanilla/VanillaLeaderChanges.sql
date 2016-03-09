@@ -4,19 +4,6 @@ UPDATE Traits
 SET BuyOwnedTiles = '1'
 WHERE Type = 'TRAIT_RIVER_EXPANSION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'All land military units have +1 sight. 50% discount when purchasing tiles. Can Purchase tiles already owned by other Civilizations, though at a much higher [ICON_GOLD] Gold cost than normal.'
-WHERE Tag = 'TXT_KEY_TRAIT_RIVER_EXPANSION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'The Minuteman is the American unique unit, replacing the Musketman. The Minuteman can move through difficult terrain as though it were clear (all tiles cost 1mp per hex).'
-WHERE Tag = 'TXT_KEY_UNIT_AMERICAN_MINUTEMAN_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
--- Fixed to make sense with ability.
-UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You stole their territory![ENDCOLOR]'
-WHERE Tag = 'TXT_KEY_DIPLO_CULTURE_BOMB' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 -- Arabia -- Trade Route distance mod Instead of Luxury Doubling from Bazaar -- Units move faster in Desert -- Bonus yields from TR/Connections over desert.
 UPDATE Buildings
 SET ExtraLuxuries = '0'
@@ -27,8 +14,8 @@ SET TradeRouteLandDistanceModifier = '50'
 WHERE Type = 'BUILDING_BAZAAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Building_YieldChanges
-SET Yield = '0'
-WHERE BuildingType = 'BUILDING_BAZAAR' AND YieldType = 'YIELD_FAITH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+SET Yield = '4'
+WHERE BuildingType = 'BUILDING_BAZAAR' AND YieldType = 'YIELD_GOLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Building_ResourceYieldChanges
 SET Yield = '0'
@@ -37,22 +24,6 @@ WHERE ResourceType = 'RESOURCE_OIL' AND BuildingType = 'BUILDING_BAZAAR' AND EXI
 UPDATE Building_FeatureYieldChanges
 SET Yield = '0'
 WHERE FeatureType = 'FEATURE_OASIS' AND BuildingType = 'BUILDING_BAZAAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = '10% of the City''s [ICON_GOLD] Gold output is added to the City''s [ICON_RESEARCH] Science every turn. Trade routes gain 50% range. +1 [ICON_GOLD] Gold to [ICON_INTERNATIONAL_TRADE] Trade Routes to or from City.[NEWLINE]Nearby [ICON_RES_SPICES] Spices: +1 [ICON_FOOD] Food, +1 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SUGAR] Sugar: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.'
-WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'The Bazaar is the Arabian unique building, replacing the Market. The Bazaar provides [ICON_GOLD] Gold and boosts Trade Route range. The Bazaar also boosts the yields of [ICON_RES_SPICES] and [ICON_RES_SUGAR] Sugar.'
-WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'When you complete a Historic Event, your [ICON_CAPITAL] Capital gains +2 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture, and 20% towards the progress of a random [ICON_GREAT_PEOPLE] Great Person. [ICON_TOURISM] Tourism from Historic Events increased by 20%.'
-WHERE Tag = 'TXT_KEY_TRAIT_LAND_TRADE_GOLD2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'One Thousand and One Nights'
-WHERE Tag = 'TXT_KEY_TRAIT_LAND_TRADE_GOLD2_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
 SET EventTourismBoost = '1'
@@ -79,13 +50,6 @@ SET TradeRouteOnly = '1'
 WHERE Type = 'TRAIT_LAND_TRADE_GOLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Aztec -- Set Floating Garden to +1 Food per 3 citizens instead of +15%
-UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food and +1 [ICON_PRODUCTION] Production for every 4 [ICON_CITIZEN] Citizens in the City. Each worked Lake tile provides +2 [ICON_FOOD] Food, and River tiles produce +1 [ICON_FOOD] Food.'
-WHERE Tag = 'TXT_KEY_BUILDING_FLOATING_GARDENS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Receive [ICON_GOLD] Gold and [ICON_PEACE] Faith for each enemy unit you kill. When you complete a favorable Peace Treaty, a [ICON_GOLDEN_AGE] Golden Age begins.'
-WHERE Tag = 'TXT_KEY_TRAIT_CULTURE_FROM_KILLS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
 SET MutuallyExclusiveGroup = '3'
@@ -112,12 +76,10 @@ SET Yield = '3'
 WHERE BuildingType = 'BUILDING_FLOATING_GARDENS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Askia -- Boost Mosque
-UPDATE Building_YieldChanges
-SET Yield = '0'
+DELETE FROM Building_YieldChanges
 WHERE BuildingType = 'BUILDING_MUD_PYRAMID_MOSQUE' AND YieldType = 'YIELD_FAITH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Building_YieldChanges
-SET Yield = '0'
+DELETE FROM Building_YieldChanges
 WHERE BuildingType = 'BUILDING_MUD_PYRAMID_MOSQUE' AND YieldType = 'YIELD_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
@@ -143,22 +105,6 @@ UPDATE Civilization_BuildingClassOverrides
 SET BuildingClassType = 'BUILDINGCLASS_STONE_WORKS'
 WHERE BuildingType = 'BUILDING_MUD_PYRAMID_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Grants +1 [ICON_CULTURE] Culture to all River tiles near the city, and +10% [ICON_PRODUCTION] Production when constructing Buildings in this City.[NEWLINE]Nearby [ICON_RES_MARBLE] Marble: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_STONE] Stone: +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SALT] Salt: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]City must have at least one of these resources improved with a Quarry.'
-WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'The Tabya is a Songhai unique building, replacing the Stone Works. The Tabya greatly increases the [ICON_CULTURE] Culture of Cities on rivers, boosts the value of Stone, Marble, and Salt, and boosts the production of future Buildings in the City by 10%. Also allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
-WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Tabya'
-WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Adobe, the Spanish word for mud brick, is a natural building material made from sand, clay, water and some kind of fibrous or organic material (sticks, straw or manure) and the bricks made with adobe material using molds and dried in the sun. The Great Mosque of Djenné, in central Mali, is largest mudbrick structure in the world. It, like much Sahelian architecture, is built with a mudbrick called Banco: a recipe of mud and grain husks, fermented, and either formed into bricks or applied on surfaces as a plaster like paste in broad strokes. This plaster must be reapplied annually. The facilities where these material were created were called Tabya (Cobworks), and played an essential role in West African architecture.'
-WHERE Tag = 'TXT_KEY_CIV5_BUILDING_MUD_PYRAMID_MOSQUE_PEDIA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 UPDATE Traits
 SET RiverTradeRoad = '1'
 WHERE Type = 'TRAIT_AMPHIB_WARLORD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
@@ -166,10 +112,6 @@ WHERE Type = 'TRAIT_AMPHIB_WARLORD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Ty
 UPDATE Traits
 SET FasterAlongRiver = '1'
 WHERE Type = 'TRAIT_AMPHIB_WARLORD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Triple [ICON_GOLD] Gold from pillaging Encampments and Cities. Land units gain the War Canoe and Amphibious promotions, and move faster along Rivers. Rivers can create [ICON_CONNECTED] City Connections.'
-WHERE Tag = 'TXT_KEY_TRAIT_AMPHIB_WARLORD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Catherine -- Move Krepost, give bonus
 DELETE FROM Building_DomainFreeExperiences
@@ -198,26 +140,6 @@ WHERE Type = 'BUILDING_KREPOST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='
 UPDATE Civilization_BuildingClassOverrides
 SET BuildingClassType = 'BUILDINGCLASS_ARSENAL'
 WHERE BuildingType = 'BUILDING_KREPOST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production to Camps, Mines, and Lumbermills. Decreases tile cost in the City by 25%. Enemy land Units must expend 1 extra [ICON_MOVES] movement per Tile if they move into a Tile worked by this City.[NEWLINE][NEWLINE]Increases city Defense Strength by 12 and Hit Points by 125.'
-WHERE Tag = 'TXT_KEY_BUILDING_KREPOST_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Ostrog'
-WHERE Tag = 'TXT_KEY_BUILDING_KREPOST_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'The Ostrog is the Russian unique building, replacing the Arsenal. In addition to the normal bonuses of the Arsenal, the Ostrog increases cultural border growth by 50% and grants +1 Production to Camps, Mines, and Lumbermills. It also causes enemy land units to expend 1 extra movement per tile if they move into a tile worked by this city. The Production, Gold and Maintenance requirements of the Ostrog are also greatly reduced, allowing you to quickly build it in newly-founded Cities. It is quite worthwhile to construct these useful buildings in all Russian cities, but especially in cities on the the Russian frontier.'
-WHERE Tag = 'TXT_KEY_BUILDINGS_KREPOST_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Ostrog is a Russian term for a small fort, typically wooden and often non-permanently manned. Ostrogs were widely used during the age of Russian imperial expansion, particularly during the 18th and early 19th centuries. Ostrogs were encircled by 6 metres high palisade walls made from sharpened trunks. The name derives from the Russian word strogat, "to shave the wood". Ostrogs were smaller and exclusively military forts, compared to larger kremlins that were the cores of Russian cities. Ostrogs were often built in remote areas or within the fortification lines, such as the Great Abatis Line.'
-WHERE Tag = 'TXT_KEY_BUILDINGS_KREPOST_PEDIA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'All Strategic Resources provide +1 [ICON_RESEARCH] Science and double their normal quantity. When you purchase a tile with [ICON_GOLD] Gold, receive +20 [ICON_RESEARCH] Science. Bonus scales with Era.'
-WHERE Tag = 'TXT_KEY_TRAIT_STRATEGIC_RICHES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Trait_YieldChangesStrategicResources
 SET YieldType = 'YIELD_SCIENCE'
@@ -268,14 +190,6 @@ UPDATE Buildings
 SET TradeRouteTargetBonus = '0'
 WHERE Type = 'BUILDING_SATRAPS_COURT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = '+1 [ICON_GOLD] Gold for every 5 [ICON_CITIZEN] Citizens in the City, and +1 [ICON_GOLDEN_AGE] Golden Age Points per turn for every 5 [ICON_CITIZEN] Citizens in the City. Eliminates extra [ICON_HAPPINESS_4] Unhappiness from an [ICON_OCCUPIED] Occupied City (if it is [ICON_OCCUPIED] Occupied).'
-WHERE Tag = 'TXT_KEY_BUILDING_SATRAPS_COURT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'The Satraps Court is the Persian unique building. It replaces the Courthouse. Unlike a Courthouse, this Building can be built in any City. It increases Gold output in the City, Happiness, and increases your Golden Age Point rate by +1 for every 5 Citizens in the City.'
-WHERE Tag = 'TXT_KEY_BUILDING_SATRAPS_COURT_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 UPDATE Buildings
 SET Happiness = '1'
 WHERE Type = 'BUILDING_SATRAPS_COURT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
@@ -293,10 +207,6 @@ WHERE Type = 'TRAIT_ENHANCED_GOLDEN_AGES' AND EXISTS (SELECT * FROM COMMUNITY WH
 UPDATE Traits
 SET TourismToGAP = '10'
 WHERE Type = 'TRAIT_ENHANCED_GOLDEN_AGES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = '[ICON_GOLDEN_AGE] Golden Ages last 50% longer, and 10% of your [ICON_TOURISM] Tourism output converts into [ICON_GOLDEN_AGE] Golden Age Points every turn. During a [ICON_GOLDEN_AGE] Golden Age, units receive +1 [ICON_MOVES] Movement and a +15% [ICON_STRENGTH] Combat Strength bonus.'
-WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_GOLDEN_AGES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Egypt -- Buff Burial Tomb, +1 Production in all cities.
 UPDATE Civilization_BuildingClassOverrides
@@ -330,25 +240,9 @@ UPDATE Buildings
 SET FinishLandTRTourism = '4'
 WHERE Type = 'BUILDING_BURIAL_TOMB' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'When a [ICON_INTERNATIONAL_TRADE] Land Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture output. Receive 10 [ICON_GOLDEN_AGE] Golden Age Points whenever you win a battle. Bonus scales with era. Land Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COTTON] Cotton: +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Neabry [ICON_RES_FUR] Furs: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.'
-WHERE Tag = 'TXT_KEY_BUILDING_BURIAL_TOMB_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'The Burial Tomb is a Classical-era building which increases your output of [ICON_PEACE] Faith, [ICON_TOURISM] Tourism, and [ICON_CULTURE] Culture, and boosts the value of Trade Routes that target the City. However, if the city is captured, the capturing civilization will gain twice as much gold as would be the case in a city without a Burial Tomb.  It replaces the Caravansary.'
-WHERE Tag = 'TXT_KEY_BUILDING_BURIAL_TOMB_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'A fast Ranged Unit. Only the Egyptians may build it. This Unit does not require [ICON_RES_HORSE] Horses to be built, unlike the Chariot Archer which it replaces. It is also stronger than the Chariot Archer, and receives the [COLOR_POSITIVE_TEXT]Forced Labor[ENDCOLOR] Promotion for free.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_EGYPTIAN_WAR_CHARIOT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 UPDATE Buildings
 SET Happiness = '0'
 WHERE Type = 'BUILDING_BURIAL_TOMB' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = '+20% Production towards Wonder construction. Artifacts gain +2 [ICON_RESEARCH] Science, [ICON_PEACE] Faith, and [ICON_CULTURE] Culture, and Landmarks gain +4 [ICON_GOLD] Gold, [ICON_GOLDEN_AGE] Golden Age Points, and [ICON_TOURISM] Tourism.'
-WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- England
 
@@ -360,28 +254,10 @@ Set NavalUnitMaintenanceModifier = '-50'
 WHERE Type = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Extra Spies
-UPDATE Language_en_US
-SET Text = '+2 [ICON_MOVES] Movement for all naval and embarked units, and naval unit [ICON_GOLD] Gold maintenance reduced by 25%. Receive one or more additional [ICON_SPY] Spies based on the number of City-States.'
-WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Germany -- New UA
 
 -- Bismarck -- Hanse Yield Per Pop
-UPDATE Language_en_US
-SET Text = '+5% [ICON_PRODUCTION] Production for each Trade Route your civilization has with a City-State.[NEWLINE][NEWLINE]When any [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture output.[NEWLINE][NEWLINE]Trade Routes to or from this City gain +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Requires a Market.'
-WHERE Tag = 'TXT_KEY_BUILDING_HANSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'In addition to the regular abilities of the Customs House (additional [ICON_GOLD] Gold output, and additional [ICON_GOLD] Gold from Trade Routes), the Hanse provides [ICON_PRODUCTION] Production for each Trade Route within your civilization that connects to a City-State. The Trade Routes can come from any combination of cities, even cities without the Hanse (Example: If you have trade routes from Berlin to Geneva, Munich to Geneva, Munich to Berlin, and Berlin to Brussels, then all cities with the Hanse would get +15% [ICON_PRODUCTION] Production). Only Germany may build it.'
-WHERE Tag = 'TXT_KEY_BUILDING_HANSE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Receive +3 [ICON_GOLDEN_AGE] Golden Age Points and +3 [ICON_CULTURE] Culture in your [ICON_CAPITAL] Capital for every City-State you are allied with. Bonus scales with Era. For every 2 City-State alliances, receive 1 additional Delegate in the World Congress.'
-WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Realpolitik'
-WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
 SET FinishLandTRTourism = '4'
@@ -425,14 +301,6 @@ WHERE Type = 'BUILDING_HANSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='CO
 
 -- Greece -- CS Alliances boost CS -- Odeon
 
-UPDATE Language_en_US
-SET Text = 'City-State [ICON_INFLUENCE] Influence degrades at half and recovers at twice the normal rate. Each City-State alliance boosts the [ICON_STRENGTH] Strength of owned and allied Units by +4% (up to +20% total).'
-WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_FRIENDSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Ancient Era Unit which specializes in defeating Mounted Units. Only the Greeks may build it. This Unit has a higher [ICON_STRENGTH] Combat Strength than the Spearman which it replaces, and produces Great Generals very quickly. It also starts with the [COLOR_POSITIVE_TEXT]Discipline[ENDCOLOR] promotion.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_HOPLITE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 UPDATE Traits
 SET AllianceCSStrength = '4'
 WHERE Type = 'TRAIT_CITY_STATE_FRIENDSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
@@ -472,22 +340,11 @@ UPDATE Traits
 SET IsNoReligiousStrife = '1'
 WHERE Type = 'TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Starts with a Pantheon. Each Follower of your majority or founded Religion in a City increases Religious Pressure and [ICON_FOOD] Growth in that City. Cannot build Missionaries.'
-WHERE Tag = 'TXT_KEY_TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Traits
-SET ShortDescription = 'TXT_KEY_TRAIT_POPULATION_GROWTH_SHORT_CBP'
-WHERE Type = 'TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 UPDATE Defines
 Set Value = '2'
 WHERE Name = 'BALANCE_FOLLOWER_GROWTH_BONUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Iroquois -- All units receive Woodsman promotion
-UPDATE Language_en_US
-SET Text = 'Units move through Forest and Jungle in as if it is Road, and can be used to establish [ICON_CONNECTED] City Connections. Land military units start with the Woodsman promotion.'
-WHERE Tag = 'TXT_KEY_TRAIT_IGNORE_TERRAIN_IN_FOREST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 DELETE FROM Building_YieldChanges
 WHERE BuildingType = 'BUILDING_LONGHOUSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
@@ -518,20 +375,7 @@ WHERE Type = 'BUILDING_LONGHOUSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type
 DELETE FROM Building_FeatureYieldChanges
 WHERE BuildingType = 'BUILDING_LONGHOUSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production and +1 [ICON_FOOD] Food from all Forests and Jungles worked by this City. Requires a nearby, workable Forest or Jungle tile to be constructed.'
-WHERE Tag = 'TXT_KEY_BUILDING_LONGHOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'The Longhouse is the Iroquois unique building, replacing the Herbalist. It increases the city''s Food and Production output for each forest within the city''s radius.'
-WHERE Tag = 'TXT_KEY_BUILDING_LONGHOUSE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 -- Japan -- Dojo (culture from strategic resources) -- Boost UA
-
-UPDATE Language_en_US
-SET Text = 'The [ICON_STRENGTH] Combat Strength of your units increases as they take damage. +2 [ICON_CULTURE] Culture and +1 [ICON_FOOD] Food from Fishing Boats and Atolls. Melee Naval Units can construct Fishing Boats.'
-WHERE Tag = 'TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 
 UPDATE Trait_ImprovementYieldChanges
 SET Yield = '2'
@@ -541,51 +385,6 @@ WHERE TraitType = 'TRAIT_FIGHT_WELL_DAMAGED' AND EXISTS (SELECT * FROM COMMUNITY
 UPDATE Traits
 SET FreeGreatWorkOnConquest = '1'
 WHERE Type = 'TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = '[ICON_CAPITAL] Capital theming bonuses doubled. When you conquer an enemy City, plunder [ICON_GREAT_WORK] Great Works from their other Cities, or, if unable to plunder, gain a temporary [ICON_CULTURE] Culture boost.'
-WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Riches of Conquest'
-WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-INSERT INTO Language_en_US (Text, Tag)
-SELECT 'Napoleon stole {1_Num} [ICON_GREAT_WORK] Great Work(s) from cities near {2_City} when he conquered it!' , 'TXT_KEY_ART_PLUNDERED'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-INSERT INTO Language_en_US (Text, Tag)
-SELECT 'Art stolen!' , 'TXT_KEY_ART_PLUNDERED_SUMMARY'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-INSERT INTO Language_en_US (Text, Tag)
-SELECT 'You plundered {1_Num} [ICON_GREAT_WORK] Great Work(s) from cities near {2_City} after you conquered it!' , 'TXT_KEY_ART_STOLEN'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-INSERT INTO Language_en_US (Text, Tag)
-SELECT 'Art plundered!' , 'TXT_KEY_ART_STOLEN_SUMMARY'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-INSERT INTO Language_en_US (Text, Tag)
-SELECT 'The conquest of {2_City} has doubled your [ICON_CULTURE] Culture output for the next {1_Num} turn(s)!' , 'TXT_KEY_CULTURE_BOOST_ART'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-INSERT INTO Language_en_US (Text, Tag)
-SELECT 'Culture boost!' , 'TXT_KEY_CULTURE_BOOST_ART_SUMMARY'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from a temporary Cultural Boost (Turns left: {2_TurnsLeft}).'
-WHERE Tag = 'TXT_KEY_TP_CULTURE_FROM_BONUS_TURNS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
--- Chateau
-UPDATE Language_en_US
-SET Text = 'A Chateau must be built adjacent to a Luxury resource.  It may not be adjacent to another Chateau. It provides the same +50% defense bonus as a Fort. Must be built in French territory.'
-WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_CHATEAU_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'A Chateau must be built adjacent to a Luxury resource.  It may not be adjacent to another Chateau. It provides one additional [ICON_GOLD] Gold and 2 [ICON_CULTURE] Culture. It also provides the same +50% defense bonus as a Fort. Must be built in French territory.[NEWLINE][NEWLINE]A chateau is a manor house or country home of gentry, usually without fortifications. In the Middle Ages, a chateau was largely self-sufficient, being supported by the lord''s demesne (hereditary lands). In the 1600s, the wealthy and aristocratic French lords dotted the countryside with elegant, luxuriant, architecturally refined mansions such as the Chateau de Maisons. Today, the term chateau is loosely used; for instance, it is common for any winery or inn, no matter how humble, to prefix its name with "Chateau."'
-WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_CHATEAU_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Ottomans -- Receive a free Caravansary in all cities, and Trade Routes generate yields when finishing a Trade Route. 
 
@@ -599,14 +398,6 @@ WHERE Type = 'TRAIT_CONVERTS_SEA_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY
 
 DELETE FROM Trait_FreePromotionUnitCombats
 WHERE TraitType = 'TRAIT_CONVERTS_SEA_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Tanzimat'
-WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Completing an [ICON_INTERNATIONAL_TRADE] International Trade Route grants +100 [ICON_RESEARCH] Science, [ICON_PRODUCTION] Production, and [ICON_FOOD] Food to the origin City. Bonuses scale with era. Receive a free Caravansary in every city.'
-WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Rome -- Unique Monument (Flavian Amphitheater) -- Receive Culture boost when you conquer a City.
 
@@ -622,22 +413,10 @@ UPDATE Traits
 SET KeepConqueredBuildings = '1'
 WHERE Type = 'TRAIT_CAPITAL_BUILDINGS_CHEAPER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'When you conquer a City, the City retains all valid Buildings and you immediately acquire additional territory around the City. +15% [ICON_PRODUCTION] Production towards Buildings present in Capital.'
-WHERE Tag = 'TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 -- Siam -- adjust Wat
 UPDATE Building_FeatureYieldChanges
 SET Yield = '0'
 WHERE BuildingType = 'BUILDING_WAT' AND YieldType = 'YIELD_SCIENCE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Reduces enemy spy stealing rate by 50%. +4 [ICON_RESEARCH] Science from Temples and Shrines in this City, and +1 [ICON_CULTURE] Culture from Jungle and Forest tiles worked by this City. Reduces [ICON_HAPPINESS_3] Crime.'
-WHERE Tag = 'TXT_KEY_BUILDING_WAT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'The Wat is the Siamese unique building, replacing the Constabulary. The Wat increases the [ICON_CULTURE] Culture and [ICON_RESEARCH] Science of a City, increases the [ICON_RESEARCH] Science output of Temples and Shrines, and reduces spy stealing rates much more than the Constabulary. It also receives an additional Scientist Specialist, thus allowing it to produce Great Scientists more rapidly than other Civilizations.'
-WHERE Tag = 'TXT_KEY_BUILDING_WAT_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
 SET EspionageModifier = '-50'
@@ -680,10 +459,6 @@ UPDATE Traits
 SET AllianceCSDefense = '25'
 WHERE Type = 'TRAIT_CITY_STATE_BONUSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Yields from friendly and allied City-States increased by 75%. The [ICON_STRENGTH] Combat Strength of Allied City-State [ICON_CAPITAL] Capitals is increased by +25%.'
-WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_BONUSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 -- China
 UPDATE Civilization_BuildingClassOverrides
 SET BuildingClassType = 'BUILDINGCLASS_OPERA_HOUSE'
@@ -701,41 +476,16 @@ UPDATE Buildings
 SET UnlockedByBelief = '1'
 WHERE Type = 'BUILDING_PAPER_MAKER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City. +1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in the City. +33% [ICON_GREAT_MUSICIAN] Great Musician Rate in the City, and all Musicians'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE]Requires an Amphitheater in the City.'
-WHERE Tag = 'TXT_KEY_BUILDING_PAPER_MAKER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Tea Pavilion'
-WHERE Tag = 'TXT_KEY_BUILDING_PAPER_MAKER_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'In China and Nepal, a tea pavilion is traditionally a place which offers tea to its consumers. People gather at tea houses to chat, socialize, and enjoy tea, and young people often meet at tea houses for dates. The Guangdong (Cantonese) style tea house is particularly famous outside of China especially in the Himalayas. These tea houses, called chalou, serve dim sum, and these small plates of food are enjoyed alongside tea.'
-WHERE Tag = 'TXT_KEY_BUILDING_PAPER_MAKER_PEDIA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'The Tea Pavilion is the Chinese unique building, replacing the Opera House. The Tea Pavilion increases the acquisition of [ICON_RESEARCH] Science and [ICON_CULTURE] Culture in the city. Also boosts the City''s Great Musician rate and the value of Musicians'' Guilds. Requires an Amphitheater in order to be constructed.'
-WHERE Tag = 'TXT_KEY_BUILDING_PAPER_MAKER_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 UPDATE Building_YieldChangesPerPop
 SET Yield = '25'
 WHERE BuildingType = 'BUILDING_PAPER_MAKER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
  
- UPDATE Building_YieldChanges
-SET Yield = '0'
+DELETE FROM Building_YieldChanges
 WHERE BuildingType = 'BUILDING_PAPER_MAKER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
 SET SpecialistCount = '0'
 WHERE Type = 'BUILDING_PAPER_MAKER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = '+50% [ICON_FOOD] Growth in Cities during Golden Ages and "We Love the Empress Day." [ICON_GREAT_PEOPLE] Great People grant [ICON_GOLDEN_AGE] Golden Age Points and trigger 10 turns of "We Love the Empress Day" when born.'
-WHERE Tag = 'TXT_KEY_TRAIT_ART_OF_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Imperial Examination'
-WHERE Tag = 'TXT_KEY_TRAIT_ART_OF_WAR_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
 SET GreatGeneralRateModifier = '0'
@@ -752,3 +502,306 @@ WHERE Type = 'TRAIT_ART_OF_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='
 UPDATE Traits
 SET GrowthBoon = '50'
 WHERE Type = 'TRAIT_ART_OF_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+-- New Vanilla Leader Data and Yields
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_INDUS_CANAL', 'YIELD_PRODUCTION', 2),
+	('BUILDING_INDUS_CANAL', 'YIELD_FOOD', 3),
+	('BUILDING_ODEON', 'YIELD_CULTURE', 3),
+	('BUILDING_FLAVIAN_COLOSSEUM', 'YIELD_PRODUCTION', 3),
+	('BUILDING_FLAVIAN_COLOSSEUM', 'YIELD_CULTURE', 3),
+	('BUILDING_STEAM_MILL', 'YIELD_PRODUCTION', 3),
+	('BUILDING_SIEGE_WORKSHOP', 'YIELD_PRODUCTION', 2),
+	('BUILDING_MOMA', 'YIELD_CULTURE', 5),
+	('BUILDING_MUD_PYRAMID_MOSQUE', 'YIELD_PRODUCTION', 3),
+	('BUILDING_BURIAL_TOMB', 'YIELD_FAITH', 3),
+	('BUILDING_LONGHOUSE', 'YIELD_FOOD', 2),
+	('BUILDING_LONGHOUSE', 'YIELD_CULTURE', 1),
+	('BUILDING_HANSE', 'YIELD_CULTURE', 3),
+	('BUILDING_WAT', 'YIELD_SCIENCE', 2),
+	('BUILDING_WAT', 'YIELD_FAITH', 1),
+	('BUILDING_WAT', 'YIELD_CULTURE', 1),
+	('BUILDING_KREPOST', 'YIELD_PRODUCTION', 3),
+	('BUILDING_BAZAAR', 'YIELD_FAITH', 1);
+
+INSERT INTO Building_Flavors
+	(BuildingType, FlavorType, Flavor)
+VALUES
+	('BUILDING_INDUS_CANAL', 'FLAVOR_GROWTH', 50),
+	('BUILDING_INDUS_CANAL', 'FLAVOR_SCIENCE', 15),
+	('BUILDING_INDUS_CANAL', 'FLAVOR_PRODUCTION', 5),
+	('BUILDING_INDUS_CANAL', 'FLAVOR_HAPPINESS', 15),
+	('BUILDING_DOJO', 'FLAVOR_MILITARY_TRAINING', 25),
+	('BUILDING_DOJO', 'FLAVOR_CULTURE', 15),
+	('BUILDING_DOJO', 'FLAVOR_HAPPINESS', 15),
+	('BUILDING_ODEON', 'FLAVOR_CULTURE', 20),
+	('BUILDING_ODEON', 'FLAVOR_HAPPINESS', 15),
+	('BUILDING_FLAVIAN_COLOSSEUM', 'FLAVOR_CULTURE', 20),
+	('BUILDING_FLAVIAN_COLOSSEUM', 'FLAVOR_PRODUCTION', 20),
+	('BUILDING_STEAM_MILL', 'FLAVOR_PRODUCTION', 50),
+	('BUILDING_STEAM_MILL', 'FLAVOR_SCIENCE', 15),
+	('BUILDING_STEAM_MILL', 'FLAVOR_PRODUCTION', 10),
+	('BUILDING_SIEGE_WORKSHOP', 'FLAVOR_MILITARY_TRAINING', 40),
+	('BUILDING_SIEGE_WORKSHOP', 'FLAVOR_PRODUCTION', 20),
+	('BUILDING_SIEGE_WORKSHOP', 'FLAVOR_CITY_DEFENSE', 10),
+	('BUILDING_SIEGE_WORKSHOP', 'FLAVOR_HAPPINESS', 25),
+	('BUILDING_MOMA', 'FLAVOR_CULTURE', 100);
+
+INSERT INTO Civilization_BuildingClassOverrides
+	(CivilizationType, BuildingClassType, BuildingType)
+VALUES
+	('CIVILIZATION_INDIA', 'BUILDINGCLASS_AQUEDUCT', 'BUILDING_INDUS_CANAL'),
+	('CIVILIZATION_JAPAN', 'BUILDINGCLASS_ARMORY', 'BUILDING_DOJO'),
+	('CIVILIZATION_GREECE', 'BUILDINGCLASS_AMPHITHEATER', 'BUILDING_ODEON'),
+	('CIVILIZATION_ROME', 'BUILDINGCLASS_COLOSSEUM', 'BUILDING_FLAVIAN_COLOSSEUM'),
+	('CIVILIZATION_ENGLAND', 'BUILDINGCLASS_FACTORY', 'BUILDING_STEAM_MILL'),
+	('CIVILIZATION_OTTOMAN', 'BUILDINGCLASS_FORGE', 'BUILDING_SIEGE_WORKSHOP'),
+	('CIVILIZATION_AMERICA', 'BUILDINGCLASS_HERMITAGE', 'BUILDING_MOMA');
+
+INSERT INTO Building_ClassesNeededInCity
+	(BuildingType, BuildingClassType)
+VALUES
+	('BUILDING_ODEON', 'BUILDINGCLASS_MONUMENT'),
+	('BUILDING_STEAM_MILL', 'BUILDINGCLASS_WORKSHOP'),
+	('BUILDING_MOMA', 'BUILDINGCLASS_MUSEUM');
+
+INSERT INTO Building_YieldChangesPerPop
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_FLOATING_GARDENS', 'YIELD_FOOD', 25),
+	('BUILDING_FLOATING_GARDENS', 'YIELD_PRODUCTION', 25),
+	('BUILDING_SATRAPS_COURT', 'YIELD_GOLD', 20),
+	('BUILDING_STEAM_MILL', 'YIELD_PRODUCTION', 34),
+	('BUILDING_SATRAPS_COURT', 'YIELD_GOLDEN_AGE_POINTS', 20);
+
+INSERT INTO Building_ScienceFromYield
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_BAZAAR', 'YIELD_GOLD', 10),
+	('BUILDING_SIEGE_WORKSHOP', 'YIELD_PRODUCTION', 15);
+
+INSERT INTO Building_ResourceYieldChanges
+	(BuildingType, ResourceType, YieldType, Yield)
+VALUES
+	('BUILDING_BAZAAR', 'RESOURCE_SPICES', 'YIELD_FOOD', 1),
+	('BUILDING_BAZAAR', 'RESOURCE_SPICES', 'YIELD_PRODUCTION', 1),
+	('BUILDING_BAZAAR', 'RESOURCE_SUGAR', 'YIELD_FOOD', 1),
+	('BUILDING_BAZAAR', 'RESOURCE_SUGAR', 'YIELD_GOLD', 1),
+	('BUILDING_DOJO', 'RESOURCE_IRON', 'YIELD_CULTURE', 2),
+	('BUILDING_DOJO', 'RESOURCE_IRON', 'YIELD_PRODUCTION', 2),
+	('BUILDING_DOJO', 'RESOURCE_HORSE', 'YIELD_CULTURE', 2),
+	('BUILDING_DOJO', 'RESOURCE_HORSE', 'YIELD_PRODUCTION', 2),
+	('BUILDING_ODEON', 'RESOURCE_DYE', 'YIELD_CULTURE', 1),
+	('BUILDING_ODEON', 'RESOURCE_DYE', 'YIELD_GOLD', 1),
+	('BUILDING_ODEON', 'RESOURCE_SILK', 'YIELD_CULTURE', 1),
+	('BUILDING_ODEON', 'RESOURCE_SILK', 'YIELD_GOLD', 1),
+	('BUILDING_ODEON', 'RESOURCE_DYE', 'YIELD_CULTURE', 1),
+	('BUILDING_ODEON', 'RESOURCE_DYE', 'YIELD_GOLD', 1),
+	('BUILDING_ODEON', 'RESOURCE_SILK', 'YIELD_CULTURE', 1),
+	('BUILDING_ODEON', 'RESOURCE_SILK', 'YIELD_GOLD', 1),
+	('BUILDING_STEAM_MILL', 'RESOURCE_COAL', 'YIELD_PRODUCTION', 3),
+	('BUILDING_SIEGE_WORKSHOP', 'RESOURCE_COPPER', 'YIELD_PRODUCTION', 1),
+	('BUILDING_SIEGE_WORKSHOP', 'RESOURCE_COPPER', 'YIELD_GOLD', 1),
+	('BUILDING_SIEGE_WORKSHOP', 'RESOURCE_IRON', 'YIELD_PRODUCTION', 1),
+	('BUILDING_SIEGE_WORKSHOP', 'RESOURCE_IRON', 'YIELD_GOLD', 1),
+	('BUILDING_MUD_PYRAMID_MOSQUE', 'RESOURCE_STONE', 'YIELD_PRODUCTION', 2),
+	('BUILDING_MUD_PYRAMID_MOSQUE', 'RESOURCE_MARBLE', 'YIELD_PRODUCTION', 1),
+	('BUILDING_MUD_PYRAMID_MOSQUE', 'RESOURCE_MARBLE', 'YIELD_GOLD', 1),
+	('BUILDING_MUD_PYRAMID_MOSQUE', 'RESOURCE_SALT', 'YIELD_PRODUCTION', 1),
+	('BUILDING_MUD_PYRAMID_MOSQUE', 'RESOURCE_SALT', 'YIELD_GOLD', 1),
+	('BUILDING_BURIAL_TOMB', 'RESOURCE_TRUFFLES', 'YIELD_GOLD', 2),
+	('BUILDING_BURIAL_TOMB', 'RESOURCE_COTTON', 'YIELD_CULTURE', 1),
+	('BUILDING_BURIAL_TOMB', 'RESOURCE_COTTON', 'YIELD_PRODUCTION', 1),
+	('BUILDING_BURIAL_TOMB', 'RESOURCE_FUR', 'YIELD_GOLD', 1),
+	('BUILDING_BURIAL_TOMB', 'RESOURCE_FUR', 'YIELD_PRODUCTION', 1);
+
+INSERT INTO Building_FeatureYieldChanges
+	(BuildingType, FeatureType, YieldType, Yield)
+VALUES
+	('BUILDING_INDUS_CANAL', 'FEATURE_FLOOD_PLAINS', 'YIELD_PRODUCTION', 1);
+
+INSERT INTO Building_ImprovementYieldChanges
+	(BuildingType, ImprovementType, YieldType, Yield)
+VALUES
+	('BUILDING_INDUS_CANAL', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 1),
+		('BUILDING_KREPOST', 'IMPROVEMENT_LUMBERMILL', 'YIELD_PRODUCTION', 1),
+	('BUILDING_KREPOST', 'IMPROVEMENT_LUMBERMILL_JUNGLE', 'YIELD_PRODUCTION', 1),
+	('BUILDING_KREPOST', 'IMPROVEMENT_MINE', 'YIELD_PRODUCTION', 1),
+	('BUILDING_KREPOST', 'IMPROVEMENT_CAMP', 'YIELD_PRODUCTION', 1);
+
+INSERT INTO Building_DomainFreeExperiences
+	(BuildingType, DomainType, Experience)
+VALUES
+	('BUILDING_DOJO', 'DOMAIN_LAND', 25),
+	('BUILDING_DOJO', 'DOMAIN_SEA', 25),
+	('BUILDING_DOJO', 'DOMAIN_AIR', 25);
+
+INSERT INTO Building_YieldFromVictory
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_ODEON', 'YIELD_CULTURE', 5),
+	('BUILDING_FLAVIAN_COLOSSEUM', 'YIELD_GREAT_GENERAL_POINTS', 3),
+	('BUILDING_FLAVIAN_COLOSSEUM', 'YIELD_GREAT_ADMIRAL_POINTS', 3),
+	('BUILDING_FLAVIAN_COLOSSEUM', 'YIELD_GOLDEN_AGE_POINTS', 3);
+
+INSERT INTO Building_SpecificGreatPersonRateModifier
+	(BuildingType, SpecialistType, Modifier)
+VALUES
+	('BUILDING_ODEON', 'SPECIALIST_WRITER', 33);
+
+INSERT INTO Building_BuildingClassLocalYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	('BUILDING_FLAVIAN_COLOSSEUM', 'BUILDINGCLASS_BARRACKS', 'YIELD_PRODUCTION', 2),
+	('BUILDING_FLAVIAN_COLOSSEUM', 'BUILDINGCLASS_FORGE', 'YIELD_PRODUCTION', 2),
+	('BUILDING_FLAVIAN_COLOSSEUM', 'BUILDINGCLASS_ARMORY', 'YIELD_PRODUCTION', 2);
+
+INSERT INTO Building_UnitCombatProductionModifiers
+	(BuildingType, UnitCombatType, Modifier)
+VALUES
+	('BUILDING_SIEGE_WORKSHOP', 'UNITCOMBAT_SIEGE', 50);
+
+INSERT INTO Building_ThemingBonuses
+	(BuildingType, Description, Bonus, UniqueEras, MustBeArt, RequiresUniquePlayers, AIPriority)
+VALUES
+	('BUILDING_MOMA', 'TXT_KEY_THEMING_BONUS_MOMA', 10, 1, 1, 1, 8);
+
+INSERT INTO Building_ThemingYieldBonus
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_MOMA', 'YIELD_CULTURE', 5),
+	('BUILDING_MOMA', 'YIELD_SCIENCE', 5);
+
+INSERT INTO Trait_YieldFromHistoricEvent
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_LAND_TRADE_GOLD', 'YIELD_CULTURE', 1),
+	('TRAIT_LAND_TRADE_GOLD', 'YIELD_SCIENCE', 1);
+
+INSERT INTO Building_RiverPlotYieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_FLOATING_GARDENS', 'YIELD_FOOD', 1),
+	('BUILDING_MUD_PYRAMID_MOSQUE', 'YIELD_CULTURE', 1);
+
+INSERT INTO Trait_YieldFromKills
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_CULTURE_FROM_KILLS', 'YIELD_FAITH', 150),
+	('TRAIT_CULTURE_FROM_KILLS', 'YIELD_GOLD', 150);
+
+INSERT INTO Trait_ArtifactYieldChanges
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_WONDER_BUILDER', 'YIELD_CULTURE', 2),
+	('TRAIT_WONDER_BUILDER', 'YIELD_SCIENCE', 2),
+	('TRAIT_WONDER_BUILDER', 'YIELD_FAITH', 2);
+
+INSERT INTO Trait_ImprovementYieldChanges
+	(TraitType, ImprovementType, YieldType, Yield)
+VALUES
+	('TRAIT_WONDER_BUILDER', 'IMPROVEMENT_LANDMARK', 'YIELD_TOURISM', 4),
+	('TRAIT_WONDER_BUILDER', 'IMPROVEMENT_LANDMARK', 'YIELD_GOLDEN_AGE_POINTS', 4),
+	('TRAIT_WONDER_BUILDER', 'IMPROVEMENT_LANDMARK', 'YIELD_GOLD', 4),
+	('TRAIT_FIGHT_WELL_DAMAGED', 'IMPROVEMENT_FISHING_BOATS', 'YIELD_FOOD', 1);
+
+INSERT INTO Building_YieldFromVictory
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_BURIAL_TOMB', 'YIELD_GOLDEN_AGE_POINTS', 10);
+
+INSERT INTO Trait_TradeRouteStartYield
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_CONVERTS_SEA_BARBARIANS', 'YIELD_PRODUCTION', 100),
+	('TRAIT_CONVERTS_SEA_BARBARIANS', 'YIELD_SCIENCE', 100),
+	('TRAIT_CONVERTS_SEA_BARBARIANS', 'YIELD_FOOD', 100);
+
+INSERT INTO Trait_YieldFromCSAlly
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_CONVERTS_LAND_BARBARIANS', 'YIELD_GOLDEN_AGE_POINTS', 3),
+	('TRAIT_CONVERTS_LAND_BARBARIANS', 'YIELD_CULTURE', 3);
+
+INSERT INTO Trait_UnimprovedFeatureYieldChanges
+	(TraitType, FeatureType, YieldType, Yield)
+VALUES
+	('TRAIT_FIGHT_WELL_DAMAGED', 'FEATURE_ATOLL', 'YIELD_FOOD', 1);
+
+INSERT INTO Building_BuildingClassLocalYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	('BUILDING_WAT', 'BUILDINGCLASS_TEMPLE', 'YIELD_SCIENCE', 4),
+	('BUILDING_WAT', 'BUILDINGCLASS_SHRINE', 'YIELD_SCIENCE', 4);
+
+INSERT INTO Building_FeatureYieldChanges
+	(BuildingType, FeatureType, YieldType, Yield)
+VALUES
+	('BUILDING_LONGHOUSE', 'FEATURE_JUNGLE', 'YIELD_PRODUCTION', 1),
+	('BUILDING_LONGHOUSE', 'FEATURE_JUNGLE', 'YIELD_FOOD', 1),
+	('BUILDING_LONGHOUSE', 'FEATURE_FOREST', 'YIELD_PRODUCTION', 1),
+	('BUILDING_LONGHOUSE', 'FEATURE_FOREST', 'YIELD_FOOD', 1),
+	('BUILDING_WAT', 'FEATURE_FOREST', 'YIELD_CULTURE', 1),
+	('BUILDING_WAT', 'FEATURE_JUNGLE', 'YIELD_CULTURE', 1);
+
+INSERT INTO Civilization_Start_Along_River
+	(CivilizationType, StartAlongRiver)
+VALUES
+	('CIVILIZATION_SONGHAI', 1);
+
+INSERT INTO Building_Flavors
+	(BuildingType, FlavorType, Flavor)
+VALUES
+	('BUILDING_HANSE', 'FLAVOR_CULTURE', 40),
+	('BUILDING_BURIAL_TOMB', 'FLAVOR_CULTURE', 30);
+
+INSERT INTO Building_YieldModifiers
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_PAPER_MAKER', 'YIELD_CULTURE', 10);
+
+INSERT INTO Building_BuildingClassYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	('BUILDING_PAPER_MAKER', 'BUILDINGCLASS_MUSICIANS_GUILD', 'YIELD_GOLD', 1),
+	('BUILDING_ODEON', 'BUILDINGCLASS_WRITERS_GUILD', 'YIELD_GOLD', 1),
+	('BUILDING_MOMA', 'BUILDINGCLASS_MUSEUM', 'YIELD_CULTURE', 5),
+	('BUILDING_MOMA', 'BUILDINGCLASS_MUSEUM', 'YIELD_SCIENCE', 5);
+
+INSERT INTO Building_SpecificGreatPersonRateModifier
+	(BuildingType, SpecialistType, Modifier)
+VALUES
+	('BUILDING_PAPER_MAKER', 'SPECIALIST_MUSICIAN', 33);
+
+INSERT INTO Building_ClassesNeededInCity
+	(BuildingType, BuildingClassType)
+VALUES
+	('BUILDING_PAPER_MAKER', 'BUILDINGCLASS_AMPHITHEATER');
+
+INSERT INTO Trait_GreatPersonBornYield
+	(TraitType, GreatPersonType, YieldType, Yield)
+VALUES
+	('TRAIT_ART_OF_WAR', 'GREATPERSON_SCIENTIST', 'YIELD_GOLDEN_AGE_POINTS', 50),
+	('TRAIT_ART_OF_WAR', 'GREATPERSON_ENGINEER', 'YIELD_GOLDEN_AGE_POINTS', 50),
+	('TRAIT_ART_OF_WAR', 'GREATPERSON_PROPHET', 'YIELD_GOLDEN_AGE_POINTS', 50),
+	('TRAIT_ART_OF_WAR', 'GREATPERSON_GENERAL', 'YIELD_GOLDEN_AGE_POINTS', 50),
+	('TRAIT_ART_OF_WAR', 'GREATPERSON_ADMIRAL', 'YIELD_GOLDEN_AGE_POINTS', 50),
+	('TRAIT_ART_OF_WAR', 'GREATPERSON_MERCHANT', 'YIELD_GOLDEN_AGE_POINTS', 50),
+	('TRAIT_ART_OF_WAR', 'GREATPERSON_ARTIST', 'YIELD_GOLDEN_AGE_POINTS', 50),
+	('TRAIT_ART_OF_WAR', 'GREATPERSON_MUSICIAN', 'YIELD_GOLDEN_AGE_POINTS', 50),
+	('TRAIT_ART_OF_WAR', 'GREATPERSON_WRITER', 'YIELD_GOLDEN_AGE_POINTS', 50);
+
+INSERT INTO Trait_YieldFromTilePurchase
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_STRATEGIC_RICHES', 'YIELD_SCIENCE', 20);
+
+INSERT INTO Trait_ResourceQuantityModifiers
+	(TraitType, ResourceType, ResourceQuantityModifier)
+VALUES
+	('TRAIT_STRATEGIC_RICHES', 'RESOURCE_OIL', 100),
+	('TRAIT_STRATEGIC_RICHES', 'RESOURCE_COAL', 100),
+	('TRAIT_STRATEGIC_RICHES', 'RESOURCE_ALUMINUM', 100);

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 5/27/2014 11:00:03 PM -->
 <GameData>
+	<Table name="Yield_Flavors">
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="FlavorType" type="text" reference="Flavors(Type)"/>
+		<Column name="Flavor" type="integer" notnull="true"/>
+	</Table>
 	<!-- Allows you to define buildings that are built when founded by advanced settlers. -->
 	<Table name="Unit_BuildOnFound">
 		<Column name="UnitType" type="text" reference="Units(Type)"/>
@@ -100,12 +105,20 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
-	<!-- Reformation: Allows you to define any a value gained while the Host of the World Congress -->
+	<!-- PANTHEON: Allows you to define a yield value gained per known Pantheon in the world -->
+	<Table name="Belief_YieldFromKnownPantheons">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- Reformation: Allows you to define a yield value gained while the Host of the World Congress -->
 	<Table name="Belief_YieldFromHost">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+
 	<!-- Reformation: Allows you to define any a value gained from passing a proposal in WC -->
 	<Table name="Belief_YieldFromProposal">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>

@@ -365,7 +365,7 @@ public:
 		m_iDominanceZoneID = iZone;
 	};
 
-	int GetCurrentHitpoints(PlayerTypes eAttackingPlayer);
+	bool IsReadyForCapture();
 	bool IsTargetStillAlive(PlayerTypes eAttackingPlayer);
 	bool IsTargetValidInThisDomain(DomainTypes eDomain);
 
@@ -1013,8 +1013,8 @@ namespace TacticalAIHelpers
 	int GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pStartPlot, ReachablePlotSet& resultSet, bool bCheckTerritory=false, bool bCheckZOC=false, bool bAllowEmbark=false, int iMinMovesLeft=0);
 	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, std::set<int>& resultSet);
 	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<int>& resultSet);
-	bool PerformRangedOpportunityAttack(CvUnit* pUnit);
-	bool PerformAttack(CvUnit* pUnit, const CvPlot* pTarget);
+	bool PerformRangedAttackWithoutMoving(CvUnit* pUnit);
+	bool PerformOpportunityAttack(CvUnit* pUnit, const CvPlot* pTarget);
 	bool IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget);
 	bool CountDeploymentPlots(TeamTypes eTeam, const CvPlot* pTarget, int iNumUnits, int iDeployRange);
 	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark);

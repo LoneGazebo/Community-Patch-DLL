@@ -37,12 +37,12 @@
 
 	-- Golden Age starting requirement.
 	UPDATE Defines
-	SET Value = '500'
+	SET Value = '750'
 	WHERE Name = 'GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 	-- Golden Age per GA increase.
 	UPDATE Defines
-	SET Value = '500'
+	SET Value = '1000'
 	WHERE Name = 'GOLDEN_AGE_EACH_GA_ADDITIONAL_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 	-- % reduction of combat effectiveness per point of unhappiness.
@@ -185,113 +185,6 @@
 	INSERT INTO Defines (
 	Name, Value)
 	SELECT 'BALANCE_HAPPINESS_CULTURE_MODIFIER', '1'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
-
--- Text for city view tooltip.
-	INSERT INTO Language_en_US (
-	Text, Tag)
-	SELECT '[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] Happiness Modifier: {1_Num}%', 'TXT_KEY_FOODMOD_HAPPY'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 0 );
-
-
-	INSERT INTO Language_en_US (
-	Text, Tag)
-	SELECT '[NEWLINE][ICON_BULLET]Modified due to Happiness: {1_Num}%', 'TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 0 );
-
--- Text for city view tooltip.
-	INSERT INTO Language_en_US (
-	Text, Tag)
-	SELECT '[NEWLINE][ICON_BULLET][ICON_HAPPINESS_1] Happiness Modifier: {1_Num}%', 'TXT_KEY_FOODMOD_HAPPY'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
-
--- Text for city view tooltip.
-	INSERT INTO Language_en_US (
-	Text, Tag)
-	SELECT '[NEWLINE][ICON_BULLET]Modified due to Happiness: {1_Num}%', 'TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
-
--- Text for city view tooltip.
-	UPDATE Language_en_US
-	Set Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from your [ICON_GOLDEN_AGE] Golden Age.'
-	WHERE Tag = 'TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
-
--- Rebels!
-	UPDATE Language_en_US
-	SET Text = 'Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness, an uprising has occurred in our territory!'
-	WHERE Tag = 'TXT_KEY_NOTIFICATION_REBELS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
-
--- Update Text for Very Unhappy and Super Unhappy
-
--- Update text for top panel depending on which yields you have enabled above. Change as desired.
-	UPDATE Language_en_US
-	SET Text = 'Your empire is [ICON_HAPPINESS_3] very unhappy![ENDCOLOR] [NEWLINE][NEWLINE]Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are reduced by[COLOR_NEGATIVE_TEXT] {1_num}% [ENDCOLOR], and [ICON_STRENGTH] Combat effectiveness is reduced by[COLOR_NEGATIVE_TEXT] {1_Num}%[ENDCOLOR]!'
-	WHERE Tag = 'TXT_KEY_TP_EMPIRE_VERY_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
-
-	UPDATE Language_en_US
-	SET Text = 'Because your [ICON_HAPPINESS_4] Unhappiness has reached 20, the Empire is is in revolt! [ENDCOLOR]Cities may abandon your empire and flip to the civilization that is most culturally influential over your people, and uprisings may occur with rebel (barbarian) units appearing in your territory!'
-	WHERE Tag = 'TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
-	
--- Update text for top panel depending on which yields you have enabled above. Change as desired.
-	UPDATE Language_en_US
-	SET Text = 'Your empire is [ICON_HAPPINESS_3] unhappy! [NEWLINE][NEWLINE][ENDCOLOR]Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are reduced by[COLOR_NEGATIVE_TEXT] {1_num}%[ENDCOLOR], and [ICON_STRENGTH] Combat effectiveness is reduced by[COLOR_NEGATIVE_TEXT] {1_Num}%[ENDCOLOR]!'
-	WHERE Tag = 'TXT_KEY_TP_EMPIRE_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
-
-	UPDATE Language_en_US
-	SET Text = 'Total [ICON_HAPPINESS_1] Happiness Level of the empire is {1_Num}. Because of this, empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are increased by [COLOR_POSITIVE_TEXT] +{2_num}% [ENDCOLOR].'
-	WHERE Tag = 'TXT_KEY_TP_TOTAL_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
-
--- TOOLTIPS FOR TOP BAR
-
--- Text for city view tooltip.
-	INSERT INTO Language_en_US (
-	Text, Tag)
-	SELECT '{1_Num} due to [ICON_HAPPINESS_1] Happiness.', 'TXT_KEY_TP_GOLD_GAINED_FROM_HAPPINESS'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
-
-
--- Text for city view tooltip.
-	INSERT INTO Language_en_US (
-	Text, Tag)
-	SELECT '{1_NUM} due to [ICON_HAPPINESS_3] Unhappiness.', 'TXT_KEY_TP_GOLD_LOST_FROM_UNHAPPINESS'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
-
--- Text for city view tooltip.
-	INSERT INTO Language_en_US (
-	Text, Tag)
-	SELECT '[ICON_BULLET] [COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] due to [ICON_HAPPINESS_1] Happiness.', 'TXT_KEY_TP_FAITH_GAINED_FROM_HAPPINESS'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
-
-
--- Text for city view tooltip.
-	INSERT INTO Language_en_US (
-	Text, Tag)
-	SELECT '[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR] due to [ICON_HAPPINESS_3] Unhappiness.', 'TXT_KEY_TP_FAITH_LOST_FROM_UNHAPPINESS'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
-
--- Text for city view tooltip.
-	INSERT INTO Language_en_US (
-	Text, Tag)
-	SELECT '[ICON_BULLET] [COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] [ICON_RESEARCH] due to [ICON_HAPPINESS_1] Happiness.', 'TXT_KEY_TP_SCIENCE_GAINED_FROM_HAPPINESS'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
-
-
--- Text for city view tooltip.
-	INSERT INTO Language_en_US (
-	Text, Tag)
-	SELECT '[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] [ICON_RESEARCH] due to [ICON_HAPPINESS_3] Unhappiness.', 'TXT_KEY_TP_SCIENCE_LOST_FROM_UNHAPPINESS'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
-
--- Text for city view tooltip.
-	INSERT INTO Language_en_US (
-	Text, Tag)
-	SELECT '[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR] due to due to [ICON_HAPPINESS_3] Unhappiness.', 'TXT_KEY_TP_CULTURE_LOST_FROM_UNHAPPINESS'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
-
--- Text for city view tooltip.
-	INSERT INTO Language_en_US (
-	Text, Tag)
-	SELECT '[ICON_BULLET] [COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] due to [ICON_HAPPINESS_1] Happiness.', 'TXT_KEY_TP_CULTURE_GAINED_FROM_HAPPINESS'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Happiness Flavors

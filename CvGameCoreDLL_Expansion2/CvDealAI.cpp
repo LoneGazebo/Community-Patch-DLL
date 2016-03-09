@@ -2195,6 +2195,10 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	int iInternalBorderCount = 0;
 	int iCityTiles = 0;
 #if defined(MOD_BALANCE_CORE)
+	if(pCity->IsRazing() || pCity->IsResistance())
+	{
+		return INT_MAX;
+	}
 	//I traded for this city once before? Don't trade again.
 	if (sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
 	{

@@ -156,38 +156,3 @@ WHERE Type = 'WORLDSIZE_LARGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='C
 UPDATE Worlds
 SET MaxActiveReligions = '6'
 WHERE Type = 'WORLDSIZE_HUGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-
--- Names
-
-UPDATE Language_en_US
-SET Text = 'Easy. The AI is at a slight disadvantage.'
-WHERE Tag = 'TXT_KEY_HANDICAP_SETTLER_HELP';
-
-UPDATE Language_en_US
-SET Text = 'A standard challenge. The AI receives a few bonuses.'
-WHERE Tag = 'TXT_KEY_HANDICAP_CHIEFTAIN_HELP';
-
-UPDATE Language_en_US
-SET Text = 'A little challenging. The AI receives noticeable bonuses.'
-WHERE Tag = 'TXT_KEY_HANDICAP_WARLORD_HELP';
-
-UPDATE Language_en_US
-SET Text = 'A good test of skill. The AI has many advantages.'
-WHERE Tag = 'TXT_KEY_HANDICAP_PRINCE_HELP';
-
-UPDATE Language_en_US
-SET Text = 'Quite hard. The AI has major bonuses.'
-WHERE Tag = 'TXT_KEY_HANDICAP_KING_HELP';
-
-UPDATE Language_en_US
-SET Text = 'Very difficult. The AI has substantial bonuses.'
-WHERE Tag = 'TXT_KEY_HANDICAP_EMPEROR_HELP';
-
-UPDATE Language_en_US
-SET Text = 'Extremely challenging. AI players have very large advantages.'
-WHERE Tag = 'TXT_KEY_HANDICAP_IMMORTAL_HELP';
-
-UPDATE Language_en_US
-SET Text = 'The AI has massive bonuses at all stages of the game. You have been warned!'
-WHERE Tag = 'TXT_KEY_HANDICAP_DEITY_HELP';

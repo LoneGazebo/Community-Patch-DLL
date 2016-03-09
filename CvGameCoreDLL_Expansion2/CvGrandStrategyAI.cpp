@@ -676,7 +676,11 @@ int CvGrandStrategyAI::GetConquestPriority()
 	/////////
 	//RELIGION CHECKS
 	////////////
-	ReligionTypes eReligion = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer();
+	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
+	if(eReligion == NO_RELIGION)
+	{
+		eReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
+	}
 	if(eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
@@ -688,7 +692,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 			{
 				const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief))
+				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID()))
 				{
 					if(pEntry->GetCombatModifierEnemyCities() > 0)
 					{
@@ -874,7 +878,11 @@ int CvGrandStrategyAI::GetCulturePriority()
 	/////////
 	//RELIGION CHECKS
 	////////////
-	ReligionTypes eReligion = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer();
+	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
+	if(eReligion == NO_RELIGION)
+	{
+		eReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
+	}
 	if(eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
@@ -886,7 +894,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 			{
 				const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief))
+				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID()))
 				{
 					if(pEntry->FaithPurchaseAllGreatPeople())
 					{
@@ -1005,7 +1013,11 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	/////////
 	//RELIGION CHECKS
 	////////////
-	ReligionTypes eReligion = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer();
+	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
+	if(eReligion == NO_RELIGION)
+	{
+		eReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
+	}
 	if(eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
@@ -1017,7 +1029,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 			{
 				const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief))
+				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID()))
 				{
 					if(pEntry->GetExtraVotes())
 					{
@@ -1323,7 +1335,11 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	/////////
 	//RELIGION CHECKS
 	////////////
-	ReligionTypes eReligion = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer();
+	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
+	if(eReligion == NO_RELIGION)
+	{
+		eReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
+	}
 	if(eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
@@ -1335,7 +1351,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 			{
 				const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief))
+				if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID()))
 				{
 					if(pEntry->GetSciencePerOtherReligionFollower() > 0)
 					{

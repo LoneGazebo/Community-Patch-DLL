@@ -35,7 +35,6 @@
 #include "CvUnitMovement.h"
 #include "CvTargeting.h"
 #include "CvTypes.h"
-
 // Include this after all other headers.
 #include "LintFree.h"
 
@@ -3115,7 +3114,7 @@ UnitHandle CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPla
 		{
 			if((eOwner ==  NO_PLAYER) || (pLoopUnit->getOwner() == eOwner))
 			{
-				if((eAttackingPlayer == NO_PLAYER) || !(pLoopUnit->isInvisible(GET_PLAYER(eAttackingPlayer).getTeam(), false)))
+				if((eAttackingPlayer == NO_PLAYER) || (!(pLoopUnit->isInvisible(GET_PLAYER(eAttackingPlayer).getTeam(), false)) && isVisible(GET_PLAYER(eAttackingPlayer).getTeam())))
 				{
 					if(!bTestAtWar || eAttackingPlayer == NO_PLAYER || pLoopUnit->isEnemy(GET_PLAYER(eAttackingPlayer).getTeam(), this) || (NULL != pAttacker && pAttacker->isEnemy(GET_PLAYER(pLoopUnit->getOwner()).getTeam(), this)))
 					{
@@ -4089,12 +4088,12 @@ bool CvPlot::isFriendlyCity(const CvUnit& kUnit, bool) const
 	return false;
 }
 
-bool CvPlot::isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer) const
+bool CvPlot::isFriendlyCityOrPassableImprovement(PlayerTypes ePlayer, const CvUnit* pUnit) const
 {
-	return isCityOrPassableImprovement(ePlayer, true);
+	return isCityOrPassableImprovement(ePlayer, true, pUnit);
 }
 
-bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly) const
+bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriendly, const CvUnit* pUnit) const
 {
 	ImprovementTypes eImprovement = getImprovementType();
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
@@ -4111,7 +4110,28 @@ bool CvPlot::isCityOrPassableImprovement(PlayerTypes ePlayer, bool bMustBeFriend
 
 	// In friendly lands (ours, an allied CS or a major with open borders)
 	if (IsFriendlyTerritory(ePlayer))
+	{
+		CvCity* pPlotCity = getPlotCity();
+#if defined(MOD_EVENTS_MINORS_INTERACTION)
+		if (pPlotCity && MOD_EVENTS_MINORS_INTERACTION && GET_PLAYER(pPlotCity->getOwner()).isMinorCiv()) {
+			if (pUnit) 
+			{
+				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanTransitMinorCity, ePlayer, pUnit->GetID(), pPlotCity->getOwner(), pPlotCity->GetID(), getX(), getY()) == GAMEEVENTRETURN_FALSE) 
+				{
+					return false;
+				}
+			} 
+			else 
+			{
+				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanTransitMinorCity, ePlayer, pPlotCity->getOwner(), pPlotCity->GetID(), getX(), getY()) == GAMEEVENTRETURN_FALSE) 
+				{
+					return false;
+				}
+			}
+		}
+#endif
 		return true;
+	}
 
 	if ( getTeam() == NO_TEAM)
 	{
@@ -4248,11 +4268,15 @@ inline static bool isOtherTeam(const CvUnit* pUnit, TeamTypes eOtherTeam)
 //	-----------------------------------------------------------------------------------------------
 bool CvPlot::isVisibleEnemyDefender(const CvUnit* pUnit) const
 {
+	TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
+
+	if (!isVisible(eTeam))
+		return false;
+
 	CvAssertMsg(pUnit, "Source unit must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnit && pUnitNode)
 	{
-		TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
 		bool bAlwaysHostile = pUnit->isAlwaysHostile(*this);
 
 		do
@@ -4277,10 +4301,14 @@ bool CvPlot::isVisibleEnemyDefender(const CvUnit* pUnit) const
 //	-----------------------------------------------------------------------------------------------
 CvUnit* CvPlot::getVisibleEnemyDefender(PlayerTypes ePlayer) const
 {
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	if (!isVisible(eTeam))
+		return NULL;
+
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnitNode)
 	{
-		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 		do
 		{
 			CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
@@ -4330,11 +4358,15 @@ int CvPlot::getNumDefenders(PlayerTypes ePlayer) const
 //	-----------------------------------------------------------------------------------------------
 int CvPlot::getNumVisibleEnemyDefenders(const CvUnit* pUnit) const
 {
+	TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
+
+	if (!isVisible(eTeam))
+		return 0;
+
 	CvAssertMsg(pUnit, "Source unit must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnit && pUnitNode)
 	{
-		TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
 		bool bAlwaysHostile = pUnit->isAlwaysHostile(*this);
 		int iCount = 0;
 
@@ -4360,12 +4392,16 @@ int CvPlot::getNumVisibleEnemyDefenders(const CvUnit* pUnit) const
 //	-----------------------------------------------------------------------------------------------
 int CvPlot::getNumVisiblePotentialEnemyDefenders(const CvUnit* pUnit) const
 {
+	TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
+
+	if (!isVisible(eTeam))
+		return 0;
+
 	CvAssertMsg(pUnit, "Source unit must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnit && pUnitNode)
 	{
 		int iCount = 0;
-		TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
 		bool bAlwaysHostile = pUnit->isAlwaysHostile(*this);
 
 		do
@@ -4391,12 +4427,15 @@ int CvPlot::getNumVisiblePotentialEnemyDefenders(const CvUnit* pUnit) const
 //	-----------------------------------------------------------------------------------------------
 bool CvPlot::isVisibleEnemyUnit(PlayerTypes ePlayer) const
 {
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	if (!isVisible(eTeam))
+		return false;
+
 	CvAssertMsg(ePlayer != NO_PLAYER, "Source player must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnitNode)
 	{
-		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-
 		do
 		{
 			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
@@ -4419,11 +4458,15 @@ bool CvPlot::isVisibleEnemyUnit(PlayerTypes ePlayer) const
 //	-----------------------------------------------------------------------------------------------
 bool CvPlot::isVisibleEnemyUnit(const CvUnit* pUnit) const
 {
+	TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
+
+	if (!isVisible(eTeam))
+		return false;
+
 	CvAssertMsg(pUnit, "Source unit must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnit && pUnitNode)
 	{
-		TeamTypes eTeam = GET_PLAYER(pUnit->getOwner()).getTeam();
 		bool bAlwaysHostile = pUnit->isAlwaysHostile(*this);
 
 		do
@@ -4448,12 +4491,15 @@ bool CvPlot::isVisibleEnemyUnit(const CvUnit* pUnit) const
 //	-----------------------------------------------------------------------------------------------
 bool CvPlot::isVisibleOtherUnit(PlayerTypes ePlayer) const
 {
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	if (!isVisible(eTeam))
+		return false;
+
 	CvAssertMsg(ePlayer != NO_PLAYER, "Source player must be valid");
 	const IDInfo* pUnitNode = m_units.head();
 	if(pUnitNode)
 	{
-		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-
 		do
 		{
 			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
@@ -4857,7 +4903,7 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 	switch(unit.getDomainType())
 	{
 	case DOMAIN_SEA:
-		return (isWater() || isCityOrPassableImprovement(unit.getOwner(), true));
+		return (isWater() || isCityOrPassableImprovement(unit.getOwner(), true, &unit));
 		break;
 
 	case DOMAIN_AIR:
@@ -4891,7 +4937,7 @@ bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
 	switch(unit.getDomainType())
 	{
 	case DOMAIN_SEA:
-		return (isWater() || isCityOrPassableImprovement(unit.getOwner(), false));
+		return (isWater() || isCityOrPassableImprovement(unit.getOwner(), false, &unit));
 		break;
 
 	case DOMAIN_AIR:
@@ -6782,6 +6828,13 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 					{
 						pWorkingCity->ChangeNumFeatureWorked(eNewValue, 1);
 					}
+					else
+					{
+						if(getTerrainType() != NO_TERRAIN)
+						{
+							pWorkingCity->ChangeNumFeaturelessTerrainWorked(getTerrainType(), 1);
+						}
+					}
 				}
 				//New improvement over nothing? Add it in.
 				else if(eNewValue != NO_FEATURE)
@@ -7197,6 +7250,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					pWorkingCity->ChangeNumImprovementWorked(eNewValue, 1);
 				}
 			}
+			pWorkingCity->GetCityCitizens()->SetDirty(true);
 		}
 #endif
 		PlayerTypes owningPlayerID = getOwner();
@@ -7619,10 +7673,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
-							if(owningPlayer.isHuman())
-							{
-								owningPlayer.CalculateNetHappiness();
-							}
+							owningPlayer.CalculateNetHappiness();
 						}
 					}
 				}
@@ -7732,10 +7783,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
-							if(owningPlayer.isHuman())
-							{
-								owningPlayer.CalculateNetHappiness();
-							}
+							owningPlayer.CalculateNetHappiness();
 						}
 					}
 				}
@@ -8735,11 +8783,6 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 	BeliefTypes eSecondaryPantheon = NO_BELIEF;
 	TeamTypes eTeam = (ePlayer!=NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM;
 
-	if((YieldTypes)eYield > YIELD_FAITH)
-	{
-		return 0;
-	}
-
 	const CvYieldInfo& kYield = *GC.getYieldInfo(eYield);
 
 	CvCity* pWorkingCity = getWorkingCity();
@@ -8777,20 +8820,22 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 			//Change for improvement/resource
 			int iReligionChange = 0;
-			bool bRequiresImprovement = pReligion->m_Beliefs.RequiresImprovement();
-			bool bRequiresNoImprovement = pReligion->m_Beliefs.RequiresNoImprovement();
-			bool bRequiresResource = pReligion->m_Beliefs.RequiresResource();
-			bool bRequiresNoImprovementFeature = pReligion->m_Beliefs.RequiresNoImprovementFeature();
+			bool bRequiresImprovement = pReligion->m_Beliefs.RequiresImprovement(pWorkingCity->getOwner());
+			bool bRequiresNoImprovement = pReligion->m_Beliefs.RequiresNoImprovement(pWorkingCity->getOwner());
+			bool bRequiresResource = pReligion->m_Beliefs.RequiresResource(pWorkingCity->getOwner());
+			bool bRequiresNoImprovementFeature = pReligion->m_Beliefs.RequiresNoImprovementFeature(pWorkingCity->getOwner());
+			int iValue = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield, pWorkingCity->getOwner());
 			if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
 			{	
 				if(bRequiresImprovement)
 				{
 					if(getImprovementType() != NO_IMPROVEMENT)
 					{
-						iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+						
+						iReligionChange += iValue;
 						if(bRequiresResource && getResourceType(pWorkingCity->getTeam()) == NO_RESOURCE)
 						{
-							iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+							iReligionChange -= iValue;
 						}
 					}
 				}
@@ -8798,14 +8843,14 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 				{
 					if(getResourceType(pWorkingCity->getTeam()) != NO_RESOURCE)
 					{
-						iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+						iReligionChange += iValue;
 						if(bRequiresImprovement && getImprovementType() == NO_IMPROVEMENT)
 						{
-							iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+							iReligionChange -= iValue;
 						}
 						else if(bRequiresImprovement && getImprovementType() != NO_IMPROVEMENT && !GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(pWorkingCity->getTeam())) && !GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() && !GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
 						{
-							iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+							iReligionChange -= iValue;
 						}
 					}
 				}
@@ -8813,21 +8858,21 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 				{
 					if(getImprovementType() == NO_IMPROVEMENT)
 					{
-						iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+						iReligionChange += iValue;
 						if(bRequiresNoImprovementFeature && getFeatureType() != NO_FEATURE)
 						{
-							iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+							iReligionChange -= iValue;
 						}
 					}
 				}
-				if(iReligionChange > pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield))
+				if(iReligionChange > iValue)
 				{
-					iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+					iReligionChange = iValue;
 				}
 			}
 			else
 			{
-				iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+				iReligionChange = iValue;
 			}
 #else
 			int iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
@@ -8841,16 +8886,17 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 				bool bRequiresResource = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresResource();
 				bool bRequiresNoImprovement = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresNoImprovement();
 				bool bRequiresNoImprovementFeature = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresNoImprovementFeature();
+				int iValue = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield, pWorkingCity->getOwner());
 				if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
 				{		
 					if(bRequiresImprovement)
 					{
 						if(getImprovementType() != NO_IMPROVEMENT)
 						{
-							iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+							iReligionChange += iValue;
 							if(bRequiresResource && getResourceType(pWorkingCity->getTeam()) == NO_RESOURCE)
 							{
-								iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+								iReligionChange -= iValue;
 							}
 						}
 					}
@@ -8858,14 +8904,14 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 					{
 						if(getResourceType(pWorkingCity->getTeam()) != NO_RESOURCE)
 						{
-							iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+							iReligionChange += iValue;
 							if(bRequiresImprovement && getImprovementType() == NO_IMPROVEMENT)
 							{
-								iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+								iReligionChange -= iValue;
 							}
 							else if(bRequiresImprovement && getImprovementType() != NO_IMPROVEMENT && !GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(pWorkingCity->getTeam())) && !GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() && !GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
 							{
-								iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+								iReligionChange -= iValue;
 							}
 						}
 					}
@@ -8873,16 +8919,16 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 					{
 						if(getImprovementType() == NO_IMPROVEMENT)
 						{
-							iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+							iReligionChange += iValue;
 							if(bRequiresNoImprovementFeature && getFeatureType() != NO_FEATURE)
 							{
-								iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+								iReligionChange -= iValue;
 							}
 						}
 					}
-					if(iReligionChange > pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield))
+					if(iReligionChange > iValue)
 					{
-						iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+						iReligionChange = iValue;
 					}
 				}
 				else
@@ -8896,7 +8942,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 			
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 			if (MOD_RELIGION_PLOT_YIELDS) {
-				iReligionChange += pReligion->m_Beliefs.GetPlotYieldChange(getPlotType(), eYield);
+				iReligionChange += pReligion->m_Beliefs.GetPlotYieldChange(getPlotType(), eYield, pWorkingCity->getOwner());
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
 					iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetPlotYieldChange(getPlotType(), eYield);
@@ -8927,7 +8973,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
 			if(pReligion)
 			{
-				int iReligionChange = pReligion->m_Beliefs.GetLakePlotYieldChange(eYield);
+				int iReligionChange = pReligion->m_Beliefs.GetLakePlotYieldChange(eYield, pWorkingCity->getOwner());
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
 					iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetLakePlotYieldChange(eYield);
@@ -8959,7 +9005,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
 					if(pReligion)
 					{
-						int iReligionChange = pReligion->m_Beliefs.GetUnimprovedFeatureYieldChange(getFeatureType(), eYield);
+						int iReligionChange = pReligion->m_Beliefs.GetUnimprovedFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner());
 						if (eSecondaryPantheon != NO_BELIEF)
 						{
 							iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetUnimprovedFeatureYieldChange(getFeatureType(), eYield);
@@ -8985,17 +9031,17 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 					//Change for improvement/resource
 					int iReligionChange = 0;
-					bool bRequiresNoImprovement = pReligion->m_Beliefs.RequiresNoImprovementFeature();
+					bool bRequiresNoImprovement = pReligion->m_Beliefs.RequiresNoImprovementFeature(pWorkingCity->getOwner());
 					if(MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresNoImprovement)
 					{		
 						if(bRequiresNoImprovement && getImprovementType() == NO_IMPROVEMENT)
 						{
-							iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield);
+							iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner());
 						}
 					}
 					else
 					{
-						iReligionChange +=  pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield);
+						iReligionChange +=  pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner());
 					}
 #else
 					int iReligionChange = pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield);
@@ -9044,14 +9090,14 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
 					if(pReligion)
 					{
-						int iReligionChange = pReligion->m_Beliefs.GetYieldChangeNaturalWonder(eYield);
+						int iReligionChange = pReligion->m_Beliefs.GetYieldChangeNaturalWonder(eYield, pWorkingCity->getOwner());
 						if (eSecondaryPantheon != NO_BELIEF)
 						{
 							iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldChangeNaturalWonder(eYield);
 						}
 						iYieldChange += iReligionChange;
 
-						int iReligionMod = pReligion->m_Beliefs.GetYieldModifierNaturalWonder(eYield);
+						int iReligionMod = pReligion->m_Beliefs.GetYieldModifierNaturalWonder(eYield, pWorkingCity->getOwner());
 						if (eSecondaryPantheon != NO_BELIEF)
 						{
 							iReligionMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldModifierNaturalWonder(eYield);
@@ -9108,7 +9154,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
 				if(pReligion)
 				{
-					int iReligionChange = pReligion->m_Beliefs.GetResourceYieldChange(eResource, eYield);
+					int iReligionChange = pReligion->m_Beliefs.GetResourceYieldChange(eResource, eYield, pWorkingCity->getOwner());
 					if (eSecondaryPantheon != NO_BELIEF)
 					{
 						iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetResourceYieldChange(eResource, eYield);
@@ -9414,7 +9460,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 			{
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 				int iReligionChange = 0;
-				bool bRequiresResource = pReligion->m_Beliefs.RequiresResource();
+				bool bRequiresResource = pReligion->m_Beliefs.RequiresResource(pWorkingCity->getOwner());
 				if(pImprovement->IsCreatedByGreatPerson() || pImprovement->IsAdjacentCity())
 				{
 					bRequiresResource = false;
@@ -9423,12 +9469,12 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 				{	
 					if(bRequiresResource && (getResourceType(GET_PLAYER(pWorkingCity->getOwner()).getTeam()) != NO_RESOURCE))
 					{		
-						iReligionChange += pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield);
+						iReligionChange += pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield, pWorkingCity->getOwner());
 					}
 				}
 				else
 				{
-					iReligionChange += pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield);
+					iReligionChange += pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield, pWorkingCity->getOwner());
 				}
 #else
 				int iReligionChange = pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield);
@@ -9488,6 +9534,12 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 	{
 		return 0;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(isIce())
+	{
+		return 0;
+	}
+#endif
 
 	if(!isPotentialCityWork())
 	{
@@ -9517,7 +9569,8 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 	iYield = calculateNatureYield(eYield, ePlayer);
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-	if (ePlayer != NO_PLAYER) {
+	if (ePlayer != NO_PLAYER) 
+	{
 		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 #if defined(MOD_API_PLOT_YIELDS)
 		iYield += kPlayer.GetPlayerTraits()->GetPlotYieldChange(getPlotType(), eYield);
@@ -9887,11 +9940,12 @@ void CvPlot::updateYield()
 				{
 					pWorkingCity->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), (getYield((YieldTypes)iI) - iOldYield));
 #if defined(MOD_BALANCE_CORE)
+					pWorkingCity->UpdateCityYields((YieldTypes)iI);
 					if((((YieldTypes)iI == YIELD_CULTURE) || ((YieldTypes)iI == YIELD_TOURISM)) && (iOldYield != iNewYield))
 					{
 						pWorkingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 						pWorkingCity->GetCityCulture()->CalculateBaseTourism();
-					}
+					}				
 #endif
 				}
 				// JON: New City Citizens AI shoulud update here 08/17/09
@@ -10081,15 +10135,22 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 								playerI.GetEconomicAI()->SetExplorationPlotsDirty();
 					}
 #if defined(MOD_BALANCE_CORE)
-					if(pUnit && GC.getGame().getActivePlayer() == pUnit->getOwner())
+					if(pUnit && pUnit->IsGainsXPFromScouting() && !GET_TEAM(eTeam).isBarbarian() && !GET_TEAM(eTeam).isMinorCiv())
 					{
-						if(IsNaturalWonder())
+#if defined(MOD_API_XP_TIMES_100)
+						if(pUnit->getExperienceTimes100() < (GC.getBALANCE_SCOUT_XP_MAXIMUM() * 100))
+#else
+						if(pUnit->getExperience() < GC.getBALANCE_SCOUT_XP_MAXIMUM())
+#endif
 						{
-							pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE());
-						}
-						else
-						{
-							pUnit->ChangeNumTilesRevealedThisTurn(1);
+							if(IsNaturalWonder())
+							{
+								pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE());
+							}
+							else
+							{
+								pUnit->ChangeNumTilesRevealedThisTurn(1);
+							}
 						}
 					}
 #endif
@@ -10518,11 +10579,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 										playerI.ChangeNumNaturalWondersDiscoveredInArea(1);
 									}
 								}
-
-								if(playerI.isHuman())
-								{
-									playerI.CalculateNetHappiness();
-								}
+								playerI.CalculateNetHappiness();
 
 								// Add World Anchor
 								if(eTeam == eActiveTeam)
