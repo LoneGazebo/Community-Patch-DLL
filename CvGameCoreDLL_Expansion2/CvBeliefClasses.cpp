@@ -1545,6 +1545,7 @@ CvReligionBeliefs::CvReligionBeliefs(const CvReligionBeliefs& source)
 	m_ReligionBeliefs = source.m_ReligionBeliefs;
 #if defined(MOD_BALANCE_CORE)
 	m_BeliefLookup = source.m_BeliefLookup;
+	m_eReligion = source.m_eReligion;
 #endif
 
 	m_paiBuildingClassEnabled = FNEW(int[GC.getNumBuildingClassInfos()], c_eCiv5GameplayDLL, 0);
@@ -1569,6 +1570,7 @@ void CvReligionBeliefs::Uninit()
 /// Reset data members
 void CvReligionBeliefs::Reset()
 {
+#if !defined(MOD_BALANCE_CORE_BELIEFS)
 	m_iFaithFromDyingUnits = 0;
 	m_iRiverHappiness = 0;
 	m_iPlotCultureCostModifier = 0;
@@ -1607,7 +1609,7 @@ void CvReligionBeliefs::Reset()
 	m_eObsoleteEra = NO_ERA;
 	m_eResourceRevealed = NO_RESOURCE;
 	m_eSpreadModifierDoublingTech = NO_TECH;
-
+#endif
 
 	m_ReligionBeliefs.clear();
 #if defined(MOD_BALANCE_CORE)
@@ -1648,7 +1650,7 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 	CvAssert(belief != NULL);
 	if(belief == NULL)
 		return;
-
+#if !defined(MOD_BALANCE_CORE_BELIEFS)
 	m_iFaithFromDyingUnits += belief->GetFaithFromDyingUnits();
 	m_iRiverHappiness += belief->GetRiverHappiness();
 	m_iPlotCultureCostModifier += belief->GetPlotCultureCostModifier();
@@ -1685,7 +1687,7 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 
 	m_eObsoleteEra = belief->GetObsoleteEra();
 	m_eResourceRevealed = belief->GetResourceRevealed();
-
+#endif
 	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
 		if (belief->IsBuildingClassEnabled(iI))
@@ -1693,11 +1695,12 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 			m_paiBuildingClassEnabled[iI]++;
 		}
 	}
-
+#if !defined(MOD_BALANCE_CORE_BELIEFS)
 	if(belief->GetSpreadModifierDoublingTech() != NO_TECH)
 	{
 		m_eSpreadModifierDoublingTech = belief->GetSpreadModifierDoublingTech();
 	}
+#endif
 
 	m_ReligionBeliefs.push_back((int)eBelief);
 #if defined(MOD_BALANCE_CORE)
@@ -3621,7 +3624,7 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 	uint uiVersion;
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
-
+#if !defined(MOD_BALANCE_CORE)
 	kStream >> m_iFaithFromDyingUnits;
 	kStream >> m_iRiverHappiness;
 	kStream >> m_iPlotCultureCostModifier;
@@ -3666,6 +3669,7 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 	kStream >> m_eObsoleteEra;
 	kStream >> m_eResourceRevealed;
 	kStream >> m_eSpreadModifierDoublingTech;
+#endif
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_eReligion;
 #endif
@@ -3695,7 +3699,7 @@ void CvReligionBeliefs::Write(FDataStream& kStream) const
 	uint uiVersion = 2;
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
-
+#if !defined(MOD_BALANCE_CORE)
 	kStream << m_iFaithFromDyingUnits;
 	kStream << m_iRiverHappiness;
 	kStream << m_iPlotCultureCostModifier;
@@ -3733,6 +3737,7 @@ void CvReligionBeliefs::Write(FDataStream& kStream) const
 	kStream << m_eObsoleteEra;
 	kStream << m_eResourceRevealed;
 	kStream << m_eSpreadModifierDoublingTech;
+#endif
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_eReligion;
 #endif

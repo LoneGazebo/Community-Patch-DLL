@@ -197,8 +197,6 @@
 #define MOD_API_PLOT_YIELDS                         gCustomMods.isAPI_PLOT_YIELDS()
 // Enables the Achievements table (v45)
 #define MOD_API_ACHIEVEMENTS                        gCustomMods.isAPI_ACHIEVEMENTS()
-// Enables the Unit Stats API (v73)
-#define MOD_API_UNIT_STATS                          (true)
 // Enables the XP times 100 API (v74)
 #define MOD_API_XP_TIMES_100                        (true)
 // Enables the Extensions API

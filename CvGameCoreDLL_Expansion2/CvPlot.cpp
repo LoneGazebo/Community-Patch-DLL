@@ -6828,6 +6828,13 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 					{
 						pWorkingCity->ChangeNumFeatureWorked(eNewValue, 1);
 					}
+					else
+					{
+						if(getTerrainType() != NO_TERRAIN)
+						{
+							pWorkingCity->ChangeNumFeaturelessTerrainWorked(getTerrainType(), 1);
+						}
+					}
 				}
 				//New improvement over nothing? Add it in.
 				else if(eNewValue != NO_FEATURE)

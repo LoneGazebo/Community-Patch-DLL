@@ -2559,6 +2559,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iMoves = 0;
 	m_bImmobile = false;
 	m_iExperience = 0;
+#if defined(MOD_API_XP_TIMES_100)
+	m_iExperienceTimes100 = 0;
+#endif
 	m_iLevel = 1;
 	m_iCargo = 0;
 	m_iAttackPlotX = INVALID_PLOT_COORD;
@@ -3478,9 +3481,9 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 	// A unit dying reduces the Great General meter
 #if defined(MOD_API_XP_TIMES_100)
-	if(getExperienceTimes100() > 0 && ePlayer != NO_PLAYER)
+	if (getExperienceTimes100() > 0 && ePlayer != NO_PLAYER)
 #else
-	if(getExperience() > 0 && ePlayer != NO_PLAYER)
+	if (getExperience() > 0 && ePlayer != NO_PLAYER)
 #endif
 	{
 #if defined(MOD_API_XP_TIMES_100)
@@ -7331,7 +7334,7 @@ int CvUnit::GetPower() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
+bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible, bool bCheckMovement) const
 {
 	VALIDATE_OBJECT
 
@@ -7341,7 +7344,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 	}
 
 	// No healing after movement, except for exceptions
-	if(hasMoved() && !isAlwaysHeal())
+	if(bCheckMovement && hasMoved() && !isAlwaysHeal())
 	{
 		return false;
 	}
@@ -20645,9 +20648,9 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 	VALIDATE_OBJECT
 	// Barbs don't get XP or Promotions
 #if defined(MOD_API_XP_TIMES_100)
-	if (isBarbarian() && iChangeTimes100 > 0)
+		if (isBarbarian() && iChangeTimes100 > 0)
 #else
-	if (isBarbarian() && iChange > 0)
+		if (isBarbarian() && iChange > 0)
 #endif
 	{
 		return;
@@ -23037,9 +23040,9 @@ void CvUnit::testPromotionReady()
 {
 	VALIDATE_OBJECT
 #if defined(MOD_API_XP_TIMES_100)
-	setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && canAcquirePromotionAny());
+		setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && canAcquirePromotionAny());
 #else
-	setPromotionReady((getExperience() >= experienceNeeded()) && canAcquirePromotionAny());
+		setPromotionReady((getExperience() >= experienceNeeded()) && canAcquirePromotionAny());
 #endif
 }
 

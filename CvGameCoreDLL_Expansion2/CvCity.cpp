@@ -17082,7 +17082,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 					int iHostYield = (pReligion->m_Beliefs.GetYieldFromHost(eYield, getOwner()) * iEra);
 					if(iHostYield > 0)
 					{
-						if(pLeague->GetHostMember() == GetID())
+						if(pLeague->GetHostMember() == getOwner())
 						{
 							iYieldValue += iHostYield;
 						}
@@ -18711,14 +18711,14 @@ void CvCity::DoBarbIncursion()
 
 						if(iTheft > 0)
 						{
-							changeDamage(iTheft / 8);
-							changeDamage(iTheft / 8);
 							int iYield = GC.getGame().getJonRandNum(10, "Barbarian Theft Value");		
 							if(iYield <= 2)
 							{
 								int iGold = ((getBaseYieldRate(YIELD_GOLD) * iTheft) / 100);
 								if(iGold > 0)
 								{
+									changeDamage(iTheft / 8);
+									pUnit->changeDamage(iTheft / 8);
 									GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(-iGold);
 
 									Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT_CITY_DETAILED");
@@ -18739,6 +18739,8 @@ void CvCity::DoBarbIncursion()
 								int iCulture = ((getJONSCulturePerTurn() * iTheft) / 100);
 								if(iCulture > 0)
 								{
+									changeDamage(iTheft / 8);
+									pUnit->changeDamage(iTheft / 8);
 									GET_PLAYER(getOwner()).changeJONSCulture(-iCulture);
 
 									Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_CULTURE_THEFT_CITY_DETAILED");
@@ -18763,6 +18765,8 @@ void CvCity::DoBarbIncursion()
 									iScience = ((getBaseYieldRate(YIELD_SCIENCE) * iTheft) / 100);
 									if(iScience > 0)
 									{
+										changeDamage(iTheft / 8);
+										pUnit->changeDamage(iTheft / 8);
 										GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, -iScience, getOwner());
 
 										Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_SCIENCE_THEFT_CITY_DETAILED");
@@ -18793,6 +18797,8 @@ void CvCity::DoBarbIncursion()
 										changeFood(-iFood);
 									}
 
+									changeDamage(iTheft / 8);
+									pUnit->changeDamage(iTheft / 8);
 									Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_FOOD_THEFT_CITY_DETAILED");
 									strMessage << iFood;
 									strMessage << getNameKey();
@@ -18822,6 +18828,8 @@ void CvCity::DoBarbIncursion()
 											changeProduction(-iProduction);
 										}
 
+										changeDamage(iTheft / 8);
+										pUnit->changeDamage(iTheft / 8);
 										Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_PRODUCTION_THEFT_CITY_DETAILED");
 										strMessage << iProduction;
 										strMessage << getNameKey();

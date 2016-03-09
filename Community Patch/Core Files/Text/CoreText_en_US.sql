@@ -372,3 +372,10 @@ WHERE Tag = 'TXT_KEY_CITYSTATE_LIBERATING_HEADING2_BODY';
 UPDATE Language_en_US
 SET Text = 'Crom'
 WHERE Tag = 'TXT_KEY_LEADER_BARBARIAN';
+
+-- Religion
+
+UPDATE Language_en_US
+SET Text = 'Head of {1_ReligionName}'
+WHERE Tag = 'TXT_KEY_RO_STATUS_FOUNDER';
+

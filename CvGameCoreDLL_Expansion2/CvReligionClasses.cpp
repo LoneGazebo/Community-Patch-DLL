@@ -366,7 +366,7 @@ void CvGameReligions::SpreadReligionToOneCity(CvCity* pCity)
 					{
 						eReligionFounded = kPlayer.GetReligions()->GetReligionInMostCities();
 					}
-					if(eReligionFounded != NO_RELIGION)
+					if(eReligionFounded != NO_RELIGION && eReligionFounded > RELIGION_PANTHEON)
 					{
 						pCity->GetCityReligions()->AddSpyPressure(eReligionFounded, iSpyPressure);
 					}
@@ -501,7 +501,11 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 	}
 
 	// Pick a Reformation belief?
+#if defined(MOD_BALANCE_CORE)
+	ReligionTypes eReligionCreated = GetFounderBenefitsReligion(ePlayer);
+#else
 	ReligionTypes eReligionCreated = GetReligionCreatedByPlayer(ePlayer);
+#endif
 #if defined(MOD_BALANCE_CORE)
 	if (eReligionCreated > RELIGION_PANTHEON && !HasAddedReformationBelief(ePlayer) && (kPlayer.GetPlayerPolicies()->HasPolicyGrantingReformationBelief() || kPlayer.IsReformation()))
 #else
@@ -1546,6 +1550,12 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 CvGameReligions::FOUNDING_RESULT CvGameReligions::CanEnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, BeliefTypes eBelief1, BeliefTypes eBelief2)
 {
 	bool bFoundIt = false;
+#if defined(MOD_BALANCE_CORE)
+	if(eReligion > RELIGION_PANTHEON && ePlayer != NO_PLAYER && GetFounderBenefitsReligion(ePlayer) == eReligion)
+	{
+		bFoundIt = true;
+	}
+#else
 	ReligionList::iterator it;
 	for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
 	{
@@ -1555,6 +1565,7 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanEnhanceReligion(PlayerTypes
 			break;
 		}
 	}
+#endif
 
 	if(bFoundIt)
 	{
@@ -2164,6 +2175,25 @@ ReligionTypes CvGameReligions::GetReligionCreatedByPlayer(PlayerTypes ePlayer) c
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	//We didn't found a religion? Okay, let's see if we've conquered a holy city, then.
+	if(eRtnValue == NO_RELIGION)
+	{
+		for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
+		{
+			//We own this holy city? It is ours to work with now.
+			if(!it->m_bPantheon)
+			{
+				CvPlot* pHolyCityPlot = NULL;
+				pHolyCityPlot = GC.getMap().plot(it->m_iHolyCityX, it->m_iHolyCityY);
+				if(pHolyCityPlot && pHolyCityPlot->getOwner() == ePlayer)
+				{		
+					eRtnValue = it->m_eReligion;
+				}
+			}
+		}
+	}
+#endif
 
 	return eRtnValue;
 }
@@ -2171,8 +2201,13 @@ ReligionTypes CvGameReligions::GetReligionCreatedByPlayer(PlayerTypes ePlayer) c
 /// Get the religion for which this player is eligible for founder benefits
 ReligionTypes CvGameReligions::GetFounderBenefitsReligion(PlayerTypes ePlayer) const
 {
+#if defined(MOD_BALANCE_CORE)
+	ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer(true);
+	if(eReligion == RELIGION_PANTHEON)
+		return eReligion;
+#else
 	ReligionTypes eReligion = GetReligionCreatedByPlayer(ePlayer);
-
+#endif
 	if(IsEligibleForFounderBenefits(eReligion, ePlayer))
 	{
 		return eReligion;
@@ -2903,7 +2938,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 		if(iPolicyMod != 0)
 		{
 			//If the faith being spread is our founded faith, or our adopted faith...
-			if((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (eReligion == (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities())))
+			if(eReligion > RELIGION_PANTHEON && ((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (eReligion == (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities()))))
 			{
 				//...and the target city doesn't have a majority religion, we get the bonus.
 				if(pToCity->GetCityReligions()->GetReligiousMajority() <= RELIGION_PANTHEON)
@@ -2949,7 +2984,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 #if defined(MOD_BALANCE_CORE)
 		if(GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsPopulationBoostReligion())
 		{
-			if((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities() == eReligion))
+			if(eReligion > RELIGION_PANTHEON && ((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities() == eReligion)))
 			{
 				int iPopReligionModifer = (pFromCity->GetCityReligions()->GetNumFollowers(eReligion) * 10);
 				if (iPopReligionModifer != 0)
@@ -4543,7 +4578,7 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int& iNumTradeR
 
 #if defined(MOD_BUGFIX_RELIGIOUS_SPY_PRESSURE)
 			// Include any pressure from "Underground Sects"
-			if (kPlayer.GetReligions()->GetReligionInMostCities() == eReligion || GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID()) == eReligion)
+			if (eReligion > RELIGION_PANTHEON && (kPlayer.GetReligions()->GetReligionInMostCities() == eReligion || GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID()) == eReligion))
 			{
 				int iSpyPressure = kPlayer.GetReligions()->GetSpyPressure((PlayerTypes)iI);
 				if (iSpyPressure > 0)
@@ -4639,24 +4674,6 @@ void CvCityReligions::DoReligionFounded(ReligionTypes eReligion)
 	m_ReligionStatus.push_back(newReligion);
 
 	RecomputeFollowers(FOLLOWER_CHANGE_RELIGION_FOUNDED, eOldMajorityReligion);
-#if defined(MOD_BALANCE_CORE)
-	if(!GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsUniqueBeliefsOnly())
-	{
-		//Notify player that his pantheon is dead.
-		Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE_S");
-		Localization::String notificationText = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE");
-
-		GET_PLAYER(m_pCity->getOwner()).GetNotifications()->Add(NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER, notificationText.toUTF8(), strSummary.toUTF8(), -1, -1, RELIGION_PANTHEON, -1);
-	}
-	else
-	{
-		//Notify player that his pantheon is dead.
-		Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE_S_B");
-		Localization::String notificationText = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_OBSOLETE_B");
-
-		GET_PLAYER(m_pCity->getOwner()).GetNotifications()->Add(NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER, notificationText.toUTF8(), strSummary.toUTF8(), -1, -1, RELIGION_PANTHEON, -1);
-	}
-#endif
 }
 
 /// Prophet spread is very powerful: eliminates all existing religions and adds to his

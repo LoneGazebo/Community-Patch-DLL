@@ -2794,13 +2794,29 @@ bool CvMinorCivQuest::IsExpired()
 	else if(m_eType == MINOR_CIV_QUEST_BUILD_X_BUILDINGS)
 	{
 		BuildingTypes eBuilding = (BuildingTypes)m_iData1;
-		if(!GET_PLAYER(m_eAssignedPlayer).canConstruct(eBuilding))
+		if(eBuilding == NO_BUILDING)
+			return true;
+
+		if(eBuilding != NO_BUILDING && !GET_PLAYER(m_eAssignedPlayer).canConstruct(eBuilding))
+		{
+			return true;
+		}
+		int iNum = m_iData2;
+		if(NO_BUILDING && GET_PLAYER(m_eAssignedPlayer).getNumCities() < iNum)
 		{
 			return true;
 		}
 	}
 	else if(m_eType == MINOR_CIV_QUEST_UNIT_STEAL_FROM)
 	{
+		PlayerTypes ePlayer = (PlayerTypes) m_iData1;
+		if(ePlayer != NO_PLAYER)
+		{
+			if(!GET_PLAYER(ePlayer).isAlive())
+			{
+				return true;
+			}
+		}
 	}
 	else if(m_eType == MINOR_CIV_QUEST_UNIT_COUP_CITY)
 	{
@@ -3475,18 +3491,20 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 			//Tell the AI to get over there!
 			if(!pAssignedPlayer->isHuman())
 			{
-				if(pMinor->getCapitalCity()->getArea() == pAssignedPlayer->getCapitalCity()->getArea())
+				CvCity* pMinorCap = pMinor->getCapitalCity();
+				if (pMinorCap && pMinorCap->getArea() == pAssignedPlayer->getCapitalCity()->getArea())
 				{
 					PlayerProximityTypes eProximity;
 					eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
 					if(eProximity == PLAYER_PROXIMITY_NEIGHBORS)
 					{
 						int iNumRequiredSlots;
-						int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE, false, false, NULL, NULL, &iNumRequiredSlots);
+						int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE, false, false, 
+							pAssignedPlayer->GetClosestCity(pMinorCap->plot())->plot(), pMinorCap->plot(), &iNumRequiredSlots);
 						// Not willing to build units to get this off the ground
 						if (iFilledSlots >= iNumRequiredSlots)
 						{
-							pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMinor->getCapitalCity());
+							pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinorCap->getArea(), pMinorCap, pMinorCap);
 						}
 					}
 				}
@@ -3557,8 +3575,11 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		{
 			if((pMinor->GetMinorCivAI()->GetAlly() != NO_PLAYER) && (pMinor->GetMinorCivAI()->GetAlly() == eMajor))
 			{
+				CvCity* pMinorCap = pMinor->getCapitalCity();
+
 				int iNumRequiredSlots;
-				int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE, false, false, NULL, NULL, &iNumRequiredSlots);
+				int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE, 
+					false, false, pAssignedPlayer->GetClosestCity(pMinorCap->plot())->plot(), pMinorCap->plot(), &iNumRequiredSlots);
 
 				CvCity* pMusterCity = pAssignedPlayer->getCapitalCity();
 				if(pMusterCity != NULL)
@@ -3622,6 +3643,8 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 
 		FAssertMsg(pCity != NULL, "MINOR CIV AI: For some reason we got NO_PLAYER when starting a quest for a major to liberate a City State.");
 
+		if (!pCity)
+			return;
 		int iActionAmount = GC.getGame().getJonRandNum(4, "Minor Civ AI: Number of Actions");
 		if(iActionAmount <= 0)
 		{
@@ -3644,6 +3667,8 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 
 		FAssertMsg(pCity != NULL, "MINOR CIV AI: For some reason we got NO_PLAYER when starting a quest for a major to liberate a City State.");
 
+		if (!pCity)
+			return;
 		m_iData1 = pCity->getOwner();
 
 		const char* strTargetNameKey = pCity->getNameKey();
@@ -3662,6 +3687,8 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 
 		FAssertMsg(pCity != NULL, "MINOR CIV AI: For some reason we got NO_PLAYER when starting a quest for a major to liberate a City State.");
 
+		if (!pCity)
+			return;
 		m_iData1 = pCity->plot()->getX();
 		m_iData2 = pCity->plot()->getY();
 		m_iData3 = pCity->getOwner();
@@ -10822,9 +10849,6 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 		if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eTarget).getTeam()))
 			continue;
 
-		if(GET_PLAYER(ePlayer).GetEspionage()->GetNumTechsToSteal(eTarget) <= 0)
-			continue;
-
 		veValidTargets.push_back(eTarget);
 	}
 
@@ -10860,9 +10884,10 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 					continue;
 				}
 				int iValue = pLoopCity->getPopulation();
-				iValue += pLoopCity->getNumWorldWonders();
 				iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
 				iValue += pLoopCity->getBaseYieldRate(YIELD_SCIENCE);
+				iValue *= pLoopCity->GetRank();
+
 				if(iValue > iBestValue)
 				{
 					iBestValue = iValue;
@@ -14546,7 +14571,7 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 			if(GET_PLAYER(eMajor).GetPlayerTraits()->GetCityStateBonusModifier() > 0)
 			{
 #if defined(MOD_API_XP_TIMES_100)
-				pNewUnit->changeExperienceTimes100(GC.getMAX_EXPERIENCE_PER_COMBAT() * 100);
+				pNewUnit->changeExperienceTimes100(100 * GC.getMAX_EXPERIENCE_PER_COMBAT());
 #else
 				pNewUnit->changeExperience(GC.getMAX_EXPERIENCE_PER_COMBAT());
 #endif

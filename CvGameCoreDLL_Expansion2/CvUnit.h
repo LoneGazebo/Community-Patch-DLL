@@ -300,7 +300,7 @@ public:
 	int GetEmbarkAbilityCount() const;
 	void ChangeEmbarkAbilityCount(int iChange);
 
-	bool canHeal(const CvPlot* pPlot, bool bTestVisible = false) const;
+	bool canHeal(const CvPlot* pPlot, bool bTestVisible = false, bool bCheckMovement = true) const;
 	bool canSentry(const CvPlot* pPlot) const;
 
 	int healRate(const CvPlot* pPlot) const;

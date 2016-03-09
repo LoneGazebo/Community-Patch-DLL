@@ -2686,6 +2686,17 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			locString << pOldCity->getNameKey() << getNameKey();
 			Localization::String locSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST");
 			locSummary << pOldCity->getNameKey();
+
+#if defined(MOD_BALANCE_CORE)
+			if(pOldCity->GetCityReligions()->IsHolyCityAnyReligion())
+			{
+				locString = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_LOST_HOLY");
+				locString << pOldCity->getNameKey() << getNameKey();
+				locSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST_HOLY");
+				locSummary << pOldCity->getNameKey();
+			}
+
+#endif
 			pNotifications->Add(NOTIFICATION_CITY_LOST, locString.toUTF8(), locSummary.toUTF8(), pOldCity->getX(), pOldCity->getY(), -1);
 		}
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
@@ -2829,6 +2840,21 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 #ifndef FINAL_RELEASE
 		OutputDebugString("\n"); OutputDebugString(strBuffer); OutputDebugString("\n\n");
+#endif
+#if defined(MOD_BALANCE_CORE)
+		CvNotifications* pNotifications2 = GetNotifications();
+		if(pNotifications2)
+		{
+			if(pOldCity->GetCityReligions()->IsHolyCityAnyReligion())
+			{
+				Localization::String locString = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_GAINED_HOLY");
+				locString << pOldCity->getNameKey();
+				Localization::String locSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_GAINED_HOLY");
+				locSummary << pOldCity->getNameKey();
+
+				pNotifications2->Add(NOTIFICATION_CAPITAL_RECOVERED, locString.toUTF8(), locSummary.toUTF8(), pOldCity->getX(), pOldCity->getY(), -1);
+			}
+		}
 #endif
 	}
 
@@ -10495,7 +10521,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 			return false;
 		}
 #if defined(MOD_BALANCE_CORE)
-		if(GetPlayerPolicies())
+		if(GetPlayerPolicies() && !isMinorCiv() && !isBarbarian())
 		{
 			int iNumPolicies = GetPlayerPolicies()->GetNumPoliciesOwned(true);
 			//If # of policies will do it, then we need to see the either/or here.
@@ -16254,7 +16280,7 @@ int CvPlayer::GetHappinessFromReligion()
 	}
 	if(eFoundedReligion != NO_RELIGION)
 	{
-		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, NO_PLAYER);
+		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
 		if(pReligion)
 		{
 			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;

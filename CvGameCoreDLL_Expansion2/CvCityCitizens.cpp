@@ -2326,6 +2326,7 @@ void CvCityCitizens::DoReallocateCitizens()
 			continue;
 
 		m_pCity->UpdateCityYields(eYield);
+		m_pCity->UpdateSpecialReligionYields(eYield);
 	}
 	m_pCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 	m_pCity->GetCityCulture()->CalculateBaseTourism();
@@ -2348,6 +2349,7 @@ void CvCityCitizens::DoReallocateCitizens()
 			continue;
 
 		GetCity()->UpdateCityYields(eYield);
+		GetCity()->UpdateSpecialReligionYields(eYield);
 	}
 	GetCity()->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 	GetCity()->GetCityCulture()->CalculateBaseTourism();
@@ -2529,6 +2531,7 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 						continue;
 
 					GetCity()->UpdateCityYields(eYield);
+					GetCity()->UpdateSpecialReligionYields(eYield);
 				}
 				GetCity()->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 				GetCity()->GetCityCulture()->CalculateBaseTourism();

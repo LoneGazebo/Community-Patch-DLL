@@ -536,6 +536,7 @@ public:
 
 private:
 	// Cached data about this religion's beliefs
+#if !defined(MOD_BALANCE_CORE)
 	int m_iFaithFromDyingUnits;
 	int m_iRiverHappiness;
 	int m_iPlotCultureCostModifier;
@@ -572,11 +573,12 @@ private:
 	EraTypes m_eObsoleteEra;
 	ResourceTypes m_eResourceRevealed;
 	TechTypes m_eSpreadModifierDoublingTech;
+#endif
 
 	BeliefList m_ReligionBeliefs;
 #if defined(MOD_BALANCE_CORE)
-	std::vector<int> m_BeliefLookup;
 	ReligionTypes m_eReligion;
+	std::vector<int> m_BeliefLookup;
 #endif
 
 	// Arrays

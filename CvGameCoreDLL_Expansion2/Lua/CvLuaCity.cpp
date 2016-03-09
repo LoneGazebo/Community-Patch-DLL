@@ -2490,15 +2490,7 @@ int CvLuaCity::lGetJONSCultureThreshold(lua_State* L)
 //int getJONSCulturePerTurn() const;
 int CvLuaCity::lGetJONSCulturePerTurn(lua_State* L)
 {
-#if defined(MOD_BALANCE_CORE)
-	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->getJONSCulturePerTurn();
-
-	lua_pushinteger(L, iResult);
-	return 1;
-#else
 	return BasicLuaMethod(L, &CvCity::getJONSCulturePerTurn);
-#endif
 }
 //------------------------------------------------------------------------------
 //int GetBaseJONSCulturePerTurn() const;
@@ -2789,15 +2781,7 @@ int CvLuaCity::lGetThemingTooltip(lua_State* L)
 //int GetFaithPerTurn() const;
 int CvLuaCity::lGetFaithPerTurn(lua_State* L)
 {
-#if defined(MOD_BALANCE_CORE)
-	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->GetFaithPerTurn();
-
-	lua_pushinteger(L, iResult);
-	return 1;
-#else
 	return BasicLuaMethod(L, &CvCity::GetFaithPerTurn);
-#endif
 }
 //------------------------------------------------------------------------------
 //int GetFaithPerTurnFromBuildings() const;

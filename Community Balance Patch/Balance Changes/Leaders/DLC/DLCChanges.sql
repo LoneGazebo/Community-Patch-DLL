@@ -102,11 +102,6 @@ INSERT INTO Improvement_YieldAdjacentSameType
 VALUES
 	('IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1);
 
-INSERT INTO Building_YieldChangesPerPop
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_WALLS_OF_BABYLON', 'YIELD_SCIENCE', 10);
-
 INSERT INTO Building_Flavors
 	(BuildingType, FlavorType, Flavor)
 VALUES
@@ -202,7 +197,8 @@ VALUES
 	('BUILDING_SEOWON', 'YIELD_SCIENCE', 3),
 	('BUILDING_SEOWON', 'YIELD_FAITH', 2),
 	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 2),
-	('BUILDING_YURT', 'YIELD_FAITH', 1);
+	('BUILDING_YURT', 'YIELD_FAITH', 1),
+	('BUILDING_WALLS_OF_BABYLON', 'YIELD_SCIENCE', 1);
 
 INSERT INTO Building_GrowthExtraYield
 	(BuildingType, YieldType, Yield)
