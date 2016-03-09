@@ -12807,7 +12807,7 @@ bool CvUnit::blastTourism()
 			if (pNotifications) 
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR");
-				localizedText << GET_PLAYER(eOwner).getCivilizationTypeKey();
+				localizedText << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
 				localizedText << iHappiness;
 				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_S");
 				localizedSummary << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
@@ -12817,7 +12817,7 @@ bool CvUnit::blastTourism()
 			if (pNotifications2) 
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET");
-				localizedText << GET_PLAYER(getOwner()).getCivilizationTypeKey();
+				localizedText << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
 				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET_S");
 				localizedSummary << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
 				pNotifications2->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), eOwner);
@@ -12959,11 +12959,11 @@ bool CvUnit::blastTourism()
 			if (pNotifications2) 
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_POPULAR_TOUR_TARGET");
-				localizedText << GET_PLAYER(getOwner()).getCivilizationShortDescriptionKey();
+				localizedText << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
 				localizedText << iTourismBlast;
 				localizedText << iCap;
 				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_POPULAR_TOUR_TARGET_S");
-				localizedSummary << GET_PLAYER(getOwner()).getCivilizationShortDescriptionKey();
+				localizedSummary << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
 				pNotifications2->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), eOwner);
 			}
 			if(GC.getLogging() && GC.getAILogging())
@@ -20568,7 +20568,7 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 {
 	VALIDATE_OBJECT
 #if defined(MOD_API_XP_TIMES_100)
-		if ((getExperienceTimes100() != iNewValueTimes100) && (getExperienceTimes100() < ((iMax == -1) ? INT_MAX : (iMax * 100))))
+		if ((getExperienceTimes100() != iNewValueTimes100) && (getExperienceTimes100() < ((iMax == INT_MAX || iMax == -1) ? INT_MAX: (iMax * 100))))
 #else
 		if ((getExperience() != iNewValue) && (getExperience() < ((iMax == -1) ? INT_MAX : iMax)))
 #endif
@@ -20580,7 +20580,7 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 #endif
 
 #if defined(MOD_API_XP_TIMES_100)
-		m_iExperienceTimes100 = std::min(((iMax == -1) ? INT_MAX : (iMax * 100)), iNewValueTimes100);
+		m_iExperienceTimes100 = std::min(((iMax == INT_MAX || iMax == -1) ? INT_MAX : (iMax * 100)), iNewValueTimes100);
 		CvAssert(getExperienceTimes100() >= 0);
 #else
 		m_iExperience = std::min(((iMax == -1) ? INT_MAX : iMax), iNewValue);
@@ -20766,8 +20766,11 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 			{
 				iCombatExperienceMod += getGreatGeneralModifier();
 			}
-
+#if defined(MOD_API_XP_TIMES_100)
+			if(iMax == -1 || iMax == MAX_INT)
+#else
 			if(iMax == -1)
+#endif
 			{
 				if(getDomainType() == DOMAIN_SEA)
 				{
