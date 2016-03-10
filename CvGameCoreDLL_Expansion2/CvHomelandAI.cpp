@@ -237,11 +237,12 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 
 		int iDistX = abs( vExplorePlots[ui].pPlot->getX() - iRefX );
 		int iDistY = abs( vExplorePlots[ui].pPlot->getY() - iRefY );
+		int iDist2 = (iDistX*iDistX)+(iDistY*iDistY);
 
-		vPlotsByDistance.push_back( std::make_pair( (iDistX*iDistX)+(iDistY*iDistY), vExplorePlots[ui]) );
+		vPlotsByDistance.push_back( std::make_pair( (iDist2*100)/vExplorePlots[ui].score, vExplorePlots[ui]) );
 	}
 
-	//sorts by the first element of the iterator ... which is our distance. nice.
+	//sorts ascending by the first element of the iterator ... which is our distance. nice.
 	std::stable_sort(vPlotsByDistance.begin(), vPlotsByDistance.end());
 
 	int iValidCandidates = 0;
@@ -1207,34 +1208,10 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 		{
 			CvPlot* pTarget = GC.getMap().plot(m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY());
 			CvCity* pCity = pTarget->getPlotCity();
-			if(pCity && pCity->GetLastTurnGarrisonAssigned() < GC.getGame().getGameTurn())
+
+			//don't move into a doomed city
+			if(pCity && !pCity->HasGarrison() && !pCity->isInDangerOfFalling() )
 			{
-#if defined(MOD_BALANCE_CORE)
-				if(pCity == m_pPlayer->GetMilitaryAI()->GetMostThreatenedCity(0))
-				{
-					// Grab units that make sense for this move type
-					FindUnitsForThisMove(AI_HOMELAND_MOVE_GARRISON, (iI == 0)/*bFirstTime*/);
-
-					if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
-					{
-						if(GetBestUnitToReachTarget(pTarget, m_iDefensiveMoveTurns))
-						{
-							ExecuteMoveToTarget(pTarget);
-
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("Moving to most threatened city for garrison, X: %d, Y: %d, Priority: %d", m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY(), m_TargetedCities[iI].GetAuxIntData());
-								LogHomelandMessage(strLogString);
-							}
-
-							pCity->SetLastTurnGarrisonAssigned(GC.getGame().getGameTurn());
-						}
-					}
-				}
-				else
-				{
-#endif
 				// Grab units that make sense for this move type
 				FindUnitsForThisMove(AI_HOMELAND_MOVE_GARRISON, (iI == 0)/*bFirstTime*/);
 
@@ -1250,13 +1227,8 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 							strLogString.Format("Moving to garrison, X: %d, Y: %d, Priority: %d", m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY(), m_TargetedCities[iI].GetAuxIntData());
 							LogHomelandMessage(strLogString);
 						}
-
-						pCity->SetLastTurnGarrisonAssigned(GC.getGame().getGameTurn());
 					}
 				}
-#if defined(MOD_BALANCE_CORE)
-				}
-#endif
 			}
 		}
 	}

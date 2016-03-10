@@ -744,8 +744,6 @@ public:
 	void ChangeWeLoveTheKingDayCounter(int iChange);
 
 	int GetLastTurnGarrisonAssigned() const;
-	void SetLastTurnGarrisonAssigned(int iValue);
-
 	int GetNumThingsProduced() const;
 
 	bool isProductionAutomated() const;

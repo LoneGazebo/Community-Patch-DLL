@@ -11197,6 +11197,8 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 	if (pUnit && pUnit->CanGarrison())
 	{
 		m_hGarrison = pUnit->GetID();
+		m_iLastTurnGarrisonAssigned = GC.getGame().getGameTurn();
+
 		pUnit->SetGarrisonedCity( GetID() );
 
 		//no previous garrison. we might earn culture / happiness from this
@@ -16573,14 +16575,6 @@ int CvCity::GetLastTurnGarrisonAssigned() const
 {
 	VALIDATE_OBJECT
 	return m_iLastTurnGarrisonAssigned;
-}
-
-//	--------------------------------------------------------------------------------
-/// Sets turn number when AI placed a garrison: AI sets to INT_MAX if city has walls and doesn't need a garrison to fire
-void CvCity::SetLastTurnGarrisonAssigned(int iValue)
-{
-	VALIDATE_OBJECT
-	m_iLastTurnGarrisonAssigned = iValue;
 }
 
 //	--------------------------------------------------------------------------------

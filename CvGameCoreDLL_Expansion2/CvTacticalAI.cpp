@@ -3236,7 +3236,26 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 		CvCity* pCity = pPlot->getPlotCity();
 
-		if(pCity && pCity->GetLastTurnGarrisonAssigned() < GC.getGame().getGameTurn())
+		if(!pCity)
+			continue;
+
+		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
+		if (pGarrison)
+		{
+			//ranged garrisons are used in ExecuteSafeBombards. special handling only for melee garrisons here
+			for (int i=RING0_PLOTS; i<RING1_PLOTS; i++)
+			{
+				CvPlot* pNeighbor = iterateRingPlots( pPlot,i );
+				if (pNeighbor)
+				{
+					UnitHandle pEnemy = pNeighbor->getBestDefender(NO_PLAYER,m_pPlayer->GetID(),pGarrison,true);
+					//attacker will not advance ...
+					if (TacticalAIHelpers::KillUnitIfPossible(pGarrison,pEnemy.pointer()))
+						break;
+				}
+			}
+		}
+		else if ( !pCity->isInDangerOfFalling() )
 		{
 			// Grab units that make sense for this move type
 			FindUnitsForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_ALREADY_THERE], pPlot, iNumTurnsAway, bMustAllowRangedAttack);
@@ -3255,9 +3274,9 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 					}
 					LogTacticalMessage(strLogString);
 				}
-				pCity->SetLastTurnGarrisonAssigned(GC.getGame().getGameTurn());
 			}
 		}
+
 		pTarget = GetNextZoneTarget();
 	}
 }
@@ -3821,9 +3840,13 @@ void CvTacticalAI::PlotExploitFlanksMoves()
 void CvTacticalAI::PlotSteamrollMoves()
 {
 	m_TempTargets.clear();
-	bool bAttackMade;
 
 #if defined(MOD_BALANCE_CORE_NEW_TACTICAL_AI)
+	// See if there are any kill attacks we can make.
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
+
 	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
 	{
 		CvTacticalTarget kTarget = m_ZoneTargets[iI];
@@ -3833,6 +3856,16 @@ void CvTacticalAI::PlotSteamrollMoves()
 		if(kTarget.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT || kTarget.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT)
 			ExecuteSafeBombards(kTarget);
 	}
+
+	// We have superiority, so a let's attack high prio targets even with bad odds
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, true);
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false);
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false);
+
+	// See if it is time to go after the city
+	PlotDamageCityMoves();
+
+	PlotCloseOnTarget(false /*bCheckDominance*/);
 #else
 	// Loop through unit targets finding advantageous attacks for this turn
 	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
@@ -3847,7 +3880,6 @@ void CvTacticalAI::PlotSteamrollMoves()
 			}
 		}
 	}
-#endif
 
 	// See if there are any other anti-unit attacks we can make.
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false);
@@ -3855,13 +3887,14 @@ void CvTacticalAI::PlotSteamrollMoves()
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
 
 	// See if it is time to go after the city
-	bAttackMade = PlotDamageCityMoves();
+	PlotDamageCityMoves();
 
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, true);
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false, true);
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false, true);
 
 	PlotCloseOnTarget(false /*bCheckDominance*/);
+#endif
 }
 
 /// We should be strong enough to take out the city before the enemy can whittle us down with ranged attacks
@@ -3878,21 +3911,23 @@ void CvTacticalAI::PlotSurgicalCityStrikeMoves()
 		target.SetTargetY(pZone->GetZoneCity()->plot()->getY());
 		target.SetDominanceZone(pZone->GetDominanceZoneID());
 
+#if defined(MOD_BALANCE_CORE_NEW_TACTICAL_AI)
 		//try capture first! will only do something if we have enough firepower.
 		PlotCaptureCityMoves();
 
-		// Any unit targets adjacent to city?
-#if defined(MOD_BALANCE_CORE_NEW_TACTICAL_AI)
-		for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
-		{
-			CvTacticalTarget kTarget = m_ZoneTargets[iI];
-			if(!kTarget.IsTargetStillAlive(m_pPlayer->GetID()))
-				continue;
+		if(target.IsTargetStillAlive(m_pPlayer->GetID()))
+			PlotDamageCityMoves();
 
-			if(kTarget.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT || kTarget.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT)
-				ExecuteSafeBombards(kTarget);
-		}
+		// Take any other really good attacks we've set up
+		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
+		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
+		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
+
+		PlotCloseOnTarget(false /*bCheckDominance*/);
 #else
+		//try capture first! will only do something if we have enough firepower.
+		PlotCaptureCityMoves();
+
 		for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
 		{
 			if(m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
@@ -3908,22 +3943,17 @@ void CvTacticalAI::PlotSurgicalCityStrikeMoves()
 				}
 			}
 		}
-#endif
 
 		if(target.IsTargetStillAlive(m_pPlayer->GetID()))
 			PlotDamageCityMoves();
 
 		// Take any other really good attacks we've set up
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false);
-		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false);
-#else
 		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
 		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
-#endif
 		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
 
 		PlotCloseOnTarget(false /*bCheckDominance*/);
+#endif
 	}
 }
 
@@ -3932,6 +3962,9 @@ void CvTacticalAI::PlotHedgehogMoves()
 {
 	// Attack priority unit targets
 #if defined(MOD_BALANCE_CORE_NEW_TACTICAL_AI)
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
 	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
 	{
 		CvTacticalTarget kTarget = m_ZoneTargets[iI];
@@ -3953,10 +3986,9 @@ void CvTacticalAI::PlotHedgehogMoves()
 			}
 		}
 	}
-#endif
-
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
+#endif
 
 	// But after best attacks are exhausted, go right to playing defense
 	CvTacticalDominanceZone* pZone = m_pMap->GetZone(m_iCurrentZoneIndex);
@@ -3977,6 +4009,10 @@ void CvTacticalAI::PlotCounterattackMoves()
 {
 	// Attack priority unit targets
 #if defined(MOD_BALANCE_CORE_NEW_TACTICAL_AI)
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
+
 	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
 	{
 		CvTacticalTarget kTarget = m_ZoneTargets[iI];
@@ -3986,6 +4022,11 @@ void CvTacticalAI::PlotCounterattackMoves()
 		if(kTarget.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT || kTarget.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT)
 			ExecuteSafeBombards(kTarget);
 	}
+
+	// Now targets we can't destroy
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false);
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false);
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false);
 #else
 	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)
 	{
@@ -3998,7 +4039,6 @@ void CvTacticalAI::PlotCounterattackMoves()
 			}
 		}
 	}
-#endif
 
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
@@ -4008,6 +4048,7 @@ void CvTacticalAI::PlotCounterattackMoves()
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false);
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false);
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false);
+#endif
 }
 
 /// Withdraw out of current dominance zone
@@ -8288,7 +8329,7 @@ void CvTacticalAI::ExecuteMoveToTarget(CvPlot* pTarget, bool bSaveMoves)
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
-		ExecuteMoveToPlotIgnoreDanger(pUnit,pTarget);
+		ExecuteMoveToPlotIgnoreDanger(pUnit,pTarget,bSaveMoves);
 	}
 }
 
@@ -9383,7 +9424,7 @@ bool CvTacticalAI::FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTarg
 			}
 
 #if defined(MOD_BALANCE_CORE)
-			if(!pLoopUnit->canMove() || !pLoopUnit->IsCanAttack())
+			if(!pLoopUnit->canMove() || !pLoopUnit->IsCanAttack() || pLoopUnit->GetDanger(pTarget)>pLoopUnit->GetCurrHitPoints())
 			{
 				continue;
 			}

@@ -139,9 +139,11 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		{
 			//make sure there are no rounding errors
 			int iGarrisonShare = (iAttackerDamageInflicted*2*pGarrison->GetMaxHitPoints()) / (pkCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
-
+			
+			/*
 			//garrison can not be killed, only reduce to 10 hp
 			iGarrisonShare = min(iGarrisonShare,pGarrison->GetCurrHitPoints()-10);
+			*/
 
 			if (iGarrisonShare>0)
 			{
@@ -727,8 +729,10 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 			//make sure there are no rounding errors
 			int iGarrisonShare = (iDamage*2*pGarrison->GetMaxHitPoints()) / (pCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
 
+			/*
 			//garrison can not be killed, only reduce to 10 hp
 			iGarrisonShare = min(iGarrisonShare,pGarrison->GetCurrHitPoints()-10);
+			*/
 
 			if (iGarrisonShare>0)
 			{
@@ -1541,8 +1545,10 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 			//make sure there are no rounding errors
 			int iGarrisonShare = (iAttackerDamageInflicted*2*pGarrison->GetMaxHitPoints()) / (pCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
 
+			/*
 			//garrison can not be killed, only reduce to 10 hp
 			iGarrisonShare = min(iGarrisonShare,pGarrison->GetCurrHitPoints()-10);
+			*/
 
 			if (iGarrisonShare>0)
 			{
