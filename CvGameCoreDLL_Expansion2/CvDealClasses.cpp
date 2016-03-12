@@ -3271,14 +3271,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				// Vassalage
 				else if(MOD_DIPLOMACY_CIV4_FEATURES && it->m_eItemType == TRADE_ITEM_VASSALAGE)
 				{
-					bool bCapitulation = false;
-
-					// If this isn't a peace treaty deal
-					if(kDeal.GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
-					{
-						bCapitulation = true;
-					}
-
+					bool bCapitulation = kDeal.IsPeaceTreatyTrade(eFromPlayer) || kDeal.IsPeaceTreatyTrade(eToPlayer);
 					GET_TEAM(eFromTeam).DoBecomeVassal(eToTeam, !bCapitulation);
 				}
 				// Revoke Vassalage
