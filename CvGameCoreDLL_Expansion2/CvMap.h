@@ -1,9 +1,9 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
-	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
-	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
-	All other marks and trademarks are the property of their respective owners.  
-	All rights reserved. 
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
+	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software
+	and their respective logos are all trademarks of Take-Two interactive Software, Inc.
+	All other marks and trademarks are the property of their respective owners.
+	All rights reserved.
 	------------------------------------------------------------------------------------------------------- */
 #pragma once
 
@@ -71,7 +71,7 @@ protected:
 FDataStream& operator<<(FDataStream&, const CvLandmass&);
 FDataStream& operator>>(FDataStream&, CvLandmass&);
 
-const int ciMapHint_Naval = 1;		// 1 for primarily naval (this does NOT do offshore expansion), 
+const int ciMapHint_Naval = 1;		// 1 for primarily naval (this does NOT do offshore expansion),
 const int ciMapHint_Raze = 2;		// 2 for raze cities whenever possible,
 const int ciMapHint_Offshore = 4;	// 4 for expand offshore
 const int ciMapHint_NavalOffshore = 5; // combination of 1 and 5
@@ -332,8 +332,8 @@ protected:
 	int m_iNumNaturalWonders;
 
 	int m_iAIMapHints;	// currently only:
-						// 0 for normal, 
-						// 1 for primarily naval (this does NOT do offshore expansion), 
+						// 0 for normal,
+						// 1 for primarily naval (this does NOT do offshore expansion),
 						// 2 for raze cities whenever possible,
 						// 4 for expand offshore (previously 1 was naval and expansion, but I am splitting the behaviors, to get the old behavior use 4+1)
 
@@ -360,10 +360,6 @@ protected:
 	char* m_pRevealedImprovementType;
 	char* m_pRevealedRouteType;
 	bool* m_pResourceForceReveal;
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	bool* m_pAvoidMovement;
-#endif
 
 	TContainer<CvArea> m_areas;
 	TContainer<CvLandmass> m_landmasses;
