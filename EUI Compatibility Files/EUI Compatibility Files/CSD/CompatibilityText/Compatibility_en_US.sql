@@ -41,7 +41,7 @@ SET Text = 'Specialists provide the following benefits:[NEWLINE][NEWLINE]Artists
 WHERE Tag = 'TXT_KEY_CITIES_BENEFITSSPECIALISTS_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units. Can only be constructed in a Capital. [NEWLINE][NEWLINE] +10% of the [ICON_PRODUCTION] Production of the City is added to the current [ICON_PRODUCTION] Production amount every time the city gains a [ICON_CITIZEN] Citizen.'
+SET Text = '+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units. Can only be constructed in a Capital. [NEWLINE][NEWLINE]+10% of the [ICON_PRODUCTION] Production of the City is added to the current [ICON_PRODUCTION] Production amount every time the city gains a [ICON_CITIZEN] Citizen.'
 WHERE Tag = 'TXT_KEY_BUILDING_COURT_SCRIBE_HELP';
 
 UPDATE Language_en_US
@@ -53,7 +53,7 @@ SET Text = 'This National Wonder cannot be built unless the city has a Public Sc
 WHERE Tag = 'TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Requires Order. +15% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the city where it is built. +2 [ICON_RES_PAPER] Paper. Receive one vote for every [COLOR_POSITIVE_TEXT]Defense Pact[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Public School in the city. The cost goes up the more cities there are in the empire.'
+SET Text = 'Requires Order. +15% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the city where it is built. +2 [ICON_RES_PAPER] Paper. Receive one vote for every [COLOR_POSITIVE_TEXT]Defense Pact[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Public School in the city. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_HELP';
 
 UPDATE Language_en_US
@@ -61,7 +61,7 @@ SET Text = 'This National Wonder cannot be built unless the city has a Military 
 WHERE Tag = 'TXT_KEY_BUILDING_EHRENHALLE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Requires Autocracy. +15 [ICON_TOURISM] Tourism and +15 [ICON_PEACE] Faith in the city where it is built. +2 [ICON_RES_PAPER] Paper. Receive one vote for every [COLOR_POSITIVE_TEXT]enemy Capital[ENDCOLOR] you control. [NEWLINE][NEWLINE]Must have built a Military Academy in the city.'
+SET Text = 'Requires Autocracy. +15 [ICON_TOURISM] Tourism and +15 [ICON_PEACE] Faith in the city where it is built. +2 [ICON_RES_PAPER] Paper. Receive one vote for every [COLOR_POSITIVE_TEXT]enemy Capital[ENDCOLOR] you control. [NEWLINE][NEWLINE]Must have built a Military Academy in the city. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_EHRENHALLE_HELP';
 
 UPDATE Language_en_US
@@ -69,7 +69,7 @@ SET Text = 'This National Wonder cannot be built unless the city has a Stock Exc
 WHERE Tag = 'TXT_KEY_BUILDING_FINANCE_CENTER_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Requires Freedom. +15% [ICON_FOOD] Food and [ICON_GOLD] Gold in the city where it is built. +2 [ICON_RES_PAPER] Paper. Receive one vote for every [COLOR_POSITIVE_TEXT]Declaration of Friendship[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Stock Exchange in the city. The cost goes up the more cities there are in the empire.'
+SET Text = 'Requires Freedom. +15% [ICON_FOOD] Food and [ICON_GOLD] Gold in the city where it is built. +2 [ICON_RES_PAPER] Paper. Receive one vote for every [COLOR_POSITIVE_TEXT]Declaration of Friendship[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Stock Exchange in the city. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_FINANCE_CENTER_HELP';
 
 UPDATE Language_en_US
@@ -77,7 +77,7 @@ SET Text = 'This National Wonder cannot be built unless the city has a Chancery.
 WHERE Tag = 'TXT_KEY_BUILDING_PRINTING_PRESS_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Literacy[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Must have built a Chancery in the City. The cost goes up the more cities there are in the empire.'
+SET Text = '+2 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Literacy[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Must have built a Chancery in the City. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_PRINTING_PRESS_HELP';
 
 UPDATE Language_en_US
@@ -85,13 +85,13 @@ SET Text = 'This National Wonder cannot be built unless the city has a Wire Serv
 WHERE Tag = 'TXT_KEY_BUILDING_FOREIGN_OFFICE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Diplomatic Immunity[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Must have built a Wire Service in the City. The cost goes up the more cities there are in the empire.'
+SET Text = '+2 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Diplomatic Immunity[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Must have built a Wire Service in the City. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_FOREIGN_OFFICE_HELP';
 
 -- Grand Temple Help Text
 
 UPDATE Language_en_US
-SET Text = 'A [ICON_GOLDEN_AGE] Golden Age begins. Reduces [ICON_HAPPINESS_3] Religious Unrest. Must have built a Temple in the city. The cost goes up the more cities there are in the empire.'
+SET Text = 'A [ICON_GOLDEN_AGE] Golden Age begins. Reduces [ICON_HAPPINESS_3] Religious Unrest. Must have built a Temple in the city. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_TEMPLE_HELP';
 
 -- Merchant Mission

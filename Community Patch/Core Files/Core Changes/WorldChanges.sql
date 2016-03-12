@@ -7,7 +7,7 @@ SET MinDistanceCities = '3'
 WHERE Type = 'WORLDSIZE_DUEL';
 
 UPDATE Worlds
-SET MinDistanceCityStates = '2'
+SET MinDistanceCityStates = '3'
 WHERE Type = 'WORLDSIZE_DUEL';
 
 -- Tiny - 3 Minimum for Major, 2 for Minor
@@ -17,7 +17,7 @@ SET MinDistanceCities = '3'
 WHERE Type = 'WORLDSIZE_TINY';
 
 UPDATE Worlds
-SET MinDistanceCityStates = '2'
+SET MinDistanceCityStates = '3'
 WHERE Type = 'WORLDSIZE_TINY';
 
 -- Small - 3 Minimum for Major, 2 for Minor
@@ -43,7 +43,7 @@ WHERE Type = 'WORLDSIZE_STANDARD';
 -- Large - 4 Minimum for Major, 3 for Minor
 
 UPDATE Worlds
-SET MinDistanceCities = '4'
+SET MinDistanceCities = '3'
 WHERE Type = 'WORLDSIZE_LARGE';
 
 UPDATE Worlds
@@ -53,7 +53,7 @@ WHERE Type = 'WORLDSIZE_LARGE';
 -- Huge - 4 Minimum for Major, 3 for Minor
 
 UPDATE Worlds
-SET MinDistanceCities = '4'
+SET MinDistanceCities = '3'
 WHERE Type = 'WORLDSIZE_HUGE';
 
 UPDATE Worlds

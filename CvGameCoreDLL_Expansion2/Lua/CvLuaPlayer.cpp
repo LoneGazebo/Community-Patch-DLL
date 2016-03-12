@@ -752,6 +752,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetBonusHappinessFromLuxuries);
 	Method(GetPopNeededForLux);
 	Method(GetCurrentTotalPop);
+	Method(GetScalingNationalPopulationRequrired);
 	Method(GetBaseLuxuryHappiness);
 	Method(GetLuxuryBonusPlusOne);
 #endif
@@ -8139,6 +8140,17 @@ int CvLuaPlayer::lGetCurrentTotalPop(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+//int GetScalingNationalPopulationRequrired();
+int CvLuaPlayer::lGetScalingNationalPopulationRequrired(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+
+	const int iResult = pkPlayer->GetScalingNationalPopulationRequrired(eBuilding);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
 //int GetBaseLuxuryHappiness();
 int CvLuaPlayer::lGetBaseLuxuryHappiness(lua_State* L)
 {
@@ -11555,6 +11567,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 
 #if defined(MOD_BALANCE_CORE)
+		//Religion
+		iValue = pDiploAI->GetHasReligionFounderDifferenceScore(eWithPlayer);
+		if(iValue > 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCE_FOUNDERS", iValue);
+			aOpinions.push_back(kOpinion);
+		}
 		// victory dispute
 		iValue = pDiploAI->GetVictoryDisputeLevelScore(eWithPlayer);
 		if (iValue > 0)

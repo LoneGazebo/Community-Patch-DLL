@@ -1423,14 +1423,16 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	end
 
 	--- National/Local Population
-	local iNumNationalPop = building.NationalPopRequired;
-	if(iNumNationalPop > 0) then
-		local iNumHave = activePlayer:GetCurrentTotalPop();
-		tips:insert(L("TXT_KEY_PEDIA_NUM_POPULATION_NATIONAL_NEEDED_LABEL", iNumNationalPop, iNumHave))
+	if(activePlayer) then
+		local iNumNationalPop = activePlayer:GetScalingNationalPopulationRequrired(buildingID);
+		if(iNumNationalPop > 0) then
+			local iNumHave = activePlayer:GetCurrentTotalPop();
+			tips:insert(L("TXT_KEY_PEDIA_NUM_POPULATION_NATIONAL_NEEDED_LABEL", iNumNationalPop, iNumHave))
+		end
 	end
 	local iNumLocalPop = building.LocalPopRequired;
 	if(iNumLocalPop > 0) then
-		if (city ~= nil) then
+		if (city) then
 			local iNumHave = city:GetPopulation();
 			tips:insert(L("TXT_KEY_PEDIA_NUM_POPULATION_LOCAL_NEEDED_LABEL", iNumLocalPop, iNumHave))
 		end

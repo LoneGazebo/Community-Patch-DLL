@@ -1040,7 +1040,9 @@ public:
 #else
 	void DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnit);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false);
+#endif
 	// Great People Expenditure
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
 	void DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatPersonUnit);
@@ -1791,6 +1793,7 @@ public:
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
 	void changeInvestmentModifier(int iChange);
+	int GetScalingNationalPopulationRequrired(BuildingTypes eBuilding) const;
 #endif
 	int getCapitalYieldRateModifier(YieldTypes eIndex) const;
 	void changeCapitalYieldRateModifier(YieldTypes eIndex, int iChange);

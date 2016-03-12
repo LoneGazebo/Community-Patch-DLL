@@ -21,18 +21,6 @@
 		</Row>
 	</Defines>
 
-	<Language_en_US>
-		<Row Tag="TXT_KEY_YIELD_GOLDEN_AGE_POINTS">
-			<Text>Golden Age</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT">
-			<Text>{1_Num} [ICON_GOLDEN_AGE] Golden Age</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GOLDEN_AGE_POINTS_FROM_TRADE_ROUTES">
-			<Text>{1_perTurn:number "#.##"} [ICON_GOLDEN_AGE] from Trade Routes established with this city</Text>
-		</Row>
-	</Language_en_US>
-
 	<CustomModDbUpdates>
 		<Row Name="API_UNIFIED_YIELDS_GOLDEN_AGE" Value="1"/>
 	</CustomModDbUpdates>

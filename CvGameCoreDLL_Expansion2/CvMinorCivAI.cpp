@@ -4846,6 +4846,7 @@ void CvMinorCivAI::Reset()
 		m_abSiphoned[iI] = false;
 		m_abCoupAttempted[iI] = false;
 		m_aiAssignedPlotAreaID[iI] = -1;
+		m_aiTurnsSincePtPWarning[iI] = -1;
 #endif
 	}
 
@@ -4969,6 +4970,7 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_abCoupAttempted;
 	kStream >> m_iTurnLiberated;
 	kStream >> m_aiAssignedPlotAreaID;
+	kStream >> m_aiTurnsSincePtPWarning;
 #endif
 
 	// List of quests given
@@ -5063,6 +5065,7 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_abCoupAttempted;
 	kStream << m_iTurnLiberated;
 	kStream << m_aiAssignedPlotAreaID;
+	kStream << m_aiTurnsSincePtPWarning;
 #endif
 
 	// List of quests given
@@ -10784,8 +10787,10 @@ void CvMinorCivAI::SetTargetedAreaID(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	
-	m_aiAssignedPlotAreaID[ePlayer] = iValue;
+	if(iValue != m_aiAssignedPlotAreaID[ePlayer])
+	{
+		m_aiAssignedPlotAreaID[ePlayer] = iValue;
+	}
 }
 int CvMinorCivAI::GetTargetedAreaID(PlayerTypes ePlayer)
 {
@@ -10793,6 +10798,32 @@ int CvMinorCivAI::GetTargetedAreaID(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
 	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return -1;  // as defined in Reset()
 	return m_aiAssignedPlotAreaID[ePlayer];
+}
+void CvMinorCivAI::SetNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
+	if(iValue != m_aiTurnsSincePtPWarning[ePlayer])
+	{
+		m_aiTurnsSincePtPWarning[ePlayer] = iValue;
+	}
+}
+int CvMinorCivAI::GetNumTurnsSincePtPWarning(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
+	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return -1;  // as defined in Reset()
+	return m_aiTurnsSincePtPWarning[ePlayer];
+}
+void CvMinorCivAI::ChangeNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
+	
+	if(iValue != 0)
+	{
+		m_aiTurnsSincePtPWarning[ePlayer] += iValue;
+	}
 }
 
 CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
@@ -12979,6 +13010,10 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 
 	if(bProtect)
 	{
+		int iWarningMax = 10;
+		iWarningMax *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iWarningMax /= 100;
+
 		CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
 		PlayerTypes eMajorLoop;
 		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
@@ -12996,7 +13031,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 			if(veMilitaryRankings.GetElement(iRanking) == eMajor)
 			{
 				float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
-				if(fRankRatio <= 0.5)
+				if(fRankRatio < 0.6 && GetNumTurnsSincePtPWarning(eMajor) > iWarningMax)
 				{
 					m_abPledgeToProtect[eMajor] = false;
 					SetTurnLastPledgeBrokenByMajor(eMajor, GC.getGame().getGameTurn());
@@ -13015,15 +13050,39 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
 					break;
 				}
-				else if(fRankRatio < 0.6)
+				else if(fRankRatio < 0.6 && GetNumTurnsSincePtPWarning(eMajor) <= 0)
 				{
 					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING");
-					strMessage << GetPlayer()->getNameKey();
+					strMessage << GetPlayer()->getNameKey() << (iWarningMax - GetNumTurnsSincePtPWarning(eMajor));
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT");
 					strSummary << GetPlayer()->getNameKey();
-
 					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+					ChangeNumTurnsSincePtPWarning(eMajor, 1);
 					break;
+				}
+				else if(fRankRatio < 0.6 && GetNumTurnsSincePtPWarning(eMajor) > 0)
+				{
+					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER");
+					strMessage << GetPlayer()->getNameKey() << (iWarningMax - GetNumTurnsSincePtPWarning(eMajor));
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT");
+					strSummary << GetPlayer()->getNameKey();
+					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+					ChangeNumTurnsSincePtPWarning(eMajor, 1);
+					break;
+				}
+				else
+				{
+					if(GetNumTurnsSincePtPWarning(eMajor) > 0)
+					{
+						SetNumTurnsSincePtPWarning(eMajor, 0);
+						Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED");
+						strMessage << GetPlayer()->getNameKey();
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT");
+						strSummary << GetPlayer()->getNameKey();
+						AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+						ChangeNumTurnsSincePtPWarning(eMajor, 1);
+						break;
+					}
 				}
 			}
 		}
@@ -15807,121 +15866,10 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		int iEra = GET_PLAYER(eBully).GetCurrentEra();
-		if(iEra <= 0)
-		{
-			iEra = 1;
-		}
 		CvCity* pCapital = GET_PLAYER(eBully).getCapitalCity();
-		float fDelay = 0.0f;
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		if(pCapital != NULL)
 		{
-			YieldTypes eYield = (YieldTypes) iI;
-			switch(eYield)
-			{
-				case YIELD_CULTURE:
-				{
-					int iYield = GET_PLAYER(eBully).GetYieldFromMinorDemand(eYield) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100; 
-					if(iYield > 0)
-					{
-						GET_PLAYER(eBully).changeJONSCulture(iYield);
-						if(pCapital != NULL)
-						{
-							pCapital->ChangeJONSCultureStored(iYield);
-						}
-						if(eBully == GC.getGame().getActivePlayer() && pCapital != NULL)
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
-							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
-						}
-					}
-					break;
-				}
-				case YIELD_FAITH:
-				{
-					int iYield = GET_PLAYER(eBully).GetYieldFromMinorDemand(eYield) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100; 
-					if(iYield > 0)
-					{
-						GET_PLAYER(eBully).ChangeFaith(iYield);
-						if(eBully == GC.getGame().getActivePlayer() && pCapital != NULL)
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
-							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
-						}
-					}
-					break;
-				}
-				case YIELD_GOLD:
-				{
-					int iYield = GET_PLAYER(eBully).GetYieldFromMinorDemand(eYield) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100; 
-					if(iYield > 0)
-					{
-						GET_PLAYER(eBully).GetTreasury()->ChangeGold(iYield);
-						if(eBully == GC.getGame().getActivePlayer() && pCapital != NULL)
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
-							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
-						}
-					}
-					break;
-				}
-				case YIELD_SCIENCE:
-				{
-					int iYield = GET_PLAYER(eBully).GetYieldFromMinorDemand(eYield) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100; 
-					if(iYield > 0)
-					{
-						TechTypes eCurrentTech = GET_PLAYER(eBully).GetPlayerTechs()->GetCurrentResearch();
-						if(eCurrentTech == NO_TECH)
-						{
-							GET_PLAYER(eBully).changeOverflowResearch(iYield);
-						}
-						else
-						{
-							GET_TEAM(GET_PLAYER(eBully).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, eBully);
-						}
-						if(eBully == GC.getGame().getActivePlayer() && pCapital != NULL)
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
-							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
-						}
-					}
-					break;
-				}
-				case YIELD_GOLDEN_AGE_POINTS:
-				{
-					int iYield = GET_PLAYER(eBully).GetYieldFromMinorDemand(eYield) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100; 
-					if(iYield > 0)
-					{
-						GET_PLAYER(eBully).ChangeGoldenAgeProgressMeter(iYield);
-						if(eBully == GC.getGame().getActivePlayer() && pCapital != NULL)
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYield);
-							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
-						}
-					}
-				}
-					break;
-			}
+			GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pCapital);
 		}
 #endif
 	}
@@ -16013,115 +15961,9 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			iEra = 1;
 		}
 		CvCity* pCapital = GET_PLAYER(eBully).getCapitalCity();
-		float fDelay = 0.0f;
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		if(pCapital != NULL)
 		{
-			YieldTypes eYield = (YieldTypes) iI;
-			switch(eYield)
-			{
-				case YIELD_CULTURE:
-				{
-					int iYield = GET_PLAYER(eBully).GetYieldFromMinorDemand(eYield) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100; 
-					if(iYield > 0)
-					{
-						GET_PLAYER(eBully).changeJONSCulture(iYield);
-						if(pCapital != NULL)
-						{
-							pCapital->ChangeJONSCultureStored(iYield);
-						}
-						if(eBully == GC.getGame().getActivePlayer() && pCapital != NULL)
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
-							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
-						}
-					}
-					break;
-				}
-				case YIELD_FAITH:
-				{
-					int iYield = GET_PLAYER(eBully).GetYieldFromMinorDemand(eYield) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100; 
-					if(iYield > 0)
-					{
-						GET_PLAYER(eBully).ChangeFaith(iYield);
-						if(eBully == GC.getGame().getActivePlayer() && pCapital != NULL)
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
-							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
-						}
-					}
-					break;
-				}
-				case YIELD_GOLD:
-				{
-					int iYield = GET_PLAYER(eBully).GetYieldFromMinorDemand(eYield) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100; 
-					if(iYield > 0)
-					{
-						GET_PLAYER(eBully).GetTreasury()->ChangeGold(iYield);
-						if(eBully == GC.getGame().getActivePlayer() && pCapital != NULL)
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
-							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
-						}
-					}
-					break;
-				}
-				case YIELD_SCIENCE:
-				{
-					int iYield = GET_PLAYER(eBully).GetYieldFromMinorDemand(eYield) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100; 
-					if(iYield > 0)
-					{
-						TechTypes eCurrentTech = GET_PLAYER(eBully).GetPlayerTechs()->GetCurrentResearch();
-						if(eCurrentTech == NO_TECH)
-						{
-							GET_PLAYER(eBully).changeOverflowResearch(iYield);
-						}
-						else
-						{
-							GET_TEAM(GET_PLAYER(eBully).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, eBully);
-						}
-						if(eBully == GC.getGame().getActivePlayer() && pCapital != NULL)
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
-							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
-						}
-					}
-					break;
-				}
-				case YIELD_GOLDEN_AGE_POINTS:
-				{
-					int iYield = GET_PLAYER(eBully).GetYieldFromMinorDemand(eYield) * iEra;
-					iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iYield /= 100; 
-					if(iYield > 0)
-					{
-						GET_PLAYER(eBully).ChangeGoldenAgeProgressMeter(iYield);
-						if(eBully == GC.getGame().getActivePlayer() && pCapital != NULL)
-						{
-							char text[256] = {0};
-							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYield);
-							DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
-						}
-					}
-				}
-					break;
-			}
+			GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pCapital);
 		}
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)

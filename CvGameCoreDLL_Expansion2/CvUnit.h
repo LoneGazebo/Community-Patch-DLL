@@ -141,7 +141,6 @@ public:
 	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER);
 
 	void doTurn();
-
 	bool isActionRecommended(int iAction);
 
 	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker) const;

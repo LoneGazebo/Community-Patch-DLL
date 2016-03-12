@@ -494,13 +494,15 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 				result = LinkChild(node, check);
 			
 				if (result==NS_VALID)
+				{
 					m_iProcessedNodes++;
+
+					//keep track of how often we've come close to the destination
+					if (IsPathDest(check->m_iX, check->m_iY))
+						m_iDestHitCount++;
+				}
 			}
 		}
-
-		//keep track of how often we've come close to the destination
-		if (IsPathDest(check->m_iX, check->m_iY))
-			m_iDestHitCount++;
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
 		if (MOD_BALANCE_CORE_DEBUGGING)

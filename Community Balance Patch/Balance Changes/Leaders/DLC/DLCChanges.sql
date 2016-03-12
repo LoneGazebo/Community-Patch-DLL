@@ -200,6 +200,11 @@ VALUES
 	('BUILDING_YURT', 'YIELD_FAITH', 1),
 	('BUILDING_WALLS_OF_BABYLON', 'YIELD_SCIENCE', 1);
 
+INSERT INTO Building_YieldFromBorderGrowth
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_YURT', 'YIELD_SCIENCE', 10);
+
 INSERT INTO Building_GrowthExtraYield
 	(BuildingType, YieldType, Yield)
 VALUES

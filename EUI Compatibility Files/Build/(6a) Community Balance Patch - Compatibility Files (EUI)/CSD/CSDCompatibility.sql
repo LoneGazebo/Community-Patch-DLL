@@ -141,19 +141,19 @@ DELETE FROM Building_PrereqBuildingClasses WHERE BuildingType = 'BUILDING_EHRENH
 
 -- Pop Needed
 UPDATE Buildings SET NationalPopRequired = '20' WHERE Type = 'BUILDING_COURT_SCRIBE';
-UPDATE Buildings SET NationalPopRequired = '40' WHERE Type = 'BUILDING_PRINTING_PRESS';
-UPDATE Buildings SET NationalPopRequired = '60' WHERE Type = 'BUILDING_FOREIGN_OFFICE';
-UPDATE Buildings SET NationalPopRequired = '70' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';
-UPDATE Buildings SET NationalPopRequired = '70' WHERE Type = 'BUILDING_FINANCE_CENTER';
-UPDATE Buildings SET NationalPopRequired = '70' WHERE Type = 'BUILDING_EHRENHALLE';
+UPDATE Buildings SET NationalPopRequired = '30' WHERE Type = 'BUILDING_PRINTING_PRESS';
+UPDATE Buildings SET NationalPopRequired = '45' WHERE Type = 'BUILDING_FOREIGN_OFFICE';
+UPDATE Buildings SET NationalPopRequired = '60' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';
+UPDATE Buildings SET NationalPopRequired = '60' WHERE Type = 'BUILDING_FINANCE_CENTER';
+UPDATE Buildings SET NationalPopRequired = '60' WHERE Type = 'BUILDING_EHRENHALLE';
 
 -- Expansion Cost
 
-UPDATE Buildings SET NumCityCostMod = '15' WHERE Type = 'BUILDING_PRINTING_PRESS';
-UPDATE Buildings SET NumCityCostMod = '15' WHERE Type = 'BUILDING_FOREIGN_OFFICE';
-UPDATE Buildings SET NumCityCostMod = '15' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';
-UPDATE Buildings SET NumCityCostMod = '15' WHERE Type = 'BUILDING_FINANCE_CENTER';
-UPDATE Buildings SET NumCityCostMod = '15' WHERE Type = 'BUILDING_EHRENHALLE';
+UPDATE Buildings SET NumCityCostMod = '10' WHERE Type = 'BUILDING_PRINTING_PRESS';
+UPDATE Buildings SET NumCityCostMod = '10' WHERE Type = 'BUILDING_FOREIGN_OFFICE';
+UPDATE Buildings SET NumCityCostMod = '10' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';
+UPDATE Buildings SET NumCityCostMod = '10' WHERE Type = 'BUILDING_FINANCE_CENTER';
+UPDATE Buildings SET NumCityCostMod = '10' WHERE Type = 'BUILDING_EHRENHALLE';
 
 -- Religious Authority (CSD)
 UPDATE Buildings SET FaithToVotes = '0' WHERE Type = 'BUILDING_GRAND_TEMPLE';

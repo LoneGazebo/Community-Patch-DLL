@@ -39,7 +39,6 @@ class CvPlotInfo;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 class CvGreatPersonInfo;
-enum GreatPersonTypes;
 #endif
 class CvTerrainInfo;
 class CvResourceClassInfo;

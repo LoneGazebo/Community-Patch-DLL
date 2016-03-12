@@ -763,8 +763,6 @@ public:
 	void ChangeWeLoveTheKingDayCounter(int iChange);
 
 	int GetLastTurnGarrisonAssigned() const;
-	void SetLastTurnGarrisonAssigned(int iValue);
-
 	int GetNumThingsProduced() const;
 
 	bool isProductionAutomated() const;
@@ -904,6 +902,20 @@ public:
 
 	int GetYieldFromConstruction(YieldTypes eIndex) const;
 	void ChangeYieldFromConstruction(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromTech(YieldTypes eIndex) const;
+	void ChangeYieldFromTech(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromBirth(YieldTypes eIndex) const;
+	void ChangeYieldFromBirth(YieldTypes eIndex, int iChange);
+	int GetYieldFromUnitProduction(YieldTypes eIndex) const;
+	void ChangeYieldFromUnitProduction(YieldTypes eIndex, int iChange);
+	int GetYieldFromBorderGrowth(YieldTypes eIndex) const;
+	void ChangeYieldFromBorderGrowth(YieldTypes eIndex, int iChange);
+	int GetYieldFromPolicyUnlock(YieldTypes eIndex) const;
+	void ChangeYieldFromPolicyUnlock(YieldTypes eIndex, int iChange);
+	int GetYieldFromPurchase(YieldTypes eIndex) const;
+	void ChangeYieldFromPurchase(YieldTypes eIndex, int iChange);
 
 	int GetBuildingScienceFromYield(YieldTypes eIndex1) const;
 	void ChangeBuildingScienceFromYield(YieldTypes eIndex, int iChange);
@@ -1490,6 +1502,12 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromWLTKD;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromConstruction;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromTech;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromBirth;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromUnitProduction;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromBorderGrowth;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPolicyUnlock;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPurchase;
 	FAutoVariable<std::vector<int>, CvCity> m_aiScienceFromYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiBuildingScienceFromYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiSpecialistRateModifier;

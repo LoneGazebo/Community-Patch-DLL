@@ -29490,31 +29490,36 @@ int CvDiplomacyAI::GetNumSamePolicies(PlayerTypes ePlayer)
 {
 	int iNumSame = 0;
 	int iNumDifferent = 0;
-	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyBranchInfos(); iPolicyLoop++)
 	{
-		PolicyTypes pPolicy = (PolicyTypes)iPolicyLoop;
-		CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(pPolicy);
-		if(pkPolicyInfo)
+		PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes)iPolicyLoop;
+		if(ePolicyBranch != NO_POLICY_BRANCH_TYPE)
 		{
-			//No ideologies.
-			if(pkPolicyInfo->GetLevel() != 0)
+			CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(ePolicyBranch);
+			if(pkPolicyBranchInfo == NULL)
 			{
 				continue;
 			}
-			if(!GetPlayer()->GetPlayerPolicies()->IsPolicyBlocked(pPolicy) && !GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBlocked(pPolicy))
+			//No ideologies.
+			if(pkPolicyBranchInfo->IsPurchaseByLevel())
 			{
-				if(GetPlayer()->GetPlayerPolicies()->HasPolicy(pPolicy) && !GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy(pPolicy))
-				{
-					iNumDifferent++;
-				}
-				else if(!GetPlayer()->GetPlayerPolicies()->HasPolicy(pPolicy) && GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy(pPolicy))
-				{
-					iNumDifferent++;
-				}
-				else if(GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy(pPolicy) && GetPlayer()->GetPlayerPolicies()->HasPolicy(pPolicy))
-				{
-					iNumSame++;
-				}
+				continue;
+			}
+
+			//We have it and they don't?
+			if(GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch) && !GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
+			{
+				iNumDifferent++;
+			}
+			//They have it and we don't?
+			else if(!GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch) && GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
+			{
+				iNumDifferent++;
+			}
+			//We both have it?
+			else if(GetPlayer()->GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch) && GET_PLAYER(ePlayer).GetPlayerPolicies()->IsPolicyBranchUnlocked(ePolicyBranch))
+			{
+				iNumSame++;
 			}
 		}
 	}
@@ -32265,6 +32270,21 @@ int CvDiplomacyAI::GetHasAdoptedMyReligionScore(PlayerTypes ePlayer)
 	}
 	return iOpinionWeight;
 }
+#if defined(MOD_BALANCE_CORE)
+int CvDiplomacyAI::GetHasReligionFounderDifferenceScore(PlayerTypes ePlayer)
+{
+	int iOpinionWeight = 0;
+	if(m_pPlayer->GetReligions()->GetCurrentReligion() == NO_RELIGION || GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion() == NO_RELIGION)
+	{
+		return 0;
+	}
+	if(m_pPlayer->GetReligions()->GetCurrentReligion() != GET_PLAYER(ePlayer).GetReligions()->GetCurrentReligion())
+	{
+		iOpinionWeight += /*-5*/ GC.getOPINION_WEIGHT_ADOPTING_HIS_RELIGION() * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
+	}
+	return iOpinionWeight;
+}
+#endif
 
 int CvDiplomacyAI::GetSameLatePoliciesScore(PlayerTypes ePlayer)
 {
@@ -33108,26 +33128,26 @@ int CvDiplomacyAI::GetPolicyScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 	int iNumPolicies = GetNumSamePolicies(ePlayer);
-	if(iNumPolicies < -2)
+	if(iNumPolicies < 0)
 	{
 		if(GetNeediness() > 7)
 		{
-			iOpinionWeight += max(20, (iNumPolicies * 2));
+			iOpinionWeight += max(10, (iNumPolicies * 2));
 		}
 		else
 		{
-			iOpinionWeight += max(10, (iNumPolicies));
+			iOpinionWeight += max(5, (iNumPolicies));
 		}
 	}
-	else if(iNumPolicies > 2)
+	else if(iNumPolicies > 0)
 	{
 		if(GetNeediness() > 7)
 		{
-			iOpinionWeight += min(-20, (iNumPolicies * 2));
+			iOpinionWeight += min(-10, (iNumPolicies * 2));
 		}
 		else
 		{
-			iOpinionWeight += min(-10, (iNumPolicies));
+			iOpinionWeight += min(-5, (iNumPolicies));
 		}
 	}
 

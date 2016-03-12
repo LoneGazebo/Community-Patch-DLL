@@ -4430,6 +4430,13 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			iYieldValue += ((pkBuildingInfo->GetSeaPlotYieldChange(eYield) * pCity->getPopulation()) / 3);
 		}
 	}
+	if(pkBuildingInfo->GetScienceFromYield(eYield) > 0)
+	{
+		if(pCity->getYieldRate(eYield, false, true) >  pkBuildingInfo->GetScienceFromYield(eYield))
+		{
+			iYieldValue *= max(3, (pCity->getYieldRate(eYield, false, true) / pkBuildingInfo->GetScienceFromYield(eYield)));
+		}
+	}
 	if(pkBuildingInfo->GetGoldenAgeYieldMod(eYield) > 0)
 	{
 		iYieldValue += pkBuildingInfo->GetGoldenAgeYieldMod(eYield);
@@ -4612,6 +4619,35 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if(pkBuildingInfo->GetTradeRouteRecipientBonus() > 0 || pkBuildingInfo->GetTradeRouteTargetBonus() > 0 && eYield == YIELD_GOLD)
 	{
 		iYieldValue += (kPlayer.GetTrade()->GetTradeValuesAtCityTimes100(pCity, YIELD_GOLD) * (pkBuildingInfo->GetTradeRouteRecipientBonus() + pkBuildingInfo->GetTradeRouteTargetBonus()));
+	}
+	if(pkBuildingInfo->GetYieldFromBorderGrowth(eYield) > 0)
+	{
+		iYieldValue += pkBuildingInfo->GetYieldFromBorderGrowth(eYield) + (pCity->getPlotCultureCostModifier() * -1) + (kPlayer.GetPlotCultureCostModifier() * -1);
+	}
+	if(pkBuildingInfo->GetYieldFromPolicyUnlock(eYield) > 0)
+	{
+		iYieldValue += (kPlayer.getPolicyCostModifier() * -1) + pkBuildingInfo->GetYieldFromPolicyUnlock(eYield);
+	}
+	if(pkBuildingInfo->GetYieldFromPurchase(eYield) > 0)
+	{
+		iYieldValue += (kPlayer.GetInvestmentModifier() * -1) + (kPlayer.GetPlayerTraits()->GetInvestmentModifier() * -1) + pkBuildingInfo->GetYieldFromPurchase(eYield);
+	}
+	if(pkBuildingInfo->GetYieldFromUnitProduction(eYield) > 0)
+	{
+		iYieldValue += pCity->getFreeExperience() + pkBuildingInfo->GetYieldFromUnitProduction(eYield);
+		if(pCity->IsBastion())
+		{
+			iYieldValue += pkBuildingInfo->GetYieldFromUnitProduction(eYield);
+		}
+	}
+	if(pkBuildingInfo->GetYieldFromBirth(eYield) > 0)
+	{
+		iYieldValue += pkBuildingInfo->GetYieldFromBirth(eYield) + pCity->GetGrowthExtraYield(eYield)  + kPlayer.GetCityGrowthMod();
+		if(pCity->isCapital())
+		{
+			iYieldValue += kPlayer.GetCapitalGrowthMod();
+		}
+		iYieldValue += kPlayer.GetPlayerTraits()->GetGrowthBoon();
 	}
 
 	//JFD CRIME NEGATIVE OVERRIDE

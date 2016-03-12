@@ -1514,9 +1514,13 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		int iFoodNeeded = (m_pCity->growthThreshold() * 100);
 		int iRemainder = 0;
 		iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 5), 1));
-		if((eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
+		if((eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
 		{
 			iPenalty += iRemainder;
+		}
+		else if(eFocus == NO_CITY_AI_FOCUS_TYPE && !bAvoidGrowth)
+		{
+			iPenalty += (iRemainder / 2);
 		}
 		else
 		{
@@ -1758,11 +1762,11 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			}
 		}
 	}
-	//Every 3 citizens should increase our desire for more specialists slightly.
-	int iPop = m_pCity->getPopulation();
-	iPop /= 3;
+	//Every citizen should increase our desire for more specialists.
+	int iPop = m_pCity->getPopulation() * 3;
+	iValue *= (100 + iPop);
+	iValue /= 100;
 
-	iValue += iPop;
 	return iValue;
 }
 
@@ -3738,97 +3742,8 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		if(newUnit != NULL)
 		{
-			float fDelay = 0.0f; 
 			GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(newUnit->getUnitClassType());
-			if (eGreatPerson != NO_GREATPERSON)
-			{
-				int iEra = kPlayer.GetCurrentEra();
-				if(iEra < 1)
-				{
-					iEra = 1;
-				}
-				int iGoldYield = kPlayer.GetPlayerTraits()->GetGreatPersonBornYield(eGreatPerson, YIELD_GOLD);
-				if(iGoldYield > 0)
-				{
-					kPlayer.GetTreasury()->ChangeGold(iGoldYield * iEra);
-					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldYield * iEra);
-						DLLUI->AddPopupText(newUnit->getX(),newUnit->getY(), text, fDelay);
-					}
-				}
-				int iFaithYield = kPlayer.GetPlayerTraits()->GetGreatPersonBornYield(eGreatPerson, YIELD_FAITH);
-				if(iFaithYield > 0)
-				{
-					kPlayer.ChangeFaith(iFaithYield * iEra);
-					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iFaithYield * iEra);
-						DLLUI->AddPopupText(newUnit->getX(),newUnit->getY(), text, fDelay);
-					}
-				}
-				int iCultureYield = kPlayer.GetPlayerTraits()->GetGreatPersonBornYield(eGreatPerson, YIELD_CULTURE);
-				if(iCultureYield > 0)
-				{
-					kPlayer.changeJONSCulture(iCultureYield * iEra);
-					GetCity()->ChangeJONSCultureStored(iCultureYield * iEra);
-					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCultureYield * iEra);
-						DLLUI->AddPopupText(newUnit->getX(),newUnit->getY(), text, fDelay);
-					}
-				}
-				int iGAPYield = kPlayer.GetPlayerTraits()->GetGreatPersonBornYield(eGreatPerson, YIELD_GOLDEN_AGE_POINTS);
-				if(iGAPYield > 0)
-				{
-					kPlayer.ChangeGoldenAgeProgressMeter(iGAPYield * iEra);
-					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGAPYield * iEra);
-						DLLUI->AddPopupText(newUnit->getX(),newUnit->getY(), text, fDelay);
-					}
-				}
-				int iScienceYield = kPlayer.GetPlayerTraits()->GetGreatPersonBornYield(eGreatPerson, YIELD_SCIENCE);
-				if(iScienceYield > 0)
-				{
-					TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
-					if(eCurrentTech == NO_TECH)
-					{
-						kPlayer.changeOverflowResearch(iScienceYield * iEra);
-					}
-					else
-					{
-						GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, (iScienceYield * iEra), kPlayer.GetID());
-					}
-					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScienceYield * iEra);
-						DLLUI->AddPopupText(newUnit->getX(),newUnit->getY(), text, fDelay);
-					}
-				}
-				int iTourismYield = kPlayer.GetPlayerTraits()->GetGreatPersonBornYield(eGreatPerson, YIELD_TOURISM);
-				if(iTourismYield > 0)
-				{
-					kPlayer.GetCulture()->AddTourismAllKnownCivs(iTourismYield * iEra);
-					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourismYield * iEra);
-						DLLUI->AddPopupText(newUnit->getX(),newUnit->getY(), text, fDelay);
-					}
-				}
-			}
+			GET_PLAYER(m_pCity->getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, m_pCity);
 		}
 	}
 #endif

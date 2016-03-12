@@ -18,7 +18,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- God of the Sea
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Fishing Boats and Atolls. +3 [ICON_FOOD] Food in coastal Cities'
+SET Text = '+1 [ICON_PEACE] Faith and +1 [ICON_PRODUCTION] Production from Fishing Boats and Atolls. +3 [ICON_FOOD] Food in coastal Cities'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of the Open Sky
@@ -55,7 +55,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_FORMAL_LITURGY_SHORT' AND EXISTS (SELECT * FROM COMM
 
 -- Stone Circles (Now God of Craftsmen)
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith from Quarries and Stone Works, and +3 [ICON_PRODUCTION] Production in Cities with a Specialist'
+SET Text = '+1 [ICON_PEACE] Faith and [ICON_GOLD] Gold from Quarries and Stone Works, and +2 [ICON_PRODUCTION] Production in Cities with a Specialist'
 WHERE Tag = 'TXT_KEY_BELIEF_STONE_CIRCLES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -154,7 +154,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_DANCE_AURORA_SHORT' AND EXISTS (SELECT * FROM COMMUN
 
 --  Tears of the Gods (Now God of Creation)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture, [ICON_PEACE] Faith, and [ICON_HAPPINESS_1] Happiness for every Pantheon ever founded (including this one)'
+SET Text = '+3 [ICON_PEACE] Faith in [ICON_CAPITAL] Capital. +1 [ICON_CULTURE] Culture, [ICON_GOLDEN_AGE] Golden Age Points, and [ICON_HAPPINESS_1] Happiness for every Pantheon ever founded (including this one)'
 WHERE Tag = 'TXT_KEY_BELIEF_TEARS_OF_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

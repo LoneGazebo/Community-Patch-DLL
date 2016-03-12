@@ -464,7 +464,7 @@ function DoUpdateVassalButton()
 	Controls.VassalButton:SetToolTipString(strToolTip);
 end
 Events.SerialEventEspionageScreenDirty.Add(DoUpdateVassalButton); -- not a typo! do not change!
-
+--END
 --------------------------------------------------------------------
 function HandleNotificationAdded(notificationId, notificationType, toolTip, summary, gameValue, extraGameData)
 	

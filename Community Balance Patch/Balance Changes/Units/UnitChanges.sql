@@ -22,13 +22,13 @@
 	-- Great Prophets no longer capturable
 	UPDATE Units Set Capture = NULL WHERE Type = 'UNIT_PROPHET' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-	-- Great Writer culture boost boosted slightly.
+	-- Great Writer culture boost lowered slightly.
 
-	UPDATE Units SET BaseCultureTurnsToCount = '10' WHERE Type = 'UNIT_WRITER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	UPDATE Units SET BaseCultureTurnsToCount = '7' WHERE Type = 'UNIT_WRITER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-	-- Great Scientist science boost buffed slightly.
+	-- Great Scientist science boost lowered slightly.
 
-	UPDATE Units SET BaseBeakersTurnsToCount = '10' WHERE Type = 'UNIT_SCIENTIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	UPDATE Units SET BaseBeakersTurnsToCount = '6' WHERE Type = 'UNIT_SCIENTIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Admiral movement buff, ability addition
 	UPDATE Units SET Moves = '5' WHERE Type = 'UNIT_GREAT_ADMIRAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
@@ -39,11 +39,14 @@
 
 	UPDATE Units SET NumGoldPerEra = '150' WHERE Type = 'UNIT_MERCHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	-- Reduced base golden age turns of artist 
+	UPDATE Units SET GoldenAgeTurns = '5' WHERE Type = 'UNIT_ARTIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 	-- Engineer production boost nerfed slightly.
 
-	UPDATE Units SET BaseHurry = '250' WHERE Type = 'UNIT_ENGINEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	UPDATE Units SET BaseHurry = '200' WHERE Type = 'UNIT_ENGINEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-	UPDATE Units SET HurryMultiplier = '25' WHERE Type = 'UNIT_ENGINEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	UPDATE Units SET HurryMultiplier = '45' WHERE Type = 'UNIT_ENGINEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 
 

@@ -165,15 +165,17 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POLICY_NEEDED_LABEL", iNumPolicies, iNumHave));
 		end
 		--- National/Local Population
-		local iNumNationalPop = pBuildingInfo.NationalPopRequired;
-		if(iNumNationalPop > 0) then
-			local iNumHave = pActivePlayer:GetCurrentTotalPop();
-			table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POPULATION_NATIONAL_NEEDED_LABEL", iNumNationalPop, iNumHave));
+		if(pActivePlayer) then
+			local iNumNationalPop = pActivePlayer:GetScalingNationalPopulationRequrired(iBuildingID);
+			if(iNumNationalPop > 0) then
+				local iNumHave = pActivePlayer:GetCurrentTotalPop();
+				table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POPULATION_NATIONAL_NEEDED_LABEL", iNumNationalPop, iNumHave));
+			end
 		end
 
 		local iNumLocalPop = pBuildingInfo.LocalPopRequired;
 		if(iNumLocalPop > 0) then
-			if (pCity ~= nil) then
+			if (pCity) then
 				local iNumHave = pCity:GetPopulation();
 				table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PEDIA_NUM_POPULATION_LOCAL_NEEDED_LABEL", iNumLocalPop, iNumHave));
 			end

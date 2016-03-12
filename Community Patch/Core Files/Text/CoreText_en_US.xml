@@ -2,6 +2,36 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Scott Lewis (Firaxis Games) -->
 <GameData>
 	<Language_en_US>
+		<Row Tag="TXT_KEY_YIELD_TOURISM">
+			<Text>Tourism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT">
+			<Text>{1_Num} [ICON_TOURISM] Tourism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_FROM_TRADE_ROUTES">
+			<Text>{1_perTurn:number "#.##"} [ICON_TOURISM] from Trade Routes established with this city</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_GOLDEN_AGE_POINTS">
+			<Text>Golden Age Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT">
+			<Text>{1_Num} [ICON_GOLDEN_AGE] Golden Age Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GOLDEN_AGE_POINTS_FROM_TRADE_ROUTES">
+			<Text>{1_perTurn:number "#.##"} [ICON_GOLDEN_AGE] from Trade Routes established with this city</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_GREAT_GENERAL_POINTS">
+			<Text>Great General Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_GREAT_ADMIRAL_POINTS">
+			<Text>Great Admiral Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_POPULATION">
+			<Text>Citizens</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_CULTURE_LOCAL">
+			<Text>Border Growth Points</Text>
+		</Row>
 		<!-- America - Flavoured -->
 		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_10">
 			<Text>Snowden</Text>
@@ -5787,25 +5817,35 @@
 
 		<!-- Religion Majority Est. -->
 		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_MAJORITY_S">
-			<Text>{1_ReligionName} now your [ICON_RELIGION] majority Religion!</Text>
+			<Text>{1_ReligionName} now your [ICON_RELIGION] majority [ICON_RELIGION] Religion!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_MAJORITY">
-			<Text>{1_ReligionName} has become your new national religious majority.</Text>
+			<Text>{1_ReligionName} has become your new majority [ICON_RELIGION] Religion. This shift in religious status may affect your relationship with other Civilizations, as well as your own population.</Text>
 		</Row>
-		
+		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_STATE_RELIGION_S">
+			<Text>{1_ReligionName} now your [ICON_RELIGION] official Religion!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_STATE_RELIGION">
+			<Text>{1_ReligionName} is now your official [ICON_RELIGION] Religion. You alone will benefit from Founder and Reformation Beliefs related to {1_ReligionName}, and any Founder or Reformation Beliefs related to prior [ICON_RELIGION] Religions are no longer valid.</Text>
+		</Row>
+
 		<!-- Holy City Lost/Gained-->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_LOST_HOLY">
-			<Text>The Holy City of {1_CityName:textkey} was captured by {@2_CivName}! If {@2_CivName} did not not found a Religion, Founder and Reformation Beliefs tied to this City's Religion now belong to them. If {1_CityName:textkey} was your current Religion's Holy City, you lose access to these Beliefs until you retake it.</Text>
+			<Text>The Holy City of {1_CityName:textkey} was captured by {@2_CivName}! If {@2_CivName} is eliigble, {3_Religion} may become their official Religion, thus giving them access to its Founder and Reformation Bonuses. If {3_Religion} was your official Religion, you lose access to its Beliefs until you retake it.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST_HOLY">
 			<Text>Holy City of {1_CityName:textkey} captured!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_GAINED_HOLY">
-			<Text>You captured the Holy City of {1_CityName:textkey}! If you did not found a Religion, you will receive all Founder and Reformation Belief bonuses associated with this Holy City's Religion (so long as you retain control of the City).</Text>
+			<Text>You captured the Holy City of {1_CityName:textkey}! If eligible, {2_Religion} may become your official relgion, thus giving you access to the Founder and Reformation Belief bonuses associated with it (so long as you retain control of the City).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_GAINED_HOLY">
 			<Text>Holy City of {1_CityName:textkey} taken!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_DIPLO_RELIGIOUS_DIFFERENCE_FOUNDERS">
+			<Text>[COLOR_NEGATIVE_TEXT]Religious differences strain your relationship.[ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Great Work Gold (LUA)-->
@@ -6002,18 +6042,34 @@
 			<Text>Recently liberated</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED">
-			<Text>{1_CSName} believes that your military is no longer capable of fulfilling the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you promised. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
+			<Text>After due consideration and plenty of warnings, {1_CSName} believes that your military is no longer capable of fulfilling the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you promised. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT">
 			<Text>Pledge of Protection annulled by {1_CSName}!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING">
-			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled due to your weakening military power. Increase the size of your military to maintain this promise!</Text>
+			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled due to your weakening military power. Increase the size of your military within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] turns to maintain this promise!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT">
+			<Text>Pledge of Protection warning!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER">
+			<Text>If you do not improve your global military standing in {2_Num} turns, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT">
 			<Text>Pledge of Protection in jeopardy!</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED">
+			<Text>Your military status in the world has been restored, thus your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to {1_CSName} is once again secure.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT">
+			<Text>Pledge of Protection secured.</Text>
+		</Row>
+
+		
 
 		<!-- LUA for Warscore -->
 		<Row Tag="TXT_KEY_WAR_SCORE">
@@ -6201,6 +6257,95 @@
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_NUM_POPULATION_LOCAL_NEEDED_LABEL">
 			<Text>Local Population Required: [COLOR_CYAN]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
+		</Row>
+		
+		<!-- Instant Yield Text -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD">
+			<Text>Empire-Wide Bonus Yields</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD_IN_CITY">
+			<Text>Bonus Yields in {1_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_CITY">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_City}: [ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_DETAILS">
+			<Text>+{3_Num} {2_Icon} {1_Name}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH">
+			<Text>Birth of a [ICON_CITIZEN] Citizen:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH_CAPITAL">
+			<Text>Birth of a [ICON_CITIZEN] Citizen in [ICON_CAPITAL] Capital:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_ERA">
+			<Text>Entering a new [ICON_RESEARCH] Era:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_POLICY">
+			<Text>Unlocking a [ICON_CULTURE] Policy:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_INSTANT">
+			<Text>Instant yield:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TECH">
+			<Text>Researching a [ICON_RESEARCH] Technology:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_CONSTRUCTION">
+			<Text>Constructing {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@2_Building}}:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_BORDERS">
+			<Text>Expanding [ICON_CULTURE] Borders:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_PROPOSAL">
+			<Text>Passing a [ICON_INFLUENCE] Proposal:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_GP_USE">
+			<Text>Expending a [ICON_GREAT_PEOPLE] Great Person:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_GP_BORN">
+			<Text>Birth of a [ICON_GREAT_PEOPLE] Great Person:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_CONQUEST">
+			<Text>[ICON_VICTORY_DOMINATION] Conquering a City:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_VICTORY">
+			<Text>[ICON_VICTORY_DOMINATION] Winning a battle:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_UNIT_PRODUCTION">
+			<Text>[ICON_PRODUCTION] Producing a military unit:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_PURCHASE">
+			<Text>[ICON_GOLD] Purchasing a unit or building:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TILE_PURCHASE">
+			<Text>[ICON_GOLD] Purchasing a Tile:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_FOUND">
+			<Text>[ICON_GOLDEN_AGE] Founding a City:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TRADE_ROUTE">
+			<Text>Completing a [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_CONVERSION">
+			<Text>Converting a City to your [ICON_RELIGION] Religion:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_GROWTH_EXTRA">
+			<Text>Yield conversion in [ICON_CITY_STATE] City:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_DEATH">
+			<Text>[ICON_PIRATE] Death of a military unit:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_BULLY">
+			<Text>[ICON_PIRATE] Bullying a Minor Civ:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_SPREAD">
+			<Text>Spreading your [ICON_RELIGION] Religion to a City:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_FOREIGN_SPREAD">
+			<Text>Spreading your [ICON_RELIGION] Religion to a Foreign City:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_MOVEMENT">
+			<Text>Movement of a [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 	</Language_en_US>
 </GameData>
