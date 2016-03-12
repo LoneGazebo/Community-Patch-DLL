@@ -535,7 +535,7 @@
 			<Text>Capitulated Vassal</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_VASSAL_TYPE_CAPITULATED_TT">
-			<Text>Capitulated vassals are vassals acquired as the result of being crippled in war. Capitulated vassals are completely subservient to the master and leave their masters until they have satisfied a series of requirements. Capitulated vassals count toward a Domination victory!</Text>
+			<Text>Capitulated vassals are vassals acquired as the result of being crippled in war. Capitulated vassals are completely subservient to the master and leave their masters until they have satisfied a series of requirements.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_POPULATION_STAT">
 			<Text>[ICON_CITIZEN] Population</Text>
