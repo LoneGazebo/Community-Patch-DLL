@@ -103,6 +103,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iTradeMissionInfluenceModifier(0),
 	m_iTradeMissionGoldModifier(0),
 #if defined(MOD_BALANCE_CORE)
+	m_iBarbarianCombatBonus(0),
 	m_bGainsXPFromScouting(false),
 	m_bCannotBeCaptured(false),
 	m_bIsLostOnMove(false),
@@ -112,6 +113,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iForcedDamageValue(0),
 	m_iChangeDamageValue(0),
 	m_iPromotionDuration(0),
+	m_iMoraleBreakChance(0),
 #endif
 	m_bCannotBeChosen(false),
 	m_bLostWithUpgrade(false),
@@ -264,6 +266,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 	//Basic Properties
 #if defined(MOD_BALANCE_CORE)
+	m_iBarbarianCombatBonus = kResults.GetInt("BarbarianCombatBonus");
 	m_bGainsXPFromScouting = kResults.GetBool("GainsXPFromScouting");
 	m_bCannotBeCaptured = kResults.GetBool("CannotBeCaptured");
 	m_bIsLostOnMove = kResults.GetBool("IsLostOnMove");
@@ -274,6 +277,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iForcedDamageValue = kResults.GetInt("ForcedDamageValue");
 	m_iChangeDamageValue = kResults.GetInt("ChangeDamageValue");
 	m_iPromotionDuration = kResults.GetInt("PromotionDuration");
+	m_iMoraleBreakChance = kResults.GetInt("MoraleBreakChance");
 #endif
 	m_bCannotBeChosen = kResults.GetBool("CannotBeChosen");
 	m_bLostWithUpgrade = kResults.GetBool("LostWithUpgrade");
@@ -1400,6 +1404,11 @@ bool CvPromotionEntry::IsGainsXPFromScouting() const
 {
 	return m_bGainsXPFromScouting;
 }
+/// Accessor: Can this Promotion grant bonuses v. barbarians?
+int CvPromotionEntry::GetBarbarianCombatBonus() const
+{
+	return m_iBarbarianCombatBonus;
+}
 //Cannot be captured
 bool CvPromotionEntry::CannotBeCaptured() const
 {
@@ -1435,6 +1444,10 @@ int CvPromotionEntry::ChangeDamageValue() const
 int CvPromotionEntry::PromotionDuration() const
 {
 	return m_iPromotionDuration;
+}
+int CvPromotionEntry::GetMoraleBreakChance() const
+{
+	return m_iMoraleBreakChance;
 }
 #endif
 /// Accessor: Can this Promotion be earned through normal leveling?

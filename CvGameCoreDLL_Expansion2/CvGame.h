@@ -454,6 +454,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void SetHighestPotential();
+	void DoBarbCountdown();
 #endif
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;

@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v73 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 73)
+#define MOD_DLL_NAME "Community Patch v74 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 74)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -200,6 +200,8 @@
 #define MOD_API_PLOT_YIELDS                         gCustomMods.isAPI_PLOT_YIELDS()
 // Enables the Achievements table (v45)
 #define MOD_API_ACHIEVEMENTS                        gCustomMods.isAPI_ACHIEVEMENTS()
+// Enables the XP times 100 API (v74)
+#define MOD_API_XP_TIMES_100                        (true)
 // Enables the Extensions API
 #define MOD_API_EXTENSIONS                          gCustomMods.isAPI_EXTENSIONS()
 // Enables the LUA Extensions API
@@ -241,6 +243,8 @@
 #define MOD_GLOBAL_CITY_FOREST_BONUS                gCustomMods.isGLOBAL_CITY_FOREST_BONUS()
 // Give initial production boost for cities founded on jungle, as if the jungle had been chopped down by a worker (v72)
 #define MOD_GLOBAL_CITY_JUNGLE_BONUS                gCustomMods.isGLOBAL_CITY_JUNGLE_BONUS()
+// Enables rebasing to and airlifting to/from improvements (v74)
+#define MOD_GLOBAL_RELOCATION                       gCustomMods.isGLOBAL_RELOCATION()
 // Mountain plots return their terrain as TERRAIN_MOUNTAIN and any land unit may enter a mountain that has a road/rail route
 #define MOD_GLOBAL_ALPINE_PASSES                    gCustomMods.isGLOBAL_ALPINE_PASSES()
 // Permits City States to gift ships
@@ -361,7 +365,7 @@
 #define MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING	(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_MINOR_VARIABLE_BULLYING())
 #define MOD_BALANCE_YIELD_SCALE_ERA					(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_YIELD_SCALE_ERA())
 #define MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES			(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_NEW_GP_ATTRIBUTES())
-#define MOD_BALANCE_CORE_DEBUGGING					(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_DEBUGGING())
+//MOD_BALANCE_CORE_DEBUGGING						
 #define MOD_BALANCE_CORE_JFD						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_JFD())
 #define MOD_BALANCE_CORE_MILITARY_RESISTANCE		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_MILITARY_RESISTANCE())
 #define MOD_BALANCE_CORE_PANTHEON_RESET_FOUND		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_PANTHEON_RESET_FOUND())
@@ -542,6 +546,10 @@
 //   GameEvents.MinorAlliesChanged.Add(function(iMinor, iMajor, bIsAlly, iOldFriendship, iNewFriendship) end)
 #define MOD_EVENTS_MINORS                           gCustomMods.isEVENTS_MINORS()
 
+// Event sent upon a City State giving a gift (v73)
+//   GameEvents.MinorGift.Add(function(iMinor, iMajor, ???) end)
+#define MOD_EVENTS_MINORS_GIFTS                     gCustomMods.isEVENTS_MINORS_GIFTS()
+
 // Events sent on interaction with City States (v68)
 //   GameEvents.PlayerCanProtect.Add(function(iPlayer, iCS) return true end)
 //   GameEvents.PlayerProtected.Add(function(iPlayer, iCS) end)
@@ -556,6 +564,8 @@
 //   GameEvents.PlayerCanGiftUnit.Add(function(iPlayer, iCS, iUnit) return true end)
 //   GameEvents.PlayerCanGiftImprovement.Add(function(iPlayer, iCS) return true end)
 //   GameEvents.PlayerGifted.Add(function(iPlayer, iCS, iGold, iUnitType, iPlotX, iPlotY) end)
+//   GameEvents.PlayerCanTransitMinorCity.Add(function(iPlayer, iCS, iCity, iPlotX, iPlotY) return true end) (v74)
+//   GameEvents.UnitCanTransitMinorCity.Add(function(iPlayer, iUnit, iCS, iCity, iPlotX, iPlotY) return true end) (v74)
 #define MOD_EVENTS_MINORS_INTERACTION               gCustomMods.isEVENTS_MINORS_INTERACTION()
 
 // Events sent by Barbarians (v68)
@@ -704,6 +714,10 @@
 //   GameEvents.CitySoldBuilding.Add(function(iPlayer, iCity, iBuilding) end)
 #define MOD_EVENTS_CITY                             gCustomMods.isEVENTS_CITY()
 
+// Event sent after a civilization moves their capital (v73)
+//   GameEvents.CapitalChanged.Add(function(iPlayer, iNewCapital, iOldCapital) end)
+#define MOD_EVENTS_CITY_CAPITAL                     gCustomMods.isEVENTS_CITY_CAPITAL()
+
 // Event sent to ascertain if a city can acquire a plot (v20)
 //   GameEvents.CityCanAcquirePlot.Add(function(iPlayer, iCity, iPlotX, iPlotY) return true end)
 #define MOD_EVENTS_CITY_BORDERS                     gCustomMods.isEVENTS_CITY_BORDERS()
@@ -739,6 +753,11 @@
 //   GameEvents.AreaCanHaveAnyResource.Add(function(iPlayer, iArea) return true end)
 //   GameEvents.PlaceResource.Add(function(iPlayer, iResource, iCount, iPlotX, iPlotY) end)
 #define MOD_EVENTS_AREA_RESOURCES                   gCustomMods.isEVENTS_AREA_RESOURCES()
+
+// Events sent to ascertain if a unit can airlift from/to a specific plot (v74)
+//   GameEvents.CanAirliftFrom.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end)
+//   GameEvents.CanAirliftTo.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end)
+#define MOD_EVENTS_AIRLIFT                           gCustomMods.isEVENTS_AIRLIFT()
 
 // Events sent to ascertain if a unit can rebase to a specific plot (either a city or a carrier)
 //   GameEvents.CanLoadAt.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end)
@@ -788,10 +807,11 @@
 #define MOD_BUGFIX_MINOR 							(true)
 // Fixes the spy name crash (v53)
 #define MOD_BUGFIX_SPY_NAMES                        (true)
-// Fixes the research overflow bug/exploit (v52)
 #define MOD_BUGFIX_RESEARCH_OVERFLOW                gCustomMods.isBUGFIX_RESEARCH_OVERFLOW()
 // Fixes the bug where a city doesn't work its centre tile (v45)
 #define MOD_BUGFIX_CITY_CENTRE_WORKING              (true)
+// Fixes the bug of creating a capital from a puppet city, and leaving it that way (v73)
+#define MOD_BUGFIX_NO_PUPPET_CAPITALS               (true)
 // Adds missing policy events when adopting an ideology (v33)
 #define MOD_BUGFIX_MISSING_POLICY_EVENTS			(true)
 // Fixes trade routes sticking to coastal water when the player has the EmbarkAllWater trait (v33)
@@ -949,6 +969,10 @@ enum BattleTypeTypes
 #define GAMEEVENTRETURN_HOOK   GAMEEVENTRETURN_TRUE
 #define GAMEEVENTRETURN_VALUE  GAMEEVENTRETURN_TRUE
 
+// Pairs of event names and (optional) parameter types
+//    iii means three int params
+//    ibi means an int, then a bool, then a final int
+//    s means a string (char*) and is only allowed as the last parameter
 #define GAMEEVENT_AiOverrideChooseNextTech		"AiOverrideChooseNextTech",		"ib"
 #define GAMEEVENT_AreaCanHaveAnyResource		"AreaCanHaveAnyResource",		"ii"
 #define GAMEEVENT_BarbariansCanFoundCamp		"BarbariansCanFoundCamp",		"ii"
@@ -961,6 +985,8 @@ enum BattleTypeTypes
 #define GAMEEVENT_BattleFinished				"BattleFinished",				""
 #define GAMEEVENT_BattleJoined					"BattleJoined",					"iiib"
 #define GAMEEVENT_BattleStarted					"BattleStarted",				"iii"
+#define GAMEEVENT_CanAirliftFrom				"CanAirliftFrom",				"iiii"
+#define GAMEEVENT_CanAirliftTo					"CanAirliftTo",					"iiii"
 #define GAMEEVENT_CanDoCommand					"CanDoCommand",					"iiiiiiib"
 #define GAMEEVENT_CanHaveAnyUpgrade				"CanHaveAnyUpgrade",			"ii"
 #define GAMEEVENT_CanHavePromotion				"CanHavePromotion",				"iii"
@@ -971,6 +997,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CanParadropFrom				"CanParadropFrom",				"iiii"
 #define GAMEEVENT_CanRebaseInCity				"CanRebaseInCity",				"iiii"
 #define GAMEEVENT_CanRebaseTo					"CanRebaseTo",					"iiiib"
+#define GAMEEVENT_CapitalChanged				"CapitalChanged",				"iii"
 #define GAMEEVENT_CircumnavigatedGlobe			"CircumnavigatedGlobe",			"i"
 #define GAMEEVENT_CityBoughtPlot				"CityBoughtPlot",				"iiiibb"
 #define GAMEEVENT_CityCanAcquirePlot			"CityCanAcquirePlot",			"iiii"
@@ -1009,6 +1036,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_MakePeace						"MakePeace",					"iib"
 #define GAMEEVENT_MinorAlliesChanged			"MinorAlliesChanged",			"iibii"
 #define GAMEEVENT_MinorFriendsChanged			"MinorFriendsChanged",			"iibii"
+#define GAMEEVENT_MinorGift						"MinorGift",					"iiiiibbs"
 #define GAMEEVENT_NaturalWonderDiscovered		"NaturalWonderDiscovered",		"iiiib"
 #define GAMEEVENT_NuclearDetonation				"NuclearDetonation",			"iiibb"
 #define GAMEEVENT_PantheonFounded				"PantheonFounded",				"iiii"
@@ -1042,6 +1070,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_PlayerCanRemoveHeresy			"PlayerCanRemoveHeresy",		"iiii"
 #define GAMEEVENT_PlayerCanRevoke				"PlayerCanRevoke",				"ii"
 #define GAMEEVENT_PlayerCanSpreadReligion		"PlayerCanSpreadReligion",		"iiii"
+#define GAMEEVENT_PlayerCanTransitMinorCity		"PlayerCanTransitMinorCity",	"iiiii"
 #define GAMEEVENT_PlayerGifted					"PlayerGifted",					"iiiiii"
 #define GAMEEVENT_PlayerGoldenAge				"PlayerGoldenAge",				"ibi"
 #define GAMEEVENT_PlayerLiberated				"PlayerLiberated",				"iii"
@@ -1069,6 +1098,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_UnitCanHaveName				"UnitCanHaveName",				"iii"
 #define GAMEEVENT_UnitCanHavePromotion			"UnitCanHavePromotion",			"iii"
 #define GAMEEVENT_UnitCanHaveUpgrade			"UnitCanHaveUpgrade",			"iiii"
+#define GAMEEVENT_UnitCanTransitMinorCity		"UnitCanTransitMinorCity",		"iiiiii"
 #define GAMEEVENT_UnitCaptured					"UnitCaptured",					"iiiibi"
 #define GAMEEVENT_UnitCaptureType				"UnitCaptureType",				"iiii"
 #define GAMEEVENT_UnitCityFounded				"UnitCityFounded",				"iiiii"
@@ -1174,7 +1204,6 @@ public:
 	int getOption(std::string sName, int defValue = 0);
 	int getCivOption(const char* szCiv, const char* szName, int defValue = 0);
 
-	MOD_OPT_DECL(BALANCE_CORE_DEBUGGING);
 	MOD_OPT_DECL(GLOBAL_STACKING_RULES);
 	MOD_OPT_DECL(GLOBAL_BREAK_CIVILIAN_1UPT);
 	MOD_OPT_DECL(GLOBAL_BREAK_CIVILIAN_RESTRICTIONS);
@@ -1187,6 +1216,7 @@ public:
 	MOD_OPT_DECL(GLOBAL_CITY_FOREST_BONUS);
 	MOD_OPT_DECL(GLOBAL_CITY_JUNGLE_BONUS);
 	MOD_OPT_DECL(GLOBAL_CITY_WORKING);
+	MOD_OPT_DECL(GLOBAL_RELOCATION);
 	MOD_OPT_DECL(GLOBAL_ALPINE_PASSES);
 	MOD_OPT_DECL(GLOBAL_CS_GIFT_SHIPS);
 	MOD_OPT_DECL(GLOBAL_CS_UPGRADES);
@@ -1348,6 +1378,7 @@ public:
 	MOD_OPT_DECL(EVENTS_DIPLO_EVENTS);
 	MOD_OPT_DECL(EVENTS_DIPLO_MODIFIERS);
 	MOD_OPT_DECL(EVENTS_MINORS);
+	MOD_OPT_DECL(EVENTS_MINORS_GIFTS);
 	MOD_OPT_DECL(EVENTS_MINORS_INTERACTION);
 	MOD_OPT_DECL(EVENTS_BARBARIANS);
 	MOD_OPT_DECL(EVENTS_GOODY_CHOICE);
@@ -1361,6 +1392,7 @@ public:
 	MOD_OPT_DECL(EVENTS_PLOT);
 	MOD_OPT_DECL(EVENTS_GOLDEN_AGE);
 	MOD_OPT_DECL(EVENTS_CITY);
+	MOD_OPT_DECL(EVENTS_CITY_CAPITAL);
 	MOD_OPT_DECL(EVENTS_CITY_BORDERS);
 	MOD_OPT_DECL(EVENTS_LIBERATION);
 	MOD_OPT_DECL(EVENTS_CITY_FOUNDING);
@@ -1383,6 +1415,7 @@ public:
 	MOD_OPT_DECL(EVENTS_RESOLUTIONS);
 	MOD_OPT_DECL(EVENTS_IDEOLOGIES);
 	MOD_OPT_DECL(EVENTS_NUCLEAR_DETONATION);
+	MOD_OPT_DECL(EVENTS_AIRLIFT);
 	MOD_OPT_DECL(EVENTS_REBASE);
 	MOD_OPT_DECL(EVENTS_COMMAND);
 	MOD_OPT_DECL(EVENTS_CUSTOM_MISSIONS);

@@ -141,7 +141,6 @@ public:
 	void kill(bool bDelay, PlayerTypes ePlayer = NO_PLAYER);
 
 	void doTurn();
-
 	bool isActionRecommended(int iAction);
 
 	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker) const;
@@ -309,6 +308,10 @@ public:
 	void DoAttrition();
 	int GetDanger(CvPlot* pAtPlot=NULL) const;
 
+#if defined(MOD_GLOBAL_RELOCATION)
+	const CvPlot* getAirliftFromPlot(const CvPlot* pPlot) const;
+	const CvPlot* getAirliftToPlot(const CvPlot* pPlot, bool bIncludeCities) const;
+#endif
 	bool canAirlift(const CvPlot* pPlot) const;
 	bool canAirliftAt(const CvPlot* pPlot, int iX, int iY) const;
 	bool airlift(int iX, int iY);
@@ -655,6 +658,13 @@ public:
 	void ChangeNumTilesRevealedThisTurn(int iValue);
 	void SetNumTilesRevealedThisTurn(int iValue);
 	int GetNumTilesRevealedThisTurn();
+
+	bool IsGainsXPFromScouting() const;
+	int GetGainsXPFromScouting() const;
+	void ChangeGainsXPFromScouting(int iValue);
+
+	int GetBarbarianCombatBonus() const;
+	void ChangeBarbarianCombatBonus(int iValue);
 #endif
 
 	bool IsRoughTerrainEndsTurn() const;
@@ -840,9 +850,15 @@ public:
 	bool IsInFriendlyTerritory() const;
 	bool IsUnderEnemyRangedAttack() const;
 
+#if defined(MOD_API_XP_TIMES_100)
+	int getExperienceTimes100() const;
+	void setExperienceTimes100(int iNewValueTimes100, int iMax = -1);
+	void changeExperienceTimes100(int iChangeTimes100, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false);
+#else
 	int getExperience() const;
 	void setExperience(int iNewValue, int iMax = -1);
 	void changeExperience(int iChange, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false);
+#endif
 
 	int getLevel() const;
 	void setLevel(int iNewValue);
@@ -1089,6 +1105,11 @@ public:
 
 	bool IsCanHeavyCharge() const;
 	void ChangeCanHeavyChargeCount(int iChange);
+
+#if defined(MOD_BALANCE_CORE)
+	int GetMoraleBreakChance() const;
+	void ChangeMoraleBreakChance(int iChange);
+#endif
 
 	int getFriendlyLandsModifier() const;
 	void changeFriendlyLandsModifier(int iChange);
@@ -1558,6 +1579,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_iMoves;
 	FAutoVariable<bool, CvUnit> m_bImmobile;
 	FAutoVariable<int, CvUnit> m_iExperience;
+#if defined(MOD_API_XP_TIMES_100)
+	FAutoVariable<int, CvUnit> m_iExperienceTimes100;
+#endif
 	FAutoVariable<int, CvUnit> m_iLevel;
 	FAutoVariable<int, CvUnit> m_iCargo;
 	FAutoVariable<int, CvUnit> m_iCargoCapacity;
@@ -1675,6 +1699,8 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvUnit> m_iNumTilesRevealedThisTurn;
+	FAutoVariable<int, CvUnit> m_iGainsXPFromScouting;
+	FAutoVariable<int, CvUnit> m_iBarbCombatBonus;
 #endif
 	FAutoVariable<int, CvUnit> m_iRoughTerrainEndsTurnCount;
 	FAutoVariable<int, CvUnit> m_iEmbarkAbilityCount;
@@ -1716,6 +1742,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_iEverSelectedCount;
 	FAutoVariable<int, CvUnit> m_iSapperCount;
 	FAutoVariable<int, CvUnit> m_iCanHeavyCharge;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvUnit> m_iCanMoraleBreak;
+#endif
 	FAutoVariable<int, CvUnit> m_iNumExoticGoods;
 	FAutoVariable<bool, CvUnit> m_bPromotionReady;
 	FAutoVariable<bool, CvUnit> m_bDeathDelay;
@@ -1838,6 +1867,10 @@ protected:
 	// these are do to a unit using Heavy Charge against you
 	bool CanFallBackFromMelee(CvUnit& pAttacker);
 	bool DoFallBackFromMelee(CvUnit& pAttacker);
+#if defined(MOD_BALANCE_CORE)
+	bool CanFallBackFromRanged(CvUnit& pAttacker);
+	bool DoFallBackFromRanged(CvUnit& pAttacker);
+#endif
 
 private:
 

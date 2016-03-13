@@ -390,6 +390,12 @@ void CvGame::init(HandicapTypes eHandicap)
 		SetHighestPotential();
 	}
 #endif
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	if(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	{
+		DoBarbCountdown();
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -7914,7 +7920,12 @@ void CvGame::doTurn()
 		SetHighestPotential();
 	}
 #endif
-
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	if(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	{
+		DoBarbCountdown();
+	}
+#endif
 	GC.GetEngineUserInterface()->setCanEndTurn(false);
 	GC.GetEngineUserInterface()->setHasMovedUnit(false);
 
@@ -8514,8 +8525,24 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		// Is this Unit already assigned to another minor civ?
 		if (setUniquesAlreadyAssigned.count(eLoopUnit) > 0)
 			continue;
-
+#if defined(MOD_BALANCE_CORE)
+		//Weight minor civ gifts higher, so they're more likely to spawn each game.
+		int iRandom = getJonRandNum(5, "Random Value For Gift");
+		if(iRandom < 0)
+		{
+			iRandom = 1;
+		}
+		if(pkUnitInfo->IsMinorCivGift())
+		{
+			veUnitRankings.push_back(eLoopUnit, iRandom * 2);
+		}
+		else
+		{
+			veUnitRankings.push_back(eLoopUnit, iRandom);
+		}
+#else
 		veUnitRankings.push_back(eLoopUnit, 1);
+#endif
 	}
 
 	UnitTypes eChosenUnit = NO_UNIT;
@@ -9648,7 +9675,11 @@ int CvGame::calculateSyncChecksum()
 					iMultiplier += (pLoopUnit->getX() * 876543);
 					iMultiplier += (pLoopUnit->getY() * 985310);
 					iMultiplier += (pLoopUnit->getDamage() * 736373);
+#if defined(MOD_API_XP_TIMES_100)
+					iMultiplier += ((pLoopUnit->getExperienceTimes100() / 100) * 820622);
+#else
 					iMultiplier += (pLoopUnit->getExperience() * 820622);
+#endif
 					iMultiplier += (pLoopUnit->getLevel() * 367291);
 				}
 				break;
@@ -9661,7 +9692,7 @@ int CvGame::calculateSyncChecksum()
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
 	debugSyncChecksum();
 #endif
 
@@ -9730,7 +9761,11 @@ void CvGame::debugSyncChecksum()
 			int iLoop=0;
 			for(CvUnit* pLoopUnit = GET_PLAYER((PlayerTypes)iI).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER((PlayerTypes)iI).nextUnit(&iLoop))
 				pLog->Msg( CvString::format("unit %d: x %02d, y %02d, damage %02d, exp %02d, level %02d\n",
+#if defined(MOD_API_XP_TIMES_100)
+					iLoop, pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getDamage(), (pLoopUnit->getExperienceTimes100() / 100), pLoopUnit->getLevel() ).c_str() );
+#else
 					iLoop, pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getDamage(), pLoopUnit->getExperience(), pLoopUnit->getLevel() ).c_str() );
+#endif
 		}
 	}
 
@@ -10164,6 +10199,65 @@ void CvGame::SetHighestPotential()
 			{				
 				iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);;
 				pLoopCity->SetEspionageRanking(iPotential);
+			}
+		}
+	}
+}
+void CvGame::DoBarbCountdown()
+{
+	int iOtherMinorLoop;
+	PlayerTypes eOtherMinor;
+	TeamTypes eLoopTeam;
+	for(int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+	{
+		eLoopTeam = (TeamTypes) iTeamLoop;
+
+		// Another Minor
+		if(!GET_TEAM(eLoopTeam).isMinorCiv())
+			continue;
+
+		// They not alive!
+		if(!GET_TEAM(eLoopTeam).isAlive())
+			continue;
+
+		for(iOtherMinorLoop = 0; iOtherMinorLoop < MAX_CIV_TEAMS; iOtherMinorLoop++)
+		{
+			eOtherMinor = (PlayerTypes) iOtherMinorLoop;
+
+			if(eOtherMinor == NO_PLAYER)
+				continue;
+
+			// Other minor is on this team
+			if(GET_PLAYER(eOtherMinor).getTeam() == eLoopTeam)
+			{
+				if(GET_PLAYER(eOtherMinor).GetMinorCivAI()->GetTurnsSinceRebellion() > 0)
+				{
+					int iRebellionSpawn = GET_PLAYER(eOtherMinor).GetMinorCivAI()->GetTurnsSinceRebellion();
+
+					GET_PLAYER(eOtherMinor).GetMinorCivAI()->ChangeTurnsSinceRebellion(-1);
+
+					//Rebel Spawn - once every 4 turns
+					if (iRebellionSpawn == /*20*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 100) / 100)
+					{
+						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
+					}
+					else if(iRebellionSpawn == /*16*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 80) / 100)
+					{
+						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
+					}
+					else if(iRebellionSpawn == /*12*/(GC.getMINOR_QUEST_REBELLION_TIMER() * 60) / 100)
+					{
+						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
+					}
+					else if(iRebellionSpawn == /*8*/ (GC.getMINOR_QUEST_REBELLION_TIMER() * 40) / 100)
+					{
+						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
+					}
+					else if(iRebellionSpawn == /*4*/ (GC.getMINOR_QUEST_REBELLION_TIMER() * 20) / 100)
+					{
+						GET_PLAYER(eOtherMinor).GetMinorCivAI()->DoRebellion();
+					}
+				}
 			}
 		}
 	}

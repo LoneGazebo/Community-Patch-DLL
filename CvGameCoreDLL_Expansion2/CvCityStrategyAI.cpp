@@ -4430,6 +4430,13 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			iYieldValue += ((pkBuildingInfo->GetSeaPlotYieldChange(eYield) * pCity->getPopulation()) / 3);
 		}
 	}
+	if(pkBuildingInfo->GetScienceFromYield(eYield) > 0)
+	{
+		if(pCity->getYieldRate(eYield, false, true) >  pkBuildingInfo->GetScienceFromYield(eYield))
+		{
+			iYieldValue *= max(3, (pCity->getYieldRate(eYield, false, true) / pkBuildingInfo->GetScienceFromYield(eYield)));
+		}
+	}
 	if(pkBuildingInfo->GetGoldenAgeYieldMod(eYield) > 0)
 	{
 		iYieldValue += pkBuildingInfo->GetGoldenAgeYieldMod(eYield);
@@ -4612,6 +4619,35 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if(pkBuildingInfo->GetTradeRouteRecipientBonus() > 0 || pkBuildingInfo->GetTradeRouteTargetBonus() > 0 && eYield == YIELD_GOLD)
 	{
 		iYieldValue += (kPlayer.GetTrade()->GetTradeValuesAtCityTimes100(pCity, YIELD_GOLD) * (pkBuildingInfo->GetTradeRouteRecipientBonus() + pkBuildingInfo->GetTradeRouteTargetBonus()));
+	}
+	if(pkBuildingInfo->GetYieldFromBorderGrowth(eYield) > 0)
+	{
+		iYieldValue += pkBuildingInfo->GetYieldFromBorderGrowth(eYield) + (pCity->getPlotCultureCostModifier() * -1) + (kPlayer.GetPlotCultureCostModifier() * -1);
+	}
+	if(pkBuildingInfo->GetYieldFromPolicyUnlock(eYield) > 0)
+	{
+		iYieldValue += (kPlayer.getPolicyCostModifier() * -1) + pkBuildingInfo->GetYieldFromPolicyUnlock(eYield);
+	}
+	if(pkBuildingInfo->GetYieldFromPurchase(eYield) > 0)
+	{
+		iYieldValue += (kPlayer.GetInvestmentModifier() * -1) + (kPlayer.GetPlayerTraits()->GetInvestmentModifier() * -1) + pkBuildingInfo->GetYieldFromPurchase(eYield);
+	}
+	if(pkBuildingInfo->GetYieldFromUnitProduction(eYield) > 0)
+	{
+		iYieldValue += pCity->getFreeExperience() + pkBuildingInfo->GetYieldFromUnitProduction(eYield);
+		if(pCity->IsBastion())
+		{
+			iYieldValue += pkBuildingInfo->GetYieldFromUnitProduction(eYield);
+		}
+	}
+	if(pkBuildingInfo->GetYieldFromBirth(eYield) > 0)
+	{
+		iYieldValue += pkBuildingInfo->GetYieldFromBirth(eYield) + pCity->GetGrowthExtraYield(eYield)  + kPlayer.GetCityGrowthMod();
+		if(pCity->isCapital())
+		{
+			iYieldValue += kPlayer.GetCapitalGrowthMod();
+		}
+		iYieldValue += kPlayer.GetPlayerTraits()->GetGrowthBoon();
 	}
 
 	//JFD CRIME NEGATIVE OVERRIDE
@@ -5013,25 +5049,19 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 						{
 							iValue += (pkBuildingInfo->GetSpecialistCount() * 5);
 						}
-						ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+						ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
+						if(eReligion == NO_RELIGION)
+						{
+							eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+						}
 						if(eReligion != NO_RELIGION)
 						{
 							const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, kPlayer.GetID());
 							if(pReligion)
 							{
-								CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
-								const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
-								for(int iI = 0; iI < iNumBeliefs; iI++)
+								if(pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, yield, kPlayer.GetID()) > 0)
 								{
-									const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
-									CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-									if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief))
-									{
-										if(pEntry->GetSpecialistYieldChange(eSpecialist, yield) > 0)
-										{
-											iValue += (pkBuildingInfo->GetSpecialistCount() * 5);
-										}
-									}
+									iValue += (pkBuildingInfo->GetSpecialistCount() * 5);
 								}
 							}
 						}
@@ -5107,43 +5137,37 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			iValue += kPlayer.GetPlayerTraits()->GetGoldenAgeTourismModifier();
 		}
 
-		ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+		ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
+		if(eReligion == NO_RELIGION)
+		{
+			eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+		}
 		if(eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, kPlayer.GetID());
 			if(pReligion)
 			{
-				CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
-				const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
-				for(int iI = 0; iI < iNumBeliefs; iI++)
+				for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 				{
-					const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
-					CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-					if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief))
-					{
-						for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
-						{
-							GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-							if(eGP == -1 || eGP == NULL || !eGP)
-								continue;
+					GreatPersonTypes eGP = (GreatPersonTypes)iJ;
+					if(eGP == -1 || eGP == NULL || !eGP)
+						continue;
 
-							if(pEntry->GetGoldenAgeGreatPersonRateModifier(iJ) > 0)
-							{
-								iValue += pEntry->GetGoldenAgeGreatPersonRateModifier(iJ);
-							}
-						}
-						for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
-						{
-							YieldTypes yield = (YieldTypes)ui;
+					if(pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGP, kPlayer.GetID()) > 0)
+					{
+						iValue += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGP, kPlayer.GetID());
+					}
+				}
+				for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+				{
+					YieldTypes yield = (YieldTypes)ui;
 					 
-							if(yield == NO_YIELD)
-								continue;
+					if(yield == NO_YIELD)
+						continue;
 							
-							if(pEntry->GetYieldBonusGoldenAge(yield) > 0)
-							{
-								iValue += pEntry->GetYieldBonusGoldenAge(yield);
-							}
-						}
+					if(pReligion->m_Beliefs.GetYieldBonusGoldenAge(yield) > 0)
+					{
+						iValue += pReligion->m_Beliefs.GetYieldBonusGoldenAge(yield, kPlayer.GetID());
 					}
 				}
 			}
@@ -5177,42 +5201,36 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			}
 			
 		}
-		ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+		ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
+		if(eReligion == NO_RELIGION)
+		{
+			eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+		}
 		if(eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, kPlayer.GetID());
 			if(pReligion)
 			{
-				CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
-				const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
-				for(int iI = 0; iI < iNumBeliefs; iI++)
+				if(pReligion->m_Beliefs.GetGreatPersonExpendedFaith(kPlayer.GetID()) > 0)
 				{
-					const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
-					CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-					if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief))
-					{
-						if(pEntry->GetGreatPersonExpendedFaith() > 0)
-						{
-							iValue += (pEntry->GetGreatPersonExpendedFaith() / 10);
-						}
-						for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
-						{
-							GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-							if(eGP == -1 || eGP == NULL || !eGP)
-								continue;
+					iValue += (pReligion->m_Beliefs.GetGreatPersonExpendedFaith(kPlayer.GetID()) / 10);
+				}
+				for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
+				{
+					GreatPersonTypes eGP = (GreatPersonTypes)iJ;
+					if(eGP == -1 || eGP == NULL || !eGP)
+						continue;
 
-							for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
-							{
-								YieldTypes yield = (YieldTypes)ui;
+					for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+					{
+						YieldTypes yield = (YieldTypes)ui;
 					 
-								if(yield == NO_YIELD)
-									continue;
+						if(yield == NO_YIELD)
+							continue;
 						
-								if(pEntry->GetGreatPersonExpendedYield(eGP, yield) > 0)
-								{
-									iValue += (pEntry->GetGreatPersonExpendedYield(eGP, yield) /10);
-								}
-							}
+						if(pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, kPlayer.GetID()) > 0)
+						{
+							iValue += (pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, kPlayer.GetID()) /10);
 						}
 					}
 				}
@@ -5251,25 +5269,19 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		{
 			iValue += 25;
 		}
-		ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+		ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
+		if(eReligion == NO_RELIGION)
+		{
+			eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+		}
 		if(eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, kPlayer.GetID());
 			if(pReligion)
 			{
-				CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
-				const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
-				for(int iI = 0; iI < iNumBeliefs; iI++)
+				if(pReligion->m_Beliefs.GetSpyPressure(kPlayer.GetID()) > 0)
 				{
-					const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
-					CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-					if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief))
-					{
-						if(pEntry->GetSpyPressure() > 0)
-						{
-							iValue += 25;
-						}
-					}
+					iValue += 25;
 				}
 			}
 		}

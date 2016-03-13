@@ -242,6 +242,13 @@ void CvCityConnections::UpdateRouteInfo(void)
 	bool bCallDirectEvents = false;
 	bool bCallIndirectEvents = false;
 
+#if defined(MOD_BALANCE_CORE)
+	if(!bAllowDirectRoutes)
+	{
+		bAllowDirectRoutes = m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad();
+	}
+#endif
+
 	// add all the cities we control and those that we want to connect to
 	for(uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
 	{

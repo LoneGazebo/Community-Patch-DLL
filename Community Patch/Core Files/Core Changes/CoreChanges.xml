@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 4/30/2015 12:34:58 PM -->
 <GameData>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_NEUSCHWANSTEIN</BuildingType>
+			<FlavorType>FLAVOR_WONDER</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+	</Building_Flavors>
 	<AIMilitaryStrategy_City_Flavors>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>

@@ -322,7 +322,11 @@ function RefreshYourReligion()
 				entry.BeliefType:SetText(beliefType);
 				entry.BeliefName:LocalizeAndSetText(belief.ShortDescription);
 				entry.BeliefDescription:LocalizeAndSetText(belief.Description);
-				entry.BeliefDescription:LocalizeAndSetToolTip(belief.Description);
+				if(belief.Tooltip ~= "") then
+					entry.BeliefDescription:LocalizeAndSetToolTip(belief.Tooltip);
+				else
+					entry.BeliefDescription:LocalizeAndSetToolTip(belief.Description);
+				end
 				
 				local bw,bh = entry.Base:GetSizeVal();
 				local bdw,bdh = entry.BeliefDescription:GetSizeVal();
@@ -340,7 +344,11 @@ function RefreshYourReligion()
 			entry.BeliefType:SetText(beliefType);
 			entry.BeliefName:LocalizeAndSetText(belief.ShortDescription);
 			entry.BeliefDescription:LocalizeAndSetText(belief.Description);
-			entry.BeliefDescription:LocalizeAndSetToolTip(belief.Description);
+			if(belief.Tooltip ~= "") then
+				entry.BeliefDescription:LocalizeAndSetToolTip(belief.Tooltip);
+			else
+				entry.BeliefDescription:LocalizeAndSetToolTip(belief.Description);
+			end
 			
 			local bw,bh = entry.Base:GetSizeVal();
 			local bdw,bdh = entry.BeliefDescription:GetSizeVal();
@@ -531,6 +539,7 @@ function RefreshBeliefs()
 						Name = Locale.Lookup(belief.ShortDescription),
 						Description = Locale.Lookup(belief.Description),
 						Type = GetBeliefType(belief),
+						Tooltip = Locale.Lookup(belief.Tooltip),
 						Religion = Locale.Lookup(Game.GetReligionName(eReligion)),
 						ReligionIconIndex = religion.PortraitIndex,
 						ReligionIconAtlas = religion.IconAtlas
@@ -554,6 +563,7 @@ function RefreshBeliefs()
 					Name = Locale.Lookup(belief.ShortDescription),
 					Description = Locale.Lookup(belief.Description),
 					Type = GetBeliefType(belief),
+					Tooltip = Locale.Lookup(belief.Tooltip),
 					Religion = religion,
 					ReligionIconIndex = pantheon.PortraitIndex,
 					ReligionIconAtlas = pantheon.IconAtlas
@@ -573,7 +583,11 @@ function RefreshBeliefs()
 			beliefEntry.BeliefName:SetText(v.Name);
 			beliefEntry.BeliefType:SetText(v.Type);
 			beliefEntry.BeliefDescription:SetText(v.Description);
-			beliefEntry.BeliefDescription:SetToolTipString(v.Description);
+			if(v.Tooltip ~= "") then
+				beliefEntry.BeliefDescription:SetToolTipString(v.Tooltip);
+			else
+				beliefEntry.BeliefDescription:SetToolTipString(v.Description);
+			end
 			beliefEntry.BeliefReligion:SetText(v.Religion);
 			IconHookup(v.ReligionIconIndex, 48, v.ReligionIconAtlas, beliefEntry.BeliefReligionIcon);
 		end

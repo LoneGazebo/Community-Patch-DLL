@@ -461,6 +461,11 @@ public:
 	CvCity* GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor);
 	void SetCoupAttempted(PlayerTypes ePlayer, bool bValue);
 	bool IsCoupAttempted(PlayerTypes ePlayer);
+	void SetTargetedAreaID(PlayerTypes ePlayer, int iValue);
+	int GetTargetedAreaID(PlayerTypes ePlayer);
+	void SetNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue);
+	int GetNumTurnsSincePtPWarning(PlayerTypes ePlayer);
+	void ChangeNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue);
 #endif
 	PlayerTypes GetMostRecentBullyForQuest() const;
 	bool IsWantsMinorDead(PlayerTypes eMinor);
@@ -544,6 +549,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void SetTurnLiberated(int iValue);
 	int GetTurnLiberated();
+	void TestChangeProtectionFromMajor(PlayerTypes eMajor);
 #endif
 	// Protection
 	void DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect, bool bPledgeNowBroken = false);
@@ -806,6 +812,8 @@ private:
 	int m_iCoup;
 	bool m_abSiphoned[MAX_MAJOR_CIVS];
 	bool m_abCoupAttempted[MAX_MAJOR_CIVS];
+	int m_aiAssignedPlotAreaID[MAX_MAJOR_CIVS];
+	int m_aiTurnsSincePtPWarning[MAX_MAJOR_CIVS];
 #endif
 
 	PlayerTypes m_eAlly;

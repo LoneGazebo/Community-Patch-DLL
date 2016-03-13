@@ -561,6 +561,21 @@ public:
 	//LUA Functions
 	int GetYieldPerTurnFromHappiness(YieldTypes eYield, int iValue) const;
 	int CalculateUnhappinessTooltip(YieldTypes eYield) const;
+
+	int GetPovertyUnhappinessGlobal() const;
+	void ChangePovertyUnhappinessGlobal(int iChange);
+
+	int GetDefenseUnhappinessGlobal() const;
+	void ChangeDefenseUnhappinessGlobal(int iChange);
+
+	int GetUnculturedUnhappinessGlobal() const;
+	void ChangeUnculturedUnhappinessGlobal(int iChange);
+
+	int GetIlliteracyUnhappinessGlobal() const;
+	void ChangeIlliteracyUnhappinessGlobal(int iChange);
+
+	int GetMinorityUnhappinessGlobal() const;
+	void ChangeMinorityUnhappinessGlobal(int iChange);
 #endif
 	int GetExcessHappiness() const;
 	bool IsEmpireUnhappy() const;
@@ -1025,7 +1040,9 @@ public:
 #else
 	void DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnit);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false);
+#endif
 	// Great People Expenditure
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
 	void DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatPersonUnit);
@@ -1474,22 +1491,51 @@ public:
 	int calculateEconomicMight() const;
 	int calculateProductionMight() const;
 
+#if defined(MOD_API_XP_TIMES_100)
+	int getCombatExperienceTimes100() const;
+#else
 	int getCombatExperience() const;
+#endif
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
+#if defined(MOD_API_XP_TIMES_100)
+	void setCombatExperienceTimes100(int iExperienceTimes100, CvUnit* pFromUnit = NULL);
+	void changeCombatExperienceTimes100(int iChangeTimes100, CvUnit* pFromUnit = NULL);
+#else
 	void setCombatExperience(int iExperience, CvUnit* pFromUnit = NULL);
 	void changeCombatExperience(int iChange, CvUnit* pFromUnit = NULL);
+#endif
+#else
+#if defined(MOD_API_XP_TIMES_100)
+	void setCombatExperienceTimes100(int iExperienceTimes100);
+	void changeCombatExperienceTimes100(int iChangeTimes100);
 #else
 	void setCombatExperience(int iExperience);
 	void changeCombatExperience(int iChange);
 #endif
+#endif
+#if defined(MOD_API_XP_TIMES_100)
+	int getLifetimeCombatExperienceTimes100() const;
+	int getNavalCombatExperienceTimes100() const;
+#else
 	int getLifetimeCombatExperience() const;
 	int getNavalCombatExperience() const;
+#endif
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
+#if defined(MOD_API_XP_TIMES_100)
+	void setNavalCombatExperienceTimes100(int iExperienceTimes100, CvUnit* pFromUnit = NULL);
+	void changeNavalCombatExperienceTimes100(int iChangeTimes100, CvUnit* pFromUnit = NULL);
+#else
 	void setNavalCombatExperience(int iExperience, CvUnit* pFromUnit = NULL);
 	void changeNavalCombatExperience(int iChange, CvUnit* pFromUnit = NULL);
+#endif
+#else
+#if defined(MOD_API_XP_TIMES_100)
+	void setNavalCombatExperienceTimes100(int iExperienceTimes100);
+	void changeNavalCombatExperienceTimes100(int iChangeTimes100);
 #else
 	void setNavalCombatExperience(int iExperience);
 	void changeNavalCombatExperience(int iChange);
+#endif
 #endif
 
 	int getBorderObstacleCount() const;
@@ -1747,6 +1793,7 @@ public:
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
 	void changeInvestmentModifier(int iChange);
+	int GetScalingNationalPopulationRequrired(BuildingTypes eBuilding) const;
 #endif
 	int getCapitalYieldRateModifier(YieldTypes eIndex) const;
 	void changeCapitalYieldRateModifier(YieldTypes eIndex, int iChange);
@@ -2517,6 +2564,11 @@ protected:
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	FAutoVariable<int, CvPlayer> m_iUnhappiness;
 	FAutoVariable<int, CvPlayer> m_iHappinessTotal;
+	FAutoVariable<int, CvPlayer> m_iChangePovertyUnhappinessGlobal;
+	FAutoVariable<int, CvPlayer> m_iChangeDefenseUnhappinessGlobal;
+	FAutoVariable<int, CvPlayer> m_iChangeUnculturedUnhappinessGlobal;
+	FAutoVariable<int, CvPlayer> m_iChangeIlliteracyUnhappinessGlobal;
+	FAutoVariable<int, CvPlayer> m_iChangeMinorityUnhappinessGlobal;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
@@ -2847,6 +2899,11 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCombatExperience;
 	FAutoVariable<int, CvPlayer> m_iLifetimeCombatExperience;
 	FAutoVariable<int, CvPlayer> m_iNavalCombatExperience;
+#if defined(MOD_API_XP_TIMES_100)
+	FAutoVariable<int, CvPlayer> m_iCombatExperienceTimes100;
+	FAutoVariable<int, CvPlayer> m_iLifetimeCombatExperienceTimes100;
+	FAutoVariable<int, CvPlayer> m_iNavalCombatExperienceTimes100;
+#endif
 	FAutoVariable<int, CvPlayer> m_iBorderObstacleCount;
 	FAutoVariable<int, CvPlayer> m_iPopRushHurryCount;
 	FAutoVariable<int, CvPlayer> m_iTotalImprovementsBuilt;

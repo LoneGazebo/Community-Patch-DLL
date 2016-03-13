@@ -285,6 +285,11 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromTech(NULL),
 	m_piYieldFromConstruction(NULL),
 	m_piScienceFromYield(NULL),
+	m_piYieldFromBirth(NULL),
+	m_piYieldFromUnitProduction(NULL),
+	m_piYieldFromBorderGrowth(NULL),
+	m_piYieldFromPolicyUnlock(NULL),
+	m_piYieldFromPurchase(NULL),
 #endif
 	m_piYieldChange(NULL),
 	m_piYieldChangePerPop(NULL),
@@ -385,6 +390,11 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
 	SAFE_DELETE_ARRAY(m_piScienceFromYield);
+	SAFE_DELETE_ARRAY(m_piYieldFromBirth);
+	SAFE_DELETE_ARRAY(m_piYieldFromUnitProduction);
+	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
+	SAFE_DELETE_ARRAY(m_piYieldFromPolicyUnlock);
+	SAFE_DELETE_ARRAY(m_piYieldFromPurchase);
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerPop);
@@ -824,6 +834,11 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		kUtility.SetYields(m_piYieldFromTech, "Building_YieldFromTech", "BuildingType", szBuildingType);
 		kUtility.SetYields(m_piYieldFromConstruction, "Building_YieldFromConstruction", "BuildingType", szBuildingType);
 		kUtility.SetYields(m_piScienceFromYield, "Building_ScienceFromYield", "BuildingType", szBuildingType);
+		kUtility.SetYields(m_piYieldFromBirth, "Building_YieldFromBirth", "BuildingType", szBuildingType);
+		kUtility.SetYields(m_piYieldFromUnitProduction, "Building_YieldFromUnitProduction", "BuildingType", szBuildingType);
+		kUtility.SetYields(m_piYieldFromBorderGrowth, "Building_YieldFromBorderGrowth", "BuildingType", szBuildingType);
+		kUtility.SetYields(m_piYieldFromPolicyUnlock, "Building_YieldFromPolicyUnlock", "BuildingType", szBuildingType);
+		kUtility.SetYields(m_piYieldFromPurchase, "Building_YieldFromPurchase", "BuildingType", szBuildingType);
 	}
 #endif
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
@@ -2469,6 +2484,66 @@ int* CvBuildingEntry::GetYieldFromConstructionArray() const
 {
 	return m_piYieldFromConstruction;
 }
+
+int CvBuildingEntry::GetYieldFromBirth(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromBirth[i];
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromBirthArray() const
+{
+	return m_piYieldFromBirth;
+}
+int CvBuildingEntry::GetYieldFromUnitProduction(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromUnitProduction[i];
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromUnitProductionArray() const
+{
+	return m_piYieldFromUnitProduction;
+}
+
+int CvBuildingEntry::GetYieldFromBorderGrowth(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromBorderGrowth[i];
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromBorderGrowthArray() const
+{
+	return m_piYieldFromBorderGrowth;
+}
+
+int CvBuildingEntry::GetYieldFromPolicyUnlock(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromPolicyUnlock[i];
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromPolicyUnlockArray() const
+{
+	return m_piYieldFromPolicyUnlock;
+}
+
+int CvBuildingEntry::GetYieldFromPurchase(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromPurchase[i];
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromPurchaseArray() const
+{
+	return m_piYieldFromPurchase;
+}
+
 /// Does this Policy grant yields from constructing buildings?
 int CvBuildingEntry::GetScienceFromYield(int i) const
 {
@@ -4617,7 +4692,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 		if(pReligion)
 		{
-			iBaseYield += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield);
+			iBaseYield += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield, m_pCity->getOwner());
 			BeliefTypes eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
@@ -5203,7 +5278,6 @@ bool CvCityBuildings::CheckForSevenAncientWondersBuilt()
 	}
 	return false;
 }
-
 /// Uses the notification system to send information out when other players need to know a building has been started
 void CvCityBuildings::NotifyNewBuildingStarted(BuildingTypes /*eIndex*/)
 {

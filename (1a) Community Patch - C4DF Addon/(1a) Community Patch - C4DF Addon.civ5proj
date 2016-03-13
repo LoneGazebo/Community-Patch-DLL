@@ -55,21 +55,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>XML/Text/de_DE/de_DE_Text_CivilopediaC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>XML/Text/de_DE/de_DE_Text_Generic_DiplomacyC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>XML/Text/de_DE/de_DE_Text_UIC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>XML/Text/en_US/en_US_Text_CivilopediaC4DF.xml</FileName>
       </Action>
       <Action>
@@ -81,51 +66,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>XML/Text/en_US/en_US_Text_UIC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>XML/Text/es_Es/es_ES_Text_CivilopediaC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>XML/Text/es_Es/es_ES_Text_Generic_DiplomacyC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>XML/Text/es_Es/es_ES_Text_UIC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>XML/Text/pl_PL/pl_PL_Text_CivilopediaC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>XML/Text/pl_PL/pl_PL_Text_Generic_DiplomacyC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>XML/Text/pl_PL/pl_PL_Text_UIC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>XML/Text/ru_RU/ru_RU_Text_CivilopediaC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>XML/Text/ru_RU/ru_RU_Text_Generic_DiplomacyC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>XML/Text/ru_RU/ru_RU_Text_UIC4DF.xml</FileName>
       </Action>
     </ModActions>
     <ModDependencies>
@@ -173,11 +113,7 @@
     <Folder Include="XML\" />
     <Folder Include="XML\Gameplay\" />
     <Folder Include="XML\Text\" />
-    <Folder Include="XML\Text\de_DE\" />
     <Folder Include="XML\Text\en_US\" />
-    <Folder Include="XML\Text\es_Es\" />
-    <Folder Include="XML\Text\pl_PL\" />
-    <Folder Include="XML\Text\ru_RU\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Images\vassal80.dds">
@@ -185,6 +121,14 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Images\vassal80hl.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\CivilopediaScreen.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\CivilopediaScreen.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -288,18 +232,6 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="XML\Text\de_DE\de_DE_Text_CivilopediaC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="XML\Text\de_DE\de_DE_Text_Generic_DiplomacyC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="XML\Text\de_DE\de_DE_Text_UIC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="XML\Text\en_US\en_US_Text_CivilopediaC4DF.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -309,42 +241,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="XML\Text\en_US\en_US_Text_UIC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="XML\Text\es_Es\es_ES_Text_CivilopediaC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="XML\Text\es_Es\es_ES_Text_Generic_DiplomacyC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="XML\Text\es_Es\es_ES_Text_UIC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="XML\Text\pl_PL\pl_PL_Text_CivilopediaC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="XML\Text\pl_PL\pl_PL_Text_Generic_DiplomacyC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="XML\Text\pl_PL\pl_PL_Text_UIC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="XML\Text\ru_RU\ru_RU_Text_CivilopediaC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="XML\Text\ru_RU\ru_RU_Text_Generic_DiplomacyC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="XML\Text\ru_RU\ru_RU_Text_UIC4DF.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

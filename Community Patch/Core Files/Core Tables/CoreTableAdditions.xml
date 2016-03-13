@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 5/27/2014 11:00:03 PM -->
 <GameData>
+	<Table name="Yield_Flavors">
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="FlavorType" type="text" reference="Flavors(Type)"/>
+		<Column name="Flavor" type="integer" notnull="true"/>
+	</Table>
 	<!-- Allows you to define buildings that are built when founded by advanced settlers. -->
 	<Table name="Unit_BuildOnFound">
 		<Column name="UnitType" type="text" reference="Units(Type)"/>
@@ -100,12 +105,20 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
-	<!-- Reformation: Allows you to define any a value gained while the Host of the World Congress -->
+	<!-- PANTHEON: Allows you to define a yield value gained per known Pantheon in the world -->
+	<Table name="Belief_YieldFromKnownPantheons">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- Reformation: Allows you to define a yield value gained while the Host of the World Congress -->
 	<Table name="Belief_YieldFromHost">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+
 	<!-- Reformation: Allows you to define any a value gained from passing a proposal in WC -->
 	<Table name="Belief_YieldFromProposal">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
@@ -202,6 +215,38 @@
 
 	<!-- BUILDING: Allows you to define a building to grant a yield when an owned unit is victorious, where X is the number below. (All yields except Tourism) -->
 	<Table name="Building_YieldFromVictory">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- BUILDING: Allows you to define a building to grant a yield when a city grows. (All 5 base yields ) -->
+	<Table name="Building_YieldFromBirth">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- BUILDING: Allows you to define a building to grant a yield when a city produces a unit. (All 5 base yields ) -->
+	<Table name="Building_YieldFromUnitProduction">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- BUILDING: Allows you to define a building to grant a yield when a city grows its borders. (All 5 base yields ) -->
+	<Table name="Building_YieldFromBorderGrowth">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- BUILDING: Allows you to define a building to grant a yield when a city unlocks a policy. (All 5 base yields ) -->
+	<Table name="Building_YieldFromPolicyUnlock">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- BUILDING: Allows you to define a building to grant a yield when a city spends gold to buy something (All 5 base yields) -->
+	<Table name="Building_YieldFromPurchase">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
@@ -620,18 +665,4 @@
 			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 	</Yields>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_YIELD_GREAT_GENERAL_POINTS">
-			<Text>Great General Points</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_GREAT_ADMIRAL_POINTS">
-			<Text>Great Admiral Points</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_POPULATION">
-			<Text>Population</Text>
-		</Row>
-		<Row Tag="TXT_KEY_YIELD_CULTURE_LOCAL">
-			<Text>Local Culture</Text>
-		</Row>
-	</Language_en_US>
 </GameData>

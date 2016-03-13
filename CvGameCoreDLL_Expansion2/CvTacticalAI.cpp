@@ -3234,18 +3234,17 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 		if (pGarrison)
 		{
 			//ranged garrisons are used in ExecuteSafeBombards. special handling only for melee garrisons here
-			if (!pGarrison->isRanged())
-				for (int i=RING0_PLOTS; i<RING1_PLOTS; i++)
+			for (int i=RING0_PLOTS; i<RING1_PLOTS; i++)
+			{
+				CvPlot* pNeighbor = iterateRingPlots( pPlot,i );
+				if (pNeighbor)
 				{
-					CvPlot* pNeighbor = iterateRingPlots( pPlot,i );
-					if (pNeighbor)
-					{
-						UnitHandle pEnemy = pNeighbor->getBestDefender(NO_PLAYER,m_pPlayer->GetID(),pGarrison,true);
-						//attacker will not advance ...
-						if (TacticalAIHelpers::KillUnitIfPossible(pGarrison,pEnemy.pointer()))
-							break;
-					}
+					UnitHandle pEnemy = pNeighbor->getBestDefender(NO_PLAYER,m_pPlayer->GetID(),pGarrison,true);
+					//attacker will not advance ...
+					if (TacticalAIHelpers::KillUnitIfPossible(pGarrison,pEnemy.pointer()))
+						break;
 				}
+			}
 		}
 		else if ( !pCity->isInDangerOfFalling() )
 		{
@@ -9966,17 +9965,15 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bIncludeRanged
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(it->second);
 
 		//sanity check - unexpected units showing up here sometimes
-		if (MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
+		std::list<int>::iterator ctu = std::find(m_CurrentTurnUnits.begin(), m_CurrentTurnUnits.end(), pLoopUnit->GetID());
+		if (ctu == m_CurrentTurnUnits.end() && pLoopUnit->getArmyID() == -1)
 		{
-			std::list<int>::iterator ctu = std::find(m_CurrentTurnUnits.begin(), m_CurrentTurnUnits.end(), pLoopUnit->GetID());
-			if (ctu == m_CurrentTurnUnits.end() && pLoopUnit->getArmyID() == -1)
-			{
-				CvString msg = CvString::format("unexpected unit %d in operation units - %s at %d,%d",
-					pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY());
-				LogTacticalMessage(msg);
-			}
+			CvString msg = CvString::format("unexpected unit %d in operation units - %s at %d,%d",
+				pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY());
+			LogTacticalMessage(msg);
 		}
-
+#endif
 		int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, false /*bIgnoreUnits*/, false /*bIgnoreStacking*/, iMaxTurns);
 
 		if (iTurns != MAX_INT)

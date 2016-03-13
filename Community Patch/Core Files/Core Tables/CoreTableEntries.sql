@@ -46,6 +46,9 @@ ALTER TABLE Buildings ADD COLUMN 'NumPoliciesNeeded' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Beliefs ADD COLUMN 'RequiresImprovement' BOOLEAN DEFAULT 0;
 
+-- Belief Tooltip for LUA
+ALTER TABLE Beliefs ADD COLUMN 'Tooltip' TEXT DEFAULT "";
+
 -- Belief requires a resource (improved or not) on a terrain type to grant its yield.
 
 ALTER TABLE Beliefs ADD COLUMN 'RequiresResource' BOOLEAN DEFAULT 0;
@@ -550,6 +553,12 @@ ALTER TABLE UnitPromotions ADD 'ChangeDamageValue' INTEGER DEFAULT 0;
 -- A unit cannot be captured by another player (i.e. from prize ships, etc.). Does not apply to civilians.
 ALTER TABLE UnitPromotions ADD 'CannotBeCaptured' BOOLEAN DEFAULT 0;
 
+-- A unit gains a combat bonus VS barbarians
+ALTER TABLE UnitPromotions ADD COLUMN 'BarbarianCombatBonus' INTEGER DEFAULT 0;
+
+-- Ranged units have a % chance to force another unit to retreat, taking additional damage if they cannot do so.
+ALTER TABLE UnitPromotions ADD COLUMN 'MoraleBreakChance' INTEGER DEFAULT 0;
+
 -- Promotion bonuses restricted to Barbarians.
 
 ALTER TABLE UnitPromotions ADD COLUMN 'BarbarianOnly' BOOLEAN DEFAULT 0;
@@ -656,6 +665,9 @@ ALTER TABLE Policies ADD COLUMN 'FreedomCorporation' BOOLEAN DEFAULT 0;
 -- Minor Civs
 ALTER TABLE MinorCivilizations ADD COLUMN 'BullyUnitClass' TEXT DEFAULT NULL;
 
+-- CSD
+ALTER TABLE Buildings ADD COLUMN 'DPToVotes' integer default 0;
+
 -- GameSpeed for JFD
 ALTER TABLE GameSpeeds ADD COLUMN 'PietyMin' INTEGER DEFAULT 0;
 ALTER TABLE GameSpeeds ADD COLUMN 'PietyMax' INTEGER DEFAULT 0;
@@ -672,6 +684,53 @@ ALTER TABLE Policies ADD COLUMN 'ExtraNaturalWonderHappiness' INTEGER DEFAULT 0;
 -- Worlds
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCities' INTEGER DEFAULT 0;
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCityStates' INTEGER DEFAULT 0;
+
+
+-- CSD
+
+-- Insert SQL Rules Here 
+
+ALTER TABLE Resolutions ADD COLUMN 'OpenDoor' boolean default 0;
+
+ALTER TABLE Resolutions ADD COLUMN 'SphereOfInfluence' boolean default 0;
+
+ALTER TABLE Resolutions ADD COLUMN 'Decolonization' boolean default 0;
+
+ALTER TABLE Resolutions ADD COLUMN 'SpaceshipProductionMod' integer default 0;
+
+ALTER TABLE Resolutions ADD COLUMN 'SpaceshipPurchaseMod' integer default 0;
+
+ALTER TABLE Resolutions ADD COLUMN 'IsWorldWar' integer default 0;
+
+ALTER TABLE Resolutions ADD COLUMN 'EmbargoIdeology' boolean default 0;
+
+ALTER TABLE LeagueProjectRewards ADD COLUMN 'AttackBonusTurns' integer default 0;
+
+ALTER TABLE LeagueProjectRewards ADD COLUMN 'BaseFreeUnits' integer default 0;
+
+ALTER TABLE LeagueProjectRewards ADD COLUMN 'GetNumFreeGreatPeople' integer default 0;
+
+ALTER TABLE Buildings ADD COLUMN 'FaithToVotes' integer default 0;
+
+ALTER TABLE Buildings ADD COLUMN 'CapitalsToVotes' integer default 0;
+
+ALTER TABLE Buildings ADD COLUMN 'DoFToVotes' integer default 0;
+
+ALTER TABLE Buildings ADD COLUMN 'RAToVotes' integer default 0;
+
+ALTER TABLE Buildings ADD COLUMN 'GPExpendInfluence' integer default 0;
+
+ALTER TABLE Units ADD COLUMN 'NumInfPerEra' integer default 0;
+
+ALTER TABLE Policies ADD COLUMN 'GreatDiplomatRateModifier' integer default 0;
+
+ALTER TABLE Improvements ADD COLUMN 'ImprovementLeagueVotes' integer default 0;
+
+ALTER TABLE LeagueSpecialSessions ADD COLUMN 'BuildingTrigger' text default NULL;
+
+ALTER TABLE LeagueSpecialSessions ADD COLUMN 'TriggerResolution' text default NULL;
+
+ALTER TABLE Improvements ADD COLUMN 'IsEmbassy' boolean default 0;
 
 -- C4DF
 

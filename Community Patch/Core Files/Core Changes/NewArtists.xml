@@ -18,14 +18,6 @@
 			<Image>ancientchina.dds</Image>
 		</Row>
 	</GreatWorks>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_GREAT_WORK_CHINESE_LANDSCAPE">
-			<Text>Chinese Spring</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_ZHAN_ZIQIAN">
-			<Text>Zahn Zi-Qian</Text>
-		</Row>
-	</Language_en_US>
 	<Unit_UniqueNames>
 		<Row>
 			<UnitType>UNIT_ARTIST</UnitType>
@@ -43,14 +35,6 @@
 			<Image>egyptianmefertem.dds</Image>
 		</Row>
 	</GreatWorks>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_GREAT_WORK_EGYPTIAN_SCULPTURE">
-			<Text>Nefertem of Egypt</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_MERYMOSE">
-			<Text>Morimose</Text>
-		</Row>
-	</Language_en_US>
 	<Unit_UniqueNames>
 		<Row>
 			<UnitType>UNIT_ARTIST</UnitType>
@@ -68,14 +52,6 @@
 			<Image>ancientjapan.dds</Image>
 		</Row>
 	</GreatWorks>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_GREAT_WORK_JAPANESE_LANDSCAPE">
-			<Text>The Geisha</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_KORYU_MIROKU">
-			<Text>Koryu-ji Miroku</Text>
-		</Row>
-	</Language_en_US>
 	<Unit_UniqueNames>
 		<Row>
 			<UnitType>UNIT_ARTIST</UnitType>
@@ -93,14 +69,6 @@
 			<Image>augustusstatue.dds</Image>
 		</Row>
 	</GreatWorks>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_GREAT_WORK_AUGUSTUS">
-			<Text>Statue of Emperor Augustus</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_POLYKLEITOS">
-			<Text>Polykleitos</Text>
-		</Row>
-	</Language_en_US>
 	<Unit_UniqueNames>
 		<Row>
 			<UnitType>UNIT_ARTIST</UnitType>
@@ -118,14 +86,6 @@
 			<Image>justinian.dds</Image>
 		</Row>
 	</GreatWorks>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_GREAT_WORK_JUSTINIAN">
-			<Text>Relief of Emperor Justinian I</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_CHRYSOTOM">
-			<Text>Chrysostom</Text>
-		</Row>
-	</Language_en_US>
 	<Unit_UniqueNames>
 		<Row>
 			<UnitType>UNIT_ARTIST</UnitType>
@@ -143,14 +103,6 @@
 			<Image>kells.dds</Image>
 		</Row>
 	</GreatWorks>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_GREAT_WORK_KELLS_2">
-			<Text>Book of Kells</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_IONA">
-			<Text>Ionian Monks</Text>
-		</Row>
-	</Language_en_US>
 	<Unit_UniqueNames>
 		<Row>
 			<UnitType>UNIT_ARTIST</UnitType>
@@ -168,14 +120,6 @@
 			<Image>lascaux.dds</Image>
 		</Row>
 	</GreatWorks>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_GREAT_WORK_LASCAUX">
-			<Text>Lascaux Cave Paintings</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_LASCAUX">
-			<Text>The Lascaux</Text>
-		</Row>
-	</Language_en_US>
 	<Unit_UniqueNames>
 		<Row>
 			<UnitType>UNIT_ARTIST</UnitType>
@@ -193,14 +137,6 @@
 			<Image>medieval.dds</Image>
 		</Row>
 	</GreatWorks>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_GREAT_WORK_MEDIEVAL_DRAGON">
-			<Text>Medieval Dragon</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_ALEXANDRINUS">
-			<Text>Alexandrinus</Text>
-		</Row>
-	</Language_en_US>
 	<Unit_UniqueNames>
 		<Row>
 			<UnitType>UNIT_ARTIST</UnitType>
@@ -218,14 +154,6 @@
 			<Image>ashurbanipalstatue.dds</Image>
 		</Row>
 	</GreatWorks>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_GREAT_WORK_ASHURBANIPAL">
-			<Text>Ashurbanipal Slaying Lions</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_KALHU">
-			<Text>Kalhu</Text>
-		</Row>
-	</Language_en_US>
 	<Unit_UniqueNames>
 		<Row>
 			<UnitType>UNIT_ARTIST</UnitType>
@@ -243,14 +171,6 @@
 			<Image>aztec.dds</Image>
 		</Row>
 	</GreatWorks>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_GREAT_WORK_AZTEC">
-			<Text>Aztec Gods</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_TIZOC">
-			<Text>Tizoc</Text>
-		</Row>
-	</Language_en_US>
 	<Unit_UniqueNames>
 		<Row>
 			<UnitType>UNIT_ARTIST</UnitType>
@@ -268,14 +188,6 @@
 			<Image>bayeuxtapestry.dds</Image>
 		</Row>
 	</GreatWorks>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_GREAT_WORK_BAYEUX_TAPESTRY">
-			<Text>The Bayeux Tapestry</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_BISHOP_ODO">
-			<Text>Bishop Odo</Text>
-		</Row>
-	</Language_en_US>
 	<Unit_UniqueNames>
 		<Row>
 			<UnitType>UNIT_ARTIST</UnitType>
@@ -293,14 +205,6 @@
 			<Image>classicalgreece.dds</Image>
 		</Row>
 	</GreatWorks>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_GREAT_WORK_GREEK_POTTERY">
-			<Text>Grecian Pottery</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_ONATAS">
-			<Text>Onatas</Text>
-		</Row>
-	</Language_en_US>
 	<Unit_UniqueNames>
 		<Row>
 			<UnitType>UNIT_ARTIST</UnitType>
@@ -318,14 +222,6 @@
 			<Image>kalamkari.dds</Image>
 		</Row>
 	</GreatWorks>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_GREAT_WORK_KALAMKARI">
-			<Text>Kalamkari</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_GOLCONDA">
-			<Text>Golconda</Text>
-		</Row>
-	</Language_en_US>
 	<Unit_UniqueNames>
 		<Row>
 			<UnitType>UNIT_ARTIST</UnitType>
@@ -343,14 +239,6 @@
 			<Image>ancientpersia.dds</Image>
 		</Row>
 	</GreatWorks>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_GREAT_WORK_PERSIAN_SOLDIERS">
-			<Text>Persian Soldiers</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_ARTAXERXES">
-			<Text>Artaxerxes</Text>
-		</Row>
-	</Language_en_US>
 	<Unit_UniqueNames>
 		<Row>
 			<UnitType>UNIT_ARTIST</UnitType>
@@ -368,12 +256,4 @@
 			<Image>suttonhoo.dds</Image>
 		</Row>
 	</GreatWorks>
-	<Language_en_US>
-		<Row Tag="TXT_KEY_GREAT_WORK_SUTTON_HOO">
-			<Text>Sutton Hoo</Text>
-		</Row>
-		<Row Tag="TXT_KEY_GREAT_PERSON_SUTTON_HOO">
-			<Text>Sutton Hoo</Text>
-		</Row>
-	</Language_en_US>
 </GameData>

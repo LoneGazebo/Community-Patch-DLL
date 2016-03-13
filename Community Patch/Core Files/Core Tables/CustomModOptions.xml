@@ -747,7 +747,7 @@
     <Row Class="1" Name="BUGFIX_VENICE_PUPPETS_CAPITAL" Value="1"/>
 	<!-- Fixes the research overflow bug/exploit (v52) -->
     <!-- See also: "Bugfix - Research Overflow Exploit" -->
-    <Row Class="1" Name="BUGFIX_RESEARCH_OVERFLOW" Value="0"/>
+    <Row Class="1" Name="BUGFIX_RESEARCH_OVERFLOW" Value="1"/>
 	<!-- * Fixes the bug in the Lua Plot:ChangeVisibilityCount() method where iChange is treated as a boolean and not a signed int (v23) -->
     <!-- See also: "Units - Visible Trade Units" -->
     <Row Class="1" Name="BUGFIX_LUA_CHANGE_VISIBILITY_COUNT" Value="1"/>

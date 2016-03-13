@@ -754,8 +754,8 @@ function RefreshYourCulture()
 	for building in GameInfo.Buildings() do
 		local buildingClass = GameInfo.BuildingClasses[building.BuildingClass];
 		-- Kyte
-		if(building.GreatWorkCount > 0 
-			and not BuildingClassIsAColumn(buildingClass.Type, buildings)) then
+		local GreatWorks = building.GreatWorkCount;
+		if(GreatWorks > 0 and not BuildingClassIsAColumn(buildingClass.Type, buildings)) then
 			table.insert(WorldWonders, {
 				BuildingID = building.ID,
 				BuildingClassID = buildingClass.ID,

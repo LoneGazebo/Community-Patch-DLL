@@ -714,11 +714,27 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 #if defined(MOD_BALANCE_CORE)
 	if(pCity1 != NULL)
 	{
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes) iI;
+			if(eYield == NO_YIELD)
+				continue;
+
+			pCity1->UpdateCityYields(eYield);
+		}
 		pCity1->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 		pCity1->GetCityCulture()->CalculateBaseTourism();
 	}
 	if(pCity2 != NULL)
 	{
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes) iI;
+			if(eYield == NO_YIELD)
+				continue;
+
+			pCity2->UpdateCityYields(eYield);
+		}
 		pCity2->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 		pCity2->GetCityCulture()->CalculateBaseTourism();
 	}
@@ -751,11 +767,27 @@ void CvGameCulture::MoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildin
 #if defined(MOD_BALANCE_CORE)
 	if(pCity1 != NULL)
 	{
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes) iI;
+			if(eYield == NO_YIELD)
+				continue;
+
+			pCity1->UpdateCityYields(eYield);
+		}
 		pCity1->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 		pCity1->GetCityCulture()->CalculateBaseTourism();
 	}
 	if(pCity2 != NULL)
 	{
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes) iI;
+			if(eYield == NO_YIELD)
+				continue;
+
+			pCity2->UpdateCityYields(eYield);
+		}
 		pCity2->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 		pCity2->GetCityCulture()->CalculateBaseTourism();
 	}
@@ -1371,6 +1403,9 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 	//   - fill single endangered buildings with any yield
 	//   - fill single endangered buildings with no yield 
 #endif
+#if defined(MOD_BALANCE_CORE)
+	bool bUpdate = false;
+#endif
 
 	// First building that are not endangered
 	// CUSTOMLOG("  ... theming safe buildings");
@@ -1383,6 +1418,9 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 			if (ThemeBuilding(itBuilding, works1, works2, false /*bConsiderOtherPlayers*/))
 			{
 				itBuilding->m_bThemed = true;
+#if defined(MOD_BALANCE_CORE)
+				bUpdate = true;
+#endif
 			}
 		}
 	}
@@ -1397,6 +1435,9 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 			if (ThemeBuilding(itBuilding, works1, works2, false /*bConsiderOtherPlayers*/))
 			{
 				itBuilding->m_bThemed = true;
+#if defined(MOD_BALANCE_CORE)
+				bUpdate = true;
+#endif
 			}
 		}
 	}
@@ -1415,6 +1456,9 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 				if (ThemeBuilding(itBuilding, works1, works2, true /*bConsiderOtherPlayers*/))
 				{
 					itBuilding->m_bThemed = true;
+#if defined(MOD_BALANCE_CORE)
+					bUpdate = true;
+#endif
 				}
 			}
 		}
@@ -1500,7 +1544,7 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 		}
 	}
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-	MoveSingleWorks(buildings, works1, works2, eFocusYield);
+	bool bSecondUpdate = MoveSingleWorks(buildings, works1, works2, eFocusYield);
 #else
 	// Fill unthemed buildings, first those that aren't endangered
 	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
@@ -1519,13 +1563,30 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
+	if(bSecondUpdate || bUpdate)
 	{
-		CvCity* pCity = m_pPlayer->getCity(itBuilding->m_iCityID);
-		if(pCity != NULL)
+		int iLoop;
+		CvCity* pLoopCity = NULL;
+		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
-			pCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-			pCity->GetCityCulture()->CalculateBaseTourism();
+			for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
+			{
+				if(m_pPlayer->getCity(itBuilding->m_iCityID) == pLoopCity)
+				{
+					for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+					{
+						YieldTypes eYield = (YieldTypes) iI;
+						if(eYield == NO_YIELD)
+							continue;
+
+						pLoopCity->UpdateCityYields(eYield);
+					}
+					pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+					pLoopCity->GetCityCulture()->CalculateBaseTourism();
+					//Only once per city.
+					break;
+				}
+			}
 		}
 	}
 #endif
@@ -2541,7 +2602,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 }
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-void CvPlayerCulture::MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield)
+bool CvPlayerCulture::MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield)
 {
 	// CUSTOMLOG("Move Single Works");
 	vector<CvGreatWorkBuildingInMyEmpire>::iterator itBuilding;
@@ -2601,34 +2662,36 @@ void CvPlayerCulture::MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &bui
 			}
 		}
 	}
+	bool bUpdate = false;
 
 	for (itBuilding = homelandBuildingsFocus.begin(); itBuilding != homelandBuildingsFocus.end(); itBuilding++) {
-		FillBuilding(itBuilding, works1, works2);
+		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
 	for (itBuilding = puppetBuildingsFocus.begin(); itBuilding != puppetBuildingsFocus.end(); itBuilding++) {
-		FillBuilding(itBuilding, works1, works2);
+		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
 	for (itBuilding = homelandBuildingsAny.begin(); itBuilding != homelandBuildingsAny.end(); itBuilding++) {
-		FillBuilding(itBuilding, works1, works2);
+		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
 	for (itBuilding = puppetBuildingsAny.begin(); itBuilding != puppetBuildingsAny.end(); itBuilding++) {
-		FillBuilding(itBuilding, works1, works2);
+		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
 	for (itBuilding = homelandBuildingsNone.begin(); itBuilding != homelandBuildingsNone.end(); itBuilding++) {
-		FillBuilding(itBuilding, works1, works2);
+		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
 	for (itBuilding = puppetBuildingsNone.begin(); itBuilding != puppetBuildingsNone.end(); itBuilding++) {
-		FillBuilding(itBuilding, works1, works2);
+		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
 	for (itBuilding = endangeredBuildingsFocus.begin(); itBuilding != endangeredBuildingsFocus.end(); itBuilding++) {
-		FillBuilding(itBuilding, works1, works2);
+		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
 	for (itBuilding = endangeredBuildingsAny.begin(); itBuilding != endangeredBuildingsAny.end(); itBuilding++) {
-		FillBuilding(itBuilding, works1, works2);
+		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
 	for (itBuilding = endangeredBuildingsNone.begin(); itBuilding != endangeredBuildingsNone.end(); itBuilding++) {
-		FillBuilding(itBuilding, works1, works2);
+		bUpdate = FillBuilding(itBuilding, works1, works2);
 	}
+	return bUpdate;
 }
 #endif
 
@@ -2648,6 +2711,9 @@ bool CvPlayerCulture::FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_
 		return false;
 
 	}
+#if defined(MOD_BALANCE_CORE)
+	bool bUpdate = false;
+#endif
 
 	vector<CvGreatWorkInMyEmpire> worksToConsider;
 	vector<int> aWorksChosen;
@@ -2664,7 +2730,11 @@ bool CvPlayerCulture::FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_
 	{
 		aWorksChosen.push_back(worksToConsider[iI].m_iGreatWorkIndex);
 		// CUSTOMLOG("  filling slot %i with Great Work %i", iI, worksToConsider[iI].m_iGreatWorkIndex);
+#if defined(MOD_BALANCE_CORE)
+		bUpdate = MoveWorkIntoSlot(worksToConsider[iI], buildingIt->m_iCityID, buildingIt->m_eBuilding, iI);
+#else
 		MoveWorkIntoSlot(worksToConsider[iI], buildingIt->m_iCityID, buildingIt->m_eBuilding, iI);
+#endif
 	}
 
 	// Remove these works from those to consider later
@@ -2697,11 +2767,19 @@ bool CvPlayerCulture::FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_
 		}
 		works2 = tempWorks;
 	}
+#if defined(MOD_BALANCE_CORE)
+	return bUpdate;
+#else
 	return true;
+#endif
 }
 
 /// Lower-level routine to perform the swap between two Great Works within your own empire
+#if defined(MOD_BALANCE_CORE)
+bool CvPlayerCulture::MoveWorkIntoSlot (CvGreatWorkInMyEmpire kWork, int iCityID, BuildingTypes eBuilding, int iSlot)
+#else
 void CvPlayerCulture::MoveWorkIntoSlot (CvGreatWorkInMyEmpire kWork, int iCityID, BuildingTypes eBuilding, int iSlot)
+#endif
 {
 	CvBuildingEntry *pkToEntry = GC.getBuildingInfo(eBuilding);
 
@@ -2727,10 +2805,16 @@ void CvPlayerCulture::MoveWorkIntoSlot (CvGreatWorkInMyEmpire kWork, int iCityID
 				{
 					pToCity->GetCityBuildings()->SetBuildingGreatWork(eToBuildingClass, iSlot, kWork.m_iGreatWorkIndex);
 					pFromCity->GetCityBuildings()->SetBuildingGreatWork(eFromBuildingClass, iFromSlot, iFromWork);
+#if defined(MOD_BALANCE_CORE)
+					return true;
+#endif
 				}
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	return false;
+#endif
 }
 
 int CvPlayerCulture::GetSwappableWritingIndex() const
@@ -3043,6 +3127,14 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 #endif
 #if defined(MOD_BALANCE_CORE)
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				{
+					YieldTypes eYield = (YieldTypes) iI;
+					if(eYield == NO_YIELD)
+						continue;
+
+					pHousingCity->UpdateCityYields(eYield);
+				}
 				pHousingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 				pHousingCity->GetCityCulture()->CalculateBaseTourism();
 #endif
@@ -3063,6 +3155,14 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 #endif
 #if defined(MOD_BALANCE_CORE)
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				{
+					YieldTypes eYield = (YieldTypes) iI;
+					if(eYield == NO_YIELD)
+						continue;
+
+					pHousingCity->UpdateCityYields(eYield);
+				}
 				pHousingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 				pHousingCity->GetCityCulture()->CalculateBaseTourism();
 #endif
@@ -3084,6 +3184,14 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 #endif
 #if defined(MOD_BALANCE_CORE)
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				{
+					YieldTypes eYield = (YieldTypes) iI;
+					if(eYield == NO_YIELD)
+						continue;
+
+					pHousingCity->UpdateCityYields(eYield);
+				}
 				pHousingCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 				pHousingCity->GetCityCulture()->CalculateBaseTourism();
 #endif
@@ -6087,6 +6195,16 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 			}
 		}
 	}
+	//Buildings with Tourism
+	int iTourismFromWW = GET_PLAYER(m_pCity->getOwner()).GetYieldChangeWorldWonder(YIELD_TOURISM);
+	if(iTourismFromWW > 0)
+	{
+		iTourismFromWW *= m_pCity->getNumWorldWonders();
+		if(iTourismFromWW > 0)
+		{
+			iBase += iTourismFromWW;
+		}
+	}
 #endif
 
 	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent();
@@ -6103,7 +6221,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 	if(pReligion)
 	{
-		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism();
+		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism(m_pCity->getOwner());
 		if (iFaithBuildingTourism > 0)
 		{
 			iBase += m_pCity->GetCityBuildings()->GetNumBuildingsFromFaith() * iFaithBuildingTourism;
@@ -6127,7 +6245,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 			{
 				if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
-					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner()) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 				}
 			}
 		}
@@ -6251,6 +6369,18 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 	// Add in all the tourism from yields
 	iBase += m_pCity->getYieldRate(YIELD_TOURISM, false);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	//Buildings with Tourism
+	int iTourismFromWW = GET_PLAYER(m_pCity->getOwner()).GetYieldChangeWorldWonder(YIELD_TOURISM);
+	if(iTourismFromWW > 0)
+	{
+		iTourismFromWW *= m_pCity->getNumWorldWonders();
+		if(iTourismFromWW > 0)
+		{
+			iBase += iTourismFromWW;
+		}
+	}
+#endif
 
 	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent();
 	if (iPercent > 0)
@@ -6270,7 +6400,7 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 	if(pReligion)
 	{
-		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism();
+		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism(m_pCity->getOwner());
 		if (iFaithBuildingTourism > 0)
 		{
 			iBase += m_pCity->GetCityBuildings()->GetNumBuildingsFromFaith() * iFaithBuildingTourism;
@@ -6295,7 +6425,7 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 				if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
 #if defined(MOD_BUGFIX_MINOR)
-					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner()) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 #else
 					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass);
 #endif
@@ -6646,7 +6776,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 	if(pReligion)
 	{
-		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism();
+		int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism(m_pCity->getOwner());
 		if (iFaithBuildingTourism > 0)
 		{
 			iSacredSitesTourism = m_pCity->GetCityBuildings()->GetNumBuildingsFromFaith() * iFaithBuildingTourism;
@@ -6675,7 +6805,7 @@ CvString CvCityCulture::GetTourismTooltip()
 				if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
 #if defined(MOD_BUGFIX_MINOR)
-					iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass, m_pCity->getOwner()) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 #else
 					iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass);
 #endif
@@ -6744,13 +6874,14 @@ CvString CvCityCulture::GetTourismTooltip()
 			szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS", iTourismFromWW);
 		}
 	}
-	if((m_pCity->getYieldRate(YIELD_TOURISM, false) - iTourismFromWW - iTraitBonuses) > 0)
+	int iRemainder = (m_pCity->getYieldRate(YIELD_TOURISM, false) - iTraitBonuses);
+	if(iRemainder > 0)
 	{
 		if (szRtnValue.length() > 0)
 		{
 			szRtnValue += "[NEWLINE][NEWLINE]";
 		}
-		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_GENERAL", m_pCity->getYieldRate(YIELD_TOURISM, false));
+		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_GENERAL", iRemainder);
 	}
 #endif
 

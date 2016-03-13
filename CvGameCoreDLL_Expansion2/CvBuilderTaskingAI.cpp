@@ -2014,7 +2014,7 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 	if(m_pPlayer->GetPlotDanger(*pPlot,pUnit) > 0)
 	{
 		//if it's fallout, try to scrub it in spite of the danger
-		if(pPlot->getFeatureType() == FEATURE_FALLOUT && (!pUnit->ignoreFeatureDamage() || (pUnit->getDamage() > (pUnit->GetMaxHitPoints() / 2))))
+		if(pPlot->getFeatureType() == FEATURE_FALLOUT && !pUnit->ignoreFeatureDamage() && (pUnit->getDamage() > (pUnit->GetMaxHitPoints() / 2)))
 		{
 			if(m_bLogging)
 			{

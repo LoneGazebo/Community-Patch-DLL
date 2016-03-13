@@ -1,5 +1,11 @@
--- Delete Prereqs
-DELETE FROM Technology_PrereqTechs;
+
+-- Free Promotions 
+INSERT INTO Technology_FreePromotions
+	(TechType, PromotionType)
+VALUES
+	('TECH_PENICILIN', 'PROMOTION_FALLOUT_REDUCTION'),
+	('TECH_NANOTECHNOLOGY', 'PROMOTION_FALLOUT_IMMUNITY'),
+	('TECH_BALLISTICS', 'PROMOTION_ICE_BREAKERS');
 
 -- Art flip metallurgy/steel
 UPDATE Technologies
@@ -127,7 +133,7 @@ UPDATE Technologies
 SET CityNoEmbarkCost = '1'
 WHERE Type = 'TECH_ROCKETRY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
--- Rename Sailing 'Fishing'
+
 UPDATE Technologies
 SET IconAtlas = 'COMMUNITY_ATLAS'
 WHERE Type = 'TECH_SAILING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
@@ -136,266 +142,16 @@ UPDATE Technologies
 SET PortraitIndex = '26'
 WHERE Type = 'TECH_SAILING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Fishing'
-WHERE Tag = 'TXT_KEY_TECH_SAILING_TITLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Fishing is the activity of trying to catch fish. Fishing usually takes place in the wild. Techniques for catching fish include hand gathering, spearing, netting, angling and trapping. The term fishing may be applied to catching other aquatic animals such as molluscs, cephalopods, crustaceans, and echinoderms. The term is not normally applied to catching farmed fish, or to aquatic mammals, such as whales, where the term whaling is more appropriate.'
-WHERE Tag = 'TXT_KEY_TECH_SAILING_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Rename Archery 'Military Training' -- Move Barracks there.
-
-UPDATE Language_en_US
-SET Text = 'Military Theory'
-WHERE Tag = 'TXT_KEY_TECH_ARCHERY_TITLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Military theory is the analysis of normative behavior and trends in military affairs and military history, beyond simply describing events in war, Military theories, especially since the influence of Clausewitz in the nineteenth century, attempt to encapsulate the complex cultural, political and economic relationships between societies and the conflicts they create. Theories and conceptions of warfare have varied in different places throughout human history. The Chinese Sun Tzu is recognized by scholars to be one of the earliest military theorists. His now-iconic Art of War laid the foundations for operational planning, tactics, strategy and logistics. In India, Chanakya (350 – 275 BCE) laid the foundations of military theory through his seminal text called Arthashastra. While the views of Clausewitz, Sun Tzu and Kautilya are not directly applicable to the modern battlefield, they are still referenced and acknowledged by military theorists for the insights they provide, which are then adapted to modern times.'
-WHERE Tag = 'TXT_KEY_TECH_ARCHERY_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Barracks[ENDCOLOR], an essential building for early war.'
-WHERE Tag = 'TXT_KEY_TECH_ARCHERY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Rename Horseback Riding 'Trade' -- Move Market there.
-
-UPDATE Language_en_US
-SET Text = 'Trade'
-WHERE Tag = 'TXT_KEY_TECH_HORSEBACK_RIDING_TITLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Trade involves the transfer of the ownership of goods or services from one person or entity to another in exchange for other goods or services or for money. Possible synonyms of "trade" include "commerce" and "financial transaction". Types of trade include barter. A network that allows trade is called a market. The original form of trade, barter, saw the direct exchange of goods and services for other goods and services. Later one side of the barter started to involve precious metals, which gained symbolic as well as practical importance. Modern traders generally negotiate through a medium of exchange, such as money. As a result, buying can be separated from selling, or earning. The invention of money (and later credit, paper money and non-physical money) greatly simplified and promoted trade. Trade between two traders is called bilateral trade, while trade between more than two traders is called multilateral trade.'
-WHERE Tag = 'TXT_KEY_TECH_HORSEBACK_RIDING_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Receive an additional [ICON_INTERNATIONAL_TRADE] Trade Route. Allows you to build the [COLOR_POSITIVE_TEXT]Horseman[ENDCOLOR], a fast and powerful mounted unit. Also allows you to build the [COLOR_POSITIVE_TEXT]Market[ENDCOLOR], an excellent source of early [ICON_GOLD] Gold.'
-WHERE Tag = 'TXT_KEY_TECH_HORSEBACK_RIDING_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
 -- Rename Optics 'Sailing'
-UPDATE Language_en_US
-SET Text = 'Sailing'
-WHERE Tag = 'TXT_KEY_TECH_OPTICS_TITLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 UPDATE Technologies
 SET PortraitIndex = '13'
 WHERE Type = 'TECH_OPTICS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Sailing is the art of harnessing the power of the wind to move a boat over the water. To be successful, sailing required the mastery of a number of diverse skills. First, the culture must be able to construct a seaworthy craft. Second, they must be able to construct some sort of sturdy sheets (sails) which can catch the wind and transmit its energy to the hull. Third they must be able to build the various ropes and cleats and pulleys used to control the sails of the ship, and finally they must be able to successfully navigate the vessel from point to point without getting lost or capsizing or suffering some other misfortune.[NEWLINE][NEWLINE]The earliest recorded evidence of watercraft can be found in illustrations in Egypt which date from around 4,000 BC. As a riparian (river-based) civilization, the Egyptians were excellent sailors. Many of their vessels contained both oars and sails, the former being used when the winds were not strong enough or weren not coming from a favorable direction.[NEWLINE][NEWLINE]By 3000 BC the Egyptians were venturing out into the Mediterranean Sea in their vessels, steering the lengthy journey across the open water to Crete and later Phoenicia. The Egyptians also sailed down the coast of Africa, looking for knowledge, trade and treasure.[NEWLINE][NEWLINE]The earliest warships - biremes and triremes and the like - were powered by oar and sail and possessed rams or beaks on their prows. During battle the helmsman would attempt to ram the enemy vessel at high speed, while avoiding enemy attempts to do the same thing. Some vessels were equipped with archers to fire at enemy craft from longer distance, while others had soldiers aboard; these vessels sought to come alongside the enemy craft so that their soldiers could board the other ship and take it by storm.[NEWLINE][NEWLINE]The Greeks - especially the Athenians and the island colonies - were masters at naval warfare. One of the reasons that they were able to defeat their much larger and more powerful neighbor, Persia, was that the Athenian navy dominated the Aegean Sea and thus constantly threatened the increasingly lengthy supply chain of Persia.'
-WHERE Tag = 'TXT_KEY_TECH_OPTICS_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Economics
-UPDATE Language_en_US
-SET Text = 'Receive an additional [ICON_INTERNATIONAL_TRADE] Trade Route. Allows you to build the [COLOR_POSITIVE_TEXT]Windmill[ENDCOLOR] in cities built on flat land, increasing [ICON_PRODUCTION] Production.'
-WHERE Tag = 'TXT_KEY_TECH_ECONOMICS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Chemistry Tech
-
-UPDATE Language_en_US
-SET Text = 'Allows you to build the Leaning Tower of Pisa, and is an gateway to vital Renaissance-Era techs.'
-WHERE Tag = 'TXT_KEY_TECH_CHEMISTRY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Metallurgy Tech
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Cannon[ENDCOLOR], a powerful Renaissance-Era siege unit, and the [COLOR_POSITIVE_TEXT]Arsenal[ENDCOLOR], which boosts City defense.'
-WHERE Tag = 'TXT_KEY_TECH_METALLURGY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Industrialization Text
-
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Factory[ENDCOLOR], a building which greatly improves the [ICON_PRODUCTION] Production of a city.'
-WHERE Tag = 'TXT_KEY_TECH_INDUSTRIALIZATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Steam Power Text
-
-UPDATE Language_en_US
-SET Text = 'Reveals [ICON_RES_COAL] [COLOR_POSITIVE_TEXT]Coal[ENDCOLOR], an essential Industrial-Era resource.'
-WHERE Tag = 'TXT_KEY_TECH_STEAM_POWER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Rifling Text
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Fusilier[ENDCOLOR], a front-line infantry unit of the mid-game eras.'
-WHERE Tag = 'TXT_KEY_TECH_RIFLING_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Replaceable Parts Text
-UPDATE Language_en_US
-SET Text = 'Allows you to build the basic land unit [COLOR_POSITIVE_TEXT]Rifleman[ENDCOLOR], and the [COLOR_POSITIVE_TEXT]Military Base[ENDCOLOR], which boosts City defense.'
-WHERE Tag = 'TXT_KEY_TECH_REPLACEABLE_PARTS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Combustion Text
-
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Landship[ENDCOLOR], an incredibly powerful armored Unit that can move after attacking.'
-WHERE Tag = 'TXT_KEY_TECH_COMBUSTION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Plastics Text
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Research Lab[ENDCOLOR], a building which improves [ICON_RESEARCH] Science in a City.'
-WHERE Tag = 'TXT_KEY_TECH_PLASTICS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Rocketry Text
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Rocket Artillery[ENDCOLOR] military unit, and the [COLOR_POSITIVE_TEXT]Mobile SAM[ENDCOLOR], a fast unit specialized in thwarting enemy aircraft.'
-WHERE Tag = 'TXT_KEY_TECH_ROCKETRY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Satellites Text
-UPDATE Language_en_US
-SET Text = 'Allow you to build the [COLOR_POSITIVE_TEXT]Apollo Program[ENDCOLOR], a project necessary to win a [COLOR_POSITIVE_TEXT]Science Victory[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_TECH_SATELLITES_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Advanced Ballistics Text
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Nuclear Missile[ENDCOLOR], a frightening weapon that requires [ICON_RES_URANIUM] Uranium, and is capable of destroying units and cities.'
-WHERE Tag = 'TXT_KEY_TECH_ADVANCED_BALLISTICS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Globalization Text
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]SS Cockpit[ENDCOLOR], a component necessary to win a [COLOR_POSITIVE_TEXT]Science Victory[ENDCOLOR]. With Globalization, each Spy you send to another Civilization as a [ICON_DIPLOMAT] Diplomat will increase the number of Delegates you control in the World Congress, bringing you closer to [COLOR_POSITIVE_TEXT]Diplomatic Victory[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_TECH_GLOBALIZATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Computers Text
-UPDATE Language_en_US
-SET Text = 'Receive an additional [ICON_INTERNATIONAL_TRADE] Trade Route. Allows you to build the [COLOR_POSITIVE_TEXT]Carrier[ENDCOLOR], a naval unit capable of carrying aircraft.'
-WHERE Tag = 'TXT_KEY_TECH_COMPUTERS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Nuclear Fusion Text
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Giant Death Robot[ENDCOLOR], the strongest unit in the game. Also allows you to build the [COLOR_POSITIVE_TEXT]SS Booster[ENDCOLOR], a component necessary to win a [COLOR_POSITIVE_TEXT]Science Victory[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_TECH_NUCLEAR_FUSION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Telecom Text
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Nuclear Submarine[ENDCOLOR], a Naval Unit invisible to most other Units and capable of carrying 2 Missiles.'
-WHERE Tag = 'TXT_KEY_TECH_TELECOM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Electronics Text
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Battleship[ENDCOLOR], a powerful late-game ranged Naval Unit.'
-WHERE Tag = 'TXT_KEY_TECH_ELECTRONICS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Combined Arms Text
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Tank[ENDCOLOR], a fast and deadly armor Unit.'
-WHERE Tag = 'TXT_KEY_TECH_COMBINED_ARMS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Refrigeration Text
-UPDATE Language_en_US
-SET Text = 'Allows you to build [COLOR_POSITIVE_TEXT]Stadiums[ENDCOLOR], which increases [ICON_HAPPINESS_1] Happiness within the City. Also allows Work Boats to construct an Offshore Platform.'
-WHERE Tag = 'TXT_KEY_TECH_REFRIGERATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Flight Text
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Triplane[ENDCOLOR], an Air Unit designed to gain control of the skies, and the [COLOR_POSITIVE_TEXT]Bomber[ENDCOLOR], which can devastate Land Units and Cities.'
-WHERE Tag = 'TXT_KEY_TECH_FLIGHT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Radar Text
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Heavy Bomber[ENDCOLOR], a deadly air Unit capable of delivering death from afar, and the [COLOR_POSITIVE_TEXT]Fighter[ENDCOLOR], an air Unit designed to wrest control of the skies from enemy aircraft. Also allows you to build the [COLOR_POSITIVE_TEXT]Paratrooper[ENDCOLOR], a late-game infantry unit capable of paradropping behind enemy lines.'
-WHERE Tag = 'TXT_KEY_TECH_RADAR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Compass Text
-UPDATE Language_en_US
-SET Text = 'Receive an additional [ICON_INTERNATIONAL_TRADE] Trade Route. Allows you to build the [COLOR_POSITIVE_TEXT]Harbor[ENDCOLOR], which creates city connections from cities to the capital over the water, producing [ICON_GOLD] Gold. Additionally, the [ICON_FOOD] Food yield from Fishing Boats is increased.'
-WHERE Tag = 'TXT_KEY_TECH_COMPASS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Metal Casting Text
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Baths[ENDCOLOR], which increase the creation of [ICON_GREAT_PEOPLE] Great People.'
-WHERE Tag = 'TXT_KEY_TECH_METAL_CASTING_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Construction Text
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Arena[ENDCOLOR], which improves [ICON_HAPPINESS_1] Happiness in the empire, which in turn helps your city growth and makes [ICON_GOLDEN_AGE] Golden Ages more likely.'
-WHERE Tag = 'TXT_KEY_TECH_CONSTRUCTION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Wheel Text
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Chariot Archer[ENDCOLOR], a fast and powerful ranged unit which requires [ICON_RES_HORSE] Horses. Also allows Workers to construct [COLOR_POSITIVE_TEXT]Roads[ENDCOLOR], which allow units to move across the map faster and provide extra [ICON_GOLD] Gold when connecting cities to your capital.'
-WHERE Tag = 'TXT_KEY_TECH_THE_WHEEL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Fix Currency Text
-
-UPDATE Language_en_US
-SET Text = 'Receive an additional [ICON_INTERNATIONAL_TRADE] Trade Route. Allows you to construct the [COLOR_POSITIVE_TEXT]Caravansary[ENDCOLOR], which greatly boosts the range and value of your land [ICON_INTERNATIONAL_TRADE] Trade Routes. Also allows Workers to construct the [COLOR_POSITIVE_TEXT]Village[ENDCOLOR], which increases the [ICON_GOLD] Gold output of map tiles.'
-WHERE Tag = 'TXT_KEY_TECH_CURRENCY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Other Text Fixes
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Catapult[ENDCOLOR], a powerful siege weapon, and the [COLOR_POSITIVE_TEXT]Horse Archer[ENDCOLOR], a strong mounted ranged unit.'
-WHERE Tag = 'TXT_KEY_TECH_MATHEMATICS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Temple[ENDCOLOR], which increases the [ICON_PEACE] Faith output of a city. Also allows you to build the [COLOR_POSITIVE_TEXT]Courthouse[ENDCOLOR], a building which reduces the [ICON_HAPPINESS_4] Unhappiness from [ICON_OCCUPIED] Occupied Cities.'
-WHERE Tag = 'TXT_KEY_TECH_PHILOSOPHY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Receive an additional [ICON_INTERNATIONAL_TRADE] Trade Route. Allows Workers to build [COLOR_POSITIVE_TEXT]Railroads[ENDCOLOR] on map tiles. Connecting cities with them will increase [ICON_PRODUCTION] Production, and units traveling along them will move more quickly.'
-WHERE Tag = 'TXT_KEY_TECH_RAILROAD_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Allows Workers to construct [COLOR_POSITIVE_TEXT]Pastures[ENDCOLOR] on [ICON_RES_COW] [COLOR_POSITIVE_TEXT]Cows[ENDCOLOR] and [ICON_RES_SHEEP] [COLOR_POSITIVE_TEXT]Sheep[ENDCOLOR]. Also reveals [ICON_RES_HORSE] Horses, which are used to build powerful mounted units.'
-WHERE Tag = 'TXT_KEY_TECH_ANIMAL_HUSBANDRY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Allows Workers to construct [COLOR_POSITIVE_TEXT]Mines[ENDCOLOR] to increase the [ICON_PRODUCTION] Production of map tiles.'
-WHERE Tag = 'TXT_KEY_TECH_MINING_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Reveals [ICON_RES_IRON] [COLOR_POSITIVE_TEXT]Iron[ENDCOLOR]. Also allows you to build the [COLOR_POSITIVE_TEXT]Spearman[ENDCOLOR], a military unit strong against mounted enemies.'
-WHERE Tag = 'TXT_KEY_TECH_BRONZE_WORKING_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Allows you to build [COLOR_POSITIVE_TEXT]Walls[ENDCOLOR], which greatly improve the defense of cities from attack. Also allows Workers to construct Quarries on [ICON_RES_MARBLE] [COLOR_POSITIVE_TEXT]Marble[ENDCOLOR] and [ICON_RES_STONE] [COLOR_POSITIVE_TEXT]Stone[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_TECH_MASONRY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Receive an additional [ICON_INTERNATIONAL_TRADE] Trade Route. Allows you to build the [COLOR_POSITIVE_TEXT]Caravan[ENDCOLOR], used to establish lucrative Trade Routes, and the [COLOR_POSITITVE_TEXT]Settler, a unit essential to expanding your empire. Also allows your cities to build the [COLOR_POSITIVE_TEXT]Granary[ENDCOLOR], which provides [ICON_FOOD] Food, helping your cities grow larger.'
-WHERE Tag = 'TXT_KEY_TECH_POTTERY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Customs House[ENDCOLOR] and [COLOR_POSITIVE_TEXT]East India Company[ENDCOLOR], improving [ICON_GOLD] Gold in your cities.'
-WHERE Tag = 'TXT_KEY_TECH_GUILDS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Allows land units to [COLOR_POSITIVE_TEXT]Embark[ENDCOLOR] onto water tiles and travel along the coast. Also allows you to build economic ships, useful for exploration and harvesting resources in the water like [ICON_RES_FISH] [COLOR_POSITIVE_TEXT]Fish[ENDCOLOR] and [ICON_RES_PEARLS] [COLOR_POSITIVE_TEXT]Pearls[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_TECH_SAILING_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Lighthouse[ENDCOLOR] in coastal cities, improving [ICON_FOOD] Food output from water tiles, speeding their growth. Also grants you access to the [COLOR_POSITIVE_TEXT]Cargo Ship[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_TECH_OPTICS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Observatory[ENDCOLOR], a powerful [ICON_RESEARCH] Science building. Also allows embarked land units to cross ocean tiles.'
-WHERE Tag = 'TXT_KEY_TECH_ASTRONOMY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Frigate[ENDCOLOR] and the [COLOR_POSITIVE_TEXT]Corvette[ENDCOLOR], powerful Renaissance-era warships. Also allows coastal cities to build the [COLOR_POSITIVE_TEXT]Seaport[ENDCOLOR], which provides [ICON_PRODUCTION] Production from sea resources.'
-WHERE Tag = 'TXT_KEY_TECH_NAVIGATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Receive an additional [ICON_INTERNATIONAL_TRADE] Trade Route. Reveals [ICON_RES_ALUMINUM] Aluminum, a resource used for many late-game units. Also allows Cities to build the [COLOR_POSITIVE_TEXT]Stock Exchange[ENDCOLOR], a building which boosts [ICON_GOLD] Gold. Also allows you to build the [COLOR_POSITIVE_TEXT]Hydro Plant[ENDCOLOR], which increases [ICON_PRODUCTION] Production from tiles next to a River.'
-WHERE Tag = 'TXT_KEY_TECH_ELECTRICITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
--- Penicilin and Nanotech 
-
-UPDATE Language_en_US
-SET Text = 'All Workers receive the [COLOR_POSITIVE_TEXT]Fallout Reduction[ENDCOLOR] Promotion, which reduces the amount of damage they take while scrubbing Fallout. Allows you to build the [COLOR_POSITIVE_TEXT]Marine[ENDCOLOR], a Unit that specializes in amphibious assaults. Also allows you to build the [COLOR_POSITIVE_TEXT]Medical Lab[ENDCOLOR], a building which speeds the [ICON_FOOD] growth of your Cities.'
-WHERE Tag = 'TXT_KEY_TECH_PENICILIN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-
-UPDATE Language_en_US
-SET Text = 'All Workers receive the [COLOR_POSITIVE_TEXT]Fallout Immunity[ENDCOLOR] Promotion, which eliminates any damage they would take while scrubbing Fallout. Allows you to build the [COLOR_POSITIVE_TEXT]XCOM Squad[ENDCOLOR], and the [COLOR_POSITIVE_TEXT]SS Stasis Chamber[ENDCOLOR], one of the Spaceship parts necessary to win a [COLOR_POSITIVE_TEXT]Science Victory[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_TECH_NANOTECHNOLOGY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
 -- Future Tech
 UPDATE Technologies
 SET Happiness = '10'
 WHERE Type = 'TECH_FUTURE_TECH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Who knows what the future holds?[NEWLINE][NEWLINE]A repeating technology that will increase your score and create 10 [ICON_HAPPINESS_1] Happiness in your [ICON_CAPITAL] Capital each time it is researched.'
-WHERE Tag = 'TXT_KEY_TECH_FUTURE_TECH_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Road/Railroad Speed Changes
 UPDATE Routes
@@ -413,6 +169,16 @@ WHERE Type = 'ROUTE_RAILROAD';
 UPDATE Routes
 SET FlatMovement = '30'
 WHERE Type = 'ROUTE_RAILROAD';
+
+-- Bombard Changes
+UPDATE Technologies SET BombardRange=1 WHERE Type='TECH_AGRICULTURE';
+UPDATE Technologies SET BombardRange=2 WHERE Type='TECH_MATHEMATICS';
+UPDATE Technologies SET BombardRange=2, BombardIndirect=1 WHERE Type='TECH_GUNPOWDER';
+UPDATE Technologies SET BombardRange=3, BombardIndirect=1 WHERE Type='TECH_DYNAMITE';
+
+INSERT OR REPLACE INTO Defines(Name, Value) SELECT 'MAX_CITY_ATTACK_RANGE', max(BombardRange) FROM Technologies;
+
+UPDATE CustomModOptions SET Value=1 WHERE Name='EVENTS_CITY_BOMBARD';
 
 -- TR Food/Production Scaling
 
@@ -471,3 +237,421 @@ WHERE Type = 'ERA_FUTURE';
 UPDATE Eras
 SET TradeRouteProductionBonusTimes100 = '1200'
 WHERE Type = 'ERA_FUTURE';
+
+-- Tech Prereqs
+
+-- Delete Prereqs
+DELETE FROM Technology_PrereqTechs;
+
+INSERT INTO Technology_PrereqTechs
+	(TechType, PrereqTech)
+VALUES
+	('TECH_FUTURE_TECH', 'TECH_NANOTECHNOLOGY'),
+	('TECH_FUTURE_TECH', 'TECH_PARTICLE_PHYSICS'),
+	('TECH_FUTURE_TECH', 'TECH_NUCLEAR_FUSION'),
+	('TECH_FUTURE_TECH', 'TECH_GLOBALIZATION'),
+	('TECH_NANOTECHNOLOGY', 'TECH_ROBOTICS'),
+	('TECH_NANOTECHNOLOGY', 'TECH_INTERNET'),
+	('TECH_PARTICLE_PHYSICS', 'TECH_INTERNET'),
+	('TECH_PARTICLE_PHYSICS', 'TECH_LASERS'),
+	('TECH_PARTICLE_PHYSICS', 'TECH_ROBOTICS'),
+	('TECH_GLOBALIZATION', 'TECH_LASERS'),
+	('TECH_GLOBALIZATION', 'TECH_STEALTH'),
+	('TECH_GLOBALIZATION', 'TECH_INTERNET'),
+	('TECH_NUCLEAR_FUSION', 'TECH_STEALTH'),
+	('TECH_NUCLEAR_FUSION', 'TECH_LASERS'),
+	('TECH_ROBOTICS', 'TECH_ECOLOGY'),
+	('TECH_ROBOTICS', 'TECH_TELECOM'),
+	('TECH_LASERS', 'TECH_ADVANCED_BALLISTICS'),
+	('TECH_LASERS', 'TECH_SATELLITES'),
+	('TECH_INTERNET', 'TECH_SATELLITES'),
+	('TECH_INTERNET', 'TECH_TELECOM'),
+	('TECH_STEALTH', 'TECH_ADVANCED_BALLISTICS'),
+	('TECH_STEALTH', 'TECH_MOBILE_TACTICS'),
+	('TECH_ECOLOGY', 'TECH_ELECTRONICS'),
+	('TECH_TELECOM', 'TECH_ELECTRONICS'),
+	('TECH_TELECOM', 'TECH_COMPUTERS'),
+	('TECH_SATELLITES', 'TECH_COMPUTERS'),
+	('TECH_SATELLITES', 'TECH_NUCLEAR_FISSION'),
+	('TECH_ADVANCED_BALLISTICS', 'TECH_NUCLEAR_FISSION'),
+	('TECH_ADVANCED_BALLISTICS', 'TECH_RADAR'),
+	('TECH_MOBILE_TACTICS', 'TECH_RADAR'),
+	('TECH_ELECTRONICS', 'TECH_PENICILIN'),
+	('TECH_ELECTRONICS', 'TECH_REFRIGERATION'),
+	('TECH_COMPUTERS', 'TECH_ATOMIC_THEORY'),
+	('TECH_COMPUTERS', 'TECH_REFRIGERATION'),
+	('TECH_NUCLEAR_FISSION', 'TECH_ATOMIC_THEORY'),
+	('TECH_NUCLEAR_FISSION', 'TECH_ROCKETRY'),
+	('TECH_RADAR', 'TECH_ROCKETRY'),
+	('TECH_RADAR', 'TECH_COMBINED_ARMS'),
+	('TECH_PENICILIN', 'TECH_PLASTIC'),
+	('TECH_REFRIGERATION', 'TECH_PLASTIC'),
+	('TECH_REFRIGERATION', 'TECH_RADIO'),
+	('TECH_ATOMIC_THEORY', 'TECH_FLIGHT'),
+	('TECH_ATOMIC_THEORY', 'TECH_RADIO'),
+	('TECH_COMBINED_ARMS', 'TECH_BALLISTICS'),
+	('TECH_ROCKETRY', 'TECH_FLIGHT'),
+	('TECH_ROCKETRY', 'TECH_BALLISTICS'),
+	('TECH_PLASTIC', 'TECH_BIOLOGY'),
+	('TECH_PLASTIC', 'TECH_ELECTRICITY'),
+	('TECH_RADIO', 'TECH_ELECTRICITY'),
+	('TECH_RADIO', 'TECH_REPLACEABLE_PARTS'),
+	('TECH_RADIO', 'TECH_BIOLOGY'),
+	('TECH_FLIGHT', 'TECH_COMBUSTION'),
+	('TECH_FLIGHT', 'TECH_REPLACEABLE_PARTS'),
+	('TECH_FLIGHT', 'TECH_ELECTRICITY'),
+	('TECH_BALLISTICS', 'TECH_COMBUSTION'),
+	('TECH_BALLISTICS', 'TECH_REPLACEABLE_PARTS'),
+	('TECH_BIOLOGY', 'TECH_ARCHAEOLOGY'),
+	('TECH_BIOLOGY', 'TECH_FERTILIZER'),
+	('TECH_ELECTRICITY', 'TECH_FERTILIZER'),
+	('TECH_ELECTRICITY', 'TECH_INDUSTRIALIZATION'),
+	('TECH_REPLACEABLE_PARTS', 'TECH_INDUSTRIALIZATION'),
+	('TECH_REPLACEABLE_PARTS', 'TECH_DYNAMITE'),
+	('TECH_COMBUSTION', 'TECH_DYNAMITE'),
+	('TECH_COMBUSTION', 'TECH_MILITARY_SCIENCE'),
+	('TECH_ARCHAEOLOGY', 'TECH_SCIENTIFIC_THEORY'),
+	('TECH_FERTILIZER', 'TECH_SCIENTIFIC_THEORY'),
+	('TECH_FERTILIZER', 'TECH_RAILROAD'),
+	('TECH_INDUSTRIALIZATION', 'TECH_RAILROAD'),
+	('TECH_INDUSTRIALIZATION', 'TECH_STEAM_POWER'),
+	('TECH_DYNAMITE', 'TECH_STEAM_POWER'),
+	('TECH_DYNAMITE', 'TECH_RIFLING'),
+	('TECH_MILITARY_SCIENCE', 'TECH_RIFLING'),
+	('TECH_SCIENTIFIC_THEORY', 'TECH_ECONOMICS'),
+	('TECH_SCIENTIFIC_THEORY', 'TECH_ARCHITECTURE'),
+	('TECH_RAILROAD', 'TECH_ACOUSTICS'),
+	('TECH_RAILROAD', 'TECH_ECONOMICS'),
+	('TECH_STEAM_POWER', 'TECH_NAVIGATION'),
+	('TECH_STEAM_POWER', 'TECH_ACOUSTICS'),
+	('TECH_RIFLING', 'TECH_NAVIGATION'),
+	('TECH_RIFLING', 'TECH_METALLURGY'),
+	('TECH_ARCHITECTURE', 'TECH_BANKING'),
+	('TECH_ARCHITECTURE', 'TECH_PRINTING_PRESS'),
+	('TECH_ECONOMICS', 'TECH_PRINTING_PRESS'),
+	('TECH_ECONOMICS', 'TECH_ASTRONOMY'),
+	('TECH_ECONOMICS', 'TECH_BANKING'),
+	('TECH_ACOUSTICS', 'TECH_ASTRONOMY'),
+	('TECH_ACOUSTICS', 'TECH_PRINTING_PRESS'),
+	('TECH_ACOUSTICS', 'TECH_GUNPOWDER'),
+	('TECH_NAVIGATION', 'TECH_GUNPOWDER'),
+	('TECH_NAVIGATION', 'TECH_CHEMISTRY'),
+	('TECH_NAVIGATION', 'TECH_ASTRONOMY'),
+	('TECH_METALLURGY', 'TECH_CHEMISTRY'),
+	('TECH_METALLURGY', 'TECH_GUNPOWDER'),
+	('TECH_BANKING', 'TECH_CIVIL_SERVICE'),
+	('TECH_PRINTING_PRESS', 'TECH_CIVIL_SERVICE'),
+	('TECH_PRINTING_PRESS', 'TECH_GUILDS'),
+	('TECH_ASTRONOMY', 'TECH_GUILDS'),
+	('TECH_ASTRONOMY', 'TECH_COMPASS'),
+	('TECH_GUNPOWDER', 'TECH_COMPASS'),
+	('TECH_GUNPOWDER', 'TECH_MACHINERY'),
+	('TECH_CHEMISTRY', 'TECH_MACHINERY'),
+	('TECH_CIVIL_SERVICE', 'TECH_THEOLOGY'),
+	('TECH_CIVIL_SERVICE', 'TECH_EDUCATION'),
+	('TECH_GUILDS', 'TECH_THEOLOGY'),
+	('TECH_GUILDS', 'TECH_CHIVALRY'),
+	('TECH_COMPASS', 'TECH_PHYSICS'),
+	('TECH_COMPASS', 'TECH_CHIVALRY'),
+	('TECH_MACHINERY', 'TECH_STEEL'),
+	('TECH_MACHINERY', 'TECH_PHYSICS'),
+	('TECH_EDUCATION', 'TECH_DRAMA'),
+	('TECH_EDUCATION', 'TECH_PHILOSOPHY'),
+	('TECH_THEOLOGY', 'TECH_PHILOSOPHY'),
+	('TECH_THEOLOGY', 'TECH_DRAMA'),
+	('TECH_THEOLOGY', 'TECH_ENGINEERING'),
+	('TECH_CHIVALRY', 'TECH_CURRENCY'),
+	('TECH_CHIVALRY', 'TECH_ENGINEERING'),
+	('TECH_CHIVALRY', 'TECH_PHILOSOPHY'),
+	('TECH_PHYSICS', 'TECH_ENGINEERING'),
+	('TECH_PHYSICS', 'TECH_CURRENCY'),
+	('TECH_PHYSICS', 'TECH_METAL_CASTING'),
+	('TECH_STEEL', 'TECH_METAL_CASTING'),
+	('TECH_STEEL', 'TECH_CURRENCY'),
+	('TECH_DRAMA', 'TECH_OPTICS'),
+	('TECH_DRAMA', 'TECH_WRITING'),
+	('TECH_PHILOSOPHY', 'TECH_WRITING'),
+	('TECH_PHILOSOPHY', 'TECH_MATHEMATICS'),
+	('TECH_PHILOSOPHY', 'TECH_OPTICS'),
+	('TECH_ENGINEERING', 'TECH_MATHEMATICS'),
+	('TECH_ENGINEERING', 'TECH_CONSTRUCTION'),
+	('TECH_ENGINEERING', 'TECH_WRITING'),
+	('TECH_CURRENCY', 'TECH_MATHEMATICS'),
+	('TECH_CURRENCY', 'TECH_IRON_WORKING'),
+	('TECH_CURRENCY', 'TECH_CONSTRUCTION'),
+	('TECH_METAL_CASTING', 'TECH_CONSTRUCTION'),
+	('TECH_METAL_CASTING', 'TECH_IRON_WORKING'),
+	('TECH_OPTICS', 'TECH_SAILING'),
+	('TECH_OPTICS', 'TECH_HORSEBACK_RIDING'),
+	('TECH_WRITING', 'TECH_CALENDAR'),
+	('TECH_WRITING', 'TECH_HORSEBACK_RIDING'),
+	('TECH_MATHEMATICS', 'TECH_ARCHERY'),
+	('TECH_MATHEMATICS', 'TECH_CALENDAR'),
+	('TECH_CONSTRUCTION', 'TECH_ARCHERY'),
+	('TECH_CONSTRUCTION', 'TECH_MASONRY'),
+	('TECH_IRON_WORKING', 'TECH_BRONZE_WORKING'),
+	('TECH_IRON_WORKING', 'TECH_MASONRY'),
+	('TECH_SAILING', 'TECH_TRAPPING'),
+	('TECH_ARCHERY', 'TECH_THE_WHEEL'),
+	('TECH_ARCHERY', 'TECH_ANIMAL_HUSBANDRY'),
+	('TECH_HORSEBACK_RIDING', 'TECH_TRAPPING'),
+	('TECH_HORSEBACK_RIDING', 'TECH_POTTERY'),
+	('TECH_CALENDAR', 'TECH_THE_WHEEL'),
+	('TECH_CALENDAR', 'TECH_POTTERY'),
+	('TECH_MASONRY', 'TECH_ANIMAL_HUSBANDRY'),
+	('TECH_MASONRY', 'TECH_MINING'),
+	('TECH_BRONZE_WORKING', 'TECH_MINING'),
+	('TECH_TRAPPING', 'TECH_AGRICULTURE'),
+	('TECH_ANIMAL_HUSBANDRY', 'TECH_AGRICULTURE'),
+	('TECH_THE_WHEEL', 'TECH_AGRICULTURE'),
+	('TECH_POTTERY', 'TECH_AGRICULTURE'),
+	('TECH_MINING', 'TECH_AGRICULTURE');
+
+	-- And Flavors
+	DELETE FROM Technology_Flavors;
+
+	INSERT INTO Technology_Flavors
+	(TechType, FlavorType, Flavor)
+VALUES
+	('TECH_AGRICULTURE', 'FLAVOR_GROWTH', 5),
+	('TECH_POTTERY', 'FLAVOR_GROWTH', 4),
+	('TECH_POTTERY', 'FLAVOR_EXPANSION', 25),
+	('TECH_POTTERY', 'FLAVOR_RELIGION', 1),
+	('TECH_POTTERY', 'FLAVOR_GOLD', 3),
+	('TECH_POTTERY', 'FLAVOR_EXPANSION', 10),
+	('TECH_ANIMAL_HUSBANDRY', 'FLAVOR_MOBILE', 4),
+	('TECH_ANIMAL_HUSBANDRY', 'FLAVOR_TILE_IMPROVEMENT', 2),
+	('TECH_ARCHERY', 'FLAVOR_MILITARY_TRAINING', 4),
+	('TECH_ARCHERY', 'FLAVOR_OFFENSE', 2),
+	('TECH_ARCHERY', 'FLAVOR_OFFENSE', 1),
+	('TECH_MINING', 'FLAVOR_PRODUCTION', 5),
+	('TECH_MINING', 'FLAVOR_TILE_IMPROVEMENT', 2),
+	('TECH_SAILING', 'FLAVOR_NAVAL', 3),
+	('TECH_SAILING', 'FLAVOR_NAVAL_TILE_IMPROVEMENT', 3),
+	('TECH_SAILING', 'FLAVOR_GOLD', 1),
+	('TECH_SAILING', 'FLAVOR_EXPANSION', 10),
+	('TECH_CALENDAR', 'FLAVOR_HAPPINESS', 2),
+	('TECH_CALENDAR', 'FLAVOR_TILE_IMPROVEMENT', 5),
+	('TECH_CALENDAR', 'FLAVOR_WONDER', 3),
+	('TECH_CALENDAR', 'FLAVOR_EXPANSION', 2),
+	('TECH_CALENDAR', 'FLAVOR_GOLD', 6),
+	('TECH_WRITING', 'FLAVOR_SCIENCE', 6),
+	('TECH_WRITING', 'FLAVOR_WONDER', 2),
+	('TECH_WRITING', 'FLAVOR_DIPLOMACY', 2),
+	('TECH_WRITING', 'FLAVOR_MILITARY_TRAINING', 4),
+	('TECH_TRAPPING', 'FLAVOR_GOLD', 8),
+	('TECH_TRAPPING', 'FLAVOR_RANGED', 4),
+	('TECH_TRAPPING', 'FLAVOR_TILE_IMPROVEMENT', 2),
+	('TECH_TRAPPING', 'FLAVOR_HAPPINESS', 1),
+	('TECH_THE_WHEEL', 'FLAVOR_MOBILE', 4),
+	('TECH_THE_WHEEL', 'FLAVOR_TILE_IMPROVEMENT', 2),
+	('TECH_THE_WHEEL', 'FLAVOR_RANGED', 2),
+	('TECH_THE_WHEEL', 'FLAVOR_INFRASTRUCTURE', 4),
+	('TECH_THE_WHEEL', 'FLAVOR_GOLD', 6),
+	('TECH_MASONRY', 'FLAVOR_CITY_DEFENSE', 4),
+	('TECH_MASONRY', 'FLAVOR_HAPPINESS', 2),
+	('TECH_MASONRY', 'FLAVOR_TILE_IMPROVEMENT', 2),
+	('TECH_MASONRY', 'FLAVOR_WONDER', 4),
+	('TECH_BRONZE_WORKING', 'FLAVOR_DEFENSE', 8),
+	('TECH_BRONZE_WORKING', 'FLAVOR_MILITARY_TRAINING', 5),
+	('TECH_OPTICS', 'FLAVOR_NAVAL', 5),
+	('TECH_OPTICS', 'FLAVOR_NAVAL_GROWTH', 5),
+	('TECH_OPTICS', 'FLAVOR_NAVAL_RECON', 5),
+	('TECH_OPTICS', 'FLAVOR_GROWTH', 5),
+	('TECH_OPTICS', 'FLAVOR_SCIENCE', 5),
+	('TECH_OPTICS', 'FLAVOR_EXPANSION', 5),
+	('TECH_HORSEBACK_RIDING', 'FLAVOR_MOBILE', 10),
+	('TECH_HORSEBACK_RIDING', 'FLAVOR_OFFENSE', 5),
+	('TECH_HORSEBACK_RIDING', 'FLAVOR_PRODUCTION', 3),
+	('TECH_HORSEBACK_RIDING', 'FLAVOR_WONDER', 3),
+	('TECH_MATHEMATICS', 'FLAVOR_RANGED', 8),
+	('TECH_MATHEMATICS', 'FLAVOR_OFFENSE', 4),
+	('TECH_MATHEMATICS', 'FLAVOR_WONDER', 2),
+	('TECH_CONSTRUCTION', 'FLAVOR_HAPPINESS', 10),
+	('TECH_CONSTRUCTION', 'FLAVOR_PRODUCTION', 6),
+	('TECH_CONSTRUCTION', 'FLAVOR_DEFENSE', 2),
+	('TECH_CONSTRUCTION', 'FLAVOR_WONDER', 2),
+	('TECH_CONSTRUCTION', 'FLAVOR_TILE_IMPROVEMENT', 5),
+	('TECH_PHILOSOPHY', 'FLAVOR_SCIENCE', 3),
+	('TECH_PHILOSOPHY', 'FLAVOR_CULTURE', 6),
+	('TECH_PHILOSOPHY', 'FLAVOR_RELIGION', 2),
+	('TECH_PHILOSOPHY', 'FLAVOR_WONDER', 2),
+	('TECH_DRAMA', 'FLAVOR_CULTURE', 6),
+	('TECH_DRAMA', 'FLAVOR_GREAT_PEOPLE', 3),
+	('TECH_CURRENCY', 'FLAVOR_GOLD', 20),
+	('TECH_CURRENCY', 'FLAVOR_WONDER', 2),
+	('TECH_IRON_WORKING', 'FLAVOR_OFFENSE', 12),
+	('TECH_IRON_WORKING', 'FLAVOR_DEFENSE', 6),
+	('TECH_IRON_WORKING', 'FLAVOR_MILITARY_TRAINING', 3),
+	('TECH_THEOLOGY', 'FLAVOR_RELIGION', 6),
+	('TECH_THEOLOGY', 'FLAVOR_GREAT_PEOPLE', 3),
+	('TECH_THEOLOGY', 'FLAVOR_WONDER', 4),
+	('TECH_CIVIL_SERVICE', 'FLAVOR_DEFENSE', 10),
+	('TECH_CIVIL_SERVICE', 'FLAVOR_GROWTH', 20),
+	('TECH_CIVIL_SERVICE', 'FLAVOR_SCIENCE', 10),
+	('TECH_CIVIL_SERVICE', 'FLAVOR_WONDER', 2),
+	('TECH_GUILDS', 'FLAVOR_GOLD', 20),
+	('TECH_GUILDS', 'FLAVOR_WONDER', 2),
+	('TECH_ENGINEERING', 'FLAVOR_DEFENSE', 2),
+	('TECH_ENGINEERING', 'FLAVOR_GROWTH', 10),
+	('TECH_ENGINEERING', 'FLAVOR_RANGED', 6),
+	('TECH_ENGINEERING', 'FLAVOR_INFRASTRUCTURE', 2),
+	('TECH_METAL_CASTING', 'FLAVOR_PRODUCTION', 25),
+	('TECH_METAL_CASTING', 'FLAVOR_WONDER', 3),
+	('TECH_METAL_CASTING', 'FLAVOR_OFFENSE', 3),
+	('TECH_METAL_CASTING', 'FLAVOR_DEFENSE', 3),
+	('TECH_METAL_CASTING', 'FLAVOR_MILITARY_TRAINING', 3),
+	('TECH_COMPASS', 'FLAVOR_GOLD', 6),
+	('TECH_COMPASS', 'FLAVOR_PRODUCTION', 3),
+	('TECH_COMPASS', 'FLAVOR_NAVAL', 10),
+	('TECH_COMPASS', 'FLAVOR_WATER_CONNECTION', 10),
+	('TECH_EDUCATION', 'FLAVOR_SCIENCE', 12),
+	('TECH_EDUCATION', 'FLAVOR_WONDER', 4),
+	('TECH_EDUCATION', 'FLAVOR_DIPLOMACY', 4),
+	('TECH_CHIVALRY', 'FLAVOR_OFFENSE', 3),
+	('TECH_CHIVALRY', 'FLAVOR_MOBILE', 8),
+	('TECH_CHIVALRY', 'FLAVOR_CITY_DEFENSE', 3),
+	('TECH_CHIVALRY', 'FLAVOR_WONDER', 2),
+	('TECH_CHIVALRY', 'FLAVOR_DIPLOMACY', 2),
+	('TECH_MACHINERY', 'FLAVOR_RANGED', 8),
+	('TECH_MACHINERY', 'FLAVOR_INFRASTRUCTURE', 4),
+	('TECH_MACHINERY', 'FLAVOR_PRODUCTION', 2),
+	('TECH_MACHINERY', 'FLAVOR_DEFENSE', 3),
+	('TECH_PHYSICS', 'FLAVOR_RANGED', 10),
+	('TECH_PHYSICS', 'FLAVOR_OFFENSE', 5),
+	('TECH_PHYSICS', 'FLAVOR_WONDER', 2),
+	('TECH_STEEL', 'FLAVOR_OFFENSE', 20),
+	('TECH_STEEL', 'FLAVOR_MILITARY_TRAINING', 5),
+	('TECH_ASTRONOMY', 'FLAVOR_NAVAL_RECON', 15),
+	('TECH_ASTRONOMY', 'FLAVOR_RECON', 5),
+	('TECH_ASTRONOMY', 'FLAVOR_NAVAL', 5),
+	('TECH_ASTRONOMY', 'FLAVOR_SCIENCE', 5),
+	('TECH_ASTRONOMY', 'FLAVOR_EXPANSION', 10),
+	('TECH_ACOUSTICS', 'FLAVOR_CULTURE', 8),
+	('TECH_ACOUSTICS', 'FLAVOR_WONDER', 4),
+	('TECH_BANKING', 'FLAVOR_GOLD', 20),
+	('TECH_BANKING', 'FLAVOR_EXPANSION', 5),
+	('TECH_BANKING', 'FLAVOR_HAPPINESS', 5),
+	('TECH_BANKING', 'FLAVOR_WONDER', 10),
+	('TECH_PRINTING_PRESS', 'FLAVOR_HAPPINESS', 12),
+	('TECH_PRINTING_PRESS', 'FLAVOR_WONDER', 4),
+	('TECH_PRINTING_PRESS', 'FLAVOR_GREAT_PEOPLE', 2),
+	('TECH_GUNPOWDER', 'FLAVOR_DEFENSE', 12),
+	('TECH_GUNPOWDER', 'FLAVOR_OFFENSE', 6),
+	('TECH_GUNPOWDER', 'FLAVOR_WONDER', 2),
+	('TECH_NAVIGATION', 'FLAVOR_NAVAL', 14),
+	('TECH_NAVIGATION', 'FLAVOR_PRODUCTION', 4),
+	('TECH_ARCHITECTURE', 'FLAVOR_WONDER', 12),
+	('TECH_ARCHITECTURE', 'FLAVOR_SCIENCE', 12),
+	('TECH_ECONOMICS', 'FLAVOR_GOLD', 12),
+	('TECH_ECONOMICS', 'FLAVOR_PRODUCTION', 8),
+	('TECH_CHEMISTRY', 'FLAVOR_RANGED', 10),
+	('TECH_CHEMISTRY', 'FLAVOR_OFFENSE', 6),
+	('TECH_CHEMISTRY', 'FLAVOR_DEFENSE', 3),
+	('TECH_CHEMISTRY', 'FLAVOR_PRODUCTION', 10),
+	('TECH_METALLURGY', 'FLAVOR_OFFENSE', 4),
+	('TECH_METALLURGY', 'FLAVOR_MOBILE', 8),
+	('TECH_METALLURGY', 'FLAVOR_DEFENSE', 4),
+	('TECH_METALLURGY', 'FLAVOR_CITY_DEFENSE', 3),
+	('TECH_ARCHAEOLOGY', 'FLAVOR_CULTURE', 40),
+	('TECH_ARCHAEOLOGY', 'FLAVOR_WONDER', 20),
+	('TECH_ARCHAEOLOGY', 'FLAVOR_GROWTH', 15),
+	('TECH_SCIENTIFIC_THEORY', 'FLAVOR_SCIENCE', 20),
+	('TECH_INDUSTRIALIZATION', 'FLAVOR_PRODUCTION', 50),
+	('TECH_INDUSTRIALIZATION', 'FLAVOR_WONDER', 2),
+	('TECH_MILITARY_SCIENCE', 'FLAVOR_OFFENSE', 4),
+	('TECH_MILITARY_SCIENCE', 'FLAVOR_MOBILE', 10),
+	('TECH_MILITARY_SCIENCE', 'FLAVOR_MILITARY_TRAINING', 5),
+	('TECH_MILITARY_SCIENCE', 'FLAVOR_WONDER', 1),
+	('TECH_FERTILIZER', 'FLAVOR_GROWTH', 20),
+	('TECH_FERTILIZER', 'FLAVOR_SCIENCE', 15),
+	('TECH_FERTILIZER', 'FLAVOR_GOLD', 8),
+	('TECH_FERTILIZER', 'FLAVOR_GREAT_PEOPLE', 5),
+	('TECH_RIFLING', 'FLAVOR_DEFENSE', 10),
+	('TECH_RIFLING', 'FLAVOR_OFFENSE', 10),
+	('TECH_RIFLING', 'FLAVOR_CITY_DEFENSE', 5),
+	('TECH_BIOLOGY', 'FLAVOR_GROWTH', 10),
+	('TECH_BIOLOGY', 'FLAVOR_TILE_IMPROVEMENT', 10),
+	('TECH_BIOLOGY', 'FLAVOR_OFFENSE', 25),
+	('TECH_BIOLOGY', 'FLAVOR_DEFENSE', 10),
+	('TECH_BIOLOGY', 'FLAVOR_NAVAL', 12),
+	('TECH_BIOLOGY', 'FLAVOR_AIR', 25),
+	('TECH_BIOLOGY', 'FLAVOR_MOBILE', 10),
+	('TECH_STEAM_POWER', 'FLAVOR_NAVAL', 15),
+	('TECH_ELECTRICITY', 'FLAVOR_GOLD', 10),
+	('TECH_ELECTRICITY', 'FLAVOR_OFFENSE', 5),
+	('TECH_REPLACEABLE_PARTS', 'FLAVOR_DEFENSE', 15),
+	('TECH_REPLACEABLE_PARTS', 'FLAVOR_WONDER', 2),
+	('TECH_RAILROAD', 'FLAVOR_INFRASTRUCTURE', 10),
+	('TECH_RAILROAD', 'FLAVOR_PRODUCTION', 10),
+	('TECH_RAILROAD', 'FLAVOR_WONDER', 2),
+	('TECH_DYNAMITE', 'FLAVOR_RANGED', 12),
+	('TECH_DYNAMITE', 'FLAVOR_OFFENSE', 10),
+	('TECH_DYNAMITE', 'FLAVOR_DEFENSE', 8),
+	('TECH_REFRIGERATION', 'FLAVOR_NAVAL', 10),
+	('TECH_REFRIGERATION', 'FLAVOR_NAVAL_TILE_IMPROVEMENT', 4),
+	('TECH_REFRIGERATION', 'FLAVOR_PRODUCTION', 5),
+	('TECH_REFRIGERATION', 'FLAVOR_OFFENSE', 10),
+	('TECH_REFRIGERATION', 'FLAVOR_AIR', 5),
+	('TECH_RADIO', 'FLAVOR_AIR', 2),
+	('TECH_RADIO', 'FLAVOR_CULTURE', 15),
+	('TECH_RADIO', 'FLAVOR_WONDER', 4),
+	('TECH_FLIGHT', 'FLAVOR_AIR', 15),
+	('TECH_FLIGHT', 'FLAVOR_ANTIAIR', 5),
+	('TECH_BALLISTICS', 'FLAVOR_OFFENSE', 10),
+	('TECH_BALLISTICS', 'FLAVOR_ANTIAIR', 5),
+	('TECH_BALLISTICS', 'FLAVOR_DEFENSE', 10),
+	('TECH_COMBUSTION', 'FLAVOR_OFFENSE', 15),
+	('TECH_COMBUSTION', 'FLAVOR_MOBILE', 5),
+	('TECH_COMBUSTION', 'FLAVOR_NAVAL', 5),
+	('TECH_PLASTIC', 'FLAVOR_PRODUCTION', 5),
+	('TECH_PLASTIC', 'FLAVOR_DEFENSE', 10),
+	('TECH_PLASTIC', 'FLAVOR_SCIENCE', 5),
+	('TECH_PLASTIC', 'FLAVOR_SPACESHIP', 5),
+	('TECH_PENICILIN', 'FLAVOR_GROWTH', 10),
+	('TECH_PENICILIN', 'FLAVOR_SCIENCE', 2),
+	('TECH_PENICILIN', 'FLAVOR_GOLD', 2),
+	('TECH_ELECTRONICS', 'FLAVOR_NAVAL', 10),
+	('TECH_ELECTRONICS', 'FLAVOR_OFFENSE', 5),
+	('TECH_ELECTRONICS', 'FLAVOR_AIR_CARRIER', 5),
+	('TECH_RADAR', 'FLAVOR_AIR', 15),
+	('TECH_RADAR', 'FLAVOR_OFFENSE', 5),
+	('TECH_RADAR', 'FLAVOR_ANTIAIR', 5),
+	('TECH_COMBINED_ARMS', 'FLAVOR_OFFENSE', 10),
+	('TECH_COMBINED_ARMS', 'FLAVOR_MOBILE', 10),
+	('TECH_COMBINED_ARMS', 'FLAVOR_DEFENSE', 5),
+	('TECH_ATOMIC_THEORY', 'FLAVOR_NUKE', 25),
+	('TECH_ATOMIC_THEORY', 'FLAVOR_OFFENSE', 10),
+	('TECH_ECOLOGY', 'FLAVOR_PRODUCTION', 10),
+	('TECH_COMPUTERS', 'FLAVOR_AIR', 5),
+	('TECH_COMPUTERS', 'FLAVOR_NAVAL', 5),
+	('TECH_COMPUTERS', 'FLAVOR_NUKE', 5),
+	('TECH_TELECOM', 'FLAVOR_WONDER', 5),
+	('TECH_TELECOM', 'FLAVOR_DEFENSE', 5),
+	('TECH_ROCKETRY', 'FLAVOR_RANGED', 10),
+	('TECH_ROCKETRY', 'FLAVOR_AIR', 5),
+	('TECH_ROCKETRY', 'FLAVOR_MOBILE', 5),
+	('TECH_ROCKETRY', 'FLAVOR_SPACESHIP', 30),
+	('TECH_LASERS', 'FLAVOR_OFFENSE', 5),
+	('TECH_LASERS', 'FLAVOR_MOBILE', 5),
+	('TECH_LASERS', 'FLAVOR_AIR', 5),
+	('TECH_NUCLEAR_FISSION', 'FLAVOR_NUKE', 30),
+	('TECH_NUCLEAR_FISSION', 'FLAVOR_OFFENSE', 5),
+	('TECH_NUCLEAR_FISSION', 'FLAVOR_PRODUCTION', 10),
+	('TECH_INTERNET', 'FLAVOR_CULTURE', 50),
+	('TECH_GLOBALIZATION', 'FLAVOR_DIPLOMACY', 50),
+	('TECH_ROBOTICS', 'FLAVOR_NAVAL', 4),
+	('TECH_ROBOTICS', 'FLAVOR_SPACESHIP', 25),
+	('TECH_SATELLITES', 'FLAVOR_SCIENCE', 6),
+	('TECH_SATELLITES', 'FLAVOR_WONDER', 2),
+	('TECH_SATELLITES', 'FLAVOR_SPACESHIP', 10),
+	('TECH_STEALTH', 'FLAVOR_AIR', 10),
+	('TECH_MOBILE_TACTICS', 'FLAVOR_MOBILE', 10),
+	('TECH_MOBILE_TACTICS', 'FLAVOR_DEFENSE', 10),
+	('TECH_ADVANCED_BALLISTICS', 'FLAVOR_NUKE', 10),
+	('TECH_ADVANCED_BALLISTICS', 'FLAVOR_SPACESHIP', 10),
+	('TECH_PARTICLE_PHYSICS', 'FLAVOR_SPACESHIP', 20),
+	('TECH_NUCLEAR_FUSION', 'FLAVOR_OFFENSE', 15),
+	('TECH_NUCLEAR_FUSION', 'FLAVOR_NUKE', 5),
+	('TECH_NANOTECHNOLOGY', 'FLAVOR_SPACESHIP', 20),
+	('TECH_FUTURE_TECH', 'FLAVOR_SCIENCE', 10);

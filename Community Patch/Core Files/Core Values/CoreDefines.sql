@@ -199,7 +199,7 @@ SELECT 'BALANCE_SCOUT_XP_RANDOM_VALUE', '12';
 
 INSERT INTO Defines (
 Name, Value)
-SELECT 'BALANCE_SCOUT_XP_MAXIMUM', '45';
+SELECT 'BALANCE_SCOUT_XP_MAXIMUM', '100';
 
 INSERT INTO Defines (
 Name, Value)
@@ -410,7 +410,3 @@ INSERT INTO GameOptions
 			(Type,								Description,								Help,											"Default")
 VALUES		('GAMEOPTION_BARB_GG_GA_POINTS',	'TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS',	'TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS_HELP',	0);
 
-INSERT INTO Language_en_US
-			(Tag,											Text)
-VALUES		('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS',		'Barbarian GG/GA Points'),
-			('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS_HELP',	'Allows all players to accumulate Great General and Great Admiral points from fighting Barbarians.');

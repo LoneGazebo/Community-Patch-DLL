@@ -3530,7 +3530,7 @@ int CvPlayerPolicies::GetNumPoliciesOwned() const
 	{
 		// Do we have this policy?
 #if defined(MOD_BALANCE_CORE)
-		if(m_pabHasPolicy[i] && !m_pPolicies->GetPolicyEntry(i)->IsDummy())
+		if(m_pabHasPolicy[i] && m_pPolicies->GetPolicyEntry(i) && !m_pPolicies->GetPolicyEntry(i)->IsDummy())
 #else
 		if(m_pabHasPolicy[i])
 #endif
@@ -3540,7 +3540,7 @@ int CvPlayerPolicies::GetNumPoliciesOwned() const
 			if(bSkipFinisher)
 			{
 				CvPolicyBranchEntry* pkBranchEntry = m_pPolicies->GetPolicyBranchEntry(m_pPolicies->GetPolicyEntry(i)->GetPolicyBranchType());
-				if(pkBranchEntry)
+				if(pkBranchEntry && pkBranchEntry != NULL)
 				{
 					if(pkBranchEntry->GetFreeFinishingPolicy() == i)
 					{
@@ -4278,47 +4278,12 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 		GC.GetEngineUserInterface()->setDirty(Policies_DIRTY_BIT, true);
 	}
 
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-	ReligionTypes eReligionFounded = GetPlayer()->GetReligions()->GetReligionCreatedByPlayer();
-	if(eReligionFounded > RELIGION_PANTHEON)
+#if defined(MOD_BALANCE_CORE)
+	m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_POLICY_UNLOCK);
+	int iLoop;
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop)) 
 	{
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, GetPlayer()->GetID());
-		if(pReligion)
-		{
-			int iEra = GC.getGame().getCurrentEra();
-			if(iEra < 1)
-			{
-				iEra = 1;
-			}
-			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_FAITH) > 0)
-			{
-				GetPlayer()->ChangeFaith(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_FAITH) * iEra);
-			}
-			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLD) > 0)
-			{
-				GetPlayer()->GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLD) * iEra);
-			}
-			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE) > 0)
-			{
-				TechTypes eCurrentTech = GetPlayer()->GetPlayerTechs()->GetCurrentResearch();
-				if(eCurrentTech == NO_TECH)
-				{
-					GetPlayer()->changeOverflowResearch(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE) * iEra);
-				}
-				else
-				{
-					GET_TEAM(GET_PLAYER(GetPlayer()->GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE) * iEra, GetPlayer()->GetID());
-				}
-			}
-			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_CULTURE) > 0)
-			{
-				GetPlayer()->changeJONSCulture(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_CULTURE) * iEra);
-			}
-			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLDEN_AGE_POINTS) > 0)
-			{
-				GetPlayer()->ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
-			}
-		}
+		pLoopCity->GetCityCitizens()->SetDirty(true);
 	}
 #endif
 

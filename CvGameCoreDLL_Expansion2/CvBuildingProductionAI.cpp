@@ -741,7 +741,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	/////////
 	//RELIGION CHECKS
 	////////////
-	ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
+	if (eReligion == NO_RELIGION)
+	{
+		eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+	}
 	if(eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pCity->getOwner());
@@ -846,7 +850,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			EraTypes eEra = (EraTypes)pEntry->GetEra();
 			if(eEra != NO_ERA && eEra < kPlayer.GetCurrentEra())
 			{
-				iBonus *= ((kPlayer.GetCurrentEra() + 1) - eEra);
+				iBonus *= ((kPlayer.GetCurrentEra() + 3) - eEra);
 			}
 		}
 	}
@@ -860,8 +864,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		int iGPT = (int)kPlayer.GetTreasury()->AverageIncome(10);
 		if(iGPT < 0)
 		{
-			//Every -1 GPT = -6% bonus
-			iBonus += (iGPT * 6);
+			//Every -1 GPT = -5% bonus
+			iBonus += (iGPT * 5);
 		}
 	}
 	

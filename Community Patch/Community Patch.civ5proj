@@ -7,7 +7,7 @@
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
     <ModVersion>72</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(3-1b) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(3-9) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for Whoward's PNM Mods as well as the Community Balance Patch.</Description>
     <Authors>The Community Patch Team</Authors>
     <SpecialThanks>
@@ -123,11 +123,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Values/ExtraSpyTable.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/Core Values/ExtraSpyNames.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -427,11 +422,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/Core Changes/NewText2.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Changes/TextChanges.sql</FileName>
       </Action>
       <Action>
@@ -469,6 +459,21 @@
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Values/MinorCivQuestRewards.xml</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/Core Values/DummyTrigger.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/Text/CoreText_en_US.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/Text/CoreText_en_US.xml</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -501,7 +506,7 @@
     <Folder Include="Core Files\Core Tables\" />
     <Folder Include="Core Files\Core Values\" />
     <Folder Include="Core Files\Core Values\Artificial Unintelligence" />
-    <Folder Include="Core Files\Core Modules" />
+    <Folder Include="Core Files\Text" />
     <Folder Include="Core Files\PNM Mods DB" />
     <Folder Include="Core Files\PNM Mods DB\API\" />
     <Folder Include="Core Files\PNM Mods DB\ART\" />
@@ -754,10 +759,6 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Core Files\Core Changes\NewText2.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="Core Files\Core Changes\NewWriters.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -810,10 +811,6 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Core Files\Core Values\ExtraSpyNames.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="Core Files\Core Values\ExtraSpyTable.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -823,6 +820,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\Core Values\Automates.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\Core Values\DummyTrigger.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -1047,6 +1048,14 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\PNM Mods DB\UI\CityExpansion.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\Text\CoreText_en_US.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\Text\CoreText_en_US.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

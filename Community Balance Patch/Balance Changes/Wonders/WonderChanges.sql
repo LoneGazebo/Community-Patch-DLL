@@ -1,9 +1,57 @@
+-- Wonder Consolation
+
+INSERT INTO Defines (
+Name, Value)
+SELECT 'BALANCE_WONDER_BEATEN_CONSOLATION_PRIZE', '1'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_WONDER_CONSOLATION_TWEAK' AND Value= 1 );
+INSERT INTO Defines (
+Name, Value)
+SELECT 'BALANCE_WONDER_BEATEN_CONSOLATION_PRIZE', '2'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_WONDER_CONSOLATION_TWEAK' AND Value= 2 );
+INSERT INTO Defines (
+Name, Value)
+SELECT 'BALANCE_WONDER_BEATEN_CONSOLATION_PRIZE', '3'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_WONDER_CONSOLATION_TWEAK' AND Value= 3 );
+INSERT INTO Defines (
+Name, Value)
+SELECT 'BALANCE_WONDER_BEATEN_CONSOLATION_PRIZE', '4'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_WONDER_CONSOLATION_TWEAK' AND Value= 4 );
+INSERT INTO Defines (
+Name, Value)
+SELECT 'BALANCE_WONDER_BEATEN_CONSOLATION_PRIZE', '5'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_WONDER_CONSOLATION_TWEAK' AND Value= 5 );
+INSERT INTO Defines (
+Name, Value)
+SELECT 'BALANCE_CULTURE_PERCENTAGE_VALUE', '33'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_WONDER_CONSOLATION_TWEAK_ENABLER' AND Value= 1 );
+INSERT INTO Defines (
+Name, Value)
+SELECT 'BALANCE_GA_PERCENTAGE_VALUE', '25'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_WONDER_CONSOLATION_TWEAK_ENABLER' AND Value= 1 );
+INSERT INTO Defines (
+Name, Value)
+SELECT 'BALANCE_SCIENCE_PERCENTAGE_VALUE', '10'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_WONDER_CONSOLATION_TWEAK_ENABLER' AND Value= 1 );
+INSERT INTO Defines (
+Name, Value)
+SELECT 'BALANCE_FAITH_PERCENTAGE_VALUE', '10'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_WONDER_CONSOLATION_TWEAK_ENABLER' AND Value= 1 );
+
 ------------------
 -- Ancient
 
 -- Pyramids
 
-DELETE FROM Buildings
+UPDATE Buildings
+SET PolicyBranchType = NULL
+WHERE Type = 'BUILDING_PYRAMID' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET Cost = '185'
+WHERE Type = 'BUILDING_PYRAMID' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET PrereqTech = 'TECH_CALENDAR'
 WHERE Type = 'BUILDING_PYRAMID' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Building_FreeUnits
@@ -14,17 +62,22 @@ UPDATE Building_FreeUnits
 SET NumUnits = '1'
 WHERE BuildingType = 'BUILDING_PYRAMID' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Tile improvement construction speed increased by 25% and a Settler appears near the City.'
-WHERE Tag = 'TXT_KEY_WONDER_CHICHEN_ITZA_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 -- Statue of Zeus
-DELETE FROM Buildings
+UPDATE Buildings
+SET PolicyBranchType = NULL
 WHERE Type = 'BUILDING_STATUE_ZEUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'All units gain +15% [ICON_STRENGTH] combat strength when attacking cities. Reduces [ICON_HAPPINESS_3] Crime in all cities. Receive a free Forge in the City.'
-WHERE Tag = 'TXT_KEY_WONDER_STATUE_ZEUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+UPDATE Buildings
+SET PrereqTech = 'TECH_BRONZE_WORKING'
+WHERE Type = 'BUILDING_STATUE_ZEUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET FreeBuildingThisCity = 'BUILDINGCLASS_FORGE'
+WHERE Type = 'BUILDING_STATUE_ZEUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET Cost = '185'
+WHERE Type = 'BUILDING_STATUE_ZEUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Building_YieldChanges (BuildingType, YieldType, Yield)
 SELECT 'BUILDING_STATUE_ZEUS' , 'YIELD_FAITH' , '1'
@@ -42,10 +95,6 @@ WHERE Type = 'BUILDING_STONEHENGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Typ
 UPDATE Buildings
 SET Help = 'TXT_KEY_BUILDING_STONEHENGE_HELP'
 WHERE Type = 'BUILDING_STONEHENGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_STONEHENGE_HELP', 'Grants 30 [ICON_PEACE] Faith when completed. Receive a free Council in the city.'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Building_InstantYield (BuildingType, YieldType, Yield)
 SELECT 'BUILDING_STONEHENGE' , 'YIELD_FAITH' , '30'
@@ -79,19 +128,11 @@ UPDATE Buildings
 SET FreeBuildingThisCity = 'BUILDINGCLASS_STONE_WORKS'
 WHERE Type = 'BUILDING_MAUSOLEUM_HALICARNASSUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = '''We Love the King Day'' begins in the City. During ''We Love the King Day'', City [ICON_PRODUCTION] Production increases by +10%. [NEWLINE][NEWLINE]Receive 30 [ICON_CULTURE] Culture when a Great Person is expended, scaling with Era. Receive a free Stone Works in the City.'
-WHERE Tag = 'TXT_KEY_WONDER_MAUSOLEUM_HALICARNASSUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 -- Artemis
 
 UPDATE Buildings
 SET FreeBuildingThisCity = 'BUILDINGCLASS_GRANARY'
 WHERE Type = 'BUILDING_TEMPLE_ARTEMIS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = '+10% [ICON_FOOD] Growth in all cities. +15% [ICON_PRODUCTION] Production when building ranged units. Free Granary in the City.'
-WHERE Tag = 'TXT_KEY_WONDER_TEMPLE_ARTEMIS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 
 -- Petra
@@ -113,10 +154,6 @@ WHERE BuildingType = 'BUILDING_PETRA' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 DELETE FROM Building_FeatureYieldChanges
 WHERE BuildingType = 'BUILDING_PETRA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = '+1 [ICON_GOLD] Gold on all Desert tiles worked by this city. Gains an additional trade route slot and a Caravan appears in the city. +6 [ICON_CULTURE] Culture once Archaeology is discovered. City must be built on or next to Desert.'
-WHERE Tag = 'TXT_KEY_WONDER_PETRA_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 -----------------
 -- Classical
 
@@ -125,10 +162,6 @@ WHERE Tag = 'TXT_KEY_WONDER_PETRA_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHER
 UPDATE Buildings
 SET Cost = '200'
 WHERE Type = 'BUILDING_GREAT_LIBRARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = '1 Free Technology. Provides a free Library in the city in which it is built.  Contains 2 slots for Great Works of Writing.[NEWLINE][NEWLINE]+3 [ICON_RESEARCH] Science if Themed.'
-WHERE Tag = 'TXT_KEY_WONDER_GREAT_LIBRARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Hanging Gardens
 UPDATE Buildings
@@ -143,13 +176,13 @@ UPDATE Buildings
 SET PolicyType = 'POLICY_TRADITION_FINISHER'
 WHERE Type = 'BUILDING_HANGING_GARDEN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
+UPDATE Buildings
+SET FreeBuildingThisCity = 'BUILDINGCLASS_BATH'
+WHERE Type = 'BUILDING_HANGING_GARDEN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
 UPDATE Building_YieldChanges
 SET Yield = '10'
 WHERE BuildingType = 'BUILDING_HANGING_GARDEN' AND YieldType = 'YIELD_FOOD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Requires completion of Tradition Branch. Provides a free Garden in the city in which it is built.'
-WHERE Tag = 'TXT_KEY_WONDER_HANGING_GARDEN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Great Lighthouse
 INSERT INTO Building_YieldChanges (BuildingType, YieldType, Yield)
@@ -190,10 +223,6 @@ INSERT INTO Building_InstantYield (BuildingType, YieldType, Yield)
 SELECT  'BUILDING_TERRACOTTA_ARMY' , 'YIELD_CULTURE' , '100'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Requires completion of Authority Branch. The empire enters a [ICON_GOLDEN_AGE] Golden Age. Reduces [ICON_HAPPINESS_3] Crime in all cities. Creates a copy of each type of military land unit you control and places the unit near the city where the Terracotta Army is constructed. Receive a large sum of [ICON_CULTURE] Culture when completed.'
-WHERE Tag = 'TXT_KEY_WONDER_TERRA_COTTA_ARMY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 -- Parthenon
 UPDATE Buildings
 SET PolicyBranchType = NULL
@@ -215,15 +244,7 @@ UPDATE Building_YieldChanges
 SET Yield = '2'
 WHERE BuildingType = 'BUILDING_PARTHENON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Requires completion of Progress Branch. Reduces [ICON_HAPPINESS_3] Boredom in all cities. Contains a prebuilt Great Work of Art in one of the Great Work Slots.[NEWLINE][NEWLINE]+3 [ICON_CULTURE] Culture if themed.'
-WHERE Tag = 'TXT_KEY_WONDER_PARTHENON_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 -- Oracle
-
-UPDATE Language_en_US
-SET Text = '1 Free Social Policy. Reduces [ICON_HAPPINESS_3] Illiteracy in all cities.'
-WHERE Tag = 'TXT_KEY_WONDER_ORACLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Building_YieldChanges (BuildingType, YieldType, Yield)
 SELECT  'BUILDING_ORACLE' , 'YIELD_SCIENCE' , '1'
@@ -234,10 +255,6 @@ WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDIN
 INSERT INTO Building_FreeUnits (BuildingType, UnitType, NumUnits)
 SELECT 'BUILDING_GREAT_WALL' , 'UNIT_GREAT_GENERAL' , '1'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Receive a free Great General. [NEWLINE][NEWLINE]Enemy land Units must expend 1 extra [ICON_MOVES] movement per Tile inside your territory. Provides Walls for free in the city in which it is built. Upon discovering Dynamite, The Great Wall becomes obsolete.'
-WHERE Tag = 'TXT_KEY_WONDER_GREAT_WALL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Angkor Wat
 
@@ -263,46 +280,66 @@ UPDATE Buildings
 SET Cost = '350'
 WHERE Type = 'BUILDING_ALHAMBRA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'All newly-trained non-air Units in this City receive the [COLOR_POSITIVE_TEXT]Drill I[ENDCOLOR] Promotion, improving [ICON_STRENGTH] combat strength and city attack strength. Provides a free Castle in the city in which it is built. Boosts city [ICON_CULTURE] Culture output by 20%.'
-WHERE Tag = 'TXT_KEY_WONDER_ALHAMBRA_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 -- Mosque of Djenne
-
-DELETE FROM Buildings
+UPDATE Buildings
+SET PolicyBranchType = NULL
 WHERE Type = 'BUILDING_MOSQUE_OF_DJENNE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Reqiures completion of Piety Branch. Receive 50 [ICON_RESEARCH] Science when you expend a [ICON_GREAT_PEOPLE] Great Person. Bonus scales with Era. Provides a free Mosque in the city in which it is built.'
-WHERE Tag = 'TXT_KEY_WONDER_MOSQUE_OF_DJENNE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+UPDATE Buildings
+SET Cost = '350'
+WHERE Type = 'BUILDING_MOSQUE_OF_DJENNE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'University of Sankore'
-WHERE Tag = 'TXT_KEY_BUILDING_MOSQUE_OF_DJENNE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+UPDATE Buildings
+SET PolicyType = 'POLICY_PIETY_FINISHER'
+WHERE Type = 'BUILDING_MOSQUE_OF_DJENNE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'As the center of an Islamic scholarly community, the University of Sankore was very different in organization from the universities of medieval Europe. It had no central administration other than the Emperor. It had no student registers but kept copies of its student publishings. It was composed of several entirely independent schools or colleges, each run by a single master or imam. Students associated themselves with a single teacher, and courses took place in the open courtyard of the mosque or at private residences.'
-WHERE Tag = 'TXT_KEY_WONDER_MOSQUE_OF_DJENNE_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+UPDATE Buildings
+SET PrereqTech = 'TECH_EDUCATION'
+WHERE Type = 'BUILDING_MOSQUE_OF_DJENNE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET ExtraMissionarySpreads = '0'
+WHERE Type = 'BUILDING_MOSQUE_OF_DJENNE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET SpecialistType = 'SPECIALIST_SCIENTIST'
+WHERE Type = 'BUILDING_MOSQUE_OF_DJENNE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET GreatPeopleRateChange = '1'
+WHERE Type = 'BUILDING_MOSQUE_OF_DJENNE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET FreeBuildingThisCity = 'BUILDINGCLASS_MOSQUE'
+WHERE Type = 'BUILDING_MOSQUE_OF_DJENNE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- St. Basil's
+UPDATE Buildings
+SET PolicyBranchType = NULL
+WHERE Type = 'BUILDING_KREMLIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-DELETE FROM Buildings
+UPDATE Buildings
+SET Cost = '350'
+WHERE Type = 'BUILDING_KREMLIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET IsReformation = '1'
+WHERE Type = 'BUILDING_KREMLIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET FreePolicies = '0'
+WHERE Type = 'BUILDING_KREMLIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET HolyCity = '1'
+WHERE Type = 'BUILDING_KREMLIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET PrereqTech = 'TECH_THEOLOGY'
 WHERE Type = 'BUILDING_KREMLIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 DELETE FROM Building_UnitCombatProductionModifiers
 WHERE BuildingType = 'BUILDING_KREMLIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Enables you to select a Reformation Belief without the normal prerequisites. Must be built in a Holy City.'
-WHERE Tag = 'TXT_KEY_WONDER_KREMLIN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Cathedral of St. Basil'
-WHERE Tag = 'TXT_KEY_BUILDING_KREMLIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'The Cathedral of Vasily the Blessed, commonly known as the Cathedral of Saint Basil, is a former church in Red Square in Moscow, Russia. The building, now a museum, is officially known as the Cathedral of the Intercession of the Most Holy Theotokos on the Moat or Pokrovsky Cathedral. It was built from 1555–61 on orders from Ivan the Terrible and commemorates the capture of Kazan and Astrakhan. A world famous landmark, it has been the hub of growth since the 14th century and was the tallest building in the city until the completion of the Ivan the Great Bell Tower in 1600.'
-WHERE Tag = 'TXT_KEY_WONDER_KREMLIN_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Borobudur
 UPDATE Buildings
@@ -316,10 +353,6 @@ WHERE Type = 'BUILDING_BOROBUDUR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type
 UPDATE Buildings
 SET Cost = '450'
 WHERE Type = 'BUILDING_BOROBUDUR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Must be built in a Holy City. 3 free Missionaries appear. A free Monastery is constructed in the City.'
-WHERE Tag = 'TXT_KEY_WONDER_BOROBUDUR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Hagia Sophia
 
@@ -335,10 +368,6 @@ WHERE Type = 'BUILDING_MACHU_PICHU' AND EXISTS (SELECT * FROM COMMUNITY WHERE Ty
 UPDATE Buildings
 SET CityConnectionTradeRouteModifier = '15'
 WHERE Type = 'BUILDING_MACHU_PICHU' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = '+15% [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections. City gains +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith for every Mountain within 3 tiles of the City. [NEWLINE][NEWLINE]City must be built within 2 tiles of a Mountain that is inside your territory.'
-WHERE Tag = 'TXT_KEY_WONDER_MACHU_PICHU_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
 SET Cost = '350'
@@ -373,10 +402,6 @@ UPDATE Buildings
 SET Help = 'TXT_KEY_BUILDING_NOTRE_DAME_HELP'
 WHERE Type = 'BUILDING_NOTRE_DAME' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_NOTRE_DAME_HELP', 'Contains two slots for Great Works of Art or Artifacts.[NEWLINE][NEWLINE]+3 [ICON_PEACE] Faith if Themed.'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 -- Forbidden Palace
 UPDATE Buildings
 SET PrereqTech = 'TECH_CIVIL_SERVICE'
@@ -398,9 +423,13 @@ UPDATE Buildings
 SET UnhappinessModifier = '0'
 WHERE Type = 'BUILDING_FORBIDDEN_PALACE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Requires completion of Statecraft Branch. Grants 2 additional Delegates in the World Congress for every 8 City-States in the game. Reduces [ICON_HAPPINESS_3] Poverty in all cities.'
-WHERE Tag = 'TXT_KEY_WONDER_FORBIDDEN_PALACE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+UPDATE Buildings
+SET SingleLeagueVotes = '0'
+WHERE Type = 'BUILDING_FORBIDDEN_PALACE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Buildings
+SET ExtraLeagueVotes = '2'
+WHERE Type = 'BUILDING_FORBIDDEN_PALACE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 ----------------------
 -- Renaissance
@@ -425,18 +454,10 @@ UPDATE Buildings
 SET Happiness = '0'
 WHERE Type = 'BUILDING_CHICHEN_ITZA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Length of [ICON_GOLDEN_AGE] Golden Ages increased by 50%. Reduces [ICON_HAPPINESS_3] Religious Unrest in all cities.'
-WHERE Tag = 'TXT_KEY_WONDER_TAJ_MAHAL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 -- Globe Theater
 UPDATE Buildings
 SET Cost = '600'
 WHERE Type = 'BUILDING_GLOBE_THEATER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = '1 free Great Writer appears near the City where the Wonder was built. Contains 2 slots for Great Works of Writing.[NEWLINE][NEWLINE]+5 [ICON_GOLD] Gold if Themed.'
-WHERE Tag = 'TXT_KEY_WONDER_GLOBE_THEATER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Pisa
 UPDATE Buildings
@@ -464,10 +485,6 @@ UPDATE Buildings
 SET Cost = '700'
 WHERE Type = 'BUILDING_UFFIZI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Requires completion of Aesthetics branch. 1 free Great Artist appears near the City where the Wonder was built. Contains 3 slots for Great Works of Art.[NEWLINE][NEWLINE]+5 [ICON_CULTURE] Culture if Themed.'
-WHERE Tag = 'TXT_KEY_WONDER_UFFIZI_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 -- Taj Mahal
 UPDATE Buildings
 SET Happiness = '0'
@@ -476,10 +493,6 @@ WHERE Type = 'BUILDING_TAJ_MAHAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type
 UPDATE Buildings
 SET Cost = '700'
 WHERE Type = 'BUILDING_TAJ_MAHAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'The empire enters a [ICON_GOLDEN_AGE] Golden Age. +1 [ICON_GOLDEN_AGE] Golden Age Points per turn for every 5 [ICON_CITIZEN] Citizens in the City. Reduces [ICON_HAPPINESS_3] Religious Unrest in all cities.'
-WHERE Tag = 'TXT_KEY_WONDER_PYRAMIDS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Building_YieldChanges
 SET Yield = '2'
@@ -494,10 +507,6 @@ WHERE Type = 'BUILDING_SISTINE_CHAPEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE
 UPDATE Buildings
 SET GlobalCultureRateModifier = '15'
 WHERE Type = 'BUILDING_SISTINE_CHAPEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = '+15% [ICON_CULTURE] Culture in all Cities. Contains 2 slots for Great Works of Art.[NEWLINE][NEWLINE]+5 [ICON_PEACE] Faith if Themed.'
-WHERE Tag = 'TXT_KEY_WONDER_SISTINE_CHAPEL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Red Fort
 UPDATE Buildings
@@ -515,10 +524,6 @@ WHERE Type = 'BUILDING_RED_FORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type=
 INSERT INTO Building_FreeUnits (BuildingType, UnitType, NumUnits)
 SELECT 'BUILDING_RED_FORT' , 'UNIT_ENGINEER' , '1'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Receive a free Great Engineer and a free Armory in the city. Greatly increases the [ICON_STRENGTH] Defense of the city.'
-WHERE Tag = 'TXT_KEY_WONDER_RED_FORT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 --------------------
 -- Industrial
@@ -541,10 +546,6 @@ UPDATE Buildings
 SET Cost = '900'
 WHERE Type = 'BUILDING_PORCELAIN_TOWER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Requires completion of Rationalism Branch. A Great Scientist appears near the City where the Wonder was built. Reduces [ICON_HAPPINESS_3] Illiteracy in all cities. 50% more [ICON_RESEARCH] Science generated from Research Agreements. If Research Agreements are disabled, provides a +25% [ICON_RESEARCH] Science bonus in the City in which it is built.'
-WHERE Tag = 'TXT_KEY_WONDER_PORCELAIN_TOWER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 -- Brandenburg Gate
 
 UPDATE Buildings
@@ -559,17 +560,18 @@ UPDATE Buildings
 SET Cost = '1000'
 WHERE Type = 'BUILDING_BRANDENBURG_GATE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Requires completion of Imperialism Branch. A Great General appears near the City where the Wonder was built and +15 XP for all Units built in this City. Reduces [ICON_HAPPINESS_3] Crime in all cities.'
-WHERE Tag = 'TXT_KEY_WONDER_BRANDENBURG_GATE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 -- Louvre
-DELETE FROM Buildings
+UPDATE Buildings
+SET PolicyBranchType = NULL
 WHERE Type = 'BUILDING_LOUVRE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = '1 free Great Artist appears near the City where the Wonder was built. Contains 4 slots for Great Works of Art.[NEWLINE][NEWLINE]+8 [ICON_CULTURE] Culture if Themed.'
-WHERE Tag = 'TXT_KEY_WONDER_LOUVRE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+UPDATE Buildings
+SET Cost = '1000'
+WHERE Type = 'BUILDING_LOUVRE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET PrereqTech = 'TECH_ARCHAEOLOGY'
+WHERE Type = 'BUILDING_LOUVRE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Eiffel Tower
 UPDATE Buildings
@@ -583,10 +585,6 @@ WHERE Type = 'BUILDING_EIFFEL_TOWER' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 UPDATE Buildings
 SET PrereqTech = 'TECH_DYNAMITE'
 WHERE Type = 'BUILDING_EIFFEL_TOWER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom in all cities. The Eiffel Tower also provides +12 [ICON_TOURISM] Tourism once you research Radio.'
-WHERE Tag = 'TXT_KEY_WONDER_EIFFEL_TOWER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Big Ben
 
@@ -602,19 +600,11 @@ UPDATE Buildings
 SET PolicyType = 'POLICY_COMMERCE_FINISHER'
 WHERE Type = 'BUILDING_BIG_BEN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Requires completion of Industry Branch. Cost of [ICON_GOLD] Gold purchasing in all cities reduced by 15%. Reduces [ICON_HAPPINESS_3] Poverty in all cities.'
-WHERE Tag = 'TXT_KEY_WONDER_BIG_BEN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 -- Neuschwanstein
 
 UPDATE Buildings
 SET Happiness = '0'
 WHERE Type = 'BUILDING_NEUSCHWANSTEIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = '+1 [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_HAPPINESS_1] Happiness from every Castle.[NEWLINE][NEWLINE]City must be built within 2 tiles of a Mountain that is inside your territory.'
-WHERE Tag = 'TXT_KEY_WONDER_NEUSCHWANSTEIN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Building_BuildingClassYieldChanges
 SET YieldChange = '1'
@@ -651,10 +641,6 @@ UPDATE Buildings
 SET Cost = '1500'
 WHERE Type = 'BUILDING_BROADWAY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = '1 free Great Musician appears near the City where the Wonder was built. Contains 3 slots for Great Works of Music.[NEWLINE][NEWLINE]+10 [ICON_CULTURE] Culture if Themed.'
-WHERE Tag = 'TXT_KEY_WONDER_BROADWAY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 -------------------------
 -- Atomic
 -- Pentagon
@@ -679,9 +665,6 @@ UPDATE Buildings
 SET CultureRateModifier = '25'
 WHERE Type = 'BUILDING_SYDNEY_OPERA_HOUSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = '1 Free Social Policy and +25% [ICON_CULTURE] Culture in this city.  Contains 2 slots for Great Works of Music. Must be constructed in a coastal city.[NEWLINE][NEWLINE]+10 [ICON_CULTURE] Culture if Themed.'
-WHERE Tag = 'TXT_KEY_WONDER_SYDNEY_OPERA_HOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 -- Move Apollo 
 UPDATE Projects
 SET TechPrereq = 'TECH_SATELLITES'
@@ -689,7 +672,7 @@ WHERE Type = 'PROJECT_APOLLO_PROGRAM' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Move Hubble
 UPDATE Buildings
-SET PrereqTech = 'TECH_STEALTH'
+SET PrereqTech = 'TECH_ROBOTICS'
 WHERE Type = 'BUILDING_HUBBLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 UPDATE Buildings
@@ -705,22 +688,7 @@ UPDATE Buildings
 SET Cost = '2500'
 WHERE Type = 'BUILDING_GREAT_FIREWALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = '99.9% reduction in effectiveness of enemy spies in the city in which it is built. All other cities in the civilization get a 25% reduction in enemy spy effectiveness. Negates the [ICON_TOURISM] Tourism bonus from the technologies of other players.'
-WHERE Tag = 'TXT_KEY_BUILDING_GREAT_FIREWALL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 -- Projects
-UPDATE Language_en_US
-SET Text = 'Contribute this city''s [ICON_PRODUCTION] Production towards the World''s Fair project. Cost goes up based on the number of players in the game, and the current Era.'
-WHERE Tag = 'TXT_KEY_PROCESS_WORLD_FAIR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Contribute this city''s [ICON_PRODUCTION] Production towards the International Games project. Cost goes up based on the number of players in the game, and the current Era.'
-WHERE Tag = 'TXT_KEY_PROCESS_WORLD_GAMES_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Contribute this city''s [ICON_PRODUCTION] Production towards the International Space Station project. Cost goes up based on the number of players in the game, and the current Era.'
-WHERE Tag = 'TXT_KEY_PROCESS_INTERNATIONAL_SPACE_STATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE LeagueProjects
 SET CostPerPlayer = '2000'
@@ -734,3 +702,108 @@ UPDATE LeagueProjects
 SET CostPerPlayer = '1400'
 WHERE Type = 'LEAGUE_PROJECT_WORLD_GAMES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
+-- NEW DATA
+
+INSERT INTO Building_TerrainYieldChanges
+	(BuildingType, TerrainType, YieldType, Yield)
+VALUES
+	('BUILDING_PETRA', 'TERRAIN_DESERT', 'YIELD_GOLD', 1);
+
+INSERT INTO Building_YieldPerXTerrainTimes100
+	(BuildingType, TerrainType, YieldType, Yield)
+VALUES
+	('BUILDING_MACHU_PICHU', 'TERRAIN_MOUNTAIN', 'YIELD_FOOD', 100),
+	('BUILDING_MACHU_PICHU', 'TERRAIN_MOUNTAIN', 'YIELD_CULTURE', 100),
+	('BUILDING_MACHU_PICHU', 'TERRAIN_MOUNTAIN', 'YIELD_FAITH', 100),
+	('BUILDING_MACHU_PICHU', 'TERRAIN_MOUNTAIN', 'YIELD_PRODUCTION', 100);
+
+INSERT INTO Building_WLTKDYieldMod
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_MAUSOLEUM_HALICARNASSUS', 'YIELD_PRODUCTION', 10);
+
+INSERT INTO Building_YieldFromGPExpend
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_MAUSOLEUM_HALICARNASSUS', 'YIELD_CULTURE', 30),
+	('BUILDING_MOSQUE_OF_DJENNE', 'YIELD_SCIENCE', 50);
+
+INSERT INTO Building_YieldChangesPerPop
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_TAJ_MAHAL', 'YIELD_GOLDEN_AGE_POINTS', 20);
+
+INSERT INTO Building_ThemingBonuses
+	(BuildingType, Description, Bonus, RequiresOwner, RequiresUniquePlayers, RequiresAnyButOwner, AIPriority)
+VALUES
+	('BUILDING_PARTHENON', 'TXT_KEY_THEMING_BONUS_BUILDING_PARTHENON', 4, 1, 0, 0, 2),
+	('BUILDING_NOTRE_DAME', 'TXT_KEY_THEMING_BONUS_BUILDING_NOTRE_DAME', 4, 0, 1, 1, 2);
+
+-- New Wonder Yields and Data
+
+INSERT INTO Building_Flavors
+	(BuildingType, FlavorType, Flavor)
+VALUES
+	('BUILDING_MOTHERLAND_STATUE', 'FLAVOR_GREAT_PEOPLE', 30),
+	('BUILDING_MOTHERLAND_STATUE', 'FLAVOR_HAPPINESS', 40),
+	('BUILDING_MOTHERLAND_STATUE', 'FLAVOR_WONDER', 25),
+	('BUILDING_SLATER_MILL', 'FLAVOR_GREAT_PEOPLE', 30),
+	('BUILDING_SLATER_MILL', 'FLAVOR_PRODUCTION', 40),
+	('BUILDING_SLATER_MILL', 'FLAVOR_WONDER', 25),
+	('BUILDING_BLETCHLEY_PARK', 'FLAVOR_GREAT_PEOPLE', 30),
+	('BUILDING_BLETCHLEY_PARK', 'FLAVOR_SCIENCE', 40),
+	('BUILDING_BLETCHLEY_PARK', 'FLAVOR_WONDER', 25),
+	('BUILDING_EMPIRE_STATE_BUILDING', 'FLAVOR_GREAT_PEOPLE', 50),
+	('BUILDING_EMPIRE_STATE_BUILDING', 'FLAVOR_GOLD', 30),
+	('BUILDING_EMPIRE_STATE_BUILDING', 'FLAVOR_WONDER', 30),
+	('BUILDING_CERN', 'FLAVOR_SCIENCE', 50),
+	('BUILDING_CERN', 'FLAVOR_WONDER', 30);
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_SLATER_MILL', 'YIELD_PRODUCTION', 5),
+	('BUILDING_MOTHERLAND_STATUE', 'YIELD_CULTURE', 1),
+	('BUILDING_BLETCHLEY_PARK', 'YIELD_SCIENCE', 5),
+	('BUILDING_EMPIRE_STATE_BUILDING', 'YIELD_CULTURE', 1),
+	('BUILDING_CERN', 'YIELD_SCIENCE', 10),
+	('BUILDING_MOSQUE_OF_DJENNE', 'YIELD_FAITH', 1),
+	('BUILDING_MOSQUE_OF_DJENNE', 'YIELD_SCIENCE', 1),
+	('BUILDING_KREMLIN', 'YIELD_FAITH', 4),
+	('BUILDING_KREMLIN', 'YIELD_CULTURE', 3),
+	('BUILDING_STATUE_ZEUS', 'YIELD_CULTURE', 1);
+
+INSERT INTO Building_ResourceQuantity
+	(BuildingType, ResourceType, Quantity)
+VALUES
+	('BUILDING_SLATER_MILL', 'RESOURCE_COAL', 2);
+
+INSERT INTO Building_SpecialistYieldChanges
+	(BuildingType, SpecialistType, YieldType, Yield)
+VALUES
+	('BUILDING_EMPIRE_STATE_BUILDING', 'SPECIALIST_CITIZEN', 'YIELD_GOLD', 1),
+	('BUILDING_EMPIRE_STATE_BUILDING', 'SPECIALIST_ARTIST', 'YIELD_GOLD', 1),
+	('BUILDING_EMPIRE_STATE_BUILDING', 'SPECIALIST_SCIENTIST', 'YIELD_GOLD', 1),
+	('BUILDING_EMPIRE_STATE_BUILDING', 'SPECIALIST_MERCHANT', 'YIELD_GOLD', 1),
+	('BUILDING_EMPIRE_STATE_BUILDING', 'SPECIALIST_ENGINEER', 'YIELD_GOLD', 1),
+	('BUILDING_EMPIRE_STATE_BUILDING', 'SPECIALIST_WRITER', 'YIELD_GOLD', 1),
+	('BUILDING_EMPIRE_STATE_BUILDING', 'SPECIALIST_MUSICIAN', 'YIELD_GOLD', 1);
+
+INSERT INTO Building_InstantYield
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CERN', 'YIELD_SCIENCE', 10000);
+
+INSERT INTO Civilization_BuildingClassOverrides
+	(CivilizationType, BuildingClassType, BuildingType)
+VALUES
+	('CIVILIZATION_MINOR', 'BUILDINGCLASS_CERN', NULL),
+	('CIVILIZATION_MINOR', 'BUILDINGCLASS_EMPIRE_STATE_BUILDING', NULL),
+	('CIVILIZATION_MINOR', 'BUILDINGCLASS_SLATER_MILL', NULL),
+	('CIVILIZATION_MINOR', 'BUILDINGCLASS_MOTHERLAND_STATUE', NULL),
+	('CIVILIZATION_MINOR', 'BUILDINGCLASS_BLETCHLEY_PARK', NULL),
+	('CIVILIZATION_BARBARIAN', 'BUILDINGCLASS_CERN', NULL),
+	('CIVILIZATION_BARBARIAN', 'BUILDINGCLASS_EMPIRE_STATE_BUILDING', NULL),
+	('CIVILIZATION_BARBARIAN', 'BUILDINGCLASS_SLATER_MILL', NULL),
+	('CIVILIZATION_BARBARIAN', 'BUILDINGCLASS_MOTHERLAND_STATUE', NULL),
+	('CIVILIZATION_BARBARIAN', 'BUILDINGCLASS_BLETCHLEY_PARK', NULL);

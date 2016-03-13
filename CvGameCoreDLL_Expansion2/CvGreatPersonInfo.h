@@ -32,10 +32,6 @@ private:
 GreatPersonTypes GetGreatPersonFromUnitClass(UnitClassTypes eUnitClass);
 GreatPersonTypes GetGreatPersonFromSpecialist(SpecialistTypes eSpecialist);
 
-enum GreatPersonTypes			
-{
-	NO_GREATPERSON = -1,
-};
 #endif
 
 #endif

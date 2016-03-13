@@ -2012,7 +2012,11 @@ void CvHomelandAI::PlotUpgradeMoves()
 
 #if defined(MOD_BALANCE_CORE)
 						//Add in experience - we should promote veterans.
+#if defined(MOD_API_XP_TIMES_100)
+						iPriority += pUnit->getExperienceTimes100();
+#else
 						iPriority += pUnit->getExperience();
+#endif
 #endif
 
 						unit.SetAuxIntData(iPriority);

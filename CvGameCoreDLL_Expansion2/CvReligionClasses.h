@@ -95,6 +95,9 @@ public:
 	int m_iTurnFounded;
 	bool m_bPantheon;
 	bool m_bEnhanced;
+#if defined(MOD_BALANCE_CORE)
+	bool m_bReformed;
+#endif
 	char m_szCustomName[128];
 	CvReligionBeliefs m_Beliefs;
 };
@@ -233,6 +236,9 @@ public:
 	bool IsCityStateFriendOfReligionFounder(ReligionTypes eReligion, PlayerTypes ePlayer);
 	ReligionTypes GetReligionCreatedByPlayer(PlayerTypes ePlayer) const;
 	ReligionTypes GetFounderBenefitsReligion(PlayerTypes ePlayer) const;
+#if defined(MOD_BALANCE_CORE)
+	void DoUpdateReligion(PlayerTypes ePlayer);
+#endif
 
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	int GetNumReligionsFounded(bool bIgnoreLocal = false) const;
@@ -362,6 +368,10 @@ public:
 #else
 	ReligionTypes GetReligionCreatedByPlayer() const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	void SetPlayerReligion(ReligionTypes eReligion);
+	ReligionTypes GetCurrentReligion() const;
+#endif
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	bool CanAffordNextPurchase();
 	void SetFaithAtLastNotify(int iFaith);
@@ -379,14 +389,17 @@ public:
 	ReligionTypes GetStateReligion() const;
 	int GetNumCitiesWithStateReligion(ReligionTypes eReligion);
 #endif
-	int GetCityStateMinimumInfluence(ReligionTypes eReligion) const;
-	int GetCityStateInfluenceModifier() const;
-	int GetSpyPressure() const;
-	int GetNumForeignCitiesFollowing() const;
-	int GetNumForeignFollowers(bool bAtPeace) const;
+	int GetCityStateMinimumInfluence(ReligionTypes eReligion, PlayerTypes ePlayer) const;
+	int GetCityStateInfluenceModifier(PlayerTypes ePlayer) const;
+	int GetSpyPressure(PlayerTypes ePlayer) const;
+	int GetNumForeignCitiesFollowing(ReligionTypes eReligion) const;
+	int GetNumForeignFollowers(bool bAtPeace, ReligionTypes eReligion) const;
+#if defined(MOD_BALANCE_CORE)
+	int GetNumDomesticFollowers(ReligionTypes eReligion) const;
+#endif
 
 #if defined(MOD_BALANCE_CORE)
-	bool ComputeMajority();
+	bool ComputeMajority(bool bNotifications = false);
 #endif
 
 private:
@@ -403,8 +416,7 @@ private:
 
 #if defined(MOD_BALANCE_CORE)
 	ReligionTypes m_majorityPlayerReligion;
-#endif
-#if defined(MOD_BALANCE_CORE)
+	ReligionTypes m_ePlayerCurrentReligion;
 	ReligionTypes m_PlayerStateReligion;
 #endif
 };
@@ -433,6 +445,9 @@ public:
 	bool IsReligionInCity();
 	bool IsHolyCityForReligion(ReligionTypes eReligion);
 	bool IsHolyCityAnyReligion();
+#if defined(MOD_BALANCE_CORE)
+	ReligionTypes GetReligionForHolyCity();
+#endif
 	bool IsReligionHereOtherThan(ReligionTypes eReligion);
 	bool IsDefendedAgainstSpread(ReligionTypes eReligion);
 	ReligionTypes GetReligiousMajority();
@@ -495,7 +510,7 @@ public:
 	ReligionInCityList m_SimulatedStatus;
 
 #if defined(MOD_BALANCE_CORE)
-	bool ComputeReligiousMajority();
+	bool ComputeReligiousMajority(bool bNotifications = false);
 #endif
 
 private:
@@ -646,7 +661,6 @@ private:
 #endif
 	bool CanBuyNonFaithBuilding() const;
 	UnitTypes GetDesiredFaithGreatPerson() const;
-
 	void LogBeliefChoices(CvWeightedVector<BeliefTypes, SAFE_ESTIMATE_NUM_BELIEFS, true>& beliefChoices, int iChoice);
 
 	CvBeliefXMLEntries* m_pBeliefs;

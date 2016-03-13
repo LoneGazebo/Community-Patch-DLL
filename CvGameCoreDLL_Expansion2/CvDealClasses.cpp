@@ -836,11 +836,38 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 #endif
 #if defined(MOD_BALANCE_CORE)
+		//Let's handle the war stuff here.
+		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer) || this->GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
+		{
+			PlayerTypes eLoopPlayer;
+			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eThirdTeam)
+				{
+					CvPlayer* pOtherPlayer = &GET_PLAYER(eLoopPlayer);
+
+					if(!pOtherPlayer)
+						continue;
+
+					// Minor civ
+					if(pOtherPlayer->isMinorCiv())
+					{
+						// Minor at permanent war with this player
+						if(pOtherPlayer->GetMinorCivAI()->IsPermanentWar(eFromTeam))
+							return false;
+
+						//Otherwise, return true (as we want this to work for peace deals every time)
+						return true;
+					}
+				}
+			}
+		}
 		//If not at war, need embassy.
 		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 		{
-			if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam) || !GET_TEAM(eFromTeam).HasEmbassyAtTeam(eToTeam))
-					return false;
+			if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
+				return false;
 		}
 
 #endif
@@ -858,10 +885,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		// Must be alive
 		if(!GET_TEAM(eThirdTeam).isAlive())
-			return false;
-
-		//Embassy?
-		if (!GET_TEAM(eFromTeam).HasEmbassyAtTeam(eToTeam))
 			return false;
 
 		// Player that wants Peace hasn't yet met the 3rd Team
@@ -3271,14 +3294,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				// Vassalage
 				else if(MOD_DIPLOMACY_CIV4_FEATURES && it->m_eItemType == TRADE_ITEM_VASSALAGE)
 				{
-					bool bCapitulation = false;
-
-					// If this isn't a peace treaty deal
-					if(kDeal.GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
-					{
-						bCapitulation = true;
-					}
-
+					bool bCapitulation = kDeal.IsPeaceTreatyTrade(eFromPlayer) || kDeal.IsPeaceTreatyTrade(eToPlayer);
 					GET_TEAM(eFromTeam).DoBecomeVassal(eToTeam, !bCapitulation);
 				}
 				// Revoke Vassalage
