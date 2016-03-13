@@ -87,7 +87,7 @@ void CvLuaDeal::PushMethods(lua_State* L, int t)
 	Method(ChangeThirdPartyPeaceDuration);
 	Method(ChangeThirdPartyEmbargoDuration);
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	Method(AddTechTrade);
 	Method(AddVassalageTrade);
 	Method(AddRevokeVassalageTrade);
