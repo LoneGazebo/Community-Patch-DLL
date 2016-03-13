@@ -41087,7 +41087,7 @@ int CvDiplomacyAI::GetVassalProtectScore(PlayerTypes ePlayer) const
 
 	if(IsVassal(ePlayer))
 	{
-		int iWeightChange = -1 * GetVassalProtectValue(ePlayer) / GC.getVASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT();
+		int iWeightChange = -1 * GetVassalProtectValue(ePlayer) / std::max(1, GC.getVASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT());
 		if(iWeightChange < /*-50*/ GC.getOPINION_WEIGHT_VASSALAGE_PROTECT_MAX())
 		{
 			iWeightChange = GC.getOPINION_WEIGHT_VASSALAGE_PROTECT_MAX();
@@ -41104,7 +41104,7 @@ int CvDiplomacyAI::GetVassalFailedProtectScore(PlayerTypes ePlayer) const
 
 	if(IsVassal(ePlayer))
 	{
-		int iWeightChange =  GetVassalFailedProtectValue(ePlayer) / GC.getVASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT();
+		int iWeightChange =  GetVassalFailedProtectValue(ePlayer) / std::max(1, GC.getVASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT());
 		if(iWeightChange > GC.getOPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX())
 		{
 			iWeightChange = GC.getOPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX();

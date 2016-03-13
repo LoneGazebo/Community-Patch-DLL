@@ -2834,25 +2834,21 @@ function DisplayDeal()
 				Controls.ThemTableTradeMap:SetHide( false );
 			end
 		elseif( TradeableItems.TRADE_ITEM_VASSALAGE == itemType ) then
+		    Controls.UsPocketVassalage:SetHide( true );
+            Controls.ThemPocketVassalage:SetHide( true );
 			print("Found Vassalage");
-			-- Human can't capitulate...
 			if( bFromUs ) then
-				Controls.UsPocketVassalage:SetHide( true );
 			 	Controls.UsTableVassalage:SetHide( false );
-				--print("Why the hell are we trying to add Vassalage to the Player side of the trade table? Something has gone horribly wrong!");
 			else
-				Controls.ThemPocketVassalage:SetHide( true );
 				Controls.ThemTableVassalage:SetHide( false );
 			end
 		elseif( TradeableItems.TRADE_ITEM_VASSALAGE_REVOKE == itemType ) then
+			Controls.UsPocketRevokeVassalage:SetHide( true );
+			Controls.ThemPocketRevokeVassalage:SetHide( true );
 			print("Found Revoke Vassalage");
-			-- Human can't capitulate...
 			if( bFromUs ) then
-				Controls.UsPocketRevokeVassalage:SetHide( true );
 			 	Controls.UsTableRevokeVassalage:SetHide( false );
-				--print("Why the hell are we trying to add Vassalage to the Player side of the trade table? Something has gone horribly wrong!");
 			else
-				Controls.ThemPocketRevokeVassalage:SetHide( true );
 				Controls.ThemTableRevokeVassalage:SetHide( false );
 			end
 		elseif( TradeableItems.TRADE_ITEM_TECHS == itemType ) then
