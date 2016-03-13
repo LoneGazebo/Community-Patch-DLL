@@ -1001,11 +1001,11 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						if(pZone->GetRangeClosestEnemyUnit()<0 || iDistance<pZone->GetRangeClosestEnemyUnit())
 							pZone->SetRangeClosestEnemyUnit(iDistance);
 
-						CvString msg;
-						msg.Format("Zone %d, Enemy %s %d at %d,%d - distance %d, strength %d, ranged strength %d",
-							pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), 
-							pLoopUnit->getX(), pLoopUnit->getY(),	iDistance, iUnitStrength, iRangedStrength);
-						m_pPlayer->GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
+						//CvString msg;
+						//msg.Format("Zone %d, Enemy %s %d at %d,%d - distance %d, strength %d, ranged strength %d",
+						//	pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), 
+						//	pLoopUnit->getX(), pLoopUnit->getY(),	iDistance, iUnitStrength, iRangedStrength);
+						//m_pPlayer->GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
 
 					}
 					else if (bFriendly)
@@ -1020,23 +1020,17 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						else
 							pZone->AddFriendlyMeleeUnitCount(1);
 
-						CvString msg;
-						msg.Format("Zone %d, Friendly %s %d at %d,%d - distance %d, strength %d, ranged strength %d",
-							pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), 
-							pLoopUnit->getX(), pLoopUnit->getY(),	iDistance, iUnitStrength, iRangedStrength);
-						m_pPlayer->GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
+						//CvString msg;
+						//msg.Format("Zone %d, Friendly %s %d at %d,%d - distance %d, strength %d, ranged strength %d",
+						//	pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), 
+						//	pLoopUnit->getX(), pLoopUnit->getY(),	iDistance, iUnitStrength, iRangedStrength);
+						//m_pPlayer->GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
 					}
 					else
 					{
 						//neutral has only very few stats
 						pZone->AddNeutralStrength(iUnitStrength*iMultiplier*m_iUnitStrengthMultiplier);
 						pZone->AddNeutralUnitCount(1);
-
-						CvString msg;
-						msg.Format("Zone %d, Neutral %s %d at %d,%d - distance %d, strength %d, ranged strength ignored",
-							pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), 
-							pLoopUnit->getX(), pLoopUnit->getY(),	iDistance, iUnitStrength);
-						m_pPlayer->GetTacticalAI()->LogTacticalMessage(msg, true /*bSkipLogDominanceZone*/);
 					}
 				}
 			}
