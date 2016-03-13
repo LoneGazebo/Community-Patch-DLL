@@ -7032,13 +7032,6 @@ void CvUnit::SetTurnProcessed(bool bValue)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::isUnderTacticalControl() const
-{
-	VALIDATE_OBJECT
-	return (m_eTacticalMove != NO_TACTICAL_MOVE);
-}
-
-//	--------------------------------------------------------------------------------
 void CvUnit::setTacticalMove(TacticalAIMoveTypes eMove)
 {
 	VALIDATE_OBJECT
@@ -27355,19 +27348,17 @@ void CvUnit::AI_promote()
 
 	iBestValue = 0;
 	eBestPromotion = NO_PROMOTION;
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	int iNumValidPromotions = 0;
-#endif
+
 	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
 		const PromotionTypes ePromotion(static_cast<PromotionTypes>(iI));
 
 		if(canPromote(ePromotion, -1))
 		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
 			iNumValidPromotions++;
-#endif
 			iValue = AI_promotionValue(ePromotion);
+
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvPromotionEntry* pkPromotionEntry = GC.getPromotionInfo(ePromotion);
@@ -27386,23 +27377,7 @@ void CvUnit::AI_promote()
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	if(iNumValidPromotions == 1 && eBestPromotion != NO_PROMOTION)
-	{
-		promote(eBestPromotion, -1);
-		//AI_promote();
-		CvPromotionEntry* pkPromoInfo = GC.getPromotionInfo(eBestPromotion);
 
-		if (pkPromoInfo && GC.getLogging() && GC.getAILogging())
-		{
-			CvString szMsg;
-			szMsg.Format("Took Only Available Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
-						 pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
-			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
-		}
-	}
-	else
-#endif
 	if(eBestPromotion != NO_PROMOTION)
 	{
 		promote(eBestPromotion, -1);
@@ -27412,8 +27387,12 @@ void CvUnit::AI_promote()
 		if (pkPromoInfo && GC.getLogging() && GC.getAILogging())
 		{
 			CvString szMsg;
-			szMsg.Format("Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
-						 pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
+			if(iNumValidPromotions == 1)
+				szMsg.Format("--> Took Only Available Promotion, %s, Received by %s %d, X: %d, Y: %d, Damage: %d",
+								pkPromoInfo->GetDescription(), getName().GetCString(), GetID(), getX(), getY(), getDamage());
+			else
+				szMsg.Format("--> Chosen Promotion, %s, Received by %s %d, X: %d, Y: %d, Damage: %d",
+							 pkPromoInfo->GetDescription(), getName().GetCString(), GetID(), getX(), getY(), getDamage());
 			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
 		}
 	}

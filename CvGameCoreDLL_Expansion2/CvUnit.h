@@ -1323,7 +1323,6 @@ public:
 	int getArmyID() const;
 	void setArmyID(int iNewArmyID) ;
 
-	bool isUnderTacticalControl() const;
 	void setTacticalMove(TacticalAIMoveTypes eMove);
 	TacticalAIMoveTypes getTacticalMove(int* pTurnSet=NULL) const;
 	bool canRecruitFromTacticalAI() const;

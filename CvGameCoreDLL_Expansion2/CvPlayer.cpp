@@ -36047,7 +36047,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 		//if it's too far from our existing cities, it's dangerous
 		int iDistance = GetCityDistance(pUnit->plot());
-		if (iDistance>8)
+		if (iDistance>7)
 			isDangerous = true;
 		else
 		{

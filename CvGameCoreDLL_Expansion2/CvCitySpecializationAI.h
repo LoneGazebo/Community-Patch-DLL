@@ -185,6 +185,7 @@ private:
 	void LogNextSpecialization(CitySpecializationTypes eType);
 	void LogBestSites();
 	void LogCity(CvCity* pCity, CitySpecializationData data);
+	void LogMsg(const CvString& msg);
 
 	CvPlayer* m_pPlayer;
 	CvCitySpecializationXMLEntries* m_pSpecializations;

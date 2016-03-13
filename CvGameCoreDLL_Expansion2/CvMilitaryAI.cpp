@@ -324,6 +324,7 @@ void CvMilitaryAI::Reset()
 
 	m_iTotalThreatWeight = 1;  // Don't ever assume there is no threat at all
 	m_eArmyTypeBeingBuilt = NO_ARMY_TYPE;
+	m_cachedTargets.clear();
 
 	m_iNumLandUnits = 0;
 	m_iNumRangedLandUnits = 0;
@@ -376,6 +377,7 @@ void CvMilitaryAI::Read(FDataStream& kStream)
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//first get how many entries we have
+	m_cachedTargets.clear();
 	kStream >> temp;
 	for (int i=0; i<temp; i++)
 	{
@@ -1861,7 +1863,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 	CvMilitaryTarget chosenTarget;
 	CvPlayer &kEnemy = GET_PLAYER(eEnemy);
 
-	// Estimate the relative strength of units near our cities and near their cities (can't use TacticalAnalysisMap because we may not be at war - and that it isn't current if we are calling this from the DiploAI)
+	// Estimate the relative strength of units near our cities and near their cities (can't use TacticalAnalysisMap because we may be not at war)
 	for (pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
 	{
 		CvPlot* pPlot = pFriendlyCity->plot();
@@ -2998,7 +3000,7 @@ CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder)
 		int iBad = 0;
 		int iSuperBad = 0;
 		//check the wider area for enemy tiles. may also be on another landmass
-		int iRange = 6;
+		int iRange = 5;
 		for(int iX = -iRange; iX <= iRange; iX++)
 		{
 			for(int iY = -iRange; iY <= iRange; iY++)
@@ -3035,6 +3037,10 @@ CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder)
 		iThreatValue += (iBad * 10);
 		iThreatValue += (iSuperBad * 25);
 
+		//tolerate up to two neutral plots
+		if (iThreatValue<11)
+			continue;
+
 		//scale it a bit with city value and remaining hitpoints
 		float fScale = 1000 * sqrt((float)pLoopCity->getPopulation() + iNeutral + iBad + iSuperBad) / MAX(1,pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage());
 
@@ -3043,17 +3049,11 @@ CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder)
 		// Is this a temporary zone city? If so, we need to support it ASAP.
 		if(m_pPlayer->GetTacticalAI()->IsTemporaryZoneCity(pLoopCity))
 		{
-			iThreatValue = (iThreatValue * GC.getAI_MILITARY_CITY_THREAT_WEIGHT_CAPITAL() * 2) / 100;
+			iThreatValue *= GC.getAI_MILITARY_CITY_THREAT_WEIGHT_CAPITAL() / 50;
 		}
-		else if(pLoopCity->isCapital() && iThreatValue > 0)
+		else if(pLoopCity->isCapital())
 		{
-			iThreatValue = (iThreatValue * GC.getAI_MILITARY_CITY_THREAT_WEIGHT_CAPITAL()) / 100;
-		}
-
-		//ignore it if attack would be pointless - times two because a long siege will favor the city
-		if (iThreatValue < GC.getCITY_HIT_POINTS_HEALED_PER_TURN() * 2)
-		{
-			iThreatValue /= 2;
+			iThreatValue *= GC.getAI_MILITARY_CITY_THREAT_WEIGHT_CAPITAL() / 100;
 		}
 
 		vCities.push_back( std::make_pair( pLoopCity, (int)(iThreatValue*fScale) ) );
@@ -6319,6 +6319,11 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 	}
 #endif
 
+	if (pPlayer->GetMilitaryAI()->GetArmyBeingBuilt() != NO_ARMY_TYPE)
+	{
+		iCurrentWeight += 100;
+	}
+
 	CvDiplomacyAI* pkDiplomacyAI = pPlayer->GetDiplomacyAI();
 	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
@@ -6335,7 +6340,7 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 #endif
 
 		// Mobilize for war is automatic if we are preparing a sneak attack
-		if(pkDiplomacyAI->GetWarGoal(eOtherPlayer) == WAR_GOAL_PREPARE || pPlayer->GetMilitaryAI()->GetArmyBeingBuilt() != NO_ARMY_TYPE)
+		if(pkDiplomacyAI->GetWarGoal(eOtherPlayer) == WAR_GOAL_PREPARE)
 		{
 			iCurrentWeight += 100;
 		}
@@ -6349,7 +6354,6 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 		}
 
 		// And some if on fairly bad terms
-		// Add in weight for each civ we're on really bad terms with
 		else if(pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_GUARDED ||
 		        pkDiplomacyAI->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_DECEPTIVE)
 		{
@@ -6913,10 +6917,12 @@ CvPlot* MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArm
 		pInitialUnit = GET_PLAYER(pArmy->GetOwner()).getUnit( pArmy->GetFirstUnitID() );
 
 	//change iteration order, don't return the same plot every time
-	int aiShuffle[RING2_PLOTS];
-	for(int iI = 0; iI < RING2_PLOTS; iI++)
-		aiShuffle[iI] = iI;
-	shuffleArray(aiShuffle, RING2_PLOTS, GC.getGame().getJonRand());
+	//don't use the RNG here: too many calls in the log and diplo quirks can lead to desyncs
+	int aiShuffle[3][RING2_PLOTS] = { 
+		{ 0,5,6,3,2,4,1,14,13,17,16,15,11,8,9,18,12,7,10 },
+		{ 0,4,1,5,2,3,6,14,8,15,12,18,16,9,7,11,10,13,17 },
+		{ 0,6,3,5,2,1,4,18,15,16,14,12,17,8,7,10,9,13,11 } };
+	int iShuffleType = (pTarget->getX() + pTarget->getY() + GC.getGame().getGameTurn()) % 3;
 
 	// Find a coastal water tile adjacent to enemy city
 	if (pInitialUnit)
@@ -6925,7 +6931,7 @@ CvPlot* MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArm
 		{
 			for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
 			{
-				CvPlot* pAdjacentPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), aiShuffle[iI]);
+				CvPlot* pAdjacentPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), aiShuffle[iShuffleType][iI]);
 				if(pAdjacentPlot != NULL && pAdjacentPlot->isWater() && !pAdjacentPlot->isLake() && pAdjacentPlot->canPlaceUnit(pArmy->GetOwner()))
 				{
 					int iDistance = plotDistance(pInitialUnit->getX(), pInitialUnit->getY(), pTarget->getX(), pTarget->getY());
@@ -6946,7 +6952,7 @@ CvPlot* MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArm
 	{
 		for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
 		{
-			CvPlot* pAdjacentPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), aiShuffle[iI]);
+			CvPlot* pAdjacentPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), aiShuffle[iShuffleType][iI]);
 			if(pAdjacentPlot != NULL && pAdjacentPlot->isWater() && !pAdjacentPlot->isLake() && pAdjacentPlot->canPlaceUnit(NO_PLAYER))
 				return pAdjacentPlot;
 		}

@@ -12,15 +12,10 @@
 #ifndef CIV5_RANDOM_H
 #define CIV5_RANDOM_H
 
-#ifdef _DEBUG
-#include <vector>
-#endif//_DEBUG
-
 class CvRandom
 {
 
 public:
-	explicit CvRandom(bool extendedCallStackDebugging);
 	CvRandom();
 	CvRandom(const CvRandom& source);
 	virtual ~CvRandom();
@@ -45,17 +40,6 @@ public:
 	bool operator==(const CvRandom& rhs) const;
 	bool operator!=(const CvRandom& rhs) const;
 
-	// for OOS debugging
-	const std::vector<std::string>& getResolvedCallStacks() const;
-	const std::vector<unsigned long>& getSeedHistory() const;
-	void resolveCallStacks() const;
-	bool callStackDebuggingEnabled() const;
-	void setCallStackDebuggingEnabled(bool enabled);
-	void clearCallstacks();
-
-protected:
-	void recordCallStack();
-
 protected:
 
 	unsigned long long m_ullRandomSeed;
@@ -64,17 +48,6 @@ protected:
 	unsigned long m_ulCallCount;
 	unsigned long m_ulResetCount;
 	bool m_bSynchronous;		// If true, the instance is marked as being one that should be synchronous across multi-player games.
-
-#ifdef _DEBUG
-	bool m_bExtendedCallStackDebugging;
-	// something awful is happening with synchronization, log call stacks
-	mutable std::vector<FCallStack> m_kCallStacks;
-	mutable std::vector<unsigned long> m_seedHistory;
-	// just in case addresses don't match up, resolve symbols on send
-	// and compare on the remote for somewhat meaningful output
-	mutable std::vector<std::string>  m_resolvedCallStacks;
-#endif//_DEBUG
-
 };
 
 FDataStream& operator<<(FDataStream& saveTo, const CvRandom& readFrom);

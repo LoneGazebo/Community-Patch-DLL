@@ -284,7 +284,7 @@ void shuffleArray(T* pShuffle, size_t iNum, CvRandom& rand)
 {
 	for(size_t iI = 0; iI < iNum; iI++)
 	{
-		size_t iJ = (rand.get(iNum - iI, NULL) + iI);
+		size_t iJ = (rand.get(iNum - iI, "shuffle") + iI);
 
 		if(iI != iJ)
 		{

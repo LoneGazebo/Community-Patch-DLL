@@ -355,9 +355,10 @@ private:
 	void ExecuteWorkerMoves();
 #endif
 	void ExecuteMovesToSafestPlot();
+	void ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget);
+
 	void ExecuteHeals();
 	void ExecutePatrolMoves();
-	void ExecuteMoveToTarget(CvPlot* pTarget);
 	void ExecuteWriterMoves();
 	void ExecuteArtistMoves();
 	void ExecuteMusicianMoves();
@@ -388,7 +389,7 @@ private:
 	void EliminateAdjacentHomelandRoads();
 	bool FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime);
 	CvPlot* FindPatrolTarget(CvUnit* pUnit);
-	bool GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
+	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
 
 	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bool bLand=true);
 	bool MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo);
@@ -418,13 +419,6 @@ private:
 	MoveUnitsArray m_CurrentMoveHighPriorityUnits;
 
 	FStaticVector< CvHomelandMove, 35, true, c_eCiv5GameplayDLL > m_MovePriorityList;
-	int m_MovePriorityTurn;
-
-	CvUnit* m_CurrentBestMoveUnit;
-	int m_iCurrentBestMoveUnitTurns;
-
-	CvUnit* m_CurrentBestMoveHighPriorityUnit;
-	int m_iCurrentBestMoveHighPriorityUnitTurns;
 
 	// Lists of targets for the turn
 	std::vector<CvHomelandTarget> m_TargetedCities;
