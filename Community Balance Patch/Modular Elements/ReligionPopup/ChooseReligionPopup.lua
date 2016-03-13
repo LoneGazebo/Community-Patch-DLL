@@ -100,10 +100,8 @@ function OnPantheonBeliefClick()
 		SelectFromBeliefs(availablePantheonBeliefs, function(belief)
 			Controls.PantheonBeliefName:SetText(belief.Name);
 			Controls.PantheonBeliefDescription:SetText(belief.Description);
-			if(belief.ToolTip ~= "") then
-				Controls.PantheonBeliefName:LocalizeAndSetToolTip(belief.ToolTip);
-				Controls.PantheonBeliefDescription:LocalizeAndSetToolTip(belief.ToolTip);
-			end
+			Controls.PantheonBeliefName:LocalizeAndSetToolTip(belief.ToolTip);
+			Controls.PantheonBeliefDescription:LocalizeAndSetToolTip(belief.ToolTip);
 			g_Beliefs[1] = belief.ID;
 			
 			CheckifCanCommit();
@@ -133,10 +131,8 @@ function OnFounderBeliefClick()
 		SelectFromBeliefs(availableFounderBeliefs, function(belief)
 			Controls.FounderBeliefName:SetText(belief.Name);
 			Controls.FounderBeliefDescription:SetText(belief.Description);
-			if(belief.ToolTip ~= "") then
-				Controls.FounderBeliefName:LocalizeAndSetToolTip(belief.ToolTip);
-				Controls.FounderBeliefDescription:LocalizeAndSetToolTip(belief.ToolTip);
-			end
+			Controls.FounderBeliefName:LocalizeAndSetToolTip(belief.ToolTip);
+			Controls.FounderBeliefDescription:LocalizeAndSetToolTip(belief.ToolTip);
 			g_Beliefs[2] = belief.ID;
 			
 			CheckifCanCommit();
@@ -167,10 +163,8 @@ function OnFollowerBeliefClick()
 		SelectFromBeliefs(availableFollowerBeliefs, function(belief)
 			Controls.FollowerBeliefName:SetText(belief.Name);
 			Controls.FollowerBeliefDescription:SetText(belief.Description);
-			if(belief.ToolTip ~= "") then
-				Controls.FollowerBeliefName:LocalizeAndSetToolTip(belief.ToolTip);
-				Controls.FollowerBeliefDescription:LocalizeAndSetToolTip(belief.ToolTip);
-			end
+			Controls.FollowerBeliefName:LocalizeAndSetToolTip(belief.ToolTip);
+			Controls.FollowerBeliefDescription:LocalizeAndSetToolTip(belief.ToolTip);
 			g_Beliefs[3] = belief.ID;
 			
 			CheckifCanCommit();
@@ -200,10 +194,8 @@ function OnFollowerBelief2Click()
 		SelectFromBeliefs(availableFollowerBeliefs, function(belief)
 			Controls.FollowerBelief2Name:SetText(belief.Name);
 			Controls.FollowerBelief2Description:SetText(belief.Description);
-			if(belief.ToolTip ~= "") then
-				Controls.FollowerBelief2Name:LocalizeAndSetToolTip(belief.ToolTip);
-				Controls.FollowerBelief2Description:LocalizeAndSetToolTip(belief.ToolTip);
-			end
+			Controls.FollowerBelief2Name:LocalizeAndSetToolTip(belief.ToolTip);
+			Controls.FollowerBelief2Description:LocalizeAndSetToolTip(belief.ToolTip);
 			g_Beliefs[4] = belief.ID;
 			
 			CheckifCanCommit();
@@ -233,10 +225,8 @@ function OnEnhancerBeliefClick()
 		SelectFromBeliefs(availableEnhancerBeliefs, function(belief)
 			Controls.EnhancerBeliefName:SetText(belief.Name);
 			Controls.EnhancerBeliefDescription:SetText(belief.Description);
-			if(belief.ToolTip ~= "") then
-				Controls.EnhancerBeliefName:LocalizeAndSetToolTip(belief.ToolTip);
-				Controls.EnhancerBeliefDescription:LocalizeAndSetToolTip(belief.ToolTip);
-			end
+			Controls.EnhancerBeliefName:LocalizeAndSetToolTip(belief.ToolTip);
+			Controls.EnhancerBeliefDescription:LocalizeAndSetToolTip(belief.ToolTip);
 			g_Beliefs[5] = belief.ID;
 			
 			CheckifCanCommit();
@@ -266,10 +256,8 @@ function OnBonusBeliefClick()
 		SelectFromBeliefs(availableBonusBeliefs, function(belief)
 			Controls.BonusBeliefName:SetText(belief.Name);
 			Controls.BonusBeliefDescription:SetText(belief.Description);
-			if(belief.ToolTip ~= "") then
-				Controls.BonusBeliefName:LocalizeAndSetToolTip(belief.ToolTip);
-				Controls.BonusBeliefDescription:LocalizeAndSetToolTip(belief.ToolTip);
-			end
+			Controls.BonusBeliefName:LocalizeAndSetToolTip(belief.ToolTip);
+			Controls.BonusBeliefDescription:LocalizeAndSetToolTip(belief.ToolTip);
 			g_Beliefs[6] = belief.ID;
 				
 			CheckifCanCommit();

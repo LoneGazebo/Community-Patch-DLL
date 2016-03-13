@@ -32,18 +32,6 @@
 		</Row>
 	</PostDefines>
 
-	<Language_en_US>
-		<Row Tag="TXT_KEY_YIELD_TOURISM">
-			<Text>Tourism</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT">
-			<Text>{1_Num} [ICON_TOURISM] Tourism</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TOURISM_FROM_TRADE_ROUTES">
-			<Text>{1_perTurn:number "#.##"} [ICON_TOURISM] from Trade Routes established with this city</Text>
-		</Row>
-	</Language_en_US>
-
 	<CustomModDbUpdates>
 		<Row Name="API_UNIFIED_YIELDS_TOURISM" Value="1"/>
 	</CustomModDbUpdates>

@@ -237,18 +237,20 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 
 		int iDistX = abs( vExplorePlots[ui].pPlot->getX() - iRefX );
 		int iDistY = abs( vExplorePlots[ui].pPlot->getY() - iRefY );
+		int iDist2 = (iDistX*iDistX)+(iDistY*iDistY);
 
-		vPlotsByDistance.push_back( std::make_pair( (iDistX*iDistX)+(iDistY*iDistY), vExplorePlots[ui]) );
+		vPlotsByDistance.push_back( std::make_pair( (iDist2*100)/vExplorePlots[ui].score, vExplorePlots[ui]) );
 	}
 
-	//sorts by the first element of the iterator ... which is our distance. nice.
+	//sorts ascending by the first element of the iterator ... which is our distance. nice.
 	std::stable_sort(vPlotsByDistance.begin(), vPlotsByDistance.end());
 
+	int iValidCandidates = 0;
 	for (size_t idx=0; idx<vPlotsByDistance.size(); idx++)
 	{
 		//after looking at the N closest candidates
 		//if we found something, bail
-		if (pBestPlot && idx>(size_t)nMinCandidates)
+		if (pBestPlot && iValidCandidates>nMinCandidates)
 			break;
 
 		CvPlot* pEvalPlot = vPlotsByDistance[idx].second.pPlot;
@@ -278,6 +280,8 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 
 		int iDistance = GC.GetPathFinder().GetPathLength();
 		int iPlotScore = (1000 * iRating) / max(1,iDistance);
+
+		iValidCandidates++;
 
 		if (iPlotScore>iBestPlotScore)
 		{
@@ -1204,34 +1208,10 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 		{
 			CvPlot* pTarget = GC.getMap().plot(m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY());
 			CvCity* pCity = pTarget->getPlotCity();
-			if(pCity && pCity->GetLastTurnGarrisonAssigned() < GC.getGame().getGameTurn())
+
+			//don't move into a doomed city
+			if(pCity && !pCity->HasGarrison() && !pCity->isInDangerOfFalling() )
 			{
-#if defined(MOD_BALANCE_CORE)
-				if(pCity == m_pPlayer->GetMilitaryAI()->GetMostThreatenedCity(0))
-				{
-					// Grab units that make sense for this move type
-					FindUnitsForThisMove(AI_HOMELAND_MOVE_GARRISON, (iI == 0)/*bFirstTime*/);
-
-					if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
-					{
-						if(GetBestUnitToReachTarget(pTarget, m_iDefensiveMoveTurns))
-						{
-							ExecuteMoveToTarget(pTarget);
-
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("Moving to most threatened city for garrison, X: %d, Y: %d, Priority: %d", m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY(), m_TargetedCities[iI].GetAuxIntData());
-								LogHomelandMessage(strLogString);
-							}
-
-							pCity->SetLastTurnGarrisonAssigned(GC.getGame().getGameTurn());
-						}
-					}
-				}
-				else
-				{
-#endif
 				// Grab units that make sense for this move type
 				FindUnitsForThisMove(AI_HOMELAND_MOVE_GARRISON, (iI == 0)/*bFirstTime*/);
 
@@ -1247,13 +1227,8 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 							strLogString.Format("Moving to garrison, X: %d, Y: %d, Priority: %d", m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY(), m_TargetedCities[iI].GetAuxIntData());
 							LogHomelandMessage(strLogString);
 						}
-
-						pCity->SetLastTurnGarrisonAssigned(GC.getGame().getGameTurn());
 					}
 				}
-#if defined(MOD_BALANCE_CORE)
-				}
-#endif
 			}
 		}
 	}
@@ -3374,7 +3349,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				if(iDanger > iAcceptableDanger/2)
 					iTotalScore /= 2;
 
-				if(iTotalScore > iBestPlotScore )
+				if(iTotalScore > iBestPlotScore)
 				{
 					//make sure we can actually reach it - shouldn't happen, but sometimes does because of blocks
 					if (!pUnit->CanReachInXTurns(pEvalPlot,1))
@@ -3400,8 +3375,8 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 
 		//if we didn't find a worthwhile plot among our adjacent plots, check the global targets
 		if(!pBestPlot && pUnit->movesLeft() > 0)
-			//check at least the three closest candidates
-			pBestPlot = GetBestExploreTarget(pUnit.pointer(),3);
+			//check at least 5 candidates
+			pBestPlot = GetBestExploreTarget(pUnit.pointer(),5);
 
 		//make sure we're not in an endless loop
 		if(pBestPlot)

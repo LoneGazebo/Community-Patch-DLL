@@ -6988,7 +6988,11 @@ void CvDealAI::DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal)
 			}
 
 			// if they are always at war with us, continue
+#if defined(MOD_BALANCE_CORE)
+			if (pMinor->GetMinorCivAI()->IsPermanentWar(GetTeam()))
+#else
 			if (pMinor->GetMinorCivAI()->IsPermanentWar(GetTeam()) || pMinor->GetMinorCivAI()->IsPeaceBlocked(GetTeam()))
+#endif
 			{
 				continue;
 			}
@@ -7010,7 +7014,11 @@ void CvDealAI::DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal)
 			}
 
 			// if they are always at war with them, continue
+#if defined(MOD_BALANCE_CORE)
+			if (pMinor->GetMinorCivAI()->IsPermanentWar(GET_PLAYER(eToPlayer).getTeam()))
+#else
 			if (pMinor->GetMinorCivAI()->IsPermanentWar(GET_PLAYER(eToPlayer).getTeam()) || pMinor->GetMinorCivAI()->IsPeaceBlocked(GET_PLAYER(eToPlayer).getTeam()))
+#endif
 			{
 				continue;
 			}

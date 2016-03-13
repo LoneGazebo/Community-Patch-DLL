@@ -716,6 +716,7 @@ protected:
 	LUAAPIEXTN(GetBonusHappinessFromLuxuries, int);
 	LUAAPIEXTN(GetPopNeededForLux, int);
 	LUAAPIEXTN(GetCurrentTotalPop, int);
+	LUAAPIEXTN(GetScalingNationalPopulationRequrired, int);
 	LUAAPIEXTN(GetBaseLuxuryHappiness, int);
 	LUAAPIEXTN(GetLuxuryBonusPlusOne, int);
 #endif

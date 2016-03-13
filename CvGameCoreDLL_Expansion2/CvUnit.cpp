@@ -3241,26 +3241,10 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	if(ePlayer != NO_PLAYER)
 	{
 #if defined(MOD_BALANCE_CORE)
-		//Faith bonus from defeated units.
-		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-		if(iEra < 1)
+		if(IsCombatUnit())
 		{
-			iEra = 1;
-		}
-		if(GET_PLAYER(getOwner()).getYieldFromDeath(YIELD_FAITH) > 0)
-		{
-			if(IsCombatUnit())
-			{
-				int iFaith = GET_PLAYER(getOwner()).getYieldFromDeath(YIELD_FAITH) * iEra;
-				GET_PLAYER(getOwner()).ChangeFaith(iFaith);
-				if(getOwner() == GC.getGame().getActivePlayer())
-				{
-					char text[256] = {0};
-					float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
-					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iFaith);
-					DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), text, fDelay);
-				}
-			}
+			CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
+			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_DEATH);
 		}
 #endif
 		if(!isBarbarian() && !GET_PLAYER(ePlayer).isBarbarian())
@@ -3953,7 +3937,6 @@ void CvUnit::doTurn()
 
 	doDelayedDeath();
 }
-
 //	--------------------------------------------------------------------------------
 bool CvUnit::isActionRecommended(int iAction)
 {
@@ -10759,8 +10742,6 @@ bool CvUnit::CanSpreadReligion(const CvPlot* pPlot) const
 bool CvUnit::DoSpreadReligion()
 {
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-	int iGoldenAgeBonus = 0;
-	int iTourism = 0;
 	int iCSInfluence = 0;
 	int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
 	if(iEra < 1)
@@ -10792,80 +10773,12 @@ bool CvUnit::DoSpreadReligion()
 				{
 #if defined(MOD_API_UNIFIED_YIELDS)
 					// Requires majority for this city to be another religion
-					ReligionTypes eCurrentReligion = pCity->GetCityReligions()->GetReligiousMajority();
 					int iOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eReligion);
-					if (eCurrentReligion != NO_RELIGION && eCurrentReligion != eReligion && iOtherFollowers > 0)
+					CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
+					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_SPREAD, false, NO_GREATPERSON, NO_BUILDING, iOtherFollowers, true, pCity->getOwner(), plot());
+					if(pCity->getOwner() != m_eOwner)
 					{
-						CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
-#if !defined(SHOW_PLOT_POPUP)
-						int iDelay = 0;
-#endif
-						bool bFloatText = pCity->plot() && pCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF;
-						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-						{
-							YieldTypes eYield = (YieldTypes) iI;
-							
-							if (eYield == YIELD_FOOD || eYield == YIELD_PRODUCTION)
-							{
-								continue;
-							}
-							
-							int iYieldBonus = pReligion->m_Beliefs.GetYieldPerOtherReligionFollower(eYield, getOwner());
-
-							if (eYield == YIELD_SCIENCE)
-							{
-								iYieldBonus += pReligion->m_Beliefs.GetSciencePerOtherReligionFollower(getOwner());
-							}
-
-							if (iYieldBonus > 0)
-							{
-								iYieldBonus *= iOtherFollowers;
-									
-								switch(eYield)
-								{
-								case YIELD_GOLD:
-									kPlayer.GetTreasury()->ChangeGold(iYieldBonus);
-									break;
-								case YIELD_CULTURE:
-									kPlayer.changeJONSCulture(iYieldBonus);
-									break;
-								case YIELD_FAITH:
-									kPlayer.ChangeFaith(iYieldBonus);
-									break;
-								case YIELD_GOLDEN_AGE_POINTS:
-									kPlayer.ChangeGoldenAgeProgressMeter(iYieldBonus);
-									break;
-								case YIELD_SCIENCE:
-									{
-									TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
-									if(eCurrentTech == NO_TECH)
-									{
-										kPlayer.changeOverflowResearch(iYieldBonus);
-									}
-									else
-									{
-										GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldBonus, kPlayer.GetID());
-									}
-									}
-									break;
-								case YIELD_TOURISM:
-									kPlayer.GetCulture()->AddTourismAllKnownCivs(iYieldBonus);
-									break;
-								}
-
-								if (bFloatText)
-								{
-									char text[256] = {0};
-									sprintf_s(text, "%s+%d[ENDCOLOR]%s", GC.getYieldInfo(eYield)->getColorString(), iYieldBonus, GC.getYieldInfo(eYield)->getIconString());
-#if defined(SHOW_PLOT_POPUP)
-									SHOW_PLOT_POPUP(pCity->plot(), getOwner(), text, 0.0f);
-#else
-									float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * (2 + ((float)(iDelay++) * 0.5f));
-									DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
-#endif
-								}
-							}
-						}
+						kPlayer.doInstantYield(INSTANT_YIELD_TYPE_F_SPREAD, false, NO_GREATPERSON, NO_BUILDING, 0, true, pCity->getOwner(), plot());
 					}
 #else
 					iScienceBonus = pReligion->m_Beliefs.GetSciencePerOtherReligionFollower();
@@ -10884,17 +10797,8 @@ bool CvUnit::DoSpreadReligion()
 					}
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
-					iGoldenAgeBonus = pReligion->m_Beliefs.GetYieldFromSpread(YIELD_GOLDEN_AGE_POINTS, getOwner()) * iEra;
-#endif
 					iCSInfluence = (pReligion->m_Beliefs.GetMissionaryInfluenceCS(getOwner()) * iEra);
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
-					iTourism = pReligion->m_Beliefs.GetYieldFromForeignSpread(YIELD_TOURISM, getOwner()) * iEra;
-					iTourism *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iTourism /= 100;
 #endif
-#endif
-
 				}
 			}
 
@@ -10955,21 +10859,6 @@ bool CvUnit::DoSpreadReligion()
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
-			float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
-			if(iGoldenAgeBonus > 0)
-			{
-				CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
-				kPlayer.ChangeGoldenAgeProgressMeter(iGoldenAgeBonus);
-				if (pCity->plot() && pCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
-				{
-					char text[256] = {0};
-					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGoldenAgeBonus);
-					fDelay += 0.5f;
-					DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
-				}
-			}
-#endif
 			if(iCSInfluence > 0)
 			{
 				CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
@@ -10980,45 +10869,11 @@ bool CvUnit::DoSpreadReligion()
 					{
 						char text[256] = {0};
 						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_INFLUENCE]", iCSInfluence);
-						fDelay += 0.5f;
+						float fDelay = 3.0f;
 						DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
 					}
 				}
 			}
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
-			if(iTourism > 0)
-			{
-				if((pCity->getOwner() != m_eOwner) && !GET_PLAYER(pCity->getOwner()).isMinorCiv())
-				{
-					CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
-					kPlayer.GetCulture()->ChangeInfluenceOn(pCity->getOwner(), iTourism);
-					// Show tourism spread
-					if (pCity->plot() && pCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
-					{
-						CvString strInfluenceText;
-						InfluenceLevelTypes eLevel = kPlayer.GetCulture()->GetInfluenceLevel(pCity->getOwner());
-
-						if (eLevel == INFLUENCE_LEVEL_UNKNOWN)
-							strInfluenceText = GetLocalizedText( "TXT_KEY_CO_UNKNOWN" );
-						else if (eLevel == INFLUENCE_LEVEL_EXOTIC)
-							strInfluenceText = GetLocalizedText( "TXT_KEY_CO_EXOTIC");
-						else if (eLevel == INFLUENCE_LEVEL_FAMILIAR)
-							strInfluenceText = GetLocalizedText( "TXT_KEY_CO_FAMILIAR");
-						else if (eLevel == INFLUENCE_LEVEL_POPULAR)
-							strInfluenceText = GetLocalizedText( "TXT_KEY_CO_POPULAR");
-						else if (eLevel == INFLUENCE_LEVEL_INFLUENTIAL)
-							strInfluenceText = GetLocalizedText( "TXT_KEY_CO_INFLUENTIAL");
-						else if (eLevel == INFLUENCE_LEVEL_DOMINANT)
-							strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
-
-						char text[256] = {0};
-						sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourism, strInfluenceText.c_str());
-						fDelay += 0.5f;
-						DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
-					}
-				}
-			}
-#endif
 #endif
 
 			bool bShow = plot()->isActiveVisible(false);
@@ -12324,107 +12179,10 @@ void CvUnit::PerformCultureBomb(int iRadius)
 #if defined(MOD_BALANCE_CORE_POLICIES)
 			if(GET_PLAYER(getOwner()).IsCitadelBoost())
 			{
-				int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-				float fDelay = 0.0f;
-				if(iEra < 1)
+				CvCity* pCapitalCity = GET_PLAYER(getOwner()).getCapitalCity();
+				if(pCapitalCity != NULL)
 				{
-					iEra = 1;
-				}
-				int iGold = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) * iEra;
-				iGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iGold /= 100;
-				if(iGold > 0)
-				{
-					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iGold);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGold);
-						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
-					}
-				}
-				int iFaith = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) * iEra;
-				iFaith *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iFaith /= 100;
-				if(iFaith > 0)
-				{
-					GET_PLAYER(getOwner()).ChangeFaith(iFaith);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iFaith);
-						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
-					}
-				}
-				int iCulture = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) * iEra;
-				iCulture *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iCulture /= 100;
-				if(iCulture > 0)
-				{
-					GET_PLAYER(getOwner()).changeJONSCulture(iCulture);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulture);
-						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
-					}
-				}
-				int iGAP = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) * iEra;
-				iGAP *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iGAP /= 100;
-				if(iGAP > 0)
-				{
-					GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(iGAP);
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGAP);
-						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
-					}
-				}
-				int iScience = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra;
-				iScience *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iScience /= 100;
-				if(iScience > 0)
-				{
-					TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
-					if(eCurrentTech == NO_TECH)
-					{
-						GET_PLAYER(getOwner()).changeOverflowResearch(iScience);
-					}
-					else
-					{
-						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScience, getOwner());
-					}
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScience);
-						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
-					}
-				}
-				int iGGP = GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GREAT_GENERAL_POINTS) * iEra;
-				iGGP *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iGGP /= 100;
-				if(iGGP > 0)
-				{
-#if defined(MOD_API_XP_TIMES_100)
-					GET_PLAYER(getOwner()).changeCombatExperienceTimes100(iGGP * 100);
-#else
-					GET_PLAYER(getOwner()).changeCombatExperience(iGGP);
-#endif
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", iGGP);
-						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
-					}
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BORDERS, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, true, pCapitalCity);
 				}
 			}
 #endif
@@ -12514,6 +12272,42 @@ bool CvUnit::goldenAge()
 	}
 
 	int iGoldenAgeTurns = GetGoldenAgeTurns();
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	{
+		// Player modifier
+		int iLengthModifier = GET_PLAYER(getOwner()).getGoldenAgeModifier();
+
+		// Trait modifier
+		iLengthModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeDurationModifier();
+
+		// Do we get increased Golden Ages from a resource monopoly?
+		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		{
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+				if(eResourceLoop != NO_RESOURCE)
+				{
+					CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+					if (pInfo && pInfo->isMonopoly())
+					{
+						if(GET_PLAYER(getOwner()).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+						{
+							int iTemp = pInfo->getMonopolyGALength();
+							iTemp += GET_PLAYER(getOwner()).GetMonopolyModPercent();
+							iLengthModifier += iTemp;
+						}
+					}
+				}
+			}
+		}
+		if(iLengthModifier != 0)
+		{
+			iGoldenAgeTurns = ((iGoldenAgeTurns * (100 + iLengthModifier)) / 100);
+		}
+	}
+#endif
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
@@ -20568,9 +20362,13 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 {
 	VALIDATE_OBJECT
 #if defined(MOD_API_XP_TIMES_100)
-		if ((getExperienceTimes100() != iNewValueTimes100) && (getExperienceTimes100() < ((iMax == INT_MAX || iMax == -1) ? INT_MAX: (iMax * 100))))
+	// Checking limits.h for the values of MAX_INT and MAX_LONG they are the same, so we need to use "long long" and hence MAX_LLONG
+	long long lMaxTimes100 = (iMax == -1) ? INT_MAX : (iMax * 100LL);
+	int iMaxTimes100 = (lMaxTimes100 > ((long long) INT_MAX)) ? INT_MAX : (int) lMaxTimes100;
+	
+	if ((getExperienceTimes100() != iNewValueTimes100) && (getExperienceTimes100() < iMaxTimes100))
 #else
-		if ((getExperience() != iNewValue) && (getExperience() < ((iMax == -1) ? INT_MAX : iMax)))
+	if ((getExperience() != iNewValue) && (getExperience() < ((iMax == -1) ? INT_MAX : iMax)))
 #endif
 	{
 #if defined(MOD_API_XP_TIMES_100)
@@ -20580,7 +20378,7 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 #endif
 
 #if defined(MOD_API_XP_TIMES_100)
-		m_iExperienceTimes100 = std::min(((iMax == INT_MAX || iMax == -1) ? INT_MAX : (iMax * 100)), iNewValueTimes100);
+		m_iExperienceTimes100 = std::min(iMaxTimes100, iNewValueTimes100);
 		CvAssert(getExperienceTimes100() >= 0);
 #else
 		m_iExperience = std::min(((iMax == -1) ? INT_MAX : iMax), iNewValue);
@@ -20657,6 +20455,10 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 	}
 
 #if defined(MOD_API_XP_TIMES_100)
+	// Checking limits.h for the values of MAX_INT and MAX_LONG they are the same, so we need to use "long long" and hence MAX_LLONG
+	long long lMaxTimes100 = (iMax == -1) ? INT_MAX : (iMax * 100LL);
+	int iMaxTimes100 = (lMaxTimes100 > ((long long)INT_MAX)) ? INT_MAX : (int)lMaxTimes100;
+	
 	int iUnitExperienceTimes100 = iChangeTimes100;
 #else
 	int iUnitExperience = iChange;
@@ -20808,7 +20610,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 			else
 			{
 #if defined(MOD_API_XP_TIMES_100)
-				int iModdedChangeTimes100 = min((iMax * 100) - m_iExperienceTimes100, iChangeTimes100);
+				int iModdedChangeTimes100 = min(iMaxTimes100 - m_iExperienceTimes100, iChangeTimes100);
 				if (iModdedChangeTimes100 > 0)
 #else
 				int iModdedChange = min(iMax - m_iExperience, iChange);

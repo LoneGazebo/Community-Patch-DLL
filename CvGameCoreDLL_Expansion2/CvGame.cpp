@@ -9697,7 +9697,7 @@ int CvGame::calculateSyncChecksum()
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DEBUGGING)
 	debugSyncChecksum();
 #endif
 

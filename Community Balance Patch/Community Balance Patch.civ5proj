@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>13</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(3-8) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3-12) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems  to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>Civfanatics Community Balance Team</Authors>
     <SpecialThanks>
@@ -586,6 +586,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Text/en_US/TerrainText.xml</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Worlds/WorldSizes.sql</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -683,6 +688,7 @@
     <Folder Include="Balance Changes\Buildings" />
     <Folder Include="Balance Changes\AI" />
     <Folder Include="Balance Changes\Ideologies" />
+    <Folder Include="Balance Changes\Worlds" />
     <Folder Include="Balance Changes\Projects" />
     <Folder Include="Balance Changes\Text" />
     <Folder Include="Balance Changes\Specialists" />
@@ -1782,6 +1788,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Balance Changes\Wonders\WonderChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\Worlds\WorldSizes.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

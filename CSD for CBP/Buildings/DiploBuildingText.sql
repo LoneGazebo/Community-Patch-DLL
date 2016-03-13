@@ -1,6 +1,6 @@
 INSERT INTO Language_en_US (
   Tag, Text)
-SELECT 'TXT_KEY_BUILDING_COURT_SCRIBE_HELP', '+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units. Can only be constructed in a Capital. The cost goes up the more cities there are in the empire. [NEWLINE][NEWLINE] +15% of the [ICON_PRODUCTION] Production of the City is added to the current [ICON_PRODUCTION] Production amount every time the city gains a [ICON_CITIZEN] Citizen.';
+SELECT 'TXT_KEY_BUILDING_COURT_SCRIBE_HELP', '+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units. Can only be constructed in a Capital. The cost goes up the more cities there are in the empire. [NEWLINE][NEWLINE]+15% of the [ICON_PRODUCTION] Production of the City is added to the current [ICON_PRODUCTION] Production amount every time the city gains a [ICON_CITIZEN] Citizen.';
 
 INSERT INTO Language_en_US (
   Tag, Text)
@@ -8,7 +8,7 @@ SELECT 'TXT_KEY_BUILDING_COURT_SCRIBE_STRATEGY', 'This National Wonder is unique
 
 INSERT INTO Language_en_US (
   Tag, Text)
-SELECT 'TXT_KEY_BUILDING_CHANCERY_HELP', '+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units. Grants Promotion [COLOR_POSITIVE_TEXT]Royal Signet[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE] +15% of the [ICON_PRODUCTION] Production of the City is added to the current [ICON_PRODUCTION] Production total every time the city gains a [ICON_CITIZEN] Citizen.';
+SELECT 'TXT_KEY_BUILDING_CHANCERY_HELP', '+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units. Grants Promotion [COLOR_POSITIVE_TEXT]Royal Signet[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE]+15% of the [ICON_PRODUCTION] Production of the City is added to the current [ICON_PRODUCTION] Production total every time the city gains a [ICON_CITIZEN] Citizen.';
 
 INSERT INTO Language_en_US (
   Tag, Text)

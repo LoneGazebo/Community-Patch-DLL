@@ -4,7 +4,7 @@ SET Text = '+1 [ICON_RESEARCH] Science for every 3 [ICON_CITIZEN] Citizens in th
 WHERE Tag = 'TXT_KEY_BUILDING_PALACE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '10% of the City''s [ICON_FOOD] Food output is added to the City''s [ICON_RESEARCH] Science every turn.[NEWLINE][NEWLINE] Allows [ICON_FOOD] Food to be moved from this city along trade routes inside your civilization. Nearby [ICON_RES_WHEAT] Wheat: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BANANA] Bananas: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.'
+SET Text = '15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born.[NEWLINE][NEWLINE]Allows [ICON_FOOD] Food to be moved from this city along trade routes inside your civilization.[NEWLINE] Nearby [ICON_RES_WHEAT] Wheat: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BANANA] Bananas: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRANARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -20,11 +20,11 @@ SET Text = '25% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] C
 WHERE Tag = 'TXT_KEY_BUILDING_AQUEDUCT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '25% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born (effect stacks with Grocer). Reduces [ICON_HAPPINESS_3] Poverty greatly.'
+SET Text = '30% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born. Reduces [ICON_HAPPINESS_3] Poverty greatly.'
 WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '10% of the City''s [ICON_CULTURE] Culture output is added to the City''s [ICON_RESEARCH] Science every turn. +20% [ICON_GREAT_PEOPLE] Great People generation in this City.[NEWLINE]Nearby [ICON_RES_CITRUS] Citrus: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COCOA] Cocoa: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]City must NOT be built next to a River or Lake. Cannot be built if City already has a Bath, and requires an Aqueduct in the City.'
+SET Text = '+20% [ICON_GREAT_PEOPLE] Great People generation in this City.[NEWLINE]Nearby [ICON_RES_CITRUS] Citrus: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COCOA] Cocoa: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]City must NOT be built next to a River or Lake. Cannot be built if City already has a Bath, and requires an Aqueduct in the City.'
 WHERE Tag = 'TXT_KEY_BUILDING_GARDEN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -32,15 +32,11 @@ SET Text = 'The Garden increases the speed at which [ICON_GREAT_PEOPLE] Great Pe
 WHERE Tag = 'TXT_KEY_BUILDING_GARDEN_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_SHRINE_HELP', '20% of the City''s [ICON_PEACE] Faith output is added to the City''s [ICON_RESEARCH] Science every turn.'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
-INSERT INTO Language_en_US (Tag, Text)
 SELECT 'TXT_KEY_BUILDING_HOSPITAL_HELP', 'Reduces [ICON_HAPPINESS_3] Poverty. Units in this City heal 15 points per turn whether or not they take an action.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_TEMPLE_HELP', 'Reduces [ICON_HAPPINESS_3] Religious Unrest.[NEWLINE]Nearby [ICON_RES_INCENSE] Incense: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE] Nearby [ICON_RES_WINE] Wine: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.'
+SELECT 'TXT_KEY_BUILDING_TEMPLE_HELP', 'Reduces [ICON_HAPPINESS_3] Religious Unrest and generates +25% Religious Pressure.[NEWLINE]Nearby [ICON_RES_INCENSE] Incense: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE] Nearby [ICON_RES_WINE] Wine: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Tag, Text)
@@ -80,7 +76,7 @@ SET Text = 'A Broadcast Tower is a late-game building which increases [ICON_CULT
 WHERE Tag = 'TXT_KEY_BUILDING_BROADCAST_TOWER_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Nearby Mines gain +1 [ICON_PRODUCTION] Production. +15 XP for all Units. Reduces [ICON_HAPPINESS_3] Crime slightly.'
+SET Text = '+15 XP for all Units. Reduces [ICON_HAPPINESS_3] Crime slightly.'
 WHERE Tag = 'TXT_KEY_BUILDING_BARRACKS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 UPDATE Language_en_US
@@ -96,11 +92,11 @@ SET Text = '+20% [ICON_PRODUCTION] Production when building Mounted Units.[NEWLI
 WHERE Tag = 'TXT_KEY_BUILDING_STABLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = '10% of the City''s [ICON_PRODUCTION] Production output is added to the City''s [ICON_RESEARCH] Science every turn.[NEWLINE][NEWLINE]Nearby [ICON_RES_IRON] Iron: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COPPER] Copper: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.'
+SET Text = 'Mines worked by this City gain +1 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_IRON] Iron: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COPPER] Copper: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_FORGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Forge improves sources of [ICON_RES_IRON] Iron and [ICON_RES_COPPER] Copper nearby, and boosts the [ICON_PRODUCTION] Production of Mines. It also increaes the City''s Science output based on the City''s current Production.'
+SET Text = 'The Forge improves sources of [ICON_RES_IRON] Iron and [ICON_RES_COPPER] Copper nearby, and boosts the [ICON_PRODUCTION] Production of Mines.'
 WHERE Tag = 'TXT_KEY_BUILDING_FORGE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -132,7 +128,7 @@ SET Text = 'Requires 1 [ICON_RES_COAL] Coal. +1 [ICON_PRODUCTION] Production and
 WHERE Tag = 'TXT_KEY_BUILDING_SEAPORT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_MARKET_HELP', '10% of the City''s [ICON_GOLD] Gold output is added to the City''s [ICON_RESEARCH] Science every turn. +1 [ICON_GOLD] Gold to [ICON_INTERNATIONAL_TRADE] Trade Routes to or from City.[NEWLINE][NEWLINE]Nearby [ICON_RES_SPICES] Spices: +1 [ICON_FOOD] Food, +1 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SUGAR] Sugar: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.'
+SELECT 'TXT_KEY_BUILDING_MARKET_HELP', '+1 [ICON_GOLD] Gold to [ICON_INTERNATIONAL_TRADE] Trade Routes to or from City.[NEWLINE][NEWLINE]Nearby [ICON_RES_SPICES] Spices: +1 [ICON_FOOD] Food, +1 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SUGAR] Sugar: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -156,15 +152,15 @@ SET Text = 'A custom house or customs house was a building housing the offices f
 WHERE Tag = 'TXT_KEY_CIV5_BUILDINGS_MINT_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'City must have a Market. +1 [ICON_GOLD] Gold for every 5 [ICON_CITIZEN] Citizens in the City.[NEWLINE]Nearby [ICON_RES_GOLD] Gold: +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILVER] Silver: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_GEMS] Gems: +2 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.'
+SET Text = 'When you spend [ICON_GOLD] Gold to purchase Units or invest in Buildings in this City, 15% of the cost is converted into [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]City must have a Market.[NEWLINE]Nearby [ICON_RES_GOLD] Gold: +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILVER] Silver: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_GEMS] Gems: +2 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_BANK_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'City must have a Bank. +1 [ICON_GOLD] Gold for every 4 [ICON_CITIZEN] Citizens in the City.'
+SET Text = 'City must have a Bank. +1 [ICON_GOLD] Gold for every 5 [ICON_CITIZEN] Citizens in the City.'
 WHERE Tag = 'TXT_KEY_BUILDING_STOCK_EXCHANGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'When a [ICON_INTERNATIONAL_TRADE] Land Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture output. Land Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COTTON] Cotton: +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Neabry [ICON_RES_FUR] Furs: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.'
+SET Text = 'When a [ICON_INTERNATIONAL_TRADE] Land Trade Route originating here and targeting another Civ is completed, receive a [ICON_TOURISM] Tourism boost with the Civ based on your recent [ICON_CULTURE] Culture output.[NEWLINE][NEWLINE]Land Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COTTON] Cotton: +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Neabry [ICON_RES_FUR] Furs: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_CARAVANSARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -336,7 +332,7 @@ SET Text = 'This National Wonder gives all land units built in this city the "Mo
 WHERE Tag = 'TXT_KEY_BUILDING_HEROIC_EPIC_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'This National Wonder increases the [ICON_GREAT_PEOPLE] Great People generation of a city by 25%. It also provides +1 [ICON_CULTURE] Culture. A city must have a monument before it can construct a National Monument.'
+SET Text = 'This National Wonder increases the [ICON_GREAT_PEOPLE] Great People generation of a city by 25%, and generates [ICON_GOLDEN_AGE] Golden Age Points whenever you unlock a policy. It also provides +1 [ICON_CULTURE] Culture. A city must have a monument before it can construct a National Monument.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -348,7 +344,7 @@ SET Text = 'The East India Company increases the amount of [ICON_GOLD] Gold a ci
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_TREASURY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The School of Philosophy National Wonder produces +1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City, and it provides +1 [ICON_CULTURE] Culture. A city must have a library before it can construct a School of Philosophy.'
+SET Text = 'The School of Philosophy National Wonder produces [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, especially during [ICON_GOLDEN_AGE] Golden Ages. A city must have a library before it can construct a School of Philosophy.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_COLLEGE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -378,47 +374,47 @@ WHERE Tag = 'TXT_KEY_BUILDING_TOURIST_CENTER_STRATEGY' AND EXISTS (SELECT * FROM
 -- Help Text
 
 UPDATE Language_en_US
-SET Text = 'All newly-trained land Units in this City receive the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion, improving [ICON_STRENGTH] combat strength by 10%. Contains 1 slot for a Great Work of Writing.[NEWLINE][NEWLINE]Must have built a Barracks in the city. The cost goes up the more cities there are in the empire.'
+SET Text = 'All newly-trained land Units in this City receive the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion, improving [ICON_STRENGTH] combat strength by 10%. Contains 1 slot for a Great Work of Writing.[NEWLINE][NEWLINE]Must have built a Barracks in the city. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_HEROIC_EPIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+25% [ICON_GREAT_PEOPLE] Great People generation in this City. Contains 1 slot for a Great Work of Art or an Artifact.[NEWLINE][NEWLINE]Must have built a Monument in the city. The cost goes up the more cities there are in the empire.'
+SET Text = '+25% [ICON_GREAT_PEOPLE] Great People generation in this City. Receive 50 [ICON_GOLDEN_AGE] Golden Age Points whenever you unlock a policy, scaling with Era.[NEWLINE][NEWLINE] Contains 1 slot for a Great Work of Art or an Artifact.[NEWLINE][NEWLINE]Must have built a Monument in the city. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during ''We Love the King Day'' in the City where it is built. Reduces [ICON_HAPPINESS_3] Boredom. Must have built an Arena in the city. The cost goes up the more cities there are in the empire.'
+SET Text = '+10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during ''We Love the King Day'' in the City where it is built. Reduces [ICON_HAPPINESS_3] Boredom. Must have built an Arena in the city. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty. Receive an additional copy of all Luxury Resources around this City. Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +4 [ICON_GOLD] Gold for the City, and +2 [ICON_GOLD] Gold for Trade Route owner.[NEWLINE][NEWLINE]Must have built a Customs House in the city. The cost goes up the more cities there are in the empire.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty. Receive an additional copy of all Luxury Resources around this City. Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +4 [ICON_GOLD] Gold for the City, and +2 [ICON_GOLD] Gold for Trade Route owner.[NEWLINE][NEWLINE]Must have built a Customs House in the city. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_TREASURY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must have built a Library in the city.[NEWLINE][NEWLINE]+1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City. Contains 1 slot for a Great Work of Writing. The cost goes up the more cities there are in the empire.'
+SET Text = '+20% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]Contains 1 slot for a Great Work of Writing. Must have built a Library in the city. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_COLLEGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+50 [ICON_RESEARCH] Science when you construct a building in this City. Bonus scales with Era. Must have built a Forge in the city. The cost goes up the more cities there are in the empire.'
+SET Text = '+50 [ICON_RESEARCH] Science when you construct a building in this City. Bonus scales with Era. Must have built a Forge in the city. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_IRONWORKS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'A Great Scientist appears near the City. +50 [ICON_CULTURE] Culture every time you research a Technology, scaling with Era. Contains 2 slots for Great Works of Writing. Reduces [ICON_HAPPINESS_3] Illiteracy.[NEWLINE][NEWLINE]Must have built a University in the city. The cost goes up the more cities there are in the empire.[NEWLINE][NEWLINE]+3 [ICON_RESEARCH] Science if Themed.'
+SET Text = 'A Great Scientist appears near the City. +50 [ICON_CULTURE] Culture every time you research a Technology, scaling with Era. Contains 2 slots for Great Works of Writing. Reduces [ICON_HAPPINESS_3] Illiteracy.[NEWLINE][NEWLINE]Must have built a University in the city. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.[NEWLINE][NEWLINE]+3 [ICON_RESEARCH] Science if Themed.'
 WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City. Contains 3 slots for Great Works of Art.[NEWLINE][NEWLINE]Must have built an Opera House in the city. The cost goes up the more cities there are in the empire.[NEWLINE][NEWLINE]+5 [ICON_GOLD] Gold if Themed.'
+SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City. Contains 3 slots for Great Works of Art.[NEWLINE][NEWLINE]Must have built an Opera House in the city. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.[NEWLINE][NEWLINE]+5 [ICON_GOLD] Gold if Themed.'
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Crime. Provides an additional spy and levels up all your existing spies. Also provides a 15% reduction in enemy spy effectiveness.[NEWLINE][NEWLINE]Must have a Police Station in the city. The cost goes up the more cities there are in the empire.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Crime. Provides an additional spy and levels up all your existing spies. Also provides a 15% reduction in enemy spy effectiveness.[NEWLINE][NEWLINE]Must have a Police Station in the city. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'A [ICON_GOLDEN_AGE] Golden Age begins. Reduces [ICON_HAPPINESS_3] Religious Unrest. Must have built a Temple in the city. The cost goes up the more cities there are in the empire.'
+SET Text = 'A [ICON_GOLDEN_AGE] Golden Age begins. Reduces [ICON_HAPPINESS_3] Religious Unrest. Must have built a Temple in the city. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_TEMPLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must have built a Hotel in the city.[NEWLINE][NEWLINE]100% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements is added to the [ICON_TOURISM] Tourism output of the city, and [ICON_TOURISM] Tourism output from Great Works increased by +100%. The cost goes up the more cities there are in the empire.'
+SET Text = 'Must have built a Hotel in the city.[NEWLINE][NEWLINE]100% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements is added to the [ICON_TOURISM] Tourism output of the city, and [ICON_TOURISM] Tourism output from Great Works increased by +100%. The [ICON_PRODUCTION] Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_TOURIST_CENTER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US

@@ -1247,6 +1247,7 @@ public:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	int GetVictoryDisputeLevelScore(PlayerTypes ePlayer);
 	int GetVictoryBlockLevelScore(PlayerTypes ePlayer);
+	int GetHasReligionFounderDifferenceScore(PlayerTypes ePlayer);
 #endif
 	int GetWarmongerThreatScore(PlayerTypes ePlayer);
 	int GetCiviliansReturnedToMeScore(PlayerTypes ePlayer);

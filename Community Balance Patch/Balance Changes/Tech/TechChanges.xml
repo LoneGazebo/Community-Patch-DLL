@@ -2,15 +2,15 @@
 	<!-- Made using Tech Generator...Sorry for XML!-->
 	<Technologies>
 		<Update>
-			<Set GridX="1" GridY="7"/>
+			<Set GridX="1" GridY="3"/>
 			<Where Type="TECH_POTTERY" />
 		</Update>
 		<Update>
-			<Set GridY="3" />
+			<Set GridY="7" />
 			<Where Type="TECH_ANIMAL_HUSBANDRY" />
 		</Update>
 		<Update>
-			<Set GridX="2" GridY="3" />
+			<Set GridX="2" GridY="6" />
 			<Where Type="TECH_ARCHERY" />
 		</Update>
 		<Update>
@@ -22,7 +22,7 @@
 			<Where Type="TECH_SAILING" />
 		</Update>
 		<Update>
-			<Set GridX="2" GridY="6"/>
+			<Set GridX="2" GridY="4"/>
 			<Where Type="TECH_CALENDAR" />
 		</Update>
 		<Update>
@@ -46,7 +46,7 @@
 			<Where Type="TECH_OPTICS" />
 		</Update>
 		<Update>
-			<Set Era="ERA_ANCIENT" GridX="2" GridY="4" />
+			<Set Era="ERA_ANCIENT" GridX="2" GridY="3" />
 			<Where Type="TECH_HORSEBACK_RIDING" />
 		</Update>
 		<Update>

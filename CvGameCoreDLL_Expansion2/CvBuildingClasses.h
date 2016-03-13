@@ -384,6 +384,21 @@ public:
 	int GetYieldFromConstruction(int i) const;
 	int* GetYieldFromConstructionArray() const;
 
+	int GetYieldFromBirth(int i) const;
+	int* GetYieldFromBirthArray() const;
+
+	int GetYieldFromUnitProduction(int i) const;
+	int* GetYieldFromUnitProductionArray() const;
+
+	int GetYieldFromBorderGrowth(int i) const;
+	int* GetYieldFromBorderGrowthArray() const;
+
+	int GetYieldFromPolicyUnlock(int i) const;
+	int* GetYieldFromPolicyUnlockArray() const;
+
+	int GetYieldFromPurchase(int i) const;
+	int* GetYieldFromPurchaseArray() const;
+
 	int GetScienceFromYield(int i) const;
 	int* GetScienceFromYieldArray() const;
 
@@ -786,6 +801,11 @@ private:
 	int* m_piThemingYieldBonus;
 	int* m_piYieldFromTech;
 	int* m_piYieldFromConstruction;
+	int* m_piYieldFromBirth;
+	int* m_piYieldFromUnitProduction;
+	int* m_piYieldFromBorderGrowth;
+	int* m_piYieldFromPolicyUnlock;
+	int* m_piYieldFromPurchase;
 	int* m_piScienceFromYield;
 #endif
 	int* m_piYieldChange;
@@ -1016,7 +1036,6 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	const std::vector<BuildingTypes>& GetAllBuildings() const { return m_buildingsThatExistAtLeastOnce; }
 #endif
-
 private:
 	void NotifyNewBuildingStarted(BuildingTypes eIndex);
 

@@ -348,8 +348,8 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<ThemingBonusHelp>TXT_KEY_MOMA_THEMING_BONUS_HELP</ThemingBonusHelp>
 			<NukeImmune>true</NukeImmune>
-			<NumCityCostMod>15</NumCityCostMod>
-			<NationalPopRequired>65</NationalPopRequired>
+			<NumCityCostMod>10</NumCityCostMod>
+			<NationalPopRequired>50</NationalPopRequired>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<CultureRateModifier>25</CultureRateModifier>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
@@ -477,7 +477,7 @@
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_INDUS_CANAL_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_HOSPITAL</ArtDefineTag>
-			<FoodKept>30</FoodKept>
+			<FoodKept>20</FoodKept>
 			<NeverCapture>true</NeverCapture>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
@@ -499,6 +499,7 @@
 			<Strategy>TXT_KEY_BUILDING_YURT_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_GRANARY</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<FoodKept>15</FoodKept>
 			<HurryCostModifier>25</HurryCostModifier>
 			<AllowsFoodTradeRoutes>true</AllowsFoodTradeRoutes>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -600,6 +601,7 @@
 			<Strategy>TXT_KEY_BUILDING_BASILICA_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_BASILICA_HELP</Help>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<TradeReligionModifier>100</TradeReligionModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
@@ -622,8 +624,8 @@
 			<ExtraLuxuries>true</ExtraLuxuries>
 			<TradeRouteRecipientBonus>5</TradeRouteRecipientBonus>
 			<TradeRouteTargetBonus>3</TradeRouteTargetBonus>
-			<NationalPopRequired>25</NationalPopRequired>
-			<NumCityCostMod>15</NumCityCostMod>
+			<NationalPopRequired>20</NationalPopRequired>
+			<NumCityCostMod>10</NumCityCostMod>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<NeverCapture>true</NeverCapture>
@@ -746,7 +748,7 @@
 			<Help>TXT_KEY_BUILDING_GROCER_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<FoodKept>25</FoodKept>
+			<FoodKept>15</FoodKept>
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>BW_ATLAS_1</IconAtlas>
