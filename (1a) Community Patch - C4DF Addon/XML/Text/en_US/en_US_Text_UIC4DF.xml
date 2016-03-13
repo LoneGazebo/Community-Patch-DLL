@@ -436,7 +436,7 @@
 			<Text>Master Population Percent:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_MASTER_POP_PERCENT_TT">
-			<Text>Ratio between the total [ICON_CITIZEN] Population your vassal currently possesses (team-wide) and the number of [ICON_CITIZEN] Population your team has now.[NEWLINE][NEWLINE][ICON_BULLET]Team Number of [ICON_CITIZEN] Population Now: {1_CurrentPop}[NEWLINE][ICON_BULLET]Master Team [ICON_CITIZEN] Population: {2_MasterPop}[NEWLINE][NEWLINE]This player currently has {3_PlayerPop} Cities.</Text>
+			<Text>Ratio between the total [ICON_CITIZEN] Population your vassal currently possesses (team-wide) and the number of [ICON_CITIZEN] Population your team has now.[NEWLINE][NEWLINE][ICON_BULLET]Team Number of [ICON_CITIZEN] Population Now: {1_CurrentPop}[NEWLINE][ICON_BULLET]Master Team [ICON_CITIZEN] Population: {2_MasterPop}[NEWLINE][NEWLINE]This player currently has {3_PlayerPop} [ICON_CITIZEN] Population.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_POP_PERCENT">
 			<Text>Current Population Percent:</Text>
@@ -775,6 +775,13 @@
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_VASSAL_MAINTENANCE">
 			<Text>+{1_VassalMaintenancePercent}% [ICON_GOLD] Gold cost for Vassal Unit/City Maintenance</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TP_GOLD_VASSAL_MAINT">
+			<Text>{1_Num} spent on Vassal Maintenance.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_GOLD_VASSAL_TAX">
+			<Text>{1_Num} from Vassal Taxes.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

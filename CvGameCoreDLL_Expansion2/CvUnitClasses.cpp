@@ -1,9 +1,9 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
-	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
-	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
-	All other marks and trademarks are the property of their respective owners.  
-	All rights reserved. 
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
+	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software
+	and their respective logos are all trademarks of Take-Two interactive Software, Inc.
+	All other marks and trademarks are the property of their respective owners.
+	All rights reserved.
 	------------------------------------------------------------------------------------------------------- */
 #include "CvGameCoreDLLPCH.h"
 #include "CvGameCoreUtils.h"
@@ -194,7 +194,7 @@ CvUnitEntry::~CvUnitEntry(void)
 	SAFE_DELETE_ARRAY(m_paszUnitNames);
 	SAFE_DELETE_ARRAY(m_paeGreatWorks);
 #if defined(MOD_BALANCE_CORE)
-	SAFE_DELETE_ARRAY(m_paeGreatPersonEra);	
+	SAFE_DELETE_ARRAY(m_paeGreatPersonEra);
 #endif
 
 }
@@ -369,7 +369,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	szTextVal = kResults.GetText("PillagePrereqTech");
 	m_iPrereqPillageTech = GC.getInfoTypeForString(szTextVal, true);
-	
+
 	szTextVal = kResults.GetText("PrereqTech");
 	m_iPrereqAndTech = GC.getInfoTypeForString(szTextVal, true);
 
@@ -494,7 +494,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 			while(pResults->Step())
 			{
 				m_paszUnitNames[i] = pResults->GetText(0);
-			
+
 				const char* szGreatWorkType = pResults->GetText(1);
 				if(szGreatWorkType == NULL)
 				{
@@ -1490,15 +1490,6 @@ void CvUnitEntry::DoUpdatePower()
 #endif
 	}
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(MOD_DIPLOMACY_CIV4_FEATURES && GetDomainType() == DOMAIN_AIR)
-	{
-		int iTemp = iPower * 30;
-		iTemp /= 100;
-		iPower += iTemp;
-	}
-#endif
-
 	if(iRangedStrength > iPower)
 	{
 		iPower = iRangedStrength;
@@ -1654,7 +1645,7 @@ void CvUnitEntry::DoUpdatePower()
 					CvBaseInfo* pkUnitCombatInfo = GC.getUnitCombatClassInfo((UnitCombatTypes)iLoop);
 					if (pkUnitCombatInfo) {
 						int iTheirUnitCombat = pkUnitCombatInfo->GetID();
-					
+
 						if (iTheirUnitCombat == GC.getInfoTypeForString("UNITCOMBAT_NAVALRANGED", true) || iTheirUnitCombat == GC.getInfoTypeForString("UNITCOMBAT_NAVALMELEE", true)) {
 							iTheirDomain = DOMAIN_SEA;
 						} else if (iTheirUnitCombat == GC.getInfoTypeForString("UNITCOMBAT_HELICOPTER", true) || iTheirUnitCombat == GC.getInfoTypeForString("UNITCOMBAT_FIGHTER", true) || iTheirUnitCombat == GC.getInfoTypeForString("UNITCOMBAT_BOMBER", true)) {

@@ -18,7 +18,7 @@ local g_pTeam = Teams[ g_iTeam ];
 
 local g_IdeologyBackgrounds = {
 	[0] = "loading_20.dds",
-	POLICY_BRANCH_AUTOCRACY = "loadingbasegame_13.dds",
+	POLICY_BRANCH_AUTOCRACY = "loading_13.dds",
 	POLICY_BRANCH_FREEDOM = "loadingbasegame_19.dds",
 	POLICY_BRANCH_ORDER = "loadingbasegame_7.dds",
 }

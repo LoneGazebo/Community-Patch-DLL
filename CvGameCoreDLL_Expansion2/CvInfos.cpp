@@ -1,9 +1,9 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
-	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
-	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
-	All other marks and trademarks are the property of their respective owners.  
-	All rights reserved. 
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
+	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software
+	and their respective logos are all trademarks of Take-Two interactive Software, Inc.
+	All other marks and trademarks are the property of their respective owners.
+	All rights reserved.
 	------------------------------------------------------------------------------------------------------- */
 //
 //  AUTHOR:	Eric MacDonald  --  8/2003
@@ -1892,7 +1892,7 @@ void UnitClassArrayHelpers::Write(FDataStream& kStream, int* paiArray, int iArra
 			kStream << paiArray[iI];
 		}
 		else
-		{			
+		{
 			kStream << (int)0;
 		}
 	}
@@ -4203,7 +4203,7 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 			}
 		}
 	}
-	
+
 	const char* szBuildType = GetType();
 	kUtility.PopulateArrayByValue(m_paiTechTimeChange, "Technologies", "Build_TechTimeChanges", "TechType", "BuildType", szBuildType, "TimeChange");
 
@@ -5576,7 +5576,7 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	szTextVal = kResults.GetText("LocationUnitFreePromotion");
 	m_iLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
-	
+
 	szTextVal = kResults.GetText("SpawnLocationUnitFreePromotion");
 	m_iSpawnLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
 
@@ -7113,6 +7113,9 @@ CvEraInfo::CvEraInfo() :
 	m_iTradeRouteProductionBonusTimes100(0),
 	m_iLeaguePercent(0),
 	m_iWarmongerPercent(0),
+	#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_bVassalageEnabled(false),
+	#endif
 	m_bNoGoodies(false),
 	m_bNoBarbUnits(false),
 	m_bNoReligion(false),

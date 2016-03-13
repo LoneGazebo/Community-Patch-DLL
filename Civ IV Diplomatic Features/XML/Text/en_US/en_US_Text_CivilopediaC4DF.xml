@@ -44,6 +44,9 @@
 		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_ADVISOR_QUESTION">
 			<Text>What is Tech Trading?</Text>
 		</Row>	
+		<Row Tag="TXT_KEY_GAME_CONCEPT_SECTION_26">
+			<Text>Vassalage</Text>
+		</Row>	
 		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_TOPIC">
 			<Text>Vassalage</Text>
 		</Row>

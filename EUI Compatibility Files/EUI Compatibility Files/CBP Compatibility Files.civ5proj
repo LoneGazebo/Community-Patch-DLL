@@ -124,19 +124,13 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>C4DF</Name>
-        <Id>47dd6204-89ab-4cf6-af4f-1327d2ce584c</Id>
+        <Name>C4DF CBP Test Suite</Name>
+        <Id>8626151f-3284-4b54-99b9-f4ef5f919abc</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
     </ModDependencies>
     <ModContent>
-      <Content>
-        <Type>InGameUIAddin</Type>
-        <Name>VassalOverview</Name>
-        <Description>VassalOverview</Description>
-        <FileName>LUA/VassalageOverview.lua</FileName>
-      </Content>
     </ModContent>
     <ModBlockers>
       <Association>
@@ -170,14 +164,6 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
     <Content Include="C4DFCompatibility\C4DFText_en_US.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="C4DFCompatibility\vassal80.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="C4DFCompatibility\vassal80hl.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Corporations\Corporations.sql">
       <SubType>Lua</SubType>
