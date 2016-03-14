@@ -228,7 +228,7 @@
 			<Text>The Council generates Science every time city grows, and is availble very early. Build this building if you wish to have a technological advantage over your rivals, though the value of this advantage diminishes as the city becomes larger.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_STRATEGY">
-			<Text>The Bath increases the speed at which Great People are generated in the city by 25% (5% more than the Garden), generates Science based on the City's Culture rate, and boosts the yields of Citrus and Cocoa resources. Baths can be constructed only in cities next to a river.</Text>
+			<Text>The Bath generates Culture, and boosts the Gold and Culture yield of Temples, Gardens, and Amphitheaters in the City. Also generates additional Culture during Golden Ages. Baths can be constructed only in cities next to a river.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HERBALIST_STRATEGY">
 			<Text>The Herbalist increases City growth, and improves the yields on nearby Jungle and Forest tiles. Requires a nearby Forest or Jungle in order to be constructed. Build them early to maximize the bonus, and to take advantage of regions with a large number of features.</Text>
@@ -261,7 +261,7 @@
 			<Text>+1 [ICON_FOOD] Food on nearby Forest and Jungle tiles. [NEWLINE][NEWLINE]City must have a workable Forest or Jungle tile in its borders.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
-			<Text>+25% [ICON_GREAT_PEOPLE] Great People generation in this City.[NEWLINE]Nearby [ICON_RES_CITRUS] Citrus: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COCOA] Cocoa: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]City must be built next to a River. Cannot be built if the City already has a Garden.</Text>
+			<Text>Temples, Amphitheaters, and Gardens in City: +1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture. +10% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]City must be built next to a River.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROCER_HELP">
 			<Text>Carries over 25% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct). Reduces [ICON_HAPPINESS_3] Poverty.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.</Text>

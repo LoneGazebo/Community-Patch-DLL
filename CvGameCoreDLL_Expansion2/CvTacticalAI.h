@@ -945,7 +945,7 @@ private:
 
 	// Class data - most of it only temporary, does not need to be persisted (with some exceptions)
 	CvPlayer* m_pPlayer;
-	CvTacticalAnalysisMap* m_pMap;
+	CvTacticalAnalysisMap* m_pTactMap;
 	std::list<int> m_CurrentTurnUnits;
 
 #if defined(MOD_AI_SMART_AIR_TACTICS)
@@ -963,7 +963,6 @@ private:
 #endif
 	std::vector<CvTacticalCity> m_CurrentMoveCities;
 	FStaticVector<CvTacticalMove, 256, true, c_eCiv5GameplayDLL > m_MovePriorityList;
-	int m_MovePriorityTurn;
 
 	// Lists of targets for the turn
 	TacticalList m_AllTargets;

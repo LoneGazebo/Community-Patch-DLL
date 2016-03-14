@@ -347,10 +347,16 @@ void CvCitySpecializationAI::DoTurn()
 	{
 		return;
 	}
+
 	// See if need to update assignments
 	if(m_bSpecializationsDirty || ((m_iLastTurnEvaluated + GC.getAI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL()) <= GC.getGame().getGameTurn()))
 	{
 		m_eNextWonderDesired = m_pPlayer->GetWonderProductionAI()->ChooseWonder(true /*bAdjustForOtherPlayers*/, m_iNextWonderWeight);
+
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(m_eNextWonderDesired);
+		if(pkBuildingInfo)
+			LogMsg( CvString("Next desired wonder is ") + pkBuildingInfo->GetDescription() );
+
 		WeightSpecializations();
 		AssignSpecializations();
 		m_bSpecializationsDirty = false;
@@ -2082,30 +2088,19 @@ void CvCitySpecializationAI::LogSpecializationAssignment(CvCity* pCity, CitySpec
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strOutBuf;
-		CvString strBaseString;
-		CvString strPlayerName;
 		CvString strCityName;
 		CvString strSpecialization;
-		FILogFile* pLog;
-
-		// Find the name of this civ
-		strPlayerName = GetPlayer()->getCivilizationShortDescription();
-		pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
-
-		// Get the leading info for this line
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strBaseString += strPlayerName + ", ";
 
 		strCityName = pCity->getName();
 		strSpecialization.Format("New Specialization Type: %d (%s)", eType, eType!=NO_CITY_SPECIALIZATION ? GC.getCitySpecializationInfo(eType)->GetType() : "none");
 
-		strOutBuf = strBaseString + strCityName + ", " + strSpecialization;
+		strOutBuf = strCityName + ", " + strSpecialization;
 		if(bWonderCity)
 		{
 			strOutBuf += ", WonderCity";
 		}
 
-		pLog->Msg(strOutBuf);
+		LogMsg(strOutBuf);
 	}
 }
 
@@ -2115,18 +2110,7 @@ void CvCitySpecializationAI::LogSpecializationUpdate(CitySpecializationUpdateTyp
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strOutBuf;
-		CvString strBaseString;
-		CvString strPlayerName;
 		CvString strTypeString;
-		FILogFile* pLog;
-
-		// Find the name of this civ
-		strPlayerName = GetPlayer()->getCivilizationShortDescription();
-		pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
-
-		// Get the leading info for this line
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strBaseString += strPlayerName + ", ";
 
 		switch(eUpdate)
 		{
@@ -2163,8 +2147,7 @@ void CvCitySpecializationAI::LogSpecializationUpdate(CitySpecializationUpdateTyp
 		case SPECIALIZATION_UPDATE_WONDER_BUILT_BY_RIVAL:
 			strTypeString = "Update: wonder built by rival, WONDER";
 		}
-		strOutBuf = strBaseString + strTypeString;
-		pLog->Msg(strOutBuf);
+		LogMsg( strTypeString );
 	}
 }
 
@@ -2173,25 +2156,9 @@ void CvCitySpecializationAI::LogNextSpecialization(CitySpecializationTypes eType
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		CvString strOutBuf;
-		CvString strBaseString;
-		CvString strPlayerName;
 		CvString strTypeString;
-		CvString strYieldString;
-		FILogFile* pLog;
-
-		// Find the name of this civ
-		strPlayerName = GetPlayer()->getCivilizationShortDescription();
-		pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
-
-		// Get the leading info for this line
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strBaseString += strPlayerName + ", ";
-
 		strTypeString.Format("Next Specialization: %d (%s)", eType, eType!=NO_CITY_SPECIALIZATION ? GC.getCitySpecializationInfo(eType)->GetType() : "none");
-
-		strOutBuf = strBaseString + strTypeString;
-		pLog->Msg(strOutBuf);
+		LogMsg(strTypeString);
 	}
 }
 
@@ -2199,20 +2166,8 @@ void CvCitySpecializationAI::LogBestSites()
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		CvString strOutBuf;
-		CvString strBaseString;
-		CvString strPlayerName;
 		CvString strYieldString;
 		CvString strWeightString;
-		FILogFile* pLog;
-
-		// Find the name of this civ
-		strPlayerName = GetPlayer()->getCivilizationShortDescription();
-		pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
-
-		// Get the leading info for this line
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strBaseString += strPlayerName + ", ";
 
 		// Loop through each yield type
 #if defined(MOD_BALANCE_CORE)
@@ -2228,8 +2183,7 @@ void CvCitySpecializationAI::LogBestSites()
 			}
 
 			strWeightString.Format(", Best site value: %d", m_iBestValue[iI]);
-			strOutBuf = strBaseString + strYieldString + strWeightString;
-			pLog->Msg(strOutBuf);
+			LogMsg( strYieldString + strWeightString );
 		}
 	}
 }
@@ -2238,22 +2192,11 @@ void CvCitySpecializationAI::LogCity(CvCity* pCity, CitySpecializationData data)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		CvString strOutBuf;
-		CvString strBaseString;
-		CvString strPlayerName;
 		CvString strCityName;
 		CvString strYieldString;
 		CvString strWeightString;
-		FILogFile* pLog;
 
-		// Find the name of this civ
-		strPlayerName = GetPlayer()->getCivilizationShortDescription();
-		pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
 		strCityName = pCity->getName();
-
-		// Get the leading info for this line
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strBaseString += strPlayerName + ", " + strCityName + ", ";
 
 		// Loop through each yield type
 #if defined(MOD_BALANCE_CORE)
@@ -2269,11 +2212,32 @@ void CvCitySpecializationAI::LogCity(CvCity* pCity, CitySpecializationData data)
 			}
 
 			strWeightString.Format(", Value: %d", data.m_iWeight[iI]);
-			strOutBuf = strBaseString + strYieldString + strWeightString;
-			pLog->Msg(strOutBuf);
+			LogMsg(strCityName + ", " + strYieldString + strWeightString);
 		}
 	}
 }
+
+void CvCitySpecializationAI::LogMsg(const CvString& msg)
+{
+	if(GC.getLogging() && GC.getAILogging())
+	{
+		CvString strOutBuf;
+		CvString strBaseString;
+		CvString strPlayerName;
+		FILogFile* pLog;
+
+		// Find the name of this civ
+		strPlayerName = GetPlayer()->getCivilizationShortDescription();
+		pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
+
+		// Get the leading info for this line
+		strBaseString.Format("%03d, %s, ", GC.getGame().getElapsedGameTurns(), strPlayerName.c_str());
+
+		strOutBuf = strBaseString + msg;
+		pLog->Msg( strOutBuf.c_str() );
+	}
+}
+
 
 /// Build log filename
 CvString CvCitySpecializationAI::GetLogFileName(CvString& playerName) const

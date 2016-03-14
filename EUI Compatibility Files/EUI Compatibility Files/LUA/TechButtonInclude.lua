@@ -29,19 +29,12 @@ local civ5_bnw_mode = bnw_mode and civ5_mode
 -- minor lua optimizations
 -------------------------------
 
---local math = math
---local os = os
 local pairs = pairs
---local ipairs = ipairs
---local pcall = pcall
---local print = print
---local select = select
---local string = string
---local table = table
+local ipairs = ipairs
 local tonumber = tonumber
 local tostring = tostring
-local type = type
---local unpack = unpack
+local unpack = unpack
+local table_insert = table.insert
 
 local UI = UI
 --local UIManager = UIManager
@@ -374,7 +367,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		if row then
 			local button = thisTechButtonInstance["B"..buttonNum]
 			if button then
-				table.insert( g_recentlyAddedUnlocks, row.Description )
+				table_insert( g_recentlyAddedUnlocks, row.Description )
 				button:SetText("")
 				adjustArtFunc( button, row, textureSize, ... )
 				buttonNum = buttonNum + 1

@@ -281,15 +281,21 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 #if defined(MOD_BALANCE_CORE)
 		m_pPlayer->SetCachedValueOfPeaceWithHuman(0);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+		LeaderheadAnimationTypes eAnimation = LEADERHEAD_ANIM_POSITIVE;
+#else
 		LeaderheadAnimationTypes eAnimation;
+#endif
 		// This signals Lua to do some interface cleanup, we only want to do this on the local machine.
 		if(GC.getGame().getActivePlayer() == eFromPlayer)
 			gDLL->DoClearDiplomacyTradeTable();
 
 		DiploUIStateTypes eUIState = NO_DIPLO_UI_STATE;
-
+#if defined(MOD_BALANCE_CORE)
+		const char* szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_ACCEPTABLE);
+#else
 		const char* szText = 0;
+#endif
 
 		// We made a demand and they gave in
 		if(kDeal.GetDemandingPlayer() == GetPlayer()->GetID())
@@ -331,6 +337,10 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 #else
 		// Good deal for us
 #endif
+#if defined(MOD_BALANCE_CORE)
+		if(kDeal.GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
+		{
+#endif
 		if(iDealValueToMe >= 100 ||
 		        iValueTheyreOffering > (iValueImOffering * 5))	// A deal can be generous if we're getting a lot overall, OR a lot more than we're giving up
 		{
@@ -345,6 +355,9 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 			eAnimation = LEADERHEAD_ANIM_YES;
 			GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, (iDealValueToMe / 2));
 		}
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 
 		if(GC.getGame().getActivePlayer() == eFromPlayer)
 			GC.GetEngineUserInterface()->SetOfferTradeRepeatCount(0);
@@ -353,6 +366,9 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		if(kDeal.GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
 		{
 			eAnimation = LEADERHEAD_ANIM_PEACEFUL;
+#if defined(MOD_BALANCE_CORE)
+			szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_ACCEPTABLE);
+#endif
 		}
 
 		// Send message back to diplo UI
@@ -3559,6 +3575,9 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		}
 		if(GET_PLAYER(eWithPlayer).isMinorCiv())
 		{
+			//Way less value.
+			iItemValue /= 50;
+
 			MinorCivApproachTypes eMinorApproachTowardsWarPlayer = pDiploAI->GetMinorCivApproach(eWithPlayer);
 			if(eMinorApproachTowardsWarPlayer == MINOR_CIV_APPROACH_FRIENDLY)
 			{
@@ -4374,6 +4393,21 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 						return INT_MAX;
 					}
 				}
+				//Let's look real quick to see if this is the world leader vote. If so, don't give ANYTHING away if we can win.
+				if(pProposal->GetEffects()->bDiplomaticVictory)
+				{
+					int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
+					int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
+					if(iOurVotes >= iVotesNeededToWin)
+					{
+						return INT_MAX;
+					}
+					//We can't win? Well, our votes should be super-duper valuable, then!
+					else
+					{
+						iValue *= 100;
+					}
+				}
 			}
 			int iVotesNeeded = 0;
 			int iTheirVotes = pLeague->CalculateStartingVotesForMember(eOtherPlayer);
@@ -4486,6 +4520,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 		if(pLeague)
 		{
+			int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
 			//We shouldn't ask them to vote on things that have to do with them personally.
 			CvEnactProposal* pProposal = pLeague->GetEnactProposal(iProposalID);
 			if (pProposal != NULL)
@@ -4502,9 +4537,18 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 						return INT_MAX;
 					}
 				}
+				//Let's look real quick to see if this is the world leader vote. If so, BUY EVERYTHING WE CAN if we can win with their votes in tow.
+				if(pProposal->GetEffects()->bDiplomaticVictory)
+				{
+					int iTheirVotes = pLeague->CalculateStartingVotesForMember(eOtherPlayer);
+					int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
+					if((iOurVotes + iTheirVotes) >= iVotesNeededToWin)
+					{
+						iValue *= 100;
+					}
+				}
 			}
 			int iVotesNeeded = 0;
-			int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
 			
 			PlayerTypes eLoopPlayer;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)

@@ -190,6 +190,8 @@ public:
 	int GetMonopolyModFlat() const;
 	int GetMonopolyModPercent() const;
 	bool IsDummy() const;
+	bool IsOpener() const;
+	bool IsFinisher() const;
 #endif
 	bool IsMilitaryFoodProduction() const;
 	int GetWoundedUnitDamageMod() const;
@@ -502,6 +504,8 @@ private:
 	int m_iMonopolyModFlat;
 	int m_iMonopolyModPercent;
 	bool m_bDummy;
+	bool m_bOpener;
+	bool m_bFinisher;
 #endif
 	bool m_bMilitaryFoodProduction;
 	bool m_bAlwaysSeeBarbCamps;

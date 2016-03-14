@@ -34,13 +34,11 @@ SET CityStateMinimumInfluence = '0'
 WHERE Type = 'BELIEF_PAPAL_PRIMACY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Pilgrimage (Now Apostolic Tradition
-UPDATE Belief_YieldChangePerForeignCity
-SET Yield = '0'
+DELETE FROM Belief_YieldChangePerForeignCity
 WHERE BeliefType = 'BELIEF_PILGRIMAGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- World Church (Now Theocratic Rule)
-UPDATE Belief_YieldChangePerXForeignFollowers
-SET ForeignFollowers = '0'
+DELETE FROM Belief_YieldChangePerXForeignFollowers
 WHERE BeliefType = 'BELIEF_WORLD_CHURCH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- NEW

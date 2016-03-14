@@ -14570,13 +14570,13 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 		iScore += (iBadNearby * 10);
 
 		//Big bonus if chokepoint
-		if(IsChokePoint())
-		{
-			iScore *= 33;
-		}
 		if(IsLandbridge(12,54))
 		{
 			iScore *= 33;
+		}
+		else if(IsChokePoint())
+		{
+			iScore *= 17;
 		}
 		return iScore;
 	}

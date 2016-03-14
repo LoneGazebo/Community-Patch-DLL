@@ -6,17 +6,19 @@
 -------------------------------------------------
 
 -- Minor optimizations
-local Map_GetPlot = Map.GetPlot
+local pairs = pairs
 local table_insert = table.insert
 local table_remove = table.remove
-local Controls_YieldStore = Controls.YieldStore
-local Controls_Scrap = Controls.Scrap
+
 local ContextPtr = ContextPtr
+local Controls_Scrap = Controls.Scrap
+local Controls_YieldStore = Controls.YieldStore
 local GridToWorld = GridToWorld
+local Map_GetPlot = Map.GetPlot
 local UI_RefreshYieldVisibleMode = UI.RefreshYieldVisibleMode
 
 -- Globals
-local g_AnchorCache = {}
+local g_ActiveAnchors = {}
 local g_AvailableAnchors = {}
 local g_AvailableImageInstances = {}
 local g_maxYieldID = ((YieldTypes or {}).NUM_YIELD_TYPES or 5) -1
@@ -116,14 +118,14 @@ function( x, y, isShown )
 	if plot and plot:IsRevealed( g_activeTeamID, false ) then
 
 		local index = plot:GetPlotIndex()
-		local anchor = g_AnchorCache[ index ]
+		local anchor = g_ActiveAnchors[ index ]
 
 		if isShown then
 			if anchor then
 				-- just show it
 				anchor.Anchor:ChangeParent( Controls_YieldStore )
 			else
-				-- create new anchor
+				-- set up anchor
 				anchor = table_remove( g_AvailableAnchors )
 				if anchor then
 					anchor.Anchor:ChangeParent( Controls_YieldStore )
@@ -131,18 +133,18 @@ function( x, y, isShown )
 					anchor = {}
 					ContextPtr:BuildInstanceForControl( "AnchorInstance", anchor, Controls_YieldStore )
 				end
-				g_AnchorCache[ index ] = anchor
+				g_ActiveAnchors[ index ] = anchor
 				local a,b,c= GridToWorld( x, y )
 				anchor.Anchor:SetWorldPositionVal( a,b,c ) -- compatibility with BE: SetHexPosition deprecated
 				-- add yields
 				BuildAnchorYields( plot, anchor )
 			end
-			anchor[ 0 ] = true -- visible
+			anchor.IsVisible = true
 
 		elseif anchor then
 			-- just hide it
 			anchor.Anchor:ChangeParent( Controls_Scrap )
-			anchor[ 0 ] = false -- not visible
+			anchor.IsVisible = false
 		end
 	end
 
@@ -157,16 +159,15 @@ function( x, y )
 	local plot = Map_GetPlot( x, y )
 	if plot and plot:IsRevealed( g_activeTeamID, false ) then
 		local index = plot:GetPlotIndex()
-		local anchor = g_AnchorCache[ index ]
+		local anchor = g_ActiveAnchors[ index ]
 		if anchor then
 			RecycleAnchorYields( anchor )
-			-- visible ?
-			if anchor[ 0 ] then
+			if anchor.IsVisible then
 				BuildAnchorYields( plot, anchor )
 			else
 				-- recycle anchor
 				table_insert( g_AvailableAnchors, anchor )
-				g_AnchorCache[ index ] = nil
+				g_ActiveAnchors[ index ] = nil
 			end
 		end
 	end
@@ -180,15 +181,15 @@ function()-- activePlayerID, prevActivePlayerID )
 
 	g_activeTeamID = Game.GetActiveTeam()
 
-	for index, anchor in pairs( g_AnchorCache ) do
+	for _, anchor in pairs( g_ActiveAnchors ) do
 		RecycleAnchorYields( anchor )
 		-- recycle anchor
 		anchor.Anchor:ChangeParent( Controls_Scrap )
 		table_insert( g_AvailableAnchors, anchor )
-   	end
+	end
 
 	-- zap anchor cache
-	g_AnchorCache = {}
+	g_ActiveAnchors = {}
 
 	UI_RefreshYieldVisibleMode()
 end)

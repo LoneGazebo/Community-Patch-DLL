@@ -94,7 +94,7 @@ CvGameInitialItemsOverrides::CvGameInitialItemsOverrides()
 
 //------------------------------------------------------------------------------
 CvGame::CvGame() :
-	m_jonRand(false)
+	m_jonRand()
 	, m_endTurnTimer()
 	, m_endTurnTimerSemaphore(0)
 	, m_curTurnTimer()
@@ -176,11 +176,6 @@ void CvGame::init(HandicapTypes eHandicap)
 	//--------------------------------
 	// Init saved data
 	reset(eHandicap);
-
-	if(!isGameMultiPlayer())
-	{
-		m_jonRand.setCallStackDebuggingEnabled(false);
-	}
 
 	m_mapRand.init(CvPreGame::mapRandomSeed() % 73637381);
 	m_jonRand.init(CvPreGame::syncRandomSeed() % 52319761);
@@ -10431,11 +10426,7 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_aszGreatPeopleBorn;
 
 	m_mapRand.read(kStream);
-	bool wasCallStackDebuggingEnabled = m_jonRand.callStackDebuggingEnabled();
 	m_jonRand.read(kStream);
-	m_jonRand.clearCallstacks();
-	m_jonRand.setCallStackDebuggingEnabled(wasCallStackDebuggingEnabled);
-
 	{
 		clearReplayMessageMap();
 

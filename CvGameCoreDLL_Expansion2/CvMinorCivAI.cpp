@@ -1735,9 +1735,9 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 
 			pLog->Msg(strOutBuf);
 
-			OutputDebugString("\n");
-			OutputDebugString(strOutBuf);
-			OutputDebugString("\n");
+			//OutputDebugString("\n");
+			//OutputDebugString(strOutBuf);
+			//OutputDebugString("\n");
 		}
 	}
 }

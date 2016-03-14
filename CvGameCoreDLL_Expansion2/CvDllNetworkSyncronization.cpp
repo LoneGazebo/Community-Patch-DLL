@@ -66,7 +66,6 @@ void CvDllNetworkSyncronization::ClearPlotDeltas()
 //------------------------------------------------------------------------------
 void CvDllNetworkSyncronization::ClearRandomDeltas()
 {
-	GC.getGame().getJonRand().clearCallstacks();
 }
 //------------------------------------------------------------------------------
 void CvDllNetworkSyncronization::ClearUnitDeltas()

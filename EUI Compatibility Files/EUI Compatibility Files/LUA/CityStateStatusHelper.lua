@@ -1,13 +1,4 @@
 print("This is the modded CityStateStatusHelper from EUI - CBP- CSD")
--- modified by bc1 from 1.0.3.144 brave new world & civ BE code
--- code is common using gk_mode, bnw_mode, and civ5_mode switches
-
-local gk_mode = Game.GetReligionName ~= nil
-local bnw_mode = Game.GetActiveLeague ~= nil
-local civ5_mode = type( MouseOverStrategicViewResource ) == "function"
-local L = Locale.ConvertTextKey
-local newLine = civ5_mode and "[NEWLINE]" or "/n"
-
 ------------------------------------------------------
 -- CityStateStatusHelper.lua
 -- Author: Anton Strenger
@@ -15,10 +6,37 @@ local newLine = civ5_mode and "[NEWLINE]" or "/n"
 -- Consolidation of code associated with displaying
 -- the friendship status of a player with a city-state
 ------------------------------------------------------
+-- modified by bc1 from 1.0.3.144 brave new world & civ BE code
+-- code is common using gk_mode, bnw_mode, and civ5_mode switches
+------------------------------------------------------
+
+local pairs = pairs
+local print = print
+local math_abs = math.abs
+local math_min = math.min
+local table_insert = table.insert
+local table_concat = table.concat
+
+local Game_GetReligionName = Game.GetReligionName
+local Game_GetGameTurn = Game.GetGameTurn
+local GameDefines = GameDefines
+local MinorCivTraitTypes = MinorCivTraitTypes
+local MinorCivQuestTypes = MinorCivQuestTypes
+local L = Locale.ConvertTextKey
+local Players = Players
+local Teams = Teams
 
 include( "EUI_utilities" )
 local IconHookup = EUI.IconHookup
+local GameInfo = EUI.GameInfoCache
 GetGreatPersonQuestIconText = EUI.GreatPeopleIcon
+local GetGreatPersonQuestIconText = GetGreatPersonQuestIconText
+
+local gk_mode = type( Game_GetReligionName ) == "function"
+local bnw_mode = type( Game.GetActiveLeague ) == "function"
+local civ5_mode = type( MouseOverStrategicViewResource ) == "function"
+
+local newLine = civ5_mode and "[NEWLINE]" or "/n"
 
 --[[
 local GetCityStateStatusRow = GetCityStateStatusRow
@@ -43,8 +61,8 @@ local GetCityStateStatusAlly = GetCityStateStatusAlly
 ------------------------------------------------------
 -- Global Constants
 ------------------------------------------------------
-local kPosInfRange = math.abs( GameDefines.FRIENDSHIP_THRESHOLD_ALLIES - GameDefines.FRIENDSHIP_THRESHOLD_NEUTRAL )
-local kNegInfRange = math.abs( GameDefines.MINOR_FRIENDSHIP_AT_WAR - GameDefines.FRIENDSHIP_THRESHOLD_NEUTRAL )
+local kPosInfRange = math_abs( GameDefines.FRIENDSHIP_THRESHOLD_ALLIES - GameDefines.FRIENDSHIP_THRESHOLD_NEUTRAL )
+local kNegInfRange = math_abs( GameDefines.MINOR_FRIENDSHIP_AT_WAR - GameDefines.FRIENDSHIP_THRESHOLD_NEUTRAL )
 local kPosBarRange = 81
 local kNegBarRange = 81
 local kBarIconAtlas = "CITY_STATE_INFLUENCE_METER_ICON_ATLAS"
@@ -52,40 +70,40 @@ local kBarIconNeutralIndex = 4
 
 local kMinorWar, kMinorAllies, kMinorFriends, kMinorAfraid, kMinorAngry, kMinorNeutral, ktQuestsDisplayOrder
 local ktQuestsIcon = {
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_ROUTE or -1 ] = function() return "[ICON_CONNECTED]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP or -1 ] = function() return "[ICON_WAR]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONNECT_RESOURCE or -1 ] = function(i) local row = GameInfo.Resources[i] return row and row.IconString or "" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_ROUTE or false ] = function() return "[ICON_CONNECTED]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP or false ] = function() return "[ICON_WAR]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONNECT_RESOURCE or false ] = function(i) local row = GameInfo.Resources[i] return row and row.IconString or "" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_WONDER ]	= function() return "[ICON_GOLDEN_AGE]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_GREAT_PERSON or -1 ] = function(i) return GetGreatPersonQuestIconText(i) end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CITY_STATE or -1 ] = function() return "[ICON_IDEOLOGY_AUTOCRACY]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_PLAYER or -1 ] = function(i) return Players[i]:IsMinorCiv() and "[ICON_CITY_STATE]" or "[ICON_CAPITAL]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_NATURAL_WONDER or -1 ] = function() return "[ICON_HAPPINESS_1]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_GIVE_GOLD or -1 ] = function() return "[ICON_GOLD]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_PLEDGE_TO_PROTECT or -1 ] = function() return "[ICON_STRENGTH]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_CULTURE or -1 ] = function() return "[ICON_CULTURE]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH or -1 ] = function() return "[ICON_PEACE]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS or -1 ] = function() return "[ICON_RESEARCH]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST or -1 ] = function() return "[ICON_INVEST]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_BULLY_CITY_STATE or -1 ] = function() return "[ICON_PIRATE]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_DENOUNCE_MAJOR or -1 ] = function() return "[ICON_DENOUNCE]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_SPREAD_RELIGION or -1 ] = function(i) local row = GameInfo.Religions[i] return row and row.IconString or "" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE or -1 ] = function() return "[ICON_INTERNATIONAL_TRADE]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_GREAT_PERSON or false ] = function(i) return GetGreatPersonQuestIconText(i) end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CITY_STATE or false ] = function() return "[ICON_IDEOLOGY_AUTOCRACY]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_PLAYER or false ] = function(i) return Players[i]:IsMinorCiv() and "[ICON_CITY_STATE]" or "[ICON_CAPITAL]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_NATURAL_WONDER or false ] = function() return "[ICON_HAPPINESS_1]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_GIVE_GOLD or false ] = function() return "[ICON_GOLD]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_PLEDGE_TO_PROTECT or false ] = function() return "[ICON_STRENGTH]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_CULTURE or false ] = function() return "[ICON_CULTURE]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH or false ] = function() return "[ICON_PEACE]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS or false ] = function() return "[ICON_RESEARCH]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST or false ] = function() return "[ICON_INVEST]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_BULLY_CITY_STATE or false ] = function() return "[ICON_PIRATE]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_DENOUNCE_MAJOR or false ] = function() return "[ICON_DENOUNCE]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_SPREAD_RELIGION or false ] = function(i) local row = GameInfo.Religions[i] return row and row.IconString or "" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE or false ] = function() return "[ICON_INTERNATIONAL_TRADE]" end,
 -- CBP
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_WAR or -1 ] = function() return "[ICON_SILVER_FIST]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER or -1 ] = function() return "[ICON_TRADE_WHITE]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE or -1 ] = function() return "[ICON_CITY_STATE]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE or -1 ] = function() return "[ICON_INFLUENCE]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM or -1 ] = function() return "[ICON_TOURISM]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY or -1 ] = function() return "[ICON_RES_ARTIFACTS]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION or -1 ] = function() return "[ICON_TURNS_REMAINING]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION or -1 ] = function() return "[ICON_OCCUPIED]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_HORDE or -1 ] = function() return "[ICON_HAPPINESS_3]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION or -1 ] = function() return "[ICON_HAPPINESS_4]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT or -1 ] = function() return "[ICON_RANGE_STRENGTH]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS or -1 ] = function() return "[ICON_PRODUCTION]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM or -1 ] = function() return "[ICON_VIEW_CITY]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY or -1 ] = function() return "[ICON_INQUISITOR]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY or -1 ] = function() return "[ICON_VICTORY_DOMINATION]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_WAR or false ] = function() return "[ICON_SILVER_FIST]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER or false ] = function() return "[ICON_TRADE_WHITE]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE or false ] = function() return "[ICON_CITY_STATE]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE or false ] = function() return "[ICON_INFLUENCE]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM or false ] = function() return "[ICON_TOURISM]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY or false ] = function() return "[ICON_RES_ARTIFACTS]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION or false ] = function() return "[ICON_TURNS_REMAINING]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION or false ] = function() return "[ICON_OCCUPIED]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_HORDE or false ] = function() return "[ICON_HAPPINESS_3]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION or false ] = function() return "[ICON_HAPPINESS_4]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT or false ] = function() return "[ICON_RANGE_STRENGTH]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS or false ] = function() return "[ICON_PRODUCTION]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM or false ] = function() return "[ICON_VIEW_CITY]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY or false ] = function() return "[ICON_INQUISITOR]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY or false ] = function() return "[ICON_VICTORY_DOMINATION]" end,
 -- END
 } ktQuestsIcon[-1] = nil
 
@@ -93,41 +111,41 @@ if gk_mode then
 	-- The order of precedence in which the quest icons and tooltip points are displayed
 	ktQuestsDisplayOrder = {
 		-- Global quests are first
-		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_CULTURE,	-- g&k+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH,	-- g&k+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS,	-- g&k+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST,		-- g&k+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP,		-- vanilla+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_HORDE, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_CULTURE or false,	-- g&k+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH or false,	-- g&k+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS or false,	-- g&k+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST or false,		-- g&k+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM or false, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE or false, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP or false,		-- vanilla+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_HORDE or false, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION or false, -- CSD
 		-- Then personal support quests
-		MinorCivQuestTypes.MINOR_CIV_QUEST_GIVE_GOLD,		-- g&k+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_PLEDGE_TO_PROTECT,	-- g&k+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_DENOUNCE_MAJOR,	-- g&k+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_WAR, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_GIVE_GOLD or false,		-- g&k+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_PLEDGE_TO_PROTECT or false,	-- g&k+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_DENOUNCE_MAJOR or false,	-- g&k+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_WAR or false, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION or false, -- CSD
 		-- Then other pesonal quests
-		MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT,		-- CBP+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS,		-- CBP+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM,		-- CBP+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY,		-- CBP+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY,		-- CBP+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE,		-- bnw+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_SPREAD_RELIGION,	-- g&k+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_BULLY_CITY_STATE,	-- g&k+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_NATURAL_WONDER,	-- vanilla+ but NOT civBE
-		MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_PLAYER,		-- vanilla+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CITY_STATE,	-- vanilla+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_GREAT_PERSON,	-- vanilla+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_WONDER,	-- vanilla+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_CONNECT_RESOURCE,	-- vanilla+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_ROUTE,		-- vanilla+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT or false,		-- CBP+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS or false,		-- CBP+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM or false,		-- CBP+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY or false,		-- CBP+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY or false,		-- CBP+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE or false,		-- bnw+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_SPREAD_RELIGION or false,	-- g&k+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_BULLY_CITY_STATE or false,	-- g&k+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_NATURAL_WONDER or false,	-- vanilla+ but NOT civBE
+		MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_PLAYER or false,		-- vanilla+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CITY_STATE or false,	-- vanilla+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE or false, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_GREAT_PERSON or false,	-- vanilla+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_WONDER or false,	-- vanilla+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_CONNECT_RESOURCE or false,	-- vanilla+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_ROUTE or false,		-- vanilla+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY or false, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION or false, -- CSD
 	}
 	kMinorWar = GameInfo.MinorCivTraits_Status.MINOR_FRIENDSHIP_STATUS_WAR
 	kMinorAllies = GameInfo.MinorCivTraits_Status.MINOR_FRIENDSHIP_STATUS_ALLIES
@@ -197,8 +215,8 @@ function UpdateCityStateStatusBar(majorPlayerID, minorPlayerID, posBarCtrl, negB
 		local iInf = minorPlayer:GetMinorCivFriendshipWithMajor(majorPlayerID)
 
 		if iInf >= 0 then
-			local percentFull = math.abs(iInf) / kPosInfRange
-			local xOffset = math.min(percentFull * kPosBarRange, kPosBarRange)
+			local percentFull = math_abs(iInf) / kPosInfRange
+			local xOffset = math_min(percentFull * kPosBarRange, kPosBarRange)
 			barMarkerCtrl:SetOffsetX(xOffset)
 			if gk_mode and info and info.PositiveStatusMeter then
 				posBarCtrl:SetTexture(info.PositiveStatusMeter)
@@ -207,8 +225,8 @@ function UpdateCityStateStatusBar(majorPlayerID, minorPlayerID, posBarCtrl, negB
 			posBarCtrl:SetHide(false)
 			negBarCtrl:SetHide(true)
 		else
-			local percentFull = math.abs(iInf) / kNegInfRange
-			local xOffset = - math.min(percentFull * kNegBarRange, kNegBarRange)
+			local percentFull = math_abs(iInf) / kNegInfRange
+			local xOffset = - math_min(percentFull * kNegBarRange, kNegBarRange)
 			barMarkerCtrl:SetOffsetX(xOffset)
 			if gk_mode and info and info.NegativeStatusMeter then
 				negBarCtrl:SetTexture(info.NegativeStatusMeter)
@@ -222,7 +240,7 @@ function UpdateCityStateStatusBar(majorPlayerID, minorPlayerID, posBarCtrl, negB
 			-- Bubble icon for meter
 			local size = barMarkerCtrl:GetSize().x
 			-- Special case when INF = 0
-			if (iInf == 0) then
+			if iInf == 0 then
 				IconHookup(kBarIconNeutralIndex, size, kBarIconAtlas, barMarkerCtrl)
 			elseif info and info.StatusMeterIconAtlasIndex then
 				IconHookup(info.StatusMeterIconAtlasIndex, size, kBarIconAtlas, barMarkerCtrl)
@@ -234,10 +252,10 @@ function UpdateCityStateStatusBar(majorPlayerID, minorPlayerID, posBarCtrl, negB
 end
 
 function UpdateCityStateStatusIconBG(majorPlayerID, minorPlayerID, iconBGCtrl)
-	local info = GetCityStateStatusRow(majorPlayerID, minorPlayerID)
+	local row = GetCityStateStatusRow(majorPlayerID, minorPlayerID)
 
-	if info and info.StatusIcon then
-		iconBGCtrl:SetTexture( info.StatusIcon )
+	if row and row.StatusIcon then
+		iconBGCtrl:SetTexture( row.StatusIcon )
 	end
 end
 
@@ -256,7 +274,6 @@ function GetCityStateStatusText( majorPlayerID, minorPlayerID )
 		local majorTeamID = majorPlayer:GetTeam()
 		local minorTeamID = minorPlayer:GetTeam()
 		local majorTeam = Teams[majorTeamID]
-		local minorTeam = Teams[minorTeamID]
 
 		local isAtWar = majorTeam:IsAtWar(minorTeamID)
 		local majorInfluenceWithMinor = minorPlayer:GetMinorCivFriendshipWithMajor(majorPlayerID)
@@ -275,7 +292,7 @@ function GetCityStateStatusText( majorPlayerID, minorPlayerID )
 		elseif minorPlayer:IsPeaceBlocked(majorTeamID) then		-- Peace blocked by being at war with ally
 			strStatusText = "[COLOR_NEGATIVE_TEXT]" .. L("TXT_KEY_PEACE_BLOCKED")
 
-		elseif (isAtWar) then		-- War
+		elseif isAtWar then		-- War
 			strStatusText = "[COLOR_NEGATIVE_TEXT]" .. L("TXT_KEY_WAR")
 
 		elseif majorInfluenceWithMinor < GameDefines.FRIENDSHIP_THRESHOLD_NEUTRAL then
@@ -309,17 +326,16 @@ function GetCityStateResourceExports( minorPlayer )
 	local resourceExports = {}
 
 	if minorPlayer and minorPlayer.GetResourceExport then
-		for resource in GameInfo.Resources("ResourceClassType<>'RESOURCECLASS_BONUS'") do
-
-			local resourceExport = minorPlayer:GetResourceExport(resource.ID)
-
-			if resourceExport > 0 then
-
-				table.insert( resourceExports, "[COLOR_POSITIVE_TEXT]" .. resourceExport .. resource.IconString .. "[ENDCOLOR] " .. L(resource.Description) )
+		for resource in GameInfo.Resources() do
+			if resource.ResourceClassType ~= "RESOURCECLASS_BONUS" then
+				local resourceExport = minorPlayer:GetResourceExport(resource.ID)
+				if resourceExport > 0 then
+					table_insert( resourceExports, "[COLOR_POSITIVE_TEXT]" .. resourceExport .. resource.IconString .. "[ENDCOLOR] " .. L(resource.Description) )
+				end
 			end
 		end
 	end
-	return table.concat( resourceExports, ", ")
+	return table_concat( resourceExports, ", ")
 end
 
 function GetCityStateBonuses( majorPlayerID, minorPlayerID )
@@ -331,48 +347,48 @@ function GetCityStateBonuses( majorPlayerID, minorPlayerID )
 		local capitalFoodBonus = minorPlayer:GetCurrentCapitalFoodBonus(majorPlayerID) / 100
 		local otherCityFoodBonus = minorPlayer:GetCurrentOtherCityFoodBonus(majorPlayerID) / 100
 		if capitalFoodBonus ~= 0 or otherCityFoodBonus ~= 0 then
-			table.insert( tips, L("TXT_KEY_CSTATE_FOOD_BONUS", capitalFoodBonus, otherCityFoodBonus) )
+			table_insert( tips, L("TXT_KEY_CSTATE_FOOD_BONUS", capitalFoodBonus, otherCityFoodBonus) )
 		end
 
 		local unitSpawnEstimate = minorPlayer:GetCurrentSpawnEstimate(majorPlayerID)
 		if unitSpawnEstimate ~= 0 then
-			table.insert( tips, L("TXT_KEY_CSTATE_MILITARY_BONUS", unitSpawnEstimate) )
+			table_insert( tips, L("TXT_KEY_CSTATE_MILITARY_BONUS", unitSpawnEstimate) )
 		end
 
 		local scienceBonusTimes100 = minorPlayer:GetCurrentScienceFriendshipBonusTimes100(majorPlayerID)
 		if scienceBonusTimes100 ~= 0 then
-			table.insert( tips, L("TXT_KEY_CSTATE_SCIENCE_BONUS", scienceBonusTimes100 / 100) )
+			table_insert( tips, L("TXT_KEY_CSTATE_SCIENCE_BONUS", scienceBonusTimes100 / 100) )
 		end
 
 		if gk_mode then
 			local cultureBonus = minorPlayer:GetMinorCivCurrentCultureBonus(majorPlayerID)
 			if cultureBonus ~= 0 then
-				table.insert( tips, L("TXT_KEY_CSTATE_CULTURE_BONUS", cultureBonus) )
+				table_insert( tips, L("TXT_KEY_CSTATE_CULTURE_BONUS", cultureBonus) )
 			end
 
 			local happinessBonus = civ5_mode and minorPlayer:GetMinorCivCurrentHappinessBonus(majorPlayerID) or minorPlayer:GetMinorCivCurrentHealthBonus(majorPlayerID)
 			if happinessBonus ~= 0 then
-				table.insert( tips, L(civ5_mode and "TXT_KEY_CSTATE_HAPPINESS_BONUS" or "TXT_KEY_CSTATE_HEALTH_BONUS", happinessBonus) )
+				table_insert( tips, L(civ5_mode and "TXT_KEY_CSTATE_HAPPINESS_BONUS" or "TXT_KEY_CSTATE_HEALTH_BONUS", happinessBonus) )
 			end
 
 			local faithBonus = minorPlayer:GetMinorCivCurrentFaithBonus(majorPlayerID)
 			if faithBonus ~= 0 then
-				table.insert( tips,  L("TXT_KEY_CSTATE_FAITH_BONUS", faithBonus) )
+				table_insert( tips,  L("TXT_KEY_CSTATE_FAITH_BONUS", faithBonus) )
 			end
 
 			--CBP
 			local goldBonus = minorPlayer:GetMinorCivCurrentGoldBonus(majorPlayerID)
 			if goldBonus ~= 0 then
-				table.insert( tips,  L("TXT_KEY_CSTATE_GOLD_BONUS", goldBonus) )
+				table_insert( tips,  L("TXT_KEY_CSTATE_GOLD_BONUS", goldBonus) )
 			end
 			local scienceBonus = minorPlayer:GetMinorCivCurrentScienceBonus(majorPlayerID)
 			if scienceBonus ~= 0 then
-				table.insert( tips,  L("TXT_KEY_CSTATE_SCIENCE_BONUS", scienceBonus) )
+				table_insert( tips,  L("TXT_KEY_CSTATE_SCIENCE_BONUS", scienceBonus) )
 			end
 		else
 			local cultureBonus = minorPlayer:GetCurrentCultureBonus(majorPlayerID);
 			if cultureBonus ~= 0 then
-				table.insert( tips, L("TXT_KEY_CSTATE_CULTURE_BONUS", cultureBonus) )
+				table_insert( tips, L("TXT_KEY_CSTATE_CULTURE_BONUS", cultureBonus) )
 			end
 		end
 
@@ -381,7 +397,7 @@ function GetCityStateBonuses( majorPlayerID, minorPlayerID )
 
 		if minorPlayer:IsAllies(majorPlayerID) and #resourceExports > 0 then
 
-			table.insert( tips, L( "TXT_KEY_CSTATE_RESOURCES_RECEIVED", resourceExports ) )
+			table_insert( tips, L( "TXT_KEY_CSTATE_RESOURCES_RECEIVED", resourceExports ) )
 		end
 	end
 	return tips
@@ -399,51 +415,49 @@ function GetCityStateStatusToolTip( majorPlayerID, minorPlayerID, isFullInfo )
 		local majorTeam = Teams[majorTeamID]
 		local minorTeam = Teams[minorTeamID]
 
-		local isAtWar = majorTeam:IsAtWar(minorTeamID)
-
 		local strShortDesc = minorPlayer:GetCivilizationShortDescription()
 		local influenceAccumulated = minorPlayer:GetMinorCivFriendshipWithMajor(majorPlayerID)
 
 		-- Name
 		local tip = strShortDesc
 		-- Resources
-		for resource in GameInfo.Resources( "ResourceClassType<>'RESOURCECLASS_BONUS'" ) do
-
-			local resourceForExport = minorPlayer:GetResourceExport(resource.ID)
-						+ minorPlayer:GetNumResourceAvailable(resource.ID, false)
-
-			if resourceForExport > 0 then
-				tip = tip .. " " .. resourceForExport .. resource.IconString
+		for resource in GameInfo.Resources() do
+			if resource.ResourceClassType ~= "RESOURCECLASS_BONUS" then
+				local resourceForExport = minorPlayer:GetResourceExport(resource.ID)
+							+ minorPlayer:GetNumResourceAvailable(resource.ID, false)
+				if resourceForExport > 0 then
+					tip = tip .. " " .. resourceForExport .. resource.IconString
+				end
 			end
 		end
 		-- Status
 		tip = tip .. " " .. GetCityStateStatusText( majorPlayerID, minorPlayerID )
-		table.insert( tips, tip )
+		table_insert( tips, tip )
 
 		-- Influence change
 		if gk_mode then
 			local influenceAnchor = minorPlayer:GetMinorCivFriendshipAnchorWithMajor(majorPlayerID)
 			if influenceAccumulated ~= influenceAnchor then
-				table.insert( tips, L( "TXT_KEY_CSTATE_INFLUENCE_RATE", minorPlayer:GetFriendshipChangePerTurnTimes100(majorPlayerID) / 100, influenceAnchor ) )
+				table_insert( tips, L( "TXT_KEY_CSTATE_INFLUENCE_RATE", minorPlayer:GetFriendshipChangePerTurnTimes100(majorPlayerID) / 100, influenceAnchor ) )
 			end
 			-- Bullying
 			if minorPlayer:CanMajorBullyGold(majorPlayerID) then
-				table.insert( tips, L"TXT_KEY_CSTATE_CAN_BULLY" )
+				table_insert( tips, L"TXT_KEY_CSTATE_CAN_BULLY" )
 			else
-				table.insert( tips, L"TXT_KEY_CSTATE_CANNOT_BULLY" )
+				table_insert( tips, L"TXT_KEY_CSTATE_CANNOT_BULLY" )
 			end
 		end
 -- CBP
 		local iJerk = minorPlayer:GetJerk(majorPlayerID);
 		if(iJerk > 0) then
-			table.insert( tips, L("TXT_KEY_CSTATE_JERK_STATUS", iJerk ))
+			table_insert( tips, L("TXT_KEY_CSTATE_JERK_STATUS", iJerk ))
 		end
 -- END
 		if isFullInfo then
 			-- Bonuses
 			local bonuses = GetCityStateBonuses( majorPlayerID, minorPlayerID )
 			if #bonuses > 0 then
-				table.insert( tips, table.concat( bonuses, newLine ) )
+				table_insert( tips, table_concat( bonuses, newLine ) )
 			end
 
 			-- Protected by anyone?
@@ -455,11 +469,11 @@ function GetCityStateStatusToolTip( majorPlayerID, minorPlayerID, isFullInfo )
 					and majorTeam:IsHasMet(player:GetTeam())
 					and player:IsProtectingMinor(minorPlayerID)
 				then
-					table.insert( protectors, player:GetCivilizationShortDescription() )
+					table_insert( protectors, player:GetCivilizationShortDescription() )
 				end
 			end
 			if #protectors > 0 then
-				table.insert( tips, L"TXT_KEY_POP_CSTATE_PLEDGE_TO_PROTECT" .. ": " .. table.concat(protectors, ", ") )
+				table_insert( tips, L"TXT_KEY_POP_CSTATE_PLEDGE_TO_PROTECT" .. ": " .. table_concat(protectors, ", ") )
 			end
 
 			-- At war with anyone ?
@@ -472,11 +486,11 @@ function GetCityStateStatusToolTip( majorPlayerID, minorPlayerID, isFullInfo )
 					and majorTeam:IsHasMet(player:GetTeam())
 					and minorTeam:IsAtWar(player:GetTeam())
 				then
-					table.insert( wars, player:GetCivilizationShortDescription() )
+					table_insert( wars, player:GetCivilizationShortDescription() )
 				end
 			end
 			if #wars > 0 then
-				table.insert( tips, L("TXT_KEY_AT_WAR_WITH", table.concat(wars, ", ") ) )
+				table_insert( tips, L("TXT_KEY_AT_WAR_WITH", table_concat(wars, ", ") ) )
 			end
 
 		end
@@ -484,7 +498,7 @@ function GetCityStateStatusToolTip( majorPlayerID, minorPlayerID, isFullInfo )
 		print("Lua error - invalid player index")
 	end
 
-	return table.concat( tips, newLine )
+	return table_concat( tips, newLine )
 end
 function GetAllyText( majorPlayerID, minorPlayerID )
 
@@ -552,7 +566,7 @@ function GetAllyToolTip( majorPlayerID, minorPlayerID )
 				-- Bonuses
 				local bonuses = GetCityStateBonuses( majorPlayerID, minorPlayerID )
 				if #bonuses > 0 then
-					toolTip = toolTip .. " " .. table.concat( bonuses, " " )
+					toolTip = toolTip .. " " .. table_concat( bonuses, " " )
 				end
 			end
 		-- No ally
@@ -592,7 +606,7 @@ if gk_mode then
 			end
 			-- END
 
-			for i, questID in pairs(ktQuestsDisplayOrder) do
+			for _, questID in pairs(ktQuestsDisplayOrder) do
 
 				if isMinorCivQuestForPlayer( minorPlayer, majorPlayerID, questID ) then
 					sIconText = sIconText .. ktQuestsIcon[questID]( minorPlayer:GetQuestData1(majorPlayerID, questID) )
@@ -702,7 +716,7 @@ local function QuestString(majorPlayerID, minorPlayer, questID, questData1)
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_DENOUNCE_MAJOR then
 			return L( "TXT_KEY_CITY_STATE_QUEST_DENOUNCE_MAJOR_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey() )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_SPREAD_RELIGION then
-			return L( "TXT_KEY_CITY_STATE_QUEST_SPREAD_RELIGION_FORMAL", Game.GetReligionName(questData1) )
+			return L( "TXT_KEY_CITY_STATE_QUEST_SPREAD_RELIGION_FORMAL", Game_GetReligionName(questData1) )
 -- CBP
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_WAR then
 			return L( "TXT_KEY_CITY_STATE_QUEST_WAR_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey() )
@@ -750,15 +764,15 @@ if gk_mode then
 			-- CBP
 			--Married
 			if minorPlayer:IsMarried(majorPlayerID) then
-				table.insert( tips,"[ICON_BULLET]" .. L("TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED_TT") )
+				table_insert( tips,"[ICON_BULLET]" .. L("TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED_TT") )
 			end
 			-- END
-			for i, questID in pairs(ktQuestsDisplayOrder) do
+			for _, questID in pairs(ktQuestsDisplayOrder) do
 
 				if isMinorCivQuestForPlayer( minorPlayer, majorPlayerID, questID ) then
 					local questData1 = minorPlayer:GetQuestData1(majorPlayerID, questID)
 					local questString = QuestString(majorPlayerID, minorPlayer, questID, questData1)
-					local turnsRemaining = minorPlayer:GetQuestTurnsRemaining(majorPlayerID, questID, Game.GetGameTurn() - 1)	-- add 1 since began on CS's turn (1 before), and avoids "0 turns remaining"
+					local turnsRemaining = minorPlayer:GetQuestTurnsRemaining(majorPlayerID, questID, Game_GetGameTurn() - 1)	-- add 1 since began on CS's turn (1 before), and avoids "0 turns remaining"
 					if turnsRemaining >= 0 then
 						questString = questString .. " " .. L( "TXT_KEY_CITY_STATE_QUEST_TURNS_REMAINING_FORMAL", turnsRemaining )
 					end
@@ -768,23 +782,23 @@ if gk_mode then
 						questString = questString .. "[NEWLINE]" .. questreward
 					end
 					--END
-					table.insert( tips, ktQuestsIcon[questID]( questData1 ) .. " " .. questString )
+					table_insert( tips, ktQuestsIcon[questID]( questData1 ) .. " " .. questString )
 				end
 			end
 
 			-- Threatening Barbarians event
 			if minorPlayer:IsThreateningBarbariansEventActiveForPlayer(majorPlayerID) then
-				table.insert( tips,"[ICON_RAZING]" .. L("TXT_KEY_CITY_STATE_QUEST_INVADING_BARBS_FORMAL") )
+				table_insert( tips,"[ICON_RAZING]" .. L("TXT_KEY_CITY_STATE_QUEST_INVADING_BARBS_FORMAL") )
 			end
 
 			-- Proxy War event
 			if bnw_mode and minorPlayer:IsProxyWarActiveForMajor(majorPlayerID) then
-				table.insert( tips,"[ICON_RESISTANCE]" .. L("TXT_KEY_CITY_STATE_QUEST_GIFT_UNIT_FORMAL") )
+				table_insert( tips,"[ICON_RESISTANCE]" .. L("TXT_KEY_CITY_STATE_QUEST_GIFT_UNIT_FORMAL") )
 			end
 
 			-- CBP
 			if (bnw_mode and minorPlayer:GetCoupCooldown() > 0) then
-				table.insert( tips,"[ICON_BULLET]" .. L("TXT_KEY_CITY_STATE_QUEST_COUP_COOLDOWN_TT", minorPlayer:GetCoupCooldown()) )
+				table_insert( tips,"[ICON_BULLET]" .. L("TXT_KEY_CITY_STATE_QUEST_COUP_COOLDOWN_TT", minorPlayer:GetCoupCooldown()) )
 			end
 			-- END
 		else
@@ -792,7 +806,7 @@ if gk_mode then
 		end -- minorPlayer
 
 		if #tips > 0 then
-			return table.concat( tips, newLine )
+			return table_concat( tips, newLine )
 		else
 			return L("TXT_KEY_CITY_STATE_QUEST_NONE_FORMAL")
 		end

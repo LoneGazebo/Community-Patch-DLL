@@ -43,6 +43,7 @@ INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SE
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_AMERICAN_MINUTEMAN','BUILDINGCLASS_ARMORY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_FRENCH_MUSKETEER','BUILDINGCLASS_ARMORY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_MUSKETMAN','BUILDINGCLASS_ARMORY';
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_SPANISH_TERCIO','BUILDINGCLASS_ARMORY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_CUIRASSIER','BUILDINGCLASS_ARMORY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_INDIAN_WARELEPHANT','BUILDINGCLASS_ARMORY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ZULU_IMPI','BUILDINGCLASS_ARMORY'; 
@@ -74,7 +75,8 @@ INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SE
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_MACHINE_GUN','BUILDINGCLASS_MILITARY_ACADEMY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BRAZILIAN_PRACINHA','BUILDINGCLASS_MILITARY_ACADEMY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_GREAT_WAR_INFANTRY','BUILDINGCLASS_MILITARY_ACADEMY'; 
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_TRIPLANE','BUILDINGCLASS_MILITARY_ACADEMY'; 
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_TRIPLANE','BUILDINGCLASS_MILITARY_ACADEMY';
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ANTI_TANK_GUN','BUILDINGCLASS_MILITARY_ACADEMY'; 
 -- Atomic
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BATTLESHIP','BUILDINGCLASS_SEAPORT'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BAZOOKA','BUILDINGCLASS_MILITARY_ACADEMY';

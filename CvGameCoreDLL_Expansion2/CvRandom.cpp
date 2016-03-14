@@ -11,10 +11,7 @@
 #include "CvGlobals.h"
 #include "FCallStack.h"
 #include "FStlContainerSerialization.h"
-
-#ifdef WIN32
-#	include "Win32/FDebugHelper.h"
-#endif//_WINPC
+#include "stackwalker\StackWalker.h"
 
 // include this after all other headers!
 #include "LintFree.h"
@@ -27,30 +24,9 @@ CvRandom::CvRandom() :
 	m_ullRandomSeed(0)
 	, m_ulCallCount(0)
 	, m_ulResetCount(0)
-	, m_bSynchronous(false)
-#ifdef _DEBUG
-	, m_bExtendedCallStackDebugging(false)
-	, m_kCallStacks()
-	, m_seedHistory()
-	, m_resolvedCallStacks()
-#endif//_debug
+	, m_bSynchronous(true)
 {
 	reset();
-}
-
-CvRandom::CvRandom(bool extendedCallStackDebugging) :
-	m_ullRandomSeed(0)
-	, m_ulCallCount(0)
-	, m_ulResetCount(0)
-	, m_bSynchronous(true)
-#ifdef _DEBUG
-	, m_bExtendedCallStackDebugging(extendedCallStackDebugging || GC.getOutOfSyncDebuggingEnabled())
-	, m_kCallStacks()
-	, m_seedHistory()
-	, m_resolvedCallStacks()
-#endif//_debug
-{
-	extendedCallStackDebugging;
 }
 
 CvRandom::CvRandom(const CvRandom& source) :
@@ -58,12 +34,6 @@ CvRandom::CvRandom(const CvRandom& source) :
 	, m_ulCallCount(source.m_ulCallCount)
 	, m_ulResetCount(source.m_ulResetCount)
 	, m_bSynchronous(source.m_bSynchronous)
-#ifdef _DEBUG
-	, m_bExtendedCallStackDebugging(source.m_bExtendedCallStackDebugging)
-	, m_kCallStacks(source.m_kCallStacks)
-	, m_seedHistory(source.m_seedHistory)
-	, m_resolvedCallStacks(source.m_resolvedCallStacks)
-#endif//_debug
 {
 }
 
@@ -107,14 +77,12 @@ void CvRandom::reset(unsigned long long ullSeed)
 	// Uninit class
 	uninit();
 
-	recordCallStack();
 	m_ullRandomSeed = ullSeed;
 	m_ulResetCount++;
 }
 
 unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 {
-	recordCallStack();
 	m_ulCallCount++;
 
 	unsigned long long ullNewSeed = ((RANDOM_A * m_ullRandomSeed) + RANDOM_C);
@@ -125,12 +93,11 @@ unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 		int iRandLogging = GC.getRandLogging();
 		if(iRandLogging > 0 && (m_bSynchronous || (iRandLogging & RAND_LOGGING_ASYNCHRONOUS_FLAG) != 0))
 		{
-#if !defined(FINAL_RELEASE)
 			if(!gDLL->IsGameCoreThread() && gDLL->IsGameCoreExecuting() && m_bSynchronous)
 			{
-				CvAssertMsg(0, "App side is accessing the synchronous random number generator while the game core is running.");
+				OutputDebugString("Warning: GUI is accessing the synchronous random number generator while the game core is running.");
 			}
-#endif
+
 			CvGame& kGame = GC.getGame();
 			if(kGame.getTurnSlice() > 0 || ((iRandLogging & RAND_LOGGING_PREGAME_FLAG) != 0))
 			{
@@ -138,34 +105,12 @@ unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 				if(pLog)
 				{
 					char szOut[1024] = {0};
-					sprintf_s(szOut, "%d, %d, %u, %u, %u, %8x, %s, %s\n", kGame.getGameTurn(), kGame.getTurnSlice(), 
-						ulNum, ul, getSeed(), (void*)this, m_bSynchronous?"sync":"async", (pszLog != NULL)?pszLog:"Unknown");
+					sprintf_s(szOut, "%d, %d, %u, %u, %I64u, %8x, %s, %s\n", kGame.getGameTurn(), kGame.getTurnSlice(), 
+						ulNum, ul, m_ullRandomSeed, (void*)this, m_bSynchronous?"sync":"async", (pszLog != NULL)?pszLog:"Unknown");
 					pLog->Msg(szOut);
 
-#if !defined(FINAL_RELEASE)
-					if((iRandLogging & RAND_LOGGING_CALLSTACK_FLAG) != 0)
-					{
-#ifdef _DEBUG
-						if(m_bExtendedCallStackDebugging)
-						{
-							// Use the callstack from the extended callstack debugging system
-							const FCallStack& callStack = m_kCallStacks.back();
-							std::string stackTrace = callStack.toString(true, 6);
-							pLog->Msg(stackTrace.c_str());
-						}
-						else
-#endif
-						{
-#ifdef WIN32
-							// Get callstack directly
-							FCallStack callStack;
-							FDebugHelper::GetInstance().GetCallStack(&callStack, 0, 8);
-							std::string stackTrace = callStack.toString(true, 6);
-							pLog->Msg(stackTrace.c_str());
-#endif
-						}
-					}
-#endif
+					//gStackWalker.SetLog(pLog);
+					//gStackWalker.ShowCallstack();
 				}
 			}
 		}
@@ -183,7 +128,6 @@ float CvRandom::getFloat()
 
 void CvRandom::reseed(unsigned long long ullNewValue)
 {
-	recordCallStack();
 	m_ulResetCount++;
 	m_ullRandomSeed = ullNewValue;
 }
@@ -216,17 +160,8 @@ void CvRandom::read(FDataStream& kStream)
 	kStream >> m_ullRandomSeed;
 	kStream >> m_ulCallCount;
 	kStream >> m_ulResetCount;
-#ifdef _DEBUG
-	kStream >> m_bExtendedCallStackDebugging;
-	if(m_bExtendedCallStackDebugging)
-	{
-		kStream >> m_seedHistory;
-		kStream >> m_resolvedCallStacks;
-	}
-#else
-	bool b;
-	kStream >> b;
-#endif//_DEBUG
+	bool bDummy;
+	kStream >> bDummy;
 }
 
 
@@ -240,91 +175,10 @@ void CvRandom::write(FDataStream& kStream) const
 	kStream << m_ullRandomSeed;
 	kStream << m_ulCallCount;
 	kStream << m_ulResetCount;
-#ifdef _DEBUG
-	kStream << m_bExtendedCallStackDebugging;
-	if(m_bExtendedCallStackDebugging)
-	{
-		resolveCallStacks();
-		kStream << m_seedHistory;
-		kStream << m_resolvedCallStacks;
-	}
-#else
+	//dummy
 	kStream << false;
-#endif
 }
 
-void CvRandom::recordCallStack()
-{
-#ifdef _DEBUG
-	if(m_bExtendedCallStackDebugging)
-	{
-		FDebugHelper& debugHelper = FDebugHelper::GetInstance();
-		FCallStack callStack;
-		debugHelper.GetCallStack(&callStack, 1, 8);
-		m_kCallStacks.push_back(callStack);
-		m_seedHistory.push_back(m_ulRandomSeed);
-	}
-#endif//_DEBUG
-}
-
-void CvRandom::resolveCallStacks() const
-{
-#ifdef _DEBUG
-	std::vector<FCallStack>::const_iterator i;
-	for(i = m_kCallStacks.begin() + m_resolvedCallStacks.size(); i != m_kCallStacks.end(); ++i)
-	{
-		const FCallStack callStack = *i;
-		std::string stackTrace = callStack.toString(true);
-		m_resolvedCallStacks.push_back(stackTrace);
-	}
-#endif//_DEBUG
-}
-
-const std::vector<std::string>& CvRandom::getResolvedCallStacks() const
-{
-#ifdef _DEBUG
-	return m_resolvedCallStacks;
-#else
-	static std::vector<std::string> empty;
-	return empty;
-#endif//_debug
-}
-
-const std::vector<unsigned long>& CvRandom::getSeedHistory() const
-{
-#ifdef _DEBUG
-	return m_seedHistory;
-#else
-	static std::vector<unsigned long> empty;
-	return empty;
-#endif//_DEBUG
-}
-
-bool CvRandom::callStackDebuggingEnabled() const
-{
-#ifdef _DEBUG
-	return m_bExtendedCallStackDebugging;
-#else
-	return false;
-#endif//_DEBUG
-}
-
-void CvRandom::setCallStackDebuggingEnabled(bool enabled)
-{
-#ifdef _DEBUG
-	m_bExtendedCallStackDebugging = enabled;
-#endif//_DEBUG
-	enabled;
-}
-
-void CvRandom::clearCallstacks()
-{
-#ifdef _DEBUG
-	m_kCallStacks.clear();
-	m_seedHistory.clear();
-	m_resolvedCallStacks.clear();
-#endif//_DEBUG
-}
 FDataStream& operator<<(FDataStream& saveTo, const CvRandom& readFrom)
 {
 	readFrom.write(saveTo);

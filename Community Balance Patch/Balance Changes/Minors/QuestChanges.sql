@@ -173,12 +173,12 @@ UPDATE SmallAwards SET RandomMod = '60' WHERE Type = 'MINOR_CIV_QUEST_BUILD_X_BU
 
 -- Stealing
 UPDATE SmallAwards SET Influence = '20' WHERE Type = 'MINOR_CIV_QUEST_UNIT_STEAL_FROM';
-UPDATE SmallAwards SET Science = '50' WHERE Type = 'MINOR_CIV_QUEST_UNIT_STEAL_FROM';
+UPDATE SmallAwards SET Science = '75' WHERE Type = 'MINOR_CIV_QUEST_UNIT_STEAL_FROM';
 UPDATE SmallAwards SET RandomMod = '60' WHERE Type = 'MINOR_CIV_QUEST_UNIT_STEAL_FROM';
 
--- Stealing
+-- Coup
 UPDATE SmallAwards SET Influence = '25' WHERE Type = 'MINOR_CIV_QUEST_UNIT_COUP_CITY';
-UPDATE SmallAwards SET CapitalGPPoints = '50' WHERE Type = 'MINOR_CIV_QUEST_UNIT_COUP_CITY';
+UPDATE SmallAwards SET CapitalGPPoints = '75' WHERE Type = 'MINOR_CIV_QUEST_UNIT_COUP_CITY';
 UPDATE SmallAwards SET RandomMod = '60' WHERE Type = 'MINOR_CIV_QUEST_UNIT_COUP_CITY';
 
 -- Conquest

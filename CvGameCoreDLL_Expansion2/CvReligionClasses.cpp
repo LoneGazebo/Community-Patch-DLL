@@ -2035,10 +2035,28 @@ bool CvGameReligions::IsPantheonBeliefAvailable(BeliefTypes eBelief)
 }
 
 /// Number of followers of this religion
+#if defined(MOD_BALANCE_CORE)
+int CvGameReligions::GetNumFollowers(ReligionTypes eReligion, PlayerTypes ePlayer) const
+#else
 int CvGameReligions::GetNumFollowers(ReligionTypes eReligion) const
+#endif
 {
 	int iRtnValue = 0;
-
+#if defined(MOD_BALANCE_CORE)
+	if(eReligion == RELIGION_PANTHEON)
+	{
+		if(ePlayer != NO_PLAYER)
+		{
+			int iLoop;
+			CvCity* pLoopCity;
+			for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+			{
+				iRtnValue += pLoopCity->GetCityReligions()->GetNumFollowers(eReligion);
+			}
+		}
+		return iRtnValue;
+	}
+#endif
 	// Loop through all the players
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -5569,6 +5587,23 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 	if(eMajority > RELIGION_PANTHEON)
 	{
 		const CvReligion* pNewReligion = pReligions->GetReligion(eMajority, NO_PLAYER);
+#if defined(MOD_BALANCE_CORE)
+		CvCity* pHolyCity = NULL;
+		PlayerTypes eReligionController = NO_PLAYER;
+		CvPlot* pkPlot = GC.getMap().plot(pNewReligion->m_iHolyCityX, pNewReligion->m_iHolyCityY);
+		if(pkPlot)
+		{
+			pHolyCity = pkPlot->getPlotCity();
+		}
+		if(pHolyCity != NULL)
+		{
+			eReligionController = pHolyCity->getOwner();
+		}
+		else
+		{
+			eReligionController = pNewReligion->m_eFounder;
+		}
+#endif
 		GET_PLAYER(pNewReligion->m_eFounder).UpdateReligion();
 
 		// Pay adoption bonuses (if any)
@@ -5620,9 +5655,12 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 		PlayerTypes eOwnerPlayer = m_pCity->getOwner();
 		CvPlayerAI& kOwnerPlayer = GET_PLAYER(eOwnerPlayer);
 		const ReligionTypes eOwnerPlayerReligion = kOwnerPlayer.GetReligions()->GetReligionCreatedByPlayer();
-
+#if defined(MOD_BALANCE_CORE)
+		if(eOwnerPlayer != eResponsibleParty && eMajority != eOldMajority && eReligionController != eOwnerPlayer && eOwnerPlayerReligion > RELIGION_PANTHEON)
+#else
 		if(eOwnerPlayer != eResponsibleParty && eMajority != eOldMajority && pNewReligion->m_eFounder != eOwnerPlayer
 			&& eOwnerPlayerReligion > RELIGION_PANTHEON)
+#endif
 		{
 			if(kOwnerPlayer.GetNotifications())
 			{

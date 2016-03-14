@@ -4127,114 +4127,117 @@ function ShowOtherPlayerChooser( isUs, type )
 		local otherPlayerButton = g_OtherPlayersButtons[iLoopPlayer];
 		
 	    -- they're alive, not us, not them, we both know, and we can trade....
-		if(pLoopPlayer:IsAlive() and otherPlayerButton ~= nil) then
-			
+		if(otherPlayerButton ~= nil) then
+
 			local otherPlayerButtonSubTableNameButton = otherPlayerButton[SubTableName].Button;
 			
 			local strToolTip = "";
 			local iFromTeam = Players[iFromPlayer]:GetTeam();
 			
     		if( g_iUsTeam ~= iLoopTeam and g_iThemTeam ~= iLoopTeam and
-    		    g_pUsTeam:IsHasMet( iLoopTeam ) and g_pThemTeam:IsHasMet( iLoopTeam ) and
                 g_Deal:IsPossibleToTradeItem( iFromPlayer, iToPlayer, tradeType, iLoopTeam ) ) then
                 
     		    otherPlayerButtonSubTableNameButton:SetDisabled( false );
     		    otherPlayerButtonSubTableNameButton:SetAlpha( 1 );
-            else
-                        
+            else                     
     		    otherPlayerButtonSubTableNameButton:SetDisabled( true );
     		    otherPlayerButtonSubTableNameButton:SetAlpha( 0.5 );
     		    
-    		    -- Why won't they make peace?
-    		    if (type == PEACE) then
+    			-- Why won't they make peace?
+    			if (type == PEACE) then
 					
-					-- CBP: Need Embassy:
-					if (not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam) or not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
-						strToolTip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT" );
+					-- CBP: No peace with non allied if not at war
+					if (g_pUsTeam:IsAtWar(g_iThemTeam)) then
+						strToolTip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_WAR_NO_PEACE_THIRD_PARTY_TT" );
+					else
+						if(not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam) or not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
+							strToolTip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT" );
 
-					-- Not at war
-					elseif (not Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
-						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_AT_WAR");
+						-- Not at war
+						elseif (not Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
+							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_AT_WAR");
     				
-    				-- Minor that won't make peace
-    				elseif (pLoopPlayer:IsMinorCiv()) then
+    					-- Minor that won't make peace
+    					elseif (pLoopPlayer:IsMinorCiv()) then
     					
-    					local pMinorTeam = Teams[iLoopTeam];
-    					local iAlly = pLoopPlayer:GetAlly();
+    						local pMinorTeam = Teams[iLoopTeam];
+    						local iAlly = pLoopPlayer:GetAlly();
     					
-    					-- Minor in permanent war with this guy
-    					if (pLoopPlayer:IsMinorPermanentWar(iFromPlayer)) then
-    						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_PERMANENT_WAR");
-			    		-- Minor allied to a player
-	    				elseif (pMinorTeam:IsAtWar(iFromTeam) and iAlly ~= -1 and Teams[Players[iAlly]:GetTeam()]:IsAtWar(iFromTeam)) then
-			    		    strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_ALLY_AT_WAR");
+    						-- Minor in permanent war with this guy
+    						if (pLoopPlayer:IsMinorPermanentWar(iFromPlayer)) then
+    							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_PERMANENT_WAR");
+			    			-- Minor allied to a player
+	    					elseif (pMinorTeam:IsAtWar(iFromTeam) and iAlly ~= -1 and Teams[Players[iAlly]:GetTeam()]:IsAtWar(iFromTeam)) then
+			    				strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_ALLY_AT_WAR");
+    						end
+    					
+    					-- Major that won't make peace
+    					else
+    					
+    						-- AI don't want no peace!
+    						if (not Players[iFromPlayer]:IsWillAcceptPeaceWithPlayer(iLoopPlayer)) then
+    							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_THIS_GUY_WANTS_WAR");
+    						-- Other AI don't want no peace!
+    						elseif (not pLoopPlayer:IsWillAcceptPeaceWithPlayer(iFromPlayer)) then
+    							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_OTHER_GUY_WANTS_WAR");
+    						end
+    					
     					end
-    					
-    				-- Major that won't make peace
-    				else
-    					
-    					-- AI don't want no peace!
-    					if (not Players[iFromPlayer]:IsWillAcceptPeaceWithPlayer(iLoopPlayer)) then
-    						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_THIS_GUY_WANTS_WAR");
-    					-- Other AI don't want no peace!
-    					elseif (not pLoopPlayer:IsWillAcceptPeaceWithPlayer(iFromPlayer)) then
-    						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_OTHER_GUY_WANTS_WAR");
-    					end
-    					
-    				end
-    			
+					end
     			-- Why won't they make war?
     			else
-					-- CBP: Need Embassy:
-					if (not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam) or not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
-						strToolTip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT" ) ;
+					-- CBP: No peace with non allied if not at war
+					if (not g_pUsTeam:IsAtWar(g_iThemTeam)) then
 
-					-- Already at war
-					elseif (Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
-						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_ALREADY_AT_WAR");
+						-- CBP: Need Embassy:
+						if (not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam) or not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
+							strToolTip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT" ) ;
 
-					-- Locked in to peace
-					elseif (Teams[iFromTeam]:IsForcePeace(iLoopTeam)) then
-						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_FORCE_PEACE");
+						-- Already at war
+						elseif (Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
+							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_ALREADY_AT_WAR");
 
-					-- City-State ally
-					elseif (pLoopPlayer:IsMinorCiv() and pLoopPlayer:GetAlly() == iFromPlayer) then
-						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_ALLIES");
+						-- Locked in to peace
+						elseif (Teams[iFromTeam]:IsForcePeace(iLoopTeam)) then
+							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_FORCE_PEACE");
 
--- CBP
-					-- City-State ally
-					elseif (pLoopPlayer:IsMinorCiv() and pLoopPlayer:GetAlly() == iToPlayer) then
-						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_ALLIES_US");
+						-- City-State ally
+						elseif (pLoopPlayer:IsMinorCiv() and pLoopPlayer:GetAlly() == iFromPlayer) then
+							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_ALLIES");
 
-					-- DOF
-					elseif (pLoopPlayer:IsDoF(iFromPlayer)) then
-						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DOF");
+	-- CBP
+						-- City-State ally
+						elseif (pLoopPlayer:IsMinorCiv() and pLoopPlayer:GetAlly() == iToPlayer) then
+							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_ALLIES_US");
 
-					-- DOF YOU
-					elseif (pLoopPlayer:IsDoF(iToPlayer)) then
-						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DOF_YOU");
+						-- DOF
+						elseif (pLoopPlayer:IsDoF(iFromPlayer)) then
+							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DOF");
 
-					-- DP
-					elseif (Teams[iLoopTeam]:IsDefensivePact(iLoopTeam)) then
-						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DP");
+						-- DOF YOU
+						elseif (pLoopPlayer:IsDoF(iToPlayer)) then
+							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DOF_YOU");
 
-					-- DP You
-					elseif (Teams[iLoopTeam]:IsDefensivePact(g_iUsTeam)) then
-						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DP_YOU");
+						-- DP
+						elseif (Teams[iLoopTeam]:IsDefensivePact(iLoopTeam)) then
+							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DP");
 
-					-- DP You
-					elseif (not g_pUsTeam:CanDeclareWar(iLoopTeam, iFromPlayer)) then
-						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_BLOCKED");
--- END
+						-- DP You
+						elseif (Teams[iLoopTeam]:IsDefensivePact(g_iUsTeam)) then
+							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DP_YOU");
+
+						-- DP You
+						elseif (not g_pUsTeam:CanDeclareWar(iLoopTeam, iFromPlayer)) then
+							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_BLOCKED");
+	-- END
+						end
 					end
     				
-    		    end
-    		    
-    		end
-			
+    			end
+			end
+				
 			-- Tooltip
 			otherPlayerButtonSubTableNameButton:SetToolTipString(strToolTip);
-			
 		end
 	end
 	
@@ -4407,7 +4410,7 @@ else
     	local pLoopPlayer = Players[ iLoopPlayer ];
     	local iLoopTeam = pLoopPlayer:GetTeam();
 
-    	if( pLoopPlayer:IsEverAlive() ) then
+    	if( pLoopPlayer:IsAlive() ) then
 
     	    local newButtonsTable = {};
     	    g_OtherPlayersButtons[ iLoopPlayer ] = newButtonsTable;

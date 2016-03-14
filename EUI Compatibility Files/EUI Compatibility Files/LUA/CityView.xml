@@ -177,12 +177,12 @@
 				<Label ID="ResourceDemandedString" Anchor="C,C" Offset="0,-1" Font="TwCenMT16"/>
 			</Grid>
 			<Stack ID="IconsStack" Anchor="C,T" StackGrowth="Right" >
-				<Label ID="RazingIcon" Anchor="C,C" String="[ICON_RAZING]" Hidden="1"/>
-				<Label ID="ResistanceIcon" Anchor="C,C" String="[ICON_RESISTANCE]" Hidden="1"/>
-				<Label ID="ConnectedIcon" Anchor="C,C" String="[ICON_CONNECTED]" ToolTip="TXT_KEY_CITY_CONNECTED" Hidden="1"/>
-				<Label ID="BlockadedIcon" Anchor="C,C" String="[ICON_BLOCKADED]" ToolTip="TXT_KEY_CITY_BLOCKADED" Hidden="1"/>
-				<Label ID="PuppetIcon" Anchor="C,C" String="[ICON_PUPPET]" ToolTip="TXT_KEY_CITY_PUPPET" Hidden="1"/>
-				<Label ID="OccupiedIcon" Anchor="C,C" String="[ICON_OCCUPIED]" ToolTip="TXT_KEY_CITY_OCCUPIED" Hidden="1"/>
+				<Label ID="CityIsRazing" Anchor="C,C" String="[ICON_RAZING]" Hidden="1"/>
+				<Label ID="CityIsResistance" Anchor="C,C" String="[ICON_RESISTANCE]" Hidden="1"/>
+				<Label ID="CityIsConnected" Anchor="C,C" String="[ICON_CONNECTED]" ToolTip="TXT_KEY_CITY_CONNECTED" Hidden="1"/>
+				<Label ID="CityIsBlockaded" Anchor="C,C" String="[ICON_BLOCKADED]" ToolTip="TXT_KEY_CITY_BLOCKADED" Hidden="1"/>
+				<Label ID="CityIsPuppet" Anchor="C,C" String="[ICON_PUPPET]" ToolTip="TXT_KEY_CITY_PUPPET" Hidden="1"/>
+				<Label ID="CityIsOccupied" Anchor="C,C" String="[ICON_OCCUPIED]" ToolTip="TXT_KEY_CITY_OCCUPIED" Hidden="1"/>
 			</Stack>
 		</Stack>
 		<TextButton ID="EditButton" Offset="155,27" Anchor="C,C" Style="Font16or20" String="TXT_KEY_EDIT_BUTTON" MouseOverStyle="SoftShadow" ConsumeMouse="1" />

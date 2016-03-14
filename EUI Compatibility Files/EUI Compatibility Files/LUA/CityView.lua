@@ -25,6 +25,20 @@ print("Loading EUI city view",ContextPtr,os.clock(),[[
 --todo: selection list with all buildable items
 --todo: mod case where several buildings are allowed
 
+-------------------------------
+-- minor lua optimizations
+-------------------------------
+local ipairs = ipairs
+local math_abs = math.abs
+local math_ceil = math.ceil
+local math_floor = math.floor
+local math_max = math.max
+local math_min = math.min
+local pairs = pairs
+local tonumber = tonumber
+local tostring = tostring
+local unpack = unpack
+
 local civ5_mode = InStrategicView ~= nil
 local civBE_mode = not civ5_mode
 local gk_mode = civBE_mode or Game.GetReligionName ~= nil
@@ -67,138 +81,42 @@ if not civ5_mode then
 	include( "IntrigueHelper" )
 end
 
-
--------------------------------
--- minor lua optimizations
--------------------------------
-
---local next = next
-local pairs = pairs
-local ipairs = ipairs
---local pcall = pcall
---local print = print
-local select = select
---local setmetatable = setmetatable
---local string = string
-local tonumber = tonumber
-local tostring = tostring
---local type = type
-local unpack = unpack
---local table = table
---local table_insert = table.insert
---local table_remove = table.remove
---local table_concat = table.concat
---local os = os
---local os_time = os.time
---local os_date = os.date
---local math = math
-local math_floor = math.floor
-local math_ceil = math.ceil
-local math_min = math.min
-local math_max = math.max
-local math_abs = math.abs
---local math_modf = math.modf
---local math_sqrt = math.sqrt
---local math_pi = math.pi
---local math_sin = math.sin
---local math_cos = math.cos
---local math_huge = math.huge
-
-local UI = UI
-local UI_GetHeadSelectedCity = UI.GetHeadSelectedCity
-local UI_GetUnitPortraitIcon = UI.GetUnitPortraitIcon
---local UIManager = UIManager
-
-local ToHexFromGrid = ToHexFromGrid
-local HexToWorld = HexToWorld
---local IsGameCoreBusy = IsGameCoreBusy
-
-local Controls = Controls
-local ContextPtr = ContextPtr
-local Players = Players
---local Teams = Teams
---local GameInfo = GameInfo
---local GameInfoActions = GameInfoActions
-local GameInfoTypes = GameInfoTypes
-local GameDefines = GameDefines
---local InterfaceDirtyBits = InterfaceDirtyBits
-local CityUpdateTypes = CityUpdateTypes
 local ButtonPopupTypes = ButtonPopupTypes
-local YieldTypes = YieldTypes
-local GameOptionTypes = GameOptionTypes
---local DomainTypes = DomainTypes
---local FeatureTypes = FeatureTypes
---local FogOfWarModeTypes = FogOfWarModeTypes
-local OrderTypes = OrderTypes
---local PlotTypes = PlotTypes
---local TerrainTypes = TerrainTypes
---local InterfaceModeTypes = InterfaceModeTypes
-local NotificationTypes = NotificationTypes
---local ActivityTypes = ActivityTypes
---local MissionTypes = MissionTypes
---local ActionSubTypes = ActionSubTypes
-local GameMessageTypes = GameMessageTypes
-local TaskTypes = TaskTypes
---local CommandTypes = CommandTypes
---local DirectionTypes = DirectionTypes
---local DiploUIStateTypes = DiploUIStateTypes
---local FlowDirectionTypes = FlowDirectionTypes
---local PolicyBranchTypes = PolicyBranchTypes
---local FromUIDiploEventTypes = FromUIDiploEventTypes
---local CoopWarStates = CoopWarStates
---local ThreatTypes = ThreatTypes
---local DisputeLevelTypes = DisputeLevelTypes
---local LeaderheadAnimationTypes = LeaderheadAnimationTypes
---local TradeableItems = TradeableItems
---local EndTurnBlockingTypes = EndTurnBlockingTypes
---local ResourceUsageTypes = ResourceUsageTypes
---local MajorCivApproachTypes = MajorCivApproachTypes
---local MinorCivTraitTypes = MinorCivTraitTypes
---local MinorCivPersonalityTypes = MinorCivPersonalityTypes
---local MinorCivQuestTypes = MinorCivQuestTypes
 local CityAIFocusTypes = CityAIFocusTypes
---local AdvisorTypes = AdvisorTypes
---local GenericWorldAnchorTypes = GenericWorldAnchorTypes
---local GameStates = GameStates
---local GameplayGameStateTypes = GameplayGameStateTypes
---local CombatPredictionTypes = CombatPredictionTypes
---local ChatTargetTypes = ChatTargetTypes
---local ReligionTypes = ReligionTypes
---local BeliefTypes = BeliefTypes
---local FaithPurchaseTypes = FaithPurchaseTypes
---local ResolutionDecisionTypes = ResolutionDecisionTypes
---local InfluenceLevelTypes = InfluenceLevelTypes
---local InfluenceLevelTrend = InfluenceLevelTrend
---local PublicOpinionTypes = PublicOpinionTypes
---local ControlTypes = ControlTypes
-
---local PreGame = PreGame
-local Game = Game
---local Map = Map
-local Modding = Modding
-local OptionsManager = OptionsManager
-local Path = Path
+local CityUpdateTypes = CityUpdateTypes
+local ContextPtr = ContextPtr
+local Controls = Controls
 local Events = Events
 local Events_ClearHexHighlightStyle = Events.ClearHexHighlightStyle
 local Events_RequestYieldDisplay = Events.RequestYieldDisplay
 local Events_SerialEventHexHighlight = Events.SerialEventHexHighlight
-local Network = Network
+local Game = Game
+local GameDefines = GameDefines
+local GameInfoTypes = GameInfoTypes
+local GameMessageTypes = GameMessageTypes
+local GameOptionTypes = GameOptionTypes
+local HexToWorld = HexToWorld
+local InStrategicView = InStrategicView or function() return false end
 local KeyEvents = KeyEvents
 local Keys = Keys
-local Mouse = Mouse
---local MouseEvents = MouseEvents
---local MouseOverStrategicViewResource = MouseOverStrategicViewResource
-local Locale = Locale
 local L = Locale.ConvertTextKey
---getmetatable("").__index.L = L
-
-if civBE_mode then
-	function InStrategicView()
-		return false
-	end
-end
-local InStrategicView = InStrategicView
+local Locale = Locale
+local Modding = Modding
+local Mouse = Mouse
+local Network = Network
+local NotificationTypes = NotificationTypes
+local OptionsManager = OptionsManager
+local OrderTypes = OrderTypes
+local Path = Path
+local Players = Players
+local TaskTypes = TaskTypes
+local ToHexFromGrid = ToHexFromGrid
+local UI = UI
+local UI_GetHeadSelectedCity = UI.GetHeadSelectedCity
+local UI_GetUnitPortraitIcon = UI.GetUnitPortraitIcon
 local YieldDisplayTypes_AREA = YieldDisplayTypes.AREA
+local YieldTypes = YieldTypes
+
 
 -------------------------------
 -- Globals
@@ -235,6 +153,7 @@ local g_citySpecialists = {}
 
 local g_queuedItemNumber = false
 local g_isViewingMode = true
+local g_isDebugMode = false
 local g_BuyPlotMode = not ( g_options and g_options.GetValue and g_options.GetValue( "CityPlotPurchase" ) == 0 )
 local g_previousCity, g_isCityViewDirty, g_isCityHexesDirty
 
@@ -278,7 +197,7 @@ local g_avisorRecommended = {
 [OrderTypes.ORDER_CONSTRUCT] = Game.IsBuildingRecommended,
 [OrderTypes.ORDER_CREATE] = Game.IsProjectRecommended,
 }
-local g_advisorControls = {
+local g_advisors = {
 [AdvisorTypes.ADVISOR_ECONOMIC] = "EconomicRecommendation",
 [AdvisorTypes.ADVISOR_MILITARY] = "MilitaryRecommendation",
 [AdvisorTypes.ADVISOR_SCIENCE] = "ScienceRecommendation",
@@ -432,7 +351,7 @@ end
 -- Input handling
 ----------------------------------------------------------------
 ContextPtr:SetInputHandler(
-function( uiMsg, wParam, lParam )
+function( uiMsg, wParam )--, lParam )
 	if uiMsg == KeyEvents.KeyDown then
 		if wParam == Keys.VK_ESCAPE or wParam == Keys.VK_RETURN then
 			if Controls.SellBuildingConfirm:IsHidden() then
@@ -703,7 +622,7 @@ local function YourCulturePopup( greatWorkID )
 		}
 end
 
-local function ThemingTooltip( buildingClassID, void2, control )
+local function ThemingTooltip( buildingClassID, _, control )
 	control:SetToolTipString( UI_GetHeadSelectedCity():GetThemingTooltip( buildingClassID ) )
 end
 
@@ -1071,7 +990,7 @@ local function AddSelectionItem( city, item,
 					and cityGetFaithCost( city, itemID, true )
 		end
 	end
-	if turnsLeft or goldCost or faithCost then
+	if turnsLeft or goldCost or faithCost or (g_isDebugMode and not city:IsHasBuilding(buildingID)) then
 		turnsLeft = turnsLeft and ( cityGetProductionTurnsLeft and cityGetProductionTurnsLeft( city, itemID ) or -1 )
 		return selectionList:insert{ item, orderID, L(name), turnsLeft, canProduce, goldCost, canBuyWithGold, faithCost, canBuyWithFaith }
 	end
@@ -1089,7 +1008,7 @@ local g_SelectionListCallBacks = {
 				local cityOwnerID = city:GetOwner()
 				if cityOwnerID == g_activePlayerID and not city:IsPuppet() then
 					-- cityPushOrder( city, orderID, itemID, bAlt, bShift, bCtrl )
-					-- cityPushOrder( city, orderID, itemID, bAlt, replaceQueue, bottomOfQueue )
+					-- cityPushOrder( city, orderID, itemID, repeatBuild, replaceQueue, bottomOfQueue )
 					Game.CityPushOrder( city, orderID, itemID, UI.AltKeyDown(), UI.ShiftKeyDown(), not UI.CtrlKeyDown() )
 					Events.SpecificCityInfoDirty( cityOwnerID, city:GetID(), CityUpdateTypes.CITY_UPDATE_TYPE_BANNER )
 					Events.SpecificCityInfoDirty( cityOwnerID, city:GetID(), CityUpdateTypes.CITY_UPDATE_TYPE_PRODUCTION )
@@ -1138,6 +1057,10 @@ local function SetupSelectionList( itemList, selectionIM, cityOwnerID, getUnitPo
 	for i = 1, #itemList do
 		local item, orderID, itemDescription, turnsLeft, canProduce, goldCost, canBuyWithGold, faithCost, canBuyWithFaith = unpack( itemList[i] )
 		local itemID = item.ID
+		local avisorRecommended = g_isAdvisor and g_avisorRecommended[ orderID ]
+		if g_isDebugMode then
+			avisorRecommended, goldCost, canBuyWithGold, faithCost, canBuyWithFaith = nil
+		end
 		local instance, isNewInstance = selectionIM.GetInstance()
 		if isNewInstance then
 			SetupCallbacks( instance, g_SelectionListTooltips, "EUI_CityViewLeftTooltip", g_SelectionListCallBacks )
@@ -1175,8 +1098,7 @@ local function SetupSelectionList( itemList, selectionIM, cityOwnerID, getUnitPo
 			instance.FaithButton:SetText( (faith>=faithCost and faithCost or "[COLOR_WARNING_TEXT]"..(faithCost-faith).."[ENDCOLOR]") .. "[ICON_PEACE]" )
 		end
 
-		local avisorRecommended = g_isAdvisor and g_avisorRecommended[ orderID ]
-		for advisorID, advisorName in pairs(g_advisorControls) do
+		for advisorID, advisorName in pairs(g_advisors) do
 			local advisorControl = instance[ advisorName ]
 			if advisorControl then
 				advisorControl:SetHide( not (avisorRecommended and avisorRecommended( itemID, advisorID )) )
@@ -1324,7 +1246,7 @@ local function UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isVenice
 	-------------------------------------------
 	-- Update Selection List
 	-------------------------------------------
-	local isSelectionList = not g_isViewingMode or isVeniceException
+	local isSelectionList = not g_isViewingMode or isVeniceException or g_isDebugMode
 	Controls.SelectionScrollPanel:SetHide( not isSelectionList )
 	if isSelectionList then
 		local unitSelectList = table()
@@ -1335,20 +1257,8 @@ local function UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isVenice
 		if g_isAdvisor then
 			Game.SetAdvisorRecommenderCity( city )
 		end
-		-- Units
-		local orderID = OrderTypes.ORDER_TRAIN
-		for item in GameInfo.Units() do
-			AddSelectionItem( city, item,
-						unitSelectList,
-						orderID,
-						city.CanTrain,
-						item.ID, -1, -1,
-						city.GetUnitProductionTurnsLeft,
-						city.GetUnitPurchaseCost,
-						city.GetUnitFaithPurchaseCost )
-		end
 		-- Buildings & Wonders
-		orderID = OrderTypes.ORDER_CONSTRUCT
+		local orderID = OrderTypes.ORDER_CONSTRUCT
 		local code = orderID / 64
 		for item in GameInfo.Buildings() do
 			local buildingClass = GameInfo.BuildingClasses[item.BuildingClass]
@@ -1364,30 +1274,44 @@ local function UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isVenice
 						city.GetBuildingFaithPurchaseCost )
 			end
 		end
-		-- Projects
-		orderID = OrderTypes.ORDER_CREATE
-		code = orderID / 64
-		for item in GameInfo.Projects() do
-			if not queueItems[ code + item.ID ] then
+		if not g_isDebugMode then
+			-- Units
+			orderID = OrderTypes.ORDER_TRAIN
+			for item in GameInfo.Units() do
 				AddSelectionItem( city, item,
-						wonderSelectList,
-						orderID,
-						city.CanCreate,
-						-1, -1, item.ID,
-						city.GetProjectProductionTurnsLeft,
-						city.GetProjectPurchaseCost,
-						city.GetProjectFaithPurchaseCost )	-- nil
+							unitSelectList,
+							orderID,
+							city.CanTrain,
+							item.ID, -1, -1,
+							city.GetUnitProductionTurnsLeft,
+							city.GetUnitPurchaseCost,
+							city.GetUnitFaithPurchaseCost )
 			end
-		end
-		-- Processes
-		orderID = OrderTypes.ORDER_MAINTAIN
-		code = orderID / 64
-		for item in GameInfo.Processes() do
-			if not queueItems[ code + item.ID ] then
-				AddSelectionItem( city, item,
-						processSelectList,
-						orderID,
-						city.CanMaintain )
+			-- Projects
+			orderID = OrderTypes.ORDER_CREATE
+			code = orderID / 64
+			for item in GameInfo.Projects() do
+				if not queueItems[ code + item.ID ] then
+					AddSelectionItem( city, item,
+							wonderSelectList,
+							orderID,
+							city.CanCreate,
+							-1, -1, item.ID,
+							city.GetProjectProductionTurnsLeft,
+							city.GetProjectPurchaseCost,
+							city.GetProjectFaithPurchaseCost )	-- nil
+				end
+			end
+			-- Processes
+			orderID = OrderTypes.ORDER_MAINTAIN
+			code = orderID / 64
+			for item in GameInfo.Processes() do
+				if not queueItems[ code + item.ID ] then
+					AddSelectionItem( city, item,
+							processSelectList,
+							orderID,
+							city.CanMaintain )
+				end
 			end
 		end
 
@@ -1652,6 +1576,7 @@ local function UpdateCityViewNow()
 		local cityOwner = Players[cityOwnerID]
 		local isActivePlayerCity = cityOwnerID == Game.GetActivePlayer()
 		local isCityCaptureViewingMode = UI.IsPopupTypeOpen(ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED)
+		g_isDebugMode = Game.IsDebugMode()
 		g_isViewingMode = city:IsPuppet() or not isActivePlayerCity or isCityCaptureViewingMode
 
 		if civ5_mode then
@@ -1679,33 +1604,33 @@ local function UpdateCityViewNow()
 		Controls.CityCapitalIcon:SetHide( not isCapital )
 
 		-- Connected to capital?
-		Controls.ConnectedIcon:SetHide( isCapital or city:IsBlockaded() or not cityOwner:IsCapitalConnectedToCity(city) or city:GetTeam() ~= Game.GetActiveTeam() )
+		Controls.CityIsConnected:SetHide( isCapital or city:IsBlockaded() or not cityOwner:IsCapitalConnectedToCity(city) or city:GetTeam() ~= Game.GetActiveTeam() )
 
 		-- Blockaded
-		Controls.BlockadedIcon:SetHide( not city:IsBlockaded() )
+		Controls.CityIsBlockaded:SetHide( not city:IsBlockaded() )
 
 		-- Being Razed
 		if city:IsRazing() then
-			Controls.RazingIcon:SetHide(false)
-			Controls.RazingIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_BURNING", city:GetRazingTurns())
+			Controls.CityIsRazing:SetHide(false)
+			Controls.CityIsRazing:LocalizeAndSetToolTip("TXT_KEY_CITY_BURNING", city:GetRazingTurns())
 		else
-			Controls.RazingIcon:SetHide(true)
+			Controls.CityIsRazing:SetHide(true)
 		end
 
 		-- Puppet Status
-		Controls.PuppetIcon:SetHide( not city:IsPuppet() )
+		Controls.CityIsPuppet:SetHide( not city:IsPuppet() )
 
 		-- In Resistance
 		if city:IsResistance() then
-			Controls.ResistanceIcon:SetHide(false)
-			Controls.ResistanceIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_RESISTANCE", city:GetResistanceTurns())
+			Controls.CityIsResistance:SetHide(false)
+			Controls.CityIsResistance:LocalizeAndSetToolTip("TXT_KEY_CITY_RESISTANCE", city:GetResistanceTurns())
 		else
-			Controls.ResistanceIcon:SetHide(true)
+			Controls.CityIsResistance:SetHide(true)
 		end
 
 		-- Occupation Status
 --todo BE
-		Controls.OccupiedIcon:SetHide( not( civ5_mode and city:IsOccupied() and not city:IsNoOccupiedUnhappiness() ) )
+		Controls.CityIsOccupied:SetHide( not( civ5_mode and city:IsOccupied() and not city:IsNoOccupiedUnhappiness() ) )
 
 		local cityName = Locale.ToUpper( city:GetName() )
 
@@ -2351,7 +2276,6 @@ g_BuildingSelectIM	= StackInstanceManager( "SelectionInstance", "Button", Contro
 g_WonderSelectIM	= StackInstanceManager( "SelectionInstance", "Button", Controls.WonderButtonStack, Controls.WondersButton, ResizeProdQueue )
 g_ProcessSelectIM	= StackInstanceManager( "SelectionInstance", "Button", Controls.OtherButtonStack, Controls.OtherButton, ResizeProdQueue )
 g_FocusSelectIM		= StackInstanceManager( "", "", Controls.WorkerManagementBox, Controls.WorkerHeader, function(self, collapsed) g_workerHeadingOpen = not collapsed ResizeRightStack() UpdateWorkingHexes() end, true, not g_workerHeadingOpen )
-local g_toolTipFunc
 
 local function SetToolTipString( toolTipFunc )
 	g_leftTipControls.Text:SetText( toolTipFunc( UI_GetHeadSelectedCity() ) )
@@ -2602,7 +2526,7 @@ end
 --------------------------------------------
 -- 'Active' (local human) player has changed
 Events.GameplaySetActivePlayer.Add(
-function( activePlayerID, previousActivePlayerID )
+function( activePlayerID )--, previousActivePlayerID )
 	g_activePlayerID = activePlayerID
 	g_activePlayer = Players[ g_activePlayerID ]
 	g_finishedItems = {}

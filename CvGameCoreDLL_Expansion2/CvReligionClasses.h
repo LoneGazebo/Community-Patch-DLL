@@ -224,7 +224,11 @@ public:
 #endif
 
 	// Main religion information functions
+#if defined(MOD_BALANCE_CORE)
+	int GetNumFollowers(ReligionTypes eReligion, PlayerTypes ePlayer = NO_PLAYER) const;
+#else
 	int GetNumFollowers(ReligionTypes eReligion) const;
+#endif
 	int GetNumCitiesFollowing(ReligionTypes eReligion) const;
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	bool HasCreatedReligion(PlayerTypes ePlayer, bool bIgnoreLocal = false) const;

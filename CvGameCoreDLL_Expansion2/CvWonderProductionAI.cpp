@@ -515,8 +515,6 @@ void CvWonderProductionAI::LogPossibleWonders()
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strBaseString += playerName + ", ";
 
-
-
 		// Dump out the weight of each buildable item
 		for(int iI = 0; iI < m_Buildables.size(); iI++)
 		{
@@ -527,7 +525,7 @@ void CvWonderProductionAI::LogPossibleWonders()
 			{
 				CvString strDesc = pEntry->GetDescription();
 				CvString strTemp;
-				strTemp.Format("Wonder, %s, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI));
+				strTemp.Format("Possible Wonder, %s, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI));
 				strOutBuf += strTemp;
 
 			}
