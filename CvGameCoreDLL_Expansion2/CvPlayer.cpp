@@ -19483,7 +19483,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue += pLoopCity->GetYieldFromBorderGrowth(eYield) + getYieldFromBorderGrowth(eYield);
 					if(pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldPerBorderGrowth(eYield, GetID(), pLoopCity);
+						iValue += pReligion->m_Beliefs.GetYieldPerBorderGrowth(eYield, GetID());
 					}
 					break;
 				}

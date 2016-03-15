@@ -206,7 +206,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_CELT_PICTISH_WARRIOR' AND EXISTS (SELECT * FROM C
 -- China
 --------------------
 UPDATE Language_en_US
-SET Text = '+10% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages, and +1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]Requires a Council in the City.'
+SET Text = '+10% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages, and +1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in the City. Reduces [ICON_HAPPINESS_3] Illiteracy slightly.[NEWLINE][NEWLINE]Requires a Council in the City.'
 WHERE Tag = 'TXT_KEY_BUILDING_PAPER_MAKER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

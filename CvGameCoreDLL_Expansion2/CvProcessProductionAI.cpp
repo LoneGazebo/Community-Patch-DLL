@@ -125,8 +125,6 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	if(iTempWeight == 0)
 		return 0;
 
-	iTempWeight /= 2;
-
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
 	if(kPlayer.isMinorCiv())
@@ -144,7 +142,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	// scale based on flavor and world size
 	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
 	{
-		return 0;
+		iModifier -= 50;
 	}
 	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
 	EconomicAIStrategyTypes eStrategyCultureGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CULTURE");
@@ -392,7 +390,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	}
 	if(kPlayer.IsAtWarAnyMajor())
 	{
-		iModifier /= 15;
+		iModifier -= 50;
 	}
 	int iGPT = (int)kPlayer.GetTreasury()->AverageIncome(10);
 	if(iGPT < 0)

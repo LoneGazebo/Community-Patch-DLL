@@ -134,7 +134,7 @@
 		<!-- Victory Block Diplomacy Statements -->
 		<Row LeaderType="GENERIC">
 			<ResponseType>DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_WORLD_CONQUEST</ResponseType>
-			<Response>TXT_KEY_GENERIC_COMPETITION_BLOCK_WORLD_CONQUEST%</Response>
+			<Response>TXT_KEY_GENERIC_BLOCK_ANNOUNCE_WORLD_CONQUEST%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
 			<ResponseType>DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_WORLD_CONGRESS</ResponseType>

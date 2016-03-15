@@ -5,11 +5,11 @@ VALUES		('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS',		'Barbarian GG/GA Points'),
 
 -- CS Stuff
 UPDATE Language_en_US
-SET Text = 'Enslave {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@1_Unit}} - lose {2_NumInfluence} [ICON_INFLUENCE] Influence'
+SET Text = 'Enslave {@1_Unit} - lose {2_NumInfluence} [ICON_INFLUENCE] Influence'
 WHERE Tag = 'TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT';
 
 UPDATE Language_en_US
-SET Text = 'If this City-State is more [COLOR_POSITIVE_TEXT]afraid[ENDCOLOR] of you than they are [COLOR_WARNING_TEXT]resilient[ENDCOLOR], you can demand a tribute of a {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@3_Unit}} at the cost of [ICON_INFLUENCE] Influence.  {1_FearLevel}{2_FactorDetails}'
+SET Text = 'If this City-State is more [COLOR_POSITIVE_TEXT]afraid[ENDCOLOR] of you than they are [COLOR_WARNING_TEXT]resilient[ENDCOLOR], you can demand one {@3_Unit} as tribute of at the cost of [ICON_INFLUENCE] Influence.  {1_FearLevel}{2_FactorDetails}'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_UNIT_TT';
 
 -- Fixed quest text - transitioned to new 'quest rewards' panel

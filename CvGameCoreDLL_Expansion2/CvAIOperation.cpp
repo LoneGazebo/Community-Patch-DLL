@@ -998,14 +998,17 @@ bool CvAIOperation::CheckOnTarget()
 						}
 						case AI_OPERATION_STATE_GATHERING_FORCES:
 						{
-							int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
-							pCenterOfMass = pThisArmy->GetCenterOfMass(IsNavalOperation() ? DOMAIN_SEA : DOMAIN_LAND);
-							if(pCenterOfMass && GetMusterPlot() != NULL &&
-								plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
-								pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 3 / 2))
+							if(GetMusterPlot() != NULL)
 							{
-								pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
-								m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+								int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
+								pCenterOfMass = pThisArmy->GetCenterOfMass(IsNavalOperation() ? DOMAIN_SEA : DOMAIN_LAND);
+								if(pCenterOfMass && GetMusterPlot() != NULL &&
+									plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
+									pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 3 / 2))
+								{
+									pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+									m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+								}
 							}
 							break;
 						}
@@ -1090,42 +1093,48 @@ bool CvAIOperation::CheckOnTarget()
 						{
 							if(bCivilian && pCivilian)
 							{
-								pCivilianPlot = pCivilian->plot();
-								//there may be multiple escorts ...
-								for (int iSlot=1; iSlot<pThisArmy->GetNumSlotsFilled(); iSlot++)
+								if(GetMusterPlot() != NULL)
 								{
-									pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetFormationSlot(iSlot)->GetUnitID());
-									if (pEscort && pCivilianPlot == pEscort->plot())
+									pCivilianPlot = pCivilian->plot();
+									//there may be multiple escorts ...
+									for (int iSlot=1; iSlot<pThisArmy->GetNumSlotsFilled(); iSlot++)
 									{
-										int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
-										pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
-										if(pCenterOfMass && GetMusterPlot() &&
-											plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
-											pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 2))
+										pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetFormationSlot(iSlot)->GetUnitID());
+										if (pEscort && pCivilianPlot == pEscort->plot())
 										{
-											pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
-											m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+											int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
+											pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
+											if(pCenterOfMass && GetMusterPlot() &&
+												plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
+												pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 2))
+											{
+												pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+												m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+											}
 										}
 									}
-								}
 
-								//apparently it can also happen that the civilian is all alone
-								if (pThisArmy->GetNumSlotsFilled()==1)
-								{
-									pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
-									m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+									//apparently it can also happen that the civilian is all alone
+									if (pThisArmy->GetNumSlotsFilled()==1)
+									{
+										pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+										m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+									}
 								}
 							}
 							else
 							{
-								int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
-								pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
-								if(pCenterOfMass && GetMusterPlot() &&
-									plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
-									pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 3 / 2))
+								if(GetMusterPlot() != NULL)
 								{
-									pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
-									m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+									int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
+									pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
+									if(pCenterOfMass && GetMusterPlot() &&
+										plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
+										pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 3 / 2))
+									{
+										pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+										m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+									}
 								}
 							}
 							break;
@@ -1169,53 +1178,56 @@ bool CvAIOperation::CheckOnTarget()
 			{
 				CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
 				CvPlot* pCenterOfMass;
-				int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
-
-				if(pThisArmy)
+				if(GetMusterPlot() != NULL)
 				{
-					CvAIOperation* pAIOp = GET_PLAYER(m_eOwner).getAIOperation(pThisArmy->GetOperationID());
-					//No operation? Bwa?
-					if(!pAIOp)
-					{
-						Kill(AI_ABORT_NO_UNITS);
-						return false;
-					}
-					//No units ? Destroy.
-					if(pThisArmy->GetNumSlotsFilled() <= 0)
-					{
-						Kill(AI_ABORT_NO_UNITS);
-						return false;
-					}
-					switch(m_eCurrentState)
-					{
-						case AI_OPERATION_STATE_RECRUITING_UNITS:
-						{
-							if(GetMusterPlot() != NULL && GetTargetPlot() != NULL && GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot()))
-							{
-								pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
-								m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
-							}
-							if (pThisArmy->GetNumSlotsFilled() > 0 && pThisArmy->GetTurnAtNextCheckpoint() != ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT && pThisArmy->GetTurnAtNextCheckpoint() != ARMYSLOT_NOT_INCLUDING_IN_OPERATION)
-							{
-								pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
-								m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
-							}
-							break;
-						}
-						case AI_OPERATION_STATE_GATHERING_FORCES:
-						case AI_OPERATION_STATE_MOVING_TO_TARGET:
-						{
-							// We want to recompute a new target each turn.  So call ArmyInPosition() regardless of return status
-							pAIOp->ArmyInPosition(pThisArmy);
+					int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
 
-							pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
-							if(pCenterOfMass && GetTargetPlot() != NULL &&
-									plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) <= iGatherTolerance &&
-									pThisArmy->GetFurthestUnitDistance(GetTargetPlot()) <= (iGatherTolerance * 3 / 2))
-									{
-										return true;
-									}
-							break;
+					if(pThisArmy)
+					{
+						CvAIOperation* pAIOp = GET_PLAYER(m_eOwner).getAIOperation(pThisArmy->GetOperationID());
+						//No operation? Bwa?
+						if(!pAIOp)
+						{
+							Kill(AI_ABORT_NO_UNITS);
+							return false;
+						}
+						//No units ? Destroy.
+						if(pThisArmy->GetNumSlotsFilled() <= 0)
+						{
+							Kill(AI_ABORT_NO_UNITS);
+							return false;
+						}
+						switch(m_eCurrentState)
+						{
+							case AI_OPERATION_STATE_RECRUITING_UNITS:
+							{
+								if(GetMusterPlot() != NULL && GetTargetPlot() != NULL && GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot()))
+								{
+									pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
+									m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
+								}
+								if (pThisArmy->GetNumSlotsFilled() > 0 && pThisArmy->GetTurnAtNextCheckpoint() != ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT && pThisArmy->GetTurnAtNextCheckpoint() != ARMYSLOT_NOT_INCLUDING_IN_OPERATION)
+								{
+									pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
+									m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
+								}
+								break;
+							}
+							case AI_OPERATION_STATE_GATHERING_FORCES:
+							case AI_OPERATION_STATE_MOVING_TO_TARGET:
+							{
+								// We want to recompute a new target each turn.  So call ArmyInPosition() regardless of return status
+								pAIOp->ArmyInPosition(pThisArmy);
+
+								pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
+								if(pCenterOfMass && GetTargetPlot() != NULL &&
+										plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) <= iGatherTolerance &&
+										pThisArmy->GetFurthestUnitDistance(GetTargetPlot()) <= (iGatherTolerance * 3 / 2))
+										{
+											return true;
+										}
+								break;
+							}
 						}
 					}
 				}
