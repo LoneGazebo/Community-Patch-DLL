@@ -228,7 +228,7 @@
 			<Text>The Council generates Science every time city grows, and is availble very early. Build this building if you wish to have a technological advantage over your rivals, though the value of this advantage diminishes as the city becomes larger.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_STRATEGY">
-			<Text>The Bath increases the speed at which Great People are generated in the city by 25% (5% more than the Garden), generates Science based on the City's Culture rate, and boosts the yields of Citrus and Cocoa resources. Baths can be constructed only in cities next to a river.</Text>
+			<Text>The Bath generates Culture, and boosts the Gold and Culture yield of Temples, Gardens, and Amphitheaters in the City. Also generates additional Culture during Golden Ages. Baths can be constructed only in cities next to a river.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HERBALIST_STRATEGY">
 			<Text>The Herbalist increases City growth, and improves the yields on nearby Jungle and Forest tiles. Requires a nearby Forest or Jungle in order to be constructed. Build them early to maximize the bonus, and to take advantage of regions with a large number of features.</Text>
@@ -261,7 +261,7 @@
 			<Text>+1 [ICON_FOOD] Food on nearby Forest and Jungle tiles. [NEWLINE][NEWLINE]City must have a workable Forest or Jungle tile in its borders.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
-			<Text>+25% [ICON_GREAT_PEOPLE] Great People generation in this City.[NEWLINE]Nearby [ICON_RES_CITRUS] Citrus: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COCOA] Cocoa: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]City must be built next to a River. Cannot be built if the City already has a Garden.</Text>
+			<Text>Temples, Amphitheaters, and Gardens in City: +1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture. +10% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]City must be built next to a River.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROCER_HELP">
 			<Text>Carries over 25% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct). Reduces [ICON_HAPPINESS_3] Poverty.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.</Text>
@@ -559,7 +559,7 @@
 			<Text>Stationary steam engines are fixed steam engines used for pumping or driving mills and factories, and for power generation. They are distinct from locomotive engines used on railways, traction engines for heavy steam haulage on roads, steam cars (and other motor vehicles), agricultural engines used for ploughing or threshing, marine engines, and the steam turbines used as the mechanism of power generation for most nuclear power plants. They were introduced during the 18th century and widely made for the whole of the 19th century and most of the first half of the 20th century, only declining as electricity supply and the internal combustion engine became more widespread.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production for every 3 [ICON_CITIZEN] Citizens in the City. Trade routes other players make to a city with a Steam Mill will generate an extra 3 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 3 [ICON_GOLD] Gold for the trade route.[NEWLINE]Nearby [ICON_RES_COAL] Coal: +3 [ICON_PRODUCTION] Production.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production for every 2 [ICON_CITIZEN] Citizens in the City. Trade routes other players make to a city with a Steam Mill will generate an extra 3 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 3 [ICON_GOLD] Gold for the trade route.[NEWLINE]Nearby [ICON_RES_COAL] Coal: +3 [ICON_PRODUCTION] Production.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_STRATEGY">
 			<Text>Unique English replacement for the Factory. The Steam Mill is cheaper, requires no [ICON_RES_COAL] Coal, is available earlier than the Factory, and provides additional Production to [ICON_RES_COAL] Coal worked by the City. The Steam Mill also boosts the city's Gold income from Trade Routes, thus encouraging other Civlizations to trade with you. Since Steam Mills do not require Coal, you can use your Coal surplus to build Seaports and Coal Plants, or you can trade it away for a large amount of gold.</Text>

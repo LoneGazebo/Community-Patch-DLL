@@ -1736,15 +1736,29 @@ int CvReligionBeliefs::GetNumBeliefs() const
 bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligion, PlayerTypes ePlayer, CvCity* pCity) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
-	if(ePlayer != NO_PLAYER && eReligion != NO_RELIGION)
+	if(ePlayer != NO_PLAYER)
 	{
-		if(pBeliefs->GetEntry(eBelief)->IsFounderBelief() || pBeliefs->GetEntry(eBelief)->IsReformationBelief())
+		if(eReligion != NO_RELIGION && (pBeliefs->GetEntry(eBelief)->IsFounderBelief() || pBeliefs->GetEntry(eBelief)->IsReformationBelief()))
 		{
 			if(!GC.getGame().GetGameReligions()->IsEligibleForFounderBenefits(eReligion, ePlayer))
 			{	
 				return false;
 			}
 			if(pCity != NULL && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
+			{
+				return false;
+			}
+		}
+		if(eReligion != NO_RELIGION && pBeliefs->GetEntry(eBelief)->IsEnhancerBelief())
+		{
+			if(pCity != NULL && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
+			{
+				return false;
+			}
+		}
+		if(pBeliefs->GetEntry(eBelief)->IsPantheonBelief())
+		{
+			if(pCity != NULL && !pCity->isCapital())
 			{
 				return false;
 			}
@@ -2383,14 +2397,14 @@ float CvReligionBeliefs:: GetHappinessPerFollowingCity(PlayerTypes ePlayer) cons
 }
 
 /// Gold per following city
-int CvReligionBeliefs:: GetGoldPerFollowingCity(PlayerTypes ePlayer) const
+int CvReligionBeliefs:: GetGoldPerFollowingCity(PlayerTypes ePlayer, CvCity* pCity) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity))
 		{
 			rtnValue += pBeliefs->GetEntry(*it)->GetGoldPerFollowingCity();
 		}
@@ -2400,14 +2414,14 @@ int CvReligionBeliefs:: GetGoldPerFollowingCity(PlayerTypes ePlayer) const
 }
 
 /// Gold per following city
-int CvReligionBeliefs:: GetGoldPerXFollowers(PlayerTypes ePlayer) const
+int CvReligionBeliefs:: GetGoldPerXFollowers(PlayerTypes ePlayer, CvCity* pCity) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity))
 		{
 			rtnValue += pBeliefs->GetEntry(*it)->GetGoldPerXFollowers();
 		}
@@ -2417,14 +2431,14 @@ int CvReligionBeliefs:: GetGoldPerXFollowers(PlayerTypes ePlayer) const
 }
 
 /// Gold per following city
-int CvReligionBeliefs:: GetGoldWhenCityAdopts(PlayerTypes ePlayer) const
+int CvReligionBeliefs:: GetGoldWhenCityAdopts(PlayerTypes ePlayer, CvCity* pCity) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity))
 		{
 			rtnValue += pBeliefs->GetEntry(*it)->GetGoldWhenCityAdopts();
 		}
@@ -2491,16 +2505,19 @@ int CvReligionBeliefs::GetCityYieldChange(int iPopulation, YieldTypes eYield, Pl
 }
 
 /// Extra holy city yield
-int CvReligionBeliefs::GetHolyCityYieldChange (YieldTypes eYield, PlayerTypes ePlayer) const
+int CvReligionBeliefs::GetHolyCityYieldChange (YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity))
 		{
-			rtnValue += pBeliefs->GetEntry(*it)->GetHolyCityYieldChange(eYield);
+			if(pCity->GetCityReligions()->IsHolyCityForReligion(GetReligion()))
+			{
+				rtnValue += pBeliefs->GetEntry(*it)->GetHolyCityYieldChange(eYield);
+			}
 		}
 	}
 
@@ -2508,14 +2525,14 @@ int CvReligionBeliefs::GetHolyCityYieldChange (YieldTypes eYield, PlayerTypes eP
 }
 
 /// Extra yield for foreign cities following religion
-int CvReligionBeliefs::GetYieldChangePerForeignCity(YieldTypes eYield, PlayerTypes ePlayer) const
+int CvReligionBeliefs::GetYieldChangePerForeignCity(YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity))
 		{
 			rtnValue += pBeliefs->GetEntry(*it)->GetYieldChangePerForeignCity(eYield);
 		}
@@ -2525,14 +2542,14 @@ int CvReligionBeliefs::GetYieldChangePerForeignCity(YieldTypes eYield, PlayerTyp
 }
 
 /// Extra yield for foreign followers
-int CvReligionBeliefs::GetYieldChangePerXForeignFollowers(YieldTypes eYield, PlayerTypes ePlayer) const
+int CvReligionBeliefs::GetYieldChangePerXForeignFollowers(YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity))
 		{
 			rtnValue += pBeliefs->GetEntry(*it)->GetYieldChangePerXForeignFollowers(eYield);
 		}
@@ -2542,14 +2559,14 @@ int CvReligionBeliefs::GetYieldChangePerXForeignFollowers(YieldTypes eYield, Pla
 }
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-int CvReligionBeliefs::GetYieldPerFollowingCity(YieldTypes eYield, PlayerTypes ePlayer) const
+int CvReligionBeliefs::GetYieldPerFollowingCity(YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity))
 		{
 			rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerFollowingCity(eYield);
 		}
@@ -2572,14 +2589,14 @@ int CvReligionBeliefs::GetLakePlotYieldChange(YieldTypes eYield, PlayerTypes ePl
 
 	return rtnValue;
 }
-int CvReligionBeliefs::GetYieldPerXFollowers(YieldTypes eYield, PlayerTypes ePlayer) const
+int CvReligionBeliefs::GetYieldPerXFollowers(YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity))
 		{
 			rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerXFollowers(eYield);
 		}
@@ -2588,14 +2605,14 @@ int CvReligionBeliefs::GetYieldPerXFollowers(YieldTypes eYield, PlayerTypes ePla
 	return rtnValue;
 }
 
-int CvReligionBeliefs::GetYieldPerOtherReligionFollower(YieldTypes eYield, PlayerTypes ePlayer) const
+int CvReligionBeliefs::GetYieldPerOtherReligionFollower(YieldTypes eYield, PlayerTypes ePlayer, CvCity* pCity) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity))
 		{
 			rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerOtherReligionFollower(eYield);
 		}
@@ -3297,14 +3314,14 @@ int CvReligionBeliefs::GetYieldPerPop(YieldTypes eYieldType, PlayerTypes ePlayer
 	return rtnValue;
 }
 /// Get yield modifier from beliefs for gpt
-int CvReligionBeliefs::GetYieldPerGPT(YieldTypes eYieldType, PlayerTypes ePlayer) const
+int CvReligionBeliefs::GetYieldPerGPT(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity))
 		{
 			rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerGPT(eYieldType);
 		}
@@ -3313,14 +3330,14 @@ int CvReligionBeliefs::GetYieldPerGPT(YieldTypes eYieldType, PlayerTypes ePlayer
 	return rtnValue;
 }
 /// Get yield modifier from beliefs for luxury
-int CvReligionBeliefs::GetYieldPerLux(YieldTypes eYieldType, PlayerTypes ePlayer) const
+int CvReligionBeliefs::GetYieldPerLux(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity))
 		{
 			rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerLux(eYieldType);
 		}
@@ -3368,23 +3385,35 @@ int CvReligionBeliefs::GetYieldPerBirth(YieldTypes eYieldType, PlayerTypes ePlay
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity))
+		//Does double duty for pantheons and followers, so needs two checks
+		if(pBeliefs->GetEntry(*it)->IsFollowerBelief())
 		{
-			rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerBirth(eYieldType);
+			if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity))
+			{
+				rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerBirth(eYieldType);
+			}
+		}
+		else
+		{
+			//No city here, because it is universal.
+			if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+			{
+				rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerBirth(eYieldType);
+			}
 		}
 	}
 
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from science
-int CvReligionBeliefs::GetYieldPerScience(YieldTypes eYieldType, PlayerTypes ePlayer) const
+int CvReligionBeliefs::GetYieldPerScience(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity))
 		{
 			rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerScience(eYieldType);
 		}
@@ -3553,14 +3582,14 @@ int CvReligionBeliefs::GetYieldFromProposal(YieldTypes eYieldType, PlayerTypes e
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from Hosting WC
-int CvReligionBeliefs::GetYieldFromHost(YieldTypes eYieldType, PlayerTypes ePlayer) const
+int CvReligionBeliefs::GetYieldFromHost(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity))
 		{
 			rtnValue += pBeliefs->GetEntry(*it)->GetYieldFromHost(eYieldType);
 		}
@@ -3569,14 +3598,14 @@ int CvReligionBeliefs::GetYieldFromHost(YieldTypes eYieldType, PlayerTypes ePlay
 	return rtnValue;
 }
 /// Get yield modifier from beliefs from Hosting WC
-int CvReligionBeliefs::GetYieldFromKnownPantheons(YieldTypes eYieldType, PlayerTypes ePlayer) const
+int CvReligionBeliefs::GetYieldFromKnownPantheons(YieldTypes eYieldType, PlayerTypes ePlayer, CvCity* pCity) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity))
 		{
 			rtnValue += pBeliefs->GetEntry(*it)->GetYieldFromKnownPantheons(eYieldType);
 		}

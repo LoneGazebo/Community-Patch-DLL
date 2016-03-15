@@ -14,6 +14,22 @@ print("Loading EUI city banners",ContextPtr,os.clock(),[[
  \____|_|\__|\__, |____/ \__,_|_| |_|_| |_|\___|_|  |_|  |_|\__,_|_| |_|\__,_|\__, |\___|_|   
              |___/                                                            |___/           
 ]])
+-------------------------------
+-- minor lua optimizations
+-------------------------------
+local ipairs = ipairs
+local math_ceil = math.ceil
+local math_floor = math.floor
+local math_max = math.max
+local math_min = math.min
+local math_modf = math.modf
+local pairs = pairs
+local print = print
+local table_insert = table.insert
+local table_remove = table.remove
+local table_concat = table.concat
+local S = string.format
+
 --EUI_utilities
 local IconHookup = EUI.IconHookup
 local CivIconHookup = EUI.CivIconHookup
@@ -38,129 +54,37 @@ local GetHelpTextForProcess = EUI.GetHelpTextForProcess
 local GetMoodInfo = EUI.GetMoodInfo
 local GetReligionTooltip = EUI.GetReligionTooltip
 
--------------------------------
--- minor lua optimizations
--------------------------------
 
---local next = next
-local pairs = pairs
-local ipairs = ipairs
---local pcall = pcall
---local print = print
---local select = select
---local setmetatable = setmetatable
---local string = string
---local tonumber = tonumber
---local tostring = tostring
---local type = type
---local unpack = unpack
---local table = table
-local table_insert = table.insert
-local table_remove = table.remove
---local table_concat = table.concat
---local os = os
---local os_time = os.time
---local os_date = os.date
---local math = math
-local math_floor = math.floor
-local math_ceil = math.ceil
-local math_min = math.min
-local math_max = math.max
---local math_abs = math.abs
-local math_modf = math.modf
---local math_sqrt = math.sqrt
---local math_pi = math.pi
---local math_sin = math.sin
---local math_cos = math.cos
---local math_huge = math.huge
-
-local UI = UI
-local UI_GetUnitPortraitIcon = UI.GetUnitPortraitIcon
---local UIManager = UIManager
-local ToHexFromGrid = ToHexFromGrid
---local IsGameCoreBusy = IsGameCoreBusy
-
-local Controls = Controls
-local ContextPtr = ContextPtr
-local Players = Players
-local Teams = Teams
---local GameInfo = GameInfo
---local GameInfoActions = GameInfoActions
---local GameInfoTypes = GameInfoTypes
-local GameDefines = GameDefines
---local InterfaceDirtyBits = InterfaceDirtyBits
-local CityUpdateTypes = CityUpdateTypes
 local ButtonPopupTypes = ButtonPopupTypes
---local YieldTypes = YieldTypes
-local GameOptionTypes = GameOptionTypes
---local DomainTypes = DomainTypes
---local FeatureTypes = FeatureTypes
---local FogOfWarModeTypes = FogOfWarModeTypes
---local OrderTypes = OrderTypes
---local PlotTypes = PlotTypes
---local TerrainTypes = TerrainTypes
-local InterfaceModeTypes = InterfaceModeTypes
---local NotificationTypes = NotificationTypes
---local ActivityTypes = ActivityTypes
---local MissionTypes = MissionTypes
---local ActionSubTypes = ActionSubTypes
---local GameMessageTypes = GameMessageTypes
---local TaskTypes = TaskTypes
---local CommandTypes = CommandTypes
---local DirectionTypes = DirectionTypes
---local DiploUIStateTypes = DiploUIStateTypes
---local FlowDirectionTypes = FlowDirectionTypes
---local PolicyBranchTypes = PolicyBranchTypes
---local FromUIDiploEventTypes = FromUIDiploEventTypes
---local CoopWarStates = CoopWarStates
---local ThreatTypes = ThreatTypes
---local DisputeLevelTypes = DisputeLevelTypes
---local LeaderheadAnimationTypes = LeaderheadAnimationTypes
---local TradeableItems = TradeableItems
---local EndTurnBlockingTypes = EndTurnBlockingTypes
-local ResourceUsageTypes = ResourceUsageTypes
---local MajorCivApproachTypes = MajorCivApproachTypes
---local MinorCivTraitTypes = MinorCivTraitTypes
---local MinorCivPersonalityTypes = MinorCivPersonalityTypes
-local MinorCivQuestTypes = MinorCivQuestTypes
 local CityAIFocusTypes = CityAIFocusTypes
---local AdvisorTypes = AdvisorTypes
---local GenericWorldAnchorTypes = GenericWorldAnchorTypes
---local GameStates = GameStates
---local GameplayGameStateTypes = GameplayGameStateTypes
---local CombatPredictionTypes = CombatPredictionTypes
---local ChatTargetTypes = ChatTargetTypes
---local ReligionTypes = ReligionTypes
---local BeliefTypes = BeliefTypes
---local FaithPurchaseTypes = FaithPurchaseTypes
---local ResolutionDecisionTypes = ResolutionDecisionTypes
---local InfluenceLevelTypes = InfluenceLevelTypes
---local InfluenceLevelTrend = InfluenceLevelTrend
---local PublicOpinionTypes = PublicOpinionTypes
---local ControlTypes = ControlTypes
-
---local PreGame = PreGame
-local Game = Game
---local Map = Map
-local Map_GetPlotByIndex = Map.GetPlotByIndex
-local Map_GetPlot = Map.GetPlot
---local Network = Network
-local Network_SendUpdateCityCitizens = Network.SendUpdateCityCitizens
-local OptionsManager = OptionsManager
+local CityUpdateTypes = CityUpdateTypes
+local ContextPtr = ContextPtr
+local Controls = Controls
 local Events = Events
 local Events_ClearHexHighlightStyle = Events.ClearHexHighlightStyle
-local Events_SerialEventHexHighlight = Events.SerialEventHexHighlight
 local Events_RequestYieldDisplay = Events.RequestYieldDisplay
-local Mouse = Mouse
---local MouseEvents = MouseEvents
---local MouseOverStrategicViewResource = MouseOverStrategicViewResource
-local Locale = Locale
-local L = Locale.ConvertTextKey
-local S = string.format
---getmetatable("").__index.L = L
-local InStrategicView = InStrategicView
+local Events_SerialEventHexHighlight = Events.SerialEventHexHighlight
+local Game = Game
+local GameDefines_MAX_CITY_HIT_POINTS = GameDefines.MAX_CITY_HIT_POINTS
+local GameOptionTypes = GameOptionTypes
 local GridToWorld = GridToWorld
+local InStrategicView = InStrategicView
+local InterfaceModeTypes = InterfaceModeTypes
+local L = Locale.ConvertTextKey
+local Locale_ToUpper = Locale.ToUpper
+local Map_GetPlot = Map.GetPlot
+local Map_GetPlotByIndex = Map.GetPlotByIndex
+local MinorCivQuestTypes = MinorCivQuestTypes
+local Mouse = Mouse
+local Network_SendUpdateCityCitizens = Network.SendUpdateCityCitizens
+local OptionsManager = OptionsManager
+local Players = Players
+local ResourceUsageTypes = ResourceUsageTypes
+local Teams = Teams
 local ToGridFromHex = ToGridFromHex
+local ToHexFromGrid = ToHexFromGrid
+local UI = UI
+local UI_GetUnitPortraitIcon = UI.GetUnitPortraitIcon
 local UnitMoving = UnitMoving
 local YieldDisplayTypes = YieldDisplayTypes
 
@@ -172,7 +96,7 @@ local bnw_mode = Game.GetActiveLeague ~= nil
 local civ5_mode = InStrategicView ~= nil
 --local civBE_mode = Game.GetAvailableBeliefs ~= nil
 
-local isDebug = Game.IsDebugMode()
+local g_deal = UI.GetScratchDeal()
 
 local g_activePlayerID = Game.GetActivePlayer()
 local g_activePlayer = Players[ g_activePlayerID ]
@@ -189,10 +113,6 @@ local g_scrapOtherBanners = {}
 local g_scrapSVStrikeButtons = {}
 
 local g_WorldPositionOffsetZ = civ5_mode and 35 or 55
-
-local BlackFog = 0	-- invisible
---local GreyFog = 1	-- once seen
---local WhiteFog = 2	-- eyes on
 
 local g_colorWhite = Color( 1, 1, 1, 1 )
 local g_colorGreen = Color( 0, 1, 0, 1 )
@@ -213,24 +133,34 @@ local g_dirtyCityBanners = {}
 local g_toolTipControls = {}
 TTManager:GetTypeControlTable( "EUI_CityBannerTooltip", g_toolTipControls )
 
-local g_CityFocus = {
-[CityAIFocusTypes.NO_CITY_AI_FOCUS_TYPE or -1] =		{"",			L("TXT_KEY_CITYVIEW_FOCUS_BALANCED_TEXT")},
-[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FOOD or -1] =		{"[ICON_FOOD]",		L("TXT_KEY_CITYVIEW_FOCUS_FOOD_TEXT")},
-[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_PRODUCTION or -1] =	{"[ICON_PRODUCTION]",	L("TXT_KEY_CITYVIEW_FOCUS_PROD_TEXT")},
-[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GOLD or -1] =		{"[ICON_GOLD]",		L("TXT_KEY_CITYVIEW_FOCUS_GOLD_TEXT")},
-[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_SCIENCE or -1] =		{"[ICON_RESEARCH]",	L("TXT_KEY_CITYVIEW_FOCUS_RESEARCH_TEXT")},
-[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_CULTURE or -1] =		{"[ICON_CULTURE]",	L("TXT_KEY_CITYVIEW_FOCUS_CULTURE_TEXT")},
-[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GREAT_PEOPLE or -1] =	{"[ICON_GREAT_PEOPLE]",	L("TXT_KEY_CITYVIEW_FOCUS_GREAT_PERSON_TEXT")},
-[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FAITH or -1] = {"[ICON_PEACE]",	L("TXT_KEY_CITYVIEW_FOCUS_FAITH_TEXT")},
-}
-g_CityFocus[-1] = nil
+local g_cityFocusIcons = {
+--[CityAIFocusTypes.NO_CITY_AI_FOCUS_TYPE or -1] = "",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FOOD or -1] = "[ICON_FOOD]",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_PRODUCTION or -1] = "[ICON_PRODUCTION]",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GOLD or -1] = "[ICON_GOLD]",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_SCIENCE or -1] = "[ICON_RESEARCH]",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_CULTURE or -1] = "[ICON_CULTURE]",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GREAT_PEOPLE or -1] = "[ICON_GREAT_PEOPLE]",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FAITH or -1] = "[ICON_PEACE]",
+} g_cityFocusIcons[-1] = nil
+
+local g_cityFocusTooltips = {
+[CityAIFocusTypes.NO_CITY_AI_FOCUS_TYPE or -1] = L"TXT_KEY_CITYVIEW_FOCUS_BALANCED_TEXT",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FOOD or -1] = L"TXT_KEY_CITYVIEW_FOCUS_FOOD_TEXT",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_PRODUCTION or -1] = L"TXT_KEY_CITYVIEW_FOCUS_PROD_TEXT",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GOLD or -1] = L"TXT_KEY_CITYVIEW_FOCUS_GOLD_TEXT",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_SCIENCE or -1] = L"TXT_KEY_CITYVIEW_FOCUS_RESEARCH_TEXT",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_CULTURE or -1] = L"TXT_KEY_CITYVIEW_FOCUS_CULTURE_TEXT",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GREAT_PEOPLE or -1] = L"TXT_KEY_CITYVIEW_FOCUS_GREAT_PERSON_TEXT",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FAITH or -1] = L"TXT_KEY_CITYVIEW_FOCUS_FAITH_TEXT",
+} g_cityFocusTooltips[-1] = nil
 
 local function IsTurnActive( player )
 	return player and player:IsTurnActive() and not Game.IsProcessingMessages()
 end
 
 local function BannerError( where, arg )
-	if isDebug then
+	if Game.IsDebugMode() then
 		local txt = ""
 		if arg and arg.PlotIndex then
 			txt = "city banner"
@@ -249,9 +179,9 @@ end
 
 local RefreshCityBanner
 
-local g_toolTipHandler = {
+local g_cityToolTips = {
 	-- CityBanner ToolTip
-	BannerButton = function( city )
+	CityBannerButton = function( city )
 		local tipText = ""
 		local cityOwnerID = city:GetOwner()
 		local cityOwner = Players[ cityOwnerID ]
@@ -261,7 +191,7 @@ local g_toolTipHandler = {
 			-- city resources
 			local resources = {}
 			for plot in CityPlots( city ) do
-				if plot	and plot:IsRevealed( g_activeTeamID )
+				if plot	and plot:IsRevealed( g_activeTeamID, true )
 				then
 					local resourceID = plot:GetResourceType( g_activeTeamID )
 					local numResource = plot:GetNumResource()
@@ -337,29 +267,29 @@ local g_toolTipHandler = {
 
 				-- Occupation tooltip
 				if (iOccupationUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_OCCUPATION", iOccupationUnhappiness);
+					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_OCCUPATION", iOccupationUnhappiness);
 				end
 				-- Resistance tooltip
 				if (iResistanceUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappiness);
+					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappiness);
 				end
 				-- Starving tooltip
 				if (iStarvingUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_STARVING", iStarvingUnhappiness);
+					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_STARVING", iStarvingUnhappiness);
 				end
 				-- Pillaged tooltip
 				if (iPillagedUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_PILLAGED", iPillagedUnhappiness);
+					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_PILLAGED", iPillagedUnhappiness);
 				end
 				if(iGoldUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_POOR", iGoldUnhappiness);
+					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_POOR", iGoldUnhappiness);
 				end
 				if(iDefenseUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNDEFENDED", iDefenseUnhappiness);
+					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_UNDEFENDED", iDefenseUnhappiness);
 				end
 				-- Connection tooltip
 				if (iConnectionUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNCONNECTED", iConnectionUnhappiness);
+					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_UNCONNECTED", iConnectionUnhappiness);
 				end
 				-- Minority tooltip
 				local ePlayerReligion = city:GetReligiousMajority();
@@ -367,14 +297,14 @@ local g_toolTipHandler = {
 					local playerreligion = GameInfo.Religions[ePlayerReligion];
 					local strReligionIcon = playerreligion.IconString;
 					if (iMinorityUnhappiness ~= 0) then
-						tipText = tipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_RELIGION", iMinorityUnhappiness, strReligionIcon);
+						tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_RELIGION", iMinorityUnhappiness, strReligionIcon);
 					end
 				end
 				if(iScienceUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNEDUCATED", iScienceUnhappiness);
+					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_UNEDUCATED", iScienceUnhappiness);
 				end
 				if(iCultureUnhappiness ~= 0) then
-					tipText = tipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNCULTURED", iCultureUnhappiness);
+					tipText = tipText .. "[NEWLINE]" .. L("TXT_KEY_EO_CITY_UNCULTURED", iCultureUnhappiness);
 				end
 				tipText = tipText .. "[NEWLINE]";
 				-- COMMUNITY PATCH END
@@ -467,7 +397,7 @@ local g_toolTipHandler = {
 		if isProducingSomething then
 			productionNeeded = city:GetProductionNeeded()
 			productionTurnsLeft = city:GetProductionTurnsLeft()
-			tipText = "[COLOR_YIELD_FOOD]" .. Locale.ToUpper( cityProductionName ) .. "[ENDCOLOR]"
+			tipText = "[COLOR_YIELD_FOOD]" .. Locale_ToUpper( cityProductionName ) .. "[ENDCOLOR]"
 			if isNoob then
 				tipText = L( "TXT_KEY_PROGRESS_TOWARDS", tipText )
 			end
@@ -481,7 +411,7 @@ local g_toolTipHandler = {
 					tipText = tipText .. L( "TXT_KEY_STR_TURNS", productionTurnsLeft -1 )
 						.. S( " %+g[ICON_PRODUCTION]  ", ( productionOverflow100 - productionPerTurn100 ) / 100 )
 				end
-				tipText = tipText .. "[COLOR_YIELD_FOOD]" .. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", productionTurnsLeft ) ) .. "[ENDCOLOR]"
+				tipText = tipText .. "[COLOR_YIELD_FOOD]" .. Locale_ToUpper( L( "TXT_KEY_STR_TURNS", productionTurnsLeft ) ) .. "[ENDCOLOR]"
 						.. S( " %+g[ICON_PRODUCTION]", productionOverflow100 / 100 )
 			end
 		end
@@ -494,7 +424,7 @@ local g_toolTipHandler = {
 		local tipText
 		local isNoob = not OptionsManager.IsNoBasicHelp()
 		local cityName = city:GetName()
-		local cityPopulation = math_floor(city:GetPopulation())
+		local cityPopulation = city:GetPopulation()
 
 		local foodStoredTimes100 = city:GetFoodTimes100()
 		local foodPerTurnTimes100 = city:FoodDifferenceTimes100( true )	-- true means size 1 city cannot starve
@@ -541,7 +471,7 @@ local g_toolTipHandler = {
 						.. S( " %+g[ICON_FOOD]  ", ( foodOverflowTimes100 - foodPerTurnTimes100 ) / 100 )
 			end
 			tipText = tipText .. ( foodPerTurnTimes100 < 0 and "[COLOR_WARNING_TEXT]" or "[COLOR_POSITIVE_TEXT]" )
-					.. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", turnsToCityGrowth ) ) .. "[ENDCOLOR]"
+					.. Locale_ToUpper( L( "TXT_KEY_STR_TURNS", turnsToCityGrowth ) ) .. "[ENDCOLOR]"
 					.. S( " %+g[ICON_FOOD]", foodOverflowTimes100 / 100 )
 		end
 
@@ -549,28 +479,74 @@ local g_toolTipHandler = {
 	end,
 
 	-- City Religion Tooltip
-	ReligiousIcon = GetReligionTooltip,
-	PuppetIcon = function( city )
+	CityReligion = GetReligionTooltip,
+
+	CityFocus = function( city )
+		return g_cityFocusTooltips[ city:GetFocusType() ]
+	end,
+	CityQuests = function( city )
+		local cityOwnerID = city:GetOwner()
+		local cityOwner = Players[ cityOwnerID ]
+		if cityOwner and cityOwner:IsMinorCiv() then
+			return GetActiveQuestToolTip( g_activePlayerID, cityOwnerID )
+		else
+			-- We love the king
+			local resource = GameInfo.Resources[ city:GetResourceDemanded() ]
+			local weLoveTheKingDayCounter = city:GetWeLoveTheKingDayCounter()
+			if weLoveTheKingDayCounter > 0 then
+				--- CBP
+				if(cityOwner:IsGPWLTKD()) then
+					return L( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA", weLoveTheKingDayCounter );
+				else
+				-- END
+					return L( "TXT_KEY_CITYVIEW_WLTKD_COUNTER", weLoveTheKingDayCounter )
+				end
+			elseif resource then
+				local resourceID = resource.ID
+				local civs = {}
+				for playerID = 0, #Players do
+					local player = Players[playerID]
+					local isMinorCiv = player:IsMinorCiv()
+					-- Valid player? - Can't be us, has to be alive, and has to be met
+					if playerID ~= g_activePlayerID
+						and player:IsAlive()
+						and g_activeTeam:IsHasMet( player:GetTeam() )
+						and not (isMinorCiv and player:IsAllies(g_activePlayerID))
+					then
+						local n
+						if isMinorCiv then
+							n = player:GetNumResourceTotal(resourceID, false) + player:GetResourceExport( resourceID )
+						else
+							n = g_deal:IsPossibleToTradeItem( playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1 ) and player:GetNumResourceAvailable( resourceID, false )
+						end
+						if n and n > 0 then
+							table_insert( civs, player:GetCivilizationShortDescription() .. " " .. n .. resource.IconString )
+						end
+					end
+				end
+				local tip = L( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED", resource.IconString .. " " .. L(resource.Description) )
+				if #civs > 0 then
+					tip = tip.."[NEWLINE]"..L"TXT_KEY_EO_RESOURCES_AVAILBLE"..": "..table_concat(civs, ", " )
+				end
+				return tip
+			end
+		end
+	end,
+	CityIsPuppet = function( city )
 		if bnw_mode and g_activePlayer:MayNotAnnex() or city:GetOwner() == g_activePlayerID then
 			return L"TXT_KEY_CITY_PUPPET"
 		else
 			return L"TXT_KEY_CITY_PUPPET".."[NEWLINE][NEWLINE]"..L"TXT_KEY_CITY_ANNEX_TT"
 		end
 	end,
-	RazingIcon = function( city )
+	CityIsRazing = function( city )
 		return L( "TXT_KEY_CITY_BURNING", city:GetRazingTurns() )
 	end,
-	ResistanceIcon = function( city )
+	CityIsResistance = function( city )
 		return L( "TXT_KEY_CITY_RESISTANCE", city:GetResistanceTurns() )
 	end,
-	RazingIcon = function( city )
-		return L( "TXT_KEY_CITY_BURNING", city:GetRazingTurns() )
-	end,
-	ResistanceIcon = function( city )
-		return L( "TXT_KEY_CITY_RESISTANCE", city:GetResistanceTurns() )
-	end,
-	ConnectedIcon = function( city )
-		local connectionTip = L("TXT_KEY_CITY_CONNECTED")
+	CityIsConnected = function( city )
+		local connectionTip = L"TXT_KEY_CITY_CONNECTED"
 		local cityOwnerID = city:GetOwner()
 		local cityOwner = Players[ cityOwnerID ]
 		if not cityOwner then
@@ -581,23 +557,13 @@ local g_toolTipHandler = {
 		end
 		return connectionTip
 	end,
-	QuestIcons = function( city )
-		local cityOwnerID = city:GetOwner()
-		local cityOwner = Players[ cityOwnerID ]
-		if cityOwner and cityOwner:IsMinorCiv() then
-			return GetActiveQuestToolTip( g_activePlayerID, cityOwnerID )
-		else
-			-- We love the king
-			local resource = GameInfo.Resources[ city:GetResourceDemanded() ]
-			local weLoveTheKingDayCounter = city:GetWeLoveTheKingDayCounter()
-			if weLoveTheKingDayCounter > 0 then
-				return L( "TXT_KEY_CITYVIEW_WLTKD_COUNTER", weLoveTheKingDayCounter )
-			elseif resource then
-				return L( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED", resource.IconString .. " " .. L(resource.Description) )
-			end
-		end
+	CityIsBlockaded = function()
+		return L"TXT_KEY_CITY_BLOCKADED"
 	end,
-} -- g_toolTipHandler
+	CityIsOccupied = function()
+		return L"TXT_KEY_CITY_OCCUPIED"
+	end,
+} -- g_cityToolTips
 
 -------------------------------------------------
 -- Clear Hex Highlighting
@@ -615,28 +581,28 @@ end
 -------------------------------------------------
 -- Show/hide the garrison frame icon
 -------------------------------------------------
-local function HideGarrisonFrame( cityBanner, isHide )
+local function HideGarrisonFrame( instance, isHide )
 	-- Only the active team has a Garrison ring
-	if cityBanner and cityBanner[1] then
-		cityBanner.GarrisonFrame:SetHide( isHide )
+	if instance and instance[1] then
+		instance.GarrisonFrame:SetHide( isHide )
 	end
 end
 
 -------------------------------------------------
 -- Show/hide the range strike icon
 -------------------------------------------------
-local function UpdateRangeIcons( plotIndex, city, cityBanner )
+local function UpdateRangeIcons( plotIndex, city, instance )
 
-	if city and cityBanner then
+	if city and instance then
 
 		local hideRangeStrikeButton = city:GetOwner() ~= g_activePlayerID or not city:CanRangeStrikeNow()
-		if cityBanner.CityRangeStrikeButton then
-			cityBanner.CityRangeStrikeButton:SetHide( hideRangeStrikeButton )
+		if instance.CityRangeStrikeButton then
+			instance.CityRangeStrikeButton:SetHide( hideRangeStrikeButton )
 		end
 
-		local svStrikeButton = g_svStrikeButtons[ plotIndex ]
-		if svStrikeButton then
-			svStrikeButton.CityRangeStrikeButton:SetHide( hideRangeStrikeButton )
+		instance = g_svStrikeButtons[ plotIndex ]
+		if instance then
+			instance.CityRangeStrikeButton:SetHide( hideRangeStrikeButton )
 		end
 	end
 end
@@ -644,15 +610,15 @@ end
 -------------------------------------------------
 -- Refresh the City Damage bar
 -------------------------------------------------
-local function RefreshCityDamage( city, cityBanner, cityDamage )
+local function RefreshCityDamage( city, instance, cityDamage )
 
-	if cityBanner then
+	if instance then
 
-		local maxCityHitPoints = gk_mode and city and city:GetMaxHitPoints() or GameDefines.MAX_CITY_HIT_POINTS
+		local maxCityHitPoints = gk_mode and city and city:GetMaxHitPoints() or GameDefines_MAX_CITY_HIT_POINTS
 		local iHealthPercent = 1 - cityDamage / maxCityHitPoints
 
-		cityBanner.CityBannerHealthBar:SetPercent(iHealthPercent)
-		cityBanner.CityBannerHealthBar:SetToolTipString( S("%g / %g", maxCityHitPoints - cityDamage, maxCityHitPoints) )
+		instance.CityBannerHealthBar:SetPercent(iHealthPercent)
+		instance.CityBannerHealthBar:SetToolTipString( S("%g / %g", maxCityHitPoints - cityDamage, maxCityHitPoints) )
 
 		---- Health bar color based on amount of damage
 		local barColor = {}
@@ -664,10 +630,10 @@ local function RefreshCityDamage( city, cityBanner, cityDamage )
 		else
 			barColor = g_colorRed
 		end
-		cityBanner.CityBannerHealthBar:SetFGColor( barColor )
+		instance.CityBannerHealthBar:SetFGColor( barColor )
 
 		-- Show or hide the Health Bar as necessary
-		cityBanner.CityBannerHealthBarBase:SetHide( cityDamage == 0 )
+		instance.CityBannerHealthBarBase:SetHide( cityDamage == 0 )
 	end
 end
 
@@ -815,7 +781,7 @@ local function OnBannerClick( plotIndex )
 			UI.DoSelectCityAtPlot( plot )
 
 		-- Observers get to look at anything
-		elseif isDebug or g_activePlayer:IsObserver() then
+		elseif Game.IsDebugMode() or g_activePlayer:IsObserver() then
 			UI.SelectCity( city )
 			UI.LookAt( plot )
 			UI.SetCityScreenUp( true )
@@ -830,7 +796,7 @@ local function OnBannerClick( plotIndex )
 				local hasSpy = false
 				if bnw_mode then
 					local x, y = plot:GetX(), plot:GetY()
-					for i, spy in ipairs( g_activePlayer:GetEspionageSpies() ) do
+					for _, spy in ipairs( g_activePlayer:GetEspionageSpies() ) do
 						if spy.CityX == x and spy.CityY == y then
 							hasSpy = spy.EstablishedSurveillance
 							break
@@ -860,6 +826,28 @@ local function OnBannerClick( plotIndex )
 end
 
 -------------------------------------------------
+-- Destroy City Banner
+-------------------------------------------------
+
+local function DestroyCityBanner( plotIndex, instance )
+
+	-- Release city banner
+	if instance then
+		table_insert( instance[1] and g_scrapTeamBanners or g_scrapOtherBanners, instance )
+		g_cityBanners[ plotIndex or -1 ] = nil
+		instance.Anchor:ChangeParent( Controls.Scrap )
+	end
+
+	-- Release sv strike button
+	instance = g_svStrikeButtons[ plotIndex ]
+	if instance then
+		instance.Anchor:ChangeParent( Controls.Scrap )
+		table_insert( g_scrapSVStrikeButtons, instance )
+		g_svStrikeButtons[ plotIndex ] = nil
+	end
+end
+
+-------------------------------------------------
 -- City banner mouseover
 -------------------------------------------------
 local function OnBannerMouseExit()
@@ -882,74 +870,44 @@ local function OnBannerMouseExit()
 	end
 end
 
-local function OnToolTip( control )
-	local controlID = control:GetID()
-	for plotIndex, cityBanner in pairs( g_cityBanners ) do
-		if cityBanner[ controlID ] == control then
-			local toolTipHandler = g_toolTipHandler[ controlID ]
-			if toolTipHandler then
-				local plot = Map_GetPlotByIndex( plotIndex )
-				local city = plot and plot:GetPlotCity()
---		local item = itemInfo and itemInfo[itemID]
---		item = item and IconHookup( portraitOffset or item.PortraitIndex, g_toolTipControls.Portrait:GetSizeY(), portraitAtlas or item.IconAtlas, g_toolTipControls.Portrait )
---		g_toolTipControls.PortraitFrame:SetHide( not item )
-				g_toolTipControls.Text:SetText( city and toolTipHandler( city ) )
-				g_toolTipControls.Box:DoAutoSize()
-			end
-			return
-		end
-	end
-end
-
 local function OnBannerMouseEnter( ... )
 	local plot = Map_GetPlotByIndex( (...) )
 	local city = plot and plot:GetPlotCity()
 	if city and city:GetOwner() == g_activePlayerID and not( Game.IsNetworkMultiPlayer() and g_activePlayer:HasReceivedNetTurnComplete() ) then -- required to prevent turn interrupt
 		Network_SendUpdateCityCitizens( city:GetID() )
 	end
-	g_cityHexHighlight = (...)
+	g_cityHexHighlight = ( ... )
 	return RefreshCityBanner( ... )
 end
--------------------------------------------------
--- Destroy City Banner
--------------------------------------------------
 
-local function DestroyCityBanner( plotIndex, cityBanner )
-
-	-- Release sv strike button
-	local svStrikeButton = g_svStrikeButtons[ plotIndex ]
-	if svStrikeButton then
-		svStrikeButton.Anchor:ChangeParent( Controls.Scrap )
-		table_insert( g_scrapSVStrikeButtons, svStrikeButton )
-		g_svStrikeButtons[ plotIndex ] = nil
-	end
-
-	-- Release city banner
-	if cityBanner then
-		table_insert( cityBanner[1] and g_scrapTeamBanners or g_scrapOtherBanners, cityBanner )
-		g_cityBanners[ plotIndex or -1 ] = nil
-		return cityBanner.Anchor:ChangeParent( Controls.Scrap )
+local function FindCity( control )
+	local controlID = control:GetID()
+	for plotIndex, instance in pairs( g_cityBanners ) do
+		if instance[ controlID ] == control then
+			local plot = Map_GetPlotByIndex( plotIndex )
+			return plot and plot:GetPlotCity(), controlID
+		end
 	end
 end
 
-local function DestroyCityBannerAtPlot( plot )
-	if plot then
-		local plotIndex = plot:GetPlotIndex()
-		return DestroyCityBanner( plotIndex, g_cityBanners[ plotIndex ] )
-	end
+local function OnBannerToolTip( control )
+	local city, controlID = FindCity( control )
+	local toolTip = g_cityToolTips[ controlID ]
+	g_toolTipControls.Text:SetText( city and toolTip and toolTip( city ) )
+	g_toolTipControls.Box:DoAutoSize()
 end
 
-local function InitBannerCallbacks( cityBanner )
-	cityBanner.BannerButton:RegisterCallback( Mouse.eLClick, OnBannerClick )
-	cityBanner.BannerButton:RegisterCallback( Mouse.eMouseEnter, OnBannerMouseEnter )
-	cityBanner.BannerButton:RegisterCallback( Mouse.eMouseExit, OnBannerMouseExit )
-	cityBanner.DiplomatIcon:RegisterCallback( Mouse.eLClick, EspionagePopup )
-	cityBanner.SpyIcon:RegisterCallback( Mouse.eLClick, EspionagePopup )
-	for controlID in pairs( g_toolTipHandler ) do
-		local control = cityBanner[ controlID ]
+local function InitBannerCallbacks( instance )
+	instance.CityBannerButton:RegisterCallback( Mouse.eLClick, OnBannerClick )
+	instance.CityBannerButton:RegisterCallback( Mouse.eMouseEnter, OnBannerMouseEnter )
+	instance.CityBannerButton:RegisterCallback( Mouse.eMouseExit, OnBannerMouseExit )
+	instance.CityDiplomat:RegisterCallback( Mouse.eLClick, EspionagePopup )
+	instance.CitySpy:RegisterCallback( Mouse.eLClick, EspionagePopup )
+	for controlID in pairs( g_cityToolTips ) do
+		local control = instance[ controlID ]
 		if control then
 			control:SetToolTipType("EUI_CityBannerTooltip")
-			control:SetToolTipCallback( OnToolTip )
+			control:SetToolTipCallback( OnBannerToolTip )
 		end
 	end
 end
@@ -962,12 +920,12 @@ local function RefreshCityBannersNow()
 --		return
 --	end
 	ContextPtr:ClearUpdate()
-	local isDebug = isDebug or g_activePlayer:IsObserver()
+	local isDebug = Game.IsDebugMode() or g_activePlayer:IsObserver()
 	------------------------------
 	-- Loop all dirty city banners
 	for plotIndex in pairs( g_dirtyCityBanners ) do
 
-		local cityBanner = g_cityBanners[ plotIndex ]
+		local instance = g_cityBanners[ plotIndex ]
 		local plot = Map_GetPlotByIndex( plotIndex )
 		local city = plot and plot:GetPlotCity()
 		if city then
@@ -977,68 +935,67 @@ local function RefreshCityBannersNow()
 			local isActivePlayerCity = cityOwnerID == g_activePlayerID
 
 			-- Incompatible banner type ? Destroy !
-			if cityBanner and isActiveType ~= cityBanner[1] then
-				DestroyCityBanner( plotIndex, cityBanner )
-				cityBanner = nil
+			if instance and isActiveType ~= instance[1] then
+				DestroyCityBanner( plotIndex, instance )
+				instance = nil
 			end
 
 			---------------------
 			-- Create City Banner
-			if not cityBanner then
+			if not instance then
 				local worldX, worldY, worldZ = GridToWorld( plot:GetX(), plot:GetY() )
 				if isActiveType then
 					-- create a strike button for stategic view
-					cityBanner = table_remove( g_scrapSVStrikeButtons )
-					if cityBanner then
-						cityBanner.Anchor:ChangeParent( Controls.StrategicViewStrikeButtons )
+					instance = table_remove( g_scrapSVStrikeButtons )
+					if instance then
+						instance.Anchor:ChangeParent( Controls.StrategicViewStrikeButtons )
 					else
-						cityBanner = {}
-						ContextPtr:BuildInstanceForControl( "SVRangeStrikeButton", cityBanner, Controls.StrategicViewStrikeButtons )
-						cityBanner.CityRangeStrikeButton:RegisterCallback( Mouse.eLClick, OnCityRangeStrikeButtonClick )
+						instance = {}
+						ContextPtr:BuildInstanceForControl( "SVRangeStrikeButton", instance, Controls.StrategicViewStrikeButtons )
+						instance.CityRangeStrikeButton:RegisterCallback( Mouse.eLClick, OnCityRangeStrikeButtonClick )
 					end
-					cityBanner.Anchor:SetWorldPositionVal( worldX, worldY, worldZ )
-					cityBanner.CityRangeStrikeButton:SetVoid1( plotIndex )
-					g_svStrikeButtons[ plotIndex ] = cityBanner
+					instance.Anchor:SetWorldPositionVal( worldX, worldY, worldZ )
+					instance.CityRangeStrikeButton:SetVoid1( plotIndex )
+					g_svStrikeButtons[ plotIndex ] = instance
 
 					-- create a team type city banner
-					cityBanner = table_remove( g_scrapTeamBanners )
-					if cityBanner then
-						cityBanner.Anchor:ChangeParent( Controls.CityBanners )
+					instance = table_remove( g_scrapTeamBanners )
+					if instance then
+						instance.Anchor:ChangeParent( Controls.CityBanners )
 					else
-						cityBanner = {}
-						ContextPtr:BuildInstanceForControl( "TeamCityBanner", cityBanner, Controls.CityBanners )
-						cityBanner.CityRangeStrikeButton:RegisterCallback( Mouse.eLClick, OnCityRangeStrikeButtonClick )
-						cityBanner.PuppetIcon:RegisterCallback( Mouse.eLClick, AnnexPopup )
-						InitBannerCallbacks( cityBanner )
+						instance = {}
+						ContextPtr:BuildInstanceForControl( "TeamCityBanner", instance, Controls.CityBanners )
+						instance.CityRangeStrikeButton:RegisterCallback( Mouse.eLClick, OnCityRangeStrikeButtonClick )
+						instance.CityIsPuppet:RegisterCallback( Mouse.eLClick, AnnexPopup )
+						InitBannerCallbacks( instance )
 					end
-					cityBanner.PuppetIcon:SetVoid1( plotIndex )
-					cityBanner.CityRangeStrikeButton:SetVoid1( plotIndex )
+					instance.CityIsPuppet:SetVoid1( plotIndex )
+					instance.CityRangeStrikeButton:SetVoid1( plotIndex )
 				else
 					-- create a foreign type city banner
-					cityBanner = table_remove( g_scrapOtherBanners )
-					if cityBanner then
-						cityBanner.Anchor:ChangeParent( Controls.CityBanners )
+					instance = table_remove( g_scrapOtherBanners )
+					if instance then
+						instance.Anchor:ChangeParent( Controls.CityBanners )
 					else
-						cityBanner = {}
-						ContextPtr:BuildInstanceForControl( "OtherCityBanner", cityBanner, Controls.CityBanners )
-						cityBanner.QuestIcons:RegisterCallback( Mouse.eLClick, OnQuestInfoClicked )
-						InitBannerCallbacks( cityBanner )
+						instance = {}
+						ContextPtr:BuildInstanceForControl( "OtherCityBanner", instance, Controls.CityBanners )
+						instance.CityQuests:RegisterCallback( Mouse.eLClick, OnQuestInfoClicked )
+						InitBannerCallbacks( instance )
 					end
-					cityBanner.QuestIcons:SetVoid1( plotIndex )
+					instance.CityQuests:SetVoid1( plotIndex )
 				end
 
-				cityBanner.BannerButton:SetVoid1( plotIndex )
-				cityBanner.Anchor:SetWorldPositionVal( worldX, worldY, worldZ + g_WorldPositionOffsetZ )
+				instance.CityBannerButton:SetVoid1( plotIndex )
+				instance.Anchor:SetWorldPositionVal( worldX, worldY, worldZ + g_WorldPositionOffsetZ )
 
-				cityBanner[1] = isActiveType
-				g_cityBanners[ plotIndex ] = cityBanner
+				instance[1] = isActiveType
+				g_cityBanners[ plotIndex ] = instance
 			end
 			-- Create City Banner
 			---------------------
 
-
 			-- Refresh the damage bar
-			RefreshCityDamage( city, cityBanner, city:GetDamage() )
+			RefreshCityDamage( city, instance, city:GetDamage() )
 
 			-- Colors
 			local color = g_primaryColors[ cityOwnerID ]
@@ -1046,52 +1003,55 @@ local function RefreshCityBannersNow()
 
 			-- Update name
 			local cityName = city:GetName()
-			local upperCaseCityName = Locale.ToUpper( cityName )
+			local upperCaseCityName = Locale_ToUpper( cityName )
 
 			local originalCityOwnerID = city:GetOriginalOwner()
 			local originalCityOwner = Players[ originalCityOwnerID ]
 			local otherCivID, otherCivAlpha
+			local isRazing = city:IsRazing()
+			local isResistance = city:IsResistance()
+			local isPuppet = city:IsPuppet()
 
 			-- Update capital icon
-			cityBanner.CapitalIcon:SetHide( not city:IsCapital() or cityOwner:IsMinorCiv() )
-			cityBanner.OriginalCapitalIcon:SetHide( city:IsCapital() or not city:IsOriginalCapital() )
+			instance.CityIsCapital:SetHide( not city:IsCapital() or cityOwner:IsMinorCiv() )
+			instance.CityIsOriginalCapital:SetHide( city:IsCapital() or not city:IsOriginalCapital() )
 
-			cityBanner.CityName:SetText( upperCaseCityName )
+			instance.CityName:SetText( upperCaseCityName )
 
-			cityBanner.CityName:SetColor( color, 0 )			-- #0 = main color
-			cityBanner.CityName:SetColor( Color( 0, 0, 0, 0.5 ), 1 )	-- #1 = shadow color
-			cityBanner.CityName:SetColor( Color( 1, 1, 1, 0.5 ), 2 )	-- #2 = soft color
+			instance.CityName:SetColor( color, 0 )			-- #0 = main color
+			instance.CityName:SetColor( Color( 0, 0, 0, 0.5 ), 1 )	-- #1 = shadow color
+			instance.CityName:SetColor( Color( 1, 1, 1, 0.5 ), 2 )	-- #2 = soft color
 
 			-- Update strength
-			cityBanner.CityStrength:SetText(math_floor(city:GetStrengthValue() / 100))
+			instance.CityStrength:SetText(math_floor(city:GetStrengthValue() / 100))
 
 			-- Update population
-			cityBanner.CityPopulation:SetText( city:GetPopulation() )
+			instance.CityPopulation:SetText( city:GetPopulation() )
 
 			-- Being Razed ?
-			cityBanner.RazingIcon:SetHide( not city:IsRazing() )
+			instance.CityIsRazing:SetHide( not isRazing )
 
 			-- In Resistance ?
-			cityBanner.ResistanceIcon:SetHide( not city:IsResistance() )
+			instance.CityIsResistance:SetHide( not isResistance )
 
 			-- Puppet ?
-			cityBanner.PuppetIcon:SetHide( not city:IsPuppet() )
+			instance.CityIsPuppet:SetHide( not isPuppet )
 
 			-- Occupied ?
-			cityBanner.OccupiedIcon:SetHide( not city:IsOccupied() or city:IsNoOccupiedUnhappiness() )
+			instance.CityIsOccupied:SetHide( not city:IsOccupied() or city:IsNoOccupiedUnhappiness() )
 
 			-- Blockaded ?
-			cityBanner.BlockadedIcon:SetHide( not city:IsBlockaded() )
+			instance.CityIsBlockaded:SetHide( not city:IsBlockaded() )
 
-			cityBanner.CityBannerBackground:SetColor( backgroundColor )
-			cityBanner.CityBannerRightBackground:SetColor( backgroundColor )
-			cityBanner.CityBannerLeftBackground:SetColor( backgroundColor )
+			instance.CityBannerBackground:SetColor( backgroundColor )
+			instance.CityBannerRightBackground:SetColor( backgroundColor )
+			instance.CityBannerLeftBackground:SetColor( backgroundColor )
 
 			if isActiveType then
 
-				cityBanner.CityBannerBGLeftHL:SetColor( backgroundColor )
-				cityBanner.CityBannerBGRightHL:SetColor( backgroundColor )
-				cityBanner.CityBannerBackgroundHL:SetColor( backgroundColor )
+				instance.CityBannerBGLeftHL:SetColor( backgroundColor )
+				instance.CityBannerBGRightHL:SetColor( backgroundColor )
+				instance.CityBannerBackgroundHL:SetColor( backgroundColor )
 
 				-- Update Growth
 				local foodStored100 = city:GetFoodTimes100()
@@ -1108,9 +1068,9 @@ local function RefreshCityBannersNow()
 				end
 
 				-- Update Growth Meter
-				cityBanner.GrowthBar:SetPercent( math_max(math_min( foodStoredPercent, 1),0))
-				cityBanner.GrowthBarShadow:SetPercent( math_max(math_min( foodStoredNextTurnPercent, 1),0))
-				cityBanner.GrowthBarStarve:SetHide( foodPerTurn100 >= 0 )
+				instance.GrowthBar:SetPercent( math_max(math_min( foodStoredPercent, 1),0))
+				instance.GrowthBarShadow:SetPercent( math_max(math_min( foodStoredNextTurnPercent, 1),0))
+				instance.GrowthBarStarve:SetHide( foodPerTurn100 >= 0 )
 
 				-- Update Growth Time
 				local turnsToCityGrowth = city:GetFoodTurnsLeft()
@@ -1127,7 +1087,7 @@ local function RefreshCityBannersNow()
 					growthText = math_min(turnsToCityGrowth,99)
 				end
 
-				cityBanner.CityGrowth:SetText( growthText )
+				instance.CityGrowth:SetText( growthText )
 
 				local productionPerTurn100 = city:GetCurrentProductionDifferenceTimes100(false, false)	-- food = false, overflow = false
 				local productionStored100 = city:GetProductionTimes100() + city:GetCurrentProductionDifferenceTimes100(false, true) - productionPerTurn100
@@ -1140,17 +1100,17 @@ local function RefreshCityBannersNow()
 					productionStoredNextTurnPercent = (productionStored100 + productionPerTurn100) / productionNeeded100
 				end
 
-				cityBanner.ProductionBar:SetPercent( math_max(math_min( productionStoredPercent, 1),0))
-				cityBanner.ProductionBarShadow:SetPercent( math_max(math_min( productionStoredNextTurnPercent, 1),0))
+				instance.ProductionBar:SetPercent( math_max(math_min( productionStoredPercent, 1),0))
+				instance.ProductionBarShadow:SetPercent( math_max(math_min( productionStoredNextTurnPercent, 1),0))
 
 				-- Update Production Time
 				if city:IsProduction()
 					and not city:IsProductionProcess()
 					and productionPerTurn100 > 0
 				then
-					cityBanner.BuildGrowth:SetText( city:GetProductionTurnsLeft() )
+					instance.BuildGrowth:SetText( city:GetProductionTurnsLeft() )
 				else
-					cityBanner.BuildGrowth:SetText( "-" )
+					instance.BuildGrowth:SetText( "-" )
 				end
 
 				-- Update Production icon
@@ -1173,52 +1133,40 @@ local function RefreshCityBannersNow()
 				end
 				-- really should have an error texture
 
-				cityBanner.CityBannerProductionImage:SetHide( not( item and
-					IconHookup( portraitIndex or item.PortraitIndex, 45, portraitAtlas or item.IconAtlas, cityBanner.CityBannerProductionImage )))
+				instance.CityBannerProductionImage:SetHide( not( item and
+					IconHookup( portraitIndex or item.PortraitIndex, 45, portraitAtlas or item.IconAtlas, instance.CityBannerProductionImage )))
 
 				-- Focus?
-				local cityFocus = g_CityFocus[city:GetFocusType()]
-				if not cityFocus or city:IsRazing() or city:IsResistance() or city:IsPuppet() then
-					cityBanner.FocusIcon:SetHide( true )
+				if isRazing or isResistance or isPuppet then
+					instance.CityFocus:SetHide( true )
 				else
-					cityBanner.FocusIcon:SetText( cityFocus[1] )
-					cityBanner.FocusIcon:SetToolTipString( cityFocus[2] )
-					cityBanner.FocusIcon:SetHide( false )
---todo focus menu
+					instance.CityFocus:SetText( g_cityFocusIcons[city:GetFocusType()] )
+					instance.CityFocus:SetHide( false )
 				end
 
 				-- Connected to capital?
-				cityBanner.ConnectedIcon:SetHide( city:IsCapital() or not cityOwner:IsCapitalConnectedToCity( city ) )
+				instance.CityIsConnected:SetHide( city:IsCapital() or not cityOwner:IsCapitalConnectedToCity( city ) )
 
 				-- Demand resource / King day ?
 				local resource = GameInfo.Resources[ city:GetResourceDemanded() ]
 				local weLoveTheKingDayCounter = city:GetWeLoveTheKingDayCounter()
 				-- We love the king
 				if weLoveTheKingDayCounter > 0 then
-					cityBanner.QuestIcons:SetText( "[ICON_HAPPINESS_1]" )
-					--- CBP
-					if(cityOwner:IsGPWLTKD()) then
-						cityBanner.QuestIcons:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA", weLoveTheKingDayCounter )
-					else
-					-- END
-						cityBanner.QuestIcons:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_WLTKD_COUNTER", weLoveTheKingDayCounter )
-					--CBP
-					end
-					-- END
-					cityBanner.QuestIcons:SetHide( false )
+					instance.CityQuests:SetText( "[ICON_HAPPINESS_1]" )
+					instance.CityQuests:SetHide( false )
 
 				elseif resource then
-					cityBanner.QuestIcons:SetText( resource.IconString )
-					cityBanner.QuestIcons:SetHide( false )
+					instance.CityQuests:SetText( resource.IconString )
+					instance.CityQuests:SetHide( false )
 				else
-					cityBanner.QuestIcons:SetHide( true )
+					instance.CityQuests:SetHide( true )
 				end
 
 				-- update range strike button (if it is the active player's city)
 
-				UpdateRangeIcons( plotIndex, city, cityBanner )
+				UpdateRangeIcons( plotIndex, city, instance )
 
-				cityBanner.GarrisonFrame:SetHide( not city:GetGarrisonedUnit() )
+				instance.GarrisonFrame:SetHide( not city:GetGarrisonedUnit() )
 
 			-- not active team city
 			else
@@ -1227,60 +1175,60 @@ local function RefreshCityBannersNow()
 
 				if isMinorCiv then
 					-- Update Quests
-					cityBanner.QuestIcons:SetText( GetActiveQuestText( g_activePlayerID, cityOwnerID ) )
-					cityBanner.QuestIcons:SetHide( false )
+					instance.CityQuests:SetText( GetActiveQuestText( g_activePlayerID, cityOwnerID ) )
+					instance.CityQuests:SetHide( false )
 
 					color = g_colorWhite
 
 					local info = GetCityStateStatusRow( g_activePlayerID, cityOwnerID )
-					cityBanner.StatusIconBG:SetTexture( info and info.StatusIcon or "Blank.dds" )
-					cityBanner.StatusIconBG:SetTextureOffsetVal( 0, 0 )
-					cityBanner.StatusIcon:SetTexture( (GameInfo.MinorCivTraits[ (GameInfo.MinorCivilizations[ cityOwner:GetMinorCivType() ] or {}).MinorCivTrait or -1 ] or {}).TraitIcon or "Blank.dds" )
+					instance.StatusIconBG:SetTexture( info and info.StatusIcon or "Blank.dds" )
+					instance.StatusIconBG:SetTextureOffsetVal( 0, 0 )
+					instance.StatusIcon:SetTexture( (GameInfo.MinorCivTraits[ (GameInfo.MinorCivilizations[ cityOwner:GetMinorCivType() ] or {}).MinorCivTrait or -1 ] or {}).TraitIcon or "Blank.dds" )
 					-- Update Pledge
 					if gk_mode then
 						local pledge = g_activePlayer:IsProtectingMinor( cityOwnerID )
 						local free = pledge and cityOwner:CanMajorWithdrawProtection( g_activePlayerID )
-						cityBanner.Pledge1:SetHide( not pledge or free )
-						cityBanner.Pledge2:SetHide( not free )
+						instance.Pledge1:SetHide( not pledge or free )
+						instance.Pledge2:SetHide( not free )
 					end
 					-- Update Allies
 					allyID = cityOwner:GetAlly()
 					ally = Players[ allyID ]
 				else
-					cityBanner.QuestIcons:SetHide( true )
+					instance.CityQuests:SetHide( true )
 					local civInfo = GameInfo.Civilizations[ cityOwner:GetCivilizationType() ]
 
-					IconHookup( civInfo.PortraitIndex, 32, civInfo.AlphaIconAtlas, cityBanner.StatusIconBG )
+					IconHookup( civInfo.PortraitIndex, 32, civInfo.AlphaIconAtlas, instance.StatusIconBG )
 				end
 
-				cityBanner.StatusIconBG:SetColor( color )
-				cityBanner.StatusIcon:SetHide( not isMinorCiv )
+				instance.StatusIconBG:SetColor( color )
+				instance.StatusIcon:SetHide( not isMinorCiv )
 
 				if ally then
 				-- Set left banner icon to ally flag
 					otherCivAlpha = 1
 					otherCivID = g_activeTeam:IsHasMet( ally:GetTeam() ) and allyID or -1
-					cityBanner.CivIndicator:SetToolTipString( GetAllyToolTip( g_activePlayerID, cityOwnerID ) )
+					instance.CivIndicator:SetToolTipString( GetAllyToolTip( g_activePlayerID, cityOwnerID ) )
 				end
 			end
 			if not otherCivID and originalCityOwner and (originalCityOwnerID ~= cityOwnerID) then
 			-- Set left banner icon to city state flag
 				if originalCityOwner:IsMinorCiv() then
 					otherCivAlpha = 4 --hack
-					cityBanner.MinorTraitIcon:SetTexture( (GameInfo.MinorCivTraits[ (GameInfo.MinorCivilizations[ originalCityOwner:GetMinorCivType() ] or {}).MinorCivTrait or -1 ] or {}).TraitIcon or "Blank.dds" )
-					cityBanner.OriginalCapitalIcon:SetHide( true )
+					instance.MinorTraitIcon:SetTexture( (GameInfo.MinorCivTraits[ (GameInfo.MinorCivilizations[ originalCityOwner:GetMinorCivType() ] or {}).MinorCivTrait or -1 ] or {}).TraitIcon or "Blank.dds" )
+					instance.CityIsOriginalCapital:SetHide( true )
 				else
 					otherCivAlpha = 0.5
 					otherCivID = g_activeTeam:IsHasMet( originalCityOwner:GetTeam() ) and originalCityOwnerID
-					cityBanner.CivIndicator:LocalizeAndSetToolTip( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE", originalCityOwner:GetCivilizationShortDescription() )
+					instance.CivIndicator:LocalizeAndSetToolTip( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE", originalCityOwner:GetCivilizationShortDescription() )
 				end
 			end
 			if otherCivID then
-				CivIconHookup( otherCivID, 32, cityBanner.CivIcon, cityBanner.CivIconBG, cityBanner.CivIconShadow, false, true )
-				cityBanner.CivIndicator:SetAlpha( otherCivAlpha )
+				CivIconHookup( otherCivID, 32, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true )
+				instance.CivIndicator:SetAlpha( otherCivAlpha )
 			end
-			cityBanner.MinorCivIndicator:SetHide( otherCivAlpha ~= 4 ) -- hack
-			cityBanner.CivIndicator:SetHide( not otherCivID )
+			instance.MinorCivIndicator:SetHide( otherCivAlpha ~= 4 ) -- hack
+			instance.CivIndicator:SetHide( not otherCivID )
 
 			-- Spy & Religion
 			if gk_mode then
@@ -1288,7 +1236,7 @@ local function RefreshCityBannersNow()
 				local x = city:GetX()
 				local y = city:GetY()
 
-				for i, s in ipairs( g_activePlayer:GetEspionageSpies() ) do
+				for _, s in ipairs( g_activePlayer:GetEspionageSpies() ) do
 					if s.CityX == x and s.CityY == y then
 						spy = s
 						break
@@ -1297,55 +1245,57 @@ local function RefreshCityBannersNow()
 
 				if spy then
 					if spy.IsDiplomat then
-						cityBanner.SpyIcon:SetHide( true )
-						cityBanner.DiplomatIcon:SetHide( false )
-						cityBanner.SpyIcon:LocalizeAndSetToolTip( "TXT_KEY_CITY_DIPLOMAT_OTHER_CIV_TT", spy.Rank, spy.Name, cityName, spy.Rank, spy.Name, spy.Rank, spy.Name )
+						instance.CitySpy:SetHide( true )
+						instance.CityDiplomat:SetHide( false )
+						instance.CitySpy:LocalizeAndSetToolTip( "TXT_KEY_CITY_DIPLOMAT_OTHER_CIV_TT", spy.Rank, spy.Name, cityName, spy.Rank, spy.Name, spy.Rank, spy.Name )
 					else
-						cityBanner.SpyIcon:SetHide( false )
-						cityBanner.DiplomatIcon:SetHide( true )
+						instance.CitySpy:SetHide( false )
+						instance.CityDiplomat:SetHide( true )
 						if isActivePlayerCity then
-							cityBanner.SpyIcon:LocalizeAndSetToolTip( "TXT_KEY_CITY_SPY_YOUR_CITY_TT", spy.Rank, spy.Name, cityName, spy.Rank, spy.Name )
+							instance.CitySpy:LocalizeAndSetToolTip( "TXT_KEY_CITY_SPY_YOUR_CITY_TT", spy.Rank, spy.Name, cityName, spy.Rank, spy.Name )
 						elseif cityOwner:IsMinorCiv() then
-							cityBanner.SpyIcon:LocalizeAndSetToolTip( "TXT_KEY_CITY_SPY_CITY_STATE_TT", spy.Rank, spy.Name, cityName, spy.Rank, spy.Name)
+							instance.CitySpy:LocalizeAndSetToolTip( "TXT_KEY_CITY_SPY_CITY_STATE_TT", spy.Rank, spy.Name, cityName, spy.Rank, spy.Name)
 						else
-							cityBanner.SpyIcon:LocalizeAndSetToolTip( "TXT_KEY_CITY_SPY_OTHER_CIV_TT", spy.Rank, spy.Name, cityName, spy.Rank, spy.Name, spy.Rank, spy.Name)
+							instance.CitySpy:LocalizeAndSetToolTip( "TXT_KEY_CITY_SPY_OTHER_CIV_TT", spy.Rank, spy.Name, cityName, spy.Rank, spy.Name, spy.Rank, spy.Name)
 						end
 					end
 				else
-					cityBanner.SpyIcon:SetHide( true )
-					cityBanner.DiplomatIcon:SetHide( true )
+					instance.CitySpy:SetHide( true )
+					instance.CityDiplomat:SetHide( true )
 				end
 
 				local religionID = city:GetReligiousMajority()
 				if religionID >= 0 then
 					local religion = GameInfo.Religions[religionID]
-					IconHookup( religion.PortraitIndex, 32, religion.IconAtlas, cityBanner.ReligiousIcon )
-					IconHookup( religion.PortraitIndex, 32, religion.IconAtlas, cityBanner.ReligiousIconShadow )
-					cityBanner.ReligiousIconContainer:SetHide( false )
+					IconHookup( religion.PortraitIndex, 32, religion.IconAtlas, instance.CityReligion )
+					IconHookup( religion.PortraitIndex, 32, religion.IconAtlas, instance.ReligiousIconShadow )
+					instance.ReligiousIconContainer:SetHide( false )
 				else
-					cityBanner.ReligiousIconContainer:SetHide( true )
+					instance.ReligiousIconContainer:SetHide( true )
 				end
 			end
 
 			-- Change the width of the banner so it looks good with the length of the city name
 
-			cityBanner.NameStack:CalculateSize()
-			local bannerWidth = cityBanner.NameStack:GetSizeX() - 64
-			cityBanner.BannerButton:SetSizeX( bannerWidth + 64 )
-			cityBanner.CityBannerBackground:SetSizeX( bannerWidth )
-			cityBanner.CityBannerBackgroundHL:SetSizeX( bannerWidth )
+			instance.NameStack:CalculateSize()
+			local bannerWidth = instance.NameStack:GetSizeX() - 64
+			instance.CityBannerButton:SetSizeX( bannerWidth + 64 )
+			instance.CityBannerBackground:SetSizeX( bannerWidth )
+			instance.CityBannerBackgroundHL:SetSizeX( bannerWidth )
 			if isActiveType then
-				cityBanner.CityBannerBackgroundIcon:SetSizeX( bannerWidth )
-				cityBanner.CityBannerButtonGlow:SetSizeX( bannerWidth )
-				cityBanner.CityBannerButtonBase:SetSizeX( bannerWidth )
+				instance.CityBannerBackgroundIcon:SetSizeX( bannerWidth )
+				instance.CityBannerButtonGlow:SetSizeX( bannerWidth )
+				instance.CityBannerButtonBase:SetSizeX( bannerWidth )
 			else
-				cityBanner.CityBannerBaseFrame:SetSizeX( bannerWidth )
+				instance.CityBannerBaseFrame:SetSizeX( bannerWidth )
+				instance.CityAtWar:SetSizeX( bannerWidth )
+				instance.CityAtWar:SetHide( not g_activeTeam:IsAtWar( city:GetTeam() ) )
 			end
 
-			cityBanner.BannerButton:ReprocessAnchoring()
-			cityBanner.NameStack:ReprocessAnchoring()
-			cityBanner.IconsStack:CalculateSize()
-			cityBanner.IconsStack:ReprocessAnchoring()
+			instance.CityBannerButton:ReprocessAnchoring()
+			instance.NameStack:ReprocessAnchoring()
+			instance.IconsStack:CalculateSize()
+			instance.IconsStack:ReprocessAnchoring()
 
 			if g_cityHexHighlight == plotIndex then
 
@@ -1394,7 +1344,7 @@ local function RefreshCityBannersNow()
 			end
 		-- No city on this plot ? Destroy !
 		else
-			DestroyCityBanner( plotIndex, cityBanner )
+			DestroyCityBanner( plotIndex, instance )
 		end
 	end
 	-- Loop all dirty city banners
@@ -1421,7 +1371,7 @@ end
 -- On City Created
 Events.SerialEventCityCreated.Add( function( hexPos, cityOwnerID, cityID, cultureType, eraType, continent, populationSize, size, fowState )
 
-	return RefreshCityBannerAtPlot( fowState ~= BlackFog and Map_GetPlot( ToGridFromHex( hexPos.x, hexPos.y ) ) )
+	return RefreshCityBannerAtPlot( fowState ~= 0 and Map_GetPlot( ToGridFromHex( hexPos.x, hexPos.y ) ) ) -- fowState 0 is invisible
 
 end)
 
@@ -1437,7 +1387,7 @@ end)
 --------------------
 -- On City Destroyed
 Events.SerialEventCityDestroyed.Add( 
-function( hexPos, cityOwnerID, cityID, newPlayerID )
+function( hexPos ) --, cityOwnerID, cityID, newPlayerID )
 	local plot = Map_GetPlot( ToGridFromHex( hexPos.x, hexPos.y ) )
 	if plot then
 		local plotIndex = plot:GetPlotIndex()
@@ -1459,10 +1409,10 @@ Events.SpecificCityInfoDirty.Add( function( cityOwnerID, cityID, updateType )
 	local cityOwner = Players[ cityOwnerID ]
 	local city = cityOwner and cityOwner:GetCityByID( cityID )
 	local plotIndex = city and city:Plot():GetPlotIndex()
-	local cityBanner = g_cityBanners[ plotIndex ]
-	if plotIndex and cityBanner then
+	local instance = g_cityBanners[ plotIndex ]
+	if plotIndex and instance then
 		if updateType == CityUpdateTypes.CITY_UPDATE_TYPE_ENEMY_IN_RANGE then
-			return UpdateRangeIcons( plotIndex, city, cityBanner )
+			return UpdateRangeIcons( plotIndex, city, instance )
 		elseif updateType == CityUpdateTypes.CITY_UPDATE_TYPE_BANNER or updateType == CityUpdateTypes.CITY_UPDATE_TYPE_GARRISON then
 			return RefreshCityBanner( plotIndex )
 		end
@@ -1528,11 +1478,11 @@ end)
 
 ---------------------------
 -- On interface mode change
-Events.InterfaceModeChanged.Add( function(oldInterfaceMode, newInterfaceMode)
+Events.InterfaceModeChanged.Add( function( oldInterfaceMode, newInterfaceMode )
 	local disableBanners = newInterfaceMode ~= InterfaceModeTypes.INTERFACEMODE_SELECTION
-	for plotIndex, cityBanner in pairs( g_cityBanners ) do
-		cityBanner.BannerButton:SetDisabled(disableBanners)
-		cityBanner.BannerButton:EnableToolTip(not disableBanners)
+	for _, instance in pairs( g_cityBanners ) do
+		instance.CityBannerButton:SetDisabled( disableBanners )
+		instance.CityBannerButton:EnableToolTip( not disableBanners )
 	end
 end)
 
@@ -1546,12 +1496,13 @@ end)
 -- On fog of war change
 Events.HexFOWStateChanged.Add( function( hexPos, fowType, isWholeMap )
 	if isWholeMap then
-		if fowType == BlackFog then
-			for plotIndex, cityBanner in pairs( g_cityBanners ) do
-				DestroyCityBanner( plotIndex, cityBanner )
+		 -- fowState 0 is invisible
+		if fowType == 0 then
+			for plotIndex, instance in pairs( g_cityBanners ) do
+				DestroyCityBanner( plotIndex, instance )
 			end
 		else
-			for playerID = 0, GameDefines.MAX_CIV_PLAYERS-1 do
+			for playerID = 0, #Players do
 				local player = Players[ playerID ]
 				if player and player:IsAlive() then
 					for city in player:Cities() do
@@ -1562,12 +1513,34 @@ Events.HexFOWStateChanged.Add( function( hexPos, fowType, isWholeMap )
 		end
 	else
 		local plot = Map_GetPlot( ToGridFromHex( hexPos.x, hexPos.y ) )
-		if plot and plot:IsCity() then
+		if plot then
 			local plotIndex = plot:GetPlotIndex()
-			if fowType == BlackFog then
+			-- fowType 0 is invisible
+			if fowType == 0 then
 				DestroyCityBanner( plotIndex, g_cityBanners[ plotIndex ] )
 			else
 				return RefreshCityBanner( plotIndex )
+			end
+		end
+	end
+end)
+
+--==========================================================
+-- War Declared: Highlight Banners
+--==========================================================
+Events.WarStateChanged.Add(
+function( teamID1, teamID2, isAtWar )
+	if teamID1 == g_activeTeamID then
+		teamID1 = teamID2
+	elseif teamID2 ~= g_activeTeamID then
+		return
+	end
+	for playerID = 0, #Players do
+		local player = Players[playerID]
+		if player and player:IsAlive() and player:GetTeam() == teamID1 then
+			for city in player:Cities() do
+				local plot = city:Plot()
+				RefreshCityBannerAtPlot( plot:IsRevealed( g_activeTeamID, true ) and plot )
 			end
 		end
 	end
@@ -1585,21 +1558,21 @@ Events.GameplaySetActivePlayer.Add( function( activePlayerID, previousActivePlay
 	g_activeTeamID = Game.GetActiveTeam()
 	g_activeTeam = Teams[ g_activeTeamID ]
 	ClearHexHighlights()
-	local isDebug = isDebug or g_activePlayer:IsObserver()
+	local isDebug = Game.IsDebugMode() or g_activePlayer:IsObserver()
 	-- Update all city banners
-	for playerID = 0, GameDefines.MAX_CIV_PLAYERS-1 do
+	for playerID = 0, #Players do
 		local player = Players[ playerID ]
 		if player and player:IsAlive() then
 			for city in player:Cities() do
 				local plot = city:Plot()
-				local isRevealed = plot:IsRevealed( g_activeTeamID )
+				local isRevealed = plot:IsRevealed( g_activeTeamID, true )
 				local plotIndex = plot:GetPlotIndex()
-				local cityBanner = g_cityBanners[ plotIndex ]
+				local instance = g_cityBanners[ plotIndex ]
 				local isActiveType = isDebug or city:GetTeam() == g_activeTeamID
 
 				-- If city banner is hidden or type no longer matches, destroy the banner
-				if cityBanner and not(isRevealed and isActiveType == cityBanner[1]) then
-					DestroyCityBanner( plotIndex, cityBanner )
+				if instance and not(isRevealed and isActiveType == instance[1]) then
+					DestroyCityBanner( plotIndex, instance )
 				end
 				RefreshCityBanner( isRevealed and plotIndex )
 			end
@@ -1616,8 +1589,8 @@ if gk_mode then
 
 		local plot = Map_GetPlot( x, y )
 		local city = plot and plot:GetPlotCity()
-		local cityBanner = city and g_cityBanners[ plot:GetPlotIndex() ]
-		return cityBanner and HideGarrisonFrame( cityBanner, hideGarrisonRing or not city:GetGarrisonedUnit() )
+		local instance = city and g_cityBanners[ plot:GetPlotIndex() ]
+		return instance and HideGarrisonFrame( instance, hideGarrisonRing or not city:GetGarrisonedUnit() )
 	end
 
 	Events.RunCombatSim.Add( function(
@@ -1670,8 +1643,8 @@ end -- gk_mode
 -- The active player's turn has begun, make sure their range strike icons are correct
 Events.ActivePlayerTurnStart.Add( function()
 
-	for plotIndex, cityBanner in pairs( g_cityBanners ) do
-		UpdateRangeIcons( plotIndex, Map_GetPlotByIndex( plotIndex ):GetPlotCity(), cityBanner )
+	for plotIndex, instance in pairs( g_cityBanners ) do
+		UpdateRangeIcons( plotIndex, Map_GetPlotByIndex( plotIndex ):GetPlotCity(), instance )
 	end
 end)
 
@@ -1688,14 +1661,12 @@ end)
 -------------------------------------------------
 -- Initialize all Visible City Banners
 -------------------------------------------------
-for playerID = 0, GameDefines.MAX_CIV_PLAYERS-1 do
+for playerID = 0, #Players do
 	local player = Players[ playerID ]
-	if player then
-		if player:IsAlive() then
-			for city in player:Cities() do
-				local plot = city:Plot()
-				RefreshCityBannerAtPlot( plot:IsRevealed( g_activeTeamID ) and plot )
-			end
+	if player and player:IsAlive() then
+		for city in player:Cities() do
+			local plot = city:Plot()
+			RefreshCityBannerAtPlot( plot:IsRevealed( g_activeTeamID, true ) and plot )
 		end
 	end
 end

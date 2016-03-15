@@ -675,10 +675,8 @@
 			<Help>TXT_KEY_BUILDING_BATH_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<MutuallyExclusiveGroup>2</MutuallyExclusiveGroup>
 			<ConquestProb>66</ConquestProb>
 			<FreshWater>true</FreshWater>
-			<GreatPeopleRateModifier>25</GreatPeopleRateModifier>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>EXPANSION2_BUILDING_ATLAS</IconAtlas>
 			<PortraitIndex>11</PortraitIndex>

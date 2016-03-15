@@ -478,6 +478,10 @@ ALTER TABLE Policies ADD COLUMN 'EventTourism' INTEGER DEFAULT 0;
 -- Define a policy as a dummy policy - won't count towards policy total -- 
 ALTER TABLE Policies ADD COLUMN 'IsDummy' BOOLEAN DEFAULT 0;
 
+-- Define Opener/Closer Policies - useful for counting elements
+ALTER TABLE Policies ADD COLUMN 'IsOpener' BOOLEAN DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'IsFinisher' BOOLEAN DEFAULT 0;
+
 -- Allows you to increase razing speed from policies
 ALTER TABLE Policies ADD COLUMN 'RazingSpeedBonus' INTEGER DEFAULT 0;
 

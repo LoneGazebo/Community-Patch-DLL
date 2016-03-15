@@ -9,19 +9,62 @@
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
+local pairs = pairs
+local print = print
+local math_floor = math.floor
+local table_insert = table.insert
+local table_concat = table.concat
+
+local ButtonPopupTypes = ButtonPopupTypes
+local ContextPtr = ContextPtr
+local Controls = Controls
+local Events = Events
+local Game = Game
+local GameDefines = GameDefines
+local GameInfo = GameInfo
+local GameOptionTypes = GameOptionTypes
+local InterfaceModeTypes = InterfaceModeTypes
+local KeyEvents = KeyEvents
+local Keys = Keys
+local L = Locale.ConvertTextKey
+local Locale = Locale
+local Map = Map
+local MinorCivPersonalityTypes = MinorCivPersonalityTypes
+local MinorCivQuestTypes = MinorCivQuestTypes
+local MinorCivTraitTypes = MinorCivTraitTypes
+local Mouse = Mouse
+local Network = Network
+local Players = Players
+local PopupPriority = PopupPriority
+local PreGame = PreGame
+local ResourceUsageTypes = ResourceUsageTypes
+local Teams = Teams
+local ToHexFromGrid = ToHexFromGrid
+local UI = UI
+local UIManager = UIManager
+
 local gk_mode = Game.GetReligionName ~= nil
 local bnw_mode = Game.GetActiveLeague ~= nil
-local L = Locale.ConvertTextKey
-local S = string.format
 
-include( "IconSupport" ); local IconHookup = IconHookup; local CivIconHookup = CivIconHookup
-include( "CityStateStatusHelper" ); local UpdateCityStateStatusUI = UpdateCityStateStatusUI; local GetCityStateStatusText = GetCityStateStatusText; local GetCityStateStatusToolTip = GetCityStateStatusToolTip; local GetAllyText = GetAllyText; local GetAllyToolTip = GetAllyToolTip; local GetActiveQuestText = GetActiveQuestText; local GetActiveQuestToolTip = GetActiveQuestToolTip; local GetCityStateTraitText = GetCityStateTraitText; local GetCityStateTraitToolTip = GetCityStateTraitToolTip
+include( "IconSupport" )
+local IconHookup = IconHookup
+local CivIconHookup = CivIconHookup
+include( "CityStateStatusHelper" )
+local UpdateCityStateStatusUI = UpdateCityStateStatusUI
+local GetCityStateStatusText = GetCityStateStatusText
+local GetCityStateStatusToolTip = GetCityStateStatusToolTip
+local GetAllyText = GetAllyText
+local GetAllyToolTip = GetAllyToolTip
+local GetActiveQuestText = GetActiveQuestText
+local GetActiveQuestToolTip = GetActiveQuestToolTip
+local GetCityStateTraitText = GetCityStateTraitText
+local GetCityStateTraitToolTip = GetCityStateTraitToolTip
 
 local g_minorCivID = -1
 local g_minorCivTeamID = -1
 local m_PopupInfo = nil
 local m_isNewQuestAvailable = false
-
+local S = string.format
 local kiNoAction = 0
 local kiMadePeace = 1
 local kiBulliedGold = 2
@@ -103,7 +146,7 @@ function UpdateButtonStack()
 	Controls.ButtonScrollPanel:CalculateInternalSize()
 end
 
-function InputHandler( uiMsg, wParam, lParam )
+function InputHandler( uiMsg, wParam )--, lParam )
 	if uiMsg == KeyEvents.KeyDown then
 		if wParam == Keys.VK_ESCAPE or wParam == Keys.VK_RETURN then
 			if Controls.BullyConfirm:IsHidden() then
@@ -119,9 +162,9 @@ ContextPtr:SetInputHandler( InputHandler )
 
 function ShowHideHandler( bIsHide, bInitState )
 
-	if( not bInitState ) then
+	if not bInitState then
 		Controls.BackgroundImage:UnloadTexture()
-		if( not bIsHide ) then
+		if not bIsHide then
 			Events.SerialEventGameDataDirty.Add( OnDisplay )
 			Events.WarStateChanged.Add( OnDisplay )		-- hack to force refresh in vanilla when selecting peace / war
 			OnDisplay()
@@ -199,12 +242,11 @@ function OnDisplay()
 	local textColor = color and { x=color.Red, y=color.Green, z=color.Blue, w=1 } or {x = 1, y = 1, z = 1, w = 1}
 
 	-- Title
-	strTitle = Locale.ToUpper( strShortDescKey )
-	Controls.TitleLabel:SetText(strTitle)
+	Controls.TitleLabel:SetText( Locale.ToUpper( strShortDescKey ) )
 	Controls.TitleLabel:SetColor(textColor, 0)
 
-	civType = minorPlayer:GetCivilizationType()
-	civInfo = GameInfo.Civilizations[civType]
+	local civType = minorPlayer:GetCivilizationType()
+	local civInfo = GameInfo.Civilizations[civType]
 
 	local trait = GameInfo.MinorCivilizations[minorCivType].MinorCivTrait
 	Controls.TitleIcon:SetTexture(GameInfo.MinorCivTraits[trait].TraitTitleIcon)
@@ -284,7 +326,7 @@ function OnDisplay()
 	
 	-- Nearby Resources
 	local pCapital = minorPlayer:GetCapitalCity()
-	if (pCapital ~= nil) then
+	if pCapital then
 
 		local strResourceText = ""
 
@@ -294,31 +336,31 @@ function OnDisplay()
 		local thisY = pCapital:GetY()
 
 		local iRange = GameDefines.MINOR_CIV_RESOURCE_SEARCH_RADIUS or 5
-		local iCloseRange = math.floor(iRange/2)
+		local iCloseRange = math_floor(iRange/2)
 		local tResourceList = {}
 
 		for iDX = -iRange, iRange, 1 do
 			for iDY = -iRange, iRange, 1 do
 				local pTargetPlot = Map.GetPlotXY(thisX, thisY, iDX, iDY)
 
-				if pTargetPlot ~= nil then
+				if pTargetPlot then
 
 					local iOwner = pTargetPlot:GetOwner()
 
-					if (iOwner == minorPlayerID or iOwner == -1) then
+					if iOwner == minorPlayerID or iOwner == -1 then
 						local plotX = pTargetPlot:GetX()
 						local plotY = pTargetPlot:GetY()
 						local plotDistance = Map.PlotDistance(thisX, thisY, plotX, plotY)
 
-						if (plotDistance <= iRange and (plotDistance <= iCloseRange or iOwner == minorPlayerID)) then
+						if plotDistance <= iRange and (plotDistance <= iCloseRange or iOwner == minorPlayerID) then
 
 							local iResourceType = pTargetPlot:GetResourceType(activeTeamID)
 
-							if (iResourceType ~= -1) then
+							if iResourceType ~= -1 then
 
-								if (Game.GetResourceUsageType(iResourceType) ~= ResourceUsageTypes.RESOURCEUSAGE_BONUS) then
+								if Game.GetResourceUsageType(iResourceType) ~= ResourceUsageTypes.RESOURCEUSAGE_BONUS then
 
-									if (tResourceList[iResourceType] == nil) then
+									if tResourceList[iResourceType] == nil then
 										tResourceList[iResourceType] = 0
 									end
 
@@ -334,7 +376,7 @@ function OnDisplay()
 		end
 
 		for iResourceType, iAmount in pairs(tResourceList) do
-			if (iNumResourcesFound > 0) then
+			if iNumResourcesFound > 0 then
 				strResourceText = strResourceText .. ", "
 			end
 			local pResource = GameInfo.Resources[iResourceType]
@@ -414,31 +456,31 @@ function OnDisplay()
 --			strText = L("TXT_KEY_CITY_STATE_MEETING", strShortDescKey, strGiftString, L("TXT_KEY_MINOR_SPEAK_AGAIN", strShortDescKey) )
 
 		-- Were we sent here because we clicked a notification for a new quest?
-		elseif (m_lastAction == kiNoAction and m_isNewQuestAvailable) then
+		elseif m_lastAction == kiNoAction and m_isNewQuestAvailable then
 			strText = L("TXT_KEY_CITY_STATE_DIPLO_HELLO_QUEST_MESSAGE")
 
 		-- Did we just make peace?
-		elseif (m_lastAction == kiMadePeace) then
+		elseif m_lastAction == kiMadePeace then
 			strText = L("TXT_KEY_CITY_STATE_DIPLO_PEACE_JUST_MADE")
 
 		-- Did we just bully gold?
-		elseif (m_lastAction == kiBulliedGold) then
+		elseif m_lastAction == kiBulliedGold then
 			strText = L("TXT_KEY_CITY_STATE_DIPLO_JUST_BULLIED")
 
 		-- Did we just bully a worker?
-		elseif (m_lastAction == kiBulliedUnit) then
+		elseif m_lastAction == kiBulliedUnit then
 			strText = L("TXT_KEY_CITY_STATE_DIPLO_JUST_BULLIED_WORKER")
 
 		-- Did we just give gold?
-		elseif (m_lastAction == kiGiftedGold) then
+		elseif m_lastAction == kiGiftedGold then
 			strText = L("TXT_KEY_CITY_STATE_DIPLO_JUST_SUPPORTED")
 
 		-- Did we just PtP?
-		elseif (m_lastAction == kiPledgedToProtect) then
+		elseif m_lastAction == kiPledgedToProtect then
 			strText = L("TXT_KEY_CITY_STATE_PLEDGE_RESPONSE")
 
 		-- Did we just revoke a PtP?
-		elseif (m_lastAction == kiRevokedProtection) then
+		elseif m_lastAction == kiRevokedProtection then
 			strText = L("TXT_KEY_CITY_STATE_DIPLO_JUST_REVOKED_PROTECTION")
 
 		-- Normal peaceful hello, with info about active quests
@@ -451,7 +493,6 @@ function OnDisplay()
 				strText = personalityInfo.greeting
 			end
 
-			local strQuestString = ""
 			local strWarString = ""
 
 			local iNumPlayersAtWar = 0
@@ -459,15 +500,15 @@ function OnDisplay()
 			-- Loop through all the Majors the active player knows
 			for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
 
-				pOtherPlayer = Players[iPlayerLoop]
-				iOtherTeam = pOtherPlayer:GetTeam()
+				local pOtherPlayer = Players[iPlayerLoop]
+				local iOtherTeam = pOtherPlayer:GetTeam()
 
 				-- Don't test war with active player!
-				if (iPlayerLoop ~= activePlayerID) then
-					if (pOtherPlayer:IsAlive()) then
-						if (minorTeam:IsAtWar(iOtherTeam)) then
+				if iPlayerLoop ~= activePlayerID then
+					if pOtherPlayer:IsAlive() then
+						if minorTeam:IsAtWar(iOtherTeam) then
 							if minorPlayer:IsMinorWarQuestWithMajorActive(iPlayerLoop) then
-								if (iNumPlayersAtWar ~= 0) then
+								if iNumPlayersAtWar ~= 0 then
 									strWarString = strWarString .. ", "
 								end
 								strWarString = strWarString .. L(pOtherPlayer:GetNameKey())
@@ -486,7 +527,7 @@ function OnDisplay()
 
 			-- Player has said to turn it off
 			local strSpawnText
-			if (minorPlayer:IsMinorCivUnitSpawningDisabled(activePlayerID)) then
+			if minorPlayer:IsMinorCivUnitSpawningDisabled(activePlayerID) then
 				strSpawnText = L("TXT_KEY_CITY_STATE_TURN_SPAWNING_ON")
 			else
 				strSpawnText = L("TXT_KEY_CITY_STATE_TURN_SPAWNING_OFF")
@@ -556,24 +597,24 @@ function OnDisplay()
 	end
 	Controls.PledgeAnim:SetHide(not isEnablePledgeButton)
 	Controls.PledgeButton:SetHide(not isShowPledgeButton)
-	if (isShowPledgeButton) then
+	if isShowPledgeButton then
 		Controls.PledgeLabel:SetText(strProtectButton)
 		Controls.PledgeButton:SetToolTipString(strProtectTT)
 	end
 	Controls.RevokePledgeAnim:SetHide(not isEnableRevokeButton)
 	Controls.RevokePledgeButton:SetHide(not isShowRevokeButton)
-	if (isShowRevokeButton) then
+	if isShowRevokeButton then
 		Controls.RevokePledgeLabel:SetText(strRevokeProtectButton)
 		Controls.RevokePledgeButton:SetToolTipString(strRevokeProtectTT)
 	end
 
-	if (Game.IsOption(GameOptionTypes.GAMEOPTION_ALWAYS_WAR)) then
+	if Game.IsOption(GameOptionTypes.GAMEOPTION_ALWAYS_WAR) then
 		Controls.PeaceButton:SetHide(true)
 	end
-	if (Game.IsOption(GameOptionTypes.GAMEOPTION_ALWAYS_PEACE)) then
+	if Game.IsOption(GameOptionTypes.GAMEOPTION_ALWAYS_PEACE) then
 		Controls.WarButton:SetHide(true)
 	end
-	if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_CHANGING_WAR_PEACE)) then
+	if Game.IsOption(GameOptionTypes.GAMEOPTION_NO_CHANGING_WAR_PEACE) then
 		Controls.PeaceButton:SetHide(true)
 		Controls.WarButton:SetHide(true)
 	end
@@ -586,8 +627,8 @@ function OnDisplay()
 		if minorPlayer:CanMajorBuyout(activePlayerID) and not isAtWar then
 			Controls.BuyoutButton:SetHide(false)
 			Controls.BuyoutAnim:SetHide(false)
-		elseif (activePlayer:IsAbleToAnnexCityStates() and not isAtWar) then
-			if (minorPlayer:GetAlly() == activePlayerID) then
+		elseif activePlayer:IsAbleToAnnexCityStates() and not isAtWar then
+			if minorPlayer:GetAlly() == activePlayerID then
 				local iAllianceTurns = minorPlayer:GetAlliedTurns()
 				strButtonLabel = "[COLOR_WARNING_TEXT]" .. strButtonLabel .. "[ENDCOLOR]"
 				strToolTip = L("TXT_KEY_POP_CSTATE_BUYOUT_DISABLED_ALLY_TT", GameDefines.MINOR_CIV_BUYOUT_TURNS, iAllianceTurns, iBuyoutCost)
@@ -687,7 +728,10 @@ function OnQuestInfoClicked()
 	local activePlayerID = Game.GetActivePlayer()
 	local minorPlayer = Players[ g_minorCivID ]
 	if minorPlayer then
-		if ( bnw_mode and minorPlayer:IsMinorCivDisplayedQuestForPlayer( activePlayerID, questKillCamp ) ) or ( gk_mode and not bnw_mode and minorPlayer:IsMinorCivActiveQuestForPlayer( activePlayerID, questKillCamp ) ) or ( not gk_mode and minorPlayer:GetActiveQuestForPlayer( activePlayerID ) == questKillCamp ) then
+		if ( bnw_mode and minorPlayer:IsMinorCivDisplayedQuestForPlayer( activePlayerID, questKillCamp ) )
+		or ( gk_mode and not bnw_mode and minorPlayer:IsMinorCivActiveQuestForPlayer( activePlayerID, questKillCamp ) )
+		or ( not gk_mode and minorPlayer:GetActiveQuestForPlayer( activePlayerID ) == questKillCamp )
+		then
 			local questData1 = minorPlayer:GetQuestData1( activePlayerID, questKillCamp )
 			local questData2 = minorPlayer:GetQuestData2( activePlayerID, questKillCamp )
 			local plot = Map.GetPlot( questData1, questData2 )
@@ -750,7 +794,7 @@ function OnPledgeButtonClicked ()
 			m_lastAction = kiPledgedToProtect
 			Game.DoMinorPledgeProtection( activePlayerID, g_minorCivID, true )
 		end
-	elseif minorPlayer:IsFriends(activePlayerID) and not Players[activePlayerID]:IsProtectingMinor(minorPlayerID) then
+	elseif minorPlayer:IsFriends(activePlayerID) and not Players[activePlayerID]:IsProtectingMinor( g_minorCivID ) then
 		m_lastAction = kiPledgedToProtect
 		Network.SendPledgeMinorProtection( g_minorCivID, true ) -- does not seem to work in 1.0.3.144
 		OnDisplay()
@@ -782,7 +826,7 @@ function OnBuyoutButtonClicked()
 
 	if gk_mode and minorPlayer:CanMajorBuyout(activePlayerID) then
 		OnCloseButtonClicked()
-		Game.DoMinorBuyout(activePlayerID, minorPlayer:GetID())
+		Game.DoMinorBuyout(activePlayerID, g_minorCivID)
 	end
 end
 Controls.BuyoutButton:RegisterCallback( Mouse.eLClick, OnBuyoutButtonClicked )
@@ -796,7 +840,7 @@ function OnMarriageButtonClicked()
 
 	if gk_mode and minorPlayer:CanMajorMarry(activePlayerID) then
 		OnCloseButtonClicked()
-		Game.DoMinorMarriage(activePlayerID, minorPlayer:GetID())
+		Game.DoMinorMarriage(activePlayerID, g_minorCivID)
 	end
 end
 Controls.MarriageButton:RegisterCallback( Mouse.eLClick, OnMarriageButtonClicked )
@@ -835,7 +879,7 @@ function OnStopStartSpawning()
 
 	-- Update the text based on what state we're changing to
 	local strSpawnText
-	if (bSpawningDisabled) then
+	if bSpawningDisabled then
 		strSpawnText = L("TXT_KEY_CITY_STATE_TURN_SPAWNING_OFF")
 	else
 		strSpawnText = L("TXT_KEY_CITY_STATE_TURN_SPAWNING_ON")
@@ -930,11 +974,10 @@ function PopulateGiftChoices()
 	-- Small Gold
 	local iNumGoldPlayerHas = activePlayer:GetGold()
 
-	iGold = iGoldGiftSmall
-	iLowestGold = iGold
-	iFriendshipAmount = minorPlayer:GetFriendshipFromGoldGift(activePlayerID, iGold)
+	local iGold = iGoldGiftSmall
+	local iFriendshipAmount = minorPlayer:GetFriendshipFromGoldGift(activePlayerID, iGold)
 	local buttonText = L("TXT_KEY_POPUP_MINOR_GOLD_GIFT_AMOUNT", iGold, iFriendshipAmount)
-	if (iNumGoldPlayerHas < iGold) then
+	if iNumGoldPlayerHas < iGold then
 		buttonText = "[COLOR_WARNING_TEXT]" .. buttonText .. "[ENDCOLOR]"
 		Controls.SmallGiftAnim:SetHide(true)
 	else
@@ -947,7 +990,7 @@ function PopulateGiftChoices()
 	iGold = iGoldGiftMedium
 	iFriendshipAmount = minorPlayer:GetFriendshipFromGoldGift(activePlayerID, iGold)
 	local buttonText = L("TXT_KEY_POPUP_MINOR_GOLD_GIFT_AMOUNT", iGold, iFriendshipAmount)
-	if (iNumGoldPlayerHas < iGold) then
+	if iNumGoldPlayerHas < iGold then
 		buttonText = "[COLOR_WARNING_TEXT]" .. buttonText .. "[ENDCOLOR]"
 		Controls.MediumGiftAnim:SetHide(true)
 	else
@@ -960,7 +1003,7 @@ function PopulateGiftChoices()
 	iGold = iGoldGiftLarge
 	iFriendshipAmount = minorPlayer:GetFriendshipFromGoldGift(activePlayerID, iGold)
 	local buttonText = L("TXT_KEY_POPUP_MINOR_GOLD_GIFT_AMOUNT", iGold, iFriendshipAmount)
-	if (iNumGoldPlayerHas < iGold) then
+	if iNumGoldPlayerHas < iGold then
 		buttonText = "[COLOR_WARNING_TEXT]" .. buttonText .. "[ENDCOLOR]"
 		Controls.LargeGiftAnim:SetHide(true)
 	else
@@ -1025,7 +1068,7 @@ function OnSmallGold ()
 	local activePlayer = Players[activePlayerID]
 	local iNumGoldPlayerHas = activePlayer:GetGold()
 
-	if (iNumGoldPlayerHas >= iGoldGiftSmall) then
+	if iNumGoldPlayerHas >= iGoldGiftSmall then
 		Game.DoMinorGoldGift(g_minorCivID, iGoldGiftSmall)
 		m_lastAction = kiGiftedGold
 		OnCloseGive()
@@ -1038,7 +1081,7 @@ function OnMediumGold ()
 	local activePlayer = Players[activePlayerID]
 	local iNumGoldPlayerHas = activePlayer:GetGold()
 
-	if (iNumGoldPlayerHas >= iGoldGiftMedium) then
+	if iNumGoldPlayerHas >= iGoldGiftMedium then
 		Game.DoMinorGoldGift(g_minorCivID, iGoldGiftMedium)
 		m_lastAction = kiGiftedGold
 		OnCloseGive()
@@ -1051,7 +1094,7 @@ function OnBigGold ()
 	local activePlayer = Players[activePlayerID]
 	local iNumGoldPlayerHas = activePlayer:GetGold()
 
-	if (iNumGoldPlayerHas >= iGoldGiftLarge) then
+	if iNumGoldPlayerHas >= iGoldGiftLarge then
 		Game.DoMinorGoldGift(g_minorCivID, iGoldGiftLarge)
 		m_lastAction = kiGiftedGold
 		OnCloseGive()
@@ -1120,7 +1163,7 @@ function PopulateTakeChoices()
 	else
 		ttText = Locale.Lookup("TXT_KEY_POP_CSTATE_BULLY_GOLD_TT")
 	end
-	if (not minorPlayer:CanMajorBullyGold(activePlayerID)) then
+	if not minorPlayer:CanMajorBullyGold(activePlayerID) then
 		buttonText = "[COLOR_WARNING_TEXT]" .. buttonText .. "[ENDCOLOR]"
 		Controls.GoldTributeAnim:SetHide(true)
 	else
@@ -1163,7 +1206,7 @@ function PopulateTakeChoices()
 	else
 		ttText = Locale.Lookup("TXT_KEY_POP_CSTATE_BULLY_UNIT_TT", sBullyUnit, 4 )
 	end
-	if (not minorPlayer:CanMajorBullyUnit(activePlayerID)) then
+	if not minorPlayer:CanMajorBullyUnit(activePlayerID) then
 		buttonText = "[COLOR_WARNING_TEXT]" .. buttonText .. "[ENDCOLOR]"
 		Controls.UnitTributeAnim:SetHide(true)
 	else
@@ -1190,12 +1233,12 @@ function BullyAction( action )
 	local listofProtectingCivs = {}
 	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
 
-		pOtherPlayer = Players[iPlayerLoop]
+		local pOtherPlayer = Players[iPlayerLoop]
 
 		-- Don't test protection status with active player!
-		if iPlayerLoop ~= Game.GetActivePlayer() and pOtherPlayer:IsAlive() and Teams[Game.GetActiveTeam()]:IsHasMet(pOtherPlayer:GetTeam()) and pOtherPlayer:IsProtectingMinor(g_minorCivID) then
+		if iPlayerLoop ~= Game.GetActivePlayer() and pOtherPlayer:IsAlive() and pOtherPlayer:IsProtectingMinor(g_minorCivID) then
 --todo remove unknowns
-			table.insert( listofProtectingCivs, Players[iPlayerLoop]:GetCivilizationShortDescription() )
+			table_insert( listofProtectingCivs, Players[iPlayerLoop]:GetCivilizationShortDescription() )
 		end
 	end
 
@@ -1204,7 +1247,7 @@ function BullyAction( action )
 	local bullyConfirmString
 	if action == kiDeclaredWar then
 		if #listofProtectingCivs >= 1 then
-			bullyConfirmString = L("TXT_KEY_CONFIRM_WAR_PROTECTED_CITY_STATE", cityStateName ) .. " " .. table.concat(listofProtectingCivs, ", ")
+			bullyConfirmString = L("TXT_KEY_CONFIRM_WAR_PROTECTED_CITY_STATE", cityStateName ) .. " " .. table_concat(listofProtectingCivs, ", ")
 		else
 			bullyConfirmString = cityStateName .. ": " .. L("TXT_KEY_CONFIRM_WAR")
 		end
@@ -1212,7 +1255,7 @@ function BullyAction( action )
 		if #listofProtectingCivs == 1 then
 			bullyConfirmString = L("TXT_KEY_CONFIRM_BULLY_PROTECTED_CITY_STATE", cityStateName, listofProtectingCivs[1])
 		elseif #listofProtectingCivs > 1 then
-			bullyConfirmString = L("TXT_KEY_CONFIRM_BULLY_PROTECTED_CITY_STATE_MULTIPLE", cityStateName, table.concat(listofProtectingCivs, ", "))
+			bullyConfirmString = L("TXT_KEY_CONFIRM_BULLY_PROTECTED_CITY_STATE_MULTIPLE", cityStateName, table_concat(listofProtectingCivs, ", "))
 		else
 			bullyConfirmString = L("TXT_KEY_CONFIRM_BULLY", cityStateName)
 		end

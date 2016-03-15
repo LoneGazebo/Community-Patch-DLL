@@ -8165,7 +8165,7 @@ void CvDiplomacyAI::DoMakePeaceWithMinors()
 					}
 					else
 #else
-					if(!MOD_DIPLOMACY_CIV4_FEATURES && IsWantsPeaceWithPlayer(eLoopPlayer) && GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()) == 0)	// Locked into war for a period of time? (coop war, war deal, etc.)
+					if(IsWantsPeaceWithPlayer(eLoopPlayer) && GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()) == 0)	// Locked into war for a period of time? (coop war, war deal, etc.)
 #endif
 					{
 						if(!GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsPeaceBlocked(GetPlayer()->getTeam()))
@@ -8317,8 +8317,7 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 	if (kHumanPlayer.isHuman())
 	{
 #if defined(MOD_CONFIG_GAME_IN_XML)
-		bool bWillMakePeace = GetPlayerNumTurnsAtWar(ePlayer) >= GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
-		if(!bWillMakePeace)
+		if(GetPlayerNumTurnsAtWar(ePlayer) < GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 		{
 			return false;
 		}
@@ -8330,28 +8329,6 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 		{
 			return false;
 		}
-#if defined(MOD_BALANCE_CORE)
-		int iOperationID;
-		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_BASIC_CITY_ATTACK, &iOperationID, ePlayer);
-		if(!bHasOperationUnderway)
-		{
-			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ATTACK, &iOperationID, ePlayer);
-		}
-		if(!bHasOperationUnderway)
-		{
-			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, &iOperationID, ePlayer);
-		}
-		bWillMakePeace = ((GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway) || GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 3);
-		if(GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireUnhappy())
-		{
-			bWillMakePeace = true;
-		}
-		if(GetWarState(ePlayer) < WAR_STATE_DEFENSIVE)
-		{
-			bWillMakePeace = true;
-		}
-#endif
-
 		// If either of us are locked in, then we're not willing to make peace (this prevents weird greetings and stuff) - we use > 1 because it'll get decremented after it appears the human make peace again
 		if(GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(kHumanPlayer.getTeam()) > 1)
 			return false;
@@ -8359,18 +8336,13 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 			return false;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES) {
+		if (MOD_DIPLOMACY_CIV4_FEATURES) 
+		{
 			// If either of us are locked in war because of a Vassal agreement, then we're not willing to make peace
 			if(GET_TEAM(GetPlayer()->getTeam()).IsVassalLockedIntoWar(kHumanPlayer.getTeam()) == true)
 				return false;
 			if(GET_TEAM(kHumanPlayer.getTeam()).IsVassalLockedIntoWar(GetPlayer()->getTeam()) == true)
 				return false;
-		}
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		//Vassals will never want peace with a player if their master is at war with a player.
-		if(MOD_DIPLOMACY_CIV4_FEATURES)
-		{
 			TeamTypes eMasterTeam = GET_TEAM(m_pPlayer->getTeam()).GetMaster();
 			if(eMasterTeam != NO_TEAM)
 			{
@@ -8386,8 +8358,63 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 			}
 		}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+		int iRequestPeaceTurnThreshold = /*4*/ GC.getREQUEST_PEACE_TURN_THRESHOLD();
+		int iWantPeace = 0;
+		int iOperationID;
+		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_BASIC_CITY_ATTACK, &iOperationID, ePlayer);
+		if(!bHasOperationUnderway)
+		{
+			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ATTACK, &iOperationID, ePlayer);
+		}
+		if(!bHasOperationUnderway)
+		{
+			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, &iOperationID, ePlayer);
+		}
+		if(bHasOperationUnderway)
+		{
+			iWantPeace--;
+		}
+		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway)
+		{
+			iWantPeace++;
+		}
+		if(!bHasOperationUnderway && GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireUnhappy())
+		{
+			iWantPeace++;
+		}
+		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 4)
+		{
+			iWantPeace++;
+		}
+		if(GetWarProjection(ePlayer) >= WAR_PROJECTION_GOOD)
+		{
+			iWantPeace--;
+		}
+		else if(GetWarProjection(ePlayer) < WAR_PROJECTION_STALEMATE)
+		{
+			iWantPeace++;
+		}
+		if(GetWarState(ePlayer) < WAR_STATE_DEFENSIVE)
+		{
+			iWantPeace++;
+		}
+		else if(GetWarState(ePlayer) >= WAR_STATE_OFFENSIVE)
+		{
+			iWantPeace--;
+		}
+		iWantPeace += GetWantPeaceCounter(ePlayer);
+		if(iWantPeace > iRequestPeaceTurnThreshold)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+#else
 		return bWillMakePeace;
+#endif
 	}
 	return true;
 }
@@ -8433,9 +8460,9 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
+#if !defined(MOD_BALANCE_CORE)
 	int iRequestPeaceTurnThreshold = /*4*/ GC.getREQUEST_PEACE_TURN_THRESHOLD();
-
+#endif
 	if(!GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(GET_PLAYER(ePlayer).getTeam()))
 	{
 		return false;
@@ -8459,12 +8486,86 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		}
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	if(GET_PLAYER(ePlayer).isMinorCiv())
+	{
+		if(GetMinorCivApproach(ePlayer) == MINOR_CIV_APPROACH_CONQUEST)
+		{
+			return false;
+		}
+	}
+	else
+	{
+		if(GetPlayerNumTurnsAtWar(ePlayer) <= GC.getWAR_MAJOR_MINIMUM_TURNS())
+		{
+			return false;
+		}
+		// We can't be locked into war with them, or them with us
+		if(GET_TEAM(m_pPlayer->getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(ePlayer).getTeam()) != 0 || GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetNumTurnsLockedIntoWar(m_pPlayer->getTeam()) != 0)
+		{
+			return false;
+		}
+		int iRequestPeaceTurnThreshold = /*4*/ GC.getREQUEST_PEACE_TURN_THRESHOLD();
+		int iWantPeace = 0;
+		int iOperationID;
+		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_BASIC_CITY_ATTACK, &iOperationID, ePlayer);
+		if(!bHasOperationUnderway)
+		{
+			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ATTACK, &iOperationID, ePlayer);
+		}
+		if(!bHasOperationUnderway)
+		{
+			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, &iOperationID, ePlayer);
+		}
+		if(bHasOperationUnderway)
+		{
+			iWantPeace--;
+		}
+		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway)
+		{
+			iWantPeace++;
+		}
+		if(!bHasOperationUnderway && m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy())
+		{
+			iWantPeace++;
+		}
+		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 4)
+		{
+			iWantPeace++;
+		}
+		if(GetWarProjection(ePlayer) >= WAR_PROJECTION_GOOD)
+		{
+			iWantPeace--;
+		}
+		else if(GetWarProjection(ePlayer) < WAR_PROJECTION_STALEMATE)
+		{
+			iWantPeace++;
+		}
+		if(GetWarState(ePlayer) < WAR_STATE_DEFENSIVE)
+		{
+			iWantPeace++;
+		}
+		else if(GetWarState(ePlayer) >= WAR_STATE_OFFENSIVE)
+		{
+			iWantPeace--;
+		}
+		iWantPeace += GetWantPeaceCounter(ePlayer);
+		if(iWantPeace > iRequestPeaceTurnThreshold)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+#else
 
 	if(GetWantPeaceCounter(ePlayer) >= iRequestPeaceTurnThreshold)
 	{
 		return true;
 	}
-
+#endif
 	return false;
 }
 
@@ -22138,55 +22239,30 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
+#if !defined(MOD_BALANCE_CORE)
 		CvTeam* pOurTeam = &GET_TEAM(GetPlayer()->getTeam());
 		TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam();
+#endif
 
 		// Have to have been at war for at least a little while
 #if defined(MOD_BALANCE_CORE)
-#if defined(MOD_BALANCE_CORE)
 		GetPlayer()->SetCachedValueOfPeaceWithHuman(0);
 #endif
-		int iPeace = GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
-		int iOperationID;
-		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_BASIC_CITY_ATTACK, &iOperationID, ePlayer);
-		if(!bHasOperationUnderway)
+		if(IsWantsPeaceWithPlayer(ePlayer))
 		{
-			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ATTACK, &iOperationID, ePlayer);
-		}
-		if(!bHasOperationUnderway)
-		{
-			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, &iOperationID, ePlayer);
-		}
-		if(GetWarState(ePlayer) < WAR_STATE_DEFENSIVE)
-		{
-			bHasOperationUnderway = false;
-		}	
-		if((GetPlayerNumTurnsAtWar(ePlayer) >= iPeace) && ((GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway) || (bHasOperationUnderway && (GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 3))))
-#else
-		if(GetPlayerNumTurnsAtWar(ePlayer) > 5)
-#endif
-		{
-			// We can't be locked into war with them, or them with us
-			if(pOurTeam->GetNumTurnsLockedIntoWar(eTheirTeam) == 0 &&
-			        GET_TEAM(eTheirTeam).GetNumTurnsLockedIntoWar(GetPlayer()->getTeam()) == 0)
-			{
-				if(IsWantsPeaceWithPlayer(ePlayer))
-				{
-					DiploStatementTypes eTempStatement = DIPLO_STATEMENT_REQUEST_PEACE;
-					int iTurnsBetweenStatements = 10;
+			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_REQUEST_PEACE;
+			int iTurnsBetweenStatements = 10;
 
-					if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-					{
-						if(GetPlayer()->GetDealAI()->IsOfferPeace(ePlayer, /*pDeal can be modified in this function*/ pDeal, false /*bEqualizingDeals*/))
-						{
-							eStatement = eTempStatement;
-						}
-						else
-						{
-							// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
-							pDeal->ClearItems();
-						}
-					}
+			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			{
+				if(GetPlayer()->GetDealAI()->IsOfferPeace(ePlayer, /*pDeal can be modified in this function*/ pDeal, false /*bEqualizingDeals*/))
+				{
+					eStatement = eTempStatement;
+				}
+				else
+				{
+					// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
+					pDeal->ClearItems();
 				}
 			}
 		}
@@ -24920,7 +24996,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			{
 				// Player declared war and wants peace right away.  Uh huh, right.
 #if defined(MOD_BALANCE_CORE)
-				if((GetPlayerNumTurnsAtWar(eFromPlayer) < 1) && (GetPlayerNumTurnsSinceCityCapture(eFromPlayer) < 1))
+				if((GetPlayerNumTurnsAtWar(eFromPlayer) <= 1) && (GetPlayerNumTurnsSinceCityCapture(eFromPlayer) <= 1))
 #else
 				if(GetPlayerNumTurnsAtWar(eFromPlayer) < 1)
 #endif
@@ -41107,7 +41183,7 @@ int CvDiplomacyAI::GetVassalProtectScore(PlayerTypes ePlayer) const
 
 	if(IsVassal(ePlayer))
 	{
-		int iWeightChange = -1 * GetVassalProtectValue(ePlayer) / GC.getVASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT();
+		int iWeightChange = -1 * GetVassalProtectValue(ePlayer) / std::max(1, GC.getVASSALAGE_PROTECT_VALUE_PER_OPINION_WEIGHT());
 		if(iWeightChange < /*-50*/ GC.getOPINION_WEIGHT_VASSALAGE_PROTECT_MAX())
 		{
 			iWeightChange = GC.getOPINION_WEIGHT_VASSALAGE_PROTECT_MAX();
@@ -41124,7 +41200,7 @@ int CvDiplomacyAI::GetVassalFailedProtectScore(PlayerTypes ePlayer) const
 
 	if(IsVassal(ePlayer))
 	{
-		int iWeightChange =  GetVassalFailedProtectValue(ePlayer) / GC.getVASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT();
+		int iWeightChange =  GetVassalFailedProtectValue(ePlayer) / std::max(1, GC.getVASSALAGE_FAILED_PROTECT_VALUE_PER_OPINION_WEIGHT());
 		if(iWeightChange > GC.getOPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX())
 		{
 			iWeightChange = GC.getOPINION_WEIGHT_VASSALAGE_FAILED_PROTECT_MAX();

@@ -22,6 +22,22 @@ local gk_mode = Game.GetReligionName ~= nil
 local bnw_mode = Game.GetActiveLeague ~= nil
 local civ5bnw_mode = civ5_mode and bnw_mode
 
+-------------------------------
+-- minor lua optimizations
+-------------------------------
+local math_ceil = math.ceil
+local math_cos = math.cos
+local math_floor = math.floor
+local math_max = math.max
+local math_min = math.min
+local math_pi = math.pi
+local math_sin = math.sin
+local os_date = os.date
+local os_time = os.time
+local pairs = pairs
+local tonumber = tonumber
+local S = string.format
+
 --EUI_utilities
 local IconHookup = EUI.IconHookup
 local CityPlots = EUI.CityPlots
@@ -38,117 +54,28 @@ if civBE_mode then
 	GetHelpTextForAffinity = EUI.GetHelpTextForAffinity
 end
 
--------------------------------
--- minor lua optimizations
--------------------------------
-
---local next = next
-local pairs = pairs
-local ipairs = ipairs
---local pcall = pcall
---local print = print
---local select = select
---local setmetatable = setmetatable
-local string = string
-local tonumber = tonumber
---local tostring = tostring
---local type = type
---local unpack = unpack
---local table = table
---local table_insert = table.insert
---local table_remove = table.remove
---local table_concat = table.concat
---local os = os
-local os_time = os.time
-local os_date = os.date
---local math = math
-local math_floor = math.floor
-local math_ceil = math.ceil
-local math_min = math.min
-local math_max = math.max
---local math_abs = math.abs
---local math_modf = math.modf
---local math_sqrt = math.sqrt
-local math_pi = math.pi
-local math_sin = math.sin
-local math_cos = math.cos
---local math_huge = math.huge
-
-local UI = UI
---local UIManager = UIManager
---local ToHexFromGrid = ToHexFromGrid
-
-local Controls = Controls
-local ContextPtr = ContextPtr
-local Players = Players
-local Teams = Teams
---local GameInfo = GameInfo
---local GameInfoActions = GameInfoActions
-local GameInfoTypes = GameInfoTypes
-local GameDefines = GameDefines
---local InterfaceDirtyBits = InterfaceDirtyBits
---local CityUpdateTypes = CityUpdateTypes
 local ButtonPopupTypes = ButtonPopupTypes
-local YieldTypes = YieldTypes
-local GameOptionTypes = GameOptionTypes
+local ContextPtr = ContextPtr
+local Controls = Controls
 local DomainTypes = DomainTypes
---local FeatureTypes = FeatureTypes
---local FogOfWarModeTypes = FogOfWarModeTypes
-local OrderTypes = OrderTypes
---local PlotTypes = PlotTypes
---local TerrainTypes = TerrainTypes
---local InterfaceModeTypes = InterfaceModeTypes
---local NotificationTypes = NotificationTypes
---local ActivityTypes = ActivityTypes
---local MissionTypes = MissionTypes
---local ActionSubTypes = ActionSubTypes
---local GameMessageTypes = GameMessageTypes
---local TaskTypes = TaskTypes
---local CommandTypes = CommandTypes
---local DirectionTypes = DirectionTypes
---local DiploUIStateTypes = DiploUIStateTypes
---local FlowDirectionTypes = FlowDirectionTypes
---local PolicyBranchTypes = PolicyBranchTypes
---local FromUIDiploEventTypes = FromUIDiploEventTypes
---local CoopWarStates = CoopWarStates
---local ThreatTypes = ThreatTypes
---local DisputeLevelTypes = DisputeLevelTypes
---local LeaderheadAnimationTypes = LeaderheadAnimationTypes
-local TradeableItems = TradeableItems
---local EndTurnBlockingTypes = EndTurnBlockingTypes
-local ResourceUsageTypes = ResourceUsageTypes
---local MajorCivApproachTypes = MajorCivApproachTypes
---local MinorCivTraitTypes = MinorCivTraitTypes
---local MinorCivPersonalityTypes = MinorCivPersonalityTypes
---local MinorCivQuestTypes = MinorCivQuestTypes
---local CityAIFocusTypes = CityAIFocusTypes
---local AdvisorTypes = AdvisorTypes
---local GenericWorldAnchorTypes = GenericWorldAnchorTypes
---local GameStates = GameStates
---local GameplayGameStateTypes = GameplayGameStateTypes
---local CombatPredictionTypes = CombatPredictionTypes
---local ChatTargetTypes = ChatTargetTypes
---local ReligionTypes = ReligionTypes
---local BeliefTypes = BeliefTypes
-local FaithPurchaseTypes = FaithPurchaseTypes
---local ResolutionDecisionTypes = ResolutionDecisionTypes
---local InfluenceLevelTypes = InfluenceLevelTypes
---local InfluenceLevelTrend = InfluenceLevelTrend
---local PublicOpinionTypes = PublicOpinionTypes
---local ControlTypes = ControlTypes
-
-local PreGame = PreGame
-local Game = Game
---local Map = Map
-local OptionsManager = OptionsManager
 local Events = Events
-local Mouse = Mouse
---local IsGameCoreBusy = IsGameCoreBusy
---local MouseEvents = MouseEvents
---local MouseOverStrategicViewResource = MouseOverStrategicViewResource
-local Locale = Locale
+local FaithPurchaseTypes = FaithPurchaseTypes
+local Game = Game
+local GameDefines = GameDefines
+local GameInfoTypes = GameInfoTypes
+local GameOptionTypes = GameOptionTypes
 local L = Locale.ConvertTextKey
-local S = string.format
+local Locale = Locale
+local Mouse = Mouse
+local OptionsManager = OptionsManager
+local OrderTypes = OrderTypes
+local Players = Players
+local PreGame = PreGame
+local ResourceUsageTypes = ResourceUsageTypes
+local Teams = Teams
+local TradeableItems = TradeableItems
+local UI = UI
+local YieldTypes = YieldTypes
 
 -------------------------------
 -- Globals

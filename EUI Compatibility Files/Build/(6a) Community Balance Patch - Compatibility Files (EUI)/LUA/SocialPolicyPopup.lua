@@ -4,11 +4,44 @@ print("This is the modded SocialPolicyPopup from CBP")
 -------------------------------------------------
 
 include( "IconSupport" );
-include( "InstanceManager" );
-local bnw_mode = Game.GetActiveLeague ~= nil
+local IconHookup = IconHookup
+local CivIconHookup = CivIconHookup
 local GameInfo = EUI and EUI.GameInfoCache or GameInfo
 
-local m_PopupInfo = nil;
+include( "InstanceManager" );
+local InstanceManager = InstanceManager
+
+local ipairs = ipairs
+local math_ceil = math.ceil
+local math_huge = math.huge
+local pairs = pairs
+local print = print
+local tostring = tostring
+
+local ButtonPopupTypes = ButtonPopupTypes
+local ContextPtr = ContextPtr
+local Controls = Controls
+local Events = Events
+local Game = Game
+local GameDefines = GameDefines
+local GameInfoTypes = GameInfoTypes
+local GameOptionTypes = GameOptionTypes
+local KeyEvents = KeyEvents
+local Keys = Keys
+local Locale = Locale
+local Mouse = Mouse
+local Network = Network
+local OptionsManager = OptionsManager
+local Players = Players
+local PopupPriority = PopupPriority
+local PublicOpinionTypes = PublicOpinionTypes
+local Teams = Teams
+local UI = UI
+local UIManager = UIManager
+
+local bnw_mode = Game.GetActiveLeague ~= nil
+
+local m_PopupInfo
 
 local g_pipeManagers = {
 	POLICY_BRANCH_LIBERTY = InstanceManager:new( "ConnectorPipe", "ConnectorImage", Controls.LibertyPanel ),
@@ -40,14 +73,9 @@ local g_instanceManagers = {
 }
 local g_TenetInstanceManager = InstanceManager:new( "TenetChoice", "TenetButton", Controls.TenetStack )
 
-include( "FLuaVector" );
-
 local fullColor = {x = 1, y = 1, z = 1, w = 1};
 local fadeColor = {x = 1, y = 1, z = 1, w = 0};
 local fadeColorRV = {x = 1, y = 1, z = 1, w = 0.2};
-local pinkColor = {x = 2, y = 0, z = 2, w = 1};
-local lockTexture = "48Lock.dds";
-local checkTexture = "48Checked.dds";
 
 local hTexture = "Connect_H.dds";
 local vTexture = "Connect_V.dds";
@@ -67,15 +95,16 @@ local g_PolicyPipeYOffset = 68;
 
 local m_gPolicyID;
 local m_gAdoptingPolicy;
-
-g_Tabs = {
-	["SocialPolicies"] = {
+local g_SelectedTenet
+local TabSelect
+local g_Tabs = {
+	SocialPolicies = {
 		Button = Controls.TabButtonSocialPolicies,
 		Panel = Controls.SocialPolicyPane,
 		SelectHighlight = Controls.TabButtonSocialPoliciesHL,
 	},
 
-	["Ideologies"] = {
+	Ideologies = {
 		Button = Controls.TabButtonIdeologies,
 		Panel = Controls.IdeologyPane,
 		SelectHighlight = Controls.TabButtonIdeologiesHL,
@@ -94,7 +123,7 @@ local g_IdeologyBackgrounds = {
 -------------------------------------------------
 function PolicySelected( policyIndex )
 
-	print("Clicked on Policy: " .. tostring(policyIndex));
+	--print("Clicked on Policy: " .. tostring(policyIndex));
 
 	if policyIndex == -1 then
 		return;
@@ -107,24 +136,24 @@ function PolicySelected( policyIndex )
 	local bHasPolicy = player:HasPolicy(policyIndex);
 	local bCanAdoptPolicy = player:CanAdoptPolicy(policyIndex);
 
-	print("bHasPolicy: " .. tostring(bHasPolicy));
-	print("bCanAdoptPolicy: " .. tostring(bCanAdoptPolicy));
-	print("Policy Blocked: " .. tostring(player:IsPolicyBlocked(policyIndex)));
+	--print("bHasPolicy: " .. tostring(bHasPolicy));
+	--print("bCanAdoptPolicy: " .. tostring(bCanAdoptPolicy));
+	--print("Policy Blocked: " .. tostring(player:IsPolicyBlocked(policyIndex)));
 
 	local bPolicyBlocked = false;
 
 	-- If we can get this, OR we already have it, see if we can unblock it first
-	if (bHasPolicy or bCanAdoptPolicy) then
+	if bHasPolicy or bCanAdoptPolicy then
 
 		-- Policy blocked off right now? If so, try to activate
-		if (player:IsPolicyBlocked(policyIndex)) then
+		if player:IsPolicyBlocked(policyIndex) then
 
 			bPolicyBlocked = true;
 
 			local strPolicyBranch = GameInfo.Policies[policyIndex].PolicyBranchType;
 			local iPolicyBranch = GameInfoTypes[strPolicyBranch];
 
-			print("Policy Branch: " .. tostring(iPolicyBranch));
+			--print("Policy Branch: " .. tostring(iPolicyBranch));
 
 			local popupInfo = {
 				Type = ButtonPopupTypes.BUTTONPOPUP_CONFIRM_POLICY_BRANCH_SWITCH,
@@ -136,7 +165,7 @@ function PolicySelected( policyIndex )
 	end
 
 	-- Can adopt Policy right now - don't try this if we're going to unblock the Policy instead
-	if (bCanAdoptPolicy and not bPolicyBlocked) then
+	if bCanAdoptPolicy and not bPolicyBlocked then
 		m_gPolicyID = policyIndex;
 		m_gAdoptingPolicy = true;
 		Controls.PolicyConfirm:SetHide(false);
@@ -165,15 +194,15 @@ function PolicyBranchSelected( policyBranchIndex )
 
 	--print("bHasPolicyBranch: " .. tostring(bHasPolicyBranch));
 	--print("bCanAdoptPolicyBranch: " .. tostring(bCanAdoptPolicyBranch));
-	-- print("PolicyBranch Blocked: " .. tostring(player:IsPolicyBranchBlocked(policyBranchIndex)));
+	--print("PolicyBranch Blocked: " .. tostring(player:IsPolicyBranchBlocked(policyBranchIndex)));
 
 	local bUnblockingPolicyBranch = false;
 
 	-- If we can get this, OR we already have it, see if we can unblock it first
-	if (bHasPolicyBranch or bCanAdoptPolicyBranch) then
+	if bHasPolicyBranch or bCanAdoptPolicyBranch then
 
 		-- Policy Branch blocked off right now? If so, try to activate
-		if (player:IsPolicyBranchBlocked(policyBranchIndex)) then
+		if player:IsPolicyBranchBlocked(policyBranchIndex) then
 
 			bUnblockingPolicyBranch = true;
 
@@ -186,7 +215,7 @@ function PolicyBranchSelected( policyBranchIndex )
 	end
 
 	-- Can adopt Policy Branch right now - don't try this if we're going to unblock the Policy Branch instead
-	if (bCanAdoptPolicyBranch and not bUnblockingPolicyBranch) then
+	if bCanAdoptPolicyBranch and not bUnblockingPolicyBranch then
 		m_gPolicyID = policyBranchIndex;
 		m_gAdoptingPolicy = false;
 		Controls.PolicyConfirm:SetHide(false);
@@ -198,8 +227,7 @@ end
 -------------------------------------------------
 function OnPopupMessage(popupInfo)
 
-	local popupType = popupInfo.Type;
-	if popupType ~= ButtonPopupTypes.BUTTONPOPUP_CHOOSEPOLICY then
+	if popupInfo.Type ~= ButtonPopupTypes.BUTTONPOPUP_CHOOSEPOLICY then
 		return;
 	end
 
@@ -208,15 +236,16 @@ function OnPopupMessage(popupInfo)
 	UpdateDisplay();
 
 	if bnw_mode then
-		if(m_PopupInfo.Data2 == 2) then
+		local player = Players[Game.GetActivePlayer()]
+		if m_PopupInfo.Data2 == 2 or (player and player:GetNumFreeTenets() > 0) then
 			TabSelect(g_Tabs["Ideologies"]);
 		else
 			TabSelect(g_Tabs["SocialPolicies"]);
 		end
 	end
 
-	if( m_PopupInfo.Data1 == 1 ) then
-		if( ContextPtr:IsHidden() == false ) then
+	if m_PopupInfo.Data1 == 1 then
+		if ContextPtr:IsHidden() == false then
 			OnClose();
 		else
 			UIManager:QueuePopup( ContextPtr, PopupPriority.InGameUtmost );
@@ -243,245 +272,170 @@ function UpdateDisplay()
 
 	local bShowAll = OptionsManager.GetPolicyInfo();
 
-	local szText = Locale.ConvertTextKey("TXT_KEY_NEXT_POLICY_COST_LABEL", player:GetNextPolicyCost());
-	Controls.NextCost:SetText(szText);
+	Controls.NextCost:LocalizeAndSetText( "TXT_KEY_NEXT_POLICY_COST_LABEL", player:GetNextPolicyCost() )
+	Controls.CurrentCultureLabel:LocalizeAndSetText( "TXT_KEY_CURRENT_CULTURE_LABEL", player:GetJONSCulture() )
+	Controls.CulturePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CULTURE_PER_TURN_LABEL", player:GetTotalJONSCulturePerTurn() )
 
-	szText = Locale.ConvertTextKey("TXT_KEY_CURRENT_CULTURE_LABEL", player:GetJONSCulture());
-	Controls.CurrentCultureLabel:SetText(szText);
-
-	szText = Locale.ConvertTextKey("TXT_KEY_CULTURE_PER_TURN_LABEL", player:GetTotalJONSCulturePerTurn());
-	Controls.CulturePerTurnLabel:SetText(szText);
-
-	local iTurns;
-	local iCultureNeeded = player:GetNextPolicyCost() - player:GetJONSCulture();
-	if (iCultureNeeded <= 0) then
-		iTurns = 0;
-	else
-		if (player:GetTotalJONSCulturePerTurn() == 0) then
-			iTurns = "?";
-		else
-			iTurns = iCultureNeeded / player:GetTotalJONSCulturePerTurn();
-			iTurns = iTurns + 1;
-			iTurns = math.floor(iTurns);
-		end
-	end
-	szText = Locale.ConvertTextKey("TXT_KEY_NEXT_POLICY_TURN_LABEL", iTurns);
-	Controls.NextPolicyTurnLabel:SetText(szText);
+	local cultureNeeded = player:GetNextPolicyCost() - player:GetJONSCulture()
+	local culturePerTurn = player:GetTotalJONSCulturePerTurn()
+	Controls.NextPolicyTurnLabel:LocalizeAndSetText( "TXT_KEY_NEXT_POLICY_TURN_LABEL", cultureNeeded <= 0 and 0 or ( culturePerTurn <= 0 and "?" or math_ceil( cultureNeeded / culturePerTurn ) ) )
 
 	-- Player Title
-	local iDominantBranch = player:GetDominantPolicyBranchForTitle();
-	if (iDominantBranch ~= -1) then
-
-		local strTextKey = GameInfo.PolicyBranchTypes[iDominantBranch].Title;
-
-		local strText = Locale.ConvertTextKey(strTextKey, player:GetNameKey(), player:GetCivilizationShortDescriptionKey());
-
+	local dominantBranch = GameInfo.PolicyBranchTypes[ player:GetDominantPolicyBranchForTitle() ]
+	if dominantBranch then
 		Controls.PlayerTitleLabel:SetHide(false);
-		Controls.PlayerTitleLabel:SetText(strText);
+		Controls.PlayerTitleLabel:LocalizeAndSetText( dominantBranch.Title, player:GetNameKey(), player:GetCivilizationShortDescriptionKey() );
 	else
 		Controls.PlayerTitleLabel:SetHide(true);
 	end
 
 	-- Free Policies
 	local iNumFreePolicies = player:GetNumFreePolicies();
-	if (iNumFreePolicies > 0) then
-		szText = Locale.ConvertTextKey("TXT_KEY_FREE_POLICIES_LABEL", iNumFreePolicies);
-		Controls.FreePoliciesLabel:SetText( szText );
+	if iNumFreePolicies > 0 then
+		Controls.FreePoliciesLabel:LocalizeAndSetText( "TXT_KEY_FREE_POLICIES_LABEL", iNumFreePolicies );
 		Controls.FreePoliciesLabel:SetHide( false );
 	else
 		Controls.FreePoliciesLabel:SetHide( true );
 	end
 
 
-	--szText = Locale.ConvertTextKey( "TXT_KEY_SOCIAL_POLICY_DIRECTIONS" );
-	--Controls.ReminderText:SetText( szText );
-
-	local justLooking = true;
-	if player:GetJONSCulture() >= player:GetNextPolicyCost() then
-		justLooking = false;
-	end
+	local justLooking = player:GetJONSCulture() < player:GetNextPolicyCost()
 
 	-- Adjust Policy Branches
-	local i = 0;
-	local numUnlockedBranches = player:GetNumPolicyBranchesUnlocked();
---	if numUnlockedBranches > 0 then
-		local policyBranchInfo = GameInfo.PolicyBranchTypes[i];
-		while policyBranchInfo and not (bnw_mode and policyBranchInfo.PurchaseByLevel) do
-			local numString = tostring( i );
+	local policyBranchID = 0;
+	local policyBranchInfo = GameInfo.PolicyBranchTypes[ policyBranchID ];
+	while policyBranchInfo and not (bnw_mode and policyBranchInfo.PurchaseByLevel) do
 
-			local buttonName = "BranchButton"..numString;
-			local backName = "BranchBack"..numString;
-			local DisabledBoxName = "DisabledBox"..numString;
-			local LockedBoxName = "LockedBox"..numString;
-			local ImageMaskName = "ImageMask"..numString;
-			local DisabledMaskName = "DisabledMask"..numString;
-			--local EraLabelName = "EraLabel"..numString;
+		local thisButton = Controls[ "BranchButton"..policyBranchID ]
+		local thisBack = Controls[ "BranchBack"..policyBranchID ]
+		local thisDisabledBox = Controls[ "DisabledBox"..policyBranchID ]
+		local thisLockedBox = Controls[ "LockedBox"..policyBranchID ]
+		local thisImageMask = Controls[ "ImageMask"..policyBranchID ]
+		local thisDisabledMask = Controls[ "DisabledMask"..policyBranchID ]
+		local thisLock = Controls[ "Lock"..policyBranchID ]
 
-			local thisButton = Controls[buttonName];
-			local thisBack = Controls[backName];
-			local thisDisabledBox = Controls[DisabledBoxName];
-			local thisLockedBox = Controls[LockedBoxName];
+		local strToolTip = Locale.ConvertTextKey(policyBranchInfo.Help)
 
-			local thisImageMask = Controls[ImageMaskName];
-			local thisDisabledMask = Controls[DisabledMaskName];
+		-- Era Prereq
+		local iEraPrereq = GameInfoTypes[ policyBranchInfo.EraPrereq ]
+		local bEraLock = false
+		if (iEraPrereq ~= nil and pTeam:GetCurrentEra() < iEraPrereq and not player:CanUnlockPolicyBranch( i )) then
+			bEraLock = true;
+		elseif (iEraPrereq ~= nil and pTeam:GetCurrentEra() >= iEraPrereq) then
+			bEraLock = false;
+		end
 
+		-- Branch is not yet unlocked
+		if not player:IsPolicyBranchUnlocked( policyBranchID ) then
 
-			if(thisImageMask == nil) then
-				print(ImageMaskName);
-			end
-			--local thisEraLabel = Controls[EraLabelName];
+			-- Cannot adopt this branch right now
+			if bnw_mode and policyBranchInfo.LockedWithoutReligion and Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION) then
+				strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_RELIGION");
 
-			local strToolTip = Locale.ConvertTextKey(policyBranchInfo.Help);
+			elseif not player:CanUnlockPolicyBranch( policyBranchID ) then
 
-			-- Era Prereq
-			local iEraPrereq = GameInfoTypes[policyBranchInfo.EraPrereq]
-			local bEraLock = false;
--- Change (CBP)
---			if (iEraPrereq ~= nil and pTeam:GetCurrentEra() < iEraPrereq) then
-			if (iEraPrereq ~= nil and not player:CanUnlockPolicyBranch( i )) then
--- END
-				bEraLock = true;
-			else
-				--thisEraLabel:SetHide(true);
-			end
--- CBP
-			if (iEraPrereq ~= nil and pTeam:GetCurrentEra() >= iEraPrereq) then
-				bEraLock = false;
-			elseif player:IsPolicyBranchUnlocked ( i ) then
-				bEraLock = false;
-			end
---END
-			
-			local lockName = "Lock"..numString;
-			local thisLock = Controls[lockName];
+				strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK");
 
-			-- Branch is not yet unlocked
-			if not player:IsPolicyBranchUnlocked( i ) then
+				-- Not in prereq Era
+				if bEraLock then
+					local strEra = GameInfo.Eras[iEraPrereq].Description;
+					strToolTip = strToolTip .. " " .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_ERA", strEra);
 
-				-- Cannot adopt this branch right now
-				if bnw_mode and policyBranchInfo.LockedWithoutReligion and Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION) then
-					strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_RELIGION");
-
-				elseif not player:CanUnlockPolicyBranch(i) then
-
-					strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK");
-
-					-- Not in prereq Era
-					if (bEraLock) then
-						local strEra = GameInfo.Eras[iEraPrereq].Description;
-						strToolTip = strToolTip .. " " .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_ERA", strEra);
-
-						-- Era Label
-						--local strEraTitle = "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey(strEra) .. "[ENDCOLOR]";
-						local strEraTitle = Locale.ConvertTextKey(strEra);
-						thisButton:SetText( strEraTitle );
-						--thisEraLabel:SetText(strEraTitle);
-						--thisEraLabel:SetHide( true );
-
-						--thisButton:SetHide( true );
-
-					-- Don't have enough Culture Yet
-					else
-						strToolTip = strToolTip .. " " .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_CULTURE", player:GetNextPolicyCost());
-						thisButton:SetHide( false );
-						thisButton:SetText( Locale.ConvertTextKey( "TXT_KEY_POP_ADOPT_BUTTON" ) );
-						--thisEraLabel:SetHide( true );
-					end
-
-					thisLock:SetHide( false );
-					thisButton:SetDisabled( true );
-				-- Can adopt this branch right now
-				else
-					strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_UNLOCK_SPEND", player:GetNextPolicyCost());
-					thisLock:SetHide( true );
+					-- Era Label
+					--local strEraTitle = "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey(strEra) .. "[ENDCOLOR]";
+					local strEraTitle = Locale.ConvertTextKey(strEra);
+					thisButton:SetText( strEraTitle );
+					--thisEraLabel:SetText(strEraTitle);
 					--thisEraLabel:SetHide( true );
-					thisButton:SetDisabled( false );
+
+					--thisButton:SetHide( true );
+
+				-- Don't have enough Culture Yet
+				else
+					strToolTip = strToolTip .. " " .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_CULTURE", player:GetNextPolicyCost());
 					thisButton:SetHide( false );
 					thisButton:SetText( Locale.ConvertTextKey( "TXT_KEY_POP_ADOPT_BUTTON" ) );
+					--thisEraLabel:SetHide( true );
 				end
 
-				if(not playerHas1City) then
-					thisButton:SetDisabled(true);
-				end
-
-				thisBack:SetColor( fadeColor );
-				thisLockedBox:SetHide(false);
-
-				thisImageMask:SetHide(true);
-				thisDisabledMask:SetHide(false);
-
-			-- Branch is unlocked, but blocked by another branch
-			elseif (player:IsPolicyBranchBlocked(i)) then
-				thisButton:SetHide( false );
-				thisBack:SetColor( fadeColor );
 				thisLock:SetHide( false );
-				thisLockedBox:SetHide(true);
-
-				strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_BLOCKED");
-
-			-- Branch is unlocked already
+				thisButton:SetDisabled( true );
+			-- Can adopt this branch right now
 			else
-				thisButton:SetHide( true );
-				thisBack:SetColor( fullColor );
-				thisLockedBox:SetHide(true);
-
-				thisImageMask:SetHide(false);
-				thisDisabledMask:SetHide(true);
+				strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_UNLOCK_SPEND", player:GetNextPolicyCost());
+				thisLock:SetHide( true );
+				--thisEraLabel:SetHide( true );
+				thisButton:SetDisabled( false );
+				thisButton:SetHide( false );
+				thisButton:SetText( Locale.ConvertTextKey( "TXT_KEY_POP_ADOPT_BUTTON" ) );
 			end
 
-			-- Update tooltips
-			thisButton:SetToolTipString(strToolTip);
-
-			-- If the player doesn't have the era prereq, then dim out the branch
-			if (bEraLock) then
-				thisDisabledBox:SetHide(false);
-				thisLockedBox:SetHide(true);
-			else
-				thisDisabledBox:SetHide(true);
+			if not playerHas1City then
+				thisButton:SetDisabled(true);
 			end
 
-			if (bShowAll) then
-				thisDisabledBox:SetHide(true);
-				thisLockedBox:SetHide(true);
-			end
+			thisBack:SetColor( fadeColor );
+			thisLockedBox:SetHide(false);
 
-			i = i + 1;
-			policyBranchInfo = GameInfo.PolicyBranchTypes[i];
+			thisImageMask:SetHide(true);
+			thisDisabledMask:SetHide(false);
+
+		-- Branch is unlocked, but blocked by another branch
+		elseif player:IsPolicyBranchBlocked( policyBranchID ) then
+			thisButton:SetHide( false );
+			thisBack:SetColor( fadeColor );
+			thisLock:SetHide( false );
+			thisLockedBox:SetHide(true);
+
+			strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_BLOCKED");
+
+		-- Branch is unlocked already
+		else
+			thisButton:SetHide( true );
+			thisBack:SetColor( fullColor );
+			thisLockedBox:SetHide(true);
+
+			thisImageMask:SetHide(false);
+			thisDisabledMask:SetHide(true);
 		end
-	--else
-		--local policyBranchInfo = GameInfo.PolicyBranchTypes[i];
-		--while policyBranchInfo ~= nil do
-			--local numString = tostring(i);
-			--local buttonName = "BranchButton"..numString;
-			--local backName = "BranchBack"..numString;
-			--local thisButton = Controls[buttonName];
-			--local thisBack = Controls[backName];
-			--thisBack:SetColor( fullColor );
-			--thisButton:SetHide( true );
-			--i = i + 1;
-			--policyBranchInfo = GameInfo.PolicyBranchTypes[i];
-		--end
-	--end
+
+		-- Update tooltips
+		thisButton:SetToolTipString(strToolTip);
+
+		-- If the player doesn't have the era prereq, then dim out the branch
+		if bEraLock then
+			thisDisabledBox:SetHide(false);
+			thisLockedBox:SetHide(true);
+		else
+			thisDisabledBox:SetHide(true);
+		end
+
+		if bShowAll then
+			thisDisabledBox:SetHide(true);
+			thisLockedBox:SetHide(true);
+		end
+
+		policyBranchID = policyBranchID + 1;
+		policyBranchInfo = GameInfo.PolicyBranchTypes[ policyBranchID ];
+	end
 
 	-- Adjust Policy buttons
-
-
-	i = 0;
-	local policyInfo = GameInfo.Policies[i];
-	while policyInfo ~= nil do
+	local policyID = 0;
+	local policyInfo = GameInfo.Policies[policyID];
+	while policyInfo do
 
 		local iBranch = policyInfo.PolicyBranchType;
 
 		-- If this is nil it means the Policy is a freebie handed out with the Branch, so don't display it
 		if iBranch and not (bnw_mode and GameInfo.PolicyBranchTypes[iBranch].PurchaseByLevel) then
 
-			local thisPolicyIcon = policyIcons[i];
+			local thisPolicyIcon = policyIcons[policyID];
 
 			-- Tooltip
 			local strTooltip = Locale.ConvertTextKey( policyInfo.Help );
 
 			-- Player already has Policy
-			if player:HasPolicy( i ) then
+			if player:HasPolicy( policyID ) then
 				--thisPolicyIcon.Lock:SetTexture( checkTexture );
 				--thisPolicyIcon.Lock:SetHide( true );
 				thisPolicyIcon.MouseOverContainer:SetHide( true );
@@ -489,7 +443,7 @@ function UpdateDisplay()
 				--thisPolicyIcon.PolicyIcon:SetVoid1( -1 );
 				thisPolicyIcon.PolicyImage:SetColor( fullColor );
 				IconHookup( policyInfo.PortraitIndex, 64, policyInfo.IconAtlasAchieved, thisPolicyIcon.PolicyImage );
-			elseif(not playerHas1City) then
+			elseif not playerHas1City then
 				--thisPolicyIcon.Lock:SetTexture( lockTexture );
 				thisPolicyIcon.MouseOverContainer:SetHide( true );
 				--thisPolicyIcon.Lock:SetHide( true );
@@ -502,7 +456,7 @@ function UpdateDisplay()
 				strTooltip = strTooltip .. "[NEWLINE][NEWLINE]"
 
 			-- Can adopt the Policy right now
-			elseif player:CanAdoptPolicy( i ) then
+			elseif player:CanAdoptPolicy( policyID ) then
 				--thisPolicyIcon.Lock:SetHide( true );
 				thisPolicyIcon.MouseOverContainer:SetHide( false );
 				thisPolicyIcon.PolicyIcon:SetDisabled( false );
@@ -510,13 +464,13 @@ function UpdateDisplay()
 					--thisPolicyIcon.PolicyIcon:SetVoid1( -1 );
 					thisPolicyIcon.PolicyImage:SetColor( fullColor );
 				else
-					thisPolicyIcon.PolicyIcon:SetVoid1( i ); -- indicates policy to be chosen
+					thisPolicyIcon.PolicyIcon:SetVoid1( policyID ); -- indicates policy to be chosen
 					thisPolicyIcon.PolicyImage:SetColor( fullColor );
 				end
 				IconHookup( policyInfo.PortraitIndex, 64, policyInfo.IconAtlas, thisPolicyIcon.PolicyImage );
 
 			-- Policy is unlocked, but we lack culture
-			elseif player:CanAdoptPolicy(i, true) then
+			elseif player:CanAdoptPolicy( policyID, true ) then
 				--thisPolicyIcon.Lock:SetTexture( lockTexture );
 				thisPolicyIcon.MouseOverContainer:SetHide( true );
 				--thisPolicyIcon.Lock:SetHide( true );
@@ -541,12 +495,12 @@ function UpdateDisplay()
 			end
 
 			-- Policy is Blocked
-			if player:IsPolicyBlocked(i) then
+			if player:IsPolicyBlocked( policyID ) then
 				thisPolicyIcon.PolicyImage:SetColor( fadeColorRV );
 				IconHookup( policyInfo.PortraitIndex, 64, policyInfo.IconAtlas, thisPolicyIcon.PolicyImage );
 
 				-- Update tooltip if we have this Policy
-				if player:HasPolicy( i ) then
+				if player:HasPolicy( policyID ) then
 					strTooltip = strTooltip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_BLOCKED");
 				end
 			end
@@ -554,8 +508,8 @@ function UpdateDisplay()
 			thisPolicyIcon.PolicyIcon:SetToolTipString( strTooltip );
 		end
 
-		i = i + 1;
-		policyInfo = GameInfo.Policies[i];
+		policyID = policyID + 1;
+		policyInfo = GameInfo.Policies[ policyID ];
 	end
 
 	-- Adjust Ideology
@@ -564,7 +518,7 @@ function UpdateDisplay()
 		Controls.InfoStack2:ReprocessAnchoring();
 
 		local ideologyID = player:GetLateGamePolicyTree();
-		local upperLevelCount = ideologyID >=0 and math.huge or 0
+		local upperLevelCount = ideologyID >=0 and math_huge or 0
 		local tenetsPerLevel = { 7, 4, 3 }
 		for j = 1, 3 do
 			local levelCount = 0
@@ -624,9 +578,8 @@ function UpdateDisplay()
 
 			-- Free Tenets
 			local iNumFreeTenets = player:GetNumFreeTenets();
-			if (iNumFreeTenets > 0) then
-				szText = Locale.ConvertTextKey("TXT_KEY_FREE_TENETS_LABEL", iNumFreeTenets);
-				Controls.FreeTenetsLabel:SetText( szText );
+			if iNumFreeTenets > 0 then
+				Controls.FreeTenetsLabel:LocalizeAndSetText( "TXT_KEY_FREE_TENETS_LABEL", iNumFreeTenets )
 				Controls.FreeTenetsLabel:SetHide( false );
 			else
 				Controls.FreeTenetsLabel:SetHide( true );
@@ -654,11 +607,11 @@ function UpdateDisplay()
 
 			local szOpinionString;
 			local iOpinion = player:GetPublicOpinionType();
-			if (iOpinion == PublicOpinionTypes.PUBLIC_OPINION_DISSIDENTS) then
+			if iOpinion == PublicOpinionTypes.PUBLIC_OPINION_DISSIDENTS then
 				szOpinionString = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_DISSIDENTS");
-			elseif (iOpinion == PublicOpinionTypes.PUBLIC_OPINION_CIVIL_RESISTANCE) then
+			elseif iOpinion == PublicOpinionTypes.PUBLIC_OPINION_CIVIL_RESISTANCE then
 				szOpinionString = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_CIVIL_RESISTANCE");
-			elseif (iOpinion == PublicOpinionTypes.PUBLIC_OPINION_REVOLUTIONARY_WAVE) then
+			elseif iOpinion == PublicOpinionTypes.PUBLIC_OPINION_REVOLUTIONARY_WAVE then
 				szOpinionString = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_REVOLUTIONARY_WAVE");
 			else
 				szOpinionString = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_CONTENT");
@@ -669,7 +622,7 @@ function UpdateDisplay()
 			local iUnhappiness = -1 * player:GetPublicOpinionUnhappiness();
 			local strPublicOpinionUnhappiness = tostring(0);
 			local strChangeIdeologyTooltip = "";
-			if (iUnhappiness < 0) then
+			if iUnhappiness < 0 then
 				strPublicOpinionUnhappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS", iUnhappiness);
 				Controls.SwitchIdeologyButton:SetDisabled(false);
 				local ePreferredIdeology = player:GetPublicOpinionPreferredIdeology();
@@ -725,14 +678,14 @@ Controls.CloseButton:RegisterCallback( Mouse.eLClick, OnClose );
 function OnPolicyInfo( bIsChecked )
 	local bUpdateScreen = false;
 
-	if (bIsChecked ~= OptionsManager.GetPolicyInfo()) then
+	if bIsChecked ~= OptionsManager.GetPolicyInfo() then
 		bUpdateScreen = true;
 	end
 
 	OptionsManager.SetPolicyInfo_Cached( bIsChecked );
 	OptionsManager.CommitGameOptions();
 
-	if (bUpdateScreen) then
+	if bUpdateScreen then
 		Events.EventPoliciesDirty();
 	end
 end
@@ -740,7 +693,7 @@ Controls.PolicyInfo:RegisterCheckHandler( OnPolicyInfo );
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-function InputHandler( uiMsg, wParam, lParam )
+function InputHandler( uiMsg, wParam )
 	----------------------------------------------------------------
 	-- Key Down Processing
 	----------------------------------------------------------------
@@ -839,7 +792,7 @@ function Init()
 		end
 	end
 
-	for pipeIndex, thisPipe in pairs(policyPipes) do
+	for _, thisPipe in pairs( policyPipes ) do
 		if thisPipe.upConnectionLeft then
 			thisPipe.upConnectionType = thisPipe.upConnectionType + cnxLeft;
 		end
@@ -915,7 +868,7 @@ function Init()
 	end
 
 	-- Down
-	for pipeIndex, thisPipe in pairs(policyPipes) do
+	for _, thisPipe in pairs( policyPipes ) do
 		local policy = GameInfo.Policies[thisPipe.policyType];
 		local xOffset = (policy.GridX-1)*g_PolicyPipeXOffset + 30;
 		if thisPipe.downConnectionType >= 1 then
@@ -966,7 +919,7 @@ function Init()
 	end
 
 	-- Up
-	for pipeIndex, thisPipe in pairs(policyPipes) do
+	for _, thisPipe in pairs( policyPipes ) do
 		local policy = GameInfo.Policies[thisPipe.policyType];
 		local xOffset = (policy.GridX-1)*g_PolicyPipeXOffset + 30;
 
@@ -1019,7 +972,7 @@ function Init()
 
 	-- Add Policy buttons
 	i = 0;
-	policyInfo = GameInfo.Policies[i];
+	local policyInfo = GameInfo.Policies[i];
 	while policyInfo do
 
 		local instanceManager = g_instanceManagers[ policyInfo.PolicyBranchType ]
@@ -1076,20 +1029,16 @@ if bnw_mode then
 
 			g_TenetInstanceManager:ResetInstances();
 
-			local availableTenets = {};
-			for i,v in ipairs(player:GetAvailableTenets(iLevel)) do
+			for _,v in ipairs(player:GetAvailableTenets(iLevel)) do
 				local tenet = GameInfo.Policies[v];
-				if (tenet ~= nil) then
+				if tenet then
 					local entry = g_TenetInstanceManager:GetInstance();
 					entry.TenetLabel:LocalizeAndSetText(tenet.Help or tenet.Description or "");
 
-					local tbW, tbH = entry.TenetButton:GetSizeVal();
-					local tlW, tlH = entry.TenetLabel:GetSizeVal();
+					local newHeight = entry.TenetLabel:GetSizeY() + 30;
 
-					local newHeight = tlH + 30;
-
-					entry.TenetButton:SetSizeVal(tbW, newHeight);
-					entry.Box:SetSizeVal(tbW, newHeight);
+					entry.TenetButton:SetSizeY( newHeight );
+					entry.Box:SetSizeY( newHeight );
 
 					entry.TenetButton:ReprocessAnchoring();
 
@@ -1139,7 +1088,7 @@ if bnw_mode then
 		local eCurrentIdeology = player:GetLateGamePolicyTree();
 		local iCurrentIdeologyTenets = player:GetNumPoliciesInBranch(eCurrentIdeology);
 		local iPreferredIdeologyTenets = iCurrentIdeologyTenets - GameDefines["SWITCH_POLICY_BRANCHES_TENETS_LOST"];
-		if (iPreferredIdeologyTenets < 0) then
+		if iPreferredIdeologyTenets < 0 then
 			iPreferredIdeologyTenets = 0;
 		end
 		local iUnhappiness = player:GetPublicOpinionUnhappiness();
@@ -1177,9 +1126,9 @@ end
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function ShowHideHandler( bIsHide, bInitState )
-	if( not bInitState ) then
+	if not bInitState then
 		Controls.PolicyInfo:SetCheck( OptionsManager.GetPolicyInfo() );
-		if( not bIsHide ) then
+		if not bIsHide then
 			UI.incTurnTimerSemaphore();
 			Events.SerialEventGameMessagePopupShown(m_PopupInfo);
 		else
@@ -1195,7 +1144,7 @@ ContextPtr:SetShowHideHandler( ShowHideHandler );
 ----------------------------------------------------------------
 function OnActivePlayerChanged()
 	if bnw_mode then
-		if (not Controls.PolicyConfirm:IsHidden() or not Controls.TenetConfirm:IsHidden() or not Controls.ChangeIdeologyConfirm:IsHidden()) then
+		if not Controls.PolicyConfirm:IsHidden() or not Controls.TenetConfirm:IsHidden() or not Controls.ChangeIdeologyConfirm:IsHidden() then
 			Controls.TenetConfirm:SetHide(true);
 			Controls.ChangeIdeologyConfirm:SetHide(true);
 			Controls.PolicyConfirm:SetHide(true);

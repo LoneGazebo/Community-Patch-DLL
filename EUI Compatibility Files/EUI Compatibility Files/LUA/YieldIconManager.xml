@@ -2,11 +2,11 @@
 <Context>
 
 	<Instance Name="ImageInstance" >
-		<Image Size="128,128" Texture="Assets/UI/Art/Icons/YieldAtlas.dds" ID="Image" Sampler="Linear" />
+		<Image ID="Image" Size="128,128" Texture="Assets/UI/Art/Icons/YieldAtlas.dds" Sampler="Linear" />
 	</Instance>
 
 	<Instance Name="TextInstance" >
-		<Label Anchor="C,C" String="6" Font="TwCenMT24" FontStyle="Stroke" ColorSet="Beige_Black" ID="Text" />
+		<Label ID="Text" Anchor="C,C" String="6" Font="TwCenMT24" FontStyle="Stroke" ColorSet="Beige_Black" />
 	</Instance>
 
 	<Instance Name="AnchorInstance" >

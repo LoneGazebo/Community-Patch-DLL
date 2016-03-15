@@ -28,114 +28,43 @@ local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table fiel
 -------------------------------
 -- minor lua optimizations
 -------------------------------
-
---local math = math
-local math_floor = math.floor
-local math_ceil = math.ceil
---local math_min = math.min
-local math_max = math.max
---local math_abs = math.abs
---local math_modf = math.modf
---local math_sqrt = math.sqrt
---local math_pi = math.pi
---local math_sin = math.sin
---local math_cos = math.cos
---local math_huge = math.huge
-
---local os = os
-local pairs = pairs
 local ipairs = ipairs
+local math_ceil = math.ceil
+local math_floor = math.floor
+local math_max = math.max
+local pairs = pairs
 local pcall = pcall
---local print = print
 local select = select
---local string = string
---local table = table
-local table_insert = table.insert
---local table_remove = table.remove
 local table_concat = table.concat
+local table_insert = table.insert
 local tonumber = tonumber
 local tostring = tostring
---local type = type
---local unpack = unpack
+local S = string.format
 
---local UI = UI
+local DisputeLevelTypes = DisputeLevelTypes
+local Game = Game
+local GameDefines = GameDefines
+local GameInfoTypes = GameInfoTypes
+local GameOptionTypes = GameOptionTypes
+local Locale_ToLower = Locale.ToLower
+local Locale_ToUpper = Locale.ToUpper
+local MajorCivApproachTypes = MajorCivApproachTypes
+local OptionsManager = OptionsManager
+local Players = Players
+local PreGame = PreGame
+local Teams = Teams
+local ThreatTypes = ThreatTypes
+local TradeableItems = TradeableItems
 local UI_GetHeadSelectedCity = UI.GetHeadSelectedCity
 local UI_GetNumCurrentDeals = UI.GetNumCurrentDeals
 local UI_LoadCurrentDeal = UI.LoadCurrentDeal
-
---local UIManager = UIManager
---local Controls = Controls
---local ContextPtr = ContextPtr
-local Players = Players
-local Teams = Teams
---local GameInfo = GameInfo
---local GameInfoActions = GameInfoActions
-local GameInfoTypes = GameInfoTypes
-local GameDefines = GameDefines
---local InterfaceDirtyBits = InterfaceDirtyBits
---local CityUpdateTypes = CityUpdateTypes
---local ButtonPopupTypes = ButtonPopupTypes
 local YieldTypes = YieldTypes
-local GameOptionTypes = GameOptionTypes
---local DomainTypes = DomainTypes
---local FeatureTypes = FeatureTypes
---local FogOfWarModeTypes = FogOfWarModeTypes
---local OrderTypes = OrderTypes
---local PlotTypes = PlotTypes
---local TerrainTypes = TerrainTypes
---local InterfaceModeTypes = InterfaceModeTypes
---local NotificationTypes = NotificationTypes
---local ActivityTypes = ActivityTypes
---local MissionTypes = MissionTypes
---local ActionSubTypes = ActionSubTypes
---local GameMessageTypes = GameMessageTypes
---local TaskTypes = TaskTypes
---local CommandTypes = CommandTypes
---local DirectionTypes = DirectionTypes
---local DiploUIStateTypes = DiploUIStateTypes
---local FlowDirectionTypes = FlowDirectionTypes
---local PolicyBranchTypes = PolicyBranchTypes
---local FromUIDiploEventTypes = FromUIDiploEventTypes
---local CoopWarStates = CoopWarStates
-local ThreatTypes = ThreatTypes
-local DisputeLevelTypes = DisputeLevelTypes
---local LeaderheadAnimationTypes = LeaderheadAnimationTypes
-local TradeableItems = TradeableItems
---local EndTurnBlockingTypes = EndTurnBlockingTypes
---local ResourceUsageTypes = ResourceUsageTypes
-local MajorCivApproachTypes = MajorCivApproachTypes
---local MinorCivTraitTypes = MinorCivTraitTypes
---local MinorCivPersonalityTypes = MinorCivPersonalityTypes
---local MinorCivQuestTypes = MinorCivQuestTypes
---local CityAIFocusTypes = CityAIFocusTypes
---local AdvisorTypes = AdvisorTypes
---local GenericWorldAnchorTypes = GenericWorldAnchorTypes
---local GameStates = GameStates
---local GameplayGameStateTypes = GameplayGameStateTypes
---local CombatPredictionTypes = CombatPredictionTypes
---local ChatTargetTypes = ChatTargetTypes
---local ReligionTypes = ReligionTypes
---local BeliefTypes = BeliefTypes
---local FaithPurchaseTypes = FaithPurchaseTypes
---local ResolutionDecisionTypes = ResolutionDecisionTypes
---local InfluenceLevelTypes = InfluenceLevelTypes
---local InfluenceLevelTrend = InfluenceLevelTrend
---local PublicOpinionTypes = PublicOpinionTypes
---local ControlTypes = ControlTypes
-
-local PreGame = PreGame
-local Game = Game
---local Map = Map
-local OptionsManager = OptionsManager
---local Events = Events
---local Mouse = Mouse
---local MouseEvents = MouseEvents
---local MouseOverStrategicViewResource = MouseOverStrategicViewResource
-local Locale_ToLower = Locale.ToLower
-local Locale_ToUpper = Locale.ToUpper
-local _L = Locale.ConvertTextKey
-local function L( text, ...)
-	return _L( tostring(text), ... )
+local L
+do
+	local _L = Locale.ConvertTextKey
+	function L( text, ...)
+		return _L( tostring(text), ... )
+	end
 end
 
 local S = string.format
@@ -625,7 +554,8 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local thisBuildingType = { BuildingType = buildingType }
 	local thisBuildingAndResourceTypes =  { BuildingType = buildingType }
 	local thisBuildingClassType = { BuildingClassType = buildingClassType }
-	local activeTeam = Game and Teams[Game.GetActiveTeam()]
+	local activeTeamID = Game and Game.GetActiveTeam()
+	local activeTeam = activeTeamID and Teams[ activeTeamID ]
 	local activeTeamTechs = activeTeam and activeTeam:GetTeamTechs()
 	local activePlayerIdeologyID = bnw_mode and activePlayer and activePlayer:GetLateGamePolicyTree()
 	local activePlayerIdeology = activePlayerIdeologyID and GameInfo.PolicyBranchTypes[ activePlayerIdeologyID ]
@@ -636,11 +566,9 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local activeCivilizationType
 
 	if g_isReligionEnabled and activePlayer then
-		if activePlayer:HasCreatedReligion() then
-			local religionID = activePlayer:GetReligionCreatedByPlayer()
-			if religionID > 0 then
-				activePlayerBeliefs = Game.GetBeliefsInReligion( religionID )
-			end
+		local religionID = activePlayer:GetReligionCreatedByPlayer()
+		if religionID > 0 then
+			activePlayerBeliefs = Game.GetBeliefsInReligion( religionID )
 		elseif activePlayer:HasCreatedPantheon() then
 			activePlayerBeliefs = { activePlayer:GetBeliefInPantheon() }
 		end
@@ -2710,7 +2638,10 @@ local function GetMoodInfo( playerID )
 		tips:insertIf( policyCount > 0 and policyCount .. " " .. PolicyColor( Locale_ToLower(policyBranch.Description) ) )
 	end
 	-- Religion Founded
-	tips:insertIf( gk_mode and player:HasCreatedReligion() and BeliefColor( L("TXT_KEY_RO_STATUS_FOUNDER", Game.GetReligionName( player:GetReligionCreatedByPlayer() ) ) ) )
+	if g_isReligionEnabled then
+		local religionID = player:GetReligionCreatedByPlayer()
+		tips:insertIf( religionID > 0 and tostring( (GameInfo.Religions[ religionID ] or {}).IconString )..BeliefColor( L("TXT_KEY_RO_STATUS_FOUNDER", Game.GetReligionName( religionID ) ) ) )
+	end
 	tips = table( strInfo, tips:concat(", ") )
 
 	-- Wonders
@@ -3241,8 +3172,8 @@ if civBE_mode then
 
 		-- Player Perks
 		local temp = GetHelpTextForUnitPlayerPerkBuffs(unit:GetUnitType(), unit:GetOwner(), "[ICON_BULLET]");
-		if (temp ~= "") then
-			if (s ~= "") then
+		if temp ~= "" then
+			if s ~= "" then
 				s = s .. "[NEWLINE]";
 			end
 			s = s .. temp;
@@ -3250,8 +3181,8 @@ if civBE_mode then
 
 		-- Promotions
 		temp = GetHelpTextForUnitPromotions(unit, "[ICON_BULLET]");
-		if (temp ~= "") then
-			if (s ~= "") then
+		if temp ~= "" then
+			if s ~= "" then
 				s = s .. "[NEWLINE]";
 			end
 			s = s .. temp;
@@ -3259,7 +3190,7 @@ if civBE_mode then
 
 		-- Upgrades and Perks
 		local player = Players[unit:GetOwner()];
-		if (player ~= nil) then
+		if player then
 			local allPerks = player:GetPerksForUnit(unit:GetUnitType());
 			local tempPerks = player:GetFreePerksForUnit(unit:GetUnitType());
 			for _, perk in ipairs(tempPerks) do
@@ -3267,8 +3198,8 @@ if civBE_mode then
 			end
 			local ignoreCoreStats = true;
 			temp = GetHelpTextForUnitPerks(allPerks, ignoreCoreStats, "[ICON_BULLET]");
-			if (temp ~= "") then
-				if (s ~= "") then
+			if temp ~= "" then
+				if s ~= "" then
 					s = s .. "[NEWLINE]";
 				end
 				s = s .. temp;
@@ -3285,10 +3216,10 @@ if civBE_mode then
 		s = s .. GetHelpTextForUnitAttributes(unitType, nil);
 
 		-- Player Perks
-		if (includeFreePromotions ~= nil and includeFreePromotions == true) then
+		if includeFreePromotions and includeFreePromotions == true then
 			local temp = GetHelpTextForUnitPlayerPerkBuffs(unitType, playerID, nil);
-			if (temp ~= "") then
-				if (s ~= "") then
+			if temp ~= "" then
+				if s ~= "" then
 					s = s .. "[NEWLINE]";
 				end
 				s = s .. temp;
@@ -3296,10 +3227,10 @@ if civBE_mode then
 		end
 
 		-- Promotions
-		if (includeFreePromotions ~= nil and includeFreePromotions == true) then
+		if includeFreePromotions and includeFreePromotions == true then
 			local temp = GetHelpTextForUnitInherentPromotions(unitType, nil);
-			if (temp ~= "") then
-				if (s ~= "") then
+			if temp ~= "" then
+				if s ~= "" then
 					s = s .. "[NEWLINE]";
 				end
 				s = s .. temp;
@@ -3308,7 +3239,7 @@ if civBE_mode then
 
 		-- Upgrades and Perks
 		local player = Players[playerID];
-		if (player ~= nil) then
+		if player then
 			local allPerks = player:GetPerksForUnit(unitType);
 			local tempPerks = player:GetFreePerksForUnit(unitType);
 			for _, perk in ipairs(tempPerks) do
@@ -3316,8 +3247,8 @@ if civBE_mode then
 			end
 			local ignoreCoreStats = true;
 			local temp = GetHelpTextForUnitPerks(allPerks, ignoreCoreStats, nil);
-			if (temp ~= "") then
-				if (s ~= "") then
+			if temp ~= "" then
+				if s ~= "" then
 					s = s .. "[NEWLINE]";
 				end
 				s = s .. temp;
@@ -3336,13 +3267,13 @@ if civBE_mode then
 	function TT.GetUpgradedUnitDescriptionKey(player, unitType)
 		local descriptionKey = "";
 		local unitInfo = GameInfo.Units[unitType];
-		if (unitInfo ~= nil) then
+		if unitInfo then
 			descriptionKey = unitInfo.Description;
-			if (player ~= nil) then
+			if player then
 				local bestUpgrade = player:GetBestUnitUpgrade(unitType);
-				if (bestUpgrade ~= -1) then
+				if bestUpgrade ~= -1 then
 					local bestUpgradeInfo = GameInfo.UnitUpgrades[bestUpgrade];
-					if (bestUpgradeInfo ~= nil) then
+					if bestUpgradeInfo then
 						descriptionKey = bestUpgradeInfo.Description;
 					end
 				end
@@ -3358,12 +3289,12 @@ if civBE_mode then
 	function TT.GetHelpTextForUnitAttributes(unitType, prefix)
 		local s = "";
 		local unitInfo = GameInfo.Units[unitType];
-		if (unitInfo ~= nil) then
-			if (unitInfo.OrbitalAttackRange >= 0) then
-				if (s ~= "") then
+		if unitInfo then
+			if unitInfo.OrbitalAttackRange >= 0 then
+				if s ~= "" then
 					s = s .. "[NEWLINE]";
 				end
-				if (prefix ~= nil) then
+				if prefix then
 					s = s .. prefix;
 				end
 				s = s .. L("TXT_KEY_INTERFACEMODE_ORBITAL_ATTACK");
@@ -3381,10 +3312,10 @@ if civBE_mode then
 			for info in GameInfo.PlayerPerks() do
 				if player:HasPerk(info.ID) then
 					if info.MiasmaBaseHeal > 0 or info.UnitPercentHealChange > 0 then
-						if (s ~= "") then
+						if s ~= "" then
 							s = s .. "[NEWLINE]";
 						end
-						if (prefix ~= nil) then
+						if prefix then
 							s = s .. prefix;
 						end
 						s = s .. L(GameInfo.PlayerPerks[info.ID].Help);
@@ -3392,10 +3323,10 @@ if civBE_mode then
 
 					-- Help text for this player perk is inaccurate. Commencing hax0rs.
 					if info.UnitFlatVisibilityChange > 0 then
-						if (s ~= "") then
+						if s ~= "" then
 							s = s .. "[NEWLINE]";
 						end
-						if (prefix ~= nil) then
+						if prefix then
 							s = s .. prefix;
 						end
 						s = s .. L("TXT_KEY_UNITPERK_VISIBILITY_CHANGE", info.UnitFlatVisibilityChange);
@@ -3418,11 +3349,11 @@ if civBE_mode then
 		if unitInfo then
 			for pairInfo in GameInfo.Unit_FreePromotions{ UnitType = unitInfo.Type } do
 				local promotionInfo = GameInfo.UnitPromotions[pairInfo.PromotionType];
-				if (promotionInfo ~= nil and promotionInfo.Help ~= nil) then
-					if (s ~= "") then
+				if promotionInfo and promotionInfo.Help then
+					if s ~= "" then
 						s = s .. "[NEWLINE]";
 					end
-					if (prefix ~= nil) then
+					if prefix then
 						s = s .. prefix;
 					end
 					s = s .. L(promotionInfo.Help);
@@ -3436,11 +3367,11 @@ if civBE_mode then
 	function TT.GetHelpTextForUnitPromotions(unit, prefix)
 		local s = "";
 		for promotionInfo in GameInfo.UnitPromotions() do
-			if (unit:IsHasPromotion(promotionInfo.ID)) then
-				if (s ~= "") then
+			if unit:IsHasPromotion(promotionInfo.ID) then
+				if s ~= "" then
 					s = s .. "[NEWLINE]";
 				end
-				if (prefix ~= nil) then
+				if prefix then
 					s = s .. prefix;
 				end
 				s = s .. L(promotionInfo.Help);
@@ -3460,16 +3391,16 @@ if civBE_mode then
 		local number = 0;
 		for _, perkID in ipairs(perkIDTable) do
 			local perkInfo = GameInfo.UnitPerks[perkID];
-			if (perkInfo ~= nil and perkInfo[numberKey] ~= nil and perkInfo[numberKey] ~= 0) then
+			if perkInfo and perkInfo[numberKey] and perkInfo[numberKey] ~= 0 then
 				number = number + perkInfo[numberKey];
 			end
 		end
 
-		if (number ~= 0) then
-			if (not firstEntry) then
+		if number ~= 0 then
+			if not firstEntry then
 				s = s .. "[NEWLINE]";
 			end
-			if (prefix ~= nil) then
+			if prefix then
 				s = s .. prefix;
 			end
 			s = s .. L(textKey, number);
@@ -3483,17 +3414,17 @@ if civBE_mode then
 		local flag = false;
 		for _, perkID in ipairs(perkIDTable) do
 			local perkInfo = GameInfo.UnitPerks[perkID];
-			if (perkInfo ~= nil and perkInfo[flagKey] ~= nil and perkInfo[flagKey]) then
+			if perkInfo and perkInfo[flagKey] and perkInfo[flagKey] then
 				flag = true;
 				break;
 			end
 		end
 
-		if (flag) then
-			if (not firstEntry) then
+		if flag then
+			if not firstEntry then
 				s = s .. "[NEWLINE]";
 			end
-			if (prefix ~= nil) then
+			if prefix then
 				s = s .. prefix;
 			end
 			s = s .. L(textKey);
@@ -3508,20 +3439,20 @@ if civBE_mode then
 		local number = 0;
 		for _, perkID in ipairs(perkIDTable) do
 			local perkInfo = GameInfo.UnitPerks[perkID];
-			if (perkInfo ~= nil) then
+			if perkInfo then
 				for domainCombatInfo in GameInfo.UnitPerks_DomainCombatMods("UnitPerkType = \"" .. perkInfo.Type .. "\" AND DomainType = \"" .. domainKey .. "\"") do
-					if (domainCombatInfo.CombatMod ~= 0) then
+					if domainCombatInfo.CombatMod ~= 0 then
 						number = number + domainCombatInfo.CombatMod;
 					end
 				end
 			end
 		end
 
-		if (number ~= 0) then
-			if (not firstEntry) then
+		if number ~= 0 then
+			if not firstEntry then
 				s = s .. "[NEWLINE]";
 			end
-			if (prefix ~= nil) then
+			if prefix then
 				s = s .. prefix;
 			end
 			s = s .. L(textKey, number);
@@ -3537,12 +3468,12 @@ if civBE_mode then
 		local filteredPerkIDTable = {};
 		for _, perkID in ipairs(perkIDTable) do
 			local perkInfo = GameInfo.UnitPerks[perkID];
-			if (perkInfo ~= nil) then
-				if (perkInfo.Help ~= nil) then
-					if (s ~= "") then
+			if perkInfo then
+				if perkInfo.Help then
+					if s ~= "" then
 						s = s .. "[NEWLINE]";
 					end
-					if (prefix ~= nil) then
+					if prefix then
 						s = s .. prefix;
 					end
 					s = s .. L(perkInfo.Help);
@@ -3553,7 +3484,7 @@ if civBE_mode then
 		end
 
 		-- Basic Attributes
-		if (not ignoreCoreStats) then
+		if not ignoreCoreStats then
 			s = s .. ComposeUnitPerkNumberHelpText(filteredPerkIDTable, "TXT_KEY_UNITPERK_EXTRA_COMBAT_STRENGTH", "ExtraCombatStrength", s == "", prefix);
 			s = s .. ComposeUnitPerkNumberHelpText(filteredPerkIDTable, "TXT_KEY_UNITPERK_EXTRA_RANGED_COMBAT_STRENGTH", "ExtraRangedCombatStrength", s == "", prefix);
 		end
@@ -3561,7 +3492,7 @@ if civBE_mode then
 		s = s .. ComposeUnitPerkNumberHelpText(filteredPerkIDTable, "TXT_KEY_UNITPERK_RANGE_AT_FULL_HEALTH_CHANGE", "RangeAtFullHealthChange", s == "", prefix);
 		s = s .. ComposeUnitPerkNumberHelpText(filteredPerkIDTable, "TXT_KEY_UNITPERK_RANGE_AT_FULL_MOVES_CHANGE", "RangeAtFullMovesChange", s == "", prefix);
 		s = s .. ComposeUnitPerkNumberHelpText(filteredPerkIDTable, "TXT_KEY_UNITPERK_RANGE_FOR_ONBOARD_CHANGE", "RangeForOnboardChange", s == "", prefix);
-		if (not ignoreCoreStats) then
+		if not ignoreCoreStats then
 			s = s .. ComposeUnitPerkNumberHelpText(filteredPerkIDTable, "TXT_KEY_UNITPERK_MOVES_CHANGE", "MovesChange", s == "", prefix);
 		end
 		s = s .. ComposeUnitPerkNumberHelpText(filteredPerkIDTable, "TXT_KEY_UNITPERK_VISIBILITY_CHANGE", "VisibilityChange", s == "", prefix);
@@ -3654,16 +3585,16 @@ if civBE_mode then
 		local number = 0;
 		for _, virtueID in ipairs(virtueIDTable) do
 			local virtueInfo = GameInfo.Policies[virtueID];
-			if (virtueInfo ~= nil and virtueInfo[numberKey] ~= nil and virtueInfo[numberKey] ~= 0) then
+			if virtueInfo and virtueInfo[numberKey] and virtueInfo[numberKey] ~= 0 then
 				number = number + virtueInfo[numberKey];
 			end
 		end
 
-		if (number ~= 0) then
-			if (postProcessFunction ~= nil) then
+		if number ~= 0 then
+			if postProcessFunction then
 				number = postProcessFunction(number);
 			end
-			if (not firstEntry) then
+			if not firstEntry then
 				s = s .. "[NEWLINE]";
 			else
 				firstEntry = false;
@@ -3680,14 +3611,14 @@ if civBE_mode then
 		local flag = false;
 		for _, virtueID in ipairs(virtueIDTable) do
 			local virtueInfo = GameInfo.Policies[virtueID];
-			if (virtueInfo ~= nil and virtueInfo[flagKey] ~= nil and virtueInfo[flagKey]) then
+			if virtueInfo and virtueInfo[flagKey] and virtueInfo[flagKey] then
 				flag = true;
 				break;
 			end
 		end
 
-		if (flag) then
-			if (not firstEntry) then
+		if flag then
+			if not firstEntry then
 				s = s .. "[NEWLINE]";
 			else
 				firstEntry = false;
@@ -3704,14 +3635,14 @@ if civBE_mode then
 		local interestPercent = 0;
 		for _, virtueID in ipairs(virtueIDTable) do
 			local virtueInfo = GameInfo.Policies[virtueID];
-			if (virtueInfo ~= nil and virtueInfo[numberKey] ~= nil and virtueInfo[numberKey] ~= 0) then
+			if virtueInfo and virtueInfo[numberKey] and virtueInfo[numberKey] ~= 0 then
 				interestPercent = interestPercent + virtueInfo[numberKey];
 			end
 		end
 
-		if (interestPercent ~= 0) then
+		if interestPercent ~= 0 then
 			local maximum = (interestPercent * GameDefines["ENERGY_INTEREST_PRINCIPAL_MAXIMUM"]) / 100;
-			if (not firstEntry) then
+			if not firstEntry then
 				s = s .. "[NEWLINE]";
 			else
 				firstEntry = false;
@@ -3727,16 +3658,16 @@ if civBE_mode then
 		local s = "";
 		for _, virtueID in ipairs(virtueIDTable) do
 			local virtueInfo = GameInfo.Policies[virtueID];
-			if (virtueInfo ~= nil and GameInfo[tableKey] ~= nil) then
+			if virtueInfo and GameInfo[tableKey] then
 				for tableInfo in GameInfo[tableKey]("PolicyType = \"" .. virtueInfo.Type .. "\"") do
-					if (tableInfo.YieldType ~= nil and tableInfo.Yield ~= nil) then
+					if tableInfo.YieldType and tableInfo.Yield then
 						local yieldInfo = GameInfo.Yields[tableInfo.YieldType];
 						local yieldNumber = tableInfo.Yield;
-						if (yieldNumber ~= 0) then
-							if (postProcessFunction ~= nil) then
+						if yieldNumber ~= 0 then
+							if postProcessFunction then
 								yieldNumber = postProcessFunction(yieldNumber);
 							end
-							if (not firstEntry) then
+							if not firstEntry then
 								s = s .. "[NEWLINE]";
 							else
 								firstEntry = false;
@@ -3755,13 +3686,13 @@ if civBE_mode then
 		local s = "";
 		for _, virtueID in ipairs(virtueIDTable) do
 			local virtueInfo = GameInfo.Policies[virtueID];
-			if (virtueInfo ~= nil) then
+			if virtueInfo then
 				for tableInfo in GameInfo.Policy_ResourceClassYieldChanges("PolicyType = \"" .. virtueInfo.Type .. "\"") do
 					local resourceClassInfo = GameInfo.ResourceClasses[tableInfo.ResourceClassType];
 					local yieldInfo = GameInfo.Yields[tableInfo.YieldType];
 					local yieldNumber = tableInfo.YieldChange;
-					if (yieldNumber ~= 0) then
-						if (not firstEntry) then
+					if yieldNumber ~= 0 then
+						if not firstEntry then
 							s = s .. "[NEWLINE]";
 						else
 							firstEntry = false;
@@ -3779,13 +3710,13 @@ if civBE_mode then
 		local s = "";
 		for _, virtueID in ipairs(virtueIDTable) do
 			local virtueInfo = GameInfo.Policies[virtueID];
-			if (virtueInfo ~= nil) then
+			if virtueInfo then
 				for tableInfo in GameInfo.Policy_ImprovementYieldChanges("PolicyType = \"" .. virtueInfo.Type .. "\"") do
 					local improvementInfo = GameInfo.Improvements[tableInfo.ImprovementType];
 					local yieldInfo = GameInfo.Yields[tableInfo.YieldType];
 					local yieldNumber = tableInfo.Yield;
-					if (yieldNumber ~= 0) then
-						if (not firstEntry) then
+					if yieldNumber ~= 0 then
+						if not firstEntry then
 							s = s .. "[NEWLINE]";
 						else
 							firstEntry = false;
@@ -3803,12 +3734,12 @@ if civBE_mode then
 		local s = "";
 		for _, virtueID in ipairs(virtueIDTable) do
 			local virtueInfo = GameInfo.Policies[virtueID];
-			if (virtueInfo ~= nil) then
+			if virtueInfo then
 				for tableInfo in GameInfo.Policy_FreeUnitClasses("PolicyType = \"" .. virtueInfo.Type .. "\"") do
 					local unitClassInfo = GameInfo.UnitClasses[tableInfo.UnitClassType];
 					local unitInfo = GameInfo.Units[unitClassInfo.DefaultUnit];
-					if (unitInfo ~= nil) then
-						if (not firstEntry) then
+					if unitInfo then
+						if not firstEntry then
 							s = s .. "[NEWLINE]";
 						else
 							firstEntry = false;
@@ -3837,7 +3768,7 @@ if civBE_mode then
 		end;
 		local modByGameResearchSpeed = function(number)
 			local gameSpeedResearchMod = 1;
-			if (Game ~= nil) then
+			if Game then
 				gameSpeedResearchMod = Game.GetResearchPercent() / 100;
 			end
 			number = number * gameSpeedResearchMod;
@@ -3947,14 +3878,14 @@ if civBE_mode then
 			local firstEntry = true;
 			for levelInfo in GameInfo.Affinity_Levels() do
 				local levelText = GetHelpTextForAffinityLevel(affinityID, levelInfo.ID);
-				if (levelText ~= "") then
+				if levelText ~= "" then
 					levelText = tostring(affinityInfo.IconString) .. "[" .. affinityInfo.ColorType .. "]" .. levelInfo.ID .. "[ENDCOLOR] : " .. levelText;
 
-					if (levelInfo.ID <= currentLevel) then
+					if levelInfo.ID <= currentLevel then
 						levelText = "[" .. affinityInfo.ColorType .. "]" .. levelText .. "[ENDCOLOR]";
 					end
 
-					if (firstEntry) then
+					if firstEntry then
 						firstEntry = false;
 					else
 						s = s .. "[NEWLINE]";
@@ -3969,7 +3900,7 @@ if civBE_mode then
 				local nextLevelInfo = GameInfo.Affinity_Levels[nextLevel];
 
 				-- Progress towards next level
-				if (nextLevelInfo ~= nil) then
+				if nextLevelInfo then
 					s = s .. "[NEWLINE][NEWLINE]";
 					s = s .. L("TXT_KEY_AFFINITY_STATUS_PROGRESS", player:GetAffinityScoreTowardsNextLevel(affinityInfo.ID), player:CalculateAffinityScoreNeededForNextLevel(affinityInfo.ID));
 				else
@@ -3979,11 +3910,11 @@ if civBE_mode then
 
 				-- Dominance
 				local isDominant = affinityInfo.ID == player:GetDominantAffinityType();
-				if (nextLevelInfo ~= nil) then
+				if nextLevelInfo then
 					local penalty = nextLevelInfo.AffinityValueNeededAsNonDominant - nextLevelInfo.AffinityValueNeededAsDominant;
 					-- Only show dominance once we are at the point where the level curve diverges
-					if (penalty > 0) then
-						if (isDominant) then
+					if penalty > 0 then
+						if isDominant then
 							s = s .. "[NEWLINE][NEWLINE]";
 							s = s .. L("TXT_KEY_AFFINITY_STATUS_DOMINANT");
 						else
@@ -3991,7 +3922,7 @@ if civBE_mode then
 							s = s .. L("TXT_KEY_AFFINITY_STATUS_NON_DOMINANT_PENALTY", penalty);
 						end
 					end
-				elseif (isDominant) then
+				elseif isDominant then
 					-- Or once we have reached max level
 					s = s .. "[NEWLINE][NEWLINE]";
 					s = s .. L("TXT_KEY_AFFINITY_STATUS_DOMINANT");

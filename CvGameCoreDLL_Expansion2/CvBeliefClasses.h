@@ -438,20 +438,20 @@ public:
 	int GetPlayerHappiness(bool bAtPeace , PlayerTypes ePlayer = NO_PLAYER) const;
 	int GetPlayerCultureModifier(bool bAtPeace , PlayerTypes ePlayer = NO_PLAYER) const;
 	float GetHappinessPerFollowingCity(PlayerTypes ePlayer = NO_PLAYER) const;
-	int GetGoldPerFollowingCity(PlayerTypes ePlayer = NO_PLAYER) const;
-	int GetGoldPerXFollowers(PlayerTypes ePlayer = NO_PLAYER) const;
-	int GetGoldWhenCityAdopts(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetGoldPerFollowingCity(PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
+	int GetGoldPerXFollowers(PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
+	int GetGoldWhenCityAdopts(PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
 	int GetSciencePerOtherReligionFollower(PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
 	int GetCityGrowthModifier(bool bAtPeace , PlayerTypes ePlayer = NO_PLAYER) const;
 
 	int GetCityYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
-	int GetHolyCityYieldChange(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
-	int GetYieldChangePerForeignCity(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
-	int GetYieldChangePerXForeignFollowers(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetHolyCityYieldChange(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
+	int GetYieldChangePerForeignCity(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
+	int GetYieldChangePerXForeignFollowers(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
 #if defined(MOD_API_UNIFIED_YIELDS)
-	int GetYieldPerFollowingCity(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
-	int GetYieldPerXFollowers(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
-	int GetYieldPerOtherReligionFollower(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldPerFollowingCity(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
+	int GetYieldPerXFollowers(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
+	int GetYieldPerOtherReligionFollower(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
 #endif
 	int GetResourceQuantityModifier(ResourceTypes eResource , PlayerTypes ePlayer = NO_PLAYER) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER) const;
@@ -508,12 +508,12 @@ public:
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	bool IsHalvedFollowers(PlayerTypes ePlayer = NO_PLAYER) const;
 	int GetYieldPerPop(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
-	int GetYieldPerGPT(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
-	int GetYieldPerLux(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldPerGPT(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
+	int GetYieldPerLux(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
 	int GetYieldPerBorderGrowth(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
 	int GetYieldPerHeal(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
 	int GetYieldPerBirth(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
-	int GetYieldPerScience(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldPerScience(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
 	int GetYieldFromGPUse(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
 	int GetYieldBonusGoldenAge(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
 	int GetYieldFromSpread(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
@@ -524,9 +524,9 @@ public:
 	int GetYieldFromConversion(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
 	int GetYieldFromWLTKD(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
 	int GetYieldFromProposal(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
-	int GetYieldFromHost(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldFromHost(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
 	int GetMaxYieldPerFollower(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
-	int GetYieldFromKnownPantheons(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetYieldFromKnownPantheons(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;
 	CivilizationTypes GetUniqueCiv(PlayerTypes ePlayer = NO_PLAYER) const;
 #endif
 

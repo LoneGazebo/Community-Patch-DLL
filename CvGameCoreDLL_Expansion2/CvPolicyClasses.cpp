@@ -185,6 +185,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iMonopolyModFlat(0),
 	m_iMonopolyModPercent(0),
 	m_bDummy(false),
+	m_bOpener(false),
+	m_bFinisher(false),
 #endif
 	m_bMilitaryFoodProduction(false),
 	m_iWoundedUnitDamageMod(0),
@@ -506,6 +508,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iMonopolyModFlat = kResults.GetInt("MonopolyModFlat");
 	m_iMonopolyModPercent = kResults.GetInt("MonopolyModPercent");
 	m_bDummy = kResults.GetBool("IsDummy");
+	m_bOpener = kResults.GetBool("IsOpener");
+	m_bFinisher = kResults.GetBool("IsFinisher");
 #endif
 	m_bMilitaryFoodProduction = kResults.GetBool("MilitaryFoodProduction");
 	m_iMaxConscript = kResults.GetInt("MaxConscript");
@@ -1995,6 +1999,14 @@ int CvPolicyEntry::GetMonopolyModPercent() const
 bool CvPolicyEntry::IsDummy() const
 {
 	return m_bDummy;
+}
+bool CvPolicyEntry::IsOpener() const
+{
+	return m_bOpener;
+}
+bool CvPolicyEntry::IsFinisher() const
+{
+	return m_bFinisher;
 }
 #endif
 /// Military units now all produced with food
@@ -3529,24 +3541,16 @@ int CvPlayerPolicies::GetNumPoliciesOwned() const
 	for(int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
 	{
 		// Do we have this policy?
-#if defined(MOD_BALANCE_CORE)
-		if(m_pabHasPolicy[i] && m_pPolicies->GetPolicyEntry(i) && !m_pPolicies->GetPolicyEntry(i)->IsDummy())
-#else
 		if(m_pabHasPolicy[i])
-#endif
 		{
 #if defined(MOD_BALANCE_CORE)
+			if(m_pPolicies->GetPolicyEntry(i)->IsDummy())
+				continue;
+
 			//Skipping finishers?
-			if(bSkipFinisher)
+			if(bSkipFinisher && m_pPolicies->GetPolicyEntry(i)->IsFinisher())
 			{
-				CvPolicyBranchEntry* pkBranchEntry = m_pPolicies->GetPolicyBranchEntry(m_pPolicies->GetPolicyEntry(i)->GetPolicyBranchType());
-				if(pkBranchEntry && pkBranchEntry != NULL)
-				{
-					if(pkBranchEntry->GetFreeFinishingPolicy() == i)
-					{
-						continue;
-					}
-				}
+				continue;
 			}
 #endif
 			rtnValue++;

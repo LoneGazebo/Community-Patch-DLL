@@ -27,7 +27,7 @@ SET MinDistanceCities = '3'
 WHERE Type = 'WORLDSIZE_SMALL';
 
 UPDATE Worlds
-SET MinDistanceCityStates = '2'
+SET MinDistanceCityStates = '3'
 WHERE Type = 'WORLDSIZE_SMALL';
 
 -- Standard - 3 Minimum for Major, 3 for Minor

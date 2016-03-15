@@ -6238,7 +6238,9 @@
 			<Text>Enemy {1_Unit} forced to retreat!</Text>
 		</Row>
 
-		
+		<Row Tag="TXT_KEY_DIPLO_WAR_NO_PEACE_THIRD_PARTY_TT">
+			<Text>Can only include City-States allied with either party in Peace Deals.</Text>
+		</Row>
 
 		<!-- Team Tourism -->
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_SAME_TEAM">

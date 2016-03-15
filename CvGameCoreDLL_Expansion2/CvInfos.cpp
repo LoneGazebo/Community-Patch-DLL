@@ -7113,6 +7113,9 @@ CvEraInfo::CvEraInfo() :
 	m_iTradeRouteProductionBonusTimes100(0),
 	m_iLeaguePercent(0),
 	m_iWarmongerPercent(0),
+	#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_bVassalageEnabled(false),
+	#endif
 	m_bNoGoodies(false),
 	m_bNoBarbUnits(false),
 	m_bNoReligion(false),

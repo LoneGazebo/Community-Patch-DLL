@@ -836,33 +836,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 #endif
 #if defined(MOD_BALANCE_CORE)
-		//Let's handle the war stuff here.
-		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer) || this->GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
-		{
-			PlayerTypes eLoopPlayer;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eThirdTeam)
-				{
-					CvPlayer* pOtherPlayer = &GET_PLAYER(eLoopPlayer);
-
-					if(!pOtherPlayer)
-						continue;
-
-					// Minor civ
-					if(pOtherPlayer->isMinorCiv())
-					{
-						// Minor at permanent war with this player
-						if(pOtherPlayer->GetMinorCivAI()->IsPermanentWar(eFromTeam))
-							return false;
-
-						//Otherwise, return true (as we want this to work for peace deals every time)
-						return true;
-					}
-				}
-			}
-		}
 		//If not at war, need embassy.
 		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 		{
@@ -911,6 +884,9 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				if(!pOtherPlayer)
 					continue;
 
+				if(!pOtherPlayer->isAlive())
+					return false;
+
 				// Minor civ
 				if(pOtherPlayer->isMinorCiv())
 				{
@@ -928,6 +904,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 							if(pOtherPlayer->GetMinorCivAI()->GetAlly() != eToPlayer)
 								return false;
 						}
+					}
+					//It is a peace treaty? We only want allied CSs in here.
+					else if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer) || this->GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
+					{
+						if(pOtherPlayer->GetMinorCivAI()->GetAlly() != eToPlayer || pOtherPlayer->GetMinorCivAI()->GetAlly() != ePlayer)
+							return false;
 					}
 				}
 
@@ -1080,6 +1062,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			{
 				CvPlayer* pOtherPlayer = &GET_PLAYER(eLoopPlayer);
 				
+				if(!pOtherPlayer)
+					return false;
+
+				if(!pOtherPlayer->isAlive())
+					return false;
+
 				// Major civ
 				if(pOtherPlayer->isMajorCiv())
 				{

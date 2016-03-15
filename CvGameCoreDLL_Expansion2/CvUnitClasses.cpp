@@ -1490,15 +1490,6 @@ void CvUnitEntry::DoUpdatePower()
 #endif
 	}
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(MOD_DIPLOMACY_CIV4_FEATURES && GetDomainType() == DOMAIN_AIR)
-	{
-		int iTemp = iPower * 30;
-		iTemp /= 100;
-		iPower += iTemp;
-	}
-#endif
-
 	if(iRangedStrength > iPower)
 	{
 		iPower = iRangedStrength;

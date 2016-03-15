@@ -12,47 +12,47 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>125</Flavor>
+			<Flavor>50</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_MOBILE</FlavorType>
-			<Flavor>100</Flavor>
-		</Row>
-		<Row>
-			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
-			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>75</Flavor>
-		</Row>
-		<Row>
-			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
-			<FlavorType>FLAVOR_RANGED</FlavorType>
-			<Flavor>100</Flavor>
-		</Row>
-		<Row>
-			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
-			<FlavorType>FLAVOR_NAVAL</FlavorType>
-			<Flavor>50</Flavor>
-		</Row>
-		<Row>
-			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
-			<FlavorType>FLAVOR_NAVAL_RECON</FlavorType>
-			<Flavor>50</Flavor>
-		</Row>
-		<Row>
-			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
-			<FlavorType>FLAVOR_AIR</FlavorType>
-			<Flavor>80</Flavor>
-		</Row>
-		<Row>
-			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
-			<FlavorType>FLAVOR_CITY_DEFENSE</FlavorType>
 			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
-			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<FlavorType>FLAVOR_DEFENSE</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_RANGED</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_NAVAL</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_NAVAL_RECON</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_AIR</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_CITY_DEFENSE</FlavorType>
 			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
@@ -142,37 +142,37 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>120</Flavor>
+			<Flavor>60</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_MOBILE</FlavorType>
-			<Flavor>100</Flavor>
-		</Row>
-		<Row>
-			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
-			<FlavorType>FLAVOR_DEFENSE</FlavorType>
 			<Flavor>50</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_DEFENSE</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RANGED</FlavorType>
-			<Flavor>80</Flavor>
+			<Flavor>60</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_NAVAL</FlavorType>
-			<Flavor>40</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_NAVAL_RECON</FlavorType>
-			<Flavor>40</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_AIR</FlavorType>
-			<Flavor>80</Flavor>
+			<Flavor>50</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
@@ -272,42 +272,42 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>50</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_MOBILE</FlavorType>
-			<Flavor>60</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>150</Flavor>
+			<Flavor>100</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RANGED</FlavorType>
-			<Flavor>80</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_NAVAL</FlavorType>
-			<Flavor>30</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_NAVAL_RECON</FlavorType>
-			<Flavor>30</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_AIR</FlavorType>
-			<Flavor>80</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_CITY_DEFENSE</FlavorType>
-			<Flavor>80</Flavor>
+			<Flavor>50</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
@@ -404,47 +404,47 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>80</Flavor>
+			<Flavor>40</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_MOBILE</FlavorType>
-			<Flavor>80</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>60</Flavor>
+			<Flavor>40</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RANGED</FlavorType>
-			<Flavor>80</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_NAVAL</FlavorType>
-			<Flavor>30</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_NAVAL_RECON</FlavorType>
-			<Flavor>30</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_AIR</FlavorType>
-			<Flavor>80</Flavor>
+			<Flavor>40</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_CITY_DEFENSE</FlavorType>
-			<Flavor>30</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
-			<Flavor>20</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
@@ -534,37 +534,37 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>120</Flavor>
+			<Flavor>60</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_MOBILE</FlavorType>
-			<Flavor>80</Flavor>
-		</Row>
-		<Row>
-			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
-			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>150</Flavor>
-		</Row>
-		<Row>
-			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
-			<FlavorType>FLAVOR_RANGED</FlavorType>
-			<Flavor>120</Flavor>
-		</Row>
-		<Row>
-			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
-			<FlavorType>FLAVOR_NAVAL</FlavorType>
 			<Flavor>50</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
-			<FlavorType>FLAVOR_NAVAL_RECON</FlavorType>
+			<FlavorType>FLAVOR_DEFENSE</FlavorType>
 			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_RANGED</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_NAVAL</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_NAVAL_RECON</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_AIR</FlavorType>
-			<Flavor>80</Flavor>
+			<Flavor>40</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
@@ -664,42 +664,42 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>60</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_MOBILE</FlavorType>
-			<Flavor>70</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>200</Flavor>
-		</Row>
-		<Row>
-			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
-			<FlavorType>FLAVOR_RANGED</FlavorType>
 			<Flavor>100</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_RANGED</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_NAVAL</FlavorType>
-			<Flavor>40</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_NAVAL_RECON</FlavorType>
-			<Flavor>60</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_AIR</FlavorType>
-			<Flavor>60</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_CITY_DEFENSE</FlavorType>
-			<Flavor>50</Flavor>
+			<Flavor>40</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>

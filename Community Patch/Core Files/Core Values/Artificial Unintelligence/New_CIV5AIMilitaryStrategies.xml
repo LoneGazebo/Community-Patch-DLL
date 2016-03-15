@@ -49,7 +49,7 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_NUKE</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>50</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_EMPIRE_DEFENSE</AIMilitaryStrategyType>

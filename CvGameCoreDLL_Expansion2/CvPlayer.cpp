@@ -2952,7 +2952,17 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	{
 		if (!pOldCity->isEverOwned(GetID()))
 		{
-			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, pOldCity->getPopulation());
+			int iScaler = pOldCity->getPopulation() / 4;
+			if(iScaler <= 0)
+			{
+				iScaler = 1;
+			}
+			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, iScaler);
+
+			if(MOD_BALANCE_CORE_LUXURIES_TRAIT && !isMinorCiv() && !isBarbarian() && (GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0))
+			{
+				GetPlayerTraits()->AddUniqueLuxuriesAround(pOldCity, GetPlayerTraits()->GetUniqueLuxuryQuantity());
+			}
 		}
 		if(MOD_BALANCE_CORE_AFRAID_ANNEX)
 		{
@@ -19357,7 +19367,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 	}
 
 	const CvReligion* pReligion = NULL;
-	const CvReligion* pLocalReligion = NULL;
 	if(eReligion != NO_RELIGION)
 	{
 		//Let's check for holy city status - if this isn't our holy city, let's send the boosts there instead.
@@ -19391,9 +19400,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 		{
 			eLocalReligion = pCity->GetCityReligions()->GetReligiousMajority();
 			//Different faiths at national and local levels? We should check both, because one might be a founder bonus, and the other a follower bonus. Blegh!
-			if(eLocalReligion != NO_RELIGION && eLocalReligion != eReligion)
+			if(eLocalReligion != eReligion)
 			{
-				pLocalReligion = GC.getGame().GetGameReligions()->GetReligion(eLocalReligion, GetID());
+				pReligion = GC.getGame().GetGameReligions()->GetReligion(eLocalReligion, GetID());
 			}
 		}
 		for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -19406,7 +19415,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			CvYieldInfo* pYieldInfo = GC.getYieldInfo(eYield);
 		
 			//First let's get our values...
-			//Note that beliefs pass in a city - that's because only holy cities should get those bonuses!
+			//Note that many beliefs pass in a city - that's because only holy cities (or capitals for pantheons) should get those bonuses!
 			int iValue = 0;
 			switch(iType)
 			{
@@ -19416,10 +19425,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					if(pReligion)
 					{
 						iValue += pReligion->m_Beliefs.GetYieldPerBirth(eYield, GetID(), pLoopCity);
-					}
-					if(pLocalReligion)
-					{
-						iValue += pLocalReligion->m_Beliefs.GetYieldPerBirth(eYield, GetID(), pLoopCity);
 					}
 					break;
 				}
@@ -19437,10 +19442,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						iValue += pReligion->m_Beliefs.GetYieldFromEraUnlock(eYield, GetID(), pLoopCity);
 					}
-					if(pLocalReligion)
-					{
-						iValue += pLocalReligion->m_Beliefs.GetYieldFromEraUnlock(eYield, GetID(), pLoopCity);
-					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
@@ -19449,10 +19450,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					if(pReligion)
 					{
 						iValue += pReligion->m_Beliefs.GetYieldFromPolicyUnlock(eYield, GetID(), pLoopCity);
-					}
-					if(pLocalReligion)
-					{
-						iValue += pLocalReligion->m_Beliefs.GetYieldFromPolicyUnlock(eYield, GetID(), pLoopCity);
 					}
 					break;
 				}
@@ -19487,11 +19484,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue += pLoopCity->GetYieldFromBorderGrowth(eYield) + getYieldFromBorderGrowth(eYield);
 					if(pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldPerBorderGrowth(eYield, GetID(), pLoopCity);
-					}
-					if(pLocalReligion)
-					{
-						iValue += pLocalReligion->m_Beliefs.GetYieldPerBorderGrowth(eYield, GetID(), pLoopCity);
+						iValue += pReligion->m_Beliefs.GetYieldPerBorderGrowth(eYield, GetID());
 					}
 					break;
 				}
@@ -19500,10 +19493,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					if(pReligion)
 					{
 						iValue += pReligion->m_Beliefs.GetYieldFromProposal(eYield, GetID(), pLoopCity);
-					}
-					if(pLocalReligion)
-					{
-						iValue += pLocalReligion->m_Beliefs.GetYieldFromProposal(eYield, GetID(), pLoopCity);
 					}
 					break;
 				}
@@ -19527,20 +19516,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						{
 							iValue += pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity) + pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity);
 						}
-						if(pLocalReligion)
-						{
-							iValue += pLocalReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity) + pLocalReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity);
-						}
 					}
 					if(eYield == YIELD_FAITH)
 					{
 						if(pReligion)
 						{
 							iValue += pReligion->m_Beliefs.GetGreatPersonExpendedFaith(GetID(), pLoopCity);
-						}
-						if(pLocalReligion)
-						{
-							iValue += pLocalReligion->m_Beliefs.GetGreatPersonExpendedFaith(GetID(), pLoopCity);
 						}
 					}
 					break;
@@ -19557,15 +19538,15 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if(pLoopCity->isCapital())
 					{
-						iValue += iPassYield * (getConquerorYield(eYield) + GetPlayerTraits()->GetYieldFromConquest(eYield));
+						iValue += (getConquerorYield(eYield) + GetPlayerTraits()->GetYieldFromConquest(eYield));
 					}
 					if(pReligion)
 					{
 						iValue += pReligion->m_Beliefs.GetYieldFromConquest(eYield, GetID(), pLoopCity);
 					}
-					if(pLocalReligion)
+					if(iPassYield > 0 && iValue > 0)
 					{
-						iValue += pLocalReligion->m_Beliefs.GetYieldFromConquest(eYield, GetID(), pLoopCity);
+						iPassYield *= iValue;
 					}
 					break;
 				}
@@ -19612,13 +19593,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_CONVERSION:
 				{
-					if(pReligion)
+					if(pReligion && !pLoopCity->GetCityReligions()->HasPaidAdoptionBonus())
 					{
 						iValue += pReligion->m_Beliefs.GetYieldFromConversion(eYield, GetID(), pLoopCity);
-					}
-					if(pLocalReligion)
-					{
-						iValue += pLocalReligion->m_Beliefs.GetYieldFromConversion(eYield, GetID(), pLoopCity);
 					}
 					break;
 				}
@@ -19686,29 +19663,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 							}
 						}
 					}
-					if(pLocalReligion && pPlot != NULL)
-					{
-						CvCity* pCity = pPlot->getPlotCity();
-						if(pCity == NULL)
-						{
-							pCity = pPlot->GetAdjacentCity();
-						}
-						if(pCity != NULL)
-						{
-							if(!pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
-							{
-								iValue += pLocalReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity);
-							}
-							if(eYield == YIELD_SCIENCE && iPassYield > 0)
-							{
-								ReligionTypes eCurrentReligion = pCity->GetCityReligions()->GetReligiousMajority();
-								if(eCurrentReligion != eReligion && eCurrentReligion != NO_RELIGION)
-								{
-									iValue += (iPassYield * pLocalReligion->m_Beliefs.GetSciencePerOtherReligionFollower(GetID(), pLoopCity));
-								}
-							}
-						}
-					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_F_SPREAD:
@@ -19722,10 +19676,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						if(pReligion)
 						{
 							iValue += pReligion->m_Beliefs.GetYieldFromForeignSpread(eYield, GetID(), pLoopCity);
-						}
-						if(pLocalReligion)
-						{
-							iValue += pLocalReligion->m_Beliefs.GetYieldFromForeignSpread(eYield, GetID(), pLoopCity);
 						}
 					}
 					if(iPassYield > 0)
@@ -19751,9 +19701,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			//Now, let's apply these yields here as total yields.
 			if(iValue > 0)
 			{
+				//Set conversion paid here.
+				if(iType == INSTANT_YIELD_TYPE_CONVERSION)
+				{
+					pLoopCity->GetCityReligions()->SetPaidAdoptionBonus(true);
+				}
 				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iValue /= 100;
-				
+
 				if(bEraScale)
 				{
 					iValue *= iEra;
@@ -37026,37 +36981,6 @@ int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
 	}
 	return iYield;
 }
-#if defined(MOD_BALANCE_CORE)
-int CvPlayer::GetScoreFromMinorAllies() const
-{
-	int iScore = (GC.getGame().GetNumMinorCivsEver() * 20);
-	int iMaxMinorCivs = 0;
-	int iMinorAllies = 0;
-	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-	{
-		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
-		if(GET_PLAYER(eMinor).isAlive())
-		{
-			iMaxMinorCivs++;
-		}
-		if(GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(GetID()))
-		{
-			iMinorAllies++;
-		}
-	}
-	if(iMaxMinorCivs > 0)
-	{
-		int iPercentage = ((iMinorAllies * 100) / iMaxMinorCivs);
-		iScore = ((iPercentage * iScore) / 100);
-		return iScore;
-	}
-	return 0;
-}
-int CvPlayer::GetScoreFromMilitarySize() const
-{
-	return (GetMilitaryMight() / 10);
-}
-#endif
 //	--------------------------------------------------------------------------------
 // Score from Vassals: 50% percent
 int CvPlayer::GetScoreFromVassals() const
@@ -37240,6 +37164,38 @@ CvString CvPlayer::GetVassalIndependenceTooltipAsVassal() const
 	return szTooltip;
 }
 
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+int CvPlayer::GetScoreFromMinorAllies() const
+{
+	int iScore = (GC.getGame().GetNumMinorCivsEver() * 20);
+	int iMaxMinorCivs = 0;
+	int iMinorAllies = 0;
+	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+		if(GET_PLAYER(eMinor).isAlive())
+		{
+			iMaxMinorCivs++;
+		}
+		if(GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(GetID()))
+		{
+			iMinorAllies++;
+		}
+	}
+	if(iMaxMinorCivs > 0)
+	{
+		int iPercentage = ((iMinorAllies * 100) / iMaxMinorCivs);
+		iScore = ((iPercentage * iScore) / 100);
+		return iScore;
+	}
+	return 0;
+}
+int CvPlayer::GetScoreFromMilitarySize() const
+{
+	return (GetMilitaryMight() / 10);
+}
 #endif
 
 #if defined(MOD_API_EXTENSIONS)

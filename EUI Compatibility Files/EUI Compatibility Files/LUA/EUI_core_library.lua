@@ -6,112 +6,30 @@ local bnw_mode, gk_mode
 -------------------------------------------------
 -- Minor lua optimizations
 -------------------------------------------------
---local next = next
+local math_ceil = math.ceil
+local math_floor = math.floor
+local math_max = math.max
+local math_min = math.min
+local math_sqrt = math.sqrt
 local pairs = pairs
---local ipairs = ipairs
---local pcall = pcall
 local print = print
---local select = select
 local setmetatable = setmetatable
---local string = string
-local tonumber = tonumber
---local tostring = tostring
---local type = type
---local unpack = unpack or table.unpack
---local table = table
 local table_insert = table.insert
 local table_remove = table.remove
---local os = os
---local os_time = os.time
---local os_date = os.date
---local math = math
-local math_floor = math.floor
-local math_ceil = math.ceil
-local math_min = math.min
-local math_max = math.max
-local math_sqrt = math.sqrt
---local math_pi = math.pi
---local math_sin = math.sin
---local math_cos = math.cos
-
---local UI = UI
---local UIManager = UIManager
---local Controls = Controls
---local ContextPtr = ContextPtr
---local Players = Players
---local Teams = Teams
-local GameInfo = GameInfo
---local GameInfoActions = GameInfoActions
---local GameInfoTypes = GameInfoTypes
-local GameDefines = GameDefines
---local InterfaceDirtyBits = InterfaceDirtyBits
---local CityUpdateTypes = CityUpdateTypes
---local ButtonPopupTypes = ButtonPopupTypes
---local YieldTypes = YieldTypes
---local GameOptionTypes = GameOptionTypes
---local DomainTypes = DomainTypes
---local FeatureTypes = FeatureTypes
---local FogOfWarModeTypes = FogOfWarModeTypes
---local OrderTypes = OrderTypes
---local PlotTypes = PlotTypes
---local TerrainTypes = TerrainTypes
---local InterfaceModeTypes = InterfaceModeTypes
---local NotificationTypes = NotificationTypes
---local ActivityTypes = ActivityTypes
---local MissionTypes = MissionTypes
---local ActionSubTypes = ActionSubTypes
---local GameMessageTypes = GameMessageTypes
---local TaskTypes = TaskTypes
---local CommandTypes = CommandTypes
---local DirectionTypes = DirectionTypes
---local DiploUIStateTypes = DiploUIStateTypes
---local FlowDirectionTypes = FlowDirectionTypes
---local PolicyBranchTypes = PolicyBranchTypes
---local FromUIDiploEventTypes = FromUIDiploEventTypes
---local CoopWarStates = CoopWarStates
---local ThreatTypes = ThreatTypes
---local DisputeLevelTypes = DisputeLevelTypes
---local LeaderheadAnimationTypes = LeaderheadAnimationTypes
-local TradeableItems = TradeableItems
---local EndTurnBlockingTypes = EndTurnBlockingTypes
---local ResourceUsageTypes = ResourceUsageTypes
---local MajorCivApproachTypes = MajorCivApproachTypes
---local MinorCivTraitTypes = MinorCivTraitTypes
---local MinorCivPersonalityTypes = MinorCivPersonalityTypes
---local MinorCivQuestTypes = MinorCivQuestTypes
---local CityAIFocusTypes = CityAIFocusTypes
---local AdvisorTypes = AdvisorTypes
---local GenericWorldAnchorTypes = GenericWorldAnchorTypes
---local GameStates = GameStates
---local GameplayGameStateTypes = GameplayGameStateTypes
---local CombatPredictionTypes = CombatPredictionTypes
---local ChatTargetTypes = ChatTargetTypes
---local ReligionTypes = ReligionTypes
---local BeliefTypes = BeliefTypes
---local FaithPurchaseTypes = FaithPurchaseTypes
---local ResolutionDecisionTypes = ResolutionDecisionTypes
---local InfluenceLevelTypes = InfluenceLevelTypes
---local InfluenceLevelTrend = InfluenceLevelTrend
---local PublicOpinionTypes = PublicOpinionTypes
---local ControlTypes = ControlTypes
-
-local PreGame = PreGame
-local Game = Game
---local Map = Map
---local OptionsManager = OptionsManager
---local Events = Events
---local Mouse = Mouse
---local MouseEvents = MouseEvents
---local MouseOverStrategicViewResource = MouseOverStrategicViewResource
-local Locale = Locale
-local L = Locale.ConvertTextKey
---local S = string.format
-local DB_Query = DB.Query
+local tonumber = tonumber
+local tostring = tostring
+local unpack = unpack or table.unpack -- depends on Lua version
 
 local ContentManager_IsActive = ContentManager.IsActive
 local ContentType_GAMEPLAY = ContentType.GAMEPLAY
-
---getmetatable("").__index.L = L
+local DB_Query = DB.Query
+local Game = Game
+local GameDefines = GameDefines
+local GameInfo = GameInfo
+local L = Locale.ConvertTextKey
+local Locale = Locale
+local PreGame = PreGame
+local TradeableItems = TradeableItems
 
 if Game and PreGame then
 
@@ -166,13 +84,13 @@ if Game and PreGame then
 			[ TradeableItems.TRADE_ITEM_TRADE_AGREEMENT or false ] = function( from, item )
 				return g_deal:AddTradeAgreement( from, item[2] )
 			end,
-			[ TradeableItems.TRADE_ITEM_PERMANENT_ALLIANCE or false ] = function( from, item )
+			[ TradeableItems.TRADE_ITEM_PERMANENT_ALLIANCE or false ] = function()
 				print( "Error - alliance not supported by game DLL")--g_deal:AddPermamentAlliance()
 			end,
 			[ TradeableItems.TRADE_ITEM_SURRENDER or false ] = function( from )
 				return g_deal:AddSurrender( from )
 			end,
-			[ TradeableItems.TRADE_ITEM_TRUCE or false ] = function( from, item )
+			[ TradeableItems.TRADE_ITEM_TRUCE or false ] = function()
 				print( "Error - truce not supported by game DLL")--g_deal:AddTruce()
 			end,
 			[ TradeableItems.TRADE_ITEM_PEACE_TREATY or false ] = function( from, item )
@@ -372,7 +290,7 @@ local table = {
 	remove = table.remove,
 	sort = table.sort,
 	maxn = table.maxn,
-	unpack = unpack or table.unpack,-- depends on Lua version
+	unpack = unpack,
 	count = table.count,--Firaxis specific
 	fill = table.fill,--Firaxis specific
 }
@@ -435,6 +353,11 @@ local nilInfoCache = setmetatable( {}, { __call = function() return nilFunction 
 
 local GameInfoIndex = function( t, tableName )
 	local thisGameInfoTable = GameInfo[ tableName ]
+--[[
+pre-game:
+__call = function() DB_Query("SELECT * from "..tableName)
+__index = function( t, key ): if tonumber(key) DB_Query("SELECT * from "..tableName.." where ID = ?", key) ID = key or Type = key...
+--]]
 	local cache, cacheMT
 	if thisGameInfoTable then
 		local keys = {}
@@ -500,6 +423,7 @@ local GameInfoIndex = function( t, tableName )
 						return cache
 					else
 						t[ key ] = false
+						print( "GameInfo."..tableName.."["..tostring(key).."] is undefined" )
 					end
 				end
 			end, __call = function( t, condition )

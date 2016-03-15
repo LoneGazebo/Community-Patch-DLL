@@ -17,6 +17,21 @@ print("Loading EUI unit panel",ContextPtr,os.clock(),[[
 local gk_mode = Game.GetReligionName ~= nil
 local bnw_mode = Game.GetActiveLeague ~= nil
 
+
+-------------------------------------------------
+-- Minor lua optimizations
+-------------------------------------------------
+local ipairs = ipairs
+local math_ceil = math.ceil
+local math_floor = math.floor
+local math_max = math.max
+local pairs = pairs
+local print = print
+local table_concat = table.concat
+local table_insert = table.insert
+local table_remove = table.remove
+local tostring = tostring
+
 --EUI_utilities
 local StackInstanceManager = StackInstanceManager
 local IconLookup = EUI.IconLookup
@@ -36,125 +51,36 @@ local GetFoodTooltip = EUI.GetFoodTooltip
 local GetProductionTooltip = EUI.GetProductionTooltip
 local GetCultureTooltip = EUI.GetCultureTooltip
 
--------------------------------------------------
--- Minor lua optimizations
--------------------------------------------------
-
---local next = next
-local pairs = pairs
-local ipairs = ipairs
---local pcall = pcall
---local print = print
---local select = select
---local setmetatable = setmetatable
---local string = string
---local tonumber = tonumber
-local tostring = tostring
---local type = type
---local unpack = unpack
---local table = table
-local table_insert = table.insert
-local table_remove = table.remove
-local table_concat = table.concat
---local os = os
---local os_time = os.time
---local os_date = os.date
---local math = math
-local math_floor = math.floor
-local math_ceil = math.ceil
---local math_min = math.min
-local math_max = math.max
---local math_abs = math.abs
---local math_modf = math.modf
---local math_sqrt = math.sqrt
---local math_pi = math.pi
---local math_sin = math.sin
---local math_cos = math.cos
---local math_huge = math.huge
-
-local UI = UI
-local UI_GetUnitPortraitIcon = UI.GetUnitPortraitIcon
-local UI_GetHeadSelectedUnit = UI.GetHeadSelectedUnit
---local UIManager = UIManager
-local ToHexFromGrid = ToHexFromGrid
---local IsGameCoreBusy = IsGameCoreBusy
-
-local Controls = Controls
+local ActionSubTypes = ActionSubTypes
+local ActivityTypes = ActivityTypes
 local ContextPtr = ContextPtr
-local Players = Players
-local Teams = Teams
---local GameInfo = GameInfo
+local Controls = Controls
+local DomainTypes = DomainTypes
+local Events = Events
+local Game = Game
+local GameDefines = GameDefines
 local GameInfoActions = GameInfoActions
 local GameInfoTypes = GameInfoTypes
-local GameDefines = GameDefines
---local InterfaceDirtyBits = InterfaceDirtyBits
---local CityUpdateTypes = CityUpdateTypes
---local ButtonPopupTypes = ButtonPopupTypes
-local YieldTypes = YieldTypes
---local GameOptionTypes = GameOptionTypes
-local DomainTypes = DomainTypes
---local FeatureTypes = FeatureTypes
---local FogOfWarModeTypes = FogOfWarModeTypes
-local OrderTypes = OrderTypes
---local PlotTypes = PlotTypes
---local TerrainTypes = TerrainTypes
---local InterfaceModeTypes = InterfaceModeTypes
---local NotificationTypes = NotificationTypes
-local ActivityTypes = ActivityTypes
---local MissionTypes = MissionTypes
-local ActionSubTypes = ActionSubTypes
---local GameMessageTypes = GameMessageTypes
---local TaskTypes = TaskTypes
---local CommandTypes = CommandTypes
---local DirectionTypes = DirectionTypes
---local DiploUIStateTypes = DiploUIStateTypes
---local FlowDirectionTypes = FlowDirectionTypes
---local PolicyBranchTypes = PolicyBranchTypes
---local FromUIDiploEventTypes = FromUIDiploEventTypes
---local CoopWarStates = CoopWarStates
---local ThreatTypes = ThreatTypes
---local DisputeLevelTypes = DisputeLevelTypes
---local LeaderheadAnimationTypes = LeaderheadAnimationTypes
---local TradeableItems = TradeableItems
---local EndTurnBlockingTypes = EndTurnBlockingTypes
-local ResourceUsageTypes = ResourceUsageTypes
---local MajorCivApproachTypes = MajorCivApproachTypes
---local MinorCivTraitTypes = MinorCivTraitTypes
---local MinorCivPersonalityTypes = MinorCivPersonalityTypes
---local MinorCivQuestTypes = MinorCivQuestTypes
---local CityAIFocusTypes = CityAIFocusTypes
---local AdvisorTypes = AdvisorTypes
---local GenericWorldAnchorTypes = GenericWorldAnchorTypes
---local GameStates = GameStates
---local GameplayGameStateTypes = GameplayGameStateTypes
---local CombatPredictionTypes = CombatPredictionTypes
---local ChatTargetTypes = ChatTargetTypes
-local ReligionTypes = ReligionTypes
---local BeliefTypes = BeliefTypes
---local FaithPurchaseTypes = FaithPurchaseTypes
---local ResolutionDecisionTypes = ResolutionDecisionTypes
---local InfluenceLevelTypes = InfluenceLevelTypes
---local InfluenceLevelTrend = InfluenceLevelTrend
---local PublicOpinionTypes = PublicOpinionTypes
---local ControlTypes = ControlTypes
-
-local PreGame = PreGame
-local Game = Game
---local Map = Map
-local Map_PlotDistance = Map.PlotDistance
-local Map_PlotDirection = Map.PlotDirection
---local OptionsManager = OptionsManager
-local Events = Events
-local Mouse = Mouse
---local MouseEvents = MouseEvents
---local MouseOverStrategicViewResource = MouseOverStrategicViewResource
-local Locale = Locale
-local L = Locale.ConvertTextKey
-
-local GameInfo_Missions = GameInfo.Missions
 local GameInfo_Automates = GameInfo.Automates
 local GameInfo_Builds = GameInfo.Builds
+local GameInfo_Missions = GameInfo.Missions
 local GameInfo_Units = GameInfo.Units
+local L = Locale.ConvertTextKey
+local Locale_ToUpper = Locale.ToUpper
+local Map_PlotDirection = Map.PlotDirection
+local Map_PlotDistance = Map.PlotDistance
+local Mouse = Mouse
+local OrderTypes = OrderTypes
+local Players = Players
+local PreGame = PreGame
+local ReligionTypes = ReligionTypes
+local ResourceUsageTypes = ResourceUsageTypes
+local Teams = Teams
+local ToHexFromGrid = ToHexFromGrid
+local UI = UI
+local UI_GetHeadSelectedUnit = UI.GetHeadSelectedUnit
+local UI_GetUnitPortraitIcon = UI.GetUnitPortraitIcon
+local YieldTypes = YieldTypes
 
 -------------------------------------------------
 -- Globals
@@ -197,18 +123,27 @@ local g_units, g_cities, g_unitTypes
 
 local EUI_options = Modding.OpenUserData( "Enhanced User Interface Options", 1 )
 
-local g_CityFocus = {
-[CityAIFocusTypes.NO_CITY_AI_FOCUS_TYPE] =		{"",			L("TXT_KEY_CITYVIEW_FOCUS_BALANCED_TEXT")},
-[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FOOD] =		{"[ICON_FOOD]",		L("TXT_KEY_CITYVIEW_FOCUS_FOOD_TEXT")},
-[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_PRODUCTION] =	{"[ICON_PRODUCTION]",	L("TXT_KEY_CITYVIEW_FOCUS_PROD_TEXT")},
-[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GOLD] =		{"[ICON_GOLD]",		L("TXT_KEY_CITYVIEW_FOCUS_GOLD_TEXT")},
-[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_SCIENCE] =		{"[ICON_RESEARCH]",	L("TXT_KEY_CITYVIEW_FOCUS_RESEARCH_TEXT")},
-[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_CULTURE] =		{"[ICON_CULTURE]",	L("TXT_KEY_CITYVIEW_FOCUS_CULTURE_TEXT")},
-[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GREAT_PEOPLE] =	{"[ICON_GREAT_PEOPLE]",	L("TXT_KEY_CITYVIEW_FOCUS_GREAT_PERSON_TEXT")}
-}
-if gk_mode then
-	g_CityFocus[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FAITH] = {"[ICON_PEACE]",	L("TXT_KEY_CITYVIEW_FOCUS_FAITH_TEXT")}
-end
+local g_cityFocusIcons = {
+--[CityAIFocusTypes.NO_CITY_AI_FOCUS_TYPE or -1] = "",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FOOD or -1] = "[ICON_FOOD]",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_PRODUCTION or -1] = "[ICON_PRODUCTION]",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GOLD or -1] = "[ICON_GOLD]",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_SCIENCE or -1] = "[ICON_RESEARCH]",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_CULTURE or -1] = "[ICON_CULTURE]",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GREAT_PEOPLE or -1] = "[ICON_GREAT_PEOPLE]",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FAITH or -1] = "[ICON_PEACE]",
+} g_cityFocusIcons[-1] = nil
+
+local g_cityFocusTooltips = {
+[CityAIFocusTypes.NO_CITY_AI_FOCUS_TYPE or -1] = L"TXT_KEY_CITYVIEW_FOCUS_BALANCED_TEXT",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FOOD or -1] = L"TXT_KEY_CITYVIEW_FOCUS_FOOD_TEXT",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_PRODUCTION or -1] = L"TXT_KEY_CITYVIEW_FOCUS_PROD_TEXT",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GOLD or -1] = L"TXT_KEY_CITYVIEW_FOCUS_GOLD_TEXT",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_SCIENCE or -1] = L"TXT_KEY_CITYVIEW_FOCUS_RESEARCH_TEXT",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_CULTURE or -1] = L"TXT_KEY_CITYVIEW_FOCUS_CULTURE_TEXT",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GREAT_PEOPLE or -1] = L"TXT_KEY_CITYVIEW_FOCUS_GREAT_PERSON_TEXT",
+[CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FAITH or -1] = L"TXT_KEY_CITYVIEW_FOCUS_FAITH_TEXT",
+} g_cityFocusTooltips[-1] = nil
 
 -------------------------------------------------
 -- Tooltip Utilities
@@ -265,7 +200,7 @@ local function g_RibbonManager( name, stack, scrap, createAllItems, initItem, up
 	local index = {}
 
 	local function Create( itemID, item )
-		if itemID then
+		if item then
 			local instance
 			n = n + 1
 			if n <= #self then
@@ -432,17 +367,15 @@ local function UpdateCity( instance )
 		local isNotResistance = not city:IsResistance()
 		local isCapital = city:IsCapital()
 
-		instance.CapitalIcon:SetHide( not isCapital )
-		instance.PuppetIcon:SetHide( isNotPuppet )
-		local cityFocus = isNotRazing and isNotResistance and isNotPuppet and g_CityFocus[city:GetFocusType()]
-		instance.FocusIcon:SetText( cityFocus and cityFocus[1] )
-		local resource = GameInfo.Resources[city:GetResourceDemanded()]
-		instance.QuestIcons:SetText( (city:GetWeLoveTheKingDayCounter() > 0 and "[ICON_HAPPINESS_1]") or (resource and resource.IconString) )
-		instance.RazingIcon:SetHide( isNotRazing )
-		instance.ResistanceIcon:SetHide( isNotResistance )
-		instance.ConnectedIcon:SetHide( not g_activePlayer:IsCapitalConnectedToCity( city ) or isCapital )
-		instance.BlockadedIcon:SetHide( not city:IsBlockaded() )
-		instance.OccupiedIcon:SetHide( not city:IsOccupied() or city:IsNoOccupiedUnhappiness() )
+		instance.CityIsCapital:SetHide( not isCapital )
+		instance.CityIsPuppet:SetHide( isNotPuppet )
+		instance.CityFocus:SetText( isNotRazing and isNotResistance and isNotPuppet and g_cityFocusIcons[city:GetFocusType()] )
+		instance.CityQuests:SetText( city:GetWeLoveTheKingDayCounter() > 0 and "[ICON_HAPPINESS_1]" or (GameInfo.Resources[city:GetResourceDemanded()] or {}).IconString )
+		instance.CityIsRazing:SetHide( isNotRazing )
+		instance.CityIsResistance:SetHide( isNotResistance )
+		instance.CityIsConnected:SetHide( not g_activePlayer:IsCapitalConnectedToCity( city ) or isCapital )
+		instance.CityIsBlockaded:SetHide( not city:IsBlockaded() )
+		instance.CityIsOccupied:SetHide( not city:IsOccupied() or city:IsNoOccupiedUnhappiness() )
 		instance.Name:SetString( city:GetName() )
 
 		local culturePerTurn = city:GetJONSCulturePerTurn()
@@ -582,7 +515,7 @@ local function UnitToolTip( unit, ... )
 
 		-- Name
 		local combatClass = unitInfo.CombatClass and GameInfo.UnitCombatInfos[unitInfo.CombatClass]
-		local tips = table( UnitColor( Locale.ToUpper( unit:GetNameKey() ) ) .. (combatClass and " ("..L(combatClass.Description)..")" or ""), "----------------", ... )
+		local tips = table( UnitColor( Locale_ToUpper( unit:GetNameKey() ) ) .. (combatClass and " ("..L(combatClass.Description)..")" or ""), "----------------", ... )
 
 		-- Required Resources:
 		local resources = table()
@@ -863,20 +796,19 @@ g_cities = g_RibbonManager( "CityInstance", Controls.CityStack, Controls.Scrap,
 		local city = FindCity( control )
 		ShowSimpleCityTip( control, city, L("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / city:GetJONSCulturePerTurn() ) ), GetCultureTooltip( city ) )
 	end,
-	CapitalIcon = function( control )
+	CityIsCapital = function( control )
 		local city = FindCity( control )
 		ShowSimpleCityTip( control, city, "[ICON_CAPITAL]" )
 	end,
-	PuppetIcon = function( control )
+	CityIsPuppet = function( control )
 		local city = FindCity( control )
 		ShowSimpleCityTip( control, city, L"TXT_KEY_CITY_PUPPET", L"TXT_KEY_CITY_ANNEX_TT" )
 	end,
-	FocusIcon = function( control )
+	CityFocus = function( control )
 		local city = FindCity( control )
-		local cityFocus = g_CityFocus[city:GetFocusType()]
-		ShowSimpleCityTip( control, city, cityFocus[2] )
+		ShowSimpleCityTip( control, city, city and g_cityFocusTooltips[city:GetFocusType()] )
 	end,
-	QuestIcons = function( control )
+	CityQuests = function( control )
 		local city = FindCity( control )
 		local resource = GameInfo.Resources[city:GetResourceDemanded()]
 		local weLoveTheKingDayCounter = city:GetWeLoveTheKingDayCounter()
@@ -890,23 +822,23 @@ g_cities = g_RibbonManager( "CityInstance", Controls.CityStack, Controls.Scrap,
 		end
 		ShowSimpleCityTip( control, city, tip )
 	end,
-	RazingIcon = function( control )
+	CityIsRazing = function( control )
 		local city = FindCity( control )
 		ShowSimpleCityTip( control, city, L( "TXT_KEY_CITY_BURNING", city:GetRazingTurns() ) )
 	end,
-	ResistanceIcon = function( control )
+	CityIsResistance = function( control )
 		local city = FindCity( control )
 		ShowSimpleCityTip( control, city, L( "TXT_KEY_CITY_RESISTANCE", city:GetResistanceTurns() ) )
 	end,
-	ConnectedIcon = function( control )
+	CityIsConnected = function( control )
 		local city = FindCity( control )
 		ShowSimpleCityTip( control, city, L("TXT_KEY_CITY_CONNECTED") .. (" (%+g[ICON_GOLD])"):format( ( bnw_mode and g_activePlayer:GetCityConnectionRouteGoldTimes100( city ) or g_activePlayer:GetRouteGoldTimes100( city ) ) / 100 ) ) -- stupid function renaming
 	end,
-	BlockadedIcon = function( control )
+	CityIsBlockaded = function( control )
 		local city = FindCity( control )
 		ShowSimpleCityTip( control, city, L"TXT_KEY_CITY_BLOCKADED" )
 	end,
-	OccupiedIcon = function( control )
+	CityIsOccupied = function( control )
 		local city = FindCity( control )
 		ShowSimpleCityTip( control, city, L"TXT_KEY_CITY_OCCUPIED" )
 	end,
@@ -941,6 +873,8 @@ local g_recommendedActionButton = {}
 ContextPtr:BuildInstanceForControlAtIndex( "UnitAction", g_recommendedActionButton, Controls.WorkerActionStack, 1 )
 --Controls.RecommendedActionLabel:ChangeParent( g_recommendedActionButton.UnitActionButton )
 local g_actionIconSize = g_recommendedActionButton.UnitActionIcon:GetSizeX()
+local g_actionButtonSpacing = OptionsManager.GetSmallUIAssets() and 42 or 58
+
 local g_existingBuild = {}
 ContextPtr:BuildInstanceForControl( "UnitAction", g_existingBuild, Controls.WorkerActionStack )
 g_existingBuild.WorkerProgressBar:SetPercent( 1 )
@@ -993,18 +927,16 @@ local g_actionIconIndexAndAtlas = {
 		return info.IconIndex, info.IconAtlas
 	end,
 }
-g_yieldString = {
-[YieldTypes.YIELD_FOOD] = "TXT_KEY_BUILD_FOOD_STRING",
-[YieldTypes.YIELD_PRODUCTION] = "TXT_KEY_BUILD_PRODUCTION_STRING",
-[YieldTypes.YIELD_GOLD] = "TXT_KEY_BUILD_GOLD_STRING",
-[YieldTypes.YIELD_SCIENCE] = "TXT_KEY_BUILD_SCIENCE_STRING",
-}
-if gk_mode then
-	g_yieldString[YieldTypes.YIELD_CULTURE] = "TXT_KEY_BUILD_CULTURE_STRING"
-	g_yieldString[YieldTypes.YIELD_FAITH] = "TXT_KEY_BUILD_FAITH_STRING"
-	g_yieldString[YieldTypes.YIELD_TOURISM] = "TXT_KEY_BUILD_TOURISM_STRING"
-	g_yieldString[YieldTypes.YIELD_GOLDEN_AGE_POINTS] = "TXT_KEY_BUILD_GAP_STRING"
-end
+local g_yieldString = {
+[YieldTypes.YIELD_FOOD or false] = "TXT_KEY_BUILD_FOOD_STRING",
+[YieldTypes.YIELD_PRODUCTION or false] = "TXT_KEY_BUILD_PRODUCTION_STRING",
+[YieldTypes.YIELD_GOLD or false] = "TXT_KEY_BUILD_GOLD_STRING",
+[YieldTypes.YIELD_SCIENCE or false] = "TXT_KEY_BUILD_SCIENCE_STRING",
+[YieldTypes.YIELD_CULTURE or false] = "TXT_KEY_BUILD_CULTURE_STRING",
+[YieldTypes.YIELD_FAITH or false] = "TXT_KEY_BUILD_FAITH_STRING",
+[YieldTypes.YIELD_TOURISM or false] = "TXT_KEY_BUILD_TOURISM_STRING",
+[YieldTypes.YIELD_GOLDEN_AGE_POINTS or false] = "TXT_KEY_BUILD_GAP_STRING",
+} g_yieldString[false] = nil
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 local function OnUnitActionClicked( actionID )
@@ -1063,6 +995,7 @@ local function UpdateUnitActions( unit )
 		end
 	end
 
+	local numBuildActions = 0
 	-- loop over all the unit actions
 	for i = 1, #actions do
 		local action = actions[i]
@@ -1078,10 +1011,8 @@ local function UpdateUnitActions( unit )
 				instance = g_BuildIM:GetInstance()
 
 			elseif action.isBuild and not hasPromotion then
-
-				hasBuildAction = true
+				numBuildActions = numBuildActions + 1
 				if hasMovesLeft and not recommendedBuild and unit:IsActionRecommended( action.ID ) then
-
 					recommendedBuild = action.ID
 					instance = g_recommendedActionButton
 					Controls.RecommendedActionLabel:SetText( (bnw_mode and (L("TXT_KEY_UPANEL_RECOMMENDED") .. "[NEWLINE]") or "") .. L( tostring( action.TextKey or action.Type ) ) )
@@ -1129,7 +1060,7 @@ local function UpdateUnitActions( unit )
 
 	--Controls.BuildStack:CalculateSize()
 	--Controls.BuildStack:ReprocessAnchoring()
-	if hasBuildAction or hasPromotion then
+	if numBuildActions > 0 or hasPromotion then
 		Controls.WorkerActionPanel:SetHide( false )
 		g_isWorkerActionPanelOpen = true
 
@@ -1139,6 +1070,7 @@ local function UpdateUnitActions( unit )
 		local improvement = canBuildSomething and GameInfo.Improvements[ plot:GetImprovementType() ]
 		local build = improvement and GameInfo_Builds{ ImprovementType = improvement.Type }()
 		if build then
+			numBuildActions = numBuildActions + 1
 			IconHookup( build.IconIndex, g_actionIconSize, build.IconAtlas, g_existingBuild.UnitActionIcon )
 		end
 		g_existingBuild.UnitActionButton:SetHide( not build )
@@ -1146,10 +1078,10 @@ local function UpdateUnitActions( unit )
 		Controls.PromotionText:SetHide( not hasPromotion )
 		Controls.PromotionAnimation:SetHide( not hasPromotion )
 		Controls.EditButton:SetHide( not hasPromotion )
-
+		Controls.WorkerActionStack:SetWrapWidth( recommendedBuild and 232 or math_ceil( numBuildActions / math_ceil( numBuildActions / 5 ) ) * g_actionButtonSpacing )
 		Controls.WorkerActionStack:CalculateSize()
 		local x, y = Controls.WorkerActionStack:GetSizeVal()
-		Controls.WorkerActionPanel:SetSizeVal( math_max( x + 50, 260), y + 96 )
+		Controls.WorkerActionPanel:SetSizeVal( math_max( x, 200 ) + 50, y + 96 )
 		Controls.WorkerActionStack:ReprocessAnchoring()
 	else
 		Controls.WorkerActionPanel:SetHide( true )
@@ -1179,11 +1111,11 @@ local function UpdateUnitPortrait( unit )
 		name = unit:GetName()
 	end
 
-	name = Locale.ToUpper(name)
+	name = Locale_ToUpper(name)
 
 	--local name = unit:GetNameKey()
 	local convertedKey = L(name)
-	convertedKey = Locale.ToUpper(convertedKey)
+	convertedKey = Locale_ToUpper(convertedKey)
 
 	Controls.UnitName:SetText(convertedKey)
 	Controls.UnitName:SetFontByName("TwCenMT24")
@@ -1242,10 +1174,10 @@ end
 
 local function UpdateCityPortrait(city)
 	local name = city:GetName()
-	name = Locale.ToUpper(name)
+	name = Locale_ToUpper(name)
 	--local name = unit:GetNameKey()
 	local convertedKey = L(name)
-	convertedKey = Locale.ToUpper(convertedKey)
+	convertedKey = Locale_ToUpper(convertedKey)
 
 	Controls.UnitName:SetText(convertedKey)
 	Controls.UnitName:SetFontByName("TwCenMT24")
@@ -2011,8 +1943,10 @@ local function UpdateDisplayNow()
 		Controls.UnitPanel:SetOffsetY( g_bottomOffset )
 
 		if not g_isHideUnitTypes then
+			local n = Controls.UnitTypesStack:GetNumChildren()
+			Controls.UnitTypesStack:SetWrapWidth( math_ceil( n / math_ceil( n / 5 ) ) * 64 )
 			Controls.UnitTypesStack:CalculateSize()
-			local x,y = Controls.UnitTypesStack:GetSizeVal()
+			local x, y = Controls.UnitTypesStack:GetSizeVal()
 			if y<64 then y=64 elseif y>320 then y=320 end
 			Controls.UnitTypesPanel:SetOffsetVal( unitTypesPanelOffsetX, unitTypesPanelOffsetY )
 			Controls.UnitTypesPanel:SetSizeVal( x+40, y+85 )
@@ -2173,7 +2107,6 @@ g_unitTypes = g_RibbonManager( "UnitTypeInstance", Controls.UnitTypesStack, Cont
 )--/unit options object
 
 local function CreateUnit( playerID, unitID ) --hexVec, unitType, cultureType, civID, primaryColor, secondaryColor, unitFlagIndex, fogState, selected, military, notInvisible )
---						table: 58C77688	83	0	30	table: 58C776B0	table: 58C776D8	0	2	false	false	true
 	if playerID == g_activePlayerID then
 		local unit = g_activePlayer:GetUnitByID( unitID )
 --print("Create unit", unitID, unit and unit:GetName() )

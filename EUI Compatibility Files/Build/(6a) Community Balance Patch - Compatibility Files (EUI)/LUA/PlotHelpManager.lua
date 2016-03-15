@@ -8,6 +8,7 @@
 -- todo BE: don't show quest artifacts if there's already a (quest) improvement here
 -------------------------------
 include( "EUI_utilities" )
+include( "EUI_unit_include" )
 
 Events.SequenceGameInitComplete.Add(function()
 print("Loading EUI plot help",ContextPtr,os.clock(),[[ 
@@ -19,6 +20,16 @@ print("Loading EUI plot help",ContextPtr,os.clock(),[[
                                |_|                             |___/           
 ]])
 
+-------------------------------
+-- minor lua optimizations
+-------------------------------
+local math_ceil = math.ceil
+local math_floor = math.floor
+local math_max = math.max
+local pairs = pairs
+local string_format = string.format
+local tonumber = tonumber
+
 include( "ResourceTooltipGenerator" )
 local GenerateResourceToolTip = GenerateResourceToolTip
 --EUI_utilities
@@ -27,126 +38,35 @@ local YieldIcons = EUI.YieldIcons
 local CountHexPlots = EUI.CountHexPlots
 local IndexPlot = EUI.IndexPlot
 local GameInfo = EUI.GameInfoCache -- warning! booleans are true, not 1, and use iterator ONLY with table field conditions, NOT string SQL query
+--EUI_unit_include
+local ShortUnitTip = EUI.ShortUnitTip
 
--------------------------------
--- minor lua optimizations
--------------------------------
-
---local next = next
-local pairs = pairs
---local ipairs = ipairs
---local pcall = pcall
---local print = print
---local select = select
---local setmetatable = setmetatable
---local string = string
-local tonumber = tonumber
-local tostring = tostring
---local type = type
---local unpack = unpack
---local table = table
---local table_insert = table.insert
---local table_remove = table.remove
---local table_concat = table.concat
---local os = os
---local os_time = os.time
---local os_date = os.date
---local math = math
-local math_floor = math.floor
-local math_ceil = math.ceil
---local math_min = math.min
-local math_max = math.max
---local math_abs = math.abs
---local math_modf = math.modf
---local math_sqrt = math.sqrt
---local math_pi = math.pi
---local math_sin = math.sin
---local math_cos = math.cos
---local math_huge = math.huge
-
---local UI = UI
-local UI_GetHeadSelectedUnit = UI.GetHeadSelectedUnit
-local UI_GetMouseOverHex = UI.GetMouseOverHex
-local UIManager = UIManager
-local ToHexFromGrid = ToHexFromGrid
-local IsGameCoreBusy = IsGameCoreBusy
-
---local Controls = Controls
 local ContextPtr = ContextPtr
-local Players = Players
-local Teams = Teams
---local GameInfo = GameInfo
---local GameInfoActions = GameInfoActions
-local GameInfoTypes = GameInfoTypes
-local GameDefines = GameDefines
---local InterfaceDirtyBits = InterfaceDirtyBits
---local CityUpdateTypes = CityUpdateTypes
---local ButtonPopupTypes = ButtonPopupTypes
-local YieldTypes = YieldTypes
-local GameOptionTypes = GameOptionTypes
---local DomainTypes = DomainTypes
-local FeatureTypes = FeatureTypes
---local FogOfWarModeTypes = FogOfWarModeTypes
---local OrderTypes = OrderTypes
---local PlotTypes = PlotTypes
---local TerrainTypes = TerrainTypes
---local InterfaceModeTypes = InterfaceModeTypes
---local NotificationTypes = NotificationTypes
---local ActivityTypes = ActivityTypes
---local MissionTypes = MissionTypes
---local ActionSubTypes = ActionSubTypes
---local GameMessageTypes = GameMessageTypes
---local TaskTypes = TaskTypes
---local CommandTypes = CommandTypes
---local DirectionTypes = DirectionTypes
---local DiploUIStateTypes = DiploUIStateTypes
---local FlowDirectionTypes = FlowDirectionTypes
---local PolicyBranchTypes = PolicyBranchTypes
---local FromUIDiploEventTypes = FromUIDiploEventTypes
---local CoopWarStates = CoopWarStates
---local ThreatTypes = ThreatTypes
---local DisputeLevelTypes = DisputeLevelTypes
---local LeaderheadAnimationTypes = LeaderheadAnimationTypes
---local TradeableItems = TradeableItems
---local EndTurnBlockingTypes = EndTurnBlockingTypes
-local ResourceUsageTypes = ResourceUsageTypes
---local MajorCivApproachTypes = MajorCivApproachTypes
---local MinorCivTraitTypes = MinorCivTraitTypes
---local MinorCivPersonalityTypes = MinorCivPersonalityTypes
-local MinorCivQuestTypes = MinorCivQuestTypes
---local CityAIFocusTypes = CityAIFocusTypes
---local AdvisorTypes = AdvisorTypes
---local GenericWorldAnchorTypes = GenericWorldAnchorTypes
---local GameStates = GameStates
---local GameplayGameStateTypes = GameplayGameStateTypes
---local CombatPredictionTypes = CombatPredictionTypes
---local ChatTargetTypes = ChatTargetTypes
---local ReligionTypes = ReligionTypes
---local BeliefTypes = BeliefTypes
---local FaithPurchaseTypes = FaithPurchaseTypes
---local ResolutionDecisionTypes = ResolutionDecisionTypes
---local InfluenceLevelTypes = InfluenceLevelTypes
---local InfluenceLevelTrend = InfluenceLevelTrend
---local PublicOpinionTypes = PublicOpinionTypes
---local ControlTypes = ControlTypes
-
-local PreGame = PreGame
-local Game = Game
---local Map = Map
-local Map_GetPlot = Map.GetPlot
-local OptionsManager = OptionsManager
 local Events = Events
 local Events_ClearHexHighlightStyle = Events.ClearHexHighlightStyle
-local Events_SerialEventHexHighlight = Events.SerialEventHexHighlight
 local Events_RequestYieldDisplay = Events.RequestYieldDisplay
---local Mouse = Mouse
---local MouseEvents = MouseEvents
-local MouseOverStrategicViewResource = MouseOverStrategicViewResource
-local Locale = Locale
+local Events_SerialEventHexHighlight = Events.SerialEventHexHighlight
+local Game = Game
+local GameDefines_CITY_PLOTS_RADIUS = GameDefines.CITY_PLOTS_RADIUS
+local GameInfoTypes = GameInfoTypes
+local GameOptionTypes = GameOptionTypes
 local L = Locale.ConvertTextKey
-local S = string.format
+local Locale_ToLower = Locale.ToLower
+local Map_GetPlot = Map.GetPlot
+local MinorCivQuestTypes = MinorCivQuestTypes
+local MouseOverStrategicViewResource = MouseOverStrategicViewResource
+local OptionsManager = OptionsManager
+local Players = Players
+local ResourceUsageTypes_RESOURCEUSAGE_BONUS = ResourceUsageTypes.RESOURCEUSAGE_BONUS
+local ResourceUsageTypes_RESOURCEUSAGE_STRATEGIC = ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC
+local Teams = Teams
+local ToHexFromGrid = ToHexFromGrid
+local UIManager = UIManager
+local UI_GetHeadSelectedUnit = UI.GetHeadSelectedUnit
+local UI_GetMouseOverHex = UI.GetMouseOverHex
 local YieldDisplayTypes_AREA = YieldDisplayTypes.AREA
---getmetatable("").__index.L = L
+local YieldTypes = YieldTypes
+local YieldTypes_NUM_YIELD_TYPES_1 = YieldTypes.NUM_YIELD_TYPES-1
 
 -------------------------------
 -- Globals
@@ -162,14 +82,10 @@ local csd_mode = civ5_mode and type( Map_GetPlot(0,0).GetPlayerThatBuiltImprovem
 local civ5_bnw_mode = bnw_mode and civ5_mode
 --local civBE_mode = type( Game.GetAvailableBeliefs ) == "function"
 
-local g_isGameDebugMode = Game.IsDebugMode()
-
-local DomainTypes_DOMAIN_AIR = DomainTypes.DOMAIN_AIR
 local MouseEvents_MouseMove = MouseEvents.MouseMove
 local Controls_TheBox = Controls.TheBox
 
---local g_maxTipLength = 7 * Controls_TheBox:GetSizeY()
-local g_tipTimerThreshold1, g_tipTimerThreshold2, g_isScienceEnabled, g_isPoliciesEnabled, g_isHappinessEnabled, g_isReligionEnabled, g_isOptionDebugMode, g_isNoob, g_isCivilianYields
+local g_tipTimerThreshold1, g_tipTimerThreshold2, g_isScienceEnabled, g_isPoliciesEnabled, g_isHappinessEnabled, g_isReligionEnabled, g_isNoob, g_isCivilianYields
 
 local g_tipTimer = 0
 local g_tipLevel = 0
@@ -183,6 +99,8 @@ local g_specialFeatures = {
 	[FeatureTypes.FEATURE_ICE or -1] = true,
 --	[FeatureTypes.FEATURE_FLOOD_PLAINS or -1] = true,
 } g_specialFeatures[-1] = nil
+local g_miasmaBurb = Map_GetPlot(0,0).HasMiasma and (GameInfo.Features[FeatureTypes.FEATURE_MIASMA] or {}).Description
+g_miasmaBurb = g_miasmaBurb and "[COLOR_NEGATIVE_TEXT]"..L( g_miasmaBurb ).."[ENDCOLOR]"
 
 local g_schemaQuirk = { CultureChange = YieldTypes.YIELD_CULTURE or "YIELD_CULTURE" }
 
@@ -191,8 +109,6 @@ local g_gameAvailableBeliefs = { Game.GetAvailablePantheonBeliefs, Game.GetAvail
 local g_unitMouseOvers = table()
 local g_lastTips = {}
 local g_lastTip = false
-local g_cityWorkingRadius = GameDefines.CITY_PLOTS_RADIUS
-local g_moveDenominator = GameDefines.MOVE_DENOMINATOR
 local g_defaultWorkRate
 for row in GameInfo.Units() do
 	g_defaultWorkRate = math_max( g_defaultWorkRate or 0, row.WorkRate )
@@ -254,10 +170,10 @@ end
 
 local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 	-- New Plot Tool Tip
-	local activeTeamID = Game.GetActiveTeam()
 	local activePlayerID = Game.GetActivePlayer()
-	local activePlayer = Players[activePlayerID]
-	local activeTeam = Teams[activeTeamID]
+	local activePlayer = Players[ activePlayerID ]
+	local activeTeamID = Game.GetActiveTeam()
+	local activeTeam = Teams[ activeTeamID ]
 	local activeTeamTechs = activeTeam:GetTeamTechs()
 	local activeCivilizationID = activePlayer:GetCivilizationType()
 	local activeCivilizationType = (GameInfo.Civilizations[ activeCivilizationID ] or {}).Type
@@ -421,13 +337,13 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 			for itemType, itemYields in pairs(Yields) do
 				text = ""
 -- TODO: add culture for vanilla, happiness & resources
-				for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
+				for yieldID = 0, YieldTypes_NUM_YIELD_TYPES_1 do
 					yieldChange = itemYields[ yieldID ]
 					if yieldChange then
 						if yieldChange > 0 then
-							text = text .. S(" [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR]", yieldChange ) .. (YieldIcons[yieldID] or "")
+							text = text .. string_format(" [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR]", yieldChange ) .. (YieldIcons[yieldID] or "")
 						elseif yieldChange < 0 then
-							text = text .. S(" [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR]", yieldChange ) .. (YieldIcons[yieldID] or "")
+							text = text .. string_format(" [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR]", yieldChange ) .. (YieldIcons[yieldID] or "")
 						end
 					end
 				end
@@ -519,11 +435,11 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 	--------------------
 	-- City State Quests
 	local function insertCityStateQuest( tips, questID, textKey )
-		for minorPlayerID = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_CIV_PLAYERS-1 do
-			local minorPlayer = Players[minorPlayerID]
-			if minorPlayer then
+		for minorPlayerID = 0, #Players do
+			local minorPlayer = Players[ minorPlayerID ]
+			if minorPlayer and minorPlayer:IsAlive() and minorPlayer:IsMinorCiv() then
 				local minorTeamID = minorPlayer:GetTeam()
-				if minorPlayer:IsMinorCiv() and activeTeamID ~= minorTeamID and minorPlayer:IsAlive() and activeTeam:IsHasMet( minorTeamID ) then
+				if activeTeamID ~= minorTeamID and minorPlayer:IsAlive() and activeTeam:IsHasMet( minorTeamID ) then
 					-- Does the player have a quest corresponding to questID here?
 					local isQuest
 					if gk_mode then
@@ -546,12 +462,12 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 	-- Plot Help
 	-------------------------------------------------
 
-	if plot and plot:IsRevealed( activeTeamID, g_isGameDebugMode ) then
+	if plot and plot:IsRevealed( activeTeamID, true ) then
 
-		local plotOwnerID = plot:GetRevealedOwner( activeTeamID, g_isGameDebugMode )
-		plotOwner = plotOwnerID and Players[plotOwnerID]
-		local plotTeamID = plot:GetRevealedTeam( activeTeamID, g_isGameDebugMode )
-		local plotTeam = plotTeamID and Teams[plotTeamID]
+		local plotOwnerID = plot:GetRevealedOwner( activeTeamID, true )
+		plotOwner = Players[plotOwnerID]
+		local plotTeamID = plotOwner and plotOwner:GetTeam()
+		local plotTeam = Teams[plotTeamID]
 		if plotTeam then
 			plotTechs = plotTeam:GetTeamTechs()
 		end
@@ -583,14 +499,19 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 			end
 		end
 		local workRate = math_max(0, (activePlayer:GetWorkerSpeedModifier() + 100) * g_defaultWorkRate ) / 100
+
+		if Game.IsDebugMode() then
+			local x, y = plot:GetX(), plot:GetY()
+			local hex = ToHexFromGrid{ x=x, y=y }
+			tips:insert( "x:"..x.." y:"..y.." hex x:"..hex.x.." hex y:"..hex.y )
+		end
 		--------
 		-- Units
-		if plot:IsVisible( activeTeamID, g_isGameDebugMode ) then
+		if plot:IsVisible( activeTeamID, true ) then
 
 			local units = {}
 			-- Loop through all units in plot
 			for i = 1, (bnw_mode and plot:GetNumLayerUnits() or plot:GetNumUnits()) do
-
 				units[i] = bnw_mode and plot:GetLayerUnit(i-1) or plot:GetUnit(i-1)
 			end
 			if not civ5_mode then
@@ -601,120 +522,15 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 			end
 			for i=1, #units do
 				local unit = units[i]
-				if unit and not unit:IsInvisible( activeTeamID, g_isGameDebugMode ) then
+				local unitOwnerID = unit:GetOwner()
 
-					local unitOwnerID = unit:GetOwner()
-					local unitOwner = Players[unitOwnerID]
-					local unitTeamID = unit:GetTeam()
-
-					local unitTip = ""
-					local strCiv = unitOwner:GetCivilizationAdjective()
-					local strNick = unitOwner:GetNickName()
-
-					if activeTeamID == unitTeamID or (unitOwner:IsMinorCiv() and unitOwner:IsAllies(activePlayerID)) then
-						unitTip = "[COLOR_POSITIVE_TEXT]"
-					elseif activeTeam:IsAtWar(unitTeamID) then
-						unitTip = "[COLOR_NEGATIVE_TEXT]"
-					else
-						unitTip = "[COLOR_WHITE]"
-					end
-					unitTip = unitTip .. L(unit:GetNameKey()) .. "[ENDCOLOR]"
-
-					-- Player using nickname
-					if PreGame.IsMultiplayerGame() and strNick and #strNick > 0 then
-
-						unitTip = L( "TXT_KEY_MULTIPLAYER_UNIT_TT", strNick, strCiv, unitTip )
-
-					elseif activeTeam:IsHasMet(unitTeamID) then
-
-						unitTip = L( "TXT_KEY_PLOTROLL_UNIT_DESCRIPTION_CIV", strCiv, unitTip )
-						if unit:HasName() then
-							unitTip = L(unit:GetNameNoDesc()) .. " (" .. unitTip .. ")"
-						end
-					end
-
-					local originalOwnerID = unit:GetOriginalOwner()
-					local originalOwner = originalOwnerID and Players[originalOwnerID]
-					if originalOwner and originalOwnerID ~= unitOwnerID and activeTeam:IsHasMet( originalOwner:GetTeam() ) then
-						unitTip = unitTip .. " (" .. originalOwner:GetCivilizationAdjective() .. ")"
-					end
-
-					-- Debug stuff
-					if g_isOptionDebugMode then
-						unitTip = unitTip .. " (".. tostring(unitOwnerID) .." - " .. tostring(unit:GetID()) .. ")"
-					end
-
-					-- Moves & Combat Strength
-					local unitMoves = 0
-					local unitStrength = civ5_mode and unit:GetBaseCombatStrength() or unit:GetCombatStrength() --BE stupid function name change
-					-- todo unit:GetMaxDefenseStrength()
-					local rangedStrength = civ5_mode and unit:GetBaseRangedCombatStrength() or unit:GetRangedCombatStrength() --BE stupid function name change
-
-					if unit:GetDomainType() == DomainTypes_DOMAIN_AIR then
-						unitStrength = rangedStrength
-						rangedStrength = 0
-						unitMoves = unit:Range()
-					else
-						if unitOwnerID == activePlayerID then
-							unitMoves = unit:MovesLeft()
-						else
-							unitMoves = unit:MaxMoves()
-						end
-						unitMoves = unitMoves / g_moveDenominator
-					end
-
-					-- In Orbit?
-					if not civ5_mode and unit:IsInOrbit() then
-						unitTip = unitTip .. " " .. "[COLOR_CYAN]" .. L( "TXT_KEY_PLOTROLL_ORBITING" ) .. "[ENDCOLOR]"
-
-					elseif bnw_mode and unit:IsTrade() then
+				if unit and not unit:IsInvisible( activeTeamID, true ) then
+					tips:insert( ShortUnitTip( unit ) )
+					if unit.IsTrade and unit:IsTrade() then
 						-- show trade route
 						g_unitMouseOvers:insert( unit )
 						Game.MouseoverUnit( unit, true )
-					else
-						-- Moves
-						if unitMoves > 0 then
-							unitTip = S("%s %.3g[ICON_MOVES]", unitTip, unitMoves )
-						end
-
-						-- Strength
-						if unitStrength > 0 then
-							local adjustedUnitStrength = (math_max(100 + unit:GetStrategicResourceCombatPenalty(), 10) * unitStrength) / 100
-							--todo other modifiers eg unhappy...
-							if adjustedUnitStrength < unitStrength then
-								adjustedUnitStrength = S(" [COLOR_NEGATIVE_TEXT]%.3g[ENDCOLOR]", adjustedUnitStrength )
-							end
-							unitTip = unitTip .. " " .. adjustedUnitStrength .. "[ICON_STRENGTH]"
-						end
-
-						-- Ranged Strength
-						if rangedStrength > 0 then
-							unitTip = unitTip .. " " .. rangedStrength .. "[ICON_RANGE_STRENGTH]"..unit:Range().." "
-						end
-
-						-- Religious Fervor
-						if gk_mode then
-							local spreadsLeft = unit:GetSpreadsLeft()
-							if spreadsLeft > 0 then
-								local icon = (GameInfo.Religions[unit:GetReligion()] or {}).IconString
-								if icon then
-									unitTip = unitTip .. " " .. spreadsLeft .. icon
-								end
-							end
-						end
-
-						-- Hit Points
-						if unit:IsHurt() then
-							unitTip = unitTip .. " " .. L( "TXT_KEY_PLOTROLL_UNIT_HP", unit:GetCurrHitPoints() )
-						end
 					end
-
-					-- Embarked?
-					if unit:IsEmbarked() then
-						unitTip = unitTip .. " " .. L( "TXT_KEY_PLOTROLL_EMBARKED" )
-					end
-
-					tips:insert( unitTip )
 					-- Can build something?
 					if unitOwnerID == activePlayerID then
 						local unitWorkRate = unit:WorkRate( true )
@@ -722,7 +538,6 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 							workRate = unitWorkRate
 						end
 					end
-
 					-- Building something?
 					local build = GameInfo.Builds[ unit:GetBuildType() ]
 					if build then
@@ -732,18 +547,6 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 					end
 				end
 			end
---[[ remove = too much stuff
-			-- Loop through trade routes
-			if bnw_mode then
-				local tradeRouteStrings = activePlayer:GetInternationalTradeRoutePlotToolTip(plot)	-- GetInternationalTradeRoutePlotMouseoverToolTip
-				if #tradeRouteStrings > 0 then
-					tips:insert( L"TXT_KEY_TRADE_ROUTE_TT_PLOT_HEADING" )
-					for i,v in ipairs(tradeRouteStrings) do
-						tips:insert( v.String )
-					end
-				end
-			end
---]]
 		end
 
 		local selectedUnit = UI_GetHeadSelectedUnit()
@@ -753,9 +556,9 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 			if selectedUnit:CanFound( plot ) then
 				g_isCityLimits = true
 				if g_isCivilianYields then
-					Events_RequestYieldDisplay( YieldDisplayTypes_AREA, g_cityWorkingRadius, plot:GetX(), plot:GetY() )
+					Events_RequestYieldDisplay( YieldDisplayTypes_AREA, GameDefines_CITY_PLOTS_RADIUS, plot:GetX(), plot:GetY() )
 				end
-				for i=1, CountHexPlots( g_cityWorkingRadius ) do
+				for i=1, CountHexPlots( GameDefines_CITY_PLOTS_RADIUS ) do
 					local p = IndexPlot( plot, i )
 					if p then
 						local hex = ToHexFromGrid{ x=p:GetX(), y=p:GetY() }
@@ -788,7 +591,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 					strOwner = "[COLOR_YELLOW]"
 				end
 				-- Known city plot ?
-				if owningCity and owningCity:Plot():IsRevealed( activeTeamID, g_isGameDebugMode ) then
+				if owningCity and owningCity:Plot():IsRevealed( activeTeamID, true ) then
 					strOwner = strOwner .. owningCity:GetName() .. "[ENDCOLOR]"
 					if g_isNoob then
 						strOwner = L( "TXT_KEY_CITY_OF", plotOwner:IsMinorCiv() and "" or plotOwner:GetCivilizationAdjectiveKey(), strOwner )
@@ -813,23 +616,23 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 		local resourceID = plot:GetResourceType( activeTeamID )
 		local resource, numResource, isResourceConnected, isResourceUsefull, resourceUsageType
 		local isPillaged = plot:IsImprovementPillaged()
-		local revealedImprovementID = plot:GetRevealedImprovementType( activeTeamID, g_isGameDebugMode )
+		local revealedImprovementID = plot:GetRevealedImprovementType( activeTeamID, true )
 		local actualImprovementID = plot:GetImprovementType()
 		local revealedImprovement
 
 		if resourceID >= 0 then
 			resource = GameInfo.Resources[ resourceID ]
 			resourceUsageType = Game.GetResourceUsageType( resourceID )
-			isResourceUsefull = resourceUsageType ~= ResourceUsageTypes.RESOURCEUSAGE_BONUS
+			isResourceUsefull = resourceUsageType ~= ResourceUsageTypes_RESOURCEUSAGE_BONUS
 			isResourceConnected = plot:IsResourceConnectedByImprovement( revealedImprovementID ) and not isPillaged
 			numResource = plot:GetNumResource()
 
-			if resourceUsageType == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC then
+			if resourceUsageType == ResourceUsageTypes_RESOURCEUSAGE_STRATEGIC then
 				resourceTip = resourceTip .. numResource
 			end
 			resourceTip = resourceTip .. resource.IconString .. L( resource.Description )
 -- CSD
-			if csd_mode and resourceID == GameInfoTypes.RESOURCE_ARTIFACTS then
+			if resourceID == GameInfoTypes.RESOURCE_ARTIFACTS then
 				insertCityStateQuest( tips, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY, "TXT_KEY_CITY_STATE_ARCHAEOLOGY_QUEST_LONG" )
 			end
 -- CSD
@@ -866,8 +669,8 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 		local isSpecialFeature = g_specialFeatures[ featureID ] -- Some features are handled in a special manner, since they always have the same terrain type under it
 
 		-- Miasma CIV BE only
-		if not civ5_mode and plot:HasMiasma() then
-			featureTips:insert( "[COLOR_NEGATIVE_TEXT]"..L((GameInfo.Features[FeatureTypes.FEATURE_MIASMA or -1] or {}).Description or "").."[ENDCOLOR]" )
+		if g_miasmaBurb and plot:HasMiasma() then
+			featureTips:insert( g_miasmaBurb )
 		end
 
 		-- Feature
@@ -925,7 +728,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 		local yieldTips = table()
 		local yieldChange
 
-		for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do -- GameInfo.Yields() iterator is broken by Communitas
+		for yieldID = 0, YieldTypes_NUM_YIELD_TYPES_1 do -- GameInfo.Yields() iterator is broken by Communitas
 			yieldChange = plot:CalculateYield( yieldID, true ) -- true = as shown to the active player
 			if yieldChange ~= 0 then
 				yieldTips:insert( yieldChange .. (YieldIcons[yieldID] or "") )
@@ -969,9 +772,9 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 		local defenseModifier = plot:DefenseModifier( activeTeamID, false, false )
 		if defenseModifier ~= 0 then
 			if g_isNoob then
-				tips:insert( L"TXT_KEY_PEDIA_DEFENSE_LABEL" .. S(" %+i%%[ICON_STRENGTH]", defenseModifier) )
+				tips:insert( L"TXT_KEY_PEDIA_DEFENSE_LABEL" .. string_format(" %+i%%[ICON_STRENGTH]", defenseModifier) )
 			else
-				yieldTips:insert( S("%+i%%[ICON_STRENGTH]", defenseModifier) )
+				yieldTips:insert( string_format("%+i%%[ICON_STRENGTH]", defenseModifier) )
 			end
 		end
 -- todo: moves required
@@ -1014,7 +817,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 			improvementTips:insert( "[COLOR_POSITIVE_TEXT]" .. checkPillaged( revealedImprovement, isPillaged ) .. "[ENDCOLOR]" )
 		end
 
-		local routeID = plot:GetRevealedRouteType( activeTeamID, g_isGameDebugMode )
+		local routeID = plot:GetRevealedRouteType( activeTeamID, true )
 		if routeID >= 0 then
 			improvementTips:insert( checkPillaged(GameInfo.Routes[routeID], plot:IsRoutePillaged()) )
 		end
@@ -1035,7 +838,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 		if not civ5_mode and plotOwnerID == activePlayerID then
 			local energyMaintenance = plot:GetPlotMaintenance( activePlayerID )
 			if energyMaintenance > 0 then
-				tips:insert( "[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_CITYVIEW_MAINTENANCE") .. "[ENDCOLOR]" .. ": " .. energyMaintenance.."[ICON_ENERGY]" )
+				tips:insert( "[COLOR_NEGATIVE_TEXT]" .. L"TXT_KEY_CITYVIEW_MAINTENANCE" .. "[ENDCOLOR]" .. ": " .. energyMaintenance.."[ICON_ENERGY]" )
 			end
 		end
 
@@ -1043,20 +846,18 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 			if not isPillaged then
 				insertImprovementYieldChanges( tips, revealedImprovement, "[ICON_BULLET]" )
 			end
-			if not plotCity then
-				local isSeaPlot = isWaterPlot and not isLakePlot
-				insertYieldChanges(tips, "[ICON_BULLET]", "[COLOR_YIELD_FOOD]", "BuildingType", BuildingFilter, GameInfo.Buildings,
+			local isSeaPlot = isWaterPlot and not isLakePlot
+			insertYieldChanges(tips, "[ICON_BULLET]", "[COLOR_YIELD_FOOD]", "BuildingType", BuildingFilter, GameInfo.Buildings,
 --TODO modifiers	GameInfo.Building_AreaYieldModifiers(),
 --TODO modifiers	resource and GameInfo.Building_ResourceYieldModifiers{ ResourceType = resource.Type },
-					resource and GameInfo.Building_ResourceCultureChanges{ ResourceType = resource.Type },
-					plot:IsRiver() and GameInfo.Building_RiverPlotYieldChanges(),
-					isSeaPlot and GameInfo.Building_SeaPlotYieldChanges(),
-					isLakePlot and GameInfo.Building_LakePlotYieldChanges(),
-					isSeaPlot and resource and GameInfo.Building_SeaResourceYieldChanges(),
-					resource and GameInfo.Building_ResourceYieldChanges{ ResourceType = resource.Type },
-					feature and GameInfo.Building_FeatureYieldChanges{ FeatureType = feature.Type },
-					gk_mode and not isFeatureReplacesTerrain and GameInfo.Building_TerrainYieldChanges{ TerrainType = terrain.Type } )
-			end
+				resource and GameInfo.Building_ResourceCultureChanges{ ResourceType = resource.Type },
+				plot:IsRiver() and GameInfo.Building_RiverPlotYieldChanges(),
+				isSeaPlot and GameInfo.Building_SeaPlotYieldChanges(),
+				isLakePlot and GameInfo.Building_LakePlotYieldChanges(),
+				isSeaPlot and resource and GameInfo.Building_SeaResourceYieldChanges(),
+				resource and GameInfo.Building_ResourceYieldChanges{ ResourceType = resource.Type },
+				feature and GameInfo.Building_FeatureYieldChanges{ FeatureType = feature.Type },
+				gk_mode and not isFeatureReplacesTerrain and GameInfo.Building_TerrainYieldChanges{ TerrainType = terrain.Type } )
 			if g_isPoliciesEnabled then
 				insertYieldChanges( tips, "[ICON_BULLET]", "[COLOR_MAGENTA]", "PolicyType", PolicyFilter, GameInfoPolicies,
 					plotCity and GameInfo.Policy_CityYieldChanges(),
@@ -1149,7 +950,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 				if plot:GetBuildTime(buildID) > 0 then
 					local turnsRemaining = buildInProgress or math_ceil( ( plot:GetBuildTime( buildID, activePlayerID ) - math_max( workRate, plot:GetBuildProgress( buildID ) ) ) / workRate )
 					if g_isNoob then
-						buildTip = buildTip .. " (" .. Locale.ToLower( L( "TXT_KEY_STR_TURNS", turnsRemaining ) ) .. ")"
+						buildTip = buildTip .. " (" .. Locale_ToLower( L( "TXT_KEY_STR_TURNS", turnsRemaining ) ) .. ")"
 					else
 						buildTip = buildTip .. " (" .. turnsRemaining .. ")"
 					end
@@ -1166,7 +967,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 				if canBuild or buildInProgress then
 					-- Determine yield changes from this build
 					canBuild = false
-					for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do -- GameInfo.Yields() iterator is broken by Communitas
+					for yieldID = 0, YieldTypes_NUM_YIELD_TYPES_1 do -- GameInfo.Yields() iterator is broken by Communitas
 						local yieldChange
 						-- Work around unrevealed improvement game bug
 						if buildImprovement and revealedImprovementID ~= actualImprovementID then
@@ -1177,36 +978,36 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 
 						-- Positive or negative change?
 						if yieldChange > 0 then
-							buildTip = S( "%s [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, yieldChange, YieldIcons[yieldID] or "" )
+							buildTip = string_format( "%s [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, yieldChange, YieldIcons[yieldID] or "" )
 							canBuild = true
 						elseif yieldChange < 0 then
-							buildTip = S( "%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, yieldChange, YieldIcons[yieldID] or "" )
+							buildTip = string_format( "%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, yieldChange, YieldIcons[yieldID] or "" )
 						end
 					end
 					-- Maintenance
 					if buildImprovement then
 						if civ5_mode then
 							if (tonumber(buildImprovement.GoldMaintenance) or 0) > 0 then
-								buildTip = S("%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR][ICON_GOLD]", buildTip, -buildImprovement.GoldMaintenance )
+								buildTip = string_format("%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR][ICON_GOLD]", buildTip, -buildImprovement.GoldMaintenance )
 							end
 						else
 							if (tonumber(buildImprovement.Health) or 0) ~= 0 then
-								buildTip = S("%s [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR][ICON_HEALTH_1]", buildTip, buildImprovement.Health )
+								buildTip = string_format("%s [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR][ICON_HEALTH_1]", buildTip, buildImprovement.Health )
 							end
 							if (tonumber(buildImprovement.EnergyMaintenance) or 0) ~= 0 then
-								buildTip = S("%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR][ICON_ENERGY]", buildTip, -buildImprovement.EnergyMaintenance )
+								buildTip = string_format("%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR][ICON_ENERGY]", buildTip, -buildImprovement.EnergyMaintenance )
 							end
 							if (tonumber(buildImprovement.Unhealth) or 0) ~= 0 then
-								buildTip = S("%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR][ICON_HEALTH_4]", buildTip, -buildImprovement.Unhealth )
+								buildTip = string_format("%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR][ICON_HEALTH_4]", buildTip, -buildImprovement.Unhealth )
 							end
 						end
 						if resource and isResourceUsefull then
 							if plot:IsResourceConnectedByImprovement( buildImprovement.ID ) then
 								if not isResourceConnected then
-									buildTip = S("%s [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, numResource, resource.IconString )
+									buildTip = string_format("%s [COLOR_POSITIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, numResource, resource.IconString )
 								end
 							elseif isResourceConnected then
-								buildTip = S("%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, -numResource, resource.IconString )
+								buildTip = string_format("%s [COLOR_NEGATIVE_TEXT]%+i[ENDCOLOR]%s", buildTip, -numResource, resource.IconString )
 							end
 						end
 					end
@@ -1234,6 +1035,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 		elseif csd_mode and revealedImprovementID == GameInfoTypes.IMPROVEMENT_ARCHAEOLOGICAL_DIG then
 			insertCityStateQuest( tips, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY, "TXT_KEY_CITY_STATE_ARCHAEOLOGY_QUEST_LONG" )
 		end
+
 	end
 	return tips:concat( "[NEWLINE]" )
 end
@@ -1275,7 +1077,6 @@ local function UpdateOptions()
 	g_isPoliciesEnabled = not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_POLICIES)
 	g_isHappinessEnabled = civ5_mode and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS)
 	g_isReligionEnabled = civ5_mode and gk_mode and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)
-	g_isOptionDebugMode = OptionsManager.IsDebugMode()
 	g_isNoob = civ5_mode and not OptionsManager.IsNoBasicHelp()
 	ResetAll()
 end
@@ -1308,9 +1109,7 @@ function( timeChange )
 		return
 	else
 		g_tipTimer = g_tipTimer + timeChange
-		if IsGameCoreBusy() then
-			return
-		elseif g_tipTimer >= g_tipTimerThreshold2 then
+		if g_tipTimer >= g_tipTimerThreshold2 then
 			g_tipLevel = 2
 		elseif g_tipTimer >= g_tipTimerThreshold1 then
 			g_tipLevel = 1

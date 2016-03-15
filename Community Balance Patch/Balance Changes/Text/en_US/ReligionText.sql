@@ -268,7 +268,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_TEXTS_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Reliquary (Now Tithes)
 UPDATE Language_en_US
-SET Text = '+200 [ICON_GOLD] Gold when each City first converts to this religion, +1 [ICON_GOLD] Gold, +1 [ICON_PEACE] Faith for every 4 followers of this religion in Foreign Cities.'
+SET Text = 'Holy City receives +200 [ICON_GOLD] Gold when each City first converts to this Religion, and gains +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith for every 4 followers of this Religion in Foreign Cities.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIQUARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -277,7 +277,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIQUARY_SHORT' AND EXISTS (SELECT * FROM COMMUNITY
 
 -- Just War (Now Martyrdom)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture for every 6 followers of this Religion in Foreign Cities. Gain 100 [ICON_PEACE] Faith each time a Great Person is expended. Bonus scales with Era.'
+SET Text = '+1 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture in Holy City for every 6 followers of this Religion in Foreign Cities. Holy City gains 100 [ICON_PEACE] Faith each time the owner expends a Great Person. Bonus scales with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_JUST_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -295,7 +295,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_HEATHEN_CONVERSION_SHORT' AND EXISTS (SELECT * FROM 
 
 -- Itinerant Preachers (Pious Celebrations)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_HAPPINESS_1] Happiness for every two Cities following this religion, +15 to [ICON_INFLUENCE] Influence resting point with City-States following this religion.'
+SET Text = 'Holy City owner gains +1 [ICON_HAPPINESS_1] Happiness for every two Cities following this religion, and +15 to [ICON_INFLUENCE] Influence resting point with City-States following this religion.'
 WHERE Tag = 'TXT_KEY_BELIEF_ITINERANT_PREACHERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -304,7 +304,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_ITINERANT_PREACHERS_SHORT' AND EXISTS (SELECT * FROM
 
 -- Messiah (Now Sainthood)
 UPDATE Language_en_US
-SET Text = 'Prophets 25% stronger and earned with 25% less [ICON_PEACE] Faith. Inquisitors and Prophets reduce your religious presence by half (instead of eliminating it).'
+SET Text = 'Prophets of this Religion 25% stronger, cost 25% less [ICON_PEACE] Faith. If the majority Religion in the City, rival Inquisitors and Prophets reduce your Religion''s presence by half (instead of eliminating it).'
 WHERE Tag = 'TXT_KEY_BELIEF_MESSIAH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -313,7 +313,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_MESSIAH_SHORT' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Missionary Zeal (Now Scholar-Priests)
 UPDATE Language_en_US
-SET Text = 'Missionary conversion strength +25%, Gain [ICON_RESEARCH] Science when a Missionary spreads this religion to Cities of other religions.'
+SET Text = 'Missionary conversion strength +25%. Holy City gains [ICON_RESEARCH] Science when owned Missionaries spread this Religion to Cities of other Religions.'
 WHERE Tag = 'TXT_KEY_BELIEF_MISSIONARY_ZEAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -331,7 +331,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_HOLY_ORDER_SHORT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Religious Unity
 UPDATE Language_en_US
-SET Text = 'Missionaries and Inquisitors cost 30% less [ICON_PEACE] Faith, +1 [ICON_HAPPINESS_1] Happiness for every 6 followers of this religion in non-enemy foreign Cities.'
+SET Text = 'Missionaries and Inquisitors cost 30% less [ICON_PEACE] Faith. Holy City owner gains +1 [ICON_HAPPINESS_1] Happiness for every 6 followers of this religion in non-enemy foreign Cities.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_UNITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

@@ -824,12 +824,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 #endif
 	// make sure that all the team members get the city connection update
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE && !owningPlayer.isMinorCiv() && bInitialFounding)
-	{		
-		owningPlayer.doInstantYield(INSTANT_YIELD_TYPE_FOUND);
-	}
-#endif
 	for(int i = 0; i < MAX_PLAYERS; i++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes)i;
@@ -1113,8 +1107,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			}
 		}
 	}
-#endif
-#if defined(MOD_BALANCE_CORE)
+	if(bInitialFounding)
+	{		
+		owningPlayer.doInstantYield(INSTANT_YIELD_TYPE_FOUND);
+	}
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes) iI;
@@ -15916,6 +15912,7 @@ int CvCity::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 }
 void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 {
+	int iYieldValue = 0;
 	ReligionTypes eReligion = GetCityReligions()->GetReligiousMajority();
 	if(eReligion != NO_RELIGION)
 	{
@@ -15924,147 +15921,121 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 		const CvReligion* pReligion = pReligions->GetReligion(eReligion, getOwner());
 		if(pReligion)
 		{
-			CvCity* pHolyCity = NULL;
-			CvPlot* pkPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-			if(pkPlot)
+			iYieldValue += pReligion->m_Beliefs.GetHolyCityYieldChange(eYield, getOwner(), this);
+			int iPantheon = 0;
+			int iYield = pReligion->m_Beliefs.GetYieldFromKnownPantheons(eYield, getOwner(), this);
+			if(iYield > 0)
 			{
-				pHolyCity = pkPlot->getPlotCity();
-			}
-			bool bHolyCityOnly = false;
-			bool bCorrectCity = false;
-			bool bHolyCity = false;
-			if(pHolyCity != NULL && pHolyCity->getOwner() == getOwner())
-			{
-				bHolyCityOnly = true;
-			}
-			//Holy city not ours? We lose these bonuses.
-			else if(pHolyCity != NULL && pHolyCity->getOwner() != getOwner())
-			{
-				SetSpecialReligionYields(eYield, 0);
-				return;
-			}
-			if(bHolyCityOnly && pHolyCity->GetID() == GetID())
-			{
-				bCorrectCity = true;
-				bHolyCity = true;
-			}
-			else if(!bHolyCityOnly && isCapital())
-			{
-				bCorrectCity = true;
-			}
-			if(bCorrectCity)
-			{
-				int iYieldValue = 0;
-				if(bHolyCity)
+				iPantheon = GC.getGame().GetGameReligions()->GetNumPantheonsCreated();
+				if(iPantheon > 0)
 				{
-					iYieldValue += pReligion->m_Beliefs.GetHolyCityYieldChange(eYield, getOwner());
+					iYieldValue += (iPantheon * iYield);
 				}
-				int iPantheon = 0;
-				int iYield = pReligion->m_Beliefs.GetYieldFromKnownPantheons(eYield, getOwner());
-				if(iYield > 0)
+			}
+
+			int iTemp = pReligion->m_Beliefs.GetYieldChangePerForeignCity(eYield, getOwner(), this);
+			if (iTemp > 0)
+			{
+				iYieldValue += (iTemp * kPlayer.GetReligions()->GetNumForeignCitiesFollowing(eReligion));
+			}
+
+			iTemp = pReligion->m_Beliefs.GetYieldChangePerXForeignFollowers(eYield, getOwner(), this);
+			if (iTemp > 0)
+			{
+				int iFollowers = kPlayer.GetReligions()->GetNumForeignFollowers(false, eReligion);
+				if (iFollowers > 0)
 				{
-					iPantheon = GC.getGame().GetGameReligions()->GetNumPantheonsCreated();
-					if(iPantheon > 0)
-					{
-						iYieldValue += (iPantheon * iYield);
-					}
+					iYieldValue += (iFollowers / iTemp);
 				}
+			}
 
-				int iTemp = pReligion->m_Beliefs.GetYieldChangePerForeignCity(eYield, getOwner());
-				if (iTemp > 0)
+			// This came from CvTreasury::GetGoldPerTurnFromReligion()
+			//Only useable in religions!
+			if (eYield == YIELD_GOLD)
+			{
+				int iGoldPerFollowingCity = pReligion->m_Beliefs.GetGoldPerFollowingCity(getOwner(), this);
+				iYieldValue += (pReligions->GetNumCitiesFollowing(eReligion) * iGoldPerFollowingCity);
+
+				int iGoldPerXFollowers = pReligion->m_Beliefs.GetGoldPerXFollowers(getOwner(), this);
+				if(iGoldPerXFollowers > 0)
 				{
-					iYieldValue += (iTemp * kPlayer.GetReligions()->GetNumForeignCitiesFollowing(eReligion));
+					iYieldValue += (pReligions->GetNumFollowers(eReligion) / iGoldPerXFollowers);
 				}
+			}
+			int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield, getOwner(), this);
+			iYieldValue += (pReligions->GetNumCitiesFollowing(eReligion) * iYieldPerFollowingCity);
 
-				iTemp = pReligion->m_Beliefs.GetYieldChangePerXForeignFollowers(eYield, getOwner());
-				if (iTemp > 0)
+
+			//Pantheon safe
+			int iYieldPerXFollowers = pReligion->m_Beliefs.GetYieldPerXFollowers(eYield, getOwner(), this);
+			if(iYieldPerXFollowers > 0)
+			{
+				if(pReligion->m_eReligion == RELIGION_PANTHEON)
 				{
-					int iFollowers = kPlayer.GetReligions()->GetNumForeignFollowers(false, eReligion);
-					if (iFollowers > 0)
-					{
-						iYieldValue += (iFollowers / iTemp);
-					}
+					iYieldValue += (pReligions->GetNumFollowers(eReligion, getOwner()) / iYieldPerXFollowers);
 				}
-
-				// This came from CvTreasury::GetGoldPerTurnFromReligion()
-				if (eYield == YIELD_GOLD)
+				else
 				{
-					int iGoldPerFollowingCity = pReligion->m_Beliefs.GetGoldPerFollowingCity(getOwner());
-					iYieldValue += (pReligions->GetNumCitiesFollowing(eReligion) * iGoldPerFollowingCity);
-
-					int iGoldPerXFollowers = pReligion->m_Beliefs.GetGoldPerXFollowers(getOwner());
-					if(iGoldPerXFollowers > 0)
-					{
-						iYieldValue += (pReligions->GetNumFollowers(eReligion) / iGoldPerXFollowers);
-					}
-				}
-
-				int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield, getOwner());
-				iYieldValue += (pReligions->GetNumCitiesFollowing(eReligion) * iYieldPerFollowingCity);
-
-				int iYieldPerXFollowers = pReligion->m_Beliefs.GetYieldPerXFollowers(eYield, getOwner());
-				if(iYieldPerXFollowers > 0)
-				{		
 					iYieldValue += (pReligions->GetNumFollowers(eReligion) / iYieldPerXFollowers);
 				}
-				int iLuxCulture = pReligion->m_Beliefs.GetYieldPerLux(eYield, getOwner());
-				if(iLuxCulture > 0)
-				{		
-					int iNumHappinessResources = 0;
-					ResourceTypes eResource;
-					for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-					{
-						eResource = (ResourceTypes) iResourceLoop;
+			}
+			int iLuxCulture = pReligion->m_Beliefs.GetYieldPerLux(eYield, getOwner(), this);
+			if(iLuxCulture > 0)
+			{		
+				int iNumHappinessResources = 0;
+				ResourceTypes eResource;
+				for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+				{
+					eResource = (ResourceTypes) iResourceLoop;
 
-						if(kPlayer.GetHappinessFromLuxury(eResource) > 0)
-						{
-							iNumHappinessResources++;
-						}
-					}
-					if(iNumHappinessResources > 0)
+					if(kPlayer.GetHappinessFromLuxury(eResource) > 0)
 					{
-						iLuxCulture *= iNumHappinessResources;
-						iYieldValue += iLuxCulture;
+						iNumHappinessResources++;
 					}
 				}
-				int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield, getOwner());
-				if(iYieldPerGPT > 0)
+				if(iNumHappinessResources > 0)
 				{
-					int iNetGold = kPlayer.GetTreasury()->CalculateGrossGold();
-					if (iNetGold > 0)
-					{
-						iYieldValue += (iNetGold / iYieldPerGPT);
-					}
+					iLuxCulture *= iNumHappinessResources;
+					iYieldValue += iLuxCulture;
 				}
-				int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield, getOwner());
-				if(iYieldPerScience > 0)
+			}
+			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield, getOwner(), this);
+			if(iYieldPerGPT > 0)
+			{
+				int iNetGold = kPlayer.GetTreasury()->CalculateGrossGold();
+				if (iNetGold > 0)
 				{
-					if(kPlayer.GetScience() > 0)
-					{
-						iYieldValue += (kPlayer.GetScience() / iYieldPerScience);
-					}
+					iYieldValue += (iNetGold / iYieldPerGPT);
 				}
-				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-				if(pLeague != NULL)
+			}
+			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield, getOwner(), this);
+			if(iYieldPerScience > 0)
+			{
+				if(kPlayer.GetScience() > 0)
 				{
-					int iEra = kPlayer.GetCurrentEra();
-					if(iEra <= 1)
+					iYieldValue += (kPlayer.GetScience() / iYieldPerScience);
+				}
+			}
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if(pLeague != NULL)
+			{
+				int iEra = kPlayer.GetCurrentEra();
+				if(iEra <= 1)
+				{
+					iEra = 1;
+				}
+				int iHostYield = (pReligion->m_Beliefs.GetYieldFromHost(eYield, getOwner(), this) * iEra);
+				if(iHostYield > 0)
+				{
+					if(pLeague->GetHostMember() == getOwner())
 					{
-						iEra = 1;
-					}
-					int iHostYield = (pReligion->m_Beliefs.GetYieldFromHost(eYield, getOwner()) * iEra);
-					if(iHostYield > 0)
-					{
-						if(pLeague->GetHostMember() == getOwner())
-						{
-							iYieldValue += iHostYield;
-						}
+						iYieldValue += iHostYield;
 					}
 				}
-				SetSpecialReligionYields(eYield, iYieldValue);
 			}
 		}
 	}
+	SetSpecialReligionYields(eYield, iYieldValue);
 }
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
@@ -21925,7 +21896,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 #if defined(MOD_BALANCE_CORE)
 		if(iGoldCost > 0)
 		{
-			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PURCHASE, false, NO_GREATPERSON, NO_BUILDING, iGoldCost, true, NO_PLAYER, NULL, false, this);
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PURCHASE, false, NO_GREATPERSON, NO_BUILDING, iGoldCost, false, NO_PLAYER, NULL, false, this);
 		}
 #endif
 

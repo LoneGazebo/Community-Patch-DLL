@@ -361,10 +361,6 @@ protected:
 	char* m_pRevealedRouteType;
 	bool* m_pResourceForceReveal;
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	bool* m_pAvoidMovement;
-#endif
-
 	TContainer<CvArea> m_areas;
 	TContainer<CvLandmass> m_landmasses;
 

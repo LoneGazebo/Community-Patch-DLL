@@ -15,6 +15,20 @@ print("Loading EUI notification panel",ContextPtr,os.clock(),[[
 | |\  | (_) | |_| |  _| | (_| (_| | |_| | (_) | | | |  __/ (_| | | | |  __/ |
 |_| \_|\___/ \__|_|_| |_|\___\__,_|\__|_|\___/|_| |_|_|   \__,_|_| |_|\___|_|
 ]])
+-------------------------------------------------
+-- Minor lua optimizations
+-------------------------------------------------
+local ipairs = ipairs
+local math_floor = math.floor
+local math_huge = math.huge
+local math_min = math.min
+local pairs = pairs
+local print = print
+local table_concat = table.concat
+local table_insert = table.insert
+local table_remove = table.remove
+local tostring = tostring
+local unpack = unpack
 
 --EUI_utilities
 local IconLookup = EUI.IconLookup
@@ -37,120 +51,34 @@ local GetActiveQuestToolTip = GetActiveQuestToolTip
 --EUI_tooltips
 local GetMoodInfo = EUI.GetMoodInfo
 
--------------------------------------------------
--- Minor lua optimizations
--------------------------------------------------
-
---local os = os
-local pairs = pairs
---local ipairs = ipairs
---local pcall = pcall
---local print = print
---local select = select
---local string = string
---local table = table
---local tonumber = tonumber
---local tostring = tostring
---local type = type
---local unpack = unpack
---local table = table
-local table_insert = table.insert
-local table_remove = table.remove
-local table_concat = table.concat
---local os = os
---local os_time = os.time
---local os_date = os.date
---local math = math
-local math_floor = math.floor
---local math_ceil = math.ceil
-local math_min = math.min
---local math_max = math.max
---local math_abs = math.abs
---local math_modf = math.modf
---local math_sqrt = math.sqrt
---local math_pi = math.pi
---local math_sin = math.sin
---local math_cos = math.cos
-local math_huge = math.huge
-
-local UI = UI
-local UIManager = UIManager
-local Controls = Controls
-local ContextPtr = ContextPtr
-local Players = Players
-local Teams = Teams
---local GameInfo = GameInfo
---local GameInfoActions = GameInfoActions
-local GameInfoTypes = GameInfoTypes
-local GameDefines = GameDefines
---local InterfaceDirtyBits = InterfaceDirtyBits
---local CityUpdateTypes = CityUpdateTypes
 local ButtonPopupTypes = ButtonPopupTypes
---local YieldTypes = YieldTypes
-local GameOptionTypes = GameOptionTypes
---local DomainTypes = DomainTypes
---local FeatureTypes = FeatureTypes
---local FogOfWarModeTypes = FogOfWarModeTypes
---local OrderTypes = OrderTypes
---local PlotTypes = PlotTypes
---local TerrainTypes = TerrainTypes
---local InterfaceModeTypes = InterfaceModeTypes
-local NotificationTypes = NotificationTypes
---local ActivityTypes = ActivityTypes
---local MissionTypes = MissionTypes
---local ActionSubTypes = ActionSubTypes
---local GameMessageTypes = GameMessageTypes
---local TaskTypes = TaskTypes
---local CommandTypes = CommandTypes
---local DirectionTypes = DirectionTypes
---local DiploUIStateTypes = DiploUIStateTypes
---local FlowDirectionTypes = FlowDirectionTypes
---local PolicyBranchTypes = PolicyBranchTypes
---local FromUIDiploEventTypes = FromUIDiploEventTypes
---local CoopWarStates = CoopWarStates
---local ThreatTypes = ThreatTypes
---local DisputeLevelTypes = DisputeLevelTypes
---local LeaderheadAnimationTypes = LeaderheadAnimationTypes
-local TradeableItems = TradeableItems
---local EndTurnBlockingTypes = EndTurnBlockingTypes
-local ResourceUsageTypes = ResourceUsageTypes
-local MajorCivApproachTypes = MajorCivApproachTypes
---local MinorCivTraitTypes = MinorCivTraitTypes
---local MinorCivPersonalityTypes = MinorCivPersonalityTypes
-local MinorCivQuestTypes = MinorCivQuestTypes
---local CityAIFocusTypes = CityAIFocusTypes
---local AdvisorTypes = AdvisorTypes
---local GenericWorldAnchorTypes = GenericWorldAnchorTypes
---local GameStates = GameStates
---local GameplayGameStateTypes = GameplayGameStateTypes
---local CombatPredictionTypes = CombatPredictionTypes
---local ChatTargetTypes = ChatTargetTypes
---local ReligionTypes = ReligionTypes
---local BeliefTypes = BeliefTypes
---local FaithPurchaseTypes = FaithPurchaseTypes
---local ResolutionDecisionTypes = ResolutionDecisionTypes
---local InfluenceLevelTypes = InfluenceLevelTypes
---local InfluenceLevelTrend = InfluenceLevelTrend
---local PublicOpinionTypes = PublicOpinionTypes
---local ControlTypes = ControlTypes
-
-local PreGame = PreGame
+local ContextPtr = ContextPtr
+local Controls = Controls
+local Events = Events
+local FromUIDiploEventTypes = FromUIDiploEventTypes
 local Game = Game
---local Map = Map
+local GameDefines = GameDefines
+local GameInfoTypes = GameInfoTypes
+local GameOptionTypes = GameOptionTypes
+local IsGameCoreBusy = IsGameCoreBusy
+local L = Locale.ConvertTextKey
+local MajorCivApproachTypes = MajorCivApproachTypes
 local Map_GetPlot = Map.GetPlot
 local Map_GetPlotByIndex = Map.GetPlotByIndex
 local Map_PlotDistance = Map.PlotDistance
---local OptionsManager = OptionsManager
-local Events = Events
+local Matchmaking = Matchmaking
+local MinorCivQuestTypes = MinorCivQuestTypes
 local Mouse = Mouse
---local MouseEvents = MouseEvents
---local MouseOverStrategicViewResource = MouseOverStrategicViewResource
---local Locale = Locale
-local L = Locale.ConvertTextKey
 local Network = Network
-local IsGameCoreBusy = IsGameCoreBusy
+local NotificationTypes = NotificationTypes
+local Players = Players
+local PreGame = PreGame
+local ResourceUsageTypes = ResourceUsageTypes
+local Teams = Teams
 local ToHexFromGrid = ToHexFromGrid
---getmetatable("").__index.L = L
+local TradeableItems = TradeableItems
+local UI = UI
+local UIManager = UIManager
 
 -------------------------------------------------
 -- Globals
@@ -188,7 +116,7 @@ local g_colorMajorCivApproach = {
 [ MajorCivApproachTypes.MAJOR_CIV_APPROACH_NEUTRAL ] = Color( 1, 1, 1, 1 ),		-- "White"
 }
 
-local g_leaderMode, g_LeaderPopups, g_isLeaderLock, g_leaderID
+local g_leaderMode, g_LeaderPopups, g_leaderID
 local g_screenWidth , g_screenHeight = UIManager:GetScreenSizeVal()
 local g_chatPanelHeight = 170
 local g_diploButtonsHeight = 108
@@ -224,7 +152,7 @@ for k, v, w in ([[
 	NOTIFICATION_BARBARIAN				Barbarian		B
 	NOTIFICATION_GOODY				AncientRuins		B
 	NOTIFICATION_BUY_TILE				BuyTile
-	NOTIFICATION_CITY_GROWTH			CityGrowth      
+	NOTIFICATION_CITY_GROWTH			CityGrowth
 	NOTIFICATION_CITY_TILE				CityTile
 	NOTIFICATION_DEMAND_RESOURCE			BonusResource
 	NOTIFICATION_UNIT_PROMOTION			UnitPromoted		B
