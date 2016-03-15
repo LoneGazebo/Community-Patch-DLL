@@ -12967,7 +12967,8 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		}
 		else if(bIsInCity)
 		{
-			aCityList.push_back(pPlot, iDanger);
+			if (!pPlot->getPlotCity()->isInDangerOfFalling())
+				aCityList.push_back(pPlot, iDanger);
 		}
 		else if(bIsZeroDanger)
 		{

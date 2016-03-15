@@ -269,15 +269,14 @@ int CvAIOperation::GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const
 			{
 				CvPlot* pLoopPlot = GC.getMap().plot(pPlot->getX()+iX, pPlot->getY()+iY);
 
-				if(IsNavalOperation() && !pLoopPlot->isWater())
-				{
+				if (!pLoopPlot)
 					continue;
-				}
+
+				if(IsNavalOperation() && !pLoopPlot->isWater())
+					continue;
 
 				if(IsNavalOperation() && !pArmy->IsAllOceanGoing() && pLoopPlot->isDeepWater())
-				{
 					continue;
-				}
 
 				if (pLoopPlot->canPlaceUnit(GetOwner()))
 					iValidPlotsNearby++;
