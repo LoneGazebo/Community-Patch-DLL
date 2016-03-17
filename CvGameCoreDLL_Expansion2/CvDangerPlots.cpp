@@ -850,7 +850,7 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 			{
 				if (pInterceptor->getDomainType() != DOMAIN_AIR)
 				{
-					return (pInterceptor->GetInterceptionDamage(pUnit, false) * GC.getAIR_SWEEP_INTERCEPTION_DAMAGE_MOD() / 100);
+					return (pInterceptor->GetInterceptionDamage(pUnit, false) * (100+GC.getAIR_SWEEP_INTERCEPTION_DAMAGE_MOD()))/100;
 				}
 				else
 				{

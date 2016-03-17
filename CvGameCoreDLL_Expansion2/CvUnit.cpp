@@ -14018,7 +14018,7 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return !pPlot->isWater() && !isCargo();
+		return (!pPlot->isWater() || IsHoveringUnit()) && !isCargo();
 		break;
 	case DOMAIN_AIR:
 		return true;
@@ -17123,7 +17123,7 @@ void CvUnit::ChangeRoughTerrainEndsTurnCount(int iValue)
 bool CvUnit::IsHoveringUnit() const
 {
 	VALIDATE_OBJECT
-	return GetHoveringUnitCount() > 0 ? true : false;
+	return (GetHoveringUnitCount()>0) || (getDomainType()==DOMAIN_HOVER);
 }
 
 //	--------------------------------------------------------------------------------

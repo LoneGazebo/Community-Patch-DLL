@@ -13468,10 +13468,6 @@ bool CvPlot::isImpassable(TeamTypes eTeam) const
 // result is a simplified version of canMoveInto. since we don't know the particular of the unit, we are more restrictive here
 bool CvPlot::isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory) const
 {
-#if defined(MOD_BALANCE_CORE)
-	if(this == NULL)
-		return false;
-#endif
 	if ( getRouteType()!=NO_ROUTE && !IsRoutePillaged() && (!isCity() || getOwner()==ePlayer) ) //if it's a city, it needs to be our city
 		return true;
 
