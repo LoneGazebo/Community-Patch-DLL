@@ -133,7 +133,7 @@ int CvMinorCivQuest::GetEndTurn() const
 		{
 			int iDuration = pkSmallAwardInfo->GetDuration();
 			// Modify for Game Speed
-			if(MINOR_CIV_QUEST_HORDE || MINOR_CIV_QUEST_REBELLION)
+			if(m_eType == MINOR_CIV_QUEST_HORDE || m_eType == MINOR_CIV_QUEST_REBELLION)
 			{
 				return (m_iStartTurn + iDuration);
 			}
@@ -8027,6 +8027,15 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		{
 			return false;
 		}
+		//Don't create this quest until a player has entered the Renaissance
+		EraTypes eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+		EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+
+		// Renaissance era or Later
+		if(eCurrentEra < eRenaissance)
+		{
+			return false;
+		}
 		CvCity* pTargetCity = GetBestSpyTarget(ePlayer, false);
 		if(pTargetCity == NULL)
 		{
@@ -8036,6 +8045,15 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	else if(eQuest == MINOR_CIV_QUEST_UNIT_COUP_CITY)
 	{
 		if(GET_PLAYER(ePlayer).GetEspionage() == NULL || GET_PLAYER(ePlayer).GetEspionage()->GetNumSpies() <= 0)
+		{
+			return false;
+		}
+		//Don't create this quest until a player has entered the Renaissance
+		EraTypes eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+		EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+
+		// Renaissance era or Later
+		if(eCurrentEra < eRenaissance)
 		{
 			return false;
 		}

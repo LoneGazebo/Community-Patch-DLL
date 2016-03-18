@@ -10151,6 +10151,7 @@ void CvGame::SetHighestPotential()
 	m_iLargestBasePotential = 0;
 	int iPotential = 0;	
 	PlayerTypes eLoopPlayer;
+
 	// first pass to get the largest base potential available
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -10188,11 +10189,42 @@ void CvGame::SetHighestPotential()
 				continue;
 			}
 
+			//Check for spies - this determines if we need to do any updates or anything.
+			bool bNotify = false;
+			if(kLoopPlayer.GetEspionage()->GetNumAliveSpies() > 0)
+			{
+				bNotify = true;
+			}
+			if(!bNotify)
+			{
+				for(int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
+				{
+					PlayerTypes eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
+					if(eLoopPlayer2 != NO_PLAYER && GET_PLAYER(eLoopPlayer2).isAlive())
+					{
+						CvPlayer& kLoopPlayer2 = GET_PLAYER(eLoopPlayer2);
+
+						if(!kLoopPlayer2.isAlive() || kLoopPlayer2.isBarbarian() || kLoopPlayer2.isMinorCiv())
+						{
+							continue;
+						}
+						if(GET_TEAM(kLoopPlayer.getTeam()).isHasMet(kLoopPlayer2.getTeam()))
+						{
+							if(kLoopPlayer2.GetEspionage()->GetNumAliveSpies() > 0)
+							{
+								bNotify = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+
 			int iLoop = 0;
 			for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 			{				
 				iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);;
-				pLoopCity->SetEspionageRanking(iPotential);
+				pLoopCity->SetEspionageRanking(iPotential, bNotify);
 			}
 		}
 	}

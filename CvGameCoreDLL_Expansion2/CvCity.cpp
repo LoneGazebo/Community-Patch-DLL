@@ -1108,7 +1108,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 	if(bInitialFounding)
 	{		
-		owningPlayer.doInstantYield(INSTANT_YIELD_TYPE_FOUND);
+		owningPlayer.doInstantYield(INSTANT_YIELD_TYPE_FOUND, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
 	}
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -3313,7 +3313,7 @@ void CvCity::ChangeTurnsSinceLastRankMessage(int iTurns)
 	VALIDATE_OBJECT
 	SetTurnsSinceLastRankMessage(GetTurnsSinceLastRankMessage() + iTurns);
 }
-void CvCity::SetEspionageRanking(int iPotential)
+void CvCity::SetEspionageRanking(int iPotential, bool bNotify)
 {
 	int iRank = 0;
 
@@ -3325,44 +3325,47 @@ void CvCity::SetEspionageRanking(int iPotential)
 		iRank /= 10;
 	}
 	//Seed rank warning and update rank.
-	DoRankIncreaseWarning(iRank);
+	DoRankIncreaseWarning(iRank, bNotify);
 }
-void CvCity::DoRankIncreaseWarning(int iRank)
+void CvCity::DoRankIncreaseWarning(int iRank, bool bNotify)
 {
-	if(GetTurnsSinceLastRankMessage() >= (GC.getBALANCE_SPY_SABOTAGE_RATE() * 2))
+	if(bNotify)
 	{
-		if((iRank > GetRank()) && (GetRank() > 4))
+		if(GetTurnsSinceLastRankMessage() >= (GC.getBALANCE_SPY_SABOTAGE_RATE() * 2))
 		{
-			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-			if(pNotifications)
+			if((iRank > GetRank()) && (GetRank() > 4))
 			{
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RANK_INCREASING_SUMMARY");
-				strSummary <<  getNameKey();
-				Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RANK_INCREASING");
-				strNotification <<  getNameKey();
-				strNotification <<  iRank;
-				pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_FAILURE, strNotification.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
+				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+				if(pNotifications)
+				{
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RANK_INCREASING_SUMMARY");
+					strSummary <<  getNameKey();
+					Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RANK_INCREASING");
+					strNotification <<  getNameKey();
+					strNotification <<  iRank;
+					pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_FAILURE, strNotification.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
+				}
+				if(GC.getLogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Advanced Action: Sent out Rank warning. Rank: %d,", iRank);
+					strMsg += " , ";
+					strMsg += GET_PLAYER(getOwner()).getCivilizationShortDescription();
+					strMsg += " , ";
+					strMsg += getName();
+					GET_PLAYER(getOwner()).GetEspionage()->LogEspionageMsg(strMsg);
+				}
+				SetTurnsSinceLastRankMessage(0);
 			}
-			if(GC.getLogging())
-			{
-				CvString strMsg;
-				strMsg.Format("Advanced Action: Sent out Rank warning. Rank: %d,", iRank);
-				strMsg += " , ";
-				strMsg += GET_PLAYER(getOwner()).getCivilizationShortDescription();
-				strMsg += " , ";
-				strMsg += getName();
-				GET_PLAYER(getOwner()).GetEspionage()->LogEspionageMsg(strMsg);
-			}
-			SetTurnsSinceLastRankMessage(0);
 		}
-	}
-	else
-	{
-		if(GetTurnsSinceLastRankMessage() <= 0)
+		else
 		{
-			SetTurnsSinceLastRankMessage(0);
+			if(GetTurnsSinceLastRankMessage() <= 0)
+			{
+				SetTurnsSinceLastRankMessage(0);
+			}
+			ChangeTurnsSinceLastRankMessage(1);
 		}
-		ChangeTurnsSinceLastRankMessage(1);
 	}
 	SetRank(iRank);
 }

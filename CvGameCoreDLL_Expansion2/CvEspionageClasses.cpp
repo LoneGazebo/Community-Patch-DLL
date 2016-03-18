@@ -8173,7 +8173,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 				if (pDiploAI->IsPlayerStopSpyingRequestAccepted(eTargetPlayer))
 				{
 					// target far less frequently
-					iDiploModifier -= 100;
+					iDiploModifier -= 300;
 				}
 
 				// if we've denounced them or they've denounced us, spy bonus!
@@ -8183,39 +8183,39 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 				}
 				else if (pDiploAI->IsDoFAccepted(eTargetPlayer))
 				{
-					iDiploModifier -= 100;
+					iDiploModifier -= 300;
 				}
 
 				if (GET_TEAM(eTeam).IsHasResearchAgreement(eTargetTeam))
 				{
-					iDiploModifier -= 50;
+					iDiploModifier -= 100;
 				}
 
 				if (GET_TEAM(eTeam).IsHasDefensivePact(eTargetTeam))
 				{
-					iDiploModifier -= 50;
+					iDiploModifier -= 100;
 				}
 
 				if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(eTargetTeam))
 				{
-					iDiploModifier += 25;
+					iDiploModifier -= 33;
 				}
 
 				if (GET_TEAM(eTargetTeam).IsAllowsOpenBordersToTeam(eTeam))
 				{
-					iDiploModifier += 25;
+					iDiploModifier += 33;
 				}
 				if(pLoopCity->isCapital())
 				{
-					iDiploModifier += 25;
+					iDiploModifier += 50;
 				}
 				if(pDiploAI->GetMajorCivApproach(eTargetPlayer, false) == MAJOR_CIV_APPROACH_FRIENDLY)
 				{
-					iDiploModifier -= 25;
+					iDiploModifier -= 50;
 				}
 				if(pDiploAI->GetMajorCivApproach(eTargetPlayer, false) == MAJOR_CIV_APPROACH_DECEPTIVE)
 				{
-					iDiploModifier += 50;
+					iDiploModifier += 100;
 				}
 				//Spread our spies out a bit.
 				for(uint uiSpy = 0; uiSpy < pEspionage->m_aSpyList.size(); uiSpy++)
@@ -8225,7 +8225,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 					{
 						if(pCity->getOwner() == eTargetPlayer)
 						{
-							iDiploModifier -= 50;
+							iDiploModifier -= 100;
 							break;
 						}
 					}

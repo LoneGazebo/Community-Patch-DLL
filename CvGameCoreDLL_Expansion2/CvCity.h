@@ -836,8 +836,8 @@ public:
 	void ChangeTurnsSinceLastRankMessage(int iTurns);
 	int GetTurnsSinceLastRankMessage() const;
 
-	void DoRankIncreaseWarning(int iRank);
-	void SetEspionageRanking(int iPotential);
+	void DoRankIncreaseWarning(int iRank, bool bNotify);
+	void SetEspionageRanking(int iPotential, bool bNotify);
 #endif
 	// Base Yield
 	int getBaseYieldRate(YieldTypes eIndex) const;

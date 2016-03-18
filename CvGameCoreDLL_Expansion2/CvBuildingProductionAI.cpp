@@ -273,11 +273,18 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			return 0;
 		}
+		if(isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
+		{
+			if(kBuildingClassInfo.getMaxPlayerInstances() <= 1)
+			{
+				return 0;
+			}
+		}
 	}
 	if(isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
 	{
-		//Should never be in first 3 things built.
-		if(m_pCity->GetCityBuildings()->GetNumBuildings() <= 3)
+		//Should never be in first 5 things built.
+		if(m_pCity->GetCityBuildings()->GetNumBuildings() <= 5)
 		{
 			return 0;
 		}

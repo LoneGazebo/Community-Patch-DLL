@@ -19735,20 +19735,19 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						continue;
 					}
-					if(pLoopCity->isCapital())
-					{
-						iValue += GetPlayerTraits()->GetYieldFromSettle(eYield);
-						iValue += getFounderYield(eYield);
-					}
+
+					iValue += GetPlayerTraits()->GetYieldFromSettle(eYield);
+					iValue += getFounderYield(eYield);
+
 					break;
 				}
 				case INSTANT_YIELD_TYPE_TR_END:
 				{
-					if(bInternational && (eYield == YIELD_CULTURE || eYield == YIELD_FOOD || eYield == YIELD_PRODUCTION))
+					if(bInternational && (eYield == YIELD_SCIENCE || eYield == YIELD_FOOD || eYield == YIELD_PRODUCTION))
 					{
 						iValue += GetPlayerTraits()->GetTradeRouteStartYield(eYield);
 					}
-					else if(!bInternational && (eYield == YIELD_GOLD || eYield == YIELD_SCIENCE))
+					else if(!bInternational && (eYield == YIELD_GOLD || eYield == YIELD_CULTURE))
 					{
 						iValue += GetPlayerTraits()->GetTradeRouteStartYield(eYield);
 					}
