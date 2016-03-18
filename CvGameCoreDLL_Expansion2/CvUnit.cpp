@@ -8475,7 +8475,7 @@ bool CvUnit::canParadropAt(const CvPlot* pPlot, int iX, int iY) const
 		return false;
 	}
 
-	if(!canMoveInto(*pTargetPlot, MOVEFLAG_DESTINATION))
+	if(!canMoveInto(*pTargetPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
 	{
 		return false;
 	}
@@ -8511,12 +8511,12 @@ bool CvUnit::paradrop(int iX, int iY)
 	bool bCanAttack = MOD_GLOBAL_PARATROOPS_MOVEMENT && (iDist < iRange);
 	if (bCanAttack) {
 		// CUSTOMLOG("Paradrop - %i of %i is less than range --> can attack", iDist, iRange);
-		changeMoves(-GC.getMOVE_DENOMINATOR()); // This equates to a "set-up to range attack", which seems fair
+		setMoves(GC.getMOVE_DENOMINATOR()); // This equates to a "set-up to range attack", which seems fair
 		// setMadeAttack(false); // Don't set to false, just in case someone modded in "attack then paralift out"
 	} else {
 		// CUSTOMLOG("Paradrop - %i of %i is max range --> cannot attack", iDist, iRange);
 #endif
-		changeMoves(-(GC.getMOVE_DENOMINATOR() / 2));
+		setMoves(GC.getMOVE_DENOMINATOR()); //keep one move
 		setMadeAttack(true);
 #if defined(MOD_GLOBAL_PARATROOPS_MOVEMENT)
 	}
