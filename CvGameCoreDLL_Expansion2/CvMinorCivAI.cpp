@@ -2733,10 +2733,8 @@ bool CvMinorCivQuest::IsExpired()
 		CvPlayer* pTargetCityState = &GET_PLAYER(eTargetCityState);
 		TeamTypes eLiberatedTeam = GET_PLAYER(eTargetCityState).getTeam();
 		CvPlot* pPlot = pTargetCityState->getStartingPlot();
-		PlayerTypes eFirstConqueror = pTargetCityState->GetCapitalConqueror();
 		// Who liberated them?
 		TeamTypes eLiberatorTeam = GET_TEAM(eLiberatedTeam).GetLiberatedByTeam();
-
 
 		if(pTargetCityState)
 		{
@@ -2752,11 +2750,6 @@ bool CvMinorCivQuest::IsExpired()
 			}
 			// We can't liberate this city-state for some reason.
 			if(!pTargetCityState->isAlive() && !GET_PLAYER(m_eAssignedPlayer).CanLiberatePlayerCity(eTargetCityState))
-			{
-				return true;
-			}
-			//Someone else conquered the conquerors - things just got weird. Let's cancel this quest.
-			if(!pTargetCityState->isAlive() && (pPlot->getOwner() != eFirstConqueror))
 			{
 				return true;
 			}

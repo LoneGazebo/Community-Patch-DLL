@@ -1,0 +1,1181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!-- translated by mrlg
+Tag: [xmlFILENAME]
+BuildingText.xml
+Build.xml
+ImprovementText.xml
+PromotionText.xml
+CityStateQuest.xml
+Paper.xml
+CivilServant.xml
+GreatDiplomats.xml
+UnitText.xml
+Congress.xml
+Project.xml
+-->
+<GameData>
+	<Language_pl_PL>
+  <!-- [xmlFILENAME]BuildingText.xml -->
+		<!--Diplo Building Names-->
+		<Row Tag="TXT_KEY_BUILDING_CHANCERY">
+			<Text>Kancelaria|Kancelarii|Kancelarii|Kancelarię|Kancelarie|Kancelarii|Kancelariom|Kancelarie</Text>
+			<Gender>feminine</Gender>
+			<Plurality>1|1|1|1|2|2|2|2</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WIRE_SERVICE">
+			<Text>Agencja prasowa|Agencji prasowej|Agencji prasowej|Agencję prasową|Agencje prasowe|Agencji prasowych|Agencjom prasowym|Agencje prasowe</Text>
+			<Gender>feminine</Gender>
+			<Plurality>1|1|1|1|2|2|2|2</Plurality>
+		</Row>
+		<!--National Wonder Names-->
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS">
+			<Text>Prasa drukarska|Prasy drukarskiej|Prasie drukarskiej|Prasę drukarską|Prasy drukarskie|Pras drukarskich|Prasom drukarskim|Prasy drukarskie</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1|1|1|1|2|2|2|2</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FOREIGN_OFFICE">
+			<Text>Biuro spraw zagranicznych|Biura spraw zagranicznych|Biurze spraw zagranicznych|Biuro spraw zagranicznych|Biura spraw zagranicznych|Biur spraw zagranicznych|Biurom spraw zagranicznych|Biura spraw zagranicznych</Text>
+			<Gender>neuter</Gender>
+			<Plurality>1|1|1|1|2|2|2|2</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_COURT_SCRIBE">
+			<Text>Biuro skryby|Biura skryby|Biurze skryby|Biuro skryby|Biura skryby|Biur skryby|Biurom skryby|Biura skryby</Text>
+			<Gender>neuter</Gender>
+			<Plurality>1|1|1|1|2|2|2|2</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE">
+			<Text>Pałac Kultury i Nauki|Pałacu Kultury i Nauki|Pałacowi Kultury i Nauki|Pałac Kultury i Nauki|Pałace Kultury i Nauki|Pałaców Kultury i Nauki|Pałacom Kultury i Nauki|Pałace Kultury i Nauki</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1|1|1|1|2|2|2|2</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_EHRENHALLE">
+			<Text>Hala Honoru|Hali Honoru|Hali Honoru|Halę Honoru|Hale Honoru|Hal Honoru|Halom Honoru|Hale Honoru</Text>
+			<Gender>feminine</Gender>
+			<Plurality>1|1|1|1|2|2|2|2</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FINANCE_CENTER">
+			<Text>Międzynarodowe Centrum Finansowe|Międzynarodowego Centrum Finansowego|Międzynarodowemu Centrum Finansowemu|Międzynarodowe Centrum Finansowe|Międzynarodowe Centra Finansowe|Międzynarodowych Center Finansowych|Międzynarodowym Centrom Finansowym|Międzynarodowe Centra Finansowe</Text>
+			<Gender>neuter</Gender>
+			<Plurality>1|1|1|1|2|2|2|2</Plurality>
+		</Row>
+		<!-- World Wonder Names //1 plurality-->
+		<Row Tag="TXT_KEY_BUILDING_FORUM">
+			<Text>Forum Romanum</Text>
+			<Gender>neuter</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SUMMER_PALACE">
+			<Text>Pałac Letni|Pałacu Letniego|Pałacowi Letniemu|Pałac Letni</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GRAND_CANAL">
+			<Text>Canal Grande</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_OLYMPIC_VILLAGE">
+			<Text>Wioska Olimpijska|Wioski Olimpijskiej|Wiosce Olimpijskiej|Wioskę Olimpijską</Text>
+			<Gender>feminine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CRYSTAL_PALACE">
+			<Text>Pałac Kryształowy|Pałacu Kryształowego|Pałacowi Kryształowemu|Pałac Kryształowy</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SECURITY_COUNCIL">
+			<Text>Izba Rady Bezpieczeństwa|Izby Rady Bezpieczeństwa|Izbie Rady Bezpieczeństwa|Izbę Rady Bezpieczeństwa</Text>
+			<Gender>feminine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CONSULATE">
+			<Text>Konsulat|Konsulatu|Konsulatowi|Konsulat</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_UN">
+			<Text>Organizacja Narodów Zjednoczonych|Organizacji Narodów Zjednoczonych|Organizacji Narodów Zjednoczonych|Organizację Narodów Zjednoczonych</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<!--Diplo Building Help
+		<Row Tag="TXT_KEY_BUILDING_CHANCERY_HELP">
+			<Text>+1 [ICON_RES_PAPER] papier. +10% do [ICON_PRODUCTION] produkcji jednostek dyplomatycznych. Zapewnia jednostkom dyplomatycznym z tego miasta awans "[COLOR_POSITIVE_TEXT]Sygnet Królewski[ENDCOLOR]". [NEWLINE][NEWLINE] 15% [ICON_PRODUCTION] produkcji jest dodawane do obecnej [ICON_PRODUCTION] produkcji za każdym razem, gdy miasto zyskuje [ICON_CITIZEN] mieszkańca.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WIRE_SERVICE_HELP">
+			<Text>+1 [ICON_RES_PAPER] papier. +10% do [ICON_PRODUCTION] produkcji jednostek dyplomatycznych. Zapewnia jednostkom dyplomatycznym z tego miasta awans "[COLOR_POSITIVE_TEXT]Agencja prasowa[ENDCOLOR]". [NEWLINE][NEWLINE] 15% [ICON_PRODUCTION] produkcji miasta jest dodawane do obecnej [ICON_PRODUCTION] produkcji za każdym razem, gdy miasto zyskuje [ICON_CITIZEN] mieszkańca.</Text>
+		</Row>-->
+		<!--Diplo National Wonder Help-->
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS_HELP">
+			<Text>+2 [ICON_RES_PAPER] papier. +20% do [ICON_PRODUCTION] produkcji jednostek dyplomatycznych. Wszystkie jednostki dyplomatyczne otrzymują awans "[COLOR_POSITIVE_TEXT]Piśmienność[ENDCOLOR]".[NEWLINE][NEWLINE]W każdym mieście musisz mieć wybudowaną kancelarię. Koszt rośnie wraz z liczbą miast w imperium.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FOREIGN_OFFICE_HELP">
+			<Text>+2 [ICON_RES_PAPER] papier. +20% do [ICON_PRODUCTION] produkcji jednostek dyplomatycznych. Wszystkie jednostki dyplomatyczne otrzymują awans "[COLOR_POSITIVE_TEXT]Immunitet dyplomatyczny[ENDCOLOR]".[NEWLINE][NEWLINE]W każdym mieście musisz mieć wybudowaną agencję prasową. Koszt rośnie wraz z liczbą miast w imperium.</Text>
+		</Row>
+		<!--
+		<Row Tag="TXT_KEY_BUILDING_COURT_SCRIBE_HELP">
+			<Text>+1 [ICON_RES_PAPER] papier. +10% do [ICON_PRODUCTION] produkcji jednostek dyplomatycznych. Można wybudować tylko w stolicy. [NEWLINE][NEWLINE] 5% [ICON_PRODUCTION] produkcji miasta jest dodawane do obecnej [ICON_PRODUCTION] produkcji za każdym razem, gdy miasto zyskuje [ICON_CITIZEN] mieszkańca.</Text>
+		</Row>-->
+		<!--Diplo World Wonder Help-->
+		<Row Tag="TXT_KEY_BUILDING_FORUM_HELP">
+			<Text>Po ukończeniu otrzymujesz 1 darmowego wielkiego dyplomatę. +1 [ICON_RES_PAPER] papier. +20% do [ICON_PRODUCTION] produkcji jednostek dyplomatycznych. Wszystkie jednostki dyplomatyczne otrzymują awans "[COLOR_POSITIVE_TEXT]Królewska pieczęć[ENDCOLOR]".</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SUMMER_PALACE_HELP">
+			<Text>+1 [ICON_RES_PAPER] papier. +20% do [ICON_PRODUCTION] produkcji jednostek dyplomatycznych. Wszystkie jednostki dyplomatyczne otrzymują awans "[COLOR_POSITIVE_TEXT]Szlachectwo[ENDCOLOR]". Otrzymujesz w mieście darmową kancelarię.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_HELP">
+			<Text>Wymaga Ładu. +15% [ICON_CULTURE] kultury i [ICON_RESEARCH] nauki w mieście, gdzie go wybudowano. +1 [ICON_RES_PAPER] papier. Otrzymujesz jeden głos za każdą [COLOR_POSITIVE_TEXT]umowę naukową[ENDCOLOR], którą masz obecnie zawartą z innymi graczami. [NEWLINE][NEWLINE]W każdym mieście musisz mieć wybudowaną szkołę publiczną. Koszt rośnie wraz z liczbą miast w imperium.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_EHRENHALLE_HELP">
+			<Text>Wymaga Autokracji. +15 [ICON_TOURISM] turystyki i [ICON_PEACE] wiary w mieście, gdzie ją wybudowano. +1 [ICON_RES_PAPER] papier. Otrzymujesz jeden głos za każdą [COLOR_POSITIVE_TEXT]wrogą stolicę[ENDCOLOR], którą kontrolujesz. [NEWLINE][NEWLINE]W każdym mieście musisz mieć wybudowaną akademię wojskową. Koszt rośnie wraz z liczbą miast w imperium.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FINANCE_CENTER_HELP">
+			<Text>Wymaga Swobód. +15% [ICON_FOOD] żywności i [ICON_GOLD] złota w mieście, gdzie je wybudowano. +1 [ICON_RES_PAPER] papier. Otrzymujesz jeden głos za każdą [COLOR_POSITIVE_TEXT]deklarację przyjaźni[ENDCOLOR], którą masz podpisaną z innymi graczami. [NEWLINE][NEWLINE]W każdym mieście musisz mieć wybudowaną giełdę. Koszt rośnie wraz z liczbą miast w imperium.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GRAND_CANAL_HELP">
+			<Text>Otrzymujesz dodatkowy szlak handlowy. Wszystkie jednostki morski z wyjątkiem łodzi podwodnych i lotniskowców otrzymują awans "[COLOR_POSITIVE_TEXT]Flota skarbów[ENDCOLOR]", który zapewnia +10% do ataku, +1 [ICON_MOVES] ruchu, +1 zasięgu widzenia i zdolność leczenia się poza własnym terytorium.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_OLYMPIC_VILLAGE_HELP">
+			<Text>25% [ICON_CULTURE] kultury z cudów świata, cudów natury i ulepszeń (słynne miejsca, moai, chateau) dodaje się do wytwarzanej przez miasto [ICON_TOURISM] turystyki. Otrzymujesz +3 [ICON_HAPPINESS_1] zadowolenia i +3 [ICON_CULTURE] kultury w mieście, gdzie ją zbudowano.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CRYSTAL_PALACE_HELP">
+			<Text>Imperium wchodzi w [ICON_GOLDEN_AGE] złotą erę. +2 [ICON_PRODUCTION] produkcji i +2 [ICON_RESEARCH] nauki ze wszystkich fabryk w posiadanych miastach.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONSULATE_HELP">
+			<Text>Otrzymujesz dodatkowego delegata na Kongresie Światowym.</Text>
+		</Row>
+		<!--
+		<Row Tag="TXT_KEY_SECURITY_COUNCIL_HELP">
+			<Text>+1 [ICON_RES_PAPER] papier. +10% do [ICON_PRODUCTION] produkcji jednostek dyplomatycznych. Otrzymujesz dodatkowych [ICON_SPY] szpiegów.</Text>
+		</Row>
+		-->
+		<Row Tag="TXT_KEY_UN_HELP">
+			<Text>Otrzymujesz 10 [ICON_INFLUENCE] wpływów we wszystkich państwach-miastach, które spotkałeś zanim poświęciłeś wielkiego człowieka. Otrzymujesz dodatkowego delegata na Kongresie Światowym. Rozpoczyna się [ICON_GOLDEN_AGE] złota era oraz specjalna sesja [COLOR_POSITIVE_TEXT]Organizacji Narodów Zjednoczonych[ENDCOLOR] na Kongresie Światowym.</Text>
+		</Row>
+
+		<!--Diplo Building Strategy
+		<Row Tag="TXT_KEY_BUILDING_CHANCERY_STRATEGY">
+			<Text>Zwiększa szybkość produkcji jednostek dyplomatycznych i zwiększa ilość wpływu jednostek dyplomatycznych budowanych w tym mieście. Specjaliści urzędnicy w tym mieście z tego budynku oferują trochę [ICON_CULTURE] kultury, [ICON_RESEARCH] nauki i [ICON_GOLD] złota w zamian za [ICON_FOOD] żywność i [ICON_PRODUCTION] produkcję. Dodatkowa [ICON_PRODUCTION] produkcja jest dostarczana przy wzroście miasta, co czyni ten budynek ważnym do wczesnego zmaksymalizowania rozwoju.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WIRE_SERVICE_STRATEGY">
+			<Text>Zwiększa szybkość produkcji jednostek dyplomatycznych i zwiększa ilość wpływu jednostek dyplomatycznych budowanych w tym mieście. Specjaliści urzędnicy w tym mieście z tego budynku oferują trochę [ICON_CULTURE] kultury, [ICON_RESEARCH] nauki i [ICON_GOLD] złota w zamian za [ICON_FOOD] żywność i [ICON_PRODUCTION] produkcję. Dodatkowa [ICON_PRODUCTION] jest produkcja dostarczana przy wzroście miasta, co czyni ten budynek ważnym wczesnego do zmaksymalizowania rozwoju.</Text>
+		</Row>-->
+		<!--Diplo National Wonder Strategy-->
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS_STRATEGY">
+			<Text>Ten cud narodowy nie może zostać zbudowany, dopóki cywilizacja nie wybuduje we wszystkich swoich miastach kancelarii. Zbuduj go, aby przyspieszyć produkcję jednostek dyplomatycznych w tym mieście, zwiększyć ich ruch, wpływy oraz zapewnić zdolność ignorowania kar terenowych.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FOREIGN_OFFICE_STRATEGY">
+			<Text>Ten cud narodowy nie może zostać zbudowany, dopóki cywilizacja nie wybuduje we wszystkich swoich miastach agencji prasowych. Zbuduj go, aby przyspieszyć produkcję jednostek dyplomatycznych w tym mieście, zwiększyć ich ruch, wpływy oraz zdolność wysyłania ich na terytoria przeciwników bez porozumienia o [COLOR_POSITIVE_TEXT]otwartych granicach[ENDCOLOR].</Text>
+		</Row>
+		<!--
+		<Row Tag="TXT_KEY_BUILDING_COURT_SCRIBE_STRATEGY">
+			<Text>Ten cud narodowy jest unikatowy z tego względu, że gracze mogą go zbudować w swojej stolicy bez innych wymagań. Daje małą premię do produkcji jednostek dyplomatycznych w stolicy i jeden surowiec [ICON_RES_PAPER] papieru. Postaw ten budynek, jeśli chcesz zabezpieczyć swoje sojusze z jednym czy dwoma państwami-miastami w pierwszych epokach gry.</Text>
+		</Row>-->
+		<!-- Diplo World Wonder Strategy-->
+		<Row Tag="TXT_KEY_BUILDING_FORUM_STRATEGY">
+			<Text>Zbuduj ten cud świata, aby otrzymać stałą premię do stosunków z państwami-miastami dzięki lepiej wytrenowanym jednostkom dyplomatycznym. Dostarcza darmowego wielkiego dyplomatę, którego możesz wysłać do pobliskiego państwa-miasta.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SUMMER_PALACE_STRATEGY">
+			<Text>Zbuduj ten cud, aby twoje jednostki dyplomatyczne mogły wkraczać na terytorium rywala bez porozumienia o otwartych granicach na wieki przez innymi. Otrzymujesz w mieście darmową kancelarię.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_STRATEGY">
+			<Text>Ten cud narodowy nie może zostać zbudowany, dopóki cywilizacja nie wybuduje we wszystkich swoich miastach szkół publicznych. Wybuduj go, aby uzyskać dodatkowe głosy na na Kongresie Światowym zależnie od ilości umów naukowych, które masz obecnie zawarte z innymi graczami. Otrzymasz też dużą premię do kultury i nauki w mieście, gdzie go zbudowano.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_EHRENHALLE_STRATEGY">
+			<Text>Ten cud narodowy nie może zostać zbudowany, dopóki cywilizacja nie wybuduje we wszystkich swoich miastach akademii wojskowych. Wybuduj go, aby uzyskać dodatkowe głosy na na Kongresie Światowym zależnie od liczby zdobytych wrogich stolic. Otrzymasz też dużą premię do turystyki i wiary w mieście, gdzie ją zbudowano.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FINANCE_CENTER_STRATEGY">
+			<Text>Ten cud narodowy nie może zostać zbudowany, dopóki cywilizacja nie wybuduje we wszystkich swoich miastach giełd. Wybuduj go, aby uzyskać dodatkowe głosy na na Kongresie Światowym zależnie od ilości deklaracji przyjaźni, które masz obecnie zawarte z innymi graczami.  Otrzymasz też dużą premię do żywności i złota w mieście, gdzie je zbudowano.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GRAND_CANAL_STRATEGY">
+			<Text>Zbuduj ten cud, aby zyskać premie do siły bojowej i wytrzymałości twojej marynarki dzięki awansowi "[COLOR_POSITIVE_TEXT]Flota skarbów[ENDCOLOR]" i otrzymać dodatkowy szlak handlowy. Można zbudować tylko zespołowo przez Kongres Światowy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_OLYMPIC_VILLAGE_STRATEGY">
+			<Text>Łączy premie z hotelu, stadionu i ermitażu w jednym, Wioska Olimpijska jest "elektrownią kulturową" w późnych etapach gry. Można zbudować tylko zespołowo przez Kongres Światowy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CRYSTAL_PALACE_STRATEGY">
+			<Text>Jak jego rzeczywisty odpowiednik, Pałac Kryształowy świeci szeroką gamę premii. Gracze z duża liczbą miast i fabryk skorzystają z niego najwięcej, jednak dodatkowa kultura i miejsce na wielkie dzieło będzie przydatne dla każdej cywilizacji. Można zbudować tylko zespołowo przez Kongres Światowy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CONSULATE_STRATEGY">
+			<Text>Konsulat daje swojemu posiadaczowi małe ułatwienie na Kongresie Światowym, zapewniając dodatkowego delegata. Można zbudować tylko zespołowo przez Kongres Światowy.</Text>
+		</Row>
+		<!--
+		<Row Tag="TXT_KEY_BUILDING_SECURITY_COUNCIL_STRATEGY">
+			<Text>Izba Rady Bezpieczeństwa zapewnia swojemu właścicielowi dodatkowego szpiega o przyspiesza produkcję jednostek dyplomatycznych. Można zbudować tylko zespołowo przez Kongres Światowy.</Text>
+		</Row>
+		-->
+		<Row Tag="TXT_KEY_BUILDING_UN_STRATEGY">
+			<Text>Przy dużej szybkości produkcji wielkich ludzi, Organizacja Narodów Zjednoczonych zapewnia znaczącą premię do siły dyplomatycznej na Kongresie Światowym swojemu właścicielowi. Dostarcza też dodatkowego delegata i rozpoczyna złotą erę. [NEWLINE][NEWLINE]W dodatku do tych natychmiastowych premii, ukończenie ONZ rozpoczyna specjalne sesje ONZ na Kongresie Światowym, co umożliwia zwycięstwo dyplomatyczne. Można zbudować tylko zespołowo przez Kongres Światowy.</Text>
+		</Row>
+		<!--Diplo Building Civilopedia Entries-->
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CHANCERY_TEXT">
+			<Text>Kancelaria to komórka urzędu, w której przyjmuje się, rejestruje i rozdziela pisma wpływające, przygotowuje, przepisuje i wysyła pisma wychodzące oraz przechowuje dokumentację powstającą w wyniku działania danej instytucji. Już w średniowieczu stała się urzędem centralnym, do którego zadań należało zajmowanie się sprawami państwowymi. W Polsce początki kancelarii sięgają 2. połowy XIII w., istniał już wtedy zorganizowany urząd spisujący i wystawiający dokumenty. Działały wówczas kancelarie książęce, wyższego duchowieństwa i klasztorne, a od końca XIII w. kancelarie miejskie; na początku XIV w. powstała jedna kancelaria centralna — książęca, przekształcona potem w koronną; 1447 wprowadzono księgi kancelaryjne regestów i sporządzano kopie wydawanych dokumentów (tzw. Metryka Koronna). W XV–XVIII w. rozwój stosunków ekonomicznych i społeczno-prawnych wymagał rozbudowy istniejących urzędów administracji państwowej, a także i zmian form kancelaryjnych, kancelaria nowożytna stała się organem każdego urzędu.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_WIRE_SERVICE_TEXT">
+			<Text>Agencje prasowe to instytucje, które gromadzą bieżące informacje dotyczące polityki, gospodarki i innych dziedzin życia w kraju i na świecie, opracowują je i udostępniają środkom masowego przekazu, wydają biuletyny dla środków przekazu, serwisy dla odbiorców zagranicznych. Ze względu na zasięg terytorialny rozróżnia się agencje prasowe światowe, regionalne (obsługujące jakiś region świata), krajowe i lokalne. Pod względem politycznym wiele krajowych agencji prasowych to agencje oficjalne (reprezentujące stanowisko rządu) na ogół o statusie instytucji państwowej, półoficjalne (reprezentujące stanowisko kół zbliżonych do rządu) oraz tzw. niezależne (powiązane z różnymi opcjami politycznymi i gospodarczymi). We współczesnych agencjach prasowych powszechnie stosowanym systemem łączności jest technika dalekopisowa (kablowa i radiowa). Oprócz konwencjonalnych środków technicznych przekazu (teleks, radiotelefon, telekopiarka itp.), coraz powszechniejsze są środki elektroniczne (zdalne składanie, teletekst, system automatycznego kierowania i przetwarzania informacji). Od 1970 agencje prasowe wykorzystują łączność satelitarną (systemy Intelsat, ECS-Entelsat, Eutelsat).</Text>
+		</Row>
+		<!--Diplo National Wonder Entries-->
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_PRINTING_PRESS_TEXT">
+			<Text>Maszyna drukarska to podstawowe urządzenie przemysłu poligraficznego, służące do wykonywania druku na skalę przemysłową. Urządzenia mające ten sam cel w zależności od budowy, sposobów składania czcionek i drukowania ich lub wydruku na danym podłożu, mogą się całkowicie różnić od siebie - stąd też znanych jest obecnie wiele ich rodzajów. Pierwszą maszyną drukarską była prasa drukarska, wynaleziona ok. roku 600 n.e. w Chinach. W Europie druk pojawił się dopiero w latach 40. XV wieku n.e. za sprawą Gutenberga. Płaska maszyna drukująca została zbudowana w 1810 przez niemieckiego drukarza F. Königa i po raz pierwszy wykorzystana 1814 do drukowania dziennika „Times” w Londynie. Maszynę rotacyjną skonstruowali w 1844, niezależnie od siebie, Anglik A. Applegath i Amerykanin R.M. Hoe.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_FOREIGN_OFFICE_TEXT">
+			<Text>Biuro (ministerstwo) spraw zagranicznych jest sercem współczesnych imperiów. Zalewane niekończącymi się zastępami urzędników, dyplomatów i pomocników, wszystkie wieści, zarówno ważne jak i błahostki, przechodzą przez jego sale.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_COURT_SCRIBE_TEXT">
+			<Text>W starożytnym Egipcie skryba (sesh) był osobą wyedukowaną w zakresie posługiwania się pismem hieroglificznym, hieratycznym oraz od II połowy I tysiąclecia p.n.e. pismem demotycznym. Skrybowie uważani byli za część dworu królewskiego, w związku z czym zwolnieni byli zarówno z obowiązku płacenia podatków jak i pełnienia służby wojskowej. Obecnie odnosi się to do osoby zajmującej się zawodowo odręcznym przepisywaniem ksiąg lub dokumentów. Zawód skryby występował w zróżnicowanych formach we wszystkich kulturach posługujących się pismem.</Text>
+		</Row>
+
+		<!-- Diplo Project UN Wonders
+		-->
+		<!--
+		<Row Tag="TXT_KEY_SECURITY_COUNCIL_DESC">
+			<Text>Rada Bezpieczeństwa ONZ – jeden z sześciu organów głównych Organizacji Narodów Zjednoczonych powołany na mocy Karty Narodów Zjednoczonych (jej istnieniu i kompetencjom poświęcono rozdział V, VI i VII KNZ). Na Radzie Bezpieczeństwa ciąży główna odpowiedzialność za utrzymanie pokoju i bezpieczeństwa na świecie. Podobnie jak Zgromadzenie Ogólne, może ona nakładać sankcje na państwa członkowskie. Rada przyjmuje uchwały większością 9 głosów spośród 15 członków. Wśród uchwał wyróżnia się uchwały dotyczące spraw proceduralnych oraz uchwały dotyczące innych spraw. W przypadku spraw innych do ważności uchwały wymagane są zgodne głosy członków stałych. Rada Bezpieczeństwa przedkłada Zgromadzeniu Ogólnemu sprawozdania coroczne lub specjalne, w artykule 26 zobowiązano ją zaś do poczynienia szczególnych kroków prowadzących do kontroli zbrojeń.</Text>
+		</Row>
+		-->
+		<Row Tag="TXT_KEY_CONSULATE_DESC">
+			<Text>Urząd konsularny to urząd państwa wysyłającego w państwie przyjmującym, funkcjonujący na podstawie Konwencji wiedeńskiej o stosunkach konsularnych. Na czele urzędu stoi kierownik urzędu konsularnego, a sam urząd działa na obszarze uzgodnionym z państwem przyjmującym (tzw. okręg konsularny). Podstawą pełnienia funkcji przez kierownika urzędu konsularnego są listy komisyjne określające jego rangę, siedzibę i okręg konsularny, które państwo przyjmuje w drodze exequatur. Konsulat może być podzielony administracyjnie, wewnętrznie na Wydziały/Sekcje np. Wydział Ekonomiczny, Wydział Ochrony, Sekcja Wizowa, Sekcja gospodarcza</Text>
+		</Row>
+
+		<!--Diplo World Wonder Entries-->
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_FORUM_TEXT">
+			<Text>Forum Romanum to najstarszy plac miejski w Rzymie, otoczony sześcioma z siedmiu wzgórz: Kapitolem, Palatynem, Celiusem, Eskwilinem, Wiminałem i Kwirynałem. Główny polityczny, religijny i towarzyski ośrodek starożytnego Rzymu, miejsce odbywania się najważniejszych uroczystości publicznych. Forum Romanum było centrum życia obywatelskiego i ekonomicznego szczególnie w okresie republikańskim. W okresie cesarstwa fora pełniły raczej funkcje handlowe, rozrywkowe i reprezentacyjne.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_FORUM_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"Zostawiam Rzym marmurowy, a otrzymałem ceglany."[NEWLINE]- Oktawian August[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_SUMMER_PALACE_TEXT">
+			<Text>Yiheyuan (Pałac Letni) to kompleks parkowo-pałacowy stanowiący miejsce letniego odpoczynku cesarzy chińskich z dynastii Qing, położony w Pekinie. Centralnym punktem Yiheyuanu jest Wzgórze Długowieczności (Wanshoushan, 60 m wysokości) oraz sztuczne jezioro Kunming, które zajmuje powierzchnię 2,2 km² (ok. 2/3 całego parku). Cały kompleks liczy 70 tys. m² zabudowanej przestrzeni z licznymi ogrodami, altankami, pawilonami, galeriami i klasycznymi rezydencjami (ponad 3 tys. obiektów). Nazwa Yiheyuan oznacza Ogród Pielęgnowania Harmonii. Do dziś pozostaje on ważnym symbolem potęgi Chin i popularną atrakcją turystyczną.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_SUMMER_PALACE_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"Monarchia to najdroższa forma rządów.. ten, kto rządząc polega na swojej własnej władzy, musi ją wzmacniać przekupując opornych i obracać tymi, których nie uda mu się zastraszyć."[NEWLINE]- James F. Cooper[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_PALACE_SCIENCE_CULTURE_TEXT">
+			<Text>Pałac Kultury i Nauki to najwyższy budynek w Polsce (pod względem wysokości całkowitej) znajdujący się w Śródmieściu Warszawy, 8. najwyższy budynek w Unii Europejskiej. Pałac stanowił „dar narodu radzieckiego dla narodu polskiego”. Wybudowany w latach 1952–1955 według projektu radzieckiego architekta Lwa Rudniewa budynek inspirowany jest moskiewskimi drapaczami chmur, które z kolei inspirowane są amerykańskimi wieżowcami art déco. Architektonicznie jest mieszanką socrealizmu i polskiego historyzmu. Obecnie siedziba wielu firm oraz instytucji użyteczności publicznej, takich jak kina, teatry, księgarnia, kluby sportowe, wyższe uczelnie (m.in. Collegium Civitas), instytucje naukowe oraz władz Polskiej Akademii Nauk.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_EHRENHALLE_TEXT">
+			<Text>"Ehrenhalle" (Hala Honoru) została zbudowana w Norymberdze według projektu niemieckiego architekta Fritza Mayera. Została otwarta w 1930r., przed epoką Hitlera, za czasów Republiki Weimarskiej. Pierwotnie była ona miejscem pamięci ku czci 9855 żołnierzy z Norymbergi, którzy polegli podczas Pierwszej Wojny Światowej. Podczas kongresu partii w 1929 Hala Honoru została po raz pierwszy użyta w tworzeniu kultu zmarłych przez narodowych socjalistów.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_FINANCE_CENTER_TEXT">
+			<Text>Centrum finansowe to miasto światowe, będące siedzibą dużej liczby znaczących międzynarodowych banków, przedsiębiorstw i giełd. Międzynarodowe Centrum Finansowe (z ang. IFC), to niespecyficzny termin używany często do określenia ważnego członka międzynarodowego rynku, mającego zwykle co najmniej jedną dużą giełdę. Przez większość XX wieku, Stany Zjednoczone i ich stolica gospodarcza, Nowy Jork, były liderem. Ale od lat 90., wraz ze wzrostem wielopolarnego świata z nowymi potęgami regionalnymi oraz kapitalizmem światowym, wiele centrów finansowych rzuciło wyzwanie dominacji Wall Street, zwłaszcza w Azji, którą niektórzy eksperci uważają za nowy ośrodek światowego rozwoju gospodarczego.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GRAND_CANAL_TEXT">
+			<Text>
+				Canal Grande to cieśnina w Wenecji o długości 3,8 km. Ma kształt odwróconej litery "S" i przepływając przez środek miasta dzieli je na dwie części, każda po 3 dzielnice (siestery): Cannaregio, San Marco i Castello oraz Santa Croce, San Polo i Dorsoduro. Kanał został zbudowany w XV wieku i łączy wenecką lagunę (Piazzale Roma przy dworcu kolejowym) z kanałem św. Marka (Canale di San Marco), przy Piazzetta di San Marco. Wzdłuż jego brzegów powstały liczne, znane budowle z fasadami skierowanymi w stronę wody, które można podziwiać podczas wycieczki gondolą albo tramwajem wodnym (vaporetto). Najbardziej znane budowle to: pałac Ca'd'Oro (Złoty Dom), kościół Santa Maria della Salute, pałac Ca' Da Mosto. Jego brzegi łączą cztery mosty, z czego ostatni (Ponte della Costituzione) został otwarty w 2011 r.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_GRAND_CANAL_QUOTE">
+			<Text>
+				[NEWLINE][TAB][TAB]"Zbudować miasto tam, gdzie to niemożliwe jest szaleństwem samym w sobie, ale zbudować tam jedno z najbardziej wytwornych i najwspanialszych miast to szaleństwo geniusza.”[NEWLINE]- Alexander Herzen[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_OLYMPIC_VILLAGE_TEXT">
+			<Text>
+				Wioska olimpijska to teren, gdzie mieszkają sportowcy, którzy biorą udział w Igrzyskach Olimpijskich. W wioskach olimpijskich znajdują się m.in. ośrodki przygotowawcze oraz sklepy, bary oraz hotele. Wioska taka jest najczęściej położona na obrzeżach miasta, w którym odbywają się igrzyska. Pierwsza wioska olimpijska została stworzona w Los Angeles w 1932 roku i służy ona jako wzór dla dzisiejszych wiosek.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_OLYMPIC_VILLAGE_QUOTE">
+			<Text>
+				[NEWLINE][TAB][TAB]"Wygrana nie jest najważniejszą rzeczą na Igrzyskach Olimpijskich, lecz wzięcie w nich udziału; tak samo podstawą życia nie jest zdobycie czegoś lecz dobra walka." [NEWLINE]- Pierre de Coubertin[NEWLINE][TAB]
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CRYSTAL_PALACE_TEXT">
+			<Text>
+				Pałac Kryształowy (ang. The Crystal Palace) – niezachowany do dziś budynek z żeliwnych i szklanych prefabrykatów (pierwszy obiekt w całości prefabrykowany), pierwotnie wzniesiony w Hyde Parku w Londynie na Wielką Wystawę (1851). Zaprojektowany przez Josepha Paxtona, budynek miał 549 m długości i 43 m wysokości. Wśród atrakcji pałacu najbardziej widowiskowe były modele dinozaurów naturalnej wielkości zbudowane przez rzeźbiarza Waterhouse’a Hawkinsa przy ścisłej współpracy anatoma Richarda Owena, twórcy określenia „dinozaur”. Po wystawie (1854) pałac został przeniesiony do dzisiejszego Upper Norwood, gdzie został powiększony. Był wielką atrakcją turystyczną Londynu i miejscem, gdzie odbywało się wiele imprez aż do 1936, gdy spłonął. Obecnie w miejscu pałacu pozostał tylko park rekreacyjny Crystal Palace, jeden z największych w Londynie, wraz ze wszystkimi jego instalacjami (modele dinozaurów, labirynt z żywopłotu). W Crystal Palace mieścił się także słynny tor wyścigowy, którego części dzisiaj są zachowane jako ścieżki."
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CRYSTAL_PALACE_QUOTE">
+			<Text>
+				[NEWLINE][TAB][TAB]"Śniłem kiedyś o wystawie... była, tak jak powinna, pałacem z czystego kryształu, niebo patrzyło przez każdą część jego dachu na będące pod nim narody." [NEWLINE]- Douglas Jerrold[NEWLINE][TAB]
+			</Text>
+		</Row>
+
+  <!-- [xmlFILENAME]Build.xml -->
+		<Row Tag="TXT_KEY_BUILD_EMBASSY">
+			<Text>Budowa [LINK=IMPROVEMENT_EMBASSY]ambasady[\LINK]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_CONSUMED_HELP_EMBASSY">
+			<Text>Jednostka zostanie poświęcona.[NEWLINE][NEWLINE]To ulepszenie pola wielkiego człowieka nie może zostać zbudowane na strategicznym lub luksusowym surowcu. Zapewnia [COLOR_POSITIVE_TEXT]1 głos na Kongresie Światowym[ENDCOLOR] po wybudowaniu.</Text>
+		</Row>
+
+  <!-- [xmlFILENAME]ImprovementText.xml -->
+		<Row Tag="TXT_KEY_IMPROVEMENT_EMBASSY">
+			<Text>Ambasada|Ambasady|Ambasady|Ambasadę|Ambasady|Ambasad|Ambasadom|Ambasady</Text>
+			<Gender>feminine</Gender>
+			<Plurality>1|1|1|1|2|2|2|2</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_EMBASSY_TEXT">
+			<Text>
+				Ambasady mogą być budowane tylko na terytoriach państw-miast przez wielkich dyplomatów.
+				[NEWLINE][NEWLINE]Pierwszy gracz (i tylko pierwszy!), który zbuduje ambasadę na ziemi państwa-miasta [COLOR_POSITIVE_TEXT]zyskuje dodatkowy głos na Kongresie Światowym[ENDCOLOR]. Żaden inny gracz nie otrzyma dodatkowych głosów, za ambasady zbudowane na terytorium państwa-miasta, na którym już jest to ulepszenie.
+				[NEWLINE][NEWLINE]Ambasada nie może zostać splądrowana - po zbudowaniu, nie może zostać usunięta i zawsze będzie zapewniać dodatkowy głos na Kongresie Światowym temu, kto ją wybudował. Jednakże, jeśli oryginalny budowniczy zostanie pokonany, jego pogromca zdobywa kontrolę na ambasadami i głosami!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_IMPROVEMENT_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} z ambasad w państwach-miastach</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLOTROLL_EMBASSY">
+			<Text>{1_CivName[2]}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_FAITH_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} z władzy religijnej</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_CAPITALS_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} z podbitych stolic</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_DOF_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} z deklaracji przyjaźni</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_RA_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} z umów naukowych</Text>
+		</Row>
+
+		<!-- Tooltips for Resolutions -->
+
+		<Row Tag="TXT_KEY_FOODMOD_LEAGUE">
+			<Text>[NEWLINE][ICON_BULLET] Mod. wzrostu z rezolucji: {1_Num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] [ICON_RESEARCH] do kosztu technologii, znanych innym cywilizacjom.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_SCIENCE_FUNDING_FROM_LEAGUE">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR] [ICON_RESEARCH] z rezolucji</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART">
+			<Text>{1_Num} [ICON_RESEARCH] dodane przez wielkie dzieła</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CULTURE_LEAGUE_MOD">
+			<Text>+{1_Num}% [ICON_CULTURE] z rezolucji</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PRODMOD_LEAGUE">
+			<Text>[NEWLINE][ICON_BULLET] +{1_Num}% [ICON_PRODUCTION] z rezolucji</Text>
+		</Row>
+
+  <!-- [xmlFILENAME]PromotionText.xml -->
+		<!--Unit Combat Type- Diplo Units-->
+		<Row Tag="TXT_KEY_UNITCOMBAT_DIPLOMACY">
+			<Text>Dyplomatyczna|Dyplomatycznej|Dyplomatycznej|Dyplomatyczną</Text>
+			<Gender>feminine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<!--Diplo Promotion Titles-->
+		<Row Tag="TXT_KEY_PROMOTION_EMISSARY">
+			<Text>Nowicjusz|Nowicjusza|Nowicjuszowi|Nowicjusza</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ENVOY">
+			<Text>Adept|Adepta|Adeptowi|Adepta</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DIPLOMAT">
+			<Text>Profesjonalista|Profesjonalisty|Profesjonaliście|Profesjonalistę</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_AMBASSADOR">
+			<Text>Pełnomocnik|Pełnomocnika|Pełnomocnikowi|Pełnomocnika</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_GREAT_DIPLOMAT">
+			<Text>Mistrz dyplomacji|Mistrza dyplomacji|Mistrzowi dyplomacji|Mistrza dyplomacji</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_GREAT_MERCHANT">
+			<Text>Kontrola rynku|Kontroli rynku|Kontroli rynku|Kontrolę rynku</Text>
+			<Gender>feminine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_NOBEL_LAUREATE">
+			<Text>Laureat Nobla|Laureata Nobla|Laureatowi Nobla|Laureata Nobla</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SIGNET">
+			<Text>Sygnet królewski|Sygnetu królewskiego|Sygnetowi królewskiemu|Sygnet królewski</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_EXPRESS">
+			<Text>Agencja prasowa|Agencji prasowej|Agencji prasowej|Agencję prasową</Text>
+			<Gender>feminine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_LITERACY">
+			<Text>Piśmienność|Piśmienności|Piśmienności|Piśmienność</Text>
+			<Gender>feminine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_IMMUNITY">
+			<Text>Immunitet dyplomatyczny|Immunitetu dyplomatycznego|Immunitetowi dyplomatycznemu|Immunitet dyplomatyczny</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PAX">
+			<Text>Królewska pieczęć|Królewskiej pieczęci|Królewskiej pieczęci|Królewską pieczęć</Text>
+			<Gender>feminine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_NOBILITY">
+			<Text>Szlachectwo|Szlachectwa|Szlachectwie|Szlachectwo</Text>
+			<Gender>neuter</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_TREASURE_FLEET">
+			<Text>Flota skarbów|Floty skarbów|Flocie skarbów|Flotę skarbów</Text>
+			<Gender>feminine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<!--Diplo Promotion Help-->
+		<Row Tag="TXT_KEY_PROMOTION_EMISSARY_HELP">
+			<Text>Zyskujesz 40 [ICON_INFLUENCE] wpływów, kiedy przeprowadzasz misję dyplomatyczną.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ENVOY_HELP">
+			<Text>Zyskujesz 45 [ICON_INFLUENCE] wpływów, kiedy przeprowadzasz misję dyplomatyczną.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DIPLOMAT_HELP">
+			<Text>Zyskujesz 50 [ICON_INFLUENCE] wpływów, kiedy przeprowadzasz misję dyplomatyczną.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_AMBASSADOR_HELP">
+			<Text>Zyskujesz 55 [ICON_INFLUENCE] wpływów, kiedy przeprowadzasz misję dyplomatyczną.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_GREAT_DIPLOMAT_HELP">
+			<Text>Zyskujesz 70 [ICON_INFLUENCE] wpływów, kiedy przeprowadzasz misję dyplomatyczną i obniżasz [ICON_INFLUENCE] wpływy innych cywilizacji z tym państwem-miastem o tę samą wartość. Zyskujesz dodatkowe [ICON_INFLUENCE] wpływy za każdą zakończoną epokę. Ma zdolność wchodzenia na terytorium przeciwnika bez porozumienia o otwartych granicach.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_GREAT_MERCHANT_HELP">
+			<Text>Zyskujesz tony [ICON_GOLD] złota, ale nie [ICON_INFLUENCE] wpływy, kiedy przeprowadzasz misję dyplomatyczną tą jednostką.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_NOBEL_LAUREATE_HELP">
+			<Text>Zapewnia jednostkom dyplomatycznym +10 [ICON_INFLUENCE] wpływów, kiedy przeprowadzasz misję dyplomatyczną. Premia jest ekskluzywna dla cywilizacji Szwecji (jeśli używasz cech CSD dla Szwecji).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SIGNET_HELP">
+			<Text>Zapewnia +5 [ICON_INFLUENCE] wpływów, kiedy przeprowadzasz misję dyplomatyczną.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_EXPRESS_HELP">
+			<Text>Zapewnia +5 [ICON_INFLUENCE] wpływów, kiedy przeprowadzasz misję dyplomatyczną i +1 [ICON_MOVES] ruchu.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_LITERACY_HELP">
+			<Text>Zapewnia +5 [ICON_INFLUENCE] wpływów, kiedy przeprowadzasz misję dyplomatyczną, +1 [ICON_MOVES] ruchu dla jednostek dyplomatycznych i zdolność ignorowania kar terenowych.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_IMMUNITY_HELP">
+			<Text>Zapewnia +5 [ICON_INFLUENCE] wpływów, kiedy przeprowadzasz misję dyplomatyczną i zdolność wchodzenia na terytorium przeciwnika bez porozumienia o otwartych granicach.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PAX_HELP">
+			<Text>+5 [ICON_INFLUENCE] wpływów, kiedy przeprowadzasz misję dyplomatyczną w państwie-mieście.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_NOBILITY_HELP">
+			<Text>+5 [ICON_INFLUENCE] wpływów, kiedy przeprowadzasz misję dyplomatyczną w państwie-mieście i zdolność wchodzenia na terytorium przeciwnika bez porozumienia o otwartych granicach.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_TREASURE_FLEET_HELP">
+			<Text>Zapewnia +1 [ICON_MOVES] ruchu, +1 zasięgu widzenia, +10% do ataku i zdolność leczenia się na nie własnych wodach.</Text>
+		</Row>
+
+  <!-- [xmlFILENAME]CityStateQuest.xml -->
+		<!-- DOW on Bully -->
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_WAR">
+			<Text>Chcemy, abyście wypowiedzieli wojnę {1_TargetName[3]}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_START_WAR">
+			<Text>{@2_MinorCivName} nas ostatnio {@2_MinorCivName: plural 1?nęka; other?nękają} i ich ludzie domagają się wymierzenia kary {1_TargetName[3]}. Jeśli pomożesz im w wojnie z {1_TargetName[5]}, zostaniemy wielce nagrodzeni.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_START_WAR">
+			<Text>{@2_MinorCivName} pragnie wojny z {1_TargetName[5]}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_WAR">
+			<Text>Obywatele {@1_MinorCivName[2]} cieszą się, widząc, że poszliśmy na wojnę u ich boku.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_WAR">
+			<Text>Rozpoczęła się wojna dla {@1_MinorCivName[2]}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_WAR_FORMAL">
+			<Text>Chcą, żebyśmy wypowiedzieli wojnę {1_TargetName[3]}.</Text>
+		</Row>
+
+		<!-- Construct National Wonder -->
+
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CONSTRUCT_NATIONAL_WONDER">
+			<Text>Chcemy, abyście wybudowali {@1_NationalWonderName[4]}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_CONSTRUCT_NATIONAL_WONDER">
+			<Text>Historycy {@2_CivName[2]} ubolewają, że imperia na świecie są dekadenckie i zbyt rozległe. Twierdzą, że cywilizacja, która wzniesie {@1_NationalWonderName[4]} odkupi swoją imperialistyczną wzniosłość i jednocześnie zyska przychylność tego państwa-miasta.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_CONSTRUCT_NATIONAL_WONDER">
+			<Text>{@2_CivName} {@2_CivName: plural 1?pragnie; other?pragną} {@1_NationalWonderName[2]}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_CONSTRUCT_NATIONAL_WONDER">
+			<Text>{@2_CivName} {@2_CivName: plural 1?{@2_CivName: gender masculine?miał; feminine?miała; neuter?miało}; 2?{@2_CivName: gender masculine?mieli; *?miały}} nadzieję, że wybudujesz {@1_NationalWonderName[4]}!!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_CONSTRUCT_NATIONAL_WONDER">
+			<Text>{@1_NationalWonderName} zbudowany dla {@2_CivName[2]}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CONSTRUCT_NATIONAL_WONDER_FORMAL">
+			<Text>Chcą, żebyśmy wybudowali {1_NationalWonderName[4]}.</Text>
+		</Row>
+
+		<!-- Find City State -->
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_FIND_CITY_STATE">
+			<Text>Chcemy, abyś odnalazł {1_TargetName[4]}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_FIND_CITY_STATE">
+			<Text>Kupcy z {2_CivName[2]} słyszeli o odległym mieście, zwanym {1_TargetName:textkey}. {2_CivName:textkey} {2_CivName: plural 1?szuka; other?szukają} teraz odkrywców, którzy pomogą odnaleźć to miasto. Jeśli uda nam się tego dokonać, zostaniemy nagrodzeni.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_FIND_CITY_STATE">
+			<Text>{2_CivName:textkey} {2_CivName: plural 1?chce; other?chcą} odnaleźć{1_TargetName[4]}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_FIND_CITY_STATE">
+			<Text>{@2_CivName} {@2_CivName: plural 1?{@2_CivName: gender masculine?miał; feminine?miała; neuter?miało}; 2?{@2_CivName: gender masculine?mieli; *?miały}} nadzieję, że odnajdziesz miasto {1_TargetName[4]}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_FIND_CITY_STATE">
+			<Text>Odnaleziono miasto {1_TargetName[4]} dla {2_CivName:textkey}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_FIND_CITY_STATE_FORMAL">
+			<Text>Chcą, abyśmy odnaleźli państwo-miasto {1_CityStateName[4]}.</Text>
+		</Row>
+
+		<!-- Influence Boost -->
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_INFLUENCE">
+			<Text>Wyślij dyplomatów na nasz szczyt.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_INFLUENCE">
+			<Text>{3_MinorCivName:textkey} {3_MinorCivName: plural 1?jest; other?są} gospodarzem forum o rządzeniu i {3_MinorCivName: plural 1?zachęca; other?zachęcają} delegatów ze wszystkich cywilizacji do uczestnictwa. Każda misja dyplomatyczna u nich w tym czasie będzie bardziej efektywna, dając [COLOR_POSITIVE_TEXT]{2_BoostPercentage}%[ENDCOLOR] więcej [ICON_INFLUENCE] wpływów.  [COLOR_POSITIVE_TEXT]{1_TurnsRemaining: plural 1?pozostało; 2?pozostały; 3?pozostało} {1_TurnsRemaining} {1_TurnsRemaining: plural 1?tura; 2?tury; 3?tur}.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_INFLUENCE">
+			<Text>{1_MinorCivName:textkey} jest gospodarzem forum</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_INFLUENCE">
+			<Text>Forum w {1_MinorCivName[6]} zakończyło się. Ilość [ICON_INFLUENCE] wpływów zyskiwanych z misji dyplomatycznych wraca do normy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_INFLUENCE">
+			<Text>{1_MinorCivName:textkey} {3_MinorCivName: plural 1?zamyka; other?zamykają} swoje forum</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_INFLUENCE_FORMAL">
+			<Text>Misje dyplomatyczne są chwilowo bardziej efektywne.</Text>
+		</Row>
+
+		<!-- Tourism Contest -->
+
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_TOURISM">
+			<Text>Przygotuj się do festiwalu narodów.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_TOURISM">
+			<Text>Lud {3_MinorCivName[2]} będzie wkrótce gospodarzem festiwalu narodów. Aby się przygotować, wyślij delegacje do każdej głównej cywilizacji w znanym świecie. Gracz z największym przychodem [ICON_TOURISM] turystyki po {2_TurnsDuration} {2_TurnsDuration: plural 1?turze; other?turach} bez wątpienia najbardziej zaimponuje delegatom. [COLOR_POSITIVE_TEXT]{1_TurnsRemaining} {1_TurnsRemaining: plural 1?tura; 2?tury; 3?tur} do rozpoczęcia festiwalu.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_TOURISM">
+			<Text>{1_MinorCivName:textkey} {3_MinorCivName: plural 1?gotuje; other?gotują} się do festiwalu narodów</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_TOURISM">
+			<Text>Zaimponowaliśmy {1_MinorCivName[3]} [ICON_TOURISM] turystyką naszej cywilizacji! Są rozczarowani innymi cywilizacjami.  Cywilizacje, którym się powiodło (dopuszczalne remisy):[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_CONTEST_TOURISM">
+			<Text>Inna cywilizacja wywołała podziw w {1_MinorCivName[2]} swoją [ICON_TOURISM] turystyką. Twoja [ICON_TOURISM] turystyka nie wystarczyła.  Cywilizacje, którym się powiodło (dopuszczalne remisy):[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_TOURISM">
+			<Text>{1_MinorCivName:textkey} {1_MinorCivName: plural 1?jest; other?są} pod wrażeniem twojej turystyki!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_CONTEST_TOURISM">
+			<Text>{1_MinorCivName:textkey} nie {1_MinorCivName: plural 1?jest; other?są} pod wrażeniem twojej turystyki</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_INFLUENCE_TOURISM_FORMAL">
+			<Text>Nagrodzą gracza z największym wytwarzaniem [ICON_TOURISM] turystyki na turę.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CONTEST_TOURISM_WINNING_FORMAL">
+			<Text>{TXT_KEY_CITY_STATE_QUEST_INFLUENCE_TOURISM_FORMAL} Póki co, prowadzisz z wynikiem [ICON_TOURISM] [COLOR_POSITIVE_TEXT]{1_PlayerScore} na turę[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CONTEST_TOURISM_LOSING_FORMAL">
+			<Text>{TXT_KEY_CITY_STATE_QUEST_INFLUENCE_TOURISM_FORMAL} Póki co, lider ma [ICON_TOURISM] {1_LeaderScore} na turę, a ty [ICON_TOURISM] [COLOR_POSITIVE_TEXT]{2_PlayerScore} na turę[ENDCOLOR].</Text>
+		</Row>
+
+		<!-- Archaeology -->
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_ARCHAEOLOGY">
+			<Text>Zbadaj ślady obok tego państwa-miasta.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ARCHAEOLOGY">
+			<Text>Błyskotliwy profesor z {1_MinorCivName[2]} wystosował globalną prośbę, aby ktoś zbadał pobliską lokację w poszukiwaniu wartościowych artefaktów. Pierwszy gracz, który wyśle archeologa, aby zbadać to miejsce, zostanie nagrodzony.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ARCHAEOLOGY">
+			<Text>{1_MinorCivName:textkey} {1_MinorCivName: plural 1?poszukuje; other?poszukują} archeologa</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_ARCHAEOLOGY">
+			<Text>Profesor z {1_MinorCivName[2]} jest podekscytowany rezultatami twoich wykopalisk o zapewnia, że cokolwiek się odnalazło z całą pewnością należy umieścić w muzeum.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_ARCHAEOLOGY">
+			<Text>Ukończono wykopaliska archeologiczna dla {1_MinorCivName[2]}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_ARCHAEOLOGY_FORMAL">
+			<Text>Wyślij archeologa do śladów obok tego państwa-miasta.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_ARCHAEOLOGY">
+			<Text>Zagraniczny zespół archeologów był o jeden krok przed tobą i jako pierwszy przeszukał ślady obok {1_MinorCivName[2]}. Profesor z {1_MinorCivName[2]} był pod wrażeniem ich pracy i ich wpływy w tym państwie-mieście się zwiększyły.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_ARCHAEOLOGY">
+			<Text>Ślady przeczesane przez kogoś innego!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_ARCHAEOLOGY_QUEST_LONG">
+			<Text>Państwo-miasto {1_CivName:textkey} chce, abyś wysłał archeologa do zbadania tego pola.</Text>
+		</Row>
+
+		<!-- Circumnavigation -->
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CIRCUMNAVIGATION">
+			<Text>Udowodnij, że świat jest okrągły.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_CIRCUMNAVIGATION">
+			<Text>Żeglarze z {1_MinorCivName[2]} słyszeli, że nawigatorzy z innych cywilizacji i państw-miast twierdzą, że świat może być okrągły i chcą abyśmy sprawdzili, jak jest naprawdę. Jeśli uda ci się udowodnić, że świat jest okrągły, twoje [ICON_INFLUENCE] wpływy w tym państwie-mieście wzrosną.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_CIRCUMNAVIGATION">
+			<Text>{1_MinorCivName:textkey} {1_MinorCivName: plural 1?poszukuje; other?poszukują} nieustraszonych nawigatorów</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_CIRCUMNAVIGATION">
+			<Text>Żeglarze z {1_MinorCivName[2]} są pod wrażeniem twoich adeptów nawigacji i zachwyceni tym, że świat nie jest płaskim dyskiem.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_CIRCUMNAVIGATION">
+			<Text>Opłynięto świat dla {1_MinorCivName[2]}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CIRCUMNAVIGATION_FORMAL">
+			<Text>Bądź pierwszym, który okrąż świat.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_CIRCUMNAVIGATION">
+			<Text>Ktoś inny okrążył świat dla {1_MinorCivName[2]}. Twoi nawigatorzy są zniechęceni a twoje wpływy w tym państwie-mieście nie wzrastają.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_CIRCUMNAVIGATION">
+			<Text>Ktoś inny okrążył świat</Text>
+		</Row>
+
+		<!-- Liberation -->
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_LIBERATION">
+			<Text>Wyzwól państwo-miasto</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_LIBERATION">
+			<Text>Partyzanci z podbitego miasta {1_MinorCivName[2]} sprzymierzyli się z przywódcami {2_MinorCivName[2]} i proszą o twoją pomoc w odbiciu ich stolicy. Jeśli pomożesz partyzantom z {1_MinorCivName[2]} wyzwolić ich stolicę, twoje [ICON_INFLUENCE] wpływy w obu państwach-miastach znacznie się zwiększą.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_LIBERATION">
+			<Text>{2_MinorCivName:textkey} {1_MinorCivName: plural 1?wzywa; other?wzywają} do wyzwolenia {1_MinorCivName[2]}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_LIBERATION">
+			<Text>Przywódcy {2_MinorCivName[2]} chwalą twoje heroiczne czyny i dziękują ci za wyzwolenie {1_MinorCivName[2]}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_LIBERATION">
+			<Text>Wyzwolenie {1_MinorCivName[2]} osiągnięte dla {2_MinorCivName[2]}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_LIBERATION_FORMAL">
+			<Text>Chcą, abyśmy wyzwolili państwo-miasto {1_CityStateName[4]}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_LIBERATION">
+			<Text>Partyzanci z {1_CityStateName[2]} nie potrzebują już twojej pomocy. W rezultacie, przywódcy {2_MinorCivName[2]} odwołali swoją prośbę o wsparcie.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_LIBERATION">
+			<Text>Pomoc w wyzwoleniu {1_MinorCivName[2]} nie jest dłużej potrzebna</Text>
+		</Row>
+
+		<!-- Horde -->
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_HORDE">
+			<Text>Hordy barbarzyńców</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_HORDE">
+			<Text>Hordy barbarzyńców pojawiły się przy {2_MinorCivName[6]}! Jeśli utrzymają oni swoje oblężenie przez {1_TurnsRemaining: plural 1?kolejną; other?kolejne} [COLOR_POSITIVE_TEXT]{1_TurnsRemaining}[ENDCOLOR] {1_TurnsRemaining: plural 1?tura; 2?tury; 3?tur}, [COLOR_NEGATIVE_TEXT]miasto zostanie spląrowaneENDCOLOR]!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_HORDE">
+			<Text>Barbarzyńska horda atakuje {1_MinorCivName[4]}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_HORDE">
+			<Text>Barbarzyńskiej hordzie z okolic {1_MinorCivName[2]} nie udało się splądrować miasta i jest teraz rozpędzona.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_HORDE">
+			<Text>Rozpędzono hordę obok {1_MinorCivName[2]}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_HORDE_FORMAL">
+			<Text>Chroń ich przed barbarzyńską hordą!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_HORDE">
+			<Text>Państwo-miasto {1_CityStateName:textkey} uległo barbarzyńcom i [COLOR_NEGATIVE_TEXT]jest teraz plądrowane[ENDCOLOR]! Pozostanie pod kontrolą barbarzyńców, dopóki ktoś go nie odbije.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_HORDE">
+			<Text>Barbarzyńcy splądrowali {1_MinorCivName[4]}!</Text>
+		</Row>
+
+		<!--Rebellion -->
+
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_REBELLION">
+			<Text>Rebelia ideologiczna</Text>
+		</Row>
+
+			<!-- Start Desc -->
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_REBELLION_GENERAL">
+			<Text>Obywatele {3_MinorCivName[2]} rozpoczęli rewolucję przeciwko {2_TargetName[3]}! Jeśli rebelianci utrzymają swoją obecność przez [COLOR_POSITIVE_TEXT]{1_TurnsRemaining}[ENDCOLOR] {1_TurnsRemaining: plural 1?turę; 2?tury; 3?tur}, [COLOR_NEGATIVE_TEXT]miasto podda się rewolucji[ENDCOLOR] i zmienią się jego sojusze.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_REBELLION_GENERAL_BLANK">
+			<Text>Obywatele {3_MinorCivName[2]} rozpoczęli rewolucję przeciwko {2_TargetName[3]}! Jeśli rebelianci utrzymają swoją obecność przez [COLOR_POSITIVE_TEXT]{1_TurnsRemaining}[ENDCOLOR] {1_TurnsRemaining: plural 1?turę; 2?tury; 3?tur}, [COLOR_NEGATIVE_TEXT]miasto podda się rewolucji[ENDCOLOR] i zmienią się jego sojusze.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_REBELLION_GENERAL_BLANK_RANDOM">
+			<Text>Obywatele {2_MinorCivName[2]} rozpoczęli rewolucję przeciwko ich obecnemu rządowi! Jeśli rebelianci utrzymają swoją obecność przez [COLOR_POSITIVE_TEXT]{1_TurnsRemaining}[ENDCOLOR] {1_TurnsRemaining: plural 1?turę; 2?tury; 3?tur}, [COLOR_NEGATIVE_TEXT]miasto podda się rewolucji[ENDCOLOR] i zmienią się jego sojusze.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_REBELLION_FREEDOM">
+			<Text>Bojownicy o wolność z {3_MinorCivName[2]} prowadzą rewolucję przeciwko {2_TargetName[3]}! Jeśli rebelianci utrzymają swoją obecność przez [COLOR_POSITIVE_TEXT]{1_TurnsRemaining}[ENDCOLOR] {1_TurnsRemaining: plural 1?turę; 2?tury; 3?tur}, [COLOR_NEGATIVE_TEXT]miasto podda się rewolucji[ENDCOLOR] i zmienią się jego sojusze.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_REBELLION_ORDER">
+			<Text>Proletariat z {3_MinorCivName[2]} prowadzi rewolucję przeciwko {2_TargetName[3]}! Jeśli rebelianci utrzymają swoją obecność przez [COLOR_POSITIVE_TEXT]{1_TurnsRemaining}[ENDCOLOR] {1_TurnsRemaining: plural 1?turę; 2?tury; 3?tur}, [COLOR_NEGATIVE_TEXT]miasto podda się rewolucji[ENDCOLOR] i zmienią się jego sojusze.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_REBELLION_AUTOCRACY">
+			<Text>Partyzanci z {3_MinorCivName[2]} prowadzą rewolucję przeciwko {2_TargetName:textkey}! Jeśli rebelianci utrzymają swoją obecność przez [COLOR_POSITIVE_TEXT]{1_TurnsRemaining}[ENDCOLOR] {1_TurnsRemaining: plural 1?turę; 2?tury; 3?tur}, [COLOR_NEGATIVE_TEXT]miasto podda się rewolucji[ENDCOLOR] i zmienią się jego sojusze.</Text>
+		</Row>
+
+			<!-- Start Summary -->
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_REBELLION">
+			<Text>Rewolucja przeciwko {1_TargetName[2]} w {2_MinorCivName[6]}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_REBELLION_BLANK">
+			<Text>Rewolucja przeciwko {1_TargetName[2]} w {2_MinorCivName[6]}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_REBELLION_BLANK_RANDOM">
+			<Text>Rewolucja w {1_MinorCivName[6]}</Text>
+		</Row>
+
+			<!-- Complete -->
+
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_REBELLION">
+			<Text>Nie powiodło się rewolucjonistom z {1_MinorCivName[2]} i ich morale jest teraz złamane.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_REBELLION">
+			<Text>Rewolucja w {1_MinorCivName[6]} zdławiona!</Text>
+		</Row>
+
+			<!-- Formal -->
+
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_REBELLION_FORMAL">
+			<Text>Toczy się rewolucja przeciwko ich sprzymierzeńcowi!</Text>
+		</Row>
+
+			<!-- Ended -->
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_REBELLION">
+			<Text>Rewolucja w {2_CityStateName[6]} powiodła się i ich sojusz z {1_TargetName[5]} został zerwany. {2_CityStateName:textkey} {2_CityStateName: plural 1?szuka; other?szukają} teraz przyjaźni i ochrony ze strony innych imperiów.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_REBELLION">
+			<Text>Zwycięska rewolucja w {1_MinorCivName[6]}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_REBELLION_BLANK">
+			<Text>Rewolucja w {1_CityStateName[6]} zakończyła się. {1_CityStateName:textkey} {2_CityStateName: plural 1?szuka; other?szukają} teraz przyjaźni i ochrony ze strony innych imperiów.</Text>
+		</Row>
+
+  <!-- [xmlFILENAME]Paper.xml -->
+		<Row Tag="TXT_KEY_RESOURCE_PAPER">
+			<Text>Papier|Papieru|Papierowi|Papier</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_PAPER_HELP">
+			<Text>Wymagany do budowy [ICON_INFLUENCE] jednostek dyplomatycznych. Bardziej zaawansowane jednostki dyplomatyczne wymagają więcej niż jednej sztuki papieru do wytrenowania.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_PAPER">
+			<Text>Papier</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_PAPER_TEXT">
+			<Text>
+				Papier to spilśniona na sicie masa włóknista pochodzenia organicznego o gramaturze od 28 do 200 g/m². Wytwarzany poprzez ułożenie na sicie włókien. Papier jest wytwarzany w formie arkuszy lub wstęgi nawijanej w zwoje. Po uformowaniu masy na sicie jest odwadniany, prasowany, suszony i gładzony w podzielonych etapach ciągłego procesu wytwarzania. Papier (według chińskich kronik) został wynaleziony w Chinach przez kancelistę na dworze cesarza He Di z dynastii Han, eunucha Cai Lun, około 105 r. n.e. Kancelista eksperymentował z korą drzew, jedwabiem, a nawet sieciami rybackimi, aż trafił na właściwą metodę (papier czerpany) z użyciem szmat jedwabnych i lnianych. Cesarz He Di w uznaniu doniosłości wynalazku podniósł go do godności ministra rolnictwa.[NEWLINE][NEWLINE]W Civilization V, "papier" jest używany do celów dyplomatycznych. Jako taki, jest to metaforą zarządzania, dokumentacji politycznej i legalnej władzy.
+			</Text>
+		</Row>
+
+  <!-- [xmlFILENAME]CivilServant.xml -->
+		<Row Tag="TXT_KEY_SPECIALIST_CIVIL_SERVANT">
+			<Text>Urzędnik|Urzędnika|Urzędnikowi|Urzędnika|Urzędnicy|Urzędników|Urzędnikom|Urzędników</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1|1|1|1|2|2|2|2</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_SPECIALIST_CIVIL_SERVANT_STRATEGY">
+			<Text>Urzędnik wytwarza 1 [ICON_RESEARCH] nauki, 1 [ICON_CULTURE] kultury, 1 [ICON_GOLD] złota, i zwiększa szybkość powstawania wielkich dyplomatów. Ponadto konsumuje [ICON_FOOD] żywność, jednakże, urzędnicy pochłaniają też 1 [ICON_PRODUCTION] produkcji.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPECIALIST_CIVIL_SERVANT_SLOTS">
+			<Text>Miejsca urzędników:</Text>
+			<Gender>masculine</Gender>
+			<Plurality>2</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_SPECIALIST_CIVIL_SERVANT_TITLE">
+			<Text>Punkty wielkich dyplomatów:</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+
+  <!-- [xmlFILENAME]GreatDiplomats.xml -->
+		<Row Tag="TXT_KEY_GREAT_PERSON_KISSINGER">
+			<Text>Henry Kissinger</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_ALBRIGHT">
+			<Text>Madeleine Albright</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_ANNAN">
+			<Text>Kofi Annan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_BAN">
+			<Text>Ban Ki-Moon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_BELL">
+			<Text>Gertrude Bell</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_DINTEVILLE">
+			<Text>Jean de Dinteville</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_DURRELL">
+			<Text>Lawrence Durrell</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_DAG">
+			<Text>Dag Hammarskjold</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_WHOWARD">
+			<Text>William Howard</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_JAY">
+			<Text>John Jay</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_KOLLONTAI">
+			<Text>Aleksandra Kołłontaj</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_LAWRENCE">
+			<Text>T.E. Lawrence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_METTERNICH">
+			<Text>Klemens von Metternich</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_NERUDA">
+			<Text>Pablo Neruda</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_ODO">
+			<Text>Odo Russell</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_SELVE">
+			<Text>Georges de Selve</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_SEWARD">
+			<Text>William Seward</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_SHIGERU">
+			<Text>Yoshida Shigeru</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_SZABO">
+			<Text>Violette Szabo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_TALLEYRAND">
+			<Text>Charles-Maurice de Talleyrand</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_THANT">
+			<Text>Władysław Czartoryski</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_WALDHEIM">
+			<Text>Kurt Waldheim</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_WALLENBERG">
+			<Text>Raoul Wallenberg</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_WEIJUN">
+			<Text>Ignacy Potocki</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_PERSON_ZIMMERMAN">
+			<Text>Roman Dmowski</Text>
+		</Row>
+
+  <!-- [xmlFILENAME]UnitText.xml -->
+		<!-- EMISSARY -->
+		<Row Tag="TXT_KEY_UNIT_EMISSARY">
+			<Text>Emisariusz|Emisariusza|Emisariuszowi|Emisariusza</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_EMISSARY_STRATEGY">
+			<Text>Emisariusz to pierwsza jednostka dyplomatyczna dostępna dla gracza, reprezentuje wczesne próby pokojowej współpracy pomiędzy cywilizacjami. Jako że kultura dyplomacji jest, w starożytności, dosyć grubiańska, emisariusz nie jest oszałamiająco skuteczny. Zyskując tylko około 20 punktów wpływu z misji dyplomatycznych, nie oszlifował swojej sztuki dyplomacji, ani, jak można się było spodziewać, języków sąsiednich państw-miast.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_ANTIQUITY_EMISSARY_TEXT">
+			<Text>Mimo, że to najtańsza i najwcześniejsza  jednostka dyplomatyczna, emisariusze nie są solidnym źródłem stałych wpływów. Gracze powinni ich używać tylko do zabezpieczenia albo utrzymania stosunków z państwami-miastami, które już są przyjaciółmi lub sojusznikami. W związku z tym, najlepiej używać tych jednostek, aby po prostu wesprzeć twoje starania do ukończenia zadań państwa-miasta.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_HELP_EMISSARY">
+			<Text>Otrzymuje za darmo awans "[COLOR_POSITIVE_TEXT]Nowicjusz[ENDCOLOR]", który zapewnia 40 punktów [ICON_INFLUENCE] wpływu z misji dyplomatycznych.[ICON_MOVES] Przejdź tą jednostką do państwa-miasta, z którym nie masz wojny i przeprowadź misję dyplomatyczną, aby otrzymać [ICON_INFLUENCE] wpływy.</Text>
+		</Row>
+
+		<!-- Envoy -->
+		<Row Tag="TXT_KEY_UNIT_ENVOY">
+			<Text>Posłaniec|Posłańca|Posłańcowi|Posłańca</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_MEDIEVAL_ENVOY_TEXT">
+			<Text>W czasie średniowiecza, sztuka dyplomacji nareszcie dojrzała. Powstały w tym czasie nowe teorie o stosunkach zagranicznych, które były oparte nie na zasadzie "silny ma zawsze rację", lecz sztuce schlebiania, wyrafinowania i, jeśli trzeba, zastraszania. Posłaniec reprezentuje ten skok w sile dyplomatyczne i, w związku z tym, jest bardziej efektywny i droższy od emisariuszy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_ENVOY_STRATEGY">
+			<Text>Posłańcy są znacznie bardziej użytecznym źródłem wpływów w państwach-miastach. Ta przydatność przychodzi jednak z większą ceną. Gracze będą potrzebować dużej ilości papieru, albo z handlu albo z kancelarii, aby spełnić wymagania ich kwitnącej służby dyplomatycznej. Zadania państw-miast wciąż są bardzo istotne do utrzymania przyjacielskich bądź sojuszniczych realcji, ale ich znaczenie słabnie.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_HELP_ENVOY">
+			<Text>Otrzymuje za darmo awans "[COLOR_POSITIVE_TEXT]Adept[ENDCOLOR]", który zapewnia 50 punktów [ICON_INFLUENCE] wpływu z misji dyplomatycznych.[ICON_MOVES] Przejdź tą jednostką do państwa-miasta, z którym nie masz wojny i przeprowadź misję dyplomatyczną, aby otrzymać [ICON_INFLUENCE] wpływy.</Text>
+		</Row>
+
+		<!-- Diplomat -->
+		<Row Tag="TXT_KEY_UNIT_DIPLOMAT">
+			<Text>Dyplomata|Dyplomaty|Dyplomacie|Dyplomatę</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_INDUSTRIAL_DIPLOMAT_TEXT">
+			<Text>Obok filozofii oświecenia i potęgi nowoczesnej gospodarki, dyplomaci podczas epoki przemysłowej są "kopalnią" dyplomacji i wpływów. Mimo, że coraz drożsi, dyplomaci umożliwiają graczowi znacznie rozszerzyć zasięg swoich wpływów w państwach-miastach na świecie.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_DIPLOMAT_STRATEGY">
+			<Text>Dyplomaci są bardzo kosztowni w porównaniu do emisariuszów i posłańców. Gracze, którzy nie zwiększali sukcesywnie swoich zasobów papieru będą mieli trudności z utrzymaniem wpływów w państwach-miastach na świecie. Jeśli jednak masz surowce i odpowiednio wysoką produkcję, trenuj dyplomatów  w dużych ilościach, a świat uklęknie przed miękką potęgą twojego imperium i jego przekonującymi wpływami.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_HELP_DIPLOMAT">
+			<Text>Otrzymuje za darmo awans "[COLOR_POSITIVE_TEXT]Profesjonalista[ENDCOLOR]", który zapewnia 60 punktów [ICON_INFLUENCE] wpływu z misji dyplomatycznych.[ICON_MOVES] Przejdź tą jednostką do państwa-miasta, z którym nie masz wojny i przeprowadź misję dyplomatyczną, aby otrzymać [ICON_INFLUENCE] wpływy.</Text>
+		</Row>
+
+		<!-- Ambassador -->
+		<Row Tag="TXT_KEY_UNIT_AMBASSADOR">
+			<Text>Ambasador|Ambasadora|Ambasadorowi|Ambasadora</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_MODERN_AMBASSADOR_TEXT">
+			<Text>Współczesny ambasador, zrodzony z napięcia wytworzonego przez zbrojenia atomowe, reprezentuje szczyt potęgi dyplomatycznej. Lata treningu w lingwistyce, polityce, kulturze i gospodarce pozwalają ambasadorom kontrolować dowolne państw-miasto, które wybiorą. Te talenty czynią jednak ambasadorów najdroższymi jednostkami w grze - każdy ambasador kosztuje prawie tyle co czołg. Ta inwestycja może się wydawać wysoka, jednak jeśli gracz się zdecyduje się wycofać z dyplomacji z państwami-miastami, szybko ujrzy spadek swoich wpływów na scenie światowej, jako że inni gracze bez wątpliwości będą starali się zdominować Kongres Światowy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_AMBASSADOR_STRATEGY">
+			<Text>Ambasadorzy, mimo że kosztowni, są niezbędni do osiągnięcia zwycięstwa dyplomatycznego. Używaj ich, aby wyrwać państwa-miasta spod kontroli innych graczy, utrzymywać swoje własne sojusze i, ogólnie, trzymać władzę nad Kongresem Światowym w swoich rękach. Ta siła pozwoli ci na uchwalenie dowolnej rezolucji, którą wybierzesz, pozwalając ci tym samym trzymać globalną supremację w garści.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_HELP_AMBASSADOR">
+			<Text>Otrzymuje za darmo awans "[COLOR_POSITIVE_TEXT]Pełnomocnik[ENDCOLOR]", który zapewnia 70 punktów [ICON_INFLUENCE] wpływu z misji dyplomatycznych.[ICON_MOVES] Przejdź tą jednostką do państwa-miasta, z którym nie masz wojny i przeprowadź misję dyplomatyczną, aby otrzymać [ICON_INFLUENCE] wpływy.</Text>
+		</Row>
+
+		<!-- Great Diplomat-->
+		<Row Tag="TXT_KEY_UNIT_GREAT_DIPLOMAT">
+			<Text>Wielki dyplomata|Wielkiego dyplomaty|Wielkiemu dyplomacie|Wielkiego dyplomatę</Text>
+			<Gender>masculine</Gender>
+			<Plurality>1</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_GREAT_DIPLOMAT_TEXT">
+			<Text>W całej historii każdej cywilizacji, wielcy mediatorzy, doradcy i dygnitarze pojawiali się w czasie albo konfliktach wielkich potęg. Wielcy dyplomaci reprezentują te ważne postacie historyczne i, jako tacy, mają zdolność znacznego zwiększania siły dyplomatycznej gracza. Można ich używać, aby natychmiast zdobyć duże ilości wpływów w państwie-mieście, ale, jeśli patrzy się przyszłościowo, do zbudowania ambasady na ziemiach państwa-miasta, gwarantując sobie tym samym dodatkowy głos na Kongresie Światowym po jego założeniu.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_GREAT_DIPLOMAT_STRATEGY">
+			<Text>Otrzymuje darmowy awans "[COLOR_POSITIVE_TEXT]Mistrz dyplomacji[ENDCOLOR]", który zapewnia 70 [ICON_INFLUENCE] wpływy z misji dyplomatycznych, oraz dodatkowe [ICON_INFLUENCE] wpływy za każdą zakończoną epokę.[NEWLINE][NEWLINE]Możesz [ICON_MOVES] przejść tą jednostką do państwa-miasta, z którym nie masz wojny i wybrać spośród dwóch opcji. Po pierwsze, może przeprowadzić [COLOR_POSITIVE_TEXT]misję dyplomatyczną[ENDCOLOR], aby uzyskać [ICON_INFLUENCE] wpływy i zmniejszyć te innych cywilizacji o tę samą wartość. Po drugie, może wybudować [COLOR_POSITIVE_TEXT]ambasadę[ENDCOLOR], która zapewnia dodatkowy głos na Kongresie Światowym. Aby dowiedzieć się więcej o ambasadzie, zobacz sekcję "Ulepszenia" w Civilopedii. Wielki dyplomata zniknie po wykorzystaniu jednej z tych opcji.</Text>
+		</Row>
+
+  <!-- [xmlFILENAME]Congress.xml -->
+		<Row Tag="TXT_KEY_CITY_STATE_PERMANENT_ALLY_TT">
+			<Text>{1_CivName:textkey} {1_CivName: plural 1?jest; other?są} obecnie ich sojusznikiem. Dopóki ich [COLOR_POSITIVE_TEXT]strefa wpływów[ENDCOLOR] nie zostanie zniesiona, nie możesz ich usunąć z tej pozycji.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_ALLY_NOBODY_PERMA">
+			<Text>Ponieważ jest tu aktywny efekt [COLOR_POSITIVE_TEXT]polityki otwartych drzwi[ENDCOLOR], nikt nie może stać się sojusznikiem tego państwa-miasta.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_SOI">
+			<Text>Strefa wpływów</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_SOI_HELP">
+			<Text>Zażądaj strefy wpływów w państwie-mieście. Jeśli ci się uda, wnoszący gracz zostanie stałym sojusznikiem państwa-miasta (chyba, że rezolucja zostanie odrzucona). [NEWLINE][NEWLINE]Dostępne po wynalezieniu przez dowolną cywilizację silnika parowego.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SOI">
+			<Text>Strefy wpływów: {1_CivsList}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SOI_ENTRY">
+			<Text>{@1_CivName} (dla {@2_CivName[2]})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_DECOLONIZATION">
+			<Text>Dekolonizacja</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_DECOLONIZATION_HELP">
+			<Text>Zmuś gracza do dekolonizacji. Jeśli się powiedzie, [ICON_INFLUENCE] wpływy gracza obniża się o 50 we wszystkich państwach-miastach, które nie są jego stałymi sojusznikami. [NEWLINE][NEWLINE]Dostępne po wynalezieniu przez dowolną cywilizację radia.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_OPEN_DOOR">
+			<Text>Otwarte drzwi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_OPEN_DOOR">
+			<Text>Otwarte drzwi: {1_CivsList}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_OPEN_DOOR_ENTRY">
+			<Text>{@1_CivName}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_OPEN_DOOR_HELP">
+			<Text>Uchwalenie polityki otwartych drzwi w państwie-mieście. Jeśli się powiedzie, [ICON_INFLUENCE] wpływy wszystkich cywilizacji ustalą się natychmiast na poziomie 40 w tym państwie-mieście i nikt nie będzie mógł się stać sojusznikiem tego państwa-miasta dopóki ta rezolucja nie zostanie odrzucona.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_CHOICE_CITY_CSD">
+			<Text>{@1_CityName}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_PREFIX_PROPOSER">
+			<Text>{1_CivAdj}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_DECISION_CITY_CSD">
+			<Text>Wybierz państwo-miasto, którego ma dotyczyć rezolucja</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_SPACESHIP_INSPECTION">
+			<Text>Regulacje lotów kosmicznych</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_SPACESHIP_INSPECTION_HELP">
+			<Text>Regulacje lotów kosmicznych ograniczają rozrost nowoczesnych technologii balistycznych, nadzorują narodowe programy kosmiczne i ograniczają postęp potencjalnie niebezpiecznych technologii. [NEWLINE][NEWLINE]Tak długo, jak aktywna jest ta rezolucja, wszyscy gracze otrzymują globalną karę -25% [ICON_PRODUCTION] do produkcji części [ICON_VICTORY_SPACE] statków kosmicznego, +25% do kosztów ich zakupu w [ICON_GOLD] złocie [ICON_VICTORY_SPACE] oraz +25% kosztów [ICON_PEACE] wiary przy zakupie inżynierów.[NEWLINE][NEWLINE]Dostępne po wynalezieniu przez dowolną cywilizację teorii atomu.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SPACESHIP_LIMIT">
+			<Text>{1_Spaceship}% do [ICON_PRODUCTION] produkcji podczas budowy części SK</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SPACESHIP_PURCHASE">
+			<Text>+{1_Spaceship}% do kosztów zakupu w [ICON_GOLD] złocie części SK i zakupu w [ICON_PEACE] wierze wielkich inżynierów</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_WORLD_WAR">
+			<Text>Casus Belli</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_WORLD_WAR_HELP">
+			<Text>Świat uznaje potrzebę usprawiedliwionej wojny do rozstrzygnięcia sporów politycznych.[NEWLINE][NEWLINE]Kiedy ta rezolucja jest aktywna, koszt utrzymania jednostek zostaje obniżony o 15% [ICON_GOLD] złota. [ICON_VICTORY_DOMINATION] Kary za podżeganie za zdobywanie miast i wypowiadanie wojen są znacznie obniżone a punktacja [ICON_VICTORY_DOMINATION] podżegacza spada znacznie szybciej niż normalnie.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_WORLD_WAR">
+			<Text>{1_UnitMaintenancePercent}% [ICON_GOLD] złota do kosztów utrzymania jednostek. [ICON_VICTORY_DOMINATION] Kary za podżeganie znacznie obniżone</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_WAR_PEACE">
+			<Text>+{1_UnitMaintenancePercent}% [ICON_GOLD] złota do kosztów utrzymania jednostek.. [ICON_VICTORY_DOMINATION] Kary za podżeganie niezmienione</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_COLD_WAR">
+			<Text>Zimna wojna</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_COLD_WAR_HELP">
+			<Text>Różnice ideologiczne wprowadziły świat w zimną wojnę, frakcje gospodarcze i polityczne tworzą się bazując jedynie na ideologii. [NEWLINE][NEWLINE]Kiedy ta rezolucja jest aktywna, gracza mogą tworzyć [ICON_INTERNATIONAL_TRADE] szlaki handlowe tylko do cywilizacje, które mają taką samą ideologię lub do sprzymierzonych państw-miast. Ponadto, poziomy [ICON_INFLUENCE] wpływy w sojuszniczych państwach-miastach się nie zmniejszają. [NEWLINE][NEWLINE]Dostępne po wynalezieniu przez dowolną cywilizację teorii atomu.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_EMBARGO_IDEOLOGY">
+			<Text>Nie można zakładać [ICON_INTERNATIONAL_TRADE] szlaków handlowych do przeciwników ideologicznych i niesprzymierzonych państw-miast. [ICON_INFLUENCE] wpływy w sojuszniczych państwach-miastach nie spadają.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION">
+			<Text>Zapobiega temu aktywna albo proponowana rezolucja.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_PREREQ">
+			<Text>Niedostępne, dopóki nie jest aktywna ideologia światowa.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_POSITIVE_GREAT_PERSON_RATE_SCIENCEY">
+			<Text>Premia do [ICON_FOOD]/[ICON_RESEARCH] dla cywilizacji z punktacją poniżej średniej światowej. +{1_GreatPersonRateMod}% do szybkości generowania {2_GreatPersonList}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_POSITIVE_GREAT_PERSON_RATE_ARTSY">
+			<Text>Premia do [ICON_PRODUCTION]/[ICON_CULTURE] dla cywilizacji z punktacją poniżej średniej światowej. +{1_GreatPersonRateMod}% do szybkości generowania {2_GreatPersonList}</Text>
+		</Row>
+
+  <!-- [xmlFILENAME]Project.xml -->
+		<Row Tag="TXT_KEY_PROCESS_TREASURE_FLEET">
+			<Text>Flota Skarbów</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_TREASURE_FLEET_HELP">
+			<Text>Przeznacz [ICON_PRODUCTION] produkcję tego miasta na projekt Floty Skarbów. Koszt wzrasta w zależności od liczby graczy w grze i obecnej epoki.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_RESOLUTION_TREASURE_FLEET">
+			<Text>Flota Skarbów</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_TREASURE_FLEET_HELP">
+			<Text>Inicjuje projekt Floty Skarbów. Podczas jego trwania cywilizacje mogą przekazywać [ICON_PRODUCTION] produkcję, by przyspieszyć prace - w tym celu należy wybrać odpowiednią pozycję na liście produkcji w mieście. Po zakończeniu projektu cywilizacje otrzymają premie zależne od wysokości ich wkładu.[NEWLINE][NEWLINE][ICON_TROPHY_GOLD]: {TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_3_HELP}[NEWLINE][ICON_TROPHY_SILVER]: {TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_2_HELP}[NEWLINE][ICON_TROPHY_BRONZE]: {TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_1_HELP}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_TREASURE_FLEET">
+			<Text>Flota Skarbów</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_TREASURE_FLEET_SPLASH">
+			<Text>Admirałowie, nawigatorzy, żeglarze i szkutnicy z całego świata zbierają surowce do stworzenia Floty Skarbów, największej i najbardziej prestiżowej floty statków, jaka kiedykolwiek powstała.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_1">
+			<Text>Nagroda szkutnika</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_1_HELP">
+			<Text>Otrzymujesz jedną fregatę oraz 300 punktów [ICON_GOLDEN_AGE] złotej ery.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_2">
+			<Text>Wprawny nawigator</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_2_HELP">
+			<Text>Otrzymujesz darmowego wielkiego admirała a 3 twoje jednostki wojskowe są wolne od kosztów utrzymania.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_3">
+			<Text>Mistrz floty</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_3_HELP">
+			<Text>Cud Canal Grande pojawia się w [ICON_CAPITAL] stolicy. ({TXT_KEY_BUILDING_GRAND_CANAL_HELP})</Text>
+		</Row>
+		<!-- Wargames -->
+		<Row Tag="TXT_KEY_PROCESS_WARGAMES">
+			<Text>Światowe Gry Wojenne</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_WARGAMES_HELP">
+			<Text>Przeznacz [ICON_PRODUCTION] produkcję tego miasta na projekt Światowych Gier Wojennych. Koszt wzrasta w zależności od liczby graczy w grze i obecnej epoki.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_RESOLUTION_WARGAMES">
+			<Text>Światowe Gry Wojenne</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_WARGAMES_HELP">
+			<Text>Inicjuje projekt Światowych Gier Wojennych. Podczas jego trwania cywilizacje mogą przekazywać [ICON_PRODUCTION] produkcję, by przyspieszyć prace - w tym celu należy wybrać odpowiednią pozycję na liście produkcji w mieście. Po zakończeniu projektu cywilizacje otrzymają premie zależne od wysokości ich wkładu.[NEWLINE][NEWLINE][ICON_TROPHY_GOLD]: {TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_3_HELP}[NEWLINE][ICON_TROPHY_SILVER]: {TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_2_HELP}[NEWLINE][ICON_TROPHY_BRONZE]: {TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_1_HELP} [NEWLINE][NEWLINE]Dostępne po wynalezieniu przez dowolną cywilizację części zamiennych.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_WARGAMES">
+			<Text>Światowe Gry Wojenne</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_WARGAMES_SPLASH">
+			<Text>Żołnierze i oficerowie z imperiów świata zgromadzili się, aby podkreślić swoje zdolności bitewne i udowodnić swoją wyższość na świecie.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_1">
+			<Text>Pułkownik</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_1_HELP">
+			<Text>Otrzymujesz jedną piechotę a 4 twoje jednostki wojskowe są wolne od kosztów utrzymania.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_2">
+			<Text>Generał</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_2_HELP">
+			<Text>Otrzymujesz darmowego wielkiego generała i +4 [ICON_HAPPINESS_1] zadowolenia.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_3">
+			<Text>Feldmarszałek</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_WARGAMES_3_HELP">
+			<Text>Otrzymujesz premię +25% do ataku przez następne 30 tur.</Text>
+		</Row>
+		<!-- UNITED_NATIONS -->
+
+		<Row Tag="TXT_KEY_PROCESS_UNITED_NATIONS">
+			<Text>Organizacja Narodów Zjednoczonych</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_UNITED_NATIONS_HELP">
+			<Text>Przeznacz [ICON_PRODUCTION] produkcję tego miasta na projekt Organizacji Narodów Zjednoczonych. Koszt wzrasta w zależności od liczby graczy w grze i obecnej epoki.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_RESOLUTION_UNITED_NATIONS">
+			<Text>Organizacja Narodów Zjednoczonych</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOLUTION_UNITED_NATIONS_HELP">
+			<Text>Inicjuje projekt Organizacji Narodów Zjednoczonych. Podczas jego trwania cywilizacje mogą przekazywać [ICON_PRODUCTION] produkcję, by przyspieszyć prace. Po zakończeniu projektu cywilizacje otrzymają premie zależne od wysokości ich wkładu.[NEWLINE][NEWLINE][ICON_TROPHY_GOLD]: {TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_3_HELP}[NEWLINE][ICON_TROPHY_SILVER]: {TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_2_HELP}[NEWLINE][ICON_TROPHY_BRONZE]: {TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_1_HELP} [NEWLINE][NEWLINE]Dostępne po wynalezieniu przez dowolną cywilizację teorii atomu.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_UNITED_NATIONS">
+			<Text>Organizacja Narodów Zjednoczonych</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_UNITED_NATIONS_SPLASH">
+			<Text>Wzeszła nowa epoka w światowej dyplomacji i relacjach międzynarodowych. Delegaci, oficjele i dygnitarze z całego świata zebrali się, aby świętować powstanie Organizacji Narodów Zjednoczonych i związanej z nią przyszłości ludzkiej rasy.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_1">
+			<Text>Wysoki komisarz</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_1_HELP">
+			<Text>Otrzymujesz darmowego wielkiego dyplomatę.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_2">
+			<Text>Stały członek</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_2_HELP">
+			<Text>Otrzymujesz natychmiastową premię 25 punktów [ICON_INFLUENCE] wpływu we wszystkich państwach-miastach. Cud narodowy Konsulat National pojawia się w [ICON_CAPITAL] stolicy. ({TXT_KEY_CONSULATE_HELP})</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_3">
+			<Text>Sekretarz generalny</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_3_HELP">
+			<Text>Cud Organizacja Narodów Zjednoczonych pojawia się w [ICON_CAPITAL] stolicy. ({TXT_KEY_UN_HELP})</Text>
+		</Row>
+</Language_pl_PL>
+</GameData>

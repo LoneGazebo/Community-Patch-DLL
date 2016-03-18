@@ -298,6 +298,13 @@
 			<Text>+150% [ICON_STRENGTH] Strength versus Air and Helicopter Units</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_ARSENALE">
+			<Text>Venetian Craftsmanship</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ARSENALE_HELP">
+			<Text>+10% [ICON_STRENGTH] Strength, +1 [ICON_MOVES] Movement</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_UNIT_EXPLORER_CBP">
 			<Text>Explorer</Text>
 		</Row>

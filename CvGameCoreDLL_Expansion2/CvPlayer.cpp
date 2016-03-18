@@ -467,6 +467,8 @@ CvPlayer::CvPlayer() :
 	, m_iChangeMinorityUnhappinessGlobal("CvPlayer::m_iChangeMinorityUnhappinessGlobal", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
+	, m_iCenterOfMassX("CvPlayer::m_iCenterOfMassX", m_syncArchive)
+	, m_iCenterOfMassY("CvPlayer::m_iCenterOfMassY", m_syncArchive)
 	, m_bIsReformation("CvPlayer::m_bIsReformation", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -573,6 +575,7 @@ CvPlayer::CvPlayer() :
 	, m_iCorporateFranchises("CvPlayer::m_iCorporateFranchises", m_syncArchive)
 	, m_bTradeRoutesInvulnerable("CvPlayer::m_bTradeRoutesInvulnerable", m_syncArchive)
 	, m_iTRSpeedBoost("CvPlayer::m_iTRSpeedBoost", m_syncArchive)
+	, m_iVotesPerGPT("CvPlayer::m_iVotesPerGPT", m_syncArchive)
 	, m_iTRVisionBoost("CvPlayer::m_iTRVisionBoost", m_syncArchive)
 	, m_iBuildingMaintenanceMod("CvPlayer::m_iBuildingMaintenanceMod", m_syncArchive)
 	, m_iEventTourism("CvPlayer::m_iEventTourism", m_syncArchive)
@@ -936,6 +939,10 @@ void CvPlayer::init(PlayerTypes eID)
 		{
 			ChangeEventTourism(GetPlayerTraits()->GetEventTourismBoost());
 		}
+		if(GetPlayerTraits()->GetStartingSpyRank() > 0)
+		{
+			ChangeStartingSpyRank(GetPlayerTraits()->GetStartingSpyRank());
+		}
 #endif
 		CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
 #if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
@@ -1230,6 +1237,8 @@ void CvPlayer::uninit()
 	m_iChangeMinorityUnhappinessGlobal = 0;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	m_iCenterOfMassX = 0;
+	m_iCenterOfMassY = 0;
 	m_bIsReformation = false;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -1471,6 +1480,7 @@ void CvPlayer::uninit()
 	m_iCorporateFranchises = 0;
 	m_bTradeRoutesInvulnerable = false;
 	m_iTRSpeedBoost = 0;
+	m_iVotesPerGPT = 0;
 	m_iTRVisionBoost = 0;
 	m_iBuildingMaintenanceMod = 0;
 	m_iEventTourism = 0;
@@ -4587,6 +4597,85 @@ void CvPlayer::DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID)
 		}
 	}
 #endif
+}
+CvPlot* CvPlayer::GetCenterOfMassEmpire() const
+{
+	if(m_iCenterOfMassX == -1 || m_iCenterOfMassY == -1)
+	{
+		return NULL;
+	}
+	//this handles wrapped coordinates
+	CvPlot* pRtnValue = GC.getMap().plot(m_iCenterOfMassX, m_iCenterOfMassY);
+	
+	return pRtnValue;
+}
+void CvPlayer::SetCenterOfMassEmpire()
+{
+	int iTotalX = 0;
+	int iTotalY = 0;
+	int iNumCities = 0;
+
+	int iLoop;
+	CvCity* pCity = firstCity(&iLoop);
+
+	if (!pCity)
+		return;
+
+	int iTotalX2 = 0;
+	int iTotalY2 = 0;
+	int iWorldWidth = GC.getMap().getGridWidth();
+	int iWorldHeight = GC.getMap().getGridHeight();
+
+	//the first unit is our reference ...
+	int iRefX = pCity->getX();
+	int iRefY = pCity->getY();
+	iNumCities++;
+	pCity = nextCity(&iLoop);
+
+	while(pCity)
+	{
+		if(pCity->IsPuppet())
+		{
+			pCity = nextCity(&iLoop);
+			continue;
+		}
+
+		int iDX = pCity->getX() - iRefX;
+		int iDY = pCity->getY() - iRefY;
+
+		if (GC.getMap().isWrapX())
+		{
+			if( iDX > +(iWorldWidth / 2))
+				iDX -= iWorldWidth;
+			if( iDX < -(iWorldWidth / 2))
+				iDX += iWorldWidth;
+		}
+		if (GC.getMap().isWrapY())
+		{
+			if( iDY > +(iWorldHeight / 2))
+				iDY -= iWorldHeight;
+			if( iDY < -(iWorldHeight / 2))
+				iDY += iWorldHeight;
+		}
+
+		iTotalX += iDX;
+		iTotalY += iDY;
+		iTotalX2 += iDX*iDX;
+		iTotalY2 += iDY*iDY;
+		iNumCities++;
+
+		pCity = nextCity(&iLoop);
+	}
+
+	if (iNumCities==0)
+		return;
+
+	//finally, compute average (with rounding)
+	int iAvgX = (iTotalX + (iNumCities / 2)) / iNumCities + iRefX;
+	int iAvgY = (iTotalY + (iNumCities / 2)) / iNumCities + iRefY;
+
+	m_iCenterOfMassX = iAvgX;
+	m_iCenterOfMassY = iAvgY;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -11047,7 +11136,12 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		if(pBuildingInfo->IsGoldenAge())
 		{
 			int iGoldenAgeTurns = getGoldenAgeLength();
+#if defined(MOD_BALANCE_CORE)
+			int iValue = GetGoldenAgeProgressMeter();
+			changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+#else
 			changeGoldenAgeTurns(iGoldenAgeTurns);
+#endif
 		}
 
 		// Global Pop change
@@ -11208,6 +11302,10 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	if(pBuildingInfo->GetTRVisionBoost() != 0)
 	{
 		ChangeTRVisionBoost(pBuildingInfo->GetTRVisionBoost() * iChange);
+	}
+	if(pBuildingInfo->GetVotesPerGPT() != 0)
+	{
+		ChangeVotesPerGPT(pBuildingInfo->GetVotesPerGPT() * iChange);
 	}
 	if(pBuildingInfo->GetGlobalBuildingGoldMaintenanceMod() != 0)
 	{
@@ -18234,11 +18332,17 @@ void CvPlayer::DoProcessGoldenAge()
 			if(GetGoldenAgeProgressMeter() >= GetGoldenAgeProgressThreshold())
 			{
 				int iOverflow = GetGoldenAgeProgressMeter() - GetGoldenAgeProgressThreshold();
-
+#if defined(MOD_BALANCE_CORE)
+				int iValue = GetGoldenAgeProgressMeter();
+#endif
 				SetGoldenAgeProgressMeter(iOverflow);
 				
 				int iLength = getGoldenAgeLength();
+#if defined(MOD_BALANCE_CORE)
+				changeGoldenAgeTurns(iLength, iValue);
+#else
 				changeGoldenAgeTurns(iLength);
+#endif
 
 				// If it's the active player then show the popup
 				if(GetID() == GC.getGame().getActivePlayer())
@@ -18417,7 +18521,11 @@ bool CvPlayer::isGoldenAge() const
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+void CvPlayer::changeGoldenAgeTurns(int iChange, int iValue)
+#else
 void CvPlayer::changeGoldenAgeTurns(int iChange)
+#endif
 {
 	Localization::String locString;
 	Localization::String locSummaryString;
@@ -18465,6 +18573,29 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 				}
 			}
 		}
+		if(iChange > 0 && GetPlayerTraits()->GetWLTKDGATimer() > 0)
+		{
+			int iValue = GetPlayerTraits()->GetWLTKDGATimer();
+			iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iValue /= 100;
+			int iLoop;
+			for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL)
+				{				
+					pLoopCity->ChangeWeLoveTheKingDayCounter(iValue);
+				}
+			}
+			CvNotifications* pNotification = GetNotifications();
+			if(pNotification)
+			{
+				CvString strMessage;
+				CvString strSummary;
+				strMessage = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD", iValue);
+				strSummary = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD_S");
+				pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, -1, -1, GetID());
+			}
+		}
 #endif
 		if(bOldGoldenAge != isGoldenAge())
 		{
@@ -18473,6 +18604,14 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 			if(isGoldenAge())
 			{
 				ChangeNumGoldenAges(1);
+#if defined(MOD_BALANCE_CORE)
+				//Instant Boost
+				CvCity* pCapitalCity = getCapitalCity();
+				if(pCapitalCity != NULL)
+				{
+					doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iValue, false, NO_PLAYER, NULL, false, pCapitalCity);
+				}
+#endif
 
 				locString = Localization::Lookup("TXT_KEY_NOTIFICATION_GOLDEN_AGE_BEGUN");
 				locString << getCivilizationAdjectiveKey();
@@ -19348,7 +19487,7 @@ void CvPlayer::DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnitType
 	}
 }
 #if defined(MOD_BALANCE_CORE)
-void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPersonTypes eGreatPerson, BuildingTypes eBuilding, int iPassYield, bool bEraScale, PlayerTypes ePlayer, CvPlot* pPlot, bool bSuppress, CvCity* pCity, bool bDomainSea)
+void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPersonTypes eGreatPerson, BuildingTypes eBuilding, int iPassYield, bool bEraScale, PlayerTypes ePlayer, CvPlot* pPlot, bool bSuppress, CvCity* pCity, bool bDomainSea, bool bInternational)
 {
 
 	//No minors or barbs here, please!
@@ -19460,6 +19599,24 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						if(pkBuildingInfo)
 						{
 							iValue += pkBuildingInfo->GetInstantYield(eYield);
+							if(GetPlayerTraits()->IsTechBoostFromCapitalScienceBuildings() && iPassYield > 0 && eYield == YIELD_SCIENCE)
+							{
+								iValue += iPassYield;
+							}
+						}
+					}
+					else 
+					{
+						if(iPassYield > 0)
+						{
+							int iPercent = GetPlayerTraits()->GetGAPToYield(eYield);
+							if(iPercent > 0)
+							{
+								iPassYield *= iPercent;
+								iPassYield /= 100;
+						
+								iValue += iPassYield;
+							}
 						}
 					}
 					break;
@@ -19587,7 +19744,18 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_TR_END:
 				{
-					iValue += GetPlayerTraits()->GetTradeRouteStartYield(eYield);
+					if(bInternational && (eYield == YIELD_CULTURE || eYield == YIELD_FOOD || eYield == YIELD_PRODUCTION))
+					{
+						iValue += GetPlayerTraits()->GetTradeRouteStartYield(eYield);
+					}
+					else if(!bInternational && (eYield == YIELD_GOLD || eYield == YIELD_SCIENCE))
+					{
+						iValue += GetPlayerTraits()->GetTradeRouteStartYield(eYield);
+					}
+					else if(eYield >= YIELD_FAITH)
+					{
+						iValue += GetPlayerTraits()->GetTradeRouteStartYield(eYield);
+					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_CONVERSION:
@@ -20032,12 +20200,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			CvCity* pCapitalCity = getCapitalCity();
 			if(pCapitalCity != NULL)
 			{
-				pNotifications->Add(NOTIFICATION_CITY_GROWTH, localizedText.toUTF8(), strSummary.toUTF8(), pCapitalCity->getX(), pCapitalCity->getY(), pCapitalCity->GetID());
+				pNotifications->Add(NOTIFICATION_GENERIC, localizedText.toUTF8(), strSummary.toUTF8(), pCapitalCity->getX(), pCapitalCity->getY(), pCapitalCity->GetID());
 			}
 		}
 		else
 		{
-			pNotifications->Add(NOTIFICATION_CITY_GROWTH, localizedText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->GetID());
+			pNotifications->Add(NOTIFICATION_GENERIC, localizedText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->GetID());
 		}
 	}
 }
@@ -22722,6 +22890,16 @@ void CvPlayer::SetTRSpeedBoost(int iChange)
 int CvPlayer::GetTRSpeedBoost() const
 {
 	return m_iTRSpeedBoost;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeVotesPerGPT(int iChange)
+{
+	m_iVotesPerGPT += iChange;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetVotesPerGPT() const
+{
+	return m_iVotesPerGPT;
 }
 
 //	--------------------------------------------------------------------------------
@@ -33136,8 +33314,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		// Game Speed mod
 		iGoldenAgeTurns *= GC.getGame().getGameSpeedInfo().getGoldenAgePercent();
 		iGoldenAgeTurns /= 100;
-
+#if defined(MOD_BALANCE_CORE)
+		int iValue = GetGoldenAgeProgressMeter();
+		changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+#else
 		changeGoldenAgeTurns(iGoldenAgeTurns);
+#endif
 	}
 
 	// Free Techs
@@ -37615,6 +37797,125 @@ void CvPlayer::DoForceDefPact(PlayerTypes eOtherPlayer)
 
 	GET_TEAM(getTeam()).SetHasDefensivePact(pOtherTeam.GetID(), true);
 	pOtherTeam.SetHasDefensivePact(getTeam(), true);
+}
+int CvPlayer::CountAllFeature(FeatureTypes iFeatureType)
+{
+	int iCount = 0;
+	
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+		iCount += pLoopCity->CountFeature(iFeatureType);
+	}
+	
+	return iCount;
+}
+
+int CvPlayer::CountAllWorkedFeature(FeatureTypes iFeatureType)
+{
+	int iCount = 0;
+	
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+		iCount += pLoopCity->CountWorkedFeature(iFeatureType);
+	}
+	
+	return iCount;
+}
+
+int CvPlayer::CountAllImprovement(ImprovementTypes iImprovementType)
+{
+	int iCount = 0;
+	
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+		iCount += pLoopCity->CountImprovement(iImprovementType);
+	}
+	
+	return iCount;
+}
+
+int CvPlayer::CountAllWorkedImprovement(ImprovementTypes iImprovementType)
+{
+	int iCount = 0;
+	
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+		iCount += pLoopCity->CountWorkedImprovement(iImprovementType);
+	}
+	
+	return iCount;
+}
+
+int CvPlayer::CountAllPlotType(PlotTypes iPlotType)
+{
+	int iCount = 0;
+	
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+		iCount += pLoopCity->CountPlotType(iPlotType);
+	}
+	
+	return iCount;
+}
+
+int CvPlayer::CountAllWorkedPlotType(PlotTypes iPlotType)
+{
+	int iCount = 0;
+	
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+		iCount += pLoopCity->CountWorkedPlotType(iPlotType);
+	}
+	
+	return iCount;
+}
+
+int CvPlayer::CountAllResource(ResourceTypes iResourceType)
+{
+	int iCount = 0;
+	
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+		iCount += pLoopCity->CountResource(iResourceType);
+	}
+	
+	return iCount;
+}
+
+int CvPlayer::CountAllWorkedResource(ResourceTypes iResourceType)
+{
+	int iCount = 0;
+	
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+		iCount += pLoopCity->CountWorkedResource(iResourceType);
+	}
+	
+	return iCount;
+}
+
+int CvPlayer::CountAllTerrain(TerrainTypes iTerrainType)
+{
+	int iCount = 0;
+	
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+		iCount += pLoopCity->CountTerrain(iTerrainType);
+	}
+	
+	return iCount;
+}
+
+int CvPlayer::CountAllWorkedTerrain(TerrainTypes iTerrainType)
+{
+	int iCount = 0;
+	
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+		iCount += pLoopCity->CountWorkedTerrain(iTerrainType);
+	}
+	
+	return iCount;
 }
 #endif
 

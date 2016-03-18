@@ -1130,6 +1130,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	static int lIsDiplomaticMarriage(lua_State* L);
 	static int lIsGPWLTKD(lua_State* L);
+	static int lIsCarnaval(lua_State* L);
 #endif
 	static int lIsUsingMayaCalendar(lua_State* L);
 	static int lGetMayaCalendarString(lua_State* L);
@@ -1359,6 +1360,16 @@ protected:
 	LUAAPIEXTN(HasCapturedHolyCity, bool, eReligion);
 	LUAAPIEXTN(HasEmbassyWith, bool, iOtherPlayer);
 	LUAAPIEXTN(DoForceDefPact, void, iOtherPlayer);
+	LUAAPIEXTN(CountAllFeature, int, iFeatureType);
+	LUAAPIEXTN(CountAllWorkedFeature, int, iFeatureType);
+	LUAAPIEXTN(CountAllImprovement, int, iImprovementType);
+	LUAAPIEXTN(CountAllWorkedImprovement, int, iImprovementType);
+	LUAAPIEXTN(CountAllPlotType, int, iPlotType);
+	LUAAPIEXTN(CountAllWorkedPlotType, int, iPlotType);
+	LUAAPIEXTN(CountAllResource, int, iResourceType);
+	LUAAPIEXTN(CountAllWorkedResource, int, iResourceType);
+	LUAAPIEXTN(CountAllTerrain, int, iTerrainType);
+	LUAAPIEXTN(CountAllWorkedTerrain, int, iTerrainType);
 #endif
 };
 

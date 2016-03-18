@@ -73,7 +73,7 @@ WHERE Type = 'POLICY_CITIZENSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type
 
 -- Republic (Now Civil Engineers)
 UPDATE Policies
-SET BuildingProductionModifier = '15'
+SET BuildingProductionModifier = '20'
 WHERE Type = 'POLICY_REPUBLIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Policies
@@ -164,7 +164,8 @@ INSERT INTO Policy_CityYieldChanges
 	(PolicyType, YieldType, Yield)
 VALUES
 	('POLICY_MERITOCRACY', 'YIELD_FOOD', 2),
-	('POLICY_REPRESENTATION', 'YIELD_PRODUCTION', 2);
+	('POLICY_REPRESENTATION', 'YIELD_PRODUCTION', 1),
+	('POLICY_REPRESENTATION', 'YIELD_GOLD', 2);
 
 INSERT INTO Policy_YieldFromBirth
 	(PolicyType, YieldType, Yield)

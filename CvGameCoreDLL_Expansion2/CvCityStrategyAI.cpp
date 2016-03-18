@@ -4792,6 +4792,10 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 		{
 			iValue += 25;
 		}
+		if(pkBuildingInfo->GetVotesPerGPT() > 0)
+		{
+			iValue += 100;
+		}
 		if(pkBuildingInfo->GetSingleVotes() > 0)
 		{
 			iValue += (pkBuildingInfo->GetSingleVotes() * 10);
@@ -5415,6 +5419,11 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 	if(kPlayer.GetPlayerTraits()->GetGreatWorkYieldChanges(eYield) > 0 && pkBuildingInfo->GetGreatWorkCount() > 0)
 	{
 		iBonus += (kPlayer.GetPlayerTraits()->GetGreatWorkYieldChanges(eYield) * 5);
+	}
+	
+	if(eYield == YIELD_GOLDEN_AGE_POINTS && kPlayer.GetPlayerTraits()->GetWLTKDGATimer() > 0)
+	{
+		iBonus += 100;
 	}
 
 	if(eYield == YIELD_SCIENCE)

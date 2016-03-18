@@ -3629,7 +3629,7 @@ void CvMilitaryAI::UpdateBaseData()
 		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
 			eOtherPlayer = (PlayerTypes) iMajorLoop;
-			if(eOtherPlayer != NO_PLAYER && !GET_PLAYER(eOtherPlayer).isMinorCiv() && (eOtherPlayer != m_pPlayer->GetID()))
+			if(eOtherPlayer != NO_PLAYER && !GET_PLAYER(eOtherPlayer).isMinorCiv() && GET_PLAYER(eOtherPlayer).isAlive() && (eOtherPlayer != m_pPlayer->GetID()))
 			{
 				MajorCivApproachTypes eApproachType = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false);
 				if((eApproachType <= MAJOR_CIV_APPROACH_AFRAID) || (GET_PLAYER(eOtherPlayer).GetProximityToPlayer(GetPlayer()->GetID()) >= PLAYER_PROXIMITY_CLOSE))
@@ -3639,6 +3639,14 @@ void CvMilitaryAI::UpdateBaseData()
 						fMultiplier += 1;
 					}
 					if(m_pPlayer->GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE)
+					{
+						fMultiplier += 1;
+					}
+					if(m_pPlayer->GetDiplomacyAI()->GetWarmongerThreat(eOtherPlayer) >= THREAT_MAJOR)
+					{
+						fMultiplier += 1;
+					}
+					if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false) <= MAJOR_CIV_APPROACH_GUARDED)
 					{
 						fMultiplier += 1;
 					}
@@ -6812,7 +6820,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
 			eOtherPlayer = (PlayerTypes) iMajorLoop;
-			if(eOtherPlayer != NO_PLAYER && !GET_PLAYER(eOtherPlayer).isMinorCiv() && (eOtherPlayer != pPlayer->GetID()))
+			if(eOtherPlayer != NO_PLAYER && !GET_PLAYER(eOtherPlayer).isMinorCiv() && GET_PLAYER(eOtherPlayer).isAlive() && (eOtherPlayer != pPlayer->GetID()))
 			{
 				MajorCivApproachTypes eApproachType = pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false);
 				if((eApproachType <= MAJOR_CIV_APPROACH_AFRAID) || (GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID()) >= PLAYER_PROXIMITY_CLOSE))
@@ -6822,6 +6830,14 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 						dMultiplier += 1;
 					}
 					if(pPlayer->GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE)
+					{
+						dMultiplier += 1;
+					}
+					if(pPlayer->GetDiplomacyAI()->GetWarmongerThreat(eOtherPlayer) >= THREAT_MAJOR)
+					{
+						dMultiplier += 1;
+					}
+					if(pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false) <= MAJOR_CIV_APPROACH_GUARDED)
 					{
 						dMultiplier += 1;
 					}

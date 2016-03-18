@@ -948,7 +948,11 @@ function GetCultureTooltip(pCity)
 				strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_CORPORATION", iAmount);
 			end
 		end
-
+		local iAmount = pCity:GetCultureModFromCarnaval();
+		if (iAmount ~= 0) then
+			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_WLTKD_TRAIT", iAmount);
+		end
 		-- END
 
 		-- CBP

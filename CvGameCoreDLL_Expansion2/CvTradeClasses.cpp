@@ -2328,305 +2328,313 @@ void CvPlayerTrade::MoveUnits (void)
 				{
 					pOriginCity = pPlot->getPlotCity();
 				}
-				if(pOriginCity != NULL && pTradeConnection->m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
+				if(pOriginCity != NULL)
 				{
-					m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_TR_END, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pOriginCity);
-					//Corporate expansion system.
-					CvPlot* pDestPlot = GC.getMap().plot(iDestX, iDestY);
-				
-					CvCity* pDestCity = NULL;
-					if(pDestPlot != NULL)
+					bool bInternational = false;
+					if(pTradeConnection->m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
 					{
-						pDestCity = pDestPlot->getPlotCity();
+						bInternational = true;
 					}
-					if(pDestCity != NULL && pOriginCity != NULL)
-					{
-						//Origin spread
-						if(GET_PLAYER(pOriginCity->getOwner()).GetCorporateFounderID() > 0)
+					m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_TR_END, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pOriginCity, false, bInternational);
+					if(bInternational)
+					{			
+						//Corporate expansion system.
+						CvPlot* pDestPlot = GC.getMap().plot(iDestX, iDestY);
+				
+						CvCity* pDestCity = NULL;
+						if(pDestPlot != NULL)
 						{
-							int iFranchises = GET_PLAYER(pOriginCity->getOwner()).GetCorporateFranchisesWorldwide();;
-							int iMax = GET_PLAYER(pOriginCity->getOwner()).GetMaxFranchises();
-							if(iFranchises < iMax)
+							pDestCity = pDestPlot->getPlotCity();
+						}
+						if(pDestCity != NULL && pOriginCity != NULL)
+						{
+							//Origin spread
+							if(GET_PLAYER(pOriginCity->getOwner()).GetCorporateFounderID() > 0)
 							{
-								BuildingClassTypes eBuildingClassDestCity = (BuildingClassTypes)pOriginCity->GetFreeBuildingTradeTargetCity();
-								if(eBuildingClassDestCity != NO_BUILDINGCLASS)
+								int iFranchises = GET_PLAYER(pOriginCity->getOwner()).GetCorporateFranchisesWorldwide();;
+								int iMax = GET_PLAYER(pOriginCity->getOwner()).GetMaxFranchises();
+								if(iFranchises < iMax)
 								{
-									CvCivilizationInfo& thisCiv = GET_PLAYER(pOriginCity->getOwner()).getCivilizationInfo();
-									BuildingTypes eBuildingDestCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eBuildingClassDestCity));
-
-									if (eBuildingDestCity != NO_BUILDING && pDestCity->GetCityBuildings()->GetNumBuilding(eBuildingDestCity) <= 0)
+									BuildingClassTypes eBuildingClassDestCity = (BuildingClassTypes)pOriginCity->GetFreeBuildingTradeTargetCity();
+									if(eBuildingClassDestCity != NO_BUILDINGCLASS)
 									{
-										CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuildingDestCity);
-										if(pBuildingInfo)
-										{
-											pDestCity->GetCityBuildings()->SetNumRealBuilding(eBuildingDestCity, 1);
-											pDestCity->SetFranchised(pOriginCity->getOwner(), true);
-											// send notification to owner player and target player
-											CvNotifications* pNotifications = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
-											if(pNotifications && pOriginCity->getOwner() == GC.getGame().getActivePlayer())
-											{
-												Localization::String strSummary;
-												Localization::String strMessage;
+										CvCivilizationInfo& thisCiv = GET_PLAYER(pOriginCity->getOwner()).getCivilizationInfo();
+										BuildingTypes eBuildingDestCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eBuildingClassDestCity));
 
-												strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_SUMMARY");
-												strSummary << pBuildingInfo->GetTextKey();
-												strSummary << pDestCity->getNameKey();
-												strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING");
-												strMessage << pDestCity->getNameKey();
-												strMessage << pBuildingInfo->GetTextKey();
-												strMessage << pOriginCity->getNameKey();
-												pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pDestCity->getX(), pDestCity->getY(), -1, -1);
-											}
-											else
+										if (eBuildingDestCity != NO_BUILDING && pDestCity->GetCityBuildings()->GetNumBuilding(eBuildingDestCity) <= 0)
+										{
+											CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuildingDestCity);
+											if(pBuildingInfo)
 											{
-												CvNotifications* pNotifications2 = GET_PLAYER(pDestCity->getOwner()).GetNotifications();
-												if(pNotifications2 && pDestCity->getOwner() == GC.getGame().getActivePlayer())
+												pDestCity->GetCityBuildings()->SetNumRealBuilding(eBuildingDestCity, 1);
+												pDestCity->SetFranchised(pOriginCity->getOwner(), true);
+												// send notification to owner player and target player
+												CvNotifications* pNotifications = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
+												if(pNotifications && pOriginCity->getOwner() == GC.getGame().getActivePlayer())
 												{
 													Localization::String strSummary;
 													Localization::String strMessage;
 
-													strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_SUMMARY");
+													strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_SUMMARY");
 													strSummary << pBuildingInfo->GetTextKey();
 													strSummary << pDestCity->getNameKey();
-													strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN");
+													strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING");
 													strMessage << pDestCity->getNameKey();
 													strMessage << pBuildingInfo->GetTextKey();
 													strMessage << pOriginCity->getNameKey();
-													pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pDestCity->getX(), pDestCity->getY(), -1, -1);
-												}
-											}
-											if((GC.getLogging() && GC.getAILogging()))
-											{
-												CvString strLogString;
-												strLogString.Format("Spread Corporate Building via Owner Trade Route. City: %s. Building: %s.", pDestCity->getName().c_str(), pBuildingInfo->GetText());
-												GET_PLAYER(pOriginCity->getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
-											}
-											GET_PLAYER(pOriginCity->getOwner()).CalculateCorporateFranchisesWorldwide();
-										}
-									}
-								}
-							}
-						}
-						//Foreign spread
-						else if(GET_PLAYER(pDestCity->getOwner()).GetCorporateFounderID() > 0)
-						{
-							int iFranchises = GET_PLAYER(pDestCity->getOwner()).GetCorporateFranchisesWorldwide();;
-							int iMax = GET_PLAYER(pDestCity->getOwner()).GetMaxFranchises();
-							if(iFranchises < iMax)
-							{
-								BuildingClassTypes eBuildingClassDestCity = (BuildingClassTypes)pDestCity->GetFreeBuildingTradeTargetCity();
-								if(eBuildingClassDestCity != NO_BUILDINGCLASS)
-								{
-									CvCivilizationInfo& thisCiv = GET_PLAYER(pDestCity->getOwner()).getCivilizationInfo();
-									BuildingTypes eBuildingDestCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eBuildingClassDestCity));
-
-									if (eBuildingDestCity != NO_BUILDING && pOriginCity->GetCityBuildings()->GetNumBuilding(eBuildingDestCity) <= 0)
-									{
-										CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuildingDestCity);
-										if(pBuildingInfo)
-										{
-											pOriginCity->GetCityBuildings()->SetNumRealBuilding(eBuildingDestCity, 1);
-											pOriginCity->SetFranchised(pDestCity->getOwner(), true);
-											// send notification to owner player and target player
-											CvNotifications* pNotifications = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
-											if(pNotifications && pDestCity->getOwner() == GC.getGame().getActivePlayer())
-											{
-												Localization::String strSummary;
-												Localization::String strMessage;
-
-												strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_SUMMARY");
-												strSummary << pBuildingInfo->GetTextKey();
-												strSummary << pOriginCity->getNameKey();
-												strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING");
-												strMessage << pOriginCity->getNameKey();
-												strMessage << pBuildingInfo->GetTextKey();
-												strMessage << pDestCity->getNameKey();
-												pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), -1, -1);
-											}
-											else
-											{
-												CvNotifications* pNotifications2 = GET_PLAYER(pDestCity->getOwner()).GetNotifications();
-												if(pNotifications2 && pOriginCity->getOwner() == GC.getGame().getActivePlayer())
-												{
-													Localization::String strSummary;
-													Localization::String strMessage;
-
-													strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_SUMMARY");
-													strSummary << pBuildingInfo->GetTextKey();
-													strSummary << pOriginCity->getNameKey();
-													strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN");
-													strMessage << pOriginCity->getNameKey();
-													strMessage << pBuildingInfo->GetTextKey();
-													strMessage << pDestCity->getNameKey();
-													pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), -1, -1);
-												}
-											}
-											if((GC.getLogging() && GC.getAILogging()))
-											{
-												CvString strLogString;
-												strLogString.Format("Spread Corporate Building via Destination Trade Route. City: %s. Building: %s.", pOriginCity->getName().c_str(), pBuildingInfo->GetText());
-												GET_PLAYER(pOriginCity->getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
-											}
-											GET_PLAYER(pDestCity->getOwner()).CalculateCorporateFranchisesWorldwide();
-										}
-									}
-								}
-							}
-						}
-					}
-					//Tourism Bonus from Buildings
-					if(pDestCity != NULL && pOriginCity != NULL)
-					{
-						if(!GET_PLAYER(pDestCity->getOwner()).isMinorCiv())
-						{
-							if(pTradeConnection->m_eDomain == DOMAIN_LAND)
-							{
-								if(pOriginCity->GetLandTourismBonus() > 0)
-								{
-									int iBonus = pOriginCity->GetLandTourismBonus();
-									// Culture boost based on previous turns
-									int iPreviousTurnsToCount = 10;
-									// Calculate boost
-									iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-									iBonus /= 100;
-									if(iBonus > 0)
-									{
-										GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iBonus);
-										// Show tourism spread
-										if (pOriginCity->getOwner() == GC.getGame().getActivePlayer() && pDestCity->plot() != NULL && pDestCity->plot()->isRevealed(pOriginCity->getTeam()))
-										{
-											CvString strInfluenceText;
-											InfluenceLevelTypes eLevel = GET_PLAYER(pOriginCity->getOwner()).GetCulture()->GetInfluenceLevel(pDestCity->getOwner());
-
-											if (eLevel == INFLUENCE_LEVEL_UNKNOWN)
-												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_UNKNOWN" );
-											else if (eLevel == INFLUENCE_LEVEL_EXOTIC)
-												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_EXOTIC");
-											else if (eLevel == INFLUENCE_LEVEL_FAMILIAR)
-												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_FAMILIAR");
-											else if (eLevel == INFLUENCE_LEVEL_POPULAR)
-												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_POPULAR");
-											else if (eLevel == INFLUENCE_LEVEL_INFLUENTIAL)
-												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_INFLUENTIAL");
-											else if (eLevel == INFLUENCE_LEVEL_DOMINANT)
-												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
-
- 											char text[256] = {0};
-											sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iBonus, strInfluenceText.c_str());
- 											float fDelay = 3.0f;
- 											DLLUI->AddPopupText(pDestCity->getX(), pDestCity->getY(), text, fDelay);
-											CvNotifications* pNotification = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
-											if(pNotification)
-											{
-												Localization::String strSummary;
-												Localization::String strMessage;
-												strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_TRADE_LAND");
-												strMessage << iBonus;
-												strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationAdjectiveKey();
-												strMessage << pOriginCity->getNameKey();
-												strMessage << pDestCity->getNameKey();
-												strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationShortDescriptionKey();
-												if(GC.getGame().isGameMultiPlayer() &&GET_PLAYER(pDestCity->getOwner()).isHuman())
-												{
-													strMessage << GET_PLAYER(pDestCity->getOwner()).getNickName();
+													pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pDestCity->getX(), pDestCity->getY(), -1, -1);
 												}
 												else
 												{
-													strMessage << GET_PLAYER(pDestCity->getOwner()).getNameKey();
+													CvNotifications* pNotifications2 = GET_PLAYER(pDestCity->getOwner()).GetNotifications();
+													if(pNotifications2 && pDestCity->getOwner() == GC.getGame().getActivePlayer())
+													{
+														Localization::String strSummary;
+														Localization::String strMessage;
+
+														strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_SUMMARY");
+														strSummary << pBuildingInfo->GetTextKey();
+														strSummary << pDestCity->getNameKey();
+														strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN");
+														strMessage << pDestCity->getNameKey();
+														strMessage << pBuildingInfo->GetTextKey();
+														strMessage << pOriginCity->getNameKey();
+														pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pDestCity->getX(), pDestCity->getY(), -1, -1);
+													}
 												}
-												strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE");
-												pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), pOriginCity->getOwner());
+												if((GC.getLogging() && GC.getAILogging()))
+												{
+													CvString strLogString;
+													strLogString.Format("Spread Corporate Building via Owner Trade Route. City: %s. Building: %s.", pDestCity->getName().c_str(), pBuildingInfo->GetText());
+													GET_PLAYER(pOriginCity->getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+												}
+												GET_PLAYER(pOriginCity->getOwner()).CalculateCorporateFranchisesWorldwide();
 											}
- 										}
+										}
 									}
 								}
 							}
-							else if(pTradeConnection->m_eDomain == DOMAIN_SEA)
+							//Foreign spread
+							else if(GET_PLAYER(pDestCity->getOwner()).GetCorporateFounderID() > 0)
 							{
-								if(pOriginCity->GetSeaTourismBonus() > 0)
+								int iFranchises = GET_PLAYER(pDestCity->getOwner()).GetCorporateFranchisesWorldwide();;
+								int iMax = GET_PLAYER(pDestCity->getOwner()).GetMaxFranchises();
+								if(iFranchises < iMax)
 								{
-									int iBonus = pOriginCity->GetSeaTourismBonus();
-									// Culture boost based on previous turns
-									int iPreviousTurnsToCount = 10;
-									// Calculate boost
-									iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-									iBonus /= 100;
-									if(iBonus > 0)
+									BuildingClassTypes eBuildingClassDestCity = (BuildingClassTypes)pDestCity->GetFreeBuildingTradeTargetCity();
+									if(eBuildingClassDestCity != NO_BUILDINGCLASS)
 									{
-										GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iBonus);
-										// Show tourism spread
-										if (pOriginCity->getOwner() == GC.getGame().getActivePlayer() && pDestCity->plot() != NULL && pDestCity->plot()->isRevealed(pOriginCity->getTeam()))
+										CvCivilizationInfo& thisCiv = GET_PLAYER(pDestCity->getOwner()).getCivilizationInfo();
+										BuildingTypes eBuildingDestCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eBuildingClassDestCity));
+
+										if (eBuildingDestCity != NO_BUILDING && pOriginCity->GetCityBuildings()->GetNumBuilding(eBuildingDestCity) <= 0)
 										{
-											CvString strInfluenceText;
-											InfluenceLevelTypes eLevel = GET_PLAYER(pOriginCity->getOwner()).GetCulture()->GetInfluenceLevel(pDestCity->getOwner());
-
-											if (eLevel == INFLUENCE_LEVEL_UNKNOWN)
-												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_UNKNOWN" );
-											else if (eLevel == INFLUENCE_LEVEL_EXOTIC)
-												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_EXOTIC");
-											else if (eLevel == INFLUENCE_LEVEL_FAMILIAR)
-												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_FAMILIAR");
-											else if (eLevel == INFLUENCE_LEVEL_POPULAR)
-												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_POPULAR");
-											else if (eLevel == INFLUENCE_LEVEL_INFLUENTIAL)
-												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_INFLUENTIAL");
-											else if (eLevel == INFLUENCE_LEVEL_DOMINANT)
-												strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
-
- 											char text[256] = {0};
-											sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iBonus, strInfluenceText.c_str());
- 											float fDelay = 4.0f;
- 											DLLUI->AddPopupText(pDestCity->getX(), pDestCity->getY(), text, fDelay);
-
-											CvNotifications* pNotification = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
-											if(pNotification)
+											CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuildingDestCity);
+											if(pBuildingInfo)
 											{
-												Localization::String strSummary;
-												Localization::String strMessage;
-												strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_TRADE_SEA");
+												pOriginCity->GetCityBuildings()->SetNumRealBuilding(eBuildingDestCity, 1);
+												pOriginCity->SetFranchised(pDestCity->getOwner(), true);
+												// send notification to owner player and target player
+												CvNotifications* pNotifications = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
+												if(pNotifications && pDestCity->getOwner() == GC.getGame().getActivePlayer())
+												{
+													Localization::String strSummary;
+													Localization::String strMessage;
+
+													strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_SUMMARY");
+													strSummary << pBuildingInfo->GetTextKey();
+													strSummary << pOriginCity->getNameKey();
+													strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING");
+													strMessage << pOriginCity->getNameKey();
+													strMessage << pBuildingInfo->GetTextKey();
+													strMessage << pDestCity->getNameKey();
+													pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), -1, -1);
+												}
+												else
+												{
+													CvNotifications* pNotifications2 = GET_PLAYER(pDestCity->getOwner()).GetNotifications();
+													if(pNotifications2 && pOriginCity->getOwner() == GC.getGame().getActivePlayer())
+													{
+														Localization::String strSummary;
+														Localization::String strMessage;
+
+														strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_SUMMARY");
+														strSummary << pBuildingInfo->GetTextKey();
+														strSummary << pOriginCity->getNameKey();
+														strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN");
+														strMessage << pOriginCity->getNameKey();
+														strMessage << pBuildingInfo->GetTextKey();
+														strMessage << pDestCity->getNameKey();
+														pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), -1, -1);
+													}
+												}
+												if((GC.getLogging() && GC.getAILogging()))
+												{
+													CvString strLogString;
+													strLogString.Format("Spread Corporate Building via Destination Trade Route. City: %s. Building: %s.", pOriginCity->getName().c_str(), pBuildingInfo->GetText());
+													GET_PLAYER(pOriginCity->getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+												}
+												GET_PLAYER(pDestCity->getOwner()).CalculateCorporateFranchisesWorldwide();
+											}
+										}
+									}
+								}
+							}
+						}
+						//Tourism Bonus from Buildings
+						if(pDestCity != NULL && pOriginCity != NULL)
+						{
+							if(!GET_PLAYER(pDestCity->getOwner()).isMinorCiv())
+							{
+								if(pTradeConnection->m_eDomain == DOMAIN_LAND)
+								{
+									if(pOriginCity->GetLandTourismBonus() > 0)
+									{
+										int iBonus = pOriginCity->GetLandTourismBonus();
+										// Culture boost based on previous turns
+										int iPreviousTurnsToCount = 10;
+										// Calculate boost
+										iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+										iBonus /= 100;
+										if(iBonus > 0)
+										{
+											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iBonus);
+											// Show tourism spread
+											if (pOriginCity->getOwner() == GC.getGame().getActivePlayer() && pDestCity->plot() != NULL && pDestCity->plot()->isRevealed(pOriginCity->getTeam()))
+											{
+												CvString strInfluenceText;
+												InfluenceLevelTypes eLevel = GET_PLAYER(pOriginCity->getOwner()).GetCulture()->GetInfluenceLevel(pDestCity->getOwner());
+
+												if (eLevel == INFLUENCE_LEVEL_UNKNOWN)
+													strInfluenceText = GetLocalizedText( "TXT_KEY_CO_UNKNOWN" );
+												else if (eLevel == INFLUENCE_LEVEL_EXOTIC)
+													strInfluenceText = GetLocalizedText( "TXT_KEY_CO_EXOTIC");
+												else if (eLevel == INFLUENCE_LEVEL_FAMILIAR)
+													strInfluenceText = GetLocalizedText( "TXT_KEY_CO_FAMILIAR");
+												else if (eLevel == INFLUENCE_LEVEL_POPULAR)
+													strInfluenceText = GetLocalizedText( "TXT_KEY_CO_POPULAR");
+												else if (eLevel == INFLUENCE_LEVEL_INFLUENTIAL)
+													strInfluenceText = GetLocalizedText( "TXT_KEY_CO_INFLUENTIAL");
+												else if (eLevel == INFLUENCE_LEVEL_DOMINANT)
+													strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
+
+ 												char text[256] = {0};
+												sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iBonus, strInfluenceText.c_str());
+ 												float fDelay = 3.0f;
+ 												DLLUI->AddPopupText(pDestCity->getX(), pDestCity->getY(), text, fDelay);
+												CvNotifications* pNotification = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
+												if(pNotification)
+												{
+													Localization::String strSummary;
+													Localization::String strMessage;
+													strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_TRADE_LAND");
 													strMessage << iBonus;
 													strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationAdjectiveKey();
 													strMessage << pOriginCity->getNameKey();
 													strMessage << pDestCity->getNameKey();
 													strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationShortDescriptionKey();
-												strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE");
-												pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), pOriginCity->getOwner());
-											}
- 										}
+													if(GC.getGame().isGameMultiPlayer() &&GET_PLAYER(pDestCity->getOwner()).isHuman())
+													{
+														strMessage << GET_PLAYER(pDestCity->getOwner()).getNickName();
+													}
+													else
+													{
+														strMessage << GET_PLAYER(pDestCity->getOwner()).getNameKey();
+													}
+													strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE");
+													pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), pOriginCity->getOwner());
+												}
+ 											}
+										}
+									}
+								}
+								else if(pTradeConnection->m_eDomain == DOMAIN_SEA)
+								{
+									if(pOriginCity->GetSeaTourismBonus() > 0)
+									{
+										int iBonus = pOriginCity->GetSeaTourismBonus();
+										// Culture boost based on previous turns
+										int iPreviousTurnsToCount = 10;
+										// Calculate boost
+										iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+										iBonus /= 100;
+										if(iBonus > 0)
+										{
+											GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(pDestCity->getOwner(), iBonus);
+											// Show tourism spread
+											if (pOriginCity->getOwner() == GC.getGame().getActivePlayer() && pDestCity->plot() != NULL && pDestCity->plot()->isRevealed(pOriginCity->getTeam()))
+											{
+												CvString strInfluenceText;
+												InfluenceLevelTypes eLevel = GET_PLAYER(pOriginCity->getOwner()).GetCulture()->GetInfluenceLevel(pDestCity->getOwner());
+
+												if (eLevel == INFLUENCE_LEVEL_UNKNOWN)
+													strInfluenceText = GetLocalizedText( "TXT_KEY_CO_UNKNOWN" );
+												else if (eLevel == INFLUENCE_LEVEL_EXOTIC)
+													strInfluenceText = GetLocalizedText( "TXT_KEY_CO_EXOTIC");
+												else if (eLevel == INFLUENCE_LEVEL_FAMILIAR)
+													strInfluenceText = GetLocalizedText( "TXT_KEY_CO_FAMILIAR");
+												else if (eLevel == INFLUENCE_LEVEL_POPULAR)
+													strInfluenceText = GetLocalizedText( "TXT_KEY_CO_POPULAR");
+												else if (eLevel == INFLUENCE_LEVEL_INFLUENTIAL)
+													strInfluenceText = GetLocalizedText( "TXT_KEY_CO_INFLUENTIAL");
+												else if (eLevel == INFLUENCE_LEVEL_DOMINANT)
+													strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
+
+ 												char text[256] = {0};
+												sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iBonus, strInfluenceText.c_str());
+ 												float fDelay = 4.0f;
+ 												DLLUI->AddPopupText(pDestCity->getX(), pDestCity->getY(), text, fDelay);
+
+												CvNotifications* pNotification = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
+												if(pNotification)
+												{
+													Localization::String strSummary;
+													Localization::String strMessage;
+													strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_TRADE_SEA");
+														strMessage << iBonus;
+														strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationAdjectiveKey();
+														strMessage << pOriginCity->getNameKey();
+														strMessage << pDestCity->getNameKey();
+														strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationShortDescriptionKey();
+													strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE");
+													pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), pOriginCity->getOwner());
+												}
+ 											}
+										}
 									}
 								}
 							}
-						}
-						else if(GET_PLAYER(pDestCity->getOwner()).isMinorCiv() && GET_PLAYER(pOriginCity->getOwner()).GetEventTourismCS() > 0)
-						{
-							int iBonus = GET_PLAYER(pOriginCity->getOwner()).GetEventTourismCS();
-							// Culture boost based on previous turns
-							int iPreviousTurnsToCount = 10;
-							// Calculate boost
-							iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-							iBonus /= 100;
-							if(iBonus > 0)
+							else if(GET_PLAYER(pDestCity->getOwner()).isMinorCiv() && GET_PLAYER(pOriginCity->getOwner()).GetEventTourismCS() > 0)
 							{
-								PlayerTypes ePlayer;
-								for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+								int iBonus = GET_PLAYER(pOriginCity->getOwner()).GetEventTourismCS();
+								// Culture boost based on previous turns
+								int iPreviousTurnsToCount = 10;
+								// Calculate boost
+								iBonus *= GET_PLAYER(pOriginCity->getOwner()).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
+								iBonus /= 100;
+								if(iBonus > 0)
 								{
-									ePlayer = (PlayerTypes) iPlayerLoop;
-									if(ePlayer == NO_PLAYER || GET_PLAYER(ePlayer).isMinorCiv() || !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(pOriginCity->getOwner()).getTeam()))
+									PlayerTypes ePlayer;
+									for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 									{
-										continue;
+										ePlayer = (PlayerTypes) iPlayerLoop;
+										if(ePlayer == NO_PLAYER || GET_PLAYER(ePlayer).isMinorCiv() || !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(pOriginCity->getOwner()).getTeam()))
+										{
+											continue;
+										}
+										GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(ePlayer, iBonus);
 									}
-									GET_PLAYER(pOriginCity->getOwner()).GetCulture()->ChangeInfluenceOn(ePlayer, iBonus);
-								}
-								CvNotifications* pNotification = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
-								if(pNotification)
-								{
-									Localization::String strSummary;
-									Localization::String strMessage;
-									strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_TRADE_CS_BONUS");
-										strMessage << iBonus;
-										strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationShortDescriptionKey();
-									strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE_CS");
-									pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), pOriginCity->getOwner());
+									CvNotifications* pNotification = GET_PLAYER(pOriginCity->getOwner()).GetNotifications();
+									if(pNotification)
+									{
+										Localization::String strSummary;
+										Localization::String strMessage;
+										strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_TRADE_CS_BONUS");
+											strMessage << iBonus;
+											strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationShortDescriptionKey();
+										strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE_CS");
+										pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), pOriginCity->getOwner());
+									}
 								}
 							}
 						}

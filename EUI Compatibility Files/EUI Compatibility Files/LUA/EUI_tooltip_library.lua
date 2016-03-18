@@ -1827,6 +1827,10 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 	-- WLTKD MOD
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_WLTKD", city:GetModFromWLTKD(yieldID), yieldIconString)
 
+	if(yieldID == YieldTypes.YIELD_CULTURE) then
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WLTKD_TRAIT", city:GetCultureModFromCarnaval())
+	end
+
 	-- Golden Age MOD
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_GOLDEN_AGE", city:GetModFromGoldenAge(yieldID), yieldIconString)
 -- END CBP

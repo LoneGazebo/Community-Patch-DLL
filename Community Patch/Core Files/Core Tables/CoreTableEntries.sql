@@ -469,6 +469,15 @@ ALTER TABLE Buildings ADD COLUMN 'FinishLandTRTourism' INTEGER DEFAULT 0;
 -- When a City with this building finishes a sea ITR, gain tourism with the target civ.
 ALTER TABLE Buildings ADD COLUMN 'FinishSeaTRTourism' INTEGER DEFAULT 0;
 
+-- WC vote per GPT - GPT / x (value below) = votes
+ALTER TABLE Buildings ADD COLUMN 'VotesPerGPT' INTEGER DEFAULT 0;
+
+-- Requires Rail Connection to be built
+ALTER TABLE Buildings ADD COLUMN 'RequiresRail' BOOLEAN DEFAULT 0;
+
+-- Civ-specific building (but not necessarily a UB!)
+ALTER TABLE Buildings ADD COLUMN 'CivilizationRequired' TEXT DEFAULT NULL;
+
 -- Allows you to define a an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. -- 
 ALTER TABLE Policies ADD COLUMN 'EventTourismCS' INTEGER DEFAULT 0;
 
@@ -608,6 +617,22 @@ ALTER TABLE Policies ADD COLUMN 'InvestmentModifier' INTEGER DEFAULT 0;
 
 -- Investment reduction costs -- trait -- negative makes it stronger!
 ALTER TABLE Traits ADD COLUMN 'InvestmentModifier' INTEGER DEFAULT 0;
+
+-- Cities produce % culture instead of growth during WLTKD.
+ALTER TABLE Traits ADD COLUMN 'WLTKDCultureBoost' INTEGER DEFAULT 0;
+
+-- Cities gain x turns of WLTKD because of a GA trigger!
+ALTER TABLE Traits ADD COLUMN 'WLTKDFromGATurns' INTEGER DEFAULT 0;
+
+-- Unhappienss modifier during GAs - more negative the better!
+ALTER TABLE Traits ADD COLUMN 'GAUnhappinesNeedMod' INTEGER DEFAULT 0;
+
+-- Start game with x number of spies
+ALTER TABLE Traits ADD COLUMN 'StartingSpies' INTEGER DEFAULT 0;
+
+-- Spies begin at x rank
+ALTER TABLE Traits ADD COLUMN 'StartingSpyRank' INTEGER DEFAULT 0;
+
 
 -- Trade Route Internal Capital Bonus -- policy -- Internal TR from Capital stronger!
 ALTER TABLE Policies ADD COLUMN 'InternalTradeRouteYieldModifierCapital' INTEGER DEFAULT 0;

@@ -578,7 +578,7 @@ void CvTacticalAI::CommandeerUnits()
 	}
 
 #if defined(MOD_BALANCE_CORE_DEBUGGING)
-	if (1) //(MOD_BALANCE_CORE_DEBUGGING)
+	if (MOD_BALANCE_CORE_DEBUGGING)
 	{
 		for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 		{
@@ -8435,6 +8435,10 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 			if (plotDistance(pUnit->getX(),pUnit->getY(),pTargetPlot->getX(),pTargetPlot->getY())>15)
 				continue;
 
+			//if it's a fighter plane, don't use it here, we need it for interceptions etc
+			if (pUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_DEFENSE_AIR)
+				continue;
+
 			unit.SetID(*it);
 			m_CurrentMoveUnits.push_back(unit);
 		}
@@ -9543,6 +9547,10 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 
 			// Don't bother with pathfinding if we're very far away
 			if (plotDistance(*pLoopUnit->plot(),*pTarget) > pLoopUnit->baseMoves()*4)
+				continue;
+
+			//if it's a fighter plane, don't use it here, we need it for interceptions etc
+			if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_DEFENSE_AIR)
 				continue;
 
 			//if there is an enemy right next to the unit, don't try to attack something else next turn
@@ -12967,7 +12975,8 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		}
 		else if(bIsInCity)
 		{
-			aCityList.push_back(pPlot, iDanger);
+			if (!pPlot->getPlotCity()->isInDangerOfFalling())
+				aCityList.push_back(pPlot, iDanger);
 		}
 		else if(bIsZeroDanger)
 		{

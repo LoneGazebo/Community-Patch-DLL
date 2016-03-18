@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!-- translated by mrlg
+Tag: [xmlFILENAME]
+Corporations.xml
+Compatibility_en_US.xml (CSD)
+NeededText.xml
+-->
+<GameData>
+<Language_pl_PL>
+  <!-- [xmlFILENAME]Corporations.xml -->
+		<!-- Civilopedia-->
+		<Row Tag="TXT_KEY_GAME_CONCEPT_SECTION_27">
+			<Text>Korporacje i monopole</Text>
+		</Row>
+
+  <!-- [xmlFILENAME]CSDCompatibility.xml -->
+	<!-- Civil Servant Text -->
+		<Row Tag="TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_TITLE">
+			<Text>Urzędnicy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_BODY">
+			<Text>Urzędnicy generuję różne uzyski oraz punkty wielkiego dyplomaty. Te jednostki są kluczowe, jeśli lanujesz osiągnąć zwycięstwo dyplomatyczne, labo zawsze kilka więcej sojuszów z państwami-miastami.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_ADV_QUEST">
+			<Text>Co robią urzędnicy?</Text>
+		</Row>
+    <!-- Automation Text -->
+		<Row Tag="TXT_KEY_ACTION_AUTOMATE_DIPLOMAT">
+			<Text>Misje dyplomatyczne (zautomatyzowane)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACTION_AUTOMATE_DIPLOMAT_HELP">
+			<Text>Automatyzacja wszystkich działań [COLOR_UNIT_TEXT]jednostki dyplomatycznej[ENDCOLOR]. Jednostka będzie kontynuować pracę do momentu wyłączenia automatyzacji.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACTION_AUTOMATE_DIPLOMAT_DISABLED_HELP">
+			<Text>Obecnie brak odpowiednich celów dla dyplomacji.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_DP_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} z paktów obronnych</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GP_DIPLOMAT_DETAILS_COLLAPSE">
+			<Text>[ICON_MINUS] Wielcy dyplomaci</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GP_DIPLOMAT_DETAILS">
+			<Text>[ICON_PLUS] Wielcy dyplomaci</Text>
+		</Row>
+  <!-- [xmlFILENAME]NeededText.xml -->
+		<Row Tag="TXT_KEY_DEBUG_X_Y">
+			<Text>X: {1_Num} / Y: {2_Num} / Zagrożenie pola: {3_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_LOCAL_RESOURCES_CBP">
+			<Text>Lokalne surowce</Text>
+		</Row>
+</Language_pl_PL>
+</GameData>

@@ -1735,6 +1735,11 @@ function OnCityViewUpdate()
 			if(pPlayer:IsGPWLTKD()) then
 				szText = Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA", tostring(iNumTurns) );
 				Controls.ResourceDemandedBox:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA" ) );
+				Controls.ResourceDemandedBox:SetHide(false);
+			elseif(pPlayer:IsCarnaval())then
+				szText = Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA_CARNAVAL", tostring(iNumTurns) );
+				Controls.ResourceDemandedBox:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA_CARNAVAL" ) );
+				Controls.ResourceDemandedBox:SetHide(false);
 			else
 			-- END
 
@@ -1747,6 +1752,8 @@ function OnCityViewUpdate()
 			--CBP
 			if(pPlayer:IsGPWLTKD()) then
 				Controls.ResourceDemandedBox:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA" ) );
+			elseif(pPlayer:IsCarnaval())then
+				Controls.ResourceDemandedBox:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA_CARNAVAL" ) );
 			else
 				Controls.ResourceDemandedBox:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT" ) );
 			-- CBP

@@ -867,6 +867,14 @@
 							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="AdjacentYieldLabel"/>
 						</Grid>
 					</Grid>
+					<!-- Terrain Adjacency Yield -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,76" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="AdjacentTerrainYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_IMPROVADJTERRAINYIELD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="AdjacentTerrainYieldLabel"/>
+						</Grid>
+					</Grid>
+					
 					<!-- Adjacent Improvement Yield-->
 					<Grid Anchor="L,T" Offset="0,24" Size="204,76" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="AdjacentImprovYieldFrame">
 						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0">

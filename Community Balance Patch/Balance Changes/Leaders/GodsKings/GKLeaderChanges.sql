@@ -83,6 +83,10 @@ UPDATE Traits
 Set CrossesMountainsAfterGreatGeneral = '0'
 WHERE Type = 'TRAIT_PHOENICIAN_HERITAGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Traits
+SET TradeRouteResourceModifier = '200'
+WHERE Type = 'TRAIT_PHOENICIAN_HERITAGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 -- Gustavus Adolphus -- Remove Hakkepillita, add unique Public School
 
 -- Remove Sweden Tundra bias
