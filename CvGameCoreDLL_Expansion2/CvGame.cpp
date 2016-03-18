@@ -385,10 +385,7 @@ void CvGame::init(HandicapTypes eHandicap)
 	CorpCheck();
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	if(MOD_BALANCE_CORE_SPIES_ADVANCED)
-	{
-		SetHighestPotential();
-	}
+	SetHighestPotential();
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	if(MOD_DIPLOMACY_CITYSTATES_QUESTS)
@@ -7915,10 +7912,7 @@ void CvGame::doTurn()
 	CorpCheck();
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	if(MOD_BALANCE_CORE_SPIES_ADVANCED)
-	{
-		SetHighestPotential();
-	}
+	SetHighestPotential();
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	if(MOD_DIPLOMACY_CITYSTATES_QUESTS)
@@ -10165,7 +10159,7 @@ void CvGame::SetHighestPotential()
 		{
 			CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
 
-			if(kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv() || (kLoopPlayer.GetEspionageAI()->m_iTurnEspionageStarted == -1))
+			if(!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
 			{
 				continue;
 			}
@@ -10189,7 +10183,7 @@ void CvGame::SetHighestPotential()
 		{
 			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
 
-			if(!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv() || (kLoopPlayer.GetEspionageAI()->m_iTurnEspionageStarted == -1))
+			if(!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
 			{
 				continue;
 			}

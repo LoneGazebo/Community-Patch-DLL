@@ -124,6 +124,11 @@ public:
 	int GetTourismToGAP() const;
 	int GetEventTourismBoost() const;
 	int GetEventGP() const;
+	int GetWLTKDCulture() const;
+	int GetWLTKDGATimer() const;
+	int GetGAUnhappinesNeedMod() const;
+	int GetStartingSpies() const;
+	int GetStartingSpyRank() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -228,6 +233,7 @@ public:
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetMovesChangeUnitClass(const int unitClassID) const;
+	int GetGAPToYield(int i) const;
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
@@ -397,6 +403,11 @@ protected:
 	int m_iTradeBuildingModifier;
 #if defined(MOD_BALANCE_CORE)
 	int m_iNumFreeBuildings;
+	int m_iWLTKDCulture;
+	int m_iWLTKDGATimer;
+	int m_iGAUnhappinesNeedMod;
+	int m_iStartingSpies;
+	int m_iStartingSpyRank;
 #endif
 
 	TechTypes m_eFreeUnitPrereqTech;
@@ -461,6 +472,7 @@ protected:
 	int* m_piResourceQuantityModifiers;
 	int* m_piMovesChangeUnitCombats;
 #if defined(MOD_BALANCE_CORE)
+	int* m_paiGAPToYield;
 	int* m_piMovesChangeUnitClasses;
 #endif
 	int* m_piMaintenanceModifierUnitCombats;
@@ -847,6 +859,26 @@ public:
 	{
 		return m_iEventGP;
 	};
+	int GetWLTKDCulture() const
+	{
+		return m_iWLTKDCulture;
+	};
+	int GetWLTKDGATimer() const
+	{
+		return m_iWLTKDGATimer;
+	};
+	int GetGAUnhappinesNeedMod() const
+	{
+		return m_iGAUnhappinesNeedMod;
+	};
+	int GetStartingSpies() const
+	{
+		return m_iStartingSpies;
+	};
+	int GetStartingSpyRank() const
+	{
+		return m_iStartingSpyRank;
+	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const
@@ -1189,6 +1221,10 @@ public:
 	{
 		return m_bCombatBoostNearNaturalWonder;
 	}
+	int GetGAPToYield(YieldTypes eYield) const
+	{
+		return m_iGAPToYield[(int)eYield];
+	}
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
@@ -1404,6 +1440,11 @@ private:
 	int m_iAllianceCSStrength;
 	int m_iTourismGABonus;
 	int m_iEventGP;
+	int m_iWLTKDCulture;
+	int m_iWLTKDGATimer;
+	int m_iGAUnhappinesNeedMod;
+	int m_iStartingSpies;
+	int m_iStartingSpyRank;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1548,6 +1589,9 @@ private:
 	int m_iArtYieldChanges[NUM_YIELD_TYPES];
 	int m_iLitYieldChanges[NUM_YIELD_TYPES];
 	int m_iMusicYieldChanges[NUM_YIELD_TYPES];
+#if defined(MOD_BALANCE_CORE)
+	int m_iGAPToYield[NUM_YIELD_TYPES];
+#endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiFeatureYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTerrainYieldChange;

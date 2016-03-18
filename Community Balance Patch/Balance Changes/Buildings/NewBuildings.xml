@@ -113,6 +113,29 @@
 			<DefaultBuilding>BUILDING_MINEFIELD</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_MINEFIELD</Description>
 		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_TRAINSTATION</Type>
+			<DefaultBuilding>BUILDING_TRAINSTATION</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_TRAINSTATION</Description>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_RIALTO_DISTRICT</Type>
+			<DefaultBuilding>BUILDING_RIALTO_DISTRICT</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_RIALTO_DISTRICT</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_VENETIAN_ARSENALE</Type>
+			<DefaultBuilding>BUILDING_VENETIAN_ARSENALE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_VENETIAN_ARSENALE</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_MURANO_GLASSWORKS</Type>
+			<DefaultBuilding>BUILDING_MURANO_GLASSWORKS</DefaultBuilding>
+			<Description>TXT_KEY_MURANO_GLASSWORKS</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
 	</BuildingClasses>
 	<Buildings>
 		<!--Stupa-->
@@ -633,19 +656,16 @@
 			<PortraitIndex>47</PortraitIndex>
 		</Row>
 		<Row>
-			<Type>BUILDING_DOGE_PALACE</Type>
-			<BuildingClass>BUILDINGCLASS_PALACE</BuildingClass>
-			<Cost>0</Cost>
-			<Help>TXT_KEY_BUILDING_DOGE_PALACE_HELP</Help>
-			<Description>TXT_KEY_BUILDING_DOGE_PALACE</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_DOGE_PALACE_TEXT</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_DOGE_PALACE_STRATEGY</Strategy>
-			<ArtDefineTag>PALACE</ArtDefineTag>
-			<Capital>true</Capital>
+			<Type>BUILDING_PIAZZA_SAN_MARCO</Type>
+			<BuildingClass>BUILDINGCLASS_NATIONAL_EPIC</BuildingClass>
+			<Cost>125</Cost>
+			<Help>TXT_KEY_BUILDING_PIAZZA_SAN_MARCO_HELP</Help>
+			<Description>TXT_KEY_BUILDING_PIAZZA_SAN_MARCO</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDING_PIAZZA_SAN_MARCO_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_PIAZZA_SAN_MARCO_STRATEGY</Strategy>
+			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_TREASURY</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
-			<MinAreaSize>-1</MinAreaSize>
-			<Defense>800</Defense>
-			<TechEnhancedTourism>5</TechEnhancedTourism>
+			<PrereqTech>TECH_WRITING</PrereqTech>
 			<BlockGoldTheft>1</BlockGoldTheft>
 			<BlockScienceTheft>1</BlockScienceTheft>
 			<BlockUnrestSpies>1</BlockUnrestSpies>
@@ -654,14 +674,88 @@
 			<BlockUDestructionSpies>1</BlockUDestructionSpies>
 			<BlockWWDestructionSpies>1</BlockWWDestructionSpies>
 			<BlockBuildingDestructionSpies>1</BlockBuildingDestructionSpies>
-			<EventTourism>4</EventTourism>
-			<EnhancedYieldTech>TECH_GUILDS</EnhancedYieldTech>
-			<ArtInfoCulturalVariation>true</ArtInfoCulturalVariation>
-			<DisplayPosition>32</DisplayPosition>
-			<GreatPeopleRateModifier>15</GreatPeopleRateModifier>
+			<NationalPopRequired>10</NationalPopRequired>
+			<NumCityCostMod>10</NumCityCostMod>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
 			<NeverCapture>true</NeverCapture>
+			<GreatPeopleRateModifier>33</GreatPeopleRateModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>51</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>BUILDING_VENETIAN_ARSENALE</Type>
+			<BuildingClass>BUILDINGCLASS_VENETIAN_ARSENALE</BuildingClass>
+			<Cost>125</Cost>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<Help>TXT_KEY_BUILDING_VENETIAN_ARSENALE_HELP</Help>
+			<Description>TXT_KEY_BUILDING_VENETIAN_ARSENALE</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDING_VENETIAN_ARSENALE_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_VENETIAN_ARSENALE_STRATEGY</Strategy>
+			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_TREASURY</ArtDefineTag>
+			<NukeImmune>true</NukeImmune>
+			<MinAreaSize>-1</MinAreaSize>
+			<Defense>600</Defense>
+			<CivilizationRequired>CIVILIZATION_VENICE</CivilizationRequired>
+			<TrainedFreePromotion>PROMOTION_ARSENALE</TrainedFreePromotion>
+			<NationalPopRequired>15</NationalPopRequired>
+			<NumCityCostMod>10</NumCityCostMod>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
+			<NeverCapture>true</NeverCapture>
+			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+			<MutuallyExclusiveGroup>50</MutuallyExclusiveGroup>
+		</Row>
+		<Row>
+			<Type>BUILDING_RIALTO_DISTRICT</Type>
+			<BuildingClass>BUILDINGCLASS_RIALTO_DISTRICT</BuildingClass>
+			<Cost>125</Cost>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<Help>TXT_KEY_BUILDING_RIALTO_DISTRICT_HELP</Help>
+			<Description>TXT_KEY_BUILDING_RIALTO_DISTRICT</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDING_RIALTO_DISTRICT_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_RIALTO_DISTRICT_STRATEGY</Strategy>
+			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_TREASURY</ArtDefineTag>
+			<NukeImmune>true</NukeImmune>
+			<MinAreaSize>-1</MinAreaSize>
+			<VotesPerGPT>100</VotesPerGPT>
+			<CivilizationRequired>CIVILIZATION_VENICE</CivilizationRequired>
+			<TradeRouteRecipientBonus>3</TradeRouteRecipientBonus>
+			<TradeRouteTargetBonus>3</TradeRouteTargetBonus>
+			<NationalPopRequired>15</NationalPopRequired>
+			<NumCityCostMod>10</NumCityCostMod>
+			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
+			<NeverCapture>true</NeverCapture>
+			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
+			<PortraitIndex>2</PortraitIndex>
+			<MutuallyExclusiveGroup>50</MutuallyExclusiveGroup>
+		</Row>
+		<Row>
+			<Type>BUILDING_MURANO_GLASSWORKS</Type>
+			<BuildingClass>BUILDINGCLASS_MURANO_GLASSWORKS</BuildingClass>
+			<Cost>125</Cost>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<Help>TXT_KEY_BUILDING_MURANO_GLASSWORKS_HELP</Help>
+			<Description>TXT_KEY_BUILDING_MURANO_GLASSWORKS</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDING_MURANO_GLASSWORKS_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_MURANO_GLASSWORKS_STRATEGY</Strategy>
+			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_TREASURY</ArtDefineTag>
+			<NukeImmune>true</NukeImmune>
+			<MinAreaSize>-1</MinAreaSize>
+			<CivilizationRequired>CIVILIZATION_VENICE</CivilizationRequired>
+			<NationalPopRequired>15</NationalPopRequired>
+			<NumCityCostMod>10</NumCityCostMod>
+			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
+			<ThemingBonusHelp>TXT_KEY_BUILDING_MURANO_GLASSWORKS_THEMING_BONUS_HELP</ThemingBonusHelp>
+			<GreatWorkCount>2</GreatWorkCount>
+			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
+			<NeverCapture>true</NeverCapture>
+			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
+			<MutuallyExclusiveGroup>50</MutuallyExclusiveGroup>
 		</Row>
 		<Row>
 			<Type>BUILDING_BATH</Type>
@@ -826,6 +920,27 @@
 			<HurryCostModifier>0</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>18</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>BUILDING_TRAINSTATION</Type>
+			<BuildingClass>BUILDINGCLASS_TRAINSTATION</BuildingClass>
+			<Cost>1000</Cost>
+			<GoldMaintenance>5</GoldMaintenance>
+			<PrereqTech>TECH_RAILROAD</PrereqTech>
+			<Description>TXT_KEY_BUILDING_TRAINSTATION</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_TRAINSTATION_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_TRAINSTATION_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_TRAINSTATION_HELP</Help>
+			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
+			<MutuallyExclusiveGroup>10</MutuallyExclusiveGroup>
+			<RequiresRail>true</RequiresRail>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<SpecialistCount>2</SpecialistCount>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<HurryCostModifier>0</HurryCostModifier>
+			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
+			<PortraitIndex>3</PortraitIndex>
 		</Row>
 	</Buildings>
 </GameData>

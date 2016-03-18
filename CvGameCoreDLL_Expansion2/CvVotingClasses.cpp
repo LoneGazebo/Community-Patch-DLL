@@ -4361,6 +4361,19 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 
 			iVotes += iTraitVotes;
 		}
+		int iGPTVotes = 0;
+		//Votes from GPT
+		int iVotesPerGPT = GET_PLAYER(ePlayer).GetVotesPerGPT();
+		if(iVotesPerGPT > 0)
+		{
+			int iGPT = GET_PLAYER(ePlayer).GetTreasury()->CalculateGrossGold();
+			if(iGPT > 0)
+			{
+				iGPTVotes = (iGPT / iVotesPerGPT);
+				//Capped at 5.
+				iVotes += min(5, iGPTVotes);
+			}
+		}
 #endif
 
 		// World Religion
@@ -4499,6 +4512,12 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			{
 				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_MARRIED_VOTES");
 				sTemp << iNumMarried;
+				pMember->sVoteSources += sTemp.toUTF8();
+			}
+			if(MOD_BALANCE_CORE && iGPTVotes > 0)
+			{
+				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_GPT_VOTES");
+				sTemp << iGPTVotes;
 				pMember->sVoteSources += sTemp.toUTF8();
 			}
 #endif
@@ -5194,10 +5213,15 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 		{
 			ReligionTypes eReligion = (ReligionTypes) it->GetProposerDecision()->GetDecision();
 			CvAssert(eReligion != NO_RELIGION);
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+			if (GET_PLAYER(ePlayer).GetReligions()->HasReligionInMostCities(eReligion) || (GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer) == eReligion))
+#else
 			if (GET_PLAYER(ePlayer).GetReligions()->HasReligionInMostCities(eReligion))
+#endif
 			{
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-				if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) {
+				if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
+				{
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
 					CvPlot* pkPlot = NULL;
 					int iReligionAlly = 0;
@@ -5209,45 +5233,34 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							if((eLoopPlayer != NO_PLAYER) && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != ePlayer))
-							if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eReligion))
+							if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eReligion) || (GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer) == eReligion))
 							{
 								iReligionAlly++;
 							}
 						}
 					}
 					//Did you found the religion and own the Holy City? More votes for you.
-					if((GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer) == eReligion) && ((pkPlot != NULL) && (pkPlot->getOwner() == ePlayer)))
+					if(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer) == eReligion)
 					{
 						iVotes += it->GetEffects()->iVotesForFollowingReligion;
 						iVotes += iReligionAlly++;
 						return iVotes;
 					}
-					//Did you found it, but you don't own the Holy City anymore? You are only a follower, then.
-					else if((GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer) == eReligion) && ((pkPlot != NULL) && (pkPlot->getOwner() != ePlayer)))
+					//What if we share the faith, but didn't create it?
+					else if(GET_PLAYER(ePlayer).GetReligions()->HasReligionInMostCities(eReligion))
 					{
 						iVotes += it->GetEffects()->iVotesForFollowingReligion;
 						return iVotes;
 					}
-					//What if we share the faith, but didn't create it?
-					else if((GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer) != eReligion) && (GET_PLAYER(ePlayer).GetReligions()->HasReligionInMostCities(eReligion)))
-					{
-						//Who owns the holy city? They get the bonus.
-						if((pkPlot != NULL) && (pkPlot->getOwner() == ePlayer))
-						{
-							iVotes += it->GetEffects()->iVotesForFollowingReligion;
-							iVotes += iReligionAlly++;
-							return iVotes;
-						}
-						else
-						{
-							iVotes += it->GetEffects()->iVotesForFollowingReligion;
-							return iVotes;
-						}
-					}
 				}
 				else
+				{
 #endif
 					iVotes += it->GetEffects()->iVotesForFollowingReligion;
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+				}
+#endif
+
 			}
 		}
 	}

@@ -12303,8 +12303,12 @@ bool CvUnit::goldenAge()
 #endif
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
-
+#if defined(MOD_BALANCE_CORE)
+	int iValue = kPlayer.GetGoldenAgeProgressMeter();
+	kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+#else
 	kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns);
+#endif
 	kPlayer.changeNumUnitGoldenAges(1);
 
 	if(pPlot->isActiveVisible(false))
@@ -16165,7 +16169,12 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 			iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 		}
 		// Use Ranged combat value for defender, UNLESS it's a boat or an Impi (ranged support)
+#if defined(MOD_BALANCE_CORE)
+		//Correction - make this apply to all ranged units, naval too.
+		else if (!pDefender->isRangedSupportFire() && pDefender->GetRangedCombatLimit() > 0)
+#else
 		else if (!pDefender->isRangedSupportFire() && pDefender->getDomainType() != DOMAIN_SEA)
+#endif
 		{
 			iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false, pTargetPlot, pFromPlot);
 			if (iDefenderStrength==0)

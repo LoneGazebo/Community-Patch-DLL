@@ -18,7 +18,7 @@ UPDATE Units SET ObsoleteTech = 'TECH_INDUSTRIALIZATION' WHERE Type = 'UNIT_ENVO
 INSERT INTO Trait_SpecialistYieldChanges
 	(TraitType, SpecialistType, YieldType, Yield)
 VALUES
-	('TRAIT_SCHOLARS_JADE_HALL', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_SCIENCE', 1);
+	('TRAIT_SCHOLARS_JADE_HALL', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_SCIENCE', 2);
 
 INSERT INTO Belief_SpecialistYieldChanges
 	(BeliefType, SpecialistType, YieldType, Yield)
@@ -69,7 +69,7 @@ VALUES
 INSERT INTO Trait_GoldenAgeGreatPersonRateModifier
 	(TraitType, GreatPersonType, Modifier)
 VALUES
-	('TRAIT_CARNIVAL', 'GREATPERSON_DIPLOMAT', 50);
+	('TRAIT_SCHOLARS_JADE_HALL', 'GREATPERSON_DIPLOMAT', 50);
 
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)

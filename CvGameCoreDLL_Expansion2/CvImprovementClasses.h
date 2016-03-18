@@ -192,6 +192,8 @@ public:
 	int* GetAdjacentTwoSameTypeYieldArray();
 	int GetAdjacentImprovementYieldChanges(int i, int j) const;
 	int* GetAdjacentImprovementYieldChangesArray(int i);
+	int GetAdjacentTerrainYieldChanges(int i, int j) const;
+	int* GetAdjacentTerrainYieldChangesArray(int i);
 #endif
 
 	int GetTechYieldChanges(int i, int j) const;
@@ -330,6 +332,7 @@ protected:
 	int* m_piAdjacentSameTypeYield;
 	int* m_piAdjacentTwoSameTypeYield;
 	int** m_ppiAdjacentImprovementYieldChanges;
+	int** m_ppiAdjacentTerrainYieldChanges;
 #endif
 
 	int** m_ppiTechYieldChanges;

@@ -194,6 +194,8 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_abCantMatchDeal()
 	, m_aeDoFType()
 	, m_aiNumTimesCoopWarDenied()
+	, m_aiPromisePlot()
+	, m_aiLastTurnCoM()
 	, m_abDoFBroken()
 	, m_aiNumTimesRazed()
 #endif
@@ -423,6 +425,7 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paeDoFType(NULL),
 	m_paiNumTimesCoopWarDenied(NULL),
 	m_paiPromisePlot(NULL),
+	m_paiLastTurnCoM(NULL),
 	m_pabDoFBroken(NULL),
 	m_paiNumTimesRazed(NULL),
 	m_pabPlayerEverMadeBorderPromise(NULL),
@@ -657,6 +660,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paeDoFType = &m_pDiploData->m_aeDoFType[0];
 	m_paiNumTimesCoopWarDenied = &m_pDiploData->m_aiNumTimesCoopWarDenied[0];
 	m_paiPromisePlot = &m_pDiploData->m_aiPromisePlot[0];
+	m_paiLastTurnCoM = &m_pDiploData->m_aiLastTurnCoM[0];
 	m_pabDoFBroken = &m_pDiploData->m_abDoFBroken[0];
 	m_paiNumTimesRazed = &m_pDiploData->m_aiNumTimesRazed[0];
 	m_pabPlayerEverMadeBorderPromise = &m_pDiploData->m_abPlayerEverMadeBorderPromise[0];
@@ -970,6 +974,7 @@ void CvDiplomacyAI::Uninit()
 	m_paeDoFType =  NULL;
 	m_paiNumTimesCoopWarDenied = NULL;
 	m_paiPromisePlot = NULL;
+	m_paiLastTurnCoM = NULL;
 	m_pabDoFBroken = NULL;
 	m_paiNumTimesRazed = NULL;
 	m_pabPlayerEverMadeBorderPromise = NULL;
@@ -1179,6 +1184,7 @@ void CvDiplomacyAI::Reset()
 		m_paeDoFType[iI] = NO_DOF_TYPE;
 		m_paiNumTimesCoopWarDenied[iI] = 0;
 		m_paiPromisePlot[iI] = -1;
+		m_paiLastTurnCoM[iI] = -1;
 		m_pabDoFBroken[iI] = false;
 		m_pabPlayerEverMadeBorderPromise[iI] = false;
 		m_pabPlayerEverMadeExpansionPromise[iI] = false;
@@ -1864,6 +1870,9 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	ArrayWrapper<short> wrapm_paiPromisePlot(MAX_MAJOR_CIVS, m_paiPromisePlot);
 	kStream >> wrapm_paiPromisePlot;
 
+	ArrayWrapper<short> wrapm_paiLastTurnCoM(MAX_MAJOR_CIVS, m_paiLastTurnCoM);
+	kStream >> wrapm_paiLastTurnCoM;
+
 	ArrayWrapper<bool> wrapm_pabDoFBroken(MAX_MAJOR_CIVS, m_pabDoFBroken);
 	kStream >> wrapm_pabDoFBroken;
 	
@@ -2194,6 +2203,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<char>(MAX_MAJOR_CIVS, m_paeDoFType);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiNumTimesCoopWarDenied);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiPromisePlot);
+	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiLastTurnCoM);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabDoFBroken);
 	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiNumTimesRazed);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabPlayerEverMadeBorderPromise);
@@ -5914,7 +5924,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	{
 		// Don't give this bias if war is going poorly
 		WarStateTypes eWarState = GetWarState(ePlayer);
-		if(eWarState > WAR_STATE_STALEMATE)
+		if(eWarState >= WAR_STATE_OFFENSIVE)
 		{
 			viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST];
 		}
@@ -5943,10 +5953,10 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	int iNumWeLack = GET_PLAYER(ePlayer).GetMinorCivAI()->GetNumResourcesMajorLacks(GetPlayer()->GetID());
 	if(iNumWeLack > 0)
 	{
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += (iNumWeLack * viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY]);
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (iNumWeLack * viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE]);
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (iNumWeLack * viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
-		viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= (iNumWeLack * viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY]);
+		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += (iNumWeLack + viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY]);
+		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (iNumWeLack + viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE]);
+		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (iNumWeLack + viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
+		viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= (iNumWeLack + viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY]);
 	}
 
 	////////////////////////////////////
@@ -6173,7 +6183,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 					}
 					else if(GetStateAllWars() == STATE_ALL_WARS_WINNING)
 					{
-						viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
+						viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY]);
 					}
 					else
 					{
@@ -6207,10 +6217,9 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 					bMinorCiv = GET_PLAYER(eLoopPlayer).isMinorCiv();
 
 					// Planning war with this player? (Can't ONLY use the War Approach because this could have been cleared before, but we have to also check it because it could have just been set for someone else earlier this turn)
-					if(GetWarGoal(eLoopPlayer) == WAR_GOAL_PREPARE ||
-					        (!bMinorCiv && GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR))	// Major Civs only
+					if(!bMinorCiv && (GetWarGoal(eLoopPlayer) == WAR_GOAL_PREPARE || GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_WAR))	// Major Civs only
 					{
-						viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += /*-20*/ GC.getMINOR_APPROACH_WAR_PLANNING_WAR_WITH_ANOTHER_PLAYER();
+						viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST];
 					}
 
 					// Approaches already assigned to other higher-priority Minors
@@ -6220,7 +6229,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 						{
 						case MINOR_CIV_APPROACH_CONQUEST:
 							{
-								viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST] * 2);
+								viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST] * 3);
 								viApproachWeights[MINOR_CIV_APPROACH_IGNORE] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_IGNORE]);
 							}
 							break;
@@ -6253,7 +6262,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 		viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY];
 		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY] * 2);
 		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 2);
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST] * 2);
+		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST];
 		break;
 	case PLAYER_PROXIMITY_CLOSE:	
 		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY];
@@ -6355,7 +6364,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 							//Good target? Let's kill him and get the prize!
 						case TARGET_VALUE_FAVORABLE:
 						case TARGET_VALUE_SOFT:
-							viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST] * 3);
+							viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST] * 2);
 							viApproachWeights[MINOR_CIV_APPROACH_BULLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY] * 3);
 							break;
 						default:
@@ -6454,8 +6463,8 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 		if(iTurnsSincePeace < /*25*/ GC.getTURNS_SINCE_PEACE_WEIGHT_DAMPENER())
 		{
 			viApproachWeights[MINOR_CIV_APPROACH_IGNORE] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_IGNORE];
-			viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST] * 2);
-			viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY] * 2);
+			viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST] * 5);
+			viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY] * 5);
 			viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY];
 		}
 	}
@@ -8489,9 +8498,17 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 #if defined(MOD_BALANCE_CORE)
 	if(GET_PLAYER(ePlayer).isMinorCiv())
 	{
-		if(GetMinorCivApproach(ePlayer) == MINOR_CIV_APPROACH_CONQUEST)
+		if(GetPlayerNumTurnsAtWar(ePlayer) <= GC.getWAR_MAJOR_MINIMUM_TURNS())
 		{
 			return false;
+		}
+		else if(GetMinorCivApproach(ePlayer) == MINOR_CIV_APPROACH_CONQUEST)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
 		}
 	}
 	else
@@ -12930,8 +12947,6 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	SetExpansionAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
-
 	if(GetPlayer()->getCapitalCity() == NULL)
 		return;
 
@@ -12951,21 +12966,15 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 
 	//Let's get our imperial center of mass.
 	CvPlot* pOurCenterPlot = NULL;
-	if(GetPlayer()->getNumCities() <= 1)
+
+	//They promised not to expand? Let's compare their distance to our promise CoM
+	if(IsPlayerMadeExpansionPromise(ePlayer) && (GetPromisePlotOtherPlayer(ePlayer) != -1))
 	{
-		return;
+		pOurCenterPlot = GC.getMap().plotByIndex(GetPromisePlotOtherPlayer(ePlayer));
 	}
 	else
 	{
-		//They promised not to expand? Let's compare their distance to our promise CoM
-		if(IsPlayerMadeExpansionPromise(ePlayer) && (GetPromisePlotOtherPlayer(ePlayer) != -1))
-		{
-			pOurCenterPlot = GC.getMap().plotByIndex(GetPromisePlotOtherPlayer(ePlayer));
-		}
-		else
-		{
-			pOurCenterPlot = GetCenterOfMassEmpire(true, true);
-		}
+		pOurCenterPlot = GetPlayer()->GetCenterOfMassEmpire();
 	}
 
 	if(pOurCenterPlot == NULL)
@@ -12973,42 +12982,71 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 
 	AggressivePostureTypes eAggressivePosture;
 
-	int iDistanceUsToThem;
-
 	// If they have no capital then, uh... just stop I guess
 	if(GET_PLAYER(ePlayer).getCapitalCity() == NULL)
 		return;
 
 	//and now theirs.
 	CvPlot* pTheirCenterPlot = NULL;
-	if(GET_PLAYER(ePlayer).getNumCities() <= 1)
-	{
-		return;
-	}
-	else
-	{
-		pTheirCenterPlot = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCenterOfMassEmpire(true, true);
-	}
+	pTheirCenterPlot = GET_PLAYER(ePlayer).GetCenterOfMassEmpire();
 
 	if(pTheirCenterPlot == NULL)
 		return;
 
-	eAggressivePosture = AGGRESSIVE_POSTURE_NONE;
+	CvPlot* pTheirCenterPlotLastTurn = GC.getMap().plotByIndex(GetLastTurnCenterofMass(ePlayer));
+
+	//Null? Must be first turn or something. Ignore.
+	if(pTheirCenterPlotLastTurn == NULL)
+	{
+		//Save off our new value for next turn, it'll be our new test point (since it was apparently null last turn).
+		SetLastTurnCenterofMass(ePlayer, pTheirCenterPlot->GetPlotIndex());
+		SetExpansionAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
+		return;
+	}
+
+	//Okay, so we have their center plot last turn, and their center plot this turn...
+	//Let's compare the distance. If their CoM is the same on both turns, and the new value is lower, then we're the ones that expanded.
 
 	// First calculate distances
-	iDistanceUsToThem = plotDistance(pTheirCenterPlot->getX(), pTheirCenterPlot->getY(), pOurCenterPlot->getX(), pOurCenterPlot->getY());
+	int iDistanceUsToThemThisTurn = plotDistance(pTheirCenterPlot->getX(), pTheirCenterPlot->getY(), pOurCenterPlot->getX(), pOurCenterPlot->getY());
+	int iDistanceUsToThemLastTurn = plotDistance(pTheirCenterPlotLastTurn->getX(), pTheirCenterPlotLastTurn->getY(), pOurCenterPlot->getX(), pOurCenterPlot->getY());
 
-	//Boldness should matter a little.
-	iDistanceUsToThem -= (GetBoldness() / 5);
+	//Save off our new value for next turn, it'll be our new test point.
+	SetLastTurnCenterofMass(ePlayer, pTheirCenterPlot->GetPlotIndex());
 
-	if(iDistanceUsToThem <= /*3*/ GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_HIGH())
-		eAggressivePosture = AGGRESSIVE_POSTURE_HIGH;
-	else if(iDistanceUsToThem <= /*5*/ GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_MEDIUM())
-		eAggressivePosture = AGGRESSIVE_POSTURE_MEDIUM;
-	else if(iDistanceUsToThem <= /*9*/ GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_LOW())
-		eAggressivePosture = AGGRESSIVE_POSTURE_LOW;
+	//If the distance is lower, but they didn't move, we can't be mad at them for expanding, so no change in aggressive posture.
+	if(iDistanceUsToThemThisTurn < iDistanceUsToThemLastTurn && pTheirCenterPlotLastTurn == pTheirCenterPlot)
+	{ 
+		return;
+	}
 
-	SetExpansionAggressivePosture(ePlayer, eAggressivePosture);
+	//If the distance is lower, and their plots aren't the same, then they settled! Let's see if this makes us mad.
+	if(pTheirCenterPlotLastTurn != pTheirCenterPlot)
+	{ 
+		//Theoretically this turn should be smaller than last turn. If not, then we're not expanding towards each other, so remove the expansion penalty.
+		int iAggregateChange = iDistanceUsToThemThisTurn - iDistanceUsToThemLastTurn;
+		if(iAggregateChange < 0)
+		{
+			SetExpansionAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
+			return;
+		}
+
+		eAggressivePosture = AGGRESSIVE_POSTURE_NONE;
+
+		//We made it this far? That means we are closer this turn than last, thus its time to update our aggressive stance.
+
+		//Boldness should matter a little.
+		iDistanceUsToThemThisTurn -= (GetBoldness() / 5);
+
+		if(iDistanceUsToThemThisTurn <= /*3*/ GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_HIGH())
+			eAggressivePosture = AGGRESSIVE_POSTURE_HIGH;
+		else if(iDistanceUsToThemThisTurn <= /*5*/ GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_MEDIUM())
+			eAggressivePosture = AGGRESSIVE_POSTURE_MEDIUM;
+		else if(iDistanceUsToThemThisTurn <= /*9*/ GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_LOW())
+			eAggressivePosture = AGGRESSIVE_POSTURE_LOW;
+
+		SetExpansionAggressivePosture(ePlayer, eAggressivePosture);
+	}
 #else
 
 	int iMyCapitalX = GetPlayer()->getCapitalCity()->getX();
@@ -25675,7 +25713,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			SetPlayerExpansionPromiseData(eFromPlayer, GetExpansionAggressivePosture(eFromPlayer));
 #if defined(MOD_BALANCE_CORE)
 			SetEverMadeExpansionPromise(eFromPlayer, true);
-			CvPlot* pPromisePlot = GetCenterOfMassEmpire(true, true);
+			CvPlot* pPromisePlot = GET_PLAYER(eFromPlayer).GetCenterOfMassEmpire();
 			if(pPromisePlot != NULL)
 			{
 				//We want to save off our empire's plot, otherwise our expansion could trigger the expansion warning!
@@ -29443,82 +29481,17 @@ int CvDiplomacyAI::GetPromisePlotOtherPlayer(PlayerTypes eOtherPlayer)
 	CvAssertMsg(eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	return m_paiPromisePlot[eOtherPlayer];
 }
-CvPlot* CvDiplomacyAI::GetCenterOfMassEmpire(bool bIgnorePuppets, bool bIgnoreConquest)
+void CvDiplomacyAI::SetLastTurnCenterofMass(PlayerTypes eOtherPlayer, int iPlotIndex)
 {
-	CvPlot* pRtnValue = NULL;
-	int iTotalX = 0;
-	int iTotalY = 0;
-	int iNumCities = 0;
-
-	int iLoop;
-	CvCity* pCity = GetPlayer()->firstCity(&iLoop);
-
-	if (!pCity)
-		return NULL;
-
-	int iTotalX2 = 0;
-	int iTotalY2 = 0;
-	int iWorldWidth = GC.getMap().getGridWidth();
-	int iWorldHeight = GC.getMap().getGridHeight();
-
-	//the first unit is our reference ...
-	int iRefX = pCity->getX();
-	int iRefY = pCity->getY();
-	iNumCities++;
-	pCity = GetPlayer()->nextCity(&iLoop);
-
-	while(pCity)
-	{
-		if(bIgnorePuppets && pCity->IsPuppet())
-		{
-			pCity = GetPlayer()->nextCity(&iLoop);
-			continue;
-		}
-		// Don't look at Cities they've captured
-		if(bIgnoreConquest && pCity->getOriginalOwner() != pCity->getOwner())
-		{
-			pCity = GetPlayer()->nextCity(&iLoop);
-			continue;	
-		}
-
-		int iDX = pCity->getX() - iRefX;
-		int iDY = pCity->getY() - iRefY;
-
-		if (GC.getMap().isWrapX())
-		{
-			if( iDX > +(iWorldWidth / 2))
-				iDX -= iWorldWidth;
-			if( iDX < -(iWorldWidth / 2))
-				iDX += iWorldWidth;
-		}
-		if (GC.getMap().isWrapY())
-		{
-			if( iDY > +(iWorldHeight / 2))
-				iDY -= iWorldHeight;
-			if( iDY < -(iWorldHeight / 2))
-				iDY += iWorldHeight;
-		}
-
-		iTotalX += iDX;
-		iTotalY += iDY;
-		iTotalX2 += iDX*iDX;
-		iTotalY2 += iDY*iDY;
-		iNumCities++;
-
-		pCity = GetPlayer()->nextCity(&iLoop);
-	}
-
-	if (iNumCities==0)
-		return NULL;
-
-	//finally, compute average (with rounding)
-	int iAvgX = (iTotalX + (iNumCities / 2)) / iNumCities + iRefX;
-	int iAvgY = (iTotalY + (iNumCities / 2)) / iNumCities + iRefY;
-
-	//this handles wrapped coordinates
-	pRtnValue = GC.getMap().plot(iAvgX, iAvgY);
-
-	return pRtnValue;
+	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	m_paiLastTurnCoM[eOtherPlayer] = iPlotIndex;
+}
+int CvDiplomacyAI::GetLastTurnCenterofMass(PlayerTypes eOtherPlayer)
+{
+	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_paiLastTurnCoM[eOtherPlayer];
 }
 int CvDiplomacyAI::GetNumDenouncements()
 {

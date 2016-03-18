@@ -2024,7 +2024,7 @@
 			<Description>TXT_KEY_PROMOTION_OCEAN_MOVEMENT</Description>
 			<Help>TXT_KEY_PROMOTION_OCEAN_MOVEMENT_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<ExtraNavalMovement>2</ExtraNavalMovement>
+			<ExtraNavalMovement>1</ExtraNavalMovement>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
@@ -3150,6 +3150,20 @@
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ESPRIT_DE_CORPS</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_ARSENALE</Type>
+			<Description>TXT_KEY_PROMOTION_ARSENALE</Description>
+			<Help>TXT_KEY_PROMOTION_ARSENALE_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>1</OrderPriority>
+			<CombatPercent>10</CombatPercent>
+			<CannotBeChosen>true</CannotBeChosen>
+			<ExtraNavalMovement>1</ExtraNavalMovement>
+			<PortraitIndex>3</PortraitIndex>
+			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ARSENALE</PediaEntry>
 		</Row>
 	</UnitPromotions>
 </GameData>

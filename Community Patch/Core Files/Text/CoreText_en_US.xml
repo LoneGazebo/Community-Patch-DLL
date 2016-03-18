@@ -2627,6 +2627,9 @@
 		<Row Tag="TXT_KEY_PEDIA_IMPROVADJYIELD_LABEL">
 			<Text>Bonus to Adjacent:</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PEDIA_IMPROVADJTERRAINYIELD_LABEL">
+			<Text>Bonus to Adjacent:</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PEDIA_ADJIMPROVYIELD_LABEL">
 			<Text>Adjacent Bonus:</Text>
 		</Row>
@@ -5188,6 +5191,11 @@
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_ALLY_TT">
 			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +10% [ICON_GREAT_PEOPLE] Great Person rate in [ICON_CAPITAL] Capital, and [ICON_INFLUENCE] Influence with the City-State no longer decays.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} turns so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
 		</Row>
+		
+		<!-- Venice Tooltip -->
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_GPT_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_Num} from Gold Per Turn</Text>
+		</Row>
 
 		<!-- Attack City -->
 		<Row Tag="TXT_KEY_MISC_YOU_ATTACKED_CITY_CP">
@@ -5216,7 +5224,18 @@
 		<Row Tag="TXT_KEY_DIPLO_DP_WITH_CBP">
 			<Text>[COLOR_POSITIVE_TEXT]Defensive Pact with {1_CivName:textkey}[ENDCOLOR]</Text>
 		</Row>
-
+		
+		<!-- Brazil LUA-->
+		<Row Tag="TXT_KEY_CARNAVAL_WLTKD">
+			<Text>Carnaval has begun! All Cities will celebrate Carnaval for {1_Num} turns, during which time they will produce +20% [ICON_CULTURE] Culture instead of the normal 25% [ICON_FOOD] Growth bonus.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CARNAVAL_WLTKD_S">
+			<Text>Carnaval begins!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_WLTKD_TRAIT">
+			<Text>[NEWLINE] [ICON_BULLET]Carnaval Modifier: {1_Num}%</Text>
+		</Row>
+		
 		<!--Revolutions-->
 		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP">
 			<Text>Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness, a city will revolt in {1_Turns} turns. Based on current Unhappiness levels, the city most likely to revolt is {2_CityName}. If this city revolts, it will restore the sovereignty of {3_CivName}. Try to get your empire's Happiness level out of this range as soon as possible!</Text>

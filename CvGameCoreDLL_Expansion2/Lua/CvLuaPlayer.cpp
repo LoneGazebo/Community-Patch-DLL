@@ -1069,6 +1069,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE)
 	Method(IsDiplomaticMarriage);
 	Method(IsGPWLTKD);
+	Method(IsCarnaval);
 #endif
 	Method(IsUsingMayaCalendar);
 	Method(GetMayaCalendarString);
@@ -1354,6 +1355,16 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(SetCurrencyName);
 	Method(GetCurrencyName);
+	Method(CountAllFeature);
+	Method(CountAllWorkedFeature);
+	Method(CountAllImprovement);
+	Method(CountAllWorkedImprovement);
+	Method(CountAllPlotType);
+	Method(CountAllWorkedPlotType);
+	Method(CountAllResource);
+	Method(CountAllWorkedResource);
+	Method(CountAllTerrain);
+	Method(CountAllWorkedTerrain);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -11045,6 +11056,23 @@ int CvLuaPlayer::lIsGPWLTKD(lua_State* L)
 	}
 	return 1;
 }
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsCarnaval(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	if(pkPlayer)
+	{
+		if(pkPlayer->GetPlayerTraits()->GetWLTKDGATimer() > 0)
+		{
+			lua_pushboolean(L, true);
+		}
+		else
+		{
+			lua_pushboolean(L, false);
+		}
+	}
+	return 1;
+}
 #endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsUsingMayaCalendar(lua_State* L)
@@ -12765,11 +12793,8 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 	lua_createtable(L, 0, 0);
 	int index = 1;
 	// first pass to get the largest base potential available
+#if !defined(MOD_BALANCE_CORE_SPIES)
 	int iLargestBasePotential = 0;
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
-	if(!MOD_BALANCE_CORE_SPIES_ADVANCED)
-	{
-#endif
 	for(int i = 0; i < MAX_PLAYERS; ++i)
 	{
 		const PlayerTypes ePlayer(static_cast<PlayerTypes>(i));
@@ -12803,8 +12828,6 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
-	}
 #endif
 	// second pass to set the values
 	for(int i = 0; i < MAX_PLAYERS; ++i)
@@ -12822,8 +12845,9 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 		{
 			if(pkPlayerEspionage->CanEverMoveSpyTo(pCity))
 			{
+#if !defined(MOD_BALANCE_CORE_SPIES)
 				CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-
+#endif
 				lua_createtable(L, 0, 0);
 				const int t = lua_gettop(L);
 
@@ -12851,9 +12875,7 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 
 				lua_pushinteger(L, pCity->getPopulation());
 				lua_setfield(L, t, "Population");
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
-			if(MOD_BALANCE_CORE_SPIES_ADVANCED)
-			{
+#if defined(MOD_BALANCE_CORE_SPIES)
 				int iRate = pCity->GetRank();
 				lua_pushinteger(L, iRate);
 				lua_setfield(L, t, "Potential");
@@ -12863,12 +12885,8 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 
 				lua_pushinteger(L, 10);
 				lua_setfield(L, t, "LargestBasePotential");
-			}
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
-			if(!MOD_BALANCE_CORE_SPIES_ADVANCED)
-			{
-#endif
+#if !defined(MOD_BALANCE_CORE_SPIES)
 				if(pCity->getOwner() == pkThisPlayer->GetID())
 				{
 					int iRate = pkPlayerEspionage->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, -1);
@@ -12892,8 +12910,6 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 
 				lua_pushinteger(L, iLargestBasePotential);
 				lua_setfield(L, t, "LargestBasePotential");
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
-			}
 #endif
 				lua_rawseti(L, -2, index++);
 			}
@@ -13426,6 +13442,16 @@ int CvLuaPlayer::lAddMessage(lua_State* L)
 	SHOW_PLAYER_MESSAGE(GetInstance(L), lua_tostring(L, 2));
 	return 0;
 }
+LUAAPIIMPL(Player, CountAllFeature)
+LUAAPIIMPL(Player, CountAllWorkedFeature)
+LUAAPIIMPL(Player, CountAllImprovement)
+LUAAPIIMPL(Player, CountAllWorkedImprovement)
+LUAAPIIMPL(Player, CountAllPlotType)
+LUAAPIIMPL(Player, CountAllWorkedPlotType)
+LUAAPIIMPL(Player, CountAllResource)
+LUAAPIIMPL(Player, CountAllWorkedResource)
+LUAAPIIMPL(Player, CountAllTerrain)
+LUAAPIIMPL(Player, CountAllWorkedTerrain)
 #endif
 #if defined(MOD_BALANCE_CORE)
 //-------------------------------------------------------------------------

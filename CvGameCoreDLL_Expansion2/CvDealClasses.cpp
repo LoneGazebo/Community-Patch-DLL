@@ -3359,7 +3359,8 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 								{
 									iTurns = iTurns * (100 + iLengthModifier) / 100;
 								}
-								GET_PLAYER(eAcceptedToPlayer).changeGoldenAgeTurns(iTurns);
+								int iValue = GET_PLAYER(eAcceptedToPlayer).GetGoldenAgeProgressMeter();
+								GET_PLAYER(eAcceptedToPlayer).changeGoldenAgeTurns(iTurns, iValue);
 							}
 
 							int iTourism = GET_PLAYER(eAcceptedToPlayer).GetEventTourism();
@@ -3437,7 +3438,9 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 								{
 									iTurns = iTurns * (100 + iLengthModifier) / 100;
 								}
-								GET_PLAYER(eAcceptedFromPlayer).changeGoldenAgeTurns(iTurns);
+								
+								int iValue = GET_PLAYER(eAcceptedFromPlayer).GetGoldenAgeProgressMeter();
+								GET_PLAYER(eAcceptedFromPlayer).changeGoldenAgeTurns(iTurns, iValue);
 							}
 
 							int iTourism = GET_PLAYER(eAcceptedFromPlayer).GetEventTourism();

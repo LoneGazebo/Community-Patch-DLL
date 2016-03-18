@@ -4928,6 +4928,36 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 			end
 
 			--CBP
+
+			numYields = 0;
+			yieldString = "";
+			terrainString = "";
+			fullstring = "";
+			baseTerrain = "";
+			for row in GameInfo.Improvement_AdjacentTerrainYieldChanges( condition ) do
+				numYields = numYields + 1;
+				local Terrain = GameInfo.Terrains[row.TerrainType];
+				if Terrain then
+					terrainString = Locale.ConvertTextKey(Terrain.Description)..": ";
+					if(Terrain ~= baseTerrain) then
+						baseTerrain = Terrain;
+						if(fullstring == "") then
+							fullstring = fullstring .. terrainString;
+						else
+							fullstring = fullstring .. "[NEWLINE]" .. terrainString;
+						end
+					end
+					yieldString = "+" .. tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
+					fullstring = fullstring .. Locale.ConvertTextKey( yieldString );
+				end
+			end
+			if numYields == 0 then
+				Controls.AdjacentTerrainYieldFrame:SetHide( true );
+			else
+				Controls.AdjacentTerrainYieldLabel:SetText( fullstring );
+				Controls.AdjacentTerrainYieldFrame:SetHide( false );
+			end
+
 			numYields = 0;
 			yieldString = "";
 			improvementString = "";
@@ -7244,6 +7274,7 @@ function ClearArticle()
 	--CBP
 	Controls.TradeRouteYieldFrame:SetHide( true );
 	Controls.AdjacentYieldFrame:SetHide( true );
+	Controls.AdjacentTerrainYieldFrame:SetHide( true );	
 	Controls.AdjacentImprovYieldFrame:SetHide( true );
 	Controls.TwoAdjacentImprovYieldFrame:SetHide( true );	
 	Controls.ImprovementYieldFrame:SetHide( true );

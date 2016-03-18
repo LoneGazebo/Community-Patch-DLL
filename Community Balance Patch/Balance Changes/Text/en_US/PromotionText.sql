@@ -174,6 +174,23 @@
 	SET Text = '+15% [ICON_STRENGTH] Combat Strength versus Naval and Land Units.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_AIR_TARGETING_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+-- Reduce anti-sub power
+	UPDATE Language_en_US
+	SET Text = 'Bonus vs Submarines (33)'
+	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_SUBMARINE_I' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Bonus vs Submarines (33)'
+	WHERE Tag = 'TXT_KEY_PEDIA_PROMOTION_ANTI_SUBMARINE_I' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Bonus vs Submarines (75)'
+	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_SUBMARINE_II' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Bonus vs Submarines (75)'
+	WHERE Tag = 'TXT_KEY_PEDIA_PROMOTION_ANTI_SUBMARINE_II' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 -- Air Ambush - More Interceptions
 	UPDATE Language_en_US
 	SET Text = '1 Extra [COLOR_POSITIVE_TEXT]Interception[ENDCOLOR] may be made per turn.'
@@ -265,3 +282,8 @@
 	UPDATE Language_en_US
 	SET Text = 'One extra Movement. May attack twice, though second attack expends all Movement'
 	WHERE Tag = 'TXT_KEY_PROMOTION_RESTLESSNESS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Changed English UA
+	UPDATE Language_en_US
+	SET Text = '1 Extra Movement for Naval Units.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_MOVEMENT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );

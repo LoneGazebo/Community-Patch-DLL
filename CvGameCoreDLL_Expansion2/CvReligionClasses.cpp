@@ -8846,6 +8846,10 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 		if (pEntry->GetYieldFromWLTKD(iI) > 0)
 		{
 			iRtnValue += (pEntry->GetYieldFromWLTKD(iI) * iFlavorExpansion);
+			if(m_pPlayer->GetPlayerTraits()->GetWLTKDGATimer() > 0)
+			{
+				iRtnValue += m_pPlayer->GetPlayerTraits()->GetWLTKDGATimer() * 2;
+			}
 		}
 		for(int iJ = 0; iJ < GC.getNumSpecialistInfos(); iJ++)
 		{
@@ -8928,7 +8932,11 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 		{
 			iRtnValue += (pEntry->GetImprovementYieldChange(eCitadel, (YieldTypes)iI) * m_pPlayer->getImprovementCount(eCitadel));
 			iRtnValue *= iFlavorGP;
-		}		
+		}
+		if((YieldTypes)iI == YIELD_GOLDEN_AGE_POINTS && m_pPlayer->GetPlayerTraits()->GetWLTKDGATimer() > 0)
+		{
+			iRtnValue *= 2;
+		}
 #endif
 	}
 

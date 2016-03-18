@@ -43,6 +43,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iPolicyBranchType(NO_POLICY_BRANCH_TYPE),
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iPolicyType(NO_POLICY),
+	m_eCivType(NO_CIVILIZATION),
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iResourceType(NO_RESOURCE),
@@ -57,6 +58,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bTradeRouteInvulnerable(false),
 	m_iTRSpeedBoost(0),
 	m_iTRVisionBoost(0),
+	m_iVotesPerGPT(0),
+	m_bRequiresRail(false),
 #endif
 	m_iSpecialistType(NO_SPECIALIST),
 	m_iSpecialistCount(0),
@@ -750,6 +753,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bTradeRouteInvulnerable = kResults.GetBool("TradeRouteInvulnerable");
 	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
 	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
+	m_iVotesPerGPT = kResults.GetInt("VotesPerGPT");
+	m_bRequiresRail = kResults.GetBool("RequiresRail");
 #endif
 	szTextVal = kResults.GetText("FreePromotion");
 	m_iFreePromotion = GC.getInfoTypeForString(szTextVal, true);
@@ -772,6 +777,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	szTextVal = kResults.GetText("PolicyType");
 	m_iPolicyType = GC.getInfoTypeForString(szTextVal, true);
+
+	const char* szSpecificCivilizationType = kResults.GetText("CivilizationRequired");
+	m_eCivType = (CivilizationTypes)GC.getInfoTypeForString(szSpecificCivilizationType, true);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("ResourceType");
@@ -1310,6 +1318,10 @@ int CvBuildingEntry::GetPolicyType() const
 {
 	return m_iPolicyType;
 }
+CivilizationTypes CvBuildingEntry::GetCivType() const
+{
+	return m_eCivType;
+}
 #endif
 #if defined(MOD_BALANCE_CORE)
 /// Resource required for this building
@@ -1434,6 +1446,15 @@ int CvBuildingEntry::GetTRSpeedBoost() const
 int CvBuildingEntry::GetTRVisionBoost() const
 {
 	return m_iTRVisionBoost;
+}
+
+int CvBuildingEntry::GetVotesPerGPT() const
+{
+	return m_iVotesPerGPT;
+}
+bool CvBuildingEntry::IsRequiresRail() const
+{
+	return m_bRequiresRail;
 }
 #endif
 

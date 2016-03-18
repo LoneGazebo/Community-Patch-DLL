@@ -5351,6 +5351,32 @@ int CvPlot::ComputeYieldFromOtherAdjacentImprovement(CvImprovementEntry& kImprov
 
 	return iRtnValue;
 }
+int CvPlot::ComputeYieldFromAdjacentTerrain(CvImprovementEntry& kImprovement, YieldTypes eYield) const
+{
+	CvPlot* pAdjacentPlot;
+	int iRtnValue = 0;
+
+	for(int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
+	{
+		TerrainTypes eTerrain = (TerrainTypes)iJ;
+		if(eTerrain != NO_TERRAIN)
+		{
+			if(kImprovement.GetAdjacentTerrainYieldChanges(eTerrain, eYield) > 0)
+			{
+				for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				{
+					pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+					if(pAdjacentPlot && pAdjacentPlot->getTerrainType() == eTerrain)
+					{
+						iRtnValue += kImprovement.GetAdjacentTerrainYieldChanges(eTerrain, eYield);
+					}
+				}
+			}
+		}
+	}
+
+	return iRtnValue;
+}
 #endif
 //	--------------------------------------------------------------------------------
 #if defined(MOD_GLOBAL_STACKING_RULES)
@@ -7848,6 +7874,62 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 			}
 		}
+		if(eBuilder != NO_PLAYER && eNewValue != NO_IMPROVEMENT && getOwner() == eBuilder)
+		{
+			CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(eNewValue);
+			if(pImprovement2)
+			{
+				for(int iJ = 0; iJ < NUM_DIRECTION_TYPES; ++iJ)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iJ));
+
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getTerrainType() != NO_TERRAIN && pAdjacentPlot->getOwner() == eBuilder)
+					{	
+						bool bUp = false;
+						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
+						{
+							if(pImprovement2->GetAdjacentTerrainYieldChanges(pAdjacentPlot->getTerrainType(), (YieldTypes)iK) > 0)
+							{
+								bUp = true;								
+								break;
+							}
+						}
+						if(bUp)
+						{
+							pAdjacentPlot->updateYield();
+						}
+					}
+				}
+			}
+		}
+		if(eBuilder != NO_PLAYER && eOldImprovement != NO_IMPROVEMENT && getOwner() == eBuilder)
+		{
+			CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(eOldImprovement);
+			if(pImprovement2)
+			{
+				for(int iJ = 0; iJ < NUM_DIRECTION_TYPES; ++iJ)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iJ));
+
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getTerrainType() != NO_TERRAIN && pAdjacentPlot->getOwner() == eBuilder)
+					{	
+						bool bUp = false;
+						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
+						{
+							if(pImprovement2->GetAdjacentTerrainYieldChanges(pAdjacentPlot->getTerrainType(), (YieldTypes)iK) > 0)
+							{
+								bUp = true;								
+								break;
+							}
+						}
+						if(bUp)
+						{
+							pAdjacentPlot->updateYield();
+						}
+					}
+				}
+			}
+		}
 #endif
 
 		// Update the amount of a Resource used up by this Improvement
@@ -9654,7 +9736,6 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			}
 		}
 	}
-
 	if(eRoute != NO_ROUTE && !IsRoutePillaged())
 	{
 		CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
@@ -9765,7 +9846,27 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			iYield += pWorkingCity->GetPlotExtraYield(getPlotType(), eYield);
 		}
 #endif
+#if defined(MOD_BALANCE_CORE)
+		if(pWorkingCity != NULL)
+		{
+			if(ePlayer != NO_PLAYER && getTerrainType() != NO_TERRAIN && getOwner() == ePlayer)
+			{
+				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
+					{
+						CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
+						if(pImprovement2 && pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield) > 0)
+						{
+							iYield += pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield);
+						}
+					}
+				}
+			}
+		}
+#endif
 		// Extra yield for terrain
 		if(getTerrainType() != NO_TERRAIN)
 		{
@@ -12615,24 +12716,6 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 #endif
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(ePlayer != NO_PLAYER && eImprovement != NO_IMPROVEMENT && getOwner() == ePlayer)
-	{
-		for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-		{
-			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-			if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
-			{
-				CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
-				if(pImprovement2 && pImprovement2->GetAdjacentImprovementYieldChanges(eImprovement, eYield) > 0)
-				{
-					iYield += pImprovement2->GetAdjacentImprovementYieldChanges(eImprovement, eYield);
-				}
-			}
-		}
-	}
-#endif
 	RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
 
 	// If we're not changing the route that's here, use the route that's here already
@@ -12819,7 +12902,27 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			iYield += pWorkingCity->GetPlotExtraYield(getPlotType(), eYield);
 		}
 #endif
+#if defined(MOD_BALANCE_CORE)
+		if(pWorkingCity != NULL)
+		{
+			if(ePlayer != NO_PLAYER && getTerrainType() != NO_TERRAIN && getOwner() == ePlayer)
+			{
+				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
+					{
+						CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
+						if(pImprovement2 && pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield) > 0)
+						{
+							iYield += pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield);
+						}
+					}
+				}
+			}
+		}
+#endif
 		// Extra yield for terrain
 		if(getTerrainType() != NO_TERRAIN)
 		{

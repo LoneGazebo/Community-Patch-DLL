@@ -572,6 +572,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetYieldChangeTradeRoute);
 	Method(GetSpecialistYieldChange);
 	Method(GetModFromWLTKD);
+	Method(GetCultureModFromCarnaval);
 	Method(GetModFromGoldenAge);
 #endif
 	Method(GetBuildingEspionageModifier);
@@ -660,6 +661,16 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CountNumWorkedResource);
 	Method(CountNumImprovement);
 	Method(CountNumWorkedRiverTiles);
+	Method(CountFeature);
+	Method(CountWorkedFeature);
+	Method(CountImprovement);
+	Method(CountWorkedImprovement);
+	Method(CountPlotType);
+	Method(CountWorkedPlotType);
+	Method(CountResource);
+	Method(CountWorkedResource);
+	Method(CountTerrain);
+	Method(CountWorkedTerrain);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -4556,7 +4567,7 @@ int CvLuaCity::lSetNumRealBuilding(lua_State* L)
 	{
 		const int iNewValue = lua_tointeger(L, 3);
 #if defined(MOD_BALANCE_CORE)
-		const bool bNoBonus = luaL_optbool(L, 4, false);
+		const bool bNoBonus = luaL_optbool(L, 4, true);
 		pkCity->GetCityBuildings()->SetNumRealBuilding(iIndex, iNewValue, bNoBonus);
 #else
 		pkCity->GetCityBuildings()->SetNumRealBuilding(iIndex, iNewValue);
@@ -4957,6 +4968,19 @@ int CvLuaCity::lGetModFromWLTKD(lua_State* L)
 
 	return 1;
 }
+int CvLuaCity::lGetCultureModFromCarnaval(lua_State* L)
+{
+	int iRtnValue = 0;
+	CvCity* pkCity = GetInstance(L);
+	if(pkCity->GetWeLoveTheKingDayCounter() > 0)
+	{
+		const PlayerTypes ePlayer = pkCity->getOwner();
+		iRtnValue += GET_PLAYER(ePlayer).GetPlayerTraits()->GetWLTKDCulture();
+	}
+	lua_pushinteger(L, iRtnValue);
+
+	return 1;
+}
 //int GetModFromGoldenAge(YieldTypes eYield);
 int CvLuaCity::lGetModFromGoldenAge(lua_State* L)
 {
@@ -5303,4 +5327,14 @@ LUAAPIIMPL(City, IsWithinDistanceOfResource)
 LUAAPIIMPL(City, IsOnTerrain)
 LUAAPIIMPL(City, IsAdjacentToTerrain)
 LUAAPIIMPL(City, IsWithinDistanceOfTerrain)
+LUAAPIIMPL(City, CountFeature)
+LUAAPIIMPL(City, CountWorkedFeature)
+LUAAPIIMPL(City, CountImprovement)
+LUAAPIIMPL(City, CountWorkedImprovement)
+LUAAPIIMPL(City, CountPlotType)
+LUAAPIIMPL(City, CountWorkedPlotType)
+LUAAPIIMPL(City, CountResource)
+LUAAPIIMPL(City, CountWorkedResource)
+LUAAPIIMPL(City, CountTerrain)
+LUAAPIIMPL(City, CountWorkedTerrain)
 #endif

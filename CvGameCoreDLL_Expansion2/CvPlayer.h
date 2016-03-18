@@ -122,6 +122,8 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	void DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID);
+	void SetCenterOfMassEmpire();
+	CvPlot* GetCenterOfMassEmpire() const;
 #endif
 	void DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID);
 	bool CanLiberatePlayer(PlayerTypes ePlayer);
@@ -858,7 +860,11 @@ public:
 
 	int getGoldenAgeTurns() const;
 	bool isGoldenAge() const;
+#if defined(MOD_BALANCE_CORE)
+	void changeGoldenAgeTurns(int iChange, int iValue = 0);
+#else
 	void changeGoldenAgeTurns(int iChange);
+#endif
 	int getGoldenAgeLength() const;
 
 	int getNumUnitGoldenAges() const;
@@ -1041,7 +1047,7 @@ public:
 	void DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnit);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false);
+	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true);
 #endif
 	// Great People Expenditure
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
@@ -1384,6 +1390,9 @@ public:
 	void ChangeTRSpeedBoost(int iValue);
 	int GetTRSpeedBoost() const;
 	void SetTRSpeedBoost(int iValue);
+
+	void ChangeVotesPerGPT(int iValue);
+	int GetVotesPerGPT() const;
 
 	void ChangeTRVisionBoost(int iValue);
 	int GetTRVisionBoost() const;
@@ -2409,6 +2418,16 @@ public:
 	bool HasCapturedHolyCity(ReligionTypes eReligion);
 	bool HasEmbassyWith(PlayerTypes eOtherPlayer) const;
 	void DoForceDefPact(PlayerTypes eOtherPlayer);
+	int CountAllFeature(FeatureTypes iFeatureType);
+	int CountAllWorkedFeature(FeatureTypes iFeatureType);
+	int CountAllImprovement(ImprovementTypes iImprovementType);
+	int CountAllWorkedImprovement(ImprovementTypes iImprovementType);
+	int CountAllPlotType(PlotTypes iPlotType);
+	int CountAllWorkedPlotType(PlotTypes iPlotType);
+	int CountAllResource(ResourceTypes iResourceType);
+	int CountAllWorkedResource(ResourceTypes iResourceType);
+	int CountAllTerrain(TerrainTypes iTerrainType);
+	int CountAllWorkedTerrain(TerrainTypes iTerrainType);
 #endif
 
 	// for serialization
@@ -2571,6 +2590,8 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iChangeMinorityUnhappinessGlobal;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvPlayer> m_iCenterOfMassX;
+	FAutoVariable<int, CvPlayer> m_iCenterOfMassY;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -2867,6 +2888,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCorporateFranchises;
 	FAutoVariable<bool, CvPlayer> m_bTradeRoutesInvulnerable;
 	FAutoVariable<int, CvPlayer> m_iTRSpeedBoost;
+	FAutoVariable<int, CvPlayer> m_iVotesPerGPT;
 	FAutoVariable<int, CvPlayer> m_iTRVisionBoost;
 	FAutoVariable<int, CvPlayer> m_iBuildingMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iEventTourism;

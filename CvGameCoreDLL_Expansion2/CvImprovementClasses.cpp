@@ -168,6 +168,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_piAdjacentSameTypeYield(NULL),
 	m_piAdjacentTwoSameTypeYield(NULL),
 	m_ppiAdjacentImprovementYieldChanges(NULL),
+	m_ppiAdjacentTerrainYieldChanges(NULL),
 #endif
 	m_ppiTechYieldChanges(NULL),
 	m_ppiTechNoFreshWaterYieldChanges(NULL),
@@ -200,6 +201,10 @@ CvImprovementEntry::~CvImprovementEntry(void)
 	if(m_ppiAdjacentImprovementYieldChanges != NULL)
 	{
 		CvDatabaseUtility::SafeDelete2DArray(m_ppiAdjacentImprovementYieldChanges);
+	}
+	if(m_ppiAdjacentTerrainYieldChanges!= NULL)
+	{
+		CvDatabaseUtility::SafeDelete2DArray(m_ppiAdjacentTerrainYieldChanges);
 	}
 #endif
 	if(m_paImprovementResource != NULL)
@@ -477,6 +482,36 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 			const int yield = pResults->GetInt(2);
 
 			m_ppiAdjacentImprovementYieldChanges[improvement_idx][yield_idx] = yield;
+		}
+
+		pResults->Reset();
+	}
+	//m_ppiAdjacentTerrainYieldChanges
+	{
+		const int iNumTerrains = kUtility.MaxRows("Terrains");
+		CvAssertMsg(iNumTerrains > 0, "Num Terrain Infos <= 0");
+		kUtility.Initialize2DArray(m_ppiAdjacentTerrainYieldChanges, iNumTerrains, iNumYields);
+
+		std::string strKey = "Terrains - AdjacentTerrainYieldChanges";
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Terrains.ID as TerrainID, Yield from Improvement_AdjacentTerrainYieldChanges inner join Yields on YieldType = Yields.Type inner join Terrains on TerrainType = Terrains.Type where ImprovementType = ?");
+		}
+
+		pResults->Bind(1, szImprovementType, lenImprovementType, false);
+
+		while(pResults->Step())
+		{
+			const int yield_idx = pResults->GetInt(0);
+			CvAssert(yield_idx > -1);
+
+			const int terrain_idx = pResults->GetInt(1);
+			CvAssert(terrain_idx > -1);
+
+			const int yield = pResults->GetInt(2);
+
+			m_ppiAdjacentTerrainYieldChanges[terrain_idx][yield_idx] = yield;
 		}
 
 		pResults->Reset();
@@ -1232,6 +1267,20 @@ int CvImprovementEntry::GetAdjacentImprovementYieldChanges(int i, int j) const
 int* CvImprovementEntry::GetAdjacentImprovementYieldChangesArray(int i)
 {
 	return m_ppiAdjacentImprovementYieldChanges[i];
+}
+
+int CvImprovementEntry::GetAdjacentTerrainYieldChanges(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiAdjacentTerrainYieldChanges[i][j];
+}
+
+int* CvImprovementEntry::GetAdjacentTerrainYieldChangesArray(int i)
+{
+	return m_ppiAdjacentTerrainYieldChanges[i];
 }
 #endif
 

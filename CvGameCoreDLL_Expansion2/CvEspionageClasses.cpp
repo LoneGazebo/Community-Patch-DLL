@@ -530,8 +530,25 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					}
 					int iRate = CalcPerTurn(SPY_STATE_SURVEILLANCE, pCity, uiSpyIndex);
 					pCityEspionage->SetLastProgress(ePlayer, iRate);
-					pCityEspionage->SetLastPotential(ePlayer, -1); // set the last potential back to zero so that 
+					pCityEspionage->SetLastPotential(ePlayer, -1); // set the last potential back to zero so that
 					pSpy->m_bEvaluateReassignment = true; // flag to re-evaluate because we can't steal
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+					if(MOD_BALANCE_CORE_SPIES_ADVANCED && m_pPlayer->GetSpyCooldown() <= GC.getBALANCE_SPY_SABOTAGE_RATE())
+					{
+						pSpy->m_bEvaluateReassignment = false; // flag not to re-evaluate because high rank
+						if(GC.getLogging())
+						{
+							CvString strMsg;
+							strMsg.Format("Can't steal research, but staying because we're almost off cooldown: %d,", uiSpyIndex);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+							strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+#else
+							strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName));
+#endif
+							LogEspionageMsg(strMsg);
+						}
+					}
+#endif
 					if(GC.getLogging())
 					{
 						CvString strMsg;
@@ -575,6 +592,23 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 #endif
 				LogEspionageMsg(strMsg);
 			}
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+			if(MOD_BALANCE_CORE_SPIES_ADVANCED && m_pPlayer->GetSpyCooldown() <= GC.getBALANCE_SPY_SABOTAGE_RATE())
+			{
+				pSpy->m_bEvaluateReassignment = false; // flag not to re-evaluate because high rank
+				if(GC.getLogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Nevermind, staying because we're almost off cooldown: %d,", uiSpyIndex);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+					strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+#else
+					strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName));
+#endif
+					LogEspionageMsg(strMsg);
+				}
+			}
+#endif
 		}
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 		if(MOD_BALANCE_CORE_SPIES_ADVANCED)
@@ -610,6 +644,23 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 #endif
 				LogEspionageMsg(strMsg);
 			}
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+			if(MOD_BALANCE_CORE_SPIES_ADVANCED && m_pPlayer->GetSpyCooldown() <= GC.getBALANCE_SPY_SABOTAGE_RATE())
+			{
+				pSpy->m_bEvaluateReassignment = false; // flag not to re-evaluate because high rank
+				if(GC.getLogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Nevermind, staying because we're almost off cooldown: %d,", uiSpyIndex);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+					strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+#else
+					strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName));
+#endif
+					LogEspionageMsg(strMsg);
+				}
+			}
+#endif
 
 			int iRate = CalcPerTurn(SPY_STATE_SURVEILLANCE, pCity, uiSpyIndex);
 			int iGoal = CalcRequired(SPY_STATE_SURVEILLANCE, pCity, uiSpyIndex);
@@ -7211,6 +7262,11 @@ void CvEspionageAI::DoTurn()
 	{
 		return;
 	}
+#if defined(MOD_BALANCE_CORE)
+	//No spies? No need!
+	if(m_pPlayer->GetEspionage()->GetNumAliveSpies() <= 0)
+		return;
+#endif
 
 	AI_PERF_FORMAT("AI-perf.csv", ("Espionage AI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
@@ -7658,9 +7714,16 @@ void CvEspionageAI::FindTargetSpyNumbers(int* piTargetOffensiveSpies, int* piTar
 	bool bAllocatedCityStateSpies = false;
 	bool bAllocatedDiplomatSpies  = false;
 	float fTechPositionRatio = m_pPlayer->GetPlayerTechs()->GetTechAI()->GetTechRatio();
-
+#if defined(MOD_BALANCE_CORE)
+	//Increase this slightly to encourage more offensive spies.
+	fTechPositionRatio += 0.10f;
+#endif
 	// if going for diplo or conquest, evaluate the offensive spies before assigning CS spies
+#if defined(MOD_BALANCE_CORE)
+	if (pDiploAI->IsGoingForDiploVictory() && GC.getGame().GetGameLeagues()->GetActiveLeague() != NULL)
+#else
 	if (pDiploAI->IsGoingForDiploVictory())
+#endif
 	{
 		// find out how many diplomats we need
 		float fNumDiplomats = 0.0f;
@@ -7694,7 +7757,7 @@ void CvEspionageAI::FindTargetSpyNumbers(int* piTargetOffensiveSpies, int* piTar
 		int iNumDiplomats = (int)floor(fNumDiplomats);
 #if defined(MOD_BALANCE_CORE_SPIES)
 		int iFlavorDiplomacy = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-		iNumDiplomats += iFlavorDiplomacy;
+		iNumDiplomats += (int)(iFlavorDiplomacy * fNumDiplomats);
 #endif
 		*piTargetDiplomatSpies = min(iNumRemainingSpies, iNumDiplomats);
 		bAllocatedDiplomatSpies = true;
@@ -7904,7 +7967,7 @@ void CvEspionageAI::BuildDiplomatCityList(EspionageCityList& aDiplomatCityList)
 		for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 		{
 			PlayerTypes eTargetPlayer = (PlayerTypes)ui;
-			if (pCulture->WantsDiplomatDoingPropaganda(eTargetPlayer))
+			if (pCulture->WantsDiplomatDoingPropaganda(eTargetPlayer) && GET_PLAYER(eTargetPlayer).getCapitalCity() != NULL)
 			{
 				aDiplomatCityList.push_back(GET_PLAYER(eTargetPlayer).getCapitalCity());
 			}
@@ -7965,7 +8028,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	CvDiplomacyAI* pDiploAI = m_pPlayer->GetDiplomacyAI();
-
+#if !defined(MOD_BALANCE_CORE_SPIES)
 	// find the most expensive available research
 	int iMaxTechCost = -1;
 	CvPlayerTechs* pMyPlayerTechs = m_pPlayer->GetPlayerTechs();
@@ -7989,7 +8052,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 			}
 		}
 	}
-
+#endif
 	std::vector<ScoreCityEntry> aCityScores;
 	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
@@ -8019,9 +8082,8 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 			{
 				continue;
 			}
-
+#if !defined(MOD_BALANCE_CORE_SPIES)
 			CvCityEspionage* pCityEspionage = pLoopCity->GetCityEspionage();
-
 			int iNumRemainingTurns = MAX_INT;
 			int iSpyIndex = pEspionage->GetSpyIndexInCity(pLoopCity);
 			// if there is a spy currently stealing there, use the actual data
@@ -8056,16 +8118,141 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 					iNumRemainingTurns = iCost / (pLoopCity->getPopulation() * 100);
 				}
 			}
-#if defined(MOD_BALANCE_CORE_SPIES)
-			//Randomness to try and make the AI less spammy
-			iNumRemainingTurns += GC.getGame().getJonRandNum(iNumRemainingTurns, "Randomizing amount of turns left to make AI less spammy");
-			if((pLoopCity->GetBlockBuildingDestruction() > 0) || (pLoopCity->GetBlockWWDestruction() > 0) || (pLoopCity->GetBlockUDestruction() > 0) || (pLoopCity->GetBlockGPDestruction() > 0) ||
-				(pLoopCity->GetBlockGold() > 0) || (pLoopCity->GetBlockScience() > 0) || (pLoopCity->GetBlockRebellion() > 0) || (pLoopCity->GetBlockUnrest() > 0))
-			{
-				iNumRemainingTurns /= 2;
-			}
 #endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+			int iValue = pLoopCity->GetRank();
+			if(iValue <= 0)
+				continue;
+			//Randomness to try and make the AI less spammy
+			iValue += GC.getGame().getJonRandNum(iValue, "Randomizing amount of turns left to make AI less spammy");
+			int iAdvancedPenalty = pLoopCity->GetBlockBuildingDestruction() + pLoopCity->GetBlockWWDestruction() + pLoopCity->GetBlockUDestruction() + pLoopCity->GetBlockGPDestruction() + pLoopCity->GetBlockGold() + pLoopCity->GetBlockScience() + pLoopCity->GetBlockRebellion() + pLoopCity->GetBlockUnrest();
+			if(iAdvancedPenalty > 0)
+			{
+				iValue -= min(iValue, iAdvancedPenalty);
+			}
+			int iDiploModifier = 100;
+			if (pDiploAI->GetWarGoal(eTargetPlayer) == WAR_GOAL_PREPARE)
+			{
+				iDiploModifier += 25;
+			}
+			else if (GET_TEAM(eTeam).isAtWar(eTargetTeam))
+			{
+				// ignore promises
+				// bonus targeting!
+				iDiploModifier += 50;
+			}
+			else // we're not at war with them, so look at other factors
+			{
+				for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+				{
+					PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+					if(eMinor != NO_PLAYER)
+					{
+						CvPlayer* pMinor = &GET_PLAYER(eMinor);
+						if(pMinor)
+						{
+							CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+							if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_UNIT_STEAL_FROM))
+							{
+								if(pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_UNIT_STEAL_FROM) == eTargetPlayer)
+								{
+									iDiploModifier += 100;
+								}
+							}
+							if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_UNIT_COUP_CITY))
+							{
+								if(pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_UNIT_COUP_CITY) == eTargetPlayer)
+								{
+									iDiploModifier += 100;
+								}
+							}
+						}
+					}
+				}
+				// if we promised not to spy, make it less likely that we will spy
+				if (pDiploAI->IsPlayerStopSpyingRequestAccepted(eTargetPlayer))
+				{
+					// target far less frequently
+					iDiploModifier -= 100;
+				}
+
+				// if we've denounced them or they've denounced us, spy bonus!
+				if (pDiploAI->IsDenouncedPlayer(eTargetPlayer) || pTargetDiploAI->IsDenouncedPlayer(ePlayer))
+				{
+					iDiploModifier += 50;
+				}
+				else if (pDiploAI->IsDoFAccepted(eTargetPlayer))
+				{
+					iDiploModifier -= 100;
+				}
+
+				if (GET_TEAM(eTeam).IsHasResearchAgreement(eTargetTeam))
+				{
+					iDiploModifier -= 50;
+				}
+
+				if (GET_TEAM(eTeam).IsHasDefensivePact(eTargetTeam))
+				{
+					iDiploModifier -= 50;
+				}
+
+				if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(eTargetTeam))
+				{
+					iDiploModifier += 25;
+				}
+
+				if (GET_TEAM(eTargetTeam).IsAllowsOpenBordersToTeam(eTeam))
+				{
+					iDiploModifier += 25;
+				}
+				if(pLoopCity->isCapital())
+				{
+					iDiploModifier += 25;
+				}
+				if(pDiploAI->GetMajorCivApproach(eTargetPlayer, false) == MAJOR_CIV_APPROACH_FRIENDLY)
+				{
+					iDiploModifier -= 25;
+				}
+				if(pDiploAI->GetMajorCivApproach(eTargetPlayer, false) == MAJOR_CIV_APPROACH_DECEPTIVE)
+				{
+					iDiploModifier += 50;
+				}
+				//Spread our spies out a bit.
+				for(uint uiSpy = 0; uiSpy < pEspionage->m_aSpyList.size(); uiSpy++)
+				{
+					CvCity* pCity = pEspionage->GetCityWithSpy(uiSpy);
+					if (pCity)
+					{
+						if(pCity->getOwner() == eTargetPlayer)
+						{
+							iDiploModifier -= 50;
+							break;
+						}
+					}
+				}
+			}
+			ScoreCityEntry kEntry;
+			kEntry.m_pCity = pLoopCity;
+
+			int iScore = iValue * iDiploModifier;
+			iScore /= 100;
+
+			kEntry.m_iScore = iScore;
+
+			aCityScores.push_back(kEntry);
+		}
+	}
+	// sort
+	std::stable_sort(aCityScores.begin(), aCityScores.end(), ScoreCityEntryHighEval());
+
+	// transfer values to OffenseCityList
+	for(uint ui = 0; ui < aCityScores.size(); ui++)
+	{
+		aOffenseCityList.push_back(aCityScores[ui].m_pCity);
+	}
+#else
 			int iDiploModifier = 1;
+
 			if (pDiploAI->GetWarGoal(eTargetPlayer) == WAR_GOAL_PREPARE)
 			{
 				iDiploModifier = 1;
@@ -8080,34 +8267,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 			{
 				// raise our diplo modifier by a scale of 10 so that we're less likely to target those we aren't at war with
 				iDiploModifier = 10;
-#if defined(MOD_BALANCE_CORE)
-				for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-				{
-					PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
-					if(eMinor != NO_PLAYER)
-					{
-						CvPlayer* pMinor = &GET_PLAYER(eMinor);
-						if(pMinor)
-						{
-							CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-							if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_UNIT_STEAL_FROM))
-							{
-								if(pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_UNIT_STEAL_FROM) == eTargetPlayer)
-								{
-									iDiploModifier /= 2;
-								}
-							}
-							if(pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_UNIT_COUP_CITY))
-							{
-								if(pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_UNIT_COUP_CITY) == eTargetPlayer)
-								{
-									iDiploModifier /= 2;
-								}
-							}
-						}
-					}
-				}
-#endif
+
 				// if we promised not to spy, make it less likely that we will spy
 				if (pDiploAI->IsPlayerStopSpyingRequestAccepted(eTargetPlayer))
 				{
@@ -8144,41 +8304,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 				{
 					iDiploModifier *= 2;
 				}
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
-				if(pLoopCity->GetRank() > 0)
-				{
-					iDiploModifier /= pLoopCity->GetRank();
-				}
-#endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-				if(pLoopCity->isCapital())
-				{
-					iDiploModifier /= 2;
-				}
-				if(pDiploAI->GetMajorCivApproach(eTargetPlayer, false) == MAJOR_CIV_APPROACH_FRIENDLY)
-				{
-					iDiploModifier *= 50;
-				}
-				if(pDiploAI->GetMajorCivApproach(eTargetPlayer, false) == MAJOR_CIV_APPROACH_DECEPTIVE)
-				{
-					iDiploModifier /= 10;
-				}
-				//Spread our spies out a bit.
-				for(uint uiSpy = 0; uiSpy < pEspionage->m_aSpyList.size(); uiSpy++)
-				{
-					CvCity* pCity = pEspionage->GetCityWithSpy(uiSpy);
-					if (pCity)
-					{
-						if(pCity->getOwner() == eTargetPlayer)
-						{
-							iDiploModifier *= 33;
-							break;
-						}
-					}
-				}
-#endif
 			}
-
 			ScoreCityEntry kEntry;
 			kEntry.m_pCity = pLoopCity;
 
@@ -8195,6 +8321,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 			kEntry.m_iScore = iScore;
 
 			aCityScores.push_back(kEntry);
+
 		}
 	}
 
@@ -8206,11 +8333,14 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 	{
 		aOffenseCityList.push_back(aCityScores[ui].m_pCity);
 	}
+#endif
 }
 
 void CvEspionageAI::BuildDefenseCityList(EspionageCityList& aDefenseCityList)
 {
+#if !defined(MOD_BALANCE_CORE_SPIES)
 	CvPlayerEspionage* pEspionage = m_pPlayer->GetEspionage();
+#endif
 
 	aDefenseCityList.clear();
 	PlayerTypes ePlayer = m_pPlayer->GetID();
@@ -8223,7 +8353,17 @@ void CvEspionageAI::BuildDefenseCityList(EspionageCityList& aDefenseCityList)
 	{
 		ScoreCityEntry kEntry;
 		kEntry.m_pCity = pLoopCity;
+#if defined(MOD_BALANCE_CORE_SPIES)
+		kEntry.m_iScore = pLoopCity->GetRank();
+		if(pLoopCity->isCapital())
+		{
+			kEntry.m_iScore += 1;
+		}
+		if(kEntry.m_iScore <= 0)
+			continue;
+#else
 		kEntry.m_iScore = pEspionage->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);
+#endif
 		aCityScores.push_back(kEntry);
 	}
 

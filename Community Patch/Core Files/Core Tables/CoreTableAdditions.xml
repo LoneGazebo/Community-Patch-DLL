@@ -379,13 +379,20 @@
 	</Table>
 
 
-	<!-- TRAIT: Allows you to define a lump yield that is gained every time you complete an international trade route.-->
-	<Table name="Trait_TradeRouteStartYield">
+	<!-- TRAIT: Allows you to define a yield that is gained from converted GAP when you start a Golden Age. Value is a % (so 100 = 100% of GAP). -->
+	<Table name="Trait_GAPToYield">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 
+	<!-- TRAIT: Allows you to define a lump yield that is gained every time you complete an international trade route. Production, Gold, and Science for international ones, Gold and Culture for Local ones -->
+	<Table name="Trait_TradeRouteEndYield">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	
 	<!-- TRAIT: Allows you to define a yield that is gained if your pantheon or religion is the majority in a city.-->
 	<Table name="Trait_YieldFromOwnPantheon">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
@@ -596,6 +603,12 @@
 	<Table name="Improvement_AdjacentImprovementYieldChanges">
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="OtherImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<Table name="Improvement_AdjacentTerrainYieldChanges">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>

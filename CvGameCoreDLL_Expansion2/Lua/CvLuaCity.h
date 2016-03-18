@@ -574,6 +574,7 @@ protected:
 	LUAAPIEXTN(GetYieldChangeTradeRoute, int);
 	LUAAPIEXTN(GetSpecialistYieldChange, int);
 	LUAAPIEXTN(GetModFromWLTKD, int);
+	LUAAPIEXTN(GetCultureModFromCarnaval, int);
 	LUAAPIEXTN(GetModFromGoldenAge, int);
 #endif
 	static int lGetBuildingEspionageModifier(lua_State* L);
@@ -667,6 +668,17 @@ protected:
 	static int lCountNumWorkedResource(lua_State* L);
 	static int lCountNumImprovement(lua_State* L);
 	static int lCountNumWorkedRiverTiles(lua_State* L);
+	
+	LUAAPIEXTN(CountFeature, int, iFeature);
+	LUAAPIEXTN(CountWorkedFeature, int, iFeature);
+	LUAAPIEXTN(CountImprovement, int, iImprovement);
+	LUAAPIEXTN(CountWorkedImprovement, int, iImprovement);
+	LUAAPIEXTN(CountPlotType, int, iPlotType);
+	LUAAPIEXTN(CountWorkedPlotType, int, iPlotType);
+	LUAAPIEXTN(CountResource, int, iResource);
+	LUAAPIEXTN(CountWorkedResource, int, iResource);
+	LUAAPIEXTN(CountTerrain, int, iTerrain);
+	LUAAPIEXTN(CountWorkedTerrain, int, iTerrain);
 #endif
 };
 

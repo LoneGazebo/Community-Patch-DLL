@@ -802,7 +802,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//No escorts? No trip.
 		if(kPlayer.getNumMilitaryUnits() <= 3)
 		{
-			iBonus -= 300;
+			iBonus -= 500;
 		}
 		if(kPlayer.isMinorCiv())
 		{
@@ -824,7 +824,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if(kPlayer.getNumCities() <= 1)
 		{
-			iBonus += 300;
+			iBonus += 200;
 		}
 		else
 		{
@@ -850,21 +850,21 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
 				{
-					iBonus += 100;
+					iBonus += 75;
 				}
 			}
 			else if (eExpandLikeCrazy != NO_ECONOMICAISTRATEGY)
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandLikeCrazy))
 				{
-					iBonus += 200;
+					iBonus += 150;
 				}
 			}
 			if(eFeederCity != NO_AICITYSTRATEGY)
 			{
 				if(m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eFeederCity))
 				{
-					iBonus += 100;
+					iBonus += 50;
 				}
 			}
 			
@@ -891,7 +891,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			else
 			{
-				iBonus += (100 * max(1, iNumAreas));
+				iBonus += (75 * max(1, iNumAreas));
 			}
 		}
 	}
@@ -935,6 +935,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if(eNoNavalWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNoNavalWorkers))
 		{
 			return 0;
+		}
+		else
+		{
+			iBonus += 100;
 		}
 	}
 	//Make sure we need workers in this city.

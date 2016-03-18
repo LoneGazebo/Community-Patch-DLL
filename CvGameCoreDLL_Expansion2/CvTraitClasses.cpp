@@ -91,6 +91,11 @@ CvTraitEntry::CvTraitEntry() :
 	m_iTourismToGAP(0),
 	m_iEventTourismBoost(0),
 	m_iEventGP(0),
+	m_iWLTKDCulture(0),
+	m_iWLTKDGATimer(0),
+	m_iGAUnhappinesNeedMod(0),
+	m_iStartingSpies(0),
+	m_iStartingSpyRank(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -176,6 +181,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiPlotYieldChanges(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE)
+	m_paiGAPToYield(NULL),
 	m_piYieldFromHistoricEvent(NULL),
 	m_piYieldFromOwnPantheon(NULL),
 	m_piTradeRouteStartYield(NULL),
@@ -608,6 +614,26 @@ int CvTraitEntry::GetEventTourismBoost() const
 int CvTraitEntry::GetEventGP() const
 {
 	return m_iEventGP;
+}
+int CvTraitEntry::GetWLTKDCulture() const
+{
+	return m_iWLTKDCulture;
+}
+int CvTraitEntry::GetWLTKDGATimer() const
+{
+	return m_iWLTKDGATimer;
+}
+int CvTraitEntry::GetGAUnhappinesNeedMod() const
+{
+	return m_iGAUnhappinesNeedMod;
+}
+int CvTraitEntry::GetStartingSpies() const
+{
+	return m_iStartingSpies;
+}
+int CvTraitEntry::GetStartingSpyRank() const
+{
+	return m_iStartingSpyRank;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1302,6 +1328,13 @@ int CvTraitEntry::GetMovesChangeUnitClass(const int unitClassID) const
 
 	return m_piMovesChangeUnitClasses[unitClassID];
 }
+int CvTraitEntry::GetGAPToYield(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	return m_paiGAPToYield[i];
+}
 #endif
 
 /// Accessor:: Maintenance Modifier for a class of combat unit
@@ -1530,6 +1563,11 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iTourismToGAP							= kResults.GetInt("TourismToGAP");
 	m_iEventTourismBoost					= kResults.GetInt("EventTourismBoost");
 	m_iEventGP								= kResults.GetInt("EventGP");
+	m_iWLTKDCulture							= kResults.GetInt("WLTKDCultureBoost");
+	m_iWLTKDGATimer							= kResults.GetInt("WLTKDFromGATurns");
+	m_iGAUnhappinesNeedMod					= kResults.GetInt("GAUnhappinesNeedMod");
+	m_iStartingSpies						= kResults.GetInt("StartingSpies");
+	m_iStartingSpyRank						= kResults.GetInt("StartingSpyRank");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -1677,7 +1715,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_paiYieldChangePerTradePartner, "Trait_YieldChangesPerTradePartner", "TraitType", szTraitType);
 	kUtility.SetYields(m_paiYieldChangeIncomingTradeRoute, "Trait_YieldChangesIncomingTradeRoute", "TraitType", szTraitType);
 	kUtility.SetYields(m_paiYieldModifier, "Trait_YieldModifiers", "TraitType", szTraitType);
-
+#if defined(MOD_BALANCE_CORE)
+	kUtility.SetYields(m_paiGAPToYield, "Trait_GAPToYield", "TraitType", szTraitType);
+#endif
 	const int iNumTerrains = GC.getNumTerrainInfos();
 
 	//Trait_Terrains
@@ -1915,7 +1955,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #if defined(MOD_BALANCE_CORE)
 	kUtility.SetYields(m_piYieldFromHistoricEvent, "Trait_YieldFromHistoricEvent", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromOwnPantheon, "Trait_YieldFromOwnPantheon", "TraitType", szTraitType);
-	kUtility.SetYields(m_piTradeRouteStartYield, "Trait_TradeRouteStartYield", "TraitType", szTraitType);
+	//Note name change b/c of function change in DLL!
+	kUtility.SetYields(m_piTradeRouteStartYield, "Trait_TradeRouteEndYield", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromRouteMovement, "Trait_YieldFromRouteMovement", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromExport, "Trait_YieldFromExport", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromImport, "Trait_YieldFromImport", "TraitType", szTraitType);
@@ -2474,6 +2515,11 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iAllianceCSStrength += trait->GetAllianceCSStrength();
 			m_iTourismGABonus += trait->GetTourismGABonus();
 			m_iEventGP += trait->GetEventGP();
+			m_iWLTKDCulture += trait->GetWLTKDCulture();
+			m_iWLTKDGATimer += trait->GetWLTKDGATimer();
+			m_iGAUnhappinesNeedMod += trait->GetGAUnhappinesNeedMod();
+			m_iStartingSpies += trait->GetStartingSpies();
+			m_iStartingSpyRank += trait->GetStartingSpyRank();
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
@@ -2727,6 +2773,9 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iArtYieldChanges[iYield] = trait->GetArtYieldChanges(iYield);
 				m_iLitYieldChanges[iYield] = trait->GetLitYieldChanges(iYield);
 				m_iMusicYieldChanges[iYield] = trait->GetMusicYieldChanges(iYield);
+#if defined(MOD_BALANCE_CORE)
+				m_iGAPToYield[iYield] = trait->GetGAPToYield(iYield);
+#endif
 
 				for(int iFeatureLoop = 0; iFeatureLoop < GC.getNumFeatureInfos(); iFeatureLoop++)
 				{
@@ -2973,6 +3022,11 @@ void CvPlayerTraits::Reset()
 	m_iAllianceCSStrength = 0;
 	m_iTourismGABonus = 0;
 	m_iEventGP = 0;
+	m_iWLTKDCulture = 0;
+	m_iWLTKDGATimer = 0;
+	m_iGAUnhappinesNeedMod = 0;
+	m_iStartingSpies = 0;
+	m_iStartingSpyRank = 0;
 	m_bGPWLTKD = false;
 	m_bTradeRouteOnly = false;
 	m_bKeepConqueredBuildings = false;
@@ -3144,6 +3198,9 @@ void CvPlayerTraits::Reset()
 		m_iArtYieldChanges[iYield] = 0;
 		m_iLitYieldChanges[iYield] = 0;
 		m_iMusicYieldChanges[iYield] = 0;
+#if defined(MOD_BALANCE_CORE)
+		m_iGAPToYield[iYield] = 0;
+#endif
 		for(int iFeature = 0; iFeature < GC.getNumFeatureInfos(); iFeature++)
 		{
 			m_ppiFeatureYieldChange[iFeature] = yield;
@@ -4646,6 +4703,11 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iTourismToGAP, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iEventTourismBoost, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iEventGP, 0);
+	MOD_SERIALIZE_READ(74, kStream, m_iWLTKDCulture, 0);
+	MOD_SERIALIZE_READ(74, kStream, m_iWLTKDGATimer, 0);
+	MOD_SERIALIZE_READ(74, kStream, m_iGAUnhappinesNeedMod, 0);
+	MOD_SERIALIZE_READ(74, kStream, m_iStartingSpies, 0);
+	MOD_SERIALIZE_READ(74, kStream, m_iStartingSpyRank, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -4985,10 +5047,12 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> kYieldFromTilePurchaseWrapper;
 	ArrayWrapper<int> kYieldFromSettleWrapper(NUM_YIELD_TYPES, m_iYieldFromSettle);
 	kStream >> kYieldFromSettleWrapper;
-	ArrayWrapper<int> kYieldFromConquest(NUM_YIELD_TYPES, m_iYieldFromConquest);
-	kStream >> kYieldFromConquest;
-	ArrayWrapper<int> kYieldFromCSAlly(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
-	kStream >> kYieldFromCSAlly;
+	ArrayWrapper<int> kYieldFromConquestWrapper(NUM_YIELD_TYPES, m_iYieldFromConquest);
+	kStream >> kYieldFromConquestWrapper;
+	ArrayWrapper<int> kYieldFromCSAllyWrapper(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
+	kStream >> kYieldFromCSAllyWrapper;
+	ArrayWrapper<int> kGAPToYieldWrapper(NUM_YIELD_TYPES, m_iGAPToYield);
+	kStream >> kGAPToYieldWrapper;
 	MOD_SERIALIZE_READ(66, kStream, m_bFreeGreatWorkOnConquest, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bPopulationBoostReligion, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bCombatBoostNearNaturalWonder, false);
@@ -5148,6 +5212,11 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iTourismToGAP);
 	MOD_SERIALIZE_WRITE(kStream, m_iEventTourismBoost);
 	MOD_SERIALIZE_WRITE(kStream, m_iEventGP);
+	MOD_SERIALIZE_WRITE(kStream, m_iWLTKDCulture);
+	MOD_SERIALIZE_WRITE(kStream, m_iWLTKDGATimer);
+	MOD_SERIALIZE_WRITE(kStream, m_iGAUnhappinesNeedMod);
+	MOD_SERIALIZE_WRITE(kStream, m_iStartingSpies);
+	MOD_SERIALIZE_WRITE(kStream, m_iStartingSpyRank);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);
@@ -5296,6 +5365,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromSettle);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromConquest);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iGAPToYield);
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeGreatWorkOnConquest);
 	MOD_SERIALIZE_WRITE(kStream, m_bPopulationBoostReligion);
 	MOD_SERIALIZE_WRITE(kStream, m_bCombatBoostNearNaturalWonder);

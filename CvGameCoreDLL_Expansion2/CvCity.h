@@ -673,8 +673,6 @@ public:
 	int getThresholdSubtractions(YieldTypes eYield, int iMod = 0) const;
 	int getThresholdAdditions() const;
 	int getUnhappyCitizenCount() const;
-	void setUnhappyCitizenCount(int iNewValue);
-	void changeUnhappyCitizenCount(int iChange);
 
 	int getUnhappinessFromCultureYield() const;
 	int getUnhappinessFromCultureNeeded(int iMod = 0) const;
@@ -1351,6 +1349,16 @@ public:
 	int CountNumWorkedResource(ResourceTypes eResource);
 	int CountNumImprovement(ImprovementTypes eImprovement);
 	int CountNumWorkedRiverTiles(TerrainTypes eTerrain = NO_TERRAIN);
+	int CountFeature(FeatureTypes iFeatureType) const;
+	int CountWorkedFeature(FeatureTypes iFeatureType) const;
+	int CountImprovement(ImprovementTypes iImprovementType) const;
+	int CountWorkedImprovement(ImprovementTypes iImprovementType) const;
+	int CountPlotType(PlotTypes iPlotType) const;
+	int CountWorkedPlotType(PlotTypes iPlotType) const;
+	int CountResource(ResourceTypes iResourceType) const;
+	int CountWorkedResource(ResourceTypes iResourceType) const;
+	int CountTerrain(TerrainTypes iTerrainType) const;
+	int CountWorkedTerrain(TerrainTypes iTerrainType) const;
 #endif
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
@@ -1514,7 +1522,6 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiThemingYieldBonus;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesOwned;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticCityYield;
-	FAutoVariable<int, CvCity> m_iUnhappyCitizen;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iBuildingPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iReligiousTradeModifier;

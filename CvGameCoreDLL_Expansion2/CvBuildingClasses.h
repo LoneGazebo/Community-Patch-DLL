@@ -113,6 +113,7 @@ public:
 	int GetPolicyBranchType() const;
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetPolicyType() const;
+	CivilizationTypes GetCivType() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int GetResourceType() const;
@@ -127,6 +128,8 @@ public:
 	bool IsTradeRouteInvulnerable() const;
 	int GetTRSpeedBoost() const;
 	int GetTRVisionBoost() const;
+	int GetVotesPerGPT() const;
+	bool IsRequiresRail() const;
 #endif
 	int GetSpecialistType() const;
 	int GetSpecialistCount() const;
@@ -531,6 +534,7 @@ private:
 	int m_iPolicyBranchType;
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int m_iPolicyType;
+	CivilizationTypes m_eCivType;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iNumPoliciesNeeded;
@@ -545,6 +549,8 @@ private:
 	bool m_bTradeRouteInvulnerable;
 	int m_iTRSpeedBoost;
 	int m_iTRVisionBoost;
+	int m_iVotesPerGPT;
+	bool m_bRequiresRail;
 #endif
 	int m_iSpecialistType;
 	int m_iSpecialistCount;
