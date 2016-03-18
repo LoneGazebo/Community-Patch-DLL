@@ -388,7 +388,6 @@ private:
 	void EliminateAdjacentSentryPoints();
 	void EliminateAdjacentHomelandRoads();
 	bool FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime);
-	CvPlot* FindPatrolTarget(CvUnit* pUnit);
 	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
 
 	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bool bLand=true);
@@ -448,6 +447,7 @@ bool CvHomelandUnitAuxIntReverseSort(const CvHomelandUnit& obj1, const CvHomelan
 
 int ScoreAirBase(CvPlot* pAirBasePlot, PlayerTypes ePlayer, int iRange);
 bool IsGoodUnitMix(CvPlot* pAirBasePlot, CvUnit* pUnit);
+CvPlot* GetPatrolTarget(CvPlot* pOriginPlot, PlayerTypes ePlayer, int iRange);
 
 }
 
