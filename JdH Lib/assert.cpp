@@ -26,6 +26,7 @@ namespace jdh
 	{
 		HMODULE g_hGDLL = NULL;
 		bool g_bIsAssertDisabled = false;
+		bool g_bIsAssertLogDisabled = false;
 
 		INT_PTR CALLBACK AssertDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
@@ -73,6 +74,7 @@ namespace jdh
 				append(tmpbuffer, ": ", szMsg);
 			}
 #ifdef __JDHLOGFILE
+			if (!::jdh::impl::g_bIsAssertLogDisabled)
 			{
 				LogLockGuard lock;
 				std::string& buffer = LogFileBuffer(ERROR, lock);

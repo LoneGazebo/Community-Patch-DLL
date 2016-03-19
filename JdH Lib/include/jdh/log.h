@@ -59,16 +59,16 @@ namespace jdh
 
 		inline void IdentInc()
 		{
-			CvAssert(g_IdentIndex + 2 < g_IdentMax - 2);
-			CvAssert(g_IdentIndex % 2 == 0);
+			JDH_ASSERT_NOLOG(g_IdentIndex + 2 < g_IdentMax - 2);
+			JDH_ASSERT_NOLOG(g_IdentIndex % 2 == 0);
 			g_Ident[g_IdentIndex] = ' ';
 			g_IdentIndex += 2;
 			g_Ident[g_IdentIndex] = '\0';
 		}
 		inline void IdentDec()
 		{
-			CvAssert(g_IdentIndex >= 2);
-			CvAssert(g_IdentIndex % 2 == 0);
+			JDH_ASSERT_NOLOG(g_IdentIndex >= 2);
+			JDH_ASSERT_NOLOG(g_IdentIndex % 2 == 0);
 			g_Ident[g_IdentIndex] = ' ';
 			g_IdentIndex -= 2;
 			g_Ident[g_IdentIndex] = '\0';
@@ -135,7 +135,7 @@ namespace jdh
 	}
 #define __JDHLOG_IDENT_DEC(pre, args, post) \
 	jdh::impl::LogLockGuard lock; \
-	CvAssert(!jdh::impl::g_LogLevelStack.empty()); \
+	JDH_ASSERT_NOLOG(!jdh::impl::g_LogLevelStack.empty()); \
 	jdh::LOG_LEVEL eLogLevel = jdh::impl::g_LogLevelStack.top(); \
 	jdh::impl::g_LogLevelStack.pop(); \
 	if (eLogLevel <= jdh::impl::g_LogLevel) { \
@@ -160,10 +160,11 @@ namespace jdh
 #define JDHLOG_FORMAT(eLogLevel, fmt, ...)	{__JDHLOG(eLogLevel, (), (jdh::szprintf(fmt, __VA_ARGS__)), ())}
 #define JDHLOG_BEGIN(eLogLevel, ...)		{__JDHLOG_IDENT_INC(eLogLevel, (__VA_ARGS__), (), (" {"))}
 #define JDHLOG_END(...)						{__JDHLOG_IDENT_DEC(("} // "), (), (__VA_ARGS__))}
+#define JDHLOG_RETURN(type, r, ...)			{type rVal = r; {__JDHLOG_IDENT_DEC(("} return ", rVal, "; // "), (), (__VA_ARGS__))} return rVal;}
 #define JDHLOG_FUNC(eLogLevel, ...)			{__JDHLOG(eLogLevel, (/*__FILE__ "::"*/ __FUNCTION__ ": "), (), (__VA_ARGS__))}
 #define JDHLOG_FUNC_BEGIN(eLogLevel, ...)	{__JDHLOG_IDENT_INC(eLogLevel, (/*__FILE__ "::"*/ __FUNCTION__ "("), (__VA_ARGS__), (") {"))}
-#define JDHLOG_FUNC_END(...)				{__JDHLOG_IDENT_DEC(("} // " __FUNCTION__ ": "), (), ())}
-#define JDHLOG_RETURN(type, r, ...)			{__JDHLOG_IDENT_DEC(("} return ", r, "; //"), (), (__VA_ARGS__))}
+#define JDHLOG_FUNC_END(...)				{__JDHLOG_IDENT_DEC(("} // " __FUNCTION__ ": "), (), (__VA_ARGS__))}
+#define JDHLOG_FUNC_RETURN(type, r, ...)	{type rVal = r; {__JDHLOG_IDENT_DEC(("} return ", rVal, "; // " __FUNCTION__ ": "), (), (__VA_ARGS__))} return rVal;}
 
 
 #else

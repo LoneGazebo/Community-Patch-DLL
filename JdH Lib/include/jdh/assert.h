@@ -33,6 +33,7 @@
 			__analysis_assume((bool)(expr)); \
 		}
 #	define JDH_Verify(expr, ...) JDH_Assert(expr, __VA_ARGS__)
+#   define JDH_ASSERT_NOLOG(expr, ...) { ::jdh::impl::g_bIsAssertLogDisabled = true; JDH_Assert(expr, __VA_ARGS__);  ::jdh::impl::g_bIsAssertLogDisabled = false; }
 #	ifdef FASSERT_ENABLE
 #		undef FAssert
 #		undef FAssertMsg
@@ -65,9 +66,10 @@
 #	endif // CVASSERT_ENABLE
 #else // JDH_ASSERT_ENABLE
 #	pragma message("JDH_ASSERT: disabled.")
-#	define JDH_Assert(expr, ...)
-#	define JDH_AssertFmt(expr, fmt, ...)
-#	define JDH_Verify(expr, ...) (expr)
+#	define JDH_Assert(expr, ...)			(noop)
+#	define JDH_AssertFmt(expr, fmt, ...)	(noop)
+#	define JDH_Verify(expr, ...) (expr)		(noop)
+#	define JDH_ASSERT_NOLOG(expr, ...)		(noop)
 #endif // JDH_ASSERT_ENABLE
 
 #ifdef CVASSERT_ENABLE
@@ -82,7 +84,7 @@
 #endif
 
 #ifdef FINAL_RELEASE
-#	define JDH_AssertDebug(expr, ...)
+#	define JDH_AssertDebug(expr, ...)	(noop)
 #else
 #	define JDH_AssertDebug(expr, ...)	JDH_Assert(expr, __VA_ARGS__)
 #endif // FINAL_RELEASE
@@ -95,6 +97,7 @@ namespace jdh
 
 		// Runtime control to disable assert dlg
 		extern bool		g_bIsAssertDisabled /*= false*/;
+		extern bool		g_bIsAssertLogDisabled /*= false*/;
 
 		bool AssertDlg(_In_ PCSTR szExpr, _In_ PCSTR szFile, unsigned int line, _Inout_ bool& bIgnoreAlways, _In_opt_ PCSTR szMsg);
 	}
