@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+﻿/*	-------------------------------------------------------------------------------------------------------
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -344,7 +344,7 @@ CvDiplomacyAI::CvDiplomacyAI():
 
 	m_eStateAllWars(STATE_ALL_WARS_NEUTRAL),
 
-	m_eTargetPlayer(NO_PLAYER),
+	m_eTargetPlayer(DIPLO_ALL_PLAYERS),
 	m_eTestToPlayer(NO_PLAYER),
 	m_eTestStatement(NO_DIPLO_STATEMENT_TYPE),
 	m_iTestStatementArg1(-1)
@@ -1908,7 +1908,7 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue) const
 
 
 /// Runs every turn!  The order matters for a lot of this stuff, so be VERY careful about moving anything around (!)
-void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
+void CvDiplomacyAI::DoTurn(DiplomacyPlayerType eTargetPlayer)
 {
 	JDHLOG_FUNC_BEGIN(jdh::INFO, GetPlayer()->GetID(), static_cast<DiplomacyPlayerType>(eTargetPlayer));
 	m_eTargetPlayer = eTargetPlayer;
@@ -1959,10 +1959,6 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 	// These functions actually DO things, and we don't want the shadow AI behind a human player doing things for him
 	if(!GetPlayer()->isHuman())
 	{
-		// JdH => cleanup, as ai now uses proposed deals to store data between ai and human turns
-		// TODO: move this cleanup to the human players end turn processing
-		GC.getGame().GetGameDeals().DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID(), DIPLO_ALL_PLAYERS);
-		// JdH <=
 		MakeWar();
 		DoMakePeaceWithMinors();
 
@@ -1986,7 +1982,7 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 	LogWarStatus();
 	LogStatements();
 
-	m_eTargetPlayer = NO_PLAYER;
+	m_eTargetPlayer = DIPLO_ALL_PLAYERS;
 	JDHLOG_FUNC_END();
 }
 
@@ -5512,17 +5508,15 @@ void CvDiplomacyAI::MakeWar()
 
 	if((int)m_eTargetPlayer >= (int)DIPLO_FIRST_PLAYER)
 	{
-		DoMakeWarOnPlayer(m_eTargetPlayer);
+		DoMakeWarOnPlayer((PlayerTypes)m_eTargetPlayer);
 	}
 	else
 	{
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			PlayerTypes eTarget = (PlayerTypes)iPlayerLoop;
-			// JdH => no need to check for Valid UI Target: a notification is enqued instead
-			//if(IsValidUIDiplomacyTarget(eTarget) && IsPlayerValid(eTarget))
-			if (IsPlayerValid(eTarget))
-			// JdH <=
+			// JdH: As requests are enqued we can make war with anyone ...
+			if(IsPlayerValid(eTarget))
 			{
 				iWeight = (int)GetWarProjection(eTarget) + 1;
 
@@ -10111,7 +10105,7 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 		// Default States, will be updated on turn cycling
 		//SetPlayerTargetValue(ePlayer, TARGET_VALUE_AVERAGE);
 
-		// JdH => notifications do get send in MP + updated to new 
+		// JdH => notifications do get send in MP + updated to new send request behaviour
 		if (GC.getGame().isFinalInitialized())
 		{
 			if (!IsAtWar(ePlayer))
@@ -10222,10 +10216,10 @@ void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 /// Player killed us
 void CvDiplomacyAI::DoKilledByPlayer(PlayerTypes ePlayer)
 {
-	if(ePlayer == GC.getGame().getActivePlayer()) // && !GC.getGame().isNetworkMultiPlayer())
+	if(CvPreGame::isHuman(ePlayer)) // JdH: just queue a request for humans
 	{
 		const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_DEFEATED);
-		gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_DEFEATED);
+		CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_DEFEATED);
 
 		if(!GC.getGame().isGameMultiPlayer())
 		{
@@ -10650,11 +10644,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		else
 		{
 			// For now the AI will always give in
-
-			CvDeal kDeal = *pDeal;
-
-			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().FinalizeDeal(*pDeal, true);
 		}
 	}
 
@@ -10671,10 +10661,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		{
 			// For now the AI will always give in - may eventually write additional logic here
 
-			CvDeal kDeal = *pDeal;
-
-			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().FinalizeDeal(*pDeal, true);
 		}
 	}
 
@@ -10689,11 +10676,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// Offer to an AI player
 		else
 		{
-			CvDeal kDeal = *pDeal;
-
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().FinalizeDeal(*pDeal, true);
 		}
 	}
 
@@ -10707,11 +10691,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 		else
 		{
-			CvDeal kDeal = *pDeal;
-
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().FinalizeDeal(*pDeal, true);
 		}
 	}
 
@@ -10725,11 +10706,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		}
 		else
 		{
-			CvDeal kDeal = *pDeal;
-
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().FinalizeDeal(*pDeal, true);
 		}
 	}
 
@@ -10744,11 +10722,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// Offer to an AI player
 		else
 		{
-			CvDeal kDeal = *pDeal;
-
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().FinalizeDeal(*pDeal, true);
 		}
 	}
 
@@ -10763,11 +10738,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// Offer to an AI player
 		else
 		{
-			CvDeal kDeal = *pDeal;
-
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().FinalizeDeal(*pDeal, true);
 		}
 	}
 
@@ -10798,11 +10770,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// Offer to an AI player
 		else
 		{
-			CvDeal kDeal = *pDeal;
-
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().FinalizeDeal(*pDeal, true);
 		}
 	}
 
@@ -10862,7 +10831,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			int iDealType = -1;
 			CvDeal* pRenewedDeal = m_pPlayer->GetDiplomacyAI()->GetDealToRenew(&iDealType);
 			if(pRenewedDeal)
-			{	
+			{
 				if (iDealType != 0) // this is not a historic deal, so don't change the resource allocations
 				{
 					CvGameDeals::PrepareRenewDeal(m_pPlayer->GetDiplomacyAI()->GetDealToRenew(), &kDeal);
@@ -10872,8 +10841,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			}
 
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().FinalizeDeal(kDeal, true);
 		}
 	}
 
@@ -11394,11 +11362,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// Offer to an AI player
 		else
 		{
-			CvDeal kDeal = *pDeal;
-
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
-			GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
-			GC.getGame().GetGameDeals().FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+			GC.getGame().GetGameDeals().FinalizeDeal(*pDeal, true);
 
 			LogPeaceMade(ePlayer);
 		}
@@ -11527,28 +11492,10 @@ void CvDiplomacyAI::DoContactMajorCivs()
 
 		DoContactPlayer(eLoopPlayer);
 	}
-
-	// Loop through HUMAN Players - if we're not in MP
-	if(!CvPreGame::isNetworkMultiplayerGame())
-	{
-		for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-			if(!IsPlayerValid(eLoopPlayer))
-				continue;
-
-			// No AI
-			if(!GET_PLAYER(eLoopPlayer).isHuman())
-				continue;
-
-			DoContactPlayer(eLoopPlayer);
-		}
-	}
-	// JdH => in MP: contact humans by priority, but use a notification instead of pop up the diplo screen
+	// JdH => contact humans by priority, but use a notification system instead of pop up the diplo screen
 	// every AI can only talk to one human a time (as a human can only talk to one human a time
 	// TODO: the one to one restriction should be removed in favor of a trade resource pool allocation
-	else
+	if (!CvDiplomacyRequests::HasDiploRequestWithHuman(m_pPlayer->GetID()))
 	{
 		vector<PlayerTypes> aeHumansByPriority;
 		vector<PlayerTypes>::iterator iter;
@@ -11562,6 +11509,10 @@ void CvDiplomacyAI::DoContactMajorCivs()
 
 			// No AI
 			if (!GET_PLAYER(eLoopPlayer).isHuman())
+				continue;
+
+			// Only active Players
+			if (GET_PLAYER(eLoopPlayer).isTurnActive())
 				continue;
 
 			for (iter = aeHumansByPriority.begin(); iter != aeHumansByPriority.end(); ++iter)
@@ -11581,7 +11532,7 @@ void CvDiplomacyAI::DoContactMajorCivs()
 		for (iter = aeHumansByPriority.begin(); iter != aeHumansByPriority.end(); ++iter)
 		{
 			DoContactPlayer(*iter);
-			if (GET_PLAYER(*iter).GetDiplomacyRequests()->HasActiveRequestFrom(GetPlayer()->GetID()))
+			if (GET_PLAYER(*iter).GetDiplomacyRequests()->HasRequestFrom(GetPlayer()->GetID()))
 			{
 				// we actually found someone worth talking with, the others must wait...
 				break;
@@ -11595,8 +11546,8 @@ void CvDiplomacyAI::DoContactMajorCivs()
 void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 {
 	JDHLOG_FUNC_BEGIN(jdh::DEBUG, GetPlayer()->GetID(), ePlayer);
-	// JdH => a check if ePlayer is valid ui target isn't needed anymore, as notifications are sent in MP now
-	// JdH <=
+	if(!IsValidUIDiplomacyTarget(ePlayer))
+		return;		// Can't contact the this player at the moment.
 
 	int iDiploLogStatement;
 	DiploStatementTypes eStatement;
@@ -11609,7 +11560,7 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	int iData2;
 
 	// If this is the same turn we've met a player, don't send anything his way quite yet - wait until we've said hello at least
-	if(GET_TEAM(GetTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0)
+	if (GET_TEAM(GetTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0)
 	{
 		JDHLOG_FUNC_END();
 		return;
@@ -11774,7 +11725,6 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 /// Anyone we want to chat with?
 void CvDiplomacyAI::DoContactMinorCivs()
 {
-	JDHLOG_FUNC_BEGIN(jdh::DEBUG, GetPlayer()->GetID());
 	// If the player has deleted the DIPLOMACY Flavor we have to account for that
 	int iDiplomacyFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
 	int iGoldFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
@@ -12570,7 +12520,6 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			}
 		}
 	}
-	JDHLOG_FUNC_END();
 }
 
 void CvDiplomacyAI::DoUpdateMinorCivProtection(PlayerTypes eMinor, MinorCivApproachTypes eApproach)
@@ -13834,7 +13783,6 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 				}
 			}
 
-			eStatement = DIPLO_STATEMENT_RENEW_DEAL;
 		}
 		else
 		{
@@ -26242,7 +26190,6 @@ void CvDiplomacyAI::LogCloseEmbassy(PlayerTypes ePlayer)
 	}
 }
 
-#if 0 // JdH => not needed anymore
 //	-------------------------------------------------------------------------------------
 //	Returns true if the target is valid to show a UI to immediately.
 //	This will return true if the source and destination are both AI.
@@ -26251,13 +26198,12 @@ bool CvDiplomacyAI::IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer)
 	if(eTargetPlayer != NO_PLAYER)
 	{
 		CvPlayer& kTarget = GET_PLAYER(eTargetPlayer);
-		if(m_eTargetPlayer == NO_PLAYER || m_eTargetPlayer == eTargetPlayer || ((DiplomacyPlayerType)m_eTargetPlayer == DIPLO_AI_PLAYERS && !kTarget.isHuman()) || ((DiplomacyPlayerType)m_eTargetPlayer == DIPLO_HUMAN_PLAYERS && kTarget.isHuman()))
+		if(m_eTargetPlayer == DIPLO_ALL_PLAYERS || m_eTargetPlayer == eTargetPlayer || ((DiplomacyPlayerType)m_eTargetPlayer == DIPLO_AI_PLAYERS && !kTarget.isHuman()) || ((DiplomacyPlayerType)m_eTargetPlayer == DIPLO_HUMAN_PLAYERS && kTarget.isHuman()))
 			return true;
 	}
 
 	return false;
 }
-#endif
 
 
 FDataStream& operator<<(FDataStream& saveTo, const DiploLogData& readFrom)

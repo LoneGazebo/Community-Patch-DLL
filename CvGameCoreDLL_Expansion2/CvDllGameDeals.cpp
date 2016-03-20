@@ -89,7 +89,7 @@ void CvDllGameDeals::AddProposedDeal(ICvDeal1* pDeal)
 //------------------------------------------------------------------------------
 bool CvDllGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted)
 {
-	return m_pGameDeals->FinalizeDeal(eFromPlayer, eToPlayer, bAccepted);
+	return m_pGameDeals->FinalizeDeal(eFromPlayer, eToPlayer, bAccepted, true);
 }
 //------------------------------------------------------------------------------
 ICvDeal1* CvDllGameDeals::GetTempDeal()
@@ -111,12 +111,12 @@ PlayerTypes CvDllGameDeals::HasMadeProposal(PlayerTypes eFromPlayer)
 //------------------------------------------------------------------------------
 bool CvDllGameDeals::ProposedDealExists(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
-	return m_pGameDeals->ProposedDealExists(eFromPlayer, eToPlayer);
+	return m_pGameDeals->GetProposedDeal(eFromPlayer, eToPlayer, 0) != NULL;
 }
 //------------------------------------------------------------------------------
 ICvDeal1* CvDllGameDeals::GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
-	CvDeal* pDeal = m_pGameDeals->GetProposedDeal(eFromPlayer, eToPlayer);
+	CvDeal* pDeal = m_pGameDeals->GetProposedDeal(eFromPlayer, eToPlayer, 0);
 	return (NULL != pDeal)? new CvDllDeal(pDeal) : NULL;
 }
 //------------------------------------------------------------------------------

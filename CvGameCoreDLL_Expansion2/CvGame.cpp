@@ -1636,6 +1636,8 @@ void CvGame::CheckPlayerTurnDeactivate()
 								}
 							}
 						}
+
+						CvDiplomacyRequests::DoAIDiplomacyWithHumans();
 					}
 				}
 			}
@@ -7644,6 +7646,8 @@ void CvGame::doTurn()
 		}
 	}
 
+	CvDiplomacyRequests::DoAIDiplomacyWithHumans();
+
 	// Victory stuff
 	testVictory();
 
@@ -8383,6 +8387,8 @@ void CvGame::updateMoves()
 					player.setTurnActive(true);
 				}
 			}
+
+			CvDiplomacyRequests::DoAIDiplomacyWithHumans();
 		}
 	}
 }

@@ -34,17 +34,15 @@ public:
 	void Write(FDataStream& kStream) const;
 
 	bool HasPendingRequests() const;
-	//int  GetPendingRequestFrom(PlayerTypes eFromPlayer) const;
 	bool HasActiveRequest() const;
 	bool HasActiveRequestFrom(PlayerTypes eFromPlayer) const;
+	bool HasRequestFrom(PlayerTypes eFromPlayer) const;
 
 	void Update(void);
 	void BeginTurn(void);
 	void EndTurn(void);
 
 	bool Add(PlayerTypes ePlayerID, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
-	void Remove(int iLookupIndex);
-	void Activate(int iLookupIndex);
 	void ActivateAllFrom(PlayerTypes eFromPlayer);
 
 	void  ActiveRequestComplete();
@@ -65,17 +63,18 @@ public:
 	static void SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
 	static void SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pkDeal, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType);
 
-	static bool HasActiveDiploRequestWithHuman(PlayerTypes eSourcePlayer);
+	static bool HasDiploRequestWithHuman(PlayerTypes eSourcePlayer);
+	static void DoAIDiplomacyWithHumans();
 
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
 
-	void Activate(Request& kRequest);
+	typedef std::list<Request> RequestList;
+	void ActivateNext();
 	void Send(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
 
 	PlayerTypes m_ePlayer;
 
-	typedef std::list<Request> RequestList;
 	RequestList m_aRequests;
 	PlayerTypes	m_eRequestActiveFromPlayer;	/// If a request is active, this is who it is from
 	bool		m_bRequestActive;		/// If true, a request in being processed

@@ -81,7 +81,7 @@ public:
 	// Turn Stuff
 	/////////////////////////////////////////////////////////
 
-	void DoTurn(PlayerTypes eTargetPlayer);
+	void DoTurn(DiplomacyPlayerType eTargetPlayer);
 	void DoCounters();
 
 	/////////////////////////////////////////////////////////
@@ -1063,9 +1063,7 @@ public:
 	void LogCloseEmbassy(PlayerTypes ePlayer);
 
 private:
-#if 0 // JdH => not needed anymore
 	bool IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer);
-#endif // JdH <=
 
 	bool IsAtWar(PlayerTypes eOtherPlayer);
 	void DoMakeWarOnPlayer(PlayerTypes eTargetPlayer);
@@ -1539,7 +1537,7 @@ private:
 
 	// Other
 
-	PlayerTypes			m_eTargetPlayer;
+	DiplomacyPlayerType m_eTargetPlayer;
 
 	// Data members for injecting test messages
 	PlayerTypes			m_eTestToPlayer;
@@ -1548,6 +1546,8 @@ private:
 
 
 	// JdH =>
+	// Greetings are send as Notifications immediately. No need to queue them
+	// Instead we need introduce a system to decide which players to do diplomacy with in simultaneous multiplayer:
 	void DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinionWeight);
 	// JdH <=
 };

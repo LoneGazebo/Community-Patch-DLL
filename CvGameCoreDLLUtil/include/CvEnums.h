@@ -3210,7 +3210,8 @@ enum DiplomacyPlayerType
 {
 	DIPLO_FIRST_PLAYER		=  0,
 	DIPLO_ALL_PLAYERS		= -1,
-	DIPLO_AI_PLAYERS		= -2
+	DIPLO_AI_PLAYERS		= -2,
+	DIPLO_HUMAN_PLAYERS		= -3
 };
 
 #include "jdh/tostring_enums.h"

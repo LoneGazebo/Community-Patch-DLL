@@ -197,8 +197,7 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		m_pPlayer->GetDiplomacyAI()->ClearDealToRenew();
 	}
 
-	GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
-	GC.getGame().GetGameDeals().FinalizeDeal(eFromPlayer, GetPlayer()->GetID(), true);
+	GC.getGame().GetGameDeals().FinalizeDeal(kDeal, true);
 
 	if(GET_PLAYER(eFromPlayer).isHuman())
 	{
@@ -489,8 +488,7 @@ void CvDealAI::DoAcceptedDemand(PlayerTypes eFromPlayer, const CvDeal& kDeal)
 	const PlayerTypes eActivePlayer = kGame.getActivePlayer();
 	const PlayerTypes ePlayer = GetPlayer()->GetID();
 
-	kGameDeals.AddProposedDeal(kDeal);
-	kGameDeals.FinalizeDeal(eFromPlayer, ePlayer, true);
+	kGameDeals.FinalizeDeal(kDeal, true);
 	if(eActivePlayer == eFromPlayer || eActivePlayer == ePlayer)
 	{
 		GC.GetEngineUserInterface()->makeInterfaceDirty();

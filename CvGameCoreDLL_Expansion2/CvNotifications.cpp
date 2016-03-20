@@ -526,7 +526,6 @@ void CvNotifications::Dismiss(int iLookupIndex, bool bUserInvoked) // TODO: impr
 				if (m_aNotifications[iIndex].m_iY == -2 /* request hack */)
 				{
 					JDHLOG(jdh::INFO, m_ePlayer, ": Dismiss diplo request notification (from: ", m_aNotifications[iIndex].m_ePlayerID, "; m_iLookupIndex: ", m_aNotifications[iIndex].m_iLookupIndex, ")");
-					GET_PLAYER(m_ePlayer).GetDiplomacyRequests()->Remove(m_aNotifications[iIndex].m_iLookupIndex); // remove the request
 				}
 				break;
 			}
@@ -964,7 +963,7 @@ void CvNotifications::Activate(Notification& notification)
 			// This request was sent by an AI.
 			PlayerTypes eTo = notification.m_ePlayerID;
 			CvPlayer& kTo = GET_PLAYER(eTo);
-			kTo.GetDiplomacyRequests()->Activate(notification.m_iLookupIndex);
+			kTo.GetDiplomacyRequests()->ActivateAllFrom(eFrom);
 		}
 		// JdH <=
 	}
@@ -1681,7 +1680,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		CvGame& game = GC.getGame();
 
-		if(!game.GetGameDeals().ProposedDealExists(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX)))
+		if(game.GetGameDeals().GetProposedDeal(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX), 0) == NULL)
 		{
 			return true;
 		}
@@ -1697,7 +1696,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		{
 			return false;
 		}
-		else if (!game.GetGameDeals().ProposedDealExists(eFrom, m_ePlayer))
+		else if (game.GetGameDeals().GetProposedDeal(eFrom, m_ePlayer, 0))
 		{
 			return true;
 		}

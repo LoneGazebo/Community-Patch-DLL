@@ -4079,13 +4079,9 @@ void CvPlayer::doTurn()
 				GetMilitaryAI()->ResetCounters();
 				GetGrandStrategyAI()->DoTurn();
 				// JdH => do diplomacy
-				// Note: There is no need for DIPLO_AI_PLAYERS in Multiplayer anymore.
-				// AI to AI diplomacy is handled first, then the AI to human diplomacy is processed.
-				// If an AI has a request for a human, it sends a notification. The request is processed as the human wishes.
-				// IMPORTANT: this changes singleplayer and hotseat behavior (and obviously mp):
-				// An AI in hotseat can now only send one request to a single player a turn.
-				// An AI in singleplayer will not have it's requests processed "in turn" anymore.
-				GetDiplomacyAI()->DoTurn((PlayerTypes)DIPLO_ALL_PLAYERS);
+				// We only do AI to AI diplomacy here.
+				// See CvDiplomacyRequests::DoAIDiplomacyWithHumans() for AI to human diplomacy
+				GetDiplomacyAI()->DoTurn(DIPLO_AI_PLAYERS);
 				// JdH <=
 			}
 		}
