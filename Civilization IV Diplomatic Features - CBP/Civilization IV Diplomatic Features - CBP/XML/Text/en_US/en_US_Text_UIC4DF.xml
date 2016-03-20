@@ -54,10 +54,10 @@
 			<Text>The other leader has no Technologies available to trade.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_OTHER_PLAYER">
-			<Text>[NEWLINE][NEWLINE]They don't yet have the Technology to sell this item (Replaceable Parts).</Text>
+			<Text>[NEWLINE][NEWLINE]They don't yet have the Technology to sell this item (Scientific Theory).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_PLAYER">
-			<Text>[NEWLINE][NEWLINE]You don't yet have the Technology to sell this item (Replaceable Parts).</Text>
+			<Text>[NEWLINE][NEWLINE]You don't yet have the Technology to sell this item (Scientific Theory).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_SCIENCE_OFF">
 			<Text>[NEWLINE][NEWLINE]The Science system is off in this scenario.</Text>
