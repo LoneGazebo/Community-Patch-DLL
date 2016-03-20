@@ -1,0 +1,7 @@
+<Asset>
+  <Mesh file="Resource_Pepper.gr2" source="Max" />
+  <Texture file="Generic_Grey_8.dds" source="Max" />
+  <Texture file="Plant_Resource_Shadows.dds" source="Max" />
+  <Texture file="Pepper_DIFF.dds" source="Max" />
+  <Texture file="Pepper_SREF.dds" source="Max" />
+</Asset>

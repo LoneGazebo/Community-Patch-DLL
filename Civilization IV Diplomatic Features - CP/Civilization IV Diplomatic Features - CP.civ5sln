@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# ModBuddy Solution File, Format Version 11.00
+Project("{F5FC21B5-7CC2-458A-ABBA-992F515BBA20}") = "Civilization IV Diplomatic Features - CP", "Civilization IV Diplomatic Features - CP\Civilization IV Diplomatic Features - CP.civ5proj", "{C9A4D880-9CB4-4843-8224-DD0EA6791329}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Default|x86 = Default|x86
+		Deploy Only|x86 = Deploy Only|x86
+		Package Only|x86 = Package Only|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C9A4D880-9CB4-4843-8224-DD0EA6791329}.Default|x86.ActiveCfg = Default|x86
+		{C9A4D880-9CB4-4843-8224-DD0EA6791329}.Default|x86.Build.0 = Default|x86
+		{C9A4D880-9CB4-4843-8224-DD0EA6791329}.Deploy Only|x86.ActiveCfg = Deploy Only|x86
+		{C9A4D880-9CB4-4843-8224-DD0EA6791329}.Deploy Only|x86.Build.0 = Deploy Only|x86
+		{C9A4D880-9CB4-4843-8224-DD0EA6791329}.Package Only|x86.ActiveCfg = Package Only|x86
+		{C9A4D880-9CB4-4843-8224-DD0EA6791329}.Package Only|x86.Build.0 = Package Only|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

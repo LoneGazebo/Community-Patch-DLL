@@ -151,7 +151,7 @@
       <Association>
         <Type>Mod</Type>
         <Name>C4DF</Name>
-        <Id>47dd6204-89ab-4cf6-af4f-1327d2ce584c</Id>
+        <Id>c7bf7064-d1b1-4708-9e93-7a1560868582</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
@@ -164,12 +164,6 @@
       </Association>
     </ModDependencies>
     <ModContent>
-      <Content>
-        <Type>InGameUIAddin</Type>
-        <Name>VassalOverview</Name>
-        <Description>VassalOverview</Description>
-        <FileName>LUA/VassalageOverview.lua</FileName>
-      </Content>
     </ModContent>
     <ModBlockers>
       <Association>
@@ -215,14 +209,6 @@
     <Content Include="C4DFCompatibility\pl_PL\pl_PL_Text_UIC4DF.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="C4DFCompatibility\vassal80.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="C4DFCompatibility\vassal80hl.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Corporations\Corporations.sql">
       <SubType>Lua</SubType>
@@ -491,14 +477,6 @@
     <Content Include="LUA\UnitPanel.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\VassalageOverview.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\VassalageOverview.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="LUA\WhosWinningPopup.lua">
       <SubType>Lua</SubType>

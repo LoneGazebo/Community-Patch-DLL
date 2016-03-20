@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 5/5/2013 12:20:29 PM -->
+<GameData>
+	<Language_zh_CN>
+		<Row Tag="TXT_KEY_ALLOWS_MAP_TRADING">
+			<Text>允许向其他文明销售世界地图。</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALLOWS_TECH_TRADING">
+			<Text>允许向其他文明销售科技。</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALLOWS_VASSALAGE">
+			<Text>允许敌对文明成为你的附庸。</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_MAP_TRADING_STRING">
+			<Text>允许地图交易</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_TECH_TRADING_STRING">
+			<Text>允许科技交易</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_VASSALAGE_STRING">
+			<Text>允许附庸</Text>
+		</Row>		
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_TOPIC">
+			<Text>地图交易</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_SUMMARY">
+			<Text>文明的世界地图囊括探险者发现并绘制的所有岛屿、海洋、自然奇观与文明。文明的世界地图交易由军事科学解锁并揭示文明发现的所有地块。世界地图并不提供与未发现文明的联系，但是它会绘制他们的位置用以相遇！世界地图的价值取决于文明揭示未发现土地的多少：自然奇观、资源的价值远高于广阔的无特性的海洋。世界地图可以价值不菲，因此赶紧探索世界以赚取发现收入吧！</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_ADVISOR_QUESTION">
+			<Text>何为地图交易？</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_TOPIC">
+			<Text>科技交易</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_SUMMARY">
+			<Text>一旦你获得可替换部件科技，只要你在另一文明首都有大使馆，你可以向其他文明销售科技发现。</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_ADVISOR_QUESTION">
+			<Text>何为科技交易？</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_CONCEPT_SECTION_26">
+			<Text>附庸</Text>
+		</Row>	
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_TOPIC">
+			<Text>附庸</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_SUMMARY">
+			<Text>附庸协定是由两文明共同签署，一文明向另一名为宣誓效忠成为附庸的协定。以保护抵御外敌为交换，附庸须放弃政治权力，包括世界议会和联合国领袖、宣战的能力（随宗主宣战）。</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_ADV_QUEST">
+			<Text>何为附庸？</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OBTAINING_VASSALS_TOPIC">
+			<Text>获得附庸</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OBTAINING_VASSALS_SUMMARY">
+			<Text>附庸只会在中古时代后并争得文明的同意后取得。协议在外交交易界面签订。有两种附庸：志愿附庸与战俘。[NEWLINE][NEWLINE]志愿附庸是附庸是由宗主在和平时期赢得的。如果新宗主举足轻重且近在咫尺，羸弱的文明更可能屈从成为附庸。志愿附庸仅是一种选择协定，附庸可以在10回合之后选择离开其宗主的保护。[NEWLINE][NEWLINE]战俘也称为强制附庸，在文明战败后产生。以允许其生存为交换，附庸须同意屈从战胜方。战俘向宗主提供许多更有益的权利。屈从的文明须同意免除与宗主的大多数不利外交关系，并直到许多条件满足之后才能解除附庸。你可以在附庸总览里查看这些条件。</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OBTAINING_VASSALS_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_OBTAINING_VASSALS_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OBTAINING_VASSALS_ADVISOR_QUESTION">
+			<Text>如何获得附庸？</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_TOPIC">
+			<Text>解除附庸</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_SUMMARY">
+			<Text>附庸可以用各种方式在两文明间解除。宗主可以选择向附庸宣战，以立即结束他们的附庸协定。宗主可以选择解放其附庸，以立即解除他们的附庸协定（并在两文明间提供大量的外交修正）！[NEWLINE][NEWLINE]附庸也可以向宗主请求独立（在一些条件满足之后）。宗主总是可以选择接受或拒绝独立请求。在这两种情况下，附庸协定立即解除，但如果宗主拒绝独立请求，两文明立即宣战。[NEWLINE][NEWLINE]在附庸总览里有附庸解放和请求独立选项。根据总览以选择合适的请求。</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_ADVISOR_QUESTION">
+			<Text>如何解除附庸？</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_TOPIC">
+			<Text>附庸益处</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_SUMMARY">
+			<Text>附庸为宗主带来各种益处。宗主免费获得附庸的开放边境，在附庸[ICON_CAPITAL]首都的[ICON_DIPLOMAT]外交官，一定比例的附庸[ICON_RESEARCH]科技、[ICON_CULTURE]文化、[ICON_PEACE]信仰。宗主的[ICON_RELIGION]宗教和[ICON_TOURISM]旅游在附庸的领土上更快传播。附庸在每个新时代缴纳少量单位兵役，附庸被迫采用宗主的意识形态，附庸没有资格举办世界议会和联合国（除非其由附庸建立，这种情况下附庸直到新领袖选择之前担任世界亦会领袖）。</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_ADVISOR_QUESTION">
+			<Text>如何获得附庸？</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_TAXES_TOPIC">
+			<Text>附庸征税</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_TAXES_SUMMARY">
+			<Text>在一个团队中每个附庸玩家可以被区别征税。征税可以在附庸总览启用，并在附庸协定签署后立即执行。所有征税会回合开始时执行。税收在附庸的[ICON_GOLD]每回合金币收入中扣除，并在宗主的团队中均匀划分（如果不止一名玩家）。附庸税收的设定以5%为间隔，在最少0%到最多25%之间选择。税收只能在间隔设定后设定（提示会在附庸税收就绪后显示，附庸总览图标会显示可调征税的文明的数量）。[NEWLINE][NEWLINE]向文明征收繁重的赋税会使其怀恨在心并在其可解除附庸后报仇雪恨。</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_TAXES_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_VASSAL_TAXES_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_TAXES_ADVISOR_QUESTION">
+			<Text>为何获得附庸？</Text>
+		</Row>
+	</Language_zh_CN>
+</GameData>
