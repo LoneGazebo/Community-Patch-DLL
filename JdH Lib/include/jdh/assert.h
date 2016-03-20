@@ -66,10 +66,10 @@
 #	endif // CVASSERT_ENABLE
 #else // JDH_ASSERT_ENABLE
 #	pragma message("JDH_ASSERT: disabled.")
-#	define JDH_Assert(expr, ...)			(noop)
-#	define JDH_AssertFmt(expr, fmt, ...)	(noop)
-#	define JDH_Verify(expr, ...) (expr)		(noop)
-#	define JDH_ASSERT_NOLOG(expr, ...)		(noop)
+#	define JDH_Assert(expr, ...)			(__noop)
+#	define JDH_AssertFmt(expr, fmt, ...)	(__noop)
+#	define JDH_Verify(expr, ...) (expr)		(__noop)
+#	define JDH_ASSERT_NOLOG(expr, ...)		(__noop)
 #endif // JDH_ASSERT_ENABLE
 
 #ifdef CVASSERT_ENABLE
@@ -84,7 +84,7 @@
 #endif
 
 #ifdef FINAL_RELEASE
-#	define JDH_AssertDebug(expr, ...)	(noop)
+#	define JDH_AssertDebug(expr, ...)	(__noop)
 #else
 #	define JDH_AssertDebug(expr, ...)	JDH_Assert(expr, __VA_ARGS__)
 #endif // FINAL_RELEASE
