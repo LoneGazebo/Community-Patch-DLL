@@ -10108,7 +10108,7 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 		// JdH => notifications do get send in MP + updated to new send request behaviour
 		if (GC.getGame().isFinalInitialized())
 		{
-			if (!IsAtWar(ePlayer))
+			if (!IsAtWar(ePlayer) && CvPreGame::isHuman(ePlayer))
 			{
 				const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_INTRO);
 				CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
@@ -11545,9 +11545,10 @@ void CvDiplomacyAI::DoContactMajorCivs()
 /// Individual contact opportunity
 void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 {
-	JDHLOG_FUNC_BEGIN(jdh::DEBUG, GetPlayer()->GetID(), ePlayer);
-	if(!IsValidUIDiplomacyTarget(ePlayer))
+	if (!IsValidUIDiplomacyTarget(ePlayer))
 		return;		// Can't contact the this player at the moment.
+
+	JDHLOG_FUNC_BEGIN(jdh::DEBUG, GetPlayer()->GetID(), ePlayer);
 
 	int iDiploLogStatement;
 	DiploStatementTypes eStatement;
