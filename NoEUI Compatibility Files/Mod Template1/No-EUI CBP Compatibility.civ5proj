@@ -79,32 +79,12 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>C4DFCompatibility/C4DFText_en_US.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Text/pl_PL/Compatibility_pl_PL.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Text/pl_PL/Compatibility_pl_PL.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>C4DFCompatibility/pl_PL/pl_PL_Text_CivilopediaC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>C4DFCompatibility/pl_PL/pl_PL_Text_Generic_DiplomacyC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>C4DFCompatibility/pl_PL/pl_PL_Text_UIC4DF.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -151,7 +131,7 @@
       <Association>
         <Type>Mod</Type>
         <Name>C4DF</Name>
-        <Id>47dd6204-89ab-4cf6-af4f-1327d2ce584c</Id>
+        <Id>c7bf7064-d1b1-4708-9e93-7a1560868582</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
@@ -164,12 +144,6 @@
       </Association>
     </ModDependencies>
     <ModContent>
-      <Content>
-        <Type>InGameUIAddin</Type>
-        <Name>VassalOverview</Name>
-        <Description>VassalOverview</Description>
-        <FileName>LUA/VassalageOverview.lua</FileName>
-      </Content>
     </ModContent>
     <ModBlockers>
       <Association>
@@ -199,30 +173,6 @@
     <Content Include="C4DFCompatibility\C4DFCompatibility.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="C4DFCompatibility\C4DFText_en_US.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="C4DFCompatibility\pl_PL\pl_PL_Text_CivilopediaC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="C4DFCompatibility\pl_PL\pl_PL_Text_Generic_DiplomacyC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="C4DFCompatibility\pl_PL\pl_PL_Text_UIC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="C4DFCompatibility\vassal80.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="C4DFCompatibility\vassal80hl.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Corporations\Corporations.sql">
       <SubType>Lua</SubType>
@@ -492,14 +442,6 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\VassalageOverview.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\VassalageOverview.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="LUA\WhosWinningPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -534,7 +476,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="C4DFCompatibility\pl_PL" />
     <Folder Include="Corporations\Text" />
     <Folder Include="CSD" />
     <Folder Include="CSD\CompatibilityText" />

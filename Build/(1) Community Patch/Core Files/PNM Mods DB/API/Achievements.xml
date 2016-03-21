@@ -1,0 +1,1265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Table name="Achievements">
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" />
+		<Column name="Broken" type="boolean" default="false"/>
+		<Column name="Achieved" type="boolean" default="false"/>
+	</Table>
+
+	<!-- Do NOT change the order of these entries (or add/delete), as they MUST correspond to the values in CvEnums.h -->
+	<Achievements>
+		<Row>
+			<ID>0</ID>
+			<Type>ACHIEVEMENT_WIN_WASHINGTON</Type>
+			<Description>First in the Hearts of Your Countrymen</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_ELIZABETH</Type>
+			<Description>Video et Taceo</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_NAPOLEON</Type>
+			<Description>Vivre La Revolution</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_BISMARCK</Type>
+			<Description>Blood and Iron</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_CATHERINE</Type>
+			<Description>Star of the North</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_CAESAR</Type>
+			<Description>Veni, Vidi, Vici</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_ALEXANDER</Type>
+			<Description>The Man Who Would Be King</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_RAMESSES</Type>
+			<Description>Amongst the Catacombs of Nephren-Ka</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_ASKIA</Type>
+			<Description>The African King</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_HARUN</Type>
+			<Description>Arabian Knights</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_DARIUS</Type>
+			<Description>Age of Empire</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_GANDHI</Type>
+			<Description>Give Peace a Chance</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_RAMKHAMHAENG</Type>
+			<Description>Empire of the East</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_WU</Type>
+			<Description>A Woman's Work</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_ODA</Type>
+			<Description>Rising Sun</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_HIAWATHA</Type>
+			<Description>First of the Mohicans</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_MONTEZUMA</Type>
+			<Description>Montezuma's Revenge…</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_SULEIMAN</Type>
+			<Description>A Magnificent Victory</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_ALLBASELEADERS</Type>
+			<Description>Master of the Universe</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_DIFLEVEL_SETTLER</Type>
+			<Description>Baby Steps</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_DIFLEVEL_CHIEFTAIN</Type>
+			<Description>Taking off the Training Wheels</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_DIFLEVEL_WARLORD</Type>
+			<Description>The Alexman</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_DIFLEVEL_PRINCE</Type>
+			<Description>Charming.  Really.</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_DIFLEVEL_KING</Type>
+			<Description>The Once and Future King</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_DIFLEVEL_EMPEROR</Type>
+			<Description>The Golden Path</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_DIFLEVEL_IMMORTAL</Type>
+			<Description>The World Is a Mess, and I Just Need to Rule It</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_DIFLEVEL_DEITY</Type>
+			<Description>Flawless Strategy</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_MAPSIZE_DUEL</Type>
+			<Description>It's Just You and Me, Kid</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_MAPSIZE_TINY</Type>
+			<Description>I Need More Elbow Room</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_MAPSIZE_SMALL</Type>
+			<Description>Living in Smallville</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_MAPSIZE_STANDARD</Type>
+			<Description>It's Standard Issue</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_MAPSIZE_LARGE</Type>
+			<Description>Do You Want to Super Size That?</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_MAPSIZE_HUGE</Type>
+			<Description>Ruler of the Twelve Colonies </Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_MAPTYPE_CONTINENTS</Type>
+			<Description>Plate Tectonics</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_MAPTYPE_PANGAEA</Type>
+			<Description>Going It Old School</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_MAPTYPE_ARCHIPELAGO</Type>
+			<Description>Island Hopping</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_MAPTYPE_EARTH</Type>
+			<Description>Battlefield Earth</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_MAPS_ALL</Type>
+			<Description>Gotta Catch 'Em All</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_MULTIPLAYER</Type>
+			<Description>Last Man Standing</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_HUNDRED_WAR</Type>
+			<Description></Description>
+			<Broken>true</Broken>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_CATFIGHT</Type>
+			<Description></Description>
+			<Broken>true</Broken>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_MANIFEST_DESTINY</Type>
+			<Description></Description>
+			<Broken>true</Broken>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_CITYSTATE_ALLY</Type>
+			<Description>Say Hello to My Little Friend</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_CITYSTATE_ANNEX</Type>
+			<Description>Neighborhood Bully</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_BUILD_WONDER</Type>
+			<Description>Engineer</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_UNIT_UPGRADE</Type>
+			<Description>Harder, Better, Faster, Stronger</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_UNIT_PROMOTE</Type>
+			<Description>Moving on Up</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_DESTROY_CIV</Type>
+			<Description>Two Men Enter, One Man Leave</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SECOND_CITY</Type>
+			<Description>Second City</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_ANCIENT_RUIN</Type>
+			<Description>Treasure Hunter</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_UNIT_20BATTLES</Type>
+			<Description></Description>
+			<Broken>true</Broken>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_ALL_TECHS</Type>
+			<Description>We Have the Technology</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_ALL_WONDERS</Type>
+			<Description>The Wonder Years</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_ALL_SOCIAL_POLICIES</Type>
+			<Description>Enlightened Ruler</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_ALL_UNITS</Type>
+			<Description>Model of a Modern Major-General</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_GOLDEN_AGE</Type>
+			<Description>Peace and Prosperity</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_CITY_100CULTURE</Type>
+			<Description>City of Lights</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_CITY_100SCIENCE</Type>
+			<Description>City of Science</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_CITY_100GOLD</Type>
+			<Description>City of Gold</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_PURCHASE_1000TILES</Type>
+			<Description>Land Baron</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_ONEHITKILL</Type>
+			<Description>It's Super Effective</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_ALL_WAR</Type>
+			<Description></Description>
+			<Broken>true</Broken>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_UNIT_EMBARK</Type>
+			<Description>I'm on a Boat!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_100CAMPS</Type>
+			<Description>Here Ends the Noble Savage</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_PEACEFULPLAY</Type>
+			<Description></Description>
+			<Broken>true</Broken>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SUCK_AT_WONDERS</Type>
+			<Description>Seriously?!?</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_ONECITY</Type>
+			<Description>One to Rule Them All</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_VICTORY_SPACE</Type>
+			<Description>Go Boldly Where No Man Has Gone Before</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_VICTORY_CULTURE</Type>
+			<Description>The Best State of a Republic</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_VICTORY_DIPLO</Type>
+			<Description>The Pen is Mightier</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_VICTORY_DOMINATION</Type>
+			<Description>Exterminate! Exterminate!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_VICTORY_ALL</Type>
+			<Description>To Stand the Test of Time</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_DROP_NUKE</Type>
+			<Description>I Can Has Nukes?</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_LOSE_MULTIPLAYER</Type>
+			<Description></Description>
+			<Broken>true</Broken>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SIX_DEGREES</Type>
+			<Description></Description>
+			<Broken>true</Broken>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_EXPERIMENTER</Type>
+			<Description>Experimenter</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_EXPANSIONIST</Type>
+			<Description>Expansionist</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_CONNOISSEUR</Type>
+			<Description>Connoisseur</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_POLICY_LIBERTY</Type>
+			<Description>With Liberty and Justice for All</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_POLICY_PIETY</Type>
+			<Description>Lux Perpetua Luceat Eis</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_POLICY_AUTOCRACY</Type>
+			<Description>Diplomacy by Other Means</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_POLICY_ORDER</Type>
+			<Description>With an Iron Fist</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_POLICY_TRADITION</Type>
+			<Description>Master of the House</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_POLICY_HONOR</Type>
+			<Description>Death Before Shame</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_POLICY_PATRONAGE</Type>
+			<Description>Team Player</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_POLICY_COMMERCE</Type>
+			<Description>Money Doesn't Grow on Trees</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_POLICY_RATIONALISM</Type>
+			<Description>Eighty-Eight Miles per Hour</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_POLICY_FREEDOM</Type>
+			<Description>Freedom Isn't Free</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_ALL_NATURALWONDER</Type>
+			<Description>The Explorer</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_DEFPACT</Type>
+			<Description></Description>
+			<Broken>true</Broken>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_RESEARCHPACT</Type>
+			<Description></Description>
+			<Broken>true</Broken>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_1000ROADS</Type>
+			<Description>The Appian Way</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_1000MINES</Type>
+			<Description>Forty-Niner</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_100RESOURCES</Type>
+			<Description>Merchant King</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_1000TILES</Type>
+			<Description>Marco Polo</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_ROUND_WORLD</Type>
+			<Description>Magellan</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_1000FOREST</Type>
+			<Description>Paul Bunyan</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_1000TEMPLES</Type>
+			<Description>God Is Great</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_B17</Type>
+			<Description>Flying Fortress</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_TRADER</Type>
+			<Description>Arab Trader</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_GARDENS</Type>
+			<Description>Gardens of Lake Texcoco</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_SPHINX</Type>
+			<Description>Riddle of the Sphinx</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_MUSKETEERS</Type>
+			<Description>Three Musketeers</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_LONGHOUSE</Type>
+			<Description>People of the Longhouse</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_BOLLYWOOD</Type>
+			<Description>Bollywood</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_KAMIKAZE</Type>
+			<Description>Kamikaze Attack</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_ARCHAEMENNID</Type>
+			<Description>From Archaemennid to Safavid</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_ROMANROADS</Type>
+			<Description>All Roads Lead to Rome</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_ELEPHANTBATTLE</Type>
+			<Description></Description>
+			<Broken>true</Broken>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_SUNTZU</Type>
+			<Description>Sun Tzu's Art of War</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_BARBARIANWARLORD</Type>
+			<Description>Barbarian Warlord</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_BARBARYPIRATE</Type>
+			<Description>Barbary Pirate</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_TOMBRAIDER</Type>
+			<Description>Tomb Raider</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_WARCANOE</Type>
+			<Description>War Canoe Attack</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_PONY</Type>
+			<Description>My Little Pony</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_ARMADA</Type>
+			<Description>Ruler of the Seas</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_CONQUEST_WORLD</Type>
+			<Description>Conquest of the World</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_CIVILOPEDIA</Type>
+			<Description></Description>
+			<Broken>true</Broken>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_REALLY_SUCK</Type>
+			<Description>He Threw a Car at My Head!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_PSG</Type>
+			<Description>Panzer "Shafernator" General</Description>
+		</Row>
+
+		<!-- DLC_DELUXE -->
+		<Row>
+			<Type>ACHIEVEMENT_WIN_NEBUCHADNEZZAR</Type>
+			<Description>By the Waters of Babylon</Description>
+		</Row>
+
+		<!-- DLC_01 -->
+		<Row>
+			<Type>ACHIEVEMENT_WIN_GENGHIS</Type>
+			<Description>The Golden Horde</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_SCENARIO_01_PRINCE_OR_BELOW</Type>
+			<Description>Khan</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_SCENARIO_01_KING</Type>
+			<Description>Great Khan</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_SCENARIO_01_EMPEROR</Type>
+			<Description>Supreme Khan</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_SCENARIO_01_IMMORTAL</Type>
+			<Description>Kublai Khan</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_SCENARIO_01_DEITY</Type>
+			<Description>Genghis Khan</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_LOSE_SCENARIO_01</Type>
+			<Description>Khaaan!</Description>
+		</Row>
+
+		<!-- DLC_02 -->
+		<Row>
+			<Type>ACHIEVEMENT_WIN_ISABELLA</Type>
+			<Description>Nobody Expects the Spanish Inquisition</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_WIN_PACHACUTI</Type>
+			<Description>King of the Mountain</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_02_WIN_SPAIN</Type>
+			<Description>Siglo de Oro</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_02_WIN_FRANCE</Type>
+			<Description>Tout le Monde Francophone?</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_02_WIN_ENGLAND</Type>
+			<Description>Tea and Crumpets for Everyone</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_02_WIN_INCA</Type>
+			<Description>Macho Picchu</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_02_WIN_AZTECS</Type>
+			<Description>Huitzilopochtli's Arrow</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_02_WIN_IROQUOIS</Type>
+			<Description>League of Extraordinary Hoyanehs</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_02_ROUTE_TO_ORIENT</Type>
+			<Description>All Aboard the Orient Express</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_02_DISCOVER_FOUNTAIN</Type>
+			<Description>Dr. Heidegger's Experiment</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_02_DISCOVER_EL_DORADO</Type>
+			<Description>Raleigh's Road to Riches</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_02_RETURN_TREASURE</Type>
+			<Description>Au in the EU</Description>
+		</Row>
+
+		<!-- DLC_03 -->
+		<Row>
+			<Type>ACHIEVEMENT_WIN_KAMEHAMEHA</Type>
+			<Description>Law of the Splintered Paddle</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_03_WIN_HIVA</Type>
+			<Description>Surviving the Marquesas</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_03_WIN_TAHITI</Type>
+			<Description>Bora! Bora! Bora!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_03_WIN_SAMOA</Type>
+			<Description>Head and Shoulders Above the Rest</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_03_WIN_TONGA</Type>
+			<Description>Ngata Chance</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_03_FIND_HAWAII</Type>
+			<Description>Book 'em Danno!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_03_FIND_EASTER_ISLAND</Type>
+			<Description>Heads Up!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_03_FIND_CAPTAIN_COOK</Type>
+			<Description>Do you have a little Captain in you?</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_03_FIND_AUSTRALIA</Type>
+			<Description>This isn't Kansas</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_03_FIND_NEW_ZEALAND</Type>
+			<Description>Searching for the Precious</Description>
+		</Row>
+
+		<!-- DLC_04 -->
+		<Row>
+			<Type>ACHIEVEMENT_WIN_BLUETOOTH</Type>
+			<Description>Hands Free to Victory!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_04_BIATHLON</Type>
+			<Description>Where's the Biathlon?</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_04_PILLAGE</Type>
+			<Description>Pillage, Then Burn</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_04_NORMANDY</Type>
+			<Description>Time to Stitch a Tapestry</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_04_WIN_DENMARK</Type>
+			<Description>Odin's Chosen Warrior</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_04_WIN_NORWAY</Type>
+			<Description>Purple People Eaters</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_04_WIN_ENGLAND</Type>
+			<Description>This was their Finest Hour</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_04_BUILD_MOTTE</Type>
+			<Description>Fetchez la Vache!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_04_WIN_EMPEROR</Type>
+			<Description>You The Conqueror</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_04_WIN_IMMORTAL</Type>
+			<Description>Surviving Domesday</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_04_WIN_DEITY</Type>
+			<Description>Surviving Ragnarok</Description>
+		</Row>
+
+		<!-- DLC_05 -->
+		<Row>
+			<Type>ACHIEVEMENT_WIN_SEJONG</Type>
+			<Description>The Choson One</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_IRONCLAD_TURTLE</Type>
+			<Description>Turtle Power</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_HWATCH_OUT</Type>
+			<Description></Description>
+			<Broken>true</Broken>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_05_WIN_JAPAN</Type>
+			<Description>Samurai Delicatessen</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_05_WIN_KOREA</Type>
+			<Description>Fear the Turtle</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_05_WIN_CHINA</Type>
+			<Description>Yow Ming!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_05_WIN_MANCHU</Type>
+			<Description>Emperor Fu Manchu</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_05_LOSE_KOREA</Type>
+			<Description>Taekwon-DOH!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_05_WIN_EMPEROR</Type>
+			<Description>Dragon Emperor</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_05_WIN_IMMORTAL</Type>
+			<Description>A Righteous Victory</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_05_WIN_DEITY</Type>
+			<Description>Honoring the Ancestors</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_05_WIN_100TURNS</Type>
+			<Description>Seoul Power</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_05_QING_TAKES_MING</Type>
+			<Description></Description>
+			<Broken>true</Broken>
+		</Row>
+
+		<!-- DLC_06 -->
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_ROME_GETS_ZEUS</Type>
+			<Description>Zeupiter</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_ZEUS_AND_ARTEMIS</Type>
+			<Description>Bolt and Arrow</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_HALICARNASSUS_GOLD</Type>
+			<Description>Rest in Gold Pieces</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SPECIAL_ANCIENT_WONDERS</Type>
+			<Description></Description>
+			<Broken>true</Broken>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_06_WIN_HITTITES</Type>
+			<Description>Party in hattUSA</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_06_WIN_GREECE</Type>
+			<Description>Grecian Formula</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_06_WIN_SUMER</Type>
+			<Description>Epic Gilgamesh</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_06_WIN_EGYPT</Type>
+			<Description>Ra's Mighty Truth</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_06_WIN_PERSIA</Type>
+			<Description>It satrap!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_06_WIN_PRINCE</Type>
+			<Description>Thoughtful Telemachus</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_06_WIN_KING</Type>
+			<Description>Odysseus the Great Tactician</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_06_WIN_EMPEROR</Type>
+			<Description>Far-Shooting Apollo</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_06_WIN_IMMORTAL</Type>
+			<Description>Bright-Eyed Athena</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_06_WIN_DEITY</Type>
+			<Description>All-Achieving Zeus</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_06_WONDER_CITY</Type>
+			<Description>Wonderwall</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_06_WONDER_CONQUEST</Type>
+			<Description>Reverse Engineer</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_SCENARIO_06_ORACLE_CONSULT</Type>
+			<Description>Know Thy Enemy</Description>
+		</Row>
+
+		<!-- Gods and Kings -->
+		<Row>
+			<Type>ACHIEVEMENT_XP1_01</Type>
+			<Description>Austrian Succession</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_02</Type>
+			<Description>Dancer, Actress, Empress, Victor</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_03</Type>
+			<Description>No White Flag Here</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_04</Type>
+			<Description>Celtic Thunder</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_05</Type>
+			<Description>Colonize This!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_06</Type>
+			<Description>Scourge of Everyone</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_07</Type>
+			<Description>Baktun the Future</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_08</Type>
+			<Description>Silent No More</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_09</Type>
+			<Description>Defender of the Faith</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_10</Type>
+			<Description>Gad Zeus!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_11</Type>
+			<Description>Propheteering</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_12</Type>
+			<Description>Sticky Fingers</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_13</Type>
+			<Description>Junta for Red October</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_14</Type>
+			<Description>Smooth Talking</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_15</Type>
+			<Description>Whack a Mole</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_16</Type>
+			<Description>Access Denied</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_17</Type>
+			<Description>Missionary Man</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_18</Type>
+			<Description>Holier Than Thou</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_19</Type>
+			<Description>We are Family</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_20</Type>
+			<Description>Indoctrinated!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_21</Type>
+			<Description>Renaissance Man</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_22</Type>
+			<Description>Et tu, Brute</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_23</Type>
+			<Description>Modern Major-General</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_24</Type>
+			<Description>Nobody expects...</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_25</Type>
+			<Description>From Russia with Love</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_26</Type>
+			<Description>The Last Crusade</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_27</Type>
+			<Description>Holy Father</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_28</Type>
+			<Description>Capture of Brielle</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_29</Type>
+			<Description>Hannibal’s Crossing</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_30</Type>
+			<Description>RAM Usage</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_31</Type>
+			<Description>Lion of the North</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_32</Type>
+			<Description>Rastafari Messiah</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_33</Type>
+			<Description>Greek Fire</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_34</Type>
+			<Description>Longest. Name. Ever.</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_35</Type>
+			<Description>Yoink!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_36</Type>
+			<Description>Apocalypse Now</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_37</Type>
+			<Description>Intelligence Network</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_38</Type>
+			<Description>Gimme Your Lunch Money!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_39</Type>
+			<Description>Richard the Lionheart</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_40</Type>
+			<Description>Mehmet the Conqueror</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_41</Type>
+			<Description>Never take our freedom!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_42</Type>
+			<Description>The Yokes on the Mongols</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_43</Type>
+			<Description>Reconquista Who?</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_44</Type>
+			<Description>Quite Accomplished</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_45</Type>
+			<Description>Gentlemen's Agreement</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_46</Type>
+			<Description>Sky Admiral</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_47</Type>
+			<Description>Turks Shmurks!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_48</Type>
+			<Description>Double KO</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_49</Type>
+			<Description></Description>
+			<Broken>true</Broken>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_50</Type>
+			<Description>Pax Romana Aeternum</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_51</Type>
+			<Description>I Missed That Day in History Class</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP1_52</Type>
+			<Description>I Sunk Your Imperial Capital!</Description>
+		</Row>
+
+		<!-- Brave New World -->
+		<Row>
+			<Type>ACHIEVEMENT_XP2_01</Type>
+			<Description>Tablet Tech Pioneer</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_02</Type>
+			<Description>Pedro's Party People</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_03</Type>
+			<Description>The Java Script</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_04</Type>
+			<Description>This Desert Life</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_05</Type>
+			<Description>King of the Wisent</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_06</Type>
+			<Description>In Hoc Signo Vinces</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_07</Type>
+			<Description>The Great Spirit</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_08</Type>
+			<Description>Queen of the Adriatic</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_09</Type>
+			<Description>Wanna Be the King of the Zulus</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_10</Type>
+			<Description>One Small Step</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_11</Type>
+			<Description>Yuri-ka!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_12</Type>
+			<Description>Rocking in the Free World</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_13</Type>
+			<Description>Workers of the World - Unite!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_14</Type>
+			<Description>Strength Through Joy</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_15</Type>
+			<Description>Games Without Frontiers</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_16</Type>
+			<Description>Axis Powered</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_17</Type>
+			<Description>Better Red Than Dead</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_18</Type>
+			<Description>Everybody Wants to Rule the World</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_19</Type>
+			<Description>Knowledge is Power</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_20</Type>
+			<Description>Vote for Pedro</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_21</Type>
+			<Description>Enemy Blade No More</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_22</Type>
+			<Description>Here's Looking at You, Kid</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_23</Type>
+			<Description>Poland Can into Space</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_24</Type>
+			<Description>What's Yours is Mine</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_25</Type>
+			<Description>Sacagawea's Legacy</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_26</Type>
+			<Description>The Great Betrayal</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_27</Type>
+			<Description>Run 50 Miles and Fight a Battle</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_28</Type>
+			<Description>Highway Robbery</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_29</Type>
+			<Description>Silk Road</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_30</Type>
+			<Description>Greed is Good</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_31</Type>
+			<Description>Built in(Almost) a Day</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_32</Type>
+			<Description>Merchant Prince</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_33</Type>
+			<Description>Raiders of the Lost Ark</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_34</Type>
+			<Description>Losing My Marbles</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_35</Type>
+			<Description>It Belongs in a Museum</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_36</Type>
+			<Description>British Invasion</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_37</Type>
+			<Description>Rock the Kasbah</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_38</Type>
+			<Description>Radio Free Europe</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_39</Type>
+			<Description>Tear Down this Wall!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_40</Type>
+			<Description>Pyramid Scheme</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_41</Type>
+			<Description>Lingua Franca</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_42</Type>
+			<Description>Flip-Flop</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_43</Type>
+			<Description>Dark Horse</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_44</Type>
+			<Description>Herculean Effort</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_45</Type>
+			<Description>Soma Tablets for Everyone</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_46</Type>
+			<Description>That's XCOM baby!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_47</Type>
+			<Description>Legends of the Hidden Temple</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_48</Type>
+			<Description>Artistic License</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_49</Type>
+			<Description>I Prefer my Africa Scrambled</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_50</Type>
+			<Description>Praise the Victories</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_51</Type>
+			<Description>Ottoman Carpentry</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_52</Type>
+			<Description>Dr Livingstone I presume?</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_53</Type>
+			<Description>The Rhodes Colossus</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_54</Type>
+			<Description>Nigerian Bank Account</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_55</Type>
+			<Description>Discoverer</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_56</Type>
+			<Description>Glory, glory, hallelujah!</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_57</Type>
+			<Description>Standing like a Stone Wall</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_58</Type>
+			<Description>Red Badge of Courage</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_59</Type>
+			<Description>Pickett's Recharge</Description>
+		</Row>
+		<Row>
+			<Type>ACHIEVEMENT_XP2_60</Type>
+			<Description>Sheridan's Valley Campaign</Description>
+		</Row>
+	</Achievements>
+
+	<CustomModDbUpdates>
+		<Row Name="API_ACHIEVEMENTS" Value="1"/>
+	</CustomModDbUpdates>
+</GameData>

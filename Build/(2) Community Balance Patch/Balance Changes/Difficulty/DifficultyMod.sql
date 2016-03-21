@@ -1,0 +1,86 @@
+
+
+--Difficulties
+DELETE FROM HandicapInfos;
+DELETE FROM HandicapInfo_AIFreeTechs;
+
+CREATE TABLE IDRemapper ( id INTEGER PRIMARY KEY AUTOINCREMENT, Type TEXT );
+INSERT INTO IDRemapper (Type) SELECT Type FROM HandicapInfos ORDER BY ID;
+UPDATE HandicapInfos SET ID = ( SELECT IDRemapper.id-1 FROM IDRemapper WHERE HandicapInfos.Type = IDRemapper.Type);
+DROP TABLE IDRemapper;
+
+UPDATE sqlite_sequence
+SET seq = (SELECT COUNT(ID) FROM HandicapInfos)-1
+WHERE name = 'HandicapInfos';
+
+-- Minor Civ Free Units
+
+UPDATE Eras
+SET StartingMinorDefenseUnits = '1'
+WHERE Type = 'ERA_MEDIEVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Eras
+SET StartingMinorDefenseUnits = '1'
+WHERE Type = 'ERA_RENAISSANCE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Eras
+SET StartingMinorDefenseUnits = '2'
+WHERE Type = 'ERA_INDUSTRIAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Eras
+SET StartingMinorDefenseUnits = '2'
+WHERE Type = 'ERA_MODERN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Eras
+SET StartingMinorDefenseUnits = '3'
+WHERE Type = 'ERA_POSTMODERN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Eras
+SET StartingMinorDefenseUnits = '3'
+WHERE Type = 'ERA_FUTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE HandicapInfos
+SET StartingMinorDefenseUnits = '1'
+WHERE Type = 'HANDICAP_CHIEFTAIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE HandicapInfos
+SET StartingMinorDefenseUnits = '1'
+WHERE Type = 'HANDICAP_WARLORD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE HandicapInfos
+SET StartingMinorDefenseUnits = '1'
+WHERE Type = 'HANDICAP_PRINCE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE HandicapInfos
+SET StartingMinorDefenseUnits = '1'
+WHERE Type = 'HANDICAP_KING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE HandicapInfos
+SET StartingMinorDefenseUnits = '2'
+WHERE Type = 'HANDICAP_EMPEROR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE HandicapInfos
+SET StartingMinorDefenseUnits = '2'
+WHERE Type = 'HANDICAP_IMMORTAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE HandicapInfos
+SET StartingMinorDefenseUnits = '3'
+WHERE Type = 'HANDICAP_DEITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+-- Goody Hut Payout
+
+UPDATE GoodyHuts
+SET GoldRandAmount = '20'
+WHERE Type = 'GOODY_GOLD';
+
+UPDATE GoodyHuts
+SET GoldRandAmount = '20'
+WHERE Type = 'GOODY_LOW_GOLD';
+
+UPDATE GoodyHuts
+SET GoldRandAmount = '20'
+WHERE Type = 'GOODY_HIGH_GOLD';
+
+UPDATE GoodyHuts
+SET Experience = '20'
+WHERE Type = 'GOODY_EXPERIENCE';
