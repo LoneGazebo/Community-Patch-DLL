@@ -2665,7 +2665,28 @@ int UIPathValid(const CvAStarNode* parent, const CvAStarNode* node, int operatio
 		if (!pUnit->canMoveInto(*pToPlot, CvUnit::MOVEFLAG_ATTACK))
 			return FALSE;
 	}
-
+	if(pUnit->getDomainType() == DOMAIN_LAND)
+	{
+		int iGroupAreaID = pUnit->getArea();
+		if(pToPlot->getArea() != iGroupAreaID)
+		{
+			if(!(pToPlot->isAdjacentToArea(iGroupAreaID)))
+			{
+				// antonjs: Added for Smoky Skies scenario. Allows move range to show correctly for airships,
+				// which move over land and sea plots equally (canMoveAllTerrain)
+				if (!pUnit->canMoveAllTerrain())
+				{
+#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
+					if (!(pUnit->IsHoveringUnit() && pToPlot->isShallowWater())) {
+						return FALSE;
+					}
+#else
+					return FALSE;
+#endif
+				}
+			}
+		}
+	}
 	if(!pUnit->canEnterTerrain(*pToPlot, CvUnit::MOVEFLAG_ATTACK))
 	{
 		return FALSE;

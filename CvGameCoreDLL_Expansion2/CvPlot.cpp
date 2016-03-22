@@ -3342,9 +3342,20 @@ bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
 		return isWater() && !isIce() && !IsAllowsWalkWater();
 	else
 	{
+#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
+		PromotionTypes ePromotionEmbarkDeepWater = (PromotionTypes)GC.getPROMOTION_DEEPWATER_EMBARKATION();
+		PromotionTypes ePromotionEmbarkDeepWaterDefense = (PromotionTypes)GC.getPROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION();
+		if (pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() && (pUnit->isHasPromotion(ePromotionEmbarkDeepWater) || pUnit->isHasPromotion(ePromotionEmbarkDeepWaterDefense)))
+		{
+			return isDeepWater() && !isIce();
+		}
+		else if (pUnit->getDomainType()==DOMAIN_LAND)
+		{
+#else		
 		//only land units need to embark
 		if (pUnit->getDomainType()==DOMAIN_LAND)
 		{
+#endif		
 			return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canMoveImpassable() && !pUnit->canLoad(*this);
 		}
 		else
@@ -4919,7 +4930,7 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 		break;
 
 	case DOMAIN_LAND:
-		return !isCity() || (isCity() && getOwner()==unit.getOwner());
+		return !isCity() || (isCity() && getOwner()==unit.getOwner()) || unit.canLoad(*this);
 		break;
 
 	default:
@@ -4949,7 +4960,13 @@ bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
 		break;
 
 	case DOMAIN_IMMOBILE:
-		return false;
+#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
+		// Only hover over shallow water
+		{ bool bOK = (!isWater() || (unit.IsHoveringUnit() && isShallowWater()) || unit.canMoveAllTerrain() || unit.isEmbarked() || IsAllowsWalkWater());
+		return bOK; }
+#else
+		return (!isWater() || unit.IsHoveringUnit() || unit.canMoveAllTerrain() || unit.isEmbarked() || IsAllowsWalkWater());
+#endif
 		break;
 
 	case DOMAIN_LAND:

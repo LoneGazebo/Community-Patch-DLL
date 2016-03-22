@@ -7,6 +7,8 @@
 	------------------------------------------------------------------------------------------------------- */
 
 #include "CvGameCoreDLLPCH.h"
+#include "../CvGameCoreDLLPCH.h"
+#include "../CustomMods.h"
 #include "CvLuaSupport.h"
 #include "CvLuaArea.h"
 #include "CvLuaCity.h"
@@ -14,7 +16,6 @@
 #include "CvLuaUnit.h"
 #include "../CvMinorCivAI.h"
 #include "../CvUnitCombat.h"
-#include "../CustomMods.h"
 
 //Utility macro for registering methods
 #define Method(Name)			\

@@ -3000,6 +3000,12 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 		{
 			bool bGivePromotion = false;
 
+#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
+			if (pkPromotionInfo->IsEmbarkedDeepWater()) {
+				// Deep water promotions are handled as special cases of the general embark promotion
+				continue;
+			}
+#endif
 			// Old unit has the promotion
 			if(pUnit->isHasPromotion(ePromotion) && !pkPromotionInfo->IsLostWithUpgrade())
 			{
@@ -3058,6 +3064,12 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 #endif
 
 			setHasPromotion(ePromotion, bGivePromotion);
+#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
+			if (MOD_PROMOTIONS_DEEP_WATER_EMBARKATION && bGivePromotion && pkPromotionInfo->IsAllowsEmbarkation() && IsHoveringUnit())
+			{
+				setHasPromotion(GET_PLAYER(getOwner()).GetDeepWaterEmbarkationPromotion(), true);
+			}
+#endif
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -6195,7 +6207,7 @@ bool CvUnit::canLoad(const CvPlot& targetPlot) const
 		const CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
 		pUnitNode = targetPlot.nextUnitNode(pUnitNode);
 
-		if(pLoopUnit && canLoadUnit(*pLoopUnit, targetPlot))
+		if(pLoopUnit && canLoadUnit(*pLoopUnit, targetPlot) && !isEmbarked())
 		{
 			return true;
 		}
@@ -6690,6 +6702,26 @@ bool CvUnit::canEmbarkAtPlot(const CvPlot* pPlot) const
 	{
 		return false;
 	}
+#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
+	// ... or shallow water
+	bool bCanEmbark = pPlot->isCoastalLand();
+	bCanEmbark = bCanEmbark || (IsHoveringUnit() && pPlot->isShallowWater());
+	if(!bCanEmbark)
+#else
+	if(!pPlot->isCoastalLand())
+#endif
+	{
+		return false;
+	}
+
+#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
+	if(!IsHasEmbarkAbility() && !IsEmbarkDeepWater())
+#else
+	if(!IsHasEmbarkAbility())
+#endif
+	{
+		return false;
+	}
 
 	// search the water plots around this plot to see if any are vacant
 	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
@@ -6803,7 +6835,7 @@ bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot
 bool CvUnit::CanEverEmbark() const
 {
 	VALIDATE_OBJECT
-	return (getDomainType() == DOMAIN_LAND && IsHasEmbarkAbility() && !IsHoveringUnit() && !canMoveAllTerrain() && !isCargo() );
+	return (getDomainType() == DOMAIN_LAND && IsHasEmbarkAbility() && !isCargo() && !canMoveAllTerrain());
 }
 
 //	--------------------------------------------------------------------------------
@@ -8475,7 +8507,7 @@ bool CvUnit::canParadropAt(const CvPlot* pPlot, int iX, int iY) const
 		return false;
 	}
 
-	if(!canMoveInto(*pTargetPlot, MOVEFLAG_DESTINATION))
+	if(!canMoveInto(*pTargetPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
 	{
 		return false;
 	}
@@ -8511,12 +8543,12 @@ bool CvUnit::paradrop(int iX, int iY)
 	bool bCanAttack = MOD_GLOBAL_PARATROOPS_MOVEMENT && (iDist < iRange);
 	if (bCanAttack) {
 		// CUSTOMLOG("Paradrop - %i of %i is less than range --> can attack", iDist, iRange);
-		changeMoves(-GC.getMOVE_DENOMINATOR()); // This equates to a "set-up to range attack", which seems fair
+		setMoves(GC.getMOVE_DENOMINATOR()); // This equates to a "set-up to range attack", which seems fair
 		// setMadeAttack(false); // Don't set to false, just in case someone modded in "attack then paralift out"
 	} else {
 		// CUSTOMLOG("Paradrop - %i of %i is max range --> cannot attack", iDist, iRange);
 #endif
-		changeMoves(-(GC.getMOVE_DENOMINATOR() / 2));
+		setMoves(GC.getMOVE_DENOMINATOR()); //keep one move
 		setMadeAttack(true);
 #if defined(MOD_GLOBAL_PARATROOPS_MOVEMENT)
 	}
@@ -13507,11 +13539,12 @@ bool CvUnit::CanUpgradeRightNow(bool bOnlyTestVisible) const
 	
 #if defined(MOD_API_EXTENSIONS)
 	return CanUpgradeTo(eUpgradeUnitType, bOnlyTestVisible);
+#endif
 }
 
+#if defined(MOD_API_EXTENSIONS)
 bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) const
 {
-#endif
 	// Does the Unit actually upgrade into anything?
 	if(eUpgradeUnitType == NO_UNIT)
 		return false;
@@ -13647,7 +13680,7 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 
 	return true;
 }
-
+#endif
 #if defined(MOD_GLOBAL_CS_UPGRADES)
 /// Can this Unit upgrade with anything right now?
 bool CvUnit::CanUpgradeInTerritory(bool bOnlyTestVisible) const
@@ -13843,8 +13876,9 @@ CvUnit* CvUnit::DoUpgrade()
 
 #if defined(MOD_API_EXTENSIONS)
 	return DoUpgradeTo(eUnitType, bFree);
+#endif
 }
-
+#if defined(MOD_API_EXTENSIONS)
 CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 {
 #endif
@@ -14046,7 +14080,7 @@ bool CvUnit::isMatchingDomain(const CvPlot* pPlot) const
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return pPlot->needsEmbarkation(this)==isEmbarked();
+		return pPlot->needsEmbarkation(this)==isEmbarked() || isCargo();
 		break;
 	case DOMAIN_AIR:
 		return true;
@@ -14207,7 +14241,7 @@ int CvUnit::baseMoves(DomainTypes eIntoDomain /* = NO_DOMAIN */) const
 	DomainTypes eDomain = getDomainType();
 
 	//hover units don't embark but movement speed may change!
-	bool bWantEmbarkedMovement = (eIntoDomain == DOMAIN_SEA && (CanEverEmbark() || IsHoveringUnit()) ) || (eIntoDomain == NO_DOMAIN && isEmbarked());
+	bool bWantEmbarkedMovement = (eIntoDomain == DOMAIN_SEA && (CanEverEmbark() || IsHoveringUnit() && IsEmbarkDeepWater()) ) || (eIntoDomain == NO_DOMAIN && isEmbarked());
 	if(bWantEmbarkedMovement)
 	{
 		CvPlayerPolicies* pPolicies = thisPlayer.GetPlayerPolicies();
@@ -22214,8 +22248,10 @@ bool CvUnit::IsGreatGeneral() const
 	VALIDATE_OBJECT
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if( AI_getUnitAIType() == UNITAI_GENERAL )
+	if( AI_getUnitAIType() == UNITAI_GENERAL && !IsCombatUnit())
+	{
 		return true;
+	}
 #endif
 
 	return GetGreatGeneralCount() > 0;
@@ -22241,8 +22277,10 @@ bool CvUnit::IsGreatAdmiral() const
 	VALIDATE_OBJECT
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if( AI_getUnitAIType() == UNITAI_ADMIRAL )
+	if( AI_getUnitAIType() == UNITAI_ADMIRAL && !IsCombatUnit())
+	{
 		return true;
+	}
 #endif
 
 	return GetGreatAdmiralCount() > 0;

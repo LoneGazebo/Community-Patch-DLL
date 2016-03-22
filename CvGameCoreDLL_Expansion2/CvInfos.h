@@ -475,7 +475,9 @@ public:
 	int getInstanceCostModifier() const;
 	int getDefaultUnitIndex() const;
 	void setDefaultUnitIndex(int i);
-
+#if defined(MOD_BALANCE_CORE)
+	int getUnitInstancePerCity() const;
+#endif
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
@@ -484,6 +486,9 @@ protected:
 	int m_iMaxPlayerInstances;
 	int m_iInstanceCostModifier;
 	int m_iDefaultUnitIndex;
+#if defined(MOD_BALANCE_CORE)
+	int m_iUnitInstancePerCity;
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

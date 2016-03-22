@@ -254,10 +254,43 @@ bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPl
 
 	if(!pFromPlot->isValidDomainForLocation(*pUnit))
 	{
+		// If we are a land unit that can embark, then do further tests.
+#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
+		if(pUnit->IsHoveringUnit()) 
+		{
+			if (!pUnit->IsEmbarkDeepWater()) 
+			{
+				return true;
+			}
+		}
+#else
 		return true;
+#endif
 	}
 
 	// if the unit can (or has to) embark and we are transitioning from land to water or vice versa
+#if defined(MOD_PATHFINDER_TERRAFIRMA)
+	bool bFromWater = !pFromPlot->isTerraFirma(pUnit);
+	bool bToWater = !pToPlot->isTerraFirma(pUnit);
+	bool bCanEmbark = pUnit->CanEverEmbark();
+#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
+	if (pUnit->IsHoveringUnit() && pUnit->IsEmbarkDeepWater()) 
+	{
+		bCanEmbark = true;
+		if(bToWater != bFromWater && bCanEmbark)
+		{
+			if(!bToWater && bFromWater && pUnit->isEmbarked() && GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+			{
+				return false;
+			}
+			if(!pUnit->canMoveAllTerrain())
+			{
+				return true;
+			}
+		}
+	}
+#endif
+#endif
 	if(pUnit->CanEverEmbark())
 	{
 		bool bCanMoveFreely = false;

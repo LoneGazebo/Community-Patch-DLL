@@ -9715,9 +9715,24 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 
 		if(isUnitClassMaxedOut(eUnitClass, (getUnitClassMaking(eUnitClass) + ((bContinue) ? -1 : 0))))
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(isNationalUnitClass(eUnitClass))
+			{
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", pkUnitClassInfo->getMaxPlayerInstances());
+				if(toolTipSink == NULL)
+					return false;
+			}
+			if(isUnitLimitPerCity(eUnitClass))
+			{
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_CITY_COUNT_MAX", "", "", (getNumCities() * pkUnitClassInfo->getUnitInstancePerCity()));
+				if(toolTipSink == NULL)
+					return false;
+			}
+#else
 			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", pkUnitClassInfo->getMaxPlayerInstances());
 			if(toolTipSink == NULL)
 				return false;
+#endif
 		}
 
 		if(GC.getGame().isNoNukes() || !GC.getGame().isNukesValid())
@@ -28870,6 +28885,22 @@ bool CvPlayer::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra) const
 		return false;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if(isUnitLimitPerCity(eIndex))
+	{
+		CvAssertMsg(getUnitClassCount(eIndex) <= (getNumCities() * pkUnitClassInfo->getUnitInstancePerCity()), "getUnitInstancePerCity is expected to be less than maximum bound of UnitInstancePerCity (invalid index)");
+		return ((getUnitClassCount(eIndex) + iExtra) >= (getNumCities() * pkUnitClassInfo->getUnitInstancePerCity()));
+	}
+	else if(isNationalUnitClass(eIndex))
+	{
+		CvAssertMsg(getUnitClassCount(eIndex) <= pkUnitClassInfo->getMaxPlayerInstances(), "getUnitClassCount is expected to be less than maximum bound of MaxPlayerInstances (invalid index)");
+		return ((getUnitClassCount(eIndex) + iExtra) >= pkUnitClassInfo->getMaxPlayerInstances());
+	}
+	else
+	{
+		return false;
+	}
+#else
 	if(!isNationalUnitClass(eIndex))
 	{
 		return false;
@@ -28878,6 +28909,7 @@ bool CvPlayer::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra) const
 	CvAssertMsg(getUnitClassCount(eIndex) <= pkUnitClassInfo->getMaxPlayerInstances(), "getUnitClassCount is expected to be less than maximum bound of MaxPlayerInstances (invalid index)");
 
 	return ((getUnitClassCount(eIndex) + iExtra) >= pkUnitClassInfo->getMaxPlayerInstances());
+#endif
 }
 
 

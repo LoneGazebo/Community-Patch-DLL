@@ -447,6 +447,23 @@ public:
 	{
 		return getFeatureType() == FEATURE_ICE;
 	};
+#if defined(MOD_PATHFINDER_TERRAFIRMA)
+	bool isTerraFirma(const CvUnit* pUnit)     const
+	{
+		bool bTerraFirma = !isWater();
+		
+		if (pUnit->getDomainType() == DOMAIN_LAND) {
+#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
+			bTerraFirma = bTerraFirma || (pUnit->IsHoveringUnit() && isShallowWater());
+#endif
+#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
+			bTerraFirma = bTerraFirma || (pUnit->IsHoveringUnit() && isShallowWater());
+#endif
+		}
+		
+		return bTerraFirma;
+	};
+#endif
 	bool isOpenGround()     const
 	{
 		if( isHills() || isMountain() || m_bRoughFeature) 
