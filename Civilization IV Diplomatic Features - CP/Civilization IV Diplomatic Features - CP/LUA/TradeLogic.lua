@@ -3688,10 +3688,10 @@ function OnChoosePocketVote(iFromPlayer, iVoteIndex)
 	if (pLeague ~= nil and g_LeagueVoteList[iVoteIndex] ~= nil) then
 		local iResolutionID = g_LeagueVoteList[iVoteIndex].ID;
 		local iVoteChoice = g_LeagueVoteList[iVoteIndex].VoteChoice;
-
+		local iNumVotes = pLeague:GetCoreVotesForMember(iFromPlayer);
 		local bRepeal = g_LeagueVoteList[iVoteIndex].Repeal;
-		print("==debug== Vote added to deal, ID=" .. iResolutionID .. ", VoteChoice=" .. iVoteChoice .. ", NumVotes=" .. iNumChooseVotes);
-		g_Deal:AddVoteCommitment(iFromPlayer, iResolutionID, iVoteChoice, iNumChooseVotes, bRepeal);
+		print("==debug== Vote added to deal, ID=" .. iResolutionID .. ", VoteChoice=" .. iVoteChoice .. ", NumVotes=" .. iNumVotes);
+		g_Deal:AddVoteCommitment(iFromPlayer, iResolutionID, iVoteChoice, iNumVotes, bRepeal);
 	    
 		DisplayDeal();
 		DoUIDealChangedByHuman();
