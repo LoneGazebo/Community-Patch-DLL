@@ -76,6 +76,34 @@
         <Type>UpdateDatabase</Type>
         <FileName>MoreLuxuries/Text/Text_en_US.sql</FileName>
       </Action>
+<<<<<<< HEAD
+=======
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Text/pl_PL/Compatibility_pl_PL.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Text/pl_PL/Compatibility_pl_PL.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>CSD/CompatibilityText/PolishText.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>CSD/CompatibilityText/PolishText.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>MoreLuxuries/Text/pl_PL/NewLuxuries_Text_pl_PL.xml</FileName>
+      </Action>
+>>>>>>> origin/master
     </ModActions>
     <Homepage>
     </Homepage>
@@ -105,8 +133,13 @@
       </Association>
       <Association>
         <Type>Mod</Type>
+<<<<<<< HEAD
         <Name>Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
+=======
+        <Name>C4DF</Name>
+        <Id>c7bf7064-d1b1-4708-9e93-7a1560868582</Id>
+>>>>>>> origin/master
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
@@ -409,6 +442,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+<<<<<<< HEAD
     <Content Include="LUA\VictoryProgress.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -417,6 +451,8 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+=======
+>>>>>>> origin/master
     <Content Include="LUA\WhosWinningPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>

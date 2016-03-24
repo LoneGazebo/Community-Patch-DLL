@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 10/9/2010 9:25:22 PM -->
+<GameData>
+	<IconTextureAtlases>
+		<Row>
+			<Atlas>UNIT_ACTION_ENCAMPMENT</Atlas>
+			<IconSize>64</IconSize>
+			<Filename>EncampmentBuildIcon64.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>UNIT_ACTION_ENCAMPMENT</Atlas>
+			<IconSize>45</IconSize>
+			<Filename>EncampmentBuildIcon45.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>TERRAIN_IMPROVEMENT_ENCAMPMENT</Atlas>
+			<IconSize>256</IconSize>
+			<Filename>SV_Encampment.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>TERRAIN_IMPROVEMENT_ENCAMPMENT</Atlas>
+			<IconSize>64</IconSize>
+			<Filename>EncampmentAtlas64.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+	</IconTextureAtlases>
+	<ArtDefine_StrategicView>
+		<Row>
+			<StrategicViewType>ART_DEF_IMPROVEMENT_TIPIS</StrategicViewType>
+			<TileType>Improvement</TileType>
+			<Asset>SV_Encampment.dds</Asset>
+		</Row>
+	</ArtDefine_StrategicView>
+</GameData>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Defines>
+		<!-- These are the values for the first team to meet a neutral CS, -->
+		<!-- multipliers for friendly and hostile city states are below -->
+		<!-- Irrational city states roll to see if they are friendly, neutral or hostile towards the meeting player -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_FRIENDSHIP" Value="12"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_CULTURE" Value="8"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_FAITH" Value="8"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_GOLD" Value="30"/>
+		<!-- Only the team leader gets these bonuses -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_FOOD" Value="8"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_UNIT" Value="25"/> <!-- This is a percentage -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_XP_PER_ERA" Value="5"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_XP_RANDOM" Value="10"/>
+
+		<!-- Multiplier and Divisor for the team leader (usually the player meeting the CS), we can only store ints so *2 is 2/1  -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_PLAYER_MULTIPLIER" Value="2"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_PLAYER_DIVISOR" Value="1"/>
+		<!-- Multiplier and Divisor for the subsequent teams meeting the CS, we can only store ints so *0.5 is 1/2  -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_MULTIPLIER" Value="1"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_DIVISOR" Value="2"/>
+		<!-- Multiplier and Divisor for friendly city states bonuses, we can only store ints so *1.5 is 3/2 -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_MULTIPLIER" Value="3"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_DIVISOR" Value="2"/>
+		<!-- Multiplier and Divisor for friendly city states unit percentage, we can only store ints so *2 is 2/1 -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_MULTIPLIER" Value="2"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_DIVISOR" Value="1"/>
+		<!-- Multiplier and Divisor for hostile city states bonuses, we can only store ints so *0.5 is 1/2 -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_MULTIPLIER" Value="1"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_DIVISOR" Value="2"/>
+		<!-- Multiplier and Divisor for hostile city states unit percentage, we can only store ints so *0 is 0/1 -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_MULTIPLIER" Value="0"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_DIVISOR" Value="1"/>
+	</Defines>
+
+	<Language_en_US>
+		<Update>
+			<Where Tag="TXT_KEY_CITY_STATE_PERSONALITY_IRRATIONAL"/>
+			<Set Gender="neuter:an"/>
+		</Update>
+
+		<Row Tag="TXT_KEY_POP_CSTATE_PROTECTED_BY">
+			<Text>Protected By:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_PROTECTED_BY_TT">
+			<Text>These players have pledged to protect this City State.  Attacking this City State and/or gifting gold/units may incur the wrath of these players.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING">
+			<Text>Unfortunately they have nothing to offer you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP">
+			<Text>Unfortunately they have nothing to offer you, but as {2: gender *:an?an; other?a;} {2_Personality} City State your [COLOR_POSITIVE_TEXT]friendship increases by {1_NumFriendship}[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MINOR_CIV_FIRST_CONTACT_BONUS_CULTURE">
+			<Text>They give you a piece of treasured art, a gift worth [COLOR_POSITIVE_TEXT]{1_NumCulture} [ICON_CULTURE] Culture[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_FIRST_CONTACT_BONUS_FAITH">
+			<Text>You are the first outsiders they have met, so they show you their treasured religious idols. You gain [COLOR_POSITIVE_TEXT]{1_NumFaith} [ICON_PEACE] Faith[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_FIRST_CONTACT_BONUS_GOLD">
+			<Text>You are the first great empire they have met, so they provide you a gift of [COLOR_POSITIVE_TEXT]{1_NumGold} [ICON_GOLD] Gold[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_FIRST_CONTACT_BONUS_FOOD">
+			<Text>You arrived just in time for their annual harvest festival. They gave you a cart filled with [COLOR_POSITIVE_TEXT]{1_NumFood} [ICON_FOOD] Food[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_FIRST_CONTACT_BONUS_UNIT">
+			<Text>{1: gender *:an?An; other?A;} [COLOR_POSITIVE_TEXT]{1_UnitName}[ENDCOLOR] joins your expedition.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_FIRST_CONTACT_BONUS_UNKNOWN">
+			<Text>[COLOR_WARNING_TEXT]THIS SHOULD NEVER HAPPEN![ENDCOLOR] - MINOR_CIV_FIRST_CONTACT_BONUS_UNKNOWN</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MINOR_CIV_CONTACT_BONUS_CULTURE">
+			<Text>They share their knowledge of artistic merit, giving you [COLOR_POSITIVE_TEXT]{1_NumCulture} [ICON_CULTURE] Culture[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_CONTACT_BONUS_FAITH">
+			<Text>They share their knowledge of religious rituals, giving you [COLOR_POSITIVE_TEXT]{1_NumFaith} [ICON_PEACE] Faith[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_CONTACT_BONUS_GOLD">
+			<Text>They provide you with a gift of [COLOR_POSITIVE_TEXT]{1_NumGold} [ICON_GOLD] Gold[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_CONTACT_BONUS_FOOD">
+			<Text>They provide you with a crate of [COLOR_POSITIVE_TEXT]{1_NumFood} [ICON_FOOD] Food[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_CONTACT_BONUS_UNIT">
+			<Text>[COLOR_WARNING_TEXT]THIS SHOULD NEVER HAPPEN![ENDCOLOR] - MINOR_CIV_CONTACT_BONUS_UNIT</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_CONTACT_BONUS_UNKNOWN">
+			<Text>[COLOR_WARNING_TEXT]THIS SHOULD NEVER HAPPEN![ENDCOLOR] - MINOR_CIV_CONTACT_BONUS_UNKNOWN</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

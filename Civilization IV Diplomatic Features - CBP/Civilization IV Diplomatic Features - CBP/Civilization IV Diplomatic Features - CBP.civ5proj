@@ -7,7 +7,11 @@
     <Guid>c7bf7064-d1b1-4708-9e93-7a1560868582</Guid>
     <ModVersion>11</ModVersion>
     <Stability>Alpha</Stability>
+<<<<<<< HEAD
     <Teaser>(3-23b) C4DF for Community Balance Patch only</Teaser>
+=======
+    <Teaser>C4DF for Community Balance Patch only</Teaser>
+>>>>>>> origin/master
     <Description>Current Version: 11.0.6[NEWLINE]
 Savegame Compatible: 11.0.0 and up[NEWLINE]
 [NEWLINE][NEWLINE]This mod adds new diplomatic features as they appeared in Civilization IV.[NEWLINE][NEWLINE]
@@ -109,6 +113,24 @@ This mod modifies the Civilization V Lua. It MAY be compatible with other mods t
         <Type>UpdateDatabase</Type>
         <FileName>XML/Text/zn_CN/zh_CN_Text_UIC4DF.xml</FileName>
       </Action>
+<<<<<<< HEAD
+=======
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/pl_PL/pl_PL_Text_CivilopediaC4DF.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/pl_PL/pl_PL_Text_Generic_DiplomacyC4DF.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/pl_PL/pl_PL_Text_UIC4DF.xml</FileName>
+      </Action>
+>>>>>>> origin/master
     </ModActions>
     <Homepage>http://forums.civfanatics.com/forumdisplay.php?f=497</Homepage>
     <ReloadAudioSystem>false</ReloadAudioSystem>
@@ -165,6 +187,10 @@ This mod modifies the Civilization V Lua. It MAY be compatible with other mods t
     <Folder Include="XML\Gameplay\" />
     <Folder Include="XML\Text\" />
     <Folder Include="XML\Text\en_US\" />
+<<<<<<< HEAD
+=======
+    <Folder Include="XML\Text\pl_PL\" />
+>>>>>>> origin/master
     <Folder Include="XML\Text\zn_Hant_HK" />
     <Folder Include="XML\Text\zn_CN" />
   </ItemGroup>
@@ -221,6 +247,21 @@ This mod modifies the Civilization V Lua. It MAY be compatible with other mods t
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+<<<<<<< HEAD
+=======
+    <Content Include="XML\Text\pl_PL\pl_PL_Text_CivilopediaC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\pl_PL\pl_PL_Text_Generic_DiplomacyC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\pl_PL\pl_PL_Text_UIC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+>>>>>>> origin/master
     <Content Include="XML\Text\zn_CN\zh_CN_Text_CivilopediaC4DF.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
