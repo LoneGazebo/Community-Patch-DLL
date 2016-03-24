@@ -7,11 +7,7 @@
     <Guid>781d81cf-49e1-4acb-ae5f-b9e3713f98d3</Guid>
     <ModVersion>11</ModVersion>
     <Stability>Alpha</Stability>
-<<<<<<< HEAD
     <Teaser>(3-23b) C4DF for Community Patch Only</Teaser>
-=======
-    <Teaser>C4DF for Community Patch Only</Teaser>
->>>>>>> origin/master
     <Description>Current Version: 11.0.6[NEWLINE]
 Savegame Compatible: 11.0.0 and up[NEWLINE]
 [NEWLINE][NEWLINE]This mod adds new diplomatic features as they appeared in Civilization IV.[NEWLINE][NEWLINE]
@@ -115,24 +111,6 @@ It is highly recommended that you play the Community Patch Project version of th
         <Type>UpdateDatabase</Type>
         <FileName>XML/Text/zn_CN/zh_CN_Text_UIC4DF.xml</FileName>
       </Action>
-<<<<<<< HEAD
-=======
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>XML/Text/pl_PL/pl_PL_Text_CivilopediaC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>XML/Text/pl_PL/pl_PL_Text_Generic_DiplomacyC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>XML/Text/pl_PL/pl_PL_Text_UIC4DF.xml</FileName>
-      </Action>
->>>>>>> origin/master
     </ModActions>
     <ModDependencies>
       <Association xmlns="">
@@ -188,10 +166,6 @@ It is highly recommended that you play the Community Patch Project version of th
     <Folder Include="XML\Gameplay\" />
     <Folder Include="XML\Text\" />
     <Folder Include="XML\Text\en_US\" />
-<<<<<<< HEAD
-=======
-    <Folder Include="XML\Text\pl_PL\" />
->>>>>>> origin/master
     <Folder Include="XML\Text\zn_Hant_HK" />
     <Folder Include="XML\Text\zn_CN" />
   </ItemGroup>
@@ -324,21 +298,6 @@ It is highly recommended that you play the Community Patch Project version of th
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-<<<<<<< HEAD
-=======
-    <Content Include="XML\Text\pl_PL\pl_PL_Text_CivilopediaC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="XML\Text\pl_PL\pl_PL_Text_Generic_DiplomacyC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="XML\Text\pl_PL\pl_PL_Text_UIC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
->>>>>>> origin/master
     <Content Include="XML\Text\zn_CN\zh_CN_Text_CivilopediaC4DF.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -365,8 +324,4 @@ It is highly recommended that you play the Community Patch Project version of th
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Firaxis\ModBuddy\Civ5Mod.targets" />
-<<<<<<< HEAD
 </Project>
-=======
-</Project>
->>>>>>> origin/master

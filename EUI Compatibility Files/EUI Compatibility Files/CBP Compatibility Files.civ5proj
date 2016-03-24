@@ -83,39 +83,6 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
         <Type>UpdateDatabase</Type>
         <FileName>MoreLuxuries/Text/Text_en_US.sql</FileName>
       </Action>
-<<<<<<< HEAD
-=======
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Text/pl_PL/Compatibility_pl_PL.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Text/pl_PL/Compatibility_pl_PL.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Text/pl_PL/EUI_text_pl_PL.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>MoreLuxuries/Text/pl_PL/NewLuxuries_Text_pl_PL.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>CSD/CompatibilityText/PolishText.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>CSD/CompatibilityText/PolishText.xml</FileName>
-      </Action>
->>>>>>> origin/master
     </ModActions>
     <Homepage>
     </Homepage>
@@ -477,7 +444,6 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-<<<<<<< HEAD
     <Content Include="LUA\VictoryProgress.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -486,8 +452,6 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-=======
->>>>>>> origin/master
     <Content Include="LUA\WhosWinningPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
