@@ -3528,7 +3528,10 @@ void CvTacticalAI::PlotEmergencyPurchases()
 #if defined(MOD_BALANCE_CORE)
 		}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+		if(!MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+		{
+#endif
 		// If two defenders, assume already have land and sea and skip this city
 		if (pCity->plot()->getNumDefenders(m_pPlayer->GetID()) < 2)
 		{
@@ -3591,6 +3594,9 @@ void CvTacticalAI::PlotEmergencyPurchases()
 			//	pUnit = m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_ATTACK_SEA, pCity);
 			//}
 		}
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 	}
 }
 

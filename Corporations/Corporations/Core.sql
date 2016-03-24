@@ -1,0 +1,3 @@
+UPDATE CustomModOptions
+SET Value = '1'
+WHERE Name = 'BALANCE_CORE_RESOURCE_MONOPOLIES';

@@ -1654,6 +1654,9 @@ CvUnitClassInfo::CvUnitClassInfo() :
 	m_iMaxPlayerInstances(0),
 	m_iInstanceCostModifier(0),
 	m_iDefaultUnitIndex(NO_UNIT)
+#if defined(MOD_BALANCE_CORE)
+	, m_iUnitInstancePerCity(0)
+#endif
 {
 }
 //------------------------------------------------------------------------------
@@ -1687,6 +1690,13 @@ void CvUnitClassInfo::setDefaultUnitIndex(int i)
 	m_iDefaultUnitIndex = i;
 }
 //------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+int CvUnitClassInfo::getUnitInstancePerCity() const
+{
+	return m_iUnitInstancePerCity;
+}
+#endif
+//------------------------------------------------------------------------------
 bool CvUnitClassInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
@@ -1696,7 +1706,9 @@ bool CvUnitClassInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iMaxTeamInstances = kResults.GetInt("MaxTeamInstances");
 	m_iMaxPlayerInstances = kResults.GetInt("MaxPlayerInstances");
 	m_iInstanceCostModifier = kResults.GetInt("InstanceCostModifier");
-
+#if defined(MOD_BALANCE_CORE)
+	m_iUnitInstancePerCity = kResults.GetInt("UnitInstancePerCity");
+#endif
 	m_iDefaultUnitIndex = GC.getInfoTypeForString(kResults.GetText("DefaultUnit"), true);
 
 	return true;

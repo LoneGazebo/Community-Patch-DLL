@@ -258,20 +258,6 @@
 			<Text>Gold bonus from [ICON_INFLUENCE] Influence with {1_CityName}: {2_Num}</Text>
 		</Row>
 
-		<!-- Tooltip for Investments in cities -->
-		<Row Tag="TXT_KEY_ALREADY_INVESTED">
-			<Text>[NEWLINE]You have already invested [ICON_GOLD] Gold in this building. This building's [ICON_PRODUCTION] Production cost is reduced by {1_Num}%.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NO_ACTION_UNIT_REQUIRES_BUILDING_PURCHASE">
-			<Text>[NEWLINE]You cannot [ICON_GOLD] Purchase this Unit without {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_BuildingType}} constructed in the city.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_INVESTMENT_BUILDING">
-			<Text>[COLOR_POSITIVE_TEXT]Investing [ICON_GOLD] Gold in a Building reduces its [ICON_PRODUCTION] Production cost by {1_Num}%, or {2_Num}% if a Wonder.[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_INVESTED">
-			<Text>[COLOR_POSITIVE_TEXT] (INVESTED) [ENDCOLOR]</Text>
-		</Row>
-
 		<Row Tag ="TXT_KEY_TP_HAPPINESS_RESOURCE_MONOPOLY">
 			<Text>{1_Happiness} from Resource Monopolies.</Text>
 		</Row>
@@ -916,6 +902,25 @@
 
 		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_EXPLANATION">
 			<Text>[NEWLINE](These modifiers are based on a number of factors, such as the size of the City, Technologies researched, Policies chosen, Buildings constructed and/or Civilization traits. Special traits, such as being the [ICON_CAPITAL] Capital or a [ICON_PUPPET] Puppet, are highlighted. Positive modifiers raise the global average for this city, whereas negative modifiers reduce it.)</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_VP_CULTURAL_NEED_IDEOLOGY">
+			<Text>Requires an Ideology to become active.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PUBLIC_OPINION_UNKNOWN_VC">
+			<Text>[ICON_CITIZEN] Population must be [COLOR_POSITIVE_TEXT]Content[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PUBLIC_OPINION_CONTENT_VC">
+			<Text>[ICON_CITIZEN] Population [COLOR_POSITIVE_TEXT]Content[ENDCOLOR]. Cultural Victory possible.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PUBLIC_OPINION_DISSIDENTS_VC">
+			<Text>[ICON_CITIZEN] Population must be [COLOR_POSITIVE_TEXT]Content[ENDCOLOR]. Currently: [COLOR_NEGATIVE_TEXT]Dissidents[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PUBLIC_OPINION_CIVIL_RESISTANCE_VC">
+			<Text>[ICON_CITIZEN] Population must be [COLOR_POSITIVE_TEXT]Content[ENDCOLOR]. Currently: [COLOR_NEGATIVE_TEXT]Resistance[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_PUBLIC_OPINION_REVOLUTIONARY_WAVE_VC">
+			<Text>[ICON_CITIZEN] Population must be [COLOR_POSITIVE_TEXT]Content[ENDCOLOR]. Currently: [COLOR_NEGATIVE_TEXT]Revolutionary Wave[ENDCOLOR].</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

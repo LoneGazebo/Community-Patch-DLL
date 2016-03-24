@@ -173,7 +173,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GOD_KING' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Sun God
 UPDATE Language_en_US
-SET Text = '+2 [ICON_FOOD] Food from Granaries. +1 [ICON_PEACE] Faith and [ICON_CULTURE] Culture from Farms on [ICON_RES_WHEAT] Wheat'
+SET Text = '+2 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold from Granaries. +1 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture from Farms on [ICON_RES_WHEAT] Wheat'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

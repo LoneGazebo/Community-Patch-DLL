@@ -754,10 +754,25 @@ bool isNationalUnitClass(UnitClassTypes eUnitClass)
 	}
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+bool isUnitLimitPerCity(UnitClassTypes eUnitClass)
+{
+	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+	if(pkUnitClassInfo)
+	{
+		return (pkUnitClassInfo->getUnitInstancePerCity() != -1);
+	}
+	return false;
+}
+#endif
 
 bool isLimitedUnitClass(UnitClassTypes eUnitClass)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (isWorldUnitClass(eUnitClass) || isTeamUnitClass(eUnitClass) || isNationalUnitClass(eUnitClass) || isUnitLimitPerCity(eUnitClass));
+#else
 	return (isWorldUnitClass(eUnitClass) || isTeamUnitClass(eUnitClass) || isNationalUnitClass(eUnitClass));
+#endif
 }
 
 bool isWorldProject(ProjectTypes eProject)

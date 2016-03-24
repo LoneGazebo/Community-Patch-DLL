@@ -265,7 +265,7 @@
     <Row Class="2" Name="PROMOTIONS_HALF_MOVE" Value="0" DbUpdates="1"/>
     <!-- Permits Deep Water (Ocean) embarkation for hovering units (v19) -->
     <!-- See also: "Promotions - Terrain Crossing" -->
-    <Row Class="2" Name="PROMOTIONS_DEEP_WATER_EMBARKATION" Value="0" DbUpdates="1"/>
+    <Row Class="2" Name="PROMOTIONS_DEEP_WATER_EMBARKATION" Value="1" DbUpdates="1"/>
     <!-- Permits naval units to transfer their moves to Great Admirals (like land units can to Great Generals) (v39) -->
     <!-- See also: "Promotions - Flagship" -->
     <Row Class="2" Name="PROMOTIONS_FLAGSHIP" Value="0"/>
@@ -893,8 +893,12 @@
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_LOGGING" Value="0"/>
 	<!-- Resources can give monopoly bonuses - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_RESOURCE_MONOPOLIES" Value="0"/>
+	<!-- Enables/Disables Strategic Monopolies - COMMUNITY_PATCH -->
+	 <Row Class="6" Name="BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC" Value="0"/>
 	<!-- Gold purchases in cities reduce production cost by 50% instead of buying it outright - COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_BUILDING_INVESTMENTS" Value="0"/>  
+	<Row Class="6" Name="BALANCE_CORE_BUILDING_INVESTMENTS" Value="0"/>
+	<!-- Units are invested at 50% (see define) of their production cost, instead of being built outright. -->
+	<Row Class="6" Name="BALANCE_CORE_UNIT_INVESTMENTS" Value="0"/>
 	<!-- Great Engineers Produce their building on the same turn their expended -->
 	<Row Class="6" Name="BALANCE_CORE_ENGINEER_HURRY" Value="0"/>
 	<!-- Maya cannot buy a prophet without a religion -->
@@ -917,6 +921,12 @@
 	<Row Class="6" Name="BALANCE_CORE_PANTHEON_RESET_FOUND" Value="0"/>
 	<!-- Removes era-specific messages for civ influence. Useful for mods like Unique Cultural Influence that add special notifications. -->
 	<Row Class="6" Name="BALANCE_CORE_DIPLOMACY_ERA_INFLUENCE" Value="1"/>
+	<!-- Enables PtP minimum military system for CSs, and also the revocation system. -->
+	<Row Class="6" Name="BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE" Value="0"/>
+	<!-- Cultural Victory requires Ideology and Content Population to win -->
+	<Row Class="6" Name="BALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY" Value="0"/>
+	<!-- Missing strategic resources for buildings greatly increases their maintenance -->
+	<Row Class="6" Name="BALANCE_CORE_BUILDING_RESOURCE_MAINTENANCE" Value="0"/>
   </CustomModOptions>
 
 	<!-- Events for JFD Piety -->
@@ -933,7 +943,9 @@
 	<!--   GameEvents.GovernmentCooldownChanges.Add(function(iPlayer, iChange) end) -->
 	<!--   GameEvents.ReformCooldownRateChanges.Add(function(iPlayer, iChange) end) -->
 	<!--   GameEvents.GovernmentCooldownRateChanges.Add(function(iPlayer, iChange) end) -->
-	<!--   GameEvents.GreatWorkCreated.Add(function(iUnit, iGreatWork) end) -->
+	<!--   GameEvents.GreatWorkCreated.Add(function(iPlayer, iUnit, iGreatWork) end) -->
+	<!--   GameEvents.CityInvestedBuilding.Add(function(iPlayer, iCity, iBuildingClass, bValue) end) -->
+	<!--   GameEvents.CityInvestedUnit.Add(function(iPlayer, iCity, iUnitClass, bValue) end) -->
 
 	<CustomModPostDefines>
     <!-- Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker (v19) -->

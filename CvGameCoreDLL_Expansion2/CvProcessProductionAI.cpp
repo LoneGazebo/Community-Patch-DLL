@@ -396,8 +396,8 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	if(iGPT < 0)
 	{
 		iGPT *= -1;
-		//Every -1 GPT = 5% bonus
-		iModifier += (iGPT * 5);
+		//Every -1 GPT = 10% bonus
+		iModifier += (iGPT * 10);
 	}
 	iTempWeight *= (100 + iModifier);
 	iTempWeight /= 100;

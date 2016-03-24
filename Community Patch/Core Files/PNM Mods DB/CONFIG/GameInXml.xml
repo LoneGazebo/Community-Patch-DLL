@@ -8,7 +8,7 @@
 
 	<Defines>
 		<Row Name="WAR_MAJOR_MINIMUM_TURNS">
-			<Value>10</Value>
+			<Value>15</Value>
 		</Row>
 		<Row Name="WAR_MINOR_MINIMUM_TURNS">
 			<Value>1</Value>

@@ -864,7 +864,7 @@ int CvTreasury::GetBuildingGoldMaintenance() const
 	iMaintenance /= 100;
 
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	if(MOD_BALANCE_CORE_BUILDING_RESOURCE_MAINTENANCE)
 	{
 		CvCity* pLoopCity;
 		int iLoop;

@@ -871,8 +871,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		int iGPT = (int)kPlayer.GetTreasury()->AverageIncome(10);
 		if(iGPT < 0)
 		{
-			//Every -1 GPT = -5% bonus
-			iBonus += (iGPT * 5);
+			//Every -1 GPT = -3% bonus
+			iBonus += (iGPT * 3);
 		}
 	}
 	

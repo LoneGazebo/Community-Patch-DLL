@@ -4370,8 +4370,18 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			if(iGPT > 0)
 			{
 				iGPTVotes = (iGPT / iVotesPerGPT);
-				//Capped at 5.
-				iVotes += min(5, iGPTVotes);
+				//Capped at 1/4 # of minor civs ever in game.
+				int iCap = GC.getGame().GetNumMinorCivsEver();
+				iCap /= 4;
+				if(iCap <= 0)
+				{
+					iCap = 1;
+				}
+				if(iGPTVotes > iCap)
+				{
+					iGPTVotes = iCap;
+				}
+				iVotes += iGPTVotes;
 			}
 		}
 #endif
@@ -5233,9 +5243,11 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							if((eLoopPlayer != NO_PLAYER) && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != ePlayer))
-							if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eReligion) || (GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer) == eReligion))
 							{
-								iReligionAlly++;
+								if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eReligion) || (GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer) == eReligion))
+								{
+									iReligionAlly++;
+								}
 							}
 						}
 					}

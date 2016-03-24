@@ -282,6 +282,9 @@ public:
 	void SetBuildingInvestment(BuildingClassTypes eBuildingClass, bool bValue);
 	bool IsBuildingInvestment(BuildingClassTypes eBuildingClass) const;
 
+	void SetUnitInvestment(UnitClassTypes eUnitClass, bool bValue);
+	bool IsUnitInvestment(UnitClassTypes eUnitClass) const;
+
 	void SetBuildingConstructed(BuildingClassTypes eBuildingClass, bool bValue);
 	bool IsBuildingConstructed(BuildingClassTypes eBuildingClass) const;
 #endif
@@ -1679,6 +1682,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<bool>, CvCity> m_abOwedChosenBuilding;
 	FAutoVariable<std::vector<bool>, CvCity> m_abBuildingInvestment;
+	FAutoVariable<std::vector<bool>, CvCity> m_abUnitInvestment;
 	FAutoVariable<std::vector<bool>, CvCity> m_abBuildingConstructed;
 #endif
 

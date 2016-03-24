@@ -2356,6 +2356,7 @@ bool CvAIOperationDestroyBarbarianCamp::SetMusterPlotAndGoalPlotForArmy(CvArmyAI
 {
 	if(GetMusterPlot() && GetTargetPlot())
 	{
+		pThisArmy->SetXY(GetMusterPlot()->getX(), GetMusterPlot()->getY());
 		pThisArmy->SetGoalPlot(GetTargetPlot());
 		return true;
 	}

@@ -195,7 +195,7 @@ SET Text = 'The Ceilidh Hall is a Medieval-era building unique to the Celts, rep
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = 'Has a unique set of Pantheon Beliefs. Cities with your Pantheon or official Religion generate nor receive foreign Religious Pressure. +3 [ICON_PEACE] Faith in owned Cities where your Pantheon (or Religion, if a Founder) is the majority.'
+SET Text = 'Has a unique set of Pantheon Beliefs. Cities with your Pantheon or primary Religion generate nor receive foreign Religious Pressure. +3 [ICON_PEACE] Faith in owned Cities where your Pantheon (or Religion, if a Founder) is the majority.'
 WHERE Tag = 'TXT_KEY_TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US 
@@ -453,7 +453,7 @@ SET Text = 'Horse Archers are fast ranged units, deadly on open terrain. They st
 -- Inca
 --------------------
 UPDATE Language_en_US
-SET Text = 'Units ignore terrain costs when on Hills and may cross Mountains. Cities, Roads and Railroads may be built on Mountains.'
+SET Text = 'Units ignore terrain costs when on Hills and may cross Mountains. Cities, Roads, and Railroads may be built on Mountains, and Mountains produce [ICON_FOOD] Food and [ICON_GOLD] Gold based on the number of adjacent Mountains.'
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_ANDEAN_ROAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US 
@@ -472,7 +472,7 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_TERRACE_FARM_HELP' AND EXISTS (SELECT * F
 -- India
 --------------------
 UPDATE Language_en_US
-SET Text = 'Starts with a Pantheon. Each Follower of your majority or official Religion in a City increases Religious Pressure and [ICON_FOOD] Growth in that City. Cannot build Missionaries.'
+SET Text = 'Starts with a Pantheon. Each Follower of your primary Religion in a City increases Religious Pressure and [ICON_FOOD] Growth in that City. Cannot build Missionaries.'
 WHERE Tag = 'TXT_KEY_TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US 
@@ -874,7 +874,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_STRATEGIC_RICHES' AND EXISTS (SELECT * FROM COMMUNITY
 -- Spain
 --------------------
 UPDATE Language_en_US
-SET Text = 'Religions other than your official or majority Religion cannot spread to owned Cities or allied City-States. Conquering or founding Cities after your [ICON_CAPITAL] Capital generates [ICON_PEACE] Faith and converts them to your Religion.'
+SET Text = 'Religions other than your primary Religion cannot spread to owned Cities or allied City-States. Conquering or founding Cities after your [ICON_CAPITAL] Capital generates [ICON_PEACE] Faith and converts them to your Religion.'
 WHERE Tag = 'TXT_KEY_TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

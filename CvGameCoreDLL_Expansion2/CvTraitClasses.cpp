@@ -182,6 +182,7 @@ CvTraitEntry::CvTraitEntry() :
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_paiGAPToYield(NULL),
+	m_paiMountainRangeYield(NULL),
 	m_piYieldFromHistoricEvent(NULL),
 	m_piYieldFromOwnPantheon(NULL),
 	m_piTradeRouteStartYield(NULL),
@@ -1335,6 +1336,13 @@ int CvTraitEntry::GetGAPToYield(int i) const
 
 	return m_paiGAPToYield[i];
 }
+int CvTraitEntry::GetMountainRangeYield(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	return m_paiMountainRangeYield[i];
+}
 #endif
 
 /// Accessor:: Maintenance Modifier for a class of combat unit
@@ -1717,6 +1725,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_paiYieldModifier, "Trait_YieldModifiers", "TraitType", szTraitType);
 #if defined(MOD_BALANCE_CORE)
 	kUtility.SetYields(m_paiGAPToYield, "Trait_GAPToYield", "TraitType", szTraitType);
+	kUtility.SetYields(m_paiMountainRangeYield, "Trait_MountainRangeYield", "TraitType", szTraitType);
 #endif
 	const int iNumTerrains = GC.getNumTerrainInfos();
 
@@ -2775,6 +2784,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iMusicYieldChanges[iYield] = trait->GetMusicYieldChanges(iYield);
 #if defined(MOD_BALANCE_CORE)
 				m_iGAPToYield[iYield] = trait->GetGAPToYield(iYield);
+				m_iMountainRangeYield[iYield] = trait->GetMountainRangeYield(iYield);
 #endif
 
 				for(int iFeatureLoop = 0; iFeatureLoop < GC.getNumFeatureInfos(); iFeatureLoop++)
@@ -3200,6 +3210,7 @@ void CvPlayerTraits::Reset()
 		m_iMusicYieldChanges[iYield] = 0;
 #if defined(MOD_BALANCE_CORE)
 		m_iGAPToYield[iYield] = 0;
+		m_iMountainRangeYield[iYield] = 0;
 #endif
 		for(int iFeature = 0; iFeature < GC.getNumFeatureInfos(); iFeature++)
 		{
@@ -5053,6 +5064,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> kYieldFromCSAllyWrapper;
 	ArrayWrapper<int> kGAPToYieldWrapper(NUM_YIELD_TYPES, m_iGAPToYield);
 	kStream >> kGAPToYieldWrapper;
+	ArrayWrapper<int> kMountainRangeYieldWrapper(NUM_YIELD_TYPES, m_iMountainRangeYield);
+	kStream >> kMountainRangeYieldWrapper;
 	MOD_SERIALIZE_READ(66, kStream, m_bFreeGreatWorkOnConquest, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bPopulationBoostReligion, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bCombatBoostNearNaturalWonder, false);
@@ -5366,6 +5379,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromConquest);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iGAPToYield);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iMountainRangeYield);
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeGreatWorkOnConquest);
 	MOD_SERIALIZE_WRITE(kStream, m_bPopulationBoostReligion);
 	MOD_SERIALIZE_WRITE(kStream, m_bCombatBoostNearNaturalWonder);

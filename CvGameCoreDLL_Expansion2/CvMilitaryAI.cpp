@@ -1552,7 +1552,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetGlobal(AIOperationTypes eAIOp
 					}
 
 					//check the current situation
-					new_target = FindBestAttackTargetGlobalTest(eAIOperationType, &iNewScore);
+					new_target = FindBestAttackTargetGlobalTest(eAIOperationType, &iNewScore, bCheckWar);
 
 					//if we can't use the old one anymore or the new target is much better
 					if(iNewScore > cachedTarget.iScore*1.35)
@@ -1604,7 +1604,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetGlobal(AIOperationTypes eAIOp
 
 			if (!bFoundInCache)
 			{
-				new_target = FindBestAttackTargetGlobalTest(eAIOperationType, &iNewScore);
+				new_target = FindBestAttackTargetGlobalTest(eAIOperationType, &iNewScore, bCheckWar);
 
 				if (new_target.m_pTargetCity && new_target.m_pMusterCity)
 				{
@@ -1639,7 +1639,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetGlobal(AIOperationTypes eAIOp
 
 	return new_target;
 }
-CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetGlobalTest(AIOperationTypes eAIOperationType, int* piWinningScore)
+CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetGlobalTest(AIOperationTypes eAIOperationType, int* piWinningScore, bool bCheckWar)
 {
 	int iFriendlyLoop;
 	int iEnemyLoop;
@@ -1702,6 +1702,11 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetGlobalTest(AIOperationTypes e
 		// Is this a player we have relations with?
 		if(eLoopPlayer != GetPlayer()->GetID() && GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
+			if(bCheckWar)
+			{
+				if(!GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+					continue;
+			}
 			for(pEnemyCity = GET_PLAYER(eLoopPlayer).firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = GET_PLAYER(eLoopPlayer).nextCity(&iEnemyLoop))
 			{
 				CvPlot* pPlot = pEnemyCity->plot();
@@ -1764,6 +1769,11 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTargetGlobalTest(AIOperationTypes e
 			// Is this a player we have relations with?
 			if(eLoopPlayer != GetPlayer()->GetID() && GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 			{
+				if(bCheckWar)
+				{
+					if(!GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+						continue;
+				}
 				for(pEnemyCity = GET_PLAYER(eLoopPlayer).firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = GET_PLAYER(eLoopPlayer).nextCity(&iEnemyLoop))
 				{
 					if(pFriendlyCity != NULL && pEnemyCity != NULL && pEnemyCity->plot()->isRevealed(m_pPlayer->getTeam()))

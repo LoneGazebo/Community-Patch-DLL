@@ -9148,6 +9148,19 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 				CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
 				if (kPlayer.isAlive())
 				{
+#if defined(MOD_BALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY)
+					if(MOD_BALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY)
+					{
+						if(kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
+							continue;
+
+						if(kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE)
+						{
+							if(kPlayer.GetCulture()->GetPublicOpinionType() > PUBLIC_OPINION_CONTENT)
+								continue;
+						}
+					}
+#endif
 					if (kPlayer.getTeam() == eTeam)
 					{
 						if (kPlayer.GetCulture()->GetNumCivsInfluentialOn() >= m_pGameCulture->GetNumCivsInfluentialForWin())
@@ -9845,8 +9858,10 @@ void CvGame::CorpCheck()
 		PlayerTypes ePlayerLoop = (PlayerTypes) iPlayerLoop;
 		if(ePlayerLoop != NO_PLAYER && !GET_PLAYER(ePlayerLoop).isMinorCiv() && !GET_PLAYER(ePlayerLoop).isBarbarian())
 		{
+			//Founded a corporation?
 			if(GET_PLAYER(ePlayerLoop).GetCorporateFounderID() > 0)
 			{
+				//Alive?
 				if(GET_PLAYER(ePlayerLoop).isAlive())
 				{
 					bool bHasCorp = false;
@@ -9855,6 +9870,7 @@ void CvGame::CorpCheck()
 					int iBuildingCount;
 					int iI;
 
+					//Let's look for our HQ. If missing, move it!
 					for(pLoopCity = GET_PLAYER(ePlayerLoop).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayerLoop).nextCity(&iLoop))
 					{
 						if(pLoopCity != NULL && !bHasCorp)
@@ -9891,6 +9907,7 @@ void CvGame::CorpCheck()
 							}
 						}
 					}
+					//Missing it? Add it to our capital, please.
 					if(!bHasCorp)
 					{
 						CvCity* pCity = GET_PLAYER(ePlayerLoop).getCapitalCity();
@@ -9916,7 +9933,7 @@ void CvGame::CorpCheck()
 									{
 										if(pkBuilding->GetCorporationHQID() > 0 && pkBuilding->GetCorporationHQID() == GET_PLAYER(ePlayerLoop).GetCorporateFounderID())
 										{
-											pCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
+											pCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1, true);
 											{
 												CvNotifications* pNotifications = GET_PLAYER(ePlayerLoop).GetNotifications();
 												if(pNotifications && ePlayerLoop == GC.getGame().getActivePlayer())
@@ -9942,6 +9959,8 @@ void CvGame::CorpCheck()
 				}
 				else
 				{
+					//Dead? Oh no!
+					//Let's check everyone else and destroy any buildings related to this corporation.
 					for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_PLAYERS; iPlayerLoop2++)
 					{
 						PlayerTypes ePlayerLoop2 = (PlayerTypes) iPlayerLoop2;
@@ -9980,6 +9999,7 @@ void CvGame::CorpCheck()
 													iBuildingCount = pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding);
 													if(iBuildingCount > 0)
 													{
+														//Destroy all buildings related to this corporation.
 														if(pkBuilding->GetCorporationID() > 0 && pkBuilding->GetCorporationID() == GET_PLAYER(ePlayerLoop).GetCorporateFounderID())
 														{
 															pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
@@ -9988,6 +10008,7 @@ void CvGame::CorpCheck()
 																CvNotifications* pNotifications = GET_PLAYER(ePlayerLoop2).GetNotifications();
 																if(pNotifications && ePlayerLoop2 == GC.getGame().getActivePlayer())
 																{
+																	bHappened = true;
 																	Localization::String strSummary;
 																	Localization::String strMessage;
 
@@ -9998,7 +10019,6 @@ void CvGame::CorpCheck()
 																	pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, -1);
 																}
 															}
-															bHappened = true;
 														}
 													}
 												}
@@ -10009,6 +10029,7 @@ void CvGame::CorpCheck()
 							}
 						}
 					}
+					GET_PLAYER(ePlayerLoop).SetCorporateFounderID(0);
 				}
 			}
 		}
@@ -10191,30 +10212,23 @@ void CvGame::SetHighestPotential()
 
 			//Check for spies - this determines if we need to do any updates or anything.
 			bool bNotify = false;
-			if(kLoopPlayer.GetEspionage()->GetNumAliveSpies() > 0)
+			for(int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
 			{
-				bNotify = true;
-			}
-			if(!bNotify)
-			{
-				for(int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
+				PlayerTypes eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
+				if(eLoopPlayer2 != NO_PLAYER && GET_PLAYER(eLoopPlayer2).isAlive())
 				{
-					PlayerTypes eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
-					if(eLoopPlayer2 != NO_PLAYER && GET_PLAYER(eLoopPlayer2).isAlive())
-					{
-						CvPlayer& kLoopPlayer2 = GET_PLAYER(eLoopPlayer2);
+					CvPlayer& kLoopPlayer2 = GET_PLAYER(eLoopPlayer2);
 
-						if(!kLoopPlayer2.isAlive() || kLoopPlayer2.isBarbarian() || kLoopPlayer2.isMinorCiv())
+					if((kLoopPlayer.GetID() == kLoopPlayer2.GetID()) || !kLoopPlayer2.isAlive() || kLoopPlayer2.isBarbarian() || kLoopPlayer2.isMinorCiv())
+					{
+						continue;
+					}
+					if(GET_TEAM(kLoopPlayer.getTeam()).isHasMet(kLoopPlayer2.getTeam()))
+					{
+						if(kLoopPlayer2.GetEspionage()->GetNumAliveSpies() > 0)
 						{
-							continue;
-						}
-						if(GET_TEAM(kLoopPlayer.getTeam()).isHasMet(kLoopPlayer2.getTeam()))
-						{
-							if(kLoopPlayer2.GetEspionage()->GetNumAliveSpies() > 0)
-							{
-								bNotify = true;
-								break;
-							}
+							bNotify = true;
+							break;
 						}
 					}
 				}

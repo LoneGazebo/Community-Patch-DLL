@@ -5370,20 +5370,23 @@ void CvMinorCivAI::DoTurn()
 				eLoopTeam = (TeamTypes) iTeamLoop;
 				if(eLoopTeam != NO_TEAM)
 				{
-					if(GetJerk(eLoopTeam) > 0)
+					if(GET_TEAM(eLoopTeam).isMajorCiv())
 					{
-						ChangeJerk(eLoopTeam, -1);
-					}
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-						if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getTeam() == eLoopTeam)
+						if(GetJerk(eLoopTeam) > 0)
 						{
-							if(IsFriends(ePlayer))
+							ChangeJerk(eLoopTeam, -1);
+						}
+						for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+							if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getTeam() == eLoopTeam)
 							{
-								SetJerk(eLoopTeam, 0);
+								if(IsFriends(ePlayer))
+								{
+									SetJerk(eLoopTeam, 0);
+								}
+								TestChangeProtectionFromMajor(ePlayer);
 							}
-							TestChangeProtectionFromMajor(ePlayer);
 						}
 					}
 				}
@@ -10217,6 +10220,10 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 		{
 			continue;
 		}
+		if(pkBuildingInfo->GetCivType() != NO_CIVILIZATION)
+		{
+			continue;
+		}
 #endif
 
 		// Must be able to build it
@@ -13014,7 +13021,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
 	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 
-	if(!MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+	if(!MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
 		return;
 
 	bool bProtect = IsProtectedByMajor(eMajor);
@@ -13044,9 +13051,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 				float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
 				if(fRankRatio < 0.6 && GetNumTurnsSincePtPWarning(eMajor) > iWarningMax)
 				{
-					m_abPledgeToProtect[eMajor] = false;
-					SetTurnLastPledgeBrokenByMajor(eMajor, GC.getGame().getGameTurn());
-					ChangeFriendshipWithMajorTimes100(eMajor, (GC.getMINOR_FRIENDSHIP_DROP_DISHONOR_PLEDGE_TO_PROTECT() / 2));
+					DoChangeProtectionFromMajor(eMajor, false, true);
 
 					CvCity* pCity = m_pPlayer->getCapitalCity();
 					if(pCity != NULL)
@@ -13091,7 +13096,6 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT");
 						strSummary << GetPlayer()->getNameKey();
 						AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-						ChangeNumTurnsSincePtPWarning(eMajor, 1);
 						break;
 					}
 				}
@@ -13185,7 +13189,7 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+	if(MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
 	{
 		CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
 		PlayerTypes eMajorLoop;
@@ -13204,7 +13208,7 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 			if(veMilitaryRankings.GetElement(iRanking) == eMajor)
 			{
 				float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
-				if(fRankRatio < 0.6)
+				if(fRankRatio < GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP())
 				{
 					return false;
 				}

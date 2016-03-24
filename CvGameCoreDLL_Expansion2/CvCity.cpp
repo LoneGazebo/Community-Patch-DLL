@@ -401,6 +401,7 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE)
 	, m_abOwedChosenBuilding("CvCity::m_abOwedChosenBuilding", m_syncArchive)
 	, m_abBuildingInvestment("CvCity::m_abBuildingInvestment", m_syncArchive)
+	, m_abUnitInvestment("CvCity::m_abUnitInvestment", m_syncArchive)
 	, m_abBuildingConstructed("CvCity::m_abBuildingConstructed", m_syncArchive)
 	, m_iBorderObstacleCity("CvCity::m_iBorderObstacleCity", m_syncArchive)
 	, m_iBorderObstacleWater("CvCity::m_iBorderObstacleWater", m_syncArchive)
@@ -1571,12 +1572,17 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE)
 	m_abOwedChosenBuilding.resize(GC.getNumBuildingClassInfos());
 	m_abBuildingInvestment.resize(GC.getNumBuildingClassInfos());
+	m_abUnitInvestment.resize(GC.getNumUnitClassInfos());
 	m_abBuildingConstructed.resize(GC.getNumBuildingClassInfos());
 	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
 		m_abOwedChosenBuilding.setAt(iI, false);
 		m_abBuildingInvestment.setAt(iI, false);
 		m_abBuildingConstructed.setAt(iI, false);
+	}
+	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+	{
+		m_abUnitInvestment.setAt(iI, false);
 	}
 #endif
 
@@ -2535,7 +2541,7 @@ void CvCity::doTurn()
 				}
 			}
 		}
-		if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+		if(MOD_BALANCE_CORE_BUILDING_RESOURCE_MAINTENANCE)
 		{
 			int iBad = 0;
 			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -6438,6 +6444,19 @@ int CvCity::getProductionNeeded(UnitTypes eUnit) const
 {
 	VALIDATE_OBJECT
 	int iNumProductionNeeded = GET_PLAYER(getOwner()).getProductionNeeded(eUnit);
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+	if(MOD_BALANCE_CORE_UNIT_INVESTMENTS && eUnit != NO_UNIT)
+	{
+		CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnit);
+		const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
+		if(IsUnitInvestment(eUnitClass))
+		{
+			int iTotalDiscount = (/*-50*/ GC.getBALANCE_UNIT_INVESTMENT_BASELINE() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(getOwner()).GetInvestmentModifier());
+			iNumProductionNeeded *= (iTotalDiscount + 100);
+			iNumProductionNeeded /= 100;
+		}
+	}
+#endif
 
 	return iNumProductionNeeded;
 }
@@ -6675,7 +6694,34 @@ void CvCity::SetBuildingInvestment(BuildingClassTypes eBuildingClass, bool bNewV
 	FAssert(eBuildingClass >= 0);
 	FAssert(eBuildingClass < GC.getNumBuildingClassInfos());
 
+	if(bNewValue)
+	{
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityInvestedBuilding, getOwner(), GetID(), eBuildingClass, bNewValue);
+	}
+
 	m_abBuildingInvestment.setAt(eBuildingClass, bNewValue);
+}
+
+//	--------------------------------------------------------------------------------
+bool CvCity::IsUnitInvestment(UnitClassTypes eUnitClass) const
+{
+	FAssert(eUnitClass >= 0);
+	FAssert(eUnitClass < GC.getNumUnitClassInfos());
+
+	return m_abUnitInvestment[eUnitClass];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetUnitInvestment(UnitClassTypes eUnitClass, bool bNewValue)
+{
+	FAssert(eUnitClass >= 0);
+	FAssert(eUnitClass < GC.getNumUnitClassInfos());
+
+	if(bNewValue)
+	{
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityInvestedUnit, getOwner(), GetID(), eUnitClass, bNewValue);
+	}
+
+	m_abUnitInvestment.setAt(eUnitClass, bNewValue);
 }
 
 //	--------------------------------------------------------------------------------
@@ -21659,6 +21705,18 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					}
 				}
 #endif
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+				if(MOD_BALANCE_CORE_UNIT_INVESTMENTS && (NO_UNIT != eUnitType))
+				{
+					//Have we already invested here?
+					CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
+					const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
+					if(IsUnitInvestment(eUnitClass))
+					{
+						return false;
+					}
+				}
+#endif			
 			}
 		}
 	}
@@ -22004,6 +22062,30 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 		bool bResult = false;
 		if(eUnitType >= 0)
 		{
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+			if(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+			{
+				CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
+				if(pGameUnit)
+				{
+					const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
+					if(eUnitClass != NO_UNITCLASS)
+					{
+						SetUnitInvestment(eUnitClass, true);
+						if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() && IsPuppet())
+						{
+							pushOrder(ORDER_TRAIN, eUnitType, -1, false, false, true, false);
+						}
+						else if(!GET_PLAYER(getOwner()).isHuman() && !IsPuppet())
+						{
+							pushOrder(ORDER_TRAIN, eUnitType, -1, false, false, true, false);
+						}
+					}
+				}
+			}
+			else
+			{
+#endif
 			int iResult = CreateUnit(eUnitType);
 			CvAssertMsg(iResult != -1, "Unable to create unit");
 			if (iResult != -1)
@@ -22036,6 +22118,9 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			}
 #endif
 			}
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+			}
+#endif
 		}
 		else if(eBuildingType >= 0)
 		{

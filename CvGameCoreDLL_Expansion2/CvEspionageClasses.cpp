@@ -1434,7 +1434,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						iDamage = pCity->GetMaxHitPoints();
 					}
 					pCity->setDamage(iDamage);
-					m_pPlayer->ChangeSpyCooldown(iDamage / 2);
+					m_pPlayer->ChangeSpyCooldown(iDamage * 4);
 
 					//Rebels!
 					// In hundreds
@@ -1610,7 +1610,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 					{
 						LevelUpSpy(uiSpyIndex);
 					}
-					m_pPlayer->ChangeSpyCooldown(iDamage * 4);
+					m_pPlayer->ChangeSpyCooldown(iDamage * 5);
 					if(GC.getLogging())
 						{
 						CvString strMsg;
@@ -1639,7 +1639,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 					{
 						iFood = pCity->getFood();
 					}
-					m_pPlayer->ChangeSpyCooldown(iFood);
+					m_pPlayer->ChangeSpyCooldown(iFood * 5);
 					pCity->setFood((pCity->getFood() - iFood));
 					pCity->ChangeResistanceTurns(max(1, iTurnsActive / 10));
 
@@ -1769,7 +1769,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						{
 							LevelUpSpy(uiSpyIndex);
 						}
-						m_pPlayer->ChangeSpyCooldown(iSetback * 4);
+						m_pPlayer->ChangeSpyCooldown(iSetback * 8);
 						if(GC.getLogging())
 						{
 							CvString strMsg;
@@ -1856,7 +1856,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						{
 							LevelUpSpy(uiSpyIndex);
 						}
-						m_pPlayer->ChangeSpyCooldown(iPercentage * 4);
+						m_pPlayer->ChangeSpyCooldown(iPercentage * 10);
 						if(GC.getLogging())
 						{
 							CvString strMsg;
@@ -1938,7 +1938,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						{
 							LevelUpSpy(uiSpyIndex);
 						}
-						m_pPlayer->ChangeSpyCooldown(iSetback * 4);
+						m_pPlayer->ChangeSpyCooldown(iSetback * 8);
 						if(GC.getLogging())
 						{
 							CvString strMsg;
@@ -2020,7 +2020,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						{
 							LevelUpSpy(uiSpyIndex);
 						}
-						m_pPlayer->ChangeSpyCooldown(iSetback * 4);
+						m_pPlayer->ChangeSpyCooldown(iSetback * 8);
 						if(GC.getLogging())
 						{
 							CvString strMsg;
@@ -2121,7 +2121,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						{
 							LevelUpSpy(uiSpyIndex);
 						}
-						m_pPlayer->ChangeSpyCooldown(iSetback * 4);
+						m_pPlayer->ChangeSpyCooldown(iSetback * 8);
 						if(GC.getLogging())
 						{
 							CvString strMsg;
@@ -2203,7 +2203,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						{
 							LevelUpSpy(uiSpyIndex);
 						}
-						m_pPlayer->ChangeSpyCooldown(iTheft * 4);
+						m_pPlayer->ChangeSpyCooldown(iTheft * 8);
 						if(GC.getLogging())
 						{
 							CvString strMsg;

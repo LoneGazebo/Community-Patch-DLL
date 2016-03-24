@@ -2202,7 +2202,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	CvPlayer& buyingPlayer = GET_PLAYER(bFromMe ? eOtherPlayer : GetPlayer()->GetID());
 
 	//initial value - if we founded the city, we like it more
-	int iItemValue = (pCity->getOriginalOwner() == buyingPlayer.GetID()) ? 2000 : 1000;
+	int iItemValue = (pCity->getOriginalOwner() == buyingPlayer.GetID()) ? 4000 : 2000;
 
 	//economic value is important
 	iItemValue += (pCity->getEconomicValue(buyingPlayer.GetID()) / 10);
@@ -7001,22 +7001,17 @@ void CvDealAI::DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal)
 	int iPeaceDuration = GC.getGame().getGameSpeedInfo().getPeaceDealDuration();
 	PlayerTypes eMinor;
 	CvPlayer* pMinor;
-#if defined(MOD_BALANCE_CORE)
-	for(int iMinorLoop = 0; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-#else
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-#endif
 	{
 		eMinor = (PlayerTypes) iMinorLoop;
-		pMinor = &GET_PLAYER(eMinor);
 #if defined(MOD_BALANCE_CORE)
 		if(eMinor == NO_PLAYER)
 		{
 			continue;
 		}
-		if(pMinor->isMinorCiv())
-		{
 #endif
+		pMinor = &GET_PLAYER(eMinor);
+
 		// Minor not alive?
 		if(!pMinor->isAlive())
 			continue;
@@ -7074,9 +7069,6 @@ void CvDealAI::DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal)
 				pDeal->AddThirdPartyPeace(eToPlayer, pMinor->getTeam(), iPeaceDuration);
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
 	}
 }
 

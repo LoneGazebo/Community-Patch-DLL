@@ -5933,8 +5933,8 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	else if(eOldApproach == MINOR_CIV_APPROACH_PROTECTIVE)
 	{
 		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] -= viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST];
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE];
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY];
+		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 4;
+		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY] * 2;
 		viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY];
 	}
 
@@ -5954,7 +5954,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	if(iNumWeLack > 0)
 	{
 		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += (iNumWeLack + viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY]);
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (iNumWeLack + viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE]);
+		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (iNumWeLack + viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 2);
 		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (iNumWeLack + viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
 		viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= (iNumWeLack + viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY]);
 	}
@@ -5965,8 +5965,8 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 
 	if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsFriends(GetPlayer()->GetID()))
 	{
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY]);
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE]);
+		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY] * 3);
+		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 2);
 		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
 		viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY]);
 	}
@@ -5977,7 +5977,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	//antonjs: consider: disable this weight after a certain amount of turns, to have this player "reevaluate" its PtP
 	if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsProtectedByMajor(GetPlayer()->GetID()))
 	{
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE]);
+		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 2);
 	}
 
 	////////////////////////////////////
@@ -6045,8 +6045,8 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 
 	else if(IsGoingForCultureVictory())
 	{
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY]);
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE]);
+		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY] * 2);
+		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 2);
 		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
 		viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY]);
 
@@ -6260,14 +6260,14 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	{
 	case PLAYER_PROXIMITY_NEIGHBORS:
 		viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY];
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY] * 2);
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 2);
-		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST];
+		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY] * 3);
+		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 3);
+		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST] * 2);
 		break;
 	case PLAYER_PROXIMITY_CLOSE:	
 		viApproachWeights[MINOR_CIV_APPROACH_BULLY] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY];
 		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY] * 2);
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE]);
+		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 2);
 		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
 		break;
 	case PLAYER_PROXIMITY_FAR:
@@ -6334,7 +6334,7 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	////////////////////////////////////
 	if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_PLEDGE_TO_PROTECT))
 	{
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE];
+		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 5;
 		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST]);
 		viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY]);
 	}
@@ -6399,7 +6399,6 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 	int iCurrentTradeValue = GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_GOLD, ePlayer) / 100;
 	if(iCurrentTradeValue > 0)
 	{
-		// todo: constant/XML
 		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY] * (iCurrentTradeValue / 2);
 		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * iCurrentTradeValue;
 		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST] * (iCurrentTradeValue / 2));
@@ -6477,6 +6476,10 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 		// Disfavor protective if we can't actually pledge protection!
 		if (viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] > 0)
 			viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] = 0;
+	}
+	else
+	{
+		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += (viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 3);
 	}
 
 	////////////////////////////////////
@@ -8386,29 +8389,25 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 		}
 		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway)
 		{
-			iWantPeace++;
+			iWantPeace += (GetPlayerNumTurnsSinceCityCapture(ePlayer) / 2);
 		}
-		if(!bHasOperationUnderway && GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireUnhappy())
+		if(!bHasOperationUnderway && m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy())
 		{
-			iWantPeace++;
-		}
-		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 4)
-		{
-			iWantPeace++;
+			iWantPeace+= (m_pPlayer->GetCulture()->GetWarWeariness() / 10);
 		}
 		if(GetWarProjection(ePlayer) >= WAR_PROJECTION_GOOD)
 		{
 			iWantPeace--;
 		}
-		else if(GetWarProjection(ePlayer) < WAR_PROJECTION_STALEMATE)
+		else if(GetWarProjection(ePlayer) <= WAR_PROJECTION_UNKNOWN)
 		{
 			iWantPeace++;
 		}
-		if(GetWarState(ePlayer) < WAR_STATE_DEFENSIVE)
+		if(GetWarState(ePlayer) <= WAR_STATE_STALEMATE)
 		{
 			iWantPeace++;
 		}
-		else if(GetWarState(ePlayer) >= WAR_STATE_OFFENSIVE)
+		else if(GetWarState(ePlayer) >= WAR_STATE_CALM)
 		{
 			iWantPeace--;
 		}
@@ -8513,12 +8512,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	}
 	else
 	{
-		if(GetPlayerNumTurnsAtWar(ePlayer) <= GC.getWAR_MAJOR_MINIMUM_TURNS())
-		{
-			return false;
-		}
-		// We can't be locked into war with them, or them with us
-		if(GET_TEAM(m_pPlayer->getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(ePlayer).getTeam()) != 0 || GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetNumTurnsLockedIntoWar(m_pPlayer->getTeam()) != 0)
+		if(GetPlayerNumTurnsAtWar(ePlayer) < GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 		{
 			return false;
 		}
@@ -8540,29 +8534,25 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		}
 		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway)
 		{
-			iWantPeace++;
+			iWantPeace += (GetPlayerNumTurnsSinceCityCapture(ePlayer) / 2);
 		}
 		if(!bHasOperationUnderway && m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy())
 		{
-			iWantPeace++;
-		}
-		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 4)
-		{
-			iWantPeace++;
+			iWantPeace+= (m_pPlayer->GetCulture()->GetWarWeariness() / 10);
 		}
 		if(GetWarProjection(ePlayer) >= WAR_PROJECTION_GOOD)
 		{
 			iWantPeace--;
 		}
-		else if(GetWarProjection(ePlayer) < WAR_PROJECTION_STALEMATE)
+		else if(GetWarProjection(ePlayer) <= WAR_PROJECTION_UNKNOWN)
 		{
 			iWantPeace++;
 		}
-		if(GetWarState(ePlayer) < WAR_STATE_DEFENSIVE)
+		if(GetWarState(ePlayer) <= WAR_STATE_STALEMATE)
 		{
 			iWantPeace++;
 		}
-		else if(GetWarState(ePlayer) >= WAR_STATE_OFFENSIVE)
+		else if(GetWarState(ePlayer) >= WAR_STATE_CALM)
 		{
 			iWantPeace--;
 		}
@@ -8582,8 +8572,8 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	{
 		return true;
 	}
-#endif
 	return false;
+#endif
 }
 
 
@@ -9835,26 +9825,56 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 						}
 #if defined(MOD_BALANCE_CORE)
 						// Let's consider peace if we've been fighting for a long time.
-						if(GetPlayerNumTurnsAtWar(eLoopPlayer) > GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
+						else if(GetPlayerNumTurnsAtWar(eLoopPlayer) > GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 						{
 							if( GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(GET_PLAYER(eLoopPlayer).getTeam()))
 							{
-								bool bWillConsiderPeace = ((GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) >= 10) && (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(GetPlayer()->GetID()) >= 10));
-								if(GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireUnhappy())
+								if(GET_PLAYER(eLoopPlayer).isHuman())
 								{
-									bWillConsiderPeace = true;
-								}
-								if(GetDiploBalance() > 7)
-								{
-									eWarGoal = WAR_GOAL_PEACE;
-								}
-								if(bWillConsiderPeace)
-								{
-									//If we aren't winning at this point, let's end the fight.
-									int iWarScore = GetWarScore(eLoopPlayer);	
-									if(iWarScore < 0)
+									bool bWillConsiderPeace = IsWillingToMakePeaceWithHuman(eLoopPlayer);
+									if(bWillConsiderPeace)
 									{
-										eWarGoal = WAR_GOAL_PEACE;
+										if(GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireUnhappy())
+										{
+											eWarGoal = WAR_GOAL_PEACE;
+										}
+										else if(GetDiploBalance() > 7)
+										{
+											eWarGoal = WAR_GOAL_PEACE;
+										}
+										else
+										{
+											//If we aren't winning at this point, let's end the fight.
+											int iWarScore = GetWarScore(eLoopPlayer);	
+											if(iWarScore < 0)
+											{
+												eWarGoal = WAR_GOAL_PEACE;
+											}
+										}
+									}
+								}
+								else
+								{
+									bool bWillConsiderPeace = IsWantsPeaceWithPlayer(eLoopPlayer);
+									if(bWillConsiderPeace)
+									{
+										if(GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireUnhappy())
+										{
+											eWarGoal = WAR_GOAL_PEACE;
+										}
+										else if(GetDiploBalance() > 8)
+										{
+											eWarGoal = WAR_GOAL_PEACE;
+										}
+										else
+										{
+											//If we aren't winning at this point, let's end the fight.
+											int iWarScore = GetWarScore(eLoopPlayer);	
+											if(iWarScore < 0)
+											{
+												eWarGoal = WAR_GOAL_PEACE;
+											}
+										}
 									}
 								}
 							}
@@ -12109,11 +12129,6 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 				SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
 				return;
 			}
-			if(GET_PLAYER(ePlayer).getNumCities() <= 1)
-			{
-				SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
-				return;
-			}
 #endif
 
 			iLandDisputeWeight = 0;
@@ -12967,7 +12982,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 	//Let's get our imperial center of mass.
 	CvPlot* pOurCenterPlot = NULL;
 
-	//They promised not to expand? Let's compare their distance to our promise CoM
+	//They promised not to expand? Let's compare their distance to our promise CoM (this keeps us from triggering our own promise)
 	if(IsPlayerMadeExpansionPromise(ePlayer) && (GetPromisePlotOtherPlayer(ePlayer) != -1))
 	{
 		pOurCenterPlot = GC.getMap().plotByIndex(GetPromisePlotOtherPlayer(ePlayer));
@@ -13023,15 +13038,14 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 	//If the distance is lower, and their plots aren't the same, then they settled! Let's see if this makes us mad.
 	if(pTheirCenterPlotLastTurn != pTheirCenterPlot)
 	{ 
+		eAggressivePosture = AGGRESSIVE_POSTURE_NONE;
+
 		//Theoretically this turn should be smaller than last turn. If not, then we're not expanding towards each other, so remove the expansion penalty.
 		int iAggregateChange = iDistanceUsToThemThisTurn - iDistanceUsToThemLastTurn;
 		if(iAggregateChange < 0)
 		{
-			SetExpansionAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 			return;
 		}
-
-		eAggressivePosture = AGGRESSIVE_POSTURE_NONE;
 
 		//We made it this far? That means we are closer this turn than last, thus its time to update our aggressive stance.
 
@@ -13086,25 +13100,6 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 		// Don't look at Cities they've captured
 		if(pLoopCity->getOriginalOwner() != pLoopCity->getOwner())
 			continue;
-#if defined(MOD_BALANCE_CORE)
-		//Ignore puppets
-		if(pLoopCity->IsPuppet())
-			continue;
-
-		//Ignore older cities.
-		if(pLoopCity->getOriginalOwner() == pLoopCity->getOwner())
-		{
-			int iTurns = (GC.getGame().getGameTurn() - pLoopCity->getGameTurnFounded());
-			int iCutoff = 100;
-			iCutoff *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iCutoff /= 100;
-
-			if(iTurns > iCutoff)
-			{
-				continue;
-			}
-		}
-#endif
 
 		eAggressivePosture = AGGRESSIVE_POSTURE_NONE;
 
@@ -25713,7 +25708,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			SetPlayerExpansionPromiseData(eFromPlayer, GetExpansionAggressivePosture(eFromPlayer));
 #if defined(MOD_BALANCE_CORE)
 			SetEverMadeExpansionPromise(eFromPlayer, true);
-			CvPlot* pPromisePlot = GET_PLAYER(eFromPlayer).GetCenterOfMassEmpire();
+			CvPlot* pPromisePlot = GetPlayer()->GetCenterOfMassEmpire();
 			if(pPromisePlot != NULL)
 			{
 				//We want to save off our empire's plot, otherwise our expansion could trigger the expansion warning!
@@ -36088,7 +36083,7 @@ void CvDiplomacyAI::LogWarStatus()
 					}
 
 					// Wants peace with eLoopPlayer?
-					if(IsWantsPeaceWithPlayer(eLoopPlayer))
+					if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && IsWantsPeaceWithPlayer(eLoopPlayer))
 					{
 						strOutBuf += ", Wants Peace!!!";
 					}
@@ -36126,7 +36121,7 @@ void CvDiplomacyAI::LogWarStatus()
 					LogEconomicStrength(strOutBuf, eLoopPlayer);
 
 #if defined(MOD_BALANCE_CORE)
-					if(IsAtWar(eLoopPlayer))
+					if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && IsAtWar(eLoopPlayer))
 					{
 						strTemp.Format("   !!!!WAR SCORE: %d !!!! ", GetWarScore(eLoopPlayer));
 						strOutBuf += ", " + strTemp;

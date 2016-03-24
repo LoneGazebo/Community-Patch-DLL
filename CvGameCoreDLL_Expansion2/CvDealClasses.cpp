@@ -908,7 +908,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					//It is a peace treaty? We only want allied CSs in here.
 					else if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer) || this->GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
 					{
-						if(pOtherPlayer->GetMinorCivAI()->GetAlly() != eToPlayer || pOtherPlayer->GetMinorCivAI()->GetAlly() != ePlayer)
+						if(pOtherPlayer->GetMinorCivAI()->GetAlly() != eToPlayer)
 							return false;
 					}
 				}
@@ -2790,20 +2790,9 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 		if(dealIt->m_eFromPlayer == eFromPlayer && dealIt->m_eToPlayer == eToPlayer)
 		{
 			kDeal = *dealIt;
-#if defined(MOD_BALANCE_CORE)
-			// JdH => slight perfomance improvement
-			m_ProposedDeals.erase(dealIt); // we can use this function, if we reduce the iterator (as it gets increased again)
-			--dealIt; // the iterator is a plain data pointer, so we can just decrease it.
-			// JdH <=
+			// EFB: once we can use list containers in AutoVariables, go back to this way of deleting
+			//			m_ProposedDeals.erase(dealIt);
 			bFoundIt = true;
-
-			// how about we break here? If we want the last deal in here (why should there be more than one?) we could just reverse iterate. --- JdH
-			// Update: No break here, because PvP deals can cause multiple deals and we need to pick the latest.
-#else
-// EFB: once we can use list containers in AutoVariables, go back to this way of deleting
-//			m_ProposedDeals.erase(dealIt);
-			bFoundIt = true;
-#endif
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -2839,7 +2828,6 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 			}
 		}
 
-#if !defined(MOD_BALANCE_CORE)
 		// **** START HACK ****
 		// EFB: temporary delete method; recopy vector without this element
 		//
@@ -2860,7 +2848,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 			}
 		}
 		// **** END HACK ****
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 		if(!bValid || !bAccepted)
 		{

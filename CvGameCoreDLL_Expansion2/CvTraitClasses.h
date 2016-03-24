@@ -234,6 +234,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetMovesChangeUnitClass(const int unitClassID) const;
 	int GetGAPToYield(int i) const;
+	int GetMountainRangeYield(int i) const;
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
@@ -473,6 +474,7 @@ protected:
 	int* m_piMovesChangeUnitCombats;
 #if defined(MOD_BALANCE_CORE)
 	int* m_paiGAPToYield;
+	int* m_paiMountainRangeYield;
 	int* m_piMovesChangeUnitClasses;
 #endif
 	int* m_piMaintenanceModifierUnitCombats;
@@ -1225,6 +1227,10 @@ public:
 	{
 		return m_iGAPToYield[(int)eYield];
 	}
+	int GetMountainRangeYield(YieldTypes eYield) const
+	{
+		return m_iMountainRangeYield[(int)eYield];
+	}
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
@@ -1591,6 +1597,7 @@ private:
 	int m_iMusicYieldChanges[NUM_YIELD_TYPES];
 #if defined(MOD_BALANCE_CORE)
 	int m_iGAPToYield[NUM_YIELD_TYPES];
+	int m_iMountainRangeYield[NUM_YIELD_TYPES];
 #endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiFeatureYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;

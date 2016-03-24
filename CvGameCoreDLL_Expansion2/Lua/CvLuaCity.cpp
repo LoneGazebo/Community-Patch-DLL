@@ -7,12 +7,14 @@
 	------------------------------------------------------------------------------------------------------- */
 
 #include "CvGameCoreDLLPCH.h"
+#include "../CvGameCoreDLLPCH.h"
+#include "../CustomMods.h"
 #include "CvLuaSupport.h"
 #include "CvLuaArea.h"
 #include "CvLuaCity.h"
 #include "CvLuaPlot.h"
 #include "CvLuaUnit.h"
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS) || defined (MOD_BALANCE_CORE_UNIT_INVESTMENTS)
 #include "../CvInternalGameCoreUtils.h"
 #endif
 
@@ -116,6 +118,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBuildingProductionNeeded);
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	Method(GetBuildingInvestment);
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	Method(GetUnitInvestment);
 #endif
 	Method(GetProjectProductionNeeded);
 	Method(GetProductionTurnsLeft);
@@ -1152,6 +1157,31 @@ int CvLuaCity::lGetFaithPurchaseUnitTooltip(lua_State* L)
 			toolTip += localized;
 		}
 	}
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+	if(MOD_BALANCE_CORE_UNIT_INVESTMENTS && eUnit != NO_UNIT)
+	{
+		//Have we already invested here?
+		CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnit);
+		const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
+		if(pkCity->IsUnitInvestment(eUnitClass))
+		{
+			int iValue = (/*-50*/ GC.getBALANCE_UNIT_INVESTMENT_BASELINE() + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
+			iValue *= -1;
+
+			Localization::String localizedText = Localization::Lookup("TXT_KEY_ALREADY_INVESTED_UNIT");
+			localizedText << iValue;
+
+			const char* const localized = localizedText.toUTF8();
+			if(localized)
+			{
+				if(!toolTip.IsEmpty())
+					toolTip += "[NEWLINE]";
+
+				toolTip += localized;
+			}
+		}
+	}
+#endif
 
 	// Not enough faith
 	if(pkCity->GetFaithPurchaseCost(eUnit, true) > GET_PLAYER(pkCity->getOwner()).GetFaith())
@@ -1572,6 +1602,27 @@ int CvLuaCity::lGetBuildingInvestment(lua_State* L)
 		{
 			iTotalDiscount /= 2;
 		}
+		iResult *= (iTotalDiscount + 100);
+		iResult /= 100;
+	}
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsUnitInvestment();
+int CvLuaCity::lGetUnitInvestment(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iResult = 0;
+	int iTotalDiscount = 0;
+	const UnitTypes eUnitType = (UnitTypes) lua_tointeger(L, 2);
+	CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
+	const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
+	if(pkCity->IsUnitInvestment(eUnitClass))
+	{
+		iResult = GET_PLAYER(pkCity->getOwner()).getProductionNeeded(eUnitType);
+		iTotalDiscount = (/*-50*/ GC.getBALANCE_BUILDING_INVESTMENT_BASELINE() + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
 		iResult *= (iTotalDiscount + 100);
 		iResult /= 100;
 	}

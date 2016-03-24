@@ -472,17 +472,12 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/Text/pl_PL/AdditonalText_pl_PL.xml</FileName>
+        <FileName>Core Files/PNM Mods DB/PROMOTIONS/DeepWater.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/Text/pl_PL/CoreText_pl_PL.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/Text/pl_PL/CoreText_pl_PL.xml</FileName>
+        <FileName>Core Files/Core Changes/UnitFixes.sql</FileName>
       </Action>
     </ModActions>
     <Homepage>
@@ -533,7 +528,6 @@
     <Folder Include="Core Files\PNM Mods DB\TRADE\" />
     <Folder Include="Core Files\PNM Mods DB\TRAITS\" />
     <Folder Include="Core Files\PNM Mods DB\UI\" />
-    <Folder Include="Core Files\Text\pl_PL" />
     <Folder Include="LUA" />
     <Folder Include="Mapscripts" />
   </ItemGroup>
@@ -679,6 +673,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\Core Changes\BarbCivFix.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\Core Changes\UnitFixes.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -994,6 +992,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\PNM Mods DB\PROMOTIONS\DeepWater.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\PNM Mods DB\PROMOTIONS\HalfMove.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -1063,18 +1065,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\Text\CoreText_en_US.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\Text\pl_PL\AdditonalText_pl_PL.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\Text\pl_PL\CoreText_pl_PL.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\Text\pl_PL\CoreText_pl_PL.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
