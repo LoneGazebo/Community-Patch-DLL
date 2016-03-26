@@ -11514,6 +11514,9 @@ void CvDiplomacyAI::DoContactMajorCivs()
 			{
 				eLoopPlayer = *humanIter;
 
+				CvAssert(CvPreGame::isHuman(eLoopPlayer));
+				CvAssert(GET_PLAYER(eLoopPlayer).isTurnActive());
+
 				if (!IsPlayerValid(eLoopPlayer))
 					continue;
 
@@ -11522,7 +11525,7 @@ void CvDiplomacyAI::DoContactMajorCivs()
 					continue;
 
 				// Only active Players
-				if (GET_PLAYER(eLoopPlayer).isTurnActive())
+				if (!GET_PLAYER(eLoopPlayer).isTurnActive())
 					continue;
 
 				for (priorityIter = aeHumansByPriority.begin(); priorityIter != aeHumansByPriority.end(); ++priorityIter)
