@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context ColorSet="Beige_Black_Alpha" Font="TwCenMT16" FontStyle="Shadow">
+
+	<Instance Name="CityStateInstance">
+		<Box ID="Base" Size="158,45" Color="0,0,0,0">
+			<Image Anchor="L,C" Size="45,45" Texture="45x45FrameButton.dds" ID="IconFrame">
+				<Image ID="IconBG" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+				<Image ID="IconShadow" Size="32,32" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+				<Image ID="Icon" Size="32,32" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+				<Image ID="IconHighlight" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+			</Image>
+			<Label Anchor="L,C" Offset="50,0" TruncateWidth="108" ID="Label"/>
+		</Box>
+	</Instance>
+
+	<Instance Name="MasterInstance">
+		<Box ID="Base" Size="158,45" Color="0,0,0,0">
+			<Image Anchor="L,C" Size="45,45" Texture="45x45FrameButton.dds" ID="IconFrame">
+				<Image ID="IconBG" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+				<Image ID="IconShadow" Size="32,32" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+				<Image ID="Icon" Size="32,32" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+				<Image ID="IconHighlight" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+			</Image>
+			<Label Anchor="L,C" Offset="50,0" TruncateWidth="108" ID="Label"/>
+		</Box>
+	</Instance>
+
+	<Instance Name="VassalInstance">
+		<Box ID="Base" Size="158,45" Color="0,0,0,0">
+			<Image Anchor="L,C" Size="45,45" Texture="45x45FrameButton.dds" ID="IconFrame">
+				<Image ID="IconBG" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+				<Image ID="IconShadow" Size="32,32" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+				<Image ID="Icon" Size="32,32" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+				<Image ID="IconHighlight" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+			</Image>
+			<Label Anchor="L,C" Offset="50,0" TruncateWidth="108" ID="Label"/>
+		</Box>
+	</Instance>
+
+	<Instance Name="UnderProtectionCivInstance">
+		<Box ID="Base" Size="158,45" Color="0,0,0,0">
+			<Image Anchor="L,C" Size="45,45" Texture="45x45FrameButton.dds" ID="IconFrame">
+				<Image ID="IconBG" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+				<Image ID="IconShadow" Size="32,32" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+				<Image ID="Icon" Size="32,32" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+				<Image ID="IconHighlight" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+			</Image>
+			<Label Anchor="L,C" Offset="50,0" TruncateWidth="108" ID="Label"/>
+		</Box>
+	</Instance>
+
+	<Instance Name="TradeRouteInstance">
+		<Box Size="474,73" Color="0,0,0,0" ID="Base">
+			<Image Anchor="L,T" Offset="2,0" Texture="IconFrame64.dds" Size="64,64">
+				<Image ID="CivIconBG" Size="64.64" Anchor="C,C" Offset="-1,-1" Texture="CivIconBGSizes.dds"/>
+				<Image ID="CivIconShadow" Size="48.48" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas48.dds" Color="Black.128"/>
+				<Image ID="CivIcon" Size="48,48" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor512.dds"/>
+			</Image>
+
+			<Label Anchor="L,T" Offset="70,5" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="420" ID="CityName" />
+			<Label Anchor="L,T" Offset="70,25" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="420" ID="Bonuses" />
+
+			<Grid Style="Grid9Bar" Padding="0,0" Anchor="C,B" Size="450,1" Offset="0,0"/>
+		</Box>
+	</Instance>
+
+	<Box Style="BGBlock_ClearTopBar" />
+
+	<Grid Size="525,600" Anchor="C,C" Offset="0,0" Padding="30,30" Style="Grid9DetailFive140" ID="ButtonStackFrame">
+
+		<!-- Side treatments -->
+		<Box Style="MenuLeftSideTreatment"/>
+		<Box Style="MenuRightSideTreatment"/>
+		<Image Anchor="C,T" AnchorSide="I.O" Offset="0,-14" Size="256,64" Texture="Top512IconTrim.dds">
+			<Image Anchor="C,C" Offset="0,0" Size="80,80" Texture="NotificationFrameBase.dds">
+				<Image Anchor="C,C" Offset="0,0" Color="255,255,255,100" Size="80,80" Texture="NotificationRed.dds">
+					<Image Anchor="C,C" Offset="0,0" Size="64,64" Texture="NotificationWar.dds" TextureOffset="256,128" />
+				</Image>
+			</Image>
+		</Image>
+
+		<Stack Anchor="C,T" Offset="0,45" Padding="2" StackGrowth="Bottom" ID="ButtonStack">
+			<Label Anchor="C,T" Offset="10,4" ColorSet="Beige_Black" Font="TwCenMT22" FontStyle="Shadow" String="Are you sure you wish to declare war?? You can move if you research Open borders" ID="PopupText" WrapWidth="472" />
+
+			<Box Size="492,114" Color="0,0,0,0">
+				<Image ID="LeaderFrame" Anchor="L,B" Size="128,128" Offset="60,-14" Texture="CitizenFrame128.dds">
+					<Image ID="LeaderIcon" Size="128,128" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits1024.dds"/>
+					<Image ID="LeaderSubIconFrame" Anchor="R,B" Offset="10,10" Size="45,45" Texture="45x45FrameButton.dds">
+						<Image ID="LeaderSubIconBG" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="LeaderSubIconShadow" Size="32,32" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="LeaderSubIcon" Size="32,32" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="LeaderSubIconHighlight" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+				</Image>
+
+				<FlipAnim Size="64,64" Offset="0,0" Anchor="C,C" Columns="8" Speed="10" Pause="0" StepSize="64,64" FrameCount="31" Texture="assets\UI\Art\Notification\NotificationWar.dds" />
+
+				<Image ID="RivalFrame" Anchor="R,B" Size="128,128" Offset="60,-14" Texture="CitizenFrame128.dds">
+					<Image ID="RivalIconBG" Size="128,128" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+					<Image ID="RivalIconShadow" Size="128,128" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+					<Image ID="RivalIcon" Size="128,128" Offset="0,0" Anchor="C,C" Texture="LeaderPortraits1024.dds"/>
+					<Image ID="RivalSubIconFrame" Anchor="R,B" Offset="10,10" Size="45,45" Texture="45x45FrameButton.dds">
+						<Image ID="RivalSubIconBG" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+						<Image ID="RivalSubIconShadow" Size="32,32" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+						<Image ID="RivalSubIcon" Size="32,32" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+						<Image ID="RivalSubIconHighlight" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					</Image>
+				</Image>
+			</Box>
+			<Grid Style="Grid9Bar" Padding="0,0" Anchor="C,T" Size="450,1" Offset="0,0"/>
+			<ScrollPanel Vertical="1" Size="474,300" Offset="0,0" AutoScrollBar="0" ID="DeclareWarDetailsScrollPanel">
+				<!-- Scroll Controls -->
+				<ScrollBar Style="VertSlider" Length="282" Anchor="R,C" AnchorSide="O,I"/>
+				<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+				<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+				<Stack StackGrowth="Bottom" ID="DeclareWarDetailsStack" Padding="0">
+					<Button String="TXT_KEY_DIPLO_DIPLOMACY_BUTTON" Size="478,26" ID="DiplomacyHeader">
+						<Grid Anchor="C,C" Size="478,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurns"/>
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="C,C" Size="478,26" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Anchor="C,C" Size="478,26" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+					<Stack ID="DiplomacyStack" Anchor="L,T" StackGrowth="Right" WrapGrowth="Down" WrapWidth="474" Padding="0">
+						<Box ID="DiplomacyNone" Size="474,28" Color="0,0,0,0">
+							<Label Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_BELIEFS_NONE" />
+						</Box>
+						<Box ID="HasDoF" Size="474,28" Color="0,0,0,0">
+							<Label ID="DoFLabel" Anchor="C,C" WrapWidth="470" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="Friends" />
+						</Box>
+						<Box ID="WeDenouncedThem" Size="474,28" Color="0,0,0,0">
+							<Label ID="WeDenouncedThemLabel" WrapWidth="470" Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="We Denounced Them" />
+						</Box>
+						<Box ID="TheyDenouncedUs" Size="474,28" Color="0,0,0,0">
+							<Label ID="TheyDenouncedUsLabel" WrapWidth="470" Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="They Denounced Us" />
+						</Box>
+					</Stack>
+
+					<Button String="UNDER THE PROTECTION OF" Size="478,26" ID="UnderProtectionOfHeader">
+						<Grid Anchor="C,C" Size="478,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurns"/>
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="C,C" Size="478,26" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Anchor="C,C" Size="478,26" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+					<Stack ID="UnderProtectionOfStack" Anchor="L,T" StackGrowth="Right" WrapGrowth="Down" WrapWidth="474" Padding="0">
+						<Box ID="UnderProtectionOfNone" Size="474,28" Color="0,0,0,0">
+							<Label Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_BELIEFS_NONE" />
+						</Box>
+					</Stack>
+
+					<Button String="MASTERS" Size="478,26" ID="MastersHeader">
+						<Grid Anchor="C,C" Size="478,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurns"/>
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="C,C" Size="478,26" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Anchor="C,C" Size="478,26" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+					<Stack ID="MastersStack" Anchor="L,T" StackGrowth="Right" WrapGrowth="Down" WrapWidth="474" Padding="0">
+						<Box ID="MastersNone" Size="474,28" Color="0,0,0,0">
+							<Label Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_BELIEFS_NONE" />
+						</Box>
+					</Stack>
+
+					<Button String="VASSALS" Size="478,26" ID="VassalsHeader">
+						<Grid Anchor="C,C" Size="478,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurns"/>
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="C,C" Size="478,26" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Anchor="C,C" Size="478,26" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+					<Stack ID="VassalsStack" Anchor="L,T" StackGrowth="Right" WrapGrowth="Down" WrapWidth="474" Padding="0">
+						<Box ID="VassalsNone" Size="474,28" Color="0,0,0,0">
+							<Label Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_BELIEFS_NONE" />
+						</Box>
+					</Stack>
+
+					<Button String="ALLIED CITY-STATES" Size="478,26" ID="AlliedCityStatesHeader">
+						<Grid Anchor="C,C" Size="478,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurns"/>
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="C,C" Size="478,26" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Anchor="C,C" Size="478,26" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+					<Stack ID="AlliedCityStatesStack" Anchor="L,T" StackGrowth="Right" WrapGrowth="Down" WrapWidth="474" Padding="0">
+						<Box ID="AlliedCityStatesNone" Size="474,28" Color="0,0,0,0">
+							<Label Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_BELIEFS_NONE" />
+						</Box>
+					</Stack>
+					<Button String="ACTIVE DEALS" Size="478,26" ID="ActiveDealsHeader">
+						<Grid Anchor="C,C" Size="478,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurns"/>
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="C,C" Size="478,26" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Anchor="C,C" Size="478,26" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+					<Stack ID="ActiveDealsStack" Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="8" Color="0.0.0.0">
+						<Box Size="474,1" Color="0,0,0,0" />
+						<Label ID="ActiveDealsNone" Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_BELIEFS_NONE" />
+
+						<Label ID="DealsFromThemHeader" Anchor="C,T" Font="TwCenMT20" ColorSet="Beige_Black_Alpha"  String="TXT_KEY_DECLARE_WAR_TRADES_FROM_THEM" />
+						<Label ID="DealsFromThem" Anchor="C,T" WrapWidth="474" Font="TwCenMT16" ColorSet="Beige_Black_Alpha"  String="1 [ICON_RES_URANIUM] Uranium 14 Turns left" />
+
+						<Grid ID="DealsSeparator" Style="Grid9Bar" Padding="0,0" Anchor="C,T" Size="450,1" Offset="0,0"/>
+
+						<Label ID="DealsFromYouHeader" Anchor="C,T" Font="TwCenMT20" ColorSet="Beige_Black_Alpha"  String="TXT_KEY_DECLARE_WAR_TRADES_FROM_YOU" />
+						<Label ID="DealsFromYou" Anchor="C,T" WrapWidth="474" Font="TwCenMT16" ColorSet="Beige_Black_Alpha"  String="5 [ICON_RES_IRON] Iron 3 [ICON_RES_OIL] Oil 4 [ICON_RES_ALUMINNUM] Aluminum 14 Turns left" />
+
+						<Box ID="DealsSpacer" Size="474,8" Color="0,0,0,0" />
+					</Stack>
+					<Button String="TRADE ROUTES" Size="478,26" ID="TradeRoutesHeader">
+						<Grid Anchor="C,C" Size="478,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurns"/>
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="C,C" Size="478,26" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Anchor="C,C" Size="478,26" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+							</AlphaAnim>
+						</ShowOnMouseOver>
+					</Button>
+					<Stack ID="TradeRoutesStack" Anchor="L,T" Offset="0,0" StackGrowth="Bottom">
+						<Box ID="TradeRoutesNone" Size="474,20" Color="0,0,0,0">
+							<Label Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_BELIEFS_NONE" />
+						</Box>
+					</Stack>
+				</Stack>
+			</ScrollPanel>
+		</Stack>
+		<Box Size="492,40" Anchor="C,B" Offset="17,51" Color="0,0,0,0">
+			<GridButton Style="BaseButton"  ID="Button1" Size="150,36" Anchor="C,T" Offset="-100,0"  Hidden="0">
+				<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_DECLARE_WAR_YES" ColorSet="Beige_Black" Font="TwCenMT22" FontStyle="Shadow" ID="Button1Text"/>
+			</GridButton>
+
+			<GridButton  Style="BaseButton" ID="Button2" Size="150,36" Anchor="C,T" Offset="100,0"  Hidden="0">
+				<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_DECLARE_WAR_NO" ColorSet="Beige_Black" Font="TwCenMT22" FontStyle="Shadow" ID="Button2Text"/>
+			</GridButton>
+		</Box>
+	</Grid>
+</Context>
