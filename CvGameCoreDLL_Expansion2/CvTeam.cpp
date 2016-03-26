@@ -9272,6 +9272,9 @@ TeamTypes CvTeam::GetMaster() const
 // We're a vassal of somebody (doesn't matter who)
 bool CvTeam::IsVassalOfSomeone() const
 {
+	if(!isAlive())
+		return false;
+
 	return m_eMaster!=NO_TEAM;
 }
 //	--------------------------------------------------------------------------------
@@ -9283,6 +9286,9 @@ bool CvTeam::IsVoluntaryVassal(TeamTypes eIndex) const
 // Are we a vassal of eIndex?
 bool CvTeam::IsVassal(TeamTypes eIndex) const
 {
+	if(!isAlive() || !GET_TEAM(eIndex).isAlive())
+		return false;
+
 	return eIndex!=NO_TEAM && eIndex==m_eMaster;
 }
 //	--------------------------------------------------------------------------------
