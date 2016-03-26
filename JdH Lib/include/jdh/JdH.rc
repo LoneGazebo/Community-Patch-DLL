@@ -26,6 +26,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 IDD_JDH_ASSERT_DLG DIALOGEX 0, 0, 341, 221
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOPMOST
 CAPTION "Assert Failed"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
@@ -33,7 +34,7 @@ BEGIN
     PUSHBUTTON      "Abort",IDABORT,284,196,50,18
     CONTROL         " ignore always",IDC_JDH_ASSERT_IGNORE_ALLWAYS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,119,198,76,16
     PUSHBUTTON      "Ignore",IDIGNORE,62,196,50,18
-    EDITTEXT        IDC_JDH_ASSERT_TEXT_1,7,7,327,185,ES_AUTOHSCROLL | ES_READONLY | NOT WS_TABSTOP
+    EDITTEXT        IDC_JDH_ASSERT_TEXT_1,7,7,327,185,ES_MULTILINE | ES_READONLY | WS_VSCROLL | NOT WS_TABSTOP
 END
 
 
@@ -80,6 +81,17 @@ BEGIN
 END
 
 #endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_JDH_ASSERT_DLG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
 
 #endif    // Englisch (USA) resources
 /////////////////////////////////////////////////////////////////////////////
