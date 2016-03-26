@@ -5605,7 +5605,8 @@ void CvDiplomacyAI::DeclareWar(PlayerTypes ePlayer)
 		m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
 
 		// Show scene to human
-		// JdH => deciding whether to send a notification or pop up directy is done in SendRequest
+		// JdH => deciding whether to send a notification or pop up directly is done in SendRequest
+		if (CvPreGame::isHuman(ePlayer))
 		{
 			const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOW_ROOT, ePlayer);
 			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_DECLARE_WAR);
@@ -11479,27 +11480,12 @@ void CvDiplomacyAI::DoContactMajorCivs()
 	PlayerTypes eLoopPlayer;
 	int iPlayerLoop;
 
-	for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	if (m_eTargetPlayer >= DIPLO_FIRST_PLAYER)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		if(!IsPlayerValid(eLoopPlayer))
-			continue;
-
-		// No humans
-		if(GET_PLAYER(eLoopPlayer).isHuman())
-			continue;
-
-		DoContactPlayer(eLoopPlayer);
+		DoContactPlayer((PlayerTypes)m_eTargetPlayer);
 	}
-	// JdH => contact humans by priority, but use a notification system instead of pop up the diplo screen
-	// every AI can only talk to one human a time (as a human can only talk to one human a time
-	// TODO: the one to one restriction should be removed in favor of a trade resource pool allocation
-	if (!CvDiplomacyRequests::HasDiploRequestWithHuman(m_pPlayer->GetID()))
+	else if (m_eTargetPlayer == DIPLO_ALL_PLAYERS || m_eTargetPlayer == DIPLO_AI_PLAYERS)
 	{
-		vector<PlayerTypes> aeHumansByPriority;
-		vector<PlayerTypes>::iterator iter;
-		// bring players in priority order
 		for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			eLoopPlayer = (PlayerTypes)iPlayerLoop;
@@ -11507,35 +11493,60 @@ void CvDiplomacyAI::DoContactMajorCivs()
 			if (!IsPlayerValid(eLoopPlayer))
 				continue;
 
-			// No AI
-			if (!GET_PLAYER(eLoopPlayer).isHuman())
+			// No humans
+			if (GET_PLAYER(eLoopPlayer).isHuman())
 				continue;
 
-			// Only active Players
-			if (GET_PLAYER(eLoopPlayer).isTurnActive())
-				continue;
-
-			for (iter = aeHumansByPriority.begin(); iter != aeHumansByPriority.end(); ++iter)
+			DoContactPlayer(eLoopPlayer);
+		}
+	}
+	if (m_eTargetPlayer == DIPLO_ALL_PLAYERS || m_eTargetPlayer == DIPLO_HUMAN_PLAYERS)
+	{
+		// JdH => contact humans by priority, but use a notification system instead of pop up the diplo screen
+		// every AI can only talk to one human a time (as a human can only talk to one human a time
+		// TODO: the one to one restriction should be removed in favor of a trade resource pool allocation
+		if (!CvDiplomacyRequests::HasDiploRequestWithHuman(m_pPlayer->GetID()))
+		{
+			vector<PlayerTypes> aeHumansByPriority;
+			vector<PlayerTypes>::const_iterator priorityIter, humanIter;
+			// bring players in priority order
+			for (humanIter = CvDiplomacyRequests::s_aDiploHumans.begin(); humanIter != CvDiplomacyRequests::s_aDiploHumans.end(); ++humanIter)
 			{
-				if (m_pDiploData->m_aTradePriority[*iter] < m_pDiploData->m_aTradePriority[eLoopPlayer])
+				eLoopPlayer = *humanIter;
+
+				if (!IsPlayerValid(eLoopPlayer))
+					continue;
+
+				// No AI
+				if (!GET_PLAYER(eLoopPlayer).isHuman())
+					continue;
+
+				// Only active Players
+				if (GET_PLAYER(eLoopPlayer).isTurnActive())
+					continue;
+
+				for (priorityIter = aeHumansByPriority.begin(); priorityIter != aeHumansByPriority.end(); ++priorityIter)
 				{
-					aeHumansByPriority.insert(iter, eLoopPlayer);
-					break;
+					if (m_pDiploData->m_aTradePriority[*priorityIter] < m_pDiploData->m_aTradePriority[eLoopPlayer])
+					{
+						aeHumansByPriority.insert(priorityIter, eLoopPlayer);
+						break;
+					}
+				}
+				if (priorityIter == aeHumansByPriority.end())
+				{
+					aeHumansByPriority.push_back(eLoopPlayer);
 				}
 			}
-			if (iter == aeHumansByPriority.end())
-			{
-				aeHumansByPriority.push_back(eLoopPlayer);
-			}
-		}
 
-		for (iter = aeHumansByPriority.begin(); iter != aeHumansByPriority.end(); ++iter)
-		{
-			DoContactPlayer(*iter);
-			if (GET_PLAYER(*iter).GetDiplomacyRequests()->HasRequestFrom(GetPlayer()->GetID()))
+			for (humanIter = aeHumansByPriority.begin(); humanIter != aeHumansByPriority.end(); ++humanIter)
 			{
-				// we actually found someone worth talking with, the others must wait...
-				break;
+				DoContactPlayer(*humanIter);
+				if (GET_PLAYER(*humanIter).GetDiplomacyRequests()->HasRequestFrom(GetPlayer()->GetID()))
+				{
+					// we actually found someone worth talking with, the others must wait...
+					break;
+				}
 			}
 		}
 	}

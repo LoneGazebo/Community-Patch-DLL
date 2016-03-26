@@ -1509,6 +1509,9 @@ void CvGame::update()
 
 					changeTurnSlice(1);
 
+					// JdH: humans may have been activated, check for AI diplomacy
+					CvDiplomacyRequests::DoAIDiplomacyWithHumans();
+
 					gDLL->FlushTurnReminders();
 				}
 			}
@@ -1636,8 +1639,6 @@ void CvGame::CheckPlayerTurnDeactivate()
 								}
 							}
 						}
-
-						CvDiplomacyRequests::DoAIDiplomacyWithHumans();
 					}
 				}
 			}
@@ -8387,8 +8388,6 @@ void CvGame::updateMoves()
 					player.setTurnActive(true);
 				}
 			}
-
-			CvDiplomacyRequests::DoAIDiplomacyWithHumans();
 		}
 	}
 }

@@ -140,10 +140,7 @@ void CvDiplomacyRequests::Update(void)
 		if (m_eRequestActiveFromPlayer != NO_PLAYER)
 		{
 			ActivateNext();
-			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 		}
-
-
 	}
 }
 
@@ -268,6 +265,7 @@ foundRequest:
 	m_eRequestActiveFromPlayer = eFrom;
 	gDLL->GameplayDiplomacyAILeaderMessage(eFrom, eDiploType, requestIter->m_strMessage, requestIter->m_eAnimationType, requestIter->m_iExtraGameData);
 	m_aRequests.erase(requestIter);
+	//GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 //	----------------------------------------------------------------------------
 void CvDiplomacyRequests::ActivateAllFrom(PlayerTypes eFromPlayer)
@@ -358,6 +356,9 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 //	static
 void CvDiplomacyRequests::DoAIDiplomacyWithHumans()
 {
+	if (s_aDiploHumans.size() == 0)
+		return;
+
 	// just loop through all ai players and to diplomacy with active humans
 	for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
 	{
@@ -367,7 +368,10 @@ void CvDiplomacyRequests::DoAIDiplomacyWithHumans()
 			kPlayer.GetDiplomacyAI()->DoTurn(DIPLO_HUMAN_PLAYERS);
 		}
 	}
+
+	s_aDiploHumans.clear();
 }
+/*static*/ std::vector<PlayerTypes> CvDiplomacyRequests::s_aDiploHumans;
 
 //	----------------------------------------------------------------------------
 void CvDiplomacyRequests::ActiveRequestComplete()

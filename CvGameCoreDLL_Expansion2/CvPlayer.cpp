@@ -15888,6 +15888,13 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 				doWarnings();
 			}
 
+			if (isHuman())
+			{
+				// JdH: we just activated a human
+				// later the AI players need to try to contact the player
+				CvDiplomacyRequests::s_aDiploHumans.push_back(GetID());
+			}
+
 			if(GetID() == kGame.getActivePlayer())
 			{
 				GetUnitCycler().Rebuild();

@@ -66,12 +66,14 @@ public:
 	static bool HasDiploRequestWithHuman(PlayerTypes eSourcePlayer);
 	static void DoAIDiplomacyWithHumans();
 
+	// activated human players since last human diplo check.
+	static std::vector<PlayerTypes> s_aDiploHumans;
+
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
 
 	typedef std::list<Request> RequestList;
 	void ActivateNext();
-	void Send(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
 
 	PlayerTypes m_ePlayer;
 
