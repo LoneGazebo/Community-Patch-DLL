@@ -6064,16 +6064,16 @@ void CvPlayer::doTurn()
 				GetMilitaryAI()->ResetCounters();
 				GetGrandStrategyAI()->DoTurn();
 #if defined(MOD_ACTIVE_DIPLOMACY)
-				GetDiplomacyAI()->DoTurn((PlayerTypes)DIPLO_ALL_PLAYERS);
+				GetDiplomacyAI()->DoTurn(DIPLO_AI_PLAYERS);
 #else
 				if(GC.getGame().isHotSeat() && !isHuman())
 				{
 					// In Hotseat, AIs only do their diplomacy pass for other AIs on their turn
 					// Diplomacy toward a human is done at the beginning of the humans turn.
-					GetDiplomacyAI()->DoTurn((PlayerTypes)CvDiplomacyAI::DIPLO_AI_PLAYERS);		// Do diplomacy for toward everyone
+					GetDiplomacyAI()->DoTurn(CvDiplomacyAI::DIPLO_AI_PLAYERS);		// Do diplomacy for toward everyone
 				}
 				else
-					GetDiplomacyAI()->DoTurn((PlayerTypes)CvDiplomacyAI::DIPLO_ALL_PLAYERS);	// Do diplomacy for toward everyone
+					GetDiplomacyAI()->DoTurn(CvDiplomacyAI::DIPLO_ALL_PLAYERS);	// Do diplomacy for toward everyone
 
 				if (!isHuman())
 					bHasActiveDiploRequest = CvDiplomacyRequests::HasActiveDiploRequestWithHuman(GetID());
@@ -24981,7 +24981,7 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 				SetIncomingUnitType(eLoopPlayer, NO_UNIT);
 			}
 
-			GC.getGame().GetGameDeals()->DoCancelAllDealsWithPlayer(GetID());
+			GC.getGame().GetGameDeals().DoCancelAllDealsWithPlayer(GetID());
 
 			// Reset relationships with minor civs
 			for(int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -25199,6 +25199,15 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 
 				doWarnings();
 			}
+
+#if defined(MOD_ACTIVE_DIPLOMACY)
+			if (isHuman())
+			{
+				// JdH: we just activated a human
+				// later the AI players need to try to contact the player
+				CvDiplomacyRequests::s_aDiploHumans.push_back(GetID());
+			}
+#endif
 
 			if(GetID() == kGame.getActivePlayer())
 			{

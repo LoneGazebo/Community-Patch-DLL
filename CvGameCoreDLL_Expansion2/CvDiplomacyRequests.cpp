@@ -13,6 +13,9 @@
 #include "CvEnumSerialization.h"
 #include "CvDiplomacyAI.h"
 #include "CvDllInterfaces.h"
+#if defined(MOD_ACTIVE_DIPLOMACY)
+#include "CvDealAI.h"
+#endif
 
 // Include this after all other headers.
 #include "LintFree.h"
@@ -80,16 +83,12 @@ void CvDiplomacyRequests::Init(PlayerTypes ePlayer)
 void CvDiplomacyRequests::Uninit(void)
 {
 	m_ePlayer = NO_PLAYER;
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	m_eRequestActiveFromPlayer = NO_PLAYER;
-#else
+#if !defined(MOD_ACTIVE_DIPLOMACY)
 	m_eNextAIPlayer = NO_PLAYER;
 #endif
 	m_aRequests.clear();
 	m_bRequestActive = false;
-#if !defined(MOD_ACTIVE_DIPLOMACY)
-	m_bRequestActiveFromPlayer = NO_PLAYER;
-#endif
+	m_eRequestActiveFromPlayer = NO_PLAYER;
 }
 
 /// Serialization read
@@ -151,37 +150,7 @@ void CvDiplomacyRequests::Update(void)
 		// JdH => handle requests from one player first...
 		if (m_eRequestActiveFromPlayer != NO_PLAYER)
 		{
-			for (RequestList::iterator iter = m_aRequests.begin(); iter != m_aRequests.end(); ++iter)
-			{
-				if (iter->m_eFromPlayer == m_eRequestActiveFromPlayer)
-				{
-					if (iter->m_iLookupIndex >= 0)
-					{
-						Activate(iter->m_iLookupIndex);
-					}
-					else
-					{
-						Activate(*iter);
-						m_aRequests.erase(iter);
-					}
-					if (HasActiveRequest()) return; // keep searching if we only found invalid requests...
-				}
-			}
-			m_eRequestActiveFromPlayer = NO_PLAYER;
-		}
-		// JdH <=
-		if (m_aRequests.size() && !GC.getGame().isNetworkMultiPlayer())
-		{
-			CvDiplomacyRequests::Request& kRequest = m_aRequests.front();
-
-			// Make sure the player this is from is still alive.
-			if (kRequest.m_eFromPlayer != NO_PLAYER && GET_PLAYER(kRequest.m_eFromPlayer).isAlive())
-			{
-				// JdH => activate makes sure a deal is loaded, if necessary
-				Activate(kRequest);
-				// JdH <=
-			}
-			m_aRequests.pop_front();
+			ActivateNext();
 		}
 	}
 #else
@@ -200,23 +169,12 @@ void CvDiplomacyRequests::Update(void)
 	}
 #endif
 }
-#if defined(MOD_ACTIVE_DIPLOMACY)
-// JdH => new request functions
-/// helper function, to determine diplo types that coop with deals
-inline bool isDealDiploType(DiploUIStateTypes eDiploType)
-{
-	return eDiploType == DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND
-		|| eDiploType == DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER
-		|| eDiploType == DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST;
-}
-#endif
 //	----------------------------------------------------------------------------
 //	Called from within CvPlayer at the beginning of the turn
 void CvDiplomacyRequests::BeginTurn(void)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	// JdH => change requests to notifications in network MP
-	if (GC.getGame().isNetworkMultiPlayer()) // TODO: only if simultaneous turns?
+	// JdH: change requests to notifications
 	{
 		CvPlayer& kTo = GET_PLAYER(m_ePlayer);
 		CvNotifications* pNotifications = kTo.GetNotifications();
@@ -224,42 +182,12 @@ void CvDiplomacyRequests::BeginTurn(void)
 		{
 			if (iter->m_iLookupIndex < 0)
 			{
-				if (isDealDiploType(iter->m_eDiploType))
-				{
-					CvDeal* kDeal = GC.getGame().GetGameDeals()->GetProposedDeal(iter->m_eFromPlayer, m_ePlayer);
-					if (kDeal)
-					{
-						bool bBad = false;
-						TradedItemList::iterator iter2;
-						for(iter2 = kDeal->m_TradedItems.begin(); iter2 != kDeal->m_TradedItems.end(); ++iter2)
-						{
-							if(iter2->m_bToRenewed)  // slewis - added exception in case of something that was renewed
-							{
-								continue;
-							}
-
-							if(!kDeal->IsPossibleToTradeItem(iter2->m_eFromPlayer, kDeal->GetOtherPlayer(iter2->m_eFromPlayer), iter2->m_eItemType, iter2->m_iData1, iter2->m_iData2, iter2->m_iData3, iter2->m_bFlag1, false, true))
-							{
-								bBad = true;
-								break;
-							}
-						}
-						if(bBad)
-						{
-							continue;
-						}
-						else
-						{
-							CvPlayer& kFrom = GET_PLAYER(iter->m_eFromPlayer);
-							CvString leaderMessage = CvString::format("%s: %s", kFrom.getName(), iter->m_strMessage.c_str());
-							iter->m_iLookupIndex = pNotifications->Add(NOTIFICATION_PLAYER_DEAL_RECEIVED, leaderMessage, kFrom.getCivilizationDescription(), iter->m_eFromPlayer, -2, -1, -1);
-						}
-					}
-				}
+				CvPlayer& kFrom = GET_PLAYER(iter->m_eFromPlayer);
+				CvString leaderMessage = CvString::format("%s: %s", kFrom.getName(), iter->m_strMessage.c_str());
+				iter->m_iLookupIndex = pNotifications->Add(NOTIFICATION_PLAYER_DEAL_RECEIVED, leaderMessage, kFrom.getCivilizationDescription(), iter->m_eFromPlayer, -2, -1, -1);
 			}
 		}
 	}
-	// JdH <=
 #else
 	m_eNextAIPlayer = (PlayerTypes)0;
 #endif
@@ -269,7 +197,25 @@ void CvDiplomacyRequests::BeginTurn(void)
 //	Called from within CvPlayer at the end of turn
 void CvDiplomacyRequests::EndTurn(void)
 {
-#if !defined(MOD_ACTIVE_DIPLOMACY)
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	// JdH: we remove all pending requests that are not from humans at the end of the turn
+	GC.getGame().GetGameDeals().DoCancelAllProposedDealsWithPlayer(m_ePlayer, DIPLO_AI_PLAYERS);
+	RequestList::iterator iter = m_aRequests.begin();
+	while (iter != m_aRequests.end())
+	{
+		if (CvPreGame::isHuman(iter->m_eFromPlayer))
+			++iter;
+		else
+		{
+			if (iter->m_iLookupIndex >= 0)
+			{
+				// we had a notification: Cancel it
+				GET_PLAYER(m_ePlayer).GetNotifications()->Dismiss(iter->m_iLookupIndex, false);
+			}
+			iter = m_aRequests.erase(iter);
+		}
+	}
+#else
 	m_eNextAIPlayer = NO_PLAYER;
 #endif
 }
@@ -290,8 +236,11 @@ bool CvDiplomacyRequests::Add(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploT
 	newRequest.m_eAnimationType = eAnimationType;
 	newRequest.m_iTurn = GC.getGame().getGameTurn();
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	BeginTurn(); // this adds notifications, if necessary
-	Update(); // this activates requests if appropriate
+	if (GET_PLAYER(m_ePlayer).isTurnActive())
+	{
+		BeginTurn(); // this adds notifications, if necessary
+		Update(); // this activates requests if appropriate
+	}
 #endif
 	return true;
 }
@@ -301,88 +250,104 @@ void CvDiplomacyRequests::CheckValidity()
 {
 	CvPlayer& kTo = GET_PLAYER(m_ePlayer);
 	CvNotifications* pNotifications = kTo.GetNotifications();
+	std::set<PlayerTypes> aValid;
 	for(RequestList::iterator iter = m_aRequests.begin(); iter != m_aRequests.end(); ++iter)
 	{
-		if(iter->m_iLookupIndex < 0)
-		{
-			if(isDealDiploType(iter->m_eDiploType))
-			{
-				CvDeal* kDeal = GC.getGame().GetGameDeals()->GetProposedDeal(iter->m_eFromPlayer, m_ePlayer);
-				if (kDeal)
-				{
-					bool bBad = false;
-					TradedItemList::iterator iter2;
-					for(iter2 = kDeal->m_TradedItems.begin(); iter2 != kDeal->m_TradedItems.end(); ++iter2)
-					{
-						if(iter2->m_bToRenewed)  // slewis - added exception in case of something that was renewed
-						{
-							continue;
-						}
+		if (aValid.find(iter->m_eFromPlayer) != aValid.end())
+			continue;
 
-						if(!kDeal->IsPossibleToTradeItem(iter2->m_eFromPlayer, kDeal->GetOtherPlayer(iter2->m_eFromPlayer), iter2->m_eItemType, iter2->m_iData1, iter2->m_iData2, iter2->m_iData3, iter2->m_bFlag1, false, true))
-						{
-							bBad = true;
-							break;
-						}
-					}
-					if(bBad && pNotifications)
-					{
-						pNotifications->Dismiss(iter->m_iLookupIndex, false);
-					}
-				}
-			}
+		CvDeal* pDeal = GC.getGame().GetGameDeals().GetProposedDeal(iter->m_eFromPlayer, m_ePlayer, false);
+		if (!pDeal)
+		{
+			iter = m_aRequests.erase(iter);
+			continue;
+		}
+
+		bool bBad = pDeal->AreAllTradeItemsValid();
+		if (!bBad && !CvPreGame::isHuman(iter->m_eFromPlayer))
+		{
+			int iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer;
+			bool bCantMatchOffer;
+			bBad = GET_PLAYER(iter->m_eFromPlayer).GetDealAI()->IsDealWithHumanAcceptable(pDeal, m_ePlayer, /*Passed by reference*/ iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, &bCantMatchOffer, false);
+		}
+		if(bBad)
+		{
+			GC.getGame().GetGameDeals().RemoveProposedDeal(iter->m_eFromPlayer, m_ePlayer, NULL, false);
+
+			if (pNotifications && iter->m_iLookupIndex >= 0)
+				pNotifications->Dismiss(iter->m_iLookupIndex, false);
+
+			iter = m_aRequests.erase(iter);
+
+			// TODO: add notification that player had withdrawn the offer
+		}
+		else
+		{
+			aValid.insert(iter->m_eFromPlayer);
 		}
 	}
 }
 //	----------------------------------------------------------------------------
-//	remove a request. Used by CvNotifications::Dismiss()
-void CvDiplomacyRequests::Remove(int iLookupIndex)
+void CvDiplomacyRequests::ActivateNext()
 {
-	for (RequestList::iterator iter = m_aRequests.begin(); iter != m_aRequests.end(); ++iter)
+	if (HasActiveRequest())
+		return;
+
+	if (m_eRequestActiveFromPlayer == NO_PLAYER)
+		return;
+
+	CvAssert(GC.getGame().getActivePlayer() == m_ePlayer);
+	CvAssert(GET_PLAYER(m_ePlayer).isTurnActive());
+
+	RequestList::iterator requestIter;
+	for (requestIter = m_aRequests.begin(); requestIter != m_aRequests.end(); ++requestIter)
 	{
-		if (iter->m_iLookupIndex == iLookupIndex)
-		{
-			// remove potential deals...
-			if (isDealDiploType(iter->m_eDiploType))
-				GC.getGame().GetGameDeals()->EraseDeal(iter->m_eFromPlayer, m_ePlayer);
-			m_aRequests.erase(iter);
-			break;
-		}
+		if (requestIter->m_eFromPlayer == m_eRequestActiveFromPlayer)
+			goto foundRequest;
 	}
-}
-void CvDiplomacyRequests::Activate(CvDiplomacyRequests::Request& kRequest)
-{
-	if (isDealDiploType(kRequest.m_eDiploType))
+
+	// no request found
+	m_eRequestActiveFromPlayer = NO_PLAYER;
+	return;
+
+foundRequest:
+	static CvDeal kDeal;
+	PlayerTypes eFrom = requestIter->m_eFromPlayer;
+	
+	// we remove the first proposed deal and use it as the scratch deal ...
+	if (!(CvPreGame::isHuman(m_ePlayer) && CvPreGame::isHuman(eFrom)))
 	{
-		CvDeal* pkDeal = GC.getGame().GetGameDeals()->GetProposedDeal(kRequest.m_eFromPlayer, m_ePlayer);
-		if (pkDeal)
+		// ... but only for AI to human requests
+		if (!GC.getGame().GetGameDeals().RemoveProposedDeal(eFrom, m_ePlayer, &kDeal, false))
 		{
-			auto_ptr<ICvDeal1> pDeal = GC.WrapDealPointer(pkDeal);
-			DLLUI->SetScratchDeal(pDeal.get());
-			// we are using the scratch deal from now on, delete the proposed deal...
-			GC.getGame().GetGameDeals()->EraseDeal(kRequest.m_eFromPlayer, m_ePlayer);
-		}
-		else
-		{
+			// Well, that should never happen ...
+			// TODO: log error
+			m_aRequests.erase(requestIter);
 			return;
 		}
 	}
 
-	Send(kRequest.m_eFromPlayer, kRequest.m_eDiploType, kRequest.m_strMessage, kRequest.m_eAnimationType, kRequest.m_iExtraGameData);
-}
-void CvDiplomacyRequests::Activate(int iLookupIndex)
-{
-	CvAssert(iLookupIndex >= 0);
-	CvAssert(m_ePlayer == GC.getGame().getActivePlayer());
-	for (RequestList::iterator iter = m_aRequests.begin(); iter != m_aRequests.end(); ++iter)
+	auto_ptr<ICvDeal1> pDeal = GC.WrapDealPointer(&kDeal);
+	DLLUI->SetScratchDeal(pDeal.get());
+
+	if (requestIter->m_iLookupIndex >= 0)
 	{
-		if (iter->m_iLookupIndex == iLookupIndex)
-		{
-			Activate(*iter);
-		}
+		// we had a notification: Cancel it
+		GET_PLAYER(m_ePlayer).GetNotifications()->Dismiss(requestIter->m_iLookupIndex, false);
 	}
-	// cleanup notification & request:
-	GET_PLAYER(m_ePlayer).GetNotifications()->Dismiss(iLookupIndex, false);
+
+	// Send the request
+	m_bRequestActive = true;
+	DiploUIStateTypes eDiploType = requestIter->m_eDiploType;
+	if (GET_PLAYER(requestIter->m_eFromPlayer).isHuman())
+	{
+		// disable leader root for human players (meeting, denouncing etc...)
+		eDiploType = DIPLO_UI_STATE_BLANK_DISCUSSION;
+	}
+	m_eRequestActiveFromPlayer = eFrom;
+	gDLL->GameplayDiplomacyAILeaderMessage(eFrom, eDiploType, requestIter->m_strMessage, requestIter->m_eAnimationType, requestIter->m_iExtraGameData);
+	m_aRequests.erase(requestIter);
+	//GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 //	----------------------------------------------------------------------------
 void CvDiplomacyRequests::ActivateAllFrom(PlayerTypes eFromPlayer)
@@ -391,27 +356,13 @@ void CvDiplomacyRequests::ActivateAllFrom(PlayerTypes eFromPlayer)
 	m_eRequestActiveFromPlayer = eFromPlayer;
 	Update();
 }
-// JdH <=
-//	----------------------------------------------------------------------------
-//	Send the request immediately
-void CvDiplomacyRequests::Send(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData /*= -1*/)
-{
-	// JdH => disable leader root for human players (meeting, denouncing etc...)
-	if (GET_PLAYER(eFromPlayer).isHuman())
-	{
-		eDiploType = DIPLO_UI_STATE_BLANK_DISCUSSION;
-	}
-	gDLL->GameplayDiplomacyAILeaderMessage(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
-	m_eRequestActiveFromPlayer = eFromPlayer;
-	m_bRequestActive = true;
-}
 #else
 //	----------------------------------------------------------------------------
 //	Send the request immediately
 void CvDiplomacyRequests::Send(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData /*= -1*/)
 {
 	gDLL->GameplayDiplomacyAILeaderMessage(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
-	m_bRequestActiveFromPlayer = eFromPlayer;
+	m_eRequestActiveFromPlayer = eFromPlayer;
 	m_bRequestActive = true;
 }
 //	----------------------------------------------------------------------------
@@ -440,11 +391,20 @@ bool CvDiplomacyRequests::HasActiveRequest() const
 //	----------------------------------------------------------------------------
 bool CvDiplomacyRequests::HasActiveRequestFrom(PlayerTypes eFromPlayer) const
 {
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	return m_bRequestActive && m_eRequestActiveFromPlayer == eFromPlayer;
-#else
-	return m_bRequestActive && m_bRequestActiveFromPlayer == eFromPlayer;
-#endif
+}
+
+#if defined(MOD_ACTIVE_DIPLOMACY)
+//	----------------------------------------------------------------------------
+bool CvDiplomacyRequests::HasRequestFrom(PlayerTypes eFromPlayer) const
+{
+	for (RequestList::const_iterator iter = m_aRequests.begin(); iter != m_aRequests.end(); ++iter)
+	{
+		if (iter->m_eFromPlayer == eFromPlayer)
+			return true;
+	}
+
+	return false;
 }
 
 //	----------------------------------------------------------------------------
@@ -454,7 +414,6 @@ bool CvDiplomacyRequests::HasActiveRequestFrom(PlayerTypes eFromPlayer) const
 // static
 void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData /*= -1*/)
 {
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	if (GC.getGame().isNetworkMultiPlayer() && eToPlayer != GC.getGame().getActivePlayer())
 	{
 		return;
@@ -464,23 +423,14 @@ void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPl
 	if(pkDiploRequests)
 	{
 		// JdH => add now handles everything, from direct sending to adding notifications...
+		if (!(CvPreGame::isHuman(eFromPlayer) && CvPreGame::isHuman(eToPlayer)))
+		{
+			// dummy deal for AI to Human requests
+			GC.getGame().GetGameDeals().AddProposedDeal(CvDeal(eFromPlayer, eToPlayer));
+		}
 		pkDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
 		// JdH <=
 	}
-#else
-	CvPlayer& kPlayer = GET_PLAYER(eToPlayer);
-	CvDiplomacyRequests* pkDiploRequests = kPlayer.GetDiplomacyRequests();
-	if(pkDiploRequests)
-	{
-		if(!CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == eToPlayer)
-		{
-			// Target is the active player, just send it right now
-			pkDiploRequests->Send(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
-		}
-		else
-			pkDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
-	}
-#endif
 }
 
 //	----------------------------------------------------------------------------
@@ -488,7 +438,6 @@ void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPl
 //static
 void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pkDeal, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType)
 {
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	CvAssert(eFromPlayer != NO_PLAYER);
 	CvAssertMsg(!GET_PLAYER(eFromPlayer).isHuman(), __FUNCTION__ " must not be used by a human player!");
 
@@ -501,12 +450,62 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 	CvDiplomacyRequests* pDiploRequests = kTo.GetDiplomacyRequests();
 	if (pDiploRequests && pkDeal)
 	{
-		CvAssert(isDealDiploType(eDiploType));
-		GC.getGame().GetGameDeals()->AddProposedDeal(*pkDeal); // propose the deal (needed for activation...)
+		CvAssert(pkDeal->GetFromPlayer() == eFromPlayer);
+		CvAssert(pkDeal->GetToPlayer() == eToPlayer);
+		GC.getGame().GetGameDeals().AddProposedDeal(*pkDeal); // propose the deal (needed for activation...)
 		pDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, -1);
 	}
 }
+
+//	---------------------------------------------------------------------------
+//	Have all the AIs do a diplomacy evaluation with the turn active human players.
+//	Please note that the destination player may not be the active player.
+//	static
+void CvDiplomacyRequests::DoAIDiplomacyWithHumans()
+{
+	if (s_aDiploHumans.size() == 0)
+		return;
+
+	// just loop through all ai players and to diplomacy with active humans
+	for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
+	{
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)i);
+		if (kPlayer.isAlive() && !kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
+		{
+			kPlayer.GetDiplomacyAI()->DoTurn(DIPLO_HUMAN_PLAYERS);
+		}
+	}
+
+	s_aDiploHumans.clear();
+}
+/*static*/ std::vector<PlayerTypes> CvDiplomacyRequests::s_aDiploHumans;
 #else
+//	----------------------------------------------------------------------------
+//	Send a request from a player to another player.
+//	If the toPlayer is the active human player, it will be sent right away, else
+//	it will be queued.
+// static
+void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData /*= -1*/)
+{
+	CvPlayer& kPlayer = GET_PLAYER(eToPlayer);
+	CvDiplomacyRequests* pkDiploRequests = kPlayer.GetDiplomacyRequests();
+	if(pkDiploRequests)
+	{
+		if(!CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == eToPlayer)
+		{
+			// Target is the active player, just send it right now
+			pkDiploRequests->Send(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
+		}
+		else
+			pkDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
+	}
+}
+
+//	----------------------------------------------------------------------------
+//	Request for a deal
+//static
+void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pkDeal, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType)
+{
 	// Deals must currently happen on the active player's turn...
 	if(GC.getGame().getActivePlayer() == eToPlayer)
 	{
@@ -546,7 +545,7 @@ void CvDiplomacyRequests::DoAIDiplomacy(PlayerTypes eTargetPlayer)
 
 							if(eTargetPlayer != ePlayerLoop && kPlayer.isAlive() && !kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
 							{
-								kPlayer.GetDiplomacyAI()->DoTurn(eTargetPlayer);
+								kPlayer.GetDiplomacyAI()->DoTurn((CvDiplomacyAI::DiplomacyPlayerType)eTargetPlayer);
 								if(pkTargetRequests->HasPendingRequests())
 								{
 									ePlayerLoop = (PlayerTypes)((int)ePlayerLoop + 1);
@@ -571,10 +570,28 @@ void CvDiplomacyRequests::ActiveRequestComplete()
 {
 	m_bRequestActive = false;
 #if !defined(MOD_ACTIVE_DIPLOMACY)
-	m_bRequestActiveFromPlayer = NO_PLAYER;
+	m_eRequestActiveFromPlayer = NO_PLAYER;
 #endif
 }
 
+#if defined(MOD_ACTIVE_DIPLOMACY)
+//	---------------------------------------------------------------------------
+// Return true if the supplied player has a diplo request with a human.
+//static 
+bool CvDiplomacyRequests::HasDiploRequestWithHuman(PlayerTypes eSourcePlayer)
+{
+	for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
+	{
+		CvPlayer& kTargetPlayer = GET_PLAYER((PlayerTypes)i);
+		if (kTargetPlayer.isHuman() && kTargetPlayer.isAlive() && (PlayerTypes)i != eSourcePlayer)
+		{
+			if (kTargetPlayer.GetDiplomacyRequests()->HasRequestFrom(eSourcePlayer))
+				return true;
+		}
+	}
+	return false;
+}
+#else
 //	---------------------------------------------------------------------------
 // Return true if the supplied player has an active diplo request with a human.
 // The diplo requests are stored on the target player, so we have to check each player
@@ -594,3 +611,4 @@ bool CvDiplomacyRequests::HasActiveDiploRequestWithHuman(PlayerTypes eSourcePlay
 	}
 	return false;
 }
+#endif

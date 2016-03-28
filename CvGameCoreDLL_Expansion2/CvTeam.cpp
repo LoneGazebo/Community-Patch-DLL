@@ -1317,7 +1317,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
 	if(!isBarbarian())
 	{
-		GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GetID(), eTeam);
+		GC.getGame().GetGameDeals().DoCancelDealsBetweenTeams(GetID(), eTeam);
 		CloseEmbassyAtTeam(eTeam);
 		GET_TEAM(eTeam).CloseEmbassyAtTeam(m_eID);
 		CancelResearchAgreement(eTeam);
@@ -1599,7 +1599,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	// Cancel Trade Deals, RAs, diplomats
 	if(!isBarbarian())
 	{
-		GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GetID(), eTeam);
+		GC.getGame().GetGameDeals().DoCancelDealsBetweenTeams(GetID(), eTeam);
 		CloseEmbassyAtTeam(eTeam);
 		GET_TEAM(eTeam).CloseEmbassyAtTeam(m_eID);
 		CancelResearchAgreement(eTeam);

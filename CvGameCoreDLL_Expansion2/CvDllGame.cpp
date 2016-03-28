@@ -187,8 +187,7 @@ bool CvDllGame::GetFOW()
 //------------------------------------------------------------------------------
 ICvGameDeals1* CvDllGame::GetGameDeals()
 {
-	CvGameDeals* pGameDeals = m_pGame->GetGameDeals();
-	return (NULL != pGameDeals)? new CvDllGameDeals(pGameDeals) : NULL;
+	return new CvDllGameDeals(&m_pGame->GetGameDeals());
 }
 //------------------------------------------------------------------------------
 GameSpeedTypes CvDllGame::GetGameSpeedType() const
