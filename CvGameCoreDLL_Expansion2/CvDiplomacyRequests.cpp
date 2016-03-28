@@ -238,11 +238,15 @@ foundRequest:
 	static CvDeal kDeal;
 	PlayerTypes eFrom = requestIter->m_eFromPlayer;
 	
-	// we remove the first proposed deal and use it as the scratch deal
-	if (!GC.getGame().GetGameDeals().RemoveProposedDeal(eFrom, m_ePlayer, &kDeal, false))
+	// we remove the first proposed deal and use it as the scratch deal ...
+	if (!(CvPreGame::isHuman(m_ePlayer) && CvPreGame::isHuman(eFrom)))
 	{
-		JDHLOG(jdh::WARNING, "No deal found! That should never happen!");
-		kDeal.ClearItems();
+		// ... but only for AI to human requests
+		if (!GC.getGame().GetGameDeals().RemoveProposedDeal(eFrom, m_ePlayer, &kDeal, false))
+		{
+			JDHLOG(jdh::WARNING, "No deal found! That should never happen!");
+			kDeal.ClearItems();
+		}
 	}
 
 	auto_ptr<ICvDeal1> pDeal = GC.WrapDealPointer(&kDeal);
@@ -320,7 +324,11 @@ void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPl
 	if(pkDiploRequests)
 	{
 		// JdH => add now handles everything, from direct sending to adding notifications...
-		GC.getGame().GetGameDeals().AddProposedDeal(CvDeal(eFromPlayer, eToPlayer)); // propose dummy deal
+		if (!(CvPreGame::isHuman(eFromPlayer) && CvPreGame::isHuman(eToPlayer)))
+		{
+			// dummy deal for AI to Human requests
+			GC.getGame().GetGameDeals().AddProposedDeal(CvDeal(eFromPlayer, eToPlayer));
+		}
 		pkDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
 		// JdH <=
 	}

@@ -1680,7 +1680,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		CvGame& game = GC.getGame();
 
-		if(game.GetGameDeals().GetProposedDeal(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX), 0) == NULL)
+		if(game.GetGameDeals().GetProposedDeal(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX), true) == NULL)
 		{
 			return true;
 		}
@@ -1692,11 +1692,12 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 
 		// JdH =>
 		PlayerTypes eFrom = static_cast<PlayerTypes>(m_aNotifications[iIndex].m_iX);
-		if (m_aNotifications[iIndex].m_iY != -1 /* no deal request */) // TODO: check if pvp deals really use m_iY == -1
+		if (m_aNotifications[iIndex].m_iY != -1 /* no deal request */)
 		{
+			// TODO: check why AI to human deal notifications don't expire here
 			return false;
 		}
-		else if (game.GetGameDeals().GetProposedDeal(eFrom, m_ePlayer, 0))
+		else if (game.GetGameDeals().GetProposedDeal(eFrom, m_ePlayer, true) == NULL)
 		{
 			return true;
 		}
