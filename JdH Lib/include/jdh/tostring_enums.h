@@ -7,9 +7,8 @@
 
 namespace CvPreGame
 {
-	const CvString& nicknameDisplayed(PlayerTypes p);
+	const char* getName(PlayerTypes p);
 }
-
 
 namespace jdh
 {
@@ -20,7 +19,7 @@ namespace jdh
 		}
 		else if (0 <= ePlayerId && ePlayerId < MAX_PLAYERS)
 		{
-			buffer += szprintf("Player<%i>('%s')", ePlayerId, CvPreGame::nicknameDisplayed(ePlayerId).c_str());
+			buffer += szprintf("Player<%i>('%s')", ePlayerId, CvPreGame::getName(ePlayerId));
 		}
 		else
 		{

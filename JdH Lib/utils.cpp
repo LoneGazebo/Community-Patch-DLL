@@ -18,3 +18,24 @@ namespace jdh
 		}
 	}
 }
+
+
+namespace CvPreGame
+{
+	const char* getName(PlayerTypes ePlayer)
+	{
+		const char* szName = "";
+		if (ePlayer > NO_PLAYER && ePlayer < MAX_PLAYERS)
+		{
+			if (GC.getGamePointer() == NULL)
+			{
+				szName = CvPreGame::nicknameDisplayed(ePlayer).c_str();
+			}
+			else
+			{
+				szName = GET_PLAYER(ePlayer).getName();
+			}
+		}
+		return szName;
+	}
+}
