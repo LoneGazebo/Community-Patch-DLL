@@ -253,6 +253,9 @@ void CvDiplomacyRequests::CheckValidity()
 	std::set<PlayerTypes> aValid;
 	for(RequestList::iterator iter = m_aRequests.begin(); iter != m_aRequests.end(); ++iter)
 	{
+		if (CvPreGame::isHuman(iter->m_eFromPlayer))
+			continue;
+
 		if (aValid.find(iter->m_eFromPlayer) != aValid.end())
 			continue;
 
