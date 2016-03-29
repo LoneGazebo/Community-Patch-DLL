@@ -44,9 +44,8 @@ public:
 	void BeginTurn(void);
 	void EndTurn(void);
 #if defined(MOD_ACTIVE_DIPLOMACY)
+	bool HasRequestFrom(PlayerTypes eFromPlayer) const;
 	bool Add(PlayerTypes ePlayerID, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
-	void Remove(int iLookupIndex);
-	void Activate(int iLookupIndex);
 	void ActivateAllFrom(PlayerTypes eFromPlayer);
 	void CheckValidity();
 #else
@@ -74,12 +73,20 @@ public:
 	static void SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
 	static void SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pkDeal, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType);
 
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	static bool HasDiploRequestWithHuman(PlayerTypes eSourcePlayer);
+	static void DoAIDiplomacyWithHumans();
+
+	// activated human players since last human diplo check.
+	static std::vector<PlayerTypes> s_aDiploHumans;
+#else
 	static bool HasActiveDiploRequestWithHuman(PlayerTypes eSourcePlayer);
+#endif
 
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	void Activate(Request& kRequest);
+	void ActivateNext();
 #endif
 	void Send(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
 
@@ -90,11 +97,7 @@ protected:
 
 	typedef std::list<Request> RequestList;
 	RequestList m_aRequests;
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	PlayerTypes	m_eRequestActiveFromPlayer;	/// If a request is active, this is who it is from
-#else
-	PlayerTypes	m_bRequestActiveFromPlayer;	/// If a request is active, this is who it is from
-#endif
 	bool		m_bRequestActive;		/// If true, a request in being processed
 };
 

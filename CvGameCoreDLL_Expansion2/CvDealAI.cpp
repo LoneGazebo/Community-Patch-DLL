@@ -269,8 +269,12 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		m_pPlayer->GetDiplomacyAI()->ClearDealToRenew();
 	}
 
-	GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
-	GC.getGame().GetGameDeals()->FinalizeDeal(eFromPlayer, GetPlayer()->GetID(), true);
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	GC.getGame().GetGameDeals().FinalizeDeal(kDeal, true);
+#else
+	GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+	GC.getGame().GetGameDeals().FinalizeDeal(eFromPlayer, GetPlayer()->GetID(), true);
+#endif
 
 	if(GET_PLAYER(eFromPlayer).isHuman())
 	{
@@ -628,12 +632,16 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 void CvDealAI::DoAcceptedDemand(PlayerTypes eFromPlayer, const CvDeal& kDeal)
 {
 	CvGame& kGame = GC.getGame();
-	CvGameDeals* pGameDeals = kGame.GetGameDeals();
+	CvGameDeals& kGameDeals = kGame.GetGameDeals();
 	const PlayerTypes eActivePlayer = kGame.getActivePlayer();
 	const PlayerTypes ePlayer = GetPlayer()->GetID();
 
-	pGameDeals->AddProposedDeal(kDeal);
-	pGameDeals->FinalizeDeal(eFromPlayer, ePlayer, true);
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	kGameDeals.FinalizeDeal(kDeal, true);
+#else
+	kGameDeals.AddProposedDeal(kDeal);
+	kGameDeals.FinalizeDeal(eFromPlayer, ePlayer, true);
+#endif
 	if(eActivePlayer == eFromPlayer || eActivePlayer == ePlayer)
 	{
 		GC.GetEngineUserInterface()->makeInterfaceDirty();
@@ -987,12 +995,12 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 	}
 
 	// If we set this pointer again it clears the data out!
-	if(pDeal != GC.getGame().GetGameDeals()->GetTempDeal())
+	if(pDeal != GC.getGame().GetGameDeals().GetTempDeal())
 	{
-		GC.getGame().GetGameDeals()->SetTempDeal(pDeal);
+		GC.getGame().GetGameDeals().SetTempDeal(pDeal);
 	}
 
-	CvDeal* pCounterDeal = GC.getGame().GetGameDeals()->GetTempDeal();
+	CvDeal* pCounterDeal = GC.getGame().GetGameDeals().GetTempDeal();
 
 	if(!bMakeOffer)
 	{
@@ -7958,7 +7966,7 @@ void CvDealAI::DoTradeScreenOpened()
 			CvDeal* pkUIDeal = GC.UnwrapDealPointer(pUIDeal.get());
 			pkUIDeal->ClearItems();
 
-			CvDeal* pDeal = GC.getGame().GetGameDeals()->GetTempDeal();
+			CvDeal* pDeal = GC.getGame().GetGameDeals().GetTempDeal();
 			pDeal->ClearItems();
 			pDeal->SetFromPlayer(eActivePlayer);	// The order of these is very important!
 			pDeal->SetToPlayer(eMyPlayer);	// The order of these is very important!

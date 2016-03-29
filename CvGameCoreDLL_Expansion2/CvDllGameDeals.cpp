@@ -89,7 +89,11 @@ void CvDllGameDeals::AddProposedDeal(ICvDeal1* pDeal)
 //------------------------------------------------------------------------------
 bool CvDllGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted)
 {
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	return m_pGameDeals->FinalizeDeal(eFromPlayer, eToPlayer, bAccepted, true);
+#else
 	return m_pGameDeals->FinalizeDeal(eFromPlayer, eToPlayer, bAccepted);
+#endif
 }
 //------------------------------------------------------------------------------
 ICvDeal1* CvDllGameDeals::GetTempDeal()
@@ -111,12 +115,20 @@ PlayerTypes CvDllGameDeals::HasMadeProposal(PlayerTypes eFromPlayer)
 //------------------------------------------------------------------------------
 bool CvDllGameDeals::ProposedDealExists(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	return m_pGameDeals->GetProposedDeal(eFromPlayer, eToPlayer, true) != NULL;
+#else
 	return m_pGameDeals->ProposedDealExists(eFromPlayer, eToPlayer);
+#endif
 }
 //------------------------------------------------------------------------------
 ICvDeal1* CvDllGameDeals::GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	CvDeal* pDeal = m_pGameDeals->GetProposedDeal(eFromPlayer, eToPlayer, true);
+#else
 	CvDeal* pDeal = m_pGameDeals->GetProposedDeal(eFromPlayer, eToPlayer);
+#endif
 	return (NULL != pDeal)? new CvDllDeal(pDeal) : NULL;
 }
 //------------------------------------------------------------------------------

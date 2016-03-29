@@ -168,6 +168,10 @@ public:
 
 	int GetGoldAvailable(PlayerTypes ePlayer, TradeableItems eItemToBeChanged);
 
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	bool AreAllTradeItemsValid();
+#endif
+
 	bool IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1 = -1, int iData2 = -1, int iData3 = -1, bool bFlag1 = false, bool bCheckOtherPlayerValidity = true, bool bFinalizing = false);
 	int GetNumResource(PlayerTypes ePlayer, ResourceTypes eResource);
 
@@ -265,10 +269,16 @@ public:
 	void Init();
 
 	void AddProposedDeal(CvDeal kDeal);
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	bool RemoveProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pDealOut, bool latest);
+	bool FinalizeDeal(CvDeal kDeal, bool bAccepted);
+	bool FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted, bool latest);
+#else
 #if defined(MOD_BALANCE_CORE)
 	void EraseDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
 #endif
 	bool FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted);
+#endif
 	void DoTurn();
 
 	void DoUpdateCurrentDealsList();
@@ -277,8 +287,12 @@ public:
 	void SetTempDeal(CvDeal* pDeal);
 
 	PlayerTypes HasMadeProposal(PlayerTypes eFromPlayer);
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	CvDeal* GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool latest);
+#else
 	bool ProposedDealExists(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
 	CvDeal* GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
+#endif
 
 	CvDeal* GetCurrentDeal(PlayerTypes ePlayer, uint index);
 	CvDeal* GetHistoricDeal(PlayerTypes ePlayer, uint indx);
@@ -311,7 +325,7 @@ public:
 protected:
 	void LogDealComplete(CvDeal* pDeal);
 #if defined(MOD_BALANCE_CORE)
-	void LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bCannotTrade, bool bNotValid, bool bOther);
+	void LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted, bool bNotValid);
 #endif
 
 	CvDeal m_TempDeal;

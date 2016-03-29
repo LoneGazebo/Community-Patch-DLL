@@ -530,21 +530,7 @@ void CvNotifications::Dismiss(int iLookupIndex, bool bUserInvoked)
 				{
 					GC.GetEngineUserInterface()->SetPolicyNotificationSeen(true);
 				}
-#if defined(MOD_ACTIVE_DIPLOMACY)
-				break;
-#endif
 			}
-#if defined(MOD_ACTIVE_DIPLOMACY)
-			// JdH =>
-			case NOTIFICATION_PLAYER_DEAL_RECEIVED:
-			{
-				if (m_aNotifications[iIndex].m_iY == -2 /* request hack */)
-				{
-					GET_PLAYER(m_ePlayer).GetDiplomacyRequests()->Remove(m_aNotifications[iIndex].m_iLookupIndex); // remove the request
-				}
-				break;
-			}
-#endif
 			default:
 				break;
 			}
@@ -1033,7 +1019,7 @@ void CvNotifications::Activate(Notification& notification)
 			// This request was sent by an AI.
 			PlayerTypes eTo = notification.m_ePlayerID;
 			CvPlayer& kTo = GET_PLAYER(eTo);
-			kTo.GetDiplomacyRequests()->Activate(notification.m_iLookupIndex);
+			kTo.GetDiplomacyRequests()->ActivateAllFrom(eFrom);
 		}
 		// JdH <=
 #else
@@ -1804,9 +1790,12 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	case NOTIFICATION_PLAYER_DEAL:
 	{
 		CvGame& game = GC.getGame();
-		CvGameDeals* pDeals = game.GetGameDeals();
 
-		if(!pDeals->ProposedDealExists(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX)))
+#if defined(MOD_ACTIVE_DIPLOMACY)
+		if (game.GetGameDeals().GetProposedDeal(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX), true) == NULL)
+#else
+		if(!game.GetGameDeals().ProposedDealExists(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX)))
+#endif
 		{
 			return true;
 		}
@@ -1815,7 +1804,6 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	case NOTIFICATION_PLAYER_DEAL_RECEIVED:
 	{
 		CvGame& game = GC.getGame();
-		CvGameDeals* pDeals = game.GetGameDeals();
 #if defined(MOD_ACTIVE_DIPLOMACY)
 		// JdH =>
 		PlayerTypes eFrom = static_cast<PlayerTypes>(m_aNotifications[iIndex].m_iX);
@@ -1823,13 +1811,13 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		{
 			return false;
 		}
-		else if (!pDeals->ProposedDealExists(eFrom, m_ePlayer))
+		else if (game.GetGameDeals().GetProposedDeal(eFrom, m_ePlayer, true) == NULL)
 		{
 			return true;
 		}
 		// JdH <=
 #else
-		if(!pDeals->ProposedDealExists((PlayerTypes)(m_aNotifications[iIndex].m_iX),  m_ePlayer))
+		if(!game.GetGameDeals().ProposedDealExists((PlayerTypes)(m_aNotifications[iIndex].m_iX),  m_ePlayer))
 		{
 			return true;
 		}
