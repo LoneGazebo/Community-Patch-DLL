@@ -652,7 +652,11 @@ void CvDllNetMessageHandler::ResponsePlayerDealFinalized(PlayerTypes eFromPlayer
 	PlayerTypes eActivePlayer = game.getActivePlayer();
 
 	// is the deal valid?
-	if(!game.GetGameDeals()->FinalizeDeal(eFromPlayer, eToPlayer, bAccepted))
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	if(!game.GetGameDeals().FinalizeDeal(eFromPlayer, eToPlayer, bAccepted, true))
+#else
+	if(!game.GetGameDeals().FinalizeDeal(eFromPlayer, eToPlayer, bAccepted))
+#endif
 	{
 		Localization::String strMessage;
 		Localization::String strSummary = Localization::Lookup("TXT_KEY_DEAL_EXPIRED");

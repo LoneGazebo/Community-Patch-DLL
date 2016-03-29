@@ -97,7 +97,7 @@ public:
 	// Turn Stuff
 	/////////////////////////////////////////////////////////
 
-	void DoTurn(PlayerTypes eTargetPlayer);
+	void DoTurn(DiplomacyPlayerType eTargetPlayer);
 	void DoCounters();
 
 	/////////////////////////////////////////////////////////
@@ -1406,9 +1406,7 @@ public:
 	void LogCloseEmbassy(PlayerTypes ePlayer);
 
 private:
-#if !defined(MOD_ACTIVE_DIPLOMACY)
 	bool IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer);
-#endif
 
 	bool IsAtWar(PlayerTypes eOtherPlayer);
 	void DoMakeWarOnPlayer(PlayerTypes eTargetPlayer);
@@ -2070,7 +2068,7 @@ private:
 	void DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinionWeight);
 	// JdH <=
 #endif
-	PlayerTypes			m_eTargetPlayer;
+	DiplomacyPlayerType	m_eTargetPlayer;
 
 	// Data members for injecting test messages
 	PlayerTypes			m_eTestToPlayer;

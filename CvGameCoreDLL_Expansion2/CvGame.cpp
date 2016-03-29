@@ -901,7 +901,7 @@ void CvGame::regenerateMap()
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		GC.getGame().GetGameDeals()->DoCancelAllDealsWithPlayer((PlayerTypes) iI);
+		GC.getGame().GetGameDeals().DoCancelAllDealsWithPlayer((PlayerTypes) iI);
 	}
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
@@ -1689,6 +1689,11 @@ void CvGame::update()
 					CheckPlayerTurnDeactivate();
 
 					changeTurnSlice(1);
+
+#if defined(MOD_ACTIVE_DIPLOMACY)
+					// JdH: humans may have been activated, check for AI diplomacy
+					CvDiplomacyRequests::DoAIDiplomacyWithHumans();
+#endif
 
 					gDLL->FlushTurnReminders();
 				}
@@ -8014,6 +8019,11 @@ void CvGame::doTurn()
 	// Victory stuff
 	testVictory();
 
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	// JdH: humans may have been activated, check for AI diplomacy
+	CvDiplomacyRequests::DoAIDiplomacyWithHumans();
+#endif
+
 	// Who's Winning
 	if(GET_PLAYER(getActivePlayer()).isAlive() && !IsStaticTutorialActive())
 	{
@@ -11166,9 +11176,9 @@ CvStartPositioner* CvGame::GetStartPositioner()
 }
 
 //	--------------------------------------------------------------------------------
-CvGameDeals* CvGame::GetGameDeals()
+CvGameDeals& CvGame::GetGameDeals()
 {
-	return &m_kGameDeals;
+	return m_kGameDeals;
 }
 
 //	--------------------------------------------------------------------------------
