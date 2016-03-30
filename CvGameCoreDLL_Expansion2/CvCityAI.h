@@ -33,7 +33,9 @@ public:
 
 	int AI_GetNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer) const;
 	void AI_ChangeNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer, int iChange);
-
+#if defined(MOD_BALANCE_CORE_DEALS)
+	void AI_DoEventChoice(CityEventTypes eEvent);
+#endif
 	void read(FDataStream& kStream);
 	void write(FDataStream& kStream) const;
 

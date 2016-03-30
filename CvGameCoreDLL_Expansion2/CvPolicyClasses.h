@@ -819,9 +819,14 @@ public:
 
 	// Accessor functions
 	bool HasPolicy(PolicyTypes eIndex) const;
+#if defined(MOD_API_EXTENSIONS)
+	bool IsFreePolicy(PolicyTypes eIndex) const;
+	void SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree);
+#else
 	void SetPolicy(PolicyTypes eIndex, bool bNewValue);
+#endif
 #if defined(MOD_BALANCE_CORE)
-	int GetNumPoliciesOwned(bool bSkipFinisher = false) const;
+	int GetNumPoliciesOwned(bool bSkipFinisher = false, bool bExcludeFree = false) const;
 #else
 	int GetNumPoliciesOwned() const;
 #endif
@@ -930,6 +935,9 @@ private:
 	// Logging functions
 	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
 
+#if defined(MOD_API_EXTENSIONS)
+	bool* m_pabFreePolicy;
+#endif
 	bool* m_pabHasPolicy;
 	bool* m_pabHasOneShotPolicyFired;
 	bool* m_pabHaveOneShotFreeUnitsFired;

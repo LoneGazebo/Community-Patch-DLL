@@ -829,7 +829,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			return 0;
 		}
-		if(kPlayer.isBarbarian() || kPlayer.GetPlayerTraits()->IsNoAnnexing() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+		if(kPlayer.isBarbarian() || kPlayer.GetPlayerTraits()->IsNoAnnexing() || (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && kPlayer.isHuman()))
 		{
 			return 0;
 		}
@@ -978,15 +978,18 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//////////////////
 	//WAR BOOSTERS
 	////////////////////////
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	if(pkUnitEntry->GetCombat() > 0)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			if(kPlayer.GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_STALEMATE)
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
-				iBonus += 200;
+				if(kPlayer.GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_STALEMATE)
+				{
+					iBonus += 300;
+				}
 			}
 		}
 	}
@@ -994,15 +997,15 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	{
 		if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == m_pCity)
 		{
-			iBonus += 100;
+			iBonus += 200;
 		}
 		if(pkUnitEntry->GetCombat() > 0)
 		{
-			iBonus += (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 50);
+			iBonus += (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 100);
 		}
 		else
 		{
-			iBonus -= (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 25);
+			iBonus -= (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 50);
 		}
 	}
 	if(pkUnitEntry->GetCombat() > 0)
@@ -1014,7 +1017,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 		if(kPlayer.GetMilitaryAI()->GetWarType() == 1 && pkUnitEntry->GetDomainType() == DOMAIN_LAND)
 		{
-			iBonus += 25;
+			iBonus += 35;
 		}
 		else if(kPlayer.GetMilitaryAI()->GetWarType() == 1 && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 		{
@@ -1022,7 +1025,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if(kPlayer.GetMilitaryAI()->GetWarType() == 2 && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 		{
-			iBonus += 25;
+			iBonus += 35;
 		}
 		else if(kPlayer.GetMilitaryAI()->GetWarType() == 2 && pkUnitEntry->GetDomainType() == DOMAIN_LAND)
 		{
@@ -1030,61 +1033,32 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 	}
 	
-	//XP and Production Mods
-	if(!m_pCity->IsPuppet() || kPlayer.GetPlayerTraits()->IsNoAnnexing())
+	/////////////////////
+	// EXPERIENCE BOOSTERS
+	/////////////////////
+	if(pkUnitEntry->GetCombat() > 0)
 	{
-		for (int iDomainLoop = 0; iDomainLoop < NUM_DOMAIN_TYPES; iDomainLoop++)
+		//Let's try to build our units in our best cities only. More cities we have, the more this matters.
+		if(m_pCity == kPlayer.GetBestMilitaryCity((UnitCombatTypes)pkUnitEntry->GetUnitCombatType()))
 		{
-			DomainTypes eTestDomain = (DomainTypes)iDomainLoop;
-			if(eTestDomain != NO_DOMAIN)
-			{
-				if(pkUnitEntry->GetDomainType() == eTestDomain)
-				{
-					if(m_pCity->getDomainFreeExperience(eTestDomain) > 0)
-					{
-						iBonus += max(1, (m_pCity->getDomainFreeExperience(eTestDomain) / 3));
-					}
-					if(m_pCity->getDomainFreeExperienceFromGreatWorks(eTestDomain) > 0)
-					{
-						iBonus += max(1, (m_pCity->getDomainFreeExperienceFromGreatWorks(eTestDomain) / 3));
-					}
-					if(m_pCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain) > 0)
-					{
-						iBonus += max(1, (m_pCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain) / 3));
-					}
-					if(m_pCity->getDomainProductionModifier(eTestDomain) > 0)
-					{
-						iBonus += max(1, (m_pCity->getDomainProductionModifier(eTestDomain) / 3));
-					}
-				}
-			}
+			iBonus += (30 * kPlayer.getNumCities());
+		}
+		//Discourage bad cities.
+		else
+		{
+			iBonus -= (15 * kPlayer.getNumCities());
+		}
+		//Let's try to build our units in our best cities only. More cities we have, the more this matters.
+		if(m_pCity == kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, (DomainTypes)pkUnitEntry->GetDomainType()))
+		{
+			iBonus += (30 * kPlayer.getNumCities());
+		}
+		//Discourage bad cities.
+		else
+		{
+			iBonus -= (15 * kPlayer.getNumCities());
 		}
 	}
-
-	//Unitcombat Bonuses should stack too.
-	if(!m_pCity->IsPuppet() || kPlayer.GetPlayerTraits()->IsNoAnnexing())
-	{
-		for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
-		{
-			const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
-			CvBaseInfo* pkUnitCombatClassInfo = GC.getUnitCombatClassInfo(eUnitCombatClass);
-			if(pkUnitCombatClassInfo)
-			{
-				if(pkUnitEntry->GetUnitCombatType() == eUnitCombatClass)
-				{
-					if(m_pCity->getUnitCombatFreeExperience(eUnitCombatClass) > 0)
-					{
-						iBonus += max(1, (m_pCity->getUnitCombatFreeExperience(eUnitCombatClass) / 3));
-					}
-					if(m_pCity->getUnitCombatProductionModifier(eUnitCombatClass) > 0)
-					{
-						iBonus += max(1, (m_pCity->getUnitCombatProductionModifier(eUnitCombatClass) / 3));
-					}
-				}
-			}
-		}
-	}
-	
 	//Promotion Bonus
 	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
@@ -1092,32 +1066,25 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
 		if(pkPromotionInfo)
 		{
-			if(m_pCity->isFreePromotion(ePromotion))
+			if(kPlayer.IsFreePromotion(ePromotion))
 			{
 				if((pkUnitEntry->GetUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pkUnitEntry->GetUnitCombatType()))
 				{
 					iBonus += 25;
 				}
 			}
-			if(kPlayer.IsFreePromotion(ePromotion))
-			{
-				if((pkUnitEntry->GetUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pkUnitEntry->GetUnitCombatType()))
-				{
-					iBonus += 20;
-				}
-			}
 			if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitClass(iI, pkUnitEntry->GetUnitClassType()))
 			{
 				if((pkUnitEntry->GetUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pkUnitEntry->GetUnitCombatType()))
 				{
-					iBonus += 35;
+					iBonus += 50;
 				}
 			}
 			if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitCombat(iI, pkUnitEntry->GetUnitCombatType()))
 			{
 				if((pkUnitEntry->GetUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pkUnitEntry->GetUnitCombatType()))
 				{
-					iBonus += 15;
+					iBonus += 25;
 				}
 			}
 		}

@@ -493,6 +493,10 @@ public:
 	void SimulateProphetSpread(ReligionTypes eReligion, int iPressure);
 	void SimulateReligiousPressure(ReligionTypes eReligion, int iPressure);
 	void ConvertPercentFollowers(ReligionTypes eToReligion, ReligionTypes eFromReligion, int iPercent);
+#if defined(MOD_BALANCE_CORE)
+	void ConvertPercentForcedFollowers(ReligionTypes eToReligion, int iPercent);
+	void ConvertNumberFollowers(ReligionTypes eToReligion, int iPop);
+#endif
 	void AddHolyCityPressure();
 	void AddSpyPressure(ReligionTypes eReligion, int iBasePressure);
 	void AdoptReligionFully(ReligionTypes eReligion);

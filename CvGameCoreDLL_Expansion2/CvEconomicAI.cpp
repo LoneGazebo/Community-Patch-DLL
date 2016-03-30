@@ -1363,7 +1363,11 @@ void CvEconomicAI::LogMonitor(void)
 	AppendToLog(strHeader, strLog, "Num Techs", GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown());
 
 	// Culture
+#if defined(MOD_BUGFIX_DUMMY_POLICIES)
+	AppendToLog(strHeader, strLog, "Policies", GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(false));
+#else
 	AppendToLog(strHeader, strLog, "Policies", GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned());
+#endif
 	AppendToLog(strHeader, strLog, "Culture (lifetime)", GetPlayer()->GetJONSCultureEverGenerated());
 
 	// Faith
@@ -1796,16 +1800,20 @@ void CvEconomicAI::DoHurry()
 	iTreasuryBuffer *= GC.getGame().getGameSpeedInfo().getGoldPercent();
 	iTreasuryBuffer /= 100;
 
-	if(IsSavingForThisPurchase(PURCHASE_TYPE_UNIT_UPGRADE) || IsSavingForThisPurchase(PURCHASE_TYPE_TILE) || IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT))
+	if(IsSavingForThisPurchase(PURCHASE_TYPE_UNIT_UPGRADE) || IsSavingForThisPurchase(PURCHASE_TYPE_TILE) || IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT) || IsSavingForThisPurchase(PURCHASE_TYPE_MAJOR_CIV_TRADE) || IsSavingForThisPurchase(PURCHASE_TYPE_MAJOR_CIV_TRADE))
 	{
-		iTreasuryBuffer *= 2;
+		iTreasuryBuffer *= 3;
 	}
 	
 	//Let's check our average income over five-turn periods
 	CvTreasury* pTreasury = m_pPlayer->GetTreasury();
+	int iAverage = (int)pTreasury->AverageIncome(10);
 
-	//Are we in debt? Doesn't matter if we are super rich!
-	if((pTreasury->GetGold() >= iTreasuryBuffer && pTreasury->CalculateBaseNetGoldTimes100() > 0) || (pTreasury->GetGold() > (iTreasuryBuffer * 2)))
+	//Are we in debt?
+	if(iAverage < 0)
+		return;
+
+	if(pTreasury->GetGold() >= iTreasuryBuffer)
 	{
 		// Which city needs hurrying most?
 		CvCity* pMostThreatenedCity = m_pPlayer->GetMilitaryAI()->GetMostThreatenedCity();
@@ -4370,13 +4378,15 @@ bool EconomicAIHelpers::IsTestStrategy_OneOrFewerCoastalCities(CvPlayer* pPlayer
 bool EconomicAIHelpers::IsTestStrategy_LosingMoney(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
 	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
-	int iInterval = pStrategy->GetMinimumNumTurnsExecuted();
+	
+	int iInterval = pStrategy->GetFirstTurnExecuted();
 
 	// Need a certain number of turns of history before we can turn this on
 	if(GC.getGame().getGameTurn() <= iInterval)
 	{
 		return false;
 	}
+	iInterval = pStrategy->GetMinimumNumTurnsExecuted();
 
 	// Is average income below desired threshold over past X turns?
 	return (pPlayer->GetTreasury()->AverageIncome(iInterval) < (double)pStrategy->GetWeightThreshold() /* 2 */);

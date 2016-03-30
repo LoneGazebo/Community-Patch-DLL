@@ -325,6 +325,12 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getVictoryInfo(), "Victories");
 	PrefetchCollection(GC.getVoteInfo(), "Votes");
 	PrefetchCollection(GC.getVoteSourceInfo(), "VoteSources");
+#if defined(MOD_BALANCE_CORE)
+	PrefetchCollection(GC.getEventInfo(), "Events");
+	PrefetchCollection(GC.getEventChoiceInfo(), "EventChoices");
+	PrefetchCollection(GC.getCityEventInfo(), "CityEvents");
+	PrefetchCollection(GC.getCityEventChoiceInfo(), "CityEventChoices");
+#endif
 	PrefetchCollection(GC.getUnitDomainInfo(), "Domains");
 
 #if defined(MOD_EVENTS_DIPLO_MODIFIERS)
@@ -632,6 +638,12 @@ bool CvDllDatabaseUtility::ValidatePrefetchProcess()
 	ValidateVectorSize(getNumUnitInfos);
 	ValidateVectorSize(getNumSpecialUnitInfos);
 	ValidateVectorSize(getNumVoteSourceInfos);
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	ValidateVectorSize(getNumEventInfos);
+	ValidateVectorSize(getNumEventChoiceInfos);
+	ValidateVectorSize(getNumCityEventInfos);
+	ValidateVectorSize(getNumCityEventChoiceInfos);
+#endif
 	ValidateVectorSize(getNumUnitCombatClassInfos);
 
 	ValidateCount(gc.getUnitAIInfo().size);

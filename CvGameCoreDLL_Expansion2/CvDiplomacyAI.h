@@ -851,6 +851,10 @@ public:
 	int GetNumDenouncements();
 	int GetNumDenouncementsOfPlayer();
 	int GetNumSamePolicies(PlayerTypes ePlayer);
+
+	void SetPromiseNumberOwnedCities(PlayerTypes eOtherPlayer, int iPlotIndex);
+	int GetPromiseNumberOwnedCities(PlayerTypes eOtherPlayer);
+
 	void SetPromisePlotOtherPlayer(PlayerTypes eOtherPlayer, int iPlotIndex);
 	int GetPromisePlotOtherPlayer(PlayerTypes eOtherPlayer);
 
@@ -1567,6 +1571,7 @@ private:
 		char m_aeDoFType[MAX_MAJOR_CIVS];
 		short m_aiNumTimesCoopWarDenied[MAX_MAJOR_CIVS];
 		short m_aiPromisePlot[MAX_MAJOR_CIVS];
+		short m_aiPromiseNumberOwnedCities[MAX_MAJOR_CIVS];
 		short m_aiLastTurnCoM[MAX_MAJOR_CIVS];
 #endif
 		short m_aiDoFCounter[MAX_MAJOR_CIVS];
@@ -1896,6 +1901,7 @@ private:
 	char* m_paeDoFType;
 	short* m_paiNumTimesCoopWarDenied;
 	short* m_paiPromisePlot;
+	short* m_paiPromiseNumberOwnedCities;
 	short* m_paiLastTurnCoM;
 #endif
 	short* m_paiDoFCounter;

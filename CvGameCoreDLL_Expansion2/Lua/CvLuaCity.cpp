@@ -204,6 +204,8 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetNumBuildingClass);
 	Method(IsHasBuildingClass);
 	Method(GetLocalBuildingClassYield);
+	Method(GetEventBuildingClassYield);
+	Method(GetEventCityYield);
 #endif
 	Method(GetNumActiveBuilding);
 	Method(GetID);
@@ -676,6 +678,18 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CountWorkedResource);
 	Method(CountTerrain);
 	Method(CountWorkedTerrain);
+	Method(GetAdditionalFood);
+	Method(SetAdditionalFood);
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	Method(DoCityEventChoice);
+	Method(DoCityStartEvent);
+	Method(DoCancelCityEventChoice);
+	Method(GetCityEventCooldown);
+	Method(SetCityEventCooldown);
+	Method(GetCityEventChoiceCooldown);
+	Method(SetCityEventChoiceCooldown);
+	Method(IsCityEventChoiceValid);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -2172,6 +2186,26 @@ int CvLuaCity::lGetLocalBuildingClassYield(lua_State* L)
 
 	lua_pushinteger(L, iResult);
 	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lGetEventBuildingClassYield(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 3);
+	int iResult = 0;
+	if(eBuildingClassType != NO_BUILDINGCLASS && eIndex != NO_YIELD)
+	{	
+		iResult = pkCity->GetEventBuildingClassCityYield(eBuildingClassType, eIndex);
+	}
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lGetEventCityYield(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetEventCityYield);
 }
 #endif
 //------------------------------------------------------------------------------
@@ -5388,4 +5422,86 @@ LUAAPIIMPL(City, CountResource)
 LUAAPIIMPL(City, CountWorkedResource)
 LUAAPIIMPL(City, CountTerrain)
 LUAAPIIMPL(City, CountWorkedTerrain)
+
+int CvLuaCity::lGetAdditionalFood(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iAdditionalFood = pkCity->GetAdditionalFood();
+	lua_pushinteger(L, iAdditionalFood);
+
+	return 1;
+}
+int CvLuaCity::lSetAdditionalFood(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iFood = lua_tointeger(L, 2);
+	pkCity->SetAdditionalFood(iFood);
+	return 1;
+}
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+int CvLuaCity::lDoCityEventChoice(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	pkCity->DoEventChoice(eEventChoice);
+	return 1;
+}
+int CvLuaCity::lDoCityStartEvent(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 2);
+	pkCity->DoStartEvent(eEvent);
+	return 1;
+}
+int CvLuaCity::lDoCancelCityEventChoice(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEvent = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	pkCity->DoCancelEventChoice(eEvent);
+	return 1;
+}
+int CvLuaCity::lGetCityEventCooldown(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 2);
+	const int iCooldown = pkCity->GetEventCooldown(eEvent);
+	lua_pushinteger(L, iCooldown);
+	return 1;
+}
+int CvLuaCity::lSetCityEventCooldown(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 2);
+	const int iCooldown = lua_tointeger(L, 3);
+	pkCity->SetEventCooldown(eEvent, iCooldown);
+	return 1;
+}
+int CvLuaCity::lGetCityEventChoiceCooldown(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEvent = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const int iCooldown = pkCity->GetEventChoiceDuration(eEvent);
+	lua_pushinteger(L, iCooldown);
+	return 1;
+}
+int CvLuaCity::lSetCityEventChoiceCooldown(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEvent = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const int iCooldown = lua_tointeger(L, 3);
+	pkCity->SetEventChoiceDuration(eEvent, iCooldown);
+	return 1;
+}
+int CvLuaCity::lIsCityEventChoiceValid(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 3);
+	const bool bValue = pkCity->IsCityEventChoiceValid(eEventChoice, eEvent);
+
+	lua_pushboolean(L, bValue);
+
+	return 1;
+}
 #endif

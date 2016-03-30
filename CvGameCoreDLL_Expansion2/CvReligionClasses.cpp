@@ -942,6 +942,11 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 
 	// Found it
 	m_CurrentReligions.push_back(newReligion);
+#if defined(MOD_TRAITS_OTHER_PREREQS)
+	if (MOD_TRAITS_OTHER_PREREQS) {
+		kPlayer.GetPlayerTraits()->InitPlayerTraits();
+	}
+#endif
 #if defined(MOD_BALANCE_CORE)
 	if(kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
 	{
@@ -1147,6 +1152,12 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 
 	// Inform the holy city
 	pkHolyCity->GetCityReligions()->DoReligionFounded(kReligion.m_eReligion);
+
+#if defined(MOD_TRAITS_OTHER_PREREQS)
+	if (MOD_TRAITS_OTHER_PREREQS) {
+		kPlayer.GetPlayerTraits()->InitPlayerTraits();
+	}
+#endif
 
 	// Update game systems
 	kPlayer.UpdateReligion();
@@ -1433,6 +1444,12 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 #endif
 		it->m_bEnhanced = true;
 
+#if defined(MOD_TRAITS_OTHER_PREREQS)
+	if (MOD_TRAITS_OTHER_PREREQS) {
+		kPlayer.GetPlayerTraits()->InitPlayerTraits();
+	}
+#endif
+
 	// Update game systems
 	UpdateAllCitiesThisReligion(eReligion);
 	kPlayer.UpdateReligion();
@@ -1645,6 +1662,11 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 	}
 #endif
 	it->m_Beliefs.AddBelief(eBelief1);
+#if defined(MOD_TRAITS_OTHER_PREREQS)
+	if (MOD_TRAITS_OTHER_PREREQS) {
+		kPlayer.GetPlayerTraits()->InitPlayerTraits();
+	}
+#endif
 #if defined(MOD_BALANCE_CORE)
 	it->m_bReformed = true;
 #endif
@@ -5167,6 +5189,61 @@ void CvCityReligions::ConvertPercentFollowers(ReligionTypes eToReligion, Religio
 	}
 	AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eToReligion, iPressureConverting, NO_PLAYER);
 }
+#if defined(MOD_BALANCE_CORE)
+/// Convert some percentage of followers from one religion to another
+void CvCityReligions::ConvertPercentForcedFollowers(ReligionTypes eToReligion, int iPercent)
+{
+	int iPressureConverting = 0;
+
+	// Find religion
+	ReligionInCityList::iterator it;
+	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
+	{
+		//Do for every religion in City, as we're converting x% of all citizens. 
+		if(it->m_iFollowers > 0)
+		{
+			iPressureConverting = it->m_iPressure * iPercent / 100;
+			it->m_iPressure -= iPressureConverting;
+			if (it->m_iPressure < 0)
+			{
+				it->m_iPressure = 0;
+			}
+		}
+	}
+	AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eToReligion, iPressureConverting, NO_PLAYER);
+}
+/// Convert some number of followers from one religion to another
+void CvCityReligions::ConvertNumberFollowers(ReligionTypes eToReligion, int iPop)
+{
+	int iPressureConverting = 0;
+
+	iPop *= 100;
+	int iTotalPop = m_pCity->getPopulation();
+	iPop /= iTotalPop;
+
+	if(iPop > 100)
+	{
+		iPop = 100;
+	}
+
+	// Find religion
+	ReligionInCityList::iterator it;
+	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
+	{
+		//Do for every religion in City, as we're converting x% of all citizens. 
+		if(it->m_iFollowers > 0)
+		{
+			iPressureConverting = it->m_iPressure * iPop / 100;
+			it->m_iPressure -= iPressureConverting;
+			if (it->m_iPressure < 0)
+			{
+				it->m_iPressure = 0;
+			}
+		}
+	}
+	AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eToReligion, iPressureConverting, NO_PLAYER);
+}
+#endif
 
 /// Add pressure to recruit followers to a religion
 void CvCityReligions::AddHolyCityPressure()
@@ -5643,9 +5720,10 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-				if(kLoopPlayer.isAlive() && kLoopPlayer.GetReligions()->GetCurrentReligion() == eMajority)
+				if(kLoopPlayer.isAlive() && pHolyCity != NULL && pHolyCity->getOwner() == (PlayerTypes)iPlayerLoop)
 				{
-					kLoopPlayer.doInstantYield(INSTANT_YIELD_TYPE_CONVERSION);
+					kLoopPlayer.doInstantYield(INSTANT_YIELD_TYPE_CONVERSION, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pHolyCity);
+					SetPaidAdoptionBonus(true);
 				}
 			}
 #endif

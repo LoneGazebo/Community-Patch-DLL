@@ -60,6 +60,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iTRVisionBoost(0),
 	m_iVotesPerGPT(0),
 	m_bRequiresRail(false),
+	m_bDummy(false),
 #endif
 	m_iSpecialistType(NO_SPECIALIST),
 	m_iSpecialistCount(0),
@@ -755,6 +756,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
 	m_iVotesPerGPT = kResults.GetInt("VotesPerGPT");
 	m_bRequiresRail = kResults.GetBool("RequiresRail");
+	m_bDummy = kResults.GetBool("IsDummy");
 #endif
 	szTextVal = kResults.GetText("FreePromotion");
 	m_iFreePromotion = GC.getInfoTypeForString(szTextVal, true);
@@ -1455,6 +1457,10 @@ int CvBuildingEntry::GetVotesPerGPT() const
 bool CvBuildingEntry::IsRequiresRail() const
 {
 	return m_bRequiresRail;
+}
+bool CvBuildingEntry::IsDummy() const
+{
+	return m_bDummy;
 }
 #endif
 
@@ -4104,7 +4110,14 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 			}
 			else
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(!buildingEntry->IsDummy())
+				{
+#endif
 				ChangeNumBuildings(iChangeNumRealBuilding);
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 			}
 		}
 

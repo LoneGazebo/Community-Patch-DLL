@@ -130,6 +130,7 @@ public:
 	int GetTRVisionBoost() const;
 	int GetVotesPerGPT() const;
 	bool IsRequiresRail() const;
+	bool IsDummy() const;
 #endif
 	int GetSpecialistType() const;
 	int GetSpecialistCount() const;
@@ -551,6 +552,7 @@ private:
 	int m_iTRVisionBoost;
 	int m_iVotesPerGPT;
 	bool m_bRequiresRail;
+	bool m_bDummy;
 #endif
 	int m_iSpecialistType;
 	int m_iSpecialistCount;

@@ -196,6 +196,8 @@ protected:
 	LUAAPIEXTN(GetNumBuildingClass, int, iBuildingClassType);
 	LUAAPIEXTN(IsHasBuildingClass, bool, iBuildingClassType);
 	static int lGetLocalBuildingClassYield(lua_State* L);
+	static int lGetEventBuildingClassYield(lua_State* L);
+	static int lGetEventCityYield(lua_State* L);
 #endif
 	static int lGetNumActiveBuilding(lua_State* L);
 	static int lGetID(lua_State* L);
@@ -680,6 +682,19 @@ protected:
 	LUAAPIEXTN(CountWorkedResource, int, iResource);
 	LUAAPIEXTN(CountTerrain, int, iTerrain);
 	LUAAPIEXTN(CountWorkedTerrain, int, iTerrain);
+
+	static int lGetAdditionalFood(lua_State* L);
+	static int lSetAdditionalFood(lua_State* L);
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	static int lDoCityEventChoice(lua_State* L);
+	static int lDoCityStartEvent(lua_State* L);
+	static int lDoCancelCityEventChoice(lua_State* L);
+	static int lGetCityEventCooldown(lua_State* L);
+	static int lSetCityEventCooldown(lua_State* L);
+	static int lGetCityEventChoiceCooldown(lua_State* L);
+	static int lSetCityEventChoiceCooldown(lua_State* L);
+	static int lIsCityEventChoiceValid(lua_State* L);
 #endif
 };
 

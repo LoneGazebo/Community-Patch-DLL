@@ -80,6 +80,13 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iFriendlyLandsAttackModifier(0),
 	m_iOutsideFriendlyLandsModifier(0),
 	m_iCommandType(NO_COMMAND),
+#if defined(MOD_UNITS_NO_SUPPLY)
+	m_bNoSupply(false),
+#endif
+#if defined(MOD_UNITS_MAX_HP)
+	m_iMaxHitPointsChange(0),
+	m_iMaxHitPointsModifier(0),
+#endif
 	m_iUpgradeDiscount(0),
 	m_iExperiencePercent(0),
 	m_iAdjacentMod(0),
@@ -409,6 +416,17 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iFriendlyLandsModifier = kResults.GetInt("FriendlyLandsModifier");
 	m_iFriendlyLandsAttackModifier = kResults.GetInt("FriendlyLandsAttackModifier");
 	m_iOutsideFriendlyLandsModifier = kResults.GetInt("OutsideFriendlyLandsModifier");
+#if defined(MOD_UNITS_NO_SUPPLY)
+	if (MOD_UNITS_NO_SUPPLY) {
+		m_bNoSupply = (kResults.GetInt("NoSupply") != 0);
+	}
+#endif
+#if defined(MOD_UNITS_MAX_HP)
+	if (MOD_UNITS_MAX_HP) {
+		m_iMaxHitPointsChange = kResults.GetInt("MaxHitPointsChange");
+		m_iMaxHitPointsModifier = kResults.GetInt("MaxHitPointsModifier");
+	}
+#endif
 	m_iUpgradeDiscount = kResults.GetInt("UpgradeDiscount");
 	m_iExperiencePercent = kResults.GetInt("ExperiencePercent");
 	m_iAdjacentMod = kResults.GetInt("AdjacentMod");
@@ -1278,6 +1296,28 @@ void CvPromotionEntry::SetCommandType(int iNewType)
 {
 	m_iCommandType = iNewType;
 }
+
+#if defined(MOD_UNITS_NO_SUPPLY)
+/// Accessor: Unit has no supply cost
+bool CvPromotionEntry::IsNoSupply() const
+{
+	return m_bNoSupply;
+}
+#endif
+
+#if defined(MOD_UNITS_MAX_HP)
+/// Accessor: Absolute change of max hit points
+int CvPromotionEntry::GetMaxHitPointsChange() const
+{
+	return m_iMaxHitPointsChange;
+}
+
+/// Accessor: Percentage modifier of base max hit points
+int CvPromotionEntry::GetMaxHitPointsModifier() const
+{
+	return m_iMaxHitPointsModifier;
+}
+#endif
 
 /// Accessor: How much upgrading this unit is discounted
 int CvPromotionEntry::GetUpgradeDiscount() const

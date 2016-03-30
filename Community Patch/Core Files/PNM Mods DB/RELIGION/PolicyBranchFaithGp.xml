@@ -2,7 +2,8 @@
 <GameData>
 	<Table name="Policy_FaithPurchaseUnitClasses">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
-		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<!-- Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/ -->
+		<Column name="UnitClassType" type="text" notnull="true"/>
 		<Column name="EraType" type="text" reference="Eras(Type)" default="NULL"/>
 	</Table>
 

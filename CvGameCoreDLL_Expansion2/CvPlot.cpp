@@ -3339,7 +3339,7 @@ bool CvPlot::IsAllowsWalkWater() const
 bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
 {
 	if (pUnit==NULL)
-		return isWater() && !isIce() && !IsAllowsWalkWater();
+		return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canLoad(*this);
 	else
 	{
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
@@ -10279,7 +10279,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 #if defined(MOD_BALANCE_CORE)
 					if(pUnit && pUnit->IsGainsXPFromScouting() && !GET_TEAM(eTeam).isBarbarian() && !GET_TEAM(eTeam).isMinorCiv())
 					{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 						if(pUnit->getExperienceTimes100() < (GC.getBALANCE_SCOUT_XP_MAXIMUM() * 100))
 #else
 						if(pUnit->getExperience() < GC.getBALANCE_SCOUT_XP_MAXIMUM())

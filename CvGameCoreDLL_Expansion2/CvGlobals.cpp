@@ -1654,7 +1654,12 @@ CvGlobals::CvGlobals() :
 #endif
 	m_iZONE_OF_CONTROL_ENABLED(1),
 	m_iFIRE_SUPPORT_DISABLED(1),
+#if defined(MOD_BUGFIX_MINOR)
+	// BNW matey boy!
+	m_iMAX_HIT_POINTS(100),
+#else
 	m_iMAX_HIT_POINTS(10),
+#endif
 	m_iMAX_CITY_HIT_POINTS(200),
 	m_iCITY_HIT_POINTS_HEALED_PER_TURN(1),
 	m_iFLAT_LAND_EXTRA_DEFENSE(-33),
@@ -3266,6 +3271,87 @@ CvVoteSourceInfo* CvGlobals::getVoteSourceInfo(VoteSourceTypes e)
 	else
 		return NULL;
 }
+
+#if defined(MOD_BALANCE_CORE_EVENTS)
+int CvGlobals::getNumEventInfos()
+{
+	return (int)m_paEventInfo.size();
+}
+
+std::vector<CvModEventInfo*>& CvGlobals::getEventInfo()
+{
+	return m_paEventInfo;
+}
+
+CvModEventInfo* CvGlobals::getEventInfo(EventTypes e)
+{
+	CvAssert(e > -1);
+	CvAssert(e < GC.getNumEventInfos());
+	if(e > -1 && e < (int)m_paEventInfo.size())
+		return m_paEventInfo[e];
+	else
+		return NULL;
+}
+
+int CvGlobals::getNumEventChoiceInfos()
+{
+	return (int)m_paEventChoiceInfo.size();
+}
+
+std::vector<CvModEventChoiceInfo*>& CvGlobals::getEventChoiceInfo()
+{
+	return m_paEventChoiceInfo;
+}
+
+CvModEventChoiceInfo* CvGlobals::getEventChoiceInfo(EventChoiceTypes e)
+{
+	CvAssert(e > -1);
+	CvAssert(e < GC.getNumEventChoiceInfos());
+	if(e > -1 && e < (int)m_paEventChoiceInfo.size())
+		return m_paEventChoiceInfo[e];
+	else
+		return NULL;
+}
+int CvGlobals::getNumCityEventInfos()
+{
+	return (int)m_paCityEventInfo.size();
+}
+
+std::vector<CvModCityEventInfo*>& CvGlobals::getCityEventInfo()
+{
+	return m_paCityEventInfo;
+}
+
+CvModCityEventInfo* CvGlobals::getCityEventInfo(CityEventTypes e)
+{
+	CvAssert(e > -1);
+	CvAssert(e < GC.getNumCityEventInfos());
+	if(e > -1 && e < (int)m_paCityEventInfo.size())
+		return m_paCityEventInfo[e];
+	else
+		return NULL;
+}
+
+int CvGlobals::getNumCityEventChoiceInfos()
+{
+	return (int)m_paCityEventChoiceInfo.size();
+}
+
+std::vector<CvModEventCityChoiceInfo*>& CvGlobals::getCityEventChoiceInfo()
+{
+	return m_paCityEventChoiceInfo;
+}
+
+CvModEventCityChoiceInfo* CvGlobals::getCityEventChoiceInfo(CityEventChoiceTypes e)
+{
+	CvAssert(e > -1);
+	CvAssert(e < GC.getNumCityEventChoiceInfos());
+	if(e > -1 && e < (int)m_paCityEventChoiceInfo.size())
+		return m_paCityEventChoiceInfo[e];
+	else
+		return NULL;
+}
+#endif
 
 int CvGlobals::getNumUnitCombatClassInfos()
 {
@@ -6780,6 +6866,12 @@ void CvGlobals::deleteInfoArrays()
 	deleteInfoArray(m_paMinorCivInfo);
 
 	deleteInfoArray(m_paVoteSourceInfo);
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	deleteInfoArray(m_paEventInfo);
+	deleteInfoArray(m_paEventChoiceInfo);
+	deleteInfoArray(m_paCityEventInfo);
+	deleteInfoArray(m_paCityEventChoiceInfo);
+#endif
 	deleteInfoArray(m_paHandicapInfo);
 	deleteInfoArray(m_paGameSpeedInfo);
 #if defined(MOD_EVENTS_DIPLO_MODIFIERS)

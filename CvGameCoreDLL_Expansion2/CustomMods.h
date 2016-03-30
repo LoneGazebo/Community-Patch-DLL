@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v76 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 76)
+#define MOD_DLL_NAME "Community Patch v79 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 79)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -200,8 +200,6 @@
 #define MOD_API_PLOT_YIELDS                         gCustomMods.isAPI_PLOT_YIELDS()
 // Enables the Achievements table (v45)
 #define MOD_API_ACHIEVEMENTS                        gCustomMods.isAPI_ACHIEVEMENTS()
-// Enables the XP times 100 API (v74)
-#define MOD_API_XP_TIMES_100                        (true)
 // Enables the Extensions API
 #define MOD_API_EXTENSIONS                          gCustomMods.isAPI_EXTENSIONS()
 // Enables the LUA Extensions API
@@ -374,6 +372,7 @@
 #define MOD_BALANCE_CORE_MILITARY_RESISTANCE		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_MILITARY_RESISTANCE())
 #define MOD_BALANCE_CORE_PANTHEON_RESET_FOUND		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_PANTHEON_RESET_FOUND())
 #define MOD_BALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY())
+#define MOD_BALANCE_CORE_EVENTS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_EVENTS())
 
 #endif
 
@@ -385,10 +384,14 @@
 #define MOD_TRAITS_CROSSES_ICE                      gCustomMods.isTRAITS_CROSSES_ICE()
 // Permits cities to work more rings - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_TRAITS_CITY_WORKING                     gCustomMods.isTRAITS_CITY_WORKING()
+// Enables traits to be enabled/obsoleted via beliefs and policies (v77)
+#define MOD_TRAITS_OTHER_PREREQS                    gCustomMods.isTRAITS_OTHER_PREREQS()
 // Enables any belief to be selected, even if already taken (v46)
 #define MOD_TRAITS_ANY_BELIEF                       gCustomMods.isTRAITS_ANY_BELIEF()
 // Enables additional trade route related traits (v52)
 #define MOD_TRAITS_TRADE_ROUTE_BONUSES              gCustomMods.isTRAITS_TRADE_ROUTE_BONUSES()
+// Enables additional unit supply from traits (v78)
+#define MOD_TRAITS_EXTRA_SUPPLY                     gCustomMods.isTRAITS_EXTRA_SUPPLY()
 
 // Permits cities to work more rings - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_POLICIES_CITY_WORKING                   gCustomMods.isPOLICIES_CITY_WORKING()
@@ -433,10 +436,18 @@
 // Permits wonder resource (ie Marble) trade routes to be established (v43)
 #define MOD_TRADE_WONDER_RESOURCE_ROUTES            gCustomMods.isTRADE_WONDER_RESOURCE_ROUTES()
 
+// Permits units to have no supply cost (v77)
+#define MOD_UNITS_NO_SUPPLY                         gCustomMods.isUNITS_NO_SUPPLY()
+// Permits units to have other than GameDefines.MAX_HIT_POINTS maximum hit points (v77)
+#define MOD_UNITS_MAX_HP                            gCustomMods.isUNITS_MAX_HP()
+// Enables the XP times 100 API (v77)
+#define MOD_UNITS_XP_TIMES_100                      gCustomMods.isUNITS_XP_TIMES_100()
 // Restricts worker suggestions to local tiles
 #define MOD_UNITS_LOCAL_WORKERS                     gCustomMods.isUNITS_LOCAL_WORKERS()
 // Hovering unit can only heal over land
 #define MOD_UNITS_HOVERING_LAND_ONLY_HEAL           gCustomMods.isUNITS_HOVERING_LAND_ONLY_HEAL()
+// Permits hovering units to attack coastal shipping
+#define MOD_UNITS_HOVERING_COASTAL_ATTACKS          gCustomMods.isUNITS_HOVERING_COASTAL_ATTACKS()
 
 // Removes religion preference
 #define MOD_RELIGION_NO_PREFERRENCES                gCustomMods.isRELIGION_NO_PREFERRENCES()
@@ -1143,6 +1154,23 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityRazed					"CityRazed", "iii"
 #define GAMEEVENT_CityInvestedBuilding		"CityInvestedBuilding", "iiii"
 #define GAMEEVENT_CityInvestedUnit			"CityInvestedUnit", "iiii"
+// City Events
+#define GAMEEVENT_EventActivated			"EventActivated", "ii"
+#define GAMEEVENT_CityEventActivated		"CityEventActivated", "iii"
+#define GAMEEVENT_EventChoiceActivated		"EventChoiceActivated", "ii"
+#define GAMEEVENT_CityEventChoiceActivated	"CityEventChoiceActivated", "iii"
+#define GAMEEVENT_EventChoiceEnded			"EventChoiceEnded", "ii"
+#define GAMEEVENT_CityEventChoiceEnded		"CityEventChoiceEnded", "iii"
+#define GAMEEVENT_OverrideAIEventChoice		"OverrideAIEventChoice", "ii"
+#define GAMEEVENT_OverrideAICityEventChoice	"OverrideAICityEventChoice", "iii"
+#define GAMEEVENT_OverrideAIEvent			"OverrideAIEvent", "ii"
+#define GAMEEVENT_OverrideAICityEvent		"OverrideAICityEvent", "iii"
+#define GAMEEVENT_CityEventCanActivate		"CityEventCanActivate", "iii"
+#define GAMEEVENT_EventCanActivate		    "CityEventCanActivate", "ii"
+#define GAMEEVENT_EventChoiceCanTake		"EventChoiceCanTake", "ii"
+#define GAMEEVENT_CityEventChoiceCanTake    "CityEventChoiceCanTake", "iii"
+#define GAMEEVENT_EventCanTake				"EventCanTake", "ii"
+#define GAMEEVENT_CityEventCanTake			 "CityEventCanTake", "iii"
 
 
 // Serialization wrappers
@@ -1333,13 +1361,16 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_MILITARY_RESISTANCE);
 	MOD_OPT_DECL(BALANCE_CORE_PANTHEON_RESET_FOUND);
 	MOD_OPT_DECL(BALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY);
+	MOD_OPT_DECL(BALANCE_CORE_EVENTS);
 
 	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES); 
 	MOD_OPT_DECL(BARBARIAN_GG_GA_POINTS);
 	MOD_OPT_DECL(TRAITS_CROSSES_ICE);
 	MOD_OPT_DECL(TRAITS_CITY_WORKING);
+	MOD_OPT_DECL(TRAITS_OTHER_PREREQS);
 	MOD_OPT_DECL(TRAITS_ANY_BELIEF);
 	MOD_OPT_DECL(TRAITS_TRADE_ROUTE_BONUSES);
+	MOD_OPT_DECL(TRAITS_EXTRA_SUPPLY);
 
 	MOD_OPT_DECL(POLICIES_CITY_WORKING);
 
@@ -1365,6 +1396,9 @@ public:
 	MOD_OPT_DECL(TRADE_ROUTE_SCALING);
 	MOD_OPT_DECL(TRADE_WONDER_RESOURCE_ROUTES);
 
+	MOD_OPT_DECL(UNITS_NO_SUPPLY);
+	MOD_OPT_DECL(UNITS_MAX_HP);
+	MOD_OPT_DECL(UNITS_XP_TIMES_100);
 	MOD_OPT_DECL(UNITS_LOCAL_WORKERS);
 	MOD_OPT_DECL(UNITS_HOVERING_LAND_ONLY_HEAL);
 	MOD_OPT_DECL(UNITS_HOVERING_COASTAL_ATTACKS);

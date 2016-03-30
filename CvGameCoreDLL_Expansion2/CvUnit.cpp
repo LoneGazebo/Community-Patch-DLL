@@ -159,7 +159,7 @@ CvUnit::CvUnit() :
 	, m_iMoves("CvUnit::m_iMoves", m_syncArchive, true)
 	, m_bImmobile("CvUnit::m_bImmobile", m_syncArchive)
 	, m_iExperience("CvUnit::m_iExperience", m_syncArchive)
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	, m_iExperienceTimes100("CvUnit::m_iExperienceTimes100", m_syncArchive)
 #endif
 	, m_iLevel("CvUnit::m_iLevel", m_syncArchive)
@@ -278,6 +278,14 @@ CvUnit::CvUnit() :
 	, m_iGreatGeneralCombatModifier("CvUnit::m_iGreatGeneralCombatModifier", m_syncArchive)
 	, m_iIgnoreGreatGeneralBenefit("CvUnit::m_iIgnoreGreatGeneralBenefit", m_syncArchive)
 	, m_iIgnoreZOC("CvUnit::m_iIgnoreZOC", m_syncArchive)
+#if defined(MOD_UNITS_NO_SUPPLY)
+	, m_iNoSupply("CvUnit::m_iNoSupply", m_syncArchive)
+#endif
+#if defined(MOD_UNITS_MAX_HP)
+	, m_iMaxHitPointsBase(GC.getMAX_HIT_POINTS())
+	, m_iMaxHitPointsChange("CvUnit::m_iMaxHitPointsChange", m_syncArchive)
+	, m_iMaxHitPointsModifier("CvUnit::m_iMaxHitPointsModifier", m_syncArchive)
+#endif
 	, m_iFriendlyLandsModifier("CvUnit::m_iFriendlyLandsModifier", m_syncArchive)
 	, m_iFriendlyLandsAttackModifier("CvUnit::m_iFriendlyLandsAttackModifier", m_syncArchive)
 	, m_iOutsideFriendlyLandsModifier("CvUnit::m_iOutsideFriendlyLandsModifier", m_syncArchive)
@@ -1225,7 +1233,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	int iXP = GC.getGame().getHandicapInfo().getAIFreeXP();
 	if (iXP && !kPlayer.isHuman() && /*kPlayer.GetID() < MAX_MAJOR_CIVS &&*/ canAcquirePromotionAny())
 	{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 		changeExperienceTimes100(iXP * 100);
 #else
 		changeExperience(iXP);
@@ -1729,7 +1737,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	int iXP = GC.getGame().getHandicapInfo().getAIFreeXP();
 	if (iXP && !kPlayer.isHuman() && /*kPlayer.GetID() < MAX_MAJOR_CIVS &&*/ canAcquirePromotionAny())
 	{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 		changeExperienceTimes100(iXP * 100);
 #else
 		changeExperience(iXP);
@@ -2559,7 +2567,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iMoves = 0;
 	m_bImmobile = false;
 	m_iExperience = 0;
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	m_iExperienceTimes100 = 0;
 #endif
 	m_iLevel = 1;
@@ -2708,6 +2716,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGreatGeneralCombatModifier = 0;
 	m_iIgnoreGreatGeneralBenefit = 0;
 	m_iIgnoreZOC = 0;
+#if defined(MOD_UNITS_NO_SUPPLY)
+	m_iNoSupply = 0;
+#endif
 	m_iHealIfDefeatExcludeBarbariansCount = 0;
 	m_iNumInterceptions = 1;
 	m_iMadeInterceptionCount = 0;
@@ -2753,6 +2764,11 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iBaseCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetCombat() : 0;
 #if defined(MOD_API_EXTENSIONS)
 	m_iBaseRangedCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetRangedCombat() : 0;
+#endif
+#if defined(MOD_UNITS_MAX_HP)
+	m_iMaxHitPointsBase = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetMaxHitPoints() : GC.getMAX_HIT_POINTS();
+	m_iMaxHitPointsChange = 0;
+	m_iMaxHitPointsModifier = 0;
 #endif
 	m_eLeaderUnitType = NO_UNIT;
 	m_eInvisibleType = NO_INVISIBLE;
@@ -3081,7 +3097,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 		{
 			iLevel = 1;
 		}
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 		changeExperienceTimes100(20 * iLostPromotions * iLevel * 100);
 #else
 		changeExperience(20 * iLostPromotions * iLevel);
@@ -3090,7 +3106,12 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 #endif
 	setGameTurnCreated(pUnit->getGameTurnCreated());
 	setLastMoveTurn(pUnit->getLastMoveTurn());
+#if defined(MOD_UNITS_MAX_HP)
+	// Don't kill the unit if upgrading from a unit with more base hit points!!!
+	setDamage(min(pUnit->getDamage(), GetMaxHitPoints()-1));
+#else
 	setDamage(pUnit->getDamage());
+#endif
 	setMoves(pUnit->getMoves());
 	setEmbarked(pUnit->isEmbarked());
 	setFacingDirection(pUnit->getFacingDirection(false));
@@ -3118,7 +3139,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 #endif
 	int iOldModifier = std::max(1, 100 + GET_PLAYER(pUnit->getOwner()).getLevelExperienceModifier());
 	int iOurModifier = std::max(1, 100 + GET_PLAYER(getOwner()).getLevelExperienceModifier());
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	setExperienceTimes100(std::max(0, (pUnit->getExperienceTimes100() * iOurModifier) / iOldModifier));
 #else
 	setExperience(std::max(0, (pUnit->getExperience() * iOurModifier) / iOldModifier));
@@ -3476,13 +3497,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	}
 
 	// A unit dying reduces the Great General meter
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	if (getExperienceTimes100() > 0 && ePlayer != NO_PLAYER)
 #else
 	if (getExperience() > 0 && ePlayer != NO_PLAYER)
 #endif
 	{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 		int iGreatGeneralMeterLossTimes100 = getExperienceTimes100() * /*50*/ GC.getUNIT_DEATH_XP_GREAT_GENERAL_LOSS();
 		iGreatGeneralMeterLossTimes100 /= 100;
 #else
@@ -3492,7 +3513,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 		if(getDomainType() == DOMAIN_SEA)
 		{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 			GET_PLAYER(getOwner()).changeNavalCombatExperienceTimes100(-iGreatGeneralMeterLossTimes100);
 #else
 			GET_PLAYER(getOwner()).changeNavalCombatExperience(-iGreatGeneralMeterLoss);
@@ -3500,7 +3521,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		}
 		else
 		{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 			GET_PLAYER(getOwner()).changeCombatExperienceTimes100(-iGreatGeneralMeterLossTimes100);
 #else
 			GET_PLAYER(getOwner()).changeCombatExperience(-iGreatGeneralMeterLoss);
@@ -5144,19 +5165,32 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 
 	if(bAttackerIsCity)
 	{
+#if defined(MOD_UNITS_MAX_HP)
+		// Yeah, given the comment on the line below it looks weird, but the max HP of cities isn't GC.getMAX_HIT_POINTS() but pCity->GetMaxHitPoints(), so this works
+		iDamageRatio = GetMaxHitPoints();		// JON: Cities don't do less damage when wounded
+#else
 		iDamageRatio = GC.getMAX_HIT_POINTS();		// JON: Cities don't do less damage when wounded
+#endif
 	}
 	else
 	{
 		// Mod (Policies, etc.)
 		iWoundedDamageMultiplier += GET_PLAYER(getOwner()).GetWoundedUnitDamageMod();
 
+#if defined(MOD_UNITS_MAX_HP)
+		iDamageRatio = GetMaxHitPoints() - (iCurrentDamage * iWoundedDamageMultiplier / 100);
+#else
 		iDamageRatio = GC.getMAX_HIT_POINTS() - (iCurrentDamage * iWoundedDamageMultiplier / 100);
+#endif
 	}
 
 	int iDamage = 0;
 
+#if defined(MOD_UNITS_MAX_HP)
+	iDamage = /*400*/ GC.getATTACK_SAME_STRENGTH_MIN_DAMAGE() * iDamageRatio / GetMaxHitPoints();
+#else
 	iDamage = /*400*/ GC.getATTACK_SAME_STRENGTH_MIN_DAMAGE() * iDamageRatio / GC.getMAX_HIT_POINTS();
+#endif
 
 	// Don't use rand when calculating projected combat results
 	int iRoll = 0;
@@ -5164,14 +5198,22 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	{
 		iRoll = /*400*/ GC.getGame().getJonRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Combat Damage");
 		iRoll *= iDamageRatio;
+#if defined(MOD_UNITS_MAX_HP)
+		iRoll /= GetMaxHitPoints();
+#else
 		iRoll /= GC.getMAX_HIT_POINTS();
+#endif
 	}
 	else
 	{
 		iRoll = /*400*/ GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE();
 		iRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
 		iRoll *= iDamageRatio;
+#if defined(MOD_UNITS_MAX_HP)
+		iRoll /= GetMaxHitPoints();
+#else
 		iRoll /= GC.getMAX_HIT_POINTS();
+#endif
 		iRoll /= 2;	// The divide by 2 is to provide the average damage
 	}
 	iDamage += iRoll;
@@ -5765,7 +5807,11 @@ int CvUnit::GetScrapGold() const
 	iNumGold /= 100;
 
 	// Modify amount based on current health
+#if defined(MOD_UNITS_MAX_HP)
+	iNumGold *= 100 * (GetMaxHitPoints() - getDamage()) / GetMaxHitPoints();
+#else
 	iNumGold *= 100 * (GC.getMAX_HIT_POINTS() - getDamage()) / GC.getMAX_HIT_POINTS();
+#endif
 	iNumGold /= 100;
 
 
@@ -7880,7 +7926,11 @@ void CvUnit::DoAttrition()
 	}
 #endif
 
+#if defined(MOD_UNITS_MAX_HP)
+	if(getDamage() >= GetMaxHitPoints())
+#else
 	if(getDamage() >= GC.getMAX_HIT_POINTS())
+#endif
 	{
 		CvString strBuffer;
 		CvNotifications* pNotification = GET_PLAYER(getOwner()).GetNotifications();
@@ -9475,7 +9525,7 @@ bool CvUnit::sellExoticGoods()
 	{
 		int iXP = getExoticGoodsXPAmount();
 		int iGold = getExoticGoodsGoldAmount();
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 		changeExperienceTimes100(iXP * 100);
 #else
 		changeExperience(iXP);
@@ -13487,7 +13537,7 @@ bool CvUnit::giveExperience()
 
 				if(pUnit && pUnit != this && pUnit->getOwner() == getOwner() && pUnit->canAcquirePromotionAny())
 				{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 					pUnit->changeExperienceTimes100(100 * (i < iRemainder ? iMinExperiencePerUnit + 1 : iMinExperiencePerUnit));
 #else
 					pUnit->changeExperience(i < iRemainder ? iMinExperiencePerUnit + 1 : iMinExperiencePerUnit);
@@ -14692,7 +14742,18 @@ bool CvUnit::isInCombat() const
 int CvUnit::GetMaxHitPoints() const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_UNITS_MAX_HP)
+	int iMaxHP = getMaxHitPointsBase();
+
+	iMaxHP *= (100 + getMaxHitPointsModifier());
+	iMaxHP /= 100;
+	
+	iMaxHP += getMaxHitPointsChange();
+
+	return iMaxHP;
+#else
 	return GC.getMAX_HIT_POINTS();
+#endif
 }
 
 
@@ -14822,7 +14883,12 @@ int CvUnit::GetBaseCombatStrengthConsideringDamage() const
 	int iDamageMod = m_iDamage * iWoundedDamageMultiplier / 100;
 
 	// Reduce strength points based on damage mod calculated above. Example: 4 damage will normally reduce a 20 strength Unit by 2/10ths, or 1/5, or 4, making it effectively a 16
+#if defined(MOD_UNITS_MAX_HP)
+	iStrength -= (iStrength * iDamageMod / GetMaxHitPoints());
+#else
 	iStrength -= (iStrength * iDamageMod / GC.getMAX_HIT_POINTS());
+#endif
+
 	return iStrength;
 }
 
@@ -16100,27 +16166,43 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 	// The roll will vary damage between 30 and 40 (out of 100) for two units of identical strength
 
 	// Note, 0 is valid - means we don't do anything
+#if defined(MOD_UNITS_MAX_HP)
+	int iAttackerDamageRatio = GetMaxHitPoints() - getDamage() - iAssumeExtraDamage;
+#else
 	int iAttackerDamageRatio = GC.getMAX_HIT_POINTS() - getDamage() - iAssumeExtraDamage;
+#endif
 	if(iAttackerDamageRatio < 0)
 		iAttackerDamageRatio = 0;
 
 	int iAttackerDamage = /*250*/ GC.getRANGE_ATTACK_SAME_STRENGTH_MIN_DAMAGE();
 	iAttackerDamage *= iAttackerDamageRatio;
+#if defined(MOD_UNITS_MAX_HP)
+	iAttackerDamage /= GetMaxHitPoints();
+#else
 	iAttackerDamage /= GC.getMAX_HIT_POINTS();
+#endif
 
 	int iAttackerRoll = 0;
 	if(bIncludeRand)
 	{
 		iAttackerRoll = /*300*/ GC.getGame().getJonRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Ranged Combat Damage");
 		iAttackerRoll *= iAttackerDamageRatio;
+#if defined(MOD_UNITS_MAX_HP)
+		iAttackerRoll /= GetMaxHitPoints();
+#else
 		iAttackerRoll /= GC.getMAX_HIT_POINTS();
+#endif
 	}
 	else
 	{
 		iAttackerRoll = /*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE();
 		iAttackerRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
 		iAttackerRoll *= iAttackerDamageRatio;
+#if defined(MOD_UNITS_MAX_HP)
+		iAttackerRoll /= GetMaxHitPoints();
+#else
 		iAttackerRoll /= GC.getMAX_HIT_POINTS();
+#endif
 		iAttackerRoll /= 2;	// The divide by 2 is to provide the average damage
 	}
 	iAttackerDamage += iAttackerRoll;
@@ -16310,22 +16392,35 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	if(iDefenderStrength == 0)
 		return 0;
 
+#if defined(MOD_UNITS_MAX_HP)
+	int iDefenderDamageRatio = GetMaxHitPoints() - getDamage();
+	int iDefenderDamage = /*200*/ GC.getAIR_STRIKE_SAME_STRENGTH_MIN_DEFENSE_DAMAGE() * iDefenderDamageRatio / GetMaxHitPoints();
+#else
 	int iDefenderDamageRatio = GC.getMAX_HIT_POINTS() - getDamage();
 	int iDefenderDamage = /*200*/ GC.getAIR_STRIKE_SAME_STRENGTH_MIN_DEFENSE_DAMAGE() * iDefenderDamageRatio / GC.getMAX_HIT_POINTS();
+#endif
 
 	int iDefenderRoll = 0;
 	if(bIncludeRand)
 	{
 		iDefenderRoll = /*200*/ GC.getGame().getJonRandNum(GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE(), "Unit Air Strike Combat Damage");
 		iDefenderRoll *= iDefenderDamageRatio;
+#if defined(MOD_UNITS_MAX_HP)
+		iDefenderRoll /= GetMaxHitPoints();
+#else
 		iDefenderRoll /= GC.getMAX_HIT_POINTS();
+#endif
 	}
 	else
 	{
 		iDefenderRoll = /*200*/ GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE();
 		iDefenderRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
 		iDefenderRoll *= iDefenderDamageRatio;
+#if defined(MOD_UNITS_MAX_HP)
+		iDefenderRoll /= GetMaxHitPoints();
+#else
 		iDefenderRoll /= GC.getMAX_HIT_POINTS();
+#endif
 		iDefenderRoll /= 2;	// The divide by 2 is to provide the average damage
 	}
 	iDefenderDamage += iDefenderRoll;
@@ -16477,22 +16572,35 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, co
 
 	// The roll will vary damage between 2 and 3 (out of 10) for two units of identical strength
 
+#if defined(MOD_UNITS_MAX_HP)
+	int iInterceptorDamageRatio = GetMaxHitPoints() - getDamage();
+	int iInterceptorDamage = /*400*/ GC.getINTERCEPTION_SAME_STRENGTH_MIN_DAMAGE() * iInterceptorDamageRatio / GetMaxHitPoints();
+#else
 	int iInterceptorDamageRatio = GC.getMAX_HIT_POINTS() - getDamage();
 	int iInterceptorDamage = /*400*/ GC.getINTERCEPTION_SAME_STRENGTH_MIN_DAMAGE() * iInterceptorDamageRatio / GC.getMAX_HIT_POINTS();
+#endif
 
 	int iInterceptorRoll = 0;
 	if(bIncludeRand)
 	{
 		iInterceptorRoll = /*300*/ GC.getGame().getJonRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Interception Combat Damage");
 		iInterceptorRoll *= iInterceptorDamageRatio;
+#if defined(MOD_UNITS_MAX_HP)
+		iInterceptorRoll /= GetMaxHitPoints();
+#else
 		iInterceptorRoll /= GC.getMAX_HIT_POINTS();
+#endif
 	}
 	else
 	{
 		iInterceptorRoll = /*300*/ GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE();
 		iInterceptorRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
 		iInterceptorRoll *= iInterceptorDamageRatio;
+#if defined(MOD_UNITS_MAX_HP)
+		iInterceptorRoll /= GetMaxHitPoints();
+#else
 		iInterceptorRoll /= GC.getMAX_HIT_POINTS();
+#endif
 		iInterceptorRoll /= 2;	// The divide by 2 is to provide the average damage
 	}
 	iInterceptorDamage += iInterceptorRoll;
@@ -18387,7 +18495,7 @@ if (!bDoEvade)
 #endif
 										{
 											if(pLoopUnit->isEmbarked())
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 												changeExperienceTimes100(1 * 100);
 #else
 												changeExperience(1);
@@ -18540,7 +18648,7 @@ if (!bDoEvade)
 #if defined(MOD_BALANCE_CORE)
 		if(IsGainsXPFromScouting())
 		{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 			if(getExperienceTimes100() <= (GC.getBALANCE_SCOUT_XP_MAXIMUM() * 100))
 #else
 			if(getExperience() <= GC.getBALANCE_SCOUT_XP_MAXIMUM())
@@ -18552,7 +18660,7 @@ if (!bDoEvade)
 				if(iExperience > 0)
 				{
 					//Up to max barb value - rest has to come through combat!
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 					changeExperienceTimes100(iExperience * 100);
 #else
 					changeExperience(iExperience);
@@ -20112,7 +20220,11 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 			if(!IsDead())
 			{
 				CvString text;
+#if defined(MOD_UNITS_MAX_HP)
+				iNewValue = MIN(GetMaxHitPoints(),iNewValue);
+#else
 				iNewValue = MIN(GC.getMAX_HIT_POINTS(),iNewValue);
+#endif
 				int iDiff = iOldValue - iNewValue;
 				if(iNewValue < iOldValue)
 				{
@@ -20374,14 +20486,14 @@ bool CvUnit::IsUnderEnemyRangedAttack() const
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 int CvUnit::getExperienceTimes100() const
 #else
 int CvUnit::getExperience() const
 #endif
 {
 	VALIDATE_OBJECT
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 		return m_iExperienceTimes100;
 #else
 		return m_iExperience;
@@ -20390,14 +20502,14 @@ int CvUnit::getExperience() const
 
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax)
 #else
 void CvUnit::setExperience(int iNewValue, int iMax)
 #endif
 {
 	VALIDATE_OBJECT
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	// Checking limits.h for the values of MAX_INT and MAX_LONG they are the same, so we need to use "long long" and hence MAX_LLONG
 	long long lMaxTimes100 = (iMax == -1) ? INT_MAX : (iMax * 100LL);
 	int iMaxTimes100 = (lMaxTimes100 > ((long long) INT_MAX)) ? INT_MAX : (int) lMaxTimes100;
@@ -20407,13 +20519,18 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 	if ((getExperience() != iNewValue) && (getExperience() < ((iMax == -1) ? INT_MAX : iMax)))
 #endif
 	{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 		int iExperienceChangeTimes100 = iNewValueTimes100 - getExperienceTimes100();
 #else
 		int iExperienceChange = iNewValue - getExperience();
 #endif
 
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
+		if (!MOD_UNITS_XP_TIMES_100) {
+			// If NOT using XP times 100, remove any fractional part
+			iNewValueTimes100 -= (iNewValueTimes100 % 100);
+		}
+		
 		m_iExperienceTimes100 = std::min(iMaxTimes100, iNewValueTimes100);
 		CvAssert(getExperienceTimes100() >= 0);
 #else
@@ -20427,7 +20544,7 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 			if(!IsDead())
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_EXPERIENCE_POPUP");
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 				localizedText << iExperienceChangeTimes100 / 100;
 #else
 				localizedText << iExperienceChange;
@@ -20473,7 +20590,7 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromCombat, bool bInBorders, bool bUpdateGlobal)
 #else
 void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInBorders, bool bUpdateGlobal)
@@ -20481,7 +20598,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 {
 	VALIDATE_OBJECT
 	// Barbs don't get XP or Promotions
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 		if (isBarbarian() && iChangeTimes100 > 0)
 #else
 		if (isBarbarian() && iChange > 0)
@@ -20490,7 +20607,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 		return;
 	}
 
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	// Checking limits.h for the values of MAX_INT and MAX_LONG they are the same, so we need to use "long long" and hence MAX_LLONG
 	long long lMaxTimes100 = (iMax == -1) ? INT_MAX : (iMax * 100LL);
 	int iMaxTimes100 = (lMaxTimes100 > ((long long)INT_MAX)) ? INT_MAX : (int)lMaxTimes100;
@@ -20552,8 +20669,13 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 		}
 
 		// Unit XP mod
-#if defined(MOD_API_XP_TIMES_100)
-		iUnitExperienceTimes100 += (iChangeTimes100 * kPlayer.getExpModifier()) / 100;
+#if defined(MOD_UNITS_XP_TIMES_100)
+		int iPlayerBonusXpTimes100 = (iChangeTimes100 * kPlayer.getExpModifier()) / 100;
+		if (!MOD_UNITS_XP_TIMES_100) {
+			// If NOT using XP times 100, remove any fractional part
+			iPlayerBonusXpTimes100 -= (iPlayerBonusXpTimes100 % 100);
+		}
+		iUnitExperienceTimes100 += iPlayerBonusXpTimes100;
 		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		{
 			const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
@@ -20590,8 +20712,13 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 		{
 			// In-borders GG mod
 			iCombatExperienceMod += kPlayer.getDomesticGreatGeneralRateModifier() + kPlayer.getExpInBorderModifier();
-#if defined(MOD_API_XP_TIMES_100)
-			iUnitExperienceTimes100 += (iChangeTimes100 * kPlayer.getExpInBorderModifier()) / 100;
+#if defined(MOD_UNITS_XP_TIMES_100)
+			int iBorderBonusXpTimes100 = (iChangeTimes100 * kPlayer.getExpInBorderModifier()) / 100;
+			if (!MOD_UNITS_XP_TIMES_100) {
+				// If NOT using XP times 100, remove any fractional part
+				iBorderBonusXpTimes100 -= (iBorderBonusXpTimes100 % 100);
+			}
+			iUnitExperienceTimes100 += iBorderBonusXpTimes100;
 #else
 			iUnitExperience += (iChange * kPlayer.getExpInBorderModifier()) / 100;
 #endif
@@ -20604,22 +20731,19 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 			{
 				iCombatExperienceMod += getGreatGeneralModifier();
 			}
-#if defined(MOD_API_XP_TIMES_100)
-			if(iMax == -1 || iMax == MAX_INT)
-#else
+
 			if(iMax == -1)
-#endif
 			{
 				if(getDomainType() == DOMAIN_SEA)
 				{
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 					kPlayer.changeNavalCombatExperienceTimes100((iChangeTimes100 * iCombatExperienceMod) / 100, (MOD_GLOBAL_LOCAL_GENERALS ? this : NULL));
 #else
 					kPlayer.changeNavalCombatExperience((iChange * iCombatExperienceMod) / 100, (MOD_GLOBAL_LOCAL_GENERALS ? this : NULL));
 #endif
 #else
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 					kPlayer.changeNavalCombatExperienceTimes100((iChangeTimes100 * iCombatExperienceMod) / 100);
 #else
 					kPlayer.changeNavalCombatExperience((iChange * iCombatExperienceMod) / 100);
@@ -20629,13 +20753,13 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 				else
 				{
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 					kPlayer.changeCombatExperienceTimes100((iChangeTimes100 * iCombatExperienceMod) / 100, (MOD_GLOBAL_LOCAL_GENERALS ? this : NULL));
 #else
 					kPlayer.changeCombatExperience((iChange * iCombatExperienceMod) / 100, (MOD_GLOBAL_LOCAL_GENERALS ? this : NULL));
 #endif
 #else
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 					kPlayer.changeCombatExperienceTimes100((iChangeTimes100 * iCombatExperienceMod) / 100);
 #else
 					kPlayer.changeCombatExperience((iChange * iCombatExperienceMod) / 100);
@@ -20645,7 +20769,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 			}
 			else
 			{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 				int iModdedChangeTimes100 = min(iMaxTimes100 - m_iExperienceTimes100, iChangeTimes100);
 				if (iModdedChangeTimes100 > 0)
 #else
@@ -20656,13 +20780,13 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 					if(getDomainType() == DOMAIN_SEA)
 					{
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 						kPlayer.changeNavalCombatExperienceTimes100((iModdedChangeTimes100 * iCombatExperienceMod) / 100, (MOD_GLOBAL_LOCAL_GENERALS ? this : NULL));
 #else
 						kPlayer.changeNavalCombatExperience((iModdedChange * iCombatExperienceMod) / 100, (MOD_GLOBAL_LOCAL_GENERALS ? this : NULL));
 #endif
 #else
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 						kPlayer.changeNavalCombatExperienceTimes100((iModdedChangeTimes100 * iCombatExperienceMod) / 100);
 #else
 						kPlayer.changeNavalCombatExperience((iModdedChange * iCombatExperienceMod) / 100);
@@ -20672,13 +20796,13 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 					else
 					{
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 						kPlayer.changeCombatExperienceTimes100((iModdedChangeTimes100 * iCombatExperienceMod) / 100, (MOD_GLOBAL_LOCAL_GENERALS ? this : NULL));
 #else
 						kPlayer.changeCombatExperience((iModdedChange * iCombatExperienceMod) / 100, (MOD_GLOBAL_LOCAL_GENERALS ? this : NULL));
 #endif
 #else
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 						kPlayer.changeCombatExperienceTimes100((iModdedChangeTimes100 * iCombatExperienceMod) / 100);
 #else
 						kPlayer.changeCombatExperience((iModdedChange * iCombatExperienceMod) / 100);
@@ -20691,9 +20815,13 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 
 		if(getExperiencePercent() != 0)
 		{
-#if defined(MOD_API_XP_TIMES_100)
-			iUnitExperienceTimes100 *= std::max(0, 100 + getExperiencePercent());
-			iUnitExperienceTimes100 /= 100;
+#if defined(MOD_UNITS_XP_TIMES_100)
+			int iUnitBonusXpTimes100 = (iUnitExperienceTimes100 * std::max(0, getExperiencePercent())) / 100;
+			if (!MOD_UNITS_XP_TIMES_100) {
+				// If NOT using XP times 100, remove any fractional part
+				iUnitBonusXpTimes100 -= (iUnitBonusXpTimes100 % 100);
+			}
+			iUnitExperienceTimes100 += iUnitBonusXpTimes100;
 #else
 			iUnitExperience *= std::max(0, 100 + getExperiencePercent());
 			iUnitExperience /= 100;
@@ -20701,7 +20829,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 		}
 	}
 
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	setExperienceTimes100((getExperienceTimes100() + iUnitExperienceTimes100), iMax);
 #else
 	setExperience((getExperience() + iUnitExperience), iMax);
@@ -22352,7 +22480,72 @@ void CvUnit::ChangeIgnoreGreatGeneralBenefitCount(int iChange)
 {
 	m_iIgnoreGreatGeneralBenefit += iChange;
 }
+#if defined(MOD_UNITS_NO_SUPPLY)
+//	--------------------------------------------------------------------------------
+bool CvUnit::isNoSupply() const
+{
+	// I have a promotion, or granted from the unit class
+	return (m_iNoSupply > 0) || getUnitInfo().IsNoSupply();
+}
 
+//	--------------------------------------------------------------------------------
+void CvUnit::changeNoSupply(int iChange)
+{
+	m_iNoSupply += iChange;
+}
+#endif
+
+#if defined(MOD_UNITS_MAX_HP)
+//	--------------------------------------------------------------------------------
+int CvUnit::getMaxHitPointsBase() const
+{
+	return m_iMaxHitPointsBase;
+}
+
+void CvUnit::setMaxHitPointsBase(int iMaxHitPoints)
+{
+	// Do NOT allow max hit points to be less than 1
+	m_iMaxHitPointsBase = max(1, iMaxHitPoints);
+
+	// Do NOT allow changing base max HP to kill the unit
+	setDamage(min(getDamage(), max(1, GetMaxHitPoints()-1)));
+
+	setInfoBarDirty(true);
+}
+
+void CvUnit::changeMaxHitPointsBase(int iChange)
+{
+	setMaxHitPointsBase(getMaxHitPointsBase() + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getMaxHitPointsChange() const
+{
+	return m_iMaxHitPointsChange;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeMaxHitPointsChange(int iChange)
+{
+	m_iMaxHitPointsChange += iChange;
+
+	setInfoBarDirty(true);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getMaxHitPointsModifier() const
+{
+	return m_iMaxHitPointsModifier;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeMaxHitPointsModifier(int iChange)
+{
+	m_iMaxHitPointsModifier += iChange;
+
+	setInfoBarDirty(true);
+}
+#endif
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsIgnoreZOC() const
 {
@@ -22884,7 +23077,7 @@ void CvUnit::setPromotionReady(bool bNewValue)
 void CvUnit::testPromotionReady()
 {
 	VALIDATE_OBJECT
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 		setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && canAcquirePromotionAny());
 #else
 		setPromotionReady((getExperience() >= experienceNeeded()) && canAcquirePromotionAny());
@@ -24551,6 +24744,15 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeIgnoreGreatGeneralBenefitCount(thisPromotion.IsIgnoreGreatGeneralBenefit() ? iChange: 0);
 		ChangeIgnoreZOCCount(thisPromotion.IsIgnoreZOC() ? iChange: 0);
 
+#if defined(MOD_UNITS_NO_SUPPLY)
+		changeNoSupply(thisPromotion.IsNoSupply() ? iChange : 0);
+#endif
+
+#if defined(MOD_UNITS_MAX_HP)
+		changeMaxHitPointsChange(thisPromotion.GetMaxHitPointsChange() * iChange);
+		changeMaxHitPointsModifier(thisPromotion.GetMaxHitPointsModifier() * iChange);
+#endif
+
 		ChangeSapperCount((thisPromotion.IsSapper() ? iChange: 0));
 
 		changeFriendlyLandsModifier(thisPromotion.GetFriendlyLandsModifier() * iChange);
@@ -24845,6 +25047,9 @@ void CvUnit::read(FDataStream& kStream)
 	kStream >> m_missionAIUnit.eOwner;
 	kStream >> m_missionAIUnit.iID;
 	kStream >> m_extraDomainModifiers;
+#if defined(MOD_UNITS_MAX_HP)
+	MOD_SERIALIZE_READ(78, kStream, m_iMaxHitPointsBase, m_pUnitInfo->GetMaxHitPoints());
+#endif
 
 	//CBP NOTE: Deleted repeat save data here to reduce bloat and manage memory better for MP
 	kStream >> m_strName;
@@ -24921,6 +25126,9 @@ void CvUnit::write(FDataStream& kStream) const
 	kStream << m_missionAIUnit.eOwner;
 	kStream << m_missionAIUnit.iID;
 	kStream << m_extraDomainModifiers;
+#if defined(MOD_UNITS_MAX_HP)
+	MOD_SERIALIZE_WRITE(kStream, m_iMaxHitPointsBase);
+#endif
 	//CBP NOTE: Deleted repeat save data here to reduce bloat and manage memory better for MP
 	kStream << m_strName;
 	kStream << *m_pReligion;

@@ -446,6 +446,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetBranchPicked2);
 	Method(GetBranchPicked3);
 #if defined(MOD_API_LUA_EXTENSIONS)
+	Method(GrantPolicy);
+	Method(RevokePolicy);
+	Method(SwapPolicy);
 	Method(CanAdoptIdeology);
 	Method(CanAdoptTenet);
 #endif
@@ -1017,6 +1020,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNotificationDismissed);
 	Method(AddNotification);
 #if defined(MOD_API_LUA_EXTENSIONS)
+	Method(AddNotificationName);
 	Method(DismissNotification);
 #endif
 
@@ -1367,6 +1371,16 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CountAllWorkedResource);
 	Method(CountAllTerrain);
 	Method(CountAllWorkedTerrain);
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	Method(DoEventChoice);
+	Method(DoStartEvent);
+	Method(DoCancelEventChoice);
+	Method(GetEventCooldown);
+	Method(SetEventCooldown);
+	Method(GetEventChoiceCooldown);
+	Method(SetEventChoiceCooldown);
+	Method(IsEventChoiceValid);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -5939,6 +5953,43 @@ int CvLuaPlayer::lGetBranchPicked3(lua_State* L)
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
+//void GrantPolicy(PolicyTypes iPolicy, bool bFree=false);
+int CvLuaPlayer::lGrantPolicy(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PolicyTypes iPolicy = (PolicyTypes)lua_tointeger(L, 2);
+	bool bFree = luaL_optbool(L, 3, false);
+
+	const bool bResult = pkPlayer->grantPolicy(iPolicy, bFree);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//void RevokePolicy(PolicyTypes iPolicy);
+int CvLuaPlayer::lRevokePolicy(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PolicyTypes iPolicy = (PolicyTypes)lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->revokePolicy(iPolicy);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//void SwapPolicy(PolicyTypes iNewPolicy, PolicyTypes iOldPolicy);
+int CvLuaPlayer::lSwapPolicy(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PolicyTypes iPolicyNew = (PolicyTypes)lua_tointeger(L, 2);
+	const PolicyTypes iPolicyOld = (PolicyTypes)lua_tointeger(L, 3);
+
+	const bool bResult = pkPlayer->swapPolicy(iPolicyNew, iPolicyOld);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
 //bool CanAdoptIdeology(PolicyBranchTypes  iIndex);
 int CvLuaPlayer::lCanAdoptIdeology(lua_State* L)
 {
@@ -8665,7 +8716,7 @@ int CvLuaPlayer::lSetResearchingTech(lua_State* L)
 //int getCombatExperience();
 int CvLuaPlayer::lGetCombatExperience(lua_State* L)
 {
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	lua_pushinteger(L, pkPlayer->getCombatExperienceTimes100() / 100);
@@ -8678,7 +8729,7 @@ int CvLuaPlayer::lGetCombatExperience(lua_State* L)
 //void changeCombatExperience(int iChange);
 int CvLuaPlayer::lChangeCombatExperience(lua_State* L)
 {
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iExperience = lua_tointeger(L, 2);
 
@@ -8692,7 +8743,7 @@ int CvLuaPlayer::lChangeCombatExperience(lua_State* L)
 //void setCombatExperience(int iExperience);
 int CvLuaPlayer::lSetCombatExperience(lua_State* L)
 {
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iExperience = lua_tointeger(L, 2);
 
@@ -8706,7 +8757,7 @@ int CvLuaPlayer::lSetCombatExperience(lua_State* L)
 //int getLifetimeCombatExperience();
 int CvLuaPlayer::lGetLifetimeCombatExperience(lua_State* L)
 {
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	lua_pushinteger(L, pkPlayer->getLifetimeCombatExperienceTimes100() / 100);
@@ -8719,7 +8770,7 @@ int CvLuaPlayer::lGetLifetimeCombatExperience(lua_State* L)
 //int getNavalCombatExperience();
 int CvLuaPlayer::lGetNavalCombatExperience(lua_State* L)
 {
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	lua_pushinteger(L, pkPlayer->getNavalCombatExperienceTimes100() / 100);
@@ -8732,7 +8783,7 @@ int CvLuaPlayer::lGetNavalCombatExperience(lua_State* L)
 //void changeNavalCombatExperience(int iChange);
 int CvLuaPlayer::lChangeNavalCombatExperience(lua_State* L)
 {
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iExperience = lua_tointeger(L, 2);
 
@@ -8746,7 +8797,7 @@ int CvLuaPlayer::lChangeNavalCombatExperience(lua_State* L)
 //void setCombatExperience(int iExperience);
 int CvLuaPlayer::lSetNavalCombatExperience(lua_State* L)
 {
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iExperience = lua_tointeger(L, 2);
 
@@ -10182,6 +10233,31 @@ int CvLuaPlayer::lAddNotification(lua_State* L)
 }
 
 #if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//void AddNotification()
+int CvLuaPlayer::lAddNotificationName(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvNotifications* pNotifications = pkPlayer->GetNotifications();
+	int notificationID = -1;
+	if(pNotifications)
+	{
+		int iExtraData = -1;
+		if(lua_gettop(L) >= 8)
+			iExtraData = lua_tointeger(L, 8);
+
+		notificationID = pNotifications->AddByName(lua_tostring(L, 2),
+		                                     lua_tostring(L, 3),
+		                                     lua_tostring(L, 4),
+		                                     lua_tointeger(L, 5),
+		                                     lua_tointeger(L, 6),
+		                                     lua_tointeger(L, 7),
+		                                     iExtraData);
+	}
+	lua_pushinteger(L, notificationID);
+
+	return 1;
+}
 //------------------------------------------------------------------------------
 //void DismissNotification()
 int CvLuaPlayer::lDismissNotification(lua_State* L)
@@ -14106,6 +14182,72 @@ int CvLuaPlayer::lHasCurrency(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	const bool bResult = pkPlayer->HasCurrency();
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+int CvLuaPlayer::lDoEventChoice(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventChoiceTypes eEventChoice = (EventChoiceTypes)lua_tointeger(L, 2);
+	pkPlayer->DoEventChoice(eEventChoice);
+	return 1;
+}
+int CvLuaPlayer::lDoStartEvent(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventTypes eEvent = (EventTypes)lua_tointeger(L, 2);
+	pkPlayer->DoStartEvent(eEvent);
+	return 1;
+}
+int CvLuaPlayer::lDoCancelEventChoice(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventChoiceTypes eEvent = (EventChoiceTypes)lua_tointeger(L, 2);
+	pkPlayer->DoCancelEventChoice(eEvent);
+	return 1;
+}
+int CvLuaPlayer::lGetEventCooldown(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventTypes eEvent = (EventTypes)lua_tointeger(L, 2);
+	const int iCooldown = pkPlayer->GetEventCooldown(eEvent);
+	lua_pushinteger(L, iCooldown);
+	return 1;
+}
+int CvLuaPlayer::lGetEventChoiceCooldown(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventChoiceTypes eEvent = (EventChoiceTypes)lua_tointeger(L, 2);
+	const int iCooldown = pkPlayer->GetEventChoiceDuration(eEvent);
+	lua_pushinteger(L, iCooldown);
+	return 1;
+}
+int CvLuaPlayer::lSetEventCooldown(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventTypes eEvent = (EventTypes)lua_tointeger(L, 2);
+	int iNewCooldown = lua_tointeger(L, 3);
+	pkPlayer->SetEventCooldown(eEvent, iNewCooldown);
+	return 1;
+}
+int CvLuaPlayer::lSetEventChoiceCooldown(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventChoiceTypes eEvent = (EventChoiceTypes)lua_tointeger(L, 2);
+	int iNewCooldown = lua_tointeger(L, 3);
+	pkPlayer->SetEventChoiceDuration(eEvent, iNewCooldown);
+	return 1;
+}
+int CvLuaPlayer::lIsEventChoiceValid(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventChoiceTypes eEventChoice = (EventChoiceTypes)lua_tointeger(L, 2);
+	const EventTypes eEvent = (EventTypes)lua_tointeger(L, 3);
+	const bool bValue = pkPlayer->IsEventChoiceValid(eEventChoice, eEvent);
+
+	lua_pushboolean(L, bValue);
+
 	return 1;
 }
 #endif

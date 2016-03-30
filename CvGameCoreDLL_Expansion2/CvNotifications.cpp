@@ -20,7 +20,7 @@
 // Include this after all other headers.
 #include "LintFree.h"
 
-#define MAX_NOTIFICATIONS 100
+#define MAX_NOTIFICATIONS 150
 
 static uint V1_IndexToHash[] = 
 {
@@ -165,7 +165,7 @@ static uint V1_IndexToHash[] =
 	NOTIFICATION_HOST_MIGRATION,
 	NOTIFICATION_PLAYER_CONNECTING,
 	NOTIFICATION_CITY_REVOLT_POSSIBLE,
-	NOTIFICATION_CITY_REVOLT
+	NOTIFICATION_CITY_REVOLT,
 };
 
 /// Serialization read
@@ -583,6 +583,12 @@ bool CvNotifications::MayUserDismiss(int iLookupIndex)
 				return true;
 				break;
 #endif
+#if defined(MOD_BALANCE_CORE)
+			case 826076831:
+			case 419811917:
+				return false;
+				break;
+#endif
 
 			case NOTIFICATION_POLICY:
 				if(GC.getGame().isOption(GAMEOPTION_POLICY_SAVING))
@@ -635,7 +641,7 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 {
 	eBlockingType = NO_ENDTURN_BLOCKING_TYPE;
 	iNotificationIndex = -1;
-
+	
 	int iIndex = m_iNotificationsBeginIndex;
 	while(iIndex != m_iNotificationsEndIndex)
 	{
@@ -773,6 +779,15 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
 				return true;
 				break;
+
+#if defined(MOD_BALANCE_CORE)
+			case 826076831:
+			case 419811917:
+				eBlockingType = ENDTURN_BLOCKING_EVENT_CHOICE;
+				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+				return true;
+				break;
+#endif
 
 			default:
 				// these notifications don't block, so don't return a blocking type
@@ -1199,6 +1214,27 @@ void CvNotifications::Activate(Notification& notification)
 			GC.GetEngineUserInterface()->AddPopup(kPopup);
 		}
 		break;
+#if defined(MOD_BALANCE_CORE)
+	case 419811917:
+		CvAssertMsg(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		if (notification.m_iGameDataIndex >= 0)
+		{
+			EventTypes eEvent = (EventTypes)notification.m_iGameDataIndex;
+			CvPopupInfo kPopup(BUTTONPOPUP_MODDER_10, m_ePlayer, eEvent);
+			GC.GetEngineUserInterface()->AddPopup(kPopup);
+		}
+		break;
+	case 826076831:
+		CvAssertMsg(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		if (notification.m_iGameDataIndex >= 0)
+		{
+			CityEventTypes eEvent = (CityEventTypes)notification.m_iGameDataIndex;
+			int iCityID = notification.m_iExtraGameData;
+			CvPopupInfo kPopup(BUTTONPOPUP_MODDER_8, m_ePlayer, eEvent, iCityID);
+			GC.GetEngineUserInterface()->AddPopup(kPopup);
+		}
+		break;
+#endif
 
 	default:	// Default behavior is to move the camera to the X,Y passed in
 	{
@@ -1566,6 +1602,58 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 			return false;
 		}
 		break;
+#if defined(MOD_BALANCE_CORE)
+	case 419811917:
+		{
+			int iIndex = m_iNotificationsBeginIndex;
+			while(iIndex != m_iNotificationsEndIndex)
+			{
+				if(notification.m_eNotificationType == m_aNotifications[iIndex].m_eNotificationType)
+				{
+					if(!notification.m_bDismissed && !m_aNotifications[iIndex].m_bDismissed)
+					{
+						// we've already added a pantheon notification, don't need another
+						return true;
+					}
+				}
+
+
+				iIndex++;
+				if(iIndex >= (int)m_aNotifications.size())
+				{
+					iIndex = 0;
+				}
+			}
+
+			return false;
+		}
+		break;
+	case 826076831:
+		{
+			int iIndex = m_iNotificationsBeginIndex;
+			while(iIndex != m_iNotificationsEndIndex)
+			{
+				if(notification.m_eNotificationType == m_aNotifications[iIndex].m_eNotificationType)
+				{
+					if(!notification.m_bDismissed && !m_aNotifications[iIndex].m_bDismissed)
+					{
+						// we've already added a pantheon notification, don't need another
+						return true;
+					}
+				}
+
+
+				iIndex++;
+				if(iIndex >= (int)m_aNotifications.size())
+				{
+					iIndex = 0;
+				}
+			}
+
+			return false;
+		}
+		break;
+#endif
 
 	default:
 		return false;
@@ -1960,6 +2048,35 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		}
 	}
 	break;
+#if defined(MOD_BALANCE_CORE)
+	case 826076831:
+	{
+		CityEventTypes eCityEvent = (CityEventTypes)m_aNotifications[iIndex].m_iGameDataIndex;
+		if(eCityEvent != NO_EVENT_CITY)
+		{
+			int iCityID = m_aNotifications[iIndex].m_iExtraGameData;
+			CvCity* pCity = GET_PLAYER(m_ePlayer).getCity(iCityID);
+			if(pCity != NULL)
+			{
+				if(pCity->IsEventActive(eCityEvent))
+					return false;
+			}
+		}
+		return true;
+	}
+	break;
+	case 419811917:
+	{
+		EventTypes eEvent = (EventTypes)m_aNotifications[iIndex].m_iGameDataIndex;
+		if(eEvent != NO_EVENT)
+		{
+			if(GET_PLAYER(m_ePlayer).IsEventActive(eEvent))
+				return false;
+		}
+		return true;
+	}
+	break;
+#endif
 
 	default:	// don't expire
 	{

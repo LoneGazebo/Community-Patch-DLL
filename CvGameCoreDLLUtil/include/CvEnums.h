@@ -946,7 +946,7 @@ enum NotificationTypes
 	NOTIFICATION_PLAYER_CONNECTING						= 0xAB88859D,
 
 	NOTIFICATION_CITY_REVOLT_POSSIBLE					= 0xD1BC1A84,
-	NOTIFICATION_CITY_REVOLT							= 0xE58AA15F
+	NOTIFICATION_CITY_REVOLT							= 0xE58AA15F,
 };
 
 enum NotificationAggregateTypes
@@ -1789,6 +1789,25 @@ enum VoteSourceTypes
 {
 	NO_VOTESOURCE = -1,
 };
+
+#if defined(MOD_BALANCE_CORE_EVENTS)
+enum EventTypes			
+{
+	NO_EVENT = -1,
+};
+enum EventChoiceTypes			
+{
+	NO_EVENT_CHOICE = -1,
+};
+enum CityEventTypes			
+{
+	NO_EVENT_CITY = -1,
+};
+enum CityEventChoiceTypes			
+{
+	NO_EVENT_CHOICE_CITY = -1,
+};
+#endif
 
 enum ActivityTypes			
 {
@@ -2813,6 +2832,9 @@ enum EndTurnBlockingTypes
 #if defined(MOD_UI_CITY_PRODUCTION)
 	ENDTURN_BLOCKING_CITY_TILE,
 #endif
+#if defined(MOD_BALANCE_CORE)
+	ENDTURN_BLOCKING_EVENT_CHOICE,
+#endif
 
 	NUM_ENDTURN_BLOCKING_TYPES
 };
@@ -3514,9 +3536,9 @@ enum InstantYieldType
 	INSTANT_YIELD_TYPE_CONVERSION				= 19,
 	INSTANT_YIELD_TYPE_SPREAD					= 20,
 	INSTANT_YIELD_TYPE_BULLY					= 21,
-	INSTANT_YIELD_TYPE_GROWTH_EXTRA				= 22,
-	INSTANT_YIELD_TYPE_BIRTH_CAPITAL			= 23,
-	INSTANT_YIELD_TYPE_TR_MOVEMENT				= 24,
+	INSTANT_YIELD_TYPE_TR_MOVEMENT				= 22,
+
+	NUM_INSTANT_YIELD_TYPES
 };
 enum GreatPersonTypes
 {

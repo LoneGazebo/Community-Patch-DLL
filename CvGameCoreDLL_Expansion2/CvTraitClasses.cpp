@@ -61,6 +61,12 @@ CvTraitEntry::CvTraitEntry() :
 	m_iGoldenAgeGreatWriterRateModifier(0),
 	m_iObsoleteTech(NO_TECH),
 	m_iPrereqTech(NO_TECH),
+#if defined(MOD_TRAITS_OTHER_PREREQS)
+	m_iObsoleteBelief(NO_BELIEF),
+	m_iPrereqBelief(NO_BELIEF),
+	m_iObsoletePolicy(NO_POLICY),
+	m_iPrereqPolicy(NO_POLICY),
+#endif
 	m_iExtraEmbarkMoves(0),
 	m_iFreeUnitClassType(NO_UNITCLASS),
 	m_iNaturalWonderFirstFinderGold(0),
@@ -107,6 +113,11 @@ CvTraitEntry::CvTraitEntry() :
 	m_iRazeSpeedModifier(0),
 	m_iDOFGreatPersonModifier(0),
 	m_iLuxuryHappinessRetention(0),
+#if defined(MOD_TRAITS_EXTRA_SUPPLY)
+	m_iExtraSupply(0),
+	m_iExtraSupplyPerCity(0),
+	m_iExtraSupplyPerPopulation(0),
+#endif
 	m_iExtraSpies(0),
 	m_iUnresearchedTechBonusFromKills(0),
 	m_iExtraFoundedCityTerritoryClaimRange(0),
@@ -685,6 +696,26 @@ int CvTraitEntry::GetLuxuryHappinessRetention() const
 {
 	return m_iLuxuryHappinessRetention;
 }
+
+#if defined(MOD_TRAITS_EXTRA_SUPPLY)
+/// Accessor: number of extra base units supplied
+int CvTraitEntry::GetExtraSupply() const
+{
+	return m_iExtraSupply;
+}
+
+/// Accessor: number of extra units supplied per city
+int CvTraitEntry::GetExtraSupplyPerCity() const
+{
+	return m_iExtraSupplyPerCity;
+}
+
+/// Accessor: number of extra units supplied per population (percentage)
+int CvTraitEntry::GetExtraSupplyPerPopulation() const
+{
+	return m_iExtraSupplyPerPopulation;
+}
+#endif
 
 /// Accessor: number of extra spies
 int CvTraitEntry::GetExtraSpies() const
@@ -1372,6 +1403,31 @@ int CvTraitEntry::GetPrereqTech() const
 	return m_iPrereqTech;
 }
 
+#if defined(MOD_TRAITS_OTHER_PREREQS)
+/// Belief that makes this trait obsolete
+int CvTraitEntry::GetObsoleteBelief() const
+{
+	return m_iObsoleteBelief;
+}
+
+/// Belief that enables this trait
+int CvTraitEntry::GetPrereqBelief() const
+{
+	return m_iPrereqBelief;
+}
+
+/// Policy that makes this trait obsolete
+int CvTraitEntry::GetObsoletePolicy() const
+{
+	return m_iObsoletePolicy;
+}
+
+/// Policy that enables this trait
+int CvTraitEntry::GetPrereqPolicy() const
+{
+	return m_iPrereqPolicy;
+}
+#endif
 /// Accessor:: Does the civ get free promotions?
 bool CvTraitEntry::IsFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const
 {
@@ -1480,6 +1536,63 @@ bool CvTraitEntry::NoTrain(UnitClassTypes eUnitClass)
 		return false;
 	}
 }
+#if defined(MOD_TRAITS_OTHER_PREREQS)
+/// Has this trait become obsolete?
+bool CvTraitEntry::IsObsoleteByBelief(PlayerTypes ePlayer)
+{
+	bool bObsolete = false;
+
+	if (MOD_TRAITS_OTHER_PREREQS && m_iObsoleteBelief != NO_BELIEF)
+	{
+		bObsolete = (GET_PLAYER(ePlayer).HasBelief((BeliefTypes)m_iObsoleteBelief));
+	}
+
+	if (m_iObsoleteBelief != NO_BELIEF) CUSTOMLOG("IsObsoleteByBelief(%i) is %s", m_iObsoleteBelief, (bObsolete ? "true" : "false"));
+	return bObsolete;
+}
+
+/// Is this trait enabled by belief?
+bool CvTraitEntry::IsEnabledByBelief(PlayerTypes ePlayer)
+{
+	bool bEnabled = true;
+
+	if (MOD_TRAITS_OTHER_PREREQS && m_iPrereqBelief != NO_BELIEF)
+	{
+		bEnabled = (GET_PLAYER(ePlayer).HasBelief((BeliefTypes)m_iPrereqBelief));
+	}
+
+	if (m_iPrereqBelief != NO_BELIEF) CUSTOMLOG("IsEnabledByBelief(%i) is %s", m_iPrereqBelief, (bEnabled ? "true" : "false"));
+	return bEnabled;
+}
+
+/// Has this trait become obsolete?
+bool CvTraitEntry::IsObsoleteByPolicy(PlayerTypes ePlayer)
+{
+	bool bObsolete = false;
+
+	if (MOD_TRAITS_OTHER_PREREQS && m_iObsoletePolicy != NO_POLICY)
+	{
+		bObsolete = (GET_PLAYER(ePlayer).HasPolicy((PolicyTypes)m_iObsoletePolicy));
+	}
+
+	if (m_iObsoletePolicy != NO_POLICY) CUSTOMLOG("IsObsoleteByPolicy(%i) is %s", m_iObsoletePolicy, (bObsolete ? "true" : "false"));
+	return bObsolete;
+}
+
+/// Is this trait enabled by policy?
+bool CvTraitEntry::IsEnabledByPolicy(PlayerTypes ePlayer)
+{
+	bool bEnabled = true;
+
+	if (MOD_TRAITS_OTHER_PREREQS && m_iPrereqPolicy != NO_POLICY)
+	{
+		bEnabled = (GET_PLAYER(ePlayer).HasPolicy((PolicyTypes)m_iPrereqPolicy));
+	}
+
+	if (m_iPrereqPolicy != NO_POLICY) CUSTOMLOG("IsEnabledByPolicy(%i) is %s", m_iPrereqPolicy, (bEnabled ? "true" : "false"));
+	return bEnabled;
+}
+#endif
 #if defined(MOD_BALANCE_CORE)
 bool CvTraitEntry::TerrainClaimBoost(TerrainTypes eTerrain)
 {
@@ -1587,6 +1700,13 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iRazeSpeedModifier					= kResults.GetInt("RazeSpeedModifier");
 	m_iDOFGreatPersonModifier				= kResults.GetInt("DOFGreatPersonModifier");
 	m_iLuxuryHappinessRetention				= kResults.GetInt("LuxuryHappinessRetention");
+#if defined(MOD_TRAITS_EXTRA_SUPPLY)
+	if (MOD_TRAITS_EXTRA_SUPPLY) {
+		m_iExtraSupply						= kResults.GetInt("ExtraSupply");
+		m_iExtraSupplyPerCity				= kResults.GetInt("ExtraSupplyPerCity");
+		m_iExtraSupplyPerPopulation			= kResults.GetInt("ExtraSupplyPerPopulation");
+	}
+#endif
 	m_iExtraSpies							= kResults.GetInt("ExtraSpies");
 	m_iUnresearchedTechBonusFromKills		= kResults.GetInt("UnresearchedTechBonusFromKills");
 	m_iExtraFoundedCityTerritoryClaimRange  = kResults.GetInt("ExtraFoundedCityTerritoryClaimRange");
@@ -1661,6 +1781,37 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	{
 		m_eFreeBuilding = (BuildingTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
+#if defined(MOD_TRAITS_OTHER_PREREQS)
+	if (MOD_TRAITS_OTHER_PREREQS) {
+		szTextVal = kResults.GetText("ObsoleteBelief");
+		if(szTextVal)
+		{
+			m_iObsoleteBelief = GC.getInfoTypeForString(szTextVal, true);
+			CUSTOMLOG("%s is %i", szTextVal, m_iObsoleteBelief);
+		}
+
+		szTextVal = kResults.GetText("PrereqBelief");
+		if(szTextVal)
+		{
+			m_iPrereqBelief = GC.getInfoTypeForString(szTextVal, true);
+			CUSTOMLOG("%s is %i", szTextVal, m_iPrereqBelief);
+		}
+
+		szTextVal = kResults.GetText("ObsoletePolicy");
+		if(szTextVal)
+		{
+			m_iObsoletePolicy = GC.getInfoTypeForString(szTextVal, true);
+			CUSTOMLOG("%s is %i", szTextVal, m_iObsoletePolicy);
+		}
+
+		szTextVal = kResults.GetText("PrereqPolicy");
+		if(szTextVal)
+		{
+			m_iPrereqPolicy = GC.getInfoTypeForString(szTextVal, true);
+			CUSTOMLOG("%s is %i", szTextVal, m_iPrereqPolicy);
+		}
+	}
+#endif
 #if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("FreeCapitalBuilding");
 	if(szTextVal)
@@ -2540,6 +2691,11 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iRazeSpeedModifier += trait->GetRazeSpeedModifier();
 			m_iDOFGreatPersonModifier += trait->GetDOFGreatPersonModifier();
 			m_iLuxuryHappinessRetention += trait->GetLuxuryHappinessRetention();
+#if defined(MOD_TRAITS_EXTRA_SUPPLY)
+			m_iExtraSupply += trait->GetExtraSupply();
+			m_iExtraSupplyPerCity += trait->GetExtraSupplyPerCity();
+			m_iExtraSupplyPerPopulation += trait->GetExtraSupplyPerPopulation();
+#endif
 			m_iExtraSpies += trait->GetExtraSpies();
 			m_iUnresearchedTechBonusFromKills += trait->GetUnresearchedTechBonusFromKills();
 			m_iExtraFoundedCityTerritoryClaimRange += trait->GetExtraFoundedCityTerritoryClaimRange();
@@ -3056,6 +3212,11 @@ void CvPlayerTraits::Reset()
 	m_iRazeSpeedModifier = 0;
 	m_iDOFGreatPersonModifier = 0;
 	m_iLuxuryHappinessRetention = 0;
+#if defined(MOD_TRAITS_EXTRA_SUPPLY)
+	m_iExtraSupply = 0;
+	m_iExtraSupplyPerCity = 0;
+	m_iExtraSupplyPerPopulation = 0;
+#endif
 	m_iExtraSpies = 0;
 	m_iUnresearchedTechBonusFromKills = 0;
 	m_iExtraFoundedCityTerritoryClaimRange = 0;
@@ -3324,7 +3485,17 @@ bool CvPlayerTraits::HasTrait(TraitTypes eTrait) const
 	{
 		CvAssertMsg((m_pPlayer->getLeaderType() >= 0), "getLeaderType() is less than zero");
 		CvAssertMsg((eTrait >= 0), "eTrait is less than zero");
+#if defined(MOD_TRAITS_OTHER_PREREQS)
+		TeamTypes eTeam = m_pPlayer->getTeam();
+		PlayerTypes ePlayer = m_pPlayer->GetID();
+		CvTraitEntry* pTrait = m_pTraits->GetEntry(eTrait);
+		return m_vLeaderHasTrait[eTrait] && 
+			   ((!pTrait->IsObsoleteByBelief(ePlayer) && pTrait->IsEnabledByBelief(ePlayer)) &&
+			    (!pTrait->IsObsoleteByPolicy(ePlayer) && pTrait->IsEnabledByPolicy(ePlayer)) &&
+			    (!pTrait->IsObsoleteByTech(eTeam)     && pTrait->IsEnabledByTech(eTeam)));
+#else
 		return m_vLeaderHasTrait[eTrait] && !m_pTraits->GetEntry(eTrait)->IsObsoleteByTech(m_pPlayer->getTeam()) && m_pTraits->GetEntry(eTrait)->IsEnabledByTech(m_pPlayer->getTeam());
+#endif
 	}
 	else
 	{
@@ -4738,6 +4909,12 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 
 	kStream >> m_iLuxuryHappinessRetention;
 
+#if defined(MOD_TRAITS_EXTRA_SUPPLY)
+	MOD_SERIALIZE_READ(78, kStream, m_iExtraSupply, 0);
+	MOD_SERIALIZE_READ(78, kStream, m_iExtraSupplyPerCity, 0);
+	MOD_SERIALIZE_READ(78, kStream, m_iExtraSupplyPerPopulation, 0);
+#endif
+
 	kStream >> m_iExtraSpies;
 
 	kStream >> m_iUnresearchedTechBonusFromKills;
@@ -5241,6 +5418,11 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_iRazeSpeedModifier;
 	kStream << m_iDOFGreatPersonModifier;
 	kStream << m_iLuxuryHappinessRetention;
+#if defined(MOD_TRAITS_EXTRA_SUPPLY)
+	MOD_SERIALIZE_WRITE(kStream, m_iExtraSupply);
+	MOD_SERIALIZE_WRITE(kStream, m_iExtraSupplyPerCity);
+	MOD_SERIALIZE_WRITE(kStream, m_iExtraSupplyPerPopulation);
+#endif
 	kStream << m_iExtraSpies;
 	kStream << m_iUnresearchedTechBonusFromKills;
 	kStream << m_iExtraFoundedCityTerritoryClaimRange;

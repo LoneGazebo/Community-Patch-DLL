@@ -385,7 +385,7 @@ bool isBeforeUnitCycle(const CvUnit* pFirstUnit, const CvUnit* pSecondUnit)
 		return (pFirstUnit->getLevel() > pSecondUnit->getLevel());
 	}
 
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	if (pFirstUnit->getExperienceTimes100() != pSecondUnit->getExperienceTimes100())
 	{
 		return (pFirstUnit->getExperienceTimes100() > pSecondUnit->getExperienceTimes100());

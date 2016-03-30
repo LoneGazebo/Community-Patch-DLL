@@ -5413,7 +5413,11 @@ bool CvMilitaryAI::WillAirUnitRebase(CvUnit* pUnit) const
 		CvUnit *pCarrier = pUnit->getTransportUnit();
 		if (pCarrier)
 		{
+#if defined(MOD_UNITS_MAX_HP)
+			if (pCarrier->getDamage() > (pCarrier->GetMaxHitPoints() / 5))
+#else
 			if (pCarrier->getDamage() > (GC.getMAX_HIT_POINTS() / 5))
+#endif
 			{
 				bNeedsToMove = true;
 			}
@@ -5440,7 +5444,11 @@ bool CvMilitaryAI::WillAirUnitRebase(CvUnit* pUnit) const
 	{
 		CvPlot* pLoopUnitPlot = pLoopUnit->plot();
 
+#if defined(MOD_UNITS_MAX_HP)
+		if(pLoopUnit->getDamage() > (pLoopUnit->GetMaxHitPoints() / 5))  // this might not be a good place to land
+#else
 		if(pLoopUnit->getDamage() > (GC.getMAX_HIT_POINTS() / 5))  // this might not be a good place to land
+#endif
 		{
 			continue;
 		}
@@ -5469,7 +5477,11 @@ bool CvMilitaryAI::WillAirUnitRebase(CvUnit* pUnit) const
 	{
 		CvPlot* pLoopUnitPlot = pLoopUnit->plot();
 
+#if defined(MOD_UNITS_MAX_HP)
+		if(pLoopUnit->getDamage() > (pLoopUnit->GetMaxHitPoints() / 5))  // this might not be a good place to land
+#else
 		if(pLoopUnit->getDamage() > (GC.getMAX_HIT_POINTS() / 5))  // this might not be a good place to land
+#endif
 		{
 			continue;
 		}

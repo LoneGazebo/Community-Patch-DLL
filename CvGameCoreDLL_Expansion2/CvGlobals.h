@@ -75,6 +75,12 @@ class CvPlayerOptionInfo;
 class CvEventTriggerInfo;
 class CvEventInfo;
 class CvVoteSourceInfo;
+#if defined(MOD_BALANCE_CORE_EVENTS)
+class CvModEventInfo;
+class CvModEventChoiceInfo;
+class CvModCityEventInfo;
+class CvModEventCityChoiceInfo;
+#endif
 class CvMultiUnitFormationInfo;
 class CvEconomicAIStrategyXMLEntries;
 class CvEconomicAIStrategyXMLEntry;
@@ -357,6 +363,25 @@ public:
 	std::vector<CvVoteSourceInfo*>& getVoteSourceInfo();
 	_Ret_maybenull_ CvVoteSourceInfo* getVoteSourceInfo(VoteSourceTypes e);
 
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	int getNumEventInfos();
+	std::vector<CvModEventInfo*>& getEventInfo();
+	_Ret_maybenull_ CvModEventInfo* getEventInfo(EventTypes e);
+
+	int getNumEventChoiceInfos();
+	std::vector<CvModEventChoiceInfo*>& getEventChoiceInfo();
+	_Ret_maybenull_ CvModEventChoiceInfo* getEventChoiceInfo(EventChoiceTypes e);
+
+	int getNumCityEventInfos();
+	std::vector<CvModCityEventInfo*>& getCityEventInfo();
+	_Ret_maybenull_ CvModCityEventInfo* getCityEventInfo(CityEventTypes e);
+
+	int getNumCityEventChoiceInfos();
+	std::vector<CvModEventCityChoiceInfo*>& getCityEventChoiceInfo();
+	_Ret_maybenull_ CvModEventCityChoiceInfo* getCityEventChoiceInfo(CityEventChoiceTypes e);
+
+#endif
+
 	int getNumUnitCombatClassInfos();
 	std::vector<CvBaseInfo*>& getUnitCombatClassInfo();
 	_Ret_maybenull_ CvBaseInfo* getUnitCombatClassInfo(UnitCombatTypes e);
@@ -563,7 +588,6 @@ public:
 	_Ret_maybenull_ CvSmallAwardInfo* getSmallAwardInfo(SmallAwardTypes eSmallAwardNum);
 
 	CvNotificationXMLEntries* GetNotificationEntries();
-
 #if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
 	int getNumAchievementInfos();
 	std::vector<CvAchievementInfo*>& getAchievementInfo();
@@ -8970,6 +8994,12 @@ protected:
 	std::vector<CvUnitClassInfo*> m_paUnitClassInfo;
 	std::vector<CvSpecialUnitInfo*> m_paSpecialUnitInfo;
 	std::vector<CvVoteSourceInfo*> m_paVoteSourceInfo;
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	std::vector<CvModEventInfo*> m_paEventInfo;
+	std::vector<CvModEventChoiceInfo*> m_paEventChoiceInfo;
+	std::vector<CvModCityEventInfo*> m_paCityEventInfo;
+	std::vector<CvModEventCityChoiceInfo*> m_paCityEventChoiceInfo;
+#endif
 	std::vector<CvBaseInfo*> m_paUnitCombatClassInfo;
 	std::vector<CvBaseInfo*> m_paUnitAIInfos;
 	std::vector<CvGameOptionInfo*> m_paGameOptionInfos;

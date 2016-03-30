@@ -7663,7 +7663,1778 @@ bool CvVoteSourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 	return true;
 }
+#if defined(MOD_BALANCE_CORE_EVENTS)
+//======================================================================================================
+//		CvModEventInfo
+//======================================================================================================
+CvModEventInfo::CvModEventInfo() :
+	m_iNumChoices(0),
+	 m_iCooldown(0),
+	 m_iRandomChance(0),
+	 m_iRandomChanceDelta(0),
+	 m_bGlobal(false),
+	 m_bEraScaling(false),
+	 m_iPrereqTech(-1),
+	 m_iObsoleteTech(-1),
+	 m_iMinimumNationalPopulation(0),
+	 m_iMinimumNumberCities(0),
+	 m_iRequiredCiv(-1),
+	 m_iRequiredEra(-1),
+	 m_iObsoleteEra(-1),
+	 m_iRequiredPolicy(-1),
+	 m_iRequiredImprovement(-1),
+	 m_iUnitTypeRequired(-1),
+	 m_iRequiredReligion(-1),
+	 m_iRequiredStateReligion(-1),
+	 m_bHasStateReligion(false),
+	 m_iBuildingRequired(-1),
+	 m_iBuildingLimiter(-1),
+	 m_bRequiresHolyCity(false),
+	 m_bRequiresIdeology(false),
+	 m_bRequiresWar(false),
+	 m_bRequiresWarMinor(false),
+	 m_piRequiredResource(NULL),
+	 m_piMinimumYield(NULL),
+	 m_strSplashArt(""),
+	 m_strEventAudio(""),
+	 m_iRequiredActiveEvent(-1),
+	 m_iRequiredActiveEventChoice(-1),
+	 m_iRequiredActiveCityEvent(-1),
+	 m_iRequiredActiveCityEventChoice(-1)
+{
+}
+//------------------------------------------------------------------------------
+CvModEventInfo::~CvModEventInfo()
+{
+	SAFE_DELETE_ARRAY(m_piMinimumYield);
+	SAFE_DELETE_ARRAY(m_piRequiredResource);
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getRandomChance() const
+{
+	return m_iRandomChance;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getRandomChanceDelta() const
+{
+	return m_iRandomChanceDelta;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getCooldown() const
+{
+	return m_iCooldown;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getNumChoices() const
+{
+	return m_iNumChoices;
+}
+//------------------------------------------------------------------------------
+const char* CvModEventInfo::getSplashArt() const
+{
+	return m_strSplashArt.c_str();
+}
+//------------------------------------------------------------------------------
+const char* CvModEventInfo::getEventAudio() const
+{
+	return m_strEventAudio.c_str();
+}
+//------------------------------------------------------------------------------
+bool CvModEventInfo::isGlobal() const
+{
+	return m_bGlobal;
+}
+//------------------------------------------------------------------------------
+bool CvModEventInfo::isEraScaling() const
+{
+	return m_bEraScaling;
+}
 
+// Filters
+
+//------------------------------------------------------------------------------
+int CvModEventInfo::getPrereqTech() const
+{
+	return m_iPrereqTech;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getObsoleteTech() const
+{
+	return m_iObsoleteTech;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getMinimumNationalPopulation() const
+{
+	return m_iMinimumNationalPopulation;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getMinimumNumberCities() const
+{
+	return m_iMinimumNumberCities;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getUnitTypeRequired() const
+{
+	return m_iUnitTypeRequired;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getRequiredCiv() const
+{
+	return m_iRequiredCiv;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getRequiredEra() const
+{
+	return m_iRequiredEra;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getObsoleteEra() const
+{
+	return m_iObsoleteEra;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getRequiredImprovement() const
+{
+	return m_iRequiredImprovement;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getRequiredPolicy() const
+{
+	return m_iRequiredPolicy;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getRequiredReligion() const
+{
+	return m_iRequiredReligion;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getRequiredStateReligion() const
+{
+	return m_iRequiredStateReligion;
+}
+//------------------------------------------------------------------------------
+bool CvModEventInfo::hasStateReligion() const
+{
+	return m_bHasStateReligion;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getBuildingRequired() const
+{
+	return m_iBuildingRequired;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getBuildingLimiter() const
+{
+	return m_iBuildingLimiter;
+}
+//------------------------------------------------------------------------------
+bool CvModEventInfo::isRequiresIdeology() const
+{
+	return m_bRequiresIdeology;
+}
+//------------------------------------------------------------------------------
+bool CvModEventInfo::isRequiresWar() const
+{
+	return m_bRequiresWar;
+}
+//------------------------------------------------------------------------------
+bool CvModEventInfo::isRequiresWarMinor() const
+{
+	return m_bRequiresWarMinor;
+}
+//------------------------------------------------------------------------------
+bool CvModEventInfo::isRequiresHolyCity() const
+{
+	return m_bRequiresHolyCity;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getYieldMinimum(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+	return m_piMinimumYield ? m_piMinimumYield[eYield] : -1;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getResourceRequired(ResourceTypes eResource) const
+{
+	CvAssertMsg(eResource < GC.getNumResourceInfos(), "Index out of bounds");
+	CvAssertMsg(eResource > -1, "Index out of bounds");
+	return m_piRequiredResource ? m_piRequiredResource[eResource] : -1;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getRequiredActiveEvent() const
+{
+	return m_iRequiredActiveEvent;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getRequiredActiveEventChoice() const
+{
+	return m_iRequiredActiveEventChoice;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getRequiredActiveCityEvent() const
+{
+	return m_iRequiredActiveCityEvent;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getRequiredActiveCityEventChoice() const
+{
+	return m_iRequiredActiveCityEventChoice;
+}
+//------------------------------------------------------------------------------
+bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
+{
+	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+		return false;
+
+	const char* szTextVal;
+	
+	m_iRandomChance = kResults.GetInt("RandomChance");
+	m_iRandomChanceDelta = kResults.GetInt("RandomChanceDelta");
+
+	m_iNumChoices = kResults.GetInt("NumChoices");
+	m_bGlobal = kResults.GetBool("Global");
+	m_bEraScaling = kResults.GetBool("EraScaling");
+	m_iCooldown = kResults.GetInt("EventCooldown");
+	
+	szTextVal = kResults.GetText("EventAudio");
+	m_strEventAudio = szTextVal;
+
+	szTextVal = kResults.GetText("EventArt");
+	m_strSplashArt = szTextVal;
+
+	// Filters
+
+	szTextVal = kResults.GetText("PrereqTech");
+	m_iPrereqTech =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("ObsoleteTech");
+	m_iObsoleteTech =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_iMinimumNationalPopulation = kResults.GetInt("MinimumNationalPopulation");
+	m_iMinimumNumberCities = kResults.GetInt("MinimumNumberCities");
+
+	szTextVal = kResults.GetText("UnitClassRequired");
+	m_iUnitTypeRequired =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("ImprovementAnywhereRequired");
+	m_iRequiredImprovement =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredCiv");
+	m_iRequiredCiv =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredEra");
+	m_iRequiredEra =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("ObsoleteEra");
+	m_iObsoleteEra =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredPolicy");
+	m_iRequiredPolicy =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_bRequiresHolyCity = kResults.GetBool("RequiresHolyCity");
+	
+	szTextVal = kResults.GetText("RequiredReligion");
+	m_iRequiredReligion =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_bRequiresIdeology = kResults.GetBool("RequiresIdeology");
+	m_bRequiresWar = kResults.GetBool("RequiresWar");
+	m_bRequiresWarMinor = kResults.GetBool("RequiresWarMinor");
+
+	szTextVal = kResults.GetText("RequiredAnywhereBuildingClass");
+	m_iBuildingRequired =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredNowhereBuildingClass");
+	m_iBuildingLimiter =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredStateReligion");
+	m_iRequiredStateReligion =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveEvent");
+	m_iRequiredActiveEvent =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveEventChoice");
+	m_iRequiredActiveEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveCityEvent");
+	m_iRequiredActiveCityEvent =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveCityEventChoice");
+	m_iRequiredActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_bHasStateReligion = kResults.GetBool("RequiresAnyStateReligion");
+
+	const char* szEventType = GetType();
+	kUtility.SetYields(m_piMinimumYield, "Event_MinimumStartYield", "EventType", szEventType);
+
+	kUtility.PopulateArrayByValue(m_piRequiredResource, "Resources", "Event_MinimumResourceRequired", "ResourceType", "EventType", szEventType, "Quantity");
+
+
+	return true;
+}
+//======================================================================================================
+//		CvModEventChoiceInfo
+//======================================================================================================
+CvModEventChoiceInfo::CvModEventChoiceInfo() :
+	 m_iEventID(0),
+	 m_iEventPolicy(-1),
+	 m_iEventBuilding(-1),
+	 m_iEventPromotion(-1),
+	 m_iEventDuration(0),
+	 m_iEventChance(0),
+	 m_bEraScaling(false),
+	 m_bExpires(false),
+	 m_iNumFreePolicies(0),
+	 m_iNumFreeGreatPeople(0),
+	 m_iNumGoldenAgeTurns(0),
+	 m_iNumWLTKD(0),
+	 m_iResistanceTurns(0),
+	 m_iRandomBarbs(0),
+	 m_piNumFreeUnits(NULL),
+	 m_iPrereqTech(-1),
+	 m_iObsoleteTech(-1),
+	 m_iMinimumNationalPopulation(0),
+	 m_iMinimumNumberCities(0),
+	 m_iRequiredCiv(-1),
+	 m_iRequiredEra(-1),
+	 m_iObsoleteEra(-1),
+	 m_iRequiredPolicy(-1),
+	 m_iRequiredImprovement(-1),
+	 m_iUnitTypeRequired(-1),
+	 m_iRequiredReligion(-1),
+	 m_iRequiredStateReligion(-1),
+	 m_bHasStateReligion(false),
+	 m_bRequiresHolyCity(false),
+	 m_bRequiresIdeology(false),
+	 m_bRequiresWar(false),
+	 m_iBuildingRequired(-1),
+	 m_iBuildingLimiter(-1),
+	 m_piMinimumYield(NULL),
+	 m_bRequiresWarMinor(false),
+	 m_piRequiredResource(NULL),
+	 m_piResourceChange(NULL),
+	 m_piFlavor(NULL),
+	 m_piEventYield(NULL),
+	 m_piPreCheckEventYield(NULL),
+	 m_strEventChoiceSoundEffect(""),
+	 m_piConvertReligion(NULL),
+	 m_piConvertReligionPercent(NULL),
+	 m_iRequiredActiveEvent(-1),
+	 m_iRequiredActiveEventChoice(-1),
+	 m_iRequiredActiveCityEvent(-1),
+	 m_iRequiredActiveCityEventChoice(-1),
+	 m_ppiBuildingClassYield(NULL),
+	 m_piCityYield(NULL)
+{
+}
+//------------------------------------------------------------------------------
+CvModEventChoiceInfo::~CvModEventChoiceInfo()
+{
+	SAFE_DELETE_ARRAY(m_piFlavor);
+	SAFE_DELETE_ARRAY(m_piResourceChange);
+	SAFE_DELETE_ARRAY(m_piEventYield);
+	SAFE_DELETE_ARRAY(m_piPreCheckEventYield);
+	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
+	SAFE_DELETE_ARRAY(m_piMinimumYield);
+	SAFE_DELETE_ARRAY(m_piRequiredResource);
+	SAFE_DELETE_ARRAY(m_piConvertReligion);
+	SAFE_DELETE_ARRAY(m_piConvertReligionPercent);
+	SAFE_DELETE_ARRAY(m_piCityYield);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYield);
+	
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getEventID() const
+{
+	return m_iEventID;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getEventPromotion() const
+{
+	return m_iEventPromotion;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getEventPolicy() const
+{
+	return m_iEventPolicy;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getEventDuration() const
+{
+	return m_iEventDuration;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getEventChance() const
+{
+	return m_iEventChance;
+}
+//------------------------------------------------------------------------------
+bool CvModEventChoiceInfo::IsEraScaling() const
+{
+	return m_bEraScaling;
+}
+//------------------------------------------------------------------------------
+bool CvModEventChoiceInfo::Expires() const
+{
+	return m_bExpires;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getEventBuilding() const
+{
+	return m_iEventBuilding;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getFlavorValue(int i) const
+{
+	CvAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piFlavor ? m_piFlavor[i] : 0;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getEventResourceChange(ResourceTypes eResource) const
+{
+	CvAssertMsg(eResource < GC.getNumResourceTypes(), "Index out of bounds");
+	CvAssertMsg(eResource > -1, "Index out of bounds");
+	return m_piResourceChange ? m_piResourceChange[eResource] : 0;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getEventYield(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+	return m_piEventYield ? m_piEventYield[eYield] : -1;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getPreCheckEventYield(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+	return m_piPreCheckEventYield ? m_piPreCheckEventYield[eYield] : -1;
+}
+CvEventNotificationInfo *CvModEventChoiceInfo::GetNotificationInfo(int i) const
+{
+	CvAssertMsg(i < GC.getNumNotificationInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if (m_paNotificationInfo[0].GetNotificationString() == "" || m_paNotificationInfo[0].GetNotificationString() == NULL)
+	{
+		return NULL;
+	}
+	else
+	{
+		return &m_paNotificationInfo[i];
+	}
+}
+//------------------------------------------------------------------------------
+const char* CvModEventChoiceInfo::getEventChoiceSoundEffect() const
+{
+	return m_strEventChoiceSoundEffect.c_str();
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getNumFreePolicies() const
+{
+	return m_iNumFreePolicies;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getNumFreeGreatPeople() const
+{
+	return m_iNumFreeGreatPeople;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getGoldenAgeTurns() const
+{
+	return m_iNumGoldenAgeTurns;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getWLTKD() const
+{
+	return m_iNumWLTKD;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getResistanceTurns() const
+{
+	return m_iResistanceTurns;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getRandomBarbs() const
+{
+	return m_iRandomBarbs;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getNumFreeUnits(int i) const
+{
+	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piNumFreeUnits ? m_piNumFreeUnits[i] : -1;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getEventConvertReligion(int i) const
+{
+	CvAssertMsg(i < GC.getNumReligionInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piConvertReligion ? m_piConvertReligion[i] : -1;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getEventConvertReligionPercent(int i) const
+{
+	CvAssertMsg(i < GC.getNumReligionInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piConvertReligionPercent ? m_piConvertReligionPercent[i] : -1;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getCityYield(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piCityYield ? m_piCityYield[i] : -1;
+}
+/// Yield change for a specific BuildingClass by yield type
+int CvModEventChoiceInfo::getBuildingClassYield(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiBuildingClassYield[i][j];
+}
+// Filters
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getPrereqTech() const
+{
+	return m_iPrereqTech;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getObsoleteTech() const
+{
+	return m_iObsoleteTech;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getMinimumNationalPopulation() const
+{
+	return m_iMinimumNationalPopulation;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getMinimumNumberCities() const
+{
+	return m_iMinimumNumberCities;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getUnitTypeRequired() const
+{
+	return m_iUnitTypeRequired;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getRequiredCiv() const
+{
+	return m_iRequiredCiv;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getRequiredEra() const
+{
+	return m_iRequiredEra;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getObsoleteEra() const
+{
+	return m_iObsoleteEra;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getYieldMinimum(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+	return m_piMinimumYield ? m_piMinimumYield[eYield] : -1;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getRequiredImprovement() const
+{
+	return m_iRequiredImprovement;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getRequiredPolicy() const
+{
+	return m_iRequiredPolicy;
+}
+//------------------------------------------------------------------------------
+bool CvModEventChoiceInfo::isRequiresHolyCity() const
+{
+	return m_bRequiresHolyCity;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getRequiredReligion() const
+{
+	return m_iRequiredReligion;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getBuildingRequired() const
+{
+	return m_iBuildingRequired;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getBuildingLimiter() const
+{
+	return m_iBuildingLimiter;
+}
+//------------------------------------------------------------------------------
+bool CvModEventChoiceInfo::isRequiresIdeology() const
+{
+	return m_bRequiresIdeology;
+}
+//------------------------------------------------------------------------------
+bool CvModEventChoiceInfo::isRequiresWar() const
+{
+	return m_bRequiresWar;
+}
+//------------------------------------------------------------------------------
+bool CvModEventChoiceInfo::isRequiresWarMinor() const
+{
+	return m_bRequiresWarMinor;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getResourceRequired(ResourceTypes eResource) const
+{
+	CvAssertMsg(eResource < GC.getNumResourceInfos(), "Index out of bounds");
+	CvAssertMsg(eResource > -1, "Index out of bounds");
+	return m_piRequiredResource ? m_piRequiredResource[eResource] : -1;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getRequiredStateReligion() const
+{
+	return m_iRequiredStateReligion;
+}
+//------------------------------------------------------------------------------
+bool CvModEventChoiceInfo::hasStateReligion() const
+{
+	return m_bHasStateReligion;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getRequiredActiveEvent() const
+{
+	return m_iRequiredActiveEvent;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getRequiredActiveEventChoice() const
+{
+	return m_iRequiredActiveEventChoice;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getRequiredActiveCityEvent() const
+{
+	return m_iRequiredActiveCityEvent;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getRequiredActiveCityEventChoice() const
+{
+	return m_iRequiredActiveCityEventChoice;
+}
+//------------------------------------------------------------------------------
+bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
+{
+	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+		return false;
+
+	const char* szTextVal;
+
+	szTextVal = kResults.GetText("ParentEvent");
+	m_iEventID =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("EventPolicy");
+	m_iEventPolicy =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("EventBuildingClassGlobal");
+	m_iEventBuilding =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_iEventDuration = kResults.GetInt("EventDuration");
+
+	m_iEventChance = kResults.GetInt("EventChance");
+	
+	m_iNumFreePolicies = kResults.GetInt("EventFreePolicies");
+	m_iNumFreeGreatPeople = kResults.GetInt("FreeGreatPeople");
+	m_iNumGoldenAgeTurns = kResults.GetInt("GoldenAgeTurns");
+	m_iNumWLTKD = kResults.GetInt("WLTKDTurns");
+	m_iResistanceTurns = kResults.GetInt("ResistanceTurns");
+	m_iRandomBarbs = kResults.GetInt("RandomBarbarianSpawn");
+
+	m_bEraScaling = kResults.GetBool("EraScaling");
+	m_bExpires = kResults.GetBool("Expires");
+
+	szTextVal = kResults.GetText("EventPromotion");
+	m_iEventPromotion =  GC.getInfoTypeForString(szTextVal, true);
+
+	const char* szEventType = GetType();
+	kUtility.PopulateArrayByValue(m_piResourceChange, "Resources", "EventChoice_ResourceQuantity", "ResourceType", "EventChoiceType", szEventType, "Quantity");
+
+	kUtility.SetYields(m_piEventYield, "EventChoice_InstantYield", "EventChoiceType", szEventType);
+	kUtility.SetYields(m_piPreCheckEventYield, "EventChoice_EventCostYield", "EventChoiceType", szEventType);
+
+	kUtility.SetYields(m_piCityYield, "EventChoice_CityYield", "EventChoiceType", szEventType);
+
+	kUtility.SetFlavors(m_piFlavor, "EventChoiceFlavors", "EventChoiceType", szEventType);
+
+	szTextVal = kResults.GetText("EventChoiceAudio");
+	m_strEventChoiceSoundEffect = szTextVal;
+
+	kUtility.PopulateArrayByValue(m_piNumFreeUnits, "UnitClasses", "EventChoice_FreeUnitClasses", "UnitClassType", "EventChoiceType", szEventType, "Quantity");
+
+	kUtility.PopulateArrayByValue(m_piConvertReligion, "Religions", "EventChoice_ConvertNumPopToReligion", "ReligionType", "EventChoiceType", szEventType, "Population");
+	kUtility.PopulateArrayByValue(m_piConvertReligionPercent, "Religions", "EventChoice_ConvertPercentPopToReligion", "ReligionType", "EventChoiceType", szEventType, "Percent");
+
+	{
+		//Initialize Notifications
+		const size_t iNumNotifications = kUtility.MaxRows("Notifications");
+		m_paNotificationInfo = FNEW(CvEventNotificationInfo[iNumNotifications], c_eCiv5GameplayDLL, 0);
+		int idx = 0;
+
+		std::string strEventChoiceTypesKey = "EventChoice_Notification";
+		Database::Results* pEventChoiceTypes = kUtility.GetResults(strEventChoiceTypesKey);
+		if(pEventChoiceTypes == NULL)
+		{
+			pEventChoiceTypes = kUtility.PrepareResults(strEventChoiceTypesKey, "select NotificationType, Description, ShortDescription, IsWorldEvent, NeedPlayerID, Variable1, Variable2 from EventChoice_Notification where EventChoiceType = ?");
+		}
+
+		const size_t lenEventChoiceType = strlen(szEventType);
+		pEventChoiceTypes->Bind(1, szEventType, lenEventChoiceType, false);
+
+		while(pEventChoiceTypes->Step())
+		{
+			CvEventNotificationInfo& pEventNotificationInfo = m_paNotificationInfo[idx];
+			pEventNotificationInfo.m_strNotificationType = pEventChoiceTypes->GetText("NotificationType");
+			pEventNotificationInfo.m_strDescription = pEventChoiceTypes->GetText("Description");
+			pEventNotificationInfo.m_strShortDescription = pEventChoiceTypes->GetText("ShortDescription");
+			pEventNotificationInfo.m_bWorldEvent = pEventChoiceTypes->GetBool("IsWorldEvent");
+			pEventNotificationInfo.m_bWorldEvent = pEventChoiceTypes->GetBool("NeedPlayerID");
+			pEventNotificationInfo.m_iVariable1 = pEventChoiceTypes->GetBool("Variable1");
+			pEventNotificationInfo.m_iVariable2 = pEventChoiceTypes->GetBool("Variable2");
+			idx++;
+		}
+
+		m_iNotificationInfos = idx;
+		pEventChoiceTypes->Reset();
+	}
+
+	//BuildingYieldChanges
+	{
+		kUtility.Initialize2DArray(m_ppiBuildingClassYield, "BuildingClasses", "Yields");
+
+		std::string strKey("EventChoice_BuildingClassYieldChange");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select BuildingClasses.ID as BuildingClassID, Yields.ID as YieldID, YieldChange from EventChoice_BuildingClassYieldChange inner join BuildingClasses on BuildingClasses.Type = BuildingClassType inner join Yields on Yields.Type = YieldType where EventChoiceType = ?");
+		}
+
+		pResults->Bind(1, szEventType);
+
+		while(pResults->Step())
+		{
+			const int BuildingClassID = pResults->GetInt(0);
+			const int iYieldID = pResults->GetInt(1);
+			const int iYieldChange = pResults->GetInt(2);
+
+			m_ppiBuildingClassYield[BuildingClassID][iYieldID] = iYieldChange;
+		}
+	}
+
+	// Filters
+	szTextVal = kResults.GetText("PrereqTech");
+	m_iPrereqTech =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("ObsoleteTech");
+	m_iObsoleteTech =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_iMinimumNationalPopulation = kResults.GetInt("MinimumNationalPopulation");
+	m_iMinimumNumberCities = kResults.GetInt("MinimumNumberCities");
+
+	szTextVal = kResults.GetText("UnitClassRequired");
+	m_iUnitTypeRequired =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("ImprovementAnywhereRequired");
+	m_iRequiredImprovement =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredCiv");
+	m_iRequiredCiv =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredEra");
+	m_iRequiredEra =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("ObsoleteEra");
+	m_iObsoleteEra =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredPolicy");
+	m_iRequiredPolicy =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_bRequiresHolyCity = kResults.GetBool("RequiresHolyCity");
+	
+	szTextVal = kResults.GetText("RequiredReligion");
+	m_iRequiredReligion =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_bRequiresIdeology = kResults.GetBool("RequiresIdeology");
+	m_bRequiresWar = kResults.GetBool("RequiresWar");
+	m_bRequiresWarMinor = kResults.GetBool("RequiresWarMinor");
+
+	szTextVal = kResults.GetText("RequiredAnywhereBuildingClass");
+	m_iBuildingRequired =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredNowhereBuildingClass");
+	m_iBuildingLimiter =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredStateReligion");
+	m_iRequiredStateReligion =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveEvent");
+	m_iRequiredActiveEvent =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveEventChoice");
+	m_iRequiredActiveEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveCityEvent");
+	m_iRequiredActiveCityEvent =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveCityEventChoice");
+	m_iRequiredActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_bHasStateReligion = kResults.GetBool("RequiresAnyStateReligion");
+
+	kUtility.SetYields(m_piMinimumYield, "EventChoice_MinimumStartYield", "EventChoiceType", szEventType);
+
+	kUtility.PopulateArrayByValue(m_piRequiredResource, "Resources", "EventChoice_MinimumResourceRequired", "ResourceType", "EventChoiceType", szEventType, "Quantity");
+
+
+	return true;
+}
+//======================================================================================================
+//		CvModCityEventInfo
+//======================================================================================================
+CvModCityEventInfo::CvModCityEventInfo() :
+	 m_iPrereqTech(-1),
+	 m_iObsoleteTech(-1),
+	 m_iMinimumPopulation(0),
+	 m_iRandomChance(0),
+	 m_iRandomChanceDelta(0),
+	 m_iRequiredCiv(-1),
+	 m_iRequiredPolicy(-1),
+	 m_iRequiredEra(-1),
+	 m_iObsoleteEra(-1),
+	 m_iRequiredReligion(-1),
+	 m_iRequiredImprovement(-1),
+	 m_bRequiresHolyCity(false),
+	 m_bRequiresIdeology(false),
+	 m_bRequiresWar(false),
+	 m_bCapital(false),
+	 m_bCoastal(false),
+	 m_bEraScaling(false),
+	 m_iNumChoices(0),
+	 m_iCooldown(0),
+	 m_iBuildingRequired(-1),
+	 m_iBuildingLimiter(-1),
+	 m_piMinimumYield(NULL),
+	 m_iLocalResourceRequired(-1),
+	 m_bRequiresWarMinor(false),
+	 m_iRequiredStateReligion(-1),
+	 m_bRequiresGarrison(false),
+	 m_bHasStateReligion(false),
+	 m_strSplashArt(""),
+	 m_strEventAudio(""),
+	 m_iRequiredActiveEvent(-1),
+	 m_iRequiredActiveEventChoice(-1),
+	 m_iRequiredActiveCityEvent(-1),
+	 m_iRequiredActiveCityEventChoice(-1),
+	 m_bIsResistance(false),
+	 m_bIsWLTKD(false),
+	 m_bIsOccupied(false),
+	 m_bIsRazing(false),
+	 m_bHasAnyReligion(false),
+	 m_bIsPuppet(false),
+	 m_bTradeConnection(false),
+	 m_bCityConnection(false)
+{
+}
+//------------------------------------------------------------------------------
+CvModCityEventInfo::~CvModCityEventInfo()
+{
+	SAFE_DELETE_ARRAY(m_piMinimumYield);
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getPrereqTech() const
+{
+	return m_iPrereqTech;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getObsoleteTech() const
+{
+	return m_iObsoleteTech;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getMinimumPopulation() const
+{
+	return m_iMinimumPopulation;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getRandomChance() const
+{
+	return m_iRandomChance;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getRandomChanceDelta() const
+{
+	return m_iRandomChanceDelta;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getRequiredCiv() const
+{
+	return m_iRequiredCiv;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getRequiredEra() const
+{
+	return m_iRequiredEra;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getObsoleteEra() const
+{
+	return m_iObsoleteEra;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getYieldMinimum(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+	return m_piMinimumYield ? m_piMinimumYield[eYield] : -1;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getRequiredImprovement() const
+{
+	return m_iRequiredImprovement;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getRequiredPolicy() const
+{
+	return m_iRequiredPolicy;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isRequiresHolyCity() const
+{
+	return m_bRequiresHolyCity;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getRequiredReligion() const
+{
+	return m_iRequiredReligion;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getBuildingRequired() const
+{
+	return m_iBuildingRequired;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getBuildingLimiter() const
+{
+	return m_iBuildingLimiter;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getCooldown() const
+{
+	return m_iCooldown;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isCapital() const
+{
+	return m_bCapital;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isCoastal() const
+{
+	return m_bCoastal;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isEraScaling() const
+{
+	return m_bEraScaling;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isRequiresIdeology() const
+{
+	return m_bRequiresIdeology;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isRequiresWar() const
+{
+	return m_bRequiresWar;
+}
+
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getNumChoices() const
+{
+	return m_iNumChoices;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isRequiresWarMinor() const
+{
+	return m_bRequiresWarMinor;
+}
+//------------------------------------------------------------------------------
+const char* CvModCityEventInfo::getSplashArt() const
+{
+	return m_strSplashArt.c_str();
+}
+//------------------------------------------------------------------------------
+const char* CvModCityEventInfo::getEventAudio() const
+{
+	return m_strEventAudio.c_str();
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getRequiredStateReligion() const
+{
+	return m_iRequiredStateReligion;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isRequiresGarrison() const
+{
+	return m_bRequiresGarrison;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::hasStateReligion() const
+{
+	return m_bHasStateReligion;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getRequiredActiveEvent() const
+{
+	return m_iRequiredActiveEvent;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getRequiredActiveEventChoice() const
+{
+	return m_iRequiredActiveEventChoice;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getRequiredActiveCityEvent() const
+{
+	return m_iRequiredActiveCityEvent;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getRequiredActiveCityEventChoice() const
+{
+	return m_iRequiredActiveCityEventChoice;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getLocalResourceRequired() const
+{
+	return m_iLocalResourceRequired;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isResistance() const
+{
+	return m_bIsResistance;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isWLTKD() const
+{
+	return m_bIsWLTKD;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isOccupied() const
+{
+	return m_bIsOccupied;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isRazing() const
+{
+	return m_bIsRazing;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::hasAnyReligion() const
+{
+	return m_bHasAnyReligion;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isPuppet() const
+{
+	return m_bIsPuppet;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::hasTradeConnection() const
+{
+	return m_bTradeConnection;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::hasCityConnection() const
+{
+	return m_bCityConnection;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
+{
+	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+		return false;
+
+	const char* szTextVal;
+	szTextVal = kResults.GetText("PrereqTech");
+	m_iPrereqTech =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("ObsoleteTech");
+	m_iObsoleteTech =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_iMinimumPopulation = kResults.GetInt("MinimumCityPopulation");
+
+	szTextVal = kResults.GetText("ImprovementRequired");
+	m_iRequiredImprovement =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_iRandomChance = kResults.GetInt("RandomChance");
+	m_iRandomChanceDelta = kResults.GetInt("RandomChanceDelta");
+
+	szTextVal = kResults.GetText("RequiredCiv");
+	m_iRequiredCiv =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredEra");
+	m_iRequiredEra =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("ObsoleteEra");
+	m_iObsoleteEra =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredPolicy");
+	m_iRequiredPolicy =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_bRequiresHolyCity = kResults.GetBool("RequiresHolyCity");
+	
+	szTextVal = kResults.GetText("RequiredReligion");
+	m_iRequiredReligion =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_bRequiresGarrison = kResults.GetBool("RequiresGarrison");
+	m_bHasStateReligion = kResults.GetBool("RequiresAnyStateReligion");
+	m_bRequiresIdeology = kResults.GetBool("RequiresIdeology");
+	m_bRequiresWar = kResults.GetBool("RequiresWar");
+	m_bCapital = kResults.GetBool("CapitalOnly");
+	m_bCoastal = kResults.GetBool("CoastalOnly");
+	m_bEraScaling = kResults.GetBool("EraScaling");
+	m_iNumChoices = kResults.GetInt("NumChoices");
+
+	szTextVal = kResults.GetText("RequiredBuildingClass");
+	m_iBuildingRequired =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("CannotHaveBuildingClass");
+	m_iBuildingLimiter =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_iCooldown = kResults.GetInt("EventCooldown");
+
+	const char* szEventType = GetType();
+	kUtility.SetYields(m_piMinimumYield, "CityEvent_MinimumStartYield", "CityEventType", szEventType);
+
+	m_bRequiresWarMinor = kResults.GetBool("RequiresWarMinor");
+
+	m_bIsResistance = kResults.GetBool("RequiresResistance");
+	m_bIsWLTKD = kResults.GetBool("RequiresWLTKD");
+	m_bIsOccupied = kResults.GetBool("RequiresOccupied");
+	m_bIsRazing = kResults.GetBool("RequiresRazing");
+	m_bHasAnyReligion = kResults.GetBool("HasAnyReligion");
+	m_bIsPuppet = kResults.GetBool("RequiresPuppet");
+	m_bTradeConnection = kResults.GetBool("HasTradeConnection");
+	m_bCityConnection = kResults.GetBool("HasCityConnection");
+
+	szTextVal = kResults.GetText("RequiredStateReligion");
+	m_iRequiredStateReligion =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveEvent");
+	m_iRequiredActiveEvent =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveEventChoice");
+	m_iRequiredActiveEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveCityEvent");
+	m_iRequiredActiveCityEvent =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveCityEventChoice");
+	m_iRequiredActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("CityEventAudio");
+	m_strEventAudio = szTextVal;
+
+	szTextVal = kResults.GetText("CityEventArt");
+	m_strSplashArt = szTextVal;
+
+	szTextVal = kResults.GetText("LocalResourceRequired");
+	m_iLocalResourceRequired =  GC.getInfoTypeForString(szTextVal, true);
+
+	return true;
+}
+//======================================================================================================
+//		CvModEventCityChoiceInfo
+//======================================================================================================
+CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
+	 m_iEventID(0),
+	 m_iEventBuilding(-1),
+	 m_bEraScaling(false),
+	 m_bExpires(false),
+	 m_iEventDuration(0),
+	 m_iEventChance(0),
+	 m_iEventBuildingDestruction(-1),
+	 m_piEventYield(NULL),
+	 m_piPreCheckEventYield(NULL),
+	 m_piGPChange(NULL),
+	 m_piDestroyImprovement(NULL),
+	 m_piFlavor(NULL),
+	 m_piNumFreeUnits(NULL),
+	 m_iNumWLTKD(0),
+	 m_iResistanceTurns(0),
+	 m_iRandomBarbs(0),
+	 m_iPrereqTech(-1),
+	 m_iObsoleteTech(-1),
+	 m_iMinimumPopulation(0),
+	 m_iRequiredCiv(-1),
+	 m_iRequiredEra(-1),
+	 m_iObsoleteEra(-1),
+	 m_iRequiredImprovement(-1),
+	 m_iRequiredPolicy(-1),
+	 m_iRequiredReligion(-1),
+	 m_iBuildingRequired(-1),
+	 m_iBuildingLimiter(-1),
+	 m_bRequiresHolyCity(false),
+	 m_piMinimumYield(NULL),
+	 m_bRequiresIdeology(false),
+	 m_bRequiresWar(false),
+	 m_bCapital(false),
+	 m_bCoastal(false),
+	 m_bRequiresWarMinor(false),
+	 m_iRequiredStateReligion(-1),
+	 m_bRequiresGarrison(false),
+	 m_bHasStateReligion(false),
+	 m_strEventChoiceSoundEffect(""),
+	 m_piConvertReligion(NULL),
+	 m_piConvertReligionPercent(NULL),
+	 m_piBuildingDestructionChance(NULL),
+	 m_iLocalResourceRequired(-1),
+	 m_iRequiredActiveEvent(-1),
+	 m_iRequiredActiveEventChoice(-1),
+	 m_iRequiredActiveCityEvent(-1),
+	 m_iRequiredActiveCityEventChoice(-1),
+	 m_bIsResistance(false),
+	 m_bIsWLTKD(false),
+	 m_bIsOccupied(false),
+	 m_bIsRazing(false),
+	 m_bHasAnyReligion(false),
+	 m_bIsPuppet(false),
+	 m_bTradeConnection(false),
+	 m_bCityConnection(false),
+	 m_ppiBuildingClassYield(NULL),
+	 m_piCityYield(NULL)
+{
+}
+//------------------------------------------------------------------------------
+CvModEventCityChoiceInfo::~CvModEventCityChoiceInfo()
+{
+	SAFE_DELETE_ARRAY(m_piEventYield);
+	SAFE_DELETE_ARRAY(m_piFlavor);
+	SAFE_DELETE_ARRAY(m_piGPChange);
+	SAFE_DELETE_ARRAY(m_piDestroyImprovement);
+	SAFE_DELETE_ARRAY(m_piPreCheckEventYield);
+	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
+	SAFE_DELETE_ARRAY(m_piMinimumYield);
+	SAFE_DELETE_ARRAY(m_piConvertReligion);
+	SAFE_DELETE_ARRAY(m_piConvertReligionPercent);
+	SAFE_DELETE_ARRAY(m_piBuildingDestructionChance);
+	SAFE_DELETE_ARRAY(m_piCityYield);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYield);
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getEventID() const
+{
+	return m_iEventID;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getEventDuration() const
+{
+	return m_iEventDuration;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getEventChance() const
+{
+	return m_iEventChance;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::IsEraScaling() const
+{
+	return m_bEraScaling;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::Expires() const
+{
+	return m_bExpires;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getEventBuilding() const
+{
+	return m_iEventBuilding;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getEventBuildingDestruction() const
+{
+	return m_iEventBuildingDestruction;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getEventYield(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+	return m_piEventYield ? m_piEventYield[eYield] : -1;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getPreCheckEventYield(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+	return m_piPreCheckEventYield ? m_piPreCheckEventYield[eYield] : -1;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getFlavorValue(int i) const
+{
+	CvAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piFlavor ? m_piFlavor[i] : 0;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getWLTKD() const
+{
+	return m_iNumWLTKD;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getResistanceTurns() const
+{
+	return m_iResistanceTurns;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getRandomBarbs() const
+{
+	return m_iRandomBarbs;
+}
+const char* CvModEventCityChoiceInfo::getEventChoiceSoundEffect() const
+{
+	return m_strEventChoiceSoundEffect.c_str();
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getNumFreeUnits(int i) const
+{
+	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piNumFreeUnits ? m_piNumFreeUnits[i] : -1;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getEventConvertReligion(int i) const
+{
+	CvAssertMsg(i < GC.getNumReligionInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piConvertReligion ? m_piConvertReligion[i] : -1;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getEventConvertReligionPercent(int i) const
+{
+	CvAssertMsg(i < GC.getNumReligionInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piConvertReligionPercent ? m_piConvertReligionPercent[i] : -1;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getEventGPChange(SpecialistTypes eSpecialist) const
+{
+	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "Index out of bounds");
+	CvAssertMsg(eSpecialist > -1, "Index out of bounds");
+	return m_piGPChange ? m_piGPChange[eSpecialist] : 0;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getImprovementDestruction(ImprovementTypes eImprovement) const
+{
+	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "Index out of bounds");
+	CvAssertMsg(eImprovement > -1, "Index out of bounds");
+	return m_piDestroyImprovement ? m_piDestroyImprovement[eImprovement] : 0;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getBuildingDestructionChance(int i) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piBuildingDestructionChance ? m_piBuildingDestructionChance[i] : -1;
+}
+CvCityEventNotificationInfo *CvModEventCityChoiceInfo::GetNotificationInfo(int i) const
+{
+	CvAssertMsg(i < GC.getNumNotificationInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if (m_paCityNotificationInfo[0].GetNotificationString() == "" || m_paCityNotificationInfo[0].GetNotificationString() == NULL)
+	{
+		return NULL;
+	}
+	else
+	{
+		return &m_paCityNotificationInfo[i];
+	}
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getCityYield(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piCityYield ? m_piCityYield[i] : -1;
+}
+/// Yield change for a specific BuildingClass by yield type
+int CvModEventCityChoiceInfo::getBuildingClassYield(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiBuildingClassYield[i][j];
+}
+// Filters
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getPrereqTech() const
+{
+	return m_iPrereqTech;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getObsoleteTech() const
+{
+	return m_iObsoleteTech;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getMinimumPopulation() const
+{
+	return m_iMinimumPopulation;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getRequiredCiv() const
+{
+	return m_iRequiredCiv;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getRequiredEra() const
+{
+	return m_iRequiredEra;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getObsoleteEra() const
+{
+	return m_iObsoleteEra;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getYieldMinimum(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eYield > -1, "Index out of bounds");
+	return m_piMinimumYield ? m_piMinimumYield[eYield] : -1;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getRequiredImprovement() const
+{
+	return m_iRequiredImprovement;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getRequiredPolicy() const
+{
+	return m_iRequiredPolicy;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isRequiresHolyCity() const
+{
+	return m_bRequiresHolyCity;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getRequiredReligion() const
+{
+	return m_iRequiredReligion;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getBuildingRequired() const
+{
+	return m_iBuildingRequired;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getBuildingLimiter() const
+{
+	return m_iBuildingLimiter;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isCapital() const
+{
+	return m_bCapital;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isCoastal() const
+{
+	return m_bCoastal;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isRequiresIdeology() const
+{
+	return m_bRequiresIdeology;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isRequiresWar() const
+{
+	return m_bRequiresWar;
+}
+
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isRequiresWarMinor() const
+{
+	return m_bRequiresWarMinor;
+}
+//---------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getRequiredStateReligion() const
+{
+	return m_iRequiredStateReligion;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isRequiresGarrison() const
+{
+	return m_bRequiresGarrison;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isResistance() const
+{
+	return m_bIsResistance;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isWLTKD() const
+{
+	return m_bIsWLTKD;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isOccupied() const
+{
+	return m_bIsOccupied;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isRazing() const
+{
+	return m_bIsRazing;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::hasAnyReligion() const
+{
+	return m_bHasAnyReligion;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isPuppet() const
+{
+	return m_bIsPuppet;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::hasTradeConnection() const
+{
+	return m_bTradeConnection;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::hasCityConnection() const
+{
+	return m_bCityConnection;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::hasStateReligion() const
+{
+	return m_bHasStateReligion;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getRequiredActiveEvent() const
+{
+	return m_iRequiredActiveEvent;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getRequiredActiveEventChoice() const
+{
+	return m_iRequiredActiveEventChoice;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getRequiredActiveCityEvent() const
+{
+	return m_iRequiredActiveCityEvent;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getRequiredActiveCityEventChoice() const
+{
+	return m_iRequiredActiveCityEventChoice;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getLocalResourceRequired() const
+{
+	return m_iLocalResourceRequired;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
+{
+	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+		return false;
+
+	const char* szTextVal;
+
+	szTextVal = kResults.GetText("ParentEvent");
+	m_iEventID =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("EventBuildingClass");
+	m_iEventBuilding =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_iEventDuration = kResults.GetInt("EventDuration");
+
+	m_iEventChance = kResults.GetInt("EventChance");
+
+	m_bEraScaling = kResults.GetBool("EraScaling");
+	m_bExpires = kResults.GetBool("Expires");
+
+	szTextVal = kResults.GetText("EventBuildingClassDestruction");
+	m_iEventBuildingDestruction =  GC.getInfoTypeForString(szTextVal, true);
+
+	const char* szEventType = GetType();
+	kUtility.SetYields(m_piEventYield, "CityEventChoice_InstantYield", "CityEventChoiceType", szEventType);
+	kUtility.SetYields(m_piPreCheckEventYield, "CityEventChoice_EventCostYield", "CityEventChoiceType", szEventType);
+
+	kUtility.SetYields(m_piCityYield, "CityEventChoice_CityYield", "CityEventChoiceType", szEventType);
+
+	kUtility.PopulateArrayByValue(m_piGPChange, "Specialists", "CityEventChoice_GreatPersonPoints", "SpecialistType", "CityEventChoiceType", szEventType, "Points");
+	kUtility.PopulateArrayByValue(m_piDestroyImprovement, "Improvements", "CityEventChoice_ImprovementDestructionRandom", "ImprovementType", "CityEventChoiceType", szEventType, "Number");
+
+	kUtility.SetFlavors(m_piFlavor, "CityEventChoiceFlavors", "CityEventChoiceType", szEventType);
+
+	m_iNumWLTKD = kResults.GetInt("WLTKDTurns");
+	m_iResistanceTurns = kResults.GetInt("ResistanceTurns");
+	m_iRandomBarbs = kResults.GetInt("RandomBarbarianSpawn");
+
+	szTextVal = kResults.GetText("EventChoiceAudio");
+	m_strEventChoiceSoundEffect = szTextVal;
+
+	kUtility.PopulateArrayByValue(m_piNumFreeUnits, "UnitClasses", "CityEventChoice_FreeUnitClasses", "UnitClassType", "CityEventChoiceType", szEventType, "Quantity");
+	kUtility.PopulateArrayByValue(m_piConvertReligion, "Religions", "CityEventChoice_ConvertNumPopToReligion", "ReligionType", "CityEventChoiceType", szEventType, "Population");
+	kUtility.PopulateArrayByValue(m_piConvertReligionPercent, "Religions", "CityEventChoice_ConvertPercentPopToReligion", "ReligionType", "CityEventChoiceType", szEventType, "Percent");
+	kUtility.PopulateArrayByValue(m_piBuildingDestructionChance, "BuildingClasses", "CityEventChoice_BuildingClassDestructionChance", "BuildingClassType", "CityEventChoiceType", szEventType, "Chance");
+
+	szTextVal = kResults.GetText("LocalResourceRequired");
+	m_iLocalResourceRequired =  GC.getInfoTypeForString(szTextVal, true);
+
+	{
+		//Initialize Notifications
+		const size_t iNumNotifications = kUtility.MaxRows("Notifications");
+		m_paCityNotificationInfo = FNEW(CvCityEventNotificationInfo[iNumNotifications], c_eCiv5GameplayDLL, 0);
+		int idx = 0;
+
+		std::string strCityEventChoiceTypesKey = "CityEventChoice_Notification";
+		Database::Results* pCityEventChoiceTypes = kUtility.GetResults(strCityEventChoiceTypesKey);
+		if(pCityEventChoiceTypes == NULL)
+		{
+			pCityEventChoiceTypes = kUtility.PrepareResults(strCityEventChoiceTypesKey, "select NotificationType, Description, ShortDescription, IsWorldEvent, NeedCityCoordinates, NeedPlayerID, ExtraVariable from CityEventChoice_Notification where CityEventChoiceType = ?");
+		}
+
+		const size_t lenCityEventChoiceType = strlen(szEventType);
+		pCityEventChoiceTypes->Bind(1, szEventType, lenCityEventChoiceType, false);
+
+		while(pCityEventChoiceTypes->Step())
+		{
+			CvCityEventNotificationInfo& pCityEventNotificationInfo = m_paCityNotificationInfo[idx];
+			pCityEventNotificationInfo.m_strNotificationType = pCityEventChoiceTypes->GetText("NotificationType");
+			pCityEventNotificationInfo.m_strDescription = pCityEventChoiceTypes->GetText("Description");
+			pCityEventNotificationInfo.m_strShortDescription = pCityEventChoiceTypes->GetText("ShortDescription");
+			pCityEventNotificationInfo.m_bWorldEvent = pCityEventChoiceTypes->GetBool("IsWorldEvent");
+			pCityEventNotificationInfo.m_bNeedCityCoordinates = pCityEventChoiceTypes->GetInt("NeedCityCoordinates");
+			pCityEventNotificationInfo.m_bNeedPlayerID = pCityEventChoiceTypes->GetBool("NeedPlayerID");
+			pCityEventNotificationInfo.m_iVariable = pCityEventChoiceTypes->GetInt("ExtraVariable");
+			idx++;
+		}
+
+		m_iCityNotificationInfos = idx;
+		pCityEventChoiceTypes->Reset();
+	}
+	//BuildingYieldChanges
+	{
+		kUtility.Initialize2DArray(m_ppiBuildingClassYield, "BuildingClasses", "Yields");
+
+		std::string strKey("CityEventChoice_BuildingClassYieldChange");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select BuildingClasses.ID as BuildingClassID, Yields.ID as YieldID, YieldChange from CityEventChoice_BuildingClassYieldChange inner join BuildingClasses on BuildingClasses.Type = BuildingClassType inner join Yields on Yields.Type = YieldType where CityEventChoiceType = ?");
+		}
+
+		pResults->Bind(1, szEventType);
+
+		while(pResults->Step())
+		{
+			const int BuildingClassID = pResults->GetInt(0);
+			const int iYieldID = pResults->GetInt(1);
+			const int iYieldChange = pResults->GetInt(2);
+
+			m_ppiBuildingClassYield[BuildingClassID][iYieldID] = iYieldChange;
+		}
+	}
+
+	//Filters
+
+	szTextVal = kResults.GetText("PrereqTech");
+	m_iPrereqTech =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("ObsoleteTech");
+	m_iObsoleteTech =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_iMinimumPopulation = kResults.GetInt("MinimumCityPopulation");
+
+	szTextVal = kResults.GetText("ImprovementRequired");
+	m_iRequiredImprovement =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredCiv");
+	m_iRequiredCiv =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredEra");
+	m_iRequiredEra =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("ObsoleteEra");
+	m_iObsoleteEra =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredPolicy");
+	m_iRequiredPolicy =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_bRequiresHolyCity = kResults.GetBool("RequiresHolyCity");
+	
+	szTextVal = kResults.GetText("RequiredReligion");
+	m_iRequiredReligion =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_bRequiresGarrison = kResults.GetBool("RequiresGarrison");
+	m_bHasStateReligion = kResults.GetBool("RequiresAnyStateReligion");
+	m_bRequiresIdeology = kResults.GetBool("RequiresIdeology");
+	m_bRequiresWar = kResults.GetBool("RequiresWar");
+	m_bCapital = kResults.GetBool("CapitalOnly");
+	m_bCoastal = kResults.GetBool("CoastalOnly");
+
+	szTextVal = kResults.GetText("RequiredBuildingClass");
+	m_iBuildingRequired =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("CannotHaveBuildingClass");
+	m_iBuildingLimiter =  GC.getInfoTypeForString(szTextVal, true);
+
+	kUtility.SetYields(m_piMinimumYield, "CityEventChoice_MinimumStartYield", "CityEventChoiceType", szEventType);
+
+	m_bRequiresWarMinor = kResults.GetBool("RequiresWarMinor");
+
+	m_bIsResistance = kResults.GetBool("RequiresResistance");
+	m_bIsWLTKD = kResults.GetBool("RequiresWLTKD");
+	m_bIsOccupied = kResults.GetBool("RequiresOccupied");
+	m_bIsRazing = kResults.GetBool("RequiresRazing");
+	m_bHasAnyReligion = kResults.GetBool("HasAnyReligion");
+	m_bIsPuppet = kResults.GetBool("RequiresPuppet");
+	m_bTradeConnection = kResults.GetBool("HasTradeConnection");
+	m_bCityConnection = kResults.GetBool("HasCityConnection");
+
+	szTextVal = kResults.GetText("RequiredStateReligion");
+	m_iRequiredStateReligion =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveEvent");
+	m_iRequiredActiveEvent =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveEventChoice");
+	m_iRequiredActiveEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveCityEvent");
+	m_iRequiredActiveCityEvent =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveCityEventChoice");
+	m_iRequiredActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+
+	return true;
+}
+#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 //------------------------------------------------------------------------------
 bool CvEraInfo::getVassalageEnabled() const

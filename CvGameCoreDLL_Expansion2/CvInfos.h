@@ -2544,6 +2544,527 @@ private:
 	CvVoteSourceInfo& operator=(const CvVoteSourceInfo&);
 };
 
+#if defined(MOD_BALANCE_CORE_EVENTS)
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  class : CvModEventInfo
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvModEventInfo : public CvBaseInfo
+{
+public:
+	CvModEventInfo();
+	virtual ~CvModEventInfo();
+
+	int getPrereqTech() const;
+	int getObsoleteTech() const;
+	int getMinimumNationalPopulation() const;
+	int getMinimumNumberCities() const;
+	int getUnitTypeRequired() const;
+	int getRandomChance() const;
+	int getRandomChanceDelta() const;
+	int getRequiredCiv() const;
+	int getRequiredEra() const;
+	int getObsoleteEra() const;
+	int getYieldMinimum(YieldTypes eYield) const;
+	int getRequiredPolicy() const;
+	int getRequiredImprovement() const;
+	int getRequiredReligion() const;
+	int getNumChoices() const;
+	int getBuildingRequired() const;
+	int getBuildingLimiter() const;
+	int getCooldown() const;
+	bool isRequiresHolyCity() const;
+	bool isGlobal() const;
+	bool isEraScaling() const;
+	bool isRequiresIdeology() const;
+	bool isRequiresWar() const;
+	bool isRequiresWarMinor() const;
+	const char* getSplashArt() const;
+	const char* getEventAudio() const;
+	int getResourceRequired(ResourceTypes eResource) const;
+	int getRequiredStateReligion() const;
+	bool hasStateReligion() const;
+	int getRequiredActiveEvent() const;
+	int getRequiredActiveEventChoice() const;
+	int getRequiredActiveCityEvent() const;
+	int getRequiredActiveCityEventChoice() const;
+
+	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
+
+protected:
+	int m_iPrereqTech;
+	int m_iObsoleteTech;
+	int m_iMinimumNationalPopulation;
+	int m_iMinimumNumberCities;
+	int m_iUnitTypeRequired;
+	int m_iRandomChance;
+	int m_iRandomChanceDelta;
+	int m_iRequiredCiv;
+	int m_iRequiredEra;
+	int m_iObsoleteEra;
+	int m_iRequiredImprovement;
+	int m_iRequiredPolicy;
+	int m_iRequiredReligion;
+	int m_iNumChoices;
+	int m_iBuildingRequired;
+	int m_iBuildingLimiter;
+	int m_iCooldown;
+	int* m_piMinimumYield;
+	bool m_bRequiresHolyCity;
+	bool m_bGlobal;
+	bool m_bEraScaling;
+	bool m_bRequiresIdeology;
+	bool m_bRequiresWar;
+	bool m_bRequiresWarMinor;
+	CvString m_strSplashArt;
+	CvString m_strEventAudio;
+	int* m_piRequiredResource;
+	int m_iRequiredStateReligion;
+	bool m_bHasStateReligion;
+	int m_iRequiredActiveEvent;
+	int m_iRequiredActiveEventChoice;
+	int m_iRequiredActiveCityEvent;
+	int m_iRequiredActiveCityEventChoice;
+
+private:
+	CvModEventInfo(const CvModEventInfo&);
+	CvModEventInfo& operator=(const CvModEventInfo&);
+};
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  class : CvEventNotificationInfo
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvEventNotificationInfo
+{
+	friend class CvModEventChoiceInfo;
+
+public:
+	CvEventNotificationInfo() :
+	  m_bWorldEvent(false),
+	  m_bNeedPlayerID(false),
+	  m_iVariable1(-1),
+	  m_iVariable2(-1)
+	  {
+	  };
+	  CvString GetDescription() {return m_strDescription;};
+	  CvString GetShortDescription() {return m_strShortDescription;};
+	  bool IsWorldEvent() {return m_bWorldEvent;};
+	  bool IsNeedPlayerID() {return m_bNeedPlayerID;};
+	  int GetVariable1() {return m_iVariable1;};
+	  int GetVariable2() {return m_iVariable2;};
+	  CvString GetNotificationString() {return m_strNotificationType;};
+
+protected:
+	CvString m_strNotificationType;
+	CvString m_strDescription;
+	CvString m_strShortDescription;
+	bool m_bWorldEvent;
+	bool m_bNeedPlayerID;
+	int m_iVariable1;
+	int m_iVariable2;
+};
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  class : CvModEventChoiceInfo
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvModEventChoiceInfo : public CvBaseInfo
+{
+public:
+	CvModEventChoiceInfo();
+	virtual ~CvModEventChoiceInfo();
+
+	int getEventID() const;
+	int getEventPolicy() const;
+	int getEventBuilding() const;
+	int getEventDuration() const;
+	int getEventPromotion() const;
+	int getEventYield(YieldTypes eYield) const;
+	int getPreCheckEventYield(YieldTypes eYield) const;
+	int getEventChance() const;
+	bool IsEraScaling() const;
+	bool Expires() const;
+	int getEventResourceChange(ResourceTypes eResource) const;
+	int getFlavorValue(int i) const;
+	const char* getEventChoiceSoundEffect() const;
+	int getNumFreePolicies() const;
+	int getNumFreeGreatPeople() const;
+	int getGoldenAgeTurns() const;
+	int getWLTKD() const;
+	int getResistanceTurns() const;
+	int getRandomBarbs() const;
+	int getNumFreeUnits(int i) const;
+	int getEventConvertReligion(int i) const;
+	int getEventConvertReligionPercent(int i) const;
+	int getCityYield(int i) const;
+	int getBuildingClassYield(int i, int j) const;
+	
+	CvEventNotificationInfo *GetNotificationInfo(int i) const;
+	int GetNumNotifications() const {return m_iNotificationInfos;};
+
+	// Filters
+
+	int getPrereqTech() const;
+	int getObsoleteTech() const;
+	int getMinimumNationalPopulation() const;
+	int getMinimumNumberCities() const;
+	int getUnitTypeRequired() const;
+	int getRequiredCiv() const;
+	int getRequiredEra() const;
+	int getObsoleteEra() const;
+	int getYieldMinimum(YieldTypes eYield) const;
+	int getRequiredPolicy() const;
+	int getRequiredImprovement() const;
+	int getRequiredReligion() const;
+	int getBuildingRequired() const;
+	int getBuildingLimiter() const;
+	bool isRequiresHolyCity() const;
+	bool isRequiresIdeology() const;
+	bool isRequiresWar() const;
+	bool isRequiresWarMinor() const;
+	int getResourceRequired(ResourceTypes eResource) const;
+	int getRequiredStateReligion() const;
+	bool hasStateReligion() const;
+	int getRequiredActiveEvent() const;
+	int getRequiredActiveEventChoice() const;
+	int getRequiredActiveCityEvent() const;
+	int getRequiredActiveCityEventChoice() const;
+
+	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
+
+protected:
+	int m_iEventPolicy;
+	int m_iEventBuilding;
+	int m_iEventPromotion;
+	int m_iEventDuration;
+	int m_iEventChance;
+	int m_iEventID;
+	bool m_bEraScaling;
+	bool m_bExpires;
+	int* m_piFlavor;
+	int* m_piEventYield;
+	int* m_piPreCheckEventYield;
+	int* m_piResourceChange;
+	int* m_piConvertReligion;
+	int* m_piConvertReligionPercent;
+	int* m_piCityYield;
+	CvString m_strEventChoiceSoundEffect;
+	int m_iNumFreePolicies;
+	int m_iNumFreeGreatPeople;
+	int m_iNumGoldenAgeTurns;
+	int m_iNumWLTKD;
+	int m_iResistanceTurns;
+	int m_iRandomBarbs;
+	int* m_piNumFreeUnits;
+	int** m_ppiBuildingClassYield;
+
+	//Filters
+
+	int m_iPrereqTech;
+	int m_iObsoleteTech;
+	int m_iMinimumNationalPopulation;
+	int m_iMinimumNumberCities;
+	int m_iUnitTypeRequired;
+	int m_iRequiredCiv;
+	int m_iRequiredEra;
+	int m_iObsoleteEra;
+	int m_iRequiredImprovement;
+	int m_iRequiredPolicy;
+	int m_iRequiredReligion;
+	int m_iBuildingRequired;
+	int m_iBuildingLimiter;
+	int* m_piMinimumYield;
+	bool m_bRequiresHolyCity;
+	bool m_bRequiresIdeology;
+	bool m_bRequiresWar;
+	bool m_bRequiresWarMinor;
+	int* m_piRequiredResource;
+	int m_iRequiredStateReligion;
+	bool m_bHasStateReligion;
+	int m_iRequiredActiveEvent;
+	int m_iRequiredActiveEventChoice;
+	int m_iRequiredActiveCityEvent;
+	int m_iRequiredActiveCityEventChoice;
+
+	CvEventNotificationInfo* m_paNotificationInfo;
+	int m_iNotificationInfos;
+
+private:
+	CvModEventChoiceInfo(const CvModEventChoiceInfo&);
+	CvModEventChoiceInfo& operator=(const CvModEventChoiceInfo&);
+};
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  class : CvModCityEventInfo
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvModCityEventInfo : public CvBaseInfo
+{
+public:
+	CvModCityEventInfo();
+	virtual ~CvModCityEventInfo();
+
+	int getPrereqTech() const;
+	int getObsoleteTech() const;
+	int getMinimumPopulation() const;
+	int getRandomChance() const;
+	int getRandomChanceDelta() const;
+	int getRequiredCiv() const;
+	int getRequiredEra() const;
+	int getObsoleteEra() const;
+	int getYieldMinimum(YieldTypes eYield) const;
+	int getRequiredPolicy() const;
+	int getRequiredImprovement() const;
+	int getRequiredReligion() const;
+	int getNumChoices() const;
+	int getBuildingRequired() const;
+	int getBuildingLimiter() const;
+	int getCooldown() const;
+	bool isRequiresHolyCity() const;
+	bool isRequiresIdeology() const;
+	bool isRequiresWar() const;
+	bool isCapital() const;
+	bool isCoastal() const;
+	bool isEraScaling() const;
+	bool isRequiresWarMinor() const;
+	const char* getSplashArt() const;
+	const char* getEventAudio() const;
+	int getRequiredStateReligion() const;
+	bool hasStateReligion() const;
+	bool isRequiresGarrison() const;
+	int getRequiredActiveEvent() const;
+	int getRequiredActiveEventChoice() const;
+	int getRequiredActiveCityEvent() const;
+	int getRequiredActiveCityEventChoice() const;
+	int getLocalResourceRequired() const;
+	bool isResistance() const;
+	bool isWLTKD() const;
+	bool isOccupied() const;
+	bool isRazing() const;
+	bool hasAnyReligion() const;
+	bool isPuppet() const;
+	bool hasTradeConnection() const;
+	bool hasCityConnection() const;
+
+	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
+
+protected:
+	int m_iPrereqTech;
+	int m_iObsoleteTech;
+	int m_iMinimumPopulation;
+	int m_iRandomChance;
+	int m_iRandomChanceDelta;
+	int m_iRequiredCiv;
+	int m_iRequiredEra;
+	int m_iObsoleteEra;
+	int m_iRequiredImprovement;
+	int m_iRequiredPolicy;
+	int m_iRequiredReligion;
+	int m_iNumChoices;
+	int m_iBuildingRequired;
+	int m_iBuildingLimiter;
+	int m_iCooldown;
+	bool m_bRequiresHolyCity;
+	int* m_piMinimumYield;
+	bool m_bRequiresIdeology;
+	bool m_bRequiresWar;
+	bool m_bCapital;
+	bool m_bCoastal;
+	bool m_bEraScaling;
+	bool m_bRequiresWarMinor;
+	CvString m_strSplashArt;
+	CvString m_strEventAudio;
+	int m_iRequiredStateReligion;
+	bool m_bRequiresGarrison;
+	bool m_bHasStateReligion;
+	int m_iRequiredActiveEvent;
+	int m_iRequiredActiveEventChoice;
+	int m_iRequiredActiveCityEvent;
+	int m_iRequiredActiveCityEventChoice;
+	int m_iLocalResourceRequired;
+	bool m_bIsResistance;
+	bool m_bIsWLTKD;
+	bool m_bIsOccupied;
+	bool m_bIsRazing;
+	bool m_bHasAnyReligion;
+	bool m_bIsPuppet;
+	bool m_bTradeConnection;
+	bool m_bCityConnection;
+
+private:
+	CvModCityEventInfo(const CvModCityEventInfo&);
+	CvModCityEventInfo& operator=(const CvModCityEventInfo&);
+};
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  class : CvCityEventNotificationInfo
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvCityEventNotificationInfo
+{
+	friend class CvModEventCityChoiceInfo;
+
+public:
+	CvCityEventNotificationInfo() :
+	  m_bWorldEvent(false),
+	  m_bNeedCityCoordinates(false),
+	  m_iVariable(-1),
+	  m_bNeedPlayerID(false)
+	  {
+	  };
+	  int GetVariable() {return m_iVariable;};
+	  CvString GetDescription() {return m_strDescription;};
+	  CvString GetShortDescription() {return m_strShortDescription;};
+	  bool IsWorldEvent() {return m_bWorldEvent;};
+	  bool IsNeedPlayerID() {return m_bNeedPlayerID;};
+	  bool IsNeedCityCoordinates() {return m_bNeedCityCoordinates;};
+	  CvString GetNotificationString() {return m_strNotificationType;};
+
+protected:
+	bool m_bNeedCityCoordinates;
+	int m_iVariable;
+	CvString m_strNotificationType;
+	CvString m_strDescription;
+	CvString m_strShortDescription;
+	bool m_bWorldEvent;
+	bool m_bNeedPlayerID;
+};
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  class : CvModEventCityChoiceInfo
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvModEventCityChoiceInfo : public CvBaseInfo
+{
+public:
+	CvModEventCityChoiceInfo();
+	virtual ~CvModEventCityChoiceInfo();
+
+	int getEventID() const;
+	int getEventBuilding() const;
+	int getEventBuildingDestruction() const;
+	int getEventDuration() const;
+	int getEventChance() const;
+	bool IsEraScaling() const;
+	bool Expires() const;
+	int getEventYield(YieldTypes eYield) const;
+	int getPreCheckEventYield(YieldTypes eYield) const;
+	int getEventGPChange(SpecialistTypes eSpecialist) const;
+	int getImprovementDestruction(ImprovementTypes eImprovement) const;
+	int getBuildingDestructionChance(int i) const;
+	int getFlavorValue(int i) const;
+	int getWLTKD() const;
+	int getResistanceTurns() const;
+	int getRandomBarbs() const;
+	int getNumFreeUnits(int i) const;
+	int getEventConvertReligion(int i) const;
+	int getEventConvertReligionPercent(int i) const;
+	const char* getEventChoiceSoundEffect() const;
+	int getCityYield(int i) const;
+	int getBuildingClassYield(int i, int j) const;
+
+	//Filters
+	int getPrereqTech() const;
+	int getObsoleteTech() const;
+	int getMinimumPopulation() const;
+	int getRequiredCiv() const;
+	int getRequiredEra() const;
+	int getObsoleteEra() const;
+	int getYieldMinimum(YieldTypes eYield) const;
+	int getRequiredPolicy() const;
+	int getRequiredImprovement() const;
+	int getRequiredReligion() const;
+	int getBuildingRequired() const;
+	int getBuildingLimiter() const;
+	bool isRequiresHolyCity() const;
+	bool isRequiresIdeology() const;
+	bool isRequiresWar() const;
+	bool isRequiresWarMinor() const;
+	bool isCapital() const;
+	bool isCoastal() const;
+	int getRequiredStateReligion() const;
+	bool hasStateReligion() const;
+	bool isRequiresGarrison() const;
+	int getRequiredActiveEvent() const;
+	int getRequiredActiveEventChoice() const;
+	int getRequiredActiveCityEvent() const;
+	int getRequiredActiveCityEventChoice() const;
+	int getLocalResourceRequired() const;
+	bool isResistance() const;
+	bool isWLTKD() const;
+	bool isOccupied() const;
+	bool isRazing() const;
+	bool hasAnyReligion() const;
+	bool isPuppet() const;
+	bool hasTradeConnection() const;
+	bool hasCityConnection() const;
+
+	CvCityEventNotificationInfo *GetNotificationInfo(int i) const;
+	int GetNumNotifications() const {return m_iCityNotificationInfos;};
+
+	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
+
+protected:
+	int m_iEventBuilding;
+	int m_iEventBuildingDestruction;
+	int m_iEventDuration;
+	int m_iEventChance;
+	int m_iEventID;
+	bool m_bEraScaling;
+	bool m_bExpires;
+	int* m_piDestroyImprovement;
+	int* m_piEventYield;
+	int* m_piPreCheckEventYield;
+	int* m_piFlavor;
+	int* m_piGPChange;
+	int m_iNumWLTKD;
+	int m_iResistanceTurns;
+	int m_iRandomBarbs;
+	int* m_piBuildingDestructionChance;
+	int* m_piNumFreeUnits;
+	int* m_piConvertReligion;
+	int* m_piConvertReligionPercent;
+	int m_iLocalResourceRequired;
+	CvString m_strEventChoiceSoundEffect;
+	int* m_piCityYield;
+	int** m_ppiBuildingClassYield;
+
+	//Filters
+	int m_iPrereqTech;
+	int m_iObsoleteTech;
+	int m_iMinimumPopulation;
+	int m_iRequiredCiv;
+	int m_iRequiredEra;
+	int m_iObsoleteEra;
+	int m_iRequiredImprovement;
+	int m_iRequiredPolicy;
+	int m_iRequiredReligion;
+	int m_iBuildingRequired;
+	int m_iBuildingLimiter;
+	bool m_bRequiresHolyCity;
+	int* m_piMinimumYield;
+	bool m_bRequiresIdeology;
+	bool m_bRequiresWar;
+	bool m_bCapital;
+	bool m_bCoastal;
+	bool m_bRequiresWarMinor;
+	int m_iRequiredStateReligion;
+	bool m_bRequiresGarrison;
+	bool m_bHasStateReligion;
+	int m_iRequiredActiveEvent;
+	int m_iRequiredActiveEventChoice;
+	int m_iRequiredActiveCityEvent;
+	int m_iRequiredActiveCityEventChoice;
+	bool m_bIsResistance;
+	bool m_bIsWLTKD;
+	bool m_bIsOccupied;
+	bool m_bIsRazing;
+	bool m_bHasAnyReligion;
+	bool m_bIsPuppet;
+	bool m_bTradeConnection;
+	bool m_bCityConnection;
+
+	CvCityEventNotificationInfo* m_paCityNotificationInfo;
+	int m_iCityNotificationInfos;
+
+private:
+	CvModEventCityChoiceInfo(const CvModEventCityChoiceInfo&);
+	CvModEventCityChoiceInfo& operator=(const CvModEventCityChoiceInfo&);
+};
+
+#endif
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  class : CvDomainInfo
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

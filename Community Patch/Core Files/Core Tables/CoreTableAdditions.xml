@@ -685,4 +685,15 @@
 			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 	</Yields>
+	<Notifications>
+		<Row>
+			<NotificationType>NOTIFICATION_EVENT_CHOICE</NotificationType>
+		</Row>
+		<Row>
+			<NotificationType>NOTIFICATION_EVENT_CHOICE_CITY</NotificationType>
+		</Row>
+		<Row>
+			<NotificationType>NOTIFICATION_INSTANT_YIELD</NotificationType>
+		</Row>
+	</Notifications>
 </GameData>

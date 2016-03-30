@@ -69,6 +69,10 @@
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="6" Name="GLOBAL_CITY_WORKING" Value="0" DbUpdates="1"/>
 
+    <!-- Enables rebasing to and airlifting to/from improvements (v74) -->
+    <!-- See also: "Units - Dwarf Broad Axeman" -->
+    <Row Class="5" Name="GLOBAL_RELOCATION" Value="0" DbUpdates="1"/>
+
     <!-- Mountain plots return their terrain as TERRAIN_MOUNTAIN and any land unit may enter a mountain that has a road/rail route (v19) -->
     <!-- See also: "Improvement - Tunnel" -->
     <Row Class="5" Name="GLOBAL_ALPINE_PASSES" Value="0" DbUpdates="1"/>
@@ -230,6 +234,11 @@
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="2" Name="TRAITS_CITY_WORKING" Value="0"/>
 
+    <!-- Enables traits to be enabled/obsoleted via beliefs and policies (v77) -->
+	<!-- See also: "Belief - One With Natural Wonders" -->
+	<!-- See also: "Policy - Diplomatic Marriage" -->
+    <Row Class="6" Name="TRAITS_OTHER_PREREQS" Value="0" DbUpdates="1"/>
+
     <!-- Enables any belief to be selected, even if already taken (v46) -->
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="6" Name="TRAITS_ANY_BELIEF" Value="1" DbUpdates="1"/>
@@ -304,6 +313,19 @@
     <!-- Permits wonder resource (ie Marble) trade routes to be established (v43) -->
     <!-- See also: "Trade - Marble Shipments" -->
     <Row Class="6" Name="TRADE_WONDER_RESOURCE_ROUTES" Value="0"/>
+
+	<!-- Permits units to have no supply cost (v77) -->
+	<!-- See also: "Units - Missiles No Supply" -->
+    <Row Class="5" Name="UNITS_NO_SUPPLY" Value="0" DbUpdates="1"/>
+
+    <!-- Permits units to have other than GameDefines.MAX_HIT_POINTS maximum hit points (v77) -->
+	<!-- Note: Enabling this option requires custom versions of PlotMouseoverInclude.lua, EnemyUnitPanel.lua and UnitPanel.lua to remove references to GameDefines.MAX_HIT_POINTS -->
+	<!-- See also: "Units - Tough Nuts" -->
+    <Row Class="5" Name="UNITS_MAX_HP" Value="0" DbUpdates="1"/>
+	
+    <!-- Enables the XP times 100 API (v77) -->
+	<!-- See also: "Units - XP Times 100" -->
+    <Row Class="4" Name="UNITS_XP_TIMES_100" Value="1"/>
 
     <!-- Restricts worker suggestions to local tiles (at the limits specified - limits are distances between the unit and the plot as the crow flies, NOT path lengths) (v19) -->
     <!-- See also: "UI - No Auto-Embark Workers" -->
@@ -436,6 +458,10 @@
     <!-- See also: "Global - City State Airbases" -->
     <Row Class="3" Name="EVENTS_MINORS" Value="0"/>
 
+    <!-- Event sent upon a City State giving a gift (v73) -->
+    <!--   GameEvents.MinorGift.Add(function(iMinor, iMajor, iData2, iData3, iFlags, bOpt1, bOpt2, sType) end) -->
+    <Row Class="3" Name="EVENTS_MINORS_GIFTS" Value="0"/>
+
     <!-- Events sent on interaction with City States (v68) -->
     <!--   GameEvents.PlayerCanProtect.Add(function(iPlayer, iCS) return true end) -->
     <!--   GameEvents.PlayerProtected.Add(function(iPlayer, iCS) end) -->
@@ -450,6 +476,8 @@
     <!--   GameEvents.PlayerCanGiftUnit.Add(function(iPlayer, iCS, iUnit) return true end) -->
     <!--   GameEvents.PlayerCanGiftImprovement.Add(function(iPlayer, iCS) return true end) -->
     <!--   GameEvents.PlayerGifted.Add(function(iPlayer, iCS, iGold, iUnitType, iPlotX, iPlotY) end) -->
+    <!--   GameEvents.PlayerCanTransitMinorCity.Add(function(iPlayer, iCS, iCity, iPlotX, iPlotY) return true end) (v74) -->
+    <!--   GameEvents.UnitCanTransitMinorCity.Add(function(iPlayer, iUnit, iCS, iCity, iPlotX, iPlotY) return true end) (v74) -->
     <Row Class="3" Name="EVENTS_MINORS_INTERACTION" Value="0"/>
 
     <!-- Events sent by Barbarians (v68) -->
@@ -528,6 +556,10 @@
     <!--   GameEvents.CitySoldBuilding.Add(function(iPlayer, iCity, iBuilding) end) -->
     <Row Class="3" Name="EVENTS_CITY" Value="0"/>
 
+    <!-- Event sent after a civilization moves their capital (v73) -->
+    <!--   GameEvents.CapitalChanged.Add(function(iPlayer, iNewCapital, iOldCapital) end) -->
+    <Row Class="3" Name="EVENTS_CITY_CAPITAL" Value="0"/>
+    
     <!-- Event sent to ascertain if a city can acquire a plot (v20) -->
     <!--   GameEvents.CityCanAcquirePlot.Add(function(iPlayer, iCity, iPlotX, iPlotY) return true end) -->
     <!-- See also: "Global - Coastal Waters Only" -->
@@ -571,7 +603,12 @@
     <!-- See also: "Global - Spice Islands" -->
     <Row Class="3" Name="EVENTS_AREA_RESOURCES" Value="0"/>
 
-    <!-- Event sent to ascertain if a unit can rebase to a specific plot (either a city or a carrier) (v19) -->
+	<!-- Events sent to ascertain if a unit can airlift from/to a specific plot (v74) -->
+	<!--   GameEvents.CanAirliftFrom.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end) -->
+	<!--   GameEvents.CanAirliftTo.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end) -->
+    <Row Class="3" Name="EVENTS_AIRLIFT" Value="0"/>
+
+    <!-- Events sent to ascertain if a unit can rebase to a specific plot (either a city or a carrier) (v19) -->
     <!--   GameEvents.CanLoadAt.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end) -->
     <!--   GameEvents.CanRebaseInCity.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end) -->
     <!--   GameEvents.CanRebaseTo.Add(function(iPlayer, iUnit, iPlotX, iPlotY, bIsCity) return false end) -->
@@ -601,6 +638,8 @@
     <Row Class="3" Name="EVENTS_UNIT_PREKILL" Value="0"/>
 
     <!-- Event sent as a unit is captured (v46) -->
+	<!--   GameEvents.UnitCaptured.Add(function(iByPlayer, iByUnit, iCapturedPlayer, iCapturedUnit, bWillBeKilled, iReason) end) (v69) -->
+	<!--     iReason - 0=Move, 1=Combat, 2=Trait (barb land), 3=Trait (barb naval), 4=Belief (barb) -->
     <!--   GameEvents.UnitCaptureType.Add(function(iPlayer, iUnit, iUnitType, iByCiv) return iCaptureUnitType; end) -->
     <Row Class="3" Name="EVENTS_UNIT_CAPTURE" Value="0"/>
 
@@ -739,12 +778,17 @@
     <!-- Some bug fixes cannot be turned on or off, those entries (*) are just here to get their entries into the CustomMod.log file -->
 	<!-- * Fixes the bug where a city doesn't work its centre tile (v45) -->
     <Row Class="1" Name="BUGFIX_CITY_CENTRE_WORKING" Value="1"/>
-	<!-- * Adds missing policy events when adopting an ideology (v33) -->
+	<!-- * Fixes the bug of creating a capital from a puppet city, and leaving it that way (v73) -->
+    <Row Class="1" Name="BUGFIX_NO_PUPPET_CAPITALS" Value="1"/>
+    <!-- * Adds missing policy events when adopting an ideology (v33) -->
     <Row Class="1" Name="BUGFIX_MISSING_POLICY_EVENTS" Value="1"/>
 	<!-- * Fixes trade routes sticking to coastal water when the player has the EmbarkAllWater trait (v33) -->
     <Row Class="1" Name="BUGFIX_TRADE_ROUTES_EMBARK_ALL_WATER" Value="1"/>
 	<!-- * Fixes the bug where Venice puppets it's own capital (v42) -->
     <Row Class="1" Name="BUGFIX_VENICE_PUPPETS_CAPITAL" Value="1"/>
+    <!-- Fixes the issues with using dummy policies (v77) -->
+    <!-- See also: "Policy - Dummies" -->
+    <Row Class="1" Name="BUGFIX_DUMMY_POLICIES" Value="0" DbUpdates="1"/>
 	<!-- Fixes the research overflow bug/exploit (v52) -->
     <!-- See also: "Bugfix - Research Overflow Exploit" -->
     <Row Class="1" Name="BUGFIX_RESEARCH_OVERFLOW" Value="1"/>
@@ -927,6 +971,8 @@
 	<Row Class="6" Name="BALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY" Value="0"/>
 	<!-- Missing strategic resources for buildings greatly increases their maintenance -->
 	<Row Class="6" Name="BALANCE_CORE_BUILDING_RESOURCE_MAINTENANCE" Value="0"/>
+	<!-- Adds Events System for Player and Global Events -->
+	<Row Class="6" Name="BALANCE_CORE_EVENTS" Value="1"/>
   </CustomModOptions>
 
 	<!-- Events for JFD Piety -->
@@ -946,6 +992,9 @@
 	<!--   GameEvents.GreatWorkCreated.Add(function(iPlayer, iUnit, iGreatWork) end) -->
 	<!--   GameEvents.CityInvestedBuilding.Add(function(iPlayer, iCity, iBuildingClass, bValue) end) -->
 	<!--   GameEvents.CityInvestedUnit.Add(function(iPlayer, iCity, iUnitClass, bValue) end) -->
+	
+	<!-- Events System -->
+	<!-- GameEvents.EventActivated(iPlayer, iEvent, iChoice)-->
 
 	<CustomModPostDefines>
     <!-- Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker (v19) -->

@@ -3455,7 +3455,11 @@ void CvTacticalAI::PlotAirSweepMoves()
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
+#if defined(MOD_UNITS_MAX_HP)
+		if(pUnit && (pUnit->getDamage() * 2) < pUnit->GetMaxHitPoints())
+#else
 		if(pUnit && (pUnit->getDamage() * 2) < GC.getMAX_HIT_POINTS())
+#endif
 		{
 			// Am I eligible to air sweep and have a target?
 #if defined(MOD_BALANCE_CORE)
@@ -9838,8 +9842,11 @@ bool CvTacticalAI::FindClosestUnit(CvPlot* pTarget, int iNumTurnsAway, bool bMus
 		// don't use non-combat units (but consider embarked for now)
 		if (pLoopUnit->getUnitInfo().GetCombat() == 0)
 			continue;
-
+#if defined(MOD_UNITS_MAX_HP)
+		if (bMustHaveHalfHP && (pLoopUnit->getDamage() * 2 > pLoopUnit->GetMaxHitPoints()))
+#else
 		if (bMustHaveHalfHP && (pLoopUnit->getDamage() * 2 > GC.getMAX_HIT_POINTS()))
+#endif
 			continue;
 
 		if (!pLoopUnit->canMove())

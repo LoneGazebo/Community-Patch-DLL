@@ -124,6 +124,32 @@ public:
 	void DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID);
 	void SetCenterOfMassEmpire();
 	CvPlot* GetCenterOfMassEmpire() const;
+
+	void UpdateBestMilitaryCities();
+	void SetBestMilitaryCityDomain(int iValue, DomainTypes eDomain);
+	void SetBestMilitaryCityCombatClass(int iValue, UnitCombatTypes eUnitCombat);
+	CvCity* GetBestMilitaryCity(UnitCombatTypes eUnitCombat = NO_UNITCOMBAT, DomainTypes eDomain = NO_DOMAIN);
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	void DoEvents();
+	void DoCancelEventChoice(EventChoiceTypes eEventChoice);
+	bool IsEventChoiceValid(EventChoiceTypes eEventChoice, EventTypes eParentEvent);
+	void DoStartEvent(EventTypes eEvent);
+	void DoEventChoice(EventChoiceTypes eEventChoice);
+
+	void IncrementEvent(EventTypes eEvent, int iValue);
+	int GetEventIncrement(EventTypes eEvent) const;
+
+	int GetEventChoiceDuration(EventChoiceTypes eEventChoice) const;
+	void ChangeEventChoiceDuration(EventChoiceTypes eEventChoice, int iValue);
+	void SetEventChoiceDuration(EventChoiceTypes eEventChoice, int iValue);
+
+	int GetEventCooldown(EventTypes eEvent) const;
+	void ChangeEventCooldown(EventTypes eEvent, int iValue);
+	void SetEventCooldown(EventTypes eEvent, int iValue);
+
+	void SetEventActive(EventTypes eEvent, bool bValue);
+	bool IsEventActive(EventTypes eEvent) const;
 #endif
 	void DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID);
 	bool CanLiberatePlayer(PlayerTypes ePlayer);
@@ -785,7 +811,14 @@ public:
 	void SetAlwaysSeeBarbCampsCount(int iValue);
 	void ChangeAlwaysSeeBarbCampsCount(int iChange);
 
+#if defined(MOD_API_EXTENSIONS)
+	bool grantPolicy(PolicyTypes iPolicy, bool bFree=false);
+	bool revokePolicy(PolicyTypes iPolicy);
+	bool swapPolicy(PolicyTypes iNewPolicy, PolicyTypes iOldPolicy);
+	void setHasPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree=false);
+#else
 	void setHasPolicy(PolicyTypes eIndex, bool bNewValue);
+#endif
 	int getNextPolicyCost() const;
 	void DoUpdateNextPolicyCost();
 	bool canAdoptPolicy(PolicyTypes ePolicy) const;
@@ -1047,7 +1080,10 @@ public:
 	void DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnit);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true);
+	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD);
+	void addInstantYieldText(InstantYieldType iType, const char* strInstantYield);
+	void setInstantYieldText(InstantYieldType iType, const char* strInstantYield);
+	CvString getInstantYieldText(InstantYieldType iType)  const;
 #endif
 	// Great People Expenditure
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
@@ -1500,13 +1536,13 @@ public:
 	int calculateEconomicMight() const;
 	int calculateProductionMight() const;
 
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	int getCombatExperienceTimes100() const;
 #else
 	int getCombatExperience() const;
 #endif
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	void setCombatExperienceTimes100(int iExperienceTimes100, CvUnit* pFromUnit = NULL);
 	void changeCombatExperienceTimes100(int iChangeTimes100, CvUnit* pFromUnit = NULL);
 #else
@@ -1514,7 +1550,7 @@ public:
 	void changeCombatExperience(int iChange, CvUnit* pFromUnit = NULL);
 #endif
 #else
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	void setCombatExperienceTimes100(int iExperienceTimes100);
 	void changeCombatExperienceTimes100(int iChangeTimes100);
 #else
@@ -1522,7 +1558,7 @@ public:
 	void changeCombatExperience(int iChange);
 #endif
 #endif
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	int getLifetimeCombatExperienceTimes100() const;
 	int getNavalCombatExperienceTimes100() const;
 #else
@@ -1530,7 +1566,7 @@ public:
 	int getNavalCombatExperience() const;
 #endif
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	void setNavalCombatExperienceTimes100(int iExperienceTimes100, CvUnit* pFromUnit = NULL);
 	void changeNavalCombatExperienceTimes100(int iChangeTimes100, CvUnit* pFromUnit = NULL);
 #else
@@ -1538,7 +1574,7 @@ public:
 	void changeNavalCombatExperience(int iChange, CvUnit* pFromUnit = NULL);
 #endif
 #else
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	void setNavalCombatExperienceTimes100(int iExperienceTimes100);
 	void changeNavalCombatExperienceTimes100(int iChangeTimes100);
 #else
@@ -2446,6 +2482,9 @@ public:
 #else
 	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner) = 0;
 #endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	virtual void AI_DoEventChoice(EventTypes eEvent) = 0;
+#endif
 
 	virtual void updatePlotFoundValues();
 	virtual int getPlotFoundValue(int iX, int iY);
@@ -2860,6 +2899,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMinorResourceBonusCount;
 	FAutoVariable<int, CvPlayer> m_iAbleToAnnexCityStatesCount;
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<CvString>, CvPlayer> m_aistrInstantYield;
 	FAutoVariable<int, CvPlayer> m_iJFDReformCooldownRate;
 	FAutoVariable<int, CvPlayer> m_iJFDGovernmentCooldownRate;
 	FAutoVariable<CvString, CvPlayer> m_strJFDPoliticKey;
@@ -2902,6 +2942,12 @@ protected:
 	std::vector<int> m_piCityFeatures;
 	std::vector<int> m_piNumBuildings;
 	FAutoVariable<int, CvPlayer> m_iCitiesFeatureSurrounded;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiBestMilitaryCombatClassCity;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiBestMilitaryDomainCity;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiEventChoiceDuration;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiEventIncrement;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiEventCooldown;
+	FAutoVariable<std::vector<bool>, CvPlayer> m_abEventActive;
 #endif
 	FAutoVariable<int, CvPlayer> m_iFreeSpecialist;
 	FAutoVariable<int, CvPlayer> m_iCultureBombTimer;
@@ -2921,7 +2967,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCombatExperience;
 	FAutoVariable<int, CvPlayer> m_iLifetimeCombatExperience;
 	FAutoVariable<int, CvPlayer> m_iNavalCombatExperience;
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	FAutoVariable<int, CvPlayer> m_iCombatExperienceTimes100;
 	FAutoVariable<int, CvPlayer> m_iLifetimeCombatExperienceTimes100;
 	FAutoVariable<int, CvPlayer> m_iNavalCombatExperienceTimes100;

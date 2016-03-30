@@ -195,6 +195,7 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aeDoFType()
 	, m_aiNumTimesCoopWarDenied()
 	, m_aiPromisePlot()
+	, m_aiPromiseNumberOwnedCities()
 	, m_aiLastTurnCoM()
 	, m_abDoFBroken()
 	, m_aiNumTimesRazed()
@@ -425,6 +426,7 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paeDoFType(NULL),
 	m_paiNumTimesCoopWarDenied(NULL),
 	m_paiPromisePlot(NULL),
+	m_paiPromiseNumberOwnedCities(NULL),
 	m_paiLastTurnCoM(NULL),
 	m_pabDoFBroken(NULL),
 	m_paiNumTimesRazed(NULL),
@@ -660,6 +662,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paeDoFType = &m_pDiploData->m_aeDoFType[0];
 	m_paiNumTimesCoopWarDenied = &m_pDiploData->m_aiNumTimesCoopWarDenied[0];
 	m_paiPromisePlot = &m_pDiploData->m_aiPromisePlot[0];
+	m_paiPromiseNumberOwnedCities = &m_pDiploData->m_aiPromiseNumberOwnedCities[0];
 	m_paiLastTurnCoM = &m_pDiploData->m_aiLastTurnCoM[0];
 	m_pabDoFBroken = &m_pDiploData->m_abDoFBroken[0];
 	m_paiNumTimesRazed = &m_pDiploData->m_aiNumTimesRazed[0];
@@ -974,6 +977,7 @@ void CvDiplomacyAI::Uninit()
 	m_paeDoFType =  NULL;
 	m_paiNumTimesCoopWarDenied = NULL;
 	m_paiPromisePlot = NULL;
+	m_paiPromiseNumberOwnedCities = NULL;
 	m_paiLastTurnCoM = NULL;
 	m_pabDoFBroken = NULL;
 	m_paiNumTimesRazed = NULL;
@@ -1184,6 +1188,7 @@ void CvDiplomacyAI::Reset()
 		m_paeDoFType[iI] = NO_DOF_TYPE;
 		m_paiNumTimesCoopWarDenied[iI] = 0;
 		m_paiPromisePlot[iI] = -1;
+		m_paiPromiseNumberOwnedCities[iI] = -1;
 		m_paiLastTurnCoM[iI] = -1;
 		m_pabDoFBroken[iI] = false;
 		m_pabPlayerEverMadeBorderPromise[iI] = false;
@@ -1870,6 +1875,9 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	ArrayWrapper<short> wrapm_paiPromisePlot(MAX_MAJOR_CIVS, m_paiPromisePlot);
 	kStream >> wrapm_paiPromisePlot;
 
+	ArrayWrapper<short> wrapm_paiPromiseNumberOwnedCities(MAX_MAJOR_CIVS, m_paiPromiseNumberOwnedCities);
+	kStream >> wrapm_paiPromiseNumberOwnedCities;
+
 	ArrayWrapper<short> wrapm_paiLastTurnCoM(MAX_MAJOR_CIVS, m_paiLastTurnCoM);
 	kStream >> wrapm_paiLastTurnCoM;
 
@@ -2203,6 +2211,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<char>(MAX_MAJOR_CIVS, m_paeDoFType);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiNumTimesCoopWarDenied);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiPromisePlot);
+	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiPromiseNumberOwnedCities);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiLastTurnCoM);
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabDoFBroken);
 	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiNumTimesRazed);
@@ -2619,6 +2628,7 @@ void CvDiplomacyAI::DoCounters()
 					SetPlayerIgnoredExpansionPromise(eLoopPlayer, false);
 #if defined(MOD_BALANCE_CORE)
 					SetPromisePlotOtherPlayer(eLoopPlayer, -1);
+					SetPromiseNumberOwnedCities(eLoopPlayer, -1);
 #endif
 				}
 
@@ -12982,11 +12992,135 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 	//They promised not to expand? Let's compare their distance to our promise CoM (this keeps us from triggering our own promise)
 	if(IsPlayerMadeExpansionPromise(ePlayer) && (GetPromisePlotOtherPlayer(ePlayer) != -1))
 	{
+		//Let's check for # of cities made at promise. If, for some reason, the other player has fewer cities now than he had at promise time, he's not expanding, so he can't break his promise.
+		if(GetPromiseNumberOwnedCities(ePlayer) > GET_PLAYER(ePlayer).getNumCities())
+		{
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString playerName;
+				CvString otherplayerName;
+				CvString strDesc;
+				CvString strDesc2;
+				CvString strLogName;
+
+				// Find the name of this civ and city
+				playerName = GetPlayer()->getCivilizationShortDescription();
+				otherplayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
+
+				// Open the log file
+				if(GC.getPlayerAndCityAILogSplit())
+				{
+					strLogName = "DiplomacyAI_ExpansionLogic_Log_" + playerName + ".csv";
+				}
+				else
+				{
+					strLogName = "DiplomacyAI_ExpansionLogic_Log.csv";
+				}
+
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += playerName + ", ";
+				strBaseString += otherplayerName + ", ";
+
+				CvString strRank; 
+				strOutBuf = strBaseString + "Fewer cities than at promise: ";
+
+				strDesc.Format("Promise: %03d. ", GetPromiseNumberOwnedCities(ePlayer));
+				strDesc2.Format("Owned: %03d. ",  GET_PLAYER(ePlayer).getNumCities());
+				strOutBuf += strDesc;
+
+				pLog->Msg(strOutBuf);
+			}
+			return;
+		}
 		pOurCenterPlot = GC.getMap().plotByIndex(GetPromisePlotOtherPlayer(ePlayer));
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strOutBuf;
+			CvString strBaseString;
+			CvString playerName;
+			CvString otherplayerName;
+			CvString strDesc;
+			CvString strLogName;
+
+			// Find the name of this civ and city
+			playerName = GetPlayer()->getCivilizationShortDescription();
+			otherplayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
+
+			// Open the log file
+			if(GC.getPlayerAndCityAILogSplit())
+			{
+				strLogName = "DiplomacyAI_ExpansionLogic_Log_" + playerName + ".csv";
+			}
+			else
+			{
+				strLogName = "DiplomacyAI_ExpansionLogic_Log.csv";
+			}
+
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+			// Get the leading info for this line
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + ", ";
+			strBaseString += otherplayerName + ", ";
+
+			CvString strRank; 
+			strOutBuf = strBaseString + "Using Promise CoM Data: ";
+
+			strDesc.Format("%03d.", GetPromisePlotOtherPlayer(ePlayer));
+			strOutBuf += strDesc;
+
+			pLog->Msg(strOutBuf);
+		}
 	}
 	else
 	{
 		pOurCenterPlot = GetPlayer()->GetCenterOfMassEmpire();
+		if(pOurCenterPlot != NULL && GC.getLogging() && GC.getAILogging())
+		{
+			CvString strOutBuf;
+			CvString strBaseString;
+			CvString playerName;
+			CvString otherplayerName;
+			CvString strDesc;
+			CvString strLogName;
+
+			// Find the name of this civ and city
+			playerName = GetPlayer()->getCivilizationShortDescription();
+			otherplayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
+
+			// Open the log file
+			if(GC.getPlayerAndCityAILogSplit())
+			{
+				strLogName = "DiplomacyAI_ExpansionLogic_Log_" + playerName + ".csv";
+			}
+			else
+			{
+				strLogName = "DiplomacyAI_ExpansionLogic_Log.csv";
+			}
+
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+			// Get the leading info for this line
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + ", ";
+			strBaseString += otherplayerName + ", ";
+
+			CvString strRank; 
+			strOutBuf = strBaseString + "Using Real CoM Data: ";
+
+			strDesc.Format("%03d.", GetPlayer()->GetCenterOfMassEmpire()->GetPlotIndex());
+			strOutBuf += strDesc;
+
+			pLog->Msg(strOutBuf);
+		}
 	}
 
 	if(pOurCenterPlot == NULL)
@@ -13013,6 +13147,45 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 		//Save off our new value for next turn, it'll be our new test point (since it was apparently null last turn).
 		SetLastTurnCenterofMass(ePlayer, pTheirCenterPlot->GetPlotIndex());
 		SetExpansionAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strOutBuf;
+			CvString strBaseString;
+			CvString playerName;
+			CvString otherplayerName;
+			CvString strDesc;
+			CvString strLogName;
+
+			// Find the name of this civ and city
+			playerName = GetPlayer()->getCivilizationShortDescription();
+			otherplayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
+
+			// Open the log file
+			if(GC.getPlayerAndCityAILogSplit())
+			{
+				strLogName = "DiplomacyAI_ExpansionLogic_Log_" + playerName + ".csv";
+			}
+			else
+			{
+				strLogName = "DiplomacyAI_ExpansionLogic_Log.csv";
+			}
+
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+			// Get the leading info for this line
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + ", ";
+			strBaseString += otherplayerName + ", ";
+
+			CvString strRank; 
+			strOutBuf = strBaseString + "No CoM Data for last turn, saving off new value: ";
+
+			strDesc.Format("%03d.", GetLastTurnCenterofMass(ePlayer));
+			strOutBuf += strDesc;
+
+			pLog->Msg(strOutBuf);
+		}
 		return;
 	}
 
@@ -13029,6 +13202,45 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 	//If the distance is lower, but they didn't move, we can't be mad at them for expanding, so no change in aggressive posture.
 	if(iDistanceUsToThemThisTurn < iDistanceUsToThemLastTurn && pTheirCenterPlotLastTurn == pTheirCenterPlot)
 	{ 
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strOutBuf;
+			CvString strBaseString;
+			CvString playerName;
+			CvString otherplayerName;
+			CvString strDesc;
+			CvString strLogName;
+
+			// Find the name of this civ and city
+			playerName = GetPlayer()->getCivilizationShortDescription();
+			otherplayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
+
+			// Open the log file
+			if(GC.getPlayerAndCityAILogSplit())
+			{
+				strLogName = "DiplomacyAI_ExpansionLogic_Log_" + playerName + ".csv";
+			}
+			else
+			{
+				strLogName = "DiplomacyAI_ExpansionLogic_Log.csv";
+			}
+
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+			// Get the leading info for this line
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + ", ";
+			strBaseString += otherplayerName + ", ";
+
+			CvString strRank; 
+			strOutBuf = strBaseString + "No CoM shift for other player, aborting at distance: ";
+
+			strDesc.Format("%03d.", iDistanceUsToThemThisTurn);
+			strOutBuf += strDesc;
+
+			pLog->Msg(strOutBuf);
+		}
 		return;
 	}
 
@@ -13038,9 +13250,48 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 		eAggressivePosture = AGGRESSIVE_POSTURE_NONE;
 
 		//Theoretically this turn should be smaller than last turn. If not, then we're not expanding towards each other, so remove the expansion penalty.
-		int iAggregateChange = iDistanceUsToThemThisTurn - iDistanceUsToThemLastTurn;
+		int iAggregateChange = iDistanceUsToThemLastTurn - iDistanceUsToThemThisTurn;
 		if(iAggregateChange < 0)
 		{
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString playerName;
+				CvString otherplayerName;
+				CvString strDesc;
+				CvString strLogName;
+
+				// Find the name of this civ and city
+				playerName = GetPlayer()->getCivilizationShortDescription();
+				otherplayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
+
+				// Open the log file
+				if(GC.getPlayerAndCityAILogSplit())
+				{
+					strLogName = "DiplomacyAI_ExpansionLogic_Log_" + playerName + ".csv";
+				}
+				else
+				{
+					strLogName = "DiplomacyAI_ExpansionLogic_Log.csv";
+				}
+
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += playerName + ", ";
+				strBaseString += otherplayerName + ", ";
+
+				CvString strRank; 
+				strOutBuf = strBaseString + "No aggregate change for other player, aborting at aggregate: ";
+
+				strDesc.Format("%03d.", iAggregateChange);
+				strOutBuf += strDesc;
+
+				pLog->Msg(strOutBuf);
+			}
 			return;
 		}
 
@@ -13049,12 +13300,92 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 		//Boldness should matter a little.
 		iDistanceUsToThemThisTurn -= (GetBoldness() / 5);
 
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strOutBuf;
+			CvString strBaseString;
+			CvString playerName;
+			CvString otherplayerName;
+			CvString strDesc;
+			CvString strLogName;
+
+			// Find the name of this civ and city
+			playerName = GetPlayer()->getCivilizationShortDescription();
+			otherplayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
+
+			// Open the log file
+			if(GC.getPlayerAndCityAILogSplit())
+			{
+				strLogName = "DiplomacyAI_ExpansionLogic_Log_" + playerName + ".csv";
+			}
+			else
+			{
+				strLogName = "DiplomacyAI_ExpansionLogic_Log.csv";
+			}
+
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+			// Get the leading info for this line
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + ", ";
+			strBaseString += otherplayerName + ", ";
+
+			CvString strRank; 
+			strOutBuf = strBaseString + "Aggregate change, update chance of aggressive posture for other player at value: ";
+
+			strDesc.Format("%03d.", iDistanceUsToThemThisTurn);
+			strOutBuf += strDesc;
+
+			pLog->Msg(strOutBuf);
+		}
+
 		if(iDistanceUsToThemThisTurn <= /*3*/ GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_HIGH())
 			eAggressivePosture = AGGRESSIVE_POSTURE_HIGH;
 		else if(iDistanceUsToThemThisTurn <= /*5*/ GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_MEDIUM())
 			eAggressivePosture = AGGRESSIVE_POSTURE_MEDIUM;
 		else if(iDistanceUsToThemThisTurn <= /*9*/ GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_LOW())
 			eAggressivePosture = AGGRESSIVE_POSTURE_LOW;
+
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strOutBuf;
+			CvString strBaseString;
+			CvString playerName;
+			CvString otherplayerName;
+			CvString strDesc;
+			CvString strLogName;
+
+			// Find the name of this civ and city
+			playerName = GetPlayer()->getCivilizationShortDescription();
+			otherplayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
+
+			// Open the log file
+			if(GC.getPlayerAndCityAILogSplit())
+			{
+				strLogName = "DiplomacyAI_ExpansionLogic_Log_" + playerName + ".csv";
+			}
+			else
+			{
+				strLogName = "DiplomacyAI_ExpansionLogic_Log.csv";
+			}
+
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+			// Get the leading info for this line
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + ", ";
+			strBaseString += otherplayerName + ", ";
+
+			CvString strRank; 
+			strOutBuf = strBaseString + ",***** NEW AGGRESSIVE POSTURE CHOSEN: ";
+
+			strDesc.Format("%03d.", (int)eAggressivePosture);
+			strOutBuf += strDesc;
+
+			pLog->Msg(strOutBuf);
+		}
 
 		SetExpansionAggressivePosture(ePlayer, eAggressivePosture);
 	}
@@ -15922,34 +16253,32 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		{
 			if(!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDontSettleMessageTooSoon(ePlayer))
 			{
-				if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBoldness() > 8)
+				SetPlayerNoSettleRequestCounter(ePlayer, 0);
+				SetPlayerNoSettleRequestEverAsked(ePlayer, true);
+				bool bAcceptable;
+
+				// Teammates
+				if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
+					bAcceptable = true;
+				// Not teammates
+				else
+					bAcceptable = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDontSettleAcceptable(GetPlayer()->GetID());
+
+				if(bAcceptable)
 				{
-					if (!IsPlayerIgnoredExpansionPromise(ePlayer))
+					SetPlayerNoSettleRequestAccepted(ePlayer, true);
+					SetEverMadeExpansionPromise(ePlayer, true);
+					CvPlot* pPromisePlot = GetPlayer()->GetCenterOfMassEmpire();
+					if(pPromisePlot != NULL)
 					{
-						SetIgnoredExpansionPromiseValue(ePlayer, GC.getOPINION_WEIGHT_EXPANSION_PROMISE_IGNORED_MAX() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent());
+						//We want to save off our empire's plot, otherwise our expansion could trigger the expansion warning!
+						SetPromisePlotOtherPlayer(ePlayer, pPromisePlot->GetPlotIndex());
+						SetPromiseNumberOwnedCities(ePlayer, GET_PLAYER(ePlayer).getNumCities());
 					}
-					SetPlayerIgnoredExpansionPromise(ePlayer, true);
 				}
 				else
-				{
-					SetPlayerNoSettleRequestCounter(ePlayer, 0);
-					SetPlayerNoSettleRequestEverAsked(ePlayer, true);
-					bool bAcceptable;
-
-					// Teammates
-					if(GetPlayer()->getTeam() == GET_PLAYER(ePlayer).getTeam())
-						bAcceptable = true;
-					// Not teammates
-					else
-						bAcceptable = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDontSettleAcceptable(GetPlayer()->GetID());
-
-					if(bAcceptable)
-						SetPlayerNoSettleRequestAccepted(ePlayer, true);
-					else
-						SetIgnoredExpansionPromiseValue(ePlayer, GC.getOPINION_WEIGHT_EXPANSION_PROMISE_IGNORED_MAX() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent());
-				}
+					SetIgnoredExpansionPromiseValue(ePlayer, GC.getOPINION_WEIGHT_EXPANSION_PROMISE_IGNORED_MAX() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent());
 			}
-
 		}
 #endif
 	}
@@ -28330,7 +28659,12 @@ bool CvDiplomacyAI::IsDontSettleAcceptable(PlayerTypes ePlayer) const
 
 	iThreshold += iMilitaryMod;
 
+#if defined(MOD_BALANCE_CORE)
+	//Base it on boldness.
+	int iRand = (GetBoldness() * 10);
+#else
 	int iRand = GC.getGame().getJonRandNum(/*100*/ GC.getDONT_SETTLE_RAND(), "Diplomacy AI: will AI agree to not settle near a player?");
+#endif
 
 	// Passes the test?
 	if(iRand < iThreshold)
@@ -28999,6 +29333,19 @@ int CvDiplomacyAI::GetNumDefensePacts()
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
+void CvDiplomacyAI::SetPromiseNumberOwnedCities(PlayerTypes eOtherPlayer, int iPlotIndex)
+{
+	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	m_paiPromiseNumberOwnedCities[eOtherPlayer] = iPlotIndex;
+}
+int CvDiplomacyAI::GetPromiseNumberOwnedCities(PlayerTypes eOtherPlayer)
+{
+	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(eOtherPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_paiPromiseNumberOwnedCities[eOtherPlayer];
+}
+
 void CvDiplomacyAI::SetPromisePlotOtherPlayer(PlayerTypes eOtherPlayer, int iPlotIndex)
 {
 	CvAssertMsg(eOtherPlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -30291,6 +30638,7 @@ void CvDiplomacyAI::DoTestPromises()
 #if defined(MOD_BALANCE_CORE)
 				SetPlayerMadeExpansionPromise(eLoopPlayer, false);
 				SetPromisePlotOtherPlayer(eLoopPlayer, -1);
+				SetPromiseNumberOwnedCities(eLoopPlayer, -1);
 #endif
 			}
 

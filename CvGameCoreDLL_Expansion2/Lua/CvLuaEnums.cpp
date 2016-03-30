@@ -811,6 +811,9 @@ int CvLuaEnums::pRegister(lua_State* L)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_UI_CITY_EXPANSION)
 	RegisterEnum(ENDTURN_BLOCKING_CITY_TILE);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	RegisterEnum(ENDTURN_BLOCKING_EVENT_CHOICE);
+#endif
 	RegisterEnum(NUM_ENDTURN_BLOCKING_TYPES);
 	EnumEnd(L);
 

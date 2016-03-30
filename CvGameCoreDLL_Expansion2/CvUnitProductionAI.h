@@ -44,6 +44,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight);
 	UnitTypes RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource);
+	bool IsHighestCombatExperienceCity(UnitTypes eUnit);
 #else
 	UnitTypes RecommendUnit(UnitAITypes eUnitAIType = NO_UNITAI);
 #endif

@@ -624,37 +624,51 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			DomainTypes eTestDomain = (DomainTypes)iDomainLoop;
 			if(eTestDomain != NO_DOMAIN)
 			{
+				int iTempBonus = 0;
 				if(pkBuildingInfo->GetDomainFreeExperience(eTestDomain) > 0 || pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain))
 				{
 					if(m_pCity->getDomainFreeExperience(eTestDomain) > 0)
 					{
-						iBonus += (m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain)) * 2;
+						iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain)) * 2;
 					}
 					else
 					{
-						iBonus += m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain);
+						iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain);
 					}
 				}		
 				if(pkBuildingInfo->GetDomainProductionModifier(eTestDomain) > 0)
 				{
 					if(m_pCity->getDomainProductionModifier(eTestDomain) > 0)
 					{
-						iBonus += m_pCity->getDomainProductionModifier(eTestDomain) * 2;
+						iTempBonus += m_pCity->getDomainProductionModifier(eTestDomain) * 2;
 					}
 					else
 					{
-						iBonus += m_pCity->getDomainProductionModifier(eTestDomain);
+						iTempBonus += m_pCity->getDomainProductionModifier(eTestDomain);
 					}
 				}
 				if(pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain) > 0)
 				{
 					if(m_pCity->getDomainFreeExperience(eTestDomain) > 0)
 					{
-						iBonus += (m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain)) * 2;
+						iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain)) * 2;
 					}
 					else
 					{
-						iBonus += m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain);
+						iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain);
+					}
+				}
+				if(iTempBonus > 0)
+				{
+					//Let's try to build our military buildings in our best cities only. More cities we have, the more this matters.
+					if(m_pCity == kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, eTestDomain))
+					{
+						iBonus += (iTempBonus * kPlayer.getNumCities());
+					}
+					//Discourage bad cities.
+					else
+					{
+						iBonus -= (iTempBonus * kPlayer.getNumCities());
 					}
 				}
 			}
@@ -669,13 +683,27 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			CvBaseInfo* pkUnitCombatClassInfo = GC.getUnitCombatClassInfo(eUnitCombatClass);
 			if(pkUnitCombatClassInfo)
 			{
+				int iTempBonus = 0;
 				if(pkBuildingInfo->GetUnitCombatProductionModifier(eUnitCombatClass) > 0)
 				{
-					iBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass);
+					iTempBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass);
 				}
 				if(pkBuildingInfo->GetUnitCombatFreeExperience(eUnitCombatClass) > 0)
 				{
-					iBonus += m_pCity->getUnitCombatFreeExperience(eUnitCombatClass);
+					iTempBonus += m_pCity->getUnitCombatFreeExperience(eUnitCombatClass);
+				}
+				if(iTempBonus > 0)
+				{
+					//Let's try to build our production/experience buildings in our best cities only. More cities we have, the more this matters.
+					if(m_pCity == kPlayer.GetBestMilitaryCity(eUnitCombatClass))
+					{
+						iBonus += (iTempBonus * kPlayer.getNumCities());
+					}
+					//Discourage bad cities.
+					else
+					{
+						iBonus -= (iTempBonus * kPlayer.getNumCities());
+					}
 				}
 			}
 		}

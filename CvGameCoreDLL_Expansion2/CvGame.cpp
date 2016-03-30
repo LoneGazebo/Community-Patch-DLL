@@ -9692,7 +9692,7 @@ int CvGame::calculateSyncChecksum()
 					iMultiplier += (pLoopUnit->getX() * 876543);
 					iMultiplier += (pLoopUnit->getY() * 985310);
 					iMultiplier += (pLoopUnit->getDamage() * 736373);
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 					iMultiplier += ((pLoopUnit->getExperienceTimes100() / 100) * 820622);
 #else
 					iMultiplier += (pLoopUnit->getExperience() * 820622);
@@ -9778,7 +9778,7 @@ void CvGame::debugSyncChecksum()
 			int iLoop=0;
 			for(CvUnit* pLoopUnit = GET_PLAYER((PlayerTypes)iI).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER((PlayerTypes)iI).nextUnit(&iLoop))
 				pLog->Msg( CvString::format("unit %d: x %02d, y %02d, damage %02d, exp %02d, level %02d\n",
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 					iLoop, pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getDamage(), (pLoopUnit->getExperienceTimes100() / 100), pLoopUnit->getLevel() ).c_str() );
 #else
 					iLoop, pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getDamage(), pLoopUnit->getExperience(), pLoopUnit->getLevel() ).c_str() );
@@ -12778,12 +12778,28 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 	int iDefenderDamageInflicted  = pDefendingUnit->getCombatDamage(iDefenderStrength, iAttackingStrength, pDefendingUnit->getDamage(), false, false, false);
 	//iTheirDamageInflicted = iTheirDamageInflicted + iTheirFireSupportCombatDamage;
 
+#if defined(MOD_UNITS_MAX_HP)
+	int iAttackerMaxHitPoints = pAttackingUnit->GetMaxHitPoints();
+	int iDefenderMaxHitPoints = pDefendingUnit->GetMaxHitPoints();
+
+	if (iAttackingDamageInflicted > iDefenderMaxHitPoints)
+	{
+		iAttackingDamageInflicted = iDefenderMaxHitPoints;
+	}
+	if (iDefenderDamageInflicted > iAttackerMaxHitPoints)
+	{
+		iDefenderDamageInflicted = iAttackerMaxHitPoints;
+	}
+
+	bool bAttackerDies = (pAttackingUnit->getDamage() + iDefenderDamageInflicted >= iAttackerMaxHitPoints);
+	bool bDefenderDies = (pDefendingUnit->getDamage() + iAttackingDamageInflicted >= iDefenderMaxHitPoints);
+#else
 	int iMaxUnitHitPoints = GC.getMAX_HIT_POINTS();
-	if(iAttackingDamageInflicted > iMaxUnitHitPoints)
+	if (iAttackingDamageInflicted > iMaxUnitHitPoints)
 	{
 		iAttackingDamageInflicted = iMaxUnitHitPoints;
 	}
-	if(iDefenderDamageInflicted > iMaxUnitHitPoints)
+	if (iDefenderDamageInflicted > iMaxUnitHitPoints)
 	{
 		iDefenderDamageInflicted = iMaxUnitHitPoints;
 	}
@@ -12791,15 +12807,16 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 	bool bAttackerDies = false;
 	bool bDefenderDies = false;
 
-	if(pAttackingUnit->getDamage() + iDefenderDamageInflicted >= iMaxUnitHitPoints)
+	if (pAttackingUnit->getDamage() + iDefenderDamageInflicted >= iMaxUnitHitPoints)
 	{
 		bAttackerDies = true;
 	}
 
-	if(pDefendingUnit->getDamage() + iAttackingDamageInflicted >= iMaxUnitHitPoints)
+	if (pDefendingUnit->getDamage() + iAttackingDamageInflicted >= iMaxUnitHitPoints)
 	{
 		bDefenderDies = true;
 	}
+#endif
 
 	if(bAttackerDies && bDefenderDies)
 	{

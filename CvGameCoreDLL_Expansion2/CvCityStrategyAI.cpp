@@ -769,7 +769,7 @@ void CvCityStrategyAI::PrecalcYieldAverages()
 			iYield -= m_pCity->foodConsumption();
 		}
 		
-		iYield /= min(1, m_pCity->getPopulation());
+		iYield /= max(1, m_pCity->getPopulation());
 
 		m_adYieldAvg[iI] = iYield;
 #endif
