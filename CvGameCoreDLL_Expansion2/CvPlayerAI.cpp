@@ -741,7 +741,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 				if(eEventChoice != NO_EVENT_CHOICE)
 				{
 					CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
-					if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->getEventID() == eChosenEvent)
+					if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->isParentEvent(eChosenEvent))
 					{
 						for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 						{
@@ -798,7 +798,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 				if(eEventChoice != NO_EVENT_CHOICE)
 				{
 					CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
-					if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->getEventID() == eChosenEvent)
+					if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->isParentEvent(eChosenEvent))
 					{
 						int iRandom = GC.getGame().getJonRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
 						if(iRandom <= 0)

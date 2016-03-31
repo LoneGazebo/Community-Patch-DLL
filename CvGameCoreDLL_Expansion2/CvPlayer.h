@@ -135,7 +135,7 @@ public:
 	void DoCancelEventChoice(EventChoiceTypes eEventChoice);
 	bool IsEventChoiceValid(EventChoiceTypes eEventChoice, EventTypes eParentEvent);
 	void DoStartEvent(EventTypes eEvent);
-	void DoEventChoice(EventChoiceTypes eEventChoice);
+	void DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent = NO_EVENT);
 
 	void IncrementEvent(EventTypes eEvent, int iValue);
 	int GetEventIncrement(EventTypes eEvent) const;
@@ -150,6 +150,12 @@ public:
 
 	void SetEventActive(EventTypes eEvent, bool bValue);
 	bool IsEventActive(EventTypes eEvent) const;
+
+	bool IsEventChoiceFired(EventChoiceTypes eEventChoice) const;
+	void SetEventChoiceFired(EventChoiceTypes eEventChoice, bool bValue);
+
+	bool IsEventFired(EventTypes eEvent) const;
+	void SetEventFired(EventTypes eEvent, bool bValue);
 #endif
 	void DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID);
 	bool CanLiberatePlayer(PlayerTypes ePlayer);
@@ -2948,6 +2954,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiEventIncrement;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiEventCooldown;
 	FAutoVariable<std::vector<bool>, CvPlayer> m_abEventActive;
+	FAutoVariable<std::vector<bool>, CvPlayer> m_abEventChoiceFired;
+	FAutoVariable<std::vector<bool>, CvPlayer> m_abEventFired;
 #endif
 	FAutoVariable<int, CvPlayer> m_iFreeSpecialist;
 	FAutoVariable<int, CvPlayer> m_iCultureBombTimer;

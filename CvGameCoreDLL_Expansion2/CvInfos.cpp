@@ -7687,6 +7687,7 @@ CvModEventInfo::CvModEventInfo() :
 	 m_iRequiredReligion(-1),
 	 m_iRequiredStateReligion(-1),
 	 m_bHasStateReligion(false),
+	 m_bUnhappy(false),
 	 m_iBuildingRequired(-1),
 	 m_iBuildingLimiter(-1),
 	 m_bRequiresHolyCity(false),
@@ -7700,7 +7701,8 @@ CvModEventInfo::CvModEventInfo() :
 	 m_iRequiredActiveEvent(-1),
 	 m_iRequiredActiveEventChoice(-1),
 	 m_iRequiredActiveCityEvent(-1),
-	 m_iRequiredActiveCityEventChoice(-1)
+	 m_iRequiredActiveCityEventChoice(-1),
+	 m_bOneShot(false)
 {
 }
 //------------------------------------------------------------------------------
@@ -7818,6 +7820,11 @@ bool CvModEventInfo::hasStateReligion() const
 	return m_bHasStateReligion;
 }
 //------------------------------------------------------------------------------
+bool CvModEventInfo::isUnhappy() const
+{
+	return m_bUnhappy;
+}
+//------------------------------------------------------------------------------
 int CvModEventInfo::getBuildingRequired() const
 {
 	return m_iBuildingRequired;
@@ -7882,10 +7889,18 @@ int CvModEventInfo::getRequiredActiveCityEventChoice() const
 	return m_iRequiredActiveCityEventChoice;
 }
 //------------------------------------------------------------------------------
+bool CvModEventInfo::isOneShot() const
+{
+	return m_bOneShot;
+}
+//------------------------------------------------------------------------------
 bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
 		return false;
+
+
+	m_bOneShot = kResults.GetBool("IsOneShot");
 
 	const char* szTextVal;
 	
@@ -7964,6 +7979,8 @@ bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	m_bHasStateReligion = kResults.GetBool("RequiresAnyStateReligion");
 
+	m_bUnhappy = kResults.GetBool("IsUnhappy");
+
 	const char* szEventType = GetType();
 	kUtility.SetYields(m_piMinimumYield, "Event_MinimumStartYield", "EventType", szEventType);
 
@@ -7976,7 +7993,6 @@ bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 //		CvModEventChoiceInfo
 //======================================================================================================
 CvModEventChoiceInfo::CvModEventChoiceInfo() :
-	 m_iEventID(0),
 	 m_iEventPolicy(-1),
 	 m_iEventBuilding(-1),
 	 m_iEventPromotion(-1),
@@ -8006,6 +8022,7 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_bHasStateReligion(false),
 	 m_bRequiresHolyCity(false),
 	 m_bRequiresIdeology(false),
+	 m_bUnhappy(false),
 	 m_bRequiresWar(false),
 	 m_iBuildingRequired(-1),
 	 m_iBuildingLimiter(-1),
@@ -8024,7 +8041,9 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_iRequiredActiveCityEvent(-1),
 	 m_iRequiredActiveCityEventChoice(-1),
 	 m_ppiBuildingClassYield(NULL),
-	 m_piCityYield(NULL)
+	 m_piCityYield(NULL),
+	 m_pbParentEventIDs(NULL),
+	 m_bOneShot(false)
 {
 }
 //------------------------------------------------------------------------------
@@ -8040,14 +8059,18 @@ CvModEventChoiceInfo::~CvModEventChoiceInfo()
 	SAFE_DELETE_ARRAY(m_piConvertReligion);
 	SAFE_DELETE_ARRAY(m_piConvertReligionPercent);
 	SAFE_DELETE_ARRAY(m_piCityYield);
+	SAFE_DELETE_ARRAY(m_pbParentEventIDs);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYield);
 	
 }
 //------------------------------------------------------------------------------
-int CvModEventChoiceInfo::getEventID() const
+bool CvModEventChoiceInfo::isParentEvent(EventTypes eEvent) const
 {
-	return m_iEventID;
+	CvAssertMsg(eEvent < GC.getNumEventInfos(), "Index out of bounds");
+	CvAssertMsg(eEvent > -1, "Index out of bounds");
+	return m_pbParentEventIDs ? m_pbParentEventIDs[eEvent] : false;
 }
+
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getEventPromotion() const
 {
@@ -8308,6 +8331,11 @@ bool CvModEventChoiceInfo::hasStateReligion() const
 	return m_bHasStateReligion;
 }
 //------------------------------------------------------------------------------
+bool CvModEventChoiceInfo::isUnhappy() const
+{
+	return m_bUnhappy;
+}
+//------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getRequiredActiveEvent() const
 {
 	return m_iRequiredActiveEvent;
@@ -8328,6 +8356,11 @@ int CvModEventChoiceInfo::getRequiredActiveCityEventChoice() const
 	return m_iRequiredActiveCityEventChoice;
 }
 //------------------------------------------------------------------------------
+bool CvModEventChoiceInfo::isOneShot() const
+{
+	return m_bOneShot;
+}
+//------------------------------------------------------------------------------
 bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
@@ -8335,8 +8368,8 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 
 	const char* szTextVal;
 
-	szTextVal = kResults.GetText("ParentEvent");
-	m_iEventID =  GC.getInfoTypeForString(szTextVal, true);
+	const char* szEventType = GetType();
+	kUtility.PopulateArrayByExistence(m_pbParentEventIDs, "Events", "Event_ParentEvents", "EventType", "EventChoiceType", szEventType);
 
 	szTextVal = kResults.GetText("EventPolicy");
 	m_iEventPolicy =  GC.getInfoTypeForString(szTextVal, true);
@@ -8358,10 +8391,11 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 	m_bEraScaling = kResults.GetBool("EraScaling");
 	m_bExpires = kResults.GetBool("Expires");
 
+	m_bOneShot = kResults.GetBool("IsOneShot");
+
 	szTextVal = kResults.GetText("EventPromotion");
 	m_iEventPromotion =  GC.getInfoTypeForString(szTextVal, true);
 
-	const char* szEventType = GetType();
 	kUtility.PopulateArrayByValue(m_piResourceChange, "Resources", "EventChoice_ResourceQuantity", "ResourceType", "EventChoiceType", szEventType, "Quantity");
 
 	kUtility.SetYields(m_piEventYield, "EventChoice_InstantYield", "EventChoiceType", szEventType);
@@ -8495,6 +8529,8 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 
 	m_bHasStateReligion = kResults.GetBool("RequiresAnyStateReligion");
 
+	m_bUnhappy = kResults.GetBool("IsUnhappy");
+
 	kUtility.SetYields(m_piMinimumYield, "EventChoice_MinimumStartYield", "EventChoiceType", szEventType);
 
 	kUtility.PopulateArrayByValue(m_piRequiredResource, "Resources", "EventChoice_MinimumResourceRequired", "ResourceType", "EventChoiceType", szEventType, "Quantity");
@@ -8522,6 +8558,7 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_bRequiresWar(false),
 	 m_bCapital(false),
 	 m_bCoastal(false),
+	 m_bIsRiver(false),
 	 m_bEraScaling(false),
 	 m_iNumChoices(0),
 	 m_iCooldown(0),
@@ -8533,6 +8570,7 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_iRequiredStateReligion(-1),
 	 m_bRequiresGarrison(false),
 	 m_bHasStateReligion(false),
+	 m_bUnhappy(false),
 	 m_strSplashArt(""),
 	 m_strEventAudio(""),
 	 m_iRequiredActiveEvent(-1),
@@ -8546,7 +8584,14 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_bHasAnyReligion(false),
 	 m_bIsPuppet(false),
 	 m_bTradeConnection(false),
-	 m_bCityConnection(false)
+	 m_bCityConnection(false),
+	 m_iNearbyFeature(-1),
+	 m_iNearbyTerrain(-1),
+	 m_iMaximumPopulation(0),
+	 m_bPantheon(false),
+	 m_bNearMountain(false),
+	 m_bNearNaturalWonder(false),
+	 m_bOneShot(false)
 {
 }
 //------------------------------------------------------------------------------
@@ -8647,6 +8692,11 @@ bool CvModCityEventInfo::isCoastal() const
 	return m_bCoastal;
 }
 //------------------------------------------------------------------------------
+bool CvModCityEventInfo::isRiver() const
+{
+	return m_bIsRiver;
+}
+//------------------------------------------------------------------------------
 bool CvModCityEventInfo::isEraScaling() const
 {
 	return m_bEraScaling;
@@ -8696,6 +8746,11 @@ bool CvModCityEventInfo::isRequiresGarrison() const
 bool CvModCityEventInfo::hasStateReligion() const
 {
 	return m_bHasStateReligion;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isUnhappy() const
+{
+	return m_bUnhappy;
 }
 //------------------------------------------------------------------------------
 int CvModCityEventInfo::getRequiredActiveEvent() const
@@ -8763,10 +8818,47 @@ bool CvModCityEventInfo::hasCityConnection() const
 	return m_bCityConnection;
 }
 //------------------------------------------------------------------------------
+bool CvModCityEventInfo::isNearNaturalWonder() const
+{
+	return m_bNearNaturalWonder;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isNearMountain() const
+{
+	return m_bNearMountain;
+}
+	//------------------------------------------------------------------------------
+bool CvModCityEventInfo::hasPantheon() const
+{
+	return m_bPantheon;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::hasNearbyFeature() const
+{
+	return m_iNearbyFeature;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::hasNearbyTerrain() const
+{
+	return m_iNearbyTerrain;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getMaximumPopulation() const
+{
+	return m_iMaximumPopulation;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isOneShot() const
+{
+	return m_bOneShot;
+}
+//------------------------------------------------------------------------------
 bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
 		return false;
+
+	m_bOneShot = kResults.GetBool("IsOneShot");
 
 	const char* szTextVal;
 	szTextVal = kResults.GetText("PrereqTech");
@@ -8802,10 +8894,12 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 	m_bRequiresGarrison = kResults.GetBool("RequiresGarrison");
 	m_bHasStateReligion = kResults.GetBool("RequiresAnyStateReligion");
+	m_bUnhappy = kResults.GetBool("IsUnhappy");
 	m_bRequiresIdeology = kResults.GetBool("RequiresIdeology");
 	m_bRequiresWar = kResults.GetBool("RequiresWar");
 	m_bCapital = kResults.GetBool("CapitalOnly");
 	m_bCoastal = kResults.GetBool("CoastalOnly");
+	m_bIsRiver = kResults.GetBool("RiverOnly");
 	m_bEraScaling = kResults.GetBool("EraScaling");
 	m_iNumChoices = kResults.GetInt("NumChoices");
 
@@ -8855,13 +8949,24 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 	szTextVal = kResults.GetText("LocalResourceRequired");
 	m_iLocalResourceRequired =  GC.getInfoTypeForString(szTextVal, true);
 
+	szTextVal = kResults.GetText("NearbyFeature");
+	m_iNearbyFeature =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("NearbyTerrain");
+	m_iNearbyTerrain =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_iMaximumPopulation = kResults.GetInt("MaximumCityPopulation");
+	m_bPantheon = kResults.GetBool("RequiresPantheon");
+	m_bNearMountain = kResults.GetBool("RequiresNearbyMountain");
+	m_bNearNaturalWonder = kResults.GetBool("RequiresNearbyNaturalWonder");
+
+
 	return true;
 }
 //======================================================================================================
 //		CvModEventCityChoiceInfo
 //======================================================================================================
 CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
-	 m_iEventID(0),
 	 m_iEventBuilding(-1),
 	 m_bEraScaling(false),
 	 m_bExpires(false),
@@ -8894,10 +8999,12 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bRequiresWar(false),
 	 m_bCapital(false),
 	 m_bCoastal(false),
+	 m_bIsRiver(false),
 	 m_bRequiresWarMinor(false),
 	 m_iRequiredStateReligion(-1),
 	 m_bRequiresGarrison(false),
 	 m_bHasStateReligion(false),
+	 m_bUnhappy(false),
 	 m_strEventChoiceSoundEffect(""),
 	 m_piConvertReligion(NULL),
 	 m_piConvertReligionPercent(NULL),
@@ -8916,7 +9023,19 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bTradeConnection(false),
 	 m_bCityConnection(false),
 	 m_ppiBuildingClassYield(NULL),
-	 m_piCityYield(NULL)
+	 m_ppiTerrainYield(NULL),
+	 m_ppiFeatureYield(NULL),
+	 m_ppiImprovementYield(NULL),
+	 m_piCityYield(NULL),
+	 m_iNearbyFeature(-1),
+	 m_iNearbyTerrain(-1),
+	 m_iMaximumPopulation(0),
+	 m_bPantheon(false),
+	 m_bNearMountain(false),
+	 m_bNearNaturalWonder(false),
+	 m_pbParentEventIDs(NULL),
+	 m_bOneShot(false),
+	 m_iCityWideDestructionChance(0)
 {
 }
 //------------------------------------------------------------------------------
@@ -8933,12 +9052,18 @@ CvModEventCityChoiceInfo::~CvModEventCityChoiceInfo()
 	SAFE_DELETE_ARRAY(m_piConvertReligionPercent);
 	SAFE_DELETE_ARRAY(m_piBuildingDestructionChance);
 	SAFE_DELETE_ARRAY(m_piCityYield);
+	SAFE_DELETE_ARRAY(m_pbParentEventIDs);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYield);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiTerrainYield);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiFeatureYield);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYield);
 }
 //------------------------------------------------------------------------------
-int CvModEventCityChoiceInfo::getEventID() const
+bool CvModEventCityChoiceInfo::isParentEvent(CityEventTypes eCityEvent) const
 {
-	return m_iEventID;
+	CvAssertMsg(eCityEvent < GC.getNumCityEventInfos(), "Index out of bounds");
+	CvAssertMsg(eCityEvent > -1, "Index out of bounds");
+	return m_pbParentEventIDs ? m_pbParentEventIDs[eCityEvent] : false;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getEventDuration() const
@@ -9052,6 +9177,12 @@ int CvModEventCityChoiceInfo::getBuildingDestructionChance(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piBuildingDestructionChance ? m_piBuildingDestructionChance[i] : -1;
 }
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getCityWideDestructionChance() const
+{
+	return m_iCityWideDestructionChance;
+}
+
 CvCityEventNotificationInfo *CvModEventCityChoiceInfo::GetNotificationInfo(int i) const
 {
 	CvAssertMsg(i < GC.getNumNotificationInfos(), "Index out of bounds");
@@ -9081,6 +9212,30 @@ int CvModEventCityChoiceInfo::getBuildingClassYield(int i, int j) const
 	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
 	return m_ppiBuildingClassYield[i][j];
+}
+int CvModEventCityChoiceInfo::getTerrainYield(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiTerrainYield[i][j];
+}
+int CvModEventCityChoiceInfo::getFeatureYield(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiFeatureYield[i][j];
+}
+int CvModEventCityChoiceInfo::getImprovementYield(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumImprovementInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiImprovementYield[i][j];
 }
 // Filters
 //------------------------------------------------------------------------------
@@ -9161,6 +9316,11 @@ bool CvModEventCityChoiceInfo::isCoastal() const
 	return m_bCoastal;
 }
 //------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isRiver() const
+{
+	return m_bIsRiver;
+}
+//------------------------------------------------------------------------------
 bool CvModEventCityChoiceInfo::isRequiresIdeology() const
 {
 	return m_bRequiresIdeology;
@@ -9232,6 +9392,11 @@ bool CvModEventCityChoiceInfo::hasStateReligion() const
 	return m_bHasStateReligion;
 }
 //------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isUnhappy() const
+{
+	return m_bUnhappy;
+}
+//------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getRequiredActiveEvent() const
 {
 	return m_iRequiredActiveEvent;
@@ -9257,6 +9422,41 @@ int CvModEventCityChoiceInfo::getLocalResourceRequired() const
 	return m_iLocalResourceRequired;
 }
 //------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isNearNaturalWonder() const
+{
+	return m_bNearNaturalWonder;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isNearMountain() const
+{
+	return m_bNearMountain;
+}
+	//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::hasPantheon() const
+{
+	return m_bPantheon;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::hasNearbyFeature() const
+{
+	return m_iNearbyFeature;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::hasNearbyTerrain() const
+{
+	return m_iNearbyTerrain;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getMaximumPopulation() const
+{
+	return m_iMaximumPopulation;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isOneShot() const
+{
+	return m_bOneShot;
+}
+//------------------------------------------------------------------------------
 bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
@@ -9264,8 +9464,8 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 
 	const char* szTextVal;
 
-	szTextVal = kResults.GetText("ParentEvent");
-	m_iEventID =  GC.getInfoTypeForString(szTextVal, true);
+	const char* szEventType = GetType();
+	kUtility.PopulateArrayByExistence(m_pbParentEventIDs, "CityEvents", "CityEvent_ParentEvents", "CityEventType", "CityEventChoiceType", szEventType);
 
 	szTextVal = kResults.GetText("EventBuildingClass");
 	m_iEventBuilding =  GC.getInfoTypeForString(szTextVal, true);
@@ -9277,10 +9477,12 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_bEraScaling = kResults.GetBool("EraScaling");
 	m_bExpires = kResults.GetBool("Expires");
 
+	m_bOneShot = kResults.GetBool("IsOneShot");
+
 	szTextVal = kResults.GetText("EventBuildingClassDestruction");
 	m_iEventBuildingDestruction =  GC.getInfoTypeForString(szTextVal, true);
 
-	const char* szEventType = GetType();
+
 	kUtility.SetYields(m_piEventYield, "CityEventChoice_InstantYield", "CityEventChoiceType", szEventType);
 	kUtility.SetYields(m_piPreCheckEventYield, "CityEventChoice_EventCostYield", "CityEventChoiceType", szEventType);
 
@@ -9294,6 +9496,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iNumWLTKD = kResults.GetInt("WLTKDTurns");
 	m_iResistanceTurns = kResults.GetInt("ResistanceTurns");
 	m_iRandomBarbs = kResults.GetInt("RandomBarbarianSpawn");
+	m_iCityWideDestructionChance = kResults.GetInt("CityWideBuildingDestructionChance");
 
 	szTextVal = kResults.GetText("EventChoiceAudio");
 	m_strEventChoiceSoundEffect = szTextVal;
@@ -9360,9 +9563,75 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 			m_ppiBuildingClassYield[BuildingClassID][iYieldID] = iYieldChange;
 		}
 	}
+	//TerrainYieldChanges
+	{
+		kUtility.Initialize2DArray(m_ppiTerrainYield, "Terrains", "Yields");
+
+		std::string strKey("CityEventChoice_TerrainYieldChange");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, YieldChange from CityEventChoice_TerrainYieldChange inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where CityEventChoiceType = ?");
+		}
+
+		pResults->Bind(1, szEventType);
+
+		while(pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int iYieldID = pResults->GetInt(1);
+			const int iYieldChange = pResults->GetInt(2);
+
+			m_ppiTerrainYield[TerrainID][iYieldID] = iYieldChange;
+		}
+	}
+	//ImprovementYieldChanges
+	{
+		kUtility.Initialize2DArray(m_ppiImprovementYield, "Improvements", "Yields");
+
+		std::string strKey("CityEventChoice_ImprovementYieldChange");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Improvements.ID as ImprovementID, Yields.ID as YieldID, YieldChange from CityEventChoice_ImprovementYieldChange inner join Improvements on Improvements.Type = ImprovementType inner join Yields on Yields.Type = YieldType where CityEventChoiceType = ?");
+		}
+
+		pResults->Bind(1, szEventType);
+
+		while(pResults->Step())
+		{
+			const int ImprovementID = pResults->GetInt(0);
+			const int iYieldID = pResults->GetInt(1);
+			const int iYieldChange = pResults->GetInt(2);
+
+			m_ppiImprovementYield[ImprovementID][iYieldID] = iYieldChange;
+		}
+	}
+	//FeatureYieldChanges
+	{
+		kUtility.Initialize2DArray(m_ppiFeatureYield, "Features", "Yields");
+
+		std::string strKey("CityEventChoice_FeatureYieldChange");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Features.ID as FeatureID, Yields.ID as YieldID, YieldChange from CityEventChoice_FeatureYieldChange inner join Features on Features.Type = FeatureType inner join Yields on Yields.Type = YieldType where CityEventChoiceType = ?");
+		}
+
+		pResults->Bind(1, szEventType);
+
+		while(pResults->Step())
+		{
+			const int FeatureID = pResults->GetInt(0);
+			const int iYieldID = pResults->GetInt(1);
+			const int iYieldChange = pResults->GetInt(2);
+
+			m_ppiFeatureYield[FeatureID][iYieldID] = iYieldChange;
+		}
+	}
+	
 
 	//Filters
-
 	szTextVal = kResults.GetText("PrereqTech");
 	m_iPrereqTech =  GC.getInfoTypeForString(szTextVal, true);
 
@@ -9393,10 +9662,12 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 
 	m_bRequiresGarrison = kResults.GetBool("RequiresGarrison");
 	m_bHasStateReligion = kResults.GetBool("RequiresAnyStateReligion");
+	m_bUnhappy = kResults.GetBool("IsUnhappy");
 	m_bRequiresIdeology = kResults.GetBool("RequiresIdeology");
 	m_bRequiresWar = kResults.GetBool("RequiresWar");
 	m_bCapital = kResults.GetBool("CapitalOnly");
 	m_bCoastal = kResults.GetBool("CoastalOnly");
+	m_bIsRiver = kResults.GetBool("RiverOnly");
 
 	szTextVal = kResults.GetText("RequiredBuildingClass");
 	m_iBuildingRequired =  GC.getInfoTypeForString(szTextVal, true);
@@ -9431,6 +9702,17 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 
 	szTextVal = kResults.GetText("RequiredActiveCityEventChoice");
 	m_iRequiredActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("NearbyFeature");
+	m_iNearbyFeature =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("NearbyTerrain");
+	m_iNearbyTerrain =  GC.getInfoTypeForString(szTextVal, true);
+
+	m_iMaximumPopulation = kResults.GetInt("MaximumCityPopulation");
+	m_bPantheon = kResults.GetBool("RequiresPantheon");
+	m_bNearMountain = kResults.GetBool("RequiresNearbyMountain");
+	m_bNearNaturalWonder = kResults.GetBool("RequiresNearbyNaturalWonder");
 
 	return true;
 }

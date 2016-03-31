@@ -593,6 +593,8 @@ CvPlayer::CvPlayer() :
 	, m_aiEventIncrement("CvPlayer::m_aiEventIncrement", m_syncArchive)
 	, m_abEventActive("CvPlayer::m_abEventActive", m_syncArchive)
 	, m_aiEventCooldown("CvPlayer::m_aiEventCooldown", m_syncArchive)
+	, m_abEventChoiceFired("CvPlayer::m_abEventChoiceFired", m_syncArchive)
+	, m_abEventFired("CvPlayer::m_abEventFired", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_iPovertyUnhappinessMod("CvPlayer::m_iPovertyUnhappinessMod", m_syncArchive)
@@ -1760,6 +1762,12 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_abEventActive.clear();
 	m_abEventActive.resize(GC.getNumEventInfos(), 0);
+
+	m_abEventFired.clear();
+	m_abEventFired.resize(GC.getNumEventInfos(), 0);
+
+	m_abEventChoiceFired.clear();
+	m_abEventChoiceFired.resize(GC.getNumEventChoiceInfos(), 0);
 #endif
 
 	m_aiCapitalYieldRateModifier.clear();
@@ -4779,9 +4787,8 @@ void CvPlayer::UpdateBestMilitaryCities()
 					pBestDomainCity = pLoopCity;
 				}
 			}
-			if(pBestDomainCity != NULL)
+			if(pBestDomainCity != NULL && pBestDomainCity != GetBestMilitaryCity(NO_UNITCOMBAT, eTestDomain))
 			{
-				SetBestMilitaryCityDomain(pBestDomainCity->GetID(), eTestDomain);
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strCity = pBestDomainCity->getName();
@@ -4789,6 +4796,7 @@ void CvPlayer::UpdateBestMilitaryCities()
 					strLogString.Format("***************** New Military Domain City Chosen: %s. ****************", strCity.c_str());
 					GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
+				SetBestMilitaryCityDomain(pBestDomainCity->GetID(), eTestDomain);
 			}
 		}
 	}
@@ -4836,7 +4844,7 @@ void CvPlayer::UpdateBestMilitaryCities()
 					pBestCombatClassCity = pLoopCity;
 				}
 			}
-			if(pBestCombatClassCity != NULL)
+			if(pBestCombatClassCity != NULL && pBestCombatClassCity != GetBestMilitaryCity(eUnitCombatClass, NO_DOMAIN))
 			{
 				SetBestMilitaryCityCombatClass(pBestCombatClassCity->GetID(), eUnitCombatClass);
 				if(GC.getLogging() && GC.getAILogging())
@@ -4963,6 +4971,38 @@ bool CvPlayer::IsEventActive(EventTypes eEvent) const
 
 	return m_abEventActive[eEvent];
 }
+void CvPlayer::SetEventChoiceFired(EventChoiceTypes eEvent, bool bValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eEvent < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+
+	m_abEventChoiceFired.setAt(eEvent, bValue);
+}
+bool CvPlayer::IsEventChoiceFired(EventChoiceTypes eEvent) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eEvent < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+
+	return m_abEventChoiceFired[eEvent];
+}
+void CvPlayer::SetEventFired(EventTypes eEvent, bool bValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+
+	m_abEventFired.setAt(eEvent, bValue);
+}
+bool CvPlayer::IsEventFired(EventTypes eEvent) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+
+	return m_abEventFired[eEvent];
+}
 void CvPlayer::DoEvents()
 {
 	//Minors? Barbs? Get out!
@@ -4979,20 +5019,24 @@ void CvPlayer::DoEvents()
 			if(GetEventChoiceDuration(eEventChoice) > 0)
 			{
 				ChangeEventChoiceDuration(eEventChoice, -1);
-				if(GC.getLogging() && GC.getAILogging())
+				if(GC.getLogging())
 				{
-					CvString playerName;
-					FILogFile* pLog;
-					CvString strBaseString;
-					CvString strOutBuf;
-					CvString strFileName = "EventLogging.csv";
-					playerName = getCivilizationShortDescription();
-					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-					strBaseString += playerName + ", ";
-					strOutBuf.Format("Specific Event Cooldown Active. Changing Value by -1. Cooldown Remaining: %d", GetEventChoiceDuration(eEventChoice));
-					strBaseString += strOutBuf;
-					pLog->Msg(strBaseString);
+					CvModEventChoiceInfo* pkEventInfo = GC.getEventChoiceInfo(eEventChoice);
+					if(pkEventInfo != NULL)
+					{
+						CvString playerName;
+						FILogFile* pLog;
+						CvString strBaseString;
+						CvString strOutBuf;
+						CvString strFileName = "EventLogging.csv";
+						playerName = getCivilizationShortDescription();
+						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+						strBaseString += playerName + ", ";
+						strOutBuf.Format("Event Choice: %s. Changing Value by -1. Cooldown Remaining: %d", pkEventInfo->GetDescription(), GetEventChoiceDuration(eEventChoice));
+						strBaseString += strOutBuf;
+						pLog->Msg(strBaseString);
+					}
 				}
 				if(GetEventChoiceDuration(eEventChoice) == 0)
 				{
@@ -5018,20 +5062,24 @@ void CvPlayer::DoEvents()
 			//Global Cooldown Second - if we've had this event recently, let's check this.
 			if(GetEventCooldown(eEvent) > 0)
 			{
-				if(GC.getLogging() && GC.getAILogging())
+				if(GC.getLogging())
 				{
-					CvString playerName;
-					FILogFile* pLog;
-					CvString strBaseString;
-					CvString strOutBuf;
-					CvString strFileName = "EventLogging.csv";
-					playerName = getCivilizationShortDescription();
-					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-					strBaseString += playerName + ", ";
-					strOutBuf.Format("Player Event Cooldown Active. Cooldown: %d", GetEventCooldown(eEvent));
-					strBaseString += strOutBuf;
-					pLog->Msg(strBaseString);
+					CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+					if(pkEventInfo != NULL)
+					{
+						CvString playerName;
+						FILogFile* pLog;
+						CvString strBaseString;
+						CvString strOutBuf;
+						CvString strFileName = "EventLogging.csv";
+						playerName = getCivilizationShortDescription();
+						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+						strBaseString += playerName + ", ";
+						strOutBuf.Format("Player Event: %s. Cooldown Active. Cooldown: %d", pkEventInfo->GetDescription(), GetEventCooldown(eEvent));
+						strBaseString += strOutBuf;
+						pLog->Msg(strBaseString);
+					}
 				}
 				ChangeEventCooldown(eEvent, -1);
 				continue;
@@ -5042,6 +5090,9 @@ void CvPlayer::DoEvents()
 			{
 				continue;
 			}
+
+			if(pkEventInfo->isOneShot() && IsEventFired(eEvent))
+				continue;
 		
 			//Let's narrow down all events here!
 			if(pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
@@ -5394,7 +5445,7 @@ void CvPlayer::DoEvents()
 			{
 				//We did it! But reverse our increment.
 				IncrementEvent(eEvent, -GetEventIncrement(eEvent));
-				if(GC.getLogging() && GC.getAILogging())
+				if(GC.getLogging())
 				{
 					CvString playerName;
 					FILogFile* pLog;
@@ -5416,7 +5467,7 @@ void CvPlayer::DoEvents()
 				if(pkEventInfo->getRandomChanceDelta() > 0)
 				{
 					IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
-					if(GC.getLogging() && GC.getAILogging())
+					if(GC.getLogging())
 					{
 						CvString playerName;
 						FILogFile* pLog;
@@ -5440,7 +5491,7 @@ void CvPlayer::DoEvents()
 	}
 	if(veValidEvents.size() > 0)
 	{
-		if(GC.getLogging() && GC.getAILogging())
+		if(GC.getLogging())
 		{
 			CvString playerName;
 			FILogFile* pLog;
@@ -5471,46 +5522,6 @@ void CvPlayer::DoEvents()
 						if(!pkEventInfo->isGlobal() && ePlayer != GetID())
 							continue;
 
-						//Event Choice already active for this event? Abort!
-						//We've already checked for ourselves, so check for others. too.
-						if(ePlayer != GetID())
-						{
-							bool bInvalid = false;
-							for(int iLoop2 = 0; iLoop2 < GC.getNumEventChoiceInfos(); iLoop2++)
-							{
-								EventChoiceTypes eEventChoice = (EventChoiceTypes)iLoop2;
-								if(eEventChoice != NO_EVENT_CHOICE)
-								{
-									CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
-									if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->getEventID() == eChosenEvent)
-									{
-										if(GetEventChoiceDuration(eEventChoice) > 0)
-										{
-											if(GC.getLogging() && GC.getAILogging())
-											{
-												CvString playerName;
-												FILogFile* pLog;
-												CvString strBaseString;
-												CvString strOutBuf;
-												CvString strFileName = "EventLogging.csv";
-												playerName = getCivilizationShortDescription();
-												pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-												strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-												strBaseString += playerName + ", ";
-												strOutBuf.Format("Event choice already active for player: %s, Event: %s. Cooldown: d%", pkEventChoiceInfo->GetDescription(), pkEventInfo->GetDescription(), GetEventChoiceDuration(eEventChoice));
-												strBaseString += strOutBuf;
-												pLog->Msg(strBaseString);
-											}
-											bInvalid = true;
-											break;
-										}
-									}
-								}
-							}
-							if(bInvalid)
-								continue;
-						}
-
 						GET_PLAYER(ePlayer).DoStartEvent(eChosenEvent);
 					}
 				}
@@ -5534,13 +5545,16 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 		return false;
 	}
 
-	if(pkEventInfo->getEventID() != eParentEvent)
+	if(!pkEventInfo->isParentEvent(eParentEvent))
+		return false;
+
+	if(pkEventInfo->isOneShot() && IsEventChoiceFired(eChosenEventChoice))
 		return false;
 
 	//Event Choice already active for this event? Abort!
 	if(GetEventChoiceDuration(eChosenEventChoice) > 0)
 	{
-		if(GC.getLogging() && GC.getAILogging())
+		if(GC.getLogging())
 		{
 			CvString playerName;
 			FILogFile* pLog;
@@ -5902,6 +5916,12 @@ void CvPlayer::DoStartEvent(EventTypes eChosenEvent)
 		{
 			//Set true so we know we're doing an event right now.
 			SetEventActive(eChosenEvent, true);
+			
+			//Set oneshot stuff so this event can't fire ever again.
+			if(pkEventInfo->isOneShot())
+			{
+				SetEventFired(eChosenEvent, true);
+			}
 
 			//Lua Hook
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventActivated, GetID(), eChosenEvent);
@@ -5911,7 +5931,7 @@ void CvPlayer::DoStartEvent(EventTypes eChosenEvent)
 			iEventDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iEventDuration /= 100;
 			ChangeEventCooldown(eChosenEvent, iEventDuration);
-			if(GC.getLogging() && GC.getAILogging())
+			if(GC.getLogging())
 			{
 				CvString playerName;
 				FILogFile* pLog;
@@ -5957,9 +5977,9 @@ void CvPlayer::DoStartEvent(EventTypes eChosenEvent)
 					if(eEventChoice != NO_EVENT_CHOICE)
 					{
 						CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
-						if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->getEventID() == eChosenEvent)
+						if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->isParentEvent(eChosenEvent))
 						{
-							DoEventChoice(eEventChoice);
+							DoEventChoice(eEventChoice, eChosenEvent);
 							if(isHuman())
 							{
 								CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_9, eEventChoice, GetID());
@@ -5985,7 +6005,7 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventChoiceEnded, GetID(), eChosenEventChoice);
 
 		bool bChanged = false;
-		if(GC.getLogging() && GC.getAILogging())
+		if(GC.getLogging())
 		{
 			CvString playerName;
 			FILogFile* pLog;
@@ -6143,23 +6163,42 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 		}
 	}
 }
-void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice)
+void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 {
 	if(eEventChoice != NO_EVENT_CHOICE)
 	{
 		CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
 		if(pkEventChoiceInfo != NULL)
 		{
+			//Set oneshot stuff so this event can't fire ever again.
+			if(pkEventChoiceInfo->isOneShot())
+			{
+				SetEventChoiceFired(eEventChoice, true);
+			}
 			//Set false so we know we've completed the city event.
-			EventTypes eEvent = (EventTypes)pkEventChoiceInfo->getEventID();
-			if(eEvent != NO_EVENT)
+			//Loop through all city events and set any related to this to false, just to be sure.
+			if(eEvent == NO_EVENT)
+			{
+				for(int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
+				{
+					EventTypes eEvent = (EventTypes)iLoop;
+					if(eEvent != NO_EVENT)
+					{
+						if(pkEventChoiceInfo->isParentEvent(eEvent))
+						{
+							SetEventActive(eEvent, false);
+						}
+					}
+				}
+			}
+			else
 			{
 				SetEventActive(eEvent, false);
 			}
 			//Lua Hook
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventChoiceActivated, GetID(), eEventChoice);
 
-			if(GC.getLogging() && GC.getAILogging())
+			if(GC.getLogging())
 			{
 				CvString playerName;
 				FILogFile* pLog;
@@ -6590,7 +6629,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice)
 			}
 			if(pkEventChoiceInfo->getWLTKD() > 0)
 			{
-				int iTurns = pkEventChoiceInfo->getResistanceTurns();
+				int iTurns = pkEventChoiceInfo->getWLTKD();
 				iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iTurns /= 100;
 				CvCity *pLoopCity;

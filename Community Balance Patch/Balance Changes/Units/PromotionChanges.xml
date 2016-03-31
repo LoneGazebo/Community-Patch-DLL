@@ -3165,5 +3165,21 @@
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ARSENALE</PediaEntry>
 		</Row>
+		<Row>
+			<Type>PROMOTION_HOVER_UNIT</Type>
+			<Description>TXT_KEY_PROMOTION_HOVER_UNIT</Description>
+			<Help>TXT_KEY_PROMOTION_HOVER_UNIT_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>1</OrderPriority>
+			<CannotBeChosen>true</CannotBeChosen>
+			<PortraitIndex>3</PortraitIndex>
+			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<EmbarkedDeepWater>true</EmbarkedDeepWater>
+			<AllowsEmbarkation>true</AllowsEmbarkation>
+			<EmbarkedAllWater>true</EmbarkedAllWater>
+			<EmbarkDefenseModifier>100</EmbarkDefenseModifier>
+			<PediaEntry>TXT_KEY_PROMOTION_HOVER_UNIT</PediaEntry>
+		</Row>		
 	</UnitPromotions>
 </GameData>

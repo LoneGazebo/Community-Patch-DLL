@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 3/31/2016 12:15:18 AM -->
+<GameData>
+	<Language_en_US>
+		<!-- Event System-->
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_HAS_ENDED">
+			<Text>The effects of an Event have worn off:[NEWLINE]{1_Event}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_HAS_ENDED_T">
+			<Text>An Event has ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_HAS_ENDED_CITY">
+			<Text>The effects of an Event in {2_City} have worn off:[NEWLINE]{1_Event}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_HAS_ENDED_CITY_T">
+			<Text>An Event in {1_City} has ended.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_YIELD_FROM_EVENTS">
+			<Text>{1_Num} {2_IconString} from Active Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CULTURE_FROM_EVENTS">
+			<Text>{1_Num} [ICON_CULTURE] from Active Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_EVENTS">
+			<Text>{1_Num} [ICON_PEACE] from Active Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HIDE">
+			<Text>Hide</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HIDE_TT">
+			<Text>This hides the window, but does not dismiss the Event.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED">
+			<Text>Your Event choice did not succeed:[NEWLINE]{1_Event}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_T">
+			<Text>Event choice fails.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY">
+			<Text>Your Event choice in {2_City} did not succeed:[NEWLINE]{1_Event}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_T">
+			<Text>Event choice in {1_City} fails.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_TITLE">
+			<Text>Event in {1_City}: {2_Event}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HELP">
+			<Text>News from [COLOR_POSITIVE_TEXT]{1_City}[ENDCOLOR]:[NEWLINE][NEWLINE]{2_Event}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_IMPROVEMENT_DESTROYED_EVENT">
+			<Text>{2_Num} {1_Improvement}(s) destroyed near {3_City} due to Event Choice!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_BUILDING_DESTROYED_EVENT">
+			<Text>{1_Building}(s) destroyed near {2_City} due to Event Choice!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_EVENT">
+			<Text>MAKE EVENT CHOICE</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_EVENT_TT">
+			<Text>An Event with multiple options has occurred, and awaits your decision.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_EVENT_CHOICE">
+			<Text>Player Event choice required</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_EVENT_CHOICE_TT">
+			<Text>An Event with multiple options has occurred, and awaits your decision.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_EVENT_CHOICE_CITY">
+			<Text>City Event choice required</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_EVENT_CHOICE_CITY_TT">
+			<Text>A City Event with multiple options has occurred, and awaits your decision.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

@@ -124,6 +124,8 @@
 		<Column name="EventAudio" type="text"/>
 		<Column name="RandomChance" type="integer" default="0"/>
 		<Column name="RandomChanceDelta" type="integer" default="0"/>
+		<!-- If set to true, this event can only fire once, ever, for the player -->
+		<Column name="IsOneShot" type="boolean" default="false"/>
 		<!-- This value determines whether or not an event, once fired for one player, immediately fires for all players. -->
 		<Column name="Global" type="boolean" default="false"/>
 		<!-- Era Scaling: boosts yield required for minimumstartyield table below. -->
@@ -190,9 +192,9 @@
 		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
 		<!-- Help is used for Tooltips, Description for button text -->
 		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
-		<Column name="EventChoiceAudio" type="text"/>
-		<!-- Parent Event is essential - make sure it matches the name of the Event Type from above! -->
-		<Column name="ParentEvent" type="text" reference="Events(Type)" default="NULL"/>
+		<Column name="EventChoiceAudio" type="text" default="AS2D_EVENT_CHOICE"/>
+		<!-- If set to true, this event choice can only be chosen once, ever, by the player -->
+		<Column name="IsOneShot" type="boolean" default="false"/>
 		<!-- Grants a Policy. -->
 		<Column name="EventPolicy" type="text" reference="Policies(Type)" default="NULL"/>
 		<!-- Event Duration : Leave blank if you want the event's effect to be permanent. Otherwise, all effects (except instant yields, GP points, and building destruction), will be reversed. -->
@@ -248,6 +250,11 @@
 		<Column name="RequiredActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
 		<Column name="RequiredActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
 	</Table>
+	<!-- Parent Event is essential - this table assigns choices to events. Make sure the EventType matches the name of an EventType from above! -->
+	<Table name="Event_ParentEvents">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="EventType" type="text" reference="Events(Type)"/>
+	</Table>	
 	<!-- Note: This table fires BEFORE an event choice is checked to see if it succeeds. Use this to have an event that costs something, but may not actually succeed. -->
 	<!-- Use negative values here to make it a 'cost' -->
 	<Table name="EventChoice_EventCostYield">
@@ -357,6 +364,8 @@
 		<Column name="CityEventArt" type="text"/>
 		<Column name="RandomChance" type="integer" default="0"/>
 		<Column name="RandomChanceDelta" type="integer" default="0"/>
+		<!-- If set to true, this city event can only fire once, ever, for the city -->
+		<Column name="IsOneShot" type="boolean" default="false"/>
 		<!-- Global Cooldown: sets distance in time between this event and next. Defaults to 30 turns. Means that the minimum time between any two events of ANY type is 30 turns. -->
 		<Column name="EventCooldown" type="integer" default="30"/>
 		<!-- Set NumChoices to 2+ if working with the options below!! -->
@@ -365,12 +374,17 @@
 		<Column name="EraScaling" type="boolean" default="false"/>
 		<!-- Filters -->
 		<Column name="MinimumCityPopulation" type="integer" default="0"/>
+		<Column name="MaximumCityPopulation" type="integer" default="0"/>
 		<Column name="RequiredCiv" type="text" reference="Civilizations(Type)" default="NULL"/>
 		<Column name="RequiredEra" type="text" reference="Eras(Type)" default="NULL"/>
 		<!-- Note: obsoletes at this era, not after it -->
 		<Column name="ObsoleteEra" type="text" reference="Eras(Type)" default="NULL"/>
 		<!-- Only Checks for local Improvements worked by City. -->
 		<Column name="ImprovementRequired" type="text" reference="Improvements(Type)" default="NULL"/>
+		<!-- Checks for nearby features/terrain. Can use natural wonders for features. -->
+		<Column name="NearbyFeature" type="text" reference="Features(Type)" default="NULL"/>
+		<Column name="NearbyTerrain" type="text" reference="Terrains(Type)" default="NULL"/>
+		<Column name="LocalResourceRequired" type="text" reference="Resources(Type)" default="NULL"/>
 		<Column name="RequiredPolicy" type="text" reference="Policies(Type)" default="NULL"/>
 		<Column name="PrereqTech" type="text" reference="Technologies(Type)" default="NULL"/>
 		<Column name="ObsoleteTech" type="text" reference="Technologies(Type)" default="NULL"/>
@@ -390,6 +404,7 @@
 		<Column name="RequiresIdeology" type="boolean" default="false"/>
 		<Column name="CapitalOnly" type="boolean" default="false"/>
 		<Column name="CoastalOnly" type="boolean" default="false"/>
+		<Column name="RiverOnly" type="boolean" default="false"/>
 		<Column name="RequiresWar" type="boolean" default="false"/>
 		<Column name="RequiresWarMinor" type="boolean" default="false"/>
 		<Column name="RequiresResistance" type="boolean" default="false"/>
@@ -398,7 +413,12 @@
 		<Column name="RequiresRazing" type="boolean" default="false"/>
 		<Column name="HasAnyReligion" type="boolean" default="false"/>
 		<Column name="RequiresPuppet" type="boolean" default="false"/>
-		<Column name="LocalResourceRequired" type="text" reference="Resources(Type)" default="NULL"/>
+		<!-- Checks if city majority is a Pantheon -->
+		<Column name="RequiresPantheon" type="boolean" default="false"/>
+		<!-- Checks if empire is unhappy -->
+		<Column name="IsUnhappy" type="boolean" default="false"/>
+		<Column name="RequiresNearbyNaturalWonder" type="boolean" default="false"/>
+		<Column name="RequiresNearbyMountain" type="boolean" default="false"/>
 		<!-- These filters look for specific events or event choices to see if they've been actived by the player/city. This allows you to create 'chained' events that rely on a prior event. -->
 		<!-- Note that these values look at the EventCooldown value for events, and the Duration value for choices. -->
 		<!-- For example, if an event has a cooldown of 30 turns, and that event fires, there is a 30 turn window in which an event dependent on that one can fire (using the RequiredActiveEvent tag below) -->
@@ -426,9 +446,9 @@
 		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
 		<!-- Help is used for Tooltips, Description for button text -->
 		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
-		<Column name="EventChoiceAudio" type="text"/>
-		<!-- Parent Event is essential - make sure it matches the name of the Event Type from above! -->
-		<Column name="ParentEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
+		<Column name="EventChoiceAudio" type="text" default="AS2D_EVENT_CHOICE"/>
+		<!-- If set to true, this city event choice can only be chosen once, ever, by the city -->
+		<Column name="IsOneShot" type="boolean" default="false"/>
 		<!-- Event Duration : Leave blank if you want the event's effect to be permanent. Otherwise, all effects (except instant yields, GP points, and building destruction), will be reversed. -->
 		<!-- Defaults to 30. Unless changed, this means each player can have a maximum of 1 event of THIS type every 30 turns. -->
 		<Column name="EventDuration" type="integer" default="30"/>
@@ -441,21 +461,29 @@
 		<!-- Only affects local city. Destroys or adds a building type. -->
 		<Column name="EventBuildingClassDestruction" type="text" reference="BuildingClasses(Type)" default="NULL"/>
 		<Column name="EventBuildingClass" type="text" reference="BuildingClasses(Type)" default="NULL"/>
+		<!-- Checks all buildings in city for destruction. Mass disaster event. Integer is % chance of destruction. Note that this and CityEventChoice_BuildingClassDestructionChance use the same function, and the higher chance % trumps. -->
+		<Column name="CityWideBuildingDestructionChance" type="integer" default="0"/>
 		<!-- Local WLTKD Turns -->
 		<Column name="WLTKDTurns" type="integer" default="0"/>
 		<!-- Local Resistance Turns -->
 		<Column name="ResistanceTurns" type="integer" default="0"/>
+		<!-- Chance of destruction for all buildings in city - use as a baseline for horrible disasters, etc. -->
 		<!-- Spawns X number of barbs near the City. Unit type scales with player tech. -->
 		<Column name="RandomBarbarianSpawn" type="integer" default="0"/>
 		<!-- Filers: determine whether or not a City Event Choice appears in the City list -->
 		<Column name="MinimumCityPopulation" type="integer" default="0"/>
+		<Column name="MaximumCityPopulation" type="integer" default="0"/>
 		<Column name="RequiredCiv" type="text" reference="Civilizations(Type)" default="NULL"/>
 		<Column name="RequiredEra" type="text" reference="Eras(Type)" default="NULL"/>
 		<!-- Note: obsoletes at this era, not after it -->
 		<Column name="ObsoleteEra" type="text" reference="Eras(Type)" default="NULL"/>
 		<!-- Only Checks for local Improvements worked by City. -->
 		<Column name="ImprovementRequired" type="text" reference="Improvements(Type)" default="NULL"/>
+		<!-- Checks for nearby features/terrain. Can use natural wonders for features. -->
+		<Column name="NearbyFeature" type="text" reference="Features(Type)" default="NULL"/>
+		<Column name="NearbyTerrain" type="text" reference="Terrains(Type)" default="NULL"/>
 		<Column name="RequiredPolicy" type="text" reference="Policies(Type)" default="NULL"/>
+		<Column name="LocalResourceRequired" type="text" reference="Resources(Type)" default="NULL"/>
 		<Column name="PrereqTech" type="text" reference="Technologies(Type)" default="NULL"/>
 		<Column name="ObsoleteTech" type="text" reference="Technologies(Type)" default="NULL"/>
 		<!-- Only Checks for local status. -->
@@ -474,6 +502,7 @@
 		<Column name="RequiresIdeology" type="boolean" default="false"/>
 		<Column name="CapitalOnly" type="boolean" default="false"/>
 		<Column name="CoastalOnly" type="boolean" default="false"/>
+		<Column name="RiverOnly" type="boolean" default="false"/>
 		<Column name="RequiresWar" type="boolean" default="false"/>
 		<Column name="RequiresWarMinor" type="boolean" default="false"/>
 		<Column name="RequiresResistance" type="boolean" default="false"/>
@@ -482,7 +511,12 @@
 		<Column name="RequiresRazing" type="boolean" default="false"/>
 		<Column name="HasAnyReligion" type="boolean" default="false"/>
 		<Column name="RequiresPuppet" type="boolean" default="false"/>
-		<Column name="LocalResourceRequired" type="text" reference="Resources(Type)" default="NULL"/>
+		<!-- Checks if city majority is a Pantheon -->
+		<Column name="RequiresPantheon" type="boolean" default="false"/>
+		<!-- Checks if empire is unhappy -->
+		<Column name="IsUnhappy" type="boolean" default="false"/>
+		<Column name="RequiresNearbyNaturalWonder" type="boolean" default="false"/>
+		<Column name="RequiresNearbyMountain" type="boolean" default="false"/>
 		<!-- These filters look for specific events or event choices to see if they've been actived by the player/city. This allows you to create 'chained' events that rely on a prior event. -->
 		<!-- Note that these values look at the EventCooldown value for events, and the Duration value for choices. -->
 		<!-- For example, if an event has a cooldown of 30 turns, and that event fires, there is a 30 turn window in which an event dependent on that one can fire (using the RequiredActiveEvent tag below) -->
@@ -491,7 +525,11 @@
 		<Column name="RequiredActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
 		<Column name="RequiredActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
 	</Table>
-
+	<!-- Parent Event is essential - this table assigns choices to events. Make sure the CityEventType matches the name of an CityEventType from above! -->
+	<Table name="CityEvent_ParentEvents">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="CityEventType" type="text" reference="CityEvents(Type)"/>
+	</Table>
 	<!-- Note: This table fires BEFORE an event is checked to see if it succeeds. Use this to have an event that costs something, but may not actually succeed. -->
 	<!-- Use negative values here to make it a 'cost' -->
 	<Table name="CityEventChoice_EventCostYield">
@@ -511,10 +549,31 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
-	<!-- Grants this city's buildings of a class (exisitng and future) a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<!-- Grants this city's buildings of a class (existing and future) a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
 	<Table name="CityEventChoice_BuildingClassYieldChange">
 		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
 		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer"/>
+	</Table>
+	<!-- Grants this city's features of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<Table name="CityEventChoice_FeatureYieldChange">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer"/>
+	</Table>
+	<!-- Grants this city's improvements of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<Table name="CityEventChoice_ImprovementYieldChange">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer"/>
+	</Table>
+	<!-- Grants this city's terrains of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<Table name="CityEventChoice_TerrainYieldChange">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="YieldChange" type="integer"/>
 	</Table>

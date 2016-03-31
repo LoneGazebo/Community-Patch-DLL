@@ -312,6 +312,11 @@ for k, v, w in ([[
 
 	NOTIFICATION_LEAGUE_PROJECT_COMPLETE		LeagueProjectComplete
 	NOTIFICATION_LEAGUE_PROJECT_PROGRESS		LeagueProjectProgress
+
+	NOTIFICATION_INSTANT_YIELD			InstantYieldItem
+	NOTIFICATION_EVENT_CHOICE			ChooseEvent
+	NOTIFICATION_EVENT_CHOICE_CITY		ChooseCityEvent
+
 ]]):gmatch("(%S+)[^%S\n\r]*(%S*)[^%S\n\r]*(%S*)[^\n\r]*") do
 	local n = NotificationTypes[k]
 	if n then

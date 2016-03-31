@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 3/31/2016 12:08:05 AM -->
+<GameData>
+	<Language_en_US>
+		<!-- Market Development -->
+		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT">
+			<Text>Crowded Markets, Foreign Tongues</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT_HELP">
+			<Text>Crowds gather in your city's marketplace, voices from many different lands ringing out as deals are struck and bargains made. Some are angry about this, and believe that foreigners will destroy our trade. Others, however, encourage the foreign business, hoping to learn from their culture.[NEWLINE][NEWLINE]How do you feel about this? Choose from the following options:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT_CHOICE_1">
+			<Text>Let the foreigners continue to trade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT_CHOICE_1_HELP">
+			<Text>Market in City: +1 [ICON_CULTURE] Culture, -1 [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT_CHOICE_2">
+			<Text>Implement heavy taxes on imported goods.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT_CHOICE_2_HELP">
+			<Text>Market in City: +1 [ICON_GOLD] Gold.</Text>
+		</Row>
+		<!-- Monument Development -->
+		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT">
+			<Text>Icons of Our Past</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_HELP">
+			<Text>Monuments represent the most important symbols of your culture. Your people seek to celebrate this by dedicating the City's Monument to either their ancestors, or to their gods.[NEWLINE][NEWLINE]How do you feel about this? Choose from the following options:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_1">
+			<Text>Dedicate the Monument to our ancestors.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_1_HELP">
+			<Text>Monument in City: +1 [ICON_CULTURE] Culture.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_2">
+			<Text>The gods are what is important now.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_2_HELP">
+			<Text>Monument in City: +1 [ICON_PEACE] Faith.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_3">
+			<Text>Neither will suffice. The Monument should generate revenue.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_3_HELP">
+			<Text>Monument in City: +1 [ICON_GOLD] Gold.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

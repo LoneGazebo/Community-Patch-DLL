@@ -252,7 +252,6 @@ VALUES
 INSERT INTO Belief_YieldFromKnownPantheons
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_TEARS_OF_GODS', 'YIELD_GOLDEN_AGE_POINTS', 1),
 	('BELIEF_TEARS_OF_GODS', 'YIELD_CULTURE', 1);
 
 INSERT INTO Belief_YieldPerPop

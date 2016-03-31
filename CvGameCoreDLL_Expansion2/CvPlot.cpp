@@ -3338,29 +3338,29 @@ bool CvPlot::IsAllowsWalkWater() const
 
 bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
 {
-	if (pUnit==NULL)
-		return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canLoad(*this);
-	else
-	{
+    if (pUnit==NULL)
+        return isWater() && !isIce() && !IsAllowsWalkWater();
+    else
+    {
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-		PromotionTypes ePromotionEmbarkDeepWater = (PromotionTypes)GC.getPROMOTION_DEEPWATER_EMBARKATION();
-		PromotionTypes ePromotionEmbarkDeepWaterDefense = (PromotionTypes)GC.getPROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION();
-		if (pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() && (pUnit->isHasPromotion(ePromotionEmbarkDeepWater) || pUnit->isHasPromotion(ePromotionEmbarkDeepWaterDefense)))
-		{
-			return isDeepWater() && !isIce();
-		}
-		else if (pUnit->getDomainType()==DOMAIN_LAND)
-		{
-#else		
-		//only land units need to embark
-		if (pUnit->getDomainType()==DOMAIN_LAND)
-		{
-#endif		
-			return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canMoveImpassable() && !pUnit->canLoad(*this);
-		}
-		else
-			return false;
-	}
+        PromotionTypes ePromotionEmbarkDeepWater = (PromotionTypes)GC.getPROMOTION_DEEPWATER_EMBARKATION();
+        PromotionTypes ePromotionEmbarkDeepWaterDefense = (PromotionTypes)GC.getPROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION();
+        if (pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() && (pUnit->isHasPromotion(ePromotionEmbarkDeepWater) || pUnit->isHasPromotion(ePromotionEmbarkDeepWaterDefense)))
+        {
+            return isDeepWater() && !isIce();
+        }
+        else if (pUnit->getDomainType()==DOMAIN_LAND)
+        {
+#else       
+        //only land units need to embark
+        if (pUnit->getDomainType()==DOMAIN_LAND)
+        {
+#endif      
+            return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canLoad(*this);
+        }
+        else
+            return false;
+    }
 }
 
 //	--------------------------------------------------------------------------------
@@ -9106,7 +9106,6 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 		}
 #endif
 	}
-
 	if(!bIgnoreFeature)
 	{
 		if(getFeatureType() != NO_FEATURE)
@@ -9252,7 +9251,23 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 			}
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(pWorkingCity != NULL)
+	{
+		if(getFeatureType() != NO_FEATURE)
+		{
+			iYield += pWorkingCity->GetEventFeatureYield(getFeatureType(), eYield);
+		}
+		if(getTerrainType() != NO_TERRAIN)
+		{
+			iYield += pWorkingCity->GetEventTerrainYield(getTerrainType(), eYield);
+		}
+		if(getImprovementType() != NO_IMPROVEMENT)
+		{
+			iYield += pWorkingCity->GetEventImprovementYield(getImprovementType(), eYield);
+		}
+	}
+#endif
 	if(eTeam != NO_TEAM)
 	{
 		eResource = getResourceType(eTeam);

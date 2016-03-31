@@ -68,7 +68,7 @@ PopulateItems["EventChoices"] = function(stackControl, playerID)
 		Controls.TitleLabel:SetText(szTypeString);
 		Controls.DescriptionLabel:SetText(szHelpString);
 		
-		for info in GameInfo.EventChoices("ParentEvent = '" .. pEventInfo.Type .. "'") do
+		for info in GameInfo.EventChoices() do
 			print("Cycling through event choices")
 
 			if(player:IsEventChoiceValid(info.ID, iEventType)) then

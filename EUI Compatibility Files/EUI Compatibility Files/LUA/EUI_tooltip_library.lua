@@ -712,6 +712,9 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 						yieldChange = yieldChange + corporatechange
 					end
 				end
+				-- Events
+				yieldChange = yieldChange + city:GetEventBuildingClassYield(buildingClassID, yieldID);
+				-- End 
 -- END CBP
 			end
 		else -- not Game
@@ -1833,6 +1836,10 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 
 	-- Golden Age MOD
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_GOLDEN_AGE", city:GetModFromGoldenAge(yieldID), yieldIconString)
+
+	-- CP EVENTS
+	-- Base Yield from Events
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_EVENTS", city:GetEventCityYield(yieldID), yieldIconString)
 -- END CBP
 -- Base Yield from League Art (CSD)
 	local iYieldFromLeague = city:GetBaseYieldRateFromLeague(YieldTypes.YIELD_SCIENCE);
@@ -2169,6 +2176,9 @@ local function GetCultureTooltip( city )
 
 	-- Culture from Traits
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_TRAITS", cultureFromTraits )
+	-- CP EVENT
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_EVENTS", city:GetEventCityYield(YieldTypes.YIELD_CULTURE) )
+	-- END
 	-- Base Total
 	if baseCulturePerTurn ~= culturePerTurn then
 		tips:insert( "----------------" )
@@ -2192,6 +2202,7 @@ local function GetCultureTooltip( city )
 
 		-- Golden Age MOD
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_CULTURE))
+		
 		
 -- END
 
@@ -2521,6 +2532,10 @@ local function GetFaithTooltip( city )
 
 		-- Faith from Religion
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_RELIGION", city:GetFaithPerTurnFromReligion() )
+
+		--CP EVENTS
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_EVENTS", city:GetEventCityYield(YieldTypes.YIELD_FAITH) )
+		--END
 
 		-- Puppet modifier
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_PRODMOD_PUPPET", city:IsPuppet() and GameDefines.PUPPET_FAITH_MODIFIER or 0 )

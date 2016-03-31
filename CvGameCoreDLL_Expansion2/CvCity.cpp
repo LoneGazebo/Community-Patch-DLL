@@ -258,6 +258,8 @@ CvCity::CvCity() :
 	, m_aiEventChoiceDuration("CvCity::m_aiEventChoiceDuration", m_syncArchive)
 	, m_aiEventIncrement("CvCity::m_aiEventIncrement", m_syncArchive)
 	, m_abEventActive("CvCity::m_abEventActive", m_syncArchive)
+	, m_abEventChoiceFired("CvCity::m_abEventChoiceFired", m_syncArchive)
+	, m_abEventFired("CvCity::m_abEventFired", m_syncArchive)
 	, m_aiEventCooldown("CvCity::m_aiEventCooldown", m_syncArchive)
 	, m_aiEventCityYield("CvCity::m_aiEventCityYield", m_syncArchive)
 #endif
@@ -408,6 +410,9 @@ CvCity::CvCity() :
 	, m_ppaiReligionBuildingYieldRateModifier(0)
 	, m_ppaiLocalBuildingClassYield(0)
 	, m_ppaiEventBuildingClassYield(0)
+	, m_ppaiEventImprovementYield(0)
+	, m_ppaiEventTerrainYield(0)
+	, m_ppaiEventFeatureYield(0)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_abOwedChosenBuilding("CvCity::m_abOwedChosenBuilding", m_syncArchive)
@@ -1182,7 +1187,7 @@ void CvCity::uninit()
 	}
 	SAFE_DELETE_ARRAY(m_ppaiResourceYieldChange);
 #if defined(MOD_BALANCE_CORE)
-	if(m_ppaiFeatureYieldChange || m_ppaiYieldPerXFeature || m_ppaiYieldPerXUnimprovedFeature)
+	if(m_ppaiFeatureYieldChange || m_ppaiYieldPerXFeature || m_ppaiYieldPerXUnimprovedFeature || m_ppaiEventFeatureYield)
 #else
 	if(m_ppaiFeatureYieldChange)
 #endif
@@ -1193,6 +1198,7 @@ void CvCity::uninit()
 #if defined(MOD_BALANCE_CORE)
 			SAFE_DELETE_ARRAY(m_ppaiYieldPerXFeature[i]);
 			SAFE_DELETE_ARRAY(m_ppaiYieldPerXUnimprovedFeature[i]);
+			SAFE_DELETE_ARRAY(m_ppaiEventFeatureYield[i]);
 #endif
 		}
 	}
@@ -1200,20 +1206,23 @@ void CvCity::uninit()
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_ppaiYieldPerXFeature);
 	SAFE_DELETE_ARRAY(m_ppaiYieldPerXUnimprovedFeature);
+	SAFE_DELETE_ARRAY(m_ppaiEventFeatureYield);
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	if(m_ppaiImprovementYieldChange)
+	if(m_ppaiImprovementYieldChange || m_ppaiEventImprovementYield)
 	{
 		for(int i=0; i < GC.getNumImprovementInfos(); i++)
 		{
 			SAFE_DELETE_ARRAY(m_ppaiImprovementYieldChange[i]);
+			SAFE_DELETE_ARRAY(m_ppaiEventImprovementYield[i]);
 		}
 	}
 	SAFE_DELETE_ARRAY(m_ppaiImprovementYieldChange);
+	SAFE_DELETE_ARRAY(m_ppaiEventImprovementYield);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	if(m_ppaiTerrainYieldChange || m_ppaiYieldPerXTerrainFromBuildings || m_ppaiYieldPerXTerrainFromReligion || m_ppaiYieldPerXTerrain)
+	if(m_ppaiEventTerrainYield || m_ppaiTerrainYieldChange || m_ppaiYieldPerXTerrainFromBuildings || m_ppaiYieldPerXTerrainFromReligion || m_ppaiYieldPerXTerrain)
 #else
 	if(m_ppaiTerrainYieldChange)
 #endif
@@ -1225,6 +1234,7 @@ void CvCity::uninit()
 			SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrainFromBuildings[i]);
 			SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrainFromReligion[i]);
 			SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrain[i]);
+			SAFE_DELETE_ARRAY(m_ppaiEventTerrainYield[i]);
 #endif
 		}
 	}
@@ -1233,6 +1243,7 @@ void CvCity::uninit()
 	SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrainFromBuildings);
 	SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrainFromReligion);
 	SAFE_DELETE_ARRAY(m_ppaiYieldPerXTerrain);
+	SAFE_DELETE_ARRAY(m_ppaiEventTerrainYield);
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -1529,16 +1540,20 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiProductionToYieldModifier.setAt(iI, 0);
 	}
 #if defined(MOD_BALANCE_CORE_EVENTS)
+	m_abEventChoiceFired.resize(GC.getNumCityEventChoiceInfos());
 	m_aiEventChoiceDuration.resize(GC.getNumCityEventChoiceInfos());
 	for(iI = 0; iI < GC.getNumCityEventChoiceInfos(); iI++)
 	{
 		m_aiEventChoiceDuration.setAt(iI, 0);
+		m_abEventChoiceFired.setAt(iI, false);
 	}
+	m_abEventFired.resize(GC.getNumCityEventInfos());
 	m_abEventActive.resize(GC.getNumCityEventInfos());
 	m_aiEventIncrement.resize(GC.getNumCityEventInfos());
 	m_aiEventCooldown.resize(GC.getNumCityEventInfos());
 	for(iI = 0; iI < GC.getNumCityEventInfos(); iI++)
 	{
+		m_abEventFired.setAt(iI, false);
 		m_abEventActive.setAt(iI, false);
 		m_aiEventIncrement.setAt(iI, 0);
 		m_aiEventCooldown.setAt(iI, 0);
@@ -1921,7 +1936,37 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 			{
 				m_ppaiEventBuildingClassYield[iI][iJ] = 0;
 			}
-		}		
+		}
+		CvAssertMsg(m_ppaiEventImprovementYield==NULL, "about to leak memory, CvCity::m_ppaiEventImprovementYield");
+		m_ppaiEventImprovementYield = FNEW(int*[iNumImprovementInfos], c_eCiv5GameplayDLL, 0);
+		for(iI = 0; iI < iNumImprovementInfos; iI++)
+		{
+			m_ppaiEventImprovementYield[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				m_ppaiEventImprovementYield[iI][iJ] = 0;
+			}
+		}
+		CvAssertMsg(m_ppaiEventTerrainYield==NULL, "about to leak memory, CvCity::m_ppaiEventTerrainYield");
+		m_ppaiEventTerrainYield = FNEW(int*[iNumTerrainInfos], c_eCiv5GameplayDLL, 0);
+		for(iI = 0; iI < iNumTerrainInfos; iI++)
+		{
+			m_ppaiEventTerrainYield[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				m_ppaiEventTerrainYield[iI][iJ] = 0;
+			}
+		}
+		CvAssertMsg(m_ppaiEventFeatureYield==NULL, "about to leak memory, CvCity::m_ppaiEventFeatureYield");
+		m_ppaiEventFeatureYield = FNEW(int*[iNumFeatureInfos], c_eCiv5GameplayDLL, 0);
+		for(iI = 0; iI < iNumFeatureInfos; iI++)
+		{
+			m_ppaiEventFeatureYield[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				m_ppaiEventFeatureYield[iI][iJ] = 0;
+			}
+		}
 #endif
 		
 	}
@@ -3048,6 +3093,75 @@ void CvCity::ChangeEventBuildingClassYield(BuildingClassTypes eIndex1, YieldType
 		updateYield();
 	}
 }
+//	--------------------------------------------------------------------------------
+int CvCity::GetEventImprovementYield(ImprovementTypes eImprovement, YieldTypes eIndex2)	const
+{
+	CvAssertMsg(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eImprovement < GC.getNumFeatureInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	return m_ppaiEventImprovementYield[eImprovement][eIndex2];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeEventImprovementYield(ImprovementTypes eImprovement, YieldTypes eIndex2, int iChange)
+{
+	CvAssertMsg(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eImprovement < GC.getNumFeatureInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+
+	if(iChange != 0)
+	{
+		m_ppaiEventImprovementYield[eImprovement][eIndex2] += iChange;
+		updateYield();
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvCity::GetEventTerrainYield(TerrainTypes eTerrain, YieldTypes eIndex2)	const
+{
+	CvAssertMsg(eTerrain >= 0, "eImprovement is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "eImprovement is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	return m_ppaiEventTerrainYield[eTerrain][eIndex2];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeEventTerrainYield(TerrainTypes eTerrain, YieldTypes eIndex2, int iChange)
+{
+	CvAssertMsg(eTerrain >= 0, "eTerrain is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+
+	if(iChange != 0)
+	{
+		m_ppaiEventTerrainYield[eTerrain][eIndex2] += iChange;
+		updateYield();
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvCity::GetEventFeatureYield(FeatureTypes eFeature, YieldTypes eIndex2)	const
+{
+	CvAssertMsg(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	return m_ppaiEventFeatureYield[eFeature][eIndex2];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeEventFeatureYield(FeatureTypes eFeature, YieldTypes eIndex2, int iChange)
+{
+	CvAssertMsg(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "eFeature is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+
+	if(iChange != 0)
+	{
+		m_ppaiEventFeatureYield[eFeature][eIndex2] += iChange;
+		updateYield();
+	}
+}
 void CvCity::DoEvents()
 {
 	//Minors? Barbs? Get out!
@@ -3064,20 +3178,24 @@ void CvCity::DoEvents()
 			if(GetEventChoiceDuration(eEventChoice) > 0)
 			{
 				ChangeEventChoiceDuration(eEventChoice, -1);
-				if(GC.getLogging() && GC.getAILogging())
+				if(GC.getLogging())
 				{
-					CvString playerName;
-					FILogFile* pLog;
-					CvString strBaseString;
-					CvString strOutBuf;
-					CvString strFileName = "EventCityLogging.csv";
-					playerName = getName();
-					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-					strBaseString += playerName + ", ";
-					strOutBuf.Format("Specific Event Cooldown Active. Changing Value by -1. Cooldown Remaining: %d", GetEventChoiceDuration(eEventChoice));
-					strBaseString += strOutBuf;
-					pLog->Msg(strBaseString);
+					CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eEventChoice);
+					if(pkEventInfo != NULL)
+					{
+						CvString playerName;
+						FILogFile* pLog;
+						CvString strBaseString;
+						CvString strOutBuf;
+						CvString strFileName = "EventCityLogging.csv";
+						playerName = getName();
+						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+						strBaseString += playerName + ", ";
+						strOutBuf.Format("Event choice: %s. Cooldown Active. Changing Value by -1. Cooldown Remaining: %d", pkEventInfo->GetDescription(), GetEventChoiceDuration(eEventChoice));
+						strBaseString += strOutBuf;
+						pLog->Msg(strBaseString);
+					}
 				}
 				if(GetEventChoiceDuration(eEventChoice) == 0)
 				{
@@ -3103,20 +3221,24 @@ void CvCity::DoEvents()
 			//Global Cooldown Second - if we've had any event recently, let's check this.
 			if(GetEventCooldown(eEvent) > 0)
 			{
-				if(GC.getLogging() && GC.getAILogging())
+				if(GC.getLogging())
 				{
-					CvString playerName;
-					FILogFile* pLog;
-					CvString strBaseString;
-					CvString strOutBuf;
-					CvString strFileName = "EventCityLogging.csv";
-					playerName = getName();
-					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-					strBaseString += playerName + ", ";
-					strOutBuf.Format("City Event Cooldown Active. Cooldown: %d", GetEventCooldown(eEvent));
-					strBaseString += strOutBuf;
-					pLog->Msg(strBaseString);
+					CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+					if(pkEventInfo != NULL)
+					{
+						CvString playerName;
+						FILogFile* pLog;
+						CvString strBaseString;
+						CvString strOutBuf;
+						CvString strFileName = "EventCityLogging.csv";
+						playerName = getName();
+						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+						strBaseString += playerName + ", ";
+						strOutBuf.Format("City Event: %s. Cooldown Active. Cooldown: %d", pkEventInfo->GetDescription(), GetEventCooldown(eEvent));
+						strBaseString += strOutBuf;
+						pLog->Msg(strBaseString);
+					}
 				}
 				//This is done at the player level, not the City level!
 				ChangeEventCooldown(eEvent, -1);
@@ -3128,6 +3250,9 @@ void CvCity::DoEvents()
 			{
 				continue;
 			}
+
+			if(pkEventInfo->isOneShot() && IsEventFired(eEvent))
+				continue;
 
 			if(pkEventInfo->getRequiredActiveCityEvent() != -1 && GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent()) <= 0)
 				continue;
@@ -3146,6 +3271,9 @@ void CvCity::DoEvents()
 				continue;
 
 			if(pkEventInfo->isCoastal() && !isCoastal())
+				continue;
+
+			if(pkEventInfo->isRiver() && !plot()->isRiver())
 				continue;
 
 			if(pkEventInfo->isRequiresGarrison() && !HasGarrison())
@@ -3230,6 +3358,21 @@ void CvCity::DoEvents()
 			if(pkEventInfo->hasTradeConnection() && !HasTradeRouteFrom(this) && !HasTradeRouteTo(this))
 				continue;
 
+			if(pkEventInfo->isNearMountain() && GetNearbyMountains() <= 0)
+				continue;
+
+			if(pkEventInfo->isNearNaturalWonder() && !HasAnyNaturalWonder())
+				continue;
+
+			if(pkEventInfo->getMaximumPopulation() != 0 && getPopulation() > pkEventInfo->getMaximumPopulation())
+				continue;
+
+			if(pkEventInfo->hasPantheon() && GetCityReligions()->GetReligiousMajority() != RELIGION_PANTHEON)
+				continue;
+
+			if(pkEventInfo->isUnhappy() && !GET_PLAYER(getOwner()).IsEmpireUnhappy())
+				continue;
+
 			if(pkEventInfo->isRequiresWarMinor())
 			{
 				bool bHas = false;
@@ -3294,6 +3437,24 @@ void CvCity::DoEvents()
 				if(eResource != NO_IMPROVEMENT)
 				{
 					if(!HasResource(eResource))
+						continue;
+				}
+			}
+			if(pkEventInfo->hasNearbyFeature() != -1)
+			{
+				FeatureTypes eFeature = (FeatureTypes)pkEventInfo->hasNearbyFeature();
+				if(eFeature != NO_FEATURE)
+				{
+					if(!IsHasFeatureLocal(eFeature))
+						continue;
+				}
+			}
+			if(pkEventInfo->hasNearbyTerrain() != -1)
+			{
+				TerrainTypes eTerrain = (TerrainTypes)pkEventInfo->hasNearbyTerrain();
+				if(eTerrain != NO_TERRAIN)
+				{
+					if(!HasTerrain(eTerrain))
 						continue;
 				}
 			}
@@ -3405,7 +3566,7 @@ void CvCity::DoEvents()
 			{
 				//We did it! But reverse our increment.
 				IncrementEvent(eEvent, -GetEventIncrement(eEvent));
-				if(GC.getLogging() && GC.getAILogging())
+				if(GC.getLogging())
 				{
 					CvString playerName;
 					FILogFile* pLog;
@@ -3427,7 +3588,7 @@ void CvCity::DoEvents()
 				if(pkEventInfo->getRandomChanceDelta() > 0)
 				{
 					IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
-					if(GC.getLogging() && GC.getAILogging())
+					if(GC.getLogging())
 					{
 						CvString playerName;
 						FILogFile* pLog;
@@ -3451,7 +3612,7 @@ void CvCity::DoEvents()
 	}
 	if(veValidEvents.size() > 0)
 	{
-		if(GC.getLogging() && GC.getAILogging())
+		if(GC.getLogging())
 		{
 			CvString playerName;
 			FILogFile* pLog;
@@ -3487,6 +3648,12 @@ void CvCity::DoStartEvent(CityEventTypes eChosenEvent)
 		{
 			//Set true so we know we're doing an event right now.
 			SetEventActive(eChosenEvent, true);
+
+			//Set oneshot stuff so this event can't fire ever again.
+			if(pkEventInfo->isOneShot())
+			{
+				SetEventFired(eChosenEvent, true);
+			}
 			//Lua Hook
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityEventActivated, getOwner(), GetID(), eChosenEvent);
 
@@ -3495,7 +3662,7 @@ void CvCity::DoStartEvent(CityEventTypes eChosenEvent)
 			iEventDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iEventDuration /= 100;
 			ChangeEventCooldown(eChosenEvent, iEventDuration);
-			if(GC.getLogging() && GC.getAILogging())
+			if(GC.getLogging())
 			{
 				CvString playerName;
 				FILogFile* pLog;
@@ -3540,9 +3707,9 @@ void CvCity::DoStartEvent(CityEventTypes eChosenEvent)
 					if(eEventChoice != NO_EVENT_CHOICE)
 					{
 						CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
-						if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->getEventID() == eChosenEvent)
+						if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->isParentEvent(eChosenEvent))
 						{
-							DoEventChoice(eEventChoice);
+							DoEventChoice(eEventChoice, eChosenEvent);
 							if(isHuman())
 							{
 								CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_7, eEventChoice, GetID(), getOwner());
@@ -3572,13 +3739,16 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 		return false;
 	}
 
-	if(pkEventInfo->getEventID() != eParentEvent)
+	if(!pkEventInfo->isParentEvent(eParentEvent))
+		return false;
+
+	if(pkEventInfo->isOneShot() && IsEventChoiceFired(eChosenEventChoice))
 		return false;
 
 	//Event Choice already active for this event? Abort!
 	if(GetEventChoiceDuration(eChosenEventChoice) > 0)
 	{
-		if(GC.getLogging() && GC.getAILogging())
+		if(GC.getLogging())
 		{
 			CvString playerName;
 			FILogFile* pLog;
@@ -3613,6 +3783,9 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 		return false;
 
 	if(pkEventInfo->isCoastal() && !isCoastal())
+		return false;
+
+	if(pkEventInfo->isRiver() && !plot()->isRiver())
 		return false;
 
 	if(pkEventInfo->isResistance() && GetResistanceTurns() <= 0)
@@ -3696,6 +3869,40 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 
 	if(pkEventInfo->hasTradeConnection() && !HasTradeRouteFrom(this) && !HasTradeRouteTo(this))
 		return false;
+
+	if(pkEventInfo->isNearMountain() && GetNearbyMountains() <= 0)
+		return false;
+
+	if(pkEventInfo->isNearNaturalWonder() && !HasAnyNaturalWonder())
+		return false;
+
+	if(pkEventInfo->getMaximumPopulation() != 0 && getPopulation() > pkEventInfo->getMaximumPopulation())
+		return false;
+
+	if(pkEventInfo->hasPantheon() && GetCityReligions()->GetReligiousMajority() != RELIGION_PANTHEON)
+		return false;
+
+	if(pkEventInfo->isUnhappy() && !GET_PLAYER(getOwner()).IsEmpireUnhappy())
+		return false;
+
+	if(pkEventInfo->hasNearbyFeature() != -1)
+	{
+		FeatureTypes eFeature = (FeatureTypes)pkEventInfo->hasNearbyFeature();
+		if(eFeature != NO_FEATURE)
+		{
+			if(!IsHasFeatureLocal(eFeature))
+				return false;
+		}
+	}
+	if(pkEventInfo->hasNearbyTerrain() != -1)
+	{
+		TerrainTypes eTerrain = (TerrainTypes)pkEventInfo->hasNearbyTerrain();
+		if(eTerrain != NO_TERRAIN)
+		{
+			if(!HasTerrain(eTerrain))
+				return false;
+		}
+	}
 
 	if(pkEventInfo->isRequiresWarMinor())
 	{
@@ -3866,7 +4073,7 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 		//Lua Hook
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityEventChoiceEnded, getOwner(), GetID(), eChosenEventChoice);
 		bool bChanged = false;
-		if(GC.getLogging() && GC.getAILogging())
+		if(GC.getLogging())
 		{
 			CvString playerName;
 			FILogFile* pLog;
@@ -3931,7 +4138,7 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 					{
 						continue;
 					}
-					if(pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield) > 0)
+					if(pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield) != 0)
 					{
 						BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
 
@@ -3949,6 +4156,30 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 								}
 							}
 						}
+					}
+				}
+				for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
+				{
+					ImprovementTypes eImprovement = (ImprovementTypes)iJ;
+					if(eImprovement != NO_IMPROVEMENT && pkEventChoiceInfo->getImprovementYield(eImprovement, eYield) > 0)
+					{
+						ChangeEventImprovementYield(eImprovement, eYield, pkEventChoiceInfo->getImprovementYield(eImprovement, eYield) * -1);
+					}
+				}
+				for(int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
+				{
+					FeatureTypes eFeature = (FeatureTypes)iJ;
+					if(eFeature != NO_FEATURE && pkEventChoiceInfo->getFeatureYield(eFeature, eYield) > 0)
+					{
+						ChangeEventFeatureYield(eFeature, eYield, pkEventChoiceInfo->getFeatureYield(eFeature, eYield) * -1);
+					}
+				}
+				for(int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
+				{
+					TerrainTypes eTerrain = (TerrainTypes)iJ;
+					if(eTerrain != NO_TERRAIN && pkEventChoiceInfo->getTerrainYield(eTerrain, eYield) > 0)
+					{
+						ChangeEventTerrainYield(eTerrain, eYield, pkEventChoiceInfo->getTerrainYield(eTerrain, eYield) * -1);
 					}
 				}
 			}
@@ -3971,17 +4202,35 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 		}
 	}
 }
-void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice)
+void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent)
 {
 	if(eEventChoice != NO_EVENT_CHOICE)
 	{
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if(pkEventChoiceInfo != NULL)
-		{
-
+		{		
+			//Set oneshot stuff so this event can't fire ever again.
+			if(pkEventChoiceInfo->isOneShot())
+			{
+				SetEventChoiceFired(eEventChoice, true);
+			}
 			//Set false so we know we've completed the city event.
-			CityEventTypes eCityEvent = (CityEventTypes)pkEventChoiceInfo->getEventID();
-			if(eCityEvent != NO_EVENT_CITY)
+			//Loop through all city events and set any related to this to false, just to be sure.
+			if(eCityEvent == NO_EVENT_CITY)
+			{
+				for(int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
+				{
+					CityEventTypes eEvent = (CityEventTypes)iLoop;
+					if(eEvent != NO_EVENT_CITY)
+					{
+						if(pkEventChoiceInfo->isParentEvent(eEvent))
+						{
+							SetEventActive(eEvent, false);
+						}
+					}
+				}
+			}
+			else
 			{
 				SetEventActive(eCityEvent, false);
 			}
@@ -3989,7 +4238,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice)
 			//Lua Hook
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityEventChoiceActivated, getOwner(), GetID(), eEventChoice);
 
-			if(GC.getLogging() && GC.getAILogging())
+			if(GC.getLogging())
 			{
 				CvString playerName;
 				FILogFile* pLog;
@@ -4095,13 +4344,37 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice)
 					}
 				}
 			}
+
 			for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 			{
 				BuildingClassTypes eBuildingClass = (BuildingClassTypes)iI;
 				if(eBuildingClass == NO_BUILDINGCLASS || GetCityBuildings()->GetNumBuildingClass(eBuildingClass) <= 0)
 					continue;
 
+				const CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+	
+				if (!pkBuildingClassInfo)
+				{
+					continue;
+				}
+
 				int iChance = pkEventChoiceInfo->getBuildingDestructionChance(iI);
+				if(pkEventChoiceInfo->getCityWideDestructionChance() > iChance && pkEventChoiceInfo->getCityWideDestructionChance() > 0)
+				{
+					if(pkBuildingClassInfo->getMaxGlobalInstances() != -1)
+					{
+						continue;
+					}
+					else if(pkBuildingClassInfo->getMaxPlayerInstances() != -1)
+					{
+						continue;
+					}
+					else if(pkBuildingClassInfo->getMaxGlobalInstances() != -1)
+					{
+						continue;
+					}
+					iChance = pkEventChoiceInfo->getCityWideDestructionChance();
+				}
 				if(iChance <= 0)
 				{
 					continue;
@@ -4110,25 +4383,20 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice)
 				{
 					int iRandom = GC.getGame().getJonRandNum(100, "Random Event Chance");
 					if(iRandom < iChance)
-					{
-						const CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-	
-						if (pkBuildingClassInfo)
-						{
-							CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+					{					
+						CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
 		
-							if (pCivilizationInfo != NULL)
+						if (pCivilizationInfo != NULL)
+						{
+							BuildingTypes eBuildingType = (BuildingTypes) pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
+							if(eBuildingType != NO_BUILDING)
 							{
-								BuildingTypes eBuildingType = (BuildingTypes) pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
-								if(eBuildingType != NO_BUILDING)
+								GetCityBuildings()->SetNumRealBuilding(eBuildingType, 0, true);
+								GetCityBuildings()->SetNumFreeBuilding(eBuildingType, 0);
+								if (getOwner() == GC.getGame().getActivePlayer())
 								{
-									GetCityBuildings()->SetNumRealBuilding(eBuildingType, 0, true);
-									GetCityBuildings()->SetNumFreeBuilding(eBuildingType, 0);
-									if (getOwner() == GC.getGame().getActivePlayer())
-									{
-										CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_BUILDING_DESTROYED_EVENT", GC.getBuildingInfo(eBuildingType)->GetTextKey(), getNameKey());
-										GC.GetEngineUserInterface()->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
-									}
+									CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_BUILDING_DESTROYED_EVENT", GC.getBuildingInfo(eBuildingType)->GetTextKey(), getNameKey());
+									GC.GetEngineUserInterface()->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
 								}
 							}
 						}
@@ -4156,7 +4424,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice)
 					{
 						continue;
 					}
-					if(pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield) > 0)
+					if(pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield) != 0)
 					{
 						BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
 
@@ -4181,6 +4449,30 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice)
 				if(iPassYield != 0)
 				{
 					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, this, false, true, true, eYield);
+				}
+				for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
+				{
+					ImprovementTypes eImprovement = (ImprovementTypes)iJ;
+					if(eImprovement != NO_IMPROVEMENT && pkEventChoiceInfo->getImprovementYield(eImprovement, eYield) > 0)
+					{
+						ChangeEventImprovementYield(eImprovement, eYield, pkEventChoiceInfo->getImprovementYield(eImprovement, eYield));
+					}
+				}
+				for(int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
+				{
+					FeatureTypes eFeature = (FeatureTypes)iJ;
+					if(eFeature != NO_FEATURE && pkEventChoiceInfo->getFeatureYield(eFeature, eYield) > 0)
+					{
+						ChangeEventFeatureYield(eFeature, eYield, pkEventChoiceInfo->getFeatureYield(eFeature, eYield));
+					}
+				}
+				for(int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
+				{
+					TerrainTypes eTerrain = (TerrainTypes)iJ;
+					if(eTerrain != NO_TERRAIN && pkEventChoiceInfo->getTerrainYield(eTerrain, eYield) > 0)
+					{
+						ChangeEventTerrainYield(eTerrain, eYield, pkEventChoiceInfo->getTerrainYield(eTerrain, eYield));
+					}
 				}
 			}
 			for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
@@ -4208,7 +4500,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice)
 			for(int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 			{
 				ImprovementTypes eImprovement = (ImprovementTypes)iI;
-				if(eImprovement != NO_IMPROVEMENT && (ImprovementTypes)pkEventChoiceInfo->getImprovementDestruction(eImprovement) > 0)
+				if(eImprovement != NO_IMPROVEMENT && pkEventChoiceInfo->getImprovementDestruction(eImprovement) > 0)
 				{
 					typedef CvWeightedVector<CvPlot*, SAFE_ESTIMATE_NUM_BUILDINGS, true> WeightedPlotVector;
 					WeightedPlotVector aBestPlots;
@@ -4235,7 +4527,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice)
 						aBestPlots.SortItems();
 						//Delete improvents up to the total on the event.
 						int iNumber = 0;
-						for(int iI = 0; iI < (ImprovementTypes)pkEventChoiceInfo->getImprovementDestruction(eImprovement) ; iI++)
+						for(int iI = 0; iI < pkEventChoiceInfo->getImprovementDestruction(eImprovement) ; iI++)
 						{
 							CvPlot* pPlot = aBestPlots.GetElement(iI);
 							if(pPlot != NULL && pPlot->getOwner() == getOwner() && pPlot->getImprovementType() == eImprovement)
@@ -4265,7 +4557,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice)
 		
 					if (pCivilizationInfo != NULL)
 					{
-						const UnitTypes eLoopUnit = (UnitTypes) pCivilizationInfo->getCivilizationUnits(iI);
+						const UnitTypes eLoopUnit = (UnitTypes)pCivilizationInfo->getCivilizationUnits(iI);
 						if(eLoopUnit != NO_UNIT)
 						{
 							CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eLoopUnit);
@@ -4302,7 +4594,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice)
 			}
 			if(pkEventChoiceInfo->getWLTKD() > 0)
 			{
-				int iTurns = pkEventChoiceInfo->getResistanceTurns();
+				int iTurns = pkEventChoiceInfo->getWLTKD();
 				iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iTurns /= 100;
 				ChangeWeLoveTheKingDayCounter(iTurns);
@@ -4524,6 +4816,38 @@ bool CvCity::IsEventActive(CityEventTypes eEvent) const
 	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	return m_abEventActive[eEvent];
+}
+void CvCity::SetEventChoiceFired(CityEventChoiceTypes eEvent, bool bValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eEvent < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+
+	m_abEventChoiceFired.setAt(eEvent, bValue);
+}
+bool CvCity::IsEventChoiceFired(CityEventChoiceTypes eEvent) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eEvent < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+
+	return m_abEventChoiceFired[eEvent];
+}
+void CvCity::SetEventFired(CityEventTypes eEvent, bool bValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+
+	m_abEventFired.setAt(eEvent, bValue);
+}
+bool CvCity::IsEventFired(CityEventTypes eEvent) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eEvent >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eEvent < GC.getNumCityEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+
+	return m_abEventFired[eEvent];
 }
 int CvCity::GetEventCooldown(CityEventTypes eEvent) const
 {
@@ -24936,6 +25260,10 @@ void CvCity::read(FDataStream& kStream)
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiImprovementYieldChange, NUM_YIELD_TYPES, GC.getNumImprovementInfos());
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiEventBuildingClassYield, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
+
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiEventImprovementYield, NUM_YIELD_TYPES, GC.getNumImprovementInfos());
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiEventTerrainYield, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiEventFeatureYield, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
 #endif
 
 	CvCityManager::OnCityCreated(this);
@@ -25029,6 +25357,10 @@ VALIDATE_OBJECT
 	CvInfosSerializationHelper::WriteHashedDataArray<ImprovementTypes>(kStream, m_ppaiImprovementYieldChange, NUM_YIELD_TYPES, GC.getNumImprovementInfos());
 
 	CvInfosSerializationHelper::WriteHashedDataArray<BuildingClassTypes>(kStream, m_ppaiEventBuildingClassYield, NUM_YIELD_TYPES, GC.getNumBuildingClassInfos());
+
+	CvInfosSerializationHelper::WriteHashedDataArray<ImprovementTypes>(kStream, m_ppaiEventImprovementYield, NUM_YIELD_TYPES, GC.getNumImprovementInfos());
+	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiEventTerrainYield, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
+	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiEventFeatureYield, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
 #endif
 }
 

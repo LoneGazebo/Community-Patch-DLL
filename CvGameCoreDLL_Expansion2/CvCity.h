@@ -93,7 +93,7 @@ public:
 	bool IsCityEventChoiceValid(CityEventChoiceTypes eEventChoice, CityEventTypes eParentEvent);
 	void DoCancelEventChoice(CityEventChoiceTypes eEventChoice);
 	void DoStartEvent(CityEventTypes eEvent);
-	void DoEventChoice(CityEventChoiceTypes eEventChoice);
+	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY);
 
 	void SetEventActive(CityEventTypes eEvent, bool bValue);
 	bool IsEventActive(CityEventTypes eEvent) const;
@@ -114,6 +114,20 @@ public:
 
 	void ChangeEventBuildingClassYield(BuildingClassTypes eBuildingClass, YieldTypes eYield, int iValue);
 	int GetEventBuildingClassCityYield(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
+
+	void ChangeEventImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield, int iValue);
+	int GetEventImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield) const;
+	void ChangeEventTerrainYield(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
+	int GetEventTerrainYield(TerrainTypes eTerrain, YieldTypes eYield) const;
+	void ChangeEventFeatureYield(FeatureTypes eFeature, YieldTypes eYield, int iValue);
+	int GetEventFeatureYield(FeatureTypes eFeature, YieldTypes eYield) const;
+
+
+	bool IsEventChoiceFired(CityEventChoiceTypes eEventChoice) const;
+	void SetEventChoiceFired(CityEventChoiceTypes eEventChoice, bool bValue);
+
+	bool IsEventFired(CityEventTypes eEvent) const;
+	void SetEventFired(CityEventTypes eEvent, bool bValue);
 
 	virtual void AI_DoEventChoice(CityEventTypes eEvent) = 0;
 #endif
@@ -1696,10 +1710,15 @@ protected:
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	FAutoVariable<std::vector<int>, CvCity> m_aiEventCooldown;
 	FAutoVariable<std::vector<bool>, CvCity> m_abEventActive;
+	FAutoVariable<std::vector<bool>, CvCity> m_abEventChoiceFired;
+	FAutoVariable<std::vector<bool>, CvCity> m_abEventFired;
 	FAutoVariable<std::vector<int>, CvCity> m_aiEventChoiceDuration;
 	FAutoVariable<std::vector<int>, CvCity> m_aiEventIncrement;
 	FAutoVariable<std::vector<int>, CvCity> m_aiEventCityYield;
 	int ** m_ppaiEventBuildingClassYield;
+	int ** m_ppaiEventImprovementYield;
+	int ** m_ppaiEventTerrainYield;
+	int ** m_ppaiEventFeatureYield;
 #endif
 
 	CvCityBuildings* m_pCityBuildings;

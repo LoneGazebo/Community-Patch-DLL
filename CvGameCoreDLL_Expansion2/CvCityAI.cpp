@@ -245,11 +245,11 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 			CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS * 2, true> flavorChoices;
 			for(int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 			{
-				EventChoiceTypes eEventChoice = (EventChoiceTypes)iLoop;
-				if(eEventChoice != NO_EVENT_CHOICE)
+				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
+				if(eEventChoice != NO_EVENT_CHOICE_CITY)
 				{
-					CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
-					if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->getEventID() == eChosenEvent)
+					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+					if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->isParentEvent(eChosenEvent))
 					{
 						for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 						{
@@ -303,10 +303,10 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 			for(int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 			{
 				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
-				if(eEventChoice != NO_EVENT_CHOICE)
+				if(eEventChoice != NO_EVENT_CHOICE_CITY)
 				{
 					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
-					if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->getEventID() == eChosenEvent)
+					if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->isParentEvent(eChosenEvent))
 					{
 						int iRandom = GC.getGame().getJonRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
 						if(iRandom <= 0)

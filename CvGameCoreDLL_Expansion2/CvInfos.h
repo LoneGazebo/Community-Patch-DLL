@@ -2587,6 +2587,8 @@ public:
 	int getRequiredActiveEventChoice() const;
 	int getRequiredActiveCityEvent() const;
 	int getRequiredActiveCityEventChoice() const;
+	bool isUnhappy() const;
+	bool isOneShot() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -2620,10 +2622,12 @@ protected:
 	int* m_piRequiredResource;
 	int m_iRequiredStateReligion;
 	bool m_bHasStateReligion;
+	bool m_bUnhappy;
 	int m_iRequiredActiveEvent;
 	int m_iRequiredActiveEventChoice;
 	int m_iRequiredActiveCityEvent;
 	int m_iRequiredActiveCityEventChoice;
+	bool m_bOneShot;
 
 private:
 	CvModEventInfo(const CvModEventInfo&);
@@ -2670,7 +2674,7 @@ public:
 	CvModEventChoiceInfo();
 	virtual ~CvModEventChoiceInfo();
 
-	int getEventID() const;
+	bool isParentEvent(EventTypes eEvent) const;
 	int getEventPolicy() const;
 	int getEventBuilding() const;
 	int getEventDuration() const;
@@ -2725,6 +2729,8 @@ public:
 	int getRequiredActiveEventChoice() const;
 	int getRequiredActiveCityEvent() const;
 	int getRequiredActiveCityEventChoice() const;
+	bool isUnhappy() const;
+	bool isOneShot() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -2734,7 +2740,7 @@ protected:
 	int m_iEventPromotion;
 	int m_iEventDuration;
 	int m_iEventChance;
-	int m_iEventID;
+	int* m_pbParentEventIDs;
 	bool m_bEraScaling;
 	bool m_bExpires;
 	int* m_piFlavor;
@@ -2777,10 +2783,12 @@ protected:
 	int* m_piRequiredResource;
 	int m_iRequiredStateReligion;
 	bool m_bHasStateReligion;
+	bool m_bUnhappy;
 	int m_iRequiredActiveEvent;
 	int m_iRequiredActiveEventChoice;
 	int m_iRequiredActiveCityEvent;
 	int m_iRequiredActiveCityEventChoice;
+	bool m_bOneShot;
 
 	CvEventNotificationInfo* m_paNotificationInfo;
 	int m_iNotificationInfos;
@@ -2820,12 +2828,14 @@ public:
 	bool isRequiresWar() const;
 	bool isCapital() const;
 	bool isCoastal() const;
+	bool isRiver() const;
 	bool isEraScaling() const;
 	bool isRequiresWarMinor() const;
 	const char* getSplashArt() const;
 	const char* getEventAudio() const;
 	int getRequiredStateReligion() const;
 	bool hasStateReligion() const;
+	bool isUnhappy() const;
 	bool isRequiresGarrison() const;
 	int getRequiredActiveEvent() const;
 	int getRequiredActiveEventChoice() const;
@@ -2840,6 +2850,13 @@ public:
 	bool isPuppet() const;
 	bool hasTradeConnection() const;
 	bool hasCityConnection() const;
+	bool isNearNaturalWonder() const;
+	bool isNearMountain() const;
+	bool hasPantheon() const;
+	int hasNearbyFeature() const;
+	int hasNearbyTerrain() const;
+	int getMaximumPopulation() const;
+	bool isOneShot() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -2865,6 +2882,7 @@ protected:
 	bool m_bRequiresWar;
 	bool m_bCapital;
 	bool m_bCoastal;
+	bool m_bIsRiver;
 	bool m_bEraScaling;
 	bool m_bRequiresWarMinor;
 	CvString m_strSplashArt;
@@ -2872,6 +2890,7 @@ protected:
 	int m_iRequiredStateReligion;
 	bool m_bRequiresGarrison;
 	bool m_bHasStateReligion;
+	bool m_bUnhappy;
 	int m_iRequiredActiveEvent;
 	int m_iRequiredActiveEventChoice;
 	int m_iRequiredActiveCityEvent;
@@ -2885,6 +2904,13 @@ protected:
 	bool m_bIsPuppet;
 	bool m_bTradeConnection;
 	bool m_bCityConnection;
+	bool m_bNearNaturalWonder;
+	bool m_bNearMountain;
+	bool m_bPantheon;
+	int m_iNearbyFeature;
+	int m_iNearbyTerrain;
+	int m_iMaximumPopulation;
+	bool m_bOneShot;
 
 private:
 	CvModCityEventInfo(const CvModCityEventInfo&);
@@ -2931,7 +2957,7 @@ public:
 	CvModEventCityChoiceInfo();
 	virtual ~CvModEventCityChoiceInfo();
 
-	int getEventID() const;
+	bool isParentEvent(CityEventTypes eCityEvent) const;
 	int getEventBuilding() const;
 	int getEventBuildingDestruction() const;
 	int getEventDuration() const;
@@ -2943,6 +2969,7 @@ public:
 	int getEventGPChange(SpecialistTypes eSpecialist) const;
 	int getImprovementDestruction(ImprovementTypes eImprovement) const;
 	int getBuildingDestructionChance(int i) const;
+	int getCityWideDestructionChance() const;
 	int getFlavorValue(int i) const;
 	int getWLTKD() const;
 	int getResistanceTurns() const;
@@ -2953,6 +2980,9 @@ public:
 	const char* getEventChoiceSoundEffect() const;
 	int getCityYield(int i) const;
 	int getBuildingClassYield(int i, int j) const;
+	int getTerrainYield(int i, int j) const;
+	int getFeatureYield(int i, int j) const;
+	int getImprovementYield(int i, int j) const;
 
 	//Filters
 	int getPrereqTech() const;
@@ -2973,8 +3003,10 @@ public:
 	bool isRequiresWarMinor() const;
 	bool isCapital() const;
 	bool isCoastal() const;
+	bool isRiver() const;
 	int getRequiredStateReligion() const;
 	bool hasStateReligion() const;
+	bool isUnhappy() const;
 	bool isRequiresGarrison() const;
 	int getRequiredActiveEvent() const;
 	int getRequiredActiveEventChoice() const;
@@ -2989,6 +3021,13 @@ public:
 	bool isPuppet() const;
 	bool hasTradeConnection() const;
 	bool hasCityConnection() const;
+	bool isNearNaturalWonder() const;
+	bool isNearMountain() const;
+	bool hasPantheon() const;
+	int hasNearbyFeature() const;
+	int hasNearbyTerrain() const;
+	int getMaximumPopulation() const;
+	bool isOneShot() const;
 
 	CvCityEventNotificationInfo *GetNotificationInfo(int i) const;
 	int GetNumNotifications() const {return m_iCityNotificationInfos;};
@@ -3000,7 +3039,6 @@ protected:
 	int m_iEventBuildingDestruction;
 	int m_iEventDuration;
 	int m_iEventChance;
-	int m_iEventID;
 	bool m_bEraScaling;
 	bool m_bExpires;
 	int* m_piDestroyImprovement;
@@ -3019,6 +3057,11 @@ protected:
 	CvString m_strEventChoiceSoundEffect;
 	int* m_piCityYield;
 	int** m_ppiBuildingClassYield;
+	int** m_ppiTerrainYield;
+	int** m_ppiFeatureYield;
+	int** m_ppiImprovementYield;
+	bool* m_pbParentEventIDs;
+	int m_iCityWideDestructionChance;
 
 	//Filters
 	int m_iPrereqTech;
@@ -3038,10 +3081,12 @@ protected:
 	bool m_bRequiresWar;
 	bool m_bCapital;
 	bool m_bCoastal;
+	bool m_bIsRiver;
 	bool m_bRequiresWarMinor;
 	int m_iRequiredStateReligion;
 	bool m_bRequiresGarrison;
 	bool m_bHasStateReligion;
+	bool m_bUnhappy;
 	int m_iRequiredActiveEvent;
 	int m_iRequiredActiveEventChoice;
 	int m_iRequiredActiveCityEvent;
@@ -3054,6 +3099,13 @@ protected:
 	bool m_bIsPuppet;
 	bool m_bTradeConnection;
 	bool m_bCityConnection;
+	bool m_bNearNaturalWonder;
+	bool m_bNearMountain;
+	bool m_bPantheon;
+	int m_iNearbyFeature;
+	int m_iNearbyTerrain;
+	int m_iMaximumPopulation;
+	bool m_bOneShot;
 
 	CvCityEventNotificationInfo* m_paCityNotificationInfo;
 	int m_iCityNotificationInfos;

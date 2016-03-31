@@ -75,7 +75,7 @@ PopulateItems["CityEventChoices"] = function(stackControl, playerID, cityID)
 		Controls.TitleLabel:SetText(szTypeString);
 		Controls.DescriptionLabel:SetText(szHelpString);
 
-		for info in GameInfo.CityEventChoices("ParentEvent = '" .. pEventInfo.Type .. "'") do
+		for info in GameInfo.CityEventChoices() do
 			print("Cycling through city event choices")
 
 			if(city:IsCityEventChoiceValid(info.ID, iEventType)) then
