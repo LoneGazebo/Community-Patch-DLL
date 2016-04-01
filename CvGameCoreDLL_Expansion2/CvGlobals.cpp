@@ -2267,7 +2267,7 @@ CvGlobals::~CvGlobals()
 	uninit();
 }
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 
 MyStackWalker gStackWalker;
 
@@ -2297,8 +2297,8 @@ PlayerTypes GetCurrentPlayer()
 void CreateMiniDump(EXCEPTION_POINTERS *pep)
 {
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
-	//if(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
+	//if(MOD_CORE_DEBUGGING)
 	{
 		/* Try to log the callstack */
 		FILogFile* pLog=LOGFILEMGR.GetLog( "Callstack.log", FILogFile::kDontTimeStamp );

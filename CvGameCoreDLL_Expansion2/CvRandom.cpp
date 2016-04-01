@@ -109,8 +109,13 @@ unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 						ulNum, ul, m_ullRandomSeed, (void*)this, m_bSynchronous?"sync":"async", (pszLog != NULL)?pszLog:"Unknown");
 					pLog->Msg(szOut);
 
-					//gStackWalker.SetLog(pLog);
-					//gStackWalker.ShowCallstack();
+#if defined(MOD_CORE_DEBUGGING)
+					if(MOD_CORE_DEBUGGING)
+					{
+						gStackWalker.SetLog(pLog);
+						gStackWalker.ShowCallstack();
+					}
+#endif
 				}
 			}
 		}

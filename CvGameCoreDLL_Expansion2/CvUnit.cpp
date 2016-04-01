@@ -8504,23 +8504,8 @@ bool CvUnit::paradrop(int iX, int iY)
 		return false;
 	}
 
-#if defined(MOD_GLOBAL_PARATROOPS_MOVEMENT)
-	// If dropping less than max range, let the unit make an attack
-	int iRange = getDropRange();
-	int iDist = plotDistance(plot()->getX(), plot()->getY(), iX, iY);
-	bool bCanAttack = MOD_GLOBAL_PARATROOPS_MOVEMENT && (iDist < iRange);
-	if (bCanAttack) {
-		// CUSTOMLOG("Paradrop - %i of %i is less than range --> can attack", iDist, iRange);
-		setMoves(GC.getMOVE_DENOMINATOR()); // This equates to a "set-up to range attack", which seems fair
-		// setMadeAttack(false); // Don't set to false, just in case someone modded in "attack then paralift out"
-	} else {
-		// CUSTOMLOG("Paradrop - %i of %i is max range --> cannot attack", iDist, iRange);
-#endif
-		setMoves(GC.getMOVE_DENOMINATOR()); //keep one move
-		setMadeAttack(true);
-#if defined(MOD_GLOBAL_PARATROOPS_MOVEMENT)
-	}
-#endif
+	setMoves(GC.getMOVE_DENOMINATOR()); //keep one move
+	setMadeAttack(true);
 
 	CvPlot* fromPlot = plot();
 	//JON: CHECK FOR INTERCEPTION HERE

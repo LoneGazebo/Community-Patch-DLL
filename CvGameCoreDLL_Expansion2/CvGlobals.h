@@ -11218,7 +11218,7 @@ inline const Database::Connection* CvGlobals::GetGameDatabase() const
 }
 
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 
 #include "Stackwalker/Stackwalker.h"
 

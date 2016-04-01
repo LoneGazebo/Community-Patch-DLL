@@ -4919,7 +4919,7 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 		break;
 
 	case DOMAIN_LAND:
-		return !isCity() || (isCity() && getOwner()==unit.getOwner());
+		return !isCity() || (isCity() && (IsFriendlyTerritory(unit.getOwner()) || unit.isRivalTerritory()) );
 		break;
 
 	default:

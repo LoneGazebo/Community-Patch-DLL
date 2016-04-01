@@ -577,8 +577,8 @@ void CvTacticalAI::CommandeerUnits()
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
-	if (MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
+	if (MOD_CORE_DEBUGGING)
 	{
 		for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 		{
@@ -1250,8 +1250,8 @@ void CvTacticalAI::EstablishTacticalPriorities()
 	// Now sort the moves in priority order
 	std::stable_sort(m_MovePriorityList.begin(), m_MovePriorityList.end());
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
-	if(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
+	if(MOD_CORE_DEBUGGING)
 	{
 		//Debugging: Check order of tactical moves ... this is independent of the player
 		if (GC.getLogging() && GC.getAILogging() && m_pPlayer->GetID()==1 && GC.getGame().getGameTurn()==1)
@@ -1735,8 +1735,8 @@ void CvTacticalAI::FindTacticalTargets()
 	// Sort remaining targets by aux data (if used for that target type)
 	std::stable_sort(m_AllTargets.begin(), m_AllTargets.end());
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
-	if(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
+	if(MOD_CORE_DEBUGGING)
 	{
 		// mark the targets in the tactical map
 		for (TacticalList::const_iterator i=m_AllTargets.begin(); i!=m_AllTargets.end(); ++i)
@@ -9973,7 +9973,7 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bIncludeRanged
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(it->second);
 
 		//sanity check - unexpected units showing up here sometimes
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 		std::list<int>::iterator ctu = std::find(m_CurrentTurnUnits.begin(), m_CurrentTurnUnits.end(), pLoopUnit->GetID());
 		if (ctu == m_CurrentTurnUnits.end() && pLoopUnit->getArmyID() == -1)
 		{
@@ -13301,6 +13301,11 @@ bool TacticalAIHelpers::HaveEnoughMeleeUnitsAroundTarget(PlayerTypes ePlayer, Cv
 			return true;
 	}
 
+	return false;
+}
+
+bool TacticalAIHelpers::GetPreferredPlotsForUnit(CvUnit* pUnit, CvPlot* pTargetPlot, bool bOffensive, std::vector<STacticalPlot>& vResult)
+{
 	return false;
 }
 

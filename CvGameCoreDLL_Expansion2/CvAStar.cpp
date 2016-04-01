@@ -310,10 +310,10 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	udFunc(udValid, NULL, temp, 0, m_sData);
 	udFunc(udNotifyChild, NULL, temp, ASNC_INITIALADD, m_sData);
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 	cvStopWatch timer("pathfinder",NULL,0,true);
 	timer.StartPerfTest();
-	if (MOD_BALANCE_CORE_DEBUGGING)
+	if (MOD_CORE_DEBUGGING)
 	{
 		svPathLog.push_back( SLogNode( NS_INITIAL_FINAL, 0, m_iXstart, m_iYstart, 0, 0, 0, 0 ) );
 		svPathLog.push_back( SLogNode( NS_INITIAL_FINAL, 0, m_iXdest, m_iYdest, 0, 0, 0, 0 ) );
@@ -349,7 +349,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 		CreateChildren(m_pBest);
 	}
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 	//debugging!
 	timer.EndPerfTest();
 	int iBin = min(99,int(timer.GetDeltaInSeconds()*1000));
@@ -364,7 +364,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 			m_iCurrentGenerationID, m_sData.ePathType, bSuccess?"found":"not found", m_iXstart, m_iYstart, m_iXdest, m_iYdest, m_iTestedNodes, m_iProcessedNodes, m_iRounds, 
 			(100*m_iProcessedNodes)/iNumPlots, timer.GetDeltaInSeconds()*1000, bSuccess?GetPathLength():-1 ).c_str() );
 
-		if (MOD_BALANCE_CORE_DEBUGGING)
+		if (MOD_CORE_DEBUGGING)
 		{
 			CvString fname = CvString::format( "PathfindingRun%06d.txt", m_iCurrentGenerationID );
 			FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
@@ -462,9 +462,9 @@ void CvAStar::PrecalcNeighbors(CvAStarNode* node)
 /// Creates children for the node
 void CvAStar::CreateChildren(CvAStarNode* node)
 {
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 	std::vector<SLogNode> newNodes;
-	if (MOD_BALANCE_CORE_DEBUGGING)
+	if (MOD_CORE_DEBUGGING)
 		newNodes.push_back( SLogNode( NS_CURRENT, m_iRounds, node->m_iX, node->m_iY, node->m_iKnownCost, node->m_iHeuristicCost, node->m_iTurns, node->m_iMoves ) );
 #endif
 
@@ -504,8 +504,8 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
-		if (MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
+		if (MOD_CORE_DEBUGGING)
 			newNodes.push_back( SLogNode( result, m_iRounds, check->m_iX, check->m_iY, check->m_iKnownCost, check->m_iHeuristicCost, check->m_iTurns, check->m_iMoves ) );
 #endif
 	}
@@ -537,17 +537,17 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 				if (IsPathDest(check->m_iX, check->m_iY))
 					m_iDestHitCount++;
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
-				if (MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
+				if (MOD_CORE_DEBUGGING)
 					newNodes.push_back( SLogNode( result, m_iRounds, check->m_iX, check->m_iY, check->m_iKnownCost, check->m_iHeuristicCost, check->m_iTurns, check->m_iMoves ) );
 #endif
 			}
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 	//don't log nodes which have only obsolete neighbors
-	if (MOD_BALANCE_CORE_DEBUGGING && newNodes.size()>1)
+	if (MOD_CORE_DEBUGGING && newNodes.size()>1)
 		svPathLog.insert( svPathLog.end(), newNodes.begin(), newNodes.end() );
 #endif
 }

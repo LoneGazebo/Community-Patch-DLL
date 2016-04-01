@@ -141,8 +141,8 @@ void CvHomelandAI::RecruitUnits()
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
-	if (1) //(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
+	if (MOD_CORE_DEBUGGING)
 	{
 		for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 		{
@@ -651,7 +651,8 @@ void CvHomelandAI::EstablishHomelandPriorities()
 			move.m_iPriority = iPriority;
 			m_MovePriorityList.push_back(move);
 
-			OutputDebugString( CvString::format("Player %d, Move %d, Prio %d\n",m_pPlayer->GetID(),homelandMoveNames[iI],iPriority).c_str() );
+			//if (m_pPlayer->isMajorCiv())
+			//	OutputDebugString( CvString::format("Player %d, Move %s, Prio %d\n",m_pPlayer->GetID(),homelandMoveNames[iI],iPriority).c_str() );
 		}
 	}
 
@@ -3714,7 +3715,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 		CvPlot* pTarget = it->GetTarget();
 		if(pUnit && pTarget)
 		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROXIMATE_TARGET);
 			pUnit->finishMoves();
 			UnitProcessed(pUnit->GetID());
 		}
