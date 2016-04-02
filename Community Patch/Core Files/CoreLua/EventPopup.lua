@@ -18,25 +18,30 @@ function OnPopup( popupInfo )
 
     local iEventChoiceType = popupInfo.Data1;
     local pEventChoiceInfo = GameInfo.EventChoices[iEventChoiceType];
-
 	-- Top Art
-	local pEventInfo = GameInfo.Events[pEventChoiceInfo.ParentEvent];
-	local pEventArt = pEventInfo.EventArt
-	if pEventArt then
-		Controls.EventArt:SetTexture(pEventArt);
-		Controls.EventArt:SetSizeVal(350,100);
-		Controls.EventArt:SetAlpha(0.2);
-		Controls.EventArt:SetHide(false);
-		Controls.EventArtFrame:SetHide(false);
-	else
-		Controls.EventArt:SetHide(true);
-		Controls.EventArtFrame:SetHide(true);
+	local pEventInfo = nil
+	for row in GameInfo.Event_ParentEvents("EventChoiceType = '" .. pEventChoiceInfo.Type .. "'") do
+		pEventInfo = GameInfo.Events[row.EventType]
+		break
 	end
-	
-	-- Event Audio
-	local pEventAudio = pEventInfo.EventAudio
-	if pEventAudio then
-		Events.AudioPlay2DSound(pEventAudio)
+	if pEventInfo then
+		local pEventArt = pEventInfo.EventArt
+		if pEventArt then
+			Controls.EventArt:SetTexture(pEventArt);
+			Controls.EventArt:SetSizeVal(350,100);
+			Controls.EventArt:SetAlpha(0.2);
+			Controls.EventArt:SetHide(false);
+			Controls.EventArtFrame:SetHide(false);
+		else
+			Controls.EventArt:SetHide(true);
+			Controls.EventArtFrame:SetHide(true);
+		end
+		
+		-- Event Audio
+		local pEventAudio = pEventInfo.EventAudio
+		if pEventAudio then
+			Events.AudioPlay2DSound(pEventAudio)
+		end
 	end
 	
 	local szTitleString;
@@ -55,6 +60,7 @@ function OnPopup( popupInfo )
 	end
 
 	Controls.TitleLabel:SetText(szTitleString);
+	Controls.TitleLabel:SetToolTipString(szTitleString);
 	Controls.DescriptionLabel:SetText(szHelpString);
 		
 	UIManager:QueuePopup( ContextPtr, PopupPriority.GoodyHut );

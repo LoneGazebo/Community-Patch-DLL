@@ -66,6 +66,7 @@ PopulateItems["EventChoices"] = function(stackControl, playerID)
 		end
 		
 		Controls.TitleLabel:SetText(szTypeString);
+		Controls.TitleLabel:SetToolTipString(szTypeString);
 		Controls.DescriptionLabel:SetText(szHelpString);
 		
 		for info in GameInfo.EventChoices() do

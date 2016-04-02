@@ -3,8 +3,8 @@
 <GameData>
 	<Audio_Sounds>
 		<Row>
-			<SoundID>AS2D_EVENT_CHOICE</SoundID>
-			<Filename>SND_EVENT_CHOICE</Filename>
+			<SoundID>SND_EVENT_CHOICE</SoundID>
+			<Filename>EventChoice</Filename>
 			<LoadType>DynamicResident</LoadType>
 		</Row>
 	</Audio_Sounds>

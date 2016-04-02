@@ -133,6 +133,7 @@ public:
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	void DoEvents();
 	void DoCancelEventChoice(EventChoiceTypes eEventChoice);
+	bool IsEventValid(EventTypes eEvent);
 	bool IsEventChoiceValid(EventChoiceTypes eEventChoice, EventTypes eParentEvent);
 	void DoStartEvent(EventTypes eEvent);
 	void DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent = NO_EVENT);

@@ -2566,8 +2566,10 @@ public:
 	int getObsoleteEra() const;
 	int getYieldMinimum(YieldTypes eYield) const;
 	int getRequiredPolicy() const;
+	int getRequiredIdeology() const;
 	int getRequiredImprovement() const;
 	int getRequiredReligion() const;
+	bool hasPantheon() const;
 	int getNumChoices() const;
 	int getBuildingRequired() const;
 	int getBuildingLimiter() const;
@@ -2587,12 +2589,17 @@ public:
 	int getRequiredActiveEventChoice() const;
 	int getRequiredActiveCityEvent() const;
 	int getRequiredActiveCityEventChoice() const;
+	int getRequiredNoActiveEvent() const;
+	int getRequiredNoActiveEventChoice() const;
+	int getRequiredActiveOtherPlayerEvent() const;
+	int getRequiredActiveOtherPlayerEventChoice() const;
 	bool isUnhappy() const;
 	bool isOneShot() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
+
 	int m_iPrereqTech;
 	int m_iObsoleteTech;
 	int m_iMinimumNationalPopulation;
@@ -2605,7 +2612,9 @@ protected:
 	int m_iObsoleteEra;
 	int m_iRequiredImprovement;
 	int m_iRequiredPolicy;
+	int m_iIdeology;
 	int m_iRequiredReligion;
+	bool m_bRequiredPantheon;
 	int m_iNumChoices;
 	int m_iBuildingRequired;
 	int m_iBuildingLimiter;
@@ -2627,6 +2636,10 @@ protected:
 	int m_iRequiredActiveEventChoice;
 	int m_iRequiredActiveCityEvent;
 	int m_iRequiredActiveCityEventChoice;
+	int m_iRequiredActiveEventOtherPlayer;
+	int m_iRequiredActiveEventChoiceOtherPlayer;
+	int m_iRequiredNoActiveEvent;
+	int m_iRequiredNoActiveEventChoice;
 	bool m_bOneShot;
 
 private:
@@ -2694,10 +2707,15 @@ public:
 	int getResistanceTurns() const;
 	int getRandomBarbs() const;
 	int getNumFreeUnits(int i) const;
+	int getFreeScaledUnits() const;
 	int getEventConvertReligion(int i) const;
 	int getEventConvertReligionPercent(int i) const;
 	int getCityYield(int i) const;
 	int getBuildingClassYield(int i, int j) const;
+	int getBuildingClassYieldModifier(int i, int j) const;
+	int getPlayerHappiness() const;
+	int getCityHappinessGlobal() const;
+	int getCityUnhappinessNeedMod(int i) const;
 	
 	CvEventNotificationInfo *GetNotificationInfo(int i) const;
 	int GetNumNotifications() const {return m_iNotificationInfos;};
@@ -2714,8 +2732,10 @@ public:
 	int getObsoleteEra() const;
 	int getYieldMinimum(YieldTypes eYield) const;
 	int getRequiredPolicy() const;
+	int getRequiredIdeology() const;
 	int getRequiredImprovement() const;
 	int getRequiredReligion() const;
+	bool hasPantheon() const;
 	int getBuildingRequired() const;
 	int getBuildingLimiter() const;
 	bool isRequiresHolyCity() const;
@@ -2729,6 +2749,10 @@ public:
 	int getRequiredActiveEventChoice() const;
 	int getRequiredActiveCityEvent() const;
 	int getRequiredActiveCityEventChoice() const;
+	int getRequiredNoActiveEvent() const;
+	int getRequiredNoActiveEventChoice() const;
+	int getRequiredActiveOtherPlayerEvent() const;
+	int getRequiredActiveOtherPlayerEventChoice() const;
 	bool isUnhappy() const;
 	bool isOneShot() const;
 
@@ -2740,7 +2764,7 @@ protected:
 	int m_iEventPromotion;
 	int m_iEventDuration;
 	int m_iEventChance;
-	int* m_pbParentEventIDs;
+	bool* m_pbParentEventIDs;
 	bool m_bEraScaling;
 	bool m_bExpires;
 	int* m_piFlavor;
@@ -2750,6 +2774,7 @@ protected:
 	int* m_piConvertReligion;
 	int* m_piConvertReligionPercent;
 	int* m_piCityYield;
+	int m_iFreeScaledUnits;
 	CvString m_strEventChoiceSoundEffect;
 	int m_iNumFreePolicies;
 	int m_iNumFreeGreatPeople;
@@ -2759,6 +2784,10 @@ protected:
 	int m_iRandomBarbs;
 	int* m_piNumFreeUnits;
 	int** m_ppiBuildingClassYield;
+	int** m_ppiBuildingClassYieldModifier;
+	int m_iPlayerHappiness;
+	int m_iCityHappinessGlobal;
+	int* m_piCityUnhappinessNeedMod;
 
 	//Filters
 
@@ -2772,7 +2801,9 @@ protected:
 	int m_iObsoleteEra;
 	int m_iRequiredImprovement;
 	int m_iRequiredPolicy;
+	int m_iIdeology;
 	int m_iRequiredReligion;
+	bool m_bRequiredPantheon;
 	int m_iBuildingRequired;
 	int m_iBuildingLimiter;
 	int* m_piMinimumYield;
@@ -2786,6 +2817,10 @@ protected:
 	bool m_bUnhappy;
 	int m_iRequiredActiveEvent;
 	int m_iRequiredActiveEventChoice;
+	int m_iRequiredActiveEventOtherPlayer;
+	int m_iRequiredActiveEventChoiceOtherPlayer;
+	int m_iRequiredNoActiveEvent;
+	int m_iRequiredNoActiveEventChoice;
 	int m_iRequiredActiveCityEvent;
 	int m_iRequiredActiveCityEventChoice;
 	bool m_bOneShot;
@@ -2817,6 +2852,7 @@ public:
 	int getObsoleteEra() const;
 	int getYieldMinimum(YieldTypes eYield) const;
 	int getRequiredPolicy() const;
+	int getRequiredIdeology() const;
 	int getRequiredImprovement() const;
 	int getRequiredReligion() const;
 	int getNumChoices() const;
@@ -2837,10 +2873,6 @@ public:
 	bool hasStateReligion() const;
 	bool isUnhappy() const;
 	bool isRequiresGarrison() const;
-	int getRequiredActiveEvent() const;
-	int getRequiredActiveEventChoice() const;
-	int getRequiredActiveCityEvent() const;
-	int getRequiredActiveCityEventChoice() const;
 	int getLocalResourceRequired() const;
 	bool isResistance() const;
 	bool isWLTKD() const;
@@ -2857,6 +2889,14 @@ public:
 	int hasNearbyTerrain() const;
 	int getMaximumPopulation() const;
 	bool isOneShot() const;
+	int getRequiredActiveEvent() const;
+	int getRequiredActiveEventChoice() const;
+	int getRequiredActiveCityEvent() const;
+	int getRequiredActiveCityEventChoice() const;
+	int getRequiredNoActiveCityEvent() const;
+	int getRequiredNoActiveCityEventChoice() const;
+	int getRequiredActiveOtherPlayerEvent() const;
+	int getRequiredActiveOtherPlayerEventChoice() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -2871,6 +2911,7 @@ protected:
 	int m_iObsoleteEra;
 	int m_iRequiredImprovement;
 	int m_iRequiredPolicy;
+	int m_iIdeology;
 	int m_iRequiredReligion;
 	int m_iNumChoices;
 	int m_iBuildingRequired;
@@ -2891,10 +2932,6 @@ protected:
 	bool m_bRequiresGarrison;
 	bool m_bHasStateReligion;
 	bool m_bUnhappy;
-	int m_iRequiredActiveEvent;
-	int m_iRequiredActiveEventChoice;
-	int m_iRequiredActiveCityEvent;
-	int m_iRequiredActiveCityEventChoice;
 	int m_iLocalResourceRequired;
 	bool m_bIsResistance;
 	bool m_bIsWLTKD;
@@ -2911,6 +2948,14 @@ protected:
 	int m_iNearbyTerrain;
 	int m_iMaximumPopulation;
 	bool m_bOneShot;
+	int m_iRequiredActiveEvent;
+	int m_iRequiredActiveEventChoice;
+	int m_iRequiredActiveCityEvent;
+	int m_iRequiredActiveCityEventChoice;
+	int m_iRequiredActiveEventOtherPlayer;
+	int m_iRequiredActiveEventChoiceOtherPlayer;
+	int m_iRequiredNoActiveEvent;
+	int m_iRequiredNoActiveEventChoice;
 
 private:
 	CvModCityEventInfo(const CvModCityEventInfo&);
@@ -2974,15 +3019,20 @@ public:
 	int getWLTKD() const;
 	int getResistanceTurns() const;
 	int getRandomBarbs() const;
+	int getFreeScaledUnits() const;
+	int getCityHappiness() const;
 	int getNumFreeUnits(int i) const;
 	int getEventConvertReligion(int i) const;
 	int getEventConvertReligionPercent(int i) const;
 	const char* getEventChoiceSoundEffect() const;
 	int getCityYield(int i) const;
 	int getBuildingClassYield(int i, int j) const;
+	int getBuildingClassYieldModifier(int i, int j) const;
 	int getTerrainYield(int i, int j) const;
 	int getFeatureYield(int i, int j) const;
 	int getImprovementYield(int i, int j) const;
+	int getEventResourceChange(ResourceTypes eResource) const;
+	int getCityUnhappinessNeedMod(int i) const;
 
 	//Filters
 	int getPrereqTech() const;
@@ -2993,6 +3043,7 @@ public:
 	int getObsoleteEra() const;
 	int getYieldMinimum(YieldTypes eYield) const;
 	int getRequiredPolicy() const;
+	int getRequiredIdeology() const;
 	int getRequiredImprovement() const;
 	int getRequiredReligion() const;
 	int getBuildingRequired() const;
@@ -3008,10 +3059,6 @@ public:
 	bool hasStateReligion() const;
 	bool isUnhappy() const;
 	bool isRequiresGarrison() const;
-	int getRequiredActiveEvent() const;
-	int getRequiredActiveEventChoice() const;
-	int getRequiredActiveCityEvent() const;
-	int getRequiredActiveCityEventChoice() const;
 	int getLocalResourceRequired() const;
 	bool isResistance() const;
 	bool isWLTKD() const;
@@ -3028,6 +3075,14 @@ public:
 	int hasNearbyTerrain() const;
 	int getMaximumPopulation() const;
 	bool isOneShot() const;
+	int getRequiredActiveEvent() const;
+	int getRequiredActiveEventChoice() const;
+	int getRequiredActiveCityEvent() const;
+	int getRequiredActiveCityEventChoice() const;
+	int getRequiredNoActiveCityEvent() const;
+	int getRequiredNoActiveCityEventChoice() const;
+	int getRequiredActiveOtherPlayerEvent() const;
+	int getRequiredActiveOtherPlayerEventChoice() const;
 
 	CvCityEventNotificationInfo *GetNotificationInfo(int i) const;
 	int GetNumNotifications() const {return m_iCityNotificationInfos;};
@@ -3049,6 +3104,7 @@ protected:
 	int m_iNumWLTKD;
 	int m_iResistanceTurns;
 	int m_iRandomBarbs;
+	int m_iFreeScaledUnits;
 	int* m_piBuildingDestructionChance;
 	int* m_piNumFreeUnits;
 	int* m_piConvertReligion;
@@ -3057,11 +3113,15 @@ protected:
 	CvString m_strEventChoiceSoundEffect;
 	int* m_piCityYield;
 	int** m_ppiBuildingClassYield;
+	int** m_ppiBuildingClassYieldModifier;
 	int** m_ppiTerrainYield;
 	int** m_ppiFeatureYield;
 	int** m_ppiImprovementYield;
 	bool* m_pbParentEventIDs;
 	int m_iCityWideDestructionChance;
+	int m_iCityHappiness;
+	int* m_piResourceChange;
+	int* m_piCityUnhappinessNeedMod;
 
 	//Filters
 	int m_iPrereqTech;
@@ -3072,6 +3132,7 @@ protected:
 	int m_iObsoleteEra;
 	int m_iRequiredImprovement;
 	int m_iRequiredPolicy;
+	int m_iIdeology;
 	int m_iRequiredReligion;
 	int m_iBuildingRequired;
 	int m_iBuildingLimiter;
@@ -3087,10 +3148,6 @@ protected:
 	bool m_bRequiresGarrison;
 	bool m_bHasStateReligion;
 	bool m_bUnhappy;
-	int m_iRequiredActiveEvent;
-	int m_iRequiredActiveEventChoice;
-	int m_iRequiredActiveCityEvent;
-	int m_iRequiredActiveCityEventChoice;
 	bool m_bIsResistance;
 	bool m_bIsWLTKD;
 	bool m_bIsOccupied;
@@ -3106,6 +3163,14 @@ protected:
 	int m_iNearbyTerrain;
 	int m_iMaximumPopulation;
 	bool m_bOneShot;
+	int m_iRequiredActiveEvent;
+	int m_iRequiredActiveEventChoice;
+	int m_iRequiredActiveCityEvent;
+	int m_iRequiredActiveCityEventChoice;
+	int m_iRequiredActiveEventOtherPlayer;
+	int m_iRequiredActiveEventChoiceOtherPlayer;
+	int m_iRequiredNoActiveEvent;
+	int m_iRequiredNoActiveEventChoice;
 
 	CvCityEventNotificationInfo* m_paCityNotificationInfo;
 	int m_iCityNotificationInfos;

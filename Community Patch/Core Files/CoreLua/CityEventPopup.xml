@@ -7,7 +7,7 @@
     <Box Style="MenuLeftSideTreatment"/>
     <Box Style="MenuRightSideTreatment"/>
 
-	<Label Style="MenuTitleCaption" ID="TitleLabel"/>
+	<Label Style="MenuTitleCaption" TruncateWidth="320" ID="TitleLabel"/>
 
     <Box Size="350,190" Anchor="C,T" Offset="0,90"  Color="255,255,255,0" >
 		<Image Anchor="C,T" Offset="0,0" Hidden="1" Texture="EventFrame.dds" Size="365,105" ID="EventArtFrame">

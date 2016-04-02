@@ -30,6 +30,8 @@
 !*.dds
 !*.gr2
 
+!*.db
+
 BuildOutput/
 BuildTemp/
 Mod/

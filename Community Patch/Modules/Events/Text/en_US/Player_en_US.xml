@@ -1,10 +1,252 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 3/31/2016 12:08:14 AM -->
 <GameData>
-  <!-- TODO: Insert table creation example here. -->
- 
-  <!-- TODO: Insert table data example here.-->
-  
-  <!-- Enter your Game Data here. -->
-  
+	<Language_en_US>
+		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_1">
+			<Text>This is a good omen.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_1_HELP">
+			<Text>+100 [ICON_GOLDEN_AGE] Golden Age Points, scaling with Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_2">
+			<Text>Our gods favor us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_2_HELP">
+			<Text>+1 [ICON_HAPPINESS_1] Happiness in all Cities for 30 turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_3">
+			<Text>Our priests believe this to be a positive sign.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_3_HELP">
+			<Text>50% chance to gain 250 [ICON_PEACE] Faith, scaling with Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_4">
+			<Text>Our observatories are going to learn a lot from this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_4_HELP">
+			<Text>+500 [ICON_RESEARCH] Science.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_1">
+			<Text>Break it up and send it to the Forge.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_1_HELP">
+			<Text>50% chance to gain 2 [ICON_RES_IRON] Iron.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_2">
+			<Text>Divide it up amongst our Shrines.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_2_HELP">
+			<Text>+1 [ICON_PEACE] Faith in all Shrines.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_3">
+			<Text>Put it next to my throne.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_3_HELP">
+			<Text>+2 [ICON_CULTURE] Culture from Palace.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_4">
+			<Text>Donate it to the universities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_4_HELP">
+			<Text>+1 [ICON_RESEARCH] Science from all Universities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_5">
+			<Text>It belongs in a Museum.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_5_HELP">
+			<Text>+1 [ICON_CULTURE] Culture from all Museums.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_1">
+			<Text>I'm not sure what this means.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_1_HELP">
+			<Text>Gain +100 [ICON_GOLDEN_AGE] Golden Age Points. 25% chance to lose 250 [ICON_GOLDEN_AGE] Golden Age Points. Values scale with Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_2">
+			<Text>Quick, make a sacrifice!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_2_HELP">
+			<Text>-50 [ICON_FOOD] Food in [ICON_CAPITAL] Capital, +50 [ICON_PEACE] Faith. Values scale with Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_3">
+			<Text>Science can explain this!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_3_HELP">
+			<Text>+250 [ICON_RESEARCH] Science, scaling with Era..</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_4">
+			<Text>Quick, take a picture!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_4_HELP">
+			<Text>+500 [ICON_CULTURE] Culture, scaling with Era..</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_1">
+			<Text>Subsidize the farms.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_1_HELP">
+			<Text>Lose 500 [ICON_GOLD] Gold, scaling with Era. You are confident that you can avoid a drought.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_2">
+			<Text>Set aside some emergency funds.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_2_HELP">
+			<Text>Lose 250 [ICON_GOLD] Gold, scaling with Era. You are hopeful that you can avoid a drought.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_3">
+			<Text>Send money to local officials.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_3_HELP">
+			<Text>Lose 100 [ICON_GOLD] Gold, scaling with Era. You are unsure that you can avoid a drought.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_4">
+			<Text>Grin and bear it. There's nothing we can do.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_4_HELP">
+			<Text>You are worried about a potential drought.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_1">
+			<Text>People should stay indoors, even if that means less commerce.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_1_HELP">
+			<Text>-2 [ICON_GOLD] Gold in all Cities for 50 turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_2">
+			<Text>Take fuel from our industries and distribute it to the poor and needy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_2_HELP">
+			<Text>-2 [ICON_PRODUCTION] Production in all Cities for 50 turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_3">
+			<Text>Trains and steam power make us immune to the cold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_3_HELP">
+			<Text>No negative effect.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_1">
+			<Text>Let them eat cake.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_1_HELP">
+			<Text>2 Barbarians spawn near all owned Cities. 5 turns of [ICON_RESISTANCE] Unrest in all Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_2">
+			<Text>Use our City-State connections to find common ground.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_2_HELP">
+			<Text>3 turns of [ICON_RESISTANCE] Unrest in all Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_3">
+			<Text>We are all brothers and sisters of progress, are we not?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_3_HELP">
+			<Text>1 Barbarian spawns near every owned City, 2 turns of [ICON_RESISTANCE] Unrest in all Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_4">
+			<Text>Find the leader and bribe him off.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_4_HELP">
+			<Text>Lose 1000 [ICON_GOLD] Gold, scaling with Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_1">
+			<Text>Rally the martial spirit of our people.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_1_HELP">
+			<Text>All valid units gain the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion. +5 [ICON_HAPPINESS_1] Happiness for 30 turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_2">
+			<Text>Channel the energy into our industries.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_2_HELP">
+			<Text>+3 [ICON_PRODUCTION] Production in all Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_3">
+			<Text>The New World Order begins now!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_3_HELP">
+			<Text>10 turns of 'We Love the King Day' in all Cities. Military Academies produce +5 [ICON_RESEARCH] Science for 30 turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_4">
+			<Text>For the Motherland!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_4_HELP">
+			<Text>Factories grant Cities +10% [ICON_PRODUCTION] Production for 30 turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_5">
+			<Text>Buy Victory Bonds!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_5_HELP">
+			<Text>Banks grant Cities +20% [ICON_GOLD] Gold for 30 turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_1">
+			<Text>Give a speech at our Palace.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_1_HELP">
+			<Text>75% chance that all Cities will produce -1 [ICON_HAPPINESS_1] Happiness.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_2">
+			<Text>Have our religious leader pray for the wounded and deceased.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_2_HELP">
+			<Text>-250 [ICON_GOLDEN_AGE] Golden Age Points, scaling with Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_3">
+			<Text>Give a radio broadcast to the nation.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_3_HELP">
+			<Text>25% chance that all Cities will produce -2 [ICON_HAPPINESS_1] Happiness.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_4">
+			<Text>We must win. Begin conscription.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_4_HELP">
+			<Text>50% chance that all Cities will produce a Great War Infantry and experience 2 turns of [ICON_RESISTANCE] Resistance.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_COMET_DESCRIPTION">
+			<Text>Comet sighted!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_COMET_HELP">
+			<Text>A comet has appeared in our night sky. What does this mean?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_DESCRIPTION">
+			<Text>Eclipse!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_HELP">
+			<Text>Our people were surprised to witness an eclipse today. What does this mean for our empire?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_DESCRIPTION">
+			<Text>Heat wave!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_HELP">
+			<Text>Every summer seems hotter than the last, and our lakes and rivers are drying up. Soon, a drought may be upon us. What should we do?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_DESCRIPTION">
+			<Text>Ice age!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_HELP">
+			<Text>A sudden drop in average temperatures can only mean one thing: a small ice age! How should we prepare?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_DESCRIPTION">
+			<Text>A meteor has landed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_HELP">
+			<Text>With a bright flash of light and a huge crash, a meteor has landed in our territory. What should we do with it?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_DESCRIPTION">
+			<Text>Revolution!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_HELP">
+			<Text>To arms! Dissident civilians from across our empire have risen up to contest your rule! What will you do?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_DESCRIPTION">
+			<Text>War fervor!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_HELP">
+			<Text>Your people clamor for war! Our martial spirit is high, and your military advisor wishes to know how you would like to channel this energy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_DESCRIPTION">
+			<Text>War weariness!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_HELP">
+			<Text>The toll of war is hard on our people. They seek solace in the face of destruction and defeat, and look to you for guidance. How will you respond?</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

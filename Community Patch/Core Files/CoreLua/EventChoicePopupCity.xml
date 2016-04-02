@@ -23,7 +23,7 @@
 		<Box Style="MenuLeftSideTreatment"/>
 		<Box Style="MenuRightSideTreatment"/>
 		<!-- Title -->
-		<Label Style="MenuTitleCaption" ID="TitleLabel"/>
+		<Label Style="MenuTitleCaption" TruncateWidth="500" ID="TitleLabel"/>
 		<!--=======================================================================================================================-->
 		<!-- Body Text -->
 		<ScrollPanel Anchor="L,T" Offset="15,50" Size="500,380" AutoScrollBar="1" Vertical="1" ID="ItemScrollPanel">

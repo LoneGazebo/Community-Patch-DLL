@@ -3343,9 +3343,7 @@ bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
     else
     {
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-        PromotionTypes ePromotionEmbarkDeepWater = (PromotionTypes)GC.getPROMOTION_DEEPWATER_EMBARKATION();
-        PromotionTypes ePromotionEmbarkDeepWaterDefense = (PromotionTypes)GC.getPROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION();
-        if (pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() && (pUnit->isHasPromotion(ePromotionEmbarkDeepWater) || pUnit->isHasPromotion(ePromotionEmbarkDeepWaterDefense)))
+        if (pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() && pUnit->IsEmbarkDeepWater())
         {
             return isDeepWater() && !isIce();
         }
@@ -4930,7 +4928,7 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 		break;
 
 	case DOMAIN_LAND:
-		return !isCity() || (isCity() && getOwner()==unit.getOwner()) || unit.canLoad(*this);
+    return !isCity() || (isCity() && (IsFriendlyTerritory(unit.getOwner()) || unit.isRivalTerritory()) );
 		break;
 
 	default:
@@ -7299,6 +7297,12 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		PlayerTypes owningPlayerID = getOwner();
 		if(eOldImprovement != NO_IMPROVEMENT)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(IsImprovementPillaged())
+			{
+				SetImprovementPillaged(false, false);
+			}
+#endif
 			CvImprovementEntry& oldImprovementEntry = *GC.getImprovementInfo(eOldImprovement);
 
 #if defined(MOD_BUGFIX_MINOR)

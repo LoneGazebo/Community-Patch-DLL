@@ -22,23 +22,29 @@ function OnPopup( popupInfo )
     local pEventChoiceInfo = GameInfo.CityEventChoices[iEventChoiceType];
 
 	-- Top Art
-	local pEventInfo = GameInfo.CityEvents[pEventChoiceInfo.ParentEvent];
-	local pEventArt = pEventInfo.CityEventArt
-	if pEventArt then
-		Controls.EventArt:SetTexture(pEventArt);
-		Controls.EventArt:SetSizeVal(350,100);
-		Controls.EventArt:SetAlpha(0.2);
-		Controls.EventArt:SetHide(false);
-		Controls.EventArtFrame:SetHide(false);
-	else
-		Controls.EventArt:SetHide(true);
-		Controls.EventArtFrame:SetHide(true);
+	local pEventInfo = nil
+	for row in GameInfo.CityEvent_ParentEvents("CityEventChoiceType = '" .. pEventChoiceInfo.Type .. "'") do
+		pEventInfo = GameInfo.CityEvents[row.CityEventType]
+		break
 	end
-	
-	-- Event Audio
-	local pEventAudio = pEventInfo.CityEventAudio
-	if pEventAudio then
-		Events.AudioPlay2DSound(pEventAudio)
+	if pEventInfo then
+		local pEventArt = pEventInfo.CityEventArt
+		if pEventArt then
+			Controls.EventArt:SetTexture(pEventArt);
+			Controls.EventArt:SetSizeVal(350,100);
+			Controls.EventArt:SetAlpha(0.2);
+			Controls.EventArt:SetHide(false);
+			Controls.EventArtFrame:SetHide(false);
+		else
+			Controls.EventArt:SetHide(true);
+			Controls.EventArtFrame:SetHide(true);
+		end
+		
+		-- Event Audio
+		local pEventAudio = pEventInfo.CityEventAudio
+		if pEventAudio then
+			Events.AudioPlay2DSound(pEventAudio)
+		end
 	end
 	
 	local playerID = Game.GetActivePlayer()
@@ -53,7 +59,6 @@ function OnPopup( popupInfo )
 	local szHelpString;
 	szTitleString = Locale.Lookup("TXT_KEY_CITY_EVENT_TITLE", localizedCityName, pEventChoiceInfo.Description);
 	szHelpString = Locale.Lookup("TXT_KEY_CITY_EVENT_HELP", localizedCityName, pEventChoiceInfo.Help);
-
 	-- Test for any Override Strings
 	tChoiceOverrideStrings = {}
 	LuaEvents.EventChoice_OverrideTextStrings(playerID, cityID, pEventChoiceInfo, tChoiceOverrideStrings)
@@ -63,6 +68,7 @@ function OnPopup( popupInfo )
 	end
 	
 	Controls.TitleLabel:SetText(szTitleString);
+	Controls.TitleLabel:SetToolTipString(szTitleString);
 	Controls.DescriptionLabel:SetText(szHelpString);
 		
 	UIManager:QueuePopup( ContextPtr, PopupPriority.GoodyHut );

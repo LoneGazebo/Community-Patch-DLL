@@ -73,6 +73,7 @@ PopulateItems["CityEventChoices"] = function(stackControl, playerID, cityID)
 		end
 		
 		Controls.TitleLabel:SetText(szTypeString);
+		Controls.TitleLabel:SetToolTipString(szTypeString);
 		Controls.DescriptionLabel:SetText(szHelpString);
 
 		for info in GameInfo.CityEventChoices() do
@@ -164,7 +165,7 @@ CommitItems["CityEventChoices"] = function(selection, playerID, cityID)
 				-- Event Choice Audio
 				local eventChoiceAudio = eventChoice.EventChoiceAudio
 				if eventChoiceAudio then
-					Events.AudioPlay2DSound(eventChoiceAudio)
+					Events.AudioPlay2DSound("AS2D_EVENT_CHOICE")
 				end
 			end
 		end
