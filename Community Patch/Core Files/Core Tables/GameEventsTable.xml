@@ -504,8 +504,8 @@
 		<Column name="RequiredActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
 		<Column name="RequiredActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
 		<!-- Same concept, but won't fire if a city event is active here, or another player does NOT have the player event active. You cannot check for other player city events being active, sorry. -->
-		<Column name="RequiredNoActiveCityEvent" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredNoActiveCityEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
+		<Column name="RequiredNoActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
+		<Column name="RequiredNoActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
 		<Column name="RequiredActivePlayerEventOtherPlayer" type="text" reference="Events(Type)" default="NULL"/>
 		<Column name="RequiredActivePlayerEventChoiceOtherPlayer" type="text" reference="EventChoices(Type)" default="NULL"/>
 	</Table>
@@ -624,8 +624,8 @@
 		<Column name="RequiredActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
 		<Column name="RequiredActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
 		<!-- Same concept, but won't fire if a city event is active here, or another player does NOT have the player event active. You cannot check for other player city events being active, sorry. -->
-		<Column name="RequiredNoActiveCityEvent" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredNoActiveCityEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
+		<Column name="RequiredNoActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
+		<Column name="RequiredNoActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
 		<Column name="RequiredActivePlayerEventOtherPlayer" type="text" reference="Events(Type)" default="NULL"/>
 		<Column name="RequiredActivePlayerEventChoiceOtherPlayer" type="text" reference="EventChoices(Type)" default="NULL"/>
 	</Table>
