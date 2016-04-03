@@ -6237,7 +6237,7 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 						}
 
 						// Safe for ranged?
-						if (pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->isWater() ? DOMAIN_SEA : DOMAIN_LAND)==0)
+						if (pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->getDomain())==0)
 						{
 							pCell->SetSafeForDeployment(true);
 							// A bit of a hack -- use high priority targets to indicate safe plots for ranged units
@@ -12012,7 +12012,7 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget)
 
 				// Top priority is hexes to bombard from (within range but not adjacent)
 				pCell->SetTargetDistance(iDistance);
-				if (iDistance > 1 && pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->isWater() ? DOMAIN_SEA : DOMAIN_LAND, NULL, false)==0)
+				if (iDistance > 1 && pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->getDomain(), NULL, false)==0)
 					bChoiceBombardSpot = true;
 
 				if (pPlot->canSeePlot(pTarget,m_pPlayer->getTeam(),iDistance,NO_DIRECTION))
@@ -12086,7 +12086,7 @@ int CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget)
 				iScore -= iDistance * 100;
 
 				//we want to be able to attack a lot of plots
-				if (pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->isWater() ? DOMAIN_SEA : DOMAIN_LAND)>0)
+				if (pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->getDomain())>0)
 				{
 					//good plot for melee
 					iScore += pPlot->countPassableNeighbors(pPlot->isWater(), NULL) * 30;
@@ -12645,7 +12645,7 @@ int TacticalAIHelpers::GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pSt
 			}
 
 			//now see how much movement is left over
-			int iMovementCost = bCheckZOC ? pAdjacentPlot->movementCost(pUnit,pCurrentPlot) : pAdjacentPlot->MovementCostNoZOC(pUnit,pCurrentPlot);
+			int iMovementCost = bCheckZOC ? pAdjacentPlot->movementCost(pUnit,pCurrentPlot,pUnit->getMoves()) : pAdjacentPlot->MovementCostNoZOC(pUnit,pCurrentPlot,pUnit->getMoves());
 			int iRemainingMoves =  iCurrentMoves - iMovementCost;
 			if (iRemainingMoves > moveCache->second)
 			{
@@ -13304,6 +13304,9 @@ bool TacticalAIHelpers::HaveEnoughMeleeUnitsAroundTarget(PlayerTypes ePlayer, Cv
 	return false;
 }
 
+//-------------------------------------------------------
+// this is experimental code
+//-------------------------------------------------------
 bool TacticalAIHelpers::GetPreferredPlotsForUnit(CvUnit* pUnit, CvPlot* pTargetPlot, bool bOffensive, std::vector<STacticalPlot>& vResult)
 {
 	return false;

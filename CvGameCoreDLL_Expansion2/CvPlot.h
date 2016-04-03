@@ -174,14 +174,16 @@ public:
 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;
 
 	int defenseModifier(TeamTypes eDefender, bool bIgnored, bool bHelp = false) const;
-	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining = 0) const;
-	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining = 0) const;
+	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
+	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	inline int getUnitLimit() const 
 	{
 		return isCity() ? GC.getCITY_UNIT_LIMIT() : (GC.getPLOT_UNIT_LIMIT() + getAdditionalUnitsFromImprovement() + getStackingUnits());
 	}
 #endif
+
+	inline DomainTypes getDomain() const { return isWater() ? DOMAIN_SEA : DOMAIN_LAND; }
 
 	int getExtraMovePathCost() const;
 	void changeExtraMovePathCost(int iChange);

@@ -1188,45 +1188,25 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 	bool bToPlotIsWater = kToNodeCacheData.bIsWater || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
 	bool bFromPlotIsWater = kFromNodeCacheData.bIsWater || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
 	int iBaseMovesInCurrentDomain = pCacheData->baseMoves(bFromPlotIsWater?DOMAIN_SEA:DOMAIN_LAND);
-	int iBaseMovesInNewDomain = pCacheData->baseMoves(bToPlotIsWater?DOMAIN_SEA:DOMAIN_LAND);
-
-	//if we would have to start a new turn
-	int iBaseMoves = iBaseMovesInNewDomain;
-	int iMaxMoves = max(iBaseMovesInCurrentDomain,iBaseMovesInNewDomain);
 
 	if (iStartMoves==0)
 	{
 		// inconspicuous but important
 		iTurns++;
 
-		//units may have different base moves depending on the domain. in case of a domain change (embark/disembark)
-		//always use the same cost to prevent asymmetry. choose the higher one to discourage domain changes.
-		//this is quite tricky and all variants seem to have some drawback. in particular applying this logic 
-		//to all moves, not only turn start moves, favors embarking on turn start, so we don't do it
-		if(CvUnitMovement::ConsumesAllMoves(pUnit, pFromPlot, pToPlot))
-			iBaseMoves = iMaxMoves;
-
 		//hand out new moves
-		iStartMoves = iBaseMoves*GC.getMOVE_DENOMINATOR();
+		iStartMoves = iBaseMovesInCurrentDomain*GC.getMOVE_DENOMINATOR();
 	}
 
 	// do not pass in the remaining moves, we want to see the true cost!
 	int iMovementCost = 0;
 	if (bWithZOC)
-		iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iBaseMoves, iMaxMoves * GC.getMOVE_DENOMINATOR());
+		iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iStartMoves);
 	else
-		iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iBaseMoves, iMaxMoves * GC.getMOVE_DENOMINATOR());
+		iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iStartMoves);
 
-	// Is the cost greater than our max?
+	// how much is left over?
 	int iMovesLeft = iStartMoves - iMovementCost;
-	if (iMovesLeft < 0)
-	{
-		// Yes, we will still let the move happen, but that is the end of the turn (handled in the next round when iStartMoves==0)
-		iMovesLeft = 0;
-
-		// We pay only for what we take
-		iMovementCost = iStartMoves;
-	}
 
 	//check again whether we already found a better path now that we know the movement cost
 	if (node->m_iTurns>0)

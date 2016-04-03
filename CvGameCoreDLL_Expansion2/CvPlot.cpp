@@ -3310,17 +3310,21 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 #endif //defined MOD_BALANCE_CORE_MILITARY
 
 //	---------------------------------------------------------------------------
-int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
+int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const
 {
-	int iBaseMoves = pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN);
-	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iBaseMoves, pUnit->maxMoves(), iMovesRemaining);
+	if (plotDistance(*this,*pFromPlot)>1)
+		return pUnit->maxMoves();
+
+	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iMovesRemaining);
 }
 
 //	---------------------------------------------------------------------------
-int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
+int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const
 {
-	int iBaseMoves = pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN);
-	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iBaseMoves, pUnit->maxMoves(), iMovesRemaining);
+	if (plotDistance(*this,*pFromPlot)>1)
+		return pUnit->maxMoves();
+
+	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iMovesRemaining);
 }
 
 //	--------------------------------------------------------------------------------
@@ -3345,7 +3349,7 @@ bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
 		//only land units need to embark
 		if (pUnit->getDomainType()==DOMAIN_LAND)
 		{
-			return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canMoveImpassable() && !pUnit->canLoad(*this);
+			return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canMoveImpassable();
 		}
 		else
 			return false;

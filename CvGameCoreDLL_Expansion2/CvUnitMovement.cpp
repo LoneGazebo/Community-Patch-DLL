@@ -6,7 +6,7 @@
 #include "CvUnitMovement.h"
 #include "CvGameCoreUtils.h"
 //	---------------------------------------------------------------------------
-void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iBaseMoves, int& iRegularCost, int& iRouteCost, int& iRouteFlatCost)
+int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot)
 {
 	CvPlayerAI& kPlayer = GET_PLAYER(pUnit->getOwner());
 	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
@@ -18,6 +18,55 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 	TeamTypes eUnitTeam = pUnit->getTeam();
 	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
 	int iMoveDenominator = GC.getMOVE_DENOMINATOR();
+	int iRegularCost = iMoveDenominator;
+
+	//check embarkation
+	bool bFullCostEmbarkStateChange = false;
+	bool bCheapEmbarkStateChange = false;
+	bool bFreeEmbarkStateChange = false;
+	if (pUnit->CanEverEmbark())
+	{
+		if(!pToPlot->needsEmbarkation(pUnit) && pFromPlot->needsEmbarkation(pUnit))
+		{
+			// Is the unit from a civ that can disembark for just 1 MP?
+			if(GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+				bCheapEmbarkStateChange = true;
+
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+			//If city, and player has disembark to city at reduced cost...
+			if(pToPlot->isFriendlyCityOrPassableImprovement(pUnit->getOwner()))
+			{
+				if (kUnitTeam.isCityNoEmbarkCost())
+					bFreeEmbarkStateChange = true;
+				else if (kUnitTeam.isCityLessEmbarkCost())
+					bCheapEmbarkStateChange = true;
+			}
+#endif
+
+			bFullCostEmbarkStateChange = !(bFreeEmbarkStateChange || bCheapEmbarkStateChange);
+		}
+
+		if(pToPlot->needsEmbarkation(pUnit) && !pFromPlot->needsEmbarkation(pUnit))
+		{
+			// Is the unit from a civ that can embark for just 1 MP?
+			if(GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+				bCheapEmbarkStateChange = true;
+
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+			//If city, and player has embark from city at reduced cost...
+			if(pFromPlot->isFriendlyCityOrPassableImprovement(pUnit->getOwner()))
+			{
+				if (kUnitTeam.isCityNoEmbarkCost())
+					bFreeEmbarkStateChange = true;
+				else if (kUnitTeam.isCityLessEmbarkCost())
+					bCheapEmbarkStateChange = true;
+			}
+#endif
+
+			bFullCostEmbarkStateChange = !(bFreeEmbarkStateChange || bCheapEmbarkStateChange);
+		}
+	}
+
 	bool bRiverCrossing = pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot));
 	FeatureTypes eFeature = pToPlot->getFeatureType();
 	CvFeatureInfo* pFeatureInfo = (eFeature > NO_FEATURE) ? GC.getFeatureInfo(eFeature) : 0;
@@ -43,44 +92,67 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 		bIgnoreTerrainCost = true;
 #endif
 
-	if(bIgnoreTerrainCost)
+	//----
+	// preparation done, now here comes the interesting part
+	//----
+
+	if(pToPlot->isRoughGround() && pUnit->IsRoughTerrainEndsTurn())
 	{
-		iRegularCost = 1;
+		// Is a unit's movement consumed for entering rough terrain?
+		return INT_MAX;
 	}
-#if defined(MOD_BALANCE_CORE)
-	else if(pToPlot->isCity() && (pTerrainInfo->getMovementCost() > 1))
+	else if (bFullCostEmbarkStateChange)
 	{
-		iRegularCost = 1;
+		//embark/disembark ends turn
+		return INT_MAX;
 	}
-#endif
+	else if(!pToPlot->isRevealed(pUnit->getTeam()) && pUnit->isHuman())
+	{
+		//moving into unknown tiles ends the turn for humans (to prevent information leakage from the displayed path)
+		return INT_MAX;
+	}
+	else if (bFreeEmbarkStateChange)
+	{
+		iRegularCost = 0;
+	}
+	else if (bCheapEmbarkStateChange)
+	{
+		iRegularCost = iMoveDenominator;
+	}
+	else if(pUnit->flatMovementCost() || pUnit->getDomainType() == DOMAIN_AIR)
+	{
+		iRegularCost = iMoveDenominator;
+	}
+	else if(pToPlot->isCity())
+	{
+		iRegularCost = iMoveDenominator;
+	}
 	else
 	{
-		iRegularCost = ((eFeature == NO_FEATURE) ? (pTerrainInfo ? pTerrainInfo->getMovementCost() : 0) : (pFeatureInfo ? pFeatureInfo->getMovementCost() : 0));
-
-		// Hill cost, except for when a City is present here, then it just counts as flat land
-		if((pToPlot->isHills() || pToPlot->isMountain()) && !pToPlot->isCity())
+		//if the unit ignores terrain cost, it can still profit from feature bonuses
+		if (bIgnoreTerrainCost)
+			iRegularCost = 1;
+		else
 		{
-			iRegularCost += GC.getHILLS_EXTRA_MOVEMENT();
-		}
+			iRegularCost = ((eFeature == NO_FEATURE) ? (pTerrainInfo ? pTerrainInfo->getMovementCost() : 0) : (pFeatureInfo ? pFeatureInfo->getMovementCost() : 0));
 
-		if(bRiverCrossing && !bIgnoreTerrainCost && !bAmphibious)
-		{
-			iRegularCost += GC.getRIVER_EXTRA_MOVEMENT();
+			// Hill cost is hardcoded
+			if(pToPlot->isHills() || pToPlot->isMountain())
+			{
+				iRegularCost += GC.getHILLS_EXTRA_MOVEMENT();
+			}
+
+			if(bRiverCrossing && !bAmphibious)
+			{
+				iRegularCost += GC.getRIVER_EXTRA_MOVEMENT();
+			}
 		}
 
 		if(iRegularCost > 0)
 		{
 			iRegularCost = std::max(1, (iRegularCost - pUnit->getExtraMoveDiscount()));
 		}
-	}
 
-	// Is a unit's movement consumed for entering rough terrain?
-	if(pToPlot->isRoughGround() && pUnit->IsRoughTerrainEndsTurn())
-	{
-		iRegularCost = INT_MAX;
-	}
-	else
-	{
 		iRegularCost *= iMoveDenominator;
 
 		if(pToPlot->isHills() && pUnit->isHillsDoubleMove())
@@ -101,31 +173,27 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 #endif
 	}
 
-	iRegularCost = std::min(iRegularCost, (iBaseMoves * iMoveDenominator));
-
+	//check routes
 	if(pFromPlot->isValidRoute(pUnit) && pToPlot->isValidRoute(pUnit) && (!bRiverCrossing || kUnitTeam.isBridgeBuilding() || bAmphibious))
 	{
 		CvRouteInfo* pFromRouteInfo = GC.getRouteInfo(pFromPlot->getRouteType());
-		CvAssert(pFromRouteInfo != NULL);
+		int iFromMovementCost = pFromRouteInfo ? pFromRouteInfo->getMovementCost() : 0;
+		int iFromFlatMovementCost = pFromRouteInfo ? pFromRouteInfo->getFlatMovementCost() : 0;
 
-		int iFromMovementCost = (pFromRouteInfo != NULL)? pFromRouteInfo->getMovementCost() : 0;
-		int iFromFlatMovementCost = (pFromRouteInfo != NULL)? pFromRouteInfo->getFlatMovementCost() : 0;
+		CvRouteInfo* pToRouteInfo = GC.getRouteInfo(pToPlot->getRouteType());
+		int iToMovementCost = pToRouteInfo ? pToRouteInfo->getMovementCost() : 0;
+		int iToFlatMovementCost = pToRouteInfo ? pToRouteInfo->getFlatMovementCost() : 0;
 
-		CvRouteInfo* pRouteInfo = GC.getRouteInfo(pToPlot->getRouteType());
-		CvAssert(pRouteInfo != NULL);
+		//routes only on land
+		int iBaseMoves = pUnit->baseMoves(DOMAIN_LAND);
 
-		int iMovementCost = (pRouteInfo != NULL)? pRouteInfo->getMovementCost() : 0;
-		int iFlatMovementCost = (pRouteInfo != NULL)? pRouteInfo->getFlatMovementCost() : 0;
+		int iRouteCost = std::max(iFromMovementCost + kUnitTeam.getRouteChange(pFromPlot->getRouteType()), iToMovementCost + kUnitTeam.getRouteChange(pToPlot->getRouteType()));
+		int iRouteFlatCost = std::max(iFromFlatMovementCost * iBaseMoves, iToFlatMovementCost * iBaseMoves);
 
-		iRouteCost = std::max(iFromMovementCost + kUnitTeam.getRouteChange(pFromPlot->getRouteType()), iMovementCost + kUnitTeam.getRouteChange(pToPlot->getRouteType()));
-		iRouteFlatCost = std::max(iFromFlatMovementCost * iBaseMoves, iFlatMovementCost * iBaseMoves);
-	}
-	else
-	{
-		iRouteCost = INT_MAX;
-		iRouteFlatCost = INT_MAX;
+		iRegularCost = std::min(iRegularCost, std::min(iRouteCost,iRouteFlatCost));
 	}
 
+	//check border obstacles
 	TeamTypes eTeam = pToPlot->getTeam();
 	if(eTeam != NO_TEAM)
 	{
@@ -183,175 +251,32 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 		}
 #endif
 	}
+
+	return iRegularCost;
 }
 
 //	---------------------------------------------------------------------------
-int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iBaseMoves, int iMaxMoves, int iMovesRemaining /*= 0*/)
+int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining)
 {
-	int iRegularCost;
-	int iRouteCost;
-	int iRouteFlatCost;
+	if(IsSlowedByZOC(pUnit, pFromPlot, pToPlot))
+		return iMovesRemaining;
 
-	CvAssertMsg(pToPlot->getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
-
-	if(ConsumesAllMoves(pUnit, pFromPlot, pToPlot))
-	{
-		if (iMovesRemaining > 0)
-			return iMovesRemaining;
-		else
-			return iMaxMoves;
-	}
-	else if(CostsOnlyOne(pUnit, pFromPlot, pToPlot))
-	{
-		return GC.getMOVE_DENOMINATOR();
-	}
-	else if(IsSlowedByZOC(pUnit, pFromPlot, pToPlot))
-	{
-		if (iMovesRemaining > 0)
-			return iMovesRemaining;
-		else
-			return iMaxMoves;
-	}
-
-	GetCostsForMove(pUnit, pFromPlot, pToPlot, iBaseMoves, iRegularCost, iRouteCost, iRouteFlatCost);
-
-	return std::max(1, std::min(iRegularCost, std::min(iRouteCost, iRouteFlatCost)));
+	return MovementCostNoZOC(pUnit,pFromPlot,pToPlot,iMovesRemaining);
 }
 
 //	---------------------------------------------------------------------------
-int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iBaseMoves, int iMaxMoves, int iMovesRemaining /*= 0*/)
+int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining)
 {
-	int iRegularCost;
-	int iRouteCost;
-	int iRouteFlatCost;
+	int iCost = GetCostsForMove(pUnit, pFromPlot, pToPlot);
 
-	CvAssertMsg(pToPlot->getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
+	//now, if there was a domain change, our base moves might change
+	//make sure that the movement cost is always so high that we never end up with more than the base moves for the new domain
+	int iLeftOverMoves = iMovesRemaining-iCost;
+	int iMaxMoves = pUnit->baseMoves( pToPlot->getDomain() )*GC.getMOVE_DENOMINATOR();
+	if ( iLeftOverMoves > iMaxMoves )
+		iCost += (iLeftOverMoves-iMaxMoves);
 
-	if(ConsumesAllMoves(pUnit, pFromPlot, pToPlot))
-	{
-		if (iMovesRemaining > 0)
-			return iMovesRemaining;
-		else
-			return iMaxMoves;
-	}
-	else if(CostsOnlyOne(pUnit, pFromPlot, pToPlot))
-	{
-		return GC.getMOVE_DENOMINATOR();
-	}
-
-	GetCostsForMove(pUnit, pFromPlot, pToPlot, iBaseMoves, iRegularCost, iRouteCost, iRouteFlatCost);
-
-	return std::max(1, std::min(iRegularCost, std::min(iRouteCost, iRouteFlatCost)));
-}
-
-//	---------------------------------------------------------------------------
-bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot)
-{
-	if(!pToPlot->isRevealed(pUnit->getTeam()) && pUnit->isHuman())
-	{
-		return true;
-	}
-
-	if(!pFromPlot->isValidDomainForLocation(*pUnit))
-	{
-		return true;
-	}
-
-	// if the unit can (or has to) embark and we are transitioning from land to water or vice versa
-	if(pUnit->CanEverEmbark())
-	{
-		bool bCanMoveFreely = false;
-		TeamTypes eUnitTeam = pUnit->getTeam();
-		CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
-
-		//disembarking?
-		if (!pToPlot->needsEmbarkation(pUnit) && pFromPlot->needsEmbarkation(pUnit))
-		{
-			//trait?
-			if(GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
-				return false;
-
-			//If city, and player has disembark to city at no cost...
-			else if(pToPlot->isCity() && (pToPlot->getOwner() == pUnit->getOwner()) )
-			{
-				if (kUnitTeam.isCityNoEmbarkCost() || kUnitTeam.isCityLessEmbarkCost())
-					return false;
-			}
-
-			return true;
-		}
-
-		//embarkation?
-		if (pToPlot->needsEmbarkation(pUnit) && !pFromPlot->needsEmbarkation(pUnit))
-		{
-			//If city, and player has embark from city at no cost...
-			if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) )
-			{
-				if (kUnitTeam.isCityNoEmbarkCost() || kUnitTeam.isCityLessEmbarkCost())
-					return false;
-			}
-
-			return true;
-		}
-	}
-
-	return false;
-}
-
-//	---------------------------------------------------------------------------
-bool CvUnitMovement::CostsOnlyOne(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot)
-{
-	CvAssert(!pUnit->IsImmobile());
-
-	if(pUnit->flatMovementCost() || pUnit->getDomainType() == DOMAIN_AIR)
-	{
-		return true;
-	}
-
-	TeamTypes eUnitTeam = pUnit->getTeam();
-	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
-	if (pUnit->CanEverEmbark())
-	{
-		if(!pToPlot->needsEmbarkation(pUnit) && pFromPlot->needsEmbarkation(pUnit))
-		{
-			// Is the unit from a civ that can disembark for just 1 MP?
-			if(GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
-			{
-				return true;
-			}
-
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
-			//If city, and player has disembark to city at reduced cost...
-			if(pToPlot->isCity() && (pToPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityNoEmbarkCost())
-			{
-				return true;
-			}
-			//If city, and player has disembark to city at reduced cost...
-			else if(pToPlot->isCity() && (pToPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityLessEmbarkCost())
-			{
-				return true;
-			}
-		}
-
-		if(pToPlot->needsEmbarkation(pUnit) && !pFromPlot->needsEmbarkation(pUnit))
-		{
-			//If city, and player has disembark to city at reduced cost...
-			if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityNoEmbarkCost())
-			{
-				return true;
-			}
-			//If city, and player has disembark to city at reduced cost...
-			if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityLessEmbarkCost())
-			{
-				return true;
-			}
-		}
-#else
-		}
-#endif
-	}
-
-	return false;
+	return std::min( iCost, iMovesRemaining );
 }
 
 //	--------------------------------------------------------------------------------

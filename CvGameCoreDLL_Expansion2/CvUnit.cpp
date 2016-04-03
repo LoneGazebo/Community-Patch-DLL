@@ -5246,8 +5246,8 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 	CvPlot* pOldPlot = plot();
 	CvAssertMsg(pOldPlot, "pOldPlot needs to have a value");
 
-	bool bShouldDeductCost = true;
-	int iMoveCost = targetPlot.movementCost(this, plot());
+	//will never be more than we have left!
+	int iMoveCost = targetPlot.movementCost(this, plot(), getMoves());
 
 	// we need to get our dis/embarking on
 	bool bChangeEmbarkedState = CanEverEmbark() && (targetPlot.needsEmbarkation(this) != pOldPlot->needsEmbarkation(this));
@@ -5259,30 +5259,6 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 				PublishQueuedVisualizationMoves();
 
 			disembark(pOldPlot);
-
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
-			TeamTypes eUnitTeam = getTeam();
-			CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
-			UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(GetID());
-			//If city, and player has disembark to city at reduced cost...
-			if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && targetPlot.isCity() && (targetPlot.getOwner() == getOwner()) && kUnitTeam.isCityNoEmbarkCost())
-			{
-				if(movesLeft() > (baseMoves(DOMAIN_LAND) * GC.getMOVE_DENOMINATOR()))
-				{
-					setMoves(baseMoves(DOMAIN_LAND) * GC.getMOVE_DENOMINATOR());
-				}
-			}
-			else if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && targetPlot.isCity() && (targetPlot.getOwner() == getOwner()) && kUnitTeam.isCityLessEmbarkCost())
-			{
-				changeMoves(-iMoveCost);
-			}
-			else if(!GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
-			{
-				finishMoves();
-			}
-#else
-			finishMoves();
-#endif
 		}
 		else if(!isEmbarked() && targetPlot.needsEmbarkation(this))  // moving from land to the water
 		{
@@ -5290,35 +5266,10 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 				PublishQueuedVisualizationMoves();
 
 			embark(pOldPlot);
-#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
-			TeamTypes eUnitTeam = getTeam();
-			CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
-			UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(GetID());
-			//If city, and player has disembark to city at reduced cost...
-			if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && pOldPlot->isCity() && (pOldPlot->getOwner() == getOwner()) && kUnitTeam.isCityNoEmbarkCost())
-			{
-				if(movesLeft() > (baseMoves(DOMAIN_SEA) * GC.getMOVE_DENOMINATOR()))
-				{
-					setMoves(baseMoves(DOMAIN_SEA) * GC.getMOVE_DENOMINATOR());
-				}
-			}
-			else if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && pOldPlot->isCity() && (pOldPlot->getOwner() == getOwner()) && kUnitTeam.isCityLessEmbarkCost())
-			{
-				changeMoves(-iMoveCost);
-			}
-			else
-			{
-				finishMoves();
-			}
-#else
-			finishMoves();
-#endif
-			bShouldDeductCost = false;
 		}
 	}
 
-	if(bShouldDeductCost)
-		changeMoves(-iMoveCost);
+	changeMoves(-iMoveCost);
 	setXY(targetPlot.getX(), targetPlot.getY(), true, true, bShow && targetPlot.isVisibleToWatchingHuman(), bShow);
 }
 
