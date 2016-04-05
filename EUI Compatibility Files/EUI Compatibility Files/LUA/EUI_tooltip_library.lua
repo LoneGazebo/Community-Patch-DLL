@@ -799,7 +799,18 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 			tip = ""
 		end
 	end
-
+	--CP EVENTS
+	if city then
+		for pYieldInfo in GameInfo.Yields() do
+			local iYieldID = pYieldInfo.ID;
+			local iYieldAmount = city:GetEventBuildingClassModifier(buildingClassID, iYieldID);
+							
+			if (iYieldAmount > 0) then
+				tips:insert( L"TXT_KEY_BUILDING_EVENT_MODIFIER", iYieldAmount, pYieldInfo.IconString, pYieldInfo.Description)
+			end
+		end
+	end
+	--END
 	-- Defense:
 	if defenseChange ~=0 then
 		tip = S("%s %+g[ICON_STRENGTH]", tip, defenseChange / 100 )

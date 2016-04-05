@@ -174,14 +174,16 @@ public:
 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;
 
 	int defenseModifier(TeamTypes eDefender, bool bIgnored, bool bHelp = false) const;
-	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining = 0) const;
-	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining = 0) const;
+	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
+	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	inline int getUnitLimit() const 
 	{
 		return isCity() ? GC.getCITY_UNIT_LIMIT() : (GC.getPLOT_UNIT_LIMIT() + getAdditionalUnitsFromImprovement() + getStackingUnits());
 	}
 #endif
+
+	inline DomainTypes getDomain() const { return isWater() ? DOMAIN_SEA : DOMAIN_LAND; }
 
 	int getExtraMovePathCost() const;
 	void changeExtraMovePathCost(int iChange);
@@ -447,23 +449,6 @@ public:
 	{
 		return getFeatureType() == FEATURE_ICE;
 	};
-#if defined(MOD_PATHFINDER_TERRAFIRMA)
-	bool isTerraFirma(const CvUnit* pUnit)     const
-	{
-		bool bTerraFirma = !isWater();
-		
-		if (pUnit->getDomainType() == DOMAIN_LAND) {
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-			bTerraFirma = bTerraFirma || (pUnit->IsHoveringUnit() && isShallowWater());
-#endif
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-			bTerraFirma = bTerraFirma || (pUnit->IsHoveringUnit() && isShallowWater());
-#endif
-		}
-		
-		return bTerraFirma;
-	};
-#endif
 	bool isOpenGround()     const
 	{
 		if( isHills() || isMountain() || m_bRoughFeature) 

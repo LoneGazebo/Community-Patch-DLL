@@ -1002,12 +1002,29 @@ private:
 	int m_CachedInfoTypes[eNUM_TACTICAL_INFOTYPES];
 };
 
+struct STacticalPlot
+{
+	enum PlotState { PS_FREE, PS_BLOCKED_FRIENDLY, PS_BLOCKED_ENEMY };
+	STacticalPlot(CvPlot* pPlot, PlotState state, int score) : m_iX(pPlot?pPlot->getX():-1),m_iY(pPlot?pPlot->getY():-1),m_eState(state),m_iScore(score) {}
+	PlotState m_eState;
+	int m_iX, m_iY;
+	int m_iScore;
+	int m_iUnitID;
+	int m_iBlockingUnitID;
+
+	//sort descending
+	bool operator<(const STacticalPlot& rhs) { return m_iScore>rhs.m_iScore; }
+
+	CvString toString() { return CvString::format("%d,%d,%d,%d,%d\n",m_iUnitID,m_iX,m_iY,m_iScore,m_eState); };
+};
+
 namespace TacticalAIHelpers
 {
 	bool SortBlockingUnitByDistanceAscending(const CvBlockingUnit& obj1, const CvBlockingUnit& obj2);
 	bool SortByExpectedTargetDamageDescending(const CvTacticalUnit& obj1, const CvTacticalUnit& obj2);
 	
 	typedef std::set<std::pair<int,int>> ReachablePlotSet; //don't store pointers in a set, the ordering is unpredictable
+	enum UnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_HITANDRUN,MS_SUPPORT };
 
 	int GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pStartPlot, ReachablePlotSet& resultSet, bool bCheckTerritory=false, bool bCheckZOC=false, bool bAllowEmbark=false, int iMinMovesLeft=0);
 	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, std::set<int>& resultSet);
@@ -1023,6 +1040,8 @@ namespace TacticalAIHelpers
 	int GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pAttacker, int& iAttackerDamage);
 	bool KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
 	bool HaveEnoughMeleeUnitsAroundTarget(PlayerTypes ePlayer, CvTacticalTarget* pTarget);
+
+	//bool GetPreferredPlotsForUnit(CvUnit* pUnit, CvPlot* pTargetPlot, bool bOffensive, std::vector<STacticalPlot>& vResult);
 }
 
 extern const char* barbarianMoveNames[];

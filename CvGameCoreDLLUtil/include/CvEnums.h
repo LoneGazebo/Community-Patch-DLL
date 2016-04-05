@@ -946,7 +946,7 @@ enum NotificationTypes
 	NOTIFICATION_PLAYER_CONNECTING						= 0xAB88859D,
 
 	NOTIFICATION_CITY_REVOLT_POSSIBLE					= 0xD1BC1A84,
-	NOTIFICATION_CITY_REVOLT							= 0xE58AA15F,
+	NOTIFICATION_CITY_REVOLT							= 0xE58AA15F
 };
 
 enum NotificationAggregateTypes
@@ -3501,12 +3501,13 @@ enum AirActionType
 };
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-// JdH => from CvDiplomacyAI
+// JdH: from CvDiplomacyAI
 enum DiplomacyPlayerType
 {
 	DIPLO_FIRST_PLAYER		=  0,
 	DIPLO_ALL_PLAYERS		= -1,
 	DIPLO_AI_PLAYERS		= -2,
+	DIPLO_HUMAN_PLAYERS		= -3,
 };
 #endif
 #if defined(MOD_BALANCE_CORE)

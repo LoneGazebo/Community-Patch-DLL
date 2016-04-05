@@ -3310,17 +3310,21 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 #endif //defined MOD_BALANCE_CORE_MILITARY
 
 //	---------------------------------------------------------------------------
-int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
+int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const
 {
-	int iBaseMoves = pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN);
-	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iBaseMoves, pUnit->maxMoves(), iMovesRemaining);
+	if (plotDistance(*this,*pFromPlot)>1)
+		return pUnit->maxMoves();
+
+	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iMovesRemaining);
 }
 
 //	---------------------------------------------------------------------------
-int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
+int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const
 {
-	int iBaseMoves = pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN);
-	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iBaseMoves, pUnit->maxMoves(), iMovesRemaining);
+	if (plotDistance(*this,*pFromPlot)>1)
+		return pUnit->maxMoves();
+
+	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iMovesRemaining);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4928,7 +4932,7 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 		break;
 
 	case DOMAIN_LAND:
-    return !isCity() || (isCity() && (IsFriendlyTerritory(unit.getOwner()) || unit.isRivalTerritory()) );
+		return !isCity() || (isCity() && (IsFriendlyTerritory(unit.getOwner()) || unit.isRivalTerritory()) );
 		break;
 
 	default:
@@ -4958,13 +4962,7 @@ bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
 		break;
 
 	case DOMAIN_IMMOBILE:
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-		// Only hover over shallow water
-		{ bool bOK = (!isWater() || (unit.IsHoveringUnit() && isShallowWater()) || unit.canMoveAllTerrain() || unit.isEmbarked() || IsAllowsWalkWater());
-		return bOK; }
-#else
-		return (!isWater() || unit.IsHoveringUnit() || unit.canMoveAllTerrain() || unit.isEmbarked() || IsAllowsWalkWater());
-#endif
+		return false;
 		break;
 
 	case DOMAIN_LAND:

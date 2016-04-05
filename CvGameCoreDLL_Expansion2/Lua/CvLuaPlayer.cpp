@@ -1379,6 +1379,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CountAllWorkedTerrain);
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
+	Method(GetScaledEventChoiceValue);
+	Method(IsEventChoiceActive);
 	Method(DoEventChoice);
 	Method(DoStartEvent);
 	Method(DoCancelEventChoice);
@@ -14308,6 +14310,43 @@ int CvLuaPlayer::lHasCurrency(lua_State* L)
 }
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
+int CvLuaPlayer::lGetScaledEventChoiceValue(lua_State* L)
+{
+	CvString CoreYieldTip = "";
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventChoiceTypes eEventChoice = (EventChoiceTypes)lua_tointeger(L, 2);
+	const bool bYieldsOnly = lua_toboolean(L, 3);
+	if(eEventChoice != NO_EVENT_CHOICE)
+	{
+		CoreYieldTip = pkPlayer->GetScaledHelpText(eEventChoice, bYieldsOnly);
+	}
+
+	lua_pushstring(L, CoreYieldTip.c_str());
+	return 1;
+}
+int CvLuaPlayer::lIsEventChoiceActive(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventChoiceTypes eEventChoice = (EventChoiceTypes)lua_tointeger(L, 2);
+	bool bResult = false;
+	if(eEventChoice != NO_EVENT_CHOICE)
+	{
+		CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
+		if(pkEventChoiceInfo != NULL)
+		{
+			if(pkEventChoiceInfo->isOneShot() && pkPlayer->IsEventChoiceFired(eEventChoice))
+			{
+				bResult = true;
+			}
+			else if(pkPlayer->GetEventChoiceDuration(eEventChoice) > 0)
+			{
+				bResult = true;
+			}
+		}
+	}
+	lua_pushboolean(L, bResult);
+	return 1;
+}
 int CvLuaPlayer::lDoEventChoice(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);

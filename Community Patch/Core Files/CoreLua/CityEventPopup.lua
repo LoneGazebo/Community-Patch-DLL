@@ -57,8 +57,9 @@ function OnPopup( popupInfo )
 
 	local szTitleString;
 	local szHelpString;
+
 	szTitleString = Locale.Lookup("TXT_KEY_CITY_EVENT_TITLE", localizedCityName, pEventChoiceInfo.Description);
-	szHelpString = Locale.Lookup("TXT_KEY_CITY_EVENT_HELP", localizedCityName, pEventChoiceInfo.Help);
+	szHelpString = Locale.Lookup("TXT_KEY_CITY_EVENT_HELP", localizedCityName, city:GetScaledEventChoiceValue(iEventChoiceType));
 	-- Test for any Override Strings
 	tChoiceOverrideStrings = {}
 	LuaEvents.EventChoice_OverrideTextStrings(playerID, cityID, pEventChoiceInfo, tChoiceOverrideStrings)
@@ -70,7 +71,12 @@ function OnPopup( popupInfo )
 	Controls.TitleLabel:SetText(szTitleString);
 	Controls.TitleLabel:SetToolTipString(szTitleString);
 	Controls.DescriptionLabel:SetText(szHelpString);
-		
+	
+	-- Recalculate grid size
+	local mainGridSizeY = 300
+	local sizeYDiff = math.max((Controls.DescriptionLabel:GetSizeY()-Controls.EventBox:GetSizeY()),1)
+	Controls.MainGrid:SetSizeY(mainGridSizeY + sizeYDiff)
+	
 	UIManager:QueuePopup( ContextPtr, PopupPriority.GoodyHut );
 end
 Events.SerialEventGameMessagePopup.Add( OnPopup );

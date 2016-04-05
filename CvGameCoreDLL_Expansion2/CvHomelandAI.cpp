@@ -141,8 +141,8 @@ void CvHomelandAI::RecruitUnits()
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
-	if (1) //(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
+	if (MOD_CORE_DEBUGGING)
 	{
 		for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 		{
@@ -650,6 +650,9 @@ void CvHomelandAI::EstablishHomelandPriorities()
 			move.m_eMoveType = (AIHomelandMove)iI;
 			move.m_iPriority = iPriority;
 			m_MovePriorityList.push_back(move);
+
+			//if (m_pPlayer->isMajorCiv())
+			//	OutputDebugString( CvString::format("Player %d, Move %s, Prio %d\n",m_pPlayer->GetID(),homelandMoveNames[iI],iPriority).c_str() );
 		}
 	}
 
@@ -1891,8 +1894,8 @@ void CvHomelandAI::PlotPatrolMoves()
 			else
 			{
 #endif
-			CvPlot* pTarget = FindPatrolTarget(pUnit.pointer());
-			if(pTarget)
+			CvPlot* pTarget = HomelandAIHelpers::GetPatrolTarget(pUnit->plot(),pUnit->getOwner(),23);
+			if(pTarget && pUnit->GeneratePath(pTarget,CvUnit::MOVEFLAG_APPROXIMATE_TARGET,10))
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -3712,7 +3715,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 		CvPlot* pTarget = it->GetTarget();
 		if(pUnit && pTarget)
 		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROXIMATE_TARGET);
 			pUnit->finishMoves();
 			UnitProcessed(pUnit->GetID());
 		}
@@ -7001,110 +7004,6 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 	return rtnValue;
 }
 
-/// See if there is an adjacent plot we can wander to
-CvPlot* CvHomelandAI::FindPatrolTarget(CvUnit* pUnit)
-{
-	CvPlot* pAdjacentPlot;
-	CvPlot* pBestPlot;
-	int iValue;
-	int iBestValue;
-	int iI;
-
-	iBestValue = 0;
-	pBestPlot = NULL;
-
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iI));
-
-		if(pAdjacentPlot != NULL)
-		{
-			if(pAdjacentPlot->isValidMovePlot(pUnit->getOwner()))
-			{
-				if(!(pAdjacentPlot->isVisibleEnemyUnit(pUnit)))
-				{
-					if(pUnit->GeneratePath(pAdjacentPlot))
-					{
-						iValue = (1 + GC.getGame().getJonRandNum(10000, "AI Patrol"));
-
-						// Prefer wandering in our own territory
-						if(pAdjacentPlot->getOwner() == pUnit->getOwner())
-						{
-							iValue += 10000;
-						}
-
-						if(GC.getLogging() && GC.getAILogging()){
-							CvString strLogString;
-							strLogString.Format("Adjacent Patrol Plot Score, %i, %i, %i", iValue, pAdjacentPlot->getX(), pAdjacentPlot->getY());
-							LogPatrolMessage(strLogString, pUnit);
-						}
-
-						if(iValue > iBestValue)
-						{
-							iBestValue = iValue;
-							pBestPlot = pAdjacentPlot;
-						}
-					}
-					else
-					{
-						if(GC.getLogging() && GC.getAILogging()){
-							CvString strLogString;
-							strLogString.Format("Adjacent Patrol Plot !GeneratePath(), , %i, %i", pAdjacentPlot->getX(), pAdjacentPlot->getY());
-							LogPatrolMessage(strLogString, pUnit);
-						}
-					}
-				}
-				else
-				{
-					if(GC.getLogging() && GC.getAILogging()){
-						CvString strLogString;
-						strLogString.Format("Adjacent Patrol Plot !isVisibleEnemyUnit(), , %i, %i", pAdjacentPlot->getX(), pAdjacentPlot->getY());
-						LogPatrolMessage(strLogString, pUnit);
-					}
-				}
-			}
-			else
-			{
-				if(GC.getLogging() && GC.getAILogging()){
-					CvString strLogString;
-					strLogString.Format("Adjacent Patrol Plot not valid, , %i, %i", pAdjacentPlot->getX(), pAdjacentPlot->getY());
-					LogPatrolMessage(strLogString, pUnit);
-				}
-			}
-		}
-		else
-		{
-			if(GC.getLogging() && GC.getAILogging()){
-				CvString strLogString;
-				strLogString.Format("Adjacent Patrol Plot not found");
-				LogPatrolMessage(strLogString, pUnit);
-			}
-		}
-	}
-
-	if(pBestPlot != NULL)
-	{
-		if(GC.getLogging() && GC.getAILogging()){
-			CvString strLogString;
-			strLogString.Format("Patrol Target FOUND, %i, %i, %i", iBestValue, pBestPlot->getX(), pBestPlot->getY());
-			LogPatrolMessage(strLogString, pUnit);
-		}
-
-		CvAssert(!pUnit->atPlot(*pBestPlot));
-		return pBestPlot;
-	}
-	else
-	{
-		if(GC.getLogging() && GC.getAILogging()){
-			CvString strLogString;
-			strLogString.Format("Patrol Target NOT FOUND");
-			LogPatrolMessage(strLogString, pUnit);
-		}
-	}
-
-	return NULL;
-}
-
 //	---------------------------------------------------------------------------
 /// Get the closest 
 bool CvHomelandAI::GetClosestUnitByTurnsToTarget(CvHomelandAI::MoveUnitsArray &kMoveUnits, CvPlot* pTarget, int iMaxTurns, CvUnit** ppClosestUnit, int* piClosestTurns)
@@ -8114,4 +8013,60 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 	}
 
 	return iBaseScore;
+}
+
+
+//check all tactical zones to find the one we need to support most 
+CvPlot* HomelandAIHelpers::GetPatrolTarget(CvPlot* pOriginPlot, PlayerTypes ePlayer, int iRange)
+{
+	if (!pOriginPlot || iRange<0)
+		return false;
+
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	const std::vector<PlayerTypes>& vFutureEnemies = kPlayer.GetPlayersAtWarWithInFuture();
+	CvTacticalAnalysisMap* pTactMap = GC.getGame().GetTacticalAnalysisMap();
+
+	CvPlot* pBestTarget = 0;
+	int iBestScore = 0;
+	int iScore = 0;
+	for(int iI = 0; iI < pTactMap->GetNumZones(); iI++)
+	{
+		CvTacticalDominanceZone* pZone = pTactMap->GetZone(iI);
+		if (!pZone || pZone->GetOwner()!=ePlayer)
+			continue;
+
+		CvCity* pZoneCity = pZone->GetZoneCity();
+		if (!pZoneCity)
+			continue;
+
+		int iDistance = plotDistance(*pOriginPlot,*pZoneCity->plot());
+		if (iDistance>iRange)
+			continue;
+
+		int iFriendlyPower = pZone->GetFriendlyStrength();
+		int iEnemyPower = pZone->GetEnemyStrength();
+
+		const std::vector<int>& vNeighborZones = pZone->GetNeighboringZones();
+		for (size_t i=0; i<vNeighborZones.size(); i++)
+		{
+			CvTacticalDominanceZone* pOtherZone = pTactMap->GetZoneByID( vNeighborZones[i] );
+			if (!pOtherZone)
+				continue;
+			
+			if (std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
+				iEnemyPower += pOtherZone->GetNeutralStrength();
+
+			iEnemyPower += pOtherZone->GetEnemyStrength();
+			iFriendlyPower =+ pOtherZone->GetFriendlyStrength();
+		}
+
+		iScore = (iEnemyPower*1000)/max(1,iFriendlyPower*iDistance);
+		if (iScore>iBestScore)
+		{
+			iBestScore = iScore;
+			pBestTarget = pZoneCity->plot();
+		}
+	}
+
+	return pBestTarget;
 }

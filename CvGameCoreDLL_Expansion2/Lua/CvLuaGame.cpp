@@ -366,6 +366,9 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetBeliefsInReligion);
 	Method(GetNumReligionsStillToFound);
+#if defined(MOD_BALANCE_CORE)
+	Method(BeliefsIsInReligion);
+#endif
 	Method(GetNumReligionsFounded);
 	Method(GetHolyCityForReligion);
 	Method(GetReligionName);
@@ -2696,6 +2699,24 @@ int CvLuaGame::lGetBeliefsInReligion(lua_State* L)
 
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaGame::lBeliefsIsInReligion(lua_State* L)
+{
+	ReligionTypes eReligion;
+	eReligion = (ReligionTypes)lua_tointeger(L, 1);
+	BeliefTypes eBelief = (BeliefTypes)lua_tointeger(L, 2);
+	CvGameReligions *pGameReligions = GC.getGame().GetGameReligions();
+	const CvReligion *pReligion = pGameReligions->GetReligion(eReligion, NO_PLAYER);
+	if(pReligion && pReligion->m_Beliefs.HasBelief(eBelief))
+	{
+		lua_pushboolean(L, true);
+		return 1;
+	}
+	lua_pushboolean(L, false);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumReligionsStillToFound(lua_State* L)
 {

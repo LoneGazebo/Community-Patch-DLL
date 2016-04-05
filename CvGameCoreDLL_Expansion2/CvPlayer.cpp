@@ -1763,13 +1763,13 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiEventCooldown.resize(GC.getNumEventInfos(), 0);
 
 	m_abEventActive.clear();
-	m_abEventActive.resize(GC.getNumEventInfos(), 0);
+	m_abEventActive.resize(GC.getNumEventInfos(), false);
 
 	m_abEventFired.clear();
-	m_abEventFired.resize(GC.getNumEventInfos(), 0);
+	m_abEventFired.resize(GC.getNumEventInfos(), false);
 
 	m_abEventChoiceFired.clear();
-	m_abEventChoiceFired.resize(GC.getNumEventChoiceInfos(), 0);
+	m_abEventChoiceFired.resize(GC.getNumEventChoiceInfos(), false);
 #endif
 
 	m_aiCapitalYieldRateModifier.clear();
@@ -5035,7 +5035,7 @@ void CvPlayer::DoEvents()
 						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 						strBaseString += playerName + ", ";
-						strOutBuf.Format("Event Choice: %s. Changing Value by -1. Cooldown Remaining: %d", pkEventInfo->GetDescription(), GetEventChoiceDuration(eEventChoice));
+						strOutBuf.Format("Event Choice Cooldown: %s Changing Value by -1. Cooldown Remaining: %d", pkEventInfo->GetDescription(), GetEventChoiceDuration(eEventChoice));
 						strBaseString += strOutBuf;
 						pLog->Msg(strBaseString);
 					}
@@ -5057,6 +5057,18 @@ void CvPlayer::DoEvents()
 		{
 			CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
 			if(pkEventInfo == NULL)
+			{
+				continue;
+			}
+
+			if(pkEventInfo->getRandomChance() == -1)
+				continue;
+
+			if(pkEventInfo->isOneShot() && IsEventFired(eEvent))
+				continue;
+
+			//Lua Hook
+			if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_EventCanTake, GetID(), eEvent) == GAMEEVENTRETURN_FALSE) 
 			{
 				continue;
 			}
@@ -5192,8 +5204,9 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 	{
 		return false;
 	}
+
 	//Lua Hook
-	if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_EventCanTake, GetID(), eEvent) == GAMEEVENTRETURN_FALSE) 
+	if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_EventCanActivate, GetID(), eEvent) == GAMEEVENTRETURN_FALSE) 
 	{
 		return false;
 	}
@@ -5202,9 +5215,6 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 	bool bDontShowRewardPopup = (GC.GetEngineUserInterface()->IsOptionNoRewardPopups() || GC.getGame().isReallyNetworkMultiPlayer());
 
 	if(pkEventInfo->getNumChoices() > 1 && bDontShowRewardPopup)
-		return false;
-
-	if(pkEventInfo->isOneShot() && IsEventFired(eEvent))
 		return false;
 		
 	//Let's narrow down all events here!
@@ -5217,7 +5227,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 	if(pkEventInfo->getRequiredEra() != -1 && GetCurrentEra() < (EraTypes)pkEventInfo->getRequiredEra())
 		return false;
 
-	if(pkEventInfo->getObsoleteEra() != -1 && GetCurrentEra() >= (EraTypes)pkEventInfo->getRequiredEra())
+	if(pkEventInfo->getObsoleteEra() != -1 && GetCurrentEra() >= (EraTypes)pkEventInfo->getObsoleteEra())
 		return false;
 
 	if(pkEventInfo->getMinimumNationalPopulation() > 0 && getCurrentTotalPop() < pkEventInfo->getMinimumNationalPopulation())
@@ -5241,6 +5251,48 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 	if(pkEventInfo->hasPantheon() && GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON)
 		return false;
 
+	if(pkEventInfo->isUnhappy() && !IsEmpireUnhappy())
+		return false;
+
+	if(pkEventInfo->isSuperUnhappy() && !IsEmpireSuperUnhappy())
+		return false;
+
+	if(pkEventInfo->isRequiresIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
+		return false;
+
+	if(pkEventInfo->isRequiresWar() && GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
+		return false;
+
+	if(pkEventInfo->getRequiredActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) <= 0)
+		return false;
+
+	if(pkEventInfo->getRequiredActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) <= 0)
+		return false;
+
+	if(pkEventInfo->getRequiredNoActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActiveEvent()) > 0)
+		return false;
+
+	if(pkEventInfo->getRequiredNoActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActiveEventChoice()) > 0)
+		return false;
+
+	if(pkEventInfo->getRequiredStateReligion() != -1)
+	{
+		if(GetReligions()->GetStateReligion() != pkEventInfo->getRequiredStateReligion())
+			return false;
+	}
+
+	if(!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
+	{
+		if((GetReligions()->GetCurrentReligion() != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
+			return false;
+	}
+
+	if(pkEventInfo->hasMetAnotherCiv())
+	{
+		if(GET_TEAM(getTeam()).getHasMetCivCount(true) <= 0)
+			return false;
+	}
+
 	if(pkEventInfo->getUnitTypeRequired() != -1)
 	{
 		bool bHas = false;
@@ -5258,17 +5310,6 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 		{
 			return false;
 		}
-	}
-	if(pkEventInfo->getRequiredStateReligion() != -1)
-	{
-		if(GetReligions()->GetStateReligion() != pkEventInfo->getRequiredStateReligion())
-			return false;
-	}
-
-	if(!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
-	{
-		if((GetReligions()->GetCurrentReligion() != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
-			return false;
 	}
 
 	if(pkEventInfo->isRequiresHolyCity())
@@ -5300,11 +5341,6 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 			return false;
 		}
 	}
-	if(pkEventInfo->isRequiresIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
-		return false;
-
-	if(pkEventInfo->isRequiresWar() && GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
-		return false;
 
 	if(pkEventInfo->isRequiresWarMinor())
 	{
@@ -5327,7 +5363,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 				if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 				{
 					bHas = true;
-					return false;
+					break;
 				}
 			}
 		}
@@ -5540,21 +5576,15 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 		}
 	}
 
-	if(pkEventInfo->getRequiredActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) <= 0)
+	if(pkEventInfo->isInDebt() && GetTreasury()->GetGold() > 0)
 		return false;
 
-	if(pkEventInfo->getRequiredActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) <= 0)
+	if(pkEventInfo->isLosingMoney() && GetTreasury()->CalculateBaseNetGold() > 0)
 		return false;
 
-	if(pkEventInfo->getRequiredNoActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActiveEvent()) > 0)
-		return false;
-
-	if(pkEventInfo->getRequiredNoActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActiveEventChoice()) > 0)
-		return false;
-
-	if(pkEventInfo->getRequiredActiveOtherPlayerEvent() != -1 || pkEventInfo->getRequiredActiveOtherPlayerEventChoice() != -1)
+	if(pkEventInfo->getRequiredActiveOtherPlayerEvent() != -1 || pkEventInfo->getRequiredActiveOtherPlayerEventChoice() != -1 || pkEventInfo->getRequiredNoActiveOtherPlayerEvent() != -1 || pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice() != -1)
 	{
-		bool bHas = false;
+		bHas = false;
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -5562,11 +5592,11 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 			// Is this a player we have relations with?
 			if(GET_PLAYER(eLoopPlayer).isBarbarian())
 			{
-				return false;
+				continue;
 			}
 			if(GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
-				return false;
+				continue;
 			}
 			if(eLoopPlayer != GetID())
 			{
@@ -5586,6 +5616,22 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 						break;
 					}
 				}
+				if(pkEventInfo->getRequiredNoActiveOtherPlayerEvent() != -1)
+				{
+					if(GET_PLAYER(eLoopPlayer).GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActiveOtherPlayerEvent()) > 0)
+					{
+						bHas = false;
+						break;
+					}
+				}
+				if(pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice() != -1)
+				{
+					if(GET_PLAYER(eLoopPlayer).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice()) > 0)
+					{
+						bHas = false;
+						break;
+					}
+				}
 			}
 		}
 		if(!bHas)
@@ -5594,11 +5640,6 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 		}
 	}
 
-	//Lua Hook
-	if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_EventCanActivate, GetID(), eEvent) == GAMEEVENTRETURN_FALSE) 
-	{
-		return false;
-	}
 	return true;
 }
 bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventTypes eParentEvent)
@@ -5654,7 +5695,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 	if(pkEventInfo->getRequiredEra() != -1 && GetCurrentEra() < (EraTypes)pkEventInfo->getRequiredEra())
 		return false;
 
-	if(pkEventInfo->getObsoleteEra() != -1 && GetCurrentEra() >= (EraTypes)pkEventInfo->getRequiredEra())
+	if(pkEventInfo->getObsoleteEra() != -1 && GetCurrentEra() >= (EraTypes)pkEventInfo->getObsoleteEra())
 		return false;
 
 	if(pkEventInfo->getMinimumNationalPopulation() > 0 && getCurrentTotalPop() < pkEventInfo->getMinimumNationalPopulation())
@@ -5678,6 +5719,48 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 	if(pkEventInfo->hasPantheon() && GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON)
 		return false;
 
+	if(pkEventInfo->isUnhappy() && !IsEmpireUnhappy())
+		return false;
+
+	if(pkEventInfo->isSuperUnhappy() && !IsEmpireSuperUnhappy())
+		return false;
+
+	if(pkEventInfo->isRequiresIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
+		return false;
+
+	if(pkEventInfo->isRequiresWar() && GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
+		return false;
+
+	if(pkEventInfo->getRequiredStateReligion() != -1)
+	{
+		if(GetReligions()->GetStateReligion() != pkEventInfo->getRequiredStateReligion())
+			return false;
+	}
+
+	if(!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
+	{
+		if((GetReligions()->GetCurrentReligion() != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
+			return false;
+	}
+
+	if(pkEventInfo->getRequiredActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) <= 0)
+		return false;
+
+	if(pkEventInfo->getRequiredActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) <= 0)
+		return false;
+
+	if(pkEventInfo->getRequiredNoActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActiveEvent()) > 0)
+		return false;
+
+	if(pkEventInfo->getRequiredNoActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActiveEventChoice()) > 0)
+		return false;
+
+	if(pkEventInfo->hasMetAnotherCiv())
+	{
+		if(GET_TEAM(getTeam()).getHasMetCivCount(true) <= 0)
+			return false;
+	}
+
 	if(pkEventInfo->getUnitTypeRequired() != -1)
 	{
 		bool bHas = false;
@@ -5696,17 +5779,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 			return false;
 		}
 	}
-	if(pkEventInfo->getRequiredStateReligion() != -1)
-	{
-		if(GetReligions()->GetStateReligion() != pkEventInfo->getRequiredStateReligion())
-			return false;
-	}
 
-	if(!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
-	{
-		if((GetReligions()->GetCurrentReligion() != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
-			return false;
-	}
 
 	if(pkEventInfo->isRequiresHolyCity())
 	{
@@ -5737,11 +5810,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 			return false;
 		}
 	}
-	if(pkEventInfo->isRequiresIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
-		return false;
-
-	if(pkEventInfo->isRequiresWar() && GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
-		return false;
+	
 
 	if(pkEventInfo->isRequiresWarMinor())
 	{
@@ -5764,7 +5833,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 				if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 				{
 					bHas = true;
-					continue;
+					break;
 				}
 			}
 		}
@@ -5984,21 +6053,15 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 		}
 	}
 
-	if(pkEventInfo->getRequiredActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) <= 0)
+	if(pkEventInfo->isInDebt() && GetTreasury()->GetGold() > 0)
 		return false;
 
-	if(pkEventInfo->getRequiredActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) <= 0)
+	if(pkEventInfo->isLosingMoney() && GetTreasury()->CalculateBaseNetGold() > 0)
 		return false;
 
-	if(pkEventInfo->getRequiredNoActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActiveEvent()) > 0)
-		return false;
-
-	if(pkEventInfo->getRequiredNoActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActiveEventChoice()) > 0)
-		return false;
-
-	if(pkEventInfo->getRequiredActiveOtherPlayerEvent() != -1 || pkEventInfo->getRequiredActiveOtherPlayerEventChoice() != -1)
+	if(pkEventInfo->getRequiredActiveOtherPlayerEvent() != -1 || pkEventInfo->getRequiredActiveOtherPlayerEventChoice() != -1 || pkEventInfo->getRequiredNoActiveOtherPlayerEvent() != -1 || pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice() != -1)
 	{
-		bool bHas = false;
+		bHas = false;
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -6027,6 +6090,22 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 					if(GET_PLAYER(eLoopPlayer).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveOtherPlayerEventChoice()) > 0)
 					{
 						bHas = true;
+						break;
+					}
+				}
+				if(pkEventInfo->getRequiredNoActiveOtherPlayerEvent() != -1)
+				{
+					if(GET_PLAYER(eLoopPlayer).GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActiveOtherPlayerEvent()) > 0)
+					{
+						bHas = false;
+						break;
+					}
+				}
+				if(pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice() != -1)
+				{
+					if(GET_PLAYER(eLoopPlayer).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice()) > 0)
+					{
+						bHas = false;
 						break;
 					}
 				}
@@ -6087,7 +6166,7 @@ void CvPlayer::DoStartEvent(EventTypes eChosenEvent)
 				if(eEventChoice != NO_EVENT_CHOICE)
 				{
 					CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
-					if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->isParentEvent(eChosenEvent))
+					if(pkEventChoiceInfo != NULL)
 					{
 						if(IsEventChoiceValid(eEventChoice, eChosenEvent))
 						{
@@ -6355,7 +6434,7 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 								for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 								{
 									int iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
-									pLoopCity->ChangeEventBuildingClassYieldModifier(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield) * -1);
+									pLoopCity->ChangeEventBuildingClassYieldModifier(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield) * -1);
 									bChanged = true;
 									if(iBuildingCount > 0)
 									{
@@ -6376,13 +6455,203 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 				Localization::String strMessage;
 				Localization::String strSummary;
 				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_HAS_ENDED");
-				strMessage << pkEventChoiceInfo->GetHelp();
+				strMessage << GetScaledHelpText(eChosenEventChoice, true);
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_HAS_ENDED_T");
 
 				pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, GetID());
 			}
 		}
+		CvCity* pLoopCity;
+		int iLoop;
+		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if(pLoopCity != NULL)
+			{
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				{
+					YieldTypes eYield = (YieldTypes) iI;
+					if(eYield == NO_YIELD)
+						continue;
+
+					pLoopCity->UpdateSpecialReligionYields(eYield);
+					pLoopCity->UpdateCityYields(eYield);
+				}
+				pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
+				CalculateNetHappiness();
+				pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+				pLoopCity->GetCityCulture()->CalculateBaseTourism();
+			}
+		}
 	}
+}
+CvString CvPlayer::GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYieldsOnly)
+{
+	CvString CoreYieldTip = "";
+	CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
+	if(pkEventChoiceInfo == NULL)
+	{
+		return "";
+	}
+	Localization::String localizedCoreText;
+	if(bYieldsOnly)
+	{
+		localizedCoreText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION");
+	}
+	else
+	{
+		localizedCoreText = Localization::Lookup(pkEventChoiceInfo->GetHelp());
+	}
+
+	int iEra = GetCurrentEra();
+	if(iEra <= 0)
+	{
+		iEra = 1;
+	}
+	CvString yieldCostTip = "";
+	CvString yieldInstantTip = "";
+	CvString yieldCityTip = "";
+	CvString turnsTip = "";
+				
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eIndex = (YieldTypes)iI;
+		if(eIndex == NO_YIELD)
+		{
+			continue;
+		}
+		CvYieldInfo* pYield = GC.getYieldInfo(eIndex);
+		if(pYield)
+		{
+			int iValue = pkEventChoiceInfo->getPreCheckEventYield(eIndex);
+			if(pkEventChoiceInfo->IsEraScaling())
+			{
+				iValue *= iEra;
+			}
+			iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iValue /= 100;
+			if(iValue > 0)
+			{					
+				if(yieldCostTip != "")
+				{
+					yieldCostTip += ", ";
+				}
+				Localization::String localizedCostText;
+				if(bYieldsOnly)
+				{
+					localizedCostText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_SPENT");
+				}
+				else
+				{
+					localizedCostText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED");
+				}
+				localizedCostText << pYield->GetDescription();
+				localizedCostText << pYield->getIconString();
+				localizedCostText << iValue;
+
+				const char* const localized = localizedCostText.toUTF8();
+				if(localized)
+				{
+					yieldCostTip += localized;
+				}
+			}
+			iValue = pkEventChoiceInfo->getEventYield(eIndex);
+			if(pkEventChoiceInfo->IsEraScaling())
+			{
+				iValue *= iEra;
+			}
+			iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iValue /= 100;
+			if(iValue > 0)
+			{
+				if(yieldInstantTip != "")
+				{
+					yieldInstantTip += ", ";
+				}
+				Localization::String localizedEventText;
+				if(bYieldsOnly)
+				{
+					localizedEventText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_INSTANT");
+				}
+				else
+				{
+					localizedEventText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED");
+				}
+				localizedEventText << pYield->GetDescription();
+				localizedEventText << pYield->getIconString();
+				localizedEventText << iValue;
+
+				const char* const localized = localizedEventText.toUTF8();
+				if(localized)
+				{
+					yieldInstantTip += localized;
+				}
+			}
+			iValue = pkEventChoiceInfo->getCityYield(eIndex);
+			if(pkEventChoiceInfo->IsEraScaling())
+			{
+				iValue *= iEra;
+			}
+			if(iValue > 0)
+			{
+				if(yieldCityTip != "")
+				{
+					yieldCityTip += ", ";
+				}
+				Localization::String localizedCityText;
+				if(bYieldsOnly)
+				{
+					localizedCityText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_CITY");
+				}
+				else
+				{
+					localizedCityText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED");
+				}
+				localizedCityText << pYield->GetDescription();
+				localizedCityText << pYield->getIconString();
+				localizedCityText << iValue;
+
+				const char* const localized = localizedCityText.toUTF8();
+				if(localized)
+				{
+					yieldCityTip += localized;
+				}
+			}
+		}
+	}
+	localizedCoreText << yieldCostTip;
+	localizedCoreText << yieldInstantTip;
+	localizedCoreText << yieldCityTip;
+
+	//Duration
+	int iDuration = pkEventChoiceInfo->getEventDuration();
+	if(iDuration > 0)
+	{
+		iDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iDuration /= 100;
+		Localization::String localizedDurationText;
+		if(bYieldsOnly)
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_TURNS");
+		}
+		else
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_YIELD_DURATION");
+		}
+		localizedDurationText << iDuration;
+		const char* const localized = localizedDurationText.toUTF8();
+		if(localized)
+		{
+			turnsTip += localized;
+		}
+	}
+	localizedCoreText << turnsTip;
+
+	const char* const finallocalized = localizedCoreText.toUTF8();
+	if(finallocalized)
+	{
+		CoreYieldTip = finallocalized;
+	}
+	return CoreYieldTip.c_str();
 }
 void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 {
@@ -6472,13 +6741,31 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 					CvNotifications* pNotifications = GetNotifications();
 					if(pNotifications && GC.getGame().getActivePlayer() == GetID())
 					{
-						Localization::String strMessage;
-						Localization::String strSummary;
-						strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_FAILED");
-						strMessage << pkEventChoiceInfo->GetHelp();
-						strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_FAILED_T");
+						for(int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
+						{
+							EventTypes eEvent = (EventTypes)iLoop;
+							if(eEvent != NO_EVENT)
+							{
+								if(pkEventChoiceInfo->isParentEvent(eEvent))
+								{
+									CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+									if(pkEventInfo != NULL)
+									{
+										Localization::String strMessage;
+										Localization::String strSummary;
+										strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_FAILED");
+										strMessage << pkEventChoiceInfo->GetDescription();
+										strMessage << GetScaledHelpText(eEventChoice, false);
+										strMessage << pkEventInfo->GetDescription();
+										strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_FAILED_T");
+										strSummary << pkEventInfo->GetDescription();
 
-						pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, GetID());
+										pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, GetID());
+										break;
+									}
+								}
+							}
+						}
 					}
 					return;
 				}
@@ -6662,7 +6949,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 								{
 									int iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 
-									pLoopCity->ChangeEventBuildingClassYieldModifier(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYield(eBuildingClass, eYield));
+									pLoopCity->ChangeEventBuildingClassYieldModifier(eBuildingClass, eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
 									if(iBuildingCount > 0)
 									{
 										pLoopCity->changeYieldRateModifier(eYield, pkEventChoiceInfo->getBuildingClassYieldModifier(eBuildingClass, eYield));
@@ -6794,53 +7081,68 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 							pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
 
 							// Pick a unit type - should give us more melee than ranged
-							UnitTypes eUnit = theGame.GetRandomSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
-							UnitTypes emUnit = theGame.GetRandomSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ false);
+							UnitTypes eUnit = theGame.GetCompetitiveSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ true, false, true);
+							UnitTypes emUnit = theGame.GetCompetitiveSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ false, false, true);
 
 							// Init unit
-							GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
+							CvUnit* pstartUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(emUnit, pPlot->getX(), pPlot->getY());
+							CvAssert(pstartUnit);
+							if (pstartUnit)
+							{
+								if (!pstartUnit->jumpToNearestValidPlotWithinRange(3))
+								{
+									pstartUnit->kill(false);		// Could not find a spot!
+								}
+								else
+								{
+									pstartUnit->setMoves(0);
+								}
+							}
 							iNumRebels--;	// Reduce the count since we just added the seed rebel
 
 							// Loop until all rebels are placed
-							do
+							if(iNumRebels > 0)
 							{
-								iNumRebels--;
-
-								// Init unit
-								CvUnit* pmUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-								CvAssert(pmUnit);
-								if (pmUnit)
+								do
 								{
-									if (!pmUnit->jumpToNearestValidPlotWithinRange(3))
-									{
-										pmUnit->kill(false);		// Could not find a spot!
-									}
-									else
-									{
-										pmUnit->setMoves(0);
-									}
-								}
+									iNumRebels--;
 
-								iNumRebels--;
-								if(iNumRebels > 0)
-								{		
 									// Init unit
-									CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-									CvAssert(pUnit);
-									if (pUnit)
+									CvUnit* pmUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(emUnit, pPlot->getX(), pPlot->getY());
+									CvAssert(pmUnit);
+									if (pmUnit)
 									{
-										if (!pUnit->jumpToNearestValidPlotWithinRange(3))
+										if (!pmUnit->jumpToNearestValidPlotWithinRange(3))
 										{
-											pUnit->kill(false);		// Could not find a spot!
+											pmUnit->kill(false);		// Could not find a spot!
 										}
 										else
 										{
-											pUnit->setMoves(0);
+											pmUnit->setMoves(0);
 										}
 									}
-									}
+
+									iNumRebels--;
+									if(iNumRebels > 0)
+									{		
+										// Init unit
+										CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
+										CvAssert(pUnit);
+										if (pUnit)
+										{
+											if (!pUnit->jumpToNearestValidPlotWithinRange(3))
+											{
+												pUnit->kill(false);		// Could not find a spot!
+											}
+											else
+											{
+												pUnit->setMoves(0);
+											}
+										}
+										}
+								}
+								while(iNumRebels > 0);
 							}
-							while(iNumRebels > 0);
 						}
 					}
 				}
@@ -6906,7 +7208,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 								iTempWeight = -1;
 
 							// Add weight if there's a defensive bonus for this plot
-							if(pPlot->defenseModifier(BARBARIAN_TEAM, false, false))
+							if(pPlot->defenseModifier(getTeam(), false, false))
 								iTempWeight += 4;
 
 							if(iTempWeight > iBestPlotWeight)
@@ -6922,53 +7224,67 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 							pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
 
 							// Pick a unit type - should give us more melee than ranged
-							UnitTypes eUnit = theGame.GetRandomSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
-							UnitTypes emUnit = theGame.GetRandomSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ false);
+							UnitTypes eUnit = theGame.GetCompetitiveSpawnUnitType(GetID(), /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, false, true);
+							UnitTypes emUnit = theGame.GetCompetitiveSpawnUnitType(GetID(), /*bIncludeUUs*/ false, /*bIncludeRanged*/ false, false, true);
 
-							// Init unit
-							initUnit(eUnit, pPlot->getX(), pPlot->getY());
+							CvUnit* pstartUnit = GET_PLAYER(GetID()).initUnit(emUnit, pPlot->getX(), pPlot->getY());
+							CvAssert(pstartUnit);
+							if (pstartUnit)
+							{
+								if (!pstartUnit->jumpToNearestValidPlotWithinRange(3))
+								{
+									pstartUnit->kill(false);		// Could not find a spot!
+								}
+								else
+								{
+									pstartUnit->setMoves(0);
+								}
+							}
 							iNumRecruits--;	// Reduce the count since we just added the seed rebel
 
 							// Loop until all rebels are placed
-							do
+							if(iNumRecruits > 0)
 							{
-								iNumRecruits--;
-
-								// Init unit
-								CvUnit* pmUnit = initUnit(emUnit, pPlot->getX(), pPlot->getY());
-								CvAssert(pmUnit);
-								if (pmUnit)
+								do
 								{
-									if (!pmUnit->jumpToNearestValidPlotWithinRange(3))
-									{
-										pmUnit->kill(false);		// Could not find a spot!
-									}
-									else
-									{
-										pmUnit->setMoves(0);
-									}
-								}
+									iNumRecruits--;
 
-								iNumRecruits--;
-								if(iNumRecruits > 0)
-								{		
 									// Init unit
-									CvUnit* pUnit = initUnit(eUnit, pPlot->getX(), pPlot->getY());
-									CvAssert(pUnit);
-									if (pUnit)
+									CvUnit* pmUnit = initUnit(emUnit, pPlot->getX(), pPlot->getY());
+									CvAssert(pmUnit);
+									if (pmUnit)
 									{
-										if (!pUnit->jumpToNearestValidPlotWithinRange(3))
+										if (!pmUnit->jumpToNearestValidPlotWithinRange(3))
 										{
-											pUnit->kill(false);		// Could not find a spot!
+											pmUnit->kill(false);		// Could not find a spot!
 										}
 										else
 										{
-											pUnit->setMoves(0);
+											pmUnit->setMoves(0);
 										}
 									}
-									}
+
+									iNumRecruits--;
+									if(iNumRecruits > 0)
+									{		
+										// Init unit
+										CvUnit* pUnit = initUnit(eUnit, pPlot->getX(), pPlot->getY());
+										CvAssert(pUnit);
+										if (pUnit)
+										{
+											if (!pUnit->jumpToNearestValidPlotWithinRange(3))
+											{
+												pUnit->kill(false);		// Could not find a spot!
+											}
+											else
+											{
+												pUnit->setMoves(0);
+											}
+										}
+										}
+								}
+								while(iNumRecruits > 0);
 							}
-							while(iNumRecruits > 0);
 						}
 					}
 				}
@@ -7091,6 +7407,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 						strMessage << getCivilizationShortDescriptionKey();
 						strMessage << getCivilizationDescription();
 						strMessage << getName();
+						strMessage << GetScaledHelpText(eEventChoice, true);
 						bool bGlobal = pkEventChoiceInfo->GetNotificationInfo(iI)->IsWorldEvent();
 						for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 						{
@@ -7121,6 +7438,27 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 							}
 						}
 					}
+				}
+			}
+			CvCity* pLoopCity;
+			int iLoop;
+			for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL)
+				{					
+					for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+					{
+						YieldTypes eYield = (YieldTypes) iI;
+						if(eYield == NO_YIELD)
+							continue;
+
+						pLoopCity->UpdateSpecialReligionYields(eYield);
+						pLoopCity->UpdateCityYields(eYield);
+					}
+					pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
+					CalculateNetHappiness();
+					pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+					pLoopCity->GetCityCulture()->CalculateBaseTourism();
 				}
 			}
 		}
@@ -21134,15 +21472,15 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 		}
 		if(iChange > 0 && GetPlayerTraits()->GetWLTKDGATimer() > 0)
 		{
-			int iValue = GetPlayerTraits()->GetWLTKDGATimer();
-			iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iValue /= 100;
+			int iValue2 = GetPlayerTraits()->GetWLTKDGATimer();
+			iValue2 *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iValue2 /= 100;
 			int iLoop;
 			for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
 				if(pLoopCity != NULL)
 				{				
-					pLoopCity->ChangeWeLoveTheKingDayCounter(iValue);
+					pLoopCity->ChangeWeLoveTheKingDayCounter(iValue2);
 				}
 			}
 			CvNotifications* pNotification = GetNotifications();
@@ -21150,7 +21488,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 			{
 				CvString strMessage;
 				CvString strSummary;
-				strMessage = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD", iValue);
+				strMessage = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD", iValue2);
 				strSummary = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD_S");
 				pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, -1, -1, GetID());
 			}
@@ -22450,13 +22788,16 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			//Now, let's apply these yields here as total yields.
 			if(iValue != 0)
 			{
-				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iValue /= 100;
-
-				//Exclusion for birth yields (as we do it up above to avoid % growth bonus being scaled).
-				if(bEraScale && iType != INSTANT_YIELD_TYPE_BIRTH)
+				if(eYield != YIELD_POPULATION)
 				{
-					iValue *= iEra;
+					iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iValue /= 100;
+
+					//Exclusion for birth yields (as we do it up above to avoid % growth bonus being scaled).
+					if(bEraScale && iType != INSTANT_YIELD_TYPE_BIRTH)
+					{
+						iValue *= iEra;
+					}
 				}
 				switch(eYield)
 				{
@@ -22977,7 +23318,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 		}
 	}
 }
-void CvPlayer::addInstantYieldText(InstantYieldType iType, const char* strInstantYield)
+void CvPlayer::addInstantYieldText(InstantYieldType iType, CvString strInstantYield)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(iType >= 0, "iType expected to be >= 0");
@@ -22985,7 +23326,7 @@ void CvPlayer::addInstantYieldText(InstantYieldType iType, const char* strInstan
 
 	m_aistrInstantYield.setAt(iType, m_aistrInstantYield[iType] + strInstantYield);
 }
-void CvPlayer::setInstantYieldText(InstantYieldType iType, const char* strInstantYield)
+void CvPlayer::setInstantYieldText(InstantYieldType iType, CvString strInstantYield)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(iType >= 0, "iType expected to be >= 0");
@@ -31170,7 +31511,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 				if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
 					//Do we have +50% of this resource under our control?
-					if(((iOwnedNumResource * 100) / iTotalNumResource) > 50)
+					if(((iOwnedNumResource * 100) / iTotalNumResource) > GC.getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD())
 					{
 						if(m_pabHasGlobalMonopoly[eResource] == false)
 						{
@@ -31190,7 +31531,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 				else if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 				{
 					//Do we have +25% of this resource under our control?
-					if(((iOwnedNumResource * 100) / iTotalNumResource) > 25)
+					if(((iOwnedNumResource * 100) / iTotalNumResource) > GC.getSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD())
 					{
 						if(m_pabHasStrategicMonopoly[eResource] == false)
 						{
