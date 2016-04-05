@@ -13193,3 +13193,73 @@ bool CvGame::AnyoneHasUnitClass(UnitClassTypes iUnitClassType) const
 	return false;
 }
 #endif
+
+#if defined(MOD_BALANCE_CORE)
+
+PlayerTypes CvGame::GetCorporationFounder(int iCorporateID) const
+{
+	if(iCorporateID <= 0)
+		return NO_PLAYER;
+
+	PlayerTypes eLoopPlayer;
+	for(int iPlayerLoop=0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(GET_PLAYER(eLoopPlayer).GetCorporateFounderID() == iCorporateID)
+		{
+			return eLoopPlayer;
+		}
+	}
+
+	return NO_PLAYER;
+}
+
+int CvGame::GetNumCorporationsFounded() const
+{
+	int iNumCorporationsFounded = 0;
+
+	PlayerTypes eLoopPlayer;
+	for(int iPlayerLoop=0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(GET_PLAYER(eLoopPlayer).GetCorporateFounderID() > 0)
+		{
+			iNumCorporationsFounded++;
+		}
+	}
+
+	return iNumCorporationsFounded;
+}
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+
+PlayerTypes CvGame::GetGreatestPlayerResourceMonopoly(ResourceTypes eResource) const
+{
+	const CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+	if(pkResource == NULL)
+		return NO_PLAYER;
+	if(!pkResource->isMonopoly())
+		return NO_PLAYER;
+
+	PlayerTypes eGreatestMonopolyPlayer = NO_PLAYER;
+	PlayerTypes eLoopPlayer;
+	int iMax = 0;
+	for(int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+	{
+		eLoopPlayer = (PlayerTypes) iLoopPlayer;
+
+		if(!GET_PLAYER(eLoopPlayer).isAlive()) continue;
+
+		int iMonopolyPercent = GET_PLAYER(eLoopPlayer).GetMonopolyPercent(eResource);
+		if(iMonopolyPercent > iMax)
+		{
+			iMax = iMonopolyPercent;
+			eGreatestMonopolyPlayer = eLoopPlayer;
+		}
+	}
+
+	return eGreatestMonopolyPlayer;
+}
+
+#endif
+#endif

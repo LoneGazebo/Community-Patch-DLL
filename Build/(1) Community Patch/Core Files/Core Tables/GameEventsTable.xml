@@ -1,0 +1,782 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 3/24/2016 10:05:41 PM -->
+
+<!-- CP EVENT SYSTEM --> 
+
+<GameData>
+	<!-- 
+					MODDERS: READ CAREFULLY!
+	There are four major tables here, and then sub-tables below that:
+	1.) Events - this is the main table for Player-level events.
+		This handles the prerequsities and limiters of all events you create.
+	2.) EventChoices - this is the main table for Player-level event choices. 
+		All choices must have a parent event, and all choices alter player-level things only.
+	3.) CityEvents - this is the main table for City-level events. 
+		This handles the prerequisites and limites of all city events you create.
+	4.) CityEventChoices - this is the main table for City-level event choices. 
+		All choices must have a parent city event, and all choices alter city-level things only.
+	
+	Rules: 
+	
+	1.) Do NOT mix Player and City level events in the XML. They don't interact. The exception to this rule is with linked events, which are discussed in (9) below.
+	2.) Make sure that every event choice has a parent event.
+	3.) All event choices have a 'duration' - this is required to create cooldowns between the same event firing a second+ time. 
+		If you want the effects of an event to wear off after the event's duration, set 'Expires' to true.
+	4.) The only choice elements that can expire are as follows:
+		Player-level:
+			Promotions
+			BuildingClasses
+			Policies
+			Resources
+			Happiness
+			City Yield Changes
+			BuildingClass Yield Changes
+		City-level:
+			BuildingClasses
+			Happiness
+			City Yield Changes
+			BuildingClass Yield Changes
+	5.) If you are creating a multi-choice event, make sure that all Events and Event Choices have both Help and Description elements set.
+	6.) If you are creating a single-choice (i.e. a pure event), you only need to set Help and Description for the Choice (not the base Event).
+	7.) Make sure to set the NumChoices element for each event - 1 for single-choice events, 2+ for multi-choice events.
+	8.) Player and City level events can interact, though only through a 'chaining' system using these attributes:
+			'RequiredActiveEvent/RequiredActiveEventChoice/RequiredActiveCityEvent/RequiredActiveCityEventChoice'
+		If you assign a City Event, for example, a RequiredActiveEvent value, the event will only fire if the player has had the player level event (i.e. the event's duration cooldown is still active).
+		Using this, you can chain events and event choices off of each other, though (for the sake of performance) you can only assign one of each of these values to each event/choice.
+		There are also options for 'no' event (i.e. two events can't be active at the same time) and 'otherplayer' (i.e. an event can only fire if another player has an event/choice active).
+	9.) Events and choices can be given the 'one-shot' status, meaning that, once the event/choice has fired or is taken by the player/city, it will never happen again for the player or that city. 
+		Duration can still be used to affect expiration of effects, but the event will never happen again (or the choice will never appear in a choice list again).
+		
+	-->
+	
+	<!-- Note on Era Scaling: Era scaling of values works off of the following function:
+		Value x Era # = Scaled value.
+		Ancient = 0 (raised to 1 a minimum), Classical = 1, Medieval = 2, Reniassance = 3, Industrial = 4, Modern = 5, Atomic = 6, Information = 7
+		Example: 10 gold scaled in Medieval = 30 gold.
+	-->
+	
+	<!-- LUA Support -->
+	<!-- Events System -->
+
+	<!-- Note: the following two game events fire when an event starts. -->
+		<!-- GameEvents.EventActivated(iPlayer, iEvent)-->
+		<!-- GameEvents.CityEventActivated(iPlayer, iCityID, iEvent)-->
+	<!-- Note: the following two game events fire when an event choice starts. -->
+		<!-- GameEvents.EventChoiceActivated(iPlayer, iChoice)-->
+		<!-- GameEvents.CityEventChoiceActivated(iPlayer, iCityID, iChoice)-->
+	<!-- Note: the following two game events fire when an event choice's duration value ends. -->
+		<!-- GameEvents.EventChoiceEnded(iPlayer, iChoice)-->
+		<!-- GameEvents.CityEventChoiceEnded(iPlayer, iCityID, iChoice)-->
+	<!-- Note: the following four game events need to return a bool of true/false - true will end the function, false will let it continue normally. -->
+		<!-- GameEvents.OverrideAIEvent(iPlayer, iEvent)-->
+		<!-- GameEvents.OverrideAICityEvent(iPlayer, iCityID, iEvent)-->
+		<!-- GameEvents.OverrideAIEventChoice(iPlayer, iChoice) -->
+		<!-- GameEvents.OverrideAICityEventChoice(iPlayer, iCityID, iChoice)-->
+	<!-- Note: the following two game events need to return a bool of true/false - false will count as a continue, true will let it continue normally. -->
+		<!-- GameEvents.EventCanTake(iPlayer, iEvent)-->
+		<!-- GameEvents.CityEventCanTake(iPlayer, iCityID, iEvent)-->
+		<!-- GameEvents.EventChoiceCanTake(iPlayer, iChoice)-->
+		<!-- GameEvents.CityEventChoiceCanTake(iPlayer, iCityID, iChoice)-->
+	
+	
+	<!-- Lua Functions
+		PLAYER EVENTS:
+		
+		Player:DoStartEvent(EventTypes eEvent);
+			Fires a specific event, ignoring requirements/filters.
+		Player:GetEventCooldown(EventTypes eEvent);
+			Gets the integer value of the cooldown for an event
+		Player:SetEventCooldown(EventTypes eEvent, int iNewCooldown);
+			Sets the integer value of the cooldown for an event
+	
+		PLAYER CHOICES:
+		
+		Player:DoEventChoice(EventChoiceTypes eEventChoice);
+			Fires a specific event choice. Used by UI.
+		Player:DoCancelEventChoice(EventChoiceTypes eEventChoice);
+			Cancels a specific choice, ignoring requirements/filters.
+		Player:GetEventChoiceCooldown(EventChoiceTypes eEventChoice);
+			Gets the integer value of the cooldown for an event choice
+		Player:SetEventChoiceCooldown(EventChoiceTypes eEventChoice, int iNewCooldown);
+			Sets the integer value of the cooldown for an event choice
+		Player:IsEventChoiceValid(EventChoiceTypes eEventChoice);
+			Let's you check to see if an event choice is valid. Used by UI.
+		
+		CITY EVENTS:
+	
+		City:DoCityStartEvent(CityEventTypes eEvent);
+			Fires a specific event, ignoring requirements/filters
+		Player:GetCityEventCooldown(CityEventTypes eEvent);
+			Gets the integer value of the cooldown for a city event
+		Player:SetCityEventCooldown(CityEventTypes eEvent, int iNewCooldown);
+			Sets the integer value of the cooldown for a city event
+			
+		CITY CHOICES:
+		
+		City:DoCityEventChoice(CityEventChoiceTypes eEventChoice);
+			Fires a specific event choice. Used by UI.
+		City:DoCancelCityEventChoice(CityEventChoiceTypes eEventChoice);
+			Cancels a specific event choice, ignoring requirements/filters.
+		Player:GetCityEventChoiceCooldown(CityEventChoiceTypes eEventChoice);
+			Gets the integer value of the cooldown for a city event choice
+		Player:SetCityEventChoiceCooldown(CityEventChoiceTypes eEventChoice, int iNewCooldown);
+			Sets the integer value of the cooldown for a city event choice
+		City:IsCityEventChoiceValid(CityEventChoiceTypes eEventChoice);
+			Let's you check to see if an event choice is valid. Used by UI.
+	-->
+	
+	<!-- Table definitions -->
+
+	<!--== PLAYER LEVEL EVENTS == -->
+
+	<Table name="Events">
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="EventArt" type="text"/>
+		<Column name="EventAudio" type="text"/>
+		<Column name="RandomChance" type="integer" default="0"/>
+		<Column name="RandomChanceDelta" type="integer" default="0"/>
+		<!-- If set to true, this event can only fire once, ever, for the player -->
+		<Column name="IsOneShot" type="boolean" default="false"/>
+		<!-- This value determines whether or not an event, once fired for one player, immediately fires for all players. -->
+		<Column name="Global" type="boolean" default="false"/>
+		<!-- Era Scaling: boosts yield required for minimumstartyield table below. -->
+		<Column name="EraScaling" type="boolean" default="false"/>
+		<!-- Global Cooldown: sets distance in time between this event and next. Defaults to 30 turns. Means that the minimum time between any two events of ANY type is 30 turns. -->
+		<Column name="EventCooldown" type="integer" default="30"/>
+		<!-- Set NumChoices to 2+ if you are adding more than one choice to the event!! -->
+		<Column name="NumChoices" type="integer" default="1"/>
+		<!-- Filters 
+		
+		Determine whether or not an Event can occur for the player.
+		
+		-->
+		<Column name="MinimumNationalPopulation" type="integer" default="0"/>
+		<Column name="MinimumNumberCities" type="integer" default="0"/>
+		<Column name="RequiredCiv" type="text" reference="Civilizations(Type)" default="NULL"/>
+		<Column name="RequiredEra" type="text" reference="Eras(Type)" default="NULL"/>
+		<!-- Checks if empire is unhappy -->
+		<Column name="IsUnhappy" type="boolean" default="false"/>
+		<!-- Note: obsoletes at this era, not after it -->
+		<Column name="ObsoleteEra" type="text" reference="Eras(Type)" default="NULL"/>
+		<Column name="ImprovementAnywhereRequired" type="text" reference="Improvements(Type)" default="NULL"/>
+		<Column name="RequiredPolicy" type="text" reference="Policies(Type)" default="NULL"/>
+		<Column name="RequiredIdeology" type="text" reference="PolicyBranchTypes(Type)" default="NULL"/>
+		<Column name="UnitClassRequired" type="text" reference="UnitClasses(Type)" default="NULL"/>
+		<Column name="PrereqTech" type="text" reference="Technologies(Type)" default="NULL"/>
+		<Column name="ObsoleteTech" type="text" reference="Technologies(Type)" default="NULL"/>
+		<!-- Checks to see if player's current religion is a Pantheon -->
+		<Column name="RequiresPantheon" type="boolean" default="false"/>
+		<!-- Checks for Official or Majority Religion of player -->
+		<Column name="RequiredReligion" type="text" reference="Religions(Type)" default="NULL"/>
+		<!-- JFD check - looks at player's state religion -->
+		<Column name="RequiredStateReligion" type="text" reference="Religions(Type)" default="NULL"/>
+		<Column name="RequiresAnyStateReligion" type="boolean" default="false"/>
+		<!-- Other -->
+		<Column name="RequiredAnywhereBuildingClass" type="text" reference="BuildingClasses(Type)" default="NULL"/>
+		<Column name="RequiredNowhereBuildingClass" type="text" reference="BuildingClasses(Type)" default="NULL"/>
+		<Column name="RequiresHolyCity" type="boolean" default="false"/>
+		<Column name="RequiresIdeology" type="boolean" default="false"/>
+		<Column name="RequiresWar" type="boolean" default="false"/>
+		<Column name="RequiresWarMinor" type="boolean" default="false"/>
+		<!-- These filters look for specific events or event choices to see if they've been actived by the player/city. This allows you to create 'chained' events that rely on a prior event. -->
+		<!-- Note that these values look at the EventCooldown value for events, and the Duration value for choices. -->
+		<!-- For example, if an event has a cooldown of 30 turns, and that event fires, there is a 30 turn window in which an event dependent on that one can fire (using the RequiredActiveEvent tag below) -->
+		<Column name="RequiredActiveEvent" type="text" reference="Events(Type)" default="NULL"/>
+		<Column name="RequiredActiveEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
+		<Column name="RequiredActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
+		<Column name="RequiredActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
+		<!-- Same concept, but breaks if an event is active, or another player does NOT have the event active. -->
+		<Column name="RequiredNoActivePlayerEvent" type="text" reference="Events(Type)" default="NULL"/>
+		<Column name="RequiredNoActivePlayerEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
+		<Column name="RequiredActiveEventOtherPlayer" type="text" reference="Events(Type)" default="NULL"/>
+		<Column name="RequiredActiveEventChoiceOtherPlayer" type="text" reference="EventChoices(Type)" default="NULL"/>
+	</Table>
+	
+	<!-- Filters: -->
+	
+	<!-- Note: this only checks national yields (Faith, Culture, Gold, Science, Golden Age Points). -->
+	<Table name="Event_MinimumStartYield">
+		<Column name="EventType" type="text" reference="Events(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<!-- Checks for ownership of resource type and number. Does not include trades. -->
+	<Table name="Event_MinimumResourceRequired">
+		<Column name="EventType" type="text" reference="Events(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="Quantity" type="integer"/>
+	</Table>
+	
+	<!-- == PLAYER EVENT CHOICES == -->
+	<Table name="EventChoices">
+		<!-- You can make as many choices as you want - the window show expand (with a scroll bar) to acommodate them. But be reasonable! :) -->
+		<!-- Note - if NOT a multiple-choice event, only make one of these! -->
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+		<!-- Help is used for Tooltips, Description for button text -->
+		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="EventChoiceAudio" type="text" default="AS2D_EVENT_CHOICE"/>
+		<!-- If set to true, this event choice can only be chosen once, ever, by the player -->
+		<Column name="IsOneShot" type="boolean" default="false"/>
+		<!-- Event Duration : Leave blank if you want the event's effect to be permanent. Otherwise, all effects (except instant yields, GP points, and building destruction), will be reversed. -->
+		<!-- Defaults to 30. Unless changed, this means each player can have a maximum of 1 event of THIS type every 30 turns. -->
+		<Column name="EventDuration" type="integer" default="30"/>
+		<!-- Event Chance: Higher value = higher chance of success. Notification will spawn if an event fails. Default is always successful. -->
+		<Column name="EventChance" type="integer" default="0"/>
+		<!-- Era Scaling: boosts yield value on instant yield, GP Points, and yield costs tables (See below) based on Era. -->
+		<Column name="EraScaling" type="boolean" default="false"/>
+		<!-- Expires: set to true if you want policies/buildings/promotions/resources granted to disappear after the duration. -->
+		<Column name="Expires" type="boolean" default="false"/>
+		
+		
+		<!-- Variables 
+		
+		Attriutes granted by Event Choices. Unless noted, city-related choices affect all cities.
+		
+		-->
+		<!-- Grants a Policy. -->
+		<Column name="EventPolicy" type="text" reference="Policies(Type)" default="NULL"/>
+		<!-- Grants all owned units a promotion. Does not affect units created after event. -->
+		<Column name="EventPromotion" type="text" reference="UnitPromotions(Type)" default="NULL"/>
+		<!-- Adds a building to all cities. -->
+		<Column name="EventBuildingClassGlobal" type="text" reference="BuildingClasses(Type)" default="NULL"/>
+		<Column name="EventFreePolicies" type="integer" default="0"/>
+		<Column name="FreeGreatPeople" type="integer" default="0"/>
+		<Column name="GoldenAgeTurns" type="integer" default="0"/>
+		<!-- Affects all cities -->
+		<Column name="WLTKDTurns" type="integer" default="0"/>
+		<Column name="ResistanceTurns" type="integer" default="0"/>
+		<!-- Happiness Boosts. Can be set to expire. PlayerHappiness applies to capital, HappinessPerCity applies to all cities. -->
+		<Column name="PlayerHappiness" type="integer" default="0"/>
+		<Column name="HappinessPerCity" type="integer" default="0"/>
+		<!-- Spawns X number of barbs near EVERY City. Unit type scales with player tech. -->
+		<Column name="RandomBarbarianSpawn" type="integer" default="0"/>
+		<!-- Spawns X number of owned units near EVERY City. Unit type scales with player tech. -->
+		<Column name="FreeUnitsTechAppropriate" type="integer" default="0"/>
+
+		<!-- Filters 
+		
+		Determines whether or not Event Choices appear in list of choices.
+		
+		-->
+		<Column name="MinimumNationalPopulation" type="integer" default="0"/>
+		<Column name="MinimumNumberCities" type="integer" default="0"/>
+		<!-- Checks if empire is unhappy -->
+		<Column name="IsUnhappy" type="boolean" default="false"/>
+		<Column name="RequiredCiv" type="text" reference="Civilizations(Type)" default="NULL"/>
+		<Column name="RequiredEra" type="text" reference="Eras(Type)" default="NULL"/>
+		<!-- Note: obsoletes at this era, not after it -->
+		<Column name="ObsoleteEra" type="text" reference="Eras(Type)" default="NULL"/>
+		<Column name="ImprovementAnywhereRequired" type="text" reference="Improvements(Type)" default="NULL"/>
+		<Column name="RequiredPolicy" type="text" reference="Policies(Type)" default="NULL"/>
+		<Column name="RequiredIdeology" type="text" reference="PolicyBranchTypes(Type)" default="NULL"/>
+		<Column name="UnitClassRequired" type="text" reference="UnitClasses(Type)" default="NULL"/>
+		<Column name="PrereqTech" type="text" reference="Technologies(Type)" default="NULL"/>
+		<Column name="ObsoleteTech" type="text" reference="Technologies(Type)" default="NULL"/>
+		<!-- Checks to see if player's current religion is a Pantheon -->
+		<Column name="RequiresPantheon" type="boolean" default="false"/>
+		<!-- Checks for Official or Majority Religion -->
+		<Column name="RequiredReligion" type="text" reference="Religions(Type)" default="NULL"/>
+		<!-- JFD check - looks at player's state religion -->
+		<Column name="RequiredStateReligion" type="text" reference="Religions(Type)" default="NULL"/>
+		<Column name="RequiresAnyStateReligion" type="boolean" default="false"/>
+		<!-- Other -->
+		<Column name="RequiredAnywhereBuildingClass" type="text" reference="BuildingClasses(Type)" default="NULL"/>
+		<Column name="RequiredNowhereBuildingClass" type="text" reference="BuildingClasses(Type)" default="NULL"/>
+		<Column name="RequiresHolyCity" type="boolean" default="false"/>
+		<!-- Requires any Ideology -->
+		<Column name="RequiresIdeology" type="boolean" default="false"/>
+		<Column name="RequiresWar" type="boolean" default="false"/>
+		<Column name="RequiresWarMinor" type="boolean" default="false"/>
+		<!-- These filters look for specific events or event choices to see if they've been actived by the player/city. This allows you to create 'chained' events that rely on a prior event. -->
+		<!-- Note that these values look at the EventCooldown value for events, and the Duration value for choices. -->
+		<!-- For example, if an event has a cooldown of 30 turns, and that event fires, there is a 30 turn window in which an event dependent on that one can fire (using the RequiredActiveEvent tag below) -->
+		<Column name="RequiredActiveEvent" type="text" reference="Events(Type)" default="NULL"/>
+		<Column name="RequiredActiveEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
+		<Column name="RequiredActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
+		<Column name="RequiredActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
+		<!-- Same concept, but won't fire if a player event is active, or another player does NOT have the player event active. -->
+		<Column name="RequiredNoActivePlayerEvent" type="text" reference="Events(Type)" default="NULL"/>
+		<Column name="RequiredNoActivePlayerEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
+		<Column name="RequiredActiveEventOtherPlayer" type="text" reference="Events(Type)" default="NULL"/>
+		<Column name="RequiredActiveEventChoiceOtherPlayer" type="text" reference="EventChoices(Type)" default="NULL"/>
+	</Table>
+	<!-- Parent Event is ESSENTIAL - this table assigns choices to events. Make sure the EventType matches the name of an EventType from above! -->
+	<Table name="Event_ParentEvents">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="EventType" type="text" reference="Events(Type)"/>
+	</Table>	
+	<!-- Note: This table fires BEFORE an event choice is checked to see if it succeeds. Use this to have an event that costs something, but may not actually succeed. -->
+	<!-- Use negative values here to make it a 'cost' -->
+	<Table name="EventChoice_EventCostYield">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<!-- The tables below fire AFTER an event has been found to succeed. Can use negative values here. -->
+	<!-- Note: these values all pass through your Capital. -->
+	<Table name="EventChoice_InstantYield">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<!-- Grants all cities a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. Can scale with era. -->
+	<Table name="EventChoice_CityYield">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<!-- Grants all city buildings of a class (existing and future) a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<Table name="EventChoice_BuildingClassYieldChange">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer"/>
+	</Table>
+	<!-- Grants all city buildings of a class (existing and future) a certain X yield modifier. Can be turned off via the 'expires' tag and a set duration. -->
+	<Table name="EventChoice_BuildingClassYieldModifier">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Modifier" type="integer"/>
+	</Table>
+	<!-- Grants a free resource. Can be set to expire. -->
+	<Table name="EventChoice_ResourceQuantity">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="Quantity" type="integer"/>
+	</Table>
+	<!-- Creates Units in all cities -->
+	<Table name="EventChoice_FreeUnitClasses">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<Column name="Quantity" type="integer"/>
+	</Table>
+	<!-- Convert Set Pop/Percent Pop to Religion-->
+	<Table name="EventChoice_ConvertNumPopToReligion">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="ReligionType" type="text" reference="Religions(Type)"/>
+		<Column name="Population" type="integer"/>
+	</Table>
+	<Table name="EventChoice_ConvertPercentPopToReligion">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="ReligionType" type="text" reference="Religions(Type)"/>
+		<Column name="Percent" type="integer"/>
+	</Table>
+	<!-- Unhappiness Modifier for CBP Happiness system. Affects ALL cities. 
+		Yield match: YIELD_GOLD = Poverty, YIELD_SCIENCE = Illiteracy, YIELD_PRODUCTION = Safety, YIELD_CULTURE = illiteracy, YIELD_FAITH = Religious Minorities
+		Note that negative values reduce needs, while positive values increase them!
+	-->
+	<Table name="EventChoice_CityUnhappinessNeedMod">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+
+	<!-- Filters -->
+	
+	<!-- Determines if a choice will appear in list. This only checks national yields (Faith, Culture, Gold, Science, Golden Age Points). -->
+	<Table name="EventChoice_MinimumStartYield">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<!-- Checks for ownership of resource type and number. Does not include trades. -->
+	<Table name="EventChoice_MinimumResourceRequired">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="Quantity" type="integer"/>
+	</Table>
+	
+	<!-- AI Stuff -->
+	
+	<!-- Note: if you don't set flavors for your choices, the AI will make a random choice (or will only choose from those with flavors). -->
+	<Table name="EventChoiceFlavors">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="FlavorType" type="text" reference="Flavors(Type)"/>
+		<Column name="Flavor" type="integer"/>
+	</Table>
+	
+	<!-- Notifications -->
+	
+	<!-- Note: this table is not required, however if you want to seed a notification to the player (or to all known players in the world) you need to use this -->
+	<!-- Make sure that NotificationType corresponds to a real NotificationType! -->
+	<!-- Also, note that player notifications seeds the following values:
+		{1_CivShortDescription}
+		{2_CivDescription}
+		{3_PlayerName}
+		You can use any or all of these.
+	 -->
+	<Table name="EventChoice_Notification">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="NotificationType" type="text"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="ShortDescription" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="IsWorldEvent" type="boolean" default="false"/>
+		<!-- These values are required by some times of notifications and pass into the gamedata/extravariable slots after the X/Y spots for a notification. -->
+		<Column name="NeedPlayerID" type="boolean" default="false"/>
+		<!-- Note that if you set NeedPlayerID to true, it takes over the slot where Variable1 goes, so Variable1 is inactive! -->
+		<Column name="Variable1" type="int" default="-1"/>
+		<Column name="Variable2" type="int" default="-1"/>
+	</Table>
+	
+	<!--== CITY LEVEL EVENTS == -->
+
+	<Table name="CityEvents">
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="CityEventAudio" type="text"/>
+		<Column name="CityEventArt" type="text"/>
+		<Column name="RandomChance" type="integer" default="0"/>
+		<Column name="RandomChanceDelta" type="integer" default="0"/>
+		<!-- If set to true, this city event can only fire once, ever, for the city -->
+		<Column name="IsOneShot" type="boolean" default="false"/>
+		<!-- Global Cooldown: sets distance in time between this event and next. Defaults to 30 turns. Means that the minimum time between any two events of ANY type is 30 turns. -->
+		<Column name="EventCooldown" type="integer" default="30"/>
+		<!-- Set NumChoices to 2+ if adding 2 or more choices below!! -->
+		<Column name="NumChoices" type="integer" default="1"/>
+		<!-- Era Scaling: boosts yield required for minimumstartyield table below. -->
+		<Column name="EraScaling" type="boolean" default="false"/>
+
+		<!-- Filters 
+		
+		Determine whether or not an Event can occur for the player.
+		
+		-->
+		<Column name="MinimumCityPopulation" type="integer" default="0"/>
+		<Column name="MaximumCityPopulation" type="integer" default="0"/>
+		<Column name="RequiredCiv" type="text" reference="Civilizations(Type)" default="NULL"/>
+		<Column name="RequiredEra" type="text" reference="Eras(Type)" default="NULL"/>
+		<!-- Note: obsoletes at this era, not after it -->
+		<Column name="ObsoleteEra" type="text" reference="Eras(Type)" default="NULL"/>
+		<!-- Only Checks for local Improvements worked by City. -->
+		<Column name="ImprovementRequired" type="text" reference="Improvements(Type)" default="NULL"/>
+		<!-- Checks for nearby features/terrain. Can use natural wonders for features. -->
+		<Column name="NearbyFeature" type="text" reference="Features(Type)" default="NULL"/>
+		<Column name="NearbyTerrain" type="text" reference="Terrains(Type)" default="NULL"/>
+		<Column name="LocalResourceRequired" type="text" reference="Resources(Type)" default="NULL"/>
+		<Column name="RequiredPolicy" type="text" reference="Policies(Type)" default="NULL"/>
+		<Column name="RequiredIdeology" type="text" reference="PolicyBranchTypes(Type)" default="NULL"/>
+		<Column name="PrereqTech" type="text" reference="Technologies(Type)" default="NULL"/>
+		<Column name="ObsoleteTech" type="text" reference="Technologies(Type)" default="NULL"/>
+		<!-- Only Checks for local status. -->
+		<Column name="RequiredReligion" type="text" reference="Religions(Type)" default="NULL"/>
+		<!-- JFD Check - local only -->
+		<Column name="RequiredStateReligion" type="text" reference="Religions(Type)" default="NULL"/>
+		<Column name="RequiresAnyStateReligion" type="boolean" default="false"/>
+		<!-- Only Checks for local Buildings in City. -->
+		<Column name="RequiredBuildingClass" type="text" reference="BuildingClasses(Type)" default="NULL"/>
+		<Column name="CannotHaveBuildingClass" type="text" reference="BuildingClasses(Type)" default="NULL"/>
+		<!-- Only Checks for local status. -->
+		<Column name="HasTradeConnection" type="boolean" default="false"/>
+		<Column name="HasCityConnection" type="boolean" default="false"/>
+		<Column name="RequiresGarrison" type="boolean" default="false"/>
+		<Column name="RequiresHolyCity" type="boolean" default="false"/>
+		<Column name="RequiresIdeology" type="boolean" default="false"/>
+		<Column name="CapitalOnly" type="boolean" default="false"/>
+		<Column name="CoastalOnly" type="boolean" default="false"/>
+		<Column name="RiverOnly" type="boolean" default="false"/>
+		<Column name="RequiresWar" type="boolean" default="false"/>
+		<Column name="RequiresWarMinor" type="boolean" default="false"/>
+		<Column name="RequiresResistance" type="boolean" default="false"/>
+		<Column name="RequiresWLTKD" type="boolean" default="false"/>
+		<Column name="RequiresOccupied" type="boolean" default="false"/>
+		<Column name="RequiresRazing" type="boolean" default="false"/>
+		<Column name="HasAnyReligion" type="boolean" default="false"/>
+		<Column name="RequiresPuppet" type="boolean" default="false"/>
+		<!-- Checks if city majority is a Pantheon -->
+		<Column name="RequiresPantheon" type="boolean" default="false"/>
+		<!-- Checks if empire is unhappy -->
+		<Column name="IsUnhappy" type="boolean" default="false"/>
+		<Column name="RequiresNearbyNaturalWonder" type="boolean" default="false"/>
+		<Column name="RequiresNearbyMountain" type="boolean" default="false"/>
+		<!-- These filters look for specific events or event choices to see if they've been actived by the player/city. This allows you to create 'chained' events that rely on a prior event. -->
+		<!-- Note that these values look at the EventCooldown value for events, and the Duration value for choices. -->
+		<!-- For example, if an event has a cooldown of 30 turns, and that event fires, there is a 30 turn window in which an event dependent on that one can fire (using the RequiredActiveEvent tag below) -->
+		<Column name="RequiredActiveEvent" type="text" reference="Events(Type)" default="NULL"/>
+		<Column name="RequiredActiveEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
+		<Column name="RequiredActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
+		<Column name="RequiredActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
+		<!-- Same concept, but won't fire if a city event is active here, or another player does NOT have the player event active. You cannot check for other player city events being active, sorry. -->
+		<Column name="RequiredNoActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
+		<Column name="RequiredNoActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
+		<Column name="RequiredActivePlayerEventOtherPlayer" type="text" reference="Events(Type)" default="NULL"/>
+		<Column name="RequiredActivePlayerEventChoiceOtherPlayer" type="text" reference="EventChoices(Type)" default="NULL"/>
+	</Table>
+	
+	<!-- Filter -->
+	
+	<!-- Note: this only checks local yields (Food and Production). -->
+	<Table name="CityEvent_MinimumStartYield">
+		<Column name="CityEventType" type="text" reference="CityEvents(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	
+	<Table name="CityEventChoices">
+		<!-- You can make as many choices as you want - the window show expand (with a scroll bar) to acommodate them. But be reasonable! :) -->
+		<!-- Note - if NOT a multiple-choice event, only make one of these! -->
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+		<!-- Help is used for Tooltips, Description for button text -->
+		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="EventChoiceAudio" type="text" default="AS2D_EVENT_CHOICE"/>
+		<!-- If set to true, this city event choice can only be chosen once, ever, by the city -->
+		<Column name="IsOneShot" type="boolean" default="false"/>
+		<!-- Event Duration : Leave blank if you want the event's effect to be permanent. Otherwise, all effects (except instant yields, GP points, and building destruction), will be reversed. -->
+		<!-- Defaults to 30. Unless changed, this means each player can have a maximum of 1 event of THIS type every 30 turns. -->
+		<Column name="EventDuration" type="integer" default="30"/>
+		<!-- Event Chance: Higher value = higher chance of success. Notification will spawn if an event fails. Default is always successful. -->
+		<Column name="EventChance" type="integer" default="0"/>
+		<!-- Era Scaling: boosts yield value on instant yield, GP Points, and yield costs tables (See below) based on Era. -->
+		<Column name="EraScaling" type="boolean" default="false"/>
+		<!-- Expires: set to true if you want policies/buildings/promotions/resources granted to disappear after the duration. -->
+		<Column name="Expires" type="boolean" default="false"/>
+		
+		<!-- VARIABLES 
+		
+		Attributes granted by City Event Choices 
+		
+		-->		
+		
+		<!-- Only affects local city. Destroys or adds a building type. -->
+		<Column name="EventBuildingClassDestruction" type="text" reference="BuildingClasses(Type)" default="NULL"/>
+		<Column name="EventBuildingClass" type="text" reference="BuildingClasses(Type)" default="NULL"/>
+		<!-- Checks all buildings in city for destruction. Mass disaster event. Integer is % chance of destruction. Note that this and CityEventChoice_BuildingClassDestructionChance use the same function, and the higher chance % trumps. -->
+		<Column name="CityWideBuildingDestructionChance" type="integer" default="0"/>
+		<!-- Local WLTKD Turns -->
+		<Column name="WLTKDTurns" type="integer" default="0"/>
+		<!-- Local Resistance Turns -->
+		<Column name="ResistanceTurns" type="integer" default="0"/>
+		<!-- Local Happiness Boost. Can be set to expire. -->
+		<Column name="CityHappiness" type="integer" default="0"/>
+		<!-- Chance of destruction for all buildings in city - use as a baseline for horrible disasters, etc. -->
+		<!-- Spawns X number of barbs near the City. Unit type scales with player tech. -->
+		<Column name="RandomBarbarianSpawn" type="integer" default="0"/>
+		<!-- Spawns X number of owned units near the City. Unit type scales with player tech. -->
+		<Column name="FreeUnitsTechAppropriate" type="integer" default="0"/>
+		
+		<!-- FILTERS: 
+		
+		Values below determine whether or not a City Event Choice appears in the City list 
+		
+		-->
+		
+		<Column name="MinimumCityPopulation" type="integer" default="0"/>
+		<Column name="MaximumCityPopulation" type="integer" default="0"/>
+		<Column name="RequiredCiv" type="text" reference="Civilizations(Type)" default="NULL"/>
+		<Column name="RequiredEra" type="text" reference="Eras(Type)" default="NULL"/>
+		<!-- Note: obsoletes at this era, not after it -->
+		<Column name="ObsoleteEra" type="text" reference="Eras(Type)" default="NULL"/>
+		<!-- Only Checks for local Improvements worked by City. -->
+		<Column name="ImprovementRequired" type="text" reference="Improvements(Type)" default="NULL"/>
+		<!-- Checks for nearby features/terrain. Can use natural wonders for features. -->
+		<Column name="NearbyFeature" type="text" reference="Features(Type)" default="NULL"/>
+		<Column name="NearbyTerrain" type="text" reference="Terrains(Type)" default="NULL"/>
+		<Column name="RequiredPolicy" type="text" reference="Policies(Type)" default="NULL"/>
+		<Column name="RequiredIdeology" type="text" reference="PolicyBranchTypes(Type)" default="NULL"/>
+		<Column name="LocalResourceRequired" type="text" reference="Resources(Type)" default="NULL"/>
+		<Column name="PrereqTech" type="text" reference="Technologies(Type)" default="NULL"/>
+		<Column name="ObsoleteTech" type="text" reference="Technologies(Type)" default="NULL"/>
+		<!-- Only Checks for local status. -->
+		<Column name="RequiredReligion" type="text" reference="Religions(Type)" default="NULL"/>
+		<!-- JFD Check - local only -->
+		<Column name="RequiredStateReligion" type="text" reference="Religions(Type)" default="NULL"/>
+		<Column name="RequiresAnyStateReligion" type="boolean" default="false"/>
+		<!-- Only Checks for local Buildings in City. -->
+		<Column name="RequiredBuildingClass" type="text" reference="BuildingClasses(Type)" default="NULL"/>
+		<Column name="CannotHaveBuildingClass" type="text" reference="BuildingClasses(Type)" default="NULL"/>
+		<!-- Only Checks for local status. -->
+		<Column name="HasTradeConnection" type="boolean" default="false"/>
+		<Column name="HasCityConnection" type="boolean" default="false"/>
+		<Column name="RequiresGarrison" type="boolean" default="false"/>
+		<Column name="RequiresHolyCity" type="boolean" default="false"/>
+		<Column name="RequiresIdeology" type="boolean" default="false"/>
+		<Column name="CapitalOnly" type="boolean" default="false"/>
+		<Column name="CoastalOnly" type="boolean" default="false"/>
+		<Column name="RiverOnly" type="boolean" default="false"/>
+		<Column name="RequiresWar" type="boolean" default="false"/>
+		<Column name="RequiresWarMinor" type="boolean" default="false"/>
+		<Column name="RequiresResistance" type="boolean" default="false"/>
+		<Column name="RequiresWLTKD" type="boolean" default="false"/>
+		<Column name="RequiresOccupied" type="boolean" default="false"/>
+		<Column name="RequiresRazing" type="boolean" default="false"/>
+		<Column name="HasAnyReligion" type="boolean" default="false"/>
+		<Column name="RequiresPuppet" type="boolean" default="false"/>
+		<!-- Checks if city majority is a Pantheon -->
+		<Column name="RequiresPantheon" type="boolean" default="false"/>
+		<!-- Checks if empire is unhappy -->
+		<Column name="IsUnhappy" type="boolean" default="false"/>
+		<Column name="RequiresNearbyNaturalWonder" type="boolean" default="false"/>
+		<Column name="RequiresNearbyMountain" type="boolean" default="false"/>
+		<!-- These filters look for specific events or event choices to see if they've been actived by the player/city. This allows you to create 'chained' events that rely on a prior event. -->
+		<!-- Note that these values look at the EventCooldown value for events, and the Duration value for choices. -->
+		<!-- For example, if an event has a cooldown of 30 turns, and that event fires, there is a 30 turn window in which an event dependent on that one can fire (using the RequiredActiveEvent tag below) -->
+		<Column name="RequiredActiveEvent" type="text" reference="Events(Type)" default="NULL"/>
+		<Column name="RequiredActiveEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
+		<Column name="RequiredActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
+		<Column name="RequiredActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
+		<!-- Same concept, but won't fire if a city event is active here, or another player does NOT have the player event active. You cannot check for other player city events being active, sorry. -->
+		<Column name="RequiredNoActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
+		<Column name="RequiredNoActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
+		<Column name="RequiredActivePlayerEventOtherPlayer" type="text" reference="Events(Type)" default="NULL"/>
+		<Column name="RequiredActivePlayerEventChoiceOtherPlayer" type="text" reference="EventChoices(Type)" default="NULL"/>
+	</Table>
+	<!-- Parent Event is essential - this table assigns choices to events. Make sure the CityEventType matches the name of an CityEventType from above! -->
+	<Table name="CityEvent_ParentEvents">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="CityEventType" type="text" reference="CityEvents(Type)"/>
+	</Table>
+	<!-- Note: This table fires BEFORE an event is checked to see if it succeeds. Use this to have an event that costs something, but may not actually succeed. -->
+	<!-- Use negative values here to make it a 'cost' -->
+	<Table name="CityEventChoice_EventCostYield">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<!-- The tables below fire AFTER an event has been found to succeed. Can use negative values here. -->
+	<Table name="CityEventChoice_InstantYield">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<!-- Grants this city a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. Can scale with era. -->
+	<Table name="CityEventChoice_CityYield">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<!-- Grants this city's buildings of a class (existing and future) a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<Table name="CityEventChoice_BuildingClassYieldChange">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer"/>
+	</Table>
+	<!-- Grants this city's buildings of a class (existing and future) a certain X yield modifier. Can be turned off via the 'expires' tag and a set duration. -->
+	<Table name="CityEventChoice_BuildingClassYieldModifier">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Modifier" type="integer"/>
+	</Table>
+	<!-- Grants player a free resource. Can be set to expire. -->
+	<Table name="CityEventChoice_ResourceQuantity">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="Quantity" type="integer"/>
+	</Table>
+	<!-- Grants this city's features of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<Table name="CityEventChoice_FeatureYieldChange">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer"/>
+	</Table>
+	<!-- Grants this city's improvements of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<Table name="CityEventChoice_ImprovementYieldChange">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer"/>
+	</Table>
+	<!-- Grants this city's terrains of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<Table name="CityEventChoice_TerrainYieldChange">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer"/>
+	</Table>
+	<!-- Note: make sure that the specialist you use here can make a Great Person! Can use negative values here if you want. -->
+	<Table name="CityEventChoice_GreatPersonPoints">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
+		<Column name="Points" type="integer"/>
+	</Table>
+	<!-- Note: Destroys up to the number indicated. Is random. Useful for storms, etc. -->
+	<Table name="CityEventChoice_ImprovementDestructionRandom">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="Number" type="integer"/>
+	</Table>
+	<!-- Note: Chance indicates % chance of a building being destroyed in the City by an event. Useful for disasters, or if you want to give the player some control over a destruction event's outcome. -->
+	<Table name="CityEventChoice_BuildingClassDestructionChance">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="Chance" type="integer"/>
+	</Table>
+	<!-- Note: Destroys up to the number indicated. Is random. Useful for storms, etc. -->
+	<Table name="CityEventChoice_FreeUnitClasses">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<Column name="Quantity" type="integer"/>
+	</Table>
+	<!-- Convert Set Pop/Percent Pop to Religion-->
+	<Table name="CityEventChoice_ConvertNumPopToReligion">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="ReligionType" type="text" reference="Religions(Type)"/>
+		<Column name="Population" type="integer"/>
+	</Table>
+	<Table name="CityEventChoice_ConvertPercentPopToReligion">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="ReligionType" type="text" reference="Religions(Type)"/>
+		<Column name="Percent" type="integer"/>
+	</Table>
+	<!-- Unhappiness Modifier for CBP Happiness system. 
+		Yield match: YIELD_GOLD = Poverty, YIELD_SCIENCE = Illiteracy, YIELD_PRODUCTION = Safety, YIELD_CULTURE = illiteracy, YIELD_FAITH = Religious Minorities
+		Note that negative values reduce needs, while positive values increase them!
+	-->
+	<Table name="CityEventChoice_CityUnhappinessNeedMod">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<!-- Filters -->
+	
+	<!-- Checks local yields as well (Food and Production). -->
+	<Table name="CityEventChoice_MinimumStartYield">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	
+	<!-- AI Stuff -->
+	
+	<!-- Note: if you don't set flavors for your choices, the AI will make a random choice (or will only choose from those with flavors). -->
+	<Table name="CityEventChoiceFlavors">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="FlavorType" type="text" reference="Flavors(Type)"/>
+		<Column name="Flavor" type="integer"/>
+	</Table>
+	
+	<!-- Notifications -->
+	
+	<!-- Note: this table is not required, however if you want to seed a notification to the player (or to all known players in the world) you need to use this -->
+	<!-- Make sure that NotificationType corresponds to a real NotificationType! -->
+	<!-- Also, note that player notifications seeds the following values:
+		{1_CivShortDescription}
+		{2_CityName}
+		{3_CivDescription}
+		{4_PlayerName}
+		You can use any or all of these.
+	 -->
+	<Table name="CityEventChoice_Notification">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="NotificationType" type="text"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="ShortDescription" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="IsWorldEvent" type="boolean" default="false"/>
+		<!-- Grabs the coordinates for the city where the event fires - if left false, it returns -1/-1, so the camera won't move if the button is selected. -->
+		<Column name="NeedCityCoordinates" type="boolean" default="false"/>
+		<!-- Note that if you set NeedPlayerID to true, it takes over the slot where ExtraVariable goes, so ExtraVariable is inactive! -->
+		<Column name="NeedPlayerID" type="boolean" default="false"/>
+		<Column name="ExtraVariable" type="int" default="-1"/>
+	</Table>
+</GameData>

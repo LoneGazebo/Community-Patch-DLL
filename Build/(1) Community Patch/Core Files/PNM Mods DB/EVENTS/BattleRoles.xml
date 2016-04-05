@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Table name="BattleTypes">
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+	</Table>
+	
+	<Table name="BattleRoles">
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+	</Table>
+	
+	<BattleTypes>
+		<Row>
+			<ID>0</ID>
+			<Type>BATTLETYPE_MELEE</Type>
+		</Row>
+		<Row>
+			<Type>BATTLETYPE_RANGED</Type>
+		</Row>
+		<Row>
+			<Type>BATTLETYPE_AIR</Type>
+		</Row>
+		<Row>
+			<Type>BATTLETYPE_SWEEP</Type>
+		</Row>
+		<Row>
+			<Type>BATTLETYPE_PARADROP</Type>
+		</Row>
+		<Row>
+			<Type>BATTLETYPE_NUKE</Type>
+		</Row>
+	</BattleTypes>
+
+	<BattleRoles>
+		<Row>
+			<ID>0</ID>
+			<Type>BATTLEROLE_ATTACKER</Type>
+		</Row>
+		<Row>
+			<Type>BATTLEROLE_DEFENDER</Type>
+		</Row>
+		<Row>
+			<Type>BATTLEROLE_INTERCEPTOR</Type>
+		</Row>
+		<Row>
+			<Type>BATTLEROLE_BYSTANDER</Type>
+		</Row>
+	</BattleRoles>
+
+	<CustomModDbUpdates>
+		<Row Name="EVENTS_BATTLES" Value="1"/>
+	</CustomModDbUpdates>
+</GameData>

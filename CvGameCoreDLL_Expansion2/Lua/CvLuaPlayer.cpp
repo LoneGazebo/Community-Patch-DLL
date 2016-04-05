@@ -62,6 +62,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	Method(GetResourceMonopolyPlayer);
+	Method(GetMonopolyPercent);
 #endif
 	Method(DisbandUnit);
 	Method(AddFreeUnit);
@@ -1179,6 +1180,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCorporationHelper);
 	Method(GetMaxFranchises);
 	Method(GetCorpID);
+	Method(GetCorporationHeadquarters);
+	Method(GetOfficeBuilding)
+	Method(GetFranchiseBuilding);
+	Method(GetCorporationFoundedTurn);
+	Method(GetCurrentOfficeBenefit);
 #endif
 	Method(GetInternationalTradeRouteDomainModifier);
 	Method(GetInternationalTradeRouteTotal);
@@ -1543,6 +1549,16 @@ int CvLuaPlayer::lGetResourceMonopolyPlayer(lua_State* L)
 	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
 	const bool bResult = pkPlayer->HasGlobalMonopoly(eResource);
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetMonopolyPercent(ResourceTypes eResource)
+int CvLuaPlayer::lGetMonopolyPercent(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetMonopolyPercent(eResource);
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 #endif
@@ -4313,6 +4329,112 @@ int CvLuaPlayer::lGetCorpID(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	int iResult = pkPlayer->GetCorporateFounderID();
 	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCorporationHeadquarters(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iCorporation = pkPlayer->GetCorporateFounderID();
+	CvCity* pkCity = NULL;
+
+	if(iCorporation > 0)
+	{
+		// Find building of this Corporation type
+		for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+		{
+			BuildingTypes eBuilding = (BuildingTypes) iI;
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			if(pkBuildingInfo)
+			{
+				if(pkBuildingInfo->GetCorporationHQID() == iCorporation)
+				{
+					// Look through cities for their building
+					int iLoop = 0;
+					for(CvCity* pCity = pkPlayer->firstCity(&iLoop); pCity != NULL; pCity = pkPlayer->nextCity(&iLoop))
+					{
+						if(pCity->HasBuilding((BuildingTypes) eBuilding))
+						{
+							pkCity = pCity;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	CvLuaCity::Push(L, pkCity);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetOfficeBuilding(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iCorporation = pkPlayer->GetCorporateFounderID();
+	int iResult = -1;
+	if(iCorporation > 0)
+	{
+		// Look for buildings with HQID = 0 and CorpID = iCorporation
+		for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+		{
+			BuildingTypes eBuilding = (BuildingTypes) iI;
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			if(pkBuildingInfo)
+			{
+				if(pkBuildingInfo->GetCorporationHQID() == 0 && pkBuildingInfo->GetCorporationID() == iCorporation)
+				{
+					iResult = pkBuildingInfo->GetBuildingClassType();
+					break;
+				}
+			}
+		}
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetFranchiseBuilding(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iCorporation = pkPlayer->GetCorporateFounderID();
+	int iResult = -1;
+	if(iCorporation > 0)
+	{
+		// First look for Offices
+		for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+		{
+			BuildingTypes eBuilding = (BuildingTypes) iI;
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			if(pkBuildingInfo)
+			{
+				// Is this an office?
+				if(pkBuildingInfo->GetCorporationHQID() == 0 && pkBuildingInfo->GetCorporationID() == iCorporation)
+				{
+					// Franchise = the building it produces to a trade target city
+					iResult = pkBuildingInfo->GetFreeBuildingTradeTargetCity();
+					break;
+				}
+			}
+		}
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCorporationFoundedTurn(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iResult = pkPlayer->GetCorporateFoundedTurn();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCurrentOfficeBenefit(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushstring(L, pkPlayer->GetCurrentOfficeBenefit());
 	return 1;
 }
 #endif

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 3/31/2016 12:08:05 AM -->
+<GameData>
+	<Language_en_US>
+		<!-- Do Nothing -->
+		<Row Tag="TXT_KEY_CITY_EVENT_DO_NOTHING">
+			<Text>I'm not interested in this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_DO_NOTHING_HELP">
+			<Text>Nothing happens.</Text>
+		</Row>
+		<!-- Market Development -->
+		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT">
+			<Text>Crowded Markets, Foreign Tongues</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT_HELP">
+			<Text>Crowds gather in your city's marketplace, voices from many different lands ringing out as deals are struck and bargains made. Some are angry about this, and believe that foreigners will destroy our trade. Others, however, encourage the foreign business, hoping to learn from their culture.[NEWLINE][NEWLINE]How do you feel about this? Choose from the following options:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT_CHOICE_1">
+			<Text>Let the foreigners continue to trade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT_CHOICE_1_HELP">
+			<Text>Market in City: +1 [ICON_CULTURE] Culture, -1 [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT_CHOICE_2">
+			<Text>Implement heavy taxes on imported goods.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT_CHOICE_2_HELP">
+			<Text>Market in City: +1 [ICON_GOLD] Gold.</Text>
+		</Row>
+		<!-- Monument Development -->
+		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT">
+			<Text>Icons of Our Past</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_HELP">
+			<Text>Monuments represent the most important symbols of your culture. Your people seek to celebrate this by dedicating the City's Monument to either their ancestors, or to their gods.[NEWLINE][NEWLINE]How do you feel about this? Choose from the following options:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_1">
+			<Text>Dedicate the Monument to our ancestors.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_1_HELP">
+			<Text>Monument in City: +1 [ICON_CULTURE] Culture.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_2">
+			<Text>The gods are what is important now.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_2_HELP">
+			<Text>Monument in City: +1 [ICON_PEACE] Faith.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_3">
+			<Text>Neither will suffice. The Monument should generate revenue.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_3_HELP">
+			<Text>Monument in City: +1 [ICON_GOLD] Gold.</Text>
+		</Row>
+		<!-- Stone Works Discovery -->
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DEVELOPMENT">
+			<Text>Rich Vein</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DEVELOPMENT_HELP">
+			<Text>A rich vein of blue marble was discovered at the quarry near the city. Your miners and masons have come to you to ask you what you would like to do it.[NEWLINE][NEWLINE]Choose from the options below...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_1">
+			<Text>Boast of this, and merchants will come to buy it from us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_1_HELP">
+			<Text>+50 [ICON_GOLD], scaling with Era, and 10 turns of 'We Love the King Day' in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_2">
+			<Text>Donate it to the Temple.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_2_HELP">
+			<Text>+50 [ICON_PEACE] Faith, scaling with Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_3">
+			<Text>Carve relics and idols from it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_3_HELP">
+			<Text>+20 [ICON_PEACE] Faith and +20 [ICON_CULTURE] Culture, scaling with Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_4">
+			<Text>Give it to our finest artists.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_4_HELP">
+			<Text>+2 [ICON_CULTURE] Culture in the City for 40 turns.</Text>
+		</Row>
+		<!-- Fishing Boat Expedition -->
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION">
+			<Text>Old Men and the Sea.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_HELP">
+			<Text>A band of local fishermen have appealed to the City for funding for a seasonal fishing expedition.[NEWLINE][NEWLINE]Choose from the following options...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_1">
+			<Text>Let's focus on something simple.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_1_HELP">
+			<Text>Lose 50 [ICON_GOLD] Gold, scaling with Era. 50% Chance to gain +75 [ICON_FOOD] Food in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2">
+			<Text>A large investment will pay dividends.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2_HELP">
+			<Text>Lose 150 [ICON_GOLD] Gold, scaling with Era. 50% Chance that Fishing Boats near the City will gain +2 [ICON_FOOD] Food for 40 turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3">
+			<Text>I'd rather invest in real estate.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3_HELP">
+			<Text>Lose 300 [ICON_GOLD] Gold. A Lighthouse is constructed in the City.</Text>
+		</Row>
+		
+		<!-- Player-tied Choices -->
+		<Row Tag="TXT_KEY_CITY_EVENT_DROUGHT_CHOICE_1_DESCRIPTION">
+			<Text>Drought</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_DROUGHT_CHOICE_1_HELP">
+			<Text>Drought has struck the City, crippling its [ICON_FOOD] Food output. For the next 50 turns, Farms produce -1 [ICON_FOOD] Food.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_SEVERE_DROUGHT_CHOICE_1_DESCRIPTION">
+			<Text>Severe Drought</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_SEVERE_DROUGHT_CHOICE_1_HELP">
+			<Text>Severe drought has struck the City, crippling its [ICON_FOOD] Food output. For the next 50 turns, Farms produce -1 [ICON_FOOD] Food, and a nearby Farm is destroyed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CRITICAL_DROUGHT_CHOICE_1_DESCRIPTION">
+			<Text>Critical Drought</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CRITICAL_DROUGHT_CHOICE_1_HELP">
+			<Text>Critical drought has struck the City, crippling its [ICON_FOOD] Food output. For the next 50 turns, Farms produce -2 [ICON_FOOD] Food, and 2 nearby Farms are destroyed.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>
