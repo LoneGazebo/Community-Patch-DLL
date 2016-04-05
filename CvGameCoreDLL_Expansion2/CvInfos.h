@@ -2593,8 +2593,14 @@ public:
 	int getRequiredNoActiveEventChoice() const;
 	int getRequiredActiveOtherPlayerEvent() const;
 	int getRequiredActiveOtherPlayerEventChoice() const;
+	int getRequiredNoActiveOtherPlayerEvent() const;
+	int getRequiredNoActiveOtherPlayerEventChoice() const;
 	bool isUnhappy() const;
+	bool isSuperUnhappy() const;
 	bool isOneShot() const;
+	bool hasMetAnotherCiv() const;
+	bool isInDebt() const;
+	bool isLosingMoney() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -2632,15 +2638,21 @@ protected:
 	int m_iRequiredStateReligion;
 	bool m_bHasStateReligion;
 	bool m_bUnhappy;
+	bool m_bSuperUnhappy;
 	int m_iRequiredActiveEvent;
 	int m_iRequiredActiveEventChoice;
 	int m_iRequiredActiveCityEvent;
 	int m_iRequiredActiveCityEventChoice;
 	int m_iRequiredActiveEventOtherPlayer;
 	int m_iRequiredActiveEventChoiceOtherPlayer;
+	int m_iRequiredNoActiveEventOtherPlayer;
+	int m_iRequiredNoActiveEventChoiceOtherPlayer;
 	int m_iRequiredNoActiveEvent;
 	int m_iRequiredNoActiveEventChoice;
 	bool m_bOneShot;
+	bool m_bMetAnotherCiv;
+	bool m_bInDebt;
+	bool m_bLosingMoney;
 
 private:
 	CvModEventInfo(const CvModEventInfo&);
@@ -2753,8 +2765,14 @@ public:
 	int getRequiredNoActiveEventChoice() const;
 	int getRequiredActiveOtherPlayerEvent() const;
 	int getRequiredActiveOtherPlayerEventChoice() const;
+	int getRequiredNoActiveOtherPlayerEvent() const;
+	int getRequiredNoActiveOtherPlayerEventChoice() const;
 	bool isUnhappy() const;
+	bool isSuperUnhappy() const;
 	bool isOneShot() const;
+	bool hasMetAnotherCiv() const;
+	bool isInDebt() const;
+	bool isLosingMoney() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -2815,15 +2833,21 @@ protected:
 	int m_iRequiredStateReligion;
 	bool m_bHasStateReligion;
 	bool m_bUnhappy;
+	bool m_bSuperUnhappy;
 	int m_iRequiredActiveEvent;
 	int m_iRequiredActiveEventChoice;
 	int m_iRequiredActiveEventOtherPlayer;
 	int m_iRequiredActiveEventChoiceOtherPlayer;
+	int m_iRequiredNoActiveEventOtherPlayer;
+	int m_iRequiredNoActiveEventChoiceOtherPlayer;
 	int m_iRequiredNoActiveEvent;
 	int m_iRequiredNoActiveEventChoice;
 	int m_iRequiredActiveCityEvent;
 	int m_iRequiredActiveCityEventChoice;
 	bool m_bOneShot;
+	bool m_bMetAnotherCiv;
+	bool m_bInDebt;
+	bool m_bLosingMoney;
 
 	CvEventNotificationInfo* m_paNotificationInfo;
 	int m_iNotificationInfos;
@@ -2872,6 +2896,7 @@ public:
 	int getRequiredStateReligion() const;
 	bool hasStateReligion() const;
 	bool isUnhappy() const;
+	bool isSuperUnhappy() const;
 	bool isRequiresGarrison() const;
 	int getLocalResourceRequired() const;
 	bool isResistance() const;
@@ -2889,14 +2914,21 @@ public:
 	int hasNearbyTerrain() const;
 	int getMaximumPopulation() const;
 	bool isOneShot() const;
+	bool hasMetAnotherCiv() const;
+	bool isInDebt() const;
+	bool isLosingMoney() const;
 	int getRequiredActiveEvent() const;
 	int getRequiredActiveEventChoice() const;
 	int getRequiredActiveCityEvent() const;
 	int getRequiredActiveCityEventChoice() const;
 	int getRequiredNoActiveCityEvent() const;
 	int getRequiredNoActiveCityEventChoice() const;
+	int getRequiredNoActivePlayerEvent() const;
+	int getRequiredNoActivePlayerEventChoice() const;
 	int getRequiredActiveOtherPlayerEvent() const;
 	int getRequiredActiveOtherPlayerEventChoice() const;
+	int getRequiredNoActiveOtherPlayerEvent() const;
+	int getRequiredNoActiveOtherPlayerEventChoice() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -2932,6 +2964,7 @@ protected:
 	bool m_bRequiresGarrison;
 	bool m_bHasStateReligion;
 	bool m_bUnhappy;
+	bool m_bSuperUnhappy;
 	int m_iLocalResourceRequired;
 	bool m_bIsResistance;
 	bool m_bIsWLTKD;
@@ -2948,14 +2981,21 @@ protected:
 	int m_iNearbyTerrain;
 	int m_iMaximumPopulation;
 	bool m_bOneShot;
+	bool m_bMetAnotherCiv;
+	bool m_bInDebt;
+	bool m_bLosingMoney;
 	int m_iRequiredActiveEvent;
 	int m_iRequiredActiveEventChoice;
 	int m_iRequiredActiveCityEvent;
 	int m_iRequiredActiveCityEventChoice;
 	int m_iRequiredActiveEventOtherPlayer;
 	int m_iRequiredActiveEventChoiceOtherPlayer;
+	int m_iRequiredNoActiveEventOtherPlayer;
+	int m_iRequiredNoActiveEventChoiceOtherPlayer;
 	int m_iRequiredNoActiveEvent;
 	int m_iRequiredNoActiveEventChoice;
+	int m_iRequiredNoActiveCityEvent;
+	int m_iRequiredNoActiveCityEventChoice;
 
 private:
 	CvModCityEventInfo(const CvModCityEventInfo&);
@@ -3058,6 +3098,7 @@ public:
 	int getRequiredStateReligion() const;
 	bool hasStateReligion() const;
 	bool isUnhappy() const;
+	bool isSuperUnhappy() const;
 	bool isRequiresGarrison() const;
 	int getLocalResourceRequired() const;
 	bool isResistance() const;
@@ -3075,14 +3116,21 @@ public:
 	int hasNearbyTerrain() const;
 	int getMaximumPopulation() const;
 	bool isOneShot() const;
+	bool hasMetAnotherCiv() const;
+	bool isInDebt() const;
+	bool isLosingMoney() const;
 	int getRequiredActiveEvent() const;
 	int getRequiredActiveEventChoice() const;
 	int getRequiredActiveCityEvent() const;
 	int getRequiredActiveCityEventChoice() const;
 	int getRequiredNoActiveCityEvent() const;
 	int getRequiredNoActiveCityEventChoice() const;
+	int getRequiredNoActivePlayerEvent() const;
+	int getRequiredNoActivePlayerEventChoice() const;
 	int getRequiredActiveOtherPlayerEvent() const;
 	int getRequiredActiveOtherPlayerEventChoice() const;
+	int getRequiredNoActiveOtherPlayerEvent() const;
+	int getRequiredNoActiveOtherPlayerEventChoice() const;
 
 	CvCityEventNotificationInfo *GetNotificationInfo(int i) const;
 	int GetNumNotifications() const {return m_iCityNotificationInfos;};
@@ -3148,6 +3196,7 @@ protected:
 	bool m_bRequiresGarrison;
 	bool m_bHasStateReligion;
 	bool m_bUnhappy;
+	bool m_bSuperUnhappy;
 	bool m_bIsResistance;
 	bool m_bIsWLTKD;
 	bool m_bIsOccupied;
@@ -3163,14 +3212,21 @@ protected:
 	int m_iNearbyTerrain;
 	int m_iMaximumPopulation;
 	bool m_bOneShot;
+	bool m_bMetAnotherCiv;
+	bool m_bInDebt;
+	bool m_bLosingMoney;
 	int m_iRequiredActiveEvent;
 	int m_iRequiredActiveEventChoice;
 	int m_iRequiredActiveCityEvent;
 	int m_iRequiredActiveCityEventChoice;
 	int m_iRequiredActiveEventOtherPlayer;
 	int m_iRequiredActiveEventChoiceOtherPlayer;
+	int m_iRequiredNoActiveEventOtherPlayer;
+	int m_iRequiredNoActiveEventChoiceOtherPlayer;
 	int m_iRequiredNoActiveEvent;
 	int m_iRequiredNoActiveEventChoice;
+	int m_iRequiredNoActiveCityEvent;
+	int m_iRequiredNoActiveCityEventChoice;
 
 	CvCityEventNotificationInfo* m_paCityNotificationInfo;
 	int m_iCityNotificationInfos;

@@ -205,6 +205,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(IsHasBuildingClass);
 	Method(GetLocalBuildingClassYield);
 	Method(GetEventBuildingClassYield);
+	Method(GetEventBuildingClassModifier);
 	Method(GetEventCityYield);
 #endif
 	Method(GetNumActiveBuilding);
@@ -682,6 +683,8 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(SetAdditionalFood);
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
+	Method(GetScaledEventChoiceValue);
+	Method(IsCityEventChoiceActive);
 	Method(DoCityEventChoice);
 	Method(DoCityStartEvent);
 	Method(DoCancelCityEventChoice);
@@ -2197,6 +2200,21 @@ int CvLuaCity::lGetEventBuildingClassYield(lua_State* L)
 	if(eBuildingClassType != NO_BUILDINGCLASS && eIndex != NO_YIELD)
 	{	
 		iResult = pkCity->GetEventBuildingClassCityYield(eBuildingClassType, eIndex);
+	}
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lGetEventBuildingClassModifier(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 3);
+	int iResult = 0;
+	if(eBuildingClassType != NO_BUILDINGCLASS && eIndex != NO_YIELD)
+	{	
+		iResult = pkCity->GetEventBuildingClassCityYieldModifier(eBuildingClassType, eIndex);
 	}
 
 	lua_pushinteger(L, iResult);
@@ -5440,6 +5458,44 @@ int CvLuaCity::lSetAdditionalFood(lua_State* L)
 }
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
+int CvLuaCity::lGetScaledEventChoiceValue(lua_State* L)
+{
+	CvString CoreYieldTip = "";
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const bool bYieldsOnly = lua_toboolean(L, 3);
+	if(eEventChoice != NO_EVENT_CHOICE_CITY)
+	{
+		CoreYieldTip = pkCity->GetScaledHelpText(eEventChoice, bYieldsOnly);
+	}
+
+	lua_pushstring(L, CoreYieldTip.c_str());
+	return 1;
+}
+int CvLuaCity::lIsCityEventChoiceActive(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	bool bResult = false;
+	if(eEventChoice != NO_EVENT_CHOICE_CITY)
+	{
+		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+		if(pkEventChoiceInfo != NULL)
+		{
+			if(pkEventChoiceInfo->isOneShot() && pkCity->IsEventChoiceFired(eEventChoice))
+			{
+				bResult = true;
+			}
+			else if(pkCity->GetEventChoiceDuration(eEventChoice) > 0)
+			{
+				bResult = true;
+			}
+		}
+	}
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
 int CvLuaCity::lDoCityEventChoice(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);

@@ -75,9 +75,10 @@ PopulateItems["CityEventChoices"] = function(stackControl, playerID, cityID)
 		Controls.TitleLabel:SetText(szTypeString);
 		Controls.TitleLabel:SetToolTipString(szTypeString);
 		Controls.DescriptionLabel:SetText(szHelpString);
-
+		
+		local buttonSizeY = 53
 		for info in GameInfo.CityEventChoices() do
-			print("Cycling through city event choices")
+			--print("Cycling through city event choices")
 
 			if(city:IsCityEventChoiceValid(info.ID, iEventType)) then
 
@@ -89,8 +90,8 @@ PopulateItems["CityEventChoices"] = function(stackControl, playerID, cityID)
 
 				local szDescString;
 				local szHelpString;
-				szDescString = Locale.Lookup(info.Description)
-				szHelpString = Locale.ConvertTextKey(info.Help, localizedCityName)
+				szDescString = Locale.Lookup(info.Description);
+				szHelpString = Locale.ConvertTextKey(city:GetScaledEventChoiceValue(info.ID), localizedCityName);
 		
 				-- Test for any Override Strings
 				tChoiceOverrideStrings = {}
@@ -101,7 +102,17 @@ PopulateItems["CityEventChoices"] = function(stackControl, playerID, cityID)
 				end
 				controlTable.Name:SetText("[ICON_BULLET]" .. szDescString);
 				controlTable.Button:SetToolTipString(szHelpString);
-		
+				
+				-- Readjust the offset
+				local sizeYDiff = math.max((controlTable.Name:GetSizeY()-buttonSizeY),1)
+				if sizeYDiff > 1 then sizeYDiff = sizeYDiff + 20 end
+				controlTable.Box:SetSizeY(buttonSizeY + sizeYDiff)
+				controlTable.Button:SetSizeY(buttonSizeY + sizeYDiff)
+				controlTable.MOSelectionAnim:SetSizeY(buttonSizeY + sizeYDiff)
+				controlTable.MOSelectionAnimHL:SetSizeY(buttonSizeY + sizeYDiff)
+				controlTable.SelectionAnim:SetSizeY(buttonSizeY + sizeYDiff)
+				controlTable.SelectionAnimHL:SetSizeY(buttonSizeY + sizeYDiff)
+				
 				local selectionAnim = controlTable.SelectionAnim;
 
 				controlTable.Button:RegisterCallback(Mouse.eLClick, function()  

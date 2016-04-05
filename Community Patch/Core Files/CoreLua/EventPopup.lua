@@ -62,6 +62,11 @@ function OnPopup( popupInfo )
 	Controls.TitleLabel:SetText(szTitleString);
 	Controls.TitleLabel:SetToolTipString(szTitleString);
 	Controls.DescriptionLabel:SetText(szHelpString);
+	
+	-- Recalculate grid size
+	local mainGridSizeY = 300
+	local sizeYDiff = math.max((Controls.DescriptionLabel:GetSizeY()-Controls.EventBox:GetSizeY()),1)
+	Controls.MainGrid:SetSizeY(mainGridSizeY + sizeYDiff)
 		
 	UIManager:QueuePopup( ContextPtr, PopupPriority.GoodyHut );
 end

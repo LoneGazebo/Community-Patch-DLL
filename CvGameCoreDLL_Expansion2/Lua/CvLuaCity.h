@@ -197,6 +197,7 @@ protected:
 	LUAAPIEXTN(IsHasBuildingClass, bool, iBuildingClassType);
 	static int lGetLocalBuildingClassYield(lua_State* L);
 	static int lGetEventBuildingClassYield(lua_State* L);
+	static int lGetEventBuildingClassModifier(lua_State* L);
 	static int lGetEventCityYield(lua_State* L);
 #endif
 	static int lGetNumActiveBuilding(lua_State* L);
@@ -687,6 +688,8 @@ protected:
 	static int lSetAdditionalFood(lua_State* L);
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
+	static int lGetScaledEventChoiceValue(lua_State* L);
+	static int lIsCityEventChoiceActive(lua_State* L);
 	static int lDoCityEventChoice(lua_State* L);
 	static int lDoCityStartEvent(lua_State* L);
 	static int lDoCancelCityEventChoice(lua_State* L);

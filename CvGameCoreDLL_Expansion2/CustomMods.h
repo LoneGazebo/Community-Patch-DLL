@@ -277,8 +277,6 @@
 #define MOD_GLOBAL_QUICK_ROUTES                     gCustomMods.isGLOBAL_QUICK_ROUTES()
 // Subs under ice are immune to all attacks except from other subs
 #define MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY          gCustomMods.isGLOBAL_SUBS_UNDER_ICE_IMMUNITY()
-// Paratroops can move/attack after the drop, if the drop is not at max range
-#define MOD_GLOBAL_PARATROOPS_MOVEMENT              gCustomMods.isGLOBAL_PARATROOPS_MOVEMENT()
 // Paratroops take AA damage from hostile units
 #define MOD_GLOBAL_PARATROOPS_AA_DAMAGE             gCustomMods.isGLOBAL_PARATROOPS_AA_DAMAGE()
 // Nukes will melt ice
@@ -315,6 +313,7 @@
 #define MOD_COMMUNITY_PATCH							gCustomMods.isCOMMUNITY_PATCH()
 #if defined(MOD_COMMUNITY_PATCH)
 #define MOD_BALANCE_CORE							(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE())
+#define MOD_CORE_DEBUGGING							(MOD_COMMUNITY_PATCH && gCustomMods.isCORE_DEBUGGING())
 #define MOD_BALANCE_CORE_YIELDS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_YIELDS())
 #define MOD_BALANCE_CORE_SPIES						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_SPIES())
 #define MOD_BALANCE_CORE_SPIES_ADVANCED				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_SPIES_ADVANCED())
@@ -367,7 +366,6 @@
 #define MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE	(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_MINOR_PTP_MINIMUM_VALUE())
 #define MOD_BALANCE_YIELD_SCALE_ERA					(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_YIELD_SCALE_ERA())
 #define MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES			(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_NEW_GP_ATTRIBUTES())
-//MOD_BALANCE_CORE_DEBUGGING						
 #define MOD_BALANCE_CORE_JFD						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_JFD())
 #define MOD_BALANCE_CORE_MILITARY_RESISTANCE		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_MILITARY_RESISTANCE())
 #define MOD_BALANCE_CORE_PANTHEON_RESET_FOUND		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_PANTHEON_RESET_FOUND())
@@ -446,8 +444,6 @@
 #define MOD_UNITS_LOCAL_WORKERS                     gCustomMods.isUNITS_LOCAL_WORKERS()
 // Hovering unit can only heal over land
 #define MOD_UNITS_HOVERING_LAND_ONLY_HEAL           gCustomMods.isUNITS_HOVERING_LAND_ONLY_HEAL()
-// Permits hovering units to attack coastal shipping
-#define MOD_UNITS_HOVERING_COASTAL_ATTACKS          gCustomMods.isUNITS_HOVERING_COASTAL_ATTACKS()
 
 // Removes religion preference
 #define MOD_RELIGION_NO_PREFERRENCES                gCustomMods.isRELIGION_NO_PREFERRENCES()
@@ -880,24 +876,8 @@
 #define MOD_BUGFIX_UNIT_PREREQ_PROJECT              gCustomMods.isBUGFIX_UNIT_PREREQ_PROJECT()
 // Fixes a bug where hovering units can be chosen as rebels! (v39)
 #define MOD_BUGFIX_NO_HOVERING_REBELS               gCustomMods.isBUGFIX_NO_HOVERING_REBELS()
-// Fixes a bug in the pathfinder code for hovering units at the seaside!
-#define MOD_BUGFIX_HOVERING_PATHFINDER              gCustomMods.isBUGFIX_HOVERING_PATHFINDER()
 
 #endif // ACHIEVEMENT_HACKS
-
-//
-// MOD_PROMOTIONS_XYZ changes manage/grant the promotions and may affect the game saving code
-// MOD_PATHFINDER_XYZ changes only affect the path finding code so can be disabled if necessary
-//
-
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-#define MOD_PATHFINDER_DEEP_WATER_EMBARKATION  MOD_PROMOTIONS_DEEP_WATER_EMBARKATION
-#endif
-
-// ONLY CHANGE THIS IF YOU TRULY KNOW WHAT YOU ARE DOING IN THE PATHFINDER CODE!!!
-#if defined(MOD_PATHFINDER_CROSS_ICE) || defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
-#define MOD_PATHFINDER_TERRAFIRMA
-#endif
 
 //
 // NOTHING BELOW HERE SHOULD NEED CHANGING
@@ -1166,7 +1146,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_OverrideAIEvent			"OverrideAIEvent", "ii"
 #define GAMEEVENT_OverrideAICityEvent		"OverrideAICityEvent", "iii"
 #define GAMEEVENT_CityEventCanActivate		"CityEventCanActivate", "iii"
-#define GAMEEVENT_EventCanActivate		    "CityEventCanActivate", "ii"
+#define GAMEEVENT_EventCanActivate		    "EventCanActivate", "ii"
 #define GAMEEVENT_EventChoiceCanTake		"EventChoiceCanTake", "ii"
 #define GAMEEVENT_CityEventChoiceCanTake    "CityEventChoiceCanTake", "iii"
 #define GAMEEVENT_EventCanTake				"EventCanTake", "ii"
@@ -1255,6 +1235,7 @@ public:
 	int getOption(std::string sName, int defValue = 0);
 	int getCivOption(const char* szCiv, const char* szName, int defValue = 0);
 
+	MOD_OPT_DECL(CORE_DEBUGGING);
 	MOD_OPT_DECL(GLOBAL_STACKING_RULES);
 	MOD_OPT_DECL(GLOBAL_BREAK_CIVILIAN_1UPT);
 	MOD_OPT_DECL(GLOBAL_BREAK_CIVILIAN_RESTRICTIONS);
@@ -1285,7 +1266,6 @@ public:
 	MOD_OPT_DECL(GLOBAL_RELIGIOUS_SETTLERS);
 	MOD_OPT_DECL(GLOBAL_QUICK_ROUTES);
 	MOD_OPT_DECL(GLOBAL_SUBS_UNDER_ICE_IMMUNITY);
-	MOD_OPT_DECL(GLOBAL_PARATROOPS_MOVEMENT);
 	MOD_OPT_DECL(GLOBAL_PARATROOPS_AA_DAMAGE);
 	MOD_OPT_DECL(GLOBAL_NUKES_MELT_ICE); 
 	MOD_OPT_DECL(GLOBAL_GREATWORK_YIELDTYPES); 

@@ -9,6 +9,7 @@
 !*.dds
 !*.fxsxml
 !*.ftsxml
+!*.ggxml
 !*.gr2
 !*.filters
 !*.gitattributes

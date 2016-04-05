@@ -310,10 +310,10 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	udFunc(udValid, NULL, temp, 0, m_sData);
 	udFunc(udNotifyChild, NULL, temp, ASNC_INITIALADD, m_sData);
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 	cvStopWatch timer("pathfinder",NULL,0,true);
 	timer.StartPerfTest();
-	if (MOD_BALANCE_CORE_DEBUGGING)
+	if (MOD_CORE_DEBUGGING)
 	{
 		svPathLog.push_back( SLogNode( NS_INITIAL_FINAL, 0, m_iXstart, m_iYstart, 0, 0, 0, 0 ) );
 		svPathLog.push_back( SLogNode( NS_INITIAL_FINAL, 0, m_iXdest, m_iYdest, 0, 0, 0, 0 ) );
@@ -349,7 +349,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 		CreateChildren(m_pBest);
 	}
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 	//debugging!
 	timer.EndPerfTest();
 	int iBin = min(99,int(timer.GetDeltaInSeconds()*1000));
@@ -364,7 +364,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 			m_iCurrentGenerationID, m_sData.ePathType, bSuccess?"found":"not found", m_iXstart, m_iYstart, m_iXdest, m_iYdest, m_iTestedNodes, m_iProcessedNodes, m_iRounds, 
 			(100*m_iProcessedNodes)/iNumPlots, timer.GetDeltaInSeconds()*1000, bSuccess?GetPathLength():-1 ).c_str() );
 
-		if (MOD_BALANCE_CORE_DEBUGGING)
+		if (MOD_CORE_DEBUGGING)
 		{
 			CvString fname = CvString::format( "PathfindingRun%06d.txt", m_iCurrentGenerationID );
 			FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
@@ -462,9 +462,9 @@ void CvAStar::PrecalcNeighbors(CvAStarNode* node)
 /// Creates children for the node
 void CvAStar::CreateChildren(CvAStarNode* node)
 {
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 	std::vector<SLogNode> newNodes;
-	if (MOD_BALANCE_CORE_DEBUGGING)
+	if (MOD_CORE_DEBUGGING)
 		newNodes.push_back( SLogNode( NS_CURRENT, m_iRounds, node->m_iX, node->m_iY, node->m_iKnownCost, node->m_iHeuristicCost, node->m_iTurns, node->m_iMoves ) );
 #endif
 
@@ -504,8 +504,8 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
-		if (MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
+		if (MOD_CORE_DEBUGGING)
 			newNodes.push_back( SLogNode( result, m_iRounds, check->m_iX, check->m_iY, check->m_iKnownCost, check->m_iHeuristicCost, check->m_iTurns, check->m_iMoves ) );
 #endif
 	}
@@ -537,17 +537,17 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 				if (IsPathDest(check->m_iX, check->m_iY))
 					m_iDestHitCount++;
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
-				if (MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
+				if (MOD_CORE_DEBUGGING)
 					newNodes.push_back( SLogNode( result, m_iRounds, check->m_iX, check->m_iY, check->m_iKnownCost, check->m_iHeuristicCost, check->m_iTurns, check->m_iMoves ) );
 #endif
 			}
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 	//don't log nodes which have only obsolete neighbors
-	if (MOD_BALANCE_CORE_DEBUGGING && newNodes.size()>1)
+	if (MOD_CORE_DEBUGGING && newNodes.size()>1)
 		svPathLog.insert( svPathLog.end(), newNodes.begin(), newNodes.end() );
 #endif
 }
@@ -1188,45 +1188,25 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 	bool bToPlotIsWater = kToNodeCacheData.bIsWater || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
 	bool bFromPlotIsWater = kFromNodeCacheData.bIsWater || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
 	int iBaseMovesInCurrentDomain = pCacheData->baseMoves(bFromPlotIsWater?DOMAIN_SEA:DOMAIN_LAND);
-	int iBaseMovesInNewDomain = pCacheData->baseMoves(bToPlotIsWater?DOMAIN_SEA:DOMAIN_LAND);
-
-	//if we would have to start a new turn
-	int iBaseMoves = iBaseMovesInNewDomain;
-	int iMaxMoves = max(iBaseMovesInCurrentDomain,iBaseMovesInNewDomain);
 
 	if (iStartMoves==0)
 	{
 		// inconspicuous but important
 		iTurns++;
 
-		//units may have different base moves depending on the domain. in case of a domain change (embark/disembark)
-		//always use the same cost to prevent asymmetry. choose the higher one to discourage domain changes.
-		//this is quite tricky and all variants seem to have some drawback. in particular applying this logic 
-		//to all moves, not only turn start moves, favors embarking on turn start, so we don't do it
-		if(CvUnitMovement::ConsumesAllMoves(pUnit, pFromPlot, pToPlot))
-			iBaseMoves = iMaxMoves;
-
 		//hand out new moves
-		iStartMoves = iBaseMoves*GC.getMOVE_DENOMINATOR();
+		iStartMoves = iBaseMovesInCurrentDomain*GC.getMOVE_DENOMINATOR();
 	}
 
 	// do not pass in the remaining moves, we want to see the true cost!
 	int iMovementCost = 0;
 	if (bWithZOC)
-		iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iBaseMoves, iMaxMoves * GC.getMOVE_DENOMINATOR());
+		iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iStartMoves);
 	else
-		iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iBaseMoves, iMaxMoves * GC.getMOVE_DENOMINATOR());
+		iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iStartMoves);
 
-	// Is the cost greater than our max?
+	// how much is left over?
 	int iMovesLeft = iStartMoves - iMovementCost;
-	if (iMovesLeft < 0)
-	{
-		// Yes, we will still let the move happen, but that is the end of the turn (handled in the next round when iStartMoves==0)
-		iMovesLeft = 0;
-
-		// We pay only for what we take
-		iMovementCost = iStartMoves;
-	}
 
 	//check again whether we already found a better path now that we know the movement cost
 	if (node->m_iTurns>0)
@@ -2665,28 +2645,7 @@ int UIPathValid(const CvAStarNode* parent, const CvAStarNode* node, int operatio
 		if (!pUnit->canMoveInto(*pToPlot, CvUnit::MOVEFLAG_ATTACK))
 			return FALSE;
 	}
-	if(pUnit->getDomainType() == DOMAIN_LAND)
-	{
-		int iGroupAreaID = pUnit->getArea();
-		if(pToPlot->getArea() != iGroupAreaID)
-		{
-			if(!(pToPlot->isAdjacentToArea(iGroupAreaID)))
-			{
-				// antonjs: Added for Smoky Skies scenario. Allows move range to show correctly for airships,
-				// which move over land and sea plots equally (canMoveAllTerrain)
-				if (!pUnit->canMoveAllTerrain())
-				{
-#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
-					if (!(pUnit->IsHoveringUnit() && pToPlot->isShallowWater())) {
-						return FALSE;
-					}
-#else
-					return FALSE;
-#endif
-				}
-			}
-		}
-	}
+
 	if(!pUnit->canEnterTerrain(*pToPlot, CvUnit::MOVEFLAG_ATTACK))
 	{
 		return FALSE;

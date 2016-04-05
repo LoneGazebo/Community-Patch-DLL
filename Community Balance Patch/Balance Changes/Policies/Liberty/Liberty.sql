@@ -158,13 +158,13 @@ VALUES
 INSERT INTO Policy_YieldChangeTradeRoute
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_MERITOCRACY', 'YIELD_SCIENCE', 2);
+	('POLICY_MERITOCRACY', 'YIELD_SCIENCE', 3);
 
 INSERT INTO Policy_CityYieldChanges
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_MERITOCRACY', 'YIELD_FOOD', 2),
-	('POLICY_REPRESENTATION', 'YIELD_PRODUCTION', 1),
+	('POLICY_MERITOCRACY', 'YIELD_FOOD', 3),
+	('POLICY_REPRESENTATION', 'YIELD_PRODUCTION', 2),
 	('POLICY_REPRESENTATION', 'YIELD_GOLD', 2);
 
 INSERT INTO Policy_YieldFromBirth
@@ -175,7 +175,7 @@ VALUES
 INSERT INTO Policy_YieldFromBirthCapital
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_LIBERTY', 'YIELD_SCIENCE', 25);
+	('POLICY_LIBERTY', 'YIELD_SCIENCE', 30);
 
 INSERT INTO Policy_PrereqPolicies
 	(PolicyType, PrereqPolicy)

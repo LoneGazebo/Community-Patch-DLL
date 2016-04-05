@@ -1376,6 +1376,8 @@ protected:
 	LUAAPIEXTN(CountAllWorkedTerrain, int, iTerrainType);
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
+	static int lGetScaledEventChoiceValue (lua_State* L);
+	static int lIsEventChoiceActive (lua_State* L);
 	static int lDoEventChoice (lua_State* L);
 	static int lDoStartEvent (lua_State* L);
 	static int lDoCancelEventChoice (lua_State* L);

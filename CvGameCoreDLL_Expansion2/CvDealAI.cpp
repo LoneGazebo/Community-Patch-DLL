@@ -4419,7 +4419,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			}
 			int iVotesNeeded = 0;
 			int iTheirVotes = pLeague->CalculateStartingVotesForMember(eOtherPlayer);
-			
+
 			PlayerTypes eLoopPlayer;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
@@ -4529,6 +4529,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 		if(pLeague)
 		{
 			int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
+			int iTheirVotes = pLeague->CalculateStartingVotesForMember(eOtherPlayer);
 			//We shouldn't ask them to vote on things that have to do with them personally.
 			CvEnactProposal* pProposal = pLeague->GetEnactProposal(iProposalID);
 			if (pProposal != NULL)
@@ -4547,8 +4548,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				}
 				//Let's look real quick to see if this is the world leader vote. If so, BUY EVERYTHING WE CAN if we can win with their votes in tow.
 				if(pProposal->GetEffects()->bDiplomaticVictory)
-				{
-					int iTheirVotes = pLeague->CalculateStartingVotesForMember(eOtherPlayer);
+				{			
 					int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
 					if((iOurVotes + iTheirVotes) >= iVotesNeededToWin)
 					{
@@ -4662,8 +4662,10 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 
 	iValue = MAX(iValue, 0);
 
+#if !defined(MOD_BALANCE_CORE)
 	// Adjust based on how many votes
 	iValue *= iNumVotes;
+#endif
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	if (bUseEvenValue)

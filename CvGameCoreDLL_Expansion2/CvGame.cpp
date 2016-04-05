@@ -1520,7 +1520,7 @@ void CvGame::assignStartingPlots()
 	pPositioner->AssignStartingLocations();
 }
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 bool ExternalPause()
 {
 	bool bPause = false;
@@ -1600,9 +1600,9 @@ void CvGame::update()
 				gDLL->AutoSave(true);
 			}
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 			bool bExternalPause = false;
-			if(MOD_BALANCE_CORE_DEBUGGING)
+			if(MOD_CORE_DEBUGGING)
 			{
 				bExternalPause = ExternalPause();
 				if ( !bExternalPause && getNumGameTurnActive()==0 )
@@ -1620,12 +1620,12 @@ void CvGame::update()
 				if(gDLL->CanAdvanceTurn())
 					doTurn();
 			}
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 			}
 #endif
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
-			if(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
+			if(MOD_CORE_DEBUGGING)
 			{
 				if( !isPaused() && !bExternalPause )
 				{
@@ -1698,7 +1698,7 @@ void CvGame::update()
 					gDLL->FlushTurnReminders();
 				}
 			}
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 			}
 #endif
 			PlayerTypes activePlayerID = getActivePlayer();
@@ -8073,6 +8073,25 @@ void CvGame::SetBarbarianReleaseTurn(int iValue)
 }
 
 
+void DumpUnitInfo(CvUnitEntry* pkUnitInfo)
+{
+	int iUnitEra = 0;
+	TechTypes ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();
+	if (ePrereqTech != NO_TECH)
+	{
+		CvTechEntry* pkTechInfo = GC.getTechInfo(ePrereqTech);
+		if (pkTechInfo)
+			iUnitEra = pkTechInfo->GetEra();
+	}
+
+	CvString strAIType;
+	getUnitAIString(strAIType,pkUnitInfo->GetDefaultUnitAIType());
+
+	OutputDebugString( CvString::format("Unit,%d,Name,%s,AIType,%d,%s,era,%d,cs,%d,rcs,%d,moves,%d,cost,%d\n",
+		pkUnitInfo->GetID(),pkUnitInfo->GetType(),pkUnitInfo->GetDefaultUnitAIType(),strAIType.c_str(),
+		iUnitEra,pkUnitInfo->GetCombat(),pkUnitInfo->GetRangedCombat(),pkUnitInfo->GetMoves(),pkUnitInfo->GetProductionCost()).c_str() );
+}
+
 //	--------------------------------------------------------------------------------
 /// Determine a random Unit type
 UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged)
@@ -8091,6 +8110,8 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 
 		if(pkUnitInfo != NULL)
 		{
+			//DumpUnitInfo(pkUnitInfo);
+
 			iBonusValue = 0;
 
 			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkUnitInfo->GetUnitClassType());
@@ -9709,7 +9730,7 @@ int CvGame::calculateSyncChecksum()
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 	debugSyncChecksum();
 #endif
 

@@ -137,6 +137,7 @@ public:
 	bool IsEventChoiceValid(EventChoiceTypes eEventChoice, EventTypes eParentEvent);
 	void DoStartEvent(EventTypes eEvent);
 	void DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent = NO_EVENT);
+	CvString GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYieldsOnly);
 
 	void IncrementEvent(EventTypes eEvent, int iValue);
 	int GetEventIncrement(EventTypes eEvent) const;
@@ -1088,8 +1089,8 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD);
-	void addInstantYieldText(InstantYieldType iType, const char* strInstantYield);
-	void setInstantYieldText(InstantYieldType iType, const char* strInstantYield);
+	void addInstantYieldText(InstantYieldType iType, CvString strInstantYield);
+	void setInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantYieldText(InstantYieldType iType)  const;
 #endif
 	// Great People Expenditure

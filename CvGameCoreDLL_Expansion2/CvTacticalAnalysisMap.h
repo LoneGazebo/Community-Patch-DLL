@@ -540,7 +540,7 @@ public:
 	{
 		return m_iNeutralUnitCount;
 	};
-	inline int GetNeutralStength() const
+	inline int GetNeutralStrength() const
 	{
 		return m_iNeutralUnitStrength;
 	};

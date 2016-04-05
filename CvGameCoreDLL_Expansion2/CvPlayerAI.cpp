@@ -741,15 +741,18 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 				if(eEventChoice != NO_EVENT_CHOICE)
 				{
 					CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
-					if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->isParentEvent(eChosenEvent))
+					if(pkEventChoiceInfo != NULL)
 					{
-						for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
+						if(IsEventChoiceValid(eEventChoice, eChosenEvent))
 						{
-							if(pkEventChoiceInfo->getFlavorValue(iFlavor) > 0)
+							for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 							{
-								int iOurFlavor = GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavor);
-								iOurFlavor += pkEventChoiceInfo->getFlavorValue(iFlavor);
-								flavorChoices.push_back(eEventChoice, iOurFlavor);
+								if(pkEventChoiceInfo->getFlavorValue(iFlavor) > 0)
+								{
+									int iOurFlavor = GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavor);
+									iOurFlavor += pkEventChoiceInfo->getFlavorValue(iFlavor);
+									flavorChoices.push_back(eEventChoice, iOurFlavor);
+								}
 							}
 						}
 					}
@@ -798,14 +801,17 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 				if(eEventChoice != NO_EVENT_CHOICE)
 				{
 					CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
-					if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->isParentEvent(eChosenEvent))
+					if(pkEventChoiceInfo != NULL)
 					{
-						int iRandom = GC.getGame().getJonRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
-						if(iRandom <= 0)
+						if(IsEventChoiceValid(eEventChoice, eChosenEvent))
 						{
-							iRandom = 1;
+							int iRandom = GC.getGame().getJonRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
+							if(iRandom <= 0)
+							{
+								iRandom = 1;
+							}
+							randomChoices.push_back(eEventChoice, iRandom);
 						}
-						randomChoices.push_back(eEventChoice, iRandom);
 					}
 				}
 			}
