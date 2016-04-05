@@ -222,15 +222,29 @@ function SetBackground()
 end
 
 function DisplayCorporations()
-	local bHasCorporation = (g_pPlayer:GetCorpID() > 0);
+	-- Hard-coded for now, when I refactor Corporations architecture, there will be a tech property for this
+	local pCorpTech = GameInfo.Technologies["TECH_CORPORATIONS"];
+	if(pCorpTech == nil) then
+		print("No corporations tech - abort");
+		return;
+	end
 
-	Controls.AvailableCorporationBox:SetHide( bHasCorporation );
-	Controls.YourCorporationBox:SetHide( not bHasCorporation );
+	local bHasCorpTech = g_pTeam:IsHasTech(pCorpTech.ID);
 
-	if( not bHasCorporation ) then
-		UpdateAvailableCorporations();
-	else
-		UpdateYourCorporation();
+	Controls.YourCorporationsNotReady:SetHide( bHasCorpTech );
+	Controls.AvailableCorporationBox:SetHide( not bHasCorpTech );
+
+	if(bHasCorpTech) then
+		local bHasCorporation = (g_pPlayer:GetCorpID() > 0);
+
+		Controls.AvailableCorporationBox:SetHide( bHasCorporation );
+		Controls.YourCorporationBox:SetHide( not bHasCorporation );
+
+		if( not bHasCorporation ) then
+			UpdateAvailableCorporations();
+		else
+			UpdateYourCorporation();
+		end
 	end
 end
 

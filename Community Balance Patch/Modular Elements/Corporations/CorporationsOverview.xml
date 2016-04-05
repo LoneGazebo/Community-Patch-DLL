@@ -239,7 +239,8 @@
 		<Box Size="956,459" Color="0,0,0,0" Offset="17,77">
 			<!-- Corporations Tab Content-->
 			<Box Size="956,459" Color="0,0,0,0" ID="CorporationsPanel" Hidden="1">
-				<Box Anchor="L,T" Color="0,0,0,0" ID="AvailableCorporationBox">
+				<Label Anchor="C,C" String="TXT_KEY_CPO_CORPORATIONS_NOT_READY" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WorldWrap="800" ID="YourCorporationsNotReady"/>
+				<Box Anchor="L,T" Color="0,0,0,0" ID="AvailableCorporationBox" Hidden="1">
 					<Box Anchor="L,T" Color="0,0,0,0">
 						<Label Anchor="L,T" Offset="20,4" String="TXT_KEY_CPO_NO_CORPORATION" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
 						<Label Anchor="L,T" Offset="20,30" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="FoundCorporationStatus"/>
