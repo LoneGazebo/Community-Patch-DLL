@@ -449,7 +449,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		if thisButton then
 			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
 			thisButton:SetHide( false );
-			thisButton:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_SPECIALIST_YIELD_CHANGE", GameInfo.Specialists[row.SpecialistType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(row.IconString)));
+			thisButton:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_SPECIALIST_YIELD_CHANGE", GameInfo.Specialists[row.SpecialistType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString)));
 			buttonNum = buttonNum + 1;
 		else
 			break;

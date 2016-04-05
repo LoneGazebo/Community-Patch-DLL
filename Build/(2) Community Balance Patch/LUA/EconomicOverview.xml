@@ -43,15 +43,16 @@
 					<Grid Anchor="C,C" Offset="0,1" Size="300,26"  Style="Grid9FrameTurns" Hidden="1" ID="HappinessSelectHighlight" />
 				</Button>
 				<!-- CBP -->
+				<!--
 				<Button  Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_MONOPOLIES_AND_CORPORATIONS" ID="MonopoliesButton" >
 					<ShowOnMouseOver>
 						<AlphaAnim Anchor="L,C" Size="300,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1"  >
 							<Grid   Size="300,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL" />
 						</AlphaAnim>
 					</ShowOnMouseOver>
-					<!-- Selected State  -->
 					<Grid Anchor="C,C" Offset="0,1" Size="300,26"  Style="Grid9FrameTurns" Hidden="1" ID="MonopoliesSelectHighlight" />
 				</Button>
+				-->
 				<!-- End -->
 
 			</Stack>
@@ -76,6 +77,6 @@
 	<LuaContext FileName="Assets/UI/InGame/Popups/EconomicGeneralInfo" ID="EconomicGeneralInfo" Hidden="0" />
 	<LuaContext FileName="Assets/UI/InGame/Popups/HappinessInfo" ID="HappinessInfo" Hidden="1" />
 	<!-- CBP -->
-	<LuaContext FileName="Assets/UI/InGame/Popups/MonopoliesInfo" ID="MonopoliesInfo" Hidden="1" />
+	<!--<LuaContext FileName="Assets/UI/InGame/Popups/MonopoliesInfo" ID="MonopoliesInfo" Hidden="1" /> -->
 
 </Context>
