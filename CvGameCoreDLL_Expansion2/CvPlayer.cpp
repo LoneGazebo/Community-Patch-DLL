@@ -12527,24 +12527,9 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 
 		if(isUnitClassMaxedOut(eUnitClass, (getUnitClassMaking(eUnitClass) + ((bContinue) ? -1 : 0))))
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(isNationalUnitClass(eUnitClass))
-			{
-				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", pkUnitClassInfo->getMaxPlayerInstances());
-				if(toolTipSink == NULL)
-					return false;
-			}
-			if(isUnitLimitPerCity(eUnitClass))
-			{
-				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_CITY_COUNT_MAX", "", "", (getNumCities() * pkUnitClassInfo->getUnitInstancePerCity()));
-				if(toolTipSink == NULL)
-					return false;
-			}
-#else
 			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", pkUnitClassInfo->getMaxPlayerInstances());
 			if(toolTipSink == NULL)
 				return false;
-#endif
 		}
 
 		if(GC.getGame().isNoNukes() || !GC.getGame().isNukesValid())
@@ -21573,18 +21558,6 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 					}
 				}
 #endif
-#if defined(MOD_BALANCE_CORE)
-				CvCity* pLoopCity;
-				int iLoop;
-				for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-				{
-					if(pLoopCity != NULL)
-					{
-						pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-						pLoopCity->GetCityCulture()->CalculateBaseTourism();
-					}
-				}
-#endif
 			}
 			else
 			{
@@ -21593,18 +21566,6 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 #if defined(MOD_EVENTS_GOLDEN_AGE)
 				if (MOD_EVENTS_GOLDEN_AGE) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGoldenAge, GetID(), false, 0);
-				}
-#endif
-#if defined(MOD_BALANCE_CORE)
-				CvCity* pLoopCity;
-				int iLoop;
-				for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-				{
-					if(pLoopCity != NULL)
-					{
-						pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-						pLoopCity->GetCityCulture()->CalculateBaseTourism();
-					}
 				}
 #endif
 			}
@@ -31361,9 +31322,6 @@ bool CvPlayer::HasGlobalMonopoly(ResourceTypes eResource) const
 //	--------------------------------------------------------------------------------
 void CvPlayer::SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue)
 {
-	if(!MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-		return;
-
 	if(bNewValue != m_pabHasGlobalMonopoly[eResource])
 	{
 		m_pabHasGlobalMonopoly.setAt(eResource, bNewValue);
@@ -31383,9 +31341,6 @@ bool CvPlayer::HasStrategicMonopoly(ResourceTypes eResource) const
 //	--------------------------------------------------------------------------------
 void CvPlayer::SetHasStrategicMonopoly(ResourceTypes eResource, bool bNewValue)
 {
-	if(!MOD_BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC)
-		return;
-
 	if(bNewValue != m_pabHasStrategicMonopoly[eResource])
 	{
 		m_pabHasStrategicMonopoly.setAt(eResource, bNewValue);
@@ -31485,7 +31440,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 				}
 			}
 			CvNotifications* pNotifications = GetNotifications();
-			if(pNotifications && MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+			if(pNotifications)
 			{
 				const char* strResourceHelp = pkResourceInfo->GetHelp();
 
@@ -31523,7 +31478,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					}
 				}
 				// Lost Resources
-				else if(bLosingBonus && MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+				else if(bLosingBonus)
 				{
 					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MONOPOLY_LOST");
 					strMessage << pkResourceInfo->GetTextKey();
@@ -31537,7 +31492,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					updateYield();
 				}
 				// Adding Resources
-				if(bGainingStrategicBonus && MOD_BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC)
+				if(bGainingStrategicBonus)
 				{
 					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_STRATEGIC_MONOPOLY_GAINED");
 					strMessage << pkResourceInfo->GetTextKey();
@@ -31570,7 +31525,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					}
 				}
 				// Lost Resources
-				else if(bLosingStrategicBonus && MOD_BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC)
+				else if(bLosingStrategicBonus)
 				{
 					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_STRATEGIC_MONOPOLY_LOST");
 					strMessage << pkResourceInfo->GetTextKey();
@@ -32097,22 +32052,6 @@ bool CvPlayer::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra) const
 		return false;
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	if(isUnitLimitPerCity(eIndex))
-	{
-		CvAssertMsg(getUnitClassCount(eIndex) <= (getNumCities() * pkUnitClassInfo->getUnitInstancePerCity()), "getUnitInstancePerCity is expected to be less than maximum bound of UnitInstancePerCity (invalid index)");
-		return ((getUnitClassCount(eIndex) + iExtra) >= (getNumCities() * pkUnitClassInfo->getUnitInstancePerCity()));
-	}
-	else if(isNationalUnitClass(eIndex))
-	{
-		CvAssertMsg(getUnitClassCount(eIndex) <= pkUnitClassInfo->getMaxPlayerInstances(), "getUnitClassCount is expected to be less than maximum bound of MaxPlayerInstances (invalid index)");
-		return ((getUnitClassCount(eIndex) + iExtra) >= pkUnitClassInfo->getMaxPlayerInstances());
-	}
-	else
-	{
-		return false;
-	}
-#else
 	if(!isNationalUnitClass(eIndex))
 	{
 		return false;
@@ -32121,7 +32060,6 @@ bool CvPlayer::isUnitClassMaxedOut(UnitClassTypes eIndex, int iExtra) const
 	CvAssertMsg(getUnitClassCount(eIndex) <= pkUnitClassInfo->getMaxPlayerInstances(), "getUnitClassCount is expected to be less than maximum bound of MaxPlayerInstances (invalid index)");
 
 	return ((getUnitClassCount(eIndex) + iExtra) >= pkUnitClassInfo->getMaxPlayerInstances());
-#endif
 }
 
 
@@ -35749,7 +35687,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeFreeFoodBox(pPolicy->GetFreeFoodBox() * iChange);
 	ChangeStrategicResourceMod(pPolicy->GetStrategicResourceMod() * iChange);
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC && pPolicy->GetStrategicResourceMod() > 0)
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && pPolicy->GetStrategicResourceMod() > 0)
 	{
 		for(int iLoop = 0; iLoop < GC.getNumResourceInfos(); iLoop++)
 		{
@@ -37353,11 +37291,11 @@ void CvPlayer::Read(FDataStream& kStream)
 
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && m_pabHasGlobalMonopoly[iResourceLoop])
+		if (m_pabHasGlobalMonopoly[iResourceLoop])
 		{
 			SetHasGlobalMonopoly((ResourceTypes)iResourceLoop, true);
 		}
-		if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC && m_pabHasStrategicMonopoly[iResourceLoop])
+		if (m_pabHasStrategicMonopoly[iResourceLoop])
 		{
 			SetHasStrategicMonopoly((ResourceTypes)iResourceLoop, true);
 		}
