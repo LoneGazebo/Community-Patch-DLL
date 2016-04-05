@@ -6297,7 +6297,7 @@
 			<Text>+{3_Num} {2_Icon} {1_Name}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_ADDENDUM">
-			<Text>[NEWLINE]{3_Num}</Text>
+			<Text>[NEWLINE]{1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH">
 			<Text>Birth of a [ICON_CITIZEN] Citizen:[NEWLINE]{1_YieldString}</Text>

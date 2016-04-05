@@ -594,7 +594,7 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Modular Elements/Corporations/Corporations/Text/en_US/CorporationOverviewText.xml</FileName>
+        <FileName>Modular Elements/Corporations/Text/en_US/CorporationOverviewText.xml</FileName>
       </Action>
     </ModActions>
     <Homepage>
@@ -649,7 +649,7 @@
         <Type>InGameUIAddin</Type>
         <Name>Corporations Overview</Name>
         <Description>Corporations Overview</Description>
-        <FileName>Modular Elements/Corporations/Corporations/CorporationsOverview.lua</FileName>
+        <FileName>Modular Elements/Corporations/CorporationsOverview.lua</FileName>
       </Content>
     </ModContent>
     <ReloadAudioSystem>true</ReloadAudioSystem>
@@ -724,10 +724,6 @@
     <Folder Include="LUA\" />
     <Folder Include="Modular Elements" />
     <Folder Include="Modular Elements\Corporations\Art" />
-    <Folder Include="Modular Elements\Corporations\Corporations\" />
-    <Folder Include="Modular Elements\Corporations\Corporations\Art\" />
-    <Folder Include="Modular Elements\Corporations\Corporations\Text\" />
-    <Folder Include="Modular Elements\Corporations\Corporations\Text\en_US\" />
     <Folder Include="Modular Elements\Corporations\Text" />
     <Folder Include="Modular Elements\Corporations\Text\en_US" />
     <Folder Include="Modular Elements\Happiness Mod" />
@@ -2138,59 +2134,15 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Modular Elements\Corporations\Corporations\Art\CorpAtlas128.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modular Elements\Corporations\Corporations\Art\CorpAtlas256.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modular Elements\Corporations\Corporations\Art\CorpAtlas45.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modular Elements\Corporations\Corporations\Art\CorpAtlas64.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modular Elements\Corporations\Corporations\Art\CorpAtlas80.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modular Elements\Corporations\Corporations\Art\CorporationIcons.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modular Elements\Corporations\Corporations\Art\CorporationSplash.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modular Elements\Corporations\Corporations\Corporations.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modular Elements\Corporations\Corporations\Corporations.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modular Elements\Corporations\Corporations\CorporationsOverview.lua">
+    <Content Include="Modular Elements\Corporations\CorporationsOverview.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modular Elements\Corporations\Corporations\CorporationsOverview.xml">
+    <Content Include="Modular Elements\Corporations\CorporationsOverview.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Modular Elements\Corporations\Corporations\Text\en_US\CorporationOverviewText.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modular Elements\Corporations\Corporations\Text\en_US\CorpText.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modular Elements\Corporations\Corporations\Text\en_US\CorpText.xml">
+    <Content Include="Modular Elements\Corporations\Text\en_US\CorporationOverviewText.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

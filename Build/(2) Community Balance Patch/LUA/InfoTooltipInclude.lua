@@ -343,6 +343,19 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	if (iHitPoints ~= nil and iHitPoints ~= 0) then
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_HITPOINTS", iHitPoints));
 	end
+
+	--CP EVENTS
+	if (pCity ~= nil) then
+		for pYieldInfo in GameInfo.Yields() do
+			local iYieldID = pYieldInfo.ID;
+			local iYieldAmount = pCity:GetEventBuildingClassModifier(buildingClassID, iYieldID);
+							
+			if (iYieldAmount > 0) then
+				table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_EVENT_MODIFIER", iYieldAmount, pYieldInfo.IconString, pYieldInfo.Description));
+			end
+		end
+	end
+	--END
 	
 	-- Food
 	local iFood = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_FOOD);
@@ -1426,6 +1439,7 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 	local iYieldFromEvents = pCity:GetEventCityYield(iYieldType);
 	if (iYieldFromEvents ~= 0) then
 		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_EVENTS", iYieldFromEvents, strIconString);
+	end
 
 	-- Yield Increase from City Yields
 	if (iYieldType == YieldTypes.YIELD_SCIENCE) then

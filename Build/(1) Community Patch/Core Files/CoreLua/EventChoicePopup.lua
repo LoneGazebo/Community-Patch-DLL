@@ -68,9 +68,9 @@ PopulateItems["EventChoices"] = function(stackControl, playerID)
 		Controls.TitleLabel:SetText(szTypeString);
 		Controls.TitleLabel:SetToolTipString(szTypeString);
 		Controls.DescriptionLabel:SetText(szHelpString);
-		
+		local buttonSizeY = 53
 		for info in GameInfo.EventChoices() do
-			print("Cycling through event choices")
+			--print("Cycling through event choices")
 
 			if(player:IsEventChoiceValid(info.ID, iEventType)) then
 				print("Found an event choice")
@@ -82,7 +82,7 @@ PopulateItems["EventChoices"] = function(stackControl, playerID)
 				local szDescString;
 				local szHelpString;
 				szDescString = Locale.Lookup(info.Description)
-				szHelpString = Locale.ConvertTextKey(info.Help)
+				szHelpString = Locale.ConvertTextKey(player:GetScaledEventChoiceValue(info.ID));
 				-- Test for any Override Strings
 				tChoiceOverrideStrings = {}
 				LuaEvents.EventChoice_OverrideTextStrings(playerID, nil, info, tChoiceOverrideStrings)
@@ -93,6 +93,16 @@ PopulateItems["EventChoices"] = function(stackControl, playerID)
 				controlTable.Name:SetText("[ICON_BULLET]" .. szDescString);
 				controlTable.Button:SetToolTipString(szHelpString);
 		
+				-- Readjust the offset
+				local sizeYDiff = math.max((controlTable.Name:GetSizeY()-buttonSizeY),1)
+				if sizeYDiff > 1 then sizeYDiff = sizeYDiff + 20 end
+				controlTable.Box:SetSizeY(buttonSizeY + sizeYDiff)
+				controlTable.Button:SetSizeY(buttonSizeY + sizeYDiff)
+				controlTable.MOSelectionAnim:SetSizeY(buttonSizeY + sizeYDiff)
+				controlTable.MOSelectionAnimHL:SetSizeY(buttonSizeY + sizeYDiff)
+				controlTable.SelectionAnim:SetSizeY(buttonSizeY + sizeYDiff)
+				controlTable.SelectionAnimHL:SetSizeY(buttonSizeY + sizeYDiff)
+				
 				local selectionAnim = controlTable.SelectionAnim;
 
 				controlTable.Button:RegisterCallback(Mouse.eLClick, function()  
