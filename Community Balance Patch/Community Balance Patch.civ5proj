@@ -591,6 +591,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Worlds/WorldSizes.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Modular Elements/Corporations/Text/en_US/CorporationOverviewText.xml</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -639,6 +644,12 @@
         <Name>CBP_IncaFunctions.lua</Name>
         <Description>CBP_IncaFunctions</Description>
         <FileName>Art/Improvements/Inca/CBP_IncaFunctions.lua</FileName>
+      </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>Corporations Overview</Name>
+        <Description>Corporations Overview</Description>
+        <FileName>Modular Elements/Corporations/CorporationsOverview.lua</FileName>
       </Content>
     </ModContent>
     <ReloadAudioSystem>true</ReloadAudioSystem>
@@ -768,10 +779,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Art\Icons\Austria.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Art\Icons\Austria.ggxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2124,6 +2131,18 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Modular Elements\Corporations\Corporations.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\Corporations\CorporationsOverview.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\Corporations\CorporationsOverview.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\Corporations\Text\en_US\CorporationOverviewText.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

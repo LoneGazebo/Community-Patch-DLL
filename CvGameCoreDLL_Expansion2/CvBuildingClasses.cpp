@@ -715,6 +715,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("CorporationHelper");
 	m_strCorporationHelper = szTextVal;
+
+	szTextVal = kResults.GetText("OfficeBenefitHelper");
+	m_strOfficeBenefitHelper = szTextVal;
 #endif
 
 	szTextVal = kResults.GetText("NearbyTerrainRequired");
@@ -2395,6 +2398,11 @@ CvString CvBuildingEntry::GetThemingBonusHelp() const
 CvString CvBuildingEntry::GetCorporationHelper() const
 {
 	return m_strCorporationHelper;
+}
+
+CvString CvBuildingEntry::GetOfficeBenefitHelper() const
+{
+	return m_strOfficeBenefitHelper;
 }
 #endif
 // ARRAYS

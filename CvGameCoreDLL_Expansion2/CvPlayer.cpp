@@ -572,6 +572,7 @@ CvPlayer::CvPlayer() :
 	, m_iSpawnCooldown("CvPlayer::m_iSpawnCooldown", m_syncArchive)
 	, m_iAbleToMarryCityStatesCount("CvPlayer::m_iAbleToMarryCityStatesCount", m_syncArchive)
 	, m_iCorporateFounderID("CvPlayer::m_iCorporateFounderID", m_syncArchive)
+	, m_iCorporateFoundedTurn("CvPlayer::m_iCorporateFoundedTurn", m_syncArchive)
 	, m_iCorporationMaxFranchises("CvPlayer::m_iCorporationMaxFranchises", m_syncArchive)
 	, m_iCorporateFranchises("CvPlayer::m_iCorporateFranchises", m_syncArchive)
 	, m_bTradeRoutesInvulnerable("CvPlayer::m_bTradeRoutesInvulnerable", m_syncArchive)
@@ -1486,6 +1487,7 @@ void CvPlayer::uninit()
 	m_iSpawnCooldown = 0;
 	m_iAbleToMarryCityStatesCount = 0;
 	m_iCorporateFounderID = 0;
+	m_iCorporateFoundedTurn = 0;
 	m_iCorporationMaxFranchises = 0;
 	m_iCorporateFranchises = 0;
 	m_bTradeRoutesInvulnerable = false;
@@ -25706,6 +25708,16 @@ void CvPlayer::SetCorporateFounderID(int iChange)
 {
 	m_iCorporateFounderID = iChange;
 }
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetCorporateFoundedTurn() const
+{
+	return m_iCorporateFoundedTurn;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetCorporateFoundedTurn(int iValue)
+{
+	m_iCorporateFoundedTurn = iValue;
+}
 void CvPlayer::DoFreedomCorp()
 {
 	//Are you free enough?!
@@ -25849,6 +25861,88 @@ void CvPlayer::DoFreedomCorp()
 			}
 		}
 	}
+}
+//	--------------------------------------------------------------------------------
+// Returns a string representing our current corporation benefit (if we have one) for the Corporation Overview
+CvString CvPlayer::GetCurrentOfficeBenefit() const
+{
+	int iCorporationID = GetCorporateFounderID();
+	if(iCorporationID <= 0)
+		return "";
+
+	CvString szOfficeBenefit = "";
+
+	// Find Office building
+	CvBuildingEntry* pkOfficeInfo = NULL;
+	for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+	{
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo((BuildingTypes) iI);
+		if(pkBuildingInfo)
+		{
+			if(pkBuildingInfo->GetCorporationHQID() == 0 &&								// Not a headquarters
+				pkBuildingInfo->GetCorporationID() == iCorporationID &&					// Part of our corporation
+				pkBuildingInfo->GetFreeBuildingTradeTargetCity() != NO_BUILDINGCLASS)	// Not a franchise
+			{
+				pkOfficeInfo = pkBuildingInfo;
+				break;
+			}
+		}
+	}
+
+	// No office assigned to this corporation (wth?)
+	if(pkOfficeInfo == NULL)
+		return "";
+
+	// Calculate what our input into the corporation helper we need
+	int iCurrentValue = 0;
+	int iNumFranchises = GetCorporateFranchisesWorldwide();
+	
+	bool bFoundOne = false;
+
+	// Note: only look for one number, if we find one, don't consider others.
+	if(iNumFranchises > 0)
+	{
+		// Civilized Jewelers
+		if(pkOfficeInfo->GetCorporationGPChange() > 0)
+		{
+			iCurrentValue = iNumFranchises * pkOfficeInfo->GetCorporationGPChange();
+			bFoundOne = true;
+		}
+
+		if(!bFoundOne)
+		{
+			// Free Resource?
+			for(int iI=0; iI < GC.getNumResourceInfos(); iI++)
+			{
+				ResourceTypes eResource = (ResourceTypes) iI;
+				if(pkOfficeInfo->GetCorporationResourceQuantity(eResource) > 0)
+				{
+					iCurrentValue = iNumFranchises / pkOfficeInfo->GetCorporationResourceQuantity(eResource);
+					bFoundOne = true;
+					break;
+				}
+			}
+		}
+
+		if(!bFoundOne)
+		{
+			// Yield Change?
+			for(int iI=0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes) iI;
+				if(pkOfficeInfo->GetCorporationYieldChange(eYield) > 0)
+				{
+					iCurrentValue = iNumFranchises * pkOfficeInfo->GetCorporationYieldChange(eYield);
+					bFoundOne = true;
+					break;
+				}
+			}	
+		}
+	}
+
+	szOfficeBenefit = GetLocalizedText(pkOfficeInfo->GetOfficeBenefitHelper(), iCurrentValue);
+
+	return szOfficeBenefit;
 }
 //	--------------------------------------------------------------------------------
 void CvPlayer::CalculateCorporateFranchisesWorldwide()
@@ -31588,6 +31682,21 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 	}
 }
 #endif
+//	--------------------------------------------------------------------------------
+/// Get the monopoly percentage owned for eResource.
+int CvPlayer::GetMonopolyPercent(ResourceTypes eResource) const
+{
+	int iOwnedNumResource = getNumResourceTotal(eResource, false) + getResourceExport(eResource);
+	int iTotalNumResource = GC.getMap().getNumResources(eResource);
+
+	CvAssertMsg(iTotalNumResource > 0, "iTotalNumResource should be greater than zero!");
+
+	if(iTotalNumResource == 0)
+		return 0;
+
+	return (iOwnedNumResource * 100) / iTotalNumResource;
+}
+//	--------------------------------------------------------------------------------
 //	--------------------------------------------------------------------------------
 /// Do we get copies of each type of luxury connected by eFromPlayer?
 int CvPlayer::getSiphonLuxuryCount(PlayerTypes eFromPlayer) const

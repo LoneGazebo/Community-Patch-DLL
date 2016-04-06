@@ -1439,6 +1439,7 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 	local iYieldFromEvents = pCity:GetEventCityYield(iYieldType);
 	if (iYieldFromEvents ~= 0) then
 		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_EVENTS", iYieldFromEvents, strIconString);
+	end
 
 	-- Yield Increase from City Yields
 	if (iYieldType == YieldTypes.YIELD_SCIENCE) then

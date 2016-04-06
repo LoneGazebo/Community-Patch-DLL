@@ -1417,10 +1417,15 @@ public:
 	void SetCorporateFounderID(int iValue);
 	int GetCorporateFounderID() const;
 
+	void SetCorporateFoundedTurn(int iValue);
+	int GetCorporateFoundedTurn() const;
+
 	void ChangeCorporationMaxFranchises(int iValue);
 	int GetCorporationMaxFranchises() const;
 
 	void DoFreedomCorp();
+
+	CvString GetCurrentOfficeBenefit() const;
 
 	void CalculateCorporateFranchisesWorldwide();
 	int GetCorporateFranchisesWorldwide() const;
@@ -1926,6 +1931,7 @@ public:
 	void CheckForMonopoly(ResourceTypes eResource);
 	const std::vector<ResourceTypes>& GetStrategicMonopolies() const { return m_vResourcesWStrategicMonopoly; }
 	const std::vector<ResourceTypes>& GetGlobalMonopolies() const { return m_vResourcesWGlobalMonopoly; }
+	int GetMonopolyPercent(ResourceTypes eResource) const;
 
 	int getResourceOverValue(ResourceTypes eIndex) const;
 	void changeResourceOverValue(ResourceTypes eIndex, int iChange);
@@ -2932,6 +2938,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iSpawnCooldown;
 	FAutoVariable<int, CvPlayer> m_iAbleToMarryCityStatesCount;
 	FAutoVariable<int, CvPlayer> m_iCorporateFounderID;
+	FAutoVariable<int, CvPlayer> m_iCorporateFoundedTurn;
 	FAutoVariable<int, CvPlayer> m_iCorporationMaxFranchises;
 	FAutoVariable<int, CvPlayer> m_iCorporateFranchises;
 	FAutoVariable<bool, CvPlayer> m_bTradeRoutesInvulnerable;

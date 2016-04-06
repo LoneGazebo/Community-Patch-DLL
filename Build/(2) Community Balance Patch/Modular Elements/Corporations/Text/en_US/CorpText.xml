@@ -342,7 +342,10 @@
 			<Text>Requires a Global Monopoly on [ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar, [ICON_RES_SALT] Salt, [ICON_RES_NUTMEG] Nutmeg, [ICON_RES_CLOVES] Cloves, [ICON_RES_PEPPER] Pepper, or [ICON_RES_COCOA] Cocoa.[NEWLINE][NEWLINE]Receive a free Trader Sid's Office in this City, and unlocks construction of Trader Sid's Offices in owned Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELPER_TRADER_SIDS">
-			<Text>Resource Bonus: [ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar, [ICON_RES_SALT] Salt, [ICON_RES_NUTMEG] Nutmeg, [ICON_RES_CLOVES] Cloves, [ICON_RES_PEPPER] Pepper, and [ICON_RES_COCOA] Cocoa gain additional [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Office Bonus: +4 [ICON_GOLD] for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to foreign Cities with a Trader Sid's Franchise produce +50% [ICON_GOLD] Gold.</Text>
+			<Text>Resource Bonus: [ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar, [ICON_RES_SALT] Salt, [ICON_RES_NUTMEG] Nutmeg, [ICON_RES_CLOVES] Cloves, [ICON_RES_PEPPER] Pepper, and [ICON_RES_COCOA] Cocoa gain additional [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Office Bonus: +4 [ICON_GOLD] Gold for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to foreign Cities with a Trader Sid's Franchise produce +50% [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_OFFICE_BENEFIT_HELP">
+			<Text>Current Office Bonus: +{1_Num} [ICON_GOLD] Gold.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_FRANCHISE">
@@ -371,6 +374,16 @@
 			<Text>+2 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with Trader Sid's. +4 [ICON_GOLD] Gold for every Trader Sid's Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Routes to foreign Cities with a Trader Sid's Franchise produce +50% [ICON_GOLD] Gold than normal.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_CORP_HELP_RESOURCE_BONUS_TRADER_SIDS">
+			<Text>[ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus provide additional [ICON_FOOD] Food.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORP_HELP_OFFICE_BONUS_TRADER_SIDS">
+			<Text>+4 [ICON_GOLD] Gold for every Global Franchise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORP_HELP_TRADE_ROUTE_BONUS_TRADER_SIDS">
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to foreign Cities with a Trader Sid's Franchise produce +50% [ICON_GOLD] Gold.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ">
 			<Text>LandSea Extractors, Inc.</Text>
 		</Row>
@@ -385,6 +398,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELPER_LANDSEA_EXTRACTORS">
 			<Text>Resource Bonus: [ICON_RES_HORSE] Horse, [ICON_RES_WHALE] Whales, [ICON_RES_CRAB] Crab, and [ICON_RES_IVORY] Ivory gain additional [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_PRODUCTION] Production for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a LandSea Extractors Franchise increases the origin City's [ICON_RESEARCH] Science rate by +10%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_OFFICE_BENEFIT_HELP">
+			<Text>Current Office Bonus: +{1_Num} [ICON_PRODUCTION] Production.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE">
@@ -413,6 +429,16 @@
 			<Text>+2 [ICON_PRODUCTION] Production on all Monopoly Resources associated with LandSea Extractors. +3 [ICON_PRODUCTION] Production for every LandSea Extractors Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a LandSea Extractors Franchise increases this City's [ICON_RESEARCH] Science rate by +10%.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_CORP_HELP_RESOURCE_BONUS_LANDSEA_EXTRACTORS">
+			<Text>[ICON_RES_HORSE] Horses, [ICON_RES_WHALE] Whales, [ICON_RES_CRAB] Crab, [ICON_RES_IVORY] Ivory provide additional [ICON_PRODUCTION] Production.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORP_HELP_OFFICE_BONUS_LANDSEA_EXTRACTORS">
+			<Text>+3 [ICON_PRODUCTION] Production for every Global Franchise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORP_HELP_TRADE_ROUTE_BONUS_LANDSEA_EXTRACTORS">
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a LandSea Extractors Franchise grant +10% [ICON_RESEARCH] Science rate in the origin City.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_HQ">
 			<Text>Hexxon Refineries, Inc.</Text>
 		</Row>
@@ -426,7 +452,10 @@
 			<Text>Requires a Global Monopoly on [ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, or [ICON_RES_URANIUM] Uranium.[NEWLINE][NEWLINE]Receive a free Hexxon Refineries Office in this City, and unlocks construction of Hexxon Refineries Offices in owned Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELPER_HEXXON_REFINERY">
-			<Text>Resource Bonus: [ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, or [ICON_RES_URANIUM] Uranium needed.[NEWLINE][NEWLINE]Office Bonus: +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every[COLOR_POSITIVE_TEXT]three[ENDCOLOR] Global Franchises (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Hexxon Refineries Franchise increases the origin City's [ICON_PRODUCTION] Production rate by +15%, and owned Trade Routes move twice as quickly as normal.</Text>
+			<Text>Resource Bonus: [ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, or [ICON_RES_URANIUM] Uranium needed.[NEWLINE][NEWLINE]Office Bonus: +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every [COLOR_POSITIVE_TEXT]three[ENDCOLOR] Global Franchises (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Hexxon Refineries Franchise increases the origin City's [ICON_PRODUCTION] Production rate by +15%, and owned Trade Routes move twice as quickly as normal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_OFFICE_BENEFIT_HELP">
+			<Text>Current Office Bonus: +{1_Num} [ICON_RES_OIL] Oil and [ICON_RES_COAL] Coal.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_FRANCHISE">
@@ -452,8 +481,20 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Hexxon Refineries Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Hexxon Refineries cannot be sold or destroyed by the player, and grants +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every[COLOR_POSITIVE_TEXT]three[ENDCOLOR] Hexxon Refineries Franchises.[NEWLINE][NEWLINE]You cannot have more Franchises than the maximum of possible [ICON_INTERNATIONAL_TRADE] Trade Routes supported by your empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_HELP">
-			<Text>+15% [ICON_PRODUCTION] Production when training Land, Air, or Naval Units in this City. +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every[COLOR_POSITIVE_TEXT]three[ENDCOLOR] Hexxon Refineries Franchises (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Hexxon Refineries Franchise increases this City's [ICON_PRODUCTION] Production rate by +10%.</Text>
+			<Text>+15% [ICON_PRODUCTION] Production when training Land, Air, or Naval Units in this City. +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every [COLOR_POSITIVE_TEXT]three[ENDCOLOR] Hexxon Refineries Franchises (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Hexxon Refineries Franchise increases this City's [ICON_PRODUCTION] Production rate by +10%.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_CORP_HELP_RESOURCE_BONUS_HEXXON_REFINERY">
+			<Text>[ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium provide additional [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORP_HELP_OFFICE_BONUS_HEXXON_REFINERY">
+			<Text>+1 additional [ICON_RES_OIL] Oil and [ICON_RES_COAL] Coal for every three Global Franchises.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORP_HELP_TRADE_ROUTE_BONUS_HEXXON_REFINERY">
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foriegn City with a Hexxon Refinery Franchise grant +15% [ICON_PRODUCTION] Production. [ICON_INTERNATIONAL_TRADE] Trade Routes move at double speed.</Text>
+		</Row>
+
+
 		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ">
 			<Text>Giorgio Armeier, Inc.</Text>
 		</Row>
@@ -468,6 +509,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELPER_GIORIO_ARMEIER">
 			<Text>Resource Bonus: [ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dye, and [ICON_RES_FUR] Furs gain additional [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_CULTURE] Culture for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Giorgio Armeier Franchise increases the origin City's [ICON_CULTURE] Culture rate by +10%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_OFFICE_BENEFIT_HELP">
+			<Text>Current Office Bonus: +{1_Num} [ICON_CULTURE] Culture.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_FRANCHISE">
@@ -495,6 +539,17 @@
 		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_HELP">
 			<Text>+2 [ICON_CULTURE] Culture on all Monopoly Resources associated with Giorgio Armeier. +3 [ICON_CULTURE] Culture for every Giorgio Armeier Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Giorgio Armeier Franchise increases this City's [ICON_CULTURE] Culture rate by +10%.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_CORP_HELP_RESOURCE_BONUS_GIORIO_ARMEIER">
+			<Text>[ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dyes, [ICON_RES_FUR] Furs provide additional [ICON_CULTURE] Culture.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORP_HELP_OFFICE_BONUS_GIORIO_ARMEIER">
+			<Text>+3 [ICON_CULTURE] Culture for every Global Franchise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORP_HELP_TRADE_ROUTE_BONUS_GIORIO_ARMEIER">
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Giorgio Armeier Franchise grant +10% [ICON_CULTURE] Culture to the origin City.</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ">
 			<Text>Firaxite Materials, Inc.</Text>
 		</Row>
@@ -509,6 +564,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELPER_FIRAXITE_MATERIALS">
 			<Text>Resource Bonus: [ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, or [ICON_RES_PORCELAIN] Porcelain gain additional [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_RESEARCH] Science for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to foreign Cities with a Firaxite Materials Franchise produce +100% [ICON_RESEARCH] Science, and owned Trade Routes cannot be pillaged.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_OFFICE_BENEFIT_HELP">
+			<Text>Current Office Bonus: +{1_Num} [ICON_RESEARCH] Science.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE">
@@ -536,6 +594,17 @@
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HELP">
 			<Text>+20% [ICON_PRODUCTION] Production when constructing Buildings in this City. +3 [ICON_RESEARCH] Science for every Firaxite Materials Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Routes to foreign Cities with a Firaxite Materials Franchise produce +100% [ICON_RESEARCH] Science.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_CORP_HELP_RESOURCE_BONUS_FIRAXITE_MATERIALS">
+			<Text>[ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, [ICON_RES_PORCELAIN] Porcelain provide additional [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORP_HELP_OFFICE_BONUS_FIRAXITE_MATERIALS">
+			<Text>+3 [ICON_RESEARCH] Science for every Global Franchise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORP_HELP_TRADE_ROUTE_BONUS_FIRAXITE_MATERIALS">
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to foreign Cities with a Firaxite Materials Franchise produce double [ICON_RESEARCH] Science. [ICON_INTERNATIONAL_TRADE] Trade Routes cannot be pillaged.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HQ">
 			<Text>TwoKay Foods, Inc.</Text>
 		</Row>
@@ -550,6 +619,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELPER_TWOKAY_FOODS">
 			<Text>Resource Bonus: [ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, and [ICON_RES_CITRUS] Citrus gain additional [ICON_FOOD] Food.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_FOOD] Food for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a TwoKay Foods Franchise increases the origin City's [ICON_FOOD] Growth rate by +10%, and all owned Trade Routes have +1 Sight and reveal the Fog of War.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_OFFICE_BENEFIT_HELP">
+			<Text>Current Office Bonus: +{1_Num} [ICON_FOOD] Food.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE">
@@ -577,6 +649,17 @@
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HELP">
 			<Text>+2 [ICON_FOOD] Food on all Monopoly Resources associated with TwoKay Foods. +3 [ICON_FOOD] Food for every TwoKay Foods Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a TwoKay Foods Franchise increases this City's [ICON_FOOD] Growth rate by +10%.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_CORP_HELP_RESOURCE_BONUS_TWOKAY_FOODS">
+			<Text>[ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus provide additional [ICON_FOOD] Food.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORP_HELP_OFFICE_BONUS_TWOKAY_FOODS">
+			<Text>+3 [ICON_FOOD] Food for every Global Franchise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORP_HELP_TRADE_ROUTE_BONUS_TWOKAY_FOODS">
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to foreign Cities with a TwoKay Foods Franchise grant +10% [ICON_FOOD] Food to the origin City. [ICON_INTERNATIONAL_TRADE] Trade Routes have +1 Sight and reveal Fog of War.</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ">
 			<Text>Civilized Jewelers, Inc.</Text>
 		</Row>
@@ -591,6 +674,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELPER_CIVILIZED_JEWELERS">
 			<Text>Resource(s) Needed: [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, or [ICON_RES_JEWELRY] Jewelery.[NEWLINE][NEWLINE]Office Bonus: +5% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Civilized Jewelers Franchise increases the origin City's [ICON_GOLD] Gold rate by +10%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_OFFICE_BENEFIT_HELP">
+			<Text>Current Office Bonus: +{1_Num}% [ICON_GREAT_PEOPLE] Great Person Rate.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE">
@@ -617,6 +703,16 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HELP">
 			<Text>+5% [ICON_GREAT_PEOPLE] Great Person rate in City, and an additional +5% for every Civilized Jeweler's Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Civilized Jewelers Franchise increases this City's [ICON_GOLD] Gold rate by +10%.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORP_HELP_RESOURCE_BONUS_CIVILIZED_JEWELERS">
+			<Text>[ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, [ICON_RES_JEWELRY] Jewelry provide additional [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORP_HELP_OFFICE_BONUS_CIVILIZED_JEWELERS">
+			<Text>+5% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORP_HELP_TRADE_ROUTE_BONUS_CIVILIZED_JEWELERS">
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Civilized Jewelers Franchise grant +10% [ICON_GOLD] Gold in the origin City.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

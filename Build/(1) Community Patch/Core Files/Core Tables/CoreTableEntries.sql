@@ -633,6 +633,8 @@ ALTER TABLE Traits ADD COLUMN 'StartingSpies' INTEGER DEFAULT 0;
 -- Spies begin at x rank
 ALTER TABLE Traits ADD COLUMN 'StartingSpyRank' INTEGER DEFAULT 0;
 
+-- Limits the amount that can be built of a Unit class per city
+ALTER TABLE UnitClasses ADD COLUMN 'UnitInstancePerCity' INTEGER DEFAULT -1;
 
 -- Trade Route Internal Capital Bonus -- policy -- Internal TR from Capital stronger!
 ALTER TABLE Policies ADD COLUMN 'InternalTradeRouteYieldModifierCapital' INTEGER DEFAULT 0;
@@ -684,7 +686,11 @@ ALTER TABLE Buildings ADD COLUMN 'CorporationGPChange' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'TradeRouteInvulnerable' BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'TRSpeedBoost' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'TRVisionBoost' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'CorporationResourceBonusHelp' TEXT DEFAULT NULL;
+ALTER TABLE Buildings ADD COLUMN 'CorporationOfficeBonusHelp' TEXT DEFAULT NULL;
+ALTER TABLE Buildings ADD COLUMN 'CorporationTradeRouteBonusHelp' TEXT DEFAULT NULL;
 ALTER TABLE Buildings ADD COLUMN 'CorporationHelper' TEXT DEFAULT NULL;
+ALTER TABLE Buildings ADD COLUMN 'OfficeBenefitHelper' TEXT DEFAULT NULL;
 ALTER TABLE Resources ADD COLUMN 'StrategicHelp' TEXT DEFAULT NULL;
 
 ALTER TABLE Policies ADD COLUMN 'OrderCorporation' BOOLEAN DEFAULT 0;
@@ -705,6 +711,8 @@ ALTER TABLE Buildings ADD COLUMN 'SecondaryPantheon' BOOLEAN DEFAULT 0;
 -- Plague Stuff for JFD
 ALTER TABLE UnitPromotions ADD COLUMN 'PlagueChance' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD COLUMN 'IsPlague' BOOLEAN DEFAULT 0;
+
+ALTER TABLE Buildings ADD COLUMN 'IsDummy' BOOLEAN DEFAULT 0;
 
 -- HH Mod
 ALTER TABLE Policies ADD COLUMN 'ExtraNaturalWonderHappiness' INTEGER DEFAULT 0;

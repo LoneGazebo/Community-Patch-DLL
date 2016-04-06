@@ -356,6 +356,7 @@ public:
 	CvString GetThemingBonusHelp() const;
 #if defined(MOD_BALANCE_CORE)
 	CvString GetCorporationHelper() const;
+	CvString GetOfficeBenefitHelper() const;
 #endif
 
 	// Accessor Functions (Arrays)
@@ -779,6 +780,7 @@ private:
 	CvString m_strThemingBonusHelp;
 #if defined(MOD_BALANCE_CORE)
 	CvString m_strCorporationHelper;
+	CvString m_strOfficeBenefitHelper;
 #endif
 
 	// Arrays

@@ -378,7 +378,14 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
-
+	<!-- TRAIT: Allows you to define a yield that is gained from mountains based on the number of mountains adjacent to a mountain. 
+	Yield here is minimum for the mountain, and is additive - (so 1 gold + 3 mountains adjacent = 3 gold on the tile; 2 gold + 4 mountains adjacent = 4 gold on the tile, 3 gold + 1 mountain adjacent = 3 gold on the tile, etc.).-->
+	<Table name="Trait_MountainRangeYield">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	
 	<!-- TRAIT: Allows you to define a yield that is gained from converted GAP when you start a Golden Age. Value is a % (so 100 = 100% of GAP). -->
 	<Table name="Trait_GAPToYield">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
@@ -678,4 +685,15 @@
 			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 	</Yields>
+	<Notifications>
+		<Row>
+			<NotificationType>NOTIFICATION_EVENT_CHOICE</NotificationType>
+		</Row>
+		<Row>
+			<NotificationType>NOTIFICATION_EVENT_CHOICE_CITY</NotificationType>
+		</Row>
+		<Row>
+			<NotificationType>NOTIFICATION_INSTANT_YIELD</NotificationType>
+		</Row>
+	</Notifications>
 </GameData>

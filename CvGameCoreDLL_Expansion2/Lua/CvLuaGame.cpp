@@ -330,6 +330,11 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetIlliteracyHappinessChangeBuildingGlobal);
 	Method(GetMinorityHappinessChangeBuildingGlobal);
 	Method(GetPromiseDuration);
+	Method(GetCorporationFounder);
+	Method(GetNumCorporationsFounded);
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	Method(GetGreatestPlayerResourceMonopoly);
+#endif
 #endif
 
 	Method(GetWorldNumCitiesUnhappinessPercent);
@@ -2367,6 +2372,32 @@ int CvLuaGame::lGetPromiseDuration(lua_State* L)
 	lua_pushinteger(L, iTimeOutTurns);
 	return 1;
 }
+
+int CvLuaGame::lGetCorporationFounder(lua_State* L)
+{
+	const int iCorporationID = luaL_checkint(L, 1);
+	int iReturn = (int) GC.getGame().GetCorporationFounder(iCorporationID);
+	lua_pushinteger(L, iReturn);
+	return 1;
+}
+
+int CvLuaGame::lGetNumCorporationsFounded(lua_State* L)
+{
+	int iReturn = GC.getGame().GetNumCorporationsFounded();
+	lua_pushinteger(L, iReturn);
+	return 1;
+}
+
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+int CvLuaGame::lGetGreatestPlayerResourceMonopoly(lua_State* L)
+{
+	const ResourceTypes eResource = (ResourceTypes) luaL_checkint(L, 1);
+	int iReturn = (int) GC.getGame().GetGreatestPlayerResourceMonopoly(eResource);
+	lua_pushinteger(L, iReturn);
+	return 1;
+}
+#endif
 #endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetWorldNumCitiesUnhappinessPercent(lua_State* L)

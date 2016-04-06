@@ -84,13 +84,13 @@ function OnGeneralInfoButton()
 	Controls.GeneralInfoSelectHighlight:SetHide(false);
 	Controls.HappinessSelectHighlight:SetHide(true);
 	--CBP--
-	Controls.MonopoliesSelectHighlight:SetHide(true);
+	--Controls.MonopoliesSelectHighlight:SetHide(true);
 
 	-- Set Panels
     Controls.EconomicGeneralInfo:SetHide( false );
     Controls.HappinessInfo:SetHide( true );
 	--CBP--
-	Controls.MonopoliesInfo:SetHide(true);
+	--Controls.MonopoliesInfo:SetHide(true);
 
     m_CurrentPanel = Controls.EconomicGeneralInfo;
 end
@@ -104,13 +104,13 @@ function OnHappinessButton()
 	Controls.GeneralInfoSelectHighlight:SetHide(true);
 	Controls.HappinessSelectHighlight:SetHide(false);
 	--CBP--
-	Controls.MonopoliesSelectHighlight:SetHide(true);
+	--Controls.MonopoliesSelectHighlight:SetHide(true);
 	
 	-- Set Panels
     Controls.EconomicGeneralInfo:SetHide( true );
     Controls.HappinessInfo:SetHide( false );
 	--CBP--
-	Controls.MonopoliesInfo:SetHide(true);
+	--Controls.MonopoliesInfo:SetHide(true);
 
     m_CurrentPanel = Controls.HappinessInfo;
 end
@@ -119,22 +119,22 @@ Controls.HappinessButton:RegisterCallback( Mouse.eLClick, OnHappinessButton );
 -- CBP
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-function OnMonopoliesButton()
-	-- Set Tabs
-	Controls.GeneralInfoSelectHighlight:SetHide(true);
-	Controls.HappinessSelectHighlight:SetHide(true);
-	--CBP--
-	Controls.MonopoliesSelectHighlight:SetHide(false);
-	
-	-- Set Panels
-    Controls.EconomicGeneralInfo:SetHide( true );
-    Controls.HappinessInfo:SetHide( true );
-	--CBP--
-	Controls.MonopoliesInfo:SetHide(false);
-
-    m_CurrentPanel = Controls.MonopoliesInfo;
-end
-Controls.MonopoliesButton:RegisterCallback( Mouse.eLClick, OnMonopoliesButton );
+-- function OnMonopoliesButton()
+-- 	-- Set Tabs
+-- 	Controls.GeneralInfoSelectHighlight:SetHide(true);
+-- 	Controls.HappinessSelectHighlight:SetHide(true);
+-- 	--CBP--
+-- 	Controls.MonopoliesSelectHighlight:SetHide(false);
+-- 	
+-- 	-- Set Panels
+--     Controls.EconomicGeneralInfo:SetHide( true );
+--     Controls.HappinessInfo:SetHide( true );
+-- 	--CBP--
+-- 	--Controls.MonopoliesInfo:SetHide(false);
+-- 
+--     m_CurrentPanel = Controls.MonopoliesInfo;
+-- end
+-- Controls.MonopoliesButton:RegisterCallback( Mouse.eLClick, OnMonopoliesButton );
 
 
 OnGeneralInfoButton();
