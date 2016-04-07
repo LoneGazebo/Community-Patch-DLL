@@ -40454,8 +40454,10 @@ int CvPlayer::GetHappinessFromVassals() const
 /// Happiness from a Vassal
 int CvPlayer::GetHappinessFromVassal(PlayerTypes ePlayer) const
 {
+	// Do not evaluate dead players (prevents crash)
+	if (!GET_PLAYER(ePlayer).isAlive()) return 0;
+	
 	int iAmount = 0;
-
 	if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
 	{
 		iAmount += GET_PLAYER(ePlayer).GetExcessHappiness() * GC.getVASSAL_HAPPINESS_PERCENT();
