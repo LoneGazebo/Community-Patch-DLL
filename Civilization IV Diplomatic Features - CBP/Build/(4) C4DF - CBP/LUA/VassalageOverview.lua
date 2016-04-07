@@ -49,6 +49,12 @@ function ResetVassalDescription()
 end
 
 function Update()
+	-- Update active player
+	g_iPlayer = Game.GetActivePlayer();
+	g_pPlayer = Players[ g_iPlayer ];
+	g_iTeam = g_pPlayer:GetTeam();
+	g_pTeam = Teams[ g_iTeam ];
+
 	function TestVassalageStarted()
 		return (g_pTeam:GetCurrentEra() >= Game.GetVassalageEnabledEra()) or g_pTeam:IsVassalOfSomeone();
 	end
