@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{5cb438a2-fcd9-4327-ae89-9f419f302d3f}</ProjectGuid>
-    <Name>(4) Civilization IV Diplomatic Features - Community Balance Patch</Name>
+    <Name>(4) C4DF - CBP</Name>
     <Guid>c7bf7064-d1b1-4708-9e93-7a1560868582</Guid>
     <ModVersion>11</ModVersion>
     <Stability>Alpha</Stability>
@@ -109,6 +109,21 @@ This mod modifies the Civilization V Lua. It MAY be compatible with other mods t
         <Type>UpdateDatabase</Type>
         <FileName>XML/Text/zn_CN/zh_CN_Text_UIC4DF.xml</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/pl_PL/pl_PL_Text_CivilopediaC4DF.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/pl_PL/pl_PL_Text_Generic_DiplomacyC4DF.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/pl_PL/pl_PL_Text_UIC4DF.xml</FileName>
+      </Action>
     </ModActions>
     <Homepage>http://forums.civfanatics.com/forumdisplay.php?f=497</Homepage>
     <ReloadAudioSystem>false</ReloadAudioSystem>
@@ -165,6 +180,7 @@ This mod modifies the Civilization V Lua. It MAY be compatible with other mods t
     <Folder Include="XML\Gameplay\" />
     <Folder Include="XML\Text\" />
     <Folder Include="XML\Text\en_US\" />
+    <Folder Include="XML\Text\pl_PL\" />
     <Folder Include="XML\Text\zn_Hant_HK" />
     <Folder Include="XML\Text\zn_CN" />
   </ItemGroup>
@@ -218,6 +234,18 @@ This mod modifies the Civilization V Lua. It MAY be compatible with other mods t
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="XML\Text\en_US\en_US_Text_UIC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\pl_PL\pl_PL_Text_CivilopediaC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\pl_PL\pl_PL_Text_Generic_DiplomacyC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\pl_PL\pl_PL_Text_UIC4DF.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

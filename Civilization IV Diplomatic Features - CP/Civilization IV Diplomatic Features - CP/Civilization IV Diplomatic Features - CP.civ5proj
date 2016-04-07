@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{c9a4d880-9cb4-4843-8224-dd0ea6791329}</ProjectGuid>
-    <Name>(1a) Civilization IV Diplomatic Features - CP Only</Name>
+    <Name>(1a) C4DF - CP Only</Name>
     <Guid>781d81cf-49e1-4acb-ae5f-b9e3713f98d3</Guid>
     <ModVersion>11</ModVersion>
     <Stability>Alpha</Stability>
@@ -111,6 +111,21 @@ It is highly recommended that you play the Community Patch Project version of th
         <Type>UpdateDatabase</Type>
         <FileName>XML/Text/zn_CN/zh_CN_Text_UIC4DF.xml</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/pl_PL/pl_PL_Text_CivilopediaC4DF.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/pl_PL/pl_PL_Text_Generic_DiplomacyC4DF.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/Text/pl_PL/pl_PL_Text_UIC4DF.xml</FileName>
+      </Action>
     </ModActions>
     <ModDependencies>
       <Association xmlns="">
@@ -166,6 +181,7 @@ It is highly recommended that you play the Community Patch Project version of th
     <Folder Include="XML\Gameplay\" />
     <Folder Include="XML\Text\" />
     <Folder Include="XML\Text\en_US\" />
+    <Folder Include="XML\Text\pl_PL\" />
     <Folder Include="XML\Text\zn_Hant_HK" />
     <Folder Include="XML\Text\zn_CN" />
   </ItemGroup>
@@ -295,6 +311,18 @@ It is highly recommended that you play the Community Patch Project version of th
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="XML\Text\en_US\en_US_Text_UIC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\pl_PL\pl_PL_Text_CivilopediaC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\pl_PL\pl_PL_Text_Generic_DiplomacyC4DF.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\Text\pl_PL\pl_PL_Text_UIC4DF.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

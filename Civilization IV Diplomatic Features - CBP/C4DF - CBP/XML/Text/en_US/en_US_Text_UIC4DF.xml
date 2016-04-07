@@ -795,6 +795,14 @@
 		<Row Tag="TXT_KEY_HAPPINESS_FROM_VASSALS">
 			<Text>Vassals</Text>
 		</Row>
+
+		<!-- Levy -->
+		<Row Tag="TXT_KEY_NOTIFICATION_VASSAL_LEVY">
+			<Text>Because you have entered a new Era, your Vassals have sent you {1_Num} Unit(s) as part of their tribute.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_VASSAL_LEVY_SUMMARY">
+			<Text>Vassal Tribute!</Text>
+		</Row>
 		
 		<Row Tag="TXT_KEY_TP_GOLD_VASSAL_MAINT">
 			<Text>{1_Num} spent on Vassal Maintenance.</Text>
