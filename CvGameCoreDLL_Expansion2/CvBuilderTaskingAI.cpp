@@ -1721,12 +1721,14 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 #if !defined(MOD_BALANCE_CORE)
 	iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
 #endif
+
 	iWeight = GetBuildCostWeight(iWeight, pPlot, eChopBuild);
 	int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eChopBuild, false, iMoveTurnsAway);
 	iWeight += iBuildTimeWeight;
 	iWeight *= iProduction; // times the amount that the plot produces from the chopping
+
 #if defined(MOD_BALANCE_CORE)
-		iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
+	iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
 #endif
 
 	int iYieldDifferenceWeight = 0;

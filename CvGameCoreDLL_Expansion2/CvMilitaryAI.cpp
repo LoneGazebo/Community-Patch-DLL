@@ -6988,13 +6988,20 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 			iRequiredSlots++;
 	}
 
-	if(pPlayer && eEnemy != NO_PLAYER && pMuster != NULL && pTarget != NULL && (pTarget != pMuster))
+	if(pPlayer && eEnemy != NO_PLAYER && pMuster && pTarget && (pTarget != pMuster))
 	{
 		if(bRequiresNavalMoves || bMustBeDeepWaterNaval)
 		{
-			if((pMuster->isCoastalLand() || pMuster->isWater()) && (pTarget->isCoastalLand() || pTarget->isWater()))
+			//naval units are fast and terrain is easy. if there's a trade path we assume we can attack it
+			//we enforce the same area for naval ops, everything else leads to problems later
+			if (pMuster->isCity() && pTarget->isCity())
 			{
-				if(!GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pMuster->getPlotCity(),pTarget->getPlotCity(),DOMAIN_SEA))
+				CvCity* pMusterCity = pMuster->getPlotCity();
+				CvCity* pTargetCity = pTarget->getPlotCity();
+
+				if ( !(pMusterCity->isCoastal() || pTargetCity->isCoastal()) ||
+					 !(pMusterCity->waterArea() == pTargetCity->waterArea()) ||
+					 (!GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pMusterCity,pTargetCity,DOMAIN_SEA)) )
 				{
 					if(GC.getLogging() && GC.getAILogging())
 					{
@@ -7006,10 +7013,32 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 					return 0;
 				}
 			}
+			else
+			{
+				//make sure that both plots are water
+				if (!pMuster->isWater())
+					pMuster = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster,NULL);
+				if (!pTarget->isWater())
+					pTarget = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget,NULL);
+
+				SPathFinderUserData data( pPlayer->GetID(), PT_GENERIC_SAME_AREA, eEnemy );
+				if(!GC.GetStepFinder().DoesPathExist(pMuster, pTarget, data))
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strTemp;
+						CvString strLogString;
+						strLogString.Format("FAILED PATHFINDER - Tallying up land units for %s formation.", thisFormation->GetType());
+						pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
+					}
+					return 0;
+				}
+			}
 		}
 		else
 		{
-			SPathFinderUserData data( pPlayer->GetID(), iRequiredSlots>4 ? PT_GENERIC_SAME_AREA_WIDE : PT_GENERIC_SAME_AREA, eEnemy );
+			//land based ops need a wide path so they don't get stuck - but they don't need to stay within their area
+			SPathFinderUserData data( pPlayer->GetID(), iRequiredSlots>5 ? PT_GENERIC_ANY_AREA_WIDE : PT_GENERIC_ANY_AREA, eEnemy );
 			if(!GC.GetStepFinder().DoesPathExist(pMuster, pTarget, data))
 			{
 				if(GC.getLogging() && GC.getAILogging())
