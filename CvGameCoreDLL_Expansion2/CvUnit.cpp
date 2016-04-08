@@ -5117,11 +5117,7 @@ bool CvUnit::IsAngerFreeUnit() const
 }
 
 //	---------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
-int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity, CvCity* pCity) const
-#else
 int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const
-#endif
 {
 	VALIDATE_OBJECT
 	// The roll will vary damage between 40 and 60 (out of 100) for two units of identical strength
@@ -5180,12 +5176,8 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 
 	fStrengthRatio = (fStrengthRatio + 3) / 4;
 	fStrengthRatio = pow(fStrengthRatio, 4.0);
-#if defined(MOD_BALANCE_CORE)
 	//avoid overflows later ...
 	fStrengthRatio = MIN(1e3, (fStrengthRatio + 1) / 2);
-#else
-	fStrengthRatio = (fStrengthRatio + 1) / 2;
-#endif
 
 	if(iOpponentStrength > iStrength)
 	{
@@ -5206,18 +5198,6 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	{
 		iDamage *= /*100*/ GC.getATTACKING_CITY_MELEE_DAMAGE_MOD();
 		iDamage /= 100;
-#if defined(MOD_BALANCE_CORE)
-		if(pCity)
-		{
-			CvUnit* pGarrison = pCity->GetGarrisonedUnit();
-			if(pGarrison)
-			{
-				//make sure there are no rounding errors
-				int iGarrisonShare = (iDamage*2*pGarrison->GetMaxHitPoints()) / (pCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
-				iDamage -= iGarrisonShare;
-			}
-		}
-#endif
 	}
 
 	// Bring it back out of hundreds
@@ -15965,6 +15945,9 @@ bool CvUnit::canAirDefend(const CvPlot* pPlot) const
 //	--------------------------------------------------------------------------------
 int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, const CvPlot* pTargetPlot, const CvPlot* pFromPlot) const
 {
+#if defined(MOD_CORE_AIRCOMBAT_SIMPLIFIED)
+	return GetRangeCombatDamage(pDefender,pCity,bIncludeRand,iAssumeExtraDamage,pTargetPlot,pFromPlot);
+#else
 	VALIDATE_OBJECT
 
 	if (pFromPlot == NULL)
@@ -15993,6 +15976,7 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 	else if (pDefender != NULL)
 	{
 		// Use Ranged combat value for defender, UNLESS it's a boat
+
 		if (pDefender->getDomainType() == DOMAIN_SEA || (iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, /*bForRangedAttack*/ false, pTargetPlot, pFromPlot)) <= 0)
 		{
 			iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, /*bFromRangedAttack*/ true);
@@ -16027,7 +16011,7 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 	}
 	iAttackerDamage += iAttackerRoll;
 
-	double fStrengthRatio = ((iDefenderStrength > 0)?(double(iAttackerStrength) / iDefenderStrength):double(iAttackerStrength));
+	double fStrengthRatio = (iDefenderStrength > 0)?(double(iAttackerStrength) / iDefenderStrength):double(iAttackerStrength);
 
 	// In case our strength is less than the other guy's, we'll do things in reverse then make the ratio 1 over the result
 	if(iDefenderStrength > iAttackerStrength)
@@ -16037,7 +16021,8 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 
 	fStrengthRatio = (fStrengthRatio + 3) / 4;
 	fStrengthRatio = pow(fStrengthRatio, 4.0);
-	fStrengthRatio = (fStrengthRatio + 1) / 2;
+	//avoid overflow later
+	fStrengthRatio = MIN(1e3,(fStrengthRatio + 1) / 2);
 
 	if(iDefenderStrength > iAttackerStrength)
 	{
@@ -16057,6 +16042,7 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 	iAttackerDamage = max(1,iAttackerDamage);
 
 	return iAttackerDamage;
+#endif
 }
 
 
@@ -16107,7 +16093,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		// Use Ranged combat value for defender, UNLESS it's a boat or an Impi (ranged support)
 #if defined(MOD_BALANCE_CORE)
 		//Correction - make this apply to all ranged units, naval too.
-		else if (!pDefender->isRangedSupportFire() && pDefender->GetRangedCombatLimit() > 0)
+		else if (!pDefender->isRangedSupportFire() && pDefender->isRanged())
 #else
 		else if (!pDefender->isRangedSupportFire() && pDefender->getDomainType() != DOMAIN_SEA)
 #endif
@@ -16195,6 +16181,13 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 //	--------------------------------------------------------------------------------
 int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand, const CvPlot* pTargetPlot, const CvPlot* pFromPlot) const
 {
+#if defined(MOD_CORE_AIRCOMBAT_SIMPLIFIED)
+	pAttacker; pTargetPlot; pFromPlot;
+	if (bIncludeRand)
+		return 8 + GC.getGame().getJonRandNum(5,"air attack attrition");
+	else
+		return 10;
+#else
 	if (!pAttacker)
 		return 0;
 	if (pFromPlot == NULL && pAttacker)
@@ -16257,6 +16250,7 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	iDefenderDamage = max(1,iDefenderDamage);
 
 	return iDefenderDamage;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -16409,7 +16403,8 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand, co
 
 	fStrengthRatio = (fStrengthRatio + 3) / 4;
 	fStrengthRatio = pow(fStrengthRatio, 4.0);
-	fStrengthRatio = (fStrengthRatio + 1) / 2;
+	//avoid overflow later
+	fStrengthRatio = MIN(1e3,(fStrengthRatio + 1) / 2);
 
 	if(iAttackerStrength > iInterceptorStrength)
 	{
@@ -16499,7 +16494,8 @@ int CvUnit::GetParadropInterceptionDamage(const CvUnit* pAttacker, bool bInclude
 
 	fStrengthRatio = (fStrengthRatio + 3) / 4;
 	fStrengthRatio = pow(fStrengthRatio, 4.0);
-	fStrengthRatio = (fStrengthRatio + 1) / 2;
+	//avoid overflow later
+	fStrengthRatio = MIN(1e3,(fStrengthRatio + 1) / 2);
 
 	if(iAttackerStrength > iInterceptorStrength)
 	{

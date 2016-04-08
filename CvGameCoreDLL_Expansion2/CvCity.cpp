@@ -23845,12 +23845,17 @@ int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender, const CvPlot* pInPlo
 
 	int iDefenderStrength = 0;
 
-	// Use Ranged combat value for defender, UNLESS it's a boat
-	if (pInPlot->needsEmbarkation(pDefender))
+	if (pDefender->CanEverEmbark() && pInPlot->needsEmbarkation(pDefender))
 	{
 		iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 	}
+	// Use Ranged combat value for defender, UNLESS it's a boat or an Impi (ranged support)
+#if defined(MOD_BALANCE_CORE)
+	//Correction - make this apply to all ranged units, naval too.
+	else if (!pDefender->isRangedSupportFire() && pDefender->isRanged())
+#else
 	else if (!pDefender->isRangedSupportFire() && !pDefender->getDomainType() == DOMAIN_SEA)
+#endif
 	{
 		iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false, pInPlot, plot());
 		if (iDefenderStrength==0)

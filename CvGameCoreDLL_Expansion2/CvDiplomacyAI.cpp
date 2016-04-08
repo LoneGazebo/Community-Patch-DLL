@@ -8495,6 +8495,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		}
 	}
 #endif
+
 #if defined(MOD_BALANCE_CORE)
 	if(GET_PLAYER(ePlayer).isMinorCiv())
 	{
@@ -8579,11 +8580,10 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 #else
 
 	if(GetWantPeaceCounter(ePlayer) >= iRequestPeaceTurnThreshold)
-	{
 		return true;
-	}
-#endif
+
 	return false;
+#endif
 }
 
 

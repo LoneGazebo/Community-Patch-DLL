@@ -197,11 +197,7 @@ public:
 
 	bool IsAngerFreeUnit() const;
 
-#if defined(MOD_BALANCE_CORE)
-	int getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity, CvCity* pCity = NULL) const;
-#else
 	int getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const;
-#endif
 	void fightInterceptor(const CvPlot& pPlot);
 	void move(CvPlot& pPlot, bool bShow);
 	bool jumpToNearestValidPlot();
