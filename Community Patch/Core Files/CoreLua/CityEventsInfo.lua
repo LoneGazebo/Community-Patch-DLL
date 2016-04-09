@@ -4,13 +4,14 @@
 include( "IconSupport" );
 include( "InstanceManager" );
 local g_CityEventsInstanceManager = InstanceManager:new( "CityEventsButton", "Button", Controls.CityEventsButtonStack );
+local m_pCity = nil;
 -------------------------------------------------
 -- On Popup
 -------------------------------------------------
 function UpdateCityEvents()
 			
 	g_CityEventsInstanceManager:ResetInstances();
-
+	local count = 0;
 	local player = Players[Game.GetActivePlayer()];
 	for pCity in player:Cities() do
 		if(pCity ~= nil) then
@@ -23,7 +24,7 @@ function UpdateCityEvents()
 					end
 					if pEventInfo then
 						print("Found an event choice")
-			
+						count = count+1;
 						local CityStr = Locale.ConvertTextKey(pCity:GetNameKey())
 						local DescStr = ""
 						
@@ -32,13 +33,18 @@ function UpdateCityEvents()
 						else
 							DescStr = Locale.Lookup(info.Description)
 						end
-						local HelpStr = Locale.ConvertTextKey(info.Help)
+						local HelpStr = Locale.ConvertTextKey(pCity:GetScaledEventChoiceValue(info.ID))
 						local duration = pCity:GetCityEventChoiceCooldown(info.ID)
-						AddCityEventsButton(DescStr, HelpStr, duration, CityStr, iCityX, iCityY);
+						AddCityEventsButton(DescStr, HelpStr, duration, CityStr, pCity);
 					end
 				end
 			end
 		end
+	end
+	if(count > 0) then
+		Controls.NoCityEvents:SetHide(true);
+	else
+		Controls.NoCityEvents:SetHide(false);
 	end
 	
 	Controls.CityEventsButtonStack:CalculateSize();
@@ -50,14 +56,14 @@ Events.SerialEventGameMessagePopup.Add( OnPopup );
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-function AddCityEventsButton( DescStr, HelpStr, duration, CityStr, iCityX, iCityY )	
+function AddCityEventsButton( DescStr, HelpStr, duration, CityStr, pCity )	
 
 	local controlTable = g_CityEventsInstanceManager:GetInstance();
 	controlTable.CityEventsHelpText:SetText(HelpStr);	
 	if(duration > 0) then
-		controlTable.CityEventsText:SetText(DescStr .. " (" .. Locale.ConvertTextKey("TXT_KEY_TP_TURNS_REMAINING", duration) .. ")");
+		controlTable.CityEventsText:SetText("[COLOR_CYAN]" .. DescStr .. "[ENDCOLOR]" .. " (" .. Locale.ConvertTextKey("TXT_KEY_TP_TURNS_REMAINING", duration) .. ")");
 	else
-		controlTable.CityEventsText:SetText(DescStr);
+		controlTable.CityEventsText:SetText("[COLOR_CYAN]" .. DescStr .. "[ENDCOLOR]");
 	end
 	controlTable.CityName:SetText("[COLOR_POSITIVE_TEXT]" .. CityStr .. "[ENDCOLOR]");
     
@@ -69,14 +75,16 @@ function AddCityEventsButton( DescStr, HelpStr, duration, CityStr, iCityX, iCity
     controlTable.TextAnim:SetSizeY(sizeY);
     controlTable.TextHL:SetSizeY(sizeY);
 
+	controlTable.Button:SetVoids( pCity:GetX(), pCity:GetY() );
+
 	controlTable.Button:RegisterCallback( Mouse.eLClick, OnEventInfoClicked );
 end
 
-function OnEventInfoClicked(iCityX, iCityY)
-	local pPlot = Map.GetPlot(iCityX, iCityY);
-	if (pPlot) then
-		UI.LookAt(pPlot, 0);
-		local hex = ToHexFromGrid(Vector2(pPlot:GetX(), pPlot:GetY()));
+function OnEventInfoClicked(x, y)
+	local plot = Map.GetPlot( x, y );
+	if( plot ~= nil ) then
+		UI.LookAt(plot, 0);
+		local hex = ToHexFromGrid(Vector2(plot:GetX(), plot:GetY()));
 		Events.GameplayFX(hex.x, hex.y, -1);
 	end
 end

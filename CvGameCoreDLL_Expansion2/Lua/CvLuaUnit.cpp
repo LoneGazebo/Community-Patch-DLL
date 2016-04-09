@@ -900,14 +900,21 @@ int CvLuaUnit::lGetCombatDamage(lua_State* L)
 	const bool bIncludeRand = lua_toboolean(L, 5);
 	const bool bAttackerIsCity = lua_toboolean(L, 6);
 	const bool bDefenderIsCity = lua_toboolean(L, 7);
-#if defined(MOD_BALANCE_CORE)
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 8, false);
-	const int iResult = pkUnit->getCombatDamage(iStrength, iOpponentStrength, iCurrentDamage, bIncludeRand, bAttackerIsCity, bDefenderIsCity, pkCity);
-#else
-	const int iResult = pkUnit->getCombatDamage(iStrength, iOpponentStrength, iCurrentDamage, bIncludeRand, bAttackerIsCity, bDefenderIsCity);
-#endif
-	lua_pushinteger(L, iResult);
 
+	int iResult = pkUnit->getCombatDamage(iStrength, iOpponentStrength, iCurrentDamage, bIncludeRand, bAttackerIsCity, bDefenderIsCity);
+
+#if defined(MOD_BALANCE_CORE)
+	//for visual feedback, take care that we show the precise value
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 8, false);
+	if (pkCity && pkCity->HasGarrison())
+	{
+		CvUnit* pGarrison = pkCity->GetGarrisonedUnit();
+		int iGarrisonShare = (iResult*2*pGarrison->GetMaxHitPoints()) / (pkCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
+		iResult -= iGarrisonShare;
+	}
+#endif
+
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------

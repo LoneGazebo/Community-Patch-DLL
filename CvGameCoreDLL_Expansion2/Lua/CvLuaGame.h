@@ -322,6 +322,11 @@ protected:
 	static int lGetBuildingCorporateYieldChange(lua_State* L);
 	static int lGetBuildingCorporateGPChange(lua_State* L);
 	static int lGetPromiseDuration(lua_State* L);
+	static int lGetCorporationFounder(lua_State* L);
+	static int lGetNumCorporationsFounded(lua_State* L);
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	static int lGetGreatestPlayerResourceMonopoly(lua_State* L);
+#endif
 #endif
 
 	static int lGetWorldNumCitiesUnhappinessPercent(lua_State* L);
@@ -355,7 +360,7 @@ protected:
 	static int lGetNumReligionsFounded(lua_State* L);
 	static int lGetNumReligionsStillToFound(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
-	static int lBeliefsIsInReligion(lua_State* L);
+	static int lBeliefIsInReligion(lua_State* L);
 #endif
 	static int lGetHolyCityForReligion(lua_State* L);
 	static int lGetReligionName(lua_State* L);

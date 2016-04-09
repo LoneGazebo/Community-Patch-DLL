@@ -134,8 +134,11 @@ bool CvGameTrade::HaveTradePath(bool bWater, int iCityA, int iCityB, SPath* pPat
 
 	return false;
 }
-
+#if defined(MOD_BALANCE_CORE)
+void CvGameTrade::UpdateTradePathCache(uint iPlayer1, bool bWarCheck)
+#else
 void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
+#endif
 {
 	//check if we have anything to do
 	std::map<uint,int>::iterator lastUpdate = m_lastTradePathUpdate.find(iPlayer1);
@@ -177,7 +180,11 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 		if (!GET_TEAM(kPlayer1.getTeam()).isHasMet(kPlayer2.getTeam()))
 			continue;
 		
-		if (kPlayer1.IsAtWarWith((PlayerTypes)iPlayer2))
+#if defined(MOD_BALANCE_CORE)
+		if (!bWarCheck && kPlayer1.IsAtWarWith((PlayerTypes)iPlayer2))
+#else
+			continue;
+#endif
 			continue;
 
 		int iOriginCityLoop;
@@ -750,13 +757,21 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+bool CvGameTrade::IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPath, bool bWarCheck)
+#else
 bool CvGameTrade::IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPath)
+#endif
 {
 	// AI_PERF_FORMAT("Trade-route-perf.csv", ("CvGameTrade::IsValidTradeRoutePath, Turn %03d, %s, %s, %d, %d, %s, %d, %d", GC.getGame().getElapsedGameTurns(), pOriginCity->GetPlayer()->getCivilizationShortDescription(), pOriginCity->getName().c_str(), pOriginCity->getX(), pOriginCity->getY(), pDestCity->getName().c_str(), pDestCity->getX(), pDestCity->getY()) );
 	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
 
 	//important. see which trade paths are valid
+#if defined(MOD_BALANCE_CORE)
+	UpdateTradePathCache(eOriginPlayer, bWarCheck);
+#else
 	UpdateTradePathCache(eOriginPlayer);
+#endif
 
 	SPath path;
 	//if we did not get an external pointer, make up our own

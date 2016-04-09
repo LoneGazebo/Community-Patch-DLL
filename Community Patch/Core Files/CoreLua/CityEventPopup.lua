@@ -28,17 +28,9 @@ function OnPopup( popupInfo )
 		break
 	end
 	if pEventInfo then
-		local pEventArt = pEventInfo.CityEventArt
-		if pEventArt then
-			Controls.EventArt:SetTexture(pEventArt);
-			Controls.EventArt:SetSizeVal(350,100);
-			Controls.EventArt:SetAlpha(0.2);
-			Controls.EventArt:SetHide(false);
-			Controls.EventArtFrame:SetHide(false);
-		else
-			Controls.EventArt:SetHide(true);
-			Controls.EventArtFrame:SetHide(true);
-		end
+		local pEventArt = pEventInfo.CityEventArt or "cityeventdefaultbackground.dds"
+		Controls.EventArt:SetTexture(pEventArt);
+		Controls.EventArt:SetSizeVal(350,100);
 		
 		-- Event Audio
 		local pEventAudio = pEventInfo.CityEventAudio
@@ -73,11 +65,11 @@ function OnPopup( popupInfo )
 	Controls.DescriptionLabel:SetText(szHelpString);
 	
 	-- Recalculate grid size
-	local mainGridSizeY = 300
+	local mainGridSizeY = 400
 	local sizeYDiff = math.max((Controls.DescriptionLabel:GetSizeY()-Controls.EventBox:GetSizeY()),1)
 	Controls.MainGrid:SetSizeY(mainGridSizeY + sizeYDiff)
 	
-	UIManager:QueuePopup( ContextPtr, PopupPriority.GoodyHut );
+	UIManager:QueuePopup( ContextPtr, PopupPriority.CityStateGreeting );
 end
 Events.SerialEventGameMessagePopup.Add( OnPopup );
 

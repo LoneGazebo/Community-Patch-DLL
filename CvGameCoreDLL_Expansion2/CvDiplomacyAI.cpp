@@ -8575,9 +8575,8 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 #else
 
 	if(GetWantPeaceCounter(ePlayer) >= iRequestPeaceTurnThreshold)
-	{
 		return true;
-	}
+
 	return false;
 #endif
 }
@@ -16069,7 +16068,7 @@ void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 void CvDiplomacyAI::DoKilledByPlayer(PlayerTypes ePlayer)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	if(ePlayer == CvPreGame::isHuman(ePlayer))
+	if(ePlayer != NO_PLAYER && CvPreGame::isHuman(ePlayer))
 	{
 		const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_DEFEATED);
 		CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_DEFEATED);

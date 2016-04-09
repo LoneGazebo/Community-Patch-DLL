@@ -25,17 +25,9 @@ function OnPopup( popupInfo )
 		break
 	end
 	if pEventInfo then
-		local pEventArt = pEventInfo.EventArt
-		if pEventArt then
-			Controls.EventArt:SetTexture(pEventArt);
-			Controls.EventArt:SetSizeVal(350,100);
-			Controls.EventArt:SetAlpha(0.2);
-			Controls.EventArt:SetHide(false);
-			Controls.EventArtFrame:SetHide(false);
-		else
-			Controls.EventArt:SetHide(true);
-			Controls.EventArtFrame:SetHide(true);
-		end
+		local pEventArt = pEventInfo.EventArt or "playereventdefaultbackground.dds"
+		Controls.EventArt:SetTexture(pEventArt);
+		Controls.EventArt:SetSizeVal(350,100);
 		
 		-- Event Audio
 		local pEventAudio = pEventInfo.EventAudio
@@ -43,15 +35,17 @@ function OnPopup( popupInfo )
 			Events.AudioPlay2DSound(pEventAudio)
 		end
 	end
-	
+
+	local playerID = Game.GetActivePlayer()
+	local player = Players[Game.GetActivePlayer()];
+		
 	local szTitleString;
 	local szHelpString;
 	szTitleString = Locale.Lookup(pEventChoiceInfo.Description);
-	szHelpString = Locale.Lookup(pEventChoiceInfo.Help);
+	szHelpString = Locale.ConvertTextKey(player:GetScaledEventChoiceValue(pEventChoiceInfo.ID));
 	
 	-- Test for any Override Strings
-	local playerID = Game.GetActivePlayer()
-	local player = Players[Game.GetActivePlayer()];
+
 	tEventOverrideStrings = {}
 	LuaEvents.EventChoice_OverrideTextStrings(playerID, nil, pEventChoiceInfo, tChoiceOverrideStrings)
 	for _,str in ipairs(tChoiceOverrideStrings) do
@@ -64,11 +58,11 @@ function OnPopup( popupInfo )
 	Controls.DescriptionLabel:SetText(szHelpString);
 	
 	-- Recalculate grid size
-	local mainGridSizeY = 300
+	local mainGridSizeY = 400
 	local sizeYDiff = math.max((Controls.DescriptionLabel:GetSizeY()-Controls.EventBox:GetSizeY()),1)
 	Controls.MainGrid:SetSizeY(mainGridSizeY + sizeYDiff)
 		
-	UIManager:QueuePopup( ContextPtr, PopupPriority.GoodyHut );
+	UIManager:QueuePopup( ContextPtr, PopupPriority.CityStateGreeting );
 end
 Events.SerialEventGameMessagePopup.Add( OnPopup );
 

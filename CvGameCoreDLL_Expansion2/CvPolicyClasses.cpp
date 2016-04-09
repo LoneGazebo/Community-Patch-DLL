@@ -412,9 +412,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iGreatMusicianRateModifier = kResults.GetInt("GreatMusicianRateModifier");
 	m_iGreatMerchantRateModifier = kResults.GetInt("GreatMerchantRateModifier");
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-	if (MOD_DIPLOMACY_CITYSTATES) {
-		m_iGreatDiplomatRateModifier = kResults.GetInt("GreatDiplomatRateModifier");
-	}
+	m_iGreatDiplomatRateModifier = kResults.GetInt("GreatDiplomatRateModifier");
 #endif
 	m_iGreatScientistRateModifier = kResults.GetInt("GreatScientistRateModifier");
 	m_iDomesticGreatGeneralRateModifier = kResults.GetInt("DomesticGreatGeneralRateModifier");
@@ -654,9 +652,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_paiUnitCombatProductionModifiers, "UnitCombatInfos", "Policy_UnitCombatProductionModifiers", "UnitCombatType", "PolicyType", szPolicyType, "ProductionModifier");
 
 #if defined(MOD_BALANCE_CORE)
-	if (MOD_BALANCE_CORE) {
-		kUtility.PopulateArrayByValue(m_paiFreeChosenBuilding, "BuildingClasses", "Policy_FreeBuilding", "BuildingClassType", "PolicyType", szPolicyType, "Count");
-	}
+	kUtility.PopulateArrayByValue(m_paiFreeChosenBuilding, "BuildingClasses", "Policy_FreeBuilding", "BuildingClassType", "PolicyType", szPolicyType, "Count");
 #endif
 
 	kUtility.PopulateArrayByValue(m_paiBuildingClassCultureChanges, "BuildingClasses", "Policy_BuildingClassCultureChanges", "BuildingClassType", "PolicyType", szPolicyType, "CultureChange");
@@ -3668,9 +3664,7 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 				break;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 			case POLICYMOD_GREAT_DIPLOMAT_RATE:
-				if (MOD_DIPLOMACY_CITYSTATES) {
-					rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatDiplomatRateModifier();
-				}
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatDiplomatRateModifier();
 				break;
 #endif
 			case POLICYMOD_GREAT_SCIENTIST_RATE:

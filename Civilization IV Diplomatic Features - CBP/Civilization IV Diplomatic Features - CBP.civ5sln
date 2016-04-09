@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # ModBuddy Solution File, Format Version 11.00
-Project("{F5FC21B5-7CC2-458A-ABBA-992F515BBA20}") = "Civilization IV Diplomatic Features - CBP", "Civilization IV Diplomatic Features - CBP\Civilization IV Diplomatic Features - CBP.civ5proj", "{5CB438A2-FCD9-4327-AE89-9F419F302D3F}"
+Project("{F5FC21B5-7CC2-458A-ABBA-992F515BBA20}") = "Civilization IV Diplomatic Features - CBP", "C4DF - CBP\Civilization IV Diplomatic Features - CBP.civ5proj", "{5CB438A2-FCD9-4327-AE89-9F419F302D3F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -961,10 +961,11 @@ double CvTreasury::AverageIncome(int iTurns)
 		int iIndex = m_GoldChangeForTurnTimes100.size() - 1;
 		int iTotal = 0;
 
-		while(iSamples < iTurns)
+		while(iSamples < iTurns && iIndex > -1)
 		{
 			iTotal += m_GoldChangeForTurnTimes100[iIndex];
 			iSamples++;
+			iIndex--;
 		}
 
 		return ((double)iTotal / (double)iSamples / 100);

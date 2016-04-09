@@ -379,7 +379,7 @@
 	</Table>
 
 	<!-- TRAIT: Allows you to define a yield that is gained from mountains based on the number of mountains adjacent to a mountain. 
-	Yield here is minimum for the mountain, and is additive - (so 1 gold + 3 mountains adjacent = 3 gold on the tile; 2 gold + 4 mountains adjacent = 4 gold on the tile, 3 gold + 1 mountain adjacent = 3 gold on the tile, etc.).-->
+	Yield here is maximum yield for mountain clusters. All mountains have a minimum of 1 yield from the value below, so the yield will be somewhere between 1 and x, where x is the maximum value or # of adjacent mountains. -->
 	<Table name="Trait_MountainRangeYield">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>

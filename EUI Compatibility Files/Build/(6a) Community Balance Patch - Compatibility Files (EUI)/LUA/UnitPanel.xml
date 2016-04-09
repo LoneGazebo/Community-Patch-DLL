@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow">
+
+	<Container ID="Base" Size="Full,Full">
+
+		<!-- Unit Ribbon Options -->
+		<Grid ID="UnitTypesPanel" Anchor="L,B" Size="500,405" Offset="160,120" Style="Grid9DetailSix140" Padding="30,46" ConsumeMouse="1" Hidden="1" >
+			<ScrollPanel ID="UnitTypesScrollPanel" Anchor="L,C" Offset="20,0" Vertical="1" AutoScrollBar="1" Size="450,320" >
+				<Stack ID="UnitTypesStack" Anchor="L,T" StackGrowth="Right" WrapWidth="350" WrapGrowth="Down"/>
+				<ScrollBar Style="VertSlider" Anchor="R,C" Length="284" AnchorSide="o,i"/>
+				<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="o,i"/>
+				<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="o,i"/>
+			</ScrollPanel>
+		</Grid>
+
+		<!-- Unit Panel -->
+		<Container ID="Panel" Size="Full,Full">
+			<Image ID="BackgroundCivFrame" Anchor="L,B" Offset="234,18" Size="64,64" Color="White.0" Texture="IconFrame64.dds" Hidden="1">
+				<Image ID="BackgroundCivSymbol" Anchor="C,C" Size="128,128" Color="White.128" Texture="CivSymbolsColor.dds"/>
+			</Image>
+
+			<Image Anchor="L,B" Offset="500,0" Texture="BottomLeft128x224.dds" Size="128,224"/>
+
+			<!-- Worker Action Panel -->
+			<Grid ID="WorkerActionPanel" Anchor="L,B" Offset="517,-39" Size="290,210" Style="Grid9DetailFive140" ConsumeMouse="1">
+				<TextButton ID="EditButton" Offset="30,25" Anchor="R,T" AnchorSide="I.I" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EDIT_BUTTON" ToolTip="TXT_KEY_EDIT_BUTTON" FontStyle="Shadow" MouseOverStyle="SoftShadow"/>
+				<Label ID="WorkerText" Anchor="C,T" Offset="0,18" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_WORKERACTION_TEXT"/>
+				<Label ID="PromotionText" Anchor="L,T" Offset="60,18" Font="TwCenMT20" String="TXT_KEY_UPANEL_UNIT_PROMOTED" FontStyle="Shadow"/>
+
+				<FlipAnim ID="PromotionAnimation" Size="64,64" Offset="12,-12" Anchor="L,T" Columns="4" Speed="10" Pause=".5" StepSize="64,64" FrameCount="8" Texture="PromotionAnimation.dds"/>
+
+				<Stack ID="WorkerActionStack" Anchor="L,T" Offset="25,50" StackGrowth="Right" Padding="8" WrapWidth="250" WrapGrowth="Down" WrapPadding="8">
+					<Label ID="RecommendedActionLabel" Font="TwCenMT16" WrapWidth="188" FontStyle="Shadow" String="TXT_KEY_UPANEL_REPAIR_TILE"/>
+					<Image ID="RecommendedActionDivider" Size="232.1" TextureOffset="34.0" Texture="bar300x2.dds" Hidden="1"/>
+				</Stack>
+			</Grid>
+
+			<!-- Background -->
+			<Grid Anchor="L,B" Offset="-37,-39" Size="546,208" Style="Grid9DetailFive140" ConsumeMouse="1">
+
+				<!-- Next/Prev Unit -->
+				<Container Anchor="R,T" Offset="17,17" Size="280,22">
+					<Button ID="UnitNameButton" Anchor="C,C" Size="280,22">
+						<Label ID="UnitName" String="TXT_KEY_UPANEL_UNIT_NAME" Anchor="C,C" Offset="0,-4" Font="TwCenMT24" ColorSet="Beige_Black_Alpha" FontStyle="SoftShadow" ToolTip="TXT_KEY_CURRENTLY_SELECTED_UNIT"/>
+					</Button>
+					<Button ID="CycleLeft" Anchor="R,C" Size="32,32" Texture="UnitPanelArrows.dds" ToolTip="TXT_KEY_UPANEL_CYCLELEFT"/>
+					<Button ID="CycleRight" Anchor="L,C" Size="32,32" TextureOffset="30,0" Texture="UnitPanelArrows.dds" ToolTip="TXT_KEY_UPANEL_CYCLERIGHT"/>"
+				</Container>
+
+				<!-- Promotions -->
+				<Stack ID="EarnedPromotionStack" Anchor="R,T" Offset="17,44" StackGrowth="Left"/>
+
+				<!-- XP METER -->
+				<Grid ID="XPFrame" Anchor="R,T" Offset="17,70" Size="275,12" Style="Grid9FrameTurns">
+					<TextureBar ID="XPMeter" Anchor="L,T" Offset="3,2" Texture="XPmeter.dds" Size="269,7"/>
+				</Grid>
+
+				<!-- Unit Stats -->
+				<Grid ID="UnitStatBox" Anchor="R,T" Offset="17,82" Size="260,27" Style="Grid9FrameTurns">
+					<Stack ID="UnitStats" Anchor="C,C" Padding="-5" StackGrowth="Right" >
+						<Image ID="MovementPip" Anchor="C,C" Texture="MarcPips.dds" Size="32.32"/>
+						<Image ID="Mission" Anchor="C,C" Size="45.45">
+							<Label ID="MissionText" Anchor="C,C" Font="TwCenMT24" FontStyle="Stroke" Color0="0,255,0,255" Color1="Black,155"/>
+						</Image>
+						<Label ID="UnitStatMovement" Anchor="C,C" ToolTip="TXT_KEY_UPANEL_MOVEMENT_TT"/>
+						<Container Size="15,1"/>
+						<Label ID="UnitStatStrength" Anchor="C,C" ToolTip="TXT_KEY_UPANEL_STRENGTH_TT"/>
+						<Container Size="15;1"/>
+						<Label ID="UnitStatRangedAttack" Anchor="C,C" ToolTip="TXT_KEY_UPANEL_RANGED_ATTACK_TT"/>
+					</Stack>
+				</Grid>
+
+				<!-- Health Bar	-->
+				<Image ID="HealthBar" Anchor="R,B" Offset="0,39" Texture="HealthBarBlack.dds" Size="17,127" ToolTip="TXT_KEY_UPANEL_HEALTH" Hidden="1">
+					<Image ID="GreenBar" Anchor="C,B" Offset="-1,2" Texture="HealthBarGreen.dds" Size="9,122" Hidden="1"/>
+					<Image ID="YellowBar" Anchor="C,B" Offset="-1,2" Texture="HealthBarYellow.dds" Size="9,122" Hidden="1"/>
+					<Image ID="RedBar" Anchor="C,B" Offset="-1,2" Color="255.255.255.100" Texture="HealthBarRed.dds" Size="14,30" Hidden="1">
+						<AlphaAnim ID="RedAnim" Anchor="R,B" Texture="HealthBarRed.dds" Size="9,122" Pause="0" Cycle="Bounce" Speed="2" AlphaStart=".5" AlphaEnd="1"/>
+					</Image>
+				</Image>
+			</Grid>
+
+			<!-- Unit Portrait -->
+			<Image ID="Button" Anchor="L,B" Texture="UnitPanel.dds" Size="256,256"/>
+			<Image ID="UnitPortrait" Anchor="L,B" Offset="-28,-23" Size="256,256" Texture="UnitPortraitsAncientMedieval.dds" />
+			<Image ID="UnitTypeFrame" Anchor="L,B" Size="54,54" Texture="UnitTypeFrame.dds">
+				<Image ID="UnitIconBackground" Size="38,38" Anchor="C,C" Color="PlayerColor2,255" Texture="unitbackteamcolor.dds"/>
+				<Image Size="38,38" TextureOffset="0,39" Anchor="C,C" Texture="unitbackteamcolor.dds"/>
+				<Image ID="UnitIconShadow" Size="32,32" Anchor="C,C" Texture="UnitFlagAtlasWhite.dds" Color="Black,128"/>
+				<Image ID="UnitIcon" Size="32,32" Anchor="C,C" Color="PlayerColor1" Texture="UnitFlagAtlasWhite.dds" ToolTip="TXT_KEY_CURRENTLY_SELECTED_UNIT"/>
+			</Image>
+			<Button ID="UnitPortraitButton" Anchor="L,B" Size="200,200" ToolTipType="EUI_UnitPanelItemTooltip" />
+
+			<!-- Unit Actions -->
+			<Container ID="Actions" Anchor="L,B" Size="500,208">
+				<Stack ID="ActionStack" Anchor="R,B" StackGrowth="Left" Padding="4" WrapWidth="500" WrapGrowth="Up" WrapPadding="8">
+					<!-- Special magical Build City button -->
+					<Button ID="BuildCityButton" Size="64,64" Texture="BuildCity64.dds" ToolTipType="TypeUnitAction" Hidden="1">
+						<AlphaAnim Anchor="C,C" Size="64,64" Texture="BuildCityGlow64.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd="0"/>
+						<ShowOnMouseOver>
+							<Image Anchor="C,C" Size="64,64" Texture="BuildCityGold64.dds"/>
+						</ShowOnMouseOver>
+					</Button>
+				</Stack>
+			</Container>
+		</Container>
+
+		<!-- Scrap Instances -->
+		<Container ID="Scrap" Hidden="1"/>
+
+		<!-- City Ribbon -->
+		<Container ID="CityPanel" Anchor="L,T" Offset="0,70">
+			<ScrollPanel ID="CityScrollPanel" Anchor="L,T" Offset="18,0" Vertical="1" AutoScrollBar="1" Size="100,60" ConsumeMouseOver="1" ConsumeMouseButton="1" Hidden="1">
+				<ScrollBar Style="VertSlider" Anchor="L,C" Length="18" AnchorSide="o,i"/>
+				<UpButton Style="ScrollBarUp" Anchor="L,T" AnchorSide="o,i"/>
+				<DownButton Style="ScrollBarDown" Anchor="L,B" AnchorSide="o,i"/>
+			</ScrollPanel>
+			<!-- City Stack -->
+			<Stack ID="CityStack" Anchor="L,T" StackGrowth="Bottom" Padding="-8"/>
+		</Container>
+
+		<!-- Unit Ribbon -->
+		<Container ID="UnitPanel" Anchor="L,B" Offset="0,215">
+			<GridButton ID="UnitTypesButton" Size="48,32" Style="SmallButton2" Anchor="L,B" Offset="0,4" AnchorSide="i,o">
+				<Image ID="UnitTypesOpen" Anchor="C,C" Offset="0,1" Texture="OpenSecondary.dds" Size="64,32"/>
+				<Image ID="UnitTypesClose" Anchor="C,C" Offset="-1,1" Texture="CloseSecondary.dds" Size="64,32" Hidden="1"/>
+			</GridButton>
+			<ScrollPanel ID="UnitScrollPanel" Anchor="L,B" Offset="18,0" Vertical="1" AutoScrollBar="1" Size="100,60" ConsumeMouseOver="1" ConsumeMouseButton="1" Hidden="1">
+				<ScrollBar Style="VertSlider" Anchor="L,C" Length="18" AnchorSide="o,i"/>
+				<UpButton Style="ScrollBarUp" Anchor="L,T" AnchorSide="o,i"/>
+				<DownButton Style="ScrollBarDown" Anchor="L,B" AnchorSide="o,i"/>
+			</ScrollPanel>
+			<!-- Unit Stack -->
+			<Stack ID="UnitStack" Anchor="L,B" StackGrowth="Top" Padding="-8"/>
+		</Container>
+	</Container>
+
+	<!-- City Instance -->
+	<Instance Name="CityInstance">
+		<Button ID="Button" Anchor="L,T" Size="64,64" Offset="-7,0" Texture="64x64CityWorker.dds" ConsumeMouse="1">
+			<Image ID="BuildIcon" Anchor="C,C" Texture="Blank.dds" Size="64.64">
+				<TextureBar ID="BuildMeter" Anchor="C,C" Size="64,64" Texture="64x64FrameButtons.dds" HasShadow="1" ShadowColor="White,99" Direction="Down"/>
+			</Image>
+			<TextureBar ID="GrowthMeter" Anchor="C,C" Size="64,64" Texture="BuildCity64.dds" Color="Green,255" Direction="Up" Hidden="1"/>
+			<Label ID="CityIsCapital" Anchor="C,C" Offset="-17,-17" String="[ICON_CAPITAL]"/>
+			<Label ID="CityIsPuppet" Anchor="C,C" Offset="-17,-17" String="[ICON_PUPPET]"/>
+			<Label ID="CityIsOccupied" Anchor="C,C" Offset="-17,-17" String="[ICON_OCCUPIED]" ToolTip="TXT_KEY_CITY_OCCUPIED"/>
+			<Label ID="CityIsResistance" Anchor="C,C" Offset="-17,-17" String="[ICON_RESISTANCE]"/>
+			<Label ID="CityIsRazing" Anchor="C,C" Offset="-17,-17" String="[ICON_RAZING]"/>
+			<Label ID="CityIsConnected" Anchor="C,C" Offset="-17,17" String="[ICON_CONNECTED]"/>
+			<Label ID="CityIsBlockaded" Anchor="C,C" Offset="-17,17" String="[ICON_BLOCKADED]" ToolTip="TXT_KEY_CITY_BLOCKADED"/>
+			<Label ID="CityFocus" Anchor="C,C" Offset="17,17"/>
+			<Stack ID="Stack" Anchor="L,C" Offset="60,-10" StackGrowth="Right">
+				<Label ID="Population" Font="TwCenMT24" FontStyle="Stroke" Color0="White,255" Color1="Black,155"/>
+				<Label ID="CityGrowth" Font="TwCenMT18" FontStyle="Stroke" Color0="Food,255" Color1="Black,155"/>
+				<Label ID="CityQuests"/>
+			</Stack>
+			<Stack ID="Stack" Anchor="L,C" Offset="60,+10" Padding="6" StackGrowth="Right">
+				<Label ID="BuildGrowth" Anchor="L,B" Font="TwCenMT20" FontStyle="Stroke" Color0="Production,255" Color1="Black,155"/>
+				<Label ID="BorderGrowth" Anchor="L,B" Font="TwCenMT16" FontStyle="Stroke" Color0="Culture,255" Color1="Black,155"/>
+				<Label ID="Name" Anchor="L,B" Font="TwCenMT14" FontStyle="Stroke" Color0="Beige,255" Color1="Black,155" TruncateWidth="120"/>
+			</Stack>
+		</Button>
+	</Instance>
+
+	<!-- Unit Instance -->
+	<Instance Name="UnitInstance">
+		<Button ID="Button" Anchor="L,T" Size="64,64" Offset="-7,0" Texture="64x64FrameButtons.dds" ConsumeMouse="1">
+			<TextureBar ID="HealthMeter" Anchor="C,C" Size="64,64" Texture="64x64FrameButtons.dds" Direction="Up" Hidden="1"/>
+
+			<!-- Unit Icon -->
+			<Image ID="Portrait" Anchor="C,C" Size="64.64"/>
+
+			<!-- Unit Flags -->
+			<Image ID="MovementPip" Anchor="C,C" Offset="30,-15" Texture="MarcPips.dds" Size="32.32"/>
+			<Image ID="Mission" Anchor="C,C" Offset="30,10" Size="45.45">
+				<Label ID="MissionText" Anchor="C,C" Font="TwCenMT24" FontStyle="Stroke" Color0="0,255,0,255" Color1="Black,155"/>
+			</Image>
+		</Button>
+	</Instance>
+
+	<!-- Unit Type Instance -->
+	<Instance Name="UnitTypeInstance">
+		<Button ID="Button" Anchor="L,T" Size="64,64" Texture="64x64FrameButtons.dds">
+			<Image ID="Portrait" Anchor="C,C" Size="64.64"/>
+			<Label ID="Count" Anchor="R,B" Offset="10,10" Font="TwCenMT22" FontStyle="Stroke" Color0="0,255,0,255" Color1="Black,155"/>
+			<CheckBox ID="CheckBox" ButtonSize="64.64" CheckSize="64.64" ButtonTexture="Blank.dds" Anchor="C,C" Size="64.64"/>
+		</Button>
+	</Instance>
+
+	<!-- Unit Action Button -->
+	<Instance Name="UnitAction">
+		<GridButton ID="UnitActionButton" Size="50,50" Style="BaseButton" ToolTipType="TypeUnitAction">
+			<TextureBar ID="WorkerProgressBar" Anchor="C,C" Size="46,45" Texture="WorkerMeter.dds" Direction="Up"/>
+			<Image ID="UnitActionIcon" Anchor="C,C" Size="64,64" Texture="UnitActions.dds"/>
+			<Label ID="UnitActionText" Anchor="C,C" Font="TwCenMT24" FontStyle="Stroke" Color0="0,255,0,255" Color1="Black,155" />
+		</GridButton>
+	</Instance>
+
+	<!-- Promotion Instance -->
+	<Instance Name="EarnedPromotionInstance">
+		<Container ID="EarnedPromotion" Size="26,26" >
+			<Image ID="UnitPromotionImage" Anchor="C,C" Size="32,32" Texture="Promotions256.dds"/>
+		</Container>
+	</Instance>
+
+	<!-- Tooltips -->
+	<ToolTipType Name="TypeUnitAction">
+		<Grid ID="UnitActionMouseover" Size="530,90" Offset="8,0" Padding="8,8" Style="GridBlack8" NoClip="1">
+			<Image ID="UnitActionIcon" Anchor="L,T" AnchorSide="I.O" Offset="-10.-38" Size="64,64" Texture="UnitActions.dds"/>
+			<Label ID="UnitActionHotKey" Anchor="R,T" Offset="8,8" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" String="(M)"/>
+			<Label ID="UnitActionText" Offset="52,10" Font="TwCenMT20" FontStyle="Shadow" String="Button Name"/>
+			<Label ID="UnitActionHelp" Offset="12,28" Font="TwCenMT16" String="description" LeadingOffset="-5" WrapWidth="450"/>
+		</Grid>
+	</ToolTipType>
+
+	<ToolTipType Name="EUI_UnitPanelItemTooltip">
+		<Grid ID="Box" Size="530,90" Offset="8.0" Padding="8,8" Style="GridBlack8" NoClip="1">
+			<Image ID="PortraitFrame" Size="256,256" Anchor="R,C" Offset="-40,0" AnchorSide="O.i" Texture="256x256Frame.dds">
+				<Image ID="Portrait" Size="256,256" Anchor="C,C"/>
+			</Image>
+			<Label ID="Text" Offset="12,12" LeadingOffset="-5" WrapWidth="512" Font="TwCenMT18" ColorSet="Beige_Black"/>
+		</Grid>
+	</ToolTipType>
+</Context>

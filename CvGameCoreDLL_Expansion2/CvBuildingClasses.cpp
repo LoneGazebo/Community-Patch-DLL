@@ -439,10 +439,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
 	SAFE_DELETE_ARRAY(m_paThemingBonusInfo);
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
-	if(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
-	{
-		SAFE_DELETE_ARRAY(m_piInstantYield);
-	}
+	SAFE_DELETE_ARRAY(m_piInstantYield);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiFeatureYieldChange);
@@ -479,63 +476,47 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bRiver = kResults.GetBool("River");
 	m_bFreshWater = kResults.GetBool("FreshWater");
 #if defined(MOD_API_EXTENSIONS)
-	if (MOD_API_EXTENSIONS) {
-		m_bAddsFreshWater = kResults.GetBool("AddsFreshWater");
-		m_bPurchaseOnly = kResults.GetBool("PurchaseOnly");
-		m_bSecondaryPantheon = kResults.GetBool("SecondaryPantheon");
-	}
+	m_bAddsFreshWater = kResults.GetBool("AddsFreshWater");
+	m_bPurchaseOnly = kResults.GetBool("PurchaseOnly");
+	m_bSecondaryPantheon = kResults.GetBool("SecondaryPantheon");
 #endif
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE){
 	m_bIsNoWater = kResults.GetBool("IsNoWater");
 	m_bIsNoRiver = kResults.GetBool("IsNoRiver");
 	m_bIsCapitalOnly = kResults.GetBool("CapitalOnly");
 	m_bIsReformation = kResults.GetBool("IsReformation");
 	m_bBuildAnywhere = kResults.GetBool("BuildAnywhere");
 	m_iTradeReligionModifier = kResults.GetInt("TradeReligionModifier");
-	}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	if(MOD_BALANCE_CORE_SPIES)
-	{
-		 m_iCannotFailSpies = kResults.GetInt("CannotFailSpies");
-		 m_iAdvancedActionGold= kResults.GetInt("AdvancedActionGold");
-		 m_iAdvancedActionScience= kResults.GetInt("AdvancedActionScience");
-		 m_iAdvancedActionUnrest= kResults.GetInt("AdvancedActionUnrest");
-		 m_iAdvancedActionRebellion= kResults.GetInt("AdvancedActionRebellion");
-		 m_iAdvancedActionGP= kResults.GetInt("AdvancedActionGP");
-		 m_iAdvancedActionUnit= kResults.GetInt("AdvancedActionUnit");
-		 m_iAdvancedActionWonder= kResults.GetInt("AdvancedActionWonder");
-		 m_iAdvancedActionBuilding= kResults.GetInt("AdvancedActionBuilding");
-		 m_iBlockBuildingDestruction = kResults.GetInt("BlockBuildingDestructionSpies");
-		 m_iBlockWWDestruction = kResults.GetInt("BlockWWDestructionSpies");
-		 m_iBlockUDestruction = kResults.GetInt("BlockUDestructionSpies");
-		 m_iBlockGPDestruction = kResults.GetInt("BlockGPDestructionSpies");
-		 m_iBlockRebellion = kResults.GetInt("BlockRebellionSpies");
-		 m_iBlockUnrest = kResults.GetInt("BlockUnrestSpies");
-		 m_iBlockScience = kResults.GetInt("BlockScienceTheft");
-		 m_iBlockGold = kResults.GetInt("BlockGoldTheft");
-	}
+	m_iCannotFailSpies = kResults.GetInt("CannotFailSpies");
+	m_iAdvancedActionGold= kResults.GetInt("AdvancedActionGold");
+	m_iAdvancedActionScience= kResults.GetInt("AdvancedActionScience");
+	m_iAdvancedActionUnrest= kResults.GetInt("AdvancedActionUnrest");
+	m_iAdvancedActionRebellion= kResults.GetInt("AdvancedActionRebellion");
+	m_iAdvancedActionGP= kResults.GetInt("AdvancedActionGP");
+	m_iAdvancedActionUnit= kResults.GetInt("AdvancedActionUnit");
+	m_iAdvancedActionWonder= kResults.GetInt("AdvancedActionWonder");
+	m_iAdvancedActionBuilding= kResults.GetInt("AdvancedActionBuilding");
+	m_iBlockBuildingDestruction = kResults.GetInt("BlockBuildingDestructionSpies");
+	m_iBlockWWDestruction = kResults.GetInt("BlockWWDestructionSpies");
+	m_iBlockUDestruction = kResults.GetInt("BlockUDestructionSpies");
+	m_iBlockGPDestruction = kResults.GetInt("BlockGPDestructionSpies");
+	m_iBlockRebellion = kResults.GetInt("BlockRebellionSpies");
+	m_iBlockUnrest = kResults.GetInt("BlockUnrestSpies");
+	m_iBlockScience = kResults.GetInt("BlockScienceTheft");
+	m_iBlockGold = kResults.GetInt("BlockGoldTheft");
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(MOD_DIPLOMACY_CIV4_FEATURES)
-	{
-		m_bVassalLevyEra = kResults.GetBool("VassalLevyEra");
-	}
+	m_bVassalLevyEra = kResults.GetBool("VassalLevyEra");
 #endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
-	if(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
-	{
-		m_iNationalPopRequired = kResults.GetInt("NationalPopRequired");
-		m_iLocalPopRequired = kResults.GetInt("LocalPopRequired");
-	}
+	m_iNationalPopRequired = kResults.GetInt("NationalPopRequired");
+	m_iLocalPopRequired = kResults.GetInt("LocalPopRequired");
 #endif
 #if defined(MOD_BALANCE_CORE_FOLLOWER_POP_WONDER)
-	if(MOD_BALANCE_CORE_FOLLOWER_POP_WONDER)
-	{
-		m_iNationalFollowerPopRequired = kResults.GetInt("NationalFollowerPopRequired");
-		m_iGlobalFollowerPopRequired = kResults.GetInt("GlobalFollowerPopRequired");
-	}
+	m_iNationalFollowerPopRequired = kResults.GetInt("NationalFollowerPopRequired");
+	m_iGlobalFollowerPopRequired = kResults.GetInt("GlobalFollowerPopRequired");
 #endif
 	m_bMountain = kResults.GetBool("Mountain");
 	m_bHill = kResults.GetBool("Hill");
@@ -664,28 +645,24 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iExtraLeagueVotes = kResults.GetInt("ExtraLeagueVotes");
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iSingleLeagueVotes = kResults.GetInt("SingleLeagueVotes");
-	if (MOD_DIPLOMACY_CITYSTATES) {
-		m_iFaithToVotesBase = kResults.GetInt("FaithToVotes");
-		m_iCapitalsToVotesBase = kResults.GetInt("CapitalsToVotes");
-		m_iDoFToVotesBase = kResults.GetInt("DoFToVotes");
-		m_iRAToVotesBase = kResults.GetInt("RAToVotes");
-		m_iDPToVotesBase = kResults.GetInt("DPToVotes");
-		m_iGPExpendInfluenceBase = kResults.GetInt("GPExpendInfluence");
-	}
+	m_iFaithToVotesBase = kResults.GetInt("FaithToVotes");
+	m_iCapitalsToVotesBase = kResults.GetInt("CapitalsToVotes");
+	m_iDoFToVotesBase = kResults.GetInt("DoFToVotes");
+	m_iRAToVotesBase = kResults.GetInt("RAToVotes");
+	m_iDPToVotesBase = kResults.GetInt("DPToVotes");
+	m_iGPExpendInfluenceBase = kResults.GetInt("GPExpendInfluence");
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS) {
-		m_iPovertyHappinessChangeBuilding = kResults.GetInt("PovertyHappinessChange");
-		m_iDefenseHappinessChangeBuilding = kResults.GetInt("DefenseHappinessChange");
-		m_iUnculturedHappinessChangeBuilding = kResults.GetInt("UnculturedHappinessChange");
-		m_iIlliteracyHappinessChangeBuilding = kResults.GetInt("IlliteracyHappinessChange");
-		m_iMinorityHappinessChangeBuilding = kResults.GetInt("MinorityHappinessChange");
-		m_iPovertyHappinessChangeBuildingGlobal = kResults.GetInt("PovertyHappinessChangeGlobal");
-		m_iDefenseHappinessChangeBuildingGlobal = kResults.GetInt("DefenseHappinessChangeGlobal");
-		m_iUnculturedHappinessChangeBuildingGlobal = kResults.GetInt("UnculturedHappinessChangeGlobal");
-		m_iIlliteracyHappinessChangeBuildingGlobal = kResults.GetInt("IlliteracyHappinessChangeGlobal");
-		m_iMinorityHappinessChangeBuildingGlobal = kResults.GetInt("MinorityHappinessChangeGlobal");
-	}
+	m_iPovertyHappinessChangeBuilding = kResults.GetInt("PovertyHappinessChange");
+	m_iDefenseHappinessChangeBuilding = kResults.GetInt("DefenseHappinessChange");
+	m_iUnculturedHappinessChangeBuilding = kResults.GetInt("UnculturedHappinessChange");
+	m_iIlliteracyHappinessChangeBuilding = kResults.GetInt("IlliteracyHappinessChange");
+	m_iMinorityHappinessChangeBuilding = kResults.GetInt("MinorityHappinessChange");
+	m_iPovertyHappinessChangeBuildingGlobal = kResults.GetInt("PovertyHappinessChangeGlobal");
+	m_iDefenseHappinessChangeBuildingGlobal = kResults.GetInt("DefenseHappinessChangeGlobal");
+	m_iUnculturedHappinessChangeBuildingGlobal = kResults.GetInt("UnculturedHappinessChangeGlobal");
+	m_iIlliteracyHappinessChangeBuildingGlobal = kResults.GetInt("IlliteracyHappinessChangeGlobal");
+	m_iMinorityHappinessChangeBuildingGlobal = kResults.GetInt("MinorityHappinessChangeGlobal");
 #endif
 	m_iPreferredDisplayPosition = kResults.GetInt("DisplayPosition");
 	m_iPortraitIndex = kResults.GetInt("PortraitIndex");
@@ -715,6 +692,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("CorporationHelper");
 	m_strCorporationHelper = szTextVal;
+
+	szTextVal = kResults.GetText("OfficeBenefitHelper");
+	m_strOfficeBenefitHelper = szTextVal;
 #endif
 
 	szTextVal = kResults.GetText("NearbyTerrainRequired");
@@ -820,36 +800,23 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piRiverPlotYieldChange, "Building_RiverPlotYieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piLakePlotYieldChange, "Building_LakePlotYieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piSeaResourceYieldChange, "Building_SeaResourceYieldChanges", "BuildingType", szBuildingType);
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
-	if(MOD_DIPLOMACY_CITYSTATES || MOD_BALANCE_CORE)
-	{
-		kUtility.SetYields(m_piGrowthExtraYield, "Building_GrowthExtraYield", "BuildingType", szBuildingType);
-	}
-#endif
-#if defined(MOD_BALANCE_CORE_POLICIES)
-	if(MOD_BALANCE_CORE_POLICIES)
-	{
-		kUtility.SetYields(m_piYieldFromDeath, "Building_YieldFromDeath", "BuildingType", szBuildingType);
-	}
-#endif
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE)
-	{
-		kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType);
-		kUtility.SetYields(m_piGoldenAgeYieldMod, "Building_GoldenAgeYieldMod", "BuildingType", szBuildingType);
-		kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
-		kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
-		kUtility.SetYields(m_piThemingYieldBonus, "Building_ThemingYieldBonus", "BuildingType", szBuildingType);
-		kUtility.SetYields(m_piGreatWorkYieldChange, "Building_GreatWorkYieldChanges", "BuildingType", szBuildingType);
-		kUtility.SetYields(m_piYieldFromTech, "Building_YieldFromTech", "BuildingType", szBuildingType);
-		kUtility.SetYields(m_piYieldFromConstruction, "Building_YieldFromConstruction", "BuildingType", szBuildingType);
-		kUtility.SetYields(m_piScienceFromYield, "Building_ScienceFromYield", "BuildingType", szBuildingType);
-		kUtility.SetYields(m_piYieldFromBirth, "Building_YieldFromBirth", "BuildingType", szBuildingType);
-		kUtility.SetYields(m_piYieldFromUnitProduction, "Building_YieldFromUnitProduction", "BuildingType", szBuildingType);
-		kUtility.SetYields(m_piYieldFromBorderGrowth, "Building_YieldFromBorderGrowth", "BuildingType", szBuildingType);
-		kUtility.SetYields(m_piYieldFromPolicyUnlock, "Building_YieldFromPolicyUnlock", "BuildingType", szBuildingType);
-		kUtility.SetYields(m_piYieldFromPurchase, "Building_YieldFromPurchase", "BuildingType", szBuildingType);
-	}
+	kUtility.SetYields(m_piGrowthExtraYield, "Building_GrowthExtraYield", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromDeath, "Building_YieldFromDeath", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piGoldenAgeYieldMod, "Building_GoldenAgeYieldMod", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromWLTKD, "Building_WLTKDYieldMod", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromGPExpend, "Building_YieldFromGPExpend", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piThemingYieldBonus, "Building_ThemingYieldBonus", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piGreatWorkYieldChange, "Building_GreatWorkYieldChanges", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromTech, "Building_YieldFromTech", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromConstruction, "Building_YieldFromConstruction", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piScienceFromYield, "Building_ScienceFromYield", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromBirth, "Building_YieldFromBirth", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromUnitProduction, "Building_YieldFromUnitProduction", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromBorderGrowth, "Building_YieldFromBorderGrowth", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromPolicyUnlock, "Building_YieldFromPolicyUnlock", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromPurchase, "Building_YieldFromPurchase", "BuildingType", szBuildingType);
 #endif
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangePerPop, "Building_YieldChangesPerPop", "BuildingType", szBuildingType);
@@ -2395,6 +2362,11 @@ CvString CvBuildingEntry::GetThemingBonusHelp() const
 CvString CvBuildingEntry::GetCorporationHelper() const
 {
 	return m_strCorporationHelper;
+}
+
+CvString CvBuildingEntry::GetOfficeBenefitHelper() const
+{
+	return m_strOfficeBenefitHelper;
 }
 #endif
 // ARRAYS

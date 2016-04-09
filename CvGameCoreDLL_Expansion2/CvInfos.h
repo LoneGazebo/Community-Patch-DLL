@@ -2554,6 +2554,7 @@ public:
 	CvModEventInfo();
 	virtual ~CvModEventInfo();
 
+	bool IgnoresGlobalCooldown() const;
 	int getPrereqTech() const;
 	int getObsoleteTech() const;
 	int getMinimumNationalPopulation() const;
@@ -2601,11 +2602,14 @@ public:
 	bool hasMetAnotherCiv() const;
 	bool isInDebt() const;
 	bool isLosingMoney() const;
+	bool isMaster() const;
+	bool isVassal() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
 
+	bool m_bIgnoresGlobalCooldown;
 	int m_iPrereqTech;
 	int m_iObsoleteTech;
 	int m_iMinimumNationalPopulation;
@@ -2653,6 +2657,8 @@ protected:
 	bool m_bMetAnotherCiv;
 	bool m_bInDebt;
 	bool m_bLosingMoney;
+	bool m_bVassal;
+	bool m_bMaster;
 
 private:
 	CvModEventInfo(const CvModEventInfo&);
@@ -2725,9 +2731,14 @@ public:
 	int getCityYield(int i) const;
 	int getBuildingClassYield(int i, int j) const;
 	int getBuildingClassYieldModifier(int i, int j) const;
+	int getTerrainYield(int i, int j) const;
+	int getFeatureYield(int i, int j) const;
+	int getImprovementYield(int i, int j) const;
+	int getResourceYield(int i, int j) const;
 	int getPlayerHappiness() const;
 	int getCityHappinessGlobal() const;
 	int getCityUnhappinessNeedMod(int i) const;
+	const char* getDisabledTooltip() const;
 	
 	CvEventNotificationInfo *GetNotificationInfo(int i) const;
 	int GetNumNotifications() const {return m_iNotificationInfos;};
@@ -2773,6 +2784,8 @@ public:
 	bool hasMetAnotherCiv() const;
 	bool isInDebt() const;
 	bool isLosingMoney() const;
+	bool isMaster() const;
+	bool isVassal() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -2806,7 +2819,11 @@ protected:
 	int m_iPlayerHappiness;
 	int m_iCityHappinessGlobal;
 	int* m_piCityUnhappinessNeedMod;
-
+	int** m_ppiTerrainYield;
+	int** m_ppiFeatureYield;
+	int** m_ppiImprovementYield;
+	int** m_ppiResourceYield;
+	CvString m_strDisabledTooltip;
 	//Filters
 
 	int m_iPrereqTech;
@@ -2848,6 +2865,8 @@ protected:
 	bool m_bMetAnotherCiv;
 	bool m_bInDebt;
 	bool m_bLosingMoney;
+	bool m_bVassal;
+	bool m_bMaster;
 
 	CvEventNotificationInfo* m_paNotificationInfo;
 	int m_iNotificationInfos;
@@ -2866,6 +2885,7 @@ public:
 	CvModCityEventInfo();
 	virtual ~CvModCityEventInfo();
 
+	bool IgnoresGlobalCooldown() const;
 	int getPrereqTech() const;
 	int getObsoleteTech() const;
 	int getMinimumPopulation() const;
@@ -2917,6 +2937,12 @@ public:
 	bool hasMetAnotherCiv() const;
 	bool isInDebt() const;
 	bool isLosingMoney() const;
+	bool isMaster() const;
+	bool isVassal() const;
+	bool hasPlayerReligion() const;
+	bool lacksPlayerReligion() const;
+	bool hasPlayerMajority() const;
+	bool lacksPlayerMajority() const;
 	int getRequiredActiveEvent() const;
 	int getRequiredActiveEventChoice() const;
 	int getRequiredActiveCityEvent() const;
@@ -2933,6 +2959,7 @@ public:
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
+	bool m_bIgnoresGlobalCooldown;
 	int m_iPrereqTech;
 	int m_iObsoleteTech;
 	int m_iMinimumPopulation;
@@ -2984,6 +3011,12 @@ protected:
 	bool m_bMetAnotherCiv;
 	bool m_bInDebt;
 	bool m_bLosingMoney;
+	bool m_bVassal;
+	bool m_bMaster;
+	bool m_bHasPlayerReligion;
+	bool m_bLacksPlayerReligion;
+	bool m_bHasPlayerMajority;
+	bool m_bLacksPlayerMajority;
 	int m_iRequiredActiveEvent;
 	int m_iRequiredActiveEventChoice;
 	int m_iRequiredActiveCityEvent;
@@ -3071,8 +3104,13 @@ public:
 	int getTerrainYield(int i, int j) const;
 	int getFeatureYield(int i, int j) const;
 	int getImprovementYield(int i, int j) const;
+	int getResourceYield(int i, int j) const;
 	int getEventResourceChange(ResourceTypes eResource) const;
 	int getCityUnhappinessNeedMod(int i) const;
+	const char* getDisabledTooltip() const;
+	int getEventPromotion() const;
+	int ConvertsCityToPlayerReligion() const;
+	int ConvertsCityToPlayerMajorityReligion() const;
 
 	//Filters
 	int getPrereqTech() const;
@@ -3119,6 +3157,8 @@ public:
 	bool hasMetAnotherCiv() const;
 	bool isInDebt() const;
 	bool isLosingMoney() const;
+	bool isMaster() const;
+	bool isVassal() const;
 	int getRequiredActiveEvent() const;
 	int getRequiredActiveEventChoice() const;
 	int getRequiredActiveCityEvent() const;
@@ -3131,6 +3171,10 @@ public:
 	int getRequiredActiveOtherPlayerEventChoice() const;
 	int getRequiredNoActiveOtherPlayerEvent() const;
 	int getRequiredNoActiveOtherPlayerEventChoice() const;
+	bool hasPlayerReligion() const;
+	bool lacksPlayerReligion() const;
+	bool hasPlayerMajority() const;
+	bool lacksPlayerMajority() const;
 
 	CvCityEventNotificationInfo *GetNotificationInfo(int i) const;
 	int GetNumNotifications() const {return m_iCityNotificationInfos;};
@@ -3144,6 +3188,7 @@ protected:
 	int m_iEventChance;
 	bool m_bEraScaling;
 	bool m_bExpires;
+	int m_iEventPromotion;
 	int* m_piDestroyImprovement;
 	int* m_piEventYield;
 	int* m_piPreCheckEventYield;
@@ -3165,11 +3210,15 @@ protected:
 	int** m_ppiTerrainYield;
 	int** m_ppiFeatureYield;
 	int** m_ppiImprovementYield;
+	int** m_ppiResourceYield;
 	bool* m_pbParentEventIDs;
 	int m_iCityWideDestructionChance;
 	int m_iCityHappiness;
 	int* m_piResourceChange;
 	int* m_piCityUnhappinessNeedMod;
+	CvString m_strDisabledTooltip;
+	int m_iConvertsCityToPlayerReligion;
+	int m_iConvertsCityToPlayerMajorityReligion;
 
 	//Filters
 	int m_iPrereqTech;
@@ -3215,6 +3264,8 @@ protected:
 	bool m_bMetAnotherCiv;
 	bool m_bInDebt;
 	bool m_bLosingMoney;
+	bool m_bVassal;
+	bool m_bMaster;
 	int m_iRequiredActiveEvent;
 	int m_iRequiredActiveEventChoice;
 	int m_iRequiredActiveCityEvent;
@@ -3227,6 +3278,10 @@ protected:
 	int m_iRequiredNoActiveEventChoice;
 	int m_iRequiredNoActiveCityEvent;
 	int m_iRequiredNoActiveCityEventChoice;
+	bool m_bHasPlayerReligion;
+	bool m_bLacksPlayerReligion;
+	bool m_bHasPlayerMajority;
+	bool m_bLacksPlayerMajority;
 
 	CvCityEventNotificationInfo* m_paCityNotificationInfo;
 	int m_iCityNotificationInfos;

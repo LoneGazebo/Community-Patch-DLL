@@ -5476,19 +5476,60 @@ int CvLuaCity::lIsCityEventChoiceActive(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const bool bInstantEvents = luaL_optbool(L, 3, false);
 	bool bResult = false;
 	if(eEventChoice != NO_EVENT_CHOICE_CITY)
 	{
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if(pkEventChoiceInfo != NULL)
 		{
-			if(pkEventChoiceInfo->isOneShot() && pkCity->IsEventChoiceFired(eEventChoice))
+			if(bInstantEvents)
 			{
-				bResult = true;
+				if(!pkEventChoiceInfo->isOneShot() && !pkEventChoiceInfo->Expires())
+				{
+					for(int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
+					{
+						CityEventTypes eEvent = (CityEventTypes)iLoop;
+						if(eEvent != NO_EVENT)
+						{
+							CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+							if(pkEventInfo != NULL)
+							{
+								if(pkEventChoiceInfo->isParentEvent(eEvent))
+								{
+									CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+									if(pkEventInfo != NULL)
+									{
+										if(pkEventInfo->getNumChoices() == 1)
+										{
+											if(pkCity->GetEventCooldown(eEvent) > 0)
+											{
+												bResult = true;
+												break;
+											}
+										}
+									}
+									if(pkCity->GetEventChoiceDuration(eEventChoice) > 0)
+									{
+										bResult = true;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
 			}
-			else if(pkCity->GetEventChoiceDuration(eEventChoice) > 0)
+			else
 			{
-				bResult = true;
+				if(pkEventChoiceInfo->isOneShot() && pkCity->IsEventChoiceFired(eEventChoice))
+				{
+					bResult = true;
+				}
+				else if(pkEventChoiceInfo->Expires() && pkCity->GetEventChoiceDuration(eEventChoice) > 0)
+				{
+					bResult = true;
+				}
 			}
 		}
 	}

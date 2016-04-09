@@ -2640,15 +2640,6 @@
 			<Text>Improvement Yield:</Text>
 		</Row>
 
-		<!-- Levy -->
-		<Row Tag="TXT_KEY_NOTIFICATION_VASSAL_LEVY">
-			<Text>Because you have entered a new Era, your Vassals have sent you {1_Num} Unit(s) as part of their tribute.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_VASSAL_LEVY_SUMMARY">
-			<Text>Vassal Tribute!</Text>
-		</Row>
-
-
 		<!-- Score Text -->
 		<Row Tag="TXT_KEY_DIPLO_MY_SCORE_ALLIES">
 			<Text>{1_Num} from City-State Alliances</Text>
