@@ -274,7 +274,7 @@ function RefreshWorldCorporations()
 					CivName = Locale.ConvertTextKey(GetPlayerCiv(iPlayerLoop).Description),
 					CorpName = Locale.ConvertTextKey(pCorporationBuilding.Description),
 					CorpTooltip = Locale.ConvertTextKey(pCorporationBuilding.CorporationHelper),
-					CityName = pLoopPlayer:GetCorporationHeadquarters(),	-- city
+					CityName = pLoopPlayer:GetCorporationHeadquarters():GetName(),	-- city
 					DateFounded = pLoopPlayer:GetCorporationFoundedTurn(),
 				};
 				table.insert(instances, info);
@@ -302,7 +302,7 @@ function InsertCorporation(info)
 	instance.Corporation:LocalizeAndSetText(info.CorpName);
 	instance.Corporation:LocalizeAndSetToolTip(info.CorpTooltip);
 	instance.DateFounded:SetText(Game.GetDateString(info.DateFounded));
-	instance.Headquarters:SetText(info.CityName:GetName());
+	instance.Headquarters:SetText(info.CityName);
 
 	HookupCivControl(info.CivPlayer, 32, instance.CivName, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow);
 end
@@ -1220,7 +1220,7 @@ function RegisterSortOptions()
 	g_YourOfficesSortFunction = GetSortFunction(g_YourOfficesSortOptions);
 	g_YourFranchisesSortFunction = GetSortFunction(g_YourFranchisesSortOptions);
 	g_WorldCorporationsSortFunction = GetSortFunction(g_WorldCorporationsSortOptions);
-	g_WorldFranchisesSortFunction = GetSortFunction(g_YourFranchisesSortOptions);
+	g_WorldFranchisesSortFunction = GetSortFunction(g_WorldFranchisesSortOptions);
 	g_MonopolyResourcesSortFunction = GetSortFunction(g_MonopolyResourcesSortOptions);
 end
 
