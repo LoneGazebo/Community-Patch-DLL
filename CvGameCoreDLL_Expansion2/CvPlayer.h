@@ -156,6 +156,9 @@ public:
 	void SetEventActive(EventTypes eEvent, bool bValue);
 	bool IsEventActive(EventTypes eEvent) const;
 
+	void SetEventChoiceActive(EventChoiceTypes eEventChoice, bool bValue);
+	bool IsEventChoiceActive(EventChoiceTypes eEventChoice) const;
+
 	bool IsEventChoiceFired(EventChoiceTypes eEventChoice) const;
 	void SetEventChoiceFired(EventChoiceTypes eEventChoice, bool bValue);
 
@@ -2966,6 +2969,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiEventIncrement;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiEventCooldown;
 	FAutoVariable<std::vector<bool>, CvPlayer> m_abEventActive;
+	FAutoVariable<std::vector<bool>, CvPlayer> m_abEventChoiceActive;
 	FAutoVariable<std::vector<bool>, CvPlayer> m_abEventChoiceFired;
 	FAutoVariable<std::vector<bool>, CvPlayer> m_abEventFired;
 	FAutoVariable<int, CvPlayer> m_iPlayerEventCooldown;

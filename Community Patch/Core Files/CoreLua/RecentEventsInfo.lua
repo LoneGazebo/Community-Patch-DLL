@@ -42,8 +42,8 @@ function UpdateRecentEvents()
 				for info in GameInfo.CityEventChoices() do
 					if pCity:IsCityEventChoiceActive(info.ID, true) then
 						local pEventInfo = nil
-						for row in GameInfo.Event_ParentEvents("EventChoiceType = '" .. info.Type .. "'") do
-							pEventInfo = GameInfo.Events[row.EventType]
+						for row in GameInfo.CityEvent_ParentEvents("CityEventChoiceType = '" .. info.Type .. "'") do
+							pEventInfo = GameInfo.CityEvents[row.CityEventType]
 							break
 						end
 						if pEventInfo then

@@ -100,6 +100,9 @@ public:
 	void SetEventActive(CityEventTypes eEvent, bool bValue);
 	bool IsEventActive(CityEventTypes eEvent) const;
 
+	void SetEventChoiceActive(CityEventChoiceTypes eEventChoice, bool bValue);
+	bool IsEventChoiceActive(CityEventChoiceTypes eEventChoice) const;
+
 	int GetEventCooldown(CityEventTypes eEvent) const;
 	void ChangeEventCooldown(CityEventTypes eEvent, int iValue);
 	void SetEventCooldown(CityEventTypes eEvent, int iValue);
@@ -1724,6 +1727,7 @@ protected:
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	FAutoVariable<std::vector<int>, CvCity> m_aiEventCooldown;
 	FAutoVariable<std::vector<bool>, CvCity> m_abEventActive;
+	FAutoVariable<std::vector<bool>, CvCity> m_abEventChoiceActive;
 	FAutoVariable<std::vector<bool>, CvCity> m_abEventChoiceFired;
 	FAutoVariable<std::vector<bool>, CvCity> m_abEventFired;
 	FAutoVariable<std::vector<int>, CvCity> m_aiEventChoiceDuration;

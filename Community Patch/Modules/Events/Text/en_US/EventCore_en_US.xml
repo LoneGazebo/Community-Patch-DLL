@@ -117,7 +117,7 @@
 			<Text>{3_Value} {2_Icon} {1_Yield}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_SPECIALIST">
-			<Text>{1_Yield} {2_Name}</Text>
+			<Text>{2_Yield} Great {1_Name} Points</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION">
 			<Text>{1_Cost}{2_Yield}{3_City}{4_Turns}</Text>
@@ -135,7 +135,7 @@
 			<Text>[NEWLINE]{3_Value} {2_Icon} {1_Yield} per turn in City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_GPP">
-			<Text>[NEWLINE]{3_Value} {2_Icon} {1_Yield} in City</Text>
+			<Text>[NEWLINE]{2_Yield} Great {1_Name} Points in City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_TURNS">
 			<Text>[NEWLINE]Lasts for: {1_Turns} Turns.\</Text>

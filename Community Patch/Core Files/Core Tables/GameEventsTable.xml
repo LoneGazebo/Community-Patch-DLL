@@ -298,8 +298,8 @@
 		<Column name="EventChoiceAudio" type="text" default="AS2D_EVENT_CHOICE"/>
 		<!-- If set to true, this event choice can only be chosen once, ever, by the player -->
 		<Column name="IsOneShot" type="boolean" default="false"/>
-		<!-- Defaults to -1. Unless changed, this means the event is either instant, or the duration doesn't matter. Set a duration if you intend to have an event expire after x turns. -->
-		<Column name="EventDuration" type="integer" default="-1"/>
+		<!-- Defaults to 30. Set a different duration if the expiration timer matters. Otherwise, leave it at 30, as it is used by the Recent Events overview. -->
+		<Column name="EventDuration" type="integer" default="30"/>
 		<!-- Event Chance: Higher value = higher chance of success. Notification will spawn if an event fails. Default is always successful. -->
 		<Column name="EventChance" type="integer" default="0"/>
 		<!-- Era Scaling: boosts yield value on instant yield, GP Points, and yield costs tables (See below) based on Era. -->
@@ -315,6 +315,8 @@
 		-->
 		<!-- Grants a Policy. -->
 		<Column name="EventPolicy" type="text" reference="Policies(Type)" default="NULL"/>
+		<!-- Grants a specified tech for free. -->
+		<Column name="EventTech" type="text" reference="Technologies(Type)" default="NULL"/>
 		<!-- Grants all owned units, and all units created while this is active a promotion. Only affects valid units. -->
 		<Column name="EventPromotion" type="text" reference="UnitPromotions(Type)" default="NULL"/>
 		<!-- Adds a building to all cities. -->
@@ -668,8 +670,8 @@
 		<Column name="EventChoiceAudio" type="text" default="AS2D_EVENT_CHOICE"/>
 		<!-- If set to true, this city event choice can only be chosen once, ever, by the city -->
 		<Column name="IsOneShot" type="boolean" default="false"/>
-		<!-- Defaults to -1. Unless changed, this means the event is either instant, or the duration doesn't matter. Set a duration if you intend to have an event expire after x turns. -->
-		<Column name="EventDuration" type="integer" default="-1"/>
+		<!-- Defaults to 30. Set a different duration if the expiration timer matters. Otherwise, leave it at 30, as it is used by the Recent Events overview. -->
+		<Column name="EventDuration" type="integer" default="30"/>
 		<!-- Event Chance: Higher value = higher chance of success. Notification will spawn if an event fails. Default is always successful. -->
 		<Column name="EventChance" type="integer" default="0"/>
 		<!-- Era Scaling: boosts yield value on instant yield, GP Points, and yield costs tables (See below) based on Era. -->

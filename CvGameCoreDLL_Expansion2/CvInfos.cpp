@@ -8115,6 +8115,7 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_iEventPolicy(-1),
 	 m_iEventBuilding(-1),
 	 m_iEventPromotion(-1),
+	 m_iEventTech(-1),
 	 m_iEventDuration(0),
 	 m_iEventChance(0),
 	 m_bEraScaling(false),
@@ -8223,6 +8224,11 @@ bool CvModEventChoiceInfo::isParentEvent(EventTypes eEvent) const
 int CvModEventChoiceInfo::getEventPromotion() const
 {
 	return m_iEventPromotion;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getEventTech() const
+{
+	return m_iEventTech;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getEventPolicy() const
@@ -8659,6 +8665,9 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 
 	szTextVal = kResults.GetText("EventPolicy");
 	m_iEventPolicy =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("EventTech");
+	m_iEventTech =  GC.getInfoTypeForString(szTextVal, true);
 
 	szTextVal = kResults.GetText("EventBuildingClassGlobal");
 	m_iEventBuilding =  GC.getInfoTypeForString(szTextVal, true);

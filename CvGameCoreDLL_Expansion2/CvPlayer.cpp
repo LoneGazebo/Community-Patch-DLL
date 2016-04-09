@@ -568,6 +568,7 @@ CvPlayer::CvPlayer() :
 	, m_aiEventChoiceDuration("CvPlayer::m_aiEventChoiceDuration", m_syncArchive)
 	, m_aiEventIncrement("CvPlayer::m_aiEventIncrement", m_syncArchive)
 	, m_abEventActive("CvPlayer::m_abEventActive", m_syncArchive)
+	, m_abEventChoiceActive("CvPlayer::m_abEventChoiceActive", m_syncArchive)
 	, m_aiEventCooldown("CvPlayer::m_aiEventCooldown", m_syncArchive)
 	, m_abEventChoiceFired("CvPlayer::m_abEventChoiceFired", m_syncArchive)
 	, m_abEventFired("CvPlayer::m_abEventFired", m_syncArchive)
@@ -1741,6 +1742,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_abEventActive.clear();
 	m_abEventActive.resize(GC.getNumEventInfos(), false);
+
+	m_abEventChoiceActive.clear();
+	m_abEventChoiceActive.resize(GC.getNumEventChoiceInfos(), false);
 
 	m_abEventFired.clear();
 	m_abEventFired.resize(GC.getNumEventInfos(), false);
@@ -4963,6 +4967,22 @@ bool CvPlayer::IsEventActive(EventTypes eEvent) const
 
 	return m_abEventActive[eEvent];
 }
+void CvPlayer::SetEventChoiceActive(EventChoiceTypes eEventChoice, bool bValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+
+	m_abEventChoiceActive.setAt(eEventChoice, bValue);
+}
+bool CvPlayer::IsEventChoiceActive(EventChoiceTypes eEventChoice) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+
+	return m_abEventChoiceActive[eEventChoice];
+}
 void CvPlayer::SetEventChoiceFired(EventChoiceTypes eEvent, bool bValue)
 {
 	VALIDATE_OBJECT
@@ -6275,8 +6295,9 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 		}
 		//Let's make sure this is at zero.
 		ChangeEventChoiceDuration(eChosenEventChoice, -GetEventChoiceDuration(eChosenEventChoice));
-
-		if(pkEventChoiceInfo->Expires())
+					
+		//Let's only deduct if we actually started this event and it expires.
+		if(IsEventChoiceActive(eChosenEventChoice) && pkEventChoiceInfo->Expires())
 		{
 			if(pkEventChoiceInfo->getEventPolicy() != -1)
 			{
@@ -6285,6 +6306,14 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 				{
 					GetPlayerPolicies()->SetPolicy(ePolicy, false, true);
 					bChanged = true;
+				}
+			}
+			if(pkEventChoiceInfo->getEventTech() != -1)
+			{
+				TechTypes eTech = (TechTypes)pkEventChoiceInfo->getEventTech();
+				if(eTech != -1)
+				{
+					GET_TEAM(getTeam()).GetTeamTechs()->SetHasTech(eTech, false);
 				}
 			}
 			if(pkEventChoiceInfo->getEventBuilding() != -1)
@@ -6552,28 +6581,30 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 
 				pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, GetID());
 			}
-		}
-		CvCity* pLoopCity;
-		int iLoop;
-		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if(pLoopCity != NULL)
+			CvCity* pLoopCity;
+			int iLoop;
+			for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
-				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				if(pLoopCity != NULL)
 				{
-					YieldTypes eYield = (YieldTypes) iI;
-					if(eYield == NO_YIELD)
-						continue;
+					for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+					{
+						YieldTypes eYield = (YieldTypes) iI;
+						if(eYield == NO_YIELD)
+							continue;
 
-					pLoopCity->UpdateSpecialReligionYields(eYield);
-					pLoopCity->UpdateCityYields(eYield);
+						pLoopCity->UpdateSpecialReligionYields(eYield);
+						pLoopCity->UpdateCityYields(eYield);
+					}
+					pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
+					CalculateNetHappiness();
+					pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+					pLoopCity->GetCityCulture()->CalculateBaseTourism();
 				}
-				pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
-				CalculateNetHappiness();
-				pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-				pLoopCity->GetCityCulture()->CalculateBaseTourism();
 			}
 		}
+		//Set it false here so we know the event choice is over now.
+		SetEventChoiceActive(eChosenEventChoice, false);
 	}
 }
 CvString CvPlayer::GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYieldsOnly)
@@ -6760,6 +6791,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 			}
 			//Set false so we know we've completed the city event.
 			//Loop through all city events and set any related to this to false, just to be sure.
+			//This is purely for the notification system to keep the icon from disappearing until a choice has been made.
 			if(eEvent == NO_EVENT)
 			{
 				for(int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
@@ -6863,12 +6895,24 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 					return;
 				}
 			}
+			//Succeeded? Set event choice active here so we know to deduct it later.
+			SetEventChoiceActive(eEventChoice, true);
+
+			//Now on to the actions themselves.
 			if(pkEventChoiceInfo->getEventPolicy() != -1)
 			{
 				PolicyTypes ePolicy = (PolicyTypes)pkEventChoiceInfo->getEventPolicy();
 				if(ePolicy != -1)
 				{
 					GetPlayerPolicies()->SetPolicy(ePolicy, true, true);
+				}
+			}
+			if(pkEventChoiceInfo->getEventTech() != -1)
+			{
+				TechTypes eTech = (TechTypes)pkEventChoiceInfo->getEventTech();
+				if(eTech != -1)
+				{
+					GET_TEAM(getTeam()).GetTeamTechs()->SetHasTech(eTech, true);
 				}
 			}
 			if(pkEventChoiceInfo->getEventBuilding() != -1)

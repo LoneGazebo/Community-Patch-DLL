@@ -14335,48 +14335,51 @@ int CvLuaPlayer::lIsEventChoiceActive(lua_State* L)
 		CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
 		if(pkEventChoiceInfo != NULL)
 		{
-			if(bInstantEvents)
+			if(pkPlayer->IsEventChoiceActive(eEventChoice))
 			{
-				if(!pkEventChoiceInfo->isOneShot() && !pkEventChoiceInfo->Expires())
+				if(bInstantEvents)
 				{
-					for(int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
+					if(!pkEventChoiceInfo->isOneShot() && !pkEventChoiceInfo->Expires())
 					{
-						EventTypes eEvent = (EventTypes)iLoop;
-						if(eEvent != NO_EVENT)
+						for(int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
 						{
-							if(pkEventChoiceInfo->isParentEvent(eEvent))
+							EventTypes eEvent = (EventTypes)iLoop;
+							if(eEvent != NO_EVENT)
 							{
-								CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-								if(pkEventInfo != NULL)
+								if(pkEventChoiceInfo->isParentEvent(eEvent))
 								{
-									if(pkEventInfo->getNumChoices() == 1)
+									CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+									if(pkEventInfo != NULL)
 									{
-										if(pkPlayer->GetEventCooldown(eEvent) > 0)
+										if(pkEventInfo->getNumChoices() == 1)
+										{
+											if(pkPlayer->GetEventCooldown(eEvent) > 0)
+											{
+												bResult = true;
+												break;
+											}
+										}
+										else
 										{
 											bResult = true;
 											break;
 										}
 									}
 								}
-								if(pkPlayer->GetEventChoiceDuration(eEventChoice) > 0)
-								{
-									bResult = true;
-									break;
-								}
 							}
 						}
 					}
 				}
-			}
-			else
-			{
-				if(pkEventChoiceInfo->isOneShot() && pkPlayer->IsEventChoiceFired(eEventChoice))
+				else
 				{
-					bResult = true;
-				}
-				else if(pkEventChoiceInfo->Expires() && pkPlayer->GetEventChoiceDuration(eEventChoice) > 0)
-				{
-					bResult = true;
+					if(pkEventChoiceInfo->isOneShot() && pkPlayer->IsEventChoiceFired(eEventChoice))
+					{
+						bResult = true;
+					}
+					else if(pkEventChoiceInfo->Expires())
+					{
+						bResult = true;
+					}
 				}
 			}
 		}
@@ -14409,6 +14412,12 @@ int CvLuaPlayer::lGetEventCooldown(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
 	const EventTypes eEvent = (EventTypes)lua_tointeger(L, 2);
+	CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+	if(pkEventInfo != NULL && pkEventInfo->isOneShot())
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 	const int iCooldown = pkPlayer->GetEventCooldown(eEvent);
 	lua_pushinteger(L, iCooldown);
 	return 1;
@@ -14417,6 +14426,12 @@ int CvLuaPlayer::lGetEventChoiceCooldown(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
 	const EventChoiceTypes eEvent = (EventChoiceTypes)lua_tointeger(L, 2);
+	CvModEventChoiceInfo* pkEventInfo = GC.getEventChoiceInfo(eEvent);
+	if(pkEventInfo != NULL && pkEventInfo->isOneShot())
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 	const int iCooldown = pkPlayer->GetEventChoiceDuration(eEvent);
 	lua_pushinteger(L, iCooldown);
 	return 1;

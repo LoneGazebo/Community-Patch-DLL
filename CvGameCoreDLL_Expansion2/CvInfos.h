@@ -2710,6 +2710,7 @@ public:
 	int getEventBuilding() const;
 	int getEventDuration() const;
 	int getEventPromotion() const;
+	int getEventTech() const;
 	int getEventYield(YieldTypes eYield) const;
 	int getPreCheckEventYield(YieldTypes eYield) const;
 	int getEventChance() const;
@@ -2793,6 +2794,7 @@ protected:
 	int m_iEventPolicy;
 	int m_iEventBuilding;
 	int m_iEventPromotion;
+	int m_iEventTech;
 	int m_iEventDuration;
 	int m_iEventChance;
 	bool* m_pbParentEventIDs;

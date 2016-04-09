@@ -4505,6 +4505,10 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 #endif
 	iPlunderGoldValue *= 100 + iDomainModifier;
 	iPlunderGoldValue /= 100;
+#if defined(MOD_BALANCE_CORE)
+	iPlunderGoldValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iPlunderGoldValue /= 100;
+#endif
 	m_pPlayer->GetTreasury()->ChangeGold(iPlunderGoldValue);
 
 	// do the floating popup

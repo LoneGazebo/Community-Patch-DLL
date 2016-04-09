@@ -229,6 +229,7 @@ CvCity::CvCity() :
 	, m_aiEventChoiceDuration("CvCity::m_aiEventChoiceDuration", m_syncArchive)
 	, m_aiEventIncrement("CvCity::m_aiEventIncrement", m_syncArchive)
 	, m_abEventActive("CvCity::m_abEventActive", m_syncArchive)
+	, m_abEventChoiceActive("CvCity::m_abEventChoiceActive", m_syncArchive)
 	, m_abEventChoiceFired("CvCity::m_abEventChoiceFired", m_syncArchive)
 	, m_abEventFired("CvCity::m_abEventFired", m_syncArchive)
 	, m_aiEventCooldown("CvCity::m_aiEventCooldown", m_syncArchive)
@@ -1530,10 +1531,12 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	m_abEventChoiceFired.resize(GC.getNumCityEventChoiceInfos());
 	m_aiEventChoiceDuration.resize(GC.getNumCityEventChoiceInfos());
+	m_abEventChoiceActive.resize(GC.getNumCityEventChoiceInfos());
 	for(iI = 0; iI < GC.getNumCityEventChoiceInfos(); iI++)
 	{
 		m_aiEventChoiceDuration.setAt(iI, 0);
 		m_abEventChoiceFired.setAt(iI, false);
+		m_abEventChoiceActive.setAt(iI, false);
 	}
 	m_abEventFired.resize(GC.getNumCityEventInfos());
 	m_abEventActive.resize(GC.getNumCityEventInfos());
@@ -3304,7 +3307,7 @@ void CvCity::DoEvents()
 				continue;
 			}
 
-			//Global Cooldown Second - if we've had any event recently, let's check this.
+			//Global Cooldown Second - if we've had this event recently, let's check this.
 			if(GetEventCooldown(eEvent) > 0)
 			{
 				if(GC.getLogging())
@@ -4444,7 +4447,8 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 		//Let's make sure this is at zero.
 		ChangeEventChoiceDuration(eChosenEventChoice, -GetEventChoiceDuration(eChosenEventChoice));
 		
-		if(pkEventChoiceInfo->Expires())
+		//Let's only reverse if it expires, and it was active.
+		if(IsEventChoiceActive(eChosenEventChoice) && pkEventChoiceInfo->Expires())
 		{
 			if(pkEventChoiceInfo->getEventBuilding() != -1)
 			{
@@ -4647,22 +4651,23 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 
 					pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), GetID(), getOwner());
 				}
-			}
-		}
-		//Some yield cleanup and refresh here - note that not all of this has to do with religion, however any time religion is updated, that's a good time to update the city's yields.
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			YieldTypes eYield = (YieldTypes) iI;
-			if(eYield == NO_YIELD)
-				continue;
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				{
+					YieldTypes eYield = (YieldTypes) iI;
+					if(eYield == NO_YIELD)
+						continue;
 
-			UpdateSpecialReligionYields(eYield);
-			UpdateCityYields(eYield);
+					UpdateSpecialReligionYields(eYield);
+					UpdateCityYields(eYield);
+				}
+				UpdateReligion(GetCityReligions()->GetReligiousMajority());
+				GET_PLAYER(getOwner()).CalculateNetHappiness();
+				GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+				GetCityCulture()->CalculateBaseTourism();
+			}
+			//And set the event choice to false so we know it is no longer active.
+			SetEventChoiceActive(eChosenEventChoice, false);
 		}
-		UpdateReligion(GetCityReligions()->GetReligiousMajority());
-		GET_PLAYER(getOwner()).CalculateNetHappiness();
-		GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-		GetCityCulture()->CalculateBaseTourism();
 	}
 }
 CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly)
@@ -4926,7 +4931,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				strBaseString += strOutBuf;
 				pLog->Msg(strBaseString);
 			}
-			//Set the cooldown for all events.
+			//Set the cooldown for the event choice.
 			if(pkEventChoiceInfo->getEventDuration() > 0)
 			{
 				//Gamespeed.
@@ -4991,6 +4996,10 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					return;
 				}
 			}
+			//Set the event choice active if it succeeded, so we know to cancel it later.
+			SetEventChoiceActive(eEventChoice, true);
+
+			//Now do the bonuses.
 			if(pkEventChoiceInfo->getEventPromotion() != -1)
 			{
 				PromotionTypes ePromotion = (PromotionTypes)pkEventChoiceInfo->getEventPromotion();
@@ -5794,6 +5803,23 @@ bool CvCity::IsEventActive(CityEventTypes eEvent) const
 
 	return m_abEventActive[eEvent];
 }
+void CvCity::SetEventChoiceActive(CityEventChoiceTypes eEventChoice, bool bValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eEventChoice >= 0, "eEventChoice is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eEventChoice < GC.getNumCityEventChoiceInfos(), "eEventChoice is expected to be within maximum bounds (invalid Index)");
+
+	m_abEventChoiceActive.setAt(eEventChoice, bValue);
+}
+bool CvCity::IsEventChoiceActive(CityEventChoiceTypes eEventChoice) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eEventChoice >= 0, "eEventChoice is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eEventChoice < GC.getNumCityEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+
+	return m_abEventChoiceActive[eEventChoice];
+}
+
 void CvCity::SetEventChoiceFired(CityEventChoiceTypes eEvent, bool bValue)
 {
 	VALIDATE_OBJECT

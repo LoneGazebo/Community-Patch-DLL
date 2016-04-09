@@ -825,10 +825,25 @@ int CvAIOperation::GetStepDistanceBetweenPlots(CvArmyAI* pArmy, CvPlot* pCurrent
 	if (!pArmy || !pCurrentPosition || !pTarget)
 		return -1;
 
-	//we don't care about wide paths and areas here. just a simple approximation
-	SPathFinderUserData data(m_eOwner, PT_GENERIC_ANY_AREA, m_eEnemy);
+	//check what kind of path we need
+	int iNumUnits = pArmy->GetNumSlotsFilled();
+	PathType ePathType = PT_GENERIC_ANY_AREA;
+	if (pArmy->GetDomainType()==DOMAIN_LAND)
+	{
+		//large land armies need a wide path so they don't get stuck in difficult terrain
+		if (iNumUnits > 5 )
+			ePathType = PT_GENERIC_ANY_AREA_WIDE;
+		else
+			ePathType = PT_GENERIC_ANY_AREA;
+	}
+	else
+	{
+		//for naval armies we need to make sure we don't leave our area
+		ePathType = PT_GENERIC_SAME_AREA;
+	}
 
 	// use the step path finder to compute distance
+	SPathFinderUserData data(m_eOwner, ePathType, m_eEnemy);
 	if (GC.GetStepFinder().DoesPathExist(pCurrentPosition, pTarget, data))
 	{
 		return GC.GetStepFinder().GetPathLength();
