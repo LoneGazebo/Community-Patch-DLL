@@ -130,6 +130,7 @@ public:
 	int GetTRVisionBoost() const;
 	int GetVotesPerGPT() const;
 	bool IsRequiresRail() const;
+	bool IsDummy() const;
 #endif
 	int GetSpecialistType() const;
 	int GetSpecialistCount() const;
@@ -355,6 +356,7 @@ public:
 	CvString GetThemingBonusHelp() const;
 #if defined(MOD_BALANCE_CORE)
 	CvString GetCorporationHelper() const;
+	CvString GetOfficeBenefitHelper() const;
 #endif
 
 	// Accessor Functions (Arrays)
@@ -551,6 +553,7 @@ private:
 	int m_iTRVisionBoost;
 	int m_iVotesPerGPT;
 	bool m_bRequiresRail;
+	bool m_bDummy;
 #endif
 	int m_iSpecialistType;
 	int m_iSpecialistCount;
@@ -777,6 +780,7 @@ private:
 	CvString m_strThemingBonusHelp;
 #if defined(MOD_BALANCE_CORE)
 	CvString m_strCorporationHelper;
+	CvString m_strOfficeBenefitHelper;
 #endif
 
 	// Arrays

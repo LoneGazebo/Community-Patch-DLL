@@ -133,7 +133,7 @@ int CvMinorCivQuest::GetEndTurn() const
 		{
 			int iDuration = pkSmallAwardInfo->GetDuration();
 			// Modify for Game Speed
-			if(MINOR_CIV_QUEST_HORDE || MINOR_CIV_QUEST_REBELLION)
+			if(m_eType == MINOR_CIV_QUEST_HORDE || m_eType == MINOR_CIV_QUEST_REBELLION)
 			{
 				return (m_iStartTurn + iDuration);
 			}
@@ -380,7 +380,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		SetAdmiralPoints(GetAdmiralPoints() / 2);
 		if(GetAdmiralPoints() > 0)
 		{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 			kPlayer.changeNavalCombatExperienceTimes100(GetAdmiralPoints() * 100);
 #else
 			kPlayer.changeNavalCombatExperience(GetAdmiralPoints());
@@ -396,7 +396,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		SetGeneralPoints(GetGeneralPoints() / 2);
 		if(GetGeneralPoints() > 0)
 		{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 			kPlayer.changeCombatExperienceTimes100(GetGeneralPoints() * 100);
 #else
 			kPlayer.changeCombatExperience(GetGeneralPoints());
@@ -429,7 +429,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 			{
 				if(pLoopUnit && pLoopUnit->IsCombatUnit())
 				{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 					pLoopUnit->changeExperienceTimes100(GetExperience() * 100);
 #else
 					pLoopUnit->changeExperience(GetExperience());
@@ -617,7 +617,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		}
 		if(GetAdmiralPoints() > 0)
 		{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 			kPlayer.changeNavalCombatExperienceTimes100(GetAdmiralPoints() * 100);
 #else
 			kPlayer.changeNavalCombatExperience(GetAdmiralPoints());
@@ -632,7 +632,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 		}
 		if(GetGeneralPoints() > 0)
 		{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 			kPlayer.changeCombatExperienceTimes100(GetGeneralPoints() * 100);
 #else
 			kPlayer.changeCombatExperience(GetGeneralPoints());
@@ -663,7 +663,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 			{
 				if(pLoopUnit && pLoopUnit->IsCombatUnit())
 				{
-#if defined(MOD_API_XP_TIMES_100)				
+#if defined(MOD_UNITS_XP_TIMES_100)				
 					pLoopUnit->changeExperienceTimes100(GetExperience() * 100);
 #else
 					pLoopUnit->changeExperience(GetExperience());
@@ -5370,20 +5370,23 @@ void CvMinorCivAI::DoTurn()
 				eLoopTeam = (TeamTypes) iTeamLoop;
 				if(eLoopTeam != NO_TEAM)
 				{
-					if(GetJerk(eLoopTeam) > 0)
+					if(GET_TEAM(eLoopTeam).isMajorCiv())
 					{
-						ChangeJerk(eLoopTeam, -1);
-					}
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-						if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getTeam() == eLoopTeam)
+						if(GetJerk(eLoopTeam) > 0)
 						{
-							if(IsFriends(ePlayer))
+							ChangeJerk(eLoopTeam, -1);
+						}
+						for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+							if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getTeam() == eLoopTeam)
 							{
-								SetJerk(eLoopTeam, 0);
+								if(IsFriends(ePlayer))
+								{
+									SetJerk(eLoopTeam, 0);
+								}
+								TestChangeProtectionFromMajor(ePlayer);
 							}
-							TestChangeProtectionFromMajor(ePlayer);
 						}
 					}
 				}
@@ -5741,7 +5744,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 									if (GC.getGame().getJonRandNum(100, "Minor Civ AI: Decide if we give a unit to the meeting player") < iUnitGift) {
 										CvUnit* pUnit = DoSpawnUnit(ePlayer, true, true);
 										if (pUnit != NULL) {
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 											pUnit->changeExperienceTimes100(100 * (pPlayer->GetCurrentEra() * GC.getMINOR_CIV_FIRST_CONTACT_XP_PER_ERA() + GC.getGame().getJonRandNum(GC.getMINOR_CIV_FIRST_CONTACT_XP_RANDOM(), "Minor Civ AI: Random XP for unit")));
 #else
 											pUnit->changeExperience(pPlayer->GetCurrentEra() * GC.getMINOR_CIV_FIRST_CONTACT_XP_PER_ERA() + GC.getGame().getJonRandNum(GC.getMINOR_CIV_FIRST_CONTACT_XP_RANDOM(), "Minor Civ AI: Random XP for unit"));
@@ -8027,6 +8030,15 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		{
 			return false;
 		}
+		//Don't create this quest until a player has entered the Renaissance
+		EraTypes eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+		EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+
+		// Renaissance era or Later
+		if(eCurrentEra < eRenaissance)
+		{
+			return false;
+		}
 		CvCity* pTargetCity = GetBestSpyTarget(ePlayer, false);
 		if(pTargetCity == NULL)
 		{
@@ -8036,6 +8048,15 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	else if(eQuest == MINOR_CIV_QUEST_UNIT_COUP_CITY)
 	{
 		if(GET_PLAYER(ePlayer).GetEspionage() == NULL || GET_PLAYER(ePlayer).GetEspionage()->GetNumSpies() <= 0)
+		{
+			return false;
+		}
+		//Don't create this quest until a player has entered the Renaissance
+		EraTypes eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+		EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+
+		// Renaissance era or Later
+		if(eCurrentEra < eRenaissance)
 		{
 			return false;
 		}
@@ -10196,6 +10217,10 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 #endif
 #if defined(MOD_BALANCE_CORE)
 		if(pkBuildingInfo->GetCorporationID() > 0)
+		{
+			continue;
+		}
+		if(pkBuildingInfo->GetCivType() != NO_CIVILIZATION)
 		{
 			continue;
 		}
@@ -12996,7 +13021,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
 	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 
-	if(!MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+	if(!MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
 		return;
 
 	bool bProtect = IsProtectedByMajor(eMajor);
@@ -13026,9 +13051,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 				float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
 				if(fRankRatio < 0.6 && GetNumTurnsSincePtPWarning(eMajor) > iWarningMax)
 				{
-					m_abPledgeToProtect[eMajor] = false;
-					SetTurnLastPledgeBrokenByMajor(eMajor, GC.getGame().getGameTurn());
-					ChangeFriendshipWithMajorTimes100(eMajor, (GC.getMINOR_FRIENDSHIP_DROP_DISHONOR_PLEDGE_TO_PROTECT() / 2));
+					DoChangeProtectionFromMajor(eMajor, false, true);
 
 					CvCity* pCity = m_pPlayer->getCapitalCity();
 					if(pCity != NULL)
@@ -13073,7 +13096,6 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT");
 						strSummary << GetPlayer()->getNameKey();
 						AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-						ChangeNumTurnsSincePtPWarning(eMajor, 1);
 						break;
 					}
 				}
@@ -13167,7 +13189,7 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+	if(MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
 	{
 		CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
 		PlayerTypes eMajorLoop;
@@ -13186,7 +13208,7 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 			if(veMilitaryRankings.GetElement(iRanking) == eMajor)
 			{
 				float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
-				if(fRankRatio < 0.6)
+				if(fRankRatio < GC.getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP())
 				{
 					return false;
 				}
@@ -14622,7 +14644,7 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 			// If player trait is to enhance minor bonuses, give this unit some free experience
 			if(GET_PLAYER(eMajor).GetPlayerTraits()->GetCityStateBonusModifier() > 0)
 			{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 				pNewUnit->changeExperienceTimes100(100 * GC.getMAX_EXPERIENCE_PER_COMBAT());
 #else
 				pNewUnit->changeExperience(GC.getMAX_EXPERIENCE_PER_COMBAT());

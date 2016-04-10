@@ -301,6 +301,9 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			end
 		end
 -- END
+		-- Events
+		iCulture = iCulture + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_CULTURE);
+		-- End 
 	end
 	if (iCulture ~= nil and iCulture ~= 0) then
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_CULTURE", iCulture));
@@ -322,6 +325,9 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			end
 		end
 -- END
+		-- Events
+		iFaith = iFaith + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_FAITH);
+		-- End 
 	end
 	if (iFaith ~= nil and iFaith ~= 0) then
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_FAITH", iFaith));
@@ -338,6 +344,19 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	if (iHitPoints ~= nil and iHitPoints ~= 0) then
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_HITPOINTS", iHitPoints));
 	end
+
+	--CP EVENTS
+	if (pCity ~= nil) then
+		for pYieldInfo in GameInfo.Yields() do
+			local iYieldID = pYieldInfo.ID;
+			local iYieldAmount = pCity:GetEventBuildingClassModifier(buildingClassID, iYieldID);
+							
+			if (iYieldAmount > 0) then
+				table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_EVENT_MODIFIER", iYieldAmount, pYieldInfo.IconString, pYieldInfo.Description));
+			end
+		end
+	end
+	--END
 	
 	-- Food
 	local iFood = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_FOOD);
@@ -355,6 +374,9 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			end
 		end
 -- END
+		-- Events
+		iFood = iFood + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_FOOD);
+		-- End 
 	end
 	if (iFood ~= nil and iFood ~= 0) then
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_FOOD", iFood));
@@ -382,7 +404,10 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 				iGold = iGold + corporatechange;
 			end
 		end
--- END	
+-- END
+		-- Events
+		iGold = iGold + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_GOLD);
+		-- End 	
 	end
 	if (iGold ~= nil and iGold ~= 0) then
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_GOLD_CHANGE", iGold));
@@ -413,6 +438,9 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	if (pCity ~= nil) then
 		iScienceChange = iScienceChange + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE);
 		iScienceChange = iScienceChange + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_SCIENCE);
+		-- Events
+		iScienceChange = iScienceChange + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_SCIENCE);
+		-- End 
 	end
 	if (iScienceChange ~= nil and iScienceChange ~= 0) then
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_SCIENCE_CHANGE", iScienceChange));
@@ -444,6 +472,9 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	if (pCity ~= nil) then
 		iProd = iProd + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION);
 		iProd = iProd + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+		-- Events
+		iProd = iProd + pCity:GetEventBuildingClassYield(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+		-- End
 	end
 	if (iProd ~= nil and iProd ~= 0) then
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_PRODUCTION_CHANGE", iProd));
@@ -898,6 +929,22 @@ function GetCultureTooltip(pCity)
 			
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_TRAITS", iCultureFromTraits);
 		end
+
+		-- CP Events
+		-- Culture from Events
+		local iCultureFromEvent = pCity:GetEventCityYield(YieldTypes.YIELD_CULTURE);
+		if (iCultureFromEvent ~= 0) then
+			
+			-- Spacing
+			if (bFirst) then
+				bFirst = false;
+			else
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
+			end
+			
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_EVENTS", iCultureFromEvent);
+		end
+		-- END 
 		
 		-- Empire Culture modifier
 		local iAmount = Players[pCity:GetOwner()]:GetCultureCityModifier();
@@ -1079,7 +1126,14 @@ function GetFaithTooltip(pCity)
 				
 			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_RELIGION", iFaithFromReligion));
 		end
-
+		-- CP Events
+		-- Faith from Events
+		local iFaithFromEvent = pCity:GetEventCityYield(YieldTypes.YIELD_FAITH);
+		if (iFaithFromEvent ~= 0) then
+			
+			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_EVENTS", iFaithFromEvent));
+		end
+		-- END 
 		-- CBP
 		local iFaithWLTKDMod = pCity:GetModFromWLTKD(YieldTypes.YIELD_FAITH);
 		if (iFaithWLTKDMod ~= 0) then
@@ -1388,7 +1442,12 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 		end
 		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 	end
-
+	-- CP Events
+	-- Base Yield from Events
+	local iYieldFromEvents = pCity:GetEventCityYield(iYieldType);
+	if (iYieldFromEvents ~= 0) then
+		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_EVENTS", iYieldFromEvents, strIconString);
+	end
 
 	-- Yield Increase from City Yields
 	if (iYieldType == YieldTypes.YIELD_SCIENCE) then

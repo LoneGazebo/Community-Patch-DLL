@@ -941,33 +941,21 @@ bool CvArmyAI::DoDelayedDeath()
 
 CvPlot* CvArmyAI::DetectNearbyEnemy(PlayerTypes eEnemy, bool bNaval)
 {
-	bool bAtWar = GET_PLAYER(m_eOwner).IsAtWarWith(eEnemy);
 	UnitHandle pUnit = GetFirstUnit();
 	while(pUnit)
 	{
 		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 		{
 			CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDirectionLoop));
-			if(pAdjacentPlot != NULL && pAdjacentPlot->isWater()==bNaval )
+			if(pAdjacentPlot != NULL && pAdjacentPlot->isWater()==bNaval && pAdjacentPlot->getOwner() == eEnemy)
 			{
-				if( pAdjacentPlot->getOwner() == eEnemy && !bAtWar )
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Ran into enemy territory during sneak attack on (x=%d y=%d). Need to declare war to continue!", GetGoalX(), GetGoalY());
-						GET_PLAYER(m_eOwner).getAIOperation(m_iOperationID)->LogOperationSpecialMessage(strMsg);
-					}
-
-					return pAdjacentPlot;
-				}
 				UnitHandle pOtherUnit = pAdjacentPlot->getBestDefender(eEnemy);
-				if( pOtherUnit && bAtWar )
+				if(pOtherUnit)
 				{
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strMsg;
-						strMsg.Format("Ran into enemy unit during attack on (x=%d y=%d). Time to fight!", GetGoalX(), GetGoalY());
+						strMsg.Format("Ran into enemy unit during attack (x=%d y=%d). Need to declare war to continue!", pAdjacentPlot->getX(), pAdjacentPlot->getY());
 						GET_PLAYER(m_eOwner).getAIOperation(m_iOperationID)->LogOperationSpecialMessage(strMsg);
 					}
 

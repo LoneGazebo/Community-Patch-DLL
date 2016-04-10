@@ -55,6 +55,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	static int lGetResourceMonopolyPlayer(lua_State* L);
+	static int lGetMonopolyPercent(lua_State* L);
 #endif
 	static int lDisbandUnit(lua_State* L);
 	static int lAddFreeUnit(lua_State* L);
@@ -491,6 +492,9 @@ protected:
 	static int lGetBranchPicked2(lua_State* L);
 	static int lGetBranchPicked3(lua_State* L);
 #if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(GrantPolicy, bool, iPolicy, bFree);
+	LUAAPIEXTN(RevokePolicy, bool, iPolicy);
+	LUAAPIEXTN(SwapPolicy, bool, iPolicyNew, iPolicyOld);
 	LUAAPIEXTN(CanAdoptIdeology, bool, iIdeologyBranch);
 	LUAAPIEXTN(CanAdoptTenet, bool, iTenetPolicy, bIgnoreCost);
 #endif
@@ -1065,6 +1069,7 @@ protected:
 	static int lGetNotificationDismissed(lua_State* L);
 	static int lAddNotification(lua_State* L);
 #if defined(MOD_API_LUA_EXTENSIONS)
+	static int lAddNotificationName(lua_State* L);
 	LUAAPIEXTN(DismissNotification, void, iIndex, bUserInvoked);
 #endif
 
@@ -1238,6 +1243,11 @@ protected:
 	static int lGetCorporationHelper(lua_State* L);
 	static int lGetMaxFranchises(lua_State* L);
 	static int lGetCorpID(lua_State* L);
+	static int lGetCorporationHeadquarters(lua_State* L);
+	static int lGetOfficeBuilding(lua_State* L);
+	static int lGetFranchiseBuilding(lua_State* L);
+	static int lGetCorporationFoundedTurn(lua_State* L);
+	static int lGetCurrentOfficeBenefit(lua_State* L);
 #endif
 	static int lGetInternationalTradeRouteDomainModifier(lua_State* L);
 	static int lGetInternationalTradeRouteTotal(lua_State* L);
@@ -1370,6 +1380,18 @@ protected:
 	LUAAPIEXTN(CountAllWorkedResource, int, iResourceType);
 	LUAAPIEXTN(CountAllTerrain, int, iTerrainType);
 	LUAAPIEXTN(CountAllWorkedTerrain, int, iTerrainType);
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	static int lGetScaledEventChoiceValue (lua_State* L);
+	static int lIsEventChoiceActive (lua_State* L);
+	static int lDoEventChoice (lua_State* L);
+	static int lDoStartEvent (lua_State* L);
+	static int lDoCancelEventChoice (lua_State* L);
+	static int lGetEventCooldown  (lua_State* L);
+	static int lSetEventCooldown (lua_State* L);
+	static int lGetEventChoiceCooldown  (lua_State* L);
+	static int lSetEventChoiceCooldown  (lua_State* L);
+	static int lIsEventChoiceValid (lua_State* L);
 #endif
 };
 

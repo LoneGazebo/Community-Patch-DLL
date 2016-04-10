@@ -75,6 +75,12 @@ class CvPlayerOptionInfo;
 class CvEventTriggerInfo;
 class CvEventInfo;
 class CvVoteSourceInfo;
+#if defined(MOD_BALANCE_CORE_EVENTS)
+class CvModEventInfo;
+class CvModEventChoiceInfo;
+class CvModCityEventInfo;
+class CvModEventCityChoiceInfo;
+#endif
 class CvMultiUnitFormationInfo;
 class CvEconomicAIStrategyXMLEntries;
 class CvEconomicAIStrategyXMLEntry;
@@ -357,6 +363,25 @@ public:
 	std::vector<CvVoteSourceInfo*>& getVoteSourceInfo();
 	_Ret_maybenull_ CvVoteSourceInfo* getVoteSourceInfo(VoteSourceTypes e);
 
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	int getNumEventInfos();
+	std::vector<CvModEventInfo*>& getEventInfo();
+	_Ret_maybenull_ CvModEventInfo* getEventInfo(EventTypes e);
+
+	int getNumEventChoiceInfos();
+	std::vector<CvModEventChoiceInfo*>& getEventChoiceInfo();
+	_Ret_maybenull_ CvModEventChoiceInfo* getEventChoiceInfo(EventChoiceTypes e);
+
+	int getNumCityEventInfos();
+	std::vector<CvModCityEventInfo*>& getCityEventInfo();
+	_Ret_maybenull_ CvModCityEventInfo* getCityEventInfo(CityEventTypes e);
+
+	int getNumCityEventChoiceInfos();
+	std::vector<CvModEventCityChoiceInfo*>& getCityEventChoiceInfo();
+	_Ret_maybenull_ CvModEventCityChoiceInfo* getCityEventChoiceInfo(CityEventChoiceTypes e);
+
+#endif
+
 	int getNumUnitCombatClassInfos();
 	std::vector<CvBaseInfo*>& getUnitCombatClassInfo();
 	_Ret_maybenull_ CvBaseInfo* getUnitCombatClassInfo(UnitCombatTypes e);
@@ -563,7 +588,6 @@ public:
 	_Ret_maybenull_ CvSmallAwardInfo* getSmallAwardInfo(SmallAwardTypes eSmallAwardNum);
 
 	CvNotificationXMLEntries* GetNotificationEntries();
-
 #if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
 	int getNumAchievementInfos();
 	std::vector<CvAchievementInfo*>& getAchievementInfo();
@@ -814,9 +838,21 @@ public:
 		return m_iAI_GS_SS_TECH_PROGRESS_MOD;
 	}
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	inline int getEVENT_MIN_DURATION_BETWEEN()
+	{
+		return m_iEVENT_MIN_DURATION_BETWEEN;
+	}
 	inline int getBALANCE_HAPPINESS_THRESHOLD_PERCENTILE()
 	{
 		return m_iBALANCE_HAPPINESS_THRESHOLD_PERCENTILE;
+	}
+	inline int getGLOBAL_RESOURCE_MONOPOLY_THRESHOLD()
+	{
+		return m_iGLOBAL_RESOURCE_MONOPOLY_THRESHOLD;
+	}
+	inline int getSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD()
+	{
+		return m_iSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD;
 	}
 #endif
 	inline int getAI_STRATEGY_EARLY_EXPLORATION_STARTING_WEIGHT()
@@ -7644,9 +7680,17 @@ public:
 	{
 		return m_iBALANCE_BUILDING_INVESTMENT_BASELINE;
 	}
+	inline int getBALANCE_UNIT_INVESTMENT_BASELINE()
+	{
+		return m_iBALANCE_UNIT_INVESTMENT_BASELINE;
+	}
 	inline int getOPEN_BORDERS_MODIFIER_TRADE_GOLD()
 	{
 		return m_iOPEN_BORDERS_MODIFIER_TRADE_GOLD;
+	}
+	inline float  getMOD_BALANCE_CORE_MINIMUM_RANKING_PTP()
+	{
+		return m_fMOD_BALANCE_CORE_MINIMUM_RANKING_PTP;
 	}
 #endif
 
@@ -8962,6 +9006,12 @@ protected:
 	std::vector<CvUnitClassInfo*> m_paUnitClassInfo;
 	std::vector<CvSpecialUnitInfo*> m_paSpecialUnitInfo;
 	std::vector<CvVoteSourceInfo*> m_paVoteSourceInfo;
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	std::vector<CvModEventInfo*> m_paEventInfo;
+	std::vector<CvModEventChoiceInfo*> m_paEventChoiceInfo;
+	std::vector<CvModCityEventInfo*> m_paCityEventInfo;
+	std::vector<CvModEventCityChoiceInfo*> m_paCityEventChoiceInfo;
+#endif
 	std::vector<CvBaseInfo*> m_paUnitCombatClassInfo;
 	std::vector<CvBaseInfo*> m_paUnitAIInfos;
 	std::vector<CvGameOptionInfo*> m_paGameOptionInfos;
@@ -9081,7 +9131,10 @@ protected:
 	int m_iAI_GS_SS_HAS_APOLLO_PROGRAM;
 	int m_iAI_GS_SS_TECH_PROGRESS_MOD;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int m_iEVENT_MIN_DURATION_BETWEEN;
 	int m_iBALANCE_HAPPINESS_THRESHOLD_PERCENTILE;
+	int m_iGLOBAL_RESOURCE_MONOPOLY_THRESHOLD;
+	int m_iSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD;
 #endif
 	int m_iAI_STRATEGY_EARLY_EXPLORATION_STARTING_WEIGHT;
 	int m_iAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR;
@@ -10902,7 +10955,9 @@ protected:
 	int m_iOPINION_WEIGHT_OPEN_BORDERS_THEM;
 	int m_iGWAM_THRESHOLD_DECREASE;
 	int m_iBALANCE_BUILDING_INVESTMENT_BASELINE;
+	int m_iBALANCE_UNIT_INVESTMENT_BASELINE;
 	int m_iOPEN_BORDERS_MODIFIER_TRADE_GOLD;
+	float m_fMOD_BALANCE_CORE_MINIMUM_RANKING_PTP;
 #endif
 	// -- floats --
 

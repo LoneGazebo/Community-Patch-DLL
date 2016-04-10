@@ -864,7 +864,7 @@ int CvTreasury::GetBuildingGoldMaintenance() const
 	iMaintenance /= 100;
 
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	if(MOD_BALANCE_CORE_BUILDING_RESOURCE_MAINTENANCE)
 	{
 		CvCity* pLoopCity;
 		int iLoop;
@@ -961,10 +961,11 @@ double CvTreasury::AverageIncome(int iTurns)
 		int iIndex = m_GoldChangeForTurnTimes100.size() - 1;
 		int iTotal = 0;
 
-		while(iSamples < iTurns)
+		while(iSamples < iTurns && iIndex > -1)
 		{
 			iTotal += m_GoldChangeForTurnTimes100[iIndex];
 			iSamples++;
+			iIndex--;
 		}
 
 		return ((double)iTotal / (double)iSamples / 100);

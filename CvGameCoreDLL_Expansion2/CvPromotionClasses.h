@@ -106,6 +106,15 @@ public:
 	int  GetCommandType() const;
 	void SetCommandType(int iNewType);
 
+#if defined(MOD_UNITS_NO_SUPPLY)
+	bool IsNoSupply() const;
+#endif
+
+#if defined(MOD_UNITS_MAX_HP)
+	int  GetMaxHitPointsChange() const;
+	int  GetMaxHitPointsModifier() const;
+#endif
+
 	int GetUpgradeDiscount() const;
 	int GetExperiencePercent() const;
 	int GetAdjacentMod() const;
@@ -320,6 +329,13 @@ protected:
 	int m_iFriendlyLandsAttackModifier;
 	int m_iOutsideFriendlyLandsModifier;
 	int m_iCommandType;
+#if defined(MOD_UNITS_NO_SUPPLY)
+	bool m_bNoSupply;
+#endif
+#if defined(MOD_UNITS_MAX_HP)
+	int m_iMaxHitPointsChange;
+	int m_iMaxHitPointsModifier;
+#endif
 	int m_iUpgradeDiscount;
 	int m_iExperiencePercent;
 	int m_iAdjacentMod;

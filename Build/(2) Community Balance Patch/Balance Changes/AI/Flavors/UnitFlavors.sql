@@ -1,0 +1,5 @@
+-- Mobile SAM -- reduce interest
+
+	UPDATE Unit_Flavors
+	SET Flavor = '15'
+	WHERE UnitType = 'UNIT_MOBILE_SAM' AND FlavorType = 'FLAVOR_ANTIAIR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );

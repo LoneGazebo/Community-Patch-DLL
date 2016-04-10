@@ -111,6 +111,12 @@ function OnVassalButton()
 	};
 end
 Controls.VassalButton:RegisterCallback(Mouse.eLClick, OnVassalButton);
+function OnCorpButton()
+	Events.SerialEventGameMessagePopup{ 
+		Type = ButtonPopupTypes.BUTTONPOPUP_MODDER_5,
+	};
+end
+Controls.CorpButton:RegisterCallback(Mouse.eLClick, OnCorpButton);
 --END
 
 -------------------------------------------------
@@ -481,7 +487,6 @@ DoUpdateEspionageButton();
 -- C4DF
 DoUpdateVassalButton();
 -- END
-
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 if( Game.IsGameMultiPlayer() ) then
@@ -564,7 +569,7 @@ function CheckVassalageStarted()
 		return (team:GetCurrentEra() >= Game.GetVassalageEnabledEra()) or team:IsVassalOfSomeone();
 	end
 
-	local bVassalStarted = TestVassalageStarted();
+	local bVassalStarted = false; --change here
 	Controls.VassalButton:SetHide(not bVassalStarted);
 	if(bVassalStarted) then
 		DoUpdateVassalButton();

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 3/31/2016 12:15:18 AM -->
+<GameData>
+	<Language_en_US>
+		<!-- Event System-->
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_HAS_ENDED">
+			<Text>The effects of an Event have worn off:[NEWLINE]{1_Event}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_HAS_ENDED_T">
+			<Text>An Event has ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_HAS_ENDED_CITY">
+			<Text>The effects of an Event in {2_City} have worn off:[NEWLINE]{1_Event}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_HAS_ENDED_CITY_T">
+			<Text>An Event in {1_City} has ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CANNOT_TAKE_TT">
+			<Text>[COLOR_WARNING_TEXT]You cannot take this Event Choice. Either you do not meet the requirements, or its effects are still active.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_PLAYER_EVENTS">
+			<Text>You have no active Player Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_CITY_EVENTS">
+			<Text>You have no active City Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_RECENT_EVENTS">
+			<Text>You have no recent Events</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_RECENT_EVENT_INFORMATION">
+			<Text>Recent Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RECENT_EVENT_TT">
+			<Text>Lists all recent Events that do not expire, are not unique, and/or did not include choices.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_YIELD_FROM_EVENTS">
+			<Text>{1_Num} {2_IconString} from Active Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CULTURE_FROM_EVENTS">
+			<Text>{1_Num} [ICON_CULTURE] from Active Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_EVENTS">
+			<Text>{1_Num} [ICON_PEACE] from Active Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_EVENT_MODIFIER">
+			<Text>{1_Num}% {2_Icon} {3_Name} from Active Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HIDE">
+			<Text>Hide</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HIDE_TT">
+			<Text>This hides the window, but does not dismiss the Event.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED">
+			<Text>'{3_Event}' did not occur. Your choice:[NEWLINE][NEWLINE]{1_EventChoice} ({2_EventChoiceHelp})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_T">
+			<Text>'{1_Event}' did not occur.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY">
+			<Text>{4_City}: '{3_Event}' did not occur. Your choice:[NEWLINE][NEWLINE]{1_EventChoice} ({2_EventChoiceHelp})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_T">
+			<Text>{2_City}: '{1_Event}' did not occur.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_TITLE">
+			<Text>Event in {1_City}: {2_Event}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HELP">
+			<Text>News from [COLOR_POSITIVE_TEXT]{1_City}[ENDCOLOR]:[NEWLINE][NEWLINE]{2_Event}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_IMPROVEMENT_DESTROYED_EVENT">
+			<Text>{2_Num} {1_Improvement}(s) pillaged near {3_City} due to Event Choice!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_BUILDING_DESTROYED_EVENT">
+			<Text>{1_Building} destroyed in {2_City} due to Event Choice!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_EVENT">
+			<Text>MAKE EVENT CHOICE</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_EVENT_TT">
+			<Text>An Event with multiple options has occurred, and awaits your decision.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_EVENT_CHOICE">
+			<Text>Player Event choice required</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_EVENT_CHOICE_TT">
+			<Text>An Event with multiple options has occurred, and awaits your decision.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_EVENT_CHOICE_CITY">
+			<Text>City Event choice required</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_EVENT_CHOICE_CITY_TT">
+			<Text>A City Event with multiple options has occurred, and awaits your decision.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_PLAYER_EVENTS_LOG">
+			<Text>Player Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CITY_EVENTS_LOG">
+			<Text>City Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_OVERVIEW">
+			<Text>Events Overview</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_INFORMATION">
+			<Text>Active Player Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_INFORMATION">
+			<Text>Active City Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_TURNS_REMAINING">
+			<Text>Turns Remaining: {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED">
+			<Text>{3_Value} {2_Icon} {1_Yield}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_SPECIALIST">
+			<Text>{2_Yield} Great {1_Name} Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION">
+			<Text>{1_Cost}{2_Yield}{3_City}{4_Turns}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_CITY_HEADER">
+			<Text>{1_Cost}{2_Yield}{3_City}{4_GPP}{5_Turns}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_SPENT">
+			<Text>[NEWLINE]Spent: {3_Value} {2_Icon} {1_Yield}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_INSTANT">
+			<Text>[NEWLINE]Instant Yield: {3_Value} {2_Icon} {1_Yield}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_CITY">
+			<Text>[NEWLINE]{3_Value} {2_Icon} {1_Yield} per turn in City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_GPP">
+			<Text>[NEWLINE]{2_Yield} Great {1_Name} Points in City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_TURNS">
+			<Text>[NEWLINE]Lasts for: {1_Turns} Turns.\</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_YIELD_DURATION">
+			<Text>{1_Num} Turns</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

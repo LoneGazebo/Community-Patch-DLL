@@ -2,6 +2,13 @@
 <!-- Created by ModBuddy on 3/2/2016 5:01:33 PM -->
 <GameData>
 	<Language_en_US>
+		<Row Tag="TXT_KEY_PROMOTION_HOVER_UNIT">
+			<Text>Hovering Unit</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_HOVER_UNIT_HELP">
+			<Text>Can move over all Terrain and Coastal tiles. Embarks on Ocean tiles.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_MARSH_WALKER">
 			<Text>Marsh Walkers</Text>
 		</Row>

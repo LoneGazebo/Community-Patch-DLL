@@ -1017,7 +1017,7 @@ bool CvAIOperation::CheckOnTarget()
 								pCenterOfMass = pThisArmy->GetCenterOfMass(IsNavalOperation() ? DOMAIN_SEA : DOMAIN_LAND);
 								if(pCenterOfMass && GetMusterPlot() != NULL &&
 									plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
-									pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 3 / 2))
+									pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= iGatherTolerance)
 								{
 									pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
 									m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
@@ -1030,7 +1030,7 @@ bool CvAIOperation::CheckOnTarget()
 							int iTargetTolerance = GetDeployRange();
 							pCenterOfMass = pThisArmy->GetCenterOfMass(IsNavalOperation() ? DOMAIN_SEA : DOMAIN_LAND);
 							if(pCenterOfMass && GetTargetPlot() != NULL && plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) <= iTargetTolerance
-							&& pThisArmy->GetFurthestUnitDistance(GetTargetPlot()) <= (iTargetTolerance * 3 / 2))
+							&& pThisArmy->GetFurthestUnitDistance(GetTargetPlot()) <= iTargetTolerance)
 							{
 								pAIOp->ArmyInPosition(pThisArmy);
 								return true;
@@ -1113,16 +1113,34 @@ bool CvAIOperation::CheckOnTarget()
 									for (int iSlot=1; iSlot<pThisArmy->GetNumSlotsFilled(); iSlot++)
 									{
 										pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetFormationSlot(iSlot)->GetUnitID());
-										if (pEscort && pCivilianPlot == pEscort->plot())
+										if(pEscort && pEscort->getDomainType() == DOMAIN_SEA)
 										{
-											int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
-											pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
-											if(pCenterOfMass && GetMusterPlot() &&
-												plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
-												pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 2))
+											if (pEscort && pCivilianPlot == pEscort->plot())
 											{
-												pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
-												m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+												int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
+												pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
+												if(pCenterOfMass && GetMusterPlot() &&
+													plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
+													pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= ((iGatherTolerance * 3) / 2))
+												{
+													pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+													m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+												}
+											}
+										}
+										else
+										{
+											if (pEscort)
+											{
+												int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
+												pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
+												if(pCenterOfMass && GetMusterPlot() &&
+													plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
+													pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= ((iGatherTolerance * 3) / 2))
+												{
+													pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+													m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+												}
 											}
 										}
 									}
@@ -1169,7 +1187,7 @@ bool CvAIOperation::CheckOnTarget()
 								pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
 								if(pCenterOfMass && GetTargetPlot() != NULL &&
 									plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) <= iTargetTolerance &&
-									pThisArmy->GetFurthestUnitDistance(GetTargetPlot()) <= (iTargetTolerance * 3 / 2))
+									pThisArmy->GetFurthestUnitDistance(GetTargetPlot()) <= iTargetTolerance)
 								{
 									pAIOp->ArmyInPosition(pThisArmy);
 									return true;
@@ -1235,7 +1253,7 @@ bool CvAIOperation::CheckOnTarget()
 								pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
 								if(pCenterOfMass && GetTargetPlot() != NULL &&
 										plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) <= iGatherTolerance &&
-										pThisArmy->GetFurthestUnitDistance(GetTargetPlot()) <= (iGatherTolerance * 3 / 2))
+										pThisArmy->GetFurthestUnitDistance(GetTargetPlot()) <= iGatherTolerance)
 										{
 											return true;
 										}
@@ -1400,6 +1418,13 @@ bool CvAIOperation::ShouldAbort()
 /// Allows an outside class to terminate the operation
 void CvAIOperation::SetToAbort(AIOperationAbortReason eReason)
 {
+#if defined(MOD_BALANCE_CORE)
+	if(eReason == AI_ABORT_LOST_TARGET || eReason == AI_ABORT_NO_ROOM_DEPLOY || eReason == AI_ABORT_NO_MUSTER || eReason == AI_ABORT_LOST_PATH)
+	{
+		/// Clear cached targets so we don't do this over and over.
+		GET_PLAYER(GetOwner()).GetMilitaryAI()->ClearCachedTargets();
+	}
+#endif
 	m_eCurrentState = AI_OPERATION_STATE_ABORTED;
 	m_eAbortReason = eReason;
 }
@@ -2371,6 +2396,7 @@ bool CvAIOperationDestroyBarbarianCamp::SetMusterPlotAndGoalPlotForArmy(CvArmyAI
 {
 	if(GetMusterPlot() && GetTargetPlot())
 	{
+		pThisArmy->SetXY(GetMusterPlot()->getX(), GetMusterPlot()->getY());
 		pThisArmy->SetGoalPlot(GetTargetPlot());
 		return true;
 	}
@@ -5258,13 +5284,13 @@ void CvAIOperationNavalSuperiority::Init(int iID, PlayerTypes eOwner, PlayerType
 			if(pTarget != NULL)
 			{		
 				SetTargetPlot(pTarget->plot());
-				CvPlot* pPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget->plot(), NULL);
-				if(pPlot != NULL && GetMusterPlot() != NULL)
+				CvPlot* pPlot2 = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget->plot(), NULL);
+				if(pPlot2 != NULL && GetMusterPlot() != NULL)
 				{
-					pArmyAI->SetGoalPlot(pPlot);
+					pArmyAI->SetGoalPlot(pPlot2);
 					pArmyAI->SetXY(GetMusterPlot()->getX(), GetMusterPlot()->getY());
 					SetTurnStarted(GC.getGame().getGameTurn());
-					SetTargetPlot(pPlot);
+					SetTargetPlot(pPlot2);
 				}
 				else
 				{
@@ -5314,7 +5340,7 @@ bool CvAIOperationNavalSuperiority::ArmyInPosition(CvArmyAI* pArmy)
 	case AI_OPERATION_STATE_MOVING_TO_TARGET:
 	{
 		// First do base case processing
-		bStateChanged = CvAIOperation::ArmyInPosition(pArmy);
+		bStateChanged = (GetTargetPlot() != NULL && GetTargetPlot()->getOwner() != m_eOwner && CvAIOperation::ArmyInPosition(pArmy));
 
 		// Now revisit target
 		CvPlot* possibleBetterTarget = FindBestTarget();
@@ -5332,7 +5358,8 @@ bool CvAIOperationNavalSuperiority::ArmyInPosition(CvArmyAI* pArmy)
 			SetTargetPlot(possibleBetterTarget);
 		}
 
-		if(plotDistance(pArmy->GetX(), pArmy->GetY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) <= 2)
+		//If this is a self-defense maneuver, let's not end it until the operation is cancelled.
+		if(GetTargetPlot() != NULL && GetTargetPlot()->getOwner() != m_eOwner && plotDistance(pArmy->GetX(), pArmy->GetY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) <= 2)
 		{
 			// Notify tactical AI to focus on this area
 			CvTemporaryZone zone;
@@ -5640,7 +5667,7 @@ void CvAIOperationNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 /// How far out from the target city do we want to gather?
 int CvAIOperationNavalOnlyCityAttack::GetDeployRange() const
 {
-	return 2;
+	return 3;
 }
 
 /// Returns true when we should abort the operation totally (besides when we have lost all units in it)
@@ -5660,7 +5687,7 @@ bool CvAIOperationNavalOnlyCityAttack::ShouldAbort()
 				// Success!  The city has been captured/destroyed
 				return true;
 			}
-			if(GetTargetPlot()->getWorkingCity() != NULL)
+			else if(GetTargetPlot()->getWorkingCity() != NULL)
 			{
 				if(GetTargetPlot()->getWorkingCity()->getOwner() != m_eEnemy)
 				{
@@ -6040,6 +6067,10 @@ bool CvAIOperationRapidResponse::VerifyTarget(CvArmyAI* pArmy)
 	case AI_OPERATION_STATE_GATHERING_FORCES:
 	{
 		RetargetDefensiveArmy(pArmy);
+		if(GetTargetPlot() != NULL)
+		{
+			return true;
+		}
 	}
 	break;
 

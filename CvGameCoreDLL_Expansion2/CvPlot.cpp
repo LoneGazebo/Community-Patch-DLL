@@ -3342,18 +3342,27 @@ bool CvPlot::IsAllowsWalkWater() const
 
 bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
 {
-	if (pUnit==NULL)
-		return isWater() && !isIce() && !IsAllowsWalkWater();
-	else
-	{
-		//only land units need to embark
-		if (pUnit->getDomainType()==DOMAIN_LAND)
-		{
-			return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canMoveImpassable();
-		}
-		else
-			return false;
-	}
+    if (pUnit==NULL)
+        return isWater() && !isIce() && !IsAllowsWalkWater();
+    else
+    {
+#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
+        if (pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain() && pUnit->IsEmbarkDeepWater())
+        {
+            return isDeepWater() && !isIce();
+        }
+        else if (pUnit->getDomainType()==DOMAIN_LAND)
+        {
+#else       
+        //only land units need to embark
+        if (pUnit->getDomainType()==DOMAIN_LAND)
+        {
+#endif      
+            return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canLoad(*this);
+        }
+        else
+            return false;
+    }
 }
 
 //	--------------------------------------------------------------------------------
@@ -7286,6 +7295,12 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		PlayerTypes owningPlayerID = getOwner();
 		if(eOldImprovement != NO_IMPROVEMENT)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(IsImprovementPillaged())
+			{
+				SetImprovementPillaged(false, false);
+			}
+#endif
 			CvImprovementEntry& oldImprovementEntry = *GC.getImprovementInfo(eOldImprovement);
 
 #if defined(MOD_BUGFIX_MINOR)
@@ -9048,6 +9063,30 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 	if(isMountain())
 	{
 		iYield += kYield.getMountainChange();
+#if defined(MOD_BALANCE_CORE)
+		if(ePlayer != NO_PLAYER && !IsNaturalWonder())
+		{
+			int iRangeYield = GET_PLAYER(ePlayer).GetPlayerTraits()->GetMountainRangeYield(eYield);
+			if(iRangeYield > 0)
+			{
+				int iNumMountainsAdjacent = 1;
+				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+					if(pAdjacentPlot != NULL && pAdjacentPlot->isMountain())
+					{
+						iNumMountainsAdjacent++;
+					}
+				}
+				if(iNumMountainsAdjacent > iRangeYield)
+				{
+					iNumMountainsAdjacent = iRangeYield;
+				}
+				iYield += iNumMountainsAdjacent;
+			}
+		}
+#endif
 	}
 
 	if(isLake())
@@ -9069,7 +9108,6 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 		}
 #endif
 	}
-
 	if(!bIgnoreFeature)
 	{
 		if(getFeatureType() != NO_FEATURE)
@@ -9215,7 +9253,27 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 			}
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(pWorkingCity != NULL)
+	{
+		if(getFeatureType() != NO_FEATURE)
+		{
+			iYield += pWorkingCity->GetEventFeatureYield(getFeatureType(), eYield);
+		}
+		if(getTerrainType() != NO_TERRAIN)
+		{
+			iYield += pWorkingCity->GetEventTerrainYield(getTerrainType(), eYield);
+		}
+		if(getImprovementType() != NO_IMPROVEMENT)
+		{
+			iYield += pWorkingCity->GetEventImprovementYield(getImprovementType(), eYield);
+		}
+		if(getResourceType() != NO_RESOURCE)
+		{
+			iYield += pWorkingCity->GetEventResourceYield(getResourceType(), eYield);
+		}
+	}
+#endif
 	if(eTeam != NO_TEAM)
 	{
 		eResource = getResourceType(eTeam);
@@ -10242,7 +10300,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 #if defined(MOD_BALANCE_CORE)
 					if(pUnit && pUnit->IsGainsXPFromScouting() && !GET_TEAM(eTeam).isBarbarian() && !GET_TEAM(eTeam).isMinorCiv())
 					{
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 						if(pUnit->getExperienceTimes100() < (GC.getBALANCE_SCOUT_XP_MAXIMUM() * 100))
 #else
 						if(pUnit->getExperience() < GC.getBALANCE_SCOUT_XP_MAXIMUM())

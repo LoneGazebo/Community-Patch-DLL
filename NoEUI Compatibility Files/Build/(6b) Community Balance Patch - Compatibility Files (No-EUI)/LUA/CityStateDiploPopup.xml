@@ -58,7 +58,7 @@
         </Label>
 
 		  <!-- Protection -->
-		  <Label ID="ProtectLabel" Anchor="L,T" Offset="-40,0" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="TXT_KEY_POP_CSTATE_PROTECTED_BY">
+		  <Label ID="ProtectLabel" Anchor="L,T" Offset="0,0" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="TXT_KEY_POP_CSTATE_PROTECTED_BY">
 			  <Label ID="ProtectInfo"  String="Information" WrapWidth="300" Anchor="R,T" AnchorSide="O.I" Offset="12,0"  Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" />
 		  </Label>
       </Stack>

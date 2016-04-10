@@ -237,6 +237,10 @@ bool isTeamUnitClass(UnitClassTypes eUnitClass);
 bool isNationalUnitClass(UnitClassTypes eUnitClass);
 bool isLimitedUnitClass(UnitClassTypes eUnitClass);
 
+#if defined(MOD_BALANCE_CORE)
+bool isUnitLimitPerCity(UnitClassTypes eUnitClass);
+#endif
+
 bool isWorldProject(ProjectTypes eProject);
 bool isTeamProject(ProjectTypes eProject);
 bool isLimitedProject(ProjectTypes eProject);

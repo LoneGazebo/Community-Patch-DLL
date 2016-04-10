@@ -2640,15 +2640,6 @@
 			<Text>Improvement Yield:</Text>
 		</Row>
 
-		<!-- Levy -->
-		<Row Tag="TXT_KEY_NOTIFICATION_VASSAL_LEVY">
-			<Text>Because you have entered a new Era, your Vassals have sent you {1_Num} Unit(s) as part of their tribute.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_VASSAL_LEVY_SUMMARY">
-			<Text>Vassal Tribute!</Text>
-		</Row>
-
-
 		<!-- Score Text -->
 		<Row Tag="TXT_KEY_DIPLO_MY_SCORE_ALLIES">
 			<Text>{1_Num} from City-State Alliances</Text>
@@ -5628,26 +5619,6 @@
 			<Text>You need to improve your pathetic trading skils. There is no way we can match your offer.</Text>
 		</Row>
 
-		<!-- C4DF Compatibility -->
-		<Row Tag="TXT_KEY_TP_HAPPINESS_VASSALS">
-			<Text>{1_Num} from Vassal Happiness.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TP_CULTURE_VASSALS">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from Vassals.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TP_SCIENCE_VASSALS">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] [ICON_RESEARCH] from Vassals.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TP_GOLD_VASSALS">
-			<Text>{1_Num} from Vassals.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TP_FAITH_VASSALS">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from Vassals.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_HAPPINESS_FROM_VASSALS">
-			<Text>Vassals</Text>
-		</Row>
-
 		<!-- Intrigue sharing (co-op wars)-->
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU_TT">
 			<Text>Choosing this option will alert {2_CivName:textkey} to the war preparations of {1_CivName:textkey}. This is a breach of diplomatic secrecy, which will anger {1_CivName:textkey} and please {2_CivName:textkey}!</Text>
@@ -5662,6 +5633,26 @@
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_TOURISM">
 			<Text>Global [ICON_TOURISM] Tourism Modifiers adjusted by {1_UnitMaintenancePercent}%.</Text>
+		</Row>
+		
+		<!-- Unit Thing for Limits -->
+		<Row Tag="TXT_KEY_NO_ACTION_PLAYER_CITY_COUNT_MAX">
+			<Text>[NEWLINE]Only {1_Num} allowed per player city.</Text>
+		</Row>
+
+		<!-- Ocean Embarkation Stuff -->
+		<Row Tag="TXT_KEY_PROMOTION_DEEPWATER_EMBARKATION">
+			<Text>Ocean Embarkation</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DEEPWATER_EMBARKATION_HELP">
+			<Text>Permits hovering units to embark at the coastal/ocean boundary.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION">
+			<Text>Ocean Embarkation with Defense</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION_HELP">
+			<Text>Permits hovering units to embark at the coastal/ocean boundary. Embarked units receive a defensive bonus.</Text>
 		</Row>
 
 		<!-- MP Denounce -->
@@ -5842,22 +5833,22 @@
 			<Text>{1_ReligionName} has become your new majority [ICON_RELIGION] Religion. This shift in religious status may affect your relationship with other Civilizations, as well as your own population.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_STATE_RELIGION_S">
-			<Text>{1_ReligionName} now your [ICON_RELIGION] official Religion!</Text>
+			<Text>{1_ReligionName} now your [ICON_RELIGION] primary Religion!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_RELIGION_NEW_PLAYER_STATE_RELIGION">
-			<Text>{1_ReligionName} is now your official [ICON_RELIGION] Religion. You alone will benefit from Founder and Reformation Beliefs related to {1_ReligionName}, and any Founder or Reformation Beliefs related to prior [ICON_RELIGION] Religions are no longer valid.</Text>
+			<Text>{1_ReligionName} is now your primary [ICON_RELIGION] Religion. You alone will benefit from Founder and Reformation Beliefs related to {1_ReligionName}, and any Founder or Reformation Beliefs related to prior [ICON_RELIGION] Religions are no longer valid.</Text>
 		</Row>
 
 		<!-- Holy City Lost/Gained-->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_LOST_HOLY">
-			<Text>The Holy City of {1_CityName:textkey} was captured by {@2_CivName}! If {@2_CivName} is eliigble, {3_Religion} may become their official Religion, thus giving them access to its Founder and Reformation Bonuses. If {3_Religion} was your official Religion, you lose access to its Beliefs until you retake it.</Text>
+			<Text>The Holy City of {1_CityName:textkey} was captured by {@2_CivName}! If {@2_CivName} is eliigble, {3_Religion} may become their primary Religion, thus giving them access to its Founder and Reformation Bonuses. If {3_Religion} was your primary Religion, you lose access to its Beliefs until you retake it.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST_HOLY">
 			<Text>Holy City of {1_CityName:textkey} captured!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_GAINED_HOLY">
-			<Text>You captured the Holy City of {1_CityName:textkey}! If eligible, {2_Religion} may become your official relgion, thus giving you access to the Founder and Reformation Belief bonuses associated with it (so long as you retain control of the City).</Text>
+			<Text>You captured the Holy City of {1_CityName:textkey}! If eligible, {2_Religion} may become your primary relgion, thus giving you access to the Founder and Reformation Belief bonuses associated with it (so long as you retain control of the City).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_GAINED_HOLY">
 			<Text>Holy City of {1_CityName:textkey} taken!</Text>
@@ -6284,6 +6275,9 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD">
 			<Text>Empire-Wide Bonus Yields</Text>
 		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD_EMPIRE">
+			<Text>Bonus Yields Update</Text>
+		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD_IN_CITY">
 			<Text>Bonus Yields in {1_City}!</Text>
 		</Row>
@@ -6292,6 +6286,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_DETAILS">
 			<Text>+{3_Num} {2_Icon} {1_Name}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_ADDENDUM">
+			<Text>[NEWLINE]{1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH">
 			<Text>Birth of a [ICON_CITIZEN] Citizen:[NEWLINE]{1_YieldString}</Text>
@@ -6368,5 +6365,31 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_MOVEMENT">
 			<Text>Movement of a [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+
+		<!-- Tooltip for Investments in cities -->
+		<Row Tag="TXT_KEY_ALREADY_INVESTED">
+			<Text>[NEWLINE]You have already invested [ICON_GOLD] Gold in this building. This building's [ICON_PRODUCTION] Production cost is reduced by {1_Num}%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ALREADY_INVESTED_UNIT">
+			<Text>[NEWLINE]You have already invested [ICON_GOLD] Gold in this unit. This unit's [ICON_PRODUCTION] Production cost is reduced by {1_Num}%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_UNIT_REQUIRES_BUILDING_PURCHASE">
+			<Text>[NEWLINE]You cannot [ICON_GOLD] Purchase this Unit without {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_BuildingType}} constructed in the city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_INVESTMENT_BUILDING">
+			<Text>[COLOR_POSITIVE_TEXT]Investing [ICON_GOLD] Gold in a Building reduces its [ICON_PRODUCTION] Production cost by {1_Num}%, or {2_Num}% if a Wonder.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_INVESTMENT_UNIT">
+			<Text>[COLOR_POSITIVE_TEXT]Investing [ICON_GOLD] Gold in a Unit reduces its [ICON_PRODUCTION] Production cost by {1_Num}%.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INVESTED">
+			<Text>[COLOR_POSITIVE_TEXT] (INVESTED) [ENDCOLOR]</Text>
+		</Row>
 	</Language_en_US>
+	<PostDefines>
+		<Row Name="PROMOTION_DEEPWATER_EMBARKATION">
+			<Key>PROMOTION_DEEPWATER_EMBARKATION</Key>
+			<Table>UnitPromotions</Table>
+		</Row>
+	</PostDefines>
 </GameData>

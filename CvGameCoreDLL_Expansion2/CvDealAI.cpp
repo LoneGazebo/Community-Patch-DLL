@@ -269,8 +269,12 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		m_pPlayer->GetDiplomacyAI()->ClearDealToRenew();
 	}
 
-	GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
-	GC.getGame().GetGameDeals()->FinalizeDeal(eFromPlayer, GetPlayer()->GetID(), true);
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	GC.getGame().GetGameDeals().FinalizeDeal(kDeal, true);
+#else
+	GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+	GC.getGame().GetGameDeals().FinalizeDeal(eFromPlayer, GetPlayer()->GetID(), true);
+#endif
 
 	if(GET_PLAYER(eFromPlayer).isHuman())
 	{
@@ -628,12 +632,16 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 void CvDealAI::DoAcceptedDemand(PlayerTypes eFromPlayer, const CvDeal& kDeal)
 {
 	CvGame& kGame = GC.getGame();
-	CvGameDeals* pGameDeals = kGame.GetGameDeals();
+	CvGameDeals& kGameDeals = kGame.GetGameDeals();
 	const PlayerTypes eActivePlayer = kGame.getActivePlayer();
 	const PlayerTypes ePlayer = GetPlayer()->GetID();
 
-	pGameDeals->AddProposedDeal(kDeal);
-	pGameDeals->FinalizeDeal(eFromPlayer, ePlayer, true);
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	kGameDeals.FinalizeDeal(kDeal, true);
+#else
+	kGameDeals.AddProposedDeal(kDeal);
+	kGameDeals.FinalizeDeal(eFromPlayer, ePlayer, true);
+#endif
 	if(eActivePlayer == eFromPlayer || eActivePlayer == ePlayer)
 	{
 		GC.GetEngineUserInterface()->makeInterfaceDirty();
@@ -987,12 +995,12 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 	}
 
 	// If we set this pointer again it clears the data out!
-	if(pDeal != GC.getGame().GetGameDeals()->GetTempDeal())
+	if(pDeal != GC.getGame().GetGameDeals().GetTempDeal())
 	{
-		GC.getGame().GetGameDeals()->SetTempDeal(pDeal);
+		GC.getGame().GetGameDeals().SetTempDeal(pDeal);
 	}
 
-	CvDeal* pCounterDeal = GC.getGame().GetGameDeals()->GetTempDeal();
+	CvDeal* pCounterDeal = GC.getGame().GetGameDeals().GetTempDeal();
 
 	if(!bMakeOffer)
 	{
@@ -1758,7 +1766,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		{
 			if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 			{
-				iItemValue += (iResourceQuantity * iNumTurns * 35 / 100);
+				iItemValue += (iResourceQuantity * iNumTurns * 25 / 100);
 				//We already have it and we use it.
 				if(((GetPlayer()->getNumResourceAvailable(eResource, true) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0)))
 				{
@@ -2202,10 +2210,10 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	CvPlayer& buyingPlayer = GET_PLAYER(bFromMe ? eOtherPlayer : GetPlayer()->GetID());
 
 	//initial value - if we founded the city, we like it more
-	int iItemValue = (pCity->getOriginalOwner() == buyingPlayer.GetID()) ? 2000 : 1000;
+	int iItemValue = (pCity->getOriginalOwner() == buyingPlayer.GetID()) ? 6000 : 4000;
 
 	//economic value is important
-	iItemValue += (pCity->getEconomicValue(buyingPlayer.GetID()) / 10);
+	iItemValue += (pCity->getEconomicValue(buyingPlayer.GetID()) / 8);
 
 	//first some amount for the territory
 	int iInternalBorderCount = 0;
@@ -4411,7 +4419,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			}
 			int iVotesNeeded = 0;
 			int iTheirVotes = pLeague->CalculateStartingVotesForMember(eOtherPlayer);
-			
+
 			PlayerTypes eLoopPlayer;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
@@ -4521,6 +4529,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 		if(pLeague)
 		{
 			int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
+			int iTheirVotes = pLeague->CalculateStartingVotesForMember(eOtherPlayer);
 			//We shouldn't ask them to vote on things that have to do with them personally.
 			CvEnactProposal* pProposal = pLeague->GetEnactProposal(iProposalID);
 			if (pProposal != NULL)
@@ -4539,8 +4548,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				}
 				//Let's look real quick to see if this is the world leader vote. If so, BUY EVERYTHING WE CAN if we can win with their votes in tow.
 				if(pProposal->GetEffects()->bDiplomaticVictory)
-				{
-					int iTheirVotes = pLeague->CalculateStartingVotesForMember(eOtherPlayer);
+				{			
 					int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
 					if((iOurVotes + iTheirVotes) >= iVotesNeededToWin)
 					{
@@ -4654,8 +4662,10 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 
 	iValue = MAX(iValue, 0);
 
+#if !defined(MOD_BALANCE_CORE)
 	// Adjust based on how many votes
 	iValue *= iNumVotes;
+#endif
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	if (bUseEvenValue)
@@ -7001,22 +7011,17 @@ void CvDealAI::DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal)
 	int iPeaceDuration = GC.getGame().getGameSpeedInfo().getPeaceDealDuration();
 	PlayerTypes eMinor;
 	CvPlayer* pMinor;
-#if defined(MOD_BALANCE_CORE)
-	for(int iMinorLoop = 0; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-#else
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-#endif
 	{
 		eMinor = (PlayerTypes) iMinorLoop;
-		pMinor = &GET_PLAYER(eMinor);
 #if defined(MOD_BALANCE_CORE)
 		if(eMinor == NO_PLAYER)
 		{
 			continue;
 		}
-		if(pMinor->isMinorCiv())
-		{
 #endif
+		pMinor = &GET_PLAYER(eMinor);
+
 		// Minor not alive?
 		if(!pMinor->isAlive())
 			continue;
@@ -7074,9 +7079,6 @@ void CvDealAI::DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal)
 				pDeal->AddThirdPartyPeace(eToPlayer, pMinor->getTeam(), iPeaceDuration);
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
 	}
 }
 
@@ -7966,7 +7968,7 @@ void CvDealAI::DoTradeScreenOpened()
 			CvDeal* pkUIDeal = GC.UnwrapDealPointer(pUIDeal.get());
 			pkUIDeal->ClearItems();
 
-			CvDeal* pDeal = GC.getGame().GetGameDeals()->GetTempDeal();
+			CvDeal* pDeal = GC.getGame().GetGameDeals().GetTempDeal();
 			pDeal->ClearItems();
 			pDeal->SetFromPlayer(eActivePlayer);	// The order of these is very important!
 			pDeal->SetToPlayer(eMyPlayer);	// The order of these is very important!

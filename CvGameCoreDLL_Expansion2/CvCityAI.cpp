@@ -212,7 +212,152 @@ void CvCityAI::AI_ChangeNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer, int i
 
 	m_aiNumPlotsAcquiredByOtherPlayers[ePlayer] += iChange;
 }
+#if defined(MOD_BALANCE_CORE_EVENTS)
+void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
+{
+	if(eChosenEvent != NO_EVENT)
+	{
+		CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eChosenEvent);
+		if(pkEventInfo != NULL)
+		{
 
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString playerName;
+				FILogFile* pLog;
+				CvString strBaseString;
+				CvString strOutBuf;
+				CvString strFileName = "CityEventLogging.csv";
+				playerName = getNameKey();
+				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += playerName + ", ";
+				strOutBuf.Format("AI considering Event choices for City: %s", pkEventInfo->GetDescription());
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
+			//Lua Hook
+			if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_OverrideAICityEventChoice, getOwner(), GetID(), eChosenEvent) == GAMEEVENTRETURN_TRUE) 
+			{
+				return;
+			}
+			// Now let's get the event flavors.
+			CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS * 2, true> flavorChoices;
+			for(int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
+			{
+				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
+				if(eEventChoice != NO_EVENT_CHOICE_CITY)
+				{
+					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+					if(pkEventChoiceInfo != NULL)
+					{
+						if(IsCityEventChoiceValid(eEventChoice, eChosenEvent))
+						{
+							for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
+							{
+								if(pkEventChoiceInfo->getFlavorValue(iFlavor) > 0)
+								{
+									int iOurFlavor = GET_PLAYER(getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavor);
+									iOurFlavor += pkEventChoiceInfo->getFlavorValue(iFlavor);
+									flavorChoices.push_back(eEventChoice, iOurFlavor);
+								}
+							}
+						}
+					}
+				}
+			}
+			if(flavorChoices.size() > 0)
+			{
+				//sort em!
+				flavorChoices.SortItems();
+				
+				//And grab the top selection.
+				CityEventChoiceTypes eBestEventChoice = (CityEventChoiceTypes)flavorChoices.GetElement(0);
+
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eBestEventChoice);
+					if(pkEventChoiceInfo != NULL)
+					{
+						CvString playerName;
+						FILogFile* pLog;
+						CvString strBaseString;
+						CvString strOutBuf;
+						CvString strFileName = "CityEventLogging.csv";
+						playerName = getNameKey();
+						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+						strBaseString += playerName + ", ";
+						strOutBuf.Format("AI made a flavor event choice for a City: %s", pkEventChoiceInfo->GetDescription());
+						strBaseString += strOutBuf;
+						pLog->Msg(strBaseString);
+					}
+				}
+
+				//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
+				if(eBestEventChoice != NO_EVENT_CHOICE)
+				{
+					DoEventChoice(eBestEventChoice);
+					return;
+				}
+			}
+			//If we got here, it is because we haven't made a choice yet. Do so now.
+			CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> randomChoices;
+			for(int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
+			{
+				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
+				if(eEventChoice != NO_EVENT_CHOICE_CITY)
+				{
+					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+					if(pkEventChoiceInfo != NULL)
+					{
+						if(IsCityEventChoiceValid(eEventChoice, eChosenEvent))
+						{
+							int iRandom = GC.getGame().getJonRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
+							if(iRandom <= 0)
+							{
+								iRandom = 1;
+							}
+							randomChoices.push_back(eEventChoice, iRandom);
+						}
+					}
+				}
+			}
+			randomChoices.SortItems();
+				
+			//And grab the top selection.
+			CityEventChoiceTypes eBestEventChoice = (CityEventChoiceTypes)randomChoices.GetElement(0);
+
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eBestEventChoice);
+				if(pkEventChoiceInfo != NULL)
+				{
+					CvString playerName;
+					FILogFile* pLog;
+					CvString strBaseString;
+					CvString strOutBuf;
+					CvString strFileName = "CityEventLogging.csv";
+					playerName = getNameKey();
+					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					strBaseString += playerName + ", ";
+					strOutBuf.Format("AI made a random event choice for City: %s", pkEventChoiceInfo->GetDescription());
+					strBaseString += strOutBuf;
+					pLog->Msg(strBaseString);
+				}
+			}
+
+			//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
+			if(eBestEventChoice != NO_EVENT_CHOICE)
+			{
+				DoEventChoice(eBestEventChoice);
+				return;
+			}
+		}
+	}
+}
+#endif
 
 //
 //

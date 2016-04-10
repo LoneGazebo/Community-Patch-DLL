@@ -297,7 +297,7 @@ int CvDeal::GetGoldAvailable(PlayerTypes ePlayer, TradeableItems eItemToBeChange
 		{
 			if(it->m_eFromPlayer == ePlayer)
 			{
-				iGoldCost = GC.getGame().GetGameDeals()->GetTradeItemGoldCost(it->m_eItemType, m_eFromPlayer, m_eToPlayer);
+				iGoldCost = GC.getGame().GetGameDeals().GetTradeItemGoldCost(it->m_eItemType, m_eFromPlayer, m_eToPlayer);
 
 				if(iGoldCost != 0)		// Negative cost valid?  Maybe ;-O
 				{
@@ -339,7 +339,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	int iGoldAvailable = GetGoldAvailable(ePlayer, eItem);
 
 	// Some items require gold be spent (e.g. Research and Trade Agreements)
-	int iCost = GC.getGame().GetGameDeals()->GetTradeItemGoldCost(eItem, ePlayer, eToPlayer);
+	int iCost = GC.getGame().GetGameDeals().GetTradeItemGoldCost(eItem, ePlayer, eToPlayer);
 	if(iCost > 0 && iGoldAvailable < iCost)
 		return false;
 
@@ -908,7 +908,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					//It is a peace treaty? We only want allied CSs in here.
 					else if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer) || this->GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
 					{
-						if(pOtherPlayer->GetMinorCivAI()->GetAlly() != eToPlayer || pOtherPlayer->GetMinorCivAI()->GetAlly() != ePlayer)
+						if(pOtherPlayer->GetMinorCivAI()->GetAlly() != eToPlayer)
 							return false;
 					}
 				}
@@ -931,15 +931,18 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					//Either side can't make peace yet?
 					if(!pOtherPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(pFromPlayer->GetID()))
 						return false;
+
+					int iTurns = 30;
+					if(GET_TEAM(pOtherPlayer->getTeam()).GetNumTurnsAtWar(pFromPlayer->getTeam()) <= iTurns)
+						return false;
 				
 					//Only matters if not a peace deal (i.e. we're not making negotiations)
 					if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 					{
 						//Can't force third party peace with a loser. Has to be a sizeable difference
 						int iFromWarScore = pFromPlayer->GetDiplomacyAI()->GetWarScore(pOtherPlayer->GetID());
-						int iOtherWarScore = pOtherPlayer->GetDiplomacyAI()->GetWarScore(pFromPlayer->GetID());
 
-						if((iFromWarScore + 10) <= iOtherWarScore)
+						if(iFromWarScore <= 0)
 							return false;
 					}
 				}
@@ -2746,6 +2749,25 @@ void CvGameDeals::Init()
 /// Save off a new deal that has been agreed to
 void CvGameDeals::AddProposedDeal(CvDeal kDeal)
 {
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	PlayerTypes eFrom = kDeal.GetFromPlayer();
+	PlayerTypes eTo = kDeal.GetToPlayer();
+
+	if (CvPreGame::isHuman(eFrom) && CvPreGame::isHuman(eTo))
+	{
+		// only one deal from Human to Human
+		CvDeal kRemovedDeal;
+		while (RemoveProposedDeal(eFrom, eTo, &kRemovedDeal, true))
+		{//deal from eCancelPlayer
+			FinalizeDeal(kRemovedDeal, false);
+		}
+		while (RemoveProposedDeal(eTo, eFrom, &kRemovedDeal, true))
+		{//deal to eCancelPlayer
+			FinalizeDeal(kRemovedDeal, false);
+		}
+	}
+#endif
+
 	// Store Deal away
 	m_ProposedDeals.push_back(kDeal);
 
@@ -2756,6 +2778,62 @@ void CvGameDeals::AddProposedDeal(CvDeal kDeal)
 		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	}
 }
+
+#if defined(MOD_ACTIVE_DIPLOMACY)
+/// Removes a deal from the proposed deals list (returns FALSE if deal not found)
+bool CvGameDeals::RemoveProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pDealOut, bool latest)
+{
+	CvDeal* pDeal = GetProposedDeal(eFromPlayer, eToPlayer, latest);
+
+	if (!pDeal)
+		return false;
+
+	if (pDealOut)
+	{
+		*pDealOut = *pDeal;
+	}
+
+	m_ProposedDeals.erase(pDeal);
+
+	return true;
+}
+bool CvDeal::AreAllTradeItemsValid()
+{
+	TradedItemList::iterator iter;
+	for (iter = m_TradedItems.begin(); iter != m_TradedItems.end(); ++iter)
+	{
+		if (iter->m_bToRenewed)  // slewis - added exception in case of something that was renewed
+		{
+			continue;
+		}
+
+		if (!IsPossibleToTradeItem(iter->m_eFromPlayer, GetOtherPlayer(iter->m_eFromPlayer), iter->m_eItemType, iter->m_iData1, iter->m_iData2, iter->m_iData3, iter->m_bFlag1, false, true))
+			return false;
+	}
+	return true;
+}
+
+/// Moves a deal from the proposed list to the active one (returns FALSE if deal is not valid)
+bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted, bool latest)
+{
+	CvDeal kDeal;
+	if (!RemoveProposedDeal(eFromPlayer, eToPlayer, &kDeal, latest))
+	{
+		LogDealFailed(NULL, false, !bAccepted, false);
+		return false;
+	}
+	return FinalizeDeal(kDeal, bAccepted);
+}
+/// Moves a deal from the proposed list to the active one (returns FALSE if deal not valid)
+bool CvGameDeals::FinalizeDeal(CvDeal kDeal, bool bAccepted)
+{
+	PlayerTypes eFromPlayer = kDeal.m_eFromPlayer;
+	PlayerTypes eToPlayer = kDeal.m_eToPlayer;
+	bool bFoundIt = true;
+	bool bValid = kDeal.AreAllTradeItemsValid();
+	CvWeightedVector<TeamTypes, MAX_CIV_TEAMS, true> veNowAtPeacePairs; // hacked CvWeighedVector to keep track of third party minors that this deal makes at peace
+	{
+#else
 #if defined(MOD_BALANCE_CORE)
 void CvGameDeals::EraseDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
@@ -2790,26 +2868,15 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 		if(dealIt->m_eFromPlayer == eFromPlayer && dealIt->m_eToPlayer == eToPlayer)
 		{
 			kDeal = *dealIt;
-#if defined(MOD_BALANCE_CORE)
-			// JdH => slight perfomance improvement
-			m_ProposedDeals.erase(dealIt); // we can use this function, if we reduce the iterator (as it gets increased again)
-			--dealIt; // the iterator is a plain data pointer, so we can just decrease it.
-			// JdH <=
+			// EFB: once we can use list containers in AutoVariables, go back to this way of deleting
+			//			m_ProposedDeals.erase(dealIt);
 			bFoundIt = true;
-
-			// how about we break here? If we want the last deal in here (why should there be more than one?) we could just reverse iterate. --- JdH
-			// Update: No break here, because PvP deals can cause multiple deals and we need to pick the latest.
-#else
-// EFB: once we can use list containers in AutoVariables, go back to this way of deleting
-//			m_ProposedDeals.erase(dealIt);
-			bFoundIt = true;
-#endif
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
 	if(!bFoundIt)
 	{
-		LogDealFailed(&kDeal, false, false, false, true);
+		LogDealFailed(NULL, false, !bAccepted, false);
 	}
 	if(bFoundIt && bAccepted)
 #else
@@ -2832,14 +2899,13 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 #if defined(MOD_BALANCE_CORE)
 				if(!bValid)
 				{
-					LogDealFailed(&kDeal, false, true, false, false);
+					LogDealFailed(&kDeal, false, !bAccepted, true);
 				}
 #endif
 				break;
 			}
 		}
 
-#if !defined(MOD_BALANCE_CORE)
 		// **** START HACK ****
 		// EFB: temporary delete method; recopy vector without this element
 		//
@@ -2860,11 +2926,11 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 			}
 		}
 		// **** END HACK ****
-#endif
+#endif // MOD_ACTIVE_DIPLOMACY
 #if defined(MOD_BALANCE_CORE)
 		if(!bValid || !bAccepted)
 		{
-			LogDealFailed(&kDeal, false, false, true, false);
+			LogDealFailed(&kDeal, false, !bAccepted, true);
 		}
 #endif
 
@@ -3015,7 +3081,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				if(it->m_bToRenewed)
 				{
 #if defined(MOD_BALANCE_CORE)
-					LogDealFailed(&kDeal, true, false, false, false);
+					LogDealFailed(&kDeal, true, !bAccepted, false);
 #endif
 					continue;
 				}
@@ -3549,8 +3615,8 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 		}
 	}
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	GET_PLAYER(dealIt->m_eFromPlayer).GetDiplomacyRequests()->CheckValidity();
-	GET_PLAYER(dealIt->m_eToPlayer).GetDiplomacyRequests()->CheckValidity();
+	GET_PLAYER(eFromPlayer).GetDiplomacyRequests()->CheckValidity();
+	GET_PLAYER(eFromPlayer).GetDiplomacyRequests()->CheckValidity();
 #endif
 
 	return bFoundIt && bValid;
@@ -3697,6 +3763,21 @@ PlayerTypes CvGameDeals::HasMadeProposal(PlayerTypes ePlayer)
 	return NO_PLAYER;
 }
 
+#if defined(MOD_ACTIVE_DIPLOMACY)
+CvDeal* CvGameDeals::GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool latest)
+{
+	int start = latest ? m_ProposedDeals.size() - 1 : 0;
+	int end = latest ? -1 : m_ProposedDeals.size();
+	int inc = latest ? -1 : 1;
+	for (int i = start; i != end; i += inc) {
+		CvDeal* pDeal = &m_ProposedDeals[i];
+		if (pDeal->GetFromPlayer() == eFromPlayer && pDeal->GetToPlayer() == eToPlayer)
+			return pDeal;
+	}
+
+	return NULL;
+}
+#else
 bool CvGameDeals::ProposedDealExists(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
 	if(m_ProposedDeals.size() > 0)
@@ -3724,6 +3805,7 @@ CvDeal* CvGameDeals::GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPla
 
 	return NULL;
 }
+#endif
 
 
 /// If a deal has actually ended, move it from the current list to the historic list
@@ -3898,13 +3980,14 @@ void CvGameDeals::DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer, 
 			|| (eTargetPlayers == DIPLO_ALL_PLAYERS)
 			|| (eLoopPlayer == static_cast<PlayerTypes>(eTargetPlayers)))
 		{
-			if (GetProposedDeal(eCancelPlayer, eLoopPlayer))
+			CvDeal kDeal;
+			while (RemoveProposedDeal(eCancelPlayer, eLoopPlayer, &kDeal, true))
 			{//deal from eCancelPlayer
-				FinalizeDeal(eCancelPlayer, eLoopPlayer, false);
+				FinalizeDeal(kDeal, false);
 			}
-			if (GetProposedDeal(eLoopPlayer, eCancelPlayer))
+			while (RemoveProposedDeal(eLoopPlayer, eCancelPlayer, &kDeal, true))
 			{//deal to eCancelPlayer
-				FinalizeDeal(eLoopPlayer, eCancelPlayer, false);
+				FinalizeDeal(kDeal, false);
 			}
 		}
 	}
@@ -4315,7 +4398,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 		CvString strOutBuf;
 		CvString strBaseString;
 
-		CvString playerName;
+		CvString playerName = GET_PLAYER(pDeal->GetFromPlayer()).getCivilizationShortDescription();
 		CvString otherPlayerName;
 
 		CvString strTemp;
@@ -4518,16 +4601,16 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 	}
 }
 #if defined(MOD_BALANCE_CORE)
-void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bCannotTrade, bool bNotValid, bool bOther)
+void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted, bool bNotValid)
 {
-	if(GC.getLogging() && GC.getAILogging())
+	if(GC.getLogging() && GC.getAILogging() && pDeal)
 	{
 		CvString strLogName;
 
 		CvString strOutBuf;
 		CvString strBaseString;
 
-		CvString playerName;
+		CvString playerName = GET_PLAYER(pDeal->GetFromPlayer()).getCivilizationShortDescription();
 		CvString otherPlayerName;
 
 		CvString strTemp;
@@ -4553,25 +4636,25 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bCannotTrade,
 
 		if(bNoRenew)
 		{
-			strOutBuf = strBaseString + ", FAILED: NOT RENEWED, ";
+			strOutBuf = strBaseString + "FAILED: NOT RENEWED, ";
 		}
-		else if(bCannotTrade)
+		if(bNotAccepted)
 		{
-			strOutBuf = strBaseString + ", FAILED: CANNOT TRADE ITEM, ";
+			strOutBuf = strBaseString + "NOT ACCEPTED, ";
 		}
-		else if(bNotValid)
+		if(bNotValid)
 		{
-			strOutBuf = strBaseString + ", FAILED: NOT VALID DEAL, ";
+			strOutBuf = strBaseString + "FAILED: NOT A VALID DEAL, ";
 		}
-		else if(bOther)
+		if(pDeal == NULL)
 		{
-			strOutBuf = strBaseString + ", FAILED: NO DEAL FOUND, ";
+			strOutBuf = strBaseString + "FAILED: NO DEAL FOUND";
 			pLog->Msg(strOutBuf);
 			return;
 		}
-		else
+		else if (!(bNoRenew || bNotAccepted || bNotValid))
 		{
-			strOutBuf = strBaseString + ", FAILED: UNKNOWN, ";
+			strOutBuf = strBaseString + "FAILED: UNKNOWN, ";
 		}
 
 		TradedItemList::iterator itemIter;
@@ -4887,11 +4970,23 @@ FDataStream& OldLoad(FDataStream& loadFrom, CvGameDeals& writeTo)
 
 	writeTo.m_ProposedDeals.clear();
 	loadFrom >> iEntriesToRead;
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	for (int iI = 0; iI < iEntriesToRead; iI++)
+	{
+		loadFrom >> tempItem;
+		if (CvPreGame::isHuman(tempItem.GetFromPlayer()) && CvPreGame::isHuman(tempItem.GetToPlayer())) 
+		{
+			// only load human to humand deals until other problems are fixed
+			writeTo.m_ProposedDeals.push_back(tempItem);
+		}
+	}
+#else
 	for(int iI = 0; iI < iEntriesToRead; iI++)
 	{
 		loadFrom = OldLoad(loadFrom, tempItem);
 		writeTo.m_ProposedDeals.push_back(tempItem);
 	}
+#endif
 
 	writeTo.m_CurrentDeals.clear();
 	loadFrom >> iEntriesToRead;
@@ -4924,11 +5019,23 @@ FDataStream& operator>>(FDataStream& loadFrom, CvGameDeals& writeTo)
 
 	writeTo.m_ProposedDeals.clear();
 	loadFrom >> iEntriesToRead;
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	for (int iI = 0; iI < iEntriesToRead; iI++)
+	{
+		loadFrom >> tempItem;
+		if (CvPreGame::isHuman(tempItem.GetFromPlayer()) && CvPreGame::isHuman(tempItem.GetToPlayer())) 
+		{
+			// only load human to humand deals until other problems are fixed
+			writeTo.m_ProposedDeals.push_back(tempItem);
+		}
+	}
+#else
 	for(int iI = 0; iI < iEntriesToRead; iI++)
 	{
 		loadFrom >> tempItem;
 		writeTo.m_ProposedDeals.push_back(tempItem);
 	}
+#endif
 
 	writeTo.m_CurrentDeals.clear();
 	loadFrom >> iEntriesToRead;
@@ -4957,11 +5064,28 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGameDeals& readFrom)
 	saveTo << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(saveTo);
 
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	DealList saveList;
+	for (it = readFrom.m_ProposedDeals.begin(); it != readFrom.m_ProposedDeals.end(); ++it)
+	{
+		if (CvPreGame::isHuman(it->GetFromPlayer()) && CvPreGame::isHuman(it->GetToPlayer()))
+		{
+			// only save human to human deals until we save notifications & requests too
+			saveList.push_back(*it);
+		}
+	}
+	saveTo << saveList.size();
+	for (it = saveList.begin(); it != saveList.end(); ++it) 
+	{
+		saveTo << *it;
+	}
+#else
 	saveTo << readFrom.m_ProposedDeals.size();
 	for(it = readFrom.m_ProposedDeals.begin(); it != readFrom.m_ProposedDeals.end(); ++it)
 	{
 		saveTo << *it;
 	}
+#endif
 	saveTo << readFrom.m_CurrentDeals.size();
 	for(it = readFrom.m_CurrentDeals.begin(); it != readFrom.m_CurrentDeals.end(); ++it)
 	{

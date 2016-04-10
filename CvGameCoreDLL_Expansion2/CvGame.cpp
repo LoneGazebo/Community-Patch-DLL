@@ -901,7 +901,7 @@ void CvGame::regenerateMap()
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		GC.getGame().GetGameDeals()->DoCancelAllDealsWithPlayer((PlayerTypes) iI);
+		GC.getGame().GetGameDeals().DoCancelAllDealsWithPlayer((PlayerTypes) iI);
 	}
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
@@ -1689,6 +1689,11 @@ void CvGame::update()
 					CheckPlayerTurnDeactivate();
 
 					changeTurnSlice(1);
+
+#if defined(MOD_ACTIVE_DIPLOMACY)
+					// JdH: humans may have been activated, check for AI diplomacy
+					CvDiplomacyRequests::DoAIDiplomacyWithHumans();
+#endif
 
 					gDLL->FlushTurnReminders();
 				}
@@ -8014,6 +8019,11 @@ void CvGame::doTurn()
 	// Victory stuff
 	testVictory();
 
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	// JdH: humans may have been activated, check for AI diplomacy
+	CvDiplomacyRequests::DoAIDiplomacyWithHumans();
+#endif
+
 	// Who's Winning
 	if(GET_PLAYER(getActivePlayer()).isAlive() && !IsStaticTutorialActive())
 	{
@@ -9169,6 +9179,19 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 				CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
 				if (kPlayer.isAlive())
 				{
+#if defined(MOD_BALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY)
+					if(MOD_BALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY)
+					{
+						if(kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
+							continue;
+
+						if(kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE)
+						{
+							if(kPlayer.GetCulture()->GetPublicOpinionType() > PUBLIC_OPINION_CONTENT)
+								continue;
+						}
+					}
+#endif
 					if (kPlayer.getTeam() == eTeam)
 					{
 						if (kPlayer.GetCulture()->GetNumCivsInfluentialOn() >= m_pGameCulture->GetNumCivsInfluentialForWin())
@@ -9690,7 +9713,7 @@ int CvGame::calculateSyncChecksum()
 					iMultiplier += (pLoopUnit->getX() * 876543);
 					iMultiplier += (pLoopUnit->getY() * 985310);
 					iMultiplier += (pLoopUnit->getDamage() * 736373);
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 					iMultiplier += ((pLoopUnit->getExperienceTimes100() / 100) * 820622);
 #else
 					iMultiplier += (pLoopUnit->getExperience() * 820622);
@@ -9776,7 +9799,7 @@ void CvGame::debugSyncChecksum()
 			int iLoop=0;
 			for(CvUnit* pLoopUnit = GET_PLAYER((PlayerTypes)iI).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER((PlayerTypes)iI).nextUnit(&iLoop))
 				pLog->Msg( CvString::format("unit %d: x %02d, y %02d, damage %02d, exp %02d, level %02d\n",
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 					iLoop, pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getDamage(), (pLoopUnit->getExperienceTimes100() / 100), pLoopUnit->getLevel() ).c_str() );
 #else
 					iLoop, pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getDamage(), pLoopUnit->getExperience(), pLoopUnit->getLevel() ).c_str() );
@@ -9866,8 +9889,10 @@ void CvGame::CorpCheck()
 		PlayerTypes ePlayerLoop = (PlayerTypes) iPlayerLoop;
 		if(ePlayerLoop != NO_PLAYER && !GET_PLAYER(ePlayerLoop).isMinorCiv() && !GET_PLAYER(ePlayerLoop).isBarbarian())
 		{
+			//Founded a corporation?
 			if(GET_PLAYER(ePlayerLoop).GetCorporateFounderID() > 0)
 			{
+				//Alive?
 				if(GET_PLAYER(ePlayerLoop).isAlive())
 				{
 					bool bHasCorp = false;
@@ -9876,6 +9901,7 @@ void CvGame::CorpCheck()
 					int iBuildingCount;
 					int iI;
 
+					//Let's look for our HQ. If missing, move it!
 					for(pLoopCity = GET_PLAYER(ePlayerLoop).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayerLoop).nextCity(&iLoop))
 					{
 						if(pLoopCity != NULL && !bHasCorp)
@@ -9912,6 +9938,7 @@ void CvGame::CorpCheck()
 							}
 						}
 					}
+					//Missing it? Add it to our capital, please.
 					if(!bHasCorp)
 					{
 						CvCity* pCity = GET_PLAYER(ePlayerLoop).getCapitalCity();
@@ -9937,7 +9964,7 @@ void CvGame::CorpCheck()
 									{
 										if(pkBuilding->GetCorporationHQID() > 0 && pkBuilding->GetCorporationHQID() == GET_PLAYER(ePlayerLoop).GetCorporateFounderID())
 										{
-											pCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
+											pCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 1, true);
 											{
 												CvNotifications* pNotifications = GET_PLAYER(ePlayerLoop).GetNotifications();
 												if(pNotifications && ePlayerLoop == GC.getGame().getActivePlayer())
@@ -9963,6 +9990,8 @@ void CvGame::CorpCheck()
 				}
 				else
 				{
+					//Dead? Oh no!
+					//Let's check everyone else and destroy any buildings related to this corporation.
 					for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_PLAYERS; iPlayerLoop2++)
 					{
 						PlayerTypes ePlayerLoop2 = (PlayerTypes) iPlayerLoop2;
@@ -10001,6 +10030,7 @@ void CvGame::CorpCheck()
 													iBuildingCount = pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding);
 													if(iBuildingCount > 0)
 													{
+														//Destroy all buildings related to this corporation.
 														if(pkBuilding->GetCorporationID() > 0 && pkBuilding->GetCorporationID() == GET_PLAYER(ePlayerLoop).GetCorporateFounderID())
 														{
 															pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
@@ -10009,6 +10039,7 @@ void CvGame::CorpCheck()
 																CvNotifications* pNotifications = GET_PLAYER(ePlayerLoop2).GetNotifications();
 																if(pNotifications && ePlayerLoop2 == GC.getGame().getActivePlayer())
 																{
+																	bHappened = true;
 																	Localization::String strSummary;
 																	Localization::String strMessage;
 
@@ -10019,7 +10050,6 @@ void CvGame::CorpCheck()
 																	pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, -1);
 																}
 															}
-															bHappened = true;
 														}
 													}
 												}
@@ -10030,6 +10060,7 @@ void CvGame::CorpCheck()
 							}
 						}
 					}
+					GET_PLAYER(ePlayerLoop).SetCorporateFounderID(0);
 				}
 			}
 		}
@@ -10172,6 +10203,7 @@ void CvGame::SetHighestPotential()
 	m_iLargestBasePotential = 0;
 	int iPotential = 0;	
 	PlayerTypes eLoopPlayer;
+
 	// first pass to get the largest base potential available
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -10209,11 +10241,35 @@ void CvGame::SetHighestPotential()
 				continue;
 			}
 
+			//Check for spies - this determines if we need to do any updates or anything.
+			bool bNotify = false;
+			for(int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
+			{
+				PlayerTypes eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
+				if(eLoopPlayer2 != NO_PLAYER && GET_PLAYER(eLoopPlayer2).isAlive())
+				{
+					CvPlayer& kLoopPlayer2 = GET_PLAYER(eLoopPlayer2);
+
+					if((kLoopPlayer.GetID() == kLoopPlayer2.GetID()) || !kLoopPlayer2.isAlive() || kLoopPlayer2.isBarbarian() || kLoopPlayer2.isMinorCiv())
+					{
+						continue;
+					}
+					if(GET_TEAM(kLoopPlayer.getTeam()).isHasMet(kLoopPlayer2.getTeam()))
+					{
+						if(kLoopPlayer2.GetEspionage()->GetNumAliveSpies() > 0)
+						{
+							bNotify = true;
+							break;
+						}
+					}
+				}
+			}
+
 			int iLoop = 0;
 			for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 			{				
 				iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);;
-				pLoopCity->SetEspionageRanking(iPotential);
+				pLoopCity->SetEspionageRanking(iPotential, bNotify);
 			}
 		}
 	}
@@ -11141,9 +11197,9 @@ CvStartPositioner* CvGame::GetStartPositioner()
 }
 
 //	--------------------------------------------------------------------------------
-CvGameDeals* CvGame::GetGameDeals()
+CvGameDeals& CvGame::GetGameDeals()
 {
-	return &m_kGameDeals;
+	return m_kGameDeals;
 }
 
 //	--------------------------------------------------------------------------------
@@ -12743,12 +12799,28 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 	int iDefenderDamageInflicted  = pDefendingUnit->getCombatDamage(iDefenderStrength, iAttackingStrength, pDefendingUnit->getDamage(), false, false, false);
 	//iTheirDamageInflicted = iTheirDamageInflicted + iTheirFireSupportCombatDamage;
 
+#if defined(MOD_UNITS_MAX_HP)
+	int iAttackerMaxHitPoints = pAttackingUnit->GetMaxHitPoints();
+	int iDefenderMaxHitPoints = pDefendingUnit->GetMaxHitPoints();
+
+	if (iAttackingDamageInflicted > iDefenderMaxHitPoints)
+	{
+		iAttackingDamageInflicted = iDefenderMaxHitPoints;
+	}
+	if (iDefenderDamageInflicted > iAttackerMaxHitPoints)
+	{
+		iDefenderDamageInflicted = iAttackerMaxHitPoints;
+	}
+
+	bool bAttackerDies = (pAttackingUnit->getDamage() + iDefenderDamageInflicted >= iAttackerMaxHitPoints);
+	bool bDefenderDies = (pDefendingUnit->getDamage() + iAttackingDamageInflicted >= iDefenderMaxHitPoints);
+#else
 	int iMaxUnitHitPoints = GC.getMAX_HIT_POINTS();
-	if(iAttackingDamageInflicted > iMaxUnitHitPoints)
+	if (iAttackingDamageInflicted > iMaxUnitHitPoints)
 	{
 		iAttackingDamageInflicted = iMaxUnitHitPoints;
 	}
-	if(iDefenderDamageInflicted > iMaxUnitHitPoints)
+	if (iDefenderDamageInflicted > iMaxUnitHitPoints)
 	{
 		iDefenderDamageInflicted = iMaxUnitHitPoints;
 	}
@@ -12756,15 +12828,16 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 	bool bAttackerDies = false;
 	bool bDefenderDies = false;
 
-	if(pAttackingUnit->getDamage() + iDefenderDamageInflicted >= iMaxUnitHitPoints)
+	if (pAttackingUnit->getDamage() + iDefenderDamageInflicted >= iMaxUnitHitPoints)
 	{
 		bAttackerDies = true;
 	}
 
-	if(pDefendingUnit->getDamage() + iAttackingDamageInflicted >= iMaxUnitHitPoints)
+	if (pDefendingUnit->getDamage() + iAttackingDamageInflicted >= iMaxUnitHitPoints)
 	{
 		bDefenderDies = true;
 	}
+#endif
 
 	if(bAttackerDies && bDefenderDies)
 	{
@@ -13140,4 +13213,74 @@ bool CvGame::AnyoneHasUnitClass(UnitClassTypes iUnitClassType) const
 
 	return false;
 }
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+
+PlayerTypes CvGame::GetCorporationFounder(int iCorporateID) const
+{
+	if(iCorporateID <= 0)
+		return NO_PLAYER;
+
+	PlayerTypes eLoopPlayer;
+	for(int iPlayerLoop=0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(GET_PLAYER(eLoopPlayer).GetCorporateFounderID() == iCorporateID)
+		{
+			return eLoopPlayer;
+		}
+	}
+
+	return NO_PLAYER;
+}
+
+int CvGame::GetNumCorporationsFounded() const
+{
+	int iNumCorporationsFounded = 0;
+
+	PlayerTypes eLoopPlayer;
+	for(int iPlayerLoop=0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(GET_PLAYER(eLoopPlayer).GetCorporateFounderID() > 0)
+		{
+			iNumCorporationsFounded++;
+		}
+	}
+
+	return iNumCorporationsFounded;
+}
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+
+PlayerTypes CvGame::GetGreatestPlayerResourceMonopoly(ResourceTypes eResource) const
+{
+	const CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+	if(pkResource == NULL)
+		return NO_PLAYER;
+	if(!pkResource->isMonopoly())
+		return NO_PLAYER;
+
+	PlayerTypes eGreatestMonopolyPlayer = NO_PLAYER;
+	PlayerTypes eLoopPlayer;
+	int iMax = 0;
+	for(int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+	{
+		eLoopPlayer = (PlayerTypes) iLoopPlayer;
+
+		if(!GET_PLAYER(eLoopPlayer).isAlive()) continue;
+
+		int iMonopolyPercent = GET_PLAYER(eLoopPlayer).GetMonopolyPercent(eResource);
+		if(iMonopolyPercent > iMax)
+		{
+			iMax = iMonopolyPercent;
+			eGreatestMonopolyPlayer = eLoopPlayer;
+		}
+	}
+
+	return eGreatestMonopolyPlayer;
+}
+
+#endif
 #endif

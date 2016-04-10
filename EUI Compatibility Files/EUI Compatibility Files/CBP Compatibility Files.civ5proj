@@ -7,7 +7,7 @@
     <Guid>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(3-18b) CBP Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(4-9b) CBP Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains compatibility files for CBP, CSD, C4DF and EUI - required if you intend to use any mod aside from the CP and CBP by themselves.
 
 NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Description>
@@ -83,56 +83,6 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
         <Type>UpdateDatabase</Type>
         <FileName>MoreLuxuries/Text/Text_en_US.sql</FileName>
       </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>C4DFCompatibility/C4DFText_en_US.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Text/pl_PL/Compatibility_pl_PL.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Text/pl_PL/Compatibility_pl_PL.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Text/pl_PL/EUI_text_pl_PL.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>C4DFCompatibility/pl_PL/pl_PL_Text_CivilopediaC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>C4DFCompatibility/pl_PL/pl_PL_Text_Generic_DiplomacyC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>C4DFCompatibility/pl_PL/pl_PL_Text_UIC4DF.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>MoreLuxuries/Text/pl_PL/NewLuxuries_Text_pl_PL.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>CSD/CompatibilityText/PolishText.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>CSD/CompatibilityText/PolishText.xml</FileName>
-      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -170,18 +120,12 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <Association>
         <Type>Mod</Type>
         <Name>C4DF</Name>
-        <Id>47dd6204-89ab-4cf6-af4f-1327d2ce584c</Id>
+        <Id>c7bf7064-d1b1-4708-9e93-7a1560868582</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
     </ModDependencies>
     <ModContent>
-      <Content>
-        <Type>InGameUIAddin</Type>
-        <Name>VassalOverview</Name>
-        <Description>VassalOverview</Description>
-        <FileName>LUA/VassalageOverview.lua</FileName>
-      </Content>
     </ModContent>
     <ModBlockers>
       <Association>
@@ -212,30 +156,6 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="C4DFCompatibility\C4DFText_en_US.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="C4DFCompatibility\pl_PL\pl_PL_Text_CivilopediaC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="C4DFCompatibility\pl_PL\pl_PL_Text_Generic_DiplomacyC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="C4DFCompatibility\pl_PL\pl_PL_Text_UIC4DF.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="C4DFCompatibility\vassal80.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="C4DFCompatibility\vassal80hl.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="Corporations\Corporations.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -260,17 +180,13 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="CSD\CompatibilityText\PolishText.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="CSD\CompatibilityText\PolishText.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="CSD\CSDCompatibility.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="EUI\DC45_EventsOverview.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="EUI\DC45_VassalOverview.dds">
       <SubType>Lua</SubType>
@@ -480,6 +396,10 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="LUA\NotificationPanel.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="LUA\PlotHelpManager.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -532,13 +452,13 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\VassalageOverview.lua">
+    <Content Include="LUA\VictoryProgress.lua">
       <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\VassalageOverview.xml">
+    <Content Include="LUA\VictoryProgress.xml">
       <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\WhosWinningPopup.lua">
       <SubType>Lua</SubType>
@@ -556,29 +476,12 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="MoreLuxuries\Text\pl_PL\NewLuxuries_Text_pl_PL.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="MoreLuxuries\Text\Text_en_US.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Text\pl_PL\Compatibility_pl_PL.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Text\pl_PL\Compatibility_pl_PL.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Text\pl_PL\EUI_text_pl_PL.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="C4DFCompatibility\pl_PL" />
     <Folder Include="Corporations\Text" />
     <Folder Include="CSD" />
     <Folder Include="CSD\CompatibilityText" />
@@ -588,9 +491,6 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
     <Folder Include="MoreLuxuries" />
     <Folder Include="C4DFCompatibility" />
     <Folder Include="MoreLuxuries\Text" />
-    <Folder Include="MoreLuxuries\Text\pl_PL" />
-    <Folder Include="Text" />
-    <Folder Include="Text\pl_PL" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Firaxis\ModBuddy\Civ5Mod.targets" />
 </Project>

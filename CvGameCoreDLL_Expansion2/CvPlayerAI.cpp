@@ -704,7 +704,152 @@ void CvPlayerAI::AI_considerAnnex()
 		}
 	}
 }
+#if defined(MOD_BALANCE_CORE_EVENTS)
+void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
+{
+	if(eChosenEvent != NO_EVENT)
+	{
+		CvModEventInfo* pkEventInfo = GC.getEventInfo(eChosenEvent);
+		if(pkEventInfo != NULL)
+		{
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString playerName;
+				FILogFile* pLog;
+				CvString strBaseString;
+				CvString strOutBuf;
+				CvString strFileName = "EventLogging.csv";
+				playerName = getCivilizationShortDescription();
+				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += playerName + ", ";
+				strOutBuf.Format("AI considering Event choices: %s", pkEventInfo->GetDescription());
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
+			//Lua Hook
+			if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_OverrideAIEventChoice, GetID(), eChosenEvent) == GAMEEVENTRETURN_TRUE) 
+			{
+				return;
+			}
 
+			// Now let's get the event flavors.
+			CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS * 2, true> flavorChoices;
+			for(int iLoop = 0; iLoop < GC.getNumEventChoiceInfos(); iLoop++)
+			{
+				EventChoiceTypes eEventChoice = (EventChoiceTypes)iLoop;
+				if(eEventChoice != NO_EVENT_CHOICE)
+				{
+					CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
+					if(pkEventChoiceInfo != NULL)
+					{
+						if(IsEventChoiceValid(eEventChoice, eChosenEvent))
+						{
+							for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
+							{
+								if(pkEventChoiceInfo->getFlavorValue(iFlavor) > 0)
+								{
+									int iOurFlavor = GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavor);
+									iOurFlavor += pkEventChoiceInfo->getFlavorValue(iFlavor);
+									flavorChoices.push_back(eEventChoice, iOurFlavor);
+								}
+							}
+						}
+					}
+				}
+			}
+			if(flavorChoices.size() > 0)
+			{
+				//sort em!
+				flavorChoices.SortItems();
+				
+				//And grab the top selection.
+				EventChoiceTypes eBestEventChoice = (EventChoiceTypes)flavorChoices.GetElement(0);
+
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eBestEventChoice);
+					if(pkEventChoiceInfo != NULL)
+					{
+						CvString playerName;
+						FILogFile* pLog;
+						CvString strBaseString;
+						CvString strOutBuf;
+						CvString strFileName = "EventLogging.csv";
+						playerName = getCivilizationShortDescription();
+						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+						strBaseString += playerName + ", ";
+						strOutBuf.Format("AI made a flavor event choice: %s", pkEventChoiceInfo->GetDescription());
+						strBaseString += strOutBuf;
+						pLog->Msg(strBaseString);
+					}
+				}
+
+				//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
+				if(eBestEventChoice != NO_EVENT_CHOICE)
+				{
+					DoEventChoice(eBestEventChoice);
+					return;
+				}
+			}
+			//If we got here, it is because we haven't made a choice yet. Do so now.
+			CvWeightedVector<int, SAFE_ESTIMATE_NUM_BUILDINGS, true> randomChoices;
+			for(int iLoop = 0; iLoop < GC.getNumEventChoiceInfos(); iLoop++)
+			{
+				EventChoiceTypes eEventChoice = (EventChoiceTypes)iLoop;
+				if(eEventChoice != NO_EVENT_CHOICE)
+				{
+					CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
+					if(pkEventChoiceInfo != NULL)
+					{
+						if(IsEventChoiceValid(eEventChoice, eChosenEvent))
+						{
+							int iRandom = GC.getGame().getJonRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
+							if(iRandom <= 0)
+							{
+								iRandom = 1;
+							}
+							randomChoices.push_back(eEventChoice, iRandom);
+						}
+					}
+				}
+			}
+			randomChoices.SortItems();
+				
+			//And grab the top selection.
+			EventChoiceTypes eBestEventChoice = (EventChoiceTypes)randomChoices.GetElement(0);
+
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eBestEventChoice);
+				if(pkEventChoiceInfo != NULL)
+				{
+					CvString playerName;
+					FILogFile* pLog;
+					CvString strBaseString;
+					CvString strOutBuf;
+					CvString strFileName = "EventLogging.csv";
+					playerName = getCivilizationShortDescription();
+					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					strBaseString += playerName + ", ";
+					strOutBuf.Format("AI made a random event choice: %s", pkEventChoiceInfo->GetDescription());
+					strBaseString += strOutBuf;
+					pLog->Msg(strBaseString);
+				}
+			}
+
+			//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
+			if(eBestEventChoice != NO_EVENT_CHOICE)
+			{
+				DoEventChoice(eBestEventChoice);
+				return;
+			}
+		}
+	}
+}
+#endif
 // Protected Functions...
 
 void CvPlayerAI::AI_doResearch()

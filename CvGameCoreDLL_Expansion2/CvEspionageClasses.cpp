@@ -1434,7 +1434,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						iDamage = pCity->GetMaxHitPoints();
 					}
 					pCity->setDamage(iDamage);
-					m_pPlayer->ChangeSpyCooldown(iDamage / 2);
+					m_pPlayer->ChangeSpyCooldown(iDamage * 4);
 
 					//Rebels!
 					// In hundreds
@@ -1610,7 +1610,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 					{
 						LevelUpSpy(uiSpyIndex);
 					}
-					m_pPlayer->ChangeSpyCooldown(iDamage * 4);
+					m_pPlayer->ChangeSpyCooldown(iDamage * 5);
 					if(GC.getLogging())
 						{
 						CvString strMsg;
@@ -1639,7 +1639,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 					{
 						iFood = pCity->getFood();
 					}
-					m_pPlayer->ChangeSpyCooldown(iFood);
+					m_pPlayer->ChangeSpyCooldown(iFood * 5);
 					pCity->setFood((pCity->getFood() - iFood));
 					pCity->ChangeResistanceTurns(max(1, iTurnsActive / 10));
 
@@ -1769,7 +1769,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						{
 							LevelUpSpy(uiSpyIndex);
 						}
-						m_pPlayer->ChangeSpyCooldown(iSetback * 4);
+						m_pPlayer->ChangeSpyCooldown(iSetback * 8);
 						if(GC.getLogging())
 						{
 							CvString strMsg;
@@ -1856,7 +1856,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						{
 							LevelUpSpy(uiSpyIndex);
 						}
-						m_pPlayer->ChangeSpyCooldown(iPercentage * 4);
+						m_pPlayer->ChangeSpyCooldown(iPercentage * 10);
 						if(GC.getLogging())
 						{
 							CvString strMsg;
@@ -1938,7 +1938,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						{
 							LevelUpSpy(uiSpyIndex);
 						}
-						m_pPlayer->ChangeSpyCooldown(iSetback * 4);
+						m_pPlayer->ChangeSpyCooldown(iSetback * 8);
 						if(GC.getLogging())
 						{
 							CvString strMsg;
@@ -2020,7 +2020,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						{
 							LevelUpSpy(uiSpyIndex);
 						}
-						m_pPlayer->ChangeSpyCooldown(iSetback * 4);
+						m_pPlayer->ChangeSpyCooldown(iSetback * 8);
 						if(GC.getLogging())
 						{
 							CvString strMsg;
@@ -2121,7 +2121,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						{
 							LevelUpSpy(uiSpyIndex);
 						}
-						m_pPlayer->ChangeSpyCooldown(iSetback * 4);
+						m_pPlayer->ChangeSpyCooldown(iSetback * 8);
 						if(GC.getLogging())
 						{
 							CvString strMsg;
@@ -2203,7 +2203,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						{
 							LevelUpSpy(uiSpyIndex);
 						}
-						m_pPlayer->ChangeSpyCooldown(iTheft * 4);
+						m_pPlayer->ChangeSpyCooldown(iTheft * 8);
 						if(GC.getLogging())
 						{
 							CvString strMsg;
@@ -8173,7 +8173,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 				if (pDiploAI->IsPlayerStopSpyingRequestAccepted(eTargetPlayer))
 				{
 					// target far less frequently
-					iDiploModifier -= 100;
+					iDiploModifier -= 300;
 				}
 
 				// if we've denounced them or they've denounced us, spy bonus!
@@ -8183,39 +8183,39 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 				}
 				else if (pDiploAI->IsDoFAccepted(eTargetPlayer))
 				{
-					iDiploModifier -= 100;
+					iDiploModifier -= 300;
 				}
 
 				if (GET_TEAM(eTeam).IsHasResearchAgreement(eTargetTeam))
 				{
-					iDiploModifier -= 50;
+					iDiploModifier -= 100;
 				}
 
 				if (GET_TEAM(eTeam).IsHasDefensivePact(eTargetTeam))
 				{
-					iDiploModifier -= 50;
+					iDiploModifier -= 100;
 				}
 
 				if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(eTargetTeam))
 				{
-					iDiploModifier += 25;
+					iDiploModifier -= 33;
 				}
 
 				if (GET_TEAM(eTargetTeam).IsAllowsOpenBordersToTeam(eTeam))
 				{
-					iDiploModifier += 25;
+					iDiploModifier += 33;
 				}
 				if(pLoopCity->isCapital())
 				{
-					iDiploModifier += 25;
+					iDiploModifier += 50;
 				}
 				if(pDiploAI->GetMajorCivApproach(eTargetPlayer, false) == MAJOR_CIV_APPROACH_FRIENDLY)
 				{
-					iDiploModifier -= 25;
+					iDiploModifier -= 50;
 				}
 				if(pDiploAI->GetMajorCivApproach(eTargetPlayer, false) == MAJOR_CIV_APPROACH_DECEPTIVE)
 				{
-					iDiploModifier += 50;
+					iDiploModifier += 100;
 				}
 				//Spread our spies out a bit.
 				for(uint uiSpy = 0; uiSpy < pEspionage->m_aSpyList.size(); uiSpy++)
@@ -8225,7 +8225,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 					{
 						if(pCity->getOwner() == eTargetPlayer)
 						{
-							iDiploModifier -= 50;
+							iDiploModifier -= 100;
 							break;
 						}
 					}

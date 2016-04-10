@@ -7,12 +7,14 @@
 	------------------------------------------------------------------------------------------------------- */
 
 #include "CvGameCoreDLLPCH.h"
+#include "../CvGameCoreDLLPCH.h"
+#include "../CustomMods.h"
 #include "CvLuaSupport.h"
 #include "CvLuaArea.h"
 #include "CvLuaCity.h"
 #include "CvLuaPlot.h"
 #include "CvLuaUnit.h"
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS) || defined (MOD_BALANCE_CORE_UNIT_INVESTMENTS)
 #include "../CvInternalGameCoreUtils.h"
 #endif
 
@@ -117,6 +119,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	Method(GetBuildingInvestment);
 #endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	Method(GetUnitInvestment);
+#endif
 	Method(GetProjectProductionNeeded);
 	Method(GetProductionTurnsLeft);
 	Method(GetUnitProductionTurnsLeft);
@@ -199,6 +204,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetNumBuildingClass);
 	Method(IsHasBuildingClass);
 	Method(GetLocalBuildingClassYield);
+	Method(GetEventBuildingClassYield);
+	Method(GetEventBuildingClassModifier);
+	Method(GetEventCityYield);
 #endif
 	Method(GetNumActiveBuilding);
 	Method(GetID);
@@ -671,6 +679,20 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CountWorkedResource);
 	Method(CountTerrain);
 	Method(CountWorkedTerrain);
+	Method(GetAdditionalFood);
+	Method(SetAdditionalFood);
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	Method(GetScaledEventChoiceValue);
+	Method(IsCityEventChoiceActive);
+	Method(DoCityEventChoice);
+	Method(DoCityStartEvent);
+	Method(DoCancelCityEventChoice);
+	Method(GetCityEventCooldown);
+	Method(SetCityEventCooldown);
+	Method(GetCityEventChoiceCooldown);
+	Method(SetCityEventChoiceCooldown);
+	Method(IsCityEventChoiceValid);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -1152,6 +1174,31 @@ int CvLuaCity::lGetFaithPurchaseUnitTooltip(lua_State* L)
 			toolTip += localized;
 		}
 	}
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+	if(MOD_BALANCE_CORE_UNIT_INVESTMENTS && eUnit != NO_UNIT)
+	{
+		//Have we already invested here?
+		CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnit);
+		const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
+		if(pkCity->IsUnitInvestment(eUnitClass))
+		{
+			int iValue = (/*-50*/ GC.getBALANCE_UNIT_INVESTMENT_BASELINE() + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
+			iValue *= -1;
+
+			Localization::String localizedText = Localization::Lookup("TXT_KEY_ALREADY_INVESTED_UNIT");
+			localizedText << iValue;
+
+			const char* const localized = localizedText.toUTF8();
+			if(localized)
+			{
+				if(!toolTip.IsEmpty())
+					toolTip += "[NEWLINE]";
+
+				toolTip += localized;
+			}
+		}
+	}
+#endif
 
 	// Not enough faith
 	if(pkCity->GetFaithPurchaseCost(eUnit, true) > GET_PLAYER(pkCity->getOwner()).GetFaith())
@@ -1572,6 +1619,27 @@ int CvLuaCity::lGetBuildingInvestment(lua_State* L)
 		{
 			iTotalDiscount /= 2;
 		}
+		iResult *= (iTotalDiscount + 100);
+		iResult /= 100;
+	}
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsUnitInvestment();
+int CvLuaCity::lGetUnitInvestment(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iResult = 0;
+	int iTotalDiscount = 0;
+	const UnitTypes eUnitType = (UnitTypes) lua_tointeger(L, 2);
+	CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
+	const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
+	if(pkCity->IsUnitInvestment(eUnitClass))
+	{
+		iResult = GET_PLAYER(pkCity->getOwner()).getProductionNeeded(eUnitType);
+		iTotalDiscount = (/*-50*/ GC.getBALANCE_BUILDING_INVESTMENT_BASELINE() + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
 		iResult *= (iTotalDiscount + 100);
 		iResult /= 100;
 	}
@@ -2121,6 +2189,41 @@ int CvLuaCity::lGetLocalBuildingClassYield(lua_State* L)
 
 	lua_pushinteger(L, iResult);
 	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lGetEventBuildingClassYield(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 3);
+	int iResult = 0;
+	if(eBuildingClassType != NO_BUILDINGCLASS && eIndex != NO_YIELD)
+	{	
+		iResult = pkCity->GetEventBuildingClassCityYield(eBuildingClassType, eIndex);
+	}
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lGetEventBuildingClassModifier(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 3);
+	int iResult = 0;
+	if(eBuildingClassType != NO_BUILDINGCLASS && eIndex != NO_YIELD)
+	{	
+		iResult = pkCity->GetEventBuildingClassCityYieldModifier(eBuildingClassType, eIndex);
+	}
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lGetEventCityYield(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetEventCityYield);
 }
 #endif
 //------------------------------------------------------------------------------
@@ -5337,4 +5440,180 @@ LUAAPIIMPL(City, CountResource)
 LUAAPIIMPL(City, CountWorkedResource)
 LUAAPIIMPL(City, CountTerrain)
 LUAAPIIMPL(City, CountWorkedTerrain)
+
+int CvLuaCity::lGetAdditionalFood(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iAdditionalFood = pkCity->GetAdditionalFood();
+	lua_pushinteger(L, iAdditionalFood);
+
+	return 1;
+}
+int CvLuaCity::lSetAdditionalFood(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iFood = lua_tointeger(L, 2);
+	pkCity->SetAdditionalFood(iFood);
+	return 1;
+}
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+int CvLuaCity::lGetScaledEventChoiceValue(lua_State* L)
+{
+	CvString CoreYieldTip = "";
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const bool bYieldsOnly = lua_toboolean(L, 3);
+	if(eEventChoice != NO_EVENT_CHOICE_CITY)
+	{
+		CoreYieldTip = pkCity->GetScaledHelpText(eEventChoice, bYieldsOnly);
+	}
+
+	lua_pushstring(L, CoreYieldTip.c_str());
+	return 1;
+}
+int CvLuaCity::lIsCityEventChoiceActive(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const bool bInstantEvents = luaL_optbool(L, 3, false);
+	bool bResult = false;
+	if(eEventChoice != NO_EVENT_CHOICE_CITY)
+	{
+		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+		if(pkEventChoiceInfo != NULL)
+		{
+			if(pkCity->IsEventChoiceActive(eEventChoice))
+			{
+				if(bInstantEvents)
+				{
+					if(!pkEventChoiceInfo->isOneShot() && !pkEventChoiceInfo->Expires())
+					{
+						for(int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
+						{
+							CityEventTypes eEvent = (CityEventTypes)iLoop;
+							if(eEvent != NO_EVENT)
+							{
+								CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+								if(pkEventInfo != NULL)
+								{
+									if(pkEventChoiceInfo->isParentEvent(eEvent))
+									{
+										CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+										if(pkEventInfo != NULL)
+										{
+											if(pkEventInfo->getNumChoices() == 1)
+											{
+												if(pkCity->GetEventCooldown(eEvent) > 0)
+												{
+													bResult = true;
+													break;
+												}
+											}
+											else
+											{
+												bResult = true;
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				else
+				{		
+					if(pkEventChoiceInfo->isOneShot() && pkCity->IsEventChoiceFired(eEventChoice))
+					{
+						bResult = true;
+					}
+					else if(pkEventChoiceInfo->Expires())
+					{
+						bResult = true;
+					}
+				}
+			}
+		}
+	}
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+int CvLuaCity::lDoCityEventChoice(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	pkCity->DoEventChoice(eEventChoice);
+	return 1;
+}
+int CvLuaCity::lDoCityStartEvent(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 2);
+	pkCity->DoStartEvent(eEvent);
+	return 1;
+}
+int CvLuaCity::lDoCancelCityEventChoice(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEvent = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	pkCity->DoCancelEventChoice(eEvent);
+	return 1;
+}
+int CvLuaCity::lGetCityEventCooldown(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 2);
+	const int iCooldown = pkCity->GetEventCooldown(eEvent);
+	CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+	if(pkEventInfo != NULL && pkEventInfo->isOneShot())
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
+	lua_pushinteger(L, iCooldown);
+	return 1;
+}
+int CvLuaCity::lSetCityEventCooldown(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 2);
+	const int iCooldown = lua_tointeger(L, 3);
+	pkCity->SetEventCooldown(eEvent, iCooldown);
+	return 1;
+}
+int CvLuaCity::lGetCityEventChoiceCooldown(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEvent = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEvent);
+	if(pkEventChoiceInfo != NULL && pkEventChoiceInfo->isOneShot())
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
+	const int iCooldown = pkCity->GetEventChoiceDuration(eEvent);
+	lua_pushinteger(L, iCooldown);
+	return 1;
+}
+int CvLuaCity::lSetCityEventChoiceCooldown(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEvent = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const int iCooldown = lua_tointeger(L, 3);
+	pkCity->SetEventChoiceDuration(eEvent, iCooldown);
+	return 1;
+}
+int CvLuaCity::lIsCityEventChoiceValid(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 3);
+	const bool bValue = pkCity->IsCityEventChoiceValid(eEventChoice, eEvent);
+
+	lua_pushboolean(L, bValue);
+
+	return 1;
+}
 #endif

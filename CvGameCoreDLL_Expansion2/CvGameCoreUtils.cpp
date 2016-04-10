@@ -385,7 +385,7 @@ bool isBeforeUnitCycle(const CvUnit* pFirstUnit, const CvUnit* pSecondUnit)
 		return (pFirstUnit->getLevel() > pSecondUnit->getLevel());
 	}
 
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	if (pFirstUnit->getExperienceTimes100() != pSecondUnit->getExperienceTimes100())
 	{
 		return (pFirstUnit->getExperienceTimes100() > pSecondUnit->getExperienceTimes100());
@@ -754,10 +754,25 @@ bool isNationalUnitClass(UnitClassTypes eUnitClass)
 	}
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+bool isUnitLimitPerCity(UnitClassTypes eUnitClass)
+{
+	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+	if(pkUnitClassInfo)
+	{
+		return (pkUnitClassInfo->getUnitInstancePerCity() != -1);
+	}
+	return false;
+}
+#endif
 
 bool isLimitedUnitClass(UnitClassTypes eUnitClass)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (isWorldUnitClass(eUnitClass) || isTeamUnitClass(eUnitClass) || isNationalUnitClass(eUnitClass) || isUnitLimitPerCity(eUnitClass));
+#else
 	return (isWorldUnitClass(eUnitClass) || isTeamUnitClass(eUnitClass) || isNationalUnitClass(eUnitClass));
+#endif
 }
 
 bool isWorldProject(ProjectTypes eProject)

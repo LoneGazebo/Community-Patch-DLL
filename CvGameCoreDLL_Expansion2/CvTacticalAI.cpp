@@ -1053,13 +1053,23 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		}
 
 		// Sit and bombard - for first time need dominance in ranged strength and total unit count
+#if defined(MOD_BALANCE_CORE)
+		//We need to have plenty of ranged units in order for this to make sense.
+		else if(eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY && pZone->GetFriendlyRangedStrength() >= (pZone->GetFriendlyStrength() / 2))
+#else
 		else if(eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY)
+#endif
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_SIT_AND_BOMBARD;
 		}
 
 		//                 - less stringent if continuing this from a previous turn
+#if defined(MOD_BALANCE_CORE)
+		//We need to have plenty of ranged units in order for this to make sense.
+		else if(eLastPosture == AI_TACTICAL_POSTURE_SIT_AND_BOMBARD && eRangedDominance != TACTICAL_DOMINANCE_ENEMY && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY && pZone->GetFriendlyRangedStrength() >= (pZone->GetFriendlyStrength() / 2))
+#else
 		else if(eLastPosture == AI_TACTICAL_POSTURE_SIT_AND_BOMBARD && eRangedDominance != TACTICAL_DOMINANCE_ENEMY && eUnitCountDominance != TACTICAL_DOMINANCE_ENEMY)
+#endif
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_SIT_AND_BOMBARD;
 		}
@@ -1130,15 +1140,19 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
 		}
+		else if(eLastPosture == AI_TACTICAL_POSTURE_HEDGEHOG && pZone->GetEnemyUnitCount() > pZone->GetFriendlyUnitCount())
+		{
+			eChosenPosture = AI_TACTICAL_POSTURE_HEDGEHOG;
+		}
 		else
 #endif
-		if(eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY && pZone->GetFriendlyRangedUnitCount() > 1)
+		if(eRangedDominance == TACTICAL_DOMINANCE_FRIENDLY && pZone->GetFriendlyRangedUnitCount() > pZone->GetFriendlyMeleeUnitCount())
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 		}
 
 		//                 - less stringent if continuing this from a previous turn
-		else if(eLastPosture == AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE && pZone->GetFriendlyRangedUnitCount() > 1 && eRangedDominance != TACTICAL_DOMINANCE_ENEMY)
+		else if(eLastPosture == AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE && pZone->GetFriendlyRangedUnitCount() > pZone->GetEnemyRangedUnitCount() && eRangedDominance != TACTICAL_DOMINANCE_ENEMY)
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 		}
@@ -3455,7 +3469,11 @@ void CvTacticalAI::PlotAirSweepMoves()
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
+#if defined(MOD_UNITS_MAX_HP)
+		if(pUnit && (pUnit->getDamage() * 2) < pUnit->GetMaxHitPoints())
+#else
 		if(pUnit && (pUnit->getDamage() * 2) < GC.getMAX_HIT_POINTS())
+#endif
 		{
 			// Am I eligible to air sweep and have a target?
 #if defined(MOD_BALANCE_CORE)
@@ -3528,7 +3546,10 @@ void CvTacticalAI::PlotEmergencyPurchases()
 #if defined(MOD_BALANCE_CORE)
 		}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+		if(!MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+		{
+#endif
 		// If two defenders, assume already have land and sea and skip this city
 		if (pCity->plot()->getNumDefenders(m_pPlayer->GetID()) < 2)
 		{
@@ -3591,6 +3612,9 @@ void CvTacticalAI::PlotEmergencyPurchases()
 			//	pUnit = m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_ATTACK_SEA, pCity);
 			//}
 		}
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 	}
 }
 
@@ -9832,8 +9856,11 @@ bool CvTacticalAI::FindClosestUnit(CvPlot* pTarget, int iNumTurnsAway, bool bMus
 		// don't use non-combat units (but consider embarked for now)
 		if (pLoopUnit->getUnitInfo().GetCombat() == 0)
 			continue;
-
+#if defined(MOD_UNITS_MAX_HP)
+		if (bMustHaveHalfHP && (pLoopUnit->getDamage() * 2 > pLoopUnit->GetMaxHitPoints()))
+#else
 		if (bMustHaveHalfHP && (pLoopUnit->getDamage() * 2 > GC.getMAX_HIT_POINTS()))
+#endif
 			continue;
 
 		if (!pLoopUnit->canMove())
@@ -13307,10 +13334,10 @@ bool TacticalAIHelpers::HaveEnoughMeleeUnitsAroundTarget(PlayerTypes ePlayer, Cv
 //-------------------------------------------------------
 // this is experimental code
 //-------------------------------------------------------
-bool TacticalAIHelpers::GetPreferredPlotsForUnit(CvUnit* pUnit, CvPlot* pTargetPlot, bool bOffensive, std::vector<STacticalPlot>& vResult)
-{
-	return false;
-}
+//bool TacticalAIHelpers::GetPreferredPlotsForUnit(CvUnit* pUnit, CvPlot* pTargetPlot, bool bOffensive, std::vector<STacticalPlot>& vResult)
+//{
+//	return false;
+//}
 
 
 const char* barbarianMoveNames[] =

@@ -69,6 +69,11 @@
 						<Label Anchor="C,C" Offset="0,4" Font="TwCenMT24" FontStyle="Stroke" ID="VassalTaxesAvailableLabel" Hidden="1"/>
 					</Button>
 					<!--=======================================================================================================================-->
+					<!-- Corp Button -->
+					<!--=======================================================================================================================-->
+					<Button ConsumeMouse="1" ID="CorpButton" Anchor="C,T" Size="45,45" Offset="0,0" Texture="DC45_Corporations.dds" ToolTip="TXT_KEY_CPO" Hidden="0">
+					</Button>
+					<!--=======================================================================================================================-->
 					<!-- Notification Log DropDownButtons -->
 					<!--=======================================================================================================================-->
 					<PullDown ConsumeMouse="1" Anchor="R,T" Size="45,45" AutoSizePopUp="0" SpaceForScroll="0" ScrollThreshold="999" ID="MultiPull" Hidden="1" >

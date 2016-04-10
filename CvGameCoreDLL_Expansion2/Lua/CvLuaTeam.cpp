@@ -12,7 +12,9 @@
 //!		This file includes the implementation for a Lua Team instance.
 //!
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include <CvGameCoreDLLPCH.h>
+#include "CvGameCoreDLLPCH.h"
+#include "../CvGameCoreDLLPCH.h"
+#include "../CustomMods.h"
 #include "CvLuaSupport.h"
 #include "CvLuaTeam.h"
 #include "CvLuaTeamTech.h"

@@ -6336,7 +6336,8 @@ void CvCityCulture::CalculateBaseTourism()
 
 	if (iModifier > 0)
 	{
-		iBase = iBase * (100 + iModifier) / 100;
+		iBase *= (100 + iModifier);
+		iBase /= 100;
 	}
 	m_pCity->SetBaseTourism(iBase);
 }
@@ -6528,7 +6529,8 @@ int CvCityCulture::GetBaseTourism()
 
 	if (iModifier > 0)
 	{
-		iBase = iBase * (100 + iModifier) / 100;
+		iBase *= (100 + iModifier);
+		iBase /= 100;
 	}
 #if defined(MOD_BALANCE_CORE)
 	m_pCity->SetBaseTourism(iBase);

@@ -88,6 +88,67 @@ public:
 	int GetStaticYield(YieldTypes eYield) const;
 #endif
 
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	void DoEvents();
+	bool IsCityEventValid(CityEventTypes eEvent);
+	bool IsCityEventChoiceValid(CityEventChoiceTypes eEventChoice, CityEventTypes eParentEvent);
+	void DoCancelEventChoice(CityEventChoiceTypes eEventChoice);
+	void DoStartEvent(CityEventTypes eEvent);
+	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY);
+	CvString GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly);
+
+	void SetEventActive(CityEventTypes eEvent, bool bValue);
+	bool IsEventActive(CityEventTypes eEvent) const;
+
+	void SetEventChoiceActive(CityEventChoiceTypes eEventChoice, bool bValue);
+	bool IsEventChoiceActive(CityEventChoiceTypes eEventChoice) const;
+
+	int GetEventCooldown(CityEventTypes eEvent) const;
+	void ChangeEventCooldown(CityEventTypes eEvent, int iValue);
+	void SetEventCooldown(CityEventTypes eEvent, int iValue);
+
+	void ChangeCityEventCooldown(int iValue);
+	int GetCityEventCooldown() const;
+
+	void IncrementEvent(CityEventTypes eEvent, int iValue);
+	int GetEventIncrement(CityEventTypes eEvent) const;
+
+	int GetEventChoiceDuration(CityEventChoiceTypes eEventChoice) const;
+	void ChangeEventChoiceDuration(CityEventChoiceTypes eEventChoice, int iValue);
+	void SetEventChoiceDuration(CityEventChoiceTypes eEventChoice, int iValue);
+
+	void ChangeEventCityYield(YieldTypes eYield, int iValue);
+	int GetEventCityYield(YieldTypes eYield) const;
+
+	void ChangeEventBuildingClassYield(BuildingClassTypes eBuildingClass, YieldTypes eYield, int iValue);
+	int GetEventBuildingClassCityYield(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
+
+	void ChangeEventBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYield, int iValue);
+	int GetEventBuildingClassCityYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
+
+	void ChangeEventImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield, int iValue);
+	int GetEventImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield) const;
+
+	void ChangeEventResourceYield(ResourceTypes eResource, YieldTypes eYield, int iValue);
+	int GetEventResourceYield(ResourceTypes eResource, YieldTypes eYield) const;
+
+	void ChangeEventTerrainYield(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
+	int GetEventTerrainYield(TerrainTypes eTerrain, YieldTypes eYield) const;
+	void ChangeEventFeatureYield(FeatureTypes eFeature, YieldTypes eYield, int iValue);
+	int GetEventFeatureYield(FeatureTypes eFeature, YieldTypes eYield) const;
+
+	bool IsEventChoiceFired(CityEventChoiceTypes eEventChoice) const;
+	void SetEventChoiceFired(CityEventChoiceTypes eEventChoice, bool bValue);
+
+	bool IsEventFired(CityEventTypes eEvent) const;
+	void SetEventFired(CityEventTypes eEvent, bool bValue);
+
+	void ChangeEventHappiness(int iValue);
+	int GetEventHappiness() const;
+
+	virtual void AI_DoEventChoice(CityEventTypes eEvent) = 0;
+#endif
+
 	bool IsIndustrialRouteToCapital() const;
 	void SetIndustrialRouteToCapital(bool bValue);
 	void DoUpdateIndustrialRouteToCapital();
@@ -282,6 +343,9 @@ public:
 	void SetBuildingInvestment(BuildingClassTypes eBuildingClass, bool bValue);
 	bool IsBuildingInvestment(BuildingClassTypes eBuildingClass) const;
 
+	void SetUnitInvestment(UnitClassTypes eUnitClass, bool bValue);
+	bool IsUnitInvestment(UnitClassTypes eUnitClass) const;
+
 	void SetBuildingConstructed(BuildingClassTypes eBuildingClass, bool bValue);
 	bool IsBuildingConstructed(BuildingClassTypes eBuildingClass) const;
 #endif
@@ -443,6 +507,11 @@ public:
 
 	int getGameTurnLastExpanded() const;
 	void setGameTurnLastExpanded(int iNewValue);
+
+#if defined(MOD_BALANCE_CORE)
+	int GetAdditionalFood() const;
+	void SetAdditionalFood(int iValue);
+#endif
 
 	int getPopulation() const;
 #if defined(MOD_BALANCE_CORE)
@@ -836,8 +905,8 @@ public:
 	void ChangeTurnsSinceLastRankMessage(int iTurns);
 	int GetTurnsSinceLastRankMessage() const;
 
-	void DoRankIncreaseWarning(int iRank);
-	void SetEspionageRanking(int iPotential);
+	void DoRankIncreaseWarning(int iRank, bool bNotify);
+	void SetEspionageRanking(int iPotential, bool bNotify);
 #endif
 	// Base Yield
 	int getBaseYieldRate(YieldTypes eIndex) const;
@@ -1418,6 +1487,9 @@ protected:
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	FAutoVariable<int, CvCity> m_iFaithPerTurnFromReligion;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvCity> m_iAdditionalFood;
+#endif
 	FAutoVariable<int, CvCity> m_iCultureRateModifier;
 	FAutoVariable<int, CvCity> m_iNumWorldWonders;
 	FAutoVariable<int, CvCity> m_iNumTeamWonders;
@@ -1533,8 +1605,6 @@ protected:
 	FAutoVariable<int, CvCity> m_iNumNearbyMountains;
 	FAutoVariable<int, CvCity> m_iLocalUnhappinessMod;
 	FAutoVariable<bool, CvCity> m_bNoWarmonger;
-#endif
-#if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvCity> m_iBlockBuildingDestruction;
 	FAutoVariable<int, CvCity> m_iBlockWWDestruction;
 	FAutoVariable<int, CvCity> m_iBlockUDestruction;
@@ -1543,12 +1613,8 @@ protected:
 	FAutoVariable<int, CvCity> m_iBlockUnrest;
 	FAutoVariable<int, CvCity> m_iBlockScience;
 	FAutoVariable<int, CvCity> m_iBlockGold;
-#endif
-#if defined(MOD_BALANCE_CORE_SPIES)
 	FAutoVariable<int, CvCity> m_iCityRank;
 	FAutoVariable<int, CvCity> m_iTurnsSinceRankAnnouncement;
-#endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	FAutoVariable<int, CvCity> m_iChangePovertyUnhappiness;
 	FAutoVariable<int, CvCity> m_iChangeDefenseUnhappiness;
 	FAutoVariable<int, CvCity> m_iChangeUnculturedUnhappiness;
@@ -1658,6 +1724,24 @@ protected:
 	int** m_ppaiReligionBuildingYieldRateModifier;
 	int ** m_ppaiLocalBuildingClassYield;
 #endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	FAutoVariable<std::vector<int>, CvCity> m_aiEventCooldown;
+	FAutoVariable<std::vector<bool>, CvCity> m_abEventActive;
+	FAutoVariable<std::vector<bool>, CvCity> m_abEventChoiceActive;
+	FAutoVariable<std::vector<bool>, CvCity> m_abEventChoiceFired;
+	FAutoVariable<std::vector<bool>, CvCity> m_abEventFired;
+	FAutoVariable<std::vector<int>, CvCity> m_aiEventChoiceDuration;
+	FAutoVariable<std::vector<int>, CvCity> m_aiEventIncrement;
+	FAutoVariable<std::vector<int>, CvCity> m_aiEventCityYield;
+	FAutoVariable<int, CvCity> m_iEventHappiness;
+	FAutoVariable<int, CvCity> m_iCityEventCooldown;
+	int** m_ppaiEventBuildingClassYield;
+	int** m_ppaiEventBuildingClassYieldModifier;
+	int** m_ppaiEventImprovementYield;
+	int** m_ppaiEventResourceYield;
+	int** m_ppaiEventTerrainYield;
+	int** m_ppaiEventFeatureYield;
+#endif
 
 	CvCityBuildings* m_pCityBuildings;
 	CvCityStrategyAI* m_pCityStrategyAI;
@@ -1679,6 +1763,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<bool>, CvCity> m_abOwedChosenBuilding;
 	FAutoVariable<std::vector<bool>, CvCity> m_abBuildingInvestment;
+	FAutoVariable<std::vector<bool>, CvCity> m_abUnitInvestment;
 	FAutoVariable<std::vector<bool>, CvCity> m_abBuildingConstructed;
 #endif
 

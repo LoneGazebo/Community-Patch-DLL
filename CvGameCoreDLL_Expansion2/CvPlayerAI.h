@@ -98,6 +98,10 @@ public:
 	virtual void CityFinishedBuildingUnitForOperationSlot(OperationSlot thisSlot, CvUnit* pThisUnit);
 	virtual int GetNumUnitsNeededToBeBuilt();
 
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	void AI_DoEventChoice(EventTypes eEvent);
+#endif
+
 	// for serialization
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;

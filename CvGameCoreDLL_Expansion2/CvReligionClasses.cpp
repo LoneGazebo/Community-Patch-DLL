@@ -942,6 +942,11 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 
 	// Found it
 	m_CurrentReligions.push_back(newReligion);
+#if defined(MOD_TRAITS_OTHER_PREREQS)
+	if (MOD_TRAITS_OTHER_PREREQS) {
+		kPlayer.GetPlayerTraits()->InitPlayerTraits();
+	}
+#endif
 #if defined(MOD_BALANCE_CORE)
 	if(kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
 	{
@@ -1147,6 +1152,12 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 
 	// Inform the holy city
 	pkHolyCity->GetCityReligions()->DoReligionFounded(kReligion.m_eReligion);
+
+#if defined(MOD_TRAITS_OTHER_PREREQS)
+	if (MOD_TRAITS_OTHER_PREREQS) {
+		kPlayer.GetPlayerTraits()->InitPlayerTraits();
+	}
+#endif
 
 	// Update game systems
 	kPlayer.UpdateReligion();
@@ -1433,6 +1444,12 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 #endif
 		it->m_bEnhanced = true;
 
+#if defined(MOD_TRAITS_OTHER_PREREQS)
+	if (MOD_TRAITS_OTHER_PREREQS) {
+		kPlayer.GetPlayerTraits()->InitPlayerTraits();
+	}
+#endif
+
 	// Update game systems
 	UpdateAllCitiesThisReligion(eReligion);
 	kPlayer.UpdateReligion();
@@ -1645,6 +1662,11 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 	}
 #endif
 	it->m_Beliefs.AddBelief(eBelief1);
+#if defined(MOD_TRAITS_OTHER_PREREQS)
+	if (MOD_TRAITS_OTHER_PREREQS) {
+		kPlayer.GetPlayerTraits()->InitPlayerTraits();
+	}
+#endif
 #if defined(MOD_BALANCE_CORE)
 	it->m_bReformed = true;
 #endif
@@ -5167,6 +5189,61 @@ void CvCityReligions::ConvertPercentFollowers(ReligionTypes eToReligion, Religio
 	}
 	AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eToReligion, iPressureConverting, NO_PLAYER);
 }
+#if defined(MOD_BALANCE_CORE)
+/// Convert some percentage of followers from one religion to another
+void CvCityReligions::ConvertPercentForcedFollowers(ReligionTypes eToReligion, int iPercent)
+{
+	int iPressureConverting = 0;
+
+	// Find religion
+	ReligionInCityList::iterator it;
+	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
+	{
+		//Do for every religion in City, as we're converting x% of all citizens. 
+		if(it->m_iFollowers > 0)
+		{
+			iPressureConverting = it->m_iPressure * iPercent / 100;
+			it->m_iPressure -= iPressureConverting;
+			if (it->m_iPressure < 0)
+			{
+				it->m_iPressure = 0;
+			}
+		}
+	}
+	AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eToReligion, iPressureConverting, NO_PLAYER);
+}
+/// Convert some number of followers from one religion to another
+void CvCityReligions::ConvertNumberFollowers(ReligionTypes eToReligion, int iPop)
+{
+	int iPressureConverting = 0;
+
+	iPop *= 100;
+	int iTotalPop = m_pCity->getPopulation();
+	iPop /= iTotalPop;
+
+	if(iPop > 100)
+	{
+		iPop = 100;
+	}
+
+	// Find religion
+	ReligionInCityList::iterator it;
+	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
+	{
+		//Do for every religion in City, as we're converting x% of all citizens. 
+		if(it->m_iFollowers > 0)
+		{
+			iPressureConverting = it->m_iPressure * iPop / 100;
+			it->m_iPressure -= iPressureConverting;
+			if (it->m_iPressure < 0)
+			{
+				it->m_iPressure = 0;
+			}
+		}
+	}
+	AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eToReligion, iPressureConverting, NO_PLAYER);
+}
+#endif
 
 /// Add pressure to recruit followers to a religion
 void CvCityReligions::AddHolyCityPressure()
@@ -5643,9 +5720,10 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-				if(kLoopPlayer.isAlive() && kLoopPlayer.GetReligions()->GetCurrentReligion() == eMajority)
+				if(kLoopPlayer.isAlive() && pHolyCity != NULL && pHolyCity->getOwner() == (PlayerTypes)iPlayerLoop)
 				{
-					kLoopPlayer.doInstantYield(INSTANT_YIELD_TYPE_CONVERSION);
+					kLoopPlayer.doInstantYield(INSTANT_YIELD_TYPE_CONVERSION, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pHolyCity);
+					SetPaidAdoptionBonus(true);
 				}
 			}
 #endif
@@ -6514,7 +6592,11 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 }
 
 /// Find the city where a missionary should next spread his religion
+#if defined(MOD_BALANCE_CORE)
+CvCity* CvReligionAI::ChooseMissionaryTargetCity(UnitHandle pUnit, int* piTurns)
+#else
 CvCity* CvReligionAI::ChooseMissionaryTargetCity(UnitHandle pUnit)
+#endif
 {
 	ReligionTypes eMyReligion = GetReligionToSpread();
 	int iBestScore = 0;
@@ -6538,7 +6620,11 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(UnitHandle pUnit)
 			{
 				if(pLoopCity && !pLoopCity->GetCityReligions()->IsDefendedAgainstSpread(eMyReligion))
 				{
+#if defined(MOD_BALANCE_CORE)
+					int iScore = ScoreCityForMissionary(pLoopCity, pUnit, piTurns);
+#else
 					int iScore = ScoreCityForMissionary(pLoopCity, pUnit);
+#endif
 					if(iScore > iBestScore)
 					{
 						iBestScore = iScore;
@@ -6555,14 +6641,20 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(UnitHandle pUnit)
 /// Choose a plot next to the target city for the missionary to maneuver to
 CvPlot* CvReligionAI::ChooseMissionaryTargetPlot(UnitHandle pUnit, int* piTurns)
 {
+#if defined(MOD_BALANCE_CORE)
+	CvCity* pCity = ChooseMissionaryTargetCity(pUnit, piTurns);
+#else
 	CvCity* pCity = ChooseMissionaryTargetCity(pUnit);
+#endif
 	int iBestDistance = MAX_INT;
 	CvPlot* pBestTarget = NULL;
 
 	if(pCity == NULL)
 		return NULL;
 
+#if !defined(MOD_BALANCE_CORE)
 	if ( pUnit->GeneratePath(pCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX,piTurns) )
+#endif
 	{
 		// Find adjacent plot
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
@@ -6593,11 +6685,17 @@ CvPlot* CvReligionAI::ChooseMissionaryTargetPlot(UnitHandle pUnit, int* piTurns)
 		return pBestTarget;
 	}
 
+#if !defined(MOD_BALANCE_CORE)
 	return NULL;
+#endif
 }
 
 /// Find the city where an inquisitor should next remove heresy
+#if defined(MOD_BALANCE_CORE)
+CvCity* CvReligionAI::ChooseInquisitorTargetCity(UnitHandle pUnit, int* piTurns)
+#else
 CvCity* CvReligionAI::ChooseInquisitorTargetCity(UnitHandle pUnit)
+#endif
 {
 	ReligionTypes eMyReligion = GetReligionToSpread();
 	int iBestScore = 0;
@@ -6615,7 +6713,11 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(UnitHandle pUnit)
 	{
 		if(pLoopCity)
 		{
+#if defined(MOD_BALANCE_CORE)
+			int iScore = ScoreCityForInquisitor(pLoopCity, pUnit, piTurns);
+#else
 			int iScore = ScoreCityForInquisitor(pLoopCity, pUnit);
+#endif
 			if(iScore > iBestScore)
 			{
 				iBestScore = iScore;
@@ -6643,14 +6745,20 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(UnitHandle pUnit)
 /// Choose a plot next to the target city for the inquisitor to maneuver to
 CvPlot* CvReligionAI::ChooseInquisitorTargetPlot(UnitHandle pUnit, int* piTurns)
 {
+#if defined(MOD_BALANCE_CORE)
+	CvCity* pCity = ChooseInquisitorTargetCity(pUnit, piTurns);
+#else
 	CvCity* pCity = ChooseInquisitorTargetCity(pUnit);
+#endif
 	int iBestDistance = MAX_INT;
 	CvPlot* pBestTarget = NULL;
 
 	if(pCity == NULL)
 		return NULL;
 
+#if !defined(MOD_BALANCE_CORE)
 	if ( pUnit->GeneratePath(pCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX,piTurns) )
+#endif
 	{
 		// Find adjacent plot
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
@@ -6680,8 +6788,9 @@ CvPlot* CvReligionAI::ChooseInquisitorTargetPlot(UnitHandle pUnit, int* piTurns)
 
 		return pBestTarget;
 	}
-
+#if !defined(MOD_BALANCE_CORE)
 	return NULL;
+#endif
 }
 
 /// If we were going to use a prophet to convert a city, which one would it be?
@@ -9191,7 +9300,11 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 }
 
 /// AI's evaluation of this city as a target for a missionary
+#if defined(MOD_BALANCE_CORE)
+int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit, int* piTurns)
+#else
 int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
+#endif
 {
 	int iScore = 0;
 	ReligionTypes eMyReligion = GetReligionToSpread();
@@ -9318,6 +9431,11 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
 	{
 		iScore *= 2;
 	}
+#else
+	if (!pUnit->GeneratePath(pCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX, piTurns) )
+	{
+		return 0;
+	}
 #endif
 
 	// Holy city will anger folks, let's not do that one right away
@@ -9331,7 +9449,11 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
 }
 
 /// AI's evaluation of this city as a target for an inquisitor
+#if defined(MOD_BALANCE_CORE)
+int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, UnitHandle pUnit, int* piTurns)
+#else
 int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, UnitHandle pUnit)
+#endif
 {
 	int iScore = 0;
 	ReligionTypes eMyReligion = GetReligionToSpread();
@@ -9364,7 +9486,12 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, UnitHandle pUnit)
 	{
 		iScore /= 2;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if (!pUnit->GeneratePath(pCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX, piTurns) )
+	{
+		return 0;
+	}
+#endif
 	return iScore;
 }
 

@@ -312,6 +312,11 @@ for k, v, w in ([[
 
 	NOTIFICATION_LEAGUE_PROJECT_COMPLETE		LeagueProjectComplete
 	NOTIFICATION_LEAGUE_PROJECT_PROGRESS		LeagueProjectProgress
+
+	NOTIFICATION_INSTANT_YIELD			InstantYieldItem
+	NOTIFICATION_EVENT_CHOICE			ChooseEvent
+	NOTIFICATION_EVENT_CHOICE_CITY		ChooseCityEvent
+
 ]]):gmatch("(%S+)[^%S\n\r]*(%S*)[^%S\n\r]*(%S*)[^\n\r]*") do
 	local n = NotificationTypes[k]
 	if n then
@@ -1582,6 +1587,8 @@ local predefined = {
 	[L"TXT_KEY_LEAGUE_OVERVIEW"] = "DC45_WorldCongress.dds",
 	[L"TXT_KEY_INFOADDICT_MAIN_TITLE"] = "DC45_InfoAddict.dds",
 	[L"TXT_KEY_C4DF_VASSAL_OVERVIEW"] = "DC45_VassalOverview.dds",
+	[L"TXT_KEY_EVENT_OVERVIEW"] = "DC45_EventsOverview.dds",
+	[L"TXT_KEY_CPO"] = "DC45_Corporations.dds",
 }
 
 LuaEvents.AdditionalInformationDropdownGatherEntries.Add(

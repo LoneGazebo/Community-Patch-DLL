@@ -20,7 +20,7 @@
 // Include this after all other headers.
 #include "LintFree.h"
 
-#define MAX_NOTIFICATIONS 100
+#define MAX_NOTIFICATIONS 150
 
 static uint V1_IndexToHash[] = 
 {
@@ -165,7 +165,7 @@ static uint V1_IndexToHash[] =
 	NOTIFICATION_HOST_MIGRATION,
 	NOTIFICATION_PLAYER_CONNECTING,
 	NOTIFICATION_CITY_REVOLT_POSSIBLE,
-	NOTIFICATION_CITY_REVOLT
+	NOTIFICATION_CITY_REVOLT,
 };
 
 /// Serialization read
@@ -530,21 +530,7 @@ void CvNotifications::Dismiss(int iLookupIndex, bool bUserInvoked)
 				{
 					GC.GetEngineUserInterface()->SetPolicyNotificationSeen(true);
 				}
-#if defined(MOD_ACTIVE_DIPLOMACY)
-				break;
-#endif
 			}
-#if defined(MOD_ACTIVE_DIPLOMACY)
-			// JdH =>
-			case NOTIFICATION_PLAYER_DEAL_RECEIVED:
-			{
-				if (m_aNotifications[iIndex].m_iY == -2 /* request hack */)
-				{
-					GET_PLAYER(m_ePlayer).GetDiplomacyRequests()->Remove(m_aNotifications[iIndex].m_iLookupIndex); // remove the request
-				}
-				break;
-			}
-#endif
 			default:
 				break;
 			}
@@ -595,6 +581,12 @@ bool CvNotifications::MayUserDismiss(int iLookupIndex)
 			case NOTIFICATION_CITY_TILE:
 				// We could just let this drop through as the default is true anyway
 				return true;
+				break;
+#endif
+#if defined(MOD_BALANCE_CORE)
+			case 826076831:
+			case 419811917:
+				return false;
 				break;
 #endif
 
@@ -649,7 +641,7 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 {
 	eBlockingType = NO_ENDTURN_BLOCKING_TYPE;
 	iNotificationIndex = -1;
-
+	
 	int iIndex = m_iNotificationsBeginIndex;
 	while(iIndex != m_iNotificationsEndIndex)
 	{
@@ -787,6 +779,15 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
 				return true;
 				break;
+
+#if defined(MOD_BALANCE_CORE)
+			case 826076831:
+			case 419811917:
+				eBlockingType = ENDTURN_BLOCKING_EVENT_CHOICE;
+				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+				return true;
+				break;
+#endif
 
 			default:
 				// these notifications don't block, so don't return a blocking type
@@ -1033,7 +1034,7 @@ void CvNotifications::Activate(Notification& notification)
 			// This request was sent by an AI.
 			PlayerTypes eTo = notification.m_ePlayerID;
 			CvPlayer& kTo = GET_PLAYER(eTo);
-			kTo.GetDiplomacyRequests()->Activate(notification.m_iLookupIndex);
+			kTo.GetDiplomacyRequests()->ActivateAllFrom(eFrom);
 		}
 		// JdH <=
 #else
@@ -1213,6 +1214,39 @@ void CvNotifications::Activate(Notification& notification)
 			GC.GetEngineUserInterface()->AddPopup(kPopup);
 		}
 		break;
+#if defined(MOD_BALANCE_CORE)
+	case 419811917:
+		CvAssertMsg(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		if (notification.m_iGameDataIndex >= 0)
+		{
+			EventTypes eEvent = (EventTypes)notification.m_iGameDataIndex;
+			CvPopupInfo kPopup(BUTTONPOPUP_MODDER_10, m_ePlayer, eEvent);
+			GC.GetEngineUserInterface()->AddPopup(kPopup);
+		}
+		break;
+	case 826076831:
+		CvAssertMsg(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		if (notification.m_iGameDataIndex >= 0)
+		{
+			CityEventTypes eEvent = (CityEventTypes)notification.m_iGameDataIndex;
+			int iCityID = notification.m_iExtraGameData;
+			CvPopupInfo kPopup(BUTTONPOPUP_MODDER_8, m_ePlayer, eEvent, iCityID);
+			GC.GetEngineUserInterface()->AddPopup(kPopup);
+		}
+		break;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	case NOTIFICATION_DISCOVERED_BONUS_RESOURCE:
+		CvAssertMsg(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		{
+			if (notification.m_iGameDataIndex >= 0)
+			{
+				CvPopupInfo kPopup(BUTTONPOPUP_MODDER_5, m_ePlayer);
+				GC.GetEngineUserInterface()->AddPopup(kPopup);
+			}
+		}
+#endif
 
 	default:	// Default behavior is to move the camera to the X,Y passed in
 	{
@@ -1580,6 +1614,58 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 			return false;
 		}
 		break;
+#if defined(MOD_BALANCE_CORE)
+	case 419811917:
+		{
+			int iIndex = m_iNotificationsBeginIndex;
+			while(iIndex != m_iNotificationsEndIndex)
+			{
+				if(notification.m_eNotificationType == m_aNotifications[iIndex].m_eNotificationType)
+				{
+					if(!notification.m_bDismissed && !m_aNotifications[iIndex].m_bDismissed)
+					{
+						// we've already added a pantheon notification, don't need another
+						return true;
+					}
+				}
+
+
+				iIndex++;
+				if(iIndex >= (int)m_aNotifications.size())
+				{
+					iIndex = 0;
+				}
+			}
+
+			return false;
+		}
+		break;
+	case 826076831:
+		{
+			int iIndex = m_iNotificationsBeginIndex;
+			while(iIndex != m_iNotificationsEndIndex)
+			{
+				if(notification.m_eNotificationType == m_aNotifications[iIndex].m_eNotificationType)
+				{
+					if(!notification.m_bDismissed && !m_aNotifications[iIndex].m_bDismissed)
+					{
+						// we've already added a pantheon notification, don't need another
+						return true;
+					}
+				}
+
+
+				iIndex++;
+				if(iIndex >= (int)m_aNotifications.size())
+				{
+					iIndex = 0;
+				}
+			}
+
+			return false;
+		}
+		break;
+#endif
 
 	default:
 		return false;
@@ -1804,9 +1890,12 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	case NOTIFICATION_PLAYER_DEAL:
 	{
 		CvGame& game = GC.getGame();
-		CvGameDeals* pDeals = game.GetGameDeals();
 
-		if(!pDeals->ProposedDealExists(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX)))
+#if defined(MOD_ACTIVE_DIPLOMACY)
+		if (game.GetGameDeals().GetProposedDeal(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX), true) == NULL)
+#else
+		if(!game.GetGameDeals().ProposedDealExists(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX)))
+#endif
 		{
 			return true;
 		}
@@ -1815,7 +1904,6 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	case NOTIFICATION_PLAYER_DEAL_RECEIVED:
 	{
 		CvGame& game = GC.getGame();
-		CvGameDeals* pDeals = game.GetGameDeals();
 #if defined(MOD_ACTIVE_DIPLOMACY)
 		// JdH =>
 		PlayerTypes eFrom = static_cast<PlayerTypes>(m_aNotifications[iIndex].m_iX);
@@ -1823,13 +1911,13 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		{
 			return false;
 		}
-		else if (!pDeals->ProposedDealExists(eFrom, m_ePlayer))
+		else if (game.GetGameDeals().GetProposedDeal(eFrom, m_ePlayer, true) == NULL)
 		{
 			return true;
 		}
 		// JdH <=
 #else
-		if(!pDeals->ProposedDealExists((PlayerTypes)(m_aNotifications[iIndex].m_iX),  m_ePlayer))
+		if(!game.GetGameDeals().ProposedDealExists((PlayerTypes)(m_aNotifications[iIndex].m_iX),  m_ePlayer))
 		{
 			return true;
 		}
@@ -1972,6 +2060,35 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		}
 	}
 	break;
+#if defined(MOD_BALANCE_CORE)
+	case 826076831:
+	{
+		CityEventTypes eCityEvent = (CityEventTypes)m_aNotifications[iIndex].m_iGameDataIndex;
+		if(eCityEvent != NO_EVENT_CITY)
+		{
+			int iCityID = m_aNotifications[iIndex].m_iExtraGameData;
+			CvCity* pCity = GET_PLAYER(m_ePlayer).getCity(iCityID);
+			if(pCity != NULL)
+			{
+				if(pCity->IsEventActive(eCityEvent))
+					return false;
+			}
+		}
+		return true;
+	}
+	break;
+	case 419811917:
+	{
+		EventTypes eEvent = (EventTypes)m_aNotifications[iIndex].m_iGameDataIndex;
+		if(eEvent != NO_EVENT)
+		{
+			if(GET_PLAYER(m_ePlayer).IsEventActive(eEvent))
+				return false;
+		}
+		return true;
+	}
+	break;
+#endif
 
 	default:	// don't expire
 	{

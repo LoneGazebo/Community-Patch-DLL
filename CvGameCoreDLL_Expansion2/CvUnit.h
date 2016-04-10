@@ -846,7 +846,7 @@ public:
 	bool IsInFriendlyTerritory() const;
 	bool IsUnderEnemyRangedAttack() const;
 
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	int getExperienceTimes100() const;
 	void setExperienceTimes100(int iNewValueTimes100, int iMax = -1);
 	void changeExperienceTimes100(int iChangeTimes100, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false);
@@ -1086,6 +1086,22 @@ public:
 	bool IsIgnoreGreatGeneralBenefit() const;
 	void ChangeIgnoreGreatGeneralBenefitCount(int iChange);
 	// END Great General Stuff
+
+#if defined(MOD_UNITS_NO_SUPPLY)
+	bool isNoSupply() const;
+	void changeNoSupply(int iChange);
+#endif
+
+#if defined(MOD_UNITS_MAX_HP)
+	int getMaxHitPointsBase() const;
+	void setMaxHitPointsBase(int iMaxHitPoints);
+	void changeMaxHitPointsBase(int iChange);
+	
+	int getMaxHitPointsChange() const;
+	void changeMaxHitPointsChange(int iChange);
+	int getMaxHitPointsModifier() const;
+	void changeMaxHitPointsModifier(int iChange);
+#endif
 
 	bool IsIgnoreZOC() const;
 	void ChangeIgnoreZOCCount(int iChange);
@@ -1575,7 +1591,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iMoves;
 	FAutoVariable<bool, CvUnit> m_bImmobile;
 	FAutoVariable<int, CvUnit> m_iExperience;
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	FAutoVariable<int, CvUnit> m_iExperienceTimes100;
 #endif
 	FAutoVariable<int, CvUnit> m_iLevel;
@@ -1729,6 +1745,14 @@ protected:
 	FAutoVariable<int, CvUnit> m_iGreatGeneralCombatModifier;
 	FAutoVariable<int, CvUnit> m_iIgnoreGreatGeneralBenefit;
 	FAutoVariable<int, CvUnit> m_iIgnoreZOC;
+#if defined(MOD_UNITS_NO_SUPPLY)
+	FAutoVariable<int, CvUnit> m_iNoSupply;
+#endif
+#if defined(MOD_UNITS_MAX_HP)
+	int m_iMaxHitPointsBase;
+	FAutoVariable<int, CvUnit> m_iMaxHitPointsChange;
+	FAutoVariable<int, CvUnit> m_iMaxHitPointsModifier;
+#endif
 	FAutoVariable<int, CvUnit> m_iFriendlyLandsModifier;
 	FAutoVariable<int, CvUnit> m_iFriendlyLandsAttackModifier;
 	FAutoVariable<int, CvUnit> m_iOutsideFriendlyLandsModifier;

@@ -432,6 +432,12 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	void debugSyncChecksum();
+
+	PlayerTypes GetCorporationFounder( int iCorporateID ) const;
+	int GetNumCorporationsFounded() const;
+#if defined (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	PlayerTypes GetGreatestPlayerResourceMonopoly(ResourceTypes eResource) const;
+#endif
 #endif
 
 	void addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, const CvString& pszText, int iPlotX = -1, int iPlotY = -1);
@@ -519,7 +525,7 @@ public:
 	CvSiteEvaluatorForSettler* GetSettlerSiteEvaluator();
 	CvSiteEvaluatorForStart* GetStartSiteEvaluator();
 	CvStartPositioner* GetStartPositioner();
-	CvGameDeals* GetGameDeals();
+	CvGameDeals& GetGameDeals();
 	CvGameReligions* GetGameReligions();
 	CvGameCulture* GetGameCulture();
 	CvGameLeagues* GetGameLeagues();

@@ -69,6 +69,12 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iCombatLimit(0),
 	m_iRangedCombat(0),
 	m_iRangedCombatLimit(0),
+#if defined(MOD_UNITS_NO_SUPPLY)
+	m_bNoSupply(false),
+#endif
+#if defined(MOD_UNITS_MAX_HP)
+	m_iMaxHitPoints(100),
+#endif
 	m_iXPValueAttack(0),
 	m_iXPValueDefense(0),
 	m_iSpecialCargo(0),
@@ -209,21 +215,15 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iFaithCost = kResults.GetInt("FaithCost");
 	m_bRequiresFaithPurchaseEnabled = kResults.GetBool("RequiresFaithPurchaseEnabled");
 #if defined(MOD_GLOBAL_EXCLUDE_FROM_GIFTS)
-	if (MOD_GLOBAL_EXCLUDE_FROM_GIFTS) {
-		m_bNoMinorGifts = kResults.GetBool("NoMinorGifts");
-	}
+	m_bNoMinorGifts = kResults.GetBool("NoMinorGifts");
 #endif
 	m_bPurchaseOnly = kResults.GetBool("PurchaseOnly");
 	m_bMoveAfterPurchase = kResults.GetBool("MoveAfterPurchase");
 #if defined(MOD_GLOBAL_MOVE_AFTER_UPGRADE)
-	if (MOD_GLOBAL_MOVE_AFTER_UPGRADE) {
-		m_bMoveAfterUpgrade = kResults.GetBool("MoveAfterUpgrade");
-	}
+	m_bMoveAfterUpgrade = kResults.GetBool("MoveAfterUpgrade");
 #endif
 #if defined(MOD_GLOBAL_CANNOT_EMBARK)
-	if (MOD_GLOBAL_CANNOT_EMBARK) {
-		m_bCannotEmbark = kResults.GetBool("CannotEmbark");
-	}
+	m_bCannotEmbark = kResults.GetBool("CannotEmbark");
 #endif
 	m_iHurryCostModifier = kResults.GetInt("HurryCostModifier");
 	m_iAdvancedStartCost = kResults.GetInt("AdvancedStartCost");
@@ -245,9 +245,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iBaseGold = kResults.GetInt("BaseGold");
 	m_iNumGoldPerEra = kResults.GetInt("NumGoldPerEra");
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-	if (MOD_DIPLOMACY_CITYSTATES) {
-		m_iNumInfPerEra = kResults.GetInt("NumInfPerEra");
-	}
+	m_iNumInfPerEra = kResults.GetInt("NumInfPerEra");
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iNumFreeLux = kResults.GetInt("NumFreeLux");
@@ -261,15 +259,25 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bProhibitsSpread = kResults.GetBool("ProhibitsSpread");
 	m_bCanBuyCityState = kResults.GetBool("CanBuyCityState");
 #if defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
-	if (MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL) {
-		m_bCanRepairFleet = kResults.GetBool("CanRepairFleet");
-		m_bCanChangePort = kResults.GetBool("CanChangePort");
-	}
+	m_bCanRepairFleet = kResults.GetBool("CanRepairFleet");
+	m_bCanChangePort = kResults.GetBool("CanChangePort");
 #endif
 	m_iCombat = kResults.GetInt("Combat");
 	m_iCombatLimit = kResults.GetInt("CombatLimit");
 	m_iRangedCombat = kResults.GetInt("RangedCombat");
 	m_iRangedCombatLimit = kResults.GetInt("RangedCombatLimit");
+#if defined(MOD_UNITS_NO_SUPPLY)
+	if (MOD_UNITS_NO_SUPPLY) {
+		m_bNoSupply = (kResults.GetInt("NoSupply") != 0);
+	}
+#endif
+#if defined(MOD_UNITS_MAX_HP)
+	if (MOD_UNITS_MAX_HP) {
+		m_iMaxHitPoints = kResults.GetInt("MaxHitPoints");
+	} else {
+		m_iMaxHitPoints = GC.getMAX_HIT_POINTS();
+	}
+#endif
 	m_iXPValueAttack = kResults.GetInt("XPValueAttack");
 	m_iXPValueDefense = kResults.GetInt("XPValueDefense");
 	m_iConscriptionValue = kResults.GetInt("Conscription");
@@ -288,12 +296,10 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bFound = kResults.GetBool("Found");
 	m_bFoundAbroad = kResults.GetBool("FoundAbroad");
 #if defined(MOD_BALANCE_CORE)
-	if (MOD_BALANCE_CORE) {
-		m_bFoundMid = kResults.GetBool("FoundMid");
-		m_bFoundLate = kResults.GetBool("FoundLate");
-		m_bIsCityAttackSupport = kResults.GetBool("CityAttackOnly");
-		m_iGPExtra = kResults.GetInt("GPExtra");
-	}
+	m_bFoundMid = kResults.GetBool("FoundMid");
+	m_bFoundLate = kResults.GetBool("FoundLate");
+	m_bIsCityAttackSupport = kResults.GetBool("CityAttackOnly");
+	m_iGPExtra = kResults.GetInt("GPExtra");
 #endif
 	m_iCultureBombRadius = kResults.GetInt("CultureBombRadius");
 	m_iGoldenAgeTurns = kResults.GetInt("GoldenAgeTurns");
@@ -335,7 +341,8 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	szTextVal = kResults.GetText("PromotionClass");
 	m_iUnitPromotionType = GC.getInfoTypeForString(szTextVal, true);
 
-	if (m_iUnitPromotionType == NO_UNITCOMBAT || !MOD_GLOBAL_PROMOTION_CLASSES) {
+	if (m_iUnitPromotionType == NO_UNITCOMBAT || !MOD_GLOBAL_PROMOTION_CLASSES) 
+	{
 		m_iUnitPromotionType = m_iUnitCombatType;
 	}
 #endif
@@ -422,10 +429,8 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	kUtility.PopulateArrayByExistence(m_pbBuildings, "Buildings", "Unit_Buildings", "BuildingType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassRequireds, "BuildingClasses", "Unit_BuildingClassRequireds", "BuildingClassType", "UnitType", szUnitType);
 #if defined(MOD_BALANCE_CORE)
-	if (MOD_BALANCE_CORE) {
-		kUtility.PopulateArrayByExistence(m_pbBuildOnFound, "BuildingClasses", "Unit_BuildOnFound", "BuildingClassType", "UnitType", szUnitType);
-		kUtility.PopulateArrayByExistence(m_pbBuildingClassPurchaseRequireds, "BuildingClasses", "Unit_BuildingClassPurchaseRequireds", "BuildingClassType", "UnitType", szUnitType);
-	}
+	kUtility.PopulateArrayByExistence(m_pbBuildOnFound, "BuildingClasses", "Unit_BuildOnFound", "BuildingClassType", "UnitType", szUnitType);
+	kUtility.PopulateArrayByExistence(m_pbBuildingClassPurchaseRequireds, "BuildingClasses", "Unit_BuildingClassPurchaseRequireds", "BuildingClassType", "UnitType", szUnitType);
 #endif
 	//TechTypes
 	{
@@ -840,6 +845,22 @@ int CvUnitEntry::GetRangedCombatLimit() const
 {
 	return m_iRangedCombatLimit;
 }
+
+#if defined(MOD_UNITS_NO_SUPPLY)
+/// Unit has no supply cost
+bool CvUnitEntry::IsNoSupply() const
+{
+	return m_bNoSupply;
+}
+#endif
+
+#if defined(MOD_UNITS_MAX_HP)
+/// Maximum hit points, usually 100
+int CvUnitEntry::GetMaxHitPoints() const
+{
+	return m_iMaxHitPoints;
+}
+#endif
 
 /// Experience point value when attacking
 int CvUnitEntry::GetXPValueAttack() const

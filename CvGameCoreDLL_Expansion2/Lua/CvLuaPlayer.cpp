@@ -12,7 +12,9 @@
 //!		This file includes the implementation for a Lua Player instance.
 //!
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include <CvGameCoreDLLPCH.h>
+#include "CvGameCoreDLLPCH.h"
+#include "../CvGameCoreDLLPCH.h"
+#include "../CustomMods.h"
 #include "CvLuaSupport.h"
 #include "CvLuaCity.h"
 #include "CvLuaPlayer.h"
@@ -60,6 +62,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	Method(GetResourceMonopolyPlayer);
+	Method(GetMonopolyPercent);
 #endif
 	Method(DisbandUnit);
 	Method(AddFreeUnit);
@@ -444,6 +447,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetBranchPicked2);
 	Method(GetBranchPicked3);
 #if defined(MOD_API_LUA_EXTENSIONS)
+	Method(GrantPolicy);
+	Method(RevokePolicy);
+	Method(SwapPolicy);
 	Method(CanAdoptIdeology);
 	Method(CanAdoptTenet);
 #endif
@@ -1015,6 +1021,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNotificationDismissed);
 	Method(AddNotification);
 #if defined(MOD_API_LUA_EXTENSIONS)
+	Method(AddNotificationName);
 	Method(DismissNotification);
 #endif
 
@@ -1173,6 +1180,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCorporationHelper);
 	Method(GetMaxFranchises);
 	Method(GetCorpID);
+	Method(GetCorporationHeadquarters);
+	Method(GetOfficeBuilding)
+	Method(GetFranchiseBuilding);
+	Method(GetCorporationFoundedTurn);
+	Method(GetCurrentOfficeBenefit);
 #endif
 	Method(GetInternationalTradeRouteDomainModifier);
 	Method(GetInternationalTradeRouteTotal);
@@ -1366,6 +1378,18 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CountAllTerrain);
 	Method(CountAllWorkedTerrain);
 #endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	Method(GetScaledEventChoiceValue);
+	Method(IsEventChoiceActive);
+	Method(DoEventChoice);
+	Method(DoStartEvent);
+	Method(DoCancelEventChoice);
+	Method(GetEventCooldown);
+	Method(SetEventCooldown);
+	Method(GetEventChoiceCooldown);
+	Method(SetEventChoiceCooldown);
+	Method(IsEventChoiceValid);
+#endif
 }
 //------------------------------------------------------------------------------
 void CvLuaPlayer::HandleMissingInstance(lua_State* L)
@@ -1527,6 +1551,16 @@ int CvLuaPlayer::lGetResourceMonopolyPlayer(lua_State* L)
 	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
 	const bool bResult = pkPlayer->HasGlobalMonopoly(eResource);
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetMonopolyPercent(ResourceTypes eResource)
+int CvLuaPlayer::lGetMonopolyPercent(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetMonopolyPercent(eResource);
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 #endif
@@ -4299,6 +4333,112 @@ int CvLuaPlayer::lGetCorpID(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCorporationHeadquarters(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iCorporation = pkPlayer->GetCorporateFounderID();
+	CvCity* pkCity = NULL;
+
+	if(iCorporation > 0)
+	{
+		// Find building of this Corporation type
+		for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+		{
+			BuildingTypes eBuilding = (BuildingTypes) iI;
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			if(pkBuildingInfo)
+			{
+				if(pkBuildingInfo->GetCorporationHQID() == iCorporation)
+				{
+					// Look through cities for their building
+					int iLoop = 0;
+					for(CvCity* pCity = pkPlayer->firstCity(&iLoop); pCity != NULL; pCity = pkPlayer->nextCity(&iLoop))
+					{
+						if(pCity->HasBuilding((BuildingTypes) eBuilding))
+						{
+							pkCity = pCity;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	CvLuaCity::Push(L, pkCity);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetOfficeBuilding(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iCorporation = pkPlayer->GetCorporateFounderID();
+	int iResult = -1;
+	if(iCorporation > 0)
+	{
+		// Look for buildings with HQID = 0 and CorpID = iCorporation
+		for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+		{
+			BuildingTypes eBuilding = (BuildingTypes) iI;
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			if(pkBuildingInfo)
+			{
+				if(pkBuildingInfo->GetCorporationHQID() == 0 && pkBuildingInfo->GetCorporationID() == iCorporation)
+				{
+					iResult = pkBuildingInfo->GetBuildingClassType();
+					break;
+				}
+			}
+		}
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetFranchiseBuilding(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iCorporation = pkPlayer->GetCorporateFounderID();
+	int iResult = -1;
+	if(iCorporation > 0)
+	{
+		// First look for Offices
+		for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+		{
+			BuildingTypes eBuilding = (BuildingTypes) iI;
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			if(pkBuildingInfo)
+			{
+				// Is this an office?
+				if(pkBuildingInfo->GetCorporationHQID() == 0 && pkBuildingInfo->GetCorporationID() == iCorporation)
+				{
+					// Franchise = the building it produces to a trade target city
+					iResult = pkBuildingInfo->GetFreeBuildingTradeTargetCity();
+					break;
+				}
+			}
+		}
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCorporationFoundedTurn(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iResult = pkPlayer->GetCorporateFoundedTurn();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCurrentOfficeBenefit(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushstring(L, pkPlayer->GetCurrentOfficeBenefit());
+	return 1;
+}
 #endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteDomainModifier(lua_State* L)
@@ -5936,6 +6076,43 @@ int CvLuaPlayer::lGetBranchPicked3(lua_State* L)
 }
 
 #if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//void GrantPolicy(PolicyTypes iPolicy, bool bFree=false);
+int CvLuaPlayer::lGrantPolicy(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PolicyTypes iPolicy = (PolicyTypes)lua_tointeger(L, 2);
+	bool bFree = luaL_optbool(L, 3, false);
+
+	const bool bResult = pkPlayer->grantPolicy(iPolicy, bFree);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//void RevokePolicy(PolicyTypes iPolicy);
+int CvLuaPlayer::lRevokePolicy(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PolicyTypes iPolicy = (PolicyTypes)lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->revokePolicy(iPolicy);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//void SwapPolicy(PolicyTypes iNewPolicy, PolicyTypes iOldPolicy);
+int CvLuaPlayer::lSwapPolicy(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PolicyTypes iPolicyNew = (PolicyTypes)lua_tointeger(L, 2);
+	const PolicyTypes iPolicyOld = (PolicyTypes)lua_tointeger(L, 3);
+
+	const bool bResult = pkPlayer->swapPolicy(iPolicyNew, iPolicyOld);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
 //------------------------------------------------------------------------------
 //bool CanAdoptIdeology(PolicyBranchTypes  iIndex);
 int CvLuaPlayer::lCanAdoptIdeology(lua_State* L)
@@ -8663,7 +8840,7 @@ int CvLuaPlayer::lSetResearchingTech(lua_State* L)
 //int getCombatExperience();
 int CvLuaPlayer::lGetCombatExperience(lua_State* L)
 {
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	lua_pushinteger(L, pkPlayer->getCombatExperienceTimes100() / 100);
@@ -8676,7 +8853,7 @@ int CvLuaPlayer::lGetCombatExperience(lua_State* L)
 //void changeCombatExperience(int iChange);
 int CvLuaPlayer::lChangeCombatExperience(lua_State* L)
 {
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iExperience = lua_tointeger(L, 2);
 
@@ -8690,7 +8867,7 @@ int CvLuaPlayer::lChangeCombatExperience(lua_State* L)
 //void setCombatExperience(int iExperience);
 int CvLuaPlayer::lSetCombatExperience(lua_State* L)
 {
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iExperience = lua_tointeger(L, 2);
 
@@ -8704,7 +8881,7 @@ int CvLuaPlayer::lSetCombatExperience(lua_State* L)
 //int getLifetimeCombatExperience();
 int CvLuaPlayer::lGetLifetimeCombatExperience(lua_State* L)
 {
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	lua_pushinteger(L, pkPlayer->getLifetimeCombatExperienceTimes100() / 100);
@@ -8717,7 +8894,7 @@ int CvLuaPlayer::lGetLifetimeCombatExperience(lua_State* L)
 //int getNavalCombatExperience();
 int CvLuaPlayer::lGetNavalCombatExperience(lua_State* L)
 {
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	lua_pushinteger(L, pkPlayer->getNavalCombatExperienceTimes100() / 100);
@@ -8730,7 +8907,7 @@ int CvLuaPlayer::lGetNavalCombatExperience(lua_State* L)
 //void changeNavalCombatExperience(int iChange);
 int CvLuaPlayer::lChangeNavalCombatExperience(lua_State* L)
 {
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iExperience = lua_tointeger(L, 2);
 
@@ -8744,7 +8921,7 @@ int CvLuaPlayer::lChangeNavalCombatExperience(lua_State* L)
 //void setCombatExperience(int iExperience);
 int CvLuaPlayer::lSetNavalCombatExperience(lua_State* L)
 {
-#if defined(MOD_API_XP_TIMES_100)
+#if defined(MOD_UNITS_XP_TIMES_100)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iExperience = lua_tointeger(L, 2);
 
@@ -10180,6 +10357,31 @@ int CvLuaPlayer::lAddNotification(lua_State* L)
 }
 
 #if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//void AddNotification()
+int CvLuaPlayer::lAddNotificationName(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvNotifications* pNotifications = pkPlayer->GetNotifications();
+	int notificationID = -1;
+	if(pNotifications)
+	{
+		int iExtraData = -1;
+		if(lua_gettop(L) >= 8)
+			iExtraData = lua_tointeger(L, 8);
+
+		notificationID = pNotifications->AddByName(lua_tostring(L, 2),
+		                                     lua_tostring(L, 3),
+		                                     lua_tostring(L, 4),
+		                                     lua_tointeger(L, 5),
+		                                     lua_tointeger(L, 6),
+		                                     lua_tointeger(L, 7),
+		                                     iExtraData);
+	}
+	lua_pushinteger(L, notificationID);
+
+	return 1;
+}
 //------------------------------------------------------------------------------
 //void DismissNotification()
 int CvLuaPlayer::lDismissNotification(lua_State* L)
@@ -14104,6 +14306,161 @@ int CvLuaPlayer::lHasCurrency(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	const bool bResult = pkPlayer->HasCurrency();
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+int CvLuaPlayer::lGetScaledEventChoiceValue(lua_State* L)
+{
+	CvString CoreYieldTip = "";
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventChoiceTypes eEventChoice = (EventChoiceTypes)lua_tointeger(L, 2);
+	const bool bYieldsOnly = lua_toboolean(L, 3);
+	if(eEventChoice != NO_EVENT_CHOICE)
+	{
+		CoreYieldTip = pkPlayer->GetScaledHelpText(eEventChoice, bYieldsOnly);
+	}
+
+	lua_pushstring(L, CoreYieldTip.c_str());
+	return 1;
+}
+int CvLuaPlayer::lIsEventChoiceActive(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventChoiceTypes eEventChoice = (EventChoiceTypes)lua_tointeger(L, 2);
+	const bool bInstantEvents = luaL_optbool(L, 3, false);
+	bool bResult = false;
+	if(eEventChoice != NO_EVENT_CHOICE)
+	{
+		CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
+		if(pkEventChoiceInfo != NULL)
+		{
+			if(pkPlayer->IsEventChoiceActive(eEventChoice))
+			{
+				if(bInstantEvents)
+				{
+					if(!pkEventChoiceInfo->isOneShot() && !pkEventChoiceInfo->Expires())
+					{
+						for(int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
+						{
+							EventTypes eEvent = (EventTypes)iLoop;
+							if(eEvent != NO_EVENT)
+							{
+								if(pkEventChoiceInfo->isParentEvent(eEvent))
+								{
+									CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+									if(pkEventInfo != NULL)
+									{
+										if(pkEventInfo->getNumChoices() == 1)
+										{
+											if(pkPlayer->GetEventCooldown(eEvent) > 0)
+											{
+												bResult = true;
+												break;
+											}
+										}
+										else
+										{
+											bResult = true;
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					if(pkEventChoiceInfo->isOneShot() && pkPlayer->IsEventChoiceFired(eEventChoice))
+					{
+						bResult = true;
+					}
+					else if(pkEventChoiceInfo->Expires())
+					{
+						bResult = true;
+					}
+				}
+			}
+		}
+	}
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+int CvLuaPlayer::lDoEventChoice(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventChoiceTypes eEventChoice = (EventChoiceTypes)lua_tointeger(L, 2);
+	pkPlayer->DoEventChoice(eEventChoice);
+	return 1;
+}
+int CvLuaPlayer::lDoStartEvent(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventTypes eEvent = (EventTypes)lua_tointeger(L, 2);
+	pkPlayer->DoStartEvent(eEvent);
+	return 1;
+}
+int CvLuaPlayer::lDoCancelEventChoice(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventChoiceTypes eEvent = (EventChoiceTypes)lua_tointeger(L, 2);
+	pkPlayer->DoCancelEventChoice(eEvent);
+	return 1;
+}
+int CvLuaPlayer::lGetEventCooldown(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventTypes eEvent = (EventTypes)lua_tointeger(L, 2);
+	CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+	if(pkEventInfo != NULL && pkEventInfo->isOneShot())
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
+	const int iCooldown = pkPlayer->GetEventCooldown(eEvent);
+	lua_pushinteger(L, iCooldown);
+	return 1;
+}
+int CvLuaPlayer::lGetEventChoiceCooldown(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventChoiceTypes eEvent = (EventChoiceTypes)lua_tointeger(L, 2);
+	CvModEventChoiceInfo* pkEventInfo = GC.getEventChoiceInfo(eEvent);
+	if(pkEventInfo != NULL && pkEventInfo->isOneShot())
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
+	const int iCooldown = pkPlayer->GetEventChoiceDuration(eEvent);
+	lua_pushinteger(L, iCooldown);
+	return 1;
+}
+int CvLuaPlayer::lSetEventCooldown(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventTypes eEvent = (EventTypes)lua_tointeger(L, 2);
+	int iNewCooldown = lua_tointeger(L, 3);
+	pkPlayer->SetEventCooldown(eEvent, iNewCooldown);
+	return 1;
+}
+int CvLuaPlayer::lSetEventChoiceCooldown(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventChoiceTypes eEvent = (EventChoiceTypes)lua_tointeger(L, 2);
+	int iNewCooldown = lua_tointeger(L, 3);
+	pkPlayer->SetEventChoiceDuration(eEvent, iNewCooldown);
+	return 1;
+}
+int CvLuaPlayer::lIsEventChoiceValid(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventChoiceTypes eEventChoice = (EventChoiceTypes)lua_tointeger(L, 2);
+	const EventTypes eEvent = (EventTypes)lua_tointeger(L, 3);
+	const bool bValue = pkPlayer->IsEventChoiceValid(eEventChoice, eEvent);
+
+	lua_pushboolean(L, bValue);
+
 	return 1;
 }
 #endif

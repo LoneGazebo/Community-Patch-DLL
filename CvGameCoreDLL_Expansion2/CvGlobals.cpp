@@ -150,7 +150,10 @@ CvGlobals::CvGlobals() :
 	m_iAI_GS_SS_HAS_APOLLO_PROGRAM(150),
 	m_iAI_GS_SS_TECH_PROGRESS_MOD(300),
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	m_iEVENT_MIN_DURATION_BETWEEN(10),
 	m_iBALANCE_HAPPINESS_THRESHOLD_PERCENTILE(50),
+	m_iGLOBAL_RESOURCE_MONOPOLY_THRESHOLD(50),
+	m_iSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD(25),
 #endif
 	m_iAI_STRATEGY_EARLY_EXPLORATION_STARTING_WEIGHT(100),
 	m_iAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR(1),
@@ -1654,7 +1657,12 @@ CvGlobals::CvGlobals() :
 #endif
 	m_iZONE_OF_CONTROL_ENABLED(1),
 	m_iFIRE_SUPPORT_DISABLED(1),
+#if defined(MOD_BUGFIX_MINOR)
+	// BNW matey boy!
+	m_iMAX_HIT_POINTS(100),
+#else
 	m_iMAX_HIT_POINTS(10),
+#endif
 	m_iMAX_CITY_HIT_POINTS(200),
 	m_iCITY_HIT_POINTS_HEALED_PER_TURN(1),
 	m_iFLAT_LAND_EXTRA_DEFENSE(-33),
@@ -1931,7 +1939,9 @@ CvGlobals::CvGlobals() :
 	m_iOPINION_WEIGHT_OPEN_BORDERS_THEM(-4),
 	m_iGWAM_THRESHOLD_DECREASE(-25),
 	m_iBALANCE_BUILDING_INVESTMENT_BASELINE(-50),
+	m_iBALANCE_UNIT_INVESTMENT_BASELINE(-50),
 	m_iOPEN_BORDERS_MODIFIER_TRADE_GOLD(20),
+	m_fMOD_BALANCE_CORE_MINIMUM_RANKING_PTP(0.0f),
 #endif
 
 // -- floats --
@@ -3265,6 +3275,87 @@ CvVoteSourceInfo* CvGlobals::getVoteSourceInfo(VoteSourceTypes e)
 		return NULL;
 }
 
+#if defined(MOD_BALANCE_CORE_EVENTS)
+int CvGlobals::getNumEventInfos()
+{
+	return (int)m_paEventInfo.size();
+}
+
+std::vector<CvModEventInfo*>& CvGlobals::getEventInfo()
+{
+	return m_paEventInfo;
+}
+
+CvModEventInfo* CvGlobals::getEventInfo(EventTypes e)
+{
+	CvAssert(e > -1);
+	CvAssert(e < GC.getNumEventInfos());
+	if(e > -1 && e < (int)m_paEventInfo.size())
+		return m_paEventInfo[e];
+	else
+		return NULL;
+}
+
+int CvGlobals::getNumEventChoiceInfos()
+{
+	return (int)m_paEventChoiceInfo.size();
+}
+
+std::vector<CvModEventChoiceInfo*>& CvGlobals::getEventChoiceInfo()
+{
+	return m_paEventChoiceInfo;
+}
+
+CvModEventChoiceInfo* CvGlobals::getEventChoiceInfo(EventChoiceTypes e)
+{
+	CvAssert(e > -1);
+	CvAssert(e < GC.getNumEventChoiceInfos());
+	if(e > -1 && e < (int)m_paEventChoiceInfo.size())
+		return m_paEventChoiceInfo[e];
+	else
+		return NULL;
+}
+int CvGlobals::getNumCityEventInfos()
+{
+	return (int)m_paCityEventInfo.size();
+}
+
+std::vector<CvModCityEventInfo*>& CvGlobals::getCityEventInfo()
+{
+	return m_paCityEventInfo;
+}
+
+CvModCityEventInfo* CvGlobals::getCityEventInfo(CityEventTypes e)
+{
+	CvAssert(e > -1);
+	CvAssert(e < GC.getNumCityEventInfos());
+	if(e > -1 && e < (int)m_paCityEventInfo.size())
+		return m_paCityEventInfo[e];
+	else
+		return NULL;
+}
+
+int CvGlobals::getNumCityEventChoiceInfos()
+{
+	return (int)m_paCityEventChoiceInfo.size();
+}
+
+std::vector<CvModEventCityChoiceInfo*>& CvGlobals::getCityEventChoiceInfo()
+{
+	return m_paCityEventChoiceInfo;
+}
+
+CvModEventCityChoiceInfo* CvGlobals::getCityEventChoiceInfo(CityEventChoiceTypes e)
+{
+	CvAssert(e > -1);
+	CvAssert(e < GC.getNumCityEventChoiceInfos());
+	if(e > -1 && e < (int)m_paCityEventChoiceInfo.size())
+		return m_paCityEventChoiceInfo[e];
+	else
+		return NULL;
+}
+#endif
+
 int CvGlobals::getNumUnitCombatClassInfos()
 {
 	return (int)m_paUnitCombatClassInfo.size();
@@ -4536,7 +4627,10 @@ void CvGlobals::cacheGlobals()
 	m_iAI_GS_SS_HAS_APOLLO_PROGRAM = getDefineINT("AI_GS_SS_HAS_APOLLO_PROGRAM");
 	m_iAI_GS_SS_TECH_PROGRESS_MOD = getDefineINT("AI_GS_SS_TECH_PROGRESS_MOD");
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	m_iEVENT_MIN_DURATION_BETWEEN = getDefineINT("EVENT_MIN_DURATION_BETWEEN");
 	m_iBALANCE_HAPPINESS_THRESHOLD_PERCENTILE = getDefineINT("BALANCE_HAPPINESS_THRESHOLD_PERCENTILE");
+	m_iGLOBAL_RESOURCE_MONOPOLY_THRESHOLD = getDefineINT("GLOBAL_RESOURCE_MONOPOLY_THRESHOLD");
+	m_iSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD = getDefineINT("STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD");
 #endif
 	m_iAI_STRATEGY_EARLY_EXPLORATION_STARTING_WEIGHT = getDefineINT("AI_STRATEGY_EARLY_EXPLORATION_STARTING_WEIGHT");
 	m_iAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR = getDefineINT("AI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR");
@@ -6336,7 +6430,9 @@ void CvGlobals::cacheGlobals()
 	m_iOPINION_WEIGHT_OPEN_BORDERS_THEM = getDefineINT("OPINION_WEIGHT_OPEN_BORDERS_THEM");
 	m_iGWAM_THRESHOLD_DECREASE = getDefineINT("GWAM_THRESHOLD_DECREASE");
 	m_iBALANCE_BUILDING_INVESTMENT_BASELINE = getDefineINT("BALANCE_BUILDING_INVESTMENT_BASELINE");
+	m_iBALANCE_UNIT_INVESTMENT_BASELINE = getDefineINT("BALANCE_UNIT_INVESTMENT_BASELINE");
 	m_iOPEN_BORDERS_MODIFIER_TRADE_GOLD = getDefineINT("OPEN_BORDERS_MODIFIER_TRADE_GOLD");
+	m_fMOD_BALANCE_CORE_MINIMUM_RANKING_PTP = getDefineFLOAT("MOD_BALANCE_CORE_MINIMUM_RANKING_PTP");
 	}
 #endif
 	// -- floats --
@@ -6776,6 +6872,12 @@ void CvGlobals::deleteInfoArrays()
 	deleteInfoArray(m_paMinorCivInfo);
 
 	deleteInfoArray(m_paVoteSourceInfo);
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	deleteInfoArray(m_paEventInfo);
+	deleteInfoArray(m_paEventChoiceInfo);
+	deleteInfoArray(m_paCityEventInfo);
+	deleteInfoArray(m_paCityEventChoiceInfo);
+#endif
 	deleteInfoArray(m_paHandicapInfo);
 	deleteInfoArray(m_paGameSpeedInfo);
 #if defined(MOD_EVENTS_DIPLO_MODIFIERS)

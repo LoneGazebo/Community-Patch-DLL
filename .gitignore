@@ -9,6 +9,7 @@
 !*.dds
 !*.fxsxml
 !*.ftsxml
+!*.ggxml
 !*.gr2
 !*.filters
 !*.gitattributes
@@ -29,6 +30,8 @@
 !*.txt
 !*.dds
 !*.gr2
+
+!*.db
 
 BuildOutput/
 BuildTemp/

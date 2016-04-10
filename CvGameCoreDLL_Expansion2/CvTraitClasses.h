@@ -140,6 +140,11 @@ public:
 	int GetRazeSpeedModifier() const;
 	int GetDOFGreatPersonModifier() const;
 	int GetLuxuryHappinessRetention() const;
+#if defined(MOD_TRAITS_EXTRA_SUPPLY)
+	int GetExtraSupply() const;
+	int GetExtraSupplyPerCity() const;
+	int GetExtraSupplyPerPopulation() const;
+#endif
 	int GetExtraSpies() const;
 	int GetUnresearchedTechBonusFromKills() const;
 	int GetExtraFoundedCityTerritoryClaimRange() const;
@@ -229,11 +234,18 @@ public:
 	int GetStrategicResourceQuantityModifier(int i) const;
 	int GetObsoleteTech() const;
 	int GetPrereqTech() const;
+#if defined(MOD_TRAITS_OTHER_PREREQS)
+	int GetObsoleteBelief() const;
+	int GetPrereqBelief() const;
+	int GetObsoletePolicy() const;
+	int GetPrereqPolicy() const;
+#endif
 	int GetResourceQuantityModifier(int i) const;
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetMovesChangeUnitClass(const int unitClassID) const;
 	int GetGAPToYield(int i) const;
+	int GetMountainRangeYield(int i) const;
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
@@ -294,6 +306,12 @@ public:
 #endif
 	bool IsObsoleteByTech(TeamTypes eTeam);
 	bool IsEnabledByTech(TeamTypes eTeam);
+#if defined(MOD_TRAITS_OTHER_PREREQS)
+	bool IsObsoleteByBelief(PlayerTypes ePlayer);
+	bool IsEnabledByBelief(PlayerTypes ePlayer);
+	bool IsObsoleteByPolicy(PlayerTypes ePlayer);
+	bool IsEnabledByPolicy(PlayerTypes ePlayer);
+#endif
 
 	bool NoTrain(UnitClassTypes eUnitClassType);
 
@@ -341,6 +359,12 @@ protected:
 	int m_iGoldenAgeGreatWriterRateModifier;
 	int m_iObsoleteTech;
 	int m_iPrereqTech;
+#if defined(MOD_TRAITS_OTHER_PREREQS)
+	int m_iObsoleteBelief;
+	int m_iPrereqBelief;
+	int m_iObsoletePolicy;
+	int m_iPrereqPolicy;
+#endif
 	int m_iExtraEmbarkMoves;
 	int m_iFreeUnitClassType;
 	int m_iNaturalWonderFirstFinderGold;
@@ -382,6 +406,11 @@ protected:
 	int m_iRazeSpeedModifier;
 	int m_iDOFGreatPersonModifier;
 	int m_iLuxuryHappinessRetention;
+#if defined(MOD_TRAITS_EXTRA_SUPPLY)
+	int m_iExtraSupply;
+	int m_iExtraSupplyPerCity;
+	int m_iExtraSupplyPerPopulation;
+#endif
 	int m_iExtraSpies;
 	int m_iUnresearchedTechBonusFromKills;
 	int m_iExtraFoundedCityTerritoryClaimRange;
@@ -473,6 +502,7 @@ protected:
 	int* m_piMovesChangeUnitCombats;
 #if defined(MOD_BALANCE_CORE)
 	int* m_paiGAPToYield;
+	int* m_paiMountainRangeYield;
 	int* m_piMovesChangeUnitClasses;
 #endif
 	int* m_piMaintenanceModifierUnitCombats;
@@ -914,6 +944,20 @@ public:
 	{
 		return m_iLuxuryHappinessRetention;
 	};
+#if defined(MOD_TRAITS_EXTRA_SUPPLY)
+	int GetExtraSupply() const
+	{
+		return m_iExtraSupply;
+	};
+	int GetExtraSupplyPerCity() const
+	{
+		return m_iExtraSupplyPerCity;
+	};
+	int GetExtraSupplyPerPopulation() const
+	{
+		return m_iExtraSupplyPerPopulation;
+	};
+#endif
 	int GetExtraSpies() const
 	{
 		return m_iExtraSpies;
@@ -1225,6 +1269,10 @@ public:
 	{
 		return m_iGAPToYield[(int)eYield];
 	}
+	int GetMountainRangeYield(YieldTypes eYield) const
+	{
+		return m_iMountainRangeYield[(int)eYield];
+	}
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
@@ -1456,6 +1504,11 @@ private:
 	int m_iRazeSpeedModifier;
 	int m_iDOFGreatPersonModifier;
 	int m_iLuxuryHappinessRetention;
+#if defined(MOD_TRAITS_EXTRA_SUPPLY)
+	int m_iExtraSupply;
+	int m_iExtraSupplyPerCity;
+	int m_iExtraSupplyPerPopulation;
+#endif
 	int m_iExtraSpies;
 	int m_iUnresearchedTechBonusFromKills;
 	int m_iExtraFoundedCityTerritoryClaimRange;
@@ -1591,6 +1644,7 @@ private:
 	int m_iMusicYieldChanges[NUM_YIELD_TYPES];
 #if defined(MOD_BALANCE_CORE)
 	int m_iGAPToYield[NUM_YIELD_TYPES];
+	int m_iMountainRangeYield[NUM_YIELD_TYPES];
 #endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiFeatureYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;

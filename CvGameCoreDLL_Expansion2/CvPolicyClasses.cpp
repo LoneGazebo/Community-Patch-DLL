@@ -412,9 +412,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iGreatMusicianRateModifier = kResults.GetInt("GreatMusicianRateModifier");
 	m_iGreatMerchantRateModifier = kResults.GetInt("GreatMerchantRateModifier");
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-	if (MOD_DIPLOMACY_CITYSTATES) {
-		m_iGreatDiplomatRateModifier = kResults.GetInt("GreatDiplomatRateModifier");
-	}
+	m_iGreatDiplomatRateModifier = kResults.GetInt("GreatDiplomatRateModifier");
 #endif
 	m_iGreatScientistRateModifier = kResults.GetInt("GreatScientistRateModifier");
 	m_iDomesticGreatGeneralRateModifier = kResults.GetInt("DomesticGreatGeneralRateModifier");
@@ -654,9 +652,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_paiUnitCombatProductionModifiers, "UnitCombatInfos", "Policy_UnitCombatProductionModifiers", "UnitCombatType", "PolicyType", szPolicyType, "ProductionModifier");
 
 #if defined(MOD_BALANCE_CORE)
-	if (MOD_BALANCE_CORE) {
-		kUtility.PopulateArrayByValue(m_paiFreeChosenBuilding, "BuildingClasses", "Policy_FreeBuilding", "BuildingClassType", "PolicyType", szPolicyType, "Count");
-	}
+	kUtility.PopulateArrayByValue(m_paiFreeChosenBuilding, "BuildingClasses", "Policy_FreeBuilding", "BuildingClassType", "PolicyType", szPolicyType, "Count");
 #endif
 
 	kUtility.PopulateArrayByValue(m_paiBuildingClassCultureChanges, "BuildingClasses", "Policy_BuildingClassCultureChanges", "BuildingClassType", "PolicyType", szPolicyType, "CultureChange");
@@ -3097,6 +3093,9 @@ CvPolicyBranchEntry* CvPolicyXMLEntries::GetPolicyBranchEntry(int index)
 //=====================================
 /// Constructor
 CvPlayerPolicies::CvPlayerPolicies():
+#if defined(MOD_API_EXTENSIONS)
+	m_pabFreePolicy(NULL),
+#endif
 	m_pabHasPolicy(NULL),
 	m_pabHasOneShotPolicyFired(NULL),
 	m_pabHaveOneShotFreeUnitsFired(NULL),
@@ -3132,6 +3131,10 @@ void CvPlayerPolicies::Init(CvPolicyXMLEntries* pPolicies, CvPlayer* pPlayer, bo
 	m_pPlayer = pPlayer;
 
 	// Initialize policy status array
+#if defined(MOD_API_EXTENSIONS)
+	CvAssertMsg(m_pabFreePolicy==NULL, "about to leak memory, CvPlayerPolicies::m_pabFreePolicy");
+	m_pabFreePolicy = FNEW(bool[m_pPolicies->GetNumPolicies()], c_eCiv5GameplayDLL, 0);
+#endif
 	CvAssertMsg(m_pabHasPolicy==NULL, "about to leak memory, CvPlayerPolicies::m_pabHasPolicy");
 	m_pabHasPolicy = FNEW(bool[m_pPolicies->GetNumPolicies()], c_eCiv5GameplayDLL, 0);
 	CvAssertMsg(m_pabHasOneShotPolicyFired==NULL, "about to leak memory, CvPlayerPolicies::m_pabHasOneShotPolicyFired");
@@ -3169,6 +3172,9 @@ void CvPlayerPolicies::Uninit()
 	// Uninit base class
 	CvFlavorRecipient::Uninit();
 
+#if defined(MOD_API_EXTENSIONS)
+	SAFE_DELETE_ARRAY(m_pabFreePolicy);
+#endif
 	SAFE_DELETE_ARRAY(m_pabHasPolicy);
 	SAFE_DELETE_ARRAY(m_pabHasOneShotPolicyFired);
 	SAFE_DELETE_ARRAY(m_pabHaveOneShotFreeUnitsFired);
@@ -3187,6 +3193,9 @@ void CvPlayerPolicies::Reset()
 
 	for(iI = 0; iI < m_pPolicies->GetNumPolicies(); iI++)
 	{
+#if defined(MOD_API_EXTENSIONS)
+		m_pabFreePolicy[iI] = false;
+#endif
 		m_pabHasPolicy[iI] = false;
 		m_pabHasOneShotPolicyFired[iI] = false;
 		m_pabHaveOneShotFreeUnitsFired[iI] = false;
@@ -3269,6 +3278,9 @@ void CvPlayerPolicies::Read(FDataStream& kStream)
 		uiPolicyBranchCount = m_pPolicies->GetNumPolicyBranches();
 	}
 
+#if defined(MOD_API_EXTENSIONS)
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabFreePolicy, uiPolicyCount);
+#endif
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabHasPolicy, uiPolicyCount);
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabHasOneShotPolicyFired, uiPolicyCount);
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabHaveOneShotFreeUnitsFired, uiPolicyCount);
@@ -3324,6 +3336,9 @@ void CvPlayerPolicies::Write(FDataStream& kStream) const
 		uiPolicyBranchCount = m_pPolicies->GetNumPolicyBranches();
 	}
 
+#if defined(MOD_API_EXTENSIONS)
+	CvInfosSerializationHelper::WriteHashedDataArray<PolicyTypes>(kStream, m_pabFreePolicy, uiPolicyCount);
+#endif
 	CvInfosSerializationHelper::WriteHashedDataArray<PolicyTypes>(kStream, m_pabHasPolicy, uiPolicyCount);
 	CvInfosSerializationHelper::WriteHashedDataArray<PolicyTypes>(kStream, m_pabHasOneShotPolicyFired, uiPolicyCount);
 	CvInfosSerializationHelper::WriteHashedDataArray<PolicyTypes>(kStream, m_pabHaveOneShotFreeUnitsFired, uiPolicyCount);
@@ -3395,9 +3410,21 @@ bool CvPlayerPolicies::HasPolicy(PolicyTypes eIndex) const
 	CvAssertMsg(eIndex < GC.getNumPolicyInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_pabHasPolicy[eIndex];
 }
-
+#if defined(MOD_API_EXTENSIONS)
+/// Accessor: was this policy given for free
+bool CvPlayerPolicies::IsFreePolicy(PolicyTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumPolicyInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_pabFreePolicy[eIndex];
+}
+#endif
 /// Accessor: set whether player has a policy
+#if defined(MOD_API_EXTENSIONS)
+void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
+#else
 void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue)
+#endif
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < m_pPolicies->GetNumPolicies(), "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -3411,6 +3438,10 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue)
 		m_pabHasPolicy[eIndex] = bNewValue;
 
 		int iChange = bNewValue ? 1 : -1;
+#if defined(MOD_API_EXTENSIONS)
+		m_pabFreePolicy[eIndex] = bFree;
+		if (bFree) iChange = 0;
+#endif
 		GetPlayer()->ChangeNumPolicies(iChange);
 
 #if defined(MOD_BALANCE_CORE)
@@ -3531,7 +3562,7 @@ void CvPlayerPolicies::SetOneShotFreeUnitsFired(PolicyTypes eIndex, bool bFired)
 
 /// Returns number of policies purchased by this player
 #if defined(MOD_BALANCE_CORE)
-int CvPlayerPolicies::GetNumPoliciesOwned(bool bSkipFinisher) const
+int CvPlayerPolicies::GetNumPoliciesOwned(bool bSkipFinisher, bool bExcludeFree) const
 #else
 int CvPlayerPolicies::GetNumPoliciesOwned() const
 #endif
@@ -3543,6 +3574,9 @@ int CvPlayerPolicies::GetNumPoliciesOwned() const
 		// Do we have this policy?
 		if(m_pabHasPolicy[i])
 		{
+#if defined(MOD_API_EXTENSIONS)
+			if (bExcludeFree && m_pabFreePolicy[i]) continue;
+#endif
 #if defined(MOD_BALANCE_CORE)
 			if(m_pPolicies->GetPolicyEntry(i)->IsDummy())
 				continue;
@@ -3630,9 +3664,7 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 				break;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 			case POLICYMOD_GREAT_DIPLOMAT_RATE:
-				if (MOD_DIPLOMACY_CITYSTATES) {
-					rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatDiplomatRateModifier();
-				}
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatDiplomatRateModifier();
 				break;
 #endif
 			case POLICYMOD_GREAT_SCIENTIST_RATE:
@@ -4006,7 +4038,19 @@ int CvPlayerPolicies::GetTourismFromUnitCreation(UnitClassTypes eUnitClass) cons
 /// How much will the next policy cost?
 int CvPlayerPolicies::GetNextPolicyCost()
 {
+#if defined(MOD_BUGFIX_DUMMY_POLICIES)
+#if defined(MOD_API_EXTENSIONS)
+	int iNumPolicies = GetNumPoliciesOwned(MOD_BUGFIX_DUMMY_POLICIES, true);
+#else
+	int iNumPolicies = GetNumPoliciesOwned(MOD_BUGFIX_DUMMY_POLICIES);
+#endif
+#else
+#if defined(MOD_API_EXTENSIONS)
+	int iNumPolicies = GetNumPoliciesOwned(false, true);
+#else
 	int iNumPolicies = GetNumPoliciesOwned();
+#endif
+#endif
 
 	// Reduce count by however many free Policies we've had in this game
 	iNumPolicies -= (m_pPlayer->GetNumFreePoliciesEver() - m_pPlayer->GetNumFreePolicies() - m_pPlayer->GetNumFreeTenets());
@@ -4968,7 +5012,11 @@ int CvPlayerPolicies::GetNumPoliciesCanBeAdopted()
 		}
 	}
 
+#if defined(MOD_BUGFIX_DUMMY_POLICIES)
+	return iNumPoliciesToAcquire - GetNumPoliciesOwned(MOD_BUGFIX_DUMMY_POLICIES);
+#else
 	return iNumPoliciesToAcquire - GetNumPoliciesOwned();
+#endif
 }
 
 /// New Policy picked... figure how what that means for history. This isn't the greatest example of programming ever, but oh well, it'll do

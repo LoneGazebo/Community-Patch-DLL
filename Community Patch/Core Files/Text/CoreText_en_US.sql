@@ -373,6 +373,12 @@ UPDATE Language_en_US
 SET Text = 'Crom'
 WHERE Tag = 'TXT_KEY_LEADER_BARBARIAN';
 
+-- War
+
+UPDATE Language_en_US
+SET Text = '[COLOR_CYAN]Capture chance if defeated: {1_Num}%[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_EUPANEL_CAPTURE_CHANCE';
+
 -- Religion
 
 UPDATE Language_en_US

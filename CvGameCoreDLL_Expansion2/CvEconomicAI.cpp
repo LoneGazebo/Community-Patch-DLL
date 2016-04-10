@@ -1363,7 +1363,11 @@ void CvEconomicAI::LogMonitor(void)
 	AppendToLog(strHeader, strLog, "Num Techs", GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown());
 
 	// Culture
+#if defined(MOD_BUGFIX_DUMMY_POLICIES)
+	AppendToLog(strHeader, strLog, "Policies", GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(false));
+#else
 	AppendToLog(strHeader, strLog, "Policies", GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned());
+#endif
 	AppendToLog(strHeader, strLog, "Culture (lifetime)", GetPlayer()->GetJONSCultureEverGenerated());
 
 	// Faith
@@ -1796,16 +1800,20 @@ void CvEconomicAI::DoHurry()
 	iTreasuryBuffer *= GC.getGame().getGameSpeedInfo().getGoldPercent();
 	iTreasuryBuffer /= 100;
 
-	if(IsSavingForThisPurchase(PURCHASE_TYPE_UNIT_UPGRADE) || IsSavingForThisPurchase(PURCHASE_TYPE_TILE) || IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT))
+	if(IsSavingForThisPurchase(PURCHASE_TYPE_UNIT_UPGRADE) || IsSavingForThisPurchase(PURCHASE_TYPE_TILE) || IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT) || IsSavingForThisPurchase(PURCHASE_TYPE_MAJOR_CIV_TRADE) || IsSavingForThisPurchase(PURCHASE_TYPE_MAJOR_CIV_TRADE))
 	{
-		iTreasuryBuffer *= 2;
+		iTreasuryBuffer *= 3;
 	}
 	
 	//Let's check our average income over five-turn periods
 	CvTreasury* pTreasury = m_pPlayer->GetTreasury();
+	int iAverage = (int)pTreasury->AverageIncome(10);
 
-	//Are we in debt? Doesn't matter if we are super rich!
-	if((pTreasury->GetGold() >= iTreasuryBuffer && pTreasury->CalculateBaseNetGoldTimes100() > 0) || (pTreasury->GetGold() > (iTreasuryBuffer * 2)))
+	//Are we in debt?
+	if(iAverage < 0)
+		return;
+
+	if(pTreasury->GetGold() >= iTreasuryBuffer)
 	{
 		// Which city needs hurrying most?
 		CvCity* pMostThreatenedCity = m_pPlayer->GetMilitaryAI()->GetMostThreatenedCity();
@@ -1854,9 +1862,22 @@ void CvEconomicAI::DoHurry()
 												if(GC.getLogging() && GC.getAILogging())
 												{
 													CvString strLogString;
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+														if(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+														{
+															strLogString.Format("MOD - Investing in unit: %s in %s. Cost: %d, Balance (before buy): %d",
+															pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+															m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+														}
+														else
+														{
+#endif
 													strLogString.Format("MOD - Buying unit: %s in %s. Cost: %d, Balance (before buy): %d",
 														pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
 													m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+														}
+#endif
 												}
 
 												//take the money...
@@ -1903,7 +1924,15 @@ void CvEconomicAI::DoHurry()
 
 											//take the money...
 											m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
-
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+											if(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+											{
+												const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitInfo->GetUnitClassType());
+												pLoopCity->SetUnitInvestment(eUnitClass, true);
+											}
+											else
+											{
+#endif
 											//and train it!
 											UnitAITypes eUnitAI =  pkUnitInfo->GetDefaultUnitAIType();
 											int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, false);
@@ -1925,6 +1954,9 @@ void CvEconomicAI::DoHurry()
 											}
 
 											pLoopCity->CleanUpQueue();
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+											}
+#endif
 										}
 									}
 								}
@@ -2000,12 +2032,21 @@ void CvEconomicAI::DoHurry()
 									{
 										CvString strLogString;
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-										strLogString.Format("MOD - Investing in building: %s in %s. Cost: %d, Balance (before buy): %d",
-#else
-										strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
+										if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+										{
+											strLogString.Format("MOD - Investing in building: %s in %s. Cost: %d, Balance (before buy): %d",
+											pkBuildingInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+											m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+										}
+										else
+										{
 #endif
+										strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
 										pkBuildingInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
 										m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+										}
+#endif
 									}
 					
 									//take the money...
@@ -2064,14 +2105,35 @@ void CvEconomicAI::DoHurry()
 													if(GC.getLogging() && GC.getAILogging())
 													{
 														CvString strLogString;
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+														if(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+														{
+															strLogString.Format("MOD - Investing in unit: %s in %s. Cost: %d, Balance (before buy): %d",
+															pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+															m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+														}
+														else
+														{
+#endif
 														strLogString.Format("MOD - Buying unit %s for operation in %s. Cost: %d, Balance (before buy): %d",
 														pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
 														m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+														}
+#endif
 													}
 
 													//take the money...
 													m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
-
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+													if(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+													{
+														const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitInfo->GetUnitClassType());
+														pLoopCity->SetUnitInvestment(eUnitClass, true);
+													}
+													else
+													{
+#endif
 													//and train it!
 													UnitAITypes eUnitAI =  pkUnitInfo->GetDefaultUnitAIType();
 													int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, true);
@@ -2094,6 +2156,9 @@ void CvEconomicAI::DoHurry()
 
 													m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
 													pLoopCity->CleanUpQueue();
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+													}
+#endif
 												}
 											}
 										}
@@ -2886,6 +2951,12 @@ void CvEconomicAI::DisbandExtraWorkers()
 	int iNumUnimprovedPlots = iNumValidPlots - iNumImprovedPlots;
 	int iUnimprovedPlotPerWorkers = 8;
 	int iMinWorkers = iNumUnimprovedPlots / iUnimprovedPlotPerWorkers;
+#if defined(MOD_BALANCE_CORE)
+	if(iMinWorkers <= 0)
+	{
+		iMinWorkers = 1;
+	}
+#endif
 
 	// less than two thirds of the plots are improved, don't discard anybody
 	float fRatio = iNumImprovedPlots / (float)iNumValidPlots;
@@ -3905,7 +3976,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	bool bIsSafe = false;
 
 	// Never run this strategy for OCC, barbarians or minor civs
-	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) || pPlayer->isBarbarian() || pPlayer->isMinorCiv())
+	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || pPlayer->isBarbarian() || pPlayer->isMinorCiv())
 	{
 		return false;
 	}
@@ -4313,13 +4384,15 @@ bool EconomicAIHelpers::IsTestStrategy_OneOrFewerCoastalCities(CvPlayer* pPlayer
 bool EconomicAIHelpers::IsTestStrategy_LosingMoney(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
 	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
-	int iInterval = pStrategy->GetMinimumNumTurnsExecuted();
+	
+	int iInterval = pStrategy->GetFirstTurnExecuted();
 
 	// Need a certain number of turns of history before we can turn this on
 	if(GC.getGame().getGameTurn() <= iInterval)
 	{
 		return false;
 	}
+	iInterval = pStrategy->GetMinimumNumTurnsExecuted();
 
 	// Is average income below desired threshold over past X turns?
 	return (pPlayer->GetTreasury()->AverageIncome(iInterval) < (double)pStrategy->GetWeightThreshold() /* 2 */);

@@ -152,6 +152,9 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	AICityStrategyTypes eScienceCap = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_KEY_SCIENCE_CITY");
 
 	//Yield value.
+	
+	//Base value of production.
+	iModifier += (m_pCity->getYieldRate(YIELD_PRODUCTION, false) / 5);
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
@@ -160,7 +163,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 
 		if(m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 		{
-			iModifier += 50;
+			iModifier += 100;
 		}
 		if(pProcess->getProductionToYieldModifier(eYield) > 0)
 		{
@@ -172,12 +175,12 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(m_pCity->getUnhappinessFromGold() > 0)
 						{
-							iModifier += (m_pCity->getUnhappinessFromGold() * 5);
+							iModifier += (m_pCity->getUnhappinessFromGold() * 10);
 						}
 					}
 					if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
 					{
-						iModifier += 25;
+						iModifier += 50;
 					}
 				}
 				break;
@@ -187,12 +190,12 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(m_pCity->getUnhappinessFromCulture() > 0)
 						{
-							iModifier += (m_pCity->getUnhappinessFromCulture() * 5);
+							iModifier += (m_pCity->getUnhappinessFromCulture() * 10);
 						}
 					}
 					if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
 					{
-						iModifier += 25;
+						iModifier += 50;
 					}
 				}
 				break;
@@ -202,12 +205,12 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(m_pCity->getUnhappinessFromScience() > 0)
 						{
-							iModifier += (m_pCity->getUnhappinessFromScience() * 5);
+							iModifier += (m_pCity->getUnhappinessFromScience() * 10);
 						}
 					}
 					if(eScienceCap != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eScienceCap))
 					{
-						iModifier += 25;
+						iModifier += 50;
 					}
 				}
 				break;
@@ -217,20 +220,20 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(m_pCity->getUnhappinessFromStarving() > 0)
 						{
-							iModifier += (m_pCity->getUnhappinessFromStarving() * 5);
+							iModifier += (m_pCity->getUnhappinessFromStarving() * 10);
 						}
 					}
 					if(eGrowCrazy != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eGrowCrazy))
 					{
-						iModifier += 33;
+						iModifier += 50;
 					}
 					if(eNeedFood != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFood))
 					{
-						iModifier += 33;
+						iModifier += 50;
 					}
 					if(eNeedFoodNaval != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFoodNaval))
 					{
-						iModifier += 33;
+						iModifier += 50;
 					}
 				}
 				break;
@@ -396,8 +399,8 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	if(iGPT < 0)
 	{
 		iGPT *= -1;
-		//Every -1 GPT = 5% bonus
-		iModifier += (iGPT * 5);
+		//Every -1 GPT = 15% bonus
+		iModifier += (iGPT * 15);
 	}
 	iTempWeight *= (100 + iModifier);
 	iTempWeight /= 100;

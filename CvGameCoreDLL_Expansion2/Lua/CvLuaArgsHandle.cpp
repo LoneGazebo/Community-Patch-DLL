@@ -14,6 +14,8 @@
 //!
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "CvGameCoreDLLPCH.h"
+#include "../CvGameCoreDLLPCH.h"
+#include "../CustomMods.h"
 #include "CvLuaArgsHandle.h"
 
 CvLuaArgsHandle::CvLuaArgsHandle()

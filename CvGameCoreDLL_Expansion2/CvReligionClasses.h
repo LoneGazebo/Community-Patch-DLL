@@ -493,6 +493,10 @@ public:
 	void SimulateProphetSpread(ReligionTypes eReligion, int iPressure);
 	void SimulateReligiousPressure(ReligionTypes eReligion, int iPressure);
 	void ConvertPercentFollowers(ReligionTypes eToReligion, ReligionTypes eFromReligion, int iPercent);
+#if defined(MOD_BALANCE_CORE)
+	void ConvertPercentForcedFollowers(ReligionTypes eToReligion, int iPercent);
+	void ConvertNumberFollowers(ReligionTypes eToReligion, int iPop);
+#endif
 	void AddHolyCityPressure();
 	void AddSpyPressure(ReligionTypes eReligion, int iBasePressure);
 	void AdoptReligionFully(ReligionTypes eReligion);
@@ -621,9 +625,17 @@ public:
 	BeliefTypes ChooseReformationBelief();
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	CvCity* ChooseMissionaryTargetCity(UnitHandle pUnit, int* piTurns = NULL);
+#else
 	CvCity* ChooseMissionaryTargetCity(UnitHandle pUnit);
+#endif
 	CvPlot* ChooseMissionaryTargetPlot(UnitHandle pUnit, int* piTurns = NULL);
+#if defined(MOD_BALANCE_CORE)
+	CvCity* ChooseInquisitorTargetCity(UnitHandle pUnit, int* piTurns = NULL);
+#else
 	CvCity* ChooseInquisitorTargetCity(UnitHandle pUnit);
+#endif
 	CvPlot* ChooseInquisitorTargetPlot(UnitHandle pUnit, int* piTurns = NULL);
 	CvCity *ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingReligion) const;
 	CvPlot* ChooseProphetTargetPlot(UnitHandle pUnit, int* piTurns = NULL);
@@ -651,8 +663,13 @@ private:
 	int ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity);
 	int ScoreBeliefForPlayer(CvBeliefEntry* pEntry);
 
+#if defined(MOD_BALANCE_CORE)
+	int ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit, int* piTurns = NULL);
+	int ScoreCityForInquisitor(CvCity* pCity, UnitHandle pUnit, int* piTurns = NULL);
+#else
 	int ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit);
 	int ScoreCityForInquisitor(CvCity* pCity, UnitHandle pUnit);
+#endif
 
 	bool ShouldBecomeNewMajority(CvCity* pCity, ReligionTypes eReligion, int iNewPressure) const;
 	bool AreAllOurCitiesConverted(ReligionTypes eReligion, bool bIncludePuppets) const;

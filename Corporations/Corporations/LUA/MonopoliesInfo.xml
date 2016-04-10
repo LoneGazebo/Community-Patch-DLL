@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context Font="TwCenMT20" FontStyle="Shadow" ColorSet="Beige_Black_Alpha">
+	<!-- Main Container -->
+	<Box Offset="0,49" Anchor="C,C" Size="900,533" Color="255.255.200.0">
+		<!-- Corporation Header -->
+		<Box Size="600,100"  Anchor="C,T" Color="0,0,0,0" ID="Corporations">
+			<Stack StackGrowth="Right" Padding="5">
+				<Box Size="200,100" Offset="100, 10" Color="0,0,0,0" Anchor="C,C">
+					<Image ID="FounderIconBG" Size="80,80" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+					<Image ID="FounderIconShadow" Size="64,64" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+					<Image ID="FounderIcon" Size="64,64" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+					<Image ID="FounderIconHighlight" Size="80,80" Anchor="C,C" Offset="0,0" TextureOffset="141,0" Texture="CivIconBGSizes_Highlight.dds"/>
+					<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="128,128" ID="BuildingImage"/>
+				</Box>
+				<Box Size="130,24" Color="0,0,0,0" Padding="5" Anchor="C,C">
+					<Label Anchor="C,C" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="CorporationName" />
+				</Box>
+				<Box Offset="-160,25" Size="100,24" Color="0,0,0,0" Padding="5" Anchor="C,C">
+					<Label Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="MaxFranchises" />
+				</Box>
+				<Box Offset="-180,40" Size="100,24" Color="0,0,0,0" Padding="5" Anchor="C,C">
+					<Label Anchor="C,C" Offset="-40,8" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="HoverInfo" />
+				</Box>
+			</Stack>
+		</Box>
+		<Box Offset="0,0" Size="900,300" Color="0.0.0.0" Anchor="L,T">
+			<!-- Monopolies Column -->
+			<Box Offset="0,130" Size="400,24" Color="0.0.0.0" Anchor="L,T">
+				<Box Size="375,24" Color="Beige,0" Anchor="C,C">
+					<Grid Size="375,27" Style="Grid9FrameTurns" Anchor="C,B"/>
+					<Label Offset="0,8" Font="TwCenMT20" Anchor="C,B" String="TXT_KEY_TOPIC_MONOPOLY" ToolTip="TXT_KEY_MONOPOLIES_TT"/>
+				</Box>
+				<ScrollPanel Offset="0,28" Size="350,300" ID="MonopoliesScroll" Vertical="1">
+					<ScrollBar Offset="8,0" Style="VertSlider" Anchor="R,C" AnchorSide="o,i" Length="290"/>
+					<UpButton Offset="8,2" Style="ScrollBarUp" Anchor="R,T" AnchorSide="o,i"/>
+					<DownButton Offset="8,2" Style="ScrollBarDown" Anchor="R,B" AnchorSide="o,i"/>
+					<Stack Growth="Left" Offset="0,0" ID="MonopoliesStack">
+						<!-- Our Monopolies -->
+						<Button Size="350,24" Anchor="L,C" Offset="10,0" TextAnchor="L,C" Font="TwCenMT18" TextOffset="5,0" ID="ResourcesLocalToggle" String="t">
+							<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" ID="ResourcesLocalValue"/>
+							<ShowOnMouseOver>
+								<AlphaAnim Anchor="L,C" Size="350,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+									<Grid Size="350,27" Offset="10,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+								</AlphaAnim>
+							</ShowOnMouseOver>
+						</Button>
+						<Stack Anchor="C,C" ID="ResourcesLocalStack"/>
+						<!-- Resources Controlled -->
+						<Button Size="350,24" Anchor="L,C" TextAnchor="L,C" Offset="10,0" Font="TwCenMT18" TextOffset="5,0" ID="ResourcesControlledToggle" String="t">
+							<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" ID="ResourcesControlledValue"/>
+							<ShowOnMouseOver>
+								<AlphaAnim Anchor="L,C" Size="350,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+									<Grid Size="350,27" Offset="10,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+								</AlphaAnim>
+							</ShowOnMouseOver>
+						</Button>
+						<Stack Anchor="C,C" ID="ResourcesControlledStack"/>
+						<!-- Foreign Monopolies -->
+						<Button Size="350,24" Anchor="L,C" Offset="10,0" TextAnchor="L,C" Font="TwCenMT18" TextOffset="5,0" ID="ResourcesForeignToggle" String="t">
+							<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" ID="ResourcesForeignValue"/>
+							<ShowOnMouseOver>
+								<AlphaAnim Anchor="L,C" Size="350,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+									<Grid Size="350,27" Offset="10,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+								</AlphaAnim>
+							</ShowOnMouseOver>
+						</Button>
+						<Stack Anchor="C,C" ID="ResourcesForeignStack"/>
+						<Box Size="350,30" Anchor="c,c" Color="0.0.0.0">
+						</Box>
+					</Stack>
+				</ScrollPanel>
+			</Box>
+			<Box Offset="0,130" Size="400,24" Color="0.0.0.0" Anchor="R,T">
+				<Box Size="375,24" Color="Beige,0" Anchor="C,C">
+					<Grid Size="375,27" Style="Grid9FrameTurns" Anchor="C,B"/>
+					<Label Offset="0,8" Font="TwCenMT20" Anchor="C,B" String="TXT_KEY_EO_CORPORATION" ToolTip="TXT_KEY_EO_CORPORATION_TT"/>
+				</Box>
+				<ScrollPanel Offset="0,28" Size="350,300" ID="CorpScroll" Vertical="1">
+					<ScrollBar Offset="8,0" Style="VertSlider" Anchor="R,C" AnchorSide="o,i" Length="290"/>
+					<UpButton Offset="8,2" Style="ScrollBarUp" Anchor="R,T" AnchorSide="o,i"/>
+					<DownButton Offset="8,2" Style="ScrollBarDown" Anchor="R,B" AnchorSide="o,i"/>
+					<Stack Growth="Right" Offset="0,0" ID="CorpStack">
+						<!--  Franchises and Offices-->
+						<Box Size="350,24" Anchor="c,c" Color="0.0.0.0" ID="Franchises">
+							<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_EO_FRANCHISES" ToolTip="TXT_KEY_NUM_FRANCHISES_TT"/>
+							<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="NumFranchises"/>
+						</Box>
+						<Box Size="350,24" Anchor="c,c" Color="0.0.0.0" ID="Offices">
+							<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_EO_OFFICES" ToolTip="TXT_KEY_NUM_OFFICES_TT"/>
+							<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="NumOffices"/>
+						</Box>
+						<!-- Franchise Stack -->
+						<Button Size="350,24" Offset="15,0" Anchor="L,C" TextAnchor="L,C" Font="TwCenMT18" TextOffset="5,0" ID="FranchiseToggle" String="TXT_KEY_EO_FRANCHISE_DETAILS" ToolTip="TXT_KEY_EO_EX_FRANCHISE_STACK">
+							<ShowOnMouseOver>
+								<AlphaAnim Anchor="C,C" Size="350,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+									<Grid Size="350,27" Offset="15,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+								</AlphaAnim>
+							</ShowOnMouseOver>
+						</Button>
+						<Stack Anchor="L,C" ID="FranchiseStack"/>
+						<!-- Office Stack -->
+						<Button Size="350,24" Anchor="L,C" Offset="15,0" TextAnchor="L,C" Font="TwCenMT18" TextOffset="5,0" ID="OfficeToggle" String="TXT_KEY_EO_OFFICE_DETAILS" ToolTip="TXT_KEY_EO_EX_OFFICE_STACK">
+							<ShowOnMouseOver>
+								<AlphaAnim Anchor="C,C" Size="350,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+									<Grid Size="350,27" Offset="15,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+								</AlphaAnim>
+							</ShowOnMouseOver>
+						</Button>
+						<Stack Anchor="L,C" ID="OfficeStack"/>
+						<!-- Foreign Corps -->
+						<Button Size="350,24" Anchor="L,C" Offset="15,0" TextAnchor="L,C" Font="TwCenMT18" TextOffset="5,0" ID="ForeignCorpsToggle" String="TXT_KEY_EO_FOREIGN_CORPS_DETAILS" ToolTip="TXT_KEY_EO_EX_FOREIGN_CORPS_STACK">
+							<ShowOnMouseOver>
+								<AlphaAnim Anchor="C,C" Size="350,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+									<Grid Size="350,27" Offset="15,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+								</AlphaAnim>
+							</ShowOnMouseOver>
+						</Button>
+						<Stack Anchor="L,C" ID="ForeignCorpsStack"/>
+						<!-- END -->
+						<Box Size="350,30" Anchor="c,c" Color="0.0.0.0">
+						</Box>
+					</Stack>
+				</ScrollPanel>
+			</Box>
+		</Box>
+	</Box>
+	<!--=======================================================================================================================-->
+	<!--=======================================================================================================================-->
+	<!-- Corporations Column -->
+	<Instance Name="FranchiseEntry">
+		<Box Size="325,24" Color="0.0.0.0" ID="FranchiseInfo">
+			<Label Offset="50,0" Font="TwCenMT16" Anchor="L,C" ID="CityName"/>
+			<Label Offset="-25,0" Font="TwCenMT16" Anchor="R,C" ID="FranchisePresent"/>
+		</Box>
+	</Instance>
+	<Instance Name="OfficeEntry">
+		<Box Size="325,24" Color="0.0.0.0" ID="OfficeInfo">
+			<Label Offset="50,0" Font="TwCenMT16" Anchor="L,C" ID="CityName"/>
+			<Label Offset="-25,0" Font="TwCenMT16" Anchor="R,C" ID="OfficePresent"/>
+		</Box>
+	</Instance>
+	<Instance Name="ForeignCorpsEntry">
+		<Box Size="325,24" Color="0.0.0.0" ID="ForeignCorpsInfo">
+			<Label Offset="50,0" Font="TwCenMT16" Anchor="L,C" ID="CorpName"/>
+			<Label Offset="-25,0" Font="TwCenMT16" Anchor="R,C" ID="ForeignCorpsSize"/>
+		</Box>
+	</Instance>
+	<Instance Name="ResourceEntry">
+		<Box Size="325,24" Color="0.0.0.0" ID="ResourceBox">
+			<Label Offset="15,0" Font="TwCenMT18" Anchor="L,C" ID="ResourceName"/>
+			<Label Offset="20,0" Font="TwCenMT18" Anchor="R,C" ID="ResourceValue"/>
+		</Box>
+	</Instance>
+</Context>
