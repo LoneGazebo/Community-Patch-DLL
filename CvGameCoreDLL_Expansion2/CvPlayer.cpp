@@ -14546,14 +14546,14 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 				continue;
 			}
 
-			eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+			BuildingTypes eTestBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
 
-			if(eBuilding != NO_BUILDING)
+			if(eTestBuilding != NO_BUILDING)
 			{
-				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eTestBuilding);
 				if(pkBuilding)
 				{
-					iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eTestBuilding);
 					if(iBuildingCount > 0)
 					{
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
