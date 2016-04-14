@@ -323,7 +323,7 @@ function RefreshWorldFranchises()
 	end
 
 	-- Look at all player's cities (too many for-loops, this is ridiculously expensive!)
-	for iPlayerLoop=0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+	for iPlayerLoop=0, GameDefines.MAX_CIV_PLAYERS-1, 1 do
 		local pLoopPlayer = Players[iPlayerLoop];
 		if( pLoopPlayer:IsEverAlive() and pLoopPlayer:IsAlive() ) then
 			for city in pLoopPlayer:Cities() do
@@ -860,7 +860,7 @@ function RefreshFranchises( )
 	local eFranchise = g_Franchise.DefaultBuilding;
 
 	-- Find our franchise in other player's cities
-	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+	for iPlayerLoop = 0, GameDefines.MAX_CIV_PLAYERS-1, 1 do
 		-- not ours
 		if(iPlayerLoop ~= g_iSelectedPlayerID) then
 			local pOtherPlayer = Players[iPlayerLoop];
