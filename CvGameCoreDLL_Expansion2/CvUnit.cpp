@@ -28965,23 +28965,29 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bI
 			CvTeam& kTeam = GET_TEAM(getTeam());
 			RouteTypes eBestRouteType = kTeam.GetBestPossibleRoute();
 			CvRouteInfo* pRouteInfo = GC.getRouteInfo(eBestRouteType);
-			if (pRouteInfo &&  (pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType) != 0))
+			if (pRouteInfo)
 			{
-				int iMultiplier = GC.getMOVE_DENOMINATOR() / (pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType));
+				int iMoveCost = pRouteInfo->getMovementCost() + kTeam.getRouteChange(eBestRouteType);
 
-				if (plot()->getRouteType()!=NO_ROUTE)
-					//standing directly on a route
-					iRange = iMoves * iTargetTurns * iMultiplier;
-				else
-					//need to move at least one plot in the first turn at full cost to get to the route - speed optimization for railroad and low turn count
-					iRange = 1 + (iMoves-1)*iMultiplier + iMoves*(iTargetTurns-1)*iMultiplier;
+				if (iMoveCost>0)
+				{
+					//times 100 to reduce rounding errors
+					int iMultiplier = 100 * GC.getMOVE_DENOMINATOR() / iMoveCost;
+
+					if (plot()->getRouteType()!=NO_ROUTE)
+						//standing directly on a route
+						iRange = (iMoves * iTargetTurns * iMultiplier) / 100;
+					else
+						//need to move at least one plot in the first turn at full cost to get to the route
+						//speed optimization for railroad and low turn count
+						iRange = (100 + (iMoves-1)*iMultiplier + iMoves*(iTargetTurns-1)*iMultiplier) / 100;
+				}
 			}
 		}
 
 		if (iDistance>iRange)
 			return INT_MAX;
 	}
-
 
 	int rtnValue = MAX_INT;
 	if(pTarget == plot())

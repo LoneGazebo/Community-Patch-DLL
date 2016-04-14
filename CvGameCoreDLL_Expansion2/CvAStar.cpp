@@ -24,7 +24,7 @@
 #include "CvUnitMovement.h"
 
 //PATH_BASE_COST is defined in AStar.h, value 100
-#define PATH_RIVER_WEIGHT										(100)	//per percent river crossing penalty on attack
+#define PATH_ATTACK_WEIGHT										(200)	//per percent penalty on attack
 #define PATH_DEFENSE_WEIGHT										(10)	//per percent defense bonus on turn end plot
 #define PATH_TERRITORY_WEIGHT									(PATH_BASE_COST)	//per turn end plot outside of our territory
 #define PATH_STEP_WEIGHT										(PATH_BASE_COST)	//per plot in path
@@ -375,6 +375,11 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 					CvUnit* pUnit = GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID); 
 					pLog->Msg( CvString::format("# %s for %s (%d) from %d,%d to %d,%d for player %d, flags %d\n", 
 						GetName(),pUnit->getName().c_str(),pUnit->GetID(),m_iXstart,m_iYstart,m_iXdest,m_iYdest,pUnit->getOwner(),m_sData.iFlags ).c_str() );
+				}
+				else
+				{
+					pLog->Msg( CvString::format("# %s from %d,%d to %d,%d for player %d, type %d, flags %d\n", 
+						GetName(),m_iXstart,m_iYstart,m_iXdest,m_iYdest,m_sData.ePlayer,m_sData.ePathType,m_sData.iFlags ).c_str() );
 				}
 
 				//gStackWalker.SetLog(pLog);
@@ -1198,12 +1203,18 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 		iStartMoves = iBaseMovesInCurrentDomain*GC.getMOVE_DENOMINATOR();
 	}
 
-	// do not pass in the remaining moves, we want to see the true cost!
+	//calculate move cost
 	int iMovementCost = 0;
-	if (bWithZOC)
-		iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iStartMoves);
+	if(node->m_kCostCacheData.bContainsVisibleEnemyDefender && (!pUnit->canMoveAfterAttacking() || !pCacheData->isAIControl()))
+		//if the unit would end its turn, we spend all movement points
+		iMovementCost = iStartMoves;
 	else
-		iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iStartMoves);
+	{
+		if (bWithZOC)
+			iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iStartMoves);
+		else
+			iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iStartMoves);
+	}
 
 	// how much is left over?
 	int iMovesLeft = iStartMoves - iMovementCost;
@@ -1340,14 +1351,13 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 		{
 			iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (200 - ((pUnit->noDefensiveBonus()) ? 0 : pFromPlot->defenseModifier(eUnitTeam, false)))));
 
-			if(!(pUnit->isRiverCrossingNoPenalty()))
-			{
-				if(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
-				{
-					iCost += (PATH_RIVER_WEIGHT * -(GC.getRIVER_ATTACK_MODIFIER()));
-					iCost += (PATH_BASE_COST * iMovesLeft);
-				}
-			}
+			//avoid river attack penalty
+			if(!pUnit->isRiverCrossingNoPenalty() && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
+				iCost += (PATH_ATTACK_WEIGHT * -(GC.getRIVER_ATTACK_MODIFIER()));
+
+			//avoid disembarkation penalty
+			if (bFromPlotIsWater && !bToPlotIsWater && !pUnit->isAmphib())
+				iCost += (PATH_ATTACK_WEIGHT * -(GC.getAMPHIB_ATTACK_MODIFIER()));
 		}
 	}
 

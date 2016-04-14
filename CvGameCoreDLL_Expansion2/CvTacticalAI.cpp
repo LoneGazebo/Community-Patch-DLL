@@ -13334,10 +13334,163 @@ bool TacticalAIHelpers::HaveEnoughMeleeUnitsAroundTarget(PlayerTypes ePlayer, Cv
 //-------------------------------------------------------
 // this is experimental code
 //-------------------------------------------------------
-//bool TacticalAIHelpers::GetPreferredPlotsForUnit(CvUnit* pUnit, CvPlot* pTargetPlot, bool bOffensive, std::vector<STacticalPlot>& vResult)
-//{
-//	return false;
-//}
+bool TacticalAIHelpers::GetPreferredPlotsForUnit(CvUnit* pUnit, CvPlot* pTargetPlot, bool bOffensive, std::vector<STacticalPlot>& vResult)
+{
+	UnitMovementStrategy eStrategy = MS_NONE;
+	vResult.clear();
+
+	switch (pUnit->getUnitInfo().GetDefaultUnitAIType())
+	{
+		//front line units
+		case UNITAI_ATTACK:
+		case UNITAI_DEFENSE:
+		case UNITAI_COUNTER:
+		case UNITAI_PARADROP:
+		case UNITAI_ATTACK_SEA:
+		case UNITAI_RESERVE_SEA:
+		case UNITAI_ESCORT_SEA:
+		case UNITAI_FAST_ATTACK:
+		//ranged units
+		case UNITAI_RANGED:
+		case UNITAI_CITY_BOMBARD:
+		case UNITAI_ASSAULT_SEA:
+			eStrategy = (pUnit->GetRange()>1) ? MS_SECONDLINE : ((pUnit->canMoveAfterAttacking() && pUnit->baseMoves()>2) ? MS_HITANDRUN : MS_FIRSTLINE);
+			break;
+
+		//combat support, stay out of danger
+		case UNITAI_GENERAL:
+		case UNITAI_ADMIRAL:
+		case UNITAI_CITY_SPECIAL:
+		case UNITAI_CARRIER_SEA:
+			eStrategy = MS_SUPPORT;
+			break;
+
+		//air units. ignore here, rebasing is handled elsewhere
+		case UNITAI_ATTACK_AIR:
+		case UNITAI_DEFENSE_AIR:
+		case UNITAI_MISSILE_AIR:
+		case UNITAI_ICBM:
+		default:
+			//invalid result
+			return false;
+	}
+
+	int iMaxRange = 0;
+	switch (eStrategy)
+	{
+		case MS_FIRSTLINE:
+			iMaxRange = 1;
+			break;
+		case MS_SECONDLINE:
+			iMaxRange = pUnit->GetRange();
+			break;
+		case MS_HITANDRUN:
+			iMaxRange = 1;
+			break;
+		case MS_SUPPORT:
+			iMaxRange = 0;
+			break;
+	}
+
+	//minMovesLeft is checked later to determine if we can attack from there
+	TacticalAIHelpers::ReachablePlotSet eligiblePlots;
+	TacticalAIHelpers::GetAllPlotsInReach(pUnit, pUnit->plot(), eligiblePlots, true, true, false, 0);
+	int iMaxAttacks = pUnit->getNumAttacks() - pUnit->getNumAttacksMadeThisTurn();
+
+	for (TacticalAIHelpers::ReachablePlotSet::iterator it=eligiblePlots.begin(); it!=eligiblePlots.end(); ++it)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
+		int iMovesLeft = it->second;
+		if (pUnit->isMustSetUpToRangedAttack())
+			iMovesLeft = max(0,iMovesLeft-GC.getMOVE_DENOMINATOR());
+
+		int iAttacksHere = min( (iMovesLeft+GC.getMOVE_DENOMINATOR()-1)/GC.getMOVE_DENOMINATOR(), iMaxAttacks );
+		bool bCanRetreat = (eStrategy==MS_HITANDRUN) && ((iAttacksHere*GC.getMOVE_DENOMINATOR())>iMovesLeft);
+
+		STacticalPlot::PlotState eState = STacticalPlot::PS_FREE;
+		UnitHandle pDefender = pPlot->getBestDefender(NO_PLAYER);
+		if (pDefender && pDefender!=pUnit)
+		{
+			if ( GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pDefender->getOwner()) )
+				eState = STacticalPlot::PS_BLOCKED_ENEMY;
+			else if (pUnit->getOwner()==pDefender->getOwner())
+				eState = STacticalPlot::PS_BLOCKED_FRIENDLY;
+			else //neutral unit
+				continue;
+		}
+
+		int iDistance = pTargetPlot ? plotDistance(*pPlot,*pTargetPlot) : 10;
+		int iDistanceScore = max(0,10-iDistance);
+
+		switch (eStrategy)
+		{
+		case MS_FIRSTLINE:
+		case MS_HITANDRUN:
+		case MS_SECONDLINE:
+			if (bOffensive)
+			{
+				int iDamageScore = 0;
+				int iNeighboringEnemyCount = 0;
+
+				if (iAttacksHere>0)
+				{
+					std::vector<int> vDamageRatios;
+					std::vector<CvPlot*> vAttackPlots;
+					for (int iRange=1; iRange<=iMaxRange; iRange++)
+					{
+						pPlot->GetPlotsAtRangeX(iRange,true,pUnit->IsRangeAttackIgnoreLOS(),vAttackPlots);
+						for(size_t iCount=0; iCount<vAttackPlots.size(); iCount++)
+						{
+							CvPlot* pLoopPlot = vAttackPlots[iCount];
+							if (pLoopPlot && (pUnit->isRanged() || pUnit->canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_ATTACK)))
+							{
+								UnitHandle pEnemy = pLoopPlot->getBestDefender(NO_PLAYER,pUnit->getOwner(),pUnit,true);
+								if (pEnemy)
+								{
+									int iDamageDealt = 0, iDamageReceived = 0;
+									iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy.pointer(),pUnit,iDamageReceived);
+
+									vDamageRatios.push_back( (iDamageDealt*100)/(iDamageReceived+1) );
+									if (iRange==1)
+										iNeighboringEnemyCount++;
+								}
+							}
+						}
+					}
+
+					std::sort( vDamageRatios.begin(), vDamageRatios.end() );
+					std::reverse( vDamageRatios.begin(), vDamageRatios.end() );
+					for (size_t i=0; i<min(vDamageRatios.size(),(size_t)iAttacksHere); i++)
+					{
+						iDamageScore += vDamageRatios[i];
+						//count it twice if we can retreat after attacking
+						if (bCanRetreat)
+							iDamageScore += vDamageRatios[i];
+					}
+				}
+
+				//todo: take into account mobility at the proposed plot
+
+				int iDanger = pUnit->GetDanger(pPlot);
+				int iScore = (iDamageScore*100 + iDistanceScore*10) / (iDanger+1);
+
+				//don't walk into traps
+				if (iNeighboringEnemyCount<3)
+					vResult.push_back( STacticalPlot(pPlot,eState,iScore) );
+			}
+			else
+			{
+			}
+			break;
+
+		case MS_SUPPORT:
+			break;
+		}
+	}
+
+	std::sort( vResult.begin(), vResult.end() );
+	return !vResult.empty();
+}
 
 
 const char* barbarianMoveNames[] =

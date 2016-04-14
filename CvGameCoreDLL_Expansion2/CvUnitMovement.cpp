@@ -68,20 +68,23 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	}
 
 	bool bRiverCrossing = pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot));
-	FeatureTypes eFeature = pToPlot->getFeatureType();
-	CvFeatureInfo* pFeatureInfo = (eFeature > NO_FEATURE) ? GC.getFeatureInfo(eFeature) : 0;
-	TerrainTypes eTerrain = pToPlot->getTerrainType();
-	CvTerrainInfo* pTerrainInfo = (eTerrain > NO_TERRAIN) ? GC.getTerrainInfo(eTerrain) : 0;
+	FeatureTypes eToFeature = pToPlot->getFeatureType();
+	CvFeatureInfo* pToFeatureInfo = (eToFeature > NO_FEATURE) ? GC.getFeatureInfo(eToFeature) : 0;
+	TerrainTypes eToTerrain = pToPlot->getTerrainType();
+	CvTerrainInfo* pToTerrainInfo = (eToTerrain > NO_TERRAIN) ? GC.getTerrainInfo(eToTerrain) : 0;
 
+	//route preparation
+	bool bRouteTo = pToPlot->isValidRoute(pUnit);
+	bool bRouteFrom = pFromPlot->isValidRoute(pUnit);
+	bool bFakeRouteTo = pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE);
+	bool bFakeRouteFrom = pTraits->IsWoodlandMovementBonus() && (pFromPlot->getFeatureType() == FEATURE_FOREST || pFromPlot->getFeatureType() == FEATURE_JUNGLE);
 	//ideally there'd be a check of the river direction to make sure it's the same river
 	bool bMovingAlongRiver = pToPlot->isRiver() && pFromPlot->isRiver() && !bRiverCrossing;
-	if (bFasterAlongRiver && bMovingAlongRiver)
-		bIgnoreTerrainCost = true;
+	bFakeRouteTo = bFakeRouteTo || (bFasterAlongRiver && bMovingAlongRiver);
+	bFakeRouteFrom = bFakeRouteFrom || (bFasterAlongRiver && bMovingAlongRiver);
 
+	//in some cases we ignore terrain / feature cost
 	if (bFasterInHills && pToPlot->isHills())
-		bIgnoreTerrainCost = true;
-
-	if((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pTraits->IsWoodlandMovementBonus())
 		bIgnoreTerrainCost = true;
 
 #if defined(MOD_BALANCE_CORE)
@@ -134,7 +137,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			iRegularCost = 1;
 		else
 		{
-			iRegularCost = ((eFeature == NO_FEATURE) ? (pTerrainInfo ? pTerrainInfo->getMovementCost() : 0) : (pFeatureInfo ? pFeatureInfo->getMovementCost() : 0));
+			iRegularCost = ((eToFeature == NO_FEATURE) ? (pToTerrainInfo ? pToTerrainInfo->getMovementCost() : 0) : (pToFeatureInfo ? pToFeatureInfo->getMovementCost() : 0));
 
 			// Hill cost is hardcoded
 			if(pToPlot->isHills() || pToPlot->isMountain())
@@ -160,7 +163,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			iRegularCost /= 2;
 		}
 
-		else if((eFeature == NO_FEATURE) ? pUnit->isTerrainDoubleMove(eTerrain) : pUnit->isFeatureDoubleMove(eFeature))
+		else if((eToFeature == NO_FEATURE) ? pUnit->isTerrainDoubleMove(eToTerrain) : pUnit->isFeatureDoubleMove(eToFeature))
 		{
 			iRegularCost /= 2;
 		}
@@ -174,20 +177,24 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	}
 
 	//check routes
-	if(pFromPlot->isValidRoute(pUnit) && pToPlot->isValidRoute(pUnit) && (!bRiverCrossing || kUnitTeam.isBridgeBuilding() || bAmphibious))
+	if( (bRouteFrom || bFakeRouteFrom) && 
+		(bRouteTo || bFakeRouteTo) && 
+		(!bRiverCrossing || kUnitTeam.isBridgeBuilding() || bAmphibious) )
 	{
-		CvRouteInfo* pFromRouteInfo = GC.getRouteInfo(pFromPlot->getRouteType());
+		RouteTypes eFromRoute = bFakeRouteFrom ? ROUTE_ROAD : pFromPlot->getRouteType();
+		CvRouteInfo* pFromRouteInfo = GC.getRouteInfo(eFromRoute);
 		int iFromMovementCost = pFromRouteInfo ? pFromRouteInfo->getMovementCost() : 0;
 		int iFromFlatMovementCost = pFromRouteInfo ? pFromRouteInfo->getFlatMovementCost() : 0;
 
-		CvRouteInfo* pToRouteInfo = GC.getRouteInfo(pToPlot->getRouteType());
+		RouteTypes eToRoute = bFakeRouteTo ? ROUTE_ROAD : pToPlot->getRouteType();
+		CvRouteInfo* pToRouteInfo = GC.getRouteInfo(eToRoute);
 		int iToMovementCost = pToRouteInfo ? pToRouteInfo->getMovementCost() : 0;
 		int iToFlatMovementCost = pToRouteInfo ? pToRouteInfo->getFlatMovementCost() : 0;
 
 		//routes only on land
 		int iBaseMoves = pUnit->baseMoves(DOMAIN_LAND);
 
-		int iRouteCost = std::max(iFromMovementCost + kUnitTeam.getRouteChange(pFromPlot->getRouteType()), iToMovementCost + kUnitTeam.getRouteChange(pToPlot->getRouteType()));
+		int iRouteCost = std::max(iFromMovementCost + kUnitTeam.getRouteChange(eFromRoute), iToMovementCost + kUnitTeam.getRouteChange(eToRoute));
 		int iRouteFlatCost = std::max(iFromFlatMovementCost * iBaseMoves, iToFlatMovementCost * iBaseMoves);
 
 		iRegularCost = std::min(iRegularCost, std::min(iRouteCost,iRouteFlatCost));
@@ -283,150 +290,96 @@ int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPl
 bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot)
 {
 	if (pUnit->IsIgnoreZOC())
-	{
 		return false;
-	}
 
 	// Zone of Control
-	if(GC.getZONE_OF_CONTROL_ENABLED() > 0)
+	if(GC.getZONE_OF_CONTROL_ENABLED() <= 0)
+		return false;
+
+	TeamTypes eUnitTeam = pUnit->getTeam();
+	DomainTypes eUnitDomain = pUnit->getDomainType();
+	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
+
+	//there are only two plots we need to check
+	DirectionTypes moveDir = directionXY(pFromPlot,pToPlot);
+	int eRight = (int(moveDir) + 1) % 6;
+	int eLeft = (int(moveDir) + 5) % 6; 
+	CvPlot* aPlotsToCheck[2];
+	aPlotsToCheck[0] = plotDirection(pFromPlot->getX(),pFromPlot->getY(),(DirectionTypes)eRight);
+	aPlotsToCheck[1] = plotDirection(pFromPlot->getX(),pFromPlot->getY(),(DirectionTypes)eLeft);
+	for (int iCount=0; iCount<2; iCount++)
 	{
-		IDInfo* pAdjUnitNode;
-		CvUnit* pLoopUnit;
+		CvPlot* pAdjPlot = aPlotsToCheck[iCount];
 
-		int iFromPlotX = pFromPlot->getX();
-		int iFromPlotY = pFromPlot->getY();
-		int iToPlotX = pToPlot->getX();
-		int iToPlotY = pToPlot->getY();
-		TeamTypes unit_team_type     = pUnit->getTeam();
-		DomainTypes unit_domain_type = pUnit->getDomainType();
-		bool bIsVisibleEnemyUnit     = pToPlot->isVisibleEnemyUnit(pUnit);
-		CvTeam& kUnitTeam = GET_TEAM(unit_team_type);
+		if(!pAdjPlot)
+			continue;
 
-#if defined(MOD_BALANCE_CORE)
-		CvPlot** aPlotsToCheck1 = GC.getMap().getNeighborsUnchecked(pFromPlot);
-		for(int iCount1=0; iCount1<NUM_DIRECTION_TYPES; iCount1++)
+		// check city zone of control
+		if(pAdjPlot->isEnemyCity(*pUnit))
+			return true;
+
+		// Loop through all units to see if there's an enemy unit here
+		IDInfo* pAdjUnitNode = pAdjPlot->headUnitNode();
+		while(pAdjUnitNode != NULL)
 		{
-			CvPlot* pAdjPlot = aPlotsToCheck1[iCount1];
-#else
-		for(int iDirection0 = 0; iDirection0 < NUM_DIRECTION_TYPES; iDirection0++)
-		{
-			CvPlot* pAdjPlot = plotDirection(iFromPlotX, iFromPlotY, ((DirectionTypes)iDirection0));
-#endif
-			if(NULL != pAdjPlot)
+			CvUnit* pLoopUnit = NULL;
+			if((pAdjUnitNode->eOwner >= 0) && pAdjUnitNode->eOwner < MAX_PLAYERS)
+				pLoopUnit = (GET_PLAYER(pAdjUnitNode->eOwner).getUnit(pAdjUnitNode->iID));
+
+			pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
+
+			if(!pLoopUnit) 
+				continue;
+
+			if(pLoopUnit->isInvisible(eUnitTeam,false))
+				continue;
+
+			// Combat unit?
+			if(!pLoopUnit->IsCombatUnit())
+				continue;
+
+			// Embarked units don't have ZOC
+			if(pLoopUnit->isEmbarked())
+				continue;
+
+			// At war with this unit's team?
+			TeamTypes eLoopUnitTeam = pLoopUnit->getTeam();
+			if(eLoopUnitTeam == BARBARIAN_TEAM || kUnitTeam.isAtWar(eLoopUnitTeam) || pLoopUnit->isAlwaysHostile(*pAdjPlot) )
 			{
-				// check city zone of control
-				if(pAdjPlot->isEnemyCity(*pUnit))
+				// Same Domain?
+				DomainTypes eLoopUnitDomain = pLoopUnit->getDomainType();
+				if(eLoopUnitDomain != eUnitDomain)
 				{
-					// Loop through plots adjacent to the enemy city and see if it's the same as our unit's Destination Plot
-					for(int iDirection = 0; iDirection < NUM_DIRECTION_TYPES; iDirection++)
+					// hovering units always exert a ZOC
+					if (pLoopUnit->IsHoveringUnit() || pLoopUnit->IsHoveringUnit())
 					{
-						CvPlot* pEnemyAdjPlot = plotDirection(pAdjPlot->getX(), pAdjPlot->getY(), ((DirectionTypes)iDirection));
-						if(NULL != pEnemyAdjPlot)
-						{
-							// Destination adjacent to enemy city?
-							if(pEnemyAdjPlot->getX() == iToPlotX && pEnemyAdjPlot->getY() == iToPlotY)
-							{
-								return true;
-							}
-						}
+						// continue on
 					}
-				}
-
-				pAdjUnitNode = pAdjPlot->headUnitNode();
-				// Loop through all units to see if there's an enemy unit here
-				while(pAdjUnitNode != NULL)
-				{
-					if((pAdjUnitNode->eOwner >= 0) && pAdjUnitNode->eOwner < MAX_PLAYERS)
+					// water unit can ZoC embarked land unit
+					else if(eLoopUnitDomain == DOMAIN_SEA && (pToPlot->needsEmbarkation(pUnit) || pFromPlot->needsEmbarkation(pUnit)) )
 					{
-						pLoopUnit = (GET_PLAYER(pAdjUnitNode->eOwner).getUnit(pAdjUnitNode->iID));
+						// continue on
 					}
 					else
 					{
-						pLoopUnit = NULL;
+						// ignore this unit
+						continue;
 					}
-
-					pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
-
-					if(!pLoopUnit) continue;
-
-					TeamTypes unit_loop_team_type = pLoopUnit->getTeam();
-
-					if(pLoopUnit->isInvisible(unit_team_type,false)) continue;
-
-					// Combat unit?
-					if(!pLoopUnit->IsCombatUnit())
+				}
+				else
+				{
+					//land units don't ZoC embarked units (if they stay embarked)
+					if(eLoopUnitDomain == DOMAIN_LAND && pToPlot->needsEmbarkation(pUnit) && pFromPlot->needsEmbarkation(pUnit))
 					{
 						continue;
 					}
-
-					// At war with this unit's team?
-					if(unit_loop_team_type == BARBARIAN_TEAM || kUnitTeam.isAtWar(unit_loop_team_type))
-					{
-						// Same Domain?
-						DomainTypes loop_unit_domain_type = pLoopUnit->getDomainType();
-						if(loop_unit_domain_type != unit_domain_type)
-						{
-#if defined(MOD_BALANCE_CORE)
-							// hovering units always exert a ZOC
-							if (pLoopUnit->IsHoveringUnit() || pLoopUnit->canMoveAllTerrain())
-							{
-								// continue on
-							}
-							// water unit can ZoC embarked land unit
-							else if(loop_unit_domain_type == DOMAIN_SEA && pUnit->isEmbarked())
-#else
-							// water unit can ZoC land unit
-							else if(loop_unit_domain_type == DOMAIN_SEA && unit_domain_type)
-#endif
-							{
-								// continue on
-							}
-							else
-							{
-								continue;
-							}
-						}
-
-						// Embarked?
-						if(unit_domain_type == DOMAIN_LAND && pLoopUnit->isEmbarked())
-						{
-							continue;
-						}
-						if(loop_unit_domain_type == DOMAIN_LAND && pUnit->isEmbarked())
-						{
-							continue;
-						}
-
-						// Loop through plots adjacent to the enemy unit and see if it's the same as our unit's Destination Plot
-#if defined(MOD_BALANCE_CORE)
-						CvPlot** aPlotsToCheck2 = GC.getMap().getNeighborsUnchecked(pAdjPlot);
-						for(int iCount2=0; iCount2<NUM_DIRECTION_TYPES; iCount2++)
-						{
-							const CvPlot* pEnemyAdjPlot = aPlotsToCheck2[iCount2];
-#else
-						for(int iDirection2 = 0; iDirection2 < NUM_DIRECTION_TYPES; iDirection2++)
-						{
-							CvPlot* pEnemyAdjPlot = plotDirection(pAdjPlot->getX(), pAdjPlot->getY(), ((DirectionTypes)iDirection2));
-#endif
-							if(!pEnemyAdjPlot)
-							{
-								continue;
-							}
-
-							// Don't check Enemy Unit's plot
-							if(!bIsVisibleEnemyUnit)
-							{
-								// Destination adjacent to enemy unit?
-								if(pEnemyAdjPlot->getX() == iToPlotX && pEnemyAdjPlot->getY() == iToPlotY)
-								{
-									return true;
-								}
-							}
-						}
-					}
 				}
+
+				//ok, all conditions fulfilled
+				return true;
 			}
 		}
 	}
+
 	return false;
 }
