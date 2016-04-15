@@ -50,6 +50,16 @@
 CvDllGameContext* CvDllGameContext::s_pSingleton = NULL;
 HANDLE CvDllGameContext::s_hHeap = INVALID_HANDLE_VALUE;
 
+//---------
+//#define DEBUG_UNIT_MOVES
+#if defined (DEBUG_UNIT_MOVES)
+int g_iTargetX = -1;
+int g_iTargetY = -1;
+CvUnit* g_pLastUnit = NULL;
+int g_iCurPlotIndex = 0;
+#endif
+//---------
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 CvDllGameContext::CvDllGameContext()
@@ -900,17 +910,17 @@ bool CvDllGameContext::RandomNumberGeneratorSyncCheck(PlayerTypes ePlayer, ICvRa
 
 		char formatBuf[128] = {"\0"};
 		std::string rngLogMessage = "Game Random Number Generators are out of sync : local.seed=";
-		rngLogMessage += _i64toa_s(localSimRandomNumberGenerator.getSeed(), formatBuf, 127, 10);
+		_i64toa_s(localSimRandomNumberGenerator.getSeed(), formatBuf, 127, 10);	rngLogMessage += formatBuf;
 		rngLogMessage += ", remote.seed=";
-		rngLogMessage += _i64toa_s(pkRandom->getSeed(), formatBuf, 127, 10);
+		_i64toa_s(pkRandom->getSeed(), formatBuf, 127, 10);	rngLogMessage += formatBuf; 
 		rngLogMessage += "\n\tlocal.callCount=";
-		rngLogMessage += _itoa_s(localSimRandomNumberGenerator.getCallCount(), formatBuf, 10);
+		_itoa_s(localSimRandomNumberGenerator.getCallCount(), formatBuf, 10); rngLogMessage += formatBuf;
 		rngLogMessage += ", remote.callCount=";
-		rngLogMessage += _itoa_s(pkRandom->getCallCount(), formatBuf, 10);
+		_itoa_s(pkRandom->getCallCount(), formatBuf, 10); rngLogMessage += formatBuf;
 		rngLogMessage += "\n\tlocal.resetCount=";
-		rngLogMessage += _itoa_s(localSimRandomNumberGenerator.getResetCount(), formatBuf, 10);
+		_itoa_s(localSimRandomNumberGenerator.getResetCount(), formatBuf, 10); rngLogMessage += formatBuf;
 		rngLogMessage += ", remote.resetCount=";
-		rngLogMessage += _itoa_s(pkRandom->getResetCount(), formatBuf, 10);
+		_itoa_s(pkRandom->getResetCount(), formatBuf, 10); rngLogMessage += formatBuf;
 		rngLogMessage += "\n";
 
 		if(logFile)
@@ -1045,12 +1055,39 @@ void CvDllGameContext::DestroyNetLoadGameInfo(unsigned int index)
 void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 {
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pUnit);
+
+#if defined(DEBUG_UNIT_MOVES)
+	std::vector<STacticalPlot> vResult;
+	CvPlot *pTarget = GC.getMap().plot(g_iTargetX,g_iTargetY);
+
+	if (g_pLastUnit != pkUnit)
+	{
+		g_pLastUnit = pkUnit;
+		g_iCurPlotIndex = 0;
+	}
+
+	TacticalAIHelpers::GetPreferredPlotsForUnit(pkUnit,pTarget,true,vResult);
+	if (g_iCurPlotIndex<vResult.size())
+	{
+		CvPlot* pPlot = GC.getMap().plot(vResult[g_iCurPlotIndex].m_iX, vResult[g_iCurPlotIndex].m_iY);
+		if(pPlot)
+		{
+			auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+			GC.GetEngineUserInterface()->AddHexToUIRange(pDllPlot.get());
+		}
+	}
+
+	g_iCurPlotIndex++;
+	if (g_iCurPlotIndex==5)
+		g_iCurPlotIndex = 0;
+#else
 	CvTwoLayerPathFinder& thePathfinder = GC.GetInterfacePathFinder();
 
 	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_DECLARE_WAR,1);
 	data.ePathType = PT_UI_PLOT_MOVE_HIGHLIGHT;
 
 	thePathfinder.GeneratePath(pkUnit->getX(), pkUnit->getY(), -1, -1, data);
+#endif
 }
 //------------------------------------------------------------------------------
 void CvDllGameContext::TEMPOnHexUnitChangedAttack(ICvUnit1* pUnit)

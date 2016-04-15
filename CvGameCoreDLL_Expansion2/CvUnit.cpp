@@ -5608,7 +5608,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 		break;
 
 	case AUTOMATE_EXPLORE:
-		if((GetBaseCombatStrength(true) == 0) || (getDomainType() == DOMAIN_AIR) || (getDomainType() == DOMAIN_IMMOBILE))
+		if((GetBaseCombatStrength() == 0) || (getDomainType() == DOMAIN_AIR) || (getDomainType() == DOMAIN_IMMOBILE))
 		{
 			return false;
 		}
@@ -14760,14 +14760,8 @@ void CvUnit::SetBaseCombatStrength(int iCombat)
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetBaseCombatStrength(bool bIgnoreEmbarked) const
+int CvUnit::GetBaseCombatStrength() const
 {
-	VALIDATE_OBJECT
-	if(m_bEmbarked && !bIgnoreEmbarked)
-	{
-		return GetEmbarkedUnitDefense() / 100;
-	}
-
 	return m_iBaseCombat;
 }
 
@@ -15228,20 +15222,13 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender) const
 {
 	VALIDATE_OBJECT
-
-	bool bWouldNeedEmbark = ((!pFromPlot && isEmbarked()) || (pFromPlot && pFromPlot->needsEmbarkation(this) && CanEverEmbark()));
-	bool bIsEmbarkedAttackingLand = pToPlot && !pToPlot->needsEmbarkation(this) && bWouldNeedEmbark;
-
-	if(GetBaseCombatStrength(bIsEmbarkedAttackingLand) == 0)
+	if(GetBaseCombatStrength() == 0)
 		return 0;
 
-	int iCombat;
-
-	int iTempModifier;
 	int iModifier = GetGenericMaxStrengthModifier(pDefender, pToPlot, /*bIgnoreFlanking*/ false, pFromPlot);
 
 	// Generic Attack bonus
-	iTempModifier = getAttackModifier();
+	int iTempModifier = getAttackModifier();
 	iModifier += iTempModifier;
 
 	// Kamikaze attack
@@ -15413,7 +15400,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	if(iModifier < -90)
 		iModifier = -90;
 
-	iCombat = GetBaseCombatStrength(bIsEmbarkedAttackingLand) * (iModifier + 100);
+	int iCombat = GetBaseCombatStrength() * (iModifier + 100);
 
 	return std::max(1, iCombat);
 }
@@ -15586,7 +15573,7 @@ int CvUnit::GetEmbarkedUnitDefense() const
 	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !kPlayer.isHuman())
 	{
 		//25% of defense added in. This is largely to help the AI.
-		iRtnValue += (GetBaseCombatStrength(true)*100) / max(1,GC.getBALANCE_EMBARK_DEFENSE_DIVISOR() );
+		iRtnValue += (GetBaseCombatStrength()*100) / max(1,GC.getBALANCE_EMBARK_DEFENSE_DIVISOR() );
 	}
 #endif
 

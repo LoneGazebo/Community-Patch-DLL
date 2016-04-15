@@ -1936,7 +1936,7 @@ void CvTacticalAI::AssignTacticalMove(CvTacticalMove move)
 	}
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_DESTROY_HIGH_UNIT])
 	{
-		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
+		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true, true);
 	}
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_DESTROY_MEDIUM_UNIT])
 	{
@@ -2151,30 +2151,20 @@ void CvTacticalAI::AssignBarbarianMoves()
 
 		switch(move.m_eMoveType)
 		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		//capture moves require that the city can be taken within 2 turns, barbarians almost never qualify for that, so they do nothing instead
-		//therefore combine the two
-		case AI_TACTICAL_BARBARIAN_CAPTURE_CITY:
-		case AI_TACTICAL_BARBARIAN_DAMAGE_CITY:
-			PlotDamageCityMoves();
-			PlotCaptureCityMoves();
-			break;
-#else
 		case AI_TACTICAL_BARBARIAN_CAPTURE_CITY:
 			PlotCaptureCityMoves();
 			break;
 		case AI_TACTICAL_BARBARIAN_DAMAGE_CITY:
 			PlotDamageCityMoves();
 			break;
-#endif
 		case AI_TACTICAL_BARBARIAN_DESTROY_HIGH_PRIORITY_UNIT:
-			PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
+			PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true, true);
 			break;
 		case AI_TACTICAL_BARBARIAN_DESTROY_MEDIUM_PRIORITY_UNIT:
-			PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
+			PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true, true);
 			break;
 		case AI_TACTICAL_BARBARIAN_DESTROY_LOW_PRIORITY_UNIT:
-			PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
+			PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true, true);
 			break;
 		case AI_TACTICAL_BARBARIAN_MOVE_TO_SAFETY:
 			PlotMovesToSafety(true /*bCombatUnits*/);
@@ -3182,7 +3172,7 @@ void CvTacticalAI::PlotHealMoves()
 			if (pUnitPlot->getOwner() != pUnit->getOwner())
 				iAcceptableDamage = 20;
 
-			if (pUnit->getDamage()>iAcceptableDamage && pUnit->getArmyID()!=-1 && FindNearbyTarget(pUnit,7)==NULL)
+			if (pUnit->getDamage()>iAcceptableDamage && pUnit->getArmyID()==-1 && FindNearbyTarget(pUnit,7)==NULL)
 				m_HealingUnits.insert(pUnit->GetID());
 		}
 	}
@@ -3856,8 +3846,8 @@ void CvTacticalAI::PlotSteamrollMoves()
 
 #if defined(MOD_BALANCE_CORE_NEW_TACTICAL_AI)
 	// See if there are any kill attacks we can make.
-	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
-	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true, true);
+	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true, true);
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
 
 	for(unsigned int iI = 0; iI < m_ZoneTargets.size(); iI++)

@@ -547,7 +547,7 @@ public:
 	int GetUnhappinessCombatPenalty() const;
 
 	void SetBaseCombatStrength(int iCombat);
-	int GetBaseCombatStrength(bool bIgnoreEmbarked = false) const;
+	int GetBaseCombatStrength() const;
 	int GetBaseCombatStrengthConsideringDamage() const;
 
 	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacency, const CvPlot* pFromPlot = NULL) const;

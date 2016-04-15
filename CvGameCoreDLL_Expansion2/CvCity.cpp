@@ -20880,7 +20880,7 @@ void CvCity::DoBarbIncursion()
 				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
 				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit())
 				{			
-					int iBarbStrength = (pUnit->GetBaseCombatStrength(true) * 20);
+					int iBarbStrength = (pUnit->GetBaseCombatStrength() * 20);
 					iBarbStrength += GC.getGame().getJonRandNum(iBarbStrength, "Barbarian Random Strength Bump");
 					if(iBarbStrength > iCityStrength)
 					{

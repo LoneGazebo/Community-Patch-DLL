@@ -1358,10 +1358,10 @@ void CvHomelandAI::PlotMovesToSafety()
 				}
 
 				// Also may be true if a damaged combat unit
-				else if(pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints())
+				else if(pUnit->getDamage()>0)
 				{
 #if defined(MOD_BALANCE_CORE)
-					int iDamage = pUnit->plot()->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage());
+					int iTurnDamage = pUnit->plot()->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage());
 #endif
 					if(pUnit->isBarbarian())
 					{
@@ -1374,7 +1374,7 @@ void CvHomelandAI::PlotMovesToSafety()
 
 #if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
 #if defined(MOD_BALANCE_CORE)
-					else if(iDamage > 0 && (((pUnit->getDamage()*100)/pUnit->GetMaxHitPoints())>50))
+					else if(iTurnDamage > 0 && (pUnit->getDamage() > pUnit->GetCurrHitPoints()))
 					{
 						bAddUnit = true;
 					}
@@ -1384,8 +1384,8 @@ void CvHomelandAI::PlotMovesToSafety()
 					{
 						bAddUnit = true;
 					}
-					// Everyone else flees at less than or equal to 50% combat strength
-					else if(pUnit->GetBaseCombatStrengthConsideringDamage() * 2 <= pUnit->GetBaseCombatStrength())
+					// Everyone else flees at less than 50% combat strength (works for zero CS also)
+					else if(pUnit->GetBaseCombatStrengthConsideringDamage() * 2 < pUnit->GetBaseCombatStrength())
 					{
 						bAddUnit = true;
 					}
@@ -1408,9 +1408,7 @@ void CvHomelandAI::PlotMovesToSafety()
 				// Also flee if danger is really high in current plot (but not if we're barbarian)
 				else if(!pUnit->isBarbarian())
 				{
-					int iAcceptableDanger;
-					iAcceptableDanger = pUnit->GetBaseCombatStrengthConsideringDamage() * 100;
-					if(iDangerLevel > iAcceptableDanger)
+					if(iDangerLevel > pUnit->GetCurrHitPoints()*1.5)
 					{
 						bAddUnit = true;
 					}
@@ -3658,6 +3656,18 @@ void CvHomelandAI::ExecuteHeals()
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
 		if(pUnit)
 		{
+			if (pUnit->GetDanger()>0)
+			{
+				CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit.pointer(),true);
+				if (pBestPlot)
+				{
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+					pUnit->finishMoves();
+					UnitProcessed(pUnit->GetID());
+					continue;
+				}
+			}
+
 			if(pUnit->canFortify(pUnit->plot()))
 			{
 				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());

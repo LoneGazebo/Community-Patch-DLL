@@ -239,7 +239,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 					}
 				}
 			}
-			if(pToPlot->isWater() && (pUnit->getDomainType() == DOMAIN_SEA || pUnit->isEmbarked()))
+			if(pToPlot->isWater() && (pUnit->getDomainType() == DOMAIN_SEA || pToPlot->needsEmbarkation(pUnit)))
 			{
 				//Plots worked by city with movement debuff reduce movement speed.
 				CvCity* pCity = pToPlot->getWorkingCity();
