@@ -3253,9 +3253,9 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 		int iBestPlotScore = 0;
 		
 		//first check our immediate neighborhood (ie the tiles we can reach within one turn)
-		TacticalAIHelpers::ReachablePlotSet eligiblePlots;
-		TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(), pUnit->plot(), eligiblePlots, true /*checkTerritory*/);
-		for (TacticalAIHelpers::ReachablePlotSet::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
+		ReachablePlots eligiblePlots;
+		TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(), pUnit->plot(), eligiblePlots, true, true, false);
+		for (ReachablePlots::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
 		{
 			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->first);
 
@@ -5045,9 +5045,9 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
 			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
-			TacticalAIHelpers::ReachablePlotSet reachablePlots;
-			TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true);
-			for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
+			ReachablePlots reachablePlots;
+			TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
+			for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
 				CvPlot* pCandidate = GC.getMap().plotByIndexUnchecked(it->first);
 				//plot needs to have a defender, but no be adjacent to the enemy
@@ -5113,9 +5113,9 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
 			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
-			TacticalAIHelpers::ReachablePlotSet reachablePlots;
-			TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true);
-			for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
+			ReachablePlots reachablePlots;
+			TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
+			for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
 
 				int iScore = 0;
@@ -6475,9 +6475,9 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 #endif
 {
 	WeightedPlotVector aBestPlotList;
-	TacticalAIHelpers::ReachablePlotSet reachablePlots;
+	ReachablePlots reachablePlots;
 	TacticalAIHelpers::GetAllPlotsInReach(pUnit,pUnit->plot(),reachablePlots,true,true,true);
-	for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
+	for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 	{
 		{
 			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->first);

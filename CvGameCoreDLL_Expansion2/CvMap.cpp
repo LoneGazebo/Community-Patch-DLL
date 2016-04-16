@@ -540,7 +540,6 @@ void CvMap::setup()
 {
 	GC.GetPathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY());
 	GC.GetInterfacePathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY());
-	GC.GetIgnoreUnitsPathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY());
 	GC.GetStepFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY());
 }
 

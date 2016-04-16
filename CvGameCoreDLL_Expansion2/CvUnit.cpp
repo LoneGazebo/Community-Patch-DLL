@@ -4348,10 +4348,6 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, bool
 	CvTeam& kMyTeam = GET_TEAM(eMyTeam);
 	CvTeam& kTheirTeam = GET_TEAM(eTeam);
 
-#if defined(MOD_GLOBAL_CS_OVERSEAS_TERRITORY)
-	CvTeam* pTheirTeam = &kTheirTeam;
-#endif
-
 	if(kMyTeam.isFriendlyTerritory(eTeam))
 	{
 		return true;
@@ -4365,6 +4361,18 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, bool
 	if(isRivalTerritory())
 	{
 		return true;
+	}
+
+	if(bIgnoreRightOfPassage)
+	{
+		return true;
+	}
+	else
+	{
+		if(kTheirTeam.IsAllowsOpenBordersToTeam(eMyTeam))
+		{
+			return true;
+		}
 	}
 
 	if(kTheirTeam.isMinorCiv())
@@ -4384,26 +4392,26 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, bool
 				return false;
 			}
 
-#if defined(MOD_GLOBAL_CS_OVERSEAS_TERRITORY)
 			CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
-			PlayerTypes eMinorAlly = pMinorAI->GetAlly();
 
+#if defined(MOD_GLOBAL_CS_OVERSEAS_TERRITORY)
 			// If the minor is allied, treat the plot as being owned by their ally
-			if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && eMinorAlly != NO_PLAYER) {
-				if (eMinorAlly == getOwner()) {
+			PlayerTypes eMinorAlly = pMinorAI->GetAlly();
+			if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && eMinorAlly != NO_PLAYER)
+			{
+				if (eMinorAlly == getOwner())
+				{
 					return true;
 				}
 
-				pTheirTeam = &GET_TEAM(GET_PLAYER(eMinorAlly).getTeam());
-			} else {
+				kTheirTeam = GET_TEAM(GET_PLAYER(eMinorAlly).getTeam());
+			} 
+			else 
 #endif
+			{
 				// The remaining checks are only for AI major vs. AI Minor, humans can always enter a minor's territory.
 				if (isHuman())
 					return true;
-
-#if !defined(MOD_GLOBAL_CS_OVERSEAS_TERRITORY)
-				CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
-#endif
 
 				// Is this an excluded unit that doesn't cause anger?
 				bool bAngerFreeUnit = IsAngerFreeUnit();
@@ -4411,33 +4419,20 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, bool
 				bool bHasOpenBorders = pMinorAI->IsPlayerHasOpenBorders(getOwner());
 				// If already intruding on this minor, okay to do it some more
 				bool bIntruding = pMinorAI->IsMajorIntruding(getOwner());
-#if defined(MOD_BALANCE_CORE)
-				//Let's let scouts in.
-				if(AI_getUnitAIType() == UNITAI_EXPLORE || AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
-				{
-					return true;
-				}
-#endif
 
 				if(bAngerFreeUnit || bHasOpenBorders || bIntruding)
 				{
 					return true;
 				}
-#if defined(MOD_GLOBAL_CS_OVERSEAS_TERRITORY)
-			}
-#endif
-		}
-	}
 
-	if(!bIgnoreRightOfPassage)
-	{
-#if defined(MOD_GLOBAL_CS_OVERSEAS_TERRITORY)
-		if(pTheirTeam->IsAllowsOpenBordersToTeam(eMyTeam))
-#else
-		if(kTheirTeam.IsAllowsOpenBordersToTeam(eMyTeam))
+#if defined(MOD_BALANCE_CORE)
+				//Let's let scouts in.
+				if(getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE || getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
+				{
+					return true;
+				}
 #endif
-		{
-			return true;
+			}
 		}
 	}
 
@@ -5107,7 +5102,7 @@ bool CvUnit::canMoveOrAttackInto(const CvPlot& plot, int iMoveFlags) const
 }
 
 //	--------------------------------------------------------------------------------
-/// Does this unit not
+/// can this unit move into enemy territory without open borders
 bool CvUnit::IsAngerFreeUnit() const
 {
 	// If it's a "rival territory" Unit (e.g. Caravel) don't worry about it
@@ -18118,10 +18113,10 @@ bool CvUnit::IsHasNoValidMove() const
 		return false;
 	}
 
-	TacticalAIHelpers::ReachablePlotSet plots;
+	ReachablePlots plots;
 	TacticalAIHelpers::GetAllPlotsInReach(this,plot(),plots,true,true,false);
 
-	for (TacticalAIHelpers::ReachablePlotSet::const_iterator it=plots.begin(); it!=plots.end(); ++it)
+	for (ReachablePlots::const_iterator it=plots.begin(); it!=plots.end(); ++it)
 	{
 		CvPlot* pToPlot = GC.getMap().plotByIndexUnchecked(it->first);
 
@@ -27240,10 +27235,10 @@ bool CvUnit::IsCanDefend(const CvPlot* pPlot) const
 bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 {
 	VALIDATE_OBJECT
-	TacticalAIHelpers::ReachablePlotSet plots;
+	ReachablePlots plots;
 	TacticalAIHelpers::GetAllPlotsInReach(this,plot(),plots,true,true,false);
 
-	for (TacticalAIHelpers::ReachablePlotSet::const_iterator it=plots.begin(); it!=plots.end(); ++it)
+	for (ReachablePlots::const_iterator it=plots.begin(); it!=plots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
 		if(pPlot->isVisible(getTeam()) && (pPlot->isVisibleEnemyUnit(this) || pPlot->isEnemyCity(*this)))
@@ -28980,41 +28975,24 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bI
 	if(pTarget == plot())
 		return 0;
 
-	if(bIgnoreUnits) //ignore all other units (also enemy)
+	int iFlags = 0;
+
+	if(bIgnoreUnits)
 	{
-		//this is a purely hypothetical path ... use a special pathfinder for that (single layer - no stop nodes)
-		SPathFinderUserData data(this,CvUnit::MOVEFLAG_IGNORE_DANGER,iTargetTurns);
-		data.ePathType	= PT_UNIT_IGNORE_OTHERS;
-
-		if (GC.GetIgnoreUnitsPathFinder().GeneratePath(getX(), getY(), pTarget->getX(), pTarget->getY(), data))
-		{
-			CvAStarNode* pNode = GC.GetIgnoreUnitsPathFinder().GetLastNode();
-
-			rtnValue = pNode->m_iTurns;
-			if(rtnValue == 1)
-			{
-				if(pNode->m_iMoves > 0)
-				{
-					rtnValue = 0;
-				}
-			}
-		}
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_ZOC;
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_DANGER;
 	}
-	else
-	{
-		//normal handling: use the path cache of the unit, so we can possibly re-use the path later
-		//do not ignore danger
-		int iFlags = 0;
-		if(bIgnoreStacking) //ignore our own units
-			iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
 
-		if (!GeneratePath(pTarget, iFlags, iTargetTurns, &rtnValue) )
-			return INT_MAX;
-	}
+	if(bIgnoreStacking) //ignore our own units
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
+
+	//normal handling: use the path cache of the unit, so we can possibly re-use the path later
+	if (!GeneratePath(pTarget, iFlags, iTargetTurns, &rtnValue) )
+		return INT_MAX;
 
 	return rtnValue;
 }
-
 
 //	--------------------------------------------------------------------------------
 DestructionNotification<UnitHandle>& CvUnit::getDestructionNotification()

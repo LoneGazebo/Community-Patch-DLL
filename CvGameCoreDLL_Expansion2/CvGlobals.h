@@ -213,7 +213,6 @@ public:
 
 	CvTwoLayerPathFinder& GetPathFinder();
 	CvTwoLayerPathFinder& GetInterfacePathFinder();
-	CvPathFinder& GetIgnoreUnitsPathFinder();
 	CvPathFinder& GetStepFinder();
 
 	ICvDLLDatabaseUtility1* getDatabaseLoadUtility();
@@ -8889,7 +8888,6 @@ public:
 	//
 	void SetPathFinder(CvTwoLayerPathFinder* pVal);
 	void SetInterfacePathFinder(CvTwoLayerPathFinder* pVal);
-	void SetIgnoreUnitsPathFinder(CvPathFinder* pVal);
 	void SetStepFinder(CvPathFinder* pVal);
 
 	// So that CvEnums are moddable in the DLL
@@ -8942,7 +8940,6 @@ protected:
 
 	CvTwoLayerPathFinder* m_pathFinder;
 	CvTwoLayerPathFinder* m_interfacePathFinder;
-	CvPathFinder* m_ignoreUnitsPathFinder;
 	CvPathFinder* m_stepFinder;
 	
 	ICvDLLDatabaseUtility1* m_pkDatabaseLoadUtility;

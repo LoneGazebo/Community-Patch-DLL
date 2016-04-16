@@ -105,19 +105,22 @@ public:
 	    MOVEFLAG_DECLARE_WAR				  = 0x0002,
 	    MOVEFLAG_DESTINATION				  = 0x0004,	// we want to end the turn in the given plot
 	    MOVEFLAG_NOT_ATTACKING_THIS_TURN	  = 0x0008,	// purpose unknown
-	    MOVEFLAG_IGNORE_STACKING			  = 0x0010,	// stacking rules don't apply
+	    MOVEFLAG_IGNORE_STACKING			  = 0x0010,	// stacking rules don't apply (on turn end plots)
 	    MOVEFLAG_PRETEND_EMBARKED			  = 0x0020, // deprecated
 	    MOVEFLAG_PRETEND_UNEMBARKED			  = 0x0040, // deprecated
 	    MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE = 0x0080, // deprecated
 		//these values are used internally only
 		MOVEFLAG_IGNORE_DANGER					= 0x0100, //do not apply a penalty for dangerous plots
 		MOVEFLAG_NO_EMBARK						= 0x0200, //do not ever embark (but move along if already embarked)
-		MOVEFLAG_TERRITORY_NO_ENEMY				= 0x0400, //don't enter enemy territory
+		MOVEFLAG_TERRITORY_NO_ENEMY				= 0x0400, //don't enter enemy territory, even if we could
 		MOVEFLAG_MAXIMIZE_EXPLORE				= 0x0800, //try to reveal as many plots as possible
 		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000, //purpose unknown
 		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use ocean even if we could
 		MOVEFLAG_SAFE_EMBARK					= 0x4000, //only embark if danger is zero
 		MOVEFLAG_APPROXIMATE_TARGET				= 0x8000, //don't need to reach the target exactly, a neighboring tile is good enough
+		MOVEFLAG_NO_INTERMEDIATE_STOPS			= 0x10000, //disable the second layer of nodes
+		MOVEFLAG_IGNORE_ZOC						= 0x20000, //ignore zones of control
+		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x40000, //pretend we can enter everybody's territory
 	};
 
 	DestructionNotification<UnitHandle>& getDestructionNotification();

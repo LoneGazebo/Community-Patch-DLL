@@ -24,8 +24,8 @@ class CvPlot;
 
 enum PathType
 {
-	PT_UNIT_WITH_ZOC,			//path for a particular unit with ZoC rules (stacking is handled via flag)
-	PT_UNIT_IGNORE_OTHERS,		//path for a unit, disregarding other units (no stacking and no ZoC)
+	PT_UNIT_MOVEMENT,			//path for a particular unit (stacking,ZoC,danger handled via flag)
+	PT_UNIT_REACHABLE_PLOTS,	//all plots a unit can reach this turn
 	PT_GENERIC_SAME_AREA,		//plots must have the same area ID (ie only water or only land)
 	PT_GENERIC_ANY_AREA,		//plots can have any area ID, simply need to be passable
 	PT_GENERIC_SAME_AREA_WIDE,	//path must be 3 tiles wide (for armies)
@@ -40,9 +40,6 @@ enum PathType
 	PT_CITY_ROUTE_WATER,		//is there a sea connection between two points
 	PT_CITY_ROUTE_MIXED,		//is there a mixed land/sea connection between two points
 	PT_AIR_REBASE,				//for aircraft, only plots with cities and carriers are allowed
-	PT_UI_PLOT_MOVE_HIGHLIGHT,	//mark all hexes in move range
-	PT_UI_PLOT_ATTACK_HIGHLIGHT,//mark all hexes in attack range
-	PT_UI_PATH_VISUALIZATION	//draw the computed path
 };
 
 #define PATH_BASE_COST (100) //base cost per plot respectively movement point expended
@@ -81,6 +78,8 @@ struct SPath
 	int iTurnGenerated;
 	SPathFinderUserData sConfig;
 };
+
+typedef std::set<std::pair<int,int>> ReachablePlots; //(plot index, movement points) - don't store pointers in a set, the ordering is unpredictable
 
 typedef int(*CvAPointFunc)(int, int, const SPathFinderUserData&, const CvAStar*);
 typedef int(*CvAHeuristic)(int, int, int, int, int, int);
@@ -420,11 +419,14 @@ public:
 	virtual bool Configure(PathType ePathType);
 
 	// configures the AStar implementation according to the desired PathType and generates a path
+	// path in this case can also be a set of plots, for some path types there is no destination
 	virtual bool GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data);
 	virtual bool DoesPathExist(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data);
 
+	//these are only valid after a call to GeneratePath
 	SPath GetPath() const;
 	bool VerifyPath(const SPath& path);
+	ReachablePlots GetPlotsTouched(int iMinMovesLeft) const;
 
 	// Can be called after a route has been generated
 	CvPlot* GetXPlotsFromEnd(int iPlotsFromEnd, bool bLeaveEnemyTerritory) const;
@@ -465,10 +467,6 @@ int PathHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDes
 int PathCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int PathAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 int PathNodeAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
-
-int IgnoreUnitsDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
-int IgnoreUnitsCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
-int IgnoreUnitsValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 
 int StepHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY);
 int StepDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
