@@ -1364,26 +1364,26 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget2(AIOperationTypes eAIOperati
 				cachedTarget.iScore = 0;
 			}
 			// Don't want it to already be targeted by an operation that's not on its way
-			else if(pCachedMusterCity != NULL)
+			else if(pCachedMusterCity != NULL &&
+				m_pPlayer->IsCityAlreadyTargeted(pCachedMusterCity, DOMAIN_SEA, 25))
 			{
-				if((eAIOperationType == AI_OPERATION_NAVAL_ATTACK ||
+				if(eAIOperationType == AI_OPERATION_NAVAL_ATTACK ||
 				eAIOperationType == AI_OPERATION_NAVAL_SNEAK_ATTACK ||
 				eAIOperationType == AI_OPERATION_PURE_NAVAL_CITY_ATTACK ||
 				eAIOperationType == AI_OPERATION_NAVAL_SUPERIORITY ||
-				eAIOperationType == AI_OPERATION_CITY_STATE_NAVAL_ATTACK) &&
-				m_pPlayer->IsCityAlreadyTargeted(pCachedMusterCity, DOMAIN_SEA, 25))
+				eAIOperationType == AI_OPERATION_CITY_STATE_NAVAL_ATTACK)
 				{	
 					cachedTarget.iScore = 0;
 				}
 			}
-			else if(pCachedMusterCity != NULL)
+			else if(pCachedMusterCity != NULL &&
+				m_pPlayer->IsCityAlreadyTargeted(pCachedMusterCity, DOMAIN_LAND, 25))
 			{
-				if((eAIOperationType == AI_OPERATION_BASIC_CITY_ATTACK ||
+				if(eAIOperationType == AI_OPERATION_BASIC_CITY_ATTACK ||
 				eAIOperationType == AI_OPERATION_SNEAK_CITY_ATTACK ||
 				eAIOperationType == AI_OPERATION_CITY_STATE_ATTACK ||
 				eAIOperationType == AI_OPERATION_NAVAL_SUPERIORITY ||
-				eAIOperationType == AI_OPERATION_SMALL_CITY_ATTACK) &&
-				m_pPlayer->IsCityAlreadyTargeted(pCachedMusterCity, DOMAIN_LAND, 25))
+				eAIOperationType == AI_OPERATION_SMALL_CITY_ATTACK)
 				{	
 					cachedTarget.iScore = 0;
 				}

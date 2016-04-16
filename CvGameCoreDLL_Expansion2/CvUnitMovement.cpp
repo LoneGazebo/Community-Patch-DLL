@@ -351,7 +351,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 				if(eLoopUnitDomain != eUnitDomain)
 				{
 					// hovering units always exert a ZOC
-					if (pLoopUnit->IsHoveringUnit() || pLoopUnit->IsHoveringUnit())
+					if (pLoopUnit->IsHoveringUnit() || eLoopUnitDomain==DOMAIN_HOVER)
 					{
 						// continue on
 					}

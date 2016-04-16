@@ -6353,7 +6353,7 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 					{
 						if(pLoopUnit->getUnitType() != NO_UNIT)
 						{
-							if(::IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()))
+							if(::IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()))
 							{
 								pLoopUnit->setHasPromotion(ePromotion, false);
 								bChanged = true;
@@ -6953,7 +6953,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 					{
 						if(pLoopUnit->getUnitType() != NO_UNIT)
 						{
-							if(::IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()))
+							if(::IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()))
 							{
 								if(pLoopUnit->HasPromotion(ePromotion))
 								{
@@ -30409,14 +30409,6 @@ int CvPlayer::GetScienceFromResearchAgreementsTimes100() const
 int CvPlayer::GetScienceFromBudgetDeficitTimes100() const
 {
 	int iScience = 0;
-	
-	int iMyNum = 0;
-	if (iScience > 0)
-	{
-		iMyNum = -1;
-	}
-
-
 	int iGoldPerTurn = calculateGoldRateTimes100();
 	if(GetTreasury()->GetGoldTimes100() + iGoldPerTurn < 0)
 	{
@@ -35587,7 +35579,7 @@ int CvPlayer::getAdvancedStartImprovementCost(ImprovementTypes eImprovement, boo
 		return -1;
 	}
 
-	int iCost = 0;//GC.getImprovementInfo(eImprovement)->GetAdvancedStartCost();
+	int iCost = 0; //GC.getImprovementInfo(eImprovement)->GetAdvancedStartCost();
 
 	// This denotes cities may not be purchased through Advanced Start
 	if(iCost < 0)

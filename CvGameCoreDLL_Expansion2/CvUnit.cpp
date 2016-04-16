@@ -637,7 +637,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
 						bool bNoPromotion = false;
 						// Check for negating promotions
@@ -683,7 +683,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
 						bool bNoPromotion = false;
 						// Check for negating promotions
@@ -727,7 +727,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
 						bool bNoPromotion = false;
 						// Check for negating promotions
@@ -770,7 +770,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
 						bool bNoPromotion = false;
 						// Check for negating promotions
@@ -813,7 +813,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
 						bool bNoPromotion = false;
 						// Check for negating promotions
@@ -856,7 +856,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
 						bool bNoPromotion = false;
 						// Check for negating promotions
@@ -903,7 +903,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 		if(ePromotion != NO_PROMOTION)
 		{
 			CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 			{
 				bool bNoPromotion = false;
 				// Check for negating promotions
@@ -948,7 +948,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 		if(ePromotion != NO_PROMOTION)
 		{
 			CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 			{
 				bool bNoPromotion = false;
 				// Check for negating promotions
@@ -991,7 +991,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 		if(ePromotion != NO_PROMOTION)
 		{
 			CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 			{
 				bool bNoPromotion = false;
 				// Check for negating promotions
@@ -1034,7 +1034,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 		if(ePromotion != NO_PROMOTION)
 		{
 			CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 			{
 				bool bNoPromotion = false;
 				// Check for negating promotions
@@ -1077,7 +1077,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 		if(ePromotion != NO_PROMOTION)
 		{
 			CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 			{
 				bool bNoPromotion = false;
 				// Check for negating promotions
@@ -1120,7 +1120,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 		if(ePromotion != NO_PROMOTION)
 		{
 			CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 			{
 				bool bNoPromotion = false;
 				// Check for negating promotions
@@ -1909,7 +1909,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
 						bool bNoPromotion = false;
 						// Check for negating promotions
@@ -1955,7 +1955,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
 						bool bNoPromotion = false;
 						// Check for negating promotions
@@ -1999,7 +1999,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
 						bool bNoPromotion = false;
 						// Check for negating promotions
@@ -2042,7 +2042,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
 						bool bNoPromotion = false;
 						// Check for negating promotions
@@ -2085,7 +2085,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
 						bool bNoPromotion = false;
 						// Check for negating promotions
@@ -2128,7 +2128,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				if(ePromotion != NO_PROMOTION)
 				{
 					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
 						bool bNoPromotion = false;
 						// Check for negating promotions
@@ -2175,7 +2175,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if(ePromotion != NO_PROMOTION)
 		{
 			CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 			{
 				bool bNoPromotion = false;
 				// Check for negating promotions
@@ -2220,7 +2220,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if(ePromotion != NO_PROMOTION)
 		{
 			CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 			{
 				bool bNoPromotion = false;
 				// Check for negating promotions
@@ -2263,7 +2263,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if(ePromotion != NO_PROMOTION)
 		{
 			CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 			{
 				bool bNoPromotion = false;
 				// Check for negating promotions
@@ -2306,7 +2306,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if(ePromotion != NO_PROMOTION)
 		{
 			CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 			{
 				bool bNoPromotion = false;
 				// Check for negating promotions
@@ -2349,7 +2349,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if(ePromotion != NO_PROMOTION)
 		{
 			CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 			{
 				bool bNoPromotion = false;
 				// Check for negating promotions
@@ -2392,7 +2392,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if(ePromotion != NO_PROMOTION)
 		{
 			CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+			if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 			{
 				bool bNoPromotion = false;
 				// Check for negating promotions
@@ -18811,7 +18811,7 @@ if (!bDoEvade)
 					{
 #if defined(MOD_BALANCE_CORE)
 						CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-						if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 						{
 							bool bNoPromotion = false;
 							// Check for negating promotions
@@ -18856,7 +18856,7 @@ if (!bDoEvade)
 					if(ePromotion != NO_PROMOTION)
 					{
 						CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-						if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 						{
 							bool bNoPromotion = false;
 							// Check for negating promotions
@@ -18900,7 +18900,7 @@ if (!bDoEvade)
 					if(ePromotion != NO_PROMOTION)
 					{
 						CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-						if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 						{
 							bool bNoPromotion = false;
 							// Check for negating promotions
@@ -18944,7 +18944,7 @@ if (!bDoEvade)
 					if(ePromotion != NO_PROMOTION)
 					{
 						CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-						if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 						{
 							bool bNoPromotion = false;
 							// Check for negating promotions
@@ -18987,7 +18987,7 @@ if (!bDoEvade)
 					if(ePromotion != NO_PROMOTION)
 					{
 						CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-						if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 						{
 							bool bNoPromotion = false;
 							// Check for negating promotions
@@ -19030,7 +19030,7 @@ if (!bDoEvade)
 					if(ePromotion != NO_PROMOTION)
 					{
 						CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-						if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 						{
 							bool bNoPromotion = false;
 							// Check for negating promotions
@@ -19070,7 +19070,7 @@ if (!bDoEvade)
 #else
 						// Is this a valid Promotion for the UnitCombatType?
 						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
-								(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+								(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 						{
 							setHasPromotion(ePromotion, true);
 						}
@@ -19088,7 +19088,7 @@ if (!bDoEvade)
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 				{
 					bool bNoPromotion = false;
 					// Check for negating promotions
@@ -19133,7 +19133,7 @@ if (!bDoEvade)
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 				{
 					bool bNoPromotion = false;
 					// Check for negating promotions
@@ -19178,7 +19178,7 @@ if (!bDoEvade)
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 				{
 					bool bNoPromotion = false;
 					// Check for negating promotions
@@ -19221,7 +19221,7 @@ if (!bDoEvade)
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 				{
 					bool bNoPromotion = false;
 					// Check for negating promotions
@@ -19264,7 +19264,7 @@ if (!bDoEvade)
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 				{
 					bool bNoPromotion = false;
 					// Check for negating promotions
@@ -19307,7 +19307,7 @@ if (!bDoEvade)
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 				{
 					bool bNoPromotion = false;
 					// Check for negating promotions
@@ -19350,7 +19350,7 @@ if (!bDoEvade)
 			if(ePromotion != NO_PROMOTION)
 			{
 				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 				{
 					bool bNoPromotion = false;
 					// Check for negating promotions

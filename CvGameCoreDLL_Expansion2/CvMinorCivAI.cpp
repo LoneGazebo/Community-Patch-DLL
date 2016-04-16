@@ -2795,7 +2795,7 @@ bool CvMinorCivQuest::IsExpired()
 			return true;
 		}
 		int iNum = m_iData2;
-		if(NO_BUILDING && GET_PLAYER(m_eAssignedPlayer).getNumCities() < iNum)
+		if(eBuilding == NO_BUILDING && GET_PLAYER(m_eAssignedPlayer).getNumCities() < iNum)
 		{
 			return true;
 		}

@@ -13127,16 +13127,16 @@ bool TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pTarget, const CvU
 
 	//filter and take only the half closer to origin
 	CvPlot* pRefPlot = pUnit->plot();
+	if(pRefPlot == NULL)
+		return false;
+
 	int iRefDist = plotDistance(*pRefPlot,*pTarget);
 	std::vector<SPlotWithScore> vIntermediate;
 	for (size_t i=0; i<vCandidates.size(); i++)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(pRefPlot == NULL)
-			continue;
 		if((vCandidates[i]) == NULL)
 			continue;
-#endif
+
 		int iDistance = plotDistance(*pRefPlot,*(vCandidates[i]));
 		if (iDistance>iRefDist)
 			continue;

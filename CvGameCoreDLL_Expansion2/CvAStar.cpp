@@ -59,6 +59,7 @@ public:
 
 private:
 	//hide bad defaults
+	CvGuard();
 	CvGuard(const CvGuard&);
 	CvGuard& operator=(const CvGuard&);
 
@@ -84,6 +85,9 @@ struct SLogNode
 	}
 	int x, y, round, kc, hc, t, m;
 	NodeState type; 
+
+private:
+	SLogNode();
 };
 
 std::vector<SLogNode> svPathLog;
@@ -92,6 +96,17 @@ std::vector<SLogNode> svPathLog;
 /// Constructor
 CvAStar::CvAStar()
 {
+	m_iColumns = 0;
+	m_iRows = 0;
+	m_iXstart = 0;
+	m_iYstart = 0;
+	m_iXdest = 0;
+	m_iYdest = 0;
+	m_iDestHitCount = 0;
+
+	m_bWrapX = false;
+	m_bWrapY = false;
+
 	udIsPathDest = NULL;
 	udDestValid = NULL;
 	udHeuristic = NULL;
@@ -114,6 +129,10 @@ CvAStar::CvAStar()
 	m_ppaaNeighbors = NULL;
 
 	m_iCurrentGenerationID = 0;
+	m_iProcessedNodes = 0;
+	m_iTestedNodes = 0;
+	m_iRounds = 0;
+	m_iBasicPlotCost = 0;
 
 	//for debugging
 	m_strName = "AStar";

@@ -5090,10 +5090,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					{
 						continue;
 					}
-					else if(pkBuildingClassInfo->getMaxGlobalInstances() != -1)
-					{
-						continue;
-					}
 					iChance = pkEventChoiceInfo->getCityWideDestructionChance();
 				}
 				if(iChance <= 0)
