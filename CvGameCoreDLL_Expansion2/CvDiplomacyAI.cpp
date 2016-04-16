@@ -2282,7 +2282,7 @@ void CvDiplomacyAI::DoInitializePersonality()
 	// AI Player
 	if(!GetPlayer()->isHuman())
 	{
-		CvLeaderHeadInfo& playerLeaderInfo = GetPlayer()->getLeaderInfo();
+		const CvLeaderHeadInfo& playerLeaderInfo = GetPlayer()->getLeaderInfo();
 
 		m_iVictoryCompetitiveness = GetRandomPersonalityWeight(playerLeaderInfo.GetVictoryCompetitiveness());
 		CvAssertMsg(m_iVictoryCompetitiveness >= 0, "DIPLOMACY_AI: Victory Competitiveness Personality weight is negative.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")

@@ -5343,7 +5343,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 
 	if(pkBuildingInfo->GetFreeBuildingThisCity() != NO_BUILDINGCLASS)
 	{
-		CvCivilizationInfo& thisCiv = pCity->getCivilizationInfo();
+		const CvCivilizationInfo& thisCiv = pCity->getCivilizationInfo();
 		BuildingTypes eFreeBuildingThisCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(pkBuildingInfo->GetFreeBuildingThisCity()));
 
 		if (eFreeBuildingThisCity != NO_BUILDING)

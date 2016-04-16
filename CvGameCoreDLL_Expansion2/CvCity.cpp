@@ -596,7 +596,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 #if defined(MOD_BALANCE_CORE)
 	// Free Buildings
-	CvCivilizationInfo& thisCiv = getCivilizationInfo();
+	const CvCivilizationInfo& thisCiv = getCivilizationInfo();
 	for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 	{
 		const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iBuildingClassLoop);
@@ -2659,7 +2659,7 @@ void CvCity::doTurn()
 						if(GET_PLAYER(getOwner()).getResourceOverValue(eResourceLoop) > 0)
 						{
 							const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-							CvCivilizationInfo& thisCivilization = GET_PLAYER(getOwner()).getCivilizationInfo();
+							const CvCivilizationInfo& thisCivilization = GET_PLAYER(getOwner()).getCivilizationInfo();
 							for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
 							{
 								const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
@@ -6621,7 +6621,7 @@ UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount) const
 	bUpgradeAvailable = false;
 	bUpgradeUnavailable = false;
 
-	CvCivilizationInfo& thisCiv = getCivilizationInfo();
+	const CvCivilizationInfo& thisCiv = getCivilizationInfo();
 
 	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
@@ -6809,7 +6809,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 
 		// See if there are any BuildingClass requirements
 		const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-		CvCivilizationInfo& thisCivilization = getCivilizationInfo();
+		const CvCivilizationInfo& thisCivilization = getCivilizationInfo();
 		for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
 		{
 			const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
@@ -7044,7 +7044,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		return false;
 	}
 
-	CvCivilizationInfo& thisCivInfo = *GC.getCivilizationInfo(getCivilizationType());
+	const CvCivilizationInfo& thisCivInfo = *GC.getCivilizationInfo(getCivilizationType());
 	int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
 
 	// Can't construct a building to reduce occupied unhappiness if the city isn't occupied
@@ -11211,7 +11211,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 	CvPlayer& owningPlayer = GET_PLAYER(getOwner());
 	CvTeam& owningTeam = GET_TEAM(getTeam());
-	CvCivilizationInfo& thisCiv = getCivilizationInfo();
+	const CvCivilizationInfo& thisCiv = getCivilizationInfo();
 	if(!(owningTeam.isObsoleteBuilding(eBuilding)) || bObsolete)
 	{
 		// One-shot items
@@ -12784,7 +12784,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 						continue;
 					}
 
-					CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
+					const CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
 					BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
 
 					if(eBuilding != NO_BUILDING)
@@ -12874,7 +12874,7 @@ int CvCity::GetCultureFromSpecialist(SpecialistTypes eSpecialist) const
 }
 
 //	--------------------------------------------------------------------------------
-CvHandicapInfo& CvCity::getHandicapInfo() const
+const CvHandicapInfo& CvCity::getHandicapInfo() const
 {
 	return GET_PLAYER(getOwner()).getHandicapInfo();
 }
@@ -12887,7 +12887,7 @@ HandicapTypes CvCity::getHandicapType() const
 }
 
 //	--------------------------------------------------------------------------------
-CvCivilizationInfo& CvCity::getCivilizationInfo() const
+const CvCivilizationInfo& CvCity::getCivilizationInfo() const
 {
 	return GET_PLAYER(getOwner()).getCivilizationInfo();
 }
@@ -24537,7 +24537,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 				}
 			}
 		}
-		CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
+		const CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
 		for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
 			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
@@ -24670,7 +24670,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					CvUnitEntry* thisUnitInfo = GC.getUnitInfo(eUnitType);
 					// See if there are any BuildingClass requirements
 					const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-					CvCivilizationInfo& thisCivilization = getCivilizationInfo();
+					const CvCivilizationInfo& thisCivilization = getCivilizationInfo();
 					for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
 					{
 						const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
@@ -24904,7 +24904,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 
 					if(pkBuildingInfo->IsBuildingClassNeededInCity(iI))
 					{
-						CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
+						const CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
 						ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
 
 						if(ePrereqBuilding != NO_BUILDING)
@@ -24934,7 +24934,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 
 					if(pkBuildingInfo->IsBuildingClassNeededAnywhere(iI))
 					{
-						CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
+						const CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
 						ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
 
 						if(ePrereqBuilding != NO_BUILDING)
@@ -24956,7 +24956,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					}
 					if(pkBuildingInfo->IsBuildingClassNeededNowhere(iI))
 					{
-						CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
+						const CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
 						ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
 
 						if(ePrereqBuilding != NO_BUILDING)

@@ -307,7 +307,7 @@ public:
 	PlayerTypes getActivePlayer() const;
 	void setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat = false, bool bAutoplaySwitch = false);
 
-	CvHandicapInfo& getHandicapInfo() const;
+	const CvHandicapInfo& getHandicapInfo() const;
 	HandicapTypes getHandicapType() const;
 	void setHandicapType(HandicapTypes eHandicap);
 
@@ -346,12 +346,12 @@ public:
 	GameStateTypes getGameState();
 	void setGameState(GameStateTypes eNewValue);
 
-	CvEraInfo& getStartEraInfo() const;
+	const CvEraInfo& getStartEraInfo() const;
 	EraTypes getStartEra() const;
 
 	CalendarTypes getCalendar() const;
 
-	CvGameSpeedInfo& getGameSpeedInfo() const;
+	const CvGameSpeedInfo& getGameSpeedInfo() const;
 	GameSpeedTypes getGameSpeedType() const;
 
 	int getEndTurnMessagesReceived(int iIndex);
@@ -426,6 +426,12 @@ public:
 	int getJonRandNum(int iNum, const char* pszLog);
 	int getJonRandNumVA(int iNum, const char* pszLog, ...);
 	int getAsyncRandNum(int iNum, const char* pszLog);
+
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+	//experimental
+	int	getSmallFakeRandNum(int iNum, CvPlot& input);
+	int	getSmallFakeRandNum(int iNum);
+#endif
 
 	int calculateSyncChecksum();
 	int calculateOptionsChecksum();

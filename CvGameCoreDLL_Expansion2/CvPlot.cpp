@@ -10335,12 +10335,11 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 					// If the AI spots a human Unit, don't meet - wait for the human to find the AI
 					CvUnit* loopUnit = getUnitByIndex(iUnitLoop);
 
-					if(!loopUnit) continue;
+					if(!loopUnit) 
+						continue;
 
 					if(!GET_TEAM(eTeam).isHuman() && loopUnit->isHuman())
-					{
 						continue;
-					}
 
 					GET_TEAM(eTeam).meet(loopUnit->getTeam(), false);
 

@@ -466,7 +466,7 @@ public:
 #endif
 
 	HandicapTypes getHandicapType() const;
-	CvCivilizationInfo& getCivilizationInfo() const;
+	const CvCivilizationInfo& getCivilizationInfo() const;
 	CivilizationTypes getCivilizationType() const;
 	const char* getVisualCivAdjective(TeamTypes eForTeam) const;
 	SpecialUnitTypes getSpecialUnitType() const;

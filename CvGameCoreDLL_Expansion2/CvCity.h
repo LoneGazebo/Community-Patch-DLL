@@ -413,10 +413,10 @@ public:
 
 	int GetCultureFromSpecialist(SpecialistTypes eSpecialist) const;
 
-	CvHandicapInfo& getHandicapInfo() const;
+	const CvHandicapInfo& getHandicapInfo() const;
 	HandicapTypes getHandicapType() const;
 
-	CvCivilizationInfo& getCivilizationInfo() const;
+	const CvCivilizationInfo& getCivilizationInfo() const;
 	CivilizationTypes getCivilizationType() const;
 
 	LeaderHeadTypes getPersonalityType() const;

@@ -13681,7 +13681,7 @@ UnitTypes CvUnit::GetUpgradeUnitType() const
 	VALIDATE_OBJECT
 	UnitTypes eUpgradeUnitType = NO_UNIT;
 
-	CvCivilizationInfo& kCiv = GET_PLAYER(getOwner()).getCivilizationInfo();
+	const CvCivilizationInfo& kCiv = GET_PLAYER(getOwner()).getCivilizationInfo();
 
 	// Determine what we're going to upgrade into
 	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
@@ -13920,7 +13920,7 @@ HandicapTypes CvUnit::getHandicapType() const
 
 
 //	--------------------------------------------------------------------------------
-CvCivilizationInfo& CvUnit::getCivilizationInfo() const
+const CvCivilizationInfo& CvUnit::getCivilizationInfo() const
 {
 	VALIDATE_OBJECT
 	return GET_PLAYER(getOwner()).getCivilizationInfo();
@@ -15174,7 +15174,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			iModifier += iTempModifier;
 #endif
 
-			CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
+			const CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
 
 			// Human bonus
 			if(isHuman())
@@ -15876,7 +15876,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iTempModifier = kPlayer.GetBarbarianCombatBonus();
 			iModifier += iTempModifier;
 
-			CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
+			const CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
 
 			// Human bonus
 			if(isHuman())

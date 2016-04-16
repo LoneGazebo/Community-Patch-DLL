@@ -682,7 +682,7 @@ protected:
 
 private:
 	CvCivilizationInfo(const CvCivilizationInfo&);
-	CvCivilizationInfo& operator=(const CvCivilizationInfo&);
+	const CvCivilizationInfo& operator=(const CvCivilizationInfo&);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -2373,7 +2373,7 @@ void CvPlayerTrade::MoveUnits (void)
 									BuildingClassTypes eBuildingClassDestCity = (BuildingClassTypes)pOriginCity->GetFreeBuildingTradeTargetCity();
 									if(eBuildingClassDestCity != NO_BUILDINGCLASS)
 									{
-										CvCivilizationInfo& thisCiv = GET_PLAYER(pOriginCity->getOwner()).getCivilizationInfo();
+										const CvCivilizationInfo& thisCiv = GET_PLAYER(pOriginCity->getOwner()).getCivilizationInfo();
 										BuildingTypes eBuildingDestCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eBuildingClassDestCity));
 
 										if (eBuildingDestCity != NO_BUILDING && pDestCity->GetCityBuildings()->GetNumBuilding(eBuildingDestCity) <= 0)
@@ -2439,7 +2439,7 @@ void CvPlayerTrade::MoveUnits (void)
 									BuildingClassTypes eBuildingClassDestCity = (BuildingClassTypes)pDestCity->GetFreeBuildingTradeTargetCity();
 									if(eBuildingClassDestCity != NO_BUILDINGCLASS)
 									{
-										CvCivilizationInfo& thisCiv = GET_PLAYER(pDestCity->getOwner()).getCivilizationInfo();
+										const CvCivilizationInfo& thisCiv = GET_PLAYER(pDestCity->getOwner()).getCivilizationInfo();
 										BuildingTypes eBuildingDestCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eBuildingClassDestCity));
 
 										if (eBuildingDestCity != NO_BUILDING && pOriginCity->GetCityBuildings()->GetNumBuilding(eBuildingDestCity) <= 0)
@@ -4897,7 +4897,7 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 		}
 	}
 
-	CvCivilizationInfo& kCivInfo = m_pPlayer->getCivilizationInfo();
+	const CvCivilizationInfo& kCivInfo = m_pPlayer->getCivilizationInfo();
 	int iLoop = 0;
 	CvCity* pLoopCity;
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
