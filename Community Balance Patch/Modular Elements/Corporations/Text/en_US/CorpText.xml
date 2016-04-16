@@ -375,7 +375,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CORP_HELP_RESOURCE_BONUS_TRADER_SIDS">
-			<Text>[ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus provide additional [ICON_FOOD] Food.</Text>
+			<Text>[ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar, [ICON_RES_SALT] Salt, [ICON_RES_NUTMEG] Nutmeg, [ICON_RES_CLOVES] Cloves, [ICON_RES_PEPPER] Pepper, and [ICON_RES_COCOA] Cocoa gain additional [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELP_OFFICE_BONUS_TRADER_SIDS">
 			<Text>+4 [ICON_GOLD] Gold for every Global Franchise.</Text>
@@ -485,7 +485,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CORP_HELP_RESOURCE_BONUS_HEXXON_REFINERY">
-			<Text>[ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium provide additional [ICON_GOLD] Gold.</Text>
+			<Text>+3 [ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_URANIUM] Uranium.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELP_OFFICE_BONUS_HEXXON_REFINERY">
 			<Text>+1 additional [ICON_RES_OIL] Oil and [ICON_RES_COAL] Coal for every three Global Franchises.</Text>
@@ -706,7 +706,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CORP_HELP_RESOURCE_BONUS_CIVILIZED_JEWELERS">
-			<Text>[ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, [ICON_RES_JEWELRY] Jewelry provide additional [ICON_GOLD] Gold.</Text>
+			<Text>No Resource Bonus.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELP_OFFICE_BONUS_CIVILIZED_JEWELERS">
 			<Text>+5% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise.</Text>
