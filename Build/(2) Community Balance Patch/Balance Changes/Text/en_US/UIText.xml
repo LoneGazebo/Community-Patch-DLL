@@ -525,7 +525,7 @@
 			<Text>{1_PlayerAdj} musicians are touring your empire, increasing their [ICON_TOURISM] Cultural Influence over you to [COLOR_MAGENTA]Familiar[ENDCOLOR] status!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET_S">
-			<Text>Unknown musicians arrive from {1_PlayerAdj}!</Text>
+			<Text>Unknown musicians arrive from {@1_Civname}!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR">
