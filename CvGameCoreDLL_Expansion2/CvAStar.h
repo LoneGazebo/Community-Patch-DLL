@@ -84,7 +84,7 @@ typedef std::set<std::pair<int,int>> ReachablePlots; //(plot index, movement poi
 typedef int(*CvAPointFunc)(int, int, const SPathFinderUserData&, const CvAStar*);
 typedef int(*CvAHeuristic)(int, int, int, int, int, int);
 typedef int(*CvAStarFunc)(CvAStarNode*, CvAStarNode*, int, const SPathFinderUserData&, CvAStar*);
-typedef int(*CvAStarConst1Func)(const CvAStarNode*, CvAStarNode*, int, const SPathFinderUserData&, const CvAStar*);
+typedef int(*CvAStarConst1Func)(const CvAStarNode*, const CvAStarNode*, int, const SPathFinderUserData&, CvAStar*);
 typedef int(*CvAStarConst2Func)(const CvAStarNode*, const CvAStarNode*, int, const SPathFinderUserData&, const CvAStar*);
 typedef int(*CvANumExtraChildren)(const CvAStarNode*, const CvAStar*);
 typedef int(*CvAGetExtraChild)(const CvAStarNode*, int, int&, int&, const CvAStar*);
@@ -175,6 +175,19 @@ public:
 
 	const void* GetScratchBuffer() const { return m_ScratchBuffer; }
 	void* GetScratchBufferDirty() { return m_ScratchBuffer; }
+
+	inline void SetTempResult(int iMoves, int iTurns)
+	{ 
+		m_iMovesCached = iMoves; m_iTurnsCached = iTurns;
+	}
+	inline int GetCachedMoveCount() const
+	{ 
+		return m_iMovesCached;
+	}
+	inline int GetCachedTurnCount() const
+	{ 
+		return m_iTurnsCached;
+	}
 
 	inline int GetStartX() const
 	{
@@ -272,7 +285,7 @@ protected:
 	void PrecalcNeighbors(CvAStarNode* node);
 
 	inline int udFunc(CvAStarFunc func, CvAStarNode* param1, CvAStarNode* param2, int operation, const SPathFinderUserData& data);
-	inline int udFunc(CvAStarConst1Func func, const CvAStarNode* param1, CvAStarNode* param2, int operation, const SPathFinderUserData& data) const;
+	inline int udFunc(CvAStarConst1Func func, const CvAStarNode* param1, const CvAStarNode* param2, int operation, const SPathFinderUserData& data);
 	inline int udFunc(CvAStarConst2Func func, const CvAStarNode* param1, const CvAStarNode* param2, int operation, const SPathFinderUserData& data) const;
 
 	//--------------------------------------- PROTECTED DATA -------------------------------------------
@@ -320,6 +333,9 @@ protected:
 	char  m_ScratchBuffer[512];	// Will NOT be modified directly by CvAStar
 
 	int m_iBasicPlotCost;		// for length normalization
+
+	int m_iMovesCached;			// don't calculate this twice per node
+	int m_iTurnsCached;
 
 	//for debugging
 	CvString m_strName;
@@ -399,7 +415,7 @@ inline int CvAStar::udFunc(CvAStarFunc func, CvAStarNode* param1, CvAStarNode* p
 	return (func) ? func(param1, param2, operation, data, this) : PATH_BASE_COST;
 }
 
-inline int CvAStar::udFunc(CvAStarConst1Func func, const CvAStarNode* param1, CvAStarNode* param2, int operation, const SPathFinderUserData& data) const
+inline int CvAStar::udFunc(CvAStarConst1Func func, const CvAStarNode* param1, const CvAStarNode* param2, int operation, const SPathFinderUserData& data)
 {
 	return (func) ? func(param1, param2, operation, data, this) : PATH_BASE_COST;
 }
@@ -464,7 +480,7 @@ int DestinationReached(int iToX, int iToyY, const SPathFinderUserData& data, con
 int PathDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
 int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int PathHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY);
-int PathCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
+int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 int PathAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 int PathNodeAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 
@@ -474,7 +490,7 @@ int StepValid(const CvAStarNode* parent, const CvAStarNode* node, int operation,
 int StepValidAnyArea(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int StepValidWide(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData& data, const CvAStar* finder);
 int StepValidWideAnyArea(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData& data, const CvAStar* finder);
-int StepCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
+int StepCost(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 int StepAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 
 int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
@@ -489,22 +505,18 @@ int JoinLandmass(CvAStarNode* parent, CvAStarNode* node, int operation, const SP
 
 int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
 int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
-int InfluenceCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
+int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 
-int BuildRouteCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
+int BuildRouteCost(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
-
-int UIPathAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
-int UIAttackPathAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
-int UIPathValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 
 int RebaseValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 int RebaseGetNumExtraChildren(const CvAStarNode* node,  const CvAStar* finder);
 int RebaseGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, const CvAStar* finder);
 
-int TradeRouteLandPathCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
+int TradeRouteLandPathCost(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
-int TradeRouteWaterPathCost(const CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
+int TradeRouteWaterPathCost(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
 
 void UnitPathInitialize(const SPathFinderUserData& data, CvAStar* finder);

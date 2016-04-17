@@ -1434,7 +1434,6 @@ public:
 	// Path-finding routines
 	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL) const;
 
-	void ResetPath();
 	CvPlot* GetPathFirstPlot() const;
 	CvPlot* GetPathLastPlot() const;
 	const CvPathNodeArray& GetPathNodeArray() const;

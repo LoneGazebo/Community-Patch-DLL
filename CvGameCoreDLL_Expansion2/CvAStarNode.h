@@ -63,6 +63,7 @@ struct CvPathNodeCacheData
 	bool bContainsVisibleEnemy:1;
 	bool bContainsVisibleEnemyDefender:1;
 	bool bFriendlyUnitLimitReached:1;
+	bool bIsValidRoute:1;
 
 	int iPlotDanger; 
 

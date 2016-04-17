@@ -26,17 +26,17 @@
 //PATH_BASE_COST is defined in AStar.h, value 100
 #define PATH_ATTACK_WEIGHT										(200)	//per percent penalty on attack
 #define PATH_DEFENSE_WEIGHT										(10)	//per percent defense bonus on turn end plot
-#define PATH_TERRITORY_WEIGHT									(PATH_BASE_COST)	//per turn end plot outside of our territory
-#define PATH_STEP_WEIGHT										(PATH_BASE_COST)	//per plot in path
+#define PATH_STEP_WEIGHT										(PATH_BASE_COST)	//per plot in path (very small)
 #define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
 #define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
 #define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(23)	//accept four plots detour to save on maintenance
-#define PATH_END_TURN_WATER										(PATH_BASE_COST*20)		//embarkation should be avoided
+#define PATH_END_TURN_FOREIGN_TERRITORY							(PATH_BASE_COST)		//per turn end plot outside of our territory
+#define PATH_END_TURN_NO_ROUTE									(PATH_BASE_COST*10)		//when in doubt, prefer to end the turn on a plot with a route
+#define PATH_END_TURN_WATER										(PATH_BASE_COST*20)		//embarkation should be avoided (land units only)
 #define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*90)		//one of these is worth 1.5 plots of detour
 #define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*150)	//one of these is worth 2.5 plots of detour
 #define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_BASE_COST*210)	//one of these is worth 3.5 plots of detour
 #define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(PATH_BASE_COST*210)	//don't make it even so we don't get ties
-#define PATH_DO_NOT_USE_WEIGHT									(1000000000)
 
 #include <xmmintrin.h>
 #include "LintFree.h"
@@ -92,6 +92,24 @@ private:
 
 std::vector<SLogNode> svPathLog;
 
+//debugging help
+void dumpNodeList(CvAStarNode* pNode)
+{
+	while (pNode)
+	{
+		OutputDebugString( CvString::format("x %02d, y %02d, t %02d, m %03d, tc %d\n",pNode->m_iX,pNode->m_iY,pNode->m_iTurns,pNode->m_iMoves,pNode->m_iTotalCost).c_str() );
+		pNode = pNode->getNext();
+	}
+}
+
+//returns true when we should prefer pTest over pRef
+bool NodeCmpSmaller(const CvAStarNode* pTest, const CvAStarNode* pRef)
+{
+	return (pTest->m_iTotalCost < pRef->m_iTotalCost) || 
+		((pTest->m_iTotalCost == pRef->m_iTotalCost) && (pTest->m_iTurns < pRef->m_iTurns)) ||
+		((pTest->m_iTotalCost == pRef->m_iTotalCost) && (pTest->m_iTurns == pRef->m_iTurns) && (pTest->m_iMoves > pRef->m_iMoves));
+}
+
 //	--------------------------------------------------------------------------------
 /// Constructor
 CvAStar::CvAStar()
@@ -133,6 +151,8 @@ CvAStar::CvAStar()
 	m_iTestedNodes = 0;
 	m_iRounds = 0;
 	m_iBasicPlotCost = 0;
+	m_iMovesCached = 0;
+	m_iTurnsCached = 0;
 
 	//for debugging
 	m_strName = "AStar";
@@ -493,7 +513,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 		NodeState result = NS_INVALID;
 
 		//check if we already found a better way ...
-		if (check->m_iTurns>0)
+		if (check->m_eCvAStarListType == CVASTARLIST_OPEN)
 		{
 			if (check->m_iTurns < node->m_iTurns)
 				result = NS_OBSOLETE;
@@ -580,10 +600,6 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 	//seems innocent, but is very important
 	int iKnownCost = udFunc(udCost, node, check, 0, m_sData);
 
-	//don't even link it up, it's a dead end
-	if (iKnownCost == PATH_DO_NOT_USE_WEIGHT)
-		return NS_OBSOLETE; 
-
 	//invalid cost function
 	if (iKnownCost < 0)
 		return NS_FORBIDDEN;
@@ -600,6 +616,7 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 	if (check->m_iKnownCost > 0 && iKnownCost > check->m_iKnownCost )
 		return NS_OBSOLETE;
 
+	//is the new node already on the open list? update it
 	if(check->m_eCvAStarListType == CVASTARLIST_OPEN)
 	{
 		node->m_apChildren.push_back(check);
@@ -616,6 +633,7 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 			udFunc(udNotifyChild, node, check, ASNC_OPENADD_UP, m_sData);
 		}
 	}
+	//is the new node on the closed list? re-open it
 	else if(check->m_eCvAStarListType == CVASTARLIST_CLOSED)
 	{
 		node->m_apChildren.push_back(check);
@@ -631,7 +649,7 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 			UpdateParents(check);
 		}
 	}
-	else
+	else //new node is previously untouched
 	{
 		FAssert(check->m_eCvAStarListType == NO_CVASTARLIST);
 		FAssert(node->m_pParent != check);
@@ -646,9 +664,7 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 		check->m_iTotalCost = iKnownCost*giKnownCostWeight + check->m_iHeuristicCost*giHeuristicCostWeight;
 
 		udFunc(udNotifyChild, node, check, ASNC_NEWADD, m_sData);
-
 		AddToOpen(check);
-
 		node->m_apChildren.push_back(check);
 	}
 	
@@ -663,6 +679,7 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 
 	addnode->m_eCvAStarListType = CVASTARLIST_OPEN;
 
+	//no open list? create one
 	if(!m_pOpen)
 	{
 		m_pOpen = addnode;
@@ -675,7 +692,8 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 		return;
 	}
 
-	if(addnode->m_iTotalCost <= m_pOpen->m_iTotalCost)
+	//insert at front?
+	if(NodeCmpSmaller(addnode,m_pOpen))
 	{
 		addnode->setNext(m_pOpen);
 		m_pOpen->setPrev(addnode);
@@ -683,7 +701,8 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 
 		udFunc(udNotifyList, m_pOpen->getNext(), m_pOpen, ASNL_STARTOPEN, m_sData);
 	}
-	else if(addnode->m_iTotalCost >= m_pOpenTail->m_iTotalCost)
+	//insert at back?
+	else if(NodeCmpSmaller(m_pOpenTail,addnode))
 	{
 		addnode->setPrev(m_pOpenTail);
 		m_pOpenTail->setNext(addnode);
@@ -691,112 +710,122 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 
 		udFunc(udNotifyList, addnode->getPrev(), addnode, ASNL_ADDOPEN, m_sData);
 	}
-	else if(abs(addnode->m_iTotalCost-m_pOpenTail->m_iTotalCost) < abs(addnode->m_iTotalCost-m_pOpen->m_iTotalCost))  //(addnode->m_iTotalCost > m_iOpenListAverage) // let's start at the end and work forwards
+	//need to insert in the middle
+	else 
 	{
-		CvAStarNode* next;
-		node = m_pOpenTail;
-		next = NULL;
+		int iDiffFront = addnode->m_iTotalCost-m_pOpen->m_iTotalCost;
+		int iDiffBack = m_pOpenTail->m_iTotalCost-addnode->m_iTotalCost;
 
-		while(node)
+		//probably closer to the end
+		if(iDiffBack < iDiffFront)
 		{
-			if(addnode->m_iTotalCost < node->m_iTotalCost)
-			{
-				//should not happen ...
-				if (node == node->getPrev())
-					break;
+			CvAStarNode* next;
+			node = m_pOpenTail;
+			next = NULL;
 
-				next = node;
-				node = node->getPrev();
-			}
-			else
+			while(node)
 			{
-				if(next)
+				//work toward list front
+				if(NodeCmpSmaller(addnode,node))
 				{
-					next->setPrev(addnode);
-					addnode->setNext(next);
-					addnode->setPrev(node);
-					node->setNext(addnode);
-					if(node->getNext() == NULL)
-					{
-						m_pOpenTail = node;
-					}
+					//should not happen ...
+					if (node == node->getPrev())
+						break;
 
-					udFunc(udNotifyList, addnode->getPrev(), addnode, ASNL_ADDOPEN, m_sData);
-				}
-				else // we should just add it to the end of the list
-				{
-					addnode->setPrev(m_pOpenTail);
-					m_pOpenTail->setNext(addnode);
-					m_pOpenTail = addnode;
-
-					udFunc(udNotifyList, addnode->getPrev(), addnode, ASNL_ADDOPEN, m_sData);
-				}
-
-				return;
-			}
-		}
-
-		// we made it to the start of this list - insert it at the beginning - we shouldn't ever get here, but...
-		if (next)
-		{
-			next->setPrev(addnode);
-			addnode->setNext(next);
-			m_pOpen = addnode;
-
-			udFunc(udNotifyList, m_pOpen->getNext(), m_pOpen, ASNL_STARTOPEN, m_sData);
-		}
-	}
-	else // let's start at the beginning as it should be closer
-	{
-		CvAStarNode* prev;
-		node = m_pOpen;
-		prev = NULL;
-
-		while(node)
-		{
-			if(addnode->m_iTotalCost > node->m_iTotalCost)
-			{
-				//should not happen ...
-				if (node == node->getNext())
-					break;
-
-				prev = node;
-				node = node->getNext();
-			}
-			else
-			{
-				if(prev)
-				{
-					prev->setNext(addnode);
-					addnode->setPrev(prev);
-					addnode->setNext(node);
-					node->setPrev(addnode);
-					if(node->getNext() == NULL)
-					{
-						m_pOpenTail = node;
-					}
-
-					udFunc(udNotifyList, prev, addnode, ASNL_ADDOPEN, m_sData);
+					next = node;
+					node = node->getPrev();
 				}
 				else
 				{
-					addnode->setNext(m_pOpen);
-					m_pOpen->setPrev(addnode);
-					m_pOpen = addnode;
+					if(next)
+					{
+						next->setPrev(addnode);
+						addnode->setNext(next);
+						addnode->setPrev(node);
+						node->setNext(addnode);
+						if(node->getNext() == NULL)
+						{
+							m_pOpenTail = node;
+						}
 
-					udFunc(udNotifyList, m_pOpen->getNext(), m_pOpen, ASNL_STARTOPEN, m_sData);
+						udFunc(udNotifyList, addnode->getPrev(), addnode, ASNL_ADDOPEN, m_sData);
+					}
+					else // we should just add it to the end of the list
+					{
+						addnode->setPrev(m_pOpenTail);
+						m_pOpenTail->setNext(addnode);
+						m_pOpenTail = addnode;
+
+						udFunc(udNotifyList, addnode->getPrev(), addnode, ASNL_ADDOPEN, m_sData);
+					}
+
+					return;
 				}
+			}
 
-				return;
+			// we made it to the start of this list - insert it at the beginning - we shouldn't ever get here, but...
+			if (next)
+			{
+				next->setPrev(addnode);
+				addnode->setNext(next);
+				m_pOpen = addnode;
+
+				udFunc(udNotifyList, m_pOpen->getNext(), m_pOpen, ASNL_STARTOPEN, m_sData);
 			}
 		}
+		else // let's start at the beginning as it should be closer
+		{
+			CvAStarNode* prev;
+			node = m_pOpen;
+			prev = NULL;
 
-		// we made it to the end of this list - insert it at the end - we shouldn't ever get here, but...
-		prev->setNext(addnode);
-		addnode->setPrev(prev);
-		m_pOpenTail = addnode;
+			while(node)
+			{
+				//work toward list end
+				if(NodeCmpSmaller(node,addnode))
+				{
+					//should not happen ...
+					if (node == node->getNext())
+						break;
 
-		udFunc(udNotifyList, prev, addnode, ASNL_ADDOPEN, m_sData);
+					prev = node;
+					node = node->getNext();
+				}
+				else
+				{
+					if(prev)
+					{
+						prev->setNext(addnode);
+						addnode->setPrev(prev);
+						addnode->setNext(node);
+						node->setPrev(addnode);
+						if(node->getNext() == NULL)
+						{
+							m_pOpenTail = node;
+						}
+
+						udFunc(udNotifyList, prev, addnode, ASNL_ADDOPEN, m_sData);
+					}
+					else
+					{
+						addnode->setNext(m_pOpen);
+						m_pOpen->setPrev(addnode);
+						m_pOpen = addnode;
+
+						udFunc(udNotifyList, m_pOpen->getNext(), m_pOpen, ASNL_STARTOPEN, m_sData);
+					}
+
+					return;
+				}
+			}
+
+			// we made it to the end of this list - insert it at the end - we shouldn't ever get here, but...
+			prev->setNext(addnode);
+			addnode->setPrev(prev);
+			m_pOpenTail = addnode;
+
+			udFunc(udNotifyList, prev, addnode, ASNL_ADDOPEN, m_sData);
+		}
 	}
 }
 
@@ -804,11 +833,9 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 /// Connect in a node
 void CvAStar::UpdateOpenNode(CvAStarNode* node)
 {
-	CvAStarNode* temp;
-
 	FAssert(node->m_eCvAStarListType == CVASTARLIST_OPEN);
 
-	if((node->getPrev() != NULL) && (node->m_iTotalCost < node->getPrev()->m_iTotalCost))
+	if(node->getPrev() && NodeCmpSmaller(node,node->getPrev()))
 	{
 		// have node free float for now
 		node->getPrev()->setNext(node->getNext());
@@ -820,12 +847,14 @@ void CvAStar::UpdateOpenNode(CvAStarNode* node)
 		{
 			m_pOpenTail = node->getPrev();
 		}
+
 		// scoot down the list till we find where node goes (without connecting up as we go)
-		temp = node->getPrev();
-		while((temp != NULL) && (node->m_iTotalCost < temp->m_iTotalCost))
+		CvAStarNode* temp = node->getPrev();
+		while(temp != NULL && NodeCmpSmaller(node,temp))
 		{
 			temp = temp->getPrev();
 		}
+
 		// connect node up
 		if(temp != NULL)
 		{
@@ -1041,6 +1070,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 	}
 
 	kToNodeCacheData.bFriendlyUnitLimitReached = (pPlot->getNumFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit());
+	kToNodeCacheData.bIsValidRoute = pPlot->isValidRoute(pUnit);
 
 	if (bDoDanger)
 		kToNodeCacheData.iPlotDanger = GET_PLAYER(pUnit->getOwner()).GetPlotDanger(*pPlot, pUnit);
@@ -1167,7 +1197,7 @@ int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, 
 }
 //	--------------------------------------------------------------------------------
 /// Standard path finder - compute cost of a path
-int PathCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar* finder)
+int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData&, CvAStar* finder)
 {
 	int iStartMoves = parent->m_iMoves;
 	int iTurns = parent->m_iTurns;
@@ -1222,21 +1252,13 @@ int PathCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPathFinde
 	// how much is left over?
 	int iMovesLeft = iStartMoves - iMovementCost;
 
-	//check again whether we already found a better path now that we know the movement cost
-	if (node->m_iTurns>0)
-	{
-		//this should already be handled in PathValid, but you never know
-		if (node->m_iTurns<iTurns)
-			return PATH_DO_NOT_USE_WEIGHT;
+	// although we could do an early termination here if we see that MovesLeft is smaller than the value currently set in the node,
+	// we don't do it for simplicity. in that rare case we still finish this function and sort it out in LinkChild().
+	// also, be careful with such checks as they may break the secondary stop nodes in the two layer pathfinding.
 
-		if (node->m_iTurns==iTurns && node->m_iMoves>iMovesLeft)
-			return PATH_DO_NOT_USE_WEIGHT;
-	}
-
-	//important: store the remaining moves in the node so we don't have to recalculate later (e.g. in PathAdd)
-	//with all the checks before, we know that this is the best we can currently do. update of the costs is done LinkChild
-	node->m_iMoves = iMovesLeft;
-	node->m_iTurns = iTurns;
+	//important: store the remaining moves so we don't have to recalculate later (e.g. in PathAdd)
+	//can't write to node just yet.
+	finder->SetTempResult(iMovesLeft,iTurns);
 
 	//base cost
 	int iCost = (PATH_BASE_COST * iMovementCost);
@@ -1251,7 +1273,7 @@ int PathCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPathFinde
 
 		if(finder->HaveFlag(CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
 		{
-			if(!pToPlot->isHills())
+			if(!pToPlot->isHills()) //maybe better check seeFromLevel?
 			{
 				iCost += PATH_EXPLORE_NON_HILL_WEIGHT;
 			}
@@ -1274,9 +1296,7 @@ int PathCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPathFinde
 			}
 
 			if(pToPlot->getExtraMovePathCost() > 0)
-			{
 				iCost += (PATH_BASE_COST * pToPlot->getExtraMovePathCost());
-			}
 		}
 
 		if (pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_UNWELCOME_EVANGELIST()))
@@ -1292,20 +1312,19 @@ int PathCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPathFinde
 				}
 			}
 		}
-		else
+		else if(pToPlot->getTeam() != eUnitTeam)
 		{
-			if(pToPlot->getTeam() != eUnitTeam)
-			{
-				iCost += PATH_TERRITORY_WEIGHT;
-			}
+			iCost += PATH_END_TURN_FOREIGN_TERRITORY;
 		}
 
 		// If we are a land unit and we are ending the turn on water, make the cost a little higher 
 		// so that we favor staying on land or getting back to land as quickly as possible
 		if(eUnitDomain == DOMAIN_LAND && bToPlotIsWater)
-		{
 			iCost += PATH_END_TURN_WATER;
-		}
+
+		// when in doubt we prefer to end our turn on a route
+		if (!kToNodeCacheData.bIsValidRoute)
+			iCost += PATH_END_TURN_NO_ROUTE;
 
 		//danger check
 		if ( pCacheData->DoDanger() )
@@ -1527,6 +1546,13 @@ int PathAdd(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUse
 
 		UpdateNodeCacheData(node,pUnit,pCacheData->DoDanger(),finder);
 	}
+	else
+	{
+		node->m_iMoves = finder->GetCachedMoveCount();
+		node->m_iTurns = finder->GetCachedTurnCount();
+
+		//don't need to update the cache, it has already been done in a previous call
+	}
 
 	//update cache for all possible children
 	for(int i = 0; i < 6; i++)
@@ -1551,8 +1577,8 @@ int PathNodeAdd(CvAStarNode* /*parent*/, CvAStarNode* node, int operation, const
 	if(operation == ASNL_ADDOPEN || operation == ASNL_STARTOPEN)
 	{
 		// Are there movement points left and we're worried about stacking?
-		// Can we stop here?
-		if(node->m_iMoves > 0 && 
+		// Can we stop here? Do this only for the first turn, otherwise the block will likely have moved 
+		if(node->m_iMoves > 0 && node->m_iTurns<2 && //moves > 0 is important, otherwise we get into an endless loop!
 			!finder->IsPathDest(node->m_iX, node->m_iY) && 
 			!finder->IsPathStart(node->m_iX, node->m_iY) && 
 			!finder->HaveFlag(CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS) && 
@@ -1564,12 +1590,11 @@ int PathNodeAdd(CvAStarNode* /*parent*/, CvAStarNode* node, int operation, const
 			CvTwoLayerPathFinder* twoLayerFinder = static_cast<CvTwoLayerPathFinder*>(finder);
 			CvAStarNode* pNode2 = twoLayerFinder->GetPartialMoveNode(node->m_iX, node->m_iY);
 
-			//assume a stop here
+			//assume a stop here - do not add the cost for the wasted movement points!
 			pNode2->m_iMoves = 0;
 			pNode2->m_iTurns = node->m_iTurns;
 			pNode2->m_iHeuristicCost = node->m_iHeuristicCost;
-			//but wasting movement points is bad
-			pNode2->m_iKnownCost = node->m_iKnownCost + (PATH_BASE_COST * node->m_iMoves);
+			pNode2->m_iKnownCost = node->m_iKnownCost;
 
 			//make sure it's a good idea to stop here ...
 			const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
@@ -1578,12 +1603,11 @@ int PathNodeAdd(CvAStarNode* /*parent*/, CvAStarNode* node, int operation, const
 					pNode2->m_iKnownCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT;
 
 			//we sort the nodes by total cost!
-			pNode2->m_iTotalCost = pNode2->m_iKnownCost + pNode2->m_iHeuristicCost;
+			pNode2->m_iTotalCost = pNode2->m_iKnownCost*giKnownCostWeight + pNode2->m_iHeuristicCost*giHeuristicCostWeight;
 
 			pNode2->m_iX = node->m_iX;
 			pNode2->m_iY = node->m_iY;
 			pNode2->m_pParent = node->m_pParent;
-			pNode2->m_eCvAStarListType = CVASTARLIST_OPEN;
 			pNode2->m_kCostCacheData = node->m_kCostCacheData;
 			finder->AddToOpen(pNode2);
 		}
@@ -1591,6 +1615,7 @@ int PathNodeAdd(CvAStarNode* /*parent*/, CvAStarNode* node, int operation, const
 
 	return 1;
 }
+
 
 //	--------------------------------------------------------------------------------
 /// Step path finder - is this end point for the path valid?
@@ -1620,7 +1645,7 @@ int StepHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, 
 
 //	--------------------------------------------------------------------------------
 /// Step path finder - compute cost of a path
-int StepCost(const CvAStarNode*, CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar*)
+int StepCost(const CvAStarNode*, const CvAStarNode* node, int, const SPathFinderUserData&, CvAStar*)
 {
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
@@ -1747,7 +1772,7 @@ int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, cons
 
 //	--------------------------------------------------------------------------------
 /// Influence path finder - compute cost of a path
-int InfluenceCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar* finder)
+int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData&, CvAStar* finder)
 {
 	//failsafe
 	if (!parent || !node)
@@ -2019,7 +2044,7 @@ int WaterRouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, con
 
 //	--------------------------------------------------------------------------------
 /// Build route cost
-int BuildRouteCost(const CvAStarNode* /*parent*/, CvAStarNode* node, int, const SPathFinderUserData& data, const CvAStar*)
+int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, int, const SPathFinderUserData& data, CvAStar*)
 {
 	CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
@@ -2777,7 +2802,7 @@ void TradePathUninitialize(const SPathFinderUserData&, CvAStar*)
 }
 
 //	--------------------------------------------------------------------------------
-int TradeRouteLandPathCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar* finder)
+int TradeRouteLandPathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData&, CvAStar* finder)
 {
 	CvMap& kMap = GC.getMap();
 	int iFromPlotX = parent->m_iX;
@@ -2861,7 +2886,7 @@ int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, int,
 
 //	--------------------------------------------------------------------------------
 
-int TradeRouteWaterPathCost(const CvAStarNode*, CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar* finder)
+int TradeRouteWaterPathCost(const CvAStarNode*, const CvAStarNode* node, int, const SPathFinderUserData&, CvAStar* finder)
 {
 	CvMap& kMap = GC.getMap();
 	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());

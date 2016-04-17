@@ -27300,9 +27300,9 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 	if (bSuccess)
 		CopyPath(kPathFinder.GetLastNode(), m_kLastPath);
 	else
-		m_kLastPath.setsize(0);
+		m_kLastPath.clear();
 
-	if(m_kLastPath.size() != 0)
+	if(!m_kLastPath.empty())
 	{
 		CvMap& kMap = GC.getMap();
 		TeamTypes eTeam = getTeam();
@@ -27359,16 +27359,6 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 }
 
 //	--------------------------------------------------------------------------------
-/// Reset internal pathing data
-void CvUnit::ResetPath()
-{
-	VALIDATE_OBJECT
-	m_uiLastPathCacheDest = 0xFFFFFFFF;
-	m_uiLastPathFlags = 0xFFFFFFFF;
-	m_kLastPath.clear();
-}
-
-//	--------------------------------------------------------------------------------
 /// What is the first plot along this path?
 CvPlot* CvUnit::GetPathFirstPlot() const
 {
@@ -27422,10 +27412,10 @@ const CvPathNodeArray& CvUnit::GetPathNodeArray() const
 /// Clear the pathing cache.  Please use with caution.
 void CvUnit::ClearPathCache()
 {
-	m_kLastPath.setsize(0);
-	m_uiLastPathCacheDest = (uint)-1;
+	m_kLastPath.clear();
+	m_uiLastPathCacheDest = 0xFFFFFFFF;
 #if defined(MOD_BALANCE_CORE)
-	m_uiLastPathFlags = 0;
+	m_uiLastPathFlags = 0xFFFFFFFF;
 #endif
 }
 
