@@ -9652,7 +9652,7 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 int CvGame::getSmallFakeRandNum(int iNum, CvPlot& input)
 {
 	if (iNum>0)
-		return ((input.getX()+input.getY())*getGameTurn()+m_iGlobalAssetCounter) % iNum;
+		return (input.getX()+input.getY()+getGameTurn()+m_iGlobalAssetCounter) % iNum;
 	else
 		return 0;
 }

@@ -18,8 +18,6 @@ short* CvBarbarians::m_aiPlotBarbCitySpawnCounter = NULL;
 short* CvBarbarians::m_aiPlotBarbCityNumUnitsSpawned = NULL;
 #endif
 
-FStaticVector<DirectionTypes, 6, true, c_eCiv5GameplayDLL, 0> CvBarbarians::m_aeValidBarbSpawnDirections;
-
 #if defined(MOD_BALANCE_CORE_MILITARY)
 std::vector<CvPlot*> CvBarbarians::m_vPlotsWithCamp;
 #endif
@@ -327,26 +325,7 @@ void CvBarbarians::BeginTurn()
 //	--------------------------------------------------------------------------------
 void CvBarbarians::MapInit(int iWorldNumPlots)
 {
-	if (m_aiPlotBarbCampSpawnCounter != NULL)
-	{
-		SAFE_DELETE_ARRAY(m_aiPlotBarbCampSpawnCounter);
-	}
-	if (m_aiPlotBarbCampNumUnitsSpawned != NULL)
-	{
-		SAFE_DELETE_ARRAY(m_aiPlotBarbCampNumUnitsSpawned);
-	}
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	if (m_aiPlotBarbCitySpawnCounter != NULL)
-	{
-		SAFE_DELETE_ARRAY(m_aiPlotBarbCitySpawnCounter);
-	}
-	if (m_aiPlotBarbCityNumUnitsSpawned != NULL)
-	{
-		SAFE_DELETE_ARRAY(m_aiPlotBarbCityNumUnitsSpawned);
-	}	
-#endif
-	
-	int iI;
+	Uninit();
 
 	if (iWorldNumPlots > 0)
 	{
@@ -370,7 +349,7 @@ void CvBarbarians::MapInit(int iWorldNumPlots)
 #endif
 
 		// Default values
-		for (iI = 0; iI < iWorldNumPlots; ++iI)
+		for (int iI = 0; iI < iWorldNumPlots; ++iI)
 		{
 			m_aiPlotBarbCampSpawnCounter[iI] = -1;
 			m_aiPlotBarbCampNumUnitsSpawned[iI] = -1;
@@ -891,7 +870,6 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 	int iX;
 	int iY;
 	CvPlot* pNearbyPlot;
-	DirectionTypes eDirection;
 
 	CvGame& kGame = GC.getGame();
 
@@ -948,8 +926,6 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 		}
 	}
 
-	m_aeValidBarbSpawnDirections.clear();
-
 	// Look at nearby Plots to see if there are already too many Barbs nearby
 	iNumNearbyUnits = 0;
 
@@ -979,16 +955,16 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 
 	if(iNumNearbyUnits <= /*2*/ GC.getMAX_BARBARIANS_FROM_CAMP_NEARBY() || bIgnoreMaxBarbarians)
 	{
-		CvPlot* pLoopPlot;
-
 		// Barbs only get boats after some period of time has passed
 		bool bCanSpawnBoats = kGame.getElapsedGameTurns() > /*30*/ GC.getBARBARIAN_NAVAL_UNIT_START_TURN_SPAWN();
+
+		std::vector<CvPlot*> vBalidBarbSpawnPlots;
 
 		// Look to see if adjacent Tiles are valid locations to spawn a Unit
 		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
 		{
-			eDirection = (DirectionTypes) iDirectionLoop;
-			pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), eDirection);
+			DirectionTypes eDirection = (DirectionTypes) iDirectionLoop;
+			CvPlot* pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), eDirection);
 
 			if(pLoopPlot != NULL)
 			{
@@ -1003,7 +979,7 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 								// Water Tiles are only valid when the Barbs have the proper Tech
 								if(!pLoopPlot->isWater() || bCanSpawnBoats)
 								{
-									m_aeValidBarbSpawnDirections.push_back(eDirection);
+									vBalidBarbSpawnPlots.push_back(pLoopPlot);
 								}
 							}
 						}
@@ -1013,33 +989,20 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 		}
 
 		// Any valid locations?
-		if(m_aeValidBarbSpawnDirections.size() > 0)
+		if(vBalidBarbSpawnPlots.size() > 0)
 		{
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-			int iIndex = kGame.getSmallFakeRandNum(m_aeValidBarbSpawnDirections.size());
+			int iIndex = kGame.getSmallFakeRandNum(vBalidBarbSpawnPlots.size(),*pPlot);
 #else
-			int iIndex = kGame.getJonRandNum(m_aeValidBarbSpawnDirections.size(), "Barb Unit Location Spawn Roll");
+			int iIndex = kGame.getJonRandNum(vBalidBarbSpawnPlots.size(), "Barb Unit Location Spawn Roll");
 #endif
-			eDirection = (DirectionTypes) m_aeValidBarbSpawnDirections[iIndex];
-			CvPlot* pSpawnPlot = plotDirection(pPlot->getX(), pPlot->getY(), eDirection);
-			UnitAITypes eUnitAI;
-			UnitTypes eUnit;
-
-			// Naval Barbs
-			if(pSpawnPlot->isWater())
-			{
-				eUnitAI = UNITAI_ATTACK_SEA;
-			}
-			// Land Barbs
-			else
-			{
-				eUnitAI = UNITAI_FAST_ATTACK;
-			}
+			CvPlot* pSpawnPlot = vBalidBarbSpawnPlots[iIndex];
+			UnitAITypes eUnitAI = pSpawnPlot->isWater() ? UNITAI_ATTACK_SEA : UNITAI_FAST_ATTACK;
 
 #if defined(MOD_EVENTS_BARBARIANS)
-			eUnit = GetRandomBarbarianUnitType(pSpawnPlot, eUnitAI);
+			UnitTypes eUnit = GetRandomBarbarianUnitType(pSpawnPlot, eUnitAI);
 #else
-			eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pSpawnPlot->getArea()), eUnitAI);
+			UnitTypes eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pSpawnPlot->getArea()), eUnitAI);
 #endif
 
 			if(eUnit != NO_UNIT)
