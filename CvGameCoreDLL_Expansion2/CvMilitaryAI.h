@@ -252,6 +252,7 @@ public:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	bool GetCachedAttackTarget(PlayerTypes eEnemy, AIOperationTypes eAIOperationType);
 	bool IsCurrentAttackTarget(CvCity* pCity);
+	void ClearCachedTargets();
 	CvMilitaryTarget FindBestAttackTarget2(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
 	CvMilitaryTarget FindBestAttackTargetGlobalTest(AIOperationTypes eAIOperationType, int* piWinningScore = NULL, bool bCheckWar = false);
 	CvMilitaryTarget FindBestAttackTargetGlobal(AIOperationTypes eAIOperationType, int* piWinningScore = NULL, bool bCheckWar = false);

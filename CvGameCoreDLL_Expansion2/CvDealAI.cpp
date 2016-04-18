@@ -1766,7 +1766,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		{
 			if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 			{
-				iItemValue += (iResourceQuantity * iNumTurns * 35 / 100);
+				iItemValue += (iResourceQuantity * iNumTurns * 25 / 100);
 				//We already have it and we use it.
 				if(((GetPlayer()->getNumResourceAvailable(eResource, true) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0)))
 				{
@@ -2210,10 +2210,10 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	CvPlayer& buyingPlayer = GET_PLAYER(bFromMe ? eOtherPlayer : GetPlayer()->GetID());
 
 	//initial value - if we founded the city, we like it more
-	int iItemValue = (pCity->getOriginalOwner() == buyingPlayer.GetID()) ? 4000 : 2000;
+	int iItemValue = (pCity->getOriginalOwner() == buyingPlayer.GetID()) ? 6000 : 4000;
 
 	//economic value is important
-	iItemValue += (pCity->getEconomicValue(buyingPlayer.GetID()) / 10);
+	iItemValue += (pCity->getEconomicValue(buyingPlayer.GetID()) / 8);
 
 	//first some amount for the territory
 	int iInternalBorderCount = 0;

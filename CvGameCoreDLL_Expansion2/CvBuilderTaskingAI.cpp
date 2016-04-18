@@ -1721,12 +1721,14 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 #if !defined(MOD_BALANCE_CORE)
 	iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
 #endif
+
 	iWeight = GetBuildCostWeight(iWeight, pPlot, eChopBuild);
 	int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eChopBuild, false, iMoveTurnsAway);
 	iWeight += iBuildTimeWeight;
 	iWeight *= iProduction; // times the amount that the plot produces from the chopping
+
 #if defined(MOD_BALANCE_CORE)
-		iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
+	iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
 #endif
 
 	int iYieldDifferenceWeight = 0;
@@ -2014,23 +2016,23 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 	if(m_pPlayer->GetPlotDanger(*pPlot,pUnit) > 0)
 	{
 		//if it's fallout, try to scrub it in spite of the danger
-		if(pPlot->getFeatureType() == FEATURE_FALLOUT && !pUnit->ignoreFeatureDamage() && (pUnit->getDamage() > (pUnit->GetMaxHitPoints() / 2)))
+		if(pPlot->getFeatureType() == FEATURE_FALLOUT && !pUnit->ignoreFeatureDamage() && (pUnit->GetCurrHitPoints() < (pUnit->GetMaxHitPoints() / 2)))
 		{
-			if(m_bLogging)
+			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLog;
 				strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to fallout", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot));
-				LogInfo(strLog, m_pPlayer, true);
+				m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLog);
 			}
 			return false;
 		}
 		else if(pPlot->getFeatureType() != FEATURE_FALLOUT)
 		{
-			if(m_bLogging)
+			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLog;
 				strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to danger", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot));
-				LogInfo(strLog, m_pPlayer, true);
+				m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLog);
 			}
 			return false;
 		}

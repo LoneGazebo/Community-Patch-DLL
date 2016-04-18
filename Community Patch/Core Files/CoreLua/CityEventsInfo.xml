@@ -5,7 +5,7 @@
       <Button Anchor="L,C" Offset="0,0" Size="64.64"  Texture="assets\UI\Art\WorldView\ActionItemsButton.dds" Hidden="1" ID="CityEventsButton" />
       <Stack ID="TextStack" Anchor="L,T" Padding="10">
 		  <Label Anchor="L,T" Offset="15,5" LeadingOffset="-8" WrapWidth="600" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="CityName" String="Text" />
-		  <Label Anchor="C,T" Offset="0,0" LeadingOffset="-8" WrapWidth="600" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="CityEventsText" String="Text" />
+		  <Label Anchor="C,T" Offset="35,0" LeadingOffset="-8" WrapWidth="600" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="CityEventsText" String="Text" />
 		  <Label Anchor="L,B" Offset="30,15" LeadingOffset="-8" WrapWidth="760" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="CityEventsHelpText" String="Text" />
       <Image Anchor="C,B" Offset="0,0" TextureOffset="0.0" Texture="bar900x2.dds" Size="900.1" />
       </Stack>
@@ -17,6 +17,7 @@
     </Button>
   </Instance>
 	<Box Offset="0,30" Anchor="C,C" Size="955,500" Color="255.255.200.0">
+		<Label ID="NoCityEvents" Offset="0,0" Anchor="C,C" String="{TXT_KEY_NO_CITY_EVENTS:upper}" WrapWidth="425" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
 		<!-- Panel Header Text -->
 		<ScrollPanel Anchor="L,T" Offset="0,0" Size="920,460" ID="CityEventsScrollPanel" Vertical="1" >
 		  <Stack Anchor="L,T" Size="900,32" Offset="0,20" StackGrowth="B" Padding="0" ID="CityEventsButtonStack" >

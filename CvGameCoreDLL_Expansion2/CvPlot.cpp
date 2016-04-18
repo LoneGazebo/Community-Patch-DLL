@@ -9067,9 +9067,9 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 		if(ePlayer != NO_PLAYER && !IsNaturalWonder())
 		{
 			int iRangeYield = GET_PLAYER(ePlayer).GetPlayerTraits()->GetMountainRangeYield(eYield);
-			int iNumMountainsAdjacent = 0;
 			if(iRangeYield > 0)
 			{
+				int iNumMountainsAdjacent = 1;
 				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 				{
 					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
@@ -9079,7 +9079,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 						iNumMountainsAdjacent++;
 					}
 				}
-				if(iNumMountainsAdjacent <= iRangeYield)
+				if(iNumMountainsAdjacent > iRangeYield)
 				{
 					iNumMountainsAdjacent = iRangeYield;
 				}
@@ -9267,6 +9267,10 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 		if(getImprovementType() != NO_IMPROVEMENT)
 		{
 			iYield += pWorkingCity->GetEventImprovementYield(getImprovementType(), eYield);
+		}
+		if(getResourceType() != NO_RESOURCE)
+		{
+			iYield += pWorkingCity->GetEventResourceYield(getResourceType(), eYield);
 		}
 	}
 #endif

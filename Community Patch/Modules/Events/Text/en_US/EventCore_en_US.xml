@@ -15,6 +15,25 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_HAS_ENDED_CITY_T">
 			<Text>An Event in {1_City} has ended.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CANNOT_TAKE_TT">
+			<Text>[COLOR_WARNING_TEXT]You cannot take this Event Choice. Either you do not meet the requirements, or its effects are still active.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_PLAYER_EVENTS">
+			<Text>You have no active Player Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_CITY_EVENTS">
+			<Text>You have no active City Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_RECENT_EVENTS">
+			<Text>You have no recent Events</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_RECENT_EVENT_INFORMATION">
+			<Text>Recent Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RECENT_EVENT_TT">
+			<Text>Lists all recent Events that do not expire, are not unique, and/or did not include choices.</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_YIELD_FROM_EVENTS">
 			<Text>{1_Num} {2_IconString} from Active Events</Text>
@@ -53,7 +72,7 @@
 			<Text>News from [COLOR_POSITIVE_TEXT]{1_City}[ENDCOLOR]:[NEWLINE][NEWLINE]{2_Event}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_IMPROVEMENT_DESTROYED_EVENT">
-			<Text>{2_Num} {1_Improvement}(s) destroyed near {3_City} due to Event Choice!</Text>
+			<Text>{2_Num} {1_Improvement}(s) pillaged near {3_City} due to Event Choice!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_BUILDING_DESTROYED_EVENT">
 			<Text>{1_Building} destroyed in {2_City} due to Event Choice!</Text>
@@ -83,7 +102,7 @@
 			<Text>City Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_OVERVIEW">
-			<Text>Active Events Overview</Text>
+			<Text>Events Overview</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_INFORMATION">
 			<Text>Active Player Events</Text>
@@ -98,7 +117,7 @@
 			<Text>{3_Value} {2_Icon} {1_Yield}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_SPECIALIST">
-			<Text>{1_Yield} {2_Name}</Text>
+			<Text>{2_Yield} Great {1_Name} Points</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION">
 			<Text>{1_Cost}{2_Yield}{3_City}{4_Turns}</Text>
@@ -116,7 +135,7 @@
 			<Text>[NEWLINE]{3_Value} {2_Icon} {1_Yield} per turn in City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_GPP">
-			<Text>[NEWLINE]{3_Value} {2_Icon} {1_Yield} in City</Text>
+			<Text>[NEWLINE]{2_Yield} Great {1_Name} Points in City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_TURNS">
 			<Text>[NEWLINE]Lasts for: {1_Turns} Turns.\</Text>

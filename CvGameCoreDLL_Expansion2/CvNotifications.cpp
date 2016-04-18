@@ -1235,6 +1235,18 @@ void CvNotifications::Activate(Notification& notification)
 		}
 		break;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	case NOTIFICATION_DISCOVERED_BONUS_RESOURCE:
+		CvAssertMsg(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
+		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		{
+			if (notification.m_iGameDataIndex >= 0)
+			{
+				CvPopupInfo kPopup(BUTTONPOPUP_MODDER_5, m_ePlayer);
+				GC.GetEngineUserInterface()->AddPopup(kPopup);
+			}
+		}
+#endif
 
 	default:	// Default behavior is to move the camera to the X,Y passed in
 	{

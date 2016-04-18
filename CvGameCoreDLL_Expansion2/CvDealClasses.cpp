@@ -931,15 +931,18 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					//Either side can't make peace yet?
 					if(!pOtherPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(pFromPlayer->GetID()))
 						return false;
+
+					int iTurns = 30;
+					if(GET_TEAM(pOtherPlayer->getTeam()).GetNumTurnsAtWar(pFromPlayer->getTeam()) <= iTurns)
+						return false;
 				
 					//Only matters if not a peace deal (i.e. we're not making negotiations)
 					if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 					{
 						//Can't force third party peace with a loser. Has to be a sizeable difference
 						int iFromWarScore = pFromPlayer->GetDiplomacyAI()->GetWarScore(pOtherPlayer->GetID());
-						int iOtherWarScore = pOtherPlayer->GetDiplomacyAI()->GetWarScore(pFromPlayer->GetID());
 
-						if((iFromWarScore + 10) <= iOtherWarScore)
+						if(iFromWarScore <= 0)
 							return false;
 					}
 				}
@@ -4600,7 +4603,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 #if defined(MOD_BALANCE_CORE)
 void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted, bool bNotValid)
 {
-	if(GC.getLogging() && GC.getAILogging())
+	if(GC.getLogging() && GC.getAILogging() && pDeal)
 	{
 		CvString strLogName;
 

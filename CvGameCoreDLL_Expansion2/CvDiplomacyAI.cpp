@@ -8575,9 +8575,8 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 #else
 
 	if(GetWantPeaceCounter(ePlayer) >= iRequestPeaceTurnThreshold)
-	{
 		return true;
-	}
+
 	return false;
 #endif
 }

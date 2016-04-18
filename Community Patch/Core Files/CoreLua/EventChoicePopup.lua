@@ -33,119 +33,131 @@ PopulateItems["EventChoices"] = function(stackControl, playerID)
 		local pEventInfo = GameInfo.Events[iEventType]
 
 		print("Found our event")
+		if(pEventInfo) then
 		-- Top Art
-		local pEventArt = pEventInfo.EventArt
-		if pEventArt then
+			local pEventArt = pEventInfo.EventArt or "playereventdefaultbackground.dds"
 			Controls.EventArt:SetTexture(pEventArt);
 			Controls.EventArt:SetSizeVal(350,100);
-			Controls.EventArt:SetHide(false);
-			Controls.EventArtFrame:SetHide(false);
-		else
-			Controls.EventArt:SetHide(true);
-			Controls.EventArtFrame:SetHide(true);
-		end
 		
-		-- Event Audio
-		local pEventAudio = pEventInfo.EventAudio
-		if pEventAudio then
-			Events.AudioPlay2DSound(pEventAudio)
-		end
+			if pEventArt then
+				Controls.EventArt:SetTexture(pEventArt);
+				Controls.EventArt:SetSizeVal(350,100);
+			end
 		
-		-- Top Text
-		local szTypeString;
-		local szHelpString;
-		szTypeString = Locale.Lookup(pEventInfo.Description)
-		szHelpString = Locale.Lookup(pEventInfo.Help)
+			-- Event Audio
+			local pEventAudio = pEventInfo.EventAudio
+			if pEventAudio then
+				Events.AudioPlay2DSound(pEventAudio)
+			end
 		
-		-- Test for any Override Strings
-		tEventOverrideStrings = {}
-		LuaEvents.Event_OverrideTextStrings(playerID, nil, pEventInfo, tEventOverrideStrings)
-		for _,str in ipairs(tEventOverrideStrings) do
-			szTypeString = str.Description or szTypeString
-			szHelpString = str.Help or szHelpString
-		end
+			-- Top Text
+			local szTypeString;
+			local szHelpString;
+			szTypeString = Locale.Lookup(pEventInfo.Description)
+			szHelpString = Locale.Lookup(pEventInfo.Help)
 		
-		Controls.TitleLabel:SetText(szTypeString);
-		Controls.TitleLabel:SetToolTipString(szTypeString);
-		Controls.DescriptionLabel:SetText(szHelpString);
-		local buttonSizeY = 53
-		for info in GameInfo.EventChoices() do
-			--print("Cycling through event choices")
+			-- Test for any Override Strings
+			tEventOverrideStrings = {}
+			LuaEvents.Event_OverrideTextStrings(playerID, nil, pEventInfo, tEventOverrideStrings)
+			for _,str in ipairs(tEventOverrideStrings) do
+				szTypeString = str.Description or szTypeString
+				szHelpString = str.Help or szHelpString
+			end
+		
+			Controls.TitleLabel:SetText(szTypeString);
+			Controls.TitleLabel:SetToolTipString(szTypeString);
+			Controls.DescriptionLabel:SetText(szHelpString);
+			local buttonSizeY = 53
+			for row in GameInfo.Event_ParentEvents("EventType = '" .. pEventInfo.Type .. "'") do
+				--print("Cycling through event choices")
+				local info = GameInfo.EventChoices[row.EventChoiceType]
 
-			if(player:IsEventChoiceValid(info.ID, iEventType)) then
-				print("Found an event choice")
+				-- if(player:IsEventChoiceValid(info.ID, iEventType)) then
+					print("Found an event choice")
 
-				local controlTable = {};
-				ContextPtr:BuildInstanceForControl( "ItemInstance", controlTable, stackControl );
-				local eventChoiceType = info.Type;
+					local controlTable = {};
+					ContextPtr:BuildInstanceForControl( "ItemInstance", controlTable, stackControl );
+					local eventChoiceType = info.Type;
 
-				local szDescString;
-				local szHelpString;
-				szDescString = Locale.Lookup(info.Description)
-				szHelpString = Locale.ConvertTextKey(player:GetScaledEventChoiceValue(info.ID));
-				-- Test for any Override Strings
-				tChoiceOverrideStrings = {}
-				LuaEvents.EventChoice_OverrideTextStrings(playerID, nil, info, tChoiceOverrideStrings)
-				for _,str in ipairs(tChoiceOverrideStrings) do
-					szDescString = str.Description or szDescString
-					szHelpString = str.Help or szHelpString
-				end
-				controlTable.Name:SetText("[ICON_BULLET]" .. szDescString);
-				controlTable.Button:SetToolTipString(szHelpString);
+					local szDescString;
+					local szHelpString;
+					szDescString = Locale.Lookup(info.Description)
+					szHelpString = Locale.ConvertTextKey(player:GetScaledEventChoiceValue(info.ID));
+					-- Test for any Override Strings
+					tChoiceOverrideStrings = {}
+					LuaEvents.EventChoice_OverrideTextStrings(playerID, nil, info, tChoiceOverrideStrings)
+					for _,str in ipairs(tChoiceOverrideStrings) do
+						szDescString = str.Description or szDescString
+						szHelpString = str.Help or szHelpString
+					end
+					controlTable.Name:SetText("[ICON_BULLET]" .. szDescString);
+					controlTable.Button:SetToolTipString(szHelpString);
 		
-				-- Readjust the offset
-				local sizeYDiff = math.max((controlTable.Name:GetSizeY()-buttonSizeY),1)
-				if sizeYDiff > 1 then sizeYDiff = sizeYDiff + 20 end
-				controlTable.Box:SetSizeY(buttonSizeY + sizeYDiff)
-				controlTable.Button:SetSizeY(buttonSizeY + sizeYDiff)
-				controlTable.MOSelectionAnim:SetSizeY(buttonSizeY + sizeYDiff)
-				controlTable.MOSelectionAnimHL:SetSizeY(buttonSizeY + sizeYDiff)
-				controlTable.SelectionAnim:SetSizeY(buttonSizeY + sizeYDiff)
-				controlTable.SelectionAnimHL:SetSizeY(buttonSizeY + sizeYDiff)
+					-- Readjust the offset
+					local sizeYDiff = math.max((controlTable.Name:GetSizeY()-buttonSizeY),1)
+					if sizeYDiff > 1 then sizeYDiff = sizeYDiff + 20 end
+					controlTable.Box:SetSizeY(buttonSizeY + sizeYDiff)
+					controlTable.Button:SetSizeY(buttonSizeY + sizeYDiff)
+					controlTable.MOSelectionAnim:SetSizeY(buttonSizeY + sizeYDiff)
+					controlTable.MOSelectionAnimHL:SetSizeY(buttonSizeY + sizeYDiff)
+					controlTable.SelectionAnim:SetSizeY(buttonSizeY + sizeYDiff)
+					controlTable.SelectionAnimHL:SetSizeY(buttonSizeY + sizeYDiff)
 				
-				local selectionAnim = controlTable.SelectionAnim;
-
-				controlTable.Button:RegisterCallback(Mouse.eLClick, function()  
-				
-					local foundIndex = nil;
-					for i,v in ipairs(SelectedItems) do
-						if(v[1] == eventChoiceType) then
-							foundIndex = i;
-							break;
-						end
+					-- Disable invalid choices
+					if(not player:IsEventChoiceValid(info.ID, iEventType)) then
+						local szDisabledString = info.DisabledTooltip or "TXT_KEY_CANNOT_TAKE_TT"
+						controlTable.Button:SetDisabled(true)
+						controlTable.Name:SetAlpha(0.2)
+						controlTable.Button:SetToolTipString(szHelpString .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey(szDisabledString));
+					else
+						controlTable.Name:SetAlpha(1)
+						controlTable.Button:SetDisabled(false)
 					end
 				
-					if(foundIndex ~= nil) then
-						if(g_NumberOfSelectedItems > 1) then
-							selectionAnim:SetHide(true);
-							table.remove(SelectedItems, foundIndex);
+					local selectionAnim = controlTable.SelectionAnim;
+
+					controlTable.Button:RegisterCallback(Mouse.eLClick, function()  
+				
+						local foundIndex = nil;
+						for i,v in ipairs(SelectedItems) do
+							if(v[1] == eventChoiceType) then
+								foundIndex = i;
+								break;
+							end
 						end
-					else
-						if(g_NumberOfSelectedItems > 1) then
-							if(#SelectedItems < g_NumberOfSelectedItems) then
-								selectionAnim:SetHide(false);
-								table.insert(SelectedItems, {eventChoiceType, controlTable});
+				
+						if(foundIndex ~= nil) then
+							if(g_NumberOfSelectedItems > 1) then
+								selectionAnim:SetHide(true);
+								table.remove(SelectedItems, foundIndex);
 							end
 						else
-							if(#SelectedItems > 0) then
-								for i,v in ipairs(SelectedItems) do
-									v[2].SelectionAnim:SetHide(true);	
+							if(g_NumberOfSelectedItems > 1) then
+								if(#SelectedItems < g_NumberOfSelectedItems) then
+									selectionAnim:SetHide(false);
+									table.insert(SelectedItems, {eventChoiceType, controlTable});
 								end
-								SelectedItems = {};
-							end
+							else
+								if(#SelectedItems > 0) then
+									for i,v in ipairs(SelectedItems) do
+										v[2].SelectionAnim:SetHide(true);	
+									end
+									SelectedItems = {};
+								end
 						
-							selectionAnim:SetHide(false);
-							table.insert(SelectedItems, {eventChoiceType, controlTable});
-						end	
-					end
+								selectionAnim:SetHide(false);
+								table.insert(SelectedItems, {eventChoiceType, controlTable});
+							end	
+						end
 				
-					Controls.ConfirmButton:SetDisabled(g_NumberOfSelectedItems ~= #SelectedItems);
+						Controls.ConfirmButton:SetDisabled(g_NumberOfSelectedItems ~= #SelectedItems);
 				
-				end);
+					end);
 
-				print("event choice added")
+					print("event choice added")
 			
-				count = count + 1;
+					count = count + 1;
+				-- end
 			end
 		end
 	end

@@ -220,7 +220,6 @@ int CvArmyAI::GetMovementRate()
 /// Get center of mass of units in army (account for world wrap!)
 CvPlot* CvArmyAI::GetCenterOfMass(DomainTypes eDomainRequired)
 {
-	CvPlot* pRtnValue = NULL;
 	int iTotalX = 0;
 	int iTotalY = 0;
 	int iNumUnits = 0;
@@ -289,9 +288,31 @@ CvPlot* CvArmyAI::GetCenterOfMass(DomainTypes eDomainRequired)
 	}
 
 	//this handles wrapped coordinates
-	pRtnValue = GC.getMap().plot(iAvgX, iAvgY);
+	CvPlot* pCOM = GC.getMap().plot(iAvgX, iAvgY);
+
+	if (!pCOM)
+		return NULL;
+
+	//don't return it directly but use the plot of the closest unit
+	pUnit = GetFirstUnit();
+	std::vector<SPlotWithScore> vPlots;
+	while (pUnit)
+	{
+		if (eDomainRequired == NO_DOMAIN || pUnit->plot()->getDomain()==eDomainRequired)
+			vPlots.push_back( SPlotWithScore(pUnit->plot(),plotDistance(*pUnit->plot(),*pCOM)) );
+
+		pUnit = GetNextUnit();
+	}
+
+	if (vPlots.empty())
+		return NULL;
+
+	//this sorts ascending!
+	std::sort(vPlots.begin(),vPlots.end());
+	return vPlots.front().pPlot;
 
 #else
+	CvPlot* pRtnValue = NULL;
 	UnitHandle pUnit;
 	int iReferenceUnitX = -1;
 	int iWorldWidth = GC.getMap().getGridWidth();
@@ -336,7 +357,6 @@ CvPlot* CvArmyAI::GetCenterOfMass(DomainTypes eDomainRequired)
 		int iAverageY = (iTotalY + (iNumUnits / 2)) / iNumUnits;
 		pRtnValue = GC.getMap().plot(iAverageX, iAverageY);
 	}
-#endif
 
 	// Domain check
 	if (eDomainRequired != NO_DOMAIN && pRtnValue)
@@ -380,8 +400,8 @@ CvPlot* CvArmyAI::GetCenterOfMass(DomainTypes eDomainRequired)
 			pRtnValue = pUnit->plot();
 		}
 	}
-
 	return pRtnValue;
+#endif
 }
 
 /// Return distance from this plot of unit in army farthest away
@@ -921,33 +941,21 @@ bool CvArmyAI::DoDelayedDeath()
 
 CvPlot* CvArmyAI::DetectNearbyEnemy(PlayerTypes eEnemy, bool bNaval)
 {
-	bool bAtWar = GET_PLAYER(m_eOwner).IsAtWarWith(eEnemy);
 	UnitHandle pUnit = GetFirstUnit();
 	while(pUnit)
 	{
 		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 		{
 			CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDirectionLoop));
-			if(pAdjacentPlot != NULL && pAdjacentPlot->isWater()==bNaval )
+			if(pAdjacentPlot != NULL && pAdjacentPlot->isWater()==bNaval && pAdjacentPlot->getOwner() == eEnemy)
 			{
-				if( pAdjacentPlot->getOwner() == eEnemy && !bAtWar )
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Ran into enemy territory during sneak attack on (x=%d y=%d). Need to declare war to continue!", GetGoalX(), GetGoalY());
-						GET_PLAYER(m_eOwner).getAIOperation(m_iOperationID)->LogOperationSpecialMessage(strMsg);
-					}
-
-					return pAdjacentPlot;
-				}
 				UnitHandle pOtherUnit = pAdjacentPlot->getBestDefender(eEnemy);
-				if( pOtherUnit && bAtWar )
+				if(pOtherUnit)
 				{
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strMsg;
-						strMsg.Format("Ran into enemy unit during attack on (x=%d y=%d). Time to fight!", GetGoalX(), GetGoalY());
+						strMsg.Format("Ran into enemy unit during attack (x=%d y=%d). Need to declare war to continue!", pAdjacentPlot->getX(), pAdjacentPlot->getY());
 						GET_PLAYER(m_eOwner).getAIOperation(m_iOperationID)->LogOperationSpecialMessage(strMsg);
 					}
 

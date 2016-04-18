@@ -100,9 +100,15 @@ public:
 	void SetEventActive(CityEventTypes eEvent, bool bValue);
 	bool IsEventActive(CityEventTypes eEvent) const;
 
+	void SetEventChoiceActive(CityEventChoiceTypes eEventChoice, bool bValue);
+	bool IsEventChoiceActive(CityEventChoiceTypes eEventChoice) const;
+
 	int GetEventCooldown(CityEventTypes eEvent) const;
 	void ChangeEventCooldown(CityEventTypes eEvent, int iValue);
 	void SetEventCooldown(CityEventTypes eEvent, int iValue);
+
+	void ChangeCityEventCooldown(int iValue);
+	int GetCityEventCooldown() const;
 
 	void IncrementEvent(CityEventTypes eEvent, int iValue);
 	int GetEventIncrement(CityEventTypes eEvent) const;
@@ -122,6 +128,10 @@ public:
 
 	void ChangeEventImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield, int iValue);
 	int GetEventImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield) const;
+
+	void ChangeEventResourceYield(ResourceTypes eResource, YieldTypes eYield, int iValue);
+	int GetEventResourceYield(ResourceTypes eResource, YieldTypes eYield) const;
+
 	void ChangeEventTerrainYield(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
 	int GetEventTerrainYield(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeEventFeatureYield(FeatureTypes eFeature, YieldTypes eYield, int iValue);
@@ -1717,15 +1727,18 @@ protected:
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	FAutoVariable<std::vector<int>, CvCity> m_aiEventCooldown;
 	FAutoVariable<std::vector<bool>, CvCity> m_abEventActive;
+	FAutoVariable<std::vector<bool>, CvCity> m_abEventChoiceActive;
 	FAutoVariable<std::vector<bool>, CvCity> m_abEventChoiceFired;
 	FAutoVariable<std::vector<bool>, CvCity> m_abEventFired;
 	FAutoVariable<std::vector<int>, CvCity> m_aiEventChoiceDuration;
 	FAutoVariable<std::vector<int>, CvCity> m_aiEventIncrement;
 	FAutoVariable<std::vector<int>, CvCity> m_aiEventCityYield;
 	FAutoVariable<int, CvCity> m_iEventHappiness;
+	FAutoVariable<int, CvCity> m_iCityEventCooldown;
 	int** m_ppaiEventBuildingClassYield;
 	int** m_ppaiEventBuildingClassYieldModifier;
 	int** m_ppaiEventImprovementYield;
+	int** m_ppaiEventResourceYield;
 	int** m_ppaiEventTerrainYield;
 	int** m_ppaiEventFeatureYield;
 #endif

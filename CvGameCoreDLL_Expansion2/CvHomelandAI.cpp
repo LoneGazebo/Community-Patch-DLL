@@ -5841,6 +5841,10 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 					strLogString.Format("Spreading religion, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
 					LogHomelandMessage(strLogString);
 				}
+#if defined(MOD_BALANCE_CORE)
+				UnitProcessed(pUnit->GetID());
+				continue;
+#endif
 			}
 			else if(iTargetTurns < 1)
 			{
@@ -5861,6 +5865,10 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 				{
 					CvAssertMsg(false, "Internal error with Missionary AI move, contact Ed.");
 				}
+#if defined(MOD_BALANCE_CORE)
+				UnitProcessed(pUnit->GetID());
+				continue;
+#endif
 			}
 			else
 			{
@@ -5873,6 +5881,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 					LogHomelandMessage(strLogString);
 				}
 #if defined(MOD_BALANCE_CORE)
+				UnitProcessed(pUnit->GetID());
 				continue;
 #endif
 			}

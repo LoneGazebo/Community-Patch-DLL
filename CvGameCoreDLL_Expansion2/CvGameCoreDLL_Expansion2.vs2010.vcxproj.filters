@@ -515,14 +515,14 @@
     <ClCompile Include="stackwalker\StackWalker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CvArmyAI.cpp">
-      <Filter>Lua</Filter>
-    </ClCompile>
     <ClCompile Include="CvAStarNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CvArmyAI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Lua\CvLuaArea.cpp">
-      <Filter>Header Files</Filter>
+      <Filter>Lua</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

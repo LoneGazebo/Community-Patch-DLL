@@ -2951,6 +2951,12 @@ void CvEconomicAI::DisbandExtraWorkers()
 	int iNumUnimprovedPlots = iNumValidPlots - iNumImprovedPlots;
 	int iUnimprovedPlotPerWorkers = 8;
 	int iMinWorkers = iNumUnimprovedPlots / iUnimprovedPlotPerWorkers;
+#if defined(MOD_BALANCE_CORE)
+	if(iMinWorkers <= 0)
+	{
+		iMinWorkers = 1;
+	}
+#endif
 
 	// less than two thirds of the plots are improved, don't discard anybody
 	float fRatio = iNumImprovedPlots / (float)iNumValidPlots;

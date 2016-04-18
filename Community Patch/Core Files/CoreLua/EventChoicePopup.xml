@@ -32,10 +32,10 @@
 			<UpButton ID="ScrollBarU" Offset="5.177" Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
 			<DownButton ID="ScrollBarD" Offset="5.0" Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
 			<Stack Anchor="L,T" Offset="0,0" Size="560,350" Padding="10" StackGrowth="Bottom">
-				<Image Anchor="C,T" Offset="-10,0" Hidden="1" Texture="EventFrame.dds" Size="365,105" ID="EventArtFrame">
-					<Image Anchor="C,C" Offset="0,0" Hidden="1" Size="350,100" Texture="playereventdefaultbackground.dds" ID="EventArt"/>
+				<Image Anchor="C,T" Offset="-10,0" Hidden="0" Texture="EventFrame.dds" Size="365,105" ID="EventArtFrame">
+					<Image Anchor="C,C" Offset="0,0" Hidden="0" Size="350,100" Texture="playereventdefaultbackground.dds" ID="EventArt"/>
 				</Image>
-				<Label Anchor="L,T" Offset="35,0" WrapWidth="470" LeadingOffset="-4" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" ID="DescriptionLabel"/>
+				<Label Anchor="L,T" Offset="35,0" WrapWidth="450" LeadingOffset="-4" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" ID="DescriptionLabel"/>
 				<Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" ID="ItemStack"/>
 			</Stack>
 		</ScrollPanel>

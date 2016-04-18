@@ -176,7 +176,14 @@
 		City:IsCityEventChoiceValid(CityEventChoiceTypes eEventChoice);
 			Let's you check to see if an event choice is valid. Used by UI.
 	-->
-	
+
+	<Defines>
+		<!-- Minimum amount of time between any two events for Players/Cities. Scales with Gamespeed. Does not affect counters (i.e. cooldowns will still reduce),
+			but prevents events from firing during this time. If you set IgnoresGlobalCooldown true for an event, it will ignore this. -->
+		<Row Name="EVENT_MIN_DURATION_BETWEEN">
+			<Value>10</Value>
+		</Row>
+	</Defines>
 	<!-- Table definitions -->
 
 	<!--== PLAYER LEVEL EVENTS == -->
@@ -202,6 +209,8 @@
 		<Column name="EventCooldown" type="integer" default="30"/>
 		<!-- Set NumChoices to 2+ if you are adding more than one choice to the event!! -->
 		<Column name="NumChoices" type="integer" default="1"/>
+		<!-- Allows the event to ignore the global cooldown defined above. Use sparingly! -->
+		<Column name="IgnoresGlobalCooldown" type="boolean" default="false"/>
 		<!-- Filters 
 		
 		Determine whether or not an Event can occur for the player.
@@ -240,6 +249,9 @@
 		<Column name="RequiresIdeology" type="boolean" default="false"/>
 		<Column name="RequiresWar" type="boolean" default="false"/>
 		<Column name="RequiresWarMinor" type="boolean" default="false"/>
+		<!-- C4DF Only -->
+		<Column name="IsVassalOfSomeone" type="boolean" default="false"/>
+		<Column name="IsMasterOfSomeone" type="boolean" default="false"/>
 		<!-- These filters look for specific events or event choices to see if they've been actived by the player/city. This allows you to create 'chained' events that rely on a prior event. -->
 		<!-- Note that these values look at the EventCooldown value for events, and the Duration value for choices. -->
 		<!-- For example, if an event has a cooldown of 30 turns, and that event fires, there is a 30 turn window in which an event dependent on that one can fire (using the RequiredActiveEvent tag below) -->
@@ -280,11 +292,14 @@
 		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
 		<!-- Help is used for Tooltips, Description for button text -->
 		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
+		<!-- DisabledTooltip is used for Tooltips for choices that are not active but appear in choice list. There is a default of this, so you don't have to set it, but you can if you want to explain why a choice isn't active. -->
+		<Column name="DisabledTooltip" type="text" reference="Language_en_US(Tag)"/>
+		<!-- Audio for when event window pops up. -->
 		<Column name="EventChoiceAudio" type="text" default="AS2D_EVENT_CHOICE"/>
 		<!-- If set to true, this event choice can only be chosen once, ever, by the player -->
 		<Column name="IsOneShot" type="boolean" default="false"/>
-		<!-- Defaults to -1. Unless changed, this means the event is either instant, or the duration doesn't matter. Set a duration if you intend to have an event expire after x turns. -->
-		<Column name="EventDuration" type="integer" default="-1"/>
+		<!-- Defaults to 30. Set a different duration if the expiration timer matters. Otherwise, leave it at 30, as it is used by the Recent Events overview. -->
+		<Column name="EventDuration" type="integer" default="30"/>
 		<!-- Event Chance: Higher value = higher chance of success. Notification will spawn if an event fails. Default is always successful. -->
 		<Column name="EventChance" type="integer" default="0"/>
 		<!-- Era Scaling: boosts yield value on instant yield, GP Points, and yield costs tables (See below) based on Era. -->
@@ -300,7 +315,9 @@
 		-->
 		<!-- Grants a Policy. -->
 		<Column name="EventPolicy" type="text" reference="Policies(Type)" default="NULL"/>
-		<!-- Grants all owned units a promotion. Does not affect units created after event. -->
+		<!-- Grants a specified tech for free. -->
+		<Column name="EventTech" type="text" reference="Technologies(Type)" default="NULL"/>
+		<!-- Grants all owned units, and all units created while this is active a promotion. Only affects valid units. -->
 		<Column name="EventPromotion" type="text" reference="UnitPromotions(Type)" default="NULL"/>
 		<!-- Adds a building to all cities. -->
 		<Column name="EventBuildingClassGlobal" type="text" reference="BuildingClasses(Type)" default="NULL"/>
@@ -357,6 +374,9 @@
 		<Column name="RequiresIdeology" type="boolean" default="false"/>
 		<Column name="RequiresWar" type="boolean" default="false"/>
 		<Column name="RequiresWarMinor" type="boolean" default="false"/>
+		<!-- C4DF Only -->
+		<Column name="IsVassalOfSomeone" type="boolean" default="false"/>
+		<Column name="IsMasterOfSomeone" type="boolean" default="false"/>
 		<!-- These filters look for specific events or event choices to see if they've been actived by the player/city. This allows you to create 'chained' events that rely on a prior event. -->
 		<!-- Note that these values look at the EventCooldown value for events, and the Duration value for choices. -->
 		<!-- For example, if an event has a cooldown of 30 turns, and that event fires, there is a 30 turn window in which an event dependent on that one can fire (using the RequiredActiveEvent tag below) -->
@@ -416,6 +436,34 @@
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
 		<Column name="Quantity" type="integer"/>
+	</Table>
+	<!-- Grants features in all cities of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<Table name="EventChoice_FeatureYieldChange">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer"/>
+	</Table>
+	<!-- Grants improvements in all cities of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<Table name="EventChoice_ImprovementYieldChange">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer"/>
+	</Table>
+	<!-- Grants resources in all cities of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<Table name="EventChoice_ResourceYieldChange">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer"/>
+	</Table>
+	<!-- Grants terrains in all cities of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<Table name="EventChoice_TerrainYieldChange">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer"/>
 	</Table>
 	<!-- Creates Units in all cities -->
 	<Table name="EventChoice_FreeUnitClasses">
@@ -513,7 +561,8 @@
 		<Column name="NumChoices" type="integer" default="1"/>
 		<!-- Era Scaling: boosts yield required for minimumstartyield table below. -->
 		<Column name="EraScaling" type="boolean" default="false"/>
-
+		<!-- Allows the event to ignore the global cooldown defined above. Use sparingly! -->
+		<Column name="IgnoresGlobalCooldown" type="boolean" default="false"/>
 		<!-- Filters 
 		
 		Determine whether or not an Event can occur for the player.
@@ -561,6 +610,15 @@
 		<Column name="HasAnyReligion" type="boolean" default="false"/>
 		<Column name="RequiresPuppet" type="boolean" default="false"/>
 		<Column name="HasMetAMajorCiv" type="boolean" default="false"/>
+		<!-- Looks for official (i.e. founded/holy city owned) religion, not majority! -->
+		<Column name="CityHasPlayerReligion" type="boolean" default="false"/>
+		<Column name="CityLacksPlayerReligion" type="boolean" default="false"/>
+		<!-- Looks for majority religion, not official (i.e. founded/holy city owned)! -->
+		<Column name="CityHasPlayerMajorityReligion" type="boolean" default="false"/>
+		<Column name="CityLacksPlayerMajorityReligion" type="boolean" default="false"/>
+		<!-- C4DF Only -->
+		<Column name="IsVassalOfSomeone" type="boolean" default="false"/>
+		<Column name="IsMasterOfSomeone" type="boolean" default="false"/>
 		<!-- Checks if city majority is a Pantheon -->
 		<Column name="RequiresPantheon" type="boolean" default="false"/>
 		<!-- Looks for negative gold or negative GPT, respectively. -->
@@ -606,11 +664,14 @@
 		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
 		<!-- Help is used for Tooltips, Description for button text -->
 		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
+		<!-- DisabledTooltip is used for Tooltips for choices that are not active but appear in choice list. There is a default of this, so you don't have to set it, but you can if you want to explain why a choice isn't active. -->
+		<Column name="DisabledTooltip" type="text" reference="Language_en_US(Tag)"/>
+		<!-- Audio for when event popup activates . -->
 		<Column name="EventChoiceAudio" type="text" default="AS2D_EVENT_CHOICE"/>
 		<!-- If set to true, this city event choice can only be chosen once, ever, by the city -->
 		<Column name="IsOneShot" type="boolean" default="false"/>
-		<!-- Defaults to -1. Unless changed, this means the event is either instant, or the duration doesn't matter. Set a duration if you intend to have an event expire after x turns. -->
-		<Column name="EventDuration" type="integer" default="-1"/>
+		<!-- Defaults to 30. Set a different duration if the expiration timer matters. Otherwise, leave it at 30, as it is used by the Recent Events overview. -->
+		<Column name="EventDuration" type="integer" default="30"/>
 		<!-- Event Chance: Higher value = higher chance of success. Notification will spawn if an event fails. Default is always successful. -->
 		<Column name="EventChance" type="integer" default="0"/>
 		<!-- Era Scaling: boosts yield value on instant yield, GP Points, and yield costs tables (See below) based on Era. -->
@@ -640,7 +701,13 @@
 		<Column name="RandomBarbarianSpawn" type="integer" default="0"/>
 		<!-- Spawns X number of owned units near the City. Unit type scales with player tech. -->
 		<Column name="FreeUnitsTechAppropriate" type="integer" default="0"/>
-		
+		<!-- Grants all units created by this city while this is active a promotion. Only affects valid units. -->
+		<Column name="EventPromotion" type="text" reference="UnitPromotions(Type)" default="NULL"/>
+		<!-- Converts City to Player Official (i.e. founded/holy city owned) Religion by x%.-->
+		<Column name="ConvertToPlayerReligionPercent" type="integer" default="0"/>
+		<!-- Converts City to Player Majority Religion by x% (can be official religion, but not necessarily so).-->
+		<Column name="ConvertToPlayerMajorityReligionPercent" type="integer" default="0"/>
+
 		<!-- FILTERS: 
 		
 		Values below determine whether or not a City Event Choice appears in the City list 
@@ -671,7 +738,16 @@
 		<!-- Only Checks for local Buildings in City. -->
 		<Column name="RequiredBuildingClass" type="text" reference="BuildingClasses(Type)" default="NULL"/>
 		<Column name="CannotHaveBuildingClass" type="text" reference="BuildingClasses(Type)" default="NULL"/>
+		<!-- C4DF Only -->
+		<Column name="IsVassalOfSomeone" type="boolean" default="false"/>
+		<Column name="IsMasterOfSomeone" type="boolean" default="false"/>
 		<!-- Only Checks for local status. -->
+		<!-- Looks for official (i.e. founded/holy city owned) religion, not majority! -->
+		<Column name="CityHasPlayerReligion" type="boolean" default="false"/>
+		<Column name="CityLacksPlayerReligion" type="boolean" default="false"/>
+		<!-- Looks for majority religion, not official (i.e. founded/holy city owned)! -->
+		<Column name="CityHasPlayerMajorityReligion" type="boolean" default="false"/>
+		<Column name="CityLacksPlayerMajorityReligion" type="boolean" default="false"/>
 		<Column name="HasTradeConnection" type="boolean" default="false"/>
 		<Column name="HasCityConnection" type="boolean" default="false"/>
 		<Column name="RequiresGarrison" type="boolean" default="false"/>
@@ -774,6 +850,13 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="YieldChange" type="integer"/>
 	</Table>
+	<!-- Grants this city's resources of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<Table name="CityEventChoice_ResourceYieldChange">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer"/>
+	</Table>
 	<!-- Grants this city's terrains of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
 	<Table name="CityEventChoice_TerrainYieldChange">
 		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
@@ -787,7 +870,7 @@
 		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
 		<Column name="Points" type="integer"/>
 	</Table>
-	<!-- Note: Destroys up to the number indicated. Is random. Useful for storms, etc. -->
+	<!-- Note: Pillages up to the number indicated. Is random. Useful for storms, etc. -->
 	<Table name="CityEventChoice_ImprovementDestructionRandom">
 		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>

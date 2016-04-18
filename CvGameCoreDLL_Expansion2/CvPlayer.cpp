@@ -91,30 +91,6 @@ void SyncPlayer()
 {
 	if(GC.getGame().isNetworkMultiPlayer())
 	{
-#if defined(MOD_BALANCE_CORE)	
-		for(int i = 0; i < MAX_PLAYERS; ++i)
-		{
-			CvPlayer& player = GET_PLAYER(static_cast<PlayerTypes>(i));
-			//If hosting, update AI players first.
-			if(gDLL->IsHost() && !player.isHuman() && player.isAlive())
-			{
-				const FAutoArchive& aiArchive = player.getSyncArchive();
-				FMemoryStream ms;
-				std::vector<std::pair<std::string, std::string> > callStacks;
-				aiArchive.saveDelta(ms, callStacks);
-				gDLL->sendPlayerSyncCheck(static_cast<PlayerTypes>(i), ms, callStacks);
-			}
-			else if(player.isHuman() && player.GetID() == GC.getGame().getActivePlayer())
-			{
-				CvPlayer& authoritativePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
-				const FAutoArchive& archive = authoritativePlayer.getSyncArchive();
-				FMemoryStream ms;
-				std::vector<std::pair<std::string, std::string> > callStacks;
-				archive.saveDelta(ms, callStacks);
-				gDLL->sendPlayerSyncCheck(GC.getGame().getActivePlayer(), ms, callStacks);
-			}
-		}
-#else
 		PlayerTypes eAuthoritativePlayerID = GC.getGame().getActivePlayer();
 		CvPlayer& authoritativePlayer = GET_PLAYER(eAuthoritativePlayerID);
 		const FAutoArchive& archive = authoritativePlayer.getSyncArchive();
@@ -143,7 +119,6 @@ void SyncPlayer()
 				}
 			}
 		}
-#endif
 	}
 }
 
@@ -572,6 +547,7 @@ CvPlayer::CvPlayer() :
 	, m_iSpawnCooldown("CvPlayer::m_iSpawnCooldown", m_syncArchive)
 	, m_iAbleToMarryCityStatesCount("CvPlayer::m_iAbleToMarryCityStatesCount", m_syncArchive)
 	, m_iCorporateFounderID("CvPlayer::m_iCorporateFounderID", m_syncArchive)
+	, m_iCorporateFoundedTurn("CvPlayer::m_iCorporateFoundedTurn", m_syncArchive)
 	, m_iCorporationMaxFranchises("CvPlayer::m_iCorporationMaxFranchises", m_syncArchive)
 	, m_iCorporateFranchises("CvPlayer::m_iCorporateFranchises", m_syncArchive)
 	, m_bTradeRoutesInvulnerable("CvPlayer::m_bTradeRoutesInvulnerable", m_syncArchive)
@@ -592,9 +568,11 @@ CvPlayer::CvPlayer() :
 	, m_aiEventChoiceDuration("CvPlayer::m_aiEventChoiceDuration", m_syncArchive)
 	, m_aiEventIncrement("CvPlayer::m_aiEventIncrement", m_syncArchive)
 	, m_abEventActive("CvPlayer::m_abEventActive", m_syncArchive)
+	, m_abEventChoiceActive("CvPlayer::m_abEventChoiceActive", m_syncArchive)
 	, m_aiEventCooldown("CvPlayer::m_aiEventCooldown", m_syncArchive)
 	, m_abEventChoiceFired("CvPlayer::m_abEventChoiceFired", m_syncArchive)
 	, m_abEventFired("CvPlayer::m_abEventFired", m_syncArchive)
+	, m_iPlayerEventCooldown("CvPlayer::m_iPlayerEventCooldown", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_iPovertyUnhappinessMod("CvPlayer::m_iPovertyUnhappinessMod", m_syncArchive)
@@ -1486,6 +1464,7 @@ void CvPlayer::uninit()
 	m_iSpawnCooldown = 0;
 	m_iAbleToMarryCityStatesCount = 0;
 	m_iCorporateFounderID = 0;
+	m_iCorporateFoundedTurn = 0;
 	m_iCorporationMaxFranchises = 0;
 	m_iCorporateFranchises = 0;
 	m_bTradeRoutesInvulnerable = false;
@@ -1518,6 +1497,7 @@ void CvPlayer::uninit()
 	m_iNoUnhappfromXSpecialists = 0;
 	m_iNoUnhappfromXSpecialistsCapital = 0;
 	m_iWarWearinessModifier = 0;
+	m_iPlayerEventCooldown = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iGarrisonsOccupiedUnhapppinessMod = 0;
@@ -1762,6 +1742,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_abEventActive.clear();
 	m_abEventActive.resize(GC.getNumEventInfos(), false);
+
+	m_abEventChoiceActive.clear();
+	m_abEventChoiceActive.resize(GC.getNumEventChoiceInfos(), false);
 
 	m_abEventFired.clear();
 	m_abEventFired.resize(GC.getNumEventInfos(), false);
@@ -4930,6 +4913,19 @@ void CvPlayer::IncrementEvent(EventTypes eEvent, int iValue)
 		m_aiEventIncrement.setAt(eEvent, m_aiEventIncrement[eEvent] + iValue);
 	}
 }
+int CvPlayer::GetPlayerEventCooldown() const
+{
+	VALIDATE_OBJECT
+	return m_iPlayerEventCooldown;
+}
+void CvPlayer::ChangePlayerEventCooldown(int iValue)
+{
+	VALIDATE_OBJECT
+	if(iValue != 0)
+	{
+		m_iPlayerEventCooldown += iValue;
+	}
+}
 int CvPlayer::GetEventCooldown(EventTypes eEvent) const
 {
 	VALIDATE_OBJECT
@@ -4970,6 +4966,22 @@ bool CvPlayer::IsEventActive(EventTypes eEvent) const
 	CvAssertMsg(eEvent < GC.getNumEventInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
 	return m_abEventActive[eEvent];
+}
+void CvPlayer::SetEventChoiceActive(EventChoiceTypes eEventChoice, bool bValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+
+	m_abEventChoiceActive.setAt(eEventChoice, bValue);
+}
+bool CvPlayer::IsEventChoiceActive(EventChoiceTypes eEventChoice) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eEventChoice >= 0, "eEvent is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eEventChoice < GC.getNumEventChoiceInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
+
+	return m_abEventChoiceActive[eEventChoice];
 }
 void CvPlayer::SetEventChoiceFired(EventChoiceTypes eEvent, bool bValue)
 {
@@ -5096,8 +5108,35 @@ void CvPlayer::DoEvents()
 				ChangeEventCooldown(eEvent, -1);
 				continue;
 			}
+			if(GetPlayerEventCooldown() > 0)
+			{
+				if(GC.getLogging())
+				{
+					CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+					if(pkEventInfo != NULL)
+					{
+						CvString playerName;
+						FILogFile* pLog;
+						CvString strBaseString;
+						CvString strOutBuf;
+						CvString strFileName = "EventLogging.csv";
+						playerName = getCivilizationShortDescription();
+						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+						strBaseString += playerName + ", ";
+						strOutBuf.Format("Player Event: %s. Global Cooldown Active. Cooldown: %d", pkEventInfo->GetDescription(), GetPlayerEventCooldown());
+						strBaseString += strOutBuf;
+						pLog->Msg(strBaseString);
+					}
+				}
+				ChangePlayerEventCooldown(-1);
+				if(!pkEventInfo->IgnoresGlobalCooldown())
+				{
+					return;
+				}
+			}
 
-			int iRandom = GC.getGame().getJonRandNum(100, "Random Event Chance");
+			int iRandom = GC.getGame().getJonRandNum(1000, "Random Event Chance");
 			int iLimit = pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
 			if(iRandom < iLimit)
 			{
@@ -5290,6 +5329,13 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 		if(GET_TEAM(getTeam()).getHasMetCivCount(true) <= 0)
 			return false;
 	}
+
+	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GET_TEAM(getTeam()).GetNumVassals() <= 0)
+		return false;
+
+	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
+		return false;
+
 
 	if(pkEventInfo->getUnitTypeRequired() != -1)
 	{
@@ -5759,6 +5805,12 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 			return false;
 	}
 
+	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GET_TEAM(getTeam()).GetNumVassals() <= 0)
+		return false;
+
+	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
+		return false;
+
 	if(pkEventInfo->getUnitTypeRequired() != -1)
 	{
 		bool bHas = false;
@@ -6126,6 +6178,11 @@ void CvPlayer::DoStartEvent(EventTypes eChosenEvent)
 		{
 			//Set true so we know we're doing an event right now.
 			SetEventActive(eChosenEvent, true);
+
+			int iMin = GC.getEVENT_MIN_DURATION_BETWEEN();
+			iMin *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iMin /= 100;
+			ChangePlayerEventCooldown(iMin);
 			
 			//Set oneshot stuff so this event can't fire ever again.
 			if(pkEventInfo->isOneShot())
@@ -6238,8 +6295,9 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 		}
 		//Let's make sure this is at zero.
 		ChangeEventChoiceDuration(eChosenEventChoice, -GetEventChoiceDuration(eChosenEventChoice));
-
-		if(pkEventChoiceInfo->Expires())
+					
+		//Let's only deduct if we actually started this event and it expires.
+		if(IsEventChoiceActive(eChosenEventChoice) && pkEventChoiceInfo->Expires())
 		{
 			if(pkEventChoiceInfo->getEventPolicy() != -1)
 			{
@@ -6248,6 +6306,14 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 				{
 					GetPlayerPolicies()->SetPolicy(ePolicy, false, true);
 					bChanged = true;
+				}
+			}
+			if(pkEventChoiceInfo->getEventTech() != -1)
+			{
+				TechTypes eTech = (TechTypes)pkEventChoiceInfo->getEventTech();
+				if(eTech != -1)
+				{
+					GET_TEAM(getTeam()).GetTeamTechs()->SetHasTech(eTech, false);
 				}
 			}
 			if(pkEventChoiceInfo->getEventBuilding() != -1)
@@ -6294,6 +6360,7 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 							}
 						}
 					}
+					ChangeFreePromotionCount(ePromotion, -1);
 				}
 			}
 			for(int iI = 0; iI < GC.getNumResourceInfos(); iI++)
@@ -6443,6 +6510,62 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 						}
 					}
 				}
+				for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
+				{
+					ImprovementTypes eImprovement = (ImprovementTypes)iJ;
+					if(eImprovement != NO_IMPROVEMENT && pkEventChoiceInfo->getImprovementYield(eImprovement, eYield) != 0)
+					{
+						CvCity *pLoopCity;
+						int iLoop;
+						for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						{
+							pLoopCity->ChangeEventImprovementYield(eImprovement, eYield, pkEventChoiceInfo->getImprovementYield(eImprovement, eYield) * -1);
+						}
+						bChanged = true;
+					}
+				}
+				for(int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
+				{
+					FeatureTypes eFeature = (FeatureTypes)iJ;
+					if(eFeature != NO_FEATURE && pkEventChoiceInfo->getFeatureYield(eFeature, eYield) != 0)
+					{
+						CvCity *pLoopCity;
+						int iLoop;
+						for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						{
+							pLoopCity->ChangeEventFeatureYield(eFeature, eYield, pkEventChoiceInfo->getFeatureYield(eFeature, eYield) * -1);
+						}
+						bChanged = true;
+					}
+				}
+				for(int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
+				{
+					TerrainTypes eTerrain = (TerrainTypes)iJ;
+					if(eTerrain != NO_TERRAIN && pkEventChoiceInfo->getTerrainYield(eTerrain, eYield) != 0)
+					{
+						CvCity *pLoopCity;
+						int iLoop;
+						for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						{
+							pLoopCity->ChangeEventTerrainYield(eTerrain, eYield, pkEventChoiceInfo->getTerrainYield(eTerrain, eYield) * -1);
+						}
+						bChanged = true;
+					}
+				}
+				for(int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
+				{
+					ResourceTypes eResource = (ResourceTypes)iJ;
+					if(eResource != NO_RESOURCE && pkEventChoiceInfo->getResourceYield(eResource, eYield) != 0)
+					{
+						CvCity *pLoopCity;
+						int iLoop;
+						for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						{
+							pLoopCity->ChangeEventResourceYield(eResource, eYield, pkEventChoiceInfo->getResourceYield(eResource, eYield) * -1);
+						}
+						bChanged = true;
+					}
+				}
 			}
 		}
 		if(bChanged)
@@ -6458,28 +6581,30 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 
 				pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, GetID());
 			}
-		}
-		CvCity* pLoopCity;
-		int iLoop;
-		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if(pLoopCity != NULL)
+			CvCity* pLoopCity;
+			int iLoop;
+			for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 			{
-				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				if(pLoopCity != NULL)
 				{
-					YieldTypes eYield = (YieldTypes) iI;
-					if(eYield == NO_YIELD)
-						continue;
+					for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+					{
+						YieldTypes eYield = (YieldTypes) iI;
+						if(eYield == NO_YIELD)
+							continue;
 
-					pLoopCity->UpdateSpecialReligionYields(eYield);
-					pLoopCity->UpdateCityYields(eYield);
+						pLoopCity->UpdateSpecialReligionYields(eYield);
+						pLoopCity->UpdateCityYields(eYield);
+					}
+					pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
+					CalculateNetHappiness();
+					pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+					pLoopCity->GetCityCulture()->CalculateBaseTourism();
 				}
-				pLoopCity->UpdateReligion(pLoopCity->GetCityReligions()->GetReligiousMajority());
-				CalculateNetHappiness();
-				pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-				pLoopCity->GetCityCulture()->CalculateBaseTourism();
 			}
 		}
+		//Set it false here so we know the event choice is over now.
+		SetEventChoiceActive(eChosenEventChoice, false);
 	}
 }
 CvString CvPlayer::GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYieldsOnly)
@@ -6527,8 +6652,9 @@ CvString CvPlayer::GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYields
 			}
 			iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iValue /= 100;
-			if(iValue > 0)
-			{					
+			if(iValue != 0)
+			{
+				iValue *= -1;
 				if(yieldCostTip != "")
 				{
 					yieldCostTip += ", ";
@@ -6559,7 +6685,7 @@ CvString CvPlayer::GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYields
 			}
 			iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iValue /= 100;
-			if(iValue > 0)
+			if(iValue != 0)
 			{
 				if(yieldInstantTip != "")
 				{
@@ -6589,7 +6715,7 @@ CvString CvPlayer::GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYields
 			{
 				iValue *= iEra;
 			}
-			if(iValue > 0)
+			if(iValue != 0)
 			{
 				if(yieldCityTip != "")
 				{
@@ -6665,6 +6791,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 			}
 			//Set false so we know we've completed the city event.
 			//Loop through all city events and set any related to this to false, just to be sure.
+			//This is purely for the notification system to keep the icon from disappearing until a choice has been made.
 			if(eEvent == NO_EVENT)
 			{
 				for(int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
@@ -6768,12 +6895,24 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 					return;
 				}
 			}
+			//Succeeded? Set event choice active here so we know to deduct it later.
+			SetEventChoiceActive(eEventChoice, true);
+
+			//Now on to the actions themselves.
 			if(pkEventChoiceInfo->getEventPolicy() != -1)
 			{
 				PolicyTypes ePolicy = (PolicyTypes)pkEventChoiceInfo->getEventPolicy();
 				if(ePolicy != -1)
 				{
 					GetPlayerPolicies()->SetPolicy(ePolicy, true, true);
+				}
+			}
+			if(pkEventChoiceInfo->getEventTech() != -1)
+			{
+				TechTypes eTech = (TechTypes)pkEventChoiceInfo->getEventTech();
+				if(eTech != -1)
+				{
+					GET_TEAM(getTeam()).GetTeamTechs()->SetHasTech(eTech, true);
 				}
 			}
 			if(pkEventChoiceInfo->getEventBuilding() != -1)
@@ -6831,6 +6970,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 							}
 						}
 					}
+					ChangeFreePromotionCount(ePromotion, 1);
 				}
 			}
 			for(int iI = 0; iI < GC.getNumResourceInfos(); iI++)
@@ -6965,6 +7105,58 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 					if(pCity != NULL)
 					{
 						doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, pCity, false, true, true, eYield);
+					}
+				}
+				for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
+				{
+					ImprovementTypes eImprovement = (ImprovementTypes)iJ;
+					if(eImprovement != NO_IMPROVEMENT && pkEventChoiceInfo->getImprovementYield(eImprovement, eYield) != 0)
+					{
+						CvCity *pLoopCity;
+						int iLoop;
+						for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						{
+							pLoopCity->ChangeEventImprovementYield(eImprovement, eYield, pkEventChoiceInfo->getImprovementYield(eImprovement, eYield));
+						}
+					}
+				}
+				for(int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
+				{
+					FeatureTypes eFeature = (FeatureTypes)iJ;
+					if(eFeature != NO_FEATURE && pkEventChoiceInfo->getFeatureYield(eFeature, eYield) != 0)
+					{
+						CvCity *pLoopCity;
+						int iLoop;
+						for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						{
+							pLoopCity->ChangeEventFeatureYield(eFeature, eYield, pkEventChoiceInfo->getFeatureYield(eFeature, eYield));
+						}
+					}
+				}
+				for(int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
+				{
+					TerrainTypes eTerrain = (TerrainTypes)iJ;
+					if(eTerrain != NO_TERRAIN && pkEventChoiceInfo->getTerrainYield(eTerrain, eYield) != 0)
+					{
+						CvCity *pLoopCity;
+						int iLoop;
+						for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						{
+							pLoopCity->ChangeEventTerrainYield(eTerrain, eYield, pkEventChoiceInfo->getTerrainYield(eTerrain, eYield));
+						}
+					}
+				}
+				for(int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
+				{
+					ResourceTypes eResource = (ResourceTypes)iJ;
+					if(eResource != NO_RESOURCE && pkEventChoiceInfo->getResourceYield(eResource, eYield) != 0)
+					{
+						CvCity *pLoopCity;
+						int iLoop;
+						for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+						{
+							pLoopCity->ChangeEventResourceYield(eResource, eYield, pkEventChoiceInfo->getResourceYield(eResource, eYield));
+						}
 					}
 				}
 			}
@@ -7293,7 +7485,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 				if(pkUnitClassInfo)
 				{
-					if(pkEventChoiceInfo->getNumFreeUnits((UnitClassTypes)iI) > 0)
+					if(pkEventChoiceInfo->getNumFreeUnits((UnitClassTypes)iI) <= 0)
 						continue;
 
 					CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
@@ -14099,6 +14291,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	if(pBuildingInfo->GetCorporationHQID() > 0 && GetCorporateFounderID() <= 0)
 	{
 		SetCorporateFounderID(pBuildingInfo->GetCorporationHQID());
+		SetCorporateFoundedTurn(GC.getGame().getGameTurn());
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			Localization::String strMessage;
@@ -14317,12 +14510,6 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			changeCannotFailSpies(pBuildingInfo->GetCannotFailSpies() * iChange);
 		}
 	}
-#endif
-	// Loop through Cities
-	int iLoop;
-	CvCity* pLoopCity;
-	int iBuildingCount;
-#if defined(MOD_BALANCE_CORE)
 	for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
 		YieldTypes eYield = (YieldTypes) iJ;
@@ -14332,16 +14519,19 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			if(eImprovement != NO_IMPROVEMENT)
 			{
 				int iYieldChange = pBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield);
-				if(iYieldChange > 0)
+				if(iYieldChange != 0)
 				{
 					ChangeImprovementExtraYield(eImprovement, eYield, (iYieldChange * iChange));
 				}
 			}
 		}
 	}
-	//Refresh cache data.
-	countNumBuildings(eBuilding, true);
+
 #endif
+	// Loop through Cities
+	int iLoop;
+	CvCity* pLoopCity;
+	int iBuildingCount;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		// Building modifiers
@@ -14356,14 +14546,14 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 				continue;
 			}
 
-			eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+			BuildingTypes eTestBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
 
-			if(eBuilding != NO_BUILDING)
+			if(eTestBuilding != NO_BUILDING)
 			{
-				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eTestBuilding);
 				if(pkBuilding)
 				{
-					iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+					iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eTestBuilding);
 					if(iBuildingCount > 0)
 					{
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
@@ -14406,6 +14596,10 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	//Refresh cache data.
+	countNumBuildings(eBuilding, true);
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -25706,6 +25900,16 @@ void CvPlayer::SetCorporateFounderID(int iChange)
 {
 	m_iCorporateFounderID = iChange;
 }
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetCorporateFoundedTurn() const
+{
+	return m_iCorporateFoundedTurn;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetCorporateFoundedTurn(int iValue)
+{
+	m_iCorporateFoundedTurn = iValue;
+}
 void CvPlayer::DoFreedomCorp()
 {
 	//Are you free enough?!
@@ -25849,6 +26053,88 @@ void CvPlayer::DoFreedomCorp()
 			}
 		}
 	}
+}
+//	--------------------------------------------------------------------------------
+// Returns a string representing our current corporation benefit (if we have one) for the Corporation Overview
+CvString CvPlayer::GetCurrentOfficeBenefit() const
+{
+	int iCorporationID = GetCorporateFounderID();
+	if(iCorporationID <= 0)
+		return "";
+
+	CvString szOfficeBenefit = "";
+
+	// Find Office building
+	CvBuildingEntry* pkOfficeInfo = NULL;
+	for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+	{
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo((BuildingTypes) iI);
+		if(pkBuildingInfo)
+		{
+			if(pkBuildingInfo->GetCorporationHQID() == 0 &&								// Not a headquarters
+				pkBuildingInfo->GetCorporationID() == iCorporationID &&					// Part of our corporation
+				pkBuildingInfo->GetFreeBuildingTradeTargetCity() != NO_BUILDINGCLASS)	// Not a franchise
+			{
+				pkOfficeInfo = pkBuildingInfo;
+				break;
+			}
+		}
+	}
+
+	// No office assigned to this corporation (wth?)
+	if(pkOfficeInfo == NULL)
+		return "";
+
+	// Calculate what our input into the corporation helper we need
+	int iCurrentValue = 0;
+	int iNumFranchises = GetCorporateFranchisesWorldwide();
+	
+	bool bFoundOne = false;
+
+	// Note: only look for one number, if we find one, don't consider others.
+	if(iNumFranchises > 0)
+	{
+		// Civilized Jewelers
+		if(pkOfficeInfo->GetCorporationGPChange() > 0)
+		{
+			iCurrentValue = iNumFranchises * pkOfficeInfo->GetCorporationGPChange();
+			bFoundOne = true;
+		}
+
+		if(!bFoundOne)
+		{
+			// Free Resource?
+			for(int iI=0; iI < GC.getNumResourceInfos(); iI++)
+			{
+				ResourceTypes eResource = (ResourceTypes) iI;
+				if(pkOfficeInfo->GetCorporationResourceQuantity(eResource) > 0)
+				{
+					iCurrentValue = iNumFranchises / pkOfficeInfo->GetCorporationResourceQuantity(eResource);
+					bFoundOne = true;
+					break;
+				}
+			}
+		}
+
+		if(!bFoundOne)
+		{
+			// Yield Change?
+			for(int iI=0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes) iI;
+				if(pkOfficeInfo->GetCorporationYieldChange(eYield) > 0)
+				{
+					iCurrentValue = iNumFranchises * pkOfficeInfo->GetCorporationYieldChange(eYield);
+					bFoundOne = true;
+					break;
+				}
+			}	
+		}
+	}
+
+	szOfficeBenefit = GetLocalizedText(pkOfficeInfo->GetOfficeBenefitHelper(), iCurrentValue);
+
+	return szOfficeBenefit;
 }
 //	--------------------------------------------------------------------------------
 void CvPlayer::CalculateCorporateFranchisesWorldwide()
@@ -31588,6 +31874,21 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 	}
 }
 #endif
+//	--------------------------------------------------------------------------------
+/// Get the monopoly percentage owned for eResource.
+int CvPlayer::GetMonopolyPercent(ResourceTypes eResource) const
+{
+	int iOwnedNumResource = getNumResourceTotal(eResource, false) + getResourceExport(eResource);
+	int iTotalNumResource = GC.getMap().getNumResources(eResource);
+
+	CvAssertMsg(iTotalNumResource > 0, "iTotalNumResource should be greater than zero!");
+
+	if(iTotalNumResource == 0)
+		return 0;
+
+	return (iOwnedNumResource * 100) / iTotalNumResource;
+}
+//	--------------------------------------------------------------------------------
 //	--------------------------------------------------------------------------------
 /// Do we get copies of each type of luxury connected by eFromPlayer?
 int CvPlayer::getSiphonLuxuryCount(PlayerTypes eFromPlayer) const
@@ -40345,8 +40646,10 @@ int CvPlayer::GetHappinessFromVassals() const
 /// Happiness from a Vassal
 int CvPlayer::GetHappinessFromVassal(PlayerTypes ePlayer) const
 {
+	// Do not evaluate dead players (prevents crash)
+	if (!GET_PLAYER(ePlayer).isAlive()) return 0;
+	
 	int iAmount = 0;
-
 	if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
 	{
 		iAmount += GET_PLAYER(ePlayer).GetExcessHappiness() * GC.getVASSAL_HAPPINESS_PERCENT();

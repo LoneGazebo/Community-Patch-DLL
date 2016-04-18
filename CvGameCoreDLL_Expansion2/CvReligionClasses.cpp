@@ -6592,7 +6592,11 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 }
 
 /// Find the city where a missionary should next spread his religion
+#if defined(MOD_BALANCE_CORE)
+CvCity* CvReligionAI::ChooseMissionaryTargetCity(UnitHandle pUnit, int* piTurns)
+#else
 CvCity* CvReligionAI::ChooseMissionaryTargetCity(UnitHandle pUnit)
+#endif
 {
 	ReligionTypes eMyReligion = GetReligionToSpread();
 	int iBestScore = 0;
@@ -6616,7 +6620,11 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(UnitHandle pUnit)
 			{
 				if(pLoopCity && !pLoopCity->GetCityReligions()->IsDefendedAgainstSpread(eMyReligion))
 				{
+#if defined(MOD_BALANCE_CORE)
+					int iScore = ScoreCityForMissionary(pLoopCity, pUnit, piTurns);
+#else
 					int iScore = ScoreCityForMissionary(pLoopCity, pUnit);
+#endif
 					if(iScore > iBestScore)
 					{
 						iBestScore = iScore;
@@ -6633,14 +6641,20 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(UnitHandle pUnit)
 /// Choose a plot next to the target city for the missionary to maneuver to
 CvPlot* CvReligionAI::ChooseMissionaryTargetPlot(UnitHandle pUnit, int* piTurns)
 {
+#if defined(MOD_BALANCE_CORE)
+	CvCity* pCity = ChooseMissionaryTargetCity(pUnit, piTurns);
+#else
 	CvCity* pCity = ChooseMissionaryTargetCity(pUnit);
+#endif
 	int iBestDistance = MAX_INT;
 	CvPlot* pBestTarget = NULL;
 
 	if(pCity == NULL)
 		return NULL;
 
+#if !defined(MOD_BALANCE_CORE)
 	if ( pUnit->GeneratePath(pCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX,piTurns) )
+#endif
 	{
 		// Find adjacent plot
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
@@ -6671,11 +6685,17 @@ CvPlot* CvReligionAI::ChooseMissionaryTargetPlot(UnitHandle pUnit, int* piTurns)
 		return pBestTarget;
 	}
 
+#if !defined(MOD_BALANCE_CORE)
 	return NULL;
+#endif
 }
 
 /// Find the city where an inquisitor should next remove heresy
+#if defined(MOD_BALANCE_CORE)
+CvCity* CvReligionAI::ChooseInquisitorTargetCity(UnitHandle pUnit, int* piTurns)
+#else
 CvCity* CvReligionAI::ChooseInquisitorTargetCity(UnitHandle pUnit)
+#endif
 {
 	ReligionTypes eMyReligion = GetReligionToSpread();
 	int iBestScore = 0;
@@ -6693,7 +6713,11 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(UnitHandle pUnit)
 	{
 		if(pLoopCity)
 		{
+#if defined(MOD_BALANCE_CORE)
+			int iScore = ScoreCityForInquisitor(pLoopCity, pUnit, piTurns);
+#else
 			int iScore = ScoreCityForInquisitor(pLoopCity, pUnit);
+#endif
 			if(iScore > iBestScore)
 			{
 				iBestScore = iScore;
@@ -6721,14 +6745,20 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(UnitHandle pUnit)
 /// Choose a plot next to the target city for the inquisitor to maneuver to
 CvPlot* CvReligionAI::ChooseInquisitorTargetPlot(UnitHandle pUnit, int* piTurns)
 {
+#if defined(MOD_BALANCE_CORE)
+	CvCity* pCity = ChooseInquisitorTargetCity(pUnit, piTurns);
+#else
 	CvCity* pCity = ChooseInquisitorTargetCity(pUnit);
+#endif
 	int iBestDistance = MAX_INT;
 	CvPlot* pBestTarget = NULL;
 
 	if(pCity == NULL)
 		return NULL;
 
+#if !defined(MOD_BALANCE_CORE)
 	if ( pUnit->GeneratePath(pCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX,piTurns) )
+#endif
 	{
 		// Find adjacent plot
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
@@ -6758,8 +6788,9 @@ CvPlot* CvReligionAI::ChooseInquisitorTargetPlot(UnitHandle pUnit, int* piTurns)
 
 		return pBestTarget;
 	}
-
+#if !defined(MOD_BALANCE_CORE)
 	return NULL;
+#endif
 }
 
 /// If we were going to use a prophet to convert a city, which one would it be?
@@ -9269,7 +9300,11 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 }
 
 /// AI's evaluation of this city as a target for a missionary
+#if defined(MOD_BALANCE_CORE)
+int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit, int* piTurns)
+#else
 int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
+#endif
 {
 	int iScore = 0;
 	ReligionTypes eMyReligion = GetReligionToSpread();
@@ -9396,6 +9431,11 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
 	{
 		iScore *= 2;
 	}
+#else
+	if (!pUnit->GeneratePath(pCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX, piTurns) )
+	{
+		return 0;
+	}
 #endif
 
 	// Holy city will anger folks, let's not do that one right away
@@ -9409,7 +9449,11 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
 }
 
 /// AI's evaluation of this city as a target for an inquisitor
+#if defined(MOD_BALANCE_CORE)
+int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, UnitHandle pUnit, int* piTurns)
+#else
 int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, UnitHandle pUnit)
+#endif
 {
 	int iScore = 0;
 	ReligionTypes eMyReligion = GetReligionToSpread();
@@ -9442,7 +9486,12 @@ int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, UnitHandle pUnit)
 	{
 		iScore /= 2;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if (!pUnit->GeneratePath(pCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX, piTurns) )
+	{
+		return 0;
+	}
+#endif
 	return iScore;
 }
 

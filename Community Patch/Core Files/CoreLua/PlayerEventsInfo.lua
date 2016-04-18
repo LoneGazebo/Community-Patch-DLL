@@ -11,7 +11,7 @@ local g_PlayerEventsInstanceManager = InstanceManager:new( "PlayerEventsButton",
 function UpdatePlayerEvents()
 	
 	g_PlayerEventsInstanceManager:ResetInstances();
-
+	local count = 0;
 	local player = Players[Game.GetActivePlayer()];
 	for info in GameInfo.EventChoices() do
 		if(player:IsEventChoiceActive(info.ID)) then
@@ -22,17 +22,23 @@ function UpdatePlayerEvents()
 			end
 			if pEventInfo then
 				print("Found an event choice")
+				count = count+1;
 				local DescStr = ""				
 				if(pEventInfo.Description ~= nil) then
 					DescStr = Locale.Lookup(pEventInfo.Description)
 				else
 					DescStr = Locale.Lookup(info.Description)
 				end
-				local HelpStr = Locale.ConvertTextKey(info.Help)
+				local HelpStr = Locale.ConvertTextKey(player:GetScaledEventChoiceValue(info.ID))
 				local duration = player:GetEventChoiceCooldown(info.ID)
 				AddPlayerEventsButton(DescStr, HelpStr, duration);
 			end
 		end
+	end
+	if(count > 0) then
+		Controls.NoPlayerEvents:SetHide(true);
+	else
+		Controls.NoPlayerEvents:SetHide(false);
 	end
 	
 	Controls.PlayerEventsButtonStack:CalculateSize();
@@ -49,9 +55,9 @@ function AddPlayerEventsButton( DescStr, HelpStr, duration )
 	local controlTable = g_PlayerEventsInstanceManager:GetInstance();
 	controlTable.PlayerEventsHelpText:SetText(HelpStr);	
 	if(duration > 0) then
-		controlTable.PlayerEventsText:SetText(DescStr .. " (" .. Locale.ConvertTextKey("TXT_KEY_TP_TURNS_REMAINING", duration) .. ")");
+		controlTable.PlayerEventsText:SetText("[COLOR_CYAN]" .. DescStr .. "[ENDCOLOR]" .. " (" .. Locale.ConvertTextKey("TXT_KEY_TP_TURNS_REMAINING", duration) .. ")");
 	else
-		controlTable.PlayerEventsText:SetText(DescStr);
+		controlTable.PlayerEventsText:SetText("[COLOR_CYAN]" .. DescStr .. "[ENDCOLOR]");
 	end
     
     controlTable.TextStack:CalculateSize();

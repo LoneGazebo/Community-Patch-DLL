@@ -871,6 +871,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			}
 		}
 	}
+	//Tiny army? Eek!
+	if(kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 3))
+	{
+		iBonus -= 100;
+	}
 
 	///////
 	///Era Difference
@@ -899,8 +904,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		int iGPT = (int)kPlayer.GetTreasury()->AverageIncome(10);
 		if(iGPT < 0)
 		{
-			//Every -1 GPT = -3% bonus
-			iBonus += (iGPT * 3);
+			//Every -1 GPT = -7% bonus
+			iBonus += (iGPT * 7);
 		}
 	}
 	
