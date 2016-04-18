@@ -3312,19 +3312,23 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 //	---------------------------------------------------------------------------
 int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const
 {
-	if (plotDistance(*this,*pFromPlot)>1)
-		return pUnit->maxMoves();
+	int iMaxMoves = pUnit->baseMoves( getDomain() )*GC.getMOVE_DENOMINATOR();
 
-	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iMovesRemaining);
+	if (plotDistance(*this,*pFromPlot)>1)
+		return iMaxMoves;
+
+	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iMovesRemaining, iMaxMoves);
 }
 
 //	---------------------------------------------------------------------------
 int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const
 {
-	if (plotDistance(*this,*pFromPlot)>1)
-		return pUnit->maxMoves();
+	int iMaxMoves = pUnit->baseMoves( getDomain() )*GC.getMOVE_DENOMINATOR();
 
-	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iMovesRemaining);
+	if (plotDistance(*this,*pFromPlot)>1)
+		return iMaxMoves;
+
+	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iMovesRemaining, iMaxMoves);
 }
 
 //	--------------------------------------------------------------------------------
@@ -3358,7 +3362,7 @@ bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
         if (pUnit->getDomainType()==DOMAIN_LAND)
         {
 #endif      
-            return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canLoad(*this);
+            return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain();
         }
         else
             return false;

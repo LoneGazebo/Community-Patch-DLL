@@ -116,12 +116,12 @@ const char* CvDllNetInitInfo::GetDebugString()
 	        "m_eEra=%d "\
 	        "m_eCalendar=%d "\
 	        "m_iGameTurn=%d "\
-					"m_bGameStarted=%i "\
+			"m_bGameStarted=%d "\
 	        "m_eGameSpeed=%d "\
 	        "m_eTurnTimer=%d "\
 	        "m_szGameName=\"%s\" "\
-	        "m_uiSyncRandSeed=%d "\
-	        "m_uiMapRandSeed=%d"
+	        "m_uiSyncRandSeed=%u "\
+	        "m_uiMapRandSeed=%u"
 	        , CvPreGame::loadFileName().c_str()
 	        , CvPreGame::mapScriptName().c_str()
 	        , CvPreGame::mapNoPlayers() ? "true" : "false"
@@ -131,7 +131,7 @@ const char* CvDllNetInitInfo::GetDebugString()
 	        , static_cast<int>(CvPreGame::era())
 	        , static_cast<int>(CvPreGame::calendar())
 	        , CvPreGame::gameTurn()
-					, CvPreGame::gameStarted()
+			, static_cast<int>(CvPreGame::gameStarted())
 	        , static_cast<int>(CvPreGame::gameSpeed())
 	        , static_cast<int>(CvPreGame::turnTimer())
 	        , CvPreGame::gameName().c_str()

@@ -93,7 +93,7 @@ private:
 std::vector<SLogNode> svPathLog;
 
 //debugging help
-void dumpNodeList(CvAStarNode* pNode)
+void DumpNodeList(CvAStarNode* pNode)
 {
 	while (pNode)
 	{
@@ -103,11 +103,9 @@ void dumpNodeList(CvAStarNode* pNode)
 }
 
 //returns true when we should prefer pTest over pRef
-bool NodeCmpSmaller(const CvAStarNode* pTest, const CvAStarNode* pRef)
+inline bool NodeCmpSmaller(const CvAStarNode* pTest, const CvAStarNode* pRef)
 {
-	return (pTest->m_iTotalCost < pRef->m_iTotalCost) || 
-		((pTest->m_iTotalCost == pRef->m_iTotalCost) && (pTest->m_iTurns < pRef->m_iTurns)) ||
-		((pTest->m_iTotalCost == pRef->m_iTotalCost) && (pTest->m_iTurns == pRef->m_iTurns) && (pTest->m_iMoves > pRef->m_iMoves));
+	return (pTest->m_iTotalCost < pRef->m_iTotalCost);
 }
 
 //	--------------------------------------------------------------------------------
@@ -1243,10 +1241,12 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPat
 		iMovementCost = iStartMoves;
 	else
 	{
+		int iMaxMoves = pCacheData->baseMoves(pToPlot->getDomain())*GC.getMOVE_DENOMINATOR();
+
 		if (bCheckZOC)
-			iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iStartMoves);
+			iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves);
 		else
-			iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iStartMoves);
+			iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves);
 	}
 
 	// how much is left over?

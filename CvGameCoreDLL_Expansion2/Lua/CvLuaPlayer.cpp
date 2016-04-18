@@ -1955,13 +1955,13 @@ int CvLuaPlayer::lCanGetGoody(lua_State* L)
 //bool canFound(int iX, int iY);
 int CvLuaPlayer::lCanFound(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::canFound);
+	return BasicLuaMethod<bool,int,int>(L, &CvPlayerAI::canFound);
 }
 //------------------------------------------------------------------------------
 //void found(int iX, int iY);
 int CvLuaPlayer::lFound(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::found);
+	return BasicLuaMethod<int,int>(L, &CvPlayerAI::found);
 }
 
 //------------------------------------------------------------------------------

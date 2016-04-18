@@ -263,23 +263,22 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 }
 
 //	---------------------------------------------------------------------------
-int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining)
+int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves)
 {
 	if(IsSlowedByZOC(pUnit, pFromPlot, pToPlot))
 		return iMovesRemaining;
 
-	return MovementCostNoZOC(pUnit,pFromPlot,pToPlot,iMovesRemaining);
+	return MovementCostNoZOC(pUnit,pFromPlot,pToPlot,iMovesRemaining,iMaxMoves);
 }
 
 //	---------------------------------------------------------------------------
-int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining)
+int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves)
 {
 	int iCost = GetCostsForMove(pUnit, pFromPlot, pToPlot);
 
 	//now, if there was a domain change, our base moves might change
 	//make sure that the movement cost is always so high that we never end up with more than the base moves for the new domain
 	int iLeftOverMoves = iMovesRemaining-iCost;
-	int iMaxMoves = pUnit->baseMoves( pToPlot->getDomain() )*GC.getMOVE_DENOMINATOR();
 	if ( iLeftOverMoves > iMaxMoves )
 		iCost += (iLeftOverMoves-iMaxMoves);
 
