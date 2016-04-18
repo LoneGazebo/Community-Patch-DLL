@@ -663,13 +663,8 @@ private:
 	int ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity);
 	int ScoreBeliefForPlayer(CvBeliefEntry* pEntry);
 
-#if defined(MOD_BALANCE_CORE)
-	int ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit, int* piTurns = NULL);
-	int ScoreCityForInquisitor(CvCity* pCity, UnitHandle pUnit, int* piTurns = NULL);
-#else
 	int ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit);
 	int ScoreCityForInquisitor(CvCity* pCity, UnitHandle pUnit);
-#endif
 
 	bool ShouldBecomeNewMajority(CvCity* pCity, ReligionTypes eReligion, int iNewPressure) const;
 	bool AreAllOurCitiesConverted(ReligionTypes eReligion, bool bIncludePuppets) const;
