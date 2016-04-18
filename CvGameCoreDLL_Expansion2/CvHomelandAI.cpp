@@ -706,26 +706,16 @@ void CvHomelandAI::FindHomelandTargets()
 			// ... naval resource?
 			else if(pLoopPlot->isWater() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 			{
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_FIX_FISHING_BOATS)
 				ResourceTypes eNonObsoleteResource = pLoopPlot->getResourceType(eTeam);
 				if(eNonObsoleteResource != NO_RESOURCE)
 				{
 					if(pLoopPlot->getOwner() == m_pPlayer->GetID())
 					{
-#else
-				ResourceTypes eNonObsoleteResource = pLoopPlot->getNonObsoleteResourceType(eTeam);
-
-				if(eNonObsoleteResource != NO_RESOURCE)
-				{
-					CvCity* pWorkingCity = pLoopPlot->getWorkingCity();
-					if(NULL != pWorkingCity && pWorkingCity->getOwner() == m_pPlayer->GetID())
-					{
-#endif
 						// Find proper improvement
 						BuildTypes eBuild;
 						for(int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
 						{
-							// we've already checked for pLoopPlot is water and builds on sea tiles are a Resource Trade no need for an additional check, we just need to know if we can build it or not - Iamblichos
 							eBuild = ((BuildTypes)iJ);
 							if(eBuild != NO_BUILD)
 							{
@@ -734,13 +724,42 @@ void CvHomelandAI::FindHomelandTargets()
 								newTarget.SetTargetY(pLoopPlot->getY());
 								newTarget.SetAuxData(pLoopPlot);
 								newTarget.SetAuxIntData(eBuild);
-								m_TargetedNavalResources.push_back(newTarget);								
-								//why break, just build all builds available that we can.
+								m_TargetedNavalResources.push_back(newTarget);
 							}
 						}
 					}
 				}
 			}
+#else
+				ResourceTypes eNonObsoleteResource = pLoopPlot->getNonObsoleteResourceType(eTeam);
+				if(eNonObsoleteResource != NO_RESOURCE)
+				{
+					CvCity* pWorkingCity = pLoopPlot->getWorkingCity();
+					if(NULL != pWorkingCity && pWorkingCity->getOwner() == m_pPlayer->GetID())
+					{
+						BuildTypes eBuild;
+    					for(int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)  
+    					{
+							eBuild = ((BuildTypes)iJ);
+							CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+							if(pkBuildInfo && pkBuildInfo->getImprovement() != NO_IMPROVEMENT && pkBuildInfo->IsWater())
+							{
+								if(GC.getImprovementInfo((ImprovementTypes) GC.getBuildInfo(eBuild)->getImprovement())->IsImprovementResourceTrade(eNonObsoleteResource))
+								{
+									newTarget.SetTargetType(AI_HOMELAND_TARGET_NAVAL_RESOURCE);
+									newTarget.SetTargetX(pLoopPlot->getX());
+									newTarget.SetTargetY(pLoopPlot->getY());
+									newTarget.SetAuxData(pLoopPlot);
+									newTarget.SetAuxIntData((int)eBuild);
+									m_TargetedNavalResources.push_back(newTarget);
+									break;
+								}
+							}
+						}
+					}
+				}
+
+#endif
 			// ... unpopped goody hut?
 			else if(!m_pPlayer->isMinorCiv() && pLoopPlot->isGoody())
 			{
