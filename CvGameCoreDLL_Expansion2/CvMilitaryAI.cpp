@@ -2070,7 +2070,7 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(PlayerTypes eEnemy, CvMilitaryTar
 
 	//don't do the pathfinding again, rely on the trade route cache.
 	SPath landpath;
-	if (GC.getGame().GetGameTrade()->IsValidTradeRoutePath(target.m_pMusterCity,target.m_pTargetCity,DOMAIN_LAND,&landpath, true))
+	if (GC.getGame().GetGameTrade()->IsValidTradeRoutePath(target.m_pMusterCity,target.m_pTargetCity,DOMAIN_LAND,&landpath,false))
 	{
 		int iEnemyPlots = 0;
 		for (size_t i=0; i<landpath.vPlots.size(); i++)
@@ -2090,7 +2090,7 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(PlayerTypes eEnemy, CvMilitaryTar
 		{
 			//don't do the pathfinding again, rely on the trade route cache.
 			SPath waterpath;
-			if (GC.getGame().GetGameTrade()->IsValidTradeRoutePath(target.m_pMusterCity,target.m_pTargetCity,DOMAIN_SEA,&waterpath, true))
+			if (GC.getGame().GetGameTrade()->IsValidTradeRoutePath(target.m_pMusterCity,target.m_pTargetCity,DOMAIN_SEA,&waterpath,false))
 			{
 				// find out the effective path length and check if we need to cross the high seas
 				int iEnemyPlots = 0;
@@ -7018,7 +7018,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 
 				if ( !(pMusterCity->isCoastal() || pTargetCity->isCoastal()) ||
 					 !(pMusterCity->waterArea() == pTargetCity->waterArea()) ||
-					 (!GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pMusterCity,pTargetCity,DOMAIN_SEA)) )
+					 (!GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pMusterCity,pTargetCity,DOMAIN_SEA,NULL,false)) )
 				{
 					if(GC.getLogging() && GC.getAILogging())
 					{

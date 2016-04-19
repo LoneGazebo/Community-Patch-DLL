@@ -86,7 +86,7 @@ void CvGameTrade::DoTurn (void)
 }
 
 // helper function
-bool HaveTradePath(const TradePathLookup& cache, int iCityA, int iCityB)
+bool HaveTradePathInCache(const TradePathLookup& cache, int iCityA, int iCityB)
 {
 	TradePathLookup::const_iterator itA = cache.find(iCityA);
 	if (itA!=cache.end())
@@ -99,7 +99,7 @@ bool HaveTradePath(const TradePathLookup& cache, int iCityA, int iCityB)
 }
 
 // helper function
-bool AddTradePath(TradePathLookup& cache, int iCityA, int iCityB, const SPath& path)
+bool AddTradePathToCache(TradePathLookup& cache, int iCityA, int iCityB, const SPath& path)
 {
 	TradePathLookup::const_iterator itA = cache.find(iCityA);
 	if (itA!=cache.end())
@@ -120,12 +120,22 @@ bool AddTradePath(TradePathLookup& cache, int iCityA, int iCityB, const SPath& p
 	return false;
 }
 
-bool CvGameTrade::HaveTradePath(bool bWater, int iCityA, int iCityB, SPath* pPathOut)
+bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, SPath* pPathOut)
 {
+	if (!pOriginCity || !pDestCity)
+		return false;
+
 	//can't use const here, otherwise the [] operator does not work ...
 	TradePathLookup& cache = bWater ? m_aPotentialTradePathsWater : m_aPotentialTradePathsLand;
 
-	if (::HaveTradePath(cache, iCityA, iCityB))
+	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
+
+	//important. see which trade paths are valid
+	UpdateTradePathCache(eOriginPlayer);
+
+	int iCityA = pOriginCity->GetID();
+	int iCityB = pDestCity->GetID();
+	if (HaveTradePathInCache(cache, iCityA, iCityB))
 	{
 		if (pPathOut)
 			*pPathOut = cache[iCityA][iCityB];
@@ -134,16 +144,15 @@ bool CvGameTrade::HaveTradePath(bool bWater, int iCityA, int iCityB, SPath* pPat
 
 	return false;
 }
-#if defined(MOD_BALANCE_CORE)
-void CvGameTrade::UpdateTradePathCache(uint iPlayer1, bool bWarCheck)
-#else
+
 void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
-#endif
 {
 	//check if we have anything to do
 	std::map<uint,int>::iterator lastUpdate = m_lastTradePathUpdate.find(iPlayer1);
 	if (lastUpdate!=m_lastTradePathUpdate.end() && lastUpdate->second==GC.getGame().getGameTurn())
 		return;
+
+	OutputDebugString(CvString::format("updating trade path cache for player %d, turn %d\n", iPlayer1, GC.getGame().getGameTurn()).c_str());
 
 	CvPlayer& kPlayer1 = GET_PLAYER((PlayerTypes)iPlayer1);
 	if (!kPlayer1.isAlive() || kPlayer1.isBarbarian())
@@ -179,13 +188,8 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 
 		if (!GET_TEAM(kPlayer1.getTeam()).isHasMet(kPlayer2.getTeam()))
 			continue;
-		
-#if defined(MOD_BALANCE_CORE)
-		if (!bWarCheck && kPlayer1.IsAtWarWith((PlayerTypes)iPlayer2))
-#else
-			continue;
-#endif
-			continue;
+
+		//do not check whether we are at war! the trade route cache is also used for military target selection
 
 		int iOriginCityLoop;
 		for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
@@ -204,7 +208,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 
 					//is the old path still good?
 					bool bReusePath = false;
-					if (::HaveTradePath(previousPathsWater,pOriginCity->GetID(),pDestCity->GetID()))
+					if (HaveTradePathInCache(previousPathsWater,pOriginCity->GetID(),pDestCity->GetID()))
 					{
 						const SPath& previousPath = previousPathsWater[pOriginCity->GetID()][pDestCity->GetID()];
 
@@ -212,7 +216,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 						//tricky: if the destination is out of reach, we need to re-check if that has changed (might have build a road or a shortcut fort)
 						if (previousPath.iNormalizedDistance<=iMaxNormDist && GC.GetStepFinder().VerifyPath(previousPath))
 						{
-							AddTradePath(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
+							AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
 							bReusePath = true;
 						}
 					}
@@ -223,7 +227,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 						SPathFinderUserData data((PlayerTypes)iPlayer1,PT_TRADE_WATER);
 						data.iMaxNormalizedDistance = iMaxNormDist;
 						if (GC.GetStepFinder().GeneratePath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data))
-							AddTradePath(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),GC.GetStepFinder().GetPath());
+							AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),GC.GetStepFinder().GetPath());
 					}
 				}
 					
@@ -234,7 +238,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 
 					//is the old path still good?
 					bool bReusePath = false;
-					if (::HaveTradePath(previousPathsLand,pOriginCity->GetID(),pDestCity->GetID()))
+					if (HaveTradePathInCache(previousPathsLand,pOriginCity->GetID(),pDestCity->GetID()))
 					{
 						const SPath& previousPath = previousPathsLand[pOriginCity->GetID()][pDestCity->GetID()];
 
@@ -242,7 +246,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 						//tricky: if the destination is out of reach, we need to re-check if that has changed (might have build a road or a shortcut fort)
 						if (previousPath.iNormalizedDistance<=iMaxNormDist && GC.GetStepFinder().VerifyPath(previousPath))
 						{
-							AddTradePath(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
+							AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
 							bReusePath = true;
 						}
 					}
@@ -253,7 +257,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 						SPathFinderUserData data((PlayerTypes)iPlayer1,PT_TRADE_LAND);
 						data.iMaxNormalizedDistance = iMaxNormDist;
 						if (GC.GetStepFinder().GeneratePath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data))
-							AddTradePath(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),GC.GetStepFinder().GetPath());
+							AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),GC.GetStepFinder().GetPath());
 					}
 				}
 			}
@@ -534,7 +538,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 
 			//update the current path, might be better than what we have
 			path = GC.GetStepFinder().GetPath();
-			AddTradePath(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),path);
+			AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),path);
 		}
 	}
 	else if (eDomain == DOMAIN_LAND)
@@ -550,7 +554,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 
 		//update the current path, might be better than what we have
 		path = GC.GetStepFinder().GetPath();
-		AddTradePath(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),path);
+		AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),path);
 	}
 
 	int iNewTradeRouteIndex = GetEmptyTradeRouteIndex();
@@ -757,31 +761,20 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 bool CvGameTrade::IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPath, bool bWarCheck)
-#else
-bool CvGameTrade::IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPath)
-#endif
 {
-	// AI_PERF_FORMAT("Trade-route-perf.csv", ("CvGameTrade::IsValidTradeRoutePath, Turn %03d, %s, %s, %d, %d, %s, %d, %d", GC.getGame().getElapsedGameTurns(), pOriginCity->GetPlayer()->getCivilizationShortDescription(), pOriginCity->getName().c_str(), pOriginCity->getX(), pOriginCity->getY(), pDestCity->getName().c_str(), pDestCity->getX(), pDestCity->getY()) );
-	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
-
-	//important. see which trade paths are valid
-#if defined(MOD_BALANCE_CORE)
-	UpdateTradePathCache(eOriginPlayer, bWarCheck);
-#else
-	UpdateTradePathCache(eOriginPlayer);
-#endif
-
 	SPath path;
 	//if we did not get an external pointer, make up our own
 	if (!pPath)
 		pPath = &path;
 
-	if (HaveTradePath(eDomain==DOMAIN_SEA,pOriginCity->GetID(),pDestCity->GetID(),pPath))
+	if (bWarCheck && GET_PLAYER(pOriginCity->getOwner()).IsAtWarWith(pDestCity->getOwner()))
+		return false;
+
+	if (HavePotentialTradePath(eDomain==DOMAIN_SEA,pOriginCity,pDestCity,pPath))
 	{
 		// check if beyond the origin player's trade range
-		int iMaxNormDist = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity);
+		int iMaxNormDist = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity);
 
 		int iNormDist = pPath->iNormalizedDistance;
 		if (iNormDist>0 && iNormDist<=iMaxNormDist)
@@ -5527,14 +5520,13 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList)
 			eOtherPlayer = (PlayerTypes)ui;
 
 			if (!GET_PLAYER(eOtherPlayer).isAlive())
-			{
 				continue;
-			}
 
 			if (GET_PLAYER(eOtherPlayer).isBarbarian())
-			{
 				continue;
-			}
+
+			if (m_pPlayer->IsAtWarWith(eOtherPlayer))
+				continue;
 
 			int iDestCityLoop;
 			CvCity* pDestCity = NULL;
@@ -6845,7 +6837,7 @@ bool CvTradeAI::ChooseTradeUnitTargetPlot(CvUnit* pUnit, int& iOriginPlotIndex, 
 	}
 
 	CvPlayerTrade* pkTradeAI = m_pPlayer->GetTrade();
-	//CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
+
 	uint uiNumDuplicateTRs = 0;
 	uint uiNumTradeRoutesPossible =  pkTradeAI->GetNumTradeRoutesPossible();
 	uint uiNumTradeConnections = aTradeConnections.size();

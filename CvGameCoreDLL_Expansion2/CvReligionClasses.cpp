@@ -3042,17 +3042,14 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 		iMaxDistance /= 100;
 	}
 
-	//important. make sure the cache is up to date
-	GC.getGame().GetGameTrade()->UpdateTradePathCache(pFromCity->getOwner());
-
 	//estimate the distance between the cities from the traderoute cost. will be influences by terrain features, routes, open borders etc
 	int iApparentDistance = INT_MAX;
 	SPath path;
-	if ( GC.getGame().GetGameTrade()->HaveTradePath( false,pFromCity->GetID(),pToCity->GetID(),&path) )
+	if ( GC.getGame().GetGameTrade()->HavePotentialTradePath( false,pFromCity,pToCity,&path) )
 	{
 		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance );
 	}
-	if ( GC.getGame().GetGameTrade()->HaveTradePath( true,pFromCity->GetID(),pToCity->GetID(),&path) )
+	if ( GC.getGame().GetGameTrade()->HavePotentialTradePath( true,pFromCity,pToCity,&path) )
 	{
 		iApparentDistance = min(iApparentDistance, path.iNormalizedDistance );
 	}
