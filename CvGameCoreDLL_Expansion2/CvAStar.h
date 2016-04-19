@@ -17,7 +17,8 @@
 #define		CVASTAR_H
 #pragma		once
 
-#include	"CvAStarNode.h"
+#include "CvAStarNode.h"
+#include <queue>
 
 class CvUnit;
 class CvPlot;
@@ -263,20 +264,16 @@ protected:
 		CvAStarConst1Func CostFunc, CvAStarConst2Func ValidFunc, CvAStarFunc NotifyChildFunc, CvAStarFunc NotifyListFunc, 
 		CvANumExtraChildren NumExtraChildrenFunc, CvAGetExtraChild GetExtraChildFunc, CvABegin InitializeFunc, CvAEnd UninitializeFunc);
 
-	void    Reset()
-	{
-		m_pBest = NULL;
-	}
+	void Reset();
 
-	CvAStarNode*	GetBest();
+	CvAStarNode* GetBest();
 
 	void CreateChildren(CvAStarNode* node);
 	NodeState LinkChild(CvAStarNode* node, CvAStarNode* check);
-	void UpdateOpenNode(CvAStarNode* node);
 	void UpdateParents(CvAStarNode* node);
 
-	void Push(CvAStarNode* node);
-	CvAStarNode* Pop();
+	void StackPush(CvAStarNode* node);
+	CvAStarNode* StackPop();
 
 	inline int xRange(int iX) const;
 	inline int yRange(int iY) const;
@@ -316,11 +313,14 @@ protected:
 	bool m_bWrapX;
 	bool m_bWrapY;
 
-	CvAStarNode* m_pOpen;           // The open list
-	CvAStarNode* m_pOpenTail;       // The open list tail pointer (to speed up inserts)
-	CvAStarNode* m_pClosed;         // The closed list
-	CvAStarNode* m_pBest;           // The best node
-	CvAStarNode* m_pStackHead;		// The Push/Pop stack head
+	//vector performance is better than lists!
+	std::vector<CvAStarNode*> m_openNodes;
+	std::vector<CvAStarNode*> m_closedNodes;
+
+	// The best node - just popped from open nodes. walking backwards from here gives the current path
+	CvAStarNode* m_pBest;
+	// A stack for outstanding nodes to be updated
+	CvAStarNode* m_pStackHead;
 
 	int m_iProcessedNodes;			// for statistics
 	int m_iTestedNodes;
