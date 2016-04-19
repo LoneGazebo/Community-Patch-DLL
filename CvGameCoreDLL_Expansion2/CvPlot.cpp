@@ -6899,10 +6899,11 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 			}
 		}
 
-		GET_PLAYER(getOwner()).countCityFeatures(eOldFeature, true);
-		if(eNewValue != NO_FEATURE)
+		if (getOwner()!=NO_PLAYER)
 		{
-			GET_PLAYER(getOwner()).countCityFeatures(eNewValue, true);
+			GET_PLAYER(getOwner()).countCityFeatures(eOldFeature, true);
+			if(eNewValue != NO_FEATURE)
+				GET_PLAYER(getOwner()).countCityFeatures(eNewValue, true);
 		}
 #endif
 

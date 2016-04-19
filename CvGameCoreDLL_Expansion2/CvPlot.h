@@ -269,8 +269,14 @@ public:
 
 	bool isCity() const
 	{
-		if((m_plotCity.eOwner >= 0) && m_plotCity.eOwner < MAX_PLAYERS)
-			return (GET_PLAYER((PlayerTypes)m_plotCity.eOwner).getCity(m_plotCity.iID)) != NULL;
+		if((m_plotCity.eOwner >= 0) && m_plotCity.eOwner < MAX_PLAYERS && m_plotCity.iID>0)
+		{
+#if defined(MOD_CORE_DEBUGGING)
+			 if (MOD_CORE_DEBUGGING && (GET_PLAYER((PlayerTypes)m_plotCity.eOwner).getCity(m_plotCity.iID)) == NULL)
+				 OutputDebugString("warning: inconsistent plot state! bad city ID.");
+#endif
+			 return true;
+		}
 
 		return false;
 	}

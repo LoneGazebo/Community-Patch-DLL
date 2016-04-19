@@ -8315,6 +8315,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 	}
 	int iUsRevealed = 0;
 	int iThemRevealed = 0;
+	int iNumTeams = GC.getGame().countCivTeamsAlive();
 
 	CvPlot* pPlot;
 	// Look at every tile on map
@@ -8442,7 +8443,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 		// Modifier based on uniqueness
 		CvAssertMsg(GC.getGame().countCivTeamsAlive() != 0, "CvDealAI: Civ Team count equals zero...");
 
-		int iModifier = (GC.getGame().countCivTeamsAlive() - iNumRevealed) * 100 / GC.getGame().countCivTeamsAlive();
+		int iModifier = (iNumTeams - iNumRevealed) * 100 / iNumTeams;
 
 		if(iModifier < 50)
 			iModifier = 50;

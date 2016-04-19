@@ -34063,7 +34063,10 @@ CvArmyAI* CvPlayer::getArmyAI(int iID)
 //	--------------------------------------------------------------------------------
 CvArmyAI* CvPlayer::addArmyAI()
 {
-	return ((CvArmyAI*)(m_armyAIs.Add()));
+	CvArmyAI* pArmy = m_armyAIs.Add();
+	if (pArmy)
+		pArmy->SetOwner(m_eID);
+	return pArmy;
 }
 
 

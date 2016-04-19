@@ -29,21 +29,13 @@
 /// Constructor
 CvArmyAI::CvArmyAI()
 {
-	Reset(0, NO_PLAYER, true);
+	Reset();
 }
 
 /// Destructor
 CvArmyAI::~CvArmyAI()
 {
 	Uninit();
-}
-
-/// Initialize
-void CvArmyAI::Init(int iID, PlayerTypes eOwner, int iOperationID)
-{
-	//--------------------------------
-	// Init saved data
-	Reset(iID, eOwner, iOperationID);
 }
 
 /// Deallocate memory
@@ -53,7 +45,7 @@ void CvArmyAI::Uninit()
 }
 
 /// Initializes data members that are serialize
-void CvArmyAI::Reset(int iID, PlayerTypes eOwner, int iOperationID, bool /* bConstructorCall */)
+void CvArmyAI::Reset(int iID, PlayerTypes eOwner, int iOperationID)
 {
 	//--------------------------------
 	// Uninit class
