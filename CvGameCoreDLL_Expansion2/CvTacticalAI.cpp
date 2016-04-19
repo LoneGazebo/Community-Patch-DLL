@@ -12611,8 +12611,9 @@ int TacticalAIHelpers::GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pSt
 
 	SPathFinderUserData data(pUnit,iFlags,1);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
-	if ( GC.GetPathFinder().GeneratePath(pStartPlot->getX(),pStartPlot->getY(),-1,-1,data) )
-		resultSet = GC.GetPathFinder().GetPlotsTouched(iMinMovesLeft);
+	//return value is always false, there is no destination to reach!	
+	GC.GetPathFinder().GeneratePath(pStartPlot->getX(),pStartPlot->getY(),-1,-1,data);
+	resultSet = GC.GetPathFinder().GetPlotsTouched(iMinMovesLeft);
 
 	return (int)resultSet.size();
 }

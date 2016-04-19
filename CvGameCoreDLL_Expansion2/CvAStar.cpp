@@ -310,7 +310,7 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	CvAStarNode* temp = &(m_ppaaNodes[iXstart][iYstart]);
 	temp->clear();
 	temp->m_iKnownCost = 0;
-	if(udHeuristic)
+	if(udHeuristic && isValid(m_iXdest, m_iYdest))
 	{
 		temp->m_iHeuristicCost = udHeuristic(m_iXstart, m_iYstart, m_iXstart, m_iYstart, m_iXdest, m_iYdest);
 		temp->m_iTotalCost = temp->m_iHeuristicCost;
