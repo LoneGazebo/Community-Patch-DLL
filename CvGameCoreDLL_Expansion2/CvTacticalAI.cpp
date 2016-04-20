@@ -12601,7 +12601,7 @@ int TacticalAIHelpers::GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pSt
 
 	resultSet.clear();
 
-	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS;
+	int iFlags = CvUnit::MOVEFLAG_ATTACK | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS;
 	if (!bCheckTerritory)
 		iFlags |= CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
 	if (!bCheckZOC)

@@ -1202,14 +1202,11 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 	CvPlot* pFromPlot = theMap.plotUnchecked(parent->m_iX, parent->m_iY);
 	CvPlot* pToPlot = theMap.plotUnchecked(node->m_iX, node->m_iY);
 	bool bIsDestination = finder->IsPathDest(node->m_iX,node->m_iY);
-	int iMoveFlags = 0;
+	int iMoveFlags = finder->GetData().iFlags;
 
 	//some checks about units etc. they need to be visible, else we leak information in the UI
 	if (kToNodeCacheData.bPlotVisibleToTeam)
 	{
-		if(!bCheckStacking) 
-			iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
-
 		//special checks for last node - similar as in PathDestValid
 		if (bIsDestination)
 		{

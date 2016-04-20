@@ -137,6 +137,7 @@ class CvResolutionEntry;
 class CvResolutionXMLEntries;
 class CvDeal;
 class CvNetMessageHandler;
+class CvDiploModifierInfo;
 
 class CvDLLInterfaceIFaceBase;
 class ICvDLLDatabaseUtility1;

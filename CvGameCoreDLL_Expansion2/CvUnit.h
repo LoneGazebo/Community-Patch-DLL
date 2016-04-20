@@ -798,7 +798,7 @@ public:
 	void setXY(int iX, int iY, bool bGroup = false, bool bUpdate = true, bool bShow = false, bool bCheckPlotVisible = false, bool bNoMove = false);
 	bool at(int iX, int iY) const;
 	bool atPlot(const CvPlot& plot) const;
-	CvPlot* plot() const;
+	inline CvPlot* plot() const;
 	int getArea() const;
 	CvArea* area() const;
 	bool onMap() const;
