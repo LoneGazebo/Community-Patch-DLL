@@ -20770,18 +20770,12 @@ void CvCity::TestBastion()
 	//Check to see if this is a city we really need to defend.
 	if(isCapital())
 	{
-		if(!IsBastion())
-		{
-			SetBastion(true);
-		}
+		SetBastion(true);
 		return;
 	}
 	if(plot()->IsChokePoint() || plot()->IsLandbridge(12, 54))
 	{
-		if(!IsBastion())
-		{
-			SetBastion(true);
-		}
+		SetBastion(true);
 		return;
 	}
 	//Coastal and we can embark across oceans? Check for lake, otherwise make a bastion (better safe than sorry).
@@ -20792,10 +20786,7 @@ void CvCity::TestBastion()
 		{
 			if(!GetCityStrategyAI()->IsUsingCityStrategy(eStrategyLakeBound))
 			{
-				if(!IsBastion())
-				{
-					SetBastion(true);
-				}
+				SetBastion(true);
 				return;
 			}
 		}
@@ -20807,10 +20798,7 @@ void CvCity::TestBastion()
 		{
 			if(plot()->IsHomeFrontForPlayer(eLoopPlayer))
 			{
-				if(!IsBastion())
-				{
-					SetBastion(true);
-				}
+				SetBastion(true);
 				return;
 			}
 		}
@@ -20828,6 +20816,7 @@ void CvCity::SetBastion(bool bValue)
 	VALIDATE_OBJECT
 	m_bIsBastion = bValue;
 }
+
 void CvCity::DoBarbIncursion()
 {
 	if(GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
@@ -20841,15 +20830,11 @@ void CvCity::DoBarbIncursion()
 		{
 			CvBarbarians::DoSpawnBarbarianUnit(plot(), false, false);
 			CvBarbarians::DoCityActivationNotice(plot());
-				
-			//Grow and strengthen, my precious!
-			changePopulation(1);
-			setFood((growthThreshold() - 10));				
 		
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
-				strLogString.Format("Unit spawned in barbarian city of %s. City grows by 1. X: %d, Y: %d", getName().c_str(), getX(), getY());
+				strLogString.Format("Unit spawned in barbarian city of %s at X: %d, Y: %d", getName().c_str(), getX(), getY());
 				if(GET_PLAYER(BARBARIAN_PLAYER).GetID() != NO_PLAYER)
 				{
 					GET_PLAYER(BARBARIAN_PLAYER).GetTacticalAI()->LogTacticalMessage(strLogString);

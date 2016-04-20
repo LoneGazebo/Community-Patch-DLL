@@ -478,7 +478,7 @@ void CvBarbarians::DoCamps()
 				continue;
 
 			// No new camps on plots in sight of a player
-			if(!pLoopPlot->isVisibleToCivTeam(true))
+			if(pLoopPlot->isVisibleToCivTeam(true))
 				continue;
 
 			iNumNotVisiblePlots++;
