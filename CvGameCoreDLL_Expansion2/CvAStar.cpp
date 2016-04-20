@@ -1191,7 +1191,10 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 
 			// check stacking (if visible)
 			if (kFromNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kFromNodeCacheData.bFriendlyUnitLimitReached)
-				return FALSE;
+			{
+				if (parent->m_pParent!=NULL) //parent is start position? let's not block ourselves!
+					return FALSE;
+			}
 		}
 	}
 
