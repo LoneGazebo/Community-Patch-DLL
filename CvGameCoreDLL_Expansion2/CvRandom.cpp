@@ -83,6 +83,11 @@ void CvRandom::reset(unsigned long long ullSeed)
 
 unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 {
+	if(!gDLL->IsGameCoreThread() && gDLL->IsGameCoreExecuting() && m_bSynchronous)
+	{
+		OutputDebugString("Warning: GUI is accessing the synchronous random number generator while the game core is running.");
+	}
+
 	m_ulCallCount++;
 
 	unsigned long long ullNewSeed = ((RANDOM_A * m_ullRandomSeed) + RANDOM_C);
@@ -93,11 +98,6 @@ unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 		int iRandLogging = GC.getRandLogging();
 		if(iRandLogging > 0 && (m_bSynchronous || (iRandLogging & RAND_LOGGING_ASYNCHRONOUS_FLAG) != 0))
 		{
-			if(!gDLL->IsGameCoreThread() && gDLL->IsGameCoreExecuting() && m_bSynchronous)
-			{
-				OutputDebugString("Warning: GUI is accessing the synchronous random number generator while the game core is running.");
-			}
-
 			CvGame& kGame = GC.getGame();
 			if(kGame.getTurnSlice() > 0 || ((iRandLogging & RAND_LOGGING_PREGAME_FLAG) != 0))
 			{

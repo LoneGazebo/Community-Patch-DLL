@@ -1172,6 +1172,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 	// we would run into an enemy or run into unknown territory, so we must be able to end the turn on the parent plot
 	if (bNextNodeHostile || !bNextNodeVisibleToTeam)
 	{
+		//don't leak information
 		if (kFromNodeCacheData.bIsRevealedToTeam)
 		{
 			// most importantly, we need to be able to end the turn there
@@ -1187,6 +1188,10 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 				if (kFromNodeCacheData.bContainsOtherFriendlyTeamCity)
 					return FALSE;
 			}
+
+			// check stacking (if visible)
+			if (kFromNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kFromNodeCacheData.bFriendlyUnitLimitReached)
+				return FALSE;
 		}
 	}
 
