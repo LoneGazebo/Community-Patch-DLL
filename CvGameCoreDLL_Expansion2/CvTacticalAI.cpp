@@ -3249,8 +3249,13 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 						break;
 				}
 			}
+
+			if (pGarrison->canFortify(pGarrison->plot()))
+				pGarrison->PushMission(CvTypes::getMISSION_FORTIFY());
+			else
+				pGarrison->PushMission(CvTypes::getMISSION_SKIP());
 		}
-		else if ( !pCity->isInDangerOfFalling() || pCity->IsBastion() )
+		else if ( !pCity->isInDangerOfFalling() )
 		{
 			// Grab units that make sense for this move type
 			FindUnitsForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GARRISON_ALREADY_THERE], pPlot, iNumTurnsAway, bMustAllowRangedAttack);
@@ -3267,6 +3272,15 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 					{
 						strLogString += ", Allows bombard";
 					}
+					LogTacticalMessage(strLogString);
+				}
+			}
+			else
+			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("No unit for garrison in %s at, X: %d, Y", pCity->getName().c_str(), pTarget->GetTargetX(), pTarget->GetTargetY());
 					LogTacticalMessage(strLogString);
 				}
 			}
@@ -12602,7 +12616,7 @@ int TacticalAIHelpers::GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pSt
 	resultSet.clear();
 
 	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS;
-	if (pUnit->IsCanAttack())
+	if (pUnit->IsCanAttackWithMove())
 		iFlags |= CvUnit::MOVEFLAG_ATTACK;
 	if (!bCheckTerritory)
 		iFlags |= CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
