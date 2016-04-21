@@ -850,45 +850,41 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		return FALSE;
 
 	if(pUnit->plot() == pToPlot)
-	{
 		return TRUE;
-	}
 
 	if(pCacheData->IsImmobile())
-	{
 		return FALSE;
-	}
 
 	//checks which need visibility (logically so we don't leak information)
 	if (pToPlot->isVisible(eTeam))
 	{
-		// checking the destination plot
-		int iMoveFlags = CvUnit::MOVEFLAG_DESTINATION;
+		//use the flags mostly as provided - attack needs manual handling though
+		int iMoveFlags = finder->GetData().iFlags & ~CvUnit::MOVEFLAG_ATTACK;
 
-		if(pUnit->IsDeclareWar() || finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR))
-		{
+		//checking the destination!
+		iMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;
+
+		if(pUnit->IsDeclareWar())
 			iMoveFlags |= CvUnit::MOVEFLAG_DECLARE_WAR;
-		}
 
-		if(finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) || finder->HaveFlag(CvUnit::MOVEFLAG_APPROXIMATE_TARGET)) 
-		{
+		if(finder->HaveFlag(CvUnit::MOVEFLAG_APPROXIMATE_TARGET)) 
 			iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
-		}
 
-		// all other rules are hidden here
-		if (pUnit->isRanged())
+		//special checks for attack flag
+		if (pCacheData->IsCanAttack())
 		{
-			//ranged units can only "attack" civilian by moving (i.e. capture them)
-			if (pToPlot->isVisibleEnemyUnit(pUnit) && !pToPlot->isVisibleEnemyDefender(pUnit))
-				iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
-
-			if (!pUnit->canMoveInto(*pToPlot, iMoveFlags))
-				return FALSE;
-		}
-		else
-		{
-			if (!pUnit->canMoveOrAttackInto(*pToPlot, iMoveFlags))
-				return FALSE;
+			if (pUnit->isRanged())
+			{
+				//ranged units can capture a civilian by moving but need the attack flag to do it
+				if (pToPlot->isVisibleEnemyUnit(pUnit) && !pToPlot->isVisibleEnemyDefender(pUnit))
+					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+			}
+			else
+			{
+				//melee units attack enemy cities and units 
+				if (pToPlot->isVisibleEnemyUnit(pUnit) && pToPlot->isEnemyCity(*pUnit))
+					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+			}
 		}
 	}
 
@@ -1202,7 +1198,9 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 	CvPlot* pFromPlot = theMap.plotUnchecked(parent->m_iX, parent->m_iY);
 	CvPlot* pToPlot = theMap.plotUnchecked(node->m_iX, node->m_iY);
 	bool bIsDestination = finder->IsPathDest(node->m_iX,node->m_iY);
-	int iMoveFlags = finder->GetData().iFlags;
+
+	//use the flags mostly as provided - attack needs manual handling though
+	int iMoveFlags = finder->GetData().iFlags & ~CvUnit::MOVEFLAG_ATTACK;
 
 	//some checks about units etc. they need to be visible, else we leak information in the UI
 	if (kToNodeCacheData.bPlotVisibleToTeam)
@@ -1216,18 +1214,21 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 			if(bCheckStacking && kToNodeCacheData.bFriendlyUnitLimitReached)
 				return FALSE;
 
-			//all other rules are hidden here
-			if (pUnit->isRanged())
+			//special checks for attack flag
+			if (pCacheData->IsCanAttack())
 			{
-				//ranged units can capture a civilian by moving but need the attack flag to do it
-				if (kToNodeCacheData.bContainsVisibleEnemy && !kToNodeCacheData.bContainsVisibleEnemyDefender)
-					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
-			}
-			else
-			{
-				//melee units attack enemy cities and units 
-				if (kToNodeCacheData.bContainsVisibleEnemy || kToNodeCacheData.bContainsEnemyCity)
-					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+				if (pUnit->isRanged())
+				{
+					//ranged units can capture a civilian by moving but need the attack flag to do it
+					if (kToNodeCacheData.bContainsVisibleEnemy && !kToNodeCacheData.bContainsVisibleEnemyDefender)
+						iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+				}
+				else
+				{
+					//melee units attack enemy cities and units 
+					if (kToNodeCacheData.bContainsVisibleEnemy || kToNodeCacheData.bContainsEnemyCity)
+						iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+				}
 			}
 		}
 

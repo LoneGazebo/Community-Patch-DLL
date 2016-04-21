@@ -6915,7 +6915,7 @@ CvPlot* MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArm
 	// Find a coastal water tile adjacent to enemy city
 	if (pInitialUnit)
 	{
-		if (pInitialUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_APPROXIMATE_TARGET | CvUnit::MOVEFLAG_ATTACK))
+		if (pInitialUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
 		{
 			for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
 			{

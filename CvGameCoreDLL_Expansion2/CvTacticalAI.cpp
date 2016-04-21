@@ -9260,6 +9260,15 @@ CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget
 		if (!pUnit->canMoveInto(*pMoveTile,CvUnit::MOVEFLAG_DESTINATION ))
 			continue;
 
+		bool bBetterPass = false;
+		if (bIsRanged)
+		{
+			if ( pUnit->GetRange()>1 && plotDistance(*pMoveTile,*plotTarget)<2 )
+				bBetterPass = true;
+			else if ( !pUnit->canEverRangeStrikeAt(plotTarget->getX(),plotTarget->getY(),pMoveTile) )
+				bBetterPass = true;
+		}
+
 		int iCurrentDanger = m_pPlayer->GetPlotDanger(*pMoveTile, pUnit.pointer());
 
 		int iCurrentAttack = 0; //these methods take into account embarkation so we don't have to check for it
@@ -9267,6 +9276,9 @@ CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget
 			iCurrentAttack = pUnit->GetMaxRangedCombatStrength(pTargetUnit, pTargetCity, true, true, plotTarget, pMoveTile);
 		else if (!bIsRanged && (pUnit->GetNumEnemyUnitsAdjacent()>0 || pMoveTile->IsFriendlyUnitAdjacent(pUnit->getTeam(),true)) )
 			iCurrentAttack = pUnit->GetMaxAttackStrength(pMoveTile, plotTarget, pTargetUnit);
+
+		if (bBetterPass)
+			iCurrentAttack /= 2;
 
 		if (iCurrentDanger<=iAcceptableDanger && iCurrentAttack>0)
 		{
@@ -12616,8 +12628,7 @@ int TacticalAIHelpers::GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pSt
 	resultSet.clear();
 
 	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS;
-	if (pUnit->IsCanAttackWithMove())
-		iFlags |= CvUnit::MOVEFLAG_ATTACK;
+
 	if (!bCheckTerritory)
 		iFlags |= CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
 	if (!bCheckZOC)

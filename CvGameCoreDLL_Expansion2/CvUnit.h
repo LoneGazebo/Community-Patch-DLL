@@ -101,7 +101,7 @@ public:
 	enum
 	{
 		//these values can be called via the dll external interface, don't modify them
-	    MOVEFLAG_ATTACK						  = 0x0001,
+	    MOVEFLAG_ATTACK						  = 0x0001,	// flag for CvUnit missions to allow attacks (melee combat or ranged capturing civilian). pathfinder handles this automatically
 	    MOVEFLAG_DECLARE_WAR				  = 0x0002,
 	    MOVEFLAG_DESTINATION				  = 0x0004,	// we want to end the turn in the given plot
 	    MOVEFLAG_NOT_ATTACKING_THIS_TURN	  = 0x0008,	// purpose unknown
@@ -123,7 +123,7 @@ public:
 		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x40000, //pretend we can enter everybody's territory
 	};
 
-	DestructionNotification<UnitHandle>& getDestructionNotification();
+	inline DestructionNotification<UnitHandle>& getDestructionNotification() { return m_destructionNotification; }
 
 	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0);
 #if defined(MOD_BALANCE_CORE)
