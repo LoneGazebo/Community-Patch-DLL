@@ -186,7 +186,7 @@ for hq in GameInfo.Buildings() do
 		};
 
 		g_Corporations[hq.CorporationHQID] = instance;
-		print("g_Corporations[" .. hq.CorporationHQID .. "] ");
+		--print("g_Corporations[" .. hq.CorporationHQID .. "] ");
 	end
 end
 
@@ -254,7 +254,7 @@ function DisplayWorldCorporations()
 end
 
 function RefreshWorldCorporations()
-	print("RefreshWorldCorporations()");
+	--print("RefreshWorldCorporations()");
 
 	g_WorldCorporationsIM:ResetInstances();
 
@@ -264,7 +264,7 @@ function RefreshWorldCorporations()
 		if(pLoopPlayer:IsAlive()) then
 			local ePlayerCorporation = pLoopPlayer:GetCorpID();
 			if(ePlayerCorporation > 0) then
-				print("ePlayerCorporation=" .. ePlayerCorporation);
+				--print("ePlayerCorporation=" .. ePlayerCorporation);
 
 				local HQClass = g_Corporations[ePlayerCorporation].headquartersClass;
 				local pCorporationBuilding = GameInfo.Buildings[HQClass.DefaultBuilding];
@@ -308,19 +308,12 @@ function InsertCorporation(info)
 end
 
 function RefreshWorldFranchises()
-	print("RefreshWorldFranchises()");
+	--print("RefreshWorldFranchises()");
 
 	g_WorldFranchisesIM:ResetInstances();
 
 	local franchises = {};
 	local iNumFranchises = 0;
-
-	-- Array to hold all of the franchises associated to every corporation in the game (should probably only be iterated once)
-	local franchiseIDs = {};
-	for i,v in pairs(g_Corporations) do
-		local eFranchiseID = GameInfo.Buildings[v.franchiseClass.DefaultBuilding].ID;
-		table.insert(franchiseIDs, eFranchiseID);
-	end
 
 	-- Look at all player's cities (too many for-loops, this is ridiculously expensive!)
 	for iPlayerLoop=0, GameDefines.MAX_CIV_PLAYERS-1, 1 do
@@ -328,24 +321,24 @@ function RefreshWorldFranchises()
 		if( pLoopPlayer:IsEverAlive() and pLoopPlayer:IsAlive() ) then
 			for city in pLoopPlayer:Cities() do
 				-- Find all franchises in this city
-				for i,id in pairs(franchiseIDs) do
-					-- City has this franchise?
-					if( city:IsHasBuilding(id) ) then
-						local eFromPlayer = Game.GetCorporationFounder(GameInfo.Buildings[id].CorporationID);
-						
-						local hq = g_Corporations[GameInfo.Buildings[id].CorporationID].headquartersClass;
-						local pCorporationHQ = GameInfo.Buildings[hq.DefaultBuilding];
+				for iCorpPlayer=0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+					local pCorpPlayer = Players[iCorpPlayer];
+					if(pCorpPlayer:IsAlive()) then
+						-- City has this franchise?
+						if( city:IsFranchised(iCorpPlayer) ) then
+							local hq = g_Corporations[GameInfo.Buildings[id].CorporationID].headquartersClass;
 
-						local info = {
-							FromCiv = eFromPlayer,
-							FromCivName = Locale.ConvertTextKey(GetPlayerCiv( eFromPlayer ).Description),
-							CorpName = Locale.ConvertTextKey(pCorporationHQ.Description),
-							ToCiv = iPlayerLoop,
-							ToCivName = Locale.ConvertTextKey(GetPlayerCiv( iPlayerLoop ).Description),
-							CityName = city:GetName(),
-						};
-						table.insert(franchises, info);
-						iNumFranchises = iNumFranchises + 1;
+							local info = {
+								FromCiv = iCorpPlayer,
+								FromCivName = Locale.ConvertTextKey(GetPlayerCiv( iCorpPlayer ).Description),
+								CorpName = Locale.ConvertTextKey(pCorpPlayer:GetCorporationName()),
+								ToCiv = iPlayerLoop,
+								ToCivName = Locale.ConvertTextKey(GetPlayerCiv( iPlayerLoop ).Description),
+								CityName = city:GetName(),
+							};
+							table.insert(franchises, info);
+							iNumFranchises = iNumFranchises + 1;
+						end
 					end
 				end
 			end
@@ -382,7 +375,7 @@ function DisplayMonopolies()
 end
 
 function RefreshMonopolies()
-	print("RefreshMonopolies()");
+	--print("RefreshMonopolies()");
 
 	g_WorldMonopolyResourcesIM:ResetInstances();
 	
@@ -610,8 +603,8 @@ function UpdateAvailableCorporations()
 
 					corporationsLeft = corporationsLeft - 1;
 
-					print("Corporation founded: " .. corpID);
-					print("Corporations left: " .. corporationsLeft );
+					--print("Corporation founded: " .. corpID);
+					--print("Corporations left: " .. corporationsLeft );
 
 					break;
 				end
@@ -680,7 +673,7 @@ function UpdateAvailableCorporations()
 end
 
 function UpdateYourCorporation()
-	print( "In UpdateYourCorporation()" );
+	--print( "In UpdateYourCorporation()" );
 
 	local iOurCorporationID = g_pPlayer:GetCorpID();
 
@@ -751,7 +744,7 @@ function UpdateYourCorporation()
 end
 
 function RefreshCorporationBenefits( pHeadquartersBuilding )
-	print("RefreshCorporationBenefits()");
+	--print("RefreshCorporationBenefits()");
 	g_CorporationBenefitIM:ResetInstances();
 
 	-- Resource
@@ -786,7 +779,7 @@ function RefreshOffices( )
 	-- Find offices in our cities
 	for city in g_pPlayer:Cities() do
 		-- City has office?
-		if(city:IsHasBuilding( GameInfo.Buildings[eOffice].ID )) then			
+		if(city:HasOffice()) then			
 			local civType = g_pPlayer:GetCivilizationType();
 			local civInfo = GameInfo.Civilizations[civType];
 			local civName = Locale.ConvertTextKey( civInfo.ShortDescription );
@@ -868,8 +861,7 @@ function RefreshFranchises( )
 				-- look at player's cities now
 				for city in pOtherPlayer:Cities() do
 					-- City has franchise?
-					if(city:IsHasBuilding( GameInfo.Buildings[eFranchise].ID )) then
-
+					if(city:IsFranchised(g_iSelectedPlayerID)) then
 						local civType = pOtherPlayer:GetCivilizationType();
 						local civInfo = GameInfo.Civilizations[civType];
 						local civName = Locale.ConvertTextKey( civInfo.ShortDescription );
@@ -894,9 +886,6 @@ function RefreshFranchises( )
 		local franchiseCity = g_YourFranchisesIM:GetInstance();
 		
 		CivIconHookup( v.Player, 32, franchiseCity.CivIcon, franchiseCity.CivIconBG, franchiseCity.CivIconShadow, false, true);
-
-		local bCapital = Players[v.Player]:GetCapitalCity() == v.City;
-		franchiseCity.CapitalIcon:SetHide( not bCapital );
 
 		franchiseCity.CivilizationName:SetText( v.Civilization );
 		franchiseCity.CityName:SetText( v.Name );
@@ -1079,7 +1068,7 @@ function RefreshMonopolyPulldowns()
 end
 
 function OnYourCorporationPulldown( index )
-	print("OnYourCorporationPulldown()= " .. index);
+	--print("OnYourCorporationPulldown()= " .. index);
 	if(g_YourCorporationSelectedPulldown ~= nil) then
 		g_YourCorporationSelectedPulldown.Box:SetHide( true );
 	end
@@ -1093,7 +1082,7 @@ end
 Controls.YourCorporationPulldown:RegisterSelectionCallback( OnYourCorporationPulldown );
 
 function OnWorldCorporationsPulldown( index )
-	print("OnWorldCorporationsPulldown()= " .. index);
+	--print("OnWorldCorporationsPulldown()= " .. index);
 	if(g_WorldCorporationsSelectedPulldown ~= nil) then
 		g_WorldCorporationsSelectedPulldown.Box:SetHide( true );
 	end
@@ -1107,7 +1096,7 @@ end
 Controls.WorldCorporationsPulldown:RegisterSelectionCallback( OnWorldCorporationsPulldown );
 
 function OnMonopolyCivPulldown( ePlayer )
-	print("OnMonopolyCivPulldown()=" .. ePlayer);
+	--print("OnMonopolyCivPulldown()=" .. ePlayer);
 
 	g_MonopolyResourcePlayer = ePlayer;
 	
@@ -1121,7 +1110,7 @@ function OnMonopolyCivPulldown( ePlayer )
 end
 
 function OnMonopolyTypePulldown( index )
-	print("OnMonopolyTypePulldown()=" .. index);
+	--print("OnMonopolyTypePulldown()=" .. index);
 
 	Controls.MonopolyTypePulldown:GetButton():LocalizeAndSetText(g_MonopolyTypePulldownViews[index].Label);
 

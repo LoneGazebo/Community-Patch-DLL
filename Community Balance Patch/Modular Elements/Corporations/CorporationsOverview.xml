@@ -110,8 +110,7 @@
 					<Label ID="CivilizationName" Anchor="L,C" Offset="32,0" TruncateWidth="129" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 				</Box>
 				<Box Size="161,25" Color="0,0,0,0">
-					<Label ID="CapitalIcon" String="[ICON_CAPITAL]" Anchor="L,C" Offset="0,0" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
-					<Label ID="CityName" Anchor="L,C" Offset="42,0" TruncateWidth="115" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+					<Label ID="CityName" Anchor="L,C" Offset="36,0" TruncateWidth="115" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 				</Box>
 			</Stack>
 			<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="402,3"/>
