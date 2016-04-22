@@ -1,4 +1,4 @@
--- AI Citystrategy
+﻿-- AI Citystrategy
 UPDATE Defines
 SET Value = '2.1'
 WHERE Name = 'AI_CITYSTRATEGY_YIELD_DEFICIENT_FOOD';

@@ -1681,13 +1681,13 @@ public:
 	bool IsCramped() const;
 	void DoUpdateCramped();
 
-	CvHandicapInfo& getHandicapInfo() const;
+	const CvHandicapInfo& getHandicapInfo() const;
 	HandicapTypes getHandicapType() const;
 
-	CvCivilizationInfo& getCivilizationInfo() const;
+	const CvCivilizationInfo& getCivilizationInfo() const;
 	CivilizationTypes getCivilizationType() const;
 
-	CvLeaderHeadInfo& getLeaderInfo() const;
+	const CvLeaderHeadInfo& getLeaderInfo() const;
 	LeaderHeadTypes getLeaderType() const;
 #if defined(MOD_API_EXTENSIONS)
 	void setLeaderType(LeaderHeadTypes eNewLeader);

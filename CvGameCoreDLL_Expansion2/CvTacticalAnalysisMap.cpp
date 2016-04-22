@@ -467,7 +467,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 	for(unsigned int iUnitIndex = 0;  iUnitIndex < m_EnemyUnits.size(); iUnitIndex++)
 	{
 		CvUnit* pUnit = m_EnemyUnits[iUnitIndex];
-		TacticalAIHelpers::ReachablePlotSet tiles;
+		ReachablePlots tiles;
 
 		//for ranged every plot we can enter with movement left is a base for attack
 		int iMinMovesLeft = pUnit->IsCanAttackRanged() ? 1 : 0;
@@ -478,7 +478,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 		//therefore we later do a dilation filter on the cells
 		TacticalAIHelpers::GetAllPlotsInReach(pUnit,pUnit->plot(),tiles,false,true,false,iMinMovesLeft);
 
-		for (TacticalAIHelpers::ReachablePlotSet::iterator moveTile=tiles.begin(); moveTile!=tiles.end(); ++moveTile)
+		for (ReachablePlots::iterator moveTile=tiles.begin(); moveTile!=tiles.end(); ++moveTile)
 		{
 			CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->first);
 			int iPlotIndex = GC.getMap().plotNum(pMoveTile->getX(),pMoveTile->getY());

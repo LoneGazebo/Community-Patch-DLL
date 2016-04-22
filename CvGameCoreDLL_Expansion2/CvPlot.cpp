@@ -3312,19 +3312,23 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 //	---------------------------------------------------------------------------
 int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const
 {
-	if (plotDistance(*this,*pFromPlot)>1)
-		return pUnit->maxMoves();
+	int iMaxMoves = pUnit->baseMoves( getDomain() )*GC.getMOVE_DENOMINATOR();
 
-	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iMovesRemaining);
+	if (plotDistance(*this,*pFromPlot)>1)
+		return iMaxMoves;
+
+	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iMovesRemaining, iMaxMoves);
 }
 
 //	---------------------------------------------------------------------------
 int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const
 {
-	if (plotDistance(*this,*pFromPlot)>1)
-		return pUnit->maxMoves();
+	int iMaxMoves = pUnit->baseMoves( getDomain() )*GC.getMOVE_DENOMINATOR();
 
-	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iMovesRemaining);
+	if (plotDistance(*this,*pFromPlot)>1)
+		return iMaxMoves;
+
+	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iMovesRemaining, iMaxMoves);
 }
 
 //	--------------------------------------------------------------------------------
@@ -3358,7 +3362,7 @@ bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
         if (pUnit->getDomainType()==DOMAIN_LAND)
         {
 #endif      
-            return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canLoad(*this);
+            return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain();
         }
         else
             return false;
@@ -6895,10 +6899,11 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 			}
 		}
 
-		GET_PLAYER(getOwner()).countCityFeatures(eOldFeature, true);
-		if(eNewValue != NO_FEATURE)
+		if (getOwner()!=NO_PLAYER)
 		{
-			GET_PLAYER(getOwner()).countCityFeatures(eNewValue, true);
+			GET_PLAYER(getOwner()).countCityFeatures(eOldFeature, true);
+			if(eNewValue != NO_FEATURE)
+				GET_PLAYER(getOwner()).countCityFeatures(eNewValue, true);
 		}
 #endif
 
@@ -10335,12 +10340,11 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 					// If the AI spots a human Unit, don't meet - wait for the human to find the AI
 					CvUnit* loopUnit = getUnitByIndex(iUnitLoop);
 
-					if(!loopUnit) continue;
+					if(!loopUnit) 
+						continue;
 
 					if(!GET_TEAM(eTeam).isHuman() && loopUnit->isHuman())
-					{
 						continue;
-					}
 
 					GET_TEAM(eTeam).meet(loopUnit->getTeam(), false);
 

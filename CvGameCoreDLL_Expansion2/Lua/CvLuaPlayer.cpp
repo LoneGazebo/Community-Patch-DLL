@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1955,13 +1955,13 @@ int CvLuaPlayer::lCanGetGoody(lua_State* L)
 //bool canFound(int iX, int iY);
 int CvLuaPlayer::lCanFound(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::canFound);
+	return BasicLuaMethod<bool,int,int>(L, &CvPlayerAI::canFound);
 }
 //------------------------------------------------------------------------------
 //void found(int iX, int iY);
 int CvLuaPlayer::lFound(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::found);
+	return BasicLuaMethod<int,int>(L, &CvPlayerAI::found);
 }
 
 //------------------------------------------------------------------------------
@@ -5516,7 +5516,7 @@ int CvLuaPlayer::lGetGreatWorks(lua_State* L)
 	{
 		for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 		{
-			CvCivilizationInfo& playerCivilizationInfo = pkPlayer->getCivilizationInfo();
+			const CvCivilizationInfo& playerCivilizationInfo = pkPlayer->getCivilizationInfo();
 			BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
 			if (eBuilding != NO_BUILDING)
 			{

@@ -101,26 +101,29 @@ public:
 	enum
 	{
 		//these values can be called via the dll external interface, don't modify them
-	    MOVEFLAG_ATTACK						  = 0x0001,
+	    MOVEFLAG_ATTACK						  = 0x0001,	// flag for CvUnit missions to allow attacks (melee combat or ranged capturing civilian). pathfinder handles this automatically
 	    MOVEFLAG_DECLARE_WAR				  = 0x0002,
 	    MOVEFLAG_DESTINATION				  = 0x0004,	// we want to end the turn in the given plot
 	    MOVEFLAG_NOT_ATTACKING_THIS_TURN	  = 0x0008,	// purpose unknown
-	    MOVEFLAG_IGNORE_STACKING			  = 0x0010,	// stacking rules don't apply
+	    MOVEFLAG_IGNORE_STACKING			  = 0x0010,	// stacking rules don't apply (on turn end plots)
 	    MOVEFLAG_PRETEND_EMBARKED			  = 0x0020, // deprecated
 	    MOVEFLAG_PRETEND_UNEMBARKED			  = 0x0040, // deprecated
 	    MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE = 0x0080, // deprecated
 		//these values are used internally only
 		MOVEFLAG_IGNORE_DANGER					= 0x0100, //do not apply a penalty for dangerous plots
 		MOVEFLAG_NO_EMBARK						= 0x0200, //do not ever embark (but move along if already embarked)
-		MOVEFLAG_TERRITORY_NO_ENEMY				= 0x0400, //don't enter enemy territory
+		MOVEFLAG_TERRITORY_NO_ENEMY				= 0x0400, //don't enter enemy territory, even if we could
 		MOVEFLAG_MAXIMIZE_EXPLORE				= 0x0800, //try to reveal as many plots as possible
 		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000, //purpose unknown
 		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use ocean even if we could
 		MOVEFLAG_SAFE_EMBARK					= 0x4000, //only embark if danger is zero
 		MOVEFLAG_APPROXIMATE_TARGET				= 0x8000, //don't need to reach the target exactly, a neighboring tile is good enough
+		MOVEFLAG_NO_INTERMEDIATE_STOPS			= 0x10000, //disable the second layer of nodes
+		MOVEFLAG_IGNORE_ZOC						= 0x20000, //ignore zones of control
+		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x40000, //pretend we can enter everybody's territory
 	};
 
-	DestructionNotification<UnitHandle>& getDestructionNotification();
+	inline DestructionNotification<UnitHandle>& getDestructionNotification() { return m_destructionNotification; }
 
 	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0);
 #if defined(MOD_BALANCE_CORE)
@@ -466,7 +469,7 @@ public:
 #endif
 
 	HandicapTypes getHandicapType() const;
-	CvCivilizationInfo& getCivilizationInfo() const;
+	const CvCivilizationInfo& getCivilizationInfo() const;
 	CivilizationTypes getCivilizationType() const;
 	const char* getVisualCivAdjective(TeamTypes eForTeam) const;
 	SpecialUnitTypes getSpecialUnitType() const;
@@ -547,7 +550,7 @@ public:
 	int GetUnhappinessCombatPenalty() const;
 
 	void SetBaseCombatStrength(int iCombat);
-	int GetBaseCombatStrength(bool bIgnoreEmbarked = false) const;
+	int GetBaseCombatStrength() const;
 	int GetBaseCombatStrengthConsideringDamage() const;
 
 	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacency, const CvPlot* pFromPlot = NULL) const;
@@ -795,7 +798,7 @@ public:
 	void setXY(int iX, int iY, bool bGroup = false, bool bUpdate = true, bool bShow = false, bool bCheckPlotVisible = false, bool bNoMove = false);
 	bool at(int iX, int iY) const;
 	bool atPlot(const CvPlot& plot) const;
-	CvPlot* plot() const;
+	inline CvPlot* plot() const;
 	int getArea() const;
 	CvArea* area() const;
 	bool onMap() const;
@@ -1431,7 +1434,6 @@ public:
 	// Path-finding routines
 	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL) const;
 
-	void ResetPath();
 	CvPlot* GetPathFirstPlot() const;
 	CvPlot* GetPathLastPlot() const;
 	const CvPathNodeArray& GetPathNodeArray() const;

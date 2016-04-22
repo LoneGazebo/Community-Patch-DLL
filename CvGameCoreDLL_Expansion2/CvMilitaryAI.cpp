@@ -1364,26 +1364,26 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget2(AIOperationTypes eAIOperati
 				cachedTarget.iScore = 0;
 			}
 			// Don't want it to already be targeted by an operation that's not on its way
-			else if(pCachedMusterCity != NULL)
+			else if(pCachedMusterCity != NULL &&
+				m_pPlayer->IsCityAlreadyTargeted(pCachedMusterCity, DOMAIN_SEA, 25))
 			{
-				if((eAIOperationType == AI_OPERATION_NAVAL_ATTACK ||
+				if(eAIOperationType == AI_OPERATION_NAVAL_ATTACK ||
 				eAIOperationType == AI_OPERATION_NAVAL_SNEAK_ATTACK ||
 				eAIOperationType == AI_OPERATION_PURE_NAVAL_CITY_ATTACK ||
 				eAIOperationType == AI_OPERATION_NAVAL_SUPERIORITY ||
-				eAIOperationType == AI_OPERATION_CITY_STATE_NAVAL_ATTACK) &&
-				m_pPlayer->IsCityAlreadyTargeted(pCachedMusterCity, DOMAIN_SEA, 25))
+				eAIOperationType == AI_OPERATION_CITY_STATE_NAVAL_ATTACK)
 				{	
 					cachedTarget.iScore = 0;
 				}
 			}
-			else if(pCachedMusterCity != NULL)
+			else if(pCachedMusterCity != NULL &&
+				m_pPlayer->IsCityAlreadyTargeted(pCachedMusterCity, DOMAIN_LAND, 25))
 			{
-				if((eAIOperationType == AI_OPERATION_BASIC_CITY_ATTACK ||
+				if(eAIOperationType == AI_OPERATION_BASIC_CITY_ATTACK ||
 				eAIOperationType == AI_OPERATION_SNEAK_CITY_ATTACK ||
 				eAIOperationType == AI_OPERATION_CITY_STATE_ATTACK ||
 				eAIOperationType == AI_OPERATION_NAVAL_SUPERIORITY ||
-				eAIOperationType == AI_OPERATION_SMALL_CITY_ATTACK) &&
-				m_pPlayer->IsCityAlreadyTargeted(pCachedMusterCity, DOMAIN_LAND, 25))
+				eAIOperationType == AI_OPERATION_SMALL_CITY_ATTACK)
 				{	
 					cachedTarget.iScore = 0;
 				}
@@ -2070,7 +2070,7 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(PlayerTypes eEnemy, CvMilitaryTar
 
 	//don't do the pathfinding again, rely on the trade route cache.
 	SPath landpath;
-	if (GC.getGame().GetGameTrade()->IsValidTradeRoutePath(target.m_pMusterCity,target.m_pTargetCity,DOMAIN_LAND,&landpath, true))
+	if (GC.getGame().GetGameTrade()->IsValidTradeRoutePath(target.m_pMusterCity,target.m_pTargetCity,DOMAIN_LAND,&landpath,false))
 	{
 		int iEnemyPlots = 0;
 		for (size_t i=0; i<landpath.vPlots.size(); i++)
@@ -2090,7 +2090,7 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(PlayerTypes eEnemy, CvMilitaryTar
 		{
 			//don't do the pathfinding again, rely on the trade route cache.
 			SPath waterpath;
-			if (GC.getGame().GetGameTrade()->IsValidTradeRoutePath(target.m_pMusterCity,target.m_pTargetCity,DOMAIN_SEA,&waterpath, true))
+			if (GC.getGame().GetGameTrade()->IsValidTradeRoutePath(target.m_pMusterCity,target.m_pTargetCity,DOMAIN_SEA,&waterpath,false))
 			{
 				// find out the effective path length and check if we need to cross the high seas
 				int iEnemyPlots = 0;
@@ -6910,12 +6910,12 @@ CvPlot* MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArm
 		{ 0,5,6,3,2,4,1,14,13,17,16,15,11,8,9,18,12,7,10 },
 		{ 0,4,1,5,2,3,6,14,8,15,12,18,16,9,7,11,10,13,17 },
 		{ 0,6,3,5,2,1,4,18,15,16,14,12,17,8,7,10,9,13,11 } };
-	int iShuffleType = (pTarget->getX() + pTarget->getY() + GC.getGame().getGameTurn()) % 3;
+	int iShuffleType = GC.getGame().getSmallFakeRandNum(3);
 
 	// Find a coastal water tile adjacent to enemy city
 	if (pInitialUnit)
 	{
-		if (pInitialUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_APPROXIMATE_TARGET | CvUnit::MOVEFLAG_ATTACK))
+		if (pInitialUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
 		{
 			for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
 			{
@@ -7018,7 +7018,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 
 				if ( !(pMusterCity->isCoastal() || pTargetCity->isCoastal()) ||
 					 !(pMusterCity->waterArea() == pTargetCity->waterArea()) ||
-					 (!GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pMusterCity,pTargetCity,DOMAIN_SEA)) )
+					 (!GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pMusterCity,pTargetCity,DOMAIN_SEA,NULL,false)) )
 				{
 					if(GC.getLogging() && GC.getAILogging())
 					{

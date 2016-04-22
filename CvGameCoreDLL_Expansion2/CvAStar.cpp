@@ -24,19 +24,19 @@
 #include "CvUnitMovement.h"
 
 //PATH_BASE_COST is defined in AStar.h, value 100
-#define PATH_RIVER_WEIGHT										(100)	//per percent river crossing penalty on attack
+#define PATH_ATTACK_WEIGHT										(200)	//per percent penalty on attack
 #define PATH_DEFENSE_WEIGHT										(10)	//per percent defense bonus on turn end plot
-#define PATH_TERRITORY_WEIGHT									(PATH_BASE_COST)	//per turn end plot outside of our territory
-#define PATH_STEP_WEIGHT										(PATH_BASE_COST)	//per plot in path
+#define PATH_STEP_WEIGHT										(PATH_BASE_COST)	//per plot in path (very small)
 #define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
 #define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
 #define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(23)	//accept four plots detour to save on maintenance
-#define PATH_END_TURN_WATER										(PATH_BASE_COST*20)		//embarkation should be avoided
+#define PATH_END_TURN_FOREIGN_TERRITORY							(PATH_BASE_COST)		//per turn end plot outside of our territory
+#define PATH_END_TURN_NO_ROUTE									(PATH_BASE_COST*10)		//when in doubt, prefer to end the turn on a plot with a route
+#define PATH_END_TURN_WATER										(PATH_BASE_COST*20)		//embarkation should be avoided (land units only)
 #define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*90)		//one of these is worth 1.5 plots of detour
 #define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*150)	//one of these is worth 2.5 plots of detour
 #define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_BASE_COST*210)	//one of these is worth 3.5 plots of detour
 #define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(PATH_BASE_COST*210)	//don't make it even so we don't get ties
-#define PATH_DO_NOT_USE_WEIGHT									(1000000000)
 
 #include <xmmintrin.h>
 #include "LintFree.h"
@@ -59,6 +59,7 @@ public:
 
 private:
 	//hide bad defaults
+	CvGuard();
 	CvGuard(const CvGuard&);
 	CvGuard& operator=(const CvGuard&);
 
@@ -84,14 +85,38 @@ struct SLogNode
 	}
 	int x, y, round, kc, hc, t, m;
 	NodeState type; 
+
+private:
+	SLogNode();
 };
 
 std::vector<SLogNode> svPathLog;
+
+//debugging help
+void DumpNodeList(const std::vector<CvAStarNode*>& nodes)
+{
+	for (std::vector<CvAStarNode*>::const_iterator it=nodes.begin(); it!=nodes.end(); ++it)
+	{
+		CvAStarNode* pNode = *it;
+		OutputDebugString( CvString::format("x %02d, y %02d, t %02d, m %03d, tc %d\n",pNode->m_iX,pNode->m_iY,pNode->m_iTurns,pNode->m_iMoves,pNode->m_iTotalCost).c_str() );
+	}
+}
 
 //	--------------------------------------------------------------------------------
 /// Constructor
 CvAStar::CvAStar()
 {
+	m_iColumns = 0;
+	m_iRows = 0;
+	m_iXstart = 0;
+	m_iYstart = 0;
+	m_iXdest = 0;
+	m_iYdest = 0;
+	m_iDestHitCount = 0;
+
+	m_bWrapX = false;
+	m_bWrapY = false;
+
 	udIsPathDest = NULL;
 	udDestValid = NULL;
 	udHeuristic = NULL;
@@ -104,16 +129,17 @@ CvAStar::CvAStar()
 	udInitializeFunc = NULL;
 	udUninitializeFunc = NULL;
 
-	m_pOpen = NULL;
-	m_pOpenTail = NULL;
-	m_pClosed = NULL;
 	m_pBest = NULL;
-	m_pStackHead = NULL;
-
 	m_ppaaNodes = NULL;
 	m_ppaaNeighbors = NULL;
 
 	m_iCurrentGenerationID = 0;
+	m_iProcessedNodes = 0;
+	m_iTestedNodes = 0;
+	m_iRounds = 0;
+	m_iBasicPlotCost = 0;
+	m_iMovesCached = 0;
+	m_iTurnsCached = 0;
 
 	//for debugging
 	m_strName = "AStar";
@@ -129,7 +155,6 @@ CvAStar::CvAStar()
 CvAStar::~CvAStar()
 {
 	DeInit();
-
 	DeleteCriticalSection(&m_cs);
 }
 
@@ -137,6 +162,9 @@ CvAStar::~CvAStar()
 /// Frees allocated memory
 void CvAStar::DeInit()
 {
+	m_openNodes.clear();
+	m_closedNodes.clear();
+
 	if(m_ppaaNodes != NULL)
 	{
 		for(int iI = 0; iI < m_iColumns; iI++)
@@ -173,11 +201,7 @@ void CvAStar::Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY)
 	m_bWrapX = bWrapX;
 	m_bWrapY = bWrapY;
 
-	m_pOpen = NULL;
-	m_pOpenTail = NULL;
-	m_pClosed = NULL;
 	m_pBest = NULL;
-	m_pStackHead = NULL;
 
 	m_iTestedNodes = 0;
 	m_iProcessedNodes = 0;
@@ -228,6 +252,26 @@ void CvAStar::SetFunctionPointers(CvAPointFunc IsPathDestFunc, CvAPointFunc Dest
 	udUninitializeFunc = UninitializeFunc;
 }
 
+void CvAStar::Reset()
+{
+	m_pBest = NULL;
+	m_iDestHitCount = 0;
+
+	//reset previously used nodes
+	for (std::vector<CvAStarNode*>::iterator it=m_openNodes.begin(); it!=m_openNodes.end(); ++it)
+		(*it)->clear();
+	for (std::vector<CvAStarNode*>::iterator it=m_closedNodes.begin(); it!=m_closedNodes.end(); ++it)
+		(*it)->clear();
+	m_openNodes.clear();
+	m_closedNodes.clear();
+
+	//debug helpers
+	m_iProcessedNodes = 0;
+	m_iTestedNodes = 0;
+	m_iRounds = 0;
+	svPathLog.clear();
+}
+
 //	--------------------------------------------------------------------------------
 // Generates a path from iXstart,iYstart to iXdest,iYdest
 // this is not threadsafe!
@@ -246,14 +290,8 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	m_iYdest = iYdest;
 	m_iXstart = iXstart;
 	m_iYstart = iYstart;
-	m_iDestHitCount = 0;
-	m_pBest = NULL;
-	m_pStackHead = NULL;
 
-	m_iProcessedNodes = 0;
-	m_iTestedNodes = 0;
-	m_iRounds = 0;
-	svPathLog.clear();
+	Reset();
 
 	if(!isValid(iXstart, iYstart))
 		return false;
@@ -268,46 +306,18 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 		return false;
 	}
 
-	//reset previously used nodes
-	CvAStarNode* temp;
-
-	if(m_pOpen)
-	{
-		while(m_pOpen)
-		{
-			temp = m_pOpen->getNext();
-			m_pOpen->clear();
-			m_pOpen = temp;
-		}
-	}
-
-	if(m_pClosed)
-	{
-		while(m_pClosed)
-		{
-			temp = m_pClosed->getNext();
-			m_pClosed->clear();
-			m_pClosed = temp;
-		}
-	}
-
 	//set up first node
-	temp = &(m_ppaaNodes[iXstart][iYstart]);
+	CvAStarNode* temp = &(m_ppaaNodes[iXstart][iYstart]);
+	temp->clear();
 	temp->m_iKnownCost = 0;
-	if(udHeuristic == NULL || !isValid(m_iXdest,m_iYdest))
-	{
-		temp->m_iHeuristicCost = 0;
-	}
-	else
+	if(udHeuristic && isValid(m_iXdest, m_iYdest))
 	{
 		temp->m_iHeuristicCost = udHeuristic(m_iXstart, m_iYstart, m_iXstart, m_iYstart, m_iXdest, m_iYdest);
+		temp->m_iTotalCost = temp->m_iHeuristicCost;
 	}
-	temp->m_iTotalCost = temp->m_iKnownCost + temp->m_iHeuristicCost;
-
-	m_pOpen = temp;
-	m_pOpenTail = temp;
-	udFunc(udNotifyList, NULL, m_pOpen, ASNL_STARTOPEN, m_sData);
-	udFunc(udValid, NULL, temp, 0, m_sData);
+	temp->m_eCvAStarListType = CVASTARLIST_OPEN;
+	m_openNodes.push_back(temp);
+	udFunc(udNotifyList, NULL, temp, ASNL_STARTOPEN, m_sData);
 	udFunc(udNotifyChild, NULL, temp, ASNC_INITIALADD, m_sData);
 
 #if defined(MOD_CORE_DEBUGGING)
@@ -376,6 +386,11 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 					pLog->Msg( CvString::format("# %s for %s (%d) from %d,%d to %d,%d for player %d, flags %d\n", 
 						GetName(),pUnit->getName().c_str(),pUnit->GetID(),m_iXstart,m_iYstart,m_iXdest,m_iYdest,pUnit->getOwner(),m_sData.iFlags ).c_str() );
 				}
+				else
+				{
+					pLog->Msg( CvString::format("# %s from %d,%d to %d,%d for player %d, type %d, flags %d\n", 
+						GetName(),m_iXstart,m_iYstart,m_iXdest,m_iYdest,m_sData.ePlayer,m_sData.ePathType,m_sData.iFlags ).c_str() );
+				}
 
 				//gStackWalker.SetLog(pLog);
 				//gStackWalker.ShowCallstack();
@@ -398,36 +413,22 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 /// Returns best node
 CvAStarNode* CvAStar::GetBest()
 {
-	CvAStarNode* temp;
-	if(!m_pOpen)
-	{
+	if (m_openNodes.empty())
 		return NULL;
-	}
 
-	temp = m_pOpen;
+	//make sure heap order is valid after all the updates in the previous round
+	std::make_heap(m_openNodes.begin(),m_openNodes.end(),PrNodeIsBetter());
 
-	m_pOpen = temp->getNext();
-	if(m_pOpen != NULL)
-	{
-		m_pOpen->setPrev(NULL);
-	}
-	else
-	{
-		m_pOpenTail = NULL;
-	}
+	CvAStarNode* temp = m_openNodes.front();
+	std::pop_heap(m_openNodes.begin(),m_openNodes.end(),PrNodeIsBetter());
+	m_openNodes.pop_back();
 
 	udFunc(udNotifyList, NULL, temp, ASNL_DELETEOPEN, m_sData);
 
+	//move the node to the closed list
 	temp->m_eCvAStarListType = CVASTARLIST_CLOSED;
-
-	temp->setNext(m_pClosed);
-	if(m_pClosed != NULL)
-	{
-		m_pClosed->setPrev(temp);
-	}
-	m_pClosed = temp;
-
-	udFunc(udNotifyList, NULL, m_pClosed, ASNL_ADDCLOSED, m_sData);
+	m_closedNodes.push_back(temp);
+	udFunc(udNotifyList, NULL, temp, ASNL_ADDCLOSED, m_sData);
 
 	return temp;
 }
@@ -477,7 +478,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 		NodeState result = NS_INVALID;
 
 		//check if we already found a better way ...
-		if (check->m_iTurns>0)
+		if (check->m_eCvAStarListType == CVASTARLIST_OPEN)
 		{
 			if (check->m_iTurns < node->m_iTurns)
 				result = NS_OBSOLETE;
@@ -489,7 +490,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 		{
 			//now the real checks
 			m_iTestedNodes++;
- 			if(udFunc(udValid, node, check, 0, m_sData))
+			if(udFunc(udValid, node, check, 0, m_sData))
 			{
 				result = LinkChild(node, check);
 			
@@ -526,7 +527,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 					continue;
 
 				NodeState result = NS_INVALID;
- 				if(udFunc(udValid, node, check, 0, m_sData))
+				if(udFunc(udValid, node, check, 0, m_sData))
 				{
 					result = LinkChild(node, check);
 			
@@ -564,10 +565,6 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 	//seems innocent, but is very important
 	int iKnownCost = udFunc(udCost, node, check, 0, m_sData);
 
-	//don't even link it up, it's a dead end
-	if (iKnownCost == PATH_DO_NOT_USE_WEIGHT)
-		return NS_OBSOLETE; 
-
 	//invalid cost function
 	if (iKnownCost < 0)
 		return NS_FORBIDDEN;
@@ -581,29 +578,30 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 
 	//final check. there may have been a previous path here.
 	//in that case we want to keep the one with the lower total cost, which should correspond to the shorter one
-	if (check->m_iKnownCost > 0 && iKnownCost > check->m_iKnownCost )
+	if (check->m_iKnownCost > 0 && iKnownCost > check->m_iKnownCost)
 		return NS_OBSOLETE;
 
+	//remember the connection
+	node->m_apChildren.push_back(check);
+
+	//is the new node already on the open list? update it
 	if(check->m_eCvAStarListType == CVASTARLIST_OPEN)
 	{
-		node->m_apChildren.push_back(check);
-
 		if(iKnownCost < check->m_iKnownCost)
 		{
 			FAssert(node->m_pParent != check);
 
+			//heap order will be restored when calling getBest
 			check->m_pParent = node;
 			check->m_iKnownCost = iKnownCost;
 			check->m_iTotalCost = iKnownCost*giKnownCostWeight + check->m_iHeuristicCost*giHeuristicCostWeight;
 
-			UpdateOpenNode(check);
 			udFunc(udNotifyChild, node, check, ASNC_OPENADD_UP, m_sData);
 		}
 	}
+	//is the new node on the closed list?
 	else if(check->m_eCvAStarListType == CVASTARLIST_CLOSED)
 	{
-		node->m_apChildren.push_back(check);
-
 		if(iKnownCost < check->m_iKnownCost)
 		{
 			FAssert(node->m_pParent != check);
@@ -615,25 +613,17 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 			UpdateParents(check);
 		}
 	}
-	else
+	else //new node is previously untouched
 	{
 		FAssert(check->m_eCvAStarListType == NO_CVASTARLIST);
 		FAssert(node->m_pParent != check);
 		check->m_pParent = node;
 		check->m_iKnownCost = iKnownCost;
-
-		if(udHeuristic == NULL || !isValid(m_iXdest, m_iYdest))
-			check->m_iHeuristicCost = 0;
-		else
-			check->m_iHeuristicCost = udHeuristic(node->m_iX, node->m_iY, check->m_iX, check->m_iY, m_iXdest, m_iYdest);
-
+		check->m_iHeuristicCost = udHeuristic ? udHeuristic(node->m_iX, node->m_iY, check->m_iX, check->m_iY, m_iXdest, m_iYdest) : 0;
 		check->m_iTotalCost = iKnownCost*giKnownCostWeight + check->m_iHeuristicCost*giHeuristicCostWeight;
 
 		udFunc(udNotifyChild, node, check, ASNC_NEWADD, m_sData);
-
 		AddToOpen(check);
-
-		node->m_apChildren.push_back(check);
 	}
 	
 	return NS_VALID;
@@ -643,244 +633,52 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 /// Add node to open list
 void CvAStar::AddToOpen(CvAStarNode* addnode)
 {
-	CvAStarNode* node;
-
 	addnode->m_eCvAStarListType = CVASTARLIST_OPEN;
 
-	if(!m_pOpen)
-	{
-		m_pOpen = addnode;
-		m_pOpenTail = addnode;
-		m_pOpen->setNext(NULL);
-		m_pOpen->setPrev(NULL);
+	m_openNodes.push_back(addnode);
+	std::push_heap(m_openNodes.begin(),m_openNodes.end(),PrNodeIsBetter());
 
-		udFunc(udNotifyList, NULL, addnode, ASNL_STARTOPEN, m_sData);
-
-		return;
-	}
-
-	if(addnode->m_iTotalCost <= m_pOpen->m_iTotalCost)
-	{
-		addnode->setNext(m_pOpen);
-		m_pOpen->setPrev(addnode);
-		m_pOpen = addnode;
-
-		udFunc(udNotifyList, m_pOpen->getNext(), m_pOpen, ASNL_STARTOPEN, m_sData);
-	}
-	else if(addnode->m_iTotalCost >= m_pOpenTail->m_iTotalCost)
-	{
-		addnode->setPrev(m_pOpenTail);
-		m_pOpenTail->setNext(addnode);
-		m_pOpenTail = addnode;
-
-		udFunc(udNotifyList, addnode->getPrev(), addnode, ASNL_ADDOPEN, m_sData);
-	}
-	else if(abs(addnode->m_iTotalCost-m_pOpenTail->m_iTotalCost) < abs(addnode->m_iTotalCost-m_pOpen->m_iTotalCost))  //(addnode->m_iTotalCost > m_iOpenListAverage) // let's start at the end and work forwards
-	{
-		CvAStarNode* next;
-		node = m_pOpenTail;
-		next = NULL;
-
-		while(node)
-		{
-			if(addnode->m_iTotalCost < node->m_iTotalCost)
-			{
-				//should not happen ...
-				if (node == node->getPrev())
-					break;
-
-				next = node;
-				node = node->getPrev();
-			}
-			else
-			{
-				if(next)
-				{
-					next->setPrev(addnode);
-					addnode->setNext(next);
-					addnode->setPrev(node);
-					node->setNext(addnode);
-					if(node->getNext() == NULL)
-					{
-						m_pOpenTail = node;
-					}
-
-					udFunc(udNotifyList, addnode->getPrev(), addnode, ASNL_ADDOPEN, m_sData);
-				}
-				else // we should just add it to the end of the list
-				{
-					addnode->setPrev(m_pOpenTail);
-					m_pOpenTail->setNext(addnode);
-					m_pOpenTail = addnode;
-
-					udFunc(udNotifyList, addnode->getPrev(), addnode, ASNL_ADDOPEN, m_sData);
-				}
-
-				return;
-			}
-		}
-
-		// we made it to the start of this list - insert it at the beginning - we shouldn't ever get here, but...
-		if (next)
-		{
-			next->setPrev(addnode);
-			addnode->setNext(next);
-			m_pOpen = addnode;
-
-			udFunc(udNotifyList, m_pOpen->getNext(), m_pOpen, ASNL_STARTOPEN, m_sData);
-		}
-	}
-	else // let's start at the beginning as it should be closer
-	{
-		CvAStarNode* prev;
-		node = m_pOpen;
-		prev = NULL;
-
-		while(node)
-		{
-			if(addnode->m_iTotalCost > node->m_iTotalCost)
-			{
-				//should not happen ...
-				if (node == node->getNext())
-					break;
-
-				prev = node;
-				node = node->getNext();
-			}
-			else
-			{
-				if(prev)
-				{
-					prev->setNext(addnode);
-					addnode->setPrev(prev);
-					addnode->setNext(node);
-					node->setPrev(addnode);
-					if(node->getNext() == NULL)
-					{
-						m_pOpenTail = node;
-					}
-
-					udFunc(udNotifyList, prev, addnode, ASNL_ADDOPEN, m_sData);
-				}
-				else
-				{
-					addnode->setNext(m_pOpen);
-					m_pOpen->setPrev(addnode);
-					m_pOpen = addnode;
-
-					udFunc(udNotifyList, m_pOpen->getNext(), m_pOpen, ASNL_STARTOPEN, m_sData);
-				}
-
-				return;
-			}
-		}
-
-		// we made it to the end of this list - insert it at the end - we shouldn't ever get here, but...
-		prev->setNext(addnode);
-		addnode->setPrev(prev);
-		m_pOpenTail = addnode;
-
-		udFunc(udNotifyList, prev, addnode, ASNL_ADDOPEN, m_sData);
-	}
-}
-
-//	--------------------------------------------------------------------------------
-/// Connect in a node
-void CvAStar::UpdateOpenNode(CvAStarNode* node)
-{
-	CvAStarNode* temp;
-
-	FAssert(node->m_eCvAStarListType == CVASTARLIST_OPEN);
-
-	if((node->getPrev() != NULL) && (node->m_iTotalCost < node->getPrev()->m_iTotalCost))
-	{
-		// have node free float for now
-		node->getPrev()->setNext(node->getNext());
-		if(node->getNext())
-		{
-			node->getNext()->setPrev(node->getPrev());
-		}
-		else
-		{
-			m_pOpenTail = node->getPrev();
-		}
-		// scoot down the list till we find where node goes (without connecting up as we go)
-		temp = node->getPrev();
-		while((temp != NULL) && (node->m_iTotalCost < temp->m_iTotalCost))
-		{
-			temp = temp->getPrev();
-		}
-		// connect node up
-		if(temp != NULL)
-		{
-			node->setNext(temp->getNext());
-			node->setPrev(temp);
-			if(temp->getNext())
-			{
-				temp->getNext()->setPrev(node);
-			}
-			temp->setNext(node);
-		}
-		else
-		{
-			node->setNext(m_pOpen);
-			node->setPrev(NULL);
-			if(node->getNext())
-			{
-				node->getNext()->setPrev(node);
-			}
-			m_pOpen = node;
-		}
-	}
+	udFunc(udNotifyList, NULL, addnode, ASNL_ADDOPEN, m_sData);
 }
 
 //	--------------------------------------------------------------------------------
 /// Refresh parent node (after linking in a child)
 void CvAStar::UpdateParents(CvAStarNode* node)
 {
-	CvAStarNode* kid;
-	CvAStarNode* parent;
-	int iKnownCost;
-	FAssert(m_pStackHead == NULL);
-
-	parent = node;
-
+	CvAStarNode* parent = node;
 	while(parent != NULL)
 	{
 		for(size_t i = 0; i < parent->m_apChildren.size(); i++)
 		{
-			kid = parent->m_apChildren[i];
+			CvAStarNode* kid = parent->m_apChildren[i];
 
-			iKnownCost = (parent->m_iKnownCost + udFunc(udCost, parent, kid, 0, m_sData));
+			int iKnownCost = (parent->m_iKnownCost + udFunc(udCost, parent, kid, 0, m_sData));
 
 			if(iKnownCost < kid->m_iKnownCost)
 			{
+				//heap order will be restored when calling getBest()
 				kid->m_iKnownCost = iKnownCost;
 				kid->m_iTotalCost = kid->m_iKnownCost + kid->m_iHeuristicCost;
 				FAssert(parent->m_pParent != kid);
 				kid->m_pParent = parent;
-				if(kid->m_eCvAStarListType == CVASTARLIST_OPEN)
-				{
-					UpdateOpenNode(kid);
-				}
+
 				udFunc(udNotifyChild, parent, kid, ASNC_PARENTADD_UP, m_sData);
 
-				Push(kid);
+				StackPush(kid);
 			}
 		}
 
-		parent = Pop();
+		parent = StackPop();
 	}
 }
 
 //	--------------------------------------------------------------------------------
 /// Push a node on the stack
-void CvAStar::Push(CvAStarNode* node)
+void CvAStar::StackPush(CvAStarNode* node)
 {
-	if(node->m_bOnStack)
-	{
+	//already on stack?
+	if(node->m_pStack)
 		return;
-	}
 
 	if(m_pStackHead == NULL)
 	{
@@ -892,30 +690,21 @@ void CvAStar::Push(CvAStarNode* node)
 		node->m_pStack = m_pStackHead;
 		m_pStackHead = node;
 	}
-
-	node->m_bOnStack = true;
 }
 
 //	--------------------------------------------------------------------------------
 /// Pop a node from the stack
-CvAStarNode* CvAStar::Pop()
+CvAStarNode* CvAStar::StackPop()
 {
-	CvAStarNode* node;
-
 	if(m_pStackHead == NULL)
-	{
 		return NULL;
-	}
 
-	node = m_pStackHead;
+	CvAStarNode* node = m_pStackHead;
 	m_pStackHead = m_pStackHead->m_pStack;
 	node->m_pStack = NULL;
 
-	node->m_bOnStack = false;
-
 	return node;
 }
-
 
 //C-STYLE NON-MEMBER FUNCTIONS
 
@@ -1003,7 +792,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 	kToNodeCacheData.bPlotVisibleToTeam = pPlot->isVisible(eUnitTeam);
 	kToNodeCacheData.bIsWater = pPlot->needsEmbarkation(pUnit); //not all water plots count as water ...
 	kToNodeCacheData.bCanEnterTerrain = pUnit->canEnterTerrain(*pPlot);
-	kToNodeCacheData.bCanEnterTerritory = pUnit->canEnterTerritory(ePlotTeam,false,pPlot->isCity(),finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR));
+	kToNodeCacheData.bCanEnterTerritory = pUnit->canEnterTerritory(ePlotTeam,finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE),pPlot->isCity(),finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR));
 
 	kToNodeCacheData.bContainsOtherFriendlyTeamCity = false;
 	CvCity* pCity = pPlot->getPlotCity();
@@ -1025,6 +814,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 	}
 
 	kToNodeCacheData.bFriendlyUnitLimitReached = (pPlot->getNumFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit());
+	kToNodeCacheData.bIsValidRoute = pPlot->isValidRoute(pUnit);
 
 	if (bDoDanger)
 		kToNodeCacheData.iPlotDanger = GET_PLAYER(pUnit->getOwner()).GetPlotDanger(*pPlot, pUnit);
@@ -1046,7 +836,7 @@ int DestinationReached(int iToX, int iToY, const SPathFinderUserData&, const CvA
 
 //	--------------------------------------------------------------------------------
 /// Standard path finder - is this end point for the path valid?
-int PathDestValidGeneric(int iToX, int iToY, const SPathFinderUserData&, const CvAStar* finder, bool bCheckStacking)
+int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar* finder)
 {
 	CvPlot* pToPlot = GC.getMap().plotCheckInvalid(iToX, iToY);
 	FAssert(pToPlot != NULL);
@@ -1060,45 +850,41 @@ int PathDestValidGeneric(int iToX, int iToY, const SPathFinderUserData&, const C
 		return FALSE;
 
 	if(pUnit->plot() == pToPlot)
-	{
 		return TRUE;
-	}
 
 	if(pCacheData->IsImmobile())
-	{
 		return FALSE;
-	}
 
 	//checks which need visibility (logically so we don't leak information)
 	if (pToPlot->isVisible(eTeam))
 	{
-		// assume that we can change our embarking state
-		int iMoveFlags = CvUnit::MOVEFLAG_DESTINATION ;
+		//use the flags mostly as provided - attack needs manual handling though
+		int iMoveFlags = finder->GetData().iFlags & ~CvUnit::MOVEFLAG_ATTACK;
 
-		if(pUnit->IsDeclareWar() || finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR))
-		{
+		//checking the destination!
+		iMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;
+
+		if(pUnit->IsDeclareWar())
 			iMoveFlags |= CvUnit::MOVEFLAG_DECLARE_WAR;
-		}
 
-		if(!bCheckStacking || finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) || finder->HaveFlag(CvUnit::MOVEFLAG_APPROXIMATE_TARGET)) 
-		{
+		if(finder->HaveFlag(CvUnit::MOVEFLAG_APPROXIMATE_TARGET)) 
 			iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
-		}
 
-		// all other rules are hidden here
-		if (pUnit->isRanged())
+		//special checks for attack flag
+		if (pCacheData->IsCanAttack())
 		{
-			//ranged units can only "attack" civilian by moving (i.e. capture them)
-			if (pToPlot->isVisibleEnemyUnit(pUnit) && !pToPlot->isVisibleEnemyDefender(pUnit))
-				iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
-
-			if (!pUnit->canMoveInto(*pToPlot, iMoveFlags))
-				return FALSE;
-		}
-		else
-		{
-			if (!pUnit->canMoveOrAttackInto(*pToPlot, iMoveFlags))
-				return FALSE;
+			if (pUnit->isRanged())
+			{
+				//ranged units can capture a civilian by moving but need the attack flag to do it
+				if (pToPlot->isVisibleEnemyUnit(pUnit) && !pToPlot->isVisibleEnemyDefender(pUnit))
+					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+			}
+			else
+			{
+				//melee units attack enemy cities and units 
+				if (pToPlot->isVisibleEnemyUnit(pUnit) && pToPlot->isEnemyCity(*pUnit))
+					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+			}
 		}
 	}
 
@@ -1141,16 +927,6 @@ int PathDestValidGeneric(int iToX, int iToY, const SPathFinderUserData&, const C
 	return TRUE;
 }
 
-int PathDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder)
-{
-	return PathDestValidGeneric(iToX,iToY,data,finder,true);
-}
-
-int IgnoreUnitsDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder)
-{
-	return PathDestValidGeneric(iToX,iToY,data,finder,false);
-}
-
 //	--------------------------------------------------------------------------------
 /// Standard path finder - determine heuristic cost
 int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY)
@@ -1158,9 +934,104 @@ int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, 
 	//a normal move is 60 times the base cost
 	return plotDistance(iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*20; 
 }
+
+//	--------------------------------------------------------------------------------
+/// Standard path finder - cost for ending the turn on a given plot
+int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData, const UnitPathCacheData* pUnitDataCache, int iTurnsInFuture)
+{
+	int iCost = 0;
+
+	CvUnit* pUnit = pUnitDataCache->pUnit;
+	TeamTypes eUnitTeam = pUnitDataCache->getTeam();
+	DomainTypes eUnitDomain = pUnitDataCache->getDomainType();
+
+	if(pUnit->IsCombatUnit())
+	{
+		iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (200 - ((pUnit->noDefensiveBonus()) ? 0 : pToPlot->defenseModifier(eUnitTeam, false)))));
+	}
+
+	// Damage caused by features (mods)
+	if(0 != GC.getPATH_DAMAGE_WEIGHT())
+	{
+		if(pToPlot->getFeatureType() != NO_FEATURE)
+		{
+#if defined(MOD_API_PLOT_BASED_DAMAGE)
+			if (MOD_API_PLOT_BASED_DAMAGE) {
+				iCost += (GC.getPATH_DAMAGE_WEIGHT() * std::max(0, pToPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()))) / GC.getMAX_HIT_POINTS();
+			} else {
+#endif
+				iCost += (GC.getPATH_DAMAGE_WEIGHT() * std::max(0, GC.getFeatureInfo(pToPlot->getFeatureType())->getTurnDamage())) / GC.getMAX_HIT_POINTS();
+#if defined(MOD_API_PLOT_BASED_DAMAGE)
+			}
+#endif
+		}
+
+		if(pToPlot->getExtraMovePathCost() > 0)
+			iCost += (PATH_BASE_COST * pToPlot->getExtraMovePathCost());
+	}
+
+	if (pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_UNWELCOME_EVANGELIST()))
+	{
+		// Avoid being in a territory that we are not welcome in, unless the human is manually controlling the unit.
+		if (pUnitDataCache->isAIControl())
+		{
+			PlayerTypes ePlotOwner = pToPlot->getOwner();
+			TeamTypes ePlotTeam = pToPlot->getTeam();
+			if (ePlotTeam != NO_TEAM && !GET_PLAYER(ePlotOwner).isMinorCiv() && ePlotTeam!=eUnitTeam && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eUnitTeam))
+			{
+				iCost += PATH_END_TURN_MISSIONARY_OTHER_TERRITORY;
+			}
+		}
+	}
+	else if(pToPlot->getTeam() != eUnitTeam)
+	{
+		iCost += PATH_END_TURN_FOREIGN_TERRITORY;
+	}
+
+	// If we are a land unit and we are ending the turn on water, make the cost a little higher 
+	// so that we favor staying on land or getting back to land as quickly as possible
+	if(eUnitDomain == DOMAIN_LAND && kToNodeCacheData.bIsWater)
+		iCost += PATH_END_TURN_WATER;
+
+	// when in doubt we prefer to end our turn on a route
+	if (!kToNodeCacheData.bIsValidRoute)
+		iCost += PATH_END_TURN_NO_ROUTE;
+
+	//danger check
+	if ( pUnitDataCache->DoDanger() )
+	{
+		//note: this includes an overkill factor because usually not all enemy units will attack this one unit
+		int iPlotDanger = kToNodeCacheData.iPlotDanger;
+		//we should give more weight to the first end-turn plot, the danger values for future stops are less concrete
+		int iFutureFactor = std::max(1,4-iTurnsInFuture);
+
+		if (pUnit->IsCombatUnit())
+		{
+			//combat units can still tolerate some danger
+			//embarkation is handled implicitly because danger value will be higher
+			if (iPlotDanger >= pUnit->GetCurrHitPoints()*3)
+				iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*iFutureFactor;
+			else if (iPlotDanger >= pUnit->GetCurrHitPoints())
+				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
+			else if (iPlotDanger > 0 )
+				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
+		}
+		else //civilian
+		{
+			//danger usually means capture (INT_MAX), unless embarked
+			if (iPlotDanger > pUnit->GetCurrHitPoints())
+				iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*4*iFutureFactor;
+			else if (iPlotDanger > 0)
+				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
+		}
+	}
+
+	return iCost;
+}
+
 //	--------------------------------------------------------------------------------
 /// Standard path finder - compute cost of a path
-int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar* finder, bool bWithZOC)
+int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData&, CvAStar* finder)
 {
 	int iStartMoves = parent->m_iMoves;
 	int iTurns = parent->m_iTurns;
@@ -1177,17 +1048,19 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 	int iToPlotY = node->m_iY;
 	CvPlot* pToPlot = kMap.plotUnchecked(iToPlotX, iToPlotY);
 	bool bIsPathDest = finder->IsPathDest(iToPlotX, iToPlotY);
+	bool bCheckZOC =  !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ZOC);
+	bool bCheckStacking = !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING);
 
-	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
-	CvUnit* pUnit = pCacheData->pUnit;
+	const UnitPathCacheData* pUnitDataCache = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
+	CvUnit* pUnit = pUnitDataCache->pUnit;
 
-	TeamTypes eUnitTeam = pCacheData->getTeam();
-	DomainTypes eUnitDomain = pCacheData->getDomainType();
+	TeamTypes eUnitTeam = pUnitDataCache->getTeam();
+	DomainTypes eUnitDomain = pUnitDataCache->getDomainType();
 
 	//this is quite tricky with passable ice plots which can be either water or land
 	bool bToPlotIsWater = kToNodeCacheData.bIsWater || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
 	bool bFromPlotIsWater = kFromNodeCacheData.bIsWater || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
-	int iBaseMovesInCurrentDomain = pCacheData->baseMoves(bFromPlotIsWater?DOMAIN_SEA:DOMAIN_LAND);
+	int iBaseMovesInCurrentDomain = pUnitDataCache->baseMoves(bFromPlotIsWater?DOMAIN_SEA:DOMAIN_LAND);
 
 	if (iStartMoves==0)
 	{
@@ -1198,31 +1071,31 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 		iStartMoves = iBaseMovesInCurrentDomain*GC.getMOVE_DENOMINATOR();
 	}
 
-	// do not pass in the remaining moves, we want to see the true cost!
+	//calculate move cost
 	int iMovementCost = 0;
-	if (bWithZOC)
-		iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iStartMoves);
+	if(node->m_kCostCacheData.bContainsVisibleEnemyDefender && (!pUnit->canMoveAfterAttacking() || !pUnitDataCache->isAIControl()))
+		//if the unit would end its turn, we spend all movement points
+		iMovementCost = iStartMoves;
 	else
-		iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iStartMoves);
+	{
+		int iMaxMoves = pUnitDataCache->baseMoves(pToPlot->getDomain())*GC.getMOVE_DENOMINATOR(); //important, use the cached value
+
+		if (bCheckZOC)
+			iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves);
+		else
+			iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves);
+	}
 
 	// how much is left over?
 	int iMovesLeft = iStartMoves - iMovementCost;
 
-	//check again whether we already found a better path now that we know the movement cost
-	if (node->m_iTurns>0)
-	{
-		//this should already be handled in PathValid, but you never know
-		if (node->m_iTurns<iTurns)
-			return PATH_DO_NOT_USE_WEIGHT;
+	// although we could do an early termination here if we see that MovesLeft is smaller than the value currently set in the node,
+	// we don't do it for simplicity. in that rare case we still finish this function and sort it out in LinkChild().
+	// also, be careful with such checks as they may break the secondary stop nodes in the two layer pathfinding.
 
-		if (node->m_iTurns==iTurns && node->m_iMoves>iMovesLeft)
-			return PATH_DO_NOT_USE_WEIGHT;
-	}
-
-	//important: store the remaining moves in the node so we don't have to recalculate later (e.g. in PathAdd)
-	//with all the checks before, we know that this is the best we can currently do. update of the costs is done LinkChild
-	node->m_iMoves = iMovesLeft;
-	node->m_iTurns = iTurns;
+	//important: store the remaining moves so we don't have to recalculate later (e.g. in PathAdd)
+	//can't write to node just yet, before we know whether this transition is good or not
+	finder->SetTempResult(iMovesLeft,iTurns);
 
 	//base cost
 	int iCost = (PATH_BASE_COST * iMovementCost);
@@ -1230,101 +1103,20 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 	//extra cost for ending the turn on various types of undesirable plots (unless explicitly requested)
 	if(iMovesLeft == 0 && !bIsPathDest)
 	{
-		if(pUnit->IsCombatUnit())
-		{
-			iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (200 - ((pUnit->noDefensiveBonus()) ? 0 : pToPlot->defenseModifier(eUnitTeam, false)))));
-		}
+		// check stacking (if visible)
+		if (kToNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kToNodeCacheData.bFriendlyUnitLimitReached)
+			return -1; //forbidden
 
-		if(finder->HaveFlag(CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
-		{
-			if(!pToPlot->isHills())
-			{
-				iCost += PATH_EXPLORE_NON_HILL_WEIGHT;
-			}
-		}
-
-		// Damage caused by features (mods)
-		if(0 != GC.getPATH_DAMAGE_WEIGHT())
-		{
-			if(pToPlot->getFeatureType() != NO_FEATURE)
-			{
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
-				if (MOD_API_PLOT_BASED_DAMAGE) {
-					iCost += (GC.getPATH_DAMAGE_WEIGHT() * std::max(0, pToPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()))) / GC.getMAX_HIT_POINTS();
-				} else {
-#endif
-					iCost += (GC.getPATH_DAMAGE_WEIGHT() * std::max(0, GC.getFeatureInfo(pToPlot->getFeatureType())->getTurnDamage())) / GC.getMAX_HIT_POINTS();
-#if defined(MOD_API_PLOT_BASED_DAMAGE)
-				}
-#endif
-			}
-
-			if(pToPlot->getExtraMovePathCost() > 0)
-			{
-				iCost += (PATH_BASE_COST * pToPlot->getExtraMovePathCost());
-			}
-		}
-
-		if (pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_UNWELCOME_EVANGELIST()))
-		{
-			// Avoid being in a territory that we are not welcome in, unless the human is manually controlling the unit.
-			if (pCacheData->isAIControl())
-			{
-				PlayerTypes ePlotOwner = pToPlot->getOwner();
-				TeamTypes ePlotTeam = pToPlot->getTeam();
-				if (ePlotTeam != NO_TEAM && !GET_PLAYER(ePlotOwner).isMinorCiv() && ePlotTeam!=pCacheData->getTeam() && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(pCacheData->getTeam()))
-				{
-					iCost += PATH_END_TURN_MISSIONARY_OTHER_TERRITORY;
-				}
-			}
-		}
-		else
-		{
-			if(pToPlot->getTeam() != eUnitTeam)
-			{
-				iCost += PATH_TERRITORY_WEIGHT;
-			}
-		}
-
-		// If we are a land unit and we are ending the turn on water, make the cost a little higher 
-		// so that we favor staying on land or getting back to land as quickly as possible
-		if(eUnitDomain == DOMAIN_LAND && bToPlotIsWater)
-		{
-			iCost += PATH_END_TURN_WATER;
-		}
-
-		//danger check
-		if ( pCacheData->DoDanger() )
-		{
-			//note: this includes an overkill factor because usually not all enemy units will attack this one unit
-			int iPlotDanger = node->m_kCostCacheData.iPlotDanger;
-			//we should give more weight to the first end-turn plot, the danger values for future stops are less concrete
-			int iFutureFactor = (node->m_iTurns==1) ? 2 : 1;
-
-			if (pUnit->IsCombatUnit())
-			{
-				//combat units can still tolerate some danger
-				//embarkation is handled implicitly because danger value will be higher
-				if (iPlotDanger >= pUnit->GetCurrHitPoints()*3)
-					iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*iFutureFactor;
-				else if (iPlotDanger >= pUnit->GetCurrHitPoints())
-					iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
-				else if (iPlotDanger > 0 )
-					iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
-			}
-			else //civilian
-			{
-				//danger usually means capture (INT_MAX), unless embarked
-				if (iPlotDanger > pUnit->GetCurrHitPoints())
-					iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*4*iFutureFactor;
-				else if (iPlotDanger > 0)
-					iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
-			}
-		}
+		iCost += PathEndTurnCost(pToPlot,kToNodeCacheData,pUnitDataCache,node->m_iTurns);
 	}
 
 	if(finder->HaveFlag(CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
 	{
+		if(!pToPlot->isHills()) //maybe better check seeFromLevel?
+		{
+			iCost += PATH_EXPLORE_NON_HILL_WEIGHT;
+		}
+
 		int iUnseenPlots = pToPlot->getNumAdjacentNonrevealed(eUnitTeam);
 		if(!pToPlot->isRevealed(eUnitTeam))
 		{
@@ -1334,20 +1126,19 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 		iCost += (7 - iUnseenPlots) * PATH_EXPLORE_NON_REVEAL_WEIGHT;
 	}
 
-	if(pCacheData->IsCanAttack() && bIsPathDest)
+	if(pUnitDataCache->IsCanAttack() && bIsPathDest)
 	{
 		if(node->m_kCostCacheData.bContainsVisibleEnemyDefender)
 		{
 			iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (200 - ((pUnit->noDefensiveBonus()) ? 0 : pFromPlot->defenseModifier(eUnitTeam, false)))));
 
-			if(!(pUnit->isRiverCrossingNoPenalty()))
-			{
-				if(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
-				{
-					iCost += (PATH_RIVER_WEIGHT * -(GC.getRIVER_ATTACK_MODIFIER()));
-					iCost += (PATH_BASE_COST * iMovesLeft);
-				}
-			}
+			//avoid river attack penalty
+			if(!pUnit->isRiverCrossingNoPenalty() && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
+				iCost += (PATH_ATTACK_WEIGHT * -(GC.getRIVER_ATTACK_MODIFIER()));
+
+			//avoid disembarkation penalty
+			if (bFromPlotIsWater && !bToPlotIsWater && !pUnit->isAmphib())
+				iCost += (PATH_ATTACK_WEIGHT * -(GC.getAMPHIB_ATTACK_MODIFIER()));
 		}
 	}
 
@@ -1355,19 +1146,9 @@ int PathCostGeneric(const CvAStarNode* parent, CvAStarNode* node, int, const SPa
 	return iCost;
 }
 
-int PathCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPathFinderUserData& data, const CvAStar* finder)
-{
-	return PathCostGeneric(parent,node,0,data,finder,true);
-}
-
-int IgnoreUnitsCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPathFinderUserData& data, const CvAStar* finder)
-{
-	return PathCostGeneric(parent,node,0,data,finder,false);
-}
-
 //	---------------------------------------------------------------------------
 /// Standard path finder - check validity of a coordinate
-int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar* finder, bool bCheckStacking)
+int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar* finder)
 {
 	// If this is the first node in the path, it is always valid (starting location)
 	if (parent == NULL)
@@ -1379,19 +1160,15 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	CvUnit* pUnit = pCacheData->pUnit;
 	TeamTypes eUnitTeam = pCacheData->getTeam();
+	bool bCheckStacking =  !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING);
 
-	//overwrite the parameter we're given if necessary
-	bCheckStacking	= bCheckStacking && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING);
-
-	// We have determined that this node is not the origin above, so parent != NULL
-	bool bNewTurn = (parent->m_iMoves==0);
 	bool bNextNodeHostile = kToNodeCacheData.bContainsEnemyCity || kToNodeCacheData.bContainsVisibleEnemyDefender;
 	bool bNextNodeVisibleToTeam = kToNodeCacheData.bPlotVisibleToTeam;
 
-	// we would start a new turn or run into an enemy or run into unknown territory, so we must be able to end the turn on the parent plot
-	// the bNewTurn check should really be done when validating the parent node, but at that point we don't know the movement cost yet (PathCost is called after PathValid)
-	if (bNewTurn || bNextNodeHostile || !bNextNodeVisibleToTeam)
+	// we would run into an enemy or run into unknown territory, so we must be able to end the turn on the parent plot
+	if (bNextNodeHostile || !bNextNodeVisibleToTeam)
 	{
+		//don't leak information
 		if (kFromNodeCacheData.bIsRevealedToTeam)
 		{
 			// most importantly, we need to be able to end the turn there
@@ -1407,15 +1184,11 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 				if (kFromNodeCacheData.bContainsOtherFriendlyTeamCity)
 					return FALSE;
 			}
-		}
 
-		if (kFromNodeCacheData.bPlotVisibleToTeam)
-		{
 			// check stacking (if visible)
-			if(bCheckStacking && kFromNodeCacheData.bFriendlyUnitLimitReached)
+			if (kFromNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kFromNodeCacheData.bFriendlyUnitLimitReached)
 			{
-				// Don't count origin, or else a unit will block its own movement!
-				if(parent->m_iX != pUnit->getX() || parent->m_iY != pUnit->getY())
+				if (parent->m_pParent!=NULL) //parent is start position? let's not block ourselves!
 					return FALSE;
 			}
 		}
@@ -1425,14 +1198,13 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 	CvPlot* pFromPlot = theMap.plotUnchecked(parent->m_iX, parent->m_iY);
 	CvPlot* pToPlot = theMap.plotUnchecked(node->m_iX, node->m_iY);
 	bool bIsDestination = finder->IsPathDest(node->m_iX,node->m_iY);
-	int iMoveFlags = 0;
+
+	//use the flags mostly as provided - attack needs manual handling though
+	int iMoveFlags = finder->GetData().iFlags & ~CvUnit::MOVEFLAG_ATTACK;
 
 	//some checks about units etc. they need to be visible, else we leak information in the UI
 	if (kToNodeCacheData.bPlotVisibleToTeam)
 	{
-		if(!bCheckStacking || finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING)) 
-			iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
-
 		//special checks for last node - similar as in PathDestValid
 		if (bIsDestination)
 		{
@@ -1442,18 +1214,21 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 			if(bCheckStacking && kToNodeCacheData.bFriendlyUnitLimitReached)
 				return FALSE;
 
-			//all other rules are hidden here
-			if (pUnit->isRanged())
+			//special checks for attack flag
+			if (pCacheData->IsCanAttack())
 			{
-				//ranged units can capture a civilian by moving but need the attack flag to do it
-				if (kToNodeCacheData.bContainsVisibleEnemy && !kToNodeCacheData.bContainsVisibleEnemyDefender)
-					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
-			}
-			else
-			{
-				//melee units attack enemy cities and units 
-				if (kToNodeCacheData.bContainsVisibleEnemy || kToNodeCacheData.bContainsEnemyCity)
-					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+				if (pUnit->isRanged())
+				{
+					//ranged units can capture a civilian by moving but need the attack flag to do it
+					if (kToNodeCacheData.bContainsVisibleEnemy && !kToNodeCacheData.bContainsVisibleEnemyDefender)
+						iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+				}
+				else
+				{
+					//melee units attack enemy cities and units 
+					if (kToNodeCacheData.bContainsVisibleEnemy || kToNodeCacheData.bContainsEnemyCity)
+						iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+				}
 			}
 		}
 
@@ -1511,16 +1286,6 @@ int PathValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 	return TRUE;
 }
 
-int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData& data, const CvAStar* finder)
-{
-	return PathValidGeneric(parent,node,0,data,finder,true);
-}
-
-int IgnoreUnitsValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData& data, const CvAStar* finder)
-{
-	return PathValidGeneric(parent,node,0,data,finder,false);
-}
-
 //	--------------------------------------------------------------------------------
 /// Standard path finder - add a new path
 int PathAdd(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUserData&, CvAStar* finder)
@@ -1535,6 +1300,13 @@ int PathAdd(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUse
 		node->m_iTurns = 1;
 
 		UpdateNodeCacheData(node,pUnit,pCacheData->DoDanger(),finder);
+	}
+	else
+	{
+		node->m_iMoves = finder->GetCachedMoveCount();
+		node->m_iTurns = finder->GetCachedTurnCount();
+
+		//don't need to update the cache, it has already been done in a previous call
 	}
 
 	//update cache for all possible children
@@ -1557,37 +1329,39 @@ int PathAdd(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUse
 /// Two layer path finder - if add a new open node with movement left, add a second one assuming stop for turn here
 int PathNodeAdd(CvAStarNode* /*parent*/, CvAStarNode* node, int operation, const SPathFinderUserData&, CvAStar* finder)
 {
-	if(operation == ASNL_ADDOPEN || operation == ASNL_STARTOPEN)
+	if(operation == ASNL_ADDOPEN)
 	{
 		// Are there movement points left and we're worried about stacking?
-		// Can we stop here?
-		if(node->m_iMoves > 0 && !finder->IsPathDest(node->m_iX, node->m_iY) && !finder->IsPathStart(node->m_iX, node->m_iY) && 
-			!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) && node->m_kCostCacheData.bCanEnterTerrain && node->m_kCostCacheData.bCanEnterTerritory)
+		if( node->m_iMoves > 0 &&							//important, otherwise we get into an endless loop!
+			node->m_iMoves <= GC.getMOVE_DENOMINATOR() &&	//doesn't make sense to waste more than 1 move
+			node->m_iTurns < 2 &&							//only in the first turn, otherwise the block will likely have moved 
+			!finder->IsPathDest(node->m_iX, node->m_iY) && 
+			!finder->IsPathStart(node->m_iX, node->m_iY) && 
+			!finder->HaveFlag(CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS) && 
+			!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) && 
+			node->m_kCostCacheData.bCanEnterTerrain && 
+			node->m_kCostCacheData.bCanEnterTerritory )
 		{
 			// Retrieve the secondary node
 			CvTwoLayerPathFinder* twoLayerFinder = static_cast<CvTwoLayerPathFinder*>(finder);
 			CvAStarNode* pNode2 = twoLayerFinder->GetPartialMoveNode(node->m_iX, node->m_iY);
 
-			//assume a stop here
+			//assume a stop here - do not add the cost for the wasted movement points!
 			pNode2->m_iMoves = 0;
 			pNode2->m_iTurns = node->m_iTurns;
 			pNode2->m_iHeuristicCost = node->m_iHeuristicCost;
-			//but wasting movement points is bad
-			pNode2->m_iKnownCost = node->m_iKnownCost + (PATH_BASE_COST * node->m_iMoves);
 
-			//make sure it's a good idea to stop here ...
-			const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
-			if(pCacheData->DoDanger())
-				if (node->m_kCostCacheData.iPlotDanger > pCacheData->pUnit->GetCurrHitPoints()*2)
-					pNode2->m_iKnownCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT;
+			//cost is the same plus a little bit to encourage going the full distance when in doubt
+			CvPlot* pToPlot = GC.getMap().plot(node->m_iX, node->m_iY);
+			const CvPathNodeCacheData& kToNodeCacheData = node->m_kCostCacheData;
+			const UnitPathCacheData* pUnitDataCache = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
+			pNode2->m_iKnownCost = node->m_iKnownCost + PathEndTurnCost(pToPlot,kToNodeCacheData,pUnitDataCache,node->m_iTurns) + PATH_STEP_WEIGHT;
 
 			//we sort the nodes by total cost!
-			pNode2->m_iTotalCost = pNode2->m_iKnownCost + pNode2->m_iHeuristicCost;
-
+			pNode2->m_iTotalCost = pNode2->m_iKnownCost*giKnownCostWeight + pNode2->m_iHeuristicCost*giHeuristicCostWeight;
 			pNode2->m_iX = node->m_iX;
 			pNode2->m_iY = node->m_iY;
 			pNode2->m_pParent = node->m_pParent;
-			pNode2->m_eCvAStarListType = CVASTARLIST_OPEN;
 			pNode2->m_kCostCacheData = node->m_kCostCacheData;
 			finder->AddToOpen(pNode2);
 		}
@@ -1595,6 +1369,7 @@ int PathNodeAdd(CvAStarNode* /*parent*/, CvAStarNode* node, int operation, const
 
 	return 1;
 }
+
 
 //	--------------------------------------------------------------------------------
 /// Step path finder - is this end point for the path valid?
@@ -1624,7 +1399,7 @@ int StepHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, 
 
 //	--------------------------------------------------------------------------------
 /// Step path finder - compute cost of a path
-int StepCost(const CvAStarNode*, CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar*)
+int StepCost(const CvAStarNode*, const CvAStarNode* node, int, const SPathFinderUserData&, CvAStar*)
 {
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
@@ -1751,7 +1526,7 @@ int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, cons
 
 //	--------------------------------------------------------------------------------
 /// Influence path finder - compute cost of a path
-int InfluenceCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar* finder)
+int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData&, CvAStar* finder)
 {
 	//failsafe
 	if (!parent || !node)
@@ -2023,7 +1798,7 @@ int WaterRouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, con
 
 //	--------------------------------------------------------------------------------
 /// Build route cost
-int BuildRouteCost(const CvAStarNode* /*parent*/, CvAStarNode* node, int, const SPathFinderUserData& data, const CvAStar*)
+int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, int, const SPathFinderUserData& data, CvAStar*)
 {
 	CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
@@ -2168,7 +1943,7 @@ CvTwoLayerPathFinder::CvTwoLayerPathFinder()
 	m_ppaaPartialMoveNodes = NULL;
 
 	//this is our default path type
-	m_sData.ePathType = PT_UNIT_WITH_ZOC;
+	m_sData.ePathType = PT_UNIT_MOVEMENT;
 	SetFunctionPointers(DestinationReached, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
 
 #if defined(MOD_BALANCE_CORE)
@@ -2248,20 +2023,12 @@ bool CvTwoLayerPathFinder::Configure(PathType ePathType)
 {
 	switch(ePathType)
 	{
-	case PT_UNIT_WITH_ZOC:
+	case PT_UNIT_MOVEMENT:
 		SetFunctionPointers(DestinationReached, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST*GC.getMOVE_DENOMINATOR();
 		break;
-	case PT_UI_PLOT_MOVE_HIGHLIGHT:
-		SetFunctionPointers(DestinationReached, NULL, PathHeuristic, PathCost, UIPathValid, UIPathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
-		m_iBasicPlotCost = PATH_BASE_COST*GC.getMOVE_DENOMINATOR();
-		break;
-	case PT_UI_PLOT_ATTACK_HIGHLIGHT:
-		SetFunctionPointers(DestinationReached, NULL, PathHeuristic, PathCost, UIPathValid, UIAttackPathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
-		m_iBasicPlotCost = PATH_BASE_COST*GC.getMOVE_DENOMINATOR();
-		break;
-	case PT_UI_PATH_VISUALIZATION:
-		SetFunctionPointers(DestinationReached, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+	case PT_UNIT_REACHABLE_PLOTS:
+		SetFunctionPointers(DestinationReached, NULL, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST*GC.getMOVE_DENOMINATOR();
 		break;
 	default:
@@ -2295,10 +2062,6 @@ bool CvPathFinder::Configure(PathType ePathType)
 	case PT_GENERIC_ANY_AREA_WIDE:
 		SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValidWideAnyArea, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
-		break;
-	case PT_UNIT_IGNORE_OTHERS:
-		SetFunctionPointers(DestinationReached, IgnoreUnitsDestValid, PathHeuristic, IgnoreUnitsCost, IgnoreUnitsValid, PathAdd, NULL, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
-		m_iBasicPlotCost = PATH_BASE_COST*GC.getMOVE_DENOMINATOR();
 		break;
 	case PT_TRADE_WATER:
 		SetFunctionPointers(DestinationReached, NULL, PathHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, StepAdd, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize);
@@ -2611,96 +2374,20 @@ bool CvPathFinder::VerifyPath(const SPath& path)
 	return bResult;
 }
 
-
-//	--------------------------------------------------------------------------------
-/// UI path finder - check validity of a coordinate
-int UIPathValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder)
+//for now, we only return nodes with turns count < 2
+ReachablePlots CvPathFinder::GetPlotsTouched(int iMinMovesLeft) const
 {
-	if (parent == NULL)
+	ReachablePlots plots;
+
+	//iterate all previously touched nodes
+	for (std::vector<CvAStarNode*>::const_iterator it=m_closedNodes.begin(); it!=m_closedNodes.end(); ++it)
 	{
-		return TRUE;
+		CvAStarNode* temp = *it;
+		if (temp->m_iMoves>=iMinMovesLeft && temp->m_iTurns<2)
+			plots.insert( std::make_pair(GC.getMap().plotNum(temp->m_iX, temp->m_iY),temp->m_iMoves) );
 	}
 
-	//failsafe - we're only interested in plots we reach this turn. node->m_iTurns is not set yet!
-	if(parent->m_iTurns > 1)
-	{
-		return FALSE;
-	}
-
-	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
-
-	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
-	const CvUnit* pUnit = pCacheData->pUnit;
-
-	if(!pToPlot->isRevealed(pUnit->getTeam()))
-	{
-		if(pUnit->getNoRevealMapCount() > 0)
-		{
-			return FALSE;
-		}
-	}
-
-	if(pToPlot->isVisible(pUnit->getTeam()) && pToPlot->isVisibleEnemyUnit(pUnit))
-	{
-		if (!pUnit->canMoveInto(*pToPlot, CvUnit::MOVEFLAG_ATTACK))
-			return FALSE;
-	}
-
-	if(!pUnit->canEnterTerrain(*pToPlot, CvUnit::MOVEFLAG_ATTACK))
-	{
-		return FALSE;
-	}
-
-	if(!PathValid(parent,node,operation,data,finder))
-	{
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-//	--------------------------------------------------------------------------------
-/// UI path finder - add a new path and send out a message
-int UIPathAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder)
-{
-	PathAdd(parent, node, operation, data, finder);
-	if(node && node->m_iTurns < 2)
-	{
-		CvPlot* pPlot = GC.getMap().plot(node->m_iX, node->m_iY);
-
-		if(pPlot)
-		{
-			auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
-			GC.GetEngineUserInterface()->AddHexToUIRange(pDllPlot.get());
-		}
-	}
-
-	return 1;
-}
-
-//	--------------------------------------------------------------------------------
-int UIAttackPathAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder)
-{
-	PathAdd(parent, node, operation, data, finder);
-	if(node && node->m_iTurns < 2)
-	{
-		CvPlot* pPlot = GC.getMap().plot(node->m_iX, node->m_iY);
-
-		auto_ptr<ICvUnit1> pDllUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
-		CvUnit* pUnit = GC.UnwrapUnitPointer(pDllUnit.get());
-		CvAssertMsg(pUnit, "pUnit should be a value");
-
-		if(pUnit && pPlot)
-		{
-			if(pPlot->isVisible(pUnit->getTeam()) && (pPlot->isVisibleEnemyUnit(pUnit) || pPlot->isEnemyCity(*pUnit)))
-			{
-				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
-				GC.GetEngineUserInterface()->AddHexToUIRange(pDllPlot.get());
-			}
-		}
-	}
-
-	return 1;
+	return plots;
 }
 
 //	---------------------------------------------------------------------------
@@ -2868,7 +2555,7 @@ void TradePathUninitialize(const SPathFinderUserData&, CvAStar*)
 }
 
 //	--------------------------------------------------------------------------------
-int TradeRouteLandPathCost(const CvAStarNode* parent, CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar* finder)
+int TradeRouteLandPathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData&, CvAStar* finder)
 {
 	CvMap& kMap = GC.getMap();
 	int iFromPlotX = parent->m_iX;
@@ -2952,7 +2639,7 @@ int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, int,
 
 //	--------------------------------------------------------------------------------
 
-int TradeRouteWaterPathCost(const CvAStarNode*, CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar* finder)
+int TradeRouteWaterPathCost(const CvAStarNode*, const CvAStarNode* node, int, const SPathFinderUserData&, CvAStar* finder)
 {
 	CvMap& kMap = GC.getMap();
 	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
@@ -3093,7 +2780,7 @@ bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPl
 //convenience constructor
 SPathFinderUserData::SPathFinderUserData(const CvUnit* pUnit, int _iFlags, int _iMaxTurns)
 {
-	ePathType = PT_UNIT_WITH_ZOC;
+	ePathType = PT_UNIT_MOVEMENT;
 	iFlags = _iFlags;
 	iMaxTurns = _iMaxTurns;
 	ePlayer = pUnit ? pUnit->getOwner() : NO_PLAYER;

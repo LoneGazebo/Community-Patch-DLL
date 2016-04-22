@@ -110,11 +110,7 @@ public:
 	bool CanCreateTradeRoute(PlayerTypes eOriginPlayer, PlayerTypes eDestPlayer, DomainTypes eDomainRestriction);
 	bool CreateTradeRoute (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, int& iRouteID);
 
-#if defined(MOD_BALANCE_CORE)
-	bool IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPathOut=NULL, bool bWarCheck = false);
-#else
-	bool IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPathOut=NULL);
-#endif
+	bool IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPathOut=NULL, bool bWarCheck = true);
 	bool IsDestinationExclusive(const TradeConnection& kTradeConnection);
 	bool IsConnectionInternational (const TradeConnection& kTradeConnection);
 
@@ -189,12 +185,8 @@ public:
 	void SetOriginYields(int iConnection, int iYield, int iValue) { m_aTradeConnections[iConnection].m_aiOriginYields[iYield]=iValue; }
 	void SetDestYields(int iConnection, int iYield, int iValue) { m_aTradeConnections[iConnection].m_aiDestYields[iYield]=iValue; }
 
-	bool HaveTradePath(bool bWater, int iCityA, int iCityB, SPath* pPathOut=NULL);
-#if defined(MOD_BALANCE_CORE)
-	void UpdateTradePathCache(uint iOriginPlayer, bool bWarCheck = false);
-#else
+	bool HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, SPath* pPathOut=NULL);
 	void UpdateTradePathCache(uint iOriginPlayer);
-#endif
 
 protected:
 

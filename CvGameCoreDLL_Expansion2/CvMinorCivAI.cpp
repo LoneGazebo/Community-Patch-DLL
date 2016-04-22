@@ -2795,7 +2795,7 @@ bool CvMinorCivQuest::IsExpired()
 			return true;
 		}
 		int iNum = m_iData2;
-		if(NO_BUILDING && GET_PLAYER(m_eAssignedPlayer).getNumCities() < iNum)
+		if(eBuilding == NO_BUILDING && GET_PLAYER(m_eAssignedPlayer).getNumCities() < iNum)
 		{
 			return true;
 		}
@@ -5532,7 +5532,8 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 		// most of the time they will be one and the same
 		PlayerTypes eMeetingPlayer = GET_TEAM(eTeam).getLeaderID();
 		CvPlayer* pMeetingPlayer = &GET_PLAYER(eMeetingPlayer);
-		if (!(pMeetingPlayer->isMinorCiv() || pMeetingPlayer->isBarbarian())) {
+		if (!(pMeetingPlayer->isMinorCiv() || pMeetingPlayer->isBarbarian()) && pMeetingPlayer->isAlive())
+		{
 			MinorCivTraitTypes eTrait = GetTrait();
 			MinorCivPersonalityTypes eRealPersonality = GetPersonality();
 			MinorCivPersonalityTypes eFakePersonality = eRealPersonality;

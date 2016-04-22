@@ -280,7 +280,7 @@ void CvGame::init(HandicapTypes eHandicap)
 		}
 	}
 
-	CvGameSpeedInfo& kGameSpeedInfo = getGameSpeedInfo();
+	const CvGameSpeedInfo& kGameSpeedInfo = getGameSpeedInfo();
 	if(getGameTurn() == 0)
 	{
 		iStartTurn = 0;
@@ -290,7 +290,7 @@ void CvGame::init(HandicapTypes eHandicap)
 			iStartTurn += kGameSpeedInfo.getGameTurnInfo(iI).iNumGameTurnsPerIncrement;
 		}
 
-		CvEraInfo& kEraInfo = getStartEraInfo();
+		const CvEraInfo& kEraInfo = getStartEraInfo();
 
 		iStartTurn *= kEraInfo.getStartPercent();
 		iStartTurn /= 100;
@@ -5164,7 +5164,7 @@ void CvGame::initScoreCalculation()
 	m_iMaxPopulation = getPopulationScore(iMaxFood / std::max(1, GC.getFOOD_CONSUMPTION_PER_POPULATION()));
 	if(NO_ERA != getStartEra())
 	{
-		CvEraInfo& kStartEra = getStartEraInfo();
+		const CvEraInfo& kStartEra = getStartEraInfo();
 		int iNumSettlers = kStartEra.getStartingUnitMultiplier();
 		m_iInitPopulation = getPopulationScore(iNumSettlers * (kStartEra.getFreePopulation() + 1));
 
@@ -6014,7 +6014,7 @@ void CvGame::setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat, bool bAu
 }
 
 //	--------------------------------------------------------------------------------
-CvHandicapInfo& CvGame::getHandicapInfo() const
+const CvHandicapInfo& CvGame::getHandicapInfo() const
 {
 	CvHandicapInfo* pkHandicapInfo = GC.getHandicapInfo(getHandicapType());
 	if(pkHandicapInfo == NULL)
@@ -6022,6 +6022,12 @@ CvHandicapInfo& CvGame::getHandicapInfo() const
 		const char* szError = "ERROR: Game does not contain valid handicap!!";
 		GC.LogMessage(szError);
 		CvAssertMsg(false, szError);
+
+		// it hurts but we have to - whoever designed this should be whipped
+#pragma warning ( push )
+#pragma warning(disable:4172) //returning address of temporary
+		return CvHandicapInfo();
+#pragma warning ( pop )
 	}
 
 #pragma warning ( push )
@@ -7328,7 +7334,7 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 }
 
 //	--------------------------------------------------------------------------------
-CvGameSpeedInfo& CvGame::getGameSpeedInfo() const
+const CvGameSpeedInfo& CvGame::getGameSpeedInfo() const
 {
 	CvGameSpeedInfo* pkGameSpeedInfo = GC.getGameSpeedInfo(getGameSpeedType());
 	if(pkGameSpeedInfo == NULL)
@@ -7336,6 +7342,12 @@ CvGameSpeedInfo& CvGame::getGameSpeedInfo() const
 		const char* szError = "ERROR: Game does not contain valid game speed!!";
 		GC.LogMessage(szError);
 		CvAssertMsg(false, szError);
+
+		// it hurts but we have to - whoever designed this should be whipped
+#pragma warning ( push )
+#pragma warning(disable:4172) //returning address of temporary
+		return CvGameSpeedInfo();
+#pragma warning ( pop )
 	}
 
 #pragma warning ( push )
@@ -7351,7 +7363,7 @@ GameSpeedTypes CvGame::getGameSpeedType() const
 }
 
 //	--------------------------------------------------------------------------------
-CvEraInfo& CvGame::getStartEraInfo() const
+const CvEraInfo& CvGame::getStartEraInfo() const
 {
 	CvEraInfo* pkStartEraInfo = GC.getEraInfo(getStartEra());
 	if(pkStartEraInfo == NULL)
@@ -7359,6 +7371,12 @@ CvEraInfo& CvGame::getStartEraInfo() const
 		const char* szError = "ERROR: Game does not contain valid start era!!";
 		GC.LogMessage(szError);
 		CvAssertMsg(false, szError);
+
+		// it hurts but we have to - whoever designed this should be whipped
+#pragma warning ( push )
+#pragma warning(disable:4172) //returning address of temporary
+		return CvEraInfo();
+#pragma warning ( pop )
 	}
 
 #pragma warning ( push )
@@ -9626,6 +9644,26 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 {
 	return GC.getASyncRand().get(iNum, pszLog);
 }
+
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+//	--------------------------------------------------------------------------------
+// Get a fake random number which depends on game state - experimental
+// for small numbers (e.g. direction rolls) this should be good enough
+int CvGame::getSmallFakeRandNum(int iNum, CvPlot& input)
+{
+	if (iNum>0)
+		return (input.getX()+input.getY()+getGameTurn()+m_iGlobalAssetCounter) % iNum;
+	else
+		return 0;
+}
+int CvGame::getSmallFakeRandNum(int iNum)
+{
+	if (iNum>0)
+		return (getGameTurn()+m_iGlobalAssetCounter) % iNum;
+	else
+		return 0;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvGame::calculateSyncChecksum()

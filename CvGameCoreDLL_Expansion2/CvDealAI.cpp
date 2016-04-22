@@ -679,6 +679,10 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 	// Now do the valuation
 	iTotalValueToMe = GetDealValue(pDeal, iValueImOffering, iValueTheyreOffering, /*bUseEvenValue*/ false);
 
+	// Important: check invalid return value!
+	if (iTotalValueToMe==INT_MAX || iTotalValueToMe==-INT_MAX)
+		return false;
+
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// We're offering help to a player
 	if (MOD_DIPLOMACY_CIV4_FEATURES && GetPlayer()->GetDiplomacyAI()->IsOfferingGift(eOtherPlayer))
@@ -686,10 +690,6 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 		return true;
 	}
 #endif
-
-	// Important: check invalid return value!
-	if (iTotalValueToMe==INT_MAX)
-		return false;
 
 #if defined(MOD_BALANCE_CORE_DEALS)
 	if (!pDeal->IsPeaceTreatyTrade(eOtherPlayer))
@@ -8315,6 +8315,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 	}
 	int iUsRevealed = 0;
 	int iThemRevealed = 0;
+	int iNumTeams = GC.getGame().countCivTeamsAlive();
 
 	CvPlot* pPlot;
 	// Look at every tile on map
@@ -8442,7 +8443,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 		// Modifier based on uniqueness
 		CvAssertMsg(GC.getGame().countCivTeamsAlive() != 0, "CvDealAI: Civ Team count equals zero...");
 
-		int iModifier = (GC.getGame().countCivTeamsAlive() - iNumRevealed) * 100 / GC.getGame().countCivTeamsAlive();
+		int iModifier = (iNumTeams - iNumRevealed) * 100 / iNumTeams;
 
 		if(iModifier < 50)
 			iModifier = 50;

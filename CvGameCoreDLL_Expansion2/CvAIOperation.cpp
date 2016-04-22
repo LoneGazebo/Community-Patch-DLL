@@ -2293,7 +2293,7 @@ void CvAIOperationEnemyTerritory::Init(int iID, PlayerTypes eOwner, PlayerTypes 
 		if(pArmyAI)
 		{
 			m_viArmyIDs.push_back(pArmyAI->GetID());
-			pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+			pArmyAI->SetOperationID(m_iID);
 			pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 			pArmyAI->SetFormationIndex(GetFormation());
 			pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
@@ -2427,10 +2427,6 @@ void CvAIOperationBasicCityAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes
 	m_eOwner = eOwner;
 	m_eEnemy = eEnemy;
 
-#if !defined(MOD_BALANCE_CORE)
-	SetStartCityPlot(pMuster->plot());
-#endif
-
 	if(iID != -1)
 	{
 		// create the armies that are needed and set the state to ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE
@@ -2439,7 +2435,7 @@ void CvAIOperationBasicCityAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes
 		if(pArmyAI)
 		{
 			m_viArmyIDs.push_back(pArmyAI->GetID());
-			pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+			pArmyAI->SetOperationID(m_iID);
 			pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 			pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 			int iFormation = MilitaryAIHelpers::GetCurrentBestFormationTypeForCityAttack();
@@ -3243,7 +3239,7 @@ void CvAIOperationEscorted::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 			if(pArmyAI)
 			{
 				m_viArmyIDs.push_back(pArmyAI->GetID());
-				pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+				pArmyAI->SetOperationID(m_iID);
 				pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 				pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 				pArmyAI->SetFormationIndex(GetFormation());
@@ -3506,7 +3502,7 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 			if(pArmyAI)
 			{
 				m_viArmyIDs.push_back(pArmyAI->GetID());
-				pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+				pArmyAI->SetOperationID(m_iID);
 				pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 				pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 				pArmyAI->SetFormationIndex(GetFormation());
@@ -4035,7 +4031,7 @@ void CvAIOperationQuickColonize::Init(int iID, PlayerTypes eOwner, PlayerTypes /
 			if(pArmyAI)
 			{
 				m_viArmyIDs.push_back(pArmyAI->GetID());
-				pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+				pArmyAI->SetOperationID(m_iID);
 				pArmyAI->SetFormationIndex(GetFormation());
 
 				// Figure out the initial rally point - for this operation it is wherever our civilian is standing
@@ -4500,7 +4496,7 @@ void CvAIOperationAllyDefense::Init(int iID, PlayerTypes eOwner, PlayerTypes eEn
 			if(pArmyAI && pTargetPlot)
 			{
 				m_viArmyIDs.push_back(pArmyAI->GetID());
-				pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+				pArmyAI->SetOperationID(m_iID);
 				pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 				pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 				pArmyAI->SetFormationIndex(GetFormation());	
@@ -4783,7 +4779,7 @@ void CvAIOperationNaval::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, C
 		if(pArmyAI)
 		{
 			m_viArmyIDs.push_back(pArmyAI->GetID());
-			pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+			pArmyAI->SetOperationID(m_iID);
 			pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 			pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 			pArmyAI->SetFormationIndex(GetFormation());
@@ -5029,7 +5025,7 @@ void CvAIOperationNavalBombardment::Init(int iID, PlayerTypes eOwner, PlayerType
 		if(pArmyAI)
 		{
 			m_viArmyIDs.push_back(pArmyAI->GetID());
-			pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+			pArmyAI->SetOperationID(m_iID);
 			pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 			pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 			pArmyAI->SetFormationIndex(GetFormation());
@@ -5259,7 +5255,7 @@ void CvAIOperationNavalSuperiority::Init(int iID, PlayerTypes eOwner, PlayerType
 		if(pArmyAI)
 		{
 			m_viArmyIDs.push_back(pArmyAI->GetID());
-			pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+			pArmyAI->SetOperationID(m_iID);
 			pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 			pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 			pArmyAI->SetFormationIndex(GetFormation());
@@ -5628,7 +5624,7 @@ void CvAIOperationNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 				{
 					SetTargetPlot(pTargetPlot);			
 					m_viArmyIDs.push_back(pArmyAI->GetID());
-					pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+					pArmyAI->SetOperationID(m_iID);
 					pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 					pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 					pArmyAI->SetFormationIndex(GetFormation());
@@ -5750,7 +5746,7 @@ void CvAIOperationCityCloseDefensePeace::Init(int iID, PlayerTypes eOwner, Playe
 		if(pArmyAI)
 		{
 			m_viArmyIDs.push_back(pArmyAI->GetID());
-			pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+			pArmyAI->SetOperationID(m_iID);
 			pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 			pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 			pArmyAI->SetFormationIndex(GetFormation());
@@ -5854,7 +5850,7 @@ void CvAIOperationCityCloseDefense::Init(int iID, PlayerTypes eOwner, PlayerType
 		if(pArmyAI)
 		{
 			m_viArmyIDs.push_back(pArmyAI->GetID());
-			pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+			pArmyAI->SetOperationID(m_iID);
 			pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 			pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 			pArmyAI->SetFormationIndex(GetFormation());
@@ -5971,7 +5967,7 @@ void CvAIOperationRapidResponse::Init(int iID, PlayerTypes eOwner, PlayerTypes e
 		if(pArmyAI)
 		{
 			m_viArmyIDs.push_back(pArmyAI->GetID());
-			pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+			pArmyAI->SetOperationID(m_iID);
 			pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 			pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 			pArmyAI->SetFormationIndex(GetFormation());
@@ -6248,7 +6244,7 @@ void CvAIOperationNavalEscorted::Init(int iID, PlayerTypes eOwner, PlayerTypes /
 						if(pArmyAI)
 						{
 							m_viArmyIDs.push_back(pArmyAI->GetID());
-							pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+							pArmyAI->SetOperationID(m_iID);
 							pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 							pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 							pArmyAI->SetFormationIndex(GetFormation());
@@ -6349,7 +6345,7 @@ void CvAIOperationNavalColonization::Init(int iID, PlayerTypes eOwner, PlayerTyp
 						if(pArmyAI)
 						{
 							m_viArmyIDs.push_back(pArmyAI->GetID());
-							pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+							pArmyAI->SetOperationID(m_iID);
 							pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 							pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 							pArmyAI->SetFormationIndex(GetFormation());
@@ -6808,7 +6804,7 @@ void CvAIOperationNavalAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEn
 						pTargetPlot = pTarget->plot();
 						SetTargetPlot(pTargetPlot);			
 						m_viArmyIDs.push_back(pArmyAI->GetID());
-						pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+						pArmyAI->SetOperationID(m_iID);
 						pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 						pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 						pArmyAI->SetFormationIndex(GetFormation());
@@ -6918,7 +6914,7 @@ void CvAIOperationNavalSneakAttack::Init(int iID, PlayerTypes eOwner, PlayerType
 						pTargetPlot = pTarget->plot();
 						SetTargetPlot(pTargetPlot);			
 						m_viArmyIDs.push_back(pArmyAI->GetID());
-						pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+						pArmyAI->SetOperationID(m_iID);
 						pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 						pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 						pArmyAI->SetFormationIndex(GetFormation());
@@ -7055,7 +7051,7 @@ void CvAIOperationNavalCityStateAttack::Init(int iID, PlayerTypes eOwner, Player
 						SetTargetPlot(pTargetPlot);			
 
 						m_viArmyIDs.push_back(pArmyAI->GetID());
-						pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+						pArmyAI->SetOperationID(m_iID);
 						pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 						pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 						pArmyAI->SetFormationIndex(GetFormation());
@@ -7129,7 +7125,7 @@ void CvAIOperationNukeAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEne
 		if(pArmyAI)
 		{
 			m_viArmyIDs.push_back(pArmyAI->GetID());
-			pArmyAI->Init(pArmyAI->GetID(), m_eOwner, m_iID);
+			pArmyAI->SetOperationID(m_iID);
 			pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 			pArmyAI->SetDomainType(IsNavalOperation()?DOMAIN_SEA:DOMAIN_LAND);
 			pArmyAI->SetFormationIndex(GetFormation());

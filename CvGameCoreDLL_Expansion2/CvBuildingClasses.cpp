@@ -1196,6 +1196,12 @@ const CvBuildingClassInfo& CvBuildingEntry::GetBuildingClassInfo() const
 		const char* szError = "ERROR: Building does not contain valid BuildingClass type!!";
 		GC.LogMessage(szError);
 		CvAssertMsg(false, szError);
+		
+// it hurts but we have to - whoever designed this should be whipped
+#pragma warning ( push )
+#pragma warning(disable:4172) //returning address of temporary
+		return CvBuildingClassInfo();
+#pragma warning ( pop )
 	}
 
 #pragma warning ( push )

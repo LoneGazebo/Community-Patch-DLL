@@ -875,7 +875,7 @@ void CvPlayerTechs::Reset()
 		{
 			TraitTypes eTraitLoop = (TraitTypes) iTraitLoop;
 			// Do we have this trait?
-			CvLeaderHeadInfo* pkLeaderInfo = &m_pPlayer->getLeaderInfo();
+			const CvLeaderHeadInfo* pkLeaderInfo = &m_pPlayer->getLeaderInfo();
 			if(pkLeaderInfo)
 			{
 				if(!pkLeaderInfo->hasTrait(iTraitLoop))  // This trait check disregards tech prereqs and obsoletes

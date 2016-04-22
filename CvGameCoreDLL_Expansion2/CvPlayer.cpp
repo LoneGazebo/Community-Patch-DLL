@@ -931,7 +931,7 @@ void CvPlayer::init(PlayerTypes eID)
 			ChangeStartingSpyRank(GetPlayerTraits()->GetStartingSpyRank());
 		}
 #endif
-		CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
+		const CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
 #if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 		if(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 		{
@@ -2147,7 +2147,7 @@ void CvPlayer::setupGraphical()
 //	--------------------------------------------------------------------------------
 void CvPlayer::initFreeState(CvGameInitialItemsOverrides& kOverrides)
 {
-	CvHandicapInfo& kHandicapInfo = getHandicapInfo();
+	const CvHandicapInfo& kHandicapInfo = getHandicapInfo();
 
 	// Starting Gold
 	if(kOverrides.GrantInitialGoldPerPlayer[GetID()])
@@ -2200,10 +2200,10 @@ void CvPlayer::initFreeUnits(CvGameInitialItemsOverrides& /*kOverrides*/)
 	int iDefaultAI;
 	int iI, iJ;
 
-	CvEraInfo& gameStartEra = GC.getGame().getStartEraInfo();
-	CvHandicapInfo& gameHandicap = GC.getGame().getHandicapInfo();
-	CvHandicapInfo& playerHandicap = getHandicapInfo();
-	CvCivilizationInfo& playerCivilization = getCivilizationInfo();
+	const CvEraInfo& gameStartEra = GC.getGame().getStartEraInfo();
+	const CvHandicapInfo& gameHandicap = GC.getGame().getHandicapInfo();
+	const CvHandicapInfo& playerHandicap = getHandicapInfo();
+	const CvCivilizationInfo& playerCivilization = getCivilizationInfo();
 #if defined(MOD_BALANCE_CORE)
 	int iFree = 0;
 #endif
@@ -2350,7 +2350,7 @@ void CvPlayer::addFreeUnitAI(UnitAITypes eUnitAI, int iCount)
 	UnitTypes eBestUnit = NO_UNIT;
 	int iBestValue = 0;
 
-	CvCivilizationInfo& playerCivilzationInfo = getCivilizationInfo();
+	const CvCivilizationInfo& playerCivilzationInfo = getCivilizationInfo();
 	for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
 		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
@@ -3499,7 +3499,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		GET_PLAYER(eOldOwner).SetHasLostCapital(true, m_eID);
 	}
 
-	CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
+	const CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
 #if defined(MOD_BALANCE_CORE)
 	if(GetPlayerTraits()->IsReconquista())
 	{
@@ -4420,7 +4420,7 @@ void CvPlayer::getCivilizationCityName(CvString& szBuffer, CivilizationTypes eCi
 	}
 	else
 	{
-		CvCivilizationInfo& kCivInfo = *pkCivilizationInfo;
+		const CvCivilizationInfo& kCivInfo = *pkCivilizationInfo;
 		for(int iI = 0; iI < kCivInfo.getNumCityNames(); iI++)
 		{
 			iLoopName = ((iI + iRandOffset) % kCivInfo.getNumCityNames());
@@ -6353,7 +6353,7 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 					{
 						if(pLoopUnit->getUnitType() != NO_UNIT)
 						{
-							if(::IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()))
+							if(::IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()))
 							{
 								pLoopUnit->setHasPromotion(ePromotion, false);
 								bChanged = true;
@@ -6953,7 +6953,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 					{
 						if(pLoopUnit->getUnitType() != NO_UNIT)
 						{
-							if(::IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()))
+							if(::IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()))
 							{
 								if(pLoopUnit->HasPromotion(ePromotion))
 								{
@@ -8754,7 +8754,7 @@ const char* CvPlayer::getCivilizationDescription() const
 	}
 	else if(CvPreGame::civilizationDescription(GetID()).GetLength() == 0)
 	{
-		return getCivilizationInfo().GetDescription();
+		return GC.getCivilizationInfo(getCivilizationType()) ? getCivilizationInfo().GetDescription() : "unknown";
 	}
 	else
 	{
@@ -8772,7 +8772,7 @@ const char* CvPlayer::getCivilizationDescriptionKey() const
 	}
 	else if(CvPreGame::civilizationDescriptionKey(GetID()).GetLength() == 0)
 	{
-		return getCivilizationInfo().GetTextKey();
+		return GC.getCivilizationInfo(getCivilizationType()) ? getCivilizationInfo().GetTextKey() : "TXT_UNKNOWN";
 	}
 	else
 	{
@@ -8790,7 +8790,7 @@ const char* CvPlayer::getCivilizationShortDescription() const
 	}
 	else if(CvPreGame::civilizationShortDescription(GetID()).GetLength() == 0)
 	{
-		return getCivilizationInfo().getShortDescription();
+		return GC.getCivilizationInfo(getCivilizationType()) ? getCivilizationInfo().getShortDescription() : "unknown";
 	}
 	else
 	{
@@ -8808,7 +8808,7 @@ const char* CvPlayer::getCivilizationShortDescriptionKey() const
 	}
 	else if(CvPreGame::civilizationShortDescriptionKey(GetID()).GetLength() == 0)
 	{
-		return getCivilizationInfo().getShortDescriptionKey();
+		return GC.getCivilizationInfo(getCivilizationType()) ? getCivilizationInfo().getShortDescriptionKey() : "TXT_UNKNOWN";
 	}
 	else
 	{
@@ -8826,7 +8826,7 @@ const char* CvPlayer::getCivilizationAdjective() const
 	}
 	else if(CvPreGame::civilizationAdjective(GetID()).GetLength() == 0)
 	{
-		return getCivilizationInfo().getAdjective();
+		return GC.getCivilizationInfo(getCivilizationType()) ? getCivilizationInfo().getAdjective() : "unknown";
 	}
 	else
 	{
@@ -8843,7 +8843,7 @@ const char* CvPlayer::getCivilizationAdjectiveKey() const
 	}
 	else if(CvPreGame::civilizationAdjectiveKey(GetID()).GetLength() == 0)
 	{
-		return getCivilizationInfo().getAdjectiveKey();
+		return GC.getCivilizationInfo(getCivilizationType()) ? getCivilizationInfo().getAdjectiveKey() : "TXT_UNKNOWN";
 	}
 	else
 	{
@@ -12026,7 +12026,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 //	--------------------------------------------------------------------------------
 void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 {
-	CvHandicapInfo& playerHandicapInfo = getHandicapInfo();
+	const CvHandicapInfo& playerHandicapInfo = getHandicapInfo();
 
 	GoodyTypes eGoody;
 
@@ -12205,6 +12205,7 @@ bool CvPlayer::canFound(int iX, int iY) const
 bool CvPlayer::canFound(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, const CvUnit* pUnit) const
 {
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
+
 #if defined(MOD_EVENTS_CITY_FOUNDING)
 	if (MOD_EVENTS_CITY_FOUNDING) {
 		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_PlayerCanFoundCityRegardless, GetID(), iX, iY) == GAMEEVENTRETURN_TRUE) {
@@ -12420,7 +12421,7 @@ void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlo
 		if(pCity)
 		{
 			const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-			CvCivilizationInfo& thisCivilization = getCivilizationInfo();
+			const CvCivilizationInfo& thisCivilization = getCivilizationInfo();
 			for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
 			{
 				const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
@@ -12980,7 +12981,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 	if(!bTestVisible)
 	{
 		// Num buildings in the empire... uhhh, how is this different from the very last check in this function? (JON: It doesn't appear to be used, but I can't say for sure :)
-		CvCivilizationInfo& civilizationInfo = getCivilizationInfo();
+		const CvCivilizationInfo& civilizationInfo = getCivilizationInfo();
 		int numBuildingClassInfos = GC.getNumBuildingClassInfos();
 
 		for(iI = 0; iI < numBuildingClassInfos; iI++)
@@ -16809,7 +16810,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 					{
 						for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 						{
-							CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
+							const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
 							BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
 							if (eBuilding != NO_BUILDING)
 							{
@@ -16888,7 +16889,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 								{
 									break;
 								}
-								CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
+								const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
 								BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
 								if (eBuilding != NO_BUILDING)
 								{
@@ -25933,7 +25934,7 @@ void CvPlayer::DoFreedomCorp()
 				if(pLoopCity->GetFreeBuildingTradeTargetCity() > 0)
 				{
 					BuildingClassTypes eBuildingClassDestCity = (BuildingClassTypes)pLoopCity->GetFreeBuildingTradeTargetCity();
-					CvCivilizationInfo& thisCiv = getCivilizationInfo();
+					const CvCivilizationInfo& thisCiv = getCivilizationInfo();
 					BuildingTypes eBuildingDestCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eBuildingClassDestCity));
 
 					if (eBuildingDestCity != NO_BUILDING)
@@ -29112,7 +29113,7 @@ void CvPlayer::DoUpdateCramped()
 }
 
 //	--------------------------------------------------------------------------------
-CvHandicapInfo& CvPlayer::getHandicapInfo() const
+const CvHandicapInfo& CvPlayer::getHandicapInfo() const
 {
 	CvHandicapInfo* pkHandicapInfo = GC.getHandicapInfo(getHandicapType());
 	if(pkHandicapInfo == NULL)
@@ -29120,6 +29121,12 @@ CvHandicapInfo& CvPlayer::getHandicapInfo() const
 		const char* szError = "ERROR: Player does not contain valid handicap!!";
 		GC.LogMessage(szError);
 		CvAssertMsg(false, szError);
+
+		// it hurts but we have to - whoever designed this should be whipped
+#pragma warning ( push )
+#pragma warning(disable:4172) //returning address of temporary
+		return CvHandicapInfo();
+#pragma warning ( pop )
 	}
 
 #pragma warning ( push )
@@ -29135,7 +29142,7 @@ HandicapTypes CvPlayer::getHandicapType() const
 }
 
 //	--------------------------------------------------------------------------------
-CvCivilizationInfo& CvPlayer::getCivilizationInfo() const
+const CvCivilizationInfo& CvPlayer::getCivilizationInfo() const
 {
 	CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
 	if(pkCivilizationInfo == NULL)
@@ -29143,6 +29150,12 @@ CvCivilizationInfo& CvPlayer::getCivilizationInfo() const
 		const char* szError = "ERROR: Player does not contain valid civilization type!!";
 		GC.LogMessage(szError);
 		CvAssertMsg(false, szError);
+
+		// it hurts but we have to - whoever designed this should be whipped
+#pragma warning ( push )
+#pragma warning(disable:4172) //returning address of temporary
+		return CvCivilizationInfo();
+#pragma warning ( pop )
 	}
 
 #pragma warning ( push )
@@ -29159,7 +29172,7 @@ CivilizationTypes CvPlayer::getCivilizationType() const
 
 
 //	--------------------------------------------------------------------------------
-CvLeaderHeadInfo& CvPlayer::getLeaderInfo() const
+const CvLeaderHeadInfo& CvPlayer::getLeaderInfo() const
 {
 	CvLeaderHeadInfo* pkLeaderInfo = GC.getLeaderHeadInfo(getLeaderType());
 	if(pkLeaderInfo == NULL)
@@ -29167,6 +29180,12 @@ CvLeaderHeadInfo& CvPlayer::getLeaderInfo() const
 		const char* szError = "ERROR: Player does not contain valid leader type!!";
 		GC.LogMessage(szError);
 		CvAssertMsg(false, szError);
+
+		// it hurts but we have to - whoever designed this should be whipped
+#pragma warning ( push )
+#pragma warning(disable:4172) //returning address of temporary
+		return CvLeaderHeadInfo();
+#pragma warning ( pop )
 	}
 
 #pragma warning ( push )
@@ -30408,14 +30427,6 @@ int CvPlayer::GetScienceFromResearchAgreementsTimes100() const
 int CvPlayer::GetScienceFromBudgetDeficitTimes100() const
 {
 	int iScience = 0;
-	
-	int iMyNum = 0;
-	if (iScience > 0)
-	{
-		iMyNum = -1;
-	}
-
-
 	int iGoldPerTurn = calculateGoldRateTimes100();
 	if(GetTreasury()->GetGoldTimes100() + iGoldPerTurn < 0)
 	{
@@ -32456,7 +32467,7 @@ void CvPlayer::changeUnitClassMaking(UnitClassTypes eIndex, int iChange)
 		m_paiUnitClassMaking.setAt(eIndex, m_paiUnitClassMaking[eIndex] + iChange);
 		CvAssert(getUnitClassMaking(eIndex) >= 0);
 
-		CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
+		const CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
 		UnitTypes eUnit = static_cast<UnitTypes>(playerCivilizationInfo.getCivilizationUnits(eIndex));
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 		if(pkUnitInfo)
@@ -33863,7 +33874,7 @@ CvCity* CvPlayer::GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClas
 	int iLoop;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
+		const CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
 		BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)eBuildingClass);
 		if (eBuilding != NO_BUILDING)
 		{
@@ -34052,7 +34063,10 @@ CvArmyAI* CvPlayer::getArmyAI(int iID)
 //	--------------------------------------------------------------------------------
 CvArmyAI* CvPlayer::addArmyAI()
 {
-	return ((CvArmyAI*)(m_armyAIs.Add()));
+	CvArmyAI* pArmy = m_armyAIs.Add();
+	if (pArmy)
+		pArmy->SetOwner(m_eID);
+	return pArmy;
 }
 
 
@@ -35586,7 +35600,7 @@ int CvPlayer::getAdvancedStartImprovementCost(ImprovementTypes eImprovement, boo
 		return -1;
 	}
 
-	int iCost = 0;//GC.getImprovementInfo(eImprovement)->GetAdvancedStartCost();
+	int iCost = 0; //GC.getImprovementInfo(eImprovement)->GetAdvancedStartCost();
 
 	// This denotes cities may not be purchased through Advanced Start
 	if(iCost < 0)
@@ -39490,7 +39504,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 		//if it's too far from our existing cities, it's dangerous
 		int iDistance = GetCityDistance(pUnit->plot());
-		if (iDistance>8)
+		if (iDistance>7)
 			isDangerous = true;
 		else
 		{
