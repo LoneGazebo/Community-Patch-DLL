@@ -1357,16 +1357,15 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 		}
 
-		//If the other player is our master, or vice versa...
-		if(GET_TEAM(pToPlayer->getTeam()).IsVassal(pFromPlayer->getTeam()))
+		// If either team is a vassal of the other, we cannot end vassals
+		if(pToTeam->IsVassal(eFromTeam) || pFromTeam->IsVassal(eToTeam))
 		{
 			return false;
 		}
 
-		if(GET_TEAM(pFromPlayer->getTeam()).IsVassal(pToPlayer->getTeam()))
-		{
+		// Must be able to end all vassals
+		if (!pFromTeam->canEndAllVassal())
 			return false;
-		}
 
 		//Can't already be offering this
 		if (!bFinalizing && IsVassalageTrade( ePlayer))
