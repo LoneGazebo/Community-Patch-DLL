@@ -28985,12 +28985,6 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bI
 }
 
 //	--------------------------------------------------------------------------------
-DestructionNotification<UnitHandle>& CvUnit::getDestructionNotification()
-{
-	return m_destructionNotification;
-}
-
-//	--------------------------------------------------------------------------------
 FDataStream& operator<<(FDataStream& saveTo, const CvUnit& readFrom)
 {
 	readFrom.write(saveTo);

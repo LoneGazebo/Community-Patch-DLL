@@ -2368,21 +2368,30 @@ bool CvTacticalAI::PlotDamageCityMoves()
 			{
 				int iExpectedDamage = ComputeTotalExpectedDamage(pTarget, pPlot);
 
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Laying siege to %s, required damage %d, expected damage %d", pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
-					LogTacticalMessage(strLogString);
-				}
-
 				// Don't want to hammer away to try and take down a city for more than 12 turns
 				if(iExpectedDamage > (iRequiredDamage / 12))
 				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Laying siege to %s, required damage %d, expected damage %d", pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+						LogTacticalMessage(strLogString);
+					}
+
 					// If so, execute enough moves to take it
 					ExecuteAttack(pTarget, pPlot, true);
 					bAttackMade = true;
 
 					MoveUpReliefUnits(*pTarget);
+				}
+				else
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Siege of %s is pointless, required damage %d, expected damage %d", pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+						LogTacticalMessage(strLogString);
+					}
 				}
 			}
 		}
@@ -8793,25 +8802,17 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 				{
 					unit.SetUnitID(pUnit->GetID());
 
-					if(pUnit->IsCanAttackRanged())
-					{
-						if (pUnit->GetRange() > 1)
-						{
-							unit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_BOMBARD]);
-						}
-						else
-						{
-							unit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_FRONT_LINE]);
-						}
-						iRangedUnits++;
-						m_OperationUnits.push_back(unit);
-
-					}
-					else if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
+					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
 					{
 						unit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_CIVILIAN_SUPPORT]);
 						iGenerals++;
 						m_GeneralsToMove.push_back(unit);
+					}
+					else if(pUnit->IsCanAttackRanged() && pUnit->GetRange() > 1)
+					{
+						unit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_BOMBARD]);
+						iRangedUnits++;
+						m_OperationUnits.push_back(unit);
 					}
 					else
 					{
@@ -8852,7 +8853,13 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 						block.SetUnitID(m_CurrentMoveUnits[jJ].GetID());
 						block.SetPlot(pLoopPlot);
 						block.SetNumChoices((int)m_CurrentMoveUnits.size());
-						block.SetDistanceToTarget(m_CurrentMoveUnits[jJ].GetMovesToTarget());
+
+						//try to prevent embarkation - unit can still embark to go somewhere else, but shouldn't actually target the plot
+						CvUnit *pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[jJ].GetID());
+						if (!pUnit->isNativeDomain(pLoopPlot))
+							continue;
+
+						block.SetDistanceToTarget(m_CurrentMoveUnits[jJ].GetMovesToTarget()+2);
 						m_PotentialBlocks.push_back(block);
 					}
 
@@ -8889,6 +8896,12 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 						block.SetUnitID(m_CurrentMoveUnits[jJ].GetID());
 						block.SetPlot(pLoopPlot);
 						block.SetNumChoices((int)m_CurrentMoveUnits.size());
+
+						//try to prevent embarkation - unit can still embark to go somewhere else, but shouldn't actually target the plot
+						CvUnit *pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[jJ].GetID());
+						if (!pUnit->isNativeDomain(pLoopPlot))
+							continue;
+
 						block.SetDistanceToTarget(m_CurrentMoveUnits[jJ].GetMovesToTarget());
 						m_PotentialBlocks.push_back(block);
 					}
@@ -8951,16 +8964,9 @@ void CvTacticalAI::ExecuteHedgehogDefense(CvTacticalTarget& kTarget, CvTacticalD
 							m_GeneralsToMove.push_back(operationUnit);
 						}
 					}
-					else if (pUnit->IsCanAttackRanged())
+					else if (pUnit->IsCanAttackRanged() && pUnit->GetRange() > 1)
 					{
-						if (pUnit->GetRange() > 1)
-						{
-							unit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_BOMBARD]);
-						}
-						else
-						{
-							unit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_FRONT_LINE]);
-						}
+						unit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_BOMBARD]);
 						iRangedUnits++;
 						m_OperationUnits.push_back(unit);
 					}
@@ -9003,6 +9009,12 @@ void CvTacticalAI::ExecuteHedgehogDefense(CvTacticalTarget& kTarget, CvTacticalD
 						block.SetUnitID(m_CurrentMoveUnits[jJ].GetID());
 						block.SetPlot(pLoopPlot);
 						block.SetNumChoices((int)m_CurrentMoveUnits.size());
+
+						//try to prevent embarkation - unit can still embark to go somewhere else, but shouldn't actually target the plot
+						CvUnit *pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[jJ].GetID());
+						if (!pUnit->isNativeDomain(pLoopPlot))
+							continue;
+
 						block.SetDistanceToTarget(m_CurrentMoveUnits[jJ].GetMovesToTarget());
 						m_PotentialBlocks.push_back(block);
 					}
@@ -9044,6 +9056,12 @@ void CvTacticalAI::ExecuteHedgehogDefense(CvTacticalTarget& kTarget, CvTacticalD
 						block.SetUnitID(m_CurrentMoveUnits[jJ].GetID());
 						block.SetPlot(pLoopPlot);
 						block.SetNumChoices((int)m_CurrentMoveUnits.size());
+
+						//try to prevent embarkation - unit can still embark to go somewhere else, but shouldn't actually target the plot
+						CvUnit *pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[jJ].GetID());
+						if (!pUnit->isNativeDomain(pLoopPlot))
+							continue;
+
 						block.SetDistanceToTarget(m_CurrentMoveUnits[jJ].GetMovesToTarget());
 						m_PotentialBlocks.push_back(block);
 					}
