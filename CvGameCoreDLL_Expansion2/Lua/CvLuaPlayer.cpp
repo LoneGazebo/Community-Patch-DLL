@@ -1389,6 +1389,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetEventChoiceCooldown);
 	Method(SetEventChoiceCooldown);
 	Method(IsEventChoiceValid);
+	Method(GetEventHappiness);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -1955,13 +1956,13 @@ int CvLuaPlayer::lCanGetGoody(lua_State* L)
 //bool canFound(int iX, int iY);
 int CvLuaPlayer::lCanFound(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::canFound);
+	return BasicLuaMethod<bool,int,int>(L, &CvPlayerAI::canFound);
 }
 //------------------------------------------------------------------------------
 //void found(int iX, int iY);
 int CvLuaPlayer::lFound(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::found);
+	return BasicLuaMethod<int,int>(L, &CvPlayerAI::found);
 }
 
 //------------------------------------------------------------------------------
@@ -5516,7 +5517,7 @@ int CvLuaPlayer::lGetGreatWorks(lua_State* L)
 	{
 		for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 		{
-			CvCivilizationInfo& playerCivilizationInfo = pkPlayer->getCivilizationInfo();
+			const CvCivilizationInfo& playerCivilizationInfo = pkPlayer->getCivilizationInfo();
 			BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
 			if (eBuilding != NO_BUILDING)
 			{
@@ -14461,6 +14462,20 @@ int CvLuaPlayer::lIsEventChoiceValid(lua_State* L)
 
 	lua_pushboolean(L, bValue);
 
+	return 1;
+}
+int CvLuaPlayer::lGetEventHappiness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iHappiness = 0;
+	CvCity* pLoopCity;
+	int iLoop;
+
+	for(pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+	{
+		iHappiness += pLoopCity->GetEventHappiness();
+	}
+	lua_pushinteger(L, iHappiness);
 	return 1;
 }
 #endif

@@ -35,7 +35,16 @@ REMARK_GROUP("CvInfos");
 // CvBaseInfo Members
 //////////////////////////////////////////////////////////////////////////
 CvBaseInfo::CvBaseInfo()
-	: m_iID(-1)
+	: m_iID(-1),
+	m_strCivilopedia("unknown"),
+	m_strDescription("unknown"),
+	m_strDescriptionKey("unknown"),
+	m_strHelp("unknown"),
+	m_strDisabledHelp("unknown"),
+	m_strStrategy("unknown"),
+	m_strType("unknown"),
+	m_strTextKey("unknown"),
+	m_strText("unknown")
 {}
 //------------------------------------------------------------------------------
 bool CvBaseInfo::CacheResult(Database::Results& kResults)
@@ -6383,6 +6392,7 @@ CvWorldInfo::CvWorldInfo() :
 #if defined(MOD_BALANCE_CORE)
 	m_iMinDistanceCities(3),
 	m_iMinDistanceCityStates(3),
+	m_iReformationPercent(100),
 #endif
 	m_iEstimatedNumCities(0)
 {
@@ -6500,6 +6510,11 @@ int CvWorldInfo::getMinDistanceCityStates() const
 {
 	return m_iMinDistanceCityStates;
 }
+//------------------------------------------------------------------------------
+int CvWorldInfo::getReformationPercent() const
+{
+	return m_iReformationPercent;
+}
 #endif
 //------------------------------------------------------------------------------
 int CvWorldInfo::GetEstimatedNumCities() const
@@ -6559,6 +6574,7 @@ bool CvWorldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 #if defined(MOD_BALANCE_CORE)
 	m_iMinDistanceCities = kResults.GetInt("MinDistanceCities");
 	m_iMinDistanceCityStates = kResults.GetInt("MinDistanceCityStates");
+	m_iReformationPercent = kResults.GetInt("ReformationPercentRequired");
 #endif
 	m_iEstimatedNumCities			= kResults.GetInt("EstimatedNumCities");
 
@@ -7698,6 +7714,7 @@ CvModEventInfo::CvModEventInfo() :
 	 m_bRequiresWar(false),
 	 m_bRequiresWarMinor(false),
 	 m_piRequiredResource(NULL),
+	 m_piRequiredFeature(NULL),
 	 m_piMinimumYield(NULL),
 	 m_strSplashArt(""),
 	 m_strEventAudio(""),
@@ -7716,7 +7733,8 @@ CvModEventInfo::CvModEventInfo() :
 	 m_bLosingMoney(false),
 	 m_bMetAnotherCiv(false),
 	 m_bVassal(false),
-	 m_bMaster(false)
+	 m_bMaster(false),
+	 m_iCoastal(0)
 {
 }
 //------------------------------------------------------------------------------
@@ -7724,6 +7742,7 @@ CvModEventInfo::~CvModEventInfo()
 {
 	SAFE_DELETE_ARRAY(m_piMinimumYield);
 	SAFE_DELETE_ARRAY(m_piRequiredResource);
+	SAFE_DELETE_ARRAY(m_piRequiredFeature);
 }
 //------------------------------------------------------------------------------
 int CvModEventInfo::getRandomChance() const
@@ -7901,6 +7920,13 @@ int CvModEventInfo::getResourceRequired(ResourceTypes eResource) const
 	return m_piRequiredResource ? m_piRequiredResource[eResource] : -1;
 }
 //------------------------------------------------------------------------------
+int CvModEventInfo::getFeatureRequired(FeatureTypes eFeature) const
+{
+	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(eFeature > -1, "Index out of bounds");
+	return m_piRequiredFeature ? m_piRequiredFeature[eFeature] : -1;
+}
+//------------------------------------------------------------------------------
 int CvModEventInfo::getRequiredActiveEvent() const
 {
 	return m_iRequiredActiveEvent;
@@ -7979,6 +8005,11 @@ bool CvModEventInfo::isVassal() const
 bool CvModEventInfo::isMaster() const
 {
 	return m_bMaster;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getNumCoastalRequired() const
+{
+	return m_iCoastal;
 }
 //------------------------------------------------------------------------------
 bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -8100,10 +8131,13 @@ bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_bUnhappy = kResults.GetBool("IsUnhappy");
 	m_bSuperUnhappy = kResults.GetBool("IsSuperUnhappy");
 
+	m_iCoastal = kResults.GetInt("MinimumNumCoastalCities");
+
 	const char* szEventType = GetType();
 	kUtility.SetYields(m_piMinimumYield, "Event_MinimumStartYield", "EventType", szEventType);
 
 	kUtility.PopulateArrayByValue(m_piRequiredResource, "Resources", "Event_MinimumResourceRequired", "ResourceType", "EventType", szEventType, "Quantity");
+	kUtility.PopulateArrayByValue(m_piRequiredFeature, "Features", "Event_MinimumFeatureRequired", "FeatureType", "EventType", szEventType, "Quantity");
 
 
 	return true;
@@ -8152,6 +8186,7 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_piMinimumYield(NULL),
 	 m_bRequiresWarMinor(false),
 	 m_piRequiredResource(NULL),
+	 m_piRequiredFeature(NULL),
 	 m_piResourceChange(NULL),
 	 m_piFlavor(NULL),
 	 m_piEventYield(NULL),
@@ -8187,7 +8222,9 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_ppiTerrainYield(NULL),
 	 m_ppiFeatureYield(NULL),
 	 m_ppiImprovementYield(NULL),
-	 m_ppiResourceYield(NULL)
+	 m_ppiResourceYield(NULL),
+	 m_iCoastal(0),
+	 m_bCoastalOnly(false)
 {
 }
 //------------------------------------------------------------------------------
@@ -8200,6 +8237,7 @@ CvModEventChoiceInfo::~CvModEventChoiceInfo()
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_piMinimumYield);
 	SAFE_DELETE_ARRAY(m_piRequiredResource);
+	SAFE_DELETE_ARRAY(m_piRequiredFeature);
 	SAFE_DELETE_ARRAY(m_piConvertReligion);
 	SAFE_DELETE_ARRAY(m_piConvertReligionPercent);
 	SAFE_DELETE_ARRAY(m_piCityYield);
@@ -8548,6 +8586,14 @@ int CvModEventChoiceInfo::getResourceRequired(ResourceTypes eResource) const
 	return m_piRequiredResource ? m_piRequiredResource[eResource] : -1;
 }
 //------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getFeatureRequired(FeatureTypes eFeature) const
+{
+	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(eFeature > -1, "Index out of bounds");
+	return m_piRequiredFeature ? m_piRequiredFeature[eFeature] : -1;
+}
+
+//------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getRequiredStateReligion() const
 {
 	return m_iRequiredStateReligion;
@@ -8648,6 +8694,16 @@ bool CvModEventChoiceInfo::isMaster() const
 	return m_bMaster;
 }
 //------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getNumCoastalRequired() const
+{
+	return m_iCoastal;
+}
+//------------------------------------------------------------------------------
+bool CvModEventChoiceInfo::isCoastalOnly() const
+{
+	return m_bCoastalOnly;
+}
+//------------------------------------------------------------------------------
 const char* CvModEventChoiceInfo::getDisabledTooltip() const
 {
 	return m_strDisabledTooltip;
@@ -8675,6 +8731,9 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 	m_iEventDuration = kResults.GetInt("EventDuration");
 
 	m_iEventChance = kResults.GetInt("EventChance");
+
+	m_iCoastal = kResults.GetInt("MinimumNumCoastalCities");
+	m_bCoastalOnly = kResults.GetBool("AffectsCoastalCitiesOnly");
 	
 	m_iNumFreePolicies = kResults.GetInt("EventFreePolicies");
 	m_iNumFreeGreatPeople = kResults.GetInt("FreeGreatPeople");
@@ -8981,7 +9040,7 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 	kUtility.SetYields(m_piMinimumYield, "EventChoice_MinimumStartYield", "EventChoiceType", szEventType);
 
 	kUtility.PopulateArrayByValue(m_piRequiredResource, "Resources", "EventChoice_MinimumResourceRequired", "ResourceType", "EventChoiceType", szEventType, "Quantity");
-
+	kUtility.PopulateArrayByValue(m_piRequiredFeature, "Features", "EventChoice_MinimumFeatureRequired", "FeatureType", "EventChoiceType", szEventType, "Quantity");
 
 	return true;
 }

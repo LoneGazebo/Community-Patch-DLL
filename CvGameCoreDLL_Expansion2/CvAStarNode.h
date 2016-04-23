@@ -63,6 +63,7 @@ struct CvPathNodeCacheData
 	bool bContainsVisibleEnemy:1;
 	bool bContainsVisibleEnemyDefender:1;
 	bool bFriendlyUnitLimitReached:1;
+	bool bIsValidRoute:1;
 
 	int iPlotDanger; 
 
@@ -87,12 +88,6 @@ public:
 	CvAStarNode();
 	void clear();
 
-	void setPrev(CvAStarNode* p);
-	void setNext(CvAStarNode* p);
-
-	CvAStarNode* getPrev() const;
-	CvAStarNode* getNext() const;
-
 	short m_iX, m_iY;	  // Coordinate position - persistent
 
 	int m_iTotalCost;	  // Fitness (f)
@@ -106,7 +101,6 @@ public:
 	CvAStarListType m_eCvAStarListType;
 
 	CvAStarNode* m_pStack;					// For Push/Pop Stack
-	bool m_bOnStack;
 
 	//nodes we could reach from this node - maybe be more than 6 because of "extrachildren"
 	std::vector<CvAStarNode*> m_apChildren;
@@ -115,10 +109,6 @@ public:
 	CvAStarNode** m_apNeighbors;
 
 	CvPathNodeCacheData m_kCostCacheData;	// some things we want to calculate only once
-
-protected:
-	CvAStarNode* m_pNext;					// For Open and Closed lists
-	CvAStarNode* m_pPrev;					// For Open and Closed lists
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -181,6 +171,12 @@ class CvPathNodeArray : public FFastVector< CvPathNode, true, c_eMPoolTypeContai
 public:
 
 	const CvPathNode* GetTurnDest(int iTurn);
+};
+
+struct PrNodeIsBetter
+{
+	//greater than is intended! the lowest cost should be first
+	bool operator()(const CvAStarNode* lhs, const CvAStarNode* rhs) const { return lhs->m_iTotalCost > rhs->m_iTotalCost; }
 };
 
 #endif	//CVASTARNODE_H

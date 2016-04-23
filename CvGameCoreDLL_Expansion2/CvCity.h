@@ -413,10 +413,10 @@ public:
 
 	int GetCultureFromSpecialist(SpecialistTypes eSpecialist) const;
 
-	CvHandicapInfo& getHandicapInfo() const;
+	const CvHandicapInfo& getHandicapInfo() const;
 	HandicapTypes getHandicapType() const;
 
-	CvCivilizationInfo& getCivilizationInfo() const;
+	const CvCivilizationInfo& getCivilizationInfo() const;
 	CivilizationTypes getCivilizationType() const;
 
 	LeaderHeadTypes getPersonalityType() const;
@@ -1018,6 +1018,10 @@ public:
 	int GetBaseYieldRateFromCSAlliance(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iChange);
 	void SetBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iValue);
+
+	int GetBaseYieldRateFromCSFriendship(YieldTypes eIndex) const;
+	void ChangeBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iChange);
+	void SetBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iValue);
 
 	int GetReligiousTradeModifier() const;
 	void ChangeReligiousTradeModifier(int iChange);
@@ -1624,6 +1628,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromReligion;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromCSAlliance;
+	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromCSFriendship;
 	FAutoVariable<std::vector<int>, CvCity> m_aiCorporationYieldChange;
 	FAutoVariable<std::vector<int>, CvCity> m_aiCorporationYieldModChange;
 	FAutoVariable<int, CvCity> m_iCorporationGPChange;

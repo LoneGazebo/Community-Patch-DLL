@@ -957,6 +957,9 @@ private:
 	PolicyBranchTypes m_eBranchPicked1;
 	PolicyBranchTypes m_eBranchPicked2;
 	PolicyBranchTypes m_eBranchPicked3;
+
+	typedef std::map<PolicyModifierType,std::pair<int,int>> ModifierMap;
+	ModifierMap mModifierLookup;
 };
 
 namespace PolicyHelpers

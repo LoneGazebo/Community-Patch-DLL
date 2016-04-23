@@ -64,7 +64,6 @@ private:
 	static short* m_aiPlotBarbCityNumUnitsSpawned;
 #endif
 	static short* m_aiPlotBarbCampNumUnitsSpawned;
-	static FStaticVector<DirectionTypes, 6, true, c_eCiv5GameplayDLL, 0> m_aeValidBarbSpawnDirections;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	static std::vector<CvPlot*> m_vPlotsWithCamp;

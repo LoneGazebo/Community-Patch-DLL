@@ -2803,14 +2803,14 @@ bool isSpyNameInUse(const char* szSpyName)
 	return false;
 }
 
-bool pickSpyName(CvCivilizationInfo* pkCivInfo, CvEspionageSpy* pSpy)
+bool pickSpyName(const CvCivilizationInfo& kCivInfo, CvEspionageSpy* pSpy)
 {
-	int iCivSpyNames = pkCivInfo->getNumSpyNames();
+	int iCivSpyNames = kCivInfo.getNumSpyNames();
 	if (iCivSpyNames > 0) {
 		int iOffset = GC.getGame().getJonRandNum(iCivSpyNames, "Spy name offset");
 
 		for (int i = 0; i < iCivSpyNames; i++) {
-			const char* szSpyName = pkCivInfo->getSpyNames((i + iOffset) % iCivSpyNames);
+			const char* szSpyName = kCivInfo.getSpyNames((i + iOffset) % iCivSpyNames);
 
 			if (!isSpyNameInUse(szSpyName)) {
 				pSpy->m_sName = szSpyName;
@@ -2819,7 +2819,7 @@ bool pickSpyName(CvCivilizationInfo* pkCivInfo, CvEspionageSpy* pSpy)
 			}
 		}
 	} else {
-		CUSTOMLOG("WARNING! Civilization %s appears to be missing spy names", pkCivInfo->GetDescription());
+		CUSTOMLOG("WARNING! Civilization %s appears to be missing spy names", kCivInfo.GetDescription());
 	}
 
 	return false;
@@ -2853,7 +2853,7 @@ void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
 	pSpy->m_iName = -1;
 
 	// Try to locate a spy name within the player's civ
-	if (pickSpyName(&(m_pPlayer->getCivilizationInfo()), pSpy)) {
+	if (pickSpyName(m_pPlayer->getCivilizationInfo(), pSpy)) {
 		return;
 	}
 
@@ -2870,7 +2870,7 @@ void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
 				continue;
 			}
 
-			if (pickSpyName(pkCivilizationInfo, pSpy)) {
+			if (pickSpyName(*pkCivilizationInfo, pSpy)) {
 				return;
 			}
 		}
@@ -2883,7 +2883,7 @@ void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
 		const PlayerTypes ePlayer = static_cast<PlayerTypes>((i + iPlayerOffset) % MAX_MAJOR_CIVS);
 		CvPlayerAI& thisPlayer = GET_PLAYER(ePlayer);
 		if (thisPlayer.isEverAlive() && thisPlayer.getCivilizationInfo().getNumSpyNames() > 0) {
-			if (pickSpyName(&(thisPlayer.getCivilizationInfo()), pSpy)) {
+			if (pickSpyName(thisPlayer.getCivilizationInfo(), pSpy)) {
 				return;
 			}
 		}
@@ -3520,6 +3520,11 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 			uiMaxTechCostAdjusted *= GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
 			uiMaxTechCostAdjusted /= 100;
 #if defined(MOD_BALANCE_CORE)
+			if(GET_PLAYER(ePlayer).GetCurrentEra() <= GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
+			{
+				uiMaxTechCostAdjusted *= (100 + GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD());
+				uiMaxTechCostAdjusted /= 100;
+			}
 			if(GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 			{
 				uiMaxTechCostAdjusted *= (100 - GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD());

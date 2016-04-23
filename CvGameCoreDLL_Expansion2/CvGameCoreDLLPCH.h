@@ -24,6 +24,7 @@
 #pragma warning(disable:6001) //using uninitialized memory
 #pragma warning(disable:28199) //using possibly uninitialized memory
 #pragma warning(disable:4091) //typedef ignored
+#pragma warning(disable:4180) //qualifier applied to function type has no meaning
 
 // Take off iterator security checks in release mode
 #if (defined(_MSC_VER) && (_MSC_VER >= 1300) && !defined(_DEBUG))

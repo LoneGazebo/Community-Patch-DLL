@@ -300,7 +300,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bAdjustForOtherPlayers, in
 #if defined(MOD_BALANCE_CORE)
 				if(iWeight > 0)
 				{
-					iWeight = pWonderCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight);
+					iWeight = pWonderCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight, 0, 0, 1);
 				}
 #endif
 				if(bAdjustForOtherPlayers && ::isWorldWonderClass(kBuildingClassInfo))
@@ -440,7 +440,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonderForGreatEngineer(int& iWonderWei
 #if defined(MOD_BALANCE_CORE)
 				if(iWeight > 0)
 				{
-					iWeight = pWonderCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight);
+					iWeight = pWonderCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight, 0, 0, 1);
 				}
 #endif
 				// ??? do we want to weight it more for more expensive wonders?

@@ -221,6 +221,8 @@ public:
 	int GetMinorityHappinessChange() const;
 	bool IsNoConnectionUnhappiness() const;
 	bool IsNoReligiousStrife() const;
+	bool IsOddEraScaler() const;
+	int GetWonderProductionModGA() const;
 #endif
 
 	// Arrays
@@ -261,6 +263,7 @@ public:
 	int GetYieldFromImport(int i) const;
 	int GetYieldFromTilePurchase(int i) const;
 	int GetYieldFromCSAlly(int i) const;
+	int GetYieldFromCSFriend(int i) const;
 	int GetYieldFromSettle(int i) const;
 	int GetYieldFromConquest(int i) const;
 	int GetVotePerXCSAlliance() const;
@@ -485,6 +488,8 @@ protected:
 	int m_iMinorityHappinessChange;
 	bool m_bNoConnectionUnhappiness;
 	bool m_bIsNoReligiousStrife;
+	bool m_bIsOddEraScaler;
+	int m_iWonderProductionModGA;
 #endif
 
 	CvString m_strShortDescription;
@@ -519,6 +524,7 @@ protected:
 	int* m_piYieldFromImport;
 	int* m_piYieldFromTilePurchase;
 	int* m_piYieldFromCSAlly;
+	int* m_piYieldFromCSFriend;
 	int* m_piYieldFromSettle;
 	int* m_piYieldFromConquest;
 	int m_iVotePerXCSAlliance;
@@ -1157,6 +1163,14 @@ public:
 	{
 		return m_bIsNoReligiousStrife;
 	}
+	bool IsOddEraScaler() const
+	{
+		return m_bIsOddEraScaler;
+	}
+	int GetWonderProductionModGA() const
+	{
+		return m_iWonderProductionModGA;
+	}
 #endif
 
 	int GetExtraYieldThreshold(YieldTypes eYield) const
@@ -1236,6 +1250,10 @@ public:
 	int GetYieldFromCSAlly(YieldTypes eYield) const
 	{
 		return m_iYieldFromCSAlly[(int)eYield];
+	};
+	int GetYieldFromCSFriend(YieldTypes eYield) const
+	{
+		return m_iYieldFromCSFriend[(int)eYield];
 	};
 	int GetYieldFromSettle(YieldTypes eYield) const
 	{
@@ -1568,6 +1586,8 @@ private:
 	int m_iMinorityHappinessChange;
 	bool m_bNoConnectionUnhappiness;
 	bool m_bIsNoReligiousStrife;
+	bool m_bIsOddEraScaler;
+	int m_iWonderProductionModGA;
 #endif
 
 	UnitTypes m_eCampGuardType;
@@ -1624,6 +1644,7 @@ private:
 	int m_iYieldFromImport[NUM_YIELD_TYPES];
 	int m_iYieldFromTilePurchase[NUM_YIELD_TYPES];
 	int m_iYieldFromCSAlly[NUM_YIELD_TYPES];
+	int m_iYieldFromCSFriend[NUM_YIELD_TYPES];
 	int m_iYieldFromSettle[NUM_YIELD_TYPES];
 	int m_iYieldFromConquest[NUM_YIELD_TYPES];
 	int m_iVotePerXCSAlliance;

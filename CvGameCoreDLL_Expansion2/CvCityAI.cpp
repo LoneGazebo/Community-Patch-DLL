@@ -220,14 +220,13 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 		CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eChosenEvent);
 		if(pkEventInfo != NULL)
 		{
-
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString playerName;
 				FILogFile* pLog;
 				CvString strBaseString;
 				CvString strOutBuf;
-				CvString strFileName = "CityEventLogging.csv";
+				CvString strFileName = "EventCityLogging.csv";
 				playerName = getNameKey();
 				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -237,7 +236,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 				pLog->Msg(strBaseString);
 			}
 			//Lua Hook
-			if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_OverrideAICityEventChoice, getOwner(), GetID(), eChosenEvent) == GAMEEVENTRETURN_TRUE) 
+			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_OverrideAICityEventChoice, getOwner(), GetID(), eChosenEvent) == GAMEEVENTRETURN_TRUE) 
 			{
 				return;
 			}
@@ -283,7 +282,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 						FILogFile* pLog;
 						CvString strBaseString;
 						CvString strOutBuf;
-						CvString strFileName = "CityEventLogging.csv";
+						CvString strFileName = "EventCityLogging.csv";
 						playerName = getNameKey();
 						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -337,7 +336,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 					FILogFile* pLog;
 					CvString strBaseString;
 					CvString strOutBuf;
-					CvString strFileName = "CityEventLogging.csv";
+					CvString strFileName = "EventCityLogging.csv";
 					playerName = getNameKey();
 					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());

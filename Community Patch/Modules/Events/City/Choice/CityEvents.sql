@@ -1,4 +1,6 @@
 
+
+
 INSERT INTO CityEvents (Type,Description,Help,CityEventArt,CityEventAudio,RandomChance,RandomChanceDelta,IsOneShot,EraScaling,IgnoresGlobalCooldown,EventCooldown,NumChoices,MinimumCityPopulation,MaximumCityPopulation,RequiredCiv,RequiredEra,ObsoleteEra,IsUnhappy,IsSuperUnhappy,RequiredPolicy,RequiredIdeology,RequiresWar,RequiresWarMinor,PrereqTech,ObsoleteTech,RequiresPantheon,RequiredReligion,RequiredStateReligion,RequiresAnyStateReligion,RequiredBuildingClass,CannotHaveBuildingClass,RequiresHolyCity,RequiresIdeology,RequiredActiveEvent,RequiredActiveEventChoice,RequiredActiveCityEvent,RequiredActiveCityEventChoice,RequiredNoActiveCityEventChoice,RequiredNoActiveCityEvent,RequiredNoActivePlayerEvent,RequiredNoActivePlayerEventChoice,RequiredActivePlayerEventOtherPlayer,RequiredActivePlayerEventChoiceOtherPlayer,RequiredNoActivePlayerEventOtherPlayer,RequiredNoActivePlayerEventChoiceOtherPlayer,NearbyFeature,NearbyTerrain,LocalResourceRequired,HasTradeConnection,HasCityConnection,RequiresGarrison,CapitalOnly,CoastalOnly,RiverOnly,RequiresResistance,RequiresWLTKD,RequiresOccupied,RequiresRazing,HasAnyReligion,RequiresPuppet,RequiresNearbyNaturalWonder,RequiresNearbyMountain,ImprovementRequired,HasMetAMajorCiv,InDebt,LosingMoney,IsVassalOfSomeone,IsMasterOfSomeone,CityHasPlayerReligion,CityLacksPlayerReligion,CityHasPlayerMajorityReligion,CityLacksPlayerMajorityReligion) VALUES ('CITY_EVENT_DROUGHT',NULL,NULL,'badeventdefaultbackground.dds','AS2D_EVENT_NOTIFICATION_VERY_BAD',25,1,'false','false','false',50,1,0,0,NULL,NULL,NULL,'false','false',NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,'PLAYER_EVENT_HEAT_WAVE_CHOICE_2',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false','IMPROVEMENT_FARM','false','false','false','false','false','false','false','false','false'),
  ('CITY_EVENT_DROUGHT_SEVERE',NULL,NULL,'badeventdefaultbackground.dds','AS2D_EVENT_NOTIFICATION_VERY_BAD',25,1,'false','false','false',50,1,0,0,NULL,NULL,NULL,'false','false',NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,'PLAYER_EVENT_HEAT_WAVE_CHOICE_3',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false','IMPROVEMENT_FARM','false','false','false','false','false','false','false','false','false'),
  ('CITY_EVENT_DROUGHT_CRITICAL',NULL,NULL,'badeventdefaultbackground.dds','AS2D_EVENT_NOTIFICATION_VERY_BAD',25,1,'false','false','false',50,1,0,0,NULL,NULL,NULL,'false','false',NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,'PLAYER_EVENT_HEAT_WAVE_CHOICE_4',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false','IMPROVEMENT_FARM','false','false','false','false','false','false','false','false','false'),
@@ -35,7 +37,7 @@ INSERT INTO CityEvents (Type,Description,Help,CityEventArt,CityEventAudio,Random
  ('CITY_EVENT_HURRICANE','TXT_KEY_CITY_EVENT_HURRICANE','TXT_KEY_CITY_EVENT_HURRICANE_HELP','badeventdefaultbackground.dds','AS2D_EVENT_NOTIFICATION_VERY_BAD',15,1,'false','false','false',125,3,10,0,NULL,NULL,NULL,'false','false',NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'FEATURE_JUNGLE',NULL,NULL,'false','false','false','false','true','false','false','false','false','false','false','false','false','false',NULL,'false','false','false','false','false','false','false','false','false'),
  ('CITY_EVENT_PLAGUE',NULL,NULL,'badeventdefaultbackground.dds','AS2D_EVENT_NOTIFICATION_VERY_BAD',10,1,'false','false','false',50,1,7,0,NULL,NULL,NULL,'false','false',NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false','PLAYER_EVENT_PLAGUE',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'true','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,'false','false','false','false','false','false','false','false','false'),
  ('CITY_EVENT_WANDERER','TXT_KEY_CITY_EVENT_WANDERER','TXT_KEY_CITY_EVENT_WANDERER_HELP',NULL,'AS2D_INTERFACE_BORDERS_EXPAND',10,1,'false','false','false',100,4,5,0,NULL,NULL,'ERA_RENAISSANCE','false','false',NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false','BUILDINGCLASS_WALLS',NULL,'false','false',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'true','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,'false','false','false','false','false','false','false','false','false'),
- ('CITY_EVENT_NOMADS','TXT_KEY_CITY_EVENT_NOMADS','TXT_KEY_CITY_EVENT_NOMADS_HELP',NULL,'AS2D_INTERFACE_BORDERS_EXPAND',15,1,'true','false','false',30,4,3,10,NULL,NULL,'ERA_RENAISSANCE','false','false',NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,'false','false','false','false','false','false','false','false','false');
+ ('CITY_EVENT_NOMADS','TXT_KEY_CITY_EVENT_NOMADS','TXT_KEY_CITY_EVENT_NOMADS_HELP',NULL,'AS2D_INTERFACE_BORDERS_EXPAND',10,1,'true','false','false',30,4,3,6,NULL,NULL,'ERA_RENAISSANCE','false','false',NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,'false','false','false','false','false','false','false','false','false');
 
 INSERT INTO CityEvent_ParentEvents (CityEventChoiceType,CityEventType) VALUES ('CITY_EVENT_DROUGHT_CHOICE_1','CITY_EVENT_DROUGHT'),
  ('CITY_EVENT_SEVERE_DROUGHT_CHOICE_1','CITY_EVENT_DROUGHT_SEVERE'),
@@ -244,7 +246,12 @@ INSERT INTO CityEventChoice_InstantYield (CityEventChoiceType,YieldType,Yield) V
  ('CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_5','YIELD_GOLDEN_AGE_POINTS',250),
  ('CITY_EVENT_GOOD_HARVEST_CHOICE_1','YIELD_FOOD',50),
  ('CITY_EVENT_NOMADS_CHOICE_1','YIELD_CULTURE_LOCAL',100),
- ('CITY_EVENT_NOMADS_CHOICE_4','YIELD_POPULATION',1);
+ ('CITY_EVENT_NOMADS_CHOICE_4','YIELD_POPULATION',1),
+ ('CITY_EVENT_HURRICANE_CHOICE_1','YIELD_POPULATION',-1),
+ ('CITY_EVENT_HURRICANE_CHOICE_2','YIELD_POPULATION',-5),
+ ('CITY_EVENT_HURRICANE_CHOICE_3','YIELD_POPULATION',-4),
+ ('CITY_EVENT_HURRICANE_CHOICE_4','YIELD_POPULATION',-2),
+ ('CITY_EVENT_HURRICANE_CHOICE_5','YIELD_POPULATION',-3);
 
 INSERT INTO CityEventChoice_ImprovementYieldChange (CityEventChoiceType,ImprovementType,YieldType,YieldChange) VALUES ('CITY_EVENT_DROUGHT_CHOICE_1','IMPROVEMENT_FARM','YIELD_FOOD',-1),
  ('CITY_EVENT_SEVERE_DROUGHT_CHOICE_1','IMPROVEMENT_FARM','YIELD_FOOD',-1),
@@ -282,7 +289,7 @@ INSERT INTO CityEventChoice_GreatPersonPoints (CityEventChoiceType,SpecialistTyp
 INSERT INTO CityEventChoice_EventCostYield (CityEventChoiceType,YieldType,Yield) VALUES ('CITY_EVENT_ICE_AGE_NO_FUEL_CHOICE_1','YIELD_PRODUCTION',50),
  ('CITY_EVENT_FISHING_EXPEDITION_CHOICE_1','YIELD_GOLD',50),
  ('CITY_EVENT_FISHING_EXPEDITION_CHOICE_2','YIELD_GOLD',150),
- ('CITY_EVENT_FISHING_EXPEDITION_CHOICE_3','YIELD_GOLD',200),
+ ('CITY_EVENT_FISHING_EXPEDITION_CHOICE_3','YIELD_GOLD',125),
  ('CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_1','YIELD_GOLD',200),
  ('CITY_EVENT_TEMPLE_CONCERNS_CHOICE_4','YIELD_GOLD',500),
  ('CITY_EVENT_LIGHTHOUSE_CHOICE_2','YIELD_GOLD',50),
@@ -298,11 +305,6 @@ INSERT INTO CityEventChoice_EventCostYield (CityEventChoiceType,YieldType,Yield)
  ('CITY_EVENT_NUCLEAR_MELTDOWN_CHOICE_1','YIELD_POPULATION',5),
  ('CITY_EVENT_VOLCANO_CHOICE_1','YIELD_POPULATION',3),
  ('CITY_EVENT_VOLCANO_SPECIAL_CHOICE_1','YIELD_POPULATION',3),
- ('CITY_EVENT_HURRICANE_CHOICE_1','YIELD_POPULATION',1),
- ('CITY_EVENT_HURRICANE_CHOICE_2','YIELD_POPULATION',5),
- ('CITY_EVENT_HURRICANE_CHOICE_3','YIELD_POPULATION',4),
- ('CITY_EVENT_HURRICANE_CHOICE_4','YIELD_POPULATION',2),
- ('CITY_EVENT_HURRICANE_CHOICE_5','YIELD_POPULATION',3),
  ('CITY_EVENT_NOMADS_CHOICE_2','YIELD_GOLD',-50);
 
 INSERT INTO CityEventChoice_CityYield (CityEventChoiceType,YieldType,Yield) VALUES ('CITY_EVENT_ICE_AGE_FROZEN_WATER_CHOICE_1','YIELD_GOLD',-3),

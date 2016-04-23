@@ -96,7 +96,6 @@ CvGlobals::CvGlobals() :
 	m_map(NULL),
 	m_pathFinder(NULL),
 	m_interfacePathFinder(NULL),
-	m_ignoreUnitsPathFinder(NULL),
 	m_stepFinder(NULL),
 	m_pDLL(NULL),
 	m_pEngineUI(NULL),
@@ -2277,7 +2276,7 @@ CvGlobals::~CvGlobals()
 	uninit();
 }
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 
 MyStackWalker gStackWalker;
 
@@ -2307,8 +2306,8 @@ PlayerTypes GetCurrentPlayer()
 void CreateMiniDump(EXCEPTION_POINTERS *pep)
 {
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
-	//if(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
+	//if(MOD_CORE_DEBUGGING)
 	{
 		/* Try to log the callstack */
 		FILogFile* pLog=LOGFILEMGR.GetLog( "Callstack.log", FILogFile::kDontTimeStamp );
@@ -2552,13 +2551,11 @@ void CvGlobals::init()
 
 	SetPathFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
 	SetInterfacePathFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
-	SetIgnoreUnitsPathFinder(FNEW(CvPathFinder, c_eCiv5GameplayDLL, 0));
 	SetStepFinder(FNEW(CvPathFinder, c_eCiv5GameplayDLL, 0));
 
 #if defined(MOD_BALANCE_CORE)
 	GetPathFinder().SetName("generic pf");
 	GetInterfacePathFinder().SetName("iface pf");
-	GetIgnoreUnitsPathFinder().SetName("ignore units pf");
 	GetStepFinder().SetName("stepfinder");
 #endif
 
@@ -2613,13 +2610,11 @@ void CvGlobals::uninit()
 
 	SAFE_DELETE(m_pathFinder);
 	SAFE_DELETE(m_interfacePathFinder);
-	SAFE_DELETE(m_ignoreUnitsPathFinder);
 	SAFE_DELETE(m_stepFinder);
 
 	// already deleted outside of the dll, set to null for safety
 	m_pathFinder=NULL;
 	m_interfacePathFinder=NULL;
-	m_ignoreUnitsPathFinder=NULL;
 	m_stepFinder=NULL;
 }
 
@@ -2692,11 +2687,6 @@ CvTwoLayerPathFinder& CvGlobals::GetPathFinder()
 CvTwoLayerPathFinder& CvGlobals::GetInterfacePathFinder()
 {
 	return *m_interfacePathFinder;
-}
-
-CvPathFinder& CvGlobals::GetIgnoreUnitsPathFinder()
-{
-	return *m_ignoreUnitsPathFinder;
 }
 
 CvPathFinder& CvGlobals::GetStepFinder()
@@ -7068,10 +7058,6 @@ void CvGlobals::SetPathFinder(CvTwoLayerPathFinder* pVal)
 void CvGlobals::SetInterfacePathFinder(CvTwoLayerPathFinder* pVal)
 {
 	m_interfacePathFinder = pVal;
-}
-void CvGlobals::SetIgnoreUnitsPathFinder(CvPathFinder* pVal)
-{
-	m_ignoreUnitsPathFinder = pVal;
 }
 void CvGlobals::SetStepFinder(CvPathFinder* pVal)
 {

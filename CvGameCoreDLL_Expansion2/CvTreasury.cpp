@@ -586,7 +586,7 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 
 	int iSupport = 0;
 
-	CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
+	const CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
 	iFreeUnits = playerHandicap.getGoldFreeUnits();
 
 	// Defined in XML by unit info type
@@ -707,7 +707,7 @@ int CvTreasury::CalculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost)
 
 	iSupply = iBaseSupplyCost;
 
-	CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
+	const CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
 	iSupply *= playerHandicap.getUnitCostPercent();
 	iSupply /= 100;
 
@@ -777,9 +777,9 @@ int CvTreasury::CalculateInflationRate()
 {
 	CvGame& kGame = GC.getGame();
 
-	CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
-	CvHandicapInfo& gameHandicap = kGame.getHandicapInfo();
-	CvGameSpeedInfo& gameSpeedInfo = kGame.getGameSpeedInfo();
+	const CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
+	const CvHandicapInfo& gameHandicap = kGame.getHandicapInfo();
+	const CvGameSpeedInfo& gameSpeedInfo = kGame.getGameSpeedInfo();
 
 	int iTurns = ((kGame.getGameTurn() + kGame.getElapsedGameTurns()) / 2);
 	iTurns += gameSpeedInfo.getInflationOffset();
@@ -842,7 +842,7 @@ int CvTreasury::GetBuildingGoldMaintenance() const
 #endif
 
 	// Modifier for difficulty level
-	CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
+	const CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
 	//iMaintenance *= playerHandicap->getBuildingCostPercent();
 	//iMaintenance /= 100;
 

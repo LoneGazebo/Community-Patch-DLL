@@ -1082,7 +1082,7 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 		CvUnitEntry* thisUnitInfo = GC.getUnitInfo(eUnit);
 		// See if there are any BuildingClass requirements
 		const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-		CvCivilizationInfo& thisCivilization = pkCity->getCivilizationInfo();
+		const CvCivilizationInfo& thisCivilization = pkCity->getCivilizationInfo();
 		for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
 		{
 			const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
@@ -2145,7 +2145,7 @@ int CvLuaCity::lGetNumBuildingClass(lua_State* L)
 	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
 	if(eBuildingClassType != NO_BUILDINGCLASS)
 	{
-		CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(pkCity->getOwner()).getCivilizationInfo();
+		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(pkCity->getOwner()).getCivilizationInfo();
 		BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClassType);
 		const int iResult = pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 		lua_pushinteger(L, iResult);
@@ -2164,7 +2164,7 @@ int CvLuaCity::lIsHasBuildingClass(lua_State* L)
 	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
 	if(eBuildingClassType != NO_BUILDINGCLASS)
 	{
-		CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(pkCity->getOwner()).getCivilizationInfo();
+		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(pkCity->getOwner()).getCivilizationInfo();
 		BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClassType);
 		const bool bResult = pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 		lua_pushboolean(L, bResult);
@@ -4948,7 +4948,8 @@ int CvLuaCity::lGetBaseYieldRateFromCSAlliance(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
-	const int iResult = pkCity->GetBaseYieldRateFromCSAlliance(eIndex);
+	int iResult = pkCity->GetBaseYieldRateFromCSAlliance(eIndex);
+	iResult += pkCity->GetBaseYieldRateFromCSFriendship(eIndex);
 
 	lua_pushinteger(L, iResult);
 	return 1;

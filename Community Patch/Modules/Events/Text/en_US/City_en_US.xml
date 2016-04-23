@@ -466,7 +466,7 @@
 			<Text>Spoiled Food</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_FOOD_SPOILED_CHOICE_1_HELP">
-			<Text>A large portion of food in the Granary spoiled, no doubt due to mismanagement. -{1_YieldCost} in the City.</Text>
+			<Text>A large portion of food in the Granary spoiled, no doubt due to mismanagement. {1_YieldCost} in the City.</Text>
 		</Row>
 		<!-- Bandits -->
 		
@@ -474,7 +474,7 @@
 			<Text>Bandits!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_BANDITS_CHOICE_1_HELP">
-			<Text>Bandits assaulted your tax collectors, making off with the money! -{1_YieldCost}.</Text>
+			<Text>Bandits assaulted your tax collectors, making off with the money! {1_YieldCost}.</Text>
 		</Row>
 		
 		<!-- Good Harvest -->
@@ -686,6 +686,429 @@
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_CHOICE_2_SUCCESSFUL_S">
 			<Text>Nomadic retaliation against {2_City}!</Text>
+		</Row>
+	</Language_en_US>
+	<!-- War Materials -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_WAR_MATERIALS_CHOICE_1_S">
+			<Text>{1_Playername} discovered an arms smuggling operation!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_WAR_MATERIALS_CHOICE_1">
+			<Text>{1_Playername} raided an arms shipment of [ICON_RES_IRON] Iron passing through their territory. In other news, a fire has left dozens dead at a recent political summet.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_WAR_MATERIALS_CHOICE_2_S">
+			<Text>{1_Playername} recruits financial experts from a City State!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_WAR_MATERIALS_CHOICE_2">
+			<Text>{1_Playername} has secured backing from a well placed political faction.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_WAR_MATERIALS_CHOICE_3_S">
+			<Text>{1_Playername} moves againt organised-crime syndicates.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_WAR_MATERIALS_CHOICE_3">
+			<Text>Rumours suggest that {1_Playername} has more knowledge about goings on within their Empire than first thought!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_WAR_MATERIALS_CHOICE_4_S">
+			<Text>{1_Playername} displays heightened levels of military intelligence.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_WAR_MATERIALS_CHOICE_4">
+			<Text>Rumours suggest that {1_Playername} has more knowledge about other Empires' military movements than they should!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_WAR_MATERIALS_DESCRIPTION">
+			<Text>War Materials</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_WAR_MATERIALS_HELP">
+			<Text>Our agents have estabilished comprehensive links within a dissident City-State faction. They have leaked us intelligence of an arms smuggling operation occuring in our territory at this very moment![NEWLINE][NEWLINE]How should we act on this?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_WAR_MATERIALS_HELP_CHOICE_1">
+			<Text>Gain +2 [ICON_RES_IRON] Iron and {2_InstantYield}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_WAR_MATERIALS_HELP_CHOICE_2">
+			<Text>Gain an Envoy in each city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_WAR_MATERIALS_HELP_CHOICE_3">
+			<Text>Your Chanceries increase [ICON_GOLD] Gold production in cities by 5%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_WAR_MATERIALS_HELP_CHOICE_4">
+			<Text>Your eligible Military Units gain the Ambush I promotion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_WAR_MATERIALS_DESCRIPTION_CHOICE_1">
+			<Text>Sieze the shipment when it reaches the border. We cannot guarantee anyone's safety at such short notice.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_WAR_MATERIALS_DESCRIPTION_CHOICE_2">
+			<Text>Our contacts must be desperate. Under the guise of recruiting financial experts, send our Foreign Advisor to negotiate for their remaining political links.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_WAR_MATERIALS_DESCRIPTION_CHOICE_3">
+			<Text>Small arms deals do not interest me. However, the extent of this infiltration is astouding. Exfiltrate these agents and give them their own agency. Let's call it CI:5.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_WAR_MATERIALS_DESCRIPTION_CHOICE_4">
+			<Text>Small arms deals do not interest me. However, the field skills detailed in this report are second to none. Exfiltrate these agents and send them to the new military intelligence branch, CI:6.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Gunpowder Plot -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_GUNPOWDER_PLOT_CHOICE_1_S">
+			<Text>{1_Playername}'s Palace has been blown up by religious dissidents!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_GUNPOWDER_PLOT_CHOICE_1">
+			<Text>Their capital has entered [ICON_RESISTANCE] Resistance.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_DESCRIPTION">
+			<Text>Gunpowder Plot</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_HELP">
+			<Text>A man of a minority faith has come forward, confessing his involvement in a plot to blow up the Palace. He begs for repentence, but doesn't know enough to bring down the plotters.[NEWLINE][NEWLINE]What should we do, Your Excellence?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_HELP_CHOICE_1">
+			<Text>50% chance for {5_Turns} turns of [ICON_RESISTANCE] Resistance.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_HELP_CHOICE_2">
+			<Text>Convert 60% of followers to your Religion, but lose -2 [ICON_CITIZEN] Population.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_HELP_CHOICE_3">
+			<Text>2 [ICON_HAPPINESS_4] Unhappiness for 15 turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_HELP_CHOICE_4">
+			<Text>Spend {2_InstantYield} in return for +2 [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture on the Palace.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_DESCRIPTION_CHOICE_1">
+			<Text>If anything happens to that building, the only thing that will be different, the only thing that will change, the only difference that it will make, is that next turn instead of a notification, I will be reading your resignation!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_DESCRIPTION_CHOICE_2">
+			<Text>Offer this man, and any others who want to come forward, a pardon. Then, burn every remaining member of that misbegotten faith at the stake.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_DESCRIPTION_CHOICE_3">
+			<Text>Those ungrateful muts. Pull every reserve to search for these conspirators. Double the guard. Cancel Christmas.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_DESCRIPTION_CHOICE_4">
+			<Text>Clean out the palace. When the explosion comes, tell everyone it was part of the WTLKD celebrations. Then, build a bigger, better Palace.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Notorious Pirate -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_DESCRIPTION">
+			<Text>Notorious Pirate</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_HELP">
+			<Text>A notorious pirate is known to spend his time ashore in one of our Harbor's taverns. His presence is attracting a slew of undiserables.[NEWLINE][NEWLINE]So far, no one has been able to catch him.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_DESCRIPTION_CHOICE_1">
+			<Text>Certainly no pirate I've ever heard of. Send some Navy official to deal with this, what's the worse that could happen?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_DESCRIPTION_CHOICE_2">
+			<Text>I've heard much of this sailor's exploits. Send an agent to present him with this letter of marque.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_DESCRIPTION_CHOICE_3">
+			<Text>Though the local fishermen may not like it, I can see the benefits of having a legendary tavern.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_DESCRIPTION_CHOICE_4">
+			<Text>They say this man hordes his fortune in a rare type of Pearl. It would be unfortunate if someone were to... commandeer it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_HELP_CHOICE_1">
+			<Text>20% chance for the one turn of [ICON_RESISTANCE] Rioting and the destruction of the Harbor.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_HELP_CHOICE_2">
+			<Text>Spend 400 [ICON_GOLD] Gold to gain a Corvette.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_HELP_CHOICE_3">
+			<Text>The Harbor gains +2 [ICON_CULTURE] Culture and +2 [ICON_TOURISM] Tourism, but nearby Fishing Boats lose -1 [ICON_GOLD] Gold and -1 [ICON_FOOD] Food.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_HELP_CHOICE_4">
+			<Text>Up to 2 Fishing Boats and the Harbor are destroyed. A [ICON_WAR] Barbarian Unit spawns. Gain a copy of the [ICON_RES_PEARLS] Pearls resource.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Freedom Doctrine -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FREEDOM_DOCTRINE_CHOICE_1_S">
+			<Text>{1_Playername} extends hand to foreign dissidents.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FREEDOM_DOCTRINE_CHOICE_1">
+			<Text>{1_Playername} gains additional cultural and diplomatic influence.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FREEDOM_DOCTRINE_CHOICE_2_S">
+			<Text>Rumours circulate that {1_Playername} is funding terrorist organisations!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FREEDOM_DOCTRINE_CHOICE_2">
+			<Text>Autocracy and Order Empires are now vulnerable to partisan attacks on their Occupied Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_FREEDOM_DOCTRINE_DESCRIPTION">
+			<Text>Alliance of the Free</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_FREEDOM_DOCTRINE_HELP">
+			<Text>Your recent backing of Covert Operations has led to several competing teams within CI:7. Each has a different idea of how the additional funding should be spent.[NEWLINE][NEWLINE]What is your verdict?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_FREEDOM_DOCTRINE_HELP_CHOICE_1">
+			<Text>Gain +4 [ICON_RES_PAPER] Paper. Airports increase [ICON_CULTURE] Culture output in cities by 5%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_FREEDOM_DOCTRINE_HELP_CHOICE_2">
+			<Text>The [ICON_OCCUPIED] Occupied Cities of other Ideologies are vulnerable to partisan attacks.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_FREEDOM_DOCTRINE_HELP_CHOICE_3">
+			<Text>Reduce the [ICON_GOLD] Poverty and [ICON_RESEARCH] Illiteracy thresholds in all cities by 15%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_FREEDOM_DOCTRINE_DESCRIPTION_CHOICE_1">
+			<Text>I like Operation Golden Door. We will defeat our enemies with the strength of our conviction and purity of our ideology.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_FREEDOM_DOCTRINE_DESCRIPTION_CHOICE_2">
+			<Text>I like Operation Pincushion. We will give those who yearn for Freedom the weapons with which to do so.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_FREEDOM_DOCTRINE_DESCRIPTION_CHOICE_3">
+			<Text>I like Operation Illuminatus. Sometimes, to remain free, we must do things against our own moral code. The happy populus, not burdened as we who must lead, cannot be allowed to naively interfere.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Freedom Partisans vs Autocracy -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY_CHOICE_1_S">
+			<Text>A rebel uprising has ignited in the City of {2_CityName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY_CHOICE_1">
+			<Text>Two [ICON_WAR] Barbarian units have spawned near {2_CityName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY_DESCRIPTION">
+			<Text>Partisan Uprising</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY_HELP">
+			<Text>Surprisingly well-armed dissidents have to the streets of our City, protesting the Occupation. Those filthy Capitalists are behind this, mark my words.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY_HELP_CHOICE_1">
+			<Text>Surprisingly well-armed dissidents have to the streets of our City, protesting the Occupation. Those filthy Capitalists are behind this, mark my words.[NEWLINE][NEWLINE]Two [ICON_WAR] Barbarian units spawn.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY_DESCRIPTION_CHOICE_1">
+			<Text></Text>
+		</Row>
+	</Language_en_US>
+	<!-- Freedom Partisans vs Order -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_FREEDOM_PARTISANS_ORDER_CHOICE_1_S">
+			<Text>A rebel uprising has ignited in the City of {2_CityName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_FREEDOM_PARTISANS_ORDER_CHOICE_1">
+			<Text>Two [ICON_WAR] Barbarian units have spawned near {2_CityName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FREEDOM_PARTISANS_ORDER_DESCRIPTION">
+			<Text>Partisan Uprising</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FREEDOM_PARTISANS_ORDER_HELP">
+			<Text>Surprisingly well-armed dissidents have to the streets of our City. Those filthy Capitalists are behind this, mark my words.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FREEDOM_PARTISANS_ORDER_HELP_CHOICE_1">
+			<Text>Surprisingly well-armed dissidents have to the streets of our City, protesting the Occupation. Those filthy Capitalists are behind this, mark my words.[NEWLINE][NEWLINE]Two [ICON_WAR] Barbarian units spawn.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FREEDOM_PARTISANS_ORDER_DESCRIPTION_CHOICE_1">
+			<Text></Text>
+		</Row>
+	</Language_en_US>
+	<!-- Contraband Smuggler (Constable) -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_DESCRIPTION">
+			<Text>Black Market</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_HELP">
+			<Text>The authorities have intercepted a small scale operation smuggling contraband into the city.[NEWLINE][NEWLINE]The Governor thinks they might be of use...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_HELP_CHOICE_1">
+			<Text>Gain {2_InstantYield}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_HELP_CHOICE_2">
+			<Text>Lose {2_InstantYield} Golden Age Points. The threshold for [ICON_STRENGTH] Crime is permentantly reduced by 10%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_HELP_CHOICE_3">
+			<Text>The Constabulary gains +2 [ICON_PRODUCTION] Production.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_HELP_CHOICE_4">
+			<Text>Gain 10 turns of WLTKD in the city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_DESCRIPTION_CHOICE_1">
+			<Text>No deals. The law is clear on their punishment.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_DESCRIPTION_CHOICE_2">
+			<Text>Talk of corruption in my very presence?! I am the law. Find me a new Governor, and hang the old one beside these criminals.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_DESCRIPTION_CHOICE_3">
+			<Text>I agree. There will always be crime; it would be useful to have friends on the other side of the law.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_DESCRIPTION_CHOICE_4">
+			<Text>Banning these goods is, I think, a little old-fashioned. Pardon the smugglers and legalise these products.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Motaba Virus -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION">
+			<Text>Motaba Virus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP">
+			<Text>Our military intelligence has brought in a babbling medic, who claims to have discovered an incredibly dangerous virus while doing charity work in one of the far-flung corners of the world.[NEWLINE][NEWLINE]Only this man's research need make it to our Science Advisor...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP_CHOICE_1">
+			<Text>Enemy cities experience biological terrorism.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP_CHOICE_2">
+			<Text>Gain {2_InstantYield}. Your cities become immune to biological terrorism.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP_CHOICE_3">
+			<Text>Gain 2 Guided Missiles in every city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP_CHOICE_4">
+			<Text>Your Aircraft gain the Air Siege III promotion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION_CHOICE_1">
+			<Text>Get me the head of CI:6. I'm authorising the use of this virus against civilian populations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION_CHOICE_2">
+			<Text>What are you talking about?! This is horrifying. Send the Doctor to our best Medical Lab, we need to be prepared should this thing ever break loose!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION_CHOICE_3">
+			<Text>This is just what the boys over at prototype weapons have been looking for. Green light the Scud Storm project.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION_CHOICE_4">
+			<Text>We can't trust something like this to those nutjobs over in RnD. Get me the Airforce.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Virus Outbreak -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_MOTABA_OUTBREAK_CHOICE_1_S">
+			<Text>The City of {2_CityName} has succumbed to an horrific viral outbreak.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_MOTABA_OUTBREAK_CHOICE_1">
+			<Text>The [ICON_CITIZEN] Population of {2_CityName} has fallen by 5!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_MOTABA_OUTBREAK_CHOICE_2_S">
+			<Text>The City of {2_CityName} is fighting an horrific viral outbreak.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_MOTABA_OUTBREAK_CHOICE_2">
+			<Text>The City of {2_CityName} has lost 5 [ICON_CITIZEN] Population, but a cure has been discovered!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MOTABA_OUTBREAK_DESCRIPTION">
+			<Text>Viral Outbreak</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MOTABA_OUTBREAK_HELP">
+			<Text>The city has been gripped by the deadly Motaba virus. At this time, there is no available treatment. We must prepare for the worst.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MOTABA_OUTBREAK_HELP_CHOICE_1">
+			<Text>Lose 5 [ICON_CITIZEN] Population.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MOTABA_OUTBREAK_HELP_CHOICE_2">
+			<Text>Lose 5 [ICON_CITIZEN] Population and 2000 [ICON_RESEARCH] Science, but become immune to such events in the future.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MOTABA_OUTBREAK_DESCRIPTION_CHOICE_1">
+			<Text>Quarantine is the only option we have available.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MOTABA_OUTBREAK_DESCRIPTION_CHOICE_2">
+			<Text>Give the Medical Lab anything they need. We need to have an answer before this thing strikes again.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Double Agents -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_DOUBLE_AGENTS_CHOICE_1_S">
+			<Text>{1_Playername} has abducted a foreign citizen.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_DOUBLE_AGENTS_CHOICE_1">
+			<Text>{1_Playername} gained a [ICON_GREAT_PEOPLE] Great Person.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_DOUBLE_AGENTS_DESCRIPTION">
+			<Text>They Know We Know They Know...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_DOUBLE_AGENTS_HELP">
+			<Text>An agent we planted in a foreign intelligence agency believes she is being fed false information.[NEWLINE][NEWLINE]How should we instruct her to continue?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_DOUBLE_AGENTS_HELP_CHOICE_1">
+			<Text>Gain the Covert Action Policy for {4_Turns}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_DOUBLE_AGENTS_HELP_CHOICE_2">
+			<Text>Wire Service increase [ICON_RESEARCH] Science in Cities by 10%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_DOUBLE_AGENTS_HELP_CHOICE_3">
+			<Text>Lose 500 [ICON_GOLDEN_AGE] Golden Age points in exchange for a Great Person.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_DOUBLE_AGENTS_DESCRIPTION_CHOICE_1">
+			<Text>Let them doctor their schematics; meanwhile we will put more people inside their Covert Action scheme.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_DOUBLE_AGENTS_DESCRIPTION_CHOICE_2">
+			<Text>Bug everything. We need to know what they are up to at all times!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_DOUBLE_AGENTS_DESCRIPTION_CHOICE_3">
+			<Text>We can't risk corrupted information. The next high profile target our asset gets near is coming back with her to the Motherland.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Pipeline -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_PIPELINE_CHOICE_1_S">
+			<Text>A report has shown that the recently-constructed trans-continental pipeline was built with major structural flaws.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_PIPELINE_CHOICE_1">
+			<Text>All [ICON_RES_OIL] Oil Wells are vulnerable to malfunction while an investigation takes place.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_PIPELINE_DESCRIPTION">
+			<Text>In the Pipeline</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_PIPELINE_HELP">
+			<Text>One of our operatives has attained a high ranking position in a foreign Oil company.[NEWLINE][NEWLINE]How should we use our asset?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_PIPELINE_HELP_CHOICE_1">
+			<Text>Gain +4 [ICON_RES_OIL] Oil. Customs Houses increase [ICON_GOLD] Gold in Cities by 10%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_PIPELINE_HELP_CHOICE_2">
+			<Text>Temporarily, Foreign [ICON_RES_OIL] Oil resources will be likely to explode.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_PIPELINE_HELP_CHOICE_3">
+			<Text>Gain the Refridgeration technology.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_PIPELINE_DESCRIPTION_CHOICE_1">
+			<Text>With influence over trading, we should be able to make sure some of that [ICON_RES_OIL] Oil finds its way to our ports.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_PIPELINE_DESCRIPTION_CHOICE_2">
+			<Text>The asset is well-placed to conduct a strategic piece of industrial espionage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_PIPELINE_DESCRIPTION_CHOICE_3">
+			<Text>His report details plans for the construction of large off-shore platforms. Get me those schematics!</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Pipeline Explosion -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_OIL_EXPLOSION_CHOICE_1_S">
+			<Text>The City of {2_CityName}'s Oil Wells have malfunctioned.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_OIL_EXPLOSION_CHOICE_1">
+			<Text>An Oil Well has exploded!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OIL_EXPLOSION_DESCRIPTION">
+			<Text>Explosion at the Oil Field</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OIL_EXPLOSION_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OIL_EXPLOSION_HELP_CHOICE_1">
+			<Text>An [ICON_RES_OIL] Oil Well is destroyed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OIL_EXPLOSION_DESCRIPTION_CHOICE_1">
+			<Text></Text>
+		</Row>
+	</Language_en_US>
+	<!-- Fake Painting -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_CITY_EVENT_FAKE_PAINTING_DESCRIPTION">
+			<Text>Art Forgery</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FAKE_PAINTING_HELP">
+			<Text>New, 'non-destructive' analysis is all the rage in our galleries. Unfortunately, our Cultural Advisor believes at least one of our paintings is, in fact, a fake.[NEWLINE][NEWLINE]They are going to find out...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FAKE_PAINTING_HELP_CHOICE_1">
+			<Text>Spend {2_InstantYield} to gain the same amount of [ICON_GREAT_ARTIST] Great Artist points.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FAKE_PAINTING_HELP_CHOICE_2">
+			<Text>Lose {2_InstantYield} Culture.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FAKE_PAINTING_HELP_CHOICE_3">
+			<Text>Gain a copy of the [ICON_RES_GLASS] Glass resource.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FAKE_PAINTING_DESCRIPTION_CHOICE_1">
+			<Text>We must protect the reputation of our Artists. Pay off whoever you need to.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FAKE_PAINTING_DESCRIPTION_CHOICE_2">
+			<Text>Oh well. Isn't all Art a lie?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FAKE_PAINTING_DESCRIPTION_CHOICE_3">
+			<Text>Fortunately, a City State Museum has been after that painting for ages. Tell them they can have it for that one stained-glass statue I like.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

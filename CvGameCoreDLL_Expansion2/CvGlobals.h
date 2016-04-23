@@ -137,6 +137,7 @@ class CvResolutionEntry;
 class CvResolutionXMLEntries;
 class CvDeal;
 class CvNetMessageHandler;
+class CvDiploModifierInfo;
 
 class CvDLLInterfaceIFaceBase;
 class ICvDLLDatabaseUtility1;
@@ -213,7 +214,6 @@ public:
 
 	CvTwoLayerPathFinder& GetPathFinder();
 	CvTwoLayerPathFinder& GetInterfacePathFinder();
-	CvPathFinder& GetIgnoreUnitsPathFinder();
 	CvPathFinder& GetStepFinder();
 
 	ICvDLLDatabaseUtility1* getDatabaseLoadUtility();
@@ -8889,7 +8889,6 @@ public:
 	//
 	void SetPathFinder(CvTwoLayerPathFinder* pVal);
 	void SetInterfacePathFinder(CvTwoLayerPathFinder* pVal);
-	void SetIgnoreUnitsPathFinder(CvPathFinder* pVal);
 	void SetStepFinder(CvPathFinder* pVal);
 
 	// So that CvEnums are moddable in the DLL
@@ -8942,7 +8941,6 @@ protected:
 
 	CvTwoLayerPathFinder* m_pathFinder;
 	CvTwoLayerPathFinder* m_interfacePathFinder;
-	CvPathFinder* m_ignoreUnitsPathFinder;
 	CvPathFinder* m_stepFinder;
 	
 	ICvDLLDatabaseUtility1* m_pkDatabaseLoadUtility;
@@ -11273,7 +11271,7 @@ inline const Database::Connection* CvGlobals::GetGameDatabase() const
 }
 
 
-#if defined(MOD_BALANCE_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING)
 
 #include "Stackwalker/Stackwalker.h"
 

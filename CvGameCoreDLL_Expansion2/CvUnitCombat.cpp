@@ -228,11 +228,8 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		pkCombatInfo->setDefenderRetaliates(true);
 	}
 	// Attacking a Unit
-	else
+	else if (pkDefender)
 	{
-		// Unit vs. Unit
-		CvAssert(pkDefender != NULL);
-
 #if defined(MOD_UNITS_MAX_HP)
 		int iDefenderMaxHP = pkDefender->GetMaxHitPoints();
 #endif

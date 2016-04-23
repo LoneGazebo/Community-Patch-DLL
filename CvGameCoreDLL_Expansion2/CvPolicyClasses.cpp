@@ -3621,6 +3621,11 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 {
 	int rtnValue = 0;
 
+	//simply memoization for repeated calls
+	ModifierMap::iterator it = mModifierLookup.find(eType);
+	if (it!=mModifierLookup.end() && it->second.first==GC.getGame().getGameTurn())
+		return it->second.second;
+
 	int iNumPolicies = m_pPolicies->GetNumPolicies();
 	for(int i = 0; i < iNumPolicies; i++)
 	{
@@ -3790,6 +3795,9 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			}
 		}
 	}
+
+	//remember the value for next time
+	mModifierLookup[eType] = std::make_pair(GC.getGame().getGameTurn(),rtnValue);
 
 	return rtnValue;
 }

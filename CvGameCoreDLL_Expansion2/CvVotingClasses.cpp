@@ -10488,12 +10488,8 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 		CvWeightedVector<VoteConsideration, 4, false> vVotesAllocated;
 		for (int i = 0; i < iVotes; i++)
 		{
-#if defined(MOD_BALANCE_CORE)
-			VoteConsideration chosen = vConsiderations.GetElement(0);
-#else
 			RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 			VoteConsideration chosen = vConsiderations.ChooseByWeight(&fcn, "Choosing a vote to allocate");
-#endif
 			if (chosen.bEnact)
 			{
 				pLeague->DoVoteEnact(chosen.iID, GetPlayer()->GetID(), 1, chosen.iChoice);

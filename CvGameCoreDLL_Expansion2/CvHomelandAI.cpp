@@ -1358,10 +1358,10 @@ void CvHomelandAI::PlotMovesToSafety()
 				}
 
 				// Also may be true if a damaged combat unit
-				else if(pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints())
+				else if(pUnit->getDamage()>0)
 				{
 #if defined(MOD_BALANCE_CORE)
-					int iDamage = pUnit->plot()->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage());
+					int iTurnDamage = pUnit->plot()->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage());
 #endif
 					if(pUnit->isBarbarian())
 					{
@@ -1374,7 +1374,7 @@ void CvHomelandAI::PlotMovesToSafety()
 
 #if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
 #if defined(MOD_BALANCE_CORE)
-					else if(iDamage > 0 && (((pUnit->getDamage()*100)/pUnit->GetMaxHitPoints())>50))
+					else if(iTurnDamage > 0 && (pUnit->getDamage() > pUnit->GetCurrHitPoints()))
 					{
 						bAddUnit = true;
 					}
@@ -1384,8 +1384,8 @@ void CvHomelandAI::PlotMovesToSafety()
 					{
 						bAddUnit = true;
 					}
-					// Everyone else flees at less than or equal to 50% combat strength
-					else if(pUnit->GetBaseCombatStrengthConsideringDamage() * 2 <= pUnit->GetBaseCombatStrength())
+					// Everyone else flees at less than 50% combat strength (works for zero CS also)
+					else if(pUnit->GetBaseCombatStrengthConsideringDamage() * 2 < pUnit->GetBaseCombatStrength())
 					{
 						bAddUnit = true;
 					}
@@ -1408,9 +1408,7 @@ void CvHomelandAI::PlotMovesToSafety()
 				// Also flee if danger is really high in current plot (but not if we're barbarian)
 				else if(!pUnit->isBarbarian())
 				{
-					int iAcceptableDanger;
-					iAcceptableDanger = pUnit->GetBaseCombatStrengthConsideringDamage() * 100;
-					if(iDangerLevel > iAcceptableDanger)
+					if(iDangerLevel > pUnit->GetCurrHitPoints()*1.5)
 					{
 						bAddUnit = true;
 					}
@@ -3255,9 +3253,9 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 		int iBestPlotScore = 0;
 		
 		//first check our immediate neighborhood (ie the tiles we can reach within one turn)
-		TacticalAIHelpers::ReachablePlotSet eligiblePlots;
-		TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(), pUnit->plot(), eligiblePlots, true /*checkTerritory*/);
-		for (TacticalAIHelpers::ReachablePlotSet::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
+		ReachablePlots eligiblePlots;
+		TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(), pUnit->plot(), eligiblePlots, true, true, false);
+		for (ReachablePlots::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
 		{
 			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->first);
 
@@ -3658,6 +3656,18 @@ void CvHomelandAI::ExecuteHeals()
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
 		if(pUnit)
 		{
+			if (pUnit->GetDanger()>0)
+			{
+				CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit.pointer(),true);
+				if (pBestPlot)
+				{
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+					pUnit->finishMoves();
+					UnitProcessed(pUnit->GetID());
+					continue;
+				}
+			}
+
 			if(pUnit->canFortify(pUnit->plot()))
 			{
 				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
@@ -5035,9 +5045,9 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
 			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
-			TacticalAIHelpers::ReachablePlotSet reachablePlots;
-			TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true);
-			for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
+			ReachablePlots reachablePlots;
+			TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
+			for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
 				CvPlot* pCandidate = GC.getMap().plotByIndexUnchecked(it->first);
 				//plot needs to have a defender, but no be adjacent to the enemy
@@ -5103,9 +5113,9 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
 			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
-			TacticalAIHelpers::ReachablePlotSet reachablePlots;
-			TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true);
-			for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
+			ReachablePlots reachablePlots;
+			TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
+			for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
 
 				int iScore = 0;
@@ -6465,9 +6475,9 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 #endif
 {
 	WeightedPlotVector aBestPlotList;
-	TacticalAIHelpers::ReachablePlotSet reachablePlots;
+	ReachablePlots reachablePlots;
 	TacticalAIHelpers::GetAllPlotsInReach(pUnit,pUnit->plot(),reachablePlots,true,true,true);
-	for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
+	for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 	{
 		{
 			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->first);

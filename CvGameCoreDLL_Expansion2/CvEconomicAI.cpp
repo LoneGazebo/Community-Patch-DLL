@@ -1807,10 +1807,10 @@ void CvEconomicAI::DoHurry()
 	
 	//Let's check our average income over five-turn periods
 	CvTreasury* pTreasury = m_pPlayer->GetTreasury();
-	int iAverage = (int)pTreasury->AverageIncome(10);
+	int iGPT = pTreasury->CalculateBaseNetGold();
 
 	//Are we in debt?
-	if(iAverage < 0)
+	if(iGPT < 0)
 		return;
 
 	if(pTreasury->GetGold() >= iTreasuryBuffer)
@@ -5254,7 +5254,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedGuilds(CvPlayer* pPlayer)
 	CvTeam &kTeam = GET_TEAM(pPlayer->getTeam());
 
 #if defined(MOD_BUGFIX_BUILDINGCLASS_NOT_BUILDING)
-	CvCivilizationInfo& playerCivilizationInfo = pPlayer->getCivilizationInfo();
+	const CvCivilizationInfo& playerCivilizationInfo = pPlayer->getCivilizationInfo();
 	BuildingTypes eWritersGuild = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_WRITERS_GUILD"));
 	BuildingTypes eArtistsGuild = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_ARTISTS_GUILD"));
 	BuildingTypes eMusiciansGuild = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_MUSICIANS_GUILD"));

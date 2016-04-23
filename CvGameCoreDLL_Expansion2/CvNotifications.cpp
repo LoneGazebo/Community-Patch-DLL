@@ -1614,58 +1614,6 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 			return false;
 		}
 		break;
-#if defined(MOD_BALANCE_CORE)
-	case 419811917:
-		{
-			int iIndex = m_iNotificationsBeginIndex;
-			while(iIndex != m_iNotificationsEndIndex)
-			{
-				if(notification.m_eNotificationType == m_aNotifications[iIndex].m_eNotificationType)
-				{
-					if(!notification.m_bDismissed && !m_aNotifications[iIndex].m_bDismissed)
-					{
-						// we've already added a pantheon notification, don't need another
-						return true;
-					}
-				}
-
-
-				iIndex++;
-				if(iIndex >= (int)m_aNotifications.size())
-				{
-					iIndex = 0;
-				}
-			}
-
-			return false;
-		}
-		break;
-	case 826076831:
-		{
-			int iIndex = m_iNotificationsBeginIndex;
-			while(iIndex != m_iNotificationsEndIndex)
-			{
-				if(notification.m_eNotificationType == m_aNotifications[iIndex].m_eNotificationType)
-				{
-					if(!notification.m_bDismissed && !m_aNotifications[iIndex].m_bDismissed)
-					{
-						// we've already added a pantheon notification, don't need another
-						return true;
-					}
-				}
-
-
-				iIndex++;
-				if(iIndex >= (int)m_aNotifications.size())
-				{
-					iIndex = 0;
-				}
-			}
-
-			return false;
-		}
-		break;
-#endif
 
 	default:
 		return false;
@@ -2071,7 +2019,35 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 			if(pCity != NULL)
 			{
 				if(pCity->IsEventActive(eCityEvent))
-					return false;
+				{
+					int iNumEvent = 0;
+					CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY;
+					for(int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
+					{
+						eEventChoice = (CityEventChoiceTypes)iLoop;
+						if(eEventChoice != NO_EVENT_CHOICE_CITY)
+						{
+							CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+							if(pkEventChoiceInfo != NULL)
+							{
+								if(pCity->IsCityEventChoiceValid(eEventChoice, eCityEvent))
+								{
+									iNumEvent++;
+									break;
+								}
+							}
+						}
+					}
+					if(iNumEvent <= 0)
+					{
+						pCity->SetEventActive(eCityEvent, false);
+						return true;
+					}
+					else
+					{
+						return false;
+					}
+				}
 			}
 		}
 		return true;
@@ -2083,7 +2059,35 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		if(eEvent != NO_EVENT)
 		{
 			if(GET_PLAYER(m_ePlayer).IsEventActive(eEvent))
-				return false;
+			{
+				int iNumEvent = 0;
+				EventChoiceTypes eEventChoice = NO_EVENT_CHOICE;
+				for(int iLoop = 0; iLoop < GC.getNumEventChoiceInfos(); iLoop++)
+				{
+					eEventChoice = (EventChoiceTypes)iLoop;
+					if(eEventChoice != NO_EVENT_CHOICE)
+					{
+						CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
+						if(pkEventChoiceInfo != NULL)
+						{
+							if(GET_PLAYER(m_ePlayer).IsEventChoiceValid(eEventChoice, eEvent))
+							{
+								iNumEvent++;
+								break;
+							}
+						}
+					}
+				}
+				if(iNumEvent <= 0)
+				{
+					GET_PLAYER(m_ePlayer).SetEventActive(eEvent, false);
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
 		}
 		return true;
 	}

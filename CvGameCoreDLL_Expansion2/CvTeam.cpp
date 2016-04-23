@@ -2266,6 +2266,10 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 //	--------------------------------------------------------------------------------
 void CvTeam::meet(TeamTypes eTeam, bool bSuppressMessages)
 {
+	//can happen with observer?
+	if(!isAlive())
+		return;
+
 	if(!isHasMet(eTeam))
 	{
 		makeHasMet(eTeam, bSuppressMessages);
@@ -7865,7 +7869,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			int iUnitClass = kPlayer.GetPlayerTraits()->GetFirstFreeUnit(eTech);
 			while(iUnitClass != NO_UNITCLASS)
 			{
-				CvCivilizationInfo& playerCivilization = kPlayer.getCivilizationInfo();
+				const CvCivilizationInfo& playerCivilization = kPlayer.getCivilizationInfo();
 				eLoopUnit = (UnitTypes)playerCivilization.getCivilizationUnits(iUnitClass);
 				iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
 				pNewUnitPlot = kPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
@@ -7907,7 +7911,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 #if defined(MOD_BALANCE_CORE)
 			// Free buildings (once unlocked via tech)
 			CvCity* pLoopCity;
-			CvCivilizationInfo& thisCiv = kPlayer.getCivilizationInfo();
+			const CvCivilizationInfo& thisCiv = kPlayer.getCivilizationInfo();
 			if(kPlayer.GetPlayerTraits()->GetFreeBuildingPrereqTech() == eTech)
 			{
 				for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)

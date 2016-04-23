@@ -221,6 +221,7 @@ CvCombatInfo& CvCombatInfo::operator=(const CvCombatInfo& rhs)
 	for(int i=0; i<BATTLE_UNIT_COUNT; i++)
 	{
 		m_pUnits[i] = rhs.m_pUnits[i];
+		m_pCities[i] = rhs.m_pCities[i];
 
 		m_iFinalDamage[i] = rhs.m_iFinalDamage[i];
 		m_iDamageInflicted[i] = rhs.m_iDamageInflicted[i];

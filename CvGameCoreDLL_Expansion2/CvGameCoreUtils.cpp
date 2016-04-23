@@ -1335,7 +1335,7 @@ void getUnitAIString(CvString& strString, UnitAITypes eUnitAI)
 	switch(eUnitAI)
 	{
 	case NO_UNITAI:
-		strString = "no unitAI";
+		strString = "no_unitAI";
 		break;
 
 	case UNITAI_UNKNOWN:
@@ -1351,10 +1351,10 @@ void getUnitAIString(CvString& strString, UnitAITypes eUnitAI)
 		strString = "attack";
 		break;
 	case UNITAI_CITY_BOMBARD:
-		strString = "bombard city";
+		strString = "bombard_city";
 		break;
 	case UNITAI_FAST_ATTACK:
-		strString = "fast attack";
+		strString = "fast_attack";
 		break;
 	case UNITAI_DEFENSE:
 		strString = "defense";
@@ -1366,7 +1366,7 @@ void getUnitAIString(CvString& strString, UnitAITypes eUnitAI)
 		strString = "ranged";
 		break;
 	case UNITAI_CITY_SPECIAL:
-		strString = "city special";
+		strString = "city_special";
 		break;
 	case UNITAI_EXPLORE:
 		strString = "explore";
@@ -1398,49 +1398,52 @@ void getUnitAIString(CvString& strString, UnitAITypes eUnitAI)
 		strString = "icbm";
 		break;
 	case UNITAI_WORKER_SEA:
-		strString = "worker sea";
+		strString = "worker_sea";
 		break;
 	case UNITAI_ATTACK_SEA:
-		strString = "attack sea";
+		strString = "attack_sea";
 		break;
 	case UNITAI_RESERVE_SEA:
-		strString = "reserve sea";
+		strString = "reserve_sea";
 		break;
 	case UNITAI_ESCORT_SEA:
-		strString = "escort sea";
+		strString = "escort_sea";
 		break;
 	case UNITAI_EXPLORE_SEA:
-		strString = "explore sea";
+		strString = "explore_sea";
 		break;
 	case UNITAI_ASSAULT_SEA:
-		strString = "assault sea";
+		strString = "assault_sea";
 		break;
 	case UNITAI_SETTLER_SEA:
-		strString = "settler sea";
+		strString = "settler_sea";
 		break;
 	case UNITAI_CARRIER_SEA:
-		strString = "carrier sea";
+		strString = "carrier_sea";
 		break;
 	case UNITAI_MISSILE_CARRIER_SEA:
-		strString = "missile carrier";
+		strString = "missile_carrier";
 		break;
 	case UNITAI_PIRATE_SEA:
-		strString = "pirate sea";
+		strString = "pirate_sea";
 		break;
 	case UNITAI_ATTACK_AIR:
-		strString = "attack air";
+		strString = "attack_air";
 		break;
 	case UNITAI_DEFENSE_AIR:
-		strString = "defense air";
+		strString = "defense_air";
 		break;
 	case UNITAI_CARRIER_AIR:
-		strString = "carrier air";
+		strString = "carrier_air";
+		break;
+	case UNITAI_MISSILE_AIR:
+		strString = "missile_air";
 		break;
 	case UNITAI_PARADROP:
 		strString = "paradrop";
 		break;
 	case UNITAI_SPACESHIP_PART:
-		strString = "spaceship part";
+		strString = "spaceship_part";
 		break;
 	case UNITAI_TREASURE:
 		strString = "treasure";
@@ -1458,7 +1461,7 @@ void getUnitAIString(CvString& strString, UnitAITypes eUnitAI)
 		strString = "admiral";
 		break;
 	case UNITAI_TRADE_UNIT:
-		strString = "trade unit";
+		strString = "trade_unit";
 		break;
 	case UNITAI_ARCHAEOLOGIST:
 		strString = "archaeologist";
@@ -1468,6 +1471,7 @@ void getUnitAIString(CvString& strString, UnitAITypes eUnitAI)
 		break;
 	case UNITAI_MUSICIAN:
 		strString = "musician";
+		break;
 
 	default:
 		strString = CvString::format("unknown(%d)", eUnitAI);

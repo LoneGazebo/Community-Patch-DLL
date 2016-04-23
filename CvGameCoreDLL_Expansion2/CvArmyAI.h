@@ -94,9 +94,8 @@ public:
 	virtual ~CvArmyAI();
 
 	// Initialization/destruction routines
-	void Init(int iID, PlayerTypes eOwner, int iOperationID);
 	void Uninit();
-	void Reset(int iID = 0, PlayerTypes eOwner = NO_PLAYER, int iOperationID = -1, bool bConstructorCall = false);
+	void Reset(int iID = 0, PlayerTypes eOwner = NO_PLAYER, int iOperationID = -1);
 	void Kill();
 
 	// for serialization
@@ -116,15 +115,10 @@ public:
 	CvPlot* GetCenterOfMass(DomainTypes eDomainRequired);
 	int GetFurthestUnitDistance(CvPlot* pPlot);
 
-	inline PlayerTypes GetOwner() const
-	{
-		return m_eOwner;
-	}
-
-	inline int GetOperationID() const
-	{
-		return m_iOperationID;
-	}
+	void SetOwner(PlayerTypes eOwner) { m_eOwner=eOwner; }
+	inline PlayerTypes GetOwner() const { return m_eOwner; }
+	void SetOperationID(int iID) { m_iOperationID = iID; }
+	inline int GetOperationID() const { return m_iOperationID; }
 
 	// Formation accessors
 	int GetFormationIndex() const;

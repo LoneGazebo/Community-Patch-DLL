@@ -327,6 +327,7 @@ CvCity::CvCity() :
 	, m_aiStaticCityYield("CvCity::m_aiStaticCityYield", m_syncArchive)
 	, m_aiThemingYieldBonus("CvCity::m_aiThemingYieldBonus", m_syncArchive)
 	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiBaseYieldRateFromCSAlliance", m_syncArchive)
+	, m_aiBaseYieldRateFromCSFriendship("CvCity::m_aiBaseYieldRateFromCSFriendship", m_syncArchive)
 	, m_aiCorporationYieldChange("CvCity::m_aiCorporationYieldChange", m_syncArchive)
 	, m_aiCorporationYieldModChange("CvCity::m_aiCorporationYieldModChange", m_syncArchive)
 	, m_aiCorporationResourceQuantity("CvCity::m_aiCorporationResourceQuantity", m_syncArchive)
@@ -596,7 +597,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 #if defined(MOD_BALANCE_CORE)
 	// Free Buildings
-	CvCivilizationInfo& thisCiv = getCivilizationInfo();
+	const CvCivilizationInfo& thisCiv = getCivilizationInfo();
 	for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 	{
 		const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iBuildingClassLoop);
@@ -685,6 +686,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		if(MOD_BALANCE_CORE && isCapital())
 		{
 			int iNumAllies = 0;
+			int iNumFriends = 0;
 			// Loop through all minors and get the total number we've met.
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
@@ -696,9 +698,13 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 					{
 						iNumAllies++;
 					}
+					else if (GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(owningPlayer.GetID()))
+					{
+						iNumFriends++;
+					}
 				}
 			}
-			if(iNumAllies > 0)
+			if(iNumAllies > 0 || iNumFriends > 0)
 			{
 				//If we get a yield bonus in all cities because of CS alliance, this is a good place to change it.
 				int iEra = owningPlayer.GetCurrentEra();
@@ -712,6 +718,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 					if(owningPlayer.GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
 					{
 						SetBaseYieldRateFromCSAlliance(eYield, (owningPlayer.GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies * iEra));
+					}
+					if(owningPlayer.GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
+					{
+						SetBaseYieldRateFromCSFriendship(eYield, (owningPlayer.GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iNumFriends * iEra));
 					}
 				}
 			}
@@ -1467,7 +1477,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iTurnsSinceRankAnnouncement = 0;
 #endif
 	m_aiBaseYieldRateFromReligion.resize(NUM_YIELD_TYPES);
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE)	
+	m_aiBaseYieldRateFromCSFriendship.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRateFromCSAlliance.resize(NUM_YIELD_TYPES);
 	m_aiCorporationYieldChange.resize(NUM_YIELD_TYPES);
 	m_aiCorporationYieldModChange.resize(NUM_YIELD_TYPES);
@@ -1515,6 +1526,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 		m_aiBaseYieldRateFromReligion.setAt(iI, 0);
 #if defined(MOD_BALANCE_CORE)
+		m_aiBaseYieldRateFromCSFriendship.setAt(iI, 0);
 		m_aiBaseYieldRateFromCSAlliance.setAt(iI, 0);
 		m_aiCorporationYieldChange.setAt(iI, 0);
 		m_aiCorporationYieldModChange.setAt(iI, 0);
@@ -2614,6 +2626,7 @@ void CvCity::doTurn()
 	if(MOD_BALANCE_CORE && !GET_PLAYER(getOwner()).isMinorCiv() && !GET_PLAYER(getOwner()).isBarbarian())
 	{
 		int iNumAllies = 0;
+		int iNumFriends = 0;
 		// Loop through all minors and get the total number we've met.
 		if(isCapital())
 		{
@@ -2626,6 +2639,10 @@ void CvCity::doTurn()
 					if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(GET_PLAYER(getOwner()).GetID()))
 					{
 						iNumAllies++;
+					}
+					else if (GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(GET_PLAYER(getOwner()).GetID()))
+					{
+						iNumFriends++;
 					}
 				}
 			}
@@ -2641,6 +2658,10 @@ void CvCity::doTurn()
 				if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
 				{
 					SetBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies * iEra));
+				}
+				if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
+				{
+					SetBaseYieldRateFromCSFriendship(eYield, (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iNumFriends * iEra));
 				}
 			}
 		}
@@ -2659,7 +2680,7 @@ void CvCity::doTurn()
 						if(GET_PLAYER(getOwner()).getResourceOverValue(eResourceLoop) > 0)
 						{
 							const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-							CvCivilizationInfo& thisCivilization = GET_PLAYER(getOwner()).getCivilizationInfo();
+							const CvCivilizationInfo& thisCivilization = GET_PLAYER(getOwner()).getCivilizationInfo();
 							for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
 							{
 								const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
@@ -3302,7 +3323,7 @@ void CvCity::DoEvents()
 				continue;
 
 			//Lua Hook
-			if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityEventCanTake, getOwner(), GetID(), eEvent) == GAMEEVENTRETURN_FALSE) 
+			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CityEventCanTake, getOwner(), GetID(), eEvent) == GAMEEVENTRETURN_FALSE) 
 			{
 				continue;
 			}
@@ -3534,7 +3555,7 @@ void CvCity::DoStartEvent(CityEventTypes eChosenEvent)
 				else
 				{
 					//Lua Hook
-					if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_OverrideAICityEvent, getOwner(), GetID(), eChosenEvent) == GAMEEVENTRETURN_TRUE) 
+					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_OverrideAICityEvent, getOwner(), GetID(), eChosenEvent) == GAMEEVENTRETURN_TRUE) 
 					{
 						return;
 					}
@@ -3553,7 +3574,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	}
 
 	//Lua Hook
-	if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityEventCanActivate, getOwner(), GetID(), eEvent) == GAMEEVENTRETURN_FALSE) 
+	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CityEventCanActivate, getOwner(), GetID(), eEvent) == GAMEEVENTRETURN_FALSE) 
 	{
 		return false;
 	}
@@ -3977,8 +3998,15 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 		return false;
 	}
 
+	//Exploit checks.
+	if(GET_PLAYER(getOwner()).isEndTurn())
+		return false;
+
+	if(!IsEventActive(eParentEvent))
+		return false;
+
 	//Lua Hook
-	if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityEventChoiceCanTake, getOwner(), GetID(), eChosenEventChoice) == GAMEEVENTRETURN_FALSE) {
+	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CityEventChoiceCanTake, getOwner(), GetID(), eChosenEventChoice) == GAMEEVENTRETURN_FALSE) {
 		return false;
 	}
 
@@ -5059,7 +5087,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 							if(eBuildingType != NO_BUILDING)
 							{
 								GetCityBuildings()->SetNumRealBuilding(eBuildingType, 0, true);
-								GetCityBuildings()->SetNumFreeBuilding(eBuildingType, 0);
 							}
 						}
 					}
@@ -5102,18 +5129,20 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				}
 				else
 				{
-					int iRandom = GC.getGame().getJonRandNum(100, "Random Event Chance");
-					if(iRandom < iChance)
-					{					
-						CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+					CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
 		
-						if (pCivilizationInfo != NULL)
+					if (pCivilizationInfo != NULL)
+					{
+						BuildingTypes eBuildingType = (BuildingTypes) pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
+						if(eBuildingType != NO_BUILDING)
 						{
-							BuildingTypes eBuildingType = (BuildingTypes) pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
-							if(eBuildingType != NO_BUILDING)
-							{
+							if(GetCityBuildings()->GetNumFreeBuilding(eBuildingType) > 0)
+								continue;
+
+							int iRandom = GC.getGame().getJonRandNum(100, "Random Event Chance");
+							if(iRandom < iChance)
+							{					
 								GetCityBuildings()->SetNumRealBuilding(eBuildingType, 0, true);
-								GetCityBuildings()->SetNumFreeBuilding(eBuildingType, 0);
 								if (getOwner() == GC.getGame().getActivePlayer())
 								{
 									CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_BUILDING_DESTROYED_EVENT", GC.getBuildingInfo(eBuildingType)->GetTextKey(), getNameKey());
@@ -5387,7 +5416,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					}
 				}
 			}
-			if(pkEventChoiceInfo->ConvertsCityToPlayerReligion() > 0)
+			if(pkEventChoiceInfo->ConvertsCityToPlayerReligion() != 0)
 			{
 				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
 				if(eReligion != NO_RELIGION)
@@ -5395,7 +5424,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					GetCityReligions()->ConvertPercentForcedFollowers(eReligion, pkEventChoiceInfo->ConvertsCityToPlayerReligion());
 				}
 			}
-			if(pkEventChoiceInfo->ConvertsCityToPlayerMajorityReligion() > 0)
+			if(pkEventChoiceInfo->ConvertsCityToPlayerMajorityReligion() != 0)
 			{
 				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities();
 				if(eReligion != NO_RELIGION && eReligion > RELIGION_PANTHEON)
@@ -5403,21 +5432,21 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					GetCityReligions()->ConvertPercentForcedFollowers(eReligion, pkEventChoiceInfo->ConvertsCityToPlayerReligion());
 				}
 			}
-			if(pkEventChoiceInfo->getResistanceTurns() > 0)
+			if(pkEventChoiceInfo->getResistanceTurns() != 0)
 			{
 				int iTurns = pkEventChoiceInfo->getResistanceTurns();
 				iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iTurns /= 100;
 				ChangeResistanceTurns(iTurns);
 			}
-			if(pkEventChoiceInfo->getWLTKD() > 0)
+			if(pkEventChoiceInfo->getWLTKD() != 0)
 			{
 				int iTurns = pkEventChoiceInfo->getWLTKD();
 				iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iTurns /= 100;
 				ChangeWeLoveTheKingDayCounter(iTurns);
 			}
-			if(pkEventChoiceInfo->getCityHappiness() > 0)
+			if(pkEventChoiceInfo->getCityHappiness() != 0)
 			{
 				ChangeEventHappiness(pkEventChoiceInfo->getCityHappiness());
 			}
@@ -6625,7 +6654,7 @@ UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount) const
 	bUpgradeAvailable = false;
 	bUpgradeUnavailable = false;
 
-	CvCivilizationInfo& thisCiv = getCivilizationInfo();
+	const CvCivilizationInfo& thisCiv = getCivilizationInfo();
 
 	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
@@ -6813,7 +6842,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 
 		// See if there are any BuildingClass requirements
 		const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-		CvCivilizationInfo& thisCivilization = getCivilizationInfo();
+		const CvCivilizationInfo& thisCivilization = getCivilizationInfo();
 		for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
 		{
 			const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
@@ -7048,7 +7077,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		return false;
 	}
 
-	CvCivilizationInfo& thisCivInfo = *GC.getCivilizationInfo(getCivilizationType());
+	const CvCivilizationInfo& thisCivInfo = *GC.getCivilizationInfo(getCivilizationType());
 	int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
 
 	// Can't construct a building to reduce occupied unhappiness if the city isn't occupied
@@ -10578,6 +10607,12 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		}
 
 		iTempMod = GET_PLAYER(getOwner()).getWonderProductionModifier();
+#if defined(MOD_BALANCE_CORE)
+		if(GET_PLAYER(getOwner()).isGoldenAge() && GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionModGA() > 0)
+		{
+			iTempMod += GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionModGA();
+		}
+#endif
 		iMultiplier += iTempMod;
 		if(toolTipSink && iTempMod)
 		{
@@ -11215,7 +11250,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 	CvPlayer& owningPlayer = GET_PLAYER(getOwner());
 	CvTeam& owningTeam = GET_TEAM(getTeam());
-	CvCivilizationInfo& thisCiv = getCivilizationInfo();
+	const CvCivilizationInfo& thisCiv = getCivilizationInfo();
 	if(!(owningTeam.isObsoleteBuilding(eBuilding)) || bObsolete)
 	{
 		// One-shot items
@@ -12788,7 +12823,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 						continue;
 					}
 
-					CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
+					const CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
 					BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
 
 					if(eBuilding != NO_BUILDING)
@@ -12878,7 +12913,7 @@ int CvCity::GetCultureFromSpecialist(SpecialistTypes eSpecialist) const
 }
 
 //	--------------------------------------------------------------------------------
-CvHandicapInfo& CvCity::getHandicapInfo() const
+const CvHandicapInfo& CvCity::getHandicapInfo() const
 {
 	return GET_PLAYER(getOwner()).getHandicapInfo();
 }
@@ -12891,7 +12926,7 @@ HandicapTypes CvCity::getHandicapType() const
 }
 
 //	--------------------------------------------------------------------------------
-CvCivilizationInfo& CvCity::getCivilizationInfo() const
+const CvCivilizationInfo& CvCity::getCivilizationInfo() const
 {
 	return GET_PLAYER(getOwner()).getCivilizationInfo();
 }
@@ -13150,8 +13185,9 @@ void CvCity::CheckForOperationUnits()
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
+	int iGPT = GET_PLAYER(getOwner()).GetTreasury()->CalculateBaseNetGold();
 	//Don't if we're in debt.
-	if(kPlayer.GetTreasury()->AverageIncome(10) <= 0)
+	if(iGPT <= 0)
 	{
 		return;
 	}
@@ -13183,7 +13219,6 @@ void CvCity::CheckForOperationUnits()
 #else
 	OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(getArea());
 #endif
-
 	if(thisOperationSlot.IsValid())
 	{
 		CvArmyAI* pThisArmy = kPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
@@ -13207,7 +13242,7 @@ void CvCity::CheckForOperationUnits()
 				if(eBestUnit != NO_UNIT)
 				{
 					int iTempWeight = 100;
-					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, false, NULL, iTempWeight);
+					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, false, NULL, iTempWeight, iGPT);
 					if(iTempWeight <= 0)
 					{
 						eBestUnit = NO_UNIT;
@@ -14298,7 +14333,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 				// Need to Remove Citizens
 				for(int iNewPopLoop = -iPopChange; iNewPopLoop--;)
 				{
-					GetCityCitizens()->DoRemoveWorstCitizen(false, NO_SPECIALIST, iNewValue);
+					GetCityCitizens()->DoRemoveWorstCitizen(true, NO_SPECIALIST, iNewValue);
 				}
 
 				// Fixup the unassigned workers
@@ -14321,7 +14356,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 			int iGameTurn = GC.getGame().getGameTurn() - getGameTurnFounded();
 			if(!IsResistance() && (iGameTurn > 0) && !bNoBonus)
 			{
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH, true, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, this);
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -15041,6 +15076,7 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 #endif
 #if defined(MOD_BALANCE_CORE)
 	iCulturePerTurn += GetBaseYieldRateFromCSAlliance(YIELD_CULTURE);
+	iCulturePerTurn += GetBaseYieldRateFromCSFriendship(YIELD_CULTURE);
 	iCulturePerTurn += GetYieldPerTurnFromTraits(YIELD_CULTURE);
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -15241,6 +15277,7 @@ int CvCity::GetFaithPerTurn() const
 #endif
 #if defined(MOD_BALANCE_CORE)
 	iFaith += GetBaseYieldRateFromCSAlliance(YIELD_FAITH);
+	iFaith += GetBaseYieldRateFromCSFriendship(YIELD_FAITH);
 	iFaith += GetYieldPerTurnFromTraits(YIELD_FAITH);
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -17342,9 +17379,6 @@ int CvCity::GetLocalHappiness() const
 			iLocalHappiness += kPlayer.GetHappinessPerGarrisonedUnit();
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	iLocalHappiness += GetEventHappiness();
-#endif
 	// Follower beliefs
 	int iHappinessFromReligion = 0;
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
@@ -19644,6 +19678,7 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	iValue += GetBaseYieldRateFromReligion(eIndex);
 #if defined(MOD_BALANCE_CORE)
 	iValue += GetBaseYieldRateFromCSAlliance(eIndex);
+	iValue += GetBaseYieldRateFromCSFriendship(eIndex);
 	iValue += GetYieldPerTurnFromTraits(eIndex);
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -20484,6 +20519,35 @@ void CvCity::SetBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iValue)
 		m_aiBaseYieldRateFromCSAlliance.setAt(eIndex, iValue);
 	}
 }
+//	--------------------------------------------------------------------------------
+/// Base yield rate from CS Friendships
+int CvCity::GetBaseYieldRateFromCSFriendship(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiBaseYieldRateFromCSFriendship[eIndex];
+}
+void CvCity::ChangeBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if(iChange != 0)
+	{
+		m_aiBaseYieldRateFromCSFriendship.setAt(eIndex, m_aiBaseYieldRateFromCSFriendship[eIndex] + iChange);
+		CvAssert(GetBaseYieldRateFromCSFriendship(eIndex) >= 0); 
+	}
+}
+void CvCity::SetBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iValue)
+{
+	if(GetBaseYieldRateFromCSFriendship(eIndex) != iValue)
+	{
+		m_aiBaseYieldRateFromCSFriendship.setAt(eIndex, iValue);
+	}
+}
+
 //CORPORATIONS
 //	--------------------------------------------------------------------------------
 int CvCity::GetCorporationYieldChange(YieldTypes eIndex) const
@@ -20774,18 +20838,12 @@ void CvCity::TestBastion()
 	//Check to see if this is a city we really need to defend.
 	if(isCapital())
 	{
-		if(!IsBastion())
-		{
-			SetBastion(true);
-		}
+		SetBastion(true);
 		return;
 	}
 	if(plot()->IsChokePoint() || plot()->IsLandbridge(12, 54))
 	{
-		if(!IsBastion())
-		{
-			SetBastion(true);
-		}
+		SetBastion(true);
 		return;
 	}
 	//Coastal and we can embark across oceans? Check for lake, otherwise make a bastion (better safe than sorry).
@@ -20796,10 +20854,7 @@ void CvCity::TestBastion()
 		{
 			if(!GetCityStrategyAI()->IsUsingCityStrategy(eStrategyLakeBound))
 			{
-				if(!IsBastion())
-				{
-					SetBastion(true);
-				}
+				SetBastion(true);
 				return;
 			}
 		}
@@ -20811,10 +20866,7 @@ void CvCity::TestBastion()
 		{
 			if(plot()->IsHomeFrontForPlayer(eLoopPlayer))
 			{
-				if(!IsBastion())
-				{
-					SetBastion(true);
-				}
+				SetBastion(true);
 				return;
 			}
 		}
@@ -20832,6 +20884,7 @@ void CvCity::SetBastion(bool bValue)
 	VALIDATE_OBJECT
 	m_bIsBastion = bValue;
 }
+
 void CvCity::DoBarbIncursion()
 {
 	if(GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
@@ -20845,15 +20898,11 @@ void CvCity::DoBarbIncursion()
 		{
 			CvBarbarians::DoSpawnBarbarianUnit(plot(), false, false);
 			CvBarbarians::DoCityActivationNotice(plot());
-				
-			//Grow and strengthen, my precious!
-			changePopulation(1);
-			setFood((growthThreshold() - 10));				
 		
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
-				strLogString.Format("Unit spawned in barbarian city of %s. City grows by 1. X: %d, Y: %d", getName().c_str(), getX(), getY());
+				strLogString.Format("Unit spawned in barbarian city of %s at X: %d, Y: %d", getName().c_str(), getX(), getY());
 				if(GET_PLAYER(BARBARIAN_PLAYER).GetID() != NO_PLAYER)
 				{
 					GET_PLAYER(BARBARIAN_PLAYER).GetTacticalAI()->LogTacticalMessage(strLogString);
@@ -20880,7 +20929,7 @@ void CvCity::DoBarbIncursion()
 				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
 				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit())
 				{			
-					int iBarbStrength = (pUnit->GetBaseCombatStrength(true) * 20);
+					int iBarbStrength = (pUnit->GetBaseCombatStrength() * 20);
 					iBarbStrength += GC.getGame().getJonRandNum(iBarbStrength, "Barbarian Random Strength Bump");
 					if(iBarbStrength > iCityStrength)
 					{
@@ -24541,7 +24590,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 				}
 			}
 		}
-		CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
+		const CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
 		for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
 			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
@@ -24674,7 +24723,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					CvUnitEntry* thisUnitInfo = GC.getUnitInfo(eUnitType);
 					// See if there are any BuildingClass requirements
 					const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-					CvCivilizationInfo& thisCivilization = getCivilizationInfo();
+					const CvCivilizationInfo& thisCivilization = getCivilizationInfo();
 					for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
 					{
 						const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
@@ -24908,7 +24957,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 
 					if(pkBuildingInfo->IsBuildingClassNeededInCity(iI))
 					{
-						CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
+						const CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
 						ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
 
 						if(ePrereqBuilding != NO_BUILDING)
@@ -24938,7 +24987,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 
 					if(pkBuildingInfo->IsBuildingClassNeededAnywhere(iI))
 					{
-						CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
+						const CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
 						ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
 
 						if(ePrereqBuilding != NO_BUILDING)
@@ -24960,7 +25009,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					}
 					if(pkBuildingInfo->IsBuildingClassNeededNowhere(iI))
 					{
-						CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
+						const CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
 						ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
 
 						if(ePrereqBuilding != NO_BUILDING)
@@ -27739,6 +27788,7 @@ bool CvCity::CommitToBuildingUnitForOperation()
 
 		if(pThisArmy)
 		{
+			int iGPT = GET_PLAYER(getOwner()).GetTreasury()->CalculateBaseNetGold();
 			// figure out the primary and secondary unit type to potentially build
 			int iFormationIndex = pThisArmy->GetFormationIndex();
 			CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(iFormationIndex);
@@ -27764,7 +27814,7 @@ bool CvCity::CommitToBuildingUnitForOperation()
 				if(eBestUnit != NO_UNIT)
 				{
 					int iTempWeight = 100;
-					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, false, NULL, iTempWeight);
+					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, false, NULL, iTempWeight, iGPT);
 					if(iTempWeight <= 0)
 					{
 						eBestUnit = NO_UNIT;

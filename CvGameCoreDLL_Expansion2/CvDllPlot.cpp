@@ -280,13 +280,13 @@ bool CvDllPlot::IsRoutePillaged() const
 //------------------------------------------------------------------------------
 ICvCity1* CvDllPlot::GetPlotCity() const
 {
-	CvCity* pkCity = m_pPlot->getPlotCity();
+	CvCity* pkCity = m_pPlot ? m_pPlot->getPlotCity() : NULL;
 	return (NULL != pkCity)? new CvDllCity(pkCity) : NULL;
 }
 //------------------------------------------------------------------------------
 ICvCity1* CvDllPlot::GetWorkingCity() const
 {
-	CvCity* pkCity = m_pPlot->getWorkingCity();
+	CvCity* pkCity = m_pPlot ? m_pPlot->getWorkingCity() : NULL;
 	return (NULL != pkCity)? new CvDllCity(pkCity) : NULL;
 }
 //------------------------------------------------------------------------------

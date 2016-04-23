@@ -518,9 +518,6 @@ function OnShowHide( isHide, bIsInit )
 							g_OtherPlayersButtons[ iLoopPlayer ].UsPocket.Button:SetHide( false );
 							g_OtherPlayersButtons[ iLoopPlayer ].ThemPocket.Button:SetHide( false );
 							g_iNumOthers = g_iNumOthers + 1;
-						else
-							g_OtherPlayersButtons[ iLoopPlayer ].UsPocket.Button:SetHide( true );
-							g_OtherPlayersButtons[ iLoopPlayer ].ThemPocket.Button:SetHide( true );
 						end
 					end
 				end
