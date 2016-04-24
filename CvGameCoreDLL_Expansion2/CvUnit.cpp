@@ -15671,8 +15671,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	}
 	
 	int iModifier;
-	int iCombat;
-
 	int iTempModifier;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
@@ -15680,9 +15678,17 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	ReligionTypes eFoundedReligion = kPlayer.GetReligions()->GetReligionInMostCities();
 
-	int iStr = isRangedSupportFire() ? GetBaseCombatStrength() / 2 : GetBaseRangedCombatStrength();
+	int iBaseStrength = GetBaseRangedCombatStrength();
 
-	if(iStr == 0)
+	//follow up attacks are weaker
+	if (getNumAttacksMadeThisTurn()>0)
+		iBaseStrength /= 2;
+
+	//fake ranged unit (impi)
+	if (isRangedSupportFire())
+		iBaseStrength = GetBaseCombatStrength() / 2;
+
+	if(iBaseStrength == 0)
 	{
 		return 0;
 	}
@@ -15971,9 +15977,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	if(iModifier < -90)
 		iModifier = -90;
 
-	iCombat = (iStr * (iModifier + 100));
-
-	return std::max(1, iCombat);
+	return std::max(1, iBaseStrength * (iModifier + 100));
 }
 
 //	--------------------------------------------------------------------------------

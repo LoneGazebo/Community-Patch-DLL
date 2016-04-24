@@ -291,7 +291,11 @@ CvPlot* CvArmyAI::GetCenterOfMass(DomainTypes eDomainRequired)
 	while (pUnit)
 	{
 		if (eDomainRequired == NO_DOMAIN || pUnit->plot()->getDomain()==eDomainRequired)
-			vPlots.push_back( SPlotWithScore(pUnit->plot(),plotDistance(*pUnit->plot(),*pCOM)) );
+		{
+			int iDistToCOM = plotDistance(*pUnit->plot(),*pCOM);
+			int iDistToTarget = plotDistance(pUnit->getX(),pUnit->getY(),GetGoalX(),GetGoalY());
+			vPlots.push_back( SPlotWithScore(pUnit->plot(),iDistToCOM*100+iDistToTarget) );
+		}
 
 		pUnit = GetNextUnit();
 	}

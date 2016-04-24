@@ -244,10 +244,9 @@ CvTacticalAnalysisMap::CvTacticalAnalysisMap(void) :
 	m_iUnitStrengthMultiplier(5),
 	m_iTacticalRange(8),
 	m_pPlayer(NULL),
-	m_iNumPlots(0)
+	m_iNumPlots(0),
+	m_iTurnBuilt(-1)
 {
-	m_bIsBuilt = false;
-	m_iTurnBuilt = -1;
 	m_DominanceZones.clear();
 }
 
@@ -348,12 +347,20 @@ void CvTacticalAnalysisMap::EstablishZoneNeighborhood()
 
 #endif
 
+bool CvTacticalAnalysisMap::IsUpToDate(CvPlayer* pPlayer)
+{
+	if(m_pPlots && pPlayer == m_pPlayer && m_iTurnBuilt == GC.getGame().getGameTurn())
+		return true;
+
+	return false;
+}
+
 /// Fill the map with data for this AI player's turn
 void CvTacticalAnalysisMap::RefreshDataForNextPlayer(CvPlayer* pPlayer)
 {
 	if(m_pPlots)
 	{
-		if(pPlayer != m_pPlayer || m_iTurnBuilt < GC.getGame().getGameTurn())
+		if(!IsUpToDate(pPlayer))
 		{
 			m_pPlayer = pPlayer;
 			m_iTurnBuilt = GC.getGame().getGameTurn();
@@ -361,8 +368,6 @@ void CvTacticalAnalysisMap::RefreshDataForNextPlayer(CvPlayer* pPlayer)
 			m_iUnitStrengthMultiplier = GC.getAI_TACTICAL_MAP_UNIT_STRENGTH_MULTIPLIER() * m_iTacticalRange;
 
 			AI_PERF_FORMAT("AI-perf.csv", ("Tactical Analysis Map, Turn %d, %s", GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription()) );
-
-			m_bIsBuilt = false;
 
 #if !defined(MOD_BALANCE_CORE_MILITARY)
 			// AI civs build this map every turn
@@ -410,8 +415,6 @@ void CvTacticalAnalysisMap::RefreshDataForNextPlayer(CvPlayer* pPlayer)
 
 				BuildEnemyUnitList();
 				MarkCellsNearEnemy();
-
-				m_bIsBuilt = true;
 			}
 		}
 	}

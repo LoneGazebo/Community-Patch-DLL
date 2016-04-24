@@ -3974,8 +3974,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 		// Spend a move for this attack
 		kAttacker.changeMoves(-GC.getMOVE_DENOMINATOR());
 
-		// Can't move or attack again
-		if(!kAttacker.canMoveAfterAttacking() && kAttacker.isOutOfAttacks())
+		// Can't move or attack again (no attack was spent but anyway)
+		if(!kAttacker.canMoveAfterAttacking())
 		{
 			kAttacker.finishMoves();
 		}

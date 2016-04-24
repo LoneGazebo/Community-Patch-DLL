@@ -361,6 +361,7 @@ public:
 
 	virtual int GetDeployRange() const;
 	virtual int GetMaximumRecruitTurns() const;
+	virtual bool VerifyTarget(CvArmyAI* pArmy);
 
 	//virtual bool Move();
 
@@ -1049,6 +1050,7 @@ public:
 	virtual int GetOperationType() const = 0;
 	virtual CvString GetOperationName() const = 0;
 	virtual MultiunitFormationTypes GetFormation() const = 0;
+	virtual bool VerifyTarget(CvArmyAI * pArmy);
 
 	virtual bool IsNavalOperation() const
 	{

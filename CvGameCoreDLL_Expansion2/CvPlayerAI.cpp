@@ -1567,7 +1567,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	{
 		UnitHandle pDefender = pGreatGeneral->plot()->getBestDefender(GetID());
 		int iFriendlies = pGreatGeneral->GetNumSpecificPlayerUnitsAdjacent(pDefender.pointer());
-		if(iFriendlies > 3)
+		if(iFriendlies > 0)
 			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 

@@ -2276,6 +2276,20 @@ int CvAIOperationEnemyTerritory::GetMaximumRecruitTurns() const
 	return GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY();
 }
 
+bool CvAIOperationEnemyTerritory::VerifyTarget(CvArmyAI * pArmy)
+{
+	CvCity* pTroubleSpot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(0,false);
+	if (pTroubleSpot)
+	{
+		//the trouble spot is right next to us, abort the current operation
+		SPathFinderUserData data(m_eOwner,PT_GENERIC_SAME_AREA,NO_PLAYER,10);
+		if (GC.GetStepFinder().DoesPathExist(pTroubleSpot->plot(),pArmy->GetCenterOfMass(DOMAIN_LAND),data))
+			return false;
+	}
+
+	return true;
+}
+
 /// Kick off this operation
 void CvAIOperationEnemyTerritory::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity*, CvCity*)
 {
@@ -3526,12 +3540,9 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 				{
 					for(CvCity* pLoopCity = kPlayer.firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoopCity))
 					{
-						if(kPlayer.getNumCities() > 1 && kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == pLoopCity)
-						{
+						if(kPlayer.getNumCities() > 1 && kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0,false) == pLoopCity)
 							continue;
-						}
 
-						//todo: check if the city is in danger first?
 						SPathFinderUserData data( pOurCivilian, 0, iBestTurns );
 						bool bCanFindPath = GC.GetPathFinder().GeneratePath(pLoopCity->getX(), pLoopCity->getY(), pTargetSite->getX(), pTargetSite->getY(), data);
 
@@ -5806,7 +5817,7 @@ CvPlot* CvAIOperationCityCloseDefensePeace::FindBestTarget()
 	CvPlot* pPlot = NULL;
 
 	// Defend the city most under threat
-	pCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity();
+	pCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(0,true);
 
 	if(pCity != NULL)
 	{
@@ -5914,7 +5925,7 @@ CvPlot* CvAIOperationCityCloseDefense::FindBestTarget()
 	int iLoop;
 
 	// Defend the city most under threat
-	pCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity();
+	pCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(0,false);
 
 	// If no city is threatened just defend whichever of our cities is closest to the enemy capital
 	if(pCity == NULL)
@@ -6165,7 +6176,7 @@ CvPlot* CvAIOperationRapidResponse::FindBestTarget()
 	}
 	if(pBestPlot == NULL)
 	{
-		CvCity* pCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity();
+		CvCity* pCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(0,false);
 		if(pCity != NULL)
 		{
 			pBestPlot = pCity->plot();
@@ -6445,6 +6456,20 @@ void CvAIOperationNavalEscorted::Write(FDataStream& kStream) const
 {
 	// write the base class' entries
 	CvAIOperation::Write(kStream);
+}
+
+bool CvAIOperationNavalEscorted::VerifyTarget(CvArmyAI * pArmy)
+{
+	CvCity* pTroubleSpot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(0,false);
+	if (pTroubleSpot && pTroubleSpot->isCoastal())
+	{
+		//the trouble spot is right next to us, abort the current operation
+		SPathFinderUserData data(m_eOwner,PT_GENERIC_SAME_AREA,NO_PLAYER,15);
+		if (GC.GetStepFinder().DoesPathExist(pTroubleSpot->plot(),pArmy->GetCenterOfMass(DOMAIN_SEA),data))
+			return false;
+	}
+
+	return true;
 }
 
 /// Read serialized data

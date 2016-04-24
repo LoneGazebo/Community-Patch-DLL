@@ -692,16 +692,13 @@ public:
 
 	void Init(int iNumPlots);
 	void RefreshDataForNextPlayer(CvPlayer* pPlayer);
+	bool IsUpToDate(CvPlayer* pPlayer);
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	PlayerTypes GetCurrentPlayer() const;
 	void EstablishZoneNeighborhood();
 #endif
 
-	bool IsBuilt() const
-	{
-		return m_bIsBuilt;
-	};
 	int GetNumZones() const
 	{
 		return m_DominanceZones.size();
@@ -754,7 +751,6 @@ protected:
 	int m_iNumPlots;
 	CvPlayer* m_pPlayer;
 	int m_iTurnBuilt;
-	bool m_bIsBuilt;
 
 	CvTacticalDominanceZone m_TempZone;
 	FStaticVector<CvTacticalDominanceZone, SAFE_ESTIMATE_NUM_DOMINANCE_ZONES, true, c_eCiv5GameplayDLL, 0> m_DominanceZones;

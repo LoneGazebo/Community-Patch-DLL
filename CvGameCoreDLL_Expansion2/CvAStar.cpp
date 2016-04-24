@@ -1339,6 +1339,7 @@ int PathNodeAdd(CvAStarNode* /*parent*/, CvAStarNode* node, int operation, const
 			!finder->IsPathStart(node->m_iX, node->m_iY) && 
 			!finder->HaveFlag(CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS) && 
 			!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) && 
+			node->m_kCostCacheData.bFriendlyUnitLimitReached == false &&
 			node->m_kCostCacheData.bCanEnterTerrain && 
 			node->m_kCostCacheData.bCanEnterTerritory )
 		{

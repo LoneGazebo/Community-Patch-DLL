@@ -3002,7 +3002,7 @@ int CvMilitaryAI::GetNumberCivsAtWarWith() const
 }
 
 /// Which city is in the most danger now?
-CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder)
+CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder, bool bIncludeFutureThreats)
 {
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	std::vector<std::pair<CvCity*,int>> vCities;
@@ -3012,6 +3012,11 @@ CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder)
 		}
 	};
 
+	//in case this is called from diplo AI, we have to be careful
+	CvTacticalAnalysisMap* pTactMap = GC.getGame().GetTacticalAnalysisMap();
+	if (!pTactMap->IsUpToDate(m_pPlayer))
+		pTactMap = NULL;
+
 	CvCity* pLoopCity;
 	int iLoopCity = 0;
 	for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
@@ -3019,58 +3024,16 @@ CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder)
 		//with the new danger plots, the stored threat value should be accurate
 		int iThreatValue = pLoopCity->getThreatValue();
 
-		if(iThreatValue <= 0)
-			continue;
-
-		int iNeutral = 0;
-		int iBad = 0;
-		int iSuperBad = 0;
-		//check the wider area for enemy tiles. may also be on another landmass
-		int iRange = 5;
-		for(int iX = -iRange; iX <= iRange; iX++)
+		if (pTactMap)
 		{
-			for(int iY = -iRange; iY <= iRange; iY++)
-			{
-				CvPlot* pLoopNearbyPlot = plotXYWithRangeCheck(pLoopCity->getX(), pLoopCity->getY(), iX, iY, iRange);
+			CvTacticalDominanceZone* pLandZone = pTactMap->GetZoneByCity(pLoopCity,false);
+			CvTacticalDominanceZone* pWaterZone = pTactMap->GetZoneByCity(pLoopCity,true);
 
-				//Don't want them adjacent to cities, but we do want to check for plot ownership.
-				if (pLoopNearbyPlot != NULL && pLoopNearbyPlot->isRevealed(m_pPlayer->getTeam()) && (pLoopCity->plot() != pLoopNearbyPlot))
-				{
-					if((pLoopNearbyPlot->getOwner() != m_pPlayer->GetID()) && (pLoopNearbyPlot->getOwner() != NO_PLAYER) && !(GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv()))
-					{
-						PlayerTypes pNeighborNearby = pLoopNearbyPlot->getOwner();
-						if(pNeighborNearby != NULL)
-						{
-							if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) == MAJOR_CIV_OPINION_NEUTRAL)
-							{
-								iNeutral++;
-							}
-							else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) == MAJOR_CIV_OPINION_COMPETITOR)
-							{
-								iBad++;
-							}
-							else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) < MAJOR_CIV_OPINION_COMPETITOR)
-							{
-								iSuperBad++;
-							}
-						}
-					}
-				}
-			}
+			if (pLandZone && pLandZone->GetDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+				iThreatValue += 50;
+			if (pWaterZone && pWaterZone->GetDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+				iThreatValue += 50;
 		}
-
-		iThreatValue += (iNeutral * 5);
-		iThreatValue += (iBad * 10);
-		iThreatValue += (iSuperBad * 25);
-
-		//tolerate up to two neutral plots
-		if (iThreatValue<11)
-			continue;
-
-		//scale it a bit with city value and remaining hitpoints
-		float fScale = 1000 * sqrt((float)pLoopCity->getPopulation() + iNeutral + iBad + iSuperBad) / MAX(1,pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage());
-
-		//OutputDebugString( CvString::format("%s - threat %d - scale %.3f\n", pLoopCity->getName().c_str(), iThreatValue, fScale ).c_str() );
 
 		// Is this a temporary zone city? If so, we need to support it ASAP.
 		if(m_pPlayer->GetTacticalAI()->IsTemporaryZoneCity(pLoopCity))
@@ -3078,6 +3041,59 @@ CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder)
 			iThreatValue *= GC.getAI_MILITARY_CITY_THREAT_WEIGHT_CAPITAL() / 50;
 		}
 
+		float fScale = 1.f;
+		if (bIncludeFutureThreats)
+		{
+			int iNeutral = 0;
+			int iBad = 0;
+			int iSuperBad = 0;
+			//check the wider area for enemy tiles. may also be on another landmass
+			int iRange = 5;
+			for(int iX = -iRange; iX <= iRange; iX++)
+			{
+				for(int iY = -iRange; iY <= iRange; iY++)
+				{
+					CvPlot* pLoopNearbyPlot = plotXYWithRangeCheck(pLoopCity->getX(), pLoopCity->getY(), iX, iY, iRange);
+
+					//Don't want them adjacent to cities, but we do want to check for plot ownership.
+					if (pLoopNearbyPlot != NULL && pLoopNearbyPlot->isRevealed(m_pPlayer->getTeam()) && (pLoopCity->plot() != pLoopNearbyPlot))
+					{
+						if((pLoopNearbyPlot->getOwner() != m_pPlayer->GetID()) && (pLoopNearbyPlot->getOwner() != NO_PLAYER) && !(GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv()))
+						{
+							PlayerTypes pNeighborNearby = pLoopNearbyPlot->getOwner();
+							if(pNeighborNearby != NULL)
+							{
+								if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) == MAJOR_CIV_OPINION_NEUTRAL)
+								{
+									iNeutral++;
+								}
+								else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) == MAJOR_CIV_OPINION_COMPETITOR)
+								{
+									iBad++;
+								}
+								else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) < MAJOR_CIV_OPINION_COMPETITOR)
+								{
+									iSuperBad++;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			iThreatValue += (iNeutral * 5);
+			iThreatValue += (iBad * 10);
+			iThreatValue += (iSuperBad * 25);
+
+			//scale it a bit with city value and remaining hitpoints
+			fScale = 1000 * sqrt((float)pLoopCity->getPopulation() + iNeutral + iBad + iSuperBad) / MAX(1,pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage());
+		}
+
+		//tolerate some danger
+		if(iThreatValue <= GC.getCITY_HEAL_RATE())
+			continue;
+
+		//OutputDebugString( CvString::format("%s - threat %d - scale %.3f\n", pLoopCity->getName().c_str(), iThreatValue, fScale ).c_str() );
 		vCities.push_back( std::make_pair( pLoopCity, (int)(iThreatValue*fScale) ) );
 	}
 
