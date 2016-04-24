@@ -224,6 +224,8 @@
 		<!-- Looks for negative gold or negative GPT, respectively. -->
 		<Column name="InDebt" type="boolean" default="false"/>
 		<Column name="LosingMoney" type="boolean" default="false"/>
+		<!-- Require x number of coastal cities to be available as a choice. -->
+		<Column name="MinimumNumCoastalCities" type="integer" default="0"/>
 		<!-- Checks if empire is unhappy -->
 		<Column name="IsUnhappy" type="boolean" default="false"/>
 		<Column name="IsSuperUnhappy" type="boolean" default="false"/>
@@ -282,6 +284,12 @@
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
 		<Column name="Quantity" type="integer"/>
 	</Table>
+	<!-- Checks for number of cities with a nearby feature. Quantity = minimum number of cities required before event can fire. -->
+	<Table name="Event_MinimumFeatureRequired">
+		<Column name="EventType" type="text" reference="Events(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="Quantity" type="integer"/>
+	</Table>
 	
 	<!-- == PLAYER EVENT CHOICES == -->
 	<Table name="EventChoices">
@@ -311,8 +319,10 @@
 		<!-- Variables 
 		
 		Attriutes granted by Event Choices. Unless noted, city-related choices affect all cities.
-		
 		-->
+		<!-- EXCEPTION: Set this to true to make event choice elements that affect cities ONLY affect coastal cities. -->
+		<Column name="CoastalOnly" type="boolean" default="false"/>
+		
 		<!-- Grants a Policy. -->
 		<Column name="EventPolicy" type="text" reference="Policies(Type)" default="NULL"/>
 		<!-- Grants a specified tech for free. -->
@@ -346,6 +356,8 @@
 		<!-- Looks for negative gold or negative GPT, respectively. -->
 		<Column name="InDebt" type="boolean" default="false"/>
 		<Column name="LosingMoney" type="boolean" default="false"/>
+		<!-- Require x number of coastal cities to be available as a choice. -->
+		<Column name="MinimumNumCoastalCities" type="integer" default="0"/>
 		<!-- Checks if empire is unhappy -->
 		<Column name="IsUnhappy" type="boolean" default="false"/>
 		<Column name="IsSuperUnhappy" type="boolean" default="false"/>
@@ -504,6 +516,12 @@
 	<Table name="EventChoice_MinimumResourceRequired">
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="Quantity" type="integer"/>
+	</Table>
+	<!-- Checks for number of cities with a nearby feature. Quantity = minimum number of cities required before event can fire. -->
+	<Table name="EventChoice_MinimumFeatureRequired">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
 		<Column name="Quantity" type="integer"/>
 	</Table>
 	

@@ -518,11 +518,11 @@
     <ClCompile Include="CvAStarNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Lua\CvLuaArea.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="CvArmyAI.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\CvLuaArea.cpp">
+      <Filter>Lua</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

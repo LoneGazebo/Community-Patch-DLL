@@ -448,38 +448,66 @@ function RefreshWorldReligions()
 	local activePlayer = Players[Game.GetActivePlayer()];
 	local activeTeam = Teams[activePlayer:GetTeam()];
 		
-	-- Pantheon and Religion info
-	for iPlayer = 0, GameDefines.MAX_CIV_PLAYERS - 1 do	
-		local pPlayer = Players[iPlayer];
-		if (pPlayer:IsEverAlive()) then
-			if (pPlayer:HasCreatedReligion()) then
-				local eReligion = pPlayer:GetReligionCreatedByPlayer();
-				local religion = GameInfo.Religions[eReligion];
-				local holyCity = Game.GetHolyCityForReligion(eReligion, iPlayer);
-				
-				local holyCityName = holyCity:GetName();
-				local civName = pPlayer:GetCivilizationDescription();
-				
-				local founderID = pPlayer:GetID();
-				
-				if(not activeTeam:IsHasMet(pPlayer:GetTeam())) then
-					founderID = -1;
-					holyCityName = "TXT_KEY_RO_WR_UNKNOWN_HOLY_CITY";
-					civName = "TXT_KEY_RO_WR_UNKNOWN_CIV";
-				end
-				
-				table.insert(religions, {
-					Name = Locale.Lookup(Game.GetReligionName(eReligion)),
-					ReligionIconIndex = religion.PortraitIndex,
-					ReligionIconAtlas = religion.IconAtlas,
-					FounderID = founderID,
-					HolyCity= Locale.Lookup(holyCityName),
-					Founder = Locale.Lookup(civName),
-					NumCities = Game.GetNumCitiesFollowing(eReligion),
-				});
+	-- Pantheon and Religion info (JFD: Changes made to register religions 'founded' by the same player)
+	for religion in GameInfo.Religions() do
+		local eReligion = religion.ID
+		local holyCity = Game.GetHolyCityForReligion(eReligion, -1);
+		if holyCity then
+			local pPlayer = Players[holyCity:GetOwner()]
+			local holyCityName = holyCity:GetName();
+			local civName = pPlayer:GetCivilizationDescription();
+			
+			local founderID = pPlayer:GetID();
+			
+			if(not activeTeam:IsHasMet(pPlayer:GetTeam())) then
+				founderID = -1;
+				holyCityName = "TXT_KEY_RO_WR_UNKNOWN_HOLY_CITY";
+				civName = "TXT_KEY_RO_WR_UNKNOWN_CIV";
 			end
+			
+			table.insert(religions, {
+				Name = Locale.Lookup(Game.GetReligionName(eReligion)),
+				ReligionIconIndex = religion.PortraitIndex,
+				ReligionIconAtlas = religion.IconAtlas,
+				FounderID = founderID,
+				HolyCity= Locale.Lookup(holyCityName),
+				Founder = Locale.Lookup(civName),
+				NumCities = Game.GetNumCitiesFollowing(eReligion),
+			});
 		end
 	end
+	
+	-- for iPlayer = 0, GameDefines.MAX_CIV_PLAYERS - 1 do	
+		-- local pPlayer = Players[iPlayer];
+		-- if (pPlayer:IsEverAlive()) then
+			-- if (pPlayer:HasCreatedReligion()) then
+				-- local eReligion = pPlayer:GetReligionCreatedByPlayer();
+				-- local religion = GameInfo.Religions[eReligion];
+				-- local holyCity = Game.GetHolyCityForReligion(eReligion, iPlayer);
+				
+				-- local holyCityName = holyCity:GetName();
+				-- local civName = pPlayer:GetCivilizationDescription();
+				
+				-- local founderID = pPlayer:GetID();
+				
+				-- if(not activeTeam:IsHasMet(pPlayer:GetTeam())) then
+					-- founderID = -1;
+					-- holyCityName = "TXT_KEY_RO_WR_UNKNOWN_HOLY_CITY";
+					-- civName = "TXT_KEY_RO_WR_UNKNOWN_CIV";
+				-- end
+				
+				-- table.insert(religions, {
+					-- Name = Locale.Lookup(Game.GetReligionName(eReligion)),
+					-- ReligionIconIndex = religion.PortraitIndex,
+					-- ReligionIconAtlas = religion.IconAtlas,
+					-- FounderID = founderID,
+					-- HolyCity= Locale.Lookup(holyCityName),
+					-- Founder = Locale.Lookup(civName),
+					-- NumCities = Game.GetNumCitiesFollowing(eReligion),
+				-- });
+			-- end
+		-- end
+	-- end
 	
 	if(#religions > 0) then
 		Controls.WorldReligionsScrollPanel:SetHide(false);
@@ -525,27 +553,48 @@ function RefreshBeliefs()
 	local activePlayer = Players[Game.GetActivePlayer()];
 	local activeTeam = Teams[activePlayer:GetTeam()];
 	
-	-- Pantheon and Religion info
+	-- Pantheon and Religion info (JFD: Changes made to register religions 'founded' by the same player)
+	for religion in GameInfo.Religions() do
+		local eReligion = religion.ID
+		local holyCity = Game.GetHolyCityForReligion(eReligion, -1);
+		if holyCity then
+			for i,v in ipairs(Game.GetBeliefsInReligion(eReligion)) do
+				local belief = GameInfo.Beliefs[v];
+				local religion = GameInfo.Religions[eReligion];
+				table.insert(beliefs, {
+				Name = Locale.Lookup(belief.ShortDescription),
+				Description = Locale.Lookup(belief.Description),
+				Type = GetBeliefType(belief),
+				Tooltip = Locale.Lookup(belief.Tooltip),
+				Religion = Locale.Lookup(Game.GetReligionName(eReligion)),
+				ReligionIconIndex = religion.PortraitIndex,
+				ReligionIconAtlas = religion.IconAtlas
+			});
+			end
+		end
+	end
+	
 	for iPlayer = 0, GameDefines.MAX_CIV_PLAYERS - 1 do	
 		local pPlayer = Players[iPlayer];
 		if (pPlayer:IsEverAlive()) then
-			if (pPlayer:HasCreatedReligion()) then
-				local eReligion = pPlayer:GetReligionCreatedByPlayer();
-				for i,v in ipairs(Game.GetBeliefsInReligion(eReligion)) do
+			-- if (pPlayer:HasCreatedReligion()) then
+				-- local eReligion = pPlayer:GetReligionCreatedByPlayer();
+				-- for i,v in ipairs(Game.GetBeliefsInReligion(eReligion)) do
 				
-					local belief = GameInfo.Beliefs[v];
-					local religion = GameInfo.Religions[eReligion];
-					table.insert(beliefs, {
-						Name = Locale.Lookup(belief.ShortDescription),
-						Description = Locale.Lookup(belief.Description),
-						Type = GetBeliefType(belief),
-						Tooltip = Locale.Lookup(belief.Tooltip),
-						Religion = Locale.Lookup(Game.GetReligionName(eReligion)),
-						ReligionIconIndex = religion.PortraitIndex,
-						ReligionIconAtlas = religion.IconAtlas
-					});
-				end
-			elseif (pPlayer:HasCreatedPantheon()) then
+					-- local belief = GameInfo.Beliefs[v];
+					-- local religion = GameInfo.Religions[eReligion];
+					-- table.insert(beliefs, {
+						-- Name = Locale.Lookup(belief.ShortDescription),
+						-- Description = Locale.Lookup(belief.Description),
+						-- Type = GetBeliefType(belief),
+						-- Tooltip = Locale.Lookup(belief.Tooltip),
+						-- Religion = Locale.Lookup(Game.GetReligionName(eReligion)),
+						-- ReligionIconIndex = religion.PortraitIndex,
+						-- ReligionIconAtlas = religion.IconAtlas
+					-- });
+				-- end
+			-- elseif (pPlayer:HasCreatedPantheon()) then
+			if (pPlayer:HasCreatedPantheon()) then
 				local iBelief = pPlayer:GetBeliefInPantheon();
 				local belief = GameInfo.Beliefs[iBelief];
 				

@@ -202,6 +202,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piYieldFromImport(NULL),
 	m_piYieldFromTilePurchase(NULL),
 	m_piYieldFromCSAlly(NULL),
+	m_piYieldFromCSFriend(NULL),
 	m_piYieldFromSettle(NULL),
 	m_piYieldFromConquest(NULL),
 	m_iVotePerXCSAlliance(0),
@@ -1050,6 +1051,14 @@ bool CvTraitEntry::IsNoReligiousStrife() const
 {
 	return m_bIsNoReligiousStrife;
 }
+bool CvTraitEntry::IsOddEraScaler() const
+{
+	return m_bIsOddEraScaler;
+}
+int CvTraitEntry::GetWonderProductionModGA() const
+{
+	return m_iWonderProductionModGA;
+}
 #endif
 
 /// Accessor:: 1 extra yield comes all tiles with a base yield of this
@@ -1165,6 +1174,10 @@ int CvTraitEntry::GetYieldFromTilePurchase(int i) const
 int CvTraitEntry::GetYieldFromCSAlly(int i) const
 {
 	return m_piYieldFromCSAlly ? m_piYieldFromCSAlly[i] : -1;
+}
+int CvTraitEntry::GetYieldFromCSFriend(int i) const
+{
+	return m_piYieldFromCSFriend ? m_piYieldFromCSFriend[i] : -1;
 }
 int CvTraitEntry::GetYieldFromSettle(int i) const
 {
@@ -1862,6 +1875,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iMinorityHappinessChange = kResults.GetInt("MinorityHappinessTraitMod");
 	m_bNoConnectionUnhappiness = kResults.GetBool("NoConnectionUnhappiness");
 	m_bIsNoReligiousStrife = kResults.GetBool("IsNoReligiousStrife");
+	m_bIsOddEraScaler = kResults.GetBool("IsOddEraScaler");
+	m_iWonderProductionModGA = kResults.GetBool("WonderProductionModGA");
 #endif
 
 	//Arrays
@@ -2122,6 +2137,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piYieldFromImport, "Trait_YieldFromImport", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromTilePurchase, "Trait_YieldFromTilePurchase", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromCSAlly, "Trait_YieldFromCSAlly", "TraitType", szTraitType);
+	kUtility.SetYields(m_piYieldFromCSFriend, "Trait_YieldFromCSFriend", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromSettle, "Trait_YieldFromSettle", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromConquest, "Trait_YieldFromConquest", "TraitType", szTraitType);
 	m_iVotePerXCSAlliance = kResults.GetInt("VotePerXCSAlliance");
@@ -2833,6 +2849,11 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bIsNoReligiousStrife = true;
 			}
+			if( trait->IsOddEraScaler())
+			{
+				m_bIsOddEraScaler= true;
+			}
+			m_iWonderProductionModGA += trait->GetWonderProductionModGA();
 #endif
 
 			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
@@ -2901,6 +2922,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iYieldFromImport[iYield] = trait->GetYieldFromImport(iYield);
 				m_iYieldFromTilePurchase[iYield] = trait->GetYieldFromTilePurchase(iYield);
 				m_iYieldFromCSAlly[iYield] = trait->GetYieldFromCSAlly(iYield);
+				m_iYieldFromCSFriend[iYield] = trait->GetYieldFromCSFriend(iYield);
 				m_iYieldFromSettle[iYield] = trait->GetYieldFromSettle(iYield);
 				m_iYieldFromConquest[iYield] = trait->GetYieldFromConquest(iYield);
 				m_iVotePerXCSAlliance = trait->GetVotePerXCSAlliance();
@@ -3276,6 +3298,8 @@ void CvPlayerTraits::Reset()
 	m_iMinorityHappinessChange = 0;
 	m_bNoConnectionUnhappiness = false;
 	m_bIsNoReligiousStrife = false;
+	m_bIsOddEraScaler = false;
+	m_iWonderProductionModGA = 0;
 #endif
 
 
@@ -3350,6 +3374,7 @@ void CvPlayerTraits::Reset()
 		m_iYieldFromSettle[iYield] = 0;
 		m_iYieldFromConquest[iYield] = 0;
 		m_iYieldFromCSAlly[iYield] = 0;
+		m_iYieldFromCSFriend[iYield] = 0;
 		m_iVotePerXCSAlliance = 0;
 		m_iGoldenAgeFromVictory = 0;
 		m_bFreeGreatWorkOnConquest = false;
@@ -3704,6 +3729,28 @@ int CvPlayerTraits::GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldT
 	{
 		return 0;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(IsOddEraScaler())
+	{
+		int iYield = m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
+		if(iYield > 0)
+		{
+			if((EraTypes)m_pPlayer->GetCurrentEra() >= (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true))
+			{
+				iYield += m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
+			}
+			if((EraTypes)m_pPlayer->GetCurrentEra() >= (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true))
+			{
+				iYield += m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
+			}
+			if((EraTypes)m_pPlayer->GetCurrentEra() >= (EraTypes) GC.getInfoTypeForString("ERA_POSTMODERN", true))
+			{
+				iYield += m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
+			}
+			return iYield;
+		}
+	}
+#endif
 
 	return m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
 }
@@ -5112,6 +5159,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(53, kStream, m_iMinorityHappinessChange, 0);
 	MOD_SERIALIZE_READ(54, kStream, m_bNoConnectionUnhappiness, false);
 	MOD_SERIALIZE_READ(54, kStream, m_bIsNoReligiousStrife, false);
+	MOD_SERIALIZE_READ(65, kStream, m_bIsOddEraScaler, false);
+	MOD_SERIALIZE_READ(65, kStream, m_iWonderProductionModGA, 0);
 #endif
 
 	kStream >> m_eCampGuardType;
@@ -5239,6 +5288,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> kYieldFromConquestWrapper;
 	ArrayWrapper<int> kYieldFromCSAllyWrapper(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
 	kStream >> kYieldFromCSAllyWrapper;
+	ArrayWrapper<int> kYieldFromCSFriendWrapper(NUM_YIELD_TYPES, m_iYieldFromCSFriend);
+	kStream >> kYieldFromCSFriendWrapper;
 	ArrayWrapper<int> kGAPToYieldWrapper(NUM_YIELD_TYPES, m_iGAPToYield);
 	kStream >> kGAPToYieldWrapper;
 	ArrayWrapper<int> kMountainRangeYieldWrapper(NUM_YIELD_TYPES, m_iMountainRangeYield);
@@ -5494,6 +5545,8 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iMinorityHappinessChange);
 	MOD_SERIALIZE_WRITE(kStream, m_bNoConnectionUnhappiness);
 	MOD_SERIALIZE_WRITE(kStream, m_bIsNoReligiousStrife);
+	MOD_SERIALIZE_WRITE(kStream, m_bIsOddEraScaler);
+	MOD_SERIALIZE_WRITE(kStream, m_iWonderProductionModGA);
 #endif
 
 	kStream << m_eCampGuardType;
@@ -5560,6 +5613,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromSettle);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromConquest);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSFriend);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iGAPToYield);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iMountainRangeYield);
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeGreatWorkOnConquest);

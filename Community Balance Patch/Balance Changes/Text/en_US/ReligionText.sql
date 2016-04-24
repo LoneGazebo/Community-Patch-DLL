@@ -113,7 +113,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_ANCESTOR_WORSHIP' AND EXISTS (SELECT * FROM COMMUNIT
 -- Desert Folklore (Now Spirit of the Desert)
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_GOLD] Gold from Desert tiles with improved resources'
+SET Text = '+2 [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_GOLD] Gold from Desert tiles with improved resources'
 WHERE Tag = 'TXT_KEY_BELIEF_DESERT_FOLKLORE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -145,7 +145,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_MONUMENT_GODS_SHORT' AND EXISTS (SELECT * FROM COMMU
 
 -- Dance of the Aurora (now God of the Stars and Sky)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture from Tundra tiles with improved resources'
+SET Text = '+2 [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture from Tundra tiles with improved resources'
 WHERE Tag = 'TXT_KEY_BELIEF_DANCE_AURORA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

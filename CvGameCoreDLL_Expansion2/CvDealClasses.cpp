@@ -429,96 +429,88 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	else if(eItem == TRADE_ITEM_RESOURCES)
 	{
 		ResourceTypes eResource = (ResourceTypes) iData1;
-		if(eResource == NO_RESOURCE)
-			return false;
-
-		int iResourceQuantity = iData2;
-
-		// Can't trade a negative amount of something!
-		if(iResourceQuantity < 0)
-			return false;
-
-		if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePlayer, eResource) || GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(eToPlayer, eResource))
+		if(eResource != NO_RESOURCE)
 		{
-			return false;
-		}
+			int iResourceQuantity = iData2;
 
-		//int iNumAvailable = GetNumResource(ePlayer, eResource, true);
+			// Can't trade a negative amount of something!
+			if(iResourceQuantity < 0)
+				return false;
 
-		int iNumAvailable = pFromPlayer->getNumResourceAvailable(eResource, false);
-
-		int iNumInRenewDeal = 0;
-		int iNumInExistingDeal = 0;
-
-		if (pRenewDeal)
-		{
-			// count any that are in the renew deal
-			TradedItemList::iterator it;
-			for(it = pRenewDeal->m_TradedItems.begin(); it != pRenewDeal->m_TradedItems.end(); ++it)
-			{
-				if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && (ResourceTypes)it->m_iData1 == eResource)
-				{
-					// credit the amount
-					iNumInRenewDeal += it->m_iData2;
-				}
-			}
-
-			// remove any that are in this deal
-			for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
-			{
-				if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && (ResourceTypes)it->m_iData1 == eResource)
-				{
-					iNumInExistingDeal += it->m_iData2;
-				}
-			}
-		}
-
-		// Offering up more of a Resource than we have available
-		if(iNumAvailable + iNumInRenewDeal - iNumInExistingDeal < iResourceQuantity)
-			return false;
-#if defined(MOD_BALANCE_CORE)
-		//Nothing available, nothing in the deal, nothing to renew?
-		if((iNumInExistingDeal == 0) && (iNumAvailable == 0) && (iNumInRenewDeal == 0))
-		{
-			return false;
-		}
-#endif
-
-		// Must be a Luxury or a Strategic Resource
-		ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
-		if(eUsage != RESOURCEUSAGE_LUXURY && eUsage != RESOURCEUSAGE_STRATEGIC)
-			return false;
-
-		if(eUsage == RESOURCEUSAGE_LUXURY)
-		{
-			// Can't trade Luxury if the other player already has one
-			if(pToPlayer->getNumResourceAvailable(eResource) > MAX(iNumInRenewDeal - iNumInExistingDeal, 0))
+			if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePlayer, eResource) || GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(eToPlayer, eResource))
 			{
 				return false;
 			}
-		}
 
-		// Can't trade them something they're already giving us in the deal
-		if(!bFinalizing && IsResourceTrade(eToPlayer, eResource))
-			return false;
+			//int iNumAvailable = GetNumResource(ePlayer, eResource, true);
 
-		// AI can't trade an obsolete resource
-		if (!pFromTeam->isHuman() && pFromTeam->IsResourceObsolete(eResource))
-		{
-			return false;
-		}
-#if defined(MOD_BALANCE_CORE)
-		if(!bHumanToHuman)
-		{
-			if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+			int iNumAvailable = pFromPlayer->getNumResourceAvailable(eResource, false);
+			int iNumInRenewDeal = 0;
+			int iNumInExistingDeal = 0;
+
+			if (pRenewDeal)
 			{
-				if(this->GetSurrenderingPlayer() != ePlayer)
+				// count any that are in the renew deal
+				TradedItemList::iterator it;
+				for(it = pRenewDeal->m_TradedItems.begin(); it != pRenewDeal->m_TradedItems.end(); ++it)
+				{
+					if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && (ResourceTypes)it->m_iData1 == eResource)
+					{
+						// credit the amount
+						iNumInRenewDeal += it->m_iData2;
+					}
+				}
+
+				// remove any that are in this deal
+				for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+				{
+					if(it->m_eItemType == TRADE_ITEM_RESOURCES && it->m_eFromPlayer == ePlayer && (ResourceTypes)it->m_iData1 == eResource)
+					{
+						iNumInExistingDeal += it->m_iData2;
+					}
+				}
+			}
+
+			// Offering up more of a Resource than we have available
+			if(iNumAvailable + iNumInRenewDeal - iNumInExistingDeal < iResourceQuantity)
+				return false;
+
+			// Must be a Luxury or a Strategic Resource
+			ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+			if(eUsage != RESOURCEUSAGE_LUXURY && eUsage != RESOURCEUSAGE_STRATEGIC)
+				return false;
+
+			if(eUsage == RESOURCEUSAGE_LUXURY)
+			{
+				// Can't trade Luxury if the other player already has one
+				if(pToPlayer->getNumResourceAvailable(eResource) > MAX(iNumInRenewDeal - iNumInExistingDeal, 0))
 				{
 					return false;
 				}
 			}
-		}
+
+			// Can't trade them something they're already giving us in the deal
+			if(IsResourceTrade(eToPlayer, eResource))
+				return false;
+
+			// AI can't trade an obsolete resource
+			if (!pFromTeam->isHuman() && pFromTeam->IsResourceObsolete(eResource))
+			{
+				return false;
+			}
+#if defined(MOD_BALANCE_CORE)
+			if(!bHumanToHuman)
+			{
+				if(this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+				{
+					if(this->GetSurrenderingPlayer() != ePlayer)
+					{
+						return false;
+					}
+				}
+			}
 #endif
+		}
 	}
 	// City
 	else if(eItem == TRADE_ITEM_CITIES)
@@ -2250,23 +2242,10 @@ bool CvDeal::IsPotentiallyRenewable()
 
 	TradedItemList::iterator it;
 	bool bHasValidTradeItem = false;
-#if defined(MOD_BALANCE_CORE)
-	bool bNonRenew = false;
-	bool bSupplement = false;
-#endif
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		switch(GetItemTradeableState(it->m_eItemType))
 		{
-#if defined(MOD_BALANCE_CORE)
-			case DEAL_NONRENEWABLE:
-				bNonRenew = true;
-			case DEAL_RENEWABLE:
-				bHasValidTradeItem = true;
-				break;
-			case DEAL_SUPPLEMENTAL:
-				bSupplement = true;
-#else
 		case DEAL_NONRENEWABLE:
 			return false;
 		case DEAL_RENEWABLE:
@@ -2274,14 +2253,9 @@ bool CvDeal::IsPotentiallyRenewable()
 			break;
 		case DEAL_SUPPLEMENTAL:
 			break;
-#endif
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	return (bHasValidTradeItem && !bSupplement && !bNonRenew);
-#else
 	return bHasValidTradeItem;
-#endif
 }
 
 /// Delete a trade item that can be identified by type alone
@@ -2834,25 +2808,6 @@ bool CvGameDeals::FinalizeDeal(CvDeal kDeal, bool bAccepted)
 	CvWeightedVector<TeamTypes, MAX_CIV_TEAMS, true> veNowAtPeacePairs; // hacked CvWeighedVector to keep track of third party minors that this deal makes at peace
 	{
 #else
-#if defined(MOD_BALANCE_CORE)
-void CvGameDeals::EraseDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
-{
-	DealList::iterator dealIt;
-	CvDeal kDeal;
-
-	// Find the deal in the list of proposed deals
-	for(dealIt = m_ProposedDeals.begin(); dealIt != m_ProposedDeals.end(); ++dealIt)
-	{
-		if(dealIt->m_eFromPlayer == eFromPlayer && dealIt->m_eToPlayer == eToPlayer)
-		{
-			kDeal = *dealIt;
-			m_ProposedDeals.erase(dealIt);
-			--dealIt;
-		}
-	}
-}
-#endif
-
 /// Moves a deal from the proposed list to the active one (returns FALSE if deal not found)
 bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted)
 {
@@ -2868,8 +2823,9 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 		if(dealIt->m_eFromPlayer == eFromPlayer && dealIt->m_eToPlayer == eToPlayer)
 		{
 			kDeal = *dealIt;
-			// EFB: once we can use list containers in AutoVariables, go back to this way of deleting
-			//			m_ProposedDeals.erase(dealIt);
+
+// EFB: once we can use list containers in AutoVariables, go back to this way of deleting
+//			m_ProposedDeals.erase(dealIt);
 			bFoundIt = true;
 		}
 	}

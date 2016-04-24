@@ -9791,9 +9791,11 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 	}
 #if defined(MOD_BALANCE_CORE)
 	if(pPlot->getOwner() == getOwner())
-	{
 		return false;
-	}
+
+	if(pPlot->getDomain() != getDomainType())
+		return false;
+
 	if(pPlot->getOwner() == NO_PLAYER && pPlot->isRoute())
 	{
 		PlayerTypes eRouteOwner = pPlot->GetPlayerResponsibleForRoute();

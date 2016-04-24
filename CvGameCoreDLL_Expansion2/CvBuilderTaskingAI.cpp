@@ -2016,23 +2016,23 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 	if(m_pPlayer->GetPlotDanger(*pPlot,pUnit) > 0)
 	{
 		//if it's fallout, try to scrub it in spite of the danger
-		if(pPlot->getFeatureType() == FEATURE_FALLOUT && !pUnit->ignoreFeatureDamage() && (pUnit->getDamage() > (pUnit->GetMaxHitPoints() / 2)))
+		if(pPlot->getFeatureType() == FEATURE_FALLOUT && !pUnit->ignoreFeatureDamage() && (pUnit->GetCurrHitPoints() < (pUnit->GetMaxHitPoints() / 2)))
 		{
-			if(m_bLogging)
+			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLog;
 				strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to fallout", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot));
-				LogInfo(strLog, m_pPlayer, true);
+				m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLog);
 			}
 			return false;
 		}
 		else if(pPlot->getFeatureType() != FEATURE_FALLOUT)
 		{
-			if(m_bLogging)
+			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLog;
 				strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to danger", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot));
-				LogInfo(strLog, m_pPlayer, true);
+				m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLog);
 			}
 			return false;
 		}

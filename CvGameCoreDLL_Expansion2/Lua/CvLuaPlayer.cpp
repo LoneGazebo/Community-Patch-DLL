@@ -1389,6 +1389,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetEventChoiceCooldown);
 	Method(SetEventChoiceCooldown);
 	Method(IsEventChoiceValid);
+	Method(GetEventHappiness);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -14461,6 +14462,20 @@ int CvLuaPlayer::lIsEventChoiceValid(lua_State* L)
 
 	lua_pushboolean(L, bValue);
 
+	return 1;
+}
+int CvLuaPlayer::lGetEventHappiness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iHappiness = 0;
+	CvCity* pLoopCity;
+	int iLoop;
+
+	for(pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+	{
+		iHappiness += pLoopCity->GetEventHappiness();
+	}
+	lua_pushinteger(L, iHappiness);
 	return 1;
 }
 #endif

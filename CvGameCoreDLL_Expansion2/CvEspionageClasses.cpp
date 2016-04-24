@@ -3520,6 +3520,11 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 			uiMaxTechCostAdjusted *= GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
 			uiMaxTechCostAdjusted /= 100;
 #if defined(MOD_BALANCE_CORE)
+			if(GET_PLAYER(ePlayer).GetCurrentEra() <= GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
+			{
+				uiMaxTechCostAdjusted *= (100 + GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD());
+				uiMaxTechCostAdjusted /= 100;
+			}
 			if(GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 			{
 				uiMaxTechCostAdjusted *= (100 - GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD());

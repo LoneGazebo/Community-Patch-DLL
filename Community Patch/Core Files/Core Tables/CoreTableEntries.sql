@@ -88,6 +88,14 @@ ALTER TABLE Traits ADD COLUMN 'NoConnectionUnhappiness' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'IsNoReligiousStrife' BOOLEAN DEFAULT 0;
 
+-- Extra Wonder Production during Golden Ages.
+
+ALTER TABLE Traits ADD COLUMN 'WonderProductionModGA' INTEGER DEFAULT 0;
+
+-- Abnormal scaler for Specialist yields in cities UA. +specialist yield in medieval/industrial/atomic eras.
+
+ALTER TABLE Traits ADD COLUMN 'IsOddEraScaler' BOOLEAN DEFAULT 0;
+
 -- No natural religion spread to/from unowned cities
 
 ALTER TABLE Traits ADD COLUMN 'NoNaturalReligionSpread' BOOLEAN DEFAULT 0;
@@ -721,6 +729,7 @@ ALTER TABLE Policies ADD COLUMN 'ExtraNaturalWonderHappiness' INTEGER DEFAULT 0;
 -- Worlds
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCities' INTEGER DEFAULT 0;
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCityStates' INTEGER DEFAULT 0;
+ALTER TABLE Worlds ADD COLUMN 'ReformationPercentRequired' INTEGER DEFAULT 100;
 
 
 -- CSD

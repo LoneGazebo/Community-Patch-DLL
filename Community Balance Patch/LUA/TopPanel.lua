@@ -102,7 +102,7 @@ function UpdateData()
 					strHappiness = string.format("[ICON_HAPPINESS_1][COLOR:60:255:60:255]%i[/COLOR]", iHappiness);
 				
 				-- Empire Really Unhappy
-				elseif (pPlayer:IsEmpireVeryUnhappy()) then
+				elseif (pPlayer:IsEmpireSuperUnhappy()) then
 					strHappiness = string.format("[ICON_HAPPINESS_4][COLOR:255:60:60:255]%i[/COLOR]", -iHappiness);
 				
 				-- Empire Unhappy
@@ -739,9 +739,10 @@ function HappinessTipHandler( control )
 -- CBP
 		local iHappinessFromBonusResources = pPlayer:GetBonusHappinessFromLuxuries();
 		local iHappinessFromMonopoly = pPlayer:GetHappinessFromResourceMonopolies();
+		local iHappinessFromEvent = pPlayer:GetEventHappiness();
 -- END	
 -- CBP Edit
-		local iHandicapHappiness = pPlayer:GetHappiness() - iPoliciesHappiness - iResourcesHappiness - iCityHappiness - iBuildingHappiness - iTradeRouteHappiness - iReligionHappiness - iNaturalWonderHappiness - iMinorCivHappiness - iExtraHappinessPerCity - iLeagueHappiness - iHappinessFromBonusResources - iHappinessFromMonopoly;
+		local iHandicapHappiness = pPlayer:GetHappiness() - iPoliciesHappiness - iResourcesHappiness - iCityHappiness - iBuildingHappiness - iTradeRouteHappiness - iReligionHappiness - iNaturalWonderHappiness - iMinorCivHappiness - iExtraHappinessPerCity - iLeagueHappiness - iHappinessFromBonusResources - iHappinessFromMonopoly - iHappinessFromEvent;
 	
 		if (pPlayer:IsEmpireVeryUnhappy()) then
 	
@@ -758,7 +759,7 @@ function HappinessTipHandler( control )
 			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_UNHAPPY", iTestHappiness, iMilitaryHappiness) .. "[/COLOR]";
 		end
 
-		local iTotalHappiness = iPoliciesHappiness + iResourcesHappiness + iCityHappiness + iBuildingHappiness + iMinorCivHappiness + iHandicapHappiness + iTradeRouteHappiness + iReligionHappiness + iNaturalWonderHappiness + iExtraHappinessPerCity + iLeagueHappiness + iHappinessFromBonusResources + iHappinessFromMonopoly;
+		local iTotalHappiness = iPoliciesHappiness + iResourcesHappiness + iCityHappiness + iBuildingHappiness + iMinorCivHappiness + iHandicapHappiness + iTradeRouteHappiness + iReligionHappiness + iNaturalWonderHappiness + iExtraHappinessPerCity + iLeagueHappiness + iHappinessFromBonusResources + iHappinessFromMonopoly + iHappinessFromEvent;
 		
 		strText = strText .. "[NEWLINE][NEWLINE]";
 		strText = strText .. "[COLOR:150:255:150:255]";
@@ -785,6 +786,10 @@ function HappinessTipHandler( control )
 		end
 
 -- CBP
+		if (iHappinessFromEvent > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_EVENT", iHappinessFromEvent);
+		end
 		if (iHappinessFromMonopoly > 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_MONOPOLY", iHappinessFromMonopoly);

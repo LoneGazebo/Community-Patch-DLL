@@ -2052,7 +2052,11 @@ bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTy
 
 	// No Default Specialists, remove a working Pop, if there is one
 	int iWorstPlotValue = 0;
+#if defined(MOD_BALANCE_CORE)
+	CvPlot* pWorstPlot = GetBestCityPlotWithValue(iWorstPlotValue, /*bBest*/ false, /*bWorked*/ true, bRemoveForcedStatus);
+#else
 	CvPlot* pWorstPlot = GetBestCityPlotWithValue(iWorstPlotValue, /*bBest*/ false, /*bWorked*/ true);
+#endif
 
 	if(pWorstPlot != NULL)
 	{
@@ -2106,7 +2110,11 @@ bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTy
 }
 
 /// Find a Plot the City is either working or not, and the best/worst value for it - this function does "double duty" depending on what the user wants to find
+#if defined(MOD_BALANCE_CORE)
+CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked, bool bForced)
+#else
 CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked)
+#endif
 {
 	bool bPlotForceWorked;
 
@@ -2158,10 +2166,18 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 								if(!bWantBest && bWantWorked)
 								{
 #if defined(MOD_BALANCE_CORE)
-									continue;
-#else
-									iValue += 10000;
+									if(!bForced)
+									{
+										continue;
+									}
+									else
+									{
 #endif
+									iValue += 10000;
+#if defined(MOD_BALANCE_CORE)
+									}
+#endif
+
 								}
 							}
 

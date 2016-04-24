@@ -87,7 +87,11 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool NeedReworkCitizens();
 #endif
+#if defined(MOD_BALANCE_CORE)
+	CvPlot* GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked, bool bForced = false);
+#else
 	CvPlot* GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked);
+#endif
 
 	// Worked Plots
 	bool IsWorkingPlot(const CvPlot* pPlot) const;

@@ -268,7 +268,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 							int iValue = 1000;
 							if(kPlayer.getCapitalCity() != NULL)
 							{
-								iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(pRewardInfo->GetBuilding(), iValue, 5, 5);
+								iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(pRewardInfo->GetBuilding(), iValue, 5, 5, 1);
 								iModifier += iValue;
 							}
 							else
@@ -354,7 +354,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 								int iValue = 500;
 								if(kPlayer.getCapitalCity() != NULL)
 								{
-									iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, iValue);
+									iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, iValue, 1);
 								}
 								iModifier += iValue;
 							}
@@ -395,12 +395,12 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	{
 		iModifier -= 50;
 	}
-	int iGPT = (int)kPlayer.GetTreasury()->AverageIncome(10);
+	int iGPT = (int)kPlayer.GetTreasury()->AverageIncome(5);
 	if(iGPT < 0)
 	{
 		iGPT *= -1;
-		//Every -1 GPT = 15% bonus
-		iModifier += (iGPT * 15);
+		//Every -1 GPT = 20% bonus
+		iModifier += (iGPT * 20);
 	}
 	iTempWeight *= (100 + iModifier);
 	iTempWeight /= 100;

@@ -10,6 +10,10 @@ UPDATE Worlds
 SET MinDistanceCityStates = '2'
 WHERE Type = 'WORLDSIZE_DUEL';
 
+UPDATE Worlds
+SET ReformationPercentRequired = '250'
+WHERE Type = 'WORLDSIZE_DUEL';
+
 -- Tiny - 3 Minimum for Major, 2 for Minor
 
 UPDATE Worlds
@@ -19,6 +23,10 @@ WHERE Type = 'WORLDSIZE_TINY';
 UPDATE Worlds
 SET MinDistanceCityStates = '2'
 WHERE Type = 'WORLDSIZE_TINY';
+
+UPDATE Worlds
+SET ReformationPercentRequired = '200'
+WHERE Type = 'WORLDSIZE_DUEL';
 
 -- Small - 3 Minimum for Major, 2 for Minor
 
@@ -30,6 +38,11 @@ UPDATE Worlds
 SET MinDistanceCityStates = '2'
 WHERE Type = 'WORLDSIZE_SMALL';
 
+UPDATE Worlds
+SET ReformationPercentRequired = '150'
+WHERE Type = 'WORLDSIZE_SMALL';
+
+
 -- Standard - 3 Minimum for Major, 2 for Minor
 
 UPDATE Worlds
@@ -39,6 +52,11 @@ WHERE Type = 'WORLDSIZE_STANDARD';
 UPDATE Worlds
 SET MinDistanceCityStates = '2'
 WHERE Type = 'WORLDSIZE_STANDARD';
+
+UPDATE Worlds
+SET ReformationPercentRequired = '100'
+WHERE Type = 'WORLDSIZE_STANDARD';
+
 
 -- Large - 3 Minimum for Major, 2 for Minor
 
@@ -50,6 +68,10 @@ UPDATE Worlds
 SET MinDistanceCityStates = '2'
 WHERE Type = 'WORLDSIZE_LARGE';
 
+UPDATE Worlds
+SET ReformationPercentRequired = '80'
+WHERE Type = 'WORLDSIZE_LARGE';
+
 -- Huge - 3 Minimum for Major, 2 for Minor
 
 UPDATE Worlds
@@ -58,6 +80,10 @@ WHERE Type = 'WORLDSIZE_HUGE';
 
 UPDATE Worlds
 SET MinDistanceCityStates = '2'
+WHERE Type = 'WORLDSIZE_HUGE';
+
+UPDATE Worlds
+SET ReformationPercentRequired = '60'
 WHERE Type = 'WORLDSIZE_HUGE';
 
 -- Default value that the values above can never exceed (minimally)

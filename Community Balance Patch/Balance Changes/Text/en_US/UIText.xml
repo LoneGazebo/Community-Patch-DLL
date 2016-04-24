@@ -61,6 +61,10 @@
 			<Text>What are Partisans?</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_EUPANEL_WITHDRAW_CHANCE">
+			<Text>Withdraw Chance</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_DUDE_8">
 			<Text>Herodotus</Text>
 		</Row>
@@ -511,7 +515,7 @@
 			<Text>{1_PlayerAdj} musicians are touring your empire, increasing their [ICON_TOURISM] Cultural Influence over you to [COLOR_MAGENTA]Familiar[ENDCOLOR] status!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET_S">
-			<Text>Unknown musicians arrive from {1_PlayerAdj}!</Text>
+			<Text>Unknown musicians arrive from {@1_Civname}!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR">
@@ -656,10 +660,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CULTURE_FROM_CS_ALLIANCE">
-			<Text>{1_Num} [ICON_CULTURE] from City-State Alliances</Text>
+			<Text>{1_Num} [ICON_CULTURE] from Realpolitik</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_CS_ALLIANCE">
-			<Text>{1_Num} {2_IconString} from City-State Alliances</Text>
+			<Text>{1_Num} {2_IconString} from Realpolitik</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_TRAIT_VOTES">
 			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Civilization Trait</Text>

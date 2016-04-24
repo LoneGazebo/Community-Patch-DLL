@@ -1914,6 +1914,12 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 		// +15% per point of yield change
 		iRtnValue = iRtnValue * (100 + (iYieldChanges * 15)) / 100;
 	}
+	iYieldChanges = pCity->GetBaseYieldRateFromCSFriendship(eYield);
+	if(iYieldChanges > 0)
+	{
+		// +15% per point of yield change
+		iRtnValue = iRtnValue * (100 + (iYieldChanges * 15)) / 100;
+	}
 	iYieldChanges = pCity->GetBaseYieldRateFromSpecialists(eYield);
 	if(iYieldChanges > 0)
 	{

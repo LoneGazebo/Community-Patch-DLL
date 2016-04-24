@@ -977,6 +977,15 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 			end
 
+			if (not bRanged) then
+				iModifier = pMyUnit:GetExtraWithdrawal();
+			    if (iModifier ~= 0) then
+				   controlTable = g_MyCombatDataIM:GetInstance();
+				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_WITHDRAW_CHANCE" );
+				   controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				end		
+			end
+
 			-- CBP (Monopoly)
 			iModifier = pMyUnit:GetMonopolyAttackBonus();
 			if(iModifier ~= 0) then
@@ -1407,6 +1416,15 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
 					   controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 					end
+				end
+
+				if (not bRanged) then
+					iModifier = pTheirUnit:GetExtraWithdrawal();
+					if (iModifier ~= 0) then
+					   controlTable = g_TheirCombatDataIM:GetInstance();
+					   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_WITHDRAW_CHANCE" );
+					   controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					end		
 				end
 
 				-- CBP (Monopoly)

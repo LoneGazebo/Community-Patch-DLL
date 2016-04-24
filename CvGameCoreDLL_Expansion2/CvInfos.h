@@ -2034,6 +2034,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int getMinDistanceCities() const;
 	int getMinDistanceCityStates() const;
+	int getReformationPercent() const;
 #endif
 	int GetEstimatedNumCities() const;
 
@@ -2079,6 +2080,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	int m_iMinDistanceCities;
 	int m_iMinDistanceCityStates;
+	int m_iReformationPercent;
 #endif
 	int m_iEstimatedNumCities;
 };
@@ -2584,6 +2586,7 @@ public:
 	const char* getSplashArt() const;
 	const char* getEventAudio() const;
 	int getResourceRequired(ResourceTypes eResource) const;
+	int getFeatureRequired(FeatureTypes eFeature) const;
 	int getRequiredStateReligion() const;
 	bool hasStateReligion() const;
 	int getRequiredActiveEvent() const;
@@ -2604,6 +2607,7 @@ public:
 	bool isLosingMoney() const;
 	bool isMaster() const;
 	bool isVassal() const;
+	int getNumCoastalRequired() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -2639,6 +2643,7 @@ protected:
 	CvString m_strSplashArt;
 	CvString m_strEventAudio;
 	int* m_piRequiredResource;
+	int* m_piRequiredFeature;
 	int m_iRequiredStateReligion;
 	bool m_bHasStateReligion;
 	bool m_bUnhappy;
@@ -2659,6 +2664,7 @@ protected:
 	bool m_bLosingMoney;
 	bool m_bVassal;
 	bool m_bMaster;
+	int m_iCoastal;
 
 private:
 	CvModEventInfo(const CvModEventInfo&);
@@ -2767,6 +2773,7 @@ public:
 	bool isRequiresWar() const;
 	bool isRequiresWarMinor() const;
 	int getResourceRequired(ResourceTypes eResource) const;
+	int getFeatureRequired(FeatureTypes eFeature) const;
 	int getRequiredStateReligion() const;
 	bool hasStateReligion() const;
 	int getRequiredActiveEvent() const;
@@ -2787,6 +2794,8 @@ public:
 	bool isLosingMoney() const;
 	bool isMaster() const;
 	bool isVassal() const;
+	int getNumCoastalRequired() const;
+	bool isCoastalOnly() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -2849,6 +2858,7 @@ protected:
 	bool m_bRequiresWar;
 	bool m_bRequiresWarMinor;
 	int* m_piRequiredResource;
+	int* m_piRequiredFeature;
 	int m_iRequiredStateReligion;
 	bool m_bHasStateReligion;
 	bool m_bUnhappy;
@@ -2869,6 +2879,8 @@ protected:
 	bool m_bLosingMoney;
 	bool m_bVassal;
 	bool m_bMaster;
+	int m_iCoastal;
+	bool m_bCoastalOnly;
 
 	CvEventNotificationInfo* m_paNotificationInfo;
 	int m_iNotificationInfos;

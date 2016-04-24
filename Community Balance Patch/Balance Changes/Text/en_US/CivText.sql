@@ -150,7 +150,7 @@ WHERE Tag = 'TXT_KEY_CIV5_BABYLON_WALLS_STRATEGY' AND EXISTS (SELECT * FROM COMM
 --------------------
 
 UPDATE Language_en_US
-SET Text = 'When a [ICON_GOLDEN_AGE] Golden Age begins, [ICON_GOLDEN_AGE] Golden Age Points convert into [ICON_GOLD] Gold and [ICON_TOURISM] Tourism, and Cities gain 10 turns of Carnaval. +20% [ICON_CULTURE] Culture and -50% [ICON_HAPPINESS_3] Unhappiness from Needs in Cities during Carnaval.'
+SET Text = 'When a [ICON_GOLDEN_AGE] Golden Age begins, 40% of [ICON_GOLDEN_AGE] Golden Age Points convert into [ICON_GOLD] Gold and [ICON_TOURISM] Tourism, and Cities gain 10 turns of Carnaval. +20% [ICON_CULTURE] Culture and -50% [ICON_HAPPINESS_3] Unhappiness from Needs in Cities during Carnaval.'
 WHERE Tag = 'TXT_KEY_TRAIT_CARNIVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US 
@@ -268,11 +268,11 @@ SET Text = 'The Burial Tomb is a Classical-era building which increases your out
 WHERE Tag = 'TXT_KEY_BUILDING_BURIAL_TOMB_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'A fast Ranged Unit. Only the Egyptians may build it. This Unit does not require [ICON_RES_HORSE] Horses to be built, unlike the Chariot Archer which it replaces. It is also stronger than the Chariot Archer, and receives the [COLOR_POSITIVE_TEXT]Forced Labor[ENDCOLOR] Promotion for free.'
+SET Text = 'A fast Ranged Unit. Only the Egyptians may build it. This Unit does not require [ICON_RES_HORSE] Horses to be built, unlike the Chariot Archer which it replaces. It is also stronger than the Chariot Archer, and receives the [COLOR_POSITIVE_TEXT]Gift of the Pharaoh[ENDCOLOR] Promotion for free.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_EGYPTIAN_WAR_CHARIOT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+20% Production towards Wonder construction. Artifacts gain +2 [ICON_RESEARCH] Science, [ICON_PEACE] Faith, and [ICON_CULTURE] Culture, and Landmarks gain +4 [ICON_GOLD] Gold, [ICON_GOLDEN_AGE] Golden Age Points, and [ICON_TOURISM] Tourism.'
+SET Text = '+20% [ICON_PRODUCTION] Production towards Wonders (+40% during [ICON_GOLDEN_AGE] Golden Ages). Artifacts gain +5 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and Landmarks gain +5 [ICON_GOLD] Gold and [ICON_TOURISM] Tourism.'
 WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 
@@ -393,7 +393,7 @@ SET Text = 'In addition to the regular abilities of the Customs House (additiona
 WHERE Tag = 'TXT_KEY_BUILDING_HANSE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Receive +3 [ICON_GOLDEN_AGE] Golden Age Points and +3 [ICON_CULTURE] Culture in your [ICON_CAPITAL] Capital for every City-State you are allied with. Bonus scales with Era. For every 2 City-State alliances, receive 1 additional Delegate in the World Congress.'
+SET Text = '+3 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points in your [ICON_CAPITAL] Capital per City-State Ally (+1 per Friend), scaling with Era. +1 Delegate in World Congress for every 2 City-State Allies.'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -595,7 +595,7 @@ SET Text = 'The Zero is unique to the Autocracy Ideology. The Zero is a moderate
 -- Korea 
 --------------------
 UPDATE Language_en_US
-SET Text = '+2 [ICON_RESEARCH] Science from all Great Person Improvements and Specialists. Earn [ICON_GREAT_PEOPLE] Great People 50% faster during [ICON_GOLDEN_AGE] Golden Ages.'
+SET Text = '+2 [ICON_RESEARCH] Science from Great Person Improvements. +1 [ICON_RESEARCH] Science from Specialists, increasing by +1 in the Medieval, Industrial, and Atomic Eras. +50% [ICON_GREAT_PEOPLE] Great People during [ICON_GOLDEN_AGE] Golden Ages.'
 WHERE Tag = 'TXT_KEY_TRAIT_SCHOLARS_JADE_HALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US 
@@ -886,7 +886,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_COSSACK' AND EXISTS (SELECT * FROM COMMUNITY WHER
 -- Spain
 --------------------
 UPDATE Language_en_US
-SET Text = 'Religions other than your primary Religion cannot spread to owned Cities or allied City-States. Conquering or founding Cities after your [ICON_CAPITAL] Capital generates [ICON_PEACE] Faith and converts them to your Religion.'
+SET Text = 'Only your official Religion can spread to owned Cities or allied City-States. Gaining or founding Cities after your [ICON_CAPITAL] Capital generates [ICON_PEACE] Faith and [ICON_FOOD] Food, and converts them to your official Religion.'
 WHERE Tag = 'TXT_KEY_TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
