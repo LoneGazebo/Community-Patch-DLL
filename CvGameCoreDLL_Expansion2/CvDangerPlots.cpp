@@ -1026,6 +1026,8 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 	CvPlot* pAttackerPlot = NULL;
 	CvUnit* pInterceptor = NULL;
 	// Damage from units
+	// EXTREMELY IMPORTANT THAT NO RNG IS USED FOR PREDICTION!
+	// Otherwise a tooltip or similar can change the game state
 	for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 	{
 		CvUnit* pAttacker = GET_PLAYER(it->first).getUnit(it->second);

@@ -15683,7 +15683,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	int iBaseStrength = GetBaseRangedCombatStrength();
 
 	//follow up attacks are weaker
-	if (getNumAttacksMadeThisTurn()>0)
+	if (getNumAttacksMadeThisTurn()>1)
 		iBaseStrength /= 2;
 
 	//fake ranged unit (impi)

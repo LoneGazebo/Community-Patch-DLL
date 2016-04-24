@@ -3689,24 +3689,10 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		{
 			return eResult;
 		}
-
-		if(GC.getRANGED_ATTACKS_USE_MOVES() == 0)
-		{
-			kAttacker.setMadeAttack(true);
-		}
-		kAttacker.changeMoves(-GC.getMOVE_DENOMINATOR());
 	}
 
 	// Unit that attacks loses his Fort bonus
 	kAttacker.setFortifyTurns(0);
-
-	// New test feature - attacking/range striking uses up all moves for most Units
-	if(!kAttacker.canMoveAfterAttacking() && !kAttacker.isRangedSupportFire() && kAttacker.isOutOfAttacks())
-	{
-		kAttacker.finishMoves();
-		GC.GetEngineUserInterface()->changeCycleSelectionCounter(1);
-	}
-
 	kAttacker.SetAutomateType(NO_AUTOMATE);
 
 	bool bDoImmediate = CvPreGame::quickCombat();
@@ -3727,6 +3713,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		CvCombatInfo kCombatInfo;
 		CvUnitCombat::GenerateRangedCombatInfo(kAttacker, pDefender, *pPlot, &kCombatInfo);
 		CvAssertMsg(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
+		kAttacker.setMadeAttack(true);
+		kAttacker.changeMoves(-GC.getMOVE_DENOMINATOR());
 
 		uint uiParentEventID = 0;
 		if(!bDoImmediate)
@@ -3754,16 +3742,13 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		ResolveCombat(kCombatInfo, uiParentEventID);
 	}
 	// Range-striking a City
-	else
+	else if (!kAttacker.isRangedSupportFire())
 	{
-		if (kAttacker.isRangedSupportFire())
-		{
-			return eResult;
-		}
-
 		CvCombatInfo kCombatInfo;
 		GenerateRangedCombatInfo(kAttacker, NULL, *pPlot, &kCombatInfo);
 		CvAssertMsg(!kAttacker.isDelayedDeath(), "Trying to battle and the attacker is already dead!");
+		kAttacker.setMadeAttack(true);
+		kAttacker.changeMoves(-GC.getMOVE_DENOMINATOR());
 
 		uint uiParentEventID = 0;
 		if(!bDoImmediate)
@@ -3793,6 +3778,12 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 		ResolveCombat(kCombatInfo, uiParentEventID);
 	}
 
+	if(!kAttacker.canMoveAfterAttacking() && !kAttacker.isRangedSupportFire() && kAttacker.isOutOfAttacks())
+	{
+		kAttacker.finishMoves();
+		GC.GetEngineUserInterface()->changeCycleSelectionCounter(1);
+	}
+
 	return eResult;
 }
 
@@ -3812,7 +3803,6 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 
 	bool bDoImmediate = CvPreGame::quickCombat();
 	kAttacker.SetAutomateType(NO_AUTOMATE);
-	kAttacker.setMadeAttack(true);
 
 	// Bombing a Unit
 	if(!targetPlot.isCity())
@@ -3831,6 +3821,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 		CvCombatInfo kCombatInfo;
 		CvUnitCombat::GenerateAirCombatInfo(kAttacker, pDefender, targetPlot, &kCombatInfo);
 		CvAssertMsg(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
+		kAttacker.setMadeAttack(true);
 
 		uint uiParentEventID = 0;
 		if(!bDoImmediate)
@@ -3867,6 +3858,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 		CvCombatInfo kCombatInfo;
 		GenerateAirCombatInfo(kAttacker, NULL, targetPlot, &kCombatInfo);
 		CvAssertMsg(!kAttacker.isDelayedDeath(), "Trying to battle and the attacker is already dead!");
+		kAttacker.setMadeAttack(true);
 
 		uint uiParentEventID = 0;
 		if(!bDoImmediate)
@@ -3922,9 +3914,10 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 	if(pInterceptor != NULL)
 	{
 		// CUSTOMLOG("AttackAirSweep: At (%i, %i) Attacker: %i-%i Interceptor: %i-%i", targetPlot.getX(), targetPlot.getY(), kAttacker.getOwner(), kAttacker.GetID(), pInterceptor->getOwner(), pInterceptor->GetID());
-		kAttacker.setMadeAttack(true);
 		CvCombatInfo kCombatInfo;
 		CvUnitCombat::GenerateAirSweepCombatInfo(kAttacker, pInterceptor, targetPlot, &kCombatInfo);
+		kAttacker.setMadeAttack(true);
+
 		CvUnit* pkDefender = kCombatInfo.getUnit(BATTLE_UNIT_DEFENDER);
 		pkDefender->SetAutomateType(NO_AUTOMATE);
 #if defined(MOD_BUGFIX_UNITS_AWAKE_IN_DANGER)
@@ -4021,12 +4014,11 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackCity(CvUnit& kAttacker, CvPlot& 
 
 	if(eResult != ATTACK_QUEUED)
 	{
-		kAttacker.setMadeAttack(true);
-
 		// We are doing a non-ranged attack on a city
 		CvCombatInfo kCombatInfo;
 		GenerateMeleeCombatInfo(kAttacker, NULL, plot, &kCombatInfo);
 		CvAssertMsg(!kAttacker.isDelayedDeath(), "Trying to battle and the attacker is already dead!");
+		kAttacker.setMadeAttack(true);
 
 		// Send the combat message if the target plot is visible.
 		bool isTargetVisibleToActivePlayer = plot.isActiveVisible(false);
