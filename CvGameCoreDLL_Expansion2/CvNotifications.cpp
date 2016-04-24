@@ -1242,8 +1242,13 @@ void CvNotifications::Activate(Notification& notification)
 		{
 			if (notification.m_iGameDataIndex >= 0)
 			{
-				CvPopupInfo kPopup(BUTTONPOPUP_MODDER_5, m_ePlayer);
-				GC.GetEngineUserInterface()->AddPopup(kPopup);
+				// x = -1, y = -1 is a marker to denote that this was actually a "monopoly" notification - so open the monopoly popup.
+				// it would be nice if this opened up the player who has the monopoly
+				if (notification.m_iX == -1 && notification.m_iY == -1)
+				{
+					CvPopupInfo kPopup(BUTTONPOPUP_MODDER_5, m_ePlayer);
+					GC.GetEngineUserInterface()->AddPopup(kPopup);
+				}
 			}
 		}
 #endif

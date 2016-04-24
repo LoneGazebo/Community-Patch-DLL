@@ -32026,10 +32026,8 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					strMessage << strResourceHelp;
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MONOPOLY_GAINED");
 					strSummary << pkResourceInfo->GetTextKey();
-					int iX = -1;
-					int iY = -1;
 
-					pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eResource);
+					pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, eResource);
 					updateYield();
 					for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
 					{
@@ -32044,10 +32042,8 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_OTHER_PLAYER_MONOPOLY_GAINED");
 							strSummary << pkResourceInfo->GetTextKey();
 							strSummary << getCivilizationInfo().getShortDescriptionKey();
-							int iX = -1;
-							int iY = -1;
 
-							kLoopPlayer.GetNotifications()->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eResource);
+							kLoopPlayer.GetNotifications()->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, eResource);
 						}
 					}
 				}
@@ -32059,10 +32055,8 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					strMessage << strResourceHelp;
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MONOPOLY_LOST");
 					strSummary << pkResourceInfo->GetTextKey();
-					int iX = -1;
-					int iY = -1;
 
-					pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eResource);
+					pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, eResource);
 					updateYield();
 				}
 				// Adding Resources
@@ -32073,10 +32067,8 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					strMessage << strResourceHelp;
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_STRATEGIC_MONOPOLY_GAINED");
 					strSummary << pkResourceInfo->GetTextKey();
-					int iX = -1;
-					int iY = -1;
 
-					pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eResource);
+					pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, eResource);
 					updateYield();
 					for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
 					{
@@ -32091,10 +32083,8 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_OTHER_PLAYER_STRATEGIC_MONOPOLY_GAINED");
 							strSummary << pkResourceInfo->GetTextKey();
 							strSummary << getCivilizationInfo().getShortDescriptionKey();
-							int iX = -1;
-							int iY = -1;
 
-							kLoopPlayer.GetNotifications()->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eResource);
+							kLoopPlayer.GetNotifications()->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, eResource);
 						}
 					}
 				}
@@ -32106,10 +32096,8 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					strMessage << strResourceHelp;
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_STRATEGIC_MONOPOLY_LOST");
 					strSummary << pkResourceInfo->GetTextKey();
-					int iX = -1;
-					int iY = -1;
 
-					pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eResource);
+					pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, eResource);
 					updateYield();
 				}
 			}
