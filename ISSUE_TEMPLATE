@@ -1,0 +1,26 @@
+
+Bug Reports - Please fill out the following form:
+
+
+1. Mod Version (i.e Date - (4/23b)):
+
+2. Mod List (if using standard CPP set, leave blank):
+
+3. Type of error (i.e. crash, interface bug, AI quirk): 
+
+4. Steps to reproduce:
+
+5. Additional information:
+
+
+---------------------------
+
+Supporting information:
+
+Please note that you can attach .zip files to Issues by dragging-and-dropping them. If possible, zip up all supporting data and post that way.
+
+1. Log files: Database.log and Lua.log needed
+2. Minidump file (located in your Civ5.exe directory)
+3. Screenshots (if needed)
+
+----------------------------
