@@ -3200,6 +3200,10 @@ int CvPlot::getUnitPower(PlayerTypes eOwner) const
 //	--------------------------------------------------------------------------------
 int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 {
+	// Cities also give a boost - damage is split between city and unit - assume a flat 100% defense bonus for simplicity
+	if (isCity())
+		return 100;
+
 	int iModifier = 0;
 
 	// Plot type
@@ -3224,17 +3228,6 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eImprovement);
 			if (pkImprovement)
 				iModifier += pkImprovement->GetDefenseModifier();
-		}
-	}
-
-	// Cities also give a boost
-	if(!bHelp)
-	{
-		const CvCity* pCity = getPlotCity();
-
-		if(pCity != NULL)
-		{
-			iModifier += pCity->getStrengthValue()/100;
 		}
 	}
 

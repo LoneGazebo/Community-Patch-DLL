@@ -25,7 +25,7 @@
 
 //PATH_BASE_COST is defined in AStar.h, value 100
 #define PATH_ATTACK_WEIGHT										(200)	//per percent penalty on attack
-#define PATH_DEFENSE_WEIGHT										(10)	//per percent defense bonus on turn end plot
+#define PATH_DEFENSE_WEIGHT										(100)	//per percent defense bonus on turn end plot
 #define PATH_STEP_WEIGHT										(PATH_BASE_COST)	//per plot in path (very small)
 #define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
 #define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
@@ -1132,7 +1132,8 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPat
 		{
 			iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (200 - ((pUnit->noDefensiveBonus()) ? 0 : pFromPlot->defenseModifier(eUnitTeam, false)))));
 
-			//avoid river attack penalty
+			//avoid river attack penalty - unless attacking from a city (so that the attacker does not leave the city)
+			//if(!pUnit->isRiverCrossingNoPenalty() && !pFromPlot->isCity() && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
 			if(!pUnit->isRiverCrossingNoPenalty() && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
 				iCost += (PATH_ATTACK_WEIGHT * -(GC.getRIVER_ATTACK_MODIFIER()));
 
@@ -1197,7 +1198,9 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 	CvMap& theMap = GC.getMap();
 	CvPlot* pFromPlot = theMap.plotUnchecked(parent->m_iX, parent->m_iY);
 	CvPlot* pToPlot = theMap.plotUnchecked(node->m_iX, node->m_iY);
-	bool bIsDestination = finder->IsPathDest(node->m_iX,node->m_iY);
+
+	//if we don't have a valid destination, it could be any node
+	bool bIsDestination = finder->IsPathDest(node->m_iX,node->m_iY) || !finder->HasValidDestination();
 
 	//use the flags mostly as provided - attack needs manual handling though
 	int iMoveFlags = finder->GetData().iFlags & ~CvUnit::MOVEFLAG_ATTACK;

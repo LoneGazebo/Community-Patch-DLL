@@ -14971,6 +14971,37 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 				}
 			}
 		}
+		// Bonuses outside one's lands
+		else
+		{
+			iTempModifier = getOutsideFriendlyLandsModifier();
+			iModifier += iTempModifier;
+
+			// Bonus against city states?
+			if(pBattlePlot->isCity() && GET_PLAYER(pBattlePlot->getOwner()).isMinorCiv())
+			{
+				iModifier += kPlayer.GetPlayerTraits()->GetCityStateCombatModifier();
+			}
+
+			// Founder Belief bonus (this must be a city controlled by an enemy)
+			CvCity* pPlotCity = pBattlePlot->getWorkingCity();
+			if(pPlotCity)
+			{
+				if(atWar(getTeam(), pPlotCity->getTeam()))
+				{
+					ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
+					if(eReligion != NO_RELIGION && eReligion == eFoundedReligion)
+					{
+						const CvReligion* pCityReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pPlotCity->getOwner());
+						if(pCityReligion)
+						{
+							iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierEnemyCities(getOwner());
+							iModifier += iTempModifier;
+						}
+					}
+				}
+			}
+		}
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 		if(MOD_BALANCE_CORE_BELIEFS && pOtherUnit != NULL)
@@ -15038,38 +15069,6 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		}
 	
 #endif
-
-		// Bonuses outside one's lands
-		else
-		{
-			iTempModifier = getOutsideFriendlyLandsModifier();
-			iModifier += iTempModifier;
-
-			// Bonus against city states?
-			if(pBattlePlot->isCity() && GET_PLAYER(pBattlePlot->getOwner()).isMinorCiv())
-			{
-				iModifier += kPlayer.GetPlayerTraits()->GetCityStateCombatModifier();
-			}
-
-			// Founder Belief bonus (this must be a city controlled by an enemy)
-			CvCity* pPlotCity = pBattlePlot->getWorkingCity();
-			if(pPlotCity)
-			{
-				if(atWar(getTeam(), pPlotCity->getTeam()))
-				{
-					ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
-					if(eReligion != NO_RELIGION && eReligion == eFoundedReligion)
-					{
-						const CvReligion* pCityReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pPlotCity->getOwner());
-						if(pCityReligion)
-						{
-							iTempModifier = pCityReligion->m_Beliefs.GetCombatModifierEnemyCities(getOwner());
-							iModifier += iTempModifier;
-						}
-					}
-				}
-			}
-		}
 
 		// Capital Defense
 		iTempModifier = GetCapitalDefenseModifier();

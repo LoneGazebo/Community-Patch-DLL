@@ -224,6 +224,11 @@ public:
 		return FALSE;
 	}
 
+	inline bool HasValidDestination() const
+	{
+		return isValid(m_iXdest,m_iYdest);
+	}
+
 	inline unsigned short GetCurrentGenerationID() const
 	{
 		return m_iCurrentGenerationID;
