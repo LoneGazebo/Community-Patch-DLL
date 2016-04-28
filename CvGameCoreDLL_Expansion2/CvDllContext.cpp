@@ -1081,7 +1081,7 @@ void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 	if (g_iCurPlotIndex==5)
 		g_iCurPlotIndex = 0;
 #else
-	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS,1);
+	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS|CvUnit::MOVEFLAG_IGNORE_STACKING,1);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 
 	//there is no destination, therefore this call will return false

@@ -17514,7 +17514,10 @@ bool CvUnit::isInvisible(TeamTypes eTeam, bool bDebug, bool bCheckCargo) const
 		return false;
 	}
 
-	return !(plot()->isInvisibleVisible(eTeam, getInvisibleType()));
+	if (eTeam!=NO_TEAM)
+		return !(plot()->isInvisibleVisible(eTeam, getInvisibleType()));
+	else
+		return true; //just assume it is invisible
 }
 
 //	--------------------------------------------------------------------------------

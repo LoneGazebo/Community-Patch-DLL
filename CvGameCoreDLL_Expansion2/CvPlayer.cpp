@@ -9751,7 +9751,7 @@ void CvPlayer::DoUnitReset()
 
 		// then damage it again
 		int iCitadelDamage;
-		if(pLoopUnit->IsNearEnemyCitadel(iCitadelDamage))
+		if(pLoopUnit->IsNearEnemyCitadel(iCitadelDamage) && !pLoopUnit->isInvisible(NO_TEAM,false,false))
 		{
 			pLoopUnit->changeDamage(iCitadelDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
 #if defined(MOD_CORE_PER_TURN_DAMAGE)

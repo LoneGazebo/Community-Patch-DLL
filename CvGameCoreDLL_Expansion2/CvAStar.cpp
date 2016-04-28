@@ -1132,8 +1132,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPat
 		{
 			iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (200 - ((pUnit->noDefensiveBonus()) ? 0 : pFromPlot->defenseModifier(eUnitTeam, false)))));
 
-			//avoid river attack penalty - unless attacking from a city (so that the attacker does not leave the city)
-			//if(!pUnit->isRiverCrossingNoPenalty() && !pFromPlot->isCity() && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
+			//avoid river attack penalty
 			if(!pUnit->isRiverCrossingNoPenalty() && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
 				iCost += (PATH_ATTACK_WEIGHT * -(GC.getRIVER_ATTACK_MODIFIER()));
 
