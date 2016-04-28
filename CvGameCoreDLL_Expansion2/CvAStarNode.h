@@ -65,7 +65,8 @@ struct CvPathNodeCacheData
 	bool bFriendlyUnitLimitReached:1;
 	bool bIsValidRoute:1;
 
-	int iPlotDanger; 
+	int iMoveFlags;
+	int iPlotDanger;
 
 	//tells when to update the cache ...
 	unsigned short iGenerationID;

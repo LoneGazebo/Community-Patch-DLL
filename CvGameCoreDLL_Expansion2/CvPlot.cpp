@@ -11759,13 +11759,11 @@ int CvPlot::GetNumCombatUnits()
 //	--------------------------------------------------------------------------------
 CvUnit* CvPlot::getUnitByIndex(int iIndex) const
 {
-	const IDInfo* pUnitNode;
-
-	pUnitNode = m_units.nodeNum(iIndex);
+	const IDInfo* pUnitNode = m_units.nodeNum(iIndex);
 
 	if(pUnitNode != NULL)
 	{
-		return (CvUnit*)GetPlayerUnit(*pUnitNode);
+		return GetPlayerUnit(*pUnitNode);
 	}
 	else
 	{

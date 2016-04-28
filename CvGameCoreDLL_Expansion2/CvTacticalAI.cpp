@@ -7267,7 +7267,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 			else
 			{
 				// Not in range/ not LOS: then lets try to reposition unit.
-				CvPlot* repositionPlot = GetBestRepositionPlot(pUnit, pTargetPlot, pUnit->GetCurrHitPoints()/2);
+				CvPlot* repositionPlot = GetBestRepositionPlot(pUnit, pTargetPlot, pUnit->GetCurrHitPoints()-1);
 
 				if (repositionPlot != NULL)
 				{
@@ -9265,6 +9265,7 @@ CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget
 	int iHighestAttack = 0;
 	int iLowestDanger = INT_MAX;
 	bool bIsRanged = pUnit->isRanged();
+
 	for (ReachablePlots::iterator moveTile=reachablePlots.begin(); moveTile!=reachablePlots.end(); ++moveTile)
 	{
 		CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->first);
@@ -9276,9 +9277,8 @@ CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget
 		bool bBetterPass = false;
 		if (bIsRanged)
 		{
+			//don't fly too close to the sun ...
 			if ( pUnit->GetRange()>1 && plotDistance(*pMoveTile,*plotTarget)<2 )
-				bBetterPass = true;
-			else if ( !pUnit->canEverRangeStrikeAt(plotTarget->getX(),plotTarget->getY(),pMoveTile) )
 				bBetterPass = true;
 		}
 
@@ -10332,14 +10332,11 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 	CvPlot* pBestPlot = NULL;
 
 	// Look at spaces adjacent to target
-	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
+	for(int iI = 0; iI < RING2_PLOTS; iI++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), iI);
 		if (pLoopPlot != NULL && pLoopPlot->isWater() != bLand)
 		{
-			if(pUnit->plot()==pLoopPlot)
-				return true;
-
 			//if it is a city, make sure we are friends with them, else we will automatically attack
 			if(pLoopPlot->isCity() && !pLoopPlot->isFriendlyCity(*pUnit, false))
 				continue;
@@ -10370,12 +10367,15 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 				//we check all plots ... don't just use the first one
 				int iDistanceToTarget = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pTarget->getX(), pTarget->getY());
 				int iTurns = pUnit->TurnsToReachTarget(pLoopPlot,false,false,iBestTurns);
-				int iScore = iTurns + iDistanceToTarget - iNeighborCount;
-				if ( iScore < iBestScore )
+				if (iTurns<INT_MAX)
 				{
-					iBestTurns = iTurns;
-					iBestScore = iScore;
-					pBestPlot = pLoopPlot;
+					int iScore = iTurns + iDistanceToTarget - iNeighborCount;
+					if ( iScore < iBestScore )
+					{
+						iBestTurns = iTurns;
+						iBestScore = iScore;
+						pBestPlot = pLoopPlot;
+					}
 				}
 			}
 		}
@@ -13123,7 +13123,7 @@ bool TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pTarget, const CvU
 		if (!vCandidates[i]->isRevealed(pUnit->getTeam()))
 			continue;
 
-		if (bCheckOccupied && vCandidates[i]->getBestDefender(NO_PLAYER))
+		if (bCheckOccupied && vCandidates[i]!=pRefPlot && vCandidates[i]->getBestDefender(NO_PLAYER))
 			continue;
 
 		if(bOnlyInDomain)
