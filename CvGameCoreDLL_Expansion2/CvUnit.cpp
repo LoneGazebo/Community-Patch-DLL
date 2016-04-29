@@ -4851,9 +4851,9 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		{
 			// pSelectionGroup has no Team but the HeadUnit does... ???
 #if defined(MOD_GLOBAL_STACKING_RULES)
-			if(plot.isVisible(getTeam()) && plot.getNumFriendlyUnitsOfType(this) >= plot.getUnitLimit())
+			if(plot.isVisible(getTeam()) && plot.getMaxFriendlyUnitsOfType(this) >= plot.getUnitLimit())
 #else
-			if(plot.isVisible(getTeam()) && plot.getNumFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
+			if(plot.isVisible(getTeam()) && plot.getMaxFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
 #endif
 			{
 				return FALSE;
@@ -5307,9 +5307,9 @@ bool CvUnit::jumpToNearestValidPlot()
 			if(canMoveInto(*pLoopPlot))
 			{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-				if(pLoopPlot->getNumFriendlyUnitsOfType(this) < pLoopPlot->getUnitLimit())
+				if(pLoopPlot->getMaxFriendlyUnitsOfType(this) < pLoopPlot->getUnitLimit())
 #else
-				if(pLoopPlot->getNumFriendlyUnitsOfType(this) < GC.getPLOT_UNIT_LIMIT())
+				if(pLoopPlot->getMaxFriendlyUnitsOfType(this) < GC.getPLOT_UNIT_LIMIT())
 #endif
 				{
 					// Can only jump to a plot if we can enter the territory, and it's NOT enemy territory OR we're a barb
@@ -5404,9 +5404,9 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 					if(canMoveInto(*pLoopPlot))
 					{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-						if(pLoopPlot->getNumFriendlyUnitsOfType(this) < pLoopPlot->getUnitLimit())
+						if(pLoopPlot->getMaxFriendlyUnitsOfType(this) < pLoopPlot->getUnitLimit())
 #else
-						if(pLoopPlot->getNumFriendlyUnitsOfType(this) < GC.getPLOT_UNIT_LIMIT())
+						if(pLoopPlot->getMaxFriendlyUnitsOfType(this) < GC.getPLOT_UNIT_LIMIT())
 #endif
 						{
 							// Can only jump to a plot if we can enter the territory, and it's NOT enemy territory OR we're a barb
@@ -6307,9 +6307,9 @@ bool CvUnit::canHold(const CvPlot* pPlot) const // skip turn
 	if(isHuman() && !getFortifyTurns())  // we aren't fortified
 	{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-		if(pPlot->getNumFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
+		if(pPlot->getMaxFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
 #else
-		if(pPlot->getNumFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
+		if(pPlot->getMaxFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
 #endif
 		{
 			return false;
@@ -6333,9 +6333,9 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 	if(isHuman() && !getFortifyTurns())  // we aren't fortified
 	{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-		if(pPlot->getNumFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
+		if(pPlot->getMaxFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
 #else
-		if(pPlot->getNumFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
+		if(pPlot->getMaxFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
 #endif
 		{
 			return false;
@@ -6363,9 +6363,9 @@ bool CvUnit::canFortify(const CvPlot* pPlot) const
 	if(isHuman() && !getFortifyTurns())  // we aren't fortified
 	{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-		if(pPlot->getNumFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
+		if(pPlot->getMaxFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
 #else
-		if(pPlot->getNumFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
+		if(pPlot->getMaxFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
 #endif
 		{
 			return false;
@@ -7393,9 +7393,9 @@ bool CvUnit::canSentry(const CvPlot* pPlot) const
 	if(isHuman() && !getFortifyTurns())  // we aren't fortified
 	{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-		if(pPlot->getNumFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
+		if(pPlot->getMaxFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
 #else
-		if(pPlot->getNumFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
+		if(pPlot->getMaxFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
 #endif
 		{
 			return false;
@@ -13527,9 +13527,9 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 	if(!bOnlyTestVisible)
 	{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-		if(pPlot->getNumFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
+		if(pPlot->getMaxFriendlyUnitsOfType(this) > pPlot->getUnitLimit())
 #else
-		if(pPlot->getNumFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
+		if(pPlot->getMaxFriendlyUnitsOfType(this) > GC.getPLOT_UNIT_LIMIT())
 #endif
 		{
 			return false;
@@ -18116,9 +18116,9 @@ bool CvUnit::isAircraftCarrier() const
 bool CvUnit::IsHasNoValidMove() const
 {
 #if defined(MOD_GLOBAL_STACKING_RULES)
-	if(plot()->getNumFriendlyUnitsOfType(this) <= plot()->getUnitLimit())
+	if(plot()->getMaxFriendlyUnitsOfType(this) <= plot()->getUnitLimit())
 #else
-	if(plot()->getNumFriendlyUnitsOfType(this) <= GC.getPLOT_UNIT_LIMIT())
+	if(plot()->getMaxFriendlyUnitsOfType(this) <= GC.getPLOT_UNIT_LIMIT())
 #endif
 	{
 		return false;
@@ -18132,9 +18132,9 @@ bool CvUnit::IsHasNoValidMove() const
 		CvPlot* pToPlot = GC.getMap().plotByIndexUnchecked(it->first);
 
 	#if defined(MOD_GLOBAL_STACKING_RULES)
-		if(pToPlot->getNumFriendlyUnitsOfType(this) >= pToPlot->getUnitLimit())
+		if(pToPlot->getMaxFriendlyUnitsOfType(this) >= pToPlot->getUnitLimit())
 	#else
-		if(pToPlot->getNumFriendlyUnitsOfType(pUnit) >= GC.getPLOT_UNIT_LIMIT())
+		if(pToPlot->getMaxFriendlyUnitsOfType(pUnit) >= GC.getPLOT_UNIT_LIMIT())
 	#endif
 		{
 			continue;
@@ -24865,9 +24865,9 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 				if(pEndTurnPlot == &swapPlot)
 				{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-					if(swapPlot.getNumFriendlyUnitsOfType(this) >= swapPlot.getUnitLimit())
+					if(swapPlot.getMaxFriendlyUnitsOfType(this) >= swapPlot.getUnitLimit())
 #else
-					if(swapPlot.getNumFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
+					if(swapPlot.getMaxFriendlyUnitsOfType(this) >= GC.getPLOT_UNIT_LIMIT())
 #endif
 					{
 						const IDInfo* pUnitNode;
@@ -25118,9 +25118,9 @@ bool CvUnit::canRangeStrike() const
 #if defined(MOD_BUGFIX_CITY_STACKING)
 	// Can't attack out of Cities if there are more units of the same domain type than the stacking limit permits
 #if defined(MOD_GLOBAL_STACKING_RULES)
-	if(MOD_BUGFIX_CITY_STACKING && plot()->isCity() && plot()->getNumFriendlyUnitsOfType(this, true) > plot()->getUnitLimit())
+	if(MOD_BUGFIX_CITY_STACKING && plot()->isCity() && plot()->getMaxFriendlyUnitsOfType(this, true) > plot()->getUnitLimit())
 #else
-	if(MOD_BUGFIX_CITY_STACKING && plot()->isCity() && plot()->getNumFriendlyUnitsOfType(this, true) > GC.getPLOT_UNIT_LIMIT())
+	if(MOD_BUGFIX_CITY_STACKING && plot()->isCity() && plot()->getMaxFriendlyUnitsOfType(this, true) > GC.getPLOT_UNIT_LIMIT())
 #endif
 	{
 		return false;

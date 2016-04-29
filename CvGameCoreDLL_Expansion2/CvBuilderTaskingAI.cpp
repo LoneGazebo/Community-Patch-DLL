@@ -455,9 +455,9 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	if(pCity1->getOwner() != pCity2->getOwner())
 		return;
 
-	// if we *don't* already have a land connection, bail out
+	// if we *don't* already have a basic land connection, bail out
 	SPath existingPath;
-	if (!m_pPlayer->IsCityConnectedToCity(pCity1, pCity2, eRoute, true, &existingPath))
+	if (!m_pPlayer->IsCityConnectedToCity(pCity1, pCity2, ROUTE_ROAD, true, &existingPath))
 		return;
 
 	// build a path between the two cities - this will tend to re-use existing routes, unless the new path is much shorter
@@ -468,10 +468,10 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	if(!bFoundPath)
 		return;
 
-	//now compare if the new path is much shorter than the existing path. 
+	//now compare if the new path is shorter or better than the existing path. 
 	//don't use the normalized distance though because we have two different pathfinders here, so it's not quite comparable
 	SPath newPath = GC.GetStepFinder().GetPath();
-	if (newPath.vPlots.size() < existingPath.vPlots.size() )
+	if (newPath.vPlots.size() < existingPath.vPlots.size() || eRoute>ROUTE_ROAD )
 	{
 		int iGameTurn = GC.getGame().getGameTurn();
 		for (size_t i=0; i<newPath.vPlots.size(); i++)
@@ -831,12 +831,6 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 #if defined(MOD_BALANCE_CORE)
 		//see if another worker would be more suitable
 		int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
-
-		//don't double up
-		if (iAlternativeTurnsAway==0)
-			continue;
-
-		//if the other unit is much closer
 		if (iAlternativeTurnsAway*2 < iMoveTurnsAway)
 		{
 			//pretent we would have to move much further, which will reduce the score of the directives for this plot
@@ -2052,9 +2046,9 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 #endif
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
-	if(!pUnit->atPlot(*pPlot) && pPlot->getNumFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit())
+	if(!pUnit->atPlot(*pPlot) && pPlot->getMaxFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit())
 #else
-	if(!pUnit->atPlot(*pPlot) && pPlot->getNumFriendlyUnitsOfType(pUnit) >= GC.getPLOT_UNIT_LIMIT())
+	if(!pUnit->atPlot(*pPlot) && pPlot->getMaxFriendlyUnitsOfType(pUnit) >= GC.getPLOT_UNIT_LIMIT())
 #endif
 	{
 		if(m_bLogging)

@@ -1317,44 +1317,41 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 		return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 	}
 
+	CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
+
 	// If closing in on a Culture win, go for the Concert Tour
 	if (GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetNumCivsInfluentialOn() > (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2))
 	{		
-		CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
 		if(pTarget)
 		{
 			return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 		}
 	}
-	else
-	{
-#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-		if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-		{
-			if(IsEmpireSuperUnhappy())
-			{
-				CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
-				if(pTarget)
-				{
-					return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
-				}
-			}
-		}
-#endif
-		// Create Great Work if there is a slot
-		GreatWorkType eGreatWork = pGreatMusician->GetGreatWork();
-		if (GetEconomicAI()->GetBestGreatWorkCity(pGreatMusician->plot(), eGreatWork))
-		{
-			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-		}
 
-		if ((GC.getGame().getGameTurn() - pGreatMusician->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() / 2))
+#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	{
+		if(IsEmpireSuperUnhappy())
 		{
-			CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
 			if(pTarget)
 			{
 				return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 			}
+		}
+	}
+#endif
+	// Create Great Work if there is a slot
+	GreatWorkType eGreatWork = pGreatMusician->GetGreatWork();
+	if (GetEconomicAI()->GetBestGreatWorkCity(pGreatMusician->plot(), eGreatWork))
+	{
+		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+	}
+
+	if ((GC.getGame().getGameTurn() - pGreatMusician->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() / 2))
+	{
+		if(pTarget)
+		{
+			return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 		}
 	}
 

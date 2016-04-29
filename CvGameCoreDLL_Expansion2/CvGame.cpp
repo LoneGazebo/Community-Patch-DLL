@@ -8888,7 +8888,7 @@ void CvGame::updateMoves()
 									{
 										if(pLoopUnit->getOwner() == pLoopUnitInner->getOwner())	// Could be a dying Unit from another player here
 										{
-											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getNumFriendlyUnitsOfType(pLoopUnit.pointer()) > GC.getPLOT_UNIT_LIMIT())
+											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit.pointer()) > GC.getPLOT_UNIT_LIMIT())
 											{
 												if(pLoopUnitInner->getFortifyTurns() >= iNumTurnsFortified)
 												{

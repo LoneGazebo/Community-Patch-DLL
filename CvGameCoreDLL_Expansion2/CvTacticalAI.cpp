@@ -11004,7 +11004,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 			{
 				if(pUnit->getArea() == pPlot->getArea())
 				{
-					if(!pNoLikeUnit || pPlot->getNumFriendlyUnitsOfType(pNoLikeUnit) == 0)
+					if(!pNoLikeUnit || pPlot->getMaxFriendlyUnitsOfType(pNoLikeUnit) == 0)
 					{
 						int iTurns = pUnit->TurnsToReachTarget(pPlot, true, true, iMaxTurns);
 						int iValue = target.GetAuxIntData() / max(1,iTurns);
@@ -11026,7 +11026,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 					}
 					else if(pUnit->getDomainType() == DOMAIN_LAND)
 					{
-						if(!pNoLikeUnit || pPlot->getNumFriendlyUnitsOfType(pNoLikeUnit) == 0)
+						if(!pNoLikeUnit || pPlot->getMaxFriendlyUnitsOfType(pNoLikeUnit) == 0)
 						{
 							int iTurns = pUnit->TurnsToReachTarget(pPlot, true, true, iMaxTurns);
 							//Half because area switch
@@ -11211,7 +11211,7 @@ void CvTacticalAI::PerformChosenMoves(CvPlot* pFinalTarget)
 		CvUnit* pUnit = m_pPlayer->getUnit(m_ChosenBlocks[iI].GetUnitID());
 		if(pUnit)
 		{
-			if(pUnit->plot() != m_ChosenBlocks[iI].GetPlot() && IsInChosenMoves(pUnit->plot()) && m_ChosenBlocks[iI].GetPlot()->getNumFriendlyUnitsOfType(pUnit) == 0)
+			if(pUnit->plot() != m_ChosenBlocks[iI].GetPlot() && IsInChosenMoves(pUnit->plot()) && m_ChosenBlocks[iI].GetPlot()->getMaxFriendlyUnitsOfType(pUnit) == 0)
 			{
 				if (MoveToUsingSafeEmbark(pUnit, m_ChosenBlocks[iI].GetPlot(), false))
 				{

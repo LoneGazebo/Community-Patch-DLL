@@ -7482,6 +7482,44 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 			pLog->Msg("builder has no directive");
 		}
+
+		if (pUnit->GetDanger()>0)
+			MoveCivilianToSafety(pUnit);
+		else
+		{
+			//try to spread them out in case something comes up
+			int iLoopCity = 0;
+			int iMaxUnits = INT_MAX;
+			CvPlot* pTarget = NULL;
+			for(CvCity *pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
+			{
+				CvPlot* pCityPlot = pLoopCity->plot();
+				if (pCityPlot == pUnit->plot())
+					break;
+
+				int iFirstUnitID = 0;
+				int iNumUnits = pCityPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType(),iFirstUnitID);
+
+				//if we are the first unit in the plot, we stay. other have to move, if present
+				if (iFirstUnitID == pUnit->GetID())
+				{
+					pTarget = NULL;
+					break;
+				}
+
+				if (iNumUnits < iMaxUnits)
+				{
+					iMaxUnits = iNumUnits;
+					pTarget = pCityPlot;
+				}
+				
+				if (iMaxUnits==0)
+					break;
+			}
+
+			if (pTarget)
+				MoveToEmptySpaceNearTarget(pUnit,pTarget);
+		}
 	}
 
 	return false;

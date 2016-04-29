@@ -303,6 +303,7 @@ public:
 	int getNumDefenders(PlayerTypes ePlayer) const;
 	int getNumVisibleEnemyDefenders(const CvUnit* pUnit) const;
 	int getNumVisiblePotentialEnemyDefenders(const CvUnit* pUnit) const;
+	int getNumUnitsOfAIType(UnitAITypes eType, int& iFirstUnitID) const;
 	bool isVisibleEnemyUnit(PlayerTypes ePlayer) const;
 	bool isVisibleEnemyUnit(const CvUnit* pUnit) const;
 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;
@@ -310,7 +311,7 @@ public:
 	//units which can cause or lift a blockade
 	bool IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const;
 
-	int getNumFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimit = true) const;
+	int getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimit = true) const;
 
 	bool isFighting() const;
 	bool isUnitFighting() const;

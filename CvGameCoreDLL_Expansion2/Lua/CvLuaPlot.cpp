@@ -134,7 +134,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetNumVisiblePotentialEnemyDefenders);
 	Method(IsVisibleEnemyUnit);
 	Method(IsVisibleOtherUnit);
-	Method(GetNumFriendlyUnitsOfType);
+	Method(getNumFriendlyUnitsOfType);
 	Method(IsFighting);
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_STACKING_RULES)
@@ -1009,13 +1009,13 @@ int CvLuaPlot::lIsVisibleOtherUnit(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int getNumFriendlyUnitsOfType(CvUnit* pUnit);
-int CvLuaPlot::lGetNumFriendlyUnitsOfType(lua_State* L)
+int CvLuaPlot::lgetNumFriendlyUnitsOfType(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
 
 	bool bBreakOnUnitLimit = luaL_optbool(L, 3, true);
-	int iResult = pkPlot->getNumFriendlyUnitsOfType(pkUnit, bBreakOnUnitLimit);
+	int iResult = pkPlot->getMaxFriendlyUnitsOfType(pkUnit, bBreakOnUnitLimit);
 
 	lua_pushinteger(L, iResult);
 	return 1;

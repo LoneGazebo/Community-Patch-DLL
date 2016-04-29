@@ -8571,9 +8571,9 @@ CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 	{
 		// Equal okay checking this plot because this is where the unit is right now
 #if defined(MOD_GLOBAL_STACKING_RULES)
-		if (pInitialPlot->getNumFriendlyUnitsOfType(pUnit) <= pInitialPlot->getUnitLimit())
+		if (pInitialPlot->getMaxFriendlyUnitsOfType(pUnit) <= pInitialPlot->getUnitLimit())
 #else
-		if (pInitialPlot->getNumFriendlyUnitsOfType(pUnit) <= GC.getPLOT_UNIT_LIMIT())
+		if (pInitialPlot->getMaxFriendlyUnitsOfType(pUnit) <= GC.getPLOT_UNIT_LIMIT())
 #endif
 		{
 			return pInitialPlot;
@@ -8590,9 +8590,9 @@ CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 			if (pLoopCity->isCoastal(GC.getLAKE_MAX_AREA_SIZE()))
 			{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-				if (pLoopCity->plot()->getNumFriendlyUnitsOfType(pUnit) < pLoopCity->plot()->getUnitLimit())
+				if (pLoopCity->plot()->getMaxFriendlyUnitsOfType(pUnit) < pLoopCity->plot()->getUnitLimit())
 #else
-				if (pLoopCity->plot()->getNumFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
+				if (pLoopCity->plot()->getMaxFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
 #endif
 				{
 					return pLoopCity->plot();
@@ -8623,9 +8623,9 @@ CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 					if (pPlot->IsFriendlyTerritory(GetID()) || !pPlot->isOwned())
 					{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-						if (pPlot->getNumFriendlyUnitsOfType(pUnit) < pPlot->getUnitLimit())
+						if (pPlot->getMaxFriendlyUnitsOfType(pUnit) < pPlot->getUnitLimit())
 #else
-						if (pPlot->getNumFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
+						if (pPlot->getMaxFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
 #endif
 						{
 							int iDistance = plotDistance(iCapitalX, iCapitalY, pPlot->getX(), pPlot->getY());
@@ -8656,9 +8656,9 @@ CvPlot *CvPlayer::GetGreatAdmiralSpawnPlot (CvUnit *pUnit)
 					if (pPlot->IsFriendlyTerritory(GetID()) || !pPlot->isOwned())
 					{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-						if (pPlot->getNumFriendlyUnitsOfType(pUnit) < pPlot->getUnitLimit())
+						if (pPlot->getMaxFriendlyUnitsOfType(pUnit) < pPlot->getUnitLimit())
 #else
-						if (pPlot->getNumFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
+						if (pPlot->getMaxFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
 #endif
 						{
 							int iDistance = plotDistance(iCapitalX, iCapitalY, pPlot->getX(), pPlot->getY());
@@ -9850,9 +9850,9 @@ void CvPlayer::RespositionInvalidUnits()
 		}
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
-		if(pPlot->getNumFriendlyUnitsOfType(pLoopUnit) > pPlot->getUnitLimit())
+		if(pPlot->getMaxFriendlyUnitsOfType(pLoopUnit) > pPlot->getUnitLimit())
 #else
-		if(pPlot->getNumFriendlyUnitsOfType(pLoopUnit) > GC.getPLOT_UNIT_LIMIT())
+		if(pPlot->getMaxFriendlyUnitsOfType(pLoopUnit) > GC.getPLOT_UNIT_LIMIT())
 #endif
 		{
 			if (!pLoopUnit->jumpToNearestValidPlot())
@@ -12114,9 +12114,9 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 								if(pNewUnit->canMoveInto(*pLoopPlot))
 								{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-									if(pLoopPlot->getNumFriendlyUnitsOfType(pUnit) < pLoopPlot->getUnitLimit())
+									if(pLoopPlot->getMaxFriendlyUnitsOfType(pUnit) < pLoopPlot->getUnitLimit())
 #else
-									if(pLoopPlot->getNumFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
+									if(pLoopPlot->getMaxFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
 #endif
 									{
 										if(pNewUnit->canEnterTerritory(pLoopPlot->getTeam()) && !pNewUnit->isEnemy(pLoopPlot->getTeam(), pLoopPlot))

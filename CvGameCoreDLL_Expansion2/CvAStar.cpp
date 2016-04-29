@@ -812,7 +812,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 		kToNodeCacheData.bContainsVisibleEnemyDefender = false;
 	}
 
-	kToNodeCacheData.bFriendlyUnitLimitReached = (pPlot->getNumFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit());
+	kToNodeCacheData.bFriendlyUnitLimitReached = (pPlot->getMaxFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit());
 	kToNodeCacheData.bIsValidRoute = pPlot->isValidRoute(pUnit);
 
 	//now the big ones ...

@@ -758,9 +758,9 @@ void CvPlot::verifyUnitValidPlot()
 						{
 							// Unit not allowed to be here
 #if defined(MOD_GLOBAL_STACKING_RULES)
-							if(getNumFriendlyUnitsOfType(pLoopUnit) > /*1*/ getUnitLimit())
+							if(getMaxFriendlyUnitsOfType(pLoopUnit) > /*1*/ getUnitLimit())
 #else
-							if(getNumFriendlyUnitsOfType(pLoopUnit) > /*1*/ GC.getPLOT_UNIT_LIMIT())
+							if(getMaxFriendlyUnitsOfType(pLoopUnit) > /*1*/ GC.getPLOT_UNIT_LIMIT())
 #endif
 							{
 								if (!pLoopUnit->jumpToNearestValidPlot())
@@ -4434,6 +4434,27 @@ int CvPlot::getNumVisiblePotentialEnemyDefenders(const CvUnit* pUnit) const
 	return 0;
 }
 
+int CvPlot::getNumUnitsOfAIType(UnitAITypes eType, int& iFirstUnitID) const
+{
+	const IDInfo* pUnitNode = m_units.head();
+	int iCount = 0;
+	iFirstUnitID = 0;
+	while(pUnitNode)
+	{
+		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+		pUnitNode = m_units.next(pUnitNode);
+
+		if(pLoopUnit && !pLoopUnit->AI_getUnitAIType()==eType)
+		{
+			if (iCount==0)
+				iFirstUnitID = pLoopUnit->GetID();
+			++iCount;
+		}
+	}
+
+	return iCount;
+}
+
 //	-----------------------------------------------------------------------------------------------
 bool CvPlot::isVisibleEnemyUnit(PlayerTypes ePlayer) const
 {
@@ -4584,7 +4605,7 @@ bool CvPlot::IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const
 
 //	--------------------------------------------------------------------------------
 // Used to restrict number of units allowed on a plot at one time
-int CvPlot::getNumFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimit) const
+int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimit) const
 {
 	int iNumUnitsOfSameType = 0;
 

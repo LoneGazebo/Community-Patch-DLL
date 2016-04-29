@@ -6729,7 +6729,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(UnitHandle pUnit)
 	//nobody to burn at the stake? find a city to garrison him in
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if(pLoopCity && pLoopCity->plot()->getNumFriendlyUnitsOfType(pUnit.pointer())==0)
+		if(pLoopCity && pLoopCity->plot()->getMaxFriendlyUnitsOfType(pUnit.pointer())==0)
 			return pLoopCity;
 	}
 
