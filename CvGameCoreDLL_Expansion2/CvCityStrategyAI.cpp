@@ -1000,6 +1000,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 
 	if(m_BuildablesPrecheck.GetTotalWeight() > 0)
 	{
+		int iGPT = GET_PLAYER(m_pCity->getOwner()).GetTreasury()->CalculateBaseNetGold();
 		////Sanity and AI Optimization Check
 		int iLandTrade = 0;
 		int iSeaTrade = 0;
@@ -1025,7 +1026,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 
 						if(pThisArmy)
 						{
-							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy,  m_BuildablesPrecheck.GetWeight(iI));
+							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
 							if(iNewWeight > 0)
 							{
 								m_Buildables.push_back(selection, iNewWeight);
@@ -1033,7 +1034,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 						}
 						else
 						{
-							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI));
+							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
 							if(iNewWeight > 0)
 							{
 								m_Buildables.push_back(selection, iNewWeight);
@@ -1042,7 +1043,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 					}
 					else
 					{
-						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI));
+						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
 						if(iNewWeight > 0)
 						{
 							m_Buildables.push_back(selection, iNewWeight);
@@ -1053,7 +1054,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				case CITY_BUILDABLE_UNIT_FOR_ARMY:
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI));
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
 					if(iNewWeight > 0)
 					{
 						m_Buildables.push_back(selection, iNewWeight);
@@ -1063,7 +1064,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				case CITY_BUILDABLE_UNIT:
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL,  m_BuildablesPrecheck.GetWeight(iI));
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
 					if(iNewWeight > 0)
 					{
 						m_Buildables.push_back(selection, iNewWeight);
@@ -1073,7 +1074,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				case CITY_BUILDABLE_BUILDING:
 				{
 					BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
-					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), iLandTrade, iSeaTrade);
+					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), iLandTrade, iSeaTrade, iGPT);
 					if(iNewWeight > 0)
 					{
 						m_Buildables.push_back(selection, iNewWeight);
@@ -1280,6 +1281,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 
 	if(m_BuildablesPrecheck.GetTotalWeight() > 0)
 	{
+		int iGPT = GET_PLAYER(m_pCity->getOwner()).GetTreasury()->CalculateBaseNetGold();
 		////Sanity and AI Optimization Check
 		int iLandTrade = 0;
 		int iSeaTrade = 0;
@@ -1305,7 +1307,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 
 						if(pThisArmy)
 						{
-							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy,  m_BuildablesPrecheck.GetWeight(iI));
+							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
 							if(iNewWeight > 0)
 							{
 								m_Buildables.push_back(selection, iNewWeight);
@@ -1313,7 +1315,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 						}
 						else
 						{
-							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI));
+							int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
 							if(iNewWeight > 0)
 							{
 								m_Buildables.push_back(selection, iNewWeight);
@@ -1322,7 +1324,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 					}
 					else
 					{
-						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI));
+						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
 						if(iNewWeight > 0)
 						{
 							m_Buildables.push_back(selection, iNewWeight);
@@ -1333,7 +1335,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 				case CITY_BUILDABLE_UNIT_FOR_ARMY:
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI));
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
 					if(iNewWeight > 0)
 					{
 						m_Buildables.push_back(selection, iNewWeight);
@@ -1343,7 +1345,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 				case CITY_BUILDABLE_UNIT:
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL,  m_BuildablesPrecheck.GetWeight(iI));
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL,  m_BuildablesPrecheck.GetWeight(iI), iGPT);
 					if(iNewWeight > 0)
 					{
 						m_Buildables.push_back(selection, iNewWeight);
@@ -1353,7 +1355,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 				case CITY_BUILDABLE_BUILDING:
 				{
 					BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
-					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), iLandTrade, iSeaTrade);
+					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), iLandTrade, iSeaTrade, iGPT);
 					if(iNewWeight > 0)
 					{
 						m_Buildables.push_back(selection, iNewWeight);
@@ -4451,6 +4453,10 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if(kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier() > 0)
 		{
 			iYieldValue += kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier();
+		}
+		if(kPlayer.GetPlayerTraits()->GetWonderProductionModGA() > 0)
+		{
+			iYieldValue += kPlayer.GetPlayerTraits()->GetWonderProductionModGA();
 		}
 	}
 	int iNumBuildingInfos = GC.getNumBuildingInfos();

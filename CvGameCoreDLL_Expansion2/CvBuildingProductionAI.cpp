@@ -236,7 +236,7 @@ void CvBuildingProductionAI::LogPossibleBuilds()
 }
 #if defined(MOD_BALANCE_CORE)
 /// Do all building sanity stuff here.
-int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, int iNumLandConnection, int iNumSeaConnection)
+int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, int iNumLandConnection, int iNumSeaConnection, int iGPT)
 {
 	if(m_pCity == NULL)
 		return 0;
@@ -750,7 +750,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		//Help with poverty
 		if(eYield == YIELD_GOLD)
 		{
-			int iGPT = (int)kPlayer.GetTreasury()->AverageIncome(10);
 			if(iGPT < 0)
 			{
 				iYieldValue += (iGPT * -5);
@@ -901,11 +900,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Let's reduce the value by turns to build (to keep us from taking dozens of turn on high-value things).
 	if(pkBuildingInfo->GetGoldMaintenance() > 0)
 	{
-		int iGPT = (int)kPlayer.GetTreasury()->AverageIncome(10);
 		if(iGPT < 0)
 		{
-			//Every -1 GPT = -7% bonus
-			iBonus += (iGPT * 7);
+			//Every -1 GPT = -10% bonus
+			iBonus += (iGPT * 10);
 		}
 	}
 	

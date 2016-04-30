@@ -464,7 +464,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_SAPPED" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-			elseif (pMyUnit:IsHalfNearSapper(pCity)) then
+			elseif(pMyUnit:IsHalfNearSapper(pCity)) then
 				iModifier = GameDefines["SAPPED_CITY_ATTACK_MODIFIER"];
 				iModifier = (iModifier / 2);
 				controlTable = g_MyCombatDataIM:GetInstance();
@@ -977,6 +977,15 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 			end
 
+			if (not bRanged) then
+				iModifier = pMyUnit:GetExtraWithdrawal();
+			    if (iModifier ~= 0) then
+				   controlTable = g_MyCombatDataIM:GetInstance();
+				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_WITHDRAW_CHANCE" );
+				   controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				end		
+			end
+
 			-- CBP (Monopoly)
 			iModifier = pMyUnit:GetMonopolyAttackBonus();
 			if(iModifier ~= 0) then
@@ -1407,6 +1416,15 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
 					   controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 					end
+				end
+
+				if (not bRanged) then
+					iModifier = pTheirUnit:GetExtraWithdrawal();
+					if (iModifier ~= 0) then
+					   controlTable = g_TheirCombatDataIM:GetInstance();
+					   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_WITHDRAW_CHANCE" );
+					   controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					end		
 				end
 
 				-- CBP (Monopoly)
@@ -2185,7 +2203,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			controlTable = g_TheirCombatDataIM:GetInstance();
 			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_SAPPED" );
 			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-		elseif(theirUnit:IsHalfNearSapper(myCity)) then
+		elseif (theirUnit:IsHalfNearSapper(myCity)) then
 			iModifier = GameDefines["SAPPED_CITY_ATTACK_MODIFIER"];
 			iModifier = (iModifier / 2);
 			controlTable = g_TheirCombatDataIM:GetInstance();

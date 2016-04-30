@@ -434,6 +434,12 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- TRAIT: Allows you to define a yield that is gained in every city based on the number of CS friends you have.-->
+	<Table name="Trait_YieldFromCSFriend">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 	<!-- TRAIT: Allows you to define a yield that is gained when a city is founded -->
 	<Table name="Trait_YieldFromSettle">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>

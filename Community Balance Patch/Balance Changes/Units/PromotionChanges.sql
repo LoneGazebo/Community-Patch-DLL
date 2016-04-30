@@ -150,7 +150,7 @@
 INSERT INTO UnitPromotions_YieldFromKills
 	(PromotionType, YieldType, Yield)
 VALUES
-	('PROMOTION_ENSLAVEMENT', 'YIELD_PRODUCTION', 75);
+	('PROMOTION_ENSLAVEMENT', 'YIELD_PRODUCTION', 150);
 
 INSERT INTO UnitPromotions_UnitCombatMods
 	(PromotionType, UnitCombatType, Modifier)

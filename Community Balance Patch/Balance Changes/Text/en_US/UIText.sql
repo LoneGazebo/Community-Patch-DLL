@@ -1,3 +1,9 @@
+-- Barb CS
+
+	UPDATE Language_en_US
+	SET Text = 'You have killed a group of Barbarians near {1_CivName:textkey}! They are grateful, and your [ICON_INFLUENCE] Influence with them has increased by 15!'
+	WHERE Tag = 'TXT_KEY_NOTIFICATION_MINOR_BARB_KILLED';
+
 -- Culture Victory changes
 	
 	UPDATE Language_en_US

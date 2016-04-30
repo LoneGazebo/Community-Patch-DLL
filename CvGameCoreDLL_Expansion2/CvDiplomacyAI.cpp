@@ -30143,6 +30143,19 @@ bool CvDiplomacyAI::IsUntrustworthyFriend()
 	if(GetWeDenouncedFriendCount() >= 2)
 		return true;
 
+#if defined(MOD_BALANCE_CORE)
+	PlayerTypes eLoopPlayer;
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFBroken(GetPlayer()->GetID()))
+		{
+			return true;
+		}
+	}
+#endif
+
 	return false;
 }
 

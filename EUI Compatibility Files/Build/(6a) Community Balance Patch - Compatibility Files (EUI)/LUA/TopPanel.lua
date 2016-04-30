@@ -400,7 +400,7 @@ local function UpdateTopPanelNow()
 
 				happinessText = S("[COLOR:60:255:60:255]%i[ENDCOLOR][ICON_HAPPINESS_1]", excessHappiness)
 
-			elseif g_activePlayer:IsEmpireVeryUnhappy() then
+			elseif g_activePlayer:IsEmpireSuperUnhappy() then
 
 				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_4]", -excessHappiness)
 				--unhappyFoodModifier = GameDefines.VERY_UNHAPPY_GROWTH_PENALTY
@@ -1217,6 +1217,7 @@ if civ5_mode then
 -- CBP
 			local happinessFromMonopoly = g_activePlayer:GetHappinessFromResourceMonopolies();
 			local happinessfromLuxuryBonus = g_activePlayer:GetBonusHappinessFromLuxuries();
+			local happinessfromEvents = g_activePlayer:GetEventHappiness();
 -- END
 			local happinessFromExtraResources = g_activePlayer:GetHappinessFromResourceVariety()
 			local extraLuxuryHappiness = g_activePlayer:GetExtraHappinessPerLuxury()
@@ -1243,7 +1244,7 @@ if civ5_mode then
 			local leagueHappiness = bnw_mode and g_activePlayer:GetHappinessFromLeagues() or 0
 			local totalHappiness = g_activePlayer:GetHappiness()
 			local happinessFromVassals = g_activePlayer:GetHappinessFromVassals();	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-			local handicapHappiness = totalHappiness - policiesHappiness - resourcesHappiness - cityHappiness - buildingHappiness - garrisonedUnitsHappiness - minorCivHappiness - tradeRouteHappiness - religionHappiness - naturalWonderHappiness - extraHappinessPerCity - leagueHappiness - happinessFromVassals - happinessFromMonopoly - happinessfromLuxuryBonus	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+			local handicapHappiness = totalHappiness - policiesHappiness - resourcesHappiness - cityHappiness - buildingHappiness - garrisonedUnitsHappiness - minorCivHappiness - tradeRouteHappiness - religionHappiness - naturalWonderHappiness - extraHappinessPerCity - leagueHappiness - happinessFromVassals - happinessFromMonopoly - happinessfromLuxuryBonus - happinessfromEvents	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 
 			if g_activePlayer:IsEmpireVeryUnhappy() then
 
@@ -1358,6 +1359,7 @@ if civ5_mode then
 			-- Happiness from Monopolies
 			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_MONOPOLY", happinessFromMonopoly )
 			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS", happinessfromLuxuryBonus )
+			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_EVENT", happinessfromEvents )
 -- END
 			-- Happiness from Luxury Variety
 			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_VARIETY", happinessFromExtraResources )
@@ -1366,7 +1368,7 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_EXTRA_PER_RESOURCE", extraLuxuryHappiness, numHappinessResources )
 
 			-- Misc Happiness from Resources
-			local miscHappiness = resourcesHappiness - baseHappinessFromResources - happinessFromExtraResources - happinessFromMonopoly -  happinessfromLuxuryBonus - (extraLuxuryHappiness * numHappinessResources)
+			local miscHappiness = resourcesHappiness - baseHappinessFromResources - happinessFromExtraResources - happinessFromMonopoly -  happinessfromLuxuryBonus - happinessfromEvents - (extraLuxuryHappiness * numHappinessResources)
 			if(miscHappiness > 0) then
 				tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_OTHER_SOURCES", miscHappiness )
 			end

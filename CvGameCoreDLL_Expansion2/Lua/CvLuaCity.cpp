@@ -4948,7 +4948,8 @@ int CvLuaCity::lGetBaseYieldRateFromCSAlliance(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
-	const int iResult = pkCity->GetBaseYieldRateFromCSAlliance(eIndex);
+	int iResult = pkCity->GetBaseYieldRateFromCSAlliance(eIndex);
+	iResult += pkCity->GetBaseYieldRateFromCSFriendship(eIndex);
 
 	lua_pushinteger(L, iResult);
 	return 1;

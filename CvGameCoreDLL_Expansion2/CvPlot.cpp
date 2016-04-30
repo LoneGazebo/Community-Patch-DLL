@@ -6167,8 +6167,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				// Embassy is here (somehow- city-state conquest/reconquest, perhaps?
 				if(MOD_DIPLOMACY_CITYSTATES && getImprovementType() != NO_IMPROVEMENT)
 				{
-					GET_PLAYER(eNewValue).changeImprovementCount(getImprovementType(), 1);
-
 					// Add vote
 					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(getImprovementType());
 					if (pImprovementInfo != NULL && pImprovementInfo->GetCityStateExtraVote() > 0)
@@ -6181,11 +6179,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 								SetImprovementEmbassy(true);
 							}
 						}
-					}
-						// Maintenance change!
-					if(MustPayMaintenanceHere(eNewValue))
-					{
-						GET_PLAYER(eNewValue).GetTreasury()->ChangeBaseImprovementGoldMaintenance(GC.getImprovementInfo(getImprovementType())->GetGoldMaintenance());
 					}
 				}
 #endif

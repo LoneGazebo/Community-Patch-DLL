@@ -2231,6 +2231,10 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			return INT_MAX;
 		}
 	}
+	if(bFromMe && pCity->GetCityReligions()->IsHolyCityAnyReligion())
+	{
+		return INT_MAX;
+	}
 #endif
 
 

@@ -274,9 +274,6 @@ public:
 	bool FinalizeDeal(CvDeal kDeal, bool bAccepted);
 	bool FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted, bool latest);
 #else
-#if defined(MOD_BALANCE_CORE)
-	void EraseDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
-#endif
 	bool FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted);
 #endif
 	void DoTurn();

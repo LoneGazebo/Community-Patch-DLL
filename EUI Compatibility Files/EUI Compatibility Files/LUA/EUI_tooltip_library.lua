@@ -806,7 +806,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 			local iYieldAmount = city:GetEventBuildingClassModifier(buildingClassID, iYieldID);
 							
 			if (iYieldAmount > 0) then
-				tips:insert( L"TXT_KEY_BUILDING_EVENT_MODIFIER", iYieldAmount, pYieldInfo.IconString, pYieldInfo.Description)
+				tips:insert( L("TXT_KEY_BUILDING_EVENT_MODIFIER", iYieldAmount, pYieldInfo.IconString, pYieldInfo.Description))
 			end
 		end
 	end

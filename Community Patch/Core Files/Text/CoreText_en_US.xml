@@ -6032,6 +6032,12 @@
 		<Row Tag="TXT_KEY_ALLY_CBP_SPY">
 			<Text>Allied with the {1_Player}.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_NOW_POSSIBLE_S">
+			<Text>Border security in {1_City} returns to normal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_NOW_POSSIBLE">
+			<Text>Security concerns over the recent coup attempt have faded, and security in {1_City} is returning to normal. [COLOR_POSITIVE_TEXT]Coups[ENDCOLOR] are once again possible against this City-State.</Text>
+		</Row>
 
 		<!-- Text for 3rd Party Brokering -->
 		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_NAME">
@@ -6365,6 +6371,7 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_MOVEMENT">
 			<Text>Movement of a [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		
 
 		<!-- Tooltip for Investments in cities -->
 		<Row Tag="TXT_KEY_ALREADY_INVESTED">

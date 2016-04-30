@@ -376,6 +376,7 @@ void CvMilitaryAI::Read(FDataStream& kStream)
 	kStream >> m_iNumberOfTimesOpsBuildSkippedOver;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
+	kStream >> m_iCurrentWarFocus;
 	//first get how many entries we have
 	m_cachedTargets.clear();
 	kStream >> temp;
@@ -437,18 +438,28 @@ void CvMilitaryAI::Write(FDataStream& kStream)
 	kStream << m_iNumberOfTimesOpsBuildSkippedOver;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
+	kStream << m_iCurrentWarFocus;
+
 	//first pass: count how many relevant cache entries we have
 	int iCount = 0;
 	for (CachedTargetsMap::iterator itE = m_cachedTargets.begin(); itE!=m_cachedTargets.end(); ++itE)
+	{
 		for (CachedTargetsMap::value_type::second_type::iterator itOp = itE->second.begin(); itOp!=itE->second.end(); ++itOp)
+		{
 			if (GC.getGame().getGameTurn() - itOp->second.iTurnChosen < 25)
+			{
 				iCount++;
+			}
+		}
+	}
 
 	kStream << iCount;
 
 	//second pass: write them
 	for (CachedTargetsMap::iterator itE = m_cachedTargets.begin(); itE!=m_cachedTargets.end(); ++itE)
+	{
 		for (CachedTargetsMap::value_type::second_type::iterator itOp = itE->second.begin(); itOp!=itE->second.end(); ++itOp)
+		{
 			if (GC.getGame().getGameTurn() - itOp->second.iTurnChosen < 25)
 			{
 				kStream << itE->first;
@@ -460,6 +471,8 @@ void CvMilitaryAI::Write(FDataStream& kStream)
 				kStream << itOp->second.iScore;
 				kStream << itOp->second.iTurnChosen;
 			}
+		}
+	}
 #endif
 
 	kStream << GC.getNumMilitaryAIStrategyInfos();

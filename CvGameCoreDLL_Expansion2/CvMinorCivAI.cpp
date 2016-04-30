@@ -5356,6 +5356,36 @@ void CvMinorCivAI::DoTurn()
 		if(GetCoupCooldown() > 0)
 		{
 			ChangeCoupCooldown(-1);
+			if(GetCoupCooldown() == 0)
+			{
+				if(GetPlayer()->getCapitalCity() != NULL)
+				{
+					PlayerTypes ePlayer;
+					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						ePlayer = (PlayerTypes) iPlayerLoop;
+
+						if(GET_PLAYER(ePlayer).isAlive())
+						{
+							if(!IsHasMetPlayer(ePlayer))
+							{
+								continue;
+							}
+							CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
+							if(pNotifications)
+							{
+								Localization::String strSummary;
+								Localization::String strNotification;
+								strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_NOW_POSSIBLE_S");
+								strSummary << GetPlayer()->getCapitalCity()->getNameKey();
+								strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_NOW_POSSIBLE");
+								strNotification << GetPlayer()->getCapitalCity()->getNameKey();
+								pNotifications->Add(NOTIFICATION_SPY_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY(), -1);
+							}
+						}
+					}
+				}
+			}
 		}
 		//Let's see if we can launch a military action.
 		GetPlayer()->GetMilitaryAI()->MinorAttackTest();
@@ -5763,7 +5793,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 
 									CvCity* pBestCity = NULL;
 
-									if (pPlayer->GetCurrentEra() < GC.getInfoTypeForString("ERA_MEDIEVAL") && pPlayer->getCapitalCity()->plot()->getArea() == pPlot->getArea()) {
+									if (pPlayer->GetCurrentEra() < (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true) && pPlayer->getCapitalCity()->plot()->getArea() == pPlot->getArea()) {
 										// Pre-Medieval and on the same landmass, just add the food to the capital
 										pBestCity = pPlayer->getCapitalCity();
 									} else {
@@ -8626,7 +8656,7 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 			iCount *= GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_FRIENDLY_LIBERATION();
 			iCount /= 100;
 		}
-		if(ePersonality == MINOR_CIV_TRAIT_MILITARISTIC)		// War beckons - will you answer?
+		if(eTrait == MINOR_CIV_TRAIT_MILITARISTIC)		// War beckons - will you answer?
 		{
 			iCount *= GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MILITARISTIC_LIBERATION();
 			iCount /= 100;
@@ -11445,7 +11475,11 @@ void CvMinorCivAI::DoFriendship()
 				const int iAlliesThreshold = GetAlliesThreshold() * 100;
 				const int iFriendsThreshold = GetFriendsThreshold() * 100;
 				int iEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
+#if defined(MOD_BALANCE_CORE)
+				if(IsAllies(ePlayer) && GetPermanentAlly() != ePlayer)
+#else
 				if(IsAllies(ePlayer))
+#endif
 				{
 					if(iEffectiveFriendship + (iTurnsWarning * iChangeThisTurn) < iAlliesThreshold &&
 						iEffectiveFriendship + ((iTurnsWarning-1) * iChangeThisTurn) >= iAlliesThreshold)
@@ -11465,7 +11499,11 @@ void CvMinorCivAI::DoFriendship()
 #endif
 
 				}
+#if defined(MOD_BALANCE_CORE)
+				else if(IsFriends(ePlayer) && GetPermanentAlly() != ePlayer)
+#else
 				else if(IsFriends(ePlayer))
+#endif
 				{
 					if(iEffectiveFriendship + (iTurnsWarning * iChangeThisTurn) < iFriendsThreshold &&
 						iEffectiveFriendship + ((iTurnsWarning-1) * iChangeThisTurn) >= iFriendsThreshold)

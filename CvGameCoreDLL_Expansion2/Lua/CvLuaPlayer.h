@@ -1392,6 +1392,7 @@ protected:
 	static int lGetEventChoiceCooldown  (lua_State* L);
 	static int lSetEventChoiceCooldown  (lua_State* L);
 	static int lIsEventChoiceValid (lua_State* L);
+	static int lGetEventHappiness (lua_State* L);
 #endif
 };
 
