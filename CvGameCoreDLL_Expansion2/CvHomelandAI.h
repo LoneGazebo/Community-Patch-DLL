@@ -355,7 +355,7 @@ private:
 	void ExecuteWorkerMoves();
 #endif
 	void ExecuteMovesToSafestPlot();
-	void ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget);
+	void ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags);
 
 	void ExecuteHeals();
 	void ExecutePatrolMoves();
@@ -391,7 +391,7 @@ private:
 	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
 
 	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bool bLand=true);
-	bool MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo);
+	bool MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo, int iFlags);
 
 	CvPlot* FindArchaeologistTarget(CvUnit *pUnit);
 	void UnitProcessed(int iID);

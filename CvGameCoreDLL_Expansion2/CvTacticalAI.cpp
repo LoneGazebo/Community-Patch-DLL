@@ -7715,6 +7715,30 @@ void CvTacticalAI::ExecuteHeals()
 							}
 						}
 					}
+					
+					//ok, special for melee - don't retreat if you could capture a city
+					if (pUnit->IsCombatUnit() && !pUnit->isRanged() && !pUnit->isNoCapture())
+					{
+						CvCity* pNeighboringCity = pUnit->plot()->GetAdjacentCity();
+						if (pNeighboringCity && m_pPlayer->IsAtWarWith(pNeighboringCity->getOwner()))
+						{
+							int iExpectedSelfDamage = 0;
+							int iExpectedDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pNeighboringCity,pUnit,iExpectedSelfDamage);
+							if (iExpectedSelfDamage < pUnit->GetCurrHitPoints() && iExpectedDamage > (pNeighboringCity->GetMaxHitPoints()-pNeighboringCity->getDamage()))
+							{
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									CvString strLogString;
+									strLogString.Format("Healing unit %s (%d) trying to capture city at X: %d, Y: %d", 
+										pUnit->getName().GetCString(), pUnit->GetID(), pNeighboringCity->getX(), pNeighboringCity->getY());
+									LogTacticalMessage(strLogString);
+								}
+								bFlee = false;
+							}
+						}
+
+						//todo: same for barb camps?
+					}
 
 					if (bFlee)
 					{

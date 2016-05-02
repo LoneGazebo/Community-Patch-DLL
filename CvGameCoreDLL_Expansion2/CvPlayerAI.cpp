@@ -1587,7 +1587,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
 
-GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
+GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 {
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 
@@ -1630,7 +1630,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
 	else if (pMyReligion)
 	{
 		// Spread religion if there is a city that needs it CRITICALLY
-		if (GetReligionAI()->ChooseProphetConversionCity(true/*bOnlyBetterThanEnhancingReligion*/))
+		if (GetReligionAI()->ChooseProphetConversionCity(true/*bOnlyBetterThanEnhancingReligion*/,pUnit))
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
 		}
@@ -2474,7 +2474,7 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit)
 		{
 			continue;
 		}
-		if(!pLoopPlot->isValidMovePlot(GetID(), false))
+		if(!pLoopPlot->isValidMovePlot(GetID(), !pUnit->isRivalTerritory()))
 		{
 			continue;
 		}

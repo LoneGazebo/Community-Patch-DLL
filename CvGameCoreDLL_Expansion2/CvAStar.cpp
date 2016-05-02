@@ -368,11 +368,12 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	if ( timer.GetDeltaInSeconds()>0.05 )
 	{
 		int iNumPlots = GC.getMap().numPlots();
+		int iPathLength = GetPathLength();
 
 		//in some cases we have no destination plot, so exhaustion is not always a "fail"
 		OutputDebugString( CvString::format("Run %d: Path type %d %s (%d,%d to %d,%d), tested %d nodes, processed %d nodes in %d rounds (%d%% of map) in %.2f ms (path length %d)\n", 
 			m_iCurrentGenerationID, m_sData.ePathType, bSuccess?"found":"not found", m_iXstart, m_iYstart, m_iXdest, m_iYdest, m_iTestedNodes, m_iProcessedNodes, m_iRounds, 
-			(100*m_iProcessedNodes)/iNumPlots, timer.GetDeltaInSeconds()*1000, bSuccess?GetPathLength():-1 ).c_str() );
+			(100*m_iProcessedNodes)/iNumPlots, timer.GetDeltaInSeconds()*1000, bSuccess?iPathLength:-1 ).c_str() );
 
 		if (MOD_CORE_DEBUGGING)
 		{

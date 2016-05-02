@@ -107,7 +107,7 @@ public:
 	int GetCombatBonusVsHigherPop() const;
 	bool IsBuyOwnedTiles() const;
 	bool IsReconquista() const;
-	bool IsNoSpread() const;
+	bool IsForeignReligionSpreadImmune() const;
 	bool IsInspirationalLeader() const;
 	bool IsDiplomaticMarriage() const;
 	bool IsAdoptionFreeTech() const;
@@ -827,7 +827,7 @@ public:
 	{
 		return m_bReconquista;
 	};
-	bool IsNoSpread() const
+	bool IsForeignReligionSpreadImmune() const
 	{
 		return m_bNoSpread;
 	};

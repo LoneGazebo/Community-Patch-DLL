@@ -107,10 +107,6 @@
 /// Civilians that are not moved with BarbarianCivilianEscortMove now move using passive barbarian move
 #define AUI_TACTICAL_EXECUTE_BARBARIAN_MOVES_CIVILIANS_MOVE_PASSIVELY
 
-/// Adds a minimum danger amount for each plot, to discourage long routes
-#define AUI_TRADE_SCORE_TRADE_ROUTE_BASE_DANGER (1)
-/// When scoring trade routes, divides by the base-(value) log of the total danger instead of by the actual total danger
-#define AUI_TRADE_SCORE_TRADE_ROUTE_DIVIDE_BY_LOG_TOTAL_DANGER (2.0)
 /// If the international trade route would be to a minor, the gold and tech received by the minor do not count
 #define AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
 /// Score for a trade route from religious pressure is now relative to how much pressure there already is at the city

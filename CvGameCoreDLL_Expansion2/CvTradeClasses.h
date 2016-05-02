@@ -155,6 +155,7 @@ public:
 	
 	int GetIndexFromUnitID(int iUnitID, PlayerTypes eOwner);
 	bool IsUnitIDUsed (int iUnitID);
+	const TradeConnection* GetConnectionFromIndex(int iIndex) const;
 
 	static CvCity* GetOriginCity(const TradeConnection& kTradeConnection);
 	static CvCity* GetDestCity(const TradeConnection& kTradeConnection);
@@ -163,8 +164,8 @@ public:
 	void BuildTechDifference ();
 	int GetTechDifference (PlayerTypes ePlayer, PlayerTypes ePlayer2);
 
-	void CreateVis (int iIndex); // Create the trade unit vis unit
-	CvUnit* GetVis(int iIndex);
+	void CreateTradeUnitForRoute (int iIndex); // Create the trade unit vis unit
+	CvUnit* GetTradeUnitForRoute(int iIndex);
 #if defined(MOD_API_TRADEROUTES)
 	bool IsRecalledUnit (int iIndex); // has the unit been recalled
 	void RecallUnit (int iIndex, bool bImmediate = false); // recall a trade unit
@@ -336,15 +337,20 @@ public:
 
 	void GetAvailableTR(TradeConnectionList& aTradeConnectionList);
 	void PrioritizeTradeRoutes(TradeConnectionList& aTradeConnectionList);
+
 #if defined(MOD_BALANCE_CORE)
 	int	ScoreInternationalTR (const TradeConnection& kTradeConnection, bool bHaveTourism);
 #else
 	int	ScoreInternationalTR (const TradeConnection& kTradeConnection);
 #endif
-	int ScoreFoodTR(const TradeConnection& kTradeConnection, CvCity* pSmallestCity);
-	int ScoreProductionTR (const TradeConnection& kTradeConnection, std::vector<CvCity*> aTargetCityList);
+	//generic method
+	int ScoreInternalTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
+
+	//wrapper for different types of trade route
+	int ScoreFoodTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
+	int ScoreProductionTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
 #if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
-	int ScoreWonderTR (const TradeConnection& kTradeConnection, std::vector<CvCity*> aTargetCityList);
+	int ScoreWonderTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
 #endif
 
 	bool ChooseTradeUnitTargetPlot(CvUnit* pUnit, int& iOriginPlotIndex, int& iDestPlotIndex, TradeConnectionType& eTradeConnectionType, bool& bDisband, const TradeConnectionList& aTradeConnections);

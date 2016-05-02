@@ -558,7 +558,7 @@ bool CvTraitEntry::IsReconquista() const
 	return m_bReconquista;
 }
 
-bool CvTraitEntry::IsNoSpread() const
+bool CvTraitEntry::IsForeignReligionSpreadImmune() const
 {
 	return m_bNoSpread;
 }
@@ -2644,7 +2644,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bReconquista = true;
 			}
-			if(trait->IsNoSpread())
+			if(trait->IsForeignReligionSpreadImmune())
 			{
 				m_bNoSpread = true;
 			}

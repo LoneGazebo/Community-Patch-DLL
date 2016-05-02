@@ -778,13 +778,9 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 	int iUnitLoop;
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
-		if(pLoopUnit != NULL)
+		if(pLoopUnit && pLoopUnit->AI_getUnitAIType()==pUnit->AI_getUnitAIType() && pLoopUnit!=pUnit)
 		{
-			//ignore others which are in the same plot! they mess up the alternative worker check below
-			if(pLoopUnit->AI_getUnitAIType()==pUnit->AI_getUnitAIType() && pLoopUnit->plot()!=pUnit->plot())
-			{
-				otherWorkers.push_back(pLoopUnit);
-			}
+			otherWorkers.push_back(pLoopUnit);
 		}
 	}
 
@@ -830,7 +826,19 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 
 #if defined(MOD_BALANCE_CORE)
 		//see if another worker would be more suitable
+		int iFirstUnitID = 0;
+		int iNumWorkersHere = pPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType(),iFirstUnitID);
+		if (iFirstUnitID != pUnit->GetID() && iNumWorkersHere>0)
+		{
+			continue;
+		}
+
 		int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
+		if (iAlternativeTurnsAway == 0 && iMoveTurnsAway > 0)
+		{
+			continue;
+		}
+
 		if (iAlternativeTurnsAway*2 < iMoveTurnsAway)
 		{
 			//pretent we would have to move much further, which will reduce the score of the directives for this plot
@@ -890,11 +898,18 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 
 #if defined(MOD_BALANCE_CORE)
 		//see if another worker would be more suitable
-		int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
-
-		//don't double up
-		if (iAlternativeTurnsAway==0)
+		int iFirstUnitID = 0;
+		int iNumWorkersHere = pPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType(),iFirstUnitID);
+		if (iFirstUnitID != pUnit->GetID() && iNumWorkersHere>0)
+		{
 			continue;
+		}
+
+		int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
+		if (iAlternativeTurnsAway == 0 && iMoveTurnsAway > 0)
+		{
+			continue;
+		}
 
 		//if the other unit is much closer
 		if (iAlternativeTurnsAway*2 < iMoveTurnsAway)

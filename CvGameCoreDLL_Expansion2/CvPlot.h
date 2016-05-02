@@ -193,7 +193,7 @@ public:
 	bool IsAdjacentOwnedByOtherTeam(TeamTypes eTeam) const;
 	bool isAdjacentTeam(TeamTypes eTeam, bool bLandOnly = false) const;
 	CvCity* GetAdjacentFriendlyCity(TeamTypes eTeam, bool bLandOnly = false) const;
-	CvCity* GetAdjacentCity(bool bLandOnly = false) const;
+	CvCity* GetAdjacentCity() const;
 	int GetNumAdjacentDifferentTeam(TeamTypes eTeam, bool bIgnoreWater) const;
 	int GetNumAdjacentMountains() const;
 #if defined(MOD_BALANCE_CORE_SETTLER)

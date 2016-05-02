@@ -3529,7 +3529,7 @@ CvCity* CvPlot::GetAdjacentFriendlyCity(TeamTypes eTeam, bool bLandOnly) const
 }
 
 //	--------------------------------------------------------------------------------
-CvCity* CvPlot::GetAdjacentCity(bool bLandOnly) const
+CvCity* CvPlot::GetAdjacentCity() const
 {
 	CvPlot* pAdjacentPlot;
 	int iI;
@@ -3542,13 +3542,10 @@ CvCity* CvPlot::GetAdjacentCity(bool bLandOnly) const
 		{
 			if(pAdjacentPlot->isCity())
 			{
-				if(!bLandOnly || !(pAdjacentPlot->isWater()))
+				CvCity* pCity = pAdjacentPlot->getPlotCity();
+				if(pCity)
 				{
-					CvCity* pCity = pAdjacentPlot->getPlotCity();
-					if(pCity)
-					{
-						return pCity;
-					}
+					return pCity;
 				}
 			}
 		}
@@ -4444,7 +4441,7 @@ int CvPlot::getNumUnitsOfAIType(UnitAITypes eType, int& iFirstUnitID) const
 		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = m_units.next(pUnitNode);
 
-		if(pLoopUnit && !pLoopUnit->AI_getUnitAIType()==eType)
+		if(pLoopUnit && pLoopUnit->AI_getUnitAIType()==eType)
 		{
 			if (iCount==0)
 				iFirstUnitID = pLoopUnit->GetID();

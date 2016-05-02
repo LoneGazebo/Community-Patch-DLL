@@ -5489,11 +5489,10 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 
 		if (!bTestVisibility)
 		{
-			int iTargetTurns;
 			UnitHandle pUnit = GET_PLAYER(m_eOwner).getUnit(GetID());
 			if(pUnit)
 			{
-				CvPlot* pTarget = GET_PLAYER(m_eOwner).GetReligionAI()->ChooseMissionaryTargetPlot(pUnit, &iTargetTurns);
+				CvCity* pTarget = GET_PLAYER(m_eOwner).GetReligionAI()->ChooseMissionaryTargetCity(pUnit);
 				if(pTarget == NULL)
 				{
 					return false;
@@ -10662,30 +10661,31 @@ bool CvUnit::CanSpreadReligion(const CvPlot* pPlot) const
 		{
 			return false;
 		}
+	}
+
 #if defined(MOD_BALANCE_CORE)
-		else if(GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsNoSpread() && (getOwner() != pCity->getOwner()))
+	if(GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsForeignReligionSpreadImmune() && (getOwner() != pCity->getOwner()))
+	{
+		if(GetReligionData()->GetReligion() != GET_PLAYER(pCity->getOwner()).GetReligions()->GetReligionInMostCities())
 		{
-			if(GetReligionData()->GetReligion() != GET_PLAYER(pCity->getOwner()).GetReligions()->GetReligionInMostCities())
-			{
-				return false;
-			}
+			return false;
 		}
-		else if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
+	}
+	else if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
+	{
+		PlayerTypes eAlly = (GET_PLAYER(pCity->getOwner()).GetMinorCivAI()->GetAlly());
+		if(eAlly != NO_PLAYER)
 		{
-			PlayerTypes eAlly = (GET_PLAYER(pCity->getOwner()).GetMinorCivAI()->GetAlly());
-			if(eAlly != NO_PLAYER)
+			if(GET_PLAYER(eAlly).GetPlayerTraits()->IsForeignReligionSpreadImmune() && (getOwner() != eAlly))
 			{
-				if(GET_PLAYER(eAlly).GetPlayerTraits()->IsNoSpread() && (getOwner() != eAlly))
+				if(GetReligionData()->GetReligion() != GET_PLAYER(pCity->getOwner()).GetReligions()->GetReligionInMostCities())
 				{
-					if(GetReligionData()->GetReligion() != GET_PLAYER(pCity->getOwner()).GetReligions()->GetReligionInMostCities())
-					{
-						return false;
-					}
+					return false;
 				}
 			}
 		}
-#endif
 	}
+#endif
 
 	// Blocked by Inquisitor?
 	if(pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
@@ -10918,17 +10918,12 @@ bool CvUnit::CanRemoveHeresy(const CvPlot* pPlot) const
 		{
 			return false;
 		}
-		else if(pCity->getOwner() != getOwner())
-		{
-			return false;
-		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(plot() != NULL && plot()->getOwner() != getOwner())
+
+	if(pCity->getOwner() != getOwner())
 	{
 		return false;
 	}
-#endif
 
 	if(!pCity->GetCityReligions()->IsReligionHereOtherThan(GetReligionData()->GetReligion()))
 	{
@@ -26102,7 +26097,7 @@ bool CvUnit::UpdatePathCache(CvPlot* pDestPlot, int iFlags)
 	// If we are in UNITFLAG_EVALUATING_MISSION mode, we can assume that other than the unit that is moving, nothing on the map will change so we can re-use the cached path data more efficiently.
 	if ( (m_iFlags & UNITFLAG_EVALUATING_MISSION) != 0 )
 	{
-		// Some pathing data left?  (the last node is always the current units location)
+		// Some pathing data left?  (the last node is always the current unit location)
 		if (m_kLastPath.size() >= 2)
 		{
 			// Was the path destination invisible at the time of generation? See if it is visible now.
@@ -26495,6 +26490,19 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			}
 
 			pPathPlot = GetPathFirstPlot();
+
+			//the given target may be different from the actual target
+			if (iFlags & MOVEFLAG_APPROXIMATE_TARGET)
+			{
+				pDestPlot = GetPathLastPlot();
+				//check if we are there yet
+				if (pDestPlot && pDestPlot->getX()==getX() && pDestPlot->getY()==getY())
+					return 0;
+			}
+
+			//can happen if we don't really move. (ie we try to move to a plot we are already in or the approximate target is just one plot away)
+			if (pPathPlot==NULL)
+				pPathPlot = pDestPlot;
 		}
 	}
 
@@ -26812,35 +26820,69 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 
+const char* aTrTypes[] = {
+	"Gold", 
+	"Food", 
+	"Production",
+	"Resource"
+};
+
 const char* CvUnit::GetMissionInfo()
 {
-	if ( (m_eTacticalMove==NO_TACTICAL_MOVE) && (m_eHomelandMove==AI_HOMELAND_MOVE_NONE) )
-		m_strMissionInfoString = "no tactical move / no homeland move";
-	else
+	m_strMissionInfoString.clear();
+
+	if (IsCombatUnit())
 	{
-		if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
+		if ( (m_eTacticalMove==NO_TACTICAL_MOVE) && (m_eHomelandMove==AI_HOMELAND_MOVE_NONE) )
+			m_strMissionInfoString = "no tactical move / no homeland move";
+		else
 		{
-			CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(m_eTacticalMove);
-			if (pkMoveInfo)
+			if (m_eHomelandMove==AI_HOMELAND_MOVE_NONE)
 			{
-				m_strMissionInfoString = (isBarbarian() ? barbarianMoveNames[m_eTacticalMove] : pkMoveInfo->GetType());
-				CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iTactMoveSetTurn);
+				CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(m_eTacticalMove);
+				if (pkMoveInfo)
+				{
+					m_strMissionInfoString = (isBarbarian() ? barbarianMoveNames[m_eTacticalMove] : pkMoveInfo->GetType());
+					CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iTactMoveSetTurn);
+					m_strMissionInfoString += strTemp0;
+				}
+			}
+
+			if (m_eTacticalMove==NO_TACTICAL_MOVE)
+			{
+				m_strMissionInfoString =  homelandMoveNames[m_eHomelandMove];
+				CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iHomelandMoveSetTurn);
 				m_strMissionInfoString += strTemp0;
 			}
 		}
-
-		if (m_eTacticalMove==NO_TACTICAL_MOVE)
+	}
+	else
+	{
+		if (m_eGreatPeopleDirectiveType!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 		{
-			m_strMissionInfoString =  homelandMoveNames[m_eHomelandMove];
-			CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iHomelandMoveSetTurn);
+			CvString strTemp0 = CvString::format(" // %s", directiveNames[m_eGreatPeopleDirectiveType.get()]);
 			m_strMissionInfoString += strTemp0;
 		}
-	}
 
-	if (m_eGreatPeopleDirectiveType!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
-	{
-		CvString strTemp0 = CvString::format(" // %s", directiveNames[m_eGreatPeopleDirectiveType.get()]);
-		m_strMissionInfoString += strTemp0;
+		if (isTrade())
+		{
+			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+			int iTrIndex = pTrade->GetIndexFromUnitID(GetID(),getOwner());
+			if (iTrIndex>=0)
+			{
+				const TradeConnection* pTradeConnection = pTrade->GetConnectionFromIndex(iTrIndex);
+				if (pTradeConnection)
+				{
+					CvCity* pFromCity = GET_PLAYER(pTradeConnection->m_eOriginOwner).getCity(pTradeConnection->m_iOriginID);
+					CvCity* pToCity = GET_PLAYER(pTradeConnection->m_eDestOwner).getCity(pTradeConnection->m_iDestID);
+					CvString strTemp0 = CvString::format(" // %s from %s to %s, %d turns to go", 
+						pTradeConnection->m_eConnectionType<NUM_TRADE_CONNECTION_TYPES ? aTrTypes[pTradeConnection->m_eConnectionType] : "unknown",
+						pFromCity ? pFromCity->getName().c_str() : "unknown", pToCity ? pToCity->getName().c_str() : "unknown", 
+						pTradeConnection->m_iTurnRouteComplete-GC.getGame().getGameTurn());
+					m_strMissionInfoString += strTemp0;
+				}
+			}
+		}
 	}
 
 	if (m_iMissionAIX!=INVALID_PLOT_COORD && m_iMissionAIY!=INVALID_PLOT_COORD)
@@ -27376,23 +27418,13 @@ CvPlot* CvUnit::GetPathFirstPlot() const
 	VALIDATE_OBJECT
 
 	uint uiPathSize = m_kLastPath.size();
-	if(uiPathSize > 0)
+	if(uiPathSize > 1)
 	{
-		if(uiPathSize == 1)
-		{
-			const CvPathNode& kNode = m_kLastPath.front();
-			return GC.getMap().plotCheckInvalid(kNode.m_iX, kNode.m_iY);
-		}
-		else
-		{
-			// The 'first' plot we want is the next to last one.  The last one is always where the unit is currently.
-			// Should we even bother caching that one?
-			const CvPathNode& kNode = m_kLastPath[ uiPathSize - 2];
-			return GC.getMap().plotCheckInvalid(kNode.m_iX, kNode.m_iY);
-		}
+		// The 'first' plot we want is the next to last one.  The last one is always where the unit is currently.
+		// Should we even bother caching that one?
+		const CvPathNode& kNode = m_kLastPath[ uiPathSize - 2];
+		return GC.getMap().plotCheckInvalid(kNode.m_iX, kNode.m_iY);
 	}
-
-	CvAssert(false);
 
 	return NULL;
 }
