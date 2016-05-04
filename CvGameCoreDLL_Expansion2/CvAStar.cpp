@@ -274,8 +274,8 @@ void CvAStar::Reset()
 
 //	--------------------------------------------------------------------------------
 // Generates a path from iXstart,iYstart to iXdest,iYdest
-// this is not threadsafe!
-bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data)
+// private method - not threadsafe!
+bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data)
 {
 	if (data.ePathType != m_sData.ePathType)
 		return false;
@@ -368,12 +368,11 @@ bool CvAStar::GeneratePathWithCurrentConfiguration(int iXstart, int iYstart, int
 	if ( timer.GetDeltaInSeconds()>0.05 )
 	{
 		int iNumPlots = GC.getMap().numPlots();
-		int iPathLength = GetPathLength();
 
 		//in some cases we have no destination plot, so exhaustion is not always a "fail"
-		OutputDebugString( CvString::format("Run %d: Path type %d %s (%d,%d to %d,%d), tested %d nodes, processed %d nodes in %d rounds (%d%% of map) in %.2f ms (path length %d)\n", 
+		OutputDebugString( CvString::format("Run %d: Path type %d %s (%d,%d to %d,%d), tested %d nodes, processed %d nodes in %d rounds (%d%% of map) in %.2f ms\n", 
 			m_iCurrentGenerationID, m_sData.ePathType, bSuccess?"found":"not found", m_iXstart, m_iYstart, m_iXdest, m_iYdest, m_iTestedNodes, m_iProcessedNodes, m_iRounds, 
-			(100*m_iProcessedNodes)/iNumPlots, timer.GetDeltaInSeconds()*1000, bSuccess?iPathLength:-1 ).c_str() );
+			(100*m_iProcessedNodes)/iNumPlots, timer.GetDeltaInSeconds()*1000 ).c_str() );
 
 		if (MOD_CORE_DEBUGGING)
 		{
@@ -705,6 +704,84 @@ CvAStarNode* CvAStar::StackPop()
 	node->m_pStack = NULL;
 
 	return node;
+}
+
+//	--------------------------------------------------------------------------------
+/// Get the whole path
+SPath CvAStar::GetCurrentPath() const
+{
+	SPath ret;
+	ret.iNormalizedDistance = INT_MAX;
+	ret.iTurnGenerated = GC.getGame().getGameTurn();
+	ret.sConfig = m_sData;
+
+	CvAStarNode* pNode = m_pBest;
+	if (!pNode)
+	{
+		return ret;
+	}
+
+	ret.iNormalizedDistance = pNode->m_iKnownCost / m_iBasicPlotCost + 1;
+	ret.iTotalTurns = pNode->m_iTurns;
+
+	//walk backwards ...
+	while(pNode != NULL)
+	{
+		SPathNode node(pNode);
+		ret.vPlots.push_back(node);
+		pNode = pNode->m_pParent;
+	}
+
+	//make it so that the destination comes last
+	std::reverse(ret.vPlots.begin(),ret.vPlots.end());
+	return ret;
+}
+
+//	--------------------------------------------------------------------------------
+/// check if a stored path is still viable
+bool CvAStar::VerifyPath(const SPath& path)
+{
+	CvGuard guard(m_cs);
+
+	//set the right config
+	if (!Configure(path.sConfig.ePathType))
+		return false;
+
+	//a single plot is always valid
+	if (path.vPlots.size()<2)
+		return true;
+
+	m_sData = path.sConfig;
+	if (udInitializeFunc)
+		udInitializeFunc(m_sData,this);
+
+	bool bResult = true;
+	int iKnownCost = 0;
+	for (size_t i=1; i<path.vPlots.size(); i++)
+	{
+		CvAStarNode& current = m_ppaaNodes[ path.vPlots[i-1].x ][ path.vPlots[i-1].y ];
+		CvAStarNode& next = m_ppaaNodes[ path.vPlots[i].x ][ path.vPlots[i].y ];
+
+		if ( udFunc(udValid, &current, &next, 0, m_sData) )
+		{
+			iKnownCost += udFunc(udCost, &current, &next, 0, m_sData);
+			if (iKnownCost > path.iNormalizedDistance*m_iBasicPlotCost)
+			{
+				bResult = false;
+				break;
+			}
+		}
+		else
+		{
+			bResult = false;
+			break;
+		}
+	}
+
+	if (udUninitializeFunc)
+		udUninitializeFunc(m_sData,this);
+
+	return bResult;
 }
 
 //C-STYLE NON-MEMBER FUNCTIONS
@@ -1896,20 +1973,6 @@ int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 	return kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater();
 }
 
-
-//	--------------------------------------------------------------------------------
-/// Area path finder - callback routine when node added to open/closed list
-int JoinArea(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar*)
-{
-	if(operation == ASNL_ADDCLOSED)
-	{
-		GC.getMap().plotUnchecked(node->m_iX, node->m_iY)->setArea(data.iTypeParameter);
-	}
-
-	return 1;
-}
-
-
 //	--------------------------------------------------------------------------------
 /// Area path finder - check validity of a coordinate
 int LandmassValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData&, const CvAStar*)
@@ -1923,27 +1986,12 @@ int LandmassValid(const CvAStarNode* parent, const CvAStarNode* node, int, const
 	return kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater();
 }
 
-
-//	--------------------------------------------------------------------------------
-/// Area path finder - callback routine when node added to open/closed list
-int JoinLandmass(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar*)
-{
-	if(operation == ASNL_ADDCLOSED)
-	{
-		GC.getMap().plotUnchecked(node->m_iX, node->m_iY)->setLandmass(data.iTypeParameter);
-	}
-
-	return 1;
-}
-
-
 // DERIVED CLASSES (which have more convenient ways to access our various pathfinders)
 
 //	--------------------------------------------------------------------------------
 /// Constructor
 CvTwoLayerPathFinder::CvTwoLayerPathFinder()
 {
-	CvAStar::CvAStar();
 	m_ppaaPartialMoveNodes = NULL;
 
 	//this is our default path type
@@ -2080,11 +2128,11 @@ bool CvPathFinder::Configure(PathType ePathType)
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_AREA_CONNECTION:
-		SetFunctionPointers(NULL, NULL, NULL, NULL, AreaValid, NULL, JoinArea, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, NULL, NULL, NULL, AreaValid, NULL, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_LANDMASS_CONNECTION:
-		SetFunctionPointers(NULL, NULL, NULL, NULL, LandmassValid, NULL, JoinLandmass, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, NULL, NULL, NULL, LandmassValid, NULL, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_INFLUENCE:
@@ -2118,126 +2166,181 @@ bool CvPathFinder::Configure(PathType ePathType)
 
 //	--------------------------------------------------------------------------------
 /// configure the pathfinder and do the magic
-bool CvPathFinder::GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data)
+///	atomic call, should be threadsafe
+SPath CvPathFinder::GetPath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data)
 {
 	//make sure we don't call this from dll and lua at the same time
 	CvGuard guard(m_cs);
 
 	if (!Configure(data.ePathType))
-		return false;
+		return SPath();
 
-	return CvAStar::GeneratePathWithCurrentConfiguration(iXstart, iYstart, iXdest, iYdest, data);
+	if (CvAStar::FindPathWithCurrentConfiguration(iXstart, iYstart, iXdest, iYdest, data))
+		return CvAStar::GetCurrentPath();
+	else
+		return SPath();
+}
+
+//wrapper for CvPlot*
+SPath CvPathFinder::GetPath(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data)
+{
+	if(pStartPlot == NULL || pEndPlot == NULL)
+		return SPath();
+
+	return GetPath(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), data);
 }
 
 //	--------------------------------------------------------------------------------
-/// Check for existence of step path between two points
+/// Check for existence of path between two points
+bool CvPathFinder::DoesPathExist(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data)
+{
+	SPath path = GetPath(iXstart, iYstart, iXdest, iYdest, data);
+	
+	return !path.vPlots.empty();
+}
+
+//wrapper for CvPlot*
 bool CvPathFinder::DoesPathExist(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data)
 {
 	if(pStartPlot == NULL || pEndPlot == NULL)
 		return false;
 
-	return GeneratePath(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), data);
+	return DoesPathExist(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), data);
+}
+
+int CvPathFinder::GetPathLengthInPlots(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData & data)
+{
+	SPath path = GetPath(iXstart, iYstart, iXdest, iYdest, data);
+
+	if (!path)
+		return -1;
+	else
+		return path.vPlots.size();
+}
+
+int CvPathFinder::GetPathLengthInPlots(const CvPlot * pStartPlot, const CvPlot * pEndPlot, const SPathFinderUserData & data)
+{
+	if(pStartPlot == NULL || pEndPlot == NULL)
+		return 0;
+
+	return GetPathLengthInPlots(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), data);
+}
+
+int CvPathFinder::GetPathLengthInTurns(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData & data)
+{
+	SPath path = GetPath(iXstart, iYstart, iXdest, iYdest, data);
+
+	if (!path)
+		return -1;
+	else
+		return path.iTotalTurns;
+}
+
+int CvPathFinder::GetPathLengthInTurns(const CvPlot * pStartPlot, const CvPlot * pEndPlot, const SPathFinderUserData & data)
+{
+	if(pStartPlot == NULL || pEndPlot == NULL)
+		return 0;
+
+	return GetPathLengthInTurns(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), data);
+}
+
+//	--------------------------------------------------------------------------------
+/// get all plots which can be reached in a certain amount of turns
+ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPathFinderUserData& data, int iMinMovesLeft)
+{
+	//make sure we don't call this from dll and lua at the same time
+	CvGuard guard(m_cs);
+
+	if (!Configure(data.ePathType))
+		return ReachablePlots();
+
+	ReachablePlots plots;
+	if (CvAStar::FindPathWithCurrentConfiguration(iXstart, iYstart, -1, -1, data))
+	{
+		//iterate all previously touched nodes
+		for (std::vector<CvAStarNode*>::const_iterator it=m_closedNodes.begin(); it!=m_closedNodes.end(); ++it)
+		{
+			CvAStarNode* temp = *it;
+
+			int iMoves = 0;
+			bool bValid = false;
+			if (temp->m_iTurns < data.iMaxTurns)
+			{
+				bValid = true;
+			}
+			else if (temp->m_iTurns == data.iMaxTurns && temp->m_iMoves >= iMinMovesLeft)
+			{
+				bValid = true;
+				iMoves = temp->m_iMoves;
+			}
+
+			if (bValid)
+				plots.insert( std::make_pair(GC.getMap().plotNum(temp->m_iX, temp->m_iY),iMoves) );
+		}
+	}
+
+	return plots;
+}
+
+ReachablePlots CvPathFinder::GetPlotsInReach(const CvPlot * pStartPlot, const SPathFinderUserData & data, int iMinMovesLeft)
+{
+	if (!pStartPlot)
+		return ReachablePlots();
+
+	return GetPlotsInReach(pStartPlot->getX(),pStartPlot->getY(),data,iMinMovesLeft);
 }
 
 //	--------------------------------------------------------------------------------
 /// Get the plot X from the end of the step path
-/// neither threadsafe nor safe. path can have been overwritten between GeneratePath() and this call!
-CvPlot* CvPathFinder::GetXPlotsFromEnd(int iPlotsFromEnd, bool bLeaveEnemyTerritory) const
+CvPlot* PathHelpers::GetXPlotsFromEnd(const SPath& path, int iPlotsFromEnd, bool bLeaveEnemyTerritory)
 {
 	CvPlot* currentPlot = NULL;
-	PlayerTypes eEnemy = (PlayerTypes)GetData().iTypeParameter;
+	PlayerTypes eEnemy = (PlayerTypes)path.sConfig.iTypeParameter;
 
-	int iPathLen = GetPathLength();
-	int iNumSteps = ::min(iPlotsFromEnd, iPathLen);
-	if(iNumSteps != -1)
+	int iPathLen = path.vPlots.size();
+	int iIndex = iPathLen-iPlotsFromEnd;
+	while (iIndex>=0)
 	{
-		CvAStarNode* pNode = GetLastNode();
-
-		if(pNode != NULL)
-		{
-			// Starting at the end, loop backwards the correct number of times
-			for(int i = 0; i < iNumSteps; i++)
-			{
-				if(pNode->m_pParent != NULL)
-				{
-					// Move to the previous plot on the path
-					pNode = pNode->m_pParent;
-				}
-			}
-
-			CvMap& kMap = GC.getMap();
-			currentPlot = kMap.plotUnchecked(pNode->m_iX, pNode->m_iY);
-
-			// Was an enemy specified and we don't want this plot to be in enemy territory?
-			if (eEnemy != NO_PLAYER && bLeaveEnemyTerritory && currentPlot)
-			{
-				// Loop until we leave enemy territory
-				for (int i = 0; i < (iPathLen - iNumSteps) && currentPlot->getOwner() == eEnemy; i++)
-				{
-					if (pNode->m_pParent != NULL)
-					{
-						// Move to the previous plot on the path
-						pNode = pNode->m_pParent;
-					}
-					else
-					{
-						break;
-					}
-				}
-
-				currentPlot = kMap.plotUnchecked(pNode->m_iX, pNode->m_iY);
-			}
-		}
+		currentPlot = path.get(iIndex);
+	
+		// Was an enemy specified and we don't want this plot to be in enemy territory?
+		if (bLeaveEnemyTerritory && eEnemy != NO_PLAYER && currentPlot->getOwner() == eEnemy)
+			iIndex--;
+		else
+			break;
 	}
 
 	return currentPlot;
 }
 
 //	--------------------------------------------------------------------------------
-/// Returns the last plot along the step path owned by a specific player
-/// neither threadsafe nor safe. path can have been overwritten between GeneratePath() and this call!
-int CvPathFinder::CountPlotsOwnedByXInPath(PlayerTypes ePlayer) const
+int PathHelpers::CountPlotsOwnedByXInPath(const SPath& path, PlayerTypes ePlayer)
 {
 	int iCount = 0;
-	CvAStarNode* pNode = GetLastNode();
-
-	// Starting at the end, loop until we find a plot from this owner
-	CvMap& kMap = GC.getMap();
-	while(pNode != NULL)
+	for (int i=0; i<path.length(); i++)
 	{
-		CvPlot* currentPlot;
-		currentPlot = kMap.plotUnchecked(pNode->m_iX, pNode->m_iY);
+		CvPlot* currentPlot = path.get(i);
 
 		// Check and see if this plot has the right owner
 		if(currentPlot->getOwner() == ePlayer)
 			iCount++;
-
-		// Move to the previous plot on the path
-		pNode = pNode->m_pParent;
 	}
 
 	return iCount;
 }
+
+
 //	--------------------------------------------------------------------------------
-/// Returns the last plot along the step path owned by a specific player
-/// neither threadsafe nor safe. path can have been overwritten between GeneratePath() and this call!
-int CvPathFinder::CountPlotsOwnedAnyoneInPath(PlayerTypes eExceptPlayer) const
+int PathHelpers::CountPlotsOwnedAnyoneInPath(const SPath& path, PlayerTypes eExceptPlayer)
 {
 	int iCount = 0;
-	CvAStarNode* pNode = GetLastNode();
-
-	CvMap& kMap = GC.getMap();
-	while(pNode != NULL)
+	for (int i=0; i<path.length(); i++)
 	{
-		CvPlot* currentPlot;
-		currentPlot = kMap.plotUnchecked(pNode->m_iX, pNode->m_iY);
+		CvPlot* currentPlot = path.get(i);
 
 		// Check and see if this plot has an owner that isn't us.
 		if(currentPlot->getOwner() != eExceptPlayer && currentPlot->getOwner() != NO_PLAYER)
 			iCount++;
-
-		// Move to the previous plot on the path
-		pNode = pNode->m_pParent;
 	}
 
 	return iCount;
@@ -2245,167 +2348,35 @@ int CvPathFinder::CountPlotsOwnedAnyoneInPath(PlayerTypes eExceptPlayer) const
 
 //	--------------------------------------------------------------------------------
 /// Retrieve first node of path
-/// neither threadsafe nor safe. path can have been overwritten between GeneratePath() and this call!
-CvPlot* CvPathFinder::GetPathFirstPlot() const
+CvPlot* PathHelpers::GetPathFirstPlot(const SPath& path)
 {
-	CvAStarNode* pNode = GetLastNode();
-	if (!pNode)
-		return NULL;
-
-	CvMap& kMap = GC.getMap();
-	if(pNode->m_pParent == NULL)
-	{
-		return kMap.plotUnchecked(pNode->m_iX, pNode->m_iY);
-	}
-
-	while(pNode != NULL)
-	{
-		if(pNode->m_pParent->m_pParent == NULL)
-		{
-			return kMap.plotUnchecked(pNode->m_iX, pNode->m_iY);
-		}
-
-		pNode = pNode->m_pParent;
-	}
-
-	FAssert(false);
-
-	return NULL;
+	//this is tricky - the first plot is actually the starting point, so we return the second one!
+	return path.get(1);
 }
 
 //	--------------------------------------------------------------------------------
 /// Return the furthest plot we can get to this turn that is on the path
-/// neither threadsafe nor safe. path can have been overwritten between GeneratePath() and this call!
-CvPlot* CvPathFinder::GetPathEndTurnPlot() const
+CvPlot* PathHelpers::GetPathEndTurnPlot(const SPath& path)
 {
-	CvAStarNode* pNode = GetLastNode();
-	if (!pNode)
-		return NULL;
-
-	CvMap& kMap = GC.getMap();
-	if((pNode->m_pParent == NULL) || (pNode->m_iTurns == 1))
+	int iNumNodes = path.vPlots.size();
+	if (iNumNodes>1)
 	{
-		return kMap.plotUnchecked(pNode->m_iX, pNode->m_iY);
-	}
-
-	while(pNode->m_pParent != NULL)
-	{
-		if(pNode->m_pParent->m_iTurns == 1)
+		//return the plot before the next turn starts
+		for (int i=1; i<iNumNodes; i++)
 		{
-			return kMap.plotUnchecked(pNode->m_pParent->m_iX, pNode->m_pParent->m_iY);
+			if ( path.vPlots[i].turns>1 )
+				return path.get(i-1);
 		}
 
-		pNode = pNode->m_pParent;
+		//if all plots are within the turn, return the last one
+		return path.get(iNumNodes-1);
 	}
+	else if (iNumNodes==1)
+		//not much choice
+		return path.get(0);
 
-	FAssert(false);
-
+	//empty path ...
 	return NULL;
-}
-
-//	--------------------------------------------------------------------------------
-/// Get the whole path
-/// neither threadsafe nor safe. path can have been overwritten between GeneratePath() and this call!
-SPath CvPathFinder::GetPath() const
-{
-	SPath ret;
-	ret.iNormalizedDistance = INT_MAX;
-	ret.iTurnGenerated = GC.getGame().getGameTurn();
-	ret.sConfig = m_sData;
-
-	CvAStarNode* pNode = GetLastNode();
-	if (!pNode)
-	{
-		return ret;
-	}
-
-	ret.iNormalizedDistance = pNode->m_iKnownCost / m_iBasicPlotCost + 1;
-
-	//walk backwards ...
-	while(pNode != NULL)
-	{
-		ret.vPlots.push_back( std::make_pair(pNode->m_iX, pNode->m_iY) );
-		pNode = pNode->m_pParent;
-	}
-
-	std::reverse(ret.vPlots.begin(),ret.vPlots.end());
-	return ret;
-}
-
-//	--------------------------------------------------------------------------------
-/// check if a stored path is still viable
-/// neither threadsafe nor safe. path can have been overwritten between GeneratePath() and this call!
-bool CvPathFinder::VerifyPath(const SPath& path)
-{
-	if (path.vPlots.size()<2)
-		return false;
-
-	//set the right config
-	if (m_sData.ePathType != path.sConfig.ePathType)
-		if (!Configure(path.sConfig.ePathType))
-			return false;
-
-	m_sData = path.sConfig;
-	if (udInitializeFunc)
-		udInitializeFunc(m_sData,this);
-
-	bool bResult = true;
-	int iKnownCost = 0;
-	for (size_t i=1; i<path.vPlots.size(); i++)
-	{
-		CvAStarNode& current = m_ppaaNodes[ path.vPlots[i-1].first ][ path.vPlots[i-1].second ];
-		CvAStarNode& next = m_ppaaNodes[ path.vPlots[i].first ][ path.vPlots[i].second ];
-
-		if ( udFunc(udValid, &current, &next, 0, m_sData) )
-		{
-			iKnownCost += udFunc(udCost, &current, &next, 0, m_sData);
-			if (iKnownCost > path.iNormalizedDistance*m_iBasicPlotCost)
-			{
-				bResult = false;
-				break;
-			}
-		}
-		else
-		{
-			bResult = false;
-			break;
-		}
-	}
-
-	if (udUninitializeFunc)
-		udUninitializeFunc(m_sData,this);
-
-	return bResult;
-}
-
-ReachablePlots CvPathFinder::GetPlotsTouched(int iMaxTurns, int iMinMovesLeft) const
-{
-	ReachablePlots plots;
-
-	//iterate all previously touched nodes
-	for (std::vector<CvAStarNode*>::const_iterator it=m_closedNodes.begin(); it!=m_closedNodes.end(); ++it)
-	{
-		CvAStarNode* temp = *it;
-		if (!temp)
-			continue;
-
-		int iMoves = 0;
-		bool bValid = false;
-		if (temp->m_iTurns < iMaxTurns)
-		{
-			bValid = true;
-		}
-		else if (temp->m_iTurns == iMaxTurns && temp->m_iMoves >= iMinMovesLeft)
-		{
-			bValid = true;
-			iMoves = temp->m_iMoves;
-		}
-
-		if (bValid)
-			plots.insert( std::make_pair(GC.getMap().plotNum(temp->m_iX, temp->m_iY),iMoves) );
-	}
-
-	return plots;
 }
 
 //	---------------------------------------------------------------------------
@@ -2714,40 +2685,6 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, int
 	return FALSE;
 }
 
-//	--------------------------------------------------------------------------------
-// Copy the supplied node and its parent nodes into an array of simpler path nodes for caching purposes.
-// It is ok to pass in NULL, the resulting array will contain zero elements
-void CopyPath(const CvAStarNode* pkEndNode, CvPathNodeArray& kPathArray)
-{
-	if(pkEndNode != NULL)
-	{
-		const CvAStarNode* pkNode = pkEndNode;
-
-		// Count the number of nodes
-		uint uiNodeCount = 1;
-
-		while(pkNode->m_pParent != NULL)
-		{
-			++uiNodeCount;
-			pkNode = pkNode->m_pParent;
-		}
-
-		kPathArray.setsize(uiNodeCount);
-
-		pkNode = pkEndNode;
-		kPathArray[0] = *pkNode;
-
-		uint uiIndex = 1;
-		while(pkNode->m_pParent != NULL)
-		{
-			pkNode = pkNode->m_pParent;
-			kPathArray[uiIndex++] = *pkNode;
-		}
-	}
-	else
-		kPathArray.setsize(0);	// Setting the size to 0 rather than clearing so that the array data is not deleted.  Helps with memory thrashing.
-}
-
 //	---------------------------------------------------------------------------
 const CvPathNode* CvPathNodeArray::GetTurnDest(int iTurn)
 {
@@ -2779,19 +2716,12 @@ bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPl
 		return false;
 
 	SPathFinderUserData data(ePlayer, bIgnoreHarbors ? PT_CITY_ROUTE_LAND : PT_CITY_ROUTE_MIXED, eRestrictRoute);
+	SPath result;
+	if (!pPathOut)
+		pPathOut = &result;
 
-	if (GC.GetStepFinder().GeneratePath(pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY(), data))
-	{
-		if (pPathOut)
-			*pPathOut = GC.GetStepFinder().GetPath();
-		return true;
-	}
-	else
-	{
-		if (pPathOut)
-			*pPathOut = SPath();
-		return false;
-	}
+	*pPathOut = GC.GetStepFinder().GetPath(pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY(), data);
+	return !pPathOut->vPlots.empty();
 }
 
 //	---------------------------------------------------------------------------
@@ -2818,4 +2748,12 @@ SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathTy
 	iTypeParameter = _iTypeParameter;
 	iMaxTurns = _iMaxTurns;
 	iMaxNormalizedDistance = INT_MAX;
+}
+
+inline CvPlot * SPath::get(int i) const
+{
+	if (i<(int)vPlots.size())
+		return GC.getMap().plotUnchecked(vPlots[i].x,vPlots[i].y);
+
+	return NULL;
 }

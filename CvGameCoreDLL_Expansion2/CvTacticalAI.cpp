@@ -5152,7 +5152,6 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 		else if(pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION)
 		{
 			int iBestDistance = MAX_INT;
-			int iDistance;
 			int iSlowestMovementRate = MAX_INT;
 			UnitHandle pClosestUnitAtSea;
 			if(pOperation->GetTargetPlot() == NULL)
@@ -5250,14 +5249,11 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 
 								// At sea?
 								SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_SAME_AREA,pOperation->GetEnemy(),23);
-								if (GC.GetStepFinder().DoesPathExist(pUnit->plot(), pBestPlot, data))
+								int iDistance = GC.GetStepFinder().GetPathLengthInPlots(pUnit->plot(), pBestPlot, data);
+								if (iDistance > 0 && iDistance < iBestDistance)
 								{
-									iDistance = GC.GetStepFinder().GetPathLength();
-									if (iDistance > 0 && iDistance < iBestDistance)
-									{
-										iBestDistance = iDistance;
-										pClosestUnitAtSea = pUnit;
-									}
+									iBestDistance = iDistance;
+									pClosestUnitAtSea = pUnit;
 								}
 							}
 						}
@@ -5315,9 +5311,10 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 					if (iBestDistance > iSlowestMovementRate)
 					{
 						SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_SAME_AREA,pOperation->GetEnemy(),23);
-						if (GC.GetStepFinder().DoesPathExist(pClosestUnitAtSea->plot(), pBestPlot, data))
+						SPath path = GC.GetStepFinder().GetPath(pClosestUnitAtSea->plot(), pBestPlot, data);
+						if (!!path)
 						{
-							pBestPlot = GC.GetStepFinder().GetXPlotsFromEnd(iBestDistance - iSlowestMovementRate, true);					
+							pBestPlot = PathHelpers::GetXPlotsFromEnd(path, iBestDistance - iSlowestMovementRate, true);					
 						}
 					}
 					if (pBestPlot)
@@ -10442,15 +10439,11 @@ bool CvTacticalAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 	else
 	{
 		//try again without the safe embarkation and maybe start moving in the right direction at least
-		if(pUnit->GeneratePath(pTargetPlot,0,INT_MAX,&iActualLength))
+		SPathFinderUserData data(pUnit.pointer());
+		SPath path = GC.GetPathFinder().GetPath(pUnit->plot(),pTargetPlot,data);
+		if (!!path)
 		{
-			//don't act on it for now
-			if (MOD_BALANCE_CORE_MILITARY_LOGGING && iActualLength>3*iRefLength)
-			{
-				OutputDebugString("warning: unit taking a long detour (fallback)!\n");
-			}
-
-			CvPlot* pThisTurnTarget = GC.GetPathFinder().GetPathFirstPlot();
+			CvPlot* pThisTurnTarget = PathHelpers::GetPathEndTurnPlot(path);
 			if (pThisTurnTarget && m_pPlayer->GetPlotDanger(*pThisTurnTarget,pUnit.pointer())==0)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pThisTurnTarget->getX(), pThisTurnTarget->getY());
@@ -12679,9 +12672,7 @@ int TacticalAIHelpers::GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pSt
 
 	SPathFinderUserData data(pUnit,iFlags,1);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
-	//return value is always false, there is no destination to reach!	
-	GC.GetPathFinder().GeneratePath(pStartPlot->getX(),pStartPlot->getY(),-1,-1,data);
-	resultSet = GC.GetPathFinder().GetPlotsTouched(1,iMinMovesLeft);
+	resultSet = GC.GetPathFinder().GetPlotsInReach(pStartPlot->getX(),pStartPlot->getY(),data,iMinMovesLeft);
 
 	return (int)resultSet.size();
 }

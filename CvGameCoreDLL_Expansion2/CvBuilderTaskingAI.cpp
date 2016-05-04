@@ -335,10 +335,10 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 	// build a path between the two cities
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
-	bool bFoundPath = GC.GetStepFinder().GeneratePath(pPlayerCapital->getX(), pPlayerCapital->getY(), pTargetCity->getX(), pTargetCity->getY(), data);
+	SPath path = GC.GetStepFinder().GetPath(pPlayerCapital->getX(), pPlayerCapital->getY(), pTargetCity->getX(), pTargetCity->getY(), data);
 
 	//  if no path, then bail!
-	if(!bFoundPath)
+	if(!path)
 	{
 		return;
 	}
@@ -348,10 +348,9 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	int iPlotsNeeded = 0;
 	int iWildPlots = 0; //plots not under our control ... dangerous
 
-	SPath path = GC.GetStepFinder().GetPath();
 	for (size_t i=0; i<path.vPlots.size(); i++)
 	{
-		CvPlot* pPlot = GC.getMap().plotCheckInvalid( path.vPlots[i].first, path.vPlots[i].second );
+		CvPlot* pPlot = path.get(i);
 		if(!pPlot)
 			break;
 
@@ -413,7 +412,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	//cannot use GetStepFinder().GetLastNode(), state of pathfinder has changed in the meantime!
 	for (size_t i=0; i<path.vPlots.size(); i++)
 	{
-		CvPlot* pPlot = GC.getMap().plotCheckInvalid( path.vPlots[i].first, path.vPlots[i].second );
+		CvPlot* pPlot = path.get(i);
 		if(!pPlot)
 			break;
 
@@ -462,22 +461,20 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 
 	// build a path between the two cities - this will tend to re-use existing routes, unless the new path is much shorter
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
-	bool bFoundPath = GC.GetStepFinder().GeneratePath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
+	SPath newPath = GC.GetStepFinder().GetPath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
 
 	//this cannot really happen, but anyway
-	if(!bFoundPath)
+	if(!newPath)
 		return;
 
 	//now compare if the new path is shorter or better than the existing path. 
 	//don't use the normalized distance though because we have two different pathfinders here, so it's not quite comparable
-	SPath newPath = GC.GetStepFinder().GetPath();
 	if (newPath.vPlots.size() < existingPath.vPlots.size() || eRoute>ROUTE_ROAD )
 	{
 		int iGameTurn = GC.getGame().getGameTurn();
 		for (size_t i=0; i<newPath.vPlots.size(); i++)
 		{
-
-			CvPlot* pPlot = GC.getMap().plotUnchecked(newPath.vPlots[i].first,newPath.vPlots[i].second);
+			CvPlot* pPlot = newPath.get(i);
 			if(pPlot->getRouteType() >= eRoute && !pPlot->IsRoutePillaged())
 				continue;
 
@@ -516,23 +513,20 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 
 	// build a path between the two cities
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
-
-	bool bFoundPath = GC.GetStepFinder().GeneratePath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
+	SPath path = GC.GetStepFinder().GetPath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
 
 	//  if no path, then bail!
-	if(!bFoundPath)
+	if(!path)
 	{
 		return;
 	}
 
 	CvPlot* pPlot = NULL;
-	CvAStarNode* pNode = GC.GetStepFinder().GetLastNode();
 	int iGameTurn = GC.getGame().getGameTurn();
 
-	while(pNode)
+	for (int i=0; i<path.length(); i++)
 	{
-		pPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
-		pNode = pNode->m_pParent;
+		pPlot = path.get(i);
 
 		if(!pPlot)
 		{

@@ -2088,7 +2088,7 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(PlayerTypes eEnemy, CvMilitaryTar
 		int iEnemyPlots = 0;
 		for (size_t i=0; i<landpath.vPlots.size(); i++)
 		{
-			CvPlot* pCurrentPlot = GC.getMap().plotCheckInvalid( landpath.vPlots[i].first, landpath.vPlots[i].second );
+			CvPlot* pCurrentPlot = landpath.get(i);
 			if(pCurrentPlot && pCurrentPlot->getOwner()==eEnemy)
 				iEnemyPlots++;
 		}
@@ -2109,7 +2109,7 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(PlayerTypes eEnemy, CvMilitaryTar
 				int iEnemyPlots = 0;
 				for (size_t i=0; i<waterpath.vPlots.size(); i++)
 				{
-					CvPlot* pCurrentPlot = GC.getMap().plotCheckInvalid( waterpath.vPlots[i].first, waterpath.vPlots[i].second );
+					CvPlot* pCurrentPlot = waterpath.get(i);
 					if(pCurrentPlot)
 					{
 						if (pCurrentPlot->isWater() && !pCurrentPlot->isShallowWater())
@@ -2808,7 +2808,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 	return eRtnValue;
 }
 
-/// Find the port operation operations against this enemy should leave from
+/// Find our port operation operations against this enemy should leave from
 CvCity* CvMilitaryAI::GetNearestCoastalCity(PlayerTypes eEnemy) const
 {
 	CvCity* pBestCoastalCity = NULL;
@@ -2832,14 +2832,11 @@ CvCity* CvMilitaryAI::GetNearestCoastalCity(PlayerTypes eEnemy) const
 						if (!GET_TEAM(m_pPlayer->getTeam()).getEmbarkedAllWaterPassage())
 							data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
-						if(GC.GetStepFinder().GeneratePath(pLoopCity->getX(), pLoopCity->getY(), pEnemyCity->getX(), pEnemyCity->getY(), data))
+						int iDistance = GC.GetStepFinder().GetPathLengthInPlots(pLoopCity->getX(), pLoopCity->getY(), pEnemyCity->getX(), pEnemyCity->getY(), data);
+						if(iDistance>0 && iDistance < iBestDistance)
 						{
-							int iDistance = GC.GetStepFinder().GetPathLength();
-							if(iDistance < iBestDistance)
-							{
-								iBestDistance = iDistance;
-								pBestCoastalCity = pLoopCity;
-							}
+							iBestDistance = iDistance;
+							pBestCoastalCity = pLoopCity;
 						}
 					}
 				}
@@ -2874,14 +2871,11 @@ CvCity* CvMilitaryAI::GetNearestCoastalCityEnemy(PlayerTypes eEnemy) const
 						if (!GET_TEAM(m_pPlayer->getTeam()).getEmbarkedAllWaterPassage())
 							data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
-						if(GC.GetStepFinder().GeneratePath(pLoopCity->getX(), pLoopCity->getY(), pEnemyCity->getX(), pEnemyCity->getY(), data))
+						int iDistance = GC.GetStepFinder().GetPathLengthInPlots(pLoopCity->getX(), pLoopCity->getY(), pEnemyCity->getX(), pEnemyCity->getY(), data);
+						if(iDistance>0 && iDistance < iBestDistance)
 						{
-							int iDistance = GC.GetStepFinder().GetPathLength();
-							if(iDistance < iBestDistance)
-							{
-								iBestDistance = iDistance;
-								pBestCoastalCity = pEnemyCity;
-							}
+							iBestDistance = iDistance;
+							pBestCoastalCity = pEnemyCity;
 						}
 					}
 				}

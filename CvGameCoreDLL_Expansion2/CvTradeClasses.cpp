@@ -187,8 +187,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 		int iMaxNormDistSea = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
 		SPathFinderUserData data((PlayerTypes)iPlayer1,PT_TRADE_WATER);
 		data.iMaxNormalizedDistance = iMaxNormDistSea;
-		GC.GetStepFinder().GeneratePath(pOriginCity->getX(), pOriginCity->getY(), -1, -1, data);
-		ReachablePlots waterReach = GC.GetStepFinder().GetPlotsTouched(INT_MAX,0);
+		ReachablePlots waterReach = GC.GetStepFinder().GetPlotsInReach(pOriginCity->getX(), pOriginCity->getY(),data,0);
 
 		for (ReachablePlots::iterator it=waterReach.begin(); it!=waterReach.end(); ++it)
 		{
@@ -208,8 +207,8 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 			else
 			{
 				//ok, we know the city is in reach but we need to get the concrete path
-				if (GC.GetStepFinder().GeneratePath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data))
-					AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),GC.GetStepFinder().GetPath());
+				SPath path = GC.GetStepFinder().GetPath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data);
+				AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),path);
 			}
 		}
 					
@@ -217,8 +216,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 		int iMaxNormDistLand = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_LAND, pOriginCity);
 		data.iMaxNormalizedDistance = iMaxNormDistLand;
 		data.ePathType = PT_TRADE_LAND;
-		GC.GetStepFinder().GeneratePath(pOriginCity->getX(), pOriginCity->getY(), -1, -1, data);
-		ReachablePlots landReach = GC.GetStepFinder().GetPlotsTouched(INT_MAX,0);
+		ReachablePlots landReach = GC.GetStepFinder().GetPlotsInReach(pOriginCity->getX(), pOriginCity->getY(),data,0);
 			
 		for (ReachablePlots::iterator it=landReach.begin(); it!=landReach.end(); ++it)
 		{
@@ -238,8 +236,8 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 			else
 			{
 				//ok, we know the city is in reach but we need to get the concrete path
-				if (GC.GetStepFinder().GeneratePath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data))
-					AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),GC.GetStepFinder().GetPath());
+				SPath path = GC.GetStepFinder().GetPath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data);
+				AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),path);
 			}
 		}
 	}
@@ -248,7 +246,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, bool bIgnoreExisting, bool bCheckPath /*= true*/)
+bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, bool bIgnoreExisting, bool bCheckPath)
 {
 	if (pOriginCity == NULL)
 	{
@@ -487,7 +485,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 {
 	iRouteID = -1;
 
-	if (!CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnectionType, false))
+	if (!CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnectionType, false, true))
 	{
 		return false;
 	}
@@ -499,8 +497,6 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	int iOriginY = pOriginCity->getY();
 	int iDestX = pDestCity->getX();
 	int iDestY = pDestCity->getY();
-
-	bool bSuccess = false;
 	SPath path;
 
 	if (eDomain == DOMAIN_SEA)
@@ -512,12 +508,11 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 			SPathFinderUserData data((PlayerTypes)eOriginPlayer,PT_TRADE_WATER);
 			data.iMaxNormalizedDistance = iMaxNormDist;
 
-			bSuccess = GC.GetStepFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, data);
-			if (!bSuccess)
+			//update the current path, might be better than what we have
+			path = GC.GetStepFinder().GetPath(iOriginX, iOriginY, iDestX, iDestY, data);
+			if (!path)
 				return false;
 
-			//update the current path, might be better than what we have
-			path = GC.GetStepFinder().GetPath();
 			AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),path);
 		}
 	}
@@ -528,12 +523,11 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 		SPathFinderUserData data((PlayerTypes)eOriginPlayer,PT_TRADE_LAND);
 		data.iMaxNormalizedDistance = iMaxNormDist;
 
-		bSuccess = GC.GetStepFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, data);
-		if (!bSuccess)
+		//update the current path, might be better than what we have
+		path = GC.GetStepFinder().GetPath(iOriginX, iOriginY, iDestX, iDestY, data);
+		if (!path)
 			return false;
 
-		//update the current path, might be better than what we have
-		path = GC.GetStepFinder().GetPath();
 		AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),path);
 	}
 
@@ -849,8 +843,8 @@ void CvGameTrade::CopyPathIntoTradeConnection (const SPath& path, TradeConnectio
 	for (size_t i = 0; i<path.vPlots.size(); i++)
 	{
 		TradeConnectionPlot kTradeConnectionPlot;
-		kTradeConnectionPlot.m_iX = path.vPlots[i].first;
-		kTradeConnectionPlot.m_iY = path.vPlots[i].second;
+		kTradeConnectionPlot.m_iX = path.vPlots[i].x;
+		kTradeConnectionPlot.m_iY = path.vPlots[i].y;
 		pTradeConnection->m_aPlotList.push_back(kTradeConnectionPlot);
 	}
 }
@@ -1966,12 +1960,8 @@ CvUnit* CvGameTrade::GetTradeUnitForRoute(int iIndex)
 //	----------------------------------------------------------------------------
 void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeConnectionType type, DomainTypes eDomain)
 {
-	int i,n;
-	int plotsX[MAX_PLOTS_TO_DISPLAY], plotsY[MAX_PLOTS_TO_DISPLAY];
-
 	int iOriginX,iOriginY;
 	PlayerTypes eOriginPlayer;
-	bool bSuccess = false;
 
 	{
 		auto_ptr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
@@ -1990,21 +1980,23 @@ void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeC
 	}
 
 	SPathFinderUserData data(eOriginPlayer, eDomain==DOMAIN_LAND ? PT_TRADE_LAND : PT_TRADE_WATER);
-	bSuccess = GC.GetStepFinder().GeneratePath(iOriginX, iOriginY, iDestX, iDestY, data);
+	SPath path = GC.GetStepFinder().GetPath(iOriginX, iOriginY, iDestX, iDestY, data);
 
 	gDLL->TradeVisuals_DestroyRoute(TEMPORARY_POPUPROUTE_ID,GC.getGame().getActivePlayer());
-	if (bSuccess) {
-		SPath path = GC.GetStepFinder().GetPath();
-		n = path.vPlots.size();
-		if (n>0 && n <=MAX_PLOTS_TO_DISPLAY) {
-			for (i=0;i<n;++i) {
-				plotsX[i] = path.vPlots[i].first;
-				plotsY[i] = path.vPlots[i].second;
-			}
-			gDLL->TradeVisuals_NewRoute(TEMPORARY_POPUPROUTE_ID,eOriginPlayer,type,n,plotsX,plotsY);
-			gDLL->TradeVisuals_ActivatePopupRoute(TEMPORARY_POPUPROUTE_ID);
+
+	size_t n = path.vPlots.size();
+	if (n>0 && n<=MAX_PLOTS_TO_DISPLAY)
+	{
+		int plotsX[MAX_PLOTS_TO_DISPLAY], plotsY[MAX_PLOTS_TO_DISPLAY];
+		for (size_t i=0;i<n;++i)
+		{
+			plotsX[i] = path.vPlots[i].x;
+			plotsY[i] = path.vPlots[i].y;
 		}
+		gDLL->TradeVisuals_NewRoute(TEMPORARY_POPUPROUTE_ID,eOriginPlayer,type,n,plotsX,plotsY);
+		gDLL->TradeVisuals_ActivatePopupRoute(TEMPORARY_POPUPROUTE_ID);
 	}
+
 	m_CurrentTemporaryPopupRoute.iPlotX = iDestX;
 	m_CurrentTemporaryPopupRoute.iPlotY = iDestY;
 	m_CurrentTemporaryPopupRoute.type = type;

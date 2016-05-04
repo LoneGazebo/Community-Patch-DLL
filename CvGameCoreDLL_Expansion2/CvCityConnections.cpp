@@ -380,8 +380,9 @@ void CvCityConnections::UpdateRouteInfo(void)
 					}
 
 					SPathFinderUserData data(m_pPlayer->GetID(),PT_CITY_ROUTE_LAND, ROUTE_ANY);
-					bool bAnyLandRouteFound = GC.GetStepFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data);
+					SPath path = GC.GetStepFinder().GetPath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data);
 
+					bool bAnyLandRouteFound = !!path;
 					if (!bAnyLandRouteFound && bCallDirectEvents)
 					{
 						// Event to determine if pFirstCity is connected to pSecondCity by an alternative direct route type
@@ -398,12 +399,10 @@ void CvCityConnections::UpdateRouteInfo(void)
 						if(pFirstCity->IsConnectedToCapital() || pSecondCity->IsConnectedToCapital())
 						{
 							CvPlot* pPlot = NULL;
-							CvAStarNode* pNode = GC.GetStepFinder().GetLastNode();
-							while(pNode)
+							for (int i=0; i<path.length(); i++)
 							{
-								pPlot = GC.getMap().plot(pNode->m_iX, pNode->m_iY);
+								pPlot = path.get(i);
 								ConnectPlotRoute(pPlot);
-								pNode = pNode->m_pParent;
 							}
 
 							pFirstCity->SetRouteToCapitalConnected(true);
@@ -427,7 +426,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 					//check mixed connection: if a city is connected via land to a city with a known harbor connection to another city
 					SPathFinderUserData data( m_pPlayer->GetID(), PT_CITY_ROUTE_MIXED, ROUTE_ANY );
-					bool bHaveMixedRoute = GC.GetStepFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data);
+					bool bHaveMixedRoute = GC.GetStepFinder().DoesPathExist(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data);
 
 					if (!bHaveMixedRoute && bCallDirectEvents)
 					{
@@ -460,7 +459,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 						if(bFirstCityHasHarbor && bSecondCityHasHarbor)
 						{
 							SPathFinderUserData data( m_pPlayer->GetID(), PT_CITY_ROUTE_WATER);
-							if(GC.GetStepFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data))
+							if(GC.GetStepFinder().DoesPathExist(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), data))
 							{
 								pRouteInfo->m_cRouteState |= HAS_WATER_CONNECTION;
 

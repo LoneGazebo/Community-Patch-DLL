@@ -2787,10 +2787,11 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 
 	m_kLastPath.clear();
 	m_uiLastPathCacheDest = (uint)-1;
+	m_uiLastPathFlags = 0;
+
 #if defined(MOD_BALANCE_CORE)
 	m_iScienceBlastStrength = 0;
 	m_iCultureBlastStrength = 0;
-	m_uiLastPathFlags = 0;
 #endif
 
 	m_iMapLayer = DEFAULT_UNIT_MAP_LAYER;
@@ -24854,9 +24855,10 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 			CvUnit* pUnit = (CvUnit*)this;
 
 			SPathFinderUserData data(pUnit,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
-			if(GC.GetPathFinder().DoesPathExist(plot(), &swapPlot, data))
+			SPath path = GC.GetPathFinder().GetPath(plot(), &swapPlot, data);
+			if (!!path)
 			{
-				CvPlot* pEndTurnPlot = GC.GetPathFinder().GetPathEndTurnPlot();
+				CvPlot* pEndTurnPlot = PathHelpers::GetPathEndTurnPlot(path);
 				if(pEndTurnPlot == &swapPlot)
 				{
 #if defined(MOD_GLOBAL_STACKING_RULES)
@@ -24885,14 +24887,14 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 								if(AreUnitsOfSameType(*pLoopUnit))
 								{
 									CvPlot* here = plot();
-									if(here && pLoopUnit->canEnterTerrain(*here))
+									if(here && pLoopUnit->canEnterTerrain(*here) && pLoopUnit->canMove())
 									{
 										// Can the unit I am swapping with get to me this turn?
 										SPathFinderUserData data(pLoopUnit,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
-
-										if(pLoopUnit->canMove() && GC.GetPathFinder().DoesPathExist(pLoopUnit->plot(), pUnit->plot(), data))
+										SPath path = GC.GetPathFinder().GetPath(pLoopUnit->plot(), pUnit->plot(), data);
+										if (!!path)
 										{
-											CvPlot* pPathEndTurnPlot = GC.GetPathFinder().GetPathEndTurnPlot();
+											CvPlot* pPathEndTurnPlot = PathHelpers::GetPathEndTurnPlot(path);
 											if(pPathEndTurnPlot == plot())
 											{
 												bSwapPossible = true;
@@ -26143,11 +26145,7 @@ bool CvUnit::UpdatePathCache(CvPlot* pDestPlot, int iFlags)
 		else
 		{
 			// If we have already tried this, don't waste time and do it again.
-#if defined(MOD_BALANCE_CORE)
 			if (m_uiLastPathCacheDest != pDestPlot->GetPlotIndex() || m_uiLastPathFlags != iFlags )	
-#else
-			if (m_uiLastPathCacheDest != pDestPlot->GetPlotIndex())	
-#endif
 			{
 				bGenerated = GeneratePath(pDestPlot, iFlags);	// Need to regenerate
 			}
@@ -26441,24 +26439,14 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		if(bBuildingRoute)
 		{
 			SPathFinderUserData data(getOwner(),PT_BUILD_ROUTE);
-			if(!GC.GetStepFinder().GeneratePath(getX(), getY(), iX, iY, data))
+			SPath path = GC.GetStepFinder().GetPath(getX(), getY(), iX, iY, data);
+			if (path.vPlots.size()<2)
 			{
 				LOG_UNIT_MOVES_MESSAGE("Unable to generate path with BuildRouteFinder");
 				return 0;
 			}
 
-			CvAStarNode* pNode = GC.GetStepFinder().GetLastNode();
-			if(pNode)
-			{
-				// walk the nodes until the next node
-				while(pNode->m_pParent && pNode->m_pParent->m_pParent)
-				{
-					pNode = pNode->m_pParent;
-				}
-
-				pPathPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
-			}
-
+			pPathPlot = path.get(1);
 			if(!pPathPlot || !canMoveInto(*pPathPlot, iFlags | MOVEFLAG_DESTINATION))
 			{
 				// add route interrupted
@@ -27341,19 +27329,18 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 
 	CvTwoLayerPathFinder& kPathFinder = GC.GetPathFinder();
 	SPathFinderUserData data(this,iFlags,iMaxTurns);
-
-	bool bSuccess = kPathFinder.GeneratePath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
+	SPath newPath = kPathFinder.GetPath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
 
 	// Regardless of whether or not we made it there, keep track of the plot we tried to path to.  This helps in preventing us from trying to re-path to the same unreachable location.
 	m_uiLastPathCacheDest = pToPlot->GetPlotIndex();
-#if defined(MOD_BALANCE_CORE)
 	m_uiLastPathFlags = iFlags;
-#endif
 
-	if (bSuccess)
-		CopyPath(kPathFinder.GetLastNode(), m_kLastPath);
-	else
-		m_kLastPath.clear();
+	m_kLastPath.resize(newPath.vPlots.size());
+	//for backwards compatibility we have to fill in the path backwards!
+	for (size_t i=0; i<newPath.vPlots.size(); i++)
+	{
+		m_kLastPath[i] = newPath.vPlots[newPath.vPlots.size()-i-1];
+	}
 
 	if(!m_kLastPath.empty())
 	{
@@ -27390,25 +27377,22 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 	{
 		*piPathTurns = INT_MAX;
 
-		if(bSuccess)
+		if(!m_kLastPath.empty())
 		{
-			if(m_kLastPath.size() != 0)
-			{
-				*piPathTurns = m_kLastPath.front().m_iTurns;
+			*piPathTurns = m_kLastPath.front().m_iTurns;
 
-				//special: if we can reach the target in one turn with movement left, define this as zero turns
-				if(*piPathTurns == 1)
+			//special: if we can reach the target in one turn with movement left, define this as zero turns
+			if(*piPathTurns == 1)
+			{
+				if(m_kLastPath.front().m_iMoves > 0)
 				{
-					if(m_kLastPath.front().m_iMoves > 0)
-					{
-						*piPathTurns = 0;
-					}
+					*piPathTurns = 0;
 				}
 			}
 		}
 	}
 
-	return bSuccess;
+	return !m_kLastPath.empty();
 }
 
 //	--------------------------------------------------------------------------------
@@ -27457,9 +27441,7 @@ void CvUnit::ClearPathCache()
 {
 	m_kLastPath.clear();
 	m_uiLastPathCacheDest = 0xFFFFFFFF;
-#if defined(MOD_BALANCE_CORE)
 	m_uiLastPathFlags = 0xFFFFFFFF;
-#endif
 }
 
 

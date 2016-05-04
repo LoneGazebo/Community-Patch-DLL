@@ -3708,16 +3708,17 @@ bool CvPlot::IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const
 			if(plotDistance(pFirstPlot->getX(), pFirstPlot->getY(), pSecondPlot->getX(), pSecondPlot->getY())<2)
 				continue;
 
-			//how useful is the shortcut is we could generate
-			if(GC.GetStepFinder().GeneratePath(pFirstPlot->getX(), pFirstPlot->getY(), pSecondPlot->getX(), pSecondPlot->getY(), data))
+			//how useful is the shortcut we could generate
+			SPath path = GC.GetStepFinder().GetPath(pFirstPlot->getX(), pFirstPlot->getY(), pSecondPlot->getX(), pSecondPlot->getY(), data);
+			if (!path)
 			{
-				if (GC.GetStepFinder().GetPathLength()>=iMinDistanceSaved)
+				//no path found, perhaps it's two different oceans?
+				if (pFirstPlot->getArea()!=pSecondPlot->getArea() && pFirstPlot->area()->getNumTiles()>iMinOceanSize && pSecondPlot->area()->getNumTiles()>iMinOceanSize)
 					return true;
 			}
 			else
 			{
-				//no path found, perhaps it's two different oceans?
-				if (pFirstPlot->getArea()!=pSecondPlot->getArea() && pFirstPlot->area()->getNumTiles()>iMinOceanSize && pSecondPlot->area()->getNumTiles()>iMinOceanSize)
+				if (path.vPlots.size()>=(size_t)iMinDistanceSaved)
 					return true;
 			}
 		}

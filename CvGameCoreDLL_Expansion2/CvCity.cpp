@@ -27901,7 +27901,7 @@ UnitTypes CvCity::GetUnitForOperation()
 			if(pThisArmy->Plot() != NULL)
 			{
 				SPathFinderUserData data(m_eOwner,PT_GENERIC_SAME_AREA,NO_PLAYER,23);
-				if(!GC.GetStepFinder().GeneratePath(getX(), getY(), pThisArmy->Plot()->getX(), pThisArmy->Plot()->getY(), data))
+				if(!GC.GetStepFinder().DoesPathExist(getX(), getY(), pThisArmy->GetX(), pThisArmy->GetY(), data))
 				{
 					return NO_UNIT;
 				}

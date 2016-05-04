@@ -3214,7 +3214,7 @@ int CvLuaGame::lGetLongestCityConnectionPlots(lua_State* L)
 				int iThisPlotDistance = plotDistance(pFirstCityPlot->getX(), pFirstCityPlot->getY(), pSecondCityPlot->getX(), pSecondCityPlot->getY());
 				if (iThisPlotDistance > iFurthestPlotDistance)
 				{
-					if (GC.GetStepFinder().GeneratePath(pFirstCityPlot->getX(), pFirstCityPlot->getY(), pSecondCityPlot->getX(), pSecondCityPlot->getY(), data))
+					if (GC.GetStepFinder().DoesPathExist(pFirstCityPlot, pSecondCityPlot, data))
 					{
 						// found a connection
 						pPlot1 = pFirstCityPlot;

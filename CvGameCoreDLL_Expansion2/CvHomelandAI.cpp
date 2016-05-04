@@ -282,19 +282,19 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 			continue;
 
 		SPathFinderUserData data(pUnit,CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE,iMaxDistance);
-		bool bCanFindPath = GC.GetPathFinder().GeneratePath(iRefX, iRefY, pEvalPlot->getX(), pEvalPlot->getY(), data);
+		SPath path = GC.GetPathFinder().GetPath(iRefX, iRefY, pEvalPlot->getX(), pEvalPlot->getY(), data);
 
-		if(!bCanFindPath)
+		if(!path)
 			continue;
 
-		int iDistance = GC.GetPathFinder().GetPathLength();
+		int iDistance = path.vPlots.size();
 		int iPlotScore = (1000 * iRating) / max(1,iDistance);
 
 		iValidCandidates++;
 
 		if (iPlotScore>iBestPlotScore)
 		{
-			CvPlot* pEndTurnPlot = GC.GetPathFinder().GetPathEndTurnPlot();
+			CvPlot* pEndTurnPlot = PathHelpers::GetPathEndTurnPlot(path);
 
 			if(pEndTurnPlot == pUnit->plot())
 			{
@@ -6212,9 +6212,10 @@ void CvHomelandAI::ExecuteAircraftMoves()
 					//need to use the pathfinder
 					SPathFinderUserData data(pUnit, 0, 6);
 					data.ePathType = PT_AIR_REBASE;
-					if (GC.GetStepFinder().GeneratePath(pUnit->getX(),pUnit->getY(),it->pPlot->getX(),it->pPlot->getY(),data))
+					SPath path = GC.GetStepFinder().GetPath(pUnit->getX(),pUnit->getY(),it->pPlot->getX(),it->pPlot->getY(),data);
+					if (!!path)
 					{
-						pNewBase = GC.GetStepFinder().GetPathFirstPlot();
+						pNewBase = PathHelpers::GetPathFirstPlot(path);
 						break;
 					}
 				}
@@ -6293,9 +6294,10 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				//need to use the pathfinder
 				SPathFinderUserData data(pUnit, 0, 6);
 				data.ePathType = PT_AIR_REBASE;
-				if (GC.GetStepFinder().GeneratePath(pUnit->getX(),pUnit->getY(),it->pPlot->getX(),it->pPlot->getY(),data))
+				SPath path = GC.GetStepFinder().GetPath(pUnit->getX(),pUnit->getY(),it->pPlot->getX(),it->pPlot->getY(),data);
+				if (!!path)
 				{
-					pNewBase = GC.GetStepFinder().GetPathFirstPlot();
+					pNewBase = PathHelpers::GetPathFirstPlot(path);
 					break;
 				}
 			}
@@ -7440,6 +7442,11 @@ bool CvHomelandAI::ExecuteGoldenAgeMove(CvUnit* pUnit)
 
 bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot) const
 {
+	if (!pPlot || !pUnit)
+	{
+		return false;
+	}
+
 	if(pUnit->atPlot(*pPlot))
 	{
 		return false;
@@ -7483,10 +7490,10 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 bool CvHomelandAI::ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot)
 {
 	SPathFinderUserData data(pUnit,CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_IGNORE_DANGER);
-	bool bCanFindPath = GC.GetPathFinder().GeneratePath(pUnit->getX(), pUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY(), data);
-	if(bCanFindPath)
+	SPath path = GC.GetPathFinder().GetPath(pUnit->getX(), pUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY(), data);
+	if(!!path)
 	{
-		CvPlot* pPlot = GC.GetPathFinder().GetPathEndTurnPlot();
+		CvPlot* pPlot = PathHelpers::GetPathEndTurnPlot(path);
 		if(pPlot)
 		{
 			CvAssert(!pUnit->atPlot(*pPlot));
