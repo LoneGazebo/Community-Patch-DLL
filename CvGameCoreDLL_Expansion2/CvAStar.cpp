@@ -2255,28 +2255,29 @@ ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPa
 		return ReachablePlots();
 
 	ReachablePlots plots;
-	if (CvAStar::FindPathWithCurrentConfiguration(iXstart, iYstart, -1, -1, data))
+	
+	//there is no destination! the return value will always be false
+	CvAStar::FindPathWithCurrentConfiguration(iXstart, iYstart, -1, -1, data);
+
+	//iterate all previously touched nodes
+	for (std::vector<CvAStarNode*>::const_iterator it=m_closedNodes.begin(); it!=m_closedNodes.end(); ++it)
 	{
-		//iterate all previously touched nodes
-		for (std::vector<CvAStarNode*>::const_iterator it=m_closedNodes.begin(); it!=m_closedNodes.end(); ++it)
+		CvAStarNode* temp = *it;
+
+		int iMoves = 0;
+		bool bValid = false;
+		if (temp->m_iTurns < data.iMaxTurns)
 		{
-			CvAStarNode* temp = *it;
-
-			int iMoves = 0;
-			bool bValid = false;
-			if (temp->m_iTurns < data.iMaxTurns)
-			{
-				bValid = true;
-			}
-			else if (temp->m_iTurns == data.iMaxTurns && temp->m_iMoves >= iMinMovesLeft)
-			{
-				bValid = true;
-				iMoves = temp->m_iMoves;
-			}
-
-			if (bValid)
-				plots.insert( std::make_pair(GC.getMap().plotNum(temp->m_iX, temp->m_iY),iMoves) );
+			bValid = true;
 		}
+		else if (temp->m_iTurns == data.iMaxTurns && temp->m_iMoves >= iMinMovesLeft)
+		{
+			bValid = true;
+			iMoves = temp->m_iMoves;
+		}
+
+		if (bValid)
+			plots.insert( std::make_pair(GC.getMap().plotNum(temp->m_iX, temp->m_iY),iMoves) );
 	}
 
 	return plots;

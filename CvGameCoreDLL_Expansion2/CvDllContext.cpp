@@ -51,7 +51,7 @@ CvDllGameContext* CvDllGameContext::s_pSingleton = NULL;
 HANDLE CvDllGameContext::s_hHeap = INVALID_HANDLE_VALUE;
 
 //---------
-#define DEBUG_UNIT_MOVES
+//#define DEBUG_UNIT_MOVES
 #if defined (DEBUG_UNIT_MOVES)
 int g_iTargetX = -1;
 int g_iTargetY = -1;
@@ -1084,7 +1084,7 @@ void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS|CvUnit::MOVEFLAG_IGNORE_STACKING,1);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 
-	ReachablePlots plots = GC.GetInterfacePathFinder().GetReachablePlots(pkUnit->getX(),pkUnit->getY(),data,1,0);
+	ReachablePlots plots = GC.GetInterfacePathFinder().GetPlotsInReach(pkUnit->getX(),pkUnit->getY(),data,0);
 	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
