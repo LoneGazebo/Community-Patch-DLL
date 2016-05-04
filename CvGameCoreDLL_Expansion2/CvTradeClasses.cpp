@@ -179,87 +179,67 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 		}
 	}
 
-	// build trade route cache for given player
-	for (uint iPlayer2 = 0; iPlayer2 < MAX_CIV_PLAYERS; iPlayer2++)
+	//do not check whether we are at war here! the trade route cache is also used for military target selection
+	int iOriginCityLoop;
+	for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
 	{
-		CvPlayer& kPlayer2 = GET_PLAYER((PlayerTypes)iPlayer2);
-		if (!kPlayer2.isAlive() || kPlayer2.isBarbarian())
-			continue;
+		//first see how far we can go from this city on water
+		int iMaxNormDistSea = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
+		SPathFinderUserData data((PlayerTypes)iPlayer1,PT_TRADE_WATER);
+		data.iMaxNormalizedDistance = iMaxNormDistSea;
+		GC.GetStepFinder().GeneratePath(pOriginCity->getX(), pOriginCity->getY(), -1, -1, data);
+		ReachablePlots waterReach = GC.GetStepFinder().GetPlotsTouched(INT_MAX,0);
 
-		if (!GET_TEAM(kPlayer1.getTeam()).isHasMet(kPlayer2.getTeam()))
-			continue;
-
-		//do not check whether we are at war! the trade route cache is also used for military target selection
-
-		int iOriginCityLoop;
-		for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
+		for (ReachablePlots::iterator it=waterReach.begin(); it!=waterReach.end(); ++it)
 		{
-			int iDestCityLoop;
-			for (CvCity* pDestCity = kPlayer2.firstCity(&iDestCityLoop); pDestCity != NULL; pDestCity = kPlayer2.nextCity(&iDestCityLoop))
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
+			CvCity* pDestCity = pPlot->getPlotCity();
+
+			// if this is no city or the origin city, nothing to do
+			if (!pDestCity || pOriginCity == pDestCity)
+				continue;
+
+			//is the old path still good?
+			if (HaveTradePathInCache(previousPathsWater,pOriginCity->GetID(),pDestCity->GetID()))
 			{
-				// if this is the same city
-				if (pOriginCity == pDestCity)
-					continue;
-
-				// first check sea route
-				if (pOriginCity->isCoastal(0) && pDestCity->isCoastal(0))	// Both must be on the coast (a lake is ok)
-				{
-					int iMaxNormDist = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
-
-					//is the old path still good?
-					bool bReusePath = false;
-					if (HaveTradePathInCache(previousPathsWater,pOriginCity->GetID(),pDestCity->GetID()))
-					{
-						const SPath& previousPath = previousPathsWater[pOriginCity->GetID()][pDestCity->GetID()];
-
-						//if the destination is in reach and the path is still good, we can re-use it
-						//tricky: if the destination is out of reach, we need to re-check if that has changed (might have build a road or a shortcut fort)
-						if (previousPath.iNormalizedDistance<=iMaxNormDist && GC.GetStepFinder().VerifyPath(previousPath))
-						{
-							AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
-							bReusePath = true;
-						}
-					}
-
-					//ok, we need to check for real
-					if (!bReusePath)
-					{
-						SPathFinderUserData data((PlayerTypes)iPlayer1,PT_TRADE_WATER);
-						data.iMaxNormalizedDistance = iMaxNormDist;
-						if (GC.GetStepFinder().GeneratePath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data))
-							AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),GC.GetStepFinder().GetPath());
-					}
-				}
+				const SPath& previousPath = previousPathsWater[pOriginCity->GetID()][pDestCity->GetID()];
+				AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
+			}
+			else
+			{
+				//ok, we know the city is in reach but we need to get the concrete path
+				if (GC.GetStepFinder().GeneratePath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data))
+					AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),GC.GetStepFinder().GetPath());
+			}
+		}
 					
-				//now for land routes
-				if (pOriginCity->plot()->getLandmass() == pDestCity->plot()->getLandmass())
-				{
-					int iMaxNormDist = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_LAND, pOriginCity);
+		//now for land routes
+		int iMaxNormDistLand = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_LAND, pOriginCity);
+		data.iMaxNormalizedDistance = iMaxNormDistLand;
+		data.ePathType = PT_TRADE_LAND;
+		GC.GetStepFinder().GeneratePath(pOriginCity->getX(), pOriginCity->getY(), -1, -1, data);
+		ReachablePlots landReach = GC.GetStepFinder().GetPlotsTouched(INT_MAX,0);
+			
+		for (ReachablePlots::iterator it=landReach.begin(); it!=landReach.end(); ++it)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
+			CvCity* pDestCity = pPlot->getPlotCity();
 
-					//is the old path still good?
-					bool bReusePath = false;
-					if (HaveTradePathInCache(previousPathsLand,pOriginCity->GetID(),pDestCity->GetID()))
-					{
-						const SPath& previousPath = previousPathsLand[pOriginCity->GetID()][pDestCity->GetID()];
+			// if this is no city or the origin city, nothing to do
+			if (!pDestCity || pOriginCity == pDestCity)
+				continue;
 
-						//if the destination is in reach and the path is still good, we can re-use it
-						//tricky: if the destination is out of reach, we need to re-check if that has changed (might have build a road or a shortcut fort)
-						if (previousPath.iNormalizedDistance<=iMaxNormDist && GC.GetStepFinder().VerifyPath(previousPath))
-						{
-							AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
-							bReusePath = true;
-						}
-					}
-
-					//ok, we need to check for real
-					if (!bReusePath)
-					{
-						SPathFinderUserData data((PlayerTypes)iPlayer1,PT_TRADE_LAND);
-						data.iMaxNormalizedDistance = iMaxNormDist;
-						if (GC.GetStepFinder().GeneratePath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data))
-							AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),GC.GetStepFinder().GetPath());
-					}
-				}
+			//is the old path still good?
+			if (HaveTradePathInCache(previousPathsLand,pOriginCity->GetID(),pDestCity->GetID()))
+			{
+				const SPath& previousPath = previousPathsLand[pOriginCity->GetID()][pDestCity->GetID()];
+				AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
+			}
+			else
+			{
+				//ok, we know the city is in reach but we need to get the concrete path
+				if (GC.GetStepFinder().GeneratePath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data))
+					AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),GC.GetStepFinder().GetPath());
 			}
 		}
 	}

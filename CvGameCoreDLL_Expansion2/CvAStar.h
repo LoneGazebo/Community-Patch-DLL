@@ -31,8 +31,8 @@ enum PathType
 	PT_GENERIC_ANY_AREA,		//plots can have any area ID, simply need to be passable
 	PT_GENERIC_SAME_AREA_WIDE,	//path must be 3 tiles wide (for armies)
 	PT_GENERIC_ANY_AREA_WIDE,	//same for any area
-	PT_TRADE_WATER,				//water trade
-	PT_TRADE_LAND,				//land trade
+	PT_TRADE_WATER,				//water trade (path or reachable plots if dest -1)
+	PT_TRADE_LAND,				//land trade (path or reachable plots if dest -1)
 	PT_BUILD_ROUTE,				//prospective route
 	PT_AREA_CONNECTION,			//assign area IDs to connected plots (hack)
 	PT_LANDMASS_CONNECTION,		//assign landmass IDs to connected plots (hack)
@@ -447,7 +447,7 @@ public:
 	//these are only valid after a call to GeneratePath
 	SPath GetPath() const;
 	bool VerifyPath(const SPath& path);
-	ReachablePlots GetPlotsTouched(int iMinMovesLeft) const;
+	ReachablePlots GetPlotsTouched(int iMaxTurns, int iMinMovesLeft) const;
 
 	// Can be called after a route has been generated
 	CvPlot* GetXPlotsFromEnd(int iPlotsFromEnd, bool bLeaveEnemyTerritory) const;

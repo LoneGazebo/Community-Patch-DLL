@@ -10147,8 +10147,13 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvPlot* pRefPlot)
 	if(!pPlayer->GetID() == getOwner())
 	{
 		int iFertilityBonus = 0;
-		if ( pPlayer->GetFoundValueOfCapital()>0 )
-			iFertilityBonus = min(100, max(0, (getFoundValue(pPlayer->GetID())*100) / pPlayer->GetFoundValueOfCapital() ));
+		if ( pPlayer->getCapitalCity() )
+		{
+			//do not use the founding values here, they are expensive to compute
+			int iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(this,true);
+			int iRefFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlayer->getCapitalCity()->plot(),true);
+			iFertilityBonus = min(100, max(0, (iFertility*100) / iRefFertility));
+		}
 		if(getOwner() == NO_PLAYER)
 		{
 			iFertilityBonus += 50;

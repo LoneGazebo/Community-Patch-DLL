@@ -2275,6 +2275,8 @@ public:
 	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
 	const std::vector<PlayerTypes>& GetPlayersAtWarWithInFuture() const { return m_playersAtWarWithInFuture; }
 	void UpdateCurrentAndFutureWars();
+	//to check whether peace is a good idea
+	bool HasCityAboutToBeConquered() const;
 #endif
 
 	int GetNumNaturalWondersDiscoveredInArea() const;
@@ -2287,11 +2289,11 @@ public:
 	void SetTurnsSinceSettledLastCity(int iValue);
 	void ChangeTurnsSinceSettledLastCity(int iChange);
 
-	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea) const;
+	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea);
 	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 	int GetFoundValueOfCapital() const;
 	void SetFoundValueOfCapital(int iValue);
-	bool HaveGoodSettlePlot(int iAreaID) const;
+	bool HaveGoodSettlePlot(int iAreaID);
 
 	// New Victory Stuff
 	int GetNumWonders() const;
@@ -2507,6 +2509,7 @@ public:
 #endif
 
 	virtual void updatePlotFoundValues();
+	virtual void invalidatePlotFoundValues();
 	virtual int getPlotFoundValue(int iX, int iY);
 	virtual void setPlotFoundValue(int iX, int iY, int iValue);
 
@@ -3212,7 +3215,8 @@ protected:
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	CvDistanceMap* m_pCityDistance;
 	FAutoVariable<int, CvPlayer> m_iFoundValueOfCapital;
-	std::vector<int> m_iPlotFoundValues;
+	std::vector<int> m_viPlotFoundValues;
+	int	m_iPlotFoundValuesUpdateTurn;
 #endif
 
 	//plots we have pledged no to settle
@@ -3301,9 +3305,7 @@ protected:
 	FaithPurchaseTypes m_eFaithPurchaseType;
 	FAutoVariable<int, CvPlayer> m_iFaithPurchaseIndex;
 
-	void doUpdateCacheOnTurn();
-
-	void doArmySize();
+	void checkArmySizeAchievement();
 
 	friend class CvPlayerManager;
 

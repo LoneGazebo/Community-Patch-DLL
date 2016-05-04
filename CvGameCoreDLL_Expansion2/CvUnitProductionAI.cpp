@@ -825,7 +825,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return 0;
 		}
 		//Or if we're small.
-		if(m_pCity->getPopulation() <= 4)
+		if(m_pCity->getPopulation() <= 3)
 		{
 			return 0;
 		}
@@ -892,18 +892,17 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				iBonus += (kPlayer.getCapitalSettlerProductionModifier() / 2);
 			}
 			
-			int iBestArea;
-			int iSecondBestArea;
-			int iNumAreas;
-			iNumAreas = kPlayer.GetBestSettleAreas(kPlayer.GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
-			if(iNumAreas == 0)
+			//this is an expensive check. do we really need it?
+			/*
+			if(!kPlayer.HaveGoodSettlePlot(-1))
 			{
 				return 0;
 			}
 			else
 			{
-				iBonus += (120 * max(1, iNumAreas));
+				iBonus += 120;
 			}
+			*/
 		}
 	}
 

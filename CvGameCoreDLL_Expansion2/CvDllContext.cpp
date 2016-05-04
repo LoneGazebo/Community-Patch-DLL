@@ -1087,7 +1087,7 @@ void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 	//there is no destination, therefore this call will return false
 	GC.GetInterfacePathFinder().GeneratePath(pkUnit->getX(),pkUnit->getY(),-1,-1,data);
 
-	ReachablePlots plots = GC.GetInterfacePathFinder().GetPlotsTouched(0);
+	ReachablePlots plots = GC.GetInterfacePathFinder().GetPlotsTouched(1,0);
 	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
@@ -1112,7 +1112,7 @@ void CvDllGameContext::TEMPOnHexUnitChangedAttack(ICvUnit1* pUnit)
 	//there is no destination, therefore this call will return false
 	GC.GetInterfacePathFinder().GeneratePath(pkUnit->getX(),pkUnit->getY(),-1,-1,data);
 
-	ReachablePlots plots = GC.GetInterfacePathFinder().GetPlotsTouched(0);
+	ReachablePlots plots = GC.GetInterfacePathFinder().GetPlotsTouched(1,0);
 	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);

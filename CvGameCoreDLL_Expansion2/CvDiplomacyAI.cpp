@@ -8245,6 +8245,18 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 						continue;
 					}
 				}
+				else
+				{
+					//don't give up if we're about to score!
+					if (GET_PLAYER(eLoopPlayer).HasCityAboutToBeConquered() && !m_pPlayer->HasCityAboutToBeConquered())
+					{
+						SetTreatyWillingToOffer(eLoopPlayer, NO_PEACE_TREATY_TYPE);
+						SetTreatyWillingToAccept(eLoopPlayer, NO_PEACE_TREATY_TYPE);
+
+						continue;
+					}
+				}
+
 				// If we're out for conquest then no peace!
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 				//Correction - we want conquest, but if the war has stalled out and/or we're losing all our wars, let's consider peace.
@@ -8261,12 +8273,13 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 						iWillingToAcceptScore -= GetPlayer()->GetCulture()->GetWarWeariness();
 					}
 #endif
+
 					int iWarScore = GetWarScore(eLoopPlayer,false,true);
 
 					//Negative Warscore? Offer more.
 					if(iWarScore < 0)
 					{
-						iWillingToOfferScore += (iWarScore * -1);
+						iWillingToOfferScore -= iWarScore;
 					}
 					//Postitive Warscore? Accept more.
 					else
@@ -8342,6 +8355,12 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 #else
 		bool bWillMakePeace = GetPlayerNumTurnsAtWar(ePlayer) >= 5;
 #endif
+
+		//don't give up if we're about to score!
+		if (kHumanPlayer.HasCityAboutToBeConquered() && !m_pPlayer->HasCityAboutToBeConquered())
+		{
+			return false;
+		}
 
 		if(!GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(kHumanPlayer.getTeam()))
 		{

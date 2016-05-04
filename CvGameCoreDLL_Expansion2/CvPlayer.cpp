@@ -1658,6 +1658,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	// tutorial info
 	m_bEverPoppedGoody = false;
 
+	// lazy update scheme ...
+	m_iPlotFoundValuesUpdateTurn = -1;
+
 	m_aiCityYieldChange.clear();
 	m_aiCityYieldChange.resize(NUM_YIELD_TYPES, 0);
 
@@ -9165,10 +9168,6 @@ void CvPlayer::doTurn()
 
 	CvAssertMsg(isAlive(), "isAlive is expected to be true");
 
-	doUpdateCacheOnTurn();
-
-	updatePlotFoundValues();
-
 	AI_doTurnPre();
 
 	if(getCultureBombTimer() > 0)
@@ -9296,7 +9295,7 @@ void CvPlayer::doTurn()
 #endif
 
 	if(isHuman() && !GC.getGame().isGameMultiPlayer())
-		doArmySize();
+		checkArmySizeAchievement();
 
 	if( (bHasActiveDiploRequest || GC.GetEngineUserInterface()->isDiploActive()) && !GC.getGame().isGameMultiPlayer() && !isHuman())
 	{
@@ -38329,30 +38328,6 @@ void CvPlayer::invalidateYieldRankCache(YieldTypes)
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::doUpdateCacheOnTurn()
-{
-#if defined(MOD_BALANCE_CORE)
-	struct CompareUnitPowerAscending
-	{
-		const TContainer<CvUnit>& container;
-
-		CompareUnitPowerAscending(TContainer<CvUnit>& c) : container(c) {}
-		bool operator()(int iID1, int iID2)
-		{
-			return ( container.Get(iID1)->GetPower() > container.Get(iID2)->GetPower() );
-		}
-
-	private:
-		//need an assignment operator apparently
-		CompareUnitPowerAscending& operator=( const CompareUnitPowerAscending& ) { return *this; }
-	};
-
-	//this orders units by combat strength
-	m_units.OrderByContent( CompareUnitPowerAscending(m_units) );
-#endif
-}
-
-//	--------------------------------------------------------------------------------
 PlayerTypes CvPlayer::pickConqueredCityOwner(const CvCity& kCity) const
 {
 	PlayerTypes eBestPlayer = kCity.getOriginalOwner();
@@ -39249,6 +39224,19 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 	}
 
 }
+
+bool CvPlayer::HasCityAboutToBeConquered() const
+{
+	const CvCity *pLoopCity;
+	int iLoop;
+	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->isInDangerOfFalling())
+			return true;
+	}
+
+	return false;
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -39347,7 +39335,7 @@ int CvPlayer::GetFoundValueOfCapital() const
 	return m_iFoundValueOfCapital;
 }
 
-bool CvPlayer::HaveGoodSettlePlot(int iAreaID) const
+bool CvPlayer::HaveGoodSettlePlot(int iAreaID)
 {
 	// Check if there are good plots to settle somewhere
 	int iRefValue = ((GetFoundValueOfCapital() * GC.getAI_STRATEGY_EARLY_EXPANSION_RELATIVE_TILE_QUALITY()) / 100);
@@ -39387,8 +39375,11 @@ void CvPlayer::ChangeTurnsSinceSettledLastCity(int iChange)
 
 //	--------------------------------------------------------------------------------
 /// Find best continents to settle next two cities; returns number found over minimum
-int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea) const
+int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea)
 {
+	//lazy update
+	updatePlotFoundValues();
+
 	CvArea* pLoopArea;
 	int iLoop;
 	int iBestScore = 0;	//default score of each area is zero, so we have to be better
@@ -40674,7 +40665,7 @@ bool CvPlayer::hasTurnTimerExpired()
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::doArmySize()
+void CvPlayer::checkArmySizeAchievement()
 {
 #if !defined(NO_ACHIEVEMENTS)
 	int numUnits = 0;
@@ -41731,9 +41722,18 @@ int CvPlayer::CountAllWorkedTerrain(TerrainTypes iTerrainType)
 }
 #endif
 
+void CvPlayer::invalidatePlotFoundValues()
+{
+	m_iPlotFoundValuesUpdateTurn = -1;
+}
+
 void CvPlayer::updatePlotFoundValues()
 {
-	m_iPlotFoundValues.clear();
+	if (m_iPlotFoundValuesUpdateTurn==GC.getGame().getGameTurn())
+		return;
+
+	OutputDebugString(CvString::format("updating plot found values for player %d in turn %d\n",GetID(),GC.getGame().getGameTurn()).c_str());
+	m_viPlotFoundValues.clear();
 
 	// Set all area fertilities to 0
 	int iLoop = 0;
@@ -41759,12 +41759,12 @@ void CvPlayer::updatePlotFoundValues()
 
 	// first pass: precalculate found values
 	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
-	m_iPlotFoundValues.resize(GC.getMap().numPlots(), -1);
+	m_viPlotFoundValues.resize(GC.getMap().numPlots(), -1);
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
 		if (pPlot->isRevealed(getTeam()))
-			m_iPlotFoundValues[iI] = pCalc->PlotFoundValue(pPlot, this);
+			m_viPlotFoundValues[iI] = pCalc->PlotFoundValue(pPlot, this);
 	}
 
 	// second pass: non-maxima suppression and aggregation
@@ -41772,7 +41772,7 @@ void CvPlayer::updatePlotFoundValues()
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iRefValue = m_iPlotFoundValues[iI];
+		int iRefValue = m_viPlotFoundValues[iI];
 
 		if (iRefValue < iGoodEnoughToBeWorthOurTime)
 			continue;
@@ -41785,7 +41785,7 @@ void CvPlayer::updatePlotFoundValues()
 			if (pLoopPlot == NULL)
 				continue;
 
-			if (m_iPlotFoundValues[pLoopPlot->GetPlotIndex()] > iRefValue)
+			if (m_viPlotFoundValues[pLoopPlot->GetPlotIndex()] > iRefValue)
 			{
 				//this is not a local maximum
 				pPlot = NULL;
@@ -41803,14 +41803,19 @@ void CvPlayer::updatePlotFoundValues()
 			}
 		}
 	}
+
+	m_iPlotFoundValuesUpdateTurn = GC.getGame().getGameTurn();
 }
 
 int CvPlayer::getPlotFoundValue(int iX, int iY)
 {
+	//lazy update
+	updatePlotFoundValues();
+
 	size_t iIndex = (size_t)GC.getMap().plotNum(iX,iY);
 
-	if (iIndex<m_iPlotFoundValues.size())
-		return m_iPlotFoundValues[iIndex];
+	if (iIndex<m_viPlotFoundValues.size())
+		return m_viPlotFoundValues[iIndex];
 	else
 		return 0;
 }
@@ -41819,6 +41824,6 @@ void CvPlayer::setPlotFoundValue(int iX, int iY, int iValue)
 {
 	size_t iIndex = (size_t)GC.getMap().plotNum(iX, iY);
 
-	if (iIndex<m_iPlotFoundValues.size())
-		m_iPlotFoundValues[iIndex] = iValue;
+	if (iIndex<m_viPlotFoundValues.size())
+		m_viPlotFoundValues[iIndex] = iValue;
 }

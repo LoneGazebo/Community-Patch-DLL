@@ -2378,8 +2378,7 @@ bool CvPathFinder::VerifyPath(const SPath& path)
 	return bResult;
 }
 
-//for now, we only return nodes with turns count < 2
-ReachablePlots CvPathFinder::GetPlotsTouched(int iMinMovesLeft) const
+ReachablePlots CvPathFinder::GetPlotsTouched(int iMaxTurns, int iMinMovesLeft) const
 {
 	ReachablePlots plots;
 
@@ -2387,8 +2386,23 @@ ReachablePlots CvPathFinder::GetPlotsTouched(int iMinMovesLeft) const
 	for (std::vector<CvAStarNode*>::const_iterator it=m_closedNodes.begin(); it!=m_closedNodes.end(); ++it)
 	{
 		CvAStarNode* temp = *it;
-		if (temp->m_iMoves>=iMinMovesLeft && temp->m_iTurns<2)
-			plots.insert( std::make_pair(GC.getMap().plotNum(temp->m_iX, temp->m_iY),temp->m_iMoves) );
+		if (!temp)
+			continue;
+
+		int iMoves = 0;
+		bool bValid = false;
+		if (temp->m_iTurns < iMaxTurns)
+		{
+			bValid = true;
+		}
+		else if (temp->m_iTurns == iMaxTurns && temp->m_iMoves >= iMinMovesLeft)
+		{
+			bValid = true;
+			iMoves = temp->m_iMoves;
+		}
+
+		if (bValid)
+			plots.insert( std::make_pair(GC.getMap().plotNum(temp->m_iX, temp->m_iY),iMoves) );
 	}
 
 	return plots;
