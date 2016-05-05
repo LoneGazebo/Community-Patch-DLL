@@ -2357,7 +2357,8 @@ CvPlot* PathHelpers::GetPathFirstPlot(const SPath& path)
 
 //	--------------------------------------------------------------------------------
 /// Return the furthest plot we can get to this turn that is on the path
-CvPlot* PathHelpers::GetPathEndTurnPlot(const SPath& path)
+// compare with PathNodeArray::GetEndTurnPlot()
+CvPlot* PathHelpers::GetPathEndFirstTurnPlot(const SPath& path)
 {
 	int iNumNodes = path.vPlots.size();
 	if (iNumNodes>1)
@@ -2687,27 +2688,45 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, int
 }
 
 //	---------------------------------------------------------------------------
-const CvPathNode* CvPathNodeArray::GetTurnDest(int iTurn)
+CvPlot* CvPathNodeArray::GetTurnDestinationPlot(int iTurn) const
 {
-	for (uint i = size(); i--; )
+	if (size()>1)
 	{
-		const CvPathNode& kNode = at(i);
-		if (i == 0)
+		//iterate until the penultimate node
+		for (size_t i=0; i+1<size(); i++)
 		{
-			// Last node, only return it if it is the desired turn
-			if (kNode.m_iTurns == iTurn)
-				return &kNode;
-			return NULL;
-		}
-		else
-		{
+			const CvPathNode& thisNode = at(i);
+			const CvPathNode& nextNode = at(i+1);
 			// Is this node the correct turn and the next node is a turn after it?
-			if (kNode.m_iTurns == iTurn && at(i-1).m_iTurns > iTurn)
-				return &kNode;
+			if (thisNode.m_iTurns == iTurn && nextNode.m_iTurns > iTurn)
+				return GC.getMap().plotUnchecked( thisNode.m_iX, thisNode.m_iY );
 		}
 	}
 
+	if (!empty())
+	{
+		// Last node, only return it if it is the desired turn
+		if (back().m_iTurns == iTurn)
+			return GC.getMap().plotUnchecked( back().m_iX, back().m_iY );
+	}
+
 	return NULL;
+}
+
+CvPlot* CvPathNodeArray::GetFinalPlot() const
+{
+	if (empty())
+		return NULL;
+
+	return GC.getMap().plotUnchecked( back().m_iX, back().m_iY );
+}
+
+CvPlot* CvPathNodeArray::GetFirstPlot() const
+{
+	if (empty())
+		return NULL;
+
+	return GC.getMap().plotUnchecked( front().m_iX, front().m_iY );
 }
 
 //	---------------------------------------------------------------------------

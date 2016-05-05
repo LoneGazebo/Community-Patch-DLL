@@ -736,12 +736,12 @@ int CvLuaUnit::lDoCommand(lua_State* L)
 	return BasicLuaMethod(L, &CvUnit::doCommand);
 }
 //------------------------------------------------------------------------------
-//CyPlot* getPathEndTurnPlot();
+//CyPlot* GetPathEndTurnPlot();
 int CvLuaUnit::lGetPathEndTurnPlot(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-	CvPlot* pkPlot = pkUnit->GetPathEndTurnPlot();
+	CvPlot* pkPlot = pkUnit->GetPathEndFirstTurnPlot();
 	CvLuaPlot::Push(L, pkPlot);
 
 	return 1;

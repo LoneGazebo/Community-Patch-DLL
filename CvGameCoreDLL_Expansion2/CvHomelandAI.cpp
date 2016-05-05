@@ -294,7 +294,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 
 		if (iPlotScore>iBestPlotScore)
 		{
-			CvPlot* pEndTurnPlot = PathHelpers::GetPathEndTurnPlot(path);
+			CvPlot* pEndTurnPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
 
 			if(pEndTurnPlot == pUnit->plot())
 			{
@@ -1807,7 +1807,12 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 			CvPlot* pTarget = GC.getMap().plot(iTargetX, iTargetY);
 
 			bool bResult = false;
-			if(pUnit->UnitPathTo(iTargetX, iTargetY, 0) > 0)
+			if (pUnit->at(iTargetX, iTargetY))
+			{
+				pUnit->PushMission(CvTypes::getMISSION_BUILD(), m_TargetedNavalResources[iTargetIndex].GetAuxIntData(), -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pTarget);
+				bResult = true;
+			}
+			else
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), iTargetX, iTargetY);
 				if(pUnit->plot() == pTarget)
@@ -1822,14 +1827,6 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 
 				// Delete this unit from those we have to move
 				UnitProcessed(m_CurrentMoveUnits.begin()->GetID());
-			}
-			else
-			{
-				if(pUnit->plot() == pTarget)
-				{
-					pUnit->PushMission(CvTypes::getMISSION_BUILD(), m_TargetedNavalResources[iTargetIndex].GetAuxIntData(), -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pTarget);
-					bResult = true;
-				}
 			}
 		
 			if (bResult)
@@ -6598,32 +6595,27 @@ void CvHomelandAI::ExecuteArchaeologistMoves()
 		CvPlot* pTarget = FindArchaeologistTarget(pUnit);
 		if (pTarget)
 		{
-			BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG");
-			if(pUnit->UnitPathTo(pTarget->getX(), pTarget->getY(), 0) > 0)
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
+
+			if(GC.getLogging() && GC.getAILogging())
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
+				CvString strLogString;
+				strLogString.Format("Archaeologist moving to site at, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
+				LogHomelandMessage(strLogString);
+			}
+
+			if(pUnit->plot() == pTarget)
+			{
+				BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG");
+				pUnit->PushMission(CvTypes::getMISSION_BUILD(), eBuild, -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pTarget);
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Archaeologist moving to site at, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
+					strLogString.Format("Archaeologist creating dig at, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
 					LogHomelandMessage(strLogString);
 				}
-
-				if(pUnit->plot() == pTarget)
-				{
-					pUnit->PushMission(CvTypes::getMISSION_BUILD(), eBuild, -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pTarget);
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Archaeologist creating dig at, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
-						LogHomelandMessage(strLogString);
-					}
-				}
-				else
-				{
-					pUnit->finishMoves();
-				}
 			}
+
 			// Delete this unit from those we have to move
 			UnitProcessed(pUnit->GetID());
 		}
@@ -7493,7 +7485,7 @@ bool CvHomelandAI::ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot)
 	SPath path = GC.GetPathFinder().GetPath(pUnit->getX(), pUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY(), data);
 	if(!!path)
 	{
-		CvPlot* pPlot = PathHelpers::GetPathEndTurnPlot(path);
+		CvPlot* pPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
 		if(pPlot)
 		{
 			CvAssert(!pUnit->atPlot(*pPlot));

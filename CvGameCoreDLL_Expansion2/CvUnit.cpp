@@ -20299,6 +20299,8 @@ void CvUnit::finishMoves()
 {
 	VALIDATE_OBJECT
 	setMoves(0);
+
+	PublishQueuedVisualizationMoves();
 }
 
 //	--------------------------------------------------------------------------------
@@ -24858,7 +24860,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 			SPath path = GC.GetPathFinder().GetPath(plot(), &swapPlot, data);
 			if (!!path)
 			{
-				CvPlot* pEndTurnPlot = PathHelpers::GetPathEndTurnPlot(path);
+				CvPlot* pEndTurnPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
 				if(pEndTurnPlot == &swapPlot)
 				{
 #if defined(MOD_GLOBAL_STACKING_RULES)
@@ -24894,7 +24896,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 										SPath path = GC.GetPathFinder().GetPath(pLoopUnit->plot(), pUnit->plot(), data);
 										if (!!path)
 										{
-											CvPlot* pPathEndTurnPlot = PathHelpers::GetPathEndTurnPlot(path);
+											CvPlot* pPathEndTurnPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
 											if(pPathEndTurnPlot == plot())
 											{
 												bSwapPossible = true;
@@ -25620,18 +25622,20 @@ void CvUnit::QueueMoveForVisualization(CvPlot* pkPlot)
 void CvUnit::PublishQueuedVisualizationMoves()
 {
 	VALIDATE_OBJECT
-	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
-	CvPlotIndexVector kPlotArray;
 	if(m_unitMoveLocs.size())
 	{
+		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvPlotIndexVector kPlotArray;
+
 		kPlotArray.reserve(m_unitMoveLocs.size());
 		for(UnitMovementQueue::const_iterator itr = m_unitMoveLocs.begin(); itr != m_unitMoveLocs.end(); ++itr)
 		{
 			kPlotArray.push_back((*itr)->GetPlotIndex());
 		}
+
+		gDLL->GameplayUnitMoved(pDllUnit.get(), kPlotArray);
+		m_unitMoveLocs.clear();
 	}
-	gDLL->GameplayUnitMoved(pDllUnit.get(), kPlotArray);
-	m_unitMoveLocs.clear();
 }
 
 //	--------------------------------------------------------------------------------
@@ -25670,13 +25674,13 @@ bool CvUnit::IsDoingPartialMove() const
 		return false;
 	}
 
-	if(m_kLastPath.size() == 0)
+	if(m_kLastPath.empty())
 	{
 		return false;
 	}
 
-	CvPlot* pEndTurnPlot = GetPathEndTurnPlot();
-	CvPlot* pEndPathPlot = GetPathLastPlot();
+	CvPlot* pEndTurnPlot = m_kLastPath.GetTurnDestinationPlot(1);
+	CvPlot* pEndPathPlot = m_kLastPath.GetFinalPlot();
 
 	if(plot() == pEndTurnPlot && plot() != pEndPathPlot && (pkMissionNode->iData1 == pEndPathPlot->getX() && pkMissionNode->iData2 == pEndPathPlot->getY()))
 	{
@@ -26095,16 +26099,15 @@ void CvUnit::PlayActionSound()
 bool CvUnit::UpdatePathCache(CvPlot* pDestPlot, int iFlags)
 {
 	bool bGenerated = false;
-	CvMap& kMap = GC.getMap();
 	// If we are in UNITFLAG_EVALUATING_MISSION mode, we can assume that other than the unit that is moving, nothing on the map will change so we can re-use the cached path data more efficiently.
 	if ( (m_iFlags & UNITFLAG_EVALUATING_MISSION) != 0 )
 	{
-		// Some pathing data left?  (the last node is always the current unit location)
-		if (m_kLastPath.size() >= 2)
+		// Some pathing data left?
+		CvPlot* pkPathDest = m_kLastPath.GetFinalPlot();
+		if (pkPathDest)
 		{
 			// Was the path destination invisible at the time of generation? See if it is visible now.
-			CvPlot* pkPathDest;
-			if (m_kLastPath[0].GetFlag((int)CvPathNode::PLOT_INVISIBLE) && (pkPathDest = kMap.plot(m_kLastPath[0].m_iX, m_kLastPath[0].m_iY)) != NULL && pkPathDest->isVisible(getTeam()))
+			if ( m_kLastPath.back().GetFlag(CvPathNode::PLOT_INVISIBLE) && pkPathDest->isVisible(getTeam()))
 			{
 				// The path destination is now visible, recalculate now in case it can't be reached (occupied)
 				if ((bGenerated = GeneratePath(pkPathDest, iFlags)) == false && pDestPlot != pkPathDest)
@@ -26116,14 +26119,13 @@ bool CvUnit::UpdatePathCache(CvPlot* pDestPlot, int iFlags)
 			else
 			{
 				// Was the next plot we are stepping into invisible at the time of generation?
-				if (m_kLastPath[m_kLastPath.size() - 2].GetFlag((int)CvPathNode::PLOT_INVISIBLE))
+				if (m_kLastPath.front().GetFlag((int)CvPathNode::PLOT_INVISIBLE))
 				{
 					// We are trying to move into a plot that is invisible and we want to continue out into the darkness.  We have to recalculate our path.
 					// Since we have already done a path find to the destination once, we can now just path find to how far out we can get in this turn.
-					const CvPathNode* pkPathNode = m_kLastPath.GetTurnDest(1);
-					if (pkPathNode)
+					CvPlot* pkTurnDest = m_kLastPath.GetTurnDestinationPlot(1);
+					if (pkTurnDest)
 					{
-						CvPlot* pkTurnDest = kMap.plot(pkPathNode->m_iX, pkPathNode->m_iY);
 						if (pkTurnDest && (bGenerated = GeneratePath(pkTurnDest, iFlags)) == false && pDestPlot != pkTurnDest)
 						{
 							// Hmm, failed for some reason, re-do the entire path
@@ -26211,13 +26213,11 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 		}
 	}
 
-	const CvPathNodeArray& kPathNodeArray = GetPathNodeArray();
-
 	if(iFlags & CvUnit::MOVEFLAG_IGNORE_STACKING)
 	{
 		if(GeneratePath(pDestPlot, iFlags))
 		{
-			pDestPlot = GetPathFirstPlot();
+			pDestPlot = m_kLastPath.GetFinalPlot();
 		}
 	}
 	else
@@ -26243,20 +26243,9 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 	bool bAttack = false;
 	bool bAdjacent = false;
 
-	if(kPathNodeArray.size() > 1)
+	if(!m_kLastPath.empty())
 	{
-		// Previous node is the same plot as the one before the destination (attack point)?
-		// Prevents unit from stopping while adjacent to the enemy, but on top of another unit so it has to move to another tile before it can attack
-		const CvPathNode& kNode = kPathNodeArray[1];
-		if(kNode.m_iX == getX() && kNode.m_iY == getY())
-		{
-			// The path may not be all the way to the destination, it may be only to the unit's turn limit, so check against the final destination
-			const CvPathNode& kDestNode = kPathNodeArray[0];
-			if (kDestNode.m_iX == iX && kDestNode.m_iY == iY)
-			{
-				bAdjacent = true;
-			}
-		}
+		bAdjacent = (m_kLastPath.GetFinalPlot() == m_kLastPath.GetFirstPlot());
 	}
 
 	if(bAdjacent || (getDomainType() == DOMAIN_AIR))
@@ -26446,6 +26435,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 				return 0;
 			}
 
+			//zero is the current position! 
 			pPathPlot = path.get(1);
 			if(!pPathPlot || !canMoveInto(*pPathPlot, iFlags | MOVEFLAG_DESTINATION))
 			{
@@ -26477,12 +26467,12 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 				return 0;
 			}
 
-			pPathPlot = GetPathFirstPlot();
+			pPathPlot = m_kLastPath.GetFirstPlot();
 
 			//the given target may be different from the actual target
 			if (iFlags & MOVEFLAG_APPROXIMATE_TARGET)
 			{
-				pDestPlot = GetPathLastPlot();
+				pDestPlot = m_kLastPath.GetFinalPlot();
 				//check if we are there yet
 				if (pDestPlot && pDestPlot->getX()==getX() && pDestPlot->getY()==getY())
 					return 0;
@@ -26496,19 +26486,19 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 
 	bool bRejectMove = false;
 
-	// slewis'd
-	if(m_kLastPath.size() != 0)
+	if(!m_kLastPath.empty())
 	{
-		const CvPathNode& kNode = m_kLastPath.front();
+		const CvPathNode& kDestNode = m_kLastPath.back();
 		// If we were provided with a previous ETA, check against the new one and if it is two turns greater, cancel the move.
 		// We probably revealed something that is causing the unit to take longer to reach the target.
-		if(iPrevETA >= 0 && kNode.m_iTurns > iPrevETA + 2)
+		if(iPrevETA >= 0 && kDestNode.m_iTurns > iPrevETA + 2)
 		{
 			LOG_UNIT_MOVES_MESSAGE_OSTR(std::string("Rejecting move iPrevETA=") << iPrevETA << std::string(", m_iData2=") << kNode.m_iData2);
 			bRejectMove = true;
 		}
 
-		if(kNode.m_iTurns == 1 && !canMoveInto(*pDestPlot))  // if we should end our turn there this turn, but can't move into that tile
+		// if we should end our turn there this turn, but can't move into that tile
+		if(kDestNode.m_iTurns == 1 && !canMoveInto(*pDestPlot))  
 		{
 			// this is a bit tricky
 			// we want to see if this move would be a capture move
@@ -26534,43 +26524,29 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		if(bRejectMove)
 		{
 			m_kLastPath.clear();
-			// slewis - perform its queued moves?
 			PublishQueuedVisualizationMoves();
 			return 0;
 		}
 	}
-	// end slewis'd
 
 	bool bEndMove = (pPathPlot == pDestPlot);
 	bool bMoved = UnitMove(pPathPlot, iFlags & MOVEFLAG_IGNORE_STACKING, NULL, bEndMove);
 
 	int iETA = 1;
-	uint uiCachedPathSize = m_kLastPath.size();
-	if (uiCachedPathSize)
+	if (!m_kLastPath.empty())
 	{
-		iETA = m_kLastPath[0].m_iTurns;
-		// Only do the shift if we actually moved
+		iETA = m_kLastPath.back().m_iTurns;
+
 		if (bMoved)
 		{
-			if(uiCachedPathSize > 1)
-			{
-				// Go back to front, adjusting the turns if needed
-				if (m_kLastPath[ uiCachedPathSize - 1 ].m_iTurns != m_kLastPath[ uiCachedPathSize - 2 ].m_iTurns)
-				{
-					// We have exhausted a turns worth of nodes.  Adjust all the others.
-					// KWG: It is unlikely that we will use this path again, because the unit is out of moves anyhow.  Should we just clear the path and save time?
-					for (uint uiIndex = uiCachedPathSize - 1; uiIndex--; )
-					{
-						CvPathNode* pNode = &m_kLastPath[uiIndex];
-						if (pNode->m_iTurns > 0)
-							pNode->m_iTurns -= 1;
-					}
-				}
+			m_kLastPath.pop_front();
 
-				m_kLastPath.pop_back();
+			//have we used up all plots for this turn?
+			if (m_kLastPath.front().m_iTurns>1)
+			{
+				for (size_t i=0; i<m_kLastPath.size(); i++)
+					m_kLastPath[i].m_iTurns--;
 			}
-			else
-				m_kLastPath.clear();
 		}
 		else
 			m_kLastPath.clear();	// Failed to move, recalculate.
@@ -27331,15 +27307,18 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 	SPathFinderUserData data(this,iFlags,iMaxTurns);
 	SPath newPath = kPathFinder.GetPath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
 
-	// Regardless of whether or not we made it there, keep track of the plot we tried to path to.  This helps in preventing us from trying to re-path to the same unreachable location.
+	// Regardless of whether or not we made it there, keep track of the plot we tried to path to.  
+	// This helps in preventing us from trying to re-path to the same unreachable location.
 	m_uiLastPathCacheDest = pToPlot->GetPlotIndex();
 	m_uiLastPathFlags = iFlags;
 
-	m_kLastPath.resize(newPath.vPlots.size());
-	//for backwards compatibility we have to fill in the path backwards!
-	for (size_t i=0; i<newPath.vPlots.size(); i++)
+	m_kLastPath.clear();
+	//skip the first node, it's the current unit plot
+	CvPathNode nextNode;
+	for (size_t i=1; i<newPath.vPlots.size(); i++)
 	{
-		m_kLastPath[i] = newPath.vPlots[newPath.vPlots.size()-i-1];
+		nextNode = newPath.vPlots[i];
+		m_kLastPath.push_back( nextNode );
 	}
 
 	if(!m_kLastPath.empty())
@@ -27348,27 +27327,24 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 		TeamTypes eTeam = getTeam();
 
 		// Get the state of the plots in the path, they determine how much of the path is re-usable.
-		// Watch out for overflow/underflow with the indices here, it's tricky
-		for (int iIndex = m_kLastPath.size()-1; iIndex>=0; iIndex--)
+		for (int iIndex = 0; iIndex<m_kLastPath.size(); iIndex++)
 		{
 			CvPathNode& kNode = m_kLastPath[iIndex];
 			CvPlot* pkPlot = kMap.plotCheckInvalid(kNode.m_iX, kNode.m_iY);
-			if (pkPlot)
+			if (pkPlot && !pkPlot->isVisible(eTeam))
 			{
-				if (!pkPlot->isVisible(eTeam))
-				{
-					kNode.SetFlag(CvPathNode::PLOT_INVISIBLE);
-					if (iIndex + 1 < (int)m_kLastPath.size())
-						m_kLastPath[iIndex + 1].SetFlag(CvPathNode::PLOT_ADJACENT_INVISIBLE);
+				kNode.SetFlag(CvPathNode::PLOT_INVISIBLE);
+				if (iIndex > 0)
+					m_kLastPath[iIndex-1].SetFlag(CvPathNode::PLOT_ADJACENT_INVISIBLE);
 
-					// Also determine the destination visibility.  This will be checked in UnitPathTo to see if the destination's visibility has changed and do a re-evaluate again if it has.
-					// This will help a unit to stop early in its pathing if the destination is blocked.
-					CvPlot* pkPathDest = kMap.plot(m_kLastPath[0].m_iX, m_kLastPath[0].m_iY);
-					if (pkPathDest != NULL && !pkPathDest->isVisible(eTeam))
-						m_kLastPath[0].SetFlag(CvPathNode::PLOT_INVISIBLE);
+				// Also determine the destination visibility.  
+				// This will be checked in UnitPathTo to see if the destination's visibility has changed and do a re-evaluate again if it has.
+				// This will help a unit to stop early in its pathing if the destination is blocked.
+				CvPlot* pkPathDest = m_kLastPath.GetFinalPlot();
+				if (pkPathDest != NULL && !pkPathDest->isVisible(eTeam))
+					m_kLastPath.back().SetFlag(CvPathNode::PLOT_INVISIBLE);
 
-					break;	// Anything after is 'in the dark' and should be re-evaluated if trying to move a unit into it.
-				}
+				break;	// Anything after is 'in the dark' and should be re-evaluated if trying to move a unit into it.
 			}
 		}
 	}
@@ -27379,12 +27355,12 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 
 		if(!m_kLastPath.empty())
 		{
-			*piPathTurns = m_kLastPath.front().m_iTurns;
+			*piPathTurns = m_kLastPath.back().m_iTurns;
 
 			//special: if we can reach the target in one turn with movement left, define this as zero turns
 			if(*piPathTurns == 1)
 			{
-				if(m_kLastPath.front().m_iMoves > 0)
+				if(m_kLastPath.back().m_iMoves > 0)
 				{
 					*piPathTurns = 0;
 				}
@@ -27393,38 +27369,6 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 	}
 
 	return !m_kLastPath.empty();
-}
-
-//	--------------------------------------------------------------------------------
-/// What is the first plot along this path?
-CvPlot* CvUnit::GetPathFirstPlot() const
-{
-	VALIDATE_OBJECT
-
-	uint uiPathSize = m_kLastPath.size();
-	if(uiPathSize > 1)
-	{
-		// The 'first' plot we want is the next to last one.  The last one is always where the unit is currently.
-		// Should we even bother caching that one?
-		const CvPathNode& kNode = m_kLastPath[ uiPathSize - 2];
-		return GC.getMap().plotCheckInvalid(kNode.m_iX, kNode.m_iY);
-	}
-
-	return NULL;
-}
-
-//	--------------------------------------------------------------------------------
-/// Where does this path end (returns CvPlot*)?
-CvPlot* CvUnit::GetPathLastPlot() const
-{
-	VALIDATE_OBJECT
-	if(m_kLastPath.size() > 0)
-	{
-		const CvPathNode& kNode = m_kLastPath.front();
-		return GC.getMap().plotCheckInvalid(kNode.m_iX, kNode.m_iY);
-	}
-
-	return NULL;
 }
 
 //	--------------------------------------------------------------------------------
@@ -27444,35 +27388,11 @@ void CvUnit::ClearPathCache()
 	m_uiLastPathFlags = 0xFFFFFFFF;
 }
 
-
 //	--------------------------------------------------------------------------------
 /// Where do we end this next move?
-CvPlot* CvUnit::GetPathEndTurnPlot() const
+CvPlot* CvUnit::GetPathEndFirstTurnPlot() const
 {
-	VALIDATE_OBJECT
-
-	if(m_kLastPath.size())
-	{
-		const CvPathNode* pNode = &m_kLastPath[0];
-
-		if(m_kLastPath.size() == 1 || (pNode->m_iTurns == 1))
-		{
-			return GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
-		}
-
-		for(uint uiIndex = 1; uiIndex < m_kLastPath.size(); ++uiIndex)
-		{
-			pNode = &m_kLastPath[uiIndex];
-			if(pNode->m_iTurns == 1)
-			{
-				return GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
-			}
-		}
-	}
-
-	CvAssert(false);
-
-	return NULL;
+	return m_kLastPath.GetTurnDestinationPlot(1);
 }
 
 // PRIVATE METHODS

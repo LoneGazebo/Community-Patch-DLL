@@ -906,7 +906,7 @@ private:
 	bool IsExpectedToDamageWithRangedAttack(UnitHandle pAttacker, CvPlot* pTarget, int iMinDamage=0);
 
 	bool MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTargetPlot, bool bLand = true, int iMaxTurns = INT_MAX);
-	bool MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo);
+	bool MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo, int iFlags);
 
 	CvPlot* FindBestBarbarianLandMove(UnitHandle pUnit);
 	CvPlot* FindPassiveBarbarianLandMove(UnitHandle pUnit);

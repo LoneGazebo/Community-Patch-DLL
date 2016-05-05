@@ -251,10 +251,12 @@ public:
 	}
 };
 
-class CvPathNodeArray : public std::vector<CvPathNode>
+class CvPathNodeArray : public std::deque<CvPathNode>
 {
 public:
-	const CvPathNode* GetTurnDest(int iTurn);
+	CvPlot* GetTurnDestinationPlot(int iTurn) const;
+	CvPlot* GetFinalPlot() const;
+	CvPlot* GetFirstPlot() const;
 };
 
 struct PrNodeIsBetter

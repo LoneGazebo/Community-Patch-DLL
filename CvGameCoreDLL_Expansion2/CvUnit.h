@@ -183,12 +183,6 @@ public:
 	RouteTypes GetBestBuildRoute(CvPlot* pPlot, BuildTypes* peBestBuild = NULL) const;
 	void PlayActionSound();
 
-	bool UnitAttack(int iX, int iY, int iFlags, int iSteps=0);
-	bool UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEndMove = false);
-	int  UnitPathTo(int iX, int iY, int iFlags, int iPrevETA = -1, bool bBuildingRoute = false); // slewis'd the iPrevETA
-	bool UnitRoadTo(int iX, int iY, int iFlags);
-	bool UnitBuild(BuildTypes eBuild);
-
 	TeamTypes GetDeclareWarMove(const CvPlot& pPlot) const;
 	PlayerTypes GetBullyMinorMove(const CvPlot* pPlot) const;
 	TeamTypes GetDeclareWarRangeStrike(const CvPlot& pPlot) const;
@@ -1434,10 +1428,8 @@ public:
 	// Path-finding routines
 	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL) const;
 
-	CvPlot* GetPathFirstPlot() const;
-	CvPlot* GetPathLastPlot() const;
 	const CvPathNodeArray& GetPathNodeArray() const;
-	CvPlot* GetPathEndTurnPlot() const;
+	CvPlot* GetPathEndFirstTurnPlot() const;
 
 	bool isBusyMoving() const;
 	void setBusyMoving(bool bState);
@@ -1565,6 +1557,12 @@ protected:
 
 	void QueueMoveForVisualization(CvPlot* pkPlot);
 	void PublishQueuedVisualizationMoves();
+
+	bool UnitAttack(int iX, int iY, int iFlags, int iSteps=0);
+	bool UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEndMove = false);
+	int  UnitPathTo(int iX, int iY, int iFlags, int iPrevETA = -1, bool bBuildingRoute = false);
+	bool UnitRoadTo(int iX, int iY, int iFlags);
+	bool UnitBuild(BuildTypes eBuild);
 
 	typedef enum Flags
 	{

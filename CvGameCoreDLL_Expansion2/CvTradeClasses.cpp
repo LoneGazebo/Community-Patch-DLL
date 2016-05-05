@@ -1759,13 +1759,9 @@ bool CvGameTrade::MoveUnit (int iIndex)
 
 	gDLL->TradeVisuals_UpdateRouteDirection(iIndex, kTradeConnection.m_bTradeUnitMovingForward);
 
-	// Send a NULL plot move to say we are complete to the vis unit.
 	CvUnit *pkUnit = GetTradeUnitForRoute(iIndex);
 	if (pkUnit)
 	{
-		pkUnit->UnitMove(NULL, false, NULL);
-		pkUnit->setMoves(0);
-
 #if defined(MOD_BALANCE_CORE)
 		//Free resources when your trade units move.
 		CvGameTrade* pTrade = GC.getGame().GetGameTrade();
@@ -1852,10 +1848,13 @@ bool CvGameTrade::StepUnit (int iIndex)
 		}
 	}
 #endif
+
 	if (pkUnit)
 	{
 		pkUnit->setXY(kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iX, kTradeConnection.m_aPlotList[kTradeConnection.m_iTradeUnitLocationIndex].m_iY, true, false, true, true);
+		pkUnit->finishMoves();
 	}
+
 #if defined(MOD_BALANCE_CORE)
 	if(pkUnit && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetTRVisionBoost() > 0)
 	{
