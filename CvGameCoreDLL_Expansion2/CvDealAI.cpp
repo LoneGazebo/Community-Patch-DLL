@@ -679,6 +679,10 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 	// Now do the valuation
 	iTotalValueToMe = GetDealValue(pDeal, iValueImOffering, iValueTheyreOffering, /*bUseEvenValue*/ false);
 
+	// Important: check invalid return value!
+	if (iTotalValueToMe==INT_MAX || iTotalValueToMe==-INT_MAX)
+		return false;
+
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// We're offering help to a player
 	if (MOD_DIPLOMACY_CIV4_FEATURES && GetPlayer()->GetDiplomacyAI()->IsOfferingGift(eOtherPlayer))
@@ -686,10 +690,6 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 		return true;
 	}
 #endif
-
-	// Important: check invalid return value!
-	if (iTotalValueToMe==INT_MAX)
-		return false;
 
 #if defined(MOD_BALANCE_CORE_DEALS)
 	if (!pDeal->IsPeaceTreatyTrade(eOtherPlayer))

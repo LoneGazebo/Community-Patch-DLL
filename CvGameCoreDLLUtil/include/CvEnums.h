@@ -1739,7 +1739,7 @@ enum UnitAITypes
 	UNITAI_DEFENSE,					// these are units that are mainly in the floating defense force
 	UNITAI_COUNTER,					// these are counter-units to specific other units - these will likely need more logic in building and using
 	UNITAI_RANGED,					// units with ranged attacks
-	UNITAI_CITY_SPECIAL,			// more AA???
+	UNITAI_CITY_SPECIAL,			// siege support
 	UNITAI_EXPLORE,					// scouts, etc.
 	UNITAI_ARTIST,					// great person
 	UNITAI_SCIENTIST,				// great person
@@ -1755,8 +1755,8 @@ enum UnitAITypes
 	UNITAI_ASSAULT_SEA,				// naval ranged units
 	UNITAI_SETTLER_SEA,				// UNUSED in Civ 5
 	UNITAI_CARRIER_SEA,				// aircraft carrier
-	UNITAI_MISSILE_CARRIER_SEA,		// missile carrier
-	UNITAI_PIRATE_SEA,				// avast, ye
+	UNITAI_MISSILE_CARRIER_SEA,		// missile carrier - UNUSED
+	UNITAI_PIRATE_SEA,				// avast, ye - UNUSED
 	UNITAI_ATTACK_AIR,				// bombers
 	UNITAI_DEFENSE_AIR,				// fighters
 	UNITAI_CARRIER_AIR,				// planes on boats
