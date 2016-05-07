@@ -384,7 +384,10 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		int iGoldForRoute = m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity);
 
 		//route has side benefits also (movement, village gold, trade route range, religion spread)
-		int iSideBenefits = iPlotsNeeded * 50;
+		int iSideBenefits = iRoadLength * 50;
+		// give an additional bump if we're almost done (don't get distracted)
+		if (iPlotsNeeded<3)
+			iSideBenefits += 100;
 
 		if(pTargetCity->getUnhappinessFromConnection() > 0)
 		{
@@ -953,7 +956,9 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 					continue;
 				}
 			}
+
 			//Let's look at non-owned plots next to owned plots.
+			std::set<int> checkedPlots;
 			CvPlot* pAdjacentPlot;
 			for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
 			{
@@ -963,10 +968,14 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 				{
 					if(pAdjacentPlot->getOwner() != m_pPlayer->GetID())
 					{
-						if(!ShouldBuilderConsiderPlot(pUnit, pAdjacentPlot))
+						if(!ShouldBuilderConsiderPlot(pUnit, pAdjacentPlot) || checkedPlots.find(pAdjacentPlot->GetPlotIndex())!=checkedPlots.end())
 						{
 							continue;
 						}
+
+						//don't check the same plot multiple times
+						checkedPlots.insert(pAdjacentPlot->GetPlotIndex());
+
 						// distance weight
 						// find how many turns the plot is away
 #if defined(MOD_UNITS_LOCAL_WORKERS) || defined(MOD_AI_SECONDARY_WORKERS)
@@ -986,12 +995,18 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 							continue;
 						}
 
-						//see if another worker would be more suitable
-						int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
-
-						//don't double up
-						if (iAlternativeTurnsAway==0)
+						int iFirstUnitID = 0;
+						int iNumWorkersHere = pPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType(),iFirstUnitID);
+						if (iFirstUnitID != pUnit->GetID() && iNumWorkersHere>0)
+						{
 							continue;
+						}
+
+						int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
+						if (iAlternativeTurnsAway == 0 && iMoveTurnsAway > 0)
+						{
+							continue;
+						}
 
 						//if the other unit is much closer
 						if (iAlternativeTurnsAway*2 < iMoveTurnsAway)
@@ -1006,6 +1021,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 							strLog.Format("x: %d y: %d, Evaluating out of territory plot for improvement", pPlot->getX(), pPlot->getY());
 							LogInfo(strLog, m_pPlayer);
 						}
+
 						AddImprovingPlotsDirectives(pUnit, pAdjacentPlot, iMoveTurnsAway);
 					}
 				}

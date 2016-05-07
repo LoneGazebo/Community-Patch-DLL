@@ -810,9 +810,11 @@ int CvLuaUnit::lCanEnterTerritory(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	const TeamTypes eTeam				= (TeamTypes)lua_tointeger(L, 2);
 	const bool bIgnoreRightOfPassage	= luaL_optint(L, 3, 0);
-	const bool bIsCity					= luaL_optint(L, 4, 0);
 
-	const bool bResult = pkUnit->canEnterTerritory(eTeam, bIgnoreRightOfPassage, bIsCity);
+	//this parameter is ignored ...
+	//const bool bIsCity				= luaL_optint(L, 4, 0);
+
+	const bool bResult = pkUnit->canEnterTerritory(eTeam, bIgnoreRightOfPassage);
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -909,8 +911,11 @@ int CvLuaUnit::lGetCombatDamage(lua_State* L)
 	if (pkCity && pkCity->HasGarrison())
 	{
 		CvUnit* pGarrison = pkCity->GetGarrisonedUnit();
-		int iGarrisonShare = (iResult*2*pGarrison->GetMaxHitPoints()) / (pkCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
-		iResult -= iGarrisonShare;
+		if (pGarrison)
+		{
+			int iGarrisonShare = (iResult*2*pGarrison->GetMaxHitPoints()) / (pkCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
+			iResult -= iGarrisonShare;
+		}
 	}
 #endif
 

@@ -1081,6 +1081,9 @@ void CvPlayer::init(PlayerTypes eID)
 //	--------------------------------------------------------------------------------
 void CvPlayer::uninit()
 {
+	m_units.RemoveAll();
+	m_cities.RemoveAll();
+
 	m_paiNumResourceUsed.clear();
 	m_paiNumResourceTotal.clear();
 	m_paiResourceGiftedToMinors.clear();
@@ -41732,7 +41735,7 @@ void CvPlayer::updatePlotFoundValues()
 	if (m_iPlotFoundValuesUpdateTurn==GC.getGame().getGameTurn())
 		return;
 
-	OutputDebugString(CvString::format("updating plot found values for player %d in turn %d\n",GetID(),GC.getGame().getGameTurn()).c_str());
+	//OutputDebugString(CvString::format("updating plot found values for player %d in turn %d\n",GetID(),GC.getGame().getGameTurn()).c_str());
 	m_viPlotFoundValues.clear();
 
 	// Set all area fertilities to 0

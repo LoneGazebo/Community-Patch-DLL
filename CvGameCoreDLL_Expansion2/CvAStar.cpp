@@ -368,10 +368,12 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	if ( timer.GetDeltaInSeconds()>0.05 )
 	{
 		int iNumPlots = GC.getMap().numPlots();
+		CvUnit* pUnit = m_sData.iUnitID>0 ? GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID) : NULL;
 
 		//in some cases we have no destination plot, so exhaustion is not always a "fail"
-		OutputDebugString( CvString::format("Run %d: Path type %d %s (%d,%d to %d,%d), tested %d nodes, processed %d nodes in %d rounds (%d%% of map) in %.2f ms\n", 
-			m_iCurrentGenerationID, m_sData.ePathType, bSuccess?"found":"not found", m_iXstart, m_iYstart, m_iXdest, m_iYdest, m_iTestedNodes, m_iProcessedNodes, m_iRounds, 
+		OutputDebugString( CvString::format("Run %d: Path type %d %s (%s from %d,%d to %d,%d), tested %d nodes, processed %d nodes in %d rounds (%d%% of map) in %.2f ms\n", 
+			m_iCurrentGenerationID, m_sData.ePathType, bSuccess?"found":"not found", pUnit ? pUnit->getName().c_str() : "unknown",
+			m_iXstart, m_iYstart, m_iXdest, m_iYdest, m_iTestedNodes, m_iProcessedNodes, m_iRounds, 
 			(100*m_iProcessedNodes)/iNumPlots, timer.GetDeltaInSeconds()*1000 ).c_str() );
 
 		if (MOD_CORE_DEBUGGING)
@@ -380,9 +382,8 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 			FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
 			if (pLog) 
 			{
-				if (m_sData.iUnitID>0)
+				if (pUnit)
 				{
-					CvUnit* pUnit = GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID); 
 					pLog->Msg( CvString::format("# %s for %s (%d) from %d,%d to %d,%d for player %d, flags %d\n", 
 						GetName(),pUnit->getName().c_str(),pUnit->GetID(),m_iXstart,m_iYstart,m_iXdest,m_iYdest,pUnit->getOwner(),m_sData.iFlags ).c_str() );
 				}
@@ -922,7 +923,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 
 	kToNodeCacheData.iMoveFlags = iMoveFlags;
 	kToNodeCacheData.bCanEnterTerrain = pUnit->canEnterTerrain(*pPlot,iMoveFlags);
-	kToNodeCacheData.bCanEnterTerritory = pUnit->canEnterTerritory(ePlotTeam,finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE),pPlot->isCity(),finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR));
+	kToNodeCacheData.bCanEnterTerritory = pUnit->canEnterTerritory(ePlotTeam,finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE));
 
 	if (bDoDanger)
 		kToNodeCacheData.iPlotDanger = GET_PLAYER(pUnit->getOwner()).GetPlotDanger(*pPlot, pUnit);
@@ -990,10 +991,13 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 			else
 			{
 				//melee units attack enemy cities and units 
-				if (pToPlot->isVisibleEnemyUnit(pUnit) && pToPlot->isEnemyCity(*pUnit))
+				if (pToPlot->isVisibleEnemyUnit(pUnit) || pToPlot->isEnemyCity(*pUnit))
 					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
 			}
 		}
+
+		if (!pUnit->canMoveInto(*pToPlot,iMoveFlags))
+			return FALSE;
 	}
 
 	//checks which need a revealed plot (logically so we don't leak information)
@@ -1005,7 +1009,7 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 			if(!pUnit->canEnterTerrain(*pToPlot))
 				return FALSE;
 
-			if(!pUnit->canEnterTerritory(pToPlot->getTeam(),false,pToPlot->isCity(),finder->HaveFlag(CvUnit::MOVEFLAG_DECLARE_WAR)))
+			if(!pUnit->canEnterTerritory(pToPlot->getTeam(),finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER)))
 				return FALSE;
 		}
 
@@ -1325,6 +1329,12 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 			return FALSE;
 
 		if(!kToNodeCacheData.bCanEnterTerritory)
+			return FALSE;
+
+		//got to be careful here, don't plot moves through enemy cities (but allow them as attack targets for melee)
+		//if we don't have a valid destination, any plot could be it
+		bool bIsDestination = !finder->HasValidDestination() || finder->IsPathDest(node->m_iX,node->m_iY);
+		if (kToNodeCacheData.bContainsEnemyCity && (!bIsDestination || !pUnit->IsCanAttackWithMove()))
 			return FALSE;
 
 		if(pCacheData->CanEverEmbark())
@@ -2080,7 +2090,7 @@ bool CvTwoLayerPathFinder::Configure(PathType ePathType)
 		m_iBasicPlotCost = PATH_BASE_COST*GC.getMOVE_DENOMINATOR();
 		break;
 	case PT_UNIT_REACHABLE_PLOTS:
-		SetFunctionPointers(DestinationReached, NULL, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
+		SetFunctionPointers(NULL, NULL, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL, NULL, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST*GC.getMOVE_DENOMINATOR();
 		break;
 	default:

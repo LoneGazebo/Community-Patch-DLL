@@ -187,7 +187,7 @@ public:
 	PlayerTypes GetBullyMinorMove(const CvPlot* pPlot) const;
 	TeamTypes GetDeclareWarRangeStrike(const CvPlot& pPlot) const;
 
-	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false, bool bIsCity = false, bool bIsDeclareWarMove = false) const;
+	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false) const;
 	bool canEnterTerrain(const CvPlot& pPlot, int iMoveFlags = 0) const;
 	bool canMoveInto(const CvPlot& pPlot, int iMoveFlags = 0) const;
 	bool canMoveOrAttackInto(const CvPlot& pPlot, int iMoveFlags = 0) const;
@@ -1552,8 +1552,8 @@ protected:
 	const MissionQueueNode* HeadMissionQueueNode() const;
 	MissionQueueNode* HeadMissionQueueNode();
 
-	void	ClearPathCache();
-	bool	UpdatePathCache(CvPlot* pDestPlot, int iFlags);
+	void ClearPathCache();
+	bool UpdatePathCache(CvPlot* pDestPlot, int iFlags);
 
 	void QueueMoveForVisualization(CvPlot* pkPlot);
 	void PublishQueuedVisualizationMoves();
@@ -1563,12 +1563,6 @@ protected:
 	int  UnitPathTo(int iX, int iY, int iFlags, int iPrevETA = -1, bool bBuildingRoute = false);
 	bool UnitRoadTo(int iX, int iY, int iFlags);
 	bool UnitBuild(BuildTypes eBuild);
-
-	typedef enum Flags
-	{
-	    UNITFLAG_EVALUATING_MISSION = 0x1,
-	    UNITFLAG_ALREADY_GOT_GOODY_UPGRADE = 0x2
-	};
 
 	FAutoArchiveClassContainer<CvUnit> m_syncArchive;
 
@@ -1735,7 +1729,6 @@ protected:
 	FAutoVariable<int, CvUnit> m_iTacticalAIPlotX;
 	FAutoVariable<int, CvUnit> m_iTacticalAIPlotY;
 	FAutoVariable<int, CvUnit> m_iGarrisonCityID;
-	FAutoVariable<int, CvUnit> m_iFlags;
 	FAutoVariable<int, CvUnit> m_iNumAttacks;
 	FAutoVariable<int, CvUnit> m_iAttacksMade;
 	FAutoVariable<int, CvUnit> m_iGreatGeneralCount;
@@ -1774,6 +1767,7 @@ protected:
 	FAutoVariable<bool, CvUnit> m_bAirCombat;
 	FAutoVariable<bool, CvUnit> m_bSetUpForRangedAttack;
 	FAutoVariable<bool, CvUnit> m_bEmbarked;
+	FAutoVariable<bool, CvUnit> m_bPromotedFromGoody;
 	FAutoVariable<bool, CvUnit> m_bAITurnProcessed;
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 	FAutoVariable<int, CvUnit> m_iDamageTakenThisTurn;
@@ -1871,6 +1865,7 @@ protected:
 	mutable CvPathNodeArray m_kLastPath;
 	mutable uint m_uiLastPathCacheDest;
 	mutable uint m_uiLastPathFlags;
+	mutable uint m_uiLastPathTurn;
 
 	bool canAdvance(const CvPlot& pPlot, int iThreshold) const;
 

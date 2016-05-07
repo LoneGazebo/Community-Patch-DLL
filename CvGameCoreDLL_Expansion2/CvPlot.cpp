@@ -772,7 +772,7 @@ void CvPlot::verifyUnitValidPlot()
 							
 							if (pLoopUnit != NULL)
 							{
-								if(!isValidDomainForLocation(*pLoopUnit) || !(pLoopUnit->canEnterTerritory(getTeam(), false /*bIgnoreRightOfPassage*/, isCity())))
+								if(!isValidDomainForLocation(*pLoopUnit) || !(pLoopUnit->canEnterTerritory(getTeam(), false /*bIgnoreRightOfPassage*/)))
 								{
 									if (!pLoopUnit->jumpToNearestValidPlot())
 										pLoopUnit->kill(false);
@@ -3086,7 +3086,7 @@ UnitHandle CvPlot::getBestGarrison(PlayerTypes eOwner) const
 		pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 
-		if(pLoopUnit && (pLoopUnit->getOwner() == eOwner) && pLoopUnit->CanGarrison())
+		if(pLoopUnit && (pLoopUnit->getOwner() == eOwner) && pLoopUnit->CanGarrison() && !pLoopUnit->isDelayedDeath())
 		{
 			if(pLoopUnit->isBetterDefenderThan(pBestUnit.pointer(),NULL))
 			{

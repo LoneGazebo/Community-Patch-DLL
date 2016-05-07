@@ -200,6 +200,40 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 			pLoopUnit->AI_promote();
 		}
 	}
+
+	//check garrison sanity
+	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	{
+		if (pLoopUnit->IsGarrisoned())
+		{
+			CvCity* pCity = pLoopUnit->GetGarrisonedCity();
+			if (pCity)
+			{
+				CvUnit* pGarrison = pCity->GetGarrisonedUnit();
+				if (pLoopUnit != pGarrison || pLoopUnit->plot() != pCity->plot())
+					OutputDebugString("garrison error!");
+			}
+			else
+				OutputDebugString("garrison error!");
+		}
+	}
+
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->HasGarrison())
+		{
+			CvUnit* pUnit = pLoopCity->GetGarrisonedUnit();
+			if (pUnit)
+			{
+				CvCity *pGarrisonCity = pUnit->GetGarrisonedCity();
+				if (pLoopCity != pGarrisonCity || pLoopCity->plot() != pGarrisonCity->plot())
+					OutputDebugString("garrison error!");
+			}
+			else
+				OutputDebugString("garrison error!");
+		}
+	}
+
 }
 
 //	---------------------------------------------------------------------------

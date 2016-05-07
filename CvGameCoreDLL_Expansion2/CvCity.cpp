@@ -1036,13 +1036,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	DLLUI->setDirty(NationalBorders_DIRTY_BIT, true);
 
-#if defined(MOD_BALANCE_CORE)
-	UnitHandle pDefender = plot()->getBestDefender(getOwner());
-	if(pDefender && pDefender->getDomainType() == DOMAIN_LAND)
-	{
-		SetGarrison(pDefender.pointer());
-	}
-#endif
 #if defined(MOD_GLOBAL_CITY_FOREST_BONUS)
 	if (bClearedForest || bClearedJungle) 
 	{
@@ -14119,7 +14112,7 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 	if (pOldGarrison)
 		pOldGarrison->SetGarrisonedCity(-1);
 
-	if (pUnit && pUnit->CanGarrison())
+	if (pUnit && pUnit->CanGarrison() && pUnit->getOwner()==getOwner())
 	{
 		m_hGarrison = pUnit->GetID();
 		m_iLastTurnGarrisonAssigned = GC.getGame().getGameTurn();
@@ -14157,6 +14150,18 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 
 bool CvCity::HasGarrison() const
 {
+#if defined(MOD_CORE_DEBUGGING)
+	if (MOD_CORE_DEBUGGING)
+	{
+		if (m_hGarrison>-1 && GetGarrisonedUnit()==NULL)
+		{
+			OutputDebugString(CvString::format("error! invalid garrison %d is set in %s!\n",m_hGarrison,getName().c_str()).c_str());
+			(const_cast<CvCity*>(this))->m_hGarrison = -1;
+			return false;
+		}
+	}
+#endif
+
 	return m_hGarrison>-1;
 }
 
@@ -14172,7 +14177,7 @@ CvUnit* CvCity::GetGarrisonedUnit() const
 	}
 
 	if (m_hGarrison>-1)
-		return  GET_PLAYER(getOwner()).getUnit(m_hGarrison);
+		return GET_PLAYER(getOwner()).getUnit(m_hGarrison);
 
 	return NULL;
 }

@@ -6608,7 +6608,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(UnitHandle pUnit, int* piTurns)
 			CvCity* pLoopCity;
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
-				if(pLoopCity && pUnit->CanSpreadReligion(pLoopCity->plot()) && pUnit->GetDanger(pLoopCity->plot())==0)
+				if(pLoopCity && pUnit->CanSpreadReligion(pLoopCity->plot()) && pUnit->GetDanger(pLoopCity->plot())==0 && !pLoopCity->IsRazing())
 				{
 					int iScore = ScoreCityForMissionary(pLoopCity, pUnit);
 					if (iScore>0)

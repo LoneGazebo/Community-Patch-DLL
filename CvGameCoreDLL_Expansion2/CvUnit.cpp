@@ -248,7 +248,6 @@ CvUnit::CvUnit() :
 	, m_iTacticalAIPlotX("CvUnit::m_iTacticalAIPlotX", m_syncArchive)
 	, m_iTacticalAIPlotY("CvUnit::m_iTacticalAIPlotY", m_syncArchive)
 	, m_iGarrisonCityID("CvUnit::m_iGarrisonCityID", m_syncArchive)
-	, m_iFlags("CvUnit::m_iFlags", m_syncArchive)
 	, m_iNumAttacks("CvUnit::m_iNumAttacks", m_syncArchive)
 	, m_iAttacksMade("CvUnit::m_iAttacksMade", m_syncArchive)
 	, m_iGreatGeneralCount("CvUnit::m_iGreatGeneralCount", m_syncArchive)
@@ -293,6 +292,7 @@ CvUnit::CvUnit() :
 	, m_bAirCombat("CvUnit::m_bAirCombat", m_syncArchive)
 	, m_bSetUpForRangedAttack("CvUnit::m_bSetUpForRangedAttack", m_syncArchive)
 	, m_bEmbarked("CvUnit::m_bEmbarked", m_syncArchive)
+	, m_bPromotedFromGoody("CvUnit::m_bPromotedFromGoody", m_syncArchive)
 	, m_bAITurnProcessed("CvUnit::m_bAITurnProcessed", m_syncArchive, false, true)
 	, m_eTacticalMove("CvUnit::m_eTacticalMove", m_syncArchive)
 	, m_eOwner("CvUnit::m_eOwner", m_syncArchive)
@@ -2686,7 +2686,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iTacticalAIPlotX = INVALID_PLOT_COORD;
 	m_iTacticalAIPlotY = INVALID_PLOT_COORD;
 	m_iGarrisonCityID = -1;
-	m_iFlags = 0;
 	m_iNumAttacks = 1;
 	m_iAttacksMade = 0;
 	m_iGreatGeneralCount = 0;
@@ -2726,6 +2725,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_bAirCombat = false;
 	m_bSetUpForRangedAttack = false;
 	m_bEmbarked = false;
+	m_bPromotedFromGoody = false;
 	m_bAITurnProcessed = false;
 	m_bWaitingForMove = false;
 	m_eTacticalMove = NO_TACTICAL_MOVE;
@@ -2786,8 +2786,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_eAutomateType = NO_AUTOMATE;
 
 	m_kLastPath.clear();
-	m_uiLastPathCacheDest = (uint)-1;
-	m_uiLastPathFlags = 0;
+	m_uiLastPathCacheDest = 0xFFFFFFFF;
+	m_uiLastPathFlags = 0xFFFFFFFF;
+	m_uiLastPathTurn = 0xFFFFFFFF;
 
 #if defined(MOD_BALANCE_CORE)
 	m_iScienceBlastStrength = 0;
@@ -4335,7 +4336,7 @@ void CvUnit::doCommand(CommandTypes eCommand, int iData1, int iData2)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, bool bIsCity, bool bIsDeclareWarMove) const
+bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage) const
 {
 	VALIDATE_OBJECT
 
@@ -4386,11 +4387,6 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, bool
 			if(!kMyTeam.isHasMet(eTeam))
 			{
 				return true;
-			}
-
-			if(bIsCity && bIsDeclareWarMove)
-			{
-				return false;
 			}
 
 			CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
@@ -4588,7 +4584,7 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 		{
 			if(!GET_TEAM(eRevealedTeam).isMinorCiv() || plot.isCity())
 			{
-				if(!canEnterTerritory(eRevealedTeam, false /*bIgnoreRightOfPassage*/, plot.isCity(), true))
+				if(!canEnterTerritory(eRevealedTeam, false /*bIgnoreRightOfPassage*/))
 				{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 					if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam(), getOwner()))
@@ -4687,7 +4683,7 @@ PlayerTypes CvUnit::GetBullyMinorMove(const CvPlot* pPlot) const
 		{
 			if(GET_PLAYER(eMinor).isMinorCiv())
 			{
-				if(!canEnterTerritory(GET_PLAYER(eMinor).getTeam(), false /*bIgnoreRightOfPassage*/, pPlot->isCity()))
+				if(!canEnterTerritory(GET_PLAYER(eMinor).getTeam(), false /*bIgnoreRightOfPassage*/))
 				{
 					return eMinor;
 				}
@@ -5053,7 +5049,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 
 		ePlotTeam = ((isHuman()) ? plot.getRevealedTeam(getTeam()) : plot.getTeam());
 
-		if(!canEnterTerritory(ePlotTeam, false /*bIgnoreRightOfPassage*/, plot.isCity(), iMoveFlags & CvUnit::MOVEFLAG_DECLARE_WAR))
+		if(!canEnterTerritory(ePlotTeam, false /*bIgnoreRightOfPassage*/))
 		{
 			CvAssert(ePlotTeam != NO_TEAM);
 
@@ -19833,7 +19829,7 @@ if (!bDoEvade)
 	if (pkPrevGarrisonedCity)
 	{
 		//when moving out, another unit might be present to take over garrison duty
-		pkPrevGarrisonedCity->SetGarrison( pkPrevGarrisonedCity->plot()->getBestGarrison(getOwner()).pointer() );
+		pkPrevGarrisonedCity->SetGarrison( pkPrevGarrisonedCity->plot()->getBestGarrison( pkPrevGarrisonedCity->getOwner() ).pointer() );
 		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkPrevGarrisonedCity));
 		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
 	}
@@ -19842,7 +19838,7 @@ if (!bDoEvade)
 		if (pNewPlot->isCity())
 		{
 			//when moving in, see if we're better than the previous garrison
-			CvUnit* pBestGarrison = pNewPlot->getBestGarrison(getOwner()).pointer();
+			CvUnit* pBestGarrison = pNewPlot->getBestGarrison(pNewPlot->getOwner()).pointer();
 			if (pBestGarrison==this)
 			{
 				CvCity* pkNewGarrisonedCity = pNewPlot->getPlotCity();
@@ -20889,7 +20885,7 @@ void CvUnit::changeCombatFirstStrikes(int iChange)
 
 bool CvUnit::CanGarrison() const
 {
-	return GetMapLayer()==DEFAULT_UNIT_MAP_LAYER && getDomainType()==DOMAIN_LAND && IsCanDefend();
+	return GetMapLayer()==DEFAULT_UNIT_MAP_LAYER && getDomainType()==DOMAIN_LAND && IsCanDefend() && !isDelayedDeath();
 }
 
 int CvUnit::GetMapLayer() const
@@ -26099,10 +26095,20 @@ void CvUnit::PlayActionSound()
 bool CvUnit::UpdatePathCache(CvPlot* pDestPlot, int iFlags)
 {
 	bool bGenerated = false;
-	// If we are in UNITFLAG_EVALUATING_MISSION mode, we can assume that other than the unit that is moving, nothing on the map will change so we can re-use the cached path data more efficiently.
-	if ( (m_iFlags & UNITFLAG_EVALUATING_MISSION) != 0 )
+
+	// this method is only called from ContinueMission and that all previous path data is deleted when a mission is started
+	// we can assume that other than the unit that is moving, nothing on the map will change
+	// so we can re-use the cached path data most of the time
+
+	if (m_uiLastPathCacheDest != pDestPlot->GetPlotIndex() || 
+		m_uiLastPathFlags != iFlags ||
+		m_uiLastPathTurn != GC.getGame().getGameTurn() )	
 	{
-		// Some pathing data left?
+		bGenerated = GeneratePath(pDestPlot, iFlags);
+	}
+	else
+	{
+		//visibility might have changed because of this same unit's movement
 		CvPlot* pkPathDest = m_kLastPath.GetFinalPlot();
 		if (pkPathDest)
 		{
@@ -26144,19 +26150,6 @@ bool CvUnit::UpdatePathCache(CvPlot* pDestPlot, int iFlags)
 				}
 			}
 		}
-		else
-		{
-			// If we have already tried this, don't waste time and do it again.
-			if (m_uiLastPathCacheDest != pDestPlot->GetPlotIndex() || m_uiLastPathFlags != iFlags )	
-			{
-				bGenerated = GeneratePath(pDestPlot, iFlags);	// Need to regenerate
-			}
-		}
-	}
-	else
-	{
-		// In this case, we can't be sure about the state of the map, so do a full recalculate.
-		bGenerated = GeneratePath(pDestPlot, iFlags);
 	}
 
 	return bGenerated;
@@ -26385,6 +26378,7 @@ bool CvUnit::UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEn
 // Returns the number of turns it will take to reach the target.  
 // If no move was made it will return 0. 
 // If it can reach the target in one turn or less than one turn (i.e. not use up all its movement points) it will return 1
+// If the pathfinder indicates to make no further moves for the turn, it will return -1 (even if there are movement points left!)
 int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingRoute)
 {
 	VALIDATE_OBJECT
@@ -26459,9 +26453,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		}
 		else
 		{
-			bool bPathGenerated = UpdatePathCache(pDestPlot, iFlags);
-
-			if (!bPathGenerated)
+			if (!UpdatePathCache(pDestPlot, iFlags))
 			{
 				LOG_UNIT_MOVES_MESSAGE("Unable to Generate path");
 				return 0;
@@ -26489,16 +26481,15 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 	if(!m_kLastPath.empty())
 	{
 		const CvPathNode& kDestNode = m_kLastPath.back();
-		// If we were provided with a previous ETA, check against the new one and if it is two turns greater, cancel the move.
+		// If we were provided with a previous ETA, check against the new one and if it is greater, cancel the move.
 		// We probably revealed something that is causing the unit to take longer to reach the target.
-		if(iPrevETA >= 0 && kDestNode.m_iTurns > iPrevETA + 2)
+		if(iPrevETA >= 0 && kDestNode.m_iTurns > iPrevETA)
 		{
-			LOG_UNIT_MOVES_MESSAGE_OSTR(std::string("Rejecting move iPrevETA=") << iPrevETA << std::string(", m_iData2=") << kNode.m_iData2);
+			LOG_UNIT_MOVES_MESSAGE_OSTR(std::string("Rejecting move iPrevETA=") << iPrevETA << std::string(", m_iTurns=") << kNode.m_iTurns);
 			bRejectMove = true;
 		}
-
 		// if we should end our turn there this turn, but can't move into that tile
-		if(kDestNode.m_iTurns == 1 && !canMoveInto(*pDestPlot))  
+		else if(kDestNode.m_iTurns == 1 && !canMoveInto(*pDestPlot))  
 		{
 			// this is a bit tricky
 			// we want to see if this move would be a capture move
@@ -26542,14 +26533,19 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			m_kLastPath.pop_front();
 
 			//have we used up all plots for this turn?
-			if (m_kLastPath.front().m_iTurns>1)
+			if (!m_kLastPath.empty() && m_kLastPath.front().m_iTurns>1)
 			{
-				for (size_t i=0; i<m_kLastPath.size(); i++)
-					m_kLastPath[i].m_iTurns--;
+				//we will need to recalculate next turn anyway
+				m_kLastPath.clear();
+				//means we're done for this turn
+				return -1;
 			}
 		}
 		else
-			m_kLastPath.clear();	// Failed to move, recalculate.
+		{
+			m_kLastPath.clear(); //failed to move, recalculate.
+			return 0;
+		}
 	}
 
 	return iETA;
@@ -26577,7 +26573,7 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 		}
 	}
 
-	bool bWasMoveMade = ( UnitPathTo(iX, iY, iFlags, -1, true) > 0 );
+	bool bWasMoveMade = ( UnitPathTo(iX, iY, iFlags, -1, true) != 0 );
 	if(bWasMoveMade)
 	{
 		PublishQueuedVisualizationMoves();
@@ -27151,7 +27147,7 @@ bool CvUnit::IsCanAttackWithMove() const
     }
     else
     {
-        return !isOnlyDefensive();
+        return !isOnlyDefensive() && !IsCanAttackRanged();
     }
 }
 
@@ -27294,23 +27290,17 @@ bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 /// Use pathfinder to create a path
 bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int* piPathTurns) const
 {
-	VALIDATE_OBJECT
-	// slewis - a bit of baffling logic
-	// we want to catch if the unit is doing a partial move while it is evaluating a mission, because that hoses things
-	CvAssertMsg(!(IsDoingPartialMove() && m_iFlags & UNITFLAG_EVALUATING_MISSION), "Repathing during a partial move will cause serious issues!");
-
-	CvAssertMsg(pToPlot != NULL, "Passed in a NULL destination to GeneratePath");
 	if(pToPlot == NULL)
 		return false;
 
-	CvTwoLayerPathFinder& kPathFinder = GC.GetPathFinder();
 	SPathFinderUserData data(this,iFlags,iMaxTurns);
-	SPath newPath = kPathFinder.GetPath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
+	SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
 
 	// Regardless of whether or not we made it there, keep track of the plot we tried to path to.  
 	// This helps in preventing us from trying to re-path to the same unreachable location.
 	m_uiLastPathCacheDest = pToPlot->GetPlotIndex();
 	m_uiLastPathFlags = iFlags;
+	m_uiLastPathTurn = GC.getGame().getGameTurn();
 
 	m_kLastPath.clear();
 	//skip the first node, it's the current unit plot
@@ -27327,7 +27317,7 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 		TeamTypes eTeam = getTeam();
 
 		// Get the state of the plots in the path, they determine how much of the path is re-usable.
-		for (int iIndex = 0; iIndex<m_kLastPath.size(); iIndex++)
+		for (size_t iIndex = 0; iIndex<m_kLastPath.size(); iIndex++)
 		{
 			CvPathNode& kNode = m_kLastPath[iIndex];
 			CvPlot* pkPlot = kMap.plotCheckInvalid(kNode.m_iX, kNode.m_iY);
@@ -28551,20 +28541,13 @@ void CvUnit::SetGreatPeopleDirective(GreatPeopleDirectiveTypes eDirective)
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsHasBeenPromotedFromGoody() const
 {
-	return m_iFlags & UNITFLAG_ALREADY_GOT_GOODY_UPGRADE;
+	return m_bPromotedFromGoody;
 }
 
 //	--------------------------------------------------------------------------------
 void CvUnit::SetBeenPromotedFromGoody(bool bBeenPromoted)
 {
-	if(bBeenPromoted)
-	{
-		m_iFlags = m_iFlags | UNITFLAG_ALREADY_GOT_GOODY_UPGRADE;
-	}
-	else
-	{
-		m_iFlags = m_iFlags & ~UNITFLAG_ALREADY_GOT_GOODY_UPGRADE;
-	}
+	m_bPromotedFromGoody = bBeenPromoted;
 }
 
 #if defined(MOD_BALANCE_CORE)

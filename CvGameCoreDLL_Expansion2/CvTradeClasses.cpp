@@ -156,7 +156,7 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 	if (lastUpdate!=m_lastTradePathUpdate.end() && lastUpdate->second==GC.getGame().getGameTurn())
 		return;
 
-	OutputDebugString(CvString::format("updating trade path cache for player %d, turn %d\n", iPlayer1, GC.getGame().getGameTurn()).c_str());
+	//OutputDebugString(CvString::format("updating trade path cache for player %d, turn %d\n", iPlayer1, GC.getGame().getGameTurn()).c_str());
 
 	//first move the previous connections for this player to an alternative container
 	//this relies on the fact that cities have unique global IDs
