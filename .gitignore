@@ -33,8 +33,13 @@
 
 !*.db
 
+!*.mp3
+
+Build/
 BuildOutput/
 BuildTemp/
+Civilization IV Diplomatic Features - CBP/Build/
+Civilization IV Diplomatic Features - CP/Build/
 Mod/
 /Mod/CvGameCore_Expansion2.lib
 /Mod/CvGameCore_Expansion2.dll
