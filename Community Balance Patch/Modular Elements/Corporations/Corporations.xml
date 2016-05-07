@@ -243,7 +243,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<FreeBuildingTradeTargetCity>BUILDINGCLASS_LANDSEA_EXTRACTORS_FRANCHISE</FreeBuildingTradeTargetCity>
-			<CorporationID>1</CorporationID>
+			<CorporationID>7</CorporationID>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
@@ -262,7 +262,7 @@
 			<Help>TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<CorporationID>1</CorporationID>
+			<CorporationID>7</CorporationID>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
