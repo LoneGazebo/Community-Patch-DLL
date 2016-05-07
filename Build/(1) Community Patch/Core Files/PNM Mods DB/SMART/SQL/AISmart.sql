@@ -1,4 +1,0 @@
-UPDATE Defines
-  SET Value = Value / 2
-  WHERE Name='AI_GS_SS_HAS_APOLLO_PROGRAM'
-  AND EXISTS (SELECT 1 FROM CustomModOptions WHERE Name='AI_SMART_GRAND_STRATEGY' AND Value='1');

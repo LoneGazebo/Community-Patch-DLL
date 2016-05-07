@@ -35,6 +35,7 @@
 
 !*.mp3
 
+Packages/
 Build/
 BuildOutput/
 BuildTemp/
