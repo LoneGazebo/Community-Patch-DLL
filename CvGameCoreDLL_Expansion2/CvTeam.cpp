@@ -9302,39 +9302,42 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bVoluntary)
 
 //	-----------------------------------------------------------------------------------------------
 // Can we end our vassalage with eTeam?
-bool CvTeam::canEndAllVassal() const
+bool CvTeam::canEndAllVassal()
 {
+	if (GetNumVassals() <= 0)
+		return false;
+
+	if (IsVassalOfSomeone())
+		return false;
+
 	TeamTypes eLoopTeam;
 	
 	int iMinTurns;
-	bool bValid = true;
 	// Go through every major.
 	for(int iTeamLoop=0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 	{
 		eLoopTeam = (TeamTypes) iTeamLoop;
 
-		// Ignore minors.
-		if(!GET_TEAM(eLoopTeam).isMinorCiv())
-		{
-			// Is eLoopTeam the vassal of us?
-			if(GET_TEAM(eLoopTeam).IsVassal(GetID()))
-			{
-				if(GET_TEAM(eLoopTeam).isAlive())
-				{
-					// Too soon to end our vassalage with ePlayer
-					iMinTurns = GET_TEAM(eLoopTeam).IsVoluntaryVassal(GetID()) ? /*10*/ GC.getGame().getGameSpeedInfo().getMinimumVoluntaryVassalTurns() : /*50*/ GC.getGame().getGameSpeedInfo().getMinimumVassalTurns();
+		if (!GET_TEAM(eLoopTeam).isAlive())
+			continue;
 
-					if(GetNumTurnsIsVassal() < iMinTurns)
-					{
-						bValid = false;
-						break;
-					}
-				}
-			}
+		// Ignore minors.
+		if (GET_TEAM(eLoopTeam).isMinorCiv())
+			continue;
+
+		// Is eLoopTeam the vassal of us?
+		if (!GET_TEAM(eLoopTeam).IsVassal(GetID()))
+			continue;
+
+		// Too soon to end our vassalage with ePlayer
+		iMinTurns = GET_TEAM(eLoopTeam).IsVoluntaryVassal(GetID()) ? /*10*/ GC.getGame().getGameSpeedInfo().getMinimumVoluntaryVassalTurns() : /*50*/ GC.getGame().getGameSpeedInfo().getMinimumVassalTurns();
+		if(GetNumTurnsIsVassal() < iMinTurns)
+		{
+			return false;
 		}
 	}
 
-	return bValid;
+	return true;
 }
 bool CvTeam::canEndVassal(TeamTypes eTeam) const
 {
