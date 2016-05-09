@@ -26156,7 +26156,7 @@ bool CvUnit::UpdatePathCache(CvPlot* pDestPlot, int iFlags)
 }
 //	---------------------------------------------------------------------------
 // Returns true if attack was made...
-bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
+bool CvUnit::UnitAttack(int iX, int iY, int iFlags)
 {
 	VALIDATE_OBJECT
 	CvMap& kMap = GC.getMap();
@@ -26206,42 +26206,9 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 		}
 	}
 
-	if(iFlags & CvUnit::MOVEFLAG_IGNORE_STACKING)
-	{
-		if(GeneratePath(pDestPlot, iFlags))
-		{
-			pDestPlot = m_kLastPath.GetFinalPlot();
-		}
-	}
-	else
-	{
-		if(getDomainType() != DOMAIN_AIR)
-		{
-			iSteps += 0;
-
-			if (!UpdatePathCache(pDestPlot, iFlags))
-			{
-				return false;
-			}
-		}
-	}
-
-	CvAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
-
-	if(!pDestPlot)
-	{
-		return false;
-	}
-
 	bool bAttack = false;
-	bool bAdjacent = false;
 
-	if(!m_kLastPath.empty())
-	{
-		bAdjacent = (m_kLastPath.GetFinalPlot() == m_kLastPath.GetFirstPlot());
-	}
-
-	if(bAdjacent || (getDomainType() == DOMAIN_AIR))
+	if(pDestPlot->isAdjacent(plot()) || (getDomainType() == DOMAIN_AIR))
 	{
 		if(!isOutOfAttacks() && (!IsCityAttackSupport() || pDestPlot->isEnemyCity(*this) || !pDestPlot->getBestDefender(NO_PLAYER)))
 		{
@@ -26535,8 +26502,10 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			//have we used up all plots for this turn?
 			if (!m_kLastPath.empty() && m_kLastPath.front().m_iTurns>1)
 			{
-				//we will need to recalculate next turn anyway
-				m_kLastPath.clear();
+				//we will need to recalculate next turn anyway, but deleting the path would abort the mission
+				for (size_t i=0; i<m_kLastPath.size(); i++)
+					m_kLastPath[i].m_iTurns--;
+
 				//means we're done for this turn
 				return -1;
 			}

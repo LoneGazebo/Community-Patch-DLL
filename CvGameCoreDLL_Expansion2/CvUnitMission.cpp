@@ -568,7 +568,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 						}
 					}
 
-					if(hUnit->UnitAttack(pkMissionData->iData1, pkMissionData->iData2, pkMissionData->iFlags, iSteps))
+					if(hUnit->UnitAttack(pkMissionData->iData1, pkMissionData->iData2, pkMissionData->iFlags))
 					{
 						bDone = true;
 					}
@@ -603,11 +603,16 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 				else
 				{
 					int iThisETA = hUnit->UnitPathTo(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags, iETA);
-					if(iThisETA > 0)
+					if(iThisETA > 0) //normal movement
 					{
 						bAction = true;
 					}
-					else
+					else if (iThisETA < 0) //turn finished
+					{
+						bAction = true;
+						bDone = true;
+					}
+					else //cannot move
 					{
 						bDone = true;
 					}
