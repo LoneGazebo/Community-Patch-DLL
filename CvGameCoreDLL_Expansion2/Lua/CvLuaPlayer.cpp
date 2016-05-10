@@ -3863,7 +3863,7 @@ int CvLuaPlayer::lGetInternationalTradeRoutePlotMouseoverToolTip(lua_State* L)
 int CvLuaPlayer::lGetNumInternationalTradeRoutesUsed(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetTrade()->GetNumTradeRoutesUsed(true);
+	const int iResult = pkPlayer->GetTrade()->GetNumberOfInternationalTradeRoutes(true);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

@@ -4047,7 +4047,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedInternationalTradeRoute (CvCi
 	PlayerTypes ePlayer = pCity->getOwner();
 	CvPlayerTrade* pTrade = GET_PLAYER(ePlayer).GetTrade();
 
-	if (pTrade->GetNumTradeRoutesRemaining(false) <= 0)
+	if (pTrade->GetNumTradeUnitsRemaining(true) <= 0)
 	{
 		return false;
 	}
@@ -4065,7 +4065,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NoNeedInternationalTradeRoute (Cv
 	PlayerTypes ePlayer = pCity->getOwner();
 	CvPlayerTrade* pTrade = GET_PLAYER(ePlayer).GetTrade();
 
-	if (pTrade->GetNumTradeRoutesRemaining(false) <= 0)
+	if (pTrade->GetNumTradeUnitsRemaining(true) <= 0)
 	{
 		return true;
 	}

@@ -6488,91 +6488,102 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 {
 	CvTradeAI* pkTradeAI = m_pPlayer->GetTradeAI();
 
-	static TradeConnectionList aTradeConnections; // slewis - added static to work around the stack limit
-	pkTradeAI->PrioritizeTradeRoutes(aTradeConnections);
+	TradeConnectionList aTradeConnections;
+	pkTradeAI->GetPrioritizedTradeRoutes(aTradeConnections);
 
-	MoveUnitsArray::iterator it;
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	//for the N best trade routes, find a suitable unit
+	//check at least the 8 best routes, at max 3 times the number of free trade units
+	uint nRoutesToCheck = MIN(aTradeConnections.size(),MAX(m_CurrentMoveUnits.size()*3,8u));
+	for (uint ui = 0; ui < nRoutesToCheck; ui++)
 	{
-		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if(!pUnit)
+		CvPlot* pOriginPlot = GC.getMap().plot(aTradeConnections[ui].m_iOriginX, aTradeConnections[ui].m_iOriginY);
+
+		//we don't really care about the distance but not having to re-base is good
+		CvUnit *pBestUnit = NULL;
+		int iBestDistance = INT_MAX;
+
+		MoveUnitsArray::iterator it;
+		for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 		{
-			continue;
+			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
+			if(!pUnit || !pUnit->canMove())
+				continue;
+
+			if (aTradeConnections[ui].m_eDomain != pUnit->getDomainType())
+				continue;
+
+			if (pUnit->canMakeTradeRouteAt(pOriginPlot, aTradeConnections[ui].m_iDestX, aTradeConnections[ui].m_iDestY, aTradeConnections[ui].m_eConnectionType))
+			{
+				int iDistance = plotDistance(*pOriginPlot,*pUnit->plot());
+				if (iDistance < iBestDistance)
+				{
+					pBestUnit = pUnit;
+					iDistance = MIN(iDistance,iBestDistance);
+
+					//can't get any better
+					if (iDistance==0)
+						break;
+				}
+			}
 		}
 
-		int iOriginPlotIndex = MAX_INT;
-		int iDestPlotIndex = MAX_INT;
-		TradeConnectionType eTradeConnectionType = NUM_TRADE_CONNECTION_TYPES;
-		bool bDisband = false;
-		bool bSuccess = m_pPlayer->GetTradeAI()->ChooseTradeUnitTargetPlot(pUnit, iOriginPlotIndex, iDestPlotIndex, eTradeConnectionType, bDisband, aTradeConnections);
-		if (bSuccess)
+		if (pBestUnit)
 		{
-			if (bDisband)
+			CvCity* pOriginCity = CvGameTrade::GetOriginCity(aTradeConnections[ui]);
+			CvCity* pDestCity = CvGameTrade::GetDestCity(aTradeConnections[ui]);
+
+			if (pOriginPlot != pBestUnit->plot())
 			{
-				pUnit->kill(true);
+				pBestUnit->PushMission(CvTypes::getMISSION_CHANGE_TRADE_UNIT_HOME_CITY(), pOriginPlot->getX(), pOriginPlot->getY());
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Disbanding unit because we want different domains for our trade units");
+					strLogString.Format("Changing trade route home city from %s to %s", pOriginCity->getName().c_str(), pDestCity->getName().c_str());
 					LogHomelandMessage(strLogString);
 				}
 			}
 			else
 			{
-				CvPlot* pOriginPlot = GC.getMap().plotByIndex(iOriginPlotIndex);
-				if (pOriginPlot != pUnit->plot())
+				pBestUnit->PushMission(CvTypes::getMISSION_ESTABLISH_TRADE_ROUTE(), pDestCity->plot()->GetPlotIndex(), aTradeConnections[ui].m_eConnectionType);
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					pUnit->PushMission(CvTypes::getMISSION_CHANGE_TRADE_UNIT_HOME_CITY(), pOriginPlot->getX(), pOriginPlot->getY());
-					if(GC.getLogging() && GC.getAILogging())
+					CvString strLogString;
+					switch (aTradeConnections[ui].m_eConnectionType)
 					{
-						CvPlot* pPlot = GC.getMap().plotByIndex(iDestPlotIndex);
-						CvString strLogString;
-						strLogString.Format("Changing trade route home city, X: %d, Y: %d", pPlot->getX(), pPlot->getY());
-						LogHomelandMessage(strLogString);
-					}
-				}
-				else
-				{
-					pUnit->PushMission(CvTypes::getMISSION_ESTABLISH_TRADE_ROUTE(), iDestPlotIndex, eTradeConnectionType);
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvPlot* pPlot = GC.getMap().plotByIndex(iDestPlotIndex);
-						CvString strLogString;
-
-						switch (eTradeConnectionType)
-						{
-						case TRADE_CONNECTION_FOOD:
-							strLogString.Format("Establishing trade route, X: %d, Y: %d, food", pPlot->getX(), pPlot->getY());
-							break;
-						case TRADE_CONNECTION_INTERNATIONAL:
-							strLogString.Format("Establishing trade route, X: %d, Y: %d, gold", pPlot->getX(), pPlot->getY());
-							break;
-						case TRADE_CONNECTION_PRODUCTION:
-							strLogString.Format("Establishing trade route, X: %d, Y: %d, production", pPlot->getX(), pPlot->getY());
-							break;
+					case TRADE_CONNECTION_FOOD:
+						strLogString.Format("Establishing food trade route from %s to %s", pOriginCity->getName().c_str(), pDestCity->getName().c_str());
+						break;
+					case TRADE_CONNECTION_INTERNATIONAL:
+						strLogString.Format("Establishing gold trade route from %s to %s", pOriginCity->getName().c_str(), pDestCity->getName().c_str());
+						break;
+					case TRADE_CONNECTION_PRODUCTION:
+						strLogString.Format("Establishing production trade route from %s to %s", pOriginCity->getName().c_str(), pDestCity->getName().c_str());
+						break;
 #if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
-						case TRADE_CONNECTION_WONDER_RESOURCE:
-							strLogString.Format("Establishing trade route, X: %d, Y: %d, wonder resource", pPlot->getX(), pPlot->getY());
-							break;
+					case TRADE_CONNECTION_WONDER_RESOURCE:
+						strLogString.Format("Establishing wonder trade route from %s to %s", pOriginCity->getName().c_str(), pDestCity->getName().c_str());
+						break;
 #endif
-						}
-
-						LogHomelandMessage(strLogString);
 					}
+
+					LogHomelandMessage(strLogString);
 				}
 			}
 		}
-		else
-		{
-			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			pUnit->finishMoves();			
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Trade unit idling");
-				LogHomelandMessage(strLogString);
-			}
-		}
+	}
+
+	//unassigned trade units?
+	MoveUnitsArray::iterator it;
+	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
+		if(!pUnit || !pUnit->canMove())
+			continue;
+
+		//maybe wait a few turns before killing it? how to implement?
+		pUnit->kill(true);
+		if(GC.getLogging() && GC.getAILogging())
+			LogHomelandMessage(CvString("Disbanding trade unit because no suitable target"));
 	}
 }
 

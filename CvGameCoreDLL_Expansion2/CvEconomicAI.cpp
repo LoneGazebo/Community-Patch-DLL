@@ -1437,7 +1437,7 @@ void CvEconomicAI::LogMonitor(void)
 	AppendToLog(strHeader, strLog, "Worked (non-city) tiles", iWorkedTiles);
 	AppendToLog(strHeader, strLog, "Improved tiles", iImprovedTiles);
 
-	AppendToLog(strHeader, strLog, "Trade Routes established", m_pPlayer->GetTrade()->GetNumTradeRoutesUsed(false));
+	AppendToLog(strHeader, strLog, "Trade units in use", m_pPlayer->GetTrade()->GetNumTradeUnits(true));
 	AppendToLog(strHeader, strLog, "Trade Routes available", (int)m_pPlayer->GetTrade()->GetNumTradeRoutesPossible());
 
 	CvTreasury *pTreasury = m_pPlayer->GetTreasury();

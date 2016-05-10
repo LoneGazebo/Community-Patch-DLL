@@ -270,6 +270,7 @@ public:
 	int GetNumberOfCityStateTradeRoutes();
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetNumberOfInternalTradeRoutes();
+	int GetNumberOfInternationalTradeRoutes(bool bOutgoing);
 #endif
 
 	bool IsPreviousTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType);
@@ -297,8 +298,8 @@ public:
 	int GetTradeRouteSpeed (DomainTypes eDomain);
 
 	uint GetNumTradeRoutesPossible (void);
-	int GetNumTradeRoutesUsed (bool bContinueTraining);
-	int GetNumTradeRoutesRemaining (bool bContinueTraining);
+	int GetNumTradeUnits (bool bIncludeBeingBuilt);
+	int GetNumTradeUnitsRemaining (bool bIncludeBeingBuilt);
 
 	int GetNumDifferentTradingPartners (void);
 
@@ -336,7 +337,7 @@ public:
 	void DoTurn(void);
 
 	void GetAvailableTR(TradeConnectionList& aTradeConnectionList);
-	void PrioritizeTradeRoutes(TradeConnectionList& aTradeConnectionList);
+	void GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionList);
 
 #if defined(MOD_BALANCE_CORE)
 	int	ScoreInternationalTR (const TradeConnection& kTradeConnection, bool bHaveTourism);
@@ -352,8 +353,6 @@ public:
 #if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
 	int ScoreWonderTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
 #endif
-
-	bool ChooseTradeUnitTargetPlot(CvUnit* pUnit, int& iOriginPlotIndex, int& iDestPlotIndex, TradeConnectionType& eTradeConnectionType, bool& bDisband, const TradeConnectionList& aTradeConnections);
 
 	int m_iRemovableValue;
 

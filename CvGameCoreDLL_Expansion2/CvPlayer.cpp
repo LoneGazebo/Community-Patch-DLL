@@ -12999,7 +12999,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 
 		if (pUnitInfo.IsTrade())
 		{
-			if (GetTrade()->GetNumTradeRoutesRemaining(bContinue) <= 0)
+			if (GetTrade()->GetNumTradeUnitsRemaining(!bContinue) <= 0)
 			{
 				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_TRADE_UNIT_CONSTRUCTION_NO_EXTRA_SLOTS");
 				if (toolTipSink == NULL)

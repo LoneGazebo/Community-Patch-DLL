@@ -4102,6 +4102,7 @@ int CvPlayerTrade::GetNumberOfCityStateTradeRoutes()
 	return iNumConnections;
 }
 #if defined(MOD_BALANCE_CORE_POLICIES)
+
 //Returns the number of internal trade routes in your empire
 int CvPlayerTrade::GetNumberOfInternalTradeRoutes()
 {
@@ -4113,7 +4114,35 @@ int CvPlayerTrade::GetNumberOfInternalTradeRoutes()
 
 		if (pConnection->m_eOriginOwner == m_pPlayer->GetID())
 		{
-			if(pConnection->m_eDestOwner == m_pPlayer->GetID())
+			if(pConnection->m_eDestOwner != m_pPlayer->GetID())
+			{
+				iNumConnections++;
+			}
+		}
+	}
+	return iNumConnections;
+}
+
+//Returns the number of international trade routes to other empires
+int CvPlayerTrade::GetNumberOfInternationalTradeRoutes(bool bOutgoing)
+{
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	int iNumConnections = 0;
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
+	{
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
+
+		if (bOutgoing && pConnection->m_eOriginOwner == m_pPlayer->GetID())
+		{
+			if(pConnection->m_eDestOwner != m_pPlayer->GetID())
+			{
+				iNumConnections++;
+			}
+		}
+
+		if (!bOutgoing && pConnection->m_eDestOwner == m_pPlayer->GetID())
+		{
+			if(pConnection->m_eOriginOwner != m_pPlayer->GetID())
 			{
 				iNumConnections++;
 			}
@@ -4909,7 +4938,7 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetNumTradeRoutesUsed (bool bContinueTraining)
+int CvPlayerTrade::GetNumTradeUnits(bool bIncludeBeingBuilt)
 {
 	int iReturnValue = 0;
 	int iLoop;
@@ -4925,7 +4954,7 @@ int CvPlayerTrade::GetNumTradeRoutesUsed (bool bContinueTraining)
 	}
 
 	// look inside cities
-	if (!bContinueTraining)
+	if (bIncludeBeingBuilt)
 	{
 		CvCity* pLoopCity;
 		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
@@ -4938,9 +4967,9 @@ int CvPlayerTrade::GetNumTradeRoutesUsed (bool bContinueTraining)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetNumTradeRoutesRemaining (bool bContinueTraining)
+int CvPlayerTrade::GetNumTradeUnitsRemaining (bool bIncludeBeingBuilt)
 {
-	return (GetNumTradeRoutesPossible() - GetNumTradeRoutesUsed(bContinueTraining));
+	return (GetNumTradeRoutesPossible() - GetNumTradeUnits(bIncludeBeingBuilt));
 }
 
 //	--------------------------------------------------------------------------------
@@ -6107,7 +6136,7 @@ struct SortTR
 };
 
 /// Prioritize TRs
-void CvTradeAI::PrioritizeTradeRoutes(TradeConnectionList& aTradeConnectionList)
+void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionList)
 {	
 	GetAvailableTR(aTradeConnectionList);
 
@@ -6398,72 +6427,6 @@ void CvTradeAI::PrioritizeTradeRoutes(TradeConnectionList& aTradeConnectionList)
 #endif // AUI_TRADE_UNBIASED_PRIORITIZE
 
 }
-
-/// ChooseTradeUnitTargetPlot
-bool CvTradeAI::ChooseTradeUnitTargetPlot(CvUnit* pUnit, int& iOriginPlotIndex, int& iDestPlotIndex, TradeConnectionType& eTradeConnectionType, bool& bDisband, const TradeConnectionList& aTradeConnections)
-{
-	// clearing the returned data
-	iOriginPlotIndex = MAX_INT;
-	iDestPlotIndex = MAX_INT;
-	eTradeConnectionType = NUM_TRADE_CONNECTION_TYPES;
-	bDisband = false;
-
-	CvCity* pOriginCity = pUnit->plot()->getPlotCity();
-	CvAssertMsg(pOriginCity, "pOriginCity is null! Whaa?");
-	if (!pOriginCity)
-	{
-		return false;
-	}
-
-	CvPlayerTrade* pkTradeAI = m_pPlayer->GetTrade();
-
-	uint uiNumDuplicateTRs = 0;
-	uint uiNumTradeRoutesPossible =  pkTradeAI->GetNumTradeRoutesPossible();
-	uint uiNumTradeConnections = aTradeConnections.size();
-
-	for (uint ui = 0; ui < uiNumTradeRoutesPossible && ui < uiNumTradeConnections; ui++)
-	{
-		for (uint ui2 = ui + 1;  ui2 < uiNumTradeRoutesPossible && ui2 < uiNumTradeConnections; ui2++)
-		{
-			if (aTradeConnections[ui].m_iOriginX == aTradeConnections[ui2].m_iOriginX && 
-				aTradeConnections[ui].m_iOriginY == aTradeConnections[ui2].m_iOriginY && 
-				aTradeConnections[ui].m_iDestX   == aTradeConnections[ui2].m_iDestX && 
-				aTradeConnections[ui].m_iDestY   == aTradeConnections[ui2].m_iDestY && 
-				aTradeConnections[ui].m_eConnectionType == aTradeConnections[ui2].m_eConnectionType)
-			{
-				uiNumDuplicateTRs++;
-			}
-		}
-	}
-
-	for (uint ui = 0; ui < aTradeConnections.size(); ui++)
-	{
-		if (ui >= (uiNumTradeRoutesPossible + uiNumDuplicateTRs))
-		{
-			if ((uiNumTradeRoutesPossible - pkTradeAI->GetNumTradeRoutesUsed(true)) == 0) // GetNumTradeRoutesRemaining(true)
-			{
-				bDisband = true;
-				return true;
-			}
-		}
-
-		if (aTradeConnections[ui].m_eDomain == pUnit->getDomainType())
-		{
-			CvPlot* pPlot = GC.getMap().plot(aTradeConnections[ui].m_iOriginX, aTradeConnections[ui].m_iOriginY);
-			if (pUnit->canMakeTradeRouteAt(pPlot, aTradeConnections[ui].m_iDestX, aTradeConnections[ui].m_iDestY, aTradeConnections[ui].m_eConnectionType))
-			{
-				CvPlot* pDestPlot = GC.getMap().plot(aTradeConnections[ui].m_iDestX, aTradeConnections[ui].m_iDestY);
-				iOriginPlotIndex = pPlot->GetPlotIndex();
-				iDestPlotIndex = pDestPlot->GetPlotIndex();
-				eTradeConnectionType = aTradeConnections[ui].m_eConnectionType;
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
 
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvTradeAI& writeTo)
