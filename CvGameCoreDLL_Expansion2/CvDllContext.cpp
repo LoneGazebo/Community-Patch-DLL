@@ -51,7 +51,7 @@ CvDllGameContext* CvDllGameContext::s_pSingleton = NULL;
 HANDLE CvDllGameContext::s_hHeap = INVALID_HANDLE_VALUE;
 
 //---------
-#define DEBUG_UNIT_MOVES
+//#define DEBUG_UNIT_MOVES
 #if defined (DEBUG_UNIT_MOVES)
 int g_iTargetX = -1;
 int g_iTargetY = -1;

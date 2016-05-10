@@ -5495,6 +5495,15 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	}
 #endif
 
+	CvCity* pToCity = CvGameTrade::GetDestCity(kTradeConnection);
+	CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
+
+	if (!pToCity || !pFromCity)
+		return 0;
+
+	if (pToCity->isUnderSiege() || pFromCity->isUnderSiege())
+		return 0;
+
 	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
 	CvPlayerTrade* pOtherPlayerTrade = GET_PLAYER(kTradeConnection.m_eDestOwner).GetTrade();
 	int iDangerSum = 1; // can't be zero because we divide by it!
@@ -5556,12 +5565,12 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 
 	// gold
 	int iGoldAmount = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, true);
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
 	//if a city is impoverished, let's send trade routes from there (multiply based on amount of unhappiness.
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{		
-		if(pFromCity != NULL && pFromCity->getUnhappinessFromGold() > 0)
+		if(pFromCity->getUnhappinessFromGold() > 0)
 		{
 			iGoldAmount *= (pFromCity->getUnhappinessFromGold() + 1);
 		}
@@ -5569,32 +5578,29 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	//If we are somewhat influential, let's count that here.
 	if(bHaveTourism && !GET_PLAYER(pFromCity->getOwner()).isMinorCiv())
 	{
-		if(pFromCity != NULL)
+		//If we get a bonus for tourism, let's count that.
+		if(kTradeConnection.m_eDomain == DOMAIN_LAND)
 		{
-			//If we get a bonus for tourism, let's count that.
-			if(kTradeConnection.m_eDomain == DOMAIN_LAND)
+			if(pFromCity->GetLandTourismBonus() > 0)
 			{
-				if(pFromCity->GetLandTourismBonus() > 0)
+				iGoldAmount += pFromCity->GetLandTourismBonus();
+				//If our influence is pretty good, double the bonus. Not if we're already influential, though.
+				if(GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) >= INFLUENCE_LEVEL_FAMILIAR && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) < INFLUENCE_LEVEL_INFLUENTIAL)
 				{
 					iGoldAmount += pFromCity->GetLandTourismBonus();
-					//If our influence is pretty good, double the bonus. Not if we're already influential, though.
-					if(GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) >= INFLUENCE_LEVEL_FAMILIAR && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) < INFLUENCE_LEVEL_INFLUENTIAL)
-					{
-						iGoldAmount += pFromCity->GetLandTourismBonus();
-					}
 				}
 			}
-			//If we get a bonus for tourism, let's count that.
-			else if(kTradeConnection.m_eDomain == DOMAIN_SEA)
+		}
+		//If we get a bonus for tourism, let's count that.
+		else if(kTradeConnection.m_eDomain == DOMAIN_SEA)
+		{
+			if(pFromCity->GetSeaTourismBonus() > 0)
 			{
-				if(pFromCity->GetSeaTourismBonus() > 0)
+				iGoldAmount += pFromCity->GetSeaTourismBonus();
+				//If our influence is pretty good, double the bonus. Not if we're already influential, though.
+				if(GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) >= INFLUENCE_LEVEL_FAMILIAR && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) < INFLUENCE_LEVEL_INFLUENTIAL)
 				{
 					iGoldAmount += pFromCity->GetSeaTourismBonus();
-					//If our influence is pretty good, double the bonus. Not if we're already influential, though.
-					if(GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) >= INFLUENCE_LEVEL_FAMILIAR && GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceLevel(kTradeConnection.m_eDestOwner) < INFLUENCE_LEVEL_INFLUENTIAL)
-					{
-						iGoldAmount += pFromCity->GetSeaTourismBonus();
-					}
 				}
 			}
 		}
@@ -5632,7 +5638,6 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	//if a city is illiterate, let's send trade routes from there (add based on amount of unhappiness).
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
 		if(pFromCity->getUnhappinessFromScience() > 0)
 		{
 			iTechDifferenceP1fromP2 += pFromCity->getUnhappinessFromScience();
@@ -5666,54 +5671,48 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	int iReligionDelta = 0;
 	if (eOwnerFoundedReligion != NO_RELIGION)
 	{
-		CvCity* pToCity = CvGameTrade::GetDestCity(kTradeConnection);
-		CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
-		CvAssert(pToCity != NULL && pFromCity != NULL);
-		if (pToCity != NULL && pFromCity != NULL)
-		{
-			ReligionTypes eToReligion = NO_RELIGION;
-			int iToPressure = 0;
-			ReligionTypes eFromReligion = NO_RELIGION;
-			int iFromPressure = 0;
-			bool bAnyFromCityPressure = pFromCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pToCity, eToReligion, iToPressure);
-			bool bAnyToCityPressure = pToCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pFromCity, eFromReligion, iFromPressure);
+		ReligionTypes eToReligion = NO_RELIGION;
+		int iToPressure = 0;
+		ReligionTypes eFromReligion = NO_RELIGION;
+		int iFromPressure = 0;
+		bool bAnyFromCityPressure = pFromCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pToCity, eToReligion, iToPressure);
+		bool bAnyToCityPressure = pToCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pFromCity, eFromReligion, iFromPressure);
 
 #ifndef AUI_TRADE_SCORE_INTERNATIONAL_RELATIVE_RELIGION_SCORING
-			// Internally pressure is now 10 times greater than what is shown to user
-			iToPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
-			iFromPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
+		// Internally pressure is now 10 times greater than what is shown to user
+		iToPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
+		iFromPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
 #endif // AUI_TRADE_SCORE_INTERNATIONAL_RELATIVE_RELIGION_SCORING
 
-			// if anyone is exerting pressure
-			if (bAnyFromCityPressure || bAnyToCityPressure)
+		// if anyone is exerting pressure
+		if (bAnyFromCityPressure || bAnyToCityPressure)
+		{
+			// "to" and "from" religions need to be different for us to care
+			if (eToReligion != eFromReligion)
 			{
-				// "to" and "from" religions need to be different for us to care
-				if (eToReligion != eFromReligion)
-				{
 #ifdef AUI_TRADE_SCORE_INTERNATIONAL_RELATIVE_RELIGION_SCORING
-					int iExistingToPressureAtFrom = pFromCity->GetCityReligions()->GetPressure(eFromReligion);
-					int iExistingGoodPressureAtTo = pToCity->GetCityReligions()->GetPressure(eOwnerFoundedReligion);
-					if (eToReligion != eOwnerFoundedReligion)
-						iToPressure = 0;
-					if (eFromReligion == eOwnerFoundedReligion)
-						iFromPressure = 0;
-					double dExistingPressureModFrom = sqrt(log((double)MAX(1, iExistingToPressureAtFrom + iFromPressure) / (double)MAX(1, iExistingToPressureAtFrom)) / log(2.));
-					double dExistingPressureModTo = sqrt(log((double)MAX(1, iExistingGoodPressureAtTo + iToPressure) / (double)MAX(1, iExistingGoodPressureAtTo)) / log(2.));
+				int iExistingToPressureAtFrom = pFromCity->GetCityReligions()->GetPressure(eFromReligion);
+				int iExistingGoodPressureAtTo = pToCity->GetCityReligions()->GetPressure(eOwnerFoundedReligion);
+				if (eToReligion != eOwnerFoundedReligion)
+					iToPressure = 0;
+				if (eFromReligion == eOwnerFoundedReligion)
+					iFromPressure = 0;
+				double dExistingPressureModFrom = sqrt(log((double)MAX(1, iExistingToPressureAtFrom + iFromPressure) / (double)MAX(1, iExistingToPressureAtFrom)) / log(2.));
+				double dExistingPressureModTo = sqrt(log((double)MAX(1, iExistingGoodPressureAtTo + iToPressure) / (double)MAX(1, iExistingGoodPressureAtTo)) / log(2.));
 
-					iReligionDelta += int(iToPressure * dExistingPressureModTo / GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER() + 0.5);
-					iReligionDelta -= int(iFromPressure * dExistingPressureModFrom / GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER() + 0.5);
+				iReligionDelta += int(iToPressure * dExistingPressureModTo / GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER() + 0.5);
+				iReligionDelta -= int(iFromPressure * dExistingPressureModFrom / GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER() + 0.5);
 #else
-					if (eToReligion == eOwnerFoundedReligion)
-					{
-						iReligionDelta += iToPressure;
-					}
-
-					if (eFromReligion != eOwnerFoundedReligion)
-					{
-						iReligionDelta -= iFromPressure;
-					}
-#endif // AUI_TRADE_SCORE_INTERNATIONAL_RELATIVE_RELIGION_SCORING
+				if (eToReligion == eOwnerFoundedReligion)
+				{
+					iReligionDelta += iToPressure;
 				}
+
+				if (eFromReligion != eOwnerFoundedReligion)
+				{
+					iReligionDelta -= iFromPressure;
+				}
+#endif // AUI_TRADE_SCORE_INTERNATIONAL_RELATIVE_RELIGION_SCORING
 			}
 		}
 	}
@@ -5824,100 +5823,83 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 		}	
 		if(m_pPlayer->GetCorporateFounderID() > 0 && iScore > 0)
 		{
-			int iX = kTradeConnection.m_iDestX;
-			int iY = kTradeConnection.m_iDestY;
-
-			int iOX = kTradeConnection.m_iOriginX;
-			int iOY = kTradeConnection.m_iOriginY;
-			if(iX != -1 && iY != -1 && iOX != -1 && iOY != -1)
+			if(pFromCity->HasOffice())
 			{
-				CvPlot* pPlot = GC.getMap().plot(iX, iY);
-				CvPlot* pPlot2 = GC.getMap().plot(iOX, iOY);
-				if(pPlot != NULL && pPlot2 != NULL)
+				int iFranchises = m_pPlayer->GetCorporateFranchisesWorldwide();
+				int iMax = m_pPlayer->GetMaxFranchises();
+				//Not franchised? Let's see what we get if we franchise it.
+				if((iFranchises < iMax) && !m_pPlayer->IsOrderCorp() && !pToCity->IsFranchised(m_pPlayer->GetID()))
 				{
-					CvCity* pDestCity = pPlot->getPlotCity();
-					CvCity* pOriginCity = pPlot2->getPlotCity();
-					if(pDestCity != NULL && pOriginCity != NULL)
+					int iGPYieldFromCorp = pFromCity->GetCorporationGPChange();
+					if (iGPYieldFromCorp > 0)
 					{
-						if(pOriginCity->HasOffice())
+						iScore *= (iGPYieldFromCorp * 25);
+					}
+					for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+					{
+						int iYieldFromCorp = pFromCity->GetCorporationYieldChange((YieldTypes)iYield);
+						if (iYieldFromCorp > 0)
 						{
-							int iFranchises = m_pPlayer->GetCorporateFranchisesWorldwide();
-							int iMax = m_pPlayer->GetMaxFranchises();
-							//Not franchised? Let's see what we get if we franchise it.
-							if((iFranchises < iMax) && !m_pPlayer->IsOrderCorp() && !pDestCity->IsFranchised(m_pPlayer->GetID()))
-							{
-								int iGPYieldFromCorp = pOriginCity->GetCorporationGPChange();
-								if (iGPYieldFromCorp > 0)
-								{
-									iScore *= (iGPYieldFromCorp * 25);
-								}
-								for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-								{
-									int iYieldFromCorp = pOriginCity->GetCorporationYieldChange((YieldTypes)iYield);
-									if (iYieldFromCorp > 0)
-									{
-										iScore *= (iYieldFromCorp * 25);
-									}
-								}
-								if(m_pPlayer->GetCulture()->GetInfluenceLevel(pDestCity->getOwner()) >= INFLUENCE_LEVEL_POPULAR && m_pPlayer->IsAutocracyCorp())
-								{
-									iScore *= 50;
-								}
-							}
-							//Franchised? Do we get a bonus for sending TRs here again?
-							else
-							{
-								for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-								{
-									int iYieldFromCorp = pOriginCity->GetCorporationYieldModChange((YieldTypes)iYield);
-									if (iYieldFromCorp > 0)
-									{
-										iScore *= (iYieldFromCorp * 15);
-									}
-								}
-								for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-								{
-									const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-									CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-
-									if(pkBuildingInfo && pkBuildingInfo->GetCorporationID() == GET_PLAYER(pOriginCity->getOwner()).GetCorporateFounderID())
-									{
-										for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-										{
-											if(pkBuildingInfo->GetCorporationTradeRouteMod(iYield) > 0)
-											{
-												// Has this Building
-												if(pOriginCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-												{
-													iScore *= (pkBuildingInfo->GetCorporationTradeRouteMod(iYield) * 15);
-												}
-											}
-										}
-									}
-								}
-							}
+							iScore *= (iYieldFromCorp * 25);
 						}
-						//Foreign city have an office? Let's reduce the score just a little to keep from feeding their corporation.
-						else if(pDestCity->HasOffice() && GET_PLAYER(pDestCity->getOwner()).isMajorCiv())
+					}
+					if(m_pPlayer->GetCulture()->GetInfluenceLevel(pToCity->getOwner()) >= INFLUENCE_LEVEL_POPULAR && m_pPlayer->IsAutocracyCorp())
+					{
+						iScore *= 50;
+					}
+				}
+				//Franchised? Do we get a bonus for sending TRs here again?
+				else
+				{
+					for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+					{
+						int iYieldFromCorp = pFromCity->GetCorporationYieldModChange((YieldTypes)iYield);
+						if (iYieldFromCorp > 0)
 						{
-							int iFranchises = (GET_PLAYER(pDestCity->getOwner()).GetCorporateFranchisesWorldwide() / 2);
-							//Care less if we like this guy.
-							if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) == MAJOR_CIV_APPROACH_FRIENDLY)
-							{
-								iFranchises /= 5;
-							}
-							else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_OPINION_FAVORABLE)
-							{
-								iFranchises /= 5;
-							}
+							iScore *= (iYieldFromCorp * 15);
+						}
+					}
+					for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+					{
+						const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
-							iScore /= max(1, iFranchises);
+						if(pkBuildingInfo && pkBuildingInfo->GetCorporationID() == GET_PLAYER(pFromCity->getOwner()).GetCorporateFounderID())
+						{
+							for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+							{
+								if(pkBuildingInfo->GetCorporationTradeRouteMod(iYield) > 0)
+								{
+									// Has this Building
+									if(pFromCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+									{
+										iScore *= (pkBuildingInfo->GetCorporationTradeRouteMod(iYield) * 15);
+									}
+								}
+							}
 						}
 					}
 				}
 			}
-		}		
+			//Foreign city have an office? Let's reduce the score just a little to keep from feeding their corporation.
+			else if(pToCity->HasOffice() && GET_PLAYER(pToCity->getOwner()).isMajorCiv())
+			{
+				int iFranchises = (GET_PLAYER(pToCity->getOwner()).GetCorporateFranchisesWorldwide() / 2);
+				//Care less if we like this guy.
+				if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) == MAJOR_CIV_APPROACH_FRIENDLY)
+				{
+					iFranchises /= 5;
+				}
+				else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_OPINION_FAVORABLE)
+				{
+					iFranchises /= 5;
+				}
+
+				iScore /= max(1, iFranchises);
+			}
+		}
 	}
+
 	if(m_pPlayer->IsAtWar())
 	{
 		iScore /= max(4, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(true));
@@ -5957,6 +5939,9 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	{
 		return 0;
 	}
+
+	if (pDestCity->isUnderSiege() || pOriginCity->isUnderSiege())
+		return 0;
 
 	int iDistance = kTradeConnection.m_aPlotList.size();
 
@@ -6172,7 +6157,7 @@ void CvTradeAI::PrioritizeTradeRoutes(TradeConnectionList& aTradeConnectionList)
 			{
 				TRSortElement kElement;
 				kElement.m_kTradeConnection = aTradeConnectionList[ui];
-				kElement.m_iScore = ScoreProductionTR(aTradeConnectionList[ui], apFoodTargetCities);
+				kElement.m_iScore = ScoreFoodTR(aTradeConnectionList[ui], apFoodTargetCities);
 				if (kElement.m_iScore > 0)
 				{
 					aFoodSortedTR.push_back(kElement);

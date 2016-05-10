@@ -28802,6 +28802,11 @@ bool CvCity::isInDangerOfFalling() const
 	//be conservative here ...
 	return (m_iDamageTakenLastTurn*1.5 > iHitpoints);
 }
+
+bool CvCity::isUnderSiege() const
+{
+	return (m_iDamageTakenLastTurn>0);
+}
 #endif
 
 #if defined(MOD_BALANCE_CORE)
