@@ -27271,8 +27271,14 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 	m_uiLastPathFlags = iFlags;
 	m_uiLastPathTurn = GC.getGame().getGameTurn();
 
+	if (!newPath)
+		return false;
+
+	//now copy the new path
+	//but skip the first node, it's the current unit plot
+	//important: this means that an empty path is valid here!
 	m_kLastPath.clear();
-	//skip the first node, it's the current unit plot
+
 	CvPathNode nextNode;
 	for (size_t i=1; i<newPath.vPlots.size(); i++)
 	{
@@ -27325,9 +27331,11 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 				}
 			}
 		}
+		else //we're already there!
+			*piPathTurns = 0;
 	}
 
-	return !m_kLastPath.empty();
+	return true;
 }
 
 //	--------------------------------------------------------------------------------
