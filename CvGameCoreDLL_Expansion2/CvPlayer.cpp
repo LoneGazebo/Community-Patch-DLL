@@ -1137,7 +1137,7 @@ void CvPlayer::uninit()
 	m_pMinorCivAI->Uninit();
 	m_pDealAI->Uninit();
 	m_pBuilderTaskingAI->Uninit();
-	m_pCityConnections->Uninit();
+	m_pCityConnections->Reset();
 	if(m_pNotifications)
 	{
 		m_pNotifications->Uninit();
@@ -10574,6 +10574,9 @@ int CvPlayer::getCitiesFeatureSurrounded() const
 //	--------------------------------------------------------------------------------
 bool CvPlayer::IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRoute, bool bIgnoreHarbors, SPath* pPathOut)
 {
+	if (!pCity1 || !pCity2)
+		return false;
+
 	return IsPlotConnectedToPlot(m_eID, pCity1->plot(), pCity2->plot(), eRestrictRoute, bIgnoreHarbors, pPathOut);
 }
 
@@ -10595,8 +10598,6 @@ bool CvPlayer::IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestr
 	return IsCapitalConnectedToCity(pOtherPlayerCapital, eRestrictRoute);
 }
 
-
-#if defined(MOD_API_EXTENSIONS)
 //	---------------------------------------------------------------------------
 bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute)
 {
@@ -10614,33 +10615,26 @@ bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute
 		return false;
 	}
 
-	//todo: unify this with CvCityConnections!
+	CvCityConnections::CityConnectionTypes eConnection;
 
-	//did we already check it this turn?
-	std::map<int,std::pair<int,bool>>::iterator lastState = m_capitalConnectionLookup[eRestrictRoute].find(pCity->GetID());
-	if (lastState!=m_capitalConnectionLookup[eRestrictRoute].end() && lastState->second.first==GC.getGame().getGameTurn())
-		return lastState->second.second;
-
-	//do the actual pathfinding only once per turn
-	bool bResult = IsPlotConnectedToPlot(GetID(), pPlayerCapital->plot(), pCity->plot(), eRestrictRoute);
-
-	m_capitalConnectionLookup[eRestrictRoute][pCity->GetID()] = std::make_pair(GC.getGame().getGameTurn(), bResult);
-	return bResult;
-}
-
-#else
-//	---------------------------------------------------------------------------
-bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute)
-{
-	CvCity* pPlayerCapital = getCapitalCity();
-	if(pPlayerCapital == NULL)
+	switch (eRestrictRoute)
 	{
+	case ROUTE_ROAD:
+		eConnection = CvCityConnections::CONNECTION_ANY_LAND; //railroad also counts as road!
+		break;
+	case ROUTE_RAILROAD:
+		eConnection = CvCityConnections::CONNECTION_RAILROAD;
+		break;
+	case ROUTE_ANY:
+		eConnection = CvCityConnections::CONNECTION_ANY; //this includes habors
+		break;
+	default:
 		return false;
 	}
 
-	return IsCityConnectedToCity(pPlayerCapital, pCity, eRestrictRoute);
+	return GetCityConnections()->AreCitiesConnected(pPlayerCapital,pCity,eConnection);
+
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::findNewCapital()

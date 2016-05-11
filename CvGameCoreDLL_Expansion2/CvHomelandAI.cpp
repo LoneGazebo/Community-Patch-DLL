@@ -7106,7 +7106,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 	return pBestTarget;
 }
 
-void CvHomelandAI::LogHomelandMessage(CvString& strMsg)
+void CvHomelandAI::LogHomelandMessage(const CvString& strMsg)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -7127,7 +7127,7 @@ void CvHomelandAI::LogHomelandMessage(CvString& strMsg)
 	}
 }
 
-void CvHomelandAI::LogPatrolMessage( CvString& strMsg, CvUnit* pPatrolUnit )
+void CvHomelandAI::LogPatrolMessage(const CvString& strMsg, CvUnit* pPatrolUnit )
 {
 	if(!pPatrolUnit || !(GC.getLogging() && GC.getAILogging()))
 	{

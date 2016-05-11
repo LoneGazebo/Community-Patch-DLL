@@ -149,16 +149,11 @@ public:
 	virtual void AI_DoEventChoice(CityEventTypes eEvent) = 0;
 #endif
 
-	bool IsIndustrialRouteToCapital() const;
-	void SetIndustrialRouteToCapital(bool bValue);
-	void DoUpdateIndustrialRouteToCapital();
+	bool IsIndustrialRouteToCapitalConnected() const;
+	void SetIndustrialRouteToCapitalConnected(bool bValue);
 
 	void SetRouteToCapitalConnected(bool bValue);
-#if defined(MOD_API_EXTENSIONS)
 	bool IsRouteToCapitalConnected(void) const;
-#else
-	bool IsRouteToCapitalConnected(void);
-#endif
 
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	void createGreatGeneral(UnitTypes eGreatPersonUnit, bool bIsFree);
@@ -1384,7 +1379,8 @@ public:
 	bool HasReligion(ReligionTypes iReligionType) const;
 	bool HasResource(ResourceTypes iResourceType) const;
 	bool HasWorkedResource(ResourceTypes iResourceType) const;
-	bool IsConnectedToCapital() const;
+	//just an alias for lua
+	bool IsConnectedToCapital() const { return IsRouteToCapitalConnected(); }
 	bool IsConnectedTo(CvCity* pCity) const;
 	bool HasSpecialistSlot(SpecialistTypes iSpecialistType) const;
 	bool HasSpecialist(SpecialistTypes iSpecialistType) const;

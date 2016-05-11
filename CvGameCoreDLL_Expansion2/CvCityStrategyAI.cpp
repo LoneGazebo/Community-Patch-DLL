@@ -3455,7 +3455,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 		return false;
 
 	//do we already have a connection to the capital?
-	if (pCity->IsConnectedToCapital())
+	if (pCity->IsRouteToCapitalConnected())
 		return false;
 
 	//could we build a route?
@@ -5338,7 +5338,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 			iValue += 100;
 		}
 	}
-	if(pkBuildingInfo->GetCityConnectionTradeRouteModifier() != 0 && pCity->IsConnectedToCapital())
+	if(pkBuildingInfo->GetCityConnectionTradeRouteModifier() != 0 && pCity->IsRouteToCapitalConnected())
 	{
 		iValue += 10;
 	}

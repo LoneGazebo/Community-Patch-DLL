@@ -118,8 +118,7 @@ public:
 	bool IsPlayerConnectedToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer);
 	int CountNumPlayerConnectionsToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer);
 
-	bool IsCityConnectedToCity (CvCity* pFirstCity, CvCity* pSecondCity);
-	bool IsCityConnectedFromCityToCity (CvCity* pOriginCity, CvCity* pDestCity);
+	bool CitiesHaveTradeConnection (CvCity* pFirstCity, CvCity* pSecondCity);
 
 	int GetNumTimesOriginCity (CvCity* pCity, bool bOnlyInternational);
 	int GetNumTimesDestinationCity (CvCity* pCity, bool bOnlyInternational);

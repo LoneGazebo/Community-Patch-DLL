@@ -278,8 +278,8 @@ public:
 	CvPlot* FindTestArchaeologistPlot(CvUnit* pUnit);
 #endif
 	// Public logging
-	void LogHomelandMessage(CvString& strMsg);
-	void LogPatrolMessage(CvString& strMsg, CvUnit* pPatrolUnit);
+	void LogHomelandMessage(const CvString& strMsg);
+	void LogPatrolMessage(const CvString& strMsg, CvUnit* pPatrolUnit);
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	bool MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits = false, bool bSecondary = false);

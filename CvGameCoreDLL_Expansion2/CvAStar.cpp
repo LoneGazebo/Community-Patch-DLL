@@ -1700,27 +1700,15 @@ int RouteGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, co
 	int iValidCount = 0;
 	CvCityConnections* pCityConnections = kPlayer.GetCityConnections();
 
-	uint uiFirstCityIndex = pCityConnections->GetIndexFromCity(pFirstCity);
-	for(uint uiSecondCityIndex = 0; uiSecondCityIndex < pCityConnections->GetNumConnectableCities(); uiSecondCityIndex++)
+	int iLoop;
+	for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 	{
-		if(uiFirstCityIndex == uiSecondCityIndex)
-			continue;
-
-		CvCityConnections::RouteInfo* pRouteInfo = pCityConnections->GetRouteInfo(uiFirstCityIndex, uiSecondCityIndex);
-		if(!pRouteInfo)
-			continue;
-
-		if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_WATER_CONNECTION)
+		if (pCityConnections->AreCitiesConnected(pFirstCity,pLoopCity,CvCityConnections::CONNECTION_HARBOR))
 		{
-			// get the second city
-			CvCity* pSecondCity = pCityConnections->GetCityFromIndex(uiSecondCityIndex);
-			if(!pSecondCity)
-				continue;
-
 			if(iValidCount == iIndex)
 			{
-				iX = pSecondCity->getX();
-				iY = pSecondCity->getY();
+				iX = pLoopCity->getX();
+				iY = pLoopCity->getY();
 				return 1;
 			}
 
@@ -1829,37 +1817,23 @@ int RouteGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder)
 	if(!pPlot)
 		return 0;
 
-	// slewis - don't allow the minor civ to use harbors
-	if(kPlayer.isMinorCiv())
-		return 0;
-
-	CvCityConnections* pCityConnections = kPlayer.GetCityConnections();
-	if(pCityConnections->IsEmpty())
-		return 0;
-
-	int iResultNum = 0;
-
 	CvCity* pFirstCity = pPlot->getPlotCity();
 
 	// if there isn't a city there or the city isn't on our team
 	if(!pFirstCity || pFirstCity->getTeam() != eTeam)
 		return 0;
 
-	uint uiFirstCityIndex = pCityConnections->GetIndexFromCity(pFirstCity);
-	for(uint uiSecondCityIndex = 0; uiSecondCityIndex < pCityConnections->GetNumConnectableCities(); uiSecondCityIndex++)
+	CvCityConnections* pCityConnections = kPlayer.GetCityConnections();
+	int iValidCount = 0;
+
+	int iLoop;
+	for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 	{
-		if(uiFirstCityIndex == uiSecondCityIndex)
-			continue;
-
-		CvCityConnections::RouteInfo* pRouteInfo = pCityConnections->GetRouteInfo(uiFirstCityIndex, uiSecondCityIndex);
-		if(!pRouteInfo)
-			continue;
-
-		if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_WATER_CONNECTION)
-			iResultNum++;
+		if (pCityConnections->AreCitiesConnected(pFirstCity,pLoopCity,CvCityConnections::CONNECTION_HARBOR))
+			iValidCount++;
 	}
 
-	return iResultNum;
+	return iValidCount;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2149,15 +2123,15 @@ bool CvPathFinder::Configure(PathType ePathType)
 		SetFunctionPointers(DestinationReached, InfluenceDestValid, StepHeuristic, InfluenceCost, InfluenceValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
-	case PT_CITY_ROUTE_LAND:
+	case PT_CITY_CONNECTION_LAND:
 		SetFunctionPointers(DestinationReached, NULL, StepHeuristic, NULL, RouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
-	case PT_CITY_ROUTE_WATER:
+	case PT_CITY_CONNECTION_WATER:
 		SetFunctionPointers(DestinationReached, NULL, StepHeuristic, NULL, WaterRouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
-	case PT_CITY_ROUTE_MIXED:
+	case PT_CITY_CONNECTION_MIXED:
 		SetFunctionPointers(DestinationReached, NULL, StepHeuristic, NULL, RouteValid, NULL, NULL, RouteGetNumExtraChildren, RouteGetExtraChild, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
@@ -2745,13 +2719,13 @@ bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPl
 	if (ePlayer==NO_PLAYER || pFromPlot==NULL || pToPlot==NULL)
 		return false;
 
-	SPathFinderUserData data(ePlayer, bIgnoreHarbors ? PT_CITY_ROUTE_LAND : PT_CITY_ROUTE_MIXED, eRestrictRoute);
+	SPathFinderUserData data(ePlayer, bIgnoreHarbors ? PT_CITY_CONNECTION_LAND : PT_CITY_CONNECTION_MIXED, eRestrictRoute);
 	SPath result;
 	if (!pPathOut)
 		pPathOut = &result;
 
 	*pPathOut = GC.GetStepFinder().GetPath(pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY(), data);
-	return !pPathOut->vPlots.empty();
+	return !!pPathOut;
 }
 
 //	---------------------------------------------------------------------------

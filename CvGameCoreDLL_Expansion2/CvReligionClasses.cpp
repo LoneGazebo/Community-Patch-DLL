@@ -3055,7 +3055,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 	}
 
 	bool bWithinDistance = (iApparentDistance <= iMaxDistance);
-	bool bConnectedWithTrade = GC.getGame().GetGameTrade()->IsCityConnectedToCity(pFromCity, pToCity) || bPretendTradeConnection;
+	bool bConnectedWithTrade = GC.getGame().GetGameTrade()->CitiesHaveTradeConnection(pFromCity, pToCity) || bPretendTradeConnection;
 
 	if(bWithinDistance || bConnectedWithTrade)
 	{

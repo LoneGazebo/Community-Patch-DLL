@@ -2758,8 +2758,6 @@ void CvCity::doTurn()
 		}
 #endif
 
-		DoUpdateIndustrialRouteToCapital();
-
 		doProduction(bAllowNoProduction);
 
 		doDecay();
@@ -3703,7 +3701,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	if(pkEventInfo->isRequiresWar() && GET_PLAYER(getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
 		return false;
 
-	if(pkEventInfo->hasCityConnection() && !IsConnectedToCapital())
+	if(pkEventInfo->hasCityConnection() && !IsRouteToCapitalConnected())
 		return false;
 
 	if(pkEventInfo->hasTradeConnection() && !HasTradeRouteFrom(this) && !HasTradeRouteTo(this))
@@ -4155,7 +4153,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if(pkEventInfo->isRequiresWar() && GET_PLAYER(getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
 		return false;
 
-	if(pkEventInfo->hasCityConnection() && !IsConnectedToCapital())
+	if(pkEventInfo->hasCityConnection() && !IsRouteToCapitalConnected())
 		return false;
 
 	if(pkEventInfo->hasTradeConnection() && !HasTradeRouteFrom(this) && !HasTradeRouteTo(this))
@@ -5907,100 +5905,39 @@ void CvCity::ChangeEventHappiness(int iValue)
 #endif
 //	--------------------------------------------------------------------------------
 /// Connected to capital with industrial route? (Railroads)
-bool CvCity::IsIndustrialRouteToCapital() const
+bool CvCity::IsIndustrialRouteToCapitalConnected() const
 {
 	return m_bIndustrialRouteToCapital;
 }
 
 //	--------------------------------------------------------------------------------
 /// Connected to capital with industrial route? (Railroads)
-void CvCity::SetIndustrialRouteToCapital(bool bValue)
+void CvCity::SetIndustrialRouteToCapitalConnected(bool bValue)
 {
-	if(bValue != IsIndustrialRouteToCapital())
-	{
-		m_bIndustrialRouteToCapital = bValue;
-	}
-}
-
-//	--------------------------------------------------------------------------------
-/// Connected to capital with industrial route? (Railroads)
-void CvCity::DoUpdateIndustrialRouteToCapital()
-{
-	SetIndustrialRouteToCapital(false);
-
-	// Capital - what do we want to do about this?
-	if(isCapital())
-	{
-#if defined(MOD_BALANCE_CORE)
-		RouteTypes eRoute = GC.getGame().GetIndustrialRoute();
-
-		if(eRoute != NO_ROUTE)
-		{
-			for(int iBuildLoop = 0; iBuildLoop < GC.getNumBuildInfos(); iBuildLoop++)
-			{
-				CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes) iBuildLoop);
-				if(!pkBuildInfo)
-				{
-					continue;
-				}
-
-				if(pkBuildInfo->getRoute() == eRoute)
-				{
-					if(GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuildInfo->getTechPrereq()))
-					{
-						SetIndustrialRouteToCapital(true);
-						break;
-					}
-				}
-			}
-		}
-#endif
-	}
-	// Non-capital city
-	else
-	{
-		if(GET_PLAYER(getOwner()).IsCapitalConnectedToCity(this, GC.getGame().GetIndustrialRoute()))
-		{
-			SetIndustrialRouteToCapital(true);
-		}
-	}
+	m_bIndustrialRouteToCapital = bValue;
 }
 
 //	--------------------------------------------------------------------------------
 void CvCity::SetRouteToCapitalConnected(bool bValue)
 {
-	bool bUpdateReligion = false;
+	bool bUpdateReligion = (bValue != m_bRouteToCapitalConnectedThisTurn);
 
-	if(bValue != m_bRouteToCapitalConnectedThisTurn)
-	{
-		bUpdateReligion = true;
-	}
-
+	//do this before the religion recalculation ...
 	m_bRouteToCapitalConnectedThisTurn = bValue;
 
 	if(bUpdateReligion)
 	{
 #if defined(MOD_BALANCE_CORE)
-		UpdateReligion(GetCityReligions()->GetReligiousMajority(),false);
+		UpdateReligion(GetCityReligions()->GetReligiousMajority(), false);
 #else
 		UpdateReligion(GetCityReligions()->GetReligiousMajority());
 #endif
 	}
-
-	if(GC.getGame().getGameTurn() == 0)
-	{
-		m_bRouteToCapitalConnectedLastTurn = bValue;
-	}
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_API_EXTENSIONS)
 bool CvCity::IsRouteToCapitalConnected(void) const
-#else
-bool CvCity::IsRouteToCapitalConnected(void)
-#endif
 {
-	//todo: unify this with IsConnectedToCapital
 	return m_bRouteToCapitalConnectedThisTurn;
 }
 
@@ -6976,7 +6913,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	}
 	if(pkBuildingInfo->IsRequiresRail())
 	{
-		if(!IsIndustrialRouteToCapital())
+		if(!IsIndustrialRouteToCapitalConnected())
 		{
 			return false;
 		}
@@ -10401,7 +10338,7 @@ int CvCity::getGeneralProductionModifiers(CvString* toolTipSink) const
 	int iMultiplier = 0;
 
 	// Railroad to capital?
-	if(IsIndustrialRouteToCapital())
+	if(IsIndustrialRouteToCapitalConnected())
 	{
 		const int iTempMod = GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD();
 		iMultiplier += iTempMod;
@@ -18094,7 +18031,7 @@ int CvCity::getUnhappinessFromConnectionRaw(int iLimit) const
 #endif
 
 	//note: it's only connected to the capital if it's not blockaded
-	if(IsConnectedToCapital())
+	if(IsRouteToCapitalConnected())
 	{
 		return 0;
 	}
@@ -18106,7 +18043,7 @@ int CvCity::getUnhappinessFromConnectionRaw(int iLimit) const
 		if(!pLoopCity)
 			continue;
 
-		if(pLoopCity->isCapital() || pLoopCity->IsConnectedToCapital())
+		if(pLoopCity->isCapital() || pLoopCity->IsRouteToCapitalConnected())
 		{
 			if(HasTradeRouteTo(pLoopCity) || HasTradeRouteFrom(pLoopCity))
 			{
@@ -28356,11 +28293,6 @@ bool CvCity::HasWorkedResource(ResourceTypes iResourceType) const
 	}
 
 	return false;
-}
-
-bool CvCity::IsConnectedToCapital() const
-{
-	return GET_PLAYER(getOwner()).IsCapitalConnectedToCity((CvCity*) this);
 }
 
 bool CvCity::IsConnectedTo(CvCity* pCity) const

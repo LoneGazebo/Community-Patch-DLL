@@ -6983,7 +6983,7 @@ ResourceTypes CvPlot::getResourceType(TeamTypes eTeam) const
 		if(m_eResourceType != NO_RESOURCE)
 		{
 			CvGame& Game = GC.getGame();
-			bool bDebug = Game.isDebugMode();
+			bool bDebug = Game.isDebugMode() || GET_TEAM(eTeam).isObserver();
 
 			int iPolicyReveal = GC.getResourceInfo((ResourceTypes)m_eResourceType)->getPolicyReveal();
 			if (!bDebug && iPolicyReveal != NO_POLICY)
@@ -14469,7 +14469,6 @@ CvUnit* CvPlot::GetAdjacentEnemyUnit(TeamTypes eMyTeam, DomainTypes eDomain) con
 	return NULL;
 }
 
-
 int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bCountRanged) const
 {
 	int iNumEnemiesAdjacent = 0;
@@ -14517,12 +14516,14 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 	return iNumEnemiesAdjacent;
 }
 
-int CvPlot::GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit* pUnitToExclude, const CvUnit* pExampleUnitType, bool bCombatOnly) const
+int CvPlot::GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bCountRanged) const
 {
-	int iNumUnitsAdjacent = 0;
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	int iNumFriendliesAdjacent = 0;
+
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 	{
-		CvPlot* pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
 		if(pLoopPlot != NULL)
 		{
 			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
@@ -14534,14 +14535,22 @@ int CvPlot::GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit*
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
 				// No NULL, and no unit we want to exclude
-				if(pLoopUnit && pLoopUnit != pUnitToExclude && pLoopUnit->getOwner()==ePlayer)
+				if(pLoopUnit && pLoopUnit != pUnitToExclude)
 				{
 					// Must be a combat Unit
-					if(!bCombatOnly || pLoopUnit->IsCombatUnit())
+					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
 					{
-						if(!pExampleUnitType || pLoopUnit->getUnitType() == pExampleUnitType->getUnitType())
+						if (pLoopUnit->isRanged() && !bCountRanged)
+							continue;
+
+						// Same team?
+						if(pLoopUnit->getTeam() == eMyTeam)
 						{
-							iNumUnitsAdjacent++;
+							// Must be same domain
+							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)
+							{
+								iNumFriendliesAdjacent++;
+							}
 						}
 					}
 				}
@@ -14549,7 +14558,7 @@ int CvPlot::GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit*
 		}
 	}
 
-	return iNumUnitsAdjacent;
+	return iNumFriendliesAdjacent;
 }
 
 bool CvPlot::IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const
@@ -14586,6 +14595,40 @@ bool CvPlot::IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const
 	return false;
 }
 
+int CvPlot::GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit* pUnitToExclude, const CvUnit* pExampleUnitType, bool bCombatOnly) const
+{
+	int iNumUnitsAdjacent = 0;
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		if(pLoopPlot != NULL)
+		{
+			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+
+			// Loop through all units on this plot
+			while(pUnitNode != NULL)
+			{
+				CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+				// No NULL, and no unit we want to exclude
+				if(pLoopUnit && pLoopUnit != pUnitToExclude && pLoopUnit->getOwner()==ePlayer)
+				{
+					// Must be a combat Unit
+					if(!bCombatOnly || pLoopUnit->IsCombatUnit())
+					{
+						if(!pExampleUnitType || pLoopUnit->getUnitType() == pExampleUnitType->getUnitType())
+						{
+							iNumUnitsAdjacent++;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iNumUnitsAdjacent;
+}
 
 ///-------------------------------------
 

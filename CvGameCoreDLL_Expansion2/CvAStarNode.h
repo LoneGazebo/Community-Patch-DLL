@@ -57,9 +57,9 @@ enum PathType
 	PT_AREA_CONNECTION,			//assign area IDs to connected plots (hack)
 	PT_LANDMASS_CONNECTION,		//assign landmass IDs to connected plots (hack)
 	PT_CITY_INFLUENCE,			//which plot is next for a city to expand it's borders
-	PT_CITY_ROUTE_LAND,			//is there a road or railroad between two points
-	PT_CITY_ROUTE_WATER,		//is there a sea connection between two points
-	PT_CITY_ROUTE_MIXED,		//is there a mixed land/sea connection between two points
+	PT_CITY_CONNECTION_LAND,			//is there a road or railroad between two points
+	PT_CITY_CONNECTION_WATER,		//is there a sea connection between two points
+	PT_CITY_CONNECTION_MIXED,		//is there a mixed land/sea connection between two points
 	PT_AIR_REBASE,				//for aircraft, only plots with cities and carriers are allowed
 };
 

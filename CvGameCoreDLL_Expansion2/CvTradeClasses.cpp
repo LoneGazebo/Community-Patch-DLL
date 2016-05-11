@@ -923,7 +923,7 @@ int CvGameTrade::CountNumPlayerConnectionsToPlayer (PlayerTypes eFirstPlayer, Pl
 }
 
 //	--------------------------------------------------------------------------------
-bool CvGameTrade::IsCityConnectedToCity (CvCity* pFirstCity, CvCity* pSecondCity)
+bool CvGameTrade::CitiesHaveTradeConnection(CvCity* pFirstCity, CvCity* pSecondCity)
 {
 	int iFirstCityX = pFirstCity->getX();
 	int iFirstCityY = pFirstCity->getY();
@@ -950,32 +950,6 @@ bool CvGameTrade::IsCityConnectedToCity (CvCity* pFirstCity, CvCity* pSecondCity
 	}
 
 	return false;	
-}
-
-//	--------------------------------------------------------------------------------
-bool CvGameTrade::IsCityConnectedFromCityToCity (CvCity* pOriginCity, CvCity* pDestCity)
-{
-	int iFirstCityX = pOriginCity->getX();
-	int iFirstCityY = pOriginCity->getY();
-	int iSecondCityX = pDestCity->getX();
-	int iSecondCityY = pDestCity->getY();
-
-	for (uint ui = 0; ui < m_aTradeConnections.size(); ui++)
-	{
-		TradeConnection* pConnection = &(m_aTradeConnections[ui]);
-
-		if (IsTradeRouteIndexEmpty(ui))
-		{
-			continue;
-		}
-
-		if (pConnection->m_iOriginX == iFirstCityX && pConnection->m_iOriginY == iFirstCityY && pConnection->m_iDestX == iSecondCityX && pConnection->m_iDestY == iSecondCityY)
-		{
-			return true;
-		}
-	}
-
-	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -6235,7 +6209,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 
 		for (CvCity* pCity = m_pPlayer->firstCity(&iCityLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iCityLoop))
 		{
-			if (pCity->getProductionTimes100()<iAvgProd)
+			if (pCity->getBaseYieldRate(YIELD_PRODUCTION) < iAvgProd)
 				apProductionTargetCities.push_back(pCity);
 		}
 	}

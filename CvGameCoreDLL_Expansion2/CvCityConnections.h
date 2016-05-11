@@ -25,86 +25,47 @@ public:
 	~CvCityConnections(void);
 
 	void Init(CvPlayer* pPlayer);
-	void Uninit(void);
+	void Reset(void);
 
 	//// Serialization routines
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
 	void Update(void);
-	void UpdateCityPlotIDs(void);
-	void UpdateRouteInfo(void);
+	bool Empty(void);  // if there are no cities in the route list
 
-	void ResetRouteInfo(void);
-	void ResetCityPlotIDs(void);
-
-	bool IsEmpty(void);  // if there are no cities in the route list
-
-	uint GetIndexFromCity(const CvCity* pCity);
-	CvCity* GetCityFromIndex(int iIndex);
-
-	uint GetNumConnectableCities(void);
+	//we don't only connect or own cities but also some others (eg for quests)
+	std::vector<int> GetPlotsToConnect() const { return m_cityPlotIDs; }
 
 	bool ShouldConnectToOtherPlayer(PlayerTypes eMinor);
 
-	CvPlayer* m_pPlayer;
-
-	typedef enum RouteState
+	enum CityConnectionTypes
 	{
-	    HAS_LAND_CONNECTION   = 0x1,
-	    HAS_WATER_CONNECTION = 0x2,
+		CONNECTION_NONE = 0,
+		CONNECTION_ROAD = 1,
+		CONNECTION_RAILROAD = 2,
+		CONNECTION_ANY_LAND = 3,
+		CONNECTION_HARBOR = 4,
+		CONNECTION_ANY = 7
 	};
 
-	struct RouteInfo
-	{
-		RouteInfo() :
-			m_cRouteState(0)
-			, m_cPassEval(0)
-		{
-		}
-
-		char m_cRouteState;
-		char m_cPassEval; // used to create the data, but should not be referenced as a value
-	};
-
-	RouteInfo* GetRouteInfo( uint uiFirstCityIndex, uint uiSecondCityIndex );
-	bool AreCitiesConnected( const CvCity* pCityA, const CvCity* pCityB, RouteState eRouteType );
+	CityConnectionTypes GetConnectionState( const CvCity* pCityA, const CvCity* pCityB ) const;
+	bool AreCitiesConnected( const CvCity* pCityA, const CvCity* pCityB, CityConnectionTypes eConnectionType ) const;
 
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
+	typedef std::map<int,std::map<int,CityConnectionTypes>> ConnectionStore;
+	typedef std::vector<int> PlotIndexStore;
 
-	void UpdatePlotRouteStates(void);
-	void BroadcastPlotRouteStateChanges(void);
-	void ConnectPlotRoute(CvPlot* pPlot);
+	void UpdateCityPlotIDs(void);
+	void UpdateRouteInfo(void);
+	void CheckPlotRouteStateChanges(const PlotIndexStore& lastState, const PlotIndexStore& newState);
 
-	void ResizeRouteInfo(uint uiNewSize);
-
-	uint m_uiRouteInfosDimension;
-	RouteInfo* m_aRouteInfos;
-
-	// these are used to update the engine
-	typedef enum PlotRouteState
-	{
-	    NO_CONNECTION = 0x0,
-	    CONNECTION = 0x1,
-	    CONNECTION_LAST_TURN = 0x2
-	};
-
-	struct PlotRouteInfo
-	{
-		PlotRouteInfo() :
-			m_iPlotIndex(-1)
-			, m_bPlotRouteState(0)
-		{
-		}
-
-		int m_iPlotIndex;
-		byte m_bPlotRouteState;
-	};
-
-	FStaticVector<PlotRouteInfo, 100, true, c_eCiv5GameplayDLL, 0> m_aPlotRouteInfos;
-	FStaticVector<int, SAFE_ESTIMATE_NUM_CITIES, true, c_eCiv5GameplayDLL, 0> m_aiCityPlotIDs;
-	FStaticVector<BuildingTypes, 10, true, c_eCiv5GameplayDLL, 0> m_aBuildingsAllowWaterRoutes;
+	ConnectionStore m_connectionState;
+	PlotIndexStore m_plotsWithConnectionToCapital;
+	PlotIndexStore m_cityPlotIDs;
+	std::vector<BuildingTypes> m_aBuildingsAllowWaterRoutes;
+	CvPlayer* m_pPlayer;
 };
 
 #endif //CIV5_BUILDER_TASKING_AI_H

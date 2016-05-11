@@ -316,7 +316,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	if(GC.getGame().GetIndustrialRoute() == eRoute)
 	{
 		// if we already have a connection, bail out
-		if(pTargetCity->IsIndustrialRouteToCapital())
+		if(pTargetCity->IsIndustrialRouteToCapitalConnected())
 		{
 			return;
 		}
@@ -412,7 +412,6 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			sValue = min(iProfit, MAX_SHORT);
 	}
 
-	//cannot use GetStepFinder().GetLastNode(), state of pathfinder has changed in the meantime!
 	for (size_t i=0; i<path.vPlots.size(); i++)
 	{
 		CvPlot* pPlot = path.get(i);
@@ -564,10 +563,12 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 /// Looks at city connections and marks plots that can be added as routes by EvaluateBuilder
 void CvBuilderTaskingAI::UpdateRoutePlots(void)
 {
-	m_aiNonTerritoryPlots.clear();
+	// updating plots that are part of the road network
+	CvCityConnections* pCityConnections = m_pPlayer->GetCityConnections();
 
 	// if there are fewer than 2 cities, we don't need to run this function
-	if(m_pPlayer->GetCityConnections()->GetNumConnectableCities() < 2)
+	std::vector<int> plotsToConnect = pCityConnections->GetPlotsToConnect();
+	if(plotsToConnect.size() < 2)
 	{
 		return;
 	}
@@ -606,8 +607,8 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 		return;
 	}
 
-	// updating plots that are part of the road network
-	CvCityConnections* pCityConnections = m_pPlayer->GetCityConnections();
+	//reset this, the ConnectCities* methods below save there any additional plots the builder need to look at
+	m_aiNonTerritoryPlots.clear();
 
 	for(int i = 0; i < GC.getNumBuildInfos(); i++)
 	{
@@ -643,13 +644,13 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 		}
 #endif
 
-		for(uint uiFirstCityIndex = 0; uiFirstCityIndex < pCityConnections->GetNumConnectableCities(); uiFirstCityIndex++)
+		for(uint uiFirstCityIndex = 0; uiFirstCityIndex < plotsToConnect.size(); uiFirstCityIndex++)
 		{
-			for(uint uiSecondCityIndex = uiFirstCityIndex + 1; uiSecondCityIndex < pCityConnections->GetNumConnectableCities(); uiSecondCityIndex++)
+			for(uint uiSecondCityIndex = uiFirstCityIndex + 1; uiSecondCityIndex < plotsToConnect.size(); uiSecondCityIndex++)
 			{
 				// get the two cities
-				CvCity* pFirstCity  = pCityConnections->GetCityFromIndex(uiFirstCityIndex);
-				CvCity* pSecondCity = pCityConnections->GetCityFromIndex(uiSecondCityIndex);
+				CvCity* pFirstCity  = GC.getMap().plotByIndexUnchecked(plotsToConnect[uiFirstCityIndex])->getPlotCity();
+				CvCity* pSecondCity  = GC.getMap().plotByIndexUnchecked(plotsToConnect[uiSecondCityIndex])->getPlotCity();
 				CvCity* pPlayerCapitalCity = NULL;
 				CvCity* pTargetCity = NULL;
 

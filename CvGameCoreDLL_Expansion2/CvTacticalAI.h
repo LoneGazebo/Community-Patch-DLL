@@ -762,7 +762,7 @@ public:
 #endif
 
 	// Public logging
-	void LogTacticalMessage(CvString& strMsg, bool bSkipLogDominanceZone = true);
+	void LogTacticalMessage(const CvString& strMsg, bool bSkipLogDominanceZone = true);
 
 	// Other people want to know this too
 	AITacticalPosture FindPosture(CvTacticalDominanceZone* pZone);

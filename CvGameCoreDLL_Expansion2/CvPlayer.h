@@ -3321,8 +3321,6 @@ protected:
 	std::vector<PlayerTypes> m_playersAtWarWithInFuture;
 #endif
 
-	//city ID to (turn,connected)
-	std::map<int,std::pair<int,bool>> m_capitalConnectionLookup[NUM_ROUTE_TYPES];
 };
 
 extern bool CancelActivePlayerEndTurn();
