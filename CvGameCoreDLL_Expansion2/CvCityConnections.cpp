@@ -244,7 +244,6 @@ void CvCityConnections::UpdateRouteInfo(void)
 		for(int i = 0; i < (int)m_aBuildingsAllowWaterRoutes.size(); i++)
 			if(pStartCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[i]) > 0)
 				bStartCityHasHarbor = true;
-
 		if (bStartCityHasHarbor && !pStartCity->IsBlockaded(true))
 		{
 			data.iTypeParameter = NO_ROUTE;
@@ -330,6 +329,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 	CvCity* pCapital = m_pPlayer->getCapitalCity();
 	if (pCapital)
 	{
+		//mixed route needs harbor connection flags to be set already
 		SPathFinderUserData data(m_pPlayer->GetID(), PT_CITY_CONNECTION_MIXED, ROUTE_ROAD);
 		ReachablePlots capitalRoadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data, 0);
 		for (ReachablePlots::iterator it = capitalRoadConnectedPlots.begin(); it != capitalRoadConnectedPlots.end(); ++it)

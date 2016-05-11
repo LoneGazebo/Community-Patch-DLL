@@ -5215,6 +5215,7 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 			{
 				// Request moves for all units, getting the slowest movement rate and the closest unit
 				iBestDistance = MAX_INT;
+				std::vector<int> vStuckUnits;
 				for (int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
 				{
 					CvArmyFormationSlot *pSlot = pThisArmy->GetFormationSlot(iI);
@@ -5236,17 +5237,30 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 								}
 
 								// At sea?
-								SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_SAME_AREA,pOperation->GetEnemy(),23);
-								int iDistance = GC.GetStepFinder().GetPathLengthInPlots(pUnit->plot(), pBestPlot, data);
-								if (iDistance > 0 && iDistance < iBestDistance)
+								if (pUnit->getDomainType()==DOMAIN_SEA)
 								{
-									iBestDistance = iDistance;
-									pClosestUnitAtSea = pUnit;
+									SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_SAME_AREA,pOperation->GetEnemy(),54);
+									int iDistance = GC.GetStepFinder().GetPathLengthInPlots(pUnit->plot(), pBestPlot, data);
+									if (iDistance<0)
+									{
+										vStuckUnits.push_back(pUnit->GetID());
+									}
+									else if (iDistance < iBestDistance)
+									{
+										iBestDistance = iDistance;
+										pClosestUnitAtSea = pUnit;
+									}
 								}
 							}
 						}
 					}
-				}	
+				}
+
+				// remove stuck units from army
+				for (std::vector<int>::iterator it = vStuckUnits.begin(); it != vStuckUnits.end(); ++it)
+				{
+					pThisArmy->RemoveUnit(*it);
+				}
 
 				// Error handling: no one at sea, retarget
 				if (!pClosestUnitAtSea && pOperation->GetTargetPlot() != NULL)
