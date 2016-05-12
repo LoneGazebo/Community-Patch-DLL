@@ -1518,7 +1518,27 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 
 	//this is the important check here - stay within the same area
 	if(!bAnyArea && pFromPlot->getArea() != pToPlot->getArea())
-		return FALSE;
+	{
+		bool bAllow = false;
+
+		//be a little lenient with cities
+		if (pFromPlot->isCity())
+		{
+			CvCity* pCity = pFromPlot->getPlotCity();
+			if (pCity->isCoastal() && pCity->waterArea()->GetID() == pToPlot->getArea())
+				bAllow = true;
+		}
+
+		if (pToPlot->isCity())
+		{
+			CvCity* pCity = pToPlot->getPlotCity();
+			if (pCity->isCoastal() && pCity->waterArea()->GetID() == pFromPlot->getArea())
+				bAllow = true;
+		}
+
+		if (!bAllow)
+			return FALSE;
+	}
 
 	//if we have a given player, check their particular impassability (depends on techs etc)
 	if(!pToPlot->isValidMovePlot(ePlayer,false))

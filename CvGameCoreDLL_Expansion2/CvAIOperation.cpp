@@ -631,6 +631,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 		}
 
 		SPathFinderUserData data(m_eOwner,PT_GENERIC_SAME_AREA,m_eEnemy);
+		data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 		if (GC.GetStepFinder().DoesPathExist(pNavalMuster->getX(), pNavalMuster->getY(), pNavalTarget->getX(), pNavalTarget->getY(), data))
 		{
 			WeightedUnitIdVector UnitChoices;
@@ -803,6 +804,7 @@ CvPlot* CvAIOperation::GetPlotXInStepPath(CvArmyAI* pArmy, CvPlot* pCurrentPosit
 
 	// use the step path finder to get the path
 	SPathFinderUserData data(m_eOwner, ePathType, m_eEnemy);
+	data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 	SPath path = GC.GetStepFinder().GetPath(pCurrentPosition, pTarget, data);
 	if (!path)
 		return NULL;
@@ -840,6 +842,7 @@ int CvAIOperation::GetStepDistanceBetweenPlots(CvArmyAI* pArmy, CvPlot* pCurrent
 
 	// use the step path finder to compute distance
 	SPathFinderUserData data(m_eOwner, ePathType, m_eEnemy);
+	data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 	return GC.GetStepFinder().GetPathLengthInPlots(pCurrentPosition, pTarget, data);
 }
 
@@ -2274,6 +2277,7 @@ bool CvAIOperationEnemyTerritory::VerifyTarget(CvArmyAI * pArmy)
 	{
 		//the trouble spot is right next to us, abort the current operation
 		SPathFinderUserData data(m_eOwner,PT_GENERIC_SAME_AREA,NO_PLAYER,10);
+		data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 		if (GC.GetStepFinder().DoesPathExist(pTroubleSpot->plot(),pArmy->GetCenterOfMass(DOMAIN_LAND),data))
 			return false;
 	}
@@ -2866,15 +2870,9 @@ CvPlot* CvAIOperationDestroyBarbarianCamp::FindBestTarget()
 
 	m_bCivilianRescue = false;
 
-#if defined(MOD_BALANCE_CORE)
 	CvPlot* pBestMuster = NULL;
 	ImprovementTypes eBarbCamp = (ImprovementTypes) GC.getBARBARIAN_CAMP_IMPROVEMENT();
-#else
-	TeamTypes eTeam = GET_PLAYER(m_eOwner).getTeam();
-	ImprovementTypes eBarbCamp = (ImprovementTypes) GC.getBARBARIAN_CAMP_IMPROVEMENT();
-	CvCity* pStartCity;
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	// look for good captured civilians of ours (settlers and workers, not missionaries) 
 	// these will be even more important than just a camp
 	// btw - the AI will cheat here - as a human I would use a combination of memory and intuition to find these, since our current AI has neither of these...
@@ -2951,61 +2949,7 @@ CvPlot* CvAIOperationDestroyBarbarianCamp::FindBestTarget()
 	{
 		SetMusterPlot(pBestMuster);
 	}
-#else
-	pStartCity = GetOperationStartCity();
-	if(pStartCity != NULL)
-	{
 
-		// look for good captured civilians of ours (settlers and workers, not missionaries) 
-		// these will be even more important than just a camp
-		// btw - the AI will cheat here - as a human I would use a combination of memory and intuition to find these, since our current AI has neither of these...
-		CvPlayerAI& BarbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
-
-		CvUnit* pLoopUnit = NULL;
-		int iLoop;
-		for (pLoopUnit = BarbPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = BarbPlayer.nextUnit(&iLoop))
-		{
-			if (pLoopUnit->GetOriginalOwner() == m_eOwner && (pLoopUnit->AI_getUnitAIType() == UNITAI_SETTLE || pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER || pLoopUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST))
-			{
-				iCurPlotDistance = GC.GetStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pLoopUnit->plot(), pStartCity->plot());
-				if (iCurPlotDistance < iBestPlotDistance)
-				{
-					pBestPlot = pLoopUnit->plot();
-					iBestPlotDistance = iCurPlotDistance;
-					m_bCivilianRescue = true;
-					m_iUnitToRescue = pLoopUnit->GetID();
-				}
-			}
-		}
-
-		if (!pBestPlot)
-		{
-			// Look at map for Barbarian camps
-			for (iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
-			{
-				pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-
-				if (pPlot->isRevealed(eTeam))
-				{
-					if (pPlot->getRevealedImprovementType(eTeam) == eBarbCamp)
-					{
-						// Make sure camp is in the same area as our start city
-						//if (pPlot->getArea() == pStartCity->getArea())
-						{
-							iCurPlotDistance = GC.GetStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pPlot, pStartCity->plot());
-
-							if (iCurPlotDistance < iBestPlotDistance)
-							{
-								pBestPlot = pPlot;
-								iBestPlotDistance = iCurPlotDistance;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-#endif
 	return pBestPlot;
 }
 
@@ -5172,6 +5116,7 @@ CvPlot* CvAIOperationNavalBombardment::FindBestTarget()
 					{
 						// Water path between muster point and target?
 						SPathFinderUserData data( m_eOwner, PT_GENERIC_SAME_AREA, m_eEnemy );
+						data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 						iCurrentLength = GC.GetStepFinder().GetPathLengthInPlots(pLoopUnit->getX(), pLoopUnit->getY(), pCoastalStart->getX(), pCoastalStart->getY(), data);
 						if (iCurrentLength>0 && iCurrentLength < iBestPlotDistance)
 						{
@@ -5194,6 +5139,7 @@ CvPlot* CvAIOperationNavalBombardment::FindBestTarget()
 							{
 								// Water path between muster point and target?
 								SPathFinderUserData data( m_eOwner, PT_GENERIC_SAME_AREA, m_eEnemy );
+								data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 								iCurrentLength = GC.GetStepFinder().GetPathLengthInPlots(pCoastal->getX(), pCoastal->getY(), pCoastalStart->getX(), pCoastalStart->getY(), data);
 								if(iCurrentLength>0 && iCurrentLength < iBestPlotDistance)
 								{
@@ -6449,6 +6395,7 @@ bool CvAIOperationNavalEscorted::VerifyTarget(CvArmyAI * pArmy)
 	{
 		//the trouble spot is right next to us, abort the current operation
 		SPathFinderUserData data(m_eOwner,PT_GENERIC_SAME_AREA,NO_PLAYER,15);
+		data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 		if (GC.GetStepFinder().DoesPathExist(pTroubleSpot->plot(),pArmy->GetCenterOfMass(DOMAIN_SEA),data))
 			return false;
 	}
@@ -7481,6 +7428,7 @@ bool CvAIOperationDestroyBarbarianCamp::VerifyTarget(CvArmyAI* pArmy)
 			{
 				SPathFinderUserData data( m_eOwner, PT_GENERIC_SAME_AREA, m_eEnemy );
 				SPath path = GC.GetStepFinder().GetPath( pArmy->Plot(), GetTargetPlot(), data );
+				data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 				if (!!path)
 				{
 					CvPlot* pDeployPt = PathHelpers::GetXPlotsFromEnd(path, GC.getAI_OPERATIONAL_BARBARIAN_CAMP_DEPLOY_RANGE(), false);
@@ -7737,7 +7685,8 @@ CvPlot* OperationalAIHelpers::FindBestBarbarianBombardmentTarget(PlayerTypes ePl
 					if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit())
 					{
 						// Water path between muster point and target?
-						SPathFinderUserData data( ePlayer, PT_GENERIC_SAME_AREA, BARBARIAN_PLAYER );
+						SPathFinderUserData data( ePlayer, PT_GENERIC_SAME_AREA, BARBARIAN_PLAYER, 54 );
+						data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 						iCurrentLength = GC.GetStepFinder().GetPathLengthInPlots(pLoopUnit->getX(), pLoopUnit->getY(), pCoastalStart->getX(), pCoastalStart->getY(), data);
 						if(iCurrentLength>0 && iCurrentLength < iBestPlotDistance)
 						{
@@ -7760,6 +7709,7 @@ CvPlot* OperationalAIHelpers::FindBestBarbarianBombardmentTarget(PlayerTypes ePl
 							{
 								// Water path between muster point and target?
 								SPathFinderUserData data( ePlayer, PT_GENERIC_SAME_AREA, BARBARIAN_PLAYER );
+								data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 								iCurrentLength = GC.GetStepFinder().GetPathLengthInPlots(pCoastal->getX(), pCoastal->getY(), pCoastalStart->getX(), pCoastalStart->getY(), data);
 								if(iCurrentLength>0 && iCurrentLength < iBestPlotDistance)
 								{
@@ -8055,6 +8005,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 bool OperationalAIHelpers::NeedOceanMoves(PlayerTypes ePlayer, CvPlot* pMusterPlot, CvPlot* pTargetPlot)
 {
 	SPathFinderUserData data( ePlayer, PT_GENERIC_SAME_AREA, NO_PLAYER );
+	data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 	int iOceanLength = GC.GetStepFinder().GetPathLengthInPlots(pMusterPlot, pTargetPlot, data);
 
 	if (iOceanLength<0)

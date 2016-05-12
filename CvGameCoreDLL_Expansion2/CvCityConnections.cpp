@@ -345,17 +345,19 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 		}
 
-		data.iTypeParameter = ROUTE_RAILROAD;
-		ReachablePlots capitalRailroadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data, 0);
-		for (ReachablePlots::iterator it = capitalRailroadConnectedPlots.begin(); it != capitalRailroadConnectedPlots.end(); ++it)
+		if ( GET_TEAM(m_pPlayer->getTeam()).GetBestPossibleRoute()==GC.getGame().GetIndustrialRoute() )
 		{
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->first );
+			data.iTypeParameter = ROUTE_RAILROAD;
+			ReachablePlots capitalRailroadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data, 0);
+			for (ReachablePlots::iterator it = capitalRailroadConnectedPlots.begin(); it != capitalRailroadConnectedPlots.end(); ++it)
+			{
+				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->first );
 
-			//if it's one of our own cities, set the connection flag - also for the capital itself
-			CvCity* pCity = pPlot->getPlotCity();
-			if (pCity && pCity->getOwner()==m_pPlayer->GetID())
-				pCity->SetIndustrialRouteToCapitalConnected(true);
-
+				//if it's one of our own cities, set the connection flag - also for the capital itself
+				CvCity* pCity = pPlot->getPlotCity();
+				if (pCity && pCity->getOwner()==m_pPlayer->GetID())
+					pCity->SetIndustrialRouteToCapitalConnected(true);
+			}
 		}
 	}
 

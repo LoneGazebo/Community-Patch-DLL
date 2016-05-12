@@ -2829,6 +2829,7 @@ CvCity* CvMilitaryAI::GetNearestCoastalCity(PlayerTypes eEnemy) const
 					if(OnSameBodyOfWater(pLoopCity, pEnemyCity))
 					{
 						SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, eEnemy);
+						data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 						if (!GET_TEAM(m_pPlayer->getTeam()).getEmbarkedAllWaterPassage())
 							data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
@@ -2868,6 +2869,7 @@ CvCity* CvMilitaryAI::GetNearestCoastalCityEnemy(PlayerTypes eEnemy) const
 					if(OnSameBodyOfWater(pLoopCity, pEnemyCity))
 					{
 						SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, eEnemy);
+						data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 						if (!GET_TEAM(m_pPlayer->getTeam()).getEmbarkedAllWaterPassage())
 							data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
@@ -7062,6 +7064,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 					pTarget = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget,NULL);
 
 				SPathFinderUserData data( pPlayer->GetID(), PT_GENERIC_SAME_AREA, eEnemy );
+				data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 				if(!GC.GetStepFinder().DoesPathExist(pMuster, pTarget, data))
 				{
 					if(GC.getLogging() && GC.getAILogging())
@@ -7079,6 +7082,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 		{
 			//land based ops need a wide path so they don't get stuck - but they don't need to stay within their area
 			SPathFinderUserData data( pPlayer->GetID(), iRequiredSlots>5 ? PT_GENERIC_ANY_AREA_WIDE : PT_GENERIC_ANY_AREA, eEnemy );
+			data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 			if(!GC.GetStepFinder().DoesPathExist(pMuster, pTarget, data))
 			{
 				if(GC.getLogging() && GC.getAILogging())

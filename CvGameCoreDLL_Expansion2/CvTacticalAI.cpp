@@ -5164,7 +5164,8 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 				}
 				pOperation->SetToAbort(AI_ABORT_NO_TARGET);
 			}
-			CvPlot *pBestPlot = pOperation->GetTargetPlot();
+
+			CvPlot *pBestPlot = pThisArmy->GetGoalPlot();
 			// Update army's current location
 			CvPlot* pThisTurnTarget = pOperation->ComputeTargetPlotForThisTurn(pThisArmy);
 			if(pThisTurnTarget == NULL)
@@ -5180,11 +5181,13 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 			}
 
 			ClearEnemiesNearArmy(pThisArmy);
-			if(!pThisArmy->GetGoalPlot()->isWater())
+			if(!pBestPlot->isWater())
+				pBestPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pBestPlot, pThisArmy);
+
+			// Error handling: couldn't find water plot next to target
+			if (pBestPlot == NULL) 
 			{
-				pBestPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pThisArmy->GetGoalPlot(), pThisArmy);
-				// Error handling: couldn't find path to plot next to target
-				if (pBestPlot == NULL && pOperation->GetTargetPlot() != NULL)
+				if (pOperation->GetTargetPlot() != NULL)
 				{
 					for (int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
 					{
@@ -5210,6 +5213,7 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 						LogTacticalMessage(strLogString);
 					}
 				}
+				return;
 			}
 			else
 			{
@@ -5230,7 +5234,7 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 								const CvFormationSlotEntry& thisSlotEntry = pMultiUnitFormationInfo->getFormationSlotEntry(iI);
 								MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
 
-								int iMoves = pUnit->getMoves() / GC.getMOVE_DENOMINATOR();
+								int iMoves = pUnit->baseMoves();
 								if (iMoves < iSlowestMovementRate)
 								{
 									iSlowestMovementRate = iMoves;
@@ -5240,6 +5244,7 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 								if (pUnit->getDomainType()==DOMAIN_SEA)
 								{
 									SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_SAME_AREA,pOperation->GetEnemy(),54);
+									data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 									int iDistance = GC.GetStepFinder().GetPathLengthInPlots(pUnit->plot(), pBestPlot, data);
 									if (iDistance<0)
 									{
@@ -5300,7 +5305,8 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 					// If not close yet, find best plot for this turn's movement along path to ultimate best plot
 					if (iBestDistance > iSlowestMovementRate)
 					{
-						SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_SAME_AREA,pOperation->GetEnemy(),23);
+						SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_SAME_AREA,pOperation->GetEnemy(),54);
+						data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 						SPath path = GC.GetStepFinder().GetPath(pClosestUnitAtSea->plot(), pBestPlot, data);
 						if (!!path)
 						{
