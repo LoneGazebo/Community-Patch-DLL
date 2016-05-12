@@ -134,6 +134,8 @@ private:
 class CHomelandUnitArray
 {
 public:
+	CHomelandUnitArray() : m_owner(NULL) {}
+
 	std::vector<CvHomelandUnit>::iterator begin() { return m_vec.begin(); }
 	std::vector<CvHomelandUnit>::iterator end() { return m_vec.end(); }
 	std::vector<CvHomelandUnit>::size_type size() const { return m_vec.size(); }
