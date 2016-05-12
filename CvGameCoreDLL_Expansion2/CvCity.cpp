@@ -644,8 +644,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	GC.getMap().getArea(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), 1);
 #if defined(MOD_BALANCE_CORE)
-	std::set<int> areas = pPlot->getAllAdjacentAreas();
-	for (std::set<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
+	std::vector<int> areas = pPlot->getAllAdjacentAreas();
+	for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
 	{
 		CvArea* pkArea = GC.getMap().getArea(*it);
 		if (pkArea->isWater())
@@ -2348,8 +2348,8 @@ void CvCity::PreKill()
 
 	GC.getMap().getArea(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), -1);
 #if defined(MOD_BALANCE_CORE)
-	std::set<int> areas = pPlot->getAllAdjacentAreas();
-	for (std::set<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
+	std::vector<int> areas = pPlot->getAllAdjacentAreas();
+	for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
 	{
 		CvArea* pkArea = GC.getMap().getArea(*it);
 		if (pkArea->isWater())
@@ -14033,8 +14033,8 @@ bool CvCity::isAdjacentToArea(int iAreaID) const
 			return true;
 		else
 		{
-			std::set<int> allAreas = pPlot->getAllAdjacentAreas();
-			return allAreas.find(iAreaID) != allAreas.end();
+			std::vector<int> allAreas = pPlot->getAllAdjacentAreas();
+			return std::find(allAreas.begin(),allAreas.end(),iAreaID) != allAreas.end();
 		}
 	}
 	else
@@ -14059,8 +14059,8 @@ bool CvCity::hasSharedAdjacentArea(const CvCity * pOtherCity) const
 	if (!pOtherCity)
 		return false;
 
-	std::set<int> myAreas = plot()->getAllAdjacentAreas();
-	std::set<int> theirAreas = pOtherCity->plot()->getAllAdjacentAreas();
+	std::vector<int> myAreas = plot()->getAllAdjacentAreas();
+	std::vector<int> theirAreas = pOtherCity->plot()->getAllAdjacentAreas();
 	std::vector<int> shared( MAX(myAreas.size(),theirAreas.size()) );
 
 	std::vector<int>::iterator result = std::set_intersection(myAreas.begin(),myAreas.end(),theirAreas.begin(),theirAreas.end(),shared.begin());
@@ -14437,8 +14437,8 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 
 		GC.getMap().getArea(getArea())->changePopulationPerPlayer(getOwner(), (getPopulation() - iOldPopulation));
 #if defined(MOD_BALANCE_CORE)
-		std::set<int> areas = plot()->getAllAdjacentAreas();
-		for (std::set<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
+		std::vector<int> areas = plot()->getAllAdjacentAreas();
+		for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
 		{
 			CvArea* pkArea = GC.getMap().getArea(*it);
 			if (pkArea->isWater())

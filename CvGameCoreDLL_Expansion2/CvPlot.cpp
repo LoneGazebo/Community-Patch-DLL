@@ -5028,18 +5028,17 @@ CvArea* CvPlot::area() const
 
 
 //	--------------------------------------------------------------------------------
-std::set<int> CvPlot::getAllAdjacentAreas() const
+std::vector<int> CvPlot::getAllAdjacentAreas() const
 {
-	std::set<int> result;
+	std::vector<int> result;
 
-	//todo: compute this once and persist it?
 	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(this);
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		CvPlot* pAdjacentPlot = aNeighbors[iI];
 		//exclude our own area!
 		if(pAdjacentPlot != NULL && pAdjacentPlot->getArea() != getArea())
-			result.insert(pAdjacentPlot->getArea());
+			result.push_back(pAdjacentPlot->getArea());
 	}
 
 	return result;

@@ -356,7 +356,7 @@ public:
 
 	void setArea(int iNewValue);
 
-	std::set<int> getAllAdjacentAreas() const;
+	std::vector<int> getAllAdjacentAreas() const;
 
 	inline int getLandmass() const
 	{

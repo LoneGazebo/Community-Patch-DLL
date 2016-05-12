@@ -302,8 +302,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		int iNumCitiesofMine = 0;
 		int iNumCitiesOther = 0;
 
-		std::set<int> areas = m_pCity->plot()->getAllAdjacentAreas();
-		for (std::set<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
+		std::vector<int> areas = m_pCity->plot()->getAllAdjacentAreas();
+		for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
 		{
 			CvArea* pkArea = GC.getMap().getArea(*it);
 			if (pkArea->isWater())

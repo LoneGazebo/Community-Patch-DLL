@@ -2918,8 +2918,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
 	bool bHaveLake = false;
 	bool bHaveOcean = false;
 
-	std::set<int> areas = pCity->plot()->getAllAdjacentAreas();
-	for (std::set<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
+	std::vector<int> areas = pCity->plot()->getAllAdjacentAreas();
+	for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
 	{
 		CvArea* pkArea = GC.getMap().getArea(*it);
 		if (pkArea->isWater())

@@ -6413,7 +6413,7 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 		int iMostUnitsToPlace = iMostUnits;
 #if defined(MOD_BALANCE_CORE)
 		//Let's make sure we aren't excluding units here - assume 3 moves per turn
-		int iMaxTurns = pArmy->GetFurthestUnitDistance(pTurnTarget)/3;
+		int iMaxTurns = pArmy->GetFurthestUnitDistance(pTurnTarget)/3+1;
 #endif
 		for(unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
 		{

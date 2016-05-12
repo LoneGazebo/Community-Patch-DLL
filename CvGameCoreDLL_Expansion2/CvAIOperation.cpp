@@ -32,9 +32,9 @@
 // PUBLIC FUNCTIONS
 
 /// Constructor
-CvAIOperation::CvAIOperation():m_eOwner(NO_PLAYER)
+CvAIOperation::CvAIOperation() : m_eOwner(NO_PLAYER)
 {
-	Reset();
+	Uninit();
 }
 
 /// Destructor
@@ -44,19 +44,12 @@ CvAIOperation::~CvAIOperation()
 }
 
 /// Initialize
-void CvAIOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* /*pTarget*/, CvCity* pMuster)
+void CvAIOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 {
 	Uninit();
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_eEnemy = eEnemy;
-	m_bShouldReplaceLossesWithReinforcements = false;
-
-#if defined(MOD_BALANCE_CORE)
-	SetStartCityPlot(pMuster ? pMuster->plot() : NULL);
-#else
-	SetStartCityPlot(pMuster->plot());
-#endif
 
 	// create the armies that are needed and set the state to ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE
 	BuildListOfUnitsWeStillNeedToBuild();
@@ -66,7 +59,7 @@ void CvAIOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity
 /// Delete allocated objects
 void CvAIOperation::Uninit()
 {
-	if(m_eOwner != NO_PLAYER)  // hopefully if this has been init'ed this should not happen
+	if(m_eOwner != NO_PLAYER)  //if this has been init'ed this should not happen
 	{
 		CvPlayer& thisPlayer = GET_PLAYER(m_eOwner);
 
@@ -88,12 +81,6 @@ void CvAIOperation::Uninit()
 	m_viListOfUnitsWeStillNeedToBuild.clear();
 	m_viListOfUnitsCitiesHaveCommittedToBuild.clear();
 
-	Reset();
-}
-
-/// Reset member variables
-void CvAIOperation::Reset()
-{
 	m_iID = 0;
 	m_eOwner = NO_PLAYER;
 	m_eEnemy = NO_PLAYER;
@@ -112,14 +99,13 @@ void CvAIOperation::Reset()
 	m_iMusterX = 0;
 	m_iMusterY = 0;
 #endif
-	m_iStartCityX = INVALID_PLOT_COORD;
-	m_iStartCityY = INVALID_PLOT_COORD;
 	m_eMoveType = INVALID_AI_OPERATION_MOVE_TYPE;
 	m_iLastTurnMoved = -1;
 	m_viArmyIDs.clear();
 #if defined(MOD_BALANCE_CORE)
 	m_iTurnStarted = -1;
 #endif
+	m_iDistanceMusterToTarget = -1;
 }
 
 /// How long will we wait for a recruit to show up?
@@ -195,6 +181,13 @@ void CvAIOperation::SetTargetPlot(CvPlot* pTarget)
 #endif
 	m_iTargetX = pTarget->getX();
 	m_iTargetY = pTarget->getY();
+
+	//update the distance
+	if (!m_viArmyIDs.empty())
+	{
+		CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[0]);
+		m_iDistanceMusterToTarget = GetStepDistanceBetweenPlots(pArmy,GetMusterPlot(),GetTargetPlot());
+	}
 }
 
 /// Retrieve plot where this operation assembles
@@ -221,30 +214,13 @@ void CvAIOperation::SetMusterPlot(CvPlot* pMuster)
 #endif
 	m_iMusterX = pMuster->getX();
 	m_iMusterY = pMuster->getY();
-}
 
-/// Retrieve city where this operation starts
-CvPlot* CvAIOperation::GetStartCityPlot() const
-{
-	CvPlot* rtnValue = NULL;
-	rtnValue =  GC.getMap().plot(m_iStartCityX, m_iStartCityY);
-	return rtnValue;
-}
-
-/// Set city where this operation starts
-void CvAIOperation::SetStartCityPlot(CvPlot* pStartCity)
-{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	if (pStartCity==NULL)
+	//update the distance
+	if (!m_viArmyIDs.empty())
 	{
-		m_iStartCityX = INVALID_PLOT_COORD;
-		m_iStartCityX = INVALID_PLOT_COORD;
-		return;
+		CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[0]);
+		m_iDistanceMusterToTarget = GetStepDistanceBetweenPlots(pArmy,GetMusterPlot(),GetTargetPlot());
 	}
-#endif
-
-	m_iStartCityX = pStartCity->getX();
-	m_iStartCityY = pStartCity->getY();
 }
 
 int CvAIOperation::GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const
@@ -1332,10 +1308,9 @@ int CvAIOperation::PercentFromMusterPointToTarget()
 			if (pArmy->GetGoalPlot())
 			{
 				CvPlot *pCenterOfMass = pArmy->GetCenterOfMass(IsNavalOperation() ? DOMAIN_SEA : DOMAIN_LAND);
-				int iDistanceMusterToTarget = GetStepDistanceBetweenPlots( pArmy, GetMusterPlot(), pArmy->GetGoalPlot() );
 				int iDistanceCurrentToTarget = GetStepDistanceBetweenPlots( pArmy, pCenterOfMass, pArmy->GetGoalPlot() );
 
-				if(iDistanceMusterToTarget < 0 || iDistanceCurrentToTarget < 0)
+				if(m_iDistanceMusterToTarget < 0 || iDistanceCurrentToTarget < 0)
 				{
 					//we should abort the operation?
 					return 0;
@@ -1347,7 +1322,7 @@ int CvAIOperation::PercentFromMusterPointToTarget()
 				}
 				else
 				{
-					int iTempValue = 100 - (100 * iDistanceCurrentToTarget / iDistanceMusterToTarget);
+					int iTempValue = 100 - (100 * iDistanceCurrentToTarget / m_iDistanceMusterToTarget);
 					if(iTempValue > iRtnValue)
 					{
 						iRtnValue = iTempValue;
@@ -1462,89 +1437,6 @@ bool CvAIOperation::DoDelayedDeath()
 	}
 
 	return false;
-}
-
-/// Find the area where our operation is occurring
-CvCity* CvAIOperation::GetOperationStartCity() const
-{
-	if(GetStartCityPlot())
-	{
-		return GetStartCityPlot()->getPlotCity();
-	}
-
-	CvCity* pCapitalCity;
-	CvArea* pLoopArea;
-	int iLoop;
-	int iMyCities;
-	int iEnemyCities;
-	int iBestTotal = 0;
-	CvArea* pBestArea = NULL;
-	CvCity* pBestCity = NULL;
-
-	CvPlayer& thisPlayer = GET_PLAYER(m_eOwner);
-
-	// Do we still have a capital?
-	pCapitalCity = thisPlayer.getCapitalCity();
-
-	if(pCapitalCity != NULL)
-	{
-		return pCapitalCity;
-	}
-
-	// No capital, find the area with the most combined cities between us and our enemy (and need at least 1 from each)
-	for(pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
-	{
-		if(pLoopArea->isWater())
-		{
-			continue;
-		}
-
-		iMyCities = pLoopArea->getCitiesPerPlayer(GetOwner());
-		if(iMyCities > 0)
-		{
-			if(m_eEnemy != NO_PLAYER && m_eEnemy != BARBARIAN_PLAYER)
-			{
-				iEnemyCities = pLoopArea->getCitiesPerPlayer(m_eEnemy);
-				if(iEnemyCities == 0)
-				{
-					continue;
-				}
-			}
-			else
-			{
-				iEnemyCities = 0;
-			}
-
-			if((iMyCities + iEnemyCities) > iBestTotal)
-			{
-				iBestTotal = iMyCities + iEnemyCities;
-				pBestArea = pLoopArea;
-			}
-		}
-	}
-
-	if(pBestArea != NULL)
-	{
-		// Know which continent to use, now use our largest city there as the start city
-		CvCity* pCity;
-		iBestTotal = 0;
-		for(pCity = thisPlayer.firstCity(&iLoop); pCity != NULL; pCity = thisPlayer.nextCity(&iLoop))
-		{
-			if(pCity->getArea() == pBestArea->GetID())
-			{
-				if(pCity->getPopulation() > iBestTotal)
-				{
-					iBestTotal = pCity->getPopulation();
-					pBestCity = pCity;
-				}
-			}
-		}
-		return pBestCity;
-	}
-	else
-	{
-		return NULL;
-	}
 }
 
 /// Delete an army associated with this operation (by ID)
@@ -1679,7 +1571,14 @@ bool CvAIOperation::HasOneMoreSlotToFill() const
 
 bool CvAIOperation::BuyFinalUnit()
 {
-	CvCity* pCity = GetOperationStartCity();
+	CvCity* pCity = NULL;
+	if (IsNavalOperation())
+		pCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetNearestCoastalCityFriendly(m_eEnemy);
+	else
+		pCity = GET_PLAYER(m_eOwner).GetClosestCity( GetMusterPlot() );
+
+	if (!pCity)
+		return false;
 
 	if(!m_viListOfUnitsWeStillNeedToBuild.empty() && pCity != NULL && pCity->getOwner() == m_eOwner)
 	{
@@ -1737,8 +1636,6 @@ void CvAIOperation::Read(FDataStream& kStream)
 	kStream >> m_iTargetY;
 	kStream >> m_iMusterX;
 	kStream >> m_iMusterY;
-	kStream >> m_iStartCityX;
-	kStream >> m_iStartCityY;
 	kStream >> m_iLastTurnMoved;
 	kStream >> m_viArmyIDs;
 	kStream >> m_viListOfUnitsWeStillNeedToBuild;
@@ -1746,6 +1643,7 @@ void CvAIOperation::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_iTurnStarted;
 #endif
+	kStream >> m_iDistanceMusterToTarget;
 }
 
 /// Write serialized data
@@ -1767,8 +1665,6 @@ void CvAIOperation::Write(FDataStream& kStream) const
 	kStream << m_iTargetY;
 	kStream << m_iMusterX;
 	kStream << m_iMusterY;
-	kStream << m_iStartCityX;
-	kStream << m_iStartCityY;
 	kStream << m_iLastTurnMoved;
 	kStream << m_viArmyIDs;
 	kStream << m_viListOfUnitsWeStillNeedToBuild;
@@ -1776,6 +1672,7 @@ void CvAIOperation::Write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_iTurnStarted;
 #endif
+	kStream << m_iDistanceMusterToTarget;
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -2288,7 +2185,8 @@ bool CvAIOperationEnemyTerritory::VerifyTarget(CvArmyAI * pArmy)
 /// Kick off this operation
 void CvAIOperationEnemyTerritory::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity*, CvCity*)
 {
-	Reset();
+	Uninit();
+
 	m_eMoveType = AI_OPERATION_MOVETYPE_ENEMY_TERRITORY;
 	m_iID = iID;
 	m_eOwner = eOwner;
@@ -2360,17 +2258,6 @@ bool CvAIOperationEnemyTerritory::SetMusterPlotAndGoalPlotForArmy(CvArmyAI* pThi
 	if (pThisArmy==NULL)
 		return false;
 
-	CvCity* pStartCity = GetOperationStartCity();
-	if(pStartCity == NULL && pThisArmy != NULL)
-	{
-		CvCity* pCapital = GET_PLAYER(pThisArmy->GetOwner()).getCapitalCity();
-		if(pCapital)
-			pStartCity = pCapital;
-	}
-
-	if(!pStartCity)
-		return false;
-
 	int iPlotOffset = GetDeployRange()/2;
 	CvPlot* pMusterPlot = GetPlotXInStepPath(pThisArmy,GetMusterPlot(),GetTargetPlot(),iPlotOffset,true);
 	CvPlot* pDeployPlot = GetPlotXInStepPath(pThisArmy,GetMusterPlot(),GetTargetPlot(),iPlotOffset,false);
@@ -2430,7 +2317,7 @@ CvAIOperationBasicCityAttack::~CvAIOperationBasicCityAttack()
 /// Kick off this operation
 void CvAIOperationBasicCityAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
 {
-	Reset();
+	Uninit();
 	m_eMoveType = AI_OPERATION_MOVETYPE_ENEMY_TERRITORY;
 	m_iID = iID;
 	m_eOwner = eOwner;
@@ -3032,7 +2919,6 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget()
 	int iValue;
 	int iBestValue;
 	CvCity* pLoopCity;
-	CvCity* pStartCity;
 	int iDistance;
 	int iLoop;
 
@@ -3044,19 +2930,19 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget()
 	}
 
 	iBestValue = 0;
-	pStartCity = GetOperationStartCity();
-	if(pStartCity != NULL)
+	CvPlot* pMuster = GetMusterPlot();
+	if(pMuster != NULL)
 	{
 		for(pLoopCity = kEnemyPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kEnemyPlayer.nextCity(&iLoop))
 		{
-			// Make sure city is in the same area as our start city
-			if(pLoopCity->getArea() == pStartCity->getArea())
+			// Make sure city is in the same area
+			if(pLoopCity->getArea() == pMuster->getArea())
 			{
 				// Initial value of target is the number of improved plots
 				iValue = pLoopCity->countNumImprovedPlots();
 
 				// Adjust value based on proximity to our start location
-				iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pStartCity->getX(), pStartCity->getY());
+				iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY());
 				if(iDistance > 0)
 				{
 					iValue = iValue * 100 / iDistance;
@@ -3076,7 +2962,7 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget()
 				iValue = pLoopCity->countNumImprovedPlots();
 				if(iValue > 0)
 				{
-					iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pStartCity->getX(), pStartCity->getY());
+					iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY());
 					if(iDistance > 0)
 					{
 						iValue = iValue * 100 / iDistance;
@@ -3131,7 +3017,8 @@ void CvAIOperationEscorted::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 	CvUnit* pOurCivilian;
 	CvPlot* pTargetSite, *pNewTarget;
 
-	Reset();
+	Uninit();
+
 	m_eMoveType = AI_OPERATION_MOVETYPE_SINGLE_HEX;
 	m_iID = iID;
 	m_eOwner = eOwner;
@@ -3393,7 +3280,7 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 	CvPlot* pTargetSite = NULL;
 	CvPlot* pNewTarget = NULL;
 
-	Reset();
+	Uninit();
 	m_eMoveType = AI_OPERATION_MOVETYPE_SINGLE_HEX;
 	m_iID = iID;
 	m_eOwner = eOwner;
@@ -3919,7 +3806,7 @@ void CvAIOperationQuickColonize::Init(int iID, PlayerTypes eOwner, PlayerTypes /
 	CvUnit* pOurCivilian;
 	CvPlot* pTargetSite;
 
-	Reset();
+	Uninit();
 	m_eMoveType = AI_OPERATION_MOVETYPE_SINGLE_HEX;
 	m_iID = iID;
 	m_eOwner = eOwner;
@@ -4389,7 +4276,7 @@ CvAIOperationAllyDefense::~CvAIOperationAllyDefense()
 /// Kick off this operation
 void CvAIOperationAllyDefense::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
 {
-	Reset();
+	Uninit();
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_eEnemy = eEnemy;
@@ -4675,7 +4562,7 @@ CvAIOperationNaval::~CvAIOperationNaval()
 /// Kick off this operation
 void CvAIOperationNaval::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
 {
-	Reset();
+	Uninit();
 	m_eMoveType = AI_OPERATION_MOVETYPE_ENEMY_TERRITORY;
 	m_iID = iID;
 	m_eOwner = eOwner;
@@ -4707,7 +4594,6 @@ void CvAIOperationNaval::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, C
 					pArmyAI->SetGoalPlot(pCoastalTarget);
 
 					SetTurnStarted(GC.getGame().getGameTurn());
-					SetStartCityPlot(pCoastalMuster);
 					SetMusterPlot(pCoastalMuster);
 					pArmyAI->SetXY(pCoastalMuster->getX(), pCoastalMuster->getY());
 
@@ -4859,17 +4745,6 @@ int CvAIOperationNaval::GetDeployRange() const
 	return 2;
 }
 
-/// Find the port our operation will leave from
-CvCity* CvAIOperationNaval::GetOperationStartCity() const
-{
-	if(GetStartCityPlot())
-	{
-		return GetStartCityPlot()->getPlotCity();
-	}
-
-	return GET_PLAYER(m_eOwner).GetMilitaryAI()->GetNearestCoastalCity(m_eEnemy);
-}
-
 /// Which unit would we like to use to kick off this operation?
 CvUnit* CvAIOperationNaval::FindInitialUnit()
 {
@@ -4918,7 +4793,7 @@ CvAIOperationNavalBombardment::~CvAIOperationNavalBombardment()
 /// Kick off this operation
 void CvAIOperationNavalBombardment::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 {
-	Reset();
+	Uninit();
 	m_eMoveType = AI_OPERATION_MOVETYPE_FREEFORM_NAVAL;
 	m_iID = iID;
 	m_eOwner = eOwner;
@@ -5147,7 +5022,7 @@ void CvAIOperationNavalSuperiority::Init(int iID, PlayerTypes eOwner, PlayerType
 void CvAIOperationNavalSuperiority::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 #endif
 {
-	Reset();
+	Uninit();
 	m_eMoveType = AI_OPERATION_MOVETYPE_FREEFORM_NAVAL;
 	m_iID = iID;
 	m_eOwner = eOwner;
@@ -5481,7 +5356,7 @@ CvAIOperationNavalOnlyCityAttack::~CvAIOperationNavalOnlyCityAttack()
 /// Kick off this operation
 void CvAIOperationNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
 {
-	Reset();
+	Uninit();
 	m_eMoveType = AI_OPERATION_MOVETYPE_FREEFORM_NAVAL;
 	m_iID = iID;
 	m_eOwner = eOwner;
@@ -5491,7 +5366,7 @@ void CvAIOperationNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 
 	if(pMuster == NULL || !pMuster->isCoastal())
 	{
-		CvCity* pNearestCoastalCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetNearestCoastalCity(eEnemy);
+		CvCity* pNearestCoastalCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetNearestCoastalCityFriendly(eEnemy);
 		if(pNearestCoastalCity != NULL)
 		{
 			pMuster = pNearestCoastalCity;
@@ -5521,7 +5396,6 @@ void CvAIOperationNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 		CvArmyAI* pArmyAI = GET_PLAYER(m_eOwner).addArmyAI();
 		if(pArmyAI)
 		{
-			SetStartCityPlot(pMusterPlot);
 			SetTurnStarted(GC.getGame().getGameTurn());
 
 			if(iID != -1)
@@ -5639,7 +5513,7 @@ CvAIOperationCityCloseDefensePeace::~CvAIOperationCityCloseDefensePeace()
 /// Kick off this operation
 void CvAIOperationCityCloseDefensePeace::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
 {
-	Reset();
+	Uninit();
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_eEnemy = eEnemy;
@@ -5743,7 +5617,7 @@ void CvAIOperationCityCloseDefense::Init(int iID, PlayerTypes eOwner, PlayerType
 void CvAIOperationCityCloseDefense::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 #endif
 {
-	Reset();
+	Uninit();
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_eEnemy = eEnemy;
@@ -5858,7 +5732,7 @@ CvAIOperationRapidResponse::~CvAIOperationRapidResponse()
 /// Kick off this operation
 void CvAIOperationRapidResponse::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 {
-	Reset();
+	Uninit();
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_eEnemy = eEnemy;
@@ -6120,7 +5994,7 @@ CvAIOperationNavalEscorted::~CvAIOperationNavalEscorted()
 /// Kick off this operation
 void CvAIOperationNavalEscorted::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEnemy*/, CvCity* pTarget, CvCity* pMuster)
 {
-	Reset();
+	Uninit();
 	m_eMoveType = AI_OPERATION_MOVETYPE_NAVAL_ESCORT;
 	m_iID = iID;
 	m_eOwner = eOwner;
@@ -6199,7 +6073,7 @@ CvAIOperationNavalColonization::~CvAIOperationNavalColonization()
 
 void CvAIOperationNavalColonization::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEnemy*/, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 {
-	Reset();
+	Uninit();
 	m_eMoveType = AI_OPERATION_MOVETYPE_NAVAL_ESCORT;
 	m_iID = iID;
 	m_eOwner = eOwner;
@@ -6738,7 +6612,7 @@ CvAIOperationNavalAttack::~CvAIOperationNavalAttack()
 /// Kick off this operation
 void CvAIOperationNavalAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
 {
-	Reset();
+	Uninit();
 	m_eMoveType = AI_OPERATION_MOVETYPE_NAVAL_ESCORT;
 	m_iID = iID;
 	m_eOwner = eOwner;
@@ -6750,7 +6624,7 @@ void CvAIOperationNavalAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEn
 	{
 		if(pMuster == NULL || !pMuster->isCoastal())
 		{
-			CvCity* pNearestCoastalCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetNearestCoastalCity(eEnemy);
+			CvCity* pNearestCoastalCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetNearestCoastalCityFriendly(eEnemy);
 			if(pNearestCoastalCity != NULL)
 			{
 				pMuster = pNearestCoastalCity;
@@ -6764,7 +6638,6 @@ void CvAIOperationNavalAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEn
 		if (pMusterPlot != NULL)
 		{
 			SetTurnStarted(GC.getGame().getGameTurn());
-			SetStartCityPlot(pMusterPlot);
 
 			if(iID != -1)
 			{
@@ -6783,8 +6656,8 @@ void CvAIOperationNavalAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEn
 						pArmyAI->SetFormationIndex(GetFormation());
 
 						pArmyAI->SetGoalPlot(pGoalPlot);
-						SetMusterPlot(GetStartCityPlot());
-						pArmyAI->SetXY(GetStartCityPlot()->getX(), GetStartCityPlot()->getY());
+						SetMusterPlot(pMusterPlot);
+						pArmyAI->SetXY(pMusterPlot->getX(), pMusterPlot->getY());
 
 						BuildListOfUnitsWeStillNeedToBuild();
 
@@ -6849,7 +6722,7 @@ CvAIOperationNavalSneakAttack::~CvAIOperationNavalSneakAttack()
 /// Kick off this operation
 void CvAIOperationNavalSneakAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
 {
-	Reset();
+	Uninit();
 	m_eMoveType = AI_OPERATION_MOVETYPE_NAVAL_ESCORT;
 	m_iID = iID;
 	m_eOwner = eOwner;
@@ -6861,7 +6734,7 @@ void CvAIOperationNavalSneakAttack::Init(int iID, PlayerTypes eOwner, PlayerType
 	{
 		if(pMuster == NULL || !pMuster->isCoastal())
 		{
-			CvCity* pNearestCoastalCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetNearestCoastalCity(eEnemy);
+			CvCity* pNearestCoastalCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetNearestCoastalCityFriendly(eEnemy);
 			if(pNearestCoastalCity != NULL)
 			{
 				pMuster = pNearestCoastalCity;
@@ -6873,7 +6746,6 @@ void CvAIOperationNavalSneakAttack::Init(int iID, PlayerTypes eOwner, PlayerType
 		}
 		if(pMusterPlot != NULL)
 		{
-			SetStartCityPlot(pMusterPlot);
 			SetTurnStarted(GC.getGame().getGameTurn());
 
 			if(iID != -1)
@@ -6984,7 +6856,7 @@ CvAIOperationNavalCityStateAttack::~CvAIOperationNavalCityStateAttack()
 /// Kick off this operation
 void CvAIOperationNavalCityStateAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
 {
-	Reset();
+	Uninit();
 	m_eMoveType = AI_OPERATION_MOVETYPE_NAVAL_ESCORT;
 	m_iID = iID;
 	m_eOwner = eOwner;
@@ -6996,7 +6868,7 @@ void CvAIOperationNavalCityStateAttack::Init(int iID, PlayerTypes eOwner, Player
 	{
 		if(pMuster == NULL || !pMuster->isCoastal())
 		{
-			CvCity* pNearestCoastalCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetNearestCoastalCity(eEnemy);
+			CvCity* pNearestCoastalCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetNearestCoastalCityFriendly(eEnemy);
 			if(pNearestCoastalCity != NULL)
 			{
 				pMuster = pNearestCoastalCity;
@@ -7009,7 +6881,6 @@ void CvAIOperationNavalCityStateAttack::Init(int iID, PlayerTypes eOwner, Player
 
 		if(pMusterPlot != NULL)
 		{
-			SetStartCityPlot(pMusterPlot);
 			SetTurnStarted(GC.getGame().getGameTurn());
 
 			if(iID != -1)
@@ -7030,8 +6901,8 @@ void CvAIOperationNavalCityStateAttack::Init(int iID, PlayerTypes eOwner, Player
 						pArmyAI->SetFormationIndex(GetFormation());
 
 						pArmyAI->SetGoalPlot(pGoalPlot);
-						SetMusterPlot(GetStartCityPlot());
-						pArmyAI->SetXY(GetStartCityPlot()->getX(), GetStartCityPlot()->getY());
+						SetMusterPlot(pMusterPlot);
+						pArmyAI->SetXY(pMusterPlot->getX(), pMusterPlot->getY());
 
 						BuildListOfUnitsWeStillNeedToBuild();
 
@@ -7084,7 +6955,7 @@ CvAIOperationNukeAttack::~CvAIOperationNukeAttack()
 
 void CvAIOperationNukeAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 {
-	Reset();
+	Uninit();
 	m_eMoveType = AI_OPERATION_MOVETYPE_STATIC; // this operation will only work when the units are already in place
 	m_iID = iID;
 	m_eOwner = eOwner;
@@ -7164,16 +7035,6 @@ void CvAIOperationNukeAttack::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_iBestUnitID;
-}
-
-CvCity* CvAIOperationNukeAttack::GetOperationStartCity() const
-{
-	if(GetStartCityPlot())
-	{
-		return GetStartCityPlot()->getPlotCity();
-	}
-
-	return GC.getMap().plotCheckInvalid(m_iMusterX, m_iMusterY)->getPlotCity();
 }
 
 bool CvAIOperationNukeAttack::ArmyInPosition(CvArmyAI* pArmy)

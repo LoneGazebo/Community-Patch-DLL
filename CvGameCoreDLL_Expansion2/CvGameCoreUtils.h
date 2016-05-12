@@ -245,8 +245,6 @@ bool isWorldProject(ProjectTypes eProject);
 bool isTeamProject(ProjectTypes eProject);
 bool isLimitedProject(ProjectTypes eProject);
 
-bool OnSameBodyOfWater(CvCity* pCity1, CvCity* pCity2);
-
 TechTypes getDiscoveryTech(UnitTypes eUnit, PlayerTypes ePlayer);
 
 int CompareWeights(const void* a, const void* b);

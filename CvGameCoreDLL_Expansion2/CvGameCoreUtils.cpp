@@ -800,30 +800,6 @@ bool isLimitedProject(ProjectTypes eProject)
 	return (isWorldProject(eProject) || isTeamProject(eProject));
 }
 
-bool OnSameBodyOfWater(CvCity* pCity1, CvCity* pCity2)
-{
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		CvPlot* pAdjacentPlot1 = plotDirection(pCity1->getX(), pCity1->getY(), ((DirectionTypes)iI));
-
-		if(pAdjacentPlot1 != NULL && pAdjacentPlot1->isWater())
-		{
-			for(int jJ = 0; jJ < NUM_DIRECTION_TYPES; jJ++)
-			{
-				CvPlot* pAdjacentPlot2 = plotDirection(pCity2->getX(), pCity2->getY(), ((DirectionTypes)jJ));
-				if(pAdjacentPlot2 != NULL && pAdjacentPlot2->isWater())
-				{
-					if(pAdjacentPlot2->getArea() == pAdjacentPlot1->getArea())
-					{
-						return true;
-					}
-				}
-			}
-		}
-	}
-	return false;
-}
-
 TechTypes getDiscoveryTech(UnitTypes eUnit, PlayerTypes ePlayer)
 {
 	TechTypes eBestTech = NO_TECH;

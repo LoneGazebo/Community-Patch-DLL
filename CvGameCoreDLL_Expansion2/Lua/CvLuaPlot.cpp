@@ -1139,8 +1139,8 @@ int CvLuaPlot::lWaterArea(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L);
 
-	std::set<int> areas = pkPlot->getAllAdjacentAreas();
-	for (std::set<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
+	std::vector<int> areas = pkPlot->getAllAdjacentAreas();
+	for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
 	{
 		CvArea* pkArea = GC.getMap().getArea(*it);
 		if (pkArea->isWater())

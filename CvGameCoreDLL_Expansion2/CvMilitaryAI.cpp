@@ -2737,7 +2737,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 }
 
 /// Find our port operation operations against this enemy should leave from
-CvCity* CvMilitaryAI::GetNearestCoastalCity(PlayerTypes eEnemy) const
+CvCity* CvMilitaryAI::GetNearestCoastalCityFriendly(PlayerTypes eEnemy) const
 {
 	CvCity* pBestCoastalCity = NULL;
 	CvCity* pLoopCity, *pEnemyCity;
@@ -2754,7 +2754,7 @@ CvCity* CvMilitaryAI::GetNearestCoastalCity(PlayerTypes eEnemy) const
 				if(pEnemyCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 				{
 					// On same body of water?
-					if(OnSameBodyOfWater(pLoopCity, pEnemyCity))
+					if(pLoopCity->hasSharedAdjacentArea(pEnemyCity))
 					{
 						SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, eEnemy);
 						data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
@@ -2794,7 +2794,7 @@ CvCity* CvMilitaryAI::GetNearestCoastalCityEnemy(PlayerTypes eEnemy) const
 				if(pEnemyCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 				{
 					// On same body of water?
-					if(OnSameBodyOfWater(pLoopCity, pEnemyCity))
+					if(pLoopCity->hasSharedAdjacentArea(pEnemyCity))
 					{
 						SPathFinderUserData data(m_pPlayer->GetID(), PT_GENERIC_SAME_AREA, eEnemy);
 						data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
