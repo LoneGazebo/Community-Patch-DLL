@@ -39019,21 +39019,8 @@ CvCity* CvPlayer::GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bS
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		//need to check area
-		if (bSameArea)
-		{
-			if (pPlot->isWater())
-			{
-				if (!pLoopCity->isCoastal())
-					continue;
-				if (pPlot->area()!=pLoopCity->waterArea())
-					continue;
-			}
-			else
-			{
-				if (pPlot->getArea()!=pLoopCity->getArea())
-					continue;
-			}
-		}
+		if (bSameArea && !pLoopCity->isMatchingArea(pPlot))
+			continue;
 
 		int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
 		if(iDistance < iBestDistance && iDistance <= iSearchRadius)

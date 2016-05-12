@@ -1525,14 +1525,14 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 		if (pFromPlot->isCity())
 		{
 			CvCity* pCity = pFromPlot->getPlotCity();
-			if (pCity->isCoastal() && pCity->waterArea()->GetID() == pToPlot->getArea())
+			if (pCity->isMatchingArea(pToPlot))
 				bAllow = true;
 		}
 
 		if (pToPlot->isCity())
 		{
 			CvCity* pCity = pToPlot->getPlotCity();
-			if (pCity->isCoastal() && pCity->waterArea()->GetID() == pFromPlot->getArea())
+			if (pCity->isMatchingArea(pFromPlot))
 				bAllow = true;
 		}
 

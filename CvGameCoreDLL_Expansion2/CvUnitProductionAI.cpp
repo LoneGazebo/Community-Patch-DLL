@@ -296,29 +296,38 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	DomainTypes eDomain = (DomainTypes) pkUnitEntry->GetDomainType();
 	if (eDomain == DOMAIN_SEA && pkUnitEntry->GetDefaultUnitAIType() != UNITAI_WORKER_SEA) // if needed allow workboats...
 	{
-		CvArea* pBiggestNearbyBodyOfWater = m_pCity->waterArea();
-		if (pBiggestNearbyBodyOfWater)
-		{
-			int iWaterTiles = pBiggestNearbyBodyOfWater->getNumTiles();
-			int iNumUnitsofMine = pBiggestNearbyBodyOfWater->getUnitsPerPlayer(m_pCity->getOwner());
-			int iNumUnitsOther = pBiggestNearbyBodyOfWater->getNumUnits()-iNumUnitsofMine;
-			int iNumCitiesofMine = pBiggestNearbyBodyOfWater->getCitiesPerPlayer(m_pCity->getOwner());
-			int iNumCitiesOther = pBiggestNearbyBodyOfWater->getNumCities()-iNumCitiesofMine;
+		int iWaterTiles = 0;
+		int iNumUnitsofMine = 0;
+		int iNumUnitsOther = 0;
+		int iNumCitiesofMine = 0;
+		int iNumCitiesOther = 0;
 
-			int iFactor = GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP();
-			//Are we mustering a naval attack here?
-			if(bForOperation && !kPlayer.IsMusterCityAlreadyTargeted(m_pCity, DOMAIN_SEA))
+		std::set<int> areas = m_pCity->plot()->getAllAdjacentAreas();
+		for (std::set<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
+		{
+			CvArea* pkArea = GC.getMap().getArea(*it);
+			if (pkArea->isWater())
 			{
-				bOperationalOverride = true;
-			}
-			if (!bOperationalOverride && ((iNumUnitsofMine * iFactor > iWaterTiles) || ((iNumUnitsOther==0 && iNumCitiesOther==0))))
-			{
-				return 0;
+				iWaterTiles += pkArea->getNumTiles();
+				iNumUnitsofMine += pkArea->getUnitsPerPlayer(m_pCity->getOwner());
+				iNumUnitsOther += pkArea->getNumUnits()-iNumUnitsofMine;
+				iNumCitiesofMine += pkArea->getCitiesPerPlayer(m_pCity->getOwner());
+				iNumCitiesOther += pkArea->getNumCities()-iNumCitiesofMine;
 			}
 		}
-		else // this should never happen, but...
+
+		int iFactor = GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP();
+		//Are we mustering a naval attack here?
+		if(bForOperation && !kPlayer.IsMusterCityAlreadyTargeted(m_pCity, DOMAIN_SEA))
+		{
+			bOperationalOverride = true;
+		}
+		if (!bOperationalOverride && ((iNumUnitsofMine * iFactor > iWaterTiles) || ((iNumUnitsOther==0 && iNumCitiesOther==0))))
+		{
 			return 0;
+		}
 	}
+
 	//Are we alone?
 	bool bAlone = true;
 	if(pkUnitEntry->GetCombat() > 0)

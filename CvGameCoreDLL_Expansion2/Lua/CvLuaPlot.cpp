@@ -1138,8 +1138,19 @@ int CvLuaPlot::lArea(lua_State* L)
 int CvLuaPlot::lWaterArea(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L);
-	CvArea* pkArea = pkPlot->waterArea();
-	CvLuaArea::Push(L, pkArea);
+
+	std::set<int> areas = pkPlot->getAllAdjacentAreas();
+	for (std::set<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
+	{
+		CvArea* pkArea = GC.getMap().getArea(*it);
+		if (pkArea->isWater())
+		{
+			CvLuaArea::Push(L, pkArea);
+			return 1;
+		}
+	}
+
+	CvLuaArea::Push(L, NULL);
 	return 1;
 }
 //------------------------------------------------------------------------------

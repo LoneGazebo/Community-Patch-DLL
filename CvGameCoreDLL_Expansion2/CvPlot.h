@@ -348,8 +348,6 @@ public:
 	int getLatitude() const;
 
 	CvArea* area() const;
-	CvArea* waterArea() const;
-	CvArea* secondWaterArea() const;
 
 	inline int getArea() const
 	{
@@ -357,6 +355,8 @@ public:
 	}
 
 	void setArea(int iNewValue);
+
+	std::set<int> getAllAdjacentAreas() const;
 
 	inline int getLandmass() const
 	{

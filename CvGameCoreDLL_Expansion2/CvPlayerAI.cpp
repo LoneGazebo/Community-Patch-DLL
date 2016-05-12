@@ -1047,7 +1047,7 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 			//for naval ops, check if we're on the correct water body
 			if(pThisOperation->IsNavalOperation()) 
 			{
-				if(!pCity->isCoastal() || pCity->waterArea()->GetID()!=iArea)
+				if(!pCity->isAdjacentToArea(iArea))
 				{
 					continue;
 				}

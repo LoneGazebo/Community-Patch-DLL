@@ -25184,7 +25184,7 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
 			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			{
-				if(!pTargetPlot->isCoastalLand() || !pTargetPlot->isCity() || pTargetPlot->getPlotCity()->waterArea()!=pSourcePlot->area() )
+				if(!pTargetPlot->isCoastalLand() || !pTargetPlot->isCity() || !pTargetPlot->getPlotCity()->isAdjacentToArea(pSourcePlot->getArea()))
 				{
 					return false;
 				}

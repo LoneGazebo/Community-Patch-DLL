@@ -2915,41 +2915,23 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_Landlocked(CvCity* pCity)
 /// "Lakebound" City Strategy: If a City has no access to actual Ocean, reduce all water-based Flavors
 bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
 {
-	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
-	CvCity* pLoopCity = NULL;
-	int iLoop;
-	int iBiggestOcean = 0;
-	int iNumOtherCities = 0;
+	bool bHaveLake = false;
+	bool bHaveOcean = false;
 
-	CvArea* pBiggestNearbyWater = pCity->waterArea();
-	if(pBiggestNearbyWater)
+	std::set<int> areas = pCity->plot()->getAllAdjacentAreas();
+	for (std::set<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
 	{
-		int iThisCityWaterTiles = pBiggestNearbyWater->getNumTiles();
-
-		for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		CvArea* pkArea = GC.getMap().getArea(*it);
+		if (pkArea->isWater())
 		{
-			iNumOtherCities++;
-			// don't evaluate ourselves
-			if (pLoopCity == pCity)
-			{
-				continue;
-			}
-			CvArea* pBiggestNearbyBodyOfWater = pLoopCity->waterArea();
-			if (pBiggestNearbyBodyOfWater)
-			{
-				int iWaterTiles = pBiggestNearbyBodyOfWater->getNumTiles();
-				if(iWaterTiles > iBiggestOcean)
-				{
-					iBiggestOcean = iWaterTiles;
-				}
-			}
-		}
-		if((iNumOtherCities > 0) && (iThisCityWaterTiles < iBiggestOcean))
-		{
-			return true;
+			if (pkArea->getNumTiles() <= GC.getLAKE_MAX_AREA_SIZE())
+				bHaveLake = true;
+			else
+				bHaveOcean = true;
 		}
 	}
-	return false;
+
+	return bHaveLake && !bHaveOcean;
 }
 #endif
 /// "Need Tile Improvers" City Strategy: Do we REALLY need to train some Workers?

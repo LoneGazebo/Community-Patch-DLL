@@ -2990,7 +2990,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 			continue;
 		}
 
-		if(pCapital->area() == pCity->area() && !pCity->IsRouteToCapitalConnected())
+		if(pCapital->getArea() == pCity->getArea() && !pCity->IsRouteToCapitalConnected())
 		{
 			iMinWorkers += 1;
 		}

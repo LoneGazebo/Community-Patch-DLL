@@ -1051,6 +1051,8 @@ public:
 	virtual CvString GetOperationName() const = 0;
 	virtual MultiunitFormationTypes GetFormation() const = 0;
 	virtual bool VerifyTarget(CvArmyAI * pArmy);
+	virtual bool ArmyInPosition(CvArmyAI* pArmy);
+	virtual int GetDeployRange() const;
 
 	virtual bool IsNavalOperation() const
 	{

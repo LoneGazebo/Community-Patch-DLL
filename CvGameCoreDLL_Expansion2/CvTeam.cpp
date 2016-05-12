@@ -712,7 +712,8 @@ void CvTeam::shareItems(TeamTypes eTeam)
 											CvPlayerAI& kOtherPlayer = GET_PLAYER(static_cast<PlayerTypes>(iK));
 											if(kOtherPlayer.isAlive() && kOtherPlayer.getTeam() == m_eID)
 											{
-												kOtherPlayer.processBuilding(eBuilding, pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding), /*bFirst*/ false, pLoopCity->area());
+												CvArea* pArea = GC.getMap().getArea(pLoopCity->getArea());
+												kOtherPlayer.processBuilding(eBuilding, pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding), /*bFirst*/ false, pArea);
 											}
 										}
 									}

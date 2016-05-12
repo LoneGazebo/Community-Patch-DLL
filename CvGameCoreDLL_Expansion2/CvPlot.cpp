@@ -5028,81 +5028,21 @@ CvArea* CvPlot::area() const
 
 
 //	--------------------------------------------------------------------------------
-CvArea* CvPlot::waterArea() const
+std::set<int> CvPlot::getAllAdjacentAreas() const
 {
-	CvArea* pBestArea;
-	CvPlot* pAdjacentPlot;
-	int iValue;
-	int iBestValue;
-	int iI;
+	std::set<int> result;
 
-	if(isWater())
+	//todo: compute this once and persist it?
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(this);
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
-		return area();
+		CvPlot* pAdjacentPlot = aNeighbors[iI];
+		//exclude our own area!
+		if(pAdjacentPlot != NULL && pAdjacentPlot->getArea() != getArea())
+			result.insert(pAdjacentPlot->getArea());
 	}
 
-	iBestValue = 0;
-	pBestArea = NULL;
-
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-		if(pAdjacentPlot != NULL)
-		{
-			if(pAdjacentPlot->isWater())
-			{
-				iValue = pAdjacentPlot->area()->getNumTiles();
-
-				if(iValue > iBestValue)
-				{
-					iBestValue = iValue;
-					pBestArea = pAdjacentPlot->area();
-				}
-			}
-		}
-	}
-
-	return pBestArea;
-}
-
-//	--------------------------------------------------------------------------------
-CvArea* CvPlot::secondWaterArea() const
-{
-
-	CvArea* pWaterArea = waterArea();
-	CvArea* pBestArea;
-	CvPlot* pAdjacentPlot;
-	int iValue;
-	int iBestValue;
-	int iI;
-
-	CvAssert(!isWater());
-
-	iBestValue = 0;
-	pBestArea = NULL;
-
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-		if(pAdjacentPlot != NULL)
-		{
-			if(pAdjacentPlot->isWater() && (pAdjacentPlot->getArea() != pWaterArea->GetID()))
-			{
-				iValue = pAdjacentPlot->area()->getNumTiles();
-
-				if(iValue > iBestValue)
-				{
-					iBestValue = iValue;
-					pBestArea = pAdjacentPlot->area();
-				}
-			}
-		}
-	}
-
-	return pBestArea;
-
+	return result;
 }
 
 //	--------------------------------------------------------------------------------

@@ -12136,9 +12136,7 @@ int CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget)
 			if (pTarget->isCity())
 			{
 				CvCity* pCity = pTarget->getPlotCity();
-				if (!pPlot->isWater() && pPlot->getArea()!=pCity->getArea())
-					continue;
-				if (pPlot->isWater() && pPlot->area()!=pCity->waterArea())
+				if (!pCity->isMatchingArea(pPlot))
 					continue;
 			}
 
@@ -13140,14 +13138,11 @@ bool TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pTarget, const CvU
 			continue;
 
 		if(bOnlyInDomain)
-			//subs can only attack within their (water) area. a city has a land area and a water area.
+			//subs can only attack within their (water) area or adjacent cities
 			if (pRefPlot->getArea() != vCandidates[i]->getArea())
 			{
 				CvCity *pCity = vCandidates[i]->getPlotCity();
-				if (!pCity)
-					continue;
-				CvArea *pWater = pCity->waterArea();
-				if (!pWater || pRefPlot->getArea() != pWater->GetID())
+				if (!pCity || !pCity->isAdjacentToArea(pRefPlot->getArea()))
 					continue;
 			}
 

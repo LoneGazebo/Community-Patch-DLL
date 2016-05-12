@@ -642,10 +642,15 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 #endif
 
-	area()->changeCitiesPerPlayer(getOwner(), 1);
+	GC.getMap().getArea(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), 1);
 #if defined(MOD_BALANCE_CORE)
-	if (isCoastal())
-		waterArea()->changeCitiesPerPlayer(getOwner(), 1);
+	std::set<int> areas = pPlot->getAllAdjacentAreas();
+	for (std::set<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
+	{
+		CvArea* pkArea = GC.getMap().getArea(*it);
+		if (pkArea->isWater())
+			pkArea->changeCitiesPerPlayer(getOwner(), 1);
+	}
 #endif
 
 	GET_TEAM(getTeam()).changeNumCities(1);
@@ -2341,10 +2346,15 @@ void CvCity::PreKill()
 
 	pPlot->setPlotCity(NULL);
 
-	area()->changeCitiesPerPlayer(getOwner(), -1);
+	GC.getMap().getArea(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), -1);
 #if defined(MOD_BALANCE_CORE)
-	if (isCoastal())
-		waterArea()->changeCitiesPerPlayer(getOwner(), -1);
+	std::set<int> areas = pPlot->getAllAdjacentAreas();
+	for (std::set<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
+	{
+		CvArea* pkArea = GC.getMap().getArea(*it);
+		if (pkArea->isWater())
+			pkArea->changeCitiesPerPlayer(getOwner(), -1);
+	}
 #endif
 
 	GET_TEAM(getTeam()).changeNumCities(-1);
@@ -12440,7 +12450,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				if(pBuildingInfo->IsTeamShare() || (iI == getOwner()))
 				{
-					GET_PLAYER((PlayerTypes)iI).processBuilding(eBuilding, iChange, bFirst, area());
+					CvArea* pArea = GC.getMap().getArea( getArea() );
+					GET_PLAYER((PlayerTypes)iI).processBuilding(eBuilding, iChange, bFirst, pArea);
 				}
 			}
 		}
@@ -14008,36 +14019,52 @@ bool CvCity::at(CvPlot* pPlot) const
 int CvCity::getArea() const
 {
 	VALIDATE_OBJECT
-#if defined(MOD_BALANCE_CORE)
-	if (plot())
-		return plot()->getArea();
-	else
-		return -1;
-#else
-	return plot()->getArea();
-#endif
+	CvPlot* pPlot = plot();
+	return pPlot ? pPlot->getArea() : -1;
 }
 
 //	--------------------------------------------------------------------------------
-CvArea* CvCity::area() const
+bool CvCity::isAdjacentToArea(int iAreaID) const
 {
-	VALIDATE_OBJECT
-#if defined(MOD_BALANCE_CORE)
-	if (plot())
-		return plot()->area();
+	CvPlot* pPlot = plot();
+	if (pPlot)
+	{
+		if (pPlot->getArea()==iAreaID)
+			return true;
+		else
+		{
+			std::set<int> allAreas = pPlot->getAllAdjacentAreas();
+			return allAreas.find(iAreaID) != allAreas.end();
+		}
+	}
 	else
-		return NULL;
-#else
-	return plot()->area();
-#endif
+		return false;
 }
 
-
-//	--------------------------------------------------------------------------------
-CvArea* CvCity::waterArea() const
+bool CvCity::isMatchingArea(const CvPlot* pTestPlot) const
 {
-	VALIDATE_OBJECT
-	return plot()->waterArea();
+	if (!pTestPlot)
+		return false;
+
+	if (pTestPlot->isWater() && !isAdjacentToArea(pTestPlot->getArea()))
+		return true;
+	else if (!pTestPlot->isWater() && pTestPlot->getArea()!=getArea())
+		return true;
+
+	return false;
+}
+
+bool CvCity::hasSharedAdjacentArea(const CvCity * pOtherCity) const
+{
+	if (!pOtherCity)
+		return false;
+
+	std::set<int> myAreas = plot()->getAllAdjacentAreas();
+	std::set<int> theirAreas = pOtherCity->plot()->getAllAdjacentAreas();
+	std::vector<int> shared( MAX(myAreas.size(),theirAreas.size()) );
+
+	std::vector<int>::iterator result = std::set_intersection(myAreas.begin(),myAreas.end(),theirAreas.begin(),theirAreas.end(),shared.begin());
+	return (result!=shared.begin());
 }
 
 //	--------------------------------------------------------------------------------
@@ -14407,10 +14434,16 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 #endif
 		}
 
-		area()->changePopulationPerPlayer(getOwner(), (getPopulation() - iOldPopulation));
+
+		GC.getMap().getArea(getArea())->changePopulationPerPlayer(getOwner(), (getPopulation() - iOldPopulation));
 #if defined(MOD_BALANCE_CORE)
-		if (isCoastal())
-			waterArea()->changePopulationPerPlayer(getOwner(), (getPopulation() - iOldPopulation));
+		std::set<int> areas = plot()->getAllAdjacentAreas();
+		for (std::set<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
+		{
+			CvArea* pkArea = GC.getMap().getArea(*it);
+			if (pkArea->isWater())
+				pkArea->changePopulationPerPlayer(getOwner(), (getPopulation() - iOldPopulation));
+		}
 #endif
 
 		GET_PLAYER(getOwner()).changeTotalPopulation(getPopulation() - iOldPopulation);
@@ -19137,9 +19170,10 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_HAPPINESS", iTempMod);
 
 	// Area Yield Rate Modifier
-	if(area() != NULL)
+	CvArea* pArea = GC.getMap().getArea( getArea() );
+	if(pArea != NULL)
 	{
-		iTempMod = area()->getYieldRateModifier(getOwner(), eIndex);
+		iTempMod = pArea->getYieldRateModifier(getOwner(), eIndex);
 		iModifier += iTempMod;
 		if(toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_AREA", iTempMod);
@@ -27833,9 +27867,9 @@ UnitTypes CvCity::GetUnitForOperation()
 		if(pThisArmy)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if(pThisArmy->IsAllOceanGoing() && waterArea() != NULL && pThisArmy->GetArea() != NULL)
+			if(pThisArmy->IsAllOceanGoing() && pThisArmy->GetArea() != NULL)
 			{
-				if(pThisArmy->GetArea() != waterArea()->GetID())
+				if( !isAdjacentToArea( pThisArmy->GetArea() ) )
 				{
 					return NO_UNIT;
 				}

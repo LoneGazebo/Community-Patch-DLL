@@ -2507,7 +2507,6 @@ MultiunitFormationTypes CvAIOperationBasicCityAttack::GetFormation() const
 	return MilitaryAIHelpers::GetCurrentBestFormationTypeForCityAttack();
 }
 
-/// Same as default version except if just gathered forces, check to see if a better target has presented itself
 bool CvAIOperationBasicCityAttack::ArmyInPosition(CvArmyAI* pArmy)
 {
 	bool bStateChanged = false;
@@ -2536,44 +2535,10 @@ bool CvAIOperationBasicCityAttack::ArmyInPosition(CvArmyAI* pArmy)
 		CvString strMsg;
 		if(pArmy)
 		{
-			CvPlot* pTarget = pArmy->CheckTargetReached(m_eEnemy,false,GetDeployRange());
+			CvPlot* pTarget = pArmy->CheckTargetReached(m_eEnemy,IsNavalOperation(),GetDeployRange());
 			if(pTarget)
 			{
-				// Notify Diplo AI we're in place for attack
-				if(!GET_TEAM(GET_PLAYER(GetOwner()).getTeam()).isAtWar(GET_PLAYER(m_eEnemy).getTeam()))
-				{
-					GET_PLAYER(GetOwner()).GetDiplomacyAI()->SetMusteringForAttack(GetEnemy(), true);
-				}
-
-				// Notify tactical AI to focus on this area
-				if(GetTargetPlot()->getWorkingCity() != NULL && GetTargetPlot()->getWorkingCity()->getOwner() == m_eEnemy)
-				{
-					CvTemporaryZone zone;
-					zone.SetX(GetTargetPlot()->getWorkingCity()->getX());
-					zone.SetY(GetTargetPlot()->getWorkingCity()->getY());
-					zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
-					zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
-					GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
-				}
-				else if(GetTargetPlot() != NULL)
-				{
-					CvTemporaryZone zone;
-					zone.SetX(GetTargetPlot()->getX());
-					zone.SetY(GetTargetPlot()->getY());
-					zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
-					zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
-					GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
-				}
-				else
-				{
-					CvTemporaryZone zone;
-					zone.SetX(pTarget->getX());
-					zone.SetY(pTarget->getY());
-					zone.SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
-					zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
-					GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
-				}
-
+				pArmy->PrepareForAttack(pTarget,m_eEnemy);
 				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 				return true;
 			}
@@ -6403,6 +6368,62 @@ bool CvAIOperationNavalEscorted::VerifyTarget(CvArmyAI * pArmy)
 	return true;
 }
 
+/// How close to target do we end up?
+int CvAIOperationNavalEscorted::GetDeployRange() const
+{
+	return 2;
+}
+
+bool CvAIOperationNavalEscorted::ArmyInPosition(CvArmyAI* pArmy)
+{
+	bool bStateChanged = false;
+
+	switch(m_eCurrentState)
+	{
+		// If we were gathering forces, let's make sure a better target hasn't presented itself
+	case AI_OPERATION_STATE_GATHERING_FORCES:
+	{
+		// First do base case processing
+		bStateChanged = CvAIOperation::ArmyInPosition(pArmy);
+
+		// Is target still under enemy control?
+		CvPlot* pTarget = GetTargetPlot();
+		if(pTarget->getOwner() != m_eEnemy)
+		{
+			m_eCurrentState = AI_OPERATION_STATE_ABORTED;
+			m_eAbortReason = AI_ABORT_TARGET_ALREADY_CAPTURED;
+		}
+	}
+	break;
+
+	// See if reached our target, if so give control of these units to the tactical AI
+	case AI_OPERATION_STATE_MOVING_TO_TARGET:
+	{
+		if(pArmy)
+		{
+			CvPlot* pTarget = pArmy->CheckTargetReached(m_eEnemy,IsNavalOperation(),GetDeployRange());
+			if(pTarget)
+			{
+				pArmy->PrepareForAttack(pTarget,m_eEnemy);
+				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+				return true;
+			}
+		}
+	}
+	break;
+
+	// In all other cases use base class version
+	case AI_OPERATION_STATE_ABORTED:
+	case AI_OPERATION_STATE_RECRUITING_UNITS:
+	case AI_OPERATION_STATE_AT_TARGET:
+		return CvAIOperation::ArmyInPosition(pArmy);
+		break;
+	};
+
+	return bStateChanged;
+}
+
+
 /// Read serialized data
 void CvAIOperationNavalColonization::Read(FDataStream& kStream)
 {
@@ -6671,11 +6692,7 @@ bool CvAIOperationNavalColonization::RetargetCivilian(CvUnit* pCivilian, CvArmyA
 		CvCity* pBestMuster = NULL;
 		for (CvCity* pCity = GET_PLAYER(m_eOwner).firstCity(&iLoop); pCity != NULL; pCity = GET_PLAYER(m_eOwner).nextCity(&iLoop) )
 		{
-			if (!pCity->isCoastal())
-				continue;
-
-			//if we know the closest water body, make sure the city borders it
-			if (pWaterPlot && pCity->waterArea()->GetID()!=pWaterPlot->getArea())
+			if (!pCity->isMatchingArea(pWaterPlot))
 				continue;
 
 			int iDistance = plotDistance(*pCivilian->plot(),*pCity->plot());

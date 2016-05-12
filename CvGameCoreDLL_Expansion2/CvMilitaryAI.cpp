@@ -2656,11 +2656,6 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 	CityAttackApproaches eRtnValue = ATTACK_APPROACH_UNRESTRICTED;
 	int iNumBlocked = 0;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	//this returns the _largest_ water area
-	CvArea* pCityOcean = pCity->plot()->waterArea();
-	CvArea* pCityContinent = pCity->plot()->area();
-
 	//Expanded to look at three hexes around each city - will give a better understanding of approach.
 	int iNumPlots = 0;
 	int iNumTough = 0;
@@ -2698,12 +2693,8 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 			if(	pLoopPlot->isRoughGround() )
 				bTough = true;
 
-			//other continent?
-			if ( !pLoopPlot->isWater() && pLoopPlot->area() != pCityContinent )
-				bBlocked = true;
-
-			//other ocean/lake?
-			if ( pLoopPlot->isWater() && pLoopPlot->area() != pCityOcean )
+			//correct area?
+			if ( !pCity->isMatchingArea(pLoopPlot) )
 				bBlocked = true;
 
 			if(bAttackByLand && !bAttackBySea)
@@ -2741,70 +2732,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 		eRtnValue = ATTACK_APPROACH_RESTRICTED;
 	else
 		eRtnValue = ATTACK_APPROACH_NONE;
-#else
-	// Look at each of the six plots around the city
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
 
-		// Blocked if edge of map
-		if(pLoopPlot == NULL)
-		{
-			iNumBlocked++;
-		}
-		else
-		{
-			// For now, assume no one coming in over a lake
-			if(pLoopPlot->isLake())
-			{
-				iNumBlocked++;
-			}
-			// Coast but attack is not by sea?
-			else if(pLoopPlot->isWater() && !bAttackBySea)
-			{
-				iNumBlocked++;
-			}
-			// Land
-			else if(!pLoopPlot->isWater())
-			{
-				if(!bAttackByLand)
-				{
-					iNumBlocked++;
-				}
-				else
-				{
-					if(pLoopPlot->isImpassable())
-					{
-						iNumBlocked++;
-					}
-				}
-			}
-		}
-	}
-
-	switch(iNumBlocked)
-	{
-	case 0:
-		eRtnValue = ATTACK_APPROACH_UNRESTRICTED;
-		break;
-	case 1:
-	case 2:
-		eRtnValue = ATTACK_APPROACH_OPEN;
-		break;
-	case 3:
-		eRtnValue = ATTACK_APPROACH_NEUTRAL;
-		break;
-	case 4:
-		eRtnValue = ATTACK_APPROACH_LIMITED;
-		break;
-	case 5:
-		eRtnValue = ATTACK_APPROACH_RESTRICTED;
-		break;
-	case 6:
-		eRtnValue = ATTACK_APPROACH_NONE;
-		break;
-	}
-#endif
 	return eRtnValue;
 }
 
@@ -5192,9 +5120,9 @@ UnitHandle CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisb
 				}
 
 			// Is this a ship on a water body without enemies?
-			if (!bLand)
+			if (!bLand && pLoopUnit->plot()->isWater())
 			{
-				CvArea* pWaterBody = pLoopUnit->plot()->waterArea();
+				CvArea* pWaterBody = GC.getMap().getArea( pLoopUnit->plot()->getArea() );
 				if (pWaterBody)
 				{
 					int iForeignCities = pWaterBody->getNumCities() - pWaterBody->getCitiesPerPlayer(m_pPlayer->GetID());
@@ -7041,8 +6969,8 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 				CvCity* pMusterCity = pMuster->getPlotCity();
 				CvCity* pTargetCity = pTarget->getPlotCity();
 
-				if ( !(pMusterCity->isCoastal() || pTargetCity->isCoastal()) ||
-					 !(pMusterCity->waterArea() == pTargetCity->waterArea()) ||
+				if ( !(pMusterCity->isCoastal() && pTargetCity->isCoastal()) ||
+					 !(pMusterCity->hasSharedAdjacentArea(pTargetCity)) ||
 					 (!GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pMusterCity,pTargetCity,DOMAIN_SEA,NULL,false)) )
 				{
 					if(GC.getLogging() && GC.getAILogging())
