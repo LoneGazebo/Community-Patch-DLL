@@ -295,6 +295,7 @@ CvPlayer::CvPlayer() :
 	, m_iCitiesLost("CvPlayer::m_iCitiesLost", m_syncArchive)
 	, m_iMilitaryMight("CvPlayer::m_iMilitaryMight", m_syncArchive)
 	, m_iEconomicMight("CvPlayer::m_iEconomicMight", m_syncArchive)
+	, m_iProductionMight("CvPlayer::m_iProductionMight", m_syncArchive)
 	, m_iTurnMightRecomputed("CvPlayer::m_iTurnMightRecomputed", m_syncArchive)
 	, m_iNewCityExtraPopulation("CvPlayer::m_iNewCityExtraPopulation", m_syncArchive)
 	, m_iFreeFoodBox("CvPlayer::m_iFreeFoodBox", m_syncArchive)
@@ -1542,6 +1543,7 @@ void CvPlayer::uninit()
 	m_iCitiesLost = 0;
 	m_iMilitaryMight = 0;
 	m_iEconomicMight = 0;
+	m_iProductionMight = 0;
 	m_iTurnMightRecomputed = -1;
 	m_iNewCityExtraPopulation = 0;
 	m_iFreeFoodBox = 0;
@@ -27813,43 +27815,52 @@ void CvPlayer::changeCitiesLost(int iChange)
 	m_iCitiesLost = (m_iCitiesLost + iChange);
 }
 
+void CvPlayer::updateMightStatistics()
+{
+	m_iTurnMightRecomputed = GC.getGame().getElapsedGameTurns();
+	m_iMilitaryMight = calculateMilitaryMight();
+	m_iEconomicMight = calculateEconomicMight();
+	m_iProductionMight = calculateProductionMight();
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::getPower() const
 {
+	// more lazy evaluation
 	if(m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
-	{
-		// more lazy evaluation
-		const_cast<CvPlayer*>(this)->m_iTurnMightRecomputed = GC.getGame().getElapsedGameTurns();
-		const_cast<CvPlayer*>(this)->m_iMilitaryMight = calculateMilitaryMight();
-		const_cast<CvPlayer*>(this)->m_iEconomicMight = calculateEconomicMight();
-	}
+		const_cast<CvPlayer*>(this)->updateMightStatistics();
+
 	return m_iMilitaryMight + m_iEconomicMight;
 }
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetMilitaryMight() const
 {
+	// more lazy evaluation
 	if(m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
-	{
-		// more lazy evaluation
-		const_cast<CvPlayer*>(this)->m_iTurnMightRecomputed = GC.getGame().getElapsedGameTurns();
-		const_cast<CvPlayer*>(this)->m_iMilitaryMight = calculateMilitaryMight();
-		const_cast<CvPlayer*>(this)->m_iEconomicMight = calculateEconomicMight();
-	}
+		const_cast<CvPlayer*>(this)->updateMightStatistics();
+
 	return m_iMilitaryMight;
 }
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetEconomicMight() const
 {
+	// more lazy evaluation
 	if(m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
-	{
-		// more lazy evaluation
-		const_cast<CvPlayer*>(this)->m_iTurnMightRecomputed = GC.getGame().getElapsedGameTurns();
-		const_cast<CvPlayer*>(this)->m_iMilitaryMight = calculateMilitaryMight();
-		const_cast<CvPlayer*>(this)->m_iEconomicMight = calculateEconomicMight();
-	}
+		const_cast<CvPlayer*>(this)->updateMightStatistics();
+
 	return m_iEconomicMight;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetProductionMight() const
+{
+	// more lazy evaluation
+	if(m_iTurnMightRecomputed < GC.getGame().getElapsedGameTurns())
+		const_cast<CvPlayer*>(this)->updateMightStatistics();
+
+	return m_iProductionMight;
 }
 
 //	--------------------------------------------------------------------------------

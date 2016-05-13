@@ -1548,12 +1548,11 @@ public:
 	int getCitiesLost() const;
 	void changeCitiesLost(int iChange);
 
+	//power is military + economic
 	int getPower() const;
 	int GetMilitaryMight() const;
 	int GetEconomicMight() const;
-	int calculateMilitaryMight() const;
-	int calculateEconomicMight() const;
-	int calculateProductionMight() const;
+	int GetProductionMight() const;
 
 #if defined(MOD_UNITS_XP_TIMES_100)
 	int getCombatExperienceTimes100() const;
@@ -2621,6 +2620,11 @@ protected:
 		}
 	};
 
+	void updateMightStatistics();
+	int calculateMilitaryMight() const;
+	int calculateEconomicMight() const;
+	int calculateProductionMight() const;
+
 	FAutoArchiveClassContainer<CvPlayer> m_syncArchive;
 
 	FAutoVariable<PlayerTypes, CvPlayer> m_eID;
@@ -2984,6 +2988,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCitiesLost;
 	FAutoVariable<int, CvPlayer> m_iMilitaryMight;
 	FAutoVariable<int, CvPlayer> m_iEconomicMight;
+	FAutoVariable<int, CvPlayer> m_iProductionMight;
 	FAutoVariable<int, CvPlayer> m_iTurnMightRecomputed;
 	FAutoVariable<int, CvPlayer> m_iNewCityExtraPopulation;
 	FAutoVariable<int, CvPlayer> m_iFreeFoodBox;

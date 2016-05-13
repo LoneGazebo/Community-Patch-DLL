@@ -10834,7 +10834,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 #endif
 
 		// Production might
-		int iOurProductionMight = GetPlayer()->calculateProductionMight();
+		int iOurProductionMight = GetPlayer()->GetProductionMight();
 		int iHigherProductionCivs = 0;
 		int iLowerProductionCivs = 0;
 		int iAliveCivs = 0;
@@ -10846,7 +10846,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				iAliveCivs++;
 				if (GetPlayer()->GetID() != e)
 				{
-					int iMight = GET_PLAYER(e).calculateProductionMight();
+					int iMight = GET_PLAYER(e).GetProductionMight();
 					if (iMight > iOurProductionMight)
 					{
 						iHigherProductionCivs++;
