@@ -922,7 +922,7 @@ CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, boo
 				{
 					for(pLoopCity = thisPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iLoop))
 					{
-						if(!bSameArea || pLoopCity->isMatchingArea(pCheckPlot))
+						if(!bSameArea || pLoopCity->getArea()==pCheckPlot->getArea() || pLoopCity->isMatchingArea(pCheckPlot))
 						{
 							if(!bCoastalOnly || pLoopCity->isCoastal())
 							{

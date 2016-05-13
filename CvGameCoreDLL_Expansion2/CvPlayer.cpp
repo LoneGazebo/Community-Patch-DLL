@@ -12633,31 +12633,27 @@ void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlo
 	if(pkUnitEntry && !isMinorCiv() && !isBarbarian())
 	{
 		CvPlot* pPlot = GC.getMap().plot(iX, iY);
-		CvCity* pCity = NULL;
-		if(pPlot->isCity())
-		{
-			pCity = GC.getMap().findCity(iX, iY, GetID(), NO_TEAM);
-		}
+		CvCity* pCity = pPlot ? pPlot->getPlotCity() : NULL;
 
-		if(pCity)
+		if(!pCity)
+			return;
+
+		const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
+		const CvCivilizationInfo& thisCivilization = getCivilizationInfo();
+		for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
 		{
-			const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-			const CvCivilizationInfo& thisCivilization = getCivilizationInfo();
-			for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
+			const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
+			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+			if(!pkBuildingClassInfo)
 			{
-				const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
-				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-				if(!pkBuildingClassInfo)
+				continue;
+			}
+			if(pkUnitEntry->GetBuildOnFound(eBuildingClass))
+			{
+				const BuildingTypes eFreeBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+				if(pCity->isValidBuildingLocation(eFreeBuilding))
 				{
-					continue;
-				}
-				if(pkUnitEntry->GetBuildOnFound(eBuildingClass))
-				{
-					const BuildingTypes eFreeBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
-					if(pCity->isValidBuildingLocation(eFreeBuilding))
-					{
-						pCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 1, true);
-					}
+					pCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 1, true);
 				}
 			}
 		}
