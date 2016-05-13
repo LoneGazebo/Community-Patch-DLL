@@ -3641,7 +3641,7 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 			break;
 		}
 	}
-	if(!bCoastal)
+	if(!bCoastal && pPlayer->getNumCities()<5)
 	{
 		return true;
 	}

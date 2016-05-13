@@ -10092,7 +10092,7 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvPlot* pRefPlot)
 			//do not use the founding values here, they are expensive to compute
 			int iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(this,true);
 			int iRefFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlayer->getCapitalCity()->plot(),true);
-			iFertilityBonus = min(100, max(0, (iFertility*100) / iRefFertility));
+			iFertilityBonus = range( (iFertility*100) / MAX(1,iRefFertility), 0, 100);
 		}
 		if(getOwner() == NO_PLAYER)
 		{

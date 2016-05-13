@@ -39373,27 +39373,23 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 
 	CvArea* pLoopArea;
 	int iLoop;
-	int iBestScore = 0;	//default score of each area is zero, so we have to be better
-	int iSecondBestScore = 0;
+	float fBestScore = 0;	//default score of each area is zero, so we have to be better
+	float fSecondBestScore = 0;
 	int iBestArea = -1;
 	int iSecondBestArea = -1;
 	int iNumFound = 0;
-	int iScore;
 
 	CvMap& theMap = GC.getMap();
 
 	// Find best two scores above minimum
 	for(pLoopArea = theMap.firstArea(&iLoop); pLoopArea != NULL; pLoopArea = theMap.nextArea(&iLoop))
 	{
-		if(!pLoopArea->isWater() && pLoopArea->getNumRevealedTiles(getTeam()) >= min(4, pLoopArea->getNumTiles()) )
+		if(!pLoopArea->isWater())
 		{
-			iScore = pLoopArea->getTotalFoundValue();
+			float fScore = (float)pLoopArea->getTotalFoundValue();
 
-			if(iScore >= iMinScore)
+			if(fScore >= iMinScore)
 			{
-				//we have to watch for overflow ...
-				iScore = (iScore >> 2); 
-
 				EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 				if(eStrategyExpandToOtherContinents != NO_ECONOMICAISTRATEGY)
 				{
@@ -39401,41 +39397,39 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 					{
 						if (getCapitalCity() && pLoopArea->GetID() != getCapitalCity()->getArea())
 						{
-							iScore *= 2;
+							fScore *= 2;
 						}
 					}
 				}
 
-				int iPlayers = 0;
+				int nCities = 0;
 				for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
 				{
 					CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
-					if((kLoopPlayer.GetID() != -1) && !kLoopPlayer.isMinorCiv())
+					if(!kLoopPlayer.isMinorCiv() && iPlayer!=GetID())
 					{
-						if(pLoopArea->getCitiesPerPlayer(kLoopPlayer.GetID()) > 0)
-						{
-							iPlayers += pLoopArea->getCitiesPerPlayer(kLoopPlayer.GetID());
-						}
+						nCities += pLoopArea->getCitiesPerPlayer((PlayerTypes)iPlayer);
 					}
 				}
-				iScore /= max(1, iPlayers);
+				//use only the square root for scaling - a good spot is a good spot even if many other cities are around it
+				fScore /= sqrt( max(1.f, (float)nCities) );
 
-				if(iScore > iBestScore)
+				if(fScore > fBestScore)
 				{
 					// Already have a best area?  If so demote to 2nd
-					if(iBestScore > iMinScore)
+					if(fBestScore > iMinScore)
 					{
-						iSecondBestScore = iBestScore;
+						fSecondBestScore = fBestScore;
 						iSecondBestArea = iBestArea;
 					}
 					iBestArea = pLoopArea->GetID();
-					iBestScore = iScore;
+					fBestScore = fScore;
 				}
 
-				else if(iScore > iSecondBestScore)
+				else if(fScore > fSecondBestScore)
 				{
 					iSecondBestArea = pLoopArea->GetID();
-					iSecondBestScore = iScore;
+					fSecondBestScore = fScore;
 				}
 			}
 		}

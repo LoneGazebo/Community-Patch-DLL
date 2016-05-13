@@ -902,7 +902,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			
 			//this is an expensive check. do we really need it?
-			/*
 			if(!kPlayer.HaveGoodSettlePlot(-1))
 			{
 				return 0;
@@ -911,7 +910,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				iBonus += 120;
 			}
-			*/
 		}
 	}
 
