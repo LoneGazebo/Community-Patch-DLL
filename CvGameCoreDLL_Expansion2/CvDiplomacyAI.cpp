@@ -4312,7 +4312,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		bool bTargetSea = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_SNEAK_ATTACK);
 		if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
 		{
-			CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTarget2(AI_OPERATION_SNEAK_CITY_ATTACK, ePlayer);
+			CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_SNEAK_CITY_ATTACK, ePlayer);
 			if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
 			{
 				if(!target.m_bAttackBySea)
@@ -5335,7 +5335,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		bool bTargetSea = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_SNEAK_ATTACK);
 		if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
 		{
-			CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTarget2(AI_OPERATION_SNEAK_CITY_ATTACK, ePlayer);
+			CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_SNEAK_CITY_ATTACK, ePlayer);
 			if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
 			{
 				if(!target.m_bAttackBySea)

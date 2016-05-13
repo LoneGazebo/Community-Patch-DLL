@@ -3954,7 +3954,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				bool bTargetSea = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_SNEAK_ATTACK);
 				if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
 				{
-					CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTarget2(AI_OPERATION_SNEAK_CITY_ATTACK, eWithPlayer);
+					CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_SNEAK_CITY_ATTACK, eWithPlayer);
 					if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
 					{
 						if(!target.m_bAttackBySea)
@@ -4242,7 +4242,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				bool bTargetSea = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_SNEAK_ATTACK);
 				if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
 				{
-					CvMilitaryTarget target = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->FindBestAttackTarget2(AI_OPERATION_SNEAK_CITY_ATTACK, eWithPlayer);
+					CvMilitaryTarget target = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_SNEAK_CITY_ATTACK, eWithPlayer);
 					if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
 					{
 						if(!target.m_bAttackBySea)

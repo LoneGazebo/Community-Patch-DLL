@@ -14046,9 +14046,9 @@ bool CvCity::isMatchingArea(const CvPlot* pTestPlot) const
 	if (!pTestPlot)
 		return false;
 
-	if (pTestPlot->isWater() && !isAdjacentToArea(pTestPlot->getArea()))
+	if (pTestPlot->isWater() && isAdjacentToArea(pTestPlot->getArea()))
 		return true;
-	else if (!pTestPlot->isWater() && pTestPlot->getArea()!=getArea())
+	else if (!pTestPlot->isWater() && pTestPlot->getArea()==getArea())
 		return true;
 
 	return false;
