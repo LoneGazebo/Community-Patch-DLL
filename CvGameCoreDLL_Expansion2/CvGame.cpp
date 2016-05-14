@@ -5243,19 +5243,9 @@ void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 			for(int iI = 0; iI < MAX_PLAYERS; iI++)
 				PrintPlayerInfo(iI);
 
+			// Observer has to be in a major slot, the "higher" players don't get notifications etc, leads to a crash (see CvPlayer::Init())
 			for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 			{
-				//open up a slot if required
-				if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_CLOSED)
-				{
-					CvPreGame::setSlotStatus( (PlayerTypes)iI, SS_OBSERVER );
-					GET_PLAYER((PlayerTypes)iI).init( (PlayerTypes)iI );
-					//make sure the team flags are set correctly 
-					GET_TEAM( GET_PLAYER((PlayerTypes)iI).getTeam() ).updateTeamStatus();
-					//make sure the new player can see everything
-					SetAllPlotsVisible( GET_PLAYER((PlayerTypes)iI).getTeam() );
-				}
-
 				// Found an observer slot
 				if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER && (CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_UNASSIGNED || CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_RESERVED))
 				{
@@ -5268,6 +5258,33 @@ void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 					setActivePlayer((PlayerTypes)iI, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
 
 					break;
+				}
+			}
+
+			if (iObserver==NO_PLAYER)
+			{
+				//try to find a closed slot. start from the end, so we reduce the chance 
+				//to hit a killed player which might be revived. that would lead to problems.
+				for(int iI = MAX_MAJOR_CIVS-1; iI > 0; iI--)
+				{
+					//open up a slot if required - it seems Really Advanced Setup does not leave observer slots but sets them all to closed
+					if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_CLOSED)
+					{
+						CvPreGame::setSlotStatus( (PlayerTypes)iI, SS_OBSERVER );
+						GET_PLAYER((PlayerTypes)iI).init( (PlayerTypes)iI );
+						//make sure the team flags are set correctly 
+						GET_TEAM( GET_PLAYER((PlayerTypes)iI).getTeam() ).updateTeamStatus();
+						//make sure the new player can see everything
+						SetAllPlotsVisible( GET_PLAYER((PlayerTypes)iI).getTeam() );
+
+						// Set current active player to a computer player
+						CvPreGame::setSlotStatus(CvPreGame::activePlayer(), SS_COMPUTER);
+
+						// Move the active player to the observer slot
+						iObserver = iI;
+						CvPreGame::setSlotClaim((PlayerTypes)iI, SLOTCLAIM_ASSIGNED);
+						setActivePlayer((PlayerTypes)iI, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
+					}
 				}
 			}
 
