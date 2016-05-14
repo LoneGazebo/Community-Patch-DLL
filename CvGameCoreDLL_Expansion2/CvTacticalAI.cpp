@@ -5151,9 +5151,6 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 		// MOVING TO TARGET as an army
 		else if(pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION)
 		{
-			int iBestDistance = MAX_INT;
-			int iSlowestMovementRate = MAX_INT;
-			UnitHandle pClosestUnitAtSea;
 			if(pOperation->GetTargetPlot() == NULL)
 			{
 				if(GC.getLogging() && GC.getAILogging())
@@ -5163,167 +5160,91 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOp
 					pOperation->LogOperationSpecialMessage(strMsg);
 				}
 				pOperation->SetToAbort(AI_ABORT_NO_TARGET);
+				return;
+			}
+			
+			// Request moves for all units, getting the slowest movement rate and the closest unit
+			CvPlot* pTargetPlot = pOperation->GetTargetPlot();
+			int iBestDistance = MAX_INT;
+			int iSlowestMovementRate = MAX_INT;
+			UnitHandle pClosestUnitAtSea;
+
+			std::vector<int> vStuckUnits;
+			for (int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
+			{
+				CvArmyFormationSlot *pSlot = pThisArmy->GetFormationSlot(iI);
+				if (pSlot->GetUnitID() != NO_UNIT)
+				{
+					UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
+					if (pUnit && !pUnit->TurnProcessed())
+					{
+						CvMultiUnitFormationInfo* pMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
+						if (pMultiUnitFormationInfo)
+						{
+							const CvFormationSlotEntry& thisSlotEntry = pMultiUnitFormationInfo->getFormationSlotEntry(iI);
+							MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
+
+							int iMoves = pUnit->baseMoves();
+							if (iMoves < iSlowestMovementRate)
+							{
+								iSlowestMovementRate = iMoves;
+							}
+
+							// At sea?
+							if (pUnit->getDomainType()==DOMAIN_SEA)
+							{
+								SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_SAME_AREA,pOperation->GetEnemy(),54);
+								data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
+								int iDistance = GC.GetStepFinder().GetPathLengthInPlots(pUnit->plot(), pTargetPlot, data);
+								if (iDistance<0)
+								{
+									vStuckUnits.push_back(pUnit->GetID());
+								}
+								else if (iDistance < iBestDistance)
+								{
+									iBestDistance = iDistance;
+									pClosestUnitAtSea = pUnit;
+								}
+							}
+						}
+					}
+				}
 			}
 
-			CvPlot *pBestPlot = pThisArmy->GetGoalPlot();
-			// Update army's current location
-			CvPlot* pThisTurnTarget = pOperation->ComputeTargetPlotForThisTurn(pThisArmy);
-			if(pThisTurnTarget == NULL)
+			// remove stuck units from army
+			for (std::vector<int>::iterator it = vStuckUnits.begin(); it != vStuckUnits.end(); ++it)
 			{
-				if(pOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED && GC.getLogging() && GC.getAILogging())
+				pThisArmy->RemoveUnit(*it);
+			}
+
+			// Error handling: no one at sea, abort
+			if (!pClosestUnitAtSea)
+			{
+				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strMsg;
-					strMsg.Format("Pathing lost en route due to a bad COM computation!");
+					strMsg.Format("No path to target, aborting!");
 					pOperation->LogOperationSpecialMessage(strMsg);
 				}
 				pOperation->SetToAbort(AI_ABORT_LOST_PATH);
 				return;
 			}
-
-			ClearEnemiesNearArmy(pThisArmy);
-			if(!pBestPlot->isWater())
-				pBestPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pBestPlot, pThisArmy);
-
-			// Error handling: couldn't find water plot next to target
-			if (pBestPlot == NULL) 
-			{
-				if (pOperation->GetTargetPlot() != NULL)
-				{
-					for (int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-					{
-						CvArmyFormationSlot *pSlot = pThisArmy->GetFormationSlot(iI);
-						if (pSlot->GetUnitID() != NO_UNIT)
-						{
-							UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-							if (pUnit && pUnit->canMove())
-							{
-								if(!MoveToUsingSafeEmbark(pUnit, pOperation->GetTargetPlot(), true, CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
-								{	
-									MoveToEmptySpaceNearTarget(pUnit, pOperation->GetTargetPlot());
-								}
-								pUnit->finishMoves();
-								UnitProcessed(pUnit->GetID());									
-							}
-						}
-					}
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Naval escort operation has no path to target right now - moving them on! X: %d, Y: %d", pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY());
-						LogTacticalMessage(strLogString);
-					}
-				}
-				return;
-			}
 			else
 			{
-				// Request moves for all units, getting the slowest movement rate and the closest unit
-				iBestDistance = MAX_INT;
-				std::vector<int> vStuckUnits;
-				for (int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
+				// If not close yet, find best plot for this turn's movement along path to ultimate best plot
+				CvPlot* pThisTurnTarget = pTargetPlot;
+				if (iBestDistance > iSlowestMovementRate)
 				{
-					CvArmyFormationSlot *pSlot = pThisArmy->GetFormationSlot(iI);
-					if (pSlot->GetUnitID() != NO_UNIT)
-					{
-						UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-						if (pUnit && !pUnit->TurnProcessed())
-						{
-							CvMultiUnitFormationInfo* pMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
-							if (pMultiUnitFormationInfo)
-							{
-								const CvFormationSlotEntry& thisSlotEntry = pMultiUnitFormationInfo->getFormationSlotEntry(iI);
-								MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-
-								int iMoves = pUnit->baseMoves();
-								if (iMoves < iSlowestMovementRate)
-								{
-									iSlowestMovementRate = iMoves;
-								}
-
-								// At sea?
-								if (pUnit->getDomainType()==DOMAIN_SEA)
-								{
-									SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_SAME_AREA,pOperation->GetEnemy(),54);
-									data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
-									int iDistance = GC.GetStepFinder().GetPathLengthInPlots(pUnit->plot(), pBestPlot, data);
-									if (iDistance<0)
-									{
-										vStuckUnits.push_back(pUnit->GetID());
-									}
-									else if (iDistance < iBestDistance)
-									{
-										iBestDistance = iDistance;
-										pClosestUnitAtSea = pUnit;
-									}
-								}
-							}
-						}
-					}
+					SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_SAME_AREA,pOperation->GetEnemy(),54);
+					data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
+					SPath path = GC.GetStepFinder().GetPath(pClosestUnitAtSea->plot(), pTargetPlot, data);
+					if (!!path)
+						pThisTurnTarget = PathHelpers::GetXPlotsFromEnd(path, iBestDistance - iSlowestMovementRate, true);					
 				}
 
-				// remove stuck units from army
-				for (std::vector<int>::iterator it = vStuckUnits.begin(); it != vStuckUnits.end(); ++it)
-				{
-					pThisArmy->RemoveUnit(*it);
-				}
-
-				// Error handling: no one at sea, retarget
-				if (!pClosestUnitAtSea && pOperation->GetTargetPlot() != NULL)
-				{
-					for (int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-					{
-						CvArmyFormationSlot *pSlot = pThisArmy->GetFormationSlot(iI);
-						if (pSlot->GetUnitID() != NO_UNIT)
-						{
-							UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-							if (pUnit && pUnit->canMove())
-							{
-								if(!MoveToUsingSafeEmbark(pUnit, pOperation->GetTargetPlot(), true, CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
-								{	
-									MoveToEmptySpaceNearTarget(pUnit, pOperation->GetTargetPlot());
-								}
-								pUnit->finishMoves();
-								UnitProcessed(pUnit->GetID());
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strLogString;
-									strLogString.Format("Retargeting naval escort operation (path lost to target) and moving them on, X: %d, Y: %d", pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY());
-									LogTacticalMessage(strLogString);
-								}
-							}
-						}
-					}
-					if (GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Retargeting naval escort operation (no unit in water!), X: %d, Y: %d", pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY());
-						LogTacticalMessage(strLogString);
-					}
-				}
-				else
-				{
-					// If not close yet, find best plot for this turn's movement along path to ultimate best plot
-					if (iBestDistance > iSlowestMovementRate)
-					{
-						SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_SAME_AREA,pOperation->GetEnemy(),54);
-						data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
-						SPath path = GC.GetStepFinder().GetPath(pClosestUnitAtSea->plot(), pBestPlot, data);
-						if (!!path)
-						{
-							pBestPlot = PathHelpers::GetXPlotsFromEnd(path, iBestDistance - iSlowestMovementRate, true);					
-						}
-					}
-					if (pBestPlot)
-					{
-						pThisArmy->SetXY(pBestPlot->getX(), pBestPlot->getY());
-						ExecuteNavalFormationMoves(pThisArmy, pBestPlot);
-						pOperation->ArmyInPosition(pThisArmy);
-					}
-					else
-					{
-						CvAssertMsg (false, "Naval operation logic error.");
-					}
-				}
+				pThisArmy->SetXY(pThisTurnTarget->getX(), pThisTurnTarget->getY());
+				ExecuteNavalFormationMoves(pThisArmy, pThisTurnTarget);
+				pOperation->ArmyInPosition(pThisArmy);
 			}
 		}
 	}
@@ -5475,25 +5396,7 @@ void CvTacticalAI::PlotFreeformNavalOperationMoves(CvAIOperationNaval* pOperatio
 		// Get them moving to target without delay
 #if defined(MOD_BALANCE_CORE)
 		ClearEnemiesNearArmy(pThisArmy);
-		CvAIOperation* pOperation = m_pPlayer->getAIOperation(pThisArmy->GetOperationID());
-		UnitHandle pUnit;
-		pUnit = pThisArmy->GetFirstUnit();
-		while(pUnit && !pUnit->TurnProcessed())
-		{
-			if(pUnit->plot()->getOwner() == pOperation->GetEnemy())
-			{
-				if(pUnit->pillage())
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Pillagers be pillaging! Go AI go! (X=%d Y=%d)", pUnit->plot()->getX(), pUnit->plot()->getY());
-						pOperation->LogOperationSpecialMessage(strMsg);
-					}
-				}
-			}
-			pUnit = pThisArmy->GetNextUnit();
-		}
+
 		// Request moves for all units
 		for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
 		{

@@ -1475,7 +1475,25 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 
 	if(pFromPlot->getArea() != pToPlot->getArea())
 	{
-		return FALSE;
+		bool bAllow = false;
+
+		//be a little lenient with cities
+		if (pFromPlot->isCity())
+		{
+			CvCity* pCity = pFromPlot->getPlotCity();
+			if (pCity->isMatchingArea(pToPlot))
+				bAllow = true;
+		}
+
+		if (pToPlot->isCity())
+		{
+			CvCity* pCity = pToPlot->getPlotCity();
+			if (pCity->isMatchingArea(pFromPlot))
+				bAllow = true;
+		}
+
+		if (!bAllow)
+			return FALSE;
 	}
 
 	return TRUE;

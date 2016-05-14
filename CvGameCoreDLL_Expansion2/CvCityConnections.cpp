@@ -217,6 +217,21 @@ bool CvCityConnections::AreCitiesConnected(const CvCity * pCityA, const CvCity *
 
 void CvCityConnections::UpdateRouteInfo(void)
 {
+	//allow mods to set connectivity as well - this is a bit strange, there is no check for industrial, and direction connection makes no sense
+	bool bCallDirectEvents = false;
+	bool bCallIndirectEvents = false;
+	if (MOD_EVENTS_CITY_CONNECTIONS) 
+	{
+		// Events to determine if we support alternative direct and/or indirect route types
+		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnections, m_pPlayer->GetID(), true) == GAMEEVENTRETURN_TRUE) {
+			bCallDirectEvents = true;
+		}
+
+		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnections, m_pPlayer->GetID(), false) == GAMEEVENTRETURN_TRUE) {
+			bCallIndirectEvents = true;
+		}
+	}
+
 	m_connectionState.clear();
 
 	for (PlotIndexStore::iterator it = m_cityPlotIDs.begin(); it != m_cityPlotIDs.end(); ++it)
@@ -320,6 +335,46 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 		//save the result
 		m_connectionState[pStartCity->GetID()] = localConnections;
+	}
+
+	//for any cities which are not linked now, check what lua says
+	int iCityLoopA, iCityLoopB;
+	for(CvCity* pCityA = m_pPlayer->firstCity(&iCityLoopA); pCityA != NULL; pCityA = m_pPlayer->nextCity(&iCityLoopA))
+	{
+		for(CvCity* pCityB = m_pPlayer->firstCity(&iCityLoopB); pCityB != NULL; pCityB = m_pPlayer->nextCity(&iCityLoopB))
+		{
+			//maybe check the upper half of the matrix only? is there a requirement that connections must be symmetrical?
+			if (pCityA==pCityB)
+				continue;
+
+			bool bLuaRouteFound = false;
+			if (!AreCitiesConnected(pCityA,pCityB,CONNECTION_ANY_LAND) && bCallDirectEvents)
+			{
+				// Event to determine if connected by an alternative direct route type
+				bLuaRouteFound = (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pCityA->getX(), pCityA->getY(), pCityB->getX(), pCityB->getY(), true) == GAMEEVENTRETURN_TRUE);
+			}
+
+			if (!AreCitiesConnected(pCityA,pCityB,CONNECTION_HARBOR) && bCallIndirectEvents)
+			{
+				// Event to determine if connected by an alternative indirect route type
+				bLuaRouteFound = (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pCityA->getX(), pCityA->getY(), pCityB->getX(), pCityB->getY(), false) == GAMEEVENTRETURN_TRUE);
+			}
+
+			if (bLuaRouteFound)
+			{
+				ConnectionStore::iterator it = m_connectionState.find(pCityA->GetID());
+				std::map<int,CityConnectionTypes> localConnections;
+				if (it!=m_connectionState.end())
+					localConnections = it->second;
+
+				//no matter whether "direct" or "indirect", we pretend it's a harbor
+				//this works as is with the capital connection check below
+				localConnections.insert( std::make_pair(pCityB->GetID(),CONNECTION_HARBOR) );
+
+				//don't forget to save it
+				m_connectionState[pCityA->GetID()] = localConnections;
+			}
+		}
 	}
 
 	//finally, see how far we can go from the capital over mixed routes
