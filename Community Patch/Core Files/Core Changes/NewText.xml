@@ -211,27 +211,27 @@
 		<!-- Denounce Statements-->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_AUTOCRACY</ResponseType>
-			<Response>TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_AUTOCRACY%</Response>
-		</Row>
-		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_ORDER</ResponseType>
-			<Response>TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_ORDER%</Response>
-		</Row>
-		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_FREEDOM</ResponseType>
-			<Response>TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_FREEDOM%</Response>
-		</Row>
-		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_AUTOCRACY_OTHER</ResponseType>
 			<Response>TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_AUTOCRACY%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_ORDER_OTHER</ResponseType>
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_ORDER</ResponseType>
 			<Response>TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_ORDER%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
-			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_FREEDOM_OTHER</ResponseType>
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_FREEDOM</ResponseType>
 			<Response>TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_FREEDOM%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_AUTOCRACY_OTHER</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_AUTOCRACY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_ORDER_OTHER</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_ORDER%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_FREEDOM_OTHER</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_FREEDOM%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_GENERIC</ResponseType>

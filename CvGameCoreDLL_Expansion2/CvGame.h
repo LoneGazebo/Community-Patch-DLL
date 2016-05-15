@@ -538,6 +538,10 @@ public:
 	CvGameTrade* GetGameTrade();
 	CvTacticalAnalysisMap* GetTacticalAnalysisMap();
 
+#if defined(MOD_API_LUA_EXTENSIONS)
+	CvString getDllGuid() const;
+#endif
+
 	int GetAction(int iKeyStroke, bool bAlt, bool bShift, bool bCtrl);
 	int IsAction(int iKeyStroke, bool bAlt, bool bShift, bool bCtrl);
 

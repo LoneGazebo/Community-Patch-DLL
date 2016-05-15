@@ -2608,6 +2608,7 @@ public:
 	bool isMaster() const;
 	bool isVassal() const;
 	int getNumCoastalRequired() const;
+	bool isTradeCapped() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -2665,6 +2666,7 @@ protected:
 	bool m_bVassal;
 	bool m_bMaster;
 	int m_iCoastal;
+	bool m_bTradeCapped;
 
 private:
 	CvModEventInfo(const CvModEventInfo&);
@@ -2726,11 +2728,13 @@ public:
 	int getFlavorValue(int i) const;
 	const char* getEventChoiceSoundEffect() const;
 	int getNumFreePolicies() const;
+	int getNumFreeTechs() const;
 	int getNumFreeGreatPeople() const;
 	int getGoldenAgeTurns() const;
 	int getWLTKD() const;
 	int getResistanceTurns() const;
 	int getRandomBarbs() const;
+	int getNumFreeSpecificUnits(int i) const;
 	int getNumFreeUnits(int i) const;
 	int getFreeScaledUnits() const;
 	int getEventConvertReligion(int i) const;
@@ -2796,6 +2800,8 @@ public:
 	bool isVassal() const;
 	int getNumCoastalRequired() const;
 	bool isCoastalOnly() const;
+	bool isTradeCapped() const;
+	bool isCapitalEffectOnly() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -2819,12 +2825,14 @@ protected:
 	int m_iFreeScaledUnits;
 	CvString m_strEventChoiceSoundEffect;
 	int m_iNumFreePolicies;
+	int m_iNumFreeTechs;
 	int m_iNumFreeGreatPeople;
 	int m_iNumGoldenAgeTurns;
 	int m_iNumWLTKD;
 	int m_iResistanceTurns;
 	int m_iRandomBarbs;
 	int* m_piNumFreeUnits;
+	int* m_piNumFreeSpecificUnits;
 	int** m_ppiBuildingClassYield;
 	int** m_ppiBuildingClassYieldModifier;
 	int m_iPlayerHappiness;
@@ -2881,6 +2889,8 @@ protected:
 	bool m_bMaster;
 	int m_iCoastal;
 	bool m_bCoastalOnly;
+	bool m_bTradeCapped;
+	bool m_bCapitalEffectOnly;
 
 	CvEventNotificationInfo* m_paNotificationInfo;
 	int m_iNotificationInfos;
@@ -3108,6 +3118,7 @@ public:
 	int getRandomBarbs() const;
 	int getFreeScaledUnits() const;
 	int getCityHappiness() const;
+	int getNumFreeSpecificUnits(int i) const;
 	int getNumFreeUnits(int i) const;
 	int getEventConvertReligion(int i) const;
 	int getEventConvertReligionPercent(int i) const;
@@ -3214,6 +3225,7 @@ protected:
 	int m_iFreeScaledUnits;
 	int* m_piBuildingDestructionChance;
 	int* m_piNumFreeUnits;
+	int* m_piNumFreeSpecificUnits;
 	int* m_piConvertReligion;
 	int* m_piConvertReligionPercent;
 	int m_iLocalResourceRequired;

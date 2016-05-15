@@ -13,11 +13,6 @@
 #define CIV5_ARMYAI_H
 
 class CvPlot;
-class CvArea;
-class CvAStarNode;
-class CvUnit;
-class CvMultiUnitFormationInfo;
-class CvAIOperation;
 
 #define SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES 20
 
@@ -171,6 +166,7 @@ public:
 
 	CvPlot* DetectNearbyEnemy(PlayerTypes eEnemy, bool bNaval);
 	CvPlot* CheckTargetReached(PlayerTypes eEnemy, bool bNavalOp, int iMaxDistance);
+	void PrepareForAttack(CvPlot* pTarget, PlayerTypes eEnemy);
 
 protected:
 	int m_iID;

@@ -63,6 +63,9 @@
 #if defined(MOD_BALANCE_CORE)
 #include "CvPlayerManager.h"
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS)
+#include "CvDllContext.h"
+#endif
 
 // Public Functions...
 // must be included after all other headers
@@ -238,7 +241,11 @@ void CvGame::init(HandicapTypes eHandicap)
 
 		for(int i = 0; i < iNumPlayers; i++)
 		{
+#if defined(MOD_BUGFIX_RANDOM)
+			int j = (getJonRandNum(iNumPlayers - i, NULL) + i);
+#else
 			int j = (getJonRand().get(iNumPlayers - i, NULL) + i);
+#endif
 
 			if(i != j)
 			{
@@ -5243,19 +5250,9 @@ void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 			for(int iI = 0; iI < MAX_PLAYERS; iI++)
 				PrintPlayerInfo(iI);
 
+			// Observer has to be in a major slot, the "higher" players don't get notifications etc, leads to a crash (see CvPlayer::Init())
 			for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 			{
-				//open up a slot if required
-				if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_CLOSED)
-				{
-					CvPreGame::setSlotStatus( (PlayerTypes)iI, SS_OBSERVER );
-					GET_PLAYER((PlayerTypes)iI).init( (PlayerTypes)iI );
-					//make sure the team flags are set correctly 
-					GET_TEAM( GET_PLAYER((PlayerTypes)iI).getTeam() ).updateTeamStatus();
-					//make sure the new player can see everything
-					SetAllPlotsVisible( GET_PLAYER((PlayerTypes)iI).getTeam() );
-				}
-
 				// Found an observer slot
 				if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER && (CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_UNASSIGNED || CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_RESERVED))
 				{
@@ -5268,6 +5265,33 @@ void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 					setActivePlayer((PlayerTypes)iI, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
 
 					break;
+				}
+			}
+
+			if (iObserver==NO_PLAYER)
+			{
+				//try to find a closed slot. start from the end, so we reduce the chance 
+				//to hit a killed player which might be revived. that would lead to problems.
+				for(int iI = MAX_MAJOR_CIVS-1; iI > 0; iI--)
+				{
+					//open up a slot if required - it seems Really Advanced Setup does not leave observer slots but sets them all to closed
+					if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_CLOSED)
+					{
+						CvPreGame::setSlotStatus( (PlayerTypes)iI, SS_OBSERVER );
+						GET_PLAYER((PlayerTypes)iI).init( (PlayerTypes)iI );
+						//make sure the team flags are set correctly 
+						GET_TEAM( GET_PLAYER((PlayerTypes)iI).getTeam() ).updateTeamStatus();
+						//make sure the new player can see everything
+						SetAllPlotsVisible( GET_PLAYER((PlayerTypes)iI).getTeam() );
+
+						// Set current active player to a computer player
+						CvPreGame::setSlotStatus(CvPreGame::activePlayer(), SS_COMPUTER);
+
+						// Move the active player to the observer slot
+						iObserver = iI;
+						CvPreGame::setSlotClaim((PlayerTypes)iI, SLOTCLAIM_ASSIGNED);
+						setActivePlayer((PlayerTypes)iI, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
+					}
 				}
 			}
 
@@ -5725,6 +5749,81 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 	std::vector<string> probabilities;
 	probabilities.reserve(512);
 
+#if defined(MOD_NO_RANDOM_TEXT_CIVS)
+    std::vector<int> biasList;
+
+    Database::Results* tempDatabase;
+    const char* callTemp = "select Tag, Bias from Diplomacy_Responses, Language_en_US where LeaderType = ? and ResponseType = ? and Tag like Response";
+    tempDatabase = new Database::Results();
+    if(!GC.GetGameDatabase()->Execute(*tempDatabase, callTemp, strlen(callTemp)))
+    {
+        CvAssertMsg(false, "Failed to generate diplo response query.");
+    }
+
+    tempDatabase->Bind(1, szLeader);
+    tempDatabase->Bind(2, szResponse);
+
+    int totbias=0;
+    while(tempDatabase->Step())
+    {
+        const char* szTag = tempDatabase->GetText(0);
+        int bias = tempDatabase->GetInt(1);
+        totbias+=bias;
+        biasList.push_back(totbias); 
+        probabilities.push_back(szTag);
+    }
+
+    tempDatabase->Reset();
+    delete tempDatabase; //Just to be safe
+
+    int tempRand;
+    unsigned int choice;
+
+    if(!probabilities.empty())
+    {
+        tempRand=getAsyncRandNum(totbias, "Diplomacy Rand");
+        for (choice=0; choice<biasList.size(); choice++){
+            if(tempRand < biasList[choice]){
+                break;
+            }
+        }
+        response = Localization::Lookup(probabilities[choice].c_str());
+        response << strOptionalKey1 << strOptionalKey2;
+        return response;
+    }
+
+    m_pDiploResponseQuery->Bind(1, szLeader);
+    m_pDiploResponseQuery->Bind(2, szResponse);
+
+    totbias=0;
+    biasList.clear(); //Just to be safe
+    probabilities.clear(); //Just to be safe
+    while(m_pDiploResponseQuery->Step())
+    {
+        const char* szTag = m_pDiploResponseQuery->GetText(0);
+        int bias = m_pDiploResponseQuery->GetInt(1);
+        totbias+=bias;
+        biasList.push_back(totbias); 
+        probabilities.push_back(szTag);
+    }
+
+    m_pDiploResponseQuery->Reset();
+
+
+    if(!probabilities.empty())
+    {
+        tempRand=getAsyncRandNum(totbias, "Diplomacy Rand");
+        for (choice=0; choice<biasList.size(); choice++){
+            if(tempRand < biasList[choice]){
+                break;
+            }
+        }
+        response = Localization::Lookup(probabilities[choice].c_str());
+        response << strOptionalKey1 << strOptionalKey2;
+        return response;
+    }
+#else
+
 	m_pDiploResponseQuery->Bind(1, szLeader);
 	m_pDiploResponseQuery->Bind(2, szResponse);
 
@@ -5745,6 +5844,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 		response = Localization::Lookup(probabilities[getAsyncRandNum(probabilities.size(), "Diplomacy Rand")].c_str());
 		response << strOptionalKey1 << strOptionalKey2;
 	}
+#endif
 
 	if(response.IsEmpty())
 	{
@@ -8888,7 +8988,7 @@ void CvGame::updateMoves()
 									{
 										if(pLoopUnit->getOwner() == pLoopUnitInner->getOwner())	// Could be a dying Unit from another player here
 										{
-											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getNumFriendlyUnitsOfType(pLoopUnit.pointer()) > GC.getPLOT_UNIT_LIMIT())
+											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit.pointer()) > GC.getPLOT_UNIT_LIMIT())
 											{
 												if(pLoopUnitInner->getFortifyTurns() >= iNumTurnsFortified)
 												{
@@ -9595,7 +9695,14 @@ CvRandom& CvGame::getMapRand()
 //	--------------------------------------------------------------------------------
 int CvGame::getMapRandNum(int iNum, const char* pszLog)
 {
+#if defined(MOD_BUGFIX_RANDOM)
+	if (iNum > 0)
+		return m_mapRand.get(iNum, pszLog);
+
+	return -(int)m_mapRand.get(-iNum, pszLog);
+#else
 	return m_mapRand.get(iNum, pszLog);
+#endif
 }
 
 
@@ -9611,7 +9718,14 @@ CvRandom& CvGame::getJonRand()
 /// Allows for logging.
 int CvGame::getJonRandNum(int iNum, const char* pszLog)
 {
-	return m_jonRand.get((unsigned long)iNum, pszLog);
+#if defined(MOD_BUGFIX_RANDOM)
+	if (iNum > 0)
+		return m_jonRand.get(iNum, pszLog);
+
+	return -(int)m_jonRand.get(-iNum, pszLog);
+#else
+	return m_jonRand.get(iNum, pszLog);
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -9631,10 +9745,18 @@ int CvGame::getJonRandNumVA(int iNum, const char* pszLog, ...)
 		vsprintf_s(szOutput, uiOutputSize, pszLog, vl);
 		va_end(vl);
 
+#if defined(MOD_BUGFIX_RANDOM)
+		return getJonRandNum(iNum, szOutput);
+#else
 		return m_jonRand.get(iNum, szOutput);
+#endif
 	}
 	else
+#if defined(MOD_BUGFIX_RANDOM)
+		return getJonRandNum(iNum, NULL);
+#else
 		return m_jonRand.get(iNum);
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -9642,7 +9764,14 @@ int CvGame::getJonRandNumVA(int iNum, const char* pszLog, ...)
 /// This should only be called by operations that will not effect gameplay!
 int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 {
+#if defined(MOD_BUGFIX_RANDOM)
+	if (iNum > 0)
+		return GC.getASyncRand().get(iNum, pszLog);
+
+	return -(int)GC.getASyncRand().get(-iNum, pszLog);
+#else
 	return GC.getASyncRand().get(iNum, pszLog);
+#endif
 }
 
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
@@ -11269,6 +11398,24 @@ CvTacticalAnalysisMap* CvGame::GetTacticalAnalysisMap()
 {
 	return m_pTacticalMap;
 }
+
+#if defined(MOD_API_LUA_EXTENSIONS)
+//	--------------------------------------------------------------------------------
+CvString CvGame::getDllGuid() const
+{
+	CvString szDllGuid = "";
+	
+	GUID guid = CvDllGameContext::GetSingleton()->GetDLLGUID();
+	unsigned long d1 = guid.Data1;
+	unsigned short d2 = guid.Data2;
+	unsigned short d3 = guid.Data3;
+	unsigned char* d4 = guid.Data4;
+
+	CvString::format(szDllGuid, "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X", d1, d2, d3, d4[0], d4[1], d4[2], d4[3], d4[4], d4[5], d4[6], d4[7]);
+
+	return szDllGuid;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 CvAdvisorCounsel* CvGame::GetAdvisorCounsel()

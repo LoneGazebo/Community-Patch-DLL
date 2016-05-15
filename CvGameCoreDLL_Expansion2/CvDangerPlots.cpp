@@ -905,14 +905,8 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 	int iPlotDamage = 0;
 
 	CvCity* pFriendlyCity = NULL;
-	if ( m_pPlot->isCity() )
-	{
-		if ( m_pPlot->isFriendlyCity(*pUnit,true) )
-			pFriendlyCity = m_pPlot->getPlotCity();
-		else
-			//enemy city? don't go there
-			return pUnit->GetCurrHitPoints();
-	}
+	if ( m_pPlot->isFriendlyCity(*pUnit,true) )
+		pFriendlyCity = m_pPlot->getPlotCity();
 
 	// Civilians can be captured - unless they would need to be embarked on this plot
 	if (!pUnit->IsCombatUnit() && pUnit->isNativeDomain(m_pPlot))
@@ -1026,6 +1020,8 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 	CvPlot* pAttackerPlot = NULL;
 	CvUnit* pInterceptor = NULL;
 	// Damage from units
+	// EXTREMELY IMPORTANT THAT NO RNG IS USED FOR PREDICTION!
+	// Otherwise a tooltip or similar can change the game state
 	for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 	{
 		CvUnit* pAttacker = GET_PLAYER(it->first).getUnit(it->second);

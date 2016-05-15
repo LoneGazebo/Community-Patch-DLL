@@ -657,6 +657,18 @@ function DoUpdateButtons()
 				Controls.PeaceValue:SetToolTipString(ValuestrTT);
 				Controls.PeaceMax:SetToolTipString(MaxstrTT);
 			end
+		else
+			Controls.PeaceValue:SetHide(false);
+			Controls.PeaceDeal:SetHide(false);
+			Controls.PeaceDealBorderFrame:SetHide(false);
+			local iCurrent = g_pThem:GetTotalValueToMeNormal(g_Deal);
+			local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE", iCurrent);
+			if(iCurrent == -1) then
+				Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_IMPOSSIBLE");
+			end
+			local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_TT");
+			Controls.PeaceValue:SetText(Valuestr);
+			Controls.PeaceValue:SetToolTipString(ValuestrTT);
 		end
 		--END
 

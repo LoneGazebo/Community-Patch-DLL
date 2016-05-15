@@ -477,8 +477,6 @@ void CvUnitMission::UpdateMission(UnitHandle& hUnit)
 /// Yes, please hit me again. I like pain.
 void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 {
-	hUnit->ClearPathCache();		// At the start of the continue, clear any cached path.  The cache will be rebuilt and reused while the mission loops in this method
-
 	bool bContinueMissionRestart = true;	// to make this function no longer recursive
 	while(bContinueMissionRestart)
 	{
@@ -486,19 +484,6 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 
 		bool bDone = false;   // are we done with mission?
 		bool bAction = false; // are we taking an action this turn?
-
-		// slewis - important modification!
-		// This function may call the pathfinder multiple times.
-		// That can cause partial moves to be impossible in certain circumstances.
-		// We need a way to determine if the pathfinder can be used without breaking the currently built path.
-		// I added unit flags to accomplish this. (While this flag does not necessarily need to be serialized,
-		// the variable is serialized for future proofing.)
-		hUnit->m_iFlags = hUnit->m_iFlags | CvUnit::UNITFLAG_EVALUATING_MISSION;
-
-		// slewis - more important info!
-		// I replaced all the "return"s in this function with "goto"s.
-		// This ensures that every way this function is exited, it always clears out the unit flag evaluation mission.
-		// I know gotos are frowned upon, but if anyone else wants to re-write and test this function, be my guest.
 
 		CvAssert(!hUnit->isInCombat());
 		CvAssert(hUnit->HeadMissionQueueNode() != NULL);
@@ -509,12 +494,12 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 		{
 			// just in case...
 			hUnit->SetActivityType(ACTIVITY_AWAKE);
-			goto ContinueMissionExit;
+			return;
 		}
 
 		CvAssert(iSteps < 100);
 		if(iSteps >= 100)
-			goto ContinueMissionExit;
+			return;
 
 		const MissionData* pkMissionData = (HeadMissionQueueNode(hUnit->m_missionQueue));
 
@@ -552,7 +537,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 										strcpy_s(kPopup.szText, "TXT_KEY_ADVISOR_CITY_ATTACK_BODY");
 										kPopup.bOption1 = true;
 										GC.GetEngineUserInterface()->AddPopup(kPopup);
-										goto ContinueMissionExit;
+										return;
 									}
 								}
 							}
@@ -574,7 +559,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 											strcpy_s(kPopup.szText, "TXT_KEY_ADVISOR_BAD_ATTACK_BODY");
 											kPopup.bOption1 = false;
 											GC.GetEngineUserInterface()->AddPopup(kPopup);
-											goto ContinueMissionExit;
+											return;
 										}
 
 									}
@@ -583,7 +568,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 						}
 					}
 
-					if(hUnit->UnitAttack(pkMissionData->iData1, pkMissionData->iData2, pkMissionData->iFlags, iSteps))
+					if(hUnit->UnitAttack(pkMissionData->iData1, pkMissionData->iData2, pkMissionData->iFlags))
 					{
 						bDone = true;
 					}
@@ -596,12 +581,12 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 		if(HeadMissionQueueNode(hUnit->m_missionQueue) == NULL)
 		{
 			hUnit->SetActivityType(ACTIVITY_AWAKE);
-			goto ContinueMissionExit;
+			return;
 		}
 
 		const MissionQueue& kMissionQueue = hUnit->m_missionQueue;
 		// If there are units in the selection group, they can all move, and we're not done
-		//   then try to follow the misision
+		//   then try to follow the mission
 		if(!bDone && hUnit->canMove() && !hUnit->IsDoingPartialMove())
 		{
 			const MissionData& kMissionData = *HeadMissionQueueNode(kMissionQueue);
@@ -618,11 +603,16 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 				else
 				{
 					int iThisETA = hUnit->UnitPathTo(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags, iETA);
-					if(iThisETA > 0)
+					if(iThisETA > 0) //normal movement
 					{
 						bAction = true;
 					}
-					else
+					else if (iThisETA < 0) //turn finished
+					{
+						bAction = true;
+						bDone = true;
+					}
+					else //cannot move
 					{
 						bDone = true;
 					}
@@ -963,9 +953,6 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 			}
 		}
 	}
-ContinueMissionExit: // goto destination to clean up the flag value
-	hUnit->m_iFlags =hUnit-> m_iFlags & ~CvUnit::UNITFLAG_EVALUATING_MISSION;
-	GC.getGame().SetCombatWarned(false);
 }
 
 //	---------------------------------------------------------------------------
@@ -1424,6 +1411,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 	bAction = false;
 	bNotify = false;
 
+	//important!
 	hUnit->ClearPathCache();
 
 	const MissionData* pkQueueData = GetHeadMissionData(hUnit);
@@ -2129,7 +2117,6 @@ void CvUnitMission::ClearMissionQueue(UnitHandle hUnit, int iUnitCycleTimerOverr
 	}
 
 	hUnit->ClearPathCache();
-//	hUnit->m_missionQueue.clear();
 
 	if((hUnit->getOwner() == GC.getGame().getActivePlayer()) && hUnit->IsSelected())
 	{

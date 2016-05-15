@@ -33,7 +33,7 @@ public:
 	unsigned short DLLCALL Get(unsigned short usNum, const char* pszLog = NULL);  //  Returns value from 0 to num-1 inclusive.
 	float DLLCALL GetFloat();
 
-	unsigned long DLLCALL GetSeed() const;
+	unsigned long long DLLCALL GetSeed() const;
 
 	void DLLCALL Read(FDataStream& kStream);
 	void DLLCALL Write(FDataStream& kStream) const;

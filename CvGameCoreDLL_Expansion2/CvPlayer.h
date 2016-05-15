@@ -1094,7 +1094,7 @@ public:
 	void DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnit);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD);
+	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD, CvUnit* pUnit = NULL);
 	void addInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	void setInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantYieldText(InstantYieldType iType)  const;
@@ -1389,6 +1389,8 @@ public:
 	void SetCurrencyName(const char* strKey);
 	CvString GetCurrencyName() const;
 
+	void SetProsperityScore(int iValue);
+	int GetProsperityScore() const;
 	//DONE
 	void DoArmyDiversity();
 	int GetArmyDiversity() const;
@@ -1484,8 +1486,11 @@ public:
 	int GetMonopolyModPercent() const;
 	void SetMonopolyModPercent(int iValue);
 
-	int GetCachedValueOfPeaceWithHuman();
+	int GetCachedValueOfPeaceWithHuman() const;
 	void SetCachedValueOfPeaceWithHuman(int iValue);
+
+	void ChangeFaithPurchaseCooldown(int iValue);
+	int GetFaithPurchaseCooldown() const;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyUnhappinessMod() const;
@@ -1548,12 +1553,11 @@ public:
 	int getCitiesLost() const;
 	void changeCitiesLost(int iChange);
 
+	//power is military + economic
 	int getPower() const;
 	int GetMilitaryMight() const;
 	int GetEconomicMight() const;
-	int calculateMilitaryMight() const;
-	int calculateEconomicMight() const;
-	int calculateProductionMight() const;
+	int GetProductionMight() const;
 
 #if defined(MOD_UNITS_XP_TIMES_100)
 	int getCombatExperienceTimes100() const;
@@ -2275,6 +2279,8 @@ public:
 	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
 	const std::vector<PlayerTypes>& GetPlayersAtWarWithInFuture() const { return m_playersAtWarWithInFuture; }
 	void UpdateCurrentAndFutureWars();
+	//to check whether peace is a good idea
+	bool HasCityAboutToBeConquered() const;
 #endif
 
 	int GetNumNaturalWondersDiscoveredInArea() const;
@@ -2287,11 +2293,11 @@ public:
 	void SetTurnsSinceSettledLastCity(int iValue);
 	void ChangeTurnsSinceSettledLastCity(int iChange);
 
-	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea) const;
+	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea);
 	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& bIsSafe, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 	int GetFoundValueOfCapital() const;
 	void SetFoundValueOfCapital(int iValue);
-	bool HaveGoodSettlePlot(int iAreaID) const;
+	bool HaveGoodSettlePlot(int iAreaID);
 
 	// New Victory Stuff
 	int GetNumWonders() const;
@@ -2507,6 +2513,7 @@ public:
 #endif
 
 	virtual void updatePlotFoundValues();
+	virtual void invalidatePlotFoundValues();
 	virtual int getPlotFoundValue(int iX, int iY);
 	virtual void setPlotFoundValue(int iX, int iY, int iValue);
 
@@ -2617,6 +2624,11 @@ protected:
 				if(GetBit(i) != pBools[i]) ToggleBit(i);
 		}
 	};
+
+	void updateMightStatistics();
+	int calculateMilitaryMight() const;
+	int calculateEconomicMight() const;
+	int calculateProductionMight() const;
 
 	FAutoArchiveClassContainer<CvPlayer> m_syncArchive;
 
@@ -2934,6 +2946,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iJFDConversionTurn;
 	FAutoVariable<bool, CvPlayer> m_bJFDSecularized;
 	FAutoVariable<CvString, CvPlayer> m_strJFDCurrencyName;
+	FAutoVariable<int, CvPlayer> m_iJFDProsperity;
 	FAutoVariable<int, CvPlayer> m_iJFDCurrency;
 	FAutoVariable<int, CvPlayer> m_iUnitDiversity;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeTourism;
@@ -2960,6 +2973,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMonopolyModFlat;
 	FAutoVariable<int, CvPlayer> m_iMonopolyModPercent;
 	FAutoVariable<int, CvPlayer> m_iCachedValueOfPeaceWithHuman;
+	FAutoVariable<int, CvPlayer> m_iFaithPurchaseCooldown;
 	std::vector<int> m_piCityFeatures;
 	std::vector<int> m_piNumBuildings;
 	FAutoVariable<int, CvPlayer> m_iCitiesFeatureSurrounded;
@@ -2981,6 +2995,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCitiesLost;
 	FAutoVariable<int, CvPlayer> m_iMilitaryMight;
 	FAutoVariable<int, CvPlayer> m_iEconomicMight;
+	FAutoVariable<int, CvPlayer> m_iProductionMight;
 	FAutoVariable<int, CvPlayer> m_iTurnMightRecomputed;
 	FAutoVariable<int, CvPlayer> m_iNewCityExtraPopulation;
 	FAutoVariable<int, CvPlayer> m_iFreeFoodBox;
@@ -3212,7 +3227,8 @@ protected:
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	CvDistanceMap* m_pCityDistance;
 	FAutoVariable<int, CvPlayer> m_iFoundValueOfCapital;
-	std::vector<int> m_iPlotFoundValues;
+	std::vector<int> m_viPlotFoundValues;
+	int	m_iPlotFoundValuesUpdateTurn;
 #endif
 
 	//plots we have pledged no to settle
@@ -3301,9 +3317,7 @@ protected:
 	FaithPurchaseTypes m_eFaithPurchaseType;
 	FAutoVariable<int, CvPlayer> m_iFaithPurchaseIndex;
 
-	void doUpdateCacheOnTurn();
-
-	void doArmySize();
+	void checkArmySizeAchievement();
 
 	friend class CvPlayerManager;
 
@@ -3319,8 +3333,6 @@ protected:
 	std::vector<PlayerTypes> m_playersAtWarWithInFuture;
 #endif
 
-	//city ID to (turn,connected)
-	std::map<int,std::pair<int,bool>> m_capitalConnectionLookup[NUM_ROUTE_TYPES];
 };
 
 extern bool CancelActivePlayerEndTurn();

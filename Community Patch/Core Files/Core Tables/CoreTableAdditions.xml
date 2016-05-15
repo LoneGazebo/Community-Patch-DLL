@@ -625,6 +625,12 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
+	<!-- Promotion: Unit gains a bonus from revealing tiles. Value is equal to the number of tiles explored this turn. -->
+	<Table name="UnitPromotions_YieldFromScouting">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
 	<Yields>
 		<Row>
 			<ID>8</ID>
@@ -686,6 +692,14 @@
 			<ID>15</ID>
 			<Type>YIELD_JFD_LOYALTY</Type>
 			<Description>TXT_KEY_YIELD_JFD_LOYALTY</Description>
+			<IconString>[ICON_CULTURE]</IconString>
+			<MinCity>0</MinCity>
+			<AIWeightPercent>80</AIWeightPercent>
+		</Row>
+		<Row>
+			<ID>16</ID>
+			<Type>YIELD_JFD_SOVEREIGNTY</Type>
+			<Description>TXT_KEY_YIELD_JFD_SOVEREIGNTY</Description>
 			<IconString>[ICON_CULTURE]</IconString>
 			<MinCity>0</MinCity>
 			<AIWeightPercent>80</AIWeightPercent>

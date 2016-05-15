@@ -19,6 +19,7 @@
 #include "CvAStar.h"
 #include "CvInfos.h"
 #include "CvEnumSerialization.h"
+#include "CvDiplomacyAI.h"
 #include "FStlContainerSerialization.h"
 
 // include after all other headers
@@ -291,7 +292,11 @@ CvPlot* CvArmyAI::GetCenterOfMass(DomainTypes eDomainRequired)
 	while (pUnit)
 	{
 		if (eDomainRequired == NO_DOMAIN || pUnit->plot()->getDomain()==eDomainRequired)
-			vPlots.push_back( SPlotWithScore(pUnit->plot(),plotDistance(*pUnit->plot(),*pCOM)) );
+		{
+			int iDistToCOM = plotDistance(*pUnit->plot(),*pCOM);
+			int iDistToTarget = plotDistance(pUnit->getX(),pUnit->getY(),GetGoalX(),GetGoalY());
+			vPlots.push_back( SPlotWithScore(pUnit->plot(),iDistToCOM*100+iDistToTarget) );
+		}
 
 		pUnit = GetNextUnit();
 	}
@@ -978,10 +983,10 @@ CvPlot* CvArmyAI::CheckTargetReached(PlayerTypes eEnemy, bool bNavalOp, int iMax
 			CvCity* pCity = pEnemyPlot->getWorkingCity();
 			if(pCity != NULL)
 			{
-				if (bNavalOp && pCity->isCoastal() && pCity->waterArea()==pTargetPlot->area())
+				if (bNavalOp && pCity->isAdjacentToArea(pTargetPlot->getArea()))
 					pEnemyPlot = pCity->plot();
 
-				if (!bNavalOp && pCity->area()==pTargetPlot->area())
+				if (!bNavalOp && pCity->getArea()==pTargetPlot->getArea())
 					pEnemyPlot = pCity->plot();
 
 				if (pEnemyPlot!=GetGoalPlot())
@@ -1000,6 +1005,35 @@ CvPlot* CvArmyAI::CheckTargetReached(PlayerTypes eEnemy, bool bNavalOp, int iMax
 	}
 
 	return NULL;
+}
+
+void CvArmyAI::PrepareForAttack(CvPlot * pTarget, PlayerTypes eEnemy)
+{
+	if (!pTarget || eEnemy==NO_PLAYER)
+		return;
+
+	// Notify Diplo AI we're in place for attack
+	if(!GET_TEAM(GET_PLAYER(GetOwner()).getTeam()).isAtWar(GET_PLAYER(eEnemy).getTeam()))
+	{
+		GET_PLAYER(GetOwner()).GetDiplomacyAI()->SetMusteringForAttack(eEnemy, true);
+	}
+
+	// Notify tactical AI to focus on this area
+	CvTemporaryZone zone;
+	if(pTarget->getWorkingCity() != NULL && pTarget->getWorkingCity()->getOwner() == eEnemy)
+	{
+		zone.SetX(pTarget->getWorkingCity()->getX());
+		zone.SetY(pTarget->getWorkingCity()->getY());
+	}
+	else
+	{
+		zone.SetX(pTarget->getX());
+		zone.SetY(pTarget->getY());
+	}
+
+	zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
+	zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+	GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
 }
 
 

@@ -54,6 +54,8 @@ local GetMoodInfo = EUI.GetMoodInfo
 local ButtonPopupTypes = ButtonPopupTypes
 local ContextPtr = ContextPtr
 local Controls = Controls
+local Controls_SmallStack = Controls.SmallStack
+local Controls_Scrap = Controls.Scrap
 local Events = Events
 local FromUIDiploEventTypes = FromUIDiploEventTypes
 local Game = Game
@@ -88,7 +90,7 @@ local bnw_mode = Game.GetActiveLeague ~= nil
 local g_deal = UI.GetScratchDeal()
 
 local g_tipControls = {}
-TTManager:GetTypeControlTable( "EUI_CivRibbonTooltip", g_tipControls )
+TTManager:GetTypeControlTable( "EUI_CivilizationTooltip", g_tipControls )
 local g_minorControlTable = {}
 local g_majorControlTable = {}
 
@@ -132,9 +134,13 @@ local g_alertButton
 | |\  | (_) | |_| |  _| | (_| (_| | |_| | (_) | | | \__ \ |  _ <| | |_) | |_) | (_) | | | |
 |_| \_|\___/ \__|_|_| |_|\___\__,_|\__|_|\___/|_| |_|___/ |_| \_\_|_.__/|_.__/ \___/|_| |_|
 ]]
-
+local g_mouseExit = true
+local g_SpareNotifications = {}
 local g_ActiveNotifications = {}
-local g_Instances = {}
+local g_NotificationButtons = {}
+--[[
+	{ (controls) Button etc..., (bundle) { { Id, type, toolTip, strSummary, iGameValue, iExtraGameData, playerID }, ... } }
+--]]
 
 -------------------------------------------------
 -- List of notification types we can handle
@@ -337,9 +343,9 @@ local function ProcessStackSizes( resetCivPanelElevator )
 		smallStackHeight = 0
 	else
 		Controls.BigStack:CalculateSize()
-		Controls.SmallStack:CalculateSize()
+		Controls_SmallStack:CalculateSize()
 		maxTotalStackHeight = g_maxTotalStackHeight - Controls.BigStack:GetSizeY()
-		smallStackHeight = Controls.SmallStack:GetSizeY()
+		smallStackHeight = Controls_SmallStack:GetSizeY()
 	end
 
 	if g_isShowCivList then
@@ -398,63 +404,94 @@ end
 
 local function SetupNotification( instance, sequence, Id, type, toolTip, strSummary, iGameValue, iExtraGameData, playerID )
 
-	if toolTip ~= strSummary then
-		toolTip = strSummary .. "[NEWLINE][NEWLINE]" .. toolTip
-	end
+	if sequence then
+		instance.Sequence = sequence
+		Id, type, toolTip, strSummary, iGameValue, iExtraGameData, playerID = unpack( instance[ sequence ] )
 --DEBUG analysis ONLY
 --for k,v in pairs(NotificationTypes) do if v==type then toolTip = "[COLOR_RED]" .. k .. "[/COLOR][NEWLINE]" .. toolTip break end end
 --toolTip = " [COLOR_YELLOW]Id = "..Id..", data1 = "..tostring(iGameValue)..", data2 = "..tostring(iExtraGameData).."[/COLOR][NEWLINE]"..toolTip
-
-	if #instance > 1 then
-		toolTip = "#" .. instance.Button:GetVoid2() .. "/" .. #instance .. " - " .. toolTip
+		local tips = {}
+		for i = 1, #instance do
+			local summary = instance[ i ][ 4 ]
+			if #instance > 1 then
+				summary = i .. ") " .. summary
+			end
+			if i == sequence then
+				table_insert( tips, summary )
+				if toolTip ~= summary then
+					table_insert( tips, ( toolTip:gsub("%[NEWLINE%].*","") ) )
+				end
+			else
+				table_insert( tips, "[COLOR_LIGHT_GREY]"..summary.."[ENDCOLOR]" )
+			end
+		end
+		toolTip = table_concat( tips, "[NEWLINE]" )
+	elseif toolTip ~= strSummary then
+		toolTip = strSummary .. "[NEWLINE][NEWLINE]" .. toolTip
 	end
-	instance.Button:SetVoids( Id, sequence )
 	instance.Button:SetToolTipString( toolTip )
 	if instance.Container then
 		instance.FingerTitle:SetText( strSummary )
+		local itemInfo, itemImage, smallCivFrame
 -- todo reset finger animation - requires style modification
 		if type == NotificationTypes.NOTIFICATION_WONDER_COMPLETED_ACTIVE_PLAYER
 		or type == NotificationTypes.NOTIFICATION_WONDER_COMPLETED
 		or type == NotificationTypes.NOTIFICATION_WONDER_BEATEN
 		then
-			if iGameValue ~= -1 then
-				local portraitIndex = GameInfo.Buildings[iGameValue].PortraitIndex
-				if portraitIndex ~= -1 then
-					IconHookup( portraitIndex, 80, GameInfo.Buildings[iGameValue].IconAtlas, instance.WonderConstructedAlphaAnim )
-				end
-			end
-			if iExtraGameData ~= -1 then
-				CivIconHookup( iExtraGameData, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true )
-				instance.WonderSmallCivFrame:SetHide(false)
-			else
-				CivIconHookup( 22, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true )
-				instance.WonderSmallCivFrame:SetHide(true)
-			end
+			itemInfo = GameInfo.Buildings[ iGameValue ]
+			itemImage = instance.WonderConstructedAlphaAnim
+			smallCivFrame = instance.WonderSmallCivFrame
+
 		elseif type == NotificationTypes.NOTIFICATION_PROJECT_COMPLETED then
-			if iGameValue ~= -1 then
-				local portraitIndex = GameInfo.Projects[iGameValue].PortraitIndex
-				if portraitIndex ~= -1 then
-					IconHookup( portraitIndex, 80, GameInfo.Projects[iGameValue].IconAtlas, instance.ProjectConstructedAlphaAnim )
-				end
-			end
-			if iExtraGameData ~= -1 then
-				CivIconHookup( iExtraGameData, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true )
-				instance.ProjectSmallCivFrame:SetHide(false)
-			else
-				CivIconHookup( 22, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true )
-				instance.ProjectSmallCivFrame:SetHide(true)
-			end
+			itemInfo = GameInfo.Projects[ iGameValue ]
+			itemImage = instance.ProjectConstructedAlphaAnim
+			smallCivFrame = instance.ProjectSmallCivFrame
+
 		elseif type == NotificationTypes.NOTIFICATION_DISCOVERED_LUXURY_RESOURCE
 		or type == NotificationTypes.NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE
 		or type == NotificationTypes.NOTIFICATION_DISCOVERED_BONUS_RESOURCE
 		or type == NotificationTypes.NOTIFICATION_DEMAND_RESOURCE
 		or type == NotificationTypes.NOTIFICATION_REQUEST_RESOURCE
 		then
-			local thisResourceInfo = GameInfo.Resources[iGameValue]
-			local portraitIndex = thisResourceInfo.PortraitIndex
-			if portraitIndex ~= -1 then
-				IconHookup( portraitIndex, 80, thisResourceInfo.IconAtlas, instance.ResourceImage )
-			end
+			itemInfo = GameInfo.Resources[ iGameValue ]
+			itemImage = instance.ResourceImage
+
+		elseif type == NotificationTypes.NOTIFICATION_EXPLORATION_RACE then
+			itemInfo = GameInfo.Features[ iGameValue ]
+			itemImage = instance.NaturalWonderImage
+
+		elseif type == NotificationTypes.NOTIFICATION_TECH_AWARD then
+			itemInfo = GameInfo.Technologies[ iExtraGameData ]
+			itemImage = instance.TechAwardImage
+
+		elseif type == NotificationTypes.NOTIFICATION_GREAT_WORK_COMPLETED_ACTIVE_PLAYER then
+			smallCivFrame = instance.WonderSmallCivFrame
+
+		elseif type == NotificationTypes.NOTIFICATION_UNIT_PROMOTION
+		or type == NotificationTypes.NOTIFICATION_UNIT_DIED
+		or type == NotificationTypes.NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER
+		or type == NotificationTypes.NOTIFICATION_ENEMY_IN_TERRITORY
+		or type == NotificationTypes.NOTIFICATION_REBELS
+		then
+			local portraitOffset, portraitAtlas = UI.GetUnitPortraitIcon( iGameValue, playerID )
+			return IconHookup( portraitOffset, 80, portraitAtlas, instance.UnitImage )
+
+		elseif type == NotificationTypes.NOTIFICATION_WAR_ACTIVE_PLAYER then
+			return CivIconHookup( iGameValue, 80, instance.WarImage, instance.CivIconBG, instance.CivIconShadow, false, true )
+
+		elseif type == NotificationTypes.NOTIFICATION_WAR then
+			CivIconHookup( iGameValue, 45, instance.War1Image, instance.Civ1IconBG, instance.Civ1IconShadow, false, true )
+			local team = Teams[ iExtraGameData ]
+			return CivIconHookup( team and team:GetLeaderID() or -1, 45, instance.War2Image, instance.Civ2IconBG, instance.Civ2IconShadow, false, true )
+
+		elseif type == NotificationTypes.NOTIFICATION_PEACE_ACTIVE_PLAYER then
+			return CivIconHookup( iGameValue, 80, instance.PeaceImage, instance.CivIconBG, instance.CivIconShadow, false, true )
+
+		elseif type == NotificationTypes.NOTIFICATION_PEACE then
+			CivIconHookup( iGameValue, 45, instance.Peace1Image, instance.Civ1IconBG, instance.Civ1IconShadow, false, true )
+			local team = Teams[iExtraGameData]
+			return CivIconHookup( team and team:GetLeaderID() or -1, 45, instance.Peace2Image, instance.Civ2IconBG, instance.Civ2IconShadow, false, true )
+
 		elseif type == NotificationTypes.NOTIFICATION_CITY_TILE then
 			local plot = Map_GetPlotByIndex( iGameValue )
 			local info = plot and plot:GetResourceType( g_activeTeamID )
@@ -467,54 +504,19 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 					instance.ResourceImage:SetTexture( texture or "NotificationTileGlow.dds" )
 				end
 			end
-			instance.ResourceImage:SetHide( not texture )
-		elseif type == NotificationTypes.NOTIFICATION_EXPLORATION_RACE then
-			local thisFeatureInfo = GameInfo.Features[iGameValue]
-			local portraitIndex = thisFeatureInfo.PortraitIndex
-			if portraitIndex ~= -1 then
-				IconHookup( portraitIndex, 80, thisFeatureInfo.IconAtlas, instance.NaturalWonderImage )
-			end
-		elseif type == NotificationTypes.NOTIFICATION_TECH_AWARD then
-			local thisTechInfo = GameInfo.Technologies[iExtraGameData]
-			local portraitIndex = thisTechInfo.PortraitIndex
-			if portraitIndex ~= -1 then
-				IconHookup( portraitIndex, 80, thisTechInfo.IconAtlas, instance.TechAwardImage )
-			else
-				instance.TechAwardImage:SetHide( true )
-			end
-		elseif type == NotificationTypes.NOTIFICATION_UNIT_PROMOTION
-		or type == NotificationTypes.NOTIFICATION_UNIT_DIED
-		or type == NotificationTypes.NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER
-		or type == NotificationTypes.NOTIFICATION_ENEMY_IN_TERRITORY
-		or type == NotificationTypes.NOTIFICATION_REBELS
-		then
-			local portraitOffset, portraitAtlas = UI.GetUnitPortraitIcon( iGameValue, playerID )
-			if portraitOffset ~= -1 then
-				IconHookup( portraitOffset, 80, portraitAtlas, instance.UnitImage )
-			end
-		elseif type == NotificationTypes.NOTIFICATION_WAR_ACTIVE_PLAYER then
-			CivIconHookup( iGameValue, 80, instance.WarImage, instance.CivIconBG, instance.CivIconShadow, false, true )
+			return instance.ResourceImage:SetHide( not texture )
+		end
 
-		elseif type == NotificationTypes.NOTIFICATION_WAR then
-			CivIconHookup( iGameValue, 45, instance.War1Image, instance.Civ1IconBG, instance.Civ1IconShadow, false, true )
-			local team = Teams[iExtraGameData]
-			CivIconHookup( team and team:GetLeaderID() or -1, 45, instance.War2Image, instance.Civ2IconBG, instance.Civ2IconShadow, false, true )
-
-		elseif type == NotificationTypes.NOTIFICATION_PEACE_ACTIVE_PLAYER then
-			CivIconHookup( iGameValue, 80, instance.PeaceImage, instance.CivIconBG, instance.CivIconShadow, false, true )
-
-		elseif type == NotificationTypes.NOTIFICATION_PEACE then
-			CivIconHookup( iGameValue, 45, instance.Peace1Image, instance.Civ1IconBG, instance.Civ1IconShadow, false, true )
-			local team = Teams[iExtraGameData]
-			CivIconHookup( team and team:GetLeaderID() or -1, 45, instance.Peace2Image, instance.Civ2IconBG, instance.Civ2IconShadow, false, true )
-
-		elseif type == NotificationTypes.NOTIFICATION_GREAT_WORK_COMPLETED_ACTIVE_PLAYER then
+		if itemInfo and itemImage then
+			IconHookup( itemInfo.PortraitIndex, 80, itemInfo.IconAtlas, itemImage )
+		end
+		if smallCivFrame then
 			if iExtraGameData ~= -1 then
 				CivIconHookup( iExtraGameData, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true )
-				instance.WonderSmallCivFrame:SetHide(false)
+				smallCivFrame:SetHide( false )
 			else
-				CivIconHookup( 22, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true )
-				instance.WonderSmallCivFrame:SetHide(true)
+--				CivIconHookup( 22, 45, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow, false, true )
+				smallCivFrame:SetHide( true )
 			end
 		end
 	end
@@ -523,14 +525,23 @@ end
 -------------------------------------------------
 -- Notification Click Handlers
 -------------------------------------------------
+local function MouseExit()
+	g_mouseExit = true
+end
 
 local function GenericLeftClick( Id )
 	local index = g_ActiveNotifications[ Id ]
-	local instance = g_Instances[ index ]
+	local instance = g_NotificationButtons[ index ]
 	if instance and #instance > 0 then
-		local sequence = instance.Button:GetVoid2() % #instance + 1
+		local sequence = instance.Sequence
+		if g_mouseExit then
+			g_mouseExit = false
+		else
+			sequence = sequence % #instance + 1
+			SetupNotification( instance, sequence )
+		end
 		local data = instance[ sequence ]
-		SetupNotification( instance, sequence, unpack( data ) )
+		Id = data[1]
 		-- Special kludge to work around DLL's stupid city state popups
 		if data[2] == NotificationTypes.NOTIFICATION_MINOR_QUEST then
 			local minorPlayer = Players[ data[5] ]
@@ -548,19 +559,20 @@ local function GenericLeftClick( Id )
 				end
 			end
 		end
-		-- Popups @ previous Id / Lookat @ next Id
-		if not Controls[ index ] then
-			Id = data[1]
-		end
 	end
 	UI.ActivateNotification( Id )
 end
 
 local function GenericRightClick ( Id )
-	local instance = g_Instances[ g_ActiveNotifications[ Id ] ]
+	g_mouseExit = true
+	local instance = g_NotificationButtons[ g_ActiveNotifications[ Id ] ]
 	if instance and #instance > 0 then
-		for sequence = 1, #instance do
-			UI.RemoveNotification( instance[sequence][1] )
+		if UI.ShiftKeyDown() then
+			UI.RemoveNotification( instance[instance.Sequence][1] )
+		else
+			for sequence = 1, #instance do
+				UI.RemoveNotification( instance[sequence][1] )
+			end
 		end
 	else
 		UI.RemoveNotification( Id )
@@ -589,13 +601,11 @@ function( Id, type, ... ) -- toolTip, strSummary, iGameValue, iExtraGameData, pl
 		local bundled = button or g_notificationBundled[ type ]
 		local index = bundled and name or Id
 		g_ActiveNotifications[ Id ] = index
-		local instance = g_Instances[ index ]
+		local instance = g_NotificationButtons[ index ]
 		if not instance then
-			instance = {}
-			g_Instances[ index ] = instance
 			if button then
 				button:SetHide( false )
-				instance.Button = button
+				instance = { Button = button }
 				if type == NotificationTypes.NOTIFICATION_FOUND_RELIGION
 				   or type == NotificationTypes.NOTIFICATION_ENHANCE_RELIGION
 				   or type == NotificationTypes.NOTIFICATION_ADD_REFORMATION_BELIEF
@@ -603,20 +613,34 @@ function( Id, type, ... ) -- toolTip, strSummary, iGameValue, iExtraGameData, pl
 					UI.ActivateNotification( Id )
 				end
 			else
-				ContextPtr:BuildInstanceForControl( name, instance, Controls.SmallStack )
-				instance.Container:BranchResetAnimation()
-				button = instance.Button
-				button:RegisterCallback( Mouse.eLClick, GenericLeftClick )
-				button:RegisterCallback( Mouse.eRClick, GenericRightClick )
-				if UI.IsTouchScreenEnabled() then
-					button:RegisterCallback( Mouse.eLDblClick, GenericRightClick )
+				instance = g_SpareNotifications[ name ]
+				instance = instance and table_remove( instance )
+				if instance then
+					instance.Container:ChangeParent( Controls_SmallStack )
+					button = instance.Button
+				else
+					instance = {}
+					ContextPtr:BuildInstanceForControl( name, instance, Controls_SmallStack )
+					instance.Name = name
+					button = instance.Button
+					button:RegisterCallback( Mouse.eLClick, GenericLeftClick )
+					button:RegisterCallback( Mouse.eRClick, GenericRightClick )
+					button:RegisterCallback( Mouse.eMouseExit, MouseExit )
+					if UI.IsTouchScreenEnabled() then
+						button:RegisterCallback( Mouse.eLDblClick, GenericRightClick )
+					end
 				end
+				instance.Container:BranchResetAnimation()
 			end
+			g_NotificationButtons[ index ] = instance
+			button:SetVoid1( Id )
 		end
 		if bundled then
 			table_insert( instance, { Id, type, ... } )
+			SetupNotification( instance, #instance )
+		else
+			SetupNotification( instance, nil, Id, type, ... )
 		end
-		SetupNotification( instance, #instance, Id, type, ... )
 
 		ProcessStackSizes( true )
 	end
@@ -630,9 +654,10 @@ local function RemoveNotificationID( Id )
 
 	local index = g_ActiveNotifications[ Id ]
 	g_ActiveNotifications[ Id ] = nil
-	local instance = g_Instances[ index ]
+	local instance = g_NotificationButtons[ index ]
 	if instance then
 		for i = 1, #instance do
+			-- Remove bundle item which corresponds to Id
 			if instance[i][ 1 ] == Id then
 				table_remove( instance, i )
 				break
@@ -640,20 +665,28 @@ local function RemoveNotificationID( Id )
 		end
 		local button = instance.Button
 		-- Is bundle now empty ?
-		if #instance == 0 then
-			if instance.Container then
-				Controls.SmallStack:ReleaseChild( instance.Container )
+		if #instance <= 0 then
+			local name = instance.Name
+			if name then
+				local spares = g_SpareNotifications[ name ]
+				if not spares then
+					spares = {}
+					g_SpareNotifications[ name ] = spares
+				end
+				table_insert( spares, instance )
+				instance.Container:ChangeParent( Controls_Scrap )
 			else
 				button:SetHide( true )
 			end
-			g_Instances[ index ] = nil
-		-- Update visible notification if it was removed
-		elseif Id == button:GetVoid1() then
-			local sequence = button:GetVoid2()
+			g_NotificationButtons[ index ] = nil
+		-- Update notification
+		else
+			local sequence = instance.Sequence
 			if sequence > #instance then
 				sequence = 1
 			end
-			SetupNotification( instance, sequence, unpack( instance[sequence] ) )
+			instance.Button:SetVoid1( instance[ sequence ][1] )
+			SetupNotification( instance, sequence )
 		end
 	end
 end
@@ -917,7 +950,7 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 		local playerID = FindPlayerID( g_majorControlTable, control )
 		ShowSimpleTipAndGetRemainingTurns( "TXT_KEY_DO_PACT", TradeableItems.TRADE_ITEM_DEFENSIVE_PACT, playerID )
 	end;
---[[
+
 	TheirBordersClosed = function( control )
 		ShowSimpleTip( L"TXT_KEY_EUI_CLOSED_BORDERS_THEIR" )	--( "Their borders are closed" )
 	end;
@@ -925,7 +958,6 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 	OurBordersClosed = function( control )
 		ShowSimpleTip( L"TXT_KEY_EUI_CLOSED_BORDERS_YOUR" )	--( "Your borders are closed" )
 	end;
---]]
 
 	TheirBordersOpen = function( control )
 		local playerID = FindPlayerID( g_majorControlTable, control )
@@ -1078,7 +1110,7 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 			ShowSimpleTip( L"TXT_KEY_DIPLO_REQUEST_OUTGOING" )
 		end
 	end;
-}-- /g_civListInstanceToolTips 
+}-- /g_civListInstanceToolTips
 g_civListInstanceToolTips.Pledge2 = g_civListInstanceToolTips.Pledge1
 
 local g_civListInstanceCallBacks = {-- the callback function table names need to match associated instance control ID defined in xml
@@ -1267,7 +1299,7 @@ local function UpdateCivListNow()
 						instance.Connection:SetTextureOffsetVal(4,4)
 					else
 						instance.Connection:SetTextureOffsetVal(4,100)
-					end		
+					end
 				end
 				if UI.ProposedDealExists( playerID, g_activePlayerID ) then
 					--They proposed something to us
@@ -1352,7 +1384,7 @@ local function UpdateCivListNow()
 						local resourceID = resource.ID
 						if Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY
 							and player:GetNumResourceAvailable( resourceID, true ) > 1 -- single resources (including imports) are too expensive (3x)
-							and g_deal:IsPossibleToTradeItem( playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1 ) 
+							and g_deal:IsPossibleToTradeItem( playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1 )
 						then
 							table_insert( theirTradeItems, resource.IconString )
 							minKeepLuxuries = 0	-- if they have luxes to trade, we can trade even our last one
@@ -1533,7 +1565,7 @@ for playerID = 0, GameDefines.MAX_CIV_PLAYERS-1 do
 			control = instance[name]
 			if control then
 				control:SetToolTipCallback( callback )
-				control:SetToolTipType( "EUI_CivRibbonTooltip" )
+				control:SetToolTipType( "EUI_CivilizationTooltip" )
 			end
 		end
 		-- Setup Callbacks

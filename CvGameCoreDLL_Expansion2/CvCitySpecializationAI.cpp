@@ -1398,11 +1398,6 @@ CvCity* CvCitySpecializationAI::FindBestWonderCity() const
 /// Find the best nearby city site for all yield types
 void CvCitySpecializationAI::FindBestSites()
 {
-	CvPlot* pPlot;
-	int iPlotValue;
-	int iPlotLoop;
-	CvCity* pNearestCity;
-
 	// Clear output
 #if defined(MOD_BALANCE_CORE)
 	for(int iI = 0; iI <= YIELD_FAITH; iI++)
@@ -1421,10 +1416,11 @@ void CvCitySpecializationAI::FindBestSites()
 	//basic search area around existing cities. value at eval distance is scaled to zero.
 	int iEvalDistance = (GC.getSETTLER_EVALUATION_DISTANCE() / 2) + iTimeOffset;
 
+	int iPlotLoop;
 	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
-		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-		if (m_pPlayer->getPlotFoundValue( pPlot->getX(),pPlot->getY() )>0)
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+		if (m_pPlayer->canFound( pPlot->getX(),pPlot->getY() ))
 		{
 #else
 	int iEvalDistance = GC.getSETTLER_EVALUATION_DISTANCE() / 2;
@@ -1438,12 +1434,13 @@ void CvCitySpecializationAI::FindBestSites()
 #endif
 
 			// Check if within range of any of our cities
-			pNearestCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY(), m_pPlayer->GetID(), NO_TEAM, true /* bSameArea */);
+			CvCity* pNearestCity = m_pPlayer->GetClosestCity(pPlot);
 			if(pNearestCity != NULL)
 			{
 				if(plotDistance(pPlot->getX(), pPlot->getY(), pNearestCity->getX(), pNearestCity->getY()) <= iEvalDistance)
 				{
 #if defined(MOD_BALANCE_CORE)
+					int iPlotValue = 0;
 					for(int iI = 0; iI <= YIELD_FAITH; iI++)
 					{
 						if(iI == YIELD_SCIENCE)

@@ -2915,41 +2915,23 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_Landlocked(CvCity* pCity)
 /// "Lakebound" City Strategy: If a City has no access to actual Ocean, reduce all water-based Flavors
 bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
 {
-	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
-	CvCity* pLoopCity = NULL;
-	int iLoop;
-	int iBiggestOcean = 0;
-	int iNumOtherCities = 0;
+	bool bHaveLake = false;
+	bool bHaveOcean = false;
 
-	CvArea* pBiggestNearbyWater = pCity->waterArea();
-	if(pBiggestNearbyWater)
+	std::vector<int> areas = pCity->plot()->getAllAdjacentAreas();
+	for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
 	{
-		int iThisCityWaterTiles = pBiggestNearbyWater->getNumTiles();
-
-		for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		CvArea* pkArea = GC.getMap().getArea(*it);
+		if (pkArea->isWater())
 		{
-			iNumOtherCities++;
-			// don't evaluate ourselves
-			if (pLoopCity == pCity)
-			{
-				continue;
-			}
-			CvArea* pBiggestNearbyBodyOfWater = pLoopCity->waterArea();
-			if (pBiggestNearbyBodyOfWater)
-			{
-				int iWaterTiles = pBiggestNearbyBodyOfWater->getNumTiles();
-				if(iWaterTiles > iBiggestOcean)
-				{
-					iBiggestOcean = iWaterTiles;
-				}
-			}
-		}
-		if((iNumOtherCities > 0) && (iThisCityWaterTiles < iBiggestOcean))
-		{
-			return true;
+			if (pkArea->getNumTiles() <= GC.getLAKE_MAX_AREA_SIZE())
+				bHaveLake = true;
+			else
+				bHaveOcean = true;
 		}
 	}
-	return false;
+
+	return bHaveLake && !bHaveOcean;
 }
 #endif
 /// "Need Tile Improvers" City Strategy: Do we REALLY need to train some Workers?
@@ -3455,12 +3437,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 		return false;
 
 	//do we already have a connection to the capital?
-	if (pCity->IsConnectedToCapital())
+	if (pCity->IsRouteToCapitalConnected())
 		return false;
 
 	//could we build a route?
 	SPathFinderUserData data(pCity->getOwner(), PT_BUILD_ROUTE, ROUTE_ANY);
-	return !GC.GetStepFinder().GeneratePath(pCapitalCity->getX(), pCapitalCity->getY(), pCity->getX(), pCity->getY(), data);
+	return !GC.GetStepFinder().DoesPathExist(pCapitalCity->getX(), pCapitalCity->getY(), pCity->getX(), pCity->getY(), data);
 }
 #endif
 
@@ -4047,7 +4029,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedInternationalTradeRoute (CvCi
 	PlayerTypes ePlayer = pCity->getOwner();
 	CvPlayerTrade* pTrade = GET_PLAYER(ePlayer).GetTrade();
 
-	if (pTrade->GetNumTradeRoutesRemaining(false) <= 0)
+	if (pTrade->GetNumTradeUnitsRemaining(true) <= 0)
 	{
 		return false;
 	}
@@ -4065,7 +4047,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NoNeedInternationalTradeRoute (Cv
 	PlayerTypes ePlayer = pCity->getOwner();
 	CvPlayerTrade* pTrade = GET_PLAYER(ePlayer).GetTrade();
 
-	if (pTrade->GetNumTradeRoutesRemaining(false) <= 0)
+	if (pTrade->GetNumTradeUnitsRemaining(true) <= 0)
 	{
 		return true;
 	}
@@ -5338,7 +5320,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 			iValue += 100;
 		}
 	}
-	if(pkBuildingInfo->GetCityConnectionTradeRouteModifier() != 0 && pCity->IsConnectedToCapital())
+	if(pkBuildingInfo->GetCityConnectionTradeRouteModifier() != 0 && pCity->IsRouteToCapitalConnected())
 	{
 		iValue += 10;
 	}

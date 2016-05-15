@@ -134,7 +134,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetNumVisiblePotentialEnemyDefenders);
 	Method(IsVisibleEnemyUnit);
 	Method(IsVisibleOtherUnit);
-	Method(GetNumFriendlyUnitsOfType);
+	Method(getNumFriendlyUnitsOfType);
 	Method(IsFighting);
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_STACKING_RULES)
@@ -1009,13 +1009,13 @@ int CvLuaPlot::lIsVisibleOtherUnit(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int getNumFriendlyUnitsOfType(CvUnit* pUnit);
-int CvLuaPlot::lGetNumFriendlyUnitsOfType(lua_State* L)
+int CvLuaPlot::lgetNumFriendlyUnitsOfType(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
 
 	bool bBreakOnUnitLimit = luaL_optbool(L, 3, true);
-	int iResult = pkPlot->getNumFriendlyUnitsOfType(pkUnit, bBreakOnUnitLimit);
+	int iResult = pkPlot->getMaxFriendlyUnitsOfType(pkUnit, bBreakOnUnitLimit);
 
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -1138,8 +1138,19 @@ int CvLuaPlot::lArea(lua_State* L)
 int CvLuaPlot::lWaterArea(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L);
-	CvArea* pkArea = pkPlot->waterArea();
-	CvLuaArea::Push(L, pkArea);
+
+	std::vector<int> areas = pkPlot->getAllAdjacentAreas();
+	for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
+	{
+		CvArea* pkArea = GC.getMap().getArea(*it);
+		if (pkArea->isWater())
+		{
+			CvLuaArea::Push(L, pkArea);
+			return 1;
+		}
+	}
+
+	CvLuaArea::Push(L, NULL);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -1686,7 +1697,15 @@ int CvLuaPlot::lChangeVisibilityCount(lua_State* L)
 	const bool bInformExplorationTracking = lua_toboolean(L, 5);
 	const bool bAlwaysSeeInvisible = lua_toboolean(L, 6);
 
-	pkPlot->changeVisibilityCount(eTeam, iChange, static_cast<InvisibleTypes>(eSeeInvisible), bInformExplorationTracking, bAlwaysSeeInvisible);
+	if(lua_gettop(L) >= 7)
+	{
+		CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 7);
+		pkPlot->changeVisibilityCount(eTeam, iChange, static_cast<InvisibleTypes>(eSeeInvisible), bInformExplorationTracking, bAlwaysSeeInvisible, pkUnit);
+	}
+	else
+	{
+		pkPlot->changeVisibilityCount(eTeam, iChange, static_cast<InvisibleTypes>(eSeeInvisible), bInformExplorationTracking, bAlwaysSeeInvisible);
+	}
 
 	return 0;
 }
@@ -1766,7 +1785,19 @@ int CvLuaPlot::lSetRevealed(lua_State* L)
 	const bool bNewValue = lua_toboolean(L, 3);
 	const bool bTerrainOnly = luaL_optint(L, 4, 0);
 	const TeamTypes eFromTeam = (TeamTypes)luaL_optint(L, 5, NO_TEAM);
+#if defined(MOD_API_EXTENSIONS)
+	if(lua_gettop(L) >= 6)
+	{
+		CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 6);
+		pkPlot->setRevealed(eTeam, bNewValue, pkUnit, bTerrainOnly, eFromTeam);
+	}
+	else
+	{
+		pkPlot->setRevealed(eTeam, bNewValue, NULL, bTerrainOnly, eFromTeam);
+	}
+#else
 	pkPlot->setRevealed(eTeam, bNewValue, bTerrainOnly, eFromTeam);
+#endif
 
 	return 0;
 }

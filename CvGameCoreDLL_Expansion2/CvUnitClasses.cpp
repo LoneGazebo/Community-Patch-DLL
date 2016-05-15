@@ -149,6 +149,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bMinorCivGift(false),
 	m_bIsMounted(false),
 	m_iCooldown(0),
+	m_iGlobalFaithCooldown(0),
 #endif
 	m_piPrereqAndTechs(NULL),
 	m_piResourceQuantityRequirements(NULL),
@@ -354,6 +355,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bMinorCivGift = kResults.GetBool("MinorCivGift");
 
 	m_iCooldown = kResults.GetInt("PurchaseCooldown");
+	m_iGlobalFaithCooldown = kResults.GetInt("GlobalFaithPurchaseCooldown");
 
 	m_bIsMounted = kResults.GetBool("IsMounted");
 
@@ -1430,6 +1432,11 @@ bool CvUnitEntry::IsMounted() const
 int CvUnitEntry::GetCooldown() const
 {
 	return m_iCooldown;
+}
+/// Purchase cooldown for this unit.
+int CvUnitEntry::GetGlobalFaithCooldown() const
+{
+	return m_iGlobalFaithCooldown;
 }
 #endif
 /// What flag icon to use

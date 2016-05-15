@@ -7,6 +7,8 @@ UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_ENVOY';
 UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_DIPLOMAT';
 UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_AMBASSADOR';
 
+UPDATE Units SET GlobalFaithPurchaseCooldown =		15  WHERE Type = 'UNIT_GREAT_DIPLOMAT'; 
+
 UPDATE Buildings SET PrereqTech = 'TECH_EDUCATION' WHERE Type = 'BUILDING_CHANCERY';
 UPDATE Buildings SET PrereqTech = 'TECH_REPLACEABLE_PARTS' WHERE Type = 'BUILDING_WIRE_SERVICE';
 

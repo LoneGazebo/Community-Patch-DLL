@@ -463,6 +463,10 @@ public:
 	bool IsCoupAttempted(PlayerTypes ePlayer);
 	void SetTargetedAreaID(PlayerTypes ePlayer, int iValue);
 	int GetTargetedAreaID(PlayerTypes ePlayer);
+	void SetTargetedCityX(PlayerTypes ePlayer, int iValue);
+	void SetTargetedCityY(PlayerTypes ePlayer, int iValue);
+	int GetTargetedCityX(PlayerTypes ePlayer);
+	int GetTargetedCityY(PlayerTypes ePlayer);
 	void SetNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue);
 	int GetNumTurnsSincePtPWarning(PlayerTypes ePlayer);
 	void ChangeNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue);
@@ -814,6 +818,8 @@ private:
 	bool m_abCoupAttempted[MAX_MAJOR_CIVS];
 	int m_aiAssignedPlotAreaID[MAX_MAJOR_CIVS];
 	int m_aiTurnsSincePtPWarning[MAX_MAJOR_CIVS];
+	int m_aiTargetedCityX[MAX_MAJOR_CIVS];
+	int m_aiTargetedCityY[MAX_MAJOR_CIVS];
 #endif
 
 	PlayerTypes m_eAlly;

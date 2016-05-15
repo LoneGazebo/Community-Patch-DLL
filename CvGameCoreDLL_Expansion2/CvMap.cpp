@@ -581,7 +581,11 @@ void CvMap::setRevealedPlots(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly)
 
 	for(iI = 0; iI < numPlots(); iI++)
 	{
+#if defined(MOD_API_EXTENSIONS)
+		plotByIndexUnchecked(iI)->setRevealed(eTeam, bNewValue, NULL, bTerrainOnly);
+#else
 		plotByIndexUnchecked(iI)->setRevealed(eTeam, bNewValue, bTerrainOnly);
+#endif
 	}
 }
 
@@ -922,7 +926,7 @@ CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, boo
 				{
 					for(pLoopCity = thisPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iLoop))
 					{
-						if(!bSameArea || (pLoopCity->area() == pCheckPlot->area()) || (bCoastalOnly && (pLoopCity->waterArea() == pCheckPlot->area())))
+						if(!bSameArea || pLoopCity->isMatchingArea(pCheckPlot))
 						{
 							if(!bCoastalOnly || pLoopCity->isCoastal())
 							{
@@ -1410,15 +1414,12 @@ int CvMap::calculateInfluenceDistance(CvPlot* pSource, CvPlot* pDest, int iMaxRa
 	}
 
 	SPathFinderUserData data(NO_PLAYER, PT_CITY_INFLUENCE, iMaxRange);
+	SPath path = GC.GetStepFinder().GetPath(pSource->getX(), pSource->getY(), pDest->getX(), pDest->getY(), data);
+	if (!path)
+		return -1; // no passable path exists
+	else
+		return (path.iNormalizedDistance<INT_MAX) ? path.iNormalizedDistance : -1;
 
-	if(GC.GetStepFinder().GeneratePath(pSource->getX(), pSource->getY(), pDest->getX(), pDest->getY(), data))
-	{
-		int iDist = GC.GetStepFinder().GetNormalizedLength();
-		if (iDist<INT_MAX)
-			return iDist;
-	}
-
-	return -1; // no passable path exists
 }
 
 
@@ -1575,7 +1576,8 @@ void CvMap::calculateAreas()
 		pLoopPlot = plotByIndexUnchecked(iI);
 		CvAssertMsg(pLoopPlot != NULL, "LoopPlot is not assigned a valid value");
 
-		if(!pLoopPlot) continue;
+		if(!pLoopPlot) 
+			continue;
 
 		if(pLoopPlot->getArea() == -1)
 		{
@@ -1588,45 +1590,30 @@ void CvMap::calculateAreas()
 
 			pLoopPlot->setArea(iArea);
 
-			SPathFinderUserData data(NO_PLAYER, PT_AREA_CONNECTION, iArea);
-			GC.GetStepFinder().GeneratePath(pLoopPlot->getX(), pLoopPlot->getY(), -1, -1, data);
-
 			CvAreaBoundaries boundaries;
 			boundaries.m_iEastEdge = pLoopPlot->getX();
 			boundaries.m_iWestEdge = pLoopPlot->getX();
 			boundaries.m_iNorthEdge = pLoopPlot->getY();
 			boundaries.m_iSouthEdge = pLoopPlot->getY();
+
+			SPathFinderUserData data(NO_PLAYER, PT_AREA_CONNECTION);
+			ReachablePlots result = GC.GetStepFinder().GetPlotsInReach(pLoopPlot->getX(), pLoopPlot->getY(), data, 0);
+
+			for (ReachablePlots::iterator it = result.begin(); it != result.end(); ++it)
+			{
+				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
+				pPlot->setArea(iArea);
+
+				boundaries.m_iEastEdge = MIN(boundaries.m_iEastEdge,pPlot->getX());
+				boundaries.m_iWestEdge = MAX(boundaries.m_iWestEdge,pPlot->getX());
+				boundaries.m_iSouthEdge = MIN(boundaries.m_iSouthEdge,pPlot->getY());
+				boundaries.m_iNorthEdge = MAX(boundaries.m_iNorthEdge,pPlot->getY());
+			}
+
 			pArea->setAreaBoundaries(boundaries);
 #if defined(MOD_BALANCE_CORE)
 			pArea->CalcNumBadPlots();
 #endif
-		}
-
-		// Update area boundaries if they've grown
-		else
-		{
-			int iX, iY;
-			CvAreaBoundaries boundaries = getArea(pLoopPlot->getArea())->getAreaBoundaries();
-			iX = pLoopPlot->getX();
-			iY = pLoopPlot->getY();
-
-			if(iX < boundaries.m_iWestEdge)
-			{
-				boundaries.m_iWestEdge = iX;
-			}
-			else if(iX > boundaries.m_iEastEdge)
-			{
-				boundaries.m_iEastEdge = iX;
-			}
-			else if(iY < boundaries.m_iSouthEdge)
-			{
-				boundaries.m_iSouthEdge = iY;
-			}
-			else if(iY > boundaries.m_iNorthEdge)
-			{
-				boundaries.m_iNorthEdge = iY;
-			}
-			getArea(pLoopPlot->getArea())->setAreaBoundaries(boundaries);
 		}
 	}
 }
@@ -2248,8 +2235,14 @@ void CvMap::calculateLandmasses()
 
 			pLoopPlot->setLandmass(iLandmassID);
 
-			SPathFinderUserData data(NO_PLAYER, PT_LANDMASS_CONNECTION, iLandmassID);
-			GC.GetStepFinder().GeneratePath(pLoopPlot->getX(), pLoopPlot->getY(), -1, -1, data);
+			SPathFinderUserData data(NO_PLAYER, PT_LANDMASS_CONNECTION);
+			ReachablePlots result = GC.GetStepFinder().GetPlotsInReach(pLoopPlot->getX(), pLoopPlot->getY(), data, 0);
+
+			for (ReachablePlots::iterator it = result.begin(); it != result.end(); ++it)
+			{
+				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
+				pPlot->setLandmass(iLandmassID);
+			}
 		}
 	}
 

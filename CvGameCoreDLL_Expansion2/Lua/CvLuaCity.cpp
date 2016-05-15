@@ -1174,11 +1174,26 @@ int CvLuaCity::lGetFaithPurchaseUnitTooltip(lua_State* L)
 			toolTip += localized;
 		}
 	}
+	CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnit);
+	if(MOD_BALANCE_CORE && pGameUnit && GET_PLAYER(pkCity->getOwner()).GetFaithPurchaseCooldown() > 0 && pGameUnit->GetGlobalFaithCooldown() > 0)
+	{
+		Localization::String localizedText = Localization::Lookup("TXT_KEY_COOLDOWN_X_TURNS_REMAINING_FAITH");
+		localizedText << GET_PLAYER(pkCity->getOwner()).GetFaithPurchaseCooldown();
+
+		const char* const localized = localizedText.toUTF8();
+		if(localized)
+		{
+			if(!toolTip.IsEmpty())
+				toolTip += "[NEWLINE]";
+
+			toolTip += localized;
+		}
+	}
 #if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
 	if(MOD_BALANCE_CORE_UNIT_INVESTMENTS && eUnit != NO_UNIT)
 	{
 		//Have we already invested here?
-		CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnit);
+		
 		const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
 		if(pkCity->IsUnitInvestment(eUnitClass))
 		{
@@ -2310,7 +2325,7 @@ int CvLuaCity::lPlot(lua_State* L)
 int CvLuaCity::lArea(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	CvArea* pkArea = pkCity->area();
+	CvArea* pkArea = GC.getMap().getArea(pkCity->getArea());
 	CvLuaArea::Push(L, pkArea);
 	return 1;
 }
@@ -2319,8 +2334,19 @@ int CvLuaCity::lArea(lua_State* L)
 int CvLuaCity::lWaterArea(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	CvArea* pkArea = pkCity->waterArea();
-	CvLuaArea::Push(L, pkArea);
+
+	std::vector<int> areas = pkCity->plot()->getAllAdjacentAreas();
+	for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
+	{
+		CvArea* pkArea = GC.getMap().getArea(*it);
+		if (pkArea->isWater())
+		{
+			CvLuaArea::Push(L, pkArea);
+			return 1;
+		}
+	}
+
+	CvLuaArea::Push(L, NULL);
 	return 1;
 }
 //------------------------------------------------------------------------------

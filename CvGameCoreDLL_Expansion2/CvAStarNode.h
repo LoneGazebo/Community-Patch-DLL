@@ -40,6 +40,28 @@ enum CvAStarListType
 	NUM_CVASTARLIST_TYPES
 };
 
+class CvUnit;
+class CvPlot;
+
+enum PathType
+{
+	PT_UNIT_MOVEMENT,			//path for a particular unit (stacking,ZoC,danger handled via flag)
+	PT_UNIT_REACHABLE_PLOTS,	//all plots a unit can reach this turn
+	PT_GENERIC_SAME_AREA,		//plots must have the same area ID (ie only water or only land)
+	PT_GENERIC_ANY_AREA,		//plots can have any area ID, simply need to be passable
+	PT_GENERIC_SAME_AREA_WIDE,	//path must be 3 tiles wide (for armies)
+	PT_GENERIC_ANY_AREA_WIDE,	//same for any area
+	PT_TRADE_WATER,				//water trade (path or reachable plots if dest -1)
+	PT_TRADE_LAND,				//land trade (path or reachable plots if dest -1)
+	PT_BUILD_ROUTE,				//prospective route
+	PT_AREA_CONNECTION,			//assign area IDs to connected plots (hack)
+	PT_LANDMASS_CONNECTION,		//assign landmass IDs to connected plots (hack)
+	PT_CITY_INFLUENCE,			//which plot is next for a city to expand it's borders
+	PT_CITY_CONNECTION_LAND,			//is there a road or railroad between two points
+	PT_CITY_CONNECTION_WATER,		//is there a sea connection between two points
+	PT_CITY_CONNECTION_MIXED,		//is there a mixed land/sea connection between two points
+	PT_AIR_REBASE,				//for aircraft, only plots with cities and carriers are allowed
+};
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
@@ -65,7 +87,8 @@ struct CvPathNodeCacheData
 	bool bFriendlyUnitLimitReached:1;
 	bool bIsValidRoute:1;
 
-	int iPlotDanger; 
+	int iMoveFlags;
+	int iPlotDanger;
 
 	//tells when to update the cache ...
 	unsigned short iGenerationID;
@@ -111,6 +134,68 @@ public:
 	CvPathNodeCacheData m_kCostCacheData;	// some things we want to calculate only once
 };
 
+//-------------------------------------------------------------------------------------------------
+// All information which might be required for a given path
+//-------------------------------------------------------------------------------------------------
+struct SPathFinderUserData
+{
+	SPathFinderUserData() : ePathType(PT_GENERIC_ANY_AREA), iFlags(0), ePlayer(NO_PLAYER), iUnitID(0), iTypeParameter(-1), iMaxTurns(INT_MAX), iMaxNormalizedDistance(INT_MAX) {}
+	SPathFinderUserData(const CvUnit* pUnit, int iFlags=0, int iMaxTurns=INT_MAX);
+	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, int iTypeParameter=-1, int iMaxTurns=INT_MAX);
+
+	//do not compare max turns and max cost ...
+	bool operator==(const SPathFinderUserData& rhs) const 
+		{ return ePathType==rhs.ePathType && iFlags==rhs.iFlags && ePlayer==rhs.ePlayer && iUnitID==rhs.iUnitID && iTypeParameter==rhs.iTypeParameter; }
+	bool operator!=(const SPathFinderUserData& rhs) const { return !(*this==rhs); }
+
+	PathType	ePathType;
+	int			iTypeParameter;		//route type dependent parameter
+	int			iFlags;				//see CvUnit::MOVEFLAG*
+	PlayerTypes ePlayer;			//optional
+	int			iUnitID;			//optional
+	int			iMaxTurns;
+	int			iMaxNormalizedDistance;
+};
+
+//-------------------------------------------------------------------------------------------------
+// Simple structure to hold a pathfinding result
+//-------------------------------------------------------------------------------------------------
+struct SPathNode
+{
+	short x,y,turns,moves;
+
+	//constructor
+	SPathNode() : x(-1),y(-1),turns(0),moves(0) {}
+	SPathNode(CvAStarNode* p)
+	{
+		x = p ? p->m_iX : -1;
+		y = p ? p->m_iY : -1;
+		turns = p ? p->m_iTurns : 0;
+		moves = p ? p->m_iMoves : 0;
+	}
+};
+
+struct SPath
+{
+	std::vector<SPathNode> vPlots;
+	int iNormalizedDistance;
+	int iTotalTurns;
+	int iTurnGenerated;
+	SPathFinderUserData sConfig;
+
+	//constructor
+	SPath() : iNormalizedDistance(-1),iTotalTurns(-1),iTurnGenerated(-1) {}
+
+	//not quite a safe-bool, but good enough
+	inline bool operator!() const { return vPlots.empty(); }
+
+	//convenience
+	inline int length() const { return vPlots.size(); }
+	inline CvPlot* get(int i) const;
+};
+
+typedef std::set<std::pair<int,int>> ReachablePlots; //(plot index, movement points left) - don't store pointers in a set, the ordering is unpredictable
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
 //  CLASS:      CvPathNode
@@ -155,22 +240,23 @@ public:
 	void SetFlag(int eFlag) { m_iFlags |= eFlag; }
 	void ClearFlag(int eFlag) { m_iFlags = (m_iFlags & ~eFlag); }
 
-	CvPathNode& operator =(const CvAStarNode& rhs)
+	CvPathNode& operator =(const SPathNode& rhs)
 	{
-		m_iX = rhs.m_iX;
-		m_iY = rhs.m_iY;
-		m_iMoves = rhs.m_iMoves;
-		m_iTurns = rhs.m_iTurns;
+		m_iX = rhs.x;
+		m_iY = rhs.y;
+		m_iTurns = rhs.turns;
+		m_iMoves = rhs.moves;
 		m_iFlags = 0;
 		return *this;
 	}
 };
 
-class CvPathNodeArray : public FFastVector< CvPathNode, true, c_eMPoolTypeContainer >
+class CvPathNodeArray : public std::deque<CvPathNode>
 {
 public:
-
-	const CvPathNode* GetTurnDest(int iTurn);
+	CvPlot* GetTurnDestinationPlot(int iTurn) const;
+	CvPlot* GetFinalPlot() const;
+	CvPlot* GetFirstPlot() const;
 };
 
 struct PrNodeIsBetter

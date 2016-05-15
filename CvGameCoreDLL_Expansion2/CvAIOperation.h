@@ -157,7 +157,6 @@ public:
 
 	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 	virtual void Uninit();
-	virtual void Reset();
 
 	AIOperationState GetOperationState() {return m_eCurrentState;};
 
@@ -241,11 +240,7 @@ public:
 	void SetTargetPlot(CvPlot* pTarget);
 	CvPlot* GetMusterPlot() const;
 	void SetMusterPlot(CvPlot* pTarget);
-	CvPlot* GetStartCityPlot() const;
-	void SetStartCityPlot(CvPlot* pTarget);
 	virtual int GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const;
-
-	virtual CvCity* GetOperationStartCity() const;
 
 	int GetFirstArmyID();
 
@@ -323,10 +318,6 @@ protected:
 	bool m_bShouldReplaceLossesWithReinforcements;
 	AIOperationMovementType m_eMoveType;
 
-	// Coordinates of start city
-	int m_iStartCityX;
-	int m_iStartCityY;
-
 	// Coordinates of muster plot
 	int m_iMusterX;
 	int m_iMusterY;
@@ -334,6 +325,9 @@ protected:
 	// Coordinates of target plot
 	int m_iTargetX;
 	int m_iTargetY;
+
+	// Calculate only once, ideally
+	int m_iDistanceMusterToTarget;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	// for debugging
@@ -361,6 +355,7 @@ public:
 
 	virtual int GetDeployRange() const;
 	virtual int GetMaximumRecruitTurns() const;
+	virtual bool VerifyTarget(CvArmyAI* pArmy);
 
 	//virtual bool Move();
 
@@ -804,7 +799,6 @@ public:
 		return MUFORMATION_NAVAL_SQUADRON;
 	}
 	virtual int GetDeployRange() const;
-	virtual CvCity* GetOperationStartCity() const;
 	virtual bool IsNavalOperation() const
 	{
 		return true;
@@ -1049,6 +1043,9 @@ public:
 	virtual int GetOperationType() const = 0;
 	virtual CvString GetOperationName() const = 0;
 	virtual MultiunitFormationTypes GetFormation() const = 0;
+	virtual bool VerifyTarget(CvArmyAI * pArmy);
+	virtual bool ArmyInPosition(CvArmyAI* pArmy);
+	virtual int GetDeployRange() const;
 
 	virtual bool IsNavalOperation() const
 	{
@@ -1226,7 +1223,6 @@ public:
 	}
 	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, WeightedUnitIdVector& UnitChoices);
 
-	virtual CvCity* GetOperationStartCity() const;
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
 protected:

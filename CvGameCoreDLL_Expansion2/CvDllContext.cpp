@@ -1081,13 +1081,10 @@ void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 	if (g_iCurPlotIndex==5)
 		g_iCurPlotIndex = 0;
 #else
-	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS,1);
+	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS|CvUnit::MOVEFLAG_IGNORE_STACKING,1);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 
-	//there is no destination, therefore this call will return false
-	GC.GetInterfacePathFinder().GeneratePath(pkUnit->getX(),pkUnit->getY(),-1,-1,data);
-
-	ReachablePlots plots = GC.GetInterfacePathFinder().GetPlotsTouched(0);
+	ReachablePlots plots = GC.GetInterfacePathFinder().GetPlotsInReach(pkUnit->getX(),pkUnit->getY(),data,0);
 	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
@@ -1109,10 +1106,7 @@ void CvDllGameContext::TEMPOnHexUnitChangedAttack(ICvUnit1* pUnit)
 	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS|CvUnit::MOVEFLAG_DECLARE_WAR|CvUnit::MOVEFLAG_ATTACK,1);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 
-	//there is no destination, therefore this call will return false
-	GC.GetInterfacePathFinder().GeneratePath(pkUnit->getX(),pkUnit->getY(),-1,-1,data);
-
-	ReachablePlots plots = GC.GetInterfacePathFinder().GetPlotsTouched(0);
+	ReachablePlots plots = GC.GetInterfacePathFinder().GetPlotsInReach(pkUnit->getX(),pkUnit->getY(),data,0);
 	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
@@ -1128,32 +1122,27 @@ void CvDllGameContext::TEMPOnHexUnitChangedAttack(ICvUnit1* pUnit)
 ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadSelectedUnit, int iMouseMapX, int iMouseMapY)
 {
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit);
-	CvTwoLayerPathFinder& thePathfinder = GC.GetInterfacePathFinder();
 
 	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_DECLARE_WAR);
-	if (thePathfinder.GeneratePath(pkUnit->getX(), pkUnit->getY(), iMouseMapX, iMouseMapY, data))
+	SPath path = GC.GetInterfacePathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), iMouseMapX, iMouseMapY, data);
+
+	if (!!path)
 	{
-		int size = thePathfinder.GetPathLength();
+		int size = path.vPlots.size();
 		std::vector<CvDllPathFinderUpdateListData> pUpdateData;
 		pUpdateData.reserve(size);
 
-		// now fill out the event array in reverse order
-		CvAStarNode* pathNode = thePathfinder.GetLastNode();
-		int index = 0;
-		while(pathNode != NULL)
+		// now fill out the event array
+		for (int i=0; i<size; i++)
 		{
 			CvDllPathFinderUpdateListData update;
-			update.iX = pathNode->m_iX;
-			update.iY = pathNode->m_iY;
-			update.iTurnNumber = pathNode->m_iTurns;
+			update.iX = path.vPlots[i].x;
+			update.iY = path.vPlots[i].y;
+			update.iTurnNumber = path.vPlots[i].turns;
 
 			pUpdateData.push_back(update);
-
-			index++;
-			pathNode = pathNode->m_pParent;
 		}
 
-		std::reverse(pUpdateData.begin(), pUpdateData.end());
 		return new CvDllPathFinderUpdateList(pUpdateData);
 	}
 

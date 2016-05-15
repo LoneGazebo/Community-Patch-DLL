@@ -976,14 +976,6 @@ int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot, bool bAllPlots)
 	return rtnValue;
 }
 
-/// How strong a city site can we find nearby for this type of yield?
-int CvCitySiteEvaluator::BestFoundValueForSpecificYield(CvPlayer* pPlayer, YieldTypes eYield)
-{
-	pPlayer;
-	eYield;
-	return 0;
-}
-
 // PROTECTED METHODS (can be overridden in derived classes)
 
 /// Value of plot for providing food

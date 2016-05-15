@@ -316,7 +316,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	if(GC.getGame().GetIndustrialRoute() == eRoute)
 	{
 		// if we already have a connection, bail out
-		if(pTargetCity->IsIndustrialRouteToCapital())
+		if(pTargetCity->IsIndustrialRouteToCapitalConnected())
 		{
 			return;
 		}
@@ -335,10 +335,10 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 	// build a path between the two cities
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
-	bool bFoundPath = GC.GetStepFinder().GeneratePath(pPlayerCapital->getX(), pPlayerCapital->getY(), pTargetCity->getX(), pTargetCity->getY(), data);
+	SPath path = GC.GetStepFinder().GetPath(pPlayerCapital->getX(), pPlayerCapital->getY(), pTargetCity->getX(), pTargetCity->getY(), data);
 
 	//  if no path, then bail!
-	if(!bFoundPath)
+	if(!path)
 	{
 		return;
 	}
@@ -348,10 +348,9 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	int iPlotsNeeded = 0;
 	int iWildPlots = 0; //plots not under our control ... dangerous
 
-	SPath path = GC.GetStepFinder().GetPath();
 	for (size_t i=0; i<path.vPlots.size(); i++)
 	{
-		CvPlot* pPlot = GC.getMap().plotCheckInvalid( path.vPlots[i].first, path.vPlots[i].second );
+		CvPlot* pPlot = path.get(i);
 		if(!pPlot)
 			break;
 
@@ -385,7 +384,10 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		int iGoldForRoute = m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity);
 
 		//route has side benefits also (movement, village gold, trade route range, religion spread)
-		int iSideBenefits = iPlotsNeeded * 50;
+		int iSideBenefits = iRoadLength * 50;
+		// give an additional bump if we're almost done (don't get distracted)
+		if (iPlotsNeeded<3)
+			iSideBenefits += 100;
 
 		if(pTargetCity->getUnhappinessFromConnection() > 0)
 		{
@@ -410,10 +412,9 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			sValue = min(iProfit, MAX_SHORT);
 	}
 
-	//cannot use GetStepFinder().GetLastNode(), state of pathfinder has changed in the meantime!
 	for (size_t i=0; i<path.vPlots.size(); i++)
 	{
-		CvPlot* pPlot = GC.getMap().plotCheckInvalid( path.vPlots[i].first, path.vPlots[i].second );
+		CvPlot* pPlot = path.get(i);
 		if(!pPlot)
 			break;
 
@@ -455,29 +456,27 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	if(pCity1->getOwner() != pCity2->getOwner())
 		return;
 
-	// if we *don't* already have a land connection, bail out
+	// if we *don't* already have a basic land connection, bail out
 	SPath existingPath;
-	if (!m_pPlayer->IsCityConnectedToCity(pCity1, pCity2, eRoute, true, &existingPath))
+	if (!m_pPlayer->IsCityConnectedToCity(pCity1, pCity2, ROUTE_ROAD, true, &existingPath))
 		return;
 
 	// build a path between the two cities - this will tend to re-use existing routes, unless the new path is much shorter
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
-	bool bFoundPath = GC.GetStepFinder().GeneratePath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
+	SPath newPath = GC.GetStepFinder().GetPath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
 
 	//this cannot really happen, but anyway
-	if(!bFoundPath)
+	if(!newPath)
 		return;
 
-	//now compare if the new path is much shorter than the existing path. 
+	//now compare if the new path is shorter or better than the existing path. 
 	//don't use the normalized distance though because we have two different pathfinders here, so it's not quite comparable
-	SPath newPath = GC.GetStepFinder().GetPath();
-	if (newPath.vPlots.size() < existingPath.vPlots.size() )
+	if (newPath.vPlots.size() < existingPath.vPlots.size() || eRoute>ROUTE_ROAD )
 	{
 		int iGameTurn = GC.getGame().getGameTurn();
 		for (size_t i=0; i<newPath.vPlots.size(); i++)
 		{
-
-			CvPlot* pPlot = GC.getMap().plotUnchecked(newPath.vPlots[i].first,newPath.vPlots[i].second);
+			CvPlot* pPlot = newPath.get(i);
 			if(pPlot->getRouteType() >= eRoute && !pPlot->IsRoutePillaged())
 				continue;
 
@@ -516,23 +515,20 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 
 	// build a path between the two cities
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
-
-	bool bFoundPath = GC.GetStepFinder().GeneratePath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
+	SPath path = GC.GetStepFinder().GetPath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
 
 	//  if no path, then bail!
-	if(!bFoundPath)
+	if(!path)
 	{
 		return;
 	}
 
 	CvPlot* pPlot = NULL;
-	CvAStarNode* pNode = GC.GetStepFinder().GetLastNode();
 	int iGameTurn = GC.getGame().getGameTurn();
 
-	while(pNode)
+	for (int i=0; i<path.length(); i++)
 	{
-		pPlot = GC.getMap().plotCheckInvalid(pNode->m_iX, pNode->m_iY);
-		pNode = pNode->m_pParent;
+		pPlot = path.get(i);
 
 		if(!pPlot)
 		{
@@ -567,10 +563,12 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 /// Looks at city connections and marks plots that can be added as routes by EvaluateBuilder
 void CvBuilderTaskingAI::UpdateRoutePlots(void)
 {
-	m_aiNonTerritoryPlots.clear();
+	// updating plots that are part of the road network
+	CvCityConnections* pCityConnections = m_pPlayer->GetCityConnections();
 
 	// if there are fewer than 2 cities, we don't need to run this function
-	if(m_pPlayer->GetCityConnections()->GetNumConnectableCities() < 2)
+	std::vector<int> plotsToConnect = pCityConnections->GetPlotsToConnect();
+	if(plotsToConnect.size() < 2)
 	{
 		return;
 	}
@@ -609,8 +607,8 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 		return;
 	}
 
-	// updating plots that are part of the road network
-	CvCityConnections* pCityConnections = m_pPlayer->GetCityConnections();
+	//reset this, the ConnectCities* methods below save there any additional plots the builder need to look at
+	m_aiNonTerritoryPlots.clear();
 
 	for(int i = 0; i < GC.getNumBuildInfos(); i++)
 	{
@@ -646,13 +644,13 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 		}
 #endif
 
-		for(uint uiFirstCityIndex = 0; uiFirstCityIndex < pCityConnections->GetNumConnectableCities(); uiFirstCityIndex++)
+		for(uint uiFirstCityIndex = 0; uiFirstCityIndex < plotsToConnect.size(); uiFirstCityIndex++)
 		{
-			for(uint uiSecondCityIndex = uiFirstCityIndex + 1; uiSecondCityIndex < pCityConnections->GetNumConnectableCities(); uiSecondCityIndex++)
+			for(uint uiSecondCityIndex = uiFirstCityIndex + 1; uiSecondCityIndex < plotsToConnect.size(); uiSecondCityIndex++)
 			{
 				// get the two cities
-				CvCity* pFirstCity  = pCityConnections->GetCityFromIndex(uiFirstCityIndex);
-				CvCity* pSecondCity = pCityConnections->GetCityFromIndex(uiSecondCityIndex);
+				CvCity* pFirstCity  = GC.getMap().plotByIndexUnchecked(plotsToConnect[uiFirstCityIndex])->getPlotCity();
+				CvCity* pSecondCity  = GC.getMap().plotByIndexUnchecked(plotsToConnect[uiSecondCityIndex])->getPlotCity();
 				CvCity* pPlayerCapitalCity = NULL;
 				CvCity* pTargetCity = NULL;
 
@@ -778,13 +776,9 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 	int iUnitLoop;
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
-		if(pLoopUnit != NULL)
+		if(pLoopUnit && pLoopUnit->AI_getUnitAIType()==pUnit->AI_getUnitAIType() && pLoopUnit!=pUnit)
 		{
-			//ignore others which are in the same plot! they mess up the alternative worker check below
-			if(pLoopUnit->AI_getUnitAIType()==pUnit->AI_getUnitAIType() && pLoopUnit->plot()!=pUnit->plot())
-			{
-				otherWorkers.push_back(pLoopUnit);
-			}
+			otherWorkers.push_back(pLoopUnit);
 		}
 	}
 
@@ -830,13 +824,19 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 
 #if defined(MOD_BALANCE_CORE)
 		//see if another worker would be more suitable
-		int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
-
-		//don't double up
-		if (iAlternativeTurnsAway==0)
+		int iFirstUnitID = 0;
+		int iNumWorkersHere = pPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType(),iFirstUnitID);
+		if (iFirstUnitID != pUnit->GetID() && iNumWorkersHere>0)
+		{
 			continue;
+		}
 
-		//if the other unit is much closer
+		int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
+		if (iAlternativeTurnsAway == 0 && iMoveTurnsAway > 0)
+		{
+			continue;
+		}
+
 		if (iAlternativeTurnsAway*2 < iMoveTurnsAway)
 		{
 			//pretent we would have to move much further, which will reduce the score of the directives for this plot
@@ -896,11 +896,18 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 
 #if defined(MOD_BALANCE_CORE)
 		//see if another worker would be more suitable
-		int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
-
-		//don't double up
-		if (iAlternativeTurnsAway==0)
+		int iFirstUnitID = 0;
+		int iNumWorkersHere = pPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType(),iFirstUnitID);
+		if (iFirstUnitID != pUnit->GetID() && iNumWorkersHere>0)
+		{
 			continue;
+		}
+
+		int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
+		if (iAlternativeTurnsAway == 0 && iMoveTurnsAway > 0)
+		{
+			continue;
+		}
 
 		//if the other unit is much closer
 		if (iAlternativeTurnsAway*2 < iMoveTurnsAway)
@@ -950,7 +957,9 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 					continue;
 				}
 			}
+
 			//Let's look at non-owned plots next to owned plots.
+			std::set<int> checkedPlots;
 			CvPlot* pAdjacentPlot;
 			for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
 			{
@@ -960,10 +969,14 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 				{
 					if(pAdjacentPlot->getOwner() != m_pPlayer->GetID())
 					{
-						if(!ShouldBuilderConsiderPlot(pUnit, pAdjacentPlot))
+						if(!ShouldBuilderConsiderPlot(pUnit, pAdjacentPlot) || checkedPlots.find(pAdjacentPlot->GetPlotIndex())!=checkedPlots.end())
 						{
 							continue;
 						}
+
+						//don't check the same plot multiple times
+						checkedPlots.insert(pAdjacentPlot->GetPlotIndex());
+
 						// distance weight
 						// find how many turns the plot is away
 #if defined(MOD_UNITS_LOCAL_WORKERS) || defined(MOD_AI_SECONDARY_WORKERS)
@@ -983,12 +996,18 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 							continue;
 						}
 
-						//see if another worker would be more suitable
-						int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
-
-						//don't double up
-						if (iAlternativeTurnsAway==0)
+						int iFirstUnitID = 0;
+						int iNumWorkersHere = pPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType(),iFirstUnitID);
+						if (iFirstUnitID != pUnit->GetID() && iNumWorkersHere>0)
+						{
 							continue;
+						}
+
+						int iAlternativeTurnsAway = CheckAlternativeWorkers(otherWorkers,pPlot);
+						if (iAlternativeTurnsAway == 0 && iMoveTurnsAway > 0)
+						{
+							continue;
+						}
 
 						//if the other unit is much closer
 						if (iAlternativeTurnsAway*2 < iMoveTurnsAway)
@@ -1003,6 +1022,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 							strLog.Format("x: %d y: %d, Evaluating out of territory plot for improvement", pPlot->getX(), pPlot->getY());
 							LogInfo(strLog, m_pPlayer);
 						}
+
 						AddImprovingPlotsDirectives(pUnit, pAdjacentPlot, iMoveTurnsAway);
 					}
 				}
@@ -2052,9 +2072,9 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 #endif
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
-	if(!pUnit->atPlot(*pPlot) && pPlot->getNumFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit())
+	if(!pUnit->atPlot(*pPlot) && pPlot->getMaxFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit())
 #else
-	if(!pUnit->atPlot(*pPlot) && pPlot->getNumFriendlyUnitsOfType(pUnit) >= GC.getPLOT_UNIT_LIMIT())
+	if(!pUnit->atPlot(*pPlot) && pPlot->getMaxFriendlyUnitsOfType(pUnit) >= GC.getPLOT_UNIT_LIMIT())
 #endif
 	{
 		if(m_bLogging)

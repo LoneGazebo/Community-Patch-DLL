@@ -1648,7 +1648,7 @@ public:
 	virtual unsigned short DLLCALL Get(unsigned short usNum, const char* pszLog = NULL) = 0;  //  Returns value from 0 to num-1 inclusive.
 	virtual float DLLCALL GetFloat() = 0;
 
-	virtual unsigned long DLLCALL GetSeed() const = 0;
+	virtual unsigned long long DLLCALL GetSeed() const = 0;
 	
 	virtual void DLLCALL Read(FDataStream& Stream) = 0;
 	virtual void DLLCALL Write(FDataStream& Stream) const = 0;

@@ -134,6 +134,8 @@ private:
 class CHomelandUnitArray
 {
 public:
+	CHomelandUnitArray() : m_owner(NULL) {}
+
 	std::vector<CvHomelandUnit>::iterator begin() { return m_vec.begin(); }
 	std::vector<CvHomelandUnit>::iterator end() { return m_vec.end(); }
 	std::vector<CvHomelandUnit>::size_type size() const { return m_vec.size(); }
@@ -278,8 +280,8 @@ public:
 	CvPlot* FindTestArchaeologistPlot(CvUnit* pUnit);
 #endif
 	// Public logging
-	void LogHomelandMessage(CvString& strMsg);
-	void LogPatrolMessage(CvString& strMsg, CvUnit* pPatrolUnit);
+	void LogHomelandMessage(const CvString& strMsg);
+	void LogPatrolMessage(const CvString& strMsg, CvUnit* pPatrolUnit);
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	bool MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits = false, bool bSecondary = false);
@@ -355,7 +357,7 @@ private:
 	void ExecuteWorkerMoves();
 #endif
 	void ExecuteMovesToSafestPlot();
-	void ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget);
+	void ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags);
 
 	void ExecuteHeals();
 	void ExecutePatrolMoves();
@@ -391,7 +393,7 @@ private:
 	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
 
 	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bool bLand=true);
-	bool MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo);
+	bool MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo, int iFlags);
 
 	CvPlot* FindArchaeologistTarget(CvUnit *pUnit);
 	void UnitProcessed(int iID);

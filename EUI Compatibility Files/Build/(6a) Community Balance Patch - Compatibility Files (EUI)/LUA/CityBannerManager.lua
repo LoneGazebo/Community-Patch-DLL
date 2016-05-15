@@ -1045,6 +1045,9 @@ local function RefreshCityBannersNow()
 			-- Blockaded ?
 			instance.CityIsBlockaded:SetHide( not city:IsBlockaded() )
 
+			-- Garrisoned ?
+			instance.GarrisonFrame:SetHide( not ( plot:IsVisible( activeTeamID, true ) and city:GetGarrisonedUnit() ) )
+
 			instance.CityBannerBackground:SetColor( backgroundColor )
 			instance.CityBannerRightBackground:SetColor( backgroundColor )
 			instance.CityBannerLeftBackground:SetColor( backgroundColor )
@@ -1167,8 +1170,6 @@ local function RefreshCityBannersNow()
 				-- update range strike button (if it is the active player's city)
 
 				UpdateRangeIcons( plotIndex, city, instance )
-
-				instance.GarrisonFrame:SetHide( not city:GetGarrisonedUnit() )
 
 			-- not active team city
 			else

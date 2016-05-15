@@ -253,15 +253,14 @@ public:
 	bool GetCachedAttackTarget(PlayerTypes eEnemy, AIOperationTypes eAIOperationType);
 	bool IsCurrentAttackTarget(CvCity* pCity);
 	void ClearCachedTargets();
-	CvMilitaryTarget FindBestAttackTarget2(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
-	CvMilitaryTarget FindBestAttackTargetGlobalTest(AIOperationTypes eAIOperationType, int* piWinningScore = NULL, bool bCheckWar = false);
+	CvMilitaryTarget FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
 	CvMilitaryTarget FindBestAttackTargetGlobal(AIOperationTypes eAIOperationType, int* piWinningScore = NULL, bool bCheckWar = false);
 #endif
 	CvMilitaryTarget FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
 	void CheckApproachFromLandAndSea(PlayerTypes eEnemy, CvMilitaryTarget& target);
 	int ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOperationType);
 	CityAttackApproaches EvaluateMilitaryApproaches(CvCity* pCity, bool bAttackByLand, bool bAttackBySea);
-	CvCity* GetNearestCoastalCity(PlayerTypes eEnemy) const;
+	CvCity* GetNearestCoastalCityFriendly(PlayerTypes eEnemy) const;
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	CvCity* GetNearestCoastalCityEnemy(PlayerTypes eEnemy) const;
 #endif
@@ -300,7 +299,7 @@ public:
 	};
 #endif
 
-	CvCity* GetMostThreatenedCity(int iIndex = 0); // pass in 0 for the most threatened city, 1 for the second most threatened, 2 for the third, etc.
+	CvCity* GetMostThreatenedCity(int iIndex = 0, bool bIncludeFutureThreats=true); // pass in 0 for the most threatened city, 1 for the second most threatened, 2 for the third, etc.
 
 	int GetPercentOfRecommendedMilitarySize() const;
 	int GetPowerOfStrongestBuildableUnit(DomainTypes eDomain);

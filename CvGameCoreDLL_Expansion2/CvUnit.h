@@ -101,7 +101,7 @@ public:
 	enum
 	{
 		//these values can be called via the dll external interface, don't modify them
-	    MOVEFLAG_ATTACK						  = 0x0001,
+	    MOVEFLAG_ATTACK						  = 0x0001,	// flag for CvUnit missions to allow attacks (melee combat or ranged capturing civilian). pathfinder handles this automatically
 	    MOVEFLAG_DECLARE_WAR				  = 0x0002,
 	    MOVEFLAG_DESTINATION				  = 0x0004,	// we want to end the turn in the given plot
 	    MOVEFLAG_NOT_ATTACKING_THIS_TURN	  = 0x0008,	// purpose unknown
@@ -123,7 +123,7 @@ public:
 		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x40000, //pretend we can enter everybody's territory
 	};
 
-	DestructionNotification<UnitHandle>& getDestructionNotification();
+	inline DestructionNotification<UnitHandle>& getDestructionNotification() { return m_destructionNotification; }
 
 	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0);
 #if defined(MOD_BALANCE_CORE)
@@ -183,17 +183,11 @@ public:
 	RouteTypes GetBestBuildRoute(CvPlot* pPlot, BuildTypes* peBestBuild = NULL) const;
 	void PlayActionSound();
 
-	bool UnitAttack(int iX, int iY, int iFlags, int iSteps=0);
-	bool UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEndMove = false);
-	int  UnitPathTo(int iX, int iY, int iFlags, int iPrevETA = -1, bool bBuildingRoute = false); // slewis'd the iPrevETA
-	bool UnitRoadTo(int iX, int iY, int iFlags);
-	bool UnitBuild(BuildTypes eBuild);
-
 	TeamTypes GetDeclareWarMove(const CvPlot& pPlot) const;
 	PlayerTypes GetBullyMinorMove(const CvPlot* pPlot) const;
 	TeamTypes GetDeclareWarRangeStrike(const CvPlot& pPlot) const;
 
-	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false, bool bIsCity = false, bool bIsDeclareWarMove = false) const;
+	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false) const;
 	bool canEnterTerrain(const CvPlot& pPlot, int iMoveFlags = 0) const;
 	bool canMoveInto(const CvPlot& pPlot, int iMoveFlags = 0) const;
 	bool canMoveOrAttackInto(const CvPlot& pPlot, int iMoveFlags = 0) const;
@@ -662,6 +656,8 @@ public:
 	int GetGainsXPFromScouting() const;
 	void ChangeGainsXPFromScouting(int iValue);
 
+	bool IsGainsYieldFromScouting() const;
+
 	int GetBarbarianCombatBonus() const;
 	void ChangeBarbarianCombatBonus(int iValue);
 #endif
@@ -798,7 +794,7 @@ public:
 	void setXY(int iX, int iY, bool bGroup = false, bool bUpdate = true, bool bShow = false, bool bCheckPlotVisible = false, bool bNoMove = false);
 	bool at(int iX, int iY) const;
 	bool atPlot(const CvPlot& plot) const;
-	CvPlot* plot() const;
+	inline CvPlot* plot() const;
 	int getArea() const;
 	CvArea* area() const;
 	bool onMap() const;
@@ -1309,6 +1305,10 @@ public:
 	int getYieldFromBarbarianKills(YieldTypes eIndex) const;
 	void changeYieldFromBarbarianKills(YieldTypes eIndex, int iChange);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int getYieldFromScouting(YieldTypes eIndex) const;
+	void changeYieldFromScouting(YieldTypes eIndex, int iChange);
+#endif
 
 	int getExtraUnitCombatModifier(UnitCombatTypes eIndex) const;
 	void changeExtraUnitCombatModifier(UnitCombatTypes eIndex, int iChange);
@@ -1434,10 +1434,8 @@ public:
 	// Path-finding routines
 	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL) const;
 
-	CvPlot* GetPathFirstPlot() const;
-	CvPlot* GetPathLastPlot() const;
 	const CvPathNodeArray& GetPathNodeArray() const;
-	CvPlot* GetPathEndTurnPlot() const;
+	CvPlot* GetPathEndFirstTurnPlot() const;
 
 	bool isBusyMoving() const;
 	void setBusyMoving(bool bState);
@@ -1560,17 +1558,17 @@ protected:
 	const MissionQueueNode* HeadMissionQueueNode() const;
 	MissionQueueNode* HeadMissionQueueNode();
 
-	void	ClearPathCache();
-	bool	UpdatePathCache(CvPlot* pDestPlot, int iFlags);
+	void ClearPathCache();
+	bool UpdatePathCache(CvPlot* pDestPlot, int iFlags);
 
 	void QueueMoveForVisualization(CvPlot* pkPlot);
 	void PublishQueuedVisualizationMoves();
 
-	typedef enum Flags
-	{
-	    UNITFLAG_EVALUATING_MISSION = 0x1,
-	    UNITFLAG_ALREADY_GOT_GOODY_UPGRADE = 0x2
-	};
+	bool UnitAttack(int iX, int iY, int iFlags);
+	bool UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEndMove = false);
+	int  UnitPathTo(int iX, int iY, int iFlags, int iPrevETA = -1, bool bBuildingRoute = false);
+	bool UnitRoadTo(int iX, int iY, int iFlags);
+	bool UnitBuild(BuildTypes eBuild);
 
 	FAutoArchiveClassContainer<CvUnit> m_syncArchive;
 
@@ -1737,7 +1735,6 @@ protected:
 	FAutoVariable<int, CvUnit> m_iTacticalAIPlotX;
 	FAutoVariable<int, CvUnit> m_iTacticalAIPlotY;
 	FAutoVariable<int, CvUnit> m_iGarrisonCityID;
-	FAutoVariable<int, CvUnit> m_iFlags;
 	FAutoVariable<int, CvUnit> m_iNumAttacks;
 	FAutoVariable<int, CvUnit> m_iAttacksMade;
 	FAutoVariable<int, CvUnit> m_iGreatGeneralCount;
@@ -1776,6 +1773,7 @@ protected:
 	FAutoVariable<bool, CvUnit> m_bAirCombat;
 	FAutoVariable<bool, CvUnit> m_bSetUpForRangedAttack;
 	FAutoVariable<bool, CvUnit> m_bEmbarked;
+	FAutoVariable<bool, CvUnit> m_bPromotedFromGoody;
 	FAutoVariable<bool, CvUnit> m_bAITurnProcessed;
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 	FAutoVariable<int, CvUnit> m_iDamageTakenThisTurn;
@@ -1822,6 +1820,9 @@ protected:
 	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_extraTerrainDefensePercent;
 	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_extraFeatureAttackPercent;
 	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_extraFeatureDefensePercent;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvUnit> m_yieldFromScouting;
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	FAutoVariable<std::vector<int>, CvUnit> m_yieldFromKills;
 	FAutoVariable<std::vector<int>, CvUnit> m_yieldFromBarbarianKills;
@@ -1872,9 +1873,8 @@ protected:
 
 	mutable CvPathNodeArray m_kLastPath;
 	mutable uint m_uiLastPathCacheDest;
-#if defined(MOD_BALANCE_CORE)
 	mutable uint m_uiLastPathFlags;
-#endif
+	mutable uint m_uiLastPathTurn;
 
 	bool canAdvance(const CvPlot& pPlot, int iThreshold) const;
 

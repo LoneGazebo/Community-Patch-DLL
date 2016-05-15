@@ -423,7 +423,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if(pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteSeaGoldBonus() > 0)
 	{
 		CvCity* pCapital = kPlayer.getCapitalCity();
-		if(iNumSeaConnection == 0 && m_pCity->IsConnectedToCapital())
+		if(iNumSeaConnection == 0 && m_pCity->IsRouteToCapitalConnected())
 		{
 			return 0;
 		}

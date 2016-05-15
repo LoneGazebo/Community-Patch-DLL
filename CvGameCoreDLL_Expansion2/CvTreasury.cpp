@@ -375,59 +375,19 @@ bool CvTreasury::HasCityConnectionRouteBetweenCities(CvCity* pFirstCity, CvCity*
 		return FALSE;
 	}
 
-	FASSERT(pFirstCity, "pFirstCity is null. Invalid!");
-	FASSERT(pSecondCity, "pSecondCity is null. Invalid!");
-	if(!pFirstCity || !pSecondCity)
-	{
-		// null city passed in
-		return FALSE;
-	}
-
-	FASSERT(pFirstCity != pSecondCity, "Cities are the same and are by default connected?");
-	if(pFirstCity == pSecondCity)
-	{
-		// trying to go to the same city
-		return FALSE;
-	}
-
-	uint iFirstCityIndex = pCityConnections->GetIndexFromCity(pFirstCity);
-	uint iSecondCityIndex = pCityConnections->GetIndexFromCity(pSecondCity);
-
-	if(iFirstCityIndex == UINT_MAX || iSecondCityIndex == UINT_MAX)
-	{
-		// did not find one or both of the cities
-		return FALSE;
-	}
-
-	CvCityConnections::RouteInfo* pRouteInfo = pCityConnections->GetRouteInfo(iFirstCityIndex, iSecondCityIndex);
-	if(pRouteInfo)
-	{
-		if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_LAND_CONNECTION)
-		{
-			return true;
-		}
-		else if(pRouteInfo->m_cRouteState & CvCityConnections::HAS_WATER_CONNECTION)
-		{
-			return true;
-		}
-	}
-
-	return FALSE;
+	return pCityConnections->AreCitiesConnected(pFirstCity, pSecondCity, CvCityConnections::CONNECTION_ANY);
 }
 
 /// Gold per turn from international trade routes
 int CvTreasury::GetGoldPerTurnFromTradeRoutes() const
 {
-	// needs fixin
-	return 0;
-	//return GetGoldPerTurnFromTradeRoutesTimes100() / 100;
+	return GetGoldPerTurnFromTradeRoutesTimes100() / 100;
 }
 
 /// Gold per turn from international trade routes times 100
 int CvTreasury::GetGoldPerTurnFromTradeRoutesTimes100() const
 {
-	return 0;
-	//return m_pPlayer->GetTrade()->GetAllTradeValueTimes100(YIELD_GOLD);
+	return m_pPlayer->GetTrade()->GetAllTradeValueTimes100(YIELD_GOLD);
 }
 
 /// Gold per turn from traits

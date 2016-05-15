@@ -5239,12 +5239,12 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 					{
 						pkPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
 						PlayerTypes eLoopPlayer;
-						for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							if((eLoopPlayer != NO_PLAYER) && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != ePlayer))
 							{
-								if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eReligion) || (GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer) == eReligion))
+								if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eReligion) || (GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(eLoopPlayer) == eReligion))
 								{
 									iReligionAlly++;
 								}
@@ -10834,7 +10834,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 #endif
 
 		// Production might
-		int iOurProductionMight = GetPlayer()->calculateProductionMight();
+		int iOurProductionMight = GetPlayer()->GetProductionMight();
 		int iHigherProductionCivs = 0;
 		int iLowerProductionCivs = 0;
 		int iAliveCivs = 0;
@@ -10846,7 +10846,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				iAliveCivs++;
 				if (GetPlayer()->GetID() != e)
 				{
-					int iMight = GET_PLAYER(e).calculateProductionMight();
+					int iMight = GET_PLAYER(e).GetProductionMight();
 					if (iMight > iOurProductionMight)
 					{
 						iHigherProductionCivs++;

@@ -46,7 +46,6 @@ public:
 	virtual int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=false);
 	virtual int PlotFertilityValue(CvPlot* pPlot);
 #endif
-	virtual int BestFoundValueForSpecificYield(CvPlayer* pPlayer, YieldTypes eYield);
 
 protected:
 	// Each of these routines computes a number from 0 (no value) to 100 (best possible value)
@@ -93,7 +92,7 @@ public:
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	virtual int PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=false, CvString* pDebug=NULL);
 #else
-	int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=true);
+	virtual int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=true);
 #endif
 };
 
@@ -112,7 +111,7 @@ public:
 	~CvSiteEvaluatorForStart(void);
 
 	virtual void ComputeFlavorMultipliers(CvPlayer* pPlayer);
-	int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=true);
+	virtual int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=true);
 };
 
 #endif //CIV5_SITE_EVALUATION_CLASSES_H

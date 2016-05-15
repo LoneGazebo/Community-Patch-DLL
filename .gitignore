@@ -30,6 +30,7 @@
 !*.txt
 !*.dds
 !*.gr2
+!*.mp3
 
 !*.db
 
@@ -38,3 +39,7 @@ BuildTemp/
 Mod/
 /Mod/CvGameCore_Expansion2.lib
 /Mod/CvGameCore_Expansion2.dll
+/Civilization IV Diplomatic Features - CBP/Build
+/Civilization IV Diplomatic Features - CP/Build
+/EUI Compatibility Files/Build
+/NoEUI Compatibility Files/Build

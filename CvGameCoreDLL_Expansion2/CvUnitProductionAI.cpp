@@ -296,29 +296,38 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	DomainTypes eDomain = (DomainTypes) pkUnitEntry->GetDomainType();
 	if (eDomain == DOMAIN_SEA && pkUnitEntry->GetDefaultUnitAIType() != UNITAI_WORKER_SEA) // if needed allow workboats...
 	{
-		CvArea* pBiggestNearbyBodyOfWater = m_pCity->waterArea();
-		if (pBiggestNearbyBodyOfWater)
-		{
-			int iWaterTiles = pBiggestNearbyBodyOfWater->getNumTiles();
-			int iNumUnitsofMine = pBiggestNearbyBodyOfWater->getUnitsPerPlayer(m_pCity->getOwner());
-			int iNumUnitsOther = pBiggestNearbyBodyOfWater->getNumUnits()-iNumUnitsofMine;
-			int iNumCitiesofMine = pBiggestNearbyBodyOfWater->getCitiesPerPlayer(m_pCity->getOwner());
-			int iNumCitiesOther = pBiggestNearbyBodyOfWater->getNumCities()-iNumCitiesofMine;
+		int iWaterTiles = 0;
+		int iNumUnitsofMine = 0;
+		int iNumUnitsOther = 0;
+		int iNumCitiesofMine = 0;
+		int iNumCitiesOther = 0;
 
-			int iFactor = GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP();
-			//Are we mustering a naval attack here?
-			if(bForOperation && !kPlayer.IsMusterCityAlreadyTargeted(m_pCity, DOMAIN_SEA))
+		std::vector<int> areas = m_pCity->plot()->getAllAdjacentAreas();
+		for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
+		{
+			CvArea* pkArea = GC.getMap().getArea(*it);
+			if (pkArea->isWater())
 			{
-				bOperationalOverride = true;
-			}
-			if (!bOperationalOverride && ((iNumUnitsofMine * iFactor > iWaterTiles) || ((iNumUnitsOther==0 && iNumCitiesOther==0))))
-			{
-				return 0;
+				iWaterTiles += pkArea->getNumTiles();
+				iNumUnitsofMine += pkArea->getUnitsPerPlayer(m_pCity->getOwner());
+				iNumUnitsOther += pkArea->getNumUnits()-iNumUnitsofMine;
+				iNumCitiesofMine += pkArea->getCitiesPerPlayer(m_pCity->getOwner());
+				iNumCitiesOther += pkArea->getNumCities()-iNumCitiesofMine;
 			}
 		}
-		else // this should never happen, but...
+
+		int iFactor = GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP();
+		//Are we mustering a naval attack here?
+		if(bForOperation && !kPlayer.IsMusterCityAlreadyTargeted(m_pCity, DOMAIN_SEA))
+		{
+			bOperationalOverride = true;
+		}
+		if (!bOperationalOverride && ((iNumUnitsofMine * iFactor > iWaterTiles) || ((iNumUnitsOther==0 && iNumCitiesOther==0))))
+		{
 			return 0;
+		}
 	}
+
 	//Are we alone?
 	bool bAlone = true;
 	if(pkUnitEntry->GetCombat() > 0)
@@ -825,7 +834,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return 0;
 		}
 		//Or if we're small.
-		if(m_pCity->getPopulation() <= 4)
+		if(m_pCity->getPopulation() <= 3)
 		{
 			return 0;
 		}
@@ -835,7 +844,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if(kPlayer.getNumCities() <= 1)
 		{
-			iBonus += 200;
+			iBonus += 300;
 		}
 		else
 		{
@@ -844,12 +853,20 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				return 0;
 			}
+			else
+			{
+				iBonus += 50;
+			}
 			AICityStrategyTypes eStrategyEnoughSettlers2 = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_SETTLERS");
 			if(eStrategyEnoughSettlers2 != NO_AICITYSTRATEGY)
 			{
 				if(m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyEnoughSettlers2))
 				{
 					return 0;
+				}
+				else
+				{
+					iBonus += 25;
 				}
 			}
 
@@ -861,21 +878,21 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
 				{
-					iBonus += 80;
+					iBonus += 100;
 				}
 			}
 			else if (eExpandLikeCrazy != NO_ECONOMICAISTRATEGY)
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandLikeCrazy))
 				{
-					iBonus += 180;
+					iBonus += 200;
 				}
 			}
 			if(eFeederCity != NO_AICITYSTRATEGY)
 			{
 				if(m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eFeederCity))
 				{
-					iBonus += 80;
+					iBonus += 125;
 				}
 			}
 			
@@ -885,24 +902,20 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			if(kPlayer.getSettlerProductionModifier() > 0)
 			{
-				iBonus += (kPlayer.getSettlerProductionModifier() / 2);
+				iBonus += (kPlayer.getSettlerProductionModifier());
 			}
 			if(m_pCity->isCapital() && kPlayer.getCapitalSettlerProductionModifier() > 0)
 			{
-				iBonus += (kPlayer.getCapitalSettlerProductionModifier() / 2);
+				iBonus += (kPlayer.getCapitalSettlerProductionModifier());
 			}
 			
-			int iBestArea;
-			int iSecondBestArea;
-			int iNumAreas;
-			iNumAreas = kPlayer.GetBestSettleAreas(kPlayer.GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
-			if(iNumAreas == 0)
+			if(!kPlayer.HaveGoodSettlePlot(-1))
 			{
 				return 0;
 			}
 			else
 			{
-				iBonus += (120 * max(1, iNumAreas));
+				iBonus += 120;
 			}
 		}
 	}
@@ -1144,7 +1157,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if(iGPT < 0)
 		{
 			//Every -1 GPT = -20% bonus
-			iBonus += (iGPT * 20);
+			iBonus += (iGPT * 25);
 		}
 	}
 	

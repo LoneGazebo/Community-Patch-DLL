@@ -490,7 +490,7 @@ void CvBarbarians::DoCamps()
 
 		int iNumValidCampPlots = iNumNotVisiblePlots;
 		int iFogTilesPerBarbarianCamp = kMap.getWorldInfo().getFogTilesPerBarbarianCamp();
-		int iCampTargetNum = (iFogTilesPerBarbarianCamp != 0)? iNumValidCampPlots / iFogTilesPerBarbarianCamp : 0;//getHandicapInfo().getFogTilesPerBarbarianCamp();
+		int iCampTargetNum = (iFogTilesPerBarbarianCamp != 0)? iNumValidCampPlots / iFogTilesPerBarbarianCamp : 0;
 		int iNumCampsToAdd = iCampTargetNum - iNumCampsInExistence;
 		int iMaxCampsThisArea;
 
@@ -547,6 +547,9 @@ void CvBarbarians::DoCamps()
 			// Do a random roll to bias in favor of Coastal land Tiles so that the Barbs will spawn Boats :) - required 1/6 of the time
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
 				bool bWantsCoastal = kGame.getSmallFakeRandNum(/*6*/ GC.getBARBARIAN_CAMP_COASTAL_SPAWN_ROLL()) == 0 ? true : false;
+
+				//make sure we have suitable plots ..
+				bWantsCoastal &= !vCoastalPlots.empty();
 #else
 				bool bWantsCoastal = kGame.getJonRandNum(/*6*/ GC.getBARBARIAN_CAMP_COASTAL_SPAWN_ROLL(), "Barb Camp Plot-Finding Roll - Coastal Bias") == 0 ? true : false;
 #endif

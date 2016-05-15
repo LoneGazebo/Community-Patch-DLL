@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	? 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -39,7 +39,11 @@ CvRandom::CvRandom(const CvRandom& source) :
 
 bool CvRandom::operator==(const CvRandom& source) const
 {
+#if defined(MOD_BUGFIX_RANDOM)
+	return(m_ullRandomSeed == source.m_ullRandomSeed && m_ulCallCount == source.m_ulCallCount);
+#else
 	return(m_ullRandomSeed == source.m_ullRandomSeed);
+#endif
 }
 
 bool CvRandom::operator!=(const CvRandom& source) const
@@ -77,8 +81,13 @@ void CvRandom::reset(unsigned long long ullSeed)
 	// Uninit class
 	uninit();
 
-	m_ullRandomSeed = ullSeed;
+#if defined(MOD_BUGFIX_RANDOM)
+	reseed(ullSeed);
+#else
+	recordCallStack();
+	m_ulRandomSeed = ulSeed;
 	m_ulResetCount++;
+#endif
 }
 
 unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
@@ -135,6 +144,9 @@ void CvRandom::reseed(unsigned long long ullNewValue)
 {
 	m_ulResetCount++;
 	m_ullRandomSeed = ullNewValue;
+#if defined(MOD_BUGFIX_RANDOM)
+	m_ulCallCount = 0;
+#endif
 }
 
 

@@ -625,20 +625,9 @@ public:
 	BeliefTypes ChooseReformationBelief();
 #endif
 
-#if defined(MOD_BALANCE_CORE)
 	CvCity* ChooseMissionaryTargetCity(UnitHandle pUnit, int* piTurns = NULL);
-#else
-	CvCity* ChooseMissionaryTargetCity(UnitHandle pUnit);
-#endif
-	CvPlot* ChooseMissionaryTargetPlot(UnitHandle pUnit, int* piTurns = NULL);
-#if defined(MOD_BALANCE_CORE)
 	CvCity* ChooseInquisitorTargetCity(UnitHandle pUnit, int* piTurns = NULL);
-#else
-	CvCity* ChooseInquisitorTargetCity(UnitHandle pUnit);
-#endif
-	CvPlot* ChooseInquisitorTargetPlot(UnitHandle pUnit, int* piTurns = NULL);
-	CvCity *ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingReligion) const;
-	CvPlot* ChooseProphetTargetPlot(UnitHandle pUnit, int* piTurns = NULL);
+	CvCity *ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingReligion, UnitHandle pUnit = NULL, int* piTurns = NULL) const;
 
 	CvPlayer* GetPlayer();
 	ReligionTypes GetReligionToSpread() const;

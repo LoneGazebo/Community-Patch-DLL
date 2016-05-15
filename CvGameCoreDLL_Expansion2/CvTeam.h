@@ -467,7 +467,7 @@ public:
 	bool CanMakeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal = false) const;
 	void DoBecomeVassal(TeamTypes eTeam, bool bVoluntary = false);
 	bool canEndVassal(TeamTypes eTeam) const;
-	bool canEndAllVassal() const;
+	bool canEndAllVassal();
 	void DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotification);
 
 	void DoLiberateVassal(TeamTypes eTeam);

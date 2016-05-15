@@ -119,6 +119,27 @@ void CvPlayerAI::AI_doTurnPre()
 		return;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	//make sure we iterate our units in a sensible order
+	struct CompareUnitPowerAscending
+	{
+		const TContainer<CvUnit>& container;
+
+		CompareUnitPowerAscending(TContainer<CvUnit>& c) : container(c) {}
+		bool operator()(int iID1, int iID2)
+		{
+			return ( container.Get(iID1)->GetPower() > container.Get(iID2)->GetPower() );
+		}
+
+	private:
+		//need an assignment operator apparently
+		CompareUnitPowerAscending& operator=( const CompareUnitPowerAscending& ) { return *this; }
+	};
+
+	//this orders units by combat strength
+	m_units.OrderByContent( CompareUnitPowerAscending(m_units) );
+#endif
+
 	AI_doResearch();
 	AI_considerAnnex();
 }
@@ -179,6 +200,40 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 			pLoopUnit->AI_promote();
 		}
 	}
+
+	//check garrison sanity
+	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	{
+		if (pLoopUnit->IsGarrisoned())
+		{
+			CvCity* pCity = pLoopUnit->GetGarrisonedCity();
+			if (pCity)
+			{
+				CvUnit* pGarrison = pCity->GetGarrisonedUnit();
+				if (pLoopUnit != pGarrison || pLoopUnit->plot() != pCity->plot())
+					OutputDebugString("garrison error!");
+			}
+			else
+				OutputDebugString("garrison error!");
+		}
+	}
+
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->HasGarrison())
+		{
+			CvUnit* pUnit = pLoopCity->GetGarrisonedUnit();
+			if (pUnit)
+			{
+				CvCity *pGarrisonCity = pUnit->GetGarrisonedCity();
+				if (pLoopCity != pGarrisonCity || pLoopCity->plot() != pGarrisonCity->plot())
+					OutputDebugString("garrison error!");
+			}
+			else
+				OutputDebugString("garrison error!");
+		}
+	}
+
 }
 
 //	---------------------------------------------------------------------------
@@ -992,7 +1047,7 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 			//for naval ops, check if we're on the correct water body
 			if(pThisOperation->IsNavalOperation()) 
 			{
-				if(!pCity->isCoastal() || pCity->waterArea()->GetID()!=iArea)
+				if(!pCity->isAdjacentToArea(iArea))
 				{
 					continue;
 				}
@@ -1317,44 +1372,41 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 		return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 	}
 
+	CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
+
 	// If closing in on a Culture win, go for the Concert Tour
 	if (GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetNumCivsInfluentialOn() > (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2))
 	{		
-		CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
 		if(pTarget)
 		{
 			return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 		}
 	}
-	else
-	{
-#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-		if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-		{
-			if(IsEmpireSuperUnhappy())
-			{
-				CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
-				if(pTarget)
-				{
-					return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
-				}
-			}
-		}
-#endif
-		// Create Great Work if there is a slot
-		GreatWorkType eGreatWork = pGreatMusician->GetGreatWork();
-		if (GetEconomicAI()->GetBestGreatWorkCity(pGreatMusician->plot(), eGreatWork))
-		{
-			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-		}
 
-		if ((GC.getGame().getGameTurn() - pGreatMusician->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() / 2))
+#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	{
+		if(IsEmpireSuperUnhappy())
 		{
-			CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
 			if(pTarget)
 			{
 				return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 			}
+		}
+	}
+#endif
+	// Create Great Work if there is a slot
+	GreatWorkType eGreatWork = pGreatMusician->GetGreatWork();
+	if (GetEconomicAI()->GetBestGreatWorkCity(pGreatMusician->plot(), eGreatWork))
+	{
+		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+	}
+
+	if ((GC.getGame().getGameTurn() - pGreatMusician->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() / 2))
+	{
+		if(pTarget)
+		{
+			return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 		}
 	}
 
@@ -1567,7 +1619,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	{
 		UnitHandle pDefender = pGreatGeneral->plot()->getBestDefender(GetID());
 		int iFriendlies = pGreatGeneral->GetNumSpecificPlayerUnitsAdjacent(pDefender.pointer());
-		if(iFriendlies > 3)
+		if(iFriendlies > 0)
 			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 
@@ -1590,7 +1642,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
 
-GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
+GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 {
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 
@@ -1633,7 +1685,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
 	else if (pMyReligion)
 	{
 		// Spread religion if there is a city that needs it CRITICALLY
-		if (GetReligionAI()->ChooseProphetConversionCity(true/*bOnlyBetterThanEnhancingReligion*/))
+		if (GetReligionAI()->ChooseProphetConversionCity(true/*bOnlyBetterThanEnhancingReligion*/,pUnit))
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
 		}
@@ -2477,7 +2529,7 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit)
 		{
 			continue;
 		}
-		if(!pLoopPlot->isValidMovePlot(GetID(), false))
+		if(!pLoopPlot->isValidMovePlot(GetID(), !pUnit->isRivalTerritory()))
 		{
 			continue;
 		}
