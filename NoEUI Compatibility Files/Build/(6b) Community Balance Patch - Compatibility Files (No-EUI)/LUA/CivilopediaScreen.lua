@@ -4,6 +4,9 @@ print("This is the modded CivilopediaScreen.lua from 'CBP'")
 -------------------------------------------------
 include( "InstanceManager" );
 include( "IconSupport" );
+--CBP
+include( "TechHelpInclude" );
+--END
 
 -- table.sort method for sorting alphabetically.
 function Alphabetically(a, b)
@@ -2392,7 +2395,10 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 
 		-- update the game info
 		if (thisTech.Help) then
-			UpdateTextBlock( Locale.ConvertTextKey( thisTech.Help ), Controls.GameInfoLabel, Controls.GameInfoInnerFrame, Controls.GameInfoFrame );
+			--CBP
+			UpdateTextBlock( GetHelpTextForTech(thisTech.ID, false), Controls.GameInfoLabel, Controls.GameInfoInnerFrame, Controls.GameInfoFrame )		
+			--END
+			--UpdateTextBlock( Locale.ConvertTextKey( thisTech.Help ), Controls.GameInfoLabel, Controls.GameInfoInnerFrame, Controls.GameInfoFrame );
 		end
 
 		-- update the quote

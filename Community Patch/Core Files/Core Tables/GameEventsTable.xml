@@ -226,6 +226,10 @@
 		<Column name="LosingMoney" type="boolean" default="false"/>
 		<!-- Require x number of coastal cities to be available as a choice. -->
 		<Column name="MinimumNumCoastalCities" type="integer" default="0"/>
+		<!-- Only valid if you are under your trade route cap -->
+		<Column name="LessThanMaximumTradeRoutes" type="boolean" default="false"/>
+
+		
 		<!-- Checks if empire is unhappy -->
 		<Column name="IsUnhappy" type="boolean" default="false"/>
 		<Column name="IsSuperUnhappy" type="boolean" default="false"/>
@@ -322,6 +326,8 @@
 		-->
 		<!-- EXCEPTION: Set this to true to make event choice elements that affect cities ONLY affect coastal cities. -->
 		<Column name="CoastalOnly" type="boolean" default="false"/>
+		<!-- EXCEPTION: Set this to true to make event choice elements that affect cities ONLY affect your Capital. -->
+		<Column name="CapitalEffectOnly" type="boolean" default="false"/>
 		
 		<!-- Grants a Policy. -->
 		<Column name="EventPolicy" type="text" reference="Policies(Type)" default="NULL"/>
@@ -332,6 +338,7 @@
 		<!-- Adds a building to all cities. -->
 		<Column name="EventBuildingClassGlobal" type="text" reference="BuildingClasses(Type)" default="NULL"/>
 		<Column name="EventFreePolicies" type="integer" default="0"/>
+		<Column name="EventFreeTechs" type="integer" default="0"/>
 		<Column name="FreeGreatPeople" type="integer" default="0"/>
 		<Column name="GoldenAgeTurns" type="integer" default="0"/>
 		<!-- Affects all cities -->
@@ -358,6 +365,10 @@
 		<Column name="LosingMoney" type="boolean" default="false"/>
 		<!-- Require x number of coastal cities to be available as a choice. -->
 		<Column name="MinimumNumCoastalCities" type="integer" default="0"/>
+		<!-- Only affects coastal cities-->
+		<Column name="AffectsCoastalCitiesOnly" type="boolean" default="false"/>
+		<!-- Only valid if you are under your trade route cap -->
+		<Column name="LessThanMaximumTradeRoutes" type="boolean" default="false"/>
 		<!-- Checks if empire is unhappy -->
 		<Column name="IsUnhappy" type="boolean" default="false"/>
 		<Column name="IsSuperUnhappy" type="boolean" default="false"/>
@@ -481,6 +492,12 @@
 	<Table name="EventChoice_FreeUnitClasses">
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
 		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<Column name="Quantity" type="integer"/>
+	</Table>
+	<!-- Creates specific unit type in all cities -->
+	<Table name="EventChoice_FreeUnits">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
 		<Column name="Quantity" type="integer"/>
 	</Table>
 	<!-- Convert Set Pop/Percent Pop to Religion-->
@@ -904,6 +921,12 @@
 	<Table name="CityEventChoice_FreeUnitClasses">
 		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
 		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<Column name="Quantity" type="integer"/>
+	</Table>
+	<!-- Creates specific unit type in the City -->
+	<Table name="CityEventChoice_FreeUnits">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
 		<Column name="Quantity" type="integer"/>
 	</Table>
 	<!-- Convert Set Pop/Percent Pop to Religion-->

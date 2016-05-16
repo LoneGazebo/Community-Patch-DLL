@@ -440,22 +440,4 @@
 		</WorldAnchor>
 	</Instance>
 	<!-- /Instances -->
-
-	<!-- Tooltips -->
-	<ToolTipType Name="EUI_CityViewRightTooltip" >
-		<Grid ID="Box" Size="530,90" Offset="8.0" Padding="8,8" Style="GridBlack8" NoClip="1" >
-			<Image ID="PortraitFrame" Anchor="L,C" Offset="-40,0" AnchorSide="O.i" Texture="256x256Frame.dds" Size="256,256">
-				<Image ID="Portrait" Anchor="C,C" Size="256,256"/>
-			</Image>
-			<Label ID="Text" Offset="12,12" String="Brief description" LeadingOffset="-5" WrapWidth="300" Font="TwCenMT16"/>
-		</Grid>
-	</ToolTipType>
-	<ToolTipType Name="EUI_CityViewLeftTooltip" >
-		<Grid ID="Box" Size="530,90" Offset="8.0" Padding="8,8" Style="GridBlack8" NoClip="1" >
-			<Image ID="PortraitFrame" Anchor="R,C" Offset="-40,0" AnchorSide="O.i" Texture="256x256Frame.dds" Size="256,256">
-				<Image ID="Portrait" Anchor="C,C" Size="256,256"/>
-			</Image>
-			<Label ID="Text" Offset="12,12" String="Brief description" LeadingOffset="-5" WrapWidth="300" Font="TwCenMT16"/>
-		</Grid>
-	</ToolTipType>
 </Context>

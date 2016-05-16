@@ -21409,19 +21409,6 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 				{
 					continue;
 				}
-#if defined(MOD_BALANCE_CORE)
-				int iValueImOffering, iValueTheyreOffering;
-				if(!GET_PLAYER(pCurrentDeal->m_eFromPlayer).isHuman())
-				{
-					//If the deal is a gift (i.e. they offer nothing, we offer more), don't renew.
-					GET_PLAYER(pCurrentDeal->m_eFromPlayer).GetDealAI()->GetDealValue(pCurrentDeal, iValueImOffering, iValueTheyreOffering, false);
-					if(iValueImOffering > 0 && iValueTheyreOffering <= 0)
-					{
-						pCurrentDeal->m_bConsideringForRenewal = false;
-						continue;
-					}
-				}
-#endif
 
 				// if the deal can be renewed (no peace treaties, etc)
 				if(!pCurrentDeal->IsPotentiallyRenewable())
@@ -21499,30 +21486,7 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 					return;
 				}
 			}
-#if defined(MOD_BALANCE_CORE)
-			else
-			{
-				bool bUselessReferenceVariable;
-				bool bCantMatchOffer;
-				bool bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithHuman(pDeal, ePlayer, true, true, bUselessReferenceVariable, bCantMatchOffer); //Since it is renewal, don't change.
-				if(!bAbleToEqualize)
-				{
-					pDeal->m_bConsideringForRenewal = false;
-					pTargetDeal->m_bConsideringForRenewal = false;
-					pTargetDeal->ClearItems();
-					pDeal->ClearItems();
-					ClearDealToRenew();			
-					return;
-				}
-				else
-				{
-					eStatement = DIPLO_STATEMENT_RENEW_DEAL;
-				}
-			}
-#else
 			eStatement = DIPLO_STATEMENT_RENEW_DEAL;
-#endif
-
 		}
 		else
 		{
@@ -27188,30 +27152,30 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 		// Guy is a different ideology
 		if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && GET_PLAYER(ePlayer).GetCulture()->GetPublicOpinionPreferredIdeology() == m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree())
 		{
-			if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
+			if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
 			{
 				return 1;
 			}
-			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
+			else if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
 			{
 				return 2;
 			}
-			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
+			else if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
 			{
 				return 3;
 			}
 		}
 		else if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && m_pPlayer->GetCulture()->GetPublicOpinionPreferredIdeology() == GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree())
 		{
-			if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
+			if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
 			{
 				return 4;
 			}
-			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
+			else if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
 			{
 				return 5;
 			}
-			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
+			else if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
 			{
 				return 6;
 			}
@@ -30027,6 +29991,11 @@ bool CvDiplomacyAI::IsPlayerDenouncedFriend(PlayerTypes ePlayer) const
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+#if defined(MOD_BALANCE_CORE)
+		if(eLoopPlayer == NO_PLAYER || !GET_PLAYER(eLoopPlayer).isAlive())
+			continue;
+#endif
 
 		if(IsDoFAccepted(eLoopPlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eLoopPlayer))
 			return true;

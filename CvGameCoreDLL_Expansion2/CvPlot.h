@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	? 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -144,10 +144,11 @@ public:
 
 	int seeFromLevel(TeamTypes eTeam) const;
 	int seeThroughLevel(bool bIncludeShubbery=true) const;
-	void changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int iFromLevel, bool bIncrement, InvisibleTypes eSeeInvisible);
-#if defined(MOD_BALANCE_CORE)
-	void changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible, DirectionTypes eFacingDirection, bool bBasedOnUnit=true, CvUnit* pUnit = NULL);
+#if defined(MOD_API_EXTENSIONS)
+	void changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int iFromLevel, bool bIncrement, InvisibleTypes eSeeInvisible, CvUnit* pUnit=NULL);
+	void changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible, DirectionTypes eFacingDirection, CvUnit* pUnit=NULL);
 #else
+	void changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int iFromLevel, bool bIncrement, InvisibleTypes eSeeInvisible);
 	void changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible, DirectionTypes eFacingDirection, bool bBasedOnUnit=true);
 #endif
 	bool canSeePlot(const CvPlot* plot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const;
@@ -686,7 +687,8 @@ public:
 
 		return m_aiVisibilityCount[eTeam];
 	}
-#if defined(MOD_BALANCE_CORE)
+
+#if defined(MOD_API_EXTENSIONS)
 	PlotVisibilityChangeResult changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible, CvUnit* pUnit = NULL);
 #else
 	PlotVisibilityChangeResult changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible);
@@ -719,7 +721,11 @@ public:
 		return m_bfRevealed.GetBit(eTeam);
 	}
 
+#if defined(MOD_API_EXTENSIONS)
+	bool setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit = NULL, bool bTerrainOnly = false, TeamTypes eFromTeam = NO_TEAM);
+#else
 	bool setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly = false, TeamTypes eFromTeam = NO_TEAM);
+#endif
 	bool isAdjacentRevealed(TeamTypes eTeam) const;
 	bool isAdjacentNonrevealed(TeamTypes eTeam) const;
 	int getNumAdjacentNonrevealed(TeamTypes eTeam) const;

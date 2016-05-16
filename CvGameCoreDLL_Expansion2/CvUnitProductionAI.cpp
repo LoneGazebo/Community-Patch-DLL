@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -844,7 +844,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		if(kPlayer.getNumCities() <= 1)
 		{
-			iBonus += 200;
+			iBonus += 300;
 		}
 		else
 		{
@@ -853,12 +853,20 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				return 0;
 			}
+			else
+			{
+				iBonus += 50;
+			}
 			AICityStrategyTypes eStrategyEnoughSettlers2 = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_SETTLERS");
 			if(eStrategyEnoughSettlers2 != NO_AICITYSTRATEGY)
 			{
 				if(m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyEnoughSettlers2))
 				{
 					return 0;
+				}
+				else
+				{
+					iBonus += 25;
 				}
 			}
 
@@ -870,21 +878,21 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
 				{
-					iBonus += 80;
+					iBonus += 100;
 				}
 			}
 			else if (eExpandLikeCrazy != NO_ECONOMICAISTRATEGY)
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandLikeCrazy))
 				{
-					iBonus += 180;
+					iBonus += 200;
 				}
 			}
 			if(eFeederCity != NO_AICITYSTRATEGY)
 			{
 				if(m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eFeederCity))
 				{
-					iBonus += 80;
+					iBonus += 125;
 				}
 			}
 			
@@ -894,14 +902,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			if(kPlayer.getSettlerProductionModifier() > 0)
 			{
-				iBonus += (kPlayer.getSettlerProductionModifier() / 2);
+				iBonus += (kPlayer.getSettlerProductionModifier());
 			}
 			if(m_pCity->isCapital() && kPlayer.getCapitalSettlerProductionModifier() > 0)
 			{
-				iBonus += (kPlayer.getCapitalSettlerProductionModifier() / 2);
+				iBonus += (kPlayer.getCapitalSettlerProductionModifier());
 			}
 			
-			//this is an expensive check. do we really need it?
 			if(!kPlayer.HaveGoodSettlePlot(-1))
 			{
 				return 0;
@@ -1150,7 +1157,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if(iGPT < 0)
 		{
 			//Every -1 GPT = -20% bonus
-			iBonus += (iGPT * 20);
+			iBonus += (iGPT * 25);
 		}
 	}
 	

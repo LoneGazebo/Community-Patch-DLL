@@ -48,13 +48,6 @@
 			<EraScaling>true</EraScaling>
 		</Row>
 	</CityEventChoices>
-	<CityEventChoice_ConvertNumPopToReligion>
-		<Row>
-			<CityEventChoiceType>CITY_EVENT_GUNPOWDER_PLOT_CHOICE_2</CityEventChoiceType>
-			<ReligionType>RELIGION_PROTESTANTISM</ReligionType>
-			<Population>6</Population>
-		</Row>
-	</CityEventChoice_ConvertNumPopToReligion>
 	<CityEventChoice_MinimumStartYield>
 		<Row>
 			<CityEventChoiceType>CITY_EVENT_GUNPOWDER_PLOT_CHOICE_4</CityEventChoiceType>
@@ -62,13 +55,6 @@
 			<Yield>200</Yield>
 		</Row>
 	</CityEventChoice_MinimumStartYield>
-	<CityEventChoice_EventCostYield>
-		<Row>
-			<CityEventChoiceType>CITY_EVENT_GUNPOWDER_PLOT_CHOICE_4</CityEventChoiceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>200</Yield>
-		</Row>
-	</CityEventChoice_EventCostYield>
 	<CityEvent_ParentEvents>
 		<Row>
 			<CityEventChoiceType>CITY_EVENT_GUNPOWDER_PLOT_CHOICE_1</CityEventChoiceType>
@@ -167,6 +153,7 @@
 			<RequiredBuildingClass>BUILDINGCLASS_HARBOR</RequiredBuildingClass>
 			<EventCooldown>25</EventCooldown>
 			<RandomChanceDelta>10</RandomChanceDelta>
+			<RequiredEra>ERA_MEDIEVAL</RequiredEra>
 			<ObsoleteEra>ERA_MODERN</ObsoleteEra>
 		</Row>
 	</CityEvents>
@@ -176,7 +163,6 @@
 			<Description>TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_DESCRIPTION_CHOICE_1</Description>
 			<Help>TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_HELP_CHOICE_1</Help>
 			<EventChance>200</EventChance>
-			<EventBuildingClassDestruction>BUILDINGCLASS_HARBOR</EventBuildingClassDestruction>
 			<ResistanceTurns>1</ResistanceTurns>
 		</Row>
 		<Row>
@@ -296,87 +282,6 @@
 			<Flavor>10</Flavor>
 		</Row>
 	</CityEventChoiceFlavors>
-
-	<!-- Freedom Partisans vs Autocracy -->
-	<CityEvents>
-		<Row>
-			<Type>CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY</Type>
-			<Description>TXT_KEY_CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY_DESCRIPTION</Description>
-			<Help>TXT_KEY_CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY_HELP</Help>
-			<NumChoices>1</NumChoices>
-			<RandomChance>100</RandomChance>
-			<EventCooldown>25</EventCooldown>
-			<MinimumCityPopulation>18</MinimumCityPopulation>
-			<RandomChanceDelta>20</RandomChanceDelta>
-			<IsUnhappy>true</IsUnhappy>
-			<RequiredIdeology>POLICY_BRANCH_ORDER</RequiredIdeology>
-			<RequiresOccupied>true</RequiresOccupied>
-			<RequiredActivePlayerEventChoiceOtherPlayer>EVENT_FREEDOM_DOCTRINE_CHOICE_2</RequiredActivePlayerEventChoiceOtherPlayer>
-		</Row>
-	</CityEvents>
-	<CityEventChoices>
-		<Row>
-			<Type>CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY_CHOICE_1</Type>
-			<Description>TXT_KEY_CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY_DESCRIPTION_CHOICE_1</Description>
-			<Help>TXT_KEY_CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY_HELP_CHOICE_1</Help>
-			<RandomBarbarianSpawn>2</RandomBarbarianSpawn>
-		</Row>
-	</CityEventChoices>
-	<CityEvent_ParentEvents>
-		<Row>
-			<CityEventChoiceType>CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY_CHOICE_1</CityEventChoiceType>
-			<CityEventType>CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY</CityEventType>
-		</Row>
-	</CityEvent_ParentEvents>
-	<CityEventChoice_Notification>
-		<Row>
-			<CityEventChoiceType>CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY_CHOICE_1</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_MINOR_QUEST</NotificationType>
-			<Description>TXT_KEY_NOTIFICATION_CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY_CHOICE_1</Description>
-			<ShortDescription>TXT_KEY_NOTIFICATION_CITY_EVENT_FREEDOM_PARTISANS_AUTOCRACY_CHOICE_1_S</ShortDescription>
-			<IsWorldEvent>true</IsWorldEvent>
-		</Row>
-	</CityEventChoice_Notification>
-	<!-- Freedom Partisans vs Order -->
-	<CityEvents>
-		<Row>
-			<Type>CITY_EVENT_FREEDOM_PARTISANS_ORDER</Type>
-			<Description>TXT_KEY_CITY_EVENT_FREEDOM_PARTISANS_ORDER_DESCRIPTION</Description>
-			<Help>TXT_KEY_CITY_EVENT_FREEDOM_PARTISANS_ORDER_HELP</Help>
-			<NumChoices>1</NumChoices>
-			<RandomChance>100</RandomChance>
-			<EventCooldown>25</EventCooldown>
-			<MinimumCityPopulation>18</MinimumCityPopulation>
-			<RandomChanceDelta>20</RandomChanceDelta>
-			<IsUnhappy>true</IsUnhappy>
-			<RequiredIdeology>POLICY_BRANCH_ORDER</RequiredIdeology>
-			<RequiresOccupied>true</RequiresOccupied>
-			<RequiredActivePlayerEventChoiceOtherPlayer>EVENT_FREEDOM_DOCTRINE_CHOICE_2</RequiredActivePlayerEventChoiceOtherPlayer>
-		</Row>
-	</CityEvents>
-	<CityEventChoices>
-		<Row>
-			<Type>CITY_EVENT_FREEDOM_PARTISANS_ORDER_CHOICE_1</Type>
-			<Description>TXT_KEY_CITY_EVENT_FREEDOM_PARTISANS_ORDER_DESCRIPTION_CHOICE_1</Description>
-			<Help>TXT_KEY_CITY_EVENT_FREEDOM_PARTISANS_ORDER_HELP_CHOICE_1</Help>
-			<RandomBarbarianSpawn>2</RandomBarbarianSpawn>
-		</Row>
-	</CityEventChoices>
-	<CityEvent_ParentEvents>
-		<Row>
-			<CityEventChoiceType>CITY_EVENT_FREEDOM_PARTISANS_ORDER_CHOICE_1</CityEventChoiceType>
-			<CityEventType>CITY_EVENT_FREEDOM_PARTISANS_ORDER</CityEventType>
-		</Row>
-	</CityEvent_ParentEvents>
-	<CityEventChoice_Notification>
-		<Row>
-			<CityEventChoiceType>CITY_EVENT_FREEDOM_PARTISANS_ORDER_CHOICE_1</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_MINOR_QUEST</NotificationType>
-			<Description>TXT_KEY_NOTIFICATION_CITY_EVENT_FREEDOM_PARTISANS_ORDER_CHOICE_1</Description>
-			<ShortDescription>TXT_KEY_NOTIFICATION_CITY_EVENT_FREEDOM_PARTISANS_ORDER_CHOICE_1_S</ShortDescription>
-			<IsWorldEvent>true</IsWorldEvent>
-		</Row>
-	</CityEventChoice_Notification>
 	<!-- Contraband Smuggler (Constable) -->
 	<CityEvents>
 		<Row>
@@ -488,7 +393,6 @@
 			<Flavor>20</Flavor>
 		</Row>
 	</CityEventChoiceFlavors>
-
 	<!-- Virus Outbreak -->
 	<CityEvents>
 		<Row>
@@ -567,15 +471,6 @@
 			<IsWorldEvent>true</IsWorldEvent>
 		</Row>
 	</CityEventChoice_Notification>
-
-	<CityEventChoice_InstantYield>
-		<Row>
-			<CityEventChoiceType>CITY_EVENT_MOTABA_OUTBREAK_CHOICE_2</CityEventChoiceType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>-500</Yield>
-		</Row>
-	</CityEventChoice_InstantYield>
-
 	<!-- Pipeline Explosion -->
 	<CityEvents>
 		<Row>
@@ -620,92 +515,4 @@
 			<IsWorldEvent>true</IsWorldEvent>
 		</Row>
 	</CityEventChoice_Notification>
-	<!-- Fake Painting -->
-	<CityEvents>
-		<Row>
-			<Type>CITY_EVENT_FAKE_PAINTING</Type>
-			<Description>TXT_KEY_CITY_EVENT_FAKE_PAINTING_DESCRIPTION</Description>
-			<Help>TXT_KEY_CITY_EVENT_FAKE_PAINTING_HELP</Help>
-			<NumChoices>3</NumChoices>
-			<RandomChance>10</RandomChance>
-			<IsOneShot>true</IsOneShot>
-			<RequiredBuildingClass>BUILDINGCLASS_MUSEUM</RequiredBuildingClass>
-			<PrereqTech>TECH_ATOMIC_THEORY</PrereqTech>
-			<EventCooldown>25</EventCooldown>
-			<RandomChanceDelta>0</RandomChanceDelta>
-		</Row>
-	</CityEvents>
-	<CityEventChoices>
-		<Row>
-			<Type>CITY_EVENT_FAKE_PAINTING_CHOICE_1</Type>
-			<Description>TXT_KEY_CITY_EVENT_FAKE_PAINTING_DESCRIPTION_CHOICE_1</Description>
-			<Help>TXT_KEY_CITY_EVENT_FAKE_PAINTING_HELP_CHOICE_1</Help>
-			<EraScaling>true</EraScaling>
-			<RequiredBuildingClass>BUILDINGCLASS_ARTISTS_GUILD</RequiredBuildingClass>
-		</Row>
-		<Row>
-			<Type>CITY_EVENT_FAKE_PAINTING_CHOICE_2</Type>
-			<Help>TXT_KEY_CITY_EVENT_FAKE_PAINTING_HELP_CHOICE_2</Help>
-			<Description>TXT_KEY_CITY_EVENT_FAKE_PAINTING_DESCRIPTION_CHOICE_2</Description>
-
-		</Row>
-		<Row>
-			<Type>CITY_EVENT_FAKE_PAINTING_CHOICE_3</Type>
-			<Help>TXT_KEY_CITY_EVENT_FAKE_PAINTING_HELP_CHOICE_3</Help>
-			<Description>TXT_KEY_CITY_EVENT_FAKE_PAINTING_DESCRIPTION_CHOICE_3</Description>
-			<RequiredPolicy>POLICY_CULTURAL_DIPLOMACY</RequiredPolicy>
-		</Row>
-	</CityEventChoices>
-	<CityEvent_ParentEvents>
-		<Row>
-			<CityEventChoiceType>CITY_EVENT_FAKE_PAINTING_CHOICE_1</CityEventChoiceType>
-			<CityEventType>CITY_EVENT_FAKE_PAINTING</CityEventType>
-		</Row>
-		<Row>
-			<CityEventChoiceType>CITY_EVENT_FAKE_PAINTING_CHOICE_2</CityEventChoiceType>
-			<CityEventType>CITY_EVENT_FAKE_PAINTING</CityEventType>
-		</Row>
-		<Row>
-			<CityEventChoiceType>CITY_EVENT_FAKE_PAINTING_CHOICE_3</CityEventChoiceType>
-			<CityEventType>CITY_EVENT_FAKE_PAINTING</CityEventType>
-		</Row>
-	</CityEvent_ParentEvents>
-	<CityEventChoice_ResourceQuantity>
-		<Row>
-			<CityEventChoiceType>CITY_EVENT_FAKE_PAINTING_CHOICE_2</CityEventChoiceType>
-			<ResourceType>RESOURCE_GLASS</ResourceType>
-			<Quantity>1</Quantity>
-		</Row>
-	</CityEventChoice_ResourceQuantity>
-	<CityEventChoice_GreatPersonPoints>
-		<Row>
-			<CityEventChoiceType>CITY_EVENT_FAKE_PAINTING_CHOICE_1</CityEventChoiceType>
-			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
-			<Points>75</Points>
-		</Row>
-	</CityEventChoice_GreatPersonPoints>
-	<CityEventChoice_InstantYield>
-		<Row>
-			<CityEventChoiceType>CITY_EVENT_FAKE_PAINTING_CHOICE_1</CityEventChoiceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>-75</Yield>
-		</Row>
-		<Row>
-			<CityEventChoiceType>CITY_EVENT_FAKE_PAINTING_CHOICE_2</CityEventChoiceType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>-500</Yield>
-		</Row>
-	</CityEventChoice_InstantYield>
-	<CityEventChoiceFlavors>
-		<Row>
-			<CityEventChoiceType>CITY_EVENT_FAKE_PAINTING_CHOICE_2</CityEventChoiceType>
-			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>20</Flavor>
-		</Row>
-		<Row>
-			<CityEventChoiceType>CITY_EVENT_FAKE_PAINTING_CHOICE_3</CityEventChoiceType>
-			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>20</Flavor>
-		</Row>
-	</CityEventChoiceFlavors>
 </GameData>

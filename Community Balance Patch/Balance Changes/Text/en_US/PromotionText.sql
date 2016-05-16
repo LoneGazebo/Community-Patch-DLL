@@ -278,16 +278,30 @@
 
 	-- Second Attack Explanations
 	UPDATE Language_en_US
-	SET Text = 'May attack twice, though second attack expends all Movement'
+	SET Text = '-20% [ICON_STRENGTH] Combat Strength. May attack twice, though second attack expends all movement.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SECOND_ATTACK' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'May attack twice, though second attack expends all Movement'
+	SET Text = '-20% [ICON_STRENGTH] Combat Strength. May attack twice, though second attack expends all movement.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_LOGISTICS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
 	SET Text = 'One extra Movement. May attack twice, though second attack expends all Movement'
 	WHERE Tag = 'TXT_KEY_PROMOTION_RESTLESSNESS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Indirect Fire, Blitz, Range Combat Strength Reductions
+
+	UPDATE Language_en_US
+	SET Text = '-20% [ICON_RANGE_STRENGTH] Ranged Combat Strength. Ranged attacks may be performed over obstacles (as long as other friendly units can see the target).'
+	WHERE Tag = 'TXT_KEY_PROMOTION_INDIRECT_FIRE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = '-20% [ICON_STRENGTH] Combat Strength. Unit may [COLOR_POSITIVE_TEXT]Attack Multiple Times[ENDCOLOR] per turn.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_BLITZ_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = '-30% [ICON_RANGE_STRENGTH] Ranged Combat Strength. +1 Range.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_RANGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Changed English UA
 	UPDATE Language_en_US

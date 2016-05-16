@@ -1094,7 +1094,7 @@ public:
 	void DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnit);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD);
+	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD, CvUnit* pUnit = NULL);
 	void addInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	void setInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantYieldText(InstantYieldType iType)  const;
@@ -1389,6 +1389,8 @@ public:
 	void SetCurrencyName(const char* strKey);
 	CvString GetCurrencyName() const;
 
+	void SetProsperityScore(int iValue);
+	int GetProsperityScore() const;
 	//DONE
 	void DoArmyDiversity();
 	int GetArmyDiversity() const;
@@ -1484,8 +1486,11 @@ public:
 	int GetMonopolyModPercent() const;
 	void SetMonopolyModPercent(int iValue);
 
-	int GetCachedValueOfPeaceWithHuman();
+	int GetCachedValueOfPeaceWithHuman() const;
 	void SetCachedValueOfPeaceWithHuman(int iValue);
+
+	void ChangeFaithPurchaseCooldown(int iValue);
+	int GetFaithPurchaseCooldown() const;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyUnhappinessMod() const;
@@ -2941,6 +2946,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iJFDConversionTurn;
 	FAutoVariable<bool, CvPlayer> m_bJFDSecularized;
 	FAutoVariable<CvString, CvPlayer> m_strJFDCurrencyName;
+	FAutoVariable<int, CvPlayer> m_iJFDProsperity;
 	FAutoVariable<int, CvPlayer> m_iJFDCurrency;
 	FAutoVariable<int, CvPlayer> m_iUnitDiversity;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeTourism;
@@ -2967,6 +2973,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMonopolyModFlat;
 	FAutoVariable<int, CvPlayer> m_iMonopolyModPercent;
 	FAutoVariable<int, CvPlayer> m_iCachedValueOfPeaceWithHuman;
+	FAutoVariable<int, CvPlayer> m_iFaithPurchaseCooldown;
 	std::vector<int> m_piCityFeatures;
 	std::vector<int> m_piNumBuildings;
 	FAutoVariable<int, CvPlayer> m_iCitiesFeatureSurrounded;

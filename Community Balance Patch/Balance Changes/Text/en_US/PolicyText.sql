@@ -450,7 +450,7 @@ UPDATE Language_en_US
 SET Text = 'Military tradition is the specific set of practices associated with the military or soldiers in general. The concept may describe the styles of military uniform, drill, or even the music of a military unit.'
 WHERE Tag = 'TXT_KEY_POLICY_NAVAL_TRADITION_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
--- Navigation School -- Now called Exploration -- Receive a free Great Admiral -- Reveals all Capitals and starts a Golden Age.
+-- Navigation School -- Now called Exploration -- Receive a free Great Admiral -- Reveals all Capitals.
 UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Exploration[ENDCOLOR][NEWLINE] Receive a free [ICON_GREAT_ADMIRAL] Great Admiral. All undiscovered [ICON_CAPITAL] Capitals are revealed. Embarked units receive +2 [ICON_MOVES] Movement, and [ICON_GREAT_GENERAL] Great Generals recieve +1 [ICON_MOVES] Movement.'
 WHERE Tag = 'TXT_KEY_POLICY_NAVIGATION_SCHOOL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );

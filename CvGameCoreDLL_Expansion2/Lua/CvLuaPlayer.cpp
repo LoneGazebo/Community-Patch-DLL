@@ -292,6 +292,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetPublicOpinionTooltip);
 	Method(GetPublicOpinionUnhappiness);
 	Method(GetPublicOpinionUnhappinessTooltip);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(ChangeInfluenceOnAllPlayers);
+	Method(ChangeInfluenceOnPlayer);
+#endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	Method(DoSwapGreatWorks);
@@ -590,6 +594,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetMaxConscript);
 	Method(GetOverflowResearch);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(SetOverflowResearch);
+	Method(ChangeOverflowResearch);
+#endif
 	Method(GetExpInBorderModifier);
 
 	Method(GetLevelExperienceModifier);
@@ -1125,6 +1133,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetEspionageCityStatus);
 #if defined(MOD_BALANCE_CORE)
+	Method(GetTotalValueToMeNormal);
 	Method(GetTotalValueToMe);
 	Method(GetRandomIntrigue);
 	Method(GetCachedValueOfPeaceWithHuman);
@@ -1367,6 +1376,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(SetCurrencyName);
 	Method(GetCurrencyName);
+
+	Method(SetProsperityScore);
+	Method(GetProsperityScore);
+
 	Method(CountAllFeature);
 	Method(CountAllWorkedFeature);
 	Method(CountAllImprovement);
@@ -3103,6 +3116,42 @@ int CvLuaPlayer::lGetPublicOpinionUnhappinessTooltip(lua_State* L)
 	lua_pushstring(L, pkPlayer->GetCulture()->GetPublicOpinionUnhappinessTooltip());
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//int ChangeInfluenceOnAllPlayers(iBaseInfluence, bApplyModifiers=true, bModifyForGameSpeed=false);
+int CvLuaPlayer::lChangeInfluenceOnAllPlayers(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iBaseInfluence = lua_tointeger(L, 2);
+	bool bApplyModifiers = luaL_optbool(L, 3, true);
+	bool bModifyForGameSpeed = luaL_optbool(L, 4, false);
+
+	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+	for (uint uiPlayer = 0; uiPlayer < MAX_MAJOR_CIVS; uiPlayer++)
+	{
+		PlayerTypes eOtherPlayer = (PlayerTypes)uiPlayer;
+		if (eOtherPlayer != eActivePlayer) {
+			pkPlayer->GetCulture()->ChangeInfluenceOn(eOtherPlayer, iBaseInfluence, bApplyModifiers, bModifyForGameSpeed);
+		}
+	}
+	
+	return 0;
+}
+//------------------------------------------------------------------------------
+//int ChangeInfluenceOnPlayer(iOtherPlayer, iBaseInfluence, bApplyModifiers=true, bModifyForGameSpeed=false);
+int CvLuaPlayer::lChangeInfluenceOnPlayer(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	int iBaseInfluence = lua_tointeger(L, 3);
+	bool bApplyModifiers = luaL_optbool(L, 4, true);
+	bool bModifyForGameSpeed = luaL_optbool(L, 5, false);
+	
+	pkPlayer->GetCulture()->ChangeInfluenceOn(eOtherPlayer, iBaseInfluence, bApplyModifiers, bModifyForGameSpeed);
+
+	return 0;
+}
+#endif
 #if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 //void DoSwapGreatWorks(eFocusYield);
@@ -7002,6 +7051,20 @@ int CvLuaPlayer::lGetOverflowResearch(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getOverflowResearch);
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//int getOverflowResearch();
+int CvLuaPlayer::lSetOverflowResearch(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::setOverflowResearch);
+}
+//------------------------------------------------------------------------------
+//int getOverflowResearch();
+int CvLuaPlayer::lChangeOverflowResearch(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::changeOverflowResearch);
+}
+#endif
 //------------------------------------------------------------------------------
 //bool getExpInBorderModifier();
 int CvLuaPlayer::lGetExpInBorderModifier(lua_State* L)
@@ -12941,6 +13004,21 @@ int CvLuaPlayer::lMayNotAnnex(lua_State* L)
 }
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lGetTotalValueToMeNormal(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+	CvDeal* pkDeal = CvLuaDeal::GetInstance(L, 2);
+	int iValueImOffering, iValueTheyreOffering;
+	int iResult = 0;
+	iResult = pkThisPlayer->GetDealAI()->GetDealValue(pkDeal, iValueImOffering, iValueTheyreOffering, false);
+	if(iResult == INT_MAX || iResult == (INT_MAX * -1))
+	{
+		iResult = -1;
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lGetTotalValueToMe(lua_State* L)
 {
 	CvPlayerAI* pkThisPlayer = GetInstance(L);
@@ -12952,7 +13030,7 @@ int CvLuaPlayer::lGetTotalValueToMe(lua_State* L)
 	{
 		iResult *= -1;
 	}
-	if(iResult == MAX_INT)
+	if((iResult == INT_MAX) || (iResult == (INT_MAX * -1)))
 	{
 		iResult = -1;
 	}
@@ -14307,6 +14385,21 @@ int CvLuaPlayer::lHasCurrency(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	const bool bResult = pkPlayer->HasCurrency();
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+int CvLuaPlayer::lGetProsperityScore(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetProsperityScore();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lSetProsperityScore(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+
+	pkPlayer->SetProsperityScore(iValue);
 	return 1;
 }
 #endif

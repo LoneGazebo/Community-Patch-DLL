@@ -184,6 +184,7 @@ public:
 	bool IsPuppetPurchaseOverride() const;
 	bool IsMinorCivGift() const;
 	int GetCooldown() const;
+	int GetGlobalFaithCooldown() const;
 	bool IsMounted() const;
 
 #endif
@@ -336,6 +337,7 @@ private:
 	bool m_bMinorCivGift;
 	bool m_bIsMounted;
 	int m_iCooldown;
+	int m_iGlobalFaithCooldown;
 	int m_iBeliefUnlock;
 #endif
 	int m_iCultureBombRadius;

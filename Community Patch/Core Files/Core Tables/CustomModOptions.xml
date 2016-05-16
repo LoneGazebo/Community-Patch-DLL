@@ -973,6 +973,8 @@
 	<Row Class="6" Name="BALANCE_CORE_BUILDING_RESOURCE_MAINTENANCE" Value="0"/>
 	<!-- Adds Events System for Player and Global Events -->
 	<Row Class="6" Name="BALANCE_CORE_EVENTS" Value="1"/>
+	<!-- Enables Hidamari's override forcing civs to use civ-specific text only -->
+	<Row Class="6" Name="NO_RANDOM_TEXT_CIVS" Value="0"/>
   </CustomModOptions>
 
 	<!-- Events for JFD Piety -->

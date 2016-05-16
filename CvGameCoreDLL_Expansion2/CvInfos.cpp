@@ -7734,7 +7734,8 @@ CvModEventInfo::CvModEventInfo() :
 	 m_bMetAnotherCiv(false),
 	 m_bVassal(false),
 	 m_bMaster(false),
-	 m_iCoastal(0)
+	 m_iCoastal(0),
+	 m_bTradeCapped(false)
 {
 }
 //------------------------------------------------------------------------------
@@ -8012,6 +8013,11 @@ int CvModEventInfo::getNumCoastalRequired() const
 	return m_iCoastal;
 }
 //------------------------------------------------------------------------------
+bool CvModEventInfo::isTradeCapped() const
+{
+	return m_bTradeCapped;
+}
+//------------------------------------------------------------------------------
 bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
@@ -8132,6 +8138,7 @@ bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_bSuperUnhappy = kResults.GetBool("IsSuperUnhappy");
 
 	m_iCoastal = kResults.GetInt("MinimumNumCoastalCities");
+	m_bTradeCapped = kResults.GetBool("LessThanMaximumTradeRoutes");
 
 	const char* szEventType = GetType();
 	kUtility.SetYields(m_piMinimumYield, "Event_MinimumStartYield", "EventType", szEventType);
@@ -8155,12 +8162,14 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_bEraScaling(false),
 	 m_bExpires(false),
 	 m_iNumFreePolicies(0),
+	 m_iNumFreeTechs(0),
 	 m_iNumFreeGreatPeople(0),
 	 m_iNumGoldenAgeTurns(0),
 	 m_iNumWLTKD(0),
 	 m_iResistanceTurns(0),
 	 m_iRandomBarbs(0),
 	 m_piNumFreeUnits(NULL),
+	 m_piNumFreeSpecificUnits(NULL),
 	 m_iPrereqTech(-1),
 	 m_iObsoleteTech(-1),
 	 m_iMinimumNationalPopulation(0),
@@ -8224,7 +8233,9 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_ppiImprovementYield(NULL),
 	 m_ppiResourceYield(NULL),
 	 m_iCoastal(0),
-	 m_bCoastalOnly(false)
+	 m_bCoastalOnly(false),
+	 m_bTradeCapped(false),
+	 m_bCapitalEffectOnly(false)
 {
 }
 //------------------------------------------------------------------------------
@@ -8235,6 +8246,7 @@ CvModEventChoiceInfo::~CvModEventChoiceInfo()
 	SAFE_DELETE_ARRAY(m_piEventYield);
 	SAFE_DELETE_ARRAY(m_piPreCheckEventYield);
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
+	SAFE_DELETE_ARRAY(m_piNumFreeSpecificUnits);
 	SAFE_DELETE_ARRAY(m_piMinimumYield);
 	SAFE_DELETE_ARRAY(m_piRequiredResource);
 	SAFE_DELETE_ARRAY(m_piRequiredFeature);
@@ -8358,6 +8370,11 @@ int CvModEventChoiceInfo::getNumFreePolicies() const
 	return m_iNumFreePolicies;
 }
 //------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getNumFreeTechs() const
+{
+	return m_iNumFreeTechs;
+}
+//------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getNumFreeGreatPeople() const
 {
 	return m_iNumFreeGreatPeople;
@@ -8396,6 +8413,13 @@ int CvModEventChoiceInfo::getPlayerHappiness() const
 int CvModEventChoiceInfo::getCityHappinessGlobal() const
 {
 	return m_iCityHappinessGlobal;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getNumFreeSpecificUnits(int i) const
+{
+	CvAssertMsg(i < GC.getNumUnitInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piNumFreeSpecificUnits ? m_piNumFreeSpecificUnits [i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getNumFreeUnits(int i) const
@@ -8704,6 +8728,16 @@ bool CvModEventChoiceInfo::isCoastalOnly() const
 	return m_bCoastalOnly;
 }
 //------------------------------------------------------------------------------
+bool CvModEventChoiceInfo::isTradeCapped() const
+{
+	return m_bTradeCapped;
+}
+//------------------------------------------------------------------------------
+bool CvModEventChoiceInfo::isCapitalEffectOnly() const
+{
+	return m_bCapitalEffectOnly;
+}
+//------------------------------------------------------------------------------
 const char* CvModEventChoiceInfo::getDisabledTooltip() const
 {
 	return m_strDisabledTooltip;
@@ -8734,8 +8768,13 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 
 	m_iCoastal = kResults.GetInt("MinimumNumCoastalCities");
 	m_bCoastalOnly = kResults.GetBool("AffectsCoastalCitiesOnly");
+
+	m_bTradeCapped = kResults.GetBool("LessThanMaximumTradeRoutes");
+
+	m_bCapitalEffectOnly = kResults.GetBool("CapitalEffectOnly");
 	
 	m_iNumFreePolicies = kResults.GetInt("EventFreePolicies");
+	m_iNumFreeTechs = kResults.GetInt("EventFreeTechs");
 	m_iNumFreeGreatPeople = kResults.GetInt("FreeGreatPeople");
 	m_iNumGoldenAgeTurns = kResults.GetInt("GoldenAgeTurns");
 	m_iNumWLTKD = kResults.GetInt("WLTKDTurns");
@@ -8776,6 +8815,7 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 	m_strEventChoiceSoundEffect = szTextVal;
 
 	kUtility.PopulateArrayByValue(m_piNumFreeUnits, "UnitClasses", "EventChoice_FreeUnitClasses", "UnitClassType", "EventChoiceType", szEventType, "Quantity");
+	kUtility.PopulateArrayByValue(m_piNumFreeSpecificUnits, "Units", "EventChoice_FreeUnits", "UnitType", "EventChoiceType", szEventType, "Quantity");
 
 	kUtility.PopulateArrayByValue(m_piConvertReligion, "Religions", "EventChoice_ConvertNumPopToReligion", "ReligionType", "EventChoiceType", szEventType, "Population");
 	kUtility.PopulateArrayByValue(m_piConvertReligionPercent, "Religions", "EventChoice_ConvertPercentPopToReligion", "ReligionType", "EventChoiceType", szEventType, "Percent");
@@ -9648,6 +9688,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_piDestroyImprovement(NULL),
 	 m_piFlavor(NULL),
 	 m_piNumFreeUnits(NULL),
+	 m_piNumFreeSpecificUnits(NULL),
 	 m_iNumWLTKD(0),
 	 m_iResistanceTurns(0),
 	 m_iRandomBarbs(0),
@@ -9745,6 +9786,7 @@ CvModEventCityChoiceInfo::~CvModEventCityChoiceInfo()
 	SAFE_DELETE_ARRAY(m_piDestroyImprovement);
 	SAFE_DELETE_ARRAY(m_piPreCheckEventYield);
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
+	SAFE_DELETE_ARRAY(m_piNumFreeSpecificUnits);
 	SAFE_DELETE_ARRAY(m_piMinimumYield);
 	SAFE_DELETE_ARRAY(m_piConvertReligion);
 	SAFE_DELETE_ARRAY(m_piConvertReligionPercent);
@@ -9868,6 +9910,13 @@ int CvModEventCityChoiceInfo::getNumFreeUnits(int i) const
 	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piNumFreeUnits ? m_piNumFreeUnits[i] : -1;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getNumFreeSpecificUnits(int i) const
+{
+	CvAssertMsg(i < GC.getNumUnitInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piNumFreeSpecificUnits ? m_piNumFreeSpecificUnits[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getEventConvertReligion(int i) const
@@ -10388,6 +10437,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_strEventChoiceSoundEffect = szTextVal;
 
 	kUtility.PopulateArrayByValue(m_piNumFreeUnits, "UnitClasses", "CityEventChoice_FreeUnitClasses", "UnitClassType", "CityEventChoiceType", szEventType, "Quantity");
+	kUtility.PopulateArrayByValue(m_piNumFreeSpecificUnits, "Units", "CityEventChoice_FreeUnits", "UnitType", "CityEventChoiceType", szEventType, "Quantity");
 	kUtility.PopulateArrayByValue(m_piConvertReligion, "Religions", "CityEventChoice_ConvertNumPopToReligion", "ReligionType", "CityEventChoiceType", szEventType, "Population");
 	kUtility.PopulateArrayByValue(m_piConvertReligionPercent, "Religions", "CityEventChoice_ConvertPercentPopToReligion", "ReligionType", "CityEventChoiceType", szEventType, "Percent");
 	kUtility.PopulateArrayByValue(m_piBuildingDestructionChance, "BuildingClasses", "CityEventChoice_BuildingClassDestructionChance", "BuildingClassType", "CityEventChoiceType", szEventType, "Chance");

@@ -434,6 +434,7 @@ protected:
 #endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(GetDllGuid, char*);
 	LUAAPIEXTN(ReloadGameDataDefines, void);
 	LUAAPIEXTN(ReloadCustomModOptions, void);
 	LUAAPIEXTN(IsCustomModOption, bool, sOption);

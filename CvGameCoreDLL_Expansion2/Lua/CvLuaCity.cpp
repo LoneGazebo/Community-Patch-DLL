@@ -1174,11 +1174,26 @@ int CvLuaCity::lGetFaithPurchaseUnitTooltip(lua_State* L)
 			toolTip += localized;
 		}
 	}
+	CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnit);
+	if(MOD_BALANCE_CORE && pGameUnit && GET_PLAYER(pkCity->getOwner()).GetFaithPurchaseCooldown() > 0 && pGameUnit->GetGlobalFaithCooldown() > 0)
+	{
+		Localization::String localizedText = Localization::Lookup("TXT_KEY_COOLDOWN_X_TURNS_REMAINING_FAITH");
+		localizedText << GET_PLAYER(pkCity->getOwner()).GetFaithPurchaseCooldown();
+
+		const char* const localized = localizedText.toUTF8();
+		if(localized)
+		{
+			if(!toolTip.IsEmpty())
+				toolTip += "[NEWLINE]";
+
+			toolTip += localized;
+		}
+	}
 #if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
 	if(MOD_BALANCE_CORE_UNIT_INVESTMENTS && eUnit != NO_UNIT)
 	{
 		//Have we already invested here?
-		CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnit);
+		
 		const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
 		if(pkCity->IsUnitInvestment(eUnitClass))
 		{

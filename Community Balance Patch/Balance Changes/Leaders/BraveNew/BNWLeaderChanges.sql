@@ -202,6 +202,21 @@ UPDATE Builds
 SET PrereqTech = 'TECH_CALENDAR'
 WHERE Type = 'BUILD_BRAZILWOOD_CAMP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+INSERT INTO Units
+	(Class, Type, Combat, Cost, FaithCost, WorkRate, RequiresFaithPurchaseEnabled, Moves, PrereqTech, ObsoleteTech, CombatClass, Domain, NoBadGoodies, DefaultUnitAI, Description, Civilopedia, Strategy, Help, Pillage, MilitarySupport, GoodyHutUpgradeUnitClass, MilitaryProduction, AdvancedStartCost, XPValueAttack, XPValueDefense, UnitArtInfo, UnitFlagAtlas, UnitFlagIconOffset, PortraitIndex, IconAtlas, MoveRate)
+VALUES
+	('UNITCLASS_EXPLORER', 'UNIT_BANDEIRANTES', 18, 180, 200, 100, 1, 4, 'TECH_CHIVALRY', 'TECH_STEAM_POWER', 'UNITCOMBAT_RECON', 'DOMAIN_LAND', 1, 'UNITAI_EXPLORE', 'TXT_KEY_UNIT_BANDEIRANTES', 'TXT_KEY_UNIT_BANDEIRANTES_TEXT', 'TXT_KEY_UNIT_BANDEIRANTES_STRATEGY', 'TXT_KEY_UNIT_BANDEIRANTES_HELP', 1, 1, 'UNITCLASS_ZEPPELIN', 1, 30, 3, 3, 'ART_DEF_UNIT_BANDEIRANTES', 'BANDEIRANTES_FLAG_ATLAS', 0, 4, 'COMMUNITY_2_ATLAS', 'BIPED');
+
+INSERT INTO UnitGameplay2DScripts
+	(UnitType, SelectionSound, FirstSelectionSound)
+VALUES
+	('UNIT_BANDEIRANTES', 'AS2D_SELECT_SCOUT', 'AS2D_BIRTH_SCOUT');
+
+INSERT INTO Unit_Flavors
+	(UnitType, FlavorType, Flavor)
+VALUES
+	('UNIT_BANDEIRANTES', 'FLAVOR_EXPANSION', 35),
+	('UNIT_BANDEIRANTES', 'FLAVOR_OFFENSE', 20);
 -- Zulu -- Ikanda gives promotions to all melee infantry
 
 UPDATE Traits
