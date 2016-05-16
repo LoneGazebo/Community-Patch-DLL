@@ -163,7 +163,7 @@ public:
 	virtual bool IsCivilianOperation() const = 0;
 	virtual bool IsNavalOperation() const = 0;
 	virtual const char* GetOperationName() const = 0;
-	virtual bool CheckOnTarget() = 0;
+	virtual bool CheckTransitionToNextStage() = 0;
 	virtual bool VerifyTarget(CvArmyAI* pArmy) { return true; } //making this pure virtual gives a linker error???
 	virtual AITacticalTargetType GetTargetType() const = 0;
 
@@ -309,7 +309,7 @@ public:
 	virtual bool IsNavalOperation() const { return false; }
 	virtual int GetDeployRange() const { return 2; }
 	virtual bool VerifyTarget(CvArmyAI * pArmy) { return true; }
-	virtual bool CheckOnTarget();
+	virtual bool CheckTransitionToNextStage();
 	virtual void SetToAbort(AIOperationAbortReason eReason);
 
 protected:
@@ -454,6 +454,8 @@ public:
 	CvAIOperationOffensiveAntiBarbarian();
 	virtual ~CvAIOperationOffensiveAntiBarbarian();
 
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;
 
@@ -493,6 +495,8 @@ public:
 
 	CvAIOperationPillageEnemy();
 	virtual ~CvAIOperationPillageEnemy();
+
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual int GetOperationType() const
 	{
@@ -541,7 +545,7 @@ public:
 	virtual bool IsCivilianOperation() const { return true; }
 	virtual bool IsNavalOperation() const { return false; }
 	virtual AITacticalTargetType GetTargetType() const { return AI_TACTICAL_TARGET_NONE; }
-	virtual bool CheckOnTarget();
+	virtual bool CheckTransitionToNextStage();
 	virtual UnitAITypes GetCivilianType() const = 0;
 
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
@@ -992,8 +996,6 @@ public:
 	{
 		return true;
 	};
-
-	virtual bool CheckOnTarget();
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1132,7 +1134,7 @@ public:
 
 	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, WeightedUnitIdVector& UnitChoices);
 
-	virtual bool CheckOnTarget();
+	virtual bool CheckTransitionToNextStage();
 
 protected:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
@@ -1142,8 +1144,8 @@ protected:
 namespace OperationalAIHelpers
 {
 	int GetGatherRangeForXUnits(int iTotalUnits);
-	CvPlot* FindBestBarbarianBombardmentTarget(PlayerTypes ePlayer);
-	CvPlot* FindBestBarbCamp(PlayerTypes ePlayer);
+	CvPlot* FindBestCoastalBombardmentTarget(PlayerTypes ePlayer, PlayerTypes eEnemy, CvPlot** ppMuster);
+	CvPlot* FindBestBarbCamp(PlayerTypes ePlayer, CvPlot** ppMuster);
 	CvPlot* FindEnemies(PlayerTypes ePlayer, PlayerTypes eEnemy, DomainTypes eDomain, bool bHomelandOnly, int iRefArea, CvPlot* pRefPlot);
 	bool IsSlotRequired(PlayerTypes ePlayer, const OperationSlot& thisOperationSlot);
 	bool IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iDistance);

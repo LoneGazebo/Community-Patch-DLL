@@ -1014,36 +1014,6 @@ CvPlot* CvArmyAI::CheckTargetReached(PlayerTypes eEnemy, bool bNavalOp, int iMax
 	return NULL;
 }
 
-void CvArmyAI::PrepareForAttack(CvPlot * pTarget, PlayerTypes eEnemy)
-{
-	if (!pTarget || eEnemy==NO_PLAYER)
-		return;
-
-	// Notify Diplo AI we're in place for attack
-	if(!GET_TEAM(GET_PLAYER(GetOwner()).getTeam()).isAtWar(GET_PLAYER(eEnemy).getTeam()))
-	{
-		GET_PLAYER(GetOwner()).GetDiplomacyAI()->SetMusteringForAttack(eEnemy, true);
-	}
-
-	// Notify tactical AI to focus on this area
-	CvTemporaryZone zone;
-	if(pTarget->getWorkingCity() != NULL && pTarget->getWorkingCity()->getOwner() == eEnemy)
-	{
-		zone.SetX(pTarget->getWorkingCity()->getX());
-		zone.SetY(pTarget->getWorkingCity()->getY());
-	}
-	else
-	{
-		zone.SetX(pTarget->getX());
-		zone.SetY(pTarget->getY());
-	}
-
-	zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
-	zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
-	GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
-}
-
-
 FDataStream& operator<<(FDataStream& saveTo, const CvArmyAI& readFrom)
 {
 	readFrom.Write(saveTo);

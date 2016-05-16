@@ -1156,7 +1156,11 @@ enum BattleTypeTypes
 #define MOD_SERIALIZE
 
 #if defined(MOD_SERIALIZE)
-#define MOD_SERIALIZE_INIT_READ(stream) uint uiDllSaveVersion; stream >> uiDllSaveVersion
+
+//to help debug errors
+void CheckSentinel(uint);
+
+#define MOD_SERIALIZE_INIT_READ(stream) uint uiDllSaveVersion, uiSentinel; stream >> uiDllSaveVersion; stream >> uiSentinel; CheckSentinel(uiSentinel);
 #define MOD_SERIALIZE_READ(version, stream, member, def) if (uiDllSaveVersion >= version) { stream >> member; } else { member = def; }
 #define MOD_SERIALIZE_READ_AUTO(version, stream, member, size, def)   \
 	if (uiDllSaveVersion >= version) {                                \
@@ -1176,7 +1180,7 @@ enum BattleTypeTypes
 	} else {																	\
 		for (int iI = 0; iI < size; iI++) { (member)[iI] = def; }				\
 	}
-#define MOD_SERIALIZE_INIT_WRITE(stream) uint uiDllSaveVersion = MOD_DLL_VERSION_NUMBER; stream << uiDllSaveVersion
+#define MOD_SERIALIZE_INIT_WRITE(stream) uint uiDllSaveVersion = MOD_DLL_VERSION_NUMBER; stream << uiDllSaveVersion; stream << 0xDEADBEEF;
 #define MOD_SERIALIZE_WRITE(stream, member) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); stream << member
 #define MOD_SERIALIZE_WRITE_AUTO(stream, member) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); stream << member
 #define MOD_SERIALIZE_WRITE_ARRAY(stream, member, type, size) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); stream << ArrayWrapper<type>(size, member)

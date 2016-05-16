@@ -176,14 +176,19 @@ void CvPlayerAI::AI_doTurnPost()
 
 void CvPlayerAI::AI_doTurnUnitsPre()
 {
-	if(isHuman())
+	int iLoop;
+	CvArmyAI* pLoopArmyAI;
+	CvUnit* pLoopUnit;
+
+	//kill off anything any remains from the previous turn
+	for(pLoopArmyAI = firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = nextArmyAI(&iLoop))
 	{
-		return;
+		pLoopArmyAI->DoDelayedDeath();
 	}
 
-	if(isBarbarian())
+	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
-		return;
+		pLoopUnit->doDelayedDeath();
 	}
 }
 

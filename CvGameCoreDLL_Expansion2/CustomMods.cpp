@@ -562,3 +562,19 @@ int CustomMods::getOption(string sOption, int defValue) {
 int CustomMods::getCivOption(const char* szCiv, const char* szName, int defValue) {
 	return getOption(string(szCiv) + "_" + szName, getOption(szName, defValue));
 }
+
+void CheckSentinel(uint value)
+{
+	if (MOD_CORE_DEBUGGING)
+	{
+		FILogFile* pLog=LOGFILEMGR.GetLog( "Deserialization.txt", FILogFile::kDontTimeStamp );
+		if (pLog)
+		{
+			gStackWalker.SetLog(pLog);
+			gStackWalker.ShowCallstack();
+		}
+	}
+
+	if (value!=0xDEADBEEF)
+		OutputDebugString("Serialization Error!\n");
+}

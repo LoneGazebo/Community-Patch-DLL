@@ -4355,7 +4355,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 			}
 			else
 			{
-				//no escort (yet)
+				//no escort or escort is with civilian
 				if(pCivilian->plot() == pOperation->GetMusterPlot())
 				{
 					//check if the civilian is in danger
@@ -4374,7 +4374,14 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 				}
 				else
 					//if this fails, we just freeze and wait for better times
-					MoveToUsingSafeEmbark(pCivilian, pOperation->GetMusterPlot(),true,0);
+					MoveToUsingSafeEmbark(pCivilian,pOperation->GetMusterPlot(),true,0);
+
+				if (pEscort)
+				{
+					MoveToUsingSafeEmbark(pEscort,pCivilian->plot(),true,0);
+					pEscort->finishMoves();
+					UnitProcessed(pEscort->GetID());
+				}
 			}
 		}
 	}
@@ -4777,16 +4784,12 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI* pArmy)
 	// Gathering - treat everyone as a melee unit; don't need ranged in the rear yet
 	int iUnits = m_OperationUnits.size();
 
-	// Range around target based on number of units we need to place
-	int iRange = OperationalAIHelpers::GetGatherRangeForXUnits(iUnits);
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	// increase range for some kinds of operation but be careful, it has quadratic runtime impact
 	CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
-	if(pOperation && pOperation->IsNavalOperation())
-	{
-		iRange += 1;
-	}
-#endif
+	if(!pOperation)
+		return;
+
+	// Range around target based on number of units we need to place
+	int iRange = pOperation->GetGatherTolerance(pArmy,pTarget);
 
 	// Try one time with computed range
 	bool bFoundEnoughDeploymentPlots = false;
@@ -4800,17 +4803,13 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI* pArmy)
 		else
 		{
 			m_TempTargets.clear();
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			iRange = 4;
-#else
-			iRange = 3;
-#endif
 		}
 	}
 
 	if (!bFoundEnoughDeploymentPlots)
 	{
-		if (!ScoreDeploymentPlots(pTarget, pArmy, iUnits, 0, iRange))
+		//try again with additional space
+		if (!ScoreDeploymentPlots(pTarget, pArmy, iUnits, 0, iRange++))
 		{
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -5455,30 +5454,17 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 	iLeastUnits = min(iNavalUnits, iEscortedUnits);
 	bool bMoreEscorted = (iEscortedUnits > iNavalUnits);
 
-	// Range around turn target based on number of units we need to place
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	int iRange = OperationalAIHelpers::GetGatherRangeForXUnits(iNavalUnits + iEscortedUnits);
-	if (pArmy)
-	{
-		// increase range for some kinds of operation but be careful, it has quadratic runtime impact
-		CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
-		if (pOperation && !pOperation->IsCivilianOperation())
-		{
-			if (pOperation->IsNavalOperation())
-			{
-				iRange += 1;
-			}
-		}
-	}
-	else
+	CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
+	if(!pOperation)
 		return;
-#else
-	int iRange = OperationalAIHelpers::GetGatherRangeForXUnits(iMostUnits);
-#endif
+
+	// Range around target based on number of units we need to place
+	int iRange = pOperation->GetGatherTolerance(pArmy,pTurnTarget);
 
 	// See if we have enough places to put everyone
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if(!ScoreDeploymentPlots(pTurnTarget, pArmy, iNavalUnits, iEscortedUnits, iRange) && !ScoreDeploymentPlots(pTurnTarget, pArmy, iNavalUnits, iEscortedUnits, 5))
+	if(!ScoreDeploymentPlots(pTurnTarget, pArmy, iNavalUnits, iEscortedUnits, iRange) && 
+		!ScoreDeploymentPlots(pTurnTarget, pArmy, iNavalUnits, iEscortedUnits, iRange+1))
 #else
 	if(!ScoreDeploymentPlots(pTurnTarget, pArmy, iMostUnits, 0, iRange) &&
 	        !ScoreDeploymentPlots(pTurnTarget, pArmy, iMostUnits, 0, 3))

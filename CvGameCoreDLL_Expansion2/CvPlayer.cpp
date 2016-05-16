@@ -9757,79 +9757,13 @@ void CvPlayer::doTurnPostDiplomacy()
 //	--------------------------------------------------------------------------------
 void CvPlayer::doTurnUnits()
 {
-	CvArmyAI* pLoopArmyAI;
 	CvUnit* pLoopUnit;
 	int iLoop;
 
 	AI_doTurnUnitsPre();
 
-	// Start: TACTICAL AI UNIT PROCESSING
+	// Tactical AI
 	m_pTacticalAI->DoTurn();
-
-	// Start: OPERATIONAL AI UNIT PROCESSING
-	std::map<int, CvAIOperation*>::iterator iter;
-	bool bKilledSomething;
-	do
-	{
-		bKilledSomething = false;
-		for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-		{
-			CvAIOperation* pThisOperation = iter->second;
-			if(pThisOperation)
-			{
-				if(pThisOperation->DoDelayedDeath())
-				{
-					bKilledSomething = true;
-					break;
-				}
-			}
-		}
-		// hack
-	}
-	while(bKilledSomething);
-
-	for(pLoopArmyAI = firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = nextArmyAI(&iLoop))
-	{
-		pLoopArmyAI->DoDelayedDeath();
-	}
-
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
-	{
-		pLoopUnit->doDelayedDeath();
-	}
-
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-	{
-		CvAIOperation* pThisOperation = iter->second;
-		if(pThisOperation)
-		{
-			pThisOperation->DoTurn();
-		}
-	}
-
-	do
-	{
-		bKilledSomething = false;
-		for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-		{
-			CvAIOperation* pThisOperation = iter->second;
-			if(pThisOperation)
-			{
-				if(pThisOperation->DoDelayedDeath())
-				{
-					bKilledSomething = true;
-					break;
-				}
-			}
-		}
-		// hack
-	}
-	while(bKilledSomething);
-
-	for(pLoopArmyAI = firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = nextArmyAI(&iLoop))
-	{
-		pLoopArmyAI->DoTurn();
-	}
 
 	// Homeland AI
 	m_pHomelandAI->DoTurn();

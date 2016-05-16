@@ -158,7 +158,6 @@ public:
 
 	CvPlot* DetectNearbyEnemy(PlayerTypes eEnemy, bool bNaval);
 	CvPlot* CheckTargetReached(PlayerTypes eEnemy, bool bNavalOp, int iMaxDistance);
-	void PrepareForAttack(CvPlot* pTarget, PlayerTypes eEnemy);
 
 protected:
 	int m_iID;

@@ -4446,7 +4446,7 @@ void CvMilitaryAI::UpdateOperations()
 			bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_DESTROY_BARBARIAN_CAMP, &iOperationID);
 			if (!bHasOperationUnderway)
 			{
-				CvPlot* pTarget = OperationalAIHelpers::FindBestBarbCamp(m_pPlayer->GetID());
+				CvPlot* pTarget = OperationalAIHelpers::FindBestBarbCamp(m_pPlayer->GetID(),NULL);
 				if(pTarget != NULL)
 				{
 					iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, NO_PLAYER, MUFORMATION_ANTI_BARBARIAN_TEAM, false, false, pTarget, pTarget, &iNumRequiredSlots);
@@ -4462,7 +4462,7 @@ void CvMilitaryAI::UpdateOperations()
 			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_BOMBARDMENT, &iOperationID);
 			if (!bHasOperationUnderway)
 			{
-				CvPlot* pTarget = OperationalAIHelpers::FindBestBarbarianBombardmentTarget(m_pPlayer->GetID());
+				CvPlot* pTarget = OperationalAIHelpers::FindBestCoastalBombardmentTarget(m_pPlayer->GetID(),BARBARIAN_PLAYER,NULL);
 				if(pTarget != NULL)
 				{
 					iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, BARBARIAN_PLAYER, MUFORMATION_NAVAL_BOMBARDMENT, true, false, pTarget, pTarget, &iNumRequiredSlots);

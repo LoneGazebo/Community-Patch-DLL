@@ -10532,7 +10532,6 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_iWinningTurn;
 	kStream >> m_iStartYear;
 	kStream >> m_iEstimateEndTurn;
-	m_iDefaultEstimateEndTurn = m_iEstimateEndTurn;
 	kStream >> m_iDefaultEstimateEndTurn;
 	kStream >> m_iTurnSlice;
 	kStream >> m_iCutoffSlice;
