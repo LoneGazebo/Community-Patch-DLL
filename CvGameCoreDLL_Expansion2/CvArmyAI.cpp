@@ -494,7 +494,7 @@ void CvArmyAI::SetEstimatedTurn(int iSlotID, int iTurns)
 }
 
 /// What turn will the army as a whole arrive on target?
-int CvArmyAI::GetTurnAtNextCheckpoint() const
+int CvArmyAI::GetTurnOfLastUnitAtNextCheckpoint() const
 {
 	int iRtnValue = ARMYSLOT_NOT_INCLUDING_IN_OPERATION;
 
@@ -515,7 +515,7 @@ int CvArmyAI::GetTurnAtNextCheckpoint() const
 	return iRtnValue;
 }
 
-/// Recalculate when each unit will arrive on target
+/// Recalculate when each unit will arrive at the current army position, whatever that is
 void CvArmyAI::UpdateCheckpointTurns()
 {
 	for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
@@ -524,15 +524,26 @@ void CvArmyAI::UpdateCheckpointTurns()
 		if(m_FormationEntries[iI].GetUnitID() != ARMY_NO_UNIT)
 		{
 			CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(m_FormationEntries[iI].GetUnitID());
-			CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());
-			if(pUnit && pMusterPlot)
+			CvPlot* pCurrentPlot = GC.getMap().plot(GetX(), GetY());
+			if(pUnit && pCurrentPlot)
 			{
-				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pMusterPlot, false, true, true);
+				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pCurrentPlot, false, true, 12);
 				if(iTurnsToReachCheckpoint < MAX_INT)
 					SetEstimatedTurn(iI, iTurnsToReachCheckpoint);
 				else
 					SetEstimatedTurn(iI, ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT);
 			}
+		}
+	}
+}
+
+void CvArmyAI::RemoveStuckUnits()
+{
+	for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
+	{
+		if(m_FormationEntries[iI].GetUnitID() != ARMY_NO_UNIT && m_FormationEntries[iI].GetTurnAtCheckpoint()==ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
+		{
+			RemoveUnit(m_FormationEntries[iI].GetUnitID());
 		}
 	}
 }
@@ -762,12 +773,9 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 /// Remove a unit from the army
 bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 {
-	bool bWasOneOrMoreRemoved = false;
-	CvArmyFormationSlot slot;
-
 	for(int iI = 0; iI < (int)m_FormationEntries.size(); iI++)
 	{
-		slot = m_FormationEntries[iI];
+		CvArmyFormationSlot slot = m_FormationEntries[iI];
 		if(slot.GetUnitID() == iUnitToRemoveID)
 		{
 			UnitHandle pThisUnit = GET_PLAYER(GetOwner()).getUnit(iUnitToRemoveID);
@@ -775,11 +783,8 @@ bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 			{
 				// Clears unit's army ID and erase from formation entries
 				pThisUnit->setArmyID(-1);
-#if defined(MOD_BALANCE_CORE)
 				pThisUnit->AI_setUnitAIType(pThisUnit->getUnitInfo().GetDefaultUnitAIType());
-#endif
 				m_FormationEntries[iI].SetUnitID(ARMY_NO_UNIT);
-				bWasOneOrMoreRemoved = true;
 
 				// Tell the associate operation that a unit was lost
 				CvAIOperation* pThisOperation = GET_PLAYER(GetOwner()).getAIOperation(m_iOperationID);
@@ -787,11 +792,13 @@ bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 				{
 					pThisOperation->UnitWasRemoved(GetID(), iI);
 				}
+
+				return true;
 			}
 		}
 	}
 
-	return bWasOneOrMoreRemoved;
+	return false;
 }
 
 /// Is this part of an operation that allows units to be poached by tactical AI?
@@ -970,12 +977,12 @@ CvPlot* CvArmyAI::CheckTargetReached(PlayerTypes eEnemy, bool bNavalOp, int iMax
 {
 	//check if we're at the target
 	CvPlot *pTargetPlot = GetGoalPlot();
-	CvPlot *pCenterOfMass = GetCenterOfMass(NO_DOMAIN);
+	CvPlot *pCenterOfMass = GetCenterOfMass( GetDomainType() );
 	if(pCenterOfMass && pTargetPlot && plotDistance(*pCenterOfMass,*pTargetPlot) <= iMaxDistance)
 		return pTargetPlot;
 
 	//check early termination if we ran into the enemy
-	if(GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION)
+	if ( GET_PLAYER(m_eOwner).IsAtWarWith(eEnemy) )
 	{
 		CvPlot*	pEnemyPlot = DetectNearbyEnemy(eEnemy, bNavalOp);
 		if(pEnemyPlot != NULL)
@@ -1053,7 +1060,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvArmyFormationSlot& readFrom
 {
 	saveTo << readFrom.m_iUnitID;
 	saveTo << readFrom.m_iEstimatedTurnAtCheckpoint;
-	saveTo << readFrom.m_bStartedOnOperation;
 	return saveTo;
 }
 
@@ -1061,6 +1067,5 @@ FDataStream& operator>>(FDataStream& loadFrom, CvArmyFormationSlot& writeTo)
 {
 	loadFrom >> writeTo.m_iUnitID;
 	loadFrom >> writeTo.m_iEstimatedTurnAtCheckpoint;
-	loadFrom >> writeTo.m_bStartedOnOperation;
 	return loadFrom;
 }

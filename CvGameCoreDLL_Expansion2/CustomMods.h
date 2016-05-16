@@ -98,12 +98,6 @@
 #define AUI_TACTICAL_FIX_COMPUTE_EXPECTED_DAMAGE_AIR_UNITS
 /// Units that cannot caputre cities will not attempt to do so
 #define AUI_TACTICAL_FIX_NO_CAPTURE
-/// When checking the embark safety of a plot, use the plot the unit will be moving to instead of the target plot
-#define AUI_TACTICAL_FIX_MOVE_TO_USING_SAFE_EMBARK_CORRECT_PLOT
-/// Fixes the incorrect logic behind determining whether a unit could make it to an operation's next muster point in time
-#define AUI_TACTICAL_FIX_ALL_OPERATION_MOVES_CATCH_UP_TURNS
-/// When finding naval units to move to a target, the AI no longer ignores units for its pathfinder portion (so it now essentially works the same way as the land-based one)
-#define AUI_TACTICAL_FIX_FIND_CLOSEST_NAVAL_OPERATION_UNIT_DOESNT_IGNORE_UNITS
 /// Civilians that are not moved with BarbarianCivilianEscortMove now move using passive barbarian move
 #define AUI_TACTICAL_EXECUTE_BARBARIAN_MOVES_CIVILIANS_MOVE_PASSIVELY
 

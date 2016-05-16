@@ -14,7 +14,6 @@
 
 #include "CvCity.h"
 #include "CvUnit.h"
-#include "CvAIOperation.h"
 
 class CvCityAI : public CvCity
 {

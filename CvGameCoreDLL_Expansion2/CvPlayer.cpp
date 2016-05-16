@@ -34380,7 +34380,7 @@ CvAIOperation* CvPlayer::getAIOperation(int iID)
 //	--------------------------------------------------------------------------------
 CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, int /*iArea*/, CvCity* pTarget, CvCity* pMuster)
 {
-	CvAIOperation* pNewOperation = CvAIOperation::CreateOperation((AIOperationTypes) OperationType, m_eID);
+	CvAIOperation* pNewOperation = CvAIOperation::CreateOperation((AIOperationTypes) OperationType);
 	if(pNewOperation)
 	{
 		m_AIOperations.insert(std::make_pair(m_iNextOperationID.get(), pNewOperation));
@@ -37799,7 +37799,7 @@ void CvPlayer::Read(FDataStream& kStream)
 		{
 			kStream >> iID;
 			kStream >> iOperationType;
-			CvAIOperation* pThisOperation = CvAIOperation::CreateOperation((AIOperationTypes)iOperationType, m_eID);
+			CvAIOperation* pThisOperation = CvAIOperation::CreateOperation((AIOperationTypes)iOperationType);
 			pThisOperation->Read(kStream);
 			m_AIOperations.insert(std::make_pair(pThisOperation->GetID(), pThisOperation));
 		}

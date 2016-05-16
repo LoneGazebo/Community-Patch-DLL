@@ -2813,73 +2813,25 @@ void CvTacticalAI::PlotBarbarianPlunderTradeUnitMove(DomainTypes eDomain)
 	}
 }
 
-/// Process units that we recruited out of operational moves.  Haven't used them, so let them go ahead with those moves
+/// Process units that we recruited out of operational moves.
 void CvTacticalAI::PlotOperationalArmyMoves()
 {
-	list<int>::iterator it;
-
-	// Update all operations (moved down - previously was in the PlayerAI object)
+	// move all units in operations
 	CvAIOperation* nextOp = NULL;
 	nextOp = m_pPlayer->getFirstAIOperation();
 	while(nextOp != NULL)
 	{
-		if(nextOp->GetLastTurnMoved() < GC.getGame().getGameTurn())
-		{
-#if defined(MOD_BALANCE_CORE)
-			if (!nextOp->VerifyTarget())
-			{
-				nextOp->SetToAbort(AI_ABORT_LOST_TARGET);
-				nextOp = m_pPlayer->getNextAIOperation();
-				continue;
-			}
-#endif
-
-			switch(nextOp->GetMoveType())
-			{
-			case AI_OPERATION_MOVETYPE_SINGLE_HEX:
-				PlotSingleHexOperationMoves((CvAIOperationEscorted*)nextOp);
-				break;
-
-			case AI_OPERATION_MOVETYPE_ENEMY_TERRITORY:
-				PlotEnemyTerritoryOperationMoves((CvAIOperationEnemyTerritory*)nextOp);
-				break;
-
-			case AI_OPERATION_MOVETYPE_NAVAL_ESCORT:
-				PlotNavalEscortOperationMoves((CvAIOperationNavalEscorted*)nextOp);
-				break;
-
-			case AI_OPERATION_MOVETYPE_FREEFORM_NAVAL:
-				PlotFreeformNavalOperationMoves((CvAIOperationNaval*)nextOp);
-				break;
-
-			default:
-				PlotGatherOnlyMoves(nextOp);
-			}
-
-			nextOp->SetLastTurnMoved(GC.getGame().getGameTurn());
-			nextOp->CheckOnTarget();
-		}
-
+		nextOp->DoTurn();
 		nextOp = m_pPlayer->getNextAIOperation();
 	}
 
-	bool bKilledSomething;
-	do
+	//clean up
+	nextOp = m_pPlayer->getFirstAIOperation();
+	while(nextOp != NULL)
 	{
-		bKilledSomething = false;
-		nextOp = m_pPlayer->getFirstAIOperation();
-		while(nextOp != NULL)
-		{
-			if(nextOp->DoDelayedDeath())
-			{
-				bKilledSomething = true;
-				break;
-			}
-			nextOp = m_pPlayer->getNextAIOperation();
-		}
-		// hack
+		nextOp->DoDelayedDeath();
+		nextOp = m_pPlayer->getNextAIOperation();
 	}
-	while(bKilledSomething);
 }
 
 /// Assigns units to pillage enemy improvements
@@ -4274,45 +4226,33 @@ void CvTacticalAI::ReviewUnassignedUnits()
 // OPERATIONAL AI SUPPORT FUNCTIONS
 
 /// Move a single stack (civilian plus escort) to its destination
-void CvTacticalAI::PlotSingleHexOperationMoves(CvAIOperationEscorted* pOperation)
+void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 {
-	UnitHandle pCivilian;
-	UnitHandle pEscort;
-
-	// Simplification - assume only 1 army per operation now
-	if(pOperation->GetFirstArmyID() == -1)
-	{
+	if (!pThisArmy)
 		return;
-	}
-	CvArmyAI* pThisArmy = m_pPlayer->getArmyAI(pOperation->GetFirstArmyID());
-	for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
+
+	CvAIOperation* pOperation = GET_PLAYER(pThisArmy->GetOwner()).getAIOperation(pThisArmy->GetOperationID());
+	if (!pOperation)
+		return;
+
+	//the unit to be escorted is always the first one
+	UnitHandle pCivilian = pThisArmy->GetFirstUnit();
+	//the second unit would be the first escort
+	UnitHandle pEscort = pThisArmy->GetNextUnit();
+	//additional escorts
+	std::vector<UnitHandle> vExtraEscorts;
+	UnitHandle pExtraEscort = pThisArmy->GetNextUnit();
+	while (pExtraEscort)
 	{
-		CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-		if(pSlot->GetUnitID() != NO_UNIT)
-		{
-			UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-			if(pUnit && !pUnit->TurnProcessed())
-			{
-				if(!pCivilian && pUnit->IsCivilianUnit())
-				{
-					pCivilian = pUnit;
-					continue;
-				}
-				if(!pEscort && !pUnit->IsCivilianUnit())
-				{
-					pEscort = pUnit;
-					continue;
-				}
-			}
-		}
+		vExtraEscorts.push_back(pExtraEscort);
+		pExtraEscort = pThisArmy->GetNextUnit(); 
 	}
+
+	// No civilian? that's a problem
 	if(!pCivilian || !pCivilian->IsCivilianUnit())
 	{
 		return;
 	}
-
-	//consistency check
-	pOperation->SetEscorted( pEscort );
 
 	// ESCORT AND CIVILIAN MEETING UP
 	if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE || pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
@@ -4442,23 +4382,11 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIOperationEscorted* pOperation
 	// MOVING TO TARGET
 	if(pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION)
 	{
-		int iMoveFlags = 0;
-		if (pOperation->IsCivilianOperation())
-			iMoveFlags |= CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY;
-
 		// are we there yet?
 		if(pCivilian->plot() == pOperation->GetTargetPlot())
-		{
-			//nothing to do, rest is handled in CheckOnTarget / ArmyInPosition
 			return;
-		}
 
-		if(pOperation->IsEscorted() && (!pEscort || pEscort->TurnProcessed()))
-		{
-			// Escort died or was poached for other tactical action, operation will clean itself up when call CheckOnTarget()
-			pOperation->UnitWasRemoved(pThisArmy->GetID(),1);
-		}
-
+		int iMoveFlags = CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY;
 		pThisArmy->SetXY(pCivilian->getX(), pCivilian->getY());
 	
 		// the escort leads the way
@@ -4529,6 +4457,7 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIOperationEscorted* pOperation
 					}
 				}
 			}
+			
 			if(!bPathFound)
 			{
 				//we have a problem, apparently civilian and escort must split up
@@ -4595,122 +4524,48 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIOperationEscorted* pOperation
 			LogTacticalMessage(strLogString);
 		}
 	}
+
+	//move any additional escorts near the civilian
+	for (size_t i=0; i<vExtraEscorts.size(); i++)
+	{
+		CvUnit* pUnit = vExtraEscorts[i].pointer();
+		MoveToEmptySpaceNearTarget( pUnit, pCivilian->plot(), !pCivilian->isEmbarked() );
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strTemp;
+			CvString strLogString;
+			strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+			strLogString.Format("Moving additional escorting %s to civilian for operation, Civilian X: %d, Civilian Y: %d, X: %d, Y: %d", strTemp.GetCString(), pCivilian->plot()->getX(), pCivilian->plot()->getY(), pUnit->getX(), pUnit->getY());
+			LogTacticalMessage(strLogString);
+		}
+		pUnit->finishMoves();
+		UnitProcessed(pUnit->GetID());
+	}
 }
 
 /// Move a large army to its destination against an enemy target
-void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIOperationEnemyTerritory* pOperation)
+void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 {
-	// Simplification - assume only 1 army per operation now
-	if(pOperation->GetFirstArmyID() == -1)
-	{
+	if (!pThisArmy)
 		return;
-	}
-	CvArmyAI* pThisArmy = m_pPlayer->getArmyAI(pOperation->GetFirstArmyID());
+
+	CvAIOperation* pOperation = GET_PLAYER(pThisArmy->GetOwner()).getAIOperation(pThisArmy->GetOperationID());
+	if (!pOperation)
+		return;
 
 	m_OperationUnits.clear();
 	m_GeneralsToMove.clear();
+
 	pThisArmy->UpdateCheckpointTurns();
+	pThisArmy->RemoveStuckUnits();
+	if (pOperation->ShouldAbort())
+		return;
+
+	ClearEnemiesNearArmy(pThisArmy);
 
 	// RECRUITING
-	if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
+	if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE || pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
 	{
-		// If no estimate for when recruiting will end, let the rest of the AI use these units
-		if(pThisArmy->GetTurnAtNextCheckpoint() == ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
-		{
-			return;
-		}
-		else
-		{
-			for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-			{
-				CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-				if(pSlot->GetUnitID() != NO_UNIT)
-				{
-					// See if we are just able to get to muster point in time.  If so, time for us to head over there
-					UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-					if(pUnit && !pUnit->TurnProcessed())
-					{
-						// Great general?
-						if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
-						{
-							if(pUnit->getMoves() > 0)
-							{
-								CvOperationUnit operationUnit;
-								operationUnit.SetUnitID(pUnit->GetID());
-								operationUnit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_CIVILIAN_SUPPORT]);
-								m_GeneralsToMove.push_back(operationUnit);
-							}
-						}
-
-						else
-						{
-							CvMultiUnitFormationInfo* pkMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
-							if(pkMultiUnitFormationInfo)
-							{
-								const CvFormationSlotEntry& thisSlotEntry = pkMultiUnitFormationInfo->getFormationSlotEntry(iI);
-
-								// Continue moving to target
-								if(pSlot->HasStartedOnOperation())
-								{
-									MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-								}
-
-								else
-								{
-#ifdef AUI_TACTICAL_FIX_ALL_OPERATION_MOVES_CATCH_UP_TURNS
-									pSlot->SetStartedOnOperation(true);
-									MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-#else
-									// See if we are just able to get to muster point in time.  If so, time for us to head over there
-									int iTurns = pUnit->TurnsToReachTarget(pOperation->GetMusterPlot(), true, true);
-
-									if(iTurns + GC.getGame().getGameTurn() >= pThisArmy->GetTurnAtNextCheckpoint())
-									{
-										pSlot->SetStartedOnOperation(true);
-										MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-									}
-#endif // AUI_TACTICAL_FIX_ALL_OPERATION_MOVES_CATCH_UP_TURNS
-								}
-							}
-						}
-					}
-				}
-			}
-			ExecuteGatherMoves(pThisArmy);
-			pOperation->ArmyInPosition(pThisArmy);
-		}
-	}
-
-	// GATHERING FORCES
-	else if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
-	{
-		ClearEnemiesNearArmy(pThisArmy);
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		CvAIOperation* pOperation = m_pPlayer->getAIOperation(pThisArmy->GetOperationID());
-		//Pillagers should obsess with pillaging.
-		if(pOperation && (pOperation->GetOperationType() == AI_OPERATION_PILLAGE_ENEMY))
-		{
-			UnitHandle pUnit;
-			pUnit = pThisArmy->GetFirstUnit();
-			while(pUnit && !pUnit->TurnProcessed())
-			{
-				if(pUnit->plot()->getOwner() == pOperation->GetEnemy())
-				{
-					if(pUnit->pillage())
-					{
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Pillagers be pillaging! Go AI go! (X=%d Y=%d)", pUnit->plot()->getX(), pUnit->plot()->getY());
-							pOperation->LogOperationSpecialMessage(strMsg);
-						}
-					}
-				}
-				pUnit = pThisArmy->GetNextUnit();
-			}
-		}
-#endif
 		// Request moves for all units
 		for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
 		{
@@ -4731,10 +4586,8 @@ void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIOperationEnemyTerritory*
 							m_GeneralsToMove.push_back(operationUnit);
 						}
 					}
-
 					else
 					{
-						pSlot->SetStartedOnOperation(true);
 						CvMultiUnitFormationInfo* pkMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
 						if(pkMultiUnitFormationInfo)
 						{
@@ -4745,8 +4598,8 @@ void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIOperationEnemyTerritory*
 				}
 			}
 		}
+
 		ExecuteGatherMoves(pThisArmy);
-		pOperation->ArmyInPosition(pThisArmy);
 	}
 
 	// MOVING TO TARGET
@@ -4754,22 +4607,11 @@ void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIOperationEnemyTerritory*
 	{
 		// Update army's current location
 		CvPlot* pThisTurnTarget = pOperation->ComputeTargetPlotForThisTurn(pThisArmy);
-
 		if(pThisTurnTarget == NULL)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(pOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED && GC.getLogging() && GC.getAILogging())
-			{
-				CvString strMsg;
-				strMsg.Format("Pathing lost en route due to a bad COM computation!");
-				pOperation->LogOperationSpecialMessage(strMsg);
-			}
-#endif
 			pOperation->SetToAbort(AI_ABORT_LOST_PATH);
 			return;
 		}
-
-		ClearEnemiesNearArmy(pThisArmy);
 
 		// Request moves for all units
 		for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
@@ -4805,9 +4647,6 @@ void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIOperationEnemyTerritory*
 		}
 
 		ExecuteFormationMoves(pThisArmy, pThisTurnTarget);
-#if defined(MOD_BALANCE_CORE)
-		pOperation->ArmyInPosition(pThisArmy);
-#endif
 	}
 
 	if(m_GeneralsToMove.size() > 0)
@@ -4816,696 +4655,45 @@ void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIOperationEnemyTerritory*
 	}
 }
 
-/// Move a large army to its destination against an enemy target
-void CvTacticalAI::PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOperation)
+/// Move a naval force that is roaming for targets
+void CvTacticalAI::PlotArmyMovesRoaming(CvArmyAI* pThisArmy)
 {
-	CvUnit* pCivilian = NULL; 
-	CvUnit* pEscort = NULL;
-
-	// Simplification - assume only 1 army per operation now
-	if (!pOperation || pOperation->GetFirstArmyID() == -1)
-	{
+	if (!pThisArmy)
 		return;
-	}
-	CvArmyAI* pThisArmy = m_pPlayer->getArmyAI(pOperation->GetFirstArmyID());
+
+	CvAIOperation* pOperation = GET_PLAYER(pThisArmy->GetOwner()).getAIOperation(pThisArmy->GetOperationID());
+	if (!pOperation)
+		return;
+
+	m_OperationUnits.clear();
+	pThisArmy->UpdateCheckpointTurns();
+	pThisArmy->RemoveStuckUnits();
+	if (pOperation->ShouldAbort())
+		return;
+
+	ClearEnemiesNearArmy(pThisArmy);
+
+	//we don't care about the army state, just try to converge on the muster plot. which may move!
 	for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
 	{
 		CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
 		if(pSlot->GetUnitID() != NO_UNIT)
 		{
+			// See if we are just able to get to muster point in time.  If so, time for us to head over there
 			UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
 			if(pUnit && !pUnit->TurnProcessed())
 			{
-				if(!pCivilian && pUnit->IsCivilianUnit() && !pUnit->IsGreatAdmiral() && !pUnit->IsGreatGeneral() && !pUnit->IsCityAttackSupport())
+				CvMultiUnitFormationInfo* pkMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
+				if(pkMultiUnitFormationInfo)
 				{
-					pCivilian = m_pPlayer->getUnit(pUnit->GetID());
-					continue;
-				}
-				if(!pEscort && !pUnit->IsCivilianUnit())
-				{
-					pEscort = m_pPlayer->getUnit(pUnit->GetID());
-					continue;
+					const CvFormationSlotEntry& thisSlotEntry = pkMultiUnitFormationInfo->getFormationSlotEntry(iI);
+					MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
 				}
 			}
 		}
 	}
 
-	m_OperationUnits.clear();
-	pThisArmy->UpdateCheckpointTurns();
-
-	// ESCORT AND CIVILIAN MEETING UP
-	if(pOperation && pOperation->IsCivilianOperation())
-	{
-		if(!pCivilian || !pCivilian->isFound())
-		{
-			pOperation->SetToAbort(AI_ABORT_LOST_CIVILIAN);
-			return;
-		}
-
-		if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE || pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
-		{
-			if(pOperation->GetMusterPlot() == NULL)
-			{
-				pOperation->RetargetCivilian(pCivilian, pThisArmy);
-				if(pOperation->GetMusterPlot() == NULL)
-				{
-					pOperation->SetToAbort(AI_ABORT_LOST_CIVILIAN);
-					return;
-				}
-			}
-		
-			// Have civilian remain in place
-			if(pCivilian->plot() != pOperation->GetMusterPlot())
-			{
-				ExecuteMoveToPlotIgnoreDanger(pCivilian, pOperation->GetMusterPlot());
-				pOperation->SetMusterPlot(pCivilian->plot());
-			}
-			pThisArmy->SetXY(pCivilian->getX(), pCivilian->getY());
-
-			if(pThisArmy->GetNumSlotsFilled() > 1)
-			{
-				for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-				{
-					CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-					if(pSlot->GetUnitID() != NO_UNIT)
-					{
-						// See if we are just able to get to target point in time.  If so, time for us to head over there
-						UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-						if(pUnit && !pUnit->TurnProcessed())
-						{	
-							// Move escort over
-							if(pCivilian->plot()->GetNumCombatUnits() > 0)
-							{
-								MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), !pCivilian->isEmbarked() );
-							}
-							else
-							{
-								ExecuteMoveToPlotIgnoreDanger(pUnit, pCivilian->plot());
-							}
-
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strTemp;
-								CvString strLogString;
-								strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-								strLogString.Format("Moving additional escorting %s to civilian for operation, Civilian X: %d, Civilian Y: %d, X: %d, Y: %d", strTemp.GetCString(), pCivilian->plot()->getX(), pCivilian->plot()->getY(), pUnit->getX(), pUnit->getY());
-								LogTacticalMessage(strLogString);
-							}
-							pUnit->finishMoves();
-							UnitProcessed(pUnit->GetID());
-						}
-					}
-				}
-			}
-		}
-		// MOVING TO TARGET with a civilian
-		else if(pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION)
-		{
-			// Update army's current location
-			CvPlot* pThisTurnTarget = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
-			if(pThisTurnTarget == NULL)
-			{
-				pThisTurnTarget = pThisArmy->GetCenterOfMass(DOMAIN_LAND);
-				if(pThisTurnTarget == NULL)
-					pThisTurnTarget = pCivilian->plot();
-			}
-
-			if(pThisTurnTarget != NULL)
-				pThisArmy->SetXY(pThisTurnTarget->getX(), pThisTurnTarget->getY());
-			
-			// Settler at the target?
-			if(pOperation->GetTargetPlot() != NULL && pCivilian->plot() == pOperation->GetTargetPlot())
-				return; //nothing to do, rest is handled in CheckOnTarget / ArmyInPosition
-
-			// Is our settler and his escort both one move from the destination?  If so, targeted moves to finish up
-			else if(pOperation->GetTargetPlot() != NULL && pCivilian && pCivilian->TurnsToReachTarget(pOperation->GetTargetPlot()) <= 1)
-			{
-				ExecuteMoveToPlotIgnoreDanger(pCivilian, pOperation->GetTargetPlot(), true);
-
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strTemp;
-					CvString strLogString;
-					strTemp = GC.getUnitInfo(pCivilian->getUnitType())->GetDescription();
-					strLogString.Format("Moving %s to target, X: %d, Y: %d", strTemp.GetCString(), pCivilian->getX(), pCivilian->getY());
-					LogTacticalMessage(strLogString);
-				}
-
-				if(pThisArmy->GetNumSlotsFilled() > 1)
-				{
-					for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-					{
-						CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-						if(pSlot->GetUnitID() != NO_UNIT)
-						{
-							// See if we are just able to get to target point in time.  If so, time for us to head over there
-							UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-							if(pUnit && !pUnit->TurnProcessed())
-							{	
-								// Move escort over
-								if(pCivilian->plot()->GetNumCombatUnits() > 0)
-								{
-									MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), !pCivilian->isEmbarked());
-								}
-								else
-								{
-									ExecuteMoveToPlotIgnoreDanger(pUnit, pCivilian->plot());
-								}
-
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strTemp;
-									CvString strLogString;
-									strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-									strLogString.Format("Moving additional escorting %s to civilian for operation, Civilian X: %d, Civilian Y: %d, X: %d, Y: %d", strTemp.GetCString(), pCivilian->plot()->getX(), pCivilian->plot()->getY(), pUnit->getX(), pUnit->getY());
-									LogTacticalMessage(strLogString);
-								}
-								pUnit->finishMoves();
-								UnitProcessed(pUnit->GetID());
-							}
-						}
-					}
-				}
-			}
-			// Still further away, move as formation
-			else
-			{
-				if(pOperation->GetTargetPlot() != NULL && pCivilian)
-				{
-					ExecuteMoveToPlotIgnoreDanger(pCivilian, pOperation->GetTargetPlot());
-					if(pThisArmy->GetNumSlotsFilled() > 1)
-					{
-						for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-						{
-							CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-							if(pSlot->GetUnitID() != NO_UNIT)
-							{
-								// See if we are just able to get to target point in time.  If so, time for us to head over there
-								UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-								if(pUnit && !pUnit->TurnProcessed())
-								{	
-									// Move escort over
-									if(pCivilian->plot()->GetNumCombatUnits() > 0)
-									{
-										MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), !pCivilian->isEmbarked());
-									}
-									else
-									{
-										ExecuteMoveToPlotIgnoreDanger(pUnit, pCivilian->plot());
-									}
-
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strTemp;
-										CvString strLogString;
-										strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-										strLogString.Format("Moving additional escorting %s to civilian for operation, Civilian X: %d, Civilian Y: %d, X: %d, Y: %d", strTemp.GetCString(), pCivilian->plot()->getX(), pCivilian->plot()->getY(), pUnit->getX(), pUnit->getY());
-										LogTacticalMessage(strLogString);
-									}
-									pUnit->finishMoves();
-									UnitProcessed(pUnit->GetID());
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	///////
-	//NO CIVILIANS
-	///////
-	else
-	// RECRUITING
-	{
-		if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
-		{
-			// If no estimate for when recruiting will end, let the rest of the AI use these units
-			if(pThisArmy->GetTurnAtNextCheckpoint() == ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
-			{
-				return;
-			}
-			else
-			{
-				for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-				{
-					CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-					if(pSlot->GetUnitID() != NO_UNIT)
-					{
-						// See if we are just able to get to muster point in time.  If so, time for us to head over there
-						UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-						if(pUnit && !pUnit->TurnProcessed())
-						{
-							// Great general?
-							if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
-							{
-								if(pUnit->getMoves() > 0)
-								{
-									CvOperationUnit operationUnit;
-									operationUnit.SetUnitID(pUnit->GetID());
-									operationUnit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_CIVILIAN_SUPPORT]);
-									m_GeneralsToMove.push_back(operationUnit);
-								}
-							}
-
-							else
-							{
-								CvMultiUnitFormationInfo* pkMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
-								if(pkMultiUnitFormationInfo)
-								{
-									const CvFormationSlotEntry& thisSlotEntry = pkMultiUnitFormationInfo->getFormationSlotEntry(iI);
-
-									// Continue moving to target
-									if(pSlot->HasStartedOnOperation())
-									{
-										MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-									}
-
-									else
-									{
-#ifdef AUI_TACTICAL_FIX_ALL_OPERATION_MOVES_CATCH_UP_TURNS
-#else
-										// See if we are just able to get to muster point in time.  If so, time for us to head over there
-										int iTurns = pUnit->TurnsToReachTarget(pOperation->GetMusterPlot(), true, true);
-										if(iTurns + GC.getGame().getGameTurn() >= pThisArmy->GetTurnAtNextCheckpoint())
-#endif // AUI_TACTICAL_FIX_ALL_OPERATION_MOVES_CATCH_UP_TURNS
-										{
-											pSlot->SetStartedOnOperation(true);
-											MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				ExecuteNavalFormationMoves(pThisArmy,pOperation->GetMusterPlot());
-				pOperation->ArmyInPosition(pThisArmy);
-			}
-		}
-
-		// GATHERING FORCES
-		else if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
-		{
-#if defined(MOD_BALANCE_CORE)
-			for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-			{
-				CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-				if(pSlot->GetUnitID() != NO_UNIT)
-				{
-					// See if we are just able to get to muster point in time.  If so, time for us to head over there
-					UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-					if(pUnit && !pUnit->TurnProcessed())
-					{
-						// Great general?
-						if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
-						{
-							if(pUnit->getMoves() > 0)
-							{
-								CvOperationUnit operationUnit;
-								operationUnit.SetUnitID(pUnit->GetID());
-								operationUnit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_CIVILIAN_SUPPORT]);
-								m_GeneralsToMove.push_back(operationUnit);
-							}
-						}
-
-						else
-						{
-							CvMultiUnitFormationInfo* pkMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
-							if(pkMultiUnitFormationInfo)
-							{
-								const CvFormationSlotEntry& thisSlotEntry = pkMultiUnitFormationInfo->getFormationSlotEntry(iI);
-								MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-							}
-						}
-					}
-				}
-			}
-			ExecuteGatherMoves(pThisArmy);
-			pOperation->ArmyInPosition(pThisArmy);
-#else
-			ExecuteFleetMoveToTarget(pThisArmy, pOperation->GetMusterPlot());
-#endif
-		}
-
-		// MOVING TO TARGET as an army
-		else if(pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION)
-		{
-			if(pOperation->GetTargetPlot() == NULL)
-			{
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strMsg;
-					strMsg.Format("No target, aborting!");
-					pOperation->LogOperationSpecialMessage(strMsg);
-				}
-				pOperation->SetToAbort(AI_ABORT_NO_TARGET);
-				return;
-			}
-			
-			// Request moves for all units, getting the slowest movement rate and the closest unit
-			CvPlot* pTargetPlot = pOperation->GetTargetPlot();
-			int iBestDistance = MAX_INT;
-			int iSlowestMovementRate = MAX_INT;
-			UnitHandle pClosestUnitAtSea;
-
-			std::vector<int> vStuckUnits;
-			for (int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-			{
-				CvArmyFormationSlot *pSlot = pThisArmy->GetFormationSlot(iI);
-				if (pSlot->GetUnitID() != NO_UNIT)
-				{
-					UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-					if (pUnit && !pUnit->TurnProcessed())
-					{
-						CvMultiUnitFormationInfo* pMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
-						if (pMultiUnitFormationInfo)
-						{
-							const CvFormationSlotEntry& thisSlotEntry = pMultiUnitFormationInfo->getFormationSlotEntry(iI);
-							MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-
-							int iMoves = pUnit->baseMoves();
-							if (iMoves < iSlowestMovementRate)
-							{
-								iSlowestMovementRate = iMoves;
-							}
-
-							// At sea?
-							if (pUnit->getDomainType()==DOMAIN_SEA)
-							{
-								SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_SAME_AREA,pOperation->GetEnemy(),54);
-								data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
-								int iDistance = GC.GetStepFinder().GetPathLengthInPlots(pUnit->plot(), pTargetPlot, data);
-								if (iDistance<0)
-								{
-									vStuckUnits.push_back(pUnit->GetID());
-								}
-								else if (iDistance < iBestDistance)
-								{
-									iBestDistance = iDistance;
-									pClosestUnitAtSea = pUnit;
-								}
-							}
-						}
-					}
-				}
-			}
-
-			// remove stuck units from army
-			for (std::vector<int>::iterator it = vStuckUnits.begin(); it != vStuckUnits.end(); ++it)
-			{
-				pThisArmy->RemoveUnit(*it);
-			}
-
-			// Error handling: no one at sea, abort
-			if (!pClosestUnitAtSea)
-			{
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strMsg;
-					strMsg.Format("No path to target, aborting!");
-					pOperation->LogOperationSpecialMessage(strMsg);
-				}
-				pOperation->SetToAbort(AI_ABORT_LOST_PATH);
-				return;
-			}
-			else
-			{
-				// If not close yet, find best plot for this turn's movement along path to ultimate best plot
-				CvPlot* pThisTurnTarget = pTargetPlot;
-				if (iBestDistance > iSlowestMovementRate)
-				{
-					SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_SAME_AREA,pOperation->GetEnemy(),54);
-					data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
-					SPath path = GC.GetStepFinder().GetPath(pClosestUnitAtSea->plot(), pTargetPlot, data);
-					if (!!path)
-						pThisTurnTarget = PathHelpers::GetXPlotsFromEnd(path, iBestDistance - iSlowestMovementRate, true);					
-				}
-
-				pThisArmy->SetXY(pThisTurnTarget->getX(), pThisTurnTarget->getY());
-				ExecuteNavalFormationMoves(pThisArmy, pThisTurnTarget);
-				pOperation->ArmyInPosition(pThisArmy);
-			}
-		}
-	}
-}
-
-#ifdef AUI_TACTICAL_FIX_ALL_OPERATION_MOVES_CATCH_UP_TURNS
-/// Move a naval force that is roaming for targets
-void CvTacticalAI::PlotGatherOnlyMoves(CvAIOperation* pOperation)
-{
-	// Simplification - assume only 1 army per operation now
-	if(pOperation->GetFirstArmyID() == -1)
-	{
-		return;
-	}
-	CvArmyAI* pThisArmy = m_pPlayer->getArmyAI(pOperation->GetFirstArmyID());
-
-	m_OperationUnits.clear();
-	pThisArmy->UpdateCheckpointTurns();
-
-	// RECRUITING
-	if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
-	{
-		// If no estimate for when recruiting will end, let the rest of the AI use these units
-		if(pThisArmy->GetTurnAtNextCheckpoint() == ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
-		{
-			return;
-		}
-		else
-		{
-			for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-			{
-				CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-				if(pSlot->GetUnitID() != NO_UNIT)
-				{
-					// See if we are just able to get to muster point in time.  If so, time for us to head over there
-					UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-					if(pUnit && !pUnit->TurnProcessed())
-					{
-						CvMultiUnitFormationInfo* pkMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
-						if(pkMultiUnitFormationInfo)
-						{
-							const CvFormationSlotEntry& thisSlotEntry = pkMultiUnitFormationInfo->getFormationSlotEntry(iI);
-
-							// Continue moving to target
-							if(pSlot->HasStartedOnOperation())
-							{
-								MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-							}
-							else
-							{
-								// See if we are just able to get to muster point in time.  If so, time for us to head over there
-								int iTurns = pUnit->TurnsToReachTarget(pOperation->GetMusterPlot(), true, true);
-								if (iTurns!=INT_MAX && (iTurns + GC.getGame().getGameTurn() <= pThisArmy->GetTurnAtNextCheckpoint()))
-								{
-									pSlot->SetStartedOnOperation(true);
-									MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-								}
-							}
-						}
-					}
-				}
-			}
-			ExecuteGatherMoves(pThisArmy);
-			pOperation->ArmyInPosition(pThisArmy);
-		}
-	}
-
-	// GATHERING FORCES
-	else if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
-	{
-		// Get them moving to target without delay
-		pOperation->ArmyInPosition(pThisArmy);
-		ExecuteGatherMoves(pThisArmy);
-	}
-}
-#endif
-
-/// Move a naval force that is roaming for targets
-void CvTacticalAI::PlotFreeformNavalOperationMoves(CvAIOperationNaval* pOperation)
-{
-	// Simplification - assume only 1 army per operation now
-	if(pOperation->GetFirstArmyID() == -1)
-	{
-		return;
-	}
-	CvArmyAI* pThisArmy = m_pPlayer->getArmyAI(pOperation->GetFirstArmyID());
-
-	m_OperationUnits.clear();
-	pThisArmy->UpdateCheckpointTurns();
-
-	// RECRUITING
-	if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
-	{
-		// If no estimate for when recruiting will end, let the rest of the AI use these units
-		if(pThisArmy->GetTurnAtNextCheckpoint() == ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
-		{
-			return;
-		}
-		else
-		{
-			for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-			{
-				CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-				if(pSlot->GetUnitID() != NO_UNIT)
-				{
-					// See if we are just able to get to muster point in time.  If so, time for us to head over there
-					UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-					if(pUnit && !pUnit->TurnProcessed())
-					{
-						CvMultiUnitFormationInfo* pkMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
-						if(pkMultiUnitFormationInfo)
-						{
-							const CvFormationSlotEntry& thisSlotEntry = pkMultiUnitFormationInfo->getFormationSlotEntry(iI);
-
-							// Continue moving to target
-							if(pSlot->HasStartedOnOperation())
-							{
-								MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-							}
-							else
-							{
-#ifdef AUI_TACTICAL_FIX_ALL_OPERATION_MOVES_CATCH_UP_TURNS							
-#else
-								// See if we are just able to get to muster point in time.  If so, time for us to head over there
-								int iTurns = pUnit->TurnsToReachTarget(pOperation->GetMusterPlot(), true, true);
-								if(iTurns + GC.getGame().getGameTurn() >= pThisArmy->GetTurnAtNextCheckpoint())
-#endif // AUI_TACTICAL_FIX_ALL_OPERATION_MOVES_CATCH_UP_TURNS
-								{
-									pSlot->SetStartedOnOperation(true);
-									MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-								}
-							}
-						}
-					}
-				}
-			}
-#if defined(MOD_BALANCE_CORE)
-			ExecuteGatherMoves(pThisArmy);
-			pOperation->ArmyInPosition(pThisArmy);
-#else
-			ExecuteNavalFormationMoves(pThisArmy, pOperation->GetMusterPlot());
-#endif
-		}
-	}
-
-	// GATHERING FORCES
-	else if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
-	{
-		// Get them moving to target without delay
-#if defined(MOD_BALANCE_CORE)
-		ClearEnemiesNearArmy(pThisArmy);
-
-		// Request moves for all units
-		for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-		{
-			CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-			if(pSlot->GetUnitID() != NO_UNIT)
-			{
-				UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-				if(pUnit && !pUnit->TurnProcessed())
-				{
-					// Great general or admiral?
-					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
-					{
-						if(pUnit->getMoves() > 0)
-						{
-							CvOperationUnit operationUnit;
-							operationUnit.SetUnitID(pUnit->GetID());
-							operationUnit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_CIVILIAN_SUPPORT]);
-							m_GeneralsToMove.push_back(operationUnit);
-						}
-					}
-
-					else
-					{
-						pSlot->SetStartedOnOperation(true);
-						CvMultiUnitFormationInfo* pkMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
-						if(pkMultiUnitFormationInfo)
-						{
-							const CvFormationSlotEntry& thisSlotEntry = pkMultiUnitFormationInfo->getFormationSlotEntry(iI);
-							MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-						}
-					}
-				}
-			}
-		}
-		ExecuteGatherMoves(pThisArmy);
-		pOperation->ArmyInPosition(pThisArmy);
-#else
-		pOperation->ArmyInPosition(pThisArmy);
-		ExecuteFleetMoveToTarget(pThisArmy, pOperation->GetTargetPlot());
-#endif
-	}
-
-	// MOVING TO TARGET
-	else if(pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION)
-	{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		// Update army's current location
-		CvPlot* pThisTurnTarget = pOperation->ComputeTargetPlotForThisTurn(pThisArmy);
-
-		if(pThisTurnTarget == NULL)
-		{
-			if(pOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED && GC.getLogging() && GC.getAILogging())
-			{
-				CvString strMsg;
-				strMsg.Format("Pathing lost en route due to a bad COM computation!");
-				pOperation->LogOperationSpecialMessage(strMsg);
-			}
-			pOperation->SetToAbort(AI_ABORT_LOST_PATH);
-			return;
-		}
-
-		ClearEnemiesNearArmy(pThisArmy);
-
-		// Request moves for all units
-		for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-		{
-			CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-			if(pSlot->GetUnitID() != NO_UNIT)
-			{
-				UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-				if(pUnit && !pUnit->TurnProcessed())
-				{
-					// Great general?
-					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
-					{
-						if(pUnit->getMoves() > 0)
-						{
-							CvOperationUnit operationUnit;
-							operationUnit.SetUnitID(pUnit->GetID());
-							operationUnit.SetPosition((MultiunitPositionTypes)m_CachedInfoTypes[eMUPOSITION_CIVILIAN_SUPPORT]);
-							m_GeneralsToMove.push_back(operationUnit);
-						}
-					}
-					else
-					{
-						CvMultiUnitFormationInfo* pkMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
-						if(pkMultiUnitFormationInfo)
-						{
-							const CvFormationSlotEntry& thisSlotEntry = pkMultiUnitFormationInfo->getFormationSlotEntry(iI);
-							MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-						}
-					}
-				}
-			}
-		}
-		ExecuteFormationMoves(pThisArmy, pThisTurnTarget);
-		pOperation->ArmyInPosition(pThisArmy);
-	}
-
-	if(m_GeneralsToMove.size() > 0)
-	{
-		MoveGreatGeneral(pThisArmy);
-	}
-#else
-		// Get them moving to target without delay
-		pOperation->ArmyInPosition(pThisArmy);
-		ExecuteFleetMoveToTarget(pThisArmy, pOperation->GetTargetPlot());
-	}
-#endif
+	ExecuteGatherMoves(pThisArmy);
 }
 
 /// Queues up attacks on enemy units on or adjacent to army's desired center
@@ -5576,9 +4764,8 @@ void CvTacticalAI::MoveWithFormation(UnitHandle pUnit, MultiunitPositionTypes eP
 /// Gather all units requested through calls to MoveWithFormation() to army's location
 void CvTacticalAI::ExecuteGatherMoves(CvArmyAI* pArmy)
 {
-	CvPlot* pTarget;
+	CvPlot* pTarget = pArmy->Plot();
 	UnitHandle pUnit;
-	int iUnits;
 	AITacticalTargetType eTargetType;
 	CvPlot* pLoopPlot;
 
@@ -5587,10 +4774,8 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI* pArmy)
 		return;
 	}
 
-	pTarget = pArmy->Plot();
-
 	// Gathering - treat everyone as a melee unit; don't need ranged in the rear yet
-	iUnits = m_OperationUnits.size();
+	int iUnits = m_OperationUnits.size();
 
 	// Range around target based on number of units we need to place
 	int iRange = OperationalAIHelpers::GetGatherRangeForXUnits(iUnits);
@@ -6419,37 +5604,6 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 	}
 }
 
-/// Help protect a nearby naval operation (returns true if found one to support)
-bool CvTacticalAI::PlotEscortNavalOperationMoves(CvArmyAI* pArmy)
-{
-	CvPlot* pTarget = NULL;
-	int iOperationID;
-	int iArmyID;
-	CvArmyAI* pArmyToEscort;
-
-	// Only one colonization operation at a time, so don't have to search for more than one
-	if(m_pPlayer->haveAIOperationOfType(AI_OPERATION_QUICK_COLONIZE, &iOperationID))
-	{
-		CvAIOperation* pOperation = m_pPlayer->getAIOperation(iOperationID);
-		iArmyID = pOperation->GetFirstArmyID();
-		if(iArmyID != -1)
-		{
-			pArmyToEscort = m_pPlayer->getArmyAI(iArmyID);
-			if(pArmyToEscort)
-			{
-				pTarget = pArmyToEscort->GetCenterOfMass(DOMAIN_SEA);
-			}
-		}
-	}
-	if(pTarget)
-	{
-		ExecuteFleetMoveToTarget(pArmy, pTarget);
-		return true;
-	}
-
-	return false;
-}
-
 /// Move a squadron of naval units to a target
 void CvTacticalAI::ExecuteFleetMoveToTarget(CvArmyAI* pArmy, CvPlot* pTarget)
 {
@@ -6462,8 +5616,6 @@ void CvTacticalAI::ExecuteFleetMoveToTarget(CvArmyAI* pArmy, CvPlot* pTarget)
 			UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
 			if(pUnit && !pUnit->TurnProcessed())
 			{
-				pSlot->SetStartedOnOperation(true);
-
 				CvMultiUnitFormationInfo* pkMultiUnitFormation = GC.getMultiUnitFormationInfo(pArmy->GetFormationIndex());
 				if(pkMultiUnitFormation)
 				{
@@ -10014,11 +9166,7 @@ bool CvTacticalAI::FindClosestNavalOperationUnit(CvPlot* pTarget, bool bEscorted
 
 			if(bValidUnit)
 			{
-#ifdef AUI_TACTICAL_FIX_FIND_CLOSEST_NAVAL_OPERATION_UNIT_DOESNT_IGNORE_UNITS
 				int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, false /*bIgnoreUnits*/, false /*bIgnoreStacking*/, iMaxTurns);
-#else
-				int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, true /*bIgnoreUnits*/);
-#endif // AUI_TACTICAL_FIX_FIND_CLOSEST_NAVAL_OPERATION_UNIT_DOESNT_IGNORE_UNITS
 
 				if(iTurns != MAX_INT)
 				{
@@ -10251,8 +9399,8 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 	int iBestScore = INT_MAX;
 	CvPlot* pBestPlot = NULL;
 
-	// Look at spaces adjacent to target
-	for(int iI = 0; iI < RING2_PLOTS; iI++)
+	// Look at spaces adjacent to target - not the target itself!
+	for(int iI = 1; iI < RING2_PLOTS; iI++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), iI);
 		if (pLoopPlot != NULL && pLoopPlot->isWater() != bLand)

@@ -28,7 +28,6 @@ public:
 	{
 		m_iUnitID = ARMY_NO_UNIT;
 		m_iEstimatedTurnAtCheckpoint = ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT;
-		m_bStartedOnOperation = false;
 	};
 
 	int GetUnitID() const
@@ -47,18 +46,9 @@ public:
 	{
 		m_iEstimatedTurnAtCheckpoint = iValue;
 	};
-	bool HasStartedOnOperation() const
-	{
-		return m_bStartedOnOperation;
-	};
-	void SetStartedOnOperation(bool bValue)
-	{
-		m_bStartedOnOperation = bValue;
-	};
 
 	int m_iUnitID;
 	int m_iEstimatedTurnAtCheckpoint;
-	int m_bStartedOnOperation;
 };
 
 enum ArmyAIState
@@ -125,8 +115,10 @@ public:
 	{
 		return &m_FormationEntries[iSlotID];
 	};
-	int GetTurnAtNextCheckpoint() const;
+
+	int GetTurnOfLastUnitAtNextCheckpoint() const;
 	void UpdateCheckpointTurns();
+	void RemoveStuckUnits();
 	int GetUnitsOfType(MultiunitPositionTypes ePosition) const;
 	bool IsAllOceanGoing();
 
