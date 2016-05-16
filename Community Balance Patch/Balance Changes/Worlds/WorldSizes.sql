@@ -26,7 +26,7 @@ WHERE Type = 'WORLDSIZE_TINY';
 
 UPDATE Worlds
 SET ReformationPercentRequired = '200'
-WHERE Type = 'WORLDSIZE_DUEL';
+WHERE Type = 'WORLDSIZE_TINY';
 
 -- Small - 3 Minimum for Major, 2 for Minor
 

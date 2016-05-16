@@ -82,7 +82,7 @@
 
 
 		<Row Tag="TXT_KEY_GOODY_PRODUCTION">
-			<Text>You find a cache of supplies that boost the [ICON_PRODUCTION] Production of your nearest city!</Text>
+			<Text>You find a cache of supplies that boost the [ICON_PRODUCTION] Production of your nearest city by {1_Num}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOODY_GOLDEN_AGE">
 			<Text>You find ancient relics that accelerate your civilization's progress towards a [ICON_GOLDEN_AGE] Golden Age!</Text>

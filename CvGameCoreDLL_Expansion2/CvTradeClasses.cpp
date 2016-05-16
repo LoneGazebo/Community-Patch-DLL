@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -558,7 +558,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	TeamTypes eOriginTeam = GET_PLAYER(eOriginPlayer).getTeam();
 	for (uint ui = 0; ui < m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size(); ui++)
 	{
-		GC.getMap().plot(m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList[ui].m_iX, m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList[ui].m_iY)->setRevealed(eOriginTeam, true, true);
+		GC.getMap().plot(m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList[ui].m_iX, m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList[ui].m_iY)->setRevealed(eOriginTeam, true, NULL, true);
 	}
 
 	m_aTradeConnections[iNewTradeRouteIndex].m_iTradeUnitLocationIndex = 0;
@@ -2592,6 +2592,21 @@ void CvPlayerTrade::MoveUnits (void)
 						}
 					}
 				}	
+#endif
+#if defined(MOD_EVENTS_TRADE_ROUTES)
+				if (MOD_EVENTS_TRADE_ROUTES) 
+				{
+					CvPlot* pDestPlot = GC.getMap().plot(iDestX, iDestY);
+					CvCity* pDestCity = NULL;
+					if(pDestPlot != NULL)
+					{
+						pDestCity = pDestPlot->getPlotCity();
+					}
+					if(pDestCity != NULL && pOriginCity != NULL)
+					{
+						GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerTradeRouteCompleted, pOriginCity->getOwner(), pOriginCity->GetID(), pDestCity->getOwner(), pDestCity->GetID(), eDomain, pTradeConnection->m_eConnectionType);
+					}
+				}
 #endif
 
 				// wipe trade route
@@ -5998,10 +6013,6 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 
 	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 	{
-		if(m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) > 0)
-		{
-			iScore -= (m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) / 2);
-		}
 		if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
 		{
 			iScore -= (m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) / 2);

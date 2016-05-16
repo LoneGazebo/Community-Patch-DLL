@@ -3807,6 +3807,28 @@ void CvPlayerCulture::ChangeInfluenceOn(PlayerTypes ePlayer, int iValue)
 	m_aiCulturalInfluence[iIndex] = m_aiCulturalInfluence[iIndex] + iValue;
 }
 
+#if defined(MOD_API_EXTENSIONS)
+void CvPlayerCulture::ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInfluence, bool bApplyModifiers /* = false */, bool bModifyForGameSpeed /* = true */)
+{
+    int iInfluence = iBaseInfluence;
+    
+    if (bModifyForGameSpeed) {
+        iInfluence = iInfluence * GC.getGame().getGameSpeedInfo().getCulturePercent() / 100;
+    }
+    
+    if (bApplyModifiers) {
+        int iModifier = m_pPlayer->getCapitalCity()->GetCityCulture()->GetTourismMultiplier(eOtherPlayer, false, false, false, false, false);
+        if (iModifier != 0) {
+            iInfluence = iInfluence * (100 + iModifier) / 100;
+        }
+    }
+    
+    if (iInfluence != 0) {
+		ChangeInfluenceOn(eOtherPlayer, iInfluence);
+    }
+ }
+#endif
+
 /// What was our cultural influence last turn?
 int CvPlayerCulture::GetLastTurnInfluenceOn(PlayerTypes ePlayer) const
 {

@@ -19,10 +19,10 @@ WHERE TraitType = 'TRAIT_RAZE_AND_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WH
 INSERT INTO ArtDefine_LandmarkTypes(Type, LandmarkType, FriendlyName)
 SELECT 'ART_DEF_IMPROVEMENT_EKI', 'Improvement', 'Eki';
 
-INSERT INTO ArtDefine_Landmarks (Era, State, Scale, ImprovementType, LayoutHandler, ResourceType, Model, TerrainContour) VALUES
-('Any', 'UnderConstruction', 1.0, 'ART_DEF_IMPROVEMENT_KUNA', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL',       'hb_kuna.fxsxml', 1 ),
-('Any', 'Constructed', 1.0, 'ART_DEF_IMPROVEMENT_KUNA', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL',     'kuna.fxsxml', 1),
-('Any', 'Pillaged', 1.0, 'ART_DEF_IMPROVEMENT_KUNA', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL',        'pl_kuna.fxsxml', 1);
+INSERT INTO ArtDefine_Landmarks(Era, State, Scale, ImprovementType, LayoutHandler, ResourceType, Model, TerrainContour)
+SELECT 'Any', 'UnderConstruction', 1,  'ART_DEF_IMPROVEMENT_EKI', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL', 'eki_UC.fxsxml', 1 UNION ALL
+SELECT 'Any', 'Constructed', 1,  'ART_DEF_IMPROVEMENT_EKI', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL', 'eki_built.fxsxml', 1 UNION ALL
+SELECT 'Any', 'Pillaged', 1,  'ART_DEF_IMPROVEMENT_EKI', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL', 'eki_PL.fxsxml', 1;
 
 -- Boudicca -- Boost Ceilidh Hall -- Move to Medieval, add faith
 UPDATE Buildings
@@ -179,7 +179,7 @@ SET GreatPeopleRateModifier = '33'
 WHERE Type = 'BUILDING_COFFEE_HOUSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET FoodKept = '25'
+SET FoodKept = '15'
 WHERE Type = 'BUILDING_COFFEE_HOUSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Building_YieldChanges
@@ -213,16 +213,15 @@ SET PrereqTech = 'TECH_MATHEMATICS'
 WHERE Type = 'TRAIT_LONG_COUNT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Buff Atlatl, move to Classical Age
--- Eki
+-- Kuna
 
 INSERT INTO ArtDefine_LandmarkTypes(Type, LandmarkType, FriendlyName)
 SELECT 'ART_DEF_IMPROVEMENT_KUNA', 'Improvement', 'Kuna';
 
-INSERT INTO ArtDefine_Landmarks (Era, State, Scale,	ImprovementType,					LayoutHandler,	ResourceType,					Model,						TerrainContour) VALUES
-('Any', 'UnderConstruction',	0.4,  				'ART_DEF_IMPROVEMENT_KUNA',		'SNAPSHOT',		'ART_DEF_RESOURCE_ALL',		'hb_kuna.fxsxml',			1	),
-('Any', 'Constructed',			0.4,  				'ART_DEF_IMPROVEMENT_KUNA',		'SNAPSHOT',		'ART_DEF_RESOURCE_ALL',		'kuna.fxsxml',				1	),
-('Any', 'Pillaged',				0.4,  				'ART_DEF_IMPROVEMENT_KUNA',		'SNAPSHOT',		'ART_DEF_RESOURCE_ALL',		'pl_kuna.fxsxml',			1	);
-
+INSERT INTO ArtDefine_Landmarks (Era, State, Scale, ImprovementType, LayoutHandler, ResourceType, Model, TerrainContour) VALUES
+('Any', 'UnderConstruction', 1.0, 'ART_DEF_IMPROVEMENT_KUNA', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL',       'hb_kuna.fxsxml', 1 ),
+('Any', 'Constructed', 1.0, 'ART_DEF_IMPROVEMENT_KUNA', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL',     'kuna.fxsxml', 1),
+('Any', 'Pillaged', 1.0, 'ART_DEF_IMPROVEMENT_KUNA', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL',        'pl_kuna.fxsxml', 1);
 DELETE FROM Buildings
 WHERE Type = 'BUILDING_MAYA_PYRAMID';
 
@@ -480,9 +479,9 @@ INSERT INTO Building_ResourceYieldChanges
 	(BuildingType, ResourceType, YieldType, Yield)
 VALUES
 	('BUILDING_BASILICA', 'RESOURCE_INCENSE', 'YIELD_CULTURE', 1),
-	('BUILDING_BASILICA', 'RESOURCE_INCENSE', 'YIELD_FAITH', 1),
+	('BUILDING_BASILICA', 'RESOURCE_INCENSE', 'YIELD_GOLD', 1),
 	('BUILDING_BASILICA', 'RESOURCE_WINE', 'YIELD_CULTURE', 1),
-	('BUILDING_BASILICA', 'RESOURCE_WINE', 'YIELD_FAITH', 1);
+	('BUILDING_BASILICA', 'RESOURCE_WINE', 'YIELD_GOLD', 1);
 
 INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)

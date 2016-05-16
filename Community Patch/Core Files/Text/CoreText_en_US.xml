@@ -2725,6 +2725,17 @@
 			<Text>Maximum trade value of items in Peace Deal with AI. If the value to the left of this exceeds this number, the AI will refuse the deal.</Text>
 		</Row>
 
+		<!-- Regular Deal Details - Lua -->
+		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE">
+			<Text>Deal Value for Them: {1_Num}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_IMPOSSIBLE">
+			<Text>Deal Value for Them: Impossible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_TT">
+			<Text>AI's current valuation of the trade items in this Deal. If the value here is [COLOR_NEGATIVE_TEXT]Impossible![ENDCOLOR] or [COLOR_NEGATIVE_TEXT]below Zero[ENDCOLOR], the AI will refuse to accept the Deal.</Text>
+		</Row>
+
 		<!-- No Supply -->
 		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY">
 			<Text>[NEWLINE]Cannot [ICON_PRODUCTION] Train this unit, as you are at your Supply cap!</Text>
@@ -5159,6 +5170,9 @@
 		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING">
 			<Text>[NEWLINE]You recently made a [ICON_GOLD] Gold purchase in this city, and must wait for {1_Num} more turn(s) to do so again.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING_FAITH">
+			<Text>[NEWLINE]You recently purchased a [ICON_GREAT_PEOPLE] Great Person with [ICON_PEACE] Faith, and must wait for {1_Num} more turn(s) to do so again.</Text>
+		</Row>
 
 		<!-- Tooltips for CBP Austria Ability -->
 		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE">
@@ -6371,7 +6385,10 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_MOVEMENT">
 			<Text>Movement of a [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
 		</Row>
-		
+		<Row Tag="TXT_KEY_INSTANT_YIELD_SCOUTING">
+			<Text>[ICON_MOVES] Exploration:[NEWLINE]{1_YieldString}</Text>
+		</Row>
+
 
 		<!-- Tooltip for Investments in cities -->
 		<Row Tag="TXT_KEY_ALREADY_INVESTED">

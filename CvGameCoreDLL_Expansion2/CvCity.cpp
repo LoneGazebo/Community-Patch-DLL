@@ -4294,6 +4294,8 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			continue;
 							
 		int iNeededYield = pkEventInfo->getYieldMinimum(eYield);
+		iNeededYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNeededYield /= 100;
 		if(pkEventInfo->getPreCheckEventYield(eYield) != 0)
 		{
 			if(iNeededYield < pkEventInfo->getPreCheckEventYield(eYield))
@@ -4738,16 +4740,16 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 		CvYieldInfo* pYield = GC.getYieldInfo(eIndex);
 		if(pYield)
 		{
-			int iValue = pkEventChoiceInfo->getPreCheckEventYield(eIndex);
+			int iPreValue = pkEventChoiceInfo->getPreCheckEventYield(eIndex);
 			if(pkEventChoiceInfo->IsEraScaling())
 			{
-				iValue *= iEra;
+				iPreValue *= iEra;
 			}
-			iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iValue /= 100;
-			if(iValue != 0)
+			iPreValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iPreValue /= 100;
+			if(iPreValue != 0)
 			{
-				iValue *= -1;
+				iPreValue *= -1;
 				if(yieldCostTip != "")
 				{
 					yieldCostTip += ", ";
@@ -4763,7 +4765,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 				}
 				localizedCostText << pYield->GetDescription();
 				localizedCostText << pYield->getIconString();
-				localizedCostText << iValue;
+				localizedCostText << iPreValue;
 
 				const char* const localized = localizedCostText.toUTF8();
 				if(localized)
@@ -4771,14 +4773,14 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 					yieldCostTip += localized;
 				}
 			}
-			iValue = pkEventChoiceInfo->getEventYield(eIndex);
+			int iYieldValue = pkEventChoiceInfo->getEventYield(eIndex);
 			if(pkEventChoiceInfo->IsEraScaling())
 			{
-				iValue *= iEra;
+				iYieldValue *= iEra;
 			}
-			iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iValue /= 100;
-			if(iValue != 0)
+			iYieldValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iYieldValue /= 100;
+			if(iYieldValue != 0)
 			{
 				if(yieldInstantTip != "")
 				{
@@ -4795,7 +4797,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 				}
 				localizedEventText << pYield->GetDescription();
 				localizedEventText << pYield->getIconString();
-				localizedEventText << iValue;
+				localizedEventText << iYieldValue;
 
 				const char* const localized = localizedEventText.toUTF8();
 				if(localized)
@@ -4803,12 +4805,12 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 					yieldInstantTip += localized;
 				}
 			}
-			iValue = pkEventChoiceInfo->getCityYield(eIndex);
+			int iCityValue = pkEventChoiceInfo->getCityYield(eIndex);
 			if(pkEventChoiceInfo->IsEraScaling())
 			{
-				iValue *= iEra;
+				iCityValue *= iEra;
 			}
-			if(iValue != 0)
+			if(iCityValue != 0)
 			{
 				if(yieldCityTip != "")
 				{
@@ -4826,7 +4828,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 				}
 				localizedCityText << pYield->GetDescription();
 				localizedCityText << pYield->getIconString();
-				localizedCityText << iValue;
+				localizedCityText << iCityValue;
 
 				const char* const localized = localizedCityText.toUTF8();
 				if(localized)
@@ -5409,6 +5411,34 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 									}
 								}
 							}
+						}
+					}
+				}
+			}
+			for(int iI = 0; iI < GC.getNumUnitInfos(); iI++)
+			{
+				const UnitTypes eUnit = static_cast<UnitTypes>(iI);
+				CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
+				if(pkUnitEntry)
+				{
+					if(pkEventChoiceInfo->getNumFreeSpecificUnits((UnitTypes)iI) <= 0)
+						continue;
+		
+					for(int iJ = 0; iJ < pkEventChoiceInfo->getNumFreeSpecificUnits((UnitTypes)iI); iJ++)
+					{
+						UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
+						int iResult = CreateUnit(eUnit, eUnitAI);
+
+						CvAssertMsg(iResult != -1, "Unable to create unit");
+
+						if (iResult != -1)
+						{
+							CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+							if (!pUnit->jumpToNearestValidPlot())
+							{
+								pUnit->kill(false);	// Could not find a valid spot!
+							}
+							pUnit->setMoves(0);
 						}
 					}
 				}
@@ -12825,6 +12855,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 		//Also mountains, because they aren't called anywhere else!
 		UpdateYieldPerXTerrainFromReligion(eYield, TERRAIN_MOUNTAIN);
 		UpdateYieldPerXTerrain(eYield, TERRAIN_MOUNTAIN);
+		UpdateYieldPerXFeature(eYield);
 	}
 	GetCityCulture()->CalculateBaseTourismBeforeModifiers();
 	GetCityCulture()->CalculateBaseTourism();
@@ -13462,14 +13493,14 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if(GET_PLAYER(getOwner()).isGoldenAge() && (GetGoldenAgeYieldMod(YIELD_FOOD) > 0))
+		if(GET_PLAYER(getOwner()).isGoldenAge() && (GetGoldenAgeYieldMod(YIELD_FOOD) != 0))
 		{
 			int iBuildingMod = GetGoldenAgeYieldMod(YIELD_FOOD);
 			iTotalMod += iBuildingMod;
 			if(toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_BUILDINGS", iBuildingMod);
 		}
-		if(GET_PLAYER(getOwner()).isGoldenAge() && GET_PLAYER(getOwner()).getGoldenAgeYieldMod(YIELD_FOOD) > 0)
+		if(GET_PLAYER(getOwner()).isGoldenAge() && GET_PLAYER(getOwner()).getGoldenAgeYieldMod(YIELD_FOOD) != 0)
 		{
 			int iPolicyMod = GET_PLAYER(getOwner()).getGoldenAgeYieldMod(YIELD_FOOD);
 			iTotalMod += iPolicyMod;
@@ -19215,7 +19246,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
 		}
 #if defined(MOD_BALANCE_CORE)
-		if(GetGoldenAgeYieldMod(eIndex) > 0)
+		if(GetGoldenAgeYieldMod(eIndex) != 0)
 		{
 			iTempMod = GetGoldenAgeYieldMod(eIndex);
 			iModifier += iTempMod;
@@ -19223,7 +19254,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_BUILDINGS", iTempMod);
 		}
 
-		if(GET_PLAYER(getOwner()).getGoldenAgeYieldMod(eIndex) > 0)
+		if(GET_PLAYER(getOwner()).getGoldenAgeYieldMod(eIndex) != 0)
 		{
 			iTempMod = GET_PLAYER(getOwner()).getGoldenAgeYieldMod(eIndex);
 			iModifier += iTempMod;
@@ -24777,8 +24808,8 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 				return false;
 			}
 #endif
-
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+
 			if(pkUnitInfo)
 			{
 #if defined(MOD_BUGFIX_MINOR)
@@ -25014,6 +25045,16 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 		{
 			if(bTestPurchaseCost)
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(eUnitType != NO_UNIT)
+				{
+					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+					if(pkUnitInfo && GET_PLAYER(getOwner()).GetFaithPurchaseCooldown() > 0 && pkUnitInfo->GetGlobalFaithCooldown() > 0)
+					{
+						return false;
+					}
+				}
+#endif
 				// Trying to buy something when you don't have enough faith!!
 				if(iFaithCost > GET_PLAYER(getOwner()).GetFaith())
 				{
@@ -25265,6 +25306,15 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				return;	// Can't create the unit, most likely we have no place for it.  We have not deducted the cost yet so just exit.
 
 			CvUnit* pUnit = kPlayer.getUnit(iResult);
+#if defined(MOD_BALANCE_CORE)
+			if(pUnit && pUnit->getUnitInfo().GetGlobalFaithCooldown() > 0)
+			{
+				int iCooldown = pUnit->getUnitInfo().GetGlobalFaithCooldown();
+				iCooldown *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iCooldown /= 100;
+				kPlayer.ChangeFaithPurchaseCooldown(iCooldown);
+			}
+#endif
 #if defined(MOD_BUGFIX_MOVE_AFTER_PURCHASE)
 			if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
 			{

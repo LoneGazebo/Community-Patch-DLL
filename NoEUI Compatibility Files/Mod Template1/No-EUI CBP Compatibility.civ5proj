@@ -3,12 +3,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
     <ProjectGuid>{63283aea-f6ad-4004-8fbd-639e69d54803}</ProjectGuid>
-    <Name>(6b) Community Balance Patch - Compatibility Files (No-EUI)</Name>
+    <Name>(6b) Community Balance Overhaul - Compatibility Files (No-EUI)</Name>
     <Guid>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>4-23b) Community Balance Patch - Compatibility Files (No EUI)</Teaser>
-    <Description>LUA and mod compatibility files for CBP if not using EUI. Includes support for More Luxuries, CSD, and C4DF. Must use all three mods in order to use this mod.</Description>
+    <Teaser>(5-14b) Community Balance Overhaul - Compatibility Files (No EUI)</Teaser>
+    <Description>LUA and mod compatibility files for CBO if not using EUI. Includes support for More Luxuries, CSD, and C4DF. Must use all three mods in order to use this mod.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
     </SpecialThanks>
@@ -75,6 +75,16 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>MoreLuxuries/Text/Text_en_US.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Events/Text/EventText.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Events/Events.xml</FileName>
       </Action>
     </ModActions>
     <Homepage>
@@ -174,6 +184,14 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="CSD\CSDCompatibility.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Events\Events.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Events\Text\EventText.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -325,6 +343,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="LUA\GoodyHutPopup.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="LUA\GPList.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -442,6 +464,8 @@
     <Folder Include="Corporations\Text" />
     <Folder Include="CSD" />
     <Folder Include="CSD\CompatibilityText" />
+    <Folder Include="Events\" />
+    <Folder Include="Events\Text\" />
     <Folder Include="LUA" />
     <Folder Include="Corporations" />
     <Folder Include="MoreLuxuries" />

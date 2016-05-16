@@ -596,7 +596,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CORP_HELP_RESOURCE_BONUS_FIRAXITE_MATERIALS">
-			<Text>[ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, [ICON_RES_PORCELAIN] Porcelain provide additional [ICON_GOLD] Gold.</Text>
+			<Text>[ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, [ICON_RES_PORCELAIN] Porcelain provide additional [ICON_RESEARCH] Science.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORP_HELP_OFFICE_BONUS_FIRAXITE_MATERIALS">
 			<Text>+3 [ICON_RESEARCH] Science for every Global Franchise.</Text>

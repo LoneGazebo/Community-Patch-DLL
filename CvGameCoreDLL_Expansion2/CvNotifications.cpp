@@ -1235,23 +1235,6 @@ void CvNotifications::Activate(Notification& notification)
 		}
 		break;
 #endif
-#if defined(MOD_BALANCE_CORE)
-	case NOTIFICATION_DISCOVERED_BONUS_RESOURCE:
-		CvAssertMsg(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
-		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-		{
-			if (notification.m_iGameDataIndex >= 0)
-			{
-				// x = -1, y = -1 is a marker to denote that this was actually a "monopoly" notification - so open the monopoly popup.
-				// it would be nice if this opened up the player who has the monopoly
-				if (notification.m_iX == -1 && notification.m_iY == -1)
-				{
-					CvPopupInfo kPopup(BUTTONPOPUP_MODDER_5, m_ePlayer);
-					GC.GetEngineUserInterface()->AddPopup(kPopup);
-				}
-			}
-		}
-#endif
 
 	default:	// Default behavior is to move the camera to the X,Y passed in
 	{
@@ -2014,51 +1997,59 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	}
 	break;
 #if defined(MOD_BALANCE_CORE)
-	case 826076831:
+	case 826076831: // City Event Notification
 	{
 		CityEventTypes eCityEvent = (CityEventTypes)m_aNotifications[iIndex].m_iGameDataIndex;
 		if(eCityEvent != NO_EVENT_CITY)
 		{
 			int iCityID = m_aNotifications[iIndex].m_iExtraGameData;
 			CvCity* pCity = GET_PLAYER(m_ePlayer).getCity(iCityID);
-			if(pCity != NULL)
+			if(!pCity || pCity == NULL || pCity->getOwner() != m_ePlayer)
 			{
-				if(pCity->IsEventActive(eCityEvent))
+				pCity->SetEventActive(eCityEvent, false);
+				return true;
+			}
+
+			if(pCity->IsEventActive(eCityEvent))
+			{
+				int iNumEvent = 0;
+				CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY;
+				for(int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 				{
-					int iNumEvent = 0;
-					CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY;
-					for(int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
+					eEventChoice = (CityEventChoiceTypes)iLoop;
+					if(eEventChoice != NO_EVENT_CHOICE_CITY)
 					{
-						eEventChoice = (CityEventChoiceTypes)iLoop;
-						if(eEventChoice != NO_EVENT_CHOICE_CITY)
+						CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+						if(pkEventChoiceInfo != NULL)
 						{
-							CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
-							if(pkEventChoiceInfo != NULL)
+							if(pCity->IsCityEventChoiceValid(eEventChoice, eCityEvent))
 							{
-								if(pCity->IsCityEventChoiceValid(eEventChoice, eCityEvent))
-								{
-									iNumEvent++;
-									break;
-								}
+								iNumEvent++;
+								break;
 							}
 						}
 					}
-					if(iNumEvent <= 0)
-					{
-						pCity->SetEventActive(eCityEvent, false);
-						return true;
-					}
-					else
-					{
-						return false;
-					}
 				}
+				if(iNumEvent <= 0)
+				{
+					pCity->SetEventActive(eCityEvent, false);
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else
+			{
+				pCity->SetEventActive(eCityEvent, false);
+				return true;
 			}
 		}
 		return true;
 	}
 	break;
-	case 419811917:
+	case 419811917: // Player Event Notification
 	{
 		EventTypes eEvent = (EventTypes)m_aNotifications[iIndex].m_iGameDataIndex;
 		if(eEvent != NO_EVENT)
@@ -2092,6 +2083,11 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 				{
 					return false;
 				}
+			}
+			else
+			{
+				GET_PLAYER(m_ePlayer).SetEventActive(eEvent, false);
+				return true;
 			}
 		}
 		return true;

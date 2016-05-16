@@ -183,5 +183,5 @@ UPDATE SmallAwards SET RandomMod = '60' WHERE Type = 'MINOR_CIV_QUEST_UNIT_COUP_
 
 -- Conquest
 UPDATE SmallAwards SET Influence = '40' WHERE Type = 'MINOR_CIV_QUEST_UNIT_GET_CITY';
-UPDATE SmallAwards SET GlobalExperience = '7' WHERE Type = 'MINOR_CIV_QUEST_UNIT_GET_CITY';
-UPDATE SmallAwards SET RandomMod = '15' WHERE Type = 'MINOR_CIV_QUEST_UNIT_GET_CITY';
+UPDATE SmallAwards SET GlobalExperience = '4' WHERE Type = 'MINOR_CIV_QUEST_UNIT_GET_CITY';
+UPDATE SmallAwards SET RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_UNIT_GET_CITY';

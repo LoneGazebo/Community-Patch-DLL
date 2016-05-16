@@ -441,6 +441,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 #endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)
+	Method(GetDllGuid);
 	Method(ReloadGameDataDefines);
 	Method(ReloadCustomModOptions);
 	Method(IsCustomModOption);
@@ -1619,7 +1620,11 @@ int CvLuaGame::lRand(lua_State* L)
 {
 	const int max_num = luaL_checkinteger(L, 1);
 	const char* strLog = luaL_checkstring(L, 2);
+#if defined(MOD_BUGFIX_RANDOM)
+	const int rand_val = GetInstance()->getJonRandNum(max_num, strLog);
+#else
 	const int rand_val = GetInstance()->getJonRand().get(max_num, strLog);
+#endif
 
 	lua_pushinteger(L, rand_val);
 	return 1;
@@ -3396,6 +3401,13 @@ int CvLuaGame::lExitLeaderScreen(lua_State* L)
 #endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetDllGuid(lua_State* L)
+{
+	CvString szDllGuid = GC.getGame().getDllGuid();
+	lua_pushstring(L, szDllGuid);
+	return 1;
+}
 //------------------------------------------------------------------------------
 int CvLuaGame::lReloadGameDataDefines(lua_State* L)
 {

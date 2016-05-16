@@ -194,6 +194,9 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piTerrainDefensePercent(NULL),
 	m_piFeatureAttackPercent(NULL),
 	m_piFeatureDefensePercent(NULL),
+#if defined(MOD_BALANCE_CORE)
+	m_piYieldFromScouting(NULL),
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_piYieldFromKills(NULL),
 	m_piYieldFromBarbarianKills(NULL),
@@ -233,6 +236,9 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_piTerrainDefensePercent);
 	SAFE_DELETE_ARRAY(m_piFeatureAttackPercent);
 	SAFE_DELETE_ARRAY(m_piFeatureDefensePercent);
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_piYieldFromScouting);
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	SAFE_DELETE_ARRAY(m_piYieldFromKills);
 	SAFE_DELETE_ARRAY(m_piYieldFromBarbarianKills);
@@ -619,7 +625,34 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			m_piFeaturePassableTech[iFeatureID] = iPassableTech;
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	//UnitPromotions_YieldFromScouting
+	{
+		kUtility.InitializeArray(m_piYieldFromScouting, NUM_YIELD_TYPES, 0);
 
+		std::string sqlKey = "UnitPromotions_YieldFromScouting";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if(pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID as YieldID, UnitPromotions_YieldFromScouting.* from UnitPromotions_YieldFromScouting inner join Yields on YieldType = Yields.Type where PromotionType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		CvAssert(pResults);
+		if(!pResults) return false;
+
+		pResults->Bind(1, szPromotionType);
+
+		while(pResults->Step())
+		{
+			const int iYieldID = pResults->GetInt("YieldID");
+			CvAssert(iYieldID > -1 && iYieldID < iNumYields);
+
+			const int iYield = pResults->GetInt("Yield");
+			m_piYieldFromScouting[iYieldID] = iYield;
+		}
+	}
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	//UnitPromotions_YieldFromKills
 	{
@@ -1902,7 +1935,20 @@ int CvPromotionEntry::GetFeatureDefensePercent(int i) const
 
 	return -1;
 }
+#if defined(MOD_BALANCE_CORE)
+int CvPromotionEntry::GetYieldFromScouting(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
 
+	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromScouting)
+	{
+		return m_piYieldFromScouting[i];
+	}
+
+	return 0;
+}
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 int CvPromotionEntry::GetYieldFromKills(int i) const
 {

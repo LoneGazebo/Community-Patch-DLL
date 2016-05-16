@@ -243,6 +243,9 @@ public:
 	void SetLastTurnLifetimeCulture(int iValue);
 	int GetInfluenceOn(PlayerTypes ePlayer) const;
 	void ChangeInfluenceOn(PlayerTypes ePlayer, int iValue);
+#if defined(MOD_API_EXTENSIONS)
+	void ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInfluence, bool bApplyModifiers, bool bModifyForGameSpeed);
+#endif
 	int GetLastTurnInfluenceOn(PlayerTypes ePlayer) const;
 	int GetInfluencePerTurn(PlayerTypes ePlayer) const;
 	InfluenceLevelTypes GetInfluenceLevel(PlayerTypes ePlayer) const;

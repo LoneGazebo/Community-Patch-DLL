@@ -364,6 +364,7 @@
 #define MOD_BALANCE_CORE_PANTHEON_RESET_FOUND		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_PANTHEON_RESET_FOUND())
 #define MOD_BALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY())
 #define MOD_BALANCE_CORE_EVENTS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_EVENTS())
+#define MOD_NO_RANDOM_TEXT_CIVS						(MOD_COMMUNITY_PATCH && gCustomMods.isNO_RANDOM_TEXT_CIVS())
 
 #endif
 
@@ -552,7 +553,7 @@
 #define MOD_EVENTS_MINORS                           gCustomMods.isEVENTS_MINORS()
 
 // Event sent upon a City State giving a gift (v73)
-//   GameEvents.MinorGift.Add(function(iMinor, iMajor, ???) end)
+//   GameEvents.MinorGift.Add(function(iMinor, iMajor, iGift, iFriendshipBoost, 0, bFirstMajorCiv, false, szTxtKeySuffix) end)
 #define MOD_EVENTS_MINORS_GIFTS                     gCustomMods.isEVENTS_MINORS_GIFTS()
 
 // Events sent on interaction with City States (v68)
@@ -622,6 +623,8 @@
 // Events sents on espionage outcomes (v63)
 //   GameEvents.EspionageResult.Add(function(iPlayer, iSpy, iResult, iCityX, iCityY) end)
 //   GameEvents.EspionageState.Add(function(iPlayer, iSpy, iState, iCityX, iCityY) end)
+//   GameEvents.EspionageCanMoveSpyTo.Add(function(iPlayer, iCityOwner, iCity) return true)
+//   GameEvents.EspionageCanStageCoup.Add(function(iPlayer, iCityOwner, iCity) return true)
 #define MOD_EVENTS_ESPIONAGE                         gCustomMods.isEVENTS_ESPIONAGE()
 
 // Event sent to ascertain if a unit can start a paradrop from this tile
@@ -695,8 +698,8 @@
 #define MOD_EVENTS_RESOLUTIONS                      gCustomMods.isEVENTS_RESOLUTIONS()
 
 // Events sent about ideologies and tenets (v51)
-//   GameEvents.PlayerCanAdopyIdeology.Add(function(iPlayer, iIdeology) return true end)
-//   GameEvents.PlayerCanAdopyTenet.Add(function(iPlayer, iTenet) return true end)
+//   GameEvents.PlayerCanAdoptIdeology.Add(function(iPlayer, iIdeology) return true end)
+//   GameEvents.PlayerCanAdoptTenet.Add(function(iPlayer, iTenet) return true end)
 #define MOD_EVENTS_IDEOLOGIES                       gCustomMods.isEVENTS_IDEOLOGIES()
 
 // Events sent by plots (v30)
@@ -772,7 +775,7 @@
 #define MOD_EVENTS_REBASE                           gCustomMods.isEVENTS_REBASE()
 
 // Event sent to see if a command is valid (v46)
-//   GameEvents.PlayerCanDoCommand.Add(function(iPlayer, iUnit, iCommand, iData1, iData2, iPlotX, iPlotY, bTestVisible) return true end)
+//   GameEvents.CanDoCommand.Add(function(iPlayer, iUnit, iCommand, iData1, iData2, iPlotX, iPlotY, bTestVisible) return true end)
 #define MOD_EVENTS_COMMAND                          gCustomMods.isEVENTS_COMMAND()
 
 // Events sent for custom missions (v46)
@@ -786,7 +789,7 @@
 //   GameEvents.CustomMissionDoStep.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return CUSTOM_MISSION_ACTION_AND_DONE end)
 //   GameEvents.CustomMissionCompleted.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return false end)
 //   GameEvents.CustomMissionTargetPlot.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return iPlotIndex end)
-//   GameEvents.CustomMissionCycleTime.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return iCameraTime end) -- iCameraTime is 0, 1, 5 or 10
+//   GameEvents.CustomMissionCameraTime.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return iCameraTime end) -- iCameraTime is 0, 1, 5 or 10
 //   GameEvents.CustomMissionTimerInc.Add(function(iPlayer, iUnit, iMission, iData1, iData2, iFlags, iTurn) return iTimerInc end)
 #define MOD_EVENTS_CUSTOM_MISSIONS                  gCustomMods.isEVENTS_CUSTOM_MISSIONS()
 
@@ -810,6 +813,8 @@
 
 // Minor bug fixes (missing catch-all else clauses, etc) (v30 onwards)
 #define MOD_BUGFIX_MINOR 							(true)
+// Fixes some minor issues with the random number generator (v83)
+#define MOD_BUGFIX_RANDOM							(true)
 // Fixes the spy name crash (v53)
 #define MOD_BUGFIX_SPY_NAMES                        (true)
 #define MOD_BUGFIX_RESEARCH_OVERFLOW                gCustomMods.isBUGFIX_RESEARCH_OVERFLOW()
@@ -1042,7 +1047,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_MinorAlliesChanged			"MinorAlliesChanged",			"iibii"
 #define GAMEEVENT_MinorFriendsChanged			"MinorFriendsChanged",			"iibii"
 #define GAMEEVENT_MinorGift						"MinorGift",					"iiiiibbs"
-#define GAMEEVENT_NaturalWonderDiscovered		"NaturalWonderDiscovered",		"iiiib"
+#define GAMEEVENT_NaturalWonderDiscovered		"NaturalWonderDiscovered",		"iiiibii"
 #define GAMEEVENT_NuclearDetonation				"NuclearDetonation",			"iiibb"
 #define GAMEEVENT_PantheonFounded				"PantheonFounded",				"iiii"
 #define GAMEEVENT_ParadropAt					"ParadropAt",					"iiiiii"
@@ -1058,6 +1063,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_PlayerCanBullyUnit			"PlayerCanBullyUnit",			"ii"
 #define GAMEEVENT_PlayerCanBuyOut				"PlayerCanBuyOut",				"ii"
 #define GAMEEVENT_PlayerCanCreateTradeRoute		"PlayerCanCreateTradeRoute",	"iiiiii"
+#define GAMEEVENT_PlayerTradeRouteCompleted		"PlayerTradeRouteCompleted",	"iiiiii"
 #define GAMEEVENT_PlayerCanDeclareWar			"PlayerCanDeclareWar",			"ii"
 #define GAMEEVENT_PlayerCanFoundCity			"PlayerCanFoundCity",			"iii"
 #define GAMEEVENT_PlayerCanFoundCityRegardless	"PlayerCanFoundCityRegardless",	"iii"
@@ -1095,7 +1101,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_TileFeatureChanged			"TileFeatureChanged",			"iiiii"
 #define GAMEEVENT_TileImprovementChanged		"TileImprovementChanged",		"iiiiib"
 #define GAMEEVENT_TileOwnershipChanged			"TileOwnershipChanged",			"iiii"
-#define GAMEEVENT_TileRevealed					"TileRevealed",					"iiiib"
+#define GAMEEVENT_TileRevealed					"TileRevealed",					"iiiibii"
 #define GAMEEVENT_TileRouteChanged				"TileRouteChanged",				"iiiiib"
 #define GAMEEVENT_UiDiploEvent					"UiDiploEvent",					"iiii"
 #define GAMEEVENT_UnitCanHaveAnyUpgrade			"UnitCanHaveAnyUpgrade",		"ii"
@@ -1251,6 +1257,7 @@ public:
 	MOD_OPT_DECL(GLOBAL_CS_OVERSEAS_TERRITORY);
 	MOD_OPT_DECL(GLOBAL_CS_NO_ALLIED_SKIRMISHES);
 	MOD_OPT_DECL(GLOBAL_VENICE_KEEPS_RESOURCES);
+	MOD_OPT_DECL(GLOBAL_CS_MARRIAGE_KEEPS_RESOURCES);
 	MOD_OPT_DECL(GLOBAL_NO_FOLLOWUP_FROM_CITIES);
 	MOD_OPT_DECL(GLOBAL_CAPTURE_AFTER_ATTACKING);
 	MOD_OPT_DECL(GLOBAL_NO_OCEAN_PLUNDERING);
@@ -1335,6 +1342,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_PANTHEON_RESET_FOUND);
 	MOD_OPT_DECL(BALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY);
 	MOD_OPT_DECL(BALANCE_CORE_EVENTS);
+	MOD_OPT_DECL(NO_RANDOM_TEXT_CIVS);
 
 	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES); 
 	MOD_OPT_DECL(BARBARIAN_GG_GA_POINTS);
@@ -1415,6 +1423,7 @@ public:
 	MOD_OPT_DECL(EVENTS_MINORS);
 	MOD_OPT_DECL(EVENTS_MINORS_GIFTS);
 	MOD_OPT_DECL(EVENTS_MINORS_INTERACTION);
+	MOD_OPT_DECL(EVENTS_QUESTS);
 	MOD_OPT_DECL(EVENTS_BARBARIANS);
 	MOD_OPT_DECL(EVENTS_GOODY_CHOICE);
 	MOD_OPT_DECL(EVENTS_GOODY_TECH);

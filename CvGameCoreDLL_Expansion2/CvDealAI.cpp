@@ -1893,6 +1893,28 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				iItemValue *= 9;
 				iItemValue /= 10;
 			}
+			bool bGood = false;
+			PlayerTypes eLoopPlayer;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != eOtherPlayer && eLoopPlayer != GetPlayer()->GetID())
+				{
+					if(GetPlayer()->GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer))
+					{
+						bGood = true;
+					}
+				}
+			}
+			if(bGood)
+			{
+				iItemValue *= 3;
+				iItemValue /= 2;
+			}
+			else
+			{
+				iItemValue /= 4;
+			}
 			//Are they close, or far away? We should always be a bit more eager to buy war resources from neighbors.
 			if(GetPlayer()->GetProximityToPlayer(eOtherPlayer) >= PLAYER_PROXIMITY_CLOSE)
 			{

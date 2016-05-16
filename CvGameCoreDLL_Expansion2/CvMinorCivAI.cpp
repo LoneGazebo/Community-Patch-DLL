@@ -348,6 +348,7 @@ int CvMinorCivQuest::GetInfluenceReward() const
 		iReward = 0;
 		break;
 	}
+
 	return iReward;
 }
 #if defined(MOD_BALANCE_CORE)
@@ -3686,6 +3687,9 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		m_iData2 = pCity->plot()->getY();
 		m_iData3 = pCity->getOwner();
 
+		pMinor->GetMinorCivAI()->SetTargetedCityX(m_eAssignedPlayer, pCity->getX());
+		pMinor->GetMinorCivAI()->SetTargetedCityY(m_eAssignedPlayer, pCity->getY());
+
 		const char* strTargetNameKey = pCity->getNameKey();
 
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_CAPTURE_CITY");
@@ -4839,6 +4843,8 @@ void CvMinorCivAI::Reset()
 		m_abSiphoned[iI] = false;
 		m_abCoupAttempted[iI] = false;
 		m_aiAssignedPlotAreaID[iI] = -1;
+		m_aiTargetedCityX[iI] = -1;
+		m_aiTargetedCityY[iI] = -1;
 		m_aiTurnsSincePtPWarning[iI] = -1;
 #endif
 	}
@@ -4963,6 +4969,8 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_abCoupAttempted;
 	kStream >> m_iTurnLiberated;
 	kStream >> m_aiAssignedPlotAreaID;
+	kStream >> m_aiTargetedCityX;
+	kStream >> m_aiTargetedCityY;
 	kStream >> m_aiTurnsSincePtPWarning;
 #endif
 
@@ -5058,6 +5066,8 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_abCoupAttempted;
 	kStream << m_iTurnLiberated;
 	kStream << m_aiAssignedPlotAreaID;
+	kStream << m_aiTargetedCityX;
+	kStream << m_aiTargetedCityY;
 	kStream << m_aiTurnsSincePtPWarning;
 #endif
 
@@ -10722,6 +10732,33 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 			{
 				if(pLoopCity != NULL && !pLoopCity->isCapital() && pLoopCity->plot()->isRevealed(GET_PLAYER(ePlayer).getTeam()))
 				{
+
+					bool bBad = false;
+					//Check for other minors that are currently targeting this city
+					for(int iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
+					{
+						PlayerTypes eMinor = (PlayerTypes) iTargetLoop;
+
+						if(!GET_PLAYER(eMinor).isAlive())
+							continue;
+
+						if(GetPlayer()->getTeam() == GET_PLAYER(eMinor).getTeam())
+							continue;
+
+						if(!GET_PLAYER(eMinor).isMinorCiv())
+							continue;
+
+						if(GET_PLAYER(eMinor).GetMinorCivAI()->GetTargetedCityX(ePlayer) == pLoopCity->getX() && GET_PLAYER(eMinor).GetMinorCivAI()->GetTargetedCityY(ePlayer) == pLoopCity->getY())
+						{
+							bBad = true;
+							break;
+						}
+					}
+					if(bBad)
+					{
+						continue;
+					}
+
 					int iValue = pLoopCity->getPopulation();
 					iValue += pLoopCity->getNumWorldWonders();
 					iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
@@ -10847,6 +10884,38 @@ int CvMinorCivAI::GetTargetedAreaID(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
 	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return -1;  // as defined in Reset()
 	return m_aiAssignedPlotAreaID[ePlayer];
+}
+void CvMinorCivAI::SetTargetedCityX(PlayerTypes ePlayer, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
+	if(iValue != m_aiTargetedCityX[ePlayer])
+	{
+		m_aiTargetedCityX[ePlayer] = iValue;
+	}
+}
+int CvMinorCivAI::GetTargetedCityX(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
+	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return -1;  // as defined in Reset()
+	return m_aiTargetedCityX[ePlayer];
+}
+void CvMinorCivAI::SetTargetedCityY(PlayerTypes ePlayer, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
+	if(iValue != m_aiTargetedCityY[ePlayer])
+	{
+		m_aiTargetedCityY[ePlayer] = iValue;
+	}
+}
+int CvMinorCivAI::GetTargetedCityY(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
+	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return -1;  // as defined in Reset()
+	return m_aiTargetedCityY[ePlayer];
 }
 void CvMinorCivAI::SetNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue)
 {
@@ -11067,7 +11136,7 @@ CvPlot* CvMinorCivAI::GetTargetPlot(PlayerTypes ePlayer)
 		{
 			PlayerTypes eMinor = (PlayerTypes) iTargetLoop;
 
-			if(GET_PLAYER(eMinor).isAlive())
+			if(!GET_PLAYER(eMinor).isAlive())
 				continue;
 
 			if(GetPlayer()->getTeam() == GET_PLAYER(eMinor).getTeam())
@@ -11987,7 +12056,11 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 			CvPlot* pPlot = theMap.plotByIndexUnchecked(iI);
 			if(pPlot->getOwner() == m_pPlayer->GetID())
 			{
+#if defined(MOD_API_EXTENSIONS)
+				pPlot->changeAdjacentSight(GET_PLAYER(eOldAlly).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION);
+#else
 				pPlot->changeAdjacentSight(GET_PLAYER(eOldAlly).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+#endif
 			}
 		}
 		if(eOldAlly == GC.getGame().getActivePlayer())
@@ -12010,7 +12083,11 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 			CvPlot* pPlot = theMap.plotByIndexUnchecked(iI);
 			if(pPlot->getOwner() == m_pPlayer->GetID())
 			{
+#if defined(MOD_API_EXTENSIONS)
+				pPlot->changeAdjacentSight(kNewAlly.getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION);
+#else
 				pPlot->changeAdjacentSight(kNewAlly.getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+#endif
 			}
 		}
 

@@ -395,6 +395,9 @@ CvUnit::CvUnit() :
 	, m_yieldFromKills("CvUnit::m_yieldFromKills", m_syncArchive/*, true*/)
 	, m_yieldFromBarbarianKills("CvUnit::m_yieldFromBarbarianKills", m_syncArchive/*, true*/)
 #endif
+#if defined(MOD_BALANCE_CORE)
+	, m_yieldFromScouting("CvUnit::m_yieldFromScouting", m_syncArchive/*, true*/)
+#endif
 {
 	initPromotions();
 	OBJECT_ALLOCATED
@@ -2837,14 +2840,23 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #if defined(MOD_API_UNIFIED_YIELDS)
 		m_yieldFromKills.clear();
 		m_yieldFromBarbarianKills.clear();
+#if defined(MOD_BALANCE_CORE)
+		m_yieldFromScouting.clear();
+#endif
 		
 		m_yieldFromKills.resize(NUM_YIELD_TYPES);
 		m_yieldFromBarbarianKills.resize(NUM_YIELD_TYPES);
+#if defined(MOD_BALANCE_CORE)
+		m_yieldFromScouting.resize(NUM_YIELD_TYPES);
+#endif
 
 		for(int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
 			m_yieldFromKills.setAt(i,0);
 			m_yieldFromBarbarianKills.setAt(i,0);
+#if defined(MOD_BALANCE_CORE)
+			m_yieldFromScouting.setAt(i,0);
+#endif
 		}
 #endif
 
@@ -2969,6 +2981,9 @@ void CvUnit::uninitInfos()
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_yieldFromKills.clear();
 	m_yieldFromBarbarianKills.clear();
+#endif
+#if defined(MOD_BALANCE_CORE)
+	m_yieldFromScouting.clear();
 #endif
 	m_extraUnitCombatModifier.clear();
 	m_unitClassModifier.clear();
@@ -6794,12 +6809,20 @@ void CvUnit::embark(CvPlot* pPlot)
 {
 	VALIDATE_OBJECT
 	if (canChangeVisibility())
+#if defined(MOD_API_EXTENSIONS)
+		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true), this);
+#else
 		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 
 	setEmbarked(true);
 
 	if (canChangeVisibility())
+#if defined(MOD_API_EXTENSIONS)
+		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true), this);
+#else
 		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 
 	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 	gDLL->GameplayUnitEmbark(pDllUnit.get(), true);
@@ -6817,12 +6840,20 @@ void CvUnit::disembark(CvPlot* pPlot)
 {
 	VALIDATE_OBJECT
 	if (canChangeVisibility())
+#if defined(MOD_API_EXTENSIONS)
+		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true), this);
+#else
 		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 
 	setEmbarked(false);
 
 	if (canChangeVisibility())
+#if defined(MOD_API_EXTENSIONS)
+		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true), this);
+#else
 		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 
 	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 	gDLL->GameplayUnitEmbark(pDllUnit.get(), false);
@@ -12574,19 +12605,19 @@ bool CvUnit::blastTourism()
 			if (pNotifications) 
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR");
-				localizedText << GET_PLAYER(eOwner).getCivilizationTypeKey();
+				localizedText << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
 				localizedText << iHappiness;
 				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_S");
-				localizedSummary << GET_PLAYER(eOwner).getCivilizationAdjectiveKey();
+				localizedSummary << GET_PLAYER(eOwner).getCivilizationShortDescriptionKey();
 				pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), getUnitType());
 			}
 			CvNotifications* pNotifications2 = GET_PLAYER(eOwner).GetNotifications();
 			if (pNotifications2) 
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET");
-				localizedText << GET_PLAYER(getOwner()).getCivilizationTypeKey();
+				localizedText << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
 				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET_S");
-				localizedSummary << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
+				localizedSummary << GET_PLAYER(getOwner()).getCivilizationShortDescriptionKey();
 				pNotifications2->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), eOwner);
 			}
 			if(GC.getLogging() && GC.getAILogging())
@@ -17108,7 +17139,21 @@ int CvUnit::GetNumTilesRevealedThisTurn()
 bool CvUnit::IsGainsXPFromScouting() const
 {
 	VALIDATE_OBJECT
-	return GetGainsXPFromScouting() > 0;
+	return (GetGainsXPFromScouting() > 0);
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsGainsYieldFromScouting() const
+{
+	VALIDATE_OBJECT
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		if(getYieldFromScouting((YieldTypes)iI) > 0)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -18475,7 +18520,11 @@ if (!bDoEvade)
 			}
 
 			if (canChangeVisibility())
+#if defined(MOD_API_EXTENSIONS)
+				pOldPlot->changeAdjacentSight(eOurTeam, visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true), this);
+#else
 				pOldPlot->changeAdjacentSight(eOurTeam, visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 
 			pOldPlot->area()->changeUnitsPerPlayer(getOwner(), -1);
 
@@ -18534,7 +18583,7 @@ if (!bDoEvade)
 		{
 			if (canChangeVisibility())
 #if defined(MOD_BALANCE_CORE)
-				pNewPlot->changeAdjacentSight(eOurTeam, visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true), true, this); // needs to be here so that the square is considered visible when we move into it...
+				pNewPlot->changeAdjacentSight(eOurTeam, visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true), this); // needs to be here so that the square is considered visible when we move into it...
 #else
 				pNewPlot->changeAdjacentSight(eOurTeam, visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true)); // needs to be here so that the square is considered visible when we move into it...
 #endif
@@ -18549,6 +18598,7 @@ if (!bDoEvade)
 			GC.getMap().plotManager().AddUnit(GetIDInfo(), iX, iY, iMapLayer);
 		}
 #if defined(MOD_BALANCE_CORE)
+		bool bZero = false;
 		if(IsGainsXPFromScouting())
 		{
 #if defined(MOD_UNITS_XP_TIMES_100)
@@ -18568,9 +18618,32 @@ if (!bDoEvade)
 #else
 					changeExperience(iExperience);
 #endif
+					bZero = true;
 				}
-				SetNumTilesRevealedThisTurn(0);
 			}
+		}
+		if(IsGainsYieldFromScouting())
+		{
+			bool bSea = false;
+			if(getDomainType() == DOMAIN_SEA)
+			{
+				bSea = true;
+			}
+			CvCity* pCity = GC.getMap().findCity(getX(), getY(), getOwner(), getTeam());
+
+			if(pCity == NULL)
+			{
+				pCity = GET_PLAYER(getOwner()).getCapitalCity();
+			}
+			if(pCity != NULL)
+			{
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_SCOUTING, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pCity, bSea, true, false, NO_YIELD, this);
+				bZero = true;
+			}
+		}
+		if(bZero)
+		{
+			SetNumTilesRevealedThisTurn(0);
 		}
 #endif
 		// Moving into a City (friend or foe)
@@ -20004,9 +20077,17 @@ void CvUnit::setReconPlot(CvPlot* pNewValue)
 		{
 			if (canChangeVisibility())
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
+#if defined(MOD_API_EXTENSIONS)
+				pOldPlot->changeAdjacentSight(getTeam(), reconRange(), false, getSeeInvisibleType(), getFacingDirection(true), this);
+#else
 				pOldPlot->changeAdjacentSight(getTeam(), reconRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+#endif
+#else
+#if defined(MOD_API_EXTENSIONS)
+				pOldPlot->changeAdjacentSight(getTeam(), GC.getRECON_VISIBILITY_RANGE(), false, getSeeInvisibleType(), getFacingDirection(true), *this);
 #else
 				pOldPlot->changeAdjacentSight(getTeam(), GC.getRECON_VISIBILITY_RANGE(), false, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 #endif
 			pOldPlot->changeReconCount(-1); // changeAdjacentSight() tests for getReconCount()
 		}
@@ -20024,9 +20105,17 @@ void CvUnit::setReconPlot(CvPlot* pNewValue)
 			pNewValue->changeReconCount(1); // changeAdjacentSight() tests for getReconCount()
 			if (canChangeVisibility())
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
+#if defined(MOD_API_EXTENSIONS)
+				pNewValue->changeAdjacentSight(getTeam(), reconRange(), true, getSeeInvisibleType(), getFacingDirection(true), this);
+#else
 				pNewValue->changeAdjacentSight(getTeam(), reconRange(), true, getSeeInvisibleType(), getFacingDirection(true));
+#endif
+#else
+#if defined(MOD_API_EXTENSIONS)
+				pNewValue->changeAdjacentSight(getTeam(), GC.getRECON_VISIBILITY_RANGE(), true, getSeeInvisibleType(), getFacingDirection(true), *this);
 #else
 				pNewValue->changeAdjacentSight(getTeam(), GC.getRECON_VISIBILITY_RANGE(), true, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 #endif
 		}
 	}
@@ -21214,10 +21303,18 @@ void CvUnit::changeExtraVisibilityRange(int iChange)
 	{
 		CvPlot* pkPlot = plot();
 		if (canChangeVisibility())
+#if defined(MOD_API_EXTENSIONS)
+			pkPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true), this);
+#else
 			pkPlot->changeAdjacentSight(getTeam(), visibilityRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 		m_iExtraVisibilityRange = (m_iExtraVisibilityRange + iChange);
 		if (canChangeVisibility())
+#if defined(MOD_API_EXTENSIONS)
+			pkPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true), this);
+#else
 			pkPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 	}
 }
 
@@ -21238,9 +21335,17 @@ void CvUnit::changeExtraReconRange(int iChange)
 	if(iChange != 0)
 	{
 		CvPlot* pkPlot = plot();
+#if defined(MOD_API_EXTENSIONS)
+		pkPlot->changeAdjacentSight(getTeam(), reconRange(), false, getSeeInvisibleType(), getFacingDirection(true), this);
+#else
 		pkPlot->changeAdjacentSight(getTeam(), reconRange(), false, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 		m_iExtraReconRange = (m_iExtraReconRange + iChange);
+#if defined(MOD_API_EXTENSIONS)
+		pkPlot->changeAdjacentSight(getTeam(), reconRange(), true, getSeeInvisibleType(), getFacingDirection(true), this);
+#else
 		pkPlot->changeAdjacentSight(getTeam(), reconRange(), true, getSeeInvisibleType(), getFacingDirection(true));
+#endif
 	}
 }
 #endif
@@ -24068,7 +24173,30 @@ void CvUnit::changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange)
 		setInfoBarDirty(true);
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvUnit::getYieldFromScouting(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_yieldFromScouting[eIndex];
+}
 
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeYieldFromScouting(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if(iChange != 0)
+	{
+		m_yieldFromScouting.setAt(eIndex, m_yieldFromScouting[eIndex] + iChange);
+	}
+}
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 //	--------------------------------------------------------------------------------
 int CvUnit::getYieldFromKills(YieldTypes eIndex) const
@@ -24708,6 +24836,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		{
 			changeYieldFromKills(((YieldTypes)iI), (thisPromotion.GetYieldFromKills(iI) * iChange));
 			changeYieldFromBarbarianKills(((YieldTypes)iI), (thisPromotion.GetYieldFromBarbarianKills(iI) * iChange));
+#if defined(MOD_BALANCE_CORE)
+			changeYieldFromScouting(((YieldTypes)iI), (thisPromotion.GetYieldFromScouting(iI) * iChange));
+#endif
 		}
 #endif
 

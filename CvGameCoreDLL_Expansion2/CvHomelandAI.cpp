@@ -6583,7 +6583,11 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 		//maybe wait a few turns before killing it? how to implement?
 		pUnit->kill(true);
 		if(GC.getLogging() && GC.getAILogging())
-			LogHomelandMessage(CvString("Disbanding trade unit because no suitable target"));
+		{	
+			CvString strLogString;
+			strLogString.Format("Disbanding trade unit because no suitable target");
+			LogHomelandMessage(strLogString);
+		}
 	}
 }
 

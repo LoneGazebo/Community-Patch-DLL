@@ -656,6 +656,8 @@ public:
 	int GetGainsXPFromScouting() const;
 	void ChangeGainsXPFromScouting(int iValue);
 
+	bool IsGainsYieldFromScouting() const;
+
 	int GetBarbarianCombatBonus() const;
 	void ChangeBarbarianCombatBonus(int iValue);
 #endif
@@ -1303,6 +1305,10 @@ public:
 	int getYieldFromBarbarianKills(YieldTypes eIndex) const;
 	void changeYieldFromBarbarianKills(YieldTypes eIndex, int iChange);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int getYieldFromScouting(YieldTypes eIndex) const;
+	void changeYieldFromScouting(YieldTypes eIndex, int iChange);
+#endif
 
 	int getExtraUnitCombatModifier(UnitCombatTypes eIndex) const;
 	void changeExtraUnitCombatModifier(UnitCombatTypes eIndex, int iChange);
@@ -1814,6 +1820,9 @@ protected:
 	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_extraTerrainDefensePercent;
 	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_extraFeatureAttackPercent;
 	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_extraFeatureDefensePercent;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvUnit> m_yieldFromScouting;
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	FAutoVariable<std::vector<int>, CvUnit> m_yieldFromKills;
 	FAutoVariable<std::vector<int>, CvUnit> m_yieldFromBarbarianKills;
