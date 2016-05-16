@@ -1139,23 +1139,20 @@ int CvLuaPlot::lWaterArea(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L);
 
+	int iMaxSize = 0;
+	CvArea* pMaxArea = NULL;
 	std::vector<int> areas = pkPlot->getAllAdjacentAreas();
 	for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
 	{
 		CvArea* pkArea = GC.getMap().getArea(*it);
-		if (pkArea->isWater())
+		if (pkArea->isWater() && pkArea->getNumTiles()>iMaxSize)
 		{
-			CvLuaArea::Push(L, pkArea);
-			return 1;
+			iMaxSize = pkArea->getNumTiles();
+			pMaxArea = pkArea;
 		}
 	}
 
-	CvLuaArea::Push(L, NULL);
-			return 1;
-		}
-	}
-
-	CvLuaArea::Push(L, NULL);
+	CvLuaArea::Push(L, pMaxArea);
 	return 1;
 }
 //------------------------------------------------------------------------------
