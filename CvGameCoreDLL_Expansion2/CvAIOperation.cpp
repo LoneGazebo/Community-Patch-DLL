@@ -508,7 +508,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 		{
 			if(pNavalMuster != NULL && pNavalTarget != NULL)
 			{
-				strMsg.Format("Naval Operation targeting x=%d y=%d, target of x=%d y=%d.", pNavalMuster->getX(), pNavalMuster->getY(), pNavalTarget->getX(), pNavalTarget->getY());
+				strMsg.Format("Naval Operation mustering at x=%d y=%d, target at x=%d y=%d.", pNavalMuster->getX(), pNavalMuster->getY(), pNavalTarget->getX(), pNavalTarget->getY());
 				LogOperationSpecialMessage(strMsg);
 			}
 		}
@@ -1518,7 +1518,12 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 {
 	//pDeployPlot may be null ...
 	if (!pMusterPlot || !pTargetPlot)
+	{
+		if (GC.getLogging() && GC.getAILogging())
+			LogOperationSpecialMessage("Cannot set up operation - no target or no muster!");
+
 		return false;
+	}
 
 	CvArmyAI* pArmyAI = AddArmy();
 	if(!pArmyAI)
@@ -1876,7 +1881,7 @@ CvPlot* CvAIOperationMilitary::FindBestTarget(CvPlot** ppMuster) const
 /// Constructor
 CvAIOperationOffensiveAntiBarbarian::CvAIOperationOffensiveAntiBarbarian()
 {
-	m_iUnitToRescue = NULL;
+	m_iUnitToRescue = -1;
 }
 
 /// Destructor

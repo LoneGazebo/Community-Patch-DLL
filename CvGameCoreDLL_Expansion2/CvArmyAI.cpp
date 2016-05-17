@@ -539,10 +539,16 @@ void CvArmyAI::UpdateCheckpointTurns()
 
 void CvArmyAI::RemoveStuckUnits()
 {
+	CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(GetOperationID());
+
 	for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
 	{
 		if(m_FormationEntries[iI].GetUnitID() != ARMY_NO_UNIT && m_FormationEntries[iI].GetTurnAtCheckpoint()==ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
 		{
+			CvString strMsg;
+			strMsg.Format("Removing unit %d from army %d because no path to checkpoint",m_FormationEntries[iI].GetUnitID(),GetID());
+			pOperation->LogOperationSpecialMessage(strMsg);
+
 			RemoveUnit(m_FormationEntries[iI].GetUnitID());
 		}
 	}
