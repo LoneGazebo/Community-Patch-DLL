@@ -41967,7 +41967,7 @@ void CvPlayer::updatePlotFoundValues()
 		return;
 
 	//OutputDebugString(CvString::format("updating plot found values for player %d in turn %d\n",GetID(),GC.getGame().getGameTurn()).c_str());
-	m_viPlotFoundValues.clear();
+	m_viPlotFoundValues.resize(GC.getMap().numPlots(), -1);
 
 	// Set all area fertilities to 0
 	int iLoop = 0;
@@ -41993,11 +41993,11 @@ void CvPlayer::updatePlotFoundValues()
 
 	// first pass: precalculate found values
 	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
-	m_viPlotFoundValues.resize(GC.getMap().numPlots(), -1);
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		if (pPlot->isRevealed(getTeam()))
+		//in the first turn the plot doesn't need to be visible - for map scripts
+		if (pPlot->isRevealed(getTeam()) || GC.getGame().getElapsedGameTurns()==0 )
 			m_viPlotFoundValues[iI] = pCalc->PlotFoundValue(pPlot, this);
 	}
 

@@ -534,7 +534,7 @@ void CvStartPositioner::ChopIntoTwoRegions(bool bTaller, CvStartRegion* region, 
 
 		// Move up one row at a time until we have exceeded the target fertility
 		int iNorthEdge = region->m_Boundaries.m_iSouthEdge;
-		while(uiFertilitySoFar < uiTargetFertility)
+		while(uiFertilitySoFar < uiTargetFertility && iNorthEdge <= region->m_Boundaries.m_iNorthEdge)
 		{
 			uiFertilitySoFar += ComputeRowFertility(region->m_iAreaID,
 			                                        region->m_Boundaries.m_iWestEdge, region->m_Boundaries.m_iEastEdge, iNorthEdge, iNorthEdge);
@@ -556,7 +556,7 @@ void CvStartPositioner::ChopIntoTwoRegions(bool bTaller, CvStartRegion* region, 
 
 		// Move right one column at a time until we have exceeded the target fertility
 		int iEastEdge = region->m_Boundaries.m_iWestEdge;
-		while(uiFertilitySoFar < uiTargetFertility)
+		while(uiFertilitySoFar < uiTargetFertility && iEastEdge <= region->m_Boundaries.m_iEastEdge)
 		{
 			uiFertilitySoFar += ComputeRowFertility(region->m_iAreaID,
 			                                        iEastEdge, iEastEdge, region->m_Boundaries.m_iSouthEdge, region->m_Boundaries.m_iNorthEdge);
@@ -606,7 +606,9 @@ int CvStartPositioner::ComputeRowFertility(int iAreaID, int xMin, int xMax, int 
 				// Retrieve from player 0's found value slot
 				//   (Normally shouldn't be using a hard-coded player reference, but here in the pre-game initialization it is safe to do so.
 				//    Allows us to reuse this data storage instead of jamming even more data into the CvPlot class that will never be used at run-time).
-				rtnValue += pPlot->getFoundValue((PlayerTypes)0);
+				int iValue = pPlot->getFoundValue((PlayerTypes)0);
+				if (iValue>0)
+					rtnValue += iValue;
 			}
 		}
 	}
