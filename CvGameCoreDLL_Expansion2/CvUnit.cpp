@@ -26350,13 +26350,18 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags)
 			}
 
 			// Air mission
-			if(getDomainType() == DOMAIN_AIR && GetBaseCombatStrength() == 0)
+			if(getDomainType() == DOMAIN_AIR)
 			{
-				if(canRangeStrikeAt(iX, iY))
+				if (GetBaseCombatStrength() == 0 && canRangeStrikeAt(iX, iY))
 				{
 					CvUnitCombat::AttackAir(*this, *pDestPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
 					bAttack = true;
 				}
+			}
+			// Ranged units or embarked can't do a move-attack
+			else if( isRanged() || pDestPlot->needsEmbarkation(this) )
+			{
+				return false;
 			}
 
 			// City combat
@@ -26364,17 +26369,8 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags)
 			{
 				if(GET_TEAM(getTeam()).isAtWar(pDestPlot->getPlotCity()->getTeam()))
 				{
-					if(getDomainType() != DOMAIN_AIR)
-					{
-						// Ranged units that are embarked can't do a move-attack
-						if(isRanged() && isEmbarked())
-						{
-							return false;
-						}
-
-						CvUnitCombat::AttackCity(*this, *pDestPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
-						bAttack = true;
-					}
+					CvUnitCombat::AttackCity(*this, *pDestPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
+					bAttack = true;
 				}
 			}
 
@@ -26383,19 +26379,11 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags)
 			{
 				// if there are no defenders, do not attack
 				UnitHandle pBestDefender = pDestPlot->getBestDefender(NO_PLAYER, getOwner(), this, true);
-				if(!pBestDefender)
+				if(pBestDefender)
 				{
-					return false;
+					bAttack = true;
+					CvUnitCombat::Attack(*this, *pDestPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
 				}
-
-				// Ranged units that are embarked can't do a move-attack
-				if(isRanged() && isEmbarked())
-				{
-					return false;
-				}
-
-				bAttack = true;
-				CvUnitCombat::Attack(*this, *pDestPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
 			}
 
 			// Barb camp here that was attacked?
