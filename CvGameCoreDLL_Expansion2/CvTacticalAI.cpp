@@ -4563,11 +4563,6 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 	m_OperationUnits.clear();
 	m_GeneralsToMove.clear();
 
-	pThisArmy->UpdateCheckpointTurns();
-	pThisArmy->RemoveStuckUnits();
-	if (pOperation->ShouldAbort())
-		return;
-
 	ClearEnemiesNearArmy(pThisArmy);
 
 	// RECRUITING
@@ -4673,10 +4668,6 @@ void CvTacticalAI::PlotArmyMovesRoaming(CvArmyAI* pThisArmy)
 		return;
 
 	m_OperationUnits.clear();
-	pThisArmy->UpdateCheckpointTurns();
-	pThisArmy->RemoveStuckUnits();
-	if (pOperation->ShouldAbort())
-		return;
 
 	ClearEnemiesNearArmy(pThisArmy);
 

@@ -555,6 +555,7 @@ public:
 	virtual bool RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy);
 	virtual bool VerifyTarget(CvArmyAI* pArmy);
 	virtual bool IsEscorted();
+	virtual bool WillBeEscorted();
 
 	//we have arrived. subclass needs to decide what happens
 	virtual bool PerformMission(CvUnit* pUnit) = 0;

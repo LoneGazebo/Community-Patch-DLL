@@ -133,14 +133,12 @@ public:
 	int GetArea() const;
 	DomainTypes GetDomainType() const;
 	void SetDomainType(DomainTypes domainType);
-	bool AreAllInWater();
 
 	// Goal accessors
 	void SetGoalPlot(CvPlot* pGoalPlot);
 	CvPlot* GetGoalPlot() const;
 	int GetGoalX() const;
 	int GetGoalY() const;
-	void SetGoalXY(int iX, int iY);
 
 	// Unit handling
 	void AddUnit(int iUnitId, int iSlotNum);
@@ -155,9 +153,6 @@ public:
 	// Per turn processing
 	void DoTurn();
 	bool DoDelayedDeath();
-
-	CvPlot* DetectNearbyEnemy(PlayerTypes eEnemy, bool bNaval);
-	CvPlot* CheckTargetReached(PlayerTypes eEnemy, bool bNavalOp, int iMaxDistance);
 
 protected:
 	int m_iID;

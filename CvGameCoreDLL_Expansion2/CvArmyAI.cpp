@@ -527,7 +527,8 @@ void CvArmyAI::UpdateCheckpointTurns()
 			CvPlot* pCurrentPlot = GC.getMap().plot(GetX(), GetY());
 			if(pUnit && pCurrentPlot)
 			{
-				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pCurrentPlot, false, true, 12);
+				//be lenient here, for some ops the muster point may be far away and intermittendly occupied by foreign units ...
+				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pCurrentPlot, CvUnit::MOVEFLAG_APPROXIMATE_TARGET | CvUnit::MOVEFLAG_IGNORE_STACKING, 12);
 				if(iTurnsToReachCheckpoint < MAX_INT)
 					SetEstimatedTurn(iI, iTurnsToReachCheckpoint);
 				else
@@ -682,24 +683,6 @@ void CvArmyAI::SetDomainType(DomainTypes domainType)
 	m_eDomainType = domainType;
 }
 
-/// Everyone in the water now?
-bool CvArmyAI::AreAllInWater()
-{
-	UnitHandle pUnit;
-
-	pUnit = GetFirstUnit();
-	while(pUnit)
-	{
-		if(!pUnit->plot()->isWater())
-		{
-			return false;
-		}
-		pUnit = GetNextUnit();
-	}
-
-	return true;
-}
-
 // GOAL ACCESSORS
 
 /// Retrieve target plot for army movement
@@ -737,12 +720,6 @@ int CvArmyAI::GetGoalY() const
 	return m_iGoalY;
 }
 
-/// Set target for army movement using X, Y coordinates
-void CvArmyAI::SetGoalXY(int iX, int iY)
-{
-	m_iGoalX = iX;
-	m_iGoalY = iY;
-}
 // UNIT HANDLING
 
 /// Add a unit to our army (and we know which slot)
@@ -768,7 +745,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 	CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());
 	if(pMusterPlot)
 	{
-		int iTurnsToReachCheckpoint = pThisUnit->TurnsToReachTarget(pMusterPlot, true, true);
+		int iTurnsToReachCheckpoint = pThisUnit->TurnsToReachTarget(pMusterPlot, CvUnit::MOVEFLAG_APPROXIMATE_TARGET | CvUnit::MOVEFLAG_IGNORE_STACKING, 12);
 		if(iTurnsToReachCheckpoint < MAX_INT)
 		{
 			SetEstimatedTurn(iSlotNum, iTurnsToReachCheckpoint);
@@ -947,77 +924,6 @@ bool CvArmyAI::DoDelayedDeath()
 	}
 
 	return false;
-}
-
-CvPlot* CvArmyAI::DetectNearbyEnemy(PlayerTypes eEnemy, bool bNaval)
-{
-	UnitHandle pUnit = GetFirstUnit();
-	while(pUnit)
-	{
-		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
-		{
-			CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDirectionLoop));
-			if(pAdjacentPlot != NULL && pAdjacentPlot->isWater()==bNaval && pAdjacentPlot->getOwner() == eEnemy)
-			{
-				UnitHandle pOtherUnit = pAdjacentPlot->getBestDefender(eEnemy);
-				if(pOtherUnit)
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Ran into enemy unit during attack (x=%d y=%d). Need to declare war to continue!", pAdjacentPlot->getX(), pAdjacentPlot->getY());
-						GET_PLAYER(m_eOwner).getAIOperation(m_iOperationID)->LogOperationSpecialMessage(strMsg);
-					}
-
-					return pAdjacentPlot;
-				}
-			}
-		}
-		pUnit = GetNextUnit();
-	}
-
-	return NULL;
-}
-
-CvPlot* CvArmyAI::CheckTargetReached(PlayerTypes eEnemy, bool bNavalOp, int iMaxDistance)
-{
-	//check if we're at the target
-	CvPlot *pTargetPlot = GetGoalPlot();
-	CvPlot *pCenterOfMass = GetCenterOfMass( GetDomainType() );
-	if(pCenterOfMass && pTargetPlot && plotDistance(*pCenterOfMass,*pTargetPlot) <= iMaxDistance)
-		return pTargetPlot;
-
-	//check early termination if we ran into the enemy
-	if ( GET_PLAYER(m_eOwner).IsAtWarWith(eEnemy) )
-	{
-		CvPlot*	pEnemyPlot = DetectNearbyEnemy(eEnemy, bNavalOp);
-		if(pEnemyPlot != NULL)
-		{
-			CvCity* pCity = pEnemyPlot->getWorkingCity();
-			if(pCity != NULL)
-			{
-				if (bNavalOp && pCity->isAdjacentToArea(pTargetPlot->getArea()))
-					pEnemyPlot = pCity->plot();
-
-				if (!bNavalOp && pCity->getArea()==pTargetPlot->getArea())
-					pEnemyPlot = pCity->plot();
-
-				if (pEnemyPlot!=GetGoalPlot())
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Switching target from %d,%d to closest city at %d,%d", GetGoalX(), GetGoalY(), pEnemyPlot->getX(), pEnemyPlot->getY() );
-						GET_PLAYER(m_eOwner).getAIOperation(m_iOperationID)->LogOperationSpecialMessage(strMsg);
-					}
-				}
-
-				return pEnemyPlot;
-			}
-		}
-	}
-
-	return NULL;
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvArmyAI& readFrom)

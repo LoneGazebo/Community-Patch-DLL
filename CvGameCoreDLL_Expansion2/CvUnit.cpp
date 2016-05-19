@@ -5030,7 +5030,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 				{
 					CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
 
-					if(loopUnit && GET_TEAM(getTeam()).isAtWar(plot.getUnitByIndex(iUnitLoop)->getTeam()))
+					if(loopUnit && GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
 					{
 						bEnemyUnitPresent = true;
 						if(!loopUnit->IsDead() && loopUnit->isInCombat())
@@ -28948,6 +28948,23 @@ bool CvUnit::CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUni
 /// How many turns will it take a unit to get to a target plot (returns MAX_INT if can't reach at all; returns 0 if makes it in 1 turn and has movement left)
 int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bIgnoreStacking, int iTargetTurns)
 {
+	int iFlags = 0;
+
+	if(bIgnoreUnits)
+	{
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_ZOC;
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_DANGER;
+	}
+
+	if(bIgnoreStacking) //ignore our own units
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
+
+	return TurnsToReachTarget(pTarget,iFlags,iTargetTurns);
+}
+
+int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, int iFlags, int iTargetTurns)
+{
 	if(!pTarget)
 		return INT_MAX;
 
@@ -29000,18 +29017,6 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bI
 	int rtnValue = MAX_INT;
 	if(pTarget == plot())
 		return 0;
-
-	int iFlags = 0;
-
-	if(bIgnoreUnits)
-	{
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_ZOC;
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_DANGER;
-	}
-
-	if(bIgnoreStacking) //ignore our own units
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
 
 	//normal handling: use the path cache of the unit, so we can possibly re-use the path later
 	if (!GeneratePath(pTarget, iFlags, iTargetTurns, &rtnValue) )
