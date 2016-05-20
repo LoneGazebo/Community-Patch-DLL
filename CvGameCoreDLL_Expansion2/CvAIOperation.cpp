@@ -485,6 +485,10 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 	if (!pMusterPlot || !pTargetPlot)
 		return false;
 
+	//anything to do?
+	if (m_viListOfUnitsWeStillNeedToBuild.empty())
+		return true;
+
 	bool rtnValue = true;
 	bool success;
 	std::deque<OperationSlot>::iterator it;
@@ -549,6 +553,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 
 			if (UnitChoices.size()==0)
 				return false;
+
 			UnitChoices.SortItems();
 
 			for (it = secondList.begin(); it != secondList.end(); ++it)
@@ -609,6 +614,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 
 		if (UnitChoices.size()==0)
 			return false;
+
 		UnitChoices.SortItems();
 
 		for (it = secondList.begin(); it != secondList.end(); ++it)

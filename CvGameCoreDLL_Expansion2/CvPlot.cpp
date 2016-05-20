@@ -13724,7 +13724,7 @@ bool CvPlot::canPlaceUnit(PlayerTypes ePlayer) const
 	{
 		TeamTypes ePlotTeam = GET_PLAYER(getOwner()).getTeam();
 		TeamTypes eTestTeam = GET_PLAYER(ePlayer).getTeam();
-		if (ePlotTeam!=eTestTeam && !!GET_TEAM(ePlotTeam).isMinorCiv() && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eTestTeam) && !GET_TEAM(eTestTeam).isAtWar(ePlotTeam))
+		if (ePlotTeam!=eTestTeam && !GET_TEAM(ePlotTeam).isMinorCiv() && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eTestTeam) && !GET_TEAM(eTestTeam).isAtWar(ePlotTeam))
 			return false;
 	}
 
