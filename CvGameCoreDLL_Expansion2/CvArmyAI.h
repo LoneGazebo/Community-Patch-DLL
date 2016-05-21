@@ -151,8 +151,7 @@ public:
 	UnitHandle GetFirstUnitInDomain(DomainTypes eDomain);
 
 	// Per turn processing
-	void DoTurn();
-	bool DoDelayedDeath();
+	bool IsDelayedDeath();
 
 protected:
 	int m_iID;

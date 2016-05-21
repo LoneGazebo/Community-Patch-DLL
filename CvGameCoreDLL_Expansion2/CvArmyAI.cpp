@@ -89,6 +89,12 @@ void CvArmyAI::Kill()
 	}
 
 	m_FormationEntries.clear();
+
+	CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(m_iOperationID);
+	if (pOperation)
+		pOperation->DeleteArmyAI(m_iID);
+
+	GET_PLAYER(GetOwner()).deleteArmyAI(m_iID);
 }
 
 /// Read from binary data store
@@ -528,7 +534,8 @@ void CvArmyAI::UpdateCheckpointTurns()
 			if(pUnit && pCurrentPlot)
 			{
 				//be lenient here, for some ops the muster point may be far away and intermittendly occupied by foreign units ...
-				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pCurrentPlot, CvUnit::MOVEFLAG_APPROXIMATE_TARGET | CvUnit::MOVEFLAG_IGNORE_STACKING, 12);
+				int iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
+				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pCurrentPlot, iFlags, GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
 				if(iTurnsToReachCheckpoint < MAX_INT)
 					SetEstimatedTurn(iI, iTurnsToReachCheckpoint);
 				else
@@ -745,7 +752,8 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 	CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());
 	if(pMusterPlot)
 	{
-		int iTurnsToReachCheckpoint = pThisUnit->TurnsToReachTarget(pMusterPlot, CvUnit::MOVEFLAG_APPROXIMATE_TARGET | CvUnit::MOVEFLAG_IGNORE_STACKING, 12);
+		int iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
+		int iTurnsToReachCheckpoint = pThisUnit->TurnsToReachTarget(pMusterPlot, iFlags, GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
 		if(iTurnsToReachCheckpoint < MAX_INT)
 		{
 			SetEstimatedTurn(iSlotNum, iTurnsToReachCheckpoint);
@@ -907,23 +915,10 @@ UnitHandle CvArmyAI::GetFirstUnitInDomain(DomainTypes eDomain)
 
 // PER TURN PROCESSING
 
-/// Process another turn for the army
-void CvArmyAI::DoTurn()
+/// does this army need to be deleted
+bool CvArmyAI::IsDelayedDeath()
 {
-	// do something with the army
-	DoDelayedDeath();
-}
-
-/// Kill off the army if waiting to die (returns true if army was killed)
-bool CvArmyAI::DoDelayedDeath()
-{
-	if(GetNumSlotsFilled() == 0 && m_eAIState != ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
-	{
-		Kill();
-		return true;
-	}
-
-	return false;
+	return (GetNumSlotsFilled() == 0 && m_eAIState != ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvArmyAI& readFrom)

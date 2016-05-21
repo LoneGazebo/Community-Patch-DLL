@@ -1527,7 +1527,7 @@ void CvGame::assignStartingPlots()
 	pPositioner->AssignStartingLocations();
 }
 
-#if defined(MOD_CORE_DEBUGGING)
+#if defined(EXTERNAL_PAUSING)
 bool ExternalPause()
 {
 	bool bPause = false;
@@ -1607,69 +1607,20 @@ void CvGame::update()
 				gDLL->AutoSave(true);
 			}
 
-#if defined(MOD_CORE_DEBUGGING)
+#if defined(EXTERNAL_PAUSING)
+			bool bExternalPause = ExternalPause();
+#else
 			bool bExternalPause = false;
-			if(MOD_CORE_DEBUGGING)
-			{
-				bExternalPause = ExternalPause();
-				if ( !bExternalPause && getNumGameTurnActive()==0 )
-				{
-					if(gDLL->CanAdvanceTurn())
-						doTurn();
-				}
-			}
-			else
-			{
 #endif
+
 			// If there are no active players, move on to the AI
-			if(getNumGameTurnActive() == 0)
+			if ( !bExternalPause && getNumGameTurnActive()==0 )
 			{
 				if(gDLL->CanAdvanceTurn())
 					doTurn();
 			}
-#if defined(MOD_CORE_DEBUGGING)
-			}
-#endif
 
-#if defined(MOD_CORE_DEBUGGING)
-			if(MOD_CORE_DEBUGGING)
-			{
-				if( !isPaused() && !bExternalPause )
-				{
-					updateScore();
-
-					updateWar();
-
-					updateMoves();
-
-					if(!isPaused())	// And again, the player can change after the automoves and that can pause the game
-					{
-						updateTimers();
-
-						UpdatePlayers(); // slewis added!
-
-						testAlive();
-
-						if((getAIAutoPlay() == 0) && !(gDLL->GetAutorun()) && GAMESTATE_EXTENDED != getGameState())
-						{
-							if(CvPreGame::slotStatus(getActivePlayer()) != SS_OBSERVER && !GET_PLAYER(getActivePlayer()).isAlive())
-							{
-								setGameState(GAMESTATE_OVER);
-							}
-						}
-
-						CheckPlayerTurnDeactivate();
-
-						changeTurnSlice(1);
-
-						gDLL->FlushTurnReminders();
-					}
-				}
-			}
-			else
-			{
-#endif
-			if(!isPaused())	// Check for paused again, the doTurn call might have called something that paused the game and we don't want an update to sneak through
+			if(!isPaused() && !bExternalPause)	// Check for paused again, the doTurn call might have called something that paused the game and we don't want an update to sneak through
 			{
 				updateScore();
 
@@ -1705,9 +1656,7 @@ void CvGame::update()
 					gDLL->FlushTurnReminders();
 				}
 			}
-#if defined(MOD_CORE_DEBUGGING)
-			}
-#endif
+
 			PlayerTypes activePlayerID = getActivePlayer();
 			const CvPlayer& activePlayer = GET_PLAYER(activePlayerID);
 			if(NO_PLAYER != activePlayerID && activePlayer.getAdvancedStartPoints() >= 0 && !GC.GetEngineUserInterface()->isInAdvancedStart())

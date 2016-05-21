@@ -4304,7 +4304,7 @@ bool CvMinorCivQuest::DoFinishQuest()
 		int iOperationID;
 		if(GET_PLAYER(m_eAssignedPlayer).haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID, pMinor->GetID()))
 		{
-			GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->Kill(AI_ABORT_NO_TARGET);
+			GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->SetToAbort(AI_ABORT_NO_TARGET);
 		}
 	}
 	// Rebellion
@@ -4324,7 +4324,7 @@ bool CvMinorCivQuest::DoFinishQuest()
 		int iOperationID;
 		if(GET_PLAYER(m_eAssignedPlayer).haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID, pMinor->GetID()))
 		{
-			GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->Kill(AI_ABORT_NO_TARGET);
+			GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->SetToAbort(AI_ABORT_NO_TARGET);
 		}
 	}
 #endif
@@ -4541,7 +4541,7 @@ bool CvMinorCivQuest::DoCancelQuest()
 			int iOperationID;
 			if(GET_PLAYER(m_eAssignedPlayer).haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID, pMinor->GetID()))
 			{
-				GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->Kill(AI_ABORT_NO_TARGET);
+				GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->SetToAbort(AI_ABORT_NO_TARGET);
 			}
 		}
 
@@ -4575,7 +4575,7 @@ bool CvMinorCivQuest::DoCancelQuest()
 			int iOperationID;
 			if(GET_PLAYER(m_eAssignedPlayer).haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID, pMinor->GetID()))
 			{
-				GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->Kill(AI_ABORT_NO_TARGET);
+				GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->SetToAbort(AI_ABORT_NO_TARGET);
 			}
 		}
 #endif

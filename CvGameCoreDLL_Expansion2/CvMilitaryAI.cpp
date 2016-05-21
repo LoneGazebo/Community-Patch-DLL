@@ -3941,17 +3941,17 @@ void CvMilitaryAI::UpdateOperations()
 			bFoundOneToDelete = false;
 			if(m_pPlayer->haveAIOperationOfType(AI_OPERATION_DESTROY_BARBARIAN_CAMP, &iOperationID))
 			{
-				m_pPlayer->getAIOperation(iOperationID)->Kill(AI_ABORT_WAR_STATE_CHANGE);
+				m_pPlayer->getAIOperation(iOperationID)->SetToAbort(AI_ABORT_WAR_STATE_CHANGE);
 				bFoundOneToDelete = true;
 			}
 			if(m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_BOMBARDMENT, &iOperationID, BARBARIAN_PLAYER))
 			{
-				m_pPlayer->getAIOperation(iOperationID)->Kill(AI_ABORT_WAR_STATE_CHANGE);
+				m_pPlayer->getAIOperation(iOperationID)->SetToAbort(AI_ABORT_WAR_STATE_CHANGE);
 				bFoundOneToDelete = true;
 			}
 			if(!bWillingToAcceptRisk && m_pPlayer->haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID))
 			{
-				m_pPlayer->getAIOperation(iOperationID)->Kill(AI_ABORT_WAR_STATE_CHANGE);
+				m_pPlayer->getAIOperation(iOperationID)->SetToAbort(AI_ABORT_WAR_STATE_CHANGE);
 				bFoundOneToDelete = true;
 			}
 		}
@@ -3989,7 +3989,7 @@ void CvMilitaryAI::UpdateOperations()
 							bFoundOneToDelete = false;
 							if(m_pPlayer->haveAIOperationOfType(iOperation, &iOperationID, eLoopPlayer))
 							{
-								m_pPlayer->getAIOperation(iOperationID)->Kill(AI_ABORT_WAR_STATE_CHANGE);
+								m_pPlayer->getAIOperation(iOperationID)->SetToAbort(AI_ABORT_WAR_STATE_CHANGE);
 								bFoundOneToDelete = true;
 							}
 						}
@@ -4304,7 +4304,7 @@ void CvMilitaryAI::UpdateOperations()
 								bFoundOneToDelete = false;
 								if(m_pPlayer->haveAIOperationOfType(iOperation, &iOperationID, eLoopPlayer))
 								{
-									m_pPlayer->getAIOperation(iOperationID)->Kill(AI_ABORT_WAR_STATE_CHANGE);
+									m_pPlayer->getAIOperation(iOperationID)->SetToAbort(AI_ABORT_WAR_STATE_CHANGE);
 									bFoundOneToDelete = true;
 								}
 							}
@@ -4317,7 +4317,7 @@ void CvMilitaryAI::UpdateOperations()
 								bFoundOneToDelete = false;
 								if(m_pPlayer->haveAIOperationOfType(iOperation, &iOperationID))
 								{
-									m_pPlayer->getAIOperation(iOperationID)->Kill(AI_ABORT_WAR_STATE_CHANGE);
+									m_pPlayer->getAIOperation(iOperationID)->SetToAbort(AI_ABORT_WAR_STATE_CHANGE);
 									bFoundOneToDelete = true;
 								}
 							}
@@ -4391,7 +4391,7 @@ void CvMilitaryAI::UpdateOperations()
 							bFoundOneToDelete = false;
 							if(m_pPlayer->haveAIOperationOfType(iOperation, &iOperationID, eLoopPlayer))
 							{
-								m_pPlayer->getAIOperation(iOperationID)->Kill(AI_ABORT_WAR_STATE_CHANGE);
+								m_pPlayer->getAIOperation(iOperationID)->SetToAbort(AI_ABORT_WAR_STATE_CHANGE);
 								bFoundOneToDelete = true;
 							}
 						}
@@ -4424,13 +4424,14 @@ void CvMilitaryAI::UpdateOperations()
 			{
 				continue;
 			}
+
 			bool bFoundOneToDelete = true;
 			while(bFoundOneToDelete)
 			{
 				bFoundOneToDelete = false;
 				if(m_pPlayer->haveAIOperationOfType(iOperation, &iOperationID))
 				{
-					m_pPlayer->getAIOperation(iOperationID)->Kill(AI_ABORT_WAR_STATE_CHANGE);
+					m_pPlayer->getAIOperation(iOperationID)->SetToAbort(AI_ABORT_WAR_STATE_CHANGE);
 					bFoundOneToDelete = true;
 				}
 			}
@@ -4484,14 +4485,12 @@ void CvMilitaryAI::MakeEmergencyPurchases()
 {
 	AI_PERF_FORMAT("Military-AI-perf.csv", ("MakeEmergencyPurchases, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
-	CvAIOperation* nextOp;
-
 	// Are we winning all the wars we are in?
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	if(!IsUsingStrategy(eStrategyAtWar) || m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_WINNING)
 	{
 		// Is there an operation waiting for one more unit?
-		nextOp = m_pPlayer->getFirstAIOperation();
+		CvAIOperation* nextOp = m_pPlayer->getFirstAIOperation();
 		while(nextOp != NULL)
 		{
 			if(nextOp->HasOneMoreSlotToFill())
@@ -6493,17 +6492,10 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 	return iNumUnitsWanted;
 }
 
-CvPlot* MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArmyAI *pArmy)
+CvPlot* MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget)
 {
 	if (!pTarget)
 		return NULL;
-
-	CvPlot *pCoastalPlot = NULL;
-	UnitHandle pInitialUnit;
-	int iBestDistance = MAX_INT;
-	//if we have an army, try to get a unit and hit the pathfinder
-	if (pArmy)
-		pInitialUnit = GET_PLAYER(pArmy->GetOwner()).getUnit( pArmy->GetFirstUnitID() );
 
 	//change iteration order, don't return the same plot every time
 	//don't use the RNG here: too many calls in the log and diplo quirks can lead to desyncs
@@ -6513,37 +6505,15 @@ CvPlot* MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArm
 		{ 0,6,3,5,2,1,4,18,15,16,14,12,17,8,7,10,9,13,11 } };
 	int iShuffleType = GC.getGame().getSmallFakeRandNum(3);
 
-	// Find a coastal water tile adjacent to enemy city
-	if (pInitialUnit)
+	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
 	{
-		if (pInitialUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
+		CvPlot* pAdjacentPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), aiShuffle[iShuffleType][iI]);
+		if(pAdjacentPlot != NULL && pAdjacentPlot->isShallowWater() && //coastal
+			pAdjacentPlot->getFeatureType()==NO_FEATURE && //no ice
+			pAdjacentPlot->isLake()==false && //no lake
+			pAdjacentPlot->countPassableNeighbors(true)>2) //no bays
 		{
-			for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
-			{
-				CvPlot* pAdjacentPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), aiShuffle[iShuffleType][iI]);
-				if(pAdjacentPlot != NULL && pAdjacentPlot->isWater() && !pAdjacentPlot->isLake() && pAdjacentPlot->canPlaceUnit(pArmy->GetOwner()))
-				{
-					int iDistance = plotDistance(pInitialUnit->getX(), pInitialUnit->getY(), pTarget->getX(), pTarget->getY());
-					if (iDistance < iBestDistance)
-					{
-						iBestDistance = iDistance;
-						pCoastalPlot = pAdjacentPlot;
-					}
-				}
-			}
-
-			return pCoastalPlot;
-		}
-		else
-			return NULL;
-	}
-	else
-	{
-		for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
-		{
-			CvPlot* pAdjacentPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), aiShuffle[iShuffleType][iI]);
-			if(pAdjacentPlot != NULL && pAdjacentPlot->isWater() && !pAdjacentPlot->isLake() && pAdjacentPlot->canPlaceUnit(NO_PLAYER))
-				return pAdjacentPlot;
+			return pAdjacentPlot;
 		}
 	}
 
@@ -6635,9 +6605,9 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 			{
 				//make sure that both plots are water
 				if (!pMuster->isWater())
-					pMuster = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster,NULL);
+					pMuster = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster);
 				if (!pTarget->isWater())
-					pTarget = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget,NULL);
+					pTarget = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget);
 
 				SPathFinderUserData data( pPlayer->GetID(), PT_GENERIC_SAME_AREA, eEnemy );
 				data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
@@ -6677,7 +6647,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 		CvPlot* pAdjacentPlot = NULL;
 		if(pMuster->isCoastalLand())
 		{
-			pAdjacentPlot = GetCoastalPlotAdjacentToTarget(pMuster, NULL);
+			pAdjacentPlot = GetCoastalPlotAdjacentToTarget(pMuster);
 			if(pAdjacentPlot != NULL)
 			{
 				pMuster = pAdjacentPlot;
@@ -6689,7 +6659,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 		}
 		if(pTarget->isCoastalLand())
 		{
-			pAdjacentPlot = GetCoastalPlotAdjacentToTarget(pTarget, NULL);
+			pAdjacentPlot = GetCoastalPlotAdjacentToTarget(pTarget);
 			if(pAdjacentPlot != NULL)
 			{
 				pTarget = pAdjacentPlot;

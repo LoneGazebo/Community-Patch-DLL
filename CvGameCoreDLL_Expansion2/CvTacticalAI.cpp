@@ -439,35 +439,6 @@ void CvTacticalAI::CommandeerUnits()
 	// Loop through our units
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-		if(!pLoopUnit)
-		{
-			continue;
-		}
-
-		//make sure there are no stale armies ...
-		int iArmyID = pLoopUnit->getArmyID();
-		if (iArmyID!=-1)
-		{
-			CvArmyAI* pArmy = m_pPlayer->getArmyAI(iArmyID);
-			if (pArmy)
-			{
-				CvAIOperation* pAIOp = m_pPlayer->getAIOperation(pArmy->GetOperationID());
-				if (!pAIOp)
-				{
-					CvString warning = CvString::format("fixed inconsistent state: army %d has no AI operation!\n",iArmyID);
-					OutputDebugString(warning.c_str());
-					pArmy->Kill();
-					m_pPlayer->deleteArmyAI(iArmyID);
-				}
-			}
-			else
-			{
-				CvString warning = CvString::format("fixed inconsistent state: invalid army %d!\n",iArmyID);
-				OutputDebugString(warning.c_str());
-				pLoopUnit->setArmyID(-1);
-			}
-		}
-
 		// debugging hook
 		if (g_currentUnitToTrack == pLoopUnit->GetID())
 		{
@@ -500,7 +471,7 @@ void CvTacticalAI::CommandeerUnits()
 				//need to split from army?
 				if (pLoopUnit->getArmyID() != -1)
 				{
-					CvArmyAI* pArmy = m_pPlayer->getArmyAI(iArmyID);
+					CvArmyAI* pArmy = m_pPlayer->getArmyAI(pLoopUnit->getArmyID());
 					if (pArmy)
 					{
 						if(pArmy->GetArmyAIState() != ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
@@ -2816,22 +2787,23 @@ void CvTacticalAI::PlotBarbarianPlunderTradeUnitMove(DomainTypes eDomain)
 /// Process units that we recruited out of operational moves.
 void CvTacticalAI::PlotOperationalArmyMoves()
 {
+	std::vector<int> opsToKill;
+
 	// move all units in operations
-	CvAIOperation* nextOp = NULL;
-	nextOp = m_pPlayer->getFirstAIOperation();
+	CvAIOperation* nextOp = m_pPlayer->getFirstAIOperation();
 	while(nextOp != NULL)
 	{
 		nextOp->DoTurn();
+
+		if (nextOp->ShouldAbort())
+			opsToKill.push_back(nextOp->GetID());
+
 		nextOp = m_pPlayer->getNextAIOperation();
 	}
 
-	//clean up
-	nextOp = m_pPlayer->getFirstAIOperation();
-	while(nextOp != NULL)
-	{
-		nextOp->DoDelayedDeath();
-		nextOp = m_pPlayer->getNextAIOperation();
-	}
+	//clean up - have to do this in two steps so the iterator does not get invalidated
+	for (size_t i=0; i<opsToKill.size(); i++)
+		m_pPlayer->getAIOperation(opsToKill[i])->Kill();
 }
 
 /// Assigns units to pillage enemy improvements
@@ -10012,7 +9984,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 			{
 				if(pUnit->isRanged())
 				{
-					CvPlot* pNewPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pPlot, NULL);
+					CvPlot* pNewPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pPlot);
 					//No water plot? Ignore.
 					if(pNewPlot == NULL)
 					{

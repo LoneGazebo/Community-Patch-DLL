@@ -177,21 +177,43 @@ void CvPlayerAI::AI_doTurnPost()
 void CvPlayerAI::AI_doTurnUnitsPre()
 {
 	int iLoop;
-	CvArmyAI* pLoopArmyAI;
-	CvUnit* pLoopUnit;
 
-	//kill off anything any remains from the previous turn
-	for(pLoopArmyAI = firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = nextArmyAI(&iLoop))
+	//order is important. when a unit was killed, an army might become invalid, which might invalidate an operation
+
+	//unit cleanup - this should probably also be done in a two-pass scheme like below
+	//but since it's too involved to change that now, we do the ugly loop to make sure we didn't skip a unit
+	bool bKilledAtLeastOne = false;
+	do 
 	{
-		pLoopArmyAI->DoDelayedDeath();
+		bKilledAtLeastOne = false;
+		for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+			bKilledAtLeastOne |= pLoopUnit->doDelayedDeath();
+	}
+	while (bKilledAtLeastOne);
+
+	//army cleanup
+	std::vector<int> itemsToDelete;
+	for(CvArmyAI* pLoopArmyAI = firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = nextArmyAI(&iLoop))
+		if (pLoopArmyAI->IsDelayedDeath())
+			itemsToDelete.push_back(pLoopArmyAI->GetID());
+
+	for (size_t i=0; i<itemsToDelete.size(); i++)
+		getArmyAI(itemsToDelete[i])->Kill();
+
+	//operation cleanup
+	itemsToDelete.clear();
+	CvAIOperation* nextOp = getFirstAIOperation();
+	while(nextOp)
+	{
+		if (nextOp->ShouldAbort())
+			itemsToDelete.push_back(nextOp->GetID());
+
+		nextOp = getNextAIOperation();
 	}
 
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
-	{
-		pLoopUnit->doDelayedDeath();
-	}
+	for (size_t i=0; i<itemsToDelete.size(); i++)
+		getAIOperation(itemsToDelete[i])->Kill();
 }
-
 
 void CvPlayerAI::AI_doTurnUnitsPost()
 {
@@ -990,7 +1012,7 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(int iAreaID)
 				{
 					if(pCity && pCity->isCoastal())
 					{
-						CvPlot* pPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pCity->plot(), NULL);
+						CvPlot* pPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pCity->plot());
 						if(pPlot != NULL)
 						{
 							iAreaID = pPlot->getArea();

@@ -220,9 +220,8 @@ public:
 	virtual int  PercentFromMusterPointToTarget();
 	virtual bool ShouldAbort();
 	virtual void SetToAbort(AIOperationAbortReason eReason);
-	virtual void Kill(AIOperationAbortReason eReason );
+	virtual void Kill();
 	virtual void DoTurn();
-	virtual bool DoDelayedDeath();
 	virtual void Move();
 
 	virtual void BuildListOfUnitsWeStillNeedToBuild();
@@ -247,7 +246,7 @@ public:
 	virtual void Write(FDataStream& kStream) const;
 
 	void LogOperationStart();
-	void LogOperationStatus();
+	void LogOperationStatus(bool bPreTurn);
 	void LogOperationSpecialMessage(const CvString& strMsg);
 	void LogOperationEnd();
 

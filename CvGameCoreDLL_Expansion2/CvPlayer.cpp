@@ -34347,6 +34347,7 @@ CvUnit* CvPlayer::nextUnit(int* pIterIdx, bool bRev)
 		(*pIterIdx)++;
 	return m_units.GetAt(*pIterIdx);
 }
+
 #if defined(MOD_BALANCE_CORE)
 CvUnit* CvPlayer::nextUnit(const CvUnit* pCurrent, bool bRev)
 {
@@ -34588,7 +34589,7 @@ bool CvPlayer::haveAIOperationOfType(int iOperationType, int* piID /* optional r
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
-		if(pThisOperation->GetOperationType() == iOperationType)
+		if(pThisOperation->GetOperationType() == iOperationType && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if(eTargetPlayer == NO_PLAYER || eTargetPlayer == pThisOperation->GetEnemy())
 			{
@@ -34621,7 +34622,7 @@ int CvPlayer::numOperationsOfType(int iOperationType)
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
-		if(pThisOperation->GetOperationType() == iOperationType)
+		if(pThisOperation->GetOperationType() == iOperationType && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			iRtnValue++;
 		}

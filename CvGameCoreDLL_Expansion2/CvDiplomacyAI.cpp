@@ -7555,7 +7555,7 @@ void CvDiplomacyAI::DoCancelHaltDemandProcess()
 			CvAIOperation* pOperation = GetPlayer()->GetMilitaryAI()->GetShowOfForceOperation(eDemandTarget);
 			if(pOperation != NULL)
 			{
-				pOperation->Kill(AI_ABORT_DIPLO_OPINION_CHANGE);
+				pOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
 				SetMusteringForAttack(eDemandTarget, false);
 			}
 #if defined(MOD_BALANCE_CORE)
@@ -8760,7 +8760,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 #if defined(MOD_BALANCE_CORE)
 				SetWantsSneakAttack(eTargetPlayer, false);
 #endif
-				pOperation->Kill(AI_ABORT_DIPLO_OPINION_CHANGE);
+				pOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
 				SetWarGoal(eTargetPlayer, NO_WAR_GOAL_TYPE);
 				SetMusteringForAttack(eTargetPlayer, false);
 			}

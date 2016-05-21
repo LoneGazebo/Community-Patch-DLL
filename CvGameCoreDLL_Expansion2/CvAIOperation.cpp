@@ -56,9 +56,8 @@ void CvAIOperation::Reset(int iID, PlayerTypes eOwner, PlayerTypes eEnemy)
 			CvArmyAI* thisArmy = thisPlayer.getArmyAI(m_viArmyIDs[uiI]);
 			if(thisArmy)
 			{
-				thisArmy->Kill();
-				thisPlayer.deleteArmyAI(m_viArmyIDs[uiI]);
 				DeleteArmyAI(m_viArmyIDs[uiI]);
+				thisArmy->Kill();
 			}
 		}
 	}
@@ -417,7 +416,7 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 		CvPlot* pAdjacentPlot = NULL;
 		if(pMusterPlot->isCoastalLand())
 		{
-			pAdjacentPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMusterPlot, NULL);
+			pAdjacentPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMusterPlot);
 			if(pAdjacentPlot != NULL)
 			{
 				pMusterPlot = pAdjacentPlot;
@@ -429,7 +428,7 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 		}
 		if(pTargetPlot->isCoastalLand())
 		{
-			pAdjacentPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTargetPlot, NULL);
+			pAdjacentPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTargetPlot);
 			if(pAdjacentPlot != NULL)
 			{
 				pTargetPlot = pAdjacentPlot;
@@ -504,8 +503,8 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 	if(bMustNaval)
 	{
 		bool bMustBeDeepWaterNaval = OperationalAIHelpers::NeedOceanMoves(m_eOwner, pMusterPlot, pTargetPlot);
-		CvPlot* pNavalMuster = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMusterPlot, NULL);
-		CvPlot* pNavalTarget = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTargetPlot, NULL);
+		CvPlot* pNavalMuster = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMusterPlot);
+		CvPlot* pNavalTarget = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTargetPlot);
 
 		if(GC.getLogging() && GC.getAILogging())
 		{
@@ -671,10 +670,10 @@ CvPlot* CvAIOperation::GetPlotXInStepPath(CvPlot* pCurrentPosition, CvPlot* pTar
 	if (IsNavalOperation())
 	{
 		if (!pCurrentPosition->isWater())
-			pCurrentPosition = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pCurrentPosition,NULL);
+			pCurrentPosition = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pCurrentPosition);
 
 		if (!pCurrentPosition)
-			return false;
+			return NULL;
 	}
 
 	// use the step path finder to get the path
@@ -718,10 +717,10 @@ int CvAIOperation::GetStepDistanceBetweenPlots(CvPlot* pCurrentPosition, CvPlot*
 	if (IsNavalOperation())
 	{
 		if (!pCurrentPosition->isWater())
-			pCurrentPosition = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pCurrentPosition,NULL);
+			pCurrentPosition = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pCurrentPosition);
 
 		if (!pCurrentPosition)
-			return false;
+			return NULL;
 	}
 
 	// use the step path finder to compute distance
@@ -854,18 +853,24 @@ void CvAIOperation::SetToAbort(AIOperationAbortReason eReason)
 }
 
 /// Perform the deletion of this operation
-void CvAIOperation::Kill(AIOperationAbortReason eReason)
+void CvAIOperation::Kill()
 {
+	//remember this
 	int iID = m_iID;
 	PlayerTypes eOwner = GetOwner();
 
-	if (m_eAbortReason == NO_ABORT_REASON)
+	if (m_eCurrentState == AI_OPERATION_STATE_SUCCESSFUL_FINISH)
 	{
-		m_eAbortReason = eReason;
+		m_eAbortReason = AI_ABORT_SUCCESS;
+	}
+	else if (m_eAbortReason == NO_ABORT_REASON)
+	{
+		m_eAbortReason = AI_ABORT_KILLED;
 	}
 
 	LogOperationEnd();
 	Reset();
+
 	GET_PLAYER(eOwner).deleteAIOperation(iID);
 }
 
@@ -904,46 +909,34 @@ void CvAIOperation::Move()
 /// Update operation for the next turn
 void CvAIOperation::DoTurn()
 {
-	LogOperationStatus();
+	LogOperationStatus(true);
 
 	Move();
 	CheckTransitionToNextStage();
 
-	LogOperationStatus();
-}
-
-/// Delete the operation if marked to go away
-bool CvAIOperation::DoDelayedDeath()
-{
-	if(ShouldAbort())
-	{
-		if (m_eCurrentState == AI_OPERATION_STATE_SUCCESSFUL_FINISH)
-		{
-			Kill(AI_ABORT_SUCCESS);
-		}
-		else
-		{
-			Kill(AI_ABORT_KILLED);
-		}
-		return true;
-	}
-
-	return false;
+	LogOperationStatus(false);
 }
 
 /// Delete an army associated with this operation (by ID)
 bool CvAIOperation::DeleteArmyAI(int iID)
 {
+	bool ret = false;
+
 	std::vector<int>::iterator iter;
 	for(iter = m_viArmyIDs.begin(); iter != m_viArmyIDs.end(); ++iter)
 	{
 		if(*iter == iID)
 		{
 			m_viArmyIDs.erase(iter);
-			return true;
+			ret = true;
+			break;
 		}
 	}
-	return false;
+
+	if (m_viArmyIDs.empty())
+		SetToAbort(AI_ABORT_NO_UNITS);
+
+	return ret;
 }
 
 /// Handles notification that a unit in this operation was lost. Can be overridden if needed
@@ -1014,11 +1007,6 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 				return NULL;
 			}
 
-			if (!pGoalPlot->isWater() && IsNavalOperation())
-			{
-				pGoalPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pGoalPlot, pArmy);
-			}
-
 			CvPlot* pCenterOfMass = pArmy->GetCenterOfMass(IsNavalOperation() ? DOMAIN_SEA : DOMAIN_LAND);
 			if (pCenterOfMass && pGoalPlot)
 			{
@@ -1031,11 +1019,9 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 					else
 						return NULL;
 				}
-				else
-				{
-					//update the current position
-					pArmy->SetXY(pCenterOfMass->getX(), pCenterOfMass->getY());
-				}
+
+				//update the current position
+				pArmy->SetXY(pCenterOfMass->getX(), pCenterOfMass->getY());
 
 				//get where we want to be next
 				pRtnValue = GetPlotXInStepPath(pCenterOfMass,pGoalPlot,pArmy->GetMovementRate(),true);
@@ -1158,7 +1144,7 @@ const char* CvAIOperation::GetInfoString()
 	switch(m_eCurrentState)
 	{
 	case AI_OPERATION_STATE_ABORTED:
-		strTemp2 = "Aborted";
+		strTemp2.Format("Aborted, %d", m_eAbortReason);
 		break;
 	case AI_OPERATION_STATE_RECRUITING_UNITS:
 		strTemp2 = "Recruiting Units";
@@ -1220,7 +1206,7 @@ void CvAIOperation::LogOperationStart()
 		switch(m_eCurrentState)
 		{
 		case AI_OPERATION_STATE_ABORTED:
-			strTemp2 = "Aborted";
+			strTemp2.Format("Aborted, %d", m_eAbortReason);
 			break;
 		case AI_OPERATION_STATE_RECRUITING_UNITS:
 			strTemp2 = "Recruiting Units";
@@ -1276,7 +1262,7 @@ void CvAIOperation::LogOperationStart()
 }
 
 /// Log current status of the operation
-void CvAIOperation::LogOperationStatus()
+void CvAIOperation::LogOperationStatus(bool bPreTurn)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -1290,12 +1276,12 @@ void CvAIOperation::LogOperationStatus()
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
-		strBaseString.Format("%03d, %s, %s, %d, ", GC.getGame().getElapsedGameTurns(), strPlayerName.c_str(), GetOperationName(), GetID());
+		strBaseString.Format("%03d, %s, %s, %d, %s ", GC.getGame().getElapsedGameTurns(), strPlayerName.c_str(), GetOperationName(), GetID(), bPreTurn ? "PRE" : "POST");
 
 		switch(m_eCurrentState)
 		{
 		case AI_OPERATION_STATE_ABORTED:
-			strTemp = "Aborted";
+			strTemp.Format("Aborted, %d", m_eAbortReason);
 			break;
 		case AI_OPERATION_STATE_RECRUITING_UNITS:
 			strTemp = "";
@@ -1326,7 +1312,7 @@ void CvAIOperation::LogOperationStatus()
 						UnitHandle pThisUnit = GET_PLAYER(m_eOwner).getUnit(pSlot->GetUnitID());
 						if(pThisUnit)
 						{
-							szTemp2.Format("%s (%d at %d,%d) - ETA at checkpoint %d, ", 
+							szTemp2.Format("%s %d at (%d:%d) - ETA at checkpoint %d, ", 
 								pThisUnit->getName().GetCString(), pThisUnit->GetID(), pThisUnit->getX(), pThisUnit->getY(), pSlot->GetTurnAtCheckpoint());
 						}
 					}
@@ -1349,7 +1335,7 @@ void CvAIOperation::LogOperationStatus()
 					UnitHandle pThisUnit = GET_PLAYER(m_eOwner).getUnit(iUnitID);
 					if(pThisUnit)
 					{
-						szTemp2.Format("%s at (%d-%d),", pThisUnit->getName().GetCString(), pThisUnit->getX(), pThisUnit->getY());
+						szTemp2.Format("%s %d at (%d:%d),", pThisUnit->getName().GetCString(), pThisUnit->GetID(), pThisUnit->getX(), pThisUnit->getY());
 						strTemp += szTemp2;
 					}
 					iUnitID = pThisArmy->GetNextUnitID();
@@ -1371,7 +1357,7 @@ void CvAIOperation::LogOperationStatus()
 					UnitHandle pThisUnit = GET_PLAYER(m_eOwner).getUnit(iUnitID);
 					if(pThisUnit)
 					{
-						szTemp2.Format("%s at (%d-%d),", pThisUnit->getName().GetCString(), pThisUnit->getX(), pThisUnit->getY());
+						szTemp2.Format("%s %d at (%d:%d),", pThisUnit->getName().GetCString(), pThisUnit->GetID(), pThisUnit->getX(), pThisUnit->getY());
 						strTemp += szTemp2;
 					}
 					iUnitID = pThisArmy->GetNextUnitID();
@@ -1480,6 +1466,8 @@ void CvAIOperation::LogOperationEnd()
 			strTemp += "No Units";
 			break;
 #endif
+		default:
+			strTemp += "Unknown reason";
 		}
 
 		strOutBuf = strBaseString + strTemp;
@@ -1531,6 +1519,8 @@ CvString CvAIOperation::GetLogFileName(CvString& playerName)
 
 bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPlot, CvPlot * pDeployPlot, CvUnit* pInitialUnit)
 {
+	LogOperationSpecialMessage("Creating basic setup");
+
 	//pDeployPlot may be null ...
 	if (!pMusterPlot || !pTargetPlot)
 	{
@@ -2636,9 +2626,9 @@ void CvAIOperationOffensiveNavalBasic::Init(int iID, PlayerTypes eOwner, PlayerT
 		return;
 
 	// Target just off the coast
-	CvPlot *pCoastalTarget = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget->plot(), NULL);
+	CvPlot *pCoastalTarget = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget->plot());
 	// Muster just off the coast
-	CvPlot *pCoastalMuster = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster->plot(), NULL);
+	CvPlot *pCoastalMuster = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster->plot());
 
 	SetupWithSingleArmy(pCoastalMuster,pCoastalTarget);
 }
@@ -2721,9 +2711,9 @@ void CvAIOperationOffensiveNavalSuperiority::Init(int iID, PlayerTypes eOwner, P
 		return;
 
 	//this is where we gather the army
-	CvPlot* pMusterPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster->plot(), NULL);
+	CvPlot* pMusterPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster->plot());
 	//this is where the army should go
-	CvPlot* pGoalPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget->plot(), NULL);
+	CvPlot* pGoalPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget->plot());
 	if (!pMusterPlot || !pGoalPlot)
 		return;
 
@@ -2794,7 +2784,7 @@ void CvAIOperationOffensiveNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner
 		}
 		if(pMuster != NULL)
 		{
-			pMusterPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster->plot(), NULL);
+			pMusterPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster->plot());
 		}
 	}
 
@@ -2807,7 +2797,7 @@ void CvAIOperationOffensiveNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner
 		}
 		if(pTarget != NULL)
 		{
-			pTargetPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget->plot(), NULL);
+			pTargetPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget->plot());
 		}
 	}
 
@@ -3010,9 +3000,9 @@ void CvAIOperationOffensiveNavalEscorted::Init(int iID, PlayerTypes eOwner, Play
 		return;
 
 	// Target just off the coast
-	CvPlot *pCoastalTarget = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget->plot(), NULL);
+	CvPlot *pCoastalTarget = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget->plot());
 	// Muster just off the coast
-	CvPlot *pCoastalMuster = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster->plot(), NULL);
+	CvPlot *pCoastalMuster = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster->plot());
 
 	SetupWithSingleArmy(pCoastalMuster,pCoastalTarget);
 }
@@ -3060,7 +3050,7 @@ bool CvAIOperationCivilianColonization::RetargetCivilian(CvUnit* pCivilian, CvAr
 		pArmy->SetGoalPlot(pBetterTarget);
 
 		//find the best muster plot
-		CvPlot* pWaterPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pBetterTarget,NULL);
+		CvPlot* pWaterPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pBetterTarget);
 		int iLoop = 0;
 		int iBestDistance = INT_MAX;
 		CvCity* pBestMuster = NULL;
@@ -3080,7 +3070,7 @@ bool CvAIOperationCivilianColonization::RetargetCivilian(CvUnit* pCivilian, CvAr
 			}
 		}
 
-		CvPlot *pMusterPlot = pBestMuster ? MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pBestMuster->plot(),NULL) : NULL;
+		CvPlot *pMusterPlot = pBestMuster ? MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pBestMuster->plot()) : NULL;
 		if(pMusterPlot != NULL)
 		{
 			SetMusterPlot(pMusterPlot);
@@ -3666,7 +3656,7 @@ CvPlot* OperationalAIHelpers::FindBestCoastalBombardmentTarget(PlayerTypes ePlay
 	}
 
 	if (ppMuster && pBestStart)
-		*ppMuster = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pBestStart->plot(), NULL);
+		*ppMuster = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pBestStart->plot());
 
 	return pBestTarget;
 }
@@ -3893,7 +3883,8 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	if (iDistance==INT_MAX)
 	{
 		// finally, if the unit is too far away, no deal
-		iDistance = pLoopUnit->TurnsToReachTarget(pMusterPlot,CvUnit::MOVEFLAG_APPROXIMATE_TARGET|CvUnit::MOVEFLAG_IGNORE_STACKING,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
+		int iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
+		iDistance = pLoopUnit->TurnsToReachTarget(pMusterPlot,iFlags,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
 		if (iDistance == INT_MAX)
 		{
 			/*/
