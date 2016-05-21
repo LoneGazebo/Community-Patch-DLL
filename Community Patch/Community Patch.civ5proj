@@ -7,7 +7,7 @@
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
     <ModVersion>79</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(5-14b) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(5-21b) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for Whoward's PNM Mods as well as the Community Balance Patch.</Description>
     <Authors>The Community Patch Team</Authors>
     <SpecialThanks>
@@ -601,6 +601,7 @@
     <Folder Include="Core Files\Core Tables\" />
     <Folder Include="Core Files\Core Values\" />
     <Folder Include="Core Files\CoreLua" />
+    <Folder Include="Core Files\CoreLua\EventArt" />
     <Folder Include="Core Files\PNM Mods DB\UNITS\" />
     <Folder Include="Core Files\Text" />
     <Folder Include="Core Files\PNM Mods DB" />
@@ -625,6 +626,7 @@
     <Folder Include="Modules\Events" />
     <Folder Include="Modules\Events\City" />
     <Folder Include="Modules\Events\City\Choice" />
+    <Folder Include="Modules\Events\Other" />
     <Folder Include="Modules\Events\Text" />
     <Folder Include="Modules\Events\Player" />
     <Folder Include="Modules\Events\Player\Choice" />
@@ -1004,6 +1006,30 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\CoreLua\CityEventsInfo.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\CoreLua\EventArt\AirBalloon.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\CoreLua\EventArt\FireWorks.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\CoreLua\EventArt\GoldStandard.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\CoreLua\EventArt\HarborTrade.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\CoreLua\EventArt\StockMarketCrash.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\CoreLua\EventArt\SunHeat.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -1444,6 +1470,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Modules\Events\City\Choice\CityEvents.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Modules\Events\Other\MiscEvents.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

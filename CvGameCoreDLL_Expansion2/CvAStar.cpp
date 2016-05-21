@@ -1492,6 +1492,12 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 				bAllow = true;
 		}
 
+		if (!bAllow && finder->HaveFlag(CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
+		{
+			std::vector<int> vAreas = pToPlot->getAllAdjacentAreas();
+			bAllow = (std::find(vAreas.begin(),vAreas.end(),pFromPlot->getArea()) != vAreas.end());
+		}
+
 		if (!bAllow)
 			return FALSE;
 	}

@@ -54,10 +54,10 @@
 			<Text>Monument in City: +1 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<!-- Stone Works Discovery -->
-		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DEVELOPMENT">
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY">
 			<Text>Rich Vein</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DEVELOPMENT_HELP">
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_HELP">
 			<Text>A rich vein of blue marble was discovered at the quarry near the city. Your miners and masons have come to you to ask you what you would like to do it.[NEWLINE][NEWLINE]Choose from the options below...</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_1">

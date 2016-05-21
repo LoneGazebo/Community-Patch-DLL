@@ -431,5 +431,55 @@
 		<Row Tag="TXT_KEY_UNIT_BANDEIRANTES_HELP">
 			<Text>Unique Brazilian Explorer. Generates [ICON_GOLD] Gold, [ICON_CULTURE] Culture towards Border Growth, and [ICON_GREAT_GENERAL] Great General Points in the nearest owned City whenever you reveal tiles with this Unit. Can also construct Forts in owned territory.</Text>
 		</Row>
+		
+		<!-- New Tier 4 Promotions -->
+		<Row Tag="TXT_KEY_PROMOTION_SHOCK_4">
+			<Text>Overrun</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SHOCK_4_HELP">
+			<Text>+100% bonus to [COLOR_POSITIVE_TEXT]Flank Attack[ENDCOLOR] [ICON_STRENGTH] Combat Strength bonus.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DRILL_4">
+			<Text>Stalwart</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DRILL_4_HELP">
+			<Text>+35% [ICON_STRENGTH] Combat Strength when defending.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ACCURACY_4">
+			<Text>Snipers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ACCURACY_4_HELP">
+			<Text>+25% [ICON_RANGE_STRENGTH] Ranged Combat Strength versus [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR] Units.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BARRAGE_4">
+			<Text>Infiltrators</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BARRAGE_4_HELP">
+			<Text>Can Pillage without expending movement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_TARGETING_4">
+			<Text>Slipstream</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_TARGETING_4_HELP">
+			<Text>Ignores Zone of Control.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BOMBARDMENT_4">
+			<Text>Broadside</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BOMBARDMENT_4_HELP">
+			<Text>+40% [ICON_RANGE_STRENGTH] Ranged Combat Strength versus [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_COASTAL_RAIDER_4">
+			<Text>Glory Hounds</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_COASTAL_RAIDER_4_HELP">
+			<Text>Steal gold equal to 100% of the damage inflicted on a city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BOARDING_PARTY_4">
+			<Text>Pincer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BOARDING_PARTY_4_HELP">
+			<Text>+50% bonus to [COLOR_POSITIVE_TEXT]Flank Attack[ENDCOLOR] [ICON_STRENGTH] Combat Strength bonus.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

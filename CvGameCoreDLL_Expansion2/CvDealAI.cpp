@@ -1766,7 +1766,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		{
 			if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 			{
-				iItemValue += (iResourceQuantity * iNumTurns * 25 / 100);
+				iItemValue += (iNumTurns * 50 / 100);
 				//We already have it and we use it.
 				if(((GetPlayer()->getNumResourceAvailable(eResource, true) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0)))
 				{
@@ -1935,13 +1935,15 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 					}
 				}
 			}
+
+			iItemValue *= iResourceQuantity;
 		}
 		// Increase value if it's from us and we don't like the guy
 		if(bFromMe)
 		{
 			if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 			{
-				iItemValue += (iResourceQuantity * iNumTurns * 35 / 100);	// Ex: 5 Iron for 30 turns * 2 = value of 300
+				iItemValue += (iNumTurns * 50 / 100);	// Ex: 5 Iron for 30 turns * 2 = value of 300
 				//We have it (domestic and/or trade) and we use it.
 				if(((GetPlayer()->getNumResourceAvailable(eResource, true)) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0))
 				{
@@ -2077,6 +2079,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			}
 			//Lets use our DoF willingness to determine these values - introduce some variability.
 			iItemValue += GetPlayer()->GetDiplomacyAI()->GetDoFWillingness() * 3;
+
+			iItemValue *= iResourceQuantity;
 		}
 	}
 	int iResult = 0;

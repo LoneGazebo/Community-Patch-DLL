@@ -842,20 +842,33 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//WAR
 	///////
 	//Fewer buildings while at war.
-	if(kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
+	int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
+	if(iNumWar > 0)
 	{
-		iBonus -= (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) * 25);
+		iBonus -= (iNumWar * 50);
 		if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == m_pCity && kPlayer.getNumCities() > 1)
 		{
-			iBonus -= 300;
+			return 0;
 		}
 		else if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(1) == m_pCity)
 		{
-			iBonus -= 200;
+			iBonus -= 500;
 		}
 		else if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(2) == m_pCity)
 		{
-			iBonus -= 200;
+			iBonus -= 250;
+		}
+		if(m_pCity->IsBastion())
+		{
+			iBonus -= 250;
+		}
+		if(m_pCity->IsBlockaded(true))
+		{
+			iBonus -= 250;
+		}
+		if(m_pCity->IsBlockadedWaterAndLand())
+		{
+			iBonus -= 250;
 		}
 	}
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -873,7 +886,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Tiny army? Eek!
 	if(kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 3))
 	{
-		iBonus -= 100;
+		iBonus -= 250;
 	}
 
 	///////

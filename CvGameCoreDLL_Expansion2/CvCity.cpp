@@ -14876,6 +14876,22 @@ void CvCity::DoJONSCultureLevelIncrease()
 #if defined(MOD_BALANCE_CORE)
 	GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BORDERS, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
 #endif
+#if defined(MOD_BALANCE_CORE)
+		if(pPlotToAcquire->getTerrainType() != NO_TERRAIN && GET_PLAYER(getOwner()).GetPlayerTraits()->TerrainClaimBoost(pPlotToAcquire->getTerrainType()))
+		{
+			for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+			{
+				CvPlot* pAdjacentPlot = plotDirection(pPlotToAcquire->getX(), pPlotToAcquire->getY(), ((DirectionTypes)iDirectionLoop));
+				if (pAdjacentPlot && pAdjacentPlot->getTerrainType() == pPlotToAcquire->getTerrainType())
+				{
+					if(pAdjacentPlot->getOwner() == NO_PLAYER)
+					{
+						DoAcquirePlot(pAdjacentPlot->getX(), pAdjacentPlot->getY());
+					}
+				}
+			}
+		}
+#endif
 #if defined(MOD_UI_CITY_EXPANSION)
 	}
 	else if (MOD_UI_CITY_EXPANSION && bIsHumanControlled) 
