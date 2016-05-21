@@ -6496,6 +6496,7 @@ CvPlot* MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget)
 {
 	if (!pTarget)
 		return NULL;
+	TeamTypes eTeam = pTarget->getTeam();
 
 	//change iteration order, don't return the same plot every time
 	//don't use the RNG here: too many calls in the log and diplo quirks can lead to desyncs
@@ -6508,10 +6509,42 @@ CvPlot* MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget)
 	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
 	{
 		CvPlot* pAdjacentPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), aiShuffle[iShuffleType][iI]);
-		if(pAdjacentPlot != NULL && pAdjacentPlot->isShallowWater() && //coastal
+		if(pAdjacentPlot != NULL && 
+			(pAdjacentPlot->getTeam()==NO_TEAM || pAdjacentPlot->getTeam()==eTeam) && //same team or none
+			pAdjacentPlot->isShallowWater() && //coastal
 			pAdjacentPlot->getFeatureType()==NO_FEATURE && //no ice
 			pAdjacentPlot->isLake()==false && //no lake
 			pAdjacentPlot->countPassableNeighbors(true)>2) //no bays
+		{
+			return pAdjacentPlot;
+		}
+	}
+
+	return NULL;
+}
+
+CvPlot* MilitaryAIHelpers::GetLandPlotAdjacentToTarget(CvPlot *pTarget)
+{
+	if (!pTarget)
+		return NULL;
+	TeamTypes eTeam = pTarget->getTeam();
+
+	//change iteration order, don't return the same plot every time
+	//don't use the RNG here: too many calls in the log and diplo quirks can lead to desyncs
+	int aiShuffle[3][RING2_PLOTS] = { 
+		{ 0,5,6,3,2,4,1,14,13,17,16,15,11,8,9,18,12,7,10 },
+		{ 0,4,1,5,2,3,6,14,8,15,12,18,16,9,7,11,10,13,17 },
+		{ 0,6,3,5,2,1,4,18,15,16,14,12,17,8,7,10,9,13,11 } };
+	int iShuffleType = GC.getGame().getSmallFakeRandNum(3);
+
+	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
+	{
+		CvPlot* pAdjacentPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), aiShuffle[iShuffleType][iI]);
+		if(pAdjacentPlot != NULL &&
+			(pAdjacentPlot->getTeam()==NO_TEAM || pAdjacentPlot->getTeam()==eTeam) && //same team or none
+			pAdjacentPlot->isWater()==false && //land
+			pAdjacentPlot->isImpassable(NO_TEAM)==false && //no strange features
+			pAdjacentPlot->countPassableNeighbors(false)>2) //no peninsula
 		{
 			return pAdjacentPlot;
 		}

@@ -68,7 +68,6 @@ enum AIOperationMovementType
     INVALID_AI_OPERATION_MOVE_TYPE = -1,
     AI_OPERATION_MOVETYPE_ESCORT,	//try to move somewhere while avoiding combat
     AI_OPERATION_MOVETYPE_COMBAT,	//try to move somewhere while expecting combat
-    AI_OPERATION_MOVETYPE_ROAMING,	//no target, but expect combat
 };
 
 enum AIOperationAbortReason
@@ -164,7 +163,7 @@ public:
 	virtual bool IsNavalOperation() const = 0;
 	virtual const char* GetOperationName() const = 0;
 	virtual bool CheckTransitionToNextStage() = 0;
-	virtual bool VerifyTarget(CvArmyAI* pArmy) { return true; } //making this pure virtual gives a linker error???
+	virtual bool VerifyOrAdjustTarget(CvArmyAI* pArmy) = 0;
 	virtual AITacticalTargetType GetTargetType() const = 0;
 
 	//virtual methods with a sane default
@@ -307,7 +306,6 @@ public:
 	virtual bool IsCivilianOperation() const { return false; }
 	virtual bool IsNavalOperation() const { return false; }
 	virtual int GetDeployRange() const { return 2; }
-	virtual bool VerifyTarget(CvArmyAI * pArmy) { return true; }
 	virtual bool CheckTransitionToNextStage();
 	virtual void SetToAbort(AIOperationAbortReason eReason);
 
@@ -343,7 +341,7 @@ public:
 	virtual AITacticalTargetType GetTargetType() const { return AI_TACTICAL_TARGET_CITY; }
 
 	virtual int GetMaximumRecruitTurns() const;
-	virtual bool VerifyTarget(CvArmyAI* pArmy);
+	virtual bool VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 protected:
 };
@@ -477,7 +475,7 @@ public:
 
 	virtual int GetDeployRange() const;
 	virtual bool ShouldAbort();
-	virtual bool VerifyTarget(CvArmyAI* pArmy);
+	virtual bool VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 protected:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
@@ -520,7 +518,7 @@ public:
 		return true;
 	}
 
-	virtual bool VerifyTarget(CvArmyAI* pArmy);
+	virtual bool VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 protected:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
@@ -552,7 +550,7 @@ public:
 	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, bool bOnlySafePaths) = 0;
 
 	virtual bool RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy);
-	virtual bool VerifyTarget(CvArmyAI* pArmy);
+	virtual bool VerifyOrAdjustTarget(CvArmyAI* pArmy);
 	virtual bool IsEscorted();
 	virtual bool WillBeEscorted();
 
@@ -589,7 +587,7 @@ public:
 	}
 
 	virtual bool PerformMission(CvUnit* pUnit);
-	virtual bool VerifyTarget(CvArmyAI* pArmy);
+	virtual bool VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 protected:
 	virtual CvPlot* FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bEscorted);
@@ -653,7 +651,7 @@ public:
 	}
 
 	virtual bool PerformMission(CvUnit* pUnit);
-	virtual bool VerifyTarget(CvArmyAI* pArmy);
+	virtual bool VerifyOrAdjustTarget(CvArmyAI* pArmy);
 private:
 	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, bool bOnlySafePaths);
 };
@@ -688,7 +686,7 @@ public:
 	}
 
 	virtual bool PerformMission(CvUnit* pUnit);
-	virtual bool VerifyTarget(CvArmyAI* pArmy);
+	virtual bool VerifyOrAdjustTarget(CvArmyAI* pArmy);
 private:
 	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, bool bOnlySafePaths);
 };
@@ -718,7 +716,7 @@ public:
 	{
 		return MUFORMATION_CLOSE_CITY_DEFENSE;
 	}
-	virtual bool ShouldAbort();
+	virtual bool VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 private:
 };
@@ -752,7 +750,7 @@ public:
 	}
 	
 	virtual bool PerformMission(CvUnit* pUnit);
-	virtual bool VerifyTarget(CvArmyAI* pArmy);
+	virtual bool VerifyOrAdjustTarget(CvArmyAI* pArmy);
 private:
 	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit, bool bOnlySafePaths);
 };
@@ -912,6 +910,7 @@ public:
 	{
 		return MUFORMATION_CLOSE_CITY_DEFENSE;
 	}
+	virtual bool VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 private:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
@@ -971,7 +970,7 @@ public:
 		return MUFORMATION_RAPID_RESPONSE_FORCE;
 	}
 
-	virtual bool VerifyTarget(CvArmyAI* pArmy);
+	virtual bool VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 private:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
@@ -990,7 +989,7 @@ public:
 
 	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
-	virtual bool VerifyTarget(CvArmyAI* pArmy);
+	virtual bool VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 	virtual bool IsNavalOperation() const
 	{
@@ -1131,6 +1130,7 @@ public:
 	{ 
 		return AI_TACTICAL_TARGET_NONE;
 	}
+	virtual bool VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, WeightedUnitIdVector& UnitChoices);
 

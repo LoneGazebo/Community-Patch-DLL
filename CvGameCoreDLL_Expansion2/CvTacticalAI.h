@@ -771,7 +771,6 @@ public:
 	// Operational AI support functions
 	void PlotArmyMovesEscort(CvArmyAI* pThisArmy);
 	void PlotArmyMovesCombat(CvArmyAI* pThisArmy);
-	void PlotArmyMovesRoaming(CvArmyAI* pThisArmy);
 
 private:
 

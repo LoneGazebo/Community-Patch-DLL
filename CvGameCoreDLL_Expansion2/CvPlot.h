@@ -925,7 +925,6 @@ public:
 #endif
 
 	bool canPlaceUnit(PlayerTypes ePlayer) const;
-	CvPlot* getAdjacentPlotForUnit(PlayerTypes ePlayer, bool bLand, DirectionTypes ePreferredDirection=NO_DIRECTION) const;
 
 protected:
 	class PlotBoolField

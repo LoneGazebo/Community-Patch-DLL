@@ -485,6 +485,7 @@ UnitAITypes FirstSlotCityCanFill(CvPlayer* pPlayer, MultiunitFormationTypes form
 MultiunitFormationTypes GetCurrentBestFormationTypeForCityAttack();
 #endif
 CvPlot* GetCoastalPlotAdjacentToTarget(CvPlot *pTarget);
+CvPlot* GetLandPlotAdjacentToTarget(CvPlot *pTarget);
 }
 
 #endif //CIV5_MILITARY_AI_H

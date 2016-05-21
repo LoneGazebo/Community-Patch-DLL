@@ -13739,34 +13739,6 @@ bool CvPlot::canPlaceUnit(PlayerTypes ePlayer) const
 	return true;
 }
 
-CvPlot* CvPlot::getAdjacentPlotForUnit(PlayerTypes ePlayer, bool bLand, DirectionTypes ePreferredDirection) const
-{
-	if (ePreferredDirection==NO_DIRECTION)
-	{
-		//don't be too predictable in unit placement
-		int iOffset = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES,"neighbor direction offset");
-		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
-		{
-			DirectionTypes eDir = (DirectionTypes)((iDirectionLoop+iOffset)%NUM_DIRECTION_TYPES);
-			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eDir);
-			if (pAdjacentPlot && pAdjacentPlot->isWater()!=bLand && pAdjacentPlot->canPlaceUnit(ePlayer))
-				return pAdjacentPlot;
-		}
-	}
-	else
-	{
-		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
-		{
-			DirectionTypes eDir = reorderedDirection(ePreferredDirection,iDirectionLoop);
-			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eDir);
-			if (pAdjacentPlot && pAdjacentPlot->isWater()!=bLand && pAdjacentPlot->canPlaceUnit(ePlayer))
-				return pAdjacentPlot;
-		}
-	}
-
-	return NULL;
-}
-
 #if defined(MOD_API_EXTENSIONS)
 bool CvPlot::IsCivilization(CivilizationTypes iCivilizationType) const
 {

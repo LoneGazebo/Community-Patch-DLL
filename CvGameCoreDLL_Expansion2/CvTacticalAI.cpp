@@ -4629,43 +4629,6 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 	}
 }
 
-/// Move a naval force that is roaming for targets
-void CvTacticalAI::PlotArmyMovesRoaming(CvArmyAI* pThisArmy)
-{
-	if (!pThisArmy)
-		return;
-
-	CvAIOperation* pOperation = GET_PLAYER(pThisArmy->GetOwner()).getAIOperation(pThisArmy->GetOperationID());
-	if (!pOperation)
-		return;
-
-	m_OperationUnits.clear();
-
-	ClearEnemiesNearArmy(pThisArmy);
-
-	//we don't care about the army state, just try to converge on the muster plot. which may move!
-	for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-	{
-		CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-		if(pSlot->GetUnitID() != NO_UNIT)
-		{
-			// See if we are just able to get to muster point in time.  If so, time for us to head over there
-			UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-			if(pUnit && !pUnit->TurnProcessed())
-			{
-				CvMultiUnitFormationInfo* pkMultiUnitFormationInfo = GC.getMultiUnitFormationInfo(pThisArmy->GetFormationIndex());
-				if(pkMultiUnitFormationInfo)
-				{
-					const CvFormationSlotEntry& thisSlotEntry = pkMultiUnitFormationInfo->getFormationSlotEntry(iI);
-					MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-				}
-			}
-		}
-	}
-
-	ExecuteGatherMoves(pThisArmy);
-}
-
 /// Queues up attacks on enemy units on or adjacent to army's desired center
 void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 {
