@@ -3175,7 +3175,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
-		if(!pUnit || pUnit->TurnProcessed())
+		if(!pUnit || !pUnit->canMove())
 		{
 			continue;
 		}

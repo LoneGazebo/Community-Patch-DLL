@@ -10123,7 +10123,7 @@ int CvPlayer::GetCountReadyUnits() const
 
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath())
+		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
 			iRtnValue++;
 		}
@@ -10140,7 +10140,7 @@ const CvUnit* CvPlayer::GetFirstReadyUnit() const
 
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath())
+		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
 			return pLoopUnit;
 		}
@@ -10157,7 +10157,7 @@ void CvPlayer::EndTurnsForReadyUnits()
 
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath())
+		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
 			pLoopUnit->finishMoves();
 #if defined(MOD_BALANCE_CORE)

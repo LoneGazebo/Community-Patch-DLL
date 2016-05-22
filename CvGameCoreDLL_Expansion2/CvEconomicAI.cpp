@@ -2487,7 +2487,7 @@ void CvEconomicAI::DoReconState()
 			if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && 
 				((pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK) || (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_FAST_ATTACK)) )
 			{
-				if(!pLoopUnit->TurnProcessed() && pLoopUnit->getMoves() > 0 && pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
+				if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
 				{
 					pLoopUnit->AI_setUnitAIType(UNITAI_EXPLORE);
 					if(GC.getLogging() && GC.getAILogging())
@@ -2567,7 +2567,7 @@ void CvEconomicAI::DoReconState()
 				if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA && 
 					((pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK_SEA) || (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ASSAULT_SEA)) )
 				{
-					if(!pLoopUnit->TurnProcessed() && pLoopUnit->getMoves() > 0 && pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
+					if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
 					{
 						pLoopUnit->AI_setUnitAIType(UNITAI_EXPLORE_SEA);
 						if(GC.getLogging() && GC.getAILogging())

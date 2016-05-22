@@ -4547,7 +4547,7 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 			if(pSlot->GetUnitID() != NO_UNIT)
 			{
 				UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-				if(pUnit && !pUnit->TurnProcessed())
+				if(pUnit && pUnit->canMove())
 				{
 					// Great general or admiral?
 					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
@@ -4594,7 +4594,7 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 			if(pSlot->GetUnitID() != NO_UNIT)
 			{
 				UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-				if(pUnit && !pUnit->TurnProcessed())
+				if(pUnit && pUnit->canMove())
 				{
 					// Great general?
 					if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
@@ -4620,7 +4620,10 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 			}
 		}
 
-		ExecuteFormationMoves(pThisArmy, pThisTurnTarget);
+		if (pThisArmy->GetDomainType()==DOMAIN_SEA)
+			ExecuteNavalFormationMoves(pThisArmy, pThisTurnTarget);
+		else
+			ExecuteFormationMoves(pThisArmy, pThisTurnTarget);
 	}
 
 	if(m_GeneralsToMove.size() > 0)
@@ -4653,7 +4656,7 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 	UnitHandle pUnit = pArmy->GetFirstUnit();
 	while(pUnit)
 	{
-		if(!pUnit->TurnProcessed() && !pUnit->isDelayedDeath() && pUnit->canMove())
+		if(!pUnit->isDelayedDeath() && pUnit->canMove())
 		{
 			if(std::find(m_CurrentTurnUnits.begin(), m_CurrentTurnUnits.end(), pUnit->GetID()) == m_CurrentTurnUnits.end())
 			{
@@ -5516,30 +5519,6 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 	}
 }
 
-/// Move a squadron of naval units to a target
-void CvTacticalAI::ExecuteFleetMoveToTarget(CvArmyAI* pArmy, CvPlot* pTarget)
-{
-	// Request moves for all units
-	for(int iI = 0; iI < pArmy->GetNumFormationEntries(); iI++)
-	{
-		CvArmyFormationSlot* pSlot = pArmy->GetFormationSlot(iI);
-		if(pSlot->GetUnitID() != NO_UNIT)
-		{
-			UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-			if(pUnit && !pUnit->TurnProcessed())
-			{
-				CvMultiUnitFormationInfo* pkMultiUnitFormation = GC.getMultiUnitFormationInfo(pArmy->GetFormationIndex());
-				if(pkMultiUnitFormation)
-				{
-					const CvFormationSlotEntry& thisSlotEntry = pkMultiUnitFormation->getFormationSlotEntry(iI);
-					MoveWithFormation(pUnit, thisSlotEntry.m_ePositionType);
-				}
-			}
-		}
-	}
-	ExecuteNavalFormationMoves(pArmy, pTarget);
-}
-
 // ROUTINES TO PROCESS AND SORT TARGETS
 
 /// Mark units that can damage key items as priority targets
@@ -6078,7 +6057,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentAirUnits[iI].GetID());
 
-			if(pUnit && !pUnit->TurnProcessed())
+			if(pUnit && pUnit->canMove())
 			{
 				if(pUnit->canAirSweep())
 				{

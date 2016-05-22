@@ -17,16 +17,16 @@ class CvPlot;
 #define SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES 20
 
 #define ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT -1
-#define ARMYSLOT_NOT_INCLUDING_IN_OPERATION -2
 
-#define ARMY_NO_UNIT -1
+#define ARMYSLOT_NOT_INCLUDING_IN_OPERATION -2
+#define ARMYSLOT_NO_UNIT -1
 
 class CvArmyFormationSlot
 {
 public:
 	CvArmyFormationSlot()
 	{
-		m_iUnitID = ARMY_NO_UNIT;
+		m_iUnitID = ARMYSLOT_NO_UNIT;
 		m_iEstimatedTurnAtCheckpoint = ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT;
 	};
 

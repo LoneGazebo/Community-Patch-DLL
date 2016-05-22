@@ -75,7 +75,7 @@ void CvArmyAI::Kill()
 	int iUnitID;
 	iUnitID = GetFirstUnitID();
 
-	while(iUnitID != ARMY_NO_UNIT)
+	while(iUnitID != ARMYSLOT_NO_UNIT)
 	{
 		UnitHandle pThisUnit = GET_PLAYER(GetOwner()).getUnit(iUnitID);
 		if(pThisUnit)
@@ -453,7 +453,7 @@ void CvArmyAI::SetFormationIndex(int iFormationIndex)
 			m_FormationEntries.clear();
 			for(int iI = 0; iI < iNumSlots; iI++)
 			{
-				slot.SetUnitID(ARMY_NO_UNIT);
+				slot.SetUnitID(ARMYSLOT_NO_UNIT);
 				slot.SetTurnAtCheckpoint(ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT);
 				m_FormationEntries.push_back(slot);
 			}
@@ -474,7 +474,7 @@ int CvArmyAI::GetNumSlotsFilled() const
 
 	for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
 	{
-		if(m_FormationEntries[iI].m_iUnitID != ARMY_NO_UNIT)
+		if(m_FormationEntries[iI].m_iUnitID > ARMYSLOT_NO_UNIT)
 		{
 			iRtnValue++;
 		}
@@ -487,7 +487,7 @@ void CvArmyAI::SetEstimatedTurn(int iSlotID, int iTurns)
 {
 	int iTurnAtCheckpoint;
 
-	if(iTurns == ARMYSLOT_NOT_INCLUDING_IN_OPERATION || iTurns == ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
+	if(iTurns == ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
 	{
 		iTurnAtCheckpoint = iTurns;
 	}
@@ -502,20 +502,17 @@ void CvArmyAI::SetEstimatedTurn(int iSlotID, int iTurns)
 /// What turn will the army as a whole arrive on target?
 int CvArmyAI::GetTurnOfLastUnitAtNextCheckpoint() const
 {
-	int iRtnValue = ARMYSLOT_NOT_INCLUDING_IN_OPERATION;
+	int iRtnValue = ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT;
 
 	for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
 	{
-		if(m_FormationEntries[iI].GetUnitID() == ARMY_NO_UNIT)
+		if(m_FormationEntries[iI].GetUnitID() <= ARMYSLOT_NO_UNIT)
 			continue;
+
 		if(m_FormationEntries[iI].m_iEstimatedTurnAtCheckpoint == ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
-		{
 			return ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT;
-		}
-		else if(m_FormationEntries[iI].m_iEstimatedTurnAtCheckpoint > iRtnValue)
-		{
-			iRtnValue = m_FormationEntries[iI].m_iEstimatedTurnAtCheckpoint;
-		}
+		
+		iRtnValue = MAX(iRtnValue, m_FormationEntries[iI].m_iEstimatedTurnAtCheckpoint);
 	}
 
 	return iRtnValue;
@@ -527,7 +524,7 @@ void CvArmyAI::UpdateCheckpointTurns()
 	for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
 	{
 		// No reestimate for units being built
-		if(m_FormationEntries[iI].GetUnitID() != ARMY_NO_UNIT)
+		if(m_FormationEntries[iI].GetUnitID() > ARMYSLOT_NO_UNIT)
 		{
 			CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(m_FormationEntries[iI].GetUnitID());
 			CvPlot* pCurrentPlot = GC.getMap().plot(GetX(), GetY());
@@ -551,7 +548,7 @@ void CvArmyAI::RemoveStuckUnits()
 
 	for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
 	{
-		if(m_FormationEntries[iI].GetUnitID() != ARMY_NO_UNIT && m_FormationEntries[iI].GetTurnAtCheckpoint()==ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
+		if(m_FormationEntries[iI].GetUnitID() > ARMYSLOT_NO_UNIT && m_FormationEntries[iI].GetTurnAtCheckpoint()==ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT)
 		{
 			CvString strMsg;
 			strMsg.Format("Removing unit %d from army %d because no path to checkpoint",m_FormationEntries[iI].GetUnitID(),GetID());
@@ -569,7 +566,7 @@ int CvArmyAI::GetUnitsOfType(MultiunitPositionTypes ePosition) const
 
 	for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
 	{
-		if(m_FormationEntries[iI].m_iUnitID != ARMY_NO_UNIT)
+		if(m_FormationEntries[iI].m_iUnitID > ARMYSLOT_NO_UNIT)
 		{
 			CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(m_FormationEntries[iI].m_iUnitID);
 			if(pUnit->getMoves() > 0)
@@ -622,7 +619,7 @@ int CvArmyAI::GetTotalPower()
 	int iUnitID;
 	iUnitID = GetFirstUnitID();
 
-	while(iUnitID != ARMY_NO_UNIT)
+	while(iUnitID != ARMYSLOT_NO_UNIT)
 	{
 		UnitHandle pThisUnit = GET_PLAYER(GetOwner()).getUnit(iUnitID);
 		if(pThisUnit)
@@ -732,7 +729,7 @@ int CvArmyAI::GetGoalY() const
 /// Add a unit to our army (and we know which slot)
 void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 {
-	CvAssertMsg(iUnitID != ARMY_NO_UNIT,"Expect unit to be non-NULL");
+	CvAssertMsg(iUnitID != ARMYSLOT_NO_UNIT,"Expect unit to be non-NULL");
 
 	CvPlayer& thisPlayer = GET_PLAYER(m_eOwner);
 	UnitHandle pThisUnit = thisPlayer.getUnit(iUnitID);
@@ -775,7 +772,7 @@ bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 				// Clears unit's army ID and erase from formation entries
 				pThisUnit->setArmyID(-1);
 				pThisUnit->AI_setUnitAIType(pThisUnit->getUnitInfo().GetDefaultUnitAIType());
-				m_FormationEntries[iI].SetUnitID(ARMY_NO_UNIT);
+				m_FormationEntries[iI].SetUnitID(ARMYSLOT_NO_UNIT);
 
 				// Tell the associate operation that a unit was lost
 				CvAIOperation* pThisOperation = GET_PLAYER(GetOwner()).getAIOperation(m_iOperationID);
@@ -817,32 +814,32 @@ bool CvArmyAI::CanTacticalAIInterruptUnit(int /* iUnitId */) const
 	return false;
 }
 
-/// Retrieve units from the army - first call (ARMY_NO_UNIT if none found)
+/// Retrieve units from the army - first call (ARMYSLOT_NO_UNIT if none found)
 int CvArmyAI::GetFirstUnitID()
 {
 	m_CurUnitIter = m_FormationEntries.begin();
 
 	if(m_CurUnitIter == m_FormationEntries.end())
 	{
-		return ARMY_NO_UNIT;
+		return ARMYSLOT_NO_UNIT;
 	}
 	else
 	{
 		// First entry could not be filled yet
 		while(m_CurUnitIter != m_FormationEntries.end())
 		{
-			if(m_CurUnitIter->GetUnitID() != ARMY_NO_UNIT)
+			if(m_CurUnitIter->GetUnitID() > ARMYSLOT_NO_UNIT)
 			{
 				return m_CurUnitIter->GetUnitID();
 			}
 			++m_CurUnitIter;
 		}
 
-		return ARMY_NO_UNIT;
+		return ARMYSLOT_NO_UNIT;
 	}
 }
 
-/// Retrieve units from the army - subsequent call (ARMY_NO_UNIT if none found)
+/// Retrieve units from the army - subsequent call (ARMYSLOT_NO_UNIT if none found)
 int CvArmyAI::GetNextUnitID()
 {
 	if(m_CurUnitIter != m_FormationEntries.end())
@@ -851,16 +848,16 @@ int CvArmyAI::GetNextUnitID()
 
 		while(m_CurUnitIter != m_FormationEntries.end())
 		{
-			if(m_CurUnitIter->GetUnitID() != ARMY_NO_UNIT)
+			if(m_CurUnitIter->GetUnitID() > ARMYSLOT_NO_UNIT)
 			{
 				return m_CurUnitIter->GetUnitID();
 			}
 			++m_CurUnitIter;
 		}
 
-		return ARMY_NO_UNIT;
+		return ARMYSLOT_NO_UNIT;
 	}
-	return ARMY_NO_UNIT;
+	return ARMYSLOT_NO_UNIT;
 }
 
 /// Retrieve units from the army - first call (UnitHandle version)
@@ -869,7 +866,7 @@ UnitHandle CvArmyAI::GetFirstUnit()
 	UnitHandle pRtnValue;
 
 	int iUnitID = GetFirstUnitID();
-	if(iUnitID != ARMY_NO_UNIT)
+	if(iUnitID != ARMYSLOT_NO_UNIT)
 	{
 		pRtnValue = UnitHandle(GET_PLAYER(m_eOwner).getUnit(iUnitID));
 
@@ -885,7 +882,7 @@ UnitHandle CvArmyAI::GetNextUnit()
 	UnitHandle pRtnValue;
 
 	int iUnitID = GetNextUnitID();
-	if(iUnitID != ARMY_NO_UNIT)
+	if(iUnitID != ARMYSLOT_NO_UNIT)
 	{
 		pRtnValue = UnitHandle(GET_PLAYER(m_eOwner).getUnit(iUnitID));
 
