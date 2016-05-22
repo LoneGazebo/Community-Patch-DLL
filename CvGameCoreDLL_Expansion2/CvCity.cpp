@@ -59,14 +59,18 @@ int        s_changeYieldFromTerreain;
 //	--------------------------------------------------------------------------------
 namespace FSerialization
 {
-std::set<CvCity*> citiesToCheck;
+
+//is it wise to store pointers here?
+//anyway vector seems better than set because of the defined ordering
+std::vector<CvCity*> citiesToCheck;
+
 void SyncCities()
 {
 	if(GC.getGame().isNetworkMultiPlayer())
 	{
 		PlayerTypes authoritativePlayer = GC.getGame().getActivePlayer();
 
-		std::set<CvCity*>::const_iterator i;
+		std::vector<CvCity*>::const_iterator i;
 		for(i = citiesToCheck.begin(); i != citiesToCheck.end(); ++i)
 		{
 			const CvCity* city = *i;
@@ -94,7 +98,7 @@ void SyncCities()
 // clears ALL deltas for ALL units
 void ClearCityDeltas()
 {
-	std::set<CvCity*>::iterator i;
+	std::vector<CvCity*>::iterator i;
 	for(i = citiesToCheck.begin(); i != citiesToCheck.end(); ++i)
 	{
 		CvCity* city = *i;
@@ -410,7 +414,7 @@ CvCity::CvCity() :
 #endif
 {
 	OBJECT_ALLOCATED
-	FSerialization::citiesToCheck.insert(this);
+	FSerialization::citiesToCheck.push_back(this);
 
 	reset(0, NO_PLAYER, 0, 0, true);
 }
@@ -419,7 +423,11 @@ CvCity::CvCity() :
 CvCity::~CvCity()
 {
 	CvCityManager::OnCityDestroyed(this);
-	FSerialization::citiesToCheck.erase(this);
+
+	//really shouldn't happen that it's not present, but there was a crash here
+	std::vector<CvCity*>::iterator it = std::find( FSerialization::citiesToCheck.begin(), FSerialization::citiesToCheck.end(), this);
+	if (it!=FSerialization::citiesToCheck.end())
+		FSerialization::citiesToCheck.erase(it);
 
 	uninit();
 

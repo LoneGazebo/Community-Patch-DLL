@@ -67,14 +67,19 @@ int saiTaskWhenKilled[100] = {0};
 
 namespace FSerialization
 {
-std::set<CvUnit*> unitsToCheck;
+
+//is it wise to store pointers here?
+//anyway vector seems better than set because of the defined ordering
+//a set of IDInfos would be best but we don't know the ID when creating the unit
+std::vector<CvUnit*> unitsToCheck;
+
 void SyncUnits()
 {
 	if(GC.getGame().isNetworkMultiPlayer())
 	{
 		PlayerTypes authoritativePlayer = GC.getGame().getActivePlayer();
 
-		std::set<CvUnit*>::const_iterator i;
+		std::vector<CvUnit*>::const_iterator i;
 		for(i = unitsToCheck.begin(); i != unitsToCheck.end(); ++i)
 		{
 			const CvUnit* unit = *i;
@@ -102,7 +107,7 @@ void SyncUnits()
 // clears ALL deltas for ALL units
 void ClearUnitDeltas()
 {
-	std::set<CvUnit*>::iterator i;
+	std::vector<CvUnit*>::iterator i;
 	for(i = unitsToCheck.begin(); i != unitsToCheck.end(); ++i)
 	{
 		CvUnit* unit = *i;
@@ -401,7 +406,7 @@ CvUnit::CvUnit() :
 {
 	initPromotions();
 	OBJECT_ALLOCATED
-	FSerialization::unitsToCheck.insert(this);
+	FSerialization::unitsToCheck.push_back(this);
 	reset(0, NO_UNIT, NO_PLAYER, true);
 }
 
@@ -410,7 +415,12 @@ CvUnit::CvUnit() :
 CvUnit::~CvUnit()
 {
 	m_thisHandle.ignoreDestruction(true);
-	FSerialization::unitsToCheck.erase(this);
+
+	//really shouldn't happen that it's not present, but there was a crash here
+	std::vector<CvUnit*>::iterator it = std::find( FSerialization::unitsToCheck.begin(), FSerialization::unitsToCheck.end(), this);
+	if (it!=FSerialization::unitsToCheck.end())
+		FSerialization::unitsToCheck.erase(it);
+
 	if(!gDLL->GetDone() && GC.IsGraphicsInitialized())  // don't need to remove entity when the app is shutting down, or crash can occur
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
