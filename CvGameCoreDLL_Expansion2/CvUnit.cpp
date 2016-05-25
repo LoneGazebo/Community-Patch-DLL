@@ -421,7 +421,7 @@ CvUnit::~CvUnit()
 	if (it!=FSerialization::unitsToCheck.end())
 		FSerialization::unitsToCheck.erase(it);
 
-	if(!gDLL->GetDone() && GC.IsGraphicsInitialized())  // don't need to remove entity when the app is shutting down, or crash can occur
+	if(gDLL && !gDLL->GetDone() && GC.IsGraphicsInitialized())  // don't need to remove entity when the app is shutting down, or crash can occur
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitDestroyed(pDllUnit.get());

@@ -452,18 +452,19 @@ void CvTacticalAI::CommandeerUnits()
 		//if we cannot heal in the capital, we can heal nowhere ...
 		CvCity* pCapital = m_pPlayer->getCapitalCity();
 		bool bCanHeal = pCapital ? pLoopUnit->healRate( pCapital->plot() ) > 0 : false;
+		bool bHasTarget = TacticalAIHelpers::IsCaptureTargetInRange(pLoopUnit);
 
 		// is the unit healing?
 		if (m_HealingUnits.find( pLoopUnit->GetID() ) != m_HealingUnits.end())
 		{
-			if ( pLoopUnit->getDamage()>30 && bCanHeal )
+			if ( pLoopUnit->getDamage()>30 && bCanHeal && !bHasTarget )
 				//need to continue healing
 				continue;
 			else
 				//done healing
 				m_HealingUnits.erase( pLoopUnit->GetID() );
 		}
-		else if (bCanHeal)
+		else if (bCanHeal && !bHasTarget)
 		{
 			//does it need healing? unless barbarian or japanese!
 			if ( (pLoopUnit->getDamage()>80 || pLoopUnit->isProjectedToDieNextTurn() ) && !m_pPlayer->isBarbarian() && !m_pPlayer->GetPlayerTraits()->IsFightWellDamaged() )
@@ -4442,7 +4443,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 				//we have a problem, apparently civilian and escort must split up
 				if (!MoveToUsingSafeEmbark(pCivilian, pOperation->GetTargetPlot(), true, 0))
 				{
-					pOperation->SetToAbort(AI_ABORT_NO_TARGET);
+					pOperation->SetToAbort(AI_ABORT_LOST_PATH);
 					strLogString.Format("%s stuck at (%d,%d), cannot find safe path to target. aborting.", 
 						pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY() );
 				}
@@ -4479,7 +4480,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 				}
 				else
 				{
-					pOperation->SetToAbort(AI_ABORT_NO_TARGET);
+					pOperation->SetToAbort(AI_ABORT_LOST_PATH);
 					if(GC.getLogging() && GC.getAILogging())
 						strLogString.Format("%s at (%d,%d). Aborted operation. No path to target for civilian.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY() );
 				}
@@ -6653,30 +6654,6 @@ void CvTacticalAI::ExecuteHeals()
 								LogTacticalMessage(strLogString);
 							}
 						}
-					}
-					
-					//ok, special for melee - don't retreat if you could capture a city
-					if (pUnit->IsCombatUnit() && !pUnit->isRanged() && !pUnit->isNoCapture())
-					{
-						CvCity* pNeighboringCity = pUnit->plot()->GetAdjacentCity();
-						if (pNeighboringCity && m_pPlayer->IsAtWarWith(pNeighboringCity->getOwner()))
-						{
-							int iExpectedSelfDamage = 0;
-							int iExpectedDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pNeighboringCity,pUnit,iExpectedSelfDamage);
-							if (iExpectedSelfDamage < pUnit->GetCurrHitPoints() && iExpectedDamage > (pNeighboringCity->GetMaxHitPoints()-pNeighboringCity->getDamage()))
-							{
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strLogString;
-									strLogString.Format("Healing unit %s (%d) trying to capture city at X: %d, Y: %d", 
-										pUnit->getName().GetCString(), pUnit->GetID(), pNeighboringCity->getX(), pNeighboringCity->getY());
-									LogTacticalMessage(strLogString);
-								}
-								bFlee = false;
-							}
-						}
-
-						//todo: same for barb camps?
 					}
 
 					if (bFlee)
@@ -12245,6 +12222,38 @@ bool TacticalAIHelpers::HaveEnoughMeleeUnitsAroundTarget(PlayerTypes ePlayer, Cv
 
 		if (iCount>=iReqUnits)
 			return true;
+	}
+
+	return false;
+}
+
+bool TacticalAIHelpers::IsCaptureTargetInRange(CvUnit * pUnit)
+{
+	if (pUnit && pUnit->IsCombatUnit() && !pUnit->isRanged() && !pUnit->isNoCapture())
+	{
+		ReachablePlots reachablePlots;
+		TacticalAIHelpers::GetAllPlotsInReach(pUnit,pUnit->plot(),reachablePlots,true,true,false);
+
+		for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
+
+			CvCity* pNeighboringCity = pPlot->getPlotCity();
+			if (pNeighboringCity && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pNeighboringCity->getOwner()))
+			{
+				int iExpectedSelfDamage = 0;
+				int iExpectedDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pNeighboringCity,pUnit,iExpectedSelfDamage);
+				if (iExpectedSelfDamage < pUnit->GetCurrHitPoints() && iExpectedDamage > (pNeighboringCity->GetMaxHitPoints()-pNeighboringCity->getDamage()))
+					return true;
+			}
+
+			if (pPlot->getImprovementType()==GC.getBARBARIAN_CAMP_IMPROVEMENT())
+			{
+				UnitHandle pDefender = pPlot->getBestDefender(BARBARIAN_PLAYER);
+				if (!pDefender || TacticalAIHelpers::IsAttackNetPositive(pUnit,pPlot))
+					return true;
+			}
+		}
 	}
 
 	return false;

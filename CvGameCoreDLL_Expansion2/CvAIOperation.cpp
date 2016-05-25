@@ -805,17 +805,17 @@ bool CvAIOperation::ShouldAbort()
 		case AI_OPERATION_STATE_MOVING_TO_TARGET:
 		{
 			// now see how our armies are doing
-			bool bAllGood = true;
 			for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
 			{
 				CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
 				if (pThisArmy)
-					bAllGood &= VerifyOrAdjustTarget(pThisArmy);
-			}
-
-			if (!bAllGood)
-			{
-				SetToAbort(AI_ABORT_LOST_TARGET);
+				{
+					if (!VerifyOrAdjustTarget(pThisArmy))
+					{
+						SetToAbort(AI_ABORT_LOST_TARGET);
+						break;
+					}
+				}
 			}
 			break;
 		}
@@ -1688,11 +1688,18 @@ bool CvAIOperationOffensive::VerifyOrAdjustTarget(CvArmyAI* pArmy)
 	CvCity* pTroubleSpot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(0,false);
 	if (pTroubleSpot)
 	{
-		//the trouble spot is right next to us, abort the current operation
-		SPathFinderUserData data(m_eOwner,PT_GENERIC_SAME_AREA,NO_PLAYER,16);
-		data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
-		if (GC.GetStepFinder().DoesPathExist(pTroubleSpot->plot(),pArmy->GetCenterOfMass(DOMAIN_LAND),data))
-			return false;
+		CvTacticalAnalysisMap* pTactMap = GC.getGame().GetTacticalAnalysisMap();
+		if (pTactMap->IsInEnemyDominatedZone(pTroubleSpot->plot()))
+		{
+			//the trouble spot is right next to us, abort the current operation
+			SPathFinderUserData data(m_eOwner,PT_GENERIC_SAME_AREA,NO_PLAYER,GC.getAI_TACTICAL_RECRUIT_RANGE());
+			data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
+			if (GC.GetStepFinder().DoesPathExist(pTroubleSpot->plot(),pArmy->GetCenterOfMass(DOMAIN_LAND),data))
+			{
+				LogOperationSpecialMessage("Cancelling to reuse units for defense");
+				return false;
+			}
+		}
 	}
 
 	//somebody unexpected owning the target? abort
@@ -3003,12 +3010,23 @@ bool CvAIOperationOffensiveNavalEscorted::VerifyOrAdjustTarget(CvArmyAI * pArmy)
 	CvCity* pTroubleSpot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(0,false);
 	if (pTroubleSpot && pTroubleSpot->isCoastal())
 	{
-		//the trouble spot is right next to us, abort the current operation
-		SPathFinderUserData data(m_eOwner,PT_GENERIC_SAME_AREA,NO_PLAYER,23);
-		data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
-		if (GC.GetStepFinder().DoesPathExist(pTroubleSpot->plot(),pArmy->GetCenterOfMass(DOMAIN_SEA),data))
-			return false;
+		CvTacticalAnalysisMap* pTactMap = GC.getGame().GetTacticalAnalysisMap();
+		if (pTactMap->IsInEnemyDominatedZone(pTroubleSpot->plot()))
+		{
+			//the trouble spot is right next to us, abort the current operation
+			SPathFinderUserData data(m_eOwner,PT_GENERIC_SAME_AREA,NO_PLAYER,GC.getAI_TACTICAL_RECRUIT_RANGE());
+			data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
+			if (GC.GetStepFinder().DoesPathExist(pTroubleSpot->plot(),pArmy->GetCenterOfMass(DOMAIN_SEA),data))
+			{
+				LogOperationSpecialMessage("Cancelling to reuse units for defense");
+				return false;
+			}
+		}
 	}
+
+	//somebody unexpected owning the target? abort
+	if (GetTargetPlot()->getOwner()!=NO_PLAYER && GetTargetPlot()->getOwner()!=m_eEnemy)
+		return false;
 
 	return true;
 }
@@ -3916,7 +3934,7 @@ CvPlot* OperationalAIHelpers::FindEnemies(PlayerTypes ePlayer, PlayerTypes eEnem
 		if(eDomain!=NO_DOMAIN && pLoopUnit->getDomainType()!=eDomain)
 			continue;
 
-		if (!pLoopUnit->isInvisible(GET_PLAYER(ePlayer).getTeam(),false))
+		if (pLoopUnit->isInvisible(GET_PLAYER(ePlayer).getTeam(),false))
 			continue;
 
 		if (bHomelandOnly && pLoopPlot->getOwner()!=ePlayer)
@@ -3946,12 +3964,13 @@ CvPlot* OperationalAIHelpers::FindEnemies(PlayerTypes ePlayer, PlayerTypes eEnem
 		for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 		{
 			const CvPlot* pNeighborPlot = aPlotsToCheck[iCount];
-			if (!pNeighborPlot || !pNeighborPlot->isVisible(GET_PLAYER(ePlayer).getTeam()))
+			if (!pNeighborPlot)
 				continue;
 
 			UnitHandle pEnemy = pNeighborPlot->getBestDefender(eEnemy,ePlayer,NULL,true);
 			if (pEnemy && pEnemy->getDomainType() == DOMAIN_LAND && pEnemy->IsCombatUnit())
-				iEnemyPower += pEnemy->GetPower();
+				if (!pEnemy->isInvisible(GET_PLAYER(ePlayer).getTeam(),false))
+					iEnemyPower += pEnemy->GetPower();
 		}
 
 		//we don't want to adjust our target too much

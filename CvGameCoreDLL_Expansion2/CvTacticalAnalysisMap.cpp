@@ -1333,21 +1333,12 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByID(int iID)
 // Is this plot in dangerous territory?
 bool CvTacticalAnalysisMap::IsInEnemyDominatedZone(CvPlot* pPlot)
 {
-	CvTacticalAnalysisCell* pCell;
-	int iPlotIndex;
-	CvTacticalDominanceZone* pZone;
+	int iPlotIndex = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
+	CvTacticalAnalysisCell* pCell = GetCell(iPlotIndex);
+	CvTacticalDominanceZone* pZone = GetZoneByID(pCell->GetDominanceZone());
 
-	iPlotIndex = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
-	pCell = GetCell(iPlotIndex);
-
-	for(int iI = 0; iI < GetNumZones(); iI++)
-	{
-		pZone = GetZone(iI);
-		if(pZone->GetDominanceZoneID() == pCell->GetDominanceZone())
-		{
-			return (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY);
-		}
-	}
+	if(pZone)
+		return (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY);
 
 	return false;
 }
