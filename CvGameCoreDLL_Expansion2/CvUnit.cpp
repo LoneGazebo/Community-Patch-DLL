@@ -26287,7 +26287,7 @@ bool CvUnit::UpdatePathCache(CvPlot* pDestPlot, int iFlags)
 }
 //	---------------------------------------------------------------------------
 // Returns true if attack was made...
-bool CvUnit::UnitAttack(int iX, int iY, int iFlags)
+bool CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 {
 	VALIDATE_OBJECT
 	CvMap& kMap = GC.getMap();
@@ -26339,7 +26339,7 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags)
 
 	bool bAttack = false;
 
-	if(pDestPlot->isAdjacent(plot()) || (getDomainType() == DOMAIN_AIR))
+	if( (pDestPlot->isAdjacent(plot()) && canMoveInto(*pDestPlot,iFlags|MOVEFLAG_ATTACK) ) || (getDomainType() == DOMAIN_AIR))
 	{
 		if(!isOutOfAttacks() && (!IsCityAttackSupport() || pDestPlot->isEnemyCity(*this) || !pDestPlot->getBestDefender(NO_PLAYER)))
 		{
