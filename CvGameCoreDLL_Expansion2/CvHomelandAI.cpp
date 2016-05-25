@@ -6491,12 +6491,30 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 	TradeConnectionList aTradeConnections;
 	pkTradeAI->GetPrioritizedTradeRoutes(aTradeConnections);
 
+	//don't start all routes from the same city, try to spread them out
+	//note this is only for this turn - next turn it's a new game
+	std::set<int> originCities;
+	
+	//stats to decide whether to disband a unit
+	int iWaterRoutes = 0;
+	int iLandRoutes = 0;
+
 	//for the N best trade routes, find a suitable unit
 	//check at least the 8 best routes, at max 3 times the number of free trade units
 	uint nRoutesToCheck = MIN(aTradeConnections.size(),MAX(m_CurrentMoveUnits.size()*3,8u));
 	for (uint ui = 0; ui < nRoutesToCheck; ui++)
 	{
 		CvPlot* pOriginPlot = GC.getMap().plot(aTradeConnections[ui].m_iOriginX, aTradeConnections[ui].m_iOriginY);
+
+		//stats
+		if (aTradeConnections[ui].m_eDomain==DOMAIN_SEA)
+			iWaterRoutes++;
+		if (aTradeConnections[ui].m_eDomain==DOMAIN_LAND)
+			iLandRoutes++;
+
+		//if we already made a route from here this turn, then skip it
+		if (originCities.find(aTradeConnections[ui].m_iOriginID)!=originCities.end())
+			continue;
 
 		//we don't really care about the distance but not having to re-base is good
 		CvUnit *pBestUnit = NULL;
@@ -6531,6 +6549,9 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 		{
 			CvCity* pOriginCity = CvGameTrade::GetOriginCity(aTradeConnections[ui]);
 			CvCity* pDestCity = CvGameTrade::GetDestCity(aTradeConnections[ui]);
+
+			//remember this city
+			originCities.insert(pOriginCity->GetID());
 
 			if (pOriginPlot != pBestUnit->plot())
 			{
@@ -6580,13 +6601,23 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 		if(!pUnit || !pUnit->canMove())
 			continue;
 
-		//maybe wait a few turns before killing it? how to implement?
-		pUnit->kill(true);
-		if(GC.getLogging() && GC.getAILogging())
-		{	
-			CvString strLogString;
-			strLogString.Format("Disbanding trade unit because no suitable target");
-			LogHomelandMessage(strLogString);
+		bool bKill = false;
+
+		if ( pUnit->getDomainType()==DOMAIN_SEA )
+			bKill = (iWaterRoutes<iLandRoutes);
+
+		if ( pUnit->getDomainType()==DOMAIN_LAND )
+			bKill = (iLandRoutes<iWaterRoutes);
+
+		if (bKill)
+		{
+			pUnit->kill(true);
+			if(GC.getLogging() && GC.getAILogging())
+			{	
+				CvString strLogString;
+				strLogString.Format("Disbanding trade unit because no suitable target");
+				LogHomelandMessage(strLogString);
+			}
 		}
 	}
 }
