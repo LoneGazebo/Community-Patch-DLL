@@ -34581,6 +34581,53 @@ void CvPlayer::deleteAIOperation(int iID)
 	}
 }
 
+bool CvPlayer::StopAllOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason)
+{
+	bool bFoundOne = false;
+
+	// loop through all entries looking for match
+	std::map<int , CvAIOperation*>::iterator iter;
+	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	{
+		CvAIOperation* pThisOperation = iter->second;
+		if(pThisOperation->IsOffensive() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
+		{
+			if(ePlayer == NO_PLAYER || ePlayer == pThisOperation->GetEnemy())
+			{
+				if (bIncludeSneakOps || !pThisOperation->IsSneaky())
+				{
+					bFoundOne = true;
+					pThisOperation->SetToAbort(eReason);
+				}
+			}
+		}
+	}
+
+	return bFoundOne;
+}
+
+bool CvPlayer::StopAllDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason)
+{
+	bool bFoundOne = false;
+
+	// loop through all entries looking for match
+	std::map<int , CvAIOperation*>::iterator iter;
+	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	{
+		CvAIOperation* pThisOperation = iter->second;
+		if(pThisOperation->IsDefensive() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
+		{
+			if(ePlayer == NO_PLAYER || ePlayer == pThisOperation->GetEnemy())
+			{
+				bFoundOne = true;
+				pThisOperation->SetToAbort(eReason);
+			}
+		}
+	}
+
+	return bFoundOne;
+}
+
 //	--------------------------------------------------------------------------------
 bool CvPlayer::haveAIOperationOfType(int iOperationType, int* piID /* optional return argument */, PlayerTypes eTargetPlayer /* optional additional match criteria */, CvPlot* pTarget /* optional additional match criteria */)
 {
@@ -41538,6 +41585,9 @@ bool CvPlayer::IsAtWarAnyMinor() const
 
 bool CvPlayer::IsAtWarWith(PlayerTypes iPlayer) const
 {
+	if (iPlayer==NO_PLAYER)
+		return false;
+
 	return GET_TEAM(getTeam()).isAtWar(GET_PLAYER(iPlayer).getTeam());
 }
 

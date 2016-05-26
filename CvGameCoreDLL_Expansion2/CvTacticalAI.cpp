@@ -1067,7 +1067,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		// Default for this zone
 		else
 		{
-			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
+			eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
 		}
 		break;
 	}
@@ -4198,6 +4198,28 @@ void CvTacticalAI::ReviewUnassignedUnits()
 
 // OPERATIONAL AI SUPPORT FUNCTIONS
 
+CvUnit* SwitchEscort(CvUnit* pCivilian, CvUnit* pEscort, CvArmyAI* pThisArmy)
+{
+	CvUnit* pPlotDefender = pCivilian->plot()->getBestDefender(pCivilian->getOwner()).pointer();
+
+	//Maybe we just make this guy our new escort, eh?
+	if(pPlotDefender && pPlotDefender->getArmyID() == -1 && pPlotDefender->getDomainType() == pCivilian->getDomainType())
+	{
+		pThisArmy->RemoveUnit(pEscort->GetID());
+		pThisArmy->AddUnit(pPlotDefender->GetID(), 1);
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strLogString;
+			strLogString.Format("SingleHexOperationMoves: Switched escort to get things going.");
+			GET_PLAYER(pCivilian->getOwner()).GetTacticalAI()->LogTacticalMessage(strLogString);
+		}
+
+		return pPlotDefender;
+	}
+
+	return NULL;
+}
+
 /// Move a single stack (civilian plus escort) to its destination
 void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 {
@@ -4244,21 +4266,8 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 					//another military unit is blocking our escort ... find another muster plot
 					if(pCivilian->plot()->GetNumCombatUnits() > 0)
 					{
-						CvUnit* pPlotDefender = pCivilian->plot()->getBestDefender(pCivilian->getOwner()).pointer();
-
-						//Maybe we just make this guy our new escort, eh?
-						if(pPlotDefender && pPlotDefender->getArmyID() == -1 && pPlotDefender->getDomainType() == pCivilian->getDomainType())
-						{
-							pThisArmy->RemoveUnit(pEscort->GetID());
-							pThisArmy->AddUnit(pPlotDefender->GetID(), 1);
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strLogString;
-								strLogString.Format("SingleHexOperationMoves: Switched escort to get things going.");
-								LogTacticalMessage(strLogString);
-							}
-						}
-						else
+						CvUnit* pNewEscort = SwitchEscort(pCivilian.pointer(),pEscort.pointer(),pThisArmy);
+						if (!pNewEscort)
 						{
 							//Let's have them move forward, see if that clears things up.
 							MoveToUsingSafeEmbark(pCivilian, pOperation->GetTargetPlot(),true,0);
@@ -4298,7 +4307,11 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 						else
 						{
 							//d'oh. escort cannot reach us.
-							pOperation->SetToAbort(AI_ABORT_LOST_PATH);
+							CvUnit* pNewEscort = SwitchEscort(pCivilian.pointer(),pEscort.pointer(),pThisArmy);
+
+							if (pEscort==pNewEscort)
+								pOperation->SetToAbort(AI_ABORT_LOST_PATH);
+
 							return;	
 						}
 
