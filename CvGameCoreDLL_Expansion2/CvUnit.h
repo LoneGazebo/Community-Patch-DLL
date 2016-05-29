@@ -1565,7 +1565,7 @@ protected:
 	void QueueMoveForVisualization(CvPlot* pkPlot);
 	void PublishQueuedVisualizationMoves();
 
-	bool UnitAttack(int iX, int iY, int iFlags);
+	bool UnitAttackWithMove(int iX, int iY, int iFlags);
 	bool UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEndMove = false);
 	int  UnitPathTo(int iX, int iY, int iFlags, int iPrevETA = -1, bool bBuildingRoute = false);
 	bool UnitRoadTo(int iX, int iY, int iFlags);

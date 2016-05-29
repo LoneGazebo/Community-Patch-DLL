@@ -4103,7 +4103,7 @@ int CvPlayerTrade::GetNumberOfInternalTradeRoutes()
 
 		if (pConnection->m_eOriginOwner == m_pPlayer->GetID())
 		{
-			if(pConnection->m_eDestOwner != m_pPlayer->GetID())
+			if(pConnection->m_eDestOwner == m_pPlayer->GetID())
 			{
 				iNumConnections++;
 			}

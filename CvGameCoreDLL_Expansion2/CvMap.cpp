@@ -1604,8 +1604,8 @@ void CvMap::calculateAreas()
 				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
 				pPlot->setArea(iArea);
 
-				boundaries.m_iEastEdge = MIN(boundaries.m_iEastEdge,pPlot->getX());
-				boundaries.m_iWestEdge = MAX(boundaries.m_iWestEdge,pPlot->getX());
+				boundaries.m_iWestEdge = MIN(boundaries.m_iWestEdge,pPlot->getX());
+				boundaries.m_iEastEdge = MAX(boundaries.m_iEastEdge,pPlot->getX());
 				boundaries.m_iSouthEdge = MIN(boundaries.m_iSouthEdge,pPlot->getY());
 				boundaries.m_iNorthEdge = MAX(boundaries.m_iNorthEdge,pPlot->getY());
 			}

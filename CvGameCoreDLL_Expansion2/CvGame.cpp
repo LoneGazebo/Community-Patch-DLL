@@ -5250,6 +5250,8 @@ void CvGame::setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer)
 			{
 				GET_PLAYER(getActivePlayer()).killUnits();
 				GET_PLAYER(getActivePlayer()).killCities();
+				//make sure the new player can see everything
+				SetAllPlotsVisible( GET_PLAYER(getActivePlayer()).getTeam() );
 				CvPreGame::setSlotStatus(getActivePlayer(), SS_OBSERVER);
 			}
 		}
