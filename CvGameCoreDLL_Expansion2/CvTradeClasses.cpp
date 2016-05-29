@@ -5414,7 +5414,7 @@ void CvTradeAI::DoTurn()
 }
 
 /// Get all available TR
-void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList)
+void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool bSkipExisting)
 {
 	//important. see which trade paths are still valid
 	GC.getGame().GetGameTrade()->UpdateTradePathCache(m_pPlayer->GetID());
@@ -5469,7 +5469,7 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList)
 						eConnection = (TradeConnectionType)uiConnectionTypes;
 
 						// Check the trade route ignoring the path
-						if (!pPlayerTrade->CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnection, true, false))
+						if (!pPlayerTrade->CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnection, !bSkipExisting, false))
 							continue;
 
 						TradeConnection kConnection;
@@ -6121,9 +6121,9 @@ struct SortTR
 };
 
 /// Prioritize TRs
-void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionList)
+void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionList, bool bSkipExisting)
 {	
-	GetAvailableTR(aTradeConnectionList);
+	GetAvailableTR(aTradeConnectionList, bSkipExisting);
 
 	// if the list is empty, bail
 	if (aTradeConnectionList.size() == 0 || m_pPlayer->getNumCities()==0)

@@ -5753,7 +5753,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 			continue;
 		}
 
-		int iTargetTurns;
+		int iTargetTurns; //todo: don't pick the same target for all missionaries
 		CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseMissionaryTargetCity(pUnit, &iTargetTurns);
 		if(pTarget)
 		{
@@ -5791,9 +5791,9 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 			if(pUnit->isHuman())
 			{
 				pUnit->SetAutomateType(NO_AUTOMATE);
-				UnitProcessed(pUnit->GetID());
-				continue;
 			}
+
+			UnitProcessed(pUnit->GetID());
 		}
 #endif
 	}
@@ -6489,7 +6489,7 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 	CvTradeAI* pkTradeAI = m_pPlayer->GetTradeAI();
 
 	TradeConnectionList aTradeConnections;
-	pkTradeAI->GetPrioritizedTradeRoutes(aTradeConnections);
+	pkTradeAI->GetPrioritizedTradeRoutes(aTradeConnections,true);
 
 	//don't start all routes from the same city, try to spread them out
 	//note this is only for this turn - next turn it's a new game
@@ -6604,20 +6604,20 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 		bool bKill = false;
 
 		if ( pUnit->getDomainType()==DOMAIN_SEA )
-			bKill = (iWaterRoutes<iLandRoutes);
+			bKill = (iWaterRoutes+2<iLandRoutes);
 
 		if ( pUnit->getDomainType()==DOMAIN_LAND )
-			bKill = (iLandRoutes<iWaterRoutes);
+			bKill = (iLandRoutes+2<iWaterRoutes);
 
 		if (bKill)
 		{
-			pUnit->kill(true);
 			if(GC.getLogging() && GC.getAILogging())
 			{	
 				CvString strLogString;
-				strLogString.Format("Disbanding trade unit because no suitable target");
+				strLogString.Format("Disbanding %s trade unit %d because no suitable target",pUnit->getDomainType()==DOMAIN_SEA?"sea":"land",pUnit->GetID());
 				LogHomelandMessage(strLogString);
 			}
+			pUnit->kill(true);
 		}
 	}
 }
