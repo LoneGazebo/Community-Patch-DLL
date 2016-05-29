@@ -3971,12 +3971,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 			if(!GET_PLAYER(eOtherPlayer).isHuman())
 			{
-				bool bTargetLand = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_SNEAK_CITY_ATTACK);
-				bool bTargetSeaPure = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_PURE_NAVAL_CITY_ATTACK);
-				bool bTargetSea = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_SNEAK_ATTACK);
+				bool bTargetLand = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_CITY_SNEAK_ATTACK);
+				bool bTargetSeaPure = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_ONLY_CITY_ATTACK);
+				bool bTargetSea = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_INVASION_SNEAKY);
 				if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
 				{
-					CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_SNEAK_CITY_ATTACK, eWithPlayer);
+					CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_CITY_SNEAK_ATTACK, eWithPlayer);
 					if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
 					{
 						if(!target.m_bAttackBySea)
@@ -4259,12 +4259,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			//Not a human? Let's see if he has a valid target...if not, don't accept!
 			if(!GET_PLAYER(eOtherPlayer).isHuman())
 			{
-				bool bTargetLand = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_SNEAK_CITY_ATTACK);
-				bool bTargetSeaPure = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_PURE_NAVAL_CITY_ATTACK);
-				bool bTargetSea = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_SNEAK_ATTACK);
+				bool bTargetLand = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_CITY_SNEAK_ATTACK);
+				bool bTargetSeaPure = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_ONLY_CITY_ATTACK);
+				bool bTargetSea = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_INVASION_SNEAKY);
 				if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
 				{
-					CvMilitaryTarget target = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_SNEAK_CITY_ATTACK, eWithPlayer);
+					CvMilitaryTarget target = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_CITY_SNEAK_ATTACK, eWithPlayer);
 					if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
 					{
 						if(!target.m_bAttackBySea)

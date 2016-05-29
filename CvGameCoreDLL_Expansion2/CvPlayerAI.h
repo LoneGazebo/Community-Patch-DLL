@@ -88,11 +88,7 @@ public:
 	CvPlot* FindBestMusicianTargetPlot(CvUnit* pGreatMerchant, bool bOnlySafePaths);
 
 	// this are used by a city AI to signal that it is committing to build a unit for one of my operations
-#if defined(MOD_BALANCE_CORE)
-	virtual OperationSlot PeekAtNextUnitToBuildForOperationSlot(int iAreaID, CvCity* pCity);
-#else
-	virtual OperationSlot PeekAtNextUnitToBuildForOperationSlot(int iAreaID);
-#endif
+	virtual OperationSlot PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity);
 	virtual OperationSlot CityCommitToBuildUnitForOperationSlot(int iAreaID, int iTurns, CvCity* pCity);
 	virtual void CityUncommitToBuildUnitForOperationSlot(OperationSlot thisSlot);
 	virtual void CityFinishedBuildingUnitForOperationSlot(OperationSlot thisSlot, CvUnit* pThisUnit);

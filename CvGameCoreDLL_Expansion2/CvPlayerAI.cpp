@@ -989,11 +989,7 @@ void CvPlayerAI::AI_launch(VictoryTypes eVictory)
 
 	launch(eVictory);
 }
-#if defined(MOD_BALANCE_CORE)
-OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(int iAreaID, CvCity* pCity)
-#else
-OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(int iAreaID)
-#endif
+OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity)
 {
 	OperationSlot thisSlot;
 
@@ -1007,29 +1003,12 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(int iAreaID)
 #if defined(MOD_BALANCE_CORE)
 			if(pThisOperation->IsNavalOperation())
 			{
-				CvArea* pArea = GC.getMap().getArea(iAreaID);
-				if(pArea && !pArea->isWater())
-				{
-					if(pCity && pCity->isCoastal())
-					{
-						CvPlot* pPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pCity->plot());
-						if(pPlot != NULL)
-						{
-							iAreaID = pPlot->getArea();
-						}
-						else
-						{
-							continue;
-						}
-					}
-					else
-					{
-						continue;
-					}
-				}
+				CvPlot *pMusterPlot = pThisOperation->GetMusterPlot();
+				if (!pMusterPlot || !pCity->isMatchingArea(pMusterPlot))
+					continue;
 			}				
 #endif
-			thisSlot = pThisOperation->PeekAtNextUnitToBuild(iAreaID);
+			thisSlot = pThisOperation->PeekAtNextUnitToBuild();
 			if(thisSlot.IsValid())
 			{
 				break;
@@ -1083,7 +1062,7 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 			iScore += pThisOperation->GetNumUnitsNeededToBeBuilt();
 			iScore += range( 10-iDistance, 0, 10 );
 
-			if(pThisOperation->GetOperationType() == AI_OPERATION_SNEAK_CITY_ATTACK || pThisOperation->GetOperationType() == AI_OPERATION_NAVAL_SNEAK_ATTACK)
+			if(pThisOperation->GetOperationType() == AI_OPERATION_CITY_SNEAK_ATTACK || pThisOperation->GetOperationType() == AI_OPERATION_NAVAL_INVASION_SNEAKY)
 			{
 				iScore *= 2;
 			}

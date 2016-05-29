@@ -2398,7 +2398,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 
 		switch(pSneakAttackOperation->GetOperationType())
 		{
-		case AI_OPERATION_SNEAK_CITY_ATTACK:
+		case AI_OPERATION_CITY_SNEAK_ATTACK:
 		{
 			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_ARMY_SNEAK_ATTACK, uiSpyIndex, pTargetCity, true);
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
@@ -2413,7 +2413,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #endif
 		}
 		break;
-		case AI_OPERATION_NAVAL_SNEAK_ATTACK:
+		case AI_OPERATION_NAVAL_INVASION_SNEAKY:
 		{
 			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK, uiSpyIndex, pTargetCity, true);
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
@@ -2428,7 +2428,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #endif
 		}
 #if defined(MOD_BALANCE_CORE)
-		case AI_OPERATION_PURE_NAVAL_CITY_ATTACK:
+		case AI_OPERATION_NAVAL_ONLY_CITY_ATTACK:
 		{
 			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK, uiSpyIndex, pTargetCity, true);
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
@@ -2666,12 +2666,12 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 
 		switch(pSneakAttackOperation->GetOperationType())
 		{
-		case AI_OPERATION_SNEAK_CITY_ATTACK:
+		case AI_OPERATION_CITY_SNEAK_ATTACK:
 		{
 			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_ARMY_SNEAK_ATTACK, uiSpyIndex, pTargetCity, true);
 		}
 		break;
-		case AI_OPERATION_NAVAL_SNEAK_ATTACK:
+		case AI_OPERATION_NAVAL_INVASION_SNEAKY:
 		{
 			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK, uiSpyIndex, pTargetCity, true);
 		}

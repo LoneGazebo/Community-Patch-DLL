@@ -1019,7 +1019,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity->getArea(), m_pCity);
+					OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity);
 					if(thisOperationSlot.IsValid())
 					{
 						CvArmyAI* pThisArmy = kPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
@@ -1300,7 +1300,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 				case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity->getArea(), m_pCity);
+					OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity);
 					if(thisOperationSlot.IsValid())
 					{
 						CvArmyAI* pThisArmy = kPlayer.getArmyAI(thisOperationSlot.m_iArmyID);

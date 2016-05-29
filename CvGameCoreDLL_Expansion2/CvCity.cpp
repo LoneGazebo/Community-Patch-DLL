@@ -13190,11 +13190,8 @@ void CvCity::CheckForOperationUnits()
 	{
 		bAppend = false;
 	}
-#if defined(MOD_BALANCE_CORE)
-	OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(getArea(), this);
-#else
-	OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(getArea());
-#endif
+
+	OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(this);
 	if(thisOperationSlot.IsValid())
 	{
 		CvArmyAI* pThisArmy = kPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
@@ -27806,11 +27803,8 @@ bool CvCity::CommitToBuildingUnitForOperation()
 	UnitAITypes eUnitAI;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
-#if defined(MOD_BALANCE_CORE)
-	OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(getArea(), this);
-#else
-	OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(getArea());
-#endif
+
+	OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(this);
 	if(thisOperationSlot.IsValid())
 	{
 
@@ -27912,12 +27906,8 @@ UnitTypes CvCity::GetUnitForOperation()
 	UnitAITypes eUnitAI;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
-#if defined(MOD_BALANCE_CORE)
-	OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(getArea(), this);
-#else
-	OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(getArea());
-#endif
 
+	OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(this);
 	if(thisOperationSlot.IsValid())
 	{
 		CvArmyAI* pThisArmy = kPlayer.getArmyAI(thisOperationSlot.m_iArmyID);

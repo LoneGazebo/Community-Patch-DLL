@@ -4307,12 +4307,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	//Target capacity should matter! If we can't get to them, let's not try to war on them!
 	if(!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()) && (viApproachWeights[MAJOR_CIV_APPROACH_WAR] > 0 || viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] > 0))
 	{
-		bool bTargetLand = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_SNEAK_CITY_ATTACK);
-		bool bTargetSeaPure = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_PURE_NAVAL_CITY_ATTACK);
-		bool bTargetSea = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_SNEAK_ATTACK);
+		bool bTargetLand = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_CITY_SNEAK_ATTACK);
+		bool bTargetSeaPure = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_ONLY_CITY_ATTACK);
+		bool bTargetSea = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_INVASION_SNEAKY);
 		if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
 		{
-			CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_SNEAK_CITY_ATTACK, ePlayer);
+			CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_CITY_SNEAK_ATTACK, ePlayer);
 			if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
 			{
 				if(!target.m_bAttackBySea)
@@ -5330,12 +5330,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	//Target capacity should matter! If we can't get to them, let's not try to war on them!
 	if(viApproachWeights[MAJOR_CIV_APPROACH_WAR] > 0)
 	{
-		bool bTargetLand = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_SNEAK_CITY_ATTACK);
-		bool bTargetSeaPure = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_PURE_NAVAL_CITY_ATTACK);
-		bool bTargetSea = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_SNEAK_ATTACK);
+		bool bTargetLand = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_CITY_SNEAK_ATTACK);
+		bool bTargetSeaPure = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_ONLY_CITY_ATTACK);
+		bool bTargetSea = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_INVASION_SNEAKY);
 		if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
 		{
-			CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_SNEAK_CITY_ATTACK, ePlayer);
+			CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_CITY_SNEAK_ATTACK, ePlayer);
 			if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
 			{
 				if(!target.m_bAttackBySea)
@@ -8399,19 +8399,20 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 		int iRequestPeaceTurnThreshold = /*4*/ GC.getREQUEST_PEACE_TURN_THRESHOLD();
 		int iWantPeace = 0;
 		int iOperationID;
-		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_BASIC_CITY_ATTACK, &iOperationID, ePlayer);
+		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_BASIC_ATTACK, &iOperationID, ePlayer);
 		if(!bHasOperationUnderway)
 		{
-			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ATTACK, &iOperationID, ePlayer);
+			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_INVASION, &iOperationID, ePlayer);
 		}
 		if(!bHasOperationUnderway)
 		{
-			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, &iOperationID, ePlayer);
+			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iOperationID, ePlayer);
 		}
 		if(bHasOperationUnderway)
 		{
 			iWantPeace--;
 		}
+
 		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway)
 		{
 			iWantPeace += (GetPlayerNumTurnsSinceCityCapture(ePlayer) / 2);
@@ -8545,19 +8546,20 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		int iRequestPeaceTurnThreshold = /*4*/ GC.getREQUEST_PEACE_TURN_THRESHOLD();
 		int iWantPeace = 0;
 		int iOperationID;
-		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_BASIC_CITY_ATTACK, &iOperationID, ePlayer);
+		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_BASIC_ATTACK, &iOperationID, ePlayer);
 		if(!bHasOperationUnderway)
 		{
-			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ATTACK, &iOperationID, ePlayer);
+			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_INVASION, &iOperationID, ePlayer);
 		}
 		if(!bHasOperationUnderway)
 		{
-			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, &iOperationID, ePlayer);
+			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iOperationID, ePlayer);
 		}
 		if(bHasOperationUnderway)
 		{
 			iWantPeace--;
 		}
+
 		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway)
 		{
 			iWantPeace += (GetPlayerNumTurnsSinceCityCapture(ePlayer) / 2);
@@ -33500,7 +33502,7 @@ bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid 
 	}
 
 	// REALLY Alive? (For some reason a player can be "alive" but have no Cities, Units, etc... grrrr)
-	if(GET_PLAYER(eOtherPlayer).getNumCities() == 0)
+	if(GET_PLAYER(eOtherPlayer).getNumCities() == 0 || eOtherPlayer == BARBARIAN_PLAYER)
 	{
 		return false;
 	}

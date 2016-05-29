@@ -34554,13 +34554,13 @@ CvAIOperation* CvPlayer::getAIOperation(int iID)
 
 
 //	--------------------------------------------------------------------------------
-CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, int /*iArea*/, CvCity* pTarget, CvCity* pMuster)
+CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, int iArea, CvCity* pTarget, CvCity* pMuster)
 {
 	CvAIOperation* pNewOperation = CvAIOperation::CreateOperation((AIOperationTypes) OperationType);
 	if(pNewOperation)
 	{
 		m_AIOperations.insert(std::make_pair(m_iNextOperationID.get(), pNewOperation));
-		pNewOperation->Init(m_iNextOperationID, m_eID, eEnemy, pTarget, pMuster);
+		pNewOperation->Init(m_iNextOperationID, m_eID, eEnemy, iArea, pTarget, pMuster);
 		m_iNextOperationID++;
 	}
 	return pNewOperation;
@@ -34592,9 +34592,9 @@ bool CvPlayer::StopAllOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool
 		CvAIOperation* pThisOperation = iter->second;
 		if(pThisOperation->IsOffensive() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
-			if(ePlayer == NO_PLAYER || ePlayer == pThisOperation->GetEnemy())
+			if( (ePlayer == NO_PLAYER && pThisOperation->GetEnemy() != BARBARIAN_PLAYER) || ePlayer == pThisOperation->GetEnemy())
 			{
-				if (bIncludeSneakOps || !pThisOperation->IsSneaky())
+				if (bIncludeSneakOps || !pThisOperation->IsAllowedDuringPeace())
 				{
 					bFoundOne = true;
 					pThisOperation->SetToAbort(eReason);
@@ -34839,8 +34839,8 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
 				switch (pOperation->GetOperationType())
 				{
 				case AI_OPERATION_FOUND_CITY:
-				case AI_OPERATION_NAVAL_COLONIZATION:
-				case AI_OPERATION_QUICK_COLONIZE:
+				case AI_OPERATION_FOUND_CITY_OVERSEAS:
+				case AI_OPERATION_FOUND_CITY_QUICK:
 					{
 						if (plotDistance(pPlot->getX(), pPlot->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY()) <= 3)
 						{
@@ -34857,8 +34857,8 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
 			switch (pOperation->GetOperationType())
 			{
 			case AI_OPERATION_FOUND_CITY:
-			case AI_OPERATION_NAVAL_COLONIZATION:
-			case AI_OPERATION_QUICK_COLONIZE:
+			case AI_OPERATION_FOUND_CITY_OVERSEAS:
+			case AI_OPERATION_FOUND_CITY_QUICK:
 				{
 					if (plotDistance(pPlot->getX(), pPlot->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY()) <= 2)
 					{

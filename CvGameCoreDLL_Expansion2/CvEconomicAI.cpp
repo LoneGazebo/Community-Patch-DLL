@@ -3992,9 +3992,9 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 				if(pArea != NULL)
 				{
 					if(pArea->GetID() != iInitialSettlerArea)
-						pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_QUICK_COLONIZE : AI_OPERATION_NAVAL_COLONIZATION, NO_PLAYER, iFinalArea);
+						pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY_OVERSEAS, NO_PLAYER, iFinalArea);
 					else
-						pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_QUICK_COLONIZE : AI_OPERATION_FOUND_CITY, NO_PLAYER, iFinalArea);
+						pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY, NO_PLAYER, iFinalArea);
 					return true;
 				}
 			}
@@ -4017,7 +4017,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 				CvString msg = CvString::format("Best settle plot (no embarkation) is %d,%d - value %d", pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getFoundValue(pPlayer->GetID()));
 				pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
 
-				pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_QUICK_COLONIZE : AI_OPERATION_FOUND_CITY, NO_PLAYER, iInitialSettlerArea);
+				pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY, NO_PLAYER, iInitialSettlerArea);
 				return true;
 			}
 		}

@@ -209,54 +209,48 @@ CvAIOperation* CvAIOperation::CreateOperation(AIOperationTypes eAIOperationType)
 {
 	switch(eAIOperationType)
 	{
-	case AI_OPERATION_BASIC_CITY_ATTACK:
-		return FNEW(CvAIOperationCityAttackBasic(), c_eCiv5GameplayDLL, 0);
+	case AI_OPERATION_CITY_BASIC_ATTACK:
+		return FNEW(CvAIOperationCityBasicAttack(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_DESTROY_BARBARIAN_CAMP:
-		return FNEW(CvAIOperationOffensiveAntiBarbarian(), c_eCiv5GameplayDLL, 0);
+		return FNEW(CvAIOperationAntiBarbarian(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_FOUND_CITY:
 		return FNEW(CvAIOperationCivilianFoundCity(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_MERCHANT_DELEGATION:
 		return FNEW(CvAIOperationCivilianMerchantDelegation(), c_eCiv5GameplayDLL, 0);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	case AI_OPERATION_DIPLOMAT_DELEGATION:
 		return FNEW(CvAIOperationCivilianDiplomatDelegation(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_ALLY_DEFENSE:
 		return FNEW(CvAIOperationDefendAlly(), c_eCiv5GameplayDLL, 0);
-#endif
 	case AI_OPERATION_CONCERT_TOUR:
 		return FNEW(CvAIOperationCivilianConcertTour(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_NAVAL_BOMBARDMENT:
-		return FNEW(CvAIOperationOffensiveNavalBombardment(), c_eCiv5GameplayDLL, 0);
+		return FNEW(CvAIOperationNavalBombardment(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_NAVAL_SUPERIORITY:
-		return FNEW(CvAIOperationOffensiveNavalSuperiority(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_PURE_NAVAL_CITY_ATTACK:
-		return FNEW(CvAIOperationOffensiveNavalOnlyCityAttack(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_NAVAL_COLONIZATION:
-		return FNEW(CvAIOperationCivilianColonization(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_QUICK_COLONIZE:
-		return FNEW(CvAIOperationCivilianQuickColonize(), c_eCiv5GameplayDLL, 0);
+		return FNEW(CvAIOperationNavalSuperiority(), c_eCiv5GameplayDLL, 0);
+	case AI_OPERATION_NAVAL_ONLY_CITY_ATTACK:
+		return FNEW(CvAIOperationNavalOnlyCityAttack(), c_eCiv5GameplayDLL, 0);
+	case AI_OPERATION_FOUND_CITY_OVERSEAS:
+		return FNEW(CvAIOperationCivilianFoundCityOverseas(), c_eCiv5GameplayDLL, 0);
+	case AI_OPERATION_FOUND_CITY_QUICK:
+		return FNEW(CvAIOperationCivilianFoundCityQuick(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_PILLAGE_ENEMY:
 		return FNEW(CvAIOperationPillageEnemy(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_CITY_CLOSE_DEFENSE:
 		return FNEW(CvAIOperationDefendCity(), c_eCiv5GameplayDLL, 0);
-#if defined(MOD_BALANCE_CORE)
 	case AI_OPERATION_CITY_CLOSE_DEFENSE_PEACE:
 		return FNEW(CvAIOperationDefendCityPeace(), c_eCiv5GameplayDLL, 0);
-#endif
 	case AI_OPERATION_RAPID_RESPONSE:
 		return FNEW(CvAIOperationDefenseRapidResponse(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_SNEAK_CITY_ATTACK:
+	case AI_OPERATION_CITY_SNEAK_ATTACK:
 		return FNEW(CvAIOperationCitySneakAttack(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_SMALL_CITY_ATTACK:
-		return FNEW(CvAIOperationCityAttackSmall(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_CITY_STATE_ATTACK:
 		return FNEW(CvAIOperationCityStateAttack(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_NAVAL_ATTACK:
-		return FNEW(CvAIOperationOffensiveNavalAttack(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_NAVAL_SNEAK_ATTACK:
-		return FNEW(CvAIOperationOffensiveNavalSneakAttack(), c_eCiv5GameplayDLL, 0);
-	case AI_OPERATION_CITY_STATE_NAVAL_ATTACK:
-		return FNEW(CvAIOperationOffensiveNavalCityStateAttack(), c_eCiv5GameplayDLL, 0);
+	case AI_OPERATION_NAVAL_INVASION:
+		return FNEW(CvAIOperationNavalInvasion(), c_eCiv5GameplayDLL, 0);
+	case AI_OPERATION_NAVAL_INVASION_SNEAKY:
+		return FNEW(CvAIOperationNavalInvasionSneaky(), c_eCiv5GameplayDLL, 0);
+	case AI_OPERATION_NAVAL_INVASION_CITY_STATE:
+		return FNEW(CvAIOperationNavalInvasionCityState(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_NUKE_ATTACK:
 		return FNEW(CvAIOperationNukeAttack(), c_eCiv5GameplayDLL, 0);
 	}
@@ -314,10 +308,10 @@ void CvAIOperation::BuildListOfUnitsWeStillNeedToBuild()
 }
 
 /// Find out the next item to build for this operation
-OperationSlot CvAIOperation::PeekAtNextUnitToBuild(int iAreaID)
+OperationSlot CvAIOperation::PeekAtNextUnitToBuild()
 {
 	OperationSlot thisSlot;
-	if(iAreaID == -1 || (GetMusterPlot() && GetMusterPlot()->getArea()==iAreaID) && !m_viListOfUnitsWeStillNeedToBuild.empty())
+	if(!m_viListOfUnitsWeStillNeedToBuild.empty())
 	{
 		thisSlot = m_viListOfUnitsWeStillNeedToBuild.front();
 	}
@@ -1229,22 +1223,19 @@ void CvAIOperation::LogOperationStart()
 		// Message to summary log?
 		switch (GetOperationType())
 		{
-		case AI_OPERATION_BASIC_CITY_ATTACK:
+		case AI_OPERATION_CITY_BASIC_ATTACK:
 		case AI_OPERATION_PILLAGE_ENEMY:
-		case AI_OPERATION_SNEAK_CITY_ATTACK:
-		case AI_OPERATION_SMALL_CITY_ATTACK:
+		case AI_OPERATION_CITY_SNEAK_ATTACK:
 		case AI_OPERATION_NAVAL_BOMBARDMENT:
 		case AI_OPERATION_NAVAL_SUPERIORITY:
-		case AI_OPERATION_NAVAL_ATTACK:
-		case AI_OPERATION_NAVAL_SNEAK_ATTACK:
+		case AI_OPERATION_NAVAL_INVASION:
+		case AI_OPERATION_NAVAL_INVASION_SNEAKY:
 		case AI_OPERATION_CITY_STATE_ATTACK:
-		case AI_OPERATION_CITY_STATE_NAVAL_ATTACK:
+		case AI_OPERATION_NAVAL_INVASION_CITY_STATE:
 		case AI_OPERATION_NUKE_ATTACK:
-		case AI_OPERATION_PURE_NAVAL_CITY_ATTACK:
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+		case AI_OPERATION_NAVAL_ONLY_CITY_ATTACK:
 		case AI_OPERATION_DIPLOMAT_DELEGATION:
 		case AI_OPERATION_ALLY_DEFENSE:
-#endif
 			
 			strOutBuf = CvString( GetOperationName() ) + ", ";
 			strOutBuf += strTemp1 + strTemp2;
@@ -1470,22 +1461,20 @@ void CvAIOperation::LogOperationEnd()
 		// Message to summary log?
 		switch (GetOperationType())
 		{
-		case AI_OPERATION_BASIC_CITY_ATTACK:
+		case AI_OPERATION_CITY_BASIC_ATTACK:
 		case AI_OPERATION_PILLAGE_ENEMY:
-		case AI_OPERATION_SNEAK_CITY_ATTACK:
-		case AI_OPERATION_SMALL_CITY_ATTACK:
+		case AI_OPERATION_CITY_SNEAK_ATTACK:
 		case AI_OPERATION_NAVAL_BOMBARDMENT:
 		case AI_OPERATION_NAVAL_SUPERIORITY:
-		case AI_OPERATION_NAVAL_ATTACK:
-		case AI_OPERATION_NAVAL_SNEAK_ATTACK:
+		case AI_OPERATION_NAVAL_INVASION:
+		case AI_OPERATION_NAVAL_INVASION_SNEAKY:
 		case AI_OPERATION_CITY_STATE_ATTACK:
-		case AI_OPERATION_CITY_STATE_NAVAL_ATTACK:
+		case AI_OPERATION_NAVAL_INVASION_CITY_STATE:
 		case AI_OPERATION_NUKE_ATTACK:
-		case AI_OPERATION_PURE_NAVAL_CITY_ATTACK:
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+		case AI_OPERATION_NAVAL_ONLY_CITY_ATTACK:
 		case AI_OPERATION_DIPLOMAT_DELEGATION:
 		case AI_OPERATION_ALLY_DEFENSE:
-#endif
+
 			strOutBuf = CvString( GetOperationName() ) + ", ";
 			strOutBuf += strTemp;
 			GET_PLAYER(m_eOwner).GetMilitaryAI()->LogMilitarySummaryMessage(strOutBuf);
@@ -1678,7 +1667,7 @@ FDataStream& operator>>(FDataStream& loadFrom, AIOperationMovementType& writeTo)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationOffensive
+// CvAIOperation
 ////////////////////////////////////////////////////////////////////////////////
 
 /// How long will we wait for a recruit to show up?
@@ -1713,7 +1702,7 @@ AIOperationAbortReason CvAIOperationOffensive::VerifyOrAdjustTarget(CvArmyAI* pA
 }
 
 /// Kick off this operation
-void CvAIOperationOffensive::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
+void CvAIOperationOffensive::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster)
 {
 	//do this before calling any FindX methods!
 	Reset(iID,eOwner,eEnemy);
@@ -1731,21 +1720,21 @@ void CvAIOperationOffensive::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnem
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationCityAttackBasic
+// CvAIOperationCityBasicAttack
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Constructor
-CvAIOperationCityAttackBasic::CvAIOperationCityAttackBasic()
+CvAIOperationCityBasicAttack::CvAIOperationCityBasicAttack()
 {
 }
 
 /// Destructor
-CvAIOperationCityAttackBasic::~CvAIOperationCityAttackBasic()
+CvAIOperationCityBasicAttack::~CvAIOperationCityBasicAttack()
 {
 }
 
 /// Kick off this operation
-void CvAIOperationCityAttackBasic::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
+void CvAIOperationCityBasicAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster)
 {
 	//do this before calling any FindX methods!
 	Reset(iID,eOwner,eEnemy);
@@ -1753,7 +1742,7 @@ void CvAIOperationCityAttackBasic::Init(int iID, PlayerTypes eOwner, PlayerTypes
 	SetupWithSingleArmy(pMuster->plot(),pTarget->plot());
 }
 
-MultiunitFormationTypes CvAIOperationCityAttackBasic::GetFormation() const
+MultiunitFormationTypes CvAIOperationCityBasicAttack::GetFormation() const
 {
 	//varies with era
 	return MilitaryAIHelpers::GetCurrentBestFormationTypeForCityAttack();
@@ -1870,21 +1859,21 @@ CvPlot* CvAIOperationMilitary::FindBestTarget(CvPlot** ppMuster) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationOffensiveAntiBarbarian
+// CvAIOperationAntiBarbarian
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Constructor
-CvAIOperationOffensiveAntiBarbarian::CvAIOperationOffensiveAntiBarbarian()
+CvAIOperationAntiBarbarian::CvAIOperationAntiBarbarian()
 {
 	m_iUnitToRescue = -1;
 }
 
 /// Destructor
-CvAIOperationOffensiveAntiBarbarian::~CvAIOperationOffensiveAntiBarbarian()
+CvAIOperationAntiBarbarian::~CvAIOperationAntiBarbarian()
 {
 }
 
-void CvAIOperationOffensiveAntiBarbarian::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEnemy*/, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
+void CvAIOperationAntiBarbarian::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEnemy*/, int /*iAreaID*/, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 {
 	//do this before calling any FindX methods!
 	Reset(iID,eOwner,BARBARIAN_PLAYER);
@@ -1896,13 +1885,13 @@ void CvAIOperationOffensiveAntiBarbarian::Init(int iID, PlayerTypes eOwner, Play
 }
 
 /// How close to target do we end up?
-int CvAIOperationOffensiveAntiBarbarian::GetDeployRange() const
+int CvAIOperationAntiBarbarian::GetDeployRange() const
 {
 	return GC.getAI_OPERATIONAL_BARBARIAN_CAMP_DEPLOY_RANGE();
 }
 
 /// Read serialized data
-void CvAIOperationOffensiveAntiBarbarian::Read(FDataStream& kStream)
+void CvAIOperationAntiBarbarian::Read(FDataStream& kStream)
 {
 	// read the base class' entries
 	CvAIOperation::Read(kStream);
@@ -1915,7 +1904,7 @@ void CvAIOperationOffensiveAntiBarbarian::Read(FDataStream& kStream)
 }
 
 /// Write serialized data
-void CvAIOperationOffensiveAntiBarbarian::Write(FDataStream& kStream) const
+void CvAIOperationAntiBarbarian::Write(FDataStream& kStream) const
 {
 	// write the base class' entries
 	CvAIOperation::Write(kStream);
@@ -1928,7 +1917,7 @@ void CvAIOperationOffensiveAntiBarbarian::Write(FDataStream& kStream) const
 }
 
 /// Find the barbarian camp we want to eliminate
-CvPlot* CvAIOperationOffensiveAntiBarbarian::FindBestTarget(CvPlot** ppMuster) const
+CvPlot* CvAIOperationAntiBarbarian::FindBestTarget(CvPlot** ppMuster) const
 {
 	return OperationalAIHelpers::FindBestBarbCamp(m_eOwner,ppMuster);
 }
@@ -1947,7 +1936,7 @@ CvAIOperationPillageEnemy::~CvAIOperationPillageEnemy()
 {
 }
 
-void CvAIOperationPillageEnemy::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity*, CvCity*)
+void CvAIOperationPillageEnemy::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity*, CvCity*)
 {
 	//do this before calling any FindX methods!
 	Reset(iID,eOwner,eEnemy);
@@ -2052,7 +2041,7 @@ CvAIOperationCivilian::~CvAIOperationCivilian()
 }
 
 /// Kick off this operation
-void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEnemy */, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
+void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEnemy */, int iAreaID, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 {
 	//do this before calling any FindX methods!
 	Reset(iID,eOwner,NO_PLAYER);
@@ -2064,7 +2053,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 		return;
 	}
 
-	CvPlot* pTargetSite = FindBestTargetForUnit(pOurCivilian,!IsEscorted());
+	CvPlot* pTargetSite = FindBestTargetForUnit(pOurCivilian,iAreaID,!IsEscorted());
 	SetupWithSingleArmy(pOurCivilian->plot(),pTargetSite,pTargetSite,pOurCivilian);
 }
 
@@ -2168,8 +2157,15 @@ CvUnit* CvAIOperationCivilian::FindBestCivilian()
 /// Start the civilian off to a new target plot
 bool CvAIOperationCivilian::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 {
+	CvPlot* pCurrentTarget = GetTargetPlot();
+	if (!pCurrentTarget)
+	{
+		SetToAbort( AI_ABORT_NO_TARGET );
+		return false;
+	}
+
 	// Find best target
-	CvPlot* pBetterTarget = FindBestTargetForUnit(pCivilian,!IsEscorted());
+	CvPlot* pBetterTarget = FindBestTargetForUnit(pCivilian,pCurrentTarget->getArea(),!IsEscorted());
 
 	// No targets at all!  Abort
 	if(pBetterTarget == NULL)
@@ -2177,12 +2173,9 @@ bool CvAIOperationCivilian::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 		SetToAbort( AI_ABORT_NO_TARGET );
 		return false;
 	}
-	else
-	{
-		SetTargetPlot(pBetterTarget);
-		pArmy->SetGoalPlot(pBetterTarget);
-	}
 
+	SetTargetPlot(pBetterTarget);
+	pArmy->SetGoalPlot(pBetterTarget);
 	return true;
 }
 
@@ -2302,16 +2295,14 @@ CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetIncludingCurrent(CvUnit* p
 		return pResult;
 }
 
-CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetForUnit(CvUnit* pUnit, bool bOnlySafePaths)
+CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetForUnit(CvUnit* pUnit, int iAreaID, bool bOnlySafePaths)
 {
 	bool bIsSafe = false;
-	int iTargetArea = GetTargetPlot() ? GetTargetPlot()->getArea() : -1;
-
-	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, iTargetArea, bIsSafe);
+	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, iAreaID, bIsSafe);
 
 	//try again if the result is not good
 	if (pResult == NULL || (!bIsSafe && bOnlySafePaths) )
-		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bIsSafe, this);
+		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, -1, bIsSafe);
 
 	if (pResult == NULL || (!bIsSafe && bOnlySafePaths) )
 		return NULL;
@@ -2320,16 +2311,16 @@ CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetForUnit(CvUnit* pUnit, boo
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationCivilianQuickColonize
+// CvAIOperationCivilianFoundCityQuick
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Constructor
-CvAIOperationCivilianQuickColonize::CvAIOperationCivilianQuickColonize()
+CvAIOperationCivilianFoundCityQuick::CvAIOperationCivilianFoundCityQuick()
 {
 }
 
 /// Destructor
-CvAIOperationCivilianQuickColonize::~CvAIOperationCivilianQuickColonize()
+CvAIOperationCivilianFoundCityQuick::~CvAIOperationCivilianFoundCityQuick()
 {
 }
 
@@ -2382,7 +2373,7 @@ bool CvAIOperationCivilianMerchantDelegation::PerformMission(CvUnit* pMerchant)
 }
 
 /// Find the plot where we want to settler
-CvPlot* CvAIOperationCivilianMerchantDelegation::FindBestTargetForUnit(CvUnit* pUnit, bool bOnlySafePaths)
+CvPlot* CvAIOperationCivilianMerchantDelegation::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/, bool bOnlySafePaths)
 {
 	if(!pUnit)
 		return NULL;
@@ -2406,7 +2397,7 @@ CvAIOperationCivilianDiplomatDelegation::~CvAIOperationCivilianDiplomatDelegatio
 }
 
 /// Find the plot where we want to influence
-CvPlot* CvAIOperationCivilianDiplomatDelegation::FindBestTargetForUnit(CvUnit* pUnit, bool /*bOnlySafePaths*/)
+CvPlot* CvAIOperationCivilianDiplomatDelegation::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/, bool /*bOnlySafePaths*/)
 {
 	if(!pUnit)
 		return NULL;
@@ -2449,7 +2440,7 @@ CvAIOperationDefendAlly::~CvAIOperationDefendAlly()
 }
 
 /// Kick off this operation
-void CvAIOperationDefendAlly::Init(int iID, PlayerTypes eOwner, PlayerTypes eAlly, CvCity* pTarget, CvCity* pMuster)
+void CvAIOperationDefendAlly::Init(int iID, PlayerTypes eOwner, PlayerTypes eAlly, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster)
 {
 	//do this before calling any FindX methods!
 	Reset(iID,eOwner,eAlly);
@@ -2504,7 +2495,7 @@ CvAIOperationCivilianConcertTour::~CvAIOperationCivilianConcertTour()
 }
 
 /// Find the plot where we want to settler
-CvPlot* CvAIOperationCivilianConcertTour::FindBestTargetForUnit(CvUnit* pUnit, bool bOnlySafePaths)
+CvPlot* CvAIOperationCivilianConcertTour::FindBestTargetForUnit(CvUnit* pUnit, int /*iAreaID*/, bool bOnlySafePaths)
 {
 	if(!pUnit)
 		return NULL;
@@ -2532,102 +2523,11 @@ bool CvAIOperationCivilianConcertTour::PerformMission(CvUnit* pMusician)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationOffensiveNavalOnlyBasic
+// CvAIOperationNavalOnlyBasic
 ////////////////////////////////////////////////////////////////////////////////
-
-/// Constructor
-CvAIOperationOffensiveNavalOnlyBasic::CvAIOperationOffensiveNavalOnlyBasic()
-{
-}
-
-/// Destructor
-CvAIOperationOffensiveNavalOnlyBasic::~CvAIOperationOffensiveNavalOnlyBasic()
-{
-}
 
 /// Kick off this operation
-void CvAIOperationOffensiveNavalOnlyBasic::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
-{
-	//do this before calling any FindX methods!
-	Reset(iID,eOwner,eEnemy);
-
-	if (!pTarget || !pMuster)
-		return;
-
-	// Target just off the coast - important that it is owned by eEnemy - we terminate if that should ever change
-	CvPlot *pCoastalTarget = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget->plot());
-	// Muster just off the coast
-	CvPlot *pCoastalMuster = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster->plot());
-
-	SetupWithSingleArmy(pCoastalMuster,pCoastalTarget);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationOffensiveNavalBombardment
-////////////////////////////////////////////////////////////////////////////////
-
-/// Constructor
-CvAIOperationOffensiveNavalBombardment::CvAIOperationOffensiveNavalBombardment()
-{
-}
-
-/// Destructor
-CvAIOperationOffensiveNavalBombardment::~CvAIOperationOffensiveNavalBombardment()
-{
-}
-
-/// Kick off this operation
-void CvAIOperationOffensiveNavalBombardment::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
-{
-	if(eEnemy == NO_PLAYER)
-		eEnemy = BARBARIAN_PLAYER;
-
-	//do this before calling any FindX methods!
-	Reset(iID,eOwner,eEnemy);
-
-	CvPlot* pMuster = NULL;
-	CvPlot* pTarget = FindBestTarget(&pMuster);
-
-	SetupWithSingleArmy(pMuster,pTarget);
-}
-
-/// Returns true when we should abort the operation totally (besides when we have lost all units in it)
-AIOperationAbortReason CvAIOperationOffensiveNavalBombardment::VerifyOrAdjustTarget(CvArmyAI* pArmy)
-{
-	CvPlot* pNewTarget = FindBestTarget(NULL);
-
-	if (pNewTarget)
-	{
-		SetTargetPlot(pNewTarget);
-		pArmy->SetGoalPlot(pNewTarget);
-		return NO_ABORT_REASON;
-	}
-
-	return AI_ABORT_NO_TARGET;
-}
-
-/// Find the barbarian camp we want to eliminate
-CvPlot* CvAIOperationOffensiveNavalBombardment::FindBestTarget(CvPlot** ppMuster) const
-{
-	return OperationalAIHelpers::FindBestCoastalBombardmentTarget(m_eOwner,m_eEnemy,ppMuster);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationOffensiveNavalSuperiority
-////////////////////////////////////////////////////////////////////////////////
-
-/// Constructor
-CvAIOperationOffensiveNavalSuperiority::CvAIOperationOffensiveNavalSuperiority()
-{
-}
-
-/// Destructor
-CvAIOperationOffensiveNavalSuperiority::~CvAIOperationOffensiveNavalSuperiority()
-{
-}
-
-/// Kick off this operation
-void CvAIOperationOffensiveNavalSuperiority::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
+void CvAIOperationNavalOnlyBasic::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster)
 {
 	//do this before calling any FindX methods!
 	Reset(iID,eOwner,eEnemy);
@@ -2646,7 +2546,7 @@ void CvAIOperationOffensiveNavalSuperiority::Init(int iID, PlayerTypes eOwner, P
 }
 
 /// Returns true when we should abort the operation totally (besides when we have lost all units in it)
-AIOperationAbortReason CvAIOperationOffensiveNavalSuperiority::VerifyOrAdjustTarget(CvArmyAI* pArmy)
+AIOperationAbortReason CvAIOperationNavalOnlyBasic::VerifyOrAdjustTarget(CvArmyAI* pArmy)
 {
 	CvPlot* pNewTarget = FindBestTarget(NULL);
 
@@ -2660,8 +2560,58 @@ AIOperationAbortReason CvAIOperationOffensiveNavalSuperiority::VerifyOrAdjustTar
 	return AI_ABORT_NO_TARGET;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+// CvAIOperationNavalBombardment
+////////////////////////////////////////////////////////////////////////////////
+
+/// Constructor
+CvAIOperationNavalBombardment::CvAIOperationNavalBombardment()
+{
+}
+
+/// Destructor
+CvAIOperationNavalBombardment::~CvAIOperationNavalBombardment()
+{
+}
+
+/// Kick off this operation
+void CvAIOperationNavalBombardment::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
+{
+	if(eEnemy == NO_PLAYER)
+		eEnemy = BARBARIAN_PLAYER;
+
+	//do this before calling any FindX methods!
+	Reset(iID,eOwner,eEnemy);
+
+	CvPlot* pMuster = NULL;
+	CvPlot* pTarget = FindBestTarget(&pMuster);
+
+	SetupWithSingleArmy(pMuster,pTarget);
+}
+
+/// Find the barbarian camp we want to eliminate
+CvPlot* CvAIOperationNavalBombardment::FindBestTarget(CvPlot** ppMuster) const
+{
+	return OperationalAIHelpers::FindBestCoastalBombardmentTarget(m_eOwner,m_eEnemy,ppMuster);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CvAIOperationNavalSuperiority
+////////////////////////////////////////////////////////////////////////////////
+
+/// Constructor
+CvAIOperationNavalSuperiority::CvAIOperationNavalSuperiority()
+{
+}
+
+/// Destructor
+CvAIOperationNavalSuperiority::~CvAIOperationNavalSuperiority()
+{
+}
+
 /// Find the nearest enemy naval unit to eliminate
-CvPlot* CvAIOperationOffensiveNavalSuperiority::FindBestTarget(CvPlot** ppMuster) const
+CvPlot* CvAIOperationNavalSuperiority::FindBestTarget(CvPlot** ppMuster) const
 {
 	CvPlot* pRefPlot = GetTargetPlot();
 	if (pRefPlot)
@@ -2676,21 +2626,21 @@ CvPlot* CvAIOperationOffensiveNavalSuperiority::FindBestTarget(CvPlot** ppMuster
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationOffensiveNavalOnlyCityAttack
+// CvAIOperationNavalOnlyCityAttack
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Constructor
-CvAIOperationOffensiveNavalOnlyCityAttack::CvAIOperationOffensiveNavalOnlyCityAttack()
+CvAIOperationNavalOnlyCityAttack::CvAIOperationNavalOnlyCityAttack()
 {
 }
 
 /// Destructor
-CvAIOperationOffensiveNavalOnlyCityAttack::~CvAIOperationOffensiveNavalOnlyCityAttack()
+CvAIOperationNavalOnlyCityAttack::~CvAIOperationNavalOnlyCityAttack()
 {
 }
 
 /// Kick off this operation
-void CvAIOperationOffensiveNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
+void CvAIOperationNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster)
 {
 	//do this before calling any FindX methods!
 	Reset(iID,eOwner,eEnemy);
@@ -2705,10 +2655,10 @@ void CvAIOperationOffensiveNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner
 		{
 			pMuster = pNearestCoastalCity;
 		}
-		if(pMuster != NULL)
-		{
-			pMusterPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster->plot());
-		}
+	}
+	if(pMuster != NULL)
+	{
+		pMusterPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster->plot());
 	}
 
 	if(pTarget == NULL || !pTarget->isCoastal())
@@ -2718,10 +2668,10 @@ void CvAIOperationOffensiveNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner
 		{
 			pTarget = pNearestCoastalCity;
 		}
-		if(pTarget != NULL)
-		{
-			pTargetPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget->plot());
-		}
+	}
+	if(pTarget != NULL)
+	{
+		pTargetPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget->plot());
 	}
 
 	SetupWithSingleArmy(pMusterPlot,pTargetPlot);
@@ -2781,7 +2731,7 @@ CvAIOperationDefendCity::~CvAIOperationDefendCity()
 }
 
 /// Kick off this operation
-void CvAIOperationDefendCity::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
+void CvAIOperationDefendCity::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster)
 {
 	//do this before calling any FindX methods!
 	Reset(iID,eOwner,eEnemy);
@@ -2864,7 +2814,7 @@ CvAIOperationDefenseRapidResponse::~CvAIOperationDefenseRapidResponse()
 }
 
 /// Kick off this operation
-void CvAIOperationDefenseRapidResponse::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
+void CvAIOperationDefenseRapidResponse::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 {
 	//do this before calling any FindX methods!
 	Reset(iID,eOwner,eEnemy);
@@ -2913,19 +2863,8 @@ CvPlot* CvAIOperationDefenseRapidResponse::FindBestTarget(CvPlot** ppMuster) con
 	return pTarget;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationOffensiveNavalEscorted
-////////////////////////////////////////////////////////////////////////////////
-CvAIOperationOffensiveNavalEscorted::CvAIOperationOffensiveNavalEscorted()
-{
-}
-
-CvAIOperationOffensiveNavalEscorted::~CvAIOperationOffensiveNavalEscorted()
-{
-}
-
 /// Kick off this operation
-void CvAIOperationOffensiveNavalEscorted::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
+void CvAIOperationNavalInvasion::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster)
 {
 	//do this before calling any FindX methods!
 	Reset(iID,eOwner,eEnemy);
@@ -2942,17 +2881,24 @@ void CvAIOperationOffensiveNavalEscorted::Init(int iID, PlayerTypes eOwner, Play
 }
 
 /// Start the civilian off to a new target plot
-bool CvAIOperationCivilianColonization::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
+bool CvAIOperationCivilianFoundCityOverseas::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 {
-	if (!pCivilian)
+	CvPlot* pCurrentTarget = GetTargetPlot();
+	if (!pCurrentTarget)
+	{
+		SetToAbort( AI_ABORT_NO_TARGET );
 		return false;
+	}
 
 	// Find best city site (assuming we are escorted)
-	CvPlot* pBetterTarget = FindBestTargetForUnit(pCivilian,IsEscorted());
+	CvPlot* pBetterTarget = FindBestTargetForUnit(pCivilian,pCurrentTarget->getArea(),!IsEscorted());
 
 	// No targets at all! Abort
 	if(pBetterTarget == NULL)
+	{
+		SetToAbort( AI_ABORT_NO_TARGET );
 		return false;
+	}
 
 	// If this is a new target, switch to it
 	if(pBetterTarget != GetTargetPlot())
@@ -2987,15 +2933,15 @@ bool CvAIOperationCivilianColonization::RetargetCivilian(CvUnit* pCivilian, CvAr
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// CvAIOperationOffensiveNavalSneakAttack
+// CvAIOperationNavalInvasionSneaky
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Constructor
-CvAIOperationOffensiveNavalSneakAttack::CvAIOperationOffensiveNavalSneakAttack()
+CvAIOperationNavalInvasionSneaky::CvAIOperationNavalInvasionSneaky()
 {
 }
 
-CvAIOperationOffensiveNavalSneakAttack::~CvAIOperationOffensiveNavalSneakAttack()
+CvAIOperationNavalInvasionSneaky::~CvAIOperationNavalInvasionSneaky()
 {
 }
 
@@ -3007,7 +2953,7 @@ CvAIOperationNukeAttack::~CvAIOperationNukeAttack()
 {
 }
 
-void CvAIOperationNukeAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
+void CvAIOperationNukeAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 {
 	//do this before calling any FindX methods!
 	Reset(iID,eOwner,eEnemy);
@@ -3253,7 +3199,7 @@ bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperation
 
 //----------------------------------------------
 /// Every time the army moves on its way to the destination lets double-check that we don't have a better target
-AIOperationAbortReason CvAIOperationOffensiveAntiBarbarian::VerifyOrAdjustTarget(CvArmyAI* pArmy)
+AIOperationAbortReason CvAIOperationAntiBarbarian::VerifyOrAdjustTarget(CvArmyAI* pArmy)
 {
 	// camp might have spawned ... abort
 	if (m_eCurrentState != AI_OPERATION_STATE_RECRUITING_UNITS)
