@@ -2111,7 +2111,7 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 			else
 			{
 				//sanity check
-				if (m_eCurrentState==ARMYAISTATE_AT_DESTINATION)
+				if (m_eCurrentState==AI_OPERATION_STATE_AT_TARGET)
 					OutputDebugString("invalid army state!\n");
 			}
 			break;

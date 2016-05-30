@@ -187,11 +187,11 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 		int iMaxNormDistSea = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
 		SPathFinderUserData data((PlayerTypes)iPlayer1,PT_TRADE_WATER);
 		data.iMaxNormalizedDistance = iMaxNormDistSea;
-		ReachablePlots waterReach = GC.GetStepFinder().GetPlotsInReach(pOriginCity->getX(), pOriginCity->getY(),data,0);
+		ReachablePlots waterReach = GC.GetStepFinder().GetPlotsInReach(pOriginCity->getX(), pOriginCity->getY(),data);
 
 		for (ReachablePlots::iterator it=waterReach.begin(); it!=waterReach.end(); ++it)
 		{
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 			CvCity* pDestCity = pPlot->getPlotCity();
 
 			// if this is no city or the origin city, nothing to do
@@ -216,11 +216,11 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 		int iMaxNormDistLand = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_LAND, pOriginCity);
 		data.iMaxNormalizedDistance = iMaxNormDistLand;
 		data.ePathType = PT_TRADE_LAND;
-		ReachablePlots landReach = GC.GetStepFinder().GetPlotsInReach(pOriginCity->getX(), pOriginCity->getY(),data,0);
+		ReachablePlots landReach = GC.GetStepFinder().GetPlotsInReach(pOriginCity->getX(), pOriginCity->getY(),data);
 			
 		for (ReachablePlots::iterator it=landReach.begin(); it!=landReach.end(); ++it)
 		{
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 			CvCity* pDestCity = pPlot->getPlotCity();
 
 			// if this is no city or the origin city, nothing to do

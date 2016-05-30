@@ -18176,7 +18176,7 @@ bool CvUnit::IsHasNoValidMove() const
 
 	for (ReachablePlots::const_iterator it=plots.begin(); it!=plots.end(); ++it)
 	{
-		CvPlot* pToPlot = GC.getMap().plotByIndexUnchecked(it->first);
+		CvPlot* pToPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 	#if defined(MOD_GLOBAL_STACKING_RULES)
 		if(pToPlot->getMaxFriendlyUnitsOfType(this) >= pToPlot->getUnitLimit())
@@ -27351,7 +27351,7 @@ bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 
 	for (ReachablePlots::const_iterator it=plots.begin(); it!=plots.end(); ++it)
 	{
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 		if(pPlot->isVisible(getTeam()) && (pPlot->isVisibleEnemyUnit(this) || pPlot->isEnemyCity(*this)))
 		{
 			if (canMoveInto(*pPlot, CvUnit::MOVEFLAG_ATTACK))

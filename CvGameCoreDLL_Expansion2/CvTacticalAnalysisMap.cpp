@@ -483,7 +483,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 
 		for (ReachablePlots::iterator moveTile=tiles.begin(); moveTile!=tiles.end(); ++moveTile)
 		{
-			CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->first);
+			CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->iPlotIndex);
 			int iPlotIndex = GC.getMap().plotNum(pMoveTile->getX(),pMoveTile->getY());
 
 			if (pUnit->IsCanAttackRanged())
@@ -501,7 +501,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 			{
 				//for melee every tile he can move into can be attacked
 				m_pPlots[iPlotIndex].SetSubjectToAttack(true);
-				if (moveTile->second>0)
+				if (moveTile->iMovesLeft>0)
 					m_pPlots[iPlotIndex].SetEnemyCanMovePast(true);
 			}
 		}

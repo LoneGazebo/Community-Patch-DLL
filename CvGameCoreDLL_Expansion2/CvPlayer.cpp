@@ -39948,6 +39948,16 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	CvPlot* pBestFoundPlot = NULL;
 	bool pBestPlotSafe = false;
 
+	//see where our settler can go
+	ReachablePlots reachablePlots;
+	if (pUnit)
+	{
+		CvPlot* pMusterPlot = GetClosestCity(pUnit->plot())->plot();
+		SPathFinderUserData data(pUnit,0,10);
+		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+		reachablePlots = GC.GetPathFinder().GetPlotsInReach(pMusterPlot, data);
+	}
+
 	for (size_t i=0; i<vSettlePlots.size(); i++)
 	{
 		bool isDangerous = false;
@@ -39977,12 +39987,12 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		//could be close but take many turns to get there ...
 		if (!isDangerous)
 		{
-			CvPlot* pMusterPlot = GetClosestCity(pUnit->plot())->plot();
 			CvPlot* pTestPlot = vSettlePlots[i].pPlot;
 
 			//if the muster plot is more than 10 turns away it's unsafe by definition
-			SPathFinderUserData data(pUnit,0,10);
-			if (! GC.GetPathFinder().DoesPathExist(pMusterPlot,pTestPlot,data) )
+			SMovePlot test(pTestPlot->GetPlotIndex());
+			ReachablePlots::iterator it = reachablePlots.find(test);
+			if (it==reachablePlots.end())
 				isDangerous = true;
 		}
 

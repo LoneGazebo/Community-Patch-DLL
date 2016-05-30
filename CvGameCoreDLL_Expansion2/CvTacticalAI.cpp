@@ -6499,7 +6499,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 					TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
 					for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 					{
-						CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->first);
+						CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 						if ( IsGoodPlotForStaging(m_pPlayer,pLoopPlot,pUnit->getDomainType()==DOMAIN_SEA) )
 						{
@@ -7499,9 +7499,9 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 			{
 				//simple greedy algorithm. use first match, even if we are about to block another unit ...
 				//todo: count possibilities per unit and start with the most constrained one
-				if (candidates.find(it->first) != candidates.end())
+				if (candidates.find(it->iPlotIndex) != candidates.end())
 				{
-					CvPlot* pBasePlot = GC.getMap().plotByIndexUnchecked(it->first);
+					CvPlot* pBasePlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 					if (pUnit->getDomainType()!=DOMAIN_AIR)
 					{
@@ -8221,7 +8221,7 @@ CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget
 
 	for (ReachablePlots::iterator moveTile=reachablePlots.begin(); moveTile!=reachablePlots.end(); ++moveTile)
 	{
-		CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->first);
+		CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->iPlotIndex);
 
 		//already occupied?
 		if (!pUnit->canMoveInto(*pMoveTile,CvUnit::MOVEFLAG_DESTINATION ))
@@ -9280,51 +9280,67 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 	int iBestScore = INT_MAX;
 	CvPlot* pBestPlot = NULL;
 
+	//see where our unit can go in the allowed amount of turns
+	ReachablePlots reachablePlots;
+	if (pUnit)
+	{
+		SPathFinderUserData data(pUnit.pointer(),0,iMaxTurns);
+		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+		reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
+	}
+
 	// Look at spaces adjacent to target - not the target itself!
-	for(int iI = 1; iI < RING2_PLOTS; iI++)
+	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), iI);
-		if (pLoopPlot != NULL && pLoopPlot->isWater() != bLand)
+		if (!pLoopPlot)
+			continue;
+
+		//if we can't reach it, bad luck
+		if (reachablePlots.find(SMovePlot(pLoopPlot->GetPlotIndex()))==reachablePlots.end())
+			continue;
+
+		if (pLoopPlot->isWater() == bLand)
+			continue;
+
+		//if it is a city, make sure we are friends with them, else we will automatically attack
+		if(pLoopPlot->isCity() && !pLoopPlot->isFriendlyCity(*pUnit, false))
+			continue;
+
+		if(pUnit->canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 		{
-			//if it is a city, make sure we are friends with them, else we will automatically attack
-			if(pLoopPlot->isCity() && !pLoopPlot->isFriendlyCity(*pUnit, false))
+			int iDanger = pUnit->GetDanger(pLoopPlot);
+			//double danger for embarkation because we can't fight back
+			if (iDanger<INT_MAX && pLoopPlot->needsEmbarkation(pUnit.pointer()))
+				iDanger *= 2;
+			//note: this check works for civilian also, they have infinite danger if they could be captured 
+			if(iDanger > pUnit->GetCurrHitPoints())
 				continue;
 
-			if(pUnit->canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION ))
+			//check if we can close our formation
+			int iNeighborCount = 0;
+			for(int iJ = RING0_PLOTS; iJ < RING1_PLOTS; iJ++)
 			{
-				int iDanger = pUnit->GetDanger(pLoopPlot);
-				//double danger for embarkation because we can't fight back
-				if (iDanger<INT_MAX && pLoopPlot->needsEmbarkation(pUnit.pointer()))
-					iDanger *= 2;
-				//note: this check works for civilian also, they have infinite danger if they could be captured 
-				if(iDanger > pUnit->GetCurrHitPoints())
-					continue;
-
-				//check if we can close our formation
-				int iNeighborCount = 0;
-				for(int iJ = RING0_PLOTS; iJ < RING1_PLOTS; iJ++)
+				CvPlot* pNeighborPlot = iterateRingPlots(pLoopPlot->getX(), pLoopPlot->getY(), iJ);
+				if (pNeighborPlot)
 				{
-					CvPlot* pNeighborPlot = iterateRingPlots(pLoopPlot->getX(), pLoopPlot->getY(), iJ);
-					if (pNeighborPlot)
-					{
-						UnitHandle pDefender = pNeighborPlot->getBestDefender(pUnit->getOwner());
-						if (pDefender && pDefender->TurnProcessed())
-							iNeighborCount++;
-					}
+					UnitHandle pDefender = pNeighborPlot->getBestDefender(pUnit->getOwner());
+					if (pDefender && pDefender->TurnProcessed())
+						iNeighborCount++;
 				}
+			}
 					
-				//we check all plots ... don't just use the first one
-				int iDistanceToTarget = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pTarget->getX(), pTarget->getY());
-				int iTurns = pUnit->TurnsToReachTarget(pLoopPlot,false,false,iBestTurns);
-				if (iTurns<INT_MAX)
+			//we check all plots ... don't just use the first one
+			int iDistanceToTarget = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pTarget->getX(), pTarget->getY());
+			int iTurns = pUnit->TurnsToReachTarget(pLoopPlot,false,false,iBestTurns);
+			if (iTurns<INT_MAX)
+			{
+				int iScore = iTurns + iDistanceToTarget - iNeighborCount;
+				if ( iScore < iBestScore )
 				{
-					int iScore = iTurns + iDistanceToTarget - iNeighborCount;
-					if ( iScore < iBestScore )
-					{
-						iBestTurns = iTurns;
-						iBestScore = iScore;
-						pBestPlot = pLoopPlot;
-					}
+					iBestTurns = iTurns;
+					iBestScore = iScore;
+					pBestPlot = pLoopPlot;
 				}
 			}
 		}
@@ -10493,7 +10509,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 			TacticalAIHelpers::GetAllPlotsInReach(pGeneral.pointer(),pGeneral->plot(),reachablePlots,true,true,false);
 			for (ReachablePlots::const_iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
-				CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(it->first);
+				CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 				if (!pEvalPlot)
 					continue;
 
@@ -11600,7 +11616,8 @@ int TacticalAIHelpers::GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pSt
 
 	SPathFinderUserData data(pUnit,iFlags,1);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
-	resultSet = GC.GetPathFinder().GetPlotsInReach(pStartPlot->getX(),pStartPlot->getY(),data,iMinMovesLeft);
+	data.iMinMovesLeft = iMinMovesLeft;
+	resultSet = GC.GetPathFinder().GetPlotsInReach(pStartPlot->getX(),pStartPlot->getY(),data);
 
 	return (int)resultSet.size();
 }
@@ -11636,8 +11653,8 @@ int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, Reacha
 
 	for (ReachablePlots::iterator base=basePlots.begin(); base!=basePlots.end(); ++base)
 	{
-		CvPlot* pBasePlot = GC.getMap().plotByIndexUnchecked( base->first );
-		int iPlotMoves = base->second;
+		CvPlot* pBasePlot = GC.getMap().plotByIndexUnchecked( base->iPlotIndex );
+		int iPlotMoves = base->iMovesLeft;
 
 		if (pUnit->isMustSetUpToRangedAttack())
 			iPlotMoves -= GC.getMOVE_DENOMINATOR();
@@ -11715,7 +11732,7 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, const CvPlot* pT
 		TacticalAIHelpers::GetAllPlotsInReach(pUnit,pUnit->plot(),reachablePlots,true,true,false,iMinMovesLeft);
 		for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 		{
-			CvPlot* pCandidate = GC.getMap().plotByIndexUnchecked(it->first);
+			CvPlot* pCandidate = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 			//valid base plot for attack?
 			if (!pUnit->canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY(), pCandidate))
@@ -11876,7 +11893,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 
 	for (ReachablePlots::iterator it=eligiblePlots.begin(); it!=eligiblePlots.end(); ++it)
 	{
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 		if(!pUnit->canMoveInto(*pPlot,CvUnit::MOVEFLAG_DESTINATION ))
 			continue;
 
@@ -12249,7 +12266,7 @@ bool TacticalAIHelpers::IsCaptureTargetInRange(CvUnit * pUnit)
 
 		for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 		{
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 			CvCity* pNeighboringCity = pPlot->getPlotCity();
 			if (pNeighboringCity && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pNeighboringCity->getOwner()))
@@ -12340,8 +12357,8 @@ bool TacticalAIHelpers::GetPreferredPlotsForUnit(CvUnit* pUnit, CvPlot* pTargetP
 
 	for (ReachablePlots::iterator it=eligiblePlots.begin(); it!=eligiblePlots.end(); ++it)
 	{
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
-		int iMovesLeft = it->second;
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+		int iMovesLeft = it->iMovesLeft;
 		if (pUnit->isMustSetUpToRangedAttack())
 			iMovesLeft = max(0,iMovesLeft-GC.getMOVE_DENOMINATOR());
 
