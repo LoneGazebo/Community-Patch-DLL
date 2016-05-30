@@ -199,16 +199,23 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 				continue;
 
 			//is the old path still good?
+			bool bReuse = false;
 			if (HaveTradePathInCache(previousPathsWater,pOriginCity->GetID(),pDestCity->GetID()))
 			{
 				const SPath& previousPath = previousPathsWater[pOriginCity->GetID()][pDestCity->GetID()];
-				AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
+				if (GC.GetStepFinder().VerifyPath(previousPath))
+				{
+					AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
+					bReuse = true;
+				}
 			}
-			else
+
+			if (!bReuse)
 			{
 				//ok, we know the city is in reach but we need to get the concrete path
 				SPath path = GC.GetStepFinder().GetPath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data);
-				AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),path);
+				if (!!path)
+					AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),path);
 			}
 		}
 					
@@ -228,16 +235,23 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 				continue;
 
 			//is the old path still good?
+			bool bReuse = false;
 			if (HaveTradePathInCache(previousPathsLand,pOriginCity->GetID(),pDestCity->GetID()))
 			{
 				const SPath& previousPath = previousPathsLand[pOriginCity->GetID()][pDestCity->GetID()];
-				AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
+				if (GC.GetStepFinder().VerifyPath(previousPath))
+				{
+					AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),previousPath);
+					bReuse = true;
+				}
 			}
-			else
+
+			if (!bReuse)
 			{
 				//ok, we know the city is in reach but we need to get the concrete path
 				SPath path = GC.GetStepFinder().GetPath(pOriginCity->getX(), pOriginCity->getY(), pDestCity->getX(), pDestCity->getY(), data);
-				AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),path);
+				if (!!path)
+					AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),path);
 			}
 		}
 	}
@@ -485,7 +499,8 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 {
 	iRouteID = -1;
 
-	if (!CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnectionType, false, true))
+	//don't need to check path here, will do so below
+	if (!CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnectionType, false, false))
 	{
 		return false;
 	}
@@ -493,42 +508,11 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
 	PlayerTypes eDestPlayer = pDestCity->getOwner();
 
-	int iOriginX = pOriginCity->getX();
-	int iOriginY = pOriginCity->getY();
-	int iDestX = pDestCity->getX();
-	int iDestY = pDestCity->getY();
+	//get path from cache
 	SPath path;
-
-	if (eDomain == DOMAIN_SEA)
+	if (!HavePotentialTradePath( (eDomain == DOMAIN_SEA), pOriginCity, pDestCity, &path))
 	{
-		if (pOriginCity->isCoastal(0) && pDestCity->isCoastal(0))	// Both must be on the coast (a lake is ok)  A better check would be to see if they are adjacent to the same water body.
-		{
-			int iMaxNormDist = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
-
-			SPathFinderUserData data((PlayerTypes)eOriginPlayer,PT_TRADE_WATER);
-			data.iMaxNormalizedDistance = iMaxNormDist;
-
-			//update the current path, might be better than what we have
-			path = GC.GetStepFinder().GetPath(iOriginX, iOriginY, iDestX, iDestY, data);
-			if (!path)
-				return false;
-
-			AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->GetID(),pDestCity->GetID(),path);
-		}
-	}
-	else if (eDomain == DOMAIN_LAND)
-	{
-		int iMaxNormDist = GET_PLAYER(eOriginPlayer).GetTrade()->GetTradeRouteRange(DOMAIN_LAND, pOriginCity);
-
-		SPathFinderUserData data((PlayerTypes)eOriginPlayer,PT_TRADE_LAND);
-		data.iMaxNormalizedDistance = iMaxNormDist;
-
-		//update the current path, might be better than what we have
-		path = GC.GetStepFinder().GetPath(iOriginX, iOriginY, iDestX, iDestY, data);
-		if (!path)
-			return false;
-
-		AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->GetID(),pDestCity->GetID(),path);
+		return false;
 	}
 
 	int iNewTradeRouteIndex = GetEmptyTradeRouteIndex();

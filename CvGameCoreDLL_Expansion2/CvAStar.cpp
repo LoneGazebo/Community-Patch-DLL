@@ -2249,7 +2249,7 @@ int CvPathFinder::GetPathLengthInPlots(int iXstart, int iYstart, int iXdest, int
 int CvPathFinder::GetPathLengthInPlots(const CvPlot * pStartPlot, const CvPlot * pEndPlot, const SPathFinderUserData & data)
 {
 	if(pStartPlot == NULL || pEndPlot == NULL)
-		return 0;
+		return -1;
 
 	return GetPathLengthInPlots(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), data);
 }
@@ -2267,7 +2267,7 @@ int CvPathFinder::GetPathLengthInTurns(int iXstart, int iYstart, int iXdest, int
 int CvPathFinder::GetPathLengthInTurns(const CvPlot * pStartPlot, const CvPlot * pEndPlot, const SPathFinderUserData & data)
 {
 	if(pStartPlot == NULL || pEndPlot == NULL)
-		return 0;
+		return -1;
 
 	return GetPathLengthInTurns(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), data);
 }

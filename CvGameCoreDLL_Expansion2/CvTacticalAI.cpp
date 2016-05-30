@@ -9935,7 +9935,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 			{
 				if(pUnit->isRanged())
 				{
-					CvPlot* pNewPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pPlot);
+					CvPlot* pNewPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pPlot);
 					//No water plot? Ignore.
 					if(pNewPlot == NULL)
 					{

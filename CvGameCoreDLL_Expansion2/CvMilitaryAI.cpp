@@ -6250,7 +6250,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 	return iNumUnitsWanted;
 }
 
-CvPlot* MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(CvPlot *pTarget)
+CvPlot* MilitaryAIHelpers::GetCoastalPlotNearPlot(CvPlot *pTarget)
 {
 	if (!pTarget)
 		return NULL;
@@ -6396,9 +6396,9 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 			{
 				//make sure that both plots are water
 				if (!pMuster->isWater())
-					pMuster = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster);
+					pMuster = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMuster);
 				if (!pTarget->isWater())
-					pTarget = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget);
+					pTarget = MilitaryAIHelpers::GetCoastalPlotNearPlot(pTarget);
 
 				SPathFinderUserData data( pPlayer->GetID(), PT_GENERIC_SAME_AREA, eEnemy );
 				data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
@@ -6438,7 +6438,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 		CvPlot* pAdjacentPlot = NULL;
 		if(pMuster->isCoastalLand())
 		{
-			pAdjacentPlot = GetCoastalPlotAdjacentToTarget(pMuster);
+			pAdjacentPlot = GetCoastalPlotNearPlot(pMuster);
 			if(pAdjacentPlot != NULL)
 			{
 				pMuster = pAdjacentPlot;
@@ -6450,7 +6450,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 		}
 		if(pTarget->isCoastalLand())
 		{
-			pAdjacentPlot = GetCoastalPlotAdjacentToTarget(pTarget);
+			pAdjacentPlot = GetCoastalPlotNearPlot(pTarget);
 			if(pAdjacentPlot != NULL)
 			{
 				pTarget = pAdjacentPlot;

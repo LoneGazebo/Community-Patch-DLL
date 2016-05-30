@@ -413,7 +413,7 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 		CvPlot* pAdjacentPlot = NULL;
 		if(pMusterPlot->isCoastalLand())
 		{
-			pAdjacentPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMusterPlot);
+			pAdjacentPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMusterPlot);
 			if(pAdjacentPlot != NULL)
 			{
 				pMusterPlot = pAdjacentPlot;
@@ -425,7 +425,7 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 		}
 		if(pTargetPlot->isCoastalLand())
 		{
-			pAdjacentPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTargetPlot);
+			pAdjacentPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pTargetPlot);
 			if(pAdjacentPlot != NULL)
 			{
 				pTargetPlot = pAdjacentPlot;
@@ -659,7 +659,7 @@ CvPlot* CvAIOperation::GetPlotXInStepPath(CvPlot* pCurrentPosition, CvPlot* pTar
 	if (IsNavalOperation())
 	{
 		if (!pCurrentPosition->isWater())
-			pCurrentPosition = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pCurrentPosition);
+			pCurrentPosition = MilitaryAIHelpers::GetCoastalPlotNearPlot(pCurrentPosition);
 
 		if (!pCurrentPosition)
 			return NULL;
@@ -706,10 +706,10 @@ int CvAIOperation::GetStepDistanceBetweenPlots(CvPlot* pCurrentPosition, CvPlot*
 	if (IsNavalOperation())
 	{
 		if (!pCurrentPosition->isWater())
-			pCurrentPosition = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pCurrentPosition);
+			pCurrentPosition = MilitaryAIHelpers::GetCoastalPlotNearPlot(pCurrentPosition);
 
 		if (!pCurrentPosition)
-			return NULL;
+			return -1;
 	}
 
 	// use the step path finder to compute distance
@@ -762,7 +762,7 @@ int CvAIOperation::PercentFromMusterPointToTarget()
 				}
 				else
 				{
-					int iTempValue = 100 - (100 * iDistanceCurrentToTarget / m_iDistanceMusterToTarget);
+					int iTempValue = 100 - (100 * iDistanceCurrentToTarget / MAX(1,m_iDistanceMusterToTarget));
 					if(iTempValue > iRtnValue)
 					{
 						iRtnValue = iTempValue;
@@ -2538,9 +2538,9 @@ void CvAIOperationNavalOnlyBasic::Init(int iID, PlayerTypes eOwner, PlayerTypes 
 		return;
 
 	//this is where we gather the army
-	CvPlot* pMusterPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster->plot());
+	CvPlot* pMusterPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMuster->plot());
 	//this is where the army should go
-	CvPlot* pGoalPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget->plot());
+	CvPlot* pGoalPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pTarget->plot());
 	if (!pMusterPlot || !pGoalPlot)
 		return;
 
@@ -2660,7 +2660,7 @@ void CvAIOperationNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 	}
 	if(pMuster != NULL)
 	{
-		pMusterPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster->plot());
+		pMusterPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMuster->plot());
 	}
 
 	if(pTarget == NULL || !pTarget->isCoastal())
@@ -2673,7 +2673,7 @@ void CvAIOperationNavalOnlyCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 	}
 	if(pTarget != NULL)
 	{
-		pTargetPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget->plot());
+		pTargetPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pTarget->plot());
 	}
 
 	SetupWithSingleArmy(pMusterPlot,pTargetPlot);
@@ -2875,9 +2875,9 @@ void CvAIOperationNavalInvasion::Init(int iID, PlayerTypes eOwner, PlayerTypes e
 		return;
 
 	// Target just off the coast - important that it is owned by eEnemy - we terminate if that should ever change
-	CvPlot *pCoastalTarget = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTarget->plot());
+	CvPlot *pCoastalTarget = MilitaryAIHelpers::GetCoastalPlotNearPlot(pTarget->plot());
 	// Muster just off the coast
-	CvPlot *pCoastalMuster = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pMuster->plot());
+	CvPlot *pCoastalMuster = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMuster->plot());
 
 	SetupWithSingleArmy(pCoastalMuster,pCoastalTarget);
 }
@@ -2921,7 +2921,7 @@ bool CvAIOperationCivilianFoundCityOverseas::RetargetCivilian(CvUnit* pCivilian,
 
 		//find the best muster plot
 		CvCity* pBestMuster = OperationalAIHelpers::GetNearestCoastalCityFriendly(m_eOwner,pCivilian->plot());
-		CvPlot *pMusterPlot = pBestMuster ? MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pBestMuster->plot()) : NULL;
+		CvPlot *pMusterPlot = pBestMuster ? MilitaryAIHelpers::GetCoastalPlotNearPlot(pBestMuster->plot()) : NULL;
 		if(pMusterPlot != NULL)
 		{
 			SetMusterPlot(pMusterPlot);
@@ -3494,7 +3494,7 @@ CvPlot* OperationalAIHelpers::FindBestCoastalBombardmentTarget(PlayerTypes ePlay
 	}
 
 	if (ppMuster && pBestStart)
-		*ppMuster = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pBestStart->plot());
+		*ppMuster = MilitaryAIHelpers::GetCoastalPlotNearPlot(pBestStart->plot());
 
 	return pBestTarget;
 }

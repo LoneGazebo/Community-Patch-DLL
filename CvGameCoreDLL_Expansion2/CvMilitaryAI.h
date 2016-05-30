@@ -480,7 +480,7 @@ UnitAITypes FirstSlotCityCanFill(CvPlayer* pPlayer, MultiunitFormationTypes form
 #if defined(MOD_BALANCE_CORE)
 MultiunitFormationTypes GetCurrentBestFormationTypeForCityAttack();
 #endif
-CvPlot* GetCoastalPlotAdjacentToTarget(CvPlot *pTarget);
+CvPlot* GetCoastalPlotNearPlot(CvPlot *pTarget);
 CvPlot* GetLandPlotAdjacentToTarget(CvPlot *pTarget);
 }
 

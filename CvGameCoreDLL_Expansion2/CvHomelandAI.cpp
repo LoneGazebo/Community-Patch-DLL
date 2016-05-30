@@ -2962,7 +2962,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					int iLoop;
 					for(CvCity* pTestCity = m_pPlayer->firstCity(&iLoop); pTestCity != NULL; pTestCity = m_pPlayer->nextCity(&iLoop))
 					{
-						CvPlot* pPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pTestCity->plot());
+						CvPlot* pPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pTestCity->plot());
 						if(pPlot != NULL)
 						{
 							if(pPlot->getArea() != pUnit->getArea())
