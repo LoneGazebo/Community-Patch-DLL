@@ -10450,7 +10450,6 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 
 		if(pGeneral)
 		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
 			CvArmyAI* pArmy = m_pPlayer->getArmyAI(pGeneral->getArmyID());
 			if(pArmy)
 			{
@@ -10678,59 +10677,6 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 			}
 		}
 	}
-#else
-			int iRange = (pGeneral->maxMoves() * 3) / GC.getMOVE_DENOMINATOR();  // Enough to make a decent road move
-			for(int iX = -iRange; iX <= iRange; iX++)
-			{
-				for(int iY = -iRange; iY <= iRange; iY++)
-				{
-					CvPlot* pEvalPlot = NULL;
-					pEvalPlot = plotXYWithRangeCheck(pGeneral->getX(), pGeneral->getY(), iX, iY, iRange);
-					if(!pEvalPlot)
-					{
-						continue;
-					}	
-					if(CanReachInXTurns(pGeneral, pEvalPlot, 1))
-					{
-						int iScore = ScoreGreatGeneralPlot(pGeneral, pEvalPlot, pArmyAI);
-
-						if(iScore > iBestScore && iScore > 0)
-						{
-							iBestScore = iScore;
-							pBestPlot = pEvalPlot;
-						}
-					}
-
-				}
-			}
-
-			if(pBestPlot != NULL)
-			{
-				ExecuteMoveToPlotIgnoreDanger(pGeneral, pBestPlot);
-
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					int iDistToOperationCenter = -1;
-
-					if(pArmyAI)
-					{
-						CvPlot* pCOM = pArmyAI->GetCenterOfMass(NO_DOMAIN);
-						if(pCOM)
-						{
-							iDistToOperationCenter = plotDistance(pBestPlot->getX(), pBestPlot->getY(), pCOM->getX(), pCOM->getY());
-						}
-					}
-
-					CvString strMsg;
-					strMsg.Format("Deploying %s, To X: %d, To Y: %d, At X: %d, At Y: %d, Plot Score: %d, Dist from COM: %d",
-					              pGeneral->getName().GetCString(), pBestPlot->getX(), pBestPlot->getY(),
-					              pGeneral->getX(), pGeneral->getY(), iBestScore, iDistToOperationCenter);
-					LogTacticalMessage(strMsg);
-				}
-			}
-		}
-	}
-#endif
 	return;
 }
 

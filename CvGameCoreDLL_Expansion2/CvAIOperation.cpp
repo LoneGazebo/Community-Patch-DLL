@@ -177,10 +177,10 @@ int CvAIOperation::GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const
 				if (!IsNavalOperation() && pLoopPlot->isWater())
 					continue;
 
-				if(IsNavalOperation() && !pLoopPlot->isWater())
+				if (IsNavalOperation() && !pLoopPlot->isWater())
 					continue;
 
-				if(IsNavalOperation() && !pArmy->IsAllOceanGoing() && pLoopPlot->isDeepWater())
+				if (IsNavalOperation() && !pArmy->IsAllOceanGoing() && pLoopPlot->isDeepWater())
 					continue;
 
 				if (pLoopPlot->canPlaceUnit(GetOwner()))
@@ -403,13 +403,10 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 		return false;
 
 	bool bMustBeDeepWaterNaval = false;
-	bool bMustNaval = IsNavalOperation();
-	if(bMustNaval)
+	if(IsNavalOperation())
 	{
 		bMustBeDeepWaterNaval = OperationalAIHelpers::NeedOceanMoves(m_eOwner, pMusterPlot, pTargetPlot);
-	}
-	if(bMustNaval)
-	{
+
 		CvPlot* pAdjacentPlot = NULL;
 		if(pMusterPlot->isCoastalLand())
 		{
@@ -438,7 +435,7 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 	}
 
 	int iDistance = 1000;
-	if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,pMusterPlot,pTargetPlot,bMustNaval,bMustBeDeepWaterNaval,iDistance))
+	if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,pMusterPlot,pTargetPlot,IsNavalOperation(),bMustBeDeepWaterNaval,iDistance))
 	{
 		std::deque<OperationSlot>::iterator it;
 		for(it = m_viListOfUnitsWeStillNeedToBuild.begin(); it != m_viListOfUnitsWeStillNeedToBuild.end(); ++it)
@@ -496,7 +493,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 	m_viListOfUnitsWeStillNeedToBuild.clear();
 
 	CvString strMsg;
-	if(IsNavalOperation())
+	if (IsNavalOperation())
 	{
 		//todo: optimize this, it's double pathfinding
 		bool bMustBeDeepWaterNaval = OperationalAIHelpers::NeedOceanMoves(m_eOwner, pMusterPlot, pTargetPlot);
@@ -747,7 +744,7 @@ int CvAIOperation::PercentFromMusterPointToTarget()
 
 			if (pArmy->GetGoalPlot())
 			{
-				CvPlot *pCenterOfMass = pArmy->GetCenterOfMass(IsNavalOperation() ? DOMAIN_SEA : DOMAIN_LAND);
+				CvPlot *pCenterOfMass = pArmy->GetCenterOfMass(NO_DOMAIN);
 				int iDistanceCurrentToTarget = GetStepDistanceBetweenPlots( pCenterOfMass, pArmy->GetGoalPlot() );
 
 				if(m_iDistanceMusterToTarget < 0 || iDistanceCurrentToTarget < 0)
@@ -992,7 +989,7 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 				return NULL;
 			}
 
-			CvPlot* pCenterOfMass = pArmy->GetCenterOfMass(IsNavalOperation() ? DOMAIN_SEA : DOMAIN_LAND);
+			CvPlot* pCenterOfMass = pArmy->GetCenterOfMass(NO_DOMAIN);
 			if (pCenterOfMass && pGoalPlot)
 			{
 				//problem: center of mass may be on a mountain etc ...
@@ -1687,7 +1684,7 @@ AIOperationAbortReason CvAIOperationOffensive::VerifyOrAdjustTarget(CvArmyAI* pA
 			//the trouble spot is right next to us, abort the current operation
 			SPathFinderUserData data(m_eOwner,PT_GENERIC_SAME_AREA,NO_PLAYER,GC.getAI_TACTICAL_RECRUIT_RANGE());
 			data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
-			if (GC.GetStepFinder().DoesPathExist(pTroubleSpot->plot(),pArmy->GetCenterOfMass(DOMAIN_LAND),data))
+			if (GC.GetStepFinder().DoesPathExist(pTroubleSpot->plot(),pArmy->GetCenterOfMass(NO_DOMAIN),data))
 			{
 				return AI_ABORT_CANCELLED;
 			}
@@ -1805,7 +1802,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 		{
 			//check if we're at the target
 			CvPlot *pTarget = pThisArmy->GetGoalPlot();
-			CvPlot *pCenterOfMass = pThisArmy->GetCenterOfMass( pThisArmy->GetDomainType() );
+			CvPlot *pCenterOfMass = pThisArmy->GetCenterOfMass( NO_DOMAIN );
 			if(pCenterOfMass && pTarget && plotDistance(*pCenterOfMass,*pTarget) <= GetDeployRange())
 			{
 				// Notify Diplo AI we're in place for attack
