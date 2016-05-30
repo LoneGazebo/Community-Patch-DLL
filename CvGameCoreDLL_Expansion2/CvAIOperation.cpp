@@ -2095,7 +2095,6 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 			break;
 		}
 		case ARMYAISTATE_MOVING_TO_DESTINATION:
-		case ARMYAISTATE_AT_DESTINATION:
 		{
 			CvUnit* pCivilian = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetFirstUnitID());
 			if(pCivilian && pCivilian->plot() == GetTargetPlot())
@@ -2103,17 +2102,26 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 				pThisArmy->SetArmyAIState(ARMYAISTATE_AT_DESTINATION);
 				m_eCurrentState = AI_OPERATION_STATE_AT_TARGET;
 				LogOperationSpecialMessage("Transition to target stage");
+				bStateChanged = true;
 
-				//finally do whatever we came here for
-				PerformMission(pCivilian);
+				//maybe we can finish right now?
+				if (PerformMission(pCivilian))
+					m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+			}
+			break;
+		}
+		case ARMYAISTATE_AT_DESTINATION:
+		{
+			CvUnit* pCivilian = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetFirstUnitID());
+
+			if (PerformMission(pCivilian))
+			{
+				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 				bStateChanged = true;
 			}
-			else
-			{
-				//sanity check
-				if (m_eCurrentState==AI_OPERATION_STATE_AT_TARGET)
-					OutputDebugString("invalid army state!\n");
-			}
+
+			//don't abort in case the mission couldn't be performed, that case is handled in ShouldAbort()
+
 			break;
 		}
 	}
@@ -2223,7 +2231,6 @@ bool CvAIOperationCivilianFoundCity::PerformMission(CvUnit* pSettler)
 		zone.SetLastTurn(GC.getGame().getGameTurn() + (GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() * 2));
 		GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
 
-		m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 		return true;
 	}
 
@@ -2365,7 +2372,6 @@ bool CvAIOperationCivilianMerchantDelegation::PerformMission(CvUnit* pMerchant)
 			}
 		}
 
-		m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 		return true;
 	}
 
@@ -2417,8 +2423,6 @@ bool CvAIOperationCivilianDiplomatDelegation::PerformMission(CvUnit* pDiplomat)
 			strMsg.Format("Great Diplomat finishing Diplomatic Mission at %s", pDiplomat->plot()->GetAdjacentCity()->getName().c_str());
 			LogOperationSpecialMessage(strMsg);
 		}
-
-		m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 		return true;
 	}
 
@@ -2514,8 +2518,6 @@ bool CvAIOperationCivilianConcertTour::PerformMission(CvUnit* pMusician)
 			strMsg.Format("Great Musician performing concert tour, At X=%d, At Y=%d", pMusician->plot()->getX(), pMusician->plot()->getY());
 			LogOperationSpecialMessage(strMsg);
 		}
-
-		m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 		return true;
 	}
 
