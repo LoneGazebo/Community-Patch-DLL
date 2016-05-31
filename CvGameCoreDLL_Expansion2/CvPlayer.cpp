@@ -39714,7 +39714,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	int iBestArea, iSecondBestArea;
 	//start with a predefined base value
 	int iBestFoundValue = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
-
+	//call this the sneaky way cause it's not const
 	int iNumSettleAreas = GET_PLAYER(GetID()).GetBestSettleAreas(iBestFoundValue, iBestArea, iSecondBestArea);
 	if(iNumSettleAreas == 0)
 	{
@@ -41962,6 +41962,7 @@ void CvPlayer::updatePlotFoundValues()
 		return;
 
 	//OutputDebugString(CvString::format("updating plot found values for player %d in turn %d\n",GetID(),GC.getGame().getGameTurn()).c_str());
+	m_viPlotFoundValues.clear(); 
 	m_viPlotFoundValues.resize(GC.getMap().numPlots(), -1);
 
 	// Set all area fertilities to 0
