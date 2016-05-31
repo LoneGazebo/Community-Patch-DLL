@@ -2162,7 +2162,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 
 			if(pUpgradeCity)
 			{
-				if(MoveToEmptySpaceNearTarget(pUnit.pointer(), pUpgradeCity->plot(), true, 12))
+				if(MoveToEmptySpaceNearTarget(pUnit.pointer(), pUpgradeCity->plot(), true, 23))
 				{
 					pUnit->finishMoves();
 					UnitProcessed(pUnit->GetID());

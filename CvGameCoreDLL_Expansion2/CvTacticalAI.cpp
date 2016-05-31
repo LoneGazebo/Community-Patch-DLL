@@ -4464,7 +4464,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 				}
 
 				//try to stay close
-				MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot(), !pCivilian->isEmbarked());
+				MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot(), !pCivilian->isEmbarked(), 12);
 				strLogString.Format("%s at (%d,%d) separated from escort %s at (%d,%d)", 
 					pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), 
 					pEscort->getName().c_str(), pEscort->getX(), pEscort->getY() );
@@ -4488,7 +4488,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 			}
 			else
 			{
-				if (MoveToEmptySpaceNearTarget(pCivilian, pOperation->GetTargetPlot()))
+				if (MoveToEmptySpaceNearTarget(pCivilian, pOperation->GetTargetPlot(), true, INT_MAX))
 				{
 					if(GC.getLogging() && GC.getAILogging())
 						strLogString.Format("%s at (%d,%d). Moving to empty space near target (%d,%d) without escort.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
@@ -4524,7 +4524,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 	for (size_t i=0; i<vExtraEscorts.size(); i++)
 	{
 		CvUnit* pUnit = vExtraEscorts[i].pointer();
-		MoveToEmptySpaceNearTarget( pUnit, pCivilian->plot(), !pCivilian->isEmbarked() );
+		MoveToEmptySpaceNearTarget( pUnit, pCivilian->plot(), !pCivilian->isEmbarked(), 23 );
 		if(GC.getLogging() && GC.getAILogging())
 		{
 			CvString strTemp;
@@ -5985,7 +5985,7 @@ void CvTacticalAI::ExecutePillage(CvPlot* pTargetPlot)
 			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 		}
 		else
-			MoveToEmptySpaceNearTarget(pUnit,pTargetPlot);
+			MoveToEmptySpaceNearTarget(pUnit,pTargetPlot,true,23);
 		pUnit->finishMoves();
 
 		// Delete this unit from those we have to move
@@ -6006,7 +6006,7 @@ void CvTacticalAI::ExecutePlunderTradeUnit(CvPlot* pTargetPlot)
 			pUnit->PushMission(CvTypes::getMISSION_PLUNDER_TRADE_ROUTE());
 		}
 		else
-			MoveToEmptySpaceNearTarget(pUnit,pTargetPlot);
+			MoveToEmptySpaceNearTarget(pUnit,pTargetPlot,true,23);
 
 		pUnit->finishMoves();
 		// Delete this unit from those we have to move
@@ -6045,7 +6045,7 @@ void CvTacticalAI::MoveUpReliefUnits(CvTacticalTarget& kTarget)
 		{
 			if (!TacticalAIHelpers::HaveEnoughMeleeUnitsAroundTarget(pUnit->getOwner(), &kTarget))
 			{
-				if (MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, (pUnit->getDomainType() == DOMAIN_LAND)))
+				if (MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, (pUnit->getDomainType() == DOMAIN_LAND),12))
 				{
 					if(GC.getLogging() && GC.getAILogging())
 					{
@@ -6410,7 +6410,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange);
 				if(pBestPlot)
 				{
-					if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, (pUnit->getDomainType()==DOMAIN_LAND)))
+					if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, (pUnit->getDomainType()==DOMAIN_LAND), 12))
 					{
 						TacticalAIHelpers::PerformOpportunityAttack(pUnit.pointer(),pBestPlot);
 						pUnit->finishMoves();
@@ -6431,7 +6431,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_NONE, NULL, true, false);
 					if(pBestPlot)
 					{
-						if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, (pUnit->getDomainType()==DOMAIN_LAND)))
+						if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, (pUnit->getDomainType()==DOMAIN_LAND), 12))
 						{
 							pUnit->finishMoves();
 							UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
@@ -6458,7 +6458,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 				pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange);
 				if(pBestPlot)
 				{
-					if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, false))
+					if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, false, 12))
 					{
 						TacticalAIHelpers::PerformOpportunityAttack(pUnit.pointer(),pBestPlot);
 						bMoveMade = true;
@@ -6477,7 +6477,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 					pBestPlot = FindNearbyTarget(pUnit, m_iRepositionRange, AI_TACTICAL_TARGET_NONE, NULL, true, false);
 					if(pBestPlot)
 					{
-						if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, false))
+						if(MoveToEmptySpaceNearTarget(pUnit, pBestPlot, false, 12))
 						{
 							bMoveMade = true;
 
@@ -6527,7 +6527,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 						CvCity* pTargetCity = m_pPlayer->GetClosestCity(pUnit->plot(),INT_MAX,true);
 						if (pTargetCity)
 						{
-							MoveToEmptySpaceNearTarget(pUnit.pointer(), pTargetCity->plot(), false);
+							MoveToEmptySpaceNearTarget(pUnit.pointer(), pTargetCity->plot(), false, 12);
 
 							if (GC.getLogging() && GC.getAILogging())
 							{
@@ -6604,7 +6604,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 					CvPlot* pMovePlot = pClosestCity ? pClosestCity->plot() : NULL;
 					if(pMovePlot != NULL)
 					{
-						MoveToEmptySpaceNearTarget(pUnit,pMovePlot);
+						MoveToEmptySpaceNearTarget(pUnit,pMovePlot,true,42);
 						pUnit->SetTurnProcessed(true);
 						CvString strTemp;
 						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
@@ -6811,7 +6811,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 						pBestPlot = FindPassiveBarbarianLandMove(pUnit);
 					}
 
-					if(pBestPlot && MoveToEmptySpaceNearTarget(pUnit, pBestPlot))
+					if(pBestPlot && MoveToEmptySpaceNearTarget(pUnit,pBestPlot,true,23))
 					{
 #if defined(MOD_BALANCE_CORE)
 						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
@@ -8095,7 +8095,7 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 			CvCity* pNearestCity = m_pPlayer->GetClosestCity(pUnit->plot());
 			if(pNearestCity != NULL && pUnit->CanReachInXTurns(pNearestCity->plot(),5))
 			{
-				if(MoveToEmptySpaceNearTarget(pUnit, pNearestCity->plot(), (pUnit->getDomainType()==DOMAIN_LAND)))
+				if(MoveToEmptySpaceNearTarget(pUnit, pNearestCity->plot(), (pUnit->getDomainType()==DOMAIN_LAND), 42))
 				{
 					pUnit->finishMoves();
 					UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
@@ -10211,7 +10211,7 @@ void CvTacticalAI::PerformChosenMoves(CvPlot* pFinalTarget)
 				if(m_ChosenBlocks[iI].GetNumChoices() != -1)
 				{
 					CvPlot* pPlotBeforeMove = pUnit->plot();
-					MoveToEmptySpaceNearTarget(pUnit, m_ChosenBlocks[iI].GetPlot(), (pUnit->getDomainType()==DOMAIN_LAND));
+					MoveToEmptySpaceNearTarget(pUnit, m_ChosenBlocks[iI].GetPlot(), (pUnit->getDomainType()==DOMAIN_LAND), 12);
 
 					// Use number of choices field to indicate already moved
 					if(pPlotBeforeMove != pUnit->plot())
@@ -10241,7 +10241,7 @@ void CvTacticalAI::PerformChosenMoves(CvPlot* pFinalTarget)
 			if(m_ChosenBlocks[iI].GetNumChoices() != -1)
 			{
 				CvPlot* pPlotBeforeMove = pUnit->plot();
-				if(MoveToEmptySpaceNearTarget(UnitHandle(pUnit), m_ChosenBlocks[iI].GetPlot(), (pUnit->getDomainType()==DOMAIN_LAND)))
+				if(MoveToEmptySpaceNearTarget(UnitHandle(pUnit), m_ChosenBlocks[iI].GetPlot(), (pUnit->getDomainType()==DOMAIN_LAND), 12))
 				{
 					if(pPlotBeforeMove != pUnit->plot())
 					{
