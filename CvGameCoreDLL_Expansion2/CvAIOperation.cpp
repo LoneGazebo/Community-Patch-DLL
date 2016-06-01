@@ -109,7 +109,21 @@ void CvAIOperation::SetTargetPlot(CvPlot* pTarget)
 	}
 
 	if ( pTarget!=GetTargetPlot() )
+	{
 		LogOperationSpecialMessage( CvString::format("setting new target (%d:%d)",pTarget->getX(),pTarget->getY()).c_str() );
+
+		//have to start moving again!
+		if (m_eCurrentState == AI_OPERATION_STATE_AT_TARGET)
+		{
+			m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+			for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
+			{
+				CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
+				if(pThisArmy)
+					pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+			}
+		}
+	}
 
 	m_iTargetX = pTarget->getX();
 	m_iTargetY = pTarget->getY();
@@ -744,7 +758,7 @@ int CvAIOperation::PercentFromMusterPointToTarget()
 
 			if (pArmy->GetGoalPlot())
 			{
-				CvPlot *pCenterOfMass = pArmy->GetCenterOfMass(NO_DOMAIN);
+				CvPlot *pCenterOfMass = pArmy->GetCenterOfMass();
 				int iDistanceCurrentToTarget = GetStepDistanceBetweenPlots( pCenterOfMass, pArmy->GetGoalPlot() );
 
 				if(m_iDistanceMusterToTarget < 0 || iDistanceCurrentToTarget < 0)
@@ -989,7 +1003,7 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 				return NULL;
 			}
 
-			CvPlot* pCenterOfMass = pArmy->GetCenterOfMass(NO_DOMAIN);
+			CvPlot* pCenterOfMass = pArmy->GetCenterOfMass();
 			if (pCenterOfMass && pGoalPlot)
 			{
 				//problem: center of mass may be on a mountain etc ...
@@ -1020,18 +1034,11 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 	return pRtnValue;
 }
 
-bool CvAIOperation::HasOneMoreSlotToFill() const
-{
-	if(m_viListOfUnitsWeStillNeedToBuild.size() == 1 && m_eCurrentState  == AI_OPERATION_STATE_RECRUITING_UNITS)
-	{
-		return true;
-	}
-
-	return false;
-}
-
 bool CvAIOperation::BuyFinalUnit()
 {
+	if(m_viListOfUnitsWeStillNeedToBuild.size() != 1 || m_eCurrentState != AI_OPERATION_STATE_RECRUITING_UNITS)
+		return false;
+
 	CvCity* pCity = NULL;
 	if (IsNavalOperation())
 		pCity = OperationalAIHelpers::GetNearestCoastalCityFriendly(m_eOwner, m_eEnemy);
@@ -1539,19 +1546,14 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 	// Find the list of units we need to build before starting this operation in earnest
 	BuildListOfUnitsWeStillNeedToBuild();
 
-	// try to get as many units as possible from existing units that are waiting around
-	if(GrabUnitsFromTheReserves(GetMusterPlot(),GetTargetPlot()))
-	{
-		pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
-		m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
-		LogOperationSpecialMessage("Initial stage is mustering");
-	}
-	else
-	{
-		pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
-		m_eCurrentState = AI_OPERATION_STATE_RECRUITING_UNITS;
-		LogOperationSpecialMessage("Initial stage is recruiting");
-	}
+	pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
+	m_eCurrentState = AI_OPERATION_STATE_RECRUITING_UNITS;
+	LogOperationSpecialMessage("Initial stage is recruiting");
+
+	//see if we can switch to gathering stage
+	CheckTransitionToNextStage();
+	//maybe we can even switch to movement stage
+	CheckTransitionToNextStage();
 
 	SetTurnStarted(GC.getGame().getGameTurn());
 	LogOperationStart();
@@ -1684,7 +1686,7 @@ AIOperationAbortReason CvAIOperationOffensive::VerifyOrAdjustTarget(CvArmyAI* pA
 			//the trouble spot is right next to us, abort the current operation
 			SPathFinderUserData data(m_eOwner,PT_GENERIC_SAME_AREA,NO_PLAYER,GC.getAI_TACTICAL_RECRUIT_RANGE());
 			data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
-			if (GC.GetStepFinder().DoesPathExist(pTroubleSpot->plot(),pArmy->GetCenterOfMass(NO_DOMAIN),data))
+			if (GC.GetStepFinder().DoesPathExist(pTroubleSpot->plot(),pArmy->GetCenterOfMass(),data))
 			{
 				return AI_ABORT_CANCELLED;
 			}
@@ -1778,7 +1780,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 			{
 				pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
 				m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
-				LogOperationSpecialMessage("Transition to mustering stage");
+				LogOperationSpecialMessage("Transition to gathering stage");
 				bStateChanged = true;
 			}
 			break;
@@ -1802,7 +1804,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 		{
 			//check if we're at the target
 			CvPlot *pTarget = pThisArmy->GetGoalPlot();
-			CvPlot *pCenterOfMass = pThisArmy->GetCenterOfMass( NO_DOMAIN );
+			CvPlot *pCenterOfMass = pThisArmy->GetCenterOfMass();
 			if(pCenterOfMass && pTarget && plotDistance(*pCenterOfMass,*pTarget) <= GetDeployRange())
 			{
 				// Notify Diplo AI we're in place for attack
@@ -1834,7 +1836,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 				//that's it. skip STATE_AT_TARGET so the army will be disbanded next turn!
 				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 				pThisArmy->SetArmyAIState(ARMYAISTATE_AT_DESTINATION);
-				LogOperationSpecialMessage("Transition to target stage");
+				LogOperationSpecialMessage("Transition to finished stage");
 
 				bStateChanged = true;
 			}
@@ -2074,7 +2076,7 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 			{
 				pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
 				m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
-				LogOperationSpecialMessage("Transition to mustering stage");
+				LogOperationSpecialMessage("Transition to gathering stage");
 				bStateChanged = true;
 			}
 			break;
@@ -2103,7 +2105,10 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 
 				//maybe we can finish right now?
 				if (PerformMission(pCivilian))
+				{
+					LogOperationSpecialMessage("Transition to finished stage");
 					m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+				}
 			}
 			break;
 		}
@@ -2113,6 +2118,7 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 
 			if (PerformMission(pCivilian))
 			{
+				LogOperationSpecialMessage("Transition to finished stage");
 				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 				bStateChanged = true;
 			}
@@ -2971,27 +2977,30 @@ bool CvAIOperationNukeAttack::CheckTransitionToNextStage()
 	CvPlot* pTargetPlot = GetTargetPlot();
 	CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[0]);
 
-	//don't care about the operation state ... just nuke away!
+	//don't care about the intermediate niceties ... just nuke away!
 	if(pTargetPlot && pArmy)
 	{
-		// Now get the nuke
-		UnitHandle pNuke = pArmy->GetFirstUnit();
-		if(pNuke)
+		if(pArmy->GetNumSlotsFilled()>0 || GrabUnitsFromTheReserves(GetMusterPlot(),pTargetPlot))
 		{
-			if(pNuke->canMove() && pNuke->canNukeAt(pNuke->plot(),pTargetPlot->getX(),pTargetPlot->getY()))
+			// Now get the nuke
+			UnitHandle pNuke = pArmy->GetFirstUnit();
+			if(pNuke)
 			{
-				pNuke->PushMission(CvTypes::getMISSION_NUKE(), pTargetPlot->getX(), pTargetPlot->getY());
-				if(GC.getLogging() && GC.getAILogging())
+				if(pNuke->canMove() && pNuke->canNukeAt(pNuke->plot(),pTargetPlot->getX(),pTargetPlot->getY()))
 				{
-					CvString strMsg;
-					strMsg.Format("City nuked, At X=%d, At Y=%d", pTargetPlot->getX(), pTargetPlot->getY());
-					LogOperationSpecialMessage(strMsg);
+					pNuke->PushMission(CvTypes::getMISSION_NUKE(), pTargetPlot->getX(), pTargetPlot->getY());
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strMsg;
+						strMsg.Format("City nuked, At X=%d, At Y=%d", pTargetPlot->getX(), pTargetPlot->getY());
+						LogOperationSpecialMessage(strMsg);
+					}
+
+					m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+					return true;
 				}
-				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 			}
 		}
-
-		return true;
 	}
 
 	return false;

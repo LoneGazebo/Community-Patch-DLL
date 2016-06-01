@@ -393,8 +393,10 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 						GetName(),m_iXstart,m_iYstart,m_iXdest,m_iYdest,m_sData.ePlayer,m_sData.ePathType,m_sData.iFlags ).c_str() );
 				}
 
+#ifdef STACKWALKER
 				//gStackWalker.SetLog(pLog);
 				//gStackWalker.ShowCallstack();
+#endif
 
 				for (size_t i=0; i<svPathLog.size(); i++)
 					pLog->Msg( CvString::format("%d,%d,%d,%d,%d,%d,%d,%d\n", svPathLog[i].round,svPathLog[i].type,svPathLog[i].x,svPathLog[i].y,

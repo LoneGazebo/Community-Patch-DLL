@@ -4254,14 +4254,10 @@ void CvMilitaryAI::MakeEmergencyPurchases()
 		CvAIOperation* nextOp = m_pPlayer->getFirstAIOperation();
 		while(nextOp != NULL)
 		{
-			if(nextOp->HasOneMoreSlotToFill())
-			{
-				// Can we buy a unit to fill that slot?
-				if(nextOp->BuyFinalUnit())
-				{
-					break;
-				}
-			}
+			// Can we buy a unit to fill that slot?
+			if(nextOp->BuyFinalUnit())
+				break;
+
 			nextOp = m_pPlayer->getNextAIOperation();
 		}
 	}

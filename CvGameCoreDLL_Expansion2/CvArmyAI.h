@@ -97,7 +97,7 @@ public:
 	void SetArmyAIState(ArmyAIState eNewArmyAIState);
 
 	int GetMovementRate();
-	CvPlot* GetCenterOfMass(DomainTypes eDomainRequired);
+	CvPlot* GetCenterOfMass();
 	int GetFurthestUnitDistance(CvPlot* pPlot);
 
 	void SetOwner(PlayerTypes eOwner) { m_eOwner=eOwner; }

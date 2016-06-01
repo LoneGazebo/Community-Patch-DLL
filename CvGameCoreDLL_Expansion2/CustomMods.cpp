@@ -565,6 +565,7 @@ int CustomMods::getCivOption(const char* szCiv, const char* szName, int defValue
 
 void CheckSentinel(uint value)
 {
+#ifdef STACKWALKER
 	if (MOD_CORE_DEBUGGING)
 	{
 		FILogFile* pLog=LOGFILEMGR.GetLog( "Deserialization.txt", FILogFile::kDontTimeStamp );
@@ -574,6 +575,7 @@ void CheckSentinel(uint value)
 			gStackWalker.ShowCallstack();
 		}
 	}
+#endif
 
 	if (value!=0xDEADBEEF)
 		OutputDebugString("Serialization Error!\n");

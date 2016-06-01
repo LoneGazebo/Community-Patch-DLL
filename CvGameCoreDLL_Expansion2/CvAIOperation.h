@@ -241,7 +241,6 @@ public:
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
 	virtual CvPlot* ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const;
 
-	bool HasOneMoreSlotToFill() const;
 	bool BuyFinalUnit();
 
 	virtual void Read(FDataStream& kStream);

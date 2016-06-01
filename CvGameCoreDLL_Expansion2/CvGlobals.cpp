@@ -2275,9 +2275,9 @@ CvGlobals::~CvGlobals()
 	uninit();
 }
 
-#if defined(MOD_CORE_DEBUGGING)
-
+#ifdef STACKWALKER
 MyStackWalker gStackWalker;
+#endif
 
 //cannot use GC.getGame().getActivePlayer() in observer mode
 PlayerTypes GetCurrentPlayer()
@@ -2290,7 +2290,6 @@ PlayerTypes GetCurrentPlayer()
 	}
 	return NO_PLAYER;
 }
-#endif
 
 #if defined(MOD_DEBUG_MINIDUMP)
 /************************************************************************************************/
@@ -2304,9 +2303,7 @@ PlayerTypes GetCurrentPlayer()
 #pragma comment (lib, "dbghelp.lib")
 void CreateMiniDump(EXCEPTION_POINTERS *pep)
 {
-
-#if defined(MOD_CORE_DEBUGGING)
-	//if(MOD_CORE_DEBUGGING)
+#ifdef STACKWALKER
 	{
 		/* Try to log the callstack */
 		FILogFile* pLog=LOGFILEMGR.GetLog( "Callstack.log", FILogFile::kDontTimeStamp );

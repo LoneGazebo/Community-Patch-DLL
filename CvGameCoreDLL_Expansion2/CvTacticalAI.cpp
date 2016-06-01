@@ -10505,7 +10505,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 				}
 			}
 
-			CvPlot* pArmyCOM = pArmyAI ? pArmyAI->GetCenterOfMass(DOMAIN_LAND) : NULL;
+			CvPlot* pArmyCOM = pArmyAI ? pArmyAI->GetCenterOfMass() : NULL;
 
 			ReachablePlots reachablePlots;
 			TacticalAIHelpers::GetAllPlotsInReach(pGeneral.pointer(),pGeneral->plot(),reachablePlots,true,true,false);

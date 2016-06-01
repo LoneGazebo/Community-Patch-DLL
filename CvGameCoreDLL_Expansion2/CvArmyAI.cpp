@@ -217,15 +217,13 @@ int CvArmyAI::GetMovementRate()
 }
 
 /// Get center of mass of units in army (account for world wrap!)
-CvPlot* CvArmyAI::GetCenterOfMass(DomainTypes eDomainRequired)
+CvPlot* CvArmyAI::GetCenterOfMass()
 {
 	int iTotalX = 0;
 	int iTotalY = 0;
 	int iNumUnits = 0;
 
-#if defined(MOD_BALANCE_CORE)
 	UnitHandle pUnit = GetFirstUnit();
-
 	if (!pUnit)
 		return NULL;
 
@@ -297,7 +295,7 @@ CvPlot* CvArmyAI::GetCenterOfMass(DomainTypes eDomainRequired)
 	std::vector<SPlotWithScore> vPlots;
 	while (pUnit)
 	{
-		if (eDomainRequired == NO_DOMAIN || pUnit->plot()->getDomain()==eDomainRequired)
+		if (pUnit->plot()->getDomain()==GetDomainType())
 		{
 			int iDistToCOM = plotDistance(*pUnit->plot(),*pCOM);
 			int iDistToTarget = plotDistance(pUnit->getX(),pUnit->getY(),GetGoalX(),GetGoalY());
@@ -313,98 +311,6 @@ CvPlot* CvArmyAI::GetCenterOfMass(DomainTypes eDomainRequired)
 	//this sorts ascending!
 	std::sort(vPlots.begin(),vPlots.end());
 	return vPlots.front().pPlot;
-
-#else
-	CvPlot* pRtnValue = NULL;
-	UnitHandle pUnit;
-	int iReferenceUnitX = -1;
-	int iWorldWidth = GC.getMap().getGridWidth();
-
-	pUnit = GetFirstUnit();
-	if(pUnit)
-	{
-		iReferenceUnitX = pUnit->getX();
-	}
-
-	while(pUnit)
-	{
-		int iUnitX = pUnit->getX();
-
-		bool bWorldWrapAdjust = false;
-		int iDiff = iUnitX - iReferenceUnitX;
-		if(abs(iDiff) > (iWorldWidth / 2))
-		{
-			bWorldWrapAdjust = true;
-		}
-
-		if(bWorldWrapAdjust)
-		{
-			iTotalX += iUnitX + iWorldWidth;
-		}
-		else
-		{
-			iTotalX += iUnitX;
-		}
-		iTotalY += pUnit->getY();
-		iNumUnits++;
-		pUnit = GetNextUnit();
-	}
-
-	if(iNumUnits > 0)
-	{
-		int iAverageX = (iTotalX + (iNumUnits / 2)) / iNumUnits;
-		if(iAverageX >= iWorldWidth)
-		{
-			iAverageX = iAverageX - iWorldWidth;
-		}
-		int iAverageY = (iTotalY + (iNumUnits / 2)) / iNumUnits;
-		pRtnValue = GC.getMap().plot(iAverageX, iAverageY);
-	}
-
-	// Domain check
-	if (eDomainRequired != NO_DOMAIN && pRtnValue)
-	{
-		if (pRtnValue->isWater() && eDomainRequired == DOMAIN_LAND || !pRtnValue->isWater() && eDomainRequired == DOMAIN_SEA)
-		{
-			// Find an adjacent plot that works
-			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-			{
-				CvPlot *pLoopPlot = plotDirection(pRtnValue->getX(), pRtnValue->getY(), ((DirectionTypes)iI));
-				if (pLoopPlot != NULL)
-				{
-					if (pLoopPlot->isWater() && eDomainRequired == DOMAIN_SEA || !pLoopPlot->isWater() && eDomainRequired == DOMAIN_LAND)
-					{
-						return pLoopPlot;
-					}
-				}
-			}
-
-			// Try two plots out if really having problems
-			for (int iDX = -2; iDX <= 2; iDX++)
-			{
-				for (int iDY = -2; iDY <= 2; iDY++)
-				{
-					CvPlot *pLoopPlot = plotXYWithRangeCheck(pRtnValue->getX(), pRtnValue->getY(), iDX, iDY, 2);
-					if (pLoopPlot)
-					{
-						if (plotDistance(pRtnValue->getX(), pRtnValue->getY(), pLoopPlot->getX(), pLoopPlot->getY()) == 2)
-						{
-							if (pLoopPlot->isWater() && eDomainRequired == DOMAIN_SEA || !pLoopPlot->isWater() && eDomainRequired == DOMAIN_LAND)
-							{
-								return pLoopPlot;
-							}
-						}
-					}
-				}
-			}
-
-			// Give up - just use location of first unit
-			pUnit = GetFirstUnit();
-			pRtnValue = pUnit->plot();
-		}
-	}
-	return pRtnValue;
-#endif
 }
 
 /// Return distance from this plot of unit in army farthest away

@@ -11265,9 +11265,10 @@ inline const Database::Connection* CvGlobals::GetGameDatabase() const
 	return m_pGameDatabase;
 }
 
+//cannot use GC.getGame().getActivePlayer() in observer mode
+PlayerTypes GetCurrentPlayer();
 
-#if defined(MOD_CORE_DEBUGGING)
-
+#ifdef STACKWALKER
 #include "Stackwalker/Stackwalker.h"
 
 class MyStackWalker : public StackWalker
@@ -11282,12 +11283,7 @@ protected:
 	FILogFile* m_pLog;
 };
 
-//cannot use GC.getGame().getActivePlayer() in observer mode
-PlayerTypes GetCurrentPlayer();
-
 extern MyStackWalker gStackWalker;
-
 #endif
 
-
-#endif
+#endif //CIV5_GLOBALS_H
