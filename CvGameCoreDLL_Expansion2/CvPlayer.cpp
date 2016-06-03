@@ -16661,7 +16661,12 @@ void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledU
 	//Bonus resource in a city every time you win a battle. (Rome UB)
 	if(MOD_BALANCE_CORE)
 	{
-		doInstantYield(INSTANT_YIELD_TYPE_VICTORY);
+		bool bSea = false; 
+		if(pDefendingUnit->getDomainType() == DOMAIN_SEA)
+		{
+			bSea = true;
+		}
+		doInstantYield(INSTANT_YIELD_TYPE_VICTORY, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, NULL, bSea);
 	}
 #endif
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
@@ -23196,6 +23201,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_VICTORY:
 				{
+					if(eYield == YIELD_GREAT_ADMIRAL_POINTS && !bDomainSea)
+					{
+						continue;
+					}
+					if(eYield == YIELD_GREAT_GENERAL_POINTS && bDomainSea)
+					{
+						continue;
+					}
 					iValue += pLoopCity->GetYieldFromVictory(eYield);
 					break;
 				}
@@ -41962,8 +41975,7 @@ void CvPlayer::updatePlotFoundValues()
 		return;
 
 	//OutputDebugString(CvString::format("updating plot found values for player %d in turn %d\n",GetID(),GC.getGame().getGameTurn()).c_str());
-	m_viPlotFoundValues.clear(); 
-	m_viPlotFoundValues.resize(GC.getMap().numPlots(), -1);
+	m_viPlotFoundValues.clear();
 
 	// Set all area fertilities to 0
 	int iLoop = 0;
@@ -41989,6 +42001,7 @@ void CvPlayer::updatePlotFoundValues()
 
 	// first pass: precalculate found values
 	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
+	m_viPlotFoundValues.resize(GC.getMap().numPlots(), -1);
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);

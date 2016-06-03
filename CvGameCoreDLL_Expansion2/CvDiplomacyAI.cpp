@@ -27154,15 +27154,15 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 		// Guy is a different ideology
 		if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && GET_PLAYER(ePlayer).GetCulture()->GetPublicOpinionPreferredIdeology() == m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree())
 		{
-			if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
+			if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
 			{
 				return 1;
 			}
-			else if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
+			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
 			{
 				return 2;
 			}
-			else if(GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
+			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
 			{
 				return 3;
 			}

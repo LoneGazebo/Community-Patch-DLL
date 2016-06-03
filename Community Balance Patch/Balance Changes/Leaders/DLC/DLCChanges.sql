@@ -70,6 +70,10 @@ UPDATE Traits
 Set NaturalWonderYieldModifier = '0'
 WHERE Type = 'TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Traits
+Set NaturalWonderHappinessModifier = '0'
+WHERE Type = 'TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 -- Inca
 UPDATE Traits
 Set ImprovementMaintenanceModifier = '0'
