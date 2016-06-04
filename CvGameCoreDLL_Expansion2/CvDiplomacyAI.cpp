@@ -12521,18 +12521,13 @@ void CvDiplomacyAI::ChangeRecentTradeValue(PlayerTypes ePlayer, int iChange)
 		CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 		CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-		m_paiTradeValue[ePlayer] += iChange;
-		short iMaxOpinionValue = GC.getDEAL_VALUE_PER_OPINION_WEIGHT() * -(GC.getOPINION_WEIGHT_TRADE_MAX());
+		int iNewValue = m_paiTradeValue[ePlayer]+iChange;
+		iNewValue = MIN(iNewValue,MAX_SHORT);
+
+		int iMaxOpinionValue = GC.getDEAL_VALUE_PER_OPINION_WEIGHT() * -(GC.getOPINION_WEIGHT_TRADE_MAX());
 
 		// Must be between 0 and maximum possible boost to opinion
-		if(m_paiTradeValue[ePlayer] < 0)
-		{
-			m_paiTradeValue[ePlayer] = 0;
-		}
-		else if(m_paiTradeValue[ePlayer] > iMaxOpinionValue)
-		{
-			m_paiTradeValue[ePlayer] = iMaxOpinionValue;
-		}
+		m_paiTradeValue[ePlayer] = MAX(0,MIN(iMaxOpinionValue,iNewValue));
 	}
 }
 

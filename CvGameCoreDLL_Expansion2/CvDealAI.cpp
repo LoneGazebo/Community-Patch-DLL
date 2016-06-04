@@ -3360,23 +3360,15 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 
 	CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
 
-	PlayerTypes eWithPlayer = NO_PLAYER;
-
-	// find the first player associated with the team
-	for (uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
+	if(eWithTeam == NO_TEAM)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)ui;
-		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).getTeam() == eWithTeam) 
-		{
-			eWithPlayer = ePlayer;
-			break;
-		}
+		return INT_MAX;
 	}
 
-	CvAssertMsg(eWithPlayer != NO_PLAYER, "eWithPlayer could not be found");
-	if (eWithPlayer == NO_PLAYER)
+	PlayerTypes eWithPlayer = GET_TEAM(eWithTeam).getLeaderID();
+	if(eWithPlayer == NO_PLAYER)
 	{
-		return 0;
+		return INT_MAX;
 	}
 
 	bool bMinor = false;
@@ -3686,19 +3678,13 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	if(bFromMe && iWarApproachWeight < 6)
 		return INT_MAX;
 
-	PlayerTypes eWithPlayer = NO_PLAYER;
-	// find the first player associated with the team
-	for (uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
+	if(eWithTeam == NO_TEAM)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)ui;
-		if (GET_PLAYER(ePlayer).getTeam() == eWithTeam) 
-		{
-			eWithPlayer = ePlayer;
-			break;
-		}
+		return INT_MAX;
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(eWithPlayer == NO_PLAYER || eWithTeam == NO_TEAM)
+
+	PlayerTypes eWithPlayer = GET_TEAM(eWithTeam).getLeaderID();
+	if(eWithPlayer == NO_PLAYER)
 	{
 		return INT_MAX;
 	}
@@ -3785,7 +3771,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		return INT_MAX;
 	}
 #endif
-#endif
+
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	if(bFromMe && pDiploAI->IsMusteringForAttack(eOtherPlayer))
 	{
@@ -4339,6 +4325,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 						case PLAYER_PROXIMITY_DISTANT:
 						case PLAYER_PROXIMITY_FAR:
 							iItemValue *= 50;
+							break;
 						case PLAYER_PROXIMITY_CLOSE:
 							iItemValue *= 200;
 							break;
@@ -4358,6 +4345,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					{
 						case PLAYER_PROXIMITY_DISTANT:
 							iItemValue *= 25;
+							break;
 						case PLAYER_PROXIMITY_FAR:
 							iItemValue *= 50;
 							break;

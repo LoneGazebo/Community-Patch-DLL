@@ -59,7 +59,7 @@ protected:
 
 	void UpdateCityPlotIDs(void);
 	void UpdateRouteInfo(void);
-	void CheckPlotRouteStateChanges(const PlotIndexStore& lastState, const PlotIndexStore& newState);
+	void CheckPlotRouteStateChanges(PlotIndexStore& lastState, PlotIndexStore& newState);
 
 	ConnectionStore m_connectionState;
 	PlotIndexStore m_plotsWithConnectionToCapital;
