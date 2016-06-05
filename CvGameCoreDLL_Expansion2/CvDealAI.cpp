@@ -3666,7 +3666,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Third Party War with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 #if defined(MOD_BALANCE_CORE)
-	int iItemValue = 500; //just some base value
+	int iItemValue = 400; //just some base value
 #else
 	int iItemValue = 0;
 #endif
@@ -4159,9 +4159,9 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		else if(eWarProjection2 >= WAR_PROJECTION_GOOD)
 			iItemValue += 200;
 		else if(eWarProjection2 == WAR_PROJECTION_UNKNOWN)
-			iItemValue += 400;
+			iItemValue += 300;
 		else if(eWarProjection2 == WAR_PROJECTION_STALEMATE)
-			iItemValue += 500;
+			iItemValue += 400;
 		else if(eWarProjection2 < WAR_PROJECTION_STALEMATE)
 			return INT_MAX;
 
@@ -4318,50 +4318,26 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			//Humans?
 			else
 			{
-				if(!GET_PLAYER(eOtherPlayer).CanCrossOcean())
+				switch(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(eWithPlayer))
 				{
-					switch(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(eWithPlayer))
-					{
-						case PLAYER_PROXIMITY_DISTANT:
-						case PLAYER_PROXIMITY_FAR:
-							iItemValue *= 50;
-							break;
-						case PLAYER_PROXIMITY_CLOSE:
-							iItemValue *= 200;
-							break;
-						case PLAYER_PROXIMITY_NEIGHBORS:
-							iItemValue *= 300;
-							break;
-						default:
-							CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
-							iItemValue *= 100;
-							break;
-					}
-					iItemValue /= 100;
+					case PLAYER_PROXIMITY_DISTANT:
+						iItemValue *= 25;
+						break;
+					case PLAYER_PROXIMITY_FAR:
+						iItemValue *= 50;
+						break;
+					case PLAYER_PROXIMITY_CLOSE:
+						iItemValue *= 100;
+						break;
+					case PLAYER_PROXIMITY_NEIGHBORS:
+						iItemValue *= 100;
+						break;
+					default:
+						CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
+						iItemValue *= 100;
+						break;
 				}
-				else
-				{
-					switch(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(eWithPlayer))
-					{
-						case PLAYER_PROXIMITY_DISTANT:
-							iItemValue *= 25;
-							break;
-						case PLAYER_PROXIMITY_FAR:
-							iItemValue *= 50;
-							break;
-						case PLAYER_PROXIMITY_CLOSE:
-							iItemValue *= 150;
-							break;
-						case PLAYER_PROXIMITY_NEIGHBORS:
-							iItemValue *= 250;
-							break;
-						default:
-							CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
-							iItemValue *= 100;
-							break;
-					}
-					iItemValue /= 100;
-				}
+				iItemValue /= 100;
 			}
 		}
 #else

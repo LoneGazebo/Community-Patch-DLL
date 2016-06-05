@@ -1921,8 +1921,14 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, int, 
 		// if the tile already been tagged for building a road, then provide a discount
 		if(pPlot->GetBuilderAIScratchPadTurn() == GC.getGame().getGameTurn() && pPlot->GetBuilderAIScratchPadPlayer() == data.ePlayer)
 			return PATH_BASE_COST/2;
-		else
+
+		//should we prefer rough terrain because the gain in movement points is greater?
+
+		//prefer plots without resources so we can build more villages
+		if(pPlot->getResourceType()==NO_RESOURCE)
 			return PATH_BASE_COST;
+		else
+			return PATH_BASE_COST+1;
 	}
 }
 
