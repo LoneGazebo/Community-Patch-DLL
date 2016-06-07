@@ -1929,12 +1929,6 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 		// +10% per point of yield change
 		iRtnValue = iRtnValue * (100 + (iYieldChanges * 10)) / 100;
 	}
-	iYieldChanges = pCity->GetCorporationYieldChange(eYield);
-	if(iYieldChanges > 0)
-	{
-		// +25% per point of yield change
-		iRtnValue = iRtnValue * (100 + (iYieldChanges * 25)) / 100;
-	}
 #endif
 
 	// Other modifiers (unique by yield type)

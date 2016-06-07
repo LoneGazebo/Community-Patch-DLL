@@ -139,7 +139,7 @@ public:
 //-------------------------------------------------------------------------------------------------
 struct SPathFinderUserData
 {
-	SPathFinderUserData() : ePathType(PT_GENERIC_ANY_AREA), iFlags(0), ePlayer(NO_PLAYER), iUnitID(0), iTypeParameter(-1), iMaxTurns(INT_MAX), iMaxNormalizedDistance(INT_MAX) {}
+	SPathFinderUserData() : ePathType(PT_GENERIC_ANY_AREA), iFlags(0), ePlayer(NO_PLAYER), iUnitID(0), iTypeParameter(-1), iMaxTurns(INT_MAX), iMaxNormalizedDistance(INT_MAX), iMinMovesLeft(0) {}
 	SPathFinderUserData(const CvUnit* pUnit, int iFlags=0, int iMaxTurns=INT_MAX);
 	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, int iTypeParameter=-1, int iMaxTurns=INT_MAX);
 
@@ -155,6 +155,7 @@ struct SPathFinderUserData
 	int			iUnitID;			//optional
 	int			iMaxTurns;
 	int			iMaxNormalizedDistance;
+	int			iMinMovesLeft;
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -194,7 +195,19 @@ struct SPath
 	inline CvPlot* get(int i) const;
 };
 
-typedef std::set<std::pair<int,int>> ReachablePlots; //(plot index, movement points left) - don't store pointers in a set, the ordering is unpredictable
+struct SMovePlot
+{
+	int iPlotIndex;
+	int iTurns;
+	int iMovesLeft;
+
+	SMovePlot(int iIndex) : iPlotIndex(iIndex), iTurns(0), iMovesLeft(0) {}
+	SMovePlot(int iIndex, int iTurns_, int iMovesLeft_) : iPlotIndex(iIndex), iTurns(iTurns_), iMovesLeft(iMovesLeft_) {}
+
+	bool operator<(const SMovePlot& rhs) const { return iPlotIndex<rhs.iPlotIndex; }
+};
+
+typedef std::set<SMovePlot> ReachablePlots;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //

@@ -2266,6 +2266,9 @@ CvGlobals::CvGlobals() :
 #if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
 	m_pAchievements(NULL),
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_pCorporations(NULL),
+#endif
 	m_pGameDatabase(NULL)
 {
 }
@@ -2275,9 +2278,9 @@ CvGlobals::~CvGlobals()
 	uninit();
 }
 
-#if defined(MOD_CORE_DEBUGGING)
-
+#ifdef STACKWALKER
 MyStackWalker gStackWalker;
+#endif
 
 //cannot use GC.getGame().getActivePlayer() in observer mode
 PlayerTypes GetCurrentPlayer()
@@ -2290,7 +2293,6 @@ PlayerTypes GetCurrentPlayer()
 	}
 	return NO_PLAYER;
 }
-#endif
 
 #if defined(MOD_DEBUG_MINIDUMP)
 /************************************************************************************************/
@@ -2304,9 +2306,7 @@ PlayerTypes GetCurrentPlayer()
 #pragma comment (lib, "dbghelp.lib")
 void CreateMiniDump(EXCEPTION_POINTERS *pep)
 {
-
-#if defined(MOD_CORE_DEBUGGING)
-	//if(MOD_CORE_DEBUGGING)
+#ifdef STACKWALKER
 	{
 		/* Try to log the callstack */
 		FILogFile* pLog=LOGFILEMGR.GetLog( "Callstack.log", FILogFile::kDontTimeStamp );
@@ -2527,6 +2527,9 @@ void CvGlobals::init()
 #if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
 	m_pAchievements = FNEW(CvAchievementXMLEntries, c_eCiv5GameplayDLL, 0);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_pCorporations = FNEW(CvCorporationXMLEntries, c_eCiv5GameplayDLL, 0);
+#endif
 
 	auto_ptr<ICvDLLDatabaseUtility1> pkLoader(getDatabaseLoadUtility());
 
@@ -2592,6 +2595,9 @@ void CvGlobals::uninit()
 	SAFE_DELETE(m_pNotifications);
 #if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
 	SAFE_DELETE(m_pAchievements);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE(m_pCorporations);
 #endif
 
 	SAFE_DELETE(m_pImprovements); // player uses the improvement count in deallocating.
@@ -4103,6 +4109,30 @@ CvBeliefXMLEntries* CvGlobals::GetGameBeliefs() const
 {
 	return m_pBeliefs;
 }
+
+#if defined(MOD_BALANCE_CORE)
+int CvGlobals::getNumCorporationInfos()
+{
+	return (int)m_pCorporations->GetCorporationEntries().size();
+}
+
+std::vector<CvCorporationEntry*>& CvGlobals::getCorporationInfo()
+{
+	return m_pCorporations->GetCorporationEntries();
+}
+
+CvCorporationEntry* CvGlobals::getCorporationInfo(CorporationTypes eCorporationNum)
+{
+	CvAssert(eCorporationNum > -1);
+	CvAssert(eCorporationNum < GC.getNumCorporationInfos());
+	return m_pCorporations->GetCorporationEntries()[eCorporationNum];
+}
+
+CvCorporationXMLEntries* CvGlobals::GetGameCorporations() const
+{
+	return m_pCorporations;
+}
+#endif
 
 int CvGlobals::getNumLeagueSpecialSessionInfos()
 {

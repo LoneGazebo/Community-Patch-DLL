@@ -6,9 +6,8 @@ include( "InstanceManager" );
 include("InfoTooltipInclude");
 
 local g_AvailableCorporationsIM = InstanceManager:new( "AvailableCorporationInstance", "AvailableCorporationBox", Controls.AvailableCorporationsStack );
-local g_EstablishedCorporationsIM = InstanceManager:new( "EstablishedCorporationInstance", "EstablishedCorporationBox", Controls.EstablishedCorporationsStack ); 
--- new IM for each corporation instance
-local g_CorporationMonopolyResourceIMList = {};	
+
+local g_CorporationMonopolyResourceIMList = {};
 			
 local g_CorporationBenefitIM = InstanceManager:new( "CorporationBenefitInstance", "Base", Controls.CorporationBenefitStack );
 local g_YourOfficesIM = InstanceManager:new( "OfficeCityInstance", "Base", Controls.YourOfficesStack );
@@ -17,6 +16,8 @@ local g_YourFranchisesIM = InstanceManager:new( "FranchiseCityInstance", "Base",
 local g_WorldCorporationsIM = InstanceManager:new( "WorldCorporationInstance", "Base", Controls.WorldCorporationsStack );
 local g_WorldFranchisesIM = InstanceManager:new( "WorldFranchiseInstance", "Base", Controls.WorldFranchisesStack );
 local g_WorldMonopolyResourcesIM = InstanceManager:new( "WorldMonopolyResourceInstance", "Base", Controls.MonopolyResourcesStack );
+
+local pediaSearchStrings = {};
 
 g_Tabs = {
 	["Monopolies"] = {
@@ -164,32 +165,6 @@ g_MonopolyResourcesSortOptions = {
 		CurrentDirection = "desc",
 	},
 }
-
-local g_Corporations = {};
-local g_NumCorporations = 0;
--- Generate list of Corporations
-for hq in GameInfo.Buildings() do
-	-- Found an HQ
-	if(hq.CorporationHQID > 0) then
-		g_NumCorporations = g_NumCorporations + 1;
-		
-		-- Headquarters provides the Office
-		local OfficeClass = GameInfo.BuildingClasses[hq.FreeBuildingThisCity];
-		local Office = GameInfo.Buildings[OfficeClass.DefaultBuilding];
-		-- Office provides the Franchise
-		local FranchiseClass = GameInfo.BuildingClasses[Office.FreeBuildingTradeTargetCity];
-
-		local instance = {
-			headquartersClass = GameInfo.BuildingClasses[hq.BuildingClass],
-			officeClass = OfficeClass,
-			franchiseClass = FranchiseClass,
-		};
-
-		g_Corporations[hq.CorporationHQID] = instance;
-		--print("g_Corporations[" .. hq.CorporationHQID .. "] ");
-	end
-end
-
 -------------------------------------------------
 -- Global Variables
 -------------------------------------------------
@@ -212,6 +187,14 @@ g_WorldFranchisesSortFunction = nil;
 g_MonopolyResourcesSortFunction = nil;
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
+
+function GetPedia( void1, void2, button )
+	local searchString = pediaSearchStrings[tostring(button)];
+	if (searchString ~= nil) then
+		Events.SearchForPediaEntry( searchString );
+	end
+end
+
 function SetBackground()
 	local strBackgroundImage = "loading_9.dds";
 	Controls.BackgroundImage:SetTextureAndResize(strBackgroundImage);
@@ -222,24 +205,17 @@ function SetBackground()
 end
 
 function DisplayCorporations()
-	-- Hard-coded for now, when I refactor Corporations architecture, there will be a tech property for this
-	local pCorpTech = GameInfo.Technologies["TECH_CORPORATIONS"];
-	if(pCorpTech == nil) then
-		print("No corporations tech - abort");
-		return;
-	end
-
-	local bHasCorpTech = g_pTeam:IsHasTech(pCorpTech.ID);
+	local bHasCorpTech = g_pTeam:IsCorporationsEnabled();
 
 	Controls.YourCorporationsNotReady:SetHide( bHasCorpTech );
 	Controls.AvailableCorporationBox:SetHide( not bHasCorpTech );
 
 	if(bHasCorpTech) then
-		local bHasCorporation = (g_pPlayer:GetCorpID() > 0);
+		local bHasCorporation = (g_pPlayer:GetCorporation() ~= -1);
 
 		Controls.AvailableCorporationBox:SetHide( bHasCorporation );
 		Controls.YourCorporationBox:SetHide( not bHasCorporation );
-
+	
 		if( not bHasCorporation ) then
 			UpdateAvailableCorporations();
 		else
@@ -262,22 +238,24 @@ function RefreshWorldCorporations()
 	for iPlayerLoop=0, GameDefines.MAX_MAJOR_CIVS, 1 do
 		local pLoopPlayer = Players[iPlayerLoop];
 		if(pLoopPlayer:IsAlive()) then
-			local ePlayerCorporation = pLoopPlayer:GetCorpID();
-			if(ePlayerCorporation > 0) then
+			local ePlayerCorporation = pLoopPlayer:GetCorporation();
+			if(ePlayerCorporation ~= -1) then
 				--print("ePlayerCorporation=" .. ePlayerCorporation);
 
-				local HQClass = g_Corporations[ePlayerCorporation].headquartersClass;
-				local pCorporationBuilding = GameInfo.Buildings[HQClass.DefaultBuilding];
-
-				local info = {
-					CivPlayer = iPlayerLoop,	-- int
-					CivName = Locale.ConvertTextKey(GetPlayerCiv(iPlayerLoop).Description),
-					CorpName = Locale.ConvertTextKey(pCorporationBuilding.Description),
-					CorpTooltip = Locale.ConvertTextKey(pCorporationBuilding.CorporationHelper),
-					CityName = pLoopPlayer:GetCorporationHeadquarters():GetName(),	-- city
-					DateFounded = pLoopPlayer:GetCorporationFoundedTurn(),
-				};
-				table.insert(instances, info);
+				local pCorporation = GameInfo.Corporations[ePlayerCorporation];
+				if(pCorporation ~= nil) then
+					local info = {
+						CivPlayer = iPlayerLoop,	-- int
+						CivName = Locale.ConvertTextKey(GetPlayerCiv(iPlayerLoop).Description),
+						CorpName = Locale.ConvertTextKey(pCorporation.Description),
+						CorpTooltip = Locale.ConvertTextKey(pCorporation.Help),
+						CityName = Game.GetCorporationHeadquarters(ePlayerCorporation),	-- city
+						DateFounded = pLoopPlayer:GetCorporationFoundedTurn(),
+					};
+					table.insert(instances, info);
+				else
+					print("WARNING: pCorporation is nil! RefreshWorldCorporations()!");
+				end
 			end
 		end
 	end
@@ -302,7 +280,7 @@ function InsertCorporation(info)
 	instance.Corporation:LocalizeAndSetText(info.CorpName);
 	instance.Corporation:LocalizeAndSetToolTip(info.CorpTooltip);
 	instance.DateFounded:SetText(Game.GetDateString(info.DateFounded));
-	instance.Headquarters:SetText(info.CityName);
+	instance.Headquarters:SetText(info.CityName:GetName());
 
 	HookupCivControl(info.CivPlayer, 32, instance.CivName, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow);
 end
@@ -320,25 +298,30 @@ function RefreshWorldFranchises()
 		local pLoopPlayer = Players[iPlayerLoop];
 		if( pLoopPlayer:IsEverAlive() and pLoopPlayer:IsAlive() ) then
 			for city in pLoopPlayer:Cities() do
-				-- Find all franchises in this city
-				for iCorpPlayer=0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
-					local pCorpPlayer = Players[iCorpPlayer];
-					if(pCorpPlayer:IsAlive()) then
-						-- City has this franchise?
-						if( city:IsFranchised(iCorpPlayer) ) then
-							local hq = g_Corporations[GameInfo.Buildings[id].CorporationID].headquartersClass;
+				for iCorpOwner=0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+					-- City has this franchise?
+					if( city:IsFranchised(iCorpOwner) ) then
+						local eFromPlayer = Players[iCorpOwner];
+						local pCorporation = nil;
 
-							local info = {
-								FromCiv = iCorpPlayer,
-								FromCivName = Locale.ConvertTextKey(GetPlayerCiv( iCorpPlayer ).Description),
-								CorpName = Locale.ConvertTextKey(pCorpPlayer:GetCorporationName()),
-								ToCiv = iPlayerLoop,
-								ToCivName = Locale.ConvertTextKey(GetPlayerCiv( iPlayerLoop ).Description),
-								CityName = city:GetName(),
-							};
-							table.insert(franchises, info);
-							iNumFranchises = iNumFranchises + 1;
+						local szCorporationString = "Undefined";
+
+						local eFromCorporation = Players[eFromPlayer]:GetCorporation();
+						if(eFromCorporation ~= -1) then
+							pCorporation = GameInfo.Corporations[eFromCorporation];
+							szCorporationString = Locale.ConvertTextKey(pCorporation.Description);
 						end
+
+						local info = {
+							FromCiv = eFromPlayer,
+							FromCivName = Locale.ConvertTextKey(GetPlayerCiv( eFromPlayer ).Description),
+							CorpName = szCorporationString,
+							ToCiv = iPlayerLoop,
+							ToCivName = Locale.ConvertTextKey(GetPlayerCiv( iPlayerLoop ).Description),
+							CityName = city:GetName(),
+						};
+						table.insert(franchises, info);
+						iNumFranchises = iNumFranchises + 1;
 					end
 				end
 			end
@@ -388,13 +371,15 @@ function RefreshMonopolies()
 			local iMonopolyPercent = 0;
 			local szResourceName = Locale.ConvertTextKey( pResource.Description );
 			local szCivName = 0;
+			local bValid = true;
 			if( ePlayer ~= -1 ) then
 				iMonopolyPercent = Players[ePlayer]:GetMonopolyPercent(eResource);
 				szCivName = Locale.ConvertTextKey(GetPlayerCiv(ePlayer).Description);
+				bValid = IsMonopolyValidType(ePlayer, eResource);
 			end
 		
 			if(IsResourceValid(eResource, ePlayer)) then
-				if(IsMonopolyValidType(iMonopolyPercent, eResource)) then
+				if(bValid) then
 					-- Build control for hookup
 					local info = {
 						ResourceIcon = pResource.IconString,
@@ -447,20 +432,25 @@ function ChooseMonopolyPlayer( eResource )
 end
 
 -- Player can choose what type of monopoly he will evaluate
-function IsMonopolyValidType( iMonopolyPercent, eResource )
+function IsMonopolyValidType( ePlayer, eResource )
 	local bStrategicResource = Game.GetResourceUsageType(eResource) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC;
+	
+	-- must have a valid player
+	if(ePlayer == -1) then
+		return;
+	end
+	
+	local pPlayer = Players[ePlayer];
 
 	if(g_MonopolyResourceType == "All") then
 		return true;
 	elseif(g_MonopolyResourceType == "Global") then
-		return iMonopolyPercent > 50;
+		return pPlayer:HasGlobalMonopoly(eResource);
 	elseif(g_MonopolyResourceType == "Strategic") then
-		return (bStrategicResource and iMonopolyPercent < 50 and iMonopolyPercent > 25);
+		return pPlayer:HasStrategicMonopoly(eResource);
 	elseif(g_MonopolyResourceType == "Potential") then
-		if(bStrategicResource) then
-			return iMonopolyPercent < 25 and iMonopolyPercent > 0;
-		else
-			return iMonopolyPercent < 50 and iMonopolyPercent > 0;
+		if(not pPlayer:HasGlobalMonopoly(eResource) and not pPlayer:HasStrategicMonopoly(eResource)) then
+			return pPlayer:GetMonopolyPercent(eResource) > 0;
 		end
 	end
 
@@ -518,7 +508,9 @@ function HookupCivControl( playerID, size, nameControl, icon, iconBG, iconShadow
 		playerIDDisplay = -1;
 	end
 
-	nameControl:LocalizeAndSetText( str );
+	if(nameControl ~= nil) then
+		nameControl:LocalizeAndSetText( str );
+	end
 
 	CivIconHookup( playerIDDisplay, size, icon, iconBG, iconShadow, false, true);
 end
@@ -535,135 +527,78 @@ end
 -------------------------------------------------------------------------------
 
 function UpdateAvailableCorporations()
-	local BuildingClass;
-	local building;
-
-	local OfficeClass;
-	local office;
-
-	local FranchiseClass;
-	local franchise;
-
-	local corpID;
-
-	
 	g_AvailableCorporationsIM:ResetInstances();
-	g_EstablishedCorporationsIM:ResetInstances();
 
 	for i, v in pairs(g_CorporationMonopolyResourceIMList) do
 		v:ResetInstances();
 	end
 	g_CorporationMonopolyResourceIMList = {};
 
-	local corporationsLeft = g_NumCorporations;
-	for i,v in pairs(g_Corporations) do
+	pediaSearchStrings = {};
 
-		BuildingClass = v.headquartersClass;
-		building = GameInfo.Buildings[BuildingClass.DefaultBuilding];
+	for row in GameInfo.Corporations() do
+		local HQClass = GameInfo.BuildingClasses[row.HeadquartersBuildingClass];
+		local HQ = GameInfo.Buildings[HQClass.DefaultBuilding];
+		
+		local OfficeClass = GameInfo.BuildingClasses[row.OfficeBuildingClass];
+		local Office = GameInfo.Buildings[OfficeClass.DefaultBuilding];
 
-		OfficeClass = v.officeClass;
-		office = GameInfo.Buildings[OfficeClass.DefaultBuilding];
+		local FranchiseClass = GameInfo.BuildingClasses[row.FranchiseBuildingClass];
+		local Franchise = GameInfo.Buildings[FranchiseClass.DefaultBuilding];
 
-		FranchiseClass = v.franchiseClass;
-		franchise = GameInfo.Buildings[FranchiseClass.DefaultBuilding];
-
-		corpID = building.CorporationHQID;
-
-		local iFounderID = -1;
 		local founderTooltip = "";
 		local pFoundingCity = nil;
 		local pFoundingPlayer = nil;
 
-		-- Get the founder 
-		for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
-			local pFounder = Players[iPlayerLoop];
-			if pFounder:IsEverAlive() then
-				local playerCorpID = pFounder:GetCorpID();
-				if(playerCorpID == corpID) then
-					-- We found the founder of this corporation
-					iFounderID = iPlayerLoop;
-
-					local civType = pFounder:GetCivilizationType();
-					local civInfo = GameInfo.Civilizations[civType];
-					
-					if (g_pTeam:IsHasMet(Players[iFounderID]:GetTeam()) ) then
-						founderTooltip = Locale.ConvertTextKey( civInfo.ShortDescription );
-					else
-						founderTooltip = Locale.ConvertTextKey( "TXT_KEY_UNMET_PLAYER" );
-					end
-
-					-- Look through their cities and get the headquarters
-					for city in pFounder:Cities() do
-						if(city:IsHasBuilding(building.ID)) then
-							pFoundingCity = city;
-							pFoundingPlayer = Players[iFounderID];
-							break;
-						end
-					end
-
-					corporationsLeft = corporationsLeft - 1;
-
-					--print("Corporation founded: " .. corpID);
-					--print("Corporations left: " .. corporationsLeft );
-
-					break;
-				end
-			end
+		local bAvailable = true;
+		local eFounder = Game.GetCorporationFounder(row.ID);
+		
+		local instance = g_AvailableCorporationsIM:GetInstance();
+		
+		-- do we need this?
+		if(eFounder ~= -1) then
+			bAvailable = false;
+			HookupCivControl( eFounder, 64, nil, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow );
 		end
+		
+		instance.CorporationFounderBox:SetHide( bAvailable );
 
-		local controlTable;
-		local bAvailable = (iFounderID == -1);
+		-- Corporation Icon Hookup
+		IconHookup( row.PortraitIndex, 128, row.IconAtlas, instance.CorporationPortrait );
+		instance.CorporationName:LocalizeAndSetText(row.Description);
 
-		-- If this corporation is available
-		if( bAvailable ) then
-			controlTable = g_AvailableCorporationsIM:GetInstance();
+		-- Add hook so that right-clicking the Resource brings up the Civilopedia page for it
+		-- search by text string - works, while the locale version doesn't (this smells like technical debt to me)
+		pediaSearchStrings[tostring(instance.PortraitButton)] = row.Description;
+		instance.PortraitButton:RegisterCallback( Mouse.eRClick, GetPedia );
 
-			-- Corporation Icon Hookup
-			IconHookup( building.PortraitIndex, 128, building.IconAtlas, controlTable.CorporationPortrait );
-			controlTable.CorporationName:LocalizeAndSetText(building.Description);
-
-			local g_CorporationMonopolyResourceIM = InstanceManager:new( "MonopolyResourceInstance", "MonopolyResourceBox", controlTable.MonopolyResourceStack );
-			-- Get the resource monopoly list for this Corporation
-			local resourceString = "";
-			for row in GameInfo.Building_ResourceMonopolyOrs( "BuildingType = '" .. building.Type .. "'" ) do
-				local requiredResource = GameInfo.Resources[row.ResourceType];
-				if requiredResource then
-					g_CorporationMonopolyResourceIMList[i] = g_CorporationMonopolyResourceIM;
-					local resource = g_CorporationMonopolyResourceIM:GetInstance();
-					resource.ResourcesLabel:SetText( requiredResource.IconString );
-					resource.ResourcesLabel:LocalizeAndSetToolTip( requiredResource.Description );
-				end		
-			end
-
-			-- build info string
-			local strInfo = "[ICON_BULLET]" .. Locale.ConvertTextKey( building.CorporationResourceBonusHelp ) .. "[NEWLINE]";
-			strInfo = strInfo .. "[ICON_BULLET]" .. Locale.ConvertTextKey( building.CorporationOfficeBonusHelp ) .. "[NEWLINE]";
-			strInfo = strInfo .. "[ICON_BULLET]" .. Locale.ConvertTextKey( building.CorporationTradeRouteBonusHelp );
-
-			controlTable.CorporationBonus:LocalizeAndSetText( strInfo );
-
-		-- If this corporation is already established by another civilization
-		else 
-			controlTable = g_EstablishedCorporationsIM:GetInstance();
-
-			if(g_pTeam:IsHasMet(Players[iFounderID]:GetTeam())) then
-				CivIconHookup( iFounderID, 32, controlTable.FounderIcon, controlTable.FounderIconBG, controlTable.FounderIconShadow, false, true);
-			else
-				CivIconHookup( -1, 32, controlTable.FounderIcon, controlTable.FounderIconBG, controlTable.FounderIconShadow, false, true);
-			end
-			controlTable.FounderBox:LocalizeAndSetToolTip(founderTooltip);
-
-			-- Corporation Icon Hookup
-			IconHookup( building.PortraitIndex, 80, building.IconAtlas, controlTable.CorporationPortrait );
-			controlTable.CorporationName:LocalizeAndSetText(building.Description);
-			
-			controlTable.FounderCity:SetText( pFoundingCity:GetName() );
-			controlTable.OfficesLabel:SetText( pFoundingPlayer:GetNumberofOffices() );
-			controlTable.FranchisesLabel:SetText( pFoundingPlayer:GetNumberofGlobalFranchises() );
+		local g_CorporationMonopolyResourceIM = InstanceManager:new( "MonopolyResourceInstance", "MonopolyResourceBox", instance.MonopolyResourceStack );
+		-- Get the resource monopoly list for this Corporation
+		local resourceString = "";
+		for resource in GameInfo.Corporation_ResourceMonopolyOrs( "CorporationType = '" .. row.Type .. "'" ) do
+			local requiredResource = GameInfo.Resources[resource.ResourceType];
+			if requiredResource then
+				g_CorporationMonopolyResourceIMList[row.ID] = g_CorporationMonopolyResourceIM;
+				local resourceInstance = g_CorporationMonopolyResourceIM:GetInstance();
+				resourceInstance.ResourcesLabel:SetText( requiredResource.IconString );
+				resourceInstance.ResourcesLabel:LocalizeAndSetToolTip( requiredResource.Description );
+			end		
+		end
+		
+		-- darken the box if it is not available
+		if( not bAvailable ) then
+			instance.AvailableCorporationBox:SetAlpha( 0.4 );
+		else
+			instance.AvailableCorporationBox:SetAlpha( 1.0 );
+		end
+		
+		if( row.Help ~= nil) then
+			local str = Locale.ConvertTextKey( row.Help ) .. " " .. Locale.ConvertTextKey( "TXT_KEY_CPO_RIGHT_CLICK_MORE_INFO" );
+			instance.CorporationBonus:LocalizeAndSetText( str );
 		end
 	end
 
-	if(corporationsLeft > 0) then
+	if(Game.GetNumAvailableCorporations() > 0) then
 		Controls.FoundCorporationStatus:LocalizeAndSetText( "TXT_KEY_CPO_FOUND_CORPORATION_AVAILABLE" );
 	else
 		Controls.FoundCorporationStatus:LocalizeAndSetText( "TXT_KEY_CPO_FOUND_CORPORATION_UNAVAILABLE" );
@@ -675,42 +610,51 @@ end
 function UpdateYourCorporation()
 	--print( "In UpdateYourCorporation()" );
 
-	local iOurCorporationID = g_pPlayer:GetCorpID();
+	local eCorporation = g_pPlayer:GetCorporation();
 
-	if ( iOurCorporationID < 0 ) then
-		print( "ERROR: Got to UpdateYourCorporation() with invalid Corporation ID!");
+	if ( eCorporation == -1 ) then
+		print( "ERROR: Got to UpdateYourCorporation() with no Corporation!");
 		return;
 	end
 
-	local corpHQ = nil;
-
-	g_Office = GameInfo.BuildingClasses[g_pPlayer:GetOfficeBuilding()];
-	g_Franchise = GameInfo.BuildingClasses[g_pPlayer:GetFranchiseBuilding()];
-
-	for i,v in pairs(g_Corporations) do
-		BuildingClass = v.headquartersClass;
-		building = GameInfo.Buildings[BuildingClass.DefaultBuilding];
-
-		corpID = building.CorporationHQID;
-
-		if(corpID == iOurCorporationID) then
-			corpHQ = building;
-			break;
-		end
+	local pCorporation = GameInfo.Corporations[eCorporation];
+	if ( pCorporation == nil ) then
+		print( "ERROR: pCorporation is nil!" );
+		return;
 	end
 
-	local pOffice = GameInfo.Buildings[g_Office.DefaultBuilding];
-	local pFranchise = GameInfo.Buildings[g_Franchise.DefaultBuilding];
+	local pHeadquartersClass = GameInfo.BuildingClasses[pCorporation.HeadquartersBuildingClass];
+	local pHeadquarters = GameInfo.Buildings[pHeadquartersClass.DefaultBuilding];
+	if( pHeadquarters ) then
+		-- nothing?
+	end
+	
+	local pOfficeClass = GameInfo.BuildingClasses[pCorporation.OfficeBuildingClass];
+	local pOffice = GameInfo.Buildings[pOfficeClass.DefaultBuilding];
+	if( pOffice ) then
+		IconHookup( pOffice.PortraitIndex, 80, pOffice.IconAtlas, Controls.OfficePortrait );
+		Controls.YourCorporationOfficeBox:LocalizeAndSetToolTip( pOffice.Help );
+		
+		pediaSearchStrings[tostring(Controls.YourCorporationOfficeBox)] = pOffice.Description;
+		Controls.YourCorporationOfficeBox:RegisterCallback( Mouse.eRClick, GetPedia );
+	end
+	
+	local pFranchiseClass = GameInfo.BuildingClasses[pCorporation.FranchiseBuildingClass];
+	local pFranchise = GameInfo.Buildings[pFranchiseClass.DefaultBuilding];
+	if( pFranchise ) then
+		IconHookup( pFranchise.PortraitIndex, 80, pFranchise.IconAtlas, Controls.FranchisePortrait );
+		Controls.YourCorporationFranchiseBox:LocalizeAndSetToolTip( pFranchise.Help );
+		Controls.OOSortByTR:LocalizeAndSetToolTip( "TXT_KEY_CPO_OFFICE_TRADE_ROUTES_SORT_TT", pFranchise.Description );
+		
+		pediaSearchStrings[tostring(Controls.YourCorporationFranchiseBox)] = pFranchise.Description;
+		Controls.YourCorporationFranchiseBox:RegisterCallback( Mouse.eRClick, GetPedia );
+	end
 
-	IconHookup( corpHQ.PortraitIndex, 128, corpHQ.IconAtlas, Controls.YourCorporationPortrait );
-
-	IconHookup( pOffice.PortraitIndex, 80, pOffice.IconAtlas, Controls.OfficePortrait );
-	IconHookup( pFranchise.PortraitIndex, 80, pFranchise.IconAtlas, Controls.FranchisePortrait );
-
-	Controls.YourCorporationOfficeBox:LocalizeAndSetToolTip( pOffice.Help );
-	Controls.YourCorporationFranchiseBox:LocalizeAndSetToolTip( pFranchise.Help );
-
-	Controls.YourCorporationName:LocalizeAndSetText( corpHQ.Description );
+	IconHookup( pCorporation.PortraitIndex, 128, pCorporation.IconAtlas, Controls.YourCorporationPortrait );
+	pediaSearchStrings[tostring(Controls.YourCorporationButton)] = pCorporation.Description;
+	Controls.YourCorporationButton:RegisterCallback( Mouse.eRClick, GetPedia );
+	
+	Controls.YourCorporationName:LocalizeAndSetText( pCorporation.Description );
 	Controls.YourCorporationOffices:LocalizeAndSetText( "TXT_KEY_CPO_NUM_OFFICES", g_pPlayer:GetNumberofOffices(), g_pPlayer:GetNumCities() );
 	Controls.YourCorporationOffices:LocalizeAndSetToolTip( "TXT_KEY_NUM_OFFICES_TT" );
 
@@ -732,25 +676,36 @@ function UpdateYourCorporation()
 	--	date = traditionalDate;
 	--end
 
-	local HQCity = g_pPlayer:GetCorporationHeadquarters();
-	Controls.YourCorporationHQ:LocalizeAndSetText( "TXT_KEY_CPO_YOUR_CORPORATION_HQ", HQCity:GetName() );
+	local pHeadquartersCity = Game.GetCorporationHeadquarters(eCorporation);
+	if(pHeadquartersCity) then
+		Controls.YourCorporationHQ:LocalizeAndSetText( "TXT_KEY_CPO_YOUR_CORPORATION_HQ", pHeadquartersCity:GetName() );
+	end
+
 	Controls.YourCorporationDate:LocalizeAndSetText("TXT_KEY_CPO_YOUR_CORPORATION_ESTABLISHED", Game.GetDateString(foundedTurn), foundedTurn);
 
-	Controls.OOSortByTR:LocalizeAndSetToolTip( "TXT_KEY_CPO_OFFICE_TRADE_ROUTES_SORT_TT", corpHQ.Description );
-
-	RefreshCorporationBenefits(building);
+	RefreshCorporationBenefits( pCorporation );
 	RefreshOffices();
 	RefreshFranchises();
 end
 
-function RefreshCorporationBenefits( pHeadquartersBuilding )
+function RefreshCorporationBenefits( pCorporation )
 	--print("RefreshCorporationBenefits()");
 	g_CorporationBenefitIM:ResetInstances();
 
-	-- Resource
-	InsertBenefit( "TXT_KEY_CPO_RESOURCE_BONUS", pHeadquartersBuilding.CorporationResourceBonusHelp );
-	InsertBenefit( "TXT_KEY_CPO_OFFICE_BONUS", pHeadquartersBuilding.CorporationOfficeBonusHelp );
-	InsertBenefit( "TXT_KEY_CPO_TRADE_ROUTE_BONUS", pHeadquartersBuilding.CorporationTradeRouteBonusHelp );
+	if(pCorporation == nil) then
+		print("pCorporation is nil!");
+		return;
+	end
+
+	if( pCorporation.ResourceBonusHelp ~= nil ) then
+		InsertBenefit( "TXT_KEY_CPO_RESOURCE_BONUS", pCorporation.ResourceBonusHelp );
+	end
+	if( pCorporation.OfficeBonusHelp ~= nil ) then
+		InsertBenefit( "TXT_KEY_CPO_OFFICE_BONUS", pCorporation.OfficeBonusHelp );
+	end
+	if( pCorporation.TradeRouteBonusHelp ~= nil ) then
+		InsertBenefit( "TXT_KEY_CPO_TRADE_ROUTE_BONUS", pCorporation.TradeRouteBonusHelp );
+	end
 
 	Controls.CorporationBenefitStack:CalculateSize();
 	Controls.CorporationBenefitStack:ReprocessAnchoring();
@@ -773,8 +728,24 @@ function RefreshOffices( )
 	-- actual array holding city instances
 	local myCities = {};
 
-	local eOffice = g_Office.DefaultBuilding;
-	local eFranchise = g_Franchise.DefaultBuilding;
+	local eCorporation = g_pPlayer:GetCorporation();
+	if ( eCorporation == -1 ) then
+		print( "ERROR: Got to RefreshOffices() with no Corporation!");
+		return;
+	end
+
+	local pCorporation = GameInfo.Corporations[eCorporation];
+	if ( pCorporation == nil ) then
+		print( "ERROR: pCorporation is nil!" );
+		return;
+	end
+
+	local pOfficeClass = GameInfo.BuildingClasses[pCorporation.OfficeBuildingClass];
+	local pOffice = GameInfo.Buildings[pOfficeClass.DefaultBuilding];
+	if( pOffice == nil ) then
+		print( "ERROR: No defined office. Exiting RefreshOffices()" );
+		return;
+	end
 
 	-- Find offices in our cities
 	for city in g_pPlayer:Cities() do
@@ -794,7 +765,7 @@ function RefreshOffices( )
 					iForeignTradeRoutes = iForeignTradeRoutes + 1;
 
 					local strFranchised = "";
-					if(not v.ToCity:IsHasBuilding(GameInfo.Buildings[eFranchise].ID)) then
+					if(not v.ToCity:IsFranchised(g_iSelectedPlayerID)) then
 						strFranchised = Locale.ConvertTextKey("TXT_KEY_CPO_NO_FRANCHISE");
 					else
 						strFranchised = Locale.ConvertTextKey("TXT_KEY_CPO_FRANCHISED");
@@ -850,30 +821,25 @@ function RefreshFranchises( )
 	-- actual array holding city instances
 	local foreignCities = {};
 
-	local eFranchise = g_Franchise.DefaultBuilding;
-
 	-- Find our franchise in other player's cities
 	for iPlayerLoop = 0, GameDefines.MAX_CIV_PLAYERS-1, 1 do
-		-- not ours
-		if(iPlayerLoop ~= g_iSelectedPlayerID) then
-			local pOtherPlayer = Players[iPlayerLoop];
-			if pOtherPlayer:IsEverAlive() then
-				-- look at player's cities now
-				for city in pOtherPlayer:Cities() do
-					-- City has franchise?
-					if(city:IsFranchised(g_iSelectedPlayerID)) then
-						local civType = pOtherPlayer:GetCivilizationType();
-						local civInfo = GameInfo.Civilizations[civType];
-						local civName = Locale.ConvertTextKey( civInfo.ShortDescription );
+		local pOtherPlayer = Players[iPlayerLoop];
+		if pOtherPlayer:IsEverAlive() then
+			-- look at player's cities now
+			for city in pOtherPlayer:Cities() do
+				-- City has franchise?
+				if(city:IsFranchised(g_iSelectedPlayerID)) then
+					local civType = pOtherPlayer:GetCivilizationType();
+					local civInfo = GameInfo.Civilizations[civType];
+					local civName = Locale.ConvertTextKey( civInfo.ShortDescription );
 			
-						local info = {
-							Civilization = civName,
-							City = city,
-							Name = city:GetName(),
-							Player = iPlayerLoop
-						}
-						table.insert(foreignCities, info);
-					end
+					local info = {
+						Civilization = civName,
+						City = city,
+						Name = city:GetName(),
+						Player = iPlayerLoop
+					}
+					table.insert(foreignCities, info);
 				end
 			end
 		end
@@ -898,36 +864,8 @@ end
 
 -----------------------------------------------------------------
 -----------------------------------------------------------------
-function OnAvailableCorporationsButton()
-    if( Controls.AvailableCorporationsStack:IsHidden() ) then
-        Controls.AvailableCorporationsButton:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "{TXT_KEY_CPO_AVAILABLE_CORPORATIONS:upper}" ) );
-        Controls.AvailableCorporationsStack:SetHide( false );
-    else
-        Controls.AvailableCorporationsButton:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "{TXT_KEY_CPO_AVAILABLE_CORPORATIONS:upper}" ) );
-        Controls.AvailableCorporationsStack:SetHide( true );
-    end
-    
-    RecalcPanelSize();
-end
-Controls.AvailableCorporationsButton:RegisterCallback( Mouse.eLClick, OnAvailableCorporationsButton );
-
-function OnEstablishedCorporationsButton()
-    if( Controls.EstablishedCorporationsStack:IsHidden() ) then
-        Controls.EstablishedCorporationsButton:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "{TXT_KEY_CPO_ESTABLISHED_CORPORATIONS:upper}" ) );
-        Controls.EstablishedCorporationsStack:SetHide( false );
-    else
-        Controls.EstablishedCorporationsButton:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "{TXT_KEY_CPO_ESTABLISHED_CORPORATIONS:upper}" ) );
-        Controls.EstablishedCorporationsStack:SetHide( true );
-    end
-    
-    RecalcPanelSize();
-end
-Controls.EstablishedCorporationsButton:RegisterCallback( Mouse.eLClick, OnEstablishedCorporationsButton );
-
 function RecalcPanelSize()
-	Controls.OuterCorporationsStack:CalculateSize();
 	Controls.AvailableCorporationsStack:CalculateSize();
-	Controls.EstablishedCorporationsStack:CalculateSize();
 
 	Controls.ScrollPanel:CalculateInternalSize();
 	Controls.ScrollPanel:ReprocessAnchoring();
@@ -1362,16 +1300,16 @@ ContextPtr:SetInputHandler( InputHandler );
 -----------------------------------------------------------------
 -- Add Corporations Overview to Dropdown (if enabled)
 -----------------------------------------------------------------
---LuaEvents.AdditionalInformationDropdownGatherEntries.Add( function(entries)
---	table.insert(entries, {
-	--	text = Locale.Lookup("TXT_KEY_CPO"),
-	--	call = function()
-	--		Events.SerialEventGameMessagePopup {
-	--			Type = ButtonPopupTypes.BUTTONPOPUP_MODDER_5,
---			};
-	--	end,
---	});
---end);
+LuaEvents.AdditionalInformationDropdownGatherEntries.Add( function(entries)
+	table.insert(entries, {
+		text = Locale.Lookup("TXT_KEY_CPO"),
+		call = function()
+			Events.SerialEventGameMessagePopup {
+				Type = ButtonPopupTypes.BUTTONPOPUP_MODDER_5,
+			};
+		end,
+	});
+end);
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -1412,11 +1350,8 @@ g_Tabs["Monopolies"].RefreshContent = function()
 	DisplayMonopolies();
 end
 
-OnAvailableCorporationsButton();
-OnEstablishedCorporationsButton();
-
 -- Just in case :)
---LuaEvents.RequestRefreshAdditionalInformationDropdownEntries();
+LuaEvents.RequestRefreshAdditionalInformationDropdownEntries();
 
 RegisterSortOptions();
 TabSelect("Monopolies");

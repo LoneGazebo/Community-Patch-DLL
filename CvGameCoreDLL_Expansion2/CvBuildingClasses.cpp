@@ -52,9 +52,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bPuppetPurchaseOverride(false),
 	m_bAllowsPuppetPurchase(false),
 	m_iGetCooldown(0),
-	m_iFreeBuildingTradeTargetCity(NO_BUILDINGCLASS),
-	m_iCorporationID(0),
-	m_iCorporationHQID(0),
 	m_bTradeRouteInvulnerable(false),
 	m_iTRSpeedBoost(0),
 	m_iTRVisionBoost(0),
@@ -319,12 +316,11 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piLocalFeatureAnds(NULL),
 	m_piResourceMonopolyAnds(NULL),
 	m_piResourceMonopolyOrs(NULL),
-	m_piCorporationYield(NULL),
-	m_piCorporationYieldModTrade(NULL),
-	m_piCorporationTradeRouteMod(NULL),
-	m_iCorporationGPChange(0),
-	m_iCorporationMaxFranchises(0),
-	m_piCorporationResourceQuantity(NULL),
+	m_piFranchiseTradeRouteCityYieldMod(NULL),
+	m_piFranchiseTradeRouteYieldMod(NULL),
+	m_iGPRateModifierPerXFranchises(0),
+	m_piResourceQuantityPerXFranchises(NULL),
+	m_piYieldPerFranchise(NULL),
 #endif
 	m_paiHurryModifier(NULL),
 	m_pbBuildingClassNeededInCity(NULL),
@@ -424,10 +420,10 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piLocalFeatureAnds);
 	SAFE_DELETE_ARRAY(m_piResourceMonopolyAnds);
 	SAFE_DELETE_ARRAY(m_piResourceMonopolyOrs);
-	SAFE_DELETE_ARRAY(m_piCorporationYield);
-	SAFE_DELETE_ARRAY(m_piCorporationYieldModTrade);
-	SAFE_DELETE_ARRAY(m_piCorporationTradeRouteMod);
-	SAFE_DELETE_ARRAY(m_piCorporationResourceQuantity);
+	SAFE_DELETE_ARRAY(m_piYieldPerFranchise);
+	SAFE_DELETE_ARRAY(m_piFranchiseTradeRouteCityYieldMod);
+	SAFE_DELETE_ARRAY(m_piFranchiseTradeRouteYieldMod);
+	SAFE_DELETE_ARRAY(m_piResourceQuantityPerXFranchises);
 #endif
 	SAFE_DELETE_ARRAY(m_paiHurryModifier);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededInCity);
@@ -689,14 +685,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	szTextVal = kResults.GetText("ThemingBonusHelp");
 	m_strThemingBonusHelp = szTextVal;
 
-#if defined(MOD_BALANCE_CORE)
-	szTextVal = kResults.GetText("CorporationHelper");
-	m_strCorporationHelper = szTextVal;
-
-	szTextVal = kResults.GetText("OfficeBenefitHelper");
-	m_strOfficeBenefitHelper = szTextVal;
-#endif
-
 	szTextVal = kResults.GetText("NearbyTerrainRequired");
 	m_iNearbyTerrainRequired = GC.getInfoTypeForString(szTextVal, true);
 
@@ -728,9 +716,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 #if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("FreeBuildingTradeTargetCity");
-	m_iFreeBuildingTradeTargetCity = GC.getInfoTypeForString(szTextVal, true);
-	m_iCorporationID = kResults.GetInt("CorporationID");
-	m_iCorporationHQID = kResults.GetInt("CorporationHQID");
 	m_bTradeRouteInvulnerable = kResults.GetBool("TradeRouteInvulnerable");
 	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
 	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
@@ -871,12 +856,11 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByExistence(m_piResourceMonopolyOrs, "Resources", "Building_ResourceMonopolyOrs", "ResourceType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByExistence(m_piResourceMonopolyAnds, "Resources", "Building_ResourceMonopolyAnds", "ResourceType", "BuildingType", szBuildingType);
 
-	kUtility.PopulateArrayByValue(m_piCorporationResourceQuantity, "Resources", "Building_CorporationResourceQuantity", "ResourceType", "BuildingType", szBuildingType, "Quantity");
-	kUtility.SetYields(m_piCorporationYield, "Building_CorporationYield", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piCorporationYieldModTrade, "Building_CorporationYieldModTrade", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piCorporationTradeRouteMod, "Building_CorporationTradeRouteMod", "BuildingType", szBuildingType);
-	m_iCorporationGPChange = kResults.GetInt("CorporationGPChange");
-	m_iCorporationMaxFranchises = kResults.GetInt("CorporationMaxFranchises");
+	kUtility.PopulateArrayByValue(m_piResourceQuantityPerXFranchises, "Resources", "Building_ResourceQuantityPerXFranchises", "ResourceType", "BuildingType", szBuildingType, "NumFranchises");
+	kUtility.SetYields(m_piYieldPerFranchise, "Building_YieldPerFranchise", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piFranchiseTradeRouteCityYieldMod, "Building_FranchiseTradeRouteCityYieldMod", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piFranchiseTradeRouteYieldMod, "Building_FranchiseTradeRouteYieldMod", "BuildingType", szBuildingType);
+	m_iGPRateModifierPerXFranchises = kResults.GetInt("GPRateModifierPerXFranchises");
 #endif
 	//ResourceYieldChanges
 	{
@@ -1392,21 +1376,6 @@ int CvBuildingEntry::GetFreeBuildingThisCity() const
 	return m_iFreeBuildingThisCity;
 }
 #if defined(MOD_BALANCE_CORE)
-/// Free building in the target city for a trade route
-int CvBuildingEntry::GetFreeBuildingTradeTargetCity() const
-{
-	return m_iFreeBuildingTradeTargetCity;
-}
-/// Corporation ID (for global calcs)
-int CvBuildingEntry::GetCorporationID() const
-{
-	return m_iCorporationID;
-}
-/// Corporation ID (for global calcs)
-int CvBuildingEntry::GetCorporationHQID() const
-{
-	return m_iCorporationHQID;
-}
 /// TRs are invulnerable!
 bool CvBuildingEntry::IsTradeRouteInvulnerable() const
 {
@@ -2364,17 +2333,6 @@ CvString CvBuildingEntry::GetThemingBonusHelp() const
 {
 	return m_strThemingBonusHelp;
 }
-#if defined(MOD_BALANCE_CORE)
-CvString CvBuildingEntry::GetCorporationHelper() const
-{
-	return m_strCorporationHelper;
-}
-
-CvString CvBuildingEntry::GetOfficeBenefitHelper() const
-{
-	return m_strOfficeBenefitHelper;
-}
-#endif
 // ARRAYS
 
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
@@ -2895,55 +2853,33 @@ int CvBuildingEntry::GetResourceMonopolyOr(int i) const
 	return m_piResourceMonopolyOrs ? m_piResourceMonopolyOrs[i] : -1;
 }
 /// Corporate building yield.
-int CvBuildingEntry::GetCorporationYieldChange(int i) const
+int CvBuildingEntry::GetFranchiseTradeRouteYieldMod(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCorporationYield ? m_piCorporationYield[i] : -1;
+	return m_piFranchiseTradeRouteYieldMod ? m_piFranchiseTradeRouteYieldMod[i] : -1;
 }
 /// Corporate building yield.
-int* CvBuildingEntry::GetCorporationYieldChangeArray() const
+int* CvBuildingEntry::GetFranchiseTradeRouteYieldModArray() const
 {
-	return m_piCorporationYield;
+	return m_piFranchiseTradeRouteYieldMod;
 }
-/// Corporate building yield.
-int CvBuildingEntry::GetCorporationYieldModTrade(int i) const
+int CvBuildingEntry::GetGPRateModifierPerXFranchises() const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCorporationYieldModTrade ? m_piCorporationYieldModTrade[i] : -1;
-}
-/// Corporate building yield.
-int* CvBuildingEntry::GetCorporationYieldModTradeArray() const
-{
-	return m_piCorporationYieldModTrade;
-}
-/// Corporate building yield.
-int CvBuildingEntry::GetCorporationTradeRouteMod(int i) const
-{
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCorporationTradeRouteMod ? m_piCorporationTradeRouteMod[i] : -1;
-}
-/// Corporate building yield.
-int* CvBuildingEntry::GetCorporationTradeRouteModArray() const
-{
-	return m_piCorporationTradeRouteMod;
-}
-int CvBuildingEntry::GetCorporationGPChange() const
-{
-	return m_iCorporationGPChange;
-}
-int CvBuildingEntry::GetCorporationMaxFranchises() const
-{
-	return m_iCorporationMaxFranchises;
+	return m_iGPRateModifierPerXFranchises;
 }
 /// Resources provided once constructed
-int CvBuildingEntry::GetCorporationResourceQuantity(int i) const
+int CvBuildingEntry::GetResourceQuantityPerXFranchises(int i) const
 {
 	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCorporationResourceQuantity ? m_piCorporationResourceQuantity[i] : -1;
+	return m_piResourceQuantityPerXFranchises ? m_piResourceQuantityPerXFranchises[i] : -1;
+}
+int CvBuildingEntry::GetYieldPerFranchise(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldPerFranchise ? m_piYieldPerFranchise[i] : -1;
 }
 #endif
 /// Modifier to Hurry cost
@@ -3707,8 +3643,8 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 	{
 		return false;
 	}
-	//Spawns a permanent resource? Can't sell.
-	if(kBuilding.GetCorporationID() > 0)
+	// Is a Corporation building?
+	if (kBuilding.GetBuildingClassInfo().getCorporationType() != NO_CORPORATION)
 	{
 		return false;
 	}

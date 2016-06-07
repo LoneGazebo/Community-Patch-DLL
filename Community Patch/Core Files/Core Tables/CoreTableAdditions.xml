@@ -517,35 +517,6 @@
 		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
 	</Table>
 
-	<!-- BUILDING: Allows you to define a building to grant a yield based on # of corporate franchises in unowned major cities-->
-	<Table name="Building_CorporationYield">
-		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
-		<Column name="Yield" type="integer" default="0"/>
-	</Table>
-
-	<!-- BUILDING: Allows you to define a building to grant a yield based on # of corporate franchises in unowned major cities-->
-	<Table name="Building_CorporationYieldModTrade">
-		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
-		<Column name="Yield" type="integer" default="0"/>
-	</Table>
-
-	<!-- BUILDING: Allows you to define a building to grant a yield based on # of corporate franchises in unowned major cities-->
-	<Table name="Building_CorporationTradeRouteMod">
-		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
-		<Column name="Yield" type="integer" default="0"/>
-	</Table>
-
-	<!-- BUILDING: Allows you to define a building to grant a resource based on # of franchies in world -->
-	<Table name="Building_CorporationResourceQuantity">
-		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
-		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
-		<Column name="Quantity" type="integer"/>
-	</Table>
-
-
 	<!-- BUILDINGS: Allows you to define a Resource Monopoly AND or OR requirement for the city. Must have DEALS functions enabled to use. -->
 	<Table name="Building_ResourceMonopolyOrs">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
@@ -631,6 +602,116 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
+	<!-- Corporations System -->
+	<Table name="Building_FranchiseTradeRouteCityYield">
+		<Column name="BuildingType" type="text" notnull="true" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="text" notnull="true" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Corporations">
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)" default="NULL"/>
+		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="ResourceBonusHelp" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="OfficeBonusHelp" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="TradeRouteBonusHelp" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="OfficeBenefitHelper" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="HeadquartersBuildingClass" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="OfficeBuildingClass" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="FranchiseBuildingClass" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="MaxFranchises" type="integer" default="0"/>
+		<Column name="NumFreeTradeRoutes" type="integer" default="0"/>
+		<Column name="TradeRouteRecipientBonus" type="integer" default="0"/>
+		<Column name="TradeRouteTargetBonus" type="integer" default="0"/>
+		<Column name="TradeRouteLandDistanceModifier" type="integer" default="0"/>
+		<Column name="TradeRouteSeaDistanceModifier" type="integer" default="0"/>
+		<Column name="TradeRouteSpeedModifier" type="integer" default="100"/>
+		<Column name="TradeRouteInvulnerable" type="boolean" default="false"/>
+		<Column name="TradeRouteVisionBoost" type="integer" default="0"/>
+		<Column name="PortraitIndex" type="integer" default="-1"/>
+		<Column name="IconAtlas" type="text" default="NULL" reference="IconTextureAtlases(Atlas)"/>
+	</Table>
+	<!-- Applies the modifier to the origin city yields - when sending to Franchises -->
+	<Table name="Corporation_TradeRouteCityYieldMod">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="YieldType" type="text" notnull="true" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- Applies the modifer to what the trade route yields - when sending to Franchises -->
+	<Table name="Corporation_TradeRouteYieldMod">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="YieldType" type="text" notnull="true" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- Applies specialist yield change to all cities with Corporation Headquarters and Offices (stacks) -->
+	<Table name="Corporation_SpecialistYieldChanges">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
+		<Column name="YieldType" type="text" notnull="true" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- Applies yield change to all cities with Corporation Headquarters and Offices (stacks) -->
+	<Table name="Corporation_BuildingClassYieldChanges">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer" default="0"/>
+	</Table>
+	<!-- Applies yield change to all cities with Corporation Headquarters and Offices (stacks) -->
+	<Table name="Corporation_ResourceYieldChanges">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- Grants a yield based on # of corporate franchises in unowned major cities -->
+	<Table name="Building_YieldPerFranchise">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- Modifer to City yields when we have a Trade Route to a city with our Franchise-->
+	<Table name="Building_FranchiseTradeRouteCityYieldMod">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- Modifier to Trade Route yields toward cities with our Franchise -->
+	<Table name="Building_FranchiseTradeRouteYieldMod">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- Grant a resource based on # of franchies in world -->
+	<Table name="Building_ResourceQuantityPerXFranchises">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="NumFranchises" type="integer"/>
+	</Table>
+	<!-- Non-functional ATM -->
+	<Table name="Corporation_ResourceMonopolyAnds">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+	</Table>
+	<Table name="Corporation_ResourceMonopolyOrs">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+	</Table>
+	<Table name="Corporation_NumFreeResource">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="NumResource" type="integer" default="0"/>
+	</Table>
+	<Table name="Corporation_UnitResourceProductionModifier">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="Modifier" type="integer" default="0"/>
+	</Table>
+	<!-- End Corporations -->
 	<Yields>
 		<Row>
 			<ID>8</ID>

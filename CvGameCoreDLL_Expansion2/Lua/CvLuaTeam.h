@@ -230,6 +230,10 @@ protected:
 
 	static int lUpdateEmbarkGraphics(lua_State* L);
 
+#if defined(MOD_BALANCE_CORE)
+	static int lIsCorporationsEnabled(lua_State* L);
+#endif
+
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	LUAAPIEXTN(IsVassal, bool, iteam);
 	LUAAPIEXTN(CanBecomeVassal, bool, iTeam);

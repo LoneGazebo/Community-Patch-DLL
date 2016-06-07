@@ -456,9 +456,6 @@ CvPlayer::CvPlayer() :
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_iHappinessPerXPopulationGlobal("CvPlayer::m_iHappinessPerXPopulationGlobal", m_syncArchive)
 	, m_iIdeologyPoint("CvPlayer::m_iIdeologyPoint", m_syncArchive)
-	, m_bOrderCorp("CvPlayer::m_bOrderCorp", m_syncArchive)
-	, m_bAutocracyCorp("CvPlayer::m_bAutocracyCorp", m_syncArchive)
-	, m_bFreedomCorp("CvPlayer::m_bFreedomCorp", m_syncArchive)
 #endif
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	, m_iConversionModifier("CvPlayer::m_iConversionModifier", m_syncArchive)
@@ -548,10 +545,6 @@ CvPlayer::CvPlayer() :
 	, m_iNoPartisans("CvPlayer::m_iNoPartisans", m_syncArchive)
 	, m_iSpawnCooldown("CvPlayer::m_iSpawnCooldown", m_syncArchive)
 	, m_iAbleToMarryCityStatesCount("CvPlayer::m_iAbleToMarryCityStatesCount", m_syncArchive)
-	, m_iCorporateFounderID("CvPlayer::m_iCorporateFounderID", m_syncArchive)
-	, m_iCorporateFoundedTurn("CvPlayer::m_iCorporateFoundedTurn", m_syncArchive)
-	, m_iCorporationMaxFranchises("CvPlayer::m_iCorporationMaxFranchises", m_syncArchive)
-	, m_iCorporateFranchises("CvPlayer::m_iCorporateFranchises", m_syncArchive)
 	, m_bTradeRoutesInvulnerable("CvPlayer::m_bTradeRoutesInvulnerable", m_syncArchive)
 	, m_iTRSpeedBoost("CvPlayer::m_iTRSpeedBoost", m_syncArchive)
 	, m_iVotesPerGPT("CvPlayer::m_iVotesPerGPT", m_syncArchive)
@@ -685,6 +678,9 @@ CvPlayer::CvPlayer() :
 	m_pDiplomacyAI = FNEW(CvDiplomacyAI, c_eCiv5GameplayDLL, 0);
 	m_pReligions = FNEW(CvPlayerReligions, c_eCiv5GameplayDLL, 0);
 	m_pReligionAI = FNEW(CvReligionAI, c_eCiv5GameplayDLL, 0);
+#if defined(MOD_BALANCE_CORE)
+	m_pCorporations = FNEW(CvPlayerCorporations, c_eCiv5GameplayDLL, 0);
+#endif
 	m_pPlayerTechs = FNEW(CvPlayerTechs, c_eCiv5GameplayDLL, 0);
 	m_pFlavorManager = FNEW(CvFlavorManager, c_eCiv5GameplayDLL, 0);
 	m_pTacticalAI = FNEW(CvTacticalAI, c_eCiv5GameplayDLL, 0);
@@ -754,6 +750,9 @@ CvPlayer::~CvPlayer()
 	SAFE_DELETE(m_pTrade);
 	SAFE_DELETE(m_pTradeAI);
 	SAFE_DELETE(m_pLeagueAI);
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE(m_pCorporations);
+#endif
 }
 
 
@@ -1128,6 +1127,9 @@ void CvPlayer::uninit()
 	m_pDiplomacyAI->Uninit();
 	m_pReligions->Uninit();
 	m_pReligionAI->Uninit();
+#if defined(MOD_BALANCE_CORE)
+	m_pCorporations->Uninit();
+#endif
 	m_pEspionage->Uninit();
 	m_pEspionageAI->Uninit();
 	m_pTrade->Uninit();
@@ -1256,9 +1258,6 @@ void CvPlayer::uninit()
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iHappinessPerXPopulationGlobal = 0;
 	m_iIdeologyPoint = 0;
-	m_bOrderCorp = 0;
-	m_bAutocracyCorp = 0;
-	m_bFreedomCorp = 0;
 #endif
 	m_iHappinessFromLeagues = 0;
 	m_iEspionageModifier = 0;
@@ -1470,10 +1469,6 @@ void CvPlayer::uninit()
 	m_iNoPartisans = 0;
 	m_iSpawnCooldown = 0;
 	m_iAbleToMarryCityStatesCount = 0;
-	m_iCorporateFounderID = 0;
-	m_iCorporateFoundedTurn = 0;
-	m_iCorporationMaxFranchises = 0;
-	m_iCorporateFranchises = 0;
 	m_bTradeRoutesInvulnerable = false;
 	m_iTRSpeedBoost = 0;
 	m_iVotesPerGPT = 0;
@@ -1901,6 +1896,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_pDiplomacyAI->Init(this);
 		m_pReligions->Init(this);
 		m_pReligionAI->Init(GC.GetGameBeliefs(), this);
+#if defined(MOD_BALANCE_CORE)
+		m_pCorporations->Init(this);
+#endif
 		m_pPlayerTechs->Init(GC.GetGameTechs(), this, false);
 		m_pPlayerPolicies->Init(GC.GetGamePolicies(), this, false);
 		m_pTacticalAI->Init(this);
@@ -2825,13 +2823,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				{
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(pOldCity->getOwner(), GetID(), iValue);
 				}
-#if defined(MOD_BALANCE_CORE)
-				if(ePlayer != NO_PLAYER)
-				{
-					pOldCity->SetFranchised(ePlayer, false);
-					pOldCity->SetHasOffice(false);
-				}
-#endif
 			}
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -2874,6 +2865,14 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 		GetMilitaryAI()->LogCityCaptured(pOldCity, pOldCity->getOwner());
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	// Remove Corporation from this city if acquired to another player by any means
+	if (pOldCity->getOwner() != NO_PLAYER && pOldCity->getOwner() != GetID())
+	{
+		GET_PLAYER(pOldCity->getOwner()).GetCorporations()->ClearCorporationFromCity(pOldCity);
+	}
+#endif
 
 	if(pOldCity->getOriginalOwner() == pOldCity->getOwner())
 	{
@@ -3488,8 +3487,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 #if defined(MOD_BALANCE_CORE)
 		if((PlayerTypes)iI != NO_PLAYER)
 		{
-			pNewCity->SetFranchised((PlayerTypes)iI, false);
-			pNewCity->SetHasOffice(false);
+			GET_PLAYER((PlayerTypes)iI).GetCorporations()->ClearCorporationFromCity(pNewCity);
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -9397,11 +9395,8 @@ void CvPlayer::doTurn()
 	{
 		SetGlobalTourismAlreadyReceived((MinorCivQuestTypes)iQuestLoop, 0);
 	}
-	if(GetCorporateFounderID() > 0)
-	{
-		DoFreedomCorp();
-		CalculateCorporateFranchisesWorldwide();
-	}
+
+	GetCorporations()->DoTurn();
 	
 	//Reset for reevaluation of citystrategy AI
 	countCitiesFeatureSurrounded(true);
@@ -9757,79 +9752,13 @@ void CvPlayer::doTurnPostDiplomacy()
 //	--------------------------------------------------------------------------------
 void CvPlayer::doTurnUnits()
 {
-	CvArmyAI* pLoopArmyAI;
 	CvUnit* pLoopUnit;
 	int iLoop;
 
 	AI_doTurnUnitsPre();
 
-	// Start: TACTICAL AI UNIT PROCESSING
+	// Tactical AI
 	m_pTacticalAI->DoTurn();
-
-	// Start: OPERATIONAL AI UNIT PROCESSING
-	std::map<int, CvAIOperation*>::iterator iter;
-	bool bKilledSomething;
-	do
-	{
-		bKilledSomething = false;
-		for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-		{
-			CvAIOperation* pThisOperation = iter->second;
-			if(pThisOperation)
-			{
-				if(pThisOperation->DoDelayedDeath())
-				{
-					bKilledSomething = true;
-					break;
-				}
-			}
-		}
-		// hack
-	}
-	while(bKilledSomething);
-
-	for(pLoopArmyAI = firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = nextArmyAI(&iLoop))
-	{
-		pLoopArmyAI->DoDelayedDeath();
-	}
-
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
-	{
-		pLoopUnit->doDelayedDeath();
-	}
-
-	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-	{
-		CvAIOperation* pThisOperation = iter->second;
-		if(pThisOperation)
-		{
-			pThisOperation->DoTurn();
-		}
-	}
-
-	do
-	{
-		bKilledSomething = false;
-		for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
-		{
-			CvAIOperation* pThisOperation = iter->second;
-			if(pThisOperation)
-			{
-				if(pThisOperation->DoDelayedDeath())
-				{
-					bKilledSomething = true;
-					break;
-				}
-			}
-		}
-		// hack
-	}
-	while(bKilledSomething);
-
-	for(pLoopArmyAI = firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = nextArmyAI(&iLoop))
-	{
-		pLoopArmyAI->DoTurn();
-	}
 
 	// Homeland AI
 	m_pHomelandAI->DoTurn();
@@ -10189,7 +10118,7 @@ int CvPlayer::GetCountReadyUnits() const
 
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath())
+		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
 			iRtnValue++;
 		}
@@ -10206,7 +10135,7 @@ const CvUnit* CvPlayer::GetFirstReadyUnit() const
 
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath())
+		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
 			return pLoopUnit;
 		}
@@ -10223,7 +10152,7 @@ void CvPlayer::EndTurnsForReadyUnits()
 
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath())
+		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
 			pLoopUnit->finishMoves();
 #if defined(MOD_BALANCE_CORE)
@@ -14692,33 +14621,6 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	{
 		ChangeSecondReligionPantheonCount((pBuildingInfo->IsSecondaryPantheon()) ? iChange : 0);
 	}
-	if(pBuildingInfo->GetCorporationHQID() > 0 && GetCorporateFounderID() <= 0)
-	{
-		SetCorporateFounderID(pBuildingInfo->GetCorporationHQID());
-		SetCorporateFoundedTurn(GC.getGame().getGameTurn());
-		if(GetID() == GC.getGame().getActivePlayer())
-		{
-			Localization::String strMessage;
-			Localization::String strSummary;
-			strMessage = Localization::Lookup("TXT_KEY_CORPORATION_FOUNDED");
-			strMessage << (pBuildingInfo->GetTextKey());
-			strSummary = Localization::Lookup("TXT_KEY_CORPORATION_FOUNDED_SUMMARY");
-
-			CvNotifications* pNotification = GetNotifications();
-			if(pNotification)
-			{
-				pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, GetID());
-			}
-		}
-	}
-	if(pBuildingInfo->GetCorporationMaxFranchises() != 0)
-	{
-		ChangeCorporationMaxFranchises(pBuildingInfo->GetCorporationMaxFranchises() * iChange);
-	}
-	if(pBuildingInfo->IsTradeRouteInvulnerable())
-	{
-		SetTradeRoutesInvulnerable(true);
-	}
 	if(pBuildingInfo->GetTRSpeedBoost() != 0)
 	{
 		ChangeTRSpeedBoost(pBuildingInfo->GetTRSpeedBoost() * iChange);
@@ -15031,6 +14933,18 @@ int CvPlayer::GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, Yie
 			}
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	CorporationTypes eCorporation = GetCorporations()->GetFoundedCorporation();
+	if (eCorporation != NO_CORPORATION)
+	{
+		CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
+		if (pkCorporation)
+		{
+			rtnValue += pkCorporation->GetBuildingClassYieldChange(eBuildingClass, eYieldType);
+		}
+	}
+#endif
 
 	return rtnValue;
 }
@@ -20462,40 +20376,6 @@ void CvPlayer::SetIdeologyPoint(int iValue)
 void CvPlayer::ChangeIdeologyPoint(int iChange)
 {
 	SetIdeologyPoint(m_iIdeologyPoint + iChange);
-}
-
-void CvPlayer::SetOrderCorp(bool bValue)
-{
-	if(m_bOrderCorp != bValue)
-	{
-		m_bOrderCorp = bValue;
-	}
-}
-void CvPlayer::SetAutocracyCorp(bool bValue)
-{
-	if(m_bAutocracyCorp != bValue)
-	{
-		m_bAutocracyCorp = bValue;
-	}
-}
-void CvPlayer::SetFreedomCorp(bool bValue)
-{
-	if(m_bFreedomCorp != bValue)
-	{
-		m_bFreedomCorp = bValue;
-	}
-}
-bool CvPlayer::IsOrderCorp()
-{
-	return m_bOrderCorp;
-}
-bool CvPlayer::IsAutocracyCorp()
-{
-	 return m_bAutocracyCorp; 
-}
-bool CvPlayer::IsFreedomCorp()
-{
-	return m_bFreedomCorp;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -26351,418 +26231,6 @@ void CvPlayer::ChangeAbleToMarryCityStatesCount(int iChange)
 {
 	m_iAbleToMarryCityStatesCount += iChange;
 }
-//CORPORATIONS
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetCorporationMaxFranchises() const
-{
-	return m_iCorporationMaxFranchises;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::ChangeCorporationMaxFranchises(int iChange)
-{
-	m_iCorporationMaxFranchises += iChange;
-}
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetCorporateFounderID() const
-{
-	return m_iCorporateFounderID;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::SetCorporateFounderID(int iChange)
-{
-	m_iCorporateFounderID = iChange;
-}
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetCorporateFoundedTurn() const
-{
-	return m_iCorporateFoundedTurn;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::SetCorporateFoundedTurn(int iValue)
-{
-	m_iCorporateFoundedTurn = iValue;
-}
-void CvPlayer::DoFreedomCorp()
-{
-	//Are you free enough?!
-	if(!IsFreedomCorp())
-	{
-		return;
-	}
-	int iFranchises = GetCorporateFranchisesWorldwide();
-	int iMax = GetMaxFranchises();
-
-	CvCity* pLoopCity;
-	int iLoop;
-	BuildingTypes eFreeBuilding = NO_BUILDING;
-
-	if(iFranchises < iMax)
-	{
-		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if(pLoopCity != NULL)
-			{
-				if(pLoopCity->GetFreeBuildingTradeTargetCity() > 0)
-				{
-					BuildingClassTypes eBuildingClassDestCity = (BuildingClassTypes)pLoopCity->GetFreeBuildingTradeTargetCity();
-					const CvCivilizationInfo& thisCiv = getCivilizationInfo();
-					BuildingTypes eBuildingDestCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eBuildingClassDestCity));
-
-					if (eBuildingDestCity != NO_BUILDING)
-					{
-						CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuildingDestCity);
-						if(pBuildingInfo)
-						{
-							if(pBuildingInfo->GetCorporationID() == GetCorporateFounderID())
-							{
-								eFreeBuilding = eBuildingDestCity;
-								if((GC.getLogging() && GC.getAILogging()))
-								{
-									CvString strLogString;
-									strLogString.Format("Found Corporate Building to seed to Freedom Function: %s", pBuildingInfo->GetText());
-									GetHomelandAI()->LogHomelandMessage(strLogString);
-								}
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-		CvCity* pBestCity = 0;
-		int iBestScore = 0;
-		CvCity* pCapital = getCapitalCity();
-		for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
-		{
-			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
-			if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian() && GET_PLAYER(ePlayer).GetID() != GetID())
-			{
-				CvCity* pLoopCity;
-				int iLoop;
-				for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
-				{
-					if(pLoopCity != NULL)
-					{
-						if(!pLoopCity->IsFranchised(GetID()))
-						{
-							int iScore = GC.getGame().getJonRandNum(100, "Random Corp Spread");
-							if(GetTrade()->IsConnectedToPlayer(pLoopCity->getOwner()))
-							{
-								iScore += GC.getGame().getJonRandNum(100, "Random Corp Spread");
-							}
-							if(pCapital != NULL)
-							{
-								//Prioritize closer cities first.
-								int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY());
-								iScore -= (iDistance * 5);
-							}
-							if(iScore > iBestScore)
-							{
-								iBestScore = iScore;
-								pBestCity = pLoopCity;
-							}
-						}
-					}
-				}
-			}
-		}
-		if(pBestCity != NULL && iBestScore != 0 && eFreeBuilding != NO_BUILDING)
-		{
-			int iSpreadChance = GC.getGame().getJonRandNum((1500 + (GetCorporateFranchisesWorldwide() * 10)), "Random Corp Spread");
-			if(iSpreadChance <= iBestScore)
-			{
-				if(pBestCity->GetCityBuildings()->GetNumBuilding(eFreeBuilding) <= 0)
-				{
-					CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eFreeBuilding);
-					if(pBuildingInfo)
-					{
-						pBestCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 1);
-						pBestCity->SetFranchised(GetID(), true);
-						iFranchises++;
-						// send notification to owner player and target player
-						CvNotifications* pNotifications = GetNotifications();
-						if(pNotifications && GetID() == GC.getGame().getActivePlayer())
-						{
-							Localization::String strSummary;
-							Localization::String strMessage;
-
-							strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FREEDOM_SUMMARY");
-							strSummary << pBuildingInfo->GetTextKey();
-							strSummary << pBestCity->getNameKey();
-							strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FREEDOM");
-							strMessage << pBestCity->getNameKey();
-							strMessage << pBuildingInfo->GetTextKey();
-							pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pBestCity->getX(), pBestCity->getY(), -1, -1);
-						}
-						else
-						{
-							CvNotifications* pNotifications2 = GET_PLAYER(pBestCity->getOwner()).GetNotifications();
-							if(pNotifications2 && pBestCity->getOwner() == GC.getGame().getActivePlayer())
-							{
-								Localization::String strSummary;
-								Localization::String strMessage;
-
-								strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_FREEDOM_SUMMARY");
-								strSummary << pBuildingInfo->GetTextKey();
-								strSummary << pBestCity->getNameKey();
-								strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_FREEDOM");
-								strMessage << pBestCity->getNameKey();
-								strMessage << pBuildingInfo->GetTextKey();
-								strMessage << getCivilizationShortDescriptionKey();
-								pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pBestCity->getX(), pBestCity->getY(), -1, -1);
-							}
-						}
-						CalculateCorporateFranchisesWorldwide();
-
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Spread Corporate Building via Freedom Function. City: %s. Building: %s.", pBestCity->getName().c_str(), pBuildingInfo->GetText());
-							GetHomelandAI()->LogHomelandMessage(strLogString);
-						}
-					}
-				}
-			}
-		}
-	}
-}
-//	--------------------------------------------------------------------------------
-// Returns a string representing our current corporation benefit (if we have one) for the Corporation Overview
-CvString CvPlayer::GetCurrentOfficeBenefit() const
-{
-	int iCorporationID = GetCorporateFounderID();
-	if(iCorporationID <= 0)
-		return "";
-
-	CvString szOfficeBenefit = "";
-
-	// Find Office building
-	CvBuildingEntry* pkOfficeInfo = NULL;
-	for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
-	{
-		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo((BuildingTypes) iI);
-		if(pkBuildingInfo)
-		{
-			if(pkBuildingInfo->GetCorporationHQID() == 0 &&								// Not a headquarters
-				pkBuildingInfo->GetCorporationID() == iCorporationID &&					// Part of our corporation
-				pkBuildingInfo->GetFreeBuildingTradeTargetCity() != NO_BUILDINGCLASS)	// Not a franchise
-			{
-				pkOfficeInfo = pkBuildingInfo;
-				break;
-			}
-		}
-	}
-
-	// No office assigned to this corporation (wth?)
-	if(pkOfficeInfo == NULL)
-		return "";
-
-	// Calculate what our input into the corporation helper we need
-	int iCurrentValue = 0;
-	int iNumFranchises = GetCorporateFranchisesWorldwide();
-	
-	bool bFoundOne = false;
-
-	// Note: only look for one number, if we find one, don't consider others.
-	if(iNumFranchises > 0)
-	{
-		// Civilized Jewelers
-		if(pkOfficeInfo->GetCorporationGPChange() > 0)
-		{
-			iCurrentValue = iNumFranchises * pkOfficeInfo->GetCorporationGPChange();
-			bFoundOne = true;
-		}
-
-		if(!bFoundOne)
-		{
-			// Free Resource?
-			for(int iI=0; iI < GC.getNumResourceInfos(); iI++)
-			{
-				ResourceTypes eResource = (ResourceTypes) iI;
-				if(pkOfficeInfo->GetCorporationResourceQuantity(eResource) > 0)
-				{
-					iCurrentValue = iNumFranchises / pkOfficeInfo->GetCorporationResourceQuantity(eResource);
-					bFoundOne = true;
-					break;
-				}
-			}
-		}
-
-		if(!bFoundOne)
-		{
-			// Yield Change?
-			for(int iI=0; iI < NUM_YIELD_TYPES; iI++)
-			{
-				YieldTypes eYield = (YieldTypes) iI;
-				if(pkOfficeInfo->GetCorporationYieldChange(eYield) > 0)
-				{
-					iCurrentValue = iNumFranchises * pkOfficeInfo->GetCorporationYieldChange(eYield);
-					bFoundOne = true;
-					break;
-				}
-			}	
-		}
-	}
-
-	szOfficeBenefit = GetLocalizedText(pkOfficeInfo->GetOfficeBenefitHelper(), iCurrentValue);
-
-	return szOfficeBenefit;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::CalculateCorporateFranchisesWorldwide()
-{
-	int iFranchises = 0;
-	int iMax = GetMaxFranchises();
-	if(IsOrderCorp())
-	{
-		CvCity* pLoopCity;
-		int iLoop;
-		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if(pLoopCity != NULL)
-			{
-				if(pLoopCity->HasOffice())
-				{
-					iFranchises++;
-				}
-			}
-		}
-		if(iFranchises > iMax)
-		{
-			iFranchises = iMax;
-		}
-	}
-	else if(IsAutocracyCorp())
-	{
-		int iFranchiseDouble = 0;
-		for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
-		{
-			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
-			if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian() && GET_PLAYER(ePlayer).GetID() != GetID())
-			{
-				CvCity* pLoopCity;
-				int iLoop;
-				for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
-				{
-					if(pLoopCity != NULL)
-					{
-						if(pLoopCity->IsFranchised(GetID()))
-						{
-							iFranchises++;
-
-							if (GetCulture()->GetInfluenceLevel(ePlayer) >= INFLUENCE_LEVEL_POPULAR)
-							{
-								iFranchiseDouble++;
-							}
-						}
-					}
-				}
-			}
-		}
-		if(iFranchises > iMax)
-		{
-			iFranchises = iMax;
-		}
-		iFranchises += iFranchiseDouble;
-	}
-	else if(IsFreedomCorp())
-	{
-		for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
-		{
-			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
-			if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian() && GET_PLAYER(ePlayer).GetID() != GetID())
-			{
-				CvCity* pLoopCity;
-				int iLoop;
-				for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
-				{
-					if(pLoopCity != NULL)
-					{
-						if(pLoopCity->IsFranchised(GetID()))
-						{
-							iFranchises++;
-						}
-					}
-				}
-			}
-		}
-		if(iFranchises > iMax)
-		{
-			iFranchises = iMax;
-		}
-	}
-	else
-	{
-		for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
-		{
-			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
-			if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian() && GET_PLAYER(ePlayer).GetID() != GetID())
-			{
-				CvCity* pLoopCity;
-				int iLoop;
-				for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
-				{
-					if(pLoopCity != NULL)
-					{
-						if(pLoopCity->IsFranchised(GetID()))
-						{
-							iFranchises++;
-						}
-					}
-				}
-			}
-		}
-		if(iFranchises > iMax)
-		{
-			iFranchises = iMax;
-		}
-	}
-	SetCorporateFranchisesWorldwide(iFranchises);
-}
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetCorporateFranchisesWorldwide() const
-{
-	return m_iCorporateFranchises;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::SetCorporateFranchisesWorldwide(int iChange)
-{
-	m_iCorporateFranchises = iChange;
-}
-int CvPlayer::GetMaxFranchises()
-{
-	int iBase = GetTrade()->GetNumTradeRoutesPossible();
-	iBase *= 2;
-	int iMax = (iBase * GC.getMap().getWorldInfo().GetEstimatedNumCities());
-	iMax /= 100;
-	if(iMax > iBase)
-	{
-		iMax = iBase;
-	}
-	int iBonus = 0;
-	if(GetCorporationMaxFranchises() > 0)
-	{
-		iBonus = (iMax * (100 + GetCorporationMaxFranchises()));
-		iBonus /= 100;
-		iBonus -= iMax;
-		if(iBonus <= 0)
-		{
-			iBonus  = 1;
-		}
-	}
-	iMax += iBonus;
-	return iMax;
-}
-//	--------------------------------------------------------------------------------
-bool CvPlayer::AreTradeRoutesInvulnerable() const
-{
-	return m_bTradeRoutesInvulnerable;
-}
-//	--------------------------------------------------------------------------------
-void CvPlayer::SetTradeRoutesInvulnerable(bool bValue)
-{
-	m_bTradeRoutesInvulnerable = bValue;
-}
 //	--------------------------------------------------------------------------------
 void CvPlayer::ChangeTRSpeedBoost(int iChange)
 {
@@ -31979,12 +31447,12 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 		{
 			if(pLoopCity != NULL)
 			{
-				if(pLoopCity->GetCorporationResourceQuantity(eIndex) > 0)
+				if(pLoopCity->GetResourceQuantityPerXFranchises(eIndex) > 0)
 				{
-					int iFranchises = GetCorporateFranchisesWorldwide();
+					int iFranchises = GetCorporations()->GetNumFranchises();
 					if(iFranchises > 0)
 					{
-						iTotalNumResource += (iFranchises / pLoopCity->GetCorporationResourceQuantity(eIndex));
+						iTotalNumResource += (iFranchises / pLoopCity->GetResourceQuantityPerXFranchises(eIndex));
 					}
 				}
 			}
@@ -31996,6 +31464,23 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 			iTotalNumResource /= 100;
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	// Additional resources from Corporation
+	CorporationTypes eCorporation = GetCorporations()->GetFoundedCorporation();
+	if (eCorporation != NO_CORPORATION)
+	{
+		CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
+		if (pkCorporationInfo)
+		{
+			int iFreeResource = pkCorporationInfo->GetNumFreeResource(eIndex);
+			if (iFreeResource > 0)
+			{
+				iTotalNumResource += iFreeResource;
+			}
+		}
+	}
+#endif
 
 	if(bIncludeImport)
 	{
@@ -32369,10 +31854,11 @@ int CvPlayer::GetMonopolyPercent(ResourceTypes eResource) const
 	int iOwnedNumResource = getNumResourceTotal(eResource, false) + getResourceExport(eResource);
 	int iTotalNumResource = GC.getMap().getNumResources(eResource);
 
-	CvAssertMsg(iTotalNumResource > 0, "iTotalNumResource should be greater than zero!");
-
-	if(iTotalNumResource == 0)
-		return 0;
+	if (iTotalNumResource <= 0)
+	{
+		// if we own a resource, but it's not on the map at all, it is 100%
+		return iOwnedNumResource > 0 ? 100 : 0;
+	}
 
 	return (iOwnedNumResource * 100) / iTotalNumResource;
 }
@@ -33804,7 +33290,10 @@ int CvPlayer::getBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes
 	return m_ppiBuildingClassYieldChange[eIndex1][eIndex2];
 }
 
-
+#if defined(MOD_BALANCE_CORE)
+// (Corp) Note to future modders: if you think this works as you expect, you're wrong. just ignore it. Use ::GetBuildingClassYieldChange() instead (note the capital), or fix this so it's functional.
+// grrrr....
+#endif
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
@@ -34426,6 +33915,7 @@ CvUnit* CvPlayer::nextUnit(int* pIterIdx, bool bRev)
 		(*pIterIdx)++;
 	return m_units.GetAt(*pIterIdx);
 }
+
 #if defined(MOD_BALANCE_CORE)
 CvUnit* CvPlayer::nextUnit(const CvUnit* pCurrent, bool bRev)
 {
@@ -34632,13 +34122,13 @@ CvAIOperation* CvPlayer::getAIOperation(int iID)
 
 
 //	--------------------------------------------------------------------------------
-CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, int /*iArea*/, CvCity* pTarget, CvCity* pMuster)
+CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, int iArea, CvCity* pTarget, CvCity* pMuster)
 {
-	CvAIOperation* pNewOperation = CvAIOperation::CreateOperation((AIOperationTypes) OperationType, m_eID);
+	CvAIOperation* pNewOperation = CvAIOperation::CreateOperation((AIOperationTypes) OperationType);
 	if(pNewOperation)
 	{
 		m_AIOperations.insert(std::make_pair(m_iNextOperationID.get(), pNewOperation));
-		pNewOperation->Init(m_iNextOperationID, m_eID, eEnemy, pTarget, pMuster);
+		pNewOperation->Init(m_iNextOperationID, m_eID, eEnemy, iArea, pTarget, pMuster);
 		m_iNextOperationID++;
 	}
 	return pNewOperation;
@@ -34659,6 +34149,53 @@ void CvPlayer::deleteAIOperation(int iID)
 	}
 }
 
+bool CvPlayer::StopAllOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason)
+{
+	bool bFoundOne = false;
+
+	// loop through all entries looking for match
+	std::map<int , CvAIOperation*>::iterator iter;
+	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	{
+		CvAIOperation* pThisOperation = iter->second;
+		if(pThisOperation->IsOffensive() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
+		{
+			if( (ePlayer == NO_PLAYER && pThisOperation->GetEnemy() != BARBARIAN_PLAYER) || ePlayer == pThisOperation->GetEnemy())
+			{
+				if (bIncludeSneakOps || !pThisOperation->IsAllowedDuringPeace())
+				{
+					bFoundOne = true;
+					pThisOperation->SetToAbort(eReason);
+				}
+			}
+		}
+	}
+
+	return bFoundOne;
+}
+
+bool CvPlayer::StopAllDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason)
+{
+	bool bFoundOne = false;
+
+	// loop through all entries looking for match
+	std::map<int , CvAIOperation*>::iterator iter;
+	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	{
+		CvAIOperation* pThisOperation = iter->second;
+		if(pThisOperation->IsDefensive() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
+		{
+			if(ePlayer == NO_PLAYER || ePlayer == pThisOperation->GetEnemy())
+			{
+				bFoundOne = true;
+				pThisOperation->SetToAbort(eReason);
+			}
+		}
+	}
+
+	return bFoundOne;
+}
+
 //	--------------------------------------------------------------------------------
 bool CvPlayer::haveAIOperationOfType(int iOperationType, int* piID /* optional return argument */, PlayerTypes eTargetPlayer /* optional additional match criteria */, CvPlot* pTarget /* optional additional match criteria */)
 {
@@ -34667,7 +34204,7 @@ bool CvPlayer::haveAIOperationOfType(int iOperationType, int* piID /* optional r
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
-		if(pThisOperation->GetOperationType() == iOperationType)
+		if(pThisOperation->GetOperationType() == iOperationType && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if(eTargetPlayer == NO_PLAYER || eTargetPlayer == pThisOperation->GetEnemy())
 			{
@@ -34700,7 +34237,7 @@ int CvPlayer::numOperationsOfType(int iOperationType)
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
-		if(pThisOperation->GetOperationType() == iOperationType)
+		if(pThisOperation->GetOperationType() == iOperationType && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			iRtnValue++;
 		}
@@ -34870,8 +34407,8 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
 				switch (pOperation->GetOperationType())
 				{
 				case AI_OPERATION_FOUND_CITY:
-				case AI_OPERATION_NAVAL_COLONIZATION:
-				case AI_OPERATION_QUICK_COLONIZE:
+				case AI_OPERATION_FOUND_CITY_OVERSEAS:
+				case AI_OPERATION_FOUND_CITY_QUICK:
 					{
 						if (plotDistance(pPlot->getX(), pPlot->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY()) <= 3)
 						{
@@ -34888,8 +34425,8 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
 			switch (pOperation->GetOperationType())
 			{
 			case AI_OPERATION_FOUND_CITY:
-			case AI_OPERATION_NAVAL_COLONIZATION:
-			case AI_OPERATION_QUICK_COLONIZE:
+			case AI_OPERATION_FOUND_CITY_OVERSEAS:
+			case AI_OPERATION_FOUND_CITY_QUICK:
 				{
 					if (plotDistance(pPlot->getX(), pPlot->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY()) <= 2)
 					{
@@ -36482,21 +36019,24 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeEventTourismCS(pPolicy->GetEventTourismCS() * iChange);
 	ChangeMonopolyModFlat(pPolicy->GetMonopolyModFlat() * iChange);
 	ChangeMonopolyModPercent(pPolicy->GetMonopolyModPercent() * iChange);
-	ChangeCorporationMaxFranchises(pPolicy->GetMaxCorps() * iChange);
-	if(pPolicy->IsOrderCorp())
+	if(pPolicy->IsCorporationOfficesAsFranchises())
 	{
-		SetOrderCorp(true);
-		CalculateCorporateFranchisesWorldwide();
+		GetCorporations()->SetCorporationOfficesAsFranchises(true);
+		GetCorporations()->RecalculateNumFranchises();
 	}
-	if(pPolicy->IsAutocracyCorp())
+	if(pPolicy->IsCorporationRandomForeignFranchise())
 	{
-		SetAutocracyCorp(true);
-		CalculateCorporateFranchisesWorldwide();
+		GetCorporations()->SetCorporationRandomForeignFranchise(true);
+		GetCorporations()->RecalculateNumFranchises();
 	}
-	if(pPolicy->IsFreedomCorp())
+	if(pPolicy->IsCorporationFreeFranchiseAbovePopular())
 	{
-		SetFreedomCorp(true);
-		CalculateCorporateFranchisesWorldwide();
+		GetCorporations()->SetCorporationFreeFranchiseAbovePopular(true);
+		GetCorporations()->RecalculateNumFranchises();
+	}
+	if (pPolicy->GetAdditionalNumFranchisesMod() > 0)
+	{
+		GetCorporations()->ChangeAdditionalNumFranchisesMod(pPolicy->GetAdditionalNumFranchisesMod() * iChange);
 	}
 	if(pPolicy->IsUpgradeCSTerritory())
 	{
@@ -37733,6 +37273,25 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 
+#if defined(MOD_BALANCE_CORE)
+void CvPlayer::processCorporations(CorporationTypes eCorporation, int iChange)
+{
+	CvCorporationEntry* pkCorporationEntry = GC.getCorporationInfo(eCorporation);
+	if(pkCorporationEntry == NULL)
+		return;
+
+	int iI, jJ;
+
+	for (iI = 0; iI < GC.getNUM_YIELD_TYPES(); iI++)
+	{
+		for (jJ = 0; jJ < GC.getNumSpecialistInfos(); jJ++)
+		{
+			changeSpecialistYieldChange((SpecialistTypes)jJ, (YieldTypes)iI, pkCorporationEntry->GetSpecialistYieldChange(jJ, iI) * iChange);
+		}
+	}
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 /// If we should see where the locations of all current Barb Camps are, do it
 void CvPlayer::doUpdateBarbarianCampVisibility()
@@ -37818,6 +37377,14 @@ CvPlayerReligions* CvPlayer::GetReligions() const
 {
 	return m_pReligions;
 }
+
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+CvPlayerCorporations* CvPlayer::GetCorporations() const
+{
+	return m_pCorporations;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 CvReligionAI* CvPlayer::GetReligionAI() const
@@ -37991,6 +37558,9 @@ void CvPlayer::Read(FDataStream& kStream)
 	m_pDiplomacyAI->Read(kStream);
 	m_pReligions->Read(kStream);
 	m_pReligionAI->Read(kStream);
+#if defined(MOD_BALANCE_CORE)
+	m_pCorporations->Read(kStream);
+#endif
 	m_pPlayerTechs->Read(kStream);
 	m_pFlavorManager->Read(kStream);
 	m_pTacticalAI->Read(kStream);
@@ -38061,7 +37631,7 @@ void CvPlayer::Read(FDataStream& kStream)
 		{
 			kStream >> iID;
 			kStream >> iOperationType;
-			CvAIOperation* pThisOperation = CvAIOperation::CreateOperation((AIOperationTypes)iOperationType, m_eID);
+			CvAIOperation* pThisOperation = CvAIOperation::CreateOperation((AIOperationTypes)iOperationType);
 			pThisOperation->Read(kStream);
 			m_AIOperations.insert(std::make_pair(pThisOperation->GetID(), pThisOperation));
 		}
@@ -38213,6 +37783,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	m_pDiplomacyAI->Write(kStream);
 	m_pReligions->Write(kStream);
 	m_pReligionAI->Write(kStream);
+#if defined(MOD_BALANCE_CORE)
+	m_pCorporations->Write(kStream);
+#endif
 	m_pPlayerTechs->Write(kStream);
 	m_pFlavorManager->Write(kStream);
 	m_pTacticalAI->Write(kStream);
@@ -39745,7 +39318,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	int iBestArea, iSecondBestArea;
 	//start with a predefined base value
 	int iBestFoundValue = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
-
+	//call this the sneaky way cause it's not const
 	int iNumSettleAreas = GET_PLAYER(GetID()).GetBestSettleAreas(iBestFoundValue, iBestArea, iSecondBestArea);
 	if(iNumSettleAreas == 0)
 	{
@@ -39979,6 +39552,16 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	CvPlot* pBestFoundPlot = NULL;
 	bool pBestPlotSafe = false;
 
+	//see where our settler can go
+	ReachablePlots reachablePlots;
+	if (pUnit)
+	{
+		CvPlot* pMusterPlot = GetClosestCity(pUnit->plot())->plot();
+		SPathFinderUserData data(pUnit,0,10);
+		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+		reachablePlots = GC.GetPathFinder().GetPlotsInReach(pMusterPlot, data);
+	}
+
 	for (size_t i=0; i<vSettlePlots.size(); i++)
 	{
 		bool isDangerous = false;
@@ -40008,12 +39591,12 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		//could be close but take many turns to get there ...
 		if (!isDangerous)
 		{
-			CvPlot* pMusterPlot = GetClosestCity(pUnit->plot())->plot();
 			CvPlot* pTestPlot = vSettlePlots[i].pPlot;
 
 			//if the muster plot is more than 10 turns away it's unsafe by definition
-			SPathFinderUserData data(pUnit,0,10);
-			if (! GC.GetPathFinder().DoesPathExist(pMusterPlot,pTestPlot,data) )
+			SMovePlot test(pTestPlot->GetPlotIndex());
+			ReachablePlots::iterator it = reachablePlots.find(test);
+			if (it==reachablePlots.end())
 				isDangerous = true;
 		}
 
@@ -41616,6 +41199,9 @@ bool CvPlayer::IsAtWarAnyMinor() const
 
 bool CvPlayer::IsAtWarWith(PlayerTypes iPlayer) const
 {
+	if (iPlayer==NO_PLAYER)
+		return false;
+
 	return GET_TEAM(getTeam()).isAtWar(GET_PLAYER(iPlayer).getTeam());
 }
 
@@ -41980,7 +41566,7 @@ void CvPlayer::updatePlotFoundValues()
 		return;
 
 	//OutputDebugString(CvString::format("updating plot found values for player %d in turn %d\n",GetID(),GC.getGame().getGameTurn()).c_str());
-	m_viPlotFoundValues.resize(GC.getMap().numPlots(), -1);
+	m_viPlotFoundValues.clear();
 
 	// Set all area fertilities to 0
 	int iLoop = 0;
@@ -42006,6 +41592,7 @@ void CvPlayer::updatePlotFoundValues()
 
 	// first pass: precalculate found values
 	CvSiteEvaluatorForSettler* pCalc = GC.getGame().GetSettlerSiteEvaluator();
+	m_viPlotFoundValues.resize(GC.getMap().numPlots(), -1);
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);

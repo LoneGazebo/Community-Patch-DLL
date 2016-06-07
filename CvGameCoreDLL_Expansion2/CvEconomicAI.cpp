@@ -2487,7 +2487,7 @@ void CvEconomicAI::DoReconState()
 			if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && 
 				((pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK) || (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_FAST_ATTACK)) )
 			{
-				if(!pLoopUnit->TurnProcessed() && pLoopUnit->getMoves() > 0 && pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
+				if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
 				{
 					pLoopUnit->AI_setUnitAIType(UNITAI_EXPLORE);
 					if(GC.getLogging() && GC.getAILogging())
@@ -2567,7 +2567,7 @@ void CvEconomicAI::DoReconState()
 				if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA && 
 					((pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK_SEA) || (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ASSAULT_SEA)) )
 				{
-					if(!pLoopUnit->TurnProcessed() && pLoopUnit->getMoves() > 0 && pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
+					if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
 					{
 						pLoopUnit->AI_setUnitAIType(UNITAI_EXPLORE_SEA);
 						if(GC.getLogging() && GC.getAILogging())
@@ -3992,9 +3992,9 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 				if(pArea != NULL)
 				{
 					if(pArea->GetID() != iInitialSettlerArea)
-						pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_QUICK_COLONIZE : AI_OPERATION_NAVAL_COLONIZATION, NO_PLAYER, iFinalArea);
+						pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY_OVERSEAS, NO_PLAYER, iFinalArea);
 					else
-						pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_QUICK_COLONIZE : AI_OPERATION_FOUND_CITY, NO_PLAYER, iFinalArea);
+						pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY, NO_PLAYER, iFinalArea);
 					return true;
 				}
 			}
@@ -4017,7 +4017,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 				CvString msg = CvString::format("Best settle plot (no embarkation) is %d,%d - value %d", pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getFoundValue(pPlayer->GetID()));
 				pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
 
-				pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_QUICK_COLONIZE : AI_OPERATION_FOUND_CITY, NO_PLAYER, iInitialSettlerArea);
+				pPlayer->addAIOperation( bIsSafe ? AI_OPERATION_FOUND_CITY_QUICK : AI_OPERATION_FOUND_CITY, NO_PLAYER, iInitialSettlerArea);
 				return true;
 			}
 		}

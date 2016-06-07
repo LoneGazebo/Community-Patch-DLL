@@ -67,14 +67,19 @@ int saiTaskWhenKilled[100] = {0};
 
 namespace FSerialization
 {
-std::set<CvUnit*> unitsToCheck;
+
+//is it wise to store pointers here?
+//anyway vector seems better than set because of the defined ordering
+//a set of IDInfos would be best but we don't know the ID when creating the unit
+std::vector<CvUnit*> unitsToCheck;
+
 void SyncUnits()
 {
 	if(GC.getGame().isNetworkMultiPlayer())
 	{
 		PlayerTypes authoritativePlayer = GC.getGame().getActivePlayer();
 
-		std::set<CvUnit*>::const_iterator i;
+		std::vector<CvUnit*>::const_iterator i;
 		for(i = unitsToCheck.begin(); i != unitsToCheck.end(); ++i)
 		{
 			const CvUnit* unit = *i;
@@ -102,7 +107,7 @@ void SyncUnits()
 // clears ALL deltas for ALL units
 void ClearUnitDeltas()
 {
-	std::set<CvUnit*>::iterator i;
+	std::vector<CvUnit*>::iterator i;
 	for(i = unitsToCheck.begin(); i != unitsToCheck.end(); ++i)
 	{
 		CvUnit* unit = *i;
@@ -401,7 +406,7 @@ CvUnit::CvUnit() :
 {
 	initPromotions();
 	OBJECT_ALLOCATED
-	FSerialization::unitsToCheck.insert(this);
+	FSerialization::unitsToCheck.push_back(this);
 	reset(0, NO_UNIT, NO_PLAYER, true);
 }
 
@@ -410,8 +415,13 @@ CvUnit::CvUnit() :
 CvUnit::~CvUnit()
 {
 	m_thisHandle.ignoreDestruction(true);
-	FSerialization::unitsToCheck.erase(this);
-	if(!gDLL->GetDone() && GC.IsGraphicsInitialized())  // don't need to remove entity when the app is shutting down, or crash can occur
+
+	//really shouldn't happen that it's not present, but there was a crash here
+	std::vector<CvUnit*>::iterator it = std::find( FSerialization::unitsToCheck.begin(), FSerialization::unitsToCheck.end(), this);
+	if (it!=FSerialization::unitsToCheck.end())
+		FSerialization::unitsToCheck.erase(it);
+
+	if(gDLL && !gDLL->GetDone() && GC.IsGraphicsInitialized())  // don't need to remove entity when the app is shutting down, or crash can occur
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitDestroyed(pDllUnit.get());
@@ -5030,7 +5040,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 				{
 					CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
 
-					if(loopUnit && GET_TEAM(getTeam()).isAtWar(plot.getUnitByIndex(iUnitLoop)->getTeam()))
+					if(loopUnit && GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
 					{
 						bEnemyUnitPresent = true;
 						if(!loopUnit->IsDead() && loopUnit->isInCombat())
@@ -8643,7 +8653,7 @@ bool CvUnit::canMakeTradeRouteAt(const CvPlot* pPlot, int iX, int iY, TradeConne
 		return false;
 	}
 
-	if (!GET_PLAYER(getOwner()).GetTrade()->CanCreateTradeRoute(pFromCity, pToCity, getDomainType(), eConnectionType, false))
+	if (!GET_PLAYER(getOwner()).GetTrade()->CanCreateTradeRoute(pFromCity, pToCity, getDomainType(), eConnectionType, true))
 	{
 		return false;
 	}
@@ -8944,9 +8954,14 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 					// invalid TradeUnit
 					continue;
 				}
-				if(GET_PLAYER(eTradeUnitOwner).AreTradeRoutesInvulnerable())
+				CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
+				if (eCorporation != NO_CORPORATION)
 				{
-					continue;
+					CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
+					if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
+					{
+						continue;
+					}
 				}
 				TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
 				if (GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
@@ -8972,9 +8987,14 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 				return false;
 			}
 #if defined(MOD_BALANCE_CORE)
-			if(GET_PLAYER(eTradeUnitOwner).AreTradeRoutesInvulnerable())
+			CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
+			if (eCorporation != NO_CORPORATION)
 			{
-				return false;
+				CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
+				if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
+				{
+					return false;
+				}
 			}
 #endif
 #endif
@@ -9018,9 +9038,14 @@ bool CvUnit::plunderTradeRoute()
 			// invalid TradeUnit
 			continue;
 		}
-		if(GET_PLAYER(eTradeUnitOwner).AreTradeRoutesInvulnerable())
+		CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
+		if (eCorporation != NO_CORPORATION)
 		{
-			continue;
+			CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
+			if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
+			{
+				continue;
+			}
 		}
 		TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
 		if (GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
@@ -18166,7 +18191,7 @@ bool CvUnit::IsHasNoValidMove() const
 
 	for (ReachablePlots::const_iterator it=plots.begin(); it!=plots.end(); ++it)
 	{
-		CvPlot* pToPlot = GC.getMap().plotByIndexUnchecked(it->first);
+		CvPlot* pToPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 	#if defined(MOD_GLOBAL_STACKING_RULES)
 		if(pToPlot->getMaxFriendlyUnitsOfType(this) >= pToPlot->getUnitLimit())
@@ -26287,7 +26312,7 @@ bool CvUnit::UpdatePathCache(CvPlot* pDestPlot, int iFlags)
 }
 //	---------------------------------------------------------------------------
 // Returns true if attack was made...
-bool CvUnit::UnitAttack(int iX, int iY, int iFlags)
+bool CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 {
 	VALIDATE_OBJECT
 	CvMap& kMap = GC.getMap();
@@ -26339,7 +26364,7 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags)
 
 	bool bAttack = false;
 
-	if(pDestPlot->isAdjacent(plot()) || (getDomainType() == DOMAIN_AIR))
+	if( (pDestPlot->isAdjacent(plot()) && canMoveInto(*pDestPlot,iFlags|MOVEFLAG_ATTACK) ) || (getDomainType() == DOMAIN_AIR))
 	{
 		if(!isOutOfAttacks() && (!IsCityAttackSupport() || pDestPlot->isEnemyCity(*this) || !pDestPlot->getBestDefender(NO_PLAYER)))
 		{
@@ -27341,7 +27366,7 @@ bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 
 	for (ReachablePlots::const_iterator it=plots.begin(); it!=plots.end(); ++it)
 	{
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 		if(pPlot->isVisible(getTeam()) && (pPlot->isVisibleEnemyUnit(this) || pPlot->isEnemyCity(*this)))
 		{
 			if (canMoveInto(*pPlot, CvUnit::MOVEFLAG_ATTACK))
@@ -28936,6 +28961,23 @@ bool CvUnit::CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUni
 /// How many turns will it take a unit to get to a target plot (returns MAX_INT if can't reach at all; returns 0 if makes it in 1 turn and has movement left)
 int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bIgnoreStacking, int iTargetTurns)
 {
+	int iFlags = 0;
+
+	if(bIgnoreUnits)
+	{
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_ZOC;
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_DANGER;
+	}
+
+	if(bIgnoreStacking) //ignore our own units
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
+
+	return TurnsToReachTarget(pTarget,iFlags,iTargetTurns);
+}
+
+int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, int iFlags, int iTargetTurns)
+{
 	if(!pTarget)
 		return INT_MAX;
 
@@ -28988,18 +29030,6 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bI
 	int rtnValue = MAX_INT;
 	if(pTarget == plot())
 		return 0;
-
-	int iFlags = 0;
-
-	if(bIgnoreUnits)
-	{
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_ZOC;
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_DANGER;
-	}
-
-	if(bIgnoreStacking) //ignore our own units
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
 
 	//normal handling: use the path cache of the unit, so we can possibly re-use the path later
 	if (!GeneratePath(pTarget, iFlags, iTargetTurns, &rtnValue) )

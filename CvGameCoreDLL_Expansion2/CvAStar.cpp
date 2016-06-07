@@ -365,7 +365,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	int iBin = min(99,int(timer.GetDeltaInSeconds()*1000));
 	saiRuntimeHistogram[iBin]++;
 
-	if ( timer.GetDeltaInSeconds()>0.05 )
+	if ( timer.GetDeltaInSeconds()>0.05 && data.ePathType!=PT_UNIT_REACHABLE_PLOTS )
 	{
 		int iNumPlots = GC.getMap().numPlots();
 		CvUnit* pUnit = m_sData.iUnitID>0 ? GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID) : NULL;
@@ -393,8 +393,10 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 						GetName(),m_iXstart,m_iYstart,m_iXdest,m_iYdest,m_sData.ePlayer,m_sData.ePathType,m_sData.iFlags ).c_str() );
 				}
 
+#ifdef STACKWALKER
 				//gStackWalker.SetLog(pLog);
 				//gStackWalker.ShowCallstack();
+#endif
 
 				for (size_t i=0; i<svPathLog.size(); i++)
 					pLog->Msg( CvString::format("%d,%d,%d,%d,%d,%d,%d,%d\n", svPathLog[i].round,svPathLog[i].type,svPathLog[i].x,svPathLog[i].y,
@@ -1919,8 +1921,14 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, int, 
 		// if the tile already been tagged for building a road, then provide a discount
 		if(pPlot->GetBuilderAIScratchPadTurn() == GC.getGame().getGameTurn() && pPlot->GetBuilderAIScratchPadPlayer() == data.ePlayer)
 			return PATH_BASE_COST/2;
-		else
+
+		//should we prefer rough terrain because the gain in movement points is greater?
+
+		//prefer plots without resources so we can build more villages
+		if(pPlot->getResourceType()==NO_RESOURCE)
 			return PATH_BASE_COST;
+		else
+			return PATH_BASE_COST+1;
 	}
 }
 
@@ -2249,7 +2257,7 @@ int CvPathFinder::GetPathLengthInPlots(int iXstart, int iYstart, int iXdest, int
 int CvPathFinder::GetPathLengthInPlots(const CvPlot * pStartPlot, const CvPlot * pEndPlot, const SPathFinderUserData & data)
 {
 	if(pStartPlot == NULL || pEndPlot == NULL)
-		return 0;
+		return -1;
 
 	return GetPathLengthInPlots(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), data);
 }
@@ -2267,14 +2275,14 @@ int CvPathFinder::GetPathLengthInTurns(int iXstart, int iYstart, int iXdest, int
 int CvPathFinder::GetPathLengthInTurns(const CvPlot * pStartPlot, const CvPlot * pEndPlot, const SPathFinderUserData & data)
 {
 	if(pStartPlot == NULL || pEndPlot == NULL)
-		return 0;
+		return -1;
 
 	return GetPathLengthInTurns(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), data);
 }
 
 //	--------------------------------------------------------------------------------
 /// get all plots which can be reached in a certain amount of turns
-ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPathFinderUserData& data, int iMinMovesLeft)
+ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPathFinderUserData& data)
 {
 	//make sure we don't call this from dll and lua at the same time
 	CvGuard guard(m_cs);
@@ -2292,31 +2300,29 @@ ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPa
 	{
 		CvAStarNode* temp = *it;
 
-		int iMoves = 0;
 		bool bValid = false;
 		if (temp->m_iTurns < data.iMaxTurns)
 		{
 			bValid = true;
 		}
-		else if (temp->m_iTurns == data.iMaxTurns && temp->m_iMoves >= iMinMovesLeft)
+		else if (temp->m_iTurns == data.iMaxTurns && temp->m_iMoves >= data.iMinMovesLeft)
 		{
 			bValid = true;
-			iMoves = temp->m_iMoves;
 		}
 
 		if (bValid)
-			plots.insert( std::make_pair(GC.getMap().plotNum(temp->m_iX, temp->m_iY),iMoves) );
+			plots.insert( SMovePlot(GC.getMap().plotNum(temp->m_iX, temp->m_iY),temp->m_iTurns,temp->m_iMoves) );
 	}
 
 	return plots;
 }
 
-ReachablePlots CvPathFinder::GetPlotsInReach(const CvPlot * pStartPlot, const SPathFinderUserData & data, int iMinMovesLeft)
+ReachablePlots CvPathFinder::GetPlotsInReach(const CvPlot * pStartPlot, const SPathFinderUserData & data)
 {
 	if (!pStartPlot)
 		return ReachablePlots();
 
-	return GetPlotsInReach(pStartPlot->getX(),pStartPlot->getY(),data,iMinMovesLeft);
+	return GetPlotsInReach(pStartPlot->getX(),pStartPlot->getY(),data);
 }
 
 //	--------------------------------------------------------------------------------
@@ -2783,6 +2789,7 @@ SPathFinderUserData::SPathFinderUserData(const CvUnit* pUnit, int _iFlags, int _
 	iUnitID = pUnit ? pUnit->GetID() : 0;
 	iTypeParameter = -1; //typical invalid enum
 	iMaxNormalizedDistance = INT_MAX;
+	iMinMovesLeft = 0;
 }
 
 //	---------------------------------------------------------------------------
@@ -2796,6 +2803,7 @@ SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathTy
 	iTypeParameter = _iTypeParameter;
 	iMaxTurns = _iMaxTurns;
 	iMaxNormalizedDistance = INT_MAX;
+	iMinMovesLeft = 0;
 }
 
 inline CvPlot * SPath::get(int i) const

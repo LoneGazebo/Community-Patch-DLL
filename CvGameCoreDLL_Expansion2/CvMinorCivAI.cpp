@@ -4304,7 +4304,7 @@ bool CvMinorCivQuest::DoFinishQuest()
 		int iOperationID;
 		if(GET_PLAYER(m_eAssignedPlayer).haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID, pMinor->GetID()))
 		{
-			GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->Kill(AI_ABORT_NO_TARGET);
+			GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->SetToAbort(AI_ABORT_NO_TARGET);
 		}
 	}
 	// Rebellion
@@ -4324,7 +4324,7 @@ bool CvMinorCivQuest::DoFinishQuest()
 		int iOperationID;
 		if(GET_PLAYER(m_eAssignedPlayer).haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID, pMinor->GetID()))
 		{
-			GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->Kill(AI_ABORT_NO_TARGET);
+			GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->SetToAbort(AI_ABORT_NO_TARGET);
 		}
 	}
 #endif
@@ -4541,7 +4541,7 @@ bool CvMinorCivQuest::DoCancelQuest()
 			int iOperationID;
 			if(GET_PLAYER(m_eAssignedPlayer).haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID, pMinor->GetID()))
 			{
-				GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->Kill(AI_ABORT_NO_TARGET);
+				GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->SetToAbort(AI_ABORT_NO_TARGET);
 			}
 		}
 
@@ -4575,7 +4575,7 @@ bool CvMinorCivQuest::DoCancelQuest()
 			int iOperationID;
 			if(GET_PLAYER(m_eAssignedPlayer).haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID, pMinor->GetID()))
 			{
-				GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->Kill(AI_ABORT_NO_TARGET);
+				GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->SetToAbort(AI_ABORT_NO_TARGET);
 			}
 		}
 #endif
@@ -10175,12 +10175,11 @@ BuildingTypes CvMinorCivAI::GetBestWonderForQuest(PlayerTypes ePlayer)
 		{
 			continue;
 		}
-#if defined(MOD_BALANCE_CORE)
-		if(pkBuildingInfo->GetCorporationID() > 0)
+		// Is a Corporation building?
+		if (pkBuildingInfo->GetBuildingClassInfo().getCorporationType() != NO_CORPORATION)
 		{
 			continue;
 		}
-#endif
 
 		// Someone CAN be building this wonder right now, but they can't be more than a certain % of the way done (25% by default)
 		for(iWorldPlayerLoop = 0; iWorldPlayerLoop < MAX_MAJOR_CIVS; iWorldPlayerLoop++)
@@ -10257,7 +10256,8 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if(pkBuildingInfo->GetCorporationID() > 0)
+		// Is a Corporation building?
+		if (pkBuildingInfo->GetBuildingClassInfo().getCorporationType() != NO_CORPORATION)
 		{
 			continue;
 		}

@@ -13724,7 +13724,7 @@ bool CvPlot::canPlaceUnit(PlayerTypes ePlayer) const
 	{
 		TeamTypes ePlotTeam = GET_PLAYER(getOwner()).getTeam();
 		TeamTypes eTestTeam = GET_PLAYER(ePlayer).getTeam();
-		if (ePlotTeam!=eTestTeam && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eTestTeam) && !GET_TEAM(eTestTeam).isAtWar(ePlotTeam))
+		if (ePlotTeam!=eTestTeam && !GET_TEAM(ePlotTeam).isMinorCiv() && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eTestTeam) && !GET_TEAM(eTestTeam).isAtWar(ePlotTeam))
 			return false;
 	}
 
@@ -13737,34 +13737,6 @@ bool CvPlot::canPlaceUnit(PlayerTypes ePlayer) const
 		return false;
 
 	return true;
-}
-
-CvPlot* CvPlot::getAdjacentPlotForUnit(PlayerTypes ePlayer, bool bLand, DirectionTypes ePreferredDirection) const
-{
-	if (ePreferredDirection==NO_DIRECTION)
-	{
-		//don't be too predictable in unit placement
-		int iOffset = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES,"neighbor direction offset");
-		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
-		{
-			DirectionTypes eDir = (DirectionTypes)((iDirectionLoop+iOffset)%NUM_DIRECTION_TYPES);
-			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eDir);
-			if (pAdjacentPlot && pAdjacentPlot->isWater()!=bLand && pAdjacentPlot->canPlaceUnit(ePlayer))
-				return pAdjacentPlot;
-		}
-	}
-	else
-	{
-		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
-		{
-			DirectionTypes eDir = reorderedDirection(ePreferredDirection,iDirectionLoop);
-			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eDir);
-			if (pAdjacentPlot && pAdjacentPlot->isWater()!=bLand && pAdjacentPlot->canPlaceUnit(ePlayer))
-				return pAdjacentPlot;
-		}
-	}
-
-	return NULL;
 }
 
 #if defined(MOD_API_EXTENSIONS)
@@ -14494,6 +14466,39 @@ CvUnit* CvPlot::GetAdjacentEnemyUnit(TeamTypes eMyTeam, DomainTypes eDomain) con
 	return NULL;
 }
 
+int CvPlot::GetAdjacentEnemyPower(PlayerTypes ePlayer) const
+{
+	int iEnemyPower = 0;
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+	//also take into account cargo ships, e.g. carriers
+	const IDInfo* pUnitNode = headUnitNode();
+	const CvUnit* pInnerLoopUnit;
+	while(pUnitNode != NULL)
+	{
+		pInnerLoopUnit = ::getUnit(*pUnitNode);
+		pUnitNode = nextUnitNode(pUnitNode);
+		if(pInnerLoopUnit != NULL && kPlayer.IsAtWarWith(pInnerLoopUnit->getOwner()) && !pInnerLoopUnit->isInvisible(kPlayer.getTeam(),false))
+		{
+			iEnemyPower += pInnerLoopUnit->GetPower();
+		}
+	}
+
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	{
+		const CvPlot* pNeighborPlot = aPlotsToCheck[iCount];
+		if (!pNeighborPlot)
+			continue;
+
+		UnitHandle pEnemy = pNeighborPlot->getBestDefender(NO_PLAYER,ePlayer,NULL,true);
+		if (pEnemy && pEnemy->getDomainType() == DOMAIN_LAND && pEnemy->IsCombatUnit())
+			if (!pEnemy->isInvisible(kPlayer.getTeam(),false))
+				iEnemyPower += pEnemy->GetPower();
+	}
+
+	return iEnemyPower;
+}
 
 int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bCountRanged) const
 {

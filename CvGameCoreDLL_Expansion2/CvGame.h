@@ -34,7 +34,9 @@ class CvGameTrade;
 class CvTacticalAnalysisMap;
 class CvAdvisorCounsel;
 class CvAdvisorRecommender;
-
+#if defined(MOD_BALANCE_CORE)
+class CvGameCorporations;
+#endif
 
 class CvGameInitialItemsOverrides
 {
@@ -439,7 +441,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void debugSyncChecksum();
 
-	PlayerTypes GetCorporationFounder( int iCorporateID ) const;
+	PlayerTypes GetCorporationFounder( CorporationTypes eCorporation ) const;
 	int GetNumCorporationsFounded() const;
 #if defined (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	PlayerTypes GetGreatestPlayerResourceMonopoly(ResourceTypes eResource) const;
@@ -451,7 +453,6 @@ public:
 	uint getNumReplayMessages() const;
 	const CvReplayMessage* getReplayMessage(uint i) const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	void CorpCheck();
 	void getGlobalAverage() const;
 	int GetCultureAverage() const;
 	void SetCultureAverage(int iValue);
@@ -537,9 +538,11 @@ public:
 	CvGameLeagues* GetGameLeagues();
 	CvGameTrade* GetGameTrade();
 	CvTacticalAnalysisMap* GetTacticalAnalysisMap();
-
 #if defined(MOD_API_LUA_EXTENSIONS)
 	CvString getDllGuid() const;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	CvGameCorporations* GetGameCorporations();
 #endif
 
 	int GetAction(int iKeyStroke, bool bAlt, bool bShift, bool bCtrl);
@@ -826,6 +829,10 @@ protected:
 	CvAdvisorRecommender*      m_pAdvisorRecommender;
 
 	CvGameDeals                m_kGameDeals;
+
+#if defined(MOD_BALANCE_CORE)
+	CvGameCorporations*		   m_pGameCorporations;
+#endif
 
 	//necessary because we only want to hide the mouseover of the most recently moused over unit -KS
 	int                        m_iLastMouseoverUnitID;

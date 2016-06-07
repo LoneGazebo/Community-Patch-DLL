@@ -176,17 +176,44 @@ void CvPlayerAI::AI_doTurnPost()
 
 void CvPlayerAI::AI_doTurnUnitsPre()
 {
-	if(isHuman())
+	int iLoop;
+
+	//order is important. when a unit was killed, an army might become invalid, which might invalidate an operation
+
+	//unit cleanup - this should probably also be done in a two-pass scheme like below
+	//but since it's too involved to change that now, we do the ugly loop to make sure we didn't skip a unit
+	bool bKilledAtLeastOne = false;
+	do 
 	{
-		return;
+		bKilledAtLeastOne = false;
+		for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+			bKilledAtLeastOne |= pLoopUnit->doDelayedDeath();
+	}
+	while (bKilledAtLeastOne);
+
+	//army cleanup
+	std::vector<int> itemsToDelete;
+	for(CvArmyAI* pLoopArmyAI = firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = nextArmyAI(&iLoop))
+		if (pLoopArmyAI->IsDelayedDeath())
+			itemsToDelete.push_back(pLoopArmyAI->GetID());
+
+	for (size_t i=0; i<itemsToDelete.size(); i++)
+		getArmyAI(itemsToDelete[i])->Kill();
+
+	//operation cleanup
+	itemsToDelete.clear();
+	CvAIOperation* nextOp = getFirstAIOperation();
+	while(nextOp)
+	{
+		if (nextOp->ShouldAbort())
+			itemsToDelete.push_back(nextOp->GetID());
+
+		nextOp = getNextAIOperation();
 	}
 
-	if(isBarbarian())
-	{
-		return;
-	}
+	for (size_t i=0; i<itemsToDelete.size(); i++)
+		getAIOperation(itemsToDelete[i])->Kill();
 }
-
 
 void CvPlayerAI::AI_doTurnUnitsPost()
 {
@@ -962,11 +989,7 @@ void CvPlayerAI::AI_launch(VictoryTypes eVictory)
 
 	launch(eVictory);
 }
-#if defined(MOD_BALANCE_CORE)
-OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(int iAreaID, CvCity* pCity)
-#else
-OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(int iAreaID)
-#endif
+OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity)
 {
 	OperationSlot thisSlot;
 
@@ -980,29 +1003,12 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(int iAreaID)
 #if defined(MOD_BALANCE_CORE)
 			if(pThisOperation->IsNavalOperation())
 			{
-				CvArea* pArea = GC.getMap().getArea(iAreaID);
-				if(pArea && !pArea->isWater())
-				{
-					if(pCity && pCity->isCoastal())
-					{
-						CvPlot* pPlot = MilitaryAIHelpers::GetCoastalPlotAdjacentToTarget(pCity->plot(), NULL);
-						if(pPlot != NULL)
-						{
-							iAreaID = pPlot->getArea();
-						}
-						else
-						{
-							continue;
-						}
-					}
-					else
-					{
-						continue;
-					}
-				}
+				CvPlot *pMusterPlot = pThisOperation->GetMusterPlot();
+				if (!pMusterPlot || !pCity->isMatchingArea(pMusterPlot))
+					continue;
 			}				
 #endif
-			thisSlot = pThisOperation->PeekAtNextUnitToBuild(iAreaID);
+			thisSlot = pThisOperation->PeekAtNextUnitToBuild();
 			if(thisSlot.IsValid())
 			{
 				break;
@@ -1056,7 +1062,7 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 			iScore += pThisOperation->GetNumUnitsNeededToBeBuilt();
 			iScore += range( 10-iDistance, 0, 10 );
 
-			if(pThisOperation->GetOperationType() == AI_OPERATION_SNEAK_CITY_ATTACK || pThisOperation->GetOperationType() == AI_OPERATION_NAVAL_SNEAK_ATTACK)
+			if(pThisOperation->GetOperationType() == AI_OPERATION_CITY_SNEAK_ATTACK || pThisOperation->GetOperationType() == AI_OPERATION_NAVAL_INVASION_SNEAKY)
 			{
 				iScore *= 2;
 			}

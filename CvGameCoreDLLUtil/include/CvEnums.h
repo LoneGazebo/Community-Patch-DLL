@@ -1532,6 +1532,13 @@ enum ReligionTypes
 	RELIGION_PANTHEON = 0,
 };
 
+#if defined(MOD_BALANCE_CORE)
+enum CorporationTypes
+{
+	NO_CORPORATION = -1,
+};
+#endif
+
 enum BeliefTypes					
 {
 	NO_BELIEF = -1,
@@ -1739,7 +1746,7 @@ enum UnitAITypes
 	UNITAI_DEFENSE,					// these are units that are mainly in the floating defense force
 	UNITAI_COUNTER,					// these are counter-units to specific other units - these will likely need more logic in building and using
 	UNITAI_RANGED,					// units with ranged attacks
-	UNITAI_CITY_SPECIAL,			// more AA???
+	UNITAI_CITY_SPECIAL,			// siege support
 	UNITAI_EXPLORE,					// scouts, etc.
 	UNITAI_ARTIST,					// great person
 	UNITAI_SCIENTIST,				// great person
@@ -1755,8 +1762,8 @@ enum UnitAITypes
 	UNITAI_ASSAULT_SEA,				// naval ranged units
 	UNITAI_SETTLER_SEA,				// UNUSED in Civ 5
 	UNITAI_CARRIER_SEA,				// aircraft carrier
-	UNITAI_MISSILE_CARRIER_SEA,		// missile carrier
-	UNITAI_PIRATE_SEA,				// avast, ye
+	UNITAI_MISSILE_CARRIER_SEA,		// missile carrier - UNUSED
+	UNITAI_PIRATE_SEA,				// avast, ye - UNUSED
 	UNITAI_ATTACK_AIR,				// bombers
 	UNITAI_DEFENSE_AIR,				// fighters
 	UNITAI_CARRIER_AIR,				// planes on boats
@@ -3546,5 +3553,34 @@ enum GreatPersonTypes
 	NO_GREATPERSON = -1,
 };
 #endif
+
+enum AITacticalTargetType
+{
+    AI_TACTICAL_TARGET_NONE,
+    AI_TACTICAL_TARGET_CITY,
+    AI_TACTICAL_TARGET_BARBARIAN_CAMP,
+    AI_TACTICAL_TARGET_IMPROVEMENT,
+    AI_TACTICAL_TARGET_BLOCKADE_RESOURCE_POINT,
+    AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT,    // Can't attack one of our cities
+    AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, // Can damage one of our cities
+    AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT,   // Can contribute to capturing one of our cities
+    AI_TACTICAL_TARGET_CITY_TO_DEFEND,
+    AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND,
+    AI_TACTICAL_TARGET_DEFENSIVE_BASTION,
+    AI_TACTICAL_TARGET_ANCIENT_RUINS,
+    AI_TACTICAL_TARGET_BOMBARDMENT_ZONE,     // Used for naval bombardment operation
+    AI_TACTICAL_TARGET_EMBARKED_MILITARY_UNIT,
+    AI_TACTICAL_TARGET_EMBARKED_CIVILIAN,
+    AI_TACTICAL_TARGET_VERY_HIGH_PRIORITY_CIVILIAN,
+    AI_TACTICAL_TARGET_HIGH_PRIORITY_CIVILIAN,
+    AI_TACTICAL_TARGET_MEDIUM_PRIORITY_CIVILIAN,
+    AI_TACTICAL_TARGET_LOW_PRIORITY_CIVILIAN,
+	AI_TACTICAL_TARGET_TRADE_UNIT_SEA,
+	AI_TACTICAL_TARGET_TRADE_UNIT_LAND,
+	AI_TACTICAL_TARGET_TRADE_UNIT_SEA_PLOT, // Used for idle unit moves to plunder trade routes that go through our territory
+	AI_TACTICAL_TARGET_TRADE_UNIT_LAND_PLOT, 
+	AI_TACTICAL_TARGET_CITADEL,
+	AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE,
+};
 
 #endif //CVENUMS_H

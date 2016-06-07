@@ -1548,7 +1548,8 @@ public:
 	static CvUnit* CaptureUnit(CvUnit* pUnit);
 #endif
 
-	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
+	int TurnsToReachTarget(const CvPlot* pTarget,int iFlags, int iMaxTurns);
+	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iMaxTurns = MAX_INT);
 	bool CanReachInXTurns(const CvPlot* pTarget, int iTurns, bool bIgnoreUnits=false, int* piTurns = NULL);
 
 	bool	getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerTypes eCapturingPlayer = NO_PLAYER);
@@ -1564,7 +1565,7 @@ protected:
 	void QueueMoveForVisualization(CvPlot* pkPlot);
 	void PublishQueuedVisualizationMoves();
 
-	bool UnitAttack(int iX, int iY, int iFlags);
+	bool UnitAttackWithMove(int iX, int iY, int iFlags);
 	bool UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEndMove = false);
 	int  UnitPathTo(int iX, int iY, int iFlags, int iPrevETA = -1, bool bBuildingRoute = false);
 	bool UnitRoadTo(int iX, int iY, int iFlags);

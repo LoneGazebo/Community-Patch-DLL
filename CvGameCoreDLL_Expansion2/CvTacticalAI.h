@@ -768,6 +768,10 @@ public:
 	AITacticalPosture FindPosture(CvTacticalDominanceZone* pZone);
 	const TacticalList& GetTacticalTargets() const { return m_AllTargets; }
 
+	// Operational AI support functions
+	void PlotArmyMovesEscort(CvArmyAI* pThisArmy);
+	void PlotArmyMovesCombat(CvArmyAI* pThisArmy);
+
 private:
 
 	// Internal turn update routines - commandeered unit processing
@@ -822,13 +826,6 @@ private:
 	void ReviewUnassignedUnits();
 
 	// Operational AI support functions
-	void PlotSingleHexOperationMoves(CvAIOperationEscorted* pOperation);
-	void PlotEnemyTerritoryOperationMoves(CvAIOperationEnemyTerritory* pOperation);
-	void PlotNavalEscortOperationMoves(CvAIOperationNavalEscorted* pOperation);
-	void PlotFreeformNavalOperationMoves(CvAIOperationNaval* pOperation);
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	void PlotGatherOnlyMoves(CvAIOperation* pOperation);
-#endif
 	void ClearEnemiesNearArmy(CvArmyAI* pArmy);
 	void MoveWithFormation(UnitHandle pUnit, MultiunitPositionTypes ePosition);
 	void ExecuteGatherMoves(CvArmyAI* pArmy);
@@ -836,8 +833,6 @@ private:
 	bool ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iNumMeleeUnits, int iNumRangedUnits, int iDeployRange);
 	bool ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, int iNumUnits);
 	void ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
-	bool PlotEscortNavalOperationMoves(CvArmyAI* pArmy);
-	void ExecuteFleetMoveToTarget(CvArmyAI* pArmy, CvPlot* pTarget);
 
 	// Routines to process and sort targets
 	void IdentifyPriorityTargets();
@@ -905,7 +900,7 @@ private:
 	int ComputeTotalExpectedCityBombardDamage(UnitHandle pTarget);
 	bool IsExpectedToDamageWithRangedAttack(UnitHandle pAttacker, CvPlot* pTarget, int iMinDamage=0);
 
-	bool MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTargetPlot, bool bLand = true, int iMaxTurns = INT_MAX);
+	bool MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTargetPlot, bool bLand, int iMaxTurns);
 	bool MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo, int iFlags);
 
 	CvPlot* FindBestBarbarianLandMove(UnitHandle pUnit);
@@ -1041,6 +1036,7 @@ namespace TacticalAIHelpers
 	int GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pAttacker, int& iAttackerDamage);
 	bool KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
 	bool HaveEnoughMeleeUnitsAroundTarget(PlayerTypes ePlayer, CvTacticalTarget* pTarget);
+	bool IsCaptureTargetInRange(CvUnit* pUnit);
 
 	bool GetPreferredPlotsForUnit(CvUnit* pUnit, CvPlot* pTargetPlot, bool bOffensive, std::vector<STacticalPlot>& vResult);
 }

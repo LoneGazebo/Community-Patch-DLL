@@ -252,6 +252,10 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(DoApplyVassalTax);
 	Method(GetNumVassals);
 #endif
+
+#if defined(MOD_BALANCE_CORE)
+	Method(IsCorporationsEnabled);
+#endif
 }
 //------------------------------------------------------------------------------
 const char* CvLuaTeam::GetTypeName()
@@ -1533,5 +1537,12 @@ int CvLuaTeam::lDoApplyVassalTax(lua_State *L)
 int CvLuaTeam::lGetNumVassals(lua_State *L)
 {
 	return BasicLuaMethod(L, &CvTeam::GetNumVassals);
+}
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+int CvLuaTeam::lIsCorporationsEnabled(lua_State *L)
+{
+	return BasicLuaMethod(L, &CvTeam::IsCorporationsEnabled);
 }
 #endif

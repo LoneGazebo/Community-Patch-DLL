@@ -260,10 +260,6 @@ public:
 	void CheckApproachFromLandAndSea(PlayerTypes eEnemy, CvMilitaryTarget& target);
 	int ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOperationType);
 	CityAttackApproaches EvaluateMilitaryApproaches(CvCity* pCity, bool bAttackByLand, bool bAttackBySea);
-	CvCity* GetNearestCoastalCityFriendly(PlayerTypes eEnemy) const;
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	CvCity* GetNearestCoastalCityEnemy(PlayerTypes eEnemy) const;
-#endif
 
 	// Accessors to provide military data to other AI subsystems
 	ThreatTypes GetHighestThreat();
@@ -484,7 +480,8 @@ UnitAITypes FirstSlotCityCanFill(CvPlayer* pPlayer, MultiunitFormationTypes form
 #if defined(MOD_BALANCE_CORE)
 MultiunitFormationTypes GetCurrentBestFormationTypeForCityAttack();
 #endif
-CvPlot* GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArmyAI *pArmy);
+CvPlot* GetCoastalPlotNearPlot(CvPlot *pTarget);
+CvPlot* GetLandPlotAdjacentToTarget(CvPlot *pTarget);
 }
 
 #endif //CIV5_MILITARY_AI_H

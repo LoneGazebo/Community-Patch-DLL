@@ -164,6 +164,9 @@ typedef wchar_t          wchar;
 #if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
 #include "CvAchievementInfo.h"
 #endif
+#if defined(MOD_BALANCE_CORE)
+#include "CvCorporationClasses.h"
+#endif
 
 using namespace fastdelegate;
 

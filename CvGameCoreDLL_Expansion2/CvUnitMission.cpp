@@ -568,7 +568,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 						}
 					}
 
-					if(hUnit->UnitAttack(pkMissionData->iData1, pkMissionData->iData2, pkMissionData->iFlags))
+					if(hUnit->UnitAttackWithMove(pkMissionData->iData1, pkMissionData->iData2, pkMissionData->iFlags))
 					{
 						bDone = true;
 					}

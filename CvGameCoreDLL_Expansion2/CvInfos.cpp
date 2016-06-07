@@ -35,16 +35,7 @@ REMARK_GROUP("CvInfos");
 // CvBaseInfo Members
 //////////////////////////////////////////////////////////////////////////
 CvBaseInfo::CvBaseInfo()
-	: m_iID(-1),
-	m_strCivilopedia("unknown"),
-	m_strDescription("unknown"),
-	m_strDescriptionKey("unknown"),
-	m_strHelp("unknown"),
-	m_strDisabledHelp("unknown"),
-	m_strStrategy("unknown"),
-	m_strType("unknown"),
-	m_strTextKey("unknown"),
-	m_strText("unknown")
+	: m_iID(-1)
 {}
 //------------------------------------------------------------------------------
 bool CvBaseInfo::CacheResult(Database::Results& kResults)
@@ -1734,6 +1725,9 @@ CvBuildingClassInfo::CvBuildingClassInfo() :
 	m_iDefaultBuildingIndex(NO_BUILDING),
 	m_bNoLimit(false),
 	m_bMonument(false),
+#if defined(MOD_BALANCE_CORE)
+	m_eCorporationType(NO_CORPORATION),
+#endif
 	m_piVictoryThreshold(NULL)
 {
 }
@@ -1789,6 +1783,25 @@ int CvBuildingClassInfo::getVictoryThreshold(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piVictoryThreshold ? m_piVictoryThreshold[i] : -1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+CorporationTypes CvBuildingClassInfo::getCorporationType() const
+{
+	return m_eCorporationType;
+}
+bool CvBuildingClassInfo::IsHeadquarters() const
+{
+	return m_bIsHeadquarters;
+}
+bool CvBuildingClassInfo::IsOffice() const
+{
+	return m_bIsOffice;
+}
+bool CvBuildingClassInfo::IsFranchise() const
+{
+	return m_bIsFranchise;
+}
+#endif
 //------------------------------------------------------------------------------
 bool CvBuildingClassInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {

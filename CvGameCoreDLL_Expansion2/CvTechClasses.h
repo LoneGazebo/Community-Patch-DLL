@@ -111,6 +111,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetTechYieldChanges(int i, int j) const;
 	int GetHappiness() const;
+	bool IsCorporationsEnabled() const;
 #endif
 private:
 	int m_iAIWeight;
@@ -180,6 +181,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int** m_ppiTechYieldChanges;
 	int m_iHappiness;
+	bool m_bCorporationsEnabled;
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

@@ -1597,11 +1597,11 @@ void CvMap::calculateAreas()
 			boundaries.m_iSouthEdge = pLoopPlot->getY();
 
 			SPathFinderUserData data(NO_PLAYER, PT_AREA_CONNECTION);
-			ReachablePlots result = GC.GetStepFinder().GetPlotsInReach(pLoopPlot->getX(), pLoopPlot->getY(), data, 0);
+			ReachablePlots result = GC.GetStepFinder().GetPlotsInReach(pLoopPlot->getX(), pLoopPlot->getY(), data);
 
 			for (ReachablePlots::iterator it = result.begin(); it != result.end(); ++it)
 			{
-				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
+				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 				pPlot->setArea(iArea);
 
 				boundaries.m_iWestEdge = MIN(boundaries.m_iWestEdge,pPlot->getX());
@@ -2236,11 +2236,11 @@ void CvMap::calculateLandmasses()
 			pLoopPlot->setLandmass(iLandmassID);
 
 			SPathFinderUserData data(NO_PLAYER, PT_LANDMASS_CONNECTION);
-			ReachablePlots result = GC.GetStepFinder().GetPlotsInReach(pLoopPlot->getX(), pLoopPlot->getY(), data, 0);
+			ReachablePlots result = GC.GetStepFinder().GetPlotsInReach(pLoopPlot->getX(), pLoopPlot->getY(), data);
 
 			for (ReachablePlots::iterator it = result.begin(); it != result.end(); ++it)
 			{
-				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->first);
+				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 				pPlot->setLandmass(iLandmassID);
 			}
 		}

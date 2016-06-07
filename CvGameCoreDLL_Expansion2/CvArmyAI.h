@@ -17,18 +17,17 @@ class CvPlot;
 #define SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES 20
 
 #define ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT -1
-#define ARMYSLOT_NOT_INCLUDING_IN_OPERATION -2
 
-#define ARMY_NO_UNIT -1
+#define ARMYSLOT_NOT_INCLUDING_IN_OPERATION -2
+#define ARMYSLOT_NO_UNIT -1
 
 class CvArmyFormationSlot
 {
 public:
 	CvArmyFormationSlot()
 	{
-		m_iUnitID = ARMY_NO_UNIT;
+		m_iUnitID = ARMYSLOT_NO_UNIT;
 		m_iEstimatedTurnAtCheckpoint = ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT;
-		m_bStartedOnOperation = false;
 	};
 
 	int GetUnitID() const
@@ -47,18 +46,9 @@ public:
 	{
 		m_iEstimatedTurnAtCheckpoint = iValue;
 	};
-	bool HasStartedOnOperation() const
-	{
-		return m_bStartedOnOperation;
-	};
-	void SetStartedOnOperation(bool bValue)
-	{
-		m_bStartedOnOperation = bValue;
-	};
 
 	int m_iUnitID;
 	int m_iEstimatedTurnAtCheckpoint;
-	int m_bStartedOnOperation;
 };
 
 enum ArmyAIState
@@ -107,7 +97,7 @@ public:
 	void SetArmyAIState(ArmyAIState eNewArmyAIState);
 
 	int GetMovementRate();
-	CvPlot* GetCenterOfMass(DomainTypes eDomainRequired);
+	CvPlot* GetCenterOfMass();
 	int GetFurthestUnitDistance(CvPlot* pPlot);
 
 	void SetOwner(PlayerTypes eOwner) { m_eOwner=eOwner; }
@@ -125,8 +115,10 @@ public:
 	{
 		return &m_FormationEntries[iSlotID];
 	};
-	int GetTurnAtNextCheckpoint() const;
+
+	int GetTurnOfLastUnitAtNextCheckpoint() const;
 	void UpdateCheckpointTurns();
+	void RemoveStuckUnits();
 	int GetUnitsOfType(MultiunitPositionTypes ePosition) const;
 	bool IsAllOceanGoing();
 
@@ -141,14 +133,12 @@ public:
 	int GetArea() const;
 	DomainTypes GetDomainType() const;
 	void SetDomainType(DomainTypes domainType);
-	bool AreAllInWater();
 
 	// Goal accessors
 	void SetGoalPlot(CvPlot* pGoalPlot);
 	CvPlot* GetGoalPlot() const;
 	int GetGoalX() const;
 	int GetGoalY() const;
-	void SetGoalXY(int iX, int iY);
 
 	// Unit handling
 	void AddUnit(int iUnitId, int iSlotNum);
@@ -161,12 +151,7 @@ public:
 	UnitHandle GetFirstUnitInDomain(DomainTypes eDomain);
 
 	// Per turn processing
-	void DoTurn();
-	bool DoDelayedDeath();
-
-	CvPlot* DetectNearbyEnemy(PlayerTypes eEnemy, bool bNaval);
-	CvPlot* CheckTargetReached(PlayerTypes eEnemy, bool bNavalOp, int iMaxDistance);
-	void PrepareForAttack(CvPlot* pTarget, PlayerTypes eEnemy);
+	bool IsDelayedDeath();
 
 protected:
 	int m_iID;

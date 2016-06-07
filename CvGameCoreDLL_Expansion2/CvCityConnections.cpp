@@ -217,7 +217,7 @@ bool CvCityConnections::AreCitiesConnected(const CvCity * pCityA, const CvCity *
 
 void CvCityConnections::UpdateRouteInfo(void)
 {
-	//allow mods to set connectivity as well - this is a bit strange, there is no check for industrial, and direction connection makes no sense
+	//allow mods to set connectivity as well - this is a bit strange, there is no check for industrial, and direct connection makes no sense
 	bool bCallDirectEvents = false;
 	bool bCallIndirectEvents = false;
 	if (MOD_EVENTS_CITY_CONNECTIONS) 
@@ -245,25 +245,25 @@ void CvCityConnections::UpdateRouteInfo(void)
 			pStartCity->SetIndustrialRouteToCapitalConnected(false);
 		}
 
-		ReachablePlots roadPlots, railroadPlots, harborPlots;
+		ReachablePlots roadPlots, railroadPlots, waterPlots;
 		SPathFinderUserData data(m_pPlayer->GetID(),PT_CITY_CONNECTION_LAND, ROUTE_ROAD);
 		if (!pStartCity->IsBlockaded(false))
 		{
-			roadPlots= GC.GetStepFinder().GetPlotsInReach( pStartCity->getX(),pStartCity->getY(), data, 0);
+			roadPlots= GC.GetStepFinder().GetPlotsInReach( pStartCity->getX(),pStartCity->getY(), data);
 			data.iTypeParameter = ROUTE_RAILROAD;
-			railroadPlots = GC.GetStepFinder().GetPlotsInReach( pStartCity->getX(),pStartCity->getY(), data, 0);
+			railroadPlots = GC.GetStepFinder().GetPlotsInReach( pStartCity->getX(),pStartCity->getY(), data);
 		}
 
-		// See if we have a harbor
-		bool bStartCityHasHarbor = false;
+		// See if we have a harbor / lighthouse, whatever
+		bool bStartCityAllowsWater = false;
 		for(int i = 0; i < (int)m_aBuildingsAllowWaterRoutes.size(); i++)
 			if(pStartCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[i]) > 0)
-				bStartCityHasHarbor = true;
-		if (bStartCityHasHarbor && !pStartCity->IsBlockaded(true))
+				bStartCityAllowsWater = true;
+		if (bStartCityAllowsWater && !pStartCity->IsBlockaded(true))
 		{
 			data.iTypeParameter = NO_ROUTE;
 			data.ePathType = PT_CITY_CONNECTION_WATER;
-			harborPlots = GC.GetStepFinder().GetPlotsInReach( pStartCity->getX(),pStartCity->getY(), data, 0);
+			waterPlots = GC.GetStepFinder().GetPlotsInReach( pStartCity->getX(),pStartCity->getY(), data);
 		}
 
 		//start with an empty map
@@ -271,7 +271,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 		for (ReachablePlots::iterator it = roadPlots.begin(); it != roadPlots.end(); ++it)
 		{
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->first );
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->iPlotIndex );
 			if (pPlot->isCity() && pPlot!=pStartCity->plot())
 			{
 				CvCity* pEndCity = pPlot->getPlotCity();
@@ -290,7 +290,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 		for (ReachablePlots::iterator it = railroadPlots.begin(); it != railroadPlots.end(); ++it)
 		{
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->first );
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->iPlotIndex );
 			if (pPlot->isCity() && pPlot!=pStartCity->plot())
 			{
 				CvCity* pEndCity = pPlot->getPlotCity();
@@ -307,20 +307,20 @@ void CvCityConnections::UpdateRouteInfo(void)
 			}
 		}
 
-		for (ReachablePlots::iterator it = harborPlots.begin(); it != harborPlots.end(); ++it)
+		for (ReachablePlots::iterator it = waterPlots.begin(); it != waterPlots.end(); ++it)
 		{
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->first );
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->iPlotIndex );
 			if (pPlot->isCity() && pPlot!=pStartCity->plot())
 			{
 				CvCity* pEndCity = pPlot->getPlotCity();
 
-				// See if we have a harbor
-				bool bEndCityHasHarbor = false;
+				// See if we have a harbor / lighthouse, whatever
+				bool bEndCityAllowsWater = false;
 				for(int i = 0; i < (int)m_aBuildingsAllowWaterRoutes.size(); i++)
 					if(pEndCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[i]) > 0)
-						bEndCityHasHarbor = true;
+						bEndCityAllowsWater = true;
 
-				if (!bEndCityHasHarbor || pEndCity->IsBlockaded(true))
+				if (!bEndCityAllowsWater || pEndCity->IsBlockaded(true))
 					continue;
 				
 				std::map<int,CityConnectionTypes>::iterator lala = localConnections.find(pEndCity->GetID());
@@ -386,27 +386,35 @@ void CvCityConnections::UpdateRouteInfo(void)
 	{
 		//mixed route needs harbor connection flags to be set already
 		SPathFinderUserData data(m_pPlayer->GetID(), PT_CITY_CONNECTION_MIXED, ROUTE_ROAD);
-		ReachablePlots capitalRoadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data, 0);
+		ReachablePlots capitalRoadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data);
 		for (ReachablePlots::iterator it = capitalRoadConnectedPlots.begin(); it != capitalRoadConnectedPlots.end(); ++it)
 		{
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->first );
-			if (!pPlot->isWater() && !pPlot->isCity()) //should be only land, but doesn't hurt to check
-				m_plotsWithConnectionToCapital.push_back(pPlot->GetPlotIndex());
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->iPlotIndex );
 
 			//if it's one of our own cities, set the connection flag - also for the capital itself
 			CvCity* pCity = pPlot->getPlotCity();
 			if (pCity && pCity->getOwner()==m_pPlayer->GetID())
+			{
 				pCity->SetRouteToCapitalConnected(true);
 
+				//find the shortest path
+				SPath path = GC.GetStepFinder().GetPath(pCapital->plot(),pPlot,data);
+				for (size_t i=0; i<path.length(); i++)
+				{
+					CvPlot* pConnectionPlot = path.get(i);
+					if (pConnectionPlot && !pConnectionPlot->isWater() && !pConnectionPlot->isCity()) //should be only land, but doesn't hurt to check
+						m_plotsWithConnectionToCapital.push_back(pConnectionPlot->GetPlotIndex());
+				}
+			}
 		}
 
 		if ( GET_TEAM(m_pPlayer->getTeam()).GetBestPossibleRoute()==GC.getGame().GetIndustrialRoute() )
 		{
 			data.iTypeParameter = ROUTE_RAILROAD;
-			ReachablePlots capitalRailroadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data, 0);
+			ReachablePlots capitalRailroadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data);
 			for (ReachablePlots::iterator it = capitalRailroadConnectedPlots.begin(); it != capitalRailroadConnectedPlots.end(); ++it)
 			{
-				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->first );
+				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->iPlotIndex );
 
 				//if it's one of our own cities, set the connection flag - also for the capital itself
 				CvCity* pCity = pPlot->getPlotCity();
@@ -502,13 +510,19 @@ bool CvCityConnections::ShouldConnectToOtherPlayer(PlayerTypes eOtherPlayer)
 	return result;
 }
 
-void CvCityConnections::CheckPlotRouteStateChanges(const PlotIndexStore& lastState, const PlotIndexStore& newState)
+void CvCityConnections::CheckPlotRouteStateChanges(PlotIndexStore& lastState, PlotIndexStore& newState)
 {
+	//make sure the input is sorted and unique
+	std::sort(lastState.begin(),lastState.end());
+	lastState.erase( std::unique(lastState.begin(),lastState.end()), lastState.end() );
+	std::sort(newState.begin(),newState.end());
+	newState.erase( std::unique(newState.begin(),newState.end()), newState.end() );
+
 	PlotIndexStore addedPlots( newState.size() );
 	PlotIndexStore removedPlots( lastState.size() );
 
 	PlotIndexStore::iterator lastAdded = std::set_difference(newState.begin(),newState.end(),lastState.begin(),lastState.end(),addedPlots.begin());
-	PlotIndexStore::iterator lastRemoved =std::set_difference(lastState.begin(),lastState.end(),newState.begin(),newState.end(),removedPlots.begin());
+	PlotIndexStore::iterator lastRemoved = std::set_difference(lastState.begin(),lastState.end(),newState.begin(),newState.end(),removedPlots.begin());
 
 	addedPlots.resize( lastAdded - addedPlots.begin() );
 	removedPlots.resize( lastRemoved - removedPlots.begin() );

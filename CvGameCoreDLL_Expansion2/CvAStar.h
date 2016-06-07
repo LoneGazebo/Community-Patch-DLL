@@ -360,8 +360,8 @@ public:
 	virtual int GetPathLengthInPlots(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data);
 	virtual int GetPathLengthInTurns(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data);
 	virtual int GetPathLengthInTurns(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data);
-	virtual ReachablePlots GetPlotsInReach(int iXstart, int iYstart, const SPathFinderUserData& data, int iMinMovesLeft);
-	virtual ReachablePlots GetPlotsInReach(const CvPlot* pStartPlot, const SPathFinderUserData& data, int iMinMovesLeft);
+	virtual ReachablePlots GetPlotsInReach(int iXstart, int iYstart, const SPathFinderUserData& data);
+	virtual ReachablePlots GetPlotsInReach(const CvPlot* pStartPlot, const SPathFinderUserData& data);
 
 protected:
 	// set up the function pointers which do the actual work

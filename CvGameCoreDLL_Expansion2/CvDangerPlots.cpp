@@ -117,7 +117,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 		//for melee every tile we can move into can be attacked
 		for (ReachablePlots::iterator moveTile=reachablePlots.begin(); moveTile!=reachablePlots.end(); ++moveTile)
 		{
-			CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->first);
+			CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->iPlotIndex);
 			AssignUnitDangerValue(pLoopUnit, pMoveTile);
 		}
 	}

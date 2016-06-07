@@ -913,6 +913,8 @@ public:
 	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;
 	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bCountRanged = true) const;
 	CvUnit* GetAdjacentEnemyUnit(TeamTypes eMyTeam, DomainTypes eDomain) const;
+	int GetAdjacentEnemyPower(PlayerTypes ePlayer) const;
+
 	int GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bCountRanged = true) const;
 	bool IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const;
 	int GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit* pUnitToExclude = NULL, const CvUnit* pExampleUnitType = NULL, bool bCombatOnly = true) const;
@@ -925,7 +927,6 @@ public:
 #endif
 
 	bool canPlaceUnit(PlayerTypes ePlayer) const;
-	CvPlot* getAdjacentPlotForUnit(PlayerTypes ePlayer, bool bLand, DirectionTypes ePreferredDirection=NO_DIRECTION) const;
 
 protected:
 	class PlotBoolField

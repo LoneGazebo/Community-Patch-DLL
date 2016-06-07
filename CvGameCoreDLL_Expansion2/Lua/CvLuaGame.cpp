@@ -331,7 +331,9 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetMinorityHappinessChangeBuildingGlobal);
 	Method(GetPromiseDuration);
 	Method(GetCorporationFounder);
+	Method(GetCorporationHeadquarters);
 	Method(GetNumCorporationsFounded);
+	Method(GetNumAvailableCorporations);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	Method(GetGreatestPlayerResourceMonopoly);
 #endif
@@ -483,6 +485,12 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(AnyoneHasTech);
 	Method(AnyoneHasUnit);
 	Method(AnyoneHasUnitClass);
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	Method(FoundCorporation);
+	Method(CanFoundCorporation);
+	Method(IsCorporationFounded);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -2349,7 +2357,7 @@ int CvLuaGame::lGetBuildingCorporateYieldChange(lua_State* L)
 	int iYieldChange = 0;
 	if(pkBuildingInfo && pkYieldInfo)
 	{
-		iYieldChange = pkBuildingInfo->GetCorporationYieldChange(eYield);
+		iYieldChange = pkBuildingInfo->GetYieldPerFranchise(eYield);
 	}
 
 	lua_pushinteger(L, iYieldChange);
@@ -2365,7 +2373,7 @@ int CvLuaGame::lGetBuildingCorporateGPChange(lua_State* L)
 	int iYieldChange = 0;
 	if(pkBuildingInfo)
 	{
-		iYieldChange = pkBuildingInfo->GetCorporationGPChange();
+		iYieldChange = pkBuildingInfo->GetGPRateModifierPerXFranchises();
 	}
 
 	lua_pushinteger(L, iYieldChange);
@@ -2380,15 +2388,41 @@ int CvLuaGame::lGetPromiseDuration(lua_State* L)
 
 int CvLuaGame::lGetCorporationFounder(lua_State* L)
 {
-	const int iCorporationID = luaL_checkint(L, 1);
-	int iReturn = (int) GC.getGame().GetCorporationFounder(iCorporationID);
+	const CorporationTypes eCorporation = (CorporationTypes) luaL_checkint(L, 1);
+	int iReturn = (int) GC.getGame().GetCorporationFounder(eCorporation);
 	lua_pushinteger(L, iReturn);
+	return 1;
+}
+
+int CvLuaGame::lGetCorporationHeadquarters(lua_State* L)
+{
+	const CorporationTypes eCorporation = (CorporationTypes)luaL_checkint(L, 1);
+	
+	CvCity* pkCity = NULL;
+	CvCorporation* pCorporation = GC.getGame().GetGameCorporations()->GetCorporation(eCorporation);
+	if (pCorporation)
+	{
+		CvPlot* pHQPlot = GC.getMap().plot(pCorporation->m_iHeadquartersCityX, pCorporation->m_iHeadquartersCityY);
+		if (pHQPlot)
+		{
+			pkCity = pHQPlot->getPlotCity();
+		}
+	}
+
+	CvLuaCity::Push(L, pkCity);
 	return 1;
 }
 
 int CvLuaGame::lGetNumCorporationsFounded(lua_State* L)
 {
 	int iReturn = GC.getGame().GetNumCorporationsFounded();
+	lua_pushinteger(L, iReturn);
+	return 1;
+}
+
+int CvLuaGame::lGetNumAvailableCorporations(lua_State* L)
+{
+	int iReturn = GC.getGame().GetGameCorporations()->GetNumAvailableCorporations();
 	lua_pushinteger(L, iReturn);
 	return 1;
 }
@@ -3690,6 +3724,34 @@ int CvLuaGame::lAnyoneHasUnitClass(lua_State* L)
 {
 	const UnitClassTypes iUnitClassType = static_cast<UnitClassTypes>(luaL_checkint(L, 1));
 	lua_pushboolean(L, GC.getGame().AnyoneHasUnitClass(iUnitClassType));
+	return 1;
+}
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+int CvLuaGame::lFoundCorporation(lua_State* L)
+{
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_checkint(L, 1));
+	const CorporationTypes eCorporation = static_cast<CorporationTypes>(luaL_checkint(L, 2));
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
+	GC.getGame().GetGameCorporations()->FoundCorporation(ePlayer, eCorporation, pkCity);
+	return 1;
+}
+
+int CvLuaGame::lCanFoundCorporation(lua_State* L)
+{
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_checkint(L, 1));
+	const CorporationTypes eCorporation = static_cast<CorporationTypes>(luaL_checkint(L, 2));
+	bool bResult = GC.getGame().GetGameCorporations()->CanFoundCorporation(ePlayer, eCorporation);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+int CvLuaGame::lIsCorporationFounded(lua_State* L)
+{
+	const CorporationTypes eCorporation = static_cast<CorporationTypes>(luaL_checkint(L, 1));
+	bool bResult = GC.getGame().GetGameCorporations()->IsCorporationFounded(eCorporation);
+	lua_pushboolean(L, bResult);
 	return 1;
 }
 #endif

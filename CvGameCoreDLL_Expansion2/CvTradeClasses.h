@@ -335,8 +335,8 @@ public:
 
 	void DoTurn(void);
 
-	void GetAvailableTR(TradeConnectionList& aTradeConnectionList);
-	void GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionList);
+	void GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool bSkipExisting);
+	void GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionList, bool bSkipExisting);
 
 #if defined(MOD_BALANCE_CORE)
 	int	ScoreInternationalTR (const TradeConnection& kTradeConnection, bool bHaveTourism);

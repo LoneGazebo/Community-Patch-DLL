@@ -213,10 +213,10 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 			{
 				iWeight *= (m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() + 1);
 			}
-			if(pPlayer->GetCorporateFounderID() == -1)
+			if(!pPlayer->GetCorporations()->HasFoundedCorporation())
 			{
 				//Corporate-specific policies should only be taken if you have a corporation.
-				if(m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->IsOrderCorp() || m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->IsFreedomCorp() || m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->IsAutocracyCorp())
+				if(m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->IsCorporationOfficesAsFranchises() ||m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->IsCorporationRandomForeignFranchise() || m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->IsCorporationFreeFranchiseAbovePopular())
 				{
 					iWeight = 0;
 				}

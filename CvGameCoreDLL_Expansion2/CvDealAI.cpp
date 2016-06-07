@@ -3360,23 +3360,15 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 
 	CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
 
-	PlayerTypes eWithPlayer = NO_PLAYER;
-
-	// find the first player associated with the team
-	for (uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
+	if(eWithTeam == NO_TEAM)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)ui;
-		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).getTeam() == eWithTeam) 
-		{
-			eWithPlayer = ePlayer;
-			break;
-		}
+		return INT_MAX;
 	}
 
-	CvAssertMsg(eWithPlayer != NO_PLAYER, "eWithPlayer could not be found");
-	if (eWithPlayer == NO_PLAYER)
+	PlayerTypes eWithPlayer = GET_TEAM(eWithTeam).getLeaderID();
+	if(eWithPlayer == NO_PLAYER)
 	{
-		return 0;
+		return INT_MAX;
 	}
 
 	bool bMinor = false;
@@ -3674,7 +3666,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Third Party War with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 #if defined(MOD_BALANCE_CORE)
-	int iItemValue = 500; //just some base value
+	int iItemValue = 400; //just some base value
 #else
 	int iItemValue = 0;
 #endif
@@ -3686,19 +3678,13 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	if(bFromMe && iWarApproachWeight < 6)
 		return INT_MAX;
 
-	PlayerTypes eWithPlayer = NO_PLAYER;
-	// find the first player associated with the team
-	for (uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
+	if(eWithTeam == NO_TEAM)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)ui;
-		if (GET_PLAYER(ePlayer).getTeam() == eWithTeam) 
-		{
-			eWithPlayer = ePlayer;
-			break;
-		}
+		return INT_MAX;
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(eWithPlayer == NO_PLAYER || eWithTeam == NO_TEAM)
+
+	PlayerTypes eWithPlayer = GET_TEAM(eWithTeam).getLeaderID();
+	if(eWithPlayer == NO_PLAYER)
 	{
 		return INT_MAX;
 	}
@@ -3785,7 +3771,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		return INT_MAX;
 	}
 #endif
-#endif
+
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	if(bFromMe && pDiploAI->IsMusteringForAttack(eOtherPlayer))
 	{
@@ -3975,12 +3961,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			}
 			if(!GET_PLAYER(eOtherPlayer).isHuman())
 			{
-				bool bTargetLand = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_SNEAK_CITY_ATTACK);
-				bool bTargetSeaPure = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_PURE_NAVAL_CITY_ATTACK);
-				bool bTargetSea = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_SNEAK_ATTACK);
+				bool bTargetLand = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_CITY_SNEAK_ATTACK);
+				bool bTargetSeaPure = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_ONLY_CITY_ATTACK);
+				bool bTargetSea = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_INVASION_SNEAKY);
 				if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
 				{
-					CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_SNEAK_CITY_ATTACK, eWithPlayer);
+					CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_CITY_SNEAK_ATTACK, eWithPlayer);
 					if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
 					{
 						if(!target.m_bAttackBySea)
@@ -4173,9 +4159,9 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		else if(eWarProjection2 >= WAR_PROJECTION_GOOD)
 			iItemValue += 200;
 		else if(eWarProjection2 == WAR_PROJECTION_UNKNOWN)
-			iItemValue += 400;
+			iItemValue += 300;
 		else if(eWarProjection2 == WAR_PROJECTION_STALEMATE)
-			iItemValue += 500;
+			iItemValue += 400;
 		else if(eWarProjection2 < WAR_PROJECTION_STALEMATE)
 			return INT_MAX;
 
@@ -4263,12 +4249,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			//Not a human? Let's see if he has a valid target...if not, don't accept!
 			if(!GET_PLAYER(eOtherPlayer).isHuman())
 			{
-				bool bTargetLand = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_SNEAK_CITY_ATTACK);
-				bool bTargetSeaPure = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_PURE_NAVAL_CITY_ATTACK);
-				bool bTargetSea = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_SNEAK_ATTACK);
+				bool bTargetLand = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_CITY_SNEAK_ATTACK);
+				bool bTargetSeaPure = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_ONLY_CITY_ATTACK);
+				bool bTargetSea = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetCachedAttackTarget(eWithPlayer, AI_OPERATION_NAVAL_INVASION_SNEAKY);
 				if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
 				{
-					CvMilitaryTarget target = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_SNEAK_CITY_ATTACK, eWithPlayer);
+					CvMilitaryTarget target = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_CITY_SNEAK_ATTACK, eWithPlayer);
 					if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
 					{
 						if(!target.m_bAttackBySea)
@@ -4332,48 +4318,26 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			//Humans?
 			else
 			{
-				if(!GET_PLAYER(eOtherPlayer).CanCrossOcean())
+				switch(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(eWithPlayer))
 				{
-					switch(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(eWithPlayer))
-					{
-						case PLAYER_PROXIMITY_DISTANT:
-						case PLAYER_PROXIMITY_FAR:
-							iItemValue *= 50;
-						case PLAYER_PROXIMITY_CLOSE:
-							iItemValue *= 200;
-							break;
-						case PLAYER_PROXIMITY_NEIGHBORS:
-							iItemValue *= 300;
-							break;
-						default:
-							CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
-							iItemValue *= 100;
-							break;
-					}
-					iItemValue /= 100;
+					case PLAYER_PROXIMITY_DISTANT:
+						iItemValue *= 25;
+						break;
+					case PLAYER_PROXIMITY_FAR:
+						iItemValue *= 50;
+						break;
+					case PLAYER_PROXIMITY_CLOSE:
+						iItemValue *= 100;
+						break;
+					case PLAYER_PROXIMITY_NEIGHBORS:
+						iItemValue *= 100;
+						break;
+					default:
+						CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
+						iItemValue *= 100;
+						break;
 				}
-				else
-				{
-					switch(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(eWithPlayer))
-					{
-						case PLAYER_PROXIMITY_DISTANT:
-							iItemValue *= 25;
-						case PLAYER_PROXIMITY_FAR:
-							iItemValue *= 50;
-							break;
-						case PLAYER_PROXIMITY_CLOSE:
-							iItemValue *= 150;
-							break;
-						case PLAYER_PROXIMITY_NEIGHBORS:
-							iItemValue *= 250;
-							break;
-						default:
-							CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
-							iItemValue *= 100;
-							break;
-					}
-					iItemValue /= 100;
-				}
+				iItemValue /= 100;
 			}
 		}
 #else

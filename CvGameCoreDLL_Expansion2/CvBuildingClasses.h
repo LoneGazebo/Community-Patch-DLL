@@ -122,9 +122,6 @@ public:
 	bool IsPuppetPurchaseOverride() const;
 	bool IsAllowsPuppetPurchase() const;
 	int GetCooldown() const;
-	int GetFreeBuildingTradeTargetCity() const;
-	int GetCorporationID() const;
-	int GetCorporationHQID() const;
 	bool IsTradeRouteInvulnerable() const;
 	int GetTRSpeedBoost() const;
 	int GetTRVisionBoost() const;
@@ -354,10 +351,6 @@ public:
 
 	const char* GetWonderSplashAudio() const;
 	CvString GetThemingBonusHelp() const;
-#if defined(MOD_BALANCE_CORE)
-	CvString GetCorporationHelper() const;
-	CvString GetOfficeBenefitHelper() const;
-#endif
 
 	// Accessor Functions (Arrays)
 
@@ -458,17 +451,12 @@ public:
 	int GetFeatureAnd(int i) const;
 	int GetResourceMonopolyAnd(int i) const;
 	int GetResourceMonopolyOr(int i) const;
-	int GetCorporationYieldChange(int i) const;
-	int* GetCorporationYieldChangeArray() const;
-	int GetCorporationGPChange() const;
-	int GetCorporationMaxFranchises() const;
-	int GetCorporationResourceQuantity(int i) const;
+	int GetGPRateModifierPerXFranchises() const;
+	int GetResourceQuantityPerXFranchises(int i) const;
+	int GetYieldPerFranchise(int i) const;
 
-	int GetCorporationYieldModTrade(int i) const;
-	int* GetCorporationYieldModTradeArray() const;
-
-	int GetCorporationTradeRouteMod(int i) const;
-	int* GetCorporationTradeRouteModArray() const;
+	int GetFranchiseTradeRouteYieldMod(int i) const;
+	int* GetFranchiseTradeRouteYieldModArray() const;
 #endif
 	int GetHurryModifier(int i) const;
 	bool IsBuildingClassNeededInCity(int i) const;
@@ -545,9 +533,6 @@ private:
 	bool m_bPuppetPurchaseOverride;
 	bool m_bAllowsPuppetPurchase;
 	int m_iGetCooldown;
-	int m_iFreeBuildingTradeTargetCity;
-	int m_iCorporationID;
-	int m_iCorporationHQID;
 	bool m_bTradeRouteInvulnerable;
 	int m_iTRSpeedBoost;
 	int m_iTRVisionBoost;
@@ -778,10 +763,6 @@ private:
 	CvString m_strArtDefineTag;
 	CvString m_strWonderSplashAudio;
 	CvString m_strThemingBonusHelp;
-#if defined(MOD_BALANCE_CORE)
-	CvString m_strCorporationHelper;
-	CvString m_strOfficeBenefitHelper;
-#endif
 
 	// Arrays
 
@@ -842,12 +823,11 @@ private:
 	int* m_piLocalFeatureAnds;
 	int* m_piResourceMonopolyAnds;
 	int* m_piResourceMonopolyOrs;
-	int* m_piCorporationYield;
-	int* m_piCorporationYieldModTrade;
-	int* m_piCorporationTradeRouteMod;
-	int m_iCorporationGPChange;
-	int m_iCorporationMaxFranchises;
-	int* m_piCorporationResourceQuantity;
+	int* m_piYieldPerFranchise;
+	int* m_piFranchiseTradeRouteCityYieldMod;
+	int* m_piFranchiseTradeRouteYieldMod;
+	int m_iGPRateModifierPerXFranchises;
+	int* m_piResourceQuantityPerXFranchises;
 #endif
 	int* m_paiHurryModifier;
 

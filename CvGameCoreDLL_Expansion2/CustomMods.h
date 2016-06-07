@@ -98,12 +98,6 @@
 #define AUI_TACTICAL_FIX_COMPUTE_EXPECTED_DAMAGE_AIR_UNITS
 /// Units that cannot caputre cities will not attempt to do so
 #define AUI_TACTICAL_FIX_NO_CAPTURE
-/// When checking the embark safety of a plot, use the plot the unit will be moving to instead of the target plot
-#define AUI_TACTICAL_FIX_MOVE_TO_USING_SAFE_EMBARK_CORRECT_PLOT
-/// Fixes the incorrect logic behind determining whether a unit could make it to an operation's next muster point in time
-#define AUI_TACTICAL_FIX_ALL_OPERATION_MOVES_CATCH_UP_TURNS
-/// When finding naval units to move to a target, the AI no longer ignores units for its pathfinder portion (so it now essentially works the same way as the land-based one)
-#define AUI_TACTICAL_FIX_FIND_CLOSEST_NAVAL_OPERATION_UNIT_DOESNT_IGNORE_UNITS
 /// Civilians that are not moved with BarbarianCivilianEscortMove now move using passive barbarian move
 #define AUI_TACTICAL_EXECUTE_BARBARIAN_MOVES_CIVILIANS_MOVE_PASSIVELY
 
@@ -1162,7 +1156,11 @@ enum BattleTypeTypes
 #define MOD_SERIALIZE
 
 #if defined(MOD_SERIALIZE)
-#define MOD_SERIALIZE_INIT_READ(stream) uint uiDllSaveVersion; stream >> uiDllSaveVersion
+
+//to help debug errors
+void CheckSentinel(uint);
+
+#define MOD_SERIALIZE_INIT_READ(stream) uint uiDllSaveVersion, uiSentinel; stream >> uiDllSaveVersion; stream >> uiSentinel; CheckSentinel(uiSentinel);
 #define MOD_SERIALIZE_READ(version, stream, member, def) if (uiDllSaveVersion >= version) { stream >> member; } else { member = def; }
 #define MOD_SERIALIZE_READ_AUTO(version, stream, member, size, def)   \
 	if (uiDllSaveVersion >= version) {                                \
@@ -1182,7 +1180,7 @@ enum BattleTypeTypes
 	} else {																	\
 		for (int iI = 0; iI < size; iI++) { (member)[iI] = def; }				\
 	}
-#define MOD_SERIALIZE_INIT_WRITE(stream) uint uiDllSaveVersion = MOD_DLL_VERSION_NUMBER; stream << uiDllSaveVersion
+#define MOD_SERIALIZE_INIT_WRITE(stream) uint uiDllSaveVersion = MOD_DLL_VERSION_NUMBER; stream << uiDllSaveVersion; stream << 0xDEADBEEF;
 #define MOD_SERIALIZE_WRITE(stream, member) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); stream << member
 #define MOD_SERIALIZE_WRITE_AUTO(stream, member) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); stream << member
 #define MOD_SERIALIZE_WRITE_ARRAY(stream, member, type, size) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); stream << ArrayWrapper<type>(size, member)

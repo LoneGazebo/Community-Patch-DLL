@@ -137,7 +137,10 @@ class CvResolutionEntry;
 class CvResolutionXMLEntries;
 class CvDeal;
 class CvNetMessageHandler;
-class CvDiploModifierInfo;
+#if defined(MOD_BALANCE_CORE)
+class CvCorporationEntry;
+class CvCorporationXMLEntries;
+#endif
 
 class CvDLLInterfaceIFaceBase;
 class ICvDLLDatabaseUtility1;
@@ -535,6 +538,13 @@ public:
 	std::vector<CvReligionEntry*>& getReligionInfo();
 	_Ret_maybenull_ CvReligionEntry* getReligionInfo(ReligionTypes eReligionNum);
 	CvReligionXMLEntries* GetGameReligions() const;
+
+#if defined(MOD_BALANCE_CORE)
+	int getNumCorporationInfos();
+	std::vector<CvCorporationEntry*>& getCorporationInfo();
+	_Ret_maybenull_ CvCorporationEntry* getCorporationInfo(CorporationTypes eCorporationNum);
+	CvCorporationXMLEntries* GetGameCorporations() const;
+#endif
 
 	int getNumBeliefInfos();
 	std::vector<CvBeliefEntry*>& getBeliefInfo();
@@ -9052,6 +9062,9 @@ protected:
 #if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
 	CvAchievementXMLEntries* m_pAchievements;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	CvCorporationXMLEntries* m_pCorporations;
+#endif
 
 	//////////////////////////////////////////////////////////////////////////
 	// GLOBAL TYPES
@@ -11265,9 +11278,10 @@ inline const Database::Connection* CvGlobals::GetGameDatabase() const
 	return m_pGameDatabase;
 }
 
+//cannot use GC.getGame().getActivePlayer() in observer mode
+PlayerTypes GetCurrentPlayer();
 
-#if defined(MOD_CORE_DEBUGGING)
-
+#ifdef STACKWALKER
 #include "Stackwalker/Stackwalker.h"
 
 class MyStackWalker : public StackWalker
@@ -11282,12 +11296,7 @@ protected:
 	FILogFile* m_pLog;
 };
 
-//cannot use GC.getGame().getActivePlayer() in observer mode
-PlayerTypes GetCurrentPlayer();
-
 extern MyStackWalker gStackWalker;
-
 #endif
 
-
-#endif
+#endif //CIV5_GLOBALS_H
