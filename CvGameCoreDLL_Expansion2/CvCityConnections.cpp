@@ -399,7 +399,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 				//find the shortest path
 				SPath path = GC.GetStepFinder().GetPath(pCapital->plot(),pPlot,data);
-				for (size_t i=0; i<path.length(); i++)
+				for (int i=0; i<path.length(); i++)
 				{
 					CvPlot* pConnectionPlot = path.get(i);
 					if (pConnectionPlot && !pConnectionPlot->isWater() && !pConnectionPlot->isCity()) //should be only land, but doesn't hurt to check

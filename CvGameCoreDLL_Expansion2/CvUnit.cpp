@@ -12926,7 +12926,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 	{
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		// Needs the associated SQL executing - UPDATE Builds SET CanBeEmbarked=1 WHERE Type='BUILD_FISHING_BOATS_NO_KILL';
-		if ((isEmbarked() && !pkBuildInfo->IsCanBeEmbarked()))
+		if (pPlot->needsEmbarkation(this) && !pkBuildInfo->IsCanBeEmbarked())
 #else
 		if ((isEmbarked() && !pkBuildInfo->IsCanBeEmbarked())  && (strcmp("UNIT_JAPANESE_SAMURAI", getUnitInfo().GetType()) != 0))
 #endif
@@ -14849,20 +14849,13 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		iModifier += GetUnhappinessCombatPenalty();
 	}
 
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	{
-		// units cannot heal anymore, but strength is unaffected
-	}
-	else
-	{
-#endif
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	// units cannot heal anymore, but strength is unaffected
+#else
 	// Over our strategic resource limit?
 	iTempModifier = GetStrategicResourceCombatPenalty();
 	if(iTempModifier != 0)
 		iModifier += iTempModifier;
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	}
 #endif
 
 	if (pFromPlot == NULL)
