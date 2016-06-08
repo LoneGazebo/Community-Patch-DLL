@@ -14,6 +14,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	bool bFasterInHills = pTraits->IsFasterInHills();
 	bool bIgnoreTerrainCost = pUnit->ignoreTerrainCost();
 	bool bAmphibious = pUnit ? pUnit->isRiverCrossingNoPenalty() : false;
+	bool bHover = pUnit ? pUnit->IsHoveringUnit() : false;
 
 	TeamTypes eUnitTeam = pUnit->getTeam();
 	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
@@ -87,8 +88,11 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	if (bFasterInHills && pToPlot->isHills())
 		bIgnoreTerrainCost = true;
 
+	if (bHover)
+		bIgnoreTerrainCost = true;
+
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE && bAmphibious && bRiverCrossing)
+	if (MOD_BALANCE_CORE && bAmphibious && bRiverCrossing)
 		bIgnoreTerrainCost = true;
 
 	if (MOD_BALANCE_CORE && pTraits->IsMountainPass() && pToPlot->isMountain())
@@ -156,6 +160,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			iRegularCost = std::max(1, (iRegularCost - pUnit->getExtraMoveDiscount()));
 		}
 
+		//now switch to high-precision costs
 		iRegularCost *= iMoveDenominator;
 
 		if(pToPlot->isHills() && pUnit->isHillsDoubleMove())
@@ -177,7 +182,8 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	}
 
 	//check routes
-	if( (bRouteFrom || bFakeRouteFrom) && 
+	if( !bHover &&
+		(bRouteFrom || bFakeRouteFrom) && 
 		(bRouteTo || bFakeRouteTo) && 
 		(!bRiverCrossing || kUnitTeam.isBridgeBuilding() || bAmphibious) )
 	{

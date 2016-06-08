@@ -26578,7 +26578,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			bRejectMove = true;
 		}
 		// if we should end our turn there this turn, but can't move into that tile
-		else if(kDestNode.m_iTurns == 1 && !canMoveInto(*pDestPlot))  
+		else if(kDestNode.m_iTurns == 1 && !canMoveInto(*pDestPlot,iFlags|MOVEFLAG_DESTINATION))  
 		{
 			// this is a bit tricky
 			// we want to see if this move would be a capture move
@@ -27009,6 +27009,14 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 			if ( ((iFromDanger<iToDanger) && (iToDanger>GetCurrHitPoints())) || iToDanger==INT_MAX)
 				OutputDebugString(CvString::format("%s %s moving into danger at %d,%d!\n", 
 					GET_PLAYER(getOwner()).getCivilizationAdjective(), getName().c_str(), iData1, iData2).c_str());
+		}
+
+		//if the target is not revealed, the pathfinder assumes it's passable although in fact it may be not
+		//it's acceptable to have such an "unknown invalid" target. otherwise take not of this.
+		if(!canMoveInto(*pToPlot,CvUnit::MOVEFLAG_DESTINATION) && pToPlot->isRevealed(getTeam()))
+		{
+			if (GC.getLogging() && GC.getAILogging())
+				OutputDebugString(CvString::format("Invalid target %d,%d for movement of %s %d",pToPlot->getX(),pToPlot->getY(),getName().c_str(),GetID()).c_str());
 		}
 	}
 #endif

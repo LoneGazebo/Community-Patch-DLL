@@ -4520,6 +4520,16 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 
 		m_pabPolicyBranchUnlocked[eBranchType] = bNewValue;
 	}
+
+	//if it's an ideology, remember the turn we first chose one
+	if (bNewValue && m_pPlayer->GetCulture()->GetTurnIdeologyAdopted()==-1)
+	{
+		PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM();
+		PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY();
+		PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER();
+		if (eFreedomBranch == eBranchType || eAutocracyBranch == eBranchType || eOrderBranch == eBranchType)
+			m_pPlayer->GetCulture()->SetTurnIdeologyAdopted(GC.getGame().getGameTurn());
+	}
 }
 
 /// Accessor: how many branches has this player unlocked?

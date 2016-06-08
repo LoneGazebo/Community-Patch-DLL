@@ -4411,7 +4411,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 							pCommonPlot = pCivilian->GetPathEndFirstTurnPlot();
 
 						ExecuteMoveToPlotIgnoreDanger(pEscort, pCommonPlot, bSaveMoves);
-						ExecuteMoveToPlotIgnoreDanger(pCivilian, pCommonPlot, bSaveMoves);
+						ExecuteMoveToPlotIgnoreDanger(pCivilian, pEscort->plot(), bSaveMoves);
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) with escort %s. escort leading.", 
@@ -4441,7 +4441,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 								pCommonPlot = pEscort->GetPathEndFirstTurnPlot();
 
 							ExecuteMoveToPlotIgnoreDanger(pEscort, pCommonPlot, bSaveMoves);
-							ExecuteMoveToPlotIgnoreDanger(pCivilian, pCommonPlot, bSaveMoves);
+							ExecuteMoveToPlotIgnoreDanger(pCivilian, pEscort->plot(), bSaveMoves);
 							if(GC.getLogging() && GC.getAILogging())
 							{
 								strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) with escort %s. Civilian leading.", 
@@ -7178,7 +7178,7 @@ void CvTacticalAI::ExecuteBarbarianCivilianEscortMove()
 	}
 }
 
-/// Move unit to protect a specific tile (retrieve unit from first entry in m_CurrentMoveUnits)
+/// Move unit to a specific tile (retrieve unit from first entry in m_CurrentMoveUnits)
 void CvTacticalAI::ExecuteMoveToPlotIgnoreDanger(CvPlot* pTarget, bool bSaveMoves)
 {
 	// Move first one to target
@@ -7189,7 +7189,7 @@ void CvTacticalAI::ExecuteMoveToPlotIgnoreDanger(CvPlot* pTarget, bool bSaveMove
 	}
 }
 
-/// Move unit to protect a specific tile (retrieve unit from first entry in m_CurrentMoveUnits)
+/// Move unit to a specific tile (unit passed explicitly)
 void CvTacticalAI::ExecuteMoveToPlotIgnoreDanger(UnitHandle pUnit, CvPlot* pTarget, bool bSaveMoves)
 {
 	if(!pUnit || !pTarget)
@@ -7214,20 +7214,9 @@ void CvTacticalAI::ExecuteMoveToPlotIgnoreDanger(UnitHandle pUnit, CvPlot* pTarg
 
 		//don't call finish moves, otherwise we won't heal!
 	}
-
 	else
 	{
-		if (pUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION ))
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
-		else
-		{
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				CvString strMsg;
-				strMsg.Format("Invalid target %d,%d for movement of unit %d",pTarget->getX(),pTarget->getY(),pUnit->GetID());
-				LogTacticalMessage(strMsg);
-			}
-		}
+		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
 
 		if(!bSaveMoves)
 		{
