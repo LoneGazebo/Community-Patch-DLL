@@ -939,7 +939,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 				}
 
 				//done for this turn
-				DeactivateHeadMission(hUnit,0);
+				hUnit->SetMissionTimer(0);
 			}
 			else
 			{
