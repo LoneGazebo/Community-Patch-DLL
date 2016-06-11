@@ -2578,7 +2578,7 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 			abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING" );
 			numAbilities = numAbilities + 1;
 		end
-		if tech.CorporationsEnabled then
+		if thisTech.CorporationsEnabled then
 			if numAbilities > 0 then
 				 abilitiesString = abilitiesString .. "[NEWLINE]";
 			end

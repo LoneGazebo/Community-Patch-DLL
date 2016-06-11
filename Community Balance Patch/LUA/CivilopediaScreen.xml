@@ -539,7 +539,7 @@
 			<Button Anchor="R,T" Size="32,32" Offset="36.6" TextureOffset="28,-3" Texture="CloseMinButtons.dds" ToolTip="TXT_KEY_ESC_TO_EXIT" ID="CloseButton" Hidden="0"/>"
 
 			<!-- Search -->
-			<GridButton Anchor="R,T" ID="SearchButton" Offset="36,-32" Size="38,38" Style="BaseButton" String="">
+			<GridButton Anchor="R,T" ID="SearchButton" Offset="-16,-32" Size="38,38" Style="BaseButton" String="">
 				<Image Anchor="C,C" Offset="0,0" Size="30,30" Texture="Civilopedia_SearchIcon.dds" ToolTip="TXT_KEY_SEARCH_BUTTON"/>
 				<Grid Anchor="L,C" AnchorSide="O.I" Offset="8,0" Size="150,32" Padding="0,0" Style="GridBlackIndent8" Hidden="0">
 					<Grid Anchor="C,C" Offset="0,0" Size="154,36" Padding="0,0" Style="Grid9Frame" Hidden="0">

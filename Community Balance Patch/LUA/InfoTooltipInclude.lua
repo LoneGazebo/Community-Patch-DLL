@@ -495,7 +495,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		end
 	end
 -- CBP
-	local iCorpGPChange = pBuildingInfo.CorporationGPChange;
+	local iCorpGPChange = pBuildingInfo.GPRateModifierPerXFranchises;
 	if iCorpGPChange ~=0 then
 		local localizedText = Locale.ConvertTextKey("TXT_KEY_PEDIA_CORP_GP_CHANGE", iCorpGPChange);
 		table.insert(lines, localizedText);
