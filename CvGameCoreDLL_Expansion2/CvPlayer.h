@@ -304,8 +304,7 @@ public:
 #endif
 
 	bool IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRouteType = ROUTE_ANY, bool bIgnoreHarbors = false, SPath* pPathOut = NULL);
-	bool IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestrictRouteType = ROUTE_ANY);
-	bool IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRouteType = ROUTE_ANY);
+	bool IsCapitalConnectedToPlayer(PlayerTypes ePlayer);
 
 	void findNewCapital();
 
@@ -2257,9 +2256,8 @@ public:
 	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK) const;
 	int GetPlotDanger(const CvPlot& Plot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL) const;
 	int GetPlotDanger(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
-	bool IsPlotUnderImmediateThreat(const CvPlot& Plot, const CvUnit* pUnit) const;
-	bool IsPlotUnderImmediateThreat(const CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
+
 	bool IsKnownAttacker(const CvUnit* pAttacker) const;
 	void AddKnownAttacker(const CvUnit* pAttacker);
 

@@ -312,17 +312,13 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		bMajorMinorConnection = true;
 	}
 
-	bool bIndustrialRoute = false;
-	if(GC.getGame().GetIndustrialRoute() == eRoute)
+	// if we already have a connection, bail out
+	bool bIndustrialRoute = (GC.getGame().GetIndustrialRoute() == eRoute);
+	if(bIndustrialRoute && pTargetCity->IsIndustrialRouteToCapitalConnected())
 	{
-		// if we already have a connection, bail out
-		if(pTargetCity->IsIndustrialRouteToCapitalConnected())
-		{
-			return;
-		}
-		bIndustrialRoute = true;
+		return;
 	}
-	else if(m_pPlayer->IsCapitalConnectedToCity(pTargetCity, eRoute))
+	else if(pTargetCity->IsConnectedToCapital())
 	{
 		return;
 	}

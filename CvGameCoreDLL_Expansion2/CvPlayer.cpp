@@ -10690,7 +10690,7 @@ bool CvPlayer::IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes 
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestrictRoute)
+bool CvPlayer::IsCapitalConnectedToPlayer(PlayerTypes ePlayer)
 {
 	// everybody needs to be alive!
 	if(!isAlive() || !(GET_PLAYER(ePlayer).isAlive()))
@@ -10704,45 +10704,13 @@ bool CvPlayer::IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestr
 		return false;
 	}
 
-	return IsCapitalConnectedToCity(pOtherPlayerCapital, eRestrictRoute);
-}
-
-//	---------------------------------------------------------------------------
-bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute)
-{
-	if (!pCity || eRestrictRoute==NO_ROUTE)
-		return false;
-
-	if(pCity->isCapital())
-	{
-		return true;
-	}
-
 	CvCity* pPlayerCapital = getCapitalCity();
 	if(pPlayerCapital == NULL)
 	{
 		return false;
 	}
 
-	CvCityConnections::CityConnectionTypes eConnection;
-
-	switch (eRestrictRoute)
-	{
-	case ROUTE_ROAD:
-		eConnection = CvCityConnections::CONNECTION_ANY_LAND; //railroad also counts as road!
-		break;
-	case ROUTE_RAILROAD:
-		eConnection = CvCityConnections::CONNECTION_RAILROAD;
-		break;
-	case ROUTE_ANY:
-		eConnection = CvCityConnections::CONNECTION_ANY; //this includes habors
-		break;
-	default:
-		return false;
-	}
-
-	return GetCityConnections()->AreCitiesConnected(pPlayerCapital,pCity,eConnection);
-
+	return IsPlotConnectedToPlot(m_eID, pPlayerCapital->plot(), pOtherPlayerCapital->plot());
 }
 
 //	--------------------------------------------------------------------------------
@@ -20305,7 +20273,7 @@ void CvPlayer::DoUpdateCityConnectionHappiness()
 			{
 				if(pLoopCity != pCapitalCity)
 				{
-					if(GetTreasury()->HasCityConnectionRouteBetweenCities(pCapitalCity, pLoopCity))
+					if(pLoopCity->IsConnectedToCapital())
 					{
 						iNumCities++;
 					}
@@ -39223,18 +39191,6 @@ int CvPlayer::GetPlotDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pP
 int CvPlayer::GetPlotDanger(const CvPlot& pPlot, PlayerTypes ePlayer) const
 {
 	return m_pDangerPlots->GetDanger(pPlot, ePlayer == NO_PLAYER ? GetID() : ePlayer );
-}
-
-//	--------------------------------------------------------------------------------
-bool CvPlayer::IsPlotUnderImmediateThreat(const CvPlot& pPlot, PlayerTypes ePlayer) const
-{
-	return m_pDangerPlots->IsUnderImmediateThreat(pPlot, ePlayer == NO_PLAYER ? GetID() : ePlayer );
-}
-
-//	--------------------------------------------------------------------------------
-bool CvPlayer::IsPlotUnderImmediateThreat(const CvPlot& pPlot, const CvUnit* pUnit) const
-{
-	return m_pDangerPlots->IsUnderImmediateThreat(pPlot, pUnit);
 }
 
 std::vector<CvUnit*> CvPlayer::GetPossibleAttackers(const CvPlot& Plot) const

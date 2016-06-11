@@ -1840,10 +1840,10 @@ int CvLuaPlayer::lSetNumWondersBeatenTo(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsCapitalConnectedToCity(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
+	//CvPlayerAI* pkPlayer = GetInstance(L);
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
 
-	const bool bResult = pkPlayer->IsCapitalConnectedToCity(pkCity);
+	const bool bResult = pkCity->IsConnectedToCapital();
 	lua_pushboolean(L, bResult);
 	return 1;
 }

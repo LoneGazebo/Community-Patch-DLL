@@ -121,11 +121,11 @@ void CvCityConnections::Write(FDataStream& kStream) const
 	}
 
 	kStream << m_connectionState.size();
-	for (ConnectionStore::const_iterator it=m_connectionState.begin(); it!=m_connectionState.end(); ++it)
+	for (AllCityConnectionStore::const_iterator it=m_connectionState.begin(); it!=m_connectionState.end(); ++it)
 	{
 		kStream << it->first;
 		kStream << it->second.size();
-		for (ConnectionStore::value_type::second_type::const_iterator it2=it->second.begin(); it2!=it->second.end(); ++it2)
+		for (AllCityConnectionStore::value_type::second_type::const_iterator it2=it->second.begin(); it2!=it->second.end(); ++it2)
 		{
 			kStream << it2->first;
 			kStream << it2->second;
@@ -199,20 +199,29 @@ CvCityConnections::CityConnectionTypes CvCityConnections::GetConnectionState(con
 	if (pCityA==pCityB)
 		return CONNECTION_NONE;
 	
-	ConnectionStore::const_iterator it1 = m_connectionState.find(pCityA->GetID());
+	AllCityConnectionStore::const_iterator it1 = m_connectionState.find(pCityA->GetID());
 	if (it1==m_connectionState.end())
 		return CONNECTION_NONE;
 	
-	ConnectionStore::value_type::second_type::const_iterator it2 = it1->second.find(pCityB->GetID());
+	AllCityConnectionStore::value_type::second_type::const_iterator it2 = it1->second.find(pCityB->GetID());
 	if (it2==it1->second.end())
 		return CONNECTION_NONE;
 
 	return it2->second;
 }
 
-bool CvCityConnections::AreCitiesConnected(const CvCity * pCityA, const CvCity * pCityB, CityConnectionTypes eConnectionType) const
+bool CvCityConnections::AreCitiesDirectlyConnected(const CvCity * pCityA, const CvCity * pCityB, CityConnectionTypes eConnectionType) const
 {
 	return (GetConnectionState(pCityA,pCityB) & eConnectionType) > 0;
+}
+
+CvCityConnections::SingleCityConnectionStore CvCityConnections::GetDirectConnectionsFromCity(const CvCity* pOrigin) const
+{
+	AllCityConnectionStore::const_iterator it = m_connectionState.find(pOrigin->GetID());
+	if (it!=m_connectionState.end())
+		return it->second;
+
+	return SingleCityConnectionStore();
 }
 
 void CvCityConnections::UpdateRouteInfo(void)
@@ -267,7 +276,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 		}
 
 		//start with an empty map
-		std::map<int,CityConnectionTypes> localConnections;
+		SingleCityConnectionStore localConnections;
 
 		for (ReachablePlots::iterator it = roadPlots.begin(); it != roadPlots.end(); ++it)
 		{
@@ -278,7 +287,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 				if (pEndCity->IsBlockaded(false))
 					continue;
 				
-				std::map<int,CityConnectionTypes>::iterator lala = localConnections.find(pEndCity->GetID());
+				SingleCityConnectionStore::iterator lala = localConnections.find(pEndCity->GetID());
 				if ( lala == localConnections.end() )
 					localConnections.insert( std::make_pair(pEndCity->GetID(),CONNECTION_NONE) );
 
@@ -297,7 +306,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 				if (pEndCity->IsBlockaded(false))
 					continue;
 				
-				std::map<int,CityConnectionTypes>::iterator lala = localConnections.find(pEndCity->GetID());
+				SingleCityConnectionStore::iterator lala = localConnections.find(pEndCity->GetID());
 				if ( lala == localConnections.end() )
 					localConnections.insert( std::make_pair(pEndCity->GetID(),CONNECTION_NONE) );
 
@@ -323,7 +332,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 				if (!bEndCityAllowsWater || pEndCity->IsBlockaded(true))
 					continue;
 				
-				std::map<int,CityConnectionTypes>::iterator lala = localConnections.find(pEndCity->GetID());
+				SingleCityConnectionStore::iterator lala = localConnections.find(pEndCity->GetID());
 				if ( lala == localConnections.end() )
 					localConnections.insert( std::make_pair(pEndCity->GetID(),CONNECTION_NONE) );
 
@@ -348,13 +357,13 @@ void CvCityConnections::UpdateRouteInfo(void)
 				continue;
 
 			bool bLuaRouteFound = false;
-			if (!AreCitiesConnected(pCityA,pCityB,CONNECTION_ANY_LAND) && bCallDirectEvents)
+			if (!AreCitiesDirectlyConnected(pCityA,pCityB,CONNECTION_ANY_LAND) && bCallDirectEvents)
 			{
 				// Event to determine if connected by an alternative direct route type
 				bLuaRouteFound = (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pCityA->getX(), pCityA->getY(), pCityB->getX(), pCityB->getY(), true) == GAMEEVENTRETURN_TRUE);
 			}
 
-			if (!AreCitiesConnected(pCityA,pCityB,CONNECTION_HARBOR) && bCallIndirectEvents)
+			if (!AreCitiesDirectlyConnected(pCityA,pCityB,CONNECTION_HARBOR) && bCallIndirectEvents)
 			{
 				// Event to determine if connected by an alternative indirect route type
 				bLuaRouteFound = (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pCityA->getX(), pCityA->getY(), pCityB->getX(), pCityB->getY(), false) == GAMEEVENTRETURN_TRUE);
@@ -362,8 +371,8 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 			if (bLuaRouteFound)
 			{
-				ConnectionStore::iterator it = m_connectionState.find(pCityA->GetID());
-				std::map<int,CityConnectionTypes> localConnections;
+				AllCityConnectionStore::iterator it = m_connectionState.find(pCityA->GetID());
+				SingleCityConnectionStore localConnections;
 				if (it!=m_connectionState.end())
 					localConnections = it->second;
 

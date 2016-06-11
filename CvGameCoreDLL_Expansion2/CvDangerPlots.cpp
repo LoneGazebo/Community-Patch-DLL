@@ -330,30 +330,6 @@ int CvDangerPlots::GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, AirAction
 	return m_DangerPlots[idx].GetDanger(NO_PLAYER);
 }
 
-/// Returns if the tile is in danger
-bool CvDangerPlots::IsUnderImmediateThreat(const CvPlot& pPlot, PlayerTypes ePlayer)
-{
-	if(!m_bArrayAllocated)
-		return 0;
-
-	const int idx = pPlot.getX() + pPlot.getY() * GC.getMap().getGridWidth();
-	return m_DangerPlots[idx].IsUnderImmediateThreat(ePlayer);
-}
-
-/// Returns if the unit is in immediate danger
-bool CvDangerPlots::IsUnderImmediateThreat(const CvPlot& pPlot, const CvUnit* pUnit)
-{
-	if(!m_bArrayAllocated)
-		return 0;
-
-	const int idx = pPlot.getX() + pPlot.getY() * GC.getMap().getGridWidth();
-	if (pUnit)
-	{
-		return m_DangerPlots[idx].GetDanger(pUnit) > 0;
-	}
-	return m_DangerPlots[idx].GetDanger(NO_PLAYER);
-}
-
 std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(const CvPlot& Plot) const
 {
 	if(!m_bArrayAllocated)
@@ -1086,102 +1062,6 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 
 	//done
 	return iPlotDamage;
-}
-
-// Can this tile be attacked by an enemy unit or city next turn?
-bool CvDangerPlotContents::IsUnderImmediateThreat(PlayerTypes ePlayer)
-{
-	if (!m_pPlot)
-		return false;
-
-	// Terrain damage
-	if (m_bFlatPlotDamage)
-		return true;
-
-	// Cities in range
-	for (DangerCityVector::iterator it = m_apCities.begin(); it < m_apCities.end(); ++it)
-	{
-		CvCity* pCity = GET_PLAYER(it->first).getCity(it->second);
-
-		if (pCity && pCity->getTeam() != GET_PLAYER(ePlayer).getTeam())
-		{
-			return true;
-		}
-	}
-
-	// Units in range
-	for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
-	{
-		CvUnit* pUnit = GET_PLAYER(it->first).getUnit(it->second);
-
-		if (pUnit && !pUnit->isDelayedDeath() && !pUnit->IsDead())
-		{
-			return true;
-		}
-	}
-
-	// Citadel etc in range
-	if (GetDamageFromFeatures(ePlayer) > 0)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-// Can this tile be attacked by an enemy unit or city next turn?
-bool CvDangerPlotContents::IsUnderImmediateThreat(const CvUnit* pUnit)
-{
-	if (!m_pPlot || !pUnit)
-		return false;
-
-	// Air units operate off of intercepts instead of units/cities that can attack them
-	if (pUnit->getDomainType() == DOMAIN_AIR)
-	{
-		if (pUnit->GetBestInterceptor(*m_pPlot))
-		{
-			return true;
-		}
-	}
-	else
-	{
-		// Cities in range
-		for (DangerCityVector::iterator it = m_apCities.begin(); it < m_apCities.end(); ++it)
-		{
-			CvCity* pCity = GET_PLAYER(it->first).getCity(it->second);
-
-			if (pCity && pCity->getTeam() != pUnit->getTeam())
-			{
-				return true;
-			}
-		}
-
-		// Units in range
-		for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
-		{
-			CvUnit* pUnit = GET_PLAYER(it->first).getUnit(it->second);
-			if (pUnit && !pUnit->isDelayedDeath() && !pUnit->IsDead())
-			{
-				return true;
-			}
-		}
-
-		// Citadel etc in range
-		if (GetDamageFromFeatures(pUnit->getOwner()) > 0)
-		{
-			return true;
-		}
-	}
-
-	// Terrain damage is greater than heal rate
-	int iMinimumDamage = m_bFlatPlotDamage ? m_pPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()) : 0;
-
-	if (pUnit->canHeal(m_pPlot))
-	{
-		iMinimumDamage -= pUnit->healRate(m_pPlot);
-	}
-
-	return (iMinimumDamage > 0);
 }
 
 // Get the maximum damage city could receive this turn if it were in this plot

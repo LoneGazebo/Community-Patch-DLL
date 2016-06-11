@@ -3534,7 +3534,8 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 			AI_PERF_FORMAT("Homeland-ExecuteWorkerMoves-perf.csv", ("ExecuteWorkerMoves, Turn %03d, %s, Unit %d, at x=%d, y=%d", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription(), pUnit->GetID(), pUnit->getX(), pUnit->getY()) );
 
-			if(pPlot && m_pPlayer->IsPlotUnderImmediateThreat(*pPlot) && !pPlot->getBestDefender(m_pPlayer->GetID()))
+			//fallout also counts as danger, so set the threshold a bit higher
+			if(pPlot && pUnit->GetDanger(pPlot)>pUnit->GetCurrHitPoints()/2 && !pPlot->getBestDefender(m_pPlayer->GetID()))
 			{
 #if defined(MOD_AI_SECONDARY_WORKERS)
 				if(MoveCivilianToSafety(pUnit.pointer(), false, bSecondary))
