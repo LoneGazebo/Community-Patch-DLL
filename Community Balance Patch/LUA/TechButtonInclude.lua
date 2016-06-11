@@ -451,7 +451,6 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_ENABLES_CORPORATIONS" ) );
 			buttonNum = buttonNum + 1;
 		end
-<<<<<<< HEAD
 		for thisCorpInfo in GameInfo.Corporations do
  			-- if this tech grants this player the ability to build this corp
 			local buttonName = "B"..tostring(buttonNum);
@@ -461,8 +460,6 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
  				buttonNum = buttonNum + 1;
  			end
 		end
-=======
->>>>>>> origin/master
 	end
 
 	for row in GameInfo.Tech_SpecialistYieldChanges(condition) do

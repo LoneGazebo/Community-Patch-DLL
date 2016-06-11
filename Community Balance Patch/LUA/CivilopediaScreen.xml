@@ -715,29 +715,6 @@
 					</Grid>
 					<!-- CBP END -->
 					<Stack Anchor="L,T" Offset="440,0" Size="64,64" StackGrowth="Bottom" Padding="12" ID="FFTextStack"/>
-					<!-- CBP -->
-					<!-- Resource Bonus -->
-					<Grid Anchor="R,T" Offset="0,24" Size="436,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CorporationResourceBonusFrame">
-						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_CORPORATION_RESOURCE_BONUS_LABEL"/>
-						<Grid Anchor="C,C" Offset="0,0" Size="440,204" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="CorpResourceBonusInnerFrame">
-							<Label Anchor="L,T" Offset="15,15" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="CorporationResourceBonusLabel"/>
-						</Grid>
-					</Grid>
-					<!-- Office Bonus -->
-					<Grid Anchor="R,T" Offset="0,24" Size="436,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CorporationOfficeBonusFrame">
-						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_CORPORATION_OFFICE_BONUS_LABEL"/>
-						<Grid Anchor="C,C" Offset="0,0" Size="440,204" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="CorpOfficeBonusInnerFrame">
-							<Label Anchor="L,T" Offset="15,15" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="CorporationOfficeBonusLabel"/>
-						</Grid>
-					</Grid>
-					<!-- Trade Route Bonus -->
-					<Grid Anchor="R,T" Offset="0,24" Size="436,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CorporationTRBonusFrame">
-						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_CORPORATION_TRADE_ROUTE_BONUS_LABEL"/>
-						<Grid Anchor="C,C" Offset="0,0" Size="440,204" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="CorporationTRBonusInnerFrame">
-							<Label Anchor="L,T" Offset="15,15" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="CorporationTRBonusLabel"/>
-						</Grid>
-					</Grid>
-					<!-- CBP END -->
 					<!-- Designer's Notes -->
 					<Grid Anchor="R,T" Offset="0,24" Size="436,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="DNotesFrame">
 						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_DNOTES_LABEL"/>
