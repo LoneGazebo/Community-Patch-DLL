@@ -2578,7 +2578,11 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 			abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING" );
 			numAbilities = numAbilities + 1;
 		end
+<<<<<<< HEAD
 		if tech.CorporationsEnabled then
+=======
+		if thisTech.CorporationsEnabled then
+>>>>>>> origin/master
 			if numAbilities > 0 then
 				 abilitiesString = abilitiesString .. "[NEWLINE]";
 			end
@@ -3190,6 +3194,31 @@ function SelectBuildingOrWonderArticle( buildingID )
 			Controls.MaintenanceLabel:SetText( tostring(perTurnCost).." [ICON_GOLD]" );
 			Controls.MaintenanceFrame:SetHide( false );
 		end
+		
+		-- update the Corporation (if exists) - CBP
+		-- loop through Corporations, find any that apply to this
+		for row in GameInfo.Corporations() do
+			-- our building class
+			local buildingClass = GameInfo.BuildingClasses[thisBuilding.BuildingClass];
+			if buildingClass then
+				-- HQ, office, or franchise of a corporation?
+				if (row.HeadquartersBuildingClass == buildingClass.Type or row.OfficeBuildingClass == buildingClass.Type or row.FranchiseBuildingClass == buildingClass.Type) then
+					local thisCorporationInstance = g_CorporationsManager:GetInstance();
+					if thisCorporationInstance then
+						local textureOffset, textureSheet = IconLookup( row.PortraitIndex, buttonSize, row.IconAtlas );				
+						if textureOffset == nil then
+							textureSheet = defaultErrorTextureSheet;
+							textureOffset = nullOffset;
+						end				
+						UpdateSmallButton( 0, thisCorporationInstance.CorporationImage, thisCorporationInstance.CorporationButton, textureSheet, textureOffset, CategoryCorporations, Locale.ConvertTextKey( row.Description ), row.ID );
+						
+						-- find the first one
+						break;
+					end
+				end
+			end
+		end
+		UpdateButtonFrame( 1, Controls.CorporationInnerFrame, Controls.CorporationFrame );
 
 		-- update the Corporation (if exists) - CBP
 		-- loop through Corporations, find any that apply to this
