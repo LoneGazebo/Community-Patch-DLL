@@ -298,15 +298,15 @@ function RefreshWorldFranchises()
 		local pLoopPlayer = Players[iPlayerLoop];
 		if( pLoopPlayer:IsEverAlive() and pLoopPlayer:IsAlive() ) then
 			for city in pLoopPlayer:Cities() do
-				for iCorpOwner=0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+				for eFromPlayer=0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
 					-- City has this franchise?
-					if( city:IsFranchised(iCorpOwner) ) then
-						local eFromPlayer = Players[iCorpOwner];
+					if( city:IsFranchised(eFromPlayer) ) then
+						local pFromPlayer = Players[eFromPlayer];
 						local pCorporation = nil;
 
 						local szCorporationString = "Undefined";
 
-						local eFromCorporation = Players[eFromPlayer]:GetCorporation();
+						local eFromCorporation = pFromPlayer:GetCorporation();
 						if(eFromCorporation ~= -1) then
 							pCorporation = GameInfo.Corporations[eFromCorporation];
 							szCorporationString = Locale.ConvertTextKey(pCorporation.Description);
