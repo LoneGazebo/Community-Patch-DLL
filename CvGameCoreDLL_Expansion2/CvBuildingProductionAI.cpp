@@ -275,7 +275,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 		if(isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
 		{
-			if(kBuildingClassInfo.getMaxPlayerInstances() <= 1)
+			if(kBuildingClassInfo.getMaxPlayerInstances() == 1)
 			{
 				return 0;
 			}
@@ -765,10 +765,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	/////////////////////
 	if(pkBuildingInfo->GetGoldMaintenance() > 0)
 	{
-		iBonus /= pkBuildingInfo->GetGoldMaintenance();
+		iBonus -= (pkBuildingInfo->GetGoldMaintenance() * 10);
 		if(m_pCity->IsPuppet())
 		{
-			iBonus /= max(2, (pkBuildingInfo->GetGoldMaintenance() * 2));
+			iBonus -= (pkBuildingInfo->GetGoldMaintenance() * 10);
 		}
 	}
 

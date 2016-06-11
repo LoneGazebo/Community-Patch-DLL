@@ -1273,7 +1273,10 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 		{
 			bool bCanDie = false;
 			int iSpyResult = 0;
-			iSpyResult = GC.getGame().getJonRandNum(110, "Random roll for the result of an advanced spy action");
+			iSpyResult = GC.getGame().getJonRandNum(125, "Random roll for the result of an advanced spy action");
+
+			iSpyResult += GC.getGame().getJonRandNum((pCity->GetEspionageModifier() / 4), "Random roll for the result of an advanced spy action");
+			iSpyResult += GC.getGame().getJonRandNum((GET_PLAYER(eCityOwner).GetEspionageModifier() / 4), "Random roll for the result of an advanced spy action");
 
 			//Subtract City value (higher value targets are easier to hit)
 			iSpyResult -= iCityValue;
@@ -1282,7 +1285,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 			{			
 				int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
 				
-				iSpyResult += (GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank + 1) * 20;
+				iSpyResult += (GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank + 1) * 50;
 
 				int iHeat = 2 - GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank;
 

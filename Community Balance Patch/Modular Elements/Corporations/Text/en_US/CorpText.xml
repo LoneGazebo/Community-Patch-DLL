@@ -180,6 +180,13 @@
 		</Row>
 
 		<!-- Notifications-->
+		<Row Tag="TXT_KEY_TECH_CORP_ENABLED">
+			<Text>It is now possible to found a Corporation! Check the [COLOR_POSITIVE_TEXT]Corporations and Monopolies[ENDCOLOR] screen for information on your current Resource Monopolies, all possible Corporations, and the Corporations that you are eligible for.[NEWLINE][NEWLINE]Construct the Corporation's HQ in one of your Cities to found it! Remember that you can only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make it count!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_CORP_ENABLED_S">
+			<Text>Corporations Enabled!</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_CORPORATION_FOUNDED">
 			<Text>You have founded [COLOR_POSITIVE_TEXT]{@1_CorporationName}[ENDCOLOR]! To spread your new Corporation far and wide, build Corporate Offices in owned Cities and send [ICON_INTERNATIONAL_TRADE] Trade Routes from these Cities to foreign Cities!</Text>
 		</Row>
@@ -258,7 +265,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CULTURE_FROM_CORPORATION">
-			<Text>+{1_Num}% [ICON_CULTURE] for Corporation: {1_Num}%</Text>
+			<Text>+{1_Num}% [ICON_CULTURE] from Corporation</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_CORPORATION_MODIFIER_SCIENCE">
@@ -373,8 +380,29 @@
 		<Row Tag="TXT_KEY_TECH_CORPORATIONS_HELP">
 			<Text>Allows you to found [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR], which are powerful late-game institutions that greatly enhance your Trade Routes and global power if you invest in their expansion.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_TECH_CORPORATIONS_QUOTE">
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"Merchandising, merchandising, where the real money from the movie is made."[NEWLINE][TAB][TAB]  - Yogurt[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_TRADER_SIDS">
+			<Text>[NEWLINE][TAB][TAB]"Merchandising, merchandising, where the real money from the movie is made."[NEWLINE][TAB][TAB]  - Yogurt[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_LANDSEA">
+			<Text>[NEWLINE][TAB][TAB]"Lesson number one: Don't underestimate the other guy’s greed."[NEWLINE][TAB][TAB]  - Frank Lopez[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_HEXXON">
+			<Text>[NEWLINE][TAB][TAB]"I just want to say one word to you. Just one word: Plastics."[NEWLINE][TAB][TAB]  - Mr. McGuire[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_GA">
+			<Text>[NEWLINE][TAB][TAB]"Hey! I don’t have to put up with this! I'm rich!”[NEWLINE][TAB][TAB]  - Princess Vespa[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_FIRAXITE">
 			<Text>[NEWLINE][TAB][TAB]"The point is ladies and gentlemen that greed, for lack of a better word, is good."[NEWLINE][TAB][TAB]  - Gordon Gekko[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_TWOKAY">
+			<Text>[NEWLINE][TAB][TAB]"I'm washing lettuce. Soon, I'll be on fries. In a few years, I'll make assistant manager, and that's when the big bucks start rolling in."[NEWLINE][TAB][TAB]  - Maurice[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_CIVILIZED">
+			<Text>[NEWLINE][TAB][TAB]"'Oh, uh, there won't be any money. But when you die, on your deathbed, you will receive total consciousness.' So I got that goin' for me, which is nice."[NEWLINE][TAB][TAB]  - Carl[NEWLINE][TAB]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION_HELP">
@@ -472,61 +500,61 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS">
-			<Text>LandSea Extractors, Inc.</Text>
+			<Text>Centaurus Extractors, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS_HELP">
 			<Text>Provides benefits geared toward [ICON_PRODUCTION] Production generation. Harbors and Seaports in all Cities produce +2 [ICON_FOOD] Food and +2 [ICON_RESEARCH] Science.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_LANDSEA_EXTRACTORS">
-			<Text>[ICON_RES_HORSE] Horses, [ICON_RES_WHALE] Whales, [ICON_RES_CRAB] Crab, [ICON_RES_IVORY] Ivory provide +2 [ICON_PRODUCTION] Production in cities with LandSea Extractors HQ and Office.</Text>
+			<Text>[ICON_RES_HORSE] Horses, [ICON_RES_WHALE] Whales, [ICON_RES_CRAB] Crab, [ICON_RES_IVORY] Ivory provide +2 [ICON_PRODUCTION] Production in cities with Centaurus Extractors HQ and Office.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_LANDSEA_EXTRACTORS">
 			<Text>+3 [ICON_PRODUCTION] Production for every Global Franchise.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_LANDSEA_EXTRACTORS">
-			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a LandSea Extractors Franchise grant +10% [ICON_RESEARCH] Science rate in the origin City.</Text>
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Centaurus Extractors Franchise grant +10% [ICON_RESEARCH] Science rate in the origin City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS_OFFICE_BENEFIT_HELP">
 			<Text>Current Office Bonus: +{1_Num} [ICON_PRODUCTION] Production.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ">
-			<Text>LandSea Extractors Headquarters</Text>
+			<Text>Centaurus Extractors Headquarters</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_LANDSEA_EXTRACTORS_HQ_TEXT">
 			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ_STRATEGY">
-			<Text>Construct this building in one of your cities to found the LandSea Extractor's Corporation, focused around increasing you empire's [ICON_PRODUCTION] Production. Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+			<Text>Construct this building in one of your cities to found the Centaurus Extractor's Corporation, focused around increasing you empire's [ICON_PRODUCTION] Production. Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ_HELP">
-			<Text>Founds the LandSea Extractors Corporation.[NEWLINE][NEWLINE]Grants a free LandSea Extractors Office in this City, and unlocks construction of LandSea Extractors Offices in owned Cities.</Text>
+			<Text>Founds the Centaurus Extractors Corporation.[NEWLINE][NEWLINE]Grants a free Centaurus Extractors Office in this City, and unlocks construction of Centaurus Extractors Offices in owned Cities.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE">
-			<Text>LandSea Extractors</Text>
+			<Text>Centaurus Extractors</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE_TEXT">
 			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE_STRATEGY">
-			<Text>This building can only be constructed in Foreign Cities if you were the founder of LandSea Extractors. To construct this building in a foreign City, send a Trade Route from an owned City with a LandSea Extractors Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
+			<Text>This building can only be constructed in Foreign Cities if you were the founder of Centaurus Extractors. To construct this building in a foreign City, send a Trade Route from an owned City with a Centaurus Extractors Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE_HELP">
-			<Text>+1 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with LandSea Extractors. Generates revenue for LandSea Extractors Offices in the founding Civilization's Cities.</Text>
+			<Text>+1 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with Centaurus Extractors. Generates revenue for Centaurus Extractors Offices in the founding Civilization's Cities.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS">
-			<Text>LandSea Extractors Office</Text>
+			<Text>Centaurus Extractors Office</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDING_LANDSEA_EXTRACTORS_TEXT">
 			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_STRATEGY">
-			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a LandSea Extractors Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]LandSea Extractors cannot be sold or destroyed by the player, and increases the [ICON_PRODUCTION] Production output of all LandSea Extractors Offices by +3.[NEWLINE][NEWLINE]You cannot have more Franchises than the maximum of possible [ICON_INTERNATIONAL_TRADE] Trade Routes supported by your empire.</Text>
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Centaurus Extractors Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Centaurus Extractors cannot be sold or destroyed by the player, and increases the [ICON_PRODUCTION] Production output of all Centaurus Extractors Offices by +3.[NEWLINE][NEWLINE]You cannot have more Franchises than the maximum of possible [ICON_INTERNATIONAL_TRADE] Trade Routes supported by your empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HELP">
-			<Text>+2 [ICON_PRODUCTION] Production on all Monopoly Resources associated with LandSea Extractors. +3 [ICON_PRODUCTION] Production for every LandSea Extractors Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a LandSea Extractors Franchise increases this City's [ICON_RESEARCH] Science rate by +10%.</Text>
+			<Text>+2 [ICON_PRODUCTION] Production on all Monopoly Resources associated with Centaurus Extractors. +3 [ICON_PRODUCTION] Production for every Centaurus Extractors Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Centaurus Extractors Franchise increases this City's [ICON_RESEARCH] Science rate by +10%.</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_CORPORATION_HEXXON_REFINERY">
@@ -539,7 +567,7 @@
 			<Text>+1 additional [ICON_RES_OIL] Oil and [ICON_RES_COAL] Coal for every three Global Franchises.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_HEXXON_REFINERY">
-			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Hexxon Refinery Franchise grant +15% [ICON_PRODUCTION] Production. [ICON_INTERNATIONAL_TRADE] Trade Routes move at double speed.</Text>
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Hexxon Refinery Franchise grant +15% [ICON_PRODUCTION] Production in origin City. [ICON_INTERNATIONAL_TRADE] Trade Routes move at double speed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_HEXXON_REFINERY_OFFICE_BENEFIT_HELP">
 			<Text>Current Office Bonus: +{1_Num} [ICON_RES_OIL] Oil and [ICON_RES_COAL] Coal.</Text>
@@ -811,10 +839,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HELP">
 			<Text>+5% [ICON_GREAT_PEOPLE] Great Person rate in City, and an additional +5% for every Civilized Jeweler's Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Civilized Jewelers Franchise increases this City's [ICON_GOLD] Gold rate by +10%.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_ABLTY_ENABLES_CORPORATIONS">
-			<Text>Enables Corporations to be founded.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

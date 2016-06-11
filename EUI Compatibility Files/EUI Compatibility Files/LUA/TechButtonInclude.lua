@@ -18,6 +18,9 @@ local GetHelpTextForBuilding = EUI.GetHelpTextForBuilding
 local GetHelpTextForImprovement = EUI.GetHelpTextForImprovement
 local GetHelpTextForProject = EUI.GetHelpTextForProject
 local GetHelpTextForPlayerPerk = EUI.GetHelpTextForPlayerPerk -- BE only
+--CBP
+local GetHelpTextForCorp = EUI.GetHelpTextForCorp
+--END
 
 local civ5_mode = type( MouseOverStrategicViewResource ) == "function"
 local civBE_mode = type( Game.GetAvailableBeliefs ) == "function"
@@ -252,6 +255,19 @@ function AdjustArtOnGrantedProjectButton( button, row, textureSize )
 	return adjustArtOnButton( projectToolTip, button, row, textureSize, row.PortraitIndex, row.IconAtlas )
 end
 local AdjustArtOnGrantedProjectButton = AdjustArtOnGrantedProjectButton
+
+-- CORP
+local function corpToolTip( techID, void2, button )
+
+	return button:SetToolTipString( GetHelpTextForCorp( g_buttonItemInfo[tostring(button)].ID, true ) )
+end
+
+function AdjustArtOnGrantedCorpButton( button, row, textureSize )
+
+	return adjustArtOnButton( corpToolTip, button, row, textureSize, row.PortraitIndex, row.IconAtlas )
+end
+local AdjustArtOnGrantedCorpButton = AdjustArtOnGrantedCorpButton
+--END
 
 local function resourceToolTip( techID, void2, button )
 
@@ -625,6 +641,15 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 		if tech.CityNoEmbarkCost then
 			addSmallActionButton( GameInfo.Missions.MISSION_EMBARK, "", "TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING" )
+		end
+
+		if tech.CorporationsEnabled then
+			addSmallActionButton( GameInfo.Missions.MISSION_BUY_CITY_STATE, "", "TXT_KEY_ABLTY_ENABLES_CORPORATIONS" )			
+			for row in GameInfo.Corporations() do
+				if not addSmallArtButton( AdjustArtOnGrantedCorpButton, row ) then
+					break
+				end
+			end
 		end
 
 		for row in GameInfo.Tech_SpecialistYieldChanges( thisTechType ) do

@@ -487,6 +487,19 @@ local function GetHelpTextForUnit( unitID ) -- isIncludeRequirementsInfo )
 	return AddPreWrittenHelpTextAndConcat( tips, unit )
 end
 
+-- ===========================================================================
+-- Help text for Corp
+-- ===========================================================================
+local function GetHelpTextForCorp( corpID )
+	local corp = GameInfo.Corporations[ corpID ]
+
+	-- Name
+	local tips = table( Locale_ToUpper( corp.Description ), "----------------" )
+
+	-- Pre-written Help text
+	return AddPreWrittenHelpTextAndConcat( tips, corp )
+end
+
 
 -------------------------------------------------
 -- Help text for Buildings
@@ -841,9 +854,11 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 
 -- CBP -- Global Average Modifiers
 	if(tips and Game and buildingID) then
-		local iCorpGPChange = building.CorporationGPChange;
-		if iCorpGPChange ~=0 then
-			tips:insert( L( "TXT_KEY_PEDIA_CORP_GP_CHANGE", iCorpGPChange))
+		if(city) then
+			local iCorpGPChange = city:GetGPRateModifierPerXFranchises();
+			if iCorpGPChange ~=0 then
+				tips:insert( L( "TXT_KEY_PEDIA_CORP_GP_CHANGE", iCorpGPChange))
+			end
 		end
 		
 		local iGetPovertyHappinessChangeBuilding = Game.GetPovertyHappinessChangeBuilding( buildingID)
@@ -1000,9 +1015,9 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 			tips:insertIf( resource and (row.Quantity or 0)~=0 and S("%s: %+i%s", L(resource.Description), row.Quantity, tostring(resource.IconString) ) )
 		end
 -- CBP
-		for row in GameInfo.Building_CorporationResourceQuantity( thisBuildingType ) do
+		for row in GameInfo.Building_ResourceQuantityPerXFranchises( thisBuildingType ) do
 			local resource = GameInfo.Resources[ row.ResourceType ]
-			local amount = city:GetCorporationResourceQuantity(resource)
+			local amount = city:GetResourceQuantityPerXFranchises(resource)
 			tips:insertIf( resource and (amount)~=0 and S("%s: %+i%s", L(resource.Description), tonumber(amount), tostring(resource.IconString) ) )
 		end
 -- END
@@ -2220,7 +2235,7 @@ local function GetCultureTooltip( city )
 -- CBP -- Resource Monopoly
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_RESOURCE_MONOPOLY", city:GetCityYieldModFromMonopoly(YieldTypes.YIELD_CULTURE))
 		
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_CORPORATION", city:GetCorporationYieldModChange(YieldTypes.YIELD_CULTURE))
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_CORPORATION", city:GetTradeRouteCityMod(YieldTypes.YIELD_CULTURE))
 -- END
 	end
 
@@ -3184,6 +3199,7 @@ function TT.GetYieldTooltipHelper( ... ) return select(2, pcall( GetYieldTooltip
 function TT.GetYieldTooltip( ... ) return select(2, pcall( GetYieldTooltip, ... ) ) end
 function TT.GetMoodInfo( ... ) return select(2, pcall( GetMoodInfo, ... ) ) end
 --CBP
+function TT.GetHelpTextForCorp( ... ) return select(2, pcall( GetHelpTextForCorp, ... ) ) end
 function TT.GetCityHappinessTooltip( ... ) return select(2, pcall( GetCityHappinessTooltip, ... ) ) end
 --END
 

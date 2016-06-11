@@ -258,8 +258,8 @@ bool CvCorporationEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	kUtility.PopulateArrayByExistence(m_piResourceMonopolyOrs, "Resources", "Corporation_ResourceMonopolyOrs", "ResourceType", "CorporationType", szCorporationType);
 	kUtility.PopulateArrayByValue(m_piNumFreeResource, "Resources", "Corporation_NumFreeResource", "ResourceType", "CorporationType", szCorporationType, "NumResource");
 	kUtility.PopulateArrayByValue(m_piUnitResourceProductionModifier, "Resources", "Corporation_UnitResourceProductionModifier", "ResourceType", "CorporationType", szCorporationType, "Modifier");
-	kUtility.SetYields(m_piTradeRouteMod, "Corporation_TradeRouteYieldMod", "CorporationType", szCorporationType);
-	kUtility.SetYields(m_piTradeRouteCityMod, "Corporation_TradeRouteCityYieldMod", "CorporationType", szCorporationType);
+	kUtility.SetYields(m_piTradeRouteMod, "Corporation_TradeRouteCityYield", "CorporationType", szCorporationType);
+	kUtility.SetYields(m_piTradeRouteCityMod, "Corporation_TradeRouteMod", "CorporationType", szCorporationType);
 
 	//BuildingClassYieldChanges
 	{

@@ -1194,6 +1194,28 @@ bool CvTeam::IsCorporationsEnabled() const
 }
 void CvTeam::changeCorporationsEnabledCount(int iChange)
 {
+	if(iChange > 0 && m_iCorporationsEnabledCount == 0)
+	{
+		PlayerTypes ePlayer;
+		for(int iI = 0; iI < MAX_PLAYERS; iI++)
+		{
+			ePlayer = (PlayerTypes) iI;
+
+			if(GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).GetNotifications())
+			{
+				// Players on team that declared
+				if(GET_PLAYER(ePlayer).getTeam() == GetID())
+				{
+					if(ePlayer == GC.getGame().getActivePlayer())
+					{
+						Localization::String strTemp = Localization::Lookup("TXT_KEY_TECH_CORP_ENABLED");
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_TECH_CORP_ENABLED_S");
+						GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_GENERIC, strTemp.toUTF8(), strSummary.toUTF8(), -1, -1, ePlayer);
+					}
+				}
+			}
+		}
+	}
 	m_iCorporationsEnabledCount = m_iCorporationsEnabledCount + iChange;
 	CvAssert(getCorporationsEnabledCount() >= 0);
 }
@@ -1417,41 +1439,41 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 					if(GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam))
 					{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
+						GET_TEAM(GetID()).DoDeclareWar(eOriginatingPlayer, false, (TeamTypes)iI, /*bDefensivePact*/ true);
 #else
-						GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
+						GET_TEAM(GetID()).DoDeclareWar((TeamTypes)iI, /*bDefensivePact*/ true);
 #endif
 					}
+				}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-					//Are we a vassal of the player DOW'd on?
-					else if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
-					{
+				//Are we a vassal of the player DOW'd on?
+				if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
+				{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
+					GET_TEAM(GetID()).DoDeclareWar(eOriginatingPlayer, false, (TeamTypes)iI, /*bDefensivePact*/ false);
 #else
-						GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
-#endif
-					}
-					//Are we the master of eTeam (should never happen, actually)?
-					else if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).GetMaster() == eTeam)
-					{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, GetID(), /*bDefensivePact*/ true);
-#else
-						GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
-#endif
-					}
-					//Are we a vassal of the player DOW'ing player?
-					else if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
-					{
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-						GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, eTeam, /*bDefensivePact*/ true);
-#else
-						GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ true);
-#endif
-					}
+					GET_TEAM(GetID()).DoDeclareWar((TeamTypes)iI, /*bDefensivePact*/ true);
 #endif
 				}
+				//Are we the master of eTeam (should never happen, actually)?
+				else if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).GetMaster() == eTeam)
+				{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+					GET_TEAM(GetID()).DoDeclareWar(eOriginatingPlayer, false, (TeamTypes)iI, /*bDefensivePact*/ false);
+#else
+					GET_TEAM(GetID()).DoDeclareWar((TeamTypes)iI, /*bDefensivePact*/ true);
+#endif
+				}
+				//Are we a vassal of the player DOW'ing player?
+				else if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
+				{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+					GET_TEAM(GetID()).DoDeclareWar(eOriginatingPlayer, false, (TeamTypes)iI, /*bDefensivePact*/ false);
+#else
+					GET_TEAM(GetID()).DoDeclareWar((TeamTypes)iI, /*bDefensivePact*/ true);
+#endif
+				}
+#endif
 			}
 		}
 	}

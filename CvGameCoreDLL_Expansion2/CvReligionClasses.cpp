@@ -2188,7 +2188,7 @@ bool CvGameReligions::IsEligibleForFounderBenefits(ReligionTypes eReligion, Play
 		pHolyCityPlot = GC.getMap().plot(religion->m_iHolyCityX, religion->m_iHolyCityY);
 
 #if defined(MOD_BALANCE_CORE)
-		if(religion->m_bPantheon)
+		if(religion->m_bPantheon && pHolyCityPlot == NULL)
 		{
 			if(religion->m_eFounder == ePlayer)
 			{		

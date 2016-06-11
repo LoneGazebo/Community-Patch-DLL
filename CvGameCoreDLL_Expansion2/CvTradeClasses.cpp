@@ -3175,23 +3175,9 @@ int CvPlayerTrade::GetTradeConnectionCorporationModifierTimes100(const TradeConn
 		}
 
 		// Do we have a building that grants a bonus toward cities with Franchises?
-		if (pDestCity->IsHasFranchise(eCorporation))
+		if (pDestCity->IsHasFranchise(eCorporation) && pOriginCity->IsHasOffice() && pkCorporationInfo->GetTradeRouteMod((int)eYield) > 0)
 		{
-			for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
-			{
-				const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-				if (pkBuildingInfo)
-				{
-					if (pkBuildingInfo->GetFranchiseTradeRouteYieldMod((int)eYield) > 0)
-					{
-						if (pOriginCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-						{
-							iModifier += pkBuildingInfo->GetFranchiseTradeRouteYieldMod((int)eYield);
-						}
-					}
-				}
-			}
+			iModifier += pkCorporationInfo->GetTradeRouteMod((int)eYield);
 		}
 	}
 	return iModifier;
@@ -5704,8 +5690,9 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 		}
 	}
 	int iDistance = kTradeConnection.m_aPlotList.size();
-	int iEra = m_pPlayer->GetCurrentEra();
-	iScore = ((iScore * (10 + iEra)) / max(1, (iDangerSum + iDistance)));
+	iDangerSum /= 100;
+	int iEra = m_pPlayer->GetCurrentEra() * 2; // More international trade late game, please.
+	iScore = ((iScore * (20 + iEra)) / max(1, (iDangerSum + iDistance)));
 #else
 	iScore = (iScore * 10) / iDangerSum;
 #endif
@@ -5772,7 +5759,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 				iScore *= m_pPlayer->GetEventTourismCS();
 			}
 		}
-		if(m_pPlayer->GetCorporations()->HasFoundedCorporation() && iScore > 0)
+		if(m_pPlayer->GetCorporations()->HasFoundedCorporation())
 		{
 			CorporationTypes eCorporation = m_pPlayer->GetCorporations()->GetFoundedCorporation();
 
@@ -5805,19 +5792,31 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 									int iGPYieldFromCorp = pOriginCity->GetGPRateModifierPerXFranchises();
 									if (iGPYieldFromCorp > 0)
 									{
-										iScore *= (iGPYieldFromCorp * 25);
+										iScore *= (iGPYieldFromCorp * 50);
 									}
-									//for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-									//{
-									//	int iYieldFromCorp = pOriginCity->GetCorporationYieldChange((YieldTypes)iYield);
-									//	if (iYieldFromCorp > 0)
-									//	{
-									//		iScore *= (iYieldFromCorp * 25);
-									//	}
-									//}
+									BuildingClassTypes eOffice = pkCorporationInfo->GetOfficeBuildingClass();
+									if(eOffice != NO_BUILDINGCLASS)
+									{
+										CvBuildingClassInfo* pInfo = GC.getBuildingClassInfo(eOffice);
+										if (pInfo)
+										{
+											BuildingTypes eOfficeBuilding = (BuildingTypes)GET_PLAYER(pOriginCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(eOffice);
+											if(eOfficeBuilding != NO_BUILDING)
+											{
+												CvBuildingEntry* pkBuildingInfo = GC.GetGameBuildings()->GetEntry(eOfficeBuilding);
+												for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+												{
+													if(pkBuildingInfo->GetYieldPerFranchise(iYield) > 0)
+													{
+														iScore *= (pkBuildingInfo->GetYieldPerFranchise(iYield) * 25);
+													}
+												}
+											}
+										}
+									}
 									if (m_pPlayer->GetCulture()->GetInfluenceLevel(pDestCity->getOwner()) >= INFLUENCE_LEVEL_POPULAR && m_pPlayer->GetCorporations()->IsCorporationFreeFranchiseAbovePopular())
 									{
-										iScore *= 50;
+										iScore *= 100;
 									}
 								}
 								//Franchised? Do we get a bonus for sending TRs here again?
@@ -5828,7 +5827,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 										int iYieldFromCorp = pOriginCity->GetTradeRouteCityMod((YieldTypes)iYield);
 										if (iYieldFromCorp > 0)
 										{
-											iScore *= (iYieldFromCorp * 15);
+											iScore *= (iYieldFromCorp * 50);
 										}
 									}
 
@@ -5838,7 +5837,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 										{
 											if (pkCorporationInfo->GetTradeRouteMod(iYield) > 0)
 											{
-												iScore *= (pkCorporationInfo->GetTradeRouteMod(iYield) * 15);
+												iScore *= (pkCorporationInfo->GetTradeRouteMod(iYield) * 50);
 											}
 										}
 									}
@@ -5852,7 +5851,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 								if (m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) == MAJOR_CIV_APPROACH_FRIENDLY ||
 									m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_OPINION_FAVORABLE)
 								{
-									iFranchises /= 5;
+									iFranchises /= 2;
 								}
 
 								iScore /= max(1, iFranchises);
@@ -5865,7 +5864,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	}
 	if(m_pPlayer->IsAtWar())
 	{
-		iScore /= max(4, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(true));
+		iScore /= max(2, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false));
 	}
 #endif
 	return iScore;

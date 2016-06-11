@@ -553,6 +553,11 @@ VALUES
 	('BUILDING_PAPER_MAKER', 'YIELD_SCIENCE', 1),
 	('BUILDING_DOJO', 'YIELD_SCIENCE', 3);
 
+INSERT INTO Building_LakePlotYieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_INDUS_CANAL', 'YIELD_FOOD', 1);
+
 INSERT INTO Building_Flavors
 	(BuildingType, FlavorType, Flavor)
 VALUES

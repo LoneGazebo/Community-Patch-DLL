@@ -332,7 +332,6 @@ CvCity::CvCity() :
 	, m_aiThemingYieldBonus("CvCity::m_aiThemingYieldBonus", m_syncArchive)
 	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiBaseYieldRateFromCSAlliance", m_syncArchive)
 	, m_aiBaseYieldRateFromCSFriendship("CvCity::m_aiBaseYieldRateFromCSFriendship", m_syncArchive)
-	, m_iGPRateModifierPerXFranchises("CvCity::m_iGPRateModifierPerXFranchises", m_syncArchive)
 	, m_aiResourceQuantityPerXFranchises("CvCity::m_aiResourceQuantityPerXFranchises", m_syncArchive)
 	, m_iLandTourismBonus("CvCity::m_iLandTourismBonus", m_syncArchive)
 	, m_iSeaTourismBonus("CvCity::m_iSeaTourismBonus", m_syncArchive)
@@ -1480,7 +1479,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE)	
 	m_aiBaseYieldRateFromCSFriendship.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRateFromCSAlliance.resize(NUM_YIELD_TYPES);
-	m_iGPRateModifierPerXFranchises = 0;
 #endif
 	m_aiYieldPerPop.resize(NUM_YIELD_TYPES);
 	m_aiYieldPerReligion.resize(NUM_YIELD_TYPES);
@@ -14786,9 +14784,10 @@ int CvCity::getGreatPeopleRateModifier() const
 	}
 
 	// Corporations: Great people rate modifier by number of franchises
-	if (GetGPRateModifierPerXFranchises() > 0)
+	int iGPRateCorp = GetGPRateModifierPerXFranchises();
+	if (iGPRateCorp > 0)
 	{
-		iNewValue += GetGPRateModifierPerXFranchises() * GET_PLAYER(getOwner()).GetCorporations()->GetNumFranchises();
+		iNewValue += iGPRateCorp;
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -20711,26 +20710,36 @@ int CvCity::GetTradeRouteCityMod(YieldTypes eIndex) const
 
 int CvCity::GetGPRateModifierPerXFranchises() const
 {
-	VALIDATE_OBJECT
-	return m_iGPRateModifierPerXFranchises;
-}
+	CorporationTypes eCorporation = GET_PLAYER(getOwner()).GetCorporations()->GetFoundedCorporation();
+	if (eCorporation == NO_CORPORATION)
+		return false;
 
-void CvCity::ChangeGPRateModifierPerXFranchises(int iChange)
-{
-	VALIDATE_OBJECT
-	if (iChange != 0)
-	{
-		SetGPRateModifierPerXFranchises(GetGPRateModifierPerXFranchises() + iChange);
-	}
-}
+	CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
+	if (pkCorporationInfo == NULL || !pkCorporationInfo)
+		return 0;
 
-void CvCity::SetGPRateModifierPerXFranchises(int iValue)
-{
-	VALIDATE_OBJECT
-	if (iValue != GetGPRateModifierPerXFranchises())
+	// Calculate what our input into the corporation helper we need
+	int iCurrentValue = 0;
+
+	BuildingTypes eOffice = (BuildingTypes)GET_PLAYER(getOwner()).getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetOfficeBuildingClass());
+	if(eOffice == NO_BUILDING)
+		return 0;
+
+	CvBuildingEntry* pkOfficeInfo = GC.getBuildingInfo(eOffice);
+	if (pkOfficeInfo == NULL)
+		return 0;
+
+	int iNumFranchises = GET_PLAYER(getOwner()).GetCorporations()->GetNumFranchises();
+
+	if (iNumFranchises > 0)
 	{
-		m_iGPRateModifierPerXFranchises = iValue;
+		// Civilized Jewelers
+		if (pkOfficeInfo->GetGPRateModifierPerXFranchises() > 0)
+		{
+			iCurrentValue = iNumFranchises * pkOfficeInfo->GetGPRateModifierPerXFranchises();
+		}
 	}
+	return iCurrentValue;
 }
 
 bool CvCity::IsHeadquarters() const

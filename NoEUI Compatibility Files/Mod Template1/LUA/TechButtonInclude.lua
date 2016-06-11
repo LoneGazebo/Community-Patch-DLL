@@ -484,6 +484,26 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 			buttonNum = buttonNum + 1;
 		end
 	end
+	if tech.CorporationsEnabled then
+		local buttonName = "B"..tostring(buttonNum);
+		local thisButton = thisTechButtonInstance[buttonName];
+		if thisButton then
+			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
+			thisButton:SetHide( false );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_ENABLES_CORPORATIONS" ) );
+			buttonNum = buttonNum + 1;
+		end
+		for thisCorpInfo in GameInfo.Corporations do
+ 			-- if this tech grants this player the ability to build this corp
+			local buttonName = "B"..tostring(buttonNum);
+			local thisButton = thisTechButtonInstance[buttonName];
+ 			if thisButton then
+				AdjustArtOnGrantedCorpButton( thisButton, thisCorpInfo, textureSize );
+ 				buttonNum = buttonNum + 1;
+ 			end
+		end
+	end
+
 	for row in GameInfo.Tech_SpecialistYieldChanges(condition) do
 		local buttonName = "B"..tostring(buttonNum);
 		local thisButton = thisTechButtonInstance[buttonName];
@@ -686,6 +706,30 @@ function AdjustArtOnGrantedUnitButton( thisButton, thisUnitInfo, textureSize )
 		thisButton:RegisterCallback( Mouse.eRClick, GetTechPedia );
 	end
 end
+--Corps
+function AdjustArtOnGrantedCorpButton( thisButton, thisCorpInfo, textureSize )
+	-- if we have one, update the building (or wonder) picture
+	if thisButton then
+		
+		-- Tooltip
+		local bExcludeName = false;
+		local bExcludeHeader = false;
+		thisButton:SetToolTipString( Locale.ConvertTextKey(thisCorpInfo.Help) );
+		
+		local textureOffset, textureSheet = IconLookup( thisCorpInfo.PortraitIndex, textureSize, thisCorpInfo.IconAtlas );				
+		if textureOffset == nil then
+			textureSheet = defaultErrorTextureSheet;
+			textureOffset = nullOffset;
+		end				
+		thisButton:SetTexture( textureSheet );
+		thisButton:SetTextureOffset( textureOffset );
+		thisButton:SetHide( false );
+
+		techPediaSearchStrings[tostring(thisButton)] = Locale.ConvertTextKey(thisCorpInfo.Description);
+		thisButton:RegisterCallback( Mouse.eRClick, GetTechPedia );
+	end
+end
+-- END
 
 
 function AdjustArtOnGrantedBuildingButton( thisButton, thisBuildingInfo, textureSize )

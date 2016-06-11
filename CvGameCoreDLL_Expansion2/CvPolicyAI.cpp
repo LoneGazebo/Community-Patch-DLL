@@ -758,7 +758,6 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 		eChosenBranch = eOrderBranch;
 	}
 	pPlayer->GetPlayerPolicies()->SetPolicyBranchUnlocked(eChosenBranch, true, false);
-	pPlayer->GetCulture()->SetTurnIdeologyAdopted(GC.getGame().getGameTurn());
 	LogBranchChoice(eChosenBranch);
 
 #if defined(MOD_BUGFIX_MISSING_POLICY_EVENTS)

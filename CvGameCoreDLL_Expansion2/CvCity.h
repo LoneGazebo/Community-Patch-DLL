@@ -1031,8 +1031,6 @@ public:
 	int GetTradeRouteCityMod(YieldTypes eIndex) const;
 
 	int GetGPRateModifierPerXFranchises() const;
-	void ChangeGPRateModifierPerXFranchises(int iChange);
-	void SetGPRateModifierPerXFranchises(int iValue);
 
 	bool IsHeadquarters() const;
 	bool IsHasOffice() const;
@@ -1620,7 +1618,6 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromCSAlliance;
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromCSFriendship;
-	FAutoVariable<int, CvCity> m_iGPRateModifierPerXFranchises;
 	FAutoVariable<std::vector<int>, CvCity> m_aiResourceQuantityPerXFranchises;
 	FAutoVariable<int, CvCity> m_iLandTourismBonus;
 	FAutoVariable<int, CvCity> m_iSeaTourismBonus;

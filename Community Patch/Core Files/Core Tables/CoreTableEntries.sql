@@ -685,16 +685,17 @@ ALTER TABLE Buildings ADD COLUMN 'BlockScienceTheft' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'BlockGoldTheft' INTEGER DEFAULT 0;
 
 
+-- Resources
+ALTER TABLE Resources ADD COLUMN 'StrategicHelp' TEXT DEFAULT NULL;
 
 -- CORPORATIONS
-ALTER TABLE Buildings ADD COLUMN 'FreeBuildingTradeTargetCity' TEXT DEFAULT NULL;			-- non-functional, re-enable?
+ALTER TABLE Technologies ADD COLUMN 'CorporationsEnabled' BOOLEAN;
+
 ALTER TABLE Buildings ADD COLUMN 'GPRateModifierPerXFranchises' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'TradeRouteInvulnerable' BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'TRSpeedBoost' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'TRVisionBoost' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'OfficeBenefitHelper' TEXT DEFAULT NULL;
-ALTER TABLE Resources ADD COLUMN 'StrategicHelp' TEXT DEFAULT NULL;
-
+-- Corporation Policies
 ALTER TABLE Policies ADD COLUMN 'CorporationOfficesAsFranchises' BOOLEAN DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'CorporationFreeFranchiseAbovePopular' BOOLEAN DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'CorporationRandomForeignFranchise' BOOLEAN DEFAULT 0;
@@ -724,7 +725,7 @@ ALTER TABLE Policies ADD COLUMN 'ExtraNaturalWonderHappiness' INTEGER DEFAULT 0;
 -- Worlds
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCities' INTEGER DEFAULT 0;
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCityStates' INTEGER DEFAULT 0;
-ALTER TABLE Worlds ADD COLUMN 'ReformationPercentRequired' INTEGER DEFAULT 0;
+ALTER TABLE Worlds ADD COLUMN 'ReformationPercentRequired' INTEGER DEFAULT 100;
 
 -- CSD
 

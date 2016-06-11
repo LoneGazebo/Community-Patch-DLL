@@ -571,11 +571,12 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	Method(GetBaseYieldRateFromCSAlliance);
-	//Method(GetCorporationYieldChange);
+	Method(GetCorporationYieldChange);
 	Method(GetTradeRouteCityMod);
 	Method(GetResourceQuantityPerXFranchises);
 	Method(GetGPRateModifierPerXFranchises);
 	Method(IsFranchised);
+	Method(DoFranchiseAtCity);
 	Method(HasOffice);
 	Method(GetYieldChangeTradeRoute);
 	Method(GetSpecialistYieldChange);
@@ -4980,16 +4981,35 @@ int CvLuaCity::lGetBaseYieldRateFromCSAlliance(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-//int CvLuaCity::lGetCorporationYieldChange(lua_State* L)
-//{
-//	CvCity* pkCity = GetInstance(L);
-//	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
-//	int iFranchises = GET_PLAYER(pkCity->getOwner()).GetCorporations()->GetNumFranchises();
-//	const int iResult = (pkCity->GetCorporationYieldChange(eIndex) * iFranchises);
-//
-//	lua_pushinteger(L, iResult);
-//	return 1;
-//}
+int CvLuaCity::lGetCorporationYieldChange(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	
+	int iResult = 0;
+	if (GET_PLAYER(pkCity->getOwner()).GetCorporations()->HasFoundedCorporation())
+	{
+		CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(GET_PLAYER(pkCity->getOwner()).GetCorporations()->GetFoundedCorporation());
+		if (pkCorporationInfo != NULL)
+		{
+			// Calculate what our input into the corporation helper we need
+			int iNumFranchises = GET_PLAYER(pkCity->getOwner()).GetCorporations()->GetNumFranchises();
+
+			BuildingTypes eOffice = (BuildingTypes)GET_PLAYER(pkCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetOfficeBuildingClass());
+			CvBuildingEntry* pkOfficeInfo = GC.getBuildingInfo(eOffice);
+			if (pkOfficeInfo != NULL)
+			{
+				if (pkOfficeInfo->GetYieldPerFranchise(eIndex) > 0)
+				{
+					iResult = iNumFranchises * pkOfficeInfo->GetYieldPerFranchise(eIndex);
+				}
+			}
+		}
+	}
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 int CvLuaCity::lGetTradeRouteCityMod(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
@@ -5017,8 +5037,7 @@ int CvLuaCity::lGetResourceQuantityPerXFranchises(lua_State* L)
 int CvLuaCity::lGetGPRateModifierPerXFranchises(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	int iFranchises = GET_PLAYER(pkCity->getOwner()).GetCorporations()->GetNumFranchises();
-	const int iResult = (pkCity->GetGPRateModifierPerXFranchises() * iFranchises);
+	const int iResult = (pkCity->GetGPRateModifierPerXFranchises());
 
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -5030,6 +5049,14 @@ int CvLuaCity::lIsFranchised(lua_State* L)
 	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
 	bResult = pkCity->IsHasFranchise(GET_PLAYER(ePlayer).GetCorporations()->GetFoundedCorporation());
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+int CvLuaCity::lDoFranchiseAtCity(lua_State* L)
+{
+	bool bResult = false;
+	CvCity* pkCity = GetInstance(L);
+	CvCity* pkDestCity = GetInstance(L, 2);
+	GET_PLAYER(pkCity->getOwner()).GetCorporations()->BuildFranchiseInCity(pkCity, pkDestCity);
 	return 1;
 }
 int CvLuaCity::lHasOffice(lua_State* L)

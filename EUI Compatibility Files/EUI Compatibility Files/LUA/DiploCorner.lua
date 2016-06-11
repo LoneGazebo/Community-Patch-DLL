@@ -111,12 +111,12 @@ function OnVassalButton()
 	};
 end
 Controls.VassalButton:RegisterCallback(Mouse.eLClick, OnVassalButton);
-function OnCorpButton()
-	Events.SerialEventGameMessagePopup{ 
-		Type = ButtonPopupTypes.BUTTONPOPUP_MODDER_5,
-	};
-end
-Controls.CorpButton:RegisterCallback(Mouse.eLClick, OnCorpButton);
+--function OnCorpButton()
+--	Events.SerialEventGameMessagePopup{ 
+--		Type = ButtonPopupTypes.BUTTONPOPUP_MODDER_5,
+--	};
+--end
+--Controls.CorpButton:RegisterCallback(Mouse.eLClick, OnCorpButton);
 --END
 
 -------------------------------------------------

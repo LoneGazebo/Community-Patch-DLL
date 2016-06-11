@@ -1,4 +1,3 @@
-ALTER TABLE Technologies ADD COLUMN 'CorporationsEnabled' BOOLEAN DEFAULT 0;
 
 -- Update the tech tree to allow Corporations
 DELETE FROM Technology_PrereqTechs
@@ -28,7 +27,7 @@ UPDATE Technologies SET GridY = '9' WHERE Type = 'TECH_COMBUSTION';
 INSERT INTO Technologies
 	(Type, Cost, Description, Civilopedia, Help, CorporationsEnabled, Era, Trade, GridX, GridY, Quote, PortraitIndex, IconAtlas)
 VALUES
-	('TECH_CORPORATIONS', 3550, 'TXT_KEY_TECH_CORPORATIONS_TITLE', 'TXT_KEY_TECH_CORPORATIONS_DESC', 'TXT_KEY_TECH_CORPORATIONS_HELP', 'true', 'ERA_MODERN', 1, 11, 5, 'TXT_KEY_TECH_CORPORATIONS_QUOTE', 0, 'CORP_ATLAS');
+	('TECH_CORPORATIONS', 3550, 'TXT_KEY_TECH_CORPORATIONS_TITLE', 'TXT_KEY_TECH_CORPORATIONS_DESC', 'TXT_KEY_TECH_CORPORATIONS_HELP', '1', 'ERA_MODERN', 1, 11, 5, 'TXT_KEY_TECH_CORPORATIONS_QUOTE', 0, 'CORP_ATLAS');
 
 INSERT INTO Technology_PrereqTechs
 	(PrereqTech, TechType)

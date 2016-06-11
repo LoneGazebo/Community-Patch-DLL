@@ -17,7 +17,7 @@
 			<MaxFranchises>25</MaxFranchises>
 			<NumFreeTradeRoutes>2</NumFreeTradeRoutes>
 			<TradeRouteLandDistanceModifier>100</TradeRouteLandDistanceModifier>
-			<PortraitIndex>1</PortraitIndex>
+			<PortraitIndex>4</PortraitIndex>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 		</Row>
 		<Row>
@@ -33,7 +33,7 @@
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
 			<MaxFranchises>25</MaxFranchises>
 			<NumFreeTradeRoutes>2</NumFreeTradeRoutes>
-			<PortraitIndex>19</PortraitIndex>
+			<PortraitIndex>20</PortraitIndex>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 		</Row>
 		<Row>
@@ -49,7 +49,7 @@
 			<MaxFranchises>25</MaxFranchises>
 			<NumFreeTradeRoutes>1</NumFreeTradeRoutes>
 			<TradeRouteSpeedModifier>200</TradeRouteSpeedModifier>
-			<PortraitIndex>7</PortraitIndex>
+			<PortraitIndex>8</PortraitIndex>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 		</Row>
 		<Row>
@@ -82,7 +82,7 @@
 			<MaxFranchises>25</MaxFranchises>
 			<NumFreeTradeRoutes>1</NumFreeTradeRoutes>
 			<TradeRouteInvulnerable>true</TradeRouteInvulnerable>
-			<PortraitIndex>10</PortraitIndex>
+			<PortraitIndex>28</PortraitIndex>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 		</Row>
 		<Row>
@@ -99,7 +99,7 @@
 			<MaxFranchises>25</MaxFranchises>
 			<NumFreeTradeRoutes>1</NumFreeTradeRoutes>
 			<TradeRouteVisionBoost>1</TradeRouteVisionBoost>
-			<PortraitIndex>13</PortraitIndex>
+			<PortraitIndex>12</PortraitIndex>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 		</Row>
 		<Row>
@@ -116,7 +116,7 @@
 			<NumFreeTradeRoutes>1</NumFreeTradeRoutes>
 			<TradeRouteRecipientBonus>1</TradeRouteRecipientBonus>
 			<TradeRouteTargetBonus>1</TradeRouteTargetBonus>
-			<PortraitIndex>4</PortraitIndex>
+			<PortraitIndex>24</PortraitIndex>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 		</Row>
 	</Corporations>
@@ -390,8 +390,6 @@
 			<Yield>1</Yield>
 		</Row>
 	</Corporation_SpecialistYieldChanges>
-	<Corporation_ResourceMonopolyAnds>
-	</Corporation_ResourceMonopolyAnds>
 	<Corporation_ResourceMonopolyOrs>
 		<Row>
 			<CorporationType>CORPORATION_TRADER_SIDS</CorporationType>
@@ -524,7 +522,7 @@
 	</Corporation_ResourceMonopolyOrs>
 	<Corporation_NumFreeResource>
 	</Corporation_NumFreeResource>
-	<Corporation_TradeRouteYieldMod>
+	<Corporation_TradeRouteMod>
 		<Row>
 			<CorporationType>CORPORATION_TRADER_SIDS</CorporationType>
 			<YieldType>YIELD_GOLD</YieldType>
@@ -540,7 +538,34 @@
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>10</Yield>
 		</Row>
-	</Corporation_TradeRouteYieldMod>
+	</Corporation_TradeRouteMod>
+	<Corporation_TradeRouteCityYield>
+		<Row>
+			<CorporationType>CORPORATION_LANDSEA_EXTRACTORS</CorporationType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_HEXXON_REFINERY</CorporationType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_GIORGIO_ARMEIER</CorporationType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_TWOKAY_FOODS</CorporationType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_CIVILIZED_JEWELERS</CorporationType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>10</Yield>
+		</Row>
+	</Corporation_TradeRouteCityYield>
 	<Corporation_UnitResourceProductionModifier>
 		<Row>
 			<CorporationType>CORPORATION_HEXXON_REFINERY</CorporationType>
@@ -744,8 +769,8 @@
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 			<WonderSplashImage>CorporationSplash.dds</WonderSplashImage>
-			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE</Quote>
-			<PortraitIndex>1</PortraitIndex>
+			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE_TRADER_SIDS</Quote>
+			<PortraitIndex>5</PortraitIndex>
 		</Row>
 		<!-- Base Corps-->
 		<Row>
@@ -762,7 +787,7 @@
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
-			<PortraitIndex>2</PortraitIndex>
+			<PortraitIndex>6</PortraitIndex>
 		</Row>
 		<!-- Franchise-->
 		<Row>
@@ -779,7 +804,7 @@
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
-			<PortraitIndex>3</PortraitIndex>
+			<PortraitIndex>7</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>BUILDING_LANDSEA_EXTRACTORS_HQ</Type>
@@ -796,8 +821,8 @@
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 			<WonderSplashImage>CorporationSplash.dds</WonderSplashImage>
-			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE</Quote>
-			<PortraitIndex>19</PortraitIndex>
+			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE_LANDSEA</Quote>
+			<PortraitIndex>21</PortraitIndex>
 		</Row>
 		<!-- Base Corps-->
 		<Row>
@@ -814,7 +839,7 @@
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
-			<PortraitIndex>20</PortraitIndex>
+			<PortraitIndex>22</PortraitIndex>
 		</Row>
 		<!-- Franchise-->
 		<Row>
@@ -831,7 +856,7 @@
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
-			<PortraitIndex>21</PortraitIndex>
+			<PortraitIndex>23</PortraitIndex>
 		</Row>
 		<!-- HQs -->
 		<Row>
@@ -849,8 +874,8 @@
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 			<WonderSplashImage>CorporationSplash.dds</WonderSplashImage>
-			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE</Quote>
-			<PortraitIndex>7</PortraitIndex>
+			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE_HEXXON</Quote>
+			<PortraitIndex>9</PortraitIndex>
 		</Row>
 		<!-- Base Corps-->
 		<Row>
@@ -867,7 +892,7 @@
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
-			<PortraitIndex>8</PortraitIndex>
+			<PortraitIndex>10</PortraitIndex>
 		</Row>
 		<!-- Franchise-->
 		<Row>
@@ -884,7 +909,7 @@
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
-			<PortraitIndex>9</PortraitIndex>
+			<PortraitIndex>11</PortraitIndex>
 		</Row>
 		<!-- HQs -->
 		<Row>
@@ -902,8 +927,8 @@
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 			<WonderSplashImage>CorporationSplash.dds</WonderSplashImage>
-			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE</Quote>
-			<PortraitIndex>16</PortraitIndex>
+			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE_GA</Quote>
+			<PortraitIndex>17</PortraitIndex>
 		</Row>
 		<!-- Base Corps-->
 		<Row>
@@ -920,7 +945,7 @@
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
-			<PortraitIndex>17</PortraitIndex>
+			<PortraitIndex>18</PortraitIndex>
 		</Row>
 		<!-- Franchise-->
 		<Row>
@@ -937,7 +962,7 @@
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
-			<PortraitIndex>18</PortraitIndex>
+			<PortraitIndex>19</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>BUILDING_FIRAXITE_MATERIALS_HQ</Type>
@@ -954,8 +979,8 @@
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 			<WonderSplashImage>CorporationSplash.dds</WonderSplashImage>
-			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE</Quote>
-			<PortraitIndex>10</PortraitIndex>
+			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE_FIRAXITE</Quote>
+			<PortraitIndex>29</PortraitIndex>
 		</Row>
 		<!-- Base Corps-->
 		<Row>
@@ -973,7 +998,7 @@
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
-			<PortraitIndex>11</PortraitIndex>
+			<PortraitIndex>30</PortraitIndex>
 		</Row>
 		<!-- Franchise-->
 		<Row>
@@ -990,7 +1015,7 @@
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
-			<PortraitIndex>12</PortraitIndex>
+			<PortraitIndex>31</PortraitIndex>
 		</Row>
 		<!-- HQs -->
 		<Row>
@@ -1008,7 +1033,7 @@
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 			<WonderSplashImage>CorporationSplash.dds</WonderSplashImage>
-			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE</Quote>
+			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE_TWOKAY</Quote>
 			<PortraitIndex>13</PortraitIndex>
 		</Row>
 		<!-- Base Corps-->
@@ -1064,8 +1089,8 @@
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 			<WonderSplashImage>CorporationSplash.dds</WonderSplashImage>
-			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE</Quote>
-			<PortraitIndex>4</PortraitIndex>
+			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE_CIVILIZED</Quote>
+			<PortraitIndex>25</PortraitIndex>
 		</Row>
 		<!-- Base Corps-->
 		<Row>
@@ -1084,7 +1109,7 @@
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
-			<PortraitIndex>5</PortraitIndex>
+			<PortraitIndex>26</PortraitIndex>
 		</Row>
 		<!-- Franchise-->
 		<Row>
@@ -1101,7 +1126,7 @@
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
-			<PortraitIndex>6</PortraitIndex>
+			<PortraitIndex>27</PortraitIndex>
 		</Row>
 	</Buildings>
 	<Building_Flavors>
@@ -1223,33 +1248,6 @@
 			<Yield>3</Yield>
 		</Row>
 	</Building_YieldPerFranchise>
-	<Building_FranchiseTradeRouteCityYield>
-		<Row>
-			<BuildingType>BUILDING_LANDSEA_EXTRACTORS</BuildingType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>10</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_HEXXON_REFINERY</BuildingType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>10</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_GIORGIO_ARMEIER</BuildingType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>10</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_TWOKAY_FOODS</BuildingType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>10</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_CIVILIZED_JEWELERS</BuildingType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>10</Yield>
-		</Row>
-	</Building_FranchiseTradeRouteCityYield>
 	<Building_DomainProductionModifiers>
 		<Row>
 			<BuildingType>BUILDING_HEXXON_REFINERY</BuildingType>

@@ -35,7 +35,16 @@ REMARK_GROUP("CvInfos");
 // CvBaseInfo Members
 //////////////////////////////////////////////////////////////////////////
 CvBaseInfo::CvBaseInfo()
-	: m_iID(-1)
+	: m_iID(-1),
+	m_strCivilopedia("unknown"),
+	m_strDescription("unknown"),
+	m_strDescriptionKey("unknown"),
+	m_strHelp("unknown"),
+	m_strDisabledHelp("unknown"),
+	m_strStrategy("unknown"),
+	m_strType("unknown"),
+	m_strTextKey("unknown"),
+	m_strText("unknown")
 {}
 //------------------------------------------------------------------------------
 bool CvBaseInfo::CacheResult(Database::Results& kResults)

@@ -12941,7 +12941,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 	{
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 		// Needs the associated SQL executing - UPDATE Builds SET CanBeEmbarked=1 WHERE Type='BUILD_FISHING_BOATS_NO_KILL';
-		if ((isEmbarked() && !pkBuildInfo->IsCanBeEmbarked()))
+		if (pPlot->needsEmbarkation(this) && !pkBuildInfo->IsCanBeEmbarked())
 #else
 		if ((isEmbarked() && !pkBuildInfo->IsCanBeEmbarked())  && (strcmp("UNIT_JAPANESE_SAMURAI", getUnitInfo().GetType()) != 0))
 #endif
@@ -14864,20 +14864,13 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		iModifier += GetUnhappinessCombatPenalty();
 	}
 
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	{
-		// units cannot heal anymore, but strength is unaffected
-	}
-	else
-	{
-#endif
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	// units cannot heal anymore, but strength is unaffected
+#else
 	// Over our strategic resource limit?
 	iTempModifier = GetStrategicResourceCombatPenalty();
 	if(iTempModifier != 0)
 		iModifier += iTempModifier;
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	}
 #endif
 
 	if (pFromPlot == NULL)
@@ -26600,7 +26593,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			bRejectMove = true;
 		}
 		// if we should end our turn there this turn, but can't move into that tile
-		else if(kDestNode.m_iTurns == 1 && !canMoveInto(*pDestPlot))  
+		else if(kDestNode.m_iTurns == 1 && !canMoveInto(*pDestPlot,iFlags|MOVEFLAG_DESTINATION))  
 		{
 			// this is a bit tricky
 			// we want to see if this move would be a capture move
@@ -27031,6 +27024,14 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 			if ( ((iFromDanger<iToDanger) && (iToDanger>GetCurrHitPoints())) || iToDanger==INT_MAX)
 				OutputDebugString(CvString::format("%s %s moving into danger at %d,%d!\n", 
 					GET_PLAYER(getOwner()).getCivilizationAdjective(), getName().c_str(), iData1, iData2).c_str());
+		}
+
+		//if the target is not revealed, the pathfinder assumes it's passable although in fact it may be not
+		//it's acceptable to have such an "unknown invalid" target. otherwise take not of this.
+		if(!canMoveInto(*pToPlot,CvUnit::MOVEFLAG_DESTINATION) && pToPlot->isRevealed(getTeam()))
+		{
+			if (GC.getLogging() && GC.getAILogging())
+				OutputDebugString(CvString::format("Invalid target %d,%d for movement of %s %d",pToPlot->getX(),pToPlot->getY(),getName().c_str(),GetID()).c_str());
 		}
 	}
 #endif

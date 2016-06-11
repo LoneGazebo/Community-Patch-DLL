@@ -454,9 +454,6 @@ public:
 	int GetGPRateModifierPerXFranchises() const;
 	int GetResourceQuantityPerXFranchises(int i) const;
 	int GetYieldPerFranchise(int i) const;
-
-	int GetFranchiseTradeRouteYieldMod(int i) const;
-	int* GetFranchiseTradeRouteYieldModArray() const;
 #endif
 	int GetHurryModifier(int i) const;
 	bool IsBuildingClassNeededInCity(int i) const;

@@ -316,8 +316,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piLocalFeatureAnds(NULL),
 	m_piResourceMonopolyAnds(NULL),
 	m_piResourceMonopolyOrs(NULL),
-	m_piFranchiseTradeRouteCityYieldMod(NULL),
-	m_piFranchiseTradeRouteYieldMod(NULL),
 	m_iGPRateModifierPerXFranchises(0),
 	m_piResourceQuantityPerXFranchises(NULL),
 	m_piYieldPerFranchise(NULL),
@@ -421,8 +419,6 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piResourceMonopolyAnds);
 	SAFE_DELETE_ARRAY(m_piResourceMonopolyOrs);
 	SAFE_DELETE_ARRAY(m_piYieldPerFranchise);
-	SAFE_DELETE_ARRAY(m_piFranchiseTradeRouteCityYieldMod);
-	SAFE_DELETE_ARRAY(m_piFranchiseTradeRouteYieldMod);
 	SAFE_DELETE_ARRAY(m_piResourceQuantityPerXFranchises);
 #endif
 	SAFE_DELETE_ARRAY(m_paiHurryModifier);
@@ -858,8 +854,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	kUtility.PopulateArrayByValue(m_piResourceQuantityPerXFranchises, "Resources", "Building_ResourceQuantityPerXFranchises", "ResourceType", "BuildingType", szBuildingType, "NumFranchises");
 	kUtility.SetYields(m_piYieldPerFranchise, "Building_YieldPerFranchise", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piFranchiseTradeRouteCityYieldMod, "Building_FranchiseTradeRouteCityYieldMod", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piFranchiseTradeRouteYieldMod, "Building_FranchiseTradeRouteYieldMod", "BuildingType", szBuildingType);
 	m_iGPRateModifierPerXFranchises = kResults.GetInt("GPRateModifierPerXFranchises");
 #endif
 	//ResourceYieldChanges
@@ -2852,18 +2846,7 @@ int CvBuildingEntry::GetResourceMonopolyOr(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piResourceMonopolyOrs ? m_piResourceMonopolyOrs[i] : -1;
 }
-/// Corporate building yield.
-int CvBuildingEntry::GetFranchiseTradeRouteYieldMod(int i) const
-{
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piFranchiseTradeRouteYieldMod ? m_piFranchiseTradeRouteYieldMod[i] : -1;
-}
-/// Corporate building yield.
-int* CvBuildingEntry::GetFranchiseTradeRouteYieldModArray() const
-{
-	return m_piFranchiseTradeRouteYieldMod;
-}
+//Coroporation Stuff
 int CvBuildingEntry::GetGPRateModifierPerXFranchises() const
 {
 	return m_iGPRateModifierPerXFranchises;
@@ -4573,7 +4556,8 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 		return 0;
 	}
 
-	int iWorkCount = 0;
+	int iRealWorkCount = 0;
+	int iStandardWorkCount = 0;
 	int iThemingBonusTotal = 0;
 	int iTypeBonuses = 0;
 	
@@ -4589,11 +4573,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 		{
 			CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
 			if (pkInfo && pkInfo->GetGreatWorkCount() > 0)
-			{
-				if ((MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == pkInfo->GetGreatWorkYieldType()) || (!MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == YIELD_CULTURE))
-				{
-					iWorkCount += GetNumGreatWorksInBuilding((BuildingClassTypes)pkInfo->GetBuildingClassType());
-				}
+			{	
 				int iThemingBonus = m_pCity->GetCityCulture()->GetThemingBonus((BuildingClassTypes)pkInfo->GetBuildingClassType());
 				if (iThemingBonus > 0)
 				{
@@ -4620,19 +4600,29 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 				{
 					iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetMusicYieldChanges(eYield) * iMusic);
 				}
+
+				iRealWorkCount += GetNumGreatWorksInBuilding((BuildingClassTypes)pkInfo->GetBuildingClassType());
+
+				if(iTypeBonuses <= 0)
+				{
+					if ((MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == pkInfo->GetGreatWorkYieldType()) || (!MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == YIELD_CULTURE))
+					{
+						iStandardWorkCount += iRealWorkCount;
+					}
+				}
 			}
 		}
 	}
-	//No works? Abort!
-	if(iWorkCount <= 0)
+	//No works and no bonuses? Abort!
+	if(iRealWorkCount <= 0)
 	{
 		return 0;
-	}	
+	}
 	
 	//Now grab the base yields.
 	int iBaseYield = GC.getBASE_CULTURE_PER_GREAT_WORK();
-	iBaseYield += GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(eYield);
-	iBaseYield += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
+	int iSecondaryYield = GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(eYield);
+	iSecondaryYield += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
 
 	ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
 	if(eMajority >= RELIGION_PANTHEON)
@@ -4644,13 +4634,14 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 			BeliefTypes eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
-				iBaseYield += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield);
+				iSecondaryYield += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield);
 			}
 		}
 	}
 
 	//First add up yields x works in city.
-	int iRtnValue = (iWorkCount * iBaseYield);
+	int iRtnValue = (iStandardWorkCount * iBaseYield);
+	iRtnValue += (iRealWorkCount * iSecondaryYield);
 	//Then theming bonuses for the yield.
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	iRtnValue += GetThemingBonuses(eYield);

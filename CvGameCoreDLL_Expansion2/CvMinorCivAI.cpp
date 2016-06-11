@@ -8021,6 +8021,16 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		{
 			return false;
 		}
+
+		CvTeam* pTargetCityStateTeam = &GET_TEAM(GET_PLAYER(eTargetCityState).getTeam());
+		if(pTargetCityStateTeam)
+		{
+			// Player already liberated the City State?
+			if(pTargetCityStateTeam->GetLiberatedByTeam() == GET_PLAYER(ePlayer).getTeam())
+			{
+				return false;
+			}
+		}
 	}
 	// BARBARIAN HORDE!
 	else if(eQuest == MINOR_CIV_QUEST_HORDE)

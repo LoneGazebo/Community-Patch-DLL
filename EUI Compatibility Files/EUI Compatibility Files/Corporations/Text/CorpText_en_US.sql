@@ -34,19 +34,19 @@ WHERE Tag = 'TXT_KEY_CORP_HELP_RESOURCE_BONUS_FIRAXITE_MATERIALS';
  
 UPDATE Language_en_US
 SET Text = 'Receive two [ICON_INTERNATIONAL_TRADE] Trade Routes. +1 [ICON_CULTURE] Culture on all Monopoly Resources associated with Giorgio Armeier. +1 [ICON_CULTURE] Culture from all Specialists. Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!'
-WHERE Tag = 'TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ_STRATEGY';
+WHERE Tag = 'TXT_KEY_BUILDING_GIORGIO_ARMEIER_HQ_STRATEGY';
  
 UPDATE Language_en_US
 SET Text = 'Requires a Global Monopoly on [ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dye, [ICON_RES_FUR] Furs, or [ICON_RES_LAPIS] Lapis Lazuli.[NEWLINE][NEWLINE]Receive a free Giorgio Armeier Office in this City, and unlocks construction of Giorgio Armeier Offices in owned Cities.'
-WHERE Tag = 'TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ_HELP';
+WHERE Tag = 'TXT_KEY_BUILDING_GIORGIO_ARMEIER_HQ_HELP';
  
 UPDATE Language_en_US
 SET Text = 'Resource Bonus: [ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dye, [ICON_RES_FUR] Furs, and [ICON_RES_LAPIS] Lapis Lazuli gain additional [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Office Bonus: +3 [ICON_CULTURE] Culture for every Global Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Giorgio Armeier Franchise increases the origin City''s [ICON_CULTURE] Culture rate by +10%.'
-WHERE Tag = 'TXT_KEY_CORP_HELPER_GIORIO_ARMEIER';
+WHERE Tag = 'TXT_KEY_CORP_HELPER_GIORGIO_ARMEIER';
  
 UPDATE Language_en_US
 SET Text = '[ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dye, [ICON_RES_FUR] Furs, [ICON_RES_LAPIS] Lapis Lazuli provide additional [ICON_CULTURE] Culture.'
-WHERE Tag = 'TXT_KEY_CORP_HELP_RESOURCE_BONUS_GIORIO_ARMEIER';
+WHERE Tag = 'TXT_KEY_CORP_HELP_RESOURCE_BONUS_GIORGIO_ARMEIER';
  
 -- Hexxon Refineries
  

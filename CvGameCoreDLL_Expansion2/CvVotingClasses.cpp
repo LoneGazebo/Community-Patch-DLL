@@ -13016,251 +13016,163 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	// Mostly same as evaluating Diplomatic Victory, but with higher value to pick others you like
 	if (pProposal->GetEffects()->bChangeLeagueHost)
 	{
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined (MOD_BALANCE_CORE)
-		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS || MOD_BALANCE_CORE) {
-			AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer);
-			PlayerTypes ePlayer = GetPlayer()->GetID();
+#if defined(MOD_BALANCE_CORE)
+		AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer);
+		PlayerTypes ePlayer = GetPlayer()->GetID();
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			if (MOD_DIPLOMACY_CIV4_FEATURES)
-			{
-				if(GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eChoicePlayer).getTeam()))
-				{
-					iScore += 1000;
-					return iScore;
-				}
-			}
-#endif
-			//Let's drill down and look at how votes could shake out here.
-			int iVotesNeeded = 0;
-			int iTheirVotes = pLeague->CalculateStartingVotesForMember(eChoicePlayer);
-			int iOurVotes = pLeague->CalculateStartingVotesForMember(ePlayer);
-
-			AlignmentLevels eTheirAlignment = GET_PLAYER(eChoicePlayer).GetLeagueAI()->EvaluateAlignment(ePlayer);
-			
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && pLeague->IsMember(eLoopPlayer))
-				{			
-					iVotesNeeded += pLeague->CalculateStartingVotesForMember(eLoopPlayer);
-				}
-			}
-			//There should be more to it than this!
-			if (eAlignment == ALIGNMENT_LIBERATOR)
+		if (MOD_DIPLOMACY_CIV4_FEATURES)
+		{
+			if(GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eChoicePlayer).getTeam()))
 			{
 				iScore += 1000;
 				return iScore;
 			}
-			else if (eAlignment == ALIGNMENT_SELF)
+		}
+#endif
+		//Let's drill down and look at how votes could shake out here.
+		int iVotesNeeded = 0;
+		int iTheirVotes = pLeague->CalculateStartingVotesForMember(eChoicePlayer);
+		int iOurVotes = pLeague->CalculateStartingVotesForMember(ePlayer);
+
+		bool bCanWin = false;
+			
+		PlayerTypes eLoopPlayer;
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && pLeague->IsMember(eLoopPlayer))
+			{			
+				iVotesNeeded += pLeague->CalculateStartingVotesForMember(eLoopPlayer);
+			}
+		}
+		if (eAlignment == ALIGNMENT_LIBERATOR)
+		{
+			iScore += 1000;
+			return iScore;
+		}
+		else if (eAlignment == ALIGNMENT_SELF)
+		{
+			//Less than half votes possible?
+			if(iOurVotes < (iVotesNeeded / 2))
 			{
-				//Less than half votes possible?
-				if(iOurVotes < (iVotesNeeded / 2))
+				iScore += 50;
+				if (bSeekingDiploVictory)
 				{
 					iScore += 50;
 				}
-				else
-				{
-					iScore += 200;
-				}
+			}
+			else
+			{
+				iScore += 200;
 				if (bSeekingDiploVictory)
 				{
 					iScore += 100;
 				}
+				bCanWin = true;
 			}
-			else if (eAlignment == ALIGNMENT_WAR)
-			{
-				iScore += -500;
-			}
-			else
-			{
-				switch (eAlignment)
-				{
-				case ALIGNMENT_ALLY:
-					//More than half votes?
-					if((iOurVotes + iTheirVotes) >= (iVotesNeeded / 2))
-					{
-						iScore += 50;
-						//If we have a friend here, there's a good chance they'll vote for us if we have more votes than them.
-						if(iOurVotes >= iTheirVotes)
-						{
-							if(eTheirAlignment == ALIGNMENT_ALLY)
-							{
-								iScore += -25;
-							}
-							else if(eTheirAlignment == ALIGNMENT_CONFIDANT)
-							{
-								iScore += -50;
-							}
-							else if(eTheirAlignment == ALIGNMENT_FRIEND)
-							{
-								iScore += -75;
-							}
-						}
-						else if(iOurVotes < iTheirVotes)
-						{
-							if(eTheirAlignment == ALIGNMENT_ALLY)
-							{
-								iScore += 75;
-							}
-							else if(eTheirAlignment == ALIGNMENT_CONFIDANT)
-							{
-								iScore += 50;
-							}
-							else if(eTheirAlignment == ALIGNMENT_FRIEND)
-							{
-								iScore += 25;
-							}
-						}
-					}
-					else
-					{
-						iScore += 25;
-					}
-					break;
-				case ALIGNMENT_CONFIDANT:
-					//More than half votes?
-					if((iOurVotes + iTheirVotes) >= (iVotesNeeded / 2))
-					{
-						iScore += 40;
-						//If we have a friend here, there's a good chance they'll vote for us if we have more votes than them.
-						if(iOurVotes >= iTheirVotes)
-						{
-							if(eTheirAlignment == ALIGNMENT_ALLY)
-							{
-								iScore += -20;
-							}
-							else if(eTheirAlignment == ALIGNMENT_CONFIDANT)
-							{
-								iScore += -40;
-							}
-							else if(eTheirAlignment == ALIGNMENT_FRIEND)
-							{
-								iScore += -60;
-							}
-						}
-						else if(iOurVotes < iTheirVotes)
-						{
-							if(eTheirAlignment == ALIGNMENT_ALLY)
-							{
-								iScore += 60;
-							}
-							else if(eTheirAlignment == ALIGNMENT_CONFIDANT)
-							{
-								iScore += 40;
-							}
-							else if(eTheirAlignment == ALIGNMENT_FRIEND)
-							{
-								iScore += 20;
-							}
-						}
-					}
-					else
-					{
-						iScore += 20;
-					}
-					break;
-				case ALIGNMENT_FRIEND:
-					//More than half votes?
-					if((iOurVotes + iTheirVotes) >= (iVotesNeeded / 2))
-					{
-						iScore += 30;
-						//If we have a friend here, there's a good chance they'll vote for us if we have more votes than them.
-						if(iOurVotes >= iTheirVotes)
-						{
-							if(eTheirAlignment == ALIGNMENT_ALLY)
-							{
-								iScore += -15;
-							}
-							else if(eTheirAlignment == ALIGNMENT_CONFIDANT)
-							{
-								iScore += -30;
-							}
-							else if(eTheirAlignment == ALIGNMENT_FRIEND)
-							{
-								iScore += -40;
-							}
-						}
-						else if(iOurVotes < iTheirVotes)
-						{
-							if(eTheirAlignment == ALIGNMENT_ALLY)
-							{
-								iScore += 45;
-							}
-							else if(eTheirAlignment == ALIGNMENT_CONFIDANT)
-							{
-								iScore += 30;
-							}
-							else if(eTheirAlignment == ALIGNMENT_FRIEND)
-							{
-								iScore += 15;
-							}
-						}
-					}
-					else
-					{
-						iScore += 15;
-					}
-					break;
-				case ALIGNMENT_LEADER:
-					//More than half votes?
-					if((iOurVotes + iTheirVotes) >= (iVotesNeeded / 2))
-					{
-						iScore += 30;
-						//If we have a friend here, there's a good chance they'll vote for us if we have more votes than them.
-						if(iOurVotes >= iTheirVotes)
-						{
-							if(eTheirAlignment == ALIGNMENT_ALLY)
-							{
-								iScore += -15;
-							}
-							else if(eTheirAlignment == ALIGNMENT_CONFIDANT)
-							{
-								iScore += -30;
-							}
-							else if(eTheirAlignment == ALIGNMENT_FRIEND)
-							{
-								iScore += -40;
-							}
-						}
-						else if(iOurVotes < iTheirVotes)
-						{
-							if(eTheirAlignment == ALIGNMENT_ALLY)
-							{
-								iScore += 45;
-							}
-							else if(eTheirAlignment == ALIGNMENT_CONFIDANT)
-							{
-								iScore += 30;
-							}
-							else if(eTheirAlignment == ALIGNMENT_FRIEND)
-							{
-								iScore += 15;
-							}
-						}
-					}
-					else
-					{
-						iScore += 15;
-					}
-					break;
-				case ALIGNMENT_RIVAL:
-					iScore += -100;
-					break;
-				case ALIGNMENT_HATRED:
-					iScore += -300;
-					break;
-				case ALIGNMENT_ENEMY:
-					iScore += -500;
-					break;
-				default:
-					break;
-				}
-			}
+		}
+		else if (eAlignment == ALIGNMENT_WAR)
+		{
+			iScore += -1000;
 		}
 		else
 		{
-#endif
+			switch (eAlignment)
+			{
+			case ALIGNMENT_ALLY:
+				//More than half votes?
+				if(!bCanWin && (iOurVotes + iTheirVotes) >= (iVotesNeeded / 2))
+				{
+					iScore += 300;
+					//If we have a friend here, there's a good chance they'll vote for us if we have more votes than them.
+					if(iOurVotes >= iTheirVotes)
+					{
+						iScore += -200;
+					}
+					else
+					{
+						iScore += 150;
+					}
+				}
+				else
+				{
+					iScore += 100;
+				}
+				break;
+			case ALIGNMENT_CONFIDANT:
+				//More than half votes?
+				if(!bCanWin && (iOurVotes + iTheirVotes) >= (iVotesNeeded / 2))
+				{
+					iScore += 150;
+					//If we have a friend here, there's a good chance they'll vote for us if we have more votes than them.
+					if(iOurVotes >= iTheirVotes)
+					{
+						iScore += -100;
+					}
+					else
+					{
+						iScore += 100;
+					}
+				}
+				else
+				{
+					iScore += 75;
+				}
+				break;
+			case ALIGNMENT_FRIEND:
+				//More than half votes?
+				if(!bCanWin && (iOurVotes + iTheirVotes) >= (iVotesNeeded / 2))
+				{
+					iScore += 100;
+					//If we have a friend here, there's a good chance they'll vote for us if we have more votes than them.
+					if(iOurVotes >= iTheirVotes)
+					{
+						iScore += -50;
+					}
+					else
+					{
+						iScore += 50;
+					}
+				}
+				else
+				{
+					iScore += 50;
+				}
+				break;
+			case ALIGNMENT_LEADER:
+				//More than half votes?
+				if(!bCanWin && (iOurVotes + iTheirVotes) >= (iVotesNeeded / 2))
+				{
+					iScore += 100;
+					//If we have a friend here, there's a good chance they'll vote for us if we have more votes than them.
+					if(iOurVotes >= iTheirVotes)
+					{
+						iScore += -100;
+					}
+					else
+					{
+						iScore += 50;
+					}
+				}
+				else
+				{
+					iScore += 50;
+				}
+				break;
+			case ALIGNMENT_RIVAL:
+				iScore += -100;
+				break;
+			case ALIGNMENT_HATRED:
+				iScore += -300;
+				break;
+			case ALIGNMENT_ENEMY:
+				iScore += -500;
+				break;
+			default:
+				break;
+			}
+		}
+#else
 			AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer);
 			if (eAlignment == ALIGNMENT_LIBERATOR)
 			{
@@ -13309,8 +13221,6 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 					break;
 				}
 			}
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined (MOD_BALANCE_CORE)
-		}
 #endif
 	}
 

@@ -2,6 +2,9 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Scott Lewis (Firaxis Games) -->
 <GameData>
 	<Language_en_US>
+		<Row Tag="TXT_KEY_ABLTY_ENABLES_CORPORATIONS">
+			<Text>Enables Corporations to be founded.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_YIELD_TOURISM">
 			<Text>Tourism</Text>
 		</Row>
@@ -2934,10 +2937,10 @@
 		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONQUEST_2">
 			<Text>Do you hear the footsteps of my armies? Fear me, and fear them, as there cannot be two world conquerors on this day. Your army stands in my way, but not for long.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONGRES_1">
+		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONGRESS_1">
 			<Text>You will soon bend your knee to my silver-tongued diplomats. Global hegemony shall be mine!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONGRES_2">
+		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONGRESS_2">
 			<Text>You'll be happy to know that I've just finished revising my acceptance speech for the position of 'Supreme Leader of Earth.' I do hope you'll attend the reception.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_CULTURE_1">
@@ -6225,6 +6228,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_PROCESSES_UNLOCKED">
 			<Text>[NEWLINE][COLOR_CYAN]Processes Unlocked:[ENDCOLOR][NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_HELP_CORPS_UNLOCKED">
+			<Text>[NEWLINE][COLOR_CYAN]Corporations Unlocked:[ENDCOLOR][NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_RESOURCES_UNLOCKED">
 			<Text>[NEWLINE][COLOR_CYAN]Resources Unlocked:[ENDCOLOR][NEWLINE]</Text>
