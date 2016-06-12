@@ -6674,7 +6674,7 @@ void CvTacticalAI::ExecuteHeals()
 
 					if (bFlee)
 					{
-						pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,false);
+						pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
 						if (pBetterPlot)
 							ExecuteMoveToPlotIgnoreDanger( pUnit, pBetterPlot );
 					}
