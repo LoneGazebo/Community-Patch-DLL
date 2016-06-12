@@ -77,10 +77,10 @@
 			<Text>A train station, railway station, railroad station, or depot (see below) is a railway facility where trains regularly stop to load or unload passengers or freight. It generally consists of at least one track-side platform and a station building (depot) providing such ancillary services as ticket sales and waiting rooms. If a station is on a single-track line, it often has a passing loop to facilitate traffic movements. The smallest stations are most often referred to as "stops" or, in some parts of the world, as "halts" (flag stops). Stations may be at ground level, underground, or elevated. Connections may be available to intersecting rail lines or other transport modes such as buses, trams or other rapid transit systems.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRAINSTATION_STRATEGY">
-			<Text>Provides a massive boost to City Production during the Industrial Era. Requires a direct Railroad connection to the Capital (Harbor connections do not count!) before it can be constructed, so you need to invest in your Railroad infrastructure before you can reap the benefits of this building! Cannot be built in the same City as a Seaport.</Text>
+			<Text>Provides a massive boost to City Production and Gold during the Industrial Era. Requires a direct Railroad connection to the Capital (Harbor connections do not count!) before it can be constructed, so you need to invest in your Railroad infrastructure before you can reap the benefits of this building! Cannot be built in the same City as a Seaport.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRAINSTATION_HELP">
-			<Text>Requires 1 [ICON_RES_COAL] Coal. +25% [ICON_PRODUCTION] Production in City. Requires a direct [ICON_CONNECTED] Railroad Connection to the [ICON_CAPITAL] Capital before it can be constructed.[NEWLINE][NEWLINE]City cannot have a Seaport in the City.</Text>
+			<Text>Requires 1 [ICON_RES_COAL] Coal. +25% [ICON_PRODUCTION] Production and +10% [ICON_GOLD] Gold in City. Requires a direct [ICON_CONNECTED] Railroad Connection to the [ICON_CAPITAL] Capital before it can be constructed.[NEWLINE][NEWLINE]City cannot have a Seaport in the City.</Text>
 		</Row>	
 
 		<Row Tag="TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_NATIONAL">
@@ -567,7 +567,7 @@
 			<Text>The ancient Harappan and Indus Valley Civilizations of Northwest South Asia, including Pakistan and parts of India, were prominent in hydraulic engineering, and had many water supply and sanitation devices that were the first of their kind. Among other things, they contained the world's earliest known system of flush toilets. These existed in many homes, and were connected to a common sewerage pipe. Most houses also had private wells. City walls functioned as a barrier against floods, and massive reservoirs were often constructed along these walls to collect this floodwater to save for droughts.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_HELP">
-			<Text>Unique Indian replacement for the Aqueduct. Carries over 20% of [ICON_FOOD] Food after City growth. Grants +1 [ICON_PRODUCTION] Production from Flood Plains and +1 [ICON_FOOD] Food from Farms. Reduces [ICON_HAPPINESS_3] Poverty slightly.</Text>
+			<Text>Unique Indian replacement for the Aqueduct. Carries over 20% of [ICON_FOOD] Food after City growth. Grants +1 [ICON_PRODUCTION] Production from Flood Plains and +1 [ICON_FOOD] Food from Lakes and Farms. Reduces [ICON_HAPPINESS_3] Poverty slightly.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY">
 			<Text>Build these unique Aqueducts to rapidly increase your city's population size and productivity, especially if the city is settled on or near Flood Plainss.</Text>

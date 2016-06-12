@@ -399,6 +399,11 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getAchievementInfo(), "Achievements");
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	// Must be after buildings because this calls from Buildings
+	PrefetchCollection(GC.getCorporationInfo(), "Corporations");
+#endif
+
 	//Copy flavors into string array
 	{
 		CvDatabaseUtility kUtility;
@@ -694,6 +699,10 @@ bool CvDllDatabaseUtility::ValidatePrefetchProcess()
 	ValidateVectorSize(getNumHurryInfos);
 	ValidateVectorSize(getNumEmphasisInfos);
 	ValidateVectorSize(getNumVictoryInfos);
+
+#if defined(MOD_BALANCE_CORE)
+	ValidateVectorSize(getNumCorporationInfos);
+#endif
 
 	// The domains are a special case in that the contents must match a populated enum exactly.
 #define ValidateDomain(domain) { CvDomainInfo* pkDomainInfo; if (GC.getNumUnitDomainInfos() <= (int)domain || (pkDomainInfo = GC.getUnitDomainInfo(domain)) == NULL || strcmp(pkDomainInfo->GetType(), #domain) != 0) bError = true; }

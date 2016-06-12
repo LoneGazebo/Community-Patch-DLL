@@ -168,6 +168,7 @@
   <ItemGroup>
     <ClCompile Include="CvAStarNode.cpp" />
     <ClCompile Include="CvCityManager.cpp" />
+    <ClCompile Include="CvCorporationClasses.cpp" />
     <ClCompile Include="CvDistanceMap.cpp" />
     <ClCompile Include="CvGreatPersonInfo.cpp" />
     <ClCompile Include="CvTargeting.cpp" />
@@ -344,6 +345,7 @@
   <ItemGroup>
     <ClInclude Include="..\CvGameCoreDLLUtil\include\CvEnums.h" />
     <ClInclude Include="banned.h" />
+    <ClInclude Include="CvCorporationClasses.h" />
     <ClInclude Include="TContainer.h" />
     <ClInclude Include="CustomMods.h" />
     <ClInclude Include="CvAchievementUnlocker.h" />

@@ -87,9 +87,10 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_ePolicyEraUnlock(NO_ERA),
 	m_iIdeologyPoint(0),
 	m_piGoldenAgeYieldMod(NULL),
-	m_bOrderCorporation(false),
-	m_bAutocracyCorporation(false),
-	m_bFreedomCorporation(false),
+	m_bCorporationOfficesAsFranchises(false),
+	m_bCorporationFreeFranchiseAbovePopular(false),
+	m_bCorporationRandomForeignFranchise(false),
+	m_iAdditionalNumFranchisesMod(0),
 	m_bUpgradeCSTerritory(false),
 	m_bArchaeologicalDigTourism(false),
 	m_bGoldenAgeTourism(false),
@@ -449,9 +450,10 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		m_ePolicyEraUnlock = (EraTypes)GC.getInfoTypeForString(szUnlockPolicyEra, true);
 	}
 	m_iIdeologyPoint = kResults.GetInt("IdeologyPoint");
-	m_bOrderCorporation = kResults.GetBool("OrderCorporation");
-	m_bAutocracyCorporation = kResults.GetBool("AutocracyCorporation");
-	m_bFreedomCorporation = kResults.GetBool("FreedomCorporation");
+	m_bCorporationOfficesAsFranchises = kResults.GetBool("CorporationOfficesAsFranchises");
+	m_bCorporationFreeFranchiseAbovePopular = kResults.GetBool("CorporationFreeFranchiseAbovePopular");
+	m_bCorporationRandomForeignFranchise = kResults.GetBool("CorporationRandomForeignFranchise");
+	m_iAdditionalNumFranchisesMod = kResults.GetInt("AdditionalNumFranchisesMod");
 	m_bUpgradeCSTerritory = kResults.GetBool("UpgradeCSTerritory");
 	m_bArchaeologicalDigTourism = kResults.GetBool("ArchaeologicalDigTourism");
 	m_bGoldenAgeTourism = kResults.GetBool("GoldenAgeTourism");
@@ -1503,17 +1505,25 @@ int CvPolicyEntry::GetIdeologyPoint() const
 	return m_iIdeologyPoint;
 }
 
-bool CvPolicyEntry::IsOrderCorp() const
+/// Does this make Offices count as Franchises?
+bool CvPolicyEntry::IsCorporationOfficesAsFranchises() const
 {
-	return m_bOrderCorporation;
+	return m_bCorporationOfficesAsFranchises;
 }
-bool CvPolicyEntry::IsAutocracyCorp() const
+/// Does this grant a modifier to franchise count for each foreign city above Popular?
+bool CvPolicyEntry::IsCorporationFreeFranchiseAbovePopular() const
 {
-	return m_bAutocracyCorporation;
+	return m_bCorporationFreeFranchiseAbovePopular;
 }
-bool CvPolicyEntry::IsFreedomCorp() const
+/// Does this grant a chance for a random foreign franchise each turn?
+bool CvPolicyEntry::IsCorporationRandomForeignFranchise() const
 {
-	return m_bFreedomCorporation;
+	return m_bCorporationRandomForeignFranchise;
+}
+/// Does this grant additional franchises that can be established?
+int CvPolicyEntry::GetAdditionalNumFranchisesMod() const
+{
+	return m_iAdditionalNumFranchisesMod;
 }
 bool CvPolicyEntry::IsUpgradeCSTerritory() const
 {

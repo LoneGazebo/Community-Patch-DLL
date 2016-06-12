@@ -76,6 +76,7 @@ CvTechEntry::CvTechEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_iHappiness(0),
 	m_ppiTechYieldChanges(NULL),
+	m_bCorporationsEnabled(false),
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalageTradingAllowed(false),
@@ -158,6 +159,7 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iHappiness = kResults.GetInt("Happiness");
+	m_bCorporationsEnabled = kResults.GetBool("CorporationsEnabled");
 #endif
 
 	//References
@@ -621,6 +623,10 @@ int CvTechEntry::GetTechYieldChanges(int i, int j) const
 int CvTechEntry::GetHappiness() const
 {
 	return m_iHappiness;
+}
+bool CvTechEntry::IsCorporationsEnabled() const
+{
+	return m_bCorporationsEnabled;
 }
 #endif
 //=====================================

@@ -1532,6 +1532,13 @@ enum ReligionTypes
 	RELIGION_PANTHEON = 0,
 };
 
+#if defined(MOD_BALANCE_CORE)
+enum CorporationTypes
+{
+	NO_CORPORATION = -1,
+};
+#endif
+
 enum BeliefTypes					
 {
 	NO_BELIEF = -1,

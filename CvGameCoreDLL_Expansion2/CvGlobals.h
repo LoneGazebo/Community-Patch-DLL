@@ -137,7 +137,10 @@ class CvResolutionEntry;
 class CvResolutionXMLEntries;
 class CvDeal;
 class CvNetMessageHandler;
-class CvDiploModifierInfo;
+#if defined(MOD_BALANCE_CORE)
+class CvCorporationEntry;
+class CvCorporationXMLEntries;
+#endif
 
 class CvDLLInterfaceIFaceBase;
 class ICvDLLDatabaseUtility1;
@@ -535,6 +538,13 @@ public:
 	std::vector<CvReligionEntry*>& getReligionInfo();
 	_Ret_maybenull_ CvReligionEntry* getReligionInfo(ReligionTypes eReligionNum);
 	CvReligionXMLEntries* GetGameReligions() const;
+
+#if defined(MOD_BALANCE_CORE)
+	int getNumCorporationInfos();
+	std::vector<CvCorporationEntry*>& getCorporationInfo();
+	_Ret_maybenull_ CvCorporationEntry* getCorporationInfo(CorporationTypes eCorporationNum);
+	CvCorporationXMLEntries* GetGameCorporations() const;
+#endif
 
 	int getNumBeliefInfos();
 	std::vector<CvBeliefEntry*>& getBeliefInfo();
@@ -9051,6 +9061,9 @@ protected:
 	CvNotificationXMLEntries* m_pNotifications;
 #if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
 	CvAchievementXMLEntries* m_pAchievements;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	CvCorporationXMLEntries* m_pCorporations;
 #endif
 
 	//////////////////////////////////////////////////////////////////////////

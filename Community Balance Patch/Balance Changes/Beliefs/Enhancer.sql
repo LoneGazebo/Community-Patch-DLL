@@ -56,7 +56,7 @@ WHERE Type = 'BELIEF_MESSIAH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='CO
 
 -- Missionary Zeal (Now Scholar-Priests)
 UPDATE Beliefs
-SET SciencePerOtherReligionFollower = '10'
+SET SciencePerOtherReligionFollower = '8'
 WHERE Type = 'BELIEF_MISSIONARY_ZEAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Holy Order

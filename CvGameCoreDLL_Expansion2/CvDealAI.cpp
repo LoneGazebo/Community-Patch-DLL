@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -691,6 +691,10 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 	}
 #endif
 
+	// Important: check invalid return value!
+	if (iTotalValueToMe==INT_MAX || iTotalValueToMe==(INT_MAX * -1))
+		return false;
+
 #if defined(MOD_BALANCE_CORE_DEALS)
 	if (!pDeal->IsPeaceTreatyTrade(eOtherPlayer))
 	{
@@ -1130,7 +1134,18 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, int& iValueImOffering, int& iValueThey
 
 		//if the item is invalid, return invalid value for the whole deal
 		if (iItemValue==INT_MAX)
+		{
+			if(bFromMe)
+			{
+				iValueImOffering = INT_MAX;
+			}
+			else
+			{
+				iValueTheyreOffering = INT_MAX;
+			}
+
 			return iItemValue*iValueMultiplier;
+		}
 
 		iItemValue *= iValueMultiplier;
 		iDealValue += iItemValue;
@@ -2236,7 +2251,13 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	CvPlayer& buyingPlayer = GET_PLAYER(bFromMe ? eOtherPlayer : GetPlayer()->GetID());
 
 	//initial value - if we founded the city, we like it more
-	int iItemValue = (pCity->getOriginalOwner() == buyingPlayer.GetID()) ? 6000 : 4000;
+	int iItemValue = (pCity->getOriginalOwner() == buyingPlayer.GetID()) ? 20000 : 15000;
+
+	//If at war, halve the value (that way it'll fit in a peace deal's valuation model).
+	if (!sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
+	{
+		iItemValue /= 2;
+	}
 
 	//economic value is important
 	iItemValue += (pCity->getEconomicValue(buyingPlayer.GetID()) / 8);
@@ -2382,7 +2403,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	}
 
 	//buyer likes it close to home (up to 50% bonus) - this is in addition to the tile overlap above
-	int iRefDist = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT()+1;
+	int iRefDist = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT();
 	iItemValue *= 100 + MapToPercent(iBuyerDistance, iRefDist * 2, iRefDist)/2;
 	iItemValue /= 100;
 
@@ -2428,7 +2449,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		iItemValue *= 4;
 
 	// so here's the tricky part - convert to gold
-	iItemValue /= 5;
+	iItemValue /= 3;
 
 	//OutputDebugString(CvString::format("City value for %s from %s to %s is %d\n", pCity->getName().c_str(), sellingPlayer.getName(), buyingPlayer.getName(), iItemValue).c_str());
 
@@ -8558,7 +8579,7 @@ void CvDealAI::UpdateResearchRateCache(PlayerTypes eOther)
 // How much is a technology worth?
 int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlayer)
 {
-	int iItemValue = 1000;
+	int iItemValue = 250;
 	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
 
 	//important, don't want to recalculate for every potential tech

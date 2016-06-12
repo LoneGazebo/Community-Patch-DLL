@@ -741,6 +741,7 @@ DECLARE_SERIALIZATION_INFO_TYPE_HELPER(ProcessTypes);
 DECLARE_SERIALIZATION_INFO_TYPE_HELPER(ImprovementTypes);
 #if defined(MOD_BALANCE_CORE)
 DECLARE_SERIALIZATION_INFO_TYPE_HELPER(BuildingClassTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(CorporationTypes);
 #endif
 // Can't use this because nothing ever respects the values.  They are all hard-coded in the enum
 //DECLARE_SERIALIZATION_INFO_TYPE_HELPER(UnitAITypes);

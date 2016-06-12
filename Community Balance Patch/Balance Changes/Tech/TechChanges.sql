@@ -159,11 +159,11 @@ SET FlatMovement = '50'
 WHERE Type = 'ROUTE_ROAD';
 
 UPDATE Routes
-SET Movement = '30'
+SET Movement = '25'
 WHERE Type = 'ROUTE_RAILROAD';
 
 UPDATE Routes
-SET FlatMovement = '30'
+SET FlatMovement = '25'
 WHERE Type = 'ROUTE_RAILROAD';
 
 -- Bombard Changes

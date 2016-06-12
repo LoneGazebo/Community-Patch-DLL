@@ -8021,6 +8021,16 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		{
 			return false;
 		}
+
+		CvTeam* pTargetCityStateTeam = &GET_TEAM(GET_PLAYER(eTargetCityState).getTeam());
+		if(pTargetCityStateTeam)
+		{
+			// Player already liberated the City State?
+			if(pTargetCityStateTeam->GetLiberatedByTeam() == GET_PLAYER(ePlayer).getTeam())
+			{
+				return false;
+			}
+		}
 	}
 	// BARBARIAN HORDE!
 	else if(eQuest == MINOR_CIV_QUEST_HORDE)
@@ -10175,12 +10185,11 @@ BuildingTypes CvMinorCivAI::GetBestWonderForQuest(PlayerTypes ePlayer)
 		{
 			continue;
 		}
-#if defined(MOD_BALANCE_CORE)
-		if(pkBuildingInfo->GetCorporationID() > 0)
+		// Is a Corporation building?
+		if (pkBuildingInfo->GetBuildingClassInfo().getCorporationType() != NO_CORPORATION)
 		{
 			continue;
 		}
-#endif
 
 		// Someone CAN be building this wonder right now, but they can't be more than a certain % of the way done (25% by default)
 		for(iWorldPlayerLoop = 0; iWorldPlayerLoop < MAX_MAJOR_CIVS; iWorldPlayerLoop++)
@@ -10257,7 +10266,8 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if(pkBuildingInfo->GetCorporationID() > 0)
+		// Is a Corporation building?
+		if (pkBuildingInfo->GetBuildingClassInfo().getCorporationType() != NO_CORPORATION)
 		{
 			continue;
 		}

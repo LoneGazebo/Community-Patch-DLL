@@ -108,7 +108,7 @@ WHERE Type = 'POLICY_YOUNG_PIONEERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 INSERT INTO Policy_BuildingClassYieldChanges
 	(PolicyType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('POLICY_WORKERS_FACULTIES', 'BUILDINGCLASS_FACTORY', 'YIELD_SCIENCE', 2);
+	('POLICY_WORKERS_FACULTIES', 'BUILDINGCLASS_FACTORY', 'YIELD_SCIENCE', 3);
 
 INSERT INTO Policy_BuildingClassCultureChanges
 	(PolicyType, BuildingClassType, CultureChange)

@@ -56,6 +56,8 @@ protected:
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	static int lGetResourceMonopolyPlayer(lua_State* L);
 	static int lGetMonopolyPercent(lua_State* L);
+	static int lHasGlobalMonopoly(lua_State* L);
+	static int lHasStrategicMonopoly(lua_State* L);
 #endif
 	static int lDisbandUnit(lua_State* L);
 	static int lAddFreeUnit(lua_State* L);
@@ -1251,13 +1253,8 @@ protected:
 	static int lGetInternationalTradeRouteCorporationModifierScience(lua_State* L);
 	static int lGetNumberofGlobalFranchises(lua_State* L);
 	static int lGetNumberofOffices(lua_State* L);
-	static int lGetCorporationName(lua_State* L);
-	static int lGetCorporationHelper(lua_State* L);
 	static int lGetMaxFranchises(lua_State* L);
-	static int lGetCorpID(lua_State* L);
-	static int lGetCorporationHeadquarters(lua_State* L);
-	static int lGetOfficeBuilding(lua_State* L);
-	static int lGetFranchiseBuilding(lua_State* L);
+	static int lGetCorporation(lua_State* L);
 	static int lGetCorporationFoundedTurn(lua_State* L);
 	static int lGetCurrentOfficeBenefit(lua_State* L);
 #endif

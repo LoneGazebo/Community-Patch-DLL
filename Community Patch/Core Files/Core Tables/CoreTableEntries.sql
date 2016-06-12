@@ -685,27 +685,21 @@ ALTER TABLE Buildings ADD COLUMN 'BlockScienceTheft' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'BlockGoldTheft' INTEGER DEFAULT 0;
 
 
-
--- CORPORATIONS
-ALTER TABLE Policies ADD COLUMN 'MaxCorporations' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'CorporationMaxFranchises' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'FreeBuildingTradeTargetCity' TEXT DEFAULT NULL;
-ALTER TABLE Buildings ADD COLUMN 'CorporationID' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'CorporationHQID' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'CorporationGPChange' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'TradeRouteInvulnerable' BOOLEAN DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'TRSpeedBoost' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'TRVisionBoost' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'CorporationResourceBonusHelp' TEXT DEFAULT NULL;
-ALTER TABLE Buildings ADD COLUMN 'CorporationOfficeBonusHelp' TEXT DEFAULT NULL;
-ALTER TABLE Buildings ADD COLUMN 'CorporationTradeRouteBonusHelp' TEXT DEFAULT NULL;
-ALTER TABLE Buildings ADD COLUMN 'CorporationHelper' TEXT DEFAULT NULL;
-ALTER TABLE Buildings ADD COLUMN 'OfficeBenefitHelper' TEXT DEFAULT NULL;
+-- Resources
 ALTER TABLE Resources ADD COLUMN 'StrategicHelp' TEXT DEFAULT NULL;
 
-ALTER TABLE Policies ADD COLUMN 'OrderCorporation' BOOLEAN DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'AutocracyCorporation' BOOLEAN DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'FreedomCorporation' BOOLEAN DEFAULT 0;
+-- CORPORATIONS
+ALTER TABLE Technologies ADD COLUMN 'CorporationsEnabled' BOOLEAN;
+
+ALTER TABLE Buildings ADD COLUMN 'GPRateModifierPerXFranchises' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'TRSpeedBoost' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'TRVisionBoost' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'OfficeBenefitHelper' TEXT DEFAULT NULL;
+-- Corporation Policies
+ALTER TABLE Policies ADD COLUMN 'CorporationOfficesAsFranchises' BOOLEAN DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'CorporationFreeFranchiseAbovePopular' BOOLEAN DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'CorporationRandomForeignFranchise' BOOLEAN DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'AdditionalNumFranchisesMod' INTEGER DEFAULT 0;				-- 20 = 20% additional, NOT 1/5 of existing value. this stacks, so 120%, 140%, 160%, etc...
 
 -- Minor Civs
 ALTER TABLE MinorCivilizations ADD COLUMN 'BullyUnitClass' TEXT DEFAULT NULL;
@@ -731,7 +725,7 @@ ALTER TABLE Policies ADD COLUMN 'ExtraNaturalWonderHappiness' INTEGER DEFAULT 0;
 -- Worlds
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCities' INTEGER DEFAULT 0;
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCityStates' INTEGER DEFAULT 0;
-ALTER TABLE Worlds ADD COLUMN 'ReformationPercentRequired' INTEGER DEFAULT 0;
+ALTER TABLE Worlds ADD COLUMN 'ReformationPercentRequired' INTEGER DEFAULT 100;
 
 -- CSD
 

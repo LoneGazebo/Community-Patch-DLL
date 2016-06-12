@@ -165,6 +165,25 @@ function GetHelpTextForTech( iTechID )
 	if numProcesses > 0 then
 		UnlocksString = UnlocksString .. ProcessesString
 	end
+
+	-- CORPS
+	if (thisTech.CorporationsEnabled) then
+		local CorpsString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_CORPS_UNLOCKED");
+		local numCorps = 0;	
+		-- update the process actions unlocked
+		for thisCorpInfo in GameInfo.Corporations() do
+			if(thisCorpInfo) then
+				if numCorps > 0 then
+					CorpsString = CorpsString .. "[NEWLINE]"
+				end
+				numCorps = numCorps + 1;
+				CorpsString = CorpsString .. " [ICON_BULLET] " .. Locale.ConvertTextKey(thisCorpInfo.Description);
+			end			
+		end
+		if numCorps > 0 then
+			UnlocksString = UnlocksString .. CorpsString
+		end
+	end
 	
 	local ResourceString = Locale.ConvertTextKey("TXT_KEY_TECH_HELP_RESOURCES_UNLOCKED");
 	local numResources = 0;	
@@ -418,6 +437,15 @@ function GetHelpTextForTech( iTechID )
 				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
 		end
 		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_VASSALAGE_STRING" );
+		numAbilities = numAbilities + 1;
+	end
+
+	-- CORP
+	if (thisTech.CorporationsEnabled) then
+		if numAbilities > 0 then
+				abilitiesString = abilitiesString .. "[NEWLINE] [ICON_BULLET] ";
+		end
+		abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_ENABLES_CORPORATIONS" );
 		numAbilities = numAbilities + 1;
 	end
 

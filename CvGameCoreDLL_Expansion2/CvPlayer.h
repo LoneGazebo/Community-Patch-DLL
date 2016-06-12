@@ -49,6 +49,9 @@ class CvDangerPlots;
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	class CvDistanceMap;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	class CvPlayerCorporations;
+#endif
 class CvCityConnections;
 class CvNotifications;
 class CvTreasury;
@@ -129,6 +132,9 @@ public:
 	void SetBestMilitaryCityDomain(int iValue, DomainTypes eDomain);
 	void SetBestMilitaryCityCombatClass(int iValue, UnitCombatTypes eUnitCombat);
 	CvCity* GetBestMilitaryCity(UnitCombatTypes eUnitCombat = NO_UNITCOMBAT, DomainTypes eDomain = NO_DOMAIN);
+
+	// Declared public because CvPlayerCorporations needs to access this. Maybe want to use a friend
+	void processCorporations(CorporationTypes eCorporation, int iChange);
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	void DoEvents();
@@ -728,14 +734,6 @@ public:
 	int GetIdeologyPoint() const;
 	void SetIdeologyPoint(int iValue);
 	void ChangeIdeologyPoint(int iChange);
-
-	void SetOrderCorp(bool bValue);
-	void SetAutocracyCorp(bool bValue);
-	void SetFreedomCorp(bool bValue);
-
-	bool IsOrderCorp();
-	bool IsAutocracyCorp();
-	bool IsFreedomCorp();
 #endif
 
 	int GetHappinessFromMinorCivs() const;
@@ -1421,28 +1419,6 @@ public:
 	int GetAbleToMarryCityStatesCount() const;
 	void ChangeAbleToMarryCityStatesCount(int iChange);
 
-	void SetCorporateFounderID(int iValue);
-	int GetCorporateFounderID() const;
-
-	void SetCorporateFoundedTurn(int iValue);
-	int GetCorporateFoundedTurn() const;
-
-	void ChangeCorporationMaxFranchises(int iValue);
-	int GetCorporationMaxFranchises() const;
-
-	void DoFreedomCorp();
-
-	CvString GetCurrentOfficeBenefit() const;
-
-	void CalculateCorporateFranchisesWorldwide();
-	int GetCorporateFranchisesWorldwide() const;
-	void SetCorporateFranchisesWorldwide(int iValue);
-
-	int GetMaxFranchises();
-
-	bool AreTradeRoutesInvulnerable() const;
-	void SetTradeRoutesInvulnerable(bool bValue);
-
 	void ChangeTRSpeedBoost(int iValue);
 	int GetTRSpeedBoost() const;
 	void SetTRSpeedBoost(int iValue);
@@ -1931,10 +1907,8 @@ public:
 	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
 	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bIgnoreResourceWarning = false);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	//global monopolies kick in at 50%
 	bool HasGlobalMonopoly(ResourceTypes eResource) const;
 	void SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue);
-	//strategic monopolies kick in at 25%
 	bool HasStrategicMonopoly(ResourceTypes eResource) const;
 	void SetHasStrategicMonopoly(ResourceTypes eResource, bool bNewValue);
 	void CheckForMonopoly(ResourceTypes eResource);
@@ -2415,6 +2389,9 @@ public:
 	CvTradeAI* GetTradeAI() const;
 	CvLeagueAI* GetLeagueAI() const;
 	CvNotifications* GetNotifications() const;
+#if defined(MOD_BALANCE_CORE)
+	CvPlayerCorporations* GetCorporations() const;
+#endif
 #if defined(MOD_API_EXTENSIONS)
 	int AddNotification(NotificationTypes eNotificationType, const char* sMessage, const char* sSummary, CvPlot* pPlot = NULL, int iGameDataIndex = -1, int iExtraGameData = -1);
 	int AddNotification(NotificationTypes eNotificationType, const char* sMessage, const char* sSummary, int iGameDataIndex, int iExtraGameData = -1);
@@ -2683,9 +2660,6 @@ protected:
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	FAutoVariable<int, CvPlayer> m_iHappinessPerXPopulationGlobal;
 	FAutoVariable<int, CvPlayer> m_iIdeologyPoint;
-	FAutoVariable<bool, CvPlayer> m_bOrderCorp;
-	FAutoVariable<bool, CvPlayer> m_bAutocracyCorp;
-	FAutoVariable<bool, CvPlayer> m_bFreedomCorp;
 #endif
 	FAutoVariable<int, CvPlayer> m_iHappinessFromLeagues;
 	FAutoVariable<int, CvPlayer> m_iSpecialPolicyBuildingHappiness;  //unused
@@ -2953,10 +2927,6 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iNoPartisans;
 	FAutoVariable<int, CvPlayer> m_iSpawnCooldown;
 	FAutoVariable<int, CvPlayer> m_iAbleToMarryCityStatesCount;
-	FAutoVariable<int, CvPlayer> m_iCorporateFounderID;
-	FAutoVariable<int, CvPlayer> m_iCorporateFoundedTurn;
-	FAutoVariable<int, CvPlayer> m_iCorporationMaxFranchises;
-	FAutoVariable<int, CvPlayer> m_iCorporateFranchises;
 	FAutoVariable<bool, CvPlayer> m_bTradeRoutesInvulnerable;
 	FAutoVariable<int, CvPlayer> m_iTRSpeedBoost;
 	FAutoVariable<int, CvPlayer> m_iVotesPerGPT;
@@ -3250,6 +3220,10 @@ protected:
 	// Religion AI
 	CvPlayerReligions* m_pReligions;
 	CvReligionAI* m_pReligionAI;
+
+#if defined(MOD_BALANCE_CORE)
+	CvPlayerCorporations* m_pCorporations;
+#endif
 
 	// AI Tactics
 	CvTacticalAI* m_pTacticalAI;

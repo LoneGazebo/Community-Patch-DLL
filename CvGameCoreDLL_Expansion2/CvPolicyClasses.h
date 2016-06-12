@@ -97,9 +97,10 @@ public:
 	int GetHappinessPerXPopulationGlobal() const;
 	EraTypes GetPolicyEraUnlock() const;
 	int GetIdeologyPoint() const;
-	bool IsOrderCorp() const;
-	bool IsAutocracyCorp() const;
-	bool IsFreedomCorp() const;
+	bool IsCorporationOfficesAsFranchises() const;
+	bool IsCorporationFreeFranchiseAbovePopular() const;
+	bool IsCorporationRandomForeignFranchise() const;
+	int GetAdditionalNumFranchisesMod() const;
 	bool IsUpgradeCSTerritory() const;
 	bool IsArchaeologicalDigTourism() const;
 	bool IsGoldenAgeTourism() const;
@@ -602,9 +603,10 @@ private:
 	int m_iMaxCorporations;
 	int m_iRazingSpeedBonus;
 	bool m_bNoPartisans;
-	bool m_bOrderCorporation;
-	bool m_bAutocracyCorporation;
-	bool m_bFreedomCorporation;
+	bool m_bCorporationOfficesAsFranchises;
+	bool m_bCorporationFreeFranchiseAbovePopular;
+	bool m_bCorporationRandomForeignFranchise;
+	int m_iAdditionalNumFranchisesMod;
 	bool m_bUpgradeCSTerritory;
 	bool m_bArchaeologicalDigTourism;
 	bool m_bGoldenAgeTourism;

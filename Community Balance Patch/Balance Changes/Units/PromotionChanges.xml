@@ -362,7 +362,7 @@
 			<PromotionPrereqOr3>PROMOTION_ACCURACY_3</PromotionPrereqOr3>
 			<PromotionPrereqOr4>PROMOTION_BARRAGE_3</PromotionPrereqOr4>
 			<OrderPriority>7</OrderPriority>
-			<RangedAttackModifier>-20</RangedAttackModifier>
+			<RangedAttackModifier>-10</RangedAttackModifier>
 			<RangeAttackIgnoreLOS>true</RangeAttackIgnoreLOS>
 			<PortraitIndex>35</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -2243,10 +2243,7 @@
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_CHEST</PediaEntry>
-			<OpenAttack>10</OpenAttack>
-			<OpenDefense>10</OpenDefense>
-			<RoughDefense>10</RoughDefense>
-			<RoughAttack>10</RoughAttack>
+			<CombatPercent>10</CombatPercent>
 			<FlankAttackModifier>25</FlankAttackModifier>
 			<RangedDefenseMod>10</RangedDefenseMod>
 		</Replace>
@@ -2260,10 +2257,7 @@
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_LOINS</PediaEntry>
-			<OpenAttack>15</OpenAttack>
-			<OpenDefense>15</OpenDefense>
-			<RoughDefense>15</RoughDefense>
-			<RoughAttack>15</RoughAttack>
+			<CombatPercent>15</CombatPercent>
 			<FlankAttackModifier>50</FlankAttackModifier>
 			<RangedDefenseMod>15</RangedDefenseMod>
 		</Replace>
@@ -3245,6 +3239,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>1</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_TARGETING_3</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_WOLFPACK_3</PromotionPrereqOr2>
 			<IgnoreZOC>true</IgnoreZOC>
 			<PortraitIndex>23</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>

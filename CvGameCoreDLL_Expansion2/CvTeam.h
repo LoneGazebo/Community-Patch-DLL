@@ -136,6 +136,10 @@ public:
 	bool isMember(PlayerTypes eID) const;
 	void updateTeamStatus();
 	void ClearWarDeclarationCache();
+
+	int getCorporationsEnabledCount() const;
+	bool IsCorporationsEnabled() const;
+	void changeCorporationsEnabledCount(int iChange);
 #endif
 
 	int getAliveCount() const;
@@ -530,6 +534,7 @@ protected:
 	std::map<std::pair<TeamTypes,PlayerTypes>,bool> m_cacheCanDeclareWar;
 	bool m_bIsMinorTeam;
 	bool m_bIsObserverTeam;
+	int m_iCorporationsEnabledCount;
 #endif
 
 	int m_iNumMembers;

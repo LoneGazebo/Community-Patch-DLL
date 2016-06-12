@@ -933,6 +933,9 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 
 					DeleteMissionQueueNode(hUnit, HeadMissionQueueNode(hUnit->m_missionQueue));
 				}
+
+				//done for this turn
+				DeactivateHeadMission(hUnit,0);
 			}
 			else
 			{

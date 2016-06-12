@@ -1028,27 +1028,17 @@ public:
 	void ChangeFreeBuildingTradeTargetCity(int iChange);
 	void SetFreeBuildingTradeTargetCity(int iValue);
 
-	int GetCorporationYieldChange(YieldTypes eIndex) const;
-	void ChangeCorporationYieldChange(YieldTypes eIndex, int iChange);
-	void SetCorporationYieldChange(YieldTypes eIndex, int iValue);
+	int GetTradeRouteCityMod(YieldTypes eIndex) const;
 
-	int GetCorporationYieldModChange(YieldTypes eIndex) const;
-	void ChangeCorporationYieldModChange(YieldTypes eIndex, int iChange);
-	void SetCorporationYieldModChange(YieldTypes eIndex, int iValue);
+	int GetGPRateModifierPerXFranchises() const;
 
-	int GetCorporationGPChange() const;
-	void ChangeCorporationGPChange(int iChange);
-	void SetCorporationGPChange(int iValue);
+	bool IsHeadquarters() const;
+	bool IsHasOffice() const;
+	bool IsHasFranchise(CorporationTypes eCorporation) const;
 
-	bool IsFranchised(PlayerTypes ePlayer);
-	void SetFranchised(PlayerTypes ePlayer, bool bValue);
-
-	bool HasOffice();
-	void SetHasOffice(bool bValue);
-
-	int GetCorporationResourceQuantity(ResourceTypes eResource) const;
-	void ChangeCorporationResourceQuantity(ResourceTypes eResource, int iChange);
-	void SetCorporationResourceQuantity(ResourceTypes eResource, int iValue);
+	int GetResourceQuantityPerXFranchises(ResourceTypes eResource) const;
+	void ChangeResourceQuantityPerXFranchises(ResourceTypes eResource, int iChange);
+	void SetResourceQuantityPerXFranchises(ResourceTypes eResource, int iValue);
 
 	int GetLandTourismBonus() const;
 	void ChangeLandTourismBonus(int iChange);
@@ -1628,10 +1618,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromCSAlliance;
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromCSFriendship;
-	FAutoVariable<std::vector<int>, CvCity> m_aiCorporationYieldChange;
-	FAutoVariable<std::vector<int>, CvCity> m_aiCorporationYieldModChange;
-	FAutoVariable<int, CvCity> m_iCorporationGPChange;
-	FAutoVariable<std::vector<int>, CvCity> m_aiCorporationResourceQuantity;
+	FAutoVariable<std::vector<int>, CvCity> m_aiResourceQuantityPerXFranchises;
 	FAutoVariable<int, CvCity> m_iLandTourismBonus;
 	FAutoVariable<int, CvCity> m_iSeaTourismBonus;
 	FAutoVariable<int, CvCity> m_iAlwaysHeal;
@@ -1650,9 +1637,7 @@ protected:
 	FAutoVariable<std::vector<bool>, CvCity> m_abEverOwned;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<bool>, CvCity> m_abIsPurchased;
-	FAutoVariable<std::vector<bool>, CvCity> m_abFranchised;
 	FAutoVariable<std::vector<bool>, CvCity> m_abTraded;
-	FAutoVariable<bool, CvCity> m_bHasOffice;
 	FAutoVariable<int, CvCity> m_iExtraBuildingMaintenance;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumTerrainWorked;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumFeaturelessTerrainWorked;

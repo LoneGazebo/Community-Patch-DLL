@@ -496,10 +496,12 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		end
 	end
 -- CBP
-	local iCorpGPChange = pBuildingInfo.CorporationGPChange;
-	if iCorpGPChange ~=0 then
-		local localizedText = Locale.ConvertTextKey("TXT_KEY_PEDIA_CORP_GP_CHANGE", iCorpGPChange);
-		table.insert(lines, localizedText);
+	if (pCity ~= nil) then
+		local iCorpGPChange = pCity:GetGPRateModifierPerXFranchises();
+		if iCorpGPChange ~=0 then
+			local localizedText = Locale.ConvertTextKey("TXT_KEY_PEDIA_CORP_GP_CHANGE", iCorpGPChange);
+			table.insert(lines, localizedText);
+		end
 	end
 -- END
 	local iNumGreatWorks = pBuildingInfo.GreatWorkCount;
@@ -987,8 +989,8 @@ function GetCultureTooltip(pCity)
 			end
 		end
 
-		if (pCity:GetCorporationYieldModChange(YieldTypes.YIELD_CULTURE) > 0) then
-			iAmount = pCity:GetCorporationYieldModChange(YieldTypes.YIELD_CULTURE);
+		if (pCity:GetTradeRouteCityMod(YieldTypes.YIELD_CULTURE) > 0) then
+			iAmount = pCity:GetTradeRouteCityMod(YieldTypes.YIELD_CULTURE);
 			
 			if (iAmount ~= 0) then
 				strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
