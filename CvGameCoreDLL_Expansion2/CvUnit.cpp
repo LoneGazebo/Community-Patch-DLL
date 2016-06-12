@@ -26550,7 +26550,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			//if the pathfinder inserted a stop node because the next plot is occupied
 			//we see that the expected moves are greater than what we have right now
 			//in that case don't execute the move
-			if (m_kLastPath.front().m_iMoves>getMoves())
+			if (pPathPlot && m_kLastPath.front().m_iMoves>getMoves())
 			{
 				return 0;
 			}
@@ -26614,6 +26614,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		}
 	}
 
+	//todo: consider movement flags here. especially turn destination, not only path destination
 	bool bEndMove = (pPathPlot == pDestPlot);
 	bool bMoved = UnitMove(pPathPlot, IsCombatUnit(), NULL, bEndMove);
 

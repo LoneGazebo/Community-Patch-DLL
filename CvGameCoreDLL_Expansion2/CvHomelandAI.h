@@ -360,7 +360,6 @@ private:
 	void ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags);
 
 	void ExecuteHeals();
-	void ExecutePatrolMoves();
 	void ExecuteWriterMoves();
 	void ExecuteArtistMoves();
 	void ExecuteMusicianMoves();
