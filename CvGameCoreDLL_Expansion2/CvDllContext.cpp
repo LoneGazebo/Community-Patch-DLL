@@ -1067,7 +1067,7 @@ void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 	}
 
 	TacticalAIHelpers::GetPreferredPlotsForUnit(pkUnit,pTarget,true,vResult);
-	if (g_iCurPlotIndex<vResult.size())
+	if (g_iCurPlotIndex < vResult.size())
 	{
 		CvPlot* pPlot = GC.getMap().plot(vResult[g_iCurPlotIndex].m_iX, vResult[g_iCurPlotIndex].m_iY);
 		if(pPlot)

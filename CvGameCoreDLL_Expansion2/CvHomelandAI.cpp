@@ -6370,7 +6370,9 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 	//stats to decide whether to disband a unit
 	int iWaterRoutes = 0;
 	int iLandRoutes = 0;
-
+#if defined(MOD_BALANCE_CORE)
+	int iDupes = 0;
+#endif
 	//for the N best trade routes, find a suitable unit
 	//check at least the 8 best routes, at max 3 times the number of free trade units
 	uint nRoutesToCheck = MIN(aTradeConnections.size(),MAX(m_CurrentMoveUnits.size()*3,8u));
@@ -6384,9 +6386,18 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 		if (aTradeConnections[ui].m_eDomain==DOMAIN_LAND)
 			iLandRoutes++;
 
+#if defined(MOD_BALANCE_CORE)	
+		//if we already made 3 routes from here this turn, then skip it
+		if (originCities.find(aTradeConnections[ui].m_iOriginID)!=originCities.end())
+			iDupes++;
+
+		if(iDupes >= 3)
+			continue;
+#else
 		//if we already made a route from here this turn, then skip it
 		if (originCities.find(aTradeConnections[ui].m_iOriginID)!=originCities.end())
 			continue;
+#endif
 
 		//we don't really care about the distance but not having to re-base is good
 		CvUnit *pBestUnit = NULL;
@@ -6461,6 +6472,7 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 
 					LogHomelandMessage(strLogString);
 				}
+				UnitProcessed(pBestUnit->GetID());
 			}
 		}
 	}
@@ -6470,7 +6482,7 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if(!pUnit || !pUnit->canMove())
+		if(!pUnit || !pUnit->canMove() || pUnit->TurnProcessed())
 			continue;
 
 		bool bKill = false;

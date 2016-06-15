@@ -104,10 +104,10 @@
 			<Text>Spend {1_Scaled}. 50% Chance that Fishing Boats near the City will gain +2 [ICON_FOOD] Food for {5_Turns}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3">
-			<Text>I'd rather invest in real estate.</Text>
+			<Text>I'd rather invest in infrastructure.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3_HELP">
-			<Text>Spend {1_YieldCost}. A Lighthouse is constructed in the City.</Text>
+			<Text>Spend {1_YieldCost}. A Harbor is constructed in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_1_SUCCESSFUL">
 			<Text>The fishermen from {2_City} succeeded on their voyage, and have returned with a large haul of fish!{5_Help}</Text>
@@ -152,7 +152,7 @@
 			<Text>They should have been praying instead.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_4_HELP">
-			<Text>Gain {1_YieldCost}.</Text>
+			<Text>Gain {2_InstantYield}.</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_1_SUCCESSFUL">

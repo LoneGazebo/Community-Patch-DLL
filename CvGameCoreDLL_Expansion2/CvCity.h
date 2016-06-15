@@ -1315,7 +1315,11 @@ public:
 	virtual void AI_init() = 0;
 	virtual void AI_reset() = 0;
 	virtual void AI_doTurn() = 0;
+#if defined(MOD_BALANCE_CORE)
+	virtual void AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildings) = 0;
+#else
 	virtual void AI_chooseProduction(bool bInterruptWonders) = 0;
+#endif
 	virtual bool AI_isChooseProductionDirty() = 0;
 	virtual void AI_setChooseProductionDirty(bool bNewValue) = 0;
 

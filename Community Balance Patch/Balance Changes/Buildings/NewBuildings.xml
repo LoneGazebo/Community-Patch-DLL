@@ -562,6 +562,7 @@
 			<Strategy>TXT_KEY_BUILDING_JELLING_STONES_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_EPIC</ArtDefineTag>
 			<GreatPeopleRateModifier>15</GreatPeopleRateModifier>
+			<AllowsWaterRoutes>true</AllowsWaterRoutes>
 			<HurryCostModifier>25</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>

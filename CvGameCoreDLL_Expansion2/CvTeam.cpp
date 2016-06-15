@@ -7968,7 +7968,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 					
 					if(kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0)
 					{
-						BuildingTypes eBuilding = ((BuildingTypes)(thisCiv.getCivilizationBuildings(iI)));
+						BuildingTypes eBuilding = ((BuildingTypes)(thisCiv.getCivilizationBuildings((BuildingClassTypes)iI)));
 
 						if(eBuilding != NO_BUILDING)
 						{
@@ -7982,23 +7982,23 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 									{
 										if(kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0)
 										{
+											if(pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
+											{
+												pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+											}
 											if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) <= 0)
 											{
-												if(pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
-												{
-													pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
-												}
 												pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
-												if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
-												{
-													kPlayer.ChangeNumCitiesFreeChosenBuilding((BuildingClassTypes)iI, -1);
-												}
-												if(pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
-												{
-													pLoopCity->clearOrderQueue();
-													pLoopCity->chooseProduction();
-													// Send a notification to the user that what they were building was given to them, and they need to produce something else.
-												}
+											}
+											if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+											{
+												kPlayer.ChangeNumCitiesFreeChosenBuilding((BuildingClassTypes)iI, -1);
+											}
+											if(pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
+											{
+												pLoopCity->clearOrderQueue();
+												pLoopCity->chooseProduction();
+												// Send a notification to the user that what they were building was given to them, and they need to produce something else.
 											}
 										}
 									}

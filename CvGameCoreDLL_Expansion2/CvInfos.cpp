@@ -1736,6 +1736,9 @@ CvBuildingClassInfo::CvBuildingClassInfo() :
 	m_bMonument(false),
 #if defined(MOD_BALANCE_CORE)
 	m_eCorporationType(NO_CORPORATION),
+	m_bIsHeadquarters(false),
+	m_bIsOffice(false),
+	m_bIsFranchise(false),
 #endif
 	m_piVictoryThreshold(NULL)
 {

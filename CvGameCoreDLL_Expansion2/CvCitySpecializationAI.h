@@ -205,6 +205,9 @@ private:
 
 	// Wonder builds
 	bool m_bInterruptWonders;
+#if defined(MOD_BALANCE_CORE)
+	bool m_bInterruptBuildings;
+#endif
 	BuildingTypes m_eNextWonderDesired;
 	int m_iWonderCityID;
 	int m_iNextWonderWeight;

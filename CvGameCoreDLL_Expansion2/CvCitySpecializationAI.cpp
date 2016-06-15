@@ -220,6 +220,9 @@ void CvCitySpecializationXMLEntries::DeleteArray()
 CvCitySpecializationAI::CvCitySpecializationAI():
 	m_bSpecializationsDirty(false),
 	m_bInterruptWonders(false),
+#if defined(MOD_BALANCE_CORE)
+	m_bInterruptBuildings(false),
+#endif
 	m_eNextSpecializationDesired(NO_CITY_SPECIALIZATION),
 	m_eNextWonderDesired(NO_BUILDING),
 	m_iWonderCityID(-1),
@@ -253,6 +256,9 @@ void CvCitySpecializationAI::Reset()
 {
 	m_bSpecializationsDirty = false;
 	m_bInterruptWonders = false;
+#if defined(MOD_BALANCE_CORE)
+	m_bInterruptBuildings = false;
+#endif
 	m_eNextSpecializationDesired = NO_CITY_SPECIALIZATION;
 	m_eNextWonderDesired = NO_BUILDING;
 	m_iWonderCityID = -1;
@@ -272,6 +278,9 @@ void CvCitySpecializationAI::Read(FDataStream& kStream)
 
 	kStream >> m_bSpecializationsDirty;
 	kStream >> m_bInterruptWonders;
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_bInterruptBuildings;
+#endif
 	kStream >> m_eNextSpecializationDesired;
 	kStream >> (int&)m_eNextWonderDesired;
 	kStream >> m_iWonderCityID;
@@ -298,6 +307,9 @@ void CvCitySpecializationAI::Write(FDataStream& kStream) const
 
 	kStream << m_bSpecializationsDirty;
 	kStream << m_bInterruptWonders;
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_bInterruptBuildings;
+#endif
 	kStream << m_eNextSpecializationDesired;
 	kStream << m_eNextWonderDesired;
 	kStream << m_iWonderCityID;
@@ -362,21 +374,33 @@ void CvCitySpecializationAI::DoTurn()
 		m_bSpecializationsDirty = false;
 		m_iLastTurnEvaluated = GC.getGame().getGameTurn();
 
+#if defined(MOD_BALANCE_CORE)
+		// Do we need to choose production again at all our cities?
+		if(m_bInterruptWonders || m_bInterruptBuildings)
+#else
 		// Do we need to choose production again at all our cities?
 		if(m_bInterruptWonders)
+#endif
 		{
 			CvCity* pLoopCity = NULL;
 			for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 			{
 				if(!pLoopCity->IsBuildingUnitForOperation())
 				{
+#if defined(MOD_BALANCE_CORE)
+					pLoopCity->AI_chooseProduction(m_bInterruptWonders, m_bInterruptBuildings);
+#else
 					pLoopCity->AI_chooseProduction(true /*bInterruptWonders*/);
+#endif
 				}
 			}
 		}
 
 		// Reset this flag -- need a new high priority event before we'll interrupt again
 		m_bInterruptWonders = false;
+#if defined(MOD_BALANCE_CORE)
+		m_bInterruptBuildings = false;
+#endif
 	}
 }
 
@@ -403,7 +427,15 @@ void CvCitySpecializationAI::SetSpecializationsDirty(CitySpecializationUpdateTyp
 		case SPECIALIZATION_UPDATE_NOW_AT_WAR:
 		case SPECIALIZATION_UPDATE_MY_CITY_CAPTURED:
 			m_bInterruptWonders = true;
+#if defined(MOD_BALANCE_CORE)
+			m_bInterruptBuildings = true;
+#endif
 			break;
+#if defined(MOD_BALANCE_CORE)
+		case SPECIALIZATION_UPDATE_ENEMY_CITY_CAPTURED:
+			m_bInterruptBuildings = true;
+			break;
+#endif
 		default:
 			// Don't set it to false for these other cases!
 			// We shouldn't set it to false until after the next time we've picked specializations.

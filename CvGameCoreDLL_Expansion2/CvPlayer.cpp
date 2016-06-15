@@ -12935,7 +12935,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 	if(!bTestVisible)
 	{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		if(MOD_BALANCE_CORE_MILITARY && !pUnitInfo.IsFound() && !isBarbarian() && GetNumUnitsOutOfSupply() > 0)
+		if(MOD_BALANCE_CORE_MILITARY && pUnitInfo.GetCombat() > 0 && !isBarbarian() && GetNumUnitsOutOfSupply() > 0)
 		{
 			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NO_SUPPLY");
 			if(toolTipSink == NULL)
@@ -37255,6 +37255,50 @@ void CvPlayer::processCorporations(CorporationTypes eCorporation, int iChange)
 		for (jJ = 0; jJ < GC.getNumSpecialistInfos(); jJ++)
 		{
 			changeSpecialistYieldChange((SpecialistTypes)jJ, (YieldTypes)iI, pkCorporationEntry->GetSpecialistYieldChange(jJ, iI) * iChange);
+		}
+	}
+	// Loop through Cities
+	int iLoop;
+	CvCity* pLoopCity;
+	int iBuildingCount;
+	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		// Building modifiers
+		BuildingClassTypes eBuildingClass;
+		for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		{
+			eBuildingClass = (BuildingClassTypes) iI;
+
+			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+			if(!pkBuildingClassInfo)
+			{
+				continue;
+			}
+
+			BuildingTypes eTestBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+
+			if(eTestBuilding != NO_BUILDING)
+			{
+				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eTestBuilding);
+				if(pkBuilding)
+				{
+					iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eTestBuilding);
+					if(iBuildingCount > 0)
+					{
+						// Building Class Yield Stuff
+						for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+						{
+							YieldTypes eYield = (YieldTypes)iJ;
+								
+							int iYieldChange = pkCorporationEntry->GetBuildingClassYieldChange(eBuildingClass, eYield);
+							if(iYieldChange <= 0)
+								continue;
+
+							pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iYieldChange * iBuildingCount * iChange);
+						}
+					}
+				}
+			}
 		}
 	}
 }

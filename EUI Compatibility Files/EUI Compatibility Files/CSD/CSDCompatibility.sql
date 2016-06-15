@@ -131,7 +131,7 @@ UPDATE Buildings SET RAToVotes = '0' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTU
 UPDATE Buildings SET Cost = '150' WHERE Type = 'BUILDING_COURT_SCRIBE';
 UPDATE Buildings SET Cost = '275' WHERE Type = 'BUILDING_CHANCERY';
 UPDATE Buildings SET GoldMaintenance = '2' WHERE Type = 'BUILDING_CHANCERY';
-UPDATE Buildings SET Cost = '1000' WHERE Type = 'BUILDING_WIRE_SERVICE';
+UPDATE Buildings SET Cost = '800' WHERE Type = 'BUILDING_WIRE_SERVICE';
 UPDATE Buildings SET GoldMaintenance = '4' WHERE Type = 'BUILDING_WIRE_SERVICE';
 
 -- Building Requirements

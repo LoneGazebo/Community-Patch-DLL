@@ -240,7 +240,7 @@
 			<Text>Channel the energy into our industries.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_2_HELP">
-			<Text>+3 [ICON_PRODUCTION] Production in all Cities for {4_Turns}.</Text>
+			<Text>+{3_CityYield} in all Cities for {4_Turns}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_3">
 			<Text>The New World Order begins now!</Text>

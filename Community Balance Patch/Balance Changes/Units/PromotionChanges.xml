@@ -2912,8 +2912,8 @@
 			<Description>TXT_KEY_PROMOTION_BUSHIDO</Description>
 			<Help>TXT_KEY_PROMOTION_BUSHIDO_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PortraitIndex>23</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PortraitIndex>5</PortraitIndex>
+			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUSHIDO</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
@@ -2924,12 +2924,12 @@
 			<Description>TXT_KEY_PROMOTION_RIGHTEOUSNESS</Description>
 			<Help>TXT_KEY_PROMOTION_RIGHTEOUSNESS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PortraitIndex>6</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PortraitIndex>3</PortraitIndex>
+			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_RIGHTEOUSNESS</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<AttackWoundedMod>15</AttackWoundedMod>
+			<AttackWoundedMod>20</AttackWoundedMod>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 		</Row>
 		<Row>
@@ -2937,12 +2937,12 @@
 			<Description>TXT_KEY_PROMOTION_COURAGE</Description>
 			<Help>TXT_KEY_PROMOTION_COURAGE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PortraitIndex>6</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_COURAGE</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<AttackFortifiedMod>15</AttackFortifiedMod>
+			<AttackMod>15</AttackMod>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 		</Row>
 		<Row>
@@ -2950,8 +2950,8 @@
 			<Description>TXT_KEY_PROMOTION_BENEVOLENCE</Description>
 			<Help>TXT_KEY_PROMOTION_BENEVOLENCE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PortraitIndex>6</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PortraitIndex>4</PortraitIndex>
+			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BENEVOLENCE</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
@@ -2963,8 +2963,8 @@
 			<Description>TXT_KEY_PROMOTION_RESPECT</Description>
 			<Help>TXT_KEY_PROMOTION_RESPECT_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PortraitIndex>6</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PortraitIndex>2</PortraitIndex>
+			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_RESPECT</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
@@ -2975,12 +2975,12 @@
 			<Description>TXT_KEY_PROMOTION_SINCERITY</Description>
 			<Help>TXT_KEY_PROMOTION_SINCERITY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PortraitIndex>6</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PortraitIndex>8</PortraitIndex>
+			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SINCERITY</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<ExperiencePercent>25</ExperiencePercent>
+			<ExperiencePercent>50</ExperiencePercent>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 		</Row>
 		<Row>
@@ -2989,7 +2989,7 @@
 			<Help>TXT_KEY_PROMOTION_BUSHIDO_HONOR_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PortraitIndex>6</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUSHIDO_HONOR</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
@@ -3001,8 +3001,8 @@
 			<Description>TXT_KEY_PROMOTION_LOYALTY</Description>
 			<Help>TXT_KEY_PROMOTION_LOYALTY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PortraitIndex>6</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PortraitIndex>7</PortraitIndex>
+			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_LOYALTY</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
@@ -3014,8 +3014,8 @@
 			<Description>TXT_KEY_PROMOTION_SELF_CONTROL</Description>
 			<Help>TXT_KEY_PROMOTION_SELF_CONTROL_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PortraitIndex>6</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
+			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SELF_CONTROL</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
