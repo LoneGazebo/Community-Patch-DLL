@@ -12416,6 +12416,15 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					}
 				}
 			}
+			CorporationTypes eCorporation = GET_PLAYER(getOwner()).GetCorporations()->GetFoundedCorporation();
+			if (eCorporation != NO_CORPORATION)
+			{
+				CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
+				if (pkCorporationInfo)
+				{
+					ChangeBaseYieldRateFromBuildings(eYield,pkCorporationInfo->GetBuildingClassYieldChange(eBuildingClass, eYield) * iChange);
+				}
+			}
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 			//Policy-Religion Fusion Yield Changes
@@ -12470,7 +12479,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					if (pkCorporationInfo)
 					{
 						// Only if this is the headquarters or Office
-						if (pkCorporationInfo->GetHeadquartersBuildingClass() == eBuildingClass || pkCorporationInfo->GetOfficeBuildingClass() == eBuildingClass)
+						if (pkCorporationInfo->GetOfficeBuildingClass() == eBuildingClass)
 						{
 							for (int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
 							{
@@ -18916,7 +18925,7 @@ void CvCity::setProductionAutomated(bool bNewValue, bool bClear)
 		}
 		if(!isProduction())
 		{
-			AI_chooseProduction(false /*bInterruptWonders*/);
+			AI_chooseProduction(false /*bInterruptWonders*/, false);
 		}
 	}
 }
@@ -24138,7 +24147,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		{
 			if(!isHuman() || isProductionAutomated())
 			{
-				AI_chooseProduction(false /*bInterruptWonders*/);
+				AI_chooseProduction(false /*bInterruptWonders*/, false);
 			}
 			else
 			{
@@ -26083,7 +26092,7 @@ void CvCity::doProduction(bool bAllowNoProduction)
 	{
 		if(!isProduction() || isProductionProcess() || AI_isChooseProductionDirty())
 		{
-			AI_chooseProduction(false /*bInterruptWonders*/);
+			AI_chooseProduction(false /*bInterruptWonders*/, false);
 		}
 	}
 

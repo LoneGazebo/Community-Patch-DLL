@@ -1947,6 +1947,25 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				}
 			}
 
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+			if(MOD_DIPLOMACY_CITYSTATES)
+			{
+				ResourceTypes ePaper = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
+				if(eResource == ePaper)
+				{
+					if(GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory())
+					{
+						iItemValue *= 3;
+						iItemValue /= 2;
+					}
+					else
+					{
+						iItemValue /= 2;
+					}
+				}
+			}
+#endif
+
 			iItemValue *= iResourceQuantity;
 		}
 		// Increase value if it's from us and we don't like the guy
@@ -3683,7 +3702,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Third Party War with oneself. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 #if defined(MOD_BALANCE_CORE)
-	int iItemValue = 400; //just some base value
+	int iItemValue = 200; //just some base value
 #else
 	int iItemValue = 0;
 #endif

@@ -37,8 +37,6 @@ public:
 	//we don't only connect or own cities but also some others (eg for quests)
 	std::vector<int> GetPlotsToConnect() const { return m_cityPlotIDs; }
 
-	bool ShouldConnectToOtherPlayer(PlayerTypes eMinor);
-
 	enum CityConnectionTypes
 	{
 		CONNECTION_NONE = 0,
@@ -48,20 +46,23 @@ public:
 		CONNECTION_HARBOR = 4,
 		CONNECTION_ANY = 7
 	};
+	typedef std::map<int,CityConnectionTypes> SingleCityConnectionStore;
+	typedef std::map<int,SingleCityConnectionStore> AllCityConnectionStore;
+	typedef std::vector<int> PlotIndexStore;
 
-	CityConnectionTypes GetConnectionState( const CvCity* pCityA, const CvCity* pCityB ) const;
-	bool AreCitiesConnected( const CvCity* pCityA, const CvCity* pCityB, CityConnectionTypes eConnectionType ) const;
+	bool AreCitiesDirectlyConnected( const CvCity* pCityA, const CvCity* pCityB, CityConnectionTypes eConnectionType ) const;
+	SingleCityConnectionStore GetDirectConnectionsFromCity(const CvCity* pOrigin) const;
 
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
-	typedef std::map<int,std::map<int,CityConnectionTypes>> ConnectionStore;
-	typedef std::vector<int> PlotIndexStore;
 
 	void UpdateCityPlotIDs(void);
 	void UpdateRouteInfo(void);
 	void CheckPlotRouteStateChanges(PlotIndexStore& lastState, PlotIndexStore& newState);
+	CityConnectionTypes GetConnectionState( const CvCity* pCityA, const CvCity* pCityB ) const;
+	bool ShouldConnectToOtherPlayer(PlayerTypes eMinor);
 
-	ConnectionStore m_connectionState;
+	AllCityConnectionStore m_connectionState;
 	PlotIndexStore m_plotsWithConnectionToCapital;
 	PlotIndexStore m_cityPlotIDs;
 	std::vector<BuildingTypes> m_aBuildingsAllowWaterRoutes;

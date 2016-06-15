@@ -78,8 +78,6 @@ struct CvDangerPlotContents
 
 	// should not normally be used, primarily for compatibility
 	int GetDanger(PlayerTypes ePlayer);
-	bool IsUnderImmediateThreat(const CvUnit* pUnit);
-	bool IsUnderImmediateThreat(PlayerTypes ePlayer);
 	int GetDamageFromFeatures(PlayerTypes ePlayer) const;
 
 	// just for internal use
@@ -143,9 +141,6 @@ public:
 	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, AirActionType iAirAction = AIR_ACTION_ATTACK);
 	int GetDanger(const CvPlot& pPlot, CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
 	int GetDanger(const CvPlot& pPlot, PlayerTypes ePlayer);
-
-	bool IsUnderImmediateThreat(const CvPlot& pPlot, const CvUnit* pUnit);
-	bool IsUnderImmediateThreat(const CvPlot& pPlot, PlayerTypes ePlayer);
 
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot) const;
 	bool UpdateDangerSingleUnit(CvUnit* pUnit, bool bIgnoreVisibility, bool bRemember);

@@ -8653,7 +8653,7 @@ bool CvUnit::canMakeTradeRouteAt(const CvPlot* pPlot, int iX, int iY, TradeConne
 		return false;
 	}
 
-	if (!GET_PLAYER(getOwner()).GetTrade()->CanCreateTradeRoute(pFromCity, pToCity, getDomainType(), eConnectionType, true))
+	if (!GET_PLAYER(getOwner()).GetTrade()->CanCreateTradeRoute(pFromCity, pToCity, getDomainType(), eConnectionType, false))
 	{
 		return false;
 	}
@@ -26433,14 +26433,11 @@ bool CvUnit::UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEn
 		{
 			bCanMoveIntoPlot = canMoveOrAttackInto(*pPlot);
 		}
-		else	VALIDATE_OBJECT
-
+		else
 		{
 			bCanMoveIntoPlot = canMoveInto(*pPlot);
 		}
 	}
-	VALIDATE_OBJECT
-
 
 	bool bIsNoCapture = isNoCapture();
 	bool bEnemyCity = pPlot && pPlot->isEnemyCity(*this);
@@ -26565,6 +26562,14 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 
 			pPathPlot = m_kLastPath.GetFirstPlot();
 
+			//if the pathfinder inserted a stop node because the next plot is occupied
+			//we see that the expected moves are greater than what we have right now
+			//in that case don't execute the move
+			if (pPathPlot && m_kLastPath.front().m_iMoves>getMoves())
+			{
+				return 0;
+			}
+
 			//the given target may be different from the actual target
 			if (iFlags & MOVEFLAG_APPROXIMATE_TARGET)
 			{
@@ -26624,8 +26629,9 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		}
 	}
 
+	//todo: consider movement flags here. especially turn destination, not only path destination
 	bool bEndMove = (pPathPlot == pDestPlot);
-	bool bMoved = UnitMove(pPathPlot, iFlags & MOVEFLAG_IGNORE_STACKING, NULL, bEndMove);
+	bool bMoved = UnitMove(pPathPlot, IsCombatUnit(), NULL, bEndMove);
 
 	int iETA = 1;
 	if (!m_kLastPath.empty())

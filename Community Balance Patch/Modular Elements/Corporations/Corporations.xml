@@ -32,6 +32,7 @@
 			<TradeRouteBonusHelp>TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_LANDSEA_EXTRACTORS</TradeRouteBonusHelp>
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
 			<MaxFranchises>25</MaxFranchises>
+			<TradeRouteSeaDistanceModifier>100</TradeRouteSeaDistanceModifier>
 			<NumFreeTradeRoutes>2</NumFreeTradeRoutes>
 			<PortraitIndex>20</PortraitIndex>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
@@ -46,9 +47,9 @@
 			<OfficeBonusHelp>TXT_KEY_CORPORATION_OFFICE_BONUS_HEXXON_REFINERY</OfficeBonusHelp>
 			<TradeRouteBonusHelp>TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_HEXXON_REFINERY</TradeRouteBonusHelp>
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_HEXXON_REFINERY_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
+			<ResourceBonusHelp>TXT_KEY_CORPORATION_RESOURCE_BONUS_HEXXON_REFINERY</ResourceBonusHelp>
 			<MaxFranchises>25</MaxFranchises>
 			<NumFreeTradeRoutes>1</NumFreeTradeRoutes>
-			<TradeRouteSpeedModifier>200</TradeRouteSpeedModifier>
 			<PortraitIndex>8</PortraitIndex>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 		</Row>
@@ -63,7 +64,7 @@
 			<OfficeBonusHelp>TXT_KEY_CORPORATION_OFFICE_BONUS_GIORGIO_ARMEIER</OfficeBonusHelp>
 			<TradeRouteBonusHelp>TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_GIORGIO_ARMEIER</TradeRouteBonusHelp>
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_GIORGIO_ARMEIER_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
-			<MaxFranchises>25</MaxFranchises>
+			<MaxFranchises>25</MaxFranchises>			
 			<NumFreeTradeRoutes>2</NumFreeTradeRoutes>
 			<PortraitIndex>16</PortraitIndex>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
@@ -111,11 +112,11 @@
 			<FranchiseBuildingClass>BUILDINGCLASS_CIVILIZED_JEWELERS_FRANCHISE</FranchiseBuildingClass>
 			<OfficeBonusHelp>TXT_KEY_CORPORATION_OFFICE_BONUS_CIVILIZED_JEWELERS</OfficeBonusHelp>
 			<TradeRouteBonusHelp>TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_CIVILIZED_JEWELERS</TradeRouteBonusHelp>
+			<ResourceBonusHelp>TXT_KEY_CORPORATION_RESOURCE_BONUS_CIVILIZED_JEWELERS</ResourceBonusHelp>
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_CIVILIZED_JEWELERS_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
 			<MaxFranchises>25</MaxFranchises>
 			<NumFreeTradeRoutes>1</NumFreeTradeRoutes>
-			<TradeRouteRecipientBonus>1</TradeRouteRecipientBonus>
-			<TradeRouteTargetBonus>1</TradeRouteTargetBonus>
+			<TradeRouteSpeedModifier>200</TradeRouteSpeedModifier>
 			<PortraitIndex>24</PortraitIndex>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 		</Row>
@@ -125,139 +126,193 @@
 			<CorporationType>CORPORATION_TRADER_SIDS</CorporationType>
 			<ResourceType>RESOURCE_CLOVES</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_TRADER_SIDS</CorporationType>
 			<ResourceType>RESOURCE_COCOA</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_TRADER_SIDS</CorporationType>
 			<ResourceType>RESOURCE_NUTMEG</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_TRADER_SIDS</CorporationType>
 			<ResourceType>RESOURCE_PEPPER</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_TRADER_SIDS</CorporationType>
 			<ResourceType>RESOURCE_SALT</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_TRADER_SIDS</CorporationType>
 			<ResourceType>RESOURCE_SPICES</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_TRADER_SIDS</CorporationType>
 			<ResourceType>RESOURCE_SUGAR</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_LANDSEA_EXTRACTORS</CorporationType>
 			<ResourceType>RESOURCE_HORSE</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_LANDSEA_EXTRACTORS</CorporationType>
 			<ResourceType>RESOURCE_WHALE</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_LANDSEA_EXTRACTORS</CorporationType>
 			<ResourceType>RESOURCE_CRAB</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_LANDSEA_EXTRACTORS</CorporationType>
 			<ResourceType>RESOURCE_IVORY</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_GIORGIO_ARMEIER</CorporationType>
 			<ResourceType>RESOURCE_SILK</ResourceType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_GIORGIO_ARMEIER</CorporationType>
 			<ResourceType>RESOURCE_COTTON</ResourceType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_GIORGIO_ARMEIER</CorporationType>
 			<ResourceType>RESOURCE_DYE</ResourceType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_GIORGIO_ARMEIER</CorporationType>
 			<ResourceType>RESOURCE_FUR</ResourceType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_FIRAXITE_MATERIALS</CorporationType>
 			<ResourceType>RESOURCE_IRON</ResourceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_FIRAXITE_MATERIALS</CorporationType>
 			<ResourceType>RESOURCE_ALUMINUM</ResourceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_FIRAXITE_MATERIALS</CorporationType>
 			<ResourceType>RESOURCE_MARBLE</ResourceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_FIRAXITE_MATERIALS</CorporationType>
 			<ResourceType>RESOURCE_COPPER</ResourceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_FIRAXITE_MATERIALS</CorporationType>
 			<ResourceType>RESOURCE_PORCELAIN</ResourceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_TWOKAY_FOODS</CorporationType>
 			<ResourceType>RESOURCE_WINE</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_TWOKAY_FOODS</CorporationType>
 			<ResourceType>RESOURCE_TRUFFLES</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_TWOKAY_FOODS</CorporationType>
 			<ResourceType>RESOURCE_CITRUS</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_HEXXON_REFINERY</CorporationType>
+			<ResourceType>RESOURCE_COAL</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_HEXXON_REFINERY</CorporationType>
+			<ResourceType>RESOURCE_OIL</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_HEXXON_REFINERY</CorporationType>
+			<ResourceType>RESOURCE_INCENSE</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_HEXXON_REFINERY</CorporationType>
+			<ResourceType>RESOURCE_URANIUM</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_CIVILIZED_JEWELERS</CorporationType>
+			<ResourceType>RESOURCE_GOLD</ResourceType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_CIVILIZED_JEWELERS</CorporationType>
+			<ResourceType>RESOURCE_SILVER</ResourceType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_CIVILIZED_JEWELERS</CorporationType>
+			<ResourceType>RESOURCE_GEMS</ResourceType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_CIVILIZED_JEWELERS</CorporationType>
+			<ResourceType>RESOURCE_PEARLS</ResourceType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_CIVILIZED_JEWELERS</CorporationType>
+			<ResourceType>RESOURCE_JEWELRY</ResourceType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>1</Yield>
 		</Row>
 	</Corporation_ResourceYieldChanges>
 	<Corporation_BuildingClassYieldChanges>
@@ -269,37 +324,19 @@
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_TRADER_SIDS</CorporationType>
-			<BuildingClassType>BUILDINGCLASS_CARAVANSARY</BuildingClassType>
-			<YieldType>YIELD_FOOD</YieldType>
+			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_LANDSEA_EXTRACTORS</CorporationType>
 			<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<YieldChange>2</YieldChange>
-		</Row>
-		<Row>
-			<CorporationType>CORPORATION_LANDSEA_EXTRACTORS</CorporationType>
-			<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
-			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_LANDSEA_EXTRACTORS</CorporationType>
 			<BuildingClassType>BUILDINGCLASS_SEAPORT</BuildingClassType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<YieldChange>2</YieldChange>
-		</Row>
-		<Row>
-			<CorporationType>CORPORATION_LANDSEA_EXTRACTORS</CorporationType>
-			<BuildingClassType>BUILDINGCLASS_SEAPORT</BuildingClassType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>2</YieldChange>
-		</Row>
-		<Row>
-			<CorporationType>CORPORATION_FIRAXITE_MATERIALS</CorporationType>
-			<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
@@ -307,13 +344,7 @@
 			<CorporationType>CORPORATION_FIRAXITE_MATERIALS</CorporationType>
 			<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>2</YieldChange>
-		</Row>
-		<Row>
-			<CorporationType>CORPORATION_TWOKAY_FOODS</CorporationType>
-			<BuildingClassType>BUILDINGCLASS_GROCER</BuildingClassType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldChange>3</YieldChange>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_TWOKAY_FOODS</CorporationType>
@@ -322,28 +353,52 @@
 			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
-			<CorporationType>CORPORATION_CIVILIZED_JEWELERS</CorporationType>
-			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<YieldChange>1</YieldChange>
-		</Row>
-		<Row>
-			<CorporationType>CORPORATION_CIVILIZED_JEWELERS</CorporationType>
-			<BuildingClassType>BUILDINGCLASS_BANK</BuildingClassType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<YieldChange>1</YieldChange>
+			<CorporationType>CORPORATION_TWOKAY_FOODS</CorporationType>
+			<BuildingClassType>BUILDINGCLASS_STOCKYARD</BuildingClassType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_CIVILIZED_JEWELERS</CorporationType>
 			<BuildingClassType>BUILDINGCLASS_MINT</BuildingClassType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_CIVILIZED_JEWELERS</CorporationType>
-			<BuildingClassType>BUILDINGCLASS_STOCK_EXCHANGE</BuildingClassType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<YieldChange>1</YieldChange>
+			<BuildingClassType>BUILDINGCLASS_BANK</BuildingClassType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_GIORGIO_ARMEIER</CorporationType>
+			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_GIORGIO_ARMEIER</CorporationType>
+			<BuildingClassType>BUILDINGCLASS_OPERA_HOUSE</BuildingClassType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_HEXXON_REFINERY</CorporationType>
+			<BuildingClassType>BUILDINGCLASS_COAL_PLANT</BuildingClassType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>3</YieldChange>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_HEXXON_REFINERY</CorporationType>
+			<BuildingClassType>BUILDINGCLASS_NUCLEAR_PLANT</BuildingClassType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>3</YieldChange>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_HEXXON_REFINERY</CorporationType>
+			<BuildingClassType>BUILDINGCLASS_SOLAR_PLANT</BuildingClassType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>3</YieldChange>
 		</Row>
 	</Corporation_BuildingClassYieldChanges>
 	<Corporation_SpecialistYieldChanges>
@@ -520,8 +575,6 @@
 			<ResourceType>RESOURCE_JEWELRY</ResourceType>
 		</Row>
 	</Corporation_ResourceMonopolyOrs>
-	<Corporation_NumFreeResource>
-	</Corporation_NumFreeResource>
 	<Corporation_TradeRouteMod>
 		<Row>
 			<CorporationType>CORPORATION_TRADER_SIDS</CorporationType>
@@ -532,11 +585,6 @@
 			<CorporationType>CORPORATION_FIRAXITE_MATERIALS</CorporationType>
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>100</Yield>
-		</Row>
-		<Row>
-			<CorporationType>CORPORATION_TWOKAY_FOODS</CorporationType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>10</Yield>
 		</Row>
 	</Corporation_TradeRouteMod>
 	<Corporation_TradeRouteCityYield>
@@ -575,6 +623,11 @@
 		<Row>
 			<CorporationType>CORPORATION_HEXXON_REFINERY</CorporationType>
 			<ResourceType>RESOURCE_OIL</ResourceType>
+			<Modifier>15</Modifier>
+		</Row>
+		<Row>
+			<CorporationType>CORPORATION_HEXXON_REFINERY</CorporationType>
+			<ResourceType>RESOURCE_ALUMINUM</ResourceType>
 			<Modifier>15</Modifier>
 		</Row>
 	</Corporation_UnitResourceProductionModifier>
@@ -624,17 +677,17 @@
 		<Row>
 			<PolicyType>POLICY_NATIONALIZATION</PolicyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>60</Flavor>
+			<Flavor>80</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_GLOBALIZATION</PolicyType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>60</Flavor>
+			<Flavor>80</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_INFILTRATION</PolicyType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>60</Flavor>
+			<Flavor>80</Flavor>
 		</Row>
 	</Policy_Flavors>
 	
@@ -784,6 +837,8 @@
 			<Help>TXT_KEY_BUILDING_TRADER_SIDS_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<TradeRouteRecipientBonus>2</TradeRouteRecipientBonus>
+			<TradeRouteTargetBonus>2</TradeRouteTargetBonus>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
@@ -942,6 +997,7 @@
 			<Help>TXT_KEY_BUILDING_GIORGIO_ARMEIER_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<UnmoddedHappiness>1</UnmoddedHappiness>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
@@ -993,8 +1049,8 @@
 			<Strategy>TXT_KEY_BUILDING_FIRAXITE_MATERIALS_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
-			<MinAreaSize>-1</MinAreaSize>
 			<BuildingProductionModifier>20</BuildingProductionModifier>
+			<MinAreaSize>-1</MinAreaSize>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
@@ -1082,9 +1138,6 @@
 			<Help>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<Happiness>3</Happiness>
-			<TradeRouteRecipientBonus>5</TradeRouteRecipientBonus>
-			<TradeRouteTargetBonus>5</TradeRouteTargetBonus>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
@@ -1104,8 +1157,8 @@
 			<Help>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<GreatPeopleRateModifier>5</GreatPeopleRateModifier>
-			<GPRateModifierPerXFranchises>5</GPRateModifierPerXFranchises>
+			<GreatPeopleRateModifier>15</GreatPeopleRateModifier>
+			<GPRateModifierPerXFranchises>10</GPRateModifierPerXFranchises>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
@@ -1129,6 +1182,20 @@
 			<PortraitIndex>27</PortraitIndex>
 		</Row>
 	</Buildings>
+	<Building_YieldModifiers>
+		<Row>
+			<BuildingType>BUILDING_TWOKAY_FOODS</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>10</Yield>
+		</Row>
+	</Building_YieldModifiers>
+	<Building_SeaPlotYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_LANDSEA_EXTRACTORS</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_SeaPlotYieldChanges>
 	<Building_Flavors>
 		<Row>
 			<BuildingType>BUILDING_TRADER_SIDS_HQ</BuildingType>

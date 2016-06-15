@@ -79,8 +79,11 @@ void CvCityAI::AI_doTurn()
 		AI_stealPlots();
 	}
 }
-
+#if defined(MOD_BALANCE_CORE)
+void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildings)
+#else
 void CvCityAI::AI_chooseProduction(bool bInterruptWonders)
+#endif
 {
 	VALIDATE_OBJECT
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
@@ -150,7 +153,11 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders)
 
 	else
 	{
+#if defined(MOD_BALANCE_CORE)
+		m_pCityStrategyAI->ChooseProduction(NO_BUILDING, NO_UNIT, bInterruptBuildings);
+#else
 		m_pCityStrategyAI->ChooseProduction();
+#endif
 		AI_setChooseProductionDirty(false);
 	}
 

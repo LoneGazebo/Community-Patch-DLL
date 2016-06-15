@@ -87,6 +87,10 @@ UPDATE Traits
 SET TradeRouteResourceModifier = '200'
 WHERE Type = 'TRAIT_PHOENICIAN_HERITAGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Traits
+SET FreeBuilding = 'BUILDING_LIGHTHOUSE'
+WHERE Type = 'TRAIT_PHOENICIAN_HERITAGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 -- Gustavus Adolphus -- Remove Hakkepillita, add unique Public School
 
 -- Remove Sweden Tundra bias
@@ -419,7 +423,7 @@ VALUES
 INSERT INTO Trait_YieldFromSettle
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_PHOENICIAN_HERITAGE', 'YIELD_GOLD', 200);
+	('TRAIT_PHOENICIAN_HERITAGE', 'YIELD_GOLD', 150);
 
 INSERT INTO Trait_TerrainClaimBoost
 	(TraitType, TerrainType)

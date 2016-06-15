@@ -76,7 +76,6 @@ void CvUnitMission::AutoMission(UnitHandle hUnit)
 				}
 			}
 
-#if defined(MOD_BUGFIX_WORKERS_VISIBLE_DANGER)
 			bool bAbortMission = (!bEscortedBuilder && !hUnit->IsIgnoringDangerWakeup());
 			// Remove the line below to have combat units behave like workers, waking at every opportunity!
 			bAbortMission = (bAbortMission && !hUnit->IsCombatUnit());
@@ -86,14 +85,11 @@ void CvUnitMission::AutoMission(UnitHandle hUnit)
 				// Stop only if the worker can actually see the enemy
 				bAbortMission = (bAbortMission && hUnit->SentryAlert(true));
 			} else {
-				// Stop if there is any hint of an enemy
-				bAbortMission = (bAbortMission && GET_PLAYER(hUnit->getOwner()).IsPlotUnderImmediateThreat(*(hUnit->plot())));
+				// Stop if there is any hint of an enemy - fallout also counts as danger, so set a higher threshold
+				bAbortMission = (bAbortMission && hUnit->GetDanger()>hUnit->GetCurrHitPoints()/2);
 			}
 
 			if(bAbortMission)
-#else
-			if(!bEscortedBuilder && !hUnit->IsIgnoringDangerWakeup() && !hUnit->IsCombatUnit() && GET_PLAYER(hUnit->getOwner()).IsPlotUnderImmediateThreat(*(hUnit->plot())))
-#endif
 			{
 				hUnit->ClearMissionQueue();
 				hUnit->SetIgnoreDangerWakeup(true);
@@ -150,7 +146,7 @@ void CvUnitMission::PushMission(UnitHandle hUnit, MissionTypes eMission, int iDa
 			CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 			if(pkBuildInfo)
 			{
-				if (GET_PLAYER(hUnit->getOwner()).IsPlotUnderImmediateThreat(*(hUnit->plot())))
+				if (hUnit->GetDanger()>hUnit->GetCurrHitPoints()/2)
 				{
 					if(hUnit->plot()->getNumDefenders(hUnit->getOwner()) <= 0)
 					{

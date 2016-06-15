@@ -292,7 +292,7 @@ void CvTreasury::DoUpdateCityConnectionGold()
 		{
 			if(pLoopCity != pCapitalCity)
 			{
-				if(HasCityConnectionRouteBetweenCities(pCapitalCity, pLoopCity))
+				if(pLoopCity->IsConnectedToCapital())
 				{
 					iNumGold += GetCityConnectionRouteGoldTimes100(pLoopCity);
 				}
@@ -358,24 +358,6 @@ void CvTreasury::ChangeCityConnectionTradeRouteGoldChange(int iChange)
 
 		DoUpdateCityConnectionGold();
 	}
-}
-
-/// Returns the route-type between two cities
-#if defined(MOD_EVENTS_CITY_CONNECTIONS)
-bool CvTreasury::HasCityConnectionRouteBetweenCities(CvCity* pFirstCity, CvCity* pSecondCity) const
-#else
-bool CvTreasury::HasCityConnectionRouteBetweenCities(CvCity* pFirstCity, CvCity* pSecondCity, bool bBestRoute) const
-#endif
-{
-	CvCityConnections* pCityConnections = m_pPlayer->GetCityConnections();
-	FASSERT(pCityConnections, "m_pCityConnections is null");
-	if(!pCityConnections)
-	{
-		// invalid value
-		return FALSE;
-	}
-
-	return pCityConnections->AreCitiesConnected(pFirstCity, pSecondCity, CvCityConnections::CONNECTION_ANY);
 }
 
 /// Gold per turn from international trade routes

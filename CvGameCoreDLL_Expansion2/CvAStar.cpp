@@ -1744,18 +1744,20 @@ int RouteGetExtraChild(const CvAStarNode* node, int iIndex, int& iX, int& iY, co
 		return 0;
 
 	int iValidCount = 0;
-	CvCityConnections* pCityConnections = kPlayer.GetCityConnections();
-
-	int iLoop;
-	for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+	CvCityConnections::SingleCityConnectionStore cityConnections = kPlayer.GetCityConnections()->GetDirectConnectionsFromCity(pFirstCity);
+	for (CvCityConnections::SingleCityConnectionStore::iterator it=cityConnections.begin(); it!=cityConnections.end(); ++it)
 	{
-		if (pCityConnections->AreCitiesConnected(pFirstCity,pLoopCity,CvCityConnections::CONNECTION_HARBOR))
+		if (it->second & CvCityConnections::CONNECTION_HARBOR)
 		{
 			if(iValidCount == iIndex)
 			{
-				iX = pLoopCity->getX();
-				iY = pLoopCity->getY();
-				return 1;
+				CvCity* pSecondCity = kPlayer.getCity(it->first);
+				if (pSecondCity)
+				{
+					iX = pSecondCity->getX();
+					iY = pSecondCity->getY();
+					return 1;
+				}
 			}
 
 			iValidCount++;
@@ -1851,8 +1853,8 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SP
 }
 
 //	---------------------------------------------------------------------------
-// Route - find the number of additional children. In this case, the node is at a city, push all other cities that the city has a water connection to
-// This function does not require the global Tactical Analysis Map.
+// Route - find the number of additional children. 
+// In this case, count the (pre-computed!) harbor connections from the city.
 int RouteGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder)
 {
 	PlayerTypes ePlayer = finder->GetData().ePlayer;
@@ -1869,13 +1871,11 @@ int RouteGetNumExtraChildren(const CvAStarNode* node, const CvAStar* finder)
 	if(!pFirstCity || pFirstCity->getTeam() != eTeam)
 		return 0;
 
-	CvCityConnections* pCityConnections = kPlayer.GetCityConnections();
 	int iValidCount = 0;
-
-	int iLoop;
-	for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+	CvCityConnections::SingleCityConnectionStore cityConnections = kPlayer.GetCityConnections()->GetDirectConnectionsFromCity(pFirstCity);
+	for (CvCityConnections::SingleCityConnectionStore::iterator it=cityConnections.begin(); it!=cityConnections.end(); ++it)
 	{
-		if (pCityConnections->AreCitiesConnected(pFirstCity,pLoopCity,CvCityConnections::CONNECTION_HARBOR))
+		if (it->second & CvCityConnections::CONNECTION_HARBOR)
 			iValidCount++;
 	}
 

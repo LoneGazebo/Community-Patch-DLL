@@ -213,11 +213,6 @@ VALUES
 	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 5),
 	('BUILDING_JELLING_STONES', 'YIELD_PRODUCTION', 5);
 
-INSERT INTO Building_SeaResourceYieldChanges
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_JELLING_STONES', 'YIELD_PRODUCTION', 1);
-
 INSERT INTO Building_InstantYield
 	(BuildingType, YieldType, Yield)
 VALUES

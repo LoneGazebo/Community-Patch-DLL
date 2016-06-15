@@ -167,6 +167,12 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	if(iTempWeight == 0)
 		return 0;
 
+	//Sanitize...
+	if(iTempWeight > 1000)
+	{
+		iTempWeight = 1000;
+	}
+
 	if(kPlayer.isMinorCiv())
 	{
 		return 0;
@@ -180,11 +186,11 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	{
 		if(pkProjectInfo->IsAllowsNukes())
 		{
-			iTempWeight *= 5;
+			iTempWeight *= 10;
 		}
 		else
 		{
-			iTempWeight /= 2;
+			iTempWeight *= 2;
 		}
 	}
 	VictoryTypes ePrereqVictory = (VictoryTypes)pkProjectInfo->GetVictoryPrereq();
@@ -202,7 +208,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			{
 				if(kPlayer.GetEconomicAI()->IsUsingStrategy(eSpaceShip))
 				{
-					iTempWeight *= 100;
+					iTempWeight *= 50;
 				}
 				else
 				{

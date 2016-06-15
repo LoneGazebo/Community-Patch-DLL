@@ -42,7 +42,7 @@ public:
 
 	// Recommend highest-weighted unit
 #if defined(MOD_BALANCE_CORE)
-	int CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, int iGPT);
+	int CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, int iGPT, int iWaterRoutes = 0, int iLandRoutes = 0);
 	UnitTypes RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource);
 	bool IsHighestCombatExperienceCity(UnitTypes eUnit);
 #else

@@ -3173,11 +3173,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 	if (ppMuster)
 		*ppMuster = pBestUnit ? pBestUnit->plot() : NULL;
 
-	if(pBestCity != NULL)
-	{
-		return pBestCity->plot();
-	}
-	return NULL;
+	return pBestUnit ? pBestCity->plot() : NULL;
 }
 
 AIOperationAbortReason CvAIOperationNukeAttack::VerifyOrAdjustTarget(CvArmyAI* /*pArmy*/)

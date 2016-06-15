@@ -51,7 +51,7 @@ public:
 	// Logging
 	void LogPossibleBuilds();
 #if defined(MOD_BALANCE_CORE)
-	int CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, int iNumLandConnection = 0, int iNumSeaConnection = 0, int iGPT = 0);
+	int CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, int iNumLandConnection = 0, int iNumSeaConnection = 0, int iGPT = 0, bool bInterruptBuildings = false);
 #endif
 private:
 

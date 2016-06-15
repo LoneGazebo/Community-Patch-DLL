@@ -197,7 +197,11 @@ public:
 #endif
 
 	// City AI methods
+#if defined(MOD_BALANCE_CORE)
+	void ChooseProduction(BuildingTypes eIgnoreBldg = NO_BUILDING, UnitTypes eIgnoreUnit = NO_UNIT, bool bInterruptBuildings = false);
+#else
 	void ChooseProduction(BuildingTypes eIgnoreBldg = NO_BUILDING, UnitTypes eIgnoreUnit = NO_UNIT);
+#endif
 #if defined(MOD_BALANCE_CORE)
 	CvCityBuildable ChooseHurry();
 	void LogHurryMessage(CvString& strMsg);
