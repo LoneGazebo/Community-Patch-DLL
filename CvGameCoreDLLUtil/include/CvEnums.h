@@ -1301,6 +1301,10 @@ enum GameOptionTypes
 #define GAMEOPTION_BARB_GG_GA_POINTS	"GAMEOPTION_BARB_GG_GA_POINTS"
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+#define GAMEOPTION_EVENTS	"GAMEOPTION_EVENTS"
+#endif
+
 enum MultiplayerOptionTypes		
 {
 	NO_MPOPTION = -1,

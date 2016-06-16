@@ -9489,7 +9489,10 @@ void CvPlayer::doTurn()
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	if(MOD_BALANCE_CORE_EVENTS)
 	{
-		DoEvents();
+		if(GC.getGame().isOption(GAMEOPTION_EVENTS))
+		{
+			DoEvents();
+		}
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -11639,6 +11642,9 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	if(MOD_BALANCE_CORE && kGoodyInfo.getProduction() > 0)
 	{
 		iProduction = kGoodyInfo.getProduction();
+		iProduction *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iProduction /= 100;
+
 		int iDistance;
 		int iBestCityDistance = -1;
 		CvCity* pBestCity = NULL;

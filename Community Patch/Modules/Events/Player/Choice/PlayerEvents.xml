@@ -1,16 +1,17 @@
+<!-- NOW PLAYER EVENTS -->
+<!-- Motaba Virus -->
 <GameData>
-	<!-- Motaba Virus -->
 	<Events>
 		<Row>
 			<Type>EVENT_MOTABA_VIRUS</Type>
 			<Description>TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION</Description>
 			<Help>TXT_KEY_EVENT_MOTABA_VIRUS_HELP</Help>
 			<NumChoices>4</NumChoices>
-			<RandomChance>20</RandomChance>
+			<RandomChance>30</RandomChance>
 			<EventCooldown>75</EventCooldown>
 			<IsOneShot>True</IsOneShot>
 			<RequiredEra>ERA_POSTMODERN</RequiredEra>
-			<RandomChanceDelta>10</RandomChanceDelta>
+			<RandomChanceDelta>2</RandomChanceDelta>
 		</Row>
 	</Events>
 	<EventChoices>
@@ -99,11 +100,11 @@
 			<Description>TXT_KEY_EVENT_PIPELINE_DESCRIPTION</Description>
 			<Help>TXT_KEY_EVENT_PIPELINE_HELP</Help>
 			<NumChoices>3</NumChoices>
-			<RandomChance>20</RandomChance>
+			<RandomChance>45</RandomChance>
 			<EventCooldown>75</EventCooldown>
 			<IsOneShot>true</IsOneShot>
 			<RequiredIdeology>POLICY_BRANCH_AUTOCRACY</RequiredIdeology>
-			<RandomChanceDelta>10</RandomChanceDelta>
+			<RandomChanceDelta>1</RandomChanceDelta>
 		</Row>
 	</Events>
 	<EventChoices>

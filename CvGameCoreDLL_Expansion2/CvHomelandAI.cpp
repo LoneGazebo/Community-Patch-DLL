@@ -1535,6 +1535,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 			}
 		}
 	}
+	PossibleSettlerUnits.clear();
 }
 #endif
 
