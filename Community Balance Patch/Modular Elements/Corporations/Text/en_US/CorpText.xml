@@ -619,7 +619,7 @@
 			<Text>Giorgio Armeier, Inc.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_GIORGIO_ARMEIER_HELP">
-			<Text>Provides benefits geared toward [ICON_CULTURE] Culture generation and Specialists. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one.[NEWLINE][NEWLINE] +2 [ICON_CULTURE] Culture from all Museums and Opera Houses, and +1 [ICON_CULTURE] Culture from Specialists in all Cities.</Text>
+			<Text>Provides benefits geared toward [ICON_CULTURE] Culture generation and Specialists. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by two.[NEWLINE][NEWLINE] +2 [ICON_CULTURE] Culture from all Museums and Opera Houses, and +1 [ICON_CULTURE] Culture from Specialists in all Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_GIORGIO_ARMEIER">
 			<Text>[ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dyes, [ICON_RES_FUR] Furs provide +1 [ICON_CULTURE] Culture in all Cities with a Giorgio Armeier Office.</Text>
@@ -796,7 +796,7 @@
 			<Text>Provides benefits geared toward [ICON_GREAT_PEOPLE] Great People generation and [ICON_GOLDEN_AGE] Golden Ages. Increases [ICON_INTERNATIONAL_TRADE] Trade Unit limit by one, and all [ICON_INTERNATIONAL_TRADE] Trade Units move twice as fast.[NEWLINE][NEWLINE]Banks and Customs Houses in all Cities produce +2 [ICON_GOLDEN_AGE] Golden Age Points.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_CIVILIZED_JEWELERS">
-			<Text>[ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, [ICON_RES_JEWELERY] Jewelery provide +1 [ICON_GOLDEN_AGE] Golden Age Points in all Cities with a Civilized Jewelers Office.</Text>
+			<Text>[ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, [ICON_RES_JEWELRY] Jewelry provide +1 [ICON_GOLDEN_AGE] Golden Age Points in all Cities with a Civilized Jewelers Office.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_CIVILIZED_JEWELERS">
 			<Text>+15% [ICON_GREAT_PEOPLE] Great Person Rate, and an additional +10% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise. +1 [ICON_GOLDEN_AGE] Golden Age Points on all Civilized Jewelers Monopoly Resources near the City.</Text>

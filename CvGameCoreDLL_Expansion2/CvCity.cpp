@@ -2583,7 +2583,10 @@ void CvCity::doTurn()
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	if(MOD_BALANCE_CORE_EVENTS)
 	{
-		DoEvents();
+		if(GC.getGame().isOption(GAMEOPTION_EVENTS))
+		{
+			DoEvents();
+		}
 	}
 #endif
 	setDrafted(false);

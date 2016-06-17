@@ -748,13 +748,13 @@
 			<Text>They say this man hordes his fortune in a rare type of Pearl. It would be unfortunate if someone were to... commandeer it.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_HELP_CHOICE_1">
-			<Text>20% chance for the one turn of [ICON_RESISTANCE] Rioting and the destruction of the Harbor.</Text>
+			<Text>20% chance for the one turn of [ICON_RESISTANCE] Rioting.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_HELP_CHOICE_2">
 			<Text>Spend 400 [ICON_GOLD] Gold to gain a Corvette.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_HELP_CHOICE_3">
-			<Text>The Harbor gains +2 [ICON_CULTURE] Culture and +2 [ICON_TOURISM] Tourism, but nearby Fishing Boats lose -1 [ICON_GOLD] Gold and -1 [ICON_FOOD] Food.</Text>
+			<Text>For {4_Turns} the Harbor gains +2 [ICON_CULTURE] Culture and +2 [ICON_TOURISM] Tourism, but nearby Fishing Boats lose -1 [ICON_GOLD] Gold and -1 [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_HELP_CHOICE_4">
 			<Text>Up to 2 Fishing Boats and the Harbor are destroyed. A [ICON_WAR] Barbarian Unit spawns. Gain a copy of the [ICON_RES_PEARLS] Pearls resource.</Text>
@@ -793,39 +793,6 @@
 			<Text>Banning these goods is, I think, a little old-fashioned. Pardon the smugglers and legalise these products.</Text>
 		</Row>
 	</Language_en_US>
-	<!-- Motaba Virus -->
-	<Language_en_US>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION">
-			<Text>Motaba Virus</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP">
-			<Text>Our military intelligence has brought in a babbling medic, who claims to have discovered an incredibly dangerous virus while doing charity work in one of the far-flung corners of the world.[NEWLINE][NEWLINE]Only this man's research need make it to our Science Advisor...</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP_CHOICE_1">
-			<Text>Enemy cities experience biological terrorism.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP_CHOICE_2">
-			<Text>Gain {2_InstantYield}. Your cities become immune to biological terrorism.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP_CHOICE_3">
-			<Text>Gain 2 Guided Missiles in every city.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP_CHOICE_4">
-			<Text>Your Aircraft gain the Air Siege III promotion.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION_CHOICE_1">
-			<Text>Get me the head of CI:6. I'm authorising the use of this virus against civilian populations.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION_CHOICE_2">
-			<Text>What are you talking about?! This is horrifying. Send the Doctor to our best Medical Lab, we need to be prepared should this thing ever break loose!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION_CHOICE_3">
-			<Text>This is just what the boys over at prototype weapons have been looking for. Green light the Scud Storm project.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION_CHOICE_4">
-			<Text>We can't trust something like this to those nutjobs over in RnD. Get me the Airforce.</Text>
-		</Row>
-	</Language_en_US>
 	<!-- Virus Outbreak -->
 	<Language_en_US>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_MOTABA_OUTBREAK_CHOICE_1_S">
@@ -859,6 +826,60 @@
 			<Text>Give the Medical Lab anything they need. We need to have an answer before this thing strikes again.</Text>
 		</Row>
 	</Language_en_US>
+	<!-- Pipeline Explosion -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_OIL_EXPLOSION_CHOICE_1_S">
+			<Text>The City of {2_CityName}'s Oil Wells have malfunctioned.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_OIL_EXPLOSION_CHOICE_1">
+			<Text>An Oil Well has exploded!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OIL_EXPLOSION_DESCRIPTION">
+			<Text>Explosion at the Oil Field</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OIL_EXPLOSION_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OIL_EXPLOSION_HELP_CHOICE_1">
+			<Text>An [ICON_RES_OIL] Oil Well is destroyed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OIL_EXPLOSION_DESCRIPTION_CHOICE_1">
+			<Text></Text>
+		</Row>
+	</Language_en_US>
+	<!-- Motaba Virus -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION">
+			<Text>Motaba Virus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP">
+			<Text>Our military intelligence has brought in a babbling medic, who claims to have discovered an incredibly dangerous virus while doing charity work in one of the far-flung corners of the world.[NEWLINE][NEWLINE]Only this man's research need make it to our Science Advisor...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP_CHOICE_1">
+			<Text>Enemy cities experience biological terrorism.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP_CHOICE_2">
+			<Text>Gain {2_InstantYield}. Your cities become immune to biological terrorism.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP_CHOICE_3">
+			<Text>Gain 2 Guided Missiles in every city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP_CHOICE_4">
+			<Text>Your Aircraft gain the Air Siege III promotion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION_CHOICE_1">
+			<Text>Get me the head of CI:6. I'm authorising the use of this virus against civilian populations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION_CHOICE_2">
+			<Text>What are you talking about?! This is horrifying. Send the Doctor to our best Medical Lab, we need to be prepared should this thing ever break loose!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION_CHOICE_3">
+			<Text>This is just what the boys over at prototype weapons have been looking for. Green light the Scud Storm project.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION_CHOICE_4">
+			<Text>We can't trust something like this to those nutjobs over in RnD. Get me the Airforce.</Text>
+		</Row>
+	</Language_en_US>
 	<!-- Pipeline -->
 	<Language_en_US>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_PIPELINE_CHOICE_1_S">
@@ -890,27 +911,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_PIPELINE_DESCRIPTION_CHOICE_3">
 			<Text>His report details plans for the construction of large off-shore platforms. Get me those schematics!</Text>
-		</Row>
-	</Language_en_US>
-	<!-- Pipeline Explosion -->
-	<Language_en_US>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_OIL_EXPLOSION_CHOICE_1_S">
-			<Text>The City of {2_CityName}'s Oil Wells have malfunctioned.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_OIL_EXPLOSION_CHOICE_1">
-			<Text>An Oil Well has exploded!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_OIL_EXPLOSION_DESCRIPTION">
-			<Text>Explosion at the Oil Field</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_OIL_EXPLOSION_HELP">
-			<Text></Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_OIL_EXPLOSION_HELP_CHOICE_1">
-			<Text>An [ICON_RES_OIL] Oil Well is destroyed.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_OIL_EXPLOSION_DESCRIPTION_CHOICE_1">
-			<Text></Text>
 		</Row>
 	</Language_en_US>
 </GameData>

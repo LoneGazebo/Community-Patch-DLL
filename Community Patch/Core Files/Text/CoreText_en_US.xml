@@ -6415,6 +6415,12 @@
 		<Row Tag="TXT_KEY_INVESTED">
 			<Text>[COLOR_POSITIVE_TEXT] (INVESTED) [ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS">
+			<Text>Enable Events System</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_HELP">
+			<Text>Check to enable Vox Populi's Player and City Events System</Text>
+		</Row>
 	</Language_en_US>
 	<PostDefines>
 		<Row Name="PROMOTION_DEEPWATER_EMBARKATION">

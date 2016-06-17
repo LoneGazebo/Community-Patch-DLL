@@ -11,7 +11,7 @@
 			<RequiredBuildingClass>BUILDINGCLASS_MUSEUM</RequiredBuildingClass>
 			<PrereqTech>TECH_ATOMIC_THEORY</PrereqTech>
 			<EventCooldown>25</EventCooldown>
-			<RandomChanceDelta>0</RandomChanceDelta>
+			<RandomChanceDelta>1</RandomChanceDelta>
 		</Row>
 	</CityEvents>
 	<CityEventChoices>
@@ -94,11 +94,11 @@
 			<Description>TXT_KEY_EVENT_WAR_MATERIALS_DESCRIPTION</Description>
 			<Help>TXT_KEY_EVENT_WAR_MATERIALS_HELP</Help>
 			<NumChoices>4</NumChoices>
-			<RandomChance>20</RandomChance>
+			<RandomChance>45</RandomChance>
 			<EventCooldown>75</EventCooldown>
 			<IsOneShot>true</IsOneShot>
 			<RequiredPolicy>POLICY_PHILANTHROPY</RequiredPolicy>
-			<RandomChanceDelta>10</RandomChanceDelta>
+			<RandomChanceDelta>1</RandomChanceDelta>
 			<EraScaling>true</EraScaling>
 		</Row>
 	</Events>
@@ -233,11 +233,11 @@
 			<Description>TXT_KEY_EVENT_FREEDOM_DOCTRINE_DESCRIPTION</Description>
 			<Help>TXT_KEY_EVENT_FREEDOM_DOCTRINE_HELP</Help>
 			<NumChoices>3</NumChoices>
-			<RandomChance>10</RandomChance>
+			<RandomChance>40</RandomChance>
 			<EventCooldown>75</EventCooldown>
 			<IsOneShot>true</IsOneShot>
 			<RequiredPolicy>POLICY_COVERT_ACTION</RequiredPolicy>
-			<RandomChanceDelta>30</RandomChanceDelta>
+			<RandomChanceDelta>3</RandomChanceDelta>
 		</Row>
 	</Events>
 	<EventChoices>
@@ -349,7 +349,7 @@
 			<RandomChance>100</RandomChance>
 			<EventCooldown>25</EventCooldown>
 			<MinimumCityPopulation>18</MinimumCityPopulation>
-			<RandomChanceDelta>20</RandomChanceDelta>
+			<RandomChanceDelta>5</RandomChanceDelta>
 			<IsUnhappy>true</IsUnhappy>
 			<RequiredIdeology>POLICY_BRANCH_ORDER</RequiredIdeology>
 			<RequiresOccupied>true</RequiresOccupied>
@@ -389,7 +389,7 @@
 			<RandomChance>100</RandomChance>
 			<EventCooldown>25</EventCooldown>
 			<MinimumCityPopulation>18</MinimumCityPopulation>
-			<RandomChanceDelta>20</RandomChanceDelta>
+			<RandomChanceDelta>5</RandomChanceDelta>
 			<IsUnhappy>true</IsUnhappy>
 			<RequiredIdeology>POLICY_BRANCH_ORDER</RequiredIdeology>
 			<RequiresOccupied>true</RequiresOccupied>
@@ -426,11 +426,11 @@
 			<Description>TXT_KEY_EVENT_DOUBLE_AGENTS_DESCRIPTION</Description>
 			<Help>TXT_KEY_EVENT_DOUBLE_AGENTS_HELP</Help>
 			<NumChoices>3</NumChoices>
-			<RandomChance>10</RandomChance>
+			<RandomChance>40</RandomChance>
 			<EventCooldown>75</EventCooldown>
 			<IsOneShot>true</IsOneShot>
 			<RequiredPolicy>POLICY_DOUBLE_AGENTS</RequiredPolicy>
-			<RandomChanceDelta>30</RandomChanceDelta>
+			<RandomChanceDelta>3</RandomChanceDelta>
 		</Row>
 	</Events>
 	<EventChoices>
@@ -469,16 +469,16 @@
 			<EventType>EVENT_DOUBLE_AGENTS</EventType>
 		</Row>
 	</Event_ParentEvents>
-	<EventChoice_InstantYield>
+	<CityEventChoice_InstantYield>
 		<Row>
-			<EventChoiceType>EVENT_DOUBLE_AGENTS_CHOICE_3</EventChoiceType>
+			<CityEventChoiceType>EVENT_DOUBLE_AGENTS_CHOICE_3</CityEventChoiceType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Yield>-500</Yield>
 		</Row>
-	</EventChoice_InstantYield>
+	</CityEventChoice_InstantYield>
 	<EventChoice_BuildingClassYieldModifier>
 		<Row>
-			<EventChoiceType>EVENT_DOUBLE_AGENTS_CHOICE_1</EventChoiceType>
+			<EventChoiceType>EVENT_DOUBLE_AGENTS_CHOICE_2</EventChoiceType>
 			<BuildingClassType>BUILDINGCLASS_WIRE_SERVICE</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Modifier>10</Modifier>
@@ -491,12 +491,12 @@
 			<Flavor>10</Flavor>
 		</Row>
 		<Row>
-			<EventChoiceType>EVENT_DOUBLE_AGENTS_CHOICE_1</EventChoiceType>
+			<EventChoiceType>EVENT_DOUBLE_AGENTS_CHOICE_2</EventChoiceType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
 			<Flavor>10</Flavor>
 		</Row>
 		<Row>
-			<EventChoiceType>EVENT_DOUBLE_AGENTS_CHOICE_2</EventChoiceType>
+			<EventChoiceType>EVENT_DOUBLE_AGENTS_CHOICE_3</EventChoiceType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
 			<Flavor>10</Flavor>
 		</Row>

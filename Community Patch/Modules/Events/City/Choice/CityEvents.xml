@@ -1,5 +1,4 @@
 <GameData>
-
 	<!-- Gunpowder Plot -->
 	<CityEvents>
 		<Row>
@@ -8,12 +7,12 @@
 			<Help>TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_HELP</Help>
 			<NumChoices>4</NumChoices>
 			<RandomChance>50</RandomChance>
-			<IsOneShot>true</IsOneShot>c
+			<IsOneShot>true</IsOneShot>
 			<CityHasPlayerMajorityReligion>true</CityHasPlayerMajorityReligion>
 			<CapitalOnly>true</CapitalOnly>
-			<EventCooldown>25</EventCooldown>
+			<EventCooldown>75</EventCooldown>
 			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
-			<RandomChanceDelta>10</RandomChanceDelta>
+			<RandomChanceDelta>1</RandomChanceDelta>
 			<IsUnhappy>true</IsUnhappy>
 		</Row>
 	</CityEvents>
@@ -75,9 +74,14 @@
 	</CityEvent_ParentEvents>
 	<CityEventChoice_InstantYield>
 		<Row>
-			<CityEventChoiceType>CITY_EVENT_MOTABA_OUTBREAK_CHOICE_2</CityEventChoiceType>
+			<CityEventChoiceType>CITY_EVENT_GUNPOWDER_PLOT_CHOICE_2</CityEventChoiceType>
 			<YieldType>YIELD_POPULATION</YieldType>
 			<Yield>-2</Yield>
+		</Row>
+		<Row>
+			<CityEventChoiceType>CITY_EVENT_GUNPOWDER_PLOT_CHOICE_4</CityEventChoiceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>-200</Yield>
 		</Row>
 	</CityEventChoice_InstantYield>
 	<CityEventChoice_BuildingClassYieldChange>
@@ -152,7 +156,7 @@
 			<IsOneShot>true</IsOneShot>
 			<RequiredBuildingClass>BUILDINGCLASS_HARBOR</RequiredBuildingClass>
 			<EventCooldown>25</EventCooldown>
-			<RandomChanceDelta>10</RandomChanceDelta>
+			<RandomChanceDelta>1</RandomChanceDelta>
 			<RequiredEra>ERA_MEDIEVAL</RequiredEra>
 			<ObsoleteEra>ERA_MODERN</ObsoleteEra>
 		</Row>
@@ -175,6 +179,8 @@
 			<Type>CITY_EVENT_NOTORIOUS_PIRATE_CHOICE_3</Type>
 			<Help>TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_HELP_CHOICE_3</Help>
 			<Description>TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_DESCRIPTION_CHOICE_3</Description>
+			<EventDuration>30</EventDuration>
+			<Expires>true</Expires>
 		</Row>
 		<Row>
 			<Type>CITY_EVENT_NOTORIOUS_PIRATE_CHOICE_4</Type>
@@ -232,13 +238,13 @@
 	</CityEvent_ParentEvents>
 	<CityEventChoice_BuildingClassYieldChange>
 		<Row>
-			<CityEventChoiceType>CITY_EVENT_NOTORIOUS_PIRATE_CHOICE_4</CityEventChoiceType>
+			<CityEventChoiceType>CITY_EVENT_NOTORIOUS_PIRATE_CHOICE_3</CityEventChoiceType>
 			<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
-			<CityEventChoiceType>CITY_EVENT_NOTORIOUS_PIRATE_CHOICE_4</CityEventChoiceType>
+			<CityEventChoiceType>CITY_EVENT_NOTORIOUS_PIRATE_CHOICE_3</CityEventChoiceType>
 			<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
 			<YieldType>YIELD_TOURISM</YieldType>
 			<YieldChange>2</YieldChange>
@@ -260,7 +266,7 @@
 	</CityEventChoice_ImprovementYieldChange>
 	<CityEventChoice_ImprovementDestructionRandom>
 		<Row>
-			<CityEventChoiceType>CITY_EVENT_NOTORIOUS_PIRATE_CHOICE_3</CityEventChoiceType>
+			<CityEventChoiceType>CITY_EVENT_NOTORIOUS_PIRATE_CHOICE_4</CityEventChoiceType>
 			<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>
 			<Number>2</Number>
 		</Row>
@@ -289,11 +295,11 @@
 			<Description>TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_DESCRIPTION</Description>
 			<Help>TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_HELP</Help>
 			<NumChoices>4</NumChoices>
-			<RandomChance>20</RandomChance>
+			<RandomChance>25</RandomChance>
 			<IsOneShot>false</IsOneShot>
 			<RequiredBuildingClass>BUILDINGCLASS_CONSTABLE</RequiredBuildingClass>
 			<EventCooldown>25</EventCooldown>
-			<RandomChanceDelta>20</RandomChanceDelta>
+			<RandomChanceDelta>1</RandomChanceDelta>
 			<HasTradeConnection>true</HasTradeConnection>
 			<RequiredNoActiveCityEventChoice>CITY_EVENT_CONTRABAND_SMUGGLERS_CHOICE_2</RequiredNoActiveCityEventChoice>
 		</Row>
