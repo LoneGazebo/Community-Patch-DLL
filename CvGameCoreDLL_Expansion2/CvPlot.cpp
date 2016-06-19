@@ -6529,6 +6529,10 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 	bool bRecalculateAreas;
 	int iAreaCount;
 	int iI;
+	
+#if defined(MOD_BUGFIX_PLOT_VALIDATION)
+	if (eNewValue <= NO_PLOT || eNewValue >= NUM_PLOT_TYPES) return;
+#endif
 
 	if(getPlotType() != eNewValue)
 	{
@@ -6769,6 +6773,10 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 {
 	bool bUpdateSight;
 
+#if defined(MOD_BUGFIX_PLOT_VALIDATION)
+	if (eNewValue <= NO_TERRAIN || eNewValue >= NUM_TERRAIN_TYPES) return;
+#endif
+
 	if(getTerrainType() != eNewValue)
 	{
 		if((getTerrainType() != NO_TERRAIN) &&
@@ -6830,6 +6838,11 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 {
 	FeatureTypes eOldFeature;
 	bool bUpdateSight;
+
+#if defined(MOD_BUGFIX_PLOT_VALIDATION)
+	if (eNewValue < NO_FEATURE) return;
+	if (eNewValue > NO_FEATURE && GC.getFeatureInfo(eNewValue) == NULL) return;
+#endif
 
 	eOldFeature = getFeatureType();
 
@@ -7034,6 +7047,11 @@ ResourceTypes CvPlot::getNonObsoleteResourceType(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bForMinorCivPlot)
 {
+#if defined(MOD_BUGFIX_PLOT_VALIDATION)
+	if (eNewValue < NO_RESOURCE) return;
+	if (eNewValue > NO_RESOURCE && GC.getResourceInfo(eNewValue) == NULL) return;
+#endif
+
 	if(m_eResourceType != eNewValue)
 	{
 		if (eNewValue != -1)
@@ -7268,6 +7286,12 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 	int iI;
 	ImprovementTypes eOldImprovement = getImprovementType();
 	bool bGiftFromMajor = false;
+
+#if defined(MOD_BUGFIX_PLOT_VALIDATION)
+	if (eNewValue < NO_IMPROVEMENT) return;
+	if (eNewValue > NO_IMPROVEMENT && GC.getImprovementInfo(eNewValue) == NULL) return;
+#endif
+
 	if (eBuilder != NO_PLAYER)
 	{
 		if (getOwner() != eBuilder && !GET_PLAYER(eBuilder).isMinorCiv())
@@ -8240,6 +8264,11 @@ void CvPlot::setRouteType(RouteTypes eNewValue)
 {
 	RouteTypes eOldRoute = getRouteType();
 	int iI;
+
+#if defined(MOD_BUGFIX_PLOT_VALIDATION)
+	if (eNewValue < NO_ROUTE) return;
+	if (eNewValue > NO_ROUTE && GC.getRouteInfo(eNewValue) == NULL) return;
+#endif
 
 	if(eOldRoute != eNewValue || (eOldRoute == eNewValue && IsRoutePillaged()))
 	{
@@ -11237,6 +11266,11 @@ bool CvPlot::setRevealedImprovementType(TeamTypes eTeam, ImprovementTypes eNewVa
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
+#if defined(MOD_BUGFIX_PLOT_VALIDATION)
+	if (eNewValue < NO_IMPROVEMENT) return false;
+	if (eNewValue > NO_IMPROVEMENT && GC.getImprovementInfo(eNewValue) == NULL) return false;
+#endif
+
 	ImprovementTypes eOldImprovementType = getRevealedImprovementType(eTeam);
 	if(eOldImprovementType != eNewValue)
 	{
@@ -11289,6 +11323,11 @@ bool CvPlot::setRevealedRouteType(TeamTypes eTeam, RouteTypes eNewValue)
 {
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+
+#if defined(MOD_BUGFIX_PLOT_VALIDATION)
+	if (eNewValue < NO_ROUTE) return false;
+	if (eNewValue > NO_ROUTE && GC.getRouteInfo(eNewValue) == NULL) return false;
+#endif
 
 	if(getRevealedRouteType(eTeam, false) != eNewValue)
 	{
@@ -11808,7 +11847,7 @@ int CvPlot::GetNumCombatUnits()
 //	--------------------------------------------------------------------------------
 CvUnit* CvPlot::getUnitByIndex(int iIndex) const
 {
-	const IDInfo* pUnitNode = m_units.nodeNum(iIndex);
+	const IDInfo* pUnitNode = m_units.getAt(iIndex);
 
 	if(pUnitNode != NULL)
 	{

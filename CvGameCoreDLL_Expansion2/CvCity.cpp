@@ -20857,8 +20857,6 @@ int CvCity::GetYieldChangeFromCorporationFranchises(YieldTypes eIndex) const
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < GC.getNumYieldInfos(), "eIndex expected to be < GC.getNumYieldInfos()");
 
-	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-	
 	int iTotal = 0;
 	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
@@ -24338,7 +24336,7 @@ OrderData* CvCity::getOrderFromQueue(int iIndex)
 	VALIDATE_OBJECT
 	OrderData* pOrderNode;
 
-	pOrderNode = m_orderQueue.nodeNum(iIndex);
+	pOrderNode = m_orderQueue.getAt(iIndex);
 
 	if(pOrderNode != NULL)
 	{
@@ -25243,6 +25241,66 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 
 	return true;
 }
+
+#if defined(MOD_AI_SMART_V3)
+bool CvCity::IsCanGoldPurchase(OrderData* pOrder)
+{
+	UnitTypes eUnitType = NO_UNIT;
+	BuildingTypes eBuildingType = NO_BUILDING;
+	ProjectTypes eProjectType = NO_PROJECT;
+
+	switch(pOrder->eOrderType)
+	{
+		case ORDER_TRAIN:
+			eUnitType = ((UnitTypes)(pOrder->iData1));
+			break;
+
+		case ORDER_CONSTRUCT:
+			eBuildingType = ((BuildingTypes)(pOrder->iData1));
+			break;
+
+		case ORDER_CREATE:
+			eProjectType = ((ProjectTypes)(pOrder->iData1));
+			break;
+
+		default:
+			return false;
+	}
+
+	return IsCanPurchase(true, true, eUnitType, eBuildingType, eProjectType, YIELD_GOLD);
+}
+
+void CvCity::PurchaseCurrentOrder()
+{
+	UnitTypes eUnitType = NO_UNIT;
+	BuildingTypes eBuildingType = NO_BUILDING;
+	ProjectTypes eProjectType = NO_PROJECT;
+	OrderData* pOrder = getOrderFromQueue(0);
+
+	if (pOrder)
+	{
+		switch(pOrder->eOrderType)
+		{
+			case ORDER_TRAIN:
+				eUnitType = ((UnitTypes)(pOrder->iData1));
+				break;
+
+			case ORDER_CONSTRUCT:
+				eBuildingType = ((BuildingTypes)(pOrder->iData1));
+				break;
+
+			case ORDER_CREATE:
+				eProjectType = ((ProjectTypes)(pOrder->iData1));
+				break;
+
+			default:
+				return;
+		}
+	}
+
+	Purchase(eUnitType, eBuildingType, eProjectType, YIELD_GOLD);
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 // purchase something at the city

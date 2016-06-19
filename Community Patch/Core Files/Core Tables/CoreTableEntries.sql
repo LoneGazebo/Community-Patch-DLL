@@ -788,3 +788,34 @@ ALTER TABLE Technologies	ADD		VassalageTradingAllowed			boolean;									-- Enab
 ALTER TABLE Eras			ADD		VassalageEnabled				boolean;									-- Enables Vassalage (era)
 ALTER TABLE Resolutions		ADD		VassalMaintenanceGoldPercent	integer	DEFAULT	0;
 ALTER TABLE Resolutions		ADD		EndAllCurrentVassals			boolean	DEFAULT	0;
+
+-- Whoward Tables
+
+ALTER TABLE Traits
+  ADD GGFromBarbarians INTEGER DEFAULT 0;
+
+INSERT INTO CustomModDbUpdates(Name, Value) VALUES('TRAITS_GG_FROM_BARBARIANS', 1);
+
+
+ALTER TABLE UnitPromotions
+  ADD AuraRangeChange INTEGER DEFAULT 0;
+  
+ALTER TABLE UnitPromotions
+  ADD AuraEffectChange INTEGER DEFAULT 0;
+  
+INSERT OR REPLACE INTO Defines(Name, Value)
+  VALUES('GREAT_GENERAL_MAX_RANGE', 2);
+
+INSERT INTO CustomModDbUpdates(Name, Value) VALUES('PROMOTIONS_AURA_CHANGE', 1);
+
+ALTER TABLE Traits
+  ADD ExtraSupply INTEGER DEFAULT 0;
+
+ALTER TABLE Traits
+  ADD ExtraSupplyPerCity INTEGER DEFAULT 0;
+
+ALTER TABLE Traits
+  ADD ExtraSupplyPerPopulation INTEGER DEFAULT 0;
+
+INSERT INTO CustomModDbUpdates(Name, Value) VALUES('TRAITS_EXTRA_SUPPLY', 1);
+

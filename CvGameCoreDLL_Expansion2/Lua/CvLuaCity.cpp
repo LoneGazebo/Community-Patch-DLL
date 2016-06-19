@@ -270,6 +270,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE)
 	Method(GetYieldPerTurnFromTraits);
 #endif
+#if defined(MOD_BUGFIX_LUA_API)
+	Method(ChangeJONSCulturePerTurnFromReligion);
+#endif
 	Method(GetJONSCulturePerTurnFromReligion);
 	Method(GetJONSCulturePerTurnFromLeagues);
 
@@ -305,6 +308,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetFaithPerTurnFromPolicies);
 	Method(GetFaithPerTurnFromTraits);
 	Method(GetFaithPerTurnFromReligion);
+#if defined(MOD_BUGFIX_LUA_API)
+	Method(ChangeFaithPerTurnFromReligion);
+#endif
 
 	Method(IsReligionInCity);
 	Method(IsHolyCityForReligion);
@@ -4894,7 +4900,11 @@ int CvLuaCity::lGetOrderFromQueue(lua_State* L)
 		{
 			lua_pushinteger(L, pkOrder->eOrderType);
 			lua_pushinteger(L, pkOrder->iData1);
+#if defined(MOD_BUGFIX_LUA_API)
+			lua_pushinteger(L, pkOrder->iData2);
+#else
 			lua_pushinteger(L, pkOrder->iData1);
+#endif
 			lua_pushboolean(L, pkOrder->bSave);
 			lua_pushboolean(L, pkOrder->bRush);
 			return 5;

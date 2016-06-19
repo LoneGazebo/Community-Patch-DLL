@@ -7924,6 +7924,22 @@ void CvGame::addGreatPersonBornName(const CvString& szName)
 	m_aszGreatPeopleBorn.push_back(szName);
 }
 
+#if defined(MOD_API_EXTENSIONS)
+//	--------------------------------------------------------------------------------
+void CvGame::removeGreatPersonBornName(const CvString& szName)
+{
+	std::vector<CvString>::const_iterator it;
+	for(it = m_aszGreatPeopleBorn.begin(); it != m_aszGreatPeopleBorn.end(); ++it)
+	{
+		if(*it == szName)
+		{
+			m_aszGreatPeopleBorn.erase(it);
+			break;
+		}
+	}
+}
+#endif
+
 
 // Protected Functions...
 

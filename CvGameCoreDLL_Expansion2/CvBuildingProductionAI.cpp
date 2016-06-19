@@ -448,11 +448,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	if(m_pCity->IsBastion())
 	{
-		iDefense *= 2;
-	}
-	else
-	{
-		iDefense /= 4;
+		iDefense *= 4;
 	}
 	iBonus += iDefense;
 

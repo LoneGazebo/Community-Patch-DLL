@@ -204,6 +204,9 @@ public:
 #if defined(MOD_TRAITS_CROSSES_ICE)
 	bool IsCrossesIce() const;
 #endif
+#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
+	bool IsGGFromBarbarians() const;
+#endif
 	bool IsMayaCalendarBonuses() const;
 	bool IsNoAnnexing() const;
 	bool IsTechFromCityConquer() const;
@@ -473,6 +476,9 @@ protected:
 	bool m_bCrossesMountainsAfterGreatGeneral;
 #if defined(MOD_TRAITS_CROSSES_ICE)
 	bool m_bCrossesIce;
+#endif
+#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
+	bool m_bGGFromBarbarians;
 #endif
 	bool m_bMayaCalendarBonuses;
 	bool m_bNoAnnexing;
@@ -1109,6 +1115,12 @@ public:
 		return m_bCrossesIce;
 	};
 #endif
+#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
+	bool IsGGFromBarbarians() const
+	{
+		return m_bGGFromBarbarians;
+	};
+#endif
 	bool IsMayaCalendarBonuses() const
 	{
 		return m_bMayaCalendarBonuses;
@@ -1571,6 +1583,9 @@ private:
 	bool m_bCrossesMountainsAfterGreatGeneral;
 #if defined(MOD_TRAITS_CROSSES_ICE)
 	bool m_bCrossesIce;
+#endif
+#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
+	bool m_bGGFromBarbarians;
 #endif
 	bool m_bMayaCalendarBonuses;
 	bool m_bNoAnnexing;

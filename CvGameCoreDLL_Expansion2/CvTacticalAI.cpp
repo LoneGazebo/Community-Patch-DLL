@@ -11087,6 +11087,8 @@ int CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget)
 /// Support function to pick best hex for a great general to move to
 int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pLoopPlot)
 {
+	int iAura = 0;
+
 	if(pLoopPlot == NULL || !pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) || !pLoopPlot->isRevealed(m_pPlayer->getTeam()))
 		return 0;
 
@@ -11096,7 +11098,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pLoopPlot)
 	if(!pLoopPlot->isWater() && pGeneral->getDomainType() == DOMAIN_SEA)
 		return 0;
 
-	if(!pGeneral->IsCityAttackSupport() && pGeneral->IsNearGreatGeneral(pLoopPlot, pGeneral.pointer())) //near another general
+	if(!pGeneral->IsCityAttackSupport() && pGeneral->IsNearGreatGeneral(iAura, pLoopPlot, pGeneral.pointer())) //near another general
 		return 0;
 
 	if(pGeneral->IsCityAttackSupport() && pGeneral->IsNearCityAttackSupport(pLoopPlot, pGeneral.pointer())) // Near another sapper

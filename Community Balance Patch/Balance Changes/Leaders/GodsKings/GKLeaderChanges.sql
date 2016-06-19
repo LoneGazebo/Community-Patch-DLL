@@ -423,7 +423,7 @@ VALUES
 INSERT INTO Trait_YieldFromSettle
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_PHOENICIAN_HERITAGE', 'YIELD_GOLD', 150);
+	('TRAIT_PHOENICIAN_HERITAGE', 'YIELD_GOLD', 200);
 
 INSERT INTO Trait_TerrainClaimBoost
 	(TraitType, TerrainType)

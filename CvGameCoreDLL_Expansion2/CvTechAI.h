@@ -57,8 +57,8 @@ private:
 	void PropagateWeights(int iTech, int iWeight, int iPropagationPercent, int iPropagationLevel);
 
 	// Recompute weights taking into account tech cost
-#ifdef AUI_TECHAI_CHOOSE_NEXT_TECH_FREE_TECH_WANTS_EXPENSIVE
-	void ReweightByCost(CvPlayer *pPlayer, bool bWantsExpensive=false);
+#if defined(MOD_AI_SMART_V3)
+	void ReweightByCost(CvPlayer *pPlayer, bool bWantsExpensive = false);
 #else
 	void ReweightByCost(CvPlayer *pPlayer);
 #endif

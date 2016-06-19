@@ -23209,14 +23209,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						{
 							if(!pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
 							{
-								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pCity);
+								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID());
 							}
 							if(eYield == YIELD_SCIENCE && iPassYield > 0)
 							{
 								ReligionTypes eCurrentReligion = pCity->GetCityReligions()->GetReligiousMajority();
 								if(eCurrentReligion != eReligion && eCurrentReligion != NO_RELIGION)
 								{
-									iValue += (iPassYield * pReligion->m_Beliefs.GetSciencePerOtherReligionFollower(GetID(), pCity));
+									iValue += (iPassYield * pReligion->m_Beliefs.GetSciencePerOtherReligionFollower(GetID()));
 								}
 							}
 						}
@@ -23233,7 +23233,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						if(pReligion)
 						{
-							iValue += pReligion->m_Beliefs.GetYieldFromForeignSpread(eYield, GetID(), pLoopCity);
+							iValue += pReligion->m_Beliefs.GetYieldFromForeignSpread(eYield, GetID());
 						}
 					}
 					if(iPassYield != 0)

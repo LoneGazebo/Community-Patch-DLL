@@ -410,6 +410,20 @@ PlayerTypes CvGameCulture::GetGreatWorkController(int iIndex) const
 }
 
 #if defined(MOD_API_EXTENSIONS)
+bool CvGameCulture::IsGreatWorkCreated(GreatWorkType eType) const
+{
+	GreatWorkList::const_iterator it;
+	for(it = m_CurrentGreatWorks.begin(); it != m_CurrentGreatWorks.end(); it++)
+	{
+		if ((*it).m_eType == eType)
+		{
+			return true;
+		}
+	}
+	
+	return false;
+}
+
 CvCity* CvGameCulture::GetGreatWorkCity(int iIndex) const
 {
 	CvAssertMsg (iIndex < GetNumGreatWorks(), "Bad Great Work index");
@@ -6217,16 +6231,6 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 			}
 		}
 	}
-	//Buildings with Tourism
-	int iTourismFromWW = GET_PLAYER(m_pCity->getOwner()).GetYieldChangeWorldWonder(YIELD_TOURISM);
-	if(iTourismFromWW > 0)
-	{
-		iTourismFromWW *= m_pCity->getNumWorldWonders();
-		if(iTourismFromWW > 0)
-		{
-			iBase += iTourismFromWW;
-		}
-	}
 #endif
 
 	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent();
@@ -6898,7 +6902,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS", iTourismFromWW);
 		}
 	}
-	int iRemainder = (m_pCity->getYieldRate(YIELD_TOURISM, false) - iTraitBonuses);
+	int iRemainder = (m_pCity->getYieldRate(YIELD_TOURISM, false) - iTraitBonuses - iTourismFromWW);
 	if(iRemainder > 0)
 	{
 		if (szRtnValue.length() > 0)

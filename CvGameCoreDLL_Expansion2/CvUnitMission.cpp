@@ -495,16 +495,22 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 
 		CvAssert(iSteps < 100);
 		if(iSteps >= 100)
+		{
+			OutputDebugString("warning: endless loop in ContinueMission\n");
 			return;
+		}
 
 		const MissionData* pkMissionData = (HeadMissionQueueNode(hUnit->m_missionQueue));
+		CvPlot* pDestPlot = GC.getMap().plot(pkMissionData->iData1, pkMissionData->iData2);
+		if (!pDestPlot)
+			return;
 
+		//tutorial hints
 		if(pkMissionData->iPushTurn == GC.getGame().getGameTurn() || (pkMissionData->iFlags & CvUnit::MOVEFLAG_IGNORE_STACKING))
 		{
-			if(pkMissionData->eMissionType == CvTypes::getMISSION_MOVE_TO() && !hUnit->IsDoingPartialMove() && hUnit->canMove() && hUnit->m_unitMoveLocs.size() == 0)
+			if(pkMissionData->eMissionType == CvTypes::getMISSION_MOVE_TO() && !hUnit->IsDoingPartialMove() && hUnit->canMove() && !hUnit->HasQueuedVisualizationMoves())
 			{
-				CvPlot* pPlot = GC.getMap().plot(pkMissionData->iData1, pkMissionData->iData2);
-				if(hUnit->IsAutomated() && pPlot->isVisible(hUnit->getTeam()) && hUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_ATTACK))
+				if(hUnit->IsAutomated() && pDestPlot->isVisible(hUnit->getTeam()) && hUnit->canMoveInto(*pDestPlot, CvUnit::MOVEFLAG_ATTACK))
 				{
 					// if we're automated and try to attack, consider this move OVAH
 					bDone = true;
@@ -515,9 +521,9 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 					bool bBadAttackInterrupt = gDLL->GetAdvisorBadAttackInterrupt();
 					if(hUnit->isHuman() && !CvPreGame::isNetworkMultiplayerGame() && !GC.getGame().IsCombatWarned() && (bCityAttackInterrupt || bBadAttackInterrupt))
 					{
-						if(hUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_ATTACK) && pPlot->isVisible(hUnit->getTeam()))
+						if(hUnit->canMoveInto(*pDestPlot, CvUnit::MOVEFLAG_ATTACK) && pDestPlot->isVisible(hUnit->getTeam()))
 						{
-							if(pPlot->isCity())
+							if(pDestPlot->isCity())
 							{
 								if(bCityAttackInterrupt)
 								{
@@ -528,7 +534,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 										// do city alert
 										CvPopupInfo kPopup(BUTTONPOPUP_ADVISOR_MODAL);
 										kPopup.iData1 = ADVISOR_MILITARY;
-										kPopup.iData2 = pPlot->GetPlotIndex();
+										kPopup.iData2 = pDestPlot->GetPlotIndex();
 										kPopup.iData3 = hUnit->plot()->GetPlotIndex();
 										strcpy_s(kPopup.szText, "TXT_KEY_ADVISOR_CITY_ATTACK_BODY");
 										kPopup.bOption1 = true;
@@ -539,7 +545,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 							}
 							else if(bBadAttackInterrupt)
 							{
-								CvUnit* pDefender = pPlot->getVisibleEnemyDefender(hUnit->getOwner());
+								CvUnit* pDefender = pDestPlot->getVisibleEnemyDefender(hUnit->getOwner());
 								if(pDefender)
 								{
 									CombatPredictionTypes ePrediction = GC.getGame().GetCombatPrediction(hUnit.pointer(), pDefender);
@@ -550,7 +556,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 											GC.GetEngineUserInterface()->SetDontShowPopups(false);
 											CvPopupInfo kPopup(BUTTONPOPUP_ADVISOR_MODAL);
 											kPopup.iData1 = ADVISOR_MILITARY;
-											kPopup.iData2 = pPlot->GetPlotIndex();
+											kPopup.iData2 = pDestPlot->GetPlotIndex();
 											kPopup.iData3 = hUnit->plot()->GetPlotIndex();
 											strcpy_s(kPopup.szText, "TXT_KEY_ADVISOR_BAD_ATTACK_BODY");
 											kPopup.bOption1 = false;
@@ -562,11 +568,6 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 								}
 							}
 						}
-					}
-
-					if(hUnit->UnitAttackWithMove(pkMissionData->iData1, pkMissionData->iData2, pkMissionData->iFlags))
-					{
-						bDone = true;
 					}
 				}
 			}
@@ -591,33 +592,73 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 			        kMissionData.eMissionType == CvTypes::getMISSION_EMBARK() ||
 			        kMissionData.eMissionType == CvTypes::getMISSION_DISEMBARK())
 			{
+				//need to declare war first
+				if(hUnit->CheckDOWNeededForMove(pkMissionData->iData1, pkMissionData->iData2))
+					return;
+
 				if(hUnit->getDomainType() == DOMAIN_AIR)
 				{
-					hUnit->UnitPathTo(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags);
-					bDone = true;
+					int iResult = hUnit->UnitAttackWithMove(pkMissionData->iData1, pkMissionData->iData2, pkMissionData->iFlags);
+					if (iResult<0)
+					{
+						//illegal, cannot execute attack
+						return;
+					}
+					else if (iResult==0)
+					{
+						//nothing to attack, continue movement
+						hUnit->UnitPathTo(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags);
+						bDone = true;
+					}
+					else if (iResult>0)
+					{
+						//attack executed
+						bDone = true;
+					}
 				}
 				else
 				{
-					int iThisETA = hUnit->UnitPathTo(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags, iETA);
-					if(iThisETA > 0) //normal movement
+					//only non-air units use the path cache
+					if (!hUnit->UpdatePathCache(pDestPlot, pkMissionData->iFlags))
 					{
-						bAction = true;
-					}
-					else if (iThisETA < 0) //turn finished
-					{
-						bAction = true;
-						bDone = true;
-					}
-					else //cannot move
-					{
-						bDone = true;
+						return;
 					}
 
-					// Save off the initial ETA, we will feed it back into the UnitPathTo so it can check to see if our ETA grows while we are in the loop.
-					// This can happen as terrain gets revealed.
-					if(iSteps == 0)
+					int iResult = hUnit->UnitAttackWithMove(pkMissionData->iData1, pkMissionData->iData2, pkMissionData->iFlags);
+					if (iResult<0)
 					{
-						iETA = iThisETA;
+						//illegal, cannot execute attack
+						return;
+					}
+					else if (iResult==0)
+					{
+						//nothing to attack, continue movement
+						int iThisETA = hUnit->UnitPathTo(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags, iETA);
+						if(iThisETA > 0) //normal movement
+						{
+							bAction = true;
+						}
+						else if (iThisETA < 0) //turn finished
+						{
+							bAction = true;
+							bDone = true;
+						}
+						else //cannot move
+						{
+							bDone = true;
+						}
+
+						// Save off the initial ETA, we will feed it back into the UnitPathTo so it can check to see if our ETA grows while we are in the loop.
+						// This can happen as terrain gets revealed.
+						if(iSteps == 0)
+						{
+							iETA = iThisETA;
+						}
+					}
+					else if (iResult>0)
+					{
+						//attack executed
+						bDone = true;
 					}
 				}
 			}
@@ -926,10 +967,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 #endif
 					}
 
-					if(hUnit->m_unitMoveLocs.size() > 0)
-					{
-						hUnit->PublishQueuedVisualizationMoves();
-					}
+					hUnit->PublishQueuedVisualizationMoves();
 
 					DeleteMissionQueueNode(hUnit, HeadMissionQueueNode(hUnit->m_missionQueue));
 				}

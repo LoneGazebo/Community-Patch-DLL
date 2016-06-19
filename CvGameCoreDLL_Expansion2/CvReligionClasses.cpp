@@ -2306,7 +2306,10 @@ void CvGameReligions::DoUpdateReligion(PlayerTypes ePlayer)
 				if(pHolyCityPlot && pHolyCityPlot->getOwner() == ePlayer)
 				{		
 					eRtnValue = it->m_eReligion;
-					kPlayer.GetReligions()->SetPlayerReligion(eRtnValue);
+					if(kPlayer.GetReligions()->GetCurrentReligion() != eRtnValue)
+					{
+						kPlayer.GetReligions()->SetPlayerReligion(eRtnValue);
+					}
 					return;
 				}
 			}
@@ -2334,7 +2337,10 @@ void CvGameReligions::DoUpdateReligion(PlayerTypes ePlayer)
 		//If we have no holy cities, or 1 holy city, return it.
 		if(iNumHolyCities <= 1)
 		{
-			kPlayer.GetReligions()->SetPlayerReligion(eRtnValue);
+			if(kPlayer.GetReligions()->GetCurrentReligion() != eRtnValue)
+			{
+				kPlayer.GetReligions()->SetPlayerReligion(eRtnValue);
+			}
 			return;
 		}
 		//Ugh, we have multiple? Okay, let's prioritize by # of followers in our empire. Biggest faith wins!
@@ -2355,6 +2361,10 @@ void CvGameReligions::DoUpdateReligion(PlayerTypes ePlayer)
 						if(iValue <= 0)
 						{
 							iValue = 1;
+						}
+						if(it->m_eFounder == ePlayer)
+						{
+							iValue += 10;
 						}
 						if(it->m_bEnhanced)
 						{
