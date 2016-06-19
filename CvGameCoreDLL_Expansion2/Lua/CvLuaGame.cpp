@@ -317,7 +317,6 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetBuildingYieldChange);
 	Method(GetBuildingYieldModifier);
 #if defined(MOD_BALANCE_CORE)
-	Method(GetBuildingCorporateYieldChange);
 	Method(GetBuildingCorporateGPChange);
 	Method(GetPovertyHappinessChangeBuilding);
 	Method(GetDefenseHappinessChangeBuilding);
@@ -2345,24 +2344,6 @@ int CvLuaGame::lGetMinorityHappinessChangeBuildingGlobal(lua_State* L)
 //////
 /// CORPORATIONS
 //////
-//------------------------------------------------------------------------------
-int CvLuaGame::lGetBuildingCorporateYieldChange(lua_State* L)
-{
-	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
-	const YieldTypes eYield = (YieldTypes) luaL_checkint(L, 2);
-
-	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-	CvYieldInfo* pkYieldInfo = GC.getYieldInfo(eYield);
-
-	int iYieldChange = 0;
-	if(pkBuildingInfo && pkYieldInfo)
-	{
-		iYieldChange = pkBuildingInfo->GetYieldPerFranchise(eYield);
-	}
-
-	lua_pushinteger(L, iYieldChange);
-	return 1;
-}
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetBuildingCorporateGPChange(lua_State* L)
 {

@@ -571,7 +571,8 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	Method(GetBaseYieldRateFromCSAlliance);
-	Method(GetCorporationYieldChange);
+	Method(GetBuildingYieldChangeFromCorporationFranchises);
+	Method(GetYieldChangeFromCorporationFranchises);
 	Method(GetTradeRouteCityMod);
 	Method(GetResourceQuantityPerXFranchises);
 	Method(GetGPRateModifierPerXFranchises);
@@ -4981,32 +4982,20 @@ int CvLuaCity::lGetBaseYieldRateFromCSAlliance(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-int CvLuaCity::lGetCorporationYieldChange(lua_State* L)
+int CvLuaCity::lGetBuildingYieldChangeFromCorporationFranchises(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingClassTypes eBuildingClass = (BuildingClassTypes)lua_tointeger(L, 2);
+	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 3);
+	int iResult = pkCity->GetBuildingYieldChangeFromCorporationFranchises(eBuildingClass, eIndex);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaCity::lGetYieldChangeFromCorporationFranchises(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
-	
-	int iResult = 0;
-	if (GET_PLAYER(pkCity->getOwner()).GetCorporations()->HasFoundedCorporation())
-	{
-		CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(GET_PLAYER(pkCity->getOwner()).GetCorporations()->GetFoundedCorporation());
-		if (pkCorporationInfo != NULL)
-		{
-			// Calculate what our input into the corporation helper we need
-			int iNumFranchises = GET_PLAYER(pkCity->getOwner()).GetCorporations()->GetNumFranchises();
-
-			BuildingTypes eOffice = (BuildingTypes)GET_PLAYER(pkCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetOfficeBuildingClass());
-			CvBuildingEntry* pkOfficeInfo = GC.getBuildingInfo(eOffice);
-			if (pkOfficeInfo != NULL)
-			{
-				if (pkOfficeInfo->GetYieldPerFranchise(eIndex) > 0)
-				{
-					iResult = iNumFranchises * pkOfficeInfo->GetYieldPerFranchise(eIndex);
-				}
-			}
-		}
-	}
-
+	int iResult = pkCity->GetYieldChangeFromCorporationFranchises(eIndex);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

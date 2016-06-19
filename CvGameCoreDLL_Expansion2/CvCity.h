@@ -1036,6 +1036,10 @@ public:
 	bool IsHasOffice() const;
 	bool IsHasFranchise(CorporationTypes eCorporation) const;
 
+	int GetBuildingYieldChangeFromCorporationFranchises(BuildingClassTypes eBuildingClass, YieldTypes eIndex) const;
+	
+	int GetYieldChangeFromCorporationFranchises(YieldTypes eIndex) const;
+
 	int GetResourceQuantityPerXFranchises(ResourceTypes eResource) const;
 	void ChangeResourceQuantityPerXFranchises(ResourceTypes eResource, int iChange);
 	void SetResourceQuantityPerXFranchises(ResourceTypes eResource, int iValue);
