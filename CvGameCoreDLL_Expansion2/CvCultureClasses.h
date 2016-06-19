@@ -75,6 +75,7 @@ public:
 	PlayerTypes GetGreatWorkCreator (int iIndex) const;
 	PlayerTypes GetGreatWorkController(int iIndex) const;
 #if defined(MOD_API_EXTENSIONS)
+	bool IsGreatWorkCreated(GreatWorkType eType) const;
 	CvCity* GetGreatWorkCity(int iIndex) const;
 #endif
 	int GetGreatWorkCurrentThemingBonus (int iIndex) const;

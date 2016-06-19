@@ -54,7 +54,11 @@ public:
 	void SetGrandStrategyPriority(AIGrandStrategyTypes eGrandStrategy, int iValue);
 	void ChangeGrandStrategyPriority(AIGrandStrategyTypes eGrandStrategy, int iChange);
 
+#if defined(MOD_AI_SMART_V3)
+	int GetPersonalityAndGrandStrategy(FlavorTypes eFlavorType, bool bBoostGSMainFlavor = false);
+#else
 	int GetPersonalityAndGrandStrategy(FlavorTypes eFlavorType);
+#endif
 
 	// **********
 	// Stuff relating to guessing what other Players are up to

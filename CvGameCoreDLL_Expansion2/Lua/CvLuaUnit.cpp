@@ -315,6 +315,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_CROSS_ICE)
 	Method(CanCrossIce);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+	Method(IsGGFromBarbarians);
+#endif
 	Method(IsNeverInvisible);
 	Method(IsInvisible);
 	Method(IsNukeImmune);
@@ -493,6 +496,10 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsIgnoreGreatGeneralBenefit);
 	Method(GetReverseGreatGeneralModifier);
 	Method(GetGreatGeneralCombatModifier);
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_AURA_CHANGE)
+	Method(GetAuraRange);
+	Method(GetAuraEffect);
+#endif
 	Method(IsNearSapper);
 #if defined(MOD_BALANCE_CORE)
 	Method(IsHalfNearSapper);
@@ -3219,6 +3226,18 @@ int CvLuaUnit::lCanCrossIce(lua_State* L)
 	return 1;
 }
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+//------------------------------------------------------------------------------
+//bool isGGFromBarbarians();
+int CvLuaUnit::lIsGGFromBarbarians(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const bool bResult = pkUnit->isGGFromBarbarians();
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool isNeverInvisible();
 int CvLuaUnit::lIsNeverInvisible(lua_State* L)
@@ -4740,9 +4759,17 @@ int CvLuaUnit::lIsNearGreatGeneral(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	int iAuraEffectChange = 0;
+	const bool bResult = pkUnit->IsNearGreatGeneral(iAuraEffectChange);
+	lua_pushboolean(L, bResult);
+	lua_pushinteger(L, iAuraEffectChange);
+	return 2;
+#else
 	const bool bResult = pkUnit->IsNearGreatGeneral();
 	lua_pushboolean(L, bResult);
 	return 1;
+#endif
 }
 //------------------------------------------------------------------------------
 //bool IsStackedGreatGeneral();
@@ -4784,6 +4811,30 @@ int CvLuaUnit::lGetGreatGeneralCombatModifier(lua_State* L)
 	lua_pushinteger(L, bResult);
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_PROMOTIONS_AURA_CHANGE)
+//------------------------------------------------------------------------------
+//int GetAuraRange();
+int CvLuaUnit::lGetAuraRange(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = GC.getGREAT_GENERAL_RANGE() + pkUnit->GetAuraRangeChange();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetAuraEffect();
+int CvLuaUnit::lGetAuraEffect(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	CvPlayerAI& kPlayer = GET_PLAYER(pkUnit->getOwner());
+
+	const int iResult = kPlayer.GetGreatGeneralCombatBonus() + kPlayer.GetPlayerTraits()->GetGreatGeneralExtraBonus() + pkUnit->GetAuraEffectChange();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool IsNearSapper(CvCity* pTargetCity);
 int CvLuaUnit::lIsNearSapper(lua_State* L)

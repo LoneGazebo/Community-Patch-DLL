@@ -53,6 +53,9 @@ public:
 	void LogPossibleWonders();
 
 	bool IsWonder(const CvBuildingEntry& kBuilding) const;
+#if defined(MOD_AI_SMART_V3)
+	bool IsWonderNotNationalUnique(const CvBuildingEntry& kBuilding) const;
+#endif
 
 private:
 	bool HaveCityToBuild(BuildingTypes eBuilding) const;

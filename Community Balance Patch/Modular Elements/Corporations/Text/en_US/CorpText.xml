@@ -515,7 +515,7 @@
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to a foreign City with a Centaurus Extractors Franchise grant +10% [ICON_RESEARCH] Science rate in the origin City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_LANDSEA_EXTRACTORS_OFFICE_BENEFIT_HELP">
-			<Text>Current Office Bonus: +{1_Num} [ICON_RESEARCH] Science.</Text>
+			<Text>Current Office Bonus: +{1_Num} [ICON_PRODUCTION] Production.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ">

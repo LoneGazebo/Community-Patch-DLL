@@ -173,6 +173,9 @@ CvTraitEntry::CvTraitEntry() :
 #if defined(MOD_TRAITS_CROSSES_ICE)
 	m_bCrossesIce(false),
 #endif
+#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
+	m_bGGFromBarbarians(false),
+#endif
 	m_bMayaCalendarBonuses(false),
 	m_bNoAnnexing(false),
 	m_bTechFromCityConquer(false),
@@ -971,6 +974,14 @@ bool CvTraitEntry::IsCrossesMountainsAfterGreatGeneral() const
 bool CvTraitEntry::IsCrossesIce() const
 {
 	return m_bCrossesIce;
+}
+#endif
+
+#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
+/// Accessor: do combat units gain GG/GA points from killing barbarians?
+bool CvTraitEntry::IsGGFromBarbarians() const
+{
+	return m_bGGFromBarbarians;
 }
 #endif
 
@@ -1859,7 +1870,14 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
 	m_bCrossesMountainsAfterGreatGeneral = kResults.GetBool("CrossesMountainsAfterGreatGeneral");
 #if defined(MOD_TRAITS_CROSSES_ICE)
-	m_bCrossesIce = kResults.GetBool("CrossesIce");
+	if (MOD_TRAITS_CROSSES_ICE) {
+		m_bCrossesIce = kResults.GetBool("CrossesIce");
+	}
+#endif
+#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
+	if (MOD_TRAITS_GG_FROM_BARBARIANS) {
+		m_bGGFromBarbarians = kResults.GetBool("GGFromBarbarians");
+	}
 #endif
 	m_bMayaCalendarBonuses = kResults.GetBool("MayaCalendarBonuses");
 	m_bNoAnnexing = kResults.GetBool("NoAnnexing");
@@ -2811,6 +2829,12 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_bCrossesIce = true;
 			}
 #endif
+#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
+			if(trait->IsGGFromBarbarians())
+			{
+				m_bGGFromBarbarians = true;
+			}
+#endif
 			if(trait->IsMayaCalendarBonuses())
 			{
 				m_bMayaCalendarBonuses = true;
@@ -3283,6 +3307,9 @@ void CvPlayerTraits::Reset()
 	m_bCrossesMountainsAfterGreatGeneral = false;
 #if defined(MOD_TRAITS_CROSSES_ICE)
 	m_bCrossesIce = false;
+#endif
+#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
+	m_bGGFromBarbarians = false;
 #endif
 	m_bMayaCalendarBonuses = false;
 	m_bNoAnnexing = false;
@@ -5101,6 +5128,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 #if defined(MOD_TRAITS_CROSSES_ICE)
 	MOD_SERIALIZE_READ(23, kStream, m_bCrossesIce, false);
 #endif
+#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
+	MOD_SERIALIZE_READ(83, kStream, m_bGGFromBarbarians, false);
+#endif
 
 	kStream >> m_bMayaCalendarBonuses;
 	kStream >> m_iBaktunPreviousTurn;
@@ -5519,6 +5549,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_bCrossesMountainsAfterGreatGeneral;
 #if defined(MOD_TRAITS_CROSSES_ICE)
 	MOD_SERIALIZE_WRITE(kStream, m_bCrossesIce);
+#endif
+#if defined(MOD_TRAITS_GG_FROM_BARBARIANS)
+	MOD_SERIALIZE_WRITE(kStream, m_bGGFromBarbarians);
 #endif
 	kStream << m_bMayaCalendarBonuses;
 

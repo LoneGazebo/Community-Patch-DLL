@@ -267,31 +267,44 @@ void CvCityCitizens::DoTurn()
 
 	CvPlayerAI& thisPlayer = GET_PLAYER(GetOwner());
 #if defined(MOD_BALANCE_CORE)
-	const OrderData* pOrderNode = m_pCity->headOrderQueueNode();
-	CvUnitEntry* pkUnitInfo = NULL;
-	CvBuildingClassInfo* pkBuildingClassInfo = NULL;
+#if defined(MOD_AI_SMART_V3)
 	bool bWonder = false;
-	if(pOrderNode != NULL && pOrderNode->eOrderType == ORDER_TRAIN)
+	bool bSettler = false;
+	CvUnitEntry* pkUnitInfo = NULL;
+	
+	if (MOD_AI_SMART_V3)
 	{
-		pkUnitInfo = GC.getUnitInfo((UnitTypes)pOrderNode->iData1);
-	}
-	else if (pOrderNode != NULL && pOrderNode->eOrderType == ORDER_CONSTRUCT)
-	{
-		CvBuildingEntry* pkOrderBuildingInfo = GC.getBuildingInfo((BuildingTypes)pOrderNode->iData1);
-
-		if(pkOrderBuildingInfo)
+		const OrderData* pOrderNode = m_pCity->headOrderQueueNode();
+		
+		CvBuildingClassInfo* pkBuildingClassInfo = NULL;
+		if(pOrderNode != NULL && pOrderNode->eOrderType == ORDER_TRAIN)
 		{
-			const BuildingClassTypes eOrderBuildingClass = (BuildingClassTypes)pkOrderBuildingInfo->GetBuildingClassType();
-			if(eOrderBuildingClass != NO_BUILDINGCLASS)
+			pkUnitInfo = GC.getUnitInfo((UnitTypes)pOrderNode->iData1);
+			if(pkUnitInfo != NULL && pkUnitInfo->IsFound())
 			{
-				pkBuildingClassInfo = GC.getBuildingClassInfo(eOrderBuildingClass);
-				if(pkBuildingClassInfo && pkBuildingClassInfo->getMaxGlobalInstances() == 1)
+				bSettler = true;
+			}
+		}
+		else if (pOrderNode != NULL && pOrderNode->eOrderType == ORDER_CONSTRUCT)
+		{
+			CvBuildingEntry* pkOrderBuildingInfo = GC.getBuildingInfo((BuildingTypes)pOrderNode->iData1);
+
+			if(pkOrderBuildingInfo)
+			{
+				const BuildingClassTypes eOrderBuildingClass = (BuildingClassTypes)pkOrderBuildingInfo->GetBuildingClassType();
+				if(eOrderBuildingClass != NO_BUILDINGCLASS)
 				{
-					bWonder = true;
+					pkBuildingClassInfo = GC.getBuildingClassInfo(eOrderBuildingClass);
+					if(pkBuildingClassInfo && pkBuildingClassInfo->getMaxGlobalInstances() == 1)
+					{
+						bWonder = true;
+					}
 				}
 			}
 		}
 	}
+#endif
+
 	if(m_pCity->IsPuppet())
 	{
 #if defined(MOD_UI_CITY_PRODUCTION)
@@ -642,7 +655,11 @@ void CvCityCitizens::DoTurn()
 				//SetNoAutoAssignSpecialists(true);
 			}
 		}
+#if defined(MOD_AI_SMART_V3)
+		if(m_pCity->isCapital() && !thisPlayer.isMinorCiv() && (m_pCity->GetCityStrategyAI()->GetSpecialization() != eWonderSpecializationType) && !bWonder && !bSettler)
+#else
 		if(m_pCity->isCapital() && !thisPlayer.isMinorCiv() && m_pCity->GetCityStrategyAI()->GetSpecialization() != eWonderSpecializationType)
+#endif
 		{
 			SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 			SetNoAutoAssignSpecialists(false);
@@ -654,7 +671,11 @@ void CvCityCitizens::DoTurn()
 				//SetNoAutoAssignSpecialists(true);
 			}
 		}
+#if defined(MOD_AI_SMART_V3)
+		else if((m_pCity->GetCityStrategyAI()->GetSpecialization() == eWonderSpecializationType) || bWonder || bSettler)
+#else
 		else if(m_pCity->GetCityStrategyAI()->GetSpecialization() == eWonderSpecializationType)
+#endif
 		{
 			SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
 			SetNoAutoAssignSpecialists(false);
@@ -664,6 +685,10 @@ void CvCityCitizens::DoTurn()
 			//{
 			SetForcedAvoidGrowth(false);
 			//}
+#if defined(MOD_AI_SMART_V3)
+			if (!MOD_AI_SMART_V3 || !bSettler)
+			{
+#endif
 			iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
 			if(iExcessFoodTimes100 < 200)
 			{
@@ -678,6 +703,9 @@ void CvCityCitizens::DoTurn()
 				//SetNoAutoAssignSpecialists(true);
 				SetForcedAvoidGrowth(false);
 			}
+#if defined(MOD_AI_SMART_V3)
+			}
+#endif
 		}
 		else if(m_pCity->getPopulation() < 5)  // we want a balanced growth
 		{

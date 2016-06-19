@@ -469,13 +469,13 @@
 			<EventType>EVENT_DOUBLE_AGENTS</EventType>
 		</Row>
 	</Event_ParentEvents>
-	<CityEventChoice_InstantYield>
+	<EventChoice_InstantYield>
 		<Row>
-			<CityEventChoiceType>EVENT_DOUBLE_AGENTS_CHOICE_3</CityEventChoiceType>
+			<EventChoiceType>EVENT_DOUBLE_AGENTS_CHOICE_3</EventChoiceType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Yield>-500</Yield>
 		</Row>
-	</CityEventChoice_InstantYield>
+	</EventChoice_InstantYield>
 	<EventChoice_BuildingClassYieldModifier>
 		<Row>
 			<EventChoiceType>EVENT_DOUBLE_AGENTS_CHOICE_2</EventChoiceType>

@@ -581,6 +581,9 @@ void CvPlayerCorporations::DestroyCorporation()
 	// Destroy our headquarters and offices
 	for(CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
+		if (pCity == NULL)
+			continue;
+
 		// City has headquarters?
 		if(pCity->HasBuilding(eHeadquarters))
 		{
@@ -1072,6 +1075,16 @@ CvString CvPlayerCorporations::GetCurrentOfficeBenefit()
 	szOfficeBenefit = GetLocalizedText(pkCorporationInfo->GetOfficeBenefitHelper(), iCurrentValue);
 
 	return szOfficeBenefit;
+}
+
+// Wrapper function to quickly get the CorporationEntry of a player's corporation
+CvCorporationEntry * CvPlayerCorporations::GetCorporationEntry() const
+{
+	CvCorporation* pCorporation = GetCorporation();
+	if (!pCorporation)
+		return NULL;
+
+	return GC.getCorporationInfo(pCorporation->m_eCorporation);
 }
 
 // How many franchises can we establish?

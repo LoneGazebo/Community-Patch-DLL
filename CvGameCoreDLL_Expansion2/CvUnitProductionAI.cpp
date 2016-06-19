@@ -259,9 +259,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		return 0;
 
 	//Sanitize...
-	if(iTempWeight > 1000)
+	if(iTempWeight > 750)
 	{
-		iTempWeight = 1000;
+		iTempWeight = 750;
 	}
 
 	if (!pkUnitEntry)

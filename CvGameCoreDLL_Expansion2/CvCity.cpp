@@ -19820,6 +19820,7 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	iValue += GetBaseYieldRateFromCSAlliance(eIndex);
 	iValue += GetBaseYieldRateFromCSFriendship(eIndex);
 	iValue += GetYieldPerTurnFromTraits(eIndex);
+	iValue += GetYieldChangeFromCorporationFranchises(eIndex);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	iValue += GetEventCityYield(eIndex);
@@ -20822,6 +20823,53 @@ bool CvCity::IsHasFranchise(CorporationTypes eCorporation) const
 
 	return HasBuildingClass(eFranchise);
 }
+
+// Returns the yield change for this building based on the number of franchises
+int CvCity::GetBuildingYieldChangeFromCorporationFranchises(BuildingClassTypes eBuildingClass, YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+
+	CvAssertMsg(eBuildingClass >= 0, "eBuildingClass expected to be greater or equal to 0");
+	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eBuildingClass expected to be < GC.getNumBuildingClassInfos()");
+
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < GC.getNumYieldInfos(), "eIndex expected to be < GC.getNumYieldInfos()");
+
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
+	CvCorporationEntry* pkCorporationInfo = kPlayer.GetCorporations()->GetCorporationEntry();
+	if (!pkCorporationInfo)
+		return 0;
+
+	BuildingTypes eBuilding = (BuildingTypes)kPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+	CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+	if (pBuildingInfo == NULL)
+		return 0;
+
+	int iYieldPerFranchise = pBuildingInfo->GetYieldPerFranchise(eIndex);
+	int iFranchises = kPlayer.GetCorporations()->GetNumFranchises();
+
+	return iYieldPerFranchise * iFranchises;
+}
+
+int CvCity::GetYieldChangeFromCorporationFranchises(YieldTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < GC.getNumYieldInfos(), "eIndex expected to be < GC.getNumYieldInfos()");
+
+	int iTotal = 0;
+	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	{
+		BuildingClassTypes eBuildingClass = (BuildingClassTypes)iI;
+		if (GetCityBuildings()->GetNumBuildingClass(eBuildingClass) > 0)
+		{
+			iTotal += GetBuildingYieldChangeFromCorporationFranchises(eBuildingClass, eIndex);
+		}
+	}
+
+	return iTotal;
+}
+
 //	--------------------------------------------------------------------------------
 int CvCity::GetResourceQuantityPerXFranchises(ResourceTypes eResource) const
 {
@@ -24288,7 +24336,7 @@ OrderData* CvCity::getOrderFromQueue(int iIndex)
 	VALIDATE_OBJECT
 	OrderData* pOrderNode;
 
-	pOrderNode = m_orderQueue.nodeNum(iIndex);
+	pOrderNode = m_orderQueue.getAt(iIndex);
 
 	if(pOrderNode != NULL)
 	{
@@ -25193,6 +25241,66 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 
 	return true;
 }
+
+#if defined(MOD_AI_SMART_V3)
+bool CvCity::IsCanGoldPurchase(OrderData* pOrder)
+{
+	UnitTypes eUnitType = NO_UNIT;
+	BuildingTypes eBuildingType = NO_BUILDING;
+	ProjectTypes eProjectType = NO_PROJECT;
+
+	switch(pOrder->eOrderType)
+	{
+		case ORDER_TRAIN:
+			eUnitType = ((UnitTypes)(pOrder->iData1));
+			break;
+
+		case ORDER_CONSTRUCT:
+			eBuildingType = ((BuildingTypes)(pOrder->iData1));
+			break;
+
+		case ORDER_CREATE:
+			eProjectType = ((ProjectTypes)(pOrder->iData1));
+			break;
+
+		default:
+			return false;
+	}
+
+	return IsCanPurchase(true, true, eUnitType, eBuildingType, eProjectType, YIELD_GOLD);
+}
+
+void CvCity::PurchaseCurrentOrder()
+{
+	UnitTypes eUnitType = NO_UNIT;
+	BuildingTypes eBuildingType = NO_BUILDING;
+	ProjectTypes eProjectType = NO_PROJECT;
+	OrderData* pOrder = getOrderFromQueue(0);
+
+	if (pOrder)
+	{
+		switch(pOrder->eOrderType)
+		{
+			case ORDER_TRAIN:
+				eUnitType = ((UnitTypes)(pOrder->iData1));
+				break;
+
+			case ORDER_CONSTRUCT:
+				eBuildingType = ((BuildingTypes)(pOrder->iData1));
+				break;
+
+			case ORDER_CREATE:
+				eProjectType = ((ProjectTypes)(pOrder->iData1));
+				break;
+
+			default:
+				return;
+		}
+	}
+
+	Purchase(eUnitType, eBuildingType, eProjectType, YIELD_GOLD);
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 // purchase something at the city

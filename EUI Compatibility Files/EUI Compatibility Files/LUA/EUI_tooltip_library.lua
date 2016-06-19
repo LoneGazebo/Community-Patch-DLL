@@ -718,9 +718,8 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 					
 				yieldChange = yieldChange + city:GetReligionBuildingYieldRateModifier(buildingClassID, yieldID)
 				
-				local corporatechange = Game.GetBuildingCorporateYieldChange( buildingID, yieldID )
-				if (corporatechange > 0) then
-					corporatechange = city:GetCorporationYieldChange(yieldID)
+				if (city) then
+					local corporatechange = city:GetBuildingYieldChangeFromCorporationFranchise(buildingClassID, yieldID)
 					if(corporatechange > 0) then
 						yieldChange = yieldChange + corporatechange
 					end
@@ -1835,7 +1834,7 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_CS_ALLIANCE", city:GetBaseYieldRateFromCSAlliance( yieldID ), yieldIconString)
 
 	-- Yield Increase from Corporations
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_CORPORATIONS", city:GetCorporationYieldChange( yieldID ), yieldIconString)
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_CORPORATIONS", city:GetYieldChangeFromCorporationFranchises( yieldID ), yieldIconString)
 
 	-- Yield Increase from Piety
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_PIETY", city:GetReligionYieldRateModifier( yieldID ), yieldIconString)

@@ -242,14 +242,19 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bAdjustForOtherPlayers, in
 			const CvBuildingClassInfo& kBuildingClassInfo = kBuilding.GetBuildingClassInfo();
 
 			// Make sure this wonder can be built now
+#if defined(MOD_AI_SMART_V3)
+			bool bWonder = MOD_AI_SMART_V3 ? IsWonderNotNationalUnique(kBuilding) : IsWonder(kBuilding);
+			if(bWonder && HaveCityToBuild((BuildingTypes)iBldgLoop))
+#else
 			if(IsWonder(kBuilding) && HaveCityToBuild((BuildingTypes)iBldgLoop))
+#endif
 			{
 				iTurnsRequired = std::max(1, kBuilding.GetProductionCost() / iEstimatedProductionPerTurn);
 
 				// if we are forced to restart a wonder, give one that has been started already a huge bump
 				bool bAlreadyStarted = pWonderCity->GetCityBuildings()->GetBuildingProduction(eBuilding) > 0;
 				int iTempWeight = bAlreadyStarted ? m_WonderAIWeights.GetWeight(iBldgLoop) * 25 : m_WonderAIWeights.GetWeight(iBldgLoop);
-#if !defined(MOD_BALANCE_CORE)
+
 				// Don't build the UN if you aren't going for the diplo victory
 				if(pkBuildingInfo->IsDiplomaticVoting())
 				{
@@ -294,7 +299,6 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bAdjustForOtherPlayers, in
 						iTempWeight = 0;
 					}
 				}
-#endif
 
 				iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(iTempWeight, iTurnsRequired);
 #if defined(MOD_BALANCE_CORE)
@@ -553,6 +557,22 @@ bool CvWonderProductionAI::IsWonder(const CvBuildingEntry& kBuilding) const
 	}
 	return false;
 }
+
+#if defined(MOD_AI_SMART_V3)
+/// Check wonders excluding national wonders you can only have one of.
+bool CvWonderProductionAI::IsWonderNotNationalUnique(const CvBuildingEntry& kBuilding) const
+{
+	const CvBuildingClassInfo& kBuildingClass = kBuilding.GetBuildingClassInfo();
+
+	bool isNationalUnique = kBuildingClass.getMaxPlayerInstances() == 1;
+
+	if((::isWorldWonderClass(kBuildingClass) || ::isTeamWonderClass(kBuildingClass) || ::isNationalWonderClass(kBuildingClass)) && !isNationalUnique)
+	{
+		return true;
+	}
+	return false;
+}
+#endif
 
 // PRIVATE METHODS
 

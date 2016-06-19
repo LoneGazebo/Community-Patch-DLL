@@ -392,6 +392,9 @@ CvDiplomacyAI::CvDiplomacyAI():
 
 	m_eStateAllWars(STATE_ALL_WARS_NEUTRAL),
 
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	m_eTargetPlayerType(DIPLO_ALL_PLAYERS),
+#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_pabShareOpinionAccepted(NULL),
 	m_paiShareOpinionCounter(NULL),
@@ -2956,10 +2959,12 @@ void CvDiplomacyAI::DoUpdateOnePlayerOpinion(PlayerTypes ePlayer)
 	if(GetPlayer()->getTeam() == kPlayerEvaluating.getTeam())
 	{
 		eOpinion = MAJOR_CIV_OPINION_ALLY;
+
 #if defined(MOD_ACTIVE_DIPLOMACY)
-		// JdH => calculate ai to human trade priority for multiplayer
-		DoUpdateHumanTradePriority(ePlayer, GC.getOPINION_THRESHOLD_ALLY());
-		// JdH <=
+		if (MOD_ACTIVE_DIPLOMACY) {
+			// JdH => calculate ai to human trade priority for multiplayer
+			DoUpdateHumanTradePriority(ePlayer, GC.getOPINION_THRESHOLD_ALLY());
+		}
 #endif
 	}
 	// Different teams
@@ -2985,10 +2990,12 @@ void CvDiplomacyAI::DoUpdateOnePlayerOpinion(PlayerTypes ePlayer)
 		// If we've agreed to work against someone, then the worst we can feel towards this guy is enemy
 		//if (IsWorkingAgainstPlayer(ePlayer) && eOpinion < MAJOR_CIV_OPINION_COMPETITOR)
 		//	eOpinion = MAJOR_CIV_OPINION_COMPETITOR;
+
 #if defined(MOD_ACTIVE_DIPLOMACY)
-		// JdH => calculate ai to human trade priority for multiplayer
-		DoUpdateHumanTradePriority(ePlayer, iOpinionWeight);
-		// JdH <=
+		if (MOD_ACTIVE_DIPLOMACY) {
+			// JdH => calculate ai to human trade priority for multiplayer
+			DoUpdateHumanTradePriority(ePlayer, iOpinionWeight);
+		}
 #endif
 	}
 
@@ -2997,8 +3004,9 @@ void CvDiplomacyAI::DoUpdateOnePlayerOpinion(PlayerTypes ePlayer)
 
 	//LogOpinionUpdate(ePlayer, viOpinionWeights);
 }
+
 #if defined(MOD_ACTIVE_DIPLOMACY)
-// JdH: calculate ai to human trade priority for multiplayer
+// JdH => calculate ai to human trade priority for multiplayer
 void CvDiplomacyAI::DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinionWeight)
 {
 	if (m_pDiploData && ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS)
@@ -3015,6 +3023,7 @@ void CvDiplomacyAI::DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinion
 	}
 }
 #endif
+
 // What is the number value of our opinion towards ePlayer?
 int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 {

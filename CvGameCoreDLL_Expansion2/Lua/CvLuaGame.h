@@ -319,7 +319,6 @@ protected:
 	static int lGetUnculturedHappinessChangeBuildingGlobal(lua_State* L);
 	static int lGetIlliteracyHappinessChangeBuildingGlobal(lua_State* L);
 	static int lGetMinorityHappinessChangeBuildingGlobal(lua_State* L);
-	static int lGetBuildingCorporateYieldChange(lua_State* L);
 	static int lGetBuildingCorporateGPChange(lua_State* L);
 	static int lGetPromiseDuration(lua_State* L);
 	static int lGetCorporationFounder(lua_State* L);

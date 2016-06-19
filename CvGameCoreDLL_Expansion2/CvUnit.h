@@ -662,6 +662,12 @@ public:
 	void ChangeBarbarianCombatBonus(int iValue);
 #endif
 
+#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+	bool isGGFromBarbarians() const;
+	int getGGFromBarbariansCount() const;
+	void changeGGFromBarbariansCount(int iValue);
+#endif
+
 	bool IsRoughTerrainEndsTurn() const;
 	int GetRoughTerrainEndsTurnCount() const;
 	void ChangeRoughTerrainEndsTurnCount(int iValue);
@@ -1056,7 +1062,11 @@ public:
 
 	// Great General Stuff
 	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	bool IsNearGreatGeneral(int& iAuraEffectChange, const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
+#else
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
+#endif
 	bool IsStackedGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	int GetGreatGeneralStackMovement(const CvPlot* pAtPlot = NULL) const;
 	int GetReverseGreatGeneralModifier(const CvPlot* pAtPlot = NULL) const;
@@ -1073,6 +1083,13 @@ public:
 	bool IsGreatAdmiral() const;
 	int GetGreatAdmiralCount() const;
 	void ChangeGreatAdmiralCount(int iChange);
+
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	int GetAuraRangeChange() const;
+	void ChangeAuraRangeChange(int iChange);
+	int GetAuraEffectChange() const;
+	void ChangeAuraEffectChange(int iChange);
+#endif
 
 	int getGreatGeneralModifier() const;
 	void changeGreatGeneralModifier(int iChange);
@@ -1234,8 +1251,16 @@ public:
 #endif
 	const CvString getNameNoDesc() const;
 	void setName(const CvString strNewValue);
+#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
+	const CvString getGreatName() const;
+	void setGreatName(CvString strName);
+#endif
 	GreatWorkType GetGreatWork() const;
 	void SetGreatWork(GreatWorkType eGreatWork);
+#if defined(MOD_API_EXTENSIONS)
+	bool HasGreatWork() const;
+	bool HasUnusedGreatWork() const;
+#endif
 	int GetTourismBlastStrength() const;
 	void SetTourismBlastStrength(int iValue);
 
@@ -1562,10 +1587,12 @@ protected:
 	void ClearPathCache();
 	bool UpdatePathCache(CvPlot* pDestPlot, int iFlags);
 
+	bool HasQueuedVisualizationMoves() const;
 	void QueueMoveForVisualization(CvPlot* pkPlot);
 	void PublishQueuedVisualizationMoves();
 
-	bool UnitAttackWithMove(int iX, int iY, int iFlags);
+	bool CheckDOWNeededForMove(int iX, int iY);
+	int UnitAttackWithMove(int iX, int iY, int iFlags);
 	bool UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEndMove = false);
 	int  UnitPathTo(int iX, int iY, int iFlags, int iPrevETA = -1, bool bBuildingRoute = false);
 	bool UnitRoadTo(int iX, int iY, int iFlags);
@@ -1714,6 +1741,13 @@ protected:
 	FAutoVariable<int, CvUnit> m_iNumTilesRevealedThisTurn;
 	FAutoVariable<int, CvUnit> m_iGainsXPFromScouting;
 	FAutoVariable<int, CvUnit> m_iBarbCombatBonus;
+#endif
+#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+	FAutoVariable<int, CvUnit> m_iGGFromBarbariansCount;
+#endif
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	FAutoVariable<int, CvUnit> m_iAuraRangeChange;
+	FAutoVariable<int, CvUnit> m_iAuraEffectChange;
 #endif
 	FAutoVariable<int, CvUnit> m_iRoughTerrainEndsTurnCount;
 	FAutoVariable<int, CvUnit> m_iEmbarkAbilityCount;
@@ -1870,6 +1904,9 @@ protected:
 	CvString m_strUnitName;
 #endif
 	CvString m_strName;
+#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
+	FAutoVariable<CvString, CvUnit> m_strGreatName;
+#endif
 	GreatWorkType m_eGreatWork;
 
 	mutable CvPathNodeArray m_kLastPath;

@@ -115,12 +115,52 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders)
 		}
 		else
 		{
+#if defined(MOD_AI_SMART_V3)
+			bool checkBuildWonder = true;
+			
+			// All of this only has sense if the AI is able to expand...
+			if (MOD_AI_SMART_V3 && !GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+			{
+				int cityExpansionFlavor = m_pCityStrategyAI->GetLatestFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+				int cityWonderFlavor = m_pCityStrategyAI->GetLatestFlavorValue((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
+				// Check if at city, the player has more desire to expand than to build wonders.
+				if ((cityExpansionFlavor - cityWonderFlavor) > 0)
+				{
+					int currentCityProd	 = 0;
+					int allOthercitiesProd = 0;
+					CvCity* pLoopCity = NULL;
+					int iLoop = 0;
+					// Lets check production of wonder city vs production in all cities.
+					for(pLoopCity = kOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kOwner.nextCity(&iLoop))
+					{
+						int cityProd = pLoopCity->getCurrentProductionDifference(true, false);
+						if (pLoopCity == this)
+						{
+							currentCityProd = cityProd;
+						}
+						else
+						{
+							allOthercitiesProd += cityProd;
+						}
+					}
+					bool bMostProductionInCity = (currentCityProd - (allOthercitiesProd * 2)) > 0;
+					// If the production of city equals 66% all empire production, lets stop wonder choose.
+					checkBuildWonder = !bMostProductionInCity;
+				}			
+			}
+			
+			if (checkBuildWonder)
+			{
+#endif
 			// to prevent us from continuously locking into building wonders in one city when there are other high priority items to build
 			int iFlavorWonder = kOwner.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
 			int iFlavorGP = kOwner.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GREAT_PEOPLE"));
 			int iFlavor = (iFlavorWonder > iFlavorGP ) ? iFlavorWonder : iFlavorGP;
 			if (GC.getGame().getJonRandNum(11, "Random roll for whether to continue building wonders") <= iFlavor)
 				bBuildWonder = true;
+#if defined(MOD_AI_SMART_V3)
+			}
+#endif
 		}
 	}
 

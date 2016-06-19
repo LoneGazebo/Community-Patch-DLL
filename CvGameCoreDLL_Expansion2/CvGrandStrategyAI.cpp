@@ -1403,13 +1403,23 @@ int CvGrandStrategyAI::GetBaseGrandStrategyPriority(AIGrandStrategyTypes eGrandS
 }
 
 /// Get the base Priority for a Grand Strategy; these are elements common to ALL Grand Strategies
+#if defined(MOD_AI_SMART_V3)
+int CvGrandStrategyAI::GetPersonalityAndGrandStrategy(FlavorTypes eFlavorType, bool bBoostGSMainFlavor)
+#else
 int CvGrandStrategyAI::GetPersonalityAndGrandStrategy(FlavorTypes eFlavorType)
+#endif
 {
 	if(m_eActiveGrandStrategy != NO_AIGRANDSTRATEGY)
 	{
 		CvAIGrandStrategyXMLEntry* pGrandStrategy = GetAIGrandStrategies()->GetEntry(m_eActiveGrandStrategy);
 		int iModdedFlavor = pGrandStrategy->GetFlavorModValue(eFlavorType) + m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavorType);
 		iModdedFlavor = max(0,iModdedFlavor);
+#if defined(MOD_AI_SMART_V3)
+		if(MOD_AI_SMART_V3 && bBoostGSMainFlavor && (pGrandStrategy->GetFlavorValue(eFlavorType) > 0))
+		{
+			iModdedFlavor = min(10, ((pGrandStrategy->GetFlavorValue(eFlavorType) + iModdedFlavor + 1) / 2));
+		}
+#endif
 		return iModdedFlavor;
 	}
 	return m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavorType);

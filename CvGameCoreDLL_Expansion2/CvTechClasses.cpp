@@ -1133,12 +1133,16 @@ void CvPlayerTechs::SetLocalePriorities()
 
 				if(pLoopPlot->getOwner() == pCity->getOwner() || (iDistance <= 2 && pLoopPlot->getOwner() == NO_PLAYER))
 				{
-#if defined (MOD_AI_SMART_TECH_LOCALE_PRIORITY_CHECK_ALL_RESOURCES)
+#if defined(MOD_AI_SMART_V3)
 					int multiplierValue = 1;
+#endif
+
+#if defined(MOD_AI_SMART_V3)
+					if(MOD_AI_SMART_V3 || !pLoopPlot->isWater())
 #else
 					if(!pLoopPlot->isWater())
-					{
 #endif
+					{
 						ResourceTypes eResource = pLoopPlot->getResourceType(m_pPlayer->getTeam());
 						if(eResource == NO_RESOURCE)
 						{
@@ -1157,27 +1161,37 @@ void CvPlayerTechs::SetLocalePriorities()
 							{
 								// If this is the improvement we're looking for
 								const ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
-#if defined (MOD_AI_SMART_TECH_LOCALE_PRIORITY_CHECK_ALL_RESOURCES)
 								if(eImprovement != NO_IMPROVEMENT)
 								{
-									if(pLoopPlot->canHaveImprovement(eImprovement))
+#if defined(MOD_AI_SMART_V3)
+									if (MOD_AI_SMART_V3)
 									{
-										CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-										if (pkImprovementInfo && pkImprovementInfo->IsImprovementResourceTrade(eResource))
+										if(pLoopPlot->canHaveImprovement(eImprovement))
 										{
-											multiplierValue = 2;
+											CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+											if (pkImprovementInfo && pkImprovementInfo->IsImprovementResourceTrade(eResource))
+											{
+												multiplierValue = 2;
+											}
+										
+											eCorrectBuild = eBuild;
+											eCorrectImprovement = eImprovement;
+											break;
 										}
-#else
-								if(eImprovement != NO_IMPROVEMENT)
-								{
-									CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-									if(pkImprovementInfo && pkImprovementInfo->IsImprovementResourceTrade(eResource))
+									}
+									else
 									{
 #endif
-										eCorrectBuild = eBuild;
-										eCorrectImprovement = eImprovement;
-										break;
+										CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+										if(pkImprovementInfo && pkImprovementInfo->IsImprovementResourceTrade(eResource))
+										{
+											eCorrectBuild = eBuild;
+											eCorrectImprovement = eImprovement;
+											break;
+										}
+#if defined(MOD_AI_SMART_V3)
 									}
+#endif
 								}
 							}
 						}
@@ -1197,21 +1211,26 @@ void CvPlayerTechs::SetLocalePriorities()
 							CvAssert(iTech < m_pTechs->GetNumTechs());		// Just assert on a value off the top end, a -1 is ok to just skip silently
 							if (iTech >= 0 && iTech < m_pTechs->GetNumTechs())
 							{
-#if defined (MOD_AI_SMART_TECH_LOCALE_PRIORITY_CHECK_ALL_RESOURCES)
-								m_piLocaleTechPriority[iTech] += multiplierValue;
-								if (multiplierValue == 2)
+#if defined(MOD_AI_SMART_V3)
+								if (MOD_AI_SMART_V3)
 								{
-									m_peLocaleTechResources[iTech] = eResource;								
+									m_piLocaleTechPriority[iTech] += multiplierValue;
+									if (multiplierValue == 2)
+									{
+										m_peLocaleTechResources[iTech] = eResource;								
+									}
 								}
-#else
-								m_piLocaleTechPriority[iTech]++;
-								m_peLocaleTechResources[iTech] = eResource;
+								else
+								{
+#endif
+									m_piLocaleTechPriority[iTech]++;
+									m_peLocaleTechResources[iTech] = eResource;
+#if defined(MOD_AI_SMART_V3)
+								}
 #endif
 							}
 						}
-#if !defined (MOD_AI_SMART_TECH_LOCALE_PRIORITY_CHECK_ALL_RESOURCES)
 					}
-#endif
 				}
 			}
 		}
@@ -1771,9 +1790,9 @@ void CvPlayerTechs::AddFlavorAsStrategies(int iPropagatePercent)
 	}
 
 	// Now populate the AI with the current flavor information
-#if defined (MOD_AI_SMART_TECH_GAME_PROGRESS_UPDATED_WITH_DIFFICULTY)
+#if defined(MOD_AI_SMART_V3)
 	int iDifficultyBonus = (200 - ((GC.getGame().getHandicapInfo().getAIGrowthPercent() + GC.getGame().getHandicapInfo().getAITrainPercent()) / 2));
-	int estimatedTurnsWithDiff = (GC.getGame().getDefaultEstimateEndTurn() * 90) / iDifficultyBonus;
+	int estimatedTurnsWithDiff = MOD_AI_SMART_V3 ? (GC.getGame().getDefaultEstimateEndTurn() * 90) / iDifficultyBonus : GC.getGame().getDefaultEstimateEndTurn();
 	int iGameProgressFactor = (GC.getGame().getElapsedGameTurns() * 1000) / estimatedTurnsWithDiff;
 #else
 	int iGameProgressFactor = (GC.getGame().getElapsedGameTurns() * 1000) / GC.getGame().getDefaultEstimateEndTurn();
@@ -1786,21 +1805,26 @@ void CvPlayerTechs::AddFlavorAsStrategies(int iPropagatePercent)
 		// Scale the current to the same scale as the personality
 		iCurrentFlavorValue = (iCurrentFlavorValue * 10) / iBiggestFlavor;
 
+#if defined(MOD_AI_SMART_V3)
+		int iPersonalityFlavorValue = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavor, MOD_AI_SMART_V3 /*bBoostGSMainFlavor*/);
+#else
 		int iPersonalityFlavorValue = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavor);
+#endif
 
 		// this should give a more even blend between the personality and long term strategy and the more fickle current needs
 		// in the beginning of the game it will be responsive to current events, but later it should try to go for the goal more strongly
 		int iFlavorValue = ((iCurrentFlavorValue * (1000 - iGameProgressFactor)) + (iPersonalityFlavorValue * iGameProgressFactor)) / 1000;
 
-#if defined (MOD_AI_SMART_TECH_FLAVOR_MINIMUM_VALUES)
+#if defined(MOD_AI_SMART_V3)
 		// Try always give a significant flavor, as is easily zeroed with previous computations...
-		if (iFlavorValue < 10)
+		if (MOD_AI_SMART_V3 && iFlavorValue < 10)
 		{
 			int flavorDivisor = (iGameProgressFactor > 500) ? 8 : 4;
 			int boostValue = (10 - iFlavorValue) / flavorDivisor;
 			iFlavorValue += boostValue;
 		}
 #endif
+
 		if(iFlavorValue > 0)
 		{
 			m_pTechAI->AddFlavorWeights((FlavorTypes)iFlavor, iFlavorValue, iPropagatePercent);

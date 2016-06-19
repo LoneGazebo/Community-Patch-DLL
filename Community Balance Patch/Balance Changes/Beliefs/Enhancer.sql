@@ -51,12 +51,12 @@ WHERE Type = 'BELIEF_ITINERANT_PREACHERS' AND EXISTS (SELECT * FROM COMMUNITY WH
 -- Messiah (Now Sainthood)
 
 UPDATE Beliefs
-SET InquisitorPressureRetention = '50'
+SET InquisitorPressureRetention = '25'
 WHERE Type = 'BELIEF_MESSIAH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Missionary Zeal (Now Scholar-Priests)
 UPDATE Beliefs
-SET SciencePerOtherReligionFollower = '8'
+SET SciencePerOtherReligionFollower = '7'
 WHERE Type = 'BELIEF_MISSIONARY_ZEAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Holy Order
