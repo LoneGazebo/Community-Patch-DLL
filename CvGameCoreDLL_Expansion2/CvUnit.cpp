@@ -5289,15 +5289,15 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 	{
 		if(isEmbarked() && !targetPlot.needsEmbarkation(this)) // moving from water to the land
 		{
-			if (m_unitMoveLocs.size())	// If we have some queued moves, execute them now, so that the disembark is done at the proper location visually
-				PublishQueuedVisualizationMoves();
+			// If we have some queued moves, execute them now, so that the disembark is done at the proper location visually
+			PublishQueuedVisualizationMoves();
 
 			disembark(pOldPlot);
 		}
 		else if(!isEmbarked() && targetPlot.needsEmbarkation(this))  // moving from land to the water
 		{
-			if (m_unitMoveLocs.size())	// If we have some queued moves, execute them now, so that the embark is done at the proper location visually
-				PublishQueuedVisualizationMoves();
+			// If we have some queued moves, execute them now, so that the embark is done at the proper location visually
+			PublishQueuedVisualizationMoves();
 
 			embark(pOldPlot);
 		}
@@ -25748,6 +25748,11 @@ void CvUnit::IncrementFirstTimeSelected()
 	}
 }
 
+//	--------------------------------------------------------------------------------
+bool CvUnit::HasQueuedVisualizationMoves() const
+{
+	return !m_unitMoveLocs.empty();
+}
 
 //	--------------------------------------------------------------------------------
 void CvUnit::QueueMoveForVisualization(CvPlot* pkPlot)
@@ -25767,7 +25772,7 @@ void CvUnit::QueueMoveForVisualization(CvPlot* pkPlot)
 void CvUnit::PublishQueuedVisualizationMoves()
 {
 	VALIDATE_OBJECT
-	if(m_unitMoveLocs.size())
+	if(HasQueuedVisualizationMoves())
 	{
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		CvPlotIndexVector kPlotArray;
@@ -26249,7 +26254,8 @@ bool CvUnit::UpdatePathCache(CvPlot* pDestPlot, int iFlags)
 	// we can assume that other than the unit that is moving, nothing on the map will change
 	// so we can re-use the cached path data most of the time
 
-	if (m_uiLastPathCacheDest != pDestPlot->GetPlotIndex() || 
+	if (m_kLastPath.empty() ||
+		m_uiLastPathCacheDest != pDestPlot->GetPlotIndex() || 
 		m_uiLastPathFlags != iFlags ||
 		m_uiLastPathTurn != GC.getGame().getGameTurn() )	
 	{
@@ -26303,27 +26309,14 @@ bool CvUnit::UpdatePathCache(CvPlot* pDestPlot, int iFlags)
 
 	return bGenerated;
 }
-//	---------------------------------------------------------------------------
-// Returns true if attack was made...
-bool CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
+
+bool CvUnit::CheckDOWNeededForMove(int iX, int iY)
 {
-	VALIDATE_OBJECT
 	CvMap& kMap = GC.getMap();
 	CvPlot* pDestPlot = kMap.plot(iX, iY);
 
-	CvAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
-	if(!pDestPlot)
-	{
-		return false;
-	}
-
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-	if (MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && IsCivilianUnit())
-		return false;
-#endif
-
 	// Test if this attack requires war to be declared first
-	if(isHuman() && getOwner() == GC.getGame().getActivePlayer() && pDestPlot->isVisible(getTeam()))
+	if(pDestPlot && isHuman() && getOwner() == GC.getGame().getActivePlayer() && pDestPlot->isVisible(getTeam()))
 	{
 		TeamTypes eRivalTeam = GetDeclareWarMove(*pDestPlot);
 
@@ -26351,74 +26344,98 @@ bool CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 			}
 			DLLUI->AddPopup(kPopup);
 
-			return false;
+			return true;
 		}
 	}
 
-	bool bAttack = false;
+	return false;
+}
 
-	if( (pDestPlot->isAdjacent(plot()) && canMoveInto(*pDestPlot,iFlags|MOVEFLAG_ATTACK) ) || (getDomainType() == DOMAIN_AIR))
+//	---------------------------------------------------------------------------
+// Returns +1 if attack was made...
+// Return 0 if no target in range
+// Return -1 if attack is not possible
+int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
+{
+	VALIDATE_OBJECT
+	CvMap& kMap = GC.getMap();
+	CvPlot* pDestPlot = kMap.plot(iX, iY);
+
+	CvAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
+	if(!pDestPlot)
+		return -1;
+
+	// Air mission
+	if(getDomainType() == DOMAIN_AIR)
 	{
-		if(!isOutOfAttacks() && (!IsCityAttackSupport() || pDestPlot->isEnemyCity(*this) || !pDestPlot->getBestDefender(NO_PLAYER)))
+		if (GetBaseCombatStrength() == 0 && canRangeStrikeAt(iX, iY))
 		{
-			// don't allow an attack if we already have one
-			if(isFighting() || pDestPlot->isFighting())
-			{
-				return true;
-			}
-
-			// Air mission
-			if(getDomainType() == DOMAIN_AIR)
-			{
-				if (GetBaseCombatStrength() == 0 && canRangeStrikeAt(iX, iY))
-				{
-					CvUnitCombat::AttackAir(*this, *pDestPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
-					bAttack = true;
-				}
-			}
-			// Ranged units or embarked can't do a move-attack
-			else if( isRanged() || pDestPlot->needsEmbarkation(this) )
-			{
-				return false;
-			}
-
-			// City combat
-			else if(pDestPlot->isCity())
-			{
-				if(GET_TEAM(getTeam()).isAtWar(pDestPlot->getPlotCity()->getTeam()))
-				{
-					CvUnitCombat::AttackCity(*this, *pDestPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
-					bAttack = true;
-				}
-			}
-
-			// Normal unit combat
-			else
-			{
-				// if there are no defenders, do not attack
-				UnitHandle pBestDefender = pDestPlot->getBestDefender(NO_PLAYER, getOwner(), this, true);
-				if(pBestDefender)
-				{
-					bAttack = true;
-					CvUnitCombat::Attack(*this, *pDestPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
-				}
-			}
-
-			// Barb camp here that was attacked?
-			if(pDestPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
-			{
-				CvBarbarians::DoCampAttacked(pDestPlot);
-			}
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-			if(MOD_DIPLOMACY_CITYSTATES_QUESTS && pDestPlot->isCity() && pDestPlot->isBarbarian())
-			{
-				CvBarbarians::DoCityAttacked(pDestPlot);
-			}
-#endif
+			CvUnitCombat::AttackAir(*this, *pDestPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
+			return 1;
 		}
+		else
+			return 0;
 	}
 
-	return bAttack;
+	//other domains - look at the next plot in the path
+	CvPlot* pPathPlot = m_kLastPath.GetFirstPlot();
+	if (!pPathPlot)
+		return -1;
+
+	bool bIsEnemyCity = pPathPlot->isEnemyCity(*this);
+	UnitHandle pBestDefender = pPathPlot->getBestDefender(NO_PLAYER, getOwner(), this, true);
+
+	//nothing to attack?
+	if ( !bIsEnemyCity && !pBestDefender )
+		return 0;
+
+	//can we even attack?
+	if(!IsCanAttackWithMove() || isOutOfAttacks())
+		return -1;
+
+	//support units cannot attack themselves
+	if (IsCityAttackSupport() && bIsEnemyCity)
+		return -1;
+
+	//embarked can't do a move-attack
+	if(pPathPlot->needsEmbarkation(this))
+		return -1;
+
+	//don't allow an attack if we already have one
+	if(isFighting() || pPathPlot->isFighting())
+		return -1;
+
+	//check consistency - we know there's a target there!
+	if (!canMoveInto(*pPathPlot,iFlags|MOVEFLAG_ATTACK))
+		return -1;
+
+	// City combat
+	if(bIsEnemyCity)
+	{
+		CvUnitCombat::AttackCity(*this, *pPathPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
+		return 1;
+	}
+	// Normal unit combat
+	else if(pBestDefender)
+	{
+		CvUnitCombat::Attack(*this, *pPathPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
+
+		// Barb camp here that was attacked?
+		if(pPathPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+		{
+			CvBarbarians::DoCampAttacked(pPathPlot);
+		}
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && pPathPlot->isCity() && pPathPlot->isBarbarian())
+		{
+			CvBarbarians::DoCityAttacked(pPathPlot);
+		}
+#endif
+
+		return 1;
+	}
+
+	return 0;
 }
 
 //	---------------------------------------------------------------------------
@@ -26516,7 +26533,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		}
 
 		pPathPlot = pDestPlot;
-		m_kLastPath.clear();		// Not used by air units, keep it clear.
+		m_kLastPath.clear(); // Not used by air units, keep it clear.
 	}
 	else
 	{
@@ -26554,12 +26571,6 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 		}
 		else
 		{
-			if (!UpdatePathCache(pDestPlot, iFlags))
-			{
-				LOG_UNIT_MOVES_MESSAGE("Unable to Generate path");
-				return 0;
-			}
-
 			pPathPlot = m_kLastPath.GetFirstPlot();
 
 			//if the pathfinder inserted a stop node because the next plot is occupied

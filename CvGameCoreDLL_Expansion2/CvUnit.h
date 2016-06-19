@@ -1562,10 +1562,12 @@ protected:
 	void ClearPathCache();
 	bool UpdatePathCache(CvPlot* pDestPlot, int iFlags);
 
+	bool HasQueuedVisualizationMoves() const;
 	void QueueMoveForVisualization(CvPlot* pkPlot);
 	void PublishQueuedVisualizationMoves();
 
-	bool UnitAttackWithMove(int iX, int iY, int iFlags);
+	bool CheckDOWNeededForMove(int iX, int iY);
+	int UnitAttackWithMove(int iX, int iY, int iFlags);
 	bool UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEndMove = false);
 	int  UnitPathTo(int iX, int iY, int iFlags, int iPrevETA = -1, bool bBuildingRoute = false);
 	bool UnitRoadTo(int iX, int iY, int iFlags);

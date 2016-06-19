@@ -11808,7 +11808,7 @@ int CvPlot::GetNumCombatUnits()
 //	--------------------------------------------------------------------------------
 CvUnit* CvPlot::getUnitByIndex(int iIndex) const
 {
-	const IDInfo* pUnitNode = m_units.nodeNum(iIndex);
+	const IDInfo* pUnitNode = m_units.getAt(iIndex);
 
 	if(pUnitNode != NULL)
 	{

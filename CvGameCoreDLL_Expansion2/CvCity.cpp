@@ -24288,7 +24288,7 @@ OrderData* CvCity::getOrderFromQueue(int iIndex)
 	VALIDATE_OBJECT
 	OrderData* pOrderNode;
 
-	pOrderNode = m_orderQueue.nodeNum(iIndex);
+	pOrderNode = m_orderQueue.getAt(iIndex);
 
 	if(pOrderNode != NULL)
 	{
