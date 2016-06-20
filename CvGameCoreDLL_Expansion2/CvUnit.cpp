@@ -231,6 +231,9 @@ CvUnit::CvUnit() :
 	, m_eFacingDirection("CvUnit::m_eFacingDirection", m_syncArchive, true)
 	, m_iArmyId("CvUnit::m_iArmyId", m_syncArchive)
 	, m_iIgnoreTerrainCostCount("CvUnit::m_iIgnoreTerrainCostCount", m_syncArchive)
+#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+	, m_iGGFromBarbariansCount("CvUnit::m_iGGFromBarbariansCount", m_syncArchive)
+#endif
 	, m_iRoughTerrainEndsTurnCount("CvUnit::m_iRoughTerrainEndsTurnCount", m_syncArchive)
 	, m_iEmbarkAbilityCount("CvUnit::m_iEmbarkAbilityCount", m_syncArchive)
 	, m_iHoveringUnitCount("CvUnit::m_iHoveringUnitCount", m_syncArchive)
@@ -257,6 +260,10 @@ CvUnit::CvUnit() :
 	, m_iAttacksMade("CvUnit::m_iAttacksMade", m_syncArchive)
 	, m_iGreatGeneralCount("CvUnit::m_iGreatGeneralCount", m_syncArchive)
 	, m_iGreatAdmiralCount("CvUnit::m_iGreatAdmiralCount", m_syncArchive)
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	, m_iAuraRangeChange("CvUnit::m_iAuraRangeChange", m_syncArchive)
+	, m_iAuraEffectChange("CvUnit::m_iAuraEffectChange", m_syncArchive)
+#endif
 	, m_iGreatGeneralModifier("CvUnit::m_iGreatGeneralModifier", m_syncArchive)
 	, m_iGreatGeneralReceivesMovementCount("CvUnit::m_iGreatGeneralReceivesMovementCount", m_syncArchive)
 	, m_iGreatGeneralCombatModifier("CvUnit::m_iGreatGeneralCombatModifier", m_syncArchive)
@@ -399,6 +406,7 @@ CvUnit::CvUnit() :
 #if defined(MOD_API_UNIFIED_YIELDS)
 	, m_yieldFromKills("CvUnit::m_yieldFromKills", m_syncArchive/*, true*/)
 	, m_yieldFromBarbarianKills("CvUnit::m_yieldFromBarbarianKills", m_syncArchive/*, true*/)
+	, m_strGreatName("CvUnit::m_iTourismBlastStrength", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_yieldFromScouting("CvUnit::m_yieldFromScouting", m_syncArchive/*, true*/)
@@ -504,28 +512,38 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	plot()->updateCenterUnit();
 
 	SetGreatWork(NO_GREAT_WORK);
-
-
-	if(strKey != NULL)
+#if !defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
+	int iUnitName = GC.getGame().getUnitCreatedCount(getUnitType());
+	int iNumNames = getUnitInfo().GetNumUnitNames();
+	if(iUnitName < iNumNames)
+#endif
 	{
-		CvString strName = strKey;
-		int iNumNames = getUnitInfo().GetNumUnitNames();
-		//Look for units from previous and current eras.
-		for (int iI = 0; iI < iNumNames; iI++)
+		if(strKey != NULL)
 		{
-			CvString strOtherName = getUnitInfo().GetUnitNames(iI);
-			if(strOtherName == strName)
+			CvString strName = strKey;
+			int iNumNames = getUnitInfo().GetNumUnitNames();
+			for (int iI = 0; iI < iNumNames; iI++)
 			{
-				setName(strName);
-				SetGreatWork(getUnitInfo().GetGreatWorks(iI));
-				GC.getGame().addGreatPersonBornName(strName);
-				break;
+				CvString strOtherName = getUnitInfo().GetUnitNames(iI);
+				if(strOtherName == strName)
+				{
+					setName(strName);
+					SetGreatWork(getUnitInfo().GetGreatWorks(iI));
+					GC.getGame().addGreatPersonBornName(strName);
+#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
+					if (MOD_GLOBAL_NO_LOST_GREATWORKS) {
+						// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
+						setGreatName(strName);
+					}
+#endif
+					break;
+				}
 			}
 		}
-	}
-	else
-	{
-		return;
+		else
+		{
+			return;
+		}
 	}
 	setGameTurnCreated(GC.getGame().getGameTurn());
 
@@ -1469,7 +1487,9 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> vfPossibleUnits;
 #endif
+#if !defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
 	if(iUnitName < iNumNames)
+#endif
 	{
 		if(iNameOffset == -1)
 		{
@@ -1497,6 +1517,12 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			setName(strName);
 			SetGreatWork(getUnitInfo().GetGreatWorks(vfPossibleUnits[iRoll]));
 			GC.getGame().addGreatPersonBornName(strName);
+#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
+			if (MOD_GLOBAL_NO_LOST_GREATWORKS) {
+				// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
+				setGreatName(strName);
+			}
+#endif
 		}
 		//None? Let's look to the next era.
 		else
@@ -1520,6 +1546,12 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				setName(strName);
 				SetGreatWork(getUnitInfo().GetGreatWorks(vfPossibleUnits[iRoll]));
 				GC.getGame().addGreatPersonBornName(strName);
+#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
+				if (MOD_GLOBAL_NO_LOST_GREATWORKS) {
+					// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
+					setGreatName(strName);
+				}
+#endif
 			}
 		}
 		//If still no valid GPs, do the old random method.
@@ -1551,6 +1583,12 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				setName(strName);
 				SetGreatWork(getUnitInfo().GetGreatWorks(iIndex));
 				GC.getGame().addGreatPersonBornName(strName);
+#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
+				if (MOD_GLOBAL_NO_LOST_GREATWORKS) {
+					// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
+					setGreatName(strName);
+				}
+#endif
 				break;
 			}
 		}
@@ -2675,6 +2713,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iBarbCombatBonus = 0;
 	m_iCanMoraleBreak = 0;
 #endif
+#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+	m_iGGFromBarbariansCount = 0;
+#endif
 	m_iRoughTerrainEndsTurnCount = 0;
 	m_iEmbarkAbilityCount = 0;
 	m_iHoveringUnitCount = 0;
@@ -2698,11 +2739,15 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iNumExoticGoods = 0;
 	m_iTacticalAIPlotX = INVALID_PLOT_COORD;
 	m_iTacticalAIPlotY = INVALID_PLOT_COORD;
-	m_iGarrisonCityID = -1;
+	m_iGarrisonCityID = -1;   // unused
 	m_iNumAttacks = 1;
 	m_iAttacksMade = 0;
 	m_iGreatGeneralCount = 0;
 	m_iGreatAdmiralCount = 0;
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	m_iAuraRangeChange = 0;
+	m_iAuraEffectChange = 0;
+#endif
 	m_iGreatGeneralModifier = 0;
 	m_iGreatGeneralReceivesMovementCount = 0;
 	m_iGreatGeneralCombatModifier = 0;
@@ -2783,6 +2828,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_strUnitName = "";
 #endif
 	m_strName = "";
+#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
+	m_strGreatName = "";
+#endif
 	m_eGreatWork = NO_GREAT_WORK;
 	m_iTourismBlastStrength = 0;
 	m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility = "";
@@ -3429,6 +3477,16 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		return;
 	}
 
+#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
+	if(MOD_GLOBAL_NO_LOST_GREATWORKS && !bDelay)
+	{
+		if (HasUnusedGreatWork())
+		{
+			CUSTOMLOG("Killing a Great Writer, Artist or Musician who didn't create their Great Work!");
+			GC.getGame().removeGreatPersonBornName(getGreatName());
+		}
+	}
+#endif
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// EVERYTHING AFTER THIS LINE OCCURS UPON THE ACTUAL DELETION OF THE UNIT AND NOT WITH A DELAYED DEATH
@@ -9956,6 +10014,14 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 	{
 		return false;
 	}
+	
+#if defined(MOD_EVENTS_UNIT_ACTIONS)
+	if (MOD_EVENTS_UNIT_ACTIONS) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanPillage, getOwner(), GetID(), eImprovementType, pPlot->getRouteType()) == GAMEEVENTRETURN_FALSE) {
+			return false;
+		}
+	}
+#endif
 
 	return true;
 }
@@ -10051,6 +10117,15 @@ bool CvUnit::pillage()
 				int iPillageGold = 0;
 
 				// TODO: add scripting support for "doPillageGold"
+#if defined(MOD_EVENTS_UNIT_ACTIONS)
+				if (MOD_EVENTS_UNIT_ACTIONS) {
+					int iValue = 0;
+					if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitPillageGold, getOwner(), GetID(), eTempImprovement, pkImprovement->GetPillageGold()) == GAMEEVENTRETURN_VALUE) {
+						iPillageGold = iValue;
+						CUSTOMLOG("Pillage gold is %i", iPillageGold);
+					}
+				}
+#endif
 				iPillageGold = GC.getGame().getJonRandNum(pkImprovement->GetPillageGold(), "Pillage Gold 1");
 				iPillageGold += GC.getGame().getJonRandNum(pkImprovement->GetPillageGold(), "Pillage Gold 2");
 				iPillageGold += (getPillageChange() * iPillageGold) / 100;
@@ -14879,10 +14954,18 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	}
 
 	// Great General nearby
-	if (IsNearGreatGeneral(pFromPlot) && !IsIgnoreGreatGeneralBenefit())
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	int iAuraEffectChange = 0;
+	if(IsNearGreatGeneral(iAuraEffectChange) && !IsIgnoreGreatGeneralBenefit())
+#else
+	if(IsNearGreatGeneral() && !IsIgnoreGreatGeneralBenefit())
+#endif
 	{
 		iModifier += kPlayer.GetGreatGeneralCombatBonus();
 		iModifier += kPlayer.GetPlayerTraits()->GetGreatGeneralExtraBonus();
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+		iModifier += iAuraEffectChange;
+#endif
 
 		if (IsStackedGreatGeneral(pFromPlot))
 		{
@@ -15765,10 +15848,22 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 #endif
 
 	// Great General nearby
-	if (IsNearGreatGeneral(pMyPlot) && !IsIgnoreGreatGeneralBenefit())
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	int iAuraEffectChange = 0;
+	if(IsNearGreatGeneral(iAuraEffectChange) && !IsIgnoreGreatGeneralBenefit())
+#else
+	if(IsNearGreatGeneral() && !IsIgnoreGreatGeneralBenefit())
+#endif
 	{
+#if defined(MOD_BUGFIX_MINOR)
+		iModifier += kPlayer.GetGreatGeneralCombatBonus();
+#else
 		iModifier += /*25*/ GC.getGREAT_GENERAL_STRENGTH_MOD();
+#endif
 		iModifier += pTraits->GetGreatGeneralExtraBonus();
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+		iModifier += iAuraEffectChange;
+#endif
 
 		if (IsStackedGreatGeneral(pMyPlot))
 		{
@@ -17190,6 +17285,31 @@ void CvUnit::ChangeGainsXPFromScouting(int iValue)
 		m_iGainsXPFromScouting += iValue;
 	}
 }
+#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+//	--------------------------------------------------------------------------------
+bool CvUnit::isGGFromBarbarians() const
+{
+	VALIDATE_OBJECT
+	return GET_PLAYER(getOwner()).GetPlayerTraits()->IsGGFromBarbarians() || (MOD_PROMOTIONS_GG_FROM_BARBARIANS && getGGFromBarbariansCount() > 0);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getGGFromBarbariansCount() const
+{
+	VALIDATE_OBJECT
+	return m_iGGFromBarbariansCount;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeGGFromBarbariansCount(int iValue)
+{
+	VALIDATE_OBJECT
+	if(iValue != 0)
+	{
+		m_iGGFromBarbariansCount += iValue;
+	}
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvUnit::GetBarbarianCombatBonus() const
 {
@@ -22117,11 +22237,24 @@ bool CvUnit::IsNearCityAttackSupport(const CvPlot* pAtPlot, const CvUnit* pIgnor
 
 	return false;
 }
+//	--------------------------------------------------------------------------------
+/// Great General close enough to give us a bonus?
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+bool CvUnit::IsNearGreatGeneral(int& iAuraEffectChange, const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
+#else
 bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
+#endif
 {
 	VALIDATE_OBJECT
 
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	bool bFound = false;
+	iAuraEffectChange = 0;
+	
+	int iGreatGeneralRange = /*2*/ GC.getGREAT_GENERAL_MAX_RANGE();
+#else
 	int iGreatGeneralRange = /*2*/ GC.getGREAT_GENERAL_RANGE();
+#endif
 
 	if (pAtPlot == NULL)
 	{
@@ -22140,6 +22273,29 @@ bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThis
 			// Same domain
 			if(pUnit->getDomainType() == getDomainType())
 			{
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+				if (MOD_PROMOTIONS_AURA_CHANGE)
+				{
+					if(plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= (iGreatGeneralRange + pUnit->GetAuraRangeChange()))
+					{
+						// We have to check all possible units as one may be better than another
+						if (!bFound)
+						{
+							// Can't do a straight compare for the first one found, as it could have a negative modifier
+							iAuraEffectChange = pUnit->GetAuraEffectChange();
+						}
+						else
+						{
+							if (pUnit->GetAuraEffectChange() > iAuraEffectChange)
+							{
+								iAuraEffectChange = pUnit->GetAuraEffectChange();
+							}
+						}
+					
+						bFound = true;
+					}
+				} else
+#endif
 				if (plotDistance( pAtPlot->getX(),pAtPlot->getY(),pUnit->getX(),pUnit->getY() ) <= iGreatGeneralRange)
 					return true;
 			}
@@ -22147,7 +22303,11 @@ bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThis
 
 	}
 
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	return bFound;
+#else
 	return false;
+#endif
 }
 #endif
 
@@ -22455,6 +22615,36 @@ void CvUnit::ChangeGreatAdmiralCount(int iChange)
 	VALIDATE_OBJECT
 	m_iGreatAdmiralCount += iChange;
 }
+
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+//	--------------------------------------------------------------------------------
+int CvUnit::GetAuraRangeChange() const
+{
+	VALIDATE_OBJECT
+	return m_iAuraRangeChange;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeAuraRangeChange(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iAuraRangeChange += iChange;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetAuraEffectChange() const
+{
+	VALIDATE_OBJECT
+	return m_iAuraEffectChange;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeAuraEffectChange(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iAuraEffectChange += iChange;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getGreatGeneralModifier() const
@@ -23653,7 +23843,21 @@ void CvUnit::setName(CvString strNewValue)
 	m_strName = strNewValue;
 	DLLUI->setDirty(UnitInfo_DIRTY_BIT, true);
 }
+#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
+//	--------------------------------------------------------------------------------
+const CvString CvUnit::getGreatName() const
+{
+	VALIDATE_OBJECT
+	return m_strGreatName;
+}
 
+//	--------------------------------------------------------------------------------
+void CvUnit::setGreatName(CvString strName)
+{
+	VALIDATE_OBJECT
+	m_strGreatName = strName;
+}
+#endif
 //	--------------------------------------------------------------------------------
 GreatWorkType CvUnit::GetGreatWork() const
 {
@@ -23667,6 +23871,19 @@ void CvUnit::SetGreatWork(GreatWorkType eGreatWork)
 	m_eGreatWork = eGreatWork;
 }
 
+#if defined(MOD_API_EXTENSIONS)
+//	--------------------------------------------------------------------------------
+bool CvUnit::HasGreatWork() const
+{
+	return (m_eGreatWork != NO_GREAT_WORK);
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::HasUnusedGreatWork() const
+{
+	return (HasGreatWork() && !GC.getGame().GetGameCulture()->IsGreatWorkCreated(m_eGreatWork));
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvUnit::GetTourismBlastStrength() const
 {
@@ -24681,6 +24898,11 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			changeCanCrossIceCount((thisPromotion.CanCrossIce()) ? iChange : 0);
 		}
 #endif
+#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+		if (MOD_PROMOTIONS_GG_FROM_BARBARIANS) {
+			changeGGFromBarbariansCount((thisPromotion.IsGGFromBarbarians()) ? iChange : 0);
+		}
+#endif
 		ChangeRoughTerrainEndsTurnCount((thisPromotion.IsRoughTerrainEndsTurn()) ? iChange : 0);
 		ChangeHoveringUnitCount((thisPromotion.IsHoveringUnit()) ? iChange : 0);
 		changeFlatMovementCostCount((thisPromotion.IsFlatMovementCost()) ? iChange : 0);
@@ -24787,7 +25009,10 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 
 		ChangeGreatGeneralCount(thisPromotion.IsGreatGeneral() ? iChange: 0);
 		ChangeGreatAdmiralCount(thisPromotion.IsGreatAdmiral() ? iChange: 0);
-
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+		ChangeAuraRangeChange(thisPromotion.GetAuraRangeChange() * iChange);
+		ChangeAuraEffectChange(thisPromotion.GetAuraEffectChange() * iChange);
+#endif
 		changeGreatGeneralModifier(thisPromotion.GetGreatGeneralModifier() * iChange);
 		ChangeGreatGeneralReceivesMovementCount(thisPromotion.IsGreatGeneralReceivesMovement() ? iChange: 0);
 		ChangeGreatGeneralCombatModifier(thisPromotion.GetGreatGeneralCombatModifier() * iChange);

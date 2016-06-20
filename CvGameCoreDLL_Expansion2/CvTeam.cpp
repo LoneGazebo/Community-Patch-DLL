@@ -1450,7 +1450,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 				if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(eTeam))
 				{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM(GetID()).DoDeclareWar(eOriginatingPlayer, false, (TeamTypes)iI, /*bDefensivePact*/ false);
+					GET_TEAM(GetID()).DoDeclareWar(eOriginatingPlayer, false, (TeamTypes)iI, /*bDefensivePact*/ true);
 #else
 					GET_TEAM(GetID()).DoDeclareWar((TeamTypes)iI, /*bDefensivePact*/ true);
 #endif
@@ -1461,16 +1461,16 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 					GET_TEAM(GetID()).DoDeclareWar(eOriginatingPlayer, false, (TeamTypes)iI, /*bDefensivePact*/ false);
 #else
-					GET_TEAM(GetID()).DoDeclareWar((TeamTypes)iI, /*bDefensivePact*/ true);
+					GET_TEAM(GetID()).DoDeclareWar((TeamTypes)iI, /*bDefensivePact*/ false);
 #endif
 				}
 				//Are we a vassal of the player DOW'ing player?
 				else if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
 				{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM(GetID()).DoDeclareWar(eOriginatingPlayer, false, (TeamTypes)iI, /*bDefensivePact*/ false);
+					GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, false, eTeam, /*bDefensivePact*/ false);
 #else
-					GET_TEAM(GetID()).DoDeclareWar((TeamTypes)iI, /*bDefensivePact*/ true);
+					GET_TEAM((TeamTypes)iI).DoDeclareWar(eTeam, /*bDefensivePact*/ false);
 #endif
 				}
 #endif
@@ -1661,6 +1661,48 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	// Bump Units out of places they shouldn't be
 	GC.getMap().verifyUnitValidPlot();
+#endif
+
+#if defined(MOD_GLOBAL_EARLY_COOP_WAR_LOCK)
+	/*
+	 * There is an interesting edge case.  If player A agrees to a co-op war in X turns with B against C,
+	 * and then immediately declares war on C, A can make peace with C before the X turn limit.
+	 * When B shows up after X turns to start the war, A can agree and, despite having a peace treaty with C, will immediately declare war!
+	 *
+	 * The simple fix for this is to lock player A into war for at least X turns, if any co-op war agreements include A warring against C
+	 */
+	if (MOD_GLOBAL_EARLY_COOP_WAR_LOCK)
+	{
+		for (int iCoopPlayer = 0; iCoopPlayer < MAX_MAJOR_CIVS; iCoopPlayer++)
+		{
+			CvPlayer& kCoopPlayer = GET_PLAYER((PlayerTypes)iCoopPlayer);
+			TeamTypes eCoopTeam = kCoopPlayer.getTeam();
+
+			if (kCoopPlayer.isAlive() && eCoopTeam != m_eID && eCoopTeam != eTeam)
+			{
+				for (int iTheirPlayer = 0; iTheirPlayer < MAX_MAJOR_CIVS; iTheirPlayer++)
+				{
+					if (GET_PLAYER((PlayerTypes)iTheirPlayer).getTeam() == eTeam)
+					{
+						for (int iMyPlayer = 0; iMyPlayer < MAX_MAJOR_CIVS; iMyPlayer++)
+						{
+							if (GET_PLAYER((PlayerTypes)iMyPlayer).getTeam() == m_eID)
+							{
+								if (kCoopPlayer.GetDiplomacyAI()->GetCoopWarAcceptedState((PlayerTypes)iMyPlayer, (PlayerTypes)iTheirPlayer) == COOP_WAR_STATE_SOON)
+								{
+									CUSTOMLOG("Locking team %i into a co-op war against team %i - early start to agreement between player %i with player %i", m_eID, eTeam, iMyPlayer, iCoopPlayer);
+									ChangeNumTurnsLockedIntoWar(eTeam, GC.getCOOP_WAR_LOCKED_LENGTH());
+									goto done; // Cannot use break here, as we need to exit from three loops
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		done: __noop;
+	}
 #endif
 
 #if defined(MOD_EVENTS_WAR_AND_PEACE)

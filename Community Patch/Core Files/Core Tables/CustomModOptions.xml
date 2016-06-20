@@ -22,6 +22,9 @@
     <!--   The sql/xml changes for GLOBAL_STACKING_RULES can be found in DB/GLOBAL/SackingRules.sql/xml -->
     <!--   If these file(s) have been deleted, eg for compatibility with other mods, the option will be forced off -->
 
+	<!-- If A declares war on B that preempts a co-op war, A is locked into the war for the same number of turns as if they had agreed to the co-op war (v86) -->
+    <Row Class="5" Name="GLOBAL_EARLY_COOP_WAR_LOCK" Value="1"/>
+
     <!-- Changes the stacking limits based on what the tile is (city, fort, plain, etc) (v19) -->
     <!-- See also: "Global - 2 Units Per Fort" -->
     <!-- See also: "Global - 3 Units Per City" -->
@@ -96,6 +99,10 @@
     <!-- City States give different gifts depending on their type (cultural, religious, maritime, etc) (v19) -->
     <!-- See also: "Global - City States Gifts" -->
     <Row Class="6" Name="GLOBAL_CS_GIFTS" Value="0"/>
+    
+    <!-- Units gifted from City States receive XP from their spawning city, not the CS capital (v84) -->
+    <!-- See also: "Global - City States Gifts" -->
+    <Row Class="4" Name="GLOBAL_CS_GIFTS_LOCAL_XP" Value="1"/>
     
     <!-- City States allied to a major behave as an overseas territory of that major (v39) -->
     <!-- See also: "Global - City States Overseas Territory" -->
@@ -182,6 +189,10 @@
     <!-- See also: "Global - Great Work Vaults" -->
     <Row Class="6" Name="GLOBAL_GREATWORK_YIELDTYPES" Value="0" DbUpdates="1"/>
 
+	<!-- Great Artists, Writers and Musicians that do NOT create Great Works can be "reborn" (v84) -->
+    <!-- See also: "Global - No Lost Greatworks" -->
+    <Row Class="4" Name="GLOBAL_NO_LOST_GREATWORKS" Value="1"/>
+	
     <!-- Units of this type will not be gifted by City States (v46) -->
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="4" Name="GLOBAL_EXCLUDE_FROM_GIFTS" Value="0" DbUpdates="1"/>
@@ -227,6 +238,9 @@
     <Row Class="6" Name="DIPLOMACY_CIV4_FEATURES" Value="0"/>
 	<!-- Changes for Advanced Setup that allow players to acquire GG and GA points from fighting Barbarians -->
 		<Row Class="5" Name="BARBARIAN_GG_GA_POINTS" Value="1"/>
+    <!-- Permits units to earn GG/GA points from killing barbarians, this is the trait version (ie applies to all units of the civ) of PROMOTIONS_GG_FROM_BARBARIANS (v83) -->
+	<!-- See also: "Global - Commander Points From Barbarians" -->
+    <Row Class="2" Name="TRAITS_GG_FROM_BARBARIANS" Value="0" DbUpdates="1"/>
     <!-- Permits land units to cross ice, this is the trait version (ie applies to all units of the civ) of PROMOTIONS_CROSS_ICE (v19) -->
     <Row Class="2" Name="TRAITS_CROSSES_ICE" Value="0" DbUpdates="1"/>
 
@@ -254,6 +268,13 @@
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="2" Name="TECHS_CITY_WORKING" Value="0"/>
 
+    <!-- Permits variable great general and admiral aura ranges (v83) -->
+	<!-- See also: "Promotions - Colonels" -->
+	<!-- See also: "Global - Commander Influence Borders" -->
+    <Row Class="2" Name="PROMOTIONS_AURA_CHANGE" Value="0" DbUpdates="1"/>
+    <!-- Permits units to earn GG/GA points from killing barbarians (v83) -->
+	<!-- See also: "Global - Commander Points From Barbarians" -->
+    <Row Class="2" Name="PROMOTIONS_GG_FROM_BARBARIANS" Value="0" DbUpdates="1"/>
     <!-- Permits variable recon ranges by creating extra recon range promotions (like extra sight range) (v19) -->
     <!-- See also: "Promotions - Heli AirRecon" -->
     <!-- See also: "Promotions - Jet Long Range Recon" -->
@@ -409,7 +430,9 @@
     <Row Class="6" Name="AI_SMART_AIR_TACTICS" Value="0"/>
     <!-- Improves the AI's melee tactics (v51) -->
     <Row Class="6" Name="AI_SMART_MELEE_TACTICS" Value="0"/>
-
+	 <!-- Features from the "Smart AI V3 mod" by Ninakoru - see http://forums.civfanatics.com/showthread.php?t=562319 (v85) -->
+    <!-- See also: "AI - Smart V3" -->
+    <Row Class="6" Name="AI_SMART_V3" Value="1"/>
     <!-- Events sent when terraforming occurs (v33) -->
     <!--   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end) -->
     <!--   GameEvents.TerraformingPlot.Add(function(iEvent, iPlotX, iPlotY, iInfo, iNewValue, iOldValue, iNewExtra, iOldExtra) end) -->
@@ -439,7 +462,7 @@
     <Row Class="3" Name="EVENTS_NEW_ERA" Value="0"/>
 
     <!-- Event sent when the team discovers a new Natural Wonder (v19) -->
-    <!--   GameEvents.NaturalWonderDiscovered.Add(function(iTeam, iFeature, iX, iY, bFirst) end) -->
+    <!--   GameEvents.NaturalWonderDiscovered.Add(function(iTeam, iFeature, iX, iY, bFirst, iPlayer, iUnit) end) -->
     <!-- See also: "Religion - Natural Wonder Epiphany" -->
     <Row Class="3" Name="EVENTS_NW_DISCOVERY" Value="0"/>
 
@@ -643,6 +666,10 @@
     <!--   GameEvents.UnitCaptureType.Add(function(iPlayer, iUnit, iUnitType, iByCiv) return iCaptureUnitType; end) -->
     <Row Class="3" Name="EVENTS_UNIT_CAPTURE" Value="0"/>
 
+	<!-- Events sent as units perform actions (v86) -->
+	<!--   GameEvents.UnitCanPillage.Add(function(iPlayer, iUnit, iImprovement, iRoute) return true end) -->
+	<!--   GameEvents.UnitPillageGold.Add(function(iPlayer, iUnit, iImprovement, iGold) return iGold end) -->
+    <Row Class="3" Name="EVENTS_UNIT_ACTIONS" Value="0"/>
     <!-- Events sent as units are promoted/upgraded (v19) -->
     <!--   GameEvents.CanHavePromotion.Add(function(iPlayer, iUnit, iPromotionType) return true end) -->
     <!--   GameEvents.UnitPromoted.Add(function(iPlayer, iUnit, iPromotionType) end) -->
@@ -769,7 +796,7 @@
     <Row Class="2" Name="API_LUA_EXTENSIONS" Value="1"/>
     <!-- * Enables the Extensions API (v19) -->
     <!-- See also: "Unique Building - Cistern" -->
-    <Row Class="2" Name="API_EXTENSIONS" Value="1" DbUpdates="0"/>
+    <Row Class="2" Name="API_EXTENSIONS" Value="1"/>
     <!-- * Push various hard-coded values controlling the game out into XML - see DB/CONFIG/GameInXml.sql for specific values (v53) -->
     <Row Class="2" Name="CONFIG_GAME_IN_XML" Value="1" DbUpdates="0"/>
     <!-- * Push various hard-coded values controlling the AI out into XML - see DB/CONFIG/AiInXml.sql for specific values (v19) -->

@@ -1541,7 +1541,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		}
 		int iPower = 0;
 		bool bGeneralInTheVicinity = false;
-
+		int iAuraEffectChange = 0;
 		for(int iI = 0; iI < pFriendlyCity->GetNumWorkablePlots(); iI++)
 		{
 			CvPlot* pLoopPlot;
@@ -1558,7 +1558,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 						{
 							iPower += pLoopUnit->GetPower();
 						}
-						if (!bGeneralInTheVicinity && pLoopUnit->IsNearGreatGeneral(pLoopUnit->plot()))
+						if (!bGeneralInTheVicinity && pLoopUnit->IsNearGreatGeneral(iAuraEffectChange, pLoopUnit->plot()))
 						{
 							bGeneralInTheVicinity = true;
 						}
@@ -1585,7 +1585,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		{
 			int iPower = 0;
 			bool bGeneralInTheVicinity = false;
-
+			int iAuraEffectChange = 0;
 			for(int iI = 0; iI < pEnemyCity->GetNumWorkablePlots(); iI++)	
 			{
 				CvPlot* pLoopPlot;
@@ -1602,7 +1602,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 							{
 								iPower += pLoopUnit->GetPower();
 							}
-							if (!bGeneralInTheVicinity && pLoopUnit->IsNearGreatGeneral(pLoopUnit->plot()))
+							if (!bGeneralInTheVicinity && pLoopUnit->IsNearGreatGeneral(iAuraEffectChange, pLoopUnit->plot()))
 							{
 								bGeneralInTheVicinity = true;
 							}

@@ -73,6 +73,10 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iExtraAttacks(0),
 	m_bGreatGeneral(false),
 	m_bGreatAdmiral(false),
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	m_iAuraRangeChange(0),
+	m_iAuraEffectChange(0),
+#endif
 	m_iGreatGeneralModifier(0),
 	m_bGreatGeneralReceivesMovement(false),
 	m_iGreatGeneralCombatModifier(0),
@@ -157,6 +161,9 @@ CvPromotionEntry::CvPromotionEntry():
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	m_bCanCrossIce(false),
+#endif
+#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+	m_bGGFromBarbarians(false),
 #endif
 	m_bRoughTerrainEndsTurn(false),
 	m_bHoveringUnit(false),
@@ -339,6 +346,11 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		m_bCanCrossIce = kResults.GetBool("CanCrossIce");
 	}
 #endif
+#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+	if (MOD_PROMOTIONS_GG_FROM_BARBARIANS) {
+		m_bGGFromBarbarians = kResults.GetBool("GGFromBarbarians");
+	}
+#endif
 	m_bRoughTerrainEndsTurn = kResults.GetBool("RoughTerrainEndsTurn");
 	m_bHoveringUnit = kResults.GetBool("HoveringUnit");
 	m_bFlatMovementCost = kResults.GetBool("FlatMovementCost");
@@ -416,6 +428,12 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iExtraAttacks = kResults.GetInt("ExtraAttacks");
 	m_bGreatGeneral = kResults.GetBool("GreatGeneral");
 	m_bGreatAdmiral = kResults.GetBool("GreatAdmiral");
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	if (MOD_PROMOTIONS_AURA_CHANGE) {
+		m_iAuraRangeChange = kResults.GetInt("AuraRangeChange");
+		m_iAuraEffectChange = kResults.GetInt("AuraEffectChange");
+	}
+#endif
 	m_iGreatGeneralModifier = kResults.GetInt("GreatGeneralModifier");
 	m_bGreatGeneralReceivesMovement = kResults.GetBool("GreatGeneralReceivesMovement");
 	m_iGreatGeneralCombatModifier = kResults.GetInt("GreatGeneralCombatModifier");
@@ -1282,6 +1300,20 @@ bool CvPromotionEntry::IsGreatAdmiral() const
 	return m_bGreatAdmiral;
 }
 
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+/// Accessor: Does this Promotion change the range of the aura of a Great General or Great Admiral?
+int CvPromotionEntry::GetAuraRangeChange() const
+{
+	return m_iAuraRangeChange;
+}
+
+/// Accessor: Does this Promotion change the effect of the aura of a Great General or Great Admiral?
+int CvPromotionEntry::GetAuraEffectChange() const
+{
+	return m_iAuraEffectChange;
+}
+#endif
+
 /// Accessor: Increase in rate of great general creation
 int CvPromotionEntry::GetGreatGeneralModifier() const
 {
@@ -1682,6 +1714,14 @@ bool CvPromotionEntry::CanCrossOceans() const
 bool CvPromotionEntry::CanCrossIce() const
 {
 	return m_bCanCrossIce;
+}
+#endif
+
+#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+/// Accessor: Gets GG/GA points from barbarians
+bool CvPromotionEntry::IsGGFromBarbarians() const
+{
+	return m_bGGFromBarbarians;
 }
 #endif
 

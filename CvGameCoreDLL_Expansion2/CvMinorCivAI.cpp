@@ -14665,6 +14665,9 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 			return;
 #endif
 		}
+#if defined(MOD_GLOBAL_CS_GIFTS_LOCAL_XP)
+		CvCity* pSpawnCity = pMinorCapital;
+#endif
 		CvPlot* pMinorCapitalPlot = pMinorCapital->plot();
 		if(pMinorCapitalPlot == NULL)
 		{
@@ -14688,6 +14691,10 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 		{
 			iX = pMajorCity->getX();
 			iY = pMajorCity->getY();
+			
+#if defined(MOD_GLOBAL_CS_GIFTS_LOCAL_XP)
+			pSpawnCity = pMajorCity;
+#endif
 		}
 
 		// Pick Unit type
@@ -14719,7 +14726,7 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 #if defined(MOD_GLOBAL_CS_GIFTS)
 			if (bExplore) {
 #if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, GetPlayer()->getCapitalCity()->plot()->isCoastalLand() && MOD_GLOBAL_CS_GIFT_SHIPS);
+				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, pMinorCapitalPlot->isCoastalLand() && MOD_GLOBAL_CS_GIFT_SHIPS);
 #else
 				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor);
 #endif
@@ -14746,7 +14753,7 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 #if defined(MOD_GLOBAL_CS_GIFTS)
 			if (bExplore) {
 #if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, GetPlayer()->getCapitalCity()->plot()->isCoastalLand() && MOD_GLOBAL_CS_GIFT_SHIPS);
+				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, pMinorCapitalPlot->isCoastalLand() && MOD_GLOBAL_CS_GIFT_SHIPS);
 #else
 				eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor);
 #endif
@@ -14779,8 +14786,18 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 
 			if (pNewUnit->jumpToNearestValidPlot())
 			{
+#if defined(MOD_BUGFIX_MINOR)
+				// We tested for "GetPlayer()->getCapitalCity() != NULL" way, way up there!!!
+#if defined(MOD_GLOBAL_CS_GIFTS_LOCAL_XP)
+				if (MOD_GLOBAL_CS_GIFTS_LOCAL_XP) 
+					pSpawnCity->addProductionExperience(pNewUnit);
+				else
+#endif
+					pMinorCapital->addProductionExperience(pNewUnit);
+#else
 				if(GetPlayer()->getCapitalCity())
 					GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
+#endif
 
 				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
 				strMessage << GetPlayer()->getNameKey();

@@ -18,3 +18,4 @@ UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_PROPHET';
 UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_GREAT_ADMIRAL';
 UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_WRITER'; 
 UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_MUSICIAN'; 
+UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_VENETIAN_MERCHANT'; 

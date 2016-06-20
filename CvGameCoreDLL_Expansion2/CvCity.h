@@ -1036,6 +1036,10 @@ public:
 	bool IsHasOffice() const;
 	bool IsHasFranchise(CorporationTypes eCorporation) const;
 
+	int GetBuildingYieldChangeFromCorporationFranchises(BuildingClassTypes eBuildingClass, YieldTypes eIndex) const;
+	
+	int GetYieldChangeFromCorporationFranchises(YieldTypes eIndex) const;
+
 	int GetResourceQuantityPerXFranchises(ResourceTypes eResource) const;
 	void ChangeResourceQuantityPerXFranchises(ResourceTypes eResource, int iChange);
 	void SetResourceQuantityPerXFranchises(ResourceTypes eResource, int iValue);
@@ -1297,6 +1301,10 @@ public:
 
 	bool CanPlaceUnitHere(UnitTypes eUnitType);
 	bool IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
+#if defined(MOD_AI_SMART_V3)	
+	bool IsCanGoldPurchase(OrderData* pOrder);
+	void PurchaseCurrentOrder();
+#endif	
 	void Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
 
 	PlayerTypes getLiberationPlayer() const;

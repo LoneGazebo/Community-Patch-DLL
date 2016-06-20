@@ -317,7 +317,6 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetBuildingYieldChange);
 	Method(GetBuildingYieldModifier);
 #if defined(MOD_BALANCE_CORE)
-	Method(GetBuildingCorporateYieldChange);
 	Method(GetBuildingCorporateGPChange);
 	Method(GetPovertyHappinessChangeBuilding);
 	Method(GetDefenseHappinessChangeBuilding);
@@ -1098,7 +1097,15 @@ int CvLuaGame::lIsNoNukes(lua_State* L)
 //void changeNoNukesCount(int iChange);
 int CvLuaGame::lChangeNoNukesCount(lua_State* L)
 {
+#if defined(MOD_BUGFIX_LUA_API)
+	int iNumNukes;
+	if (lua_gettop(L) == 1)
+		iNumNukes = lua_tointeger(L, 1); // The correct Game.ChangeNoNukesCount() usage
+	else
+		iNumNukes = lua_tointeger(L, 2); // The incorrect (but as used by the game core .lua files) Game:ChangeNoNukesCount() usage
+#else
 	int iNumNukes = lua_tointeger(L, 2);
+#endif
 	GC.getGame().changeNoNukesCount(iNumNukes);
 	return 1;
 }
@@ -1112,7 +1119,15 @@ int CvLuaGame::lGetNukesExploded(lua_State* L)
 //void changeNukesExploded(int iChange);
 int CvLuaGame::lChangeNukesExploded(lua_State* L)
 {
+#if defined(MOD_BUGFIX_LUA_API)
+	int iNumNukes;
+	if (lua_gettop(L) == 1)
+		iNumNukes = lua_tointeger(L, 1); // The correct Game.ChangeNukesExploded() usage
+	else
+		iNumNukes = lua_tointeger(L, 2); // The incorrect (but as used by the game core .lua files) Game:ChangeNukesExploded() usage
+#else
 	int iNumNukes = lua_tointeger(L, 2);
+#endif
 	GC.getGame().changeNukesExploded(iNumNukes);
 	return 1;
 }
@@ -2345,24 +2360,6 @@ int CvLuaGame::lGetMinorityHappinessChangeBuildingGlobal(lua_State* L)
 //////
 /// CORPORATIONS
 //////
-//------------------------------------------------------------------------------
-int CvLuaGame::lGetBuildingCorporateYieldChange(lua_State* L)
-{
-	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
-	const YieldTypes eYield = (YieldTypes) luaL_checkint(L, 2);
-
-	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-	CvYieldInfo* pkYieldInfo = GC.getYieldInfo(eYield);
-
-	int iYieldChange = 0;
-	if(pkBuildingInfo && pkYieldInfo)
-	{
-		iYieldChange = pkBuildingInfo->GetYieldPerFranchise(eYield);
-	}
-
-	lua_pushinteger(L, iYieldChange);
-	return 1;
-}
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetBuildingCorporateGPChange(lua_State* L)
 {

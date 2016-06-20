@@ -2232,6 +2232,19 @@ void CvEconomicAI::DoHurry()
 	int iBestHurryAmount = 0;
 	int iBestHurryAmountAvailable = 0;
 	HurryTypes eBestHurryType = NO_HURRY;
+#if defined(MOD_AI_SMART_V3)
+	if (MOD_AI_SMART_V3)
+	{
+		//Exit if we don't have a set amount of gold, to avoid purchase overuse.
+		int comfortableGoldToHurry = 50 + (150 * m_pPlayer->GetCurrentEra());
+		int playerGold = m_pPlayer->GetTreasury()->GetGold();
+
+		if (playerGold < comfortableGoldToHurry)
+		{
+			return;
+		}
+	}
+#endif
 
 	// Look at each of our cities
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
@@ -2239,6 +2252,47 @@ void CvEconomicAI::DoHurry()
 		// What are we currently working on?
 		pOrder = pLoopCity->getOrderFromQueue(0);
 
+#if defined(MOD_AI_SMART_V3)
+		if (MOD_AI_SMART_V3)
+		{
+			if(pOrder != NULL)
+			{
+				bool isPurchasable = pLoopCity->IsCanGoldPurchase(pOrder);
+				int prodPercentRemaining = ((pLoopCity->getProductionNeeded() - pLoopCity->getProduction()) * 100) / pLoopCity->getProductionNeeded();
+
+				//We skip if the build order is more than 60% done.
+				if (prodPercentRemaining < 60)
+				{
+					continue;
+				}
+
+				if (isPurchasable)
+				{
+					iTurnsSaved = pLoopCity->getProductionTurnsLeft() - 1;
+					//Also skip if we don't save any turns
+					if (iTurnsSaved < 2)
+					{
+						continue;
+					}
+					if (iBestHurryTurnsSaved < iTurnsSaved)
+					{
+						if(GC.getLogging() && GC.getAILogging() && isPurchasable)
+						{
+							static const char* orderTypeStrings[] = { "ORDER_TRAIN", "ORDER_CONSTRUCT", "ORDER_CREATE", "ORDER_PREPARE", "ORDER_MAINTAIN", "NO_ORDER" };
+							int orderIndex = ((pOrder->eOrderType < 0) || (pOrder->eOrderType > 4)) ? 5 : pOrder->eOrderType;
+							CvString strLogString;
+							strLogString.Format("DoHurry Option: order type %s, Turns Saved: %d,remaining percent = %d", orderTypeStrings[orderIndex], iTurnsSaved, prodPercentRemaining);
+							m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+						}
+						iBestHurryTurnsSaved = iTurnsSaved;
+						pBestHurryCity = pLoopCity;
+					}
+				}
+			}
+		}
+		else
+		{
+#endif
 		// Did we want to rush it?
 		if(pOrder != NULL && pOrder->bRush)
 		{
@@ -2282,13 +2336,28 @@ void CvEconomicAI::DoHurry()
 				}
 			}
 		}
+#if defined(MOD_AI_SMART_V3)
+		}
+#endif
 	}
 
 	// Now enact the best hurry we've found (only hurry one item per turn for now)
 	if(pBestHurryCity != NULL)
 	{
-		pBestHurryCity->hurry(eBestHurryType);
-		pBestHurryCity->GetCityStrategyAI()->LogHurry(eBestHurryType, iBestHurryAmount, iBestHurryAmountAvailable, iBestHurryTurnsSaved);
+#if defined(MOD_AI_SMART_V3)
+		if (MOD_AI_SMART_V3)
+		{
+			pBestHurryCity->PurchaseCurrentOrder();
+			pBestHurryCity->AI_chooseProduction(false, false);
+		}
+		else
+		{
+#endif
+			pBestHurryCity->hurry(eBestHurryType);
+			pBestHurryCity->GetCityStrategyAI()->LogHurry(eBestHurryType, iBestHurryAmount, iBestHurryAmountAvailable, iBestHurryTurnsSaved);
+#if defined(MOD_AI_SMART_V3)
+		}
+#endif
 	}
 #if defined(MOD_DIPLOMACY_CITYSTATES_HURRY) || defined(MOD_BALANCE_CORE)
   }
@@ -2828,9 +2897,9 @@ CvUnit* CvEconomicAI::FindSeaWorkerToScrap()
 	return NULL;
 }
 
-void CvEconomicAI::DisbandExtraArchaeologists()
-{
+void CvEconomicAI::DisbandExtraArchaeologists(){
 	int iNumSites = GC.getGame().GetNumArchaeologySites();
+	double dMaxRatio = .5; //Ratio of archaeologists to sites
 	int iNumArchaeologists = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_ARCHAEOLOGIST, true);
 	PolicyTypes eExpFinisher = (PolicyTypes) GC.getInfoTypeForString("POLICY_EXPLORATION_FINISHER", true /*bHideAssert*/);
 	if (eExpFinisher != NO_POLICY)	
@@ -2847,14 +2916,10 @@ void CvEconomicAI::DisbandExtraArchaeologists()
 #else
 	UnitTypes eArch = (UnitTypes) GC.getInfoTypeForString("UNIT_ARCHAEOLOGIST", true /*bHideAssert*/);
 #endif
-	if(eArch == NO_UNIT)
-	{
+	if(eArch == NO_UNIT){
 		return;
 	}
-
-	//this really shoudn't happen, as we build only a limited number of them, depending on the number of sites
-	if (iNumSites < iNumArchaeologists)
-	{
+	if ((double)iNumSites * dMaxRatio + 1 < iNumArchaeologists ){
 		pUnit = FindArchaeologistToScrap();
 	
 		if(!pUnit)

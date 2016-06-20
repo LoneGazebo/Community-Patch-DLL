@@ -215,6 +215,8 @@ public:
 
 	CvString GetCurrentOfficeBenefit();
 
+	CvCorporationEntry* GetCorporationEntry() const;
+
 	void ClearCorporationFromCity(CvCity* pCity);
 
 	bool HasFoundedCorporation() const;

@@ -593,19 +593,19 @@
 			<Text>Hurricane strikes {2_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_1_SUCCESSFUL">
-			<Text>A Hurricane struck {2_City}, dealing major damage. Thankfully, the City was well-prepared, and was minimally damaged.</Text>
+			<Text>A very powerful Hurricane struck {2_City}. Thankfully, the City was well-prepared, and was minimally damaged.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_2_SUCCESSFUL">
-			<Text>A Hurricane struck {2_City}, dealing major damage. The City was not well-prepared, and was horribly damaged.</Text>
+			<Text>A very powerful Hurricane struck {2_City}. The City was not well-prepared, and was horribly damaged.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_3_SUCCESSFUL">
-			<Text>A Hurricane struck {2_City}, dealing major damage. The City itself was well-protected, but the population suffers.</Text>
+			<Text>A very powerful Hurricane struck {2_City}. The City itself was well-protected, but the population suffers.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_4_SUCCESSFUL">
-			<Text>A Hurricane struck {2_City}, dealing major damage. The City's population was well-protected, but the City itself was decimated.</Text>
+			<Text>A very powerful Hurricane struck {2_City}. The City's population was well-protected, but the City itself was decimated.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_5_SUCCESSFUL">
-			<Text>A Hurricane struck {2_City}, dealing major damage. The City's levee did not hold, and the City was devastated.</Text>
+			<Text>A very powerful Hurricane struck {2_City}. The City's levee did not hold, and the City was devastated.</Text>
 		</Row>
 
 		<!-- Plague!-->

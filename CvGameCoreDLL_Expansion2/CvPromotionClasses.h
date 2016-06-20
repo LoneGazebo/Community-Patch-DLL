@@ -97,6 +97,10 @@ public:
 	int  GetExtraAttacks() const;
 	bool IsGreatGeneral() const;
 	bool IsGreatAdmiral() const;
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	int GetAuraRangeChange() const;
+	int GetAuraEffectChange() const;
+#endif
 	int  GetGreatGeneralModifier() const;
 	bool IsGreatGeneralReceivesMovement() const;
 	int  GetGreatGeneralCombatModifier() const;
@@ -188,6 +192,9 @@ public:
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	bool CanCrossIce() const;
+#endif
+#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+	bool IsGGFromBarbarians() const;
 #endif
 	bool IsRoughTerrainEndsTurn() const;
 	bool IsHoveringUnit() const;
@@ -325,6 +332,10 @@ protected:
 	int m_iExtraAttacks;
 	bool m_bGreatGeneral;
 	bool m_bGreatAdmiral;
+#if defined(MOD_PROMOTIONS_AURA_CHANGE)
+	int m_iAuraRangeChange;
+	int m_iAuraEffectChange;
+#endif
 	int m_iGreatGeneralModifier;
 	bool m_bGreatGeneralReceivesMovement;
 	int m_iGreatGeneralCombatModifier;
@@ -410,6 +421,9 @@ protected:
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	bool m_bCanCrossIce;
+#endif
+#if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+	bool m_bGGFromBarbarians;
 #endif
 	bool m_bRoughTerrainEndsTurn;
 	bool m_bHoveringUnit;

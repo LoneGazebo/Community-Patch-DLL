@@ -21,6 +21,7 @@
 !*.civ5sln
 !*.dll
 !*.sln
+!*.iss
 
 !*.py
 !*.inl
