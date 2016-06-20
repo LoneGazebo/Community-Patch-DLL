@@ -26634,6 +26634,9 @@ int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 	if (!canMoveInto(*pPathPlot,iFlags|MOVEFLAG_ATTACK))
 		return -1;
 
+	// Publish any queued moves so that the attack doesn't appear to happen out of order
+	PublishQueuedVisualizationMoves();
+
 	// City combat
 	if(bIsEnemyCity)
 	{
@@ -26660,6 +26663,7 @@ int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 		return 1;
 	}
 
+	//cannot happen
 	return 0;
 }
 
