@@ -207,8 +207,8 @@ INSERT INTO ArtDefine_UnitMemberInfos (Type, Scale, ZOffset, Domain, Model, Mate
 INSERT INTO ArtDefine_StrategicView (StrategicViewType, TileType, Asset )
 	SELECT	'ART_DEF_UNIT_ARMORED_CAR', 'Unit', 'SV_LandIronclad.dds';
 
--- Explorer
-
-UPDATE ArtDefine_StrategicView
-SET Asset = 'SV_Explorer.dds'
-WHERE StrategicViewType = 'ART_DEF_UNIT_EXPLORER_CBP';
+-- Explorer, Pioneer, Colonist
+INSERT INTO ArtDefine_StrategicView (StrategicViewType, TileType, Asset )
+	VALUES	('ART_DEF_UNIT_EXPLORER_CBP', 'Unit', 'SV_Explorer.dds'),
+		('ART_DEF_UNIT_PIONEER', 'Unit', 'SV_Settler.dds'),
+		('ART_DEF_UNIT_COLONIST', 'Unit', 'SV_Settler.dds');
