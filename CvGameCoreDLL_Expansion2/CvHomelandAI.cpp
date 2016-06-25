@@ -7912,13 +7912,18 @@ CvPlot* HomelandAIHelpers::GetPatrolTarget(CvPlot* pOriginPlot, PlayerTypes ePla
 			CvTacticalDominanceZone* pOtherZone = pTactMap->GetZoneByID( vNeighborZones[i] );
 			if (!pOtherZone)
 				continue;
-			
+
+			//some base strength for zones with low visibility
+			if (pOtherZone->GetOwner()!=ePlayer)
+				iEnemyPower += 2000;
+
 			if (std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
 				iEnemyPower += pOtherZone->GetNeutralStrength();
 
 			//different domain counts less
 			int iScale = (pOtherZone->IsWater() != pZone->IsWater()) ? 3 : 1;
-			iEnemyPower += pOtherZone->GetEnemyStrength() / iScale + 500; //base strength
+			iEnemyPower += pOtherZone->GetEnemyStrength() / iScale;
+
 			iFriendlyPower =+ pOtherZone->GetFriendlyStrength();
 		}
 
