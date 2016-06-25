@@ -1783,8 +1783,8 @@ void CvHomelandAI::PlotPatrolMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && pUnit->IsCombatUnit() && pUnit->getDomainType() != DOMAIN_AIR)
 		{
-			CvPlot* pTarget = HomelandAIHelpers::GetPatrolTarget(pUnit->plot(),pUnit->getOwner(),23);
-			if(pTarget && pUnit->GeneratePath(pTarget,CvUnit::MOVEFLAG_APPROXIMATE_TARGET,10))
+			CvPlot* pTarget = HomelandAIHelpers::GetPatrolTarget(pUnit->plot(),pUnit->getOwner(),37);
+			if(pTarget && pUnit->GeneratePath(pTarget,CvUnit::MOVEFLAG_APPROXIMATE_TARGET,23))
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -7917,11 +7917,13 @@ CvPlot* HomelandAIHelpers::GetPatrolTarget(CvPlot* pOriginPlot, PlayerTypes ePla
 			if (std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
 				iEnemyPower += pOtherZone->GetNeutralStrength();
 
-			iEnemyPower += pOtherZone->GetEnemyStrength();
+			//different domain counts less
+			int iScale = (pOtherZone->IsWater() != pZone->IsWater()) ? 3 : 1;
+			iEnemyPower += pOtherZone->GetEnemyStrength() / iScale + 500; //base strength
 			iFriendlyPower =+ pOtherZone->GetFriendlyStrength();
 		}
 
-		iScore = (iEnemyPower*1000)/max(1,iFriendlyPower*iDistance);
+		iScore = (iEnemyPower*1000)/max(1,iFriendlyPower*iDistance) * MapToPercent(iDistance,iRange,iRange/2);
 		if (iScore>iBestScore)
 		{
 			iBestScore = iScore;

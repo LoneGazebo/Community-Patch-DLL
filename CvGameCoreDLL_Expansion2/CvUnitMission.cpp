@@ -500,16 +500,16 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 			return;
 		}
 
-		const MissionData* pkMissionData = (HeadMissionQueueNode(hUnit->m_missionQueue));
-		CvPlot* pDestPlot = GC.getMap().plot(pkMissionData->iData1, pkMissionData->iData2);
-		if (!pDestPlot)
-			return;
-
 		//tutorial hints
+		const MissionData* pkMissionData = (HeadMissionQueueNode(hUnit->m_missionQueue));
 		if(pkMissionData->iPushTurn == GC.getGame().getGameTurn() || (pkMissionData->iFlags & CvUnit::MOVEFLAG_IGNORE_STACKING))
 		{
 			if(pkMissionData->eMissionType == CvTypes::getMISSION_MOVE_TO() && !hUnit->IsDoingPartialMove() && hUnit->canMove() && !hUnit->HasQueuedVisualizationMoves())
 			{
+				CvPlot* pDestPlot = GC.getMap().plot(pkMissionData->iData1, pkMissionData->iData2);
+				if (!pDestPlot)
+					return;
+
 				if(hUnit->IsAutomated() && pDestPlot->isVisible(hUnit->getTeam()) && hUnit->canMoveInto(*pDestPlot, CvUnit::MOVEFLAG_ATTACK))
 				{
 					// if we're automated and try to attack, consider this move OVAH
@@ -618,16 +618,22 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 				}
 				else
 				{
+					CvPlot* pDestPlot = GC.getMap().plot(kMissionData.iData1, kMissionData.iData2);
+					if (!pDestPlot)
+						return;
+
 					//only non-air units use the path cache
-					if (!hUnit->UpdatePathCache(pDestPlot, pkMissionData->iFlags))
+					if (!hUnit->UpdatePathCache(pDestPlot, kMissionData.iFlags))
 					{
+						hUnit->SetActivityType(ACTIVITY_AWAKE);
 						return;
 					}
 
-					int iResult = hUnit->UnitAttackWithMove(pkMissionData->iData1, pkMissionData->iData2, pkMissionData->iFlags);
+					int iResult = hUnit->UnitAttackWithMove(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags);
 					if (iResult<0)
 					{
 						//illegal, cannot execute attack
+						hUnit->SetActivityType(ACTIVITY_AWAKE);
 						return;
 					}
 					else if (iResult==0)
