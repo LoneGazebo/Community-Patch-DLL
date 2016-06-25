@@ -172,7 +172,7 @@ void CvRandom::read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
+	MOD_SERIALIZE_INIT_READ_NO_SENTINEL(kStream);
 
 	kStream >> m_ullRandomSeed;
 	kStream >> m_ulCallCount;
@@ -187,7 +187,7 @@ void CvRandom::write(FDataStream& kStream) const
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
+	MOD_SERIALIZE_INIT_WRITE_NO_SENTINEL(kStream);
 
 	kStream << m_ullRandomSeed;
 	kStream << m_ulCallCount;

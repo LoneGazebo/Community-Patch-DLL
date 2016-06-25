@@ -497,6 +497,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 		if(iSteps >= 100)
 		{
 			OutputDebugString("warning: endless loop in ContinueMission\n");
+			hUnit->ClearMissionQueue();
 			return;
 		}
 
@@ -594,7 +595,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 			{
 				//need to declare war first
 				if(hUnit->CheckDOWNeededForMove(pkMissionData->iData1, pkMissionData->iData2))
-					return;
+					return; //don't end the mission though!
 
 				if(hUnit->getDomainType() == DOMAIN_AIR)
 				{
@@ -602,6 +603,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 					if (iResult<0)
 					{
 						//illegal, cannot execute attack
+						hUnit->ClearMissionQueue();
 						return;
 					}
 					else if (iResult==0)
@@ -620,12 +622,15 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 				{
 					CvPlot* pDestPlot = GC.getMap().plot(kMissionData.iData1, kMissionData.iData2);
 					if (!pDestPlot)
+					{
+						hUnit->ClearMissionQueue();
 						return;
+					}
 
 					//only non-air units use the path cache
 					if (!hUnit->UpdatePathCache(pDestPlot, kMissionData.iFlags))
 					{
-						hUnit->SetActivityType(ACTIVITY_AWAKE);
+						hUnit->ClearMissionQueue();
 						return;
 					}
 
@@ -633,7 +638,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 					if (iResult<0)
 					{
 						//illegal, cannot execute attack
-						hUnit->SetActivityType(ACTIVITY_AWAKE);
+						hUnit->ClearMissionQueue();
 						return;
 					}
 					else if (iResult==0)
@@ -643,6 +648,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 						if(iThisETA > 0) //normal movement
 						{
 							bAction = true;
+							bDone = hUnit->at(kMissionData.iData1, kMissionData.iData2);
 						}
 						else if (iThisETA < 0) //turn finished
 						{

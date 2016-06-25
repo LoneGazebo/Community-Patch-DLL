@@ -3871,24 +3871,24 @@ bool CvTurnTimerInfo::operator==(const CvTurnTimerInfo& rhs) const
 
 void CvTurnTimerInfo::writeTo(FDataStream& saveTo) const
 {
+	MOD_SERIALIZE_INIT_WRITE(saveTo);
+
 	CvBaseInfo::writeTo(saveTo);
 	saveTo << m_iBaseTime;
 	saveTo << m_iCityResource;
 	saveTo << m_iUnitResource;
 	saveTo << m_iFirstTurnMultiplier;
-
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
 }
 
 void CvTurnTimerInfo::readFrom(FDataStream& loadFrom)
 {
+	MOD_SERIALIZE_INIT_READ(loadFrom);
+
 	CvBaseInfo::readFrom(loadFrom);
 	loadFrom >> m_iBaseTime;
 	loadFrom >> m_iCityResource;
 	loadFrom >> m_iUnitResource;
 	loadFrom >> m_iFirstTurnMultiplier;
-
-	MOD_SERIALIZE_INIT_READ(loadFrom);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvTurnTimerInfo& readFrom)
@@ -3952,20 +3952,18 @@ bool CvDiploModifierInfo::operator==(const CvDiploModifierInfo& rhs) const
 
 void CvDiploModifierInfo::writeTo(FDataStream& saveTo) const
 {
-	CvBaseInfo::writeTo(saveTo);
-
 	MOD_SERIALIZE_INIT_WRITE(saveTo);
 
+	CvBaseInfo::writeTo(saveTo);
 	MOD_SERIALIZE_WRITE(saveTo, m_eFromCiv);
 	MOD_SERIALIZE_WRITE(saveTo, m_eToCiv);
 }
 
 void CvDiploModifierInfo::readFrom(FDataStream& loadFrom)
 {
-	CvBaseInfo::readFrom(loadFrom);
-
 	MOD_SERIALIZE_INIT_READ(loadFrom);
 
+	CvBaseInfo::readFrom(loadFrom);
 	MOD_SERIALIZE_READ(53, loadFrom, m_eFromCiv, NO_CIVILIZATION);
 	MOD_SERIALIZE_READ(53, loadFrom, m_eToCiv, NO_CIVILIZATION);
 }
@@ -6800,6 +6798,8 @@ bool CvClimateInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 void CvClimateInfo::readFrom(FDataStream& loadFrom)
 {
+	MOD_SERIALIZE_INIT_READ(loadFrom);
+
 	CvBaseInfo::readFrom(loadFrom);
 
 	loadFrom >> m_iDesertPercentChange;
@@ -6813,12 +6813,12 @@ void CvClimateInfo::readFrom(FDataStream& loadFrom)
 	loadFrom >> m_fDesertTopLatitudeChange;
 	loadFrom >> m_fIceLatitude;
 	loadFrom >> m_fRandIceLatitude;
-
-	MOD_SERIALIZE_INIT_READ(loadFrom);
 }
 
 void CvClimateInfo::writeTo(FDataStream& saveTo) const
 {
+	MOD_SERIALIZE_INIT_WRITE(saveTo);
+
 	CvBaseInfo::writeTo(saveTo);
 
 	saveTo << m_iDesertPercentChange;
@@ -6832,8 +6832,6 @@ void CvClimateInfo::writeTo(FDataStream& saveTo) const
 	saveTo << m_fDesertTopLatitudeChange;
 	saveTo << m_fIceLatitude;
 	saveTo << m_fRandIceLatitude;
-
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvClimateInfo& readFrom)
@@ -6867,18 +6865,16 @@ bool CvSeaLevelInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 void CvSeaLevelInfo::readFrom(FDataStream& loadFrom)
 {
+	MOD_SERIALIZE_INIT_READ(loadFrom);
 	CvBaseInfo::readFrom(loadFrom);
 	loadFrom >> m_iSeaLevelChange;
-
-	MOD_SERIALIZE_INIT_READ(loadFrom);
 }
 
 void CvSeaLevelInfo::writeTo(FDataStream& saveTo) const
 {
+	MOD_SERIALIZE_INIT_WRITE(saveTo);
 	CvBaseInfo::writeTo(saveTo);
 	saveTo << m_iSeaLevelChange;
-
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvSeaLevelInfo& readFrom)
