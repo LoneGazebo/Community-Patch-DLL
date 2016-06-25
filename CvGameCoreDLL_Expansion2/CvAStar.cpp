@@ -70,6 +70,7 @@ protected:
 //for debugging
 int giKnownCostWeight = 1;
 int giHeuristicCostWeight = 1;
+int giLastFailedDestination = 0;
 
 unsigned int saiRuntimeHistogram[100] = {0};
 
@@ -367,6 +368,12 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 
 	if ( timer.GetDeltaInSeconds()>0.05 && data.ePathType!=PT_UNIT_REACHABLE_PLOTS )
 	{
+		//debug hook
+		int iFailedDestination = GC.getMap().plotNum(m_iXdest, m_iYdest);
+		if (iFailedDestination==giLastFailedDestination)
+			OutputDebugString("Repeated fail!\n");
+		giLastFailedDestination = iFailedDestination;
+
 		int iNumPlots = GC.getMap().numPlots();
 		CvUnit* pUnit = m_sData.iUnitID>0 ? GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID) : NULL;
 

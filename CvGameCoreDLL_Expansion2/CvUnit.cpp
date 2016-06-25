@@ -8647,6 +8647,11 @@ bool CvUnit::canMakeTradeRoute(const CvPlot* pPlot) const
 		return false;
 	}
 
+	if (isDelayedDeath())
+	{
+		return false;
+	}
+
 	if (pPlot == NULL)
 	{
 		return false;
