@@ -595,7 +595,10 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 			{
 				//need to declare war first
 				if(hUnit->CheckDOWNeededForMove(pkMissionData->iData1, pkMissionData->iData2))
-					return; //don't end the mission though!
+				{
+					hUnit->ClearMissionQueue();
+					return;
+				}
 
 				if(hUnit->getDomainType() == DOMAIN_AIR)
 				{
@@ -1531,7 +1534,21 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 
 		if(hUnit->canMove())
 		{
-			if(pkQueueData->eMissionType == CvTypes::getMISSION_FORTIFY())
+			if( pkQueueData->eMissionType == CvTypes::getMISSION_MOVE_TO() ||
+				pkQueueData->eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT() ||
+				pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
+			{
+				//make sure the path cache is current
+				CvPlot* pDestPlot = GC.getMap().plot(pkQueueData->iData1, pkQueueData->iData2);
+				hUnit->GeneratePath(pDestPlot,pkQueueData->iFlags,INT_MAX);
+
+				if(pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
+				{
+					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit.pointer()));
+					gDLL->GameplayUnitWork(pDllUnit.get(), 0);
+				}
+			}
+			else if(pkQueueData->eMissionType == CvTypes::getMISSION_FORTIFY())
 			{
 				hUnit->SetFortifiedThisTurn(true);
 			}
@@ -1811,12 +1828,6 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 
 				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit.pointer()));
 				gDLL->GameplayUnitWork(pDllUnit.get(), (hUnit->HeadMissionQueueNode()->iData1));
-			}
-
-			else if(pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
-			{
-				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit.pointer()));
-				gDLL->GameplayUnitWork(pDllUnit.get(), 0);
 			}
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_LEAD())
