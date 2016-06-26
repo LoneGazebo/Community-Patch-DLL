@@ -113,7 +113,7 @@
 			<AIPerEraModifier>-2</AIPerEraModifier>
 			<AIAdvancedStartPercent>135</AIAdvancedStartPercent>
 			<AIFreeXP>5</AIFreeXP>
-			<DifficultyBonus>10</DifficultyBonus>
+			<DifficultyBonus>15</DifficultyBonus>
 			<AIFreeXPPercent>10</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>1</PortraitIndex>
@@ -229,7 +229,7 @@
 			<AIPerEraModifier>-6</AIPerEraModifier>
 			<AIAdvancedStartPercent>170</AIAdvancedStartPercent>
 			<AIFreeXP>15</AIFreeXP>
-			<DifficultyBonus>50</DifficultyBonus>
+			<DifficultyBonus>40</DifficultyBonus>
 			<AIFreeXPPercent>33</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>3</PortraitIndex>
@@ -287,7 +287,7 @@
 			<!--<AIInflationPercent>80</AIInflationPercent>-->
 			<AIPerEraModifier>-7</AIPerEraModifier>
 			<AIAdvancedStartPercent>185</AIAdvancedStartPercent>
-			<DifficultyBonus>70</DifficultyBonus>
+			<DifficultyBonus>50</DifficultyBonus>
 			<AIFreeXP>20</AIFreeXP>
 			<AIFreeXPPercent>50</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
@@ -348,7 +348,7 @@
 			<AIPerEraModifier>-8</AIPerEraModifier>
 			<AIAdvancedStartPercent>200</AIAdvancedStartPercent>
 			<AIFreeXP>20</AIFreeXP>
-			<DifficultyBonus>80</DifficultyBonus>
+			<DifficultyBonus>60</DifficultyBonus>
 			<AIFreeXPPercent>66</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>5</PortraitIndex>
@@ -409,7 +409,7 @@
 			<AIAdvancedStartPercent>215</AIAdvancedStartPercent>
 			<AIFreeXP>25</AIFreeXP>
 			<DifficultyBonus>100</DifficultyBonus>
-			<AIFreeXPPercent>75</AIFreeXPPercent>
+			<AIFreeXPPercent>65</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>6</PortraitIndex>
 		</Row>
@@ -469,7 +469,7 @@
 			<AIAdvancedStartPercent>230</AIAdvancedStartPercent>
 			<AIFreeXP>30</AIFreeXP>
 			<AIFreeXPPercent>100</AIFreeXPPercent>
-			<DifficultyBonus>125</DifficultyBonus>
+			<DifficultyBonus>100</DifficultyBonus>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>7</PortraitIndex>
 		</Row>

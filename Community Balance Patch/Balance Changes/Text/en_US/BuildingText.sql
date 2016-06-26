@@ -68,7 +68,7 @@ SELECT 'TXT_KEY_BUILDING_MUSEUM_HELP', '+1 [ICON_CULTURE] Culture for every 5 [I
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]+5 [ICON_GOLD] Gold if Themed.'
+SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]+15 [ICON_GOLD] Gold if Themed.'
 WHERE Tag = 'TXT_KEY_BUILDING_BROADCAST_TOWER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -434,7 +434,7 @@ SET Text = 'All units gain +15% [ICON_STRENGTH] combat strength when attacking c
 WHERE Tag = 'TXT_KEY_WONDER_STATUE_ZEUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_STONEHENGE_HELP', 'Grants 30 [ICON_PEACE] Faith when completed. Receive a free Council in the city.'
+SELECT 'TXT_KEY_BUILDING_STONEHENGE_HELP', 'Grants 50 [ICON_PEACE] Faith when completed. Receive a free Council in the city.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -566,11 +566,11 @@ SET Text = '+1 [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_HAPPINESS_1] 
 WHERE Tag = 'TXT_KEY_WONDER_NEUSCHWANSTEIN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '1 free Great Musician appears near the City where the Wonder was built. Contains 3 slots for Great Works of Music.[NEWLINE][NEWLINE]+10 [ICON_CULTURE] Culture if Themed.'
+SET Text = '1 free Great Musician appears near the City where the Wonder was built. Contains 3 slots for Great Works of Music.[NEWLINE][NEWLINE]+15 [ICON_CULTURE] Culture if Themed.'
 WHERE Tag = 'TXT_KEY_WONDER_BROADWAY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '1 Free Social Policy and +25% [ICON_CULTURE] Culture in this city.  Contains 2 slots for Great Works of Music. Must be constructed in a coastal city.[NEWLINE][NEWLINE]+10 [ICON_CULTURE] Culture if Themed.'
+SET Text = '1 Free Social Policy and +25% [ICON_CULTURE] Culture in this city.  Contains 2 slots for Great Works of Music. Must be constructed in a coastal city.[NEWLINE][NEWLINE]+15 [ICON_CULTURE] Culture if Themed.'
 WHERE Tag = 'TXT_KEY_WONDER_SYDNEY_OPERA_HOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US

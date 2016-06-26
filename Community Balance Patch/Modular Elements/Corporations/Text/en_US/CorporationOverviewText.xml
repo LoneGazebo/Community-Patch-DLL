@@ -3,7 +3,7 @@
 <GameData>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_CPO">
-			<Text>Corporations and Monopolies</Text>
+			<Text>Corporations &amp; Monopolies</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CPO_TAB_CORPORATIONS">
 			<Text>Your Corporation</Text>

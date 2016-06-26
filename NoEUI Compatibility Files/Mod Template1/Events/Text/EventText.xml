@@ -197,4 +197,90 @@
 			<Text>Fortunately, a City State Museum has been after that painting for ages. Tell them they can have it for that one stained-glass statue I like.</Text>
 		</Row>
 	</Language_en_US>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_SABO_DESCRIPTION">
+			<Text>Project: Sky</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_SABO_HELP">
+			<Text>As you have surely heard, another civilization is aiming for the skies.[NEWLINE][NEWLINE]May I propose our newest project...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_SABO_HELP_CHOICE_1">
+			<Text>{1_EventCost} for the sabotage plan.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_SABO_HELP_CHOICE_2">
+			<Text>Do nothing.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_SABO_DESCRIPTION_CHOICE_1">
+			<Text>Let's help them come down to earth.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_SABO_DESCRIPTION_CHOICE_2">
+			<Text>This is too risky of an endeavor.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_DESCRIPTION">
+			<Text>Request for research funding</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_HELP">
+			<Text>After new discoveries in the field of Chemistry, a research team from the State University is requesting funds to realize the age-old dream of flying.[NEWLINE][NEWLINE]Choose from one of the options below...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_HELP_CHOICE_1">
+			<Text>{1_YieldCost} for possible future gains.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_HELP_CHOICE_2">
+			<Text>{1_YieldCost} for {2_InstantYield}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_HELP_CHOICE_3">
+			<Text>Gain nothing.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_DESCRIPTION_CHOICE_1">
+			<Text>Let this be the age where men conquers the skies.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_DESCRIPTION_CHOICE_2">
+			<Text>Are you an airhead?! Men are not supposed to reach for the skies. I'll use the funds to strengthen our faith.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_DESCRIPTION_CHOICE_3">
+			<Text>We don't have free money lying around here.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_SUCCESS_DESCRIPTION_CHOICE_1">
+			<Text>We got an hot air balloon off the ground!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_SUCCESS_HELP_CHOICE_1">
+			<Text>The experiements are an success and we are one step closer to human flight. The people are in awe. Gain {2_InstantYield} and 5 Turns of [ICON_GOLDEN_AGE] Golden Age.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_FAIL_DESCRIPTION_CHOICE_1">
+			<Text>Failed Experiment</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RESEARCHAIR_FAIL_HELP_CHOICE_1">
+			<Text>The research team didn't succeed in their ambitious project because of several malfunctions. Fortunately there were no major accidents.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_RESEARCHAIR_CHOICE_1_S">
+			<Text>{3_PlayerName} is funding research about flight.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_RESEARCHAIR_CHOICE_1">
+			<Text>Another civilization is reaching for the skies by funding experiments.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_RESEARCHAIR_FAIL_CHOICE_1_S">
+			<Text>An air balloon malfunctioned during the experiment!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_RESEARCHAIR_FAIL_CHOICE_1">
+			<Text>An experimental air balloon of {3_PlayerName} malfunctioned during a public demonstration.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_COOLSUMMER_DESCRIPTION">
+			<Text>Hot Summer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_COOLSUMMER_HELP">
+			<Text>This summer is particularly hot and the people surrounding you are fighting with the heat. Your advisor suggests to share some of the cool drinks that your majesty likes to drink, but this would require you to send more people to get the ice. What do we do?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COOLSUMMER_CHOICE_1">
+			<Text>Send them and let the World know of my generosity.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COOLSUMMER_CHOICE_1_HELP">
+			<Text>Lose {1_YieldCost}to gain {4_GPChange} and {5_Turns} of WLTKD.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COOLSUMMER_CHOICE_2">
+			<Text>Tell them it’s the heavenly punishment for them being so lazy. Only if they work hard will the heat go away.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COOLSUMMER_CHOICE_2_HELP">
+			<Text>Gain {2_InstantYield}.</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

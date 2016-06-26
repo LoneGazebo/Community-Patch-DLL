@@ -8696,7 +8696,6 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			{
 				iHandicap = pHandicapInfo->getAIDifficultyBonus();
 				iHandicap *= iEra;
-				iHandicap /= max(1, getNumCities());
 			}
 			if(iHandicap > 0)
 			{

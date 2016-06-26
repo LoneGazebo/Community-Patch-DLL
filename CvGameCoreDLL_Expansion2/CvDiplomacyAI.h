@@ -1756,8 +1756,6 @@ private:
 		short m_aiPlayerVassalageTurnsSincePeacefullyRevokedVassalage[MAX_MAJOR_CIVS];
 		short m_aiPlayerVassalageTurnsSinceForcefullyRevokedVassalage[MAX_MAJOR_CIVS];
 
-		char m_aeGlobalState[MAX_MAJOR_CIVS];
-
 		bool m_abMoveTroopsRequestAccepted[MAX_MAJOR_CIVS];
 		short m_aiMoveTroopsRequestCounter[MAX_MAJOR_CIVS];
 		
@@ -1790,7 +1788,6 @@ private:
 
 	short* m_paiNumTimesDemandedWhenVassal;
 	bool* m_pabPlayerBrokenVassalAgreement;
-	char* m_paeGlobalState;
 
 	bool* m_pabMoveTroopsRequestAccepted;
 	short* m_paiMoveTroopsRequestCounter;

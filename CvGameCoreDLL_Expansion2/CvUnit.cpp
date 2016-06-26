@@ -406,7 +406,6 @@ CvUnit::CvUnit() :
 #if defined(MOD_API_UNIFIED_YIELDS)
 	, m_yieldFromKills("CvUnit::m_yieldFromKills", m_syncArchive/*, true*/)
 	, m_yieldFromBarbarianKills("CvUnit::m_yieldFromBarbarianKills", m_syncArchive/*, true*/)
-	, m_strGreatName("CvUnit::m_iTourismBlastStrength", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_yieldFromScouting("CvUnit::m_yieldFromScouting", m_syncArchive/*, true*/)
@@ -23853,7 +23852,7 @@ void CvUnit::setName(CvString strNewValue)
 const CvString CvUnit::getGreatName() const
 {
 	VALIDATE_OBJECT
-	return m_strGreatName;
+	return m_strGreatName.GetCString();
 }
 
 //	--------------------------------------------------------------------------------
@@ -25337,6 +25336,7 @@ void CvUnit::read(FDataStream& kStream)
 #endif
 
 	//CBP NOTE: Deleted repeat save data here to reduce bloat and manage memory better for MP
+	kStream >> m_strGreatName;
 	kStream >> m_strName;
 	kStream >> *m_pReligion;
 
@@ -25415,6 +25415,7 @@ void CvUnit::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iMaxHitPointsBase);
 #endif
 	//CBP NOTE: Deleted repeat save data here to reduce bloat and manage memory better for MP
+	kStream << m_strGreatName;
 	kStream << m_strName;
 	kStream << *m_pReligion;
 

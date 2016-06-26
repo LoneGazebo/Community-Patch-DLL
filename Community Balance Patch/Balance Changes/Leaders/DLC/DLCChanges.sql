@@ -29,7 +29,11 @@ WHERE Type = 'TRAIT_TERROR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMM
 
 -- Polynesia -- Boost Range of Moai
 UPDATE Traits
-Set NearbyImprovementBonusRange = '4'
+Set NearbyImprovementBonusRange = '3'
+WHERE Type = 'TRAIT_WAYFINDING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+Set NearbyImprovementCombatBonus = '20'
 WHERE Type = 'TRAIT_WAYFINDING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Builds
