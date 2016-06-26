@@ -2847,8 +2847,10 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_eAutomateType = NO_AUTOMATE;
 
 	m_kLastPath.clear();
-	m_uiLastPathCacheDest = 0xFFFFFFFF;
+	m_uiLastPathCacheOrigin = 0xFFFFFFFF;
+	m_uiLastPathCacheDestination = 0xFFFFFFFF;
 	m_uiLastPathFlags = 0xFFFFFFFF;
+	m_uiLastPathLength = 0xFFFFFFFF;
 	m_uiLastPathTurn = 0xFFFFFFFF;
 
 #if defined(MOD_BALANCE_CORE)
@@ -18305,7 +18307,7 @@ bool CvUnit::IsHasNoValidMove() const
 	}
 
 	ReachablePlots plots;
-	TacticalAIHelpers::GetAllPlotsInReach(this,plot(),plots,true,true,false);
+	TacticalAIHelpers::GetAllPlotsInReachThisTurn(this,plot(),plots,true,true,false);
 
 	for (ReachablePlots::const_iterator it=plots.begin(); it!=plots.end(); ++it)
 	{
@@ -20174,6 +20176,11 @@ void CvUnit::SetCycleOrder(int iNewValue)
 {
 	VALIDATE_OBJECT
 	m_iCycleOrder = iNewValue;
+}
+
+bool CvUnit::IsRecentlyDeployedFromOperation() const
+{
+	return m_iDeployFromOperationTurn+GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS()>=GC.getGame().getGameTurn();
 }
 
 
@@ -26475,64 +26482,119 @@ void CvUnit::PlayActionSound()
 	VALIDATE_OBJECT
 }
 
+bool CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns)
+{
+	SPathFinderUserData data(this,iFlags,iMaxTurns);
+	SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
+
+	//now copy the new path
+	//but skip the first node, it's the current unit plot
+	//important: this means that an empty m_kLastPath is valid!
+	CvPathNode nextNode;
+	m_kLastPath.clear();
+	for (size_t i=1; i<newPath.vPlots.size(); i++)
+	{
+		nextNode = newPath.vPlots[i];
+		m_kLastPath.push_back( nextNode );
+	}
+
+	if(!m_kLastPath.empty())
+	{
+		CvMap& kMap = GC.getMap();
+		TeamTypes eTeam = getTeam();
+
+		// Get the state of the plots in the path, they determine how much of the path is re-usable.
+		for (size_t iIndex = 0; iIndex<m_kLastPath.size(); iIndex++)
+		{
+			CvPathNode& kNode = m_kLastPath[iIndex];
+			CvPlot* pkPlot = kMap.plotCheckInvalid(kNode.m_iX, kNode.m_iY);
+			if (pkPlot && !pkPlot->isVisible(eTeam))
+			{
+				kNode.SetFlag(CvPathNode::PLOT_INVISIBLE);
+				if (iIndex > 0)
+					m_kLastPath[iIndex-1].SetFlag(CvPathNode::PLOT_ADJACENT_INVISIBLE);
+
+				// Also determine the destination visibility.  
+				// This will be checked in UnitPathTo to see if the destination's visibility has changed and do a re-evaluate again if it has.
+				// This will help a unit to stop early in its pathing if the destination is blocked.
+				CvPlot* pkPathDest = m_kLastPath.GetFinalPlot();
+				if (pkPathDest != NULL && !pkPathDest->isVisible(eTeam))
+					m_kLastPath.back().SetFlag(CvPathNode::PLOT_INVISIBLE);
+
+				break;	// Anything after is 'in the dark' and should be re-evaluated if trying to move a unit into it.
+			}
+		}
+	}
+
+	// This helps in preventing us from trying to re-path to the same unreachable location.
+	m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
+	m_uiLastPathCacheDestination = pToPlot->GetPlotIndex();
+	m_uiLastPathFlags = iFlags;
+	m_uiLastPathLength = m_kLastPath.size();
+	m_uiLastPathTurn = GC.getGame().getGameTurn();
+
+	return !!newPath;
+}
+
 //	---------------------------------------------------------------------------
-bool CvUnit::UpdatePathCache(CvPlot* pDestPlot, int iFlags)
+bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns)
 {
 	bool bGenerated = false;
 
 	// this method is only called from ContinueMission and that all previous path data is deleted when a mission is started
 	// we can assume that other than the unit that is moving, nothing on the map will change
 	// so we can re-use the cached path data most of the time
+	if (m_kLastPath.empty())
+		return ComputePath(pDestPlot, iFlags, iMaxTurns);
 
-	if (m_kLastPath.empty() ||
-		m_uiLastPathCacheDest != pDestPlot->GetPlotIndex() || 
-		m_uiLastPathFlags != iFlags ||
-		m_uiLastPathTurn != GC.getGame().getGameTurn() )	
+	//visibility might have changed because of this same unit's movement
+	CvPlot* pkPathDest = m_kLastPath.GetFinalPlot();
+	if (pkPathDest)
 	{
-		bGenerated = GeneratePath(pDestPlot, iFlags);
-	}
-	else
-	{
-		//visibility might have changed because of this same unit's movement
-		CvPlot* pkPathDest = m_kLastPath.GetFinalPlot();
-		if (pkPathDest)
+		// Was the path destination invisible at the time of generation? See if it is visible now.
+		if ( m_kLastPath.back().GetFlag(CvPathNode::PLOT_INVISIBLE) && pkPathDest->isVisible(getTeam()))
 		{
-			// Was the path destination invisible at the time of generation? See if it is visible now.
-			if ( m_kLastPath.back().GetFlag(CvPathNode::PLOT_INVISIBLE) && pkPathDest->isVisible(getTeam()))
+			// The path destination is now visible, recalculate now in case it can't be reached (occupied)
+			SPathFinderUserData data(this,iFlags,iMaxTurns);
+			SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), pkPathDest->getX(), pkPathDest->getY(), data);
+			bGenerated =  !!newPath;
+
+			if (!bGenerated && pDestPlot != pkPathDest)
 			{
-				// The path destination is now visible, recalculate now in case it can't be reached (occupied)
-				if ((bGenerated = GeneratePath(pkPathDest, iFlags)) == false && pDestPlot != pkPathDest)
-				{
-					// Hmm, failed for some reason, re-do the entire path
-					bGenerated = GeneratePath(pDestPlot, iFlags);
-				}
+				// Hmm, failed for some reason, re-do the entire path
+				bGenerated = ComputePath(pDestPlot, iFlags, iMaxTurns);
 			}
-			else
+		}
+		else
+		{
+			// Was the next plot we are stepping into invisible at the time of generation?
+			if (m_kLastPath.front().GetFlag((int)CvPathNode::PLOT_INVISIBLE))
 			{
-				// Was the next plot we are stepping into invisible at the time of generation?
-				if (m_kLastPath.front().GetFlag((int)CvPathNode::PLOT_INVISIBLE))
+				// We are trying to move into a plot that is invisible and we want to continue out into the darkness.  We have to recalculate our path.
+				// Since we have already done a path find to the destination once, we can now just path find to how far out we can get in this turn.
+				CvPlot* pkTurnDest = m_kLastPath.GetTurnDestinationPlot(1);
+				if (pkTurnDest)
 				{
-					// We are trying to move into a plot that is invisible and we want to continue out into the darkness.  We have to recalculate our path.
-					// Since we have already done a path find to the destination once, we can now just path find to how far out we can get in this turn.
-					CvPlot* pkTurnDest = m_kLastPath.GetTurnDestinationPlot(1);
-					if (pkTurnDest)
+					SPathFinderUserData data(this,iFlags,iMaxTurns);
+					SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), pkTurnDest->getX(), pkTurnDest->getY(), data);
+					bGenerated =  !!newPath;
+
+					if (!bGenerated && pDestPlot != pkTurnDest)
 					{
-						if (pkTurnDest && (bGenerated = GeneratePath(pkTurnDest, iFlags)) == false && pDestPlot != pkTurnDest)
-						{
-							// Hmm, failed for some reason, re-do the entire path
-							bGenerated = GeneratePath(pDestPlot, iFlags);
-						}
-					}
-					else
-					{
-						bGenerated = GeneratePath(pDestPlot, iFlags);	// Can't find the dest in the path, regenerate
+						// Hmm, failed for some reason, re-do the entire path
+						bGenerated = ComputePath(pDestPlot, iFlags, iMaxTurns);
 					}
 				}
 				else
 				{
-					// The path is still good, just use the next node
-					bGenerated = true;
+					// Can't find the dest in the path, regenerate
+					bGenerated = ComputePath(pDestPlot, iFlags, iMaxTurns);	
 				}
+			}
+			else
+			{
+				// The path is still good, just use the next node
+				bGenerated = true;
 			}
 		}
 	}
@@ -27614,7 +27676,7 @@ bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 {
 	VALIDATE_OBJECT
 	ReachablePlots plots;
-	TacticalAIHelpers::GetAllPlotsInReach(this,plot(),plots,true,true,false);
+	TacticalAIHelpers::GetAllPlotsInReachThisTurn(this,plot(),plots,true,true,false);
 
 	for (ReachablePlots::const_iterator it=plots.begin(); it!=plots.end(); ++it)
 	{
@@ -27653,62 +27715,24 @@ bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 
 //	--------------------------------------------------------------------------------
 /// Use pathfinder to create a path
-bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int* piPathTurns) const
+bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int* piPathTurns)
 {
 	if(pToPlot == NULL)
 		return false;
 
-	SPathFinderUserData data(this,iFlags,iMaxTurns);
-	SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
+	bool bHavePath = false;
 
-	// Regardless of whether or not we made it there, keep track of the plot we tried to path to.  
-	// This helps in preventing us from trying to re-path to the same unreachable location.
-	m_uiLastPathCacheDest = pToPlot->GetPlotIndex();
-	m_uiLastPathFlags = iFlags;
-	m_uiLastPathTurn = GC.getGame().getGameTurn();
-
-	if (!newPath)
-		return false;
-
-	//now copy the new path
-	//but skip the first node, it's the current unit plot
-	//important: this means that an empty path is valid here!
-	m_kLastPath.clear();
-
-	CvPathNode nextNode;
-	for (size_t i=1; i<newPath.vPlots.size(); i++)
+	if (m_uiLastPathCacheOrigin != plot()->GetPlotIndex() ||
+		m_uiLastPathCacheDestination != pToPlot->GetPlotIndex() || 
+		m_uiLastPathFlags != iFlags ||
+		m_uiLastPathLength != m_kLastPath.size() ||
+		m_uiLastPathTurn != GC.getGame().getGameTurn() )	
 	{
-		nextNode = newPath.vPlots[i];
-		m_kLastPath.push_back( nextNode );
+		bHavePath = ComputePath(pToPlot, iFlags, iMaxTurns);
 	}
-
-	if(!m_kLastPath.empty())
-	{
-		CvMap& kMap = GC.getMap();
-		TeamTypes eTeam = getTeam();
-
-		// Get the state of the plots in the path, they determine how much of the path is re-usable.
-		for (size_t iIndex = 0; iIndex<m_kLastPath.size(); iIndex++)
-		{
-			CvPathNode& kNode = m_kLastPath[iIndex];
-			CvPlot* pkPlot = kMap.plotCheckInvalid(kNode.m_iX, kNode.m_iY);
-			if (pkPlot && !pkPlot->isVisible(eTeam))
-			{
-				kNode.SetFlag(CvPathNode::PLOT_INVISIBLE);
-				if (iIndex > 0)
-					m_kLastPath[iIndex-1].SetFlag(CvPathNode::PLOT_ADJACENT_INVISIBLE);
-
-				// Also determine the destination visibility.  
-				// This will be checked in UnitPathTo to see if the destination's visibility has changed and do a re-evaluate again if it has.
-				// This will help a unit to stop early in its pathing if the destination is blocked.
-				CvPlot* pkPathDest = m_kLastPath.GetFinalPlot();
-				if (pkPathDest != NULL && !pkPathDest->isVisible(eTeam))
-					m_kLastPath.back().SetFlag(CvPathNode::PLOT_INVISIBLE);
-
-				break;	// Anything after is 'in the dark' and should be re-evaluated if trying to move a unit into it.
-			}
-		}
-	}
+	else
+		//re-use the old path
+		bHavePath = true;
 
 	if(piPathTurns != NULL)
 	{
@@ -27731,7 +27755,7 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 			*piPathTurns = 0;
 	}
 
-	return true;
+	return bHavePath;
 }
 
 //	--------------------------------------------------------------------------------
@@ -27747,8 +27771,11 @@ const CvPathNodeArray& CvUnit::GetPathNodeArray() const
 void CvUnit::ClearPathCache()
 {
 	m_kLastPath.clear();
-	m_uiLastPathCacheDest = 0xFFFFFFFF;
+	m_uiLastPathCacheOrigin = 0xFFFFFFFF;
+	m_uiLastPathCacheDestination = 0xFFFFFFFF;
 	m_uiLastPathFlags = 0xFFFFFFFF;
+	m_uiLastPathLength = 0xFFFFFFFF;
+	m_uiLastPathTurn = 0xFFFFFFFF;
 }
 
 //	--------------------------------------------------------------------------------

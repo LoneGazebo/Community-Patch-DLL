@@ -1022,7 +1022,7 @@ namespace TacticalAIHelpers
 	
 	enum UnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_HITANDRUN,MS_SUPPORT };
 
-	int GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pStartPlot, ReachablePlots& resultSet, bool bCheckTerritory, bool bCheckZOC, bool bAllowEmbark, int iMinMovesLeft=0);
+	int GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvPlot* pStartPlot, ReachablePlots& resultSet, bool bCheckTerritory, bool bCheckZOC, bool bAllowEmbark, int iMinMovesLeft=0);
 	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, std::set<int>& resultSet);
 	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlots& basePlots, std::set<int>& resultSet);
 	bool PerformRangedAttackWithoutMoving(CvUnit* pUnit);
@@ -1030,7 +1030,7 @@ namespace TacticalAIHelpers
 	bool IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget);
 	bool CountDeploymentPlots(TeamTypes eTeam, const CvPlot* pTarget, int iNumUnits, int iDeployRange);
 	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark);
-	CvPlot* FindClosestSafePlotForHealing(const CvUnit* pUnit, bool bWithinOwnTerritory, int iMaxDistance=12);
+	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWithinOwnTerritory, int iMaxDistance=12);
 	bool GetPlotsForRangedAttack(const CvPlot* pTarget, const CvUnit* pUnit, int iRange, bool bCheckOccupied, std::vector<CvPlot*>& vPlots);
 	int GetSimulatedDamageFromAttackOnUnit(CvUnit* pDefender, const CvUnit* pAttacker, int& iAttackerDamage);
 	int GetSimulatedDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pAttacker, int& iAttackerDamage);

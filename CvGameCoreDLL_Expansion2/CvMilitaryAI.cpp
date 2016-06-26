@@ -5235,9 +5235,8 @@ void CvMilitaryAI::LogAvailableForces()
 			{
 				continue;
 			}
-
 			// No units finishing up operations
-			else if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+			else if(pLoopUnit->IsRecentlyDeployedFromOperation())
 			{
 				continue;
 			}
@@ -6457,11 +6456,16 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 			}
 		}
 	}
+
+	ReachablePlots turnsFromMuster;
+	SPathFinderUserData data(pPlayer->GetID(),PT_GENERIC_REACHABLE_PLOTS,-1,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
+	turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMuster, data);
+
 	int iLoop = 0;
 	for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
 	{
 		int iDistance = 0;
-		if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMuster,pTarget,bRequiresNavalMoves,bMustBeDeepWaterNaval,iDistance))
+		if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMuster,turnsFromMuster,pTarget,bRequiresNavalMoves,bMustBeDeepWaterNaval,iDistance))
 		{
 			// Is this unit one of the requested types?
 			CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
@@ -6541,7 +6545,7 @@ UnitAITypes MilitaryAIHelpers::FirstSlotCityCanFill(CvPlayer* pPlayer, Multiunit
 			{
 				if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
 				{
-					if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() < GC.getGame().getGameTurn())
+					if(!pLoopUnit->IsRecentlyDeployedFromOperation())
 					{
 						if(!bRequiresNavalMoves || pLoopUnit->getDomainType() == DOMAIN_SEA || pLoopUnit->CanEverEmbark())
 						{

@@ -1782,8 +1782,8 @@ void CvHomelandAI::PlotPatrolMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && pUnit->IsCombatUnit() && pUnit->getDomainType() != DOMAIN_AIR)
 		{
-			CvPlot* pTarget = HomelandAIHelpers::GetPatrolTarget(pUnit->plot(),pUnit->getOwner(),37);
-			if(pTarget && pUnit->GeneratePath(pTarget,CvUnit::MOVEFLAG_APPROXIMATE_TARGET,23))
+			CvPlot* pTarget = HomelandAIHelpers::GetPatrolTarget(pUnit.pointer());
+			if(pTarget)
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -1795,7 +1795,8 @@ void CvHomelandAI::PlotPatrolMoves()
 					LogHomelandMessage(strLogString);
 				}
 
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROXIMATE_TARGET);
+				//use the exact target location - GetPatrolTarget makes sure there is a free spot
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
 				pUnit->finishMoves();
 				UnitProcessed(pUnit->GetID());
 			}
@@ -3139,7 +3140,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 		
 		//first check our immediate neighborhood (ie the tiles we can reach within one turn)
 		ReachablePlots eligiblePlots;
-		TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(), pUnit->plot(), eligiblePlots, true, true, false);
+		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit.pointer(), pUnit->plot(), eligiblePlots, true, true, false);
 		for (ReachablePlots::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
 		{
 			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->iPlotIndex);
@@ -4834,7 +4835,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
 			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
 			ReachablePlots reachablePlots;
-			TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
+			TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
 			for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
 				CvPlot* pCandidate = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -4902,7 +4903,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
 			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
 			ReachablePlots reachablePlots;
-			TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
+			TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
 			for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
 
@@ -4989,7 +4990,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		if( pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE || 
-			(pUnit->IsCityAttackSupport() && pUnit->canRecruitFromTacticalAI() && ((pUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS()) < GC.getGame().getGameTurn())) )
+			(pUnit->IsCityAttackSupport() && pUnit->canRecruitFromTacticalAI() && !pUnit->IsRecentlyDeployedFromOperation()))
 		{
 			int iUnitLoop = 0;
 			int iTotalGenerals = 0;
@@ -6211,7 +6212,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 {
 	WeightedPlotVector aBestPlotList;
 	ReachablePlots reachablePlots;
-	TacticalAIHelpers::GetAllPlotsInReach(pUnit,pUnit->plot(),reachablePlots,true,true,true);
+	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),reachablePlots,true,true,true);
 	for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 	{
 		{
@@ -7877,30 +7878,24 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 
 
 //check all tactical zones to find the one we need to support most 
-CvPlot* HomelandAIHelpers::GetPatrolTarget(CvPlot* pOriginPlot, PlayerTypes ePlayer, int iRange)
+CvPlot* HomelandAIHelpers::GetPatrolTarget(CvUnit* pUnit, int nTargetsToCheck)
 {
-	if (!pOriginPlot || iRange<0)
-		return false;
+	if (!pUnit)
+		return NULL;
 
-	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
 	const std::vector<PlayerTypes>& vFutureEnemies = kPlayer.GetPlayersAtWarWithInFuture();
 	CvTacticalAnalysisMap* pTactMap = GC.getGame().GetTacticalAnalysisMap();
 
-	CvPlot* pBestTarget = 0;
-	int iBestScore = 0;
-	int iScore = 0;
+	std::vector<SPlotWithScore> vTargets;
 	for(int iI = 0; iI < pTactMap->GetNumZones(); iI++)
 	{
 		CvTacticalDominanceZone* pZone = pTactMap->GetZone(iI);
-		if (!pZone || pZone->GetOwner()!=ePlayer)
+		if (!pZone || pZone->GetOwner()!=pUnit->getOwner())
 			continue;
 
 		CvCity* pZoneCity = pZone->GetZoneCity();
 		if (!pZoneCity)
-			continue;
-
-		int iDistance = plotDistance(*pOriginPlot,*pZoneCity->plot());
-		if (iDistance>iRange)
 			continue;
 
 		int iFriendlyPower = pZone->GetFriendlyStrength();
@@ -7914,7 +7909,7 @@ CvPlot* HomelandAIHelpers::GetPatrolTarget(CvPlot* pOriginPlot, PlayerTypes ePla
 				continue;
 
 			//some base strength for zones with low visibility
-			if (pOtherZone->GetOwner()!=ePlayer)
+			if (pOtherZone->GetOwner()!=pUnit->getOwner())
 				iEnemyPower += 2000;
 
 			if (std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
@@ -7927,23 +7922,33 @@ CvPlot* HomelandAIHelpers::GetPatrolTarget(CvPlot* pOriginPlot, PlayerTypes ePla
 			iFriendlyPower =+ pOtherZone->GetFriendlyStrength();
 		}
 
-		iScore = (iEnemyPower*1000)/max(1,iFriendlyPower*iDistance) * MapToPercent(iDistance,iRange,iRange/2);
-		if (iScore>iBestScore)
-		{
-			iBestScore = iScore;
-			pBestTarget = pZoneCity->plot();
-		}
+		int iDistance = plotDistance( *pUnit->plot(), *pZoneCity->plot() );
+		int iScore = (iEnemyPower*1000)/max(1,iFriendlyPower) * MapToPercent(iDistance,42,23);
+		vTargets.push_back( SPlotWithScore(pZoneCity->plot(),iScore) );
 	}
 
-	if (!pBestTarget)
-		return NULL;
+	//sort descending!
+	std::sort( vTargets.begin(), vTargets.end() );
+	std::reverse( vTargets.begin(), vTargets.end() );
 
-	//try not to create a unit carpet without any space to move
-	for(int iJ = 0; iJ < RING5_PLOTS; iJ++)
+	ReachablePlots reachablePlots;
+	SPathFinderUserData data(pUnit,0,12);
+	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+	reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
+
+	for (size_t i=0; i<MIN(vTargets.size(),(size_t)nTargetsToCheck); i++)
 	{
-		CvPlot* pLoopPlot = iterateRingPlots(pBestTarget, iJ);
-		if (pLoopPlot->isValidMovePlot(ePlayer) && !pLoopPlot->isWater() && pLoopPlot->GetNumFriendlyUnitsAdjacent(GET_PLAYER(ePlayer).getTeam(),DOMAIN_LAND)<4)
-			return pLoopPlot;
+		SMovePlot dummy(vTargets[i].pPlot->GetPlotIndex(),0,0);
+		if (reachablePlots.find(dummy)!=reachablePlots.end())
+		{
+			//try not to create a unit carpet without any space to move
+			for(int iJ = 0; iJ < RING5_PLOTS; iJ++)
+			{
+				CvPlot* pLoopPlot = iterateRingPlots(vTargets[i].pPlot, iJ);
+				if (pUnit->canMoveInto(*vTargets[i].pPlot) && pLoopPlot->getDomain()==pUnit->getDomainType() && pLoopPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(),NO_DOMAIN)<4)
+					return pLoopPlot;
+			}
+		}
 	}
 
 	return NULL;

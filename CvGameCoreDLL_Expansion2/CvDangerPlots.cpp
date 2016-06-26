@@ -98,7 +98,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 
 	//use the worst case assumption here, no ZOC (all intervening units have been killed)
 	ReachablePlots reachablePlots;
-	TacticalAIHelpers::GetAllPlotsInReach(pLoopUnit,pLoopUnit->plot(),reachablePlots,true,false,false,iMinMovesLeft);
+	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit,pLoopUnit->plot(),reachablePlots,true,false,false,iMinMovesLeft);
 
 	if (pLoopUnit->IsCanAttackRanged())
 	{

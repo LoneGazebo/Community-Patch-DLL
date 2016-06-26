@@ -41617,11 +41617,9 @@ void CvPlayer::updatePlotFoundValues()
 		if (iRefValue < iGoodEnoughToBeWorthOurTime)
 			continue;
 
-		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
-		for (int iCount = 0; iCount<NUM_DIRECTION_TYPES; iCount++)
+		for (int iCount = RING0_PLOTS; iCount<RING3_PLOTS; iCount++)
 		{
-			CvPlot* pLoopPlot = aPlotsToCheck[iCount];
-
+			CvPlot* pLoopPlot = iterateRingPlots(pPlot,iCount);
 			if (pLoopPlot == NULL)
 				continue;
 
@@ -41638,7 +41636,9 @@ void CvPlayer::updatePlotFoundValues()
 			CvArea* pLoopArea = GC.getMap().getArea(pPlot->getArea());
 			if (pLoopArea && !pLoopArea->isWater() && (pLoopArea->getNumTiles() > 0))
 			{
-				int newValue = pLoopArea->getTotalFoundValue() + iRefValue;
+				//one supercity counts more than two mediocre ones
+				int iAddValue = (int)pow((float)iRefValue-iGoodEnoughToBeWorthOurTime,1.5f);
+				int newValue = pLoopArea->getTotalFoundValue() + iAddValue;
 				pLoopArea->setTotalFoundValue(newValue);
 			}
 		}

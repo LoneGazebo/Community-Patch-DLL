@@ -448,8 +448,12 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 		}
 	}
 
+	ReachablePlots turnsFromMuster;
+	SPathFinderUserData data(m_eOwner,PT_GENERIC_REACHABLE_PLOTS,-1,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
+	turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
+
 	int iDistance = 1000;
-	if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,pMusterPlot,pTargetPlot,IsNavalOperation(),bMustBeDeepWaterNaval,iDistance))
+	if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,pMusterPlot,turnsFromMuster,pTargetPlot,IsNavalOperation(),bMustBeDeepWaterNaval,iDistance))
 	{
 		std::deque<OperationSlot>::iterator it;
 		for(it = m_viListOfUnitsWeStillNeedToBuild.begin(); it != m_viListOfUnitsWeStillNeedToBuild.end(); ++it)
@@ -516,12 +520,16 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 		data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
 		if (GC.GetStepFinder().DoesPathExist(pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY(), data))
 		{
+			ReachablePlots turnsFromMuster;
+			SPathFinderUserData data(m_eOwner,PT_GENERIC_REACHABLE_PLOTS,-1,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
+			turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
+
 			WeightedUnitIdVector UnitChoices;
 			int iLoop = 0;
 			for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 			{
 				int iDistance = 1000;
-				if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,pTargetPlot,true,bMustBeDeepWaterNaval,iDistance))
+				if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,turnsFromMuster,pTargetPlot,true,bMustBeDeepWaterNaval,iDistance))
 				{
 					// When in doubt prefer units in our own territory
 					if (pLoopUnit->plot() && pLoopUnit->plot()->getOwner() != m_eOwner)
@@ -583,12 +591,16 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 	}
 	else
 	{
+		ReachablePlots turnsFromMuster;
+		SPathFinderUserData data(m_eOwner,PT_GENERIC_REACHABLE_PLOTS,-1,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
+		turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
+
 		WeightedUnitIdVector UnitChoices;
 		int iLoop = 0;
 		for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 		{
 			int iDistance = 1000;
-			if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,pTargetPlot,false,false,iDistance))
+			if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,turnsFromMuster,pTargetPlot,false,false,iDistance))
 			{
 				// When in doubt prefer units in our own territory
 				if (pLoopUnit->plot() && pLoopUnit->plot()->getOwner() != m_eOwner)
@@ -3608,7 +3620,8 @@ bool OperationalAIHelpers::IsSlotRequired(PlayerTypes ePlayer, const OperationSl
 	return false;
 }
 
-bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iDistance)
+bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, const ReachablePlots& turnsFromMuster, 
+														CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iDistance)
 {
 	if (!pLoopUnit->canRecruitFromTacticalAI() || pLoopUnit->getArmyID() != -1)
 		return false;
@@ -3631,7 +3644,7 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 		*/
 		return false;
 	}
-	if (pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+	if (pLoopUnit->IsRecentlyDeployedFromOperation())
 	{
 		/*
 		if (GC.getLogging() && GC.getAILogging())
@@ -3727,9 +3740,9 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	if (iDistance==INT_MAX)
 	{
 		// finally, if the unit is too far away, no deal
-		int iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
-		iDistance = pLoopUnit->TurnsToReachTarget(pMusterPlot,iFlags,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
-		if (iDistance == INT_MAX)
+		SMovePlot dummy(pLoopUnit->plot()->GetPlotIndex(),0,0);
+		ReachablePlots::const_iterator it = turnsFromMuster.find(dummy);
+		if (it==turnsFromMuster.end())
 		{
 			/*/
 			if (GC.getLogging() && GC.getAILogging())
@@ -3740,6 +3753,11 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 			}
 			*/
 			return false;
+		}
+		else
+		{
+			iDistance = it->iTurns;
+			return true;
 		}
 	}
 

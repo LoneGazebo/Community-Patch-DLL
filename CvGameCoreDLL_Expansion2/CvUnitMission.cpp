@@ -628,7 +628,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 					}
 
 					//only non-air units use the path cache
-					if (!hUnit->UpdatePathCache(pDestPlot, kMissionData.iFlags))
+					if (!hUnit->VerifyCachedPath(pDestPlot, kMissionData.iFlags, INT_MAX))
 					{
 						hUnit->ClearMissionQueue();
 						return;
@@ -1456,9 +1456,6 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 	bDelete = false;
 	bAction = false;
 	bNotify = false;
-
-	//important!
-	hUnit->ClearPathCache();
 
 	const MissionData* pkQueueData = GetHeadMissionData(hUnit);
 	if(!hUnit->CanStartMission(pkQueueData->eMissionType, pkQueueData->iData1, pkQueueData->iData2, hUnit->plot()))

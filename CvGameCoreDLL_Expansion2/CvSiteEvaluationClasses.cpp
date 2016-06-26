@@ -493,7 +493,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 					// for the central plot
 					if (iDistance==0)
-						vQualifiersPositive.push_back( CvString::format("raw plot value %d", iPlotValue).c_str() );
+						if (pDebug) vQualifiersPositive.push_back( CvString::format("raw plot value %d", iPlotValue).c_str() );
 
 					if (iDistance==1 && !pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && pLoopPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 						bIsAlmostCoast = true;
@@ -512,7 +512,6 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 					// some civ-specific checks
 					FeatureTypes ePlotFeature = pLoopPlot->getFeatureType();
 					ImprovementTypes ePlotImprovement = pLoopPlot->getImprovementType();
-					ResourceTypes ePlotResource = pLoopPlot->getResourceType();
 
 					if (ePlotFeature == FEATURE_FOREST)
 					{
@@ -562,7 +561,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 					{
 						if (iDistance <= iRange)
 						{
-							if (ePlotResource == NO_RESOURCE)
+							if (pLoopPlot->getRouteType() == NO_RESOURCE)
 							{
 								++iDesertCount;
 							}
@@ -578,7 +577,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 							{
 								//give the bonus if it's hills, with additional if bordered by mountains
 								iCivModifier += (iAdjacentMountains+1) * m_iIncaMultiplier;
-								vQualifiersPositive.push_back("(C) incan hills");
+								if (pDebug) vQualifiersPositive.push_back("(C) incan hills");
 							}
 						}
 					}
@@ -607,23 +606,23 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			if (iCelticForestCount >= 3)
 			{
 				iCivModifier += 2 * 1000 * m_iFlavorMultiplier[YIELD_FAITH];
-				vQualifiersPositive.push_back("(C) much forest");
+				if (pDebug) vQualifiersPositive.push_back("(C) much forest");
 			}
 			else if (iCelticForestCount >= 1)
 			{
 				iCivModifier += 1 * 1000 * m_iFlavorMultiplier[YIELD_FAITH];
-				vQualifiersPositive.push_back("(C) some forest");
+				if (pDebug) vQualifiersPositive.push_back("(C) some forest");
 			}
 		}
 		else if (pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus())
 		{
 			iCivModifier += iIroquoisForestCount * 10;	
-			vQualifiersPositive.push_back("(C) forested");
+			if (pDebug) vQualifiersPositive.push_back("(C) forested");
 		}
 		else if (pPlayer->GetPlayerTraits()->GetNaturalWonderYieldModifier() > 0)	//ie: Spain
 		{
 			iCivModifier += iNaturalWonderCount * m_iSpainMultiplier;	
-			vQualifiersPositive.push_back("(C) natural wonders");
+			if (pDebug) vQualifiersPositive.push_back("(C) natural wonders");
 		}
 
 		// Custom code for Brazil
@@ -637,7 +636,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 				if(eCiv == pPlayer->getCivilizationType())
 				{
 					iCivModifier += iBrazilJungleCount * m_iBrazilMultiplier;
-					vQualifiersPositive.push_back("(C) jungle");
+					if (pDebug) vQualifiersPositive.push_back("(C) jungle");
 				}
 			}
 		}
@@ -653,7 +652,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 				if(eCiv == pPlayer->getCivilizationType())
 				{
 					iCivModifier += iDesertCount * m_iMorrocoMultiplier;
-					vQualifiersPositive.push_back("(C) desert");
+					if (pDebug) vQualifiersPositive.push_back("(C) desert");
 				}
 			}
 		}
@@ -669,7 +668,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 				if(eCiv == pPlayer->getCivilizationType())
 				{
 					iCivModifier += iLuxuryCount * m_iFranceMultiplier;
-					vQualifiersPositive.push_back("(C) luxury");
+					if (pDebug) vQualifiersPositive.push_back("(C) luxury");
 				}
 			}
 		}
@@ -689,7 +688,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 					{
 						iCivModifier += (iLakeCount * m_iNetherlandsMultiplier);
 					}
-					vQualifiersPositive.push_back("(C) wetlands");
+					if (pDebug) vQualifiersPositive.push_back("(C) wetlands");
 				}
 			}
 		}
@@ -699,19 +698,19 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	if (pPlot->getResourceType(eTeam) != NO_RESOURCE)
 	{
 		iValueModifier += (int)iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT() / 100;
-		vQualifiersNegative.push_back("(V) city on resource");
+		if (pDebug) vQualifiersNegative.push_back("(V) city on resource");
 	}
 
 	if (pPlot->IsNaturalWonder())
 	{
 		iValueModifier += (int)iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT() / 100;
-		vQualifiersNegative.push_back("(V) city on natural wonder");
+		if (pDebug) vQualifiersNegative.push_back("(V) city on natural wonder");
 	}
 
 	if ( iTotalFoodValue>5*iTotalProductionValue || iTotalProductionValue > 2*iTotalFoodValue )
 	{
 		iValueModifier -= (int)iTotalPlotValue * 10 / 100;
-		vQualifiersNegative.push_back("(V) unbalanced yields");
+		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields");
 	}
 
 	if (pPlot->isRiver())
@@ -719,13 +718,13 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100;
 		if(pPlayer && pPlayer->GetPlayerTraits()->IsRiverTradeRoad())
 			iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100 * 2;
-		vQualifiersPositive.push_back("(V) river");
+		if (pDebug) vQualifiersPositive.push_back("(V) river");
 	}
 
 	if (bIsAlmostCoast)
 	{
 		iValueModifier -= (iTotalPlotValue * 25) / 100;
-		vQualifiersNegative.push_back("(V) almost coast");
+		if (pDebug) vQualifiersNegative.push_back("(V) almost coast");
 	}
 
 	CvArea* pArea = pPlot->area();
@@ -743,7 +742,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			if(pArea != NULL && iGoodTiles > 0)
 			{
 				iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
-				vQualifiersPositive.push_back("(V) coast");
+				if (pDebug) vQualifiersPositive.push_back("(V) coast");
 
 				if (pPlayer)
 				{
@@ -764,12 +763,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			if(iGoodTiles <= 3)
 			{
 				iValueModifier -= (iTotalPlotValue * 40) / 100;
-				vQualifiersNegative.push_back("(V) not enough good plots");
+				if (pDebug) vQualifiersNegative.push_back("(V) not enough good plots");
 			}
 			else if(iGoodTiles <= 6)
 			{
 				iValueModifier -= (iTotalPlotValue * 20) / 100;
-				vQualifiersNegative.push_back("(V) few good plots");
+				if (pDebug) vQualifiersNegative.push_back("(V) few good plots");
 			}
 		}
 	}
@@ -780,7 +779,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			if(pArea != NULL && iGoodTiles > 3)
 			{
 				iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
-				vQualifiersPositive.push_back("(V) coast");
+				if (pDebug) vQualifiersPositive.push_back("(V) coast");
 
 				if (pPlayer)
 				{
@@ -798,12 +797,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			else if(pArea != NULL && iGoodTiles == 1)
 			{
 				iValueModifier -= (iTotalPlotValue * 40) / 100;
-				vQualifiersNegative.push_back("(V) coast on 1-tile island is not great");
+				if (pDebug) vQualifiersNegative.push_back("(V) coast on 1-tile island is not great");
 			}
 			else
 			{
 				iValueModifier -= (iTotalPlotValue * 25) / 100;
-				vQualifiersNegative.push_back("(V) coast on small island");
+				if (pDebug) vQualifiersNegative.push_back("(V) coast on small island");
 			}
 		}
 		else
@@ -811,12 +810,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			if(iGoodTiles <= 5)
 			{
 				iValueModifier -= (iTotalPlotValue * 40) / 100;
-				vQualifiersNegative.push_back("(V) not enough good plots");
+				if (pDebug) vQualifiersNegative.push_back("(V) not enough good plots");
 			}
 			else if(iGoodTiles <= 10)
 			{
 				iValueModifier -= (iTotalPlotValue * 20) / 100;
-				vQualifiersNegative.push_back("(V) few good plots");
+				if (pDebug) vQualifiersNegative.push_back("(V) few good plots");
 			}
 		}
 	}
@@ -825,13 +824,13 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	if(pPlot->IsChokePoint())
 	{
 		iStratModifier += (iTotalPlotValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE()) / 100;
-		vQualifiersPositive.push_back("(S) chokepoint");
+		if (pDebug) vQualifiersPositive.push_back("(S) chokepoint");
 
 		//each landbride is a chokepoint, but not every chokepoint is a landbridge
 		if(pPlot->IsLandbridge(12,54))
 		{
 			iStratModifier += (iTotalPlotValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE()) / 100;
-			vQualifiersPositive.push_back("(S) landbridge");
+			if (pDebug) vQualifiersPositive.push_back("(S) landbridge");
 		}
 	}
 
@@ -843,6 +842,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	CvCity* pClosestCity = GC.getGame().GetClosestCity(pPlot);
 	if( pClosestCity && (!pPlayer || pClosestCity->getOwner()!=pPlayer->GetID()) )
 	{
+		//this includes minors
 		iOtherCityDistance = GC.getGame().GetClosestCityDistance(pPlot);
 
 		PlayerTypes eOtherPlayer = (PlayerTypes) pClosestCity->getOwner();
@@ -850,16 +850,38 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if(eProximity >= PLAYER_PROXIMITY_CLOSE && iOtherCityDistance<=iBorderlandRange)
 		{
 			//Neighbor must not be too strong
-			if ( pPlayer->GetMilitaryMight() > GET_PLAYER(eOtherPlayer).GetMilitaryMight()*1.4f )
+			if ( pPlayer->GetMilitaryMight() > GET_PLAYER(eOtherPlayer).GetMilitaryMight()*1.2f )
 			{
 				iStratModifier += (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
-				vQualifiersPositive.push_back("(S) landgrab");
+				if (pDebug) vQualifiersPositive.push_back("(S) landgrab");
 			}
 			else if ( pPlayer->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight()*0.8f )
 			{
 				iStratModifier -= (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
-				vQualifiersNegative.push_back("(S) too dangerous");
+				if (pDebug) vQualifiersNegative.push_back("(S) too dangerous");
 			}
+		}
+	}
+
+	//check if this location can be defended ...
+	std::vector< std::pair<int,int> > vNeighboringMajors; 
+	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+	{
+		CvPlayer& kNeighbor = GET_PLAYER((PlayerTypes)i);
+		if (kNeighbor.isAlive() && i!=pPlayer->GetID())
+			vNeighboringMajors.push_back( std::make_pair(kNeighbor.GetCityDistance(pPlot),i) );
+	}
+	//sort ascending
+	std::sort(vNeighboringMajors.begin(),vNeighboringMajors.end());
+	//if the neighbor is much closer then we are
+	if (!vNeighboringMajors.empty() && vNeighboringMajors.front().first < iOwnCityDistance)
+	{
+		int iBoldness = pPlayer->GetDiplomacyAI()->GetBoldness();
+		float fThreshold = 1.5f - iBoldness*0.1f;
+		if ( pPlayer->GetMilitaryMight() < GET_PLAYER( (PlayerTypes)vNeighboringMajors.front().second ).GetMilitaryMight()*fThreshold )
+		{
+			iStratModifier -= (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
+			if (pDebug) vQualifiersNegative.push_back("(S) cannot defend");
 		}
 	}
 
@@ -881,7 +903,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	{
 		//this case should be handled by the distance check in CanFound() also
 		iValueModifier -= iTotalPlotValue / 2;
-		vQualifiersNegative.push_back("(V) too close to existing friendly city");
+		if (pDebug) vQualifiersNegative.push_back("(V) too close to existing friendly city");
 	}
 
 	// AI only
@@ -922,7 +944,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (min(iOwnCityDistance,iOtherCityDistance) >= iSweetMin && max(iOwnCityDistance,iOtherCityDistance) <= iSweetMax) 
 		{
 			iValueModifier += (iTotalPlotValue*20)/100; //make this a small bonus, there is a separate distance check anyway
-			vQualifiersPositive.push_back("(V) optimal distance to existing cities");
+			if (pDebug) vQualifiersPositive.push_back("(V) optimal distance to existing cities");
 		}
 
 		//boldness comes into play when there are enemy cities around
@@ -935,7 +957,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (iOtherCityDistance<=iSweetMin)
 		{
 			iStratModifier -= iTotalPlotValue / 2;
-			vQualifiersNegative.push_back("(S) too close to existing enemy city");
+			if (pDebug) vQualifiersNegative.push_back("(S) too close to existing enemy city");
 		}
 	}
 

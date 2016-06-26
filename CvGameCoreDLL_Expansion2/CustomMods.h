@@ -1188,7 +1188,7 @@ enum BattleTypeTypes
 //to help debug errors
 void CheckSentinel(uint);
 
-#define MOD_SERIALIZE_INIT_READ_NO_SENTINEL(stream) uint uiDllSaveVersion, uiSentinel; stream >> uiDllSaveVersion;
+#define MOD_SERIALIZE_INIT_READ_NO_SENTINEL(stream) uint uiDllSaveVersion; stream >> uiDllSaveVersion;
 #define MOD_SERIALIZE_INIT_READ(stream) uint uiDllSaveVersion, uiSentinel; stream >> uiDllSaveVersion; stream >> uiSentinel; CheckSentinel(uiSentinel);
 #define MOD_SERIALIZE_READ(version, stream, member, def) if (uiDllSaveVersion >= version) { stream >> member; } else { member = def; }
 #define MOD_SERIALIZE_READ_AUTO(version, stream, member, size, def)   \

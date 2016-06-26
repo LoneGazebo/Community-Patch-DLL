@@ -448,7 +448,7 @@ bool CvHomelandUnitAuxIntReverseSort(const CvHomelandUnit& obj1, const CvHomelan
 
 int ScoreAirBase(CvPlot* pAirBasePlot, PlayerTypes ePlayer, int iRange);
 bool IsGoodUnitMix(CvPlot* pAirBasePlot, CvUnit* pUnit);
-CvPlot* GetPatrolTarget(CvPlot* pOriginPlot, PlayerTypes ePlayer, int iRange);
+CvPlot* GetPatrolTarget(CvUnit* pUnit, int nTargetsToCheck = 5);
 
 }
 
