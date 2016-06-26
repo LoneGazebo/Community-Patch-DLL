@@ -719,7 +719,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 				yieldChange = yieldChange + city:GetReligionBuildingYieldRateModifier(buildingClassID, yieldID)
 				
 				if (city) then
-					local corporatechange = city:GetBuildingYieldChangeFromCorporationFranchise(buildingClassID, yieldID)
+					local corporatechange = city:GetBuildingYieldChangeFromCorporationFranchises(buildingClassID, yieldID)
 					if(corporatechange > 0) then
 						yieldChange = yieldChange + corporatechange
 					end

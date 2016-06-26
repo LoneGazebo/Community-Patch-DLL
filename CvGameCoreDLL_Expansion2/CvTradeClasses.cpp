@@ -1931,38 +1931,42 @@ void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeC
 	int iOriginX,iOriginY;
 	PlayerTypes eOriginPlayer;
 
+	auto_ptr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
+	CvUnit* pkSelectedUnit = GC.UnwrapUnitPointer(pSelectedUnit.get());
+	CvAssert(pkSelectedUnit != NULL);
+	if (pkSelectedUnit)
 	{
-		auto_ptr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
-		CvUnit* pkSelectedUnit = GC.UnwrapUnitPointer(pSelectedUnit.get());
-		CvAssert(pkSelectedUnit != NULL);
-		if (pkSelectedUnit)
-		{
-			iOriginX = pkSelectedUnit->getX();
-			iOriginY = pkSelectedUnit->getY();
-			eOriginPlayer = pkSelectedUnit->getOwner();
-		}
-		else
-		{
-			return;
-		}
+		iOriginX = pkSelectedUnit->getX();
+		iOriginY = pkSelectedUnit->getY();
+		eOriginPlayer = pkSelectedUnit->getOwner();
 	}
-
-	SPathFinderUserData data(eOriginPlayer, eDomain==DOMAIN_LAND ? PT_TRADE_LAND : PT_TRADE_WATER);
-	SPath path = GC.GetStepFinder().GetPath(iOriginX, iOriginY, iDestX, iDestY, data);
+	else
+	{
+		return;
+	}
 
 	gDLL->TradeVisuals_DestroyRoute(TEMPORARY_POPUPROUTE_ID,GC.getGame().getActivePlayer());
 
-	size_t n = path.vPlots.size();
-	if (n>0 && n<=MAX_PLOTS_TO_DISPLAY)
+	SPath path;
+	CvPlot* pOriginPlot = GC.getMap().plot(iOriginX, iOriginY);
+	CvPlot* pDestPlot = GC.getMap().plot(iDestX, iDestY);
+	if (pOriginPlot && pDestPlot && pOriginPlot->isCity() && pDestPlot->isCity())
 	{
-		int plotsX[MAX_PLOTS_TO_DISPLAY], plotsY[MAX_PLOTS_TO_DISPLAY];
-		for (size_t i=0;i<n;++i)
+		if (HavePotentialTradePath(eDomain==DOMAIN_SEA,pOriginPlot->getPlotCity(),pDestPlot->getPlotCity(),&path))
 		{
-			plotsX[i] = path.vPlots[i].x;
-			plotsY[i] = path.vPlots[i].y;
+			size_t n = path.vPlots.size();
+			if (n>0 && n<=MAX_PLOTS_TO_DISPLAY)
+			{
+				int plotsX[MAX_PLOTS_TO_DISPLAY], plotsY[MAX_PLOTS_TO_DISPLAY];
+				for (size_t i=0;i<n;++i)
+				{
+					plotsX[i] = path.vPlots[i].x;
+					plotsY[i] = path.vPlots[i].y;
+				}
+				gDLL->TradeVisuals_NewRoute(TEMPORARY_POPUPROUTE_ID,eOriginPlayer,type,n,plotsX,plotsY);
+				gDLL->TradeVisuals_ActivatePopupRoute(TEMPORARY_POPUPROUTE_ID);
+			}
 		}
-		gDLL->TradeVisuals_NewRoute(TEMPORARY_POPUPROUTE_ID,eOriginPlayer,type,n,plotsX,plotsY);
-		gDLL->TradeVisuals_ActivatePopupRoute(TEMPORARY_POPUPROUTE_ID);
 	}
 
 	m_CurrentTemporaryPopupRoute.iPlotX = iDestX;

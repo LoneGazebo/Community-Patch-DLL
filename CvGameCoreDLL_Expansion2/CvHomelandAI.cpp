@@ -1535,6 +1535,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 			}
 		}
 	}
+	PossibleSettlerUnits.clear();
 }
 #endif
 
@@ -1782,8 +1783,8 @@ void CvHomelandAI::PlotPatrolMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && pUnit->IsCombatUnit() && pUnit->getDomainType() != DOMAIN_AIR)
 		{
-			CvPlot* pTarget = HomelandAIHelpers::GetPatrolTarget(pUnit->plot(),pUnit->getOwner(),23);
-			if(pTarget && pUnit->GeneratePath(pTarget,CvUnit::MOVEFLAG_APPROXIMATE_TARGET,10))
+			CvPlot* pTarget = HomelandAIHelpers::GetPatrolTarget(pUnit->plot(),pUnit->getOwner(),37);
+			if(pTarget && pUnit->GeneratePath(pTarget,CvUnit::MOVEFLAG_APPROXIMATE_TARGET,23))
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -6407,7 +6408,11 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 		for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
+#if defined(MOD_BALANCE_CORE)
+			if(!pUnit || !pUnit->canMove() || pUnit->TurnProcessed() || pUnit->IsAutomated())
+#else
 			if(!pUnit || !pUnit->canMove())
+#endif
 				continue;
 
 			if (aTradeConnections[ui].m_eDomain != pUnit->getDomainType())
@@ -7912,15 +7917,22 @@ CvPlot* HomelandAIHelpers::GetPatrolTarget(CvPlot* pOriginPlot, PlayerTypes ePla
 			CvTacticalDominanceZone* pOtherZone = pTactMap->GetZoneByID( vNeighborZones[i] );
 			if (!pOtherZone)
 				continue;
-			
+
+			//some base strength for zones with low visibility
+			if (pOtherZone->GetOwner()!=ePlayer)
+				iEnemyPower += 2000;
+
 			if (std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
 				iEnemyPower += pOtherZone->GetNeutralStrength();
 
-			iEnemyPower += pOtherZone->GetEnemyStrength();
+			//different domain counts less
+			int iScale = (pOtherZone->IsWater() != pZone->IsWater()) ? 3 : 1;
+			iEnemyPower += pOtherZone->GetEnemyStrength() / iScale;
+
 			iFriendlyPower =+ pOtherZone->GetFriendlyStrength();
 		}
 
-		iScore = (iEnemyPower*1000)/max(1,iFriendlyPower*iDistance);
+		iScore = (iEnemyPower*1000)/max(1,iFriendlyPower*iDistance) * MapToPercent(iDistance,iRange,iRange/2);
 		if (iScore>iBestScore)
 		{
 			iBestScore = iScore;

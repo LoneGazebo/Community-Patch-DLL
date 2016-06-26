@@ -580,6 +580,7 @@ void CheckSentinel(uint value)
 		{
 			gStackWalker.SetLog(pLog);
 			gStackWalker.ShowCallstack();
+			pLog->Msg("\r\n");
 		}
 	}
 #endif

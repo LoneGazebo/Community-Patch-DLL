@@ -188,10 +188,6 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		{
 			iTempWeight *= 10;
 		}
-		else
-		{
-			iTempWeight *= 2;
-		}
 	}
 	VictoryTypes ePrereqVictory = (VictoryTypes)pkProjectInfo->GetVictoryPrereq();
 	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);

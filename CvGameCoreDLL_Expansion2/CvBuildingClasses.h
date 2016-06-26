@@ -989,7 +989,11 @@ public:
 #else
 	int GetNumGreatWorks() const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot, bool bArtifact = false, bool bArt = false) const;
+#else
 	int GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const;
+#endif
 
 	int GetLandmarksTourismPercent() const;
 	void ChangeLandmarksTourismPercent(int iChange);

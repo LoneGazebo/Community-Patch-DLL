@@ -333,6 +333,7 @@ CvCity::CvCity() :
 	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiBaseYieldRateFromCSAlliance", m_syncArchive)
 	, m_aiBaseYieldRateFromCSFriendship("CvCity::m_aiBaseYieldRateFromCSFriendship", m_syncArchive)
 	, m_aiResourceQuantityPerXFranchises("CvCity::m_aiResourceQuantityPerXFranchises", m_syncArchive)
+	, m_aiYieldChangeFromCorporationFranchises("CvCity::m_aiYieldChangeFromCorporationFranchises", m_syncArchive)
 	, m_iLandTourismBonus("CvCity::m_iLandTourismBonus", m_syncArchive)
 	, m_iSeaTourismBonus("CvCity::m_iSeaTourismBonus", m_syncArchive)
 	, m_iAlwaysHeal("CvCity::m_iAlwaysHeal", m_syncArchive)
@@ -796,7 +797,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		{
 			iHandicap = pHandicapInfo->getAIDifficultyBonus();
 			iHandicap *= iEra;
-			iHandicap /= max(1, owningPlayer.getNumCities());
 		}
 		if(iHandicap > 0)
 		{	
@@ -1604,12 +1604,18 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_abYieldRankValid.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRank.resize(NUM_YIELD_TYPES);
 	m_aiYieldRank.resize(NUM_YIELD_TYPES);
+#if defined(MOD_BALANCE_CORE)
+	m_aiYieldChangeFromCorporationFranchises.resize(NUM_YIELD_TYPES);
+#endif
 	for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		m_abBaseYieldRankValid.setAt(iI, false);
 		m_abYieldRankValid.setAt(iI, false);
 		m_aiBaseYieldRank.setAt(iI, -1);
 		m_aiYieldRank.setAt(iI, -1);
+#if defined(MOD_BALANCE_CORE)
+		m_aiYieldChangeFromCorporationFranchises.setAt(iI, 0);
+#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	m_abOwedChosenBuilding.resize(GC.getNumBuildingClassInfos());
@@ -3579,7 +3585,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	}
 	
 	//Don't do choice ones in MP
-	bool bDontShowRewardPopup = (GC.GetEngineUserInterface()->IsOptionNoRewardPopups() || GC.getGame().isReallyNetworkMultiPlayer());
+	bool bDontShowRewardPopup = (GC.getGame().isReallyNetworkMultiPlayer());
 
 	if(pkEventInfo->getNumChoices() > 1 && bDontShowRewardPopup)
 		return false;
@@ -4495,7 +4501,6 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 							BuildingTypes eBuildingType = (BuildingTypes) pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
 							if(eBuildingType != NO_BUILDING)
 							{
-								GetCityBuildings()->SetNumFreeBuilding(eBuildingType, 0);
 								GetCityBuildings()->SetNumRealBuilding(eBuildingType, 0);
 								bChanged = true;
 							}
@@ -4862,8 +4867,13 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 				{
 					localizedSpecialistText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED_SPECIALIST");
 				}
-				localizedSpecialistText << pkSpecialistInfo->GetDescription();
-				localizedSpecialistText << iValue;
+
+				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+				if(pkUnitClassInfo)
+				{
+					localizedSpecialistText << pkUnitClassInfo->GetDescription();
+					localizedSpecialistText << iValue;
+				}
 
 				const char* const localized = localizedSpecialistText.toUTF8();
 				if(localized)
@@ -5065,7 +5075,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 							BuildingTypes eBuildingType = (BuildingTypes) pCivilizationInfo->getCivilizationBuildings(eBuildingClass);
 							if(eBuildingType != NO_BUILDING)
 							{
-								GetCityBuildings()->SetNumFreeBuilding(eBuildingType, 1);
+								GetCityBuildings()->SetNumRealBuilding(eBuildingType, 1);
 							}
 						}
 					}
@@ -9498,18 +9508,21 @@ int CvCity::getProductionNeeded(BuildingTypes eBuilding) const
 	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && eBuilding != NO_BUILDING)
 	{
 		CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuilding);
-		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
-		if(IsBuildingInvestment(eBuildingClass))
+		if(pGameBuilding)
 		{
-			int iTotalDiscount = (/*-50*/ GC.getBALANCE_BUILDING_INVESTMENT_BASELINE() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(getOwner()).GetInvestmentModifier());
-			const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
-			if(::isWorldWonderClass(kBuildingClassInfo))
-
+			const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
+			if(eBuildingClass != NO_BUILDINGCLASS && IsBuildingInvestment(eBuildingClass))
 			{
-				iTotalDiscount /= 2;
+				int iTotalDiscount = (/*-50*/ GC.getBALANCE_BUILDING_INVESTMENT_BASELINE() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(getOwner()).GetInvestmentModifier());
+				const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
+				if(::isWorldWonderClass(kBuildingClassInfo))
+
+				{
+					iTotalDiscount /= 2;
+				}
+				iNumProductionNeeded *= (iTotalDiscount + 100);
+				iNumProductionNeeded /= 100;
 			}
-			iNumProductionNeeded *= (iTotalDiscount + 100);
-			iNumProductionNeeded /= 100;
 		}
 	}
 #endif
@@ -11615,6 +11628,18 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #endif
 							pFreeUnit = owningPlayer.initUnit(eFreeUnitType, getX(), getY());
 #if defined(MOD_BALANCE_CORE)
+							if(pFreeUnit && pFreeUnit->isTrade())
+							{
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									CvString strCiv = GET_PLAYER(getOwner()).getCivilizationAdjective();
+									CvString strLogString;
+									strLogString.Format("FREE TRADE UNIT CREATED: %s %s at %d,d", strCiv.c_str(), pFreeUnit->getName().c_str(), pFreeUnit->getX(), pFreeUnit->getY() );
+									GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+								}
+							}
+#endif
+#if defined(MOD_BALANCE_CORE)
 							}
 #endif
 
@@ -12140,6 +12165,15 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if(pBuildingInfo->GetBlockGold() > 0)
 			{
 				ChangeBlockGold(pBuildingInfo->GetBlockGold() * iChange);
+			}
+		}
+#endif
+#if defined(MOD_BALANCE_CORE)
+		if (pBuildingInfo->GetBuildingClassInfo().IsOffice() || pBuildingInfo->GetBuildingClassInfo().IsHeadquarters() || pBuildingInfo->GetBuildingClassInfo().IsFranchise())
+		{
+			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				UpdateYieldFromCorporationFranchises((YieldTypes)iI);
 			}
 		}
 #endif
@@ -19178,6 +19212,10 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				iPantheon = GC.getGame().GetGameReligions()->GetNumPantheonsCreated();
 				if(iPantheon > 0)
 				{
+					if(iPantheon > 8)
+					{
+						iPantheon = 8;
+					}
 					iYieldValue += (iPantheon * iYield);
 				}
 			}
@@ -20851,12 +20889,23 @@ int CvCity::GetBuildingYieldChangeFromCorporationFranchises(BuildingClassTypes e
 
 	return iYieldPerFranchise * iFranchises;
 }
-
+void CvCity::SetYieldChangeFromCorporationFranchises(YieldTypes eIndex, int iTotal)
+{
+	if(GetYieldChangeFromCorporationFranchises(eIndex) != iTotal)
+	{
+		m_aiYieldChangeFromCorporationFranchises.setAt(eIndex, iTotal);
+	}
+}
 int CvCity::GetYieldChangeFromCorporationFranchises(YieldTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumYieldInfos(), "eIndex expected to be < GC.getNumYieldInfos()");
+	VALIDATE_OBJECT
+	CvAssertMsg(eResource >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eResource < GC.getNumResourceInfos(), "eIndex expected to be < GC.getNumResourceInfos()");
 
+	return m_aiYieldChangeFromCorporationFranchises[eIndex];
+}
+void CvCity::UpdateYieldFromCorporationFranchises(YieldTypes eIndex)
+{
 	int iTotal = 0;
 	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
@@ -20867,7 +20916,7 @@ int CvCity::GetYieldChangeFromCorporationFranchises(YieldTypes eIndex) const
 		}
 	}
 
-	return iTotal;
+	SetYieldChangeFromCorporationFranchises(eIndex, iTotal);
 }
 
 //	--------------------------------------------------------------------------------
@@ -21790,7 +21839,7 @@ int CvCity::getDomainFreeExperienceFromGreatWorksGlobal(DomainTypes eIndex) cons
 	{
 		return iMod;
 	}
-	GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
+
 	int iXP = 0;
 	int iLoop = 0;
 	int iGreatWorks = 0;
@@ -21798,7 +21847,7 @@ int CvCity::getDomainFreeExperienceFromGreatWorksGlobal(DomainTypes eIndex) cons
 	{
 		if(pLoopCity != NULL)
 		{
-			iGreatWorks += pLoopCity->GetCityBuildings()->GetNumGreatWorks(eWritingClass);
+			iGreatWorks += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
 		}
 	}
 	iXP += (iGreatWorks * iMod);
@@ -24438,6 +24487,19 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 	}
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	if(pUnit && pUnit->isTrade())
+	{
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strCiv = GET_PLAYER(getOwner()).getCivilizationAdjective();
+			CvString strLogString;
+			strLogString.Format("TRADE UNIT MADE: %s %s at %d,d", strCiv.c_str(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY() );
+			GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+		}
+	}
+#endif
+
 	CvPlot* pRallyPlot = getRallyPlot();
 	if(pRallyPlot != NULL)
 	{
@@ -25242,66 +25304,6 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 	return true;
 }
 
-#if defined(MOD_AI_SMART_V3)
-bool CvCity::IsCanGoldPurchase(OrderData* pOrder)
-{
-	UnitTypes eUnitType = NO_UNIT;
-	BuildingTypes eBuildingType = NO_BUILDING;
-	ProjectTypes eProjectType = NO_PROJECT;
-
-	switch(pOrder->eOrderType)
-	{
-		case ORDER_TRAIN:
-			eUnitType = ((UnitTypes)(pOrder->iData1));
-			break;
-
-		case ORDER_CONSTRUCT:
-			eBuildingType = ((BuildingTypes)(pOrder->iData1));
-			break;
-
-		case ORDER_CREATE:
-			eProjectType = ((ProjectTypes)(pOrder->iData1));
-			break;
-
-		default:
-			return false;
-	}
-
-	return IsCanPurchase(true, true, eUnitType, eBuildingType, eProjectType, YIELD_GOLD);
-}
-
-void CvCity::PurchaseCurrentOrder()
-{
-	UnitTypes eUnitType = NO_UNIT;
-	BuildingTypes eBuildingType = NO_BUILDING;
-	ProjectTypes eProjectType = NO_PROJECT;
-	OrderData* pOrder = getOrderFromQueue(0);
-
-	if (pOrder)
-	{
-		switch(pOrder->eOrderType)
-		{
-			case ORDER_TRAIN:
-				eUnitType = ((UnitTypes)(pOrder->iData1));
-				break;
-
-			case ORDER_CONSTRUCT:
-				eBuildingType = ((BuildingTypes)(pOrder->iData1));
-				break;
-
-			case ORDER_CREATE:
-				eProjectType = ((ProjectTypes)(pOrder->iData1));
-				break;
-
-			default:
-				return;
-		}
-	}
-
-	Purchase(eUnitType, eBuildingType, eProjectType, YIELD_GOLD);
-}
-#endif
-
 //	--------------------------------------------------------------------------------
 // purchase something at the city
 void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield)
@@ -25394,6 +25396,18 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				{
 					pUnit->setMoves(0);
 				}
+#if defined(MOD_BALANCE_CORE)
+				if(pUnit && pUnit->isTrade())
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strCiv = GET_PLAYER(getOwner()).getCivilizationAdjective();
+						CvString strLogString;
+						strLogString.Format("TRADE UNIT BOUGHT: %s %s at %d,d", strCiv.c_str(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY() );
+						GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+					}
+				}
+#endif
 
 #if defined(MOD_EVENTS_CITY)
 				if (MOD_EVENTS_CITY) {

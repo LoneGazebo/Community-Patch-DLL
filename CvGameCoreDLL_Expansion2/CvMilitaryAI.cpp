@@ -1953,6 +1953,10 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 				fDesirability /= 15;
 			}
 		}
+		if(m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
+		{
+			fDesirability /= 10;
+		}
 	}
 	//If we were given a quest to go to war with this player, that should influence our decision. Plus, it probably means he's a total jerk.
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)

@@ -125,21 +125,12 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	if(iTempWeight == 0)
 		return 0;
 
-	if(iTempWeight > 1000)
+	if(iTempWeight > 600)
 	{
-		iTempWeight = 1000;
+		iTempWeight = 600;
 	}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
-
-	if(kPlayer.isMinorCiv())
-	{
-		return 0;
-	}
-	if(!kPlayer.GetPlayerTraits()->IsNoAnnexing() && m_pCity->IsPuppet())
-	{
-		return 0;
-	}
 
 	int iModifier = 0;
 
@@ -153,7 +144,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 	if(iNumWar > 0)
 	{
-		iBonus -= (iNumWar * 25);
+		iBonus -= (iNumWar * 50);
 		if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == m_pCity && kPlayer.getNumCities() > 1)
 		{
 			iBonus -= 100;
@@ -439,8 +430,16 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		}
 	}
 
-	iTempWeight *= (100 + iModifier);
-	iTempWeight /= 100;
+	if(m_pCity->IsPuppet())
+	{
+		iTempWeight *= (75 + iModifier);
+		iTempWeight /= 100;
+	}
+	else
+	{
+		iTempWeight *= (100 + iModifier);
+		iTempWeight /= 100;
+	}
 
 	return iTempWeight;
 }

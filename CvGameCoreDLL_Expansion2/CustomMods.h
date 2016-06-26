@@ -973,17 +973,11 @@ enum BattleTypeTypes
 
 
 // GlobalDefines wrappers
-#define GD_INT_DECL(name)         int m_i##name
-#define GD_INT_DEF(name)          inline int get##name() { return m_i##name; }
-#define GD_INT_INIT(name, def)    m_i##name(def)
-#define GD_INT_CACHE(name)        m_i##name = getDefineINT(#name); CUSTOMLOG("<Defines>: %s = %i", #name, m_i##name)
-#define GD_INT_GET(name)          GC.get##name()
-
-#define GD_FLOAT_DECL(name)       float m_f##name
-#define GD_FLOAT_DEF(name)        inline float get##name() { return m_f##name; }
-#define GD_FLOAT_INIT(name, def)  m_f##name(def)
-#define GD_FLOAT_CACHE(name)      m_f##name = getDefineFLOAT(#name); CUSTOMLOG("<Defines>: %s = %f", #name, m_f##name)
-#define GD_FLOAT_GET(name)        GC.get##name()
+#define GD_INT_DECL(name)       int m_i##name
+#define GD_INT_DEF(name)        inline int get##name() { return m_i##name; }
+#define GD_INT_INIT(name, def)  m_i##name(def)
+#define GD_INT_CACHE(name)      m_i##name = getDefineINT(#name); CUSTOMLOG("<Defines>: %s = %i", #name, m_i##name)
+#define GD_INT_GET(name)        GC.get##name()
 
 
 // LUA API wrappers
@@ -1188,6 +1182,7 @@ enum BattleTypeTypes
 //to help debug errors
 void CheckSentinel(uint);
 
+#define MOD_SERIALIZE_INIT_READ_NO_SENTINEL(stream) uint uiDllSaveVersion; stream >> uiDllSaveVersion;
 #define MOD_SERIALIZE_INIT_READ(stream) uint uiDllSaveVersion, uiSentinel; stream >> uiDllSaveVersion; stream >> uiSentinel; CheckSentinel(uiSentinel);
 #define MOD_SERIALIZE_READ(version, stream, member, def) if (uiDllSaveVersion >= version) { stream >> member; } else { member = def; }
 #define MOD_SERIALIZE_READ_AUTO(version, stream, member, size, def)   \
@@ -1208,7 +1203,9 @@ void CheckSentinel(uint);
 	} else {																	\
 		for (int iI = 0; iI < size; iI++) { (member)[iI] = def; }				\
 	}
-#define MOD_SERIALIZE_INIT_WRITE(stream) uint uiDllSaveVersion = MOD_DLL_VERSION_NUMBER; stream << uiDllSaveVersion
+
+#define MOD_SERIALIZE_INIT_WRITE_NO_SENTINEL(stream) uint uiDllSaveVersion = MOD_DLL_VERSION_NUMBER; stream << uiDllSaveVersion;
+#define MOD_SERIALIZE_INIT_WRITE(stream) uint uiDllSaveVersion = MOD_DLL_VERSION_NUMBER; stream << uiDllSaveVersion; stream << 0xDEADBEEF;
 #define MOD_SERIALIZE_WRITE(stream, member) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); stream << member
 #define MOD_SERIALIZE_WRITE_AUTO(stream, member) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); stream << member
 #define MOD_SERIALIZE_WRITE_ARRAY(stream, member, type, size) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); stream << ArrayWrapper<type>(size, member)

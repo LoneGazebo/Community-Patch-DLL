@@ -120,7 +120,7 @@
 			<Text>{3_Value} {2_Icon} {1_Yield}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_SPECIALIST">
-			<Text>{2_Yield} Great {1_Name} Points</Text>
+			<Text>{2_Yield} {1_Name} Points</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION">
 			<Text>{1_Cost}{2_Yield}{3_City}{4_Turns}</Text>

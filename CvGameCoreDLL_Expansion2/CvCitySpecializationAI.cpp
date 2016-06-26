@@ -431,11 +431,6 @@ void CvCitySpecializationAI::SetSpecializationsDirty(CitySpecializationUpdateTyp
 			m_bInterruptBuildings = true;
 #endif
 			break;
-#if defined(MOD_BALANCE_CORE)
-		case SPECIALIZATION_UPDATE_ENEMY_CITY_CAPTURED:
-			m_bInterruptBuildings = true;
-			break;
-#endif
 		default:
 			// Don't set it to false for these other cases!
 			// We shouldn't set it to false until after the next time we've picked specializations.

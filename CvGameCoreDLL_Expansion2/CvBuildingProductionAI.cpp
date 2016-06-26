@@ -302,6 +302,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		iValue *= 10;
 		return iValue;
 	}
+	if(isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo) || isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
+	{
+		iValue += 250;
+	}
 
 	//Bonus % additive. All values below will be added to this and combined with real value at end.
 	int iBonus = 0;
@@ -311,7 +315,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	///////
 	//Fewer buildings while at war.
 	int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
-	if(iNumWar > 0)
+	if(iNumWar > 0 && pkBuildingInfo->GetDefenseModifier() <= 0)
 	{
 		iBonus -= (iNumWar * 25);
 		if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == m_pCity && kPlayer.getNumCities() > 1)
@@ -414,15 +418,15 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	int iDefense = 0;
 	if(pkBuildingInfo->GetNukeModifier() < 0)
 	{
-		iDefense += ((pkBuildingInfo->GetNukeModifier() / 2) * -1);
+		iDefense += (pkBuildingInfo->GetNukeModifier() * -1);
 	}
 	if(pkBuildingInfo->GetGlobalDefenseModifier() > 0)
 	{
-		iDefense += pkBuildingInfo->GetGlobalDefenseModifier() / 50;
+		iDefense += pkBuildingInfo->GetGlobalDefenseModifier() / 10;
 	}
 	if(pkBuildingInfo->GetDefenseModifier() > 0)
 	{
-		iDefense += (pkBuildingInfo->GetDefenseModifier() / 50);
+		iDefense += (pkBuildingInfo->GetDefenseModifier() / 10);
 	}
 	if(pkBuildingInfo->GetExtraCityHitPoints() > 0)
 	{
@@ -432,23 +436,23 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		if(pkBuildingInfo->GetBorderObstacleWater() > 0)
 		{
-			iDefense += 25;
+			iDefense += 75;
 		}
 	}
 	else
 	{
 		if(pkBuildingInfo->GetBorderObstacleCity() > 0)
 		{
-			iDefense += 25;
+			iDefense += 75;
 		}
 		if(pkBuildingInfo->IsBorderObstacle())
 		{
-			iDefense += 50;
+			iDefense += 150;
 		}
 	}
 	if(m_pCity->IsBastion())
 	{
-		iDefense *= 4;
+		iDefense *= 10;
 	}
 	iBonus += iDefense;
 
@@ -663,6 +667,23 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			iBonus += 500;
 		}
 	}
+	
+
+	//Corporations!
+	if (pkBuildingInfo->GetBuildingClassInfo().getCorporationType() != NO_CORPORATION)
+	{
+		if(GET_PLAYER(m_pCity->getOwner()).GetCorporations()->GetFoundedCorporation() == pkBuildingInfo->GetBuildingClassInfo().getCorporationType())
+		{
+			iBonus += 500;
+		}
+	}
+	if (pkBuildingInfo->GetBuildingClassInfo().IsHeadquarters())
+	{
+		if(GET_PLAYER(m_pCity->getOwner()).GetCorporations()->GetFoundedCorporation() == NO_CORPORATION)
+		{
+			iBonus += 1000;
+		}
+	}
 
 	///////////////////
 	//Military Stuff
@@ -679,48 +700,27 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				int iTempBonus = 0;
 				if(pkBuildingInfo->GetDomainFreeExperience(eTestDomain) > 0 || pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain))
 				{
-					if(m_pCity->getDomainFreeExperience(eTestDomain) > 0)
-					{
-						iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain));
-					}
-					else
-					{
-						iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain);
-					}
+					iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain));
 				}		
 				if(pkBuildingInfo->GetDomainProductionModifier(eTestDomain) > 0)
 				{
-					if(m_pCity->getDomainProductionModifier(eTestDomain) > 0)
-					{
-						iTempBonus += m_pCity->getDomainProductionModifier(eTestDomain);
-					}
-					else
-					{
-						iTempBonus += m_pCity->getDomainProductionModifier(eTestDomain);
-					}
+					iTempBonus += m_pCity->getDomainProductionModifier(eTestDomain) + pkBuildingInfo->GetDomainProductionModifier(eTestDomain);
 				}
 				if(pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain) > 0)
 				{
-					if(m_pCity->getDomainFreeExperience(eTestDomain) > 0)
-					{
-						iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain));
-					}
-					else
-					{
-						iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain);
-					}
+					iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain));
 				}
 				if(iTempBonus > 0)
 				{
 					//Let's try to build our military buildings in our best cities only. More cities we have, the more this matters.
 					if(m_pCity == kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, eTestDomain))
 					{
-						iBonus += (iTempBonus * 2);
+						iBonus += (iTempBonus * 4);
 					}
 					//Discourage bad cities.
 					else
 					{
-						iBonus -= (iTempBonus * 2);
+						iBonus += iTempBonus;
 					}
 				}
 			}
@@ -738,23 +738,23 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				int iTempBonus = 0;
 				if(pkBuildingInfo->GetUnitCombatProductionModifier(eUnitCombatClass) > 0)
 				{
-					iTempBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass);
+					iTempBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass) + pkBuildingInfo->GetUnitCombatProductionModifier(eUnitCombatClass);
 				}
 				if(pkBuildingInfo->GetUnitCombatFreeExperience(eUnitCombatClass) > 0)
 				{
-					iTempBonus += m_pCity->getUnitCombatFreeExperience(eUnitCombatClass);
+					iTempBonus += m_pCity->getUnitCombatFreeExperience(eUnitCombatClass) + pkBuildingInfo->GetUnitCombatFreeExperience(eUnitCombatClass);
 				}
 				if(iTempBonus > 0)
 				{
 					//Let's try to build our production/experience buildings in our best cities only. More cities we have, the more this matters.
 					if(m_pCity == kPlayer.GetBestMilitaryCity(eUnitCombatClass))
 					{
-						iBonus += (iTempBonus * 2);
+						iBonus += (iTempBonus * 4);
 					}
 					//Discourage bad cities.
 					else
 					{
-						iBonus -= (iTempBonus * 2);
+						iBonus += iTempBonus;
 					}
 				}
 			}
@@ -810,7 +810,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			if(iGPT < 0)
 			{
-				iYieldValue += (iGPT * -10);
+				iYieldValue += (iGPT * -20);
 			}
 		}
 
@@ -819,17 +819,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 
 	//////////////
-	///Puppet Controls
+	///Maintenance
 	/////////////////////
 	if(pkBuildingInfo->GetGoldMaintenance() > 0)
 	{
 		if(iGPT < 0)
 		{
-			iBonus += (pkBuildingInfo->GetGoldMaintenance() * 10);
-		}
-		if(m_pCity->IsPuppet())
-		{
-			iBonus -= (pkBuildingInfo->GetGoldMaintenance() * 5);
+			iBonus += ((pkBuildingInfo->GetGoldMaintenance() * iGPT) / 10);
 		}
 	}
 
@@ -913,7 +909,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			EraTypes eEra = (EraTypes)pEntry->GetEra();
 			if(eEra != NO_ERA && eEra < kPlayer.GetCurrentEra())
 			{
-				iBonus += (10 * (kPlayer.GetCurrentEra() + 2 - eEra));
+				iBonus += (25 * (kPlayer.GetCurrentEra() + 2 - eEra));
 			}
 		}
 	}

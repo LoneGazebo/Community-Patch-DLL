@@ -3241,6 +3241,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 
 		-- update the Corporation (if exists) - CBP
 		-- loop through Corporations, find any that apply to this
+		local iCorp = 0;
 		for row in GameInfo.Corporations() do
 			-- our building class
 			local buildingClass = GameInfo.BuildingClasses[thisBuilding.BuildingClass];
@@ -3255,7 +3256,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 							textureOffset = nullOffset;
 						end				
 						UpdateSmallButton( 0, thisCorporationInstance.CorporationImage, thisCorporationInstance.CorporationButton, textureSheet, textureOffset, CategoryCorporations, Locale.ConvertTextKey( row.Description ), row.ID );
-						
+						iCorp = iCorp + 1;
 						-- find the first one
 						break;
 					end
@@ -3263,6 +3264,13 @@ function SelectBuildingOrWonderArticle( buildingID )
 			end
 		end
 		UpdateButtonFrame( 1, Controls.CorporationInnerFrame, Controls.CorporationFrame );
+		if(iCorp > 0) then
+			Controls.CorporationFrame:SetHide(false);
+			Controls.CorporationInnerFrame:SetHide(false);
+		else
+			Controls.CorporationFrame:SetHide(false);
+			Controls.CorporationInnerFrame:SetHide(false);
+		end
 		
 		-- update the Happiness
 		local iHappiness = thisBuilding.Happiness;
@@ -4911,24 +4919,20 @@ CivilopediaCategory[CategoryResources].SelectArticle = function( resourceID, sho
 			numYields = 0;
 			yieldString = "";
 			fullstring = ""
-			local numYields2 = 0;
+			local numImprovement = 0;
+
 			for row in GameInfo.Improvement_ResourceType_Yields( condition ) do
 				numYields = numYields + 1;			
-				if row.Yield > 0 then
-					yieldString = yieldString.."+";
-				end
-				yieldString = yieldString..tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
-				local OtherImprovement = GameInfo.Improvements[row.ImprovementType];
-				if(OtherImprovement and numYields2 == 0)then				
-					local condition2 = "ImprovementType = '" .. OtherImprovement.Type .. "'";
-					for row in GameInfo.Improvement_Yields( condition2 ) do
-						numYields2 = numYields2 + 1;				
-						if row.Yield > 0 then
-							yieldString = yieldString.."+";
-							teststring = yieldstring;
-						end
-						yieldString = yieldString..tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
+				local thisImprovement = GameInfo.Improvements[row.ImprovementType];
+				if thisImprovement then
+					if numImprovement > 0 then
+						yieldString = yieldString.."[NEWLINE]";
 					end
+					if row.Yield > 0 then
+						yieldString = yieldString.."+";
+					end
+					numImprovement = numImprovement + 1;
+					yieldString = yieldString..tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ("..Locale.ConvertTextKey( thisImprovement.Description )..") "
 				end
 			end
 			if numYields == 0 then
