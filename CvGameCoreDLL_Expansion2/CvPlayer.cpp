@@ -5259,7 +5259,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 	}
 
 	//Don't do choice ones in MP
-	bool bDontShowRewardPopup = (GC.GetEngineUserInterface()->IsOptionNoRewardPopups() || GC.getGame().isReallyNetworkMultiPlayer());
+	bool bDontShowRewardPopup = (GC.getGame().isReallyNetworkMultiPlayer());
 
 	if(pkEventInfo->getNumChoices() > 1 && bDontShowRewardPopup)
 		return false;
@@ -7159,7 +7159,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 										continue;
 									}
 
-									pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuildingType, 1);
+									pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuildingType, 1);
 								}
 							}
 						}
@@ -19040,6 +19040,10 @@ int CvPlayer::GetHappinessFromReligion()
 				iPantheon = GC.getGame().GetGameReligions()->GetNumPantheonsCreated();
 				if(iPantheon > 0)
 				{
+					if(iPantheon > 8)
+					{
+						iPantheon = 8;
+					}
 					iHappinessFromReligion += (iPantheon * iHappiness);
 				}
 			}
@@ -21998,7 +22002,6 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 					{
 						iHandicap = pHandicapInfo->getAIDifficultyBonus();
 						iHandicap *= iEra;
-						iHandicap /= max(1, getNumCities());
 					}
 					if(iHandicap > 0)
 					{
@@ -23209,14 +23212,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						{
 							if(!pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
 							{
-								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID());
+								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity);
 							}
 							if(eYield == YIELD_SCIENCE && iPassYield > 0)
 							{
 								ReligionTypes eCurrentReligion = pCity->GetCityReligions()->GetReligiousMajority();
 								if(eCurrentReligion != eReligion && eCurrentReligion != NO_RELIGION)
 								{
-									iValue += (iPassYield * pReligion->m_Beliefs.GetSciencePerOtherReligionFollower(GetID()));
+									iValue += (iPassYield * pReligion->m_Beliefs.GetSciencePerOtherReligionFollower(GetID(), pLoopCity));
 								}
 							}
 						}
@@ -23233,7 +23236,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						if(pReligion)
 						{
-							iValue += pReligion->m_Beliefs.GetYieldFromForeignSpread(eYield, GetID());
+							iValue += pReligion->m_Beliefs.GetYieldFromForeignSpread(eYield, GetID(), pLoopCity);
 						}
 					}
 					if(iPassYield != 0)
@@ -23276,10 +23279,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			if(iValue != 0)
 			{
 				//Exclusions
-				if(eYield != YIELD_POPULATION && iType != INSTANT_YIELD_TYPE_TR_MOVEMENT && iType != INSTANT_YIELD_TYPE_PURCHASE)
+				if(eYield != YIELD_POPULATION)
 				{
-					iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iValue /= 100;
+					if(iType != INSTANT_YIELD_TYPE_TR_MOVEMENT && iType != INSTANT_YIELD_TYPE_PURCHASE)
+					{
+						iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iValue /= 100;
+					}
 
 					//Exclusion for birth yields (as we do it up above to avoid % growth bonus being scaled).
 					if(bEraScale && iType != INSTANT_YIELD_TYPE_BIRTH)
@@ -39238,7 +39244,7 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 					{
 						if (getCapitalCity() && pLoopArea->GetID() != getCapitalCity()->getArea())
 						{
-							fScore *= 2;
+							fScore *= 3;
 						}
 					}
 				}

@@ -318,6 +318,11 @@ INSERT INTO Building_ThemingBonuses
 VALUES
 	('BUILDING_ROYAL_LIBRARY', 'TXT_KEY_THEMING_BONUS_ROYAL_LIBRARY', 2, 1, 2);
 
+INSERT INTO Building_BuildingClassYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	('BUILDING_ROYAL_LIBRARY', 'BUILDINGCLASS_LIBRARY', 'YIELD_SCIENCE', 2);
+
 INSERT INTO Improvement_TechYieldChanges
 	(ImprovementType, TechType, YieldType, Yield)
 VALUES

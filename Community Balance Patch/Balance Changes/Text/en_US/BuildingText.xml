@@ -127,10 +127,10 @@
 			<Text>A cothon is an artificial, protected inner harbor such as that in Carthage during the Punic Wars around 200 BC. The cothon at Carthage was divided into a rectangular merchant harbor followed by an inner protected harbor reserved for military use only. This inner harbor was circular and surrounded by an outer ring of structures divided into a series of docking bays for ship maintenance, along with an island structure at its centre that also housed navy ships. Each individual docking bay featured a raised slipway. Above the raised docking bays was a second level consisting of warehouses where oars and rigging were kept along with supplies such as wood and canvas. On the island structure there existed a raised 'cabin' where the admiral in command could observe the whole harbor along with the surrounding sea. Altogether the inner docking complex could house up to 220 ships. The entire harbor was protected by an outer wall and the main entrance could be closed off with iron chains.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON_STRATEGY">
-			<Text>Unique Carthaginian replacement for the East India Company. Must have built a Market in the city. In addition to the normal bonuses provided by the East India Company, the Great Cothon provides additional gold for both recipient and target of trade routes from the city where it is built, and two additional trade routes. All Harbors in your empire also gain +3 Production. Unlike the East India Company, the Great Cothon is made available in the Classical Era with the discovery of Currency.</Text>
+			<Text>Unique Carthaginian replacement for the East India Company. Must have built a Market in the city. In addition to the normal bonuses provided by the East India Company, the Great Cothon provides additional gold for both recipient and target of trade routes from the city where it is built, and two additional trade routes. All Harbors in your empire also gain +3 Production, and all Lighthouses gain +2 Culture. Unlike the East India Company, the Great Cothon is made available in the Classical Era with the discovery of Currency.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON_HELP">
-			<Text>Must have built a Market in the city.[NEWLINE][NEWLINE]+5 [ICON_GOLD] Gold for outgoing [ICON_INTERNATIONAL_TRADE] Trade Routes, +3 [ICON_GOLD] Gold for incoming [ICON_INTERNATIONAL_TRADE] Trade Routes. Grants two additional [ICON_INTERNATIONAL_TRADE] Trade Routes, and all Harbors gain +3 [ICON_PRODUCTION] Production. Receive a free copy of all Luxury Resources around the City. Reduces [ICON_HAPPINESS_3] Poverty.[NEWLINE][NEWLINE]Requires a Market in the City. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.</Text>
+			<Text>Must have built a Market in the city.[NEWLINE][NEWLINE]+5 [ICON_GOLD] Gold for outgoing [ICON_INTERNATIONAL_TRADE] Trade Routes, +3 [ICON_GOLD] Gold for incoming [ICON_INTERNATIONAL_TRADE] Trade Routes. Grants two additional [ICON_INTERNATIONAL_TRADE] Trade Routes, all Harbors gain +3 [ICON_PRODUCTION] Production, and all Lighthouses gain +2 [ICON_CULTURE] Culture. Receive a free copy of all Luxury Resources around the City. Reduces [ICON_HAPPINESS_3] Poverty.[NEWLINE][NEWLINE]Requires a Market in the City. The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of cities you own.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_MAUSOLEUM_HELP">
@@ -231,7 +231,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_APOSTOLIC_PALACE_HELP">
-			<Text>+4 [ICON_GOLDEN_AGE] Golden Age points.[NEWLINE][NEWLINE]+5 [ICON_GOLDEN_AGE] Golden Age Points from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion. Reduces [ICON_HAPPINESS_3] Religious Division, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
+			<Text>+4 [ICON_GOLDEN_AGE] Golden Age Points.[NEWLINE][NEWLINE]+5 [ICON_GOLDEN_AGE] Golden Age Points from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion. Reduces [ICON_HAPPINESS_3] Religious Division, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_APOSTOLIC_PALACE">
 			<Text>Apostolic Palace</Text>
@@ -427,13 +427,13 @@
 			<Text>Stupa</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_STRATEGY">
-			<Text>Can only be built in cities following a religion with the Stupas belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Stupa to gain Faith and, once you have researched Architecture, Tourism in the City.</Text>
+			<Text>Can only be built in cities following a religion with the Stupas belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Stupa to gain Faith, Golden Age Points, and, once you have researched Architecture, Tourism in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_TEXT">
 			<Text>A stupa is a mound-like or hemispherical structure containing Buddhist relics, typically the ashes of Buddhist monks, used by Buddhists as a place of meditation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_HELP">
-			<Text>+4 [ICON_TOURISM] Tourism once you have researched Architecture. Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
+			<Text>+2 [ICON_GOLDEN_AGE] Golden Age Points +4 [ICON_TOURISM] Tourism once you have researched Architecture. Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH">
@@ -462,7 +462,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_MANDIR_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Poverty. +5% [ICON_FOOD] Food in the City. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%. Enemy [ICON_SPY] Spies in this City cannot assassinate [ICON_GREAT_PEOPLE] Great People or disrupt Unit [ICON_PRODUCTION] Production.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Poverty. +10% [ICON_FOOD] Food in the City. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%. Enemy [ICON_SPY] Spies in this City cannot assassinate [ICON_GREAT_PEOPLE] Great People or disrupt Unit [ICON_PRODUCTION] Production.</Text>
 		</Row>
 
 
@@ -603,7 +603,7 @@
 			<Text>The Flavian Amphitheater, or Colosseum, is one of the most famous venues in all of history. Though Ancient Rome had only one Colosseum, variations on the design were reproduced throughout the empire, and to the present day. A colosseum is an outdoor venue where the public can watch sports events. Depending upon the time and place, the events might be gladiatorial contests, American football games, or soccer matches. Of the three contests mentioned, the gladiatorial battles were perhaps the hardest on the players involved, the soccer matches (occasionally) just about as dangerous for the participants.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_HELP">
-			<Text>+2 [ICON_TOURISM] Tourism. Whenever you defeat a Land Unit, produce +3 [ICON_GREAT_GENERAL] Great General points (+3 [ICON_GREAT_ADMIRAL] Great Admiral points if a Naval Unit) and +3 [ICON_GOLDEN_AGE] Golden Age points, scaling with Era. [NEWLINE][NEWLINE]Barracks, Forge, and Armory in this City gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE][ICON_CITY_CONNECTED] City Connections produce +2% more [ICON_GOLD] Gold. Reduced [ICON_HAPPINESS_3] Boredom slightly.</Text>
+			<Text>+2 [ICON_TOURISM] Tourism. Whenever you defeat a Land Unit, produce +3 [ICON_GREAT_GENERAL] Great General points (+3 [ICON_GREAT_ADMIRAL] Great Admiral points if a Naval Unit) and +3 [ICON_GOLDEN_AGE] Golden Age Points, scaling with Era. [NEWLINE][NEWLINE]Barracks, Forge, and Armory in this City gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE][ICON_CITY_CONNECTED] City Connections produce +2% more [ICON_GOLD] Gold. Reduced [ICON_HAPPINESS_3] Boredom slightly.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY">
 			<Text>Unique Roman replacement for the Arena. Build the Colosseum to boost your city's Culture, Tourism, and Production, and to maximize your empire's gain from the victories of your conquering armies. Every Colosseum slightly increases the Gold value of City Connections, thus allowing Rome to benefit from large, sprawling empires.</Text>

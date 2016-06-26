@@ -164,7 +164,7 @@ WHERE ImprovementType = 'IMPROVEMENT_POLDER' AND YieldType = 'YIELD_FOOD' AND EX
 
 -- Maria Theresa -- Coffee House +2 Production, +2 Food.
 
-UPDATE Defines SET Value = '20' WHERE Name = 'MINOR_CIV_BUYOUT_TURNS';
+UPDATE Defines SET Value = '10' WHERE Name = 'MINOR_CIV_BUYOUT_TURNS';
 
 UPDATE Traits
 SET DiplomaticMarriage = '1'
@@ -490,7 +490,8 @@ VALUES
 INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('BUILDING_GREAT_COTHON', 'BUILDINGCLASS_HARBOR', 'YIELD_PRODUCTION', 3);
+	('BUILDING_GREAT_COTHON', 'BUILDINGCLASS_HARBOR', 'YIELD_PRODUCTION', 3),
+	('BUILDING_GREAT_COTHON', 'BUILDINGCLASS_LIGHTHOUSE', 'YIELD_CULTURE', 2);
 
 -- New Improvements
 

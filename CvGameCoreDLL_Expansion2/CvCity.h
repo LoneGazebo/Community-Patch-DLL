@@ -1039,6 +1039,8 @@ public:
 	int GetBuildingYieldChangeFromCorporationFranchises(BuildingClassTypes eBuildingClass, YieldTypes eIndex) const;
 	
 	int GetYieldChangeFromCorporationFranchises(YieldTypes eIndex) const;
+	void UpdateYieldFromCorporationFranchises(YieldTypes eIndex);
+	void SetYieldChangeFromCorporationFranchises(YieldTypes eIndex, int iValue);
 
 	int GetResourceQuantityPerXFranchises(ResourceTypes eResource) const;
 	void ChangeResourceQuantityPerXFranchises(ResourceTypes eResource, int iChange);
@@ -1301,10 +1303,6 @@ public:
 
 	bool CanPlaceUnitHere(UnitTypes eUnitType);
 	bool IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
-#if defined(MOD_AI_SMART_V3)	
-	bool IsCanGoldPurchase(OrderData* pOrder);
-	void PurchaseCurrentOrder();
-#endif	
 	void Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
 
 	PlayerTypes getLiberationPlayer() const;
@@ -1631,6 +1629,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromCSAlliance;
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromCSFriendship;
 	FAutoVariable<std::vector<int>, CvCity> m_aiResourceQuantityPerXFranchises;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldChangeFromCorporationFranchises;
 	FAutoVariable<int, CvCity> m_iLandTourismBonus;
 	FAutoVariable<int, CvCity> m_iSeaTourismBonus;
 	FAutoVariable<int, CvCity> m_iAlwaysHeal;

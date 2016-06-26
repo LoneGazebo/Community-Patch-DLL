@@ -258,8 +258,8 @@ bool CvCorporationEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	kUtility.PopulateArrayByExistence(m_piResourceMonopolyOrs, "Resources", "Corporation_ResourceMonopolyOrs", "ResourceType", "CorporationType", szCorporationType);
 	kUtility.PopulateArrayByValue(m_piNumFreeResource, "Resources", "Corporation_NumFreeResource", "ResourceType", "CorporationType", szCorporationType, "NumResource");
 	kUtility.PopulateArrayByValue(m_piUnitResourceProductionModifier, "Resources", "Corporation_UnitResourceProductionModifier", "ResourceType", "CorporationType", szCorporationType, "Modifier");
-	kUtility.SetYields(m_piTradeRouteMod, "Corporation_TradeRouteCityYield", "CorporationType", szCorporationType);
-	kUtility.SetYields(m_piTradeRouteCityMod, "Corporation_TradeRouteMod", "CorporationType", szCorporationType);
+	kUtility.SetYields(m_piTradeRouteCityMod, "Corporation_TradeRouteCityYield", "CorporationType", szCorporationType);
+	kUtility.SetYields(m_piTradeRouteMod, "Corporation_TradeRouteMod", "CorporationType", szCorporationType);
 
 	//BuildingClassYieldChanges
 	{
@@ -837,6 +837,12 @@ void CvPlayerCorporations::BuildFranchiseInCity(CvCity* pOriginCity, CvCity* pDe
 
 	RecalculateNumFranchises();
 
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		pOriginCity->UpdateYieldFromCorporationFranchises((YieldTypes)iI);
+		pDestCity->UpdateYieldFromCorporationFranchises((YieldTypes)iI);
+	}
+
 	// send notification to owner player and target player
 	CvNotifications* pNotifications = NULL;
 	if (eOriginPlayer == GC.getGame().getActivePlayer())
@@ -958,6 +964,20 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 			if (pBuildingInfo)
 			{
 				pBestCity->GetCityBuildings()->SetNumRealBuilding(eFranchiseBuilding, 1);
+
+				for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				{
+					pBestCity->UpdateYieldFromCorporationFranchises((YieldTypes)iI);
+					CvCity* pLoopCity;
+					int iLoop;
+					for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+					{
+						if (pLoopCity != NULL)
+						{
+							pLoopCity->UpdateYieldFromCorporationFranchises((YieldTypes)iI);
+						}
+					}
+				}
 
 				// send notification to owner player and target player
 				if (m_pPlayer->GetID() == GC.getGame().getActivePlayer())

@@ -3483,7 +3483,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		}
 
 			//Tell the AI to get over there!
-			if(!pAssignedPlayer->isHuman())
+			if(!pAssignedPlayer->isHuman() && pAssignedPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
 			{
 				CvCity* pMinorCap = pMinor->getCapitalCity();
 				if (pMinorCap && pMinorCap->getArea() == pAssignedPlayer->getCapitalCity()->getArea())
@@ -3565,7 +3565,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		}
 
 		//Tell the AI ally to get over there!
-		if(eMajor != NO_PLAYER && !GET_PLAYER(eMajor).isHuman())
+		if(eMajor != NO_PLAYER && !GET_PLAYER(eMajor).isHuman() && GET_PLAYER(eMajor).GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
 		{
 			if((pMinor->GetMinorCivAI()->GetAlly() != NO_PLAYER) && (pMinor->GetMinorCivAI()->GetAlly() == eMajor))
 			{

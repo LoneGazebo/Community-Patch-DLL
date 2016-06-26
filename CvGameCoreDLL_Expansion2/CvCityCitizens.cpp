@@ -1541,7 +1541,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		//Increase penalty based on function of excess food value and growth thresholds. 
 		int iFoodNeeded = (m_pCity->growthThreshold() * 100);
 		int iRemainder = 0;
-		iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 5), 1));
+		iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 4), 1));
 		if((eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
 		{
 			iPenalty += iRemainder;
@@ -1552,7 +1552,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		}
 		else
 		{
-			iPenalty += (iRemainder / 3);
+			iPenalty += (iRemainder / 4);
 		}
 		if(iExcessFoodTimes100 < 200 && !bAvoidGrowth)
 		{
@@ -1593,13 +1593,13 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 					int iYield1Specialist = pReligion->m_Beliefs.GetYieldChangeAnySpecialist(eYield, m_pCity->getOwner());
 					if(GetTotalSpecialistCount() <= 0 && iYield1Specialist > 0)
 					{
-						iYield += iYield1Specialist;
+						iYield += (iYield1Specialist * 5);
 					}
 				}
 			}
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
-				iValue *= 2;
+				iValue *= 4;
 			}
 			if(eYield == YIELD_FOOD)
 			{
@@ -1707,7 +1707,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 				}
 				else
 				{
-					iValue += iSpecialistFlavor /= 5;
+					iValue += iSpecialistFlavor /= 2;
 				}
 			}
 		}
@@ -1715,7 +1715,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	int iGPPYieldValue = pSpecialistInfo->getGreatPeopleRateChange() * 3; // TODO: un-hardcode this
 	if(eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
 	{
-		iGPPYieldValue *= 5;
+		iGPPYieldValue *= 6;
 	}
 	bool bGPCity = false;
 	AICityStrategyTypes eGoodGP = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY");
@@ -1725,7 +1725,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	}
 	if(bGPCity)
 	{
-		iGPPYieldValue *= 2;
+		iGPPYieldValue *= 3;
 	}
 	iValue += iGPPYieldValue;
 
@@ -1762,7 +1762,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			}
 			else
 			{
-				iValue += (iEmptySlots * 2);
+				iValue += (iEmptySlots * 3);
 			}
 		}
 		else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
@@ -1774,7 +1774,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			}
 			else
 			{
-				iValue += (iEmptySlots * 2);
+				iValue += (iEmptySlots * 3);
 			}
 		}
 		else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
@@ -1786,12 +1786,20 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			}
 			else
 			{
-				iValue += (iEmptySlots * 2);
+				iValue += (iEmptySlots * 3);
+			}
+			if(GET_PLAYER(m_pCity->getOwner()).GetDiplomacyAI()->IsGoingForCultureVictory())
+			{
+				iValue *= 2;
+			}
+			else
+			{
+				iValue /= 2;
 			}
 		}
 	}
 	//Every citizen should increase our desire for more specialists.
-	int iPop = m_pCity->getPopulation() * 3;
+	int iPop = m_pCity->getPopulation() * 5;
 	iValue *= (100 + iPop);
 	iValue /= 100;
 

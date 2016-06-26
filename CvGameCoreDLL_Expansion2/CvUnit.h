@@ -1903,7 +1903,7 @@ protected:
 #endif
 	CvString m_strName;
 #if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
-	FAutoVariable<CvString, CvUnit> m_strGreatName;
+	CvString m_strGreatName;
 #endif
 	GreatWorkType m_eGreatWork;
 

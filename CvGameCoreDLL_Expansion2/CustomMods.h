@@ -973,17 +973,11 @@ enum BattleTypeTypes
 
 
 // GlobalDefines wrappers
-#define GD_INT_DECL(name)         int m_i##name
-#define GD_INT_DEF(name)          inline int get##name() { return m_i##name; }
-#define GD_INT_INIT(name, def)    m_i##name(def)
-#define GD_INT_CACHE(name)        m_i##name = getDefineINT(#name); CUSTOMLOG("<Defines>: %s = %i", #name, m_i##name)
-#define GD_INT_GET(name)          GC.get##name()
-
-#define GD_FLOAT_DECL(name)       float m_f##name
-#define GD_FLOAT_DEF(name)        inline float get##name() { return m_f##name; }
-#define GD_FLOAT_INIT(name, def)  m_f##name(def)
-#define GD_FLOAT_CACHE(name)      m_f##name = getDefineFLOAT(#name); CUSTOMLOG("<Defines>: %s = %f", #name, m_f##name)
-#define GD_FLOAT_GET(name)        GC.get##name()
+#define GD_INT_DECL(name)       int m_i##name
+#define GD_INT_DEF(name)        inline int get##name() { return m_i##name; }
+#define GD_INT_INIT(name, def)  m_i##name(def)
+#define GD_INT_CACHE(name)      m_i##name = getDefineINT(#name); CUSTOMLOG("<Defines>: %s = %i", #name, m_i##name)
+#define GD_INT_GET(name)        GC.get##name()
 
 
 // LUA API wrappers

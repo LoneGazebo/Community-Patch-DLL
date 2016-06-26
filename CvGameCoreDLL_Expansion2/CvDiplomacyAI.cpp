@@ -176,7 +176,6 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aiPlayerVassalageTurnsSinceForcefullyRevokedVassalage()
 	, m_aiNumTimesDemandedWhenVassal()
 	, m_abPlayerBrokenVassalAgreement()
-	, m_aeGlobalState()
 	, m_abOfferingGift()
 	, m_abOfferedGift()
 	, m_abMasterLiberatedMeFromVassalage()
@@ -412,7 +411,6 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage(NULL),
 	m_paiNumTimesDemandedWhenVassal(NULL),
 	m_pabPlayerBrokenVassalAgreement(NULL),
-	m_paeGlobalState(NULL),
 	m_pabMoveTroopsRequestAccepted(NULL),
 	m_paiMoveTroopsRequestCounter(NULL),
 	m_pabOfferingGift(NULL),
@@ -642,8 +640,6 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage = &m_pDiploData->m_aiPlayerVassalageTurnsSinceForcefullyRevokedVassalage[0];
 	m_paiNumTimesDemandedWhenVassal = &m_pDiploData->m_aiNumTimesDemandedWhenVassal[0];
 	m_pabPlayerBrokenVassalAgreement = &m_pDiploData->m_abPlayerBrokenVassalAgreement[0];
-
-	m_paeGlobalState = &m_pDiploData->m_aeGlobalState[0];
 
 	m_pabMoveTroopsRequestAccepted = &m_pDiploData->m_abMoveTroopsRequestAccepted[0];
 	m_paiMoveTroopsRequestCounter = &m_pDiploData->m_aiMoveTroopsRequestCounter[0];
@@ -959,7 +955,6 @@ void CvDiplomacyAI::Uninit()
 	m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage = NULL;
 	m_paiNumTimesDemandedWhenVassal = NULL;
 	m_pabPlayerBrokenVassalAgreement = NULL;
-	m_paeGlobalState = NULL;
 	m_pabMoveTroopsRequestAccepted = NULL;
 	m_paiMoveTroopsRequestCounter = NULL;
 	m_pabOfferingGift = NULL;
@@ -1172,7 +1167,6 @@ void CvDiplomacyAI::Reset()
 		m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage[iI] = -1;
 		m_paiNumTimesDemandedWhenVassal[iI] = 0;
 		m_pabPlayerBrokenVassalAgreement[iI] = false;
-		m_paeGlobalState[iI] = NO_GLOBAL_STATE;
 		m_pabMoveTroopsRequestAccepted[iI] = false;
 		m_paiMoveTroopsRequestCounter[iI] = -1;
 		m_pabOfferingGift[iI] = false;
@@ -1832,7 +1826,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage, short, MAX_MAJOR_CIVS, -1);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiNumTimesDemandedWhenVassal, short, MAX_MAJOR_CIVS, 0);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_pabPlayerBrokenVassalAgreement, bool, MAX_MAJOR_CIVS, false);
-	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paeGlobalState, char, MAX_MAJOR_CIVS, NO_GLOBAL_STATE);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_pabMoveTroopsRequestAccepted, bool, MAX_MAJOR_CIVS, false);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, m_paiMoveTroopsRequestCounter, short, MAX_MAJOR_CIVS, -1);
 
@@ -2193,7 +2186,6 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage, short, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiNumTimesDemandedWhenVassal, short, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_pabPlayerBrokenVassalAgreement, bool, MAX_MAJOR_CIVS);
-	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paeGlobalState, char, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_pabMoveTroopsRequestAccepted, bool, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_paiMoveTroopsRequestCounter, short, MAX_MAJOR_CIVS);
 	MOD_SERIALIZE_WRITE_ARRAY(kStream, m_pabMasterLiberatedMeFromVassalage, bool, MAX_MAJOR_CIVS);
@@ -6040,6 +6032,12 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 			}
 		}
 	}
+	//Patronage Bonuse
+	if(GetPlayer()->GetMinorFriendshipAnchorMod() > 0 || GetPlayer()->getMinorGoldFriendshipMod() > 0 || GetPlayer()->IsMinorScienceAllies() || GetPlayer()->IsMinorResourceBonus())
+	{
+		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY] * 5;
+		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 5;
+	}
 #endif
 
 	////////////////////////////////////
@@ -9226,6 +9224,29 @@ void CvDiplomacyAI::DoUpdateWarStates()
 						}
 					}
 				}
+				if(eWarState >= WAR_STATE_STALEMATE)
+				{
+					CvCity* pLoopCity;
+					int iDanger = 0;
+					int iNumCities = 0;
+					int iLoop;
+					for(pLoopCity = GetPlayer()->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoop))
+					{
+						if(pLoopCity != NULL)
+						{
+							iNumCities++;
+							if(pLoopCity->IsInDanger(eLoopPlayer))
+							{
+								iDanger++;
+							}
+						}
+					}
+					//25% of cities in danger? Defensive!
+					if(iDanger >= max(1, (iNumCities / 4)))
+					{
+						eWarState = WAR_STATE_DEFENSIVE;
+					}
+				}
 #endif
 
 				// If the other guy happens to have a guy or two near us but we vastly outnumber him overall, we're not really on the defensive
@@ -9930,6 +9951,10 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 						//why make peace when we're winning?
 						if (GetWarState(eLoopPlayer) == WAR_STATE_NEARLY_WON)
 							eWarGoal = WAR_GOAL_CONQUEST;
+#if defined(MOD_BALANCE_CORE)
+						else if(GetWarState(eLoopPlayer) <= WAR_STATE_DEFENSIVE)
+							eWarGoal = WAR_GOAL_PEACE;
+#endif
 						else
 							eWarGoal = WAR_GOAL_DAMAGE;
 					}
@@ -10855,7 +10880,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 		iOtherPlayerMilitaryStrength /= 100;
 	}
 
-	//Add in their defense pacts as a direct boost to our power
+	//Add in their defense pacts as a direct boost to their power
 	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts() > 0)
 	{
 		iOtherPlayerMilitaryStrength *= (100 + (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts() * 10));
@@ -11742,7 +11767,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 				iNumCivs++;
 			}
 		}
-		iLoyalty = ((iLoyalty * iNumCivs) / 50);
+		iLoyalty = ((iLoyalty * iNumCivs) / 40);
 		if(iLoyalty <= 0)
 		{
 			iLoyalty = 1;
@@ -11774,9 +11799,9 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 						{
 							if((GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_FRIENDLY) || (GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_AFRAID))
 							{
-								if(eOpinion > MAJOR_CIV_OPINION_FAVORABLE)
+								if(eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
 								{
-									if(GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_AVERAGE)
+									if(GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_AVERAGE)
 									{
 										//We don't want to ally with competitors.
 										if((GetVictoryDisputeLevel(eLoopPlayer) < DISPUTE_LEVEL_STRONG) && (GetVictoryBlockLevel(eLoopPlayer) < BLOCK_LEVEL_STRONG))
@@ -11796,7 +11821,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 														if(eLoopOtherPlayer != NO_PLAYER && !GET_PLAYER(eLoopOtherPlayer).isMinorCiv() && IsPlayerValid(eLoopOtherPlayer))
 														{
 															MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(eLoopOtherPlayer);
-															if(eOpinion <= MAJOR_CIV_OPINION_NEUTRAL)
+															if(eOpinion < MAJOR_CIV_OPINION_NEUTRAL)
 															{
 																if(GET_TEAM(GET_PLAYER(eLoopOtherPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eLoopPlayer).getTeam()))
 																{

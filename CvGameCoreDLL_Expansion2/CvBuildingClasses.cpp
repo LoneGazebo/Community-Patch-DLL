@@ -17,6 +17,7 @@
 #include "CvInfosSerializationHelper.h"
 
 #if defined(MOD_BALANCE_CORE)
+#include "CvTypes.h"
 	#include <algorithm>
 #endif
 
@@ -4561,62 +4562,51 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 	int iThemingBonusTotal = 0;
 	int iTypeBonuses = 0;
 	
-	GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
-	GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
-	GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
-	GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
-
-	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
-	if (pkCivInfo)
+	for(std::vector<BuildingTypes>::const_iterator iI=m_buildingsThatExistAtLeastOnce.begin(); iI!=m_buildingsThatExistAtLeastOnce.end(); ++iI)
 	{
-		for(std::vector<BuildingTypes>::const_iterator iI=m_buildingsThatExistAtLeastOnce.begin(); iI!=m_buildingsThatExistAtLeastOnce.end(); ++iI)
-		{
-			CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
-			if (pkInfo && pkInfo->GetGreatWorkCount() > 0)
-			{	
-				int iThemingBonus = m_pCity->GetCityCulture()->GetThemingBonus((BuildingClassTypes)pkInfo->GetBuildingClassType());
-				if (iThemingBonus > 0)
-				{
-					iThemingBonusTotal += pkInfo->GetThemingYieldBonus(eYield);
-				}
+		CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
+		if (pkInfo && pkInfo->GetGreatWorkCount() > 0)
+		{	
+			iRealWorkCount += GetNumGreatWorksInBuilding((BuildingClassTypes)pkInfo->GetBuildingClassType());
 
-				int iArt = GetNumGreatWorks(eArtClass);
-				if(iArt > 0)
-				{
-					iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtYieldChanges(eYield) * iArt);
-				}
-				int iArtifact = GetNumGreatWorks(eArtifactsClass);
-				if(iArtifact > 0)
-				{
-					iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtifactYieldChanges(eYield) * iArtifact);
-				}
-				int iLit = GetNumGreatWorks(eWritingClass);
-				if(iLit > 0)
-				{
-					iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetLitYieldChanges(eYield) * iLit);
-				}
-				int iMusic = GetNumGreatWorks(eMusicClass);
-				if(iMusic > 0)
-				{
-					iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetMusicYieldChanges(eYield) * iMusic);
-				}
-
-				iRealWorkCount += GetNumGreatWorksInBuilding((BuildingClassTypes)pkInfo->GetBuildingClassType());
-
-				if(iTypeBonuses <= 0)
-				{
-					if ((MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == pkInfo->GetGreatWorkYieldType()) || (!MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == YIELD_CULTURE))
-					{
-						iStandardWorkCount += iRealWorkCount;
-					}
-				}
+			int iThemingBonus = m_pCity->GetCityCulture()->GetThemingBonus((BuildingClassTypes)pkInfo->GetBuildingClassType());
+			if (iThemingBonus > 0)
+			{
+				iThemingBonusTotal += pkInfo->GetThemingYieldBonus(eYield);
+			}
+			
+			if ((MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == pkInfo->GetGreatWorkYieldType()) || (!MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == YIELD_CULTURE))
+			{
+				iStandardWorkCount += iRealWorkCount;
 			}
 		}
 	}
-	//No works and no bonuses? Abort!
+	
+	//No works? Abort!
 	if(iRealWorkCount <= 0)
 	{
 		return 0;
+	}
+
+	int iArt = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), false, true);
+	if(iArt > 0)
+	{
+		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtYieldChanges(eYield) * iArt);
+	}
+	int iArtifact = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), true);
+	if(iArtifact > 0)
+	{
+		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetArtifactYieldChanges(eYield) * iArtifact);
+	}
+	int iLit = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
+	if(iLit > 0)
+	{
+		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetLitYieldChanges(eYield) * iLit);
+	}
+	int iMusic = GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
+	if(iMusic > 0)
+	{
+		iTypeBonuses += (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetMusicYieldChanges(eYield) * iMusic);
 	}
 	
 	//Now grab the base yields.
@@ -4712,10 +4702,17 @@ int CvCityBuildings::GetNumGreatWorks() const
 }
 
 /// Accessor: How many Great Works of specific slot type present in this city?
+#if defined(MOD_BALANCE_CORE)
+int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot, bool bArtifact, bool bArt) const
+#else
 int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
+#endif
 {
 	int iRtnValue = 0;
-
+#if defined(MOD_BALANCE_CORE)
+	GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
+	GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
+#endif
 	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
 	if (pkCivInfo)
 	{
@@ -4729,6 +4726,48 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
 				CvBuildingEntry *pkInfo = GC.getBuildingInfo(eBuilding);
 				if (pkInfo)
 				{
+#if defined(MOD_BALANCE_CORE)
+					//Art/Artifact need distinction here, because they occupy the same slot!
+					if(bArtifact)
+					{
+						int iNumSlots = pkInfo->GetGreatWorkCount();
+						// Store info on the attributes of all our Great Works
+						for (int iI = 0; iI < iNumSlots; iI++)
+						{
+							int iGreatWork = m_pCity->GetCityBuildings()->GetBuildingGreatWork(eBldgClass, iI);
+							if(iGreatWork == -1)
+								continue;
+
+							CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWork];
+
+							// Check Great Work class
+							if (work.m_eClassType == eArtifactsClass)
+							{
+								iRtnValue++;
+							}
+						}
+					}
+					else if(bArt)
+					{
+						int iNumSlots = pkInfo->GetGreatWorkCount();
+						// Store info on the attributes of all our Great Works
+						for (int iI = 0; iI < iNumSlots; iI++)
+						{
+							int iGreatWork = m_pCity->GetCityBuildings()->GetBuildingGreatWork(eBldgClass, iI);
+							if(iGreatWork == -1)
+								continue;
+
+							CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWork];
+
+							// Check Great Work class
+							if (work.m_eClassType == eArtClass)
+							{
+								iRtnValue++;
+							}
+						}
+					}
+					else
+#endif
 					if (pkInfo->GetGreatWorkSlotType() == eGreatWorkSlot)
 					{
 						iRtnValue++;
