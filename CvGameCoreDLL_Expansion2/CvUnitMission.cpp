@@ -129,7 +129,8 @@ void CvUnitMission::PushMission(UnitHandle hUnit, MissionTypes eMission, int iDa
 
 	if(!bAppend)
 	{
-		hUnit->ClearMissionQueue();
+		//keep the path cache if this is a move mission!
+		hUnit->ClearMissionQueue( eMission==CvTypes::getMISSION_MOVE_TO() );
 	}
 
 	if(bManual)
@@ -2158,7 +2159,7 @@ MissionData* CvUnitMission::DeleteMissionQueueNode(UnitHandle hUnit, MissionData
 
 //	---------------------------------------------------------------------------
 /// Clear all queued missions
-void CvUnitMission::ClearMissionQueue(UnitHandle hUnit, int iUnitCycleTimerOverride)
+void CvUnitMission::ClearMissionQueue(UnitHandle hUnit, bool bKeepPathCache, int iUnitCycleTimerOverride)
 {
 	//VALIDATE_OBJECT
 	CvAssert(hUnit->getOwner() != NO_PLAYER);
@@ -2170,7 +2171,10 @@ void CvUnitMission::ClearMissionQueue(UnitHandle hUnit, int iUnitCycleTimerOverr
 		PopMission(hUnit);
 	}
 
-	hUnit->ClearPathCache();
+	if (!bKeepPathCache)
+	{
+		hUnit->ClearPathCache();
+	}
 
 	if((hUnit->getOwner() == GC.getGame().getActivePlayer()) && hUnit->IsSelected())
 	{

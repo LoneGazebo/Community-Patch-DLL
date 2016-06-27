@@ -3477,7 +3477,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 		if (pAttacker)
 		{
 			pAttacker->setCombatUnit(NULL);
-			pAttacker->ClearMissionQueue(/*iUnitCycleTimer*/ 110);
+			pAttacker->ClearMissionQueue( false, /*iUnitCycleTimer*/ 110);
 		}
 		
 		if (pDefender)

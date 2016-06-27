@@ -4707,7 +4707,7 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 						}
 					}
 					//Exception for embarked units in water, civilian or not, as boats can move onto them as a stack (military units are pseudo-units)
-					else if(!bWarCity && loopUnit->isEmbarked() && getDomainType() == DOMAIN_SEA)
+					else if(loopUnit->isEmbarked() && getDomainType() == DOMAIN_SEA)
 					{
 						pUnit = plot.getUnitByIndex(iUnitLoop);
 						if(!GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
@@ -4725,8 +4725,8 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 					}
 				}
 			}
-			//If there is a civlian and an enemy unit here (or this is an enemy city), but we're at peace with that civilian, return NO_TEAM.
-			if((iPeaceUnits > 0) && (bWarCity || (pUnit != NULL)))
+			//If there is a civlian and and no enemy unit here (or this is an enemy city), but we're at peace with that civilian, return NO_TEAM.
+			if((iPeaceUnits > 0) && (bWarCity || !pUnit))
 			{
 				return NO_TEAM;
 			}
@@ -27444,12 +27444,12 @@ void CvUnit::ChangeMissionTimer(int iChange)
 
 //	--------------------------------------------------------------------------------
 /// Clear all queued missions
-void CvUnit::ClearMissionQueue(int iUnitCycleTimer)
+void CvUnit::ClearMissionQueue(bool bKeepPathCache, int iUnitCycleTimer)
 {
 	VALIDATE_OBJECT
 	CvAssert(getOwner() != NO_PLAYER);
 
-	CvUnitMission::ClearMissionQueue(this, iUnitCycleTimer);
+	CvUnitMission::ClearMissionQueue(this, bKeepPathCache, iUnitCycleTimer);
 }
 
 //	--------------------------------------------------------------------------------

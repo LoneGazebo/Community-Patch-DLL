@@ -1424,7 +1424,7 @@ public:
 	int GetMissionTimer() const;
 	void SetMissionTimer(int iNewValue);
 	void ChangeMissionTimer(int iChange);
-	void ClearMissionQueue(int iUnitCycleTimer = 1);
+	void ClearMissionQueue(bool bKeepPathCache = false, int iUnitCycleTimer = 1);
 	int GetLengthMissionQueue() const;
 	const MissionData* GetHeadMissionData();
 	const MissionData* GetMissionData(int iIndex);

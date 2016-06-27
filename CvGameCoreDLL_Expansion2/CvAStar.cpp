@@ -900,7 +900,10 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 		kToNodeCacheData.bContainsVisibleEnemyDefender = false;
 	}
 
-	kToNodeCacheData.bFriendlyUnitLimitReached = (pPlot->getMaxFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit());
+	//ignore this unit when counting!
+	bool bIsInitialNode = (node->m_pParent==NULL);
+	int iNumUnits = pPlot->getMaxFriendlyUnitsOfType(pUnit) - (bIsInitialNode ? 1 : 0);
+	kToNodeCacheData.bFriendlyUnitLimitReached = (iNumUnits >= pPlot->getUnitLimit());
 	kToNodeCacheData.bIsValidRoute = pPlot->isValidRoute(pUnit);
 
 	//now the big ones ...
@@ -1308,10 +1311,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 
 			// check stacking (if visible)
 			if (kFromNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kFromNodeCacheData.bFriendlyUnitLimitReached)
-			{
-				if (parent->m_pParent!=NULL) //parent is start position? let's not block ourselves!
-					return FALSE;
-			}
+				return FALSE;
 		}
 	}
 
