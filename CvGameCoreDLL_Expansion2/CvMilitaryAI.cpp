@@ -1924,7 +1924,16 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	fEnemyStrength = max(1.f, fEnemyStrength);
 	float fStrengthRatio = min( 10.f, fFriendlyStrength / fEnemyStrength );
 
-	float fDesirability = 1;
+	float fDesirability = 100;
+
+	bool bMinorButMajorWar = false;
+	if(m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
+	{
+		if(GET_PLAYER(target.m_pTargetCity->getOwner()).isMinorCiv())
+		{
+			bMinorButMajorWar = true;
+		}
+	}
 	//increase if a weak city
 	if (fStrengthRatio > 0.5f)
 	{
@@ -1943,19 +1952,20 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		fDesirability /= 100;
 	}
 	//Going after a City-State? Let's not force it, in the event that we're fighting a major civ.
-	if(GET_PLAYER(target.m_pTargetCity->getOwner()).isMinorCiv())
+	if(bMinorButMajorWar)
 	{
 		PlayerTypes eAlly = GET_PLAYER(target.m_pTargetCity->getOwner()).GetMinorCivAI()->GetAlly();
 		if(eAlly != NO_PLAYER)
 		{
 			if(GET_TEAM(GET_PLAYER(eAlly).getTeam()).isAtWar(GetPlayer()->getTeam()))
 			{
-				fDesirability /= 15;
+				fDesirability /= 50;
 			}
 		}
-		if(m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
+		else
 		{
-			fDesirability /= 10;
+			//We should not be targeting CSs like this!
+			return 0;
 		}
 	}
 	//If we were given a quest to go to war with this player, that should influence our decision. Plus, it probably means he's a total jerk.
@@ -2026,7 +2036,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		}
 	}
 	//Closest City? Emphasize.
-	if(pBestCity == target.m_pTargetCity)
+	if(pBestCity == target.m_pTargetCity && !bMinorButMajorWar)
 	{
 		fDesirability *= 10;
 	}
@@ -2069,7 +2079,8 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 			}
 		}
 	}
-#endif			
+#endif
+	fDesirability /= 100;
 	
 	// Economic value of target
 	float fEconomicValue = 1.0;
@@ -3943,17 +3954,20 @@ void CvMilitaryAI::UpdateOperations()
 				int iNumUnitsWillingBuild = 2;
 				if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
-					CvCity* pMostThreatenedCity = GetMostThreatenedCity(0,false);
+					CvCity* pMostThreatenedCity = GetMostThreatenedCity(0,true);
 
-					if(pMostThreatenedCity != NULL && GC.getGame().GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pMostThreatenedCity->plot()))
+					if(pMostThreatenedCity != NULL)
 					{
-						bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE, &iOperationID);
-						if (!bHasOperationUnderway)
+						if(GC.getGame().GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pMostThreatenedCity->plot()))
 						{
-							iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eLoopPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, pMostThreatenedCity->plot(), pMostThreatenedCity->plot(), &iNumRequiredSlots);
-							if(iFilledSlots > 0 && ((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild))
+							bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE, &iOperationID);
+							if (!bHasOperationUnderway)
 							{
-								m_pPlayer->addAIOperation(AI_OPERATION_CITY_CLOSE_DEFENSE, eLoopPlayer, pMostThreatenedCity->getArea(), pMostThreatenedCity, pMostThreatenedCity);
+								iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eLoopPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, false, pMostThreatenedCity->plot(), pMostThreatenedCity->plot(), &iNumRequiredSlots);
+								if(iFilledSlots > 0 && ((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild))
+								{
+									m_pPlayer->addAIOperation(AI_OPERATION_CITY_CLOSE_DEFENSE, eLoopPlayer, pMostThreatenedCity->getArea(), pMostThreatenedCity, pMostThreatenedCity);
+								}
 							}
 						}
 						else
@@ -5239,9 +5253,8 @@ void CvMilitaryAI::LogAvailableForces()
 			{
 				continue;
 			}
-
 			// No units finishing up operations
-			else if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+			else if(pLoopUnit->IsRecentlyDeployedFromOperation())
 			{
 				continue;
 			}
@@ -6461,11 +6474,16 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 			}
 		}
 	}
+
+	ReachablePlots turnsFromMuster;
+	SPathFinderUserData data(pPlayer->GetID(),PT_GENERIC_REACHABLE_PLOTS,-1,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
+	turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMuster, data);
+
 	int iLoop = 0;
 	for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
 	{
 		int iDistance = 0;
-		if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMuster,pTarget,bRequiresNavalMoves,bMustBeDeepWaterNaval,iDistance))
+		if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMuster,turnsFromMuster,pTarget,bRequiresNavalMoves,bMustBeDeepWaterNaval,iDistance))
 		{
 			// Is this unit one of the requested types?
 			CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
@@ -6545,7 +6563,7 @@ UnitAITypes MilitaryAIHelpers::FirstSlotCityCanFill(CvPlayer* pPlayer, Multiunit
 			{
 				if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
 				{
-					if(pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() < GC.getGame().getGameTurn())
+					if(!pLoopUnit->IsRecentlyDeployedFromOperation())
 					{
 						if(!bRequiresNavalMoves || pLoopUnit->getDomainType() == DOMAIN_SEA || pLoopUnit->CanEverEmbark())
 						{

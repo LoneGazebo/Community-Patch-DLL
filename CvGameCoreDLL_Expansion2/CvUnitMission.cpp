@@ -129,7 +129,8 @@ void CvUnitMission::PushMission(UnitHandle hUnit, MissionTypes eMission, int iDa
 
 	if(!bAppend)
 	{
-		hUnit->ClearMissionQueue();
+		//keep the path cache if this is a move mission!
+		hUnit->ClearMissionQueue( eMission==CvTypes::getMISSION_MOVE_TO() );
 	}
 
 	if(bManual)
@@ -595,7 +596,10 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 			{
 				//need to declare war first
 				if(hUnit->CheckDOWNeededForMove(pkMissionData->iData1, pkMissionData->iData2))
-					return; //don't end the mission though!
+				{
+					hUnit->ClearMissionQueue();
+					return;
+				}
 
 				if(hUnit->getDomainType() == DOMAIN_AIR)
 				{
@@ -628,7 +632,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 					}
 
 					//only non-air units use the path cache
-					if (!hUnit->UpdatePathCache(pDestPlot, kMissionData.iFlags))
+					if (!hUnit->VerifyCachedPath(pDestPlot, kMissionData.iFlags, INT_MAX))
 					{
 						hUnit->ClearMissionQueue();
 						return;
@@ -1457,9 +1461,6 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 	bAction = false;
 	bNotify = false;
 
-	//important!
-	hUnit->ClearPathCache();
-
 	const MissionData* pkQueueData = GetHeadMissionData(hUnit);
 	if(!hUnit->CanStartMission(pkQueueData->eMissionType, pkQueueData->iData1, pkQueueData->iData2, hUnit->plot()))
 	{
@@ -1534,7 +1535,21 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 
 		if(hUnit->canMove())
 		{
-			if(pkQueueData->eMissionType == CvTypes::getMISSION_FORTIFY())
+			if( pkQueueData->eMissionType == CvTypes::getMISSION_MOVE_TO() ||
+				pkQueueData->eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT() ||
+				pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
+			{
+				//make sure the path cache is current
+				CvPlot* pDestPlot = GC.getMap().plot(pkQueueData->iData1, pkQueueData->iData2);
+				hUnit->GeneratePath(pDestPlot,pkQueueData->iFlags,INT_MAX);
+
+				if(pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
+				{
+					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit.pointer()));
+					gDLL->GameplayUnitWork(pDllUnit.get(), 0);
+				}
+			}
+			else if(pkQueueData->eMissionType == CvTypes::getMISSION_FORTIFY())
 			{
 				hUnit->SetFortifiedThisTurn(true);
 			}
@@ -1814,12 +1829,6 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 
 				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit.pointer()));
 				gDLL->GameplayUnitWork(pDllUnit.get(), (hUnit->HeadMissionQueueNode()->iData1));
-			}
-
-			else if(pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
-			{
-				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit.pointer()));
-				gDLL->GameplayUnitWork(pDllUnit.get(), 0);
 			}
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_LEAD())
@@ -2150,7 +2159,7 @@ MissionData* CvUnitMission::DeleteMissionQueueNode(UnitHandle hUnit, MissionData
 
 //	---------------------------------------------------------------------------
 /// Clear all queued missions
-void CvUnitMission::ClearMissionQueue(UnitHandle hUnit, int iUnitCycleTimerOverride)
+void CvUnitMission::ClearMissionQueue(UnitHandle hUnit, bool bKeepPathCache, int iUnitCycleTimerOverride)
 {
 	//VALIDATE_OBJECT
 	CvAssert(hUnit->getOwner() != NO_PLAYER);
@@ -2162,7 +2171,10 @@ void CvUnitMission::ClearMissionQueue(UnitHandle hUnit, int iUnitCycleTimerOverr
 		PopMission(hUnit);
 	}
 
-	hUnit->ClearPathCache();
+	if (!bKeepPathCache)
+	{
+		hUnit->ClearPathCache();
+	}
 
 	if((hUnit->getOwner() == GC.getGame().getActivePlayer()) && hUnit->IsSelected())
 	{

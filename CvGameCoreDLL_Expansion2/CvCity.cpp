@@ -12130,6 +12130,27 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			ChangeAlwaysHeal(pBuildingInfo->GetAlwaysHeal() * iChange);
 		}
+		if(bFirst && iChange > 0 && pBuildingInfo->GetNumFreeArtifacts() > 0)
+		{
+			for(int iI = 0; iI < pBuildingInfo->GetNumFreeArtifacts(); iI++)
+			{
+				if(iI <= pBuildingInfo->GetGreatWorkCount())
+				{
+					if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionModifier() > 0)
+					{
+						plot()->AddArchaeologicalRecord(CvTypes::getARTIFACT_SARCOPHAGUS(), GET_PLAYER(getOwner()).GetCurrentEra(), getOwner(), NO_PLAYER);
+					}
+					else
+					{
+						plot()->AddArchaeologicalRecord(CvTypes::getARTIFACT_ANCIENT_RUIN(), GET_PLAYER(getOwner()).GetCurrentEra(), getOwner(), NO_PLAYER);
+					}
+					GreatWorkType eGreatArtifact = CultureHelpers::GetArtifact(plot());
+					GreatWorkClass eClass = CultureHelpers::GetGreatWorkClass(eGreatArtifact);
+					int iGWindex = 	GC.getGame().GetGameCulture()->CreateGreatWork(eGreatArtifact, eClass, plot()->GetArchaeologicalRecord().m_ePlayer1, plot()->GetArchaeologicalRecord().m_eEra, "");
+					GetCityBuildings()->SetBuildingGreatWork(eBuildingClass, iI, iGWindex);
+				}
+			}
+		}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 		if(MOD_BALANCE_CORE_SPIES)
@@ -20828,7 +20849,13 @@ bool CvCity::IsHasOffice() const
 	if (eOffice == NO_BUILDINGCLASS)
 		return false;
 
-	return HasBuildingClass(eOffice);
+	const CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
+	BuildingTypes eBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(eOffice)));
+
+	if(eBuilding == NO_BUILDING)
+		return false;
+
+	return (m_pCityBuildings->GetNumBuilding(eBuilding) > 0);
 }
 
 bool CvCity::IsHasFranchise(CorporationTypes eCorporation) const
@@ -20859,7 +20886,13 @@ bool CvCity::IsHasFranchise(CorporationTypes eCorporation) const
 		}
 	}
 
-	return HasBuildingClass(eFranchise);
+	const CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
+	BuildingTypes eBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(eFranchise)));
+
+	if(eBuilding == NO_BUILDING)
+		return false;
+
+	return m_pCityBuildings->GetNumBuilding(eBuilding) > 0;
 }
 
 // Returns the yield change for this building based on the number of franchises
@@ -20907,12 +20940,19 @@ int CvCity::GetYieldChangeFromCorporationFranchises(YieldTypes eIndex) const
 void CvCity::UpdateYieldFromCorporationFranchises(YieldTypes eIndex)
 {
 	int iTotal = 0;
-	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	const CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
+	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
-		BuildingClassTypes eBuildingClass = (BuildingClassTypes)iI;
-		if (GetCityBuildings()->GetNumBuildingClass(eBuildingClass) > 0)
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
+		if(!pkBuildingClassInfo)
 		{
-			iTotal += GetBuildingYieldChangeFromCorporationFranchises(eBuildingClass, eIndex);
+			continue;
+		}
+		BuildingTypes eLoopBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
+
+		if(eLoopBuilding != NO_BUILDING && m_pCityBuildings->GetNumBuilding(eLoopBuilding) > 0)
+		{
+			iTotal += GetBuildingYieldChangeFromCorporationFranchises((BuildingClassTypes)iI, eIndex);
 		}
 	}
 

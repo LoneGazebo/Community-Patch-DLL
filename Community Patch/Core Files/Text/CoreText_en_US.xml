@@ -6421,6 +6421,61 @@
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_HELP">
 			<Text>Check to enable Vox Populi's Player and City Events System</Text>
 		</Row>
+		
+		<!-- Egypt CBO-->
+
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_1">
+			<Text>Sarcophagus of Khufu</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_2">
+			<Text>Sarcophagus of Neferefre</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_3">
+			<Text>Sarcophagus of Mentuhotep I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_4">
+			<Text>Sarcophagus of Menekhare</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_5">
+			<Text>Sarcophagus of Senwosret I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_6">
+			<Text>Sarcophagus of Hatshepsut</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_7">
+			<Text>Sarcophagus of Thutmose II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_8">
+			<Text>Sarcophagus of Ramesses I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_9">
+			<Text>Sarcophagus of Seti II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_10">
+			<Text>Sarcophagus of Amenemope</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_11">
+			<Text>Sarcophagus of Osorkon I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_12">
+			<Text>Sarcophagus of Iuput I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_13">
+			<Text>Sarcophagus of Nikauba</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_14">
+			<Text>Sarcophagus of Artaxerxes I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_15">
+			<Text>Sarcophagus of Berenike II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_16">
+			<Text>Sarcophagus of Cleopatra I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_17">
+			<Text>Sarcophagus of Ptolemy I</Text>
+		</Row>
+		
 	</Language_en_US>
 	<PostDefines>
 		<Row Name="PROMOTION_DEEPWATER_EMBARKATION">

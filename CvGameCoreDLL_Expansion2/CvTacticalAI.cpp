@@ -530,10 +530,9 @@ void CvTacticalAI::CommandeerUnits()
 			}
 			else
 			{
-				// Non-zero danger value or near enemy, or deploying out of an operation?
+				// Non-zero danger value or near enemy, or recently deployed out of an operation?
 				int iDanger = m_pPlayer->GetPlotDanger(*(pLoopUnit->plot()),pLoopUnit);
-				if ((iDanger > 0 || NearVisibleEnemy(pLoopUnit, GetRecruitRange())) ||
-				        pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+				if (iDanger > 0 || NearVisibleEnemy(pLoopUnit, GetRecruitRange()) || pLoopUnit->IsRecentlyDeployedFromOperation())
 				{
 					if (pLoopUnit->getTacticalMove()==NO_TACTICAL_MOVE)
 						pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
@@ -6499,7 +6498,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 				if (!bMoveMade)
 				{
 					ReachablePlots reachablePlots;
-					TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
+					TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
 					for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 					{
 						CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -7471,7 +7470,7 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 			//get plots we can move into with enough movement left
 			int iMinMovesLeft = pUnit->isMustSetUpToRangedAttack() ? GC.getMOVE_DENOMINATOR()+1 : 1;
 			ReachablePlots movePlots;
-			TacticalAIHelpers::GetAllPlotsInReach( pUnit, pUnit->plot(), movePlots, true, true, false, iMinMovesLeft);
+			TacticalAIHelpers::GetAllPlotsInReachThisTurn( pUnit, pUnit->plot(), movePlots, true, true, false, iMinMovesLeft);
 
 			//check the overlap between attack plots and move plots
 			std::set<int> candidates;
@@ -7759,7 +7758,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 			{	
 				// Find units really close to target or somewhat close that just came out of an operation
 				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), kTarget.GetTargetX(), kTarget.GetTargetY());
-				if(iDistance <= iTacticalRadius || (iDistance <= iTacticalRadius*2 && pUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn()))
+				if(iDistance <= iTacticalRadius || (iDistance <= iTacticalRadius*2 && pUnit->IsRecentlyDeployedFromOperation()))
 				{
 					unit.SetUnitID(pUnit->GetID());
 
@@ -8195,7 +8194,7 @@ CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget
 		return NULL;
 
 	ReachablePlots reachablePlots;
-	TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
+	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
 
 	if (reachablePlots.empty())
 		return NULL;
@@ -10497,7 +10496,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 			CvPlot* pArmyCOM = pArmyAI ? pArmyAI->GetCenterOfMass() : NULL;
 
 			ReachablePlots reachablePlots;
-			TacticalAIHelpers::GetAllPlotsInReach(pGeneral.pointer(),pGeneral->plot(),reachablePlots,true,true,false);
+			TacticalAIHelpers::GetAllPlotsInReachThisTurn(pGeneral.pointer(),pGeneral->plot(),reachablePlots,true,true,false);
 			for (ReachablePlots::const_iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
 				CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -11158,7 +11157,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pLoopPlot)
 					iMultiplier *= 5;
 				}
 				//recent operation
-				if(pSupportedUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+				if(pSupportedUnit->IsRecentlyDeployedFromOperation())
 					iMultiplier++;
 
 				//many friendly units around
@@ -11173,7 +11172,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pLoopPlot)
 				if(pSupportedUnit->IsEnemyCityAdjacent())
 					iMultiplier++;
 				//recent operation
-				if(pSupportedUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+				if(pSupportedUnit->IsRecentlyDeployedFromOperation())
 					iMultiplier++;
 				//many friendly units around
 				if(pSupportedUnit->GetNumSpecificPlayerUnitsAdjacent(pDefender.pointer())>2)
@@ -11537,7 +11536,7 @@ bool CvTacticalAI::IsUnitHealing(int iUnitID) const
 
 //	--------------------------------------------------------------------------------
 /// get all tiles a unit can reach in one turn - this ignores friendly stacking. need to check the result by hand!
-int TacticalAIHelpers::GetAllPlotsInReach(const CvUnit* pUnit, const CvPlot* pStartPlot, ReachablePlots& resultSet, 
+int TacticalAIHelpers::GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvPlot* pStartPlot, ReachablePlots& resultSet, 
 	bool bCheckTerritory, bool bCheckZOC, bool bAllowEmbark, int iMinMovesLeft)
 {
 	if (!pUnit || !pStartPlot)
@@ -11669,7 +11668,7 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, const CvPlot* pT
 		int iMinMovesLeft = pUnit->isMustSetUpToRangedAttack() ? GC.getMOVE_DENOMINATOR()+1 : 1;
 
 		ReachablePlots reachablePlots;
-		TacticalAIHelpers::GetAllPlotsInReach(pUnit,pUnit->plot(),reachablePlots,true,true,false,iMinMovesLeft);
+		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),reachablePlots,true,true,false,iMinMovesLeft);
 		for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 		{
 			CvPlot* pCandidate = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -11829,7 +11828,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 	CvWeightedVector<CvPlot*, 8, true> aDangerList;
 
 	ReachablePlots eligiblePlots;
-	TacticalAIHelpers::GetAllPlotsInReach(pUnit, pUnit->plot(), eligiblePlots, true, true, true);
+	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), eligiblePlots, true, true, true);
 
 	for (ReachablePlots::iterator it=eligiblePlots.begin(); it!=eligiblePlots.end(); ++it)
 	{
@@ -11932,7 +11931,7 @@ void CTacticalUnitArray::push_back(const CvTacticalUnit& unit)
 	}
 }
 
-CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(const CvUnit* pUnit, bool bWithinOwnTerritory, int iMaxDistance)
+CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWithinOwnTerritory, int iMaxDistance)
 {
 	if (!pUnit)
 		return NULL;
@@ -12202,7 +12201,7 @@ bool TacticalAIHelpers::IsCaptureTargetInRange(CvUnit * pUnit)
 	if (pUnit && pUnit->IsCombatUnit() && !pUnit->isRanged() && !pUnit->isNoCapture())
 	{
 		ReachablePlots reachablePlots;
-		TacticalAIHelpers::GetAllPlotsInReach(pUnit,pUnit->plot(),reachablePlots,true,true,false);
+		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),reachablePlots,true,true,false);
 
 		for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 		{
@@ -12292,7 +12291,7 @@ bool TacticalAIHelpers::GetPreferredPlotsForUnit(CvUnit* pUnit, CvPlot* pTargetP
 
 	//minMovesLeft is checked later to determine if we can attack from there
 	ReachablePlots eligiblePlots;
-	TacticalAIHelpers::GetAllPlotsInReach(pUnit, pUnit->plot(), eligiblePlots, true, true, false, 0);
+	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), eligiblePlots, true, true, false, 0);
 	int iMaxAttacks = pUnit->getNumAttacks() - pUnit->getNumAttacksMadeThisTurn();
 
 	for (ReachablePlots::iterator it=eligiblePlots.begin(); it!=eligiblePlots.end(); ++it)

@@ -3169,7 +3169,7 @@ int CvPlayerTrade::GetTradeConnectionCorporationModifierTimes100(const TradeConn
 	{
 		bool bOfficesAsFranchises = GET_PLAYER(pOriginCity->getOwner()).GetCorporations()->IsCorporationOfficesAsFranchises();
 		//If nationalized, we must be targetting our own city
-		if (!bOfficesAsFranchises || pOriginCity->getOwner() == pDestCity->getOwner())
+		if (bOfficesAsFranchises && pOriginCity->getOwner() == pDestCity->getOwner())
 		{
 			// Target only trade routes to cities with a Franchise - IsHasFranchise() also counts Nationalized Offices as franchises!
 			if (pOriginCity->IsHasOffice() && pDestCity->IsHasFranchise(eCorporation))
@@ -3179,7 +3179,7 @@ int CvPlayerTrade::GetTradeConnectionCorporationModifierTimes100(const TradeConn
 		}
 
 		// Do we have a building that grants a bonus toward cities with Franchises?
-		if (pDestCity->IsHasFranchise(eCorporation) && pOriginCity->IsHasOffice() && pkCorporationInfo->GetTradeRouteMod((int)eYield) > 0)
+		else if (pDestCity->IsHasFranchise(eCorporation) && pOriginCity->IsHasOffice() && pkCorporationInfo->GetTradeRouteMod((int)eYield) > 0)
 		{
 			iModifier += pkCorporationInfo->GetTradeRouteMod((int)eYield);
 		}

@@ -309,7 +309,7 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_CITY_STATE_ATTACK_FORCE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_CITY_BOMBARD</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_RANGED</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_CITY_BOMBARD</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
@@ -330,7 +330,7 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_CITY_STATE_ATTACK_FORCE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_CITY_BOMBARD</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_RANGED</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_CITY_BOMBARD</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<Row>
@@ -714,6 +714,18 @@
 			<PrimaryUnitType>UNITAI_COUNTER</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_RAPID_RESPONSE_FORCE</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_COUNTER</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RANGED</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_RAPID_RESPONSE_FORCE</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_RANGED</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<Delete MultiUnitFormationType="MUFORMATION_CLOSE_CITY_DEFENSE"/>
 		<Row>

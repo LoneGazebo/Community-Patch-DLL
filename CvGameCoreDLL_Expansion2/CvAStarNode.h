@@ -46,7 +46,8 @@ class CvPlot;
 enum PathType
 {
 	PT_UNIT_MOVEMENT,			//path for a particular unit (stacking,ZoC,danger handled via flag)
-	PT_UNIT_REACHABLE_PLOTS,	//all plots a unit can reach this turn
+	PT_UNIT_REACHABLE_PLOTS,	//all plots a unit can reach in N turns
+	PT_GENERIC_REACHABLE_PLOTS, //all plots that can be reached in N turns without knowning the particular unit
 	PT_GENERIC_SAME_AREA,		//plots must have the same area ID (ie only water or only land)
 	PT_GENERIC_ANY_AREA,		//plots can have any area ID, simply need to be passable
 	PT_GENERIC_SAME_AREA_WIDE,	//path must be 3 tiles wide (for armies)
@@ -204,6 +205,8 @@ struct SMovePlot
 	SMovePlot(int iIndex) : iPlotIndex(iIndex), iTurns(0), iMovesLeft(0) {}
 	SMovePlot(int iIndex, int iTurns_, int iMovesLeft_) : iPlotIndex(iIndex), iTurns(iTurns_), iMovesLeft(iMovesLeft_) {}
 
+	//this ignores the turns/moves so std::find with just a plot index should work
+	bool operator==(const SMovePlot& rhs) const { return iPlotIndex==rhs.iPlotIndex; }
 	bool operator<(const SMovePlot& rhs) const { return iPlotIndex<rhs.iPlotIndex; }
 };
 

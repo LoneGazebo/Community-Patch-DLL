@@ -190,6 +190,7 @@ public:
 	bool IsReformation() const;
 	bool IsBuildAnywhere() const;
 	int GetTradeReligionModifier() const;
+	int GetNumFreeArtifacts() const;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int GetCannotFailSpies() const;
@@ -688,6 +689,7 @@ private:
 	bool m_bIsReformation;
 	bool m_bBuildAnywhere;
 	int m_iTradeReligionModifier;
+	int m_iFreeArtifacts;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int m_iCannotFailSpies;

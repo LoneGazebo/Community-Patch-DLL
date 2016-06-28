@@ -4437,7 +4437,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if(pkBuildingInfo->GetInstantYield(eYield) > 0)
 	{
-		iYieldValue += (pkBuildingInfo->GetInstantYield(eYield) / 5);
+		iYieldValue += pkBuildingInfo->GetInstantYield(eYield);
 	}
 	if(pkBuildingInfo->GetGrowthExtraYield(eYield) > 0)
 	{
@@ -5428,16 +5428,16 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 	
 	if(pkBuildingInfo->GetGreatWorkSlotType() == eArtArtifactSlot)
 	{
-		iBonus += (kPlayer.GetPlayerTraits()->GetArtifactYieldChanges(eYield) * 5);
-		iBonus += (kPlayer.GetPlayerTraits()->GetArtYieldChanges(eYield) * 5);
+		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetArtifactYieldChanges(eYield) * 10);
+		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetArtYieldChanges(eYield) * 10);
 	}
 	if(pkBuildingInfo->GetGreatWorkSlotType() == eWritingSlot)
 	{
-		iBonus += (kPlayer.GetPlayerTraits()->GetLitYieldChanges(eYield) * 5);
+		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetLitYieldChanges(eYield) * 10);
 	}
 	if(pkBuildingInfo->GetGreatWorkSlotType() == eMusicSlot)
 	{
-		iBonus += (kPlayer.GetPlayerTraits()->GetMusicYieldChanges(eYield) * 5);
+		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetMusicYieldChanges(eYield) * 10);
 	}
 
 	if(kPlayer.GetPlayerTraits()->GetBuildingClassYieldChange((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield) > 0)
@@ -5463,6 +5463,14 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 	if(eYield == YIELD_GOLDEN_AGE_POINTS && kPlayer.GetPlayerTraits()->GetWLTKDGATimer() > 0)
 	{
 		iBonus += 100;
+	}
+
+	if(eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
+	{
+		if(pkBuildingInfo->GetGreatWorkCount() > 0)
+		{
+			iBonus += 20 * pkBuildingInfo->GetGreatWorkCount();
+		}
 	}
 
 	if(eYield == YIELD_SCIENCE)

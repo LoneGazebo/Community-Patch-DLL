@@ -87,6 +87,9 @@ const GreatWorkArtifactClass getARTIFACT_BATTLE_RANGED();
 const GreatWorkArtifactClass getARTIFACT_BATTLE_MELEE(); 
 const GreatWorkArtifactClass getARTIFACT_RAZED_CITY();
 const GreatWorkArtifactClass getARTIFACT_WRITING();
+#if defined(MOD_BALANCE_CORE)
+const GreatWorkArtifactClass getARTIFACT_SARCOPHAGUS();
+#endif
 
 const GreatWorkSlotType getGREAT_WORK_SLOT_ART_ARTIFACT();
 const GreatWorkSlotType getGREAT_WORK_SLOT_LITERATURE();

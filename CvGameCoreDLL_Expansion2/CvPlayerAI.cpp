@@ -324,9 +324,12 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 		return;
 	}
 	//Don't burn down gifts, that makes you look ungrateful.
-	if(!bGift)
+	if(bGift)
 	{
+		return;
+	}
 #endif
+
 	// Liberate a city?
 	if(eOriginalOwner != eOldOwner && eOriginalOwner != GetID() && CanLiberatePlayerCity(eOriginalOwner))
 	{
@@ -393,8 +396,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 		// Huns will burn down everything possible once they have a core of a few cities (was 3, but this put Attila out of the running long term as a conqueror)
 #if defined(MOD_GLOBAL_CS_RAZE_RARELY)
 		CUSTOMLOG("AI_conquerCity: City=%s, Player=%d, ExcessHappiness=%d", pCity->getName().GetCString(), GetID(), GetExcessHappiness());
-		bool bUnhappy = IsEmpireVeryUnhappy();
-		if (bUnhappy || (GC.getMap().GetAIMapHint() & ciMapHint_Raze) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= GetDiplomacyAI()->GetBoldness() + (GC.getGame().getGameTurn() / 100)) )
+		if (IsEmpireVeryUnhappy() || (GC.getMap().GetAIMapHint() & ciMapHint_Raze) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= GetDiplomacyAI()->GetBoldness() + (GC.getGame().getGameTurn() / 100)) )
 #else
 		if (IsEmpireUnhappy() || (GC.getMap().GetAIMapHint() & 2) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= 3 + (GC.getGame().getGameTurn() / 100)) )
 #endif
@@ -402,33 +404,29 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 			pCity->doTask(TASK_RAZE);
 			return;
 		}
-	}
+
 #if defined(MOD_BALANCE_CORE)
-	if(canRaze(pCity) && IsEmpireUnhappy())
-	{
-		MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(pCity->getOriginalOwner());
-		if(eOpinion <= MAJOR_CIV_OPINION_ENEMY)
+		if(IsEmpireUnhappy() && !pCity->HasAnyWonder())
 		{
-			pCity->doTask(TASK_RAZE);
-			return;
-		}
-	}
-	if(canRaze(pCity) && IsEmpireUnhappy())
-	{
-		if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOldOwner).getTeam()))
-		{
-			if(GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
+			MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(pCity->getOriginalOwner());
+			if(eOpinion <= MAJOR_CIV_OPINION_ENEMY)
 			{
 				pCity->doTask(TASK_RAZE);
 				return;
 			}
+
+			if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOldOwner).getTeam()))
+			{
+				if(GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
+				{
+					pCity->doTask(TASK_RAZE);
+					return;
+				}
+			}
 		}
+#endif
 	}
 
-#endif
-#if defined(MOD_BALANCE_CORE)
-	}
-#endif
 	// Puppet the city
 	if(pCity->getOriginalOwner() != GetID() || GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
 	{
@@ -1612,11 +1610,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 
 	bool bWar = (GetMilitaryAI()->GetNumberCivsAtWarWith(false)>0);
 
-	if(pGreatGeneral->getArmyID() != -1)
-	{
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
-	if(pGreatGeneral->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
+	//in army or recently out of an army?
+	if(pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
@@ -1733,14 +1728,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 
 	bool bWar = (GetMilitaryAI()->GetNumberCivsAtWarWith(false)>0);
 
-	if(pGreatAdmiral->getArmyID() != -1)
-	{
+	if(pGreatAdmiral->getArmyID() != -1 || pGreatAdmiral->IsRecentlyDeployedFromOperation())
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
-	if(pGreatAdmiral->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
-	{
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
 
 	int iFriendlies = 0;
 	if(bWar && (pGreatAdmiral->plot()->getNumDefenders(GetID()) > 0))

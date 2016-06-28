@@ -297,9 +297,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	
 	//Let's not send uniques through this - they're generally good enough to spam.
-	if((BuildingTypes)kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(eBuilding))
+	if(kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(pkBuildingInfo->GetBuildingClassType()))
 	{
-		iValue *= 10;
+		iValue *= 20;
 		return iValue;
 	}
 	if(isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo) || isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))

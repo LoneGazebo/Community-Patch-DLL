@@ -125,9 +125,9 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	if(iTempWeight == 0)
 		return 0;
 
-	if(iTempWeight > 600)
+	if(iTempWeight > 425)
 	{
-		iTempWeight = 600;
+		iTempWeight = 450;
 	}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
@@ -201,7 +201,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 
 		if(m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 		{
-			iModifier += 75;
+			iModifier += 50;
 		}
 		if(pProcess->getProductionToYieldModifier(eYield) > 0)
 		{
@@ -213,12 +213,12 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(m_pCity->getUnhappinessFromGold() > 0)
 						{
-							iModifier += (m_pCity->getUnhappinessFromGold() * 5);
+							iModifier += (m_pCity->getUnhappinessFromGold() * 2);
 						}
 					}
 					if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
 					{
-						iModifier += 50;
+						iModifier += 25;
 					}
 				}
 				break;
@@ -228,7 +228,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(m_pCity->getUnhappinessFromCulture() > 0)
 						{
-							iModifier += (m_pCity->getUnhappinessFromCulture() * 5);
+							iModifier += (m_pCity->getUnhappinessFromCulture() * 2);
 						}
 					}
 					if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
@@ -243,7 +243,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(m_pCity->getUnhappinessFromScience() > 0)
 						{
-							iModifier += (m_pCity->getUnhappinessFromScience() * 5);
+							iModifier += (m_pCity->getUnhappinessFromScience() * 2);
 						}
 					}
 					if(eScienceCap != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eScienceCap))
@@ -258,20 +258,20 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(m_pCity->getUnhappinessFromStarving() > 0)
 						{
-							iModifier += (m_pCity->getUnhappinessFromStarving() * 5);
+							iModifier += (m_pCity->getUnhappinessFromStarving() * 2);
 						}
 					}
 					if(eGrowCrazy != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eGrowCrazy))
 					{
-						iModifier += 25;
+						iModifier += 15;
 					}
 					if(eNeedFood != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFood))
 					{
-						iModifier += 25;
+						iModifier += 15;
 					}
 					if(eNeedFoodNaval != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFoodNaval))
 					{
-						iModifier += 25;
+						iModifier += 10;
 					}
 				}
 				break;
@@ -432,7 +432,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 
 	if(m_pCity->IsPuppet())
 	{
-		iTempWeight *= (75 + iModifier);
+		iTempWeight *= (60 + iModifier);
 		iTempWeight /= 100;
 	}
 	else

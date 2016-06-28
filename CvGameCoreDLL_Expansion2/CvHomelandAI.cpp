@@ -407,9 +407,6 @@ void CvHomelandAI::EstablishHomelandPriorities()
 			break;
 		case AI_HOMELAND_MOVE_GARRISON:
 			// Garrisons must beat out sentries if policies encourage garrisoning
-#if defined(MOD_BALANCE_CORE)
-			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_GARRISON();
-#else
 			if(m_pPlayer->GetPlayerPolicies()->HasPolicyEncouragingGarrisons())
 			{
 				iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_SENTRY() + 1;
@@ -419,7 +416,6 @@ void CvHomelandAI::EstablishHomelandPriorities()
 			{
 				iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_GARRISON();
 			}
-#endif
 			break;
 		case AI_HOMELAND_MOVE_HEAL:
 			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_HEAL();
@@ -510,6 +506,16 @@ void CvHomelandAI::EstablishHomelandPriorities()
 		case AI_HOMELAND_MOVE_AIRLIFT:
 			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_AIRLIFT();
 			break;
+#if defined(MOD_AI_SECONDARY_SETTLERS)
+		case AI_HOMELAND_MOVE_SECONDARY_SETTLER:
+			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_SECONDARY_SETTLER();
+			break;
+#endif
+#if defined(MOD_AI_SECONDARY_WORKERS)
+		case AI_HOMELAND_MOVE_SECONDARY_WORKER:
+			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_SECONDARY_WORKER();
+			break;
+#endif
 		}
 
 		// Make sure base priority is not negative
@@ -999,6 +1005,16 @@ void CvHomelandAI::AssignHomelandMoves()
 		case AI_HOMELAND_MOVE_AIRLIFT:
 			PlotAirliftMoves();
 			break;
+#if defined(MOD_AI_SECONDARY_SETTLERS)
+		case AI_HOMELAND_MOVE_SECONDARY_SETTLER:
+			PlotOpportunisticSettlementMoves();
+			break;
+#endif
+#if defined(MOD_AI_SECONDARY_SETTLERS)
+		case AI_HOMELAND_MOVE_SECONDARY_WORKER:
+			PlotWorkerMoves(true);
+			break;
+#endif
 		}
 	}
 
@@ -1376,9 +1392,6 @@ void CvHomelandAI::PlotMobileReserveMoves()
 /// Send units to sentry points around borders
 void CvHomelandAI::PlotSentryMoves()
 {
-#if defined(MOD_BALANCE_CORE)
-	PlotWorkerMoves(true);
-#endif
 	// Do we have any targets of this type?
 	if(!m_TargetedSentryPoints.empty())
 	{
@@ -1413,19 +1426,16 @@ void CvHomelandAI::PlotSentryMoves()
 }
 
 #if defined(MOD_AI_SECONDARY_SETTLERS)
-typedef CvWeightedVector<CvPlot*, 1, true> WeightedFoundPlotVector;
-
 void CvHomelandAI::PlotOpportunisticSettlementMoves()
 {
+	if(!MOD_AI_SECONDARY_SETTLERS)
+		return;
+
+	ClearCurrentMoveUnits();
 	const char* szCiv = m_pPlayer->getCivilizationTypeKey();
 
 	int iMinHappiness = gCustomMods.getCivOption(szCiv, "SECONDARY_SETTLERS_MIN_HAPPINESS", 5);
 	int iMinTurnsSinceLastCity = gCustomMods.getCivOption(szCiv, "SECONDARY_SETTLERS_MIN_TURNS_SINCE_LAST_CITY", 10);
-	int iMinRevealedTilesThisLandmass = gCustomMods.getCivOption(szCiv, "SECONDARY_SETTLERS_MIN_REVEALED_TILES", 10);
-	int iMaxDistance = gCustomMods.getCivOption(szCiv, "SECONDARY_SETTLERS_MAX_DISTANCE", 10);
-	int iMaxPlotsToConsider = gCustomMods.getCivOption(szCiv, "SECONDARY_SETTLERS_MAX_PLOTS_CONSIDER", 3);
-	int iMaxSettleDistance = gCustomMods.getCivOption(szCiv, "SECONDARY_SETTLERS_MAX_SETTLE_DISTANCE", 1);
-	int iMaxTravelDistance = gCustomMods.getCivOption(szCiv, "SECONDARY_SETTLERS_MAX_TRAVEL_DISTANCE", 3);
 
 	int iCapitalX = 0;
 	int iCapitalY = 0;
@@ -1450,22 +1460,41 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 	}
 	
 	int iLoop;
-	for (pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop)) {
-		if (!pLoopUnit->IsCombatUnit() && pLoopUnit->isFound()) {
+	for (pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop)) 
+	{
+		if ((!pLoopUnit->IsCombatUnit() && pLoopUnit->isFound()) || (pLoopUnit->IsCombatUnit() && pLoopUnit->AI_getUnitAIType() == UNITAI_SETTLE))
+		{
 			return;
 		}
 	}
 	
-	// Make a list of all combat units that are on a landmass of a suitable size and could found a city at their current plot
+	// Make a list of all combat units that can do this.
 	MoveUnitsArray PossibleSettlerUnits;
+	int iDistance = 0;
+	ReachablePlots turnsFromMuster;
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it) {
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if (pUnit) {
-			if (pUnit->IsCombatUnit() && GC.getMap().getArea(pUnit->getArea())->getNumRevealedTiles(m_pPlayer->getTeam()) > iMinRevealedTilesThisLandmass && pUnit->canFound(pUnit->plot())) {
-				CvHomelandUnit unit;
-				unit.SetID(pUnit->GetID());
-				unit.SetAuxIntData(plotDistance(pUnit->getX(), pUnit->getY(), iCapitalX, iCapitalY));
-				PossibleSettlerUnits.push_back(unit);
+			if (pUnit->IsCombatUnit()) 
+			{
+				CvUnit* pTestUnit = pUnit.pointer();
+				if(pTestUnit)
+				{
+					if(OperationalAIHelpers::IsUnitSuitableForRecruitment(pTestUnit,pTestUnit->plot(), turnsFromMuster, pTestUnit->plot(),false,false,iDistance))
+					{
+						CvHomelandUnit unit;
+						unit.SetID(pUnit->GetID());
+						unit.SetAuxIntData(plotDistance(pUnit->getX(), pUnit->getY(), iCapitalX, iCapitalY));
+						PossibleSettlerUnits.push_back(unit);
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							CvString strTemp;
+							strLogString.Format("%s (%d): found secondary settler, X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
+							LogHomelandMessage(strLogString);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -1473,65 +1502,16 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 	// Sort them by proximity to the capital
 	std::stable_sort(PossibleSettlerUnits.begin(), PossibleSettlerUnits.end(), HomelandAIHelpers::CvHomelandUnitAuxIntSort);
 	
-	if (PossibleSettlerUnits.size() > 0) {
-		// CUSTOMLOG("%i possible units for opportunistic settlement", PossibleSettlerUnits.size());
-		CvMap& kMap = GC.getMap();
-		TeamTypes eUnitTeam = m_pPlayer->getTeam();
-
+	if (PossibleSettlerUnits.size() > 0) 
+	{
 		MoveUnitsArray::iterator settlerUnitIt;
-		for (settlerUnitIt = PossibleSettlerUnits.begin(); settlerUnitIt != PossibleSettlerUnits.end(); ++settlerUnitIt) {
+		for (settlerUnitIt = PossibleSettlerUnits.begin(); settlerUnitIt != PossibleSettlerUnits.end(); ++settlerUnitIt) 
+		{
 			UnitHandle pUnit = m_pPlayer->getUnit(settlerUnitIt->GetID());
-			int iArea = pUnit->getArea();
-			int iUnitX = pUnit->getX();
-			int iUnitY = pUnit->getY();
-			// CUSTOMLOG("  ... for unit at (%i, %i)", iUnitX, iUnitY);
-
-			// Find the best locations on the landmass (within X tiles of the unit)
-			WeightedFoundPlotVector aBestPlots;
-			aBestPlots.reserve((iMaxDistance+1) * 2);
-
-			for (int iPlotX = iUnitX-iMaxDistance; iPlotX != iUnitX+iMaxDistance; iPlotX++) {
-				for (int iPlotY = iUnitY-iMaxDistance; iPlotY != iUnitY+iMaxDistance; iPlotY++) {
-					CvPlot* pPlot = kMap.plot(iPlotX, iPlotY);
-					if (!pPlot) continue;
-					if (pPlot->getArea() != iArea) continue;
-					if (!pPlot->isRevealed(eUnitTeam)) continue;
-					if (!m_pPlayer->canFound(iPlotX, iPlotY)) continue;
-
-					aBestPlots.push_back(pPlot, pPlot->getFoundValue(m_pPlayer->GetID()) );
-				}
-			}
-
-			if (aBestPlots.size() > 0) {
-				int iMaxPlots = std::min(iMaxPlotsToConsider, aBestPlots.size());
-				// CUSTOMLOG("  ... found %i possible plots, considering the first %i", aBestPlots.size(), iMaxPlots);
-
-				aBestPlots.SortItems();
-
-				// For the first N locations, can the unit reach it in less than one turn (ie move to the plot and found the city as one turn)
-				for (int i = 0; i < iMaxPlots; ++i ) {
-					int iPathTurns;
-					CvPlot* pFoundPlot = aBestPlots.GetElement(i);
-					// CUSTOMLOG("  ... possible city plot at (%i, %i)", pFoundPlot->getX(), pFoundPlot->getY());
-					bool bCanFindPath = pUnit->GeneratePath(pFoundPlot, 0, INT_MAX, &iPathTurns);
-
-					if (bCanFindPath) {
-						// CUSTOMLOG("    ... is %i moves away", iPathTurns)
-						
-						if (iPathTurns <= iMaxSettleDistance) {
-							// CUSTOMLOG("    ... here comes the city!")
-							// If so, move to the plot, found the city and bail out of this method
-							pUnit->setXY(pFoundPlot->getX(), pFoundPlot->getY());
-							pUnit->PushMission(CvTypes::getMISSION_FOUND());
-							UnitProcessed(pUnit->GetID());
-							return;
-						} else if (iPathTurns <= iMaxTravelDistance) {
-							// CUSTOMLOG("    ... moving towards the city site!")
-							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pFoundPlot->getX(), pFoundPlot->getY());
-							UnitProcessed(pUnit->GetID());
-						}
-					}
-				}
+			if(pUnit)
+			{
+				pUnit->AI_setUnitAIType(UNITAI_SETTLE);
+				break;
 			}
 		}
 	}
@@ -1546,6 +1526,9 @@ void CvHomelandAI::PlotWorkerMoves(bool bSecondary)
 void CvHomelandAI::PlotWorkerMoves()
 #endif
 {
+	if(bSecondary && !MOD_AI_SECONDARY_WORKERS)
+		return;
+
 	ClearCurrentMoveUnits();
 
 	// Loop through all recruited units
@@ -1768,12 +1751,6 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 /// When nothing better to do, have units patrol to an adjacent tiles
 void CvHomelandAI::PlotPatrolMoves()
 {
-#if defined(MOD_AI_SECONDARY_SETTLERS)
-	if (MOD_AI_SECONDARY_SETTLERS && !m_pPlayer->isMinorCiv()) {
-		// Find any units with a secondary role of settler and check for opportunistic city founding
-		PlotOpportunisticSettlementMoves();
-	}
-#endif
 	
 	ClearCurrentMoveUnits();
 
@@ -1783,8 +1760,8 @@ void CvHomelandAI::PlotPatrolMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && pUnit->IsCombatUnit() && pUnit->getDomainType() != DOMAIN_AIR)
 		{
-			CvPlot* pTarget = HomelandAIHelpers::GetPatrolTarget(pUnit->plot(),pUnit->getOwner(),37);
-			if(pTarget && pUnit->GeneratePath(pTarget,CvUnit::MOVEFLAG_APPROXIMATE_TARGET,23))
+			CvPlot* pTarget = HomelandAIHelpers::GetPatrolTarget(pUnit.pointer());
+			if(pTarget)
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -1796,7 +1773,8 @@ void CvHomelandAI::PlotPatrolMoves()
 					LogHomelandMessage(strLogString);
 				}
 
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROXIMATE_TARGET);
+				//use the exact target location - GetPatrolTarget makes sure there is a free spot
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
 				pUnit->finishMoves();
 				UnitProcessed(pUnit->GetID());
 			}
@@ -2721,13 +2699,6 @@ void CvHomelandAI::PlotAirliftMoves()
 /// Log that we couldn't find assignments for some units
 void CvHomelandAI::ReviewUnassignedUnits()
 {
-#if defined(MOD_AI_SECONDARY_WORKERS)
-	if (MOD_AI_SECONDARY_WORKERS && !m_pPlayer->isMinorCiv()) {
-		// Find any units with a secondary role of worker and see if there is anything close to build
-		PlotWorkerMoves(true);
-	}
-#endif
-
 	// Loop through all remaining units
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
@@ -3140,7 +3111,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 		
 		//first check our immediate neighborhood (ie the tiles we can reach within one turn)
 		ReachablePlots eligiblePlots;
-		TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(), pUnit->plot(), eligiblePlots, true, true, false);
+		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit.pointer(), pUnit->plot(), eligiblePlots, true, true, false);
 		for (ReachablePlots::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
 		{
 			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->iPlotIndex);
@@ -4835,7 +4806,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
 			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
 			ReachablePlots reachablePlots;
-			TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
+			TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
 			for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
 				CvPlot* pCandidate = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -4903,7 +4874,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			//this directive should normally be handled in tactical AI (operation moves, close on target or hedgehog)
 			//we could use ScoreGreatGeneralPlot() here, but maybe a different algorithm is a good idea
 			ReachablePlots reachablePlots;
-			TacticalAIHelpers::GetAllPlotsInReach(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
+			TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit.pointer(),pUnit->plot(),reachablePlots,true,true,false);
 			for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 			{
 
@@ -4990,7 +4961,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		if( pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE || 
-			(pUnit->IsCityAttackSupport() && pUnit->canRecruitFromTacticalAI() && ((pUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS()) < GC.getGame().getGameTurn())) )
+			(pUnit->IsCityAttackSupport() && pUnit->canRecruitFromTacticalAI() && !pUnit->IsRecentlyDeployedFromOperation()))
 		{
 			int iUnitLoop = 0;
 			int iTotalGenerals = 0;
@@ -6212,7 +6183,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 {
 	WeightedPlotVector aBestPlotList;
 	ReachablePlots reachablePlots;
-	TacticalAIHelpers::GetAllPlotsInReach(pUnit,pUnit->plot(),reachablePlots,true,true,true);
+	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),reachablePlots,true,true,true);
 	for (ReachablePlots::iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
 	{
 		{
@@ -7882,30 +7853,24 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 
 
 //check all tactical zones to find the one we need to support most 
-CvPlot* HomelandAIHelpers::GetPatrolTarget(CvPlot* pOriginPlot, PlayerTypes ePlayer, int iRange)
+CvPlot* HomelandAIHelpers::GetPatrolTarget(CvUnit* pUnit, int nTargetsToCheck)
 {
-	if (!pOriginPlot || iRange<0)
-		return false;
+	if (!pUnit)
+		return NULL;
 
-	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
 	const std::vector<PlayerTypes>& vFutureEnemies = kPlayer.GetPlayersAtWarWithInFuture();
 	CvTacticalAnalysisMap* pTactMap = GC.getGame().GetTacticalAnalysisMap();
 
-	CvPlot* pBestTarget = 0;
-	int iBestScore = 0;
-	int iScore = 0;
+	std::vector<SPlotWithScore> vTargets;
 	for(int iI = 0; iI < pTactMap->GetNumZones(); iI++)
 	{
 		CvTacticalDominanceZone* pZone = pTactMap->GetZone(iI);
-		if (!pZone || pZone->GetOwner()!=ePlayer)
+		if (!pZone || pZone->GetOwner()!=pUnit->getOwner())
 			continue;
 
 		CvCity* pZoneCity = pZone->GetZoneCity();
 		if (!pZoneCity)
-			continue;
-
-		int iDistance = plotDistance(*pOriginPlot,*pZoneCity->plot());
-		if (iDistance>iRange)
 			continue;
 
 		int iFriendlyPower = pZone->GetFriendlyStrength();
@@ -7919,7 +7884,7 @@ CvPlot* HomelandAIHelpers::GetPatrolTarget(CvPlot* pOriginPlot, PlayerTypes ePla
 				continue;
 
 			//some base strength for zones with low visibility
-			if (pOtherZone->GetOwner()!=ePlayer)
+			if (pOtherZone->GetOwner()!=pUnit->getOwner())
 				iEnemyPower += 2000;
 
 			if (std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
@@ -7932,23 +7897,33 @@ CvPlot* HomelandAIHelpers::GetPatrolTarget(CvPlot* pOriginPlot, PlayerTypes ePla
 			iFriendlyPower =+ pOtherZone->GetFriendlyStrength();
 		}
 
-		iScore = (iEnemyPower*1000)/max(1,iFriendlyPower*iDistance) * MapToPercent(iDistance,iRange,iRange/2);
-		if (iScore>iBestScore)
-		{
-			iBestScore = iScore;
-			pBestTarget = pZoneCity->plot();
-		}
+		int iDistance = plotDistance( *pUnit->plot(), *pZoneCity->plot() );
+		int iScore = (iEnemyPower*1000)/max(1,iFriendlyPower) * MapToPercent(iDistance,42,23);
+		vTargets.push_back( SPlotWithScore(pZoneCity->plot(),iScore) );
 	}
 
-	if (!pBestTarget)
-		return NULL;
+	//sort descending!
+	std::sort( vTargets.begin(), vTargets.end() );
+	std::reverse( vTargets.begin(), vTargets.end() );
 
-	//try not to create a unit carpet without any space to move
-	for(int iJ = 0; iJ < RING5_PLOTS; iJ++)
+	ReachablePlots reachablePlots;
+	SPathFinderUserData data(pUnit,0,12);
+	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+	reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
+
+	for (size_t i=0; i<MIN(vTargets.size(),(size_t)nTargetsToCheck); i++)
 	{
-		CvPlot* pLoopPlot = iterateRingPlots(pBestTarget, iJ);
-		if (pLoopPlot->isValidMovePlot(ePlayer) && !pLoopPlot->isWater() && pLoopPlot->GetNumFriendlyUnitsAdjacent(GET_PLAYER(ePlayer).getTeam(),DOMAIN_LAND)<4)
-			return pLoopPlot;
+		SMovePlot dummy(vTargets[i].pPlot->GetPlotIndex(),0,0);
+		if (reachablePlots.find(dummy)!=reachablePlots.end())
+		{
+			//try not to create a unit carpet without any space to move
+			for(int iJ = 0; iJ < RING5_PLOTS; iJ++)
+			{
+				CvPlot* pLoopPlot = iterateRingPlots(vTargets[i].pPlot, iJ);
+				if (pUnit->canMoveInto(*vTargets[i].pPlot) && pLoopPlot->getDomain()==pUnit->getDomainType() && pLoopPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(),NO_DOMAIN)<4)
+					return pLoopPlot;
+			}
+		}
 	}
 
 	return NULL;

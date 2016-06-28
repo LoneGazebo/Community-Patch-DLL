@@ -811,10 +811,7 @@ public:
 	int GetCycleOrder() const;
 	void SetCycleOrder(int iNewValue);
 
-	int GetDeployFromOperationTurn() const
-	{
-		return m_iDeployFromOperationTurn;
-	};
+	bool IsRecentlyDeployedFromOperation() const;
 	void SetDeployFromOperationTurn(int iTurn)
 	{
 		m_iDeployFromOperationTurn = iTurn;
@@ -1427,7 +1424,7 @@ public:
 	int GetMissionTimer() const;
 	void SetMissionTimer(int iNewValue);
 	void ChangeMissionTimer(int iChange);
-	void ClearMissionQueue(int iUnitCycleTimer = 1);
+	void ClearMissionQueue(bool bKeepPathCache = false, int iUnitCycleTimer = 1);
 	int GetLengthMissionQueue() const;
 	const MissionData* GetHeadMissionData();
 	const MissionData* GetMissionData(int iIndex);
@@ -1457,7 +1454,7 @@ public:
 	bool IsEnemyInMovementRange(bool bOnlyFortified = false, bool bOnlyCities = false);
 
 	// Path-finding routines
-	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL) const;
+	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL);
 
 	const CvPathNodeArray& GetPathNodeArray() const;
 	CvPlot* GetPathEndFirstTurnPlot() const;
@@ -1585,7 +1582,8 @@ protected:
 	MissionQueueNode* HeadMissionQueueNode();
 
 	void ClearPathCache();
-	bool UpdatePathCache(CvPlot* pDestPlot, int iFlags);
+	bool VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns);
+	bool ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns);
 
 	bool HasQueuedVisualizationMoves() const;
 	void QueueMoveForVisualization(CvPlot* pkPlot);
@@ -1910,8 +1908,10 @@ protected:
 	GreatWorkType m_eGreatWork;
 
 	mutable CvPathNodeArray m_kLastPath;
-	mutable uint m_uiLastPathCacheDest;
+	mutable uint m_uiLastPathCacheOrigin;
+	mutable uint m_uiLastPathCacheDestination;
 	mutable uint m_uiLastPathFlags;
+	mutable uint m_uiLastPathLength;
 	mutable uint m_uiLastPathTurn;
 
 	bool canAdvance(const CvPlot& pPlot, int iThreshold) const;

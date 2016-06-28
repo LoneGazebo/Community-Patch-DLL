@@ -70,7 +70,7 @@ protected:
 //for debugging
 int giKnownCostWeight = 1;
 int giHeuristicCostWeight = 1;
-int giLastFailedDestination = 0;
+int giLastDestinationIndex = 0;
 
 unsigned int saiRuntimeHistogram[100] = {0};
 
@@ -369,18 +369,18 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	if ( timer.GetDeltaInSeconds()>0.05 && data.ePathType!=PT_UNIT_REACHABLE_PLOTS )
 	{
 		//debug hook
-		int iFailedDestination = GC.getMap().plotNum(m_iXdest, m_iYdest);
-		if (iFailedDestination==giLastFailedDestination)
-			OutputDebugString("Repeated fail!\n");
-		giLastFailedDestination = iFailedDestination;
+		int iDestinationIndex = GC.getMap().plotNum(m_iXdest, m_iYdest);
+		if (iDestinationIndex==giLastDestinationIndex && iDestinationIndex>0)
+			OutputDebugString("Repeated pathfinding!\n");
+		giLastDestinationIndex = iDestinationIndex;
 
 		int iNumPlots = GC.getMap().numPlots();
 		CvUnit* pUnit = m_sData.iUnitID>0 ? GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID) : NULL;
 
 		//in some cases we have no destination plot, so exhaustion is not always a "fail"
-		OutputDebugString( CvString::format("Run %d: Path type %d %s (%s from %d,%d to %d,%d), tested %d nodes, processed %d nodes in %d rounds (%d%% of map) in %.2f ms\n", 
+		OutputDebugString( CvString::format("Run %d: Path type %d %s (%s from %d,%d to %d,%d - flags %d), tested %d, processed %d nodes in %d rounds (%d%% of map) in %.2f ms\n", 
 			m_iCurrentGenerationID, m_sData.ePathType, bSuccess?"found":"not found", pUnit ? pUnit->getName().c_str() : "unknown",
-			m_iXstart, m_iYstart, m_iXdest, m_iYdest, m_iTestedNodes, m_iProcessedNodes, m_iRounds, 
+			m_iXstart, m_iYstart, m_iXdest, m_iYdest, m_sData.iFlags, m_iTestedNodes, m_iProcessedNodes, m_iRounds, 
 			(100*m_iProcessedNodes)/iNumPlots, timer.GetDeltaInSeconds()*1000 ).c_str() );
 
 		if (MOD_CORE_DEBUGGING)
@@ -900,7 +900,10 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 		kToNodeCacheData.bContainsVisibleEnemyDefender = false;
 	}
 
-	kToNodeCacheData.bFriendlyUnitLimitReached = (pPlot->getMaxFriendlyUnitsOfType(pUnit) >= pPlot->getUnitLimit());
+	//ignore this unit when counting!
+	bool bIsInitialNode = (node->m_pParent==NULL);
+	int iNumUnits = pPlot->getMaxFriendlyUnitsOfType(pUnit) - (bIsInitialNode ? 1 : 0);
+	kToNodeCacheData.bFriendlyUnitLimitReached = (iNumUnits >= pPlot->getUnitLimit());
 	kToNodeCacheData.bIsValidRoute = pPlot->isValidRoute(pUnit);
 
 	//now the big ones ...
@@ -1308,10 +1311,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 
 			// check stacking (if visible)
 			if (kFromNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kFromNodeCacheData.bFriendlyUnitLimitReached)
-			{
-				if (parent->m_pParent!=NULL) //parent is start position? let's not block ourselves!
-					return FALSE;
-			}
+				return FALSE;
 		}
 	}
 
@@ -1514,6 +1514,25 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 	return TRUE;
 }
 
+//estimate the approximate movement cost for a unit
+int StepCostEstimate(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData&, CvAStar*)
+{
+	CvPlot* pFromPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
+	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+
+	int iScale = 100;
+	bool bIsValidRoute = pFromPlot->isRoute() && !pFromPlot->IsRoutePillaged() && pToPlot->isRoute() && !pToPlot->IsRoutePillaged();
+
+	if (bIsValidRoute)
+		iScale /= 3;
+	else if (pToPlot->isRoughGround())
+		iScale *= 2;
+	else if (pFromPlot->isWater()!=pToPlot->isWater())
+		iScale *= 2;
+
+	return PATH_BASE_COST*iScale/100;
+}
+
 //	--------------------------------------------------------------------------------
 /// Default heuristic cost
 int StepHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY)
@@ -1638,7 +1657,7 @@ int StepValidWideAnyArea(const CvAStarNode* parent, const CvAStarNode* node, int
 }
 
 //	--------------------------------------------------------------------------------
-/// Step path finder - add a new path
+/// Step path finder - add a new node to the path. count the steps as turns
 int StepAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData&, CvAStar*)
 {
 	if(operation == ASNC_INITIALADD)
@@ -1648,6 +1667,23 @@ int StepAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFi
 	else
 	{
 		node->m_iTurns = (parent->m_iTurns + 1);
+	}
+
+	node->m_iMoves = 0;
+	return 1;
+}
+
+/// Step path finder - add a new node to the path. calculate turns as normalized distance
+int StepAddWithTurnsFromCost(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUserData&, CvAStar*)
+{
+	if(operation == ASNC_INITIALADD)
+	{
+		node->m_iTurns = 0;
+	}
+	else
+	{
+		//assume a unit has 2*PATH_BASE_COST movement points per turn
+		node->m_iTurns = node->m_iKnownCost / 2 / PATH_BASE_COST + 1;
 	}
 
 	node->m_iMoves = 0;
@@ -2142,6 +2178,10 @@ bool CvPathFinder::Configure(PathType ePathType)
 {
 	switch(ePathType)
 	{
+	case PT_GENERIC_REACHABLE_PLOTS:
+		SetFunctionPointers(NULL, NULL, StepHeuristic, StepCostEstimate, StepValid, StepAddWithTurnsFromCost, NULL, NULL, NULL, NULL, NULL);
+		m_iBasicPlotCost = PATH_BASE_COST;
+		break;
 	case PT_GENERIC_SAME_AREA:
 		SetFunctionPointers(DestinationReached, StepDestValid, StepHeuristic, StepCost, StepValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
