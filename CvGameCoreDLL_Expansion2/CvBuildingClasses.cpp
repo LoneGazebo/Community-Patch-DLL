@@ -195,6 +195,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bIsReformation(false),
 	m_bBuildAnywhere(false),
 	m_iTradeReligionModifier(-1),
+	m_iFreeArtifacts(0),
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	 m_iCannotFailSpies(-1),
@@ -480,6 +481,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bIsReformation = kResults.GetBool("IsReformation");
 	m_bBuildAnywhere = kResults.GetBool("BuildAnywhere");
 	m_iTradeReligionModifier = kResults.GetInt("TradeReligionModifier");
+	m_iFreeArtifacts = kResults.GetInt("FreeArtifacts");
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iCannotFailSpies = kResults.GetInt("CannotFailSpies");
@@ -3146,6 +3148,11 @@ int CvBuildingEntry::GetTradeReligionModifier() const
 {
 	return m_iTradeReligionModifier;
 }
+// Creates free Artifacts for building, up to # indicated (or artifact slots in building).
+int CvBuildingEntry::GetNumFreeArtifacts() const
+{
+	return m_iFreeArtifacts;
+}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 /// Does this building prevent spies from failing?
@@ -4566,8 +4573,9 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 	{
 		CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
 		if (pkInfo && pkInfo->GetGreatWorkCount() > 0)
-		{	
-			iRealWorkCount += GetNumGreatWorksInBuilding((BuildingClassTypes)pkInfo->GetBuildingClassType());
+		{
+			int iThisWork = GetNumGreatWorksInBuilding((BuildingClassTypes)pkInfo->GetBuildingClassType());
+			iRealWorkCount += iThisWork;
 
 			int iThemingBonus = m_pCity->GetCityCulture()->GetThemingBonus((BuildingClassTypes)pkInfo->GetBuildingClassType());
 			if (iThemingBonus > 0)
@@ -4577,7 +4585,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 			
 			if ((MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == pkInfo->GetGreatWorkYieldType()) || (!MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == YIELD_CULTURE))
 			{
-				iStandardWorkCount += iRealWorkCount;
+				iStandardWorkCount += iThisWork;
 			}
 		}
 	}
@@ -4730,40 +4738,22 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
 					//Art/Artifact need distinction here, because they occupy the same slot!
 					if(bArtifact)
 					{
-						int iNumSlots = pkInfo->GetGreatWorkCount();
-						// Store info on the attributes of all our Great Works
-						for (int iI = 0; iI < iNumSlots; iI++)
+						CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[(*it).iGreatWorkIndex];
+
+						// Check Great Work class
+						if (work.m_eClassType == eArtifactsClass)
 						{
-							int iGreatWork = m_pCity->GetCityBuildings()->GetBuildingGreatWork(eBldgClass, iI);
-							if(iGreatWork == -1)
-								continue;
-
-							CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWork];
-
-							// Check Great Work class
-							if (work.m_eClassType == eArtifactsClass)
-							{
-								iRtnValue++;
-							}
+							iRtnValue++;
 						}
 					}
 					else if(bArt)
 					{
-						int iNumSlots = pkInfo->GetGreatWorkCount();
-						// Store info on the attributes of all our Great Works
-						for (int iI = 0; iI < iNumSlots; iI++)
+						CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[(*it).iGreatWorkIndex];
+
+						// Check Great Work class
+						if (work.m_eClassType == eArtClass)
 						{
-							int iGreatWork = m_pCity->GetCityBuildings()->GetBuildingGreatWork(eBldgClass, iI);
-							if(iGreatWork == -1)
-								continue;
-
-							CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWork];
-
-							// Check Great Work class
-							if (work.m_eClassType == eArtClass)
-							{
-								iRtnValue++;
-							}
+							iRtnValue++;
 						}
 					}
 					else

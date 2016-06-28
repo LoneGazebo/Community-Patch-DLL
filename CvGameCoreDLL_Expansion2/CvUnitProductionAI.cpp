@@ -925,15 +925,26 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				AIGrandStrategyTypes eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
 				bool bSeekingCultureVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
 				
-				iBonus += 25;
+				iBonus += 100;
 				if(bSeekingCultureVictory)
 				{
-					iBonus += 10;
+					iBonus += 200;
 				}
 
 				if(kPlayer.GetArchaeologicalDigTourism() > 0)
 				{
-					iBonus += 25;
+					iBonus += 100;
+				}
+				for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				{
+					const YieldTypes eYield = static_cast<YieldTypes>(iI);
+					if(eYield != NO_YIELD)
+					{
+						if(kPlayer.GetPlayerTraits()->GetArtifactYieldChanges(eYield) > 0)
+						{
+							iBonus += 100;
+						}
+					}
 				}
 			}
 		}
@@ -1101,9 +1112,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	}
 	
 	//Uniques? They're generally good enough to spam.
-	if((UnitTypes)kPlayer.getCivilizationInfo().isCivilizationUnitOverridden(eUnit))
+	if(kPlayer.getCivilizationInfo().isCivilizationUnitOverridden(pkUnitEntry->GetUnitClassType()))
 	{
-		iBonus += 50;
+		iBonus += 150;
 	}
 
 	//Have an army that needs this unit? Boost it quite a bit.

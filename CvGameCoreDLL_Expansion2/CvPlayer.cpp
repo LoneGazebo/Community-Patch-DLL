@@ -30277,10 +30277,12 @@ int CvPlayer::GetScienceTimes100() const
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	return max(iValue, 1);
-#else
-	return max(iValue, 0);
+	if(!isHuman())
+	{
+		return max(iValue, 300);
+	}
 #endif
+	return max(iValue, 0);
 }
 
 //	--------------------------------------------------------------------------------

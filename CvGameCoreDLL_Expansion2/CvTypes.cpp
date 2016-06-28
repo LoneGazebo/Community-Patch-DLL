@@ -17,6 +17,9 @@ GreatWorkArtifactClass s_eARTIFACT_BATTLE_RANGED = NO_GREAT_WORK_ARTIFACT_CLASS;
 GreatWorkArtifactClass s_eARTIFACT_BATTLE_MELEE = NO_GREAT_WORK_ARTIFACT_CLASS;
 GreatWorkArtifactClass s_eARTIFACT_RAZED_CITY = NO_GREAT_WORK_ARTIFACT_CLASS;
 GreatWorkArtifactClass s_eARTIFACT_WRITING = NO_GREAT_WORK_ARTIFACT_CLASS;
+#if defined(MOD_BALANCE_CORE)
+GreatWorkArtifactClass s_eARTIFACT_SARCOPHAGUS = NO_GREAT_WORK_ARTIFACT_CLASS;
+#endif
 
 //GreatWorkSlots
 GreatWorkSlotType s_eGREAT_WORK_SLOT_ART_ARTIFACT = NO_GREAT_WORK_SLOT;
@@ -116,6 +119,9 @@ void CvTypes::AcquireTypes(Database::Connection& db)
 		kArtifactTypeLookupTable.insert(make_pair(std::string("ARTIFACT_BATTLE_MELEE"), &s_eARTIFACT_BATTLE_MELEE));
 		kArtifactTypeLookupTable.insert(make_pair(std::string("ARTIFACT_RAZED_CITY"), &s_eARTIFACT_RAZED_CITY));
 		kArtifactTypeLookupTable.insert(make_pair(std::string("ARTIFACT_WRITING"), &s_eARTIFACT_WRITING));
+#if defined(MOD_BALANCE_CORE)
+		kArtifactTypeLookupTable.insert(make_pair(std::string("ARTIFACT_SARCOPHAGUS"), &s_eARTIFACT_SARCOPHAGUS));
+#endif
 
 		Database::Results kResults;
 		if(db.Execute(kResults, "SELECT Type, ID from GreatWorkArtifactClasses"))
@@ -315,6 +321,13 @@ const GreatWorkArtifactClass CvTypes::getARTIFACT_WRITING()
 {
 	return s_eARTIFACT_WRITING;
 }
+#if defined(MOD_BALANCE_CORE)
+//-------------------------------------------------------------------------
+const GreatWorkArtifactClass CvTypes::getARTIFACT_SARCOPHAGUS()
+{
+	return s_eARTIFACT_SARCOPHAGUS;
+}
+#endif
 //-------------------------------------------------------------------------
 
 //GreatWorkClass

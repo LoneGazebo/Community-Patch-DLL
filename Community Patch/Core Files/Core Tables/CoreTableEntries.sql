@@ -619,6 +619,9 @@ ALTER TABLE Buildings ADD COLUMN 'PurchaseCooldown' INTEGER DEFAULT 0;
 -- Allows Courthouses to be built in any city
 ALTER TABLE Buildings ADD COLUMN 'BuildAnywhere' BOOLEAN DEFAULT 0;
 
+-- Builds 1+ artifact in the building, up to the number of artifact slots in the building.
+ALTER TABLE Buildings ADD COLUMN 'FreeArtifacts' INTEGER DEFAULT 0;
+
 -- Adds Mounted trait to a unit that isn't in the unitcombat_mounted combat class
 ALTER TABLE Units ADD COLUMN 'IsMounted' BOOLEAN DEFAULT 0;
 
