@@ -315,7 +315,11 @@ private:
 #else
 	void PlotWorkerMoves();
 #endif
+#if defined(MOD_BALANCE_CORE)
+	void PlotWorkerSeaMoves(bool bSecondary = false);
+#else
 	void PlotWorkerSeaMoves();
+#endif
 	void PlotPatrolMoves();
 	void PlotUpgradeMoves();
 	void PlotAncientRuinMoves();
@@ -384,6 +388,7 @@ private:
 	void ExecuteAircraftMoves();
 	void ExecuteTradeUnitMoves();
 	void ExecuteArchaeologistMoves();
+	void ExecutePatrolMoves();
 
 	// Internal low-level utility routines
 	void EliminateAdjacentSentryPoints();

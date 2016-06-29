@@ -64,6 +64,14 @@ protected:
 	static int lGetHostMember(lua_State* L);
 	static int lIsUnitedNations(lua_State* L);
 
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(DoProposeEnact, void, eResolution, iPlayer, iChoice=-1);
+	LUAAPIEXTN(DoProposeRepeal, void, iProposal, iPlayer);
+	LUAAPIEXTN(DoVoteEnact, void, iProposal, iPlayer, iNumVotes, iChoice);
+	LUAAPIEXTN(DoVoteRepeal, void, iProposal, iPlayer, iNumVotes, iChoice);
+	LUAAPIEXTN(DoVoteAbstain, void, iPlayer, iNumVotes);
+#endif
+
 	static int lIsProjectActive(lua_State* L);
 	static int lIsProjectComplete(lua_State* L);
 	static int lGetProjectCostPerPlayer(lua_State* L);
@@ -81,6 +89,9 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE_DEALS)
 	LUAAPIEXTN(GetPotentialVotesForMember, int);
+#endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_EXTENSIONS)
+	LUAAPIEXTN(IsPlayerEmbargoed, bool, iPlayer);
 #endif
 	static int lGetResolutionName(lua_State* L);
 	static int lGetResolutionDetails(lua_State* L);

@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v86 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 86)
+#define MOD_DLL_NAME "Community Patch v88 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 88)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -167,11 +167,13 @@
 
 // Comment out this line to switch off all custom mod logging
 #define CUSTOMLOGDEBUG "CustomMods.log"
-// true/false to include/exclude file name and line number in the log
-#define CUSTOMLOGFILEINFO true
+// Define to include the file name and line number in the log
+#define CUSTOMLOGFILEINFO
+// Define to include the function name in the log
+#define CUSTOMLOGFUNCINFO
 
 // Comment out this line to switch off all unified yield logging
-#define UNIFIEDLOGDEBUG "UnifiedYields.log"
+// #define UNIFIEDLOGDEBUG "UnifiedYields.log"
 
 // Comment out this line to remove minidumps - see http://forums.civfanatics.com/showthread.php?t=498919
 // If minidumps are enabled, do NOT set GenerateDebugInfo=No (Props -> Config Props -> Linker -> Debugging)
@@ -667,6 +669,11 @@
 //   GameEvents.UnitCaptureType.Add(function(iPlayer, iUnit, iUnitType, iByCiv) return iCaptureUnitType; end)
 #define MOD_EVENTS_UNIT_CAPTURE                     gCustomMods.isEVENTS_UNIT_CAPTURE()
 
+// Events sent as units perform actions (v86)
+//   GameEvents.UnitCanPillage.Add(function(iPlayer, iUnit, iImprovement, iRoute) return true end)
+//   GameEvents.UnitPillageGold.Add(function(iPlayer, iUnit, iImprovement, iGold) return iGold end)
+#define MOD_EVENTS_UNIT_ACTIONS                     gCustomMods.isEVENTS_UNIT_ACTIONS()
+
 // Events sent as units are promoted/upgraded
 //   GameEvents.CanHavePromotion.Add(function(iPlayer, iUnit, iPromotionType) return true end)
 //   GameEvents.UnitCanHavePromotion.Add(function(iPlayer, iUnit, iPromotionType) return true end)
@@ -710,6 +717,8 @@
 
 // Events sent about resolutions (v51)
 //   GameEvents.PlayerCanPropose.Add(function(iPlayer, iResolution, iChoice, bEnact) return true end)
+//   GameEvents.ResolutionProposing.Add(function(iPlayer, iLeague) return false; end) (v88)
+//   GameEvents.ResolutionVoting.Add(function(iPlayer, iLeague) return false; end) (v88)
 //   GameEvents.ResolutionResult.Add(function(iResolution, iChoice, bEnact, bPassed) end)
 #define MOD_EVENTS_RESOLUTIONS                      gCustomMods.isEVENTS_RESOLUTIONS()
 
@@ -939,15 +948,33 @@ enum BattleTypeTypes
 #endif
 // Custom mod logger
 #if defined(CUSTOMLOGDEBUG)
-#define CUSTOMLOG(sFmt, ...) {																		\
-	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);										\
-	if (CUSTOMLOGFILEINFO) {																		\
-		CvString sLine; CvString::format(sLine, "%s[%i] - %s", __FILE__, __LINE__, sMsg.c_str());	\
-		LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());			\
-	} else {																						\
-		LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sMsg.c_str());			\
-	}																								\
+#if defined(CUSTOMLOGFILEINFO) && defined(CUSTOMLOGFUNCINFO)
+#define CUSTOMLOG(sFmt, ...) {																					\
+	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
+	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", __FILE__, __LINE__, __FUNCTION__, sMsg.c_str());	\
+	LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());							\
 }
+#endif
+#if defined(CUSTOMLOGFILEINFO) && !defined(CUSTOMLOGFUNCINFO)
+#define CUSTOMLOG(sFmt, ...) {																					\
+	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
+	CvString sLine; CvString::format(sLine, "%s[%i] - %s", __FILE__, __LINE__, sMsg.c_str());					\
+	LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());							\
+}
+#endif
+#if !defined(CUSTOMLOGFILEINFO) && defined(CUSTOMLOGFUNCINFO)
+#define CUSTOMLOG(sFmt, ...) {																					\
+	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
+	CvString sLine; CvString::format(sLine, "%s - %s", __FUNCTION__, sMsg.c_str());								\
+	LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());							\
+}
+#endif
+#if !defined(CUSTOMLOGFILEINFO) && !defined(CUSTOMLOGFUNCINFO)
+#define CUSTOMLOG(sFmt, ...) {																					\
+	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
+	LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sMsg.c_str());							\
+}
+#endif
 #else
 #define CUSTOMLOG(sFmt, ...) __noop
 #endif
@@ -973,11 +1000,17 @@ enum BattleTypeTypes
 
 
 // GlobalDefines wrappers
-#define GD_INT_DECL(name)       int m_i##name
-#define GD_INT_DEF(name)        inline int get##name() { return m_i##name; }
-#define GD_INT_INIT(name, def)  m_i##name(def)
-#define GD_INT_CACHE(name)      m_i##name = getDefineINT(#name); CUSTOMLOG("<Defines>: %s = %i", #name, m_i##name)
-#define GD_INT_GET(name)        GC.get##name()
+#define GD_INT_DECL(name)         int m_i##name
+#define GD_INT_DEF(name)          inline int get##name() { return m_i##name; }
+#define GD_INT_INIT(name, def)    m_i##name(def)
+#define GD_INT_CACHE(name)        m_i##name = getDefineINT(#name); CUSTOMLOG("<Defines>: %s = %i", #name, m_i##name)
+#define GD_INT_GET(name)          GC.get##name()
+
+#define GD_FLOAT_DECL(name)       float m_f##name
+#define GD_FLOAT_DEF(name)        inline float get##name() { return m_f##name; }
+#define GD_FLOAT_INIT(name, def)  m_f##name(def)
+#define GD_FLOAT_CACHE(name)      m_f##name = getDefineFLOAT(#name); CUSTOMLOG("<Defines>: %s = %f", #name, m_f##name)
+#define GD_FLOAT_GET(name)        GC.get##name()
 
 
 // LUA API wrappers
@@ -1114,7 +1147,9 @@ enum BattleTypeTypes
 #define GAMEEVENT_ReligionEnhanced				"ReligionEnhanced",				"iiii"
 #define GAMEEVENT_ReligionFounded				"ReligionFounded",				"iiiiiiii"
 #define GAMEEVENT_ReligionReformed				"ReligionReformed",				"iiiiiii"
+#define GAMEEVENT_ResolutionProposing			"ResolutionProposing",			"ii"
 #define GAMEEVENT_ResolutionResult				"ResolutionResult",				"iibb"
+#define GAMEEVENT_ResolutionVoting				"ResolutionVoting",				"ii"
 #define GAMEEVENT_TeamSetEra					"TeamSetEra",					"iib"
 #define GAMEEVENT_TerraformingMap				"TerraformingMap",				"ii"
 #define GAMEEVENT_TerraformingPlot				"TerraformingPlot",				"iiiiiiii"

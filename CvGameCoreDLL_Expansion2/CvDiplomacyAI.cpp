@@ -6033,10 +6033,12 @@ MinorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMinorCiv(PlayerTypes 
 		}
 	}
 	//Patronage Bonuse
-	if(GetPlayer()->GetMinorFriendshipAnchorMod() > 0 || GetPlayer()->getMinorGoldFriendshipMod() > 0 || GetPlayer()->IsMinorScienceAllies() || GetPlayer()->IsMinorResourceBonus())
+	if(GetPlayer()->GetMinorFriendshipAnchorMod() > 0 || GetPlayer()->GetMinorFriendshipDecayMod() < 0 || GetPlayer()->getMinorGoldFriendshipMod() > 0 || GetPlayer()->IsMinorScienceAllies() || GetPlayer()->IsMinorResourceBonus() || GetPlayer()->GetIncreasedQuestInfluence() > 0 || GetPlayer()->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER) > 0)
 	{
-		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY] * 5;
-		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 5;
+		viApproachWeights[MINOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_FRIENDLY] * 10;
+		viApproachWeights[MINOR_CIV_APPROACH_PROTECTIVE] += viApproachWeightsPersonality[MINOR_CIV_APPROACH_PROTECTIVE] * 10;
+		viApproachWeights[MINOR_CIV_APPROACH_BULLY] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_BULLY] * 10);
+		viApproachWeights[MINOR_CIV_APPROACH_CONQUEST] -= (viApproachWeightsPersonality[MINOR_CIV_APPROACH_CONQUEST] * 10);
 	}
 #endif
 
