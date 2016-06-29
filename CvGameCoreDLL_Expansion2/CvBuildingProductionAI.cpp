@@ -566,11 +566,15 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	/////////
 	////Happiness (CBP)
 	////////
+	
+	bool bGoodforGPTHappiness = false;
+
 	if(kPlayer.IsEmpireUnhappy())
 	{
 		if(pkBuildingInfo->GetHappiness() > 0 || pkBuildingInfo->GetHappinessPerCity() > 0 || pkBuildingInfo->GetHappinessPerXPolicies() > 0 || pkBuildingInfo->GetUnmoddedHappiness() > 0)
 		{
-			iBonus += kPlayer.GetUnhappiness();
+			iBonus += kPlayer.GetUnhappiness() * 10;
+			bGoodforGPTHappiness = true;
 		}
 		int iNumBuildingInfos = GC.getNumBuildingInfos();
 		for(int iI = 0; iI < iNumBuildingInfos; iI++)
@@ -585,6 +589,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				if(pkBuildingInfo->GetBuildingClassHappiness(pkLoopBuilding->GetBuildingClassType()) > 0)
 				{
 					iBonus += (kPlayer.getBuildingClassCount((BuildingClassTypes)pkLoopBuilding->GetBuildingClassType()) * 5);
+					bGoodforGPTHappiness = true;
 				}
 			}
 		}
@@ -605,6 +610,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			bTested = true;
 			iBonus += (iUnhappyGold * 5);
+			bGoodforGPTHappiness = true;
 		}
 	}
 	else if(!bTested && ((pkBuildingInfo->GetFlavorValue(eFlavorDefense) > 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal() != 0)))
@@ -614,6 +620,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			bTested = true;
 			iBonus += (iUnhappyDefense * 5);
+			bGoodforGPTHappiness = true;
 		}
 	}
 	else if(!bTested && ((pkBuildingInfo->GetFlavorValue(eFlavorReligion) > 0) || (pkBuildingInfo->GetMinorityHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetMinorityHappinessChangeBuildingGlobal() != 0)))
@@ -623,6 +630,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			bTested = true;
 			iBonus += (iUnhappyReligion * 5);
+			bGoodforGPTHappiness = true;
 		}
 	}
 	else if(!bTested && ((pkBuildingInfo->GetFlavorValue(eFlavorCulture) > 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal() != 0)))
@@ -632,6 +640,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			bTested = true;
 			iBonus += (iUnhappyCulture * 5);
+			bGoodforGPTHappiness = true;
 		}
 	}
 	else if(!bTested && ((pkBuildingInfo->GetFlavorValue(eFlavorScience) > 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal() != 0)))
@@ -641,6 +650,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			bTested = true;
 			iBonus += (iUnhappyScience * 5);
+			bGoodforGPTHappiness = true;
 		}
 	}
 
@@ -665,6 +675,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if(m_pCity->IsOccupied() && !m_pCity->IsNoOccupiedUnhappiness())
 		{
 			iBonus += 500;
+			bGoodforGPTHappiness = true;
 		}
 	}
 	
@@ -812,6 +823,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iYieldValue += (iGPT * -20);
 			}
+			bGoodforGPTHappiness = true;
 		}
 
 		iBonus += iYieldValue;
@@ -821,7 +833,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//////////////
 	///Maintenance
 	/////////////////////
-	if(pkBuildingInfo->GetGoldMaintenance() > 0)
+	if(pkBuildingInfo->GetGoldMaintenance() > 0 && !bGoodforGPTHappiness)
 	{
 		if(iGPT < 0)
 		{

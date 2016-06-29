@@ -1933,6 +1933,10 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		{
 			bMinorButMajorWar = true;
 		}
+		if(GET_PLAYER(target.m_pTargetCity->getOwner()).isBarbarian())
+		{
+			bMinorButMajorWar = true;
+		}
 	}
 	//increase if a weak city
 	if (fStrengthRatio > 0.5f)
@@ -1954,17 +1958,24 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	//Going after a City-State? Let's not force it, in the event that we're fighting a major civ.
 	if(bMinorButMajorWar)
 	{
-		PlayerTypes eAlly = GET_PLAYER(target.m_pTargetCity->getOwner()).GetMinorCivAI()->GetAlly();
-		if(eAlly != NO_PLAYER)
+		if(GET_PLAYER(target.m_pTargetCity->getOwner()).isMinorCiv())
 		{
-			if(GET_TEAM(GET_PLAYER(eAlly).getTeam()).isAtWar(GetPlayer()->getTeam()))
+			PlayerTypes eAlly = GET_PLAYER(target.m_pTargetCity->getOwner()).GetMinorCivAI()->GetAlly();
+			if(eAlly != NO_PLAYER)
 			{
-				fDesirability /= 50;
+				if(GET_TEAM(GET_PLAYER(eAlly).getTeam()).isAtWar(GetPlayer()->getTeam()))
+				{
+					fDesirability /= 50;
+				}
+			}
+			else
+			{
+				//We should not be targeting CSs like this!
+				return 0;
 			}
 		}
-		else
+		else if(GET_PLAYER(target.m_pTargetCity->getOwner()).isBarbarian())
 		{
-			//We should not be targeting CSs like this!
 			return 0;
 		}
 	}

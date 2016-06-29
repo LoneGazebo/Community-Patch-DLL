@@ -408,8 +408,8 @@
 			<AIPerEraModifier>-9</AIPerEraModifier>
 			<AIAdvancedStartPercent>215</AIAdvancedStartPercent>
 			<AIFreeXP>25</AIFreeXP>
-			<DifficultyBonus>100</DifficultyBonus>
-			<AIFreeXPPercent>60</AIFreeXPPercent>
+			<DifficultyBonus>60</DifficultyBonus>
+			<AIFreeXPPercent>75</AIFreeXPPercent>
 			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
 			<PortraitIndex>6</PortraitIndex>
 		</Row>

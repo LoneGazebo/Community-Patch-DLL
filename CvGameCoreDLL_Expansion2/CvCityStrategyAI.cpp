@@ -2992,7 +2992,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 	int iCurrentNumCities = kPlayer.getNumCities();
 
 	int iLastTurnWorkerDisbanded = kPlayer.GetEconomicAI()->GetLastTurnWorkerDisbanded();
-	if(iLastTurnWorkerDisbanded >= 0 && GC.getGame().getGameTurn() - iLastTurnWorkerDisbanded <= 25)
+	if(iLastTurnWorkerDisbanded >= 0 && GC.getGame().getGameTurn() - iLastTurnWorkerDisbanded <= 40)
 	{
 		return false;
 	}
@@ -3035,9 +3035,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 			{
 #if defined(MOD_BALANCE_CORE)
 				//Do we have enough military units to defend our land? No? Abort.
-				int iNumWorkers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
 				int iNumMilitaryUnits = kPlayer.getNumMilitaryUnits();
-				if((iNumWorkers * 5) >= iNumMilitaryUnits)
+				if((iNumWorkers * 6) >= iNumMilitaryUnits)
 				{
 #endif
 				return false;
@@ -3086,14 +3085,14 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_WantTileImprovers(AICityStrategyT
 			return false;
 	}
 
-	int iNumWorkers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
+	int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
 #if defined(MOD_BALANCE_CORE)
-	if(iNumWorkers <= 0)
+	if(iNumBuilders <= 0)
 	{
 		return true;
 	}
 	int iCurrentNumCities = kPlayer.getNumCities();
-	if(iNumWorkers >= iCurrentNumCities)
+	if(iNumBuilders >= iCurrentNumCities)
 	{
 		return false;
 	}
@@ -3115,14 +3114,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_WantTileImprovers(AICityStrategyT
 	// Don't get desperate for training a Builder here unless the City is at least of a certain size
 	if(pCity->getPopulation() >= /*2*/ GC.getAI_CITYSTRATEGY_WANT_TILE_IMPROVERS_MINIMUM_SIZE())
 	{
-		int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
-
+#if defined(MOD_BALANCE_CORE)
 		// If we don't even have 1 builder on map or in a queue, turn this on immediately
 		if(iNumBuilders < 1)
 		{
 			return true;
 		}
-#if defined(MOD_BALANCE_CORE)
 		int iNumCities = kPlayer.getNumCities();
 		CvAICityStrategyEntry* pCityStrategy = pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy);
 		int iWeightThresholdModifier = pCityStrategy->GetWeightThreshold();	// 1
@@ -3132,7 +3129,13 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_WantTileImprovers(AICityStrategyT
 			return true;
 		}
 #else
+		int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
 
+		// If we don't even have 1 builder on map or in a queue, turn this on immediately
+		if(iNumBuilders < 1)
+		{
+			return true;
+		}
 		int iWeightThresholdModifier = CityStrategyAIHelpers::GetWeightThresholdModifier(eStrategy, pCity);	// 2 Extra Weight per TILE_IMPROVEMENT Flavor
 		int iPerCityThreshold = pCityStrategy->GetWeightThreshold() + iWeightThresholdModifier;	// 40
 
@@ -3264,7 +3267,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 	int iLastTurnWorkerDisbanded = kPlayer.GetEconomicAI()->GetLastTurnWorkerDisbanded();
-	if(iLastTurnWorkerDisbanded >= 0 && GC.getGame().getGameTurn() - iLastTurnWorkerDisbanded <= 10)
+	if(iLastTurnWorkerDisbanded >= 0 && GC.getGame().getGameTurn() - iLastTurnWorkerDisbanded <= 20)
 	{
 		return true;
 	}
@@ -3285,6 +3288,72 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 		if(iNumBuilders >= kPlayer.getNumCities())
 			return true;
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	//Gotta have at least one!
+	if(iNumBuilders < 1)
+		return false;
+
+	int iX = pCity->getX(); int iY = pCity->getY(); int iOwner = pCity->getOwner();
+
+	int iNumWorkersHere = 0;
+	int iCanImprove = 0;
+	for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+
+		// Invalid plot or not owned by this player
+		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
+			continue;
+		}
+		//No improved, no city, no impassable, no water.
+		if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT && !pLoopPlot->isCity() && !pLoopPlot->isImpassable() && !pLoopPlot->isWater())
+		{
+			CvUnit* pLoopUnit;
+			for(int iUnitLoop = 0; iUnitLoop < pLoopPlot->getNumUnits(); iUnitLoop++)
+			{
+				//Workers nearby?
+				pLoopUnit = pLoopPlot->getUnitByIndex(iUnitLoop);
+				if(pLoopUnit != NULL && pLoopUnit->getOwner() == pCity->GetID() && pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER)
+				{
+					iNumWorkersHere++;
+				}
+			}
+			for(int iI = 0; iI < GC.getNumBuildInfos(); ++iI)
+			{
+				CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes) iI);
+				if(!pkBuildInfo)
+				{
+					continue;
+				}
+				ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo((BuildTypes) iI)->getImprovement();
+				if(eImprovement != NO_IMPROVEMENT)
+				{
+					CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);
+					if(pkEntry->IsCreatedByGreatPerson())
+						continue;
+				}
+
+				//Valid right now with any worker valid build?
+				if(GET_PLAYER(pCity->getOwner()).canBuild(pLoopPlot, (BuildTypes)iI))
+				{
+					iCanImprove++;
+					break;
+				}
+			}
+		}
+	}
+	//No tiles to improve?
+	if(iCanImprove <= 0)
+	{
+		return true;
+	}
+	//Enough workers already here? 3:1 ratio is good ratio.
+	if((iNumWorkersHere * 3) > iCanImprove)
+	{
+		return true;
+	}
+#endif
 
 	CvAICityStrategyEntry* pCityStrategy = pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy);
 
@@ -3411,6 +3480,67 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(CvCity
 			return true;
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	int iX = pCity->getX(); int iY = pCity->getY(); int iOwner = pCity->getOwner();
+
+	int iNumWorkersHere = 0;
+	int iCanImprove = 0;
+	for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iCityPlotLoop);
+
+		// Invalid plot or not owned by this player
+		if (pLoopPlot == NULL || pLoopPlot->getOwner() != iOwner) {
+			continue;
+		}
+		//No improved, no impassable, water only.
+		if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT && !pLoopPlot->isImpassable() && pLoopPlot->isWater())
+		{
+			CvUnit* pLoopUnit;
+			for(int iUnitLoop = 0; iUnitLoop < pLoopPlot->getNumUnits(); iUnitLoop++)
+			{
+				//Workers nearby?
+				pLoopUnit = pLoopPlot->getUnitByIndex(iUnitLoop);
+				if(pLoopUnit != NULL && pLoopUnit->getOwner() == pCity->GetID() && pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA)
+				{
+					iNumWorkersHere++;
+				}
+			}
+			for(int iI = 0; iI < GC.getNumBuildInfos(); ++iI)
+			{
+				CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes) iI);
+				if(!pkBuildInfo)
+				{
+					continue;
+				}
+				ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo((BuildTypes) iI)->getImprovement();
+				if(eImprovement != NO_IMPROVEMENT)
+				{
+					CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);
+					if(pkEntry->IsCreatedByGreatPerson())
+						continue;
+				}
+
+				//Valid right now with any worker valid build?
+				if(GET_PLAYER(pCity->getOwner()).canBuild(pLoopPlot, (BuildTypes)iI))
+				{
+					iCanImprove++;
+					break;
+				}
+			}
+		}
+	}
+	//No tiles to improve?
+	if(iCanImprove <= 0)
+	{
+		return true;
+	}
+	//Enough workers already here? 1:1 ratio is good ratio.
+	if(iNumWorkersHere > iCanImprove)
+	{
+		return true;
+	}
+#endif
 
 	return false;
 }

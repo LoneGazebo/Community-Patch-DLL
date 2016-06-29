@@ -809,12 +809,18 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Settlers? Let's see...
 	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_SETTLE)
 	{
-		//No escorts? No trip.
-		if(kPlayer.getNumMilitaryUnits() <= 3)
-		{
-			iBonus -= 100;
-		}
 		if(kPlayer.isMinorCiv())
+		{
+			return 0;
+		}
+		//No escorts? No trip.
+		if(kPlayer.GetNumUnitsWithUnitAI(UNITAI_DEFENSE, true, false) < 1 && kPlayer.GetNumUnitsWithUnitAI(UNITAI_ATTACK, true, false) < 1)
+		{
+			return 0;
+		}
+		int iFirstUnitID = 0;
+		//There's a settler waiting here? Abort!
+		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_SETTLE, iFirstUnitID) > 0)
 		{
 			return 0;
 		}
@@ -824,7 +830,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return 0;
 		}
 		//Or if we're small.
-		if(m_pCity->getPopulation() <= 2)
+		if(m_pCity->getPopulation() <= 4)
 		{
 			return 0;
 		}
@@ -952,6 +958,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Make sure we need naval workers in this city.
 	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_WORKER_SEA)
 	{
+		int iFirstUnitID = 0;
+		//There's a worker waiting here? Abort!
+		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_WORKER_SEA, iFirstUnitID) > 0)
+		{
+			return 0;
+		}
 		AICityStrategyTypes eNoNavalWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_NAVAL_TILE_IMPROVEMENT");
 		if(eNoNavalWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNoNavalWorkers))
 		{
@@ -959,15 +971,21 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		else
 		{
-			iBonus += 50;
+			iBonus += 75;
 		}
 	}
 	//Make sure we need workers in this city.
 	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_WORKER)
 	{
-		if(kPlayer.getNumMilitaryUnits() <= 3)
+		if(kPlayer.GetNumUnitsWithUnitAI(UNITAI_DEFENSE, true, false) < 1 && kPlayer.GetNumUnitsWithUnitAI(UNITAI_ATTACK, true, false) < 1)
 		{
-			iBonus -= 50;
+			return 0;
+		}
+		int iFirstUnitID = 0;
+		//There's a worker waiting here? Abort!
+		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_WORKER, iFirstUnitID) > 0)
+		{
+			return 0;
 		}
 		AICityStrategyTypes eNoWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_TILE_IMPROVERS");
 		if(eNoWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNoWorkers))
@@ -977,12 +995,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
 		if(eWantWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 		{
-			iBonus += 20;
+			iBonus += 30;
 		}
 		AICityStrategyTypes eNeedWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
 		if(eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
 		{
-			iBonus += 40;
+			iBonus += 60;
 		}
 	}
 	//////////////////

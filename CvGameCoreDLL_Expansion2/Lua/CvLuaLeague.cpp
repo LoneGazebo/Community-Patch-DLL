@@ -66,6 +66,14 @@ void CvLuaLeague::PushMethods(lua_State* L, int t)
 	Method(GetHostMember);
 	Method(IsUnitedNations);
 
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(DoProposeEnact);
+	Method(DoProposeRepeal);
+	Method(DoVoteEnact);
+	Method(DoVoteRepeal);
+	Method(DoVoteAbstain);
+#endif
+
 	Method(IsProjectActive);
 	Method(IsProjectComplete);
 	Method(GetProjectCostPerPlayer);
@@ -83,6 +91,9 @@ void CvLuaLeague::PushMethods(lua_State* L, int t)
 #endif
 #if defined(MOD_BALANCE_CORE_DEALS)
 	Method(GetPotentialVotesForMember);
+#endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_EXTENSIONS)
+	Method(IsPlayerEmbargoed);
 #endif
 	Method(GetResolutionName);
 	Method(GetResolutionDetails);
@@ -527,6 +538,68 @@ int CvLuaLeague::lIsUnitedNations(lua_State* L)
 	lua_pushboolean(L, bValue);
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//void DoProposeEnact(ResolutionTypes eResolution, PlayerTypes iPlayer, int iChoice=-1);
+int CvLuaLeague::lDoProposeEnact(lua_State* L)
+{
+	CvLeague* pLeague = GetInstance(L);
+	const ResolutionTypes eResolution = (ResolutionTypes) lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 3);
+	const int iChoice = luaL_optint(L, 4, LeagueHelpers::CHOICE_NONE);
+
+	pLeague->DoProposeEnact(eResolution, ePlayer, iChoice);
+	return 0;
+}
+//------------------------------------------------------------------------------
+//void DoProposeRepeal(int iProposal, PlayerTypes iPlayer);
+int CvLuaLeague::lDoProposeRepeal(lua_State* L)
+{
+	CvLeague* pLeague = GetInstance(L);
+	const int iProposal = lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 3);
+
+	pLeague->DoProposeRepeal(iProposal, ePlayer);
+	return 0;
+}
+//------------------------------------------------------------------------------
+//void DoVoteEnact(int iProposal, PlayerTypes iPlayer, int iNumVotes, int iChoice);
+int CvLuaLeague::lDoVoteEnact(lua_State* L)
+{
+	CvLeague* pLeague = GetInstance(L);
+	const int iProposal = lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 3);
+	const int iNumVotes = lua_tointeger(L, 4);
+	const int iChoice = lua_tointeger(L, 5);
+
+	pLeague->DoVoteEnact(iProposal, ePlayer, iNumVotes, iChoice);
+	return 0;
+}
+//------------------------------------------------------------------------------
+//void DoVoteRepeal(int iProposal, PlayerTypes iPlayer, int iNumVotes, int iChoice);
+int CvLuaLeague::lDoVoteRepeal(lua_State* L)
+{
+	CvLeague* pLeague = GetInstance(L);
+	const int iProposal = lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 3);
+	const int iNumVotes = lua_tointeger(L, 4);
+	const int iChoice = lua_tointeger(L, 5);
+
+	pLeague->DoVoteRepeal(iProposal, ePlayer, iNumVotes, iChoice);
+	return 0;
+}
+//------------------------------------------------------------------------------
+//void DoVoteAbstain(PlayerTypes iPlayer, int iNumVotes);
+int CvLuaLeague::lDoVoteAbstain(lua_State* L)
+{
+	CvLeague* pLeague = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const int iNumVotes = lua_tointeger(L, 3);
+
+	pLeague->DoVoteAbstain(ePlayer, iNumVotes);
+	return 0;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool IsProjectActive(LeagueProjectTypes eLeagueProject);
 int CvLuaLeague::lIsProjectActive(lua_State* L)
@@ -673,6 +746,19 @@ int CvLuaLeague::lGetPotentialVotesForMember(lua_State* L)
 
 	const int iValue = pLeague->GetPotentialVotesForMember(ePlayer, eFromPlayer);
 	lua_pushinteger(L, iValue);
+	return 1;
+}
+#endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_EXTENSIONS)
+//------------------------------------------------------------------------------
+//bool IsPlayerEmbargoed(PlayerTypes iPlayer);
+int CvLuaLeague::lIsPlayerEmbargoed(lua_State* L)
+{
+	CvLeague* pLeague = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	const bool bValue = pLeague->IsPlayerEmbargoed(ePlayer);
+	lua_pushboolean(L, bValue);
 	return 1;
 }
 #endif

@@ -3688,7 +3688,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 		return true;
 	}
 
-	if(pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true) > 2)
+	if(pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true) > 1)
 	{
 		return true;
 	}
@@ -3700,9 +3700,13 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 		return true;
 	}
 
-	if(pPlayer->GetNumCitiesFounded() <= (pPlayer->GetDiplomacyAI()->GetBoldness() / 2))
+	if(pPlayer->IsEmpireUnhappy() && (pPlayer->GetNumCitiesFounded() > (pPlayer->GetDiplomacyAI()->GetBoldness())))
 	{
-		return false;
+		return true;
+	}
+	if(pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() && (pPlayer->GetNumCitiesFounded() > (pPlayer->GetDiplomacyAI()->GetBoldness())))
+	{
+		return true;
 	}
 
 	// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"

@@ -189,9 +189,35 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 
 					if(pkPolicyInfo->GetFlavorValue(eFlavor) > 0)
 					{
-						if(bSeekingDiploVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DIPLOMACY"))
+						if(GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DIPLOMACY")
 						{
-							iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
+							if(bSeekingDiploVictory)
+							{
+								iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
+							}
+							else if(bSeekingConquestVictory)
+							{
+								iWeight -= m_PolicyAIWeights.GetWeight(iPolicyLoop);
+							}
+							else
+							{
+								for(int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+								{
+									PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
+									if(eMinor == NO_PLAYER)
+										continue;
+
+									// Loop through all minors - if we're itching to conquer, bail out on diplo policies.
+									if(GET_PLAYER(eMinor).isMinorCiv() && GET_PLAYER(eMinor).isAlive())
+									{
+										if(pPlayer->GetDiplomacyAI()->GetMinorCivApproach(eMinor) >= MINOR_CIV_APPROACH_CONQUEST)
+										{
+											iWeight -= m_PolicyAIWeights.GetWeight(iPolicyLoop);
+											break;
+										}
+									}
+								}
+							}
 						}
 						if(bSeekingConquestVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_OFFENSE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MILITARY_TRAINING"))
 						{
