@@ -185,10 +185,6 @@ void CvHomelandAI::Update()
 	// Make sure we have a unit to handle
 	if(!m_CurrentTurnUnits.empty())
 	{
-		// Make sure the economic plots are up-to-date, it has a caching system in it.
-		CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
-		pEconomicAI->UpdatePlots();
-
 		// Start by establishing the priority order for moves this turn
 		EstablishHomelandPriorities();
 
@@ -963,6 +959,7 @@ void CvHomelandAI::AssignHomelandMoves()
 			break;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 		case AI_HOMELAND_MOVE_DIPLOMAT_EMBASSY:
+			//this is for embassies - diplomatic missions are handled via AI operation
 			if (MOD_DIPLOMACY_CITYSTATES) PlotDiplomatMoves();
 			break;
 		case AI_HOMELAND_MOVE_MESSENGER:

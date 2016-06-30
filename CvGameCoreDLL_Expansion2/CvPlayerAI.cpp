@@ -1999,7 +1999,8 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(UnitHandle pUnit)
 			CvCity* pLoopCity;
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
-				if(pLoopCity)
+				//want to have at least on revealed plot as target for pathfinding
+				if(pLoopCity && pLoopCity->plot()->isAdjacentRevealed(pUnit->getTeam()))
 				{
 					int iScore = ScoreCityForMessenger(pLoopCity, pUnit);
 					if(iScore > 0)
@@ -2451,6 +2452,11 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 
 CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit)
 {
+	if(pUnit->AI_getUnitAIType() != UNITAI_DIPLOMAT)
+	{
+		return NULL;
+	}
+
 	CvCity* pCity = FindBestDiplomatTargetCity(pUnit);
 
 	if(pCity == NULL)
@@ -2505,7 +2511,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit)
 
 CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit)
 {
-	if(pUnit->AI_getUnitAIType() != UNITAI_MESSENGER && pUnit->AI_getUnitAIType() != UNITAI_DIPLOMAT)
+	if(pUnit->AI_getUnitAIType() != UNITAI_MESSENGER)
 	{
 		return NULL;
 	}

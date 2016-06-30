@@ -3643,6 +3643,35 @@ int CvPlot::GetNumAdjacentMountains() const
 	}
 	return iNumMountains;
 }
+
+int CvPlot::GetNumPassableNeighbors(int iRings, PlayerTypes ePlayer, DomainTypes eDomain) const
+{
+	int iCount = 0;
+
+	int aiRings[] = {RING0_PLOTS,RING1_PLOTS,RING2_PLOTS,RING3_PLOTS,RING4_PLOTS,RING5_PLOTS};
+
+	for(int iI = 0; iI < aiRings[min(5,max(0,iRings))]; iI++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
+		if(pLoopPlot == NULL)
+		{
+			continue;
+		}
+		if(eDomain!=NO_DOMAIN && getDomain()!=eDomain)
+		{
+			continue;
+		}
+		if(!isValidMovePlot(ePlayer))
+		{
+			continue;
+		}
+
+		iCount++;
+	}
+
+	return iCount;
+}
+
 #if defined(MOD_BALANCE_CORE_SETTLER)
 int CvPlot::countPassableNeighbors(bool bWater, CvPlot** aPassableNeighbors) const
 {

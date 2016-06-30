@@ -2423,6 +2423,7 @@ CvPlot* CvAIOperationCivilianDiplomatDelegation::FindBestTargetForUnit(CvUnit* p
 	if(!pUnit)
 		return NULL;
 
+	//this mission is for diplomacy bomb, constructing embassies is handled in homeland AI
 	return GET_PLAYER(pUnit->getOwner()).ChooseMessengerTargetPlot(pUnit);
 }
 

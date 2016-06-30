@@ -636,7 +636,6 @@ void CvEconomicAI::DoTurn()
 {
 	AI_PERF_FORMAT("AI-perf.csv", ("CvEconomicAI::DoTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription()) );
 
-	UpdatePlots();
 	LogMonitor();
 	LogCityMonitor();
 
@@ -1029,7 +1028,7 @@ const std::vector<SPlotWithScore>& CvEconomicAI::GetExplorationPlots(DomainTypes
 {
 	if(m_bExplorationPlotsDirty)
 	{
-		UpdatePlots();
+		UpdateExplorePlots();
 	}
 
 	return (domain==DOMAIN_SEA) ? m_vPlotsToExploreSea : m_vPlotsToExploreLand;
@@ -3078,7 +3077,7 @@ void CvEconomicAI::DisbandLongObsoleteUnits()
 #endif
 
 /// Go through the plots for the exploration automation to evaluate
-void CvEconomicAI::UpdatePlots()
+void CvEconomicAI::UpdateExplorePlots()
 {
 	m_vPlotsToExploreLand.clear();
 	m_vPlotsToExploreSea.clear();

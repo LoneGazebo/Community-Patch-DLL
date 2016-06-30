@@ -197,6 +197,7 @@ public:
 	CvCity* GetAdjacentCity() const;
 	int GetNumAdjacentDifferentTeam(TeamTypes eTeam, bool bIgnoreWater) const;
 	int GetNumAdjacentMountains() const;
+	int GetNumPassableNeighbors(int iRings, PlayerTypes ePlayer, DomainTypes eDomain) const;
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	int countPassableNeighbors(bool bWater, CvPlot** aPassableNeighbors=NULL) const;
 	bool IsChokePoint() const;
