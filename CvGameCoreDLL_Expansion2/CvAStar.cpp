@@ -901,7 +901,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 	}
 
 	//ignore this unit when counting!
-	bool bIsInitialNode = (node->m_pParent==NULL);
+	bool bIsInitialNode = pUnit->at(node->m_iX,node->m_iY);
 	int iNumUnits = pPlot->getMaxFriendlyUnitsOfType(pUnit) - (bIsInitialNode ? 1 : 0);
 	kToNodeCacheData.bFriendlyUnitLimitReached = (iNumUnits >= pPlot->getUnitLimit());
 	kToNodeCacheData.bIsValidRoute = pPlot->isValidRoute(pUnit);
@@ -909,7 +909,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 	//now the big ones ...
 	bool bIsDestination = finder->IsPathDest(node->m_iX,node->m_iY) || !finder->HasValidDestination();
 	//use the flags mostly as provided - attack needs manual handling though
-	int iMoveFlags = finder->GetData().iFlags & ~CvUnit::MOVEFLAG_ATTACK;
+	int iMoveFlags = finder->GetData().iFlags & ~CvUnit::MOVEFLAG_ATTACK & ~CvUnit::MOVEFLAG_DESTINATION;
 	//special checks for last node - similar as in PathDestValid
 	if (bIsDestination)
 	{
@@ -1229,6 +1229,8 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPat
 	{
 		// check stacking (if visible)
 		if (kToNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kToNodeCacheData.bFriendlyUnitLimitReached)
+				return -1; //forbidden
+		if (kToNodeCacheData.bIsRevealedToTeam && kToNodeCacheData.bContainsOtherFriendlyTeamCity)
 			return -1; //forbidden
 
 		iCost += PathEndTurnCost(pToPlot,kToNodeCacheData,pUnitDataCache,node->m_iTurns);
@@ -1285,6 +1287,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 	CvUnit* pUnit = pCacheData->pUnit;
 	TeamTypes eUnitTeam = pCacheData->getTeam();
 	bool bCheckStacking =  !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING);
+	bool bIsDestination = kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_DESTINATION;
 
 	bool bNextNodeHostile = kToNodeCacheData.bContainsEnemyCity || kToNodeCacheData.bContainsVisibleEnemyDefender;
 	bool bNextNodeVisibleToTeam = kToNodeCacheData.bPlotVisibleToTeam;
@@ -1323,7 +1326,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 	if (kToNodeCacheData.bPlotVisibleToTeam)
 	{
 		//check friendly stacking - this is also checked in canMoveInto but this way it's maybe faster
-		if(bCheckStacking && (kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_DESTINATION) && kToNodeCacheData.bFriendlyUnitLimitReached)
+		if(bCheckStacking && bIsDestination && kToNodeCacheData.bFriendlyUnitLimitReached)
 			return FALSE;
 
 		if(!pUnit->canMoveInto(*pToPlot, kToNodeCacheData.iMoveFlags))
@@ -1342,7 +1345,6 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 
 		//got to be careful here, don't plot moves through enemy cities (but allow them as attack targets for melee)
 		//if we don't have a valid destination, any plot could be it
-		bool bIsDestination = !finder->HasValidDestination() || finder->IsPathDest(node->m_iX,node->m_iY);
 		if (kToNodeCacheData.bContainsEnemyCity && (!bIsDestination || !pUnit->IsCanAttackWithMove()))
 			return FALSE;
 

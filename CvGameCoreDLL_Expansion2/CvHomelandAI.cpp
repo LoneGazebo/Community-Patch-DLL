@@ -185,10 +185,6 @@ void CvHomelandAI::Update()
 	// Make sure we have a unit to handle
 	if(!m_CurrentTurnUnits.empty())
 	{
-		// Make sure the economic plots are up-to-date, it has a caching system in it.
-		CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
-		pEconomicAI->UpdatePlots();
-
 		// Start by establishing the priority order for moves this turn
 		EstablishHomelandPriorities();
 
@@ -963,6 +959,7 @@ void CvHomelandAI::AssignHomelandMoves()
 			break;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 		case AI_HOMELAND_MOVE_DIPLOMAT_EMBASSY:
+			//this is for embassies - diplomatic missions are handled via AI operation
 			if (MOD_DIPLOMACY_CITYSTATES) PlotDiplomatMoves();
 			break;
 		case AI_HOMELAND_MOVE_MESSENGER:
@@ -4267,11 +4264,13 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 		{
 			continue;
 		}
-		GreatPeopleDirectiveTypes eDirective = pUnit->GetGreatPeopleDirective();
 
-		switch(eDirective)
-		{
-		case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
+		//Handled by economic AI
+		GreatPeopleDirectiveTypes eDirective = pUnit->GetGreatPeopleDirective();
+		if (eDirective==GREAT_PEOPLE_DIRECTIVE_USE_POWER)
+			continue;
+
+		if (eDirective == GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT)
 		{
 			CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseDiplomatTargetPlot(pUnit);
 			BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
@@ -4314,9 +4313,9 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 					continue;
 #endif
 				}
-				else
+				else if (pUnit->GetDanger()>0)
 				{
-					ExecuteMoveToTarget(pUnit.pointer(), pTarget, 0);
+					ExecuteMoveToTarget(pUnit.pointer(), pTarget, CvUnit::MOVEFLAG_SAFE_EMBARK|CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
 
 					if(GC.getLogging() && GC.getAILogging())
 					{
@@ -4330,25 +4329,20 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 				}
 			}
 		}
-		break;
-		case GREAT_PEOPLE_DIRECTIVE_USE_POWER:
-			//Handled by economic AI
-		break;
-		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
+
+		//either no directive or trying to build embassy but walked into danger
+		if (pUnit->canMove())
 		{
 			MoveCivilianToSafety(pUnit.pointer());
-#if defined(MOD_BALANCE_CORE)
 			UnitProcessed(pUnit->GetID());
 			pUnit->finishMoves();
-#endif
+
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
 				strLogString.Format("Moving Great Diplomat to safety.");
 				LogHomelandMessage(strLogString);
 			}
-			break;
-		}
 		}
 	}
 }

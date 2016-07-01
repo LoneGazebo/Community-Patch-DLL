@@ -1689,7 +1689,7 @@ int CvAIOperationOffensive::GetMaximumRecruitTurns() const
 
 AIOperationAbortReason CvAIOperationOffensive::VerifyOrAdjustTarget(CvArmyAI* pArmy)
 {
-	CvCity* pTroubleSpot = GET_PLAYER(m_eOwner).GetThreatenedCityRank();
+	CvCity* pTroubleSpot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(0,false);
 	if (pTroubleSpot)
 	{
 		CvTacticalAnalysisMap* pTactMap = GC.getGame().GetTacticalAnalysisMap();
@@ -2423,6 +2423,7 @@ CvPlot* CvAIOperationCivilianDiplomatDelegation::FindBestTargetForUnit(CvUnit* p
 	if(!pUnit)
 		return NULL;
 
+	//this mission is for diplomacy bomb, constructing embassies is handled in homeland AI
 	return GET_PLAYER(pUnit->getOwner()).ChooseMessengerTargetPlot(pUnit);
 }
 

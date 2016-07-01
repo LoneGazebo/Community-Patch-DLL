@@ -233,7 +233,7 @@ public:
 		return m_iVisibleAntiquitySitesNeutral;
 	};
 #endif
-	void UpdatePlots();
+	void UpdateExplorePlots();
 	void SetExplorationPlotsDirty() { m_bExplorationPlotsDirty = true; }
 
 	void LogEconomyMessage(const CvString& strMsg);
