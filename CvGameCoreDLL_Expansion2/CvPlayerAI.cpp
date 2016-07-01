@@ -2511,7 +2511,8 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit)
 
 CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit)
 {
-	if(pUnit->AI_getUnitAIType() != UNITAI_MESSENGER)
+	//this function is used for diplomat influence spread as well (embassies go through ChooseDiplomatTargetPlot)
+	if(pUnit->AI_getUnitAIType() != UNITAI_MESSENGER && pUnit->AI_getUnitAIType() != UNITAI_DIPLOMAT)
 	{
 		return NULL;
 	}
