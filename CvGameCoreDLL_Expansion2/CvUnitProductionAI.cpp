@@ -971,7 +971,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		else
 		{
-			iBonus += 75;
+			iBonus += 50;
 		}
 	}
 	//Make sure we need workers in this city.
@@ -995,12 +995,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
 		if(eWantWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 		{
-			iBonus += 30;
+			iBonus += 20;
 		}
 		AICityStrategyTypes eNeedWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
 		if(eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
 		{
-			iBonus += 60;
+			iBonus += 40;
 		}
 	}
 	//////////////////
@@ -1024,26 +1024,20 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	bool bAtWar = (kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0);
 	if(bAtWar)
 	{
-		if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == m_pCity)
+		if(kPlayer.getNumCities() > 1 && m_pCity->GetThreatCriteria() != -1)
 		{
-			if(bCombat)
+			//More cities = more threat.
+			int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatCriteria()) * 40;
+			if(iThreat > 0)
 			{
-				iBonus += 100;
-			}
-			else
-			{
-				iBonus -= 100;
-			}
-		}
-		else
-		{
-			if(bCombat)
-			{
-				iBonus += 25;
-			}
-			else
-			{
-				iBonus -= 25;
+				if(bCombat)
+				{
+					iBonus += iThreat;
+				}
+				else
+				{
+					iBonus -= iThreat;
+				}
 			}
 		}
 	}

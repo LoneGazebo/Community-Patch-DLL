@@ -8167,7 +8167,7 @@ void CvDiplomacyAI::DoMakePeaceWithMinors()
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if(IsPlayerValid(eLoopPlayer))
+		if(eLoopPlayer != NO_PLAYER)
 		{
 			if(GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
@@ -8533,11 +8533,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 #if defined(MOD_BALANCE_CORE)
 	if(GET_PLAYER(ePlayer).isMinorCiv())
 	{
-		if(GetPlayerNumTurnsAtWar(ePlayer) <= GC.getWAR_MAJOR_MINIMUM_TURNS())
-		{
-			return false;
-		}
-		else if(GetMinorCivApproach(ePlayer) == MINOR_CIV_APPROACH_CONQUEST)
+		if(GetMinorCivApproach(ePlayer) == MINOR_CIV_APPROACH_CONQUEST)
 		{
 			return false;
 		}

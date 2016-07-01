@@ -10563,7 +10563,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 			if(pBestPlot == NULL)
 			{
 				//try to go to a city
-				CvCity* pCity = m_pPlayer->GetMilitaryAI()->GetMostThreatenedCity();
+				CvCity* pCity = m_pPlayer->GetThreatenedCityRank();
 				if(!pCity)
 					pCity = m_pPlayer->GetClosestCity(pGeneral->plot());
 

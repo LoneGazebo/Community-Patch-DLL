@@ -128,6 +128,10 @@ public:
 	void SetCenterOfMassEmpire();
 	CvPlot* GetCenterOfMassEmpire() const;
 
+	void UpdateCityThreatCriteria();
+	//0 == highest, 1 = second highest, etc. Not all cities will be assigned!
+	CvCity* GetThreatenedCityRank(int iValue = 0);
+
 	void UpdateBestMilitaryCities();
 	void SetBestMilitaryCityDomain(int iValue, DomainTypes eDomain);
 	void SetBestMilitaryCityCombatClass(int iValue, UnitCombatTypes eUnitCombat);

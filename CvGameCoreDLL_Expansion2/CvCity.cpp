@@ -307,6 +307,7 @@ CvCity::CvCity() :
 	, m_aiChangeGrowthExtraYield("CvCity::m_aiChangeGrowthExtraYield", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
+	, m_iThreatCriteria("CvCity::m_iThreatCriteria", m_syncArchive)
 	, m_iUnitPurchaseCooldown("CvCity::m_iUnitPurchaseCooldown", m_syncArchive)
 	, m_iBuildingPurchaseCooldown("CvCity::m_iBuildingPurchaseCooldown", m_syncArchive)
 	, m_iReligiousTradeModifier("CvCity::m_iReligiousTradeModifier", m_syncArchive)
@@ -1431,6 +1432,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iBorderObstacleCity = 0;
 	m_iNumNearbyMountains = 0;
 	m_iLocalUnhappinessMod = 0;
+	m_iThreatCriteria = 0;
 	m_iUnitPurchaseCooldown = 0;
 	m_iBuildingPurchaseCooldown = 0;
 	m_iReligiousTradeModifier = 0;
@@ -3050,6 +3052,19 @@ int CvCity::GetStaticYield(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
 	return m_aiStaticCityYield[eYield];
+}
+
+void CvCity::SetThreatCritera(int iValue)
+{
+	if(iValue != m_iThreatCriteria)
+	{
+		m_iThreatCriteria = iValue;
+	}
+}
+int CvCity::GetThreatCriteria() const
+{
+	VALIDATE_OBJECT
+	return m_iThreatCriteria;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -17042,8 +17057,8 @@ bool CvCity::DoRazingTurn()
 
 			// In hundreds
 			CvGame& theGame = GC.getGame();
-			int iNumRebels = (getPopulation() * 8); //Based on city size.
-			int iExtraRoll = (theGame.getCurrentEra() * 8 * getPopulation()); //Increase possible partisan spawns as game continues and cities grow.
+			int iNumRebels = (getPopulation() * 9); //Based on city size.
+			int iExtraRoll = (theGame.getCurrentEra() * 9 * getPopulation()); //Increase possible partisan spawns as game continues and cities grow.
 			iNumRebels += theGame.getJonRandNum(iExtraRoll, "Rebel count rand roll");
 			iNumRebels /= 100;		
 	
@@ -17056,7 +17071,7 @@ bool CvCity::DoRazingTurn()
 				iNumRebels = getPopulation();
 			}
 			int iStatic = iNumRebels;
-			GET_PLAYER(getOwner()).SetSpawnCooldown(iNumRebels * 3);
+			GET_PLAYER(getOwner()).SetSpawnCooldown(iNumRebels * 2);
 
 			bool bNotification = false;
 			int iBestPlot = -1;

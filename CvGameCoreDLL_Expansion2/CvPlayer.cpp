@@ -4735,6 +4735,64 @@ void CvPlayer::SetCenterOfMassEmpire()
 	m_iCenterOfMassX = iAvgX;
 	m_iCenterOfMassY = iAvgY;
 }
+void CvPlayer::UpdateCityThreatCriteria()
+{
+	//What are you doing here? Get out!
+	if(isMinorCiv() || isBarbarian() || isHuman())
+		return;
+
+	if(getNumCities() <= 1)
+		return;
+
+	CvCity* pLoopCity = NULL;
+	int iLoop;
+
+	//Reset the critera.
+	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if(pLoopCity != NULL)
+		{
+			pLoopCity->SetThreatCritera(-1);
+		}
+	}
+	for(int iWorst = 0; iWorst < getNumCities(); iWorst++)
+	{
+		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if(pLoopCity != NULL)
+			{
+				//Already set? Skip.
+				if(pLoopCity->GetThreatCriteria() != -1)
+					continue;
+
+				if(GetMilitaryAI()->GetMostThreatenedCity(iWorst) == pLoopCity)
+				{
+					pLoopCity->SetThreatCritera(iWorst);
+					break;
+				}
+			}
+		}
+	}
+}
+CvCity* CvPlayer::GetThreatenedCityRank(int iValue)
+{
+	CvCity* pLoopCity = NULL;
+	int iLoop;
+
+	//Reset the critera.
+	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if(pLoopCity != NULL)
+		{
+			if(pLoopCity->GetThreatCriteria() == iValue)
+			{
+				return pLoopCity;
+			}
+		}
+	}
+
+	return NULL;
+}
 
 void CvPlayer::UpdateBestMilitaryCities()
 {
@@ -9496,6 +9554,7 @@ void CvPlayer::doTurn()
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
+	UpdateCityThreatCriteria();
 	for (int iInstantYield = 0; iInstantYield < NUM_INSTANT_YIELD_TYPES; iInstantYield++)
 	{
 		InstantYieldType eInstantYield = (InstantYieldType)iInstantYield;

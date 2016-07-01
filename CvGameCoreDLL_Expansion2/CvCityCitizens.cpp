@@ -75,6 +75,7 @@ void CvCityCitizens::Reset()
 	m_bNoAutoAssignSpecialists = false;
 #if defined(MOD_BALANCE_CORE)
 	m_bIsDirty = false;
+	m_bIsBlockaded = false;
 #endif
 	m_iNumUnassignedCitizens = 0;
 	m_iNumCitizensWorkingPlots = 0;
@@ -145,6 +146,7 @@ void CvCityCitizens::Read(FDataStream& kStream)
 	kStream >> m_bNoAutoAssignSpecialists;
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_bIsDirty;
+	kStream >> m_bIsBlockaded;
 #endif
 	kStream >> m_iNumUnassignedCitizens;
 	kStream >> m_iNumCitizensWorkingPlots;
@@ -195,6 +197,7 @@ void CvCityCitizens::Write(FDataStream& kStream)
 	kStream << m_bNoAutoAssignSpecialists;
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_bIsDirty;
+	kStream << m_bIsBlockaded;
 #endif
 	kStream << m_iNumUnassignedCitizens;
 	kStream << m_iNumCitizensWorkingPlots;
@@ -267,6 +270,22 @@ void CvCityCitizens::DoTurn()
 
 	CvPlayerAI& thisPlayer = GET_PLAYER(GetOwner());
 #if defined(MOD_BALANCE_CORE)
+	bool bBlockadeCheck = false;
+	if(!IsBlockade())
+	{
+		if(m_pCity->IsBlockaded(true))
+		{
+			SetBlockade(true);
+		}
+	}
+	else if(IsBlockade())
+	{
+		if(!m_pCity->IsBlockaded(true))
+		{
+			SetBlockade(false);
+			bBlockadeCheck = true;
+		}
+	}
 #if defined(MOD_AI_SMART_V3)
 	bool bWonder = false;
 	bool bSettler = false;
@@ -625,7 +644,7 @@ void CvCityCitizens::DoTurn()
 	}
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
 
-	DoReallocateCitizens();
+	DoReallocateCitizens(bBlockadeCheck);
 
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
 
@@ -2304,11 +2323,25 @@ bool CvCityCitizens::NeedReworkCitizens()
 #if defined(MOD_BALANCE_CORE)
 void CvCityCitizens::SetDirty(bool bValue)
 {
-	m_bIsDirty = bValue;
+	if(m_bIsDirty != bValue)
+	{
+		m_bIsDirty = bValue;
+	}
 }
 bool CvCityCitizens::IsDirty()
 {
 	return m_bIsDirty;
+}
+void CvCityCitizens::SetBlockade(bool bValue)
+{
+	if(m_bIsBlockaded != bValue)
+	{
+		m_bIsBlockaded = bValue;
+	}
+}
+bool CvCityCitizens::IsBlockade()
+{
+	return m_bIsBlockaded;
 }
 void CvCityCitizens::DoReallocateCitizens(bool bForce)
 #else

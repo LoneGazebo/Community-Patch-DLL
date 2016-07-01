@@ -20,4 +20,4 @@ SELECT 'TXT_KEY_BUILDING_WIRE_SERVICE_STRATEGY', 'Increases Diplomatic Unit prod
 
 INSERT INTO Language_en_US (
   Tag, Text)
-SELECT 'TXT_KEY_BUILDING_WIRE_SERVICE_HELP', '+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units. Grants Promotion [COLOR_POSITIVE_TEXT]Wire Service[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE] +15% of the [ICON_PRODUCTION] Production of the City is added to the current [ICON_PRODUCTION] Production total every time the city gains a [ICON_CITIZEN] Citizen.';
+SELECT 'TXT_KEY_BUILDING_WIRE_SERVICE_HELP', '+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units. Grants Promotion [COLOR_POSITIVE_TEXT]Wire Service[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE] +15% of the [ICON_PRODUCTION] Production of the City is added to the current [ICON_PRODUCTION] Production total every time the city gains a [ICON_CITIZEN] Citizen.';

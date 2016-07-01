@@ -3965,7 +3965,7 @@ void CvMilitaryAI::UpdateOperations()
 				int iNumUnitsWillingBuild = 2;
 				if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
-					CvCity* pMostThreatenedCity = GetMostThreatenedCity(0,true);
+					CvCity* pMostThreatenedCity = m_pPlayer->GetThreatenedCityRank();
 
 					if(pMostThreatenedCity != NULL)
 					{
@@ -5197,7 +5197,7 @@ void CvMilitaryAI::LogMilitaryStatus()
 		strOutBuf += strTemp;
 
 		// Most threatened city
-		pCity = GetMostThreatenedCity();
+		pCity = m_pPlayer->GetThreatenedCityRank();
 		if(pCity != NULL)
 		{
 			cityName = pCity->getName();

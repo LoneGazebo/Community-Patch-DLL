@@ -86,6 +86,9 @@ public:
 	void UpdateCityYields(YieldTypes eYield);
 	void SetStaticYield(YieldTypes eYield, int iValue);
 	int GetStaticYield(YieldTypes eYield) const;
+
+	void SetThreatCritera(int iValue);
+	int GetThreatCriteria() const;
 #endif
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -1597,6 +1600,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiThemingYieldBonus;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesOwned;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticCityYield;
+	FAutoVariable<int, CvCity> m_iThreatCriteria;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iBuildingPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iReligiousTradeModifier;

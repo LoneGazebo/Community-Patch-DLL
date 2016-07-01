@@ -3562,7 +3562,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 		// scale based on flavor and world size
 		if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
 		{
-			if(iSettlersOnMapOrBuild >= 0)
+			if(iSettlersOnMapOrBuild > 0)
 			{
 				return true;
 			}
@@ -3743,7 +3743,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalUnderThreat(CvCity* pCity)
 
 		if (!bAtPeace && !kPlayer.isMinorCiv())
 		{
-			CvCity *pMostThreatened = kPlayer.GetMilitaryAI()->GetMostThreatenedCity();
+			CvCity *pMostThreatened = kPlayer.GetThreatenedCityRank();
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			//threat value is now calculated differently
 			if (pMostThreatened == pCity && pMostThreatened->getThreatValue() > GC.getCITY_HIT_POINTS_HEALED_PER_TURN()*2)

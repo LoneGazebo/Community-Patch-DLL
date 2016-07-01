@@ -9530,23 +9530,22 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 #if defined(MOD_BALANCE_CORE_YIELDS)
 			if(ePlayer != NO_PLAYER)
 			{
-				if(IsCityConnection(ePlayer) && MOD_BALANCE_YIELD_SCALE_ERA)
+				if(MOD_BALANCE_YIELD_SCALE_ERA)
 				{
-					if(IsRouteRailroad())
+					if(IsCityConnection(ePlayer))
 					{
-						iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+						if(IsRouteRailroad())
+						{
+							iYield += pImprovement->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+						}
+						else if(IsRouteRoad())
+						{
+							iYield += pImprovement->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+						}
 					}
-					else if(IsRouteRoad())
-					{
-						iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
-					}
-				}
-				else
-				{
-					iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
 				}
 			}
-			else if(!MOD_BALANCE_YIELD_SCALE_ERA)
+			if(!MOD_BALANCE_YIELD_SCALE_ERA)
 			{
 #endif
 			iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
