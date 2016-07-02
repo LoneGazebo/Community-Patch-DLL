@@ -848,47 +848,8 @@ void CvTacticalAI::UpdatePostures()
 			if(GC.getLogging() && GC.getAILogging() && eNewPosture != AI_TACTICAL_POSTURE_NONE)
 			{
 				CvString szPostureMsg;
-				szPostureMsg.Format("Zone ID: %d, ", pZone->GetDominanceZoneID());
-#if defined(MOD_BALANCE_CORE)
-				if(pZone->GetZoneCity() != NULL)
-				{
-					szPostureMsg += pZone->GetZoneCity()->getName();
-				}
-				if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
-				{
-					szPostureMsg += ", Friendly  ";
-				}
-				else if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
-				{
-					szPostureMsg += ", Enemy  ";
-				}
-				else if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_EVEN)
-				{
-					szPostureMsg += ", Even  ";
-				}
-				else if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_NO_UNITS_VISIBLE)
-				{
-					szPostureMsg += ", No Units Visible  ";
-				}
+				szPostureMsg.Format("Zone ID: %d, %s,", pZone->GetDominanceZoneID(), pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none");
 
-				if(pZone->IsWater())
-				{
-					szPostureMsg += ", Water  ";
-				}
-				else
-				{
-					szPostureMsg += ", Land  ";
-				}
-
-				if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_TEMP_ZONE)
-				{
-					szPostureMsg += ", Temporary Zone  ";
-				}
-				if(pZone->GetOwner() != NO_PLAYER && GET_TEAM(GET_PLAYER(pZone->GetOwner()).getTeam()).isAtWar(m_pPlayer->getTeam()))
-				{
-					szPostureMsg += ", WARZONE  ";
-				}
-#endif
 				switch(eNewPosture)
 				{
 				case AI_TACTICAL_POSTURE_SIT_AND_BOMBARD:
@@ -6115,7 +6076,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 	for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 	{
 		CvPlot* pAdjacentPlot = plotDirection(pTargetPlot->getX(), pTargetPlot->getY(), ((DirectionTypes)iDirectionLoop));
-		if (pAdjacentPlot && pAdjacentPlot->canPlaceUnit(m_pPlayer->GetID()))
+		if (pAdjacentPlot && pAdjacentPlot->isValidMovePlot(m_pPlayer->GetID()))
 		{
 			if (pAdjacentPlot->isWater())
 				plotListWater.push_back(pAdjacentPlot);
@@ -6153,29 +6114,31 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 			for (it = plotList.begin(); it != plotList.end(); it++)
 			{
 				//if there's a friendly ranged unit there, check if we can swap places
-				UnitHandle pFriendlyUnit = (*it)->getBestDefender(m_pPlayer->GetID());
-				if(pFriendlyUnit && pFriendlyUnit->isRanged())
+				UnitHandle pOtherUnit = (*it)->getBestDefender(NO_PLAYER);
+				if(pOtherUnit && pOtherUnit->isRanged() && pOtherUnit->getOwner()==m_pPlayer->GetID())
 				{
-					CvPlot* pFriendlyPlot = pFriendlyUnit->plot();
+					CvPlot* pFriendlyPlot = pOtherUnit->plot();
 					if(pUnit->CanSwapWithUnitHere(*pFriendlyPlot))
 					{
 						// Move up there
-						pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pFriendlyUnit->getX(), pFriendlyUnit->getY());
+						pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pOtherUnit->getX(), pOtherUnit->getY());
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strMsg;
 							CvString strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-							CvString strTemp2 = GC.getUnitInfo(pFriendlyUnit->getUnitType())->GetDescription();
+							CvString strTemp2 = GC.getUnitInfo(pOtherUnit->getUnitType())->GetDescription();
 							strMsg.Format("Pulling back %s and swapping in %s for proper organization (ExecuteAttack), x: %d, y: %d", strTemp2.GetCString(), strTemp.GetCString(), (*it)->getX(), (*it)->getY());
 							LogTacticalMessage(strMsg);
 						}
+
+						//dangerous but we break after erasing so it's ok
 						plotList.erase(it);
 						break;
 					}
 				}
 
 				//empty plot
-				if (!pFriendlyUnit)
+				if (!pOtherUnit)
 				{
 					//don't walk into certain death
 					if (pUnit->GetDanger(*it) > pUnit->GetCurrHitPoints()*3)
@@ -6194,6 +6157,8 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 						strMsg.Format("Moving %s for proper organization, x: %d, y: %d (ExecuteAttack)", strTemp.GetCString(), (*it)->getX(), (*it)->getY());
 						LogTacticalMessage(strMsg);
 					}
+
+					//dangerous but we break after erasing so it's ok
 					plotList.erase(it);
 					break;
 				}
@@ -6214,8 +6179,8 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 		{
 			bool bQueueTryRangedAttack = false;
 
-			// Are we in range and do we have LOS to the target?
-			if(pUnit->canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
+			// Are we in range and do we have LOS to the target? if we are right next to the target, also try to move
+			if(pUnit->canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()) && !pTargetPlot->isAdjacent(pUnit->plot()))
 			{
 				bQueueTryRangedAttack = true;
 			}
@@ -6321,6 +6286,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 						LogTacticalMessage(strMsg);
 					}
 
+					//dangerous but we break after erasing so it's ok
 					plotList.erase(it);
 					break;
 				}
@@ -12208,13 +12174,8 @@ bool TacticalAIHelpers::IsCaptureTargetInRange(CvUnit * pUnit)
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 			CvCity* pNeighboringCity = pPlot->getPlotCity();
-			if (pNeighboringCity && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pNeighboringCity->getOwner()))
-			{
-				int iExpectedSelfDamage = 0;
-				int iExpectedDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pNeighboringCity,pUnit,iExpectedSelfDamage);
-				if (iExpectedSelfDamage < pUnit->GetCurrHitPoints() && iExpectedDamage > (pNeighboringCity->GetMaxHitPoints()-pNeighboringCity->getDamage()))
-					return true;
-			}
+			if (pNeighboringCity && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pNeighboringCity->getOwner()) && pNeighboringCity->isInDangerOfFalling())
+				return true;
 
 			if (pPlot->getImprovementType()==GC.getBARBARIAN_CAMP_IMPROVEMENT())
 			{

@@ -1201,8 +1201,8 @@ void CvTacticalAnalysisMap::LogZones()
 			if ( pZone->GetFriendlyStrength()==0 &&  pZone->GetEnemyStrength()==0)
 				continue;
 
-			szLogMsg.Format("Zone ID: %d, Area ID: %d, Value: %d, FRIENDLY Str: %d (%d), Ranged: %d (%d), ENEMY Str: %d (%d), Ranged: %d (%d), Closest Enemy: %d",
-			                pZone->GetDominanceZoneID(), pZone->GetAreaID(), pZone->GetDominanceZoneValue(),
+			szLogMsg.Format("Zone ID: %d, Size: %d, City: %s, Area ID: %d, Value: %d, FRIENDLY Str: %d (%d), Ranged: %d (%d), ENEMY Str: %d (%d), Ranged: %d (%d), Closest Enemy: %d",
+			                pZone->GetDominanceZoneID(), pZone->GetNumPlots(), pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none", pZone->GetAreaID(), pZone->GetDominanceZoneValue(),
 			                pZone->GetFriendlyStrength(), pZone->GetFriendlyUnitCount(), pZone->GetFriendlyRangedStrength(), pZone->GetFriendlyRangedUnitCount(),
 			                pZone->GetEnemyStrength(), pZone->GetEnemyUnitCount(), pZone->GetEnemyRangedStrength(), pZone->GetEnemyRangedUnitCount(), pZone->GetRangeClosestEnemyUnit());
 			if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
