@@ -1692,7 +1692,7 @@ AIOperationAbortReason CvAIOperationOffensive::VerifyOrAdjustTarget(CvArmyAI* pA
 	CvCity* pTroubleSpot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(0,false);
 	if (pTroubleSpot)
 	{
-		CvTacticalAnalysisMap* pTactMap = GC.getGame().GetTacticalAnalysisMap();
+		CvTacticalAnalysisMap* pTactMap = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap();
 		if (pTactMap->IsInEnemyDominatedZone(pTroubleSpot->plot()))
 		{
 			//the trouble spot is right next to us, abort the current operation

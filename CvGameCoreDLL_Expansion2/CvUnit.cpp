@@ -25955,6 +25955,20 @@ void CvUnit::setArmyID(int iNewArmyID)
 	}
 }
 
+CvString CvUnit::getTacticalZoneInfo() const
+{
+	CvTacticalDominanceZone* pZone = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(plot());
+	if (pZone)
+	{
+		const char* dominance[] = { "no units", "friendly", "enemy", "even" };
+		AITacticalPosture posture = GET_PLAYER(getOwner()).GetTacticalAI()->FindPosture(pZone);
+		return CvString::format("tactical zone %d, dominance %s, posture %s", pZone->GetDominanceZoneID(), dominance[pZone->GetDominanceFlag()], 
+			posture!=AI_TACTICAL_POSTURE_NONE ? postureNames[posture] : "none");
+	}
+
+	return CvString("no tactical zone");
+}
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsSelected() const
 {

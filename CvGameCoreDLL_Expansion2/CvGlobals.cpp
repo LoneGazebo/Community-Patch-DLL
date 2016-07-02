@@ -4511,7 +4511,7 @@ bool CvGlobals::GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, 
 		std::string strOut;
 
 		int iIndex = GC.getMap().plotNum(pkPlot->getX(), pkPlot->getY());
-		CvTacticalAnalysisMap* pTactMap = GC.getGame().GetTacticalAnalysisMap();
+		CvTacticalAnalysisMap* pTactMap = GET_PLAYER( GC.getGame().getActivePlayer() ).GetTacticalAI()->GetTacticalAnalysisMap();
 		CvTacticalAnalysisCell* pCell = pTactMap->GetCell(iIndex);
 
 		if(pCell->IsImpassableTerrain())
@@ -4557,10 +4557,6 @@ bool CvGlobals::GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, 
 				if(pCell->IsHelpsProvidesFlankBonus())
 				{
 					strOut += "F ";
-				}
-				if(pCell->GetDefenseModifier() > 0)
-				{
-					strOut += "D ";
 				}
 				if(pCell->GetDominanceZone() != -1)
 				{

@@ -2659,9 +2659,7 @@ void CvHomelandAI::PlotAirliftMoves()
 
 	// Create list of empty land plots we own adjacent to airlift cities that are not endangered
 	vector<CvPlot *> aAirliftPlots;
-	CvTacticalAnalysisMap* pTactMap = GC.getGame().GetTacticalAnalysisMap();
-	if (pTactMap->GetCurrentPlayer()!=m_pPlayer->GetID())
-		pTactMap->RefreshDataForNextPlayer(m_pPlayer);
+	CvTacticalAnalysisMap* pTactMap = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap();
 
 	CvTacticalDominanceZone *pZone;
 	vector<CvCity *>::const_iterator it;
@@ -5939,12 +5937,6 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	int nAirUnitsOffensive = 0;
 	int nAirUnitsDefensive = 0;
 
-	if (GC.getGame().GetTacticalAnalysisMap()->GetCurrentPlayer() != m_pPlayer->GetID())
-	{
-		OutputDebugString("ExecuteAircraftMoves: Tactical map not up to date!\n");
-		return;
-	}
-
 	//in general we want to go to conflict zones but not if we are in danger of losing the base
 	//unfortunately it may be necessary to do the rebasing in multiple steps if the distance is too far
 	std::vector<SPlotWithScore> vPotentialBases;
@@ -7674,41 +7666,41 @@ int g_currentHomelandUnitToTrack = 0;
 
 const char* homelandMoveNames[] =
 {
-	"AI_HOMELAND_MOVE_UNASSIGNED",
-	"AI_HOMELAND_MOVE_EXPLORE",
-	"AI_HOMELAND_MOVE_EXPLORE_SEA",
-	"AI_HOMELAND_MOVE_SETTLE",
-	"AI_HOMELAND_MOVE_GARRISON",
-	"AI_HOMELAND_MOVE_HEAL",
-	"AI_HOMELAND_MOVE_TO_SAFETY",
-	"AI_HOMELAND_MOVE_MOBILE_RESERVE",
-	"AI_HOMELAND_MOVE_SENTRY",
-	"AI_HOMELAND_MOVE_WORKER",
-	"AI_HOMELAND_MOVE_WORKER_SEA",
-	"AI_HOMELAND_MOVE_PATROL",
-	"AI_HOMELAND_MOVE_UPGRADE",
-	"AI_HOMELAND_MOVE_ANCIENT_RUINS",
-	"AI_HOMELAND_MOVE_GARRISON_CITY_STATE",
-	"AI_HOMELAND_MOVE_WRITER",
-	"AI_HOMELAND_MOVE_ARTIST_GOLDEN_AGE",
-	"AI_HOMELAND_MOVE_MUSICIAN",
-	"AI_HOMELAND_MOVE_SCIENTIST_FREE_TECH",
-	"AI_HOMELAND_MOVE_MERCHANT_TRADE",
-	"AI_HOMELAND_MOVE_ENGINEER_HURRY",
-	"AI_HOMELAND_MOVE_GENERAL",
-	"AI_HOMELAND_MOVE_ADMIRAL",
-	"AI_HOMELAND_MOVE_SPACESHIP_PART",
-	"AI_HOMELAND_MOVE_AIRCRAFT_REBASE",
-	"AI_HOMELAND_MOVE_TREASURE",
-	"AI_HOMELAND_MOVE_PROPHET_RELIGION",
-	"AI_HOMELAND_MOVE_MISSIONARY",
-	"AI_HOMELAND_MOVE_INQUISITOR",
-	"AI_HOMELAND_MOVE_TRADE_UNIT",
-	"AI_HOMELAND_MOVE_ARCHAEOLOGIST",
-	"AI_HOMELAND_MOVE_ADD_SPACESHIP_PART",
-	"AI_HOMELAND_MOVE_AIRLIFT",
-	"AI_HOMELAND_MOVE_DIPLOMAT_EMBASSY",
-	"AI_HOMELAND_MOVE_MESSENGER",
+	"H_MOVE_UNASSIGNED",
+	"H_MOVE_EXPLORE",
+	"H_MOVE_EXPLORE_SEA",
+	"H_MOVE_SETTLE",
+	"H_MOVE_GARRISON",
+	"H_MOVE_HEAL",
+	"H_MOVE_TO_SAFETY",
+	"H_MOVE_MOBILE_RESERVE",
+	"H_MOVE_SENTRY",
+	"H_MOVE_WORKER",
+	"H_MOVE_WORKER_SEA",
+	"H_MOVE_PATROL",
+	"H_MOVE_UPGRADE",
+	"H_MOVE_ANCIENT_RUINS",
+	"H_MOVE_GARRISON_CITY_STATE",
+	"H_MOVE_WRITER",
+	"H_MOVE_ARTIST_GOLDEN_AGE",
+	"H_MOVE_MUSICIAN",
+	"H_MOVE_SCIENTIST_FREE_TECH",
+	"H_MOVE_MERCHANT_TRADE",
+	"H_MOVE_ENGINEER_HURRY",
+	"H_MOVE_GENERAL",
+	"H_MOVE_ADMIRAL",
+	"H_MOVE_SPACESHIP_PART",
+	"H_MOVE_AIRCRAFT_REBASE",
+	"H_MOVE_TREASURE",
+	"H_MOVE_PROPHET_RELIGION",
+	"H_MOVE_MISSIONARY",
+	"H_MOVE_INQUISITOR",
+	"H_MOVE_TRADE_UNIT",
+	"H_MOVE_ARCHAEOLOGIST",
+	"H_MOVE_ADD_SPACESHIP_PART",
+	"H_MOVE_AIRLIFT",
+	"H_MOVE_DIPLOMAT_EMBASSY",
+	"H_MOVE_MESSENGER",
 };
 
 const char* directiveNames[] = 
@@ -7863,8 +7855,8 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 	}
 
 	//check if there are potential future enemies around
-	CvTacticalAnalysisCell* pTactCell = GC.getGame().GetTacticalAnalysisMap()->GetCell( pBasePlot->GetPlotIndex() );
-	CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( pTactCell->GetDominanceZone() );
+	CvTacticalAnalysisMap* pTactMap = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap();
+	CvTacticalDominanceZone* pZone = pTactMap->GetZoneByPlot( pBasePlot );
 	if (!pZone)
 	{
 		//don't know what to do with this
@@ -7874,7 +7866,7 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 	const std::vector<int>& vNeighborZones = pZone->GetNeighboringZones();
 	for (size_t i=0; i<vNeighborZones.size(); i++)
 	{
-		CvTacticalDominanceZone* pOtherZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( vNeighborZones[i] );
+		CvTacticalDominanceZone* pOtherZone = pTactMap->GetZoneByID( vNeighborZones[i] );
 		if (pOtherZone && std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
 			iBaseScore += 1;
 	}
@@ -7891,13 +7883,13 @@ CvPlot* HomelandAIHelpers::GetPatrolTarget(CvUnit* pUnit, int nTargetsToCheck)
 
 	CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
 	const std::vector<PlayerTypes>& vFutureEnemies = kPlayer.GetPlayersAtWarWithInFuture();
-	CvTacticalAnalysisMap* pTactMap = GC.getGame().GetTacticalAnalysisMap();
+	CvTacticalAnalysisMap* pTactMap = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap();
 
 	std::vector<SPlotWithScore> vTargets;
 	vTargets.clear();
 	for(int iI = 0; iI < pTactMap->GetNumZones(); iI++)
 	{
-		CvTacticalDominanceZone* pZone = pTactMap->GetZone(iI);
+		CvTacticalDominanceZone* pZone = pTactMap->GetZoneByIndex(iI);
 		if (!pZone || pZone->GetOwner()!=pUnit->getOwner())
 			continue;
 

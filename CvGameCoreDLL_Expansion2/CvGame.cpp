@@ -142,7 +142,6 @@ CvGame::CvGame() :
 	m_pGameCulture = NULL;
 	m_pGameLeagues = NULL;
 	m_pGameTrade = NULL;
-	m_pTacticalMap = NULL;
 
 #if defined(MOD_BALANCE_CORE)
 	m_pGameCorporations = NULL;
@@ -1044,7 +1043,6 @@ void CvGame::uninit()
 	SAFE_DELETE(m_pGameCulture);
 	SAFE_DELETE(m_pGameLeagues);
 	SAFE_DELETE(m_pGameTrade);
-	SAFE_DELETE(m_pTacticalMap);
 
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE(m_pGameCorporations);
@@ -1353,9 +1351,6 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 		CvAssertMsg(m_pGameTrade==NULL, "about to leak memory, CvGame::m_pGameTrade");
 		m_pGameTrade = FNEW(CvGameTrade, c_eCiv5GameplayDLL, 0);
 		m_pGameTrade->Init();
-
-		CvAssertMsg(m_pTacticalMap==NULL, "about to leak memory, CvGame::m_pTacticalMap");
-		m_pTacticalMap = FNEW(CvTacticalAnalysisMap, c_eCiv5GameplayDLL, 0);
 
 		CvAssertMsg(m_pAdvisorCounsel==NULL, "about to leak memory, CvGame::m_pAdvisorCounsel");
 		m_pAdvisorCounsel = FNEW(CvAdvisorCounsel, c_eCiv5GameplayDLL, 0);
@@ -11205,12 +11200,6 @@ CvGameLeagues* CvGame::GetGameLeagues()
 CvGameTrade* CvGame::GetGameTrade()
 {
 	return m_pGameTrade;
-}
-
-//	--------------------------------------------------------------------------------
-CvTacticalAnalysisMap* CvGame::GetTacticalAnalysisMap()
-{
-	return m_pTacticalMap;
 }
 
 #if defined(MOD_API_LUA_EXTENSIONS)

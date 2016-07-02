@@ -1122,8 +1122,6 @@ bool CvWorldBuilderMapLoader::InitMap()
 
 	OutputDebugStringA("Adding Scenario Elements...\n");
 
-	GC.getGame().GetTacticalAnalysisMap()->Init(GC.getMap().numPlots());
-
 	// Init Diplomacy
 	for(uint uiTeam1 = 0; uiTeam1 < uiTeamCount; ++uiTeam1)
 	{

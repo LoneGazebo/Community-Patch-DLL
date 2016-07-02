@@ -2513,8 +2513,8 @@ CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder, bool bIncludeFutureThrea
 	};
 
 	//in case this is called from diplo AI, we have to be careful
-	CvTacticalAnalysisMap* pTactMap = GC.getGame().GetTacticalAnalysisMap();
-	if (!pTactMap->IsUpToDate(m_pPlayer))
+	CvTacticalAnalysisMap* pTactMap = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap();
+	if (!pTactMap->IsUpToDate())
 		pTactMap = NULL;
 
 	CvCity* pLoopCity;
@@ -3969,7 +3969,7 @@ void CvMilitaryAI::UpdateOperations()
 
 					if(pMostThreatenedCity != NULL)
 					{
-						if(GC.getGame().GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pMostThreatenedCity->plot()))
+						if(m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pMostThreatenedCity->plot()))
 						{
 							bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE, &iOperationID);
 							if (!bHasOperationUnderway)

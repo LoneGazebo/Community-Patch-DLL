@@ -311,7 +311,7 @@ void CvDllGame::InitScoreCalculation()
 //------------------------------------------------------------------------------
 void CvDllGame::InitTacticalAnalysisMap(int iNumPlots)
 {
-	m_pGame->GetTacticalAnalysisMap()->Init(iNumPlots);
+	//handled in Tactical AI now ...
 }
 //------------------------------------------------------------------------------
 bool CvDllGame::IsCityScreenBlocked()

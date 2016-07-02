@@ -42,11 +42,14 @@ enum eTacticalAnalysisFlags
     TACTICAL_FLAG_FRIENDLY_TERRITORY		 = 0x00004000, // Territory owned by allies
     TACTICAL_FLAG_ENEMY_TERRITORY			 = 0x00008000, // Territory owned by enemies
     TACTICAL_FLAG_UNCLAIMED_TERRITORY	     = 0x00010000, // Territory that is unclaimed
+    TACTICAL_FLAG_ENEMY_COMBAT_UNIT          = 0x00020000, // Enemy combat unit here?
+    TACTICAL_FLAG_NEUTRAL_COMBAT_UNIT		 = 0x00040000, // Neutral combat unit here?
 
     // DYNAMIC FLAGS - updated for each zone or target
-    TACTICAL_FLAG_WITHIN_RANGE_OF_TARGET	 = 0x00020000,	// Is this a plot we can use to bombard the target?
-    TACTICAL_FLAG_CAN_USE_TO_FLANK			 = 0x00040000,  // Does this plot help provide a flanking bonus on target?
-    TACTICAL_FLAG_SAFE_DEPLOYMENT			 = 0x00080000,  // Should be a safe spot to deploy ranged units
+    TACTICAL_FLAG_WITHIN_RANGE_OF_TARGET	 = 0x02000000,	// Is this a plot we can use to bombard the target?
+    TACTICAL_FLAG_CAN_USE_TO_FLANK			 = 0x04000000,  // Does this plot help provide a flanking bonus on target?
+    TACTICAL_FLAG_SAFE_DEPLOYMENT			 = 0x08000000,  // Should be a safe spot to deploy ranged units
+
 };
 
 class CvTacticalAnalysisCell
@@ -224,63 +227,23 @@ public:
 		SetBit(TACTICAL_FLAG_SAFE_DEPLOYMENT, bNewValue);
 	};
 
-	CvUnit* GetEnemyMilitaryUnit()
+	bool IsEnemyCombatUnit()
 	{
-		return m_pEnemyMilitary;
+		return GetBit(TACTICAL_FLAG_ENEMY_COMBAT_UNIT);
 	};
-	void SetEnemyMilitaryUnit(CvUnit* pUnit)
+	void SetEnemyCombatUnit(bool bNewValue)
 	{
-		m_pEnemyMilitary = pUnit;
+		SetBit(TACTICAL_FLAG_ENEMY_COMBAT_UNIT, bNewValue);
 	};
-	CvUnit* GetNeutralMilitaryUnit()
+	bool IsNeutralCombatUnit()
 	{
-		return m_pNeutralMilitary;
+		return GetBit(TACTICAL_FLAG_NEUTRAL_COMBAT_UNIT);
 	};
-	void SetNeutralMilitaryUnit(CvUnit* pUnit)
+	void SetNeutralCombatUnit(bool bNewValue)
 	{
-		m_pNeutralMilitary = pUnit;
-	};
-	CvUnit* GetFriendlyMilitaryUnit()
-	{
-		return m_pFriendlyMilitary;
-	};
-	void SetFriendlyMilitaryUnit(CvUnit* pUnit)
-	{
-		m_pFriendlyMilitary = pUnit;
-	};
-	CvUnit* GetEnemyCivilianUnit()
-	{
-		return m_pEnemyCivilian;
-	};
-	void SetEnemyCivilianUnit(CvUnit* pUnit)
-	{
-		m_pEnemyCivilian = pUnit;
-	};
-	CvUnit* GetNeutralCivilianUnit()
-	{
-		return m_pNeutralCivilian;
-	};
-	void SetNeutralCivilianUnit(CvUnit* pUnit)
-	{
-		m_pNeutralCivilian = pUnit;
-	};
-	CvUnit* GetFriendlyCivilianUnit()
-	{
-		return m_pFriendlyCivilian;
-	};
-	void SetFriendlyCivilianUnit(CvUnit* pUnit)
-	{
-		m_pFriendlyCivilian = pUnit;
+		SetBit(TACTICAL_FLAG_NEUTRAL_COMBAT_UNIT, bNewValue);
 	};
 
-	int GetDefenseModifier() const
-	{
-		return m_iDefenseModifier;
-	};
-	void SetDefenseModifier(int iModifier)
-	{
-		m_iDefenseModifier = iModifier;
-	};
 	int GetDeploymentScore() const
 	{
 		return m_iDeploymentScore;
@@ -326,19 +289,14 @@ public:
 		m_bHasLOSToTarget = bValue;
 	};
 
-private:
-	CvUnit* m_pEnemyMilitary;
-	CvUnit* m_pEnemyCivilian;
-	CvUnit* m_pNeutralMilitary;
-	CvUnit* m_pNeutralCivilian;
-	CvUnit* m_pFriendlyMilitary;
-	CvUnit* m_pFriendlyCivilian;
 
-	int m_iDefenseModifier;
+	friend FDataStream& operator<<(FDataStream& saveTo, const CvTacticalAnalysisCell& readFrom);
+	friend FDataStream& operator>>(FDataStream& loadFrom, CvTacticalAnalysisCell& writeTo);
+
+private:
 	int m_iDeploymentScore;
 	AITacticalTargetType m_eTargetType;
 	int m_iDominanceZoneID;
-
 	int m_iTargetDistance;
 	bool m_bHasLOSToTarget;
 };
@@ -482,7 +440,6 @@ public:
 	{
 		m_iFriendlyRangedUnitCount += iUnitCount;
 	};
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	inline void AddFriendlyMeleeUnitCount(int iUnitCount)
 	{
 		m_iFriendlyMeleeUnitCount += iUnitCount;
@@ -515,8 +472,6 @@ public:
 	{
 		return m_iNeutralUnitStrength;
 	};
-
-#endif
 	inline int GetEnemyRangedUnitCount() const
 	{
 		return m_iEnemyRangedUnitCount;
@@ -557,14 +512,6 @@ public:
 	{
 		m_bIsNavalInvasion = bIsNavalInvasion;
 	};
-	inline CvPlot* GetTempZoneCenter() const
-	{
-		return m_pTempZoneCenter;
-	};
-	inline void SetTempZoneCenter(CvPlot* pPlot)
-	{
-		m_pTempZoneCenter = pPlot;
-	};
 	TacticalMoveZoneType GetZoneType() const;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -591,69 +538,27 @@ private:
 	int m_iFriendlyUnitCount;
 	int m_iEnemyUnitCount;
 	int m_iFriendlyRangedUnitCount;
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	int m_iFriendlyMeleeUnitCount;
 	int m_iEnemyMeleeUnitCount;
 	int m_iNeutralUnitCount;
 	int m_iNeutralUnitStrength;
-#endif
 	int m_iEnemyRangedUnitCount;
 	int m_iEnemyNavalUnitCount;
 	int m_iZoneValue;
 	int m_iRangeClosestEnemyUnit;
 	bool m_bIsWater;
 	bool m_bIsNavalInvasion;
-	CvPlot* m_pTempZoneCenter;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	int m_iAvgX, m_iAvgY;
 	int m_iPlotCount;
 	std::vector<int> m_vNeighboringZones;
-#endif
-};
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  CLASS:      CvTacticalAnalysisEnemy
-//!  \brief		A single enemy unit for use in tactical analysis processing
-//
-//!  Key Attributes:
-//!  - Static vector of these created by BuildEnemyUnitList()
-//!  - Referenced by MarkCellsNearEnemy() and other routines that need to check where
-//!    enemy units can reach this turn
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#define SAFE_ESTIMATE_NUM_ENEMIES 250
-
-class CvTacticalAnalysisEnemy
-{
-public:
-	CvTacticalAnalysisEnemy(void)
-	{
-		m_pUnit = NULL;
-	}
-	CvTacticalAnalysisEnemy(CvUnit* pUnit)
-	{
-		m_pUnit = pUnit;
-	}
-	CvUnit* GetUnit() const
-	{
-		return m_pUnit;
-	};
-	void SetID(CvUnit* pUnit)
-	{
-		m_pUnit = pUnit;
-	};
-
-private:
-	CvUnit* m_pUnit;
+	friend FDataStream& operator<<(FDataStream& saveTo, const CvTacticalDominanceZone& readFrom);
+	friend FDataStream& operator>>(FDataStream& loadFrom, CvTacticalDominanceZone& writeTo);
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvTacticalAnalysisMap
-//!  \brief		Shared spatial map used by all AI players to analyze moves when at war
-//
-//!  Key Attributes:
-//!  - Created by CvGame class
-//!  - Shared by all players; data is refreshed at start of each AI turn if player at war
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class CvTacticalAnalysisMap
 {
@@ -661,28 +566,24 @@ public:
 	CvTacticalAnalysisMap(void);
 	~CvTacticalAnalysisMap(void);
 
-	void Init(int iNumPlots);
-	void RefreshDataForNextPlayer(CvPlayer* pPlayer);
-	bool IsUpToDate(CvPlayer* pPlayer);
+	void Init(PlayerTypes ePlayer);
+	void Refresh();
+	bool IsUpToDate();
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	PlayerTypes GetCurrentPlayer() const;
 	void EstablishZoneNeighborhood();
-#endif
-
 	int GetNumZones() const
 	{
 		return m_DominanceZones.size();
 	};
-	CvTacticalDominanceZone* GetZone(int iIndex);
+
+	CvTacticalDominanceZone* GetZoneByIndex(int iIndex);
 	CvTacticalDominanceZone* GetZoneByCity(CvCity* pCity, bool bWater);
-#if defined(MOD_BALANCE_CORE)
 	CvTacticalDominanceZone* GetZoneByID(int iID);
-#endif
+	CvTacticalDominanceZone* GetZoneByPlot(CvPlot* pPlot);
 
 	CvTacticalAnalysisCell* GetCell(int iPlotIndex)
 	{
-		return &m_pPlots[iPlotIndex];
+		return &m_pCells[iPlotIndex];
 	};
 	int GetDominancePercentage() const
 	{
@@ -710,7 +611,7 @@ protected:
 	void LogZones();
 	void BuildEnemyUnitList();
 	void MarkCellsNearEnemy();
-	CvTacticalDominanceZone* FindExistingZone(CvPlot* pPlot);
+	CvTacticalDominanceZone* MergeWithExistingZone(CvTacticalDominanceZone* pNewZone);
 	eTacticalDominanceFlags ComputeDominance(CvTacticalDominanceZone* pZone);
 
 	// Cached global define values
@@ -718,18 +619,16 @@ protected:
 	int m_iUnitStrengthMultiplier;
 	int m_iTacticalRange;
 
-	CvTacticalAnalysisCell* m_pPlots;
-	int m_iNumPlots;
-	CvPlayer* m_pPlayer;
+	PlayerTypes m_ePlayer;
+	std::vector<CvTacticalAnalysisCell> m_pCells;
 	int m_iTurnBuilt;
 
-	CvTacticalDominanceZone m_TempZone;
-	FStaticVector<CvTacticalDominanceZone, SAFE_ESTIMATE_NUM_DOMINANCE_ZONES, true, c_eCiv5GameplayDLL, 0> m_DominanceZones;
-	FStaticVector<CvUnit*, SAFE_ESTIMATE_NUM_ENEMIES, true, c_eCiv5GameplayDLL, 0> m_EnemyUnits;
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	FStaticVector<CvCity*, SAFE_ESTIMATE_NUM_ENEMIES, true, c_eCiv5GameplayDLL, 0> m_EnemyCities;
-#endif
+	std::vector<CvTacticalDominanceZone> m_DominanceZones;
+	std::vector<IDInfo> m_EnemyUnits;
+	std::vector<IDInfo> m_EnemyCities;
 
+	friend FDataStream& operator<<(FDataStream& saveTo, const CvTacticalAnalysisMap& readFrom);
+	friend FDataStream& operator>>(FDataStream& loadFrom, CvTacticalAnalysisMap& writeTo);
 };
 
 

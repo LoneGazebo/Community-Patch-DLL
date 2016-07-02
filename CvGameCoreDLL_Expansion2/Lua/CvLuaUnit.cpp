@@ -5704,7 +5704,8 @@ int CvLuaUnit::lGetAIOperationInfo(lua_State* L)
 		}
 	}
 
-	lua_pushstring(L, "no operation");
+	CvString msg = pUnit->getTacticalZoneInfo();
+	lua_pushstring(L, msg.c_str());
 	return 1;
 }
 
