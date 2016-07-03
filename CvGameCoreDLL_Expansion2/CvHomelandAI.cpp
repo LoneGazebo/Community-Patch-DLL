@@ -1767,7 +1767,6 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 /// When nothing better to do, have units patrol to an adjacent tiles
 void CvHomelandAI::PlotPatrolMoves()
 {
-
 	ClearCurrentMoveUnits();
 
 	// Loop through all remaining units
@@ -1787,7 +1786,8 @@ void CvHomelandAI::PlotPatrolMoves()
 		ExecutePatrolMoves();
 	}
 }
-/// When nothing better to do, have units patrol to an adjacent tiles
+
+/// When nothing better to do, distribute units across cities
 void CvHomelandAI::ExecutePatrolMoves()
 {
 	//check what kind of units we have

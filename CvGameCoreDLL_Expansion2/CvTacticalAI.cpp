@@ -11650,9 +11650,10 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, const CvPlot* pT
 	}
 	else //melee
 	{
-		if (pUnit->CanReachInXTurns( pTargetPlot, 0, false))
+		int iTurns = pUnit->TurnsToReachTarget( pTargetPlot, CvUnit::MOVEFLAG_ATTACK, 1);
+		if (iTurns <=1 )
 		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(),pTargetPlot->getX(), pTargetPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(),pTargetPlot->getX(), pTargetPlot->getY());
 			return true;
 		}
 		else
