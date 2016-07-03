@@ -721,10 +721,15 @@ void CvPlayerAI::AI_considerAnnex()
 	std::vector<CityAndProduction> aCityAndProductions;
 	int iLoop = 0;
 	pCity = NULL;
-
-	// Find first coastal city in same area as settler
 	for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 	{
+		//simple check to stop razing "good" cities
+		if (pCity->IsRazing() && pCity->HasAnyWonder())
+		{
+			unraze(pCity);
+			return; //one annexation per turn is enough
+		}
+
 		CityAndProduction kEval;
 		kEval.pCity = pCity;
 		kEval.iProduction = pCity->getYieldRateTimes100(YIELD_PRODUCTION, false);

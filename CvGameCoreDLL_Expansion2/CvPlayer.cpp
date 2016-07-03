@@ -34243,7 +34243,8 @@ bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPe
 		{
 			if(iIgnoreOperationID == -1 || iIgnoreOperationID != pOperation->GetID())
 			{
-				if(pOperation->PercentFromMusterPointToTarget() < iPercentToTarget)
+				//don't hit the pathfinder if we don't care about the result
+				if(iPercentToTarget==100 || pOperation->PercentFromMusterPointToTarget() < iPercentToTarget)
 				{
 					if(pOperation->GetTargetPlot() != NULL)
 					{

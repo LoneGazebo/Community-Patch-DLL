@@ -899,19 +899,15 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 void CvTacticalAnalysisMap::PrioritizeZones()
 {
 	// Loop through the dominance zones
-	CvTacticalDominanceZone* pZone;
-	int iBaseValue;
-	int iMultiplier;
-	CvCity* pClosestCity = NULL;
-
 	for(unsigned int iI = 0; iI < m_DominanceZones.size(); iI++)
 	{
 		// Find the zone and compute dominance here
-		pZone = &m_DominanceZones[iI];
+		CvTacticalDominanceZone* pZone = &m_DominanceZones[iI];
 		eTacticalDominanceFlags eDominance = ComputeDominance(pZone);
 
 		// Establish a base value for the region
-		iBaseValue = 1;
+		int iBaseValue = 1;
+		int iMultiplier = 1;
 
 		// Temporary zone?
 		if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_TEMP_ZONE)
@@ -920,9 +916,8 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 		}
 		else
 		{
-			pClosestCity = pZone->GetZoneCity();
-
-			if(pClosestCity)
+			CvCity* pClosestCity = pZone->GetZoneCity();
+			if(pClosestCity && pClosestCity->isAdjacentToArea(pZone->GetAreaID()))
 			{
 				iBaseValue += (1 + (int)sqrt((float)pClosestCity->getPopulation()));
 
@@ -933,7 +928,7 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 
 				if(GET_PLAYER(m_ePlayer).GetTacticalAI()->IsTemporaryZoneCity(pClosestCity))
 				{
-					iBaseValue *= 20;
+					iBaseValue *= 10;
 				}
 
 				else if (pClosestCity->isVisible( GET_PLAYER(m_ePlayer).getTeam(), false))
@@ -952,7 +947,7 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 #if defined(MOD_BALANCE_CORE)
 				if (GET_PLAYER(m_ePlayer).IsCityAlreadyTargeted(pClosestCity) || GET_PLAYER(m_ePlayer).GetMilitaryAI()->IsCurrentAttackTarget(pClosestCity) )
 				{
-					iBaseValue *= 10;
+					iBaseValue *= 4;
 				}
 #endif
 			}
@@ -963,7 +958,6 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 			}
 
 			// Now compute a multiplier based on current conditions here
-			iMultiplier = 1;
 			if(eDominance == TACTICAL_DOMINANCE_ENEMY)
 			{
 				if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY)
@@ -1029,11 +1023,7 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 		}
 
 		// Save off the value for this zone
-		if((iBaseValue * iMultiplier) <= 0)
-		{
-			FAssertMsg((iBaseValue * iMultiplier) > 0, "Invalid Dominance Zone Value");
-		}
-		pZone->SetDominanceZoneValue(iBaseValue * iMultiplier);
+		pZone->SetDominanceZoneValue( iBaseValue * iMultiplier);
 	}
 
 	std::stable_sort(m_DominanceZones.begin(), m_DominanceZones.end());

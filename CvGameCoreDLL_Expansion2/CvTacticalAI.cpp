@@ -1697,7 +1697,6 @@ void CvTacticalAI::FindTacticalTargets()
 
 void CvTacticalAI::ProcessDominanceZones()
 {
-	CvTacticalDominanceZone* pZone;
 	FStaticVector<CvTacticalMove, 256, true, c_eCiv5GameplayDLL >::iterator it;
 
 	// Barbarian processing is straightforward -- just one big list of priorites and everything is considered at once
@@ -1707,7 +1706,6 @@ void CvTacticalAI::ProcessDominanceZones()
 		ExtractTargetsForZone(NULL);
 		AssignBarbarianMoves();
 	}
-
 	else
 	{
 		EstablishTacticalPriorities();
@@ -1726,7 +1724,7 @@ void CvTacticalAI::ProcessDominanceZones()
 					for(int iI = 0; iI < GetTacticalAnalysisMap()->GetNumZones(); iI++)
 					{
 						m_iCurrentZoneIndex = iI;
-						pZone = GetTacticalAnalysisMap()->GetZoneByIndex(iI);
+						CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(iI);
 
 						//no units -> nothing to do
 						if (pZone->GetFriendlyStrength()+pZone->GetFriendlyRangedStrength()==0)
@@ -6405,7 +6403,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 					}
 				}
 
-				//land-units do not automatically end their turn ... might be useful for homeland
+				//do not automatically end the turn ... unit might be useful for homeland. at least homeland patrol move will apply and find a nice spot for it
 #endif
 			}
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -6498,7 +6496,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 					}
 				}
 
-				//naval units can't be used by homeland, so end their turn
+				//the new homeland patrol moves can handle naval units also, but the simple logic above seems good enough, so end their turn
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 				pUnit->finishMoves();
 				UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
