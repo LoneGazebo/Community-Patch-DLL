@@ -1254,7 +1254,8 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPat
 
 	if(pUnitDataCache->IsCanAttack() && bIsPathDest)
 	{
-		if(node->m_kCostCacheData.bContainsVisibleEnemyDefender)
+		//AI makes sure to use defensive bonuses etc. humans have to do it manually ... it's part of the fun!
+		if(node->m_kCostCacheData.bContainsVisibleEnemyDefender && pUnitDataCache->isAIControl())
 		{
 			iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (200 - ((pUnit->noDefensiveBonus()) ? 0 : pFromPlot->defenseModifier(eUnitTeam, false)))));
 
