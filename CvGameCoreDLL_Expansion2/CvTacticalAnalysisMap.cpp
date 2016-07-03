@@ -699,6 +699,10 @@ void CvTacticalAnalysisMap::AddToDominanceZones(int iIndex, CvTacticalAnalysisCe
 	{
 		eOwnerTeam = pPlot->getTeam();
 		eOwnerPlayer = pPlot->getOwner();
+
+		//there is almost always a closest city, but we're not always interested
+		if (pCity && eOwnerPlayer!=pCity->getOwner())
+			pCity = NULL;
 	}
 	else //look at the city
 	{
@@ -802,12 +806,18 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 				//a little cheating for AI - invisible units still count with reduced strength
 				bool bVisible = pPlot->isVisible(eTeam) || pPlot->isAdjacentVisible(eTeam, false);
 
-				//if there is not city, just assume a flat distance
+				//if there is a city, units in adjacent zones can also count
 				int iDistance = 0;
 				if (pClosestCity)
 				{
 					iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pClosestCity->getX(), pClosestCity->getY());
 					if (iDistance > m_iTacticalRange)
+						continue;
+				}
+				else
+				{
+					//if there is no city, the unit must be in the zone itself
+					if ( GetCell(pLoopUnit->plot()->GetPlotIndex())->GetDominanceZone() != pZone->GetDominanceZoneID() )
 						continue;
 				}
 
@@ -1095,11 +1105,9 @@ void CvTacticalAnalysisMap::LogZones()
 /// Can this cell go in an existing dominance zone?
 CvTacticalDominanceZone* CvTacticalAnalysisMap::MergeWithExistingZone(CvTacticalDominanceZone* pNewZone)
 {
-	CvTacticalDominanceZone* pZone;
-
 	for(unsigned int iI = 0; iI < m_DominanceZones.size(); iI++)
 	{
-		pZone = &m_DominanceZones[iI];
+		CvTacticalDominanceZone* pZone = &m_DominanceZones[iI];
 
 		// If this is a temporary zone, matches if unowned and close enough
 		if((pZone->GetTerritoryType() == TACTICAL_TERRITORY_TEMP_ZONE) &&
@@ -1251,7 +1259,7 @@ void CvTacticalAnalysisMap::Dump()
 		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
 		if (pLog)
 		{
-			pLog->Msg( "#x,y,visible,terrain,owner,enemy,defensemod,targettype,underattack,zoneid,dominance,zonetype,fstrength,estrength,city\n" );
+			pLog->Msg( "#x,y,visible,terrain,owner,enemy,targettype,underattack,zoneid,dominance,zonetype,fstrength,estrength,city\n" );
 			for (int i=0; i<GC.getMap().numPlots(); i++)
 			{
 				CvTacticalAnalysisCell* pCell = GetCell(i);
