@@ -1328,7 +1328,10 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn)
 			for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
 			{
 				CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
-				szTemp2.Format("Gathering Forces, Army: %d, Gather (%d:%d), ", pThisArmy->GetID(), pThisArmy->GetX(), pThisArmy->GetY());
+				//we don't really need the center of mass but the variance
+				float varX=-1,varY=-1;
+				pThisArmy->GetCenterOfMass(&varX,&varY);
+				szTemp2.Format("Gathering Forces, Army: %d, Gather (%d:%d), variance (%.2f:%.2f), ", pThisArmy->GetID(), pThisArmy->GetX(), pThisArmy->GetY(), varX, varY);
 				strTemp += szTemp2;
 				int iUnitID;
 				iUnitID = pThisArmy->GetFirstUnitID();

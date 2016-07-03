@@ -118,27 +118,37 @@ void CvHomelandAI::RecruitUnits()
 	for(pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// Never want immobile/dead units or ones that have already moved
-		if(!pLoopUnit->TurnProcessed() && !pLoopUnit->isDelayedDeath() && pLoopUnit->AI_getUnitAIType() != UNITAI_UNKNOWN && pLoopUnit->canMove())
+		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath())
 		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			//don't use units which were assigned a tactical move this turn!
-			if ( pLoopUnit->hasCurrentTacticalMove() )
-			{
-				CvString msg = CvString::format("warning: homeland AI unit %d has a current tactical move (%s at %d,%d)", 
-										pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY() );
-				LogHomelandMessage( msg );
+			continue;
+		}
 
-				/*
-				//if we skip the units, we have to end their turn, else the AI turn will never end! (in fact it is terminated after 10 turn slices without movement ...)
-				pLoopUnit->finishMoves();
-				pLoopUnit->SetTurnProcessed(true);
-				continue;
-				*/
-			}
+		//units we don't know how to handle here or which should have been processed in tactical AI
+		if(pLoopUnit->getArmyID()!=-1 || pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN || !pLoopUnit->canMove())
+		{
+			pLoopUnit->finishMoves();
+			pLoopUnit->SetTurnProcessed(true);
+			continue;
+		}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		//don't use units which were assigned a tactical move this turn!
+		if ( pLoopUnit->hasCurrentTacticalMove() )
+		{
+			CvString msg = CvString::format("warning: homeland AI unit %d has a current tactical move (%s at %d,%d)", 
+									pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY() );
+			LogHomelandMessage( msg );
+
+			/*
+			//if we skip the units, we have to end their turn, else the AI turn will never end! (in fact it is terminated after 10 turn slices without movement ...)
+			pLoopUnit->finishMoves();
+			pLoopUnit->SetTurnProcessed(true);
+			continue;
+			*/
+		}
 #endif
 
-			m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
-		}
+		m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 	}
 
 #if defined(MOD_CORE_DEBUGGING)
@@ -1757,7 +1767,7 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 /// When nothing better to do, have units patrol to an adjacent tiles
 void CvHomelandAI::PlotPatrolMoves()
 {
-	
+
 	ClearCurrentMoveUnits();
 
 	// Loop through all remaining units

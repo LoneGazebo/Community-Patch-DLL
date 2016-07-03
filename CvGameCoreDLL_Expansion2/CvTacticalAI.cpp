@@ -4104,7 +4104,7 @@ void CvTacticalAI::ReviewUnassignedUnits()
 			//barbarians have no homeland AI, so they end their turn here
 			if (pUnit->isBarbarian())
 			{
-				MissionTypes eMission = pUnit->getDomainType()==DOMAIN_LAND ? CvTypes::getMISSION_FORTIFY() : CvTypes::getMISSION_SKIP();
+				MissionTypes eMission = pUnit->canFortify(pUnit->plot()) ? CvTypes::getMISSION_FORTIFY() : CvTypes::getMISSION_SKIP();
 				pUnit->PushMission(eMission);
 				pUnit->SetTurnProcessed(true);
 			}
@@ -4784,7 +4784,11 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI* pArmy)
 			if (!pLoopUnit || !pLoopUnit->canMove())
 				continue;
 
-			MoveToEmptySpaceNearTarget(pLoopUnit,pTarget,pLoopUnit->getDomainType()!=DOMAIN_SEA,12);
+			if (MoveToEmptySpaceNearTarget(pLoopUnit,pTarget,pLoopUnit->getDomainType()!=DOMAIN_SEA,23))
+				UnitProcessed(pLoopUnit->GetID());
+			else
+				pArmy->RemoveUnit(pLoopUnit->GetID());
+
 		}
 	}
 }
