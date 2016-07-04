@@ -2689,7 +2689,7 @@ int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, int,
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 
-	if (pToPlot->isWater())
+	if (pToPlot->isWater() || !pToPlot->isRevealed(pCacheData->GetTeam()))
 	{
 		return FALSE;
 	}
@@ -2751,6 +2751,9 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, int
 
 	CvMap& kMap = GC.getMap();
 	CvPlot* pNewPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
+
+	if (!pNewPlot->isRevealed(pCacheData->GetTeam()))
+		return FALSE;
 
 	//ice in unowned territory is not allowed
 	if (pNewPlot->isIce() && !pNewPlot->isOwned())
