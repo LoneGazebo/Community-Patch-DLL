@@ -3391,8 +3391,9 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 					strLogString.Format("%s Explorer (human) found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
-				pUnit->SetAutomateType(NO_AUTOMATE);
 				UnitProcessed(pUnit->GetID());
+				pUnit->SetAutomateType(NO_AUTOMATE);
+				CancelActivePlayerEndTurn();
 				continue;
 			}
 			else
