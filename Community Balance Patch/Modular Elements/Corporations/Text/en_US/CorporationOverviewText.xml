@@ -167,6 +167,18 @@
 		<Row Tag="TXT_KEY_CPO_WC_DATE_FOUNDED_SORT_TT">
 			<Text>Date the Corporation was founded.[NEWLINE][NEWLINE]Click to sort Corporations by their date of establishment.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_NUM_OFFICES">
+			<Text># Offices</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_NUM_OFFICES_SORT_TT">
+			<Text>Number of Offices this Corporation has established.[NEWLINE][NEWLINE]Click to sort Corporations by number of established Offices.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_NUM_FRANCHISES">
+			<Text># Franchises</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CPO_WC_NUM_FRANCHISES_SORT_TT">
+			<Text>Number of Franchises this Corporation has established.[NEWLINE][NEWLINE]Click to sort Corporations by number of established Franchises.</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_CPO_WC_PULLDOWN_CORPORATIONS">
 			<Text>Corporations</Text>

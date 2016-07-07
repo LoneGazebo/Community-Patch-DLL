@@ -4577,6 +4577,22 @@ int CvGame::GetNumMinorCivsEver()
 }
 
 //	--------------------------------------------------------------------------------
+int CvGame::GetNumMinorCivsAlive()
+{
+	int iNumCivs = 0;
+
+	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		if(GET_PLAYER((PlayerTypes) iMinorLoop).isAlive())
+		{
+			iNumCivs++;
+		}
+	}
+
+	return iNumCivs;
+}
+
+//	--------------------------------------------------------------------------------
 int CvGame::getNumHumansInHumanWars(PlayerTypes ignorePlayer)
 {//returns the number of human players who are currently at war with other human players.
 	int humansWarringHumans = 0;

@@ -2719,7 +2719,7 @@ CvPlot* CvAIOperationDefendCityPeace::FindBestTarget(CvPlot** ppMuster) const
 	CvPlot* pPlot = NULL;
 
 	// Defend the city most under threat
-	pTargetCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(0,true);
+	pTargetCity = GET_PLAYER(m_eOwner).GetThreatenedCityRank();
 
 	if(pTargetCity != NULL)
 	{
@@ -2791,7 +2791,7 @@ CvPlot* CvAIOperationDefendCity::FindBestTarget(CvPlot** ppMuster) const
 	int iLoop;
 
 	// Defend the city most under threat
-	pTargetCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity(0,false);
+	pTargetCity = GET_PLAYER(m_eOwner).GetThreatenedCityRank();
 
 	// If no city is threatened just defend whichever of our cities is closest to the enemy capital
 	if(pTargetCity == NULL)
@@ -3807,7 +3807,7 @@ CvPlot* OperationalAIHelpers::FindEnemies(PlayerTypes ePlayer, PlayerTypes eEnem
 
 	if(pBestPlot == NULL)
 	{
-		CvCity* pCity = GET_PLAYER(ePlayer).GetMilitaryAI()->GetMostThreatenedCity(0,false);
+		CvCity* pCity = GET_PLAYER(ePlayer).GetThreatenedCityRank();
 		if(pCity != NULL)
 		{
 			pBestPlot = pCity->plot();

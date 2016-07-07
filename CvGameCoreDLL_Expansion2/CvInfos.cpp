@@ -6632,6 +6632,7 @@ bool CvWorldInfo::operator==(const CvWorldInfo& rhs) const
 #if defined(MOD_BALANCE_CORE)
 	if(m_iMinDistanceCities != rhs.m_iMinDistanceCities) return false;
 	if(m_iMinDistanceCityStates != rhs.m_iMinDistanceCityStates) return false;
+	if(m_iReformationPercent != rhs.m_iReformationPercent) return false;
 #endif
 	if(m_iNumCitiesTechCostMod != rhs.m_iNumCitiesTechCostMod) return false;
 	return true;
@@ -6683,6 +6684,7 @@ void CvWorldInfo::readFrom(FDataStream& loadFrom)
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_READ(67, loadFrom, m_iMinDistanceCities, 3);
 	MOD_SERIALIZE_READ(67, loadFrom, m_iMinDistanceCityStates, 3);
+	MOD_SERIALIZE_READ(67, loadFrom, m_iReformationPercent, 100);
 #endif
 }
 
@@ -6742,6 +6744,7 @@ void CvWorldInfo::writeTo(FDataStream& saveTo) const
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_WRITE(saveTo, m_iMinDistanceCities);
 	MOD_SERIALIZE_WRITE(saveTo, m_iMinDistanceCityStates);
+	MOD_SERIALIZE_WRITE(saveTo, m_iReformationPercent);
 #endif
 }
 
@@ -7747,6 +7750,8 @@ CvModEventInfo::CvModEventInfo() :
 	 m_iRequiredActiveEventChoiceOtherPlayer(-1),
 	 m_iRequiredNoActiveEventOtherPlayer(-1),
 	 m_iRequiredNoActiveEventChoiceOtherPlayer(-1),
+	 m_iRequiredNoActiveCityEvent(-1),
+	 m_iRequiredNoActiveCityEventChoice(-1),
 	 m_iRequiredNoActiveEvent(-1),
 	 m_iRequiredNoActiveEventChoice(-1),
 	 m_bOneShot(false),
@@ -7969,6 +7974,17 @@ int CvModEventInfo::getRequiredActiveCityEventChoice() const
 	return m_iRequiredActiveCityEventChoice;
 }
 //------------------------------------------------------------------------------
+int CvModEventInfo::getRequiredNoActiveCityEvent() const
+{
+	return m_iRequiredNoActiveCityEvent;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getRequiredNoActiveCityEventChoice() const
+{
+	return m_iRequiredNoActiveCityEventChoice;
+}
+
+//------------------------------------------------------------------------------
 int CvModEventInfo::getRequiredNoActiveEvent() const
 {
 	return m_iRequiredNoActiveEvent;
@@ -8152,6 +8168,12 @@ bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	szTextVal = kResults.GetText("RequiredActiveCityEventChoice");
 	m_iRequiredActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredNoActiveCityEvent");
+	m_iRequiredNoActiveCityEvent =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredNoActiveCityEventChoice");
+	m_iRequiredNoActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
 
 	m_bHasStateReligion = kResults.GetBool("RequiresAnyStateReligion");
 
@@ -9178,7 +9200,9 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_iRequiredNoActiveEvent(-1),
 	 m_iRequiredNoActiveEventChoice(-1),
 	 m_iRequiredNoActiveCityEvent(-1),
-	 m_iRequiredNoActiveCityEventChoice(-1)
+	 m_iRequiredNoActiveCityEventChoice(-1),
+	 m_iRequiredNoActiveCityEventAnywhere(-1),
+	 m_iRequiredNoActiveCityEventChoiceAnywhere(-1)
 {
 }
 //------------------------------------------------------------------------------
@@ -9382,6 +9406,16 @@ int CvModCityEventInfo::getRequiredNoActiveCityEvent() const
 int CvModCityEventInfo::getRequiredNoActiveCityEventChoice() const
 {
 	return m_iRequiredNoActiveCityEventChoice;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getRequiredNoActiveCityEventAnywhere() const
+{
+	return m_iRequiredNoActiveCityEventAnywhere;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getRequiredNoActiveCityEventChoiceAnywhere() const
+{
+	return m_iRequiredNoActiveCityEventChoiceAnywhere;
 }
 //------------------------------------------------------------------------------
 int CvModCityEventInfo::getRequiredNoActivePlayerEvent() const
@@ -9651,6 +9685,12 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 	szTextVal = kResults.GetText("RequiredNoActiveCityEventChoice");
 	m_iRequiredNoActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredNoActiveCityEventAnywhere");
+	m_iRequiredNoActiveCityEventAnywhere =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredNoActiveCityEventChoiceAnywhere");
+	m_iRequiredNoActiveCityEventChoiceAnywhere =  GC.getInfoTypeForString(szTextVal, true);
 
 	szTextVal = kResults.GetText("RequiredNoActivePlayerEvent");
 	m_iRequiredNoActiveEvent =  GC.getInfoTypeForString(szTextVal, true);

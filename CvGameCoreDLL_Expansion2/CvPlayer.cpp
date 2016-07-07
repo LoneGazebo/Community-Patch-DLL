@@ -4599,6 +4599,7 @@ void CvPlayer::DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID)
 
 	// Give the city back to the liberated player
 	GET_PLAYER(ePlayer).acquireCity(pCity, false, true);
+	pCity->SetPuppet(false);
 
 	// Now verify the player is alive
 	GET_PLAYER(ePlayer).verifyAlive();
@@ -4734,6 +4735,64 @@ void CvPlayer::SetCenterOfMassEmpire()
 
 	m_iCenterOfMassX = iAvgX;
 	m_iCenterOfMassY = iAvgY;
+}
+void CvPlayer::UpdateCityThreatCriteria()
+{
+	//What are you doing here? Get out!
+	if(isMinorCiv() || isBarbarian() || isHuman())
+		return;
+
+	if(getNumCities() <= 1)
+		return;
+
+	CvCity* pLoopCity = NULL;
+	int iLoop;
+
+	//Reset the critera.
+	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if(pLoopCity != NULL)
+		{
+			pLoopCity->SetThreatCritera(-1);
+		}
+	}
+	for(int iWorst = 0; iWorst < getNumCities(); iWorst++)
+	{
+		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if(pLoopCity != NULL)
+			{
+				//Already set? Skip.
+				if(pLoopCity->GetThreatCriteria() != -1)
+					continue;
+
+				if(GetMilitaryAI()->GetMostThreatenedCity(iWorst) == pLoopCity)
+				{
+					pLoopCity->SetThreatCritera(iWorst);
+					break;
+				}
+			}
+		}
+	}
+}
+CvCity* CvPlayer::GetThreatenedCityRank(int iValue)
+{
+	CvCity* pLoopCity = NULL;
+	int iLoop;
+
+	//Reset the critera.
+	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if(pLoopCity != NULL)
+		{
+			if(pLoopCity->GetThreatCriteria() == iValue)
+			{
+				return pLoopCity;
+			}
+		}
+	}
+
+	return NULL;
 }
 
 void CvPlayer::UpdateBestMilitaryCities()
@@ -5684,6 +5743,44 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 			}
 		}
 		if(!bHas)
+		{
+			return false;
+		}
+	}
+
+	if(pkEventInfo->getRequiredNoActiveCityEvent() != -1)
+	{
+		bool bHas = false;
+		CvCity* pCity = NULL;
+		int iLoop;
+		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+		{
+			if(pCity != NULL && pCity->GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent()) > 0)
+			{
+				bHas = true;
+				break;
+			}
+		}
+		if(bHas)
+		{
+			return false;
+		}
+	}
+
+	if(pkEventInfo->getRequiredNoActiveCityEventChoice() != -1)
+	{
+		bool bHas = false;
+		CvCity* pCity = NULL;
+		int iLoop;
+		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+		{
+			if(pCity != NULL && pCity->GetEventChoiceDuration((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice()) > 0)
+			{
+				bHas = true;
+				break;
+			}
+		}
+		if(bHas)
 		{
 			return false;
 		}
@@ -6991,6 +7088,642 @@ CvString CvPlayer::GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYields
 	}
 	return CoreYieldTip.c_str();
 }
+CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
+{
+	CvString DisabledTT = Localization::Lookup("TXT_KEY_EVENT_DISABLED_REASONS_HEADER").toUTF8();
+	Localization::String localizedDurationText;
+
+	if(eChosenEventChoice == NO_EVENT_CHOICE)
+		return "";
+
+	CvModEventChoiceInfo* pkEventInfo = GC.getEventChoiceInfo(eChosenEventChoice);
+	if(pkEventInfo == NULL)
+	{
+		return "";
+	}
+
+	CvString strOverrideText = GetLocalizedText(pkEventInfo->getDisabledTooltip());
+	if(strOverrideText != "")
+	{
+		return strOverrideText.c_str();
+	}
+
+	//Lua Hook
+	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EventChoiceCanTake, GetID(), eChosenEventChoice) == GAMEEVENTRETURN_FALSE) 
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_DISABLED_LUA");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isOneShot() && IsEventChoiceFired(eChosenEventChoice))
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_ONESHOT");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	//Event Choice already active for this event? Abort!
+	if(GetEventChoiceDuration(eChosenEventChoice) > 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_ACTIVE");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	//Let's narrow down all events here!
+	if(pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_TECH");
+		localizedDurationText << GC.getTechInfo((TechTypes)pkEventInfo->getPrereqTech())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_OBSOLETE_TECH");
+		localizedDurationText << GC.getTechInfo((TechTypes)pkEventInfo->getObsoleteTech())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredEra() != -1 && GetCurrentEra() < (EraTypes)pkEventInfo->getRequiredEra())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ERA");
+		localizedDurationText << GC.getEraInfo((EraTypes)pkEventInfo->getRequiredEra())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getObsoleteEra() != -1 && GetCurrentEra() >= (EraTypes)pkEventInfo->getObsoleteEra())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_OBSOLETE_ERA");
+		localizedDurationText << GC.getEraInfo((EraTypes)pkEventInfo->getObsoleteEra())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getMinimumNationalPopulation() > 0 && getCurrentTotalPop() < pkEventInfo->getMinimumNationalPopulation())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_POP_NATIONAL");
+		localizedDurationText << pkEventInfo->getMinimumNationalPopulation();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getMinimumNumberCities() > 0 && getNumCities() < pkEventInfo->getMinimumNumberCities())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_CITIES");
+		localizedDurationText << pkEventInfo->getMinimumNumberCities();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredCiv() != -1 && getCivilizationType() != (CivilizationTypes)pkEventInfo->getRequiredCiv())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_CIV");
+		localizedDurationText << GC.getCivilizationInfo((CivilizationTypes)pkEventInfo->getRequiredCiv())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredPolicy() != -1 && !GetPlayerPolicies()->HasPolicy((PolicyTypes)pkEventInfo->getRequiredPolicy()))
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_POLICY");
+		localizedDurationText << GC.getPolicyInfo((PolicyTypes)pkEventInfo->getRequiredPolicy())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredIdeology() != -1 && GetPlayerPolicies()->GetLateGamePolicyTree() != (PolicyBranchTypes)pkEventInfo->getRequiredIdeology())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_IDEOLOGY");
+		localizedDurationText << GC.getPolicyBranchInfo((PolicyBranchTypes)pkEventInfo->getRequiredIdeology())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->hasStateReligion() && GetReligions()->GetStateReligion() == NO_RELIGION)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ANY_STATE_RELIGION");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->hasPantheon() && GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ANY_PANTHEON");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isUnhappy() && !IsEmpireUnhappy())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_UNHAPPY");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isSuperUnhappy() && !IsEmpireSuperUnhappy())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_SUPER_UNHAPPY");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isRequiresIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ANY_IDEOLOGY");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isRequiresWar() && GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_WAR_MAJOR");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredStateReligion() != -1)
+	{
+		if(GetReligions()->GetStateReligion() != pkEventInfo->getRequiredStateReligion())
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_SPECIFIC_STATE_RELIGION");
+			localizedDurationText << GC.getReligionInfo((ReligionTypes)pkEventInfo->getRequiredStateReligion())->GetDescription();
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+	if(!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
+	{
+		if((GetReligions()->GetCurrentReligion() != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_SPECIFIC_RELIGION");
+			localizedDurationText << GC.getReligionInfo((ReligionTypes)pkEventInfo->getRequiredReligion())->GetDescription();
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+	if(pkEventInfo->getRequiredActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) <= 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_EVENT");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) <= 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_EVENT_CHOICE");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredNoActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActiveEvent()) > 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NOT_ACTIVE_EVENT");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredNoActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActiveEventChoice()) > 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NOT_ACTIVE_EVENT_CHOICE");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->hasMetAnotherCiv())
+	{
+		if(GET_TEAM(getTeam()).getHasMetCivCount(true) <= 0)
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_MET_OTHER_CIV");
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GET_TEAM(getTeam()).GetNumVassals() <= 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_VASSAL");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_VASSAL");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isTradeCapped() && GetTrade()->GetNumTradeUnitsRemaining(true) <= 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_TRADE_SLOT");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getUnitTypeRequired() != -1)
+	{
+		bool bHas = false;
+		CvUnit* pLoopUnit;
+		int iLoop;
+		for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+		{
+			if(pLoopUnit != NULL && pLoopUnit->getUnitClassType() == (UnitClassTypes)pkEventInfo->getUnitTypeRequired())
+			{
+				bHas = true;
+				break;
+			}
+		}
+		if(!bHas)
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_UNITCLASS_TYPE");
+			localizedDurationText << GC.getUnitClassInfo((UnitClassTypes)pkEventInfo->getUnitTypeRequired())->GetDescription();
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+
+	if(pkEventInfo->isRequiresHolyCity())
+	{
+		bool bHas = false;
+		bool bSpecific = false;
+		CvCity* pCity = NULL;
+		int iLoop;
+		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+		{
+			if(pkEventInfo->getRequiredReligion() != -1)
+			{
+				if(pCity != NULL && pCity->GetCityReligions()->IsHolyCityForReligion((ReligionTypes)pkEventInfo->getRequiredReligion()))
+				{
+					bHas = true;
+					bSpecific = true;
+					break;
+				}
+			}
+			else
+			{
+				if(pCity != NULL && pCity->GetCityReligions()->IsHolyCityAnyReligion())
+				{
+					bHas = true;
+					break;
+				}
+			}
+		}
+		if(!bHas && !bSpecific)
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_HOLY_CITY");
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+		if(!bHas && bSpecific)
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_HOLY_CITY_SPECIFIC");
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+	if(pkEventInfo->getNumCoastalRequired() > 0)
+	{
+		bool bHas = false;
+		CvCity* pCity = NULL;
+		int iLoop;
+		int iNumCoastal = 0;
+		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+		{
+			if(pCity != NULL && pCity->isCoastal())
+			{
+				iNumCoastal++;
+			}
+			if(iNumCoastal >= pkEventInfo->getNumCoastalRequired())
+			{
+				bHas = true;
+				break;
+			}
+		}
+		if(!bHas)
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_COASTAL_CITIES");
+			localizedDurationText << pkEventInfo->getNumCoastalRequired();
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+	if(pkEventInfo->isRequiresWarMinor())
+	{
+		bool bHas = false;
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			// Is this a player we have relations with?
+			if(GET_PLAYER(eLoopPlayer).isBarbarian())
+			{
+				continue;
+			}
+			if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				continue;
+			}
+			if(eLoopPlayer != GetID())
+			{
+				if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+				{
+					bHas = true;
+					break;
+				}
+			}
+		}
+		if(!bHas)
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_WAR_MINOR");
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+	bool bHas = true;
+	for(int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
+	{
+		const ResourceTypes eResource = static_cast<ResourceTypes>(iJ);
+		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+		if(pkResource)
+		{
+			if(pkEventInfo->getResourceRequired(eResource) > 0)
+			{
+				if(getNumResourceTotal(eResource, false) < pkEventInfo->getResourceRequired(eResource))
+				{
+					localizedDurationText = Localization::Lookup("TXT_KEY_NEED_RESOURCE");
+					localizedDurationText << GC.getResourceInfo((ResourceTypes)pkEventInfo->getResourceRequired(eResource))->GetDescription();
+					DisabledTT += localizedDurationText.toUTF8();
+				}
+			}
+		}
+	}
+	for(int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
+	{
+		const FeatureTypes eFeature = static_cast<FeatureTypes>(iJ);
+		CvFeatureInfo* pkFeature = GC.getFeatureInfo(eFeature);
+		if(pkFeature)
+		{
+			if(pkEventInfo->getFeatureRequired(eFeature) > 0)
+			{
+				CvCity* pCity = NULL;
+				int iLoop;
+				int iNeeded = pkEventInfo->getFeatureRequired(eFeature);
+				int iHave = 0;
+				for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+				{
+
+					if(pCity != NULL && pCity->HasFeature(eFeature))
+					{
+						iHave++;
+					}
+				}
+				if(iHave < iNeeded)
+				{
+					localizedDurationText = Localization::Lookup("TXT_KEY_NEED_FEATURE");
+					localizedDurationText << GC.getFeatureInfo((FeatureTypes)pkEventInfo->getFeatureRequired(eFeature))->GetDescription();
+					DisabledTT += localizedDurationText.toUTF8();
+				}
+			}
+		}
+	}
+	if(pkEventInfo->getBuildingRequired() != -1)
+	{
+		BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkEventInfo->getBuildingRequired();
+		if(eBuildingClass != NO_BUILDINGCLASS)
+		{
+			CvCity* pCity = NULL;
+			int iLoop;
+			for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+			{
+				if(pCity != NULL && pCity->GetCityBuildings()->GetNumBuildingClass(eBuildingClass) <= 0)
+				{
+					localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS");
+					localizedDurationText << GC.getBuildingClassInfo((BuildingClassTypes)pkEventInfo->getBuildingRequired())->GetDescription();
+					DisabledTT += localizedDurationText.toUTF8();
+				}
+			}
+		}
+	}
+	if(pkEventInfo->getBuildingLimiter() != -1)
+	{
+		BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkEventInfo->getBuildingLimiter();
+		if(eBuildingClass != NO_BUILDINGCLASS)
+		{
+			CvCity* pCity = NULL;
+			int iLoop;
+			for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+			{
+				if(pCity != NULL && pCity->GetCityBuildings()->GetNumBuildingClass(eBuildingClass) > 0)
+				{
+					localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_BUILDING_CLASS");
+					localizedDurationText << GC.getBuildingClassInfo((BuildingClassTypes)pkEventInfo->getBuildingLimiter())->GetDescription();
+					DisabledTT += localizedDurationText.toUTF8();
+				}
+			}
+		}
+	}
+	if(pkEventInfo->getRequiredImprovement() != -1)
+	{
+		ImprovementTypes eImprovement = (ImprovementTypes)pkEventInfo->getRequiredImprovement();
+		if(eImprovement != NO_IMPROVEMENT)
+		{
+			bool bHas = false;
+			CvPlot* pLoopPlot;
+			int iNumPlotsInEntireWorld = GC.getMap().numPlots();
+			for(int iI = 0; iI < iNumPlotsInEntireWorld; iI++)
+			{
+				pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+
+				if(pLoopPlot == NULL)
+					continue;
+
+				if(pLoopPlot->getOwner() == GetID() && pLoopPlot->getImprovementType() == eImprovement)
+				{
+					bHas = true;
+					break;
+				}
+			}
+			if(!bHas)
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_IMPROVEMENT");
+				localizedDurationText << GC.getImprovementInfo((ImprovementTypes)pkEventInfo->getRequiredImprovement())->GetDescription();
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+		}
+	}
+	//Check our minimum yields - this looks at stored values, not yields per turn.
+	bHas = true;
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eYield = (YieldTypes)iI;
+		if(eYield == NO_YIELD)
+			continue;
+							
+		int iNeededYield = pkEventInfo->getYieldMinimum(eYield);
+		if(pkEventInfo->getPreCheckEventYield(eYield) != 0)
+		{
+			if(iNeededYield < pkEventInfo->getPreCheckEventYield(eYield))
+			{
+				iNeededYield = pkEventInfo->getPreCheckEventYield(eYield);
+			}
+		}
+		iNeededYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNeededYield /= 100;
+		if(pkEventInfo->IsEraScaling())
+		{
+			int iEra = GetCurrentEra();
+			if(iEra <= 0)
+			{
+				iEra = 1;
+			}
+			iNeededYield *= iEra;
+		}
+		if(iNeededYield != 0)
+		{
+			if(eYield == YIELD_GOLD)
+			{
+				if(iNeededYield > GetTreasury()->GetGold())
+				{
+					bHas = false;
+					break;
+				}
+			}
+			else if(eYield == YIELD_SCIENCE)
+			{
+				TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+				int iTech = 0;
+				if(eCurrentTech != NO_TECH)
+				{
+					iTech = GetPlayerTechs()->GetResearchProgress(eCurrentTech);
+				}
+				if(iNeededYield > iTech)
+				{
+					bHas = false;
+					break;
+				}
+			}
+			else if(eYield == YIELD_FAITH)
+			{
+				if(iNeededYield > GetFaith())
+				{
+					bHas = false;
+					break;
+				}
+			}
+			else if(eYield == YIELD_GOLDEN_AGE_POINTS)
+			{
+				if(iNeededYield > GetGoldenAgeProgressMeter())
+				{
+					bHas = false;
+					break;
+				}
+			}
+			else if(eYield == YIELD_CULTURE)
+			{
+				if(iNeededYield > getJONSCulture())
+				{
+					bHas = false;
+					break;
+				}
+			}
+		}
+	}
+	if(!bHas)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_YIELDS");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredActiveCityEvent() != -1)
+	{
+		bool bHas = false;
+		CvCity* pCity = NULL;
+		int iLoop;
+		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+		{
+			if(pCity != NULL && pCity->GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent()) > 0)
+			{
+				bHas = true;
+				break;
+			}
+		}
+		if(!bHas)
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_CITY_EVENT");
+			localizedDurationText << GC.getCityEventInfo((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent())->GetDescription();
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+	if(pkEventInfo->getRequiredActiveCityEventChoice() != -1)
+	{
+		bool bHas = false;
+		CvCity* pCity = NULL;
+		int iLoop;
+		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+		{
+			if(pCity != NULL && pCity->GetEventChoiceDuration((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice()) > 0)
+			{
+				bHas = true;
+				break;
+			}
+		}
+		if(!bHas)
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_CITY_EVENT_CHOICE");
+			localizedDurationText << GC.getCityEventChoiceInfo((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice())->GetDescription();
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+	if(pkEventInfo->isInDebt() && GetTreasury()->GetGold() > 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_DEBT");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isLosingMoney() && GetTreasury()->CalculateBaseNetGold() > 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NEGATIVE_GPT");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredActiveOtherPlayerEvent() != -1 || pkEventInfo->getRequiredActiveOtherPlayerEventChoice() != -1 || pkEventInfo->getRequiredNoActiveOtherPlayerEvent() != -1 || pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice() != -1)
+	{
+		bHas = false;
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			// Is this a player we have relations with?
+			if(GET_PLAYER(eLoopPlayer).isBarbarian())
+			{
+				continue;
+			}
+			if(GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				continue;
+			}
+			if(eLoopPlayer != GetID())
+			{
+				if(pkEventInfo->getRequiredActiveOtherPlayerEvent() != -1)
+				{
+					if(GET_PLAYER(eLoopPlayer).GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveOtherPlayerEvent()) > 0)
+					{
+						bHas = true;
+						break;
+					}
+				}
+				if(pkEventInfo->getRequiredActiveOtherPlayerEventChoice() != -1)
+				{
+					if(GET_PLAYER(eLoopPlayer).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveOtherPlayerEventChoice()) > 0)
+					{
+						bHas = true;
+						break;
+					}
+				}
+				if(pkEventInfo->getRequiredNoActiveOtherPlayerEvent() != -1)
+				{
+					if(GET_PLAYER(eLoopPlayer).GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActiveOtherPlayerEvent()) > 0)
+					{
+						bHas = false;
+						break;
+					}
+				}
+				if(pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice() != -1)
+				{
+					if(GET_PLAYER(eLoopPlayer).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice()) > 0)
+					{
+						bHas = false;
+						break;
+					}
+				}
+			}
+		}
+		if(!bHas)
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_OTHER_PLAYER_EVENT_ACTIVE");
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+	return DisabledTT.c_str();
+}
 void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 {
 	if(eEventChoice != NO_EVENT_CHOICE)
@@ -8193,6 +8926,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 #else
 	GET_PLAYER(ePlayer).acquireCity(pCity, false, true);
 #endif
+	pCity->SetPuppet(false);
 
 	if (!GET_PLAYER(ePlayer).isMinorCiv())
 	{
@@ -9496,6 +10230,7 @@ void CvPlayer::doTurn()
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
+	UpdateCityThreatCriteria();
 	for (int iInstantYield = 0; iInstantYield < NUM_INSTANT_YIELD_TYPES; iInstantYield++)
 	{
 		InstantYieldType eInstantYield = (InstantYieldType)iInstantYield;
@@ -11666,6 +12401,9 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		if(pBestCity != NULL)
 		{
 			pBestCity->changeProduction(iProduction);
+#if defined(MOD_BUGFIX_GOODY_HUT_MESSAGES)
+			strBuffer += GetLocalizedText("TXT_KEY_GOODY_PRODUCTION", iProduction);
+#endif
 		}
 	}
 	// Golden Age Points

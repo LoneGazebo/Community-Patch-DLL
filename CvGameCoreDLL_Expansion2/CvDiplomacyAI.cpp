@@ -4198,7 +4198,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	int iNumMajorsLeft = GC.getGame().countMajorCivsAlive();
 	if(iNumMajorsLeft == 2)
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 5;
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] = viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 5;
+		if(IsGoingForWorldConquest())
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] = 0;
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += 1000;
+		}
 	}
 
 	////////////////////////////////////
@@ -8167,7 +8172,7 @@ void CvDiplomacyAI::DoMakePeaceWithMinors()
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if(IsPlayerValid(eLoopPlayer))
+		if(eLoopPlayer != NO_PLAYER)
 		{
 			if(GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
@@ -8407,26 +8412,49 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 #if defined(MOD_BALANCE_CORE)
 		int iRequestPeaceTurnThreshold = /*4*/ GC.getREQUEST_PEACE_TURN_THRESHOLD();
 		int iWantPeace = 0;
-		int iOperationID;
-		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_BASIC_ATTACK, &iOperationID, ePlayer);
-		if(!bHasOperationUnderway)
+		
+		CvCity* pLoopCity;
+		int iOurDanger = 0;
+		int iThierDanger = 0;
+		int iLoop;
+		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
-			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_INVASION, &iOperationID, ePlayer);
-		}
-		if(!bHasOperationUnderway)
-		{
-			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iOperationID, ePlayer);
-		}
-		if(bHasOperationUnderway)
-		{
-			iWantPeace--;
+			if(pLoopCity == NULL)
+				continue;
+
+			if(pLoopCity->isUnderSiege())
+			{
+				iOurDanger++;
+			}
+			if(pLoopCity->isInDangerOfFalling())
+			{
+				iOurDanger++;
+			}
 		}
 
-		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway)
+		for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 		{
-			iWantPeace += (GetPlayerNumTurnsSinceCityCapture(ePlayer) / 2);
+			if(pLoopCity == NULL)
+				continue;
+
+			if(pLoopCity->isUnderSiege())
+			{
+				iThierDanger++;
+			}
+			if(pLoopCity->isInDangerOfFalling())
+			{
+				iThierDanger++;
+			}
 		}
-		if(!bHasOperationUnderway && m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy())
+		
+		iWantPeace += iOurDanger;
+		iWantPeace += (iThierDanger * -1);
+
+		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1)
+		{
+			iWantPeace += (GetPlayerNumTurnsSinceCityCapture(ePlayer) / 4);
+		}
+		if(m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy())
 		{
 			iWantPeace+= (m_pPlayer->GetCulture()->GetWarWeariness() / 10);
 		}
@@ -8533,11 +8561,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 #if defined(MOD_BALANCE_CORE)
 	if(GET_PLAYER(ePlayer).isMinorCiv())
 	{
-		if(GetPlayerNumTurnsAtWar(ePlayer) <= GC.getWAR_MAJOR_MINIMUM_TURNS())
-		{
-			return false;
-		}
-		else if(GetMinorCivApproach(ePlayer) == MINOR_CIV_APPROACH_CONQUEST)
+		if(GetMinorCivApproach(ePlayer) == MINOR_CIV_APPROACH_CONQUEST)
 		{
 			return false;
 		}
@@ -8554,26 +8578,49 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		}
 		int iRequestPeaceTurnThreshold = /*4*/ GC.getREQUEST_PEACE_TURN_THRESHOLD();
 		int iWantPeace = 0;
-		int iOperationID;
-		bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_BASIC_ATTACK, &iOperationID, ePlayer);
-		if(!bHasOperationUnderway)
+		
+		CvCity* pLoopCity;
+		int iOurDanger = 0;
+		int iThierDanger = 0;
+		int iLoop;
+		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
-			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_INVASION, &iOperationID, ePlayer);
-		}
-		if(!bHasOperationUnderway)
-		{
-			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, &iOperationID, ePlayer);
-		}
-		if(bHasOperationUnderway)
-		{
-			iWantPeace--;
+			if(pLoopCity == NULL)
+				continue;
+
+			if(pLoopCity->isUnderSiege())
+			{
+				iOurDanger++;
+			}
+			if(pLoopCity->isInDangerOfFalling())
+			{
+				iOurDanger++;
+			}
 		}
 
-		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway)
+		for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 		{
-			iWantPeace += (GetPlayerNumTurnsSinceCityCapture(ePlayer) / 2);
+			if(pLoopCity == NULL)
+				continue;
+
+			if(pLoopCity->isUnderSiege())
+			{
+				iThierDanger++;
+			}
+			if(pLoopCity->isInDangerOfFalling())
+			{
+				iThierDanger++;
+			}
 		}
-		if(!bHasOperationUnderway && m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy())
+		
+		iWantPeace += iOurDanger;
+		iWantPeace += (iThierDanger * -1);
+
+		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1)
+		{
+			iWantPeace += (GetPlayerNumTurnsSinceCityCapture(ePlayer) / 4);
+		}
+		if(m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy())
 		{
 			iWantPeace+= (m_pPlayer->GetCulture()->GetWarWeariness() / 10);
 		}
@@ -9205,7 +9252,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				}
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 				//If it has been a while since we captured a city, let's bring it down to calm.
-				if(eWarState != WAR_STATE_NEARLY_WON && (GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) >= 15))
+				if(eWarState != WAR_STATE_NEARLY_WON && (GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) >= 10))
 				{
 					eWarState = WAR_STATE_CALM;
 				}

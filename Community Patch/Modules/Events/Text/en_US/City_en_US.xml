@@ -9,50 +9,7 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_DO_NOTHING_HELP">
 			<Text>Nothing happens.</Text>
 		</Row>
-		<!-- Market Development -->
-		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT">
-			<Text>Crowded Markets, Foreign Tongues</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT_HELP">
-			<Text>Crowds gather in your city's marketplace, voices from many different lands ringing out as deals are struck and bargains made. Some are angry about this, and believe that foreigners will destroy our trade. Others, however, encourage the foreign business, hoping to learn from their culture.[NEWLINE][NEWLINE]How do you feel about this? Choose from the following options:</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT_CHOICE_1">
-			<Text>Let the foreigners continue to trade.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT_CHOICE_1_HELP">
-			<Text>Market in City: +1 [ICON_CULTURE] Culture, -1 [ICON_GOLD] Gold.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT_CHOICE_2">
-			<Text>Implement heavy taxes on imported goods.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DEVELOPMENT_CHOICE_2_HELP">
-			<Text>Market in City: +1 [ICON_GOLD] Gold.</Text>
-		</Row>
-		<!-- Monument Development -->
-		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT">
-			<Text>Icons of Our Past</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_HELP">
-			<Text>Monuments represent the most important symbols of your culture. Your people seek to celebrate this by dedicating the City's Monument to either their ancestors, or to their gods.[NEWLINE][NEWLINE]How do you feel about this? Choose from the following options:</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_1">
-			<Text>Dedicate the Monument to our ancestors.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_1_HELP">
-			<Text>Monument in City: +1 [ICON_CULTURE] Culture.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_2">
-			<Text>The gods are what is important now.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_2_HELP">
-			<Text>Monument in City: +1 [ICON_PEACE] Faith.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_3">
-			<Text>Neither will suffice. The Monument should generate revenue.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MONUMENT_DEVELOPMENT_CHOICE_3_HELP">
-			<Text>Monument in City: +1 [ICON_GOLD] Gold.</Text>
-		</Row>
+
 		<!-- Stone Works Discovery -->
 		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY">
 			<Text>Rich Vein</Text>
@@ -84,6 +41,7 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_4_HELP">
 			<Text>+2 [ICON_CULTURE] Culture in the City for {5_Turns}.</Text>
 		</Row>
+
 		<!-- Fishing Boat Expedition -->
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION">
 			<Text>Old Men and the Sea.</Text>
@@ -121,7 +79,7 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2_SUCCESSFUL_S">
 			<Text>Fishing expedition successful!</Text>
 		</Row>
-		
+
 		<!-- Amphitheater -->
 		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA">
 			<Text>Dramatic Masterpiece</Text>
@@ -154,14 +112,14 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_4_HELP">
 			<Text>Gain {2_InstantYield}.</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_1_SUCCESSFUL">
 			<Text>Writers from {2_City} have penned a new dramatic work, attracting visitors from around the world.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_1_SUCCESSFUL_S">
 			<Text>Writers from {2_CityName} create a masterpiece.</Text>
 		</Row>
-		
+
 		<!-- Temple Woes -->
 		<Row Tag="TXT_KEY_CITY_EVENT_TEMPLE_CONCERNS">
 			<Text>Trouble at the Temple</Text>
@@ -200,7 +158,7 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_TEMPLE_CONCERNS_CHOICE_4_HELP">
 			<Text>{1_YieldCost}. The Temple is destroyed, and a Grand Temple is built in its place.</Text>
 		</Row>
-		
+
 		<!-- Lighthouse -->
 		<Row Tag="TXT_KEY_CITY_EVENT_LIGHTHOUSE">
 			<Text>Beacon of Hope</Text>
@@ -226,7 +184,7 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_LIGHTHOUSE_CHOICE_3_HELP">
 			<Text>Gain {2_InstantYield}. The Lighthouse is destroyed.</Text>
 		</Row>
-		
+
 		<!-- Hospital Overcrowding -->
 		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING">
 			<Text>Hospital Overcrowding</Text>
@@ -271,46 +229,8 @@
 			<Text>Hospital science experiments discovered!</Text>
 		</Row>
 
-		<!-- Factory Partnerships -->
-		<Row Tag="TXT_KEY_CITY_EVENT_FACTORY_PARTNERSHIP">
-			<Text>Factory Partnership</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_FACTORY_PARTNERSHIP_HELP">
-			<Text>Businessmen approach the City's government, asking for permission to begin a joint-venture with the local Factory. There are five competing partnership bids, and the City's government needs guidance. Which would you prefer?</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_FACTORY_PARTNERSHIP_CHOICE_1">
-			<Text>Let's produce luxury textiles.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_FACTORY_PARTNERSHIP_CHOICE_1_HELP">
-			<Text>Factory in City: +2 [ICON_CULTURE] Culture.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_FACTORY_PARTNERSHIP_CHOICE_2">
-			<Text>Cheap textiles sound lucrative.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_FACTORY_PARTNERSHIP_CHOICE_2_HELP">
-			<Text>Factory in City: +3 [ICON_GOLD] Gold.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_FACTORY_PARTNERSHIP_CHOICE_3">
-			<Text>Chemicals are a valuable asset</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_FACTORY_PARTNERSHIP_CHOICE_3_HELP">
-			<Text>Factory in City: +2 [ICON_PRODUCTION] Production.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_FACTORY_PARTNERSHIP_CHOICE_4">
-			<Text>Pharmaceuticals will benefit our local scientists.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_FACTORY_PARTNERSHIP_CHOICE_4_HELP">
-			<Text>Factory in City: +2 [ICON_RESEARCH] Science.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_FACTORY_PARTNERSHIP_CHOICE_5">
-			<Text>Canned goods will support our growing cities.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_FACTORY_PARTNERSHIP_CHOICE_5_HELP">
-			<Text>Factory in City: +2 [ICON_FOOD] Food.</Text>
-		</Row>
-
 		<!-- Stadium -->
-		
+
 		<!-- Player Event -->
 		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_WORLD_EVENT_CHOICE_1">
 			<Text>Stadium Sellout!</Text>
@@ -363,8 +283,8 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_NUCLEAR_MELTDOWN_CHOICE_1_HELP">
 			<Text>The worst has happened. The City's Nuclear Plant has had a meltdown, rendering vast sections of the city uninhabitable. The building is destroyed, and all other buildings in the City are at risk. The City loses 5 [ICON_CITIZEN] Population.</Text>
 		</Row>
-		
-		
+
+
 		<!-- One-shot Events -->
 		<Row Tag="TXT_KEY_CITY_EVENT_DROUGHT_CHOICE_1_DESCRIPTION">
 			<Text>Drought</Text>
@@ -460,7 +380,7 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_CHOICE_4_HELP">
 			<Text>-2 [ICON_HAPPINESS_1] Happiness in the City for {5_Turns}.</Text>
 		</Row>
-		
+
 		<!-- Spoiled Food -->
 		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_FOOD_SPOILED_CHOICE_1">
 			<Text>Spoiled Food</Text>
@@ -469,14 +389,14 @@
 			<Text>A large portion of food in the Granary spoiled, no doubt due to mismanagement. {1_YieldCost} in the City.</Text>
 		</Row>
 		<!-- Bandits -->
-		
+
 		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_BANDITS_CHOICE_1">
 			<Text>Bandits!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_BANDITS_CHOICE_1_HELP">
 			<Text>Bandits assaulted your tax collectors, making off with the money! {1_YieldCost}.</Text>
 		</Row>
-		
+
 		<!-- Good Harvest -->
 		<Row Tag="TXT_KEY_CITY_EVENT_GOOD_HARVEST_CHOICE_1">
 			<Text>Great Harvest</Text>
@@ -484,7 +404,7 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_GOOD_HARVEST_CHOICE_1_HELP">
 			<Text>Farmers in the City report an excellent harvest this season. +{2_InstantYield} in the City.</Text>
 		</Row>
-		
+
 		<!-- Market Day -->
 		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DAY_CHOICE_1">
 			<Text>Market Day</Text>
@@ -492,7 +412,7 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DAY_CHOICE_1_HELP">
 			<Text>Market Day has begun, and the City's marketplace is filled with customers. For the next {5_Turns}, the City's Market produces +2 [ICON_GOLD] Gold.</Text>
 		</Row>
-		
+
 		<!-- Volcano! -->
 		<Row Tag="TXT_KEY_CITY_EVENT_VOLCANO_CHOICE_1">
 			<Text>Eruption!</Text>
@@ -506,7 +426,7 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_VOLCANO_SPECIAL_CHOICE_1_HELP">
 			<Text>Krakatoa has erupted! Massive plumes of ash, smoke, and lava have enveloped the nearby City and its countryside. Effects: -3 [ICON_CITIZEN] Population, Improvements are pillaged, and many Buildings are damaged!</Text>
 		</Row>
-		
+
 		<!-- Hotel Established -->
 		<Row Tag="TXT_KEY_CITY_EVENT_HOTEL_ESTABLISHED_CHOICE_1">
 			<Text>Resort near Natural Wonder</Text>
@@ -514,27 +434,7 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_HOTEL_ESTABLISHED_CHOICE_1_HELP">
 			<Text>As a result of the tourism generated by a nearby Natural Wonder, a business consortium decided to construct a Hotel in this City.</Text>
 		</Row>
-		
-		<!-- Public School Decision -->
-		<Row Tag="TXT_KEY_CITY_EVENT_PUBLIC_SCHOOL_DECISION">
-			<Text>School Board Established</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_PUBLIC_SCHOOL_DECISION_HELP">
-			<Text>A school board was recently established in the City, and they seek to reform the City's Public School. They look to you for guidance: would you prefer free tuition for all students in the City, or would you rather privatize the institution?</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_PUBLIC_SCHOOL_DECISION_CHOICE_1">
-			<Text>Education should be free for everyone.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_PUBLIC_SCHOOL_DECISION_CHOICE_1_HELP">
-			<Text>Public School: +10% [ICON_CULTURE] Culture in the City.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_PUBLIC_SCHOOL_DECISION_CHOICE_2">
-			<Text>Education should be available to those who can afford it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_PUBLIC_SCHOOL_DECISION_CHOICE_2_HELP">
-			<Text>Public School: +10% [ICON_GOLD] Gold in the City.</Text>
-		</Row>
-		
+
 		<!-- Pestilence -->
 		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_1">
 			<Text>Pestilence</Text>
@@ -550,7 +450,7 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_1_HELP">
 			<Text>The City's river has flooded, devastating the nearby farmland and damaging the City's buildings. Up to 3 Farms are pillaged, and some buildings may be destroyed as well.</Text>
 		</Row>
-		
+
 		<!-- Hurricane -->
 		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE">
 			<Text>Hurricane approaches</Text>
@@ -615,7 +515,7 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_PLAGUE_CHOICE_1_HELP">
 			<Text>Our worst fears have come true. Plague has reached the City! People lay dead in the streets, and hundreds more die every day. Effect: -15 [ICON_FOOD] Food in the City for {5_Turns}.</Text>
 		</Row>
-		
+
 		<!-- Wanderer -->
 		<Row Tag="TXT_KEY_CITY_EVENT_WANDERER">
 			<Text>Mysterious Wanderer</Text>
@@ -687,230 +587,36 @@
 		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_CHOICE_2_SUCCESSFUL_S">
 			<Text>Nomadic retaliation against {2_City}!</Text>
 		</Row>
-	</Language_en_US>
-	<!-- Gunpowder Plot -->
-	<Language_en_US>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_GUNPOWDER_PLOT_CHOICE_1_S">
-			<Text>{1_Playername}'s Palace has been blown up by religious dissidents!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_GUNPOWDER_PLOT_CHOICE_1">
-			<Text>Their capital has entered [ICON_RESISTANCE] Resistance.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_DESCRIPTION">
-			<Text>Gunpowder Plot</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_HELP">
-			<Text>A man of a minority faith has come forward, confessing his involvement in a plot to blow up the Palace. He begs for repentence, but doesn't know enough to bring down the plotters.[NEWLINE][NEWLINE]What should we do, Your Excellence?</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_HELP_CHOICE_1">
-			<Text>50% chance for {5_Turns} turns of [ICON_RESISTANCE] Resistance.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_HELP_CHOICE_2">
-			<Text>Convert 60% of followers to your Religion, but lose -2 [ICON_CITIZEN] Population.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_HELP_CHOICE_3">
-			<Text>2 [ICON_HAPPINESS_4] Unhappiness for 15 turns.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_HELP_CHOICE_4">
-			<Text>Spend {2_InstantYield} in return for +2 [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture on the Palace.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_DESCRIPTION_CHOICE_1">
-			<Text>If anything happens to that building, the only thing that will be different, the only thing that will change, the only difference that it will make, is that next turn instead of a notification, I will be reading your resignation!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_DESCRIPTION_CHOICE_2">
-			<Text>Offer this man, and any others who want to come forward, a pardon. Then, burn every remaining member of that misbegotten faith at the stake.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_DESCRIPTION_CHOICE_3">
-			<Text>Those ungrateful muts. Pull every reserve to search for these conspirators. Double the guard. Cancel Christmas.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_GUNPOWDER_PLOT_DESCRIPTION_CHOICE_4">
-			<Text>Clean out the palace. When the explosion comes, tell everyone it was part of the WTLKD celebrations. Then, build a bigger, better Palace.</Text>
-		</Row>
-	</Language_en_US>
-	<!-- Notorious Pirate -->
-	<Language_en_US>
-		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_DESCRIPTION">
-			<Text>Notorious Pirate</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_HELP">
-			<Text>A notorious pirate is known to spend his time ashore in one of our Harbor's taverns. His presence is attracting a slew of undiserables.[NEWLINE][NEWLINE]So far, no one has been able to catch him.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_DESCRIPTION_CHOICE_1">
-			<Text>Certainly no pirate I've ever heard of. Send some Navy official to deal with this, what's the worse that could happen?</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_DESCRIPTION_CHOICE_2">
-			<Text>I've heard much of this sailor's exploits. Send an agent to present him with this letter of marque.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_DESCRIPTION_CHOICE_3">
-			<Text>Though the local fishermen may not like it, I can see the benefits of having a legendary tavern.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_DESCRIPTION_CHOICE_4">
-			<Text>They say this man hordes his fortune in a rare type of Pearl. It would be unfortunate if someone were to... commandeer it.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_HELP_CHOICE_1">
-			<Text>20% chance for the one turn of [ICON_RESISTANCE] Rioting.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_HELP_CHOICE_2">
-			<Text>Spend 400 [ICON_GOLD] Gold to gain a Corvette.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_HELP_CHOICE_3">
-			<Text>For {4_Turns} the Harbor gains +2 [ICON_CULTURE] Culture and +2 [ICON_TOURISM] Tourism, but nearby Fishing Boats lose -1 [ICON_GOLD] Gold and -1 [ICON_FOOD] Food.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_NOTORIOUS_PIRATE_HELP_CHOICE_4">
-			<Text>Up to 2 Fishing Boats and the Harbor are destroyed. A [ICON_WAR] Barbarian Unit spawns. Gain a copy of the [ICON_RES_PEARLS] Pearls resource.</Text>
-		</Row>
-	</Language_en_US>
-	<!-- Contraband Smuggler (Constable) -->
-	<Language_en_US>
-		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_DESCRIPTION">
-			<Text>Black Market</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_HELP">
-			<Text>The authorities have intercepted a small scale operation smuggling contraband into the city.[NEWLINE][NEWLINE]The Governor thinks they might be of use...</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_HELP_CHOICE_1">
-			<Text>Gain {2_InstantYield}.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_HELP_CHOICE_2">
-			<Text>Lose {2_InstantYield} Golden Age Points. The threshold for [ICON_STRENGTH] Crime is permentantly reduced by 10%.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_HELP_CHOICE_3">
-			<Text>The Constabulary gains +2 [ICON_PRODUCTION] Production.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_HELP_CHOICE_4">
-			<Text>Gain 10 turns of WLTKD in the city.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_DESCRIPTION_CHOICE_1">
-			<Text>No deals. The law is clear on their punishment.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_DESCRIPTION_CHOICE_2">
-			<Text>Talk of corruption in my very presence?! I am the law. Find me a new Governor, and hang the old one beside these criminals.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_DESCRIPTION_CHOICE_3">
-			<Text>I agree. There will always be crime; it would be useful to have friends on the other side of the law.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_CONTRABAND_SMUGGLERS_DESCRIPTION_CHOICE_4">
-			<Text>Banning these goods is, I think, a little old-fashioned. Pardon the smugglers and legalise these products.</Text>
-		</Row>
-	</Language_en_US>
-	<!-- Virus Outbreak -->
-	<Language_en_US>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_MOTABA_OUTBREAK_CHOICE_1_S">
-			<Text>The City of {2_CityName} has succumbed to an horrific viral outbreak.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_MOTABA_OUTBREAK_CHOICE_1">
-			<Text>The [ICON_CITIZEN] Population of {2_CityName} has fallen by 5!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_MOTABA_OUTBREAK_CHOICE_2_S">
-			<Text>The City of {2_CityName} is fighting an horrific viral outbreak.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_MOTABA_OUTBREAK_CHOICE_2">
-			<Text>The City of {2_CityName} has lost 5 [ICON_CITIZEN] Population, but a cure has been discovered!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MOTABA_OUTBREAK_DESCRIPTION">
-			<Text>Viral Outbreak</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MOTABA_OUTBREAK_HELP">
-			<Text>The city has been gripped by the deadly Motaba virus. At this time, there is no available treatment. We must prepare for the worst.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MOTABA_OUTBREAK_HELP_CHOICE_1">
-			<Text>Lose 5 [ICON_CITIZEN] Population.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MOTABA_OUTBREAK_HELP_CHOICE_2">
-			<Text>Lose 5 [ICON_CITIZEN] Population and 2000 [ICON_RESEARCH] Science, but become immune to such events in the future.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MOTABA_OUTBREAK_DESCRIPTION_CHOICE_1">
-			<Text>Quarantine is the only option we have available.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_MOTABA_OUTBREAK_DESCRIPTION_CHOICE_2">
-			<Text>Give the Medical Lab anything they need. We need to have an answer before this thing strikes again.</Text>
-		</Row>
-	</Language_en_US>
-	<!-- Pipeline Explosion -->
-	<Language_en_US>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_OIL_EXPLOSION_CHOICE_1_S">
-			<Text>The City of {2_CityName}'s Oil Wells have malfunctioned.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_EVENT_OIL_EXPLOSION_CHOICE_1">
-			<Text>An Oil Well has exploded!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_OIL_EXPLOSION_DESCRIPTION">
-			<Text>Explosion at the Oil Field</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_OIL_EXPLOSION_HELP">
-			<Text></Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_OIL_EXPLOSION_HELP_CHOICE_1">
-			<Text>An [ICON_RES_OIL] Oil Well is destroyed.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_EVENT_OIL_EXPLOSION_DESCRIPTION_CHOICE_1">
-			<Text></Text>
-		</Row>
-	</Language_en_US>
-	<!-- Motaba Virus -->
-	<Language_en_US>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION">
-			<Text>Motaba Virus</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP">
-			<Text>Our military intelligence has brought in a babbling medic, who claims to have discovered an incredibly dangerous virus while doing charity work in one of the far-flung corners of the world.[NEWLINE][NEWLINE]Only this man's research need make it to our Science Advisor...</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP_CHOICE_1">
-			<Text>Enemy cities experience biological terrorism.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP_CHOICE_2">
-			<Text>Gain {2_InstantYield}. Your cities become immune to biological terrorism.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP_CHOICE_3">
-			<Text>Gain 2 Guided Missiles in every city.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_HELP_CHOICE_4">
-			<Text>Your Aircraft gain the Air Siege III promotion.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION_CHOICE_1">
-			<Text>Get me the head of CI:6. I'm authorising the use of this virus against civilian populations.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION_CHOICE_2">
-			<Text>What are you talking about?! This is horrifying. Send the Doctor to our best Medical Lab, we need to be prepared should this thing ever break loose!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION_CHOICE_3">
-			<Text>This is just what the boys over at prototype weapons have been looking for. Green light the Scud Storm project.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MOTABA_VIRUS_DESCRIPTION_CHOICE_4">
-			<Text>We can't trust something like this to those nutjobs over in RnD. Get me the Airforce.</Text>
-		</Row>
-	</Language_en_US>
-	<!-- Pipeline -->
-	<Language_en_US>
-		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_PIPELINE_CHOICE_1_S">
-			<Text>A report has shown that the recently-constructed trans-continental pipeline was built with major structural flaws.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_PIPELINE_CHOICE_1">
-			<Text>All [ICON_RES_OIL] Oil Wells are vulnerable to malfunction while an investigation takes place.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_PIPELINE_DESCRIPTION">
-			<Text>In the Pipeline</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_PIPELINE_HELP">
-			<Text>One of our operatives has attained a high ranking position in a foreign Oil company.[NEWLINE][NEWLINE]How should we use our asset?</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_PIPELINE_HELP_CHOICE_1">
-			<Text>Gain +4 [ICON_RES_OIL] Oil. Customs Houses increase [ICON_GOLD] Gold in Cities by 10%.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_PIPELINE_HELP_CHOICE_2">
-			<Text>Temporarily, Foreign [ICON_RES_OIL] Oil resources will be likely to explode.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_PIPELINE_HELP_CHOICE_3">
-			<Text>Gain the Refridgeration technology.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_PIPELINE_DESCRIPTION_CHOICE_1">
-			<Text>With influence over trading, we should be able to make sure some of that [ICON_RES_OIL] Oil finds its way to our ports.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_PIPELINE_DESCRIPTION_CHOICE_2">
-			<Text>The asset is well-placed to conduct a strategic piece of industrial espionage.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_PIPELINE_DESCRIPTION_CHOICE_3">
-			<Text>His report details plans for the construction of large off-shore platforms. Get me those schematics!</Text>
+		
+		<!-- Rebels -->
+		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS">
+			<Text>Trouble Brewing</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_HELP">
+			<Text>Threats against your rule continue to grow in the City, and your advisors are worried that it may spill over into violence. You need to root out this resistance before it grows too strong. Your options are limited, however:</Text>
+		</Row>
+			
+
+		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_1">
+			<Text>They'll never expect the inqusition!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_1_HELP">
+			<Text>The City loses 5 [ICON_CITIZEN] Population.</Text>
+		</Row>
+			
+			
+		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_2">
+			<Text>Bait the rebels out - we'll crush them with our military power.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_2_HELP">
+			<Text>Four Rebel units spawn near the City, and the City enters [ICON_RESISTANCE] Resistance for 3 Turns.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_3">
+			<Text>Quarantine the rebels. They may take part of the city, but that's unavoidable.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_3_HELP">
+			<Text>15% chance that each building in the City will be destroyed.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

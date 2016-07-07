@@ -226,6 +226,9 @@ CvCityConnections::SingleCityConnectionStore CvCityConnections::GetDirectConnect
 
 void CvCityConnections::UpdateRouteInfo(void)
 {
+	if(m_pPlayer->getNumCities() <= 1)
+		return;
+
 	//allow mods to set connectivity as well - this is a bit strange, there is no check for industrial, and direct connection makes no sense
 	bool bCallDirectEvents = false;
 	bool bCallIndirectEvents = false;
@@ -393,8 +396,8 @@ void CvCityConnections::UpdateRouteInfo(void)
 	CvCity* pCapital = m_pPlayer->getCapitalCity();
 	if (pCapital)
 	{
-		//mixed route needs harbor connection flags to be set already
-		SPathFinderUserData data(m_pPlayer->GetID(), PT_CITY_CONNECTION_MIXED, ROUTE_ROAD);
+		//Let's check for road/railroad first.
+		SPathFinderUserData data(m_pPlayer->GetID(), PT_CITY_CONNECTION_LAND, ROUTE_ROAD);
 		ReachablePlots capitalRoadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data);
 		for (ReachablePlots::iterator it = capitalRoadConnectedPlots.begin(); it != capitalRoadConnectedPlots.end(); ++it)
 		{
@@ -417,6 +420,31 @@ void CvCityConnections::UpdateRouteInfo(void)
 			}
 		}
 
+		//And now for harbors.
+		data.ePathType = PT_CITY_CONNECTION_MIXED;
+		capitalRoadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data);
+		for (ReachablePlots::iterator it = capitalRoadConnectedPlots.begin(); it != capitalRoadConnectedPlots.end(); ++it)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->iPlotIndex );
+
+			//if it's one of our own cities, set the connection flag - also for the capital itself
+			CvCity* pCity = pPlot->getPlotCity();
+			if (pCity && pCity->getOwner()==m_pPlayer->GetID() && !pCity->IsRouteToCapitalConnected())
+			{
+				pCity->SetRouteToCapitalConnected(true);
+
+				//find the shortest path
+				SPath path = GC.GetStepFinder().GetPath(pCapital->plot(),pPlot,data);
+				for (int i=0; i<path.length(); i++)
+				{
+					CvPlot* pConnectionPlot = path.get(i);
+					if (pConnectionPlot && !pConnectionPlot->isWater() && !pConnectionPlot->isCity()) //should be only land, but doesn't hurt to check
+						m_plotsWithConnectionToCapital.push_back(pConnectionPlot->GetPlotIndex());
+				}
+			}
+		}
+		
+		//Set industrial routes as needed.
 		if ( GET_TEAM(m_pPlayer->getTeam()).GetBestPossibleRoute()==GC.getGame().GetIndustrialRoute() )
 		{
 			data.iTypeParameter = ROUTE_RAILROAD;

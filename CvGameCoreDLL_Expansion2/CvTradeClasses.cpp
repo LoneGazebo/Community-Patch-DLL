@@ -6357,6 +6357,41 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	{
 		aTradeConnectionList.push_back(aTotalList[ui].m_kTradeConnection);
 	}
+
+	//Reset values.
+	int iOriginCityLoop;
+	CvCity* pOriginLoopCity = NULL;
+	for(pOriginLoopCity = m_pPlayer->firstCity(&iOriginCityLoop); pOriginLoopCity != NULL; pOriginLoopCity = m_pPlayer->nextCity(&iOriginCityLoop))
+	{
+		if(pOriginLoopCity != NULL)
+		{
+			pOriginLoopCity->SetTradePrioritySea(-1);
+			pOriginLoopCity->SetTradePriorityLand(-1);
+		}
+	}
+	//Let's store off values for 'good' trade unit cities to grab elsewhere. Uses the priority model (so 0 = best, 1 = second-best, etc.)
+	for (uint ui = 0; ui < aTradeConnectionList.size(); ui++)
+	{
+		int iX = aTradeConnectionList[ui].m_iOriginX;
+		int iY = aTradeConnectionList[ui].m_iOriginY;
+
+		CvPlot* pPlot = GC.getMap().plot(iX, iY);
+		if(pPlot != NULL)
+		{
+			CvCity* pCity = pPlot->getPlotCity();
+			if(pCity != NULL && pCity->getOwner() == m_pPlayer->GetID())
+			{
+				if(aTradeConnectionList[ui].m_eDomain == DOMAIN_SEA && pCity->GetTradePrioritySea() == -1)
+				{
+					pCity->SetTradePrioritySea(ui);
+				}
+				else if(pCity->GetTradePriorityLand() == -1)
+				{
+					pCity->SetTradePriorityLand(ui);
+				}
+			}
+		}
+	}
 #else
 	// add first food
 	if (aFoodSortedTR.size() > 0) 

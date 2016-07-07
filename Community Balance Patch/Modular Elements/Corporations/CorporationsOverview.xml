@@ -86,22 +86,28 @@
 	<Instance Name="WorldCorporationInstance">
 		<Box Size="958,28" Color="0,0,0,0" ID="Base">
 			<Stack Size="958,28" StackGrowth="Right">
-				<Box Size="300,28" Color="0,0,0,0">
+				<Box Size="240,28" Color="0,0,0,0">
 					<Label ID="Corporation" Anchor="L,C" Offset="42,0" TruncateWidth="300" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>					
 				</Box>
-				<Box Size="260,28" Color="0,0,0,0">
+				<Box Size="160,28" Color="0,0,0,0">
 					<Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
 						<Image ID="CivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
 						<Image ID="CivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
 						<Image ID="CivIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
 					</Box>
-					<Label ID="CivName" Anchor="L,C" Offset="48,0" TruncateWidth="129" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+					<Label ID="CivName" Anchor="L,C" Offset="32,0" TruncateWidth="129" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 				</Box>
-				<Box Size="200,28" Color="0,0,0,0">
+				<Box Size="150,28" Color="0,0,0,0">
 					<Label ID="Headquarters" Anchor="L,C" Offset="42,0" TruncateWidth="115" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 				</Box>
-				<Box Size="180,28" Color="0,0,0,0">
+				<Box Size="150,28" Color="0,0,0,0">
 					<Label ID="DateFounded" Anchor="L,C" Offset="42,0" TruncateWidth="115" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				</Box>
+				<Box Size="120,28" Color="0,0,0,0">
+					<Label ID="NumOffices" Anchor="L,C" Offset="42,0" TruncateWidth="115" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				</Box>
+				<Box Size="120,28" Color="0,0,0,0">
+					<Label ID="NumFranchises" Anchor="L,C" Offset="42,0" TruncateWidth="115" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 				</Box>
 			</Stack>
 		</Box>
@@ -356,24 +362,34 @@
 					<Stack Anchor="L,T" StackGrowth="Bottom">
 						<Box Anchor="L,T" Size="956,20" Color="0,0,0,0">
 							<Stack Anchor="L,T" StackGrowth="Right">
-								<Box Size="250,18" Color="0,0,0,0">
+								<Box Size="220,18" Color="0,0,0,0">
 									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" ToolTip="TXT_KEY_CPO_WC_CORPNAME_SORT_TT" String="TXT_KEY_CPO_WC_CORPNAME" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="WCSortByCorpName">
 										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="WCSortByCorpNameImage"/>
 									</TextButton>
 								</Box>
-								<Box Size="300,18" Color="0,0,0,0">
+								<Box Size="180,18" Color="0,0,0,0">
 									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" ToolTip="TXT_KEY_CPO_WC_CIVILIZATION_SORT_TT" String="TXT_KEY_CPO_WC_CIVILIZATION" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="WCSortByCivilization">
 										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="WCSortByCivilizationImage"/>
 									</TextButton>
 								</Box>
-								<Box Size="200,18" Color="0,0,0,0">
+								<Box Size="160,18" Color="0,0,0,0">
 									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" ToolTip="TXT_KEY_CPO_WC_HEADQUARTERS_SORT_TT" String="TXT_KEY_CPO_WC_HEADQUARTERS" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="WCSortByHQ">
 										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="WCSortByHQImage"/>
 									</TextButton>
 								</Box>
-								<Box Size="200,18" Color="0,0,0,0">
+								<Box Size="140,18" Color="0,0,0,0">
 									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" ToolTip="TXT_KEY_CPO_WC_DATE_FOUNDED_SORT_TT" String="TXT_KEY_CPO_WC_DATE_FOUNDED" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="WCSortByDateFounded">
 										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="WCSortByDateFoundedImage"/>
+									</TextButton>
+								</Box>
+								<Box Size="120,18" Color="0,0,0,0">
+									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" ToolTip="TXT_KEY_CPO_WC_NUM_OFFICES_SORT_TT" String="TXT_KEY_CPO_WC_NUM_OFFICES" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="WCSortByNumOffices">
+										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="WCSortByNumOfficesImage"/>
+									</TextButton>
+								</Box>
+								<Box Size="120,18" Color="0,0,0,0">
+									<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" ToolTip="TXT_KEY_CPO_WC_NUM_FRANCHISES_SORT_TT" String="TXT_KEY_CPO_WC_NUM_FRANCHISES" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="WCSortByNumFranchises">
+										<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="WCSortByNumFranchisesImage"/>
 									</TextButton>
 								</Box>
 							</Stack>

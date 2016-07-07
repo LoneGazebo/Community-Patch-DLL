@@ -317,18 +317,15 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 	if(iNumWar > 0 && pkBuildingInfo->GetDefenseModifier() <= 0)
 	{
-		iBonus -= (iNumWar * 25);
-		if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == m_pCity && kPlayer.getNumCities() > 1)
+		iBonus -= (iNumWar * 10);
+		if(kPlayer.getNumCities() > 1 && m_pCity->GetThreatCriteria() != -1)
 		{
-			return 0;
-		}
-		else if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(1) == m_pCity)
-		{
-			return 0;
-		}
-		else if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(2) == m_pCity)
-		{
-			iBonus -= 100;
+			//More cities = more threat.
+			int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatCriteria()) * 25;
+			if(iThreat > 0)
+			{
+				iBonus -= iThreat;
+			}
 		}
 		if(m_pCity->IsBastion())
 		{
@@ -336,11 +333,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 		if(m_pCity->IsBlockaded(true))
 		{
-			return 0;
+			iBonus -= 100;
 		}
 		if(m_pCity->IsBlockadedWaterAndLand())
 		{
-			return 0;
+			iBonus -= 100;
 		}
 	}
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -351,7 +348,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			if(kPlayer.GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_STALEMATE)
 			{
-				iBonus -= 100;
+				iBonus -= 75;
 			}
 		}
 	}
@@ -459,17 +456,17 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//No Land trade connections?
 	if(pkBuildingInfo->GetTradeRouteLandDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteLandGoldBonus() > 0)
 	{	
-		if(iNumLandConnection == 0)
+		if(iNumLandConnection <= 0)
 		{
 			return 0;
 		}
 		else
 		{
 			//Higher value the higher the number of routes.
-			iBonus += (iNumLandConnection * 5);
+			iBonus += iNumLandConnection;
 			if(kPlayer.GetPlayerTraits()->GetLandTradeRouteRangeBonus() > 0)
 			{
-				iBonus += 25;
+				iBonus += 50;
 			}
 		}
 	}
@@ -478,21 +475,35 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if(pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteSeaGoldBonus() > 0)
 	{
 		CvCity* pCapital = kPlayer.getCapitalCity();
-		if(iNumSeaConnection == 0 && m_pCity->IsRouteToCapitalConnected())
+		if(pkBuildingInfo->AllowsWaterRoutes())
 		{
-			return 0;
-		}
-		else if(iNumSeaConnection == 0 && pCapital != NULL && pCapital->getArea() != m_pCity->getArea())
-		{
-			iBonus += 25;
+			if(iNumSeaConnection <= 0 && m_pCity->IsRouteToCapitalConnected())
+			{
+				return 0;
+			}
+			else if(iNumSeaConnection <= 0 && pCapital != NULL && pCapital->getArea() != m_pCity->getArea())
+			{
+				iBonus += 50;
+			}
+
+			//Higher value the higher the number of routes.
+			iBonus += iNumSeaConnection;
+			if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0)
+			{
+				iBonus += 50;
+			}
 		}
 		else
 		{
+			if(iNumSeaConnection <= 0)
+			{
+				return 0;
+			}
 			//Higher value the higher the number of routes.
-			iBonus += (iNumSeaConnection * 5);
+			iBonus += iNumSeaConnection;
 			if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0)
 			{
-				iBonus += 25;
+				iBonus += 50;
 			}
 		}
 	}
@@ -674,7 +685,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		if(m_pCity->IsOccupied() && !m_pCity->IsNoOccupiedUnhappiness())
 		{
-			iBonus += 500;
+			iBonus += 600;
 			bGoodforGPTHappiness = true;
 		}
 	}
@@ -760,7 +771,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					//Let's try to build our production/experience buildings in our best cities only. More cities we have, the more this matters.
 					if(m_pCity == kPlayer.GetBestMilitaryCity(eUnitCombatClass))
 					{
-						iBonus += (iTempBonus * 4);
+						iBonus += (iTempBonus * 5);
 					}
 					//Discourage bad cities.
 					else
@@ -921,7 +932,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			EraTypes eEra = (EraTypes)pEntry->GetEra();
 			if(eEra != NO_ERA && eEra < kPlayer.GetCurrentEra())
 			{
-				iBonus += (25 * (kPlayer.GetCurrentEra() + 2 - eEra));
+				iBonus += (40 * (kPlayer.GetCurrentEra() + 2 - eEra));
 			}
 		}
 	}

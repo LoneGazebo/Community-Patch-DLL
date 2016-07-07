@@ -285,6 +285,21 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 					{
 						iWeight *= 5;
 					}
+					if(GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() <= 0 && pPlayer->GetReligions()->GetReligionCreatedByPlayer() <= RELIGION_PANTHEON)
+					{
+						iWeight = 0;
+					}
+				}
+				if(ePolicyBranch == (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true))
+				{
+					if(GC.getGame().GetNumMinorCivsAlive() <= 0)
+					{
+						iWeight = 0;
+					}
+					else if(pPlayer->GetDiplomacyAI()->GetNumMinorCivApproach(MINOR_CIV_APPROACH_FRIENDLY) <= 0)
+					{
+						iWeight = 0;
+					}
 				}
 			}
 			

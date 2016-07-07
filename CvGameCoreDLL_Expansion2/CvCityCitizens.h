@@ -78,6 +78,8 @@ public:
 	bool DoRemoveWorstCitizen(bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST, int iCurrentCityPopulation = -1);
 #endif
 #if defined(MOD_BALANCE_CORE)
+	void SetBlockade(bool bValue);
+	bool IsBlockade();
 	void SetDirty(bool bValue);
 	bool IsDirty();
 	void DoReallocateCitizens(bool bForce = false);
@@ -191,6 +193,7 @@ private:
 	bool m_bNoAutoAssignSpecialists;
 #if defined(MOD_BALANCE_CORE)
 	bool m_bIsDirty;
+	bool m_bIsBlockaded;
 #endif
 
 	int m_iNumUnassignedCitizens;

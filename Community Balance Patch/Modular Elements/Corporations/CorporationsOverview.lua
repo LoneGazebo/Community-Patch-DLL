@@ -108,6 +108,22 @@ g_WorldCorporationsSortOptions = {
 		SortType = "numeric",
 		CurrentDirection = nil,
 	},
+	{
+		Button = Controls.WCSortByNumOffices,
+		ImageControl = Controls.WCSortByNumOfficesImage,
+		Column = "NumOffices",
+		DefaultDirection = "desc",
+		SortType = "numeric",
+		CurrentDirection = nil,
+	},
+	{
+		Button = Controls.WCSortByNumFranchises,
+		ImageControl = Controls.WCSortByNumFranchisesImage,
+		Column = "NumFranchises",
+		DefaultDirection = "desc",
+		SortType = "numeric",
+		CurrentDirection = nil,
+	},
 }
 
 g_WorldFranchisesSortOptions = {
@@ -251,6 +267,8 @@ function RefreshWorldCorporations()
 						CorpTooltip = Locale.ConvertTextKey(pCorporation.Help),
 						CityName = Game.GetCorporationHeadquarters(ePlayerCorporation),	-- city
 						DateFounded = pLoopPlayer:GetCorporationFoundedTurn(),
+						NumOffices = pLoopPlayer:GetNumberofOffices(),
+						NumFranchises = pLoopPlayer:GetNumberofGlobalFranchises(),
 					};
 					table.insert(instances, info);
 				else
@@ -281,6 +299,8 @@ function InsertCorporation(info)
 	instance.Corporation:LocalizeAndSetToolTip(info.CorpTooltip);
 	instance.DateFounded:SetText(Game.GetDateString(info.DateFounded));
 	instance.Headquarters:SetText(info.CityName:GetName());
+	instance.NumOffices:SetText(info.NumOffices);
+	instance.NumFranchises:SetText(info.NumFranchises);
 
 	HookupCivControl(info.CivPlayer, 32, instance.CivName, instance.CivIcon, instance.CivIconBG, instance.CivIconShadow);
 end

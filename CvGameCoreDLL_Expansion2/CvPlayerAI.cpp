@@ -1813,6 +1813,11 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	
 	int iFlavorDiplo =  GET_PLAYER(eID).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 	int iDesiredEmb = (iFlavorDiplo - 3);
+	int iNumMinors = GC.getGame().GetNumMinorCivsAlive();
+	if(iDesiredEmb > iNumMinors)
+	{
+		iDesiredEmb = iNumMinors;
+	}
 	int iEmbassies = GET_PLAYER(eID).GetImprovementLeagueVotes();
 
 	//Embassy numbers should be based on Diplomacy Flavor. More flavor, more embassies!

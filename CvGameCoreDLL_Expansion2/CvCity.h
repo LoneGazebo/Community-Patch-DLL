@@ -86,6 +86,16 @@ public:
 	void UpdateCityYields(YieldTypes eYield);
 	void SetStaticYield(YieldTypes eYield, int iValue);
 	int GetStaticYield(YieldTypes eYield) const;
+
+	void SetThreatCritera(int iValue);
+	int GetThreatCriteria() const;
+
+	void SetTradePriorityLand(int iValue);
+	int GetTradePriorityLand(void) const;
+
+	void SetTradePrioritySea(int iValue);
+	int GetTradePrioritySea(void) const;
+
 #endif
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -96,6 +106,7 @@ public:
 	void DoStartEvent(CityEventTypes eEvent);
 	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY);
 	CvString GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly);
+	CvString GetDisabledTooltip(CityEventChoiceTypes eEventChoice);
 
 	void SetEventActive(CityEventTypes eEvent, bool bValue);
 	bool IsEventActive(CityEventTypes eEvent) const;
@@ -1597,6 +1608,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiThemingYieldBonus;
 	FAutoVariable<std::vector<int>, CvCity> m_aiNumTimesOwned;
 	FAutoVariable<std::vector<int>, CvCity> m_aiStaticCityYield;
+	FAutoVariable<int, CvCity> m_iThreatCriteria;
+	FAutoVariable<int, CvCity> m_iTradePriorityLand;
+	FAutoVariable<int, CvCity> m_iTradePrioritySea;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iBuildingPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iReligiousTradeModifier;

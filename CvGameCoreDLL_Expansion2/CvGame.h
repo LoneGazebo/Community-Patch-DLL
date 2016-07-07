@@ -144,6 +144,7 @@ public:
 
 	int getNumHumanPlayers();
 	int GetNumMinorCivsEver();
+	int GetNumMinorCivsAlive();
 	int getNumHumansInHumanWars(PlayerTypes ignorePlayer = NO_PLAYER);
 	int getNumSequentialHumans(PlayerTypes ignorePlayer = NO_PLAYER);
 

@@ -2621,6 +2621,8 @@ public:
 	int getRequiredActiveOtherPlayerEventChoice() const;
 	int getRequiredNoActiveOtherPlayerEvent() const;
 	int getRequiredNoActiveOtherPlayerEventChoice() const;
+	int getRequiredNoActiveCityEvent() const;
+	int getRequiredNoActiveCityEventChoice() const;
 	bool isUnhappy() const;
 	bool isSuperUnhappy() const;
 	bool isOneShot() const;
@@ -2679,6 +2681,8 @@ protected:
 	int m_iRequiredActiveEventChoiceOtherPlayer;
 	int m_iRequiredNoActiveEventOtherPlayer;
 	int m_iRequiredNoActiveEventChoiceOtherPlayer;
+	int m_iRequiredNoActiveCityEvent;
+	int m_iRequiredNoActiveCityEventChoice;
 	int m_iRequiredNoActiveEvent;
 	int m_iRequiredNoActiveEventChoice;
 	bool m_bOneShot;
@@ -2995,6 +2999,8 @@ public:
 	int getRequiredActiveCityEventChoice() const;
 	int getRequiredNoActiveCityEvent() const;
 	int getRequiredNoActiveCityEventChoice() const;
+	int getRequiredNoActiveCityEventAnywhere() const;
+	int getRequiredNoActiveCityEventChoiceAnywhere() const;
 	int getRequiredNoActivePlayerEvent() const;
 	int getRequiredNoActivePlayerEventChoice() const;
 	int getRequiredActiveOtherPlayerEvent() const;
@@ -3075,6 +3081,8 @@ protected:
 	int m_iRequiredNoActiveEventChoice;
 	int m_iRequiredNoActiveCityEvent;
 	int m_iRequiredNoActiveCityEventChoice;
+	int m_iRequiredNoActiveCityEventAnywhere;
+	int m_iRequiredNoActiveCityEventChoiceAnywhere;
 
 private:
 	CvModCityEventInfo(const CvModCityEventInfo&);

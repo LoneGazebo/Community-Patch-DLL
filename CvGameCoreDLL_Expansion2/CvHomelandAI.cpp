@@ -4353,7 +4353,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 					continue;
 #endif
 				}
-				else if( pUnit->CanReachInXTurns(pTarget,0) )
+				else if( pUnit->CanReachInXTurns(pTarget,INT_MAX) )
 				{
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
 
@@ -4441,7 +4441,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 				continue;
 #endif
 			}
-			else if( pUnit->CanReachInXTurns(pTarget,0) )
+			else if( pUnit->CanReachInXTurns(pTarget,INT_MAX) )
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY());
 				
@@ -7876,7 +7876,7 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 	if (bIsCarrier)
 	{
 		UnitHandle pDefender = pBasePlot->getBestDefender(ePlayer);
-		if(pDefender->isProjectedToDieNextTurn() || kPlayer.GetTacticalAI()->IsUnitHealing(pDefender->GetID()))  
+		if(!pDefender || pDefender->isProjectedToDieNextTurn() || kPlayer.GetTacticalAI()->IsUnitHealing(pDefender->GetID()))  
 			return -1;
 
 		iBaseScore += 10;

@@ -125,9 +125,9 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	if(iTempWeight == 0)
 		return 0;
 
-	if(iTempWeight > 425)
+	if(iTempWeight > 350)
 	{
-		iTempWeight = 450;
+		iTempWeight = 350;
 	}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
@@ -145,17 +145,14 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	if(iNumWar > 0)
 	{
 		iBonus -= (iNumWar * 50);
-		if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == m_pCity && kPlayer.getNumCities() > 1)
+		if(kPlayer.getNumCities() > 1 && m_pCity->GetThreatCriteria() != -1)
 		{
-			iBonus -= 100;
-		}
-		else if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(1) == m_pCity)
-		{
-			iBonus -= 100;
-		}
-		else if(kPlayer.GetMilitaryAI()->GetMostThreatenedCity(2) == m_pCity)
-		{
-			iBonus -= 100;
+			//More cities = more threat.
+			int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatCriteria()) * 25;
+			if(iThreat > 0)
+			{
+				iBonus -= iThreat;
+			}
 		}
 		if(m_pCity->IsBastion())
 		{
