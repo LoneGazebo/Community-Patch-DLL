@@ -39252,17 +39252,18 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 					}
 				}
 
-				int nCities = 0;
-				for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+				int nEnemyCities = 0, nMyCities = 0;
+				for(int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; ++iPlayer)
 				{
-					CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
-					if(!kLoopPlayer.isMinorCiv() && iPlayer!=GetID())
-					{
-						nCities += pLoopArea->getCitiesPerPlayer((PlayerTypes)iPlayer);
-					}
+					if(iPlayer!=GetID())
+						nEnemyCities += pLoopArea->getCitiesPerPlayer((PlayerTypes)iPlayer);
+					else
+						nMyCities += pLoopArea->getCitiesPerPlayer((PlayerTypes)iPlayer);
 				}
-				//use only the square root for scaling - a good spot is a good spot even if many other cities are around it
-				fScore /= sqrt( max(1.f, (float)nCities) );
+
+				//if we don't have any cities there but our potential enemies do, be careful
+				if (nEnemyCities>0 && nMyCities==0)
+					fScore *= 0.67f;
 
 				if(fScore > fBestScore)
 				{
