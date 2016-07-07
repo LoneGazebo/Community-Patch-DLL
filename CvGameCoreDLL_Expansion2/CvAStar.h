@@ -242,8 +242,6 @@ protected:
 
 	// The best node - just popped from open nodes. walking backwards from here gives the current path
 	CvAStarNode* m_pBest;
-	// A stack for outstanding nodes to be updated
-	CvAStarNode* m_pStackHead;
 
 	int m_iProcessedNodes;			// for statistics
 	int m_iTestedNodes;

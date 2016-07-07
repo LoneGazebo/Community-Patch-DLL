@@ -70,6 +70,7 @@ protected:
 //for debugging
 int giKnownCostWeight = 1;
 int giHeuristicCostWeight = 1;
+int giLastStartIndex = 0;
 int giLastDestinationIndex = 0;
 
 unsigned int saiRuntimeHistogram[100] = {0};
@@ -366,12 +367,16 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	int iBin = min(99,int(timer.GetDeltaInSeconds()*1000));
 	saiRuntimeHistogram[iBin]++;
 
-	if ( timer.GetDeltaInSeconds()>0.05 && data.ePathType!=PT_UNIT_REACHABLE_PLOTS )
+	if ( timer.GetDeltaInSeconds()>0.1 && data.ePathType!=PT_UNIT_REACHABLE_PLOTS && data.ePathType!=PT_GENERIC_REACHABLE_PLOTS )
 	{
 		//debug hook
 		int iDestinationIndex = GC.getMap().plotNum(m_iXdest, m_iYdest);
+		int iStartIndex = GC.getMap().plotNum(m_iXdest, m_iYdest);
+		if (iStartIndex==giLastStartIndex && iStartIndex>0)
+			OutputDebugString("Repeated pathfinding start\n");
 		if (iDestinationIndex==giLastDestinationIndex && iDestinationIndex>0)
-			OutputDebugString("Repeated pathfinding!\n");
+			OutputDebugString("Repeated pathfinding destination\n");
+		giLastStartIndex = iStartIndex;
 		giLastDestinationIndex = iDestinationIndex;
 
 		int iNumPlots = GC.getMap().numPlots();
@@ -655,6 +660,8 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 /// Refresh parent node (after linking in a child)
 void CvAStar::UpdateParents(CvAStarNode* node)
 {
+	std::vector<CvAStarNode*> storedNodes;
+
 	CvAStarNode* parent = node;
 	while(parent != NULL)
 	{
@@ -674,46 +681,19 @@ void CvAStar::UpdateParents(CvAStarNode* node)
 
 				udFunc(udNotifyChild, parent, kid, ASNC_PARENTADD_UP, m_sData);
 
-				StackPush(kid);
+				if (std::find(storedNodes.begin(),storedNodes.end(),kid) == storedNodes.end())
+					storedNodes.push_back(kid);
 			}
 		}
 
-		parent = StackPop();
+		if (storedNodes.empty())
+			parent = NULL;
+		else
+		{
+			parent = storedNodes.back();
+			storedNodes.pop_back();
+		}
 	}
-}
-
-//	--------------------------------------------------------------------------------
-/// Push a node on the stack
-void CvAStar::StackPush(CvAStarNode* node)
-{
-	//already on stack?
-	if(node->m_pStack)
-		return;
-
-	if(m_pStackHead == NULL)
-	{
-		m_pStackHead = &(m_ppaaNodes[node->m_iX][node->m_iY]);
-	}
-	else
-	{
-		FAssert(node->m_pStack == NULL);
-		node->m_pStack = m_pStackHead;
-		m_pStackHead = node;
-	}
-}
-
-//	--------------------------------------------------------------------------------
-/// Pop a node from the stack
-CvAStarNode* CvAStar::StackPop()
-{
-	if(m_pStackHead == NULL)
-		return NULL;
-
-	CvAStarNode* node = m_pStackHead;
-	m_pStackHead = m_pStackHead->m_pStack;
-	node->m_pStack = NULL;
-
-	return node;
 }
 
 //	--------------------------------------------------------------------------------

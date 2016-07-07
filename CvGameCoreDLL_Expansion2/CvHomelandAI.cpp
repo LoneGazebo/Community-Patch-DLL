@@ -2119,7 +2119,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 
 			if(pUpgradeCity)
 			{
-				if(MoveToEmptySpaceNearTarget(pUnit.pointer(), pUpgradeCity->plot(), true, 23))
+				if(MoveToEmptySpaceNearTarget(pUnit.pointer(), pUpgradeCity->plot(), DOMAIN_LAND, 23))
 				{
 					pUnit->finishMoves();
 					UnitProcessed(pUnit->GetID());
@@ -2851,7 +2851,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					CvCity* pBestCity = m_pPlayer->GetClosestCity( pUnit->plot() );
 					if(pBestCity != NULL)
 					{
-						MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestCity->plot(), true, 12);
+						MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestCity->plot(), DOMAIN_LAND, 12);
 						pUnit->SetTurnProcessed(true);
 						pUnit->finishMoves();
 						CvString strTemp;
@@ -2931,7 +2931,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 
 					if(pBestPlot != NULL)
 					{
-						MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestPlot, false, 23);
+						MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestPlot, DOMAIN_SEA, 23);
 						pUnit->SetTurnProcessed(true);
 						pUnit->finishMoves();
 						CvString strTemp;
@@ -3431,7 +3431,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 
 					if(bFoundWayHome)
 					{
-						MoveToEmptySpaceNearTarget(pUnit.pointer(),pLoopCity->plot(),true,23);
+						MoveToEmptySpaceNearTarget(pUnit.pointer(),pLoopCity->plot(),DOMAIN_LAND,23);
 						pUnit->finishMoves();
 						UnitProcessed(pUnit->GetID());
 					}
@@ -7362,7 +7362,7 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 			}
 
 			if (pTarget)
-				MoveToEmptySpaceNearTarget(pUnit,pTarget,true,23);
+				MoveToEmptySpaceNearTarget(pUnit,pTarget,DOMAIN_LAND,23);
 		}
 	}
 
@@ -7681,8 +7681,15 @@ bool CvHomelandAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 	}
 }
 /// Move up to our target (this time within 2 spaces) avoiding our own units if possible
-bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bool bLand, int iMaxTurns)
+bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, DomainTypes eDomain, int iMaxTurns)
 {
+	if (!pUnit || !pTarget)
+		return false;
+
+	//nothing to do?
+	if (plotDistance(pUnit->getX(),pUnit->getY(),pTarget->getX(),pTarget->getY())<=2)
+		return true;
+
 	//see where our unit can go in the allowed amount of turns
 	ReachablePlots reachablePlots;
 	if (pUnit)
@@ -7703,7 +7710,7 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bo
 		if (reachablePlots.find(SMovePlot(pLoopPlot->GetPlotIndex()))==reachablePlots.end())
 			continue;
 
-		if(pLoopPlot->isWater() == bLand)
+		if(eDomain!=NO_DOMAIN && pLoopPlot->getDomain()!=eDomain)
 			continue;
 
 		if(pUnit->canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION ))
@@ -7711,12 +7718,8 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bo
 			// And if it is a city, make sure we are friends with them, else we will automatically attack
 			if(pLoopPlot->getPlotCity() == NULL || pLoopPlot->isFriendlyCity(*pUnit, false))
 			{
-				// Find a path to this space
-				if(pUnit->GeneratePath(pLoopPlot))
-				{
-					// Go ahead with mission
-					return MoveToUsingSafeEmbark(pUnit, pLoopPlot, false, 0);
-				}
+				// Go ahead with mission
+				return MoveToUsingSafeEmbark(pUnit, pLoopPlot, false, 0);
 			}
 		}
 	}
