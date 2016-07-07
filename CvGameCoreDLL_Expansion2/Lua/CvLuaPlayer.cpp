@@ -1389,6 +1389,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CountAllWorkedTerrain);
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
+	Method(GetDisabledTooltip);
 	Method(GetScaledEventChoiceValue);
 	Method(IsEventChoiceActive);
 	Method(DoEventChoice);
@@ -14277,6 +14278,19 @@ int CvLuaPlayer::lSetProsperityScore(lua_State* L)
 }
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
+int CvLuaPlayer::lGetDisabledTooltip(lua_State* L)
+{
+	CvString DisabledTT = "";
+	CvPlayer* pkPlayer = GetInstance(L);
+	const EventChoiceTypes eEventChoice = (EventChoiceTypes)lua_tointeger(L, 2);
+	if(eEventChoice != NO_EVENT_CHOICE)
+	{
+		DisabledTT = pkPlayer->GetDisabledTooltip(eEventChoice);
+	}
+
+	lua_pushstring(L, DisabledTT.c_str());
+	return 1;
+}
 int CvLuaPlayer::lGetScaledEventChoiceValue(lua_State* L)
 {
 	CvString CoreYieldTip = "";

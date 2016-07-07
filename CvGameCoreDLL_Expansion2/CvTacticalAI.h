@@ -767,6 +767,7 @@ public:
 	// Other people want to know this too
 	AITacticalPosture FindPosture(CvTacticalDominanceZone* pZone);
 	const TacticalList& GetTacticalTargets() const { return m_AllTargets; }
+	CvTacticalAnalysisMap* GetTacticalAnalysisMap() { return &m_tacticalMap; }
 
 	// Operational AI support functions
 	void PlotArmyMovesEscort(CvArmyAI* pThisArmy);
@@ -877,7 +878,6 @@ private:
 #if defined(MOD_AI_SMART_RANGED_UNITS)
 	CvPlot* GetBestRepositionPlot(UnitHandle unitH, CvPlot* plotTarget, int iAcceptableDanger);
 #endif
-	void TurnOffMove(TacticalAIMoveTypes eType);
 	bool FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0, bool bRangedOnly=false);
 	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, bool bNoRangedUnits=false, bool bNavalOnly=false, bool bMustMoveThrough=false, bool bIncludeBlockedUnits=false);
 	bool FindUnitsForPillage(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints);
@@ -940,9 +940,10 @@ private:
 	CvString GetLogFileName(CvString& playerName) const;
 	CvString GetTacticalMissionName(AITacticalMission eMission) const;
 
-	// Class data - most of it only temporary, does not need to be persisted (with some exceptions)
+	// Class data - some of it only temporary, does not need to be persisted
 	CvPlayer* m_pPlayer;
-	CvTacticalAnalysisMap* m_pTactMap;
+
+	CvTacticalAnalysisMap m_tacticalMap;
 	std::list<int> m_CurrentTurnUnits;
 
 #if defined(MOD_AI_SMART_AIR_TACTICS)

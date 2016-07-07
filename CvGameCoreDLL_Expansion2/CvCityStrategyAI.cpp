@@ -1004,37 +1004,23 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 
 	if(m_BuildablesPrecheck.size() > 0)
 	{
-		int iGPT = GET_PLAYER(m_pCity->getOwner()).GetTreasury()->CalculateBaseNetGold();
-		////Sanity and AI Optimization Check
-		CvTradeAI* pkTradeAI = GET_PLAYER(m_pCity->getOwner()).GetTradeAI();
+		int iGPT = kPlayer.GetTreasury()->CalculateBaseNetGold();
 
-		TradeConnectionList aTradeConnections;
-		pkTradeAI->GetPrioritizedTradeRoutes(aTradeConnections,true);
-	
 		//stats to decide whether to disband a unit
-		int iWaterRoutes = 0;
-		int iLandRoutes = 0;
+		int iWaterPriority = m_pCity->GetTradePrioritySea();
+		int iLandPriority = m_pCity->GetTradePriorityLand();
 
-		if(aTradeConnections.size() > 0)
+		int iWaterRoutes = -1;
+		int iLandRoutes = -1;
+
+		if(iWaterPriority >= 0)
 		{
-			int iNumTrade = GET_PLAYER(m_pCity->getOwner()).GetTrade()->GetNumTradeRoutesPossible();
-
-			//for the N best trade routes, find a suitable unit
-			//check at least the 8 best routes, at max 3 times the number of free trade units
-			for (int iI = 0; iI < (iNumTrade * 2); iI++)
-			{
-				CvPlot* pOriginPlot = GC.getMap().plot(aTradeConnections[iI].m_iOriginX, aTradeConnections[iI].m_iOriginY);
-
-				//Only care for this city.
-				if(pOriginPlot != m_pCity->plot())
-					continue;
-
-				//stats
-				if (aTradeConnections[iI].m_eDomain==DOMAIN_SEA)
-					iWaterRoutes++;
-				if (aTradeConnections[iI].m_eDomain==DOMAIN_LAND)
-					iLandRoutes++;
-			}
+			//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
+			iWaterRoutes = 500 - (iWaterPriority * 50);
+		}
+		if(iLandPriority >= 0)
+		{
+			iLandRoutes = 500 - (iLandPriority * 50);
 		}
 
 		for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
@@ -1308,39 +1294,26 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 
 	LogPossibleHurries();
 
-	if(m_BuildablesPrecheck.GetTotalWeight() > 0)
+	if(m_BuildablesPrecheck.size() > 0)
 	{
-		int iGPT = GET_PLAYER(m_pCity->getOwner()).GetTreasury()->CalculateBaseNetGold();
+		int iGPT = kPlayer.GetTreasury()->CalculateBaseNetGold();
 		////Sanity and AI Optimization Check
-		CvTradeAI* pkTradeAI = GET_PLAYER(m_pCity->getOwner()).GetTradeAI();
-
-		TradeConnectionList aTradeConnections;
-		pkTradeAI->GetPrioritizedTradeRoutes(aTradeConnections,true);
 	
 		//stats to decide whether to disband a unit
-		int iWaterRoutes = 0;
-		int iLandRoutes = 0;
-		if(aTradeConnections.size() > 0)
+		int iWaterPriority = m_pCity->GetTradePrioritySea();
+		int iLandPriority = m_pCity->GetTradePriorityLand();
+
+		int iWaterRoutes = -1;
+		int iLandRoutes = -1;
+
+		if(iWaterPriority >= 0)
 		{
-			int iNumTrade = GET_PLAYER(m_pCity->getOwner()).GetNumUnitsWithUnitAI(UNITAI_TRADE_UNIT, true, true);
-
-			//for the N best trade routes, find a suitable unit
-			//check at least the 8 best routes, at max 3 times the number of free trade units
-			uint nRoutesToCheck = (iNumTrade * 2);
-			for (uint ui = 0; ui < nRoutesToCheck; ui++)
-			{
-				CvPlot* pOriginPlot = GC.getMap().plot(aTradeConnections[ui].m_iOriginX, aTradeConnections[ui].m_iOriginY);
-
-				//Only care for this city.
-				if(pOriginPlot != m_pCity->plot())
-					continue;
-
-				//stats
-				if (aTradeConnections[ui].m_eDomain==DOMAIN_SEA)
-					iWaterRoutes++;
-				if (aTradeConnections[ui].m_eDomain==DOMAIN_LAND)
-					iLandRoutes++;
-			}
+			//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
+			iWaterRoutes = 500 - (iWaterPriority * 50);
+		}
+		if(iLandPriority >= 0)
+		{
+			iLandRoutes = 500 - (iLandPriority * 50);
 		}
 
 		for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
@@ -4702,33 +4675,21 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		{
 			if(pCity->GetNumResourceWorked(eResource) > 0)
 			{
-				iYieldValue += (pCity->GetNumResourceWorked(eResource) * pkBuildingInfo->GetResourceCultureChange(eResource));
-			}
-			else
-			{
-				iYieldValue -= (pkBuildingInfo->GetResourceCultureChange(eResource) * 5);
+				iYieldValue += (pCity->GetNumResourceWorked(eResource) * pkBuildingInfo->GetResourceCultureChange(eResource)) * 5;
 			}
 		}
 		if(pkBuildingInfo->GetResourceFaithChange(eResource) > 0)
 		{
 			if(pCity->GetNumResourceWorked(eResource) > 0)
 			{
-				iYieldValue += (pkBuildingInfo->GetResourceFaithChange(eResource) * pCity->GetNumResourceWorked(eResource));
-			}
-			else
-			{
-				iYieldValue -= (pkBuildingInfo->GetResourceFaithChange(eResource) * 5);
+				iYieldValue += (pkBuildingInfo->GetResourceFaithChange(eResource) * pCity->GetNumResourceWorked(eResource)) * 5;
 			}
 		}
 		if(pkBuildingInfo->GetResourceYieldChange(eResource, eYield) > 0)
 		{
 			if(pCity->GetNumResourceWorked(eResource) > 0)
 			{
-				iYieldValue += (pCity->GetNumResourceWorked(eResource) * pkBuildingInfo->GetResourceYieldChange(eResource, eYield));
-			}
-			else
-			{
-				iYieldValue -= (pkBuildingInfo->GetResourceYieldChange(eResource, eYield) * 5);
+				iYieldValue += (pCity->GetNumResourceWorked(eResource) * pkBuildingInfo->GetResourceYieldChange(eResource, eYield)) * 5;
 			}
 		}
 
@@ -4744,11 +4705,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 					{
 						if(pCity->GetNumResourceWorked(eResource) > 0)
 						{
-							iYieldValue += (pCity->GetNumResourceWorked(eResource) * pkBuildingInfo->GetSeaResourceYieldChange(eYield));
-						}
-						else
-						{
-							iYieldValue -= (pkBuildingInfo->GetSeaResourceYieldChange(eYield) * 5);
+							iYieldValue += (pCity->GetNumResourceWorked(eResource) * pkBuildingInfo->GetSeaResourceYieldChange(eYield)) * 5;
 						}
 					}
 				}
@@ -4766,22 +4723,14 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		{
 			if(pCity->GetNumImprovementWorked(eImprovement) > 0)
 			{
-				iYieldValue += (pCity->GetNumImprovementWorked(eImprovement) * pkBuildingInfo->GetImprovementYieldChange(eImprovement, eYield));
-			}
-			else
-			{
-				iYieldValue -= (pkBuildingInfo->GetImprovementYieldChange(eImprovement, eYield) * 5);
+				iYieldValue += (pCity->GetNumImprovementWorked(eImprovement) * pkBuildingInfo->GetImprovementYieldChange(eImprovement, eYield)) * 5;
 			}
 		}
 		if(pkBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield) > 0)
 		{
 			if(pCity->GetNumImprovementWorked(eImprovement) > 0)
 			{
-				iYieldValue += (pCity->GetNumImprovementWorked(eImprovement) * pkBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield));
-			}
-			else
-			{
-				iYieldValue -= (pkBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield) * 5);
+				iYieldValue += (pCity->GetNumImprovementWorked(eImprovement) * pkBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield)) * 5;
 			}
 		}
 	}
@@ -4799,7 +4748,16 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if(pkBuildingInfo->GetYieldFromPurchase(eYield) > 0)
 	{
-		iYieldValue += (kPlayer.GetInvestmentModifier() * -1) + (kPlayer.GetPlayerTraits()->GetInvestmentModifier() * -1) + pkBuildingInfo->GetYieldFromPurchase(eYield);
+		iYieldValue += pkBuildingInfo->GetYieldFromPurchase(eYield) * 3;
+
+		if((kPlayer.GetInvestmentModifier() * -1) > 0)
+		{
+			iYieldValue += kPlayer.GetInvestmentModifier() * -1;
+		}
+		if((kPlayer.GetPlayerTraits()->GetInvestmentModifier() * -1) > 0)
+		{
+			iYieldValue += kPlayer.GetPlayerTraits()->GetInvestmentModifier() * -1;
+		}
 	}
 	if(pkBuildingInfo->GetYieldFromUnitProduction(eYield) > 0)
 	{

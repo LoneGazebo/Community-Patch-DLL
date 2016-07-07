@@ -1379,7 +1379,8 @@ public:
 	int getAlwaysHostileCount() const;
 
 	int getArmyID() const;
-	void setArmyID(int iNewArmyID) ;
+	void setArmyID(int iNewArmyID);
+	CvString getTacticalZoneInfo() const;
 
 	void setTacticalMove(TacticalAIMoveTypes eMove);
 	TacticalAIMoveTypes getTacticalMove(int* pTurnSet=NULL) const;

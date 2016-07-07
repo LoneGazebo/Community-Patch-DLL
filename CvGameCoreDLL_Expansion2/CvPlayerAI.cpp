@@ -721,10 +721,15 @@ void CvPlayerAI::AI_considerAnnex()
 	std::vector<CityAndProduction> aCityAndProductions;
 	int iLoop = 0;
 	pCity = NULL;
-
-	// Find first coastal city in same area as settler
 	for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 	{
+		//simple check to stop razing "good" cities
+		if (pCity->IsRazing() && pCity->HasAnyWonder())
+		{
+			unraze(pCity);
+			return; //one annexation per turn is enough
+		}
+
 		CityAndProduction kEval;
 		kEval.pCity = pCity;
 		kEval.iProduction = pCity->getYieldRateTimes100(YIELD_PRODUCTION, false);
@@ -1808,6 +1813,11 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	
 	int iFlavorDiplo =  GET_PLAYER(eID).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 	int iDesiredEmb = (iFlavorDiplo - 3);
+	int iNumMinors = GC.getGame().GetNumMinorCivsAlive();
+	if(iDesiredEmb > iNumMinors)
+	{
+		iDesiredEmb = iNumMinors;
+	}
 	int iEmbassies = GET_PLAYER(eID).GetImprovementLeagueVotes();
 
 	//Embassy numbers should be based on Diplomacy Flavor. More flavor, more embassies!
@@ -2511,7 +2521,8 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit)
 
 CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit)
 {
-	if(pUnit->AI_getUnitAIType() != UNITAI_MESSENGER)
+	//this function is used for diplomat influence spread as well (embassies go through ChooseDiplomatTargetPlot)
+	if(pUnit->AI_getUnitAIType() != UNITAI_MESSENGER && pUnit->AI_getUnitAIType() != UNITAI_DIPLOMAT)
 	{
 		return NULL;
 	}

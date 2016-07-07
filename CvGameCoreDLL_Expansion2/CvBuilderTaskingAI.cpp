@@ -322,6 +322,12 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	{
 		return;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(pTargetCity->IsRazing())
+	{
+		return;
+	}
+#endif
 
 	CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
 	if(!pRouteInfo)
@@ -1920,6 +1926,11 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 	// can't build on plots others own (unless inside a minor)
 	PlayerTypes eOwner = pPlot->getOwner();
 #if defined(MOD_BALANCE_CORE)
+
+	//don't consider non-workable plots for GPs!
+	if(pUnit->IsGreatPerson() && pPlot->getWorkingCity() == NULL)
+		return false;
+
 	bool bAdjacent = false;
 	//let's evaluate plots we don't own and see if we can build improvements that have the adjacent lands attribute
 	if(MOD_BALANCE_CORE && m_bEvaluateAdjacent && (eOwner != m_pPlayer->GetID()))

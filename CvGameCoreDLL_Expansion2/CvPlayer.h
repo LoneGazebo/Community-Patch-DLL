@@ -148,6 +148,7 @@ public:
 	void DoStartEvent(EventTypes eEvent);
 	void DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent = NO_EVENT);
 	CvString GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYieldsOnly);
+	CvString GetDisabledTooltip(EventChoiceTypes eEventChoice);
 
 	void IncrementEvent(EventTypes eEvent, int iValue);
 	int GetEventIncrement(EventTypes eEvent) const;

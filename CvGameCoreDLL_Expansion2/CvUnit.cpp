@@ -2765,6 +2765,10 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	m_iEmbarkedDeepWaterCount = 0;
 #endif
+#if defined(MOD_CORE_PER_TURN_DAMAGE)
+	m_iDamageTakenThisTurn = 0;
+	m_iDamageTakenLastTurn = 0;
+#endif
 	m_iEmbarkExtraVisibility = 0;
 	m_iEmbarkDefensiveModifier = 0;
 	m_iCapitalDefenseModifier = 0;
@@ -4687,6 +4691,7 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 			int iPeaceUnits = 0;
 			pUnit = NULL;
 			bool bWarCity = false;
+			bool bWarUnit = false;
 			if(plot.isCity() && GET_TEAM(GET_PLAYER(plot.getOwner()).getTeam()).isAtWar(getTeam()))
 			{
 				bWarCity = true;
@@ -4702,8 +4707,7 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 					{
 						if(GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
 						{
-							//There can be only one military unit on a tile, so one check is good enough.
-							pUnit = plot.getUnitByIndex(iUnitLoop);
+							bWarUnit = true;
 						}
 					}
 					//Exception for embarked units in water, civilian or not, as boats can move onto them as a stack (military units are pseudo-units)
@@ -4725,8 +4729,8 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 					}
 				}
 			}
-			//If there is a civlian and and no enemy unit here (or this is an enemy city), but we're at peace with that civilian, return NO_TEAM.
-			if((iPeaceUnits > 0) && (bWarCity || !pUnit))
+			//If there is a civlian and an enemy unit here (or this is an enemy city), but we're at peace with that civilian, return NO_TEAM.
+			if((iPeaceUnits > 0) && (bWarCity || bWarUnit))
 			{
 				return NO_TEAM;
 			}
@@ -5893,6 +5897,12 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	else
+	{
+		return false;
+	}
+#endif
 
 	// No for religious units
 	if (getUnitInfo().IsSpreadReligion() || getUnitInfo().IsRemoveHeresy())
@@ -25953,6 +25963,20 @@ void CvUnit::setArmyID(int iNewArmyID)
 		//shouldn't happen
 		OutputDebugString("warning: damaged unit recruited into army!\n");
 	}
+}
+
+CvString CvUnit::getTacticalZoneInfo() const
+{
+	CvTacticalDominanceZone* pZone = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(plot());
+	if (pZone)
+	{
+		const char* dominance[] = { "no units", "friendly", "enemy", "even" };
+		AITacticalPosture posture = GET_PLAYER(getOwner()).GetTacticalAI()->FindPosture(pZone);
+		return CvString::format("tactical zone %d, dominance %s, posture %s", pZone->GetDominanceZoneID(), dominance[pZone->GetDominanceFlag()], 
+			posture!=AI_TACTICAL_POSTURE_NONE ? postureNames[posture] : "none");
+	}
+
+	return CvString("no tactical zone");
 }
 
 //	--------------------------------------------------------------------------------

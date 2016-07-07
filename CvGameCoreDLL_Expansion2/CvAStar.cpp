@@ -1254,7 +1254,8 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPat
 
 	if(pUnitDataCache->IsCanAttack() && bIsPathDest)
 	{
-		if(node->m_kCostCacheData.bContainsVisibleEnemyDefender)
+		//AI makes sure to use defensive bonuses etc. humans have to do it manually ... it's part of the fun!
+		if(node->m_kCostCacheData.bContainsVisibleEnemyDefender && pUnitDataCache->isAIControl())
 		{
 			iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (200 - ((pUnit->noDefensiveBonus()) ? 0 : pFromPlot->defenseModifier(eUnitTeam, false)))));
 
@@ -2688,7 +2689,7 @@ int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, int,
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 
-	if (pToPlot->isWater())
+	if (pToPlot->isWater() || !pToPlot->isRevealed(pCacheData->GetTeam()))
 	{
 		return FALSE;
 	}
@@ -2750,6 +2751,9 @@ int TradeRouteWaterValid(const CvAStarNode* parent, const CvAStarNode* node, int
 
 	CvMap& kMap = GC.getMap();
 	CvPlot* pNewPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
+
+	if (!pNewPlot->isRevealed(pCacheData->GetTeam()))
+		return FALSE;
 
 	//ice in unowned territory is not allowed
 	if (pNewPlot->isIce() && !pNewPlot->isOwned())

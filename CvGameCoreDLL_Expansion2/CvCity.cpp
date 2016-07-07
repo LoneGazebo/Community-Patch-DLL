@@ -307,6 +307,8 @@ CvCity::CvCity() :
 	, m_aiChangeGrowthExtraYield("CvCity::m_aiChangeGrowthExtraYield", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
+	, m_iTradePriorityLand("CvCity::m_iTradePriorityLand", m_syncArchive)
+	, m_iTradePrioritySea("CvCity::m_iTradePrioritySea", m_syncArchive)
 	, m_iThreatCriteria("CvCity::m_iThreatCriteria", m_syncArchive)
 	, m_iUnitPurchaseCooldown("CvCity::m_iUnitPurchaseCooldown", m_syncArchive)
 	, m_iBuildingPurchaseCooldown("CvCity::m_iBuildingPurchaseCooldown", m_syncArchive)
@@ -1432,6 +1434,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iBorderObstacleCity = 0;
 	m_iNumNearbyMountains = 0;
 	m_iLocalUnhappinessMod = 0;
+	m_iTradePriorityLand = 0;
+	m_iTradePrioritySea = 0;
 	m_iThreatCriteria = 0;
 	m_iUnitPurchaseCooldown = 0;
 	m_iBuildingPurchaseCooldown = 0;
@@ -3066,6 +3070,32 @@ int CvCity::GetThreatCriteria() const
 	VALIDATE_OBJECT
 	return m_iThreatCriteria;
 }
+
+void CvCity::SetTradePriorityLand(int iValue)
+{
+	if(iValue != m_iTradePriorityLand)
+	{
+		m_iTradePriorityLand = iValue;
+	}
+}
+int CvCity::GetTradePriorityLand() const
+{
+	VALIDATE_OBJECT
+	return m_iTradePriorityLand;
+}
+
+void CvCity::SetTradePrioritySea(int iValue)
+{
+	if(iValue != m_iTradePrioritySea)
+	{
+		m_iTradePrioritySea = iValue;
+	}
+}
+int CvCity::GetTradePrioritySea() const
+{
+	VALIDATE_OBJECT
+	return m_iTradePrioritySea;
+}
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 int CvCity::GetEventChoiceDuration(CityEventChoiceTypes eEventChoice) const
@@ -3598,6 +3628,8 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	{
 		return false;
 	}
+
+	CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
 	
 	//Don't do choice ones in MP
 	bool bDontShowRewardPopup = (GC.getGame().isReallyNetworkMultiPlayer());
@@ -3617,17 +3649,55 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	if(pkEventInfo->getRequiredNoActiveCityEventChoice() != -1 && GetEventChoiceDuration((CityEventChoiceTypes)pkEventInfo->getRequiredNoActiveCityEventChoice()) > 0)
 		return false;
 
-	if(pkEventInfo->getRequiredActiveEvent() != -1 && GET_PLAYER(getOwner()).GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) <= 0)
+	if(pkEventInfo->getRequiredActiveEvent() != -1 && kPlayer.GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) <= 0)
 		return false;
 
-	if(pkEventInfo->getRequiredActiveEventChoice() != -1 && GET_PLAYER(getOwner()).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) <= 0)
+	if(pkEventInfo->getRequiredActiveEventChoice() != -1 && kPlayer.GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) <= 0)
 		return false;
 
-	if(pkEventInfo->getRequiredNoActivePlayerEvent() != -1 && GET_PLAYER(getOwner()).GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActivePlayerEvent()) > 0)
+	if(pkEventInfo->getRequiredNoActivePlayerEvent() != -1 && kPlayer.GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActivePlayerEvent()) > 0)
 		return false;
 
-	if(pkEventInfo->getRequiredNoActivePlayerEventChoice() != -1 && GET_PLAYER(getOwner()).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActivePlayerEventChoice()) > 0)
+	if(pkEventInfo->getRequiredNoActivePlayerEventChoice() != -1 && kPlayer.GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActivePlayerEventChoice()) > 0)
 		return false;
+
+	if(pkEventInfo->getRequiredNoActiveCityEventAnywhere() != -1)
+	{
+		bool bHas = false;
+		CvCity* pCity = NULL;
+		int iLoop;
+		for(pCity = kPlayer.firstCity(&iLoop); pCity != NULL; pCity = kPlayer.nextCity(&iLoop))
+		{
+			if(pCity != NULL && pCity->GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent()) > 0)
+			{
+				bHas = true;
+				break;
+			}
+		}
+		if(bHas)
+		{
+			return false;
+		}
+	}
+
+	if(pkEventInfo->getRequiredNoActiveCityEventChoiceAnywhere() != -1)
+	{
+		bool bHas = false;
+		CvCity* pCity = NULL;
+		int iLoop;
+		for(pCity = kPlayer.firstCity(&iLoop); pCity != NULL; pCity = kPlayer.nextCity(&iLoop))
+		{
+			if(pCity != NULL && pCity->GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent()) > 0)
+			{
+				bHas = true;
+				break;
+			}
+		}
+		if(bHas)
+		{
+			return false;
+		}
+	}
 		
 	//Let's narrow down all events here!
 	if(pkEventInfo->isCapital() && !isCapital())
@@ -3642,7 +3712,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	if(pkEventInfo->isRequiresGarrison() && !HasGarrison())
 		return false;
 
-	if(pkEventInfo->hasStateReligion() && GET_PLAYER(getOwner()).GetReligions()->GetStateReligion() == NO_RELIGION)
+	if(pkEventInfo->hasStateReligion() && kPlayer.GetReligions()->GetStateReligion() == NO_RELIGION)
 		return false;
 
 	if(pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
@@ -3651,10 +3721,10 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
 		return false;
 
-	if(pkEventInfo->getRequiredEra() != -1 && GET_PLAYER(getOwner()).GetCurrentEra() < (EraTypes)pkEventInfo->getRequiredEra())
+	if(pkEventInfo->getRequiredEra() != -1 && kPlayer.GetCurrentEra() < (EraTypes)pkEventInfo->getRequiredEra())
 		return false;
 
-	if(pkEventInfo->getObsoleteEra() != -1 && GET_PLAYER(getOwner()).GetCurrentEra() >= (EraTypes)pkEventInfo->getObsoleteEra())
+	if(pkEventInfo->getObsoleteEra() != -1 && kPlayer.GetCurrentEra() >= (EraTypes)pkEventInfo->getObsoleteEra())
 		return false;
 
 	if(pkEventInfo->getMinimumPopulation() > 0 && getPopulation() < pkEventInfo->getMinimumPopulation())
@@ -3681,27 +3751,27 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	if(pkEventInfo->getRequiredCiv() != -1 && getCivilizationType() != (CivilizationTypes)pkEventInfo->getRequiredCiv())
 		return false;
 
-	if(pkEventInfo->getRequiredPolicy() != -1 && !GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)pkEventInfo->getRequiredPolicy()))
+	if(pkEventInfo->getRequiredPolicy() != -1 && !kPlayer.GetPlayerPolicies()->HasPolicy((PolicyTypes)pkEventInfo->getRequiredPolicy()))
 		return false;
 
-	if(pkEventInfo->getRequiredIdeology() != -1 && GET_PLAYER(getOwner()).GetPlayerPolicies()->GetLateGamePolicyTree() != (PolicyBranchTypes)pkEventInfo->getRequiredIdeology())
+	if(pkEventInfo->getRequiredIdeology() != -1 && kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() != (PolicyBranchTypes)pkEventInfo->getRequiredIdeology())
 		return false;
 
-	if(pkEventInfo->hasPlayerReligion() && GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer() != GetCityReligions()->GetReligiousMajority())
+	if(pkEventInfo->hasPlayerReligion() && kPlayer.GetReligions()->GetReligionCreatedByPlayer() != GetCityReligions()->GetReligiousMajority())
 		return false;
 
-	if(pkEventInfo->lacksPlayerReligion() && GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer() == GetCityReligions()->GetReligiousMajority())
+	if(pkEventInfo->lacksPlayerReligion() && kPlayer.GetReligions()->GetReligionCreatedByPlayer() == GetCityReligions()->GetReligiousMajority())
 		return false;
 
-	if(pkEventInfo->hasPlayerMajority() && GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() != GetCityReligions()->GetReligiousMajority())
+	if(pkEventInfo->hasPlayerMajority() && kPlayer.GetReligions()->GetReligionInMostCities() != GetCityReligions()->GetReligiousMajority())
 		return false;
 
-	if(pkEventInfo->lacksPlayerMajority() && GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == GetCityReligions()->GetReligiousMajority())
+	if(pkEventInfo->lacksPlayerMajority() && kPlayer.GetReligions()->GetReligionInMostCities() == GetCityReligions()->GetReligiousMajority())
 		return false;
 
 	if(pkEventInfo->getRequiredStateReligion() != -1)
 	{
-		if(GET_PLAYER(getOwner()).GetReligions()->GetStateReligion() != pkEventInfo->getRequiredStateReligion())
+		if(kPlayer.GetReligions()->GetStateReligion() != pkEventInfo->getRequiredStateReligion())
 			return false;
 	}
 
@@ -3724,10 +3794,10 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 				return false;
 		}
 	}
-	if(pkEventInfo->isRequiresIdeology() && GET_PLAYER(getOwner()).GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
+	if(pkEventInfo->isRequiresIdeology() && kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
 		return false;
 
-	if(pkEventInfo->isRequiresWar() && GET_PLAYER(getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
+	if(pkEventInfo->isRequiresWar() && kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
 		return false;
 
 	if(pkEventInfo->hasCityConnection() && !IsRouteToCapitalConnected())
@@ -3748,10 +3818,10 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	if(pkEventInfo->hasPantheon() && GetCityReligions()->GetReligiousMajority() != RELIGION_PANTHEON)
 		return false;
 
-	if(pkEventInfo->isUnhappy() && !GET_PLAYER(getOwner()).IsEmpireUnhappy())
+	if(pkEventInfo->isUnhappy() && !kPlayer.IsEmpireUnhappy())
 		return false;
 
-	if(pkEventInfo->isSuperUnhappy() && !GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
+	if(pkEventInfo->isSuperUnhappy() && !kPlayer.IsEmpireSuperUnhappy())
 		return false;
 
 	if(pkEventInfo->hasMetAnotherCiv())
@@ -3862,7 +3932,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 		int iNeededYield = pkEventInfo->getYieldMinimum(eYield);
 		if(pkEventInfo->isEraScaling())
 		{
-			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+			int iEra = kPlayer.GetCurrentEra();
 			if(iEra <= 0)
 			{
 				iEra = 1;
@@ -3890,7 +3960,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 			}
 			if(eYield == YIELD_GOLD)
 			{
-				if(iNeededYield > GET_PLAYER(getOwner()).GetTreasury()->GetGold())
+				if(iNeededYield > kPlayer.GetTreasury()->GetGold())
 				{
 					bHas = false;
 					break;
@@ -3898,11 +3968,11 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 			}
 			else if(eYield == YIELD_SCIENCE)
 			{
-				TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+				TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
 				int iTech = 0;
 				if(eCurrentTech != NO_TECH)
 				{
-					iTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetResearchProgress(eCurrentTech);
+					iTech = kPlayer.GetPlayerTechs()->GetResearchProgress(eCurrentTech);
 				}
 				if(iNeededYield > iTech)
 				{
@@ -3912,7 +3982,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 			}
 			else if(eYield == YIELD_FAITH)
 			{
-				if(iNeededYield > GET_PLAYER(getOwner()).GetFaith())
+				if(iNeededYield > kPlayer.GetFaith())
 				{
 					bHas = false;
 					break;
@@ -3920,7 +3990,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 			}
 			else if(eYield == YIELD_GOLDEN_AGE_POINTS)
 			{
-				if(iNeededYield > GET_PLAYER(getOwner()).GetGoldenAgeProgressMeter())
+				if(iNeededYield > kPlayer.GetGoldenAgeProgressMeter())
 				{
 					bHas = false;
 					break;
@@ -3928,7 +3998,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 			}
 			else if(eYield == YIELD_CULTURE)
 			{
-				if(iNeededYield > GET_PLAYER(getOwner()).getJONSCulture())
+				if(iNeededYield > kPlayer.getJONSCulture())
 				{
 					bHas = false;
 					break;
@@ -3941,10 +4011,10 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 		return false;
 	}
 
-	if(pkEventInfo->isInDebt() && GET_PLAYER(getOwner()).GetTreasury()->GetGold() > 0)
+	if(pkEventInfo->isInDebt() && kPlayer.GetTreasury()->GetGold() > 0)
 		return false;
 
-	if(pkEventInfo->isLosingMoney() && GET_PLAYER(getOwner()).GetTreasury()->CalculateBaseNetGold() > 0)
+	if(pkEventInfo->isLosingMoney() && kPlayer.GetTreasury()->CalculateBaseNetGold() > 0)
 		return false;
 
 	if(pkEventInfo->getRequiredActiveOtherPlayerEvent() != -1 || pkEventInfo->getRequiredActiveOtherPlayerEventChoice() != -1 || pkEventInfo->getRequiredNoActiveOtherPlayerEvent() != -1 || pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice() != -1)
@@ -4018,8 +4088,10 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 		return false;
 	}
 
+	CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
+
 	//Exploit checks.
-	if(GET_PLAYER(getOwner()).isEndTurn())
+	if(kPlayer.isEndTurn())
 		return false;
 
 	if(!IsEventActive(eParentEvent))
@@ -4069,16 +4141,16 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if(pkEventInfo->getRequiredNoActiveCityEventChoice() != -1 && GetEventChoiceDuration((CityEventChoiceTypes)pkEventInfo->getRequiredNoActiveCityEventChoice()) > 0)
 		return false;
 
-	if(pkEventInfo->getRequiredActiveEvent() != -1 && GET_PLAYER(getOwner()).GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) <= 0)
+	if(pkEventInfo->getRequiredActiveEvent() != -1 && kPlayer.GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) <= 0)
 		return false;
 
-	if(pkEventInfo->getRequiredActiveEventChoice() != -1 && GET_PLAYER(getOwner()).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) <= 0)
+	if(pkEventInfo->getRequiredActiveEventChoice() != -1 && kPlayer.GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) <= 0)
 		return false;
 
-	if(pkEventInfo->getRequiredNoActivePlayerEvent() != -1 && GET_PLAYER(getOwner()).GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActivePlayerEvent()) > 0)
+	if(pkEventInfo->getRequiredNoActivePlayerEvent() != -1 && kPlayer.GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActivePlayerEvent()) > 0)
 		return false;
 
-	if(pkEventInfo->getRequiredNoActivePlayerEventChoice() != -1 && GET_PLAYER(getOwner()).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActivePlayerEventChoice()) > 0)
+	if(pkEventInfo->getRequiredNoActivePlayerEventChoice() != -1 && kPlayer.GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActivePlayerEventChoice()) > 0)
 		return false;
 
 	//Let's narrow down all events here!
@@ -4112,7 +4184,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if(pkEventInfo->isRequiresGarrison() && !HasGarrison())
 		return false;
 
-	if(pkEventInfo->hasStateReligion() && GET_PLAYER(getOwner()).GetReligions()->GetStateReligion() == NO_RELIGION)
+	if(pkEventInfo->hasStateReligion() && kPlayer.GetReligions()->GetStateReligion() == NO_RELIGION)
 		return false;
 
 	if(pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
@@ -4121,10 +4193,10 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
 		return false;
 
-	if(pkEventInfo->getRequiredEra() != -1 && GET_PLAYER(getOwner()).GetCurrentEra() < (EraTypes)pkEventInfo->getRequiredEra())
+	if(pkEventInfo->getRequiredEra() != -1 && kPlayer.GetCurrentEra() < (EraTypes)pkEventInfo->getRequiredEra())
 		return false;
 
-	if(pkEventInfo->getObsoleteEra() != -1 && GET_PLAYER(getOwner()).GetCurrentEra() >= (EraTypes)pkEventInfo->getObsoleteEra())
+	if(pkEventInfo->getObsoleteEra() != -1 && kPlayer.GetCurrentEra() >= (EraTypes)pkEventInfo->getObsoleteEra())
 		return false;
 
 	if(pkEventInfo->getMinimumPopulation() > 0 && getPopulation() < pkEventInfo->getMinimumPopulation())
@@ -4133,27 +4205,27 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if(pkEventInfo->getRequiredCiv() != -1 && getCivilizationType() != (CivilizationTypes)pkEventInfo->getRequiredCiv())
 		return false;
 
-	if(pkEventInfo->getRequiredPolicy() != -1 && !GET_PLAYER(getOwner()).GetPlayerPolicies()->HasPolicy((PolicyTypes)pkEventInfo->getRequiredPolicy()))
+	if(pkEventInfo->getRequiredPolicy() != -1 && !kPlayer.GetPlayerPolicies()->HasPolicy((PolicyTypes)pkEventInfo->getRequiredPolicy()))
 		return false;
 
-	if(pkEventInfo->getRequiredIdeology() != -1 && GET_PLAYER(getOwner()).GetPlayerPolicies()->GetLateGamePolicyTree() != (PolicyBranchTypes)pkEventInfo->getRequiredIdeology())
+	if(pkEventInfo->getRequiredIdeology() != -1 && kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() != (PolicyBranchTypes)pkEventInfo->getRequiredIdeology())
 		return false;
 
-	if(pkEventInfo->hasPlayerReligion() && GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer() != GetCityReligions()->GetReligiousMajority())
+	if(pkEventInfo->hasPlayerReligion() && kPlayer.GetReligions()->GetReligionCreatedByPlayer() != GetCityReligions()->GetReligiousMajority())
 		return false;
 
-	if(pkEventInfo->lacksPlayerReligion() && GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer() == GetCityReligions()->GetReligiousMajority())
+	if(pkEventInfo->lacksPlayerReligion() && kPlayer.GetReligions()->GetReligionCreatedByPlayer() == GetCityReligions()->GetReligiousMajority())
 		return false;
 
-	if(pkEventInfo->hasPlayerMajority() && GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() != GetCityReligions()->GetReligiousMajority())
+	if(pkEventInfo->hasPlayerMajority() && kPlayer.GetReligions()->GetReligionInMostCities() != GetCityReligions()->GetReligiousMajority())
 		return false;
 
-	if(pkEventInfo->lacksPlayerMajority() && GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == GetCityReligions()->GetReligiousMajority())
+	if(pkEventInfo->lacksPlayerMajority() && kPlayer.GetReligions()->GetReligionInMostCities() == GetCityReligions()->GetReligiousMajority())
 		return false;
 
 	if(pkEventInfo->getRequiredStateReligion() != -1)
 	{
-		if(GET_PLAYER(getOwner()).GetReligions()->GetStateReligion() != pkEventInfo->getRequiredStateReligion())
+		if(kPlayer.GetReligions()->GetStateReligion() != pkEventInfo->getRequiredStateReligion())
 			return false;
 	}
 
@@ -4176,10 +4248,10 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 				return false;
 		}
 	}
-	if(pkEventInfo->isRequiresIdeology() && GET_PLAYER(getOwner()).GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
+	if(pkEventInfo->isRequiresIdeology() && kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
 		return false;
 
-	if(pkEventInfo->isRequiresWar() && GET_PLAYER(getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
+	if(pkEventInfo->isRequiresWar() && kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
 		return false;
 
 	if(pkEventInfo->hasCityConnection() && !IsRouteToCapitalConnected())
@@ -4200,10 +4272,10 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if(pkEventInfo->hasPantheon() && GetCityReligions()->GetReligiousMajority() != RELIGION_PANTHEON)
 		return false;
 
-	if(pkEventInfo->isUnhappy() && !GET_PLAYER(getOwner()).IsEmpireUnhappy())
+	if(pkEventInfo->isUnhappy() && !kPlayer.IsEmpireUnhappy())
 		return false;
 
-	if(pkEventInfo->isSuperUnhappy() && !GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
+	if(pkEventInfo->isSuperUnhappy() && !kPlayer.IsEmpireSuperUnhappy())
 		return false;
 
 	if(pkEventInfo->hasMetAnotherCiv())
@@ -4324,7 +4396,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 		}
 		if(pkEventInfo->IsEraScaling())
 		{
-			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+			int iEra = kPlayer.GetCurrentEra();
 			if(iEra <= 0)
 			{
 				iEra = 1;
@@ -4351,7 +4423,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			}
 			if(eYield == YIELD_GOLD)
 			{
-				if(iNeededYield > GET_PLAYER(getOwner()).GetTreasury()->GetGold())
+				if(iNeededYield > kPlayer.GetTreasury()->GetGold())
 				{
 					bHas = false;
 					break;
@@ -4359,11 +4431,11 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			}
 			else if(eYield == YIELD_SCIENCE)
 			{
-				TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+				TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
 				int iTech = 0;
 				if(eCurrentTech != NO_TECH)
 				{
-					iTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetResearchProgress(eCurrentTech);
+					iTech = kPlayer.GetPlayerTechs()->GetResearchProgress(eCurrentTech);
 				}
 				if(iNeededYield > iTech)
 				{
@@ -4373,7 +4445,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			}
 			else if(eYield == YIELD_FAITH)
 			{
-				if(iNeededYield > GET_PLAYER(getOwner()).GetFaith())
+				if(iNeededYield > kPlayer.GetFaith())
 				{
 					bHas = false;
 					break;
@@ -4381,7 +4453,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			}
 			else if(eYield == YIELD_GOLDEN_AGE_POINTS)
 			{
-				if(iNeededYield > GET_PLAYER(getOwner()).GetGoldenAgeProgressMeter())
+				if(iNeededYield > kPlayer.GetGoldenAgeProgressMeter())
 				{
 					bHas = false;
 					break;
@@ -4389,7 +4461,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			}
 			else if(eYield == YIELD_CULTURE)
 			{
-				if(iNeededYield > GET_PLAYER(getOwner()).getJONSCulture())
+				if(iNeededYield > kPlayer.getJONSCulture())
 				{
 					bHas = false;
 					break;
@@ -4402,10 +4474,10 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 		return false;
 	}
 
-	if(pkEventInfo->isInDebt() && GET_PLAYER(getOwner()).GetTreasury()->GetGold() > 0)
+	if(pkEventInfo->isInDebt() && kPlayer.GetTreasury()->GetGold() > 0)
 		return false;
 
-	if(pkEventInfo->isLosingMoney() && GET_PLAYER(getOwner()).GetTreasury()->CalculateBaseNetGold() > 0)
+	if(pkEventInfo->isLosingMoney() && kPlayer.GetTreasury()->CalculateBaseNetGold() > 0)
 		return false;
 
 	if(pkEventInfo->getRequiredActiveOtherPlayerEvent() != -1 || pkEventInfo->getRequiredActiveOtherPlayerEventChoice() != -1 || pkEventInfo->getRequiredNoActiveOtherPlayerEvent() != -1 || pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice() != -1)
@@ -4933,6 +5005,650 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 		CoreYieldTip = finallocalized;
 	}
 	return CoreYieldTip.c_str();
+}
+CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice)
+{
+	CvString DisabledTT = Localization::Lookup("TXT_KEY_EVENT_DISABLED_REASONS_HEADER").toUTF8();
+	Localization::String localizedDurationText;
+
+	if(eChosenEventChoice == NO_EVENT_CHOICE)
+		return "";
+
+	CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eChosenEventChoice);
+	if(pkEventInfo == NULL)
+	{
+		return "";
+	}
+
+	CvString strOverrideText = GetLocalizedText(pkEventInfo->getDisabledTooltip());
+	if(strOverrideText != "")
+	{
+		return strOverrideText.c_str();
+	}
+
+	CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
+
+	//Lua Hook
+	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CityEventChoiceCanTake, getOwner(), GetID(), eChosenEventChoice) == GAMEEVENTRETURN_FALSE) 
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_DISABLED_LUA");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isOneShot() && IsEventChoiceFired(eChosenEventChoice))
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_ONESHOT");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredActiveCityEvent() != -1 && GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent()) <= 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_CITY_EVENT");
+		localizedDurationText << GC.getCityEventInfo((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredActiveCityEventChoice() != -1 && GetEventChoiceDuration((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice()) <= 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_CITY_EVENT_CHOICE");
+		localizedDurationText << GC.getCityEventChoiceInfo((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredNoActiveCityEvent() != -1 && GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredNoActiveCityEvent()) > 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_ACTIVE_CITY_EVENT");
+		localizedDurationText << GC.getCityEventInfo((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredNoActiveCityEventChoice() != -1 && GetEventChoiceDuration((CityEventChoiceTypes)pkEventInfo->getRequiredNoActiveCityEventChoice()) > 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_ACTIVE_CITY_EVENT_CHOICE");
+		localizedDurationText << GC.getCityEventChoiceInfo((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredActiveEvent() != -1 && kPlayer.GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) <= 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_EVENT");
+		localizedDurationText << GC.getEventInfo((EventTypes)pkEventInfo->getRequiredActiveEvent())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredActiveEventChoice() != -1 && kPlayer.GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) <= 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_EVENT_CHOICE");
+		localizedDurationText << GC.getEventChoiceInfo((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredNoActivePlayerEvent() != -1 && kPlayer.GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActivePlayerEvent()) > 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_ACTIVE_PLAYER_EVENT");
+		localizedDurationText << GC.getEventInfo((EventTypes)pkEventInfo->getRequiredNoActivePlayerEvent())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredNoActivePlayerEventChoice() != -1 && kPlayer.GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActivePlayerEventChoice()) > 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_ACTIVE_PLAYER_EVENT_CHOICE");
+		localizedDurationText << GC.getEventChoiceInfo((EventChoiceTypes)pkEventInfo->getRequiredNoActivePlayerEventChoice())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	//Let's narrow down all events here!
+	if(pkEventInfo->isCapital() && !isCapital())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_CAPITAL");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isCoastal() && !isCoastal())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_COASTAL");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isRiver() && !plot()->isRiver())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_RIVER");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isResistance() && GetResistanceTurns() <= 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_RESISTANCE");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isWLTKD() && GetWeLoveTheKingDayCounter() <= 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_WLTKD");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isPuppet() && !IsPuppet())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_PUPPET");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isRazing() && !IsRazing())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_RAZING");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isOccupied() && (!IsOccupied() || IsNoOccupiedUnhappiness()))
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_OCCUPIED");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->hasAnyReligion() && GetCityReligions()->GetReligiousMajority() <= RELIGION_PANTHEON)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ANY_RELIGION");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isRequiresGarrison() && !HasGarrison())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_GARRISON");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->hasStateReligion() && kPlayer.GetReligions()->GetStateReligion() == NO_RELIGION)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ANY_STATE_RELIGION");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_TECH");
+		localizedDurationText << GC.getTechInfo((TechTypes)pkEventInfo->getPrereqTech())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_OBSOLETE_TECH");
+		localizedDurationText << GC.getTechInfo((TechTypes)pkEventInfo->getObsoleteTech())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredEra() != -1 && kPlayer.GetCurrentEra() < (EraTypes)pkEventInfo->getRequiredEra())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ERA");
+		localizedDurationText << GC.getEraInfo((EraTypes)pkEventInfo->getRequiredEra())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getObsoleteEra() != -1 && kPlayer.GetCurrentEra() >= (EraTypes)pkEventInfo->getObsoleteEra())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_OBSOLETE_ERA");
+		localizedDurationText << GC.getEraInfo((EraTypes)pkEventInfo->getObsoleteEra())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getMinimumPopulation() > 0 && getPopulation() < pkEventInfo->getMinimumPopulation())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_POP_LOCAL");
+		localizedDurationText << pkEventInfo->getMinimumPopulation();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredCiv() != -1 && getCivilizationType() != (CivilizationTypes)pkEventInfo->getRequiredCiv())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_CIV");
+		localizedDurationText << GC.getCivilizationInfo((CivilizationTypes)pkEventInfo->getRequiredCiv())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredPolicy() != -1 && !kPlayer.GetPlayerPolicies()->HasPolicy((PolicyTypes)pkEventInfo->getRequiredPolicy()))
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_POLICY");
+		localizedDurationText << GC.getPolicyInfo((PolicyTypes)pkEventInfo->getRequiredPolicy())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredIdeology() != -1 && kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() != (PolicyBranchTypes)pkEventInfo->getRequiredIdeology())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_IDEOLOGY");
+		localizedDurationText << GC.getPolicyBranchInfo((PolicyBranchTypes)pkEventInfo->getRequiredIdeology())->GetDescription();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->hasPlayerReligion() && kPlayer.GetReligions()->GetReligionCreatedByPlayer() != GetCityReligions()->GetReligiousMajority())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_PLAYER_RELIGION");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->lacksPlayerReligion() && kPlayer.GetReligions()->GetReligionCreatedByPlayer() == GetCityReligions()->GetReligiousMajority())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_PLAYER_RELIGION");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->hasPlayerMajority() && kPlayer.GetReligions()->GetReligionInMostCities() != GetCityReligions()->GetReligiousMajority())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_PLAYER_MAJORITY_RELIGION");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->lacksPlayerMajority() && kPlayer.GetReligions()->GetReligionInMostCities() == GetCityReligions()->GetReligiousMajority())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_PLAYER_MAJORITY_RELIGION");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredStateReligion() != -1)
+	{
+		if(kPlayer.GetReligions()->GetStateReligion() != pkEventInfo->getRequiredStateReligion())
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_SPECIFIC_STATE_RELIGION");
+			localizedDurationText << GC.getReligionInfo((ReligionTypes)pkEventInfo->getRequiredStateReligion())->GetDescription();
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+	if(!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
+	{
+		if(GetCityReligions()->GetReligiousMajority() != (ReligionTypes)pkEventInfo->getRequiredReligion())
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_SPECIFIC_RELIGION");
+			localizedDurationText << GC.getReligionInfo((ReligionTypes)pkEventInfo->getRequiredReligion())->GetDescription();
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+	if(pkEventInfo->isRequiresHolyCity())
+	{
+		if(pkEventInfo->getRequiredReligion() != -1)
+		{
+			if(!GetCityReligions()->IsHolyCityForReligion((ReligionTypes)pkEventInfo->getRequiredReligion()))
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_HOLY_CITY_SPECIFIC_LOCAL");
+				localizedDurationText << GC.getReligionInfo((ReligionTypes)pkEventInfo->getRequiredReligion())->GetDescription();
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+		}
+		else
+		{
+			if(!GetCityReligions()->IsHolyCityAnyReligion())
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_HOLY_CITY_LOCAL");
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+		}
+	}
+	if(pkEventInfo->isRequiresIdeology() && kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ANY_IDEOLOGY");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isRequiresWar() && kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_WAR_MAJOR");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->hasCityConnection() && !IsRouteToCapitalConnected())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_CITY_CONNECTION");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->hasTradeConnection() && !HasTradeRouteFrom(this) && !HasTradeRouteTo(this))
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_TRADE_CONNECTION");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isNearMountain() && GetNearbyMountains() <= 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_MOUNTAIN");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isNearNaturalWonder() && !HasAnyNaturalWonder())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NATURAL_WONDER");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getMaximumPopulation() != 0 && getPopulation() > pkEventInfo->getMaximumPopulation())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_OVER_MAX_POPULATION");
+		localizedDurationText <<pkEventInfo->getMaximumPopulation();
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->hasPantheon() && GetCityReligions()->GetReligiousMajority() != RELIGION_PANTHEON)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ANY_PANTHEON");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isUnhappy() && !kPlayer.IsEmpireUnhappy())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_UNHAPPY");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isSuperUnhappy() && !kPlayer.IsEmpireSuperUnhappy())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_SUPER_UNHAPPY");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->hasMetAnotherCiv())
+	{
+		if(GET_TEAM(getTeam()).getHasMetCivCount(true) <= 0)
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_MET_OTHER_CIV");
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GET_TEAM(getTeam()).GetNumVassals() <= 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_VASSAL");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_VASSAL");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->hasNearbyFeature() != -1)
+	{
+		FeatureTypes eFeature = (FeatureTypes)pkEventInfo->hasNearbyFeature();
+		if(eFeature != NO_FEATURE)
+		{
+			if(!IsHasFeatureLocal(eFeature))
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_FEATURE_NEARBY");
+				localizedDurationText << GC.getFeatureInfo((FeatureTypes)pkEventInfo->hasNearbyFeature())->GetDescription();
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+		}
+	}
+	if(pkEventInfo->hasNearbyTerrain() != -1)
+	{
+		TerrainTypes eTerrain = (TerrainTypes)pkEventInfo->hasNearbyTerrain();
+		if(eTerrain != NO_TERRAIN)
+		{
+			if(!HasTerrain(eTerrain))
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_TERRAIN_NEARBY");
+				localizedDurationText << GC.getTerrainInfo((TerrainTypes)pkEventInfo->hasNearbyTerrain())->GetDescription();
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+		}
+	}
+
+	if(pkEventInfo->isRequiresWarMinor())
+	{
+		bool bHas = false;
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			// Is this a player we have relations with?
+			if(GET_PLAYER(eLoopPlayer).isBarbarian())
+			{
+				continue;
+			}
+			if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				continue;
+			}
+			if(eLoopPlayer != getOwner())
+			{
+				if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+				{
+					bHas = true;
+					continue;
+				}
+			}
+		}
+		if(!bHas)
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_WAR_MINOR");
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+	if(pkEventInfo->getBuildingRequired() != -1)
+	{
+		BuildingClassTypes eBuilding = (BuildingClassTypes)pkEventInfo->getBuildingRequired();
+		if(eBuilding != NO_BUILDINGCLASS)
+		{
+			if(GetCityBuildings()->GetNumBuildingClass(eBuilding) <= 0)
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS_LOCAL");
+				localizedDurationText << GC.getBuildingClassInfo((BuildingClassTypes)pkEventInfo->getBuildingRequired())->GetDescription();
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+		}
+	}
+	if(pkEventInfo->getBuildingLimiter() != -1)
+	{
+		BuildingClassTypes eBuilding = (BuildingClassTypes)pkEventInfo->getBuildingLimiter();
+		if(eBuilding != NO_BUILDINGCLASS)
+		{
+			if(GetCityBuildings()->GetNumBuildingClass(eBuilding) > 0)
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_BUILDING_CLASS_LOCAL");
+				localizedDurationText << GC.getBuildingClassInfo((BuildingClassTypes)pkEventInfo->getBuildingLimiter())->GetDescription();
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+		}
+	}
+	if(pkEventInfo->getRequiredImprovement() != -1)
+	{
+		ImprovementTypes eImprovement = (ImprovementTypes)pkEventInfo->getRequiredImprovement();
+		if(eImprovement != NO_IMPROVEMENT)
+		{
+			if(!HasImprovement(eImprovement))
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_IMPROVEMENT_LOCAL");
+				localizedDurationText << GC.getImprovementInfo((ImprovementTypes)pkEventInfo->getRequiredImprovement())->GetDescription();
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+		}
+	}
+	if(pkEventInfo->getLocalResourceRequired() != -1)
+	{
+		ResourceTypes eResource = (ResourceTypes)pkEventInfo->getLocalResourceRequired();
+		if(eResource != NO_IMPROVEMENT)
+		{
+			if(!HasResource(eResource))
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_RESOURCE_LOCAL");
+				localizedDurationText << GC.getResourceInfo((ResourceTypes)pkEventInfo->getLocalResourceRequired())->GetDescription();
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+		}
+	}
+	//Check our minimum yields - this looks at stored values, not yields per turn.
+	bool bHas = true;
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eYield = (YieldTypes)iI;
+		if(eYield == NO_YIELD)
+			continue;
+							
+		int iNeededYield = pkEventInfo->getYieldMinimum(eYield);
+		iNeededYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNeededYield /= 100;
+		if(pkEventInfo->getPreCheckEventYield(eYield) != 0)
+		{
+			if(iNeededYield < pkEventInfo->getPreCheckEventYield(eYield))
+			{
+				iNeededYield = pkEventInfo->getPreCheckEventYield(eYield);
+			}
+		}
+		if(pkEventInfo->IsEraScaling())
+		{
+			int iEra = kPlayer.GetCurrentEra();
+			if(iEra <= 0)
+			{
+				iEra = 1;
+			}
+			iNeededYield *= iEra;
+		}
+		if(iNeededYield != 0)
+		{
+			if(eYield == YIELD_FOOD)
+			{
+				if(iNeededYield > getFood())
+				{
+					bHas = false;
+					break;
+				}
+			}
+			if(eYield == YIELD_PRODUCTION)
+			{
+				if(iNeededYield > getProduction())
+				{
+					bHas = false;
+					break;
+				}
+			}
+			if(eYield == YIELD_GOLD)
+			{
+				if(iNeededYield > kPlayer.GetTreasury()->GetGold())
+				{
+					bHas = false;
+					break;
+				}
+			}
+			else if(eYield == YIELD_SCIENCE)
+			{
+				TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
+				int iTech = 0;
+				if(eCurrentTech != NO_TECH)
+				{
+					iTech = kPlayer.GetPlayerTechs()->GetResearchProgress(eCurrentTech);
+				}
+				if(iNeededYield > iTech)
+				{
+					bHas = false;
+					break;
+				}
+			}
+			else if(eYield == YIELD_FAITH)
+			{
+				if(iNeededYield > kPlayer.GetFaith())
+				{
+					bHas = false;
+					break;
+				}
+			}
+			else if(eYield == YIELD_GOLDEN_AGE_POINTS)
+			{
+				if(iNeededYield > kPlayer.GetGoldenAgeProgressMeter())
+				{
+					bHas = false;
+					break;
+				}
+			}
+			else if(eYield == YIELD_CULTURE)
+			{
+				if(iNeededYield > kPlayer.getJONSCulture())
+				{
+					bHas = false;
+					break;
+				}
+			}
+		}
+	}
+	if(!bHas)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_YIELDS");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isInDebt() && kPlayer.GetTreasury()->GetGold() > 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_DEBT");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->isLosingMoney() && kPlayer.GetTreasury()->CalculateBaseNetGold() > 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NEGATIVE_GPT");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRequiredActiveOtherPlayerEvent() != -1 || pkEventInfo->getRequiredActiveOtherPlayerEventChoice() != -1 || pkEventInfo->getRequiredNoActiveOtherPlayerEvent() != -1 || pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice() != -1)
+	{
+		bHas = false;
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			// Is this a player we have relations with?
+			if(GET_PLAYER(eLoopPlayer).isBarbarian())
+			{
+				continue;
+			}
+			if(GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				continue;
+			}
+			if(eLoopPlayer != getOwner())
+			{
+				if(pkEventInfo->getRequiredActiveOtherPlayerEvent() != -1)
+				{
+					if(GET_PLAYER(eLoopPlayer).GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveOtherPlayerEvent()) > 0)
+					{
+						bHas = true;
+						break;
+					}
+				}
+				if(pkEventInfo->getRequiredActiveOtherPlayerEventChoice() != -1)
+				{
+					if(GET_PLAYER(eLoopPlayer).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveOtherPlayerEventChoice()) > 0)
+					{
+						bHas = true;
+						break;
+					}
+				}
+				if(pkEventInfo->getRequiredNoActiveOtherPlayerEvent() != -1)
+				{
+					if(GET_PLAYER(eLoopPlayer).GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActiveOtherPlayerEvent()) > 0)
+					{
+						bHas = false;
+						break;
+					}
+				}
+				if(pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice() != -1)
+				{
+					if(GET_PLAYER(eLoopPlayer).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice()) > 0)
+					{
+						bHas = false;
+						break;
+					}
+				}
+			}
+		}
+		if(!bHas)
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_OTHER_PLAYER_EVENT_ACTIVE");
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+	return DisabledTT.c_str();
+
 }
 void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent)
 {

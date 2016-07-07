@@ -144,6 +144,7 @@ public:
 
 	int getNumHumanPlayers();
 	int GetNumMinorCivsEver();
+	int GetNumMinorCivsAlive();
 	int getNumHumansInHumanWars(PlayerTypes ignorePlayer = NO_PLAYER);
 	int getNumSequentialHumans(PlayerTypes ignorePlayer = NO_PLAYER);
 
@@ -540,7 +541,6 @@ public:
 	CvGameCulture* GetGameCulture();
 	CvGameLeagues* GetGameLeagues();
 	CvGameTrade* GetGameTrade();
-	CvTacticalAnalysisMap* GetTacticalAnalysisMap();
 #if defined(MOD_API_LUA_EXTENSIONS)
 	CvString getDllGuid() const;
 #endif
@@ -826,7 +826,6 @@ protected:
 	CvGameCulture*             m_pGameCulture;
 	CvGameLeagues*             m_pGameLeagues;
 	CvGameTrade*               m_pGameTrade;
-	CvTacticalAnalysisMap*     m_pTacticalMap;
 
 	CvAdvisorCounsel*          m_pAdvisorCounsel;
 	CvAdvisorRecommender*      m_pAdvisorRecommender;

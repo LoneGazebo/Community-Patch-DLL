@@ -265,6 +265,8 @@
 		<Column name="RequiredActiveEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
 		<Column name="RequiredActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
 		<Column name="RequiredActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
+		<Column name="RequiredNoActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
+		<Column name="RequiredNoActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
 		<!-- Same concept, but breaks if an event is active, or another player does NOT have the event active. -->
 		<Column name="RequiredNoActivePlayerEvent" type="text" reference="Events(Type)" default="NULL"/>
 		<Column name="RequiredNoActivePlayerEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
@@ -304,7 +306,8 @@
 		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
 		<!-- Help is used for Tooltips, Description for button text -->
 		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
-		<!-- DisabledTooltip is used for Tooltips for choices that are not active but appear in choice list. There is a default of this, so you don't have to set it, but you can if you want to explain why a choice isn't active. -->
+		<!-- DisabledTooltip is used for Tooltips for choices that are not active but appear in choice list. 
+		The DLL automatically explains to players WHY an event choice is unavailable, however you can use it you want to override the DLL. -->
 		<Column name="DisabledTooltip" type="text" reference="Language_en_US(Tag)"/>
 		<!-- Audio for when event window pops up. -->
 		<Column name="EventChoiceAudio" type="text" default="AS2D_EVENT_CHOICE"/>
@@ -674,6 +677,8 @@
 		<!-- Same concept, but won't fire if a city event is active here, or another player does NOT have the player/city event active. You cannot check for other player city events being active, sorry. -->
 		<Column name="RequiredNoActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
 		<Column name="RequiredNoActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
+		<Column name="RequiredNoActiveCityEventAnywhere" type="text" reference="CityEvents(Type)" default="NULL"/>
+		<Column name="RequiredNoActiveCityEventChoiceAnywhere" type="text" reference="CityEventChoices(Type)" default="NULL"/>
 		<Column name="RequiredNoActivePlayerEvent" type="text" reference="Events(Type)" default="NULL"/>
 		<Column name="RequiredNoActivePlayerEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
 		<Column name="RequiredActivePlayerEventOtherPlayer" type="text" reference="Events(Type)" default="NULL"/>
@@ -699,7 +704,8 @@
 		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
 		<!-- Help is used for Tooltips, Description for button text -->
 		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
-		<!-- DisabledTooltip is used for Tooltips for choices that are not active but appear in choice list. There is a default of this, so you don't have to set it, but you can if you want to explain why a choice isn't active. -->
+		<!-- DisabledTooltip is used for Tooltips for choices that are not active but appear in choice list. 
+		The DLL automatically explains to players WHY an event choice is unavailable, however you can use it you want to override the DLL. -->
 		<Column name="DisabledTooltip" type="text" reference="Language_en_US(Tag)"/>
 		<!-- Audio for when event popup activates . -->
 		<Column name="EventChoiceAudio" type="text" default="AS2D_EVENT_CHOICE"/>

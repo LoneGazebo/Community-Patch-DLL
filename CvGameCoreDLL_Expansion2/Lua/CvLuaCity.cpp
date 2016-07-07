@@ -691,6 +691,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(SetAdditionalFood);
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
+	Method(GetDisabledTooltip);
 	Method(GetScaledEventChoiceValue);
 	Method(IsCityEventChoiceActive);
 	Method(DoCityEventChoice);
@@ -5511,6 +5512,19 @@ int CvLuaCity::lSetAdditionalFood(lua_State* L)
 }
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
+int CvLuaCity::lGetDisabledTooltip(lua_State* L)
+{
+	CvString DisabledTT = "";
+	CvCity* pkCity = GetInstance(L);
+	const CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)lua_tointeger(L, 2);
+	if(eEventChoice != NO_EVENT_CHOICE_CITY)
+	{
+		DisabledTT = pkCity->GetDisabledTooltip(eEventChoice);
+	}
+
+	lua_pushstring(L, DisabledTT.c_str());
+	return 1;
+}
 int CvLuaCity::lGetScaledEventChoiceValue(lua_State* L)
 {
 	CvString CoreYieldTip = "";

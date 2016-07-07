@@ -7,7 +7,7 @@
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
     <ModVersion>88</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(7-1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(7-7) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for Whoward's PNM Mods as well as the Community Balance Patch.</Description>
     <Authors>The Community Patch Team</Authors>
     <SpecialThanks>
@@ -502,26 +502,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Modules/Events/City/Choice/CityEvents.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Modules/Events/City/Choice/CityEvents.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Modules/Events/Player/Choice/PlayerEvents.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Modules/Events/Player/Choice/PlayerEvents.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Values/New_CIV5AICityStrategies.xml</FileName>
       </Action>
       <Action>
@@ -538,6 +518,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Values/New_GlobalAIDefines.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Modules/Events/CoreEvents.sql</FileName>
       </Action>
     </ModActions>
     <Homepage>
@@ -624,12 +609,7 @@
     <Folder Include="Mapscripts" />
     <Folder Include="Modules" />
     <Folder Include="Modules\Events" />
-    <Folder Include="Modules\Events\City" />
-    <Folder Include="Modules\Events\City\Choice" />
-    <Folder Include="Modules\Events\Other" />
     <Folder Include="Modules\Events\Text" />
-    <Folder Include="Modules\Events\Player" />
-    <Folder Include="Modules\Events\Player\Choice" />
     <Folder Include="Modules\Events\Text\en_US" />
   </ItemGroup>
   <ItemGroup>
@@ -1473,23 +1453,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Modules\Events\City\Choice\CityEvents.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\Events\City\Choice\CityEvents.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\Events\Other\MiscEvents.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\Events\Player\Choice\PlayerEvents.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\Events\Player\Choice\PlayerEvents.xml">
+    <Content Include="Modules\Events\CoreEvents.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

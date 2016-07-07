@@ -672,7 +672,8 @@ function AdjustArtOnGrantedCorpButton( thisButton, thisCorpInfo, textureSize )
 		-- Tooltip
 		local bExcludeName = false;
 		local bExcludeHeader = false;
-		thisButton:SetToolTipString( Locale.ConvertTextKey(thisCorpInfo.Help) );
+
+		thisButton:SetToolTipString( "[COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey(thisCorpInfo.Description ) .. "[ENDCOLOR]" .. "[NEWLINE]----------------[NEWLINE]" .. Locale.ConvertTextKey(thisCorpInfo.Help) );
 		
 		local textureOffset, textureSheet = IconLookup( thisCorpInfo.PortraitIndex, textureSize, thisCorpInfo.IconAtlas );				
 		if textureOffset == nil then

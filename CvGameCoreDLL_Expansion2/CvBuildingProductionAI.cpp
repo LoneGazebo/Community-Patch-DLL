@@ -456,17 +456,17 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//No Land trade connections?
 	if(pkBuildingInfo->GetTradeRouteLandDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteLandGoldBonus() > 0)
 	{	
-		if(iNumLandConnection == 0)
+		if(iNumLandConnection <= 0)
 		{
 			return 0;
 		}
 		else
 		{
 			//Higher value the higher the number of routes.
-			iBonus += (iNumLandConnection * 5);
+			iBonus += iNumLandConnection;
 			if(kPlayer.GetPlayerTraits()->GetLandTradeRouteRangeBonus() > 0)
 			{
-				iBonus += 25;
+				iBonus += 50;
 			}
 		}
 	}
@@ -477,35 +477,33 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		CvCity* pCapital = kPlayer.getCapitalCity();
 		if(pkBuildingInfo->AllowsWaterRoutes())
 		{
-			if(iNumSeaConnection == 0 && m_pCity->IsRouteToCapitalConnected())
+			if(iNumSeaConnection <= 0 && m_pCity->IsRouteToCapitalConnected())
 			{
 				return 0;
 			}
-			else if(iNumSeaConnection == 0 && pCapital != NULL && pCapital->getArea() != m_pCity->getArea())
+			else if(iNumSeaConnection <= 0 && pCapital != NULL && pCapital->getArea() != m_pCity->getArea())
 			{
-				iBonus += 25;
+				iBonus += 50;
 			}
-			else
+
+			//Higher value the higher the number of routes.
+			iBonus += iNumSeaConnection;
+			if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0)
 			{
-				//Higher value the higher the number of routes.
-				iBonus += (iNumSeaConnection * 5);
-				if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0)
-				{
-					iBonus += 25;
-				}
+				iBonus += 50;
 			}
 		}
 		else
 		{
-			if(iNumSeaConnection == 0)
+			if(iNumSeaConnection <= 0)
 			{
 				return 0;
 			}
 			//Higher value the higher the number of routes.
-			iBonus += (iNumSeaConnection * 5);
+			iBonus += iNumSeaConnection;
 			if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0)
 			{
-				iBonus += 25;
+				iBonus += 50;
 			}
 		}
 	}

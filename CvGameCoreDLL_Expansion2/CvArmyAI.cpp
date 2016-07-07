@@ -217,7 +217,7 @@ int CvArmyAI::GetMovementRate()
 }
 
 /// Get center of mass of units in army (account for world wrap!)
-CvPlot* CvArmyAI::GetCenterOfMass()
+CvPlot* CvArmyAI::GetCenterOfMass(float* pfVarX, float* pfVarY)
 {
 	int iTotalX = 0;
 	int iTotalY = 0;
@@ -289,6 +289,11 @@ CvPlot* CvArmyAI::GetCenterOfMass()
 
 	if (!pCOM)
 		return NULL;
+
+	if (pfVarX)
+		*pfVarX = fVarX;
+	if (pfVarY)
+		*pfVarY = fVarY;
 
 	//don't return it directly but use the plot of the closest unit
 	pUnit = GetFirstUnit();
@@ -698,17 +703,6 @@ bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 /// Is this part of an operation that allows units to be poached by tactical AI?
 bool CvArmyAI::CanTacticalAIInterruptUnit(int /* iUnitId */) const
 {
-	// If the operation is still recruiting, by all means interrupt it
-	if(m_eAIState == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
-	{
-		return true;
-	}
-	// If the operation is still assembling, by all means interrupt it
-	if(m_eAIState == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE ||
-	        m_eAIState == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
-	{
-		return true;
-	}
 	if(m_eOwner >=0 && m_eOwner < MAX_PLAYERS)
 	{
 		CvAIOperation* op = GET_PLAYER(m_eOwner).getAIOperation(m_iOperationID);
@@ -717,6 +711,7 @@ bool CvArmyAI::CanTacticalAIInterruptUnit(int /* iUnitId */) const
 			return op->CanTacticalAIInterruptOperation();
 		}
 	}
+
 	return false;
 }
 

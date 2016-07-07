@@ -276,9 +276,8 @@ void CvTacticalAI::Init(CvPlayer* pPlayer)
 	// Store off the pointer to the objects we need elsewhere in the game engine
 	m_pPlayer = pPlayer;
 
+	//do this after setting the player pointer!
 	Reset();
-
-	m_pTactMap = GC.getGame().GetTacticalAnalysisMap();
 
 	// Initialize AI constants from XML
 	m_iRecruitRange = GC.getAI_TACTICAL_RECRUIT_RANGE();
@@ -361,7 +360,7 @@ void CvTacticalAI::Uninit()
 /// Reset variables
 void CvTacticalAI::Reset()
 {
-	m_pTactMap = NULL;
+	m_tacticalMap.Init(m_pPlayer ? m_pPlayer->GetID() : NO_PLAYER);
 }
 
 /// Serialization read
@@ -375,6 +374,7 @@ void CvTacticalAI::Read(FDataStream& kStream)
 	int phony = 0;
 	kStream >> phony;
 	kStream >> m_TempZones;
+	kStream >> m_tacticalMap;
 
 #if defined(MOD_BALANCE_CORE)
 	int iCount;
@@ -412,6 +412,7 @@ void CvTacticalAI::Write(FDataStream& kStream)
 	int phony = 0;
 	kStream << phony;
 	kStream << m_TempZones;
+	kStream << m_tacticalMap;
 
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_HealingUnits.size();
@@ -572,7 +573,7 @@ void CvTacticalAI::Update()
 	AI_PERF_FORMAT("AI-perf.csv", ("Tactical AI, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 	//do this after updating the danger plots (happens in CvPlayer::doTurnPostDiplomacy)
-	GC.getGame().GetTacticalAnalysisMap()->RefreshDataForNextPlayer(m_pPlayer);
+	m_tacticalMap.Refresh();
 
 	FindTacticalTargets();
 
@@ -592,9 +593,9 @@ CvCity* CvTacticalAI::GetNearestTargetCity(CvPlot* pPlot)
 	CvCity* pClosestCity = NULL;
 
 	// Loop through all the zones we have this turn
-	for(int iI = 0; iI < m_pTactMap->GetNumZones(); iI++)
+	for(int iI = 0; iI < GetTacticalAnalysisMap()->GetNumZones(); iI++)
 	{
-		pZone = m_pTactMap->GetZone(iI);
+		pZone = GetTacticalAnalysisMap()->GetZoneByIndex(iI);
 
 		// Check to make sure we want to use this zone
 		if(UseThisDominanceZone(pZone))
@@ -828,9 +829,9 @@ void CvTacticalAI::UpdatePostures()
 	FStaticVector<CvTacticalPosture, SAFE_ESTIMATE_NUM_CITIES, true, c_eCiv5GameplayDLL, 0> newPostures;
 
 	// Loop through all the zones we have this turn
-	for(int iI = 0; iI < m_pTactMap->GetNumZones(); iI++)
+	for(int iI = 0; iI < GetTacticalAnalysisMap()->GetNumZones(); iI++)
 	{
-		pZone = m_pTactMap->GetZone(iI);
+		pZone = GetTacticalAnalysisMap()->GetZoneByIndex(iI);
 
 		// Check to make sure we want to use this zone
 		if(UseThisDominanceZone(pZone))
@@ -848,47 +849,8 @@ void CvTacticalAI::UpdatePostures()
 			if(GC.getLogging() && GC.getAILogging() && eNewPosture != AI_TACTICAL_POSTURE_NONE)
 			{
 				CvString szPostureMsg;
-				szPostureMsg.Format("Zone ID: %d, ", pZone->GetDominanceZoneID());
-#if defined(MOD_BALANCE_CORE)
-				if(pZone->GetZoneCity() != NULL)
-				{
-					szPostureMsg += pZone->GetZoneCity()->getName();
-				}
-				if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
-				{
-					szPostureMsg += ", Friendly  ";
-				}
-				else if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
-				{
-					szPostureMsg += ", Enemy  ";
-				}
-				else if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_EVEN)
-				{
-					szPostureMsg += ", Even  ";
-				}
-				else if(pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_NO_UNITS_VISIBLE)
-				{
-					szPostureMsg += ", No Units Visible  ";
-				}
+				szPostureMsg.Format("Zone ID: %d, %s, ", pZone->GetDominanceZoneID(), pZone->GetZoneCity() ? pZone->GetZoneCity()->getName().c_str() : "none");
 
-				if(pZone->IsWater())
-				{
-					szPostureMsg += ", Water  ";
-				}
-				else
-				{
-					szPostureMsg += ", Land  ";
-				}
-
-				if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_TEMP_ZONE)
-				{
-					szPostureMsg += ", Temporary Zone  ";
-				}
-				if(pZone->GetOwner() != NO_PLAYER && GET_TEAM(GET_PLAYER(pZone->GetOwner()).getTeam()).isAtWar(m_pPlayer->getTeam()))
-				{
-					szPostureMsg += ", WARZONE  ";
-				}
-#endif
 				switch(eNewPosture)
 				{
 				case AI_TACTICAL_POSTURE_SIT_AND_BOMBARD:
@@ -933,7 +895,7 @@ void CvTacticalAI::UpdatePostures()
 AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture)
 {
 	AITacticalPosture eChosenPosture = AI_TACTICAL_POSTURE_NONE;
-	int iDominancePercentage = GC.getGame().GetTacticalAnalysisMap()->GetDominancePercentage();
+	int iDominancePercentage = GetTacticalAnalysisMap()->GetDominancePercentage();
 	eTacticalDominanceFlags eRangedDominance = TACTICAL_DOMINANCE_EVEN;
 	eTacticalDominanceFlags eUnitCountDominance = TACTICAL_DOMINANCE_EVEN;
 	int iRatio;
@@ -990,7 +952,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		// Always push again for a few turns after each operation reaches destination
 		if (pClosestCity)
 		{
-			bTemporaryZone = m_pPlayer->GetTacticalAI()->IsTemporaryZoneCity(pClosestCity);
+			bTemporaryZone = IsTemporaryZoneCity(pClosestCity);
 		}
 		// Withdraw if enemy dominant overall or we have nothing but ranged left
 		if(!bTemporaryZone && (pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY || pZone->GetFriendlyRangedUnitCount() == pZone->GetFriendlyUnitCount()))
@@ -1409,9 +1371,9 @@ void CvTacticalAI::FindTacticalTargets()
 			newTarget.Clear();
 			newTarget.SetTargetX(pLoopPlot->getX());
 			newTarget.SetTargetY(pLoopPlot->getY());
-			newTarget.SetDominanceZone(GC.getGame().GetTacticalAnalysisMap()->GetCell(iI)->GetDominanceZone());
+			newTarget.SetDominanceZone(GetTacticalAnalysisMap()->GetCell(iI)->GetDominanceZone());
 
-			bEnemyDominatedPlot = GC.getGame().GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pLoopPlot);
+			bEnemyDominatedPlot = GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pLoopPlot);
 
 			// Have a ...
 			// ... friendly city?
@@ -1725,9 +1687,9 @@ void CvTacticalAI::FindTacticalTargets()
 	{
 		// mark the targets in the tactical map
 		for (TacticalList::const_iterator i=m_AllTargets.begin(); i!=m_AllTargets.end(); ++i)
-			m_pTactMap->GetCell( GC.getMap().plotNum( i->GetTargetX(), i->GetTargetY() ) )->SetTargetType( i->GetTargetType() ); 
+			GetTacticalAnalysisMap()->GetCell( GC.getMap().plotNum( i->GetTargetX(), i->GetTargetY() ) )->SetTargetType( i->GetTargetType() ); 
 
-		GC.getGame().GetTacticalAnalysisMap()->Dump();
+		GetTacticalAnalysisMap()->Dump();
 	}
 #endif
 
@@ -1735,7 +1697,6 @@ void CvTacticalAI::FindTacticalTargets()
 
 void CvTacticalAI::ProcessDominanceZones()
 {
-	CvTacticalDominanceZone* pZone;
 	FStaticVector<CvTacticalMove, 256, true, c_eCiv5GameplayDLL >::iterator it;
 
 	// Barbarian processing is straightforward -- just one big list of priorites and everything is considered at once
@@ -1745,7 +1706,6 @@ void CvTacticalAI::ProcessDominanceZones()
 		ExtractTargetsForZone(NULL);
 		AssignBarbarianMoves();
 	}
-
 	else
 	{
 		EstablishTacticalPriorities();
@@ -1761,10 +1721,10 @@ void CvTacticalAI::ProcessDominanceZones()
 				CvTacticalMoveXMLEntry* pkTacticalMoveInfo = GC.getTacticalMoveInfo(move.m_eMoveType);
 				if(pkTacticalMoveInfo && pkTacticalMoveInfo->IsDominanceZoneMove())
 				{
-					for(int iI = 0; iI < m_pTactMap->GetNumZones(); iI++)
+					for(int iI = 0; iI < GetTacticalAnalysisMap()->GetNumZones(); iI++)
 					{
 						m_iCurrentZoneIndex = iI;
-						pZone = m_pTactMap->GetZone(iI);
+						CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(iI);
 
 						//no units -> nothing to do
 						if (pZone->GetFriendlyStrength()+pZone->GetFriendlyRangedStrength()==0)
@@ -2208,7 +2168,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 			m_CurrentMoveCities.clear();
 			CvCity* pCity = pPlot->getPlotCity();
 
-			CvTacticalDominanceZone* pZone = m_pTactMap->GetZoneByCity(pCity, false);
+			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
 			if (pZone && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
 			{
 				if(GC.getLogging() && GC.getAILogging())
@@ -2292,7 +2252,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 			m_CurrentMoveCities.clear();
 			CvCity* pCity = pPlot->getPlotCity();
 
-			CvTacticalDominanceZone* pZone = m_pTactMap->GetZoneByCity(pCity, false);
+			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
 			if (pZone && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
 			{
 				if(GC.getLogging() && GC.getAILogging())
@@ -3212,7 +3172,7 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 				if(GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("No unit for garrison in %s at, X: %d, Y", pCity->getName().c_str(), pTarget->GetTargetX(), pTarget->GetTargetY());
+					strLogString.Format("No unit for garrison in %s at (%d:%d)", pCity->getName().c_str(), pTarget->GetTargetX(), pTarget->GetTargetY());
 					LogTacticalMessage(strLogString);
 				}
 			}
@@ -3360,7 +3320,7 @@ void CvTacticalAI::PlotAirInterceptMoves()
 					pZone = NULL;
 
 					if (pCity)
-						pZone = m_pTactMap->GetZoneByCity(pCity, false);
+						pZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
 
 					int iNumNearbyBombers = m_pPlayer->GetMilitaryAI()->GetNumEnemyAirUnitsInRange(pUnitPlot, m_iRecruitRange, false/*bCountFighters*/, true/*bCountBombers*/);
 
@@ -3425,7 +3385,7 @@ void CvTacticalAI::PlotAirSweepMoves()
 
 				// On a carrier or in a city where we are dominant?
 				if (pCity)
-					pZone = m_pTactMap->GetZoneByCity(pCity, false);
+					pZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
 
 				if (!pCity || !pZone || pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
 				{
@@ -3462,7 +3422,7 @@ void CvTacticalAI::PlotEmergencyPurchases()
 	}
 
 	// Is this a dominance zone where we're defending a city?
-	CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZone(m_iCurrentZoneIndex);
+	CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(m_iCurrentZoneIndex);
 	pCity = pZone->GetZoneCity();
 	if(pCity && pCity->getOwner() == m_pPlayer->GetID() && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY && pZone->GetEnemyUnitCount() > 0)
 	{
@@ -3568,7 +3528,7 @@ void CvTacticalAI::PlotDefensiveAirlifts()
 	}
 
 	// Is this a dominance zone where we're defending a city and that city has an airport?
-	CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZone(m_iCurrentZoneIndex);
+	CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(m_iCurrentZoneIndex);
 	pCity = pZone->GetZoneCity();
 	if(pCity && pCity->getOwner() == m_pPlayer->GetID() && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY && pCity->CanAirlift()&& pZone->GetEnemyUnitCount() > 0)
 	{
@@ -3688,12 +3648,9 @@ void CvTacticalAI::PlotSitAndBombardMoves()
 	CvTacticalTarget target;
 	CvPlot* pTarget;
 
-	CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZone(m_iCurrentZoneIndex);
+	CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(m_iCurrentZoneIndex);
 	if(pZone->GetZoneCity() != NULL)
 	{
-		// Turn off moves we don't want to mix with this posture
-		TurnOffMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_DAMAGE_CITY]);
-
 		target.SetTargetType(AI_TACTICAL_TARGET_CITY);
 		target.SetTargetPlayer(pZone->GetZoneCity()->getOwner());
 		target.SetTargetX(pZone->GetZoneCity()->plot()->getX());
@@ -3766,9 +3723,9 @@ void CvTacticalAI::PlotExploitFlanksMoves()
 		        m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
 		        m_ZoneTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
 		{
-			m_pTactMap->ClearDynamicFlags();
+			GetTacticalAnalysisMap()->ClearDynamicFlags();
 			pTarget = GC.getMap().plot(m_ZoneTargets[iI].GetTargetX(), m_ZoneTargets[iI].GetTargetY());
-			m_pTactMap->SetTargetFlankBonusCells(pTarget);
+			GetTacticalAnalysisMap()->SetTargetFlankBonusCells(pTarget);
 
 			bAttackMade = ExecuteFlankAttack(m_ZoneTargets[iI]);
 			if(bAttackMade)
@@ -3850,7 +3807,7 @@ void CvTacticalAI::PlotSteamrollMoves()
 void CvTacticalAI::PlotSurgicalCityStrikeMoves()
 {
 	CvTacticalTarget target;
-	CvTacticalDominanceZone* pZone = m_pTactMap->GetZone(m_iCurrentZoneIndex);
+	CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(m_iCurrentZoneIndex);
 
 	if(pZone->GetZoneCity() != NULL)
 	{
@@ -3940,7 +3897,7 @@ void CvTacticalAI::PlotHedgehogMoves()
 #endif
 
 	// But after best attacks are exhausted, go right to playing defense
-	CvTacticalDominanceZone* pZone = m_pTactMap->GetZone(m_iCurrentZoneIndex);
+	CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(m_iCurrentZoneIndex);
 	if(pZone->GetZoneCity() != NULL)
 	{
 		CvTacticalTarget target;
@@ -4007,7 +3964,7 @@ void CvTacticalAI::PlotWithdrawMoves()
 	m_CurrentMoveUnits.clear();
 	CvTacticalUnit unit;
 
-	CvTacticalDominanceZone* pZone = m_pTactMap->GetZone(m_iCurrentZoneIndex);
+	CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(m_iCurrentZoneIndex);
 
 	// Loop through all recruited units
 	for(it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
@@ -4017,7 +3974,7 @@ void CvTacticalAI::PlotWithdrawMoves()
 		{
 			// Am I in the current dominance zone?
 			int iPlotIndex = GC.getMap().plotNum(pUnit->getX(), pUnit->getY());
-			if(m_pTactMap->GetCell(iPlotIndex)->GetDominanceZone() == m_pTactMap->GetZone(m_iCurrentZoneIndex)->GetDominanceZoneID())
+			if(GetTacticalAnalysisMap()->GetCell(iPlotIndex)->GetDominanceZone() == GetTacticalAnalysisMap()->GetZoneByIndex(m_iCurrentZoneIndex)->GetDominanceZoneID())
 			{
 				unit.SetID(pUnit->GetID());
 				m_CurrentMoveUnits.push_back(unit);
@@ -4093,7 +4050,7 @@ void CvTacticalAI::PlotShoreBombardmentMoves()
 /// Close units in on primary target of this dominance zone
 void CvTacticalAI::PlotCloseOnTarget(bool bCheckDominance)
 {
-	CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZone(m_iCurrentZoneIndex);
+	CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(m_iCurrentZoneIndex);
 	if (bCheckDominance && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
 	{
 		return;
@@ -4105,8 +4062,8 @@ void CvTacticalAI::PlotCloseOnTarget(bool bCheckDominance)
 	{
 		target.SetTargetType(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
 		target.SetTargetPlayer(BARBARIAN_PLAYER);
-		target.SetTargetX(pZone->GetTempZoneCenter()->getX());
-		target.SetTargetY(pZone->GetTempZoneCenter()->getY());
+		target.SetTargetX(pZone->GetCenterX());
+		target.SetTargetY(pZone->GetCenterY());
 		target.SetDominanceZone(pZone->GetDominanceZoneID());
 
 		ExecuteCloseOnTarget(target, pZone);
@@ -4147,7 +4104,7 @@ void CvTacticalAI::ReviewUnassignedUnits()
 			//barbarians have no homeland AI, so they end their turn here
 			if (pUnit->isBarbarian())
 			{
-				MissionTypes eMission = pUnit->getDomainType()==DOMAIN_LAND ? CvTypes::getMISSION_FORTIFY() : CvTypes::getMISSION_SKIP();
+				MissionTypes eMission = pUnit->canFortify(pUnit->plot()) ? CvTypes::getMISSION_FORTIFY() : CvTypes::getMISSION_SKIP();
 				pUnit->PushMission(eMission);
 				pUnit->SetTurnProcessed(true);
 			}
@@ -4827,7 +4784,11 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI* pArmy)
 			if (!pLoopUnit || !pLoopUnit->canMove())
 				continue;
 
-			MoveToEmptySpaceNearTarget(pLoopUnit,pTarget,pLoopUnit->getDomainType()!=DOMAIN_SEA,12);
+			if (MoveToEmptySpaceNearTarget(pLoopUnit,pTarget,pLoopUnit->getDomainType()!=DOMAIN_SEA,23))
+				UnitProcessed(pLoopUnit->GetID());
+			else
+				pArmy->RemoveUnit(pLoopUnit->GetID());
+
 		}
 	}
 }
@@ -5079,7 +5040,7 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 				{
 #endif
 					int iPlotIndex = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
-					pCell = m_pTactMap->GetCell(iPlotIndex);
+					pCell = GetTacticalAnalysisMap()->GetCell(iPlotIndex);
 					CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
 
 					bool bValid = false;
@@ -5107,19 +5068,15 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 					if(bValid)
 					{
 						// Skip this plot if friendly unit that isn't in this army
-						CvUnit* pFriendlyUnit;
-						pFriendlyUnit = pCell->GetFriendlyMilitaryUnit();
-#if defined(MOD_BALANCE_CORE_MILITARY)
-						if(pFriendlyUnit != NULL && !pFriendlyUnit->IsCivilianUnit())
-#else
-						if(pFriendlyUnit != NULL)
-#endif
+						UnitHandle pFriendlyUnit = pPlot->getBestDefender(pArmy->GetOwner());
+						if(pFriendlyUnit)
 						{
 							if(pFriendlyUnit->getArmyID() != pArmy->GetID())
 							{
 								continue;
 							}
 						}
+
 						iNumDeployPlotsFound++;
 #if defined(MOD_BALANCE_CORE)
 						int iPlotDistance = plotDistance(pPlot->getX(), pPlot->getY(), pTarget->getX(), pTarget->getY());
@@ -5158,7 +5115,7 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 						}
 						else
 						{
-							iScore += pCell->GetDefenseModifier() * 2;
+							iScore += pPlot->defenseModifier(m_pPlayer->getTeam(),false) * 2;
 						}
 						if (bForcedToUseWater)
 						{
@@ -5261,7 +5218,7 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 				if(iPlotDistance <= iRange)
 				{
 					int iPlotIndex = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
-					pCell = m_pTactMap->GetCell(iPlotIndex);
+					pCell = GetTacticalAnalysisMap()->GetCell(iPlotIndex);
 					CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
 
 					bool bValid = false;
@@ -5289,9 +5246,8 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 					if(bValid)
 					{
 						// Skip this plot if friendly unit that isn't in this army
-						CvUnit* pFriendlyUnit;
-						pFriendlyUnit = pCell->GetFriendlyMilitaryUnit();
-						if(pFriendlyUnit != NULL)
+						UnitHandle pFriendlyUnit = pPlot->getBestDefender(pArmy->GetOwner());
+						if(pFriendlyUnit)
 						{
 							if(pFriendlyUnit->getArmyID() != pArmy->GetID())
 							{
@@ -5310,7 +5266,7 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 						}
 						else
 						{
-							iScore += pCell->GetDefenseModifier() * 2;
+							iScore += pPlot->defenseModifier(m_pPlayer->getTeam(),false) * 2;
 						}
 						if (bForcedToUseWater)
 						{
@@ -6115,7 +6071,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 	for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 	{
 		CvPlot* pAdjacentPlot = plotDirection(pTargetPlot->getX(), pTargetPlot->getY(), ((DirectionTypes)iDirectionLoop));
-		if (pAdjacentPlot && pAdjacentPlot->canPlaceUnit(m_pPlayer->GetID()))
+		if (pAdjacentPlot && pAdjacentPlot->isValidMovePlot(m_pPlayer->GetID()))
 		{
 			if (pAdjacentPlot->isWater())
 				plotListWater.push_back(pAdjacentPlot);
@@ -6153,29 +6109,31 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 			for (it = plotList.begin(); it != plotList.end(); it++)
 			{
 				//if there's a friendly ranged unit there, check if we can swap places
-				UnitHandle pFriendlyUnit = (*it)->getBestDefender(m_pPlayer->GetID());
-				if(pFriendlyUnit && pFriendlyUnit->isRanged())
+				UnitHandle pOtherUnit = (*it)->getBestDefender(NO_PLAYER);
+				if(pOtherUnit && pOtherUnit->isRanged() && pOtherUnit->getOwner()==m_pPlayer->GetID())
 				{
-					CvPlot* pFriendlyPlot = pFriendlyUnit->plot();
+					CvPlot* pFriendlyPlot = pOtherUnit->plot();
 					if(pUnit->CanSwapWithUnitHere(*pFriendlyPlot))
 					{
 						// Move up there
-						pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pFriendlyUnit->getX(), pFriendlyUnit->getY());
+						pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pOtherUnit->getX(), pOtherUnit->getY());
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strMsg;
 							CvString strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-							CvString strTemp2 = GC.getUnitInfo(pFriendlyUnit->getUnitType())->GetDescription();
+							CvString strTemp2 = GC.getUnitInfo(pOtherUnit->getUnitType())->GetDescription();
 							strMsg.Format("Pulling back %s and swapping in %s for proper organization (ExecuteAttack), x: %d, y: %d", strTemp2.GetCString(), strTemp.GetCString(), (*it)->getX(), (*it)->getY());
 							LogTacticalMessage(strMsg);
 						}
+
+						//dangerous but we break after erasing so it's ok
 						plotList.erase(it);
 						break;
 					}
 				}
 
 				//empty plot
-				if (!pFriendlyUnit)
+				if (!pOtherUnit)
 				{
 					//don't walk into certain death
 					if (pUnit->GetDanger(*it) > pUnit->GetCurrHitPoints()*3)
@@ -6194,6 +6152,8 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 						strMsg.Format("Moving %s for proper organization, x: %d, y: %d (ExecuteAttack)", strTemp.GetCString(), (*it)->getX(), (*it)->getY());
 						LogTacticalMessage(strMsg);
 					}
+
+					//dangerous but we break after erasing so it's ok
 					plotList.erase(it);
 					break;
 				}
@@ -6214,8 +6174,8 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 		{
 			bool bQueueTryRangedAttack = false;
 
-			// Are we in range and do we have LOS to the target?
-			if(pUnit->canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
+			// Are we in range and do we have LOS to the target? if we are right next to the target, also try to move
+			if(pUnit->canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()) && !pTargetPlot->isAdjacent(pUnit->plot()))
 			{
 				bQueueTryRangedAttack = true;
 			}
@@ -6321,6 +6281,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 						LogTacticalMessage(strMsg);
 					}
 
+					//dangerous but we break after erasing so it's ok
 					plotList.erase(it);
 					break;
 				}
@@ -6446,7 +6407,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 					}
 				}
 
-				//land-units do not automatically end their turn ... might be useful for homeland
+				//do not automatically end the turn ... unit might be useful for homeland. at least homeland patrol move will apply and find a nice spot for it
 #endif
 			}
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -6539,7 +6500,7 @@ void CvTacticalAI::ExecuteRepositionMoves()
 					}
 				}
 
-				//naval units can't be used by homeland, so end their turn
+				//the new homeland patrol moves can handle naval units also, but the simple logic above seems good enough, so end their turn
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 				pUnit->finishMoves();
 				UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
@@ -7574,7 +7535,7 @@ bool CvTacticalAI::ExecuteFlankAttack(CvTacticalTarget& kTarget)
 		if(pLoopPlot != NULL)
 		{
 			iPlotIndex = GC.getMap().plotNum(pLoopPlot->getX(), pLoopPlot->getY());
-			pCell = m_pTactMap->GetCell(iPlotIndex);
+			pCell = GetTacticalAnalysisMap()->GetCell(iPlotIndex);
 			if(pCell->IsHelpsProvidesFlankBonus())
 			{
 				iPossibleFlankHexes++;
@@ -7594,7 +7555,7 @@ bool CvTacticalAI::ExecuteFlankAttack(CvTacticalTarget& kTarget)
 			if(pLoopPlot != NULL)
 			{
 				iPlotIndex = GC.getMap().plotNum(pLoopPlot->getX(), pLoopPlot->getY());
-				pCell = m_pTactMap->GetCell(iPlotIndex);
+				pCell = GetTacticalAnalysisMap()->GetCell(iPlotIndex);
 				if(pCell->IsHelpsProvidesFlankBonus())
 				{
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -7740,7 +7701,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 	int iMeleeUnits = 0;
 	int iGenerals = 0;
 	list<int>::iterator it;
-	int iTacticalRadius = GC.getGame().GetTacticalAnalysisMap()->GetTacticalRange();
+	int iTacticalRadius = GetTacticalAnalysisMap()->GetTacticalRange();
 	int iMinHitpoints = 25;
 
 	pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
@@ -7894,7 +7855,7 @@ void CvTacticalAI::ExecuteHedgehogDefense(CvTacticalTarget& kTarget, CvTacticalD
 	int iRangedUnits = 0;
 	int iMeleeUnits = 0;
 	list<int>::iterator it;
-	int iTacticalRadius = GC.getGame().GetTacticalAnalysisMap()->GetTacticalRange();
+	int iTacticalRadius = GetTacticalAnalysisMap()->GetTacticalRange();
 
 	pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
 	m_OperationUnits.clear();
@@ -8060,8 +8021,8 @@ void CvTacticalAI::ExecutePriorityAttacksOnUnitTarget(CvTacticalTarget& kTarget)
 	// Then try for a flank attack
 	if(kTarget.IsTargetStillAlive(m_pPlayer->GetID()))
 	{
-		m_pTactMap->ClearDynamicFlags();
-		m_pTactMap->SetTargetFlankBonusCells(pTarget);
+		GetTacticalAnalysisMap()->ClearDynamicFlags();
+		GetTacticalAnalysisMap()->SetTargetFlankBonusCells(pTarget);
 
 		bAttackMade = ExecuteFlankAttack(kTarget);
 		if(bAttackMade)
@@ -8376,21 +8337,6 @@ CvUnit* CvTacticalAI::GetProbableInterceptor(CvPlot* pTargetPlot) const
 	return pBestUnit;
 }
 #endif
-
-/// Disable a move (probably because it is incompatible with a posture chosen)
-void CvTacticalAI::TurnOffMove(TacticalAIMoveTypes eType)
-{
-	FStaticVector<CvTacticalMove, 256, true, c_eCiv5GameplayDLL >::iterator it;
-
-	for(it = m_MovePriorityList.begin(); it != m_MovePriorityList.end(); it++)
-	{
-		if(it->m_eMoveType == eType)
-		{
-			it->m_iPriority = -1;
-			return;
-		}
-	}
-}
 
 /// Finds both high and normal priority units we can use for this move (returns true if at least 1 unit found)
 bool CvTacticalAI::FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTarget, int iNumTurnsAway /* = -1 if any distance okay */, bool bRangedOnly)
@@ -8916,7 +8862,7 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bIncludeRanged
 	std::vector< std::pair<int, int> > vUnitsByDistance;
 
 	int iPlotIndex = GC.getMap().plotNum(pTarget->getX(), pTarget->getY());
-	CvTacticalAnalysisCell* pCell = m_pTactMap->GetCell(iPlotIndex);
+	CvTacticalAnalysisCell* pCell = GetTacticalAnalysisMap()->GetCell(iPlotIndex);
 
 	// Loop through all units available to operation
 	FStaticVector<CvOperationUnit, SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES, true, c_eCiv5GameplayDLL, 0>::iterator it;
@@ -10563,7 +10509,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 			if(pBestPlot == NULL)
 			{
 				//try to go to a city
-				CvCity* pCity = m_pPlayer->GetThreatenedCityRank();
+				CvCity* pCity = m_pPlayer->GetMilitaryAI()->GetMostThreatenedCity();
 				if(!pCity)
 					pCity = m_pPlayer->GetClosestCity(pGeneral->plot());
 
@@ -10935,7 +10881,7 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget)
 
 	// We'll store the hexes we've found here
 	m_TempTargets.clear();
-	m_pTactMap->ClearDynamicFlags();
+	GetTacticalAnalysisMap()->ClearDynamicFlags();
 
 	for (int iDX = -m_iDeployRadius; iDX <= m_iDeployRadius; iDX++)
 	{
@@ -10953,7 +10899,7 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget)
 				continue;
 
 			int iPlotIndex = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
-			CvTacticalAnalysisCell* pCell = m_pTactMap->GetCell(iPlotIndex);
+			CvTacticalAnalysisCell* pCell = GetTacticalAnalysisMap()->GetCell(iPlotIndex);
 
 			if (pCell->CanUseForOperationGathering())
 			{
@@ -11026,7 +10972,7 @@ int CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget)
 			}
 
 			int iPlotIndex = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
-			CvTacticalAnalysisCell* pCell = m_pTactMap->GetCell(iPlotIndex);
+			CvTacticalAnalysisCell* pCell = GetTacticalAnalysisMap()->GetCell(iPlotIndex);
 
 			if (pCell->CanUseForOperationGathering())
 			{
@@ -11129,11 +11075,11 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pLoopPlot)
 		int iMultiplier = iBaseMultiplier;
 		if (pSupportedUnit && (pSupportedUnit->getDomainType() == pGeneral->getDomainType()))
 		{
-			CvTacticalAnalysisCell* pCell = GC.getGame().GetTacticalAnalysisMap()->GetCell( pSupportedUnit->plot()->GetPlotIndex() );
+			CvTacticalAnalysisCell* pCell = GetTacticalAnalysisMap()->GetCell( pSupportedUnit->plot()->GetPlotIndex() );
 			bool bTempZone = false;
 			if(pCell)
 			{
-				CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZoneByID( pCell->GetDominanceZone() );
+				CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByID( pCell->GetDominanceZone() );
 				
 				if (pZone && pZone->GetZoneCity()!= NULL && pZone->GetOwner() != m_pPlayer->GetID())
 				{
@@ -11244,8 +11190,8 @@ void CvTacticalAI::UnitProcessed(int iID, bool bMarkTacticalMap)
 
 	if(bMarkTacticalMap)
 	{
-		CvTacticalAnalysisMap* pMap = GC.getGame().GetTacticalAnalysisMap();
-		if(pMap->IsUpToDate(m_pPlayer))
+		CvTacticalAnalysisMap* pMap = GetTacticalAnalysisMap();
+		if(pMap->IsUpToDate())
 		{
 			iPlotIndex = GC.getMap().plotNum(pUnit->getX(), pUnit->getY());
 			pCell = pMap->GetCell(iPlotIndex);
@@ -11449,7 +11395,7 @@ void CvTacticalAI::LogTacticalMessage(const CvString& strMsg, bool bSkipLogDomin
 		if(!bSkipLogDominanceZone)
 		{
 			CvString strTemp = "no zone, ";
-			CvTacticalDominanceZone* pZone = GC.getGame().GetTacticalAnalysisMap()->GetZone(m_iCurrentZoneIndex);
+			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(m_iCurrentZoneIndex);
 			if(pZone != NULL)
 			{
 				strTemp.Format("Zone ID: %d, ", pZone->GetDominanceZoneID());
@@ -11704,9 +11650,10 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, const CvPlot* pT
 	}
 	else //melee
 	{
-		if (pUnit->CanReachInXTurns( pTargetPlot, 0, false))
+		int iTurns = pUnit->TurnsToReachTarget( pTargetPlot, CvUnit::MOVEFLAG_ATTACK, 1);
+		if (iTurns <=1 )
 		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(),pTargetPlot->getX(), pTargetPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(),pTargetPlot->getX(), pTargetPlot->getY());
 			return true;
 		}
 		else
@@ -12208,13 +12155,8 @@ bool TacticalAIHelpers::IsCaptureTargetInRange(CvUnit * pUnit)
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 			CvCity* pNeighboringCity = pPlot->getPlotCity();
-			if (pNeighboringCity && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pNeighboringCity->getOwner()))
-			{
-				int iExpectedSelfDamage = 0;
-				int iExpectedDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pNeighboringCity,pUnit,iExpectedSelfDamage);
-				if (iExpectedSelfDamage < pUnit->GetCurrHitPoints() && iExpectedDamage > (pNeighboringCity->GetMaxHitPoints()-pNeighboringCity->getDamage()))
-					return true;
-			}
+			if (pNeighboringCity && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pNeighboringCity->getOwner()) && pNeighboringCity->isInDangerOfFalling())
+				return true;
 
 			if (pPlot->getImprovementType()==GC.getBARBARIAN_CAMP_IMPROVEMENT())
 			{
@@ -12416,13 +12358,13 @@ const char* barbarianMoveNames[] =
 
 const char* postureNames[] =
 {
-    "POSTURE_WITHDRAW",
-    "POSTURE_SIT_AND_BOMBARD",
-    "POSTURE_ATTRIT_FROM_RANGE",
-    "POSTURE_EXPLOIT_FLANKS",
-    "POSTURE_STEAMROLL",
-    "POSTURE_SURGICAL_CITY_STRIKE",
-    "POSTURE_HEDGEHOG",
-    "POSTURE_COUNTERATTACK",
-    "POSTURE_SHORE_BOMBARDMENT",
+    "P_WITHDRAW",
+    "P_SIT_AND_BOMBARD",
+    "P_ATTRIT_FROM_RANGE",
+    "P_EXPLOIT_FLANKS",
+    "P_STEAMROLL",
+    "P_SURGICAL_CITY_STRIKE",
+    "P_HEDGEHOG",
+    "P_COUNTERATTACK",
+    "P_SHORE_BOMBARDMENT",
 };

@@ -105,7 +105,10 @@ PopulateItems["EventChoices"] = function(stackControl, playerID)
 				
 					-- Disable invalid choices
 					if(not player:IsEventChoiceValid(info.ID, iEventType)) then
-						local szDisabledString = info.DisabledTooltip or "TXT_KEY_CANNOT_TAKE_TT"
+						local szDisabledString = player:GetDisabledTooltip(info.ID);
+						if(szDisabledString == "") then
+							szDisabledString = "TXT_KEY_CANNOT_TAKE_TT";
+						end
 						controlTable.Button:SetDisabled(true)
 						controlTable.Name:SetAlpha(0.2)
 						controlTable.Button:SetToolTipString(szHelpString .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey(szDisabledString));

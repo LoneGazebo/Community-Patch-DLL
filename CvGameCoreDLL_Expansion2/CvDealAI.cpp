@@ -204,6 +204,8 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 		{
 			pDeal->SetRequestingPlayer(NO_PLAYER);
 		}
+		eResponse = DEAL_RESPONSE_ACCEPTABLE;
+		eUIState = DIPLO_UI_STATE_TRADE_AI_ACCEPTS_OFFER;
 #endif
 	}
 	// We want more from this Deal
@@ -1620,7 +1622,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				}
 			}
 			//Lets use our DoF willingness to determine these values - introduce some variability.
-			iItemValue += GetPlayer()->GetDiplomacyAI()->GetDoFWillingness() * 3;
+			iItemValue -= GetPlayer()->GetDiplomacyAI()->GetDoFWillingness() * 3;
 		}
 		else
 		{
@@ -2228,7 +2230,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	CvPlayer& buyingPlayer = GET_PLAYER(bFromMe ? eOtherPlayer : GetPlayer()->GetID());
 
 	//initial value - if we founded the city, we like it more
-	int iItemValue = (pCity->getOriginalOwner() == buyingPlayer.GetID()) ? 10000 : 7500;
+	int iItemValue = (pCity->getOriginalOwner() == buyingPlayer.GetID()) ? 20000 : 15000;
 
 	//If at war, halve the value (that way it'll fit in a peace deal's valuation model).
 	if (!sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))

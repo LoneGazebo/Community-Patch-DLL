@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>13</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>(7-1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(7-7) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems  to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>Civfanatics Community Patch Project Team</Authors>
     <SpecialThanks>
@@ -599,7 +599,12 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Modular Elements/Events/MiscEvents.xml</FileName>
+        <FileName>Modular Elements/Events/Text/EventText_en_US.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Modular Elements/Events/CBOEvents.sql</FileName>
       </Action>
     </ModActions>
     <Homepage>
@@ -732,6 +737,7 @@
     <Folder Include="Modular Elements\Corporations\Art" />
     <Folder Include="Modular Elements\Corporations\Text" />
     <Folder Include="Modular Elements\Corporations\Text\en_US" />
+    <Folder Include="Modular Elements\Events\Text" />
     <Folder Include="Modular Elements\Happiness Mod" />
     <Folder Include="Modular Elements\Corporations" />
     <Folder Include="Modular Elements\ArchaeologistUIMods" />
@@ -2289,7 +2295,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Modular Elements\Events\MiscEvents.xml">
+    <Content Include="Modular Elements\Events\CBOEvents.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\Events\Text\EventText_en_US.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

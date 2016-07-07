@@ -467,6 +467,7 @@
 			<PromotionPrereqOr1>PROMOTION_SHOCK_3</PromotionPrereqOr1>
 			<OrderPriority>7</OrderPriority>
 			<AlwaysHeal>true</AlwaysHeal>
+			<DefenseMod>-10</DefenseMod>
 			<PortraitIndex>31</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_HEAL</PediaType>
@@ -481,7 +482,6 @@
 			<PromotionPrereqOr1>PROMOTION_DRILL_3</PromotionPrereqOr1>
 			<OrderPriority>7</OrderPriority>
 			<ExtraAttacks>1</ExtraAttacks>
-			<DefenseMod>-20</DefenseMod>
 			<PortraitIndex>9</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
@@ -525,7 +525,7 @@
 			<PromotionPrereqOr2>PROMOTION_BOMBARDMENT_3</PromotionPrereqOr2>
 			<OrderPriority>7</OrderPriority>
 			<RangeChange>1</RangeChange>
-			<RangedAttackModifier>-30</RangedAttackModifier>
+			<RangedAttackModifier>-20</RangedAttackModifier>
 			<PortraitIndex>34</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
