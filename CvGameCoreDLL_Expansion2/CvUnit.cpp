@@ -25245,10 +25245,12 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 		if(canEnterTerrain(swapPlot))
 		{
 			// Can I get there this turn?
-			CvUnit* pUnit = (CvUnit*)this;
+			SPathFinderUserData data(this,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
 
-			SPathFinderUserData data(pUnit,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
-			SPath path = GC.GetPathFinder().GetPath(plot(), &swapPlot, data);
+			//need to be careful here, this method may be called from GUI and gamecore, this can lead to a deadlock
+			CvTwoLayerPathFinder& kPathfinder = gDLL->IsGameCoreThread() ? GC.GetPathFinder() : GC.GetInterfacePathFinder();
+			SPath path = kPathfinder.GetPath(plot(), &swapPlot, data);
+
 			if (!!path)
 			{
 				CvPlot* pEndTurnPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
@@ -25284,7 +25286,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 									{
 										// Can the unit I am swapping with get to me this turn?
 										SPathFinderUserData data(pLoopUnit,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
-										SPath path = GC.GetPathFinder().GetPath(pLoopUnit->plot(), pUnit->plot(), data);
+										SPath path = kPathfinder.GetPath(pLoopUnit->plot(), plot(), data);
 										if (!!path)
 										{
 											CvPlot* pPathEndTurnPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
@@ -25972,8 +25974,8 @@ CvString CvUnit::getTacticalZoneInfo() const
 	{
 		const char* dominance[] = { "no units", "friendly", "enemy", "even" };
 		AITacticalPosture posture = GET_PLAYER(getOwner()).GetTacticalAI()->FindPosture(pZone);
-		return CvString::format("tactical zone %d, dominance %s, posture %s", pZone->GetDominanceZoneID(), dominance[pZone->GetDominanceFlag()], 
-			posture!=AI_TACTICAL_POSTURE_NONE ? postureNames[posture] : "none");
+		return CvString::format("tactical zone %d, dominance %s, %s", pZone->GetDominanceZoneID(), dominance[pZone->GetDominanceFlag()], 
+			posture!=AI_TACTICAL_POSTURE_NONE ? postureNames[posture] : "no posture");
 	}
 
 	return CvString("no tactical zone");
@@ -27254,7 +27256,7 @@ const char* CvUnit::GetMissionInfo()
 
 			if (m_eTacticalMove==NO_TACTICAL_MOVE)
 			{
-				m_strMissionInfoString =  homelandMoveNames[m_eHomelandMove];
+				m_strMissionInfoString = homelandMoveNames[m_eHomelandMove];
 				CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iHomelandMoveSetTurn);
 				m_strMissionInfoString += strTemp0;
 			}
@@ -27263,12 +27265,8 @@ const char* CvUnit::GetMissionInfo()
 	else
 	{
 		if (m_eGreatPeopleDirectiveType!=NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
-		{
-			CvString strTemp0 = CvString::format(" // %s", directiveNames[m_eGreatPeopleDirectiveType.get()]);
-			m_strMissionInfoString += strTemp0;
-		}
-
-		if (isTrade())
+			m_strMissionInfoString += directiveNames[m_eGreatPeopleDirectiveType.get()];
+		else if (isTrade())
 		{
 			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 			int iTrIndex = pTrade->GetIndexFromUnitID(GetID(),getOwner());
@@ -27279,7 +27277,7 @@ const char* CvUnit::GetMissionInfo()
 				{
 					CvCity* pFromCity = GET_PLAYER(pTradeConnection->m_eOriginOwner).getCity(pTradeConnection->m_iOriginID);
 					CvCity* pToCity = GET_PLAYER(pTradeConnection->m_eDestOwner).getCity(pTradeConnection->m_iDestID);
-					CvString strTemp0 = CvString::format(" // %s from %s to %s, %d turns to go", 
+					CvString strTemp0 = CvString::format("%s from %s to %s, %d turns to go", 
 						pTradeConnection->m_eConnectionType<NUM_TRADE_CONNECTION_TYPES ? aTrTypes[pTradeConnection->m_eConnectionType] : "unknown",
 						pFromCity ? pFromCity->getName().c_str() : "unknown", pToCity ? pToCity->getName().c_str() : "unknown", 
 						pTradeConnection->m_iTurnRouteComplete-GC.getGame().getGameTurn());
@@ -27345,6 +27343,10 @@ void CvUnit::DumpDangerInNeighborhood()
 void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI, CvPlot* pMissionAIPlot, CvUnit* pMissionAIUnit)
 {
 	VALIDATE_OBJECT
+
+	//potential deadlock in pathfinder, be careful
+	if (!GET_PLAYER(getOwner()).isTurnActive())
+		return;
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	if (MOD_BALANCE_CORE_MILITARY_LOGGING && eMission==CvTypes::getMISSION_MOVE_TO())

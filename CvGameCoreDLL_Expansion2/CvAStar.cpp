@@ -371,7 +371,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	{
 		//debug hook
 		int iDestinationIndex = GC.getMap().plotNum(m_iXdest, m_iYdest);
-		int iStartIndex = GC.getMap().plotNum(m_iXdest, m_iYdest);
+		int iStartIndex = GC.getMap().plotNum(m_iXstart, m_iYstart);
 		if (iStartIndex==giLastStartIndex && iStartIndex>0)
 			OutputDebugString("Repeated pathfinding start\n");
 		if (iDestinationIndex==giLastDestinationIndex && iDestinationIndex>0)

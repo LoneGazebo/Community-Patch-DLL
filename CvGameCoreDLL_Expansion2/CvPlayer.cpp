@@ -40311,7 +40311,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	if (pUnit)
 	{
 		CvPlot* pMusterPlot = GetClosestCity(pUnit->plot())->plot();
-		SPathFinderUserData data(pUnit,0,10);
+		SPathFinderUserData data(pUnit,0,10); //10 turns is enough, everything else is considered dangerous
 		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 		reachablePlots = GC.GetPathFinder().GetPlotsInReach(pMusterPlot, data);
 	}
@@ -40350,7 +40350,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			//if the muster plot is more than 10 turns away it's unsafe by definition
 			SMovePlot test(pTestPlot->GetPlotIndex());
 			ReachablePlots::iterator it = reachablePlots.find(test);
-			if (it==reachablePlots.end())
+			if (it==reachablePlots.end() || it->iTurns>=10)
 				isDangerous = true;
 		}
 

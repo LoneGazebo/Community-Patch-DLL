@@ -2723,7 +2723,8 @@ void CvGame::selectionListMove(CvPlot* pPlot, bool bShift)
 		return;
 	}
 
-	if(pkSelectedUnit != NULL)
+	//need to be careful, potential deadlock
+	if (GET_PLAYER(pkSelectedUnit->getOwner()).isTurnActive())
 	{
 		if(pkSelectedUnit->CanSwapWithUnitHere(*pPlot))
 		{

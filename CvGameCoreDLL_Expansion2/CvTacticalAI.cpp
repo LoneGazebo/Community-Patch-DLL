@@ -11815,8 +11815,8 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		bool bIsInCover = (pPlot->getNumDefenders(pUnit->getOwner()) > 0) && !pUnit->IsCanDefend(pPlot); // only move to cover if I'm defenseless here
 		bool bIsInTerritory = (pPlot->getTeam() == kPlayer.getTeam());
 
-		bool bWrongDomain = (pUnit->getDomainType() == DOMAIN_LAND) && pPlot->needsEmbarkation(pUnit);
-		bool bWouldEmbark = pPlot->needsEmbarkation(pUnit) && !pUnit->isEmbarked();
+		bool bWrongDomain = pPlot->needsEmbarkation(pUnit);
+		bool bWouldEmbark = bWrongDomain && !pUnit->isEmbarked();
 
 		//avoid overflow further down and useful handling for civilians
 		if (iDanger==INT_MAX)
@@ -11827,13 +11827,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		if (bWrongDomain)
 			iDanger += 10;
 
-		if(bWouldEmbark)
-		{
-			if (bAllowEmbark)
-				// Enormous danger on water plot, embarking as last option.
-				aDangerList.push_back(pPlot, bIsInCover ? iDanger : 99999);
-		}
-		else if(bIsInCity)
+		if(bIsInCity)
 		{
 			if (!pPlot->getPlotCity()->isInDangerOfFalling())
 				aCityList.push_back(pPlot, iDanger);
@@ -11848,7 +11842,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		{
 			aCoverList.push_back(pPlot, iDanger - iCityDistance);
 		}
-		else
+		else if(!bWouldEmbark || bAllowEmbark)
 		{
 			aDangerList.push_back(pPlot, iDanger);
 		}
