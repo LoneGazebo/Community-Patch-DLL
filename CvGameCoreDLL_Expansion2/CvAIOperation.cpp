@@ -2131,7 +2131,7 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 		{
 			CvUnit* pCivilian = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetFirstUnitID());
 
-			if (PerformMission(pCivilian))
+			if (pCivilian && PerformMission(pCivilian))
 			{
 				LogOperationSpecialMessage("Transition to finished stage");
 				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
@@ -2223,7 +2223,7 @@ bool CvAIOperationCivilianFoundCity::PerformMission(CvUnit* pSettler)
 {
 	// If the settler made it, we don't care about the entire army
 	CvPlot* pCityPlot = GetTargetPlot();
-	if(pSettler->canFound(pCityPlot) && pSettler->plot() == pCityPlot && pSettler->canMove())
+	if(pSettler && pSettler->canFound(pCityPlot) && pSettler->plot() == pCityPlot && pSettler->canMove())
 	{
 		pSettler->PushMission(CvTypes::getMISSION_FOUND());
 
@@ -2367,7 +2367,7 @@ CvAIOperationCivilianMerchantDelegation::~CvAIOperationCivilianMerchantDelegatio
 bool CvAIOperationCivilianMerchantDelegation::PerformMission(CvUnit* pMerchant)
 {
 	// If the merchant made it, we don't care about the entire army
-	if(pMerchant->plot()->getOwner() == GetTargetPlot()->getOwner() && pMerchant->canMove() && pMerchant->canTrade(pMerchant->plot()))
+	if(pMerchant && pMerchant->plot()->getOwner() == GetTargetPlot()->getOwner() && pMerchant->canMove() && pMerchant->canTrade(pMerchant->plot()))
 	{
 		if (pMerchant->canBuyCityState(pMerchant->plot()) && !GET_PLAYER(m_eOwner).GreatMerchantWantsCash())
 		{
@@ -2432,7 +2432,7 @@ CvPlot* CvAIOperationCivilianDiplomatDelegation::FindBestTargetForUnit(CvUnit* p
 
 bool CvAIOperationCivilianDiplomatDelegation::PerformMission(CvUnit* pDiplomat)
 {
-	if(pDiplomat->plot() == GetTargetPlot() && pDiplomat->canMove() && pDiplomat->canTrade(pDiplomat->plot()))
+	if(pDiplomat && pDiplomat->plot() == GetTargetPlot() && pDiplomat->canMove() && pDiplomat->canTrade(pDiplomat->plot()))
 	{
 		pDiplomat->PushMission(CvTypes::getMISSION_TRADE());
 
@@ -2528,7 +2528,7 @@ CvPlot* CvAIOperationCivilianConcertTour::FindBestTargetForUnit(CvUnit* pUnit, i
 
 bool CvAIOperationCivilianConcertTour::PerformMission(CvUnit* pMusician)
 {
-	if(pMusician->plot() == GetTargetPlot() && pMusician->canMove() && pMusician->canBlastTourism(pMusician->plot()))
+	if(pMusician && pMusician->plot() == GetTargetPlot() && pMusician->canMove() && pMusician->canBlastTourism(pMusician->plot()))
 	{
 		pMusician->PushMission(CvTypes::getMISSION_ONE_SHOT_TOURISM());
 		if(GC.getLogging() && GC.getAILogging())

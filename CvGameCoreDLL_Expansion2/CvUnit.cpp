@@ -20727,6 +20727,7 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 				}
 
 #if defined(SHOW_PLOT_POPUP)
+				//possibly iX and iY are invalid if the unit is not initialized yet, but the macro catches this
 				SHOW_PLOT_POPUP(GC.getMap().plot(iX, iY), getOwner(), localizedText.toUTF8(), 0.0f);
 #else
 				DLLUI->AddPopupText(iX, iY, localizedText.toUTF8(), fDelay);
