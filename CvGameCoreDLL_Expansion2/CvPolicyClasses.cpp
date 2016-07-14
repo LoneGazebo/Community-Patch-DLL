@@ -3392,6 +3392,9 @@ void CvPlayerPolicies::UpdateModifierCache()
 	m_vBuildingClassHappinessModifier.clear();
 	m_vBuildingClassHappinessModifier.resize(GC.getNumBuildingClassInfos(), 0);
 
+	//reset this as well - new values will be set directly in GetNumericModifier()
+	mModifierLookup.clear();
+
 	for (int j = 0; j < GC.getNumBuildingClassInfos(); j++)
 	{
 		int iTourism = 0;

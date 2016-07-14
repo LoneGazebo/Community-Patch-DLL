@@ -1106,7 +1106,7 @@ bool CvPlot::isCoastalLand(int iMinWaterSize) const
 		const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
 		if(pAdjacentPlot != NULL)
 		{
-			if(pAdjacentPlot->isWater())
+			if(pAdjacentPlot->isWater() && pAdjacentPlot->getFeatureType()!=FEATURE_ICE)
 			{
 				if(iMinWaterSize <= 1)
 				{
@@ -3647,10 +3647,7 @@ int CvPlot::GetNumAdjacentMountains() const
 int CvPlot::GetNumPassableNeighbors(int iRings, PlayerTypes ePlayer, DomainTypes eDomain) const
 {
 	int iCount = 0;
-
-	int aiRings[] = {RING0_PLOTS,RING1_PLOTS,RING2_PLOTS,RING3_PLOTS,RING4_PLOTS,RING5_PLOTS};
-
-	for(int iI = 0; iI < aiRings[min(5,max(0,iRings))]; iI++)
+	for(int iI = 0; iI < RING_PLOTS[min(5,max(0,iRings))]; iI++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
 		if(pLoopPlot == NULL)

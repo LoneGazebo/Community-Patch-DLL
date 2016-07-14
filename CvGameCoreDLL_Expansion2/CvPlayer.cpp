@@ -42314,7 +42314,7 @@ void CvPlayer::invalidatePlotFoundValues()
 	m_iPlotFoundValuesUpdateTurn = -1;
 }
 
-void CvPlayer::updatePlotFoundValues()
+void CvPlayer::updatePlotFoundValues(bool bOverrideRevealedCheck)
 {
 	if (m_iPlotFoundValuesUpdateTurn==GC.getGame().getGameTurn())
 		return;
@@ -42350,8 +42350,7 @@ void CvPlayer::updatePlotFoundValues()
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		//in the first turn the plot doesn't need to be visible - for map scripts
-		if (pPlot->isRevealed(getTeam()) || GC.getGame().getElapsedGameTurns()==0 )
+		if (pPlot->isRevealed(getTeam()) || bOverrideRevealedCheck)
 			m_viPlotFoundValues[iI] = pCalc->PlotFoundValue(pPlot, this);
 	}
 

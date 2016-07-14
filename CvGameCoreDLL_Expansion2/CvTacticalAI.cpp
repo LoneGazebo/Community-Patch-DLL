@@ -6518,12 +6518,21 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 		UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
 		if(pUnit && pUnit->canMove())
 		{
+			//see if we can do damage before retreating
+			if (pUnit->canMoveAfterAttacking() && pUnit->getMoves()>1 && pUnit->canRangeStrike())
+				TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit.pointer());
+
 			//so easy
 			CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit.pointer(),true);
 			if(pBestPlot != NULL)
 			{
 				// Move to the lowest danger value found
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+
+				//see if we can do damage after retreating
+				if (pUnit->canMove() && pUnit->canRangeStrike())
+					TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit.pointer());
+
 				pUnit->finishMoves();
 				UnitProcessed(pUnit->GetID(), pUnit->IsCombatUnit());
 
@@ -11894,15 +11903,13 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWi
 	if (!pUnit)
 		return NULL;
 
-	int aiRingPlots[] = { RING0_PLOTS, RING1_PLOTS, RING2_PLOTS, RING3_PLOTS, RING4_PLOTS, RING5_PLOTS };
-
 	//work outwards in rings
 	for (int iRing=0; iRing<min(iMaxDistance,5); iRing++)
 	{
 		std::vector<SPlotWithScore> vCandidates;
 
 		//check all neighbors which haven't been checked before
-		for (int iI=aiRingPlots[iRing]; iI<aiRingPlots[iRing+1]; iI++)
+		for (int iI=RING_PLOTS[iRing]; iI<RING_PLOTS[iRing+1]; iI++)
 		{
 			CvPlot* pPlot = iterateRingPlots(pUnit->getX(),pUnit->getY(),iI);
 			if (!pPlot)

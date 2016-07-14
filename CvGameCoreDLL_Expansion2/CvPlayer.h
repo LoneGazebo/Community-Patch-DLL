@@ -2495,7 +2495,7 @@ public:
 	virtual void AI_DoEventChoice(EventTypes eEvent) = 0;
 #endif
 
-	virtual void updatePlotFoundValues();
+	virtual void updatePlotFoundValues(bool bOverrideRevealedCheck=false);
 	virtual void invalidatePlotFoundValues();
 	virtual int getPlotFoundValue(int iX, int iY);
 	virtual void setPlotFoundValue(int iX, int iY, int iValue);

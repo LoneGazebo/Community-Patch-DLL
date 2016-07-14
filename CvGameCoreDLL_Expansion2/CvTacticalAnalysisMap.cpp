@@ -1176,7 +1176,7 @@ CvTacticalDominanceZone * CvTacticalAnalysisMap::GetZoneByPlot(CvPlot * pPlot)
 	{
 		int iPlotIndex = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
 		CvTacticalAnalysisCell* pCell = GetCell(iPlotIndex);
-		CvTacticalDominanceZone* pZone = GetZoneByID(pCell->GetDominanceZone());
+		CvTacticalDominanceZone* pZone = pCell ? GetZoneByID(pCell->GetDominanceZone()) : NULL;
 		return pZone;
 	}
 
