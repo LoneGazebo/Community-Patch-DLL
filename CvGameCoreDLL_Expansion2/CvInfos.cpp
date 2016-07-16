@@ -7708,7 +7708,8 @@ bool CvVoteSourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 //		CvModEventInfo
 //======================================================================================================
 CvModEventInfo::CvModEventInfo() :
-	m_iNumChoices(0),
+	 m_iNumChoices(0),
+	 m_iEventClass(-1),
 	 m_iCooldown(0),
 	 m_iRandomChance(0),
 	 m_iRandomChanceDelta(0),
@@ -7775,6 +7776,11 @@ CvModEventInfo::~CvModEventInfo()
 int CvModEventInfo::getRandomChance() const
 {
 	return m_iRandomChance;
+}
+//------------------------------------------------------------------------------
+int CvModEventInfo::getEventClass() const
+{
+	return m_iEventClass;
 }
 //------------------------------------------------------------------------------
 int CvModEventInfo::getRandomChanceDelta() const
@@ -8066,6 +8072,9 @@ bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_bIgnoresGlobalCooldown = kResults.GetBool("IgnoresGlobalCooldown");
 
 	const char* szTextVal;
+
+	szTextVal = kResults.GetText("EventClass");
+	m_iEventClass = GC.getInfoTypeForString(szTextVal, true);
 	
 	m_iRandomChance = kResults.GetInt("RandomChance");
 	m_iRandomChanceDelta = kResults.GetInt("RandomChanceDelta");
@@ -9131,6 +9140,7 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 //		CvModCityEventInfo
 //======================================================================================================
 CvModCityEventInfo::CvModCityEventInfo() :
+	 m_iEventClass(-1),
 	 m_bIgnoresGlobalCooldown(false),
 	 m_iPrereqTech(-1),
 	 m_iObsoleteTech(-1),
@@ -9209,6 +9219,11 @@ CvModCityEventInfo::CvModCityEventInfo() :
 CvModCityEventInfo::~CvModCityEventInfo()
 {
 	SAFE_DELETE_ARRAY(m_piMinimumYield);
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getEventClass() const
+{
+	return m_iEventClass;
 }
 bool CvModCityEventInfo::IgnoresGlobalCooldown() const
 {
@@ -9597,6 +9612,10 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bLacksPlayerMajority = kResults.GetBool("CityLacksPlayerMajorityReligion");
 
 	const char* szTextVal;
+
+	szTextVal = kResults.GetText("EventClass");
+	m_iEventClass = GC.getInfoTypeForString(szTextVal, true);
+
 	szTextVal = kResults.GetText("PrereqTech");
 	m_iPrereqTech =  GC.getInfoTypeForString(szTextVal, true);
 

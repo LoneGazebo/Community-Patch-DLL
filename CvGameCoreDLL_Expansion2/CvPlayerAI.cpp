@@ -326,6 +326,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	//Don't burn down gifts, that makes you look ungrateful.
 	if(bGift)
 	{
+		pCity->DoCreatePuppet();
 		return;
 	}
 #endif
@@ -435,9 +436,10 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	}
 #if defined(MOD_BALANCE_CORE)
 	//Let's make sure we annex.
-	else if(pCity->getOriginalOwner() == GetID())
+	else if(pCity->getOriginalOwner() == GetID() && !GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
 	{
 		pCity->DoAnnex();
+		return;
 	}
 #endif
 }

@@ -26,6 +26,8 @@
 // must be included after all other headers
 #include "LintFree.h"
 
+int RING_PLOTS[6] = {RING0_PLOTS,RING1_PLOTS,RING2_PLOTS,RING3_PLOTS,RING4_PLOTS,RING5_PLOTS};
+
 int dxWrap(int iDX)
 {
 	const CvMap& kMap = GC.getMap();

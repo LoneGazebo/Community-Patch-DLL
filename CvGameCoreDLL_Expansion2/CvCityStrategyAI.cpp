@@ -1096,17 +1096,10 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 				case CITY_BUILDABLE_PROCESS:
 				{
 					ProcessTypes eProcessType = (ProcessTypes)selection.m_iIndex;
-					if(m_BuildablesPrecheck.size() > 1)
+					int iNewWeight = m_pProcessProductionAI->CheckProcessBuildSanity(eProcessType, m_BuildablesPrecheck.GetWeight(iI), m_BuildablesPrecheck.size(), iGPT);
+					if(iNewWeight > 0)
 					{
-						int iNewWeight = m_pProcessProductionAI->CheckProcessBuildSanity(eProcessType, m_BuildablesPrecheck.GetWeight(iI));
-						if(iNewWeight > 0)
-						{
-							m_Buildables.push_back(selection, iNewWeight);
-						}
-					}
-					else
-					{
-						m_Buildables.push_back(selection, m_BuildablesPrecheck.GetWeight(iI));
+						m_Buildables.push_back(selection, iNewWeight);
 					}
 					break;
 				}
@@ -3264,7 +3257,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 
 #if defined(MOD_BALANCE_CORE)
 	//Gotta have at least one!
-	if(iNumBuilders < 1)
+	if(iNumBuilders <= 1)
 		return false;
 
 	int iX = pCity->getX(); int iY = pCity->getY(); int iOwner = pCity->getOwner();
@@ -3299,13 +3292,15 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 				{
 					continue;
 				}
-				ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo((BuildTypes) iI)->getImprovement();
-				if(eImprovement != NO_IMPROVEMENT)
+				ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+				if(eImprovement == NO_IMPROVEMENT)
 				{
-					CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);
-					if(pkEntry->IsCreatedByGreatPerson())
-						continue;
+					continue;
 				}
+
+				CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);
+				if(pkEntry->IsCreatedByGreatPerson())
+					continue;
 
 				//Valid right now with any worker valid build?
 				if(GET_PLAYER(pCity->getOwner()).canBuild(pLoopPlot, (BuildTypes)iI))
@@ -3316,15 +3311,15 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 			}
 		}
 	}
-	//No tiles to improve?
+	//Tiles to improve?
 	if(iCanImprove <= 0)
 	{
 		return true;
 	}
-	//Enough workers already here? 3:1 ratio is good ratio.
-	if((iNumWorkersHere * 3) > iCanImprove)
+	//Not enough workers here? 3:1 ratio is good ratio.
+	if((iNumWorkersHere * 3) < iCanImprove)
 	{
-		return true;
+		return false;
 	}
 #endif
 
@@ -3834,7 +3829,11 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_UnderBlockade(CvCity* pCity)
 /// "Is Puppet" City Strategy: build gold buildings and not military training buildings
 bool CityStrategyAIHelpers::IsTestCityStrategy_IsPuppet(CvCity* pCity)
 {
+#if defined(MOD_BALANCE_CORE)
+	if(pCity->IsPuppet() && !GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing())
+#else
 	if(pCity->IsPuppet())
+#endif
 	{
 		return true;
 	}
@@ -4540,7 +4539,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if(pkBuildingInfo->GetInstantYield(eYield) > 0)
 	{
-		iYieldValue += pkBuildingInfo->GetInstantYield(eYield);
+		iYieldValue += pkBuildingInfo->GetInstantYield(eYield) * 10;
 	}
 	if(pkBuildingInfo->GetGrowthExtraYield(eYield) > 0)
 	{
@@ -4624,13 +4623,27 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 		if(pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) > 0)
 		{
-			if(pCity->GetNumTerrainWorked(eTerrain) > 0)
+			if(eTerrain == TERRAIN_MOUNTAIN)
 			{
-				iYieldValue += (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) / pCity->GetNumTerrainWorked(eTerrain));
+				if(pCity->GetNearbyMountains() > 0)
+				{
+					iYieldValue += (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) / pCity->GetNearbyMountains()) * 3;
+				}
+				else
+				{
+					iYieldValue -= (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) * 5);
+				}
 			}
 			else
 			{
-				iYieldValue -= (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) * 5);
+				if(pCity->GetNumTerrainWorked(eTerrain) > 0)
+				{
+					iYieldValue += (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) / pCity->GetNumTerrainWorked(eTerrain)) * 3;
+				}
+				else
+				{
+					iYieldValue -= (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) * 5);
+				}
 			}
 		}
 		if(pkBuildingInfo->GetTerrainYieldChange(eTerrain, eYield) > 0)
@@ -4835,6 +4848,22 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		{
 			iYieldValue *= 2;
 		}
+		if(kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
+		{
+			iYieldValue *= 2;
+		}
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				if(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
+				{
+					iYieldValue *= 2;
+				}
+			}
+		}
 	}
 
 	if(eYield == YIELD_SCIENCE)
@@ -4843,7 +4872,25 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if(eNeedScience != NO_AICITYSTRATEGY && pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedScience))
 		{
 			iYieldValue *= 2;
-		}	
+		}
+		if(kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
+		{
+			iYieldValue *= 2;
+		}
+	}
+	if(eYield == YIELD_PRODUCTION)
+	{
+		if(kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
+		{
+			iYieldValue *= 2;
+		}
+	}
+	if(eYield == YIELD_TOURISM)
+	{
+		if(kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
+		{
+			iYieldValue *= 2;
+		}
 	}
 
 	if(eYield == YIELD_FAITH)

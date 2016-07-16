@@ -1084,6 +1084,7 @@ void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS|CvUnit::MOVEFLAG_IGNORE_STACKING,1);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 
+	//potential deadlock - need to use special pathfinder instance
 	ReachablePlots plots = GC.GetInterfacePathFinder().GetPlotsInReach(pkUnit->getX(),pkUnit->getY(),data);
 	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
 	{
@@ -1106,6 +1107,7 @@ void CvDllGameContext::TEMPOnHexUnitChangedAttack(ICvUnit1* pUnit)
 	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS|CvUnit::MOVEFLAG_DECLARE_WAR|CvUnit::MOVEFLAG_ATTACK,1);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 
+	//potential deadlock - need to use special pathfinder instance
 	ReachablePlots plots = GC.GetInterfacePathFinder().GetPlotsInReach(pkUnit->getX(),pkUnit->getY(),data);
 	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
 	{

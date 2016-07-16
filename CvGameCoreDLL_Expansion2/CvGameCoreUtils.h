@@ -193,6 +193,7 @@ inline DirectionTypes hexspaceSpikeDirection(const int iXOffset, const int iYOff
 	}
 }
 
+extern int RING_PLOTS[6];
 CvPlot* iterateRingPlots(const CvPlot* pCenter, int iIndex);
 CvPlot* iterateRingPlots(int iX, int iY, int iIndex);
 int getRingIterationIndex(const CvPlot* pCenter, const CvPlot* pPlot);

@@ -746,6 +746,9 @@ public:
 
 	int GetLocalHappiness() const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	void UpdateComboHappiness();
+	void SetComboHappiness(int iValue);
+	int GetComboUnhappiness() const;
 	int getHappinessDelta() const;
 	int getThresholdSubtractions(YieldTypes eYield, int iMod = 0) const;
 	int getThresholdAdditions() const;
@@ -1699,6 +1702,7 @@ protected:
 #endif
 
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvCity> m_iComboUnhappiness;
 	FAutoVariable<std::vector<int>, CvCity> m_vClosestNeighbors;
 	std::vector<int> m_vAttachedUnits;
 #endif

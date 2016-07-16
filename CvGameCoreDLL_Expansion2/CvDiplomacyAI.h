@@ -1355,6 +1355,13 @@ public:
 	bool IsGoingForCultureVictory();
 	bool IsGoingForSpaceshipVictory();
 
+#if defined(MOD_BALANCE_CORE)
+	bool IsCloseToSSVictory();
+	bool IsCloseToDominationVictory();
+	bool IsCloseToCultureVictory();
+	bool IsCloseToDiploVictory();
+#endif
+
 	bool IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false);
 
 	// Messages sent to other players about protected Minor Civs

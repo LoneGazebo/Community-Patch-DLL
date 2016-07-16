@@ -483,6 +483,18 @@ protected:
 	static int lFoundCorporation(lua_State* L);
 	static int lCanFoundCorporation(lua_State* L);
 	static int lIsCorporationFounded(lua_State* L);
+
+	//Contracts
+	static int lDoUpdateContracts(lua_State* L);
+	static int lGetNumActiveContracts(lua_State* L);
+	static int lGetNumInactiveContracts(lua_State* L);
+	static int lGetNumAvailableContracts(lua_State* L);
+	static int lGetNumUnavailableContracts(lua_State* L);
+	static int lGetActiveContract(lua_State* L);
+	static int lGetInactiveContract(lua_State* L);
+	static int lIsContractActive(lua_State* L);
+	static int lIsContractAvailable(lua_State* L);
+	static int lGetContractUnit(lua_State* L);
 #endif
 };
 

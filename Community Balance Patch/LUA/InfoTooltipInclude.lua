@@ -458,10 +458,15 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		end
 	end
 -- CBP
-	local iCorpGPChange = pBuildingInfo.GPRateModifierPerXFranchises;
-	if iCorpGPChange ~=0 then
-		local localizedText = Locale.ConvertTextKey("TXT_KEY_PEDIA_CORP_GP_CHANGE", iCorpGPChange);
-		table.insert(lines, localizedText);
+	if(pCity ~= nil) then
+		local iCorpGPChange = pBuildingInfo.GPRateModifierPerXFranchises;
+		if iCorpGPChange ~=0 then
+			iCorpGPChange = pCity:GetGPRateModifierPerXFranchises();
+			if iCorpGPChange ~=0 then
+				local localizedText = Locale.ConvertTextKey("TXT_KEY_PEDIA_CORP_GP_CHANGE", iCorpGPChange);
+				table.insert(lines, localizedText);
+			end
+		end
 	end
 -- END
 	local iNumGreatWorks = pBuildingInfo.GreatWorkCount;

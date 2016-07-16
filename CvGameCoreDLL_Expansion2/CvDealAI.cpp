@@ -7194,6 +7194,10 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	{
 		return true;
 	}
+	if(iValueTheyreOffering > 0 && pDeal->m_TradedItems.size() > 0)
+	{
+		return true;
+	}
 #else
 	int iGold = pDeal->GetGoldAvailable(eOtherPlayer, TRADE_ITEM_GOLD);
 

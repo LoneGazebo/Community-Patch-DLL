@@ -125,6 +125,9 @@ public:
 	int GetExpensePerTurnFromVassalTaxes() const;
 	void SetExpensePerTurnFromVassalTaxesTimes100(int iValue);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int GetContractGoldMaintenance() const;
+#endif
 
 protected:
 	CvPlayer* m_pPlayer;

@@ -1168,6 +1168,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	iPriority += (m_pPlayer->GetPlayerTraits()->GetCityStateFriendshipModifier() * 2);
 	iPriority += (m_pPlayer->GetPlayerTraits()->GetCityStateBonusModifier() * 2);
 	iPriority -= (m_pPlayer->GetPlayerTraits()->GetCityStateCombatModifier() * 2);
+	iPriority -= (m_pPlayer->GetCityStateCombatModifier());
 #else
 	else if (iVotesControlled >= ((iVotesNeededToWin * 3) / 4))
 	{

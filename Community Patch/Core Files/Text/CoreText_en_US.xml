@@ -2399,7 +2399,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_BUILD_X_COMPLETE">
-			<Text>The builders fromm {@2_Civ} are dazzled by your monumental construction efforts.</Text>
+			<Text>The builders from {@1_Civ} are dazzled by your monumental construction efforts.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_BUILD_X_COMPLETE">
 			<Text>Construction project completed!</Text>
@@ -6421,7 +6421,40 @@
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_HELP">
 			<Text>Check to enable Vox Populi's Player and City Events System</Text>
 		</Row>
-		
+
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_GOOD">
+			<Text>No Good Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_GOOD_HELP">
+			<Text>Check to disable positive outcome events from Vox Populi's Player and City Events System</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_NEUTRAL">
+			<Text>No Neutral Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_NEUTRAL_HELP">
+			<Text>Check to disable neutral outcome events from Vox Populi's Player and City Events System</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_BAD">
+			<Text>No Bad Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_BAD_HELP">
+			<Text>Check to disable bad outcome events from Vox Populi's Player and City Events System</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_TRADE">
+			<Text>No Trade Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS_TRADE_HELP">
+			<Text>Check to disable trade (miscellaneous) outcome events from Vox Populi's Player and City Events System</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAMEOPTION_CIV_SPECIFIC_EVENTS">
+			<Text>No Civ-Specific Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAMEOPTION_CIV_SPECIFIC_EVENTS_HELP">
+			<Text>Check to disable Civilization-specific events from Vox Populi's Player and City Events System</Text>
+		</Row>
+
 		<!-- Egypt CBO-->
 
 		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_1">

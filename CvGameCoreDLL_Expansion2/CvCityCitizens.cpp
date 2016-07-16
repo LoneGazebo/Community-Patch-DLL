@@ -504,6 +504,20 @@ void CvCityCitizens::DoTurn()
 						bGPCity = thisPlayer.GetDiplomacyAI()->IsGoingForCultureVictory();
 					}
 				}
+				bool bCultureBlock = false;
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+					if (eLoopPlayer != NO_PLAYER && eLoopPlayer != m_pCity->getOwner() && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+					{
+						if(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
+						{
+							bCultureBlock = true;
+							break;
+						}
+					}
+				}
 				if(IsNoAutoAssignSpecialists())
 				{
 					SetNoAutoAssignSpecialists(false);
@@ -569,7 +583,7 @@ void CvCityCitizens::DoTurn()
 								SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
 							}
 						}
-						else if(eYield == YIELD_CULTURE && !bGPCity)
+						else if(eYield == YIELD_CULTURE && (!bGPCity || bCultureBlock))
 						{
 							if(GetFocusType() != CITY_AI_FOCUS_TYPE_CULTURE)
 							{
@@ -611,26 +625,35 @@ void CvCityCitizens::DoTurn()
 	}
 	if(!thisPlayer.isHuman() && thisPlayer.IsEmpireVeryUnhappy())
 	{
-		int iMostUnhappy = 0;
+		int iUnhappyAverage = 0;
 		CvCity* pLoopCity;
-		CvCity* pWorstCity = NULL;
 		int iLoop = 0;
+		int iNumCities = 0;
+		int iThisCityValue = 0;
 		for(pLoopCity = GET_PLAYER(thisPlayer.GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(thisPlayer.GetID()).nextCity(&iLoop))
 		{
 			if(pLoopCity != NULL)
 			{
 				//mind the sign change
-				int iUnhappiness = - pLoopCity->getHappinessDelta(); 
+				int iUnhappiness = pLoopCity->getHappinessDelta() * -1; 
 
-				if(iUnhappiness > iMostUnhappy)
+				iNumCities++;
+
+				if(iUnhappiness > 0)
 				{
-					pWorstCity = pLoopCity;
-					iMostUnhappy = iUnhappiness;
+					iUnhappyAverage += iUnhappiness;
+				}
+				if(pLoopCity == m_pCity)
+				{
+					iThisCityValue = iUnhappiness;
 				}
 			}
-
 		}
-		if(pWorstCity != NULL && pWorstCity->GetID() == m_pCity->GetID())
+		if(iNumCities > 0 && iUnhappyAverage > 0)
+		{
+			iUnhappyAverage /= iNumCities;
+		}
+		if(iThisCityValue >= iUnhappyAverage)
 		{
 			if(!IsForcedAvoidGrowth())
 			{
@@ -3145,7 +3168,7 @@ void CvCityCitizens::DoSpecialists()
 
 							if (eMinor != GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 							{
-								if (GetPlayer()->IsDiplomaticMarriage() && !GET_TEAM(GET_PLAYER(eMinor).getTeam()).isAtWar(GetPlayer()->getTeam()) && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetPlayer()->GetID()))
+								if (GetPlayer()->IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetPlayer()->GetID()))
 								{
 									iNumMarried++;
 								}

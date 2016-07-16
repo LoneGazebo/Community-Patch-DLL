@@ -2584,6 +2584,7 @@ public:
 	int getMinimumNationalPopulation() const;
 	int getMinimumNumberCities() const;
 	int getUnitTypeRequired() const;
+	int getEventClass() const;
 	int getRandomChance() const;
 	int getRandomChanceDelta() const;
 	int getRequiredCiv() const;
@@ -2644,6 +2645,7 @@ protected:
 	int m_iMinimumNationalPopulation;
 	int m_iMinimumNumberCities;
 	int m_iUnitTypeRequired;
+	int m_iEventClass;
 	int m_iRandomChance;
 	int m_iRandomChanceDelta;
 	int m_iRequiredCiv;
@@ -2935,6 +2937,7 @@ public:
 	CvModCityEventInfo();
 	virtual ~CvModCityEventInfo();
 
+	int getEventClass() const;
 	bool IgnoresGlobalCooldown() const;
 	int getPrereqTech() const;
 	int getObsoleteTech() const;
@@ -3011,6 +3014,7 @@ public:
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
+	int m_iEventClass;
 	bool m_bIgnoresGlobalCooldown;
 	int m_iPrereqTech;
 	int m_iObsoleteTech;

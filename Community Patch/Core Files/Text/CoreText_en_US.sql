@@ -239,12 +239,6 @@ UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]Your recent diplomatic actions disappoint them.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_REFUSED_REQUESTS';
 
--- Unit Settle Help
-
-UPDATE Language_en_US
-SET Text = 'Cannot found a City here. If on a Standard or smaller size map, cities must have 3 Tiles between them. If Large or greater, cities must have 4 tiles between them.'
-WHERE Tag = 'TXT_KEY_MISSION_BUILD_CITY_DISABLED_HELP';
-
 -- Diplo Text for DoF changed
 UPDATE Language_en_US
 SET Text = 'Our Declaration of Friendship must end.'

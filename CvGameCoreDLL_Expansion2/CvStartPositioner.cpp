@@ -53,6 +53,8 @@ void CvStartPositioner::DivideMapIntoRegions(int iNumRegions)
 
 	// Compute fertility for each plot
 	ComputeTileFertilityValues();
+	// We will need this later
+	GET_PLAYER((PlayerTypes)0).updatePlotFoundValues(true);
 
 	// Loop through each continent adding it to our list
 	for(pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))

@@ -284,7 +284,7 @@
 			<Text>Corporation Founded!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_FOUNDED_OTHER_PLAYER">
-			<Text>{1_PlayerName} has founded [COLOR_POSITIVE_TEXT]{@1_CorporationName}[ENDCOLOR]! This Corporation can no longer be established unless the other player's Corporation Headquarters is destroyed (on city capture).</Text>
+			<Text>{1_PlayerName} has founded [COLOR_POSITIVE_TEXT]{@2_CorporationName}[ENDCOLOR]! This Corporation can no longer be established unless the other player's Corporation Headquarters is destroyed (on city capture).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_FOUNDED_OTHER_PLAYER_SUMMARY">
 			<Text>{1_PlayerName} has founded a Corporation!</Text>

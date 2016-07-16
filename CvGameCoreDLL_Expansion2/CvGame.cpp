@@ -145,6 +145,7 @@ CvGame::CvGame() :
 
 #if defined(MOD_BALANCE_CORE)
 	m_pGameCorporations = NULL;
+	m_pGameContracts = NULL;
 #endif
 
 	m_pAdvisorCounsel = NULL;
@@ -1046,6 +1047,7 @@ void CvGame::uninit()
 
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE(m_pGameCorporations);
+	SAFE_DELETE(m_pGameContracts);
 #endif
 
 	SAFE_DELETE(m_pAdvisorCounsel);
@@ -1339,6 +1341,10 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 		CvAssertMsg(m_pGameCorporations==NULL, "about to leak memory, CvGame::m_pGameCorporations");
 		m_pGameCorporations = FNEW(CvGameCorporations, c_eCiv5GameplayDLL, 0);
 		m_pGameCorporations->Init();
+
+		CvAssertMsg(m_pGameContracts==NULL, "about to leak memory, CvGame::m_pGameContracts");
+		m_pGameContracts = FNEW(CvGameContracts, c_eCiv5GameplayDLL, 0);
+		m_pGameContracts->Init();
 #endif
 
 		CvAssertMsg(m_pGameCulture==NULL, "about to leak memory, CvGame::m_pGameCulture");
@@ -2723,7 +2729,8 @@ void CvGame::selectionListMove(CvPlot* pPlot, bool bShift)
 		return;
 	}
 
-	if(pkSelectedUnit != NULL)
+	//need to be careful, potential deadlock
+	if (GET_PLAYER(pkSelectedUnit->getOwner()).isTurnActive())
 	{
 		if(pkSelectedUnit->CanSwapWithUnitHere(*pPlot))
 		{
@@ -8020,6 +8027,7 @@ void CvGame::doTurn()
 
 #if defined(MOD_BALANCE_CORE)
 	GetGameCorporations()->DoTurn();
+	GetGameContracts()->DoTurn();
 #endif
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
@@ -10537,6 +10545,7 @@ void CvGame::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	// Don't even try to worry about save compatibility
 	kStream >> *m_pGameCorporations;
+	kStream >> *m_pGameContracts;
 #endif
 
 	unsigned int lSize = 0;
@@ -10736,6 +10745,7 @@ void CvGame::Write(FDataStream& kStream) const
 
 #if defined(MOD_BALANCE_CORE)
 	kStream << *m_pGameCorporations;
+	kStream << *m_pGameContracts;
 #endif
 
 	//In Version 8, Serialize Saved Game database
@@ -11197,6 +11207,11 @@ CvGameReligions* CvGame::GetGameReligions()
 CvGameCorporations* CvGame::GetGameCorporations()
 {
 	return m_pGameCorporations;
+}
+//	--------------------------------------------------------------------------------
+CvGameContracts* CvGame::GetGameContracts()
+{
+	return m_pGameContracts;
 }
 #endif
 

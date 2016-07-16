@@ -140,6 +140,8 @@ class CvNetMessageHandler;
 #if defined(MOD_BALANCE_CORE)
 class CvCorporationEntry;
 class CvCorporationXMLEntries;
+class CvContractEntry;
+class CvContractXMLEntries;
 #endif
 
 class CvDLLInterfaceIFaceBase;
@@ -544,6 +546,11 @@ public:
 	std::vector<CvCorporationEntry*>& getCorporationInfo();
 	_Ret_maybenull_ CvCorporationEntry* getCorporationInfo(CorporationTypes eCorporationNum);
 	CvCorporationXMLEntries* GetGameCorporations() const;
+
+	int getNumContractInfos();
+	std::vector<CvContractEntry*>& getContractInfo();
+	_Ret_maybenull_ CvContractEntry* getContractInfo(ContractTypes eContract);
+	CvContractXMLEntries* GetGameContracts() const;
 #endif
 
 	int getNumBeliefInfos();
@@ -863,6 +870,10 @@ public:
 	inline int getSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD()
 	{
 		return m_iSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD;
+	}
+	inline int getRELIGION_MIN_FAITH_SECOND_PROPHET()
+	{
+		return m_iRELIGION_MIN_FAITH_SECOND_PROPHET;
 	}
 #endif
 	inline int getAI_STRATEGY_EARLY_EXPLORATION_STARTING_WEIGHT()
@@ -9069,6 +9080,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	CvCorporationXMLEntries* m_pCorporations;
+	CvContractXMLEntries* m_pContracts;
 #endif
 
 	//////////////////////////////////////////////////////////////////////////
@@ -9147,6 +9159,7 @@ protected:
 	int m_iBALANCE_HAPPINESS_THRESHOLD_PERCENTILE;
 	int m_iGLOBAL_RESOURCE_MONOPOLY_THRESHOLD;
 	int m_iSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD;
+	int m_iRELIGION_MIN_FAITH_SECOND_PROPHET;
 #endif
 	int m_iAI_STRATEGY_EARLY_EXPLORATION_STARTING_WEIGHT;
 	int m_iAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR;

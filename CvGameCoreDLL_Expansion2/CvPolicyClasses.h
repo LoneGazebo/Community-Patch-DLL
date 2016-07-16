@@ -193,6 +193,8 @@ public:
 	bool IsDummy() const;
 	bool IsOpener() const;
 	bool IsFinisher() const;
+	int GetCityStateCombatModifier() const;
+	int GetGreatEngineerRateModifier() const;
 #endif
 	bool IsMilitaryFoodProduction() const;
 	int GetWoundedUnitDamageMod() const;
@@ -507,6 +509,8 @@ private:
 	bool m_bDummy;
 	bool m_bOpener;
 	bool m_bFinisher;
+	int m_iCityStateCombatModifier;
+	int m_iGreatEngineerRateModifier;
 #endif
 	bool m_bMilitaryFoodProduction;
 	bool m_bAlwaysSeeBarbCamps;
@@ -763,6 +767,9 @@ enum PolicyModifierType
 	POLICYMOD_GREAT_ARTIST_RATE,
 	POLICYMOD_GREAT_MUSICIAN_RATE,
 	POLICYMOD_GREAT_MERCHANT_RATE,
+#if defined(MOD_BALANCE_CORE)
+	POLICYMOD_GREAT_ENGINEER_RATE,
+#endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	POLICYMOD_GREAT_DIPLOMAT_RATE,
 #endif
@@ -834,7 +841,9 @@ public:
 #endif
 	int GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) const;
 	CvPolicyXMLEntries* GetPolicies() const;
-
+#if defined(MOD_BALANCE_CORE)
+	void ClearCache();
+#endif
 	// Functions to return benefits from policies
 	int GetNumericModifier(PolicyModifierType eType);
 	int GetYieldModifier(YieldTypes eYieldType);

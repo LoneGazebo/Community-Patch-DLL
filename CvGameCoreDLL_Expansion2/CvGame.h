@@ -36,6 +36,7 @@ class CvAdvisorCounsel;
 class CvAdvisorRecommender;
 #if defined(MOD_BALANCE_CORE)
 class CvGameCorporations;
+class CvGameContracts;
 #endif
 
 class CvGameInitialItemsOverrides
@@ -546,6 +547,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	CvGameCorporations* GetGameCorporations();
+	CvGameContracts* GetGameContracts();
 #endif
 
 	int GetAction(int iKeyStroke, bool bAlt, bool bShift, bool bCtrl);
@@ -834,6 +836,7 @@ protected:
 
 #if defined(MOD_BALANCE_CORE)
 	CvGameCorporations*		   m_pGameCorporations;
+	CvGameContracts*			m_pGameContracts;
 #endif
 
 	//necessary because we only want to hide the mouseover of the most recently moused over unit -KS

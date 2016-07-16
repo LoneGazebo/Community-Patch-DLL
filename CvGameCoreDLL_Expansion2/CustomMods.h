@@ -314,7 +314,7 @@
 #define MOD_COMMUNITY_PATCH							gCustomMods.isCOMMUNITY_PATCH()
 #if defined(MOD_COMMUNITY_PATCH)
 #define MOD_BALANCE_CORE							(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE())
-#define MOD_CORE_DEBUGGING							(MOD_COMMUNITY_PATCH && gCustomMods.isCORE_DEBUGGING())
+//#define MOD_CORE_DEBUGGING							(MOD_COMMUNITY_PATCH && gCustomMods.isCORE_DEBUGGING())
 #define MOD_BALANCE_CORE_YIELDS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_YIELDS())
 #define MOD_BALANCE_CORE_SPIES						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_SPIES())
 #define MOD_BALANCE_CORE_SPIES_ADVANCED				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_SPIES_ADVANCED())
@@ -1081,8 +1081,6 @@ enum BattleTypeTypes
 #define GAMEEVENT_CustomMissionTargetPlot		"CustomMissionTargetPlot",		"iiiiiii"
 #define GAMEEVENT_CustomMissionTimerInc			"CustomMissionTimerInc",		"iiiiiii"
 #define GAMEEVENT_DeclareWar					"DeclareWar",					"iib"
-#define GAMEEVENT_DiplomacyStfu					"DiplomacyStfu",				"iiiiii"
-#define GAMEEVENT_DiplomacyStfuLeaveLeader		"DiplomacyStfuLeaveLeader",		"i"
 #define GAMEEVENT_EspionageCanMoveSpyTo			"EspionageCanMoveSpyTo",		"iii"
 #define GAMEEVENT_EspionageCanStageCoup			"EspionageCanStageCoup",		"iii"
 #define GAMEEVENT_EspionageResult				"EspionageResult",				"iiiii"
@@ -1174,6 +1172,9 @@ enum BattleTypeTypes
 #define GAMEEVENT_UnitPrekill					"UnitPrekill",					"iiiiibi"
 #define GAMEEVENT_UnitPromoted					"UnitPromoted",					"iii"
 #define GAMEEVENT_UnitUpgraded					"UnitUpgraded",					"iiib"
+#define GAMEEVENT_IdeologyAdopted				"IdeologyAdopted",				"ii"
+#define GAMEEVENT_IdeologySwitched				"IdeologySwitched",				"iii"
+//JFD
 #define GAMEEVENT_PietyChanged              "PietyChange",                  "iii"
 #define GAMEEVENT_PietyRateChanged          "PietyRateChange",              "iii"
 #define GAMEEVENT_PlayerSecularizes         "PlayerSecularizes",            "iib"
@@ -1186,11 +1187,19 @@ enum BattleTypeTypes
 #define GAMEEVENT_GovernmentCooldownRateChanges "GovernmentCooldownRateChanges",    "ii"
 #define GAMEEVENT_GreatWorkCreated          "GreatWorkCreated",             "iii"
 #define GAMEEVENT_PlayerAdoptsCurrency		"PlayerAdoptsCurrency", "iii"
+//Contracts
+#define GAMEEVENT_GetContractUnit			"GetContractUnit", "i"
+#define GAMEEVENT_GetContractMaintenance	"GetContractMaintenance", "ii"
+#define GAMEEVENT_GetContractDuration		"GetContractDuration", "ii"
+#define GAMEEVENT_ContractStarted			"ContractStarted", "iiiii"
+#define GAMEEVENT_ContractEnded				"ContractEnded", "ii"
+#define GAMEEVENT_ContractsRefreshed		"ContractsRefreshed", ""
+//Other
 #define GAMEEVENT_CityBeginsWLTKD			"CityBeginsWLTKD", "iiii"
 #define GAMEEVENT_CityRazed					"CityRazed", "iii"
 #define GAMEEVENT_CityInvestedBuilding		"CityInvestedBuilding", "iiii"
 #define GAMEEVENT_CityInvestedUnit			"CityInvestedUnit", "iiii"
-// City Events
+// City and Player Events
 #define GAMEEVENT_EventActivated			"EventActivated", "ii"
 #define GAMEEVENT_CityEventActivated		"CityEventActivated", "iii"
 #define GAMEEVENT_EventChoiceActivated		"EventChoiceActivated", "ii"
