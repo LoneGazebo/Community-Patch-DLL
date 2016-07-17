@@ -572,7 +572,7 @@ int CustomMods::getCivOption(const char* szCiv, const char* szName, int defValue
 
 void CheckSentinel(uint value)
 {
-#ifdef STACKWALKER
+#if defined(STACKWALKER) && defined(MOD_CORE_DEBUGGING)
 	if (MOD_CORE_DEBUGGING)
 	{
 		FILogFile* pLog=LOGFILEMGR.GetLog( "Deserialization.txt", FILogFile::kDontTimeStamp );

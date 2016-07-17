@@ -710,6 +710,12 @@ int CvTreasury::CalculatePreInflatedCosts()
 		iTotalCosts += GetExpensePerTurnFromVassalTaxes();
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE_JFD)
+	{
+		iTotalCosts += GetContractGoldMaintenance();
+	}
+#endif
 
 	return iTotalCosts;
 }
@@ -1147,7 +1153,18 @@ void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, CvStrin
 	str.Format("%.2f,", fValue);
 	strLog += str;
 }
-
+#if defined(MOD_BALANCE_CORE)
+int CvTreasury::GetContractGoldMaintenance() const
+{
+	CvContract* pContract = m_pPlayer->GetContracts()->GetContract();
+	if(pContract)
+	{
+		int iMaintenance = pContract->m_iContractMaintenance;
+		return iMaintenance;
+	}
+	return 0;
+}
+#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 // What are our gold maintenance costs because of Vassals?
 int CvTreasury::GetVassalGoldMaintenance() const

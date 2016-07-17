@@ -191,6 +191,14 @@
 	<Table name="Events">
 		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
 		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<!-- Event Class - You don't have to set this, however you can use the follow categories to give players the options to enable/disable certain types of Events:
+			EVENT_CLASS_GOOD
+			EVENT_CLASS_BAD
+			EVENT_CLASS_NEUTRAL
+			EVENT_CLASS_TRADE
+			EVENT_CLASS_CIV_SPECIFIC
+		-->
+		<Column name="EventClass" type="text" reference="EventClassTypes(Type)" default="NULL"/>
 		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
 		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
 		<Column name="EventArt" type="text"/>
@@ -583,6 +591,14 @@
 	<Table name="CityEvents">
 		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
 		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<!-- Event Class - You don't have to set this, however you can use the follow categories to give players the options to enable/disable certain types of Events:
+			EVENT_CLASS_GOOD
+			EVENT_CLASS_BAD
+			EVENT_CLASS_NEUTRAL
+			EVENT_CLASS_TRADE
+			EVENT_CLASS_CIV_SPECIFIC
+		-->
+		<Column name="EventClass" type="text" reference="EventClassTypes(Type)" default="NULL"/>
 		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
 		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
 		<Column name="CityEventAudio" type="text"/>
@@ -997,4 +1013,28 @@
 		<Column name="NeedPlayerID" type="boolean" default="false"/>
 		<Column name="ExtraVariable" type="int" default="-1"/>
 	</Table>
+	<Table name="EventClassTypes">
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true" />
+		<Column name="Type" type="text" notnull="true" unique="true" />
+	</Table>
+
+	<!-- Table data -->
+	<EventClassTypes>
+		<Row>
+			<ID>0</ID>
+			<Type>EVENT_CLASS_GOOD</Type>
+		</Row>
+		<Row>
+			<Type>EVENT_CLASS_NEUTRAL</Type>
+		</Row>
+		<Row>
+			<Type>EVENT_CLASS_BAD</Type>
+		</Row>
+		<Row>
+			<Type>EVENT_CLASS_TRADE</Type>
+		</Row>
+		<Row>
+			<Type>EVENT_CLASS_CIV_SPECIFIC</Type>
+		</Row>
+	</EventClassTypes>
 </GameData>

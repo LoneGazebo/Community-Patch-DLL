@@ -51,6 +51,7 @@ class CvDangerPlots;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	class CvPlayerCorporations;
+	class CvPlayerContracts;
 #endif
 class CvCityConnections;
 class CvNotifications;
@@ -1804,7 +1805,9 @@ public:
 
 	int getBuildingClassCultureChange(BuildingClassTypes eIndex) const;
 	void changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange);
-	
+
+	int GetCityStateCombatModifier() const;
+	void changeCityStateCombatModifier(int iChange);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int GetAdvancedActionGold() const;
@@ -2396,6 +2399,7 @@ public:
 	CvNotifications* GetNotifications() const;
 #if defined(MOD_BALANCE_CORE)
 	CvPlayerCorporations* GetCorporations() const;
+	CvPlayerContracts* GetContracts() const;
 #endif
 #if defined(MOD_API_EXTENSIONS)
 	int AddNotification(NotificationTypes eNotificationType, const char* sMessage, const char* sSummary, CvPlot* pPlot = NULL, int iGameDataIndex = -1, int iExtraGameData = -1);
@@ -2453,6 +2457,8 @@ public:
 	bool HasAnyDomesticTradeRoute() const;
 	bool HasAnyInternationalTradeRoute() const;
 	bool HasAnyTradeRoute() const;
+	int GetNumInternationalRoutes() const;
+	int GetNumInternalRoutes() const;
 	bool HasAnyTradeRouteWith(PlayerTypes iPlayer) const;
 	bool HasUnit(UnitTypes iUnitType);
 	bool HasUnitClass(UnitClassTypes iUnitClassType);
@@ -2826,6 +2832,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iReligionDistance;
 	FAutoVariable<int, CvPlayer> m_iPressureMod;
 	FAutoVariable<int, CvPlayer> m_iTradeReligionModifier;
+	FAutoVariable<int, CvPlayer> m_iCityStateCombatModifier;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	FAutoVariable<int, CvPlayer> m_iAdvancedActionGold;
@@ -3228,6 +3235,7 @@ protected:
 
 #if defined(MOD_BALANCE_CORE)
 	CvPlayerCorporations* m_pCorporations;
+	CvPlayerContracts* m_pContracts;
 #endif
 
 	// AI Tactics

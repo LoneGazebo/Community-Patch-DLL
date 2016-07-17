@@ -387,6 +387,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	bool bIsAlmostCoast = false;
 	bool bIsInca = false;
 	int iAdjacentMountains = 0;
+	bool bLikesMountains = false;
 
 	std::vector<SPlotWithScore> workablePlots;
 	workablePlots.reserve(49);
@@ -412,6 +413,10 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 					bIsInca = true;
 				}
 			}
+		}
+		if(pPlayer->GetPlayerTraits()->IsMountainPass())
+		{
+			bLikesMountains = true;
 		}
 	}
 
@@ -562,6 +567,18 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 					iCivModifier += (iAdjacentMountains+1) * m_iIncaMultiplier;
 					if (pDebug) vQualifiersPositive.push_back("(C) incan hills");
 				}
+			}
+		}
+		
+		if(bLikesMountains)
+		{
+			if(pLoopPlot->isMountain())
+			{
+				iAdjacentMountains = pLoopPlot->GetNumAdjacentMountains();
+
+				//give the bonus if it's hills, with additional if bordered by mountains
+				iCivModifier += (iAdjacentMountains + 1) * m_iIncaMultiplier;
+				if (pDebug) vQualifiersPositive.push_back("(C) incan mountains");
 			}
 		}
 	}

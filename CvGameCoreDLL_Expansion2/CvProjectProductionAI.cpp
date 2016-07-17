@@ -9,6 +9,7 @@
 #include "CvProjectProductionAI.h"
 #if defined(MOD_BALANCE_CORE)
 #include "CvEconomicAI.h"
+#include "CvDiplomacyAI.h"
 #endif
 
 // include this after all other headers!
@@ -199,17 +200,36 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		}
 		else
 		{
-			EconomicAIStrategyTypes eSpaceShip = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");
-			if(eSpaceShip != NO_ECONOMICAISTRATEGY)
+			iTempWeight *= 15;
+			if(pkProjectInfo->IsSpaceship())
 			{
-				if(kPlayer.GetEconomicAI()->IsUsingStrategy(eSpaceShip))
+				iTempWeight *= 2;
+			}
+
+			EconomicAIStrategyTypes eSpaceShipHomeStretch = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP_HOMESTRETCH");
+			if(eSpaceShipHomeStretch != NO_ECONOMICAISTRATEGY)
+			{
+				if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory())
 				{
-					iTempWeight *= 50;
+					iTempWeight /= 10;
+				}
+				else if(kPlayer.GetDiplomacyAI()->IsGoingForWorldConquest())
+				{
+					iTempWeight /= 10;
+				}
+				else if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory())
+				{
+					iTempWeight /= 10;
 				}
 				else
 				{
-					iTempWeight *= 10;
+					iTempWeight *= 25;
 				}
+				if(kPlayer.GetEconomicAI()->IsUsingStrategy(eSpaceShipHomeStretch))
+				{
+					iTempWeight *= 25;
+				}
+
 			}
 		}
 	}

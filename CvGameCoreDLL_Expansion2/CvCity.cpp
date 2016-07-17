@@ -240,6 +240,7 @@ CvCity::CvCity() :
 	, m_aiEventCityYield("CvCity::m_aiEventCityYield", m_syncArchive)
 	, m_iEventHappiness("CvCity::m_iEventHappiness", m_syncArchive)
 	, m_iCityEventCooldown("CvCity::m_iCityEventCooldown", m_syncArchive)
+	, m_iComboUnhappiness("CvCity::m_iComboUnhappiness", m_syncArchive)
 #endif
 	, m_abEverOwned("CvCity::m_abEverOwned", m_syncArchive)
 	, m_abRevealed("CvCity::m_abRevealed", m_syncArchive, true)
@@ -794,19 +795,22 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		{
 			iEra = 1;
 		}
-		int iHandicap = 1;
+		int iHandicap = 0;
 		CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
 		if(pHandicapInfo)
 		{
-			iHandicap = pHandicapInfo->getAIDifficultyBonus();
-			iHandicap *= iEra;
+			if(bInitialFounding)
+			{
+				iHandicap = pHandicapInfo->getAIDifficultyBonus();
+				iHandicap *= iEra;
+			}
 		}
 		if(iHandicap > 0)
 		{	
 			owningPlayer.GetTreasury()->ChangeGold(iHandicap);
 			owningPlayer.ChangeGoldenAgeProgressMeter(iHandicap);
-			owningPlayer.changeJONSCulture(iHandicap / 2);
-			ChangeJONSCultureStored(iHandicap / 2);
+			owningPlayer.changeJONSCulture(iHandicap / 3);
+			ChangeJONSCultureStored(iHandicap / 3);
 				
 			int iBeakersBonus = owningPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 10));
 			TechTypes eCurrentTech = owningPlayer.GetPlayerTechs()->GetCurrentResearch();
@@ -818,19 +822,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			{
 				GET_TEAM(owningPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, owningPlayer.GetID());
 			}
-			int iLoop;
-			CvCity* pLoopCity;
-			for(pLoopCity = owningPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = owningPlayer.nextCity(&iLoop))
-			{
-				if(pLoopCity != NULL)
-				{
-					pLoopCity->changeFood(iHandicap / 4);
-				}
-			}
+			changeFood(iHandicap / 3);
 			if((GC.getLogging() && GC.getAILogging()))
 			{
 				CvString strLogString;
-				strLogString.Format("CBP AI DIFFICULTY BONUS: Received %d Handicap Bonus", iHandicap);
+				strLogString.Format("CBP AI DIFFICULTY BONUS FROM CITY FOUNDING: Received %d Handicap Bonus", iHandicap);
 				owningPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
 			}
 		}
@@ -1611,6 +1607,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiBaseYieldRank.resize(NUM_YIELD_TYPES);
 	m_aiYieldRank.resize(NUM_YIELD_TYPES);
 #if defined(MOD_BALANCE_CORE)
+	m_iComboUnhappiness = 0;
 	m_aiYieldChangeFromCorporationFranchises.resize(NUM_YIELD_TYPES);
 #endif
 	for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -2759,6 +2756,7 @@ void CvCity::doTurn()
 			}
 		}
 	}
+	UpdateComboHappiness();
 #endif
 
 	bool bRazed = DoRazingTurn();
@@ -3629,6 +3627,36 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 		return false;
 	}
 
+	EventClassTypes eEventClass = (EventClassTypes)pkEventInfo->getEventClass();
+	if(eEventClass != NO_EVENT_CLASS)
+	{
+		if(eEventClass == EVENT_CLASS_GOOD)
+		{
+			if(GC.getGame().isOption(GAMEOPTION_EVENTS_NO_GOOD))
+				return false;
+		}
+		else if(eEventClass == EVENT_CLASS_BAD)
+		{
+			if(GC.getGame().isOption(GAMEOPTION_EVENTS_NO_BAD))
+				return false;
+		}
+		else if(eEventClass == EVENT_CLASS_NEUTRAL)
+		{
+			if(GC.getGame().isOption(GAMEOPTION_EVENTS_NO_NEUTRAL))
+				return false;
+		}
+		else if(eEventClass == EVENT_CLASS_TRADE)
+		{
+			if(GC.getGame().isOption(GAMEOPTION_EVENTS_NO_TRADE))
+				return false;
+		}
+		else if(eEventClass == EVENT_CLASS_CIV_SPECIFIC)
+		{
+			if(GC.getGame().isOption(GAMEOPTION_EVENTS_NO_CIV_SPECIFIC))
+				return false;
+		}
+	}
+
 	CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
 	
 	//Don't do choice ones in MP
@@ -3846,11 +3874,11 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 			// Is this a player we have relations with?
 			if(GET_PLAYER(eLoopPlayer).isBarbarian())
 			{
-				return false;
+				continue;
 			}
 			if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
-				return false;
+				continue;
 			}
 			if(eLoopPlayer != getOwner())
 			{
@@ -4330,7 +4358,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 				if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 				{
 					bHas = true;
-					continue;
+					break;
 				}
 			}
 		}
@@ -5414,7 +5442,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice)
 				if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 				{
 					bHas = true;
-					continue;
+					break;
 				}
 			}
 		}
@@ -13431,6 +13459,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CONSTRUCTION, false, NO_GREATPERSON, eBuilding, 0, true, NO_PLAYER, NULL, false, this);
 		}
 	}
+	UpdateComboHappiness();
 #endif
 	setLayoutDirty(true);
 }
@@ -15569,7 +15598,7 @@ int CvCity::getGreatPeopleRateModifier() const
 
 			if (eMinor != GET_PLAYER(getOwner()).GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 			{
-				if (GET_PLAYER(getOwner()).IsDiplomaticMarriage() && !GET_TEAM(GET_PLAYER(eMinor).getTeam()).isAtWar(getTeam()) && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GET_PLAYER(getOwner()).GetID()))
+				if (GET_PLAYER(getOwner()).IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GET_PLAYER(getOwner()).GetID()))
 				{
 					iNumMarried++;
 				}
@@ -18214,6 +18243,16 @@ void CvCity::DoAnnex()
 	VALIDATE_OBJECT
 
 	// Turn this off - used to display info for annex/puppet/raze popup
+#if defined(MOD_BALANCE_CORE)
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing())
+	{
+		if(!IsPuppet())
+		{
+			SetPuppet(true);
+		}
+		return;
+	}
+#endif
 	SetIgnoreCityForHappiness(false);
 #if defined(MOD_BALANCE_CORE)
 	if(IsNoWarmongerYet())
@@ -18348,42 +18387,9 @@ int CvCity::GetLocalHappiness() const
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	// Building Class Combo Mods
-	int iSpecialBuildingHappiness = 0;
-
-	const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildings();
-	for(size_t jJ = 0; jJ < vBuildings.size(); jJ++)
-	{
-		BuildingTypes eBuildingA = vBuildings[jJ];
-
-		if(GetCityBuildings()->GetNumRealBuilding(eBuildingA) <= 0)
-			continue;
-
-		CvBuildingEntry* pkBuildingA = GC.getBuildingInfo(eBuildingA);
-		if (!pkBuildingA)
-			continue;
-
-		for(size_t kK = 0; kK < vBuildings.size(); kK++)
-		{
-			BuildingTypes eBuildingB = vBuildings[kK];
-
-			if(GetCityBuildings()->GetNumRealBuilding(eBuildingB) <= 0)
-				continue;
-
-			CvBuildingEntry *pkBuildingB = GC.getBuildingInfo(eBuildingB);
-			if (!pkBuildingB)
-				continue;
-
-			BuildingClassTypes eBuildingClassB = (BuildingClassTypes)pkBuildingB->GetBuildingClassType();
-
-			int iHappinessPerBuilding = pkBuildingA->GetBuildingClassLocalHappiness(eBuildingClassB);
-			if(iHappinessPerBuilding > 0)
-				iSpecialBuildingHappiness += iHappinessPerBuilding;
-		}
-	}
-
-	iLocalHappiness += iSpecialBuildingHappiness;
-#endif
+	int iSpecialHappiness = GetComboUnhappiness();
+	iLocalHappiness += iSpecialHappiness;
+#else
 
 	// Policy Building Mods
 	int iSpecialPolicyBuildingHappiness = 0;
@@ -18400,6 +18406,7 @@ int CvCity::GetLocalHappiness() const
 	}
 
 	iLocalHappiness += iSpecialPolicyBuildingHappiness;
+#endif
 	int iLocalHappinessCap = getPopulation();
 
 	// India has unique way to compute local happiness cap
@@ -18420,6 +18427,76 @@ int CvCity::GetLocalHappiness() const
 	}
 }
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+void CvCity::UpdateComboHappiness()
+{
+	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
+	int iTotalHappiness = 0;
+	// Building Class Combo Mods
+	int iSpecialBuildingHappiness = 0;
+
+	const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildings();
+	for(size_t jJ = 0; jJ < vBuildings.size(); jJ++)
+	{
+		BuildingTypes eBuildingA = vBuildings[jJ];
+
+		if(GetCityBuildings()->GetNumBuilding(eBuildingA) <= 0)
+			continue;
+
+		CvBuildingEntry* pkBuildingA = GC.getBuildingInfo(eBuildingA);
+		if (!pkBuildingA)
+			continue;
+
+		for(size_t kK = 0; kK < vBuildings.size(); kK++)
+		{
+			BuildingTypes eBuildingB = vBuildings[kK];
+
+			if(GetCityBuildings()->GetNumBuilding(eBuildingB) <= 0)
+				continue;
+
+			CvBuildingEntry *pkBuildingB = GC.getBuildingInfo(eBuildingB);
+			if (!pkBuildingB)
+				continue;
+
+			BuildingClassTypes eBuildingClassB = (BuildingClassTypes)pkBuildingB->GetBuildingClassType();
+
+			int iHappinessPerBuilding = pkBuildingA->GetBuildingClassLocalHappiness(eBuildingClassB);
+			if(iHappinessPerBuilding > 0)
+				iSpecialBuildingHappiness += iHappinessPerBuilding;
+		}
+	}
+
+	iTotalHappiness += iSpecialBuildingHappiness;
+
+	// Policy Building Mods
+	int iSpecialPolicyBuildingHappiness = 0;
+	for(size_t jJ = 0; jJ < vBuildings.size(); jJ++)
+	{
+		BuildingTypes eBuilding = vBuildings[jJ];
+		CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+		if (!pkBuilding)
+			continue;
+
+		int iHappinessMod = kPlayer.GetPlayerPolicies()->GetBuildingClassHappinessModifier( (BuildingClassTypes)pkBuilding->GetBuildingClassType() );
+		if (iHappinessMod != 0)
+			iSpecialPolicyBuildingHappiness += iHappinessMod * GetCityBuildings()->GetNumBuilding(eBuilding);
+	}
+
+	iTotalHappiness += iSpecialPolicyBuildingHappiness;
+
+	SetComboHappiness(iTotalHappiness);
+}
+void CvCity::SetComboHappiness(int iValue)
+{
+	VALIDATE_OBJECT
+	if(m_iComboUnhappiness != iValue)
+	{
+		m_iComboUnhappiness = iValue;
+	}
+}
+int CvCity::GetComboUnhappiness() const
+{
+	return m_iComboUnhappiness;
+}
 int CvCity::getUnhappinessAggregated() const
 {
 	int iNegativeHappiness = 0;
@@ -20005,18 +20082,11 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 			iYieldValue += (pReligions->GetNumCitiesFollowing(eReligion) * iYieldPerFollowingCity);
 
 
-			//Pantheon safe
+			//Pantheon safe (only checks for local followers)
 			int iYieldPerXFollowers = pReligion->m_Beliefs.GetYieldPerXFollowers(eYield, getOwner(), this);
 			if(iYieldPerXFollowers > 0)
 			{
-				if(pReligion->m_eReligion == RELIGION_PANTHEON)
-				{
-					iYieldValue += (pReligions->GetNumFollowers(eReligion, getOwner()) / iYieldPerXFollowers);
-				}
-				else
-				{
-					iYieldValue += (pReligions->GetNumFollowers(eReligion) / iYieldPerXFollowers);
-				}
+				iYieldValue += (pReligions->GetNumFollowers(eReligion, getOwner()) / iYieldPerXFollowers);
 			}
 			int iLuxCulture = pReligion->m_Beliefs.GetYieldPerLux(eYield, getOwner(), this);
 			if(iLuxCulture > 0)

@@ -1312,6 +1312,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(DoForceDefPact);
 	Method(GetMajorCivOpinion);
 	Method(GetMajorityReligion);
+	//JFD
+	Method(GetNumNationalWonders);
+	Method(GetNumInternationalTradeRoutes);
+	Method(GetNumInternalTradeRoutes);
 	Method(GetStateReligion);
 	Method(GetNumCitiesWithStateReligion);
 	Method(GetNumCitiesWithoutStateReligion);
@@ -1376,6 +1380,16 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(SetProsperityScore);
 	Method(GetProsperityScore);
+
+	//JFD Contracts
+	Method(PlayerHasContract);
+	Method(PlayerHasAnyContract);
+	Method(GetContractTurnsRemaining);
+	Method(GetContractGoldMaintenance);
+	Method(GetActiveContract);
+	Method(StartContract);
+
+	//Other
 
 	Method(CountAllFeature);
 	Method(CountAllWorkedFeature);
@@ -6654,7 +6668,6 @@ int CvLuaPlayer::lGetPolicyGreatMerchantRateModifier(lua_State* L)
 	}
 	return 1;
 }
-
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)
 //------------------------------------------------------------------------------
 //int GetPolicyGreatDiplomatRateModifier();
@@ -6673,7 +6686,7 @@ int CvLuaPlayer::lGetPolicyGreatEngineerRateModifier(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	if(pkPlayer)
 	{
-		lua_pushinteger(L, 0);
+		lua_pushinteger(L, pkPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_GREAT_ENGINEER_RATE));
 	}
 	return 1;
 }
@@ -13880,6 +13893,37 @@ int CvLuaPlayer::lDoForceDefPact(lua_State* L)
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
+int CvLuaPlayer::lGetNumNationalWonders(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	CvCity* pLoopCity;
+	int iLoop;
+	int iResult = 0;
+	for(pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+	{
+		if(pLoopCity == NULL)
+			continue;
+
+		iResult += pLoopCity->getNumNationalWonders();
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetNumInternationalTradeRoutes(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetNumInternationalRoutes();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetNumInternalTradeRoutes(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetNumInternalRoutes();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
 int CvLuaPlayer::lGetMajorCivOpinion(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
@@ -14274,6 +14318,52 @@ int CvLuaPlayer::lSetProsperityScore(lua_State* L)
 	const int iValue = lua_tointeger(L, 2);
 
 	pkPlayer->SetProsperityScore(iValue);
+	return 1;
+}
+
+//Contracts
+int CvLuaPlayer::lPlayerHasContract(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 2);
+	const bool bResult = pkPlayer->GetContracts()->PlayerHasContract(eContract);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+int CvLuaPlayer::lPlayerHasAnyContract(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bResult = pkPlayer->GetContracts()->PlayerHasAnyContract();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+int CvLuaPlayer::lGetContractTurnsRemaining(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetContracts()->GetContractTurnsRemaining();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetContractGoldMaintenance(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetTreasury()->GetContractGoldMaintenance();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetActiveContract(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	ContractTypes eContract = pkPlayer->GetContracts()->GetActiveContract();
+	lua_pushinteger(L, (int)eContract);
+	return 1;
+}
+int CvLuaPlayer::lStartContract(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 2);
+
+	pkPlayer->GetContracts()->StartContract(eContract);
 	return 1;
 }
 #endif

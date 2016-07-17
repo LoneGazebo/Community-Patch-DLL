@@ -153,6 +153,7 @@ CvGlobals::CvGlobals() :
 	m_iBALANCE_HAPPINESS_THRESHOLD_PERCENTILE(50),
 	m_iGLOBAL_RESOURCE_MONOPOLY_THRESHOLD(50),
 	m_iSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD(25),
+	m_iRELIGION_MIN_FAITH_SECOND_PROPHET(600),
 #endif
 	m_iAI_STRATEGY_EARLY_EXPLORATION_STARTING_WEIGHT(100),
 	m_iAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR(1),
@@ -2272,6 +2273,7 @@ CvGlobals::CvGlobals() :
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_pCorporations(NULL),
+	m_pContracts(NULL),
 #endif
 	m_pGameDatabase(NULL)
 {
@@ -2533,6 +2535,7 @@ void CvGlobals::init()
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_pCorporations = FNEW(CvCorporationXMLEntries, c_eCiv5GameplayDLL, 0);
+	m_pContracts = FNEW(CvContractXMLEntries, c_eCiv5GameplayDLL, 0);
 #endif
 
 	auto_ptr<ICvDLLDatabaseUtility1> pkLoader(getDatabaseLoadUtility());
@@ -2602,6 +2605,7 @@ void CvGlobals::uninit()
 #endif
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE(m_pCorporations);
+	SAFE_DELETE(m_pContracts);
 #endif
 
 	SAFE_DELETE(m_pImprovements); // player uses the improvement count in deallocating.
@@ -4136,6 +4140,28 @@ CvCorporationXMLEntries* CvGlobals::GetGameCorporations() const
 {
 	return m_pCorporations;
 }
+
+int CvGlobals::getNumContractInfos()
+{
+	return (int)m_pContracts->GetContractEntries().size();
+}
+
+std::vector<CvContractEntry*>& CvGlobals::getContractInfo()
+{
+	return m_pContracts->GetContractEntries();
+}
+
+CvContractEntry* CvGlobals::getContractInfo(ContractTypes eContract)
+{
+	CvAssert(eContract > -1);
+	CvAssert(eContract < GC.getNumContractInfos());
+	return m_pContracts->GetContractEntries()[eContract];
+}
+
+CvContractXMLEntries* CvGlobals::GetGameContracts() const
+{
+	return m_pContracts;
+}
 #endif
 
 int CvGlobals::getNumLeagueSpecialSessionInfos()
@@ -4650,6 +4676,7 @@ void CvGlobals::cacheGlobals()
 	m_iBALANCE_HAPPINESS_THRESHOLD_PERCENTILE = getDefineINT("BALANCE_HAPPINESS_THRESHOLD_PERCENTILE");
 	m_iGLOBAL_RESOURCE_MONOPOLY_THRESHOLD = getDefineINT("GLOBAL_RESOURCE_MONOPOLY_THRESHOLD");
 	m_iSTRATEGIC_RESOURCE_MONOPOLY_THRESHOLD = getDefineINT("STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD");
+	m_iRELIGION_MIN_FAITH_SECOND_PROPHET = getDefineINT("RELIGION_MIN_FAITH_SECOND_PROPHET");
 #endif
 	m_iAI_STRATEGY_EARLY_EXPLORATION_STARTING_WEIGHT = getDefineINT("AI_STRATEGY_EARLY_EXPLORATION_STARTING_WEIGHT");
 	m_iAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR = getDefineINT("AI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR");

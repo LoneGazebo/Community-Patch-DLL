@@ -6097,13 +6097,16 @@ void CvMinorCivAI::DoTestEndSkirmishes(PlayerTypes eNewAlly)
 				if(kOtherMinor.isAlive() && kOtherMinor.getTeam() == eLoopTeam)
 				{
 					//Not if permanent war!
-					if(kOtherMinor.isMinorCiv() && kOtherMinor.GetMinorCivAI()->IsPermanentWar(GetPlayer()->getTeam()))
+					if(!kOtherMinor.isMinorCiv())
 						continue;
 
-					if(kOtherMinor.GetMinorCivAI()->GetAlly() == eNewAlly)
+					if(kOtherMinor.GetMinorCivAI()->IsPermanentWar(GetPlayer()->getTeam()))
+						continue;
+
+					if(kOtherMinor.GetMinorCivAI()->GetAlly() == NO_PLAYER)
 					{
 						// We are at war with our new ally's ally!
-						CUSTOMLOG("CS %i is at war with CS %i but they share the same ally %i - making peace", GetPlayer()->GetID(), iOtherMinorLoop, ((int) eNewAlly));
+						CUSTOMLOG("CS %i is at war with CS %i but neither has an ally %i - making peace", GetPlayer()->GetID(), iOtherMinorLoop, ((int) eNewAlly));
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 						GET_TEAM(GetPlayer()->getTeam()).makePeace(eLoopTeam, true, false, GetPlayer()->GetID());
 #else
@@ -10266,6 +10269,12 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
+		if(GC.getBuildingClassInfo((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType())->getMaxPlayerInstances() > 1)
+			continue;
+
+		if(GC.getBuildingClassInfo((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType())->getMaxTeamInstances() > 1)
+			continue;
+
 		// Is a Corporation building?
 		if (pkBuildingInfo->GetBuildingClassInfo().getCorporationType() != NO_CORPORATION)
 		{
@@ -11693,7 +11702,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && IsMarried(ePlayer) && !GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+	if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && IsMarried(ePlayer))
 	{
 		iChangeThisTurn = 0;
 	}
@@ -16043,6 +16052,13 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 	int iValue = 50;
 	iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iValue /= 100;
+
+	int iEra = GET_PLAYER(eBully).GetCurrentEra();
+	if(iEra <= 0)
+	{
+		iEra = 1;
+	}
+	iValue *= iEra;
 	CvCity* pCapital = GetPlayer()->getCapitalCity();
 	if(pCapital == NULL)
 	{
@@ -17759,7 +17775,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		if(bAllies && bAdd)		// Now Allies (includes jump from nothing through Friends to Allies)
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MILITARISTIC");
 #if defined(MOD_BALANCE_CORE)
-		if(iScienceBonusAmount > 0)
+		if(iScienceBonusAmount != 0)
 		{
 			strDetailedInfo << iScienceBonusAmount;
 		}
@@ -17767,7 +17783,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		else if(bFriends && bAdd)		// Now Friends
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MILITARISTIC");
 #if defined(MOD_BALANCE_CORE)
-			if(iScienceBonusAmount > 0)
+			if(iScienceBonusAmount != 0)
 			{
 				strDetailedInfo << iScienceBonusAmount;
 			}
@@ -17775,7 +17791,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		else if(bFriends && !bAdd)		// No longer Friends (includes drop from Allies down to nothing) - this should be before the Allies check!
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_FRIENDS_MILITARISTIC");
 #if defined(MOD_BALANCE_CORE)
-			if(iScienceBonusAmount > 0)
+			if(iScienceBonusAmount != 0)
 			{
 				strDetailedInfo << iScienceBonusAmount;
 			}
@@ -17783,7 +17799,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		else if(bAllies && !bAdd)		// No longer Allies
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_ALLIES_MILITARISTIC");
 #if defined(MOD_BALANCE_CORE)
-			if(iScienceBonusAmount > 0)
+			if(iScienceBonusAmount != 0)
 			{
 				strDetailedInfo << iScienceBonusAmount;
 			}
@@ -17869,7 +17885,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MERCANTILE");
 			strDetailedInfo << iHappinessBonus;
 #if defined(MOD_BALANCE_CORE)
-			if(iGoldBonusAmount > 0)
+			if(iGoldBonusAmount != 0)
 			{
 				strDetailedInfo << iGoldBonusAmount;
 			}
@@ -17880,7 +17896,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MERCANTILE");
 			strDetailedInfo << iHappinessBonus;
 #if defined(MOD_BALANCE_CORE)
-			if(iGoldBonusAmount > 0)
+			if(iGoldBonusAmount != 0)
 			{
 				strDetailedInfo << iGoldBonusAmount;
 			}
@@ -17891,7 +17907,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 			strDetailedInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LOST_MERCANTILE");
 			strDetailedInfo << iHappinessBonus;
 #if defined(MOD_BALANCE_CORE)
-			if(iGoldBonusAmount > 0)
+			if(iGoldBonusAmount != 0)
 			{
 				strDetailedInfo << iGoldBonusAmount;
 			}

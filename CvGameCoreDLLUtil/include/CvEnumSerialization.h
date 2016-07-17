@@ -246,9 +246,26 @@ FDataStream & operator>>(FDataStream&, ResolutionTypes&);
 FDataStream & operator<<(FDataStream&, const ResolutionDecisionTypes&);
 FDataStream & operator>>(FDataStream&, ResolutionDecisionTypes&);
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-FDataStream & operator<<(FDataStream&, const ResolutionDecisionTypes&);
-FDataStream & operator>>(FDataStream&, ResolutionDecisionTypes&);
+#if defined(MOD_BALANCE_CORE)
+FDataStream & operator<<(FDataStream&, const CorporationTypes&);
+FDataStream & operator>>(FDataStream&, CorporationTypes&);
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+FDataStream & operator<<(FDataStream&, const EventTypes&);
+FDataStream & operator>>(FDataStream&, EventTypes&);
+
+FDataStream & operator<<(FDataStream&, const EventChoiceTypes&);
+FDataStream & operator>>(FDataStream&, EventChoiceTypes&);
+
+FDataStream & operator<<(FDataStream&, const CityEventTypes&);
+FDataStream & operator>>(FDataStream&, CityEventTypes&);
+
+FDataStream & operator<<(FDataStream&, const CityEventChoiceTypes&);
+FDataStream & operator>>(FDataStream&, CityEventChoiceTypes&);
+
+FDataStream & operator<<(FDataStream&, const EventClassTypes&);
+FDataStream & operator>>(FDataStream&, EventClassTypes&);
+namespace FSerialization { std::string toString(const EventClassTypes &); }
 
 #endif
 #endif//INCLUDED_CvEnumSerialization_H

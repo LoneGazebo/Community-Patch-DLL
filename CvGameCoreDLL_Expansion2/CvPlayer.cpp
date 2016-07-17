@@ -625,6 +625,7 @@ CvPlayer::CvPlayer() :
 	, m_iReligionDistance("CvPlayer::m_iReligionDistance", m_syncArchive)
 	, m_iPressureMod("CvPlayer::m_iPressureMod", m_syncArchive)
 	, m_iTradeReligionModifier("CvPlayer::m_iTradeReligionModifier", m_syncArchive)
+	, m_iCityStateCombatModifier("CvPlayer::m_iCityStateCombatModifier", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	, m_iAdvancedActionGold("CvPlayer::m_iAdvancedActionGold", m_syncArchive)
@@ -680,6 +681,7 @@ CvPlayer::CvPlayer() :
 	m_pReligionAI = FNEW(CvReligionAI, c_eCiv5GameplayDLL, 0);
 #if defined(MOD_BALANCE_CORE)
 	m_pCorporations = FNEW(CvPlayerCorporations, c_eCiv5GameplayDLL, 0);
+	m_pContracts = FNEW(CvPlayerContracts, c_eCiv5GameplayDLL, 0);
 #endif
 	m_pPlayerTechs = FNEW(CvPlayerTechs, c_eCiv5GameplayDLL, 0);
 	m_pFlavorManager = FNEW(CvFlavorManager, c_eCiv5GameplayDLL, 0);
@@ -752,6 +754,7 @@ CvPlayer::~CvPlayer()
 	SAFE_DELETE(m_pLeagueAI);
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE(m_pCorporations);
+	SAFE_DELETE(m_pContracts);
 #endif
 }
 
@@ -931,6 +934,10 @@ void CvPlayer::init(PlayerTypes eID)
 		if(GetPlayerTraits()->GetStartingSpyRank() > 0)
 		{
 			ChangeStartingSpyRank(GetPlayerTraits()->GetStartingSpyRank());
+		}
+		if(GetPlayerTraits()->GetQuestYieldModifier() > 0)
+		{
+			ChangeIncreasedQuestInfluence(GetPlayerTraits()->GetQuestYieldModifier());
 		}
 #endif
 		const CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
@@ -1129,6 +1136,7 @@ void CvPlayer::uninit()
 	m_pReligionAI->Uninit();
 #if defined(MOD_BALANCE_CORE)
 	m_pCorporations->Uninit();
+	m_pContracts->Uninit();
 #endif
 	m_pEspionage->Uninit();
 	m_pEspionageAI->Uninit();
@@ -1521,6 +1529,7 @@ void CvPlayer::uninit()
 	m_iReligionDistance = 0;
 	m_iPressureMod = 0;
 	m_iTradeReligionModifier = 0;
+	m_iCityStateCombatModifier = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iAdvancedActionGold = 0;
@@ -1898,6 +1907,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_pReligionAI->Init(GC.GetGameBeliefs(), this);
 #if defined(MOD_BALANCE_CORE)
 		m_pCorporations->Init(this);
+		m_pContracts->Init(this);
 #endif
 		m_pPlayerTechs->Init(GC.GetGameTechs(), this, false);
 		m_pPlayerPolicies->Init(GC.GetGamePolicies(), this, false);
@@ -5317,6 +5327,36 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 		return false;
 	}
 
+	EventClassTypes eEventClass = (EventClassTypes)pkEventInfo->getEventClass();
+	if(eEventClass != NO_EVENT_CLASS)
+	{
+		if(eEventClass == EVENT_CLASS_GOOD)
+		{
+			if(GC.getGame().isOption(GAMEOPTION_EVENTS_NO_GOOD))
+				return false;
+		}
+		else if(eEventClass == EVENT_CLASS_BAD)
+		{
+			if(GC.getGame().isOption(GAMEOPTION_EVENTS_NO_BAD))
+				return false;
+		}
+		else if(eEventClass == EVENT_CLASS_NEUTRAL)
+		{
+			if(GC.getGame().isOption(GAMEOPTION_EVENTS_NO_NEUTRAL))
+				return false;
+		}
+		else if(eEventClass == EVENT_CLASS_TRADE)
+		{
+			if(GC.getGame().isOption(GAMEOPTION_EVENTS_NO_TRADE))
+				return false;
+		}
+		else if(eEventClass == EVENT_CLASS_CIV_SPECIFIC)
+		{
+			if(GC.getGame().isOption(GAMEOPTION_EVENTS_NO_CIV_SPECIFIC))
+				return false;
+		}
+	}
+
 	//Don't do choice ones in MP
 	bool bDontShowRewardPopup = (GC.getGame().isReallyNetworkMultiPlayer());
 
@@ -5491,11 +5531,11 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 			// Is this a player we have relations with?
 			if(GET_PLAYER(eLoopPlayer).isBarbarian())
 			{
-				return false;
+				continue;
 			}
 			if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
-				return false;
+				continue;
 			}
 			if(eLoopPlayer != GetID())
 			{
@@ -7467,16 +7507,22 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkEventInfo->getBuildingRequired();
 		if(eBuildingClass != NO_BUILDINGCLASS)
 		{
+			bool bHas = false;
 			CvCity* pCity = NULL;
 			int iLoop;
 			for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 			{
-				if(pCity != NULL && pCity->GetCityBuildings()->GetNumBuildingClass(eBuildingClass) <= 0)
+				if(pCity != NULL && pCity->GetCityBuildings()->GetNumBuildingClass(eBuildingClass) > 0)
 				{
-					localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS");
-					localizedDurationText << GC.getBuildingClassInfo((BuildingClassTypes)pkEventInfo->getBuildingRequired())->GetDescription();
-					DisabledTT += localizedDurationText.toUTF8();
+					bHas = true;
+					break;
 				}
+			}
+			if(!bHas)
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS");
+				localizedDurationText << GC.getBuildingClassInfo((BuildingClassTypes)pkEventInfo->getBuildingRequired())->GetDescription();
+				DisabledTT += localizedDurationText.toUTF8();
 			}
 		}
 	}
@@ -7485,16 +7531,22 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		BuildingClassTypes eBuildingClass = (BuildingClassTypes)pkEventInfo->getBuildingLimiter();
 		if(eBuildingClass != NO_BUILDINGCLASS)
 		{
+			bool bHas = false;
 			CvCity* pCity = NULL;
 			int iLoop;
 			for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 			{
 				if(pCity != NULL && pCity->GetCityBuildings()->GetNumBuildingClass(eBuildingClass) > 0)
 				{
-					localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_BUILDING_CLASS");
-					localizedDurationText << GC.getBuildingClassInfo((BuildingClassTypes)pkEventInfo->getBuildingLimiter())->GetDescription();
-					DisabledTT += localizedDurationText.toUTF8();
+					bHas = true;
+					break;
 				}
+			}
+			if(bHas)
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_BUILDING_CLASS");
+				localizedDurationText << GC.getBuildingClassInfo((BuildingClassTypes)pkEventInfo->getBuildingLimiter())->GetDescription();
+				DisabledTT += localizedDurationText.toUTF8();
 			}
 		}
 	}
@@ -10087,6 +10139,10 @@ void CvPlayer::doTurn()
 
 	setConscriptCount(0);
 #if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE_JFD)
+	{
+		GetContracts()->DoTurn();
+	}
 	GET_TEAM(getTeam()).updateTeamStatus();
 	UpdateBestMilitaryCities();
 	DoArmyDiversity();
@@ -16048,6 +16104,9 @@ int CvPlayer::GetNumUnitsOutOfSupply() const
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 #if defined(MOD_BALANCE_CORE)
+		if(pLoopUnit == NULL)
+			continue;
+
 		if(pLoopUnit->isTrade() || pLoopUnit->IsCivilianUnit())
 #else
 		if(pLoopUnit->isTrade())
@@ -16063,6 +16122,21 @@ int CvPlayer::GetNumUnitsOutOfSupply() const
 			if(pLoopUnit->isNoSupply())
 			{
 				iFreeUnits++;
+			}
+		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE_JFD)
+	if(MOD_BALANCE_CORE_JFD)
+	{
+		for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+		{
+			if(pLoopUnit != NULL)
+			{
+				if(GetContracts()->UnitIsMaintenanceFree(pLoopUnit->getUnitType()))
+				{
+					iFreeUnits++;
+				}
 			}
 		}
 	}
@@ -17782,7 +17856,7 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 		}
 		const char* strTargetNameKey = pConqueredCity->getNameKey();
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
-		int iValue = (pConqueredCity->getPopulation() * 10 * iEra);
+		int iValue = (pConqueredCity->getPopulation() * 20 * iEra);
 		iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iValue /= 100;
 		if(eCurrentTech == NO_TECH)
@@ -21958,6 +22032,9 @@ void CvPlayer::setHasPolicy(PolicyTypes eIndex, bool bNewValue)
 		m_pPlayerPolicies->SetPolicy(eIndex, bNewValue);
 #endif
 		processPolicies(eIndex, bNewValue ? 1 : -1);
+#if defined(MOD_BALANCE_CORE)
+		GetPlayerPolicies()->ClearCache();
+#endif
 	}
 }
 
@@ -22749,13 +22826,13 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 					{
 						GetTreasury()->ChangeGold(iHandicap);
 						ChangeGoldenAgeProgressMeter(iHandicap);
-						changeJONSCulture(iHandicap / 3);
+						changeJONSCulture(iHandicap / 2);
 						if(getCapitalCity() != NULL)
 						{
-							getCapitalCity()->ChangeJONSCultureStored(iHandicap / 3);
+							getCapitalCity()->ChangeJONSCultureStored(iHandicap / 2);
 						}
 				
-						int iBeakersBonus = GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 10));
+						int iBeakersBonus = GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 15));
 
 						TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 						if(eCurrentTech == NO_TECH)
@@ -22771,13 +22848,13 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 						{
 							if(pLoopCity != NULL)
 							{
-								pLoopCity->changeFood(iHandicap / 5);
+								pLoopCity->changeFood(iHandicap / 4);
 							}
 						}
 						if((GC.getLogging() && GC.getAILogging()))
 						{
 							CvString strLogString;
-							strLogString.Format("CBP AI DIFFICULTY BONUS: Received %d Handicap Bonus", iHandicap);
+							strLogString.Format("CBP AI DIFFICULTY BONUS FROM GOLDEN AGE: Received %d Handicap Bonus", iHandicap);
 							GetHomelandAI()->LogHomelandMessage(strLogString);
 						}
 					}
@@ -24824,6 +24901,9 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	m_iGreatArtistRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_ARTIST_RATE);
 	m_iGreatMusicianRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_MUSICIAN_RATE);
 	m_iGreatMerchantRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_MERCHANT_RATE);
+#if defined(MOD_BALANCE_CORE)
+	m_iGreatEngineerRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_ENGINEER_RATE);
+#endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	if (MOD_DIPLOMACY_CITYSTATES) {
 		m_iGreatDiplomatRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_DIPLOMAT_RATE);
@@ -25903,6 +25983,12 @@ int CvPlayer::GetNumMaintenanceFreeUnits(DomainTypes eDomain, bool bOnlyCombatUn
 		{
 			iNumFreeUnits++;
 		}
+#if defined(MOD_BALANCE_CORE_JFD)
+		if(MOD_BALANCE_CORE_JFD && GetContracts()->UnitIsMaintenanceFree(pLoopUnit->getUnitType()))
+		{
+			iNumFreeUnits++;
+		}
+#endif
 	}
 
 	return iNumFreeUnits;
@@ -28316,14 +28402,10 @@ int CvPlayer::calculateMilitaryMight() const
 
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
+		if(!pLoopUnit->IsCombatUnit())
+			continue;
 		// Current combat strength or bombard strength, whichever is higher
 		int iPower =  pLoopUnit->GetPower();
-#if !defined(MOD_BALANCE_CORE)
-		if (pLoopUnit->getDomainType() == DOMAIN_SEA)
-		{
-			iPower /= 2;
-		}
-#endif
 		rtnValue += iPower;
 	}
 
@@ -28334,7 +28416,7 @@ int CvPlayer::calculateMilitaryMight() const
 	}
 
 	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
-	return int( rtnValue / max(1.f, sqrt((float)(getNumCities() / 3))));
+	return int( rtnValue / max(1.f, sqrt((float)getNumCities())));
 #else
 
 	//Simplistic increase based on player's gold
@@ -30661,7 +30743,16 @@ void CvPlayer::changePressureMod(int iChange)
 {
 	m_iPressureMod += iChange;
 }
-
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetCityStateCombatModifier() const
+{
+	return m_iCityStateCombatModifier;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeCityStateCombatModifier(int iChange)
+{
+	m_iCityStateCombatModifier += iChange;
+}
 //	--------------------------------------------------------------------------------
 int CvPlayer::getBuildingClassCultureChange(BuildingClassTypes eIndex) const
 {
@@ -31192,7 +31283,7 @@ void CvPlayer::DoDeficit()
 
 	// If the player has more units than cities, start disbanding things
 #if defined(MOD_BALANCE_CORE)
-	if(isMinorCiv())
+	if(isMinorCiv() || isBarbarian())
 	{
 		return;
 	}
@@ -36891,6 +36982,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeReligionDistance(pPolicy->GetReligionDistance() * iChange);
 		changePressureMod(pPolicy->GetPressureMod() * iChange);
 
+		changeCityStateCombatModifier(pPolicy->GetCityStateCombatModifier() * iChange);
+
 		if(GetFreeSpy() > 0)
 		{
 			CvPlayerEspionage* pEspionage = GetEspionage();
@@ -37991,6 +38084,15 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	}
 #endif
 	CalculateNetHappiness();
+#if defined(MOD_BALANCE_CORE)
+	for(pLoopCity2 = firstCity(&iLoop2); pLoopCity2 != NULL; pLoopCity2 = nextCity(&iLoop2))
+	{
+		if(pLoopCity2 != NULL)
+		{
+			pLoopCity2->UpdateComboHappiness();
+		}
+	}
+#endif
 
 	doUpdateBarbarianCampVisibility();
 
@@ -38152,6 +38254,11 @@ CvPlayerReligions* CvPlayer::GetReligions() const
 CvPlayerCorporations* CvPlayer::GetCorporations() const
 {
 	return m_pCorporations;
+}
+//	--------------------------------------------------------------------------------
+CvPlayerContracts* CvPlayer::GetContracts() const
+{
+	return m_pContracts;
 }
 #endif
 
@@ -38329,6 +38436,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	m_pReligionAI->Read(kStream);
 #if defined(MOD_BALANCE_CORE)
 	m_pCorporations->Read(kStream);
+	m_pContracts->Read(kStream);
 #endif
 	m_pPlayerTechs->Read(kStream);
 	m_pFlavorManager->Read(kStream);
@@ -38554,6 +38662,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	m_pReligionAI->Write(kStream);
 #if defined(MOD_BALANCE_CORE)
 	m_pCorporations->Write(kStream);
+	m_pContracts->Write(kStream);
 #endif
 	m_pPlayerTechs->Write(kStream);
 	m_pFlavorManager->Write(kStream);
@@ -41766,7 +41875,7 @@ int CvPlayer::GetScoreFromMinorAllies() const
 }
 int CvPlayer::GetScoreFromMilitarySize() const
 {
-	return (GetMilitaryMight() / 10);
+	return (GetMilitaryMight() / 20);
 }
 #endif
 
@@ -42060,7 +42169,46 @@ bool CvPlayer::HasAnyInternationalTradeRoute() const
 
 	return false;
 }
+int CvPlayer::GetNumInternalRoutes() const
+{
+	int iOwner = GetID();
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	int iNum = 0;
+	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
+		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
+			continue;
+		}
 
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
+
+		if (pConnection->m_eOriginOwner == iOwner && pConnection->m_eDestOwner == iOwner) {
+			iNum++;
+		}
+	}
+
+	return iNum;
+}
+
+int CvPlayer::GetNumInternationalRoutes() const
+{
+	int iOwner = GetID();
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	int iNum = 0;
+	for (uint iTradeRoute = 0; iTradeRoute < pTrade->GetNumTradeConnections(); iTradeRoute++) {
+		if (pTrade->IsTradeRouteIndexEmpty(iTradeRoute)) {
+			continue;
+		}
+
+		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(iTradeRoute));
+
+		if (pConnection->m_eOriginOwner == iOwner && pConnection->m_eDestOwner != iOwner)
+		{
+			iNum++;
+		}
+	}
+
+	return iNum;
+}
 bool CvPlayer::HasAnyTradeRoute() const
 {
 	int iOwner = GetID();

@@ -1139,6 +1139,13 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 		if(pkImprovementInfo == NULL)
 			continue;
 
+#if defined(MOD_BALANCE_CORE)
+		//Check for test below.
+		if(pkImprovementInfo->IsSpecificCivRequired() && m_pPlayer->getCivilizationType() != pkImprovementInfo->GetRequiredCivilization())
+			continue;
+
+#endif
+
 		if(pkImprovementInfo->IsImprovementResourceTrade(eResource) || pkImprovementInfo->IsAdjacentCity() || pkImprovementInfo->IsCreatedByGreatPerson())
 		{
 			if(eImprovement == eExistingPlotImprovement)
@@ -1149,8 +1156,16 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 				}
 				else
 				{
-					// this plot already has the appropriate improvement to use the resource
-					break;
+					if(pkImprovementInfo->IsAdjacentCity())
+					{
+						//break if adjacent already here.
+						break;
+					}
+					else
+					{
+						// this plot already has the appropriate improvement to use the resource
+						continue;
+					}
 				}
 			}
 			else
@@ -1348,7 +1363,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		// for bonus resources, check to see if this is the improvement that connects it
 		if(eResource != NO_RESOURCE)
 		{
-			if(!pImprovement->IsImprovementResourceTrade(eResource))
+			if(!pImprovement->IsImprovementResourceTrade(eResource) && !pImprovement->IsAdjacentCity())
 			{
 				if(m_bLogging){
 					CvString strTemp;
@@ -2690,7 +2705,7 @@ int CvBuilderTaskingAI::ScorePlot()
 			{
 				if(!m_bEvaluateAdjacent || !pkImprovementInfo->IsInAdjacentFriendly())
 				{
-					iScore *= 10;
+					iScore *= 25;
 				}
 				else if(m_bEvaluateAdjacent && pkImprovementInfo->IsInAdjacentFriendly() && (m_pTargetPlot->getOwner() != m_pPlayer->GetID()))
 				{
@@ -2872,13 +2887,13 @@ int CvBuilderTaskingAI::ScorePlot()
 	//Great improvements are great!
 	if(pImprovement->IsCreatedByGreatPerson())
 	{
-		iScore *= 4;
+		iScore *= 5;
 	}
 
 	//City adjacenct improvement? Ramp it up!
 	if(pImprovement->IsAdjacentCity() && m_pTargetPlot->GetAdjacentCity() != NULL)
 	{
-		iScore *= 4;
+		iScore *= 10;
 	}
 	//Holy Sites should be built near Holy Cities.
 	ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
@@ -2889,7 +2904,7 @@ int CvBuilderTaskingAI::ScorePlot()
 		{
 			if(m_pTargetPlot->getWorkingCity() != NULL && m_pTargetPlot->getWorkingCity()->GetCityReligions()->IsHolyCityForReligion(eReligion))
 			{
-				iScore *= 4;
+				iScore *= 5;
 			}
 		}
 	}
@@ -2903,7 +2918,7 @@ int CvBuilderTaskingAI::ScorePlot()
 		}
 	}
 	//Do we have unimproved plots nearby? If so, let's not worry about replacing improvements right now.
-	if(m_pTargetPlot->getImprovementType() != NO_IMPROVEMENT)
+	if(m_pTargetPlot->getImprovementType() != NO_IMPROVEMENT && !pImprovement->IsAdjacentCity())
 	{
 		//If our current improvement is obsolete, let's half it's value, so that the potential replacement is stronger.
 		CvImprovementEntry* pOldImprovement = GC.getImprovementInfo(m_pTargetPlot->getImprovementType());

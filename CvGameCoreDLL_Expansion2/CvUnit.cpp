@@ -569,6 +569,25 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	kPlayer.changeExtraUnitCost(getUnitInfo().GetExtraMaintenanceCost());
 
 	// Add Resource Quantity to Used
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE_JFD)
+	{
+		CvContract* pContract = kPlayer.GetContracts()->GetContract();
+		if(!pContract || pContract->m_eContractUnit != getUnitType())
+		{
+			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				if(getUnitInfo().GetResourceQuantityRequirement(iResourceLoop) > 0)
+				{
+					kPlayer.changeNumResourceUsed((ResourceTypes) iResourceLoop, GC.getUnitInfo(getUnitType())->GetResourceQuantityRequirement(iResourceLoop));
+				}
+			}
+		}
+	}
+	else
+	{
+#endif
+
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		if(getUnitInfo().GetResourceQuantityRequirement(iResourceLoop) > 0)
@@ -576,7 +595,9 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 			kPlayer.changeNumResourceUsed((ResourceTypes) iResourceLoop, GC.getUnitInfo(getUnitType())->GetResourceQuantityRequirement(iResourceLoop));
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 	if(getUnitInfo().GetNukeDamageLevel() != -1)
 	{
 		kPlayer.changeNumNukeUnits(1);
@@ -1631,6 +1652,24 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	kPlayer.changeExtraUnitCost(getUnitInfo().GetExtraMaintenanceCost());
 
 	// Add Resource Quantity to Used
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE_JFD)
+	{
+		CvContract* pContract = kPlayer.GetContracts()->GetContract();
+		if(!pContract || pContract->m_eContractUnit != getUnitType())
+		{
+			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				if(getUnitInfo().GetResourceQuantityRequirement(iResourceLoop) > 0)
+				{
+					kPlayer.changeNumResourceUsed((ResourceTypes) iResourceLoop, GC.getUnitInfo(getUnitType())->GetResourceQuantityRequirement(iResourceLoop));
+				}
+			}
+		}
+	}
+	else
+	{
+#endif
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		if(getUnitInfo().GetResourceQuantityRequirement(iResourceLoop) > 0)
@@ -1638,7 +1677,9 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			kPlayer.changeNumResourceUsed((ResourceTypes) iResourceLoop, GC.getUnitInfo(getUnitType())->GetResourceQuantityRequirement(iResourceLoop));
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 	if(getUnitInfo().GetNukeDamageLevel() != -1)
 	{
 		kPlayer.changeNumNukeUnits(1);
@@ -15124,6 +15165,9 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			if(pBattlePlot->isCity() && GET_PLAYER(pBattlePlot->getOwner()).isMinorCiv())
 			{
 				iModifier += kPlayer.GetPlayerTraits()->GetCityStateCombatModifier();
+#if defined(MOD_BALANCE_CORE)
+				iModifier += kPlayer.GetCityStateCombatModifier();
+#endif
 			}
 
 			// Founder Belief bonus (this must be a city controlled by an enemy)
@@ -15299,6 +15343,9 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		if(GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv())
 		{
 			iModifier += kPlayer.GetPlayerTraits()->GetCityStateCombatModifier();
+#if defined(MOD_BALANCE_CORE)
+			iModifier += kPlayer.GetCityStateCombatModifier();
+#endif
 		}
 
 		// OTHER UNIT is a Barbarian
@@ -16024,6 +16071,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		if(GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv())
 		{
 			iModifier += pTraits->GetCityStateCombatModifier();
+#if defined(MOD_BALANCE_CORE)
+			iModifier += kPlayer.GetCityStateCombatModifier();
+#endif
 		}
 
 		// OTHER UNIT is a Barbarian
@@ -16097,6 +16147,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
 		{
 			iModifier += pTraits->GetCityStateCombatModifier();
+#if defined(MOD_BALANCE_CORE)
+			iModifier += kPlayer.GetCityStateCombatModifier();
+#endif
 		}
 	}
 

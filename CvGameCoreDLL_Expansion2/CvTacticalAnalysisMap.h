@@ -583,7 +583,7 @@ public:
 
 	CvTacticalAnalysisCell* GetCell(int iPlotIndex)
 	{
-		return (iPlotIndex>=0 && iPlotIndex<m_pCells.size()) ? &m_pCells[iPlotIndex] : NULL;
+		return (iPlotIndex>=0 && iPlotIndex<(int)m_pCells.size()) ? &m_pCells[iPlotIndex] : NULL;
 	}
 	int GetDominancePercentage() const
 	{

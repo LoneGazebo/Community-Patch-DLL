@@ -1801,7 +1801,7 @@ void CvEconomicAI::DoHurry()
 
 	if(IsSavingForThisPurchase(PURCHASE_TYPE_UNIT_UPGRADE) || IsSavingForThisPurchase(PURCHASE_TYPE_TILE) || IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT) || IsSavingForThisPurchase(PURCHASE_TYPE_MAJOR_CIV_TRADE) || IsSavingForThisPurchase(PURCHASE_TYPE_MAJOR_CIV_TRADE))
 	{
-		iTreasuryBuffer *= 3;
+		iTreasuryBuffer *= 2;
 	}
 	
 	//Let's check our average income over five-turn periods
@@ -1829,7 +1829,7 @@ void CvEconomicAI::DoHurry()
 			//Is the city threatened - don't invest there. Always be able to hurry things in the capital.
 			if(pLoopCity != pMostThreatenedCity || pLoopCity->isCapital())
 			{
-				if(!pLoopCity->IsPuppet() || m_pPlayer->GetPlayerTraits()->IsNoAnnexing())
+				if(m_pPlayer->GetPlayerTraits()->IsNoAnnexing() || !pLoopCity->IsPuppet())
 				{
 					CvCityBuildable selection = (pLoopCity->GetCityStrategyAI()->ChooseHurry());
 						//Units
@@ -2729,6 +2729,8 @@ void CvEconomicAI::DisbandExtraWorkboats()
 {
 	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER_SEA, true, true);
 	int iNumCities = m_pPlayer->getNumCities();
+	if(iNumWorkers <= 0)
+		return;
 
 	//If we want workers in any city, don't disband.
 	AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_TILE_IMPROVEMENT");
@@ -2831,6 +2833,9 @@ void CvEconomicAI::DisbandExtraArchaeologists(){
 	int iNumSites = GC.getGame().GetNumArchaeologySites();
 	double dMaxRatio = .5; //Ratio of archaeologists to sites
 	int iNumArchaeologists = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_ARCHAEOLOGIST, true);
+	if(iNumArchaeologists <= 0)
+		return; 
+
 	PolicyTypes eExpFinisher = (PolicyTypes) GC.getInfoTypeForString("POLICY_EXPLORATION_FINISHER", true /*bHideAssert*/);
 	if (eExpFinisher != NO_POLICY)	
 	{
@@ -2870,6 +2875,9 @@ void CvEconomicAI::DisbandExtraWorkers()
 
 	double fWorstCaseRatio = 0.25; // one worker for four cities
 	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
+	if(iNumWorkers <= 0)
+		return;
+
 	int iNumCities = m_pPlayer->getNumCities();
 
 #if defined(MOD_BALANCE_CORE)
@@ -5100,13 +5108,13 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 		//Does someone have a lot of votes? That's not cool!
 		if((iLotsOfVotes > 0))
 		{
-			iScore += (iCSDesire * 2);
+			iScore += (iCSDesire * 4);
 		}
 
 		//Is someone about to win? Oh no!
 		if((iWinVotes > 0))
 		{
-			iScore += (iCSDesire * 2);
+			iScore += (iCSDesire * 6);
 		}
 
 /////////////////////////

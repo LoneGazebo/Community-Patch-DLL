@@ -146,16 +146,17 @@ Events.GameplaySetActivePlayer.Add(OnActivePlayerChanged);
 -----------------------------------------------------------------
 -- Add Event Overview to Dropdown
 -----------------------------------------------------------------
-LuaEvents.AdditionalInformationDropdownGatherEntries.Add(function(entries)
-	table.insert(entries, {
-		text = Locale.Lookup("TXT_KEY_EVENT_OVERVIEW"),
-		call = function() 
-			Events.SerialEventGameMessagePopup{ 
-				Type = ButtonPopupTypes.BUTTONPOPUP_MODDER_6,
-			};
-		end,
-	});
-end);
-
--- Just in case :)
-LuaEvents.RequestRefreshAdditionalInformationDropdownEntries();
+if Game.IsOption("GAMEOPTION_EVENTS") then
+	LuaEvents.AdditionalInformationDropdownGatherEntries.Add(function(entries)
+		table.insert(entries, {
+			text = Locale.Lookup("TXT_KEY_EVENT_OVERVIEW"),
+			call = function() 
+				Events.SerialEventGameMessagePopup{ 
+					Type = ButtonPopupTypes.BUTTONPOPUP_MODDER_6,
+				};
+			end,
+		});
+	end);
+	-- Just in case :)
+	LuaEvents.RequestRefreshAdditionalInformationDropdownEntries();
+end

@@ -2064,27 +2064,16 @@ int CvGameReligions::GetNumFollowers(ReligionTypes eReligion) const
 #endif
 {
 	int iRtnValue = 0;
-#if defined(MOD_BALANCE_CORE)
-	if(eReligion == RELIGION_PANTHEON)
-	{
-		if(ePlayer != NO_PLAYER)
-		{
-			int iLoop;
-			CvCity* pLoopCity;
-			for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
-			{
-				iRtnValue += pLoopCity->GetCityReligions()->GetNumFollowers(eReligion);
-			}
-		}
-		return iRtnValue;
-	}
-#endif
 	// Loop through all the players
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
 		if(kPlayer.isAlive())
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(ePlayer != NO_PLAYER && ePlayer != (PlayerTypes)iI)
+				continue;
+#endif
 			// Loop through each of their cities
 			int iLoop;
 			CvCity* pLoopCity;
@@ -3231,6 +3220,12 @@ int CvGameReligions::GetFaithGreatProphetNumber(int iNum) const
 		{
 			iRtnValue = GC.getRELIGION_MIN_FAITH_FIRST_PROPHET();
 		}
+#if defined(MOD_BALANCE_CORE)
+		else if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && iNum == 1)
+		{
+			iRtnValue = GC.getRELIGION_MIN_FAITH_SECOND_PROPHET();
+		}
+#endif
 		else
 		{
 			iRtnValue = (GC.getRELIGION_FAITH_DELTA_NEXT_PROPHET() * (iNum - 1)) + GetFaithGreatProphetNumber(iNum - 1);
@@ -9495,7 +9490,7 @@ bool CvReligionAI::HaveNearbyConversionTarget(ReligionTypes eReligion, bool bCan
 							CvCity* pLoopCity;
 							for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 							{
-								if (!pLoopCity->IsPuppet() || m_pPlayer->GetPlayerTraits()->IsNoAnnexing())
+								if (m_pPlayer->GetPlayerTraits()->IsNoAnnexing() || !pLoopCity->IsPuppet())
 								{
 									// Within 8 times Missionary movement allowance of one of our non-puppet cities
 									if (plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCity->getX(), pCity->getY()) <= (iMissionaryMoves * GC.getRELIGION_MISSIONARY_RANGE_IN_TURNS()))
@@ -9522,7 +9517,7 @@ bool CvReligionAI::HaveNearbyConversionTarget(ReligionTypes eReligion, bool bCan
 						CvCity* pLoopCity;
 						for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 						{
-							if (!pLoopCity->IsPuppet() || m_pPlayer->GetPlayerTraits()->IsNoAnnexing())
+							if (m_pPlayer->GetPlayerTraits()->IsNoAnnexing() || !pLoopCity->IsPuppet())
 							{
 								// Within 8 times Missionary movement allowance of one of our non-puppet cities
 								if (plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCity->getX(), pCity->getY()) <= (iMissionaryMoves * GC.getRELIGION_MISSIONARY_RANGE_IN_TURNS()))

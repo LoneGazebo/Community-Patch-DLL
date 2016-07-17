@@ -406,6 +406,9 @@ protected:
 	LUAAPIEXTN(GetMajorCivOpinion, int);
 	LUAAPIEXTN(GetMajorityReligion, int);
 	//JFD
+	LUAAPIEXTN(GetNumNationalWonders, int);
+	LUAAPIEXTN(GetNumInternationalTradeRoutes, int);
+	LUAAPIEXTN(GetNumInternalTradeRoutes, int);
 	LUAAPIEXTN(GetStateReligion, int);
 	LUAAPIEXTN(SetStateReligion, int);
 	LUAAPIEXTN(GetNumCitiesWithStateReligion, int);
@@ -469,6 +472,14 @@ protected:
 
 	LUAAPIEXTN(SetProsperityScore, int);
 	LUAAPIEXTN(GetProsperityScore, int);
+
+	//JFD Contracts
+	LUAAPIEXTN(PlayerHasContract, int);
+	LUAAPIEXTN(PlayerHasAnyContract, int);
+	LUAAPIEXTN(GetContractTurnsRemaining, int);
+	LUAAPIEXTN(GetContractGoldMaintenance, int);
+	LUAAPIEXTN(GetActiveContract, int);
+	LUAAPIEXTN(StartContract, int);
 #endif
 	static int lGetCombatBonusVsHigherTech(lua_State* L);
 	static int lGetCombatBonusVsLargerCiv(lua_State* L);

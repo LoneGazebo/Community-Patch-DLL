@@ -646,11 +646,20 @@ ALTER TABLE Traits ADD COLUMN 'StartingSpies' INTEGER DEFAULT 0;
 -- Spies begin at x rank
 ALTER TABLE Traits ADD COLUMN 'StartingSpyRank' INTEGER DEFAULT 0;
 
+-- Boost CS Quest Value
+ALTER TABLE Traits ADD COLUMN 'MinorQuestYieldModifier' INTEGER DEFAULT 0;
+
 -- Limits the amount that can be built of a Unit class per city
 ALTER TABLE UnitClasses ADD COLUMN 'UnitInstancePerCity' INTEGER DEFAULT -1;
 
 -- Trade Route Internal Capital Bonus -- policy -- Internal TR from Capital stronger!
 ALTER TABLE Policies ADD COLUMN 'InternalTradeRouteYieldModifierCapital' INTEGER DEFAULT 0;
+
+-- Great Engineer Policy bonus - rate modifier.
+ALTER TABLE Policies ADD COLUMN 'GreatEngineerRateModifier' INTEGER DEFAULT 0;
+
+-- Great Engineer Policy bonus - rate modifier.
+ALTER TABLE Policies ADD COLUMN 'CityStateCombatModifier' INTEGER DEFAULT 0;
 
 -- C4DF Function
 

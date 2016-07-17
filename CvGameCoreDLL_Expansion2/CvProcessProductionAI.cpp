@@ -114,7 +114,7 @@ int CvProcessProductionAI::GetWeight(ProcessTypes eProject)
 	return m_ProcessAIWeights.GetWeight(eProject);
 }
 #if defined(MOD_BALANCE_CORE)
-int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iTempWeight)
+int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iTempWeight, int iNumBuildables, int iGPT)
 {
 	CvProcessInfo* pProcess = GC.getProcessInfo(eProcess);
 	if(!pProcess)
@@ -125,9 +125,19 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	if(iTempWeight == 0)
 		return 0;
 
-	if(iTempWeight > 350)
+	if(iNumBuildables > 0)
 	{
-		iTempWeight = 350;
+		if(iTempWeight > 350)
+		{
+			iTempWeight = 350;
+		}
+	}
+	else
+	{
+		if(iTempWeight > 500)
+		{
+			iTempWeight = 500;
+		}
 	}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
@@ -425,6 +435,10 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				}
 			}
 		}
+	}
+	if(iGPT <= 0)
+	{
+		iModifier += (iGPT *= -2);
 	}
 
 	if(m_pCity->IsPuppet())

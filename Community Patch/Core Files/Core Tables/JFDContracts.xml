@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 7/8/2016 3:33:31 PM -->
+<GameData>
+	<!-- Lua Functions-->
+	<!--
+	Game.DoUpdateContracts() - forces a refresh of the unit type for contracts (auto-does this when human enters new era, but you can also force it if you want)
+	Game.GetNumActiveContracts()
+	Game.GetNumInactiveContracts()
+	Game.GetNumAvailableContracts()
+	Game.GetNumUnavailableContracts()
+	Game.GetActiveContract(ContractTypes eContract) grabs as an ID value
+	Game.GetInactiveContract(ContractTypes eContract) grabs as an ID value
+	Game.IsContractActive(ContractTypes eContract) use with contract table iterator to get a list of all unavailable (i.e. active) contracts
+	Game.IsContractAvailable(ContractTypes eContract) use with contract table iterator to get a list of all available (i.e. inactive) contracts
+	Game.GetContractUnit(ContractTypes eContract) gets the unit, either XML default or your randomized unit, depending on whether or not you've set that.
+	
+	Player.PlayerHasContract(ContractTypes eContract)
+	Player.PlayerHasAnyContract()
+	Player.GetContractTurnsRemaining()
+	Player.GetContractGoldMaintenance() - UI value for contract maintenance - note that supply/resource cost and unit maintenance are all bypassed for contract units, so this is the flat cost of the units based on the XML/LUA
+	Player.GetActiveContract();
+	Player.StartContract(ContractTypes eContract)
+	-->
+	<!-- Lua Hooks-->
+	<!--
+
+	These three will get an input from your lua
+	GetContractUnit(ContractTypes eContract) this one hooks to your random table and sets the unit type for the inactive list. This list can then be used in your UI to populate the unit type for each contract
+	GetContractMaintenance(PlayerTypes ePlayer, ContractTypes eContract) can alter the contract maintenance here - defaults to XML value if nothing happens
+	GetContractDuration(PlayerTypes ePlayer, ContractTypes eContract) - can alter the contract duration here - defaults to XML value if nothing happens
+	
+	These three are simply hooks for lua events (notifications etc.)
+	ContractStarted(PlayerTypes ePlayer, ContractTypes eContract, UnitTypes eUnit, int iTurns, int iMaintenance)
+	ContractEnded(PlayerTypes ePlayer, ContractTypes eContract)
+	ContractsRefreshed()
+	
+	-->
+	<Table name="Contracts">
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="Adjective" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="Civilopedia" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="Category" type="text"/>
+		<Column name="IconAtlas" type="text" default="NULL" reference="IconTextureAtlases(Atlas)"/>
+		<Column name="PortraitIndex" type="integer" default="-1"/>
+		<Column name="PurchaseDing" type="text" default="AS2D_INTERFACE_CITY_SCREEN_PURCHASE"/>
+		<Column name="PrereqEra" type="text" reference="Eras(Type)" default="ERA_ANCIENT"/>
+		<Column name="ObsoleteEra" type="text" reference="Eras(Type)" default="NULL"/>
+		<Column name="PrereqReligion" type="text" reference="Religions(Type)" default="NULL"/>
+		<Column name="PrereqCiv" type="text" reference="Civilizations(Type)" default="NULL"/>
+		<Column name="PolicyType" type="text" reference="Policies(Type)" default="NULL"/>
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" default="NULL"/>
+		<Column name="ContractUnit" type="text" reference="Units(Type)" default="NULL"/>		
+		<Column name="IsHolyOrder" type="boolean" default="false"/>
+		<Column name="IsSlavery" type="boolean" default="false"/>
+		<Column name="PrereqPietyLevel" type="text" default="NULL"/>
+		<Column name="Maintenance" type="integer" default="0"/>
+		<Column name="Rating" type="integer" default="0"/>
+		<Column name="DisbandChance" type="integer" default="0"/>
+		<Column name="MutinyChance" type="integer" default="0"/>
+		<Column name="ContractTurns" type="integer" default="0"/>
+	</Table>
+	<Table name="Contract_YieldCost">
+		<Column name="ContractType" type="text" reference="Contracts(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<Table name="Contract_Flavor">
+		<Column name="ContractType" type="text" reference="Contracts(Type)"/>
+		<Column name="FlavorType" type="text" reference="Flavors(Type)"/>
+		<Column name="Flavor" type="integer"/>
+	</Table>
+	<!--
+	<Contracts>
+		<Row>
+			<ID>0</ID>
+			<Type>CONTRACT_KNIGHTS_OF_GAZEBO</Type>
+			<Description>TXT_KEY_CONTRACT_KNIGHTS_OF_GAZEBO</Description>
+			<Help>TXT_KEY_CONTRACT_KNIGHTS_OF_GAZEBO_HELP</Help>
+			<Adjective>TXT_KEY_CONTRACT_KNIGHTS_OF_GAZEBO_ADJ</Adjective>
+			<Civilopedia>TXT_KEY_CONTRACT_KNIGHTS_OF_GAZEBO_PEDIA</Civilopedia>
+			<Category>TXT_KEY_CATEGORY_KNIGHTS</Category>
+			<ContractUnit>UNIT_KNIGHT</ContractUnit>
+			<IsHolyOrder>true</IsHolyOrder>
+			<Maintenance>10</Maintenance>
+			<ContractTurns>30</ContractTurns>
+		</Row>
+	</Contracts>
+	<Contract_YieldCost>
+		<Row>
+			<ContractType>CONTRACT_KNIGHTS_OF_GAZEBO</ContractType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>100</Yield>
+		</Row>
+	</Contract_YieldCost>
+	<Contract_Flavor>
+		<Row>
+			<ContractType>CONTRACT_KNIGHTS_OF_GAZEBO</ContractType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>100</Flavor>
+		</Row>
+	</Contract_Flavor>
+	-->
+</GameData>

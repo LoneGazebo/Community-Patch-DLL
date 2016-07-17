@@ -188,6 +188,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bDummy(false),
 	m_bOpener(false),
 	m_bFinisher(false),
+	m_iCityStateCombatModifier(0),
+	m_iGreatEngineerRateModifier(0),
 #endif
 	m_bMilitaryFoodProduction(false),
 	m_iWoundedUnitDamageMod(0),
@@ -510,6 +512,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bDummy = kResults.GetBool("IsDummy");
 	m_bOpener = kResults.GetBool("IsOpener");
 	m_bFinisher = kResults.GetBool("IsFinisher");
+	m_iCityStateCombatModifier = kResults.GetInt("CityStateCombatModifier");
+	m_iGreatEngineerRateModifier = kResults.GetInt("GreatEngineerRateModifier");
 #endif
 	m_bMilitaryFoodProduction = kResults.GetBool("MilitaryFoodProduction");
 	m_iMaxConscript = kResults.GetInt("MaxConscript");
@@ -2013,6 +2017,14 @@ bool CvPolicyEntry::IsOpener() const
 bool CvPolicyEntry::IsFinisher() const
 {
 	return m_bFinisher;
+}
+int CvPolicyEntry::GetCityStateCombatModifier() const
+{
+	return m_iCityStateCombatModifier;
+}
+int CvPolicyEntry::GetGreatEngineerRateModifier() const
+{
+	return m_iGreatEngineerRateModifier;
 }
 #endif
 /// Military units now all produced with food
@@ -3680,6 +3692,11 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_GREAT_MERCHANT_RATE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatMerchantRateModifier();
 				break;
+#if defined(MOD_BALANCE_CORE)
+			case POLICYMOD_GREAT_ENGINEER_RATE:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatEngineerRateModifier();
+				break;
+#endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 			case POLICYMOD_GREAT_DIPLOMAT_RATE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatDiplomatRateModifier();
@@ -3814,6 +3831,12 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 
 	return rtnValue;
 }
+#if defined(MOD_BALANCE_CORE)
+void CvPlayerPolicies::ClearCache()
+{
+	mModifierLookup.clear();
+}
+#endif
 
 /// Get overall modifier from policies for a type of yield
 int CvPlayerPolicies::GetYieldModifier(YieldTypes eYieldType)
@@ -4483,7 +4506,12 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 				if (pkPolicyBranchInfo->IsPurchaseByLevel())
 				{
 					m_pPlayer->ChangeNumFreeTenets(iFreePolicies, !bRevolution);
-
+#if defined(MOD_BALANCE_CORE)
+					if(!bRevolution)
+					{
+						GAMEEVENTINVOKE_HOOK(GAMEEVENT_IdeologyAdopted, m_pPlayer->GetID(), eBranchType);
+					}
+#endif
 					for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
 						PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
 						CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
@@ -4773,6 +4801,10 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 {
 	PolicyBranchTypes eOldBranchType = GetLateGamePolicyTree();
 	CvAssertMsg (eOldBranchType != eNewBranchType && eNewBranchType != NO_POLICY_BRANCH_TYPE && eOldBranchType != NO_POLICY_BRANCH_TYPE, "Illegal time for Ideology change");
+
+#if defined(MOD_BALANCE_CORE)
+	GAMEEVENTINVOKE_HOOK(GAMEEVENT_IdeologySwitched, m_pPlayer->GetID(), eOldBranchType, eNewBranchType);
+#endif
 
 	int iOldBranchTenets = GetNumPoliciesOwnedInBranch(eOldBranchType);
 	int iNewBranchTenets = max(0, iOldBranchTenets - GC.getSWITCH_POLICY_BRANCHES_TENETS_LOST());

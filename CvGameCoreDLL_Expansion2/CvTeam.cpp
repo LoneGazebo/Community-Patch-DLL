@@ -4433,7 +4433,11 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 			}
 
 			// First contact with major stuff
+#if defined(MOD_BALANCE_CORE)
+			if(!isMinorCiv() && !isBarbarian() && !isObserver())
+#else
 			if(!isMinorCiv())
+#endif
 			{
 				GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).GetMinorCivAI()->DoFirstContactWithMajor(GetID(), /*bSuppressMessages*/ isAtWar(eIndex));
 			}
@@ -8339,6 +8343,12 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			}
 		}
 #endif
+#if defined(MOD_BALANCE_CORE_JFD)
+		if(MOD_BALANCE_CORE_JFD && isHuman())
+		{
+			GC.getGame().GetGameContracts()->DoUpdateContracts();
+		}
+#endif
 
 		if(!isMinorCiv())
 		{
@@ -8710,11 +8720,11 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 						kPlayer.ChangeGoldenAgeProgressMeter(iHandicap);
 						kPlayer.changeJONSCulture(iHandicap / 3);
 						if(kPlayer.getCapitalCity() != NULL)
-					{
-						kPlayer.getCapitalCity()->ChangeJONSCultureStored(iHandicap / 3);
-					}
+						{
+							kPlayer.getCapitalCity()->ChangeJONSCultureStored(iHandicap / 3);
+						}
 
-						int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 10));
+						int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 5));
 						
 						if(iBeakersBonus > 0)
 						{
@@ -8738,7 +8748,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 						if((GC.getLogging() && GC.getAILogging()))
 						{
 							CvString strLogString;
-							strLogString.Format("CBP AI DIFFICULTY BONUS: Received %d Handicap Bonus", iHandicap);
+							strLogString.Format("CBP AI DIFFICULTY BONUS ERA CHANGE: Received %d Handicap Bonus", iHandicap);
 							kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
 						}
 					}

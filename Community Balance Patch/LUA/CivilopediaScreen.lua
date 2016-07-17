@@ -3220,8 +3220,8 @@ function SelectBuildingOrWonderArticle( buildingID )
 			Controls.CorporationFrame:SetHide(false);
 			Controls.CorporationInnerFrame:SetHide(false);
 		else
-			Controls.CorporationFrame:SetHide(false);
-			Controls.CorporationInnerFrame:SetHide(false);
+			Controls.CorporationFrame:SetHide(true);
+			Controls.CorporationInnerFrame:SetHide(true);
 		end
 		
 		-- update the Happiness

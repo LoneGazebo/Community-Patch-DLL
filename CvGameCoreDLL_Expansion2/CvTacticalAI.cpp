@@ -10557,7 +10557,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 				if(pMovePlot != NULL)
 				{
 					pDefender = pMovePlot->getBestDefender(m_pPlayer->GetID());
-					if(pDefender)
+					if(pDefender || (pMovePlot->getOwner() == m_pPlayer->GetID() && !m_pPlayer->IsAtWar()))
 					{
 						ExecuteMoveToPlotIgnoreDanger(pGeneral, pBestPlot);
 						bSafe = true;
@@ -10582,6 +10582,43 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 							}
 						}
 					}
+					//Moving with an army but not a safe route at the moment? Just head towards the target.
+					if(!bSafe && pArmyAI && pGeneral->getArmyID() == pArmyAI->GetID() && !m_pPlayer->IsAtWar())
+					{
+						int iClosestPlot = MAX_INT;
+						ReachablePlots reachablePlots;
+						TacticalAIHelpers::GetAllPlotsInReachThisTurn(pGeneral.pointer(),pGeneral->plot(),reachablePlots,true,true,false);
+						for (ReachablePlots::const_iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
+						{
+							CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+							if (!pEvalPlot)
+								continue;
+
+							
+							if(pArmyAI && pArmyAI->GetGoalPlot() != NULL)
+							{
+								int iGoalDistance = plotDistance(pEvalPlot->getX(), pEvalPlot->getY(), pArmyAI->GetGoalPlot()->getX(), pArmyAI->GetGoalPlot()->getY());
+								if(iGoalDistance < iClosestPlot)
+								{
+									iClosestPlot = iGoalDistance;
+									pBestPlot = pEvalPlot;
+								}
+							}
+						}
+						if(pBestPlot != NULL)
+						{
+							ExecuteMoveToPlotIgnoreDanger(pGeneral, pBestPlot);
+							bSafe = true;
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								CvString strMsg;
+								strMsg.Format("Deploying %s %d to assist troops BOLDLY, To X: %d, To Y: %d, At X: %d, At Y: %d, Dist from Target: %d",
+												pGeneral->getName().GetCString(), pGeneral->GetID(), pBestPlot->getX(), pBestPlot->getY(),
+												pGeneral->getX(), pGeneral->getY(), iClosestPlot);
+								LogTacticalMessage(strMsg);
+							}
+						}
+					}
 				}
 				if(bSafe)
 				{
@@ -10589,9 +10626,12 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 					pGeneral->finishMoves();
 
 					//defender must stay here now, whether he wants to or not
-					TacticalAIHelpers::PerformRangedAttackWithoutMoving(pDefender.pointer());
-					UnitProcessed(pDefender->GetID());
-					pDefender->finishMoves();
+					if(pDefender)
+					{
+						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pDefender.pointer());
+						UnitProcessed(pDefender->GetID());
+						pDefender->finishMoves();
+					}
 
 					if(pArmyAI != NULL)
 					{

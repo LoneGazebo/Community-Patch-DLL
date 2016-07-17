@@ -460,10 +460,14 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	end
 -- CBP
 	if (pCity ~= nil) then
-		local iCorpGPChange = pCity:GetGPRateModifierPerXFranchises();
+		-- CBP
+		local iCorpGPChange = pBuildingInfo.GPRateModifierPerXFranchises;
 		if iCorpGPChange ~=0 then
-			local localizedText = Locale.ConvertTextKey("TXT_KEY_PEDIA_CORP_GP_CHANGE", iCorpGPChange);
-			table.insert(lines, localizedText);
+			iCorpGPChange = pCity:GetGPRateModifierPerXFranchises();
+			if iCorpGPChange ~=0 then
+				local localizedText = Locale.ConvertTextKey("TXT_KEY_PEDIA_CORP_GP_CHANGE", iCorpGPChange);
+				table.insert(lines, localizedText);
+			end
 		end
 	end
 -- END

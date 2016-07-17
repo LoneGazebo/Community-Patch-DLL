@@ -166,6 +166,7 @@ typedef wchar_t          wchar;
 #endif
 #if defined(MOD_BALANCE_CORE)
 #include "CvCorporationClasses.h"
+#include "CvContractClasses.h"
 #endif
 
 using namespace fastdelegate;

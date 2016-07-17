@@ -853,7 +853,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 
 -- CBP -- Global Average Modifiers
 	if(tips and Game and buildingID) then
-		if(city) then
+		if(city and building.GPRateModifierPerXFranchises ~= 0) then
 			local iCorpGPChange = city:GetGPRateModifierPerXFranchises();
 			if iCorpGPChange ~=0 then
 				tips:insert( L( "TXT_KEY_PEDIA_CORP_GP_CHANGE", iCorpGPChange))

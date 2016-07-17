@@ -413,9 +413,9 @@ void CvHomelandAI::EstablishHomelandPriorities()
 			break;
 		case AI_HOMELAND_MOVE_GARRISON:
 			// Garrisons must beat out sentries if policies encourage garrisoning
-			if(m_pPlayer->GetPlayerPolicies()->HasPolicyEncouragingGarrisons())
+			if(m_pPlayer->GetPlayerPolicies()->HasPolicyEncouragingGarrisons() || m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
 			{
-				iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_SENTRY() + 1;
+				iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_GARRISON() * 2;
 			}
 
 			else
@@ -1842,6 +1842,10 @@ void CvHomelandAI::ExecutePatrolMoves()
 				for(int iJ = 0; iJ < RING5_PLOTS; iJ++)
 				{
 					CvPlot* pLoopPlot = iterateRingPlots(vTargets[i], iJ);
+
+					if(pLoopPlot == NULL)
+						continue;
+
 					if (pUnit->canMoveInto(*vTargets[i]) && pLoopPlot->getDomain()==pUnit->getDomainType() && pLoopPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(),NO_DOMAIN)<4)
 					{
 						iBestTurns = itPlot->iTurns;

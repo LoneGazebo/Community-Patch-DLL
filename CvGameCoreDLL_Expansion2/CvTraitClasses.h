@@ -129,6 +129,7 @@ public:
 	int GetGAUnhappinesNeedMod() const;
 	int GetStartingSpies() const;
 	int GetStartingSpyRank() const;
+	int GetQuestYieldModifier() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -443,6 +444,7 @@ protected:
 	int m_iGAUnhappinesNeedMod;
 	int m_iStartingSpies;
 	int m_iStartingSpyRank;
+	int m_iQuestYieldModifier;
 #endif
 
 	TechTypes m_eFreeUnitPrereqTech;
@@ -920,6 +922,10 @@ public:
 	int GetStartingSpyRank() const
 	{
 		return m_iStartingSpyRank;
+	};
+	int GetQuestYieldModifier() const
+	{
+		return m_iQuestYieldModifier;
 	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1523,6 +1529,7 @@ private:
 	int m_iGAUnhappinesNeedMod;
 	int m_iStartingSpies;
 	int m_iStartingSpyRank;
+	int m_iQuestYieldModifier;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;

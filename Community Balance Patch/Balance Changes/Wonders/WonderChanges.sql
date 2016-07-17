@@ -736,6 +736,9 @@ VALUES
 	('BUILDING_NOTRE_DAME', 'TXT_KEY_THEMING_BONUS_BUILDING_NOTRE_DAME', 4, 0, 1, 1, 2);
 
 -- New Wonder Yields and Data
+UPDATE Building_Flavors
+SET Flavor = '60'
+WHERE BuildingType = 'BUILDING_STONEHENGE';
 
 INSERT INTO Building_Flavors
 	(BuildingType, FlavorType, Flavor)

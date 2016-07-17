@@ -102,6 +102,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iGAUnhappinesNeedMod(0),
 	m_iStartingSpies(0),
 	m_iStartingSpyRank(0),
+	m_iQuestYieldModifier(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -650,6 +651,10 @@ int CvTraitEntry::GetStartingSpies() const
 int CvTraitEntry::GetStartingSpyRank() const
 {
 	return m_iStartingSpyRank;
+}
+int CvTraitEntry::GetQuestYieldModifier() const
+{
+	return m_iQuestYieldModifier;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1713,6 +1718,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iGAUnhappinesNeedMod					= kResults.GetInt("GAUnhappinesNeedMod");
 	m_iStartingSpies						= kResults.GetInt("StartingSpies");
 	m_iStartingSpyRank						= kResults.GetInt("StartingSpyRank");
+	m_iQuestYieldModifier					= kResults.GetInt("MinorQuestYieldModifier");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -2714,6 +2720,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iGAUnhappinesNeedMod += trait->GetGAUnhappinesNeedMod();
 			m_iStartingSpies += trait->GetStartingSpies();
 			m_iStartingSpyRank += trait->GetStartingSpyRank();
+			m_iQuestYieldModifier += trait->GetQuestYieldModifier();
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
@@ -3239,6 +3246,7 @@ void CvPlayerTraits::Reset()
 	m_iGAUnhappinesNeedMod = 0;
 	m_iStartingSpies = 0;
 	m_iStartingSpyRank = 0;
+	m_iQuestYieldModifier = 0;
 	m_bGPWLTKD = false;
 	m_bTradeRouteOnly = false;
 	m_bKeepConqueredBuildings = false;
@@ -4964,6 +4972,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(74, kStream, m_iGAUnhappinesNeedMod, 0);
 	MOD_SERIALIZE_READ(74, kStream, m_iStartingSpies, 0);
 	MOD_SERIALIZE_READ(74, kStream, m_iStartingSpyRank, 0);
+	MOD_SERIALIZE_READ(74, kStream, m_iQuestYieldModifier, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -5488,6 +5497,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iGAUnhappinesNeedMod);
 	MOD_SERIALIZE_WRITE(kStream, m_iStartingSpies);
 	MOD_SERIALIZE_WRITE(kStream, m_iStartingSpyRank);
+	MOD_SERIALIZE_WRITE(kStream, m_iQuestYieldModifier);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);

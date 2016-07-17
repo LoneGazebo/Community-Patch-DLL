@@ -317,7 +317,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 	if(iNumWar > 0 && pkBuildingInfo->GetDefenseModifier() <= 0)
 	{
-		iBonus -= (iNumWar * 10);
+		iBonus -= 100;
+		//Ad
+		iBonus -= (iNumWar * 25);
 		if(kPlayer.getNumCities() > 1 && m_pCity->GetThreatCriteria() != -1)
 		{
 			//More cities = more threat.
@@ -712,7 +714,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	////////////////////////
 
 	//Domain mods are good, and should be stacked.
-	if(!m_pCity->IsPuppet() || bIsVenice)
+	if(bIsVenice || !m_pCity->IsPuppet())
 	{
 		for (int iDomainLoop = 0; iDomainLoop < NUM_DOMAIN_TYPES; iDomainLoop++)
 		{
@@ -749,7 +751,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 	//Unitcombat Bonuses should stack too.
-	if(!m_pCity->IsPuppet() || bIsVenice)
+	if(bIsVenice || !m_pCity->IsPuppet())
 	{
 		for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 		{

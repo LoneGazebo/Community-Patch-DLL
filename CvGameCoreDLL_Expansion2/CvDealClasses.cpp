@@ -4192,6 +4192,56 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									}
 								}
 							}
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+							if(MOD_BALANCE_CORE_DIFFICULTY && !GET_PLAYER(eAcceptedToPlayer).isMinorCiv() && !GET_PLAYER(eAcceptedToPlayer).isHuman())
+							{
+								int iEra = GET_PLAYER(eAcceptedToPlayer).GetCurrentEra();
+								if(iEra <= 0)
+								{
+									iEra = 1;
+								}
+								int iHandicap = 0;
+								CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
+								if(pHandicapInfo)
+								{
+									iHandicap = pHandicapInfo->getAIDifficultyBonus();
+									iHandicap *= iEra;
+								}
+								if(iHandicap > 0)
+								{	
+									GET_PLAYER(eAcceptedToPlayer).GetTreasury()->ChangeGold(iHandicap);
+									GET_PLAYER(eAcceptedToPlayer).ChangeGoldenAgeProgressMeter(iHandicap);
+									GET_PLAYER(eAcceptedToPlayer).changeJONSCulture(iHandicap / 3);
+				
+									int iBeakersBonus = GET_PLAYER(eAcceptedToPlayer).GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 15));
+									TechTypes eCurrentTech = GET_PLAYER(eAcceptedToPlayer).GetPlayerTechs()->GetCurrentResearch();
+									if(eCurrentTech == NO_TECH)
+									{
+										GET_PLAYER(eAcceptedToPlayer).changeOverflowResearch(iBeakersBonus);
+									}
+									else
+									{
+										GET_TEAM(GET_PLAYER(eAcceptedToPlayer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, GET_PLAYER(eAcceptedToPlayer).GetID());
+									}
+									int iLoop;
+									CvCity* pLoopCity;
+									for(pLoopCity = GET_PLAYER(eAcceptedToPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eAcceptedToPlayer).nextCity(&iLoop))
+									{
+										if(pLoopCity != NULL)
+										{
+											pLoopCity->changeFood(iHandicap / 4);
+											pLoopCity->ChangeJONSCultureStored(iHandicap / 2);
+										}
+									}
+									if((GC.getLogging() && GC.getAILogging()))
+									{
+										CvString strLogString;
+										strLogString.Format("CBP AI DIFFICULTY BONUS FROM WAR VICTORY: Received %d Handicap Bonus", iHandicap);
+										GET_PLAYER(eAcceptedToPlayer).GetHomelandAI()->LogHomelandMessage(strLogString);
+									}
+								}
+							}
+#endif
 							bDone = true;
 						}
 						else if((kDeal.GetSurrenderingPlayer() == eAcceptedToPlayer) && !bDone)
@@ -4272,6 +4322,56 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									}
 								}
 							}
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+							if(MOD_BALANCE_CORE_DIFFICULTY && !GET_PLAYER(eAcceptedFromPlayer).isMinorCiv() && !GET_PLAYER(eAcceptedFromPlayer).isHuman())
+							{
+								int iEra = GET_PLAYER(eAcceptedFromPlayer).GetCurrentEra();
+								if(iEra <= 0)
+								{
+									iEra = 1;
+								}
+								int iHandicap = 0;
+								CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
+								if(pHandicapInfo)
+								{
+									iHandicap = pHandicapInfo->getAIDifficultyBonus();
+									iHandicap *= iEra;
+								}
+								if(iHandicap > 0)
+								{	
+									GET_PLAYER(eAcceptedFromPlayer).GetTreasury()->ChangeGold(iHandicap);
+									GET_PLAYER(eAcceptedFromPlayer).ChangeGoldenAgeProgressMeter(iHandicap);
+									GET_PLAYER(eAcceptedFromPlayer).changeJONSCulture(iHandicap / 3);
+				
+									int iBeakersBonus = GET_PLAYER(eAcceptedFromPlayer).GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 15));
+									TechTypes eCurrentTech = GET_PLAYER(eAcceptedFromPlayer).GetPlayerTechs()->GetCurrentResearch();
+									if(eCurrentTech == NO_TECH)
+									{
+										GET_PLAYER(eAcceptedFromPlayer).changeOverflowResearch(iBeakersBonus);
+									}
+									else
+									{
+										GET_TEAM(GET_PLAYER(eAcceptedFromPlayer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, GET_PLAYER(eAcceptedFromPlayer).GetID());
+									}
+									int iLoop;
+									CvCity* pLoopCity;
+									for(pLoopCity = GET_PLAYER(eAcceptedFromPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eAcceptedFromPlayer).nextCity(&iLoop))
+									{
+										if(pLoopCity != NULL)
+										{
+											pLoopCity->changeFood(iHandicap / 4);
+											pLoopCity->ChangeJONSCultureStored(iHandicap / 2);
+										}
+									}
+									if((GC.getLogging() && GC.getAILogging()))
+									{
+										CvString strLogString;
+										strLogString.Format("CBP AI DIFFICULTY BONUS FROM WAR VICTORY: Received %d Handicap Bonus", iHandicap);
+										GET_PLAYER(eAcceptedFromPlayer).GetHomelandAI()->LogHomelandMessage(strLogString);
+									}
+								}
+							}
+#endif
 							bDone = true;
 						}
 					}

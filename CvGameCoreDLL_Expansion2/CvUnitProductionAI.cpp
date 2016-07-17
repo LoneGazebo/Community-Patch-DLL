@@ -661,14 +661,14 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if(kPlayer.GetEconomicAI()->IsUsingStrategy(eNeedDiplomats))
 			{
-				iBonus += 10;
+				iBonus += 25;
 			}
 			EconomicAIStrategyTypes eNeedDiplomatsCrit = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL");	
 			if(eNeedDiplomatsCrit != NO_ECONOMICAISTRATEGY)
 			{
 				if(kPlayer.GetEconomicAI()->IsUsingStrategy(eNeedDiplomatsCrit))
 				{
-					iBonus += 25;
+					iBonus += 50;
 				}
 			}
 		}
@@ -958,7 +958,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Make sure we need naval workers in this city.
 	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_WORKER_SEA)
 	{
-		int iFirstUnitID = 0;
+		int iFirstUnitID;
 		//There's a worker waiting here? Abort!
 		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_WORKER_SEA, iFirstUnitID) > 0)
 		{
@@ -971,7 +971,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		else
 		{
-			iBonus += 50;
+			iBonus += 250;
 		}
 	}
 	//Make sure we need workers in this city.
@@ -979,9 +979,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	{
 		if(kPlayer.GetNumUnitsWithUnitAI(UNITAI_DEFENSE, true, false) < 1 && kPlayer.GetNumUnitsWithUnitAI(UNITAI_ATTACK, true, false) < 1)
 		{
-			return 0;
+			iBonus += -25;
 		}
-		int iFirstUnitID = 0;
+		if(kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false) < 1)
+		{
+			iBonus += 100;
+		}
+		int iFirstUnitID;
 		//There's a worker waiting here? Abort!
 		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_WORKER, iFirstUnitID) > 0)
 		{
@@ -995,12 +999,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
 		if(eWantWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 		{
-			iBonus += 20;
+			iBonus += 50;
 		}
 		AICityStrategyTypes eNeedWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
 		if(eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
 		{
-			iBonus += 40;
+			iBonus += 100;
 		}
 	}
 	//////////////////
@@ -1069,7 +1073,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	/////////////////////
 	// EXPERIENCE BOOSTERS
 	/////////////////////
-	if(bCombat)
+	if(bCombat && !kPlayer.isMinorCiv())
 	{
 		//Let's try to build our units in our best cities only.
 		if(m_pCity == kPlayer.GetBestMilitaryCity((UnitCombatTypes)pkUnitEntry->GetUnitCombatType()))
@@ -1173,8 +1177,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	{
 		if(iGPT < 0)
 		{
-			//Every -1 GPT = -20 penalty.
-			iBonus += iGPT * 20;
+			//Every -1 GPT = -30 penalty.
+			iBonus += iGPT * 30;
 		}
 	}
 
