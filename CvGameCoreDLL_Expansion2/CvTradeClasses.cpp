@@ -145,6 +145,11 @@ bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCit
 	return false;
 }
 
+void CvGameTrade::InvalidateTradePathCache(uint iPlayer)
+{
+	m_lastTradePathUpdate[iPlayer] = -1;
+}
+
 void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 {
 	CvPlayer& kPlayer1 = GET_PLAYER((PlayerTypes)iPlayer1);

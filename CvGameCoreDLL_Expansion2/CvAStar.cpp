@@ -563,7 +563,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 
 #if defined(MOD_CORE_DEBUGGING)
 	//don't log nodes which have only obsolete neighbors
-	if (MOD_CORE_DEBUGGING && newNodes.size()>1)
+	if (MOD_CORE_DEBUGGING && newNodes.size()>1 && svPathLog.size()<10000)
 		svPathLog.insert( svPathLog.end(), newNodes.begin(), newNodes.end() );
 #endif
 }
@@ -887,13 +887,16 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 	kToNodeCacheData.bIsValidRoute = pPlot->isValidRoute(pUnit);
 
 	//now the big ones ...
-	bool bIsDestination = finder->IsPathDest(node->m_iX,node->m_iY) || !finder->HasValidDestination();
+	bool bIsDestination = finder->IsPathDest(node->m_iX,node->m_iY);
 	//use the flags mostly as provided - attack needs manual handling though
 	int iMoveFlags = finder->GetData().iFlags & ~CvUnit::MOVEFLAG_ATTACK & ~CvUnit::MOVEFLAG_DESTINATION;
-	//special checks for last node - similar as in PathDestValid
-	if (bIsDestination)
+
+	//if we might want the end the move here (explicit destination or no destination known yet)
+	if (bIsDestination || !finder->HasValidDestination())
 	{
-		iMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;
+		//if we are simply checking the reachable plots, we don't have a destination, but we still need to set the attack flags
+		if (bIsDestination)
+			iMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;
 
 		//special checks for attack flag
 		if (pCacheData->IsCanAttack())
@@ -1043,6 +1046,10 @@ int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, 
 /// Standard path finder - cost for ending the turn on a given plot
 int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData, const UnitPathCacheData* pUnitDataCache, int iTurnsInFuture)
 {
+	//human knows best, don't try to be smart
+	if (!pUnitDataCache->isAIControl())
+		return 0;
+
 	int iCost = 0;
 
 	CvUnit* pUnit = pUnitDataCache->pUnit;
@@ -1076,15 +1083,12 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 
 	if (pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_UNWELCOME_EVANGELIST()))
 	{
-		// Avoid being in a territory that we are not welcome in, unless the human is manually controlling the unit.
-		if (pUnitDataCache->isAIControl())
+		// Avoid being in a territory that we are not welcome in
+		PlayerTypes ePlotOwner = pToPlot->getOwner();
+		TeamTypes ePlotTeam = pToPlot->getTeam();
+		if (ePlotTeam != NO_TEAM && !GET_PLAYER(ePlotOwner).isMinorCiv() && ePlotTeam!=eUnitTeam && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eUnitTeam))
 		{
-			PlayerTypes ePlotOwner = pToPlot->getOwner();
-			TeamTypes ePlotTeam = pToPlot->getTeam();
-			if (ePlotTeam != NO_TEAM && !GET_PLAYER(ePlotOwner).isMinorCiv() && ePlotTeam!=eUnitTeam && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eUnitTeam))
-			{
-				iCost += PATH_END_TURN_MISSIONARY_OTHER_TERRITORY;
-			}
+			iCost += PATH_END_TURN_MISSIONARY_OTHER_TERRITORY;
 		}
 	}
 	else if(pToPlot->getTeam() != eUnitTeam)
@@ -1325,7 +1329,6 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 			return FALSE;
 
 		//got to be careful here, don't plot moves through enemy cities (but allow them as attack targets for melee)
-		//if we don't have a valid destination, any plot could be it
 		if (kToNodeCacheData.bContainsEnemyCity && (!bIsDestination || !pUnit->IsCanAttackWithMove()))
 			return FALSE;
 

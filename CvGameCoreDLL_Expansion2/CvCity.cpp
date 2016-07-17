@@ -581,6 +581,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	pPlot->updateCityRoute();
 
+	//force recalculation of trade routes
+	GC.getGame().GetGameTrade()->InvalidateTradePathCache(eOwner);
+
 	for(iI = 0; iI < MAX_TEAMS; iI++)
 	{
 		if(GET_TEAM((TeamTypes)iI).isAlive())
