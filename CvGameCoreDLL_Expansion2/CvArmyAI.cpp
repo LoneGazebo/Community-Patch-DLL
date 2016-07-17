@@ -217,7 +217,7 @@ int CvArmyAI::GetMovementRate()
 }
 
 /// Get center of mass of units in army (account for world wrap!)
-CvPlot* CvArmyAI::GetCenterOfMass(float* pfVarX, float* pfVarY)
+CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVarY)
 {
 	int iTotalX = 0;
 	int iTotalY = 0;
@@ -295,27 +295,32 @@ CvPlot* CvArmyAI::GetCenterOfMass(float* pfVarX, float* pfVarY)
 	if (pfVarY)
 		*pfVarY = fVarY;
 
-	//don't return it directly but use the plot of the closest unit
-	pUnit = GetFirstUnit();
-	std::vector<SPlotWithScore> vPlots;
-	while (pUnit)
+	if (bClampToUnit)
 	{
-		if (pUnit->plot()->getDomain()==GetDomainType())
+		//don't return it directly but use the plot of the closest unit
+		pUnit = GetFirstUnit();
+		std::vector<SPlotWithScore> vPlots;
+		while (pUnit)
 		{
-			int iDistToCOM = plotDistance(*pUnit->plot(),*pCOM);
-			int iDistToTarget = plotDistance(pUnit->getX(),pUnit->getY(),GetGoalX(),GetGoalY());
-			vPlots.push_back( SPlotWithScore(pUnit->plot(),iDistToCOM*100+iDistToTarget) );
+			if (pUnit->plot()->getDomain()==GetDomainType())
+			{
+				int iDistToCOM = plotDistance(*pUnit->plot(),*pCOM);
+				int iDistToTarget = plotDistance(pUnit->getX(),pUnit->getY(),GetGoalX(),GetGoalY());
+				vPlots.push_back( SPlotWithScore(pUnit->plot(),iDistToCOM*100+iDistToTarget) );
+			}
+
+			pUnit = GetNextUnit();
 		}
 
-		pUnit = GetNextUnit();
+		if (vPlots.empty())
+			return NULL;
+
+		//this sorts ascending!
+		std::sort(vPlots.begin(),vPlots.end());
+		return vPlots.front().pPlot;
 	}
-
-	if (vPlots.empty())
-		return NULL;
-
-	//this sorts ascending!
-	std::sort(vPlots.begin(),vPlots.end());
-	return vPlots.front().pPlot;
+	else
+		return pCOM;
 }
 
 /// Return distance from this plot of unit in army farthest away

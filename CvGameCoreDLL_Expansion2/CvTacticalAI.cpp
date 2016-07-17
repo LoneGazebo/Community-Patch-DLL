@@ -2089,13 +2089,13 @@ void CvTacticalAI::AssignBarbarianMoves()
 			PlotDamageCityMoves();
 			break;
 		case AI_TACTICAL_BARBARIAN_DESTROY_HIGH_PRIORITY_UNIT:
-			PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true, true);
+			PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, true);
 			break;
 		case AI_TACTICAL_BARBARIAN_DESTROY_MEDIUM_PRIORITY_UNIT:
-			PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true, true);
+			PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false, true);
 			break;
 		case AI_TACTICAL_BARBARIAN_DESTROY_LOW_PRIORITY_UNIT:
-			PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true, true);
+			PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false, true);
 			break;
 		case AI_TACTICAL_BARBARIAN_MOVE_TO_SAFETY:
 			PlotMovesToSafety(true /*bCombatUnits*/);
@@ -6780,10 +6780,10 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 						pBestPlot = FindPassiveBarbarianLandMove(pUnit);
 					}
 
-					if(pBestPlot && MoveToEmptySpaceNearTarget(pUnit,pBestPlot,DOMAIN_LAND,23))
+					if(pBestPlot && MoveToEmptySpaceNearTarget(pUnit,pBestPlot,DOMAIN_LAND,12))
 					{
 #if defined(MOD_BALANCE_CORE)
-						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
+						TacticalAIHelpers::PerformOpportunityAttack(pUnit,pBestPlot);
 						if(pUnit->getMoves() > 0 && pUnit->canPillage(pUnit->plot()))
 						{
 							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
@@ -6827,9 +6827,11 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 
 					pBestPlot = FindBestBarbarianSeaMove(pUnit);
 
-					if(pBestPlot != NULL)
+					if(pBestPlot && MoveToEmptySpaceNearTarget(pUnit,pBestPlot,DOMAIN_SEA,12))
 					{
-						ExecuteMoveToPlotIgnoreDanger(pUnit,pBestPlot);
+						TacticalAIHelpers::PerformOpportunityAttack(pUnit,pBestPlot);
+
+						pUnit->finishMoves();
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 
 						if(GC.getLogging() && GC.getAILogging())
@@ -9429,11 +9431,6 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 	CvPlot* pBestMovePlot = NULL;
 	int iBestValue;
 	int iValue;
-#ifdef AUI_TACTICAL_FIX_FIND_BEST_BARBARIAN_SEA_MOVE_POSSIBLE_NULL_POINTER
-	CvPlot* pPlot = NULL;
-#else
-	CvPlot* pPlot;
-#endif // AUI_TACTICAL_FIX_FIND_BEST_BARBARIAN_SEA_MOVE_POSSIBLE_NULL_POINTER
 	CvTacticalTarget* pTarget;
 	int iMovementRate;
 
@@ -9448,12 +9445,8 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 		// Is this unit nearby enough?
 		if(plotDistance(pUnit->getX(), pUnit->getY(), pTarget->GetTargetX(), pTarget->GetTargetY()) < m_iSeaBarbarianRange)
 		{
-			pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-#ifdef AUI_TACTICAL_FIX_FIND_BEST_BARBARIAN_SEA_MOVE_POSSIBLE_NULL_POINTER
-			if (pPlot && pUnit->getArea() == pPlot->getArea())
-#else
-			if(pUnit->getArea() == pPlot->getArea())
-#endif // AUI_TACTICAL_FIX_FIND_BEST_BARBARIAN_SEA_MOVE_POSSIBLE_NULL_POINTER
+			CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
+			if(pPlot && pUnit->getArea() == pPlot->getArea())
 			{
 				iValue = pUnit->TurnsToReachTarget(pPlot, false, false, iBestValue);
 				if(iValue < iBestValue)
@@ -9504,7 +9497,7 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 				CvPlot* pCamp = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 				if(pCamp != pNearestCamp)
 				{
-					pPlot = plotDirection(pCamp->getX(), pCamp->getY(), ((DirectionTypes)jJ));
+					CvPlot* pPlot = plotDirection(pCamp->getX(), pCamp->getY(), ((DirectionTypes)jJ));
 					if(pPlot && pPlot->isWater())
 					{
 						int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());

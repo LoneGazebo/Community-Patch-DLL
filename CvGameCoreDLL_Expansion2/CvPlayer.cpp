@@ -12338,7 +12338,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	if(iGold != 0)
 	{
 		GetTreasury()->ChangeGold(iGold);
-
+		strBuffer += " ";
 		strBuffer += GetLocalizedText("TXT_KEY_MISC_RECEIVED_GOLD", iGold);
 	}
 
@@ -12470,6 +12470,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		changeJONSCulture(iCulture);
 
 #if defined(MOD_BUGFIX_GOODY_HUT_MESSAGES)
+		strBuffer += " ";
 		strBuffer += GetLocalizedText("TXT_KEY_MISC_RECEIVED_CULTURE", iCulture);
 #endif
 	}
@@ -12485,6 +12486,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		ChangeFaith(iFaith);
 
 #if defined(MOD_BUGFIX_GOODY_HUT_MESSAGES)
+		strBuffer += " ";
 		strBuffer += GetLocalizedText("TXT_KEY_MISC_RECEIVED_FAITH", iFaith);
 #endif
 	}
@@ -12501,6 +12503,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		ChangeFaith(iFaith);
 
 #if defined(MOD_BUGFIX_GOODY_HUT_MESSAGES)
+		strBuffer += " ";
 		strBuffer += GetLocalizedText("TXT_KEY_MISC_RECEIVED_FAITH", iFaith);
 #endif
 	}
@@ -12520,6 +12523,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		ChangeFaith(iFaith);
 
 #if defined(MOD_BUGFIX_GOODY_HUT_MESSAGES)
+		strBuffer += " ";
 		strBuffer += GetLocalizedText("TXT_KEY_MISC_RECEIVED_FAITH", iFaith);
 #endif
 	}

@@ -284,6 +284,9 @@ void CvPlayerAI::AI_unitUpdate()
 
 	if(isHuman())
 	{
+		//useful for debugging
+		GetTacticalAI()->GetTacticalAnalysisMap()->Refresh();
+
 		CvUnit::dispatchingNetMessage(true);
 		// The homeland AI goes first.
 		GetHomelandAI()->FindAutomatedUnits();

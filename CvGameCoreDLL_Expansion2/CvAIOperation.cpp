@@ -889,11 +889,18 @@ void CvAIOperation::Move()
 
 	//single army only for now
 	CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[0]);
+	if (!pThisArmy)
+	{
+		SetToAbort(AI_ABORT_NO_UNITS);
+		return;
+	}
 
 	pThisArmy->UpdateCheckpointTurns();
 	pThisArmy->RemoveStuckUnits();
 	if (ShouldAbort())
 		return;
+
+	CvPlot* pOldCOM = pThisArmy->GetCenterOfMass(false);
 
 	//todo: move the relevant code from tactical AI to operations
 	switch (GetMoveType())
@@ -907,6 +914,13 @@ void CvAIOperation::Move()
 	default:
 		return;
 	}
+
+	CvPlot* pNewCOM = pThisArmy->GetCenterOfMass(false);
+	if (pNewCOM == pOldCOM)
+	{
+		OutputDebugString("Warning: Army not making progress!\n");
+	}
+
 
 	SetLastTurnMoved(GC.getGame().getGameTurn());
 }
@@ -1330,7 +1344,7 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn)
 				CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
 				//we don't really need the center of mass but the variance
 				float varX=-1,varY=-1;
-				pThisArmy->GetCenterOfMass(&varX,&varY);
+				pThisArmy->GetCenterOfMass(false,&varX,&varY);
 				szTemp2.Format("Gathering Forces, Army: %d, Gather (%d:%d), variance (%.2f:%.2f), ", pThisArmy->GetID(), pThisArmy->GetX(), pThisArmy->GetY(), varX, varY);
 				strTemp += szTemp2;
 				int iUnitID;
