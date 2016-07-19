@@ -867,8 +867,7 @@ private:
 	void ExecuteAirSweepMoves();
 	bool ExecuteSafeBombards(CvTacticalTarget& kTarget);
 	bool ExecuteFlankAttack(CvTacticalTarget& kTarget);
-	void ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDominanceZone* pZone);
-	void ExecuteHedgehogDefense(CvTacticalTarget& kTarget, CvTacticalDominanceZone* pZone);
+	void ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDominanceZone* pZone, bool bOffensive);
 	void ExecutePriorityAttacksOnUnitTarget(CvTacticalTarget& kTarget);
 	void ExecuteWithdrawMoves();
 	void ExecuteEscortEmbarkedMoves();
@@ -886,8 +885,8 @@ private:
 
 	int GetRecruitRange() const;
 	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL, int iMaxUnits=INT_MAX);
-	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bNoRanged, bool bRanged, int iMaxTurns=5, int iMaxUnits=INT_MAX, bool bOffensiveCombatExpected=true);
-	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, bool bEscortedUnits, int iMaxTurns=5, int iMaxUnits=INT_MAX);
+	bool FindClosestOperationUnit(CvPlot* pTargetPlot, const std::map<int,ReachablePlots>& movePlots, bool bNoRanged, bool bRanged, bool bOffensiveCombatExpected=true);
+	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, const std::map<int,ReachablePlots>& movePlots, bool bEscortedUnits);
 
 #if defined(MOD_AI_SMART_AIR_TACTICS)
 public:
