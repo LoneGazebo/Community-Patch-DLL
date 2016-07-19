@@ -4741,7 +4741,7 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI* pArmy)
 		UnitHandle pUnitAlreadyThere = pLoopPlot->getBestDefender(NO_PLAYER);
 		if (!pUnitAlreadyThere || pUnitAlreadyThere->getArmyID() == pArmy->GetID())
 		{
-			if(FindClosestOperationUnit(pLoopPlot, true /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, 5, 10, 4, false))
+			if(FindClosestOperationUnit(pLoopPlot, true /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, 5, 4, false))
 			{
 				for(unsigned int jJ = 0; jJ < m_CurrentMoveUnits.size(); jJ++)
 				{
@@ -4831,6 +4831,12 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget)
 #if defined(MOD_BALANCE_CORE)
 	//the direction we are coming from
 	DirectionTypes eFromDir = estimateDirection(pTurnTarget->getX(),pTurnTarget->getY(),pCurrent->getX(),pCurrent->getY());
+	if(GC.getLogging() && GC.getAILogging())
+	{
+		CvString strMsg;
+		strMsg.Format("Trying to move army %d from (%d,%d), to (%d,%d)",pArmy->GetID(),pCurrent->getX(),pCurrent->getY(),pTurnTarget->getX(),pTurnTarget->getY());
+		LogTacticalMessage(strMsg);
+	}
 #endif
 
 	// See if we have enough places to put everyone
@@ -4866,7 +4872,7 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget)
 				{
 					//find a unit that's a little bit further back, and then try to move it to this good plot
 					CvPlot* pIdealUnitPlot = plotDirection(pLoopPlot->getX(),pLoopPlot->getY(),eFromDir);
-					if(FindClosestOperationUnit( pIdealUnitPlot, false /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, 3, 10, 1, false))
+					if(FindClosestOperationUnit( pIdealUnitPlot, false /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, 5, 1, false))
 					{
 						UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
 						if(GC.getLogging() && GC.getAILogging())
@@ -4905,7 +4911,7 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget)
 					{
 						//find a unit that's a little bit further back, and then try to move it to this good plot
 						CvPlot* pIdealUnitPlot = plotDirection(pLoopPlot->getX(),pLoopPlot->getY(),eFromDir);
-						if(FindClosestOperationUnit( pIdealUnitPlot, true /*bIncludeRanged*/, true /*bMustBeRangedUnit*/, 3, 10, 1, false))
+						if(FindClosestOperationUnit( pIdealUnitPlot, true /*bIncludeRanged*/, true /*bMustBeRangedUnit*/, 5, 1, false))
 						{
 							UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
 							if(GC.getLogging() && GC.getAILogging())
@@ -4940,7 +4946,7 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget)
 			{
 				//find a unit that's a little bit further back, and then try to move it to this good plot
 				CvPlot* pIdealUnitPlot = plotDirection(pLoopPlot->getX(),pLoopPlot->getY(),eFromDir);
-				if(FindClosestOperationUnit( pIdealUnitPlot, true /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, 3, 10, 1, false))
+				if(FindClosestOperationUnit( pIdealUnitPlot, true /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, 5, 1, false))
 				{
 					UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
 					if(GC.getLogging() && GC.getAILogging())
@@ -5387,14 +5393,14 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 		bool bDone = false;
 		int iMostUnitsToPlace = iMostUnits;
 #if defined(MOD_BALANCE_CORE)
-		//Let's make sure we aren't excluding units here - assume 3 moves per turn
-		int iMaxTurns = pArmy->GetFurthestUnitDistance(pTurnTarget)/3+1;
+		//Let's make sure we aren't excluding units here - assume 2 moves per turn (with embarkation changes ...)
+		int iMaxTurns = max(5,pArmy->GetFurthestUnitDistance(pTurnTarget)/2+1);
 #endif
 		for(unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
 		{
 			pLoopPlot = GC.getMap().plot(m_TempTargets[iI].GetTargetX(), m_TempTargets[iI].GetTargetY());
 #if defined(MOD_BALANCE_CORE)
-			if(FindClosestNavalOperationUnit(pLoopPlot, bMoreEscorted, iMaxTurns))
+			if(FindClosestNavalOperationUnit(pLoopPlot, bMoreEscorted, iMaxTurns, 4))
 #else
 			if(FindClosestNavalOperationUnit(pLoopPlot, bMoreEscorted))
 #endif
@@ -5452,7 +5458,7 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 			{
 				pLoopPlot = GC.getMap().plot(m_TempTargets[iI].GetTargetX(), m_TempTargets[iI].GetTargetY());
 #if defined(MOD_BALANCE_CORE)
-				if(FindClosestNavalOperationUnit(pLoopPlot, !bMoreEscorted, iMaxTurns))
+				if(FindClosestNavalOperationUnit(pLoopPlot, !bMoreEscorted, iMaxTurns, 4))
 #else
 				if(FindClosestNavalOperationUnit(pLoopPlot, !bMoreEscorted))
 #endif
@@ -7713,7 +7719,6 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 	int iGenerals = 0;
 	list<int>::iterator it;
 	int iTacticalRadius = GetTacticalAnalysisMap()->GetTacticalRange();
-	int iMinHitpoints = 25;
 
 	pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
 	m_OperationUnits.clear();
@@ -7777,7 +7782,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 			if (eTargetType == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
 			{
 				CvPlot* pLoopPlot = GC.getMap().plot(m_TempTargets[iI].GetTargetX(), m_TempTargets[iI].GetTargetY());
-				if(FindClosestOperationUnit(pLoopPlot, true /*bIncludeRanged*/, true /*bMustBeRangedUnit*/, 5, iMinHitpoints, 3, true))
+				if(FindClosestOperationUnit(pLoopPlot, true /*bIncludeRanged*/, true /*bMustBeRangedUnit*/, 5, 3, true))
 				{
 					for(unsigned int jJ = 0; jJ < m_CurrentMoveUnits.size(); jJ++)
 					{
@@ -7820,7 +7825,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 			if (true)
 			{
 				CvPlot* pLoopPlot = GC.getMap().plot(m_TempTargets[iI].GetTargetX(), m_TempTargets[iI].GetTargetY());
-				if(FindClosestOperationUnit(pLoopPlot, true /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, 5, iMinHitpoints, 3, true))
+				if(FindClosestOperationUnit(pLoopPlot, true /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, 5, 3, true))
 				{
 					for(unsigned int jJ = 0; jJ < m_CurrentMoveUnits.size(); jJ++)
 					{
@@ -7933,7 +7938,7 @@ void CvTacticalAI::ExecuteHedgehogDefense(CvTacticalTarget& kTarget, CvTacticalD
 			if (eTargetType == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
 			{
 				CvPlot* pLoopPlot = GC.getMap().plot(m_TempTargets[iI].GetTargetX(), m_TempTargets[iI].GetTargetY());
-				if(FindClosestOperationUnit(pLoopPlot, true /*bIncludeRanged*/, true /*bMustBeRangedUnit*/, 5, 25, 3, false))
+				if(FindClosestOperationUnit(pLoopPlot, true /*bIncludeRanged*/, true /*bMustBeRangedUnit*/, 5, 3, false))
 				{
 					for(unsigned int jJ = 0; jJ < m_CurrentMoveUnits.size(); jJ++)
 					{
@@ -7980,7 +7985,7 @@ void CvTacticalAI::ExecuteHedgehogDefense(CvTacticalTarget& kTarget, CvTacticalD
 			if (true)
 			{
 				CvPlot* pLoopPlot = GC.getMap().plot(m_TempTargets[iI].GetTargetX(), m_TempTargets[iI].GetTargetY());
-				if(FindClosestOperationUnit(pLoopPlot, true /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, 5, 25, 3, false))
+				if(FindClosestOperationUnit(pLoopPlot, true /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, 5, 3, false))
 				{
 					for(unsigned int jJ = 0; jJ < m_CurrentMoveUnits.size(); jJ++)
 					{
@@ -8862,7 +8867,7 @@ bool CvTacticalAI::FindClosestUnit(CvPlot* pTarget, int iNumTurnsAway, bool bMus
 }
 
 /// Fills m_CurrentMoveUnits with all units in operation that can get to target (returns TRUE if 1 or more found)
-bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bIncludeRanged, bool bRangedOnly, int iMaxTurns, int iMinHitpoints, int iMaxUnits, bool bOffensiveCombatExpected)
+bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bIncludeRanged, bool bRangedOnly, int iMaxTurns, int iMaxUnits, bool bOffensiveCombatExpected)
 {
 	bool rtnValue = false;
 	m_CurrentMoveUnits.clear();
@@ -8910,15 +8915,11 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bIncludeRanged
 		if (bRangedOnly && !pLoopUnit->IsCanAttackRanged())
 			continue;
 		
-		if (pLoopUnit->GetCurrHitPoints()<iMinHitpoints)
-			continue;
-
-		int iDistance = plotDistance(pTarget->getX(), pTarget->getY(), pLoopUnit->getX(), pLoopUnit->getY());
-
 		//avoid embarkation if we need to fight!
 		if (bOffensiveCombatExpected && !pLoopUnit->isNativeDomain(pTarget))
 			continue;
 
+		int iDistance = plotDistance(pTarget->getX(), pTarget->getY(), pLoopUnit->getX(), pLoopUnit->getY());
 		vUnitsByDistance.push_back(std::make_pair(iDistance, pLoopUnit->GetID()));
 	}
 
@@ -8928,28 +8929,11 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bIncludeRanged
 	//default sort is by ascending first member of the pair, then by the second - important we don't store pointers here!
 	std::stable_sort(vUnitsByDistance.begin(), vUnitsByDistance.end());
 
-	ReachablePlots turnsFromTarget;
-	SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_REACHABLE_PLOTS,-1,iMaxTurns);
-	turnsFromTarget = GC.GetStepFinder().GetPlotsInReach(pTarget, data);
-
 	for (std::vector< std::pair<int, int> >::iterator it = vUnitsByDistance.begin(); it != vUnitsByDistance.end(); ++it)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(it->second);
 
-		//sanity check - unexpected units showing up here sometimes
-#if defined(MOD_CORE_DEBUGGING)
-		std::list<int>::iterator ctu = std::find(m_CurrentTurnUnits.begin(), m_CurrentTurnUnits.end(), pLoopUnit->GetID());
-		if (ctu == m_CurrentTurnUnits.end() && pLoopUnit->getArmyID() == -1)
-		{
-			CvString msg = CvString::format("unexpected unit %d in operation units - %s at %d,%d",
-				pLoopUnit->GetID(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY());
-			LogTacticalMessage(msg);
-		}
-#endif
-
-		SMovePlot dummy(pLoopUnit->plot()->GetPlotIndex(),0,0);
-		ReachablePlots::const_iterator itPlot = turnsFromTarget.find(dummy);
-		int iTurns = (itPlot!=turnsFromTarget.end()) ? itPlot->iTurns : MAX_INT;
+		int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, false /*bIgnoreUnits*/, false /*bIgnoreStacking*/, iMaxTurns);
 		if (iTurns != MAX_INT)
 		{
 			CvTacticalUnit unit;
@@ -8973,54 +8957,57 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bIncludeRanged
 
 /// Fills m_CurrentMoveUnits with all units in naval operation that can get to target (returns TRUE if 1 or more found)
 #if defined(MOD_BALANCE_CORE_MILITARY)
-bool CvTacticalAI::FindClosestNavalOperationUnit(CvPlot* pTarget, bool bEscortedUnits, int iMaxTurns)
+bool CvTacticalAI::FindClosestNavalOperationUnit(CvPlot* pTarget, bool bEscortedUnits, int iMaxTurns, int iMaxUnits)
 #else
 bool CvTacticalAI::FindClosestNavalOperationUnit(CvPlot* pTarget, bool bEscortedUnits)
 #endif
 {
 	FStaticVector<CvOperationUnit, SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES, true, c_eCiv5GameplayDLL, 0>::iterator it;
-	UnitHandle pLoopUnit;
 
 	bool rtnValue = false;
 	m_CurrentMoveUnits.clear();
 
 	// Loop through all units available to operation
+	std::vector< std::pair<int, int> > vUnitsByDistance;
 	for(it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
 	{
-		pLoopUnit = m_pPlayer->getUnit(it->GetUnitID());
-		if(pLoopUnit)
+		CvUnit* pLoopUnit = m_pPlayer->getUnit(it->GetUnitID());
+		if(!pLoopUnit)
+			continue;
+
+		if(bEscortedUnits && (!pLoopUnit->IsGreatAdmiral() && pLoopUnit->getDomainType() != DOMAIN_LAND))
+			continue;
+
+		if(!bEscortedUnits && (pLoopUnit->getDomainType() != DOMAIN_SEA || pLoopUnit->IsGreatAdmiral()))
+			continue;
+
+		int iDistance = plotDistance(pTarget->getX(), pTarget->getY(), pLoopUnit->getX(), pLoopUnit->getY());
+		vUnitsByDistance.push_back(std::make_pair(iDistance, pLoopUnit->GetID()));
+	}
+
+	if (vUnitsByDistance.empty())
+		return false;
+
+	//default sort is by ascending first member of the pair, then by the second - important we don't store pointers here!
+	std::stable_sort(vUnitsByDistance.begin(), vUnitsByDistance.end());
+
+	for (std::vector< std::pair<int, int> >::iterator it = vUnitsByDistance.begin(); it != vUnitsByDistance.end(); ++it)
+	{
+		CvUnit* pLoopUnit = m_pPlayer->getUnit(it->second);
+
+		int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, false /*bIgnoreUnits*/, false /*bIgnoreStacking*/, iMaxTurns);
+		if(iTurns != MAX_INT)
 		{
-			bool bValidUnit = true;
+			CvTacticalUnit unit;
+			unit.SetID(pLoopUnit->GetID());
+			unit.SetAttackStrength(1000-iTurns);
+			unit.SetHealthPercent(10,10);
+			unit.SetMovesToTarget(iTurns);
+			m_CurrentMoveUnits.push_back(unit);
+			rtnValue = true;
 
-			if(bEscortedUnits && (!pLoopUnit->IsGreatAdmiral() && pLoopUnit->getDomainType() != DOMAIN_LAND))
-			{
-				bValidUnit = false;
-			}
-
-			if(!bEscortedUnits && (pLoopUnit->getDomainType() != DOMAIN_SEA || pLoopUnit->IsGreatAdmiral()))
-			{
-				bValidUnit = false;
-			}
-
-			if(bValidUnit)
-			{
-				int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, false /*bIgnoreUnits*/, false /*bIgnoreStacking*/, iMaxTurns);
-
-				if(iTurns != MAX_INT)
-				{
-					CvTacticalUnit unit;
-					unit.SetID(pLoopUnit->GetID());
-					unit.SetAttackStrength(1000-iTurns);
-					unit.SetHealthPercent(10,10);
-#if defined(MOD_BALANCE_CORE)
-					unit.SetMovesToTarget(iTurns);
-#else
-					unit.SetMovesToTarget(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pTarget->getX(), pTarget->getY()));
-#endif
-					m_CurrentMoveUnits.push_back(unit);
-					rtnValue = true;
-				}
-			}
+			if (m_CurrentMoveUnits.size() == iMaxUnits)
+				break;
 		}
 	}
 

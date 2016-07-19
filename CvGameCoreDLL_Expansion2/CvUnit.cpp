@@ -4694,7 +4694,6 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 {
 	VALIDATE_OBJECT
-	const CvUnit* pUnit;
 	TeamTypes eRevealedTeam;
 
 	CvAssert(isHuman());
@@ -4730,7 +4729,6 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 		if(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && plot.getNumUnits() > 0)
 		{
 			int iPeaceUnits = 0;
-			pUnit = NULL;
 			bool bWarCity = false;
 			bool bWarUnit = false;
 			if(plot.isCity() && GET_TEAM(GET_PLAYER(plot.getOwner()).getTeam()).isAtWar(getTeam()))
@@ -4740,29 +4738,18 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 			for(int iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
 			{
 				CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
-
-				//If we're at war with a civ, and they've got a unit here, let's return that unit instead of the civilian unit on this space.
 				if(loopUnit != NULL)
 				{
-					if(loopUnit->IsCombatUnit())
+					if(loopUnit->IsCombatUnit() && !loopUnit->isEmbarked())
 					{
 						if(GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
 						{
 							bWarUnit = true;
 						}
 					}
-					//Exception for embarked units in water, civilian or not, as boats can move onto them as a stack (military units are pseudo-units)
-					else if(loopUnit->isEmbarked() && getDomainType() == DOMAIN_SEA)
+					//embarked units count as civilians
+					else if(loopUnit->isEmbarked() || loopUnit->IsCivilianUnit())
 					{
-						pUnit = plot.getUnitByIndex(iUnitLoop);
-						if(!GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
-						{
-							iPeaceUnits++;
-						}
-					}
-					else if(loopUnit->IsCivilianUnit())
-					{
-						//Only need one to trigger.
 						if(!GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
 						{
 							iPeaceUnits++;
@@ -4770,8 +4757,15 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 					}
 				}
 			}
-			//If there is a civlian and an enemy unit here (or this is an enemy city), but we're at peace with that civilian, return NO_TEAM.
+			//If there is a civlian and an enemy unit here (or this is an enemy city), but we're at peace with that civilian
+			//return NO_TEAM (don't need to declare war again!)
 			if((iPeaceUnits > 0) && (bWarCity || bWarUnit))
+			{
+				return NO_TEAM;
+			}
+
+			//If there are only civilians here, don't require a declaration of war (can do so manually if intended)
+			if (iPeaceUnits==plot.getNumUnits())
 			{
 				return NO_TEAM;
 			}
@@ -4782,7 +4776,7 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 		{
 			if(canMoveInto(plot, MOVEFLAG_ATTACK | MOVEFLAG_DECLARE_WAR))
 			{
-				pUnit = plot.plotCheck(PUF_canDeclareWar, getOwner(), isAlwaysHostile(plot), NO_PLAYER, NO_TEAM, PUF_isVisible, getOwner());
+				const CvUnit* pUnit = plot.plotCheck(PUF_canDeclareWar, getOwner(), isAlwaysHostile(plot), NO_PLAYER, NO_TEAM, PUF_isVisible, getOwner());
 
 				if(pUnit != NULL)
 				{
@@ -26687,6 +26681,10 @@ bool CvUnit::CheckDOWNeededForMove(int iX, int iY)
 {
 	CvMap& kMap = GC.getMap();
 	CvPlot* pDestPlot = kMap.plot(iX, iY);
+
+	// Important
+	if (at(iX,iY))
+		return false;
 
 	// Test if this attack requires war to be declared first
 	if(pDestPlot && isHuman() && getOwner() == GC.getGame().getActivePlayer() && pDestPlot->isVisible(getTeam()))

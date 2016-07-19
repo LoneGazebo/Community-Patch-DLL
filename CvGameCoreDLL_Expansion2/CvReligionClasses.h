@@ -269,7 +269,8 @@ public:
 	std::vector<BeliefTypes> GetAvailableReformationBeliefs();
 #endif
 
-	int GetAdjacentCityReligiousPressure (ReligionTypes eReligion, CvCity *pFromCity, CvCity *pToCity, int& iNumTradeRoutesInfluencing, bool bPretendTradeConnection);
+	int GetAdjacentCityReligiousPressure (ReligionTypes eReligion, CvCity *pFromCity, CvCity *pToCity, 
+		int& iNumTradeRoutesInfluencing, bool bActualValue, bool bPretendTradeConnection);
 
 	// Great Prophet/Person information functions
 	int GetFaithGreatProphetNumber(int iNum) const;

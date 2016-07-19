@@ -900,7 +900,8 @@ void CvAIOperation::Move()
 	if (ShouldAbort())
 		return;
 
-	CvPlot* pOldCOM = pThisArmy->GetCenterOfMass(false);
+	float fOldVarX,fOldVarY;
+	CvPlot* pOldCOM = pThisArmy->GetCenterOfMass(false,&fOldVarX,&fOldVarY);
 
 	//todo: move the relevant code from tactical AI to operations
 	switch (GetMoveType())
@@ -915,12 +916,16 @@ void CvAIOperation::Move()
 		return;
 	}
 
-	CvPlot* pNewCOM = pThisArmy->GetCenterOfMass(false);
-	if (pNewCOM == pOldCOM)
+	//exclude rapid response ops etc
+	if (pThisArmy->GetNumSlotsFilled()>3 && pThisArmy->GetArmyAIState()==ARMYAISTATE_MOVING_TO_DESTINATION)
 	{
-		OutputDebugString("Warning: Army not making progress!\n");
+		float fNewVarX,fNewVarY;
+		CvPlot* pNewCOM = pThisArmy->GetCenterOfMass(false,&fNewVarX,&fNewVarY);
+		if (pNewCOM == pOldCOM && fNewVarX>=fOldVarX && fNewVarY>=fOldVarY)
+		{
+			OutputDebugString("Warning: Army not making progress!\n");
+		}
 	}
-
 
 	SetLastTurnMoved(GC.getGame().getGameTurn());
 }
@@ -2874,8 +2879,8 @@ AIOperationAbortReason CvAIOperationDefenseRapidResponse::VerifyOrAdjustTarget(C
 		return AI_ABORT_NO_TARGET;
 	}
 
-	// If this is a new target, switch to it
-	if(pBetterTarget != GetTargetPlot())
+	// If this is a significantly different target, switch to it (else tactical AI should do the rest)
+	if( plotDistance(pBetterTarget->getX(),pBetterTarget->getY(),m_iTargetX,m_iTargetY)>5 )
 	{
 		SetTargetPlot(pBetterTarget);
 		pArmy->SetGoalPlot(pBetterTarget);

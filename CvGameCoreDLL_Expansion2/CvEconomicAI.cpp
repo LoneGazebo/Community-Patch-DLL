@@ -3995,13 +3995,13 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 				CvString msg = CvString::format("Best settle plot (with embarkation) is %d,%d - value %d", pBestSettle->getX(), pBestSettle->getY(), pBestSettle->getFoundValue(pPlayer->GetID()));
 				pPlayer->GetHomelandAI()->LogHomelandMessage(msg);
 
-				if(pLoopUnit->IsCombatUnit())
+				//conquistador!
+				if(pLoopUnit->IsCombatUnit()) 
 				{
 					pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY_QUICK, NO_PLAYER, iFinalArea);
 				}
 				else
 				{
-
 					CvArea* pArea = GC.getMap().getArea(iFinalArea);
 					if(pArea != NULL)
 					{

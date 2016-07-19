@@ -40423,36 +40423,37 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	ReachablePlots reachablePlots;
 	if (pUnit)
 	{
-		CvPlot* pMusterPlot = GetClosestCity(pUnit->plot())->plot();
 		SPathFinderUserData data(pUnit,0,10); //10 turns is enough, everything else is considered dangerous
 		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
-		reachablePlots = GC.GetPathFinder().GetPlotsInReach(pMusterPlot, data);
+		reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	}
 
 	for (size_t i=0; i<vSettlePlots.size(); i++)
 	{
 		bool isDangerous = false;
+		int iDistanceToSettler = plotDistance(*(vSettlePlots[i].pPlot),*(pUnit->plot()));
+
+		//check if it's too close to an enemy
+		for (size_t j=0; j<vBadPlots.size(); j++)
+		{
+			if (vSettlePlots[i].pPlot->getArea() != vBadPlots[j]->getArea())
+				continue;
+
+			int iDistanceToDanger = plotDistance(*(vSettlePlots[i].pPlot),*(vBadPlots[j]));
+			if (iDistanceToDanger<5 && iDistanceToSettler>1)
+			{
+				isDangerous = true;
+				break;
+			}
+		}
 
 		//if it's too far from our existing cities, it's dangerous
-		int iDistance = GetCityDistance(pUnit->plot());
-		if (iDistance>7)
-			isDangerous = true;
-		else
+		if (!isDangerous)
 		{
-			//check if it's too close to an enemy
-			for (size_t j=0; j<vBadPlots.size(); j++)
-			{
-				if (vSettlePlots[i].pPlot->getArea() != vBadPlots[j]->getArea())
-					continue;
-
-				int iDistanceToDanger = plotDistance(*(vSettlePlots[i].pPlot),*(vBadPlots[j]));
-				int iDistanceToSettler = plotDistance(*(vSettlePlots[i].pPlot),*(pUnit->plot()));
-				if (iDistanceToDanger<5 && iDistanceToSettler>1)
-				{
-					isDangerous = true;
-					break;
-				}
-			}
+			int iDistanceToCity = GetCityDistance(vSettlePlots[i].pPlot);
+			//also consider settler plot here in case of re-targeting an operation
+			if (iDistanceToCity>7 && iDistanceToSettler>2)
+				isDangerous = true;
 		}
 
 		//could be close but take many turns to get there ...

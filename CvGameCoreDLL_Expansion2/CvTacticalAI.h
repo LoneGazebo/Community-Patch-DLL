@@ -886,8 +886,8 @@ private:
 
 	int GetRecruitRange() const;
 	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL, int iMaxUnits=INT_MAX);
-	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bNoRanged, bool bRanged, int iMaxTurns=3, int iMinHitpoints=10, int iMaxUnits=INT_MAX, bool bOffensiveCombatExpected=true);
-	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, bool bEscortedUnits, int iMaxTurns=3);
+	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bNoRanged, bool bRanged, int iMaxTurns=5, int iMaxUnits=INT_MAX, bool bOffensiveCombatExpected=true);
+	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, bool bEscortedUnits, int iMaxTurns=5, int iMaxUnits=INT_MAX);
 
 #if defined(MOD_AI_SMART_AIR_TACTICS)
 public:
