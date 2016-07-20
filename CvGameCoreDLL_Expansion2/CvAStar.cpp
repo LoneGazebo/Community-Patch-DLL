@@ -891,8 +891,9 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 	kToNodeCacheData.bFriendlyUnitLimitReached = (iNumUnits >= pPlot->getUnitLimit());
 	kToNodeCacheData.bIsValidRoute = pPlot->isValidRoute(pUnit);
 
-	//now the big ones ...
+	//now the big ones ... do this last, the path dest check needs some of the value above as input
 	bool bIsDestination = finder->IsPathDest(node->m_iX,node->m_iY);
+
 	//use the flags mostly as provided - attack needs manual handling though
 	int iMoveFlags = finder->GetData().iFlags & ~CvUnit::MOVEFLAG_ATTACK & ~CvUnit::MOVEFLAG_DESTINATION;
 
@@ -943,6 +944,10 @@ int DestinationReached(int iToX, int iToY, const SPathFinderUserData&, const CvA
 			if (finder->GetNode(iToX,iToY)->m_kCostCacheData.bIsNonNativeDomain)
 				return false;
 
+		//important: if we mark an occupied plot as destination, we won't be able to move through it
+		if (finder->GetNode(iToX,iToY)->m_kCostCacheData.bFriendlyUnitLimitReached)
+			return false;
+
 		return ::plotDistance(iToX,iToY,finder->GetDestX(),finder->GetDestY()) < 3;
 	}
 	else if ( finder->HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING1) )
@@ -950,6 +955,10 @@ int DestinationReached(int iToX, int iToY, const SPathFinderUserData&, const CvA
 		if (finder->HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN))
 			if (finder->GetNode(iToX,iToY)->m_kCostCacheData.bIsNonNativeDomain)
 				return false;
+
+		//important: if we mark an occupied plot as destination, we won't be able to move through it
+		if (finder->GetNode(iToX,iToY)->m_kCostCacheData.bFriendlyUnitLimitReached)
+			return false;
 
 		return ::plotDistance(iToX,iToY,finder->GetDestX(),finder->GetDestY()) < 2;
 	}
