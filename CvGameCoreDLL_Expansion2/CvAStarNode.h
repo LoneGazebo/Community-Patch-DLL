@@ -78,7 +78,7 @@ struct CvPathNodeCacheData
 {
 	bool bIsRevealedToTeam:1;
 	bool bPlotVisibleToTeam:1;
-	bool bIsWater:1;
+	bool bIsNonNativeDomain:1;
 	bool bCanEnterTerrain:1;
 	bool bCanEnterTerritory:1;
 	bool bContainsOtherFriendlyTeamCity:1;

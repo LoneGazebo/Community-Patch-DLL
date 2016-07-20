@@ -117,10 +117,12 @@ public:
 		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000, //purpose unknown
 		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use ocean even if we could
 		MOVEFLAG_SAFE_EMBARK					= 0x4000, //only embark if danger is zero
-		MOVEFLAG_APPROXIMATE_TARGET				= 0x8000, //don't need to reach the target exactly, a neighboring tile is good enough
-		MOVEFLAG_NO_INTERMEDIATE_STOPS			= 0x10000, //disable the second layer of nodes
-		MOVEFLAG_IGNORE_ZOC						= 0x20000, //ignore zones of control
-		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x40000, //pretend we can enter everybody's territory
+		MOVEFLAG_APPROX_TARGET_RING1			= 0x8000, //don't need to reach the target exactly, a ring1 tile is good enough
+		MOVEFLAG_APPROX_TARGET_RING2			= 0x10000, //don't need to reach the target exactly, a ring2 tile is good enough
+		MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN	= 0x20000, //no embarkation on approximate target tile
+		MOVEFLAG_NO_INTERMEDIATE_STOPS			= 0x40000, //disable the second layer of nodes
+		MOVEFLAG_IGNORE_ZOC						= 0x80000, //ignore zones of control
+		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x100000, //pretend we can enter everybody's territory
 	};
 
 	inline DestructionNotification<UnitHandle>& getDestructionNotification() { return m_destructionNotification; }

@@ -6297,6 +6297,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 	return iNumUnitsWanted;
 }
 
+//todo: use the step pathfinder here to get a plot which is on the correct side of the target? need a starting point then ...
 CvPlot* MilitaryAIHelpers::GetCoastalPlotNearPlot(CvPlot *pTarget)
 {
 	if (!pTarget)
@@ -6328,37 +6329,6 @@ CvPlot* MilitaryAIHelpers::GetCoastalPlotNearPlot(CvPlot *pTarget)
 	return NULL;
 }
 
-CvPlot* MilitaryAIHelpers::GetLandPlotAdjacentToTarget(CvPlot *pTarget)
-{
-	if (!pTarget)
-		return NULL;
-	TeamTypes eTeam = pTarget->getTeam();
-
-	//change iteration order, don't return the same plot every time
-	//don't use the RNG here: too many calls in the log and diplo quirks can lead to desyncs
-	int aiShuffle[3][RING2_PLOTS] = { 
-		{ 0,5,6,3,2,4,1,14,13,17,16,15,11,8,9,18,12,7,10 },
-		{ 0,4,1,5,2,3,6,14,8,15,12,18,16,9,7,11,10,13,17 },
-		{ 0,6,3,5,2,1,4,18,15,16,14,12,17,8,7,10,9,13,11 } };
-	int iShuffleType = GC.getGame().getSmallFakeRandNum(3);
-
-	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
-	{
-		CvPlot* pAdjacentPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), aiShuffle[iShuffleType][iI]);
-		if(pAdjacentPlot != NULL &&
-			pAdjacentPlot->getTeam()==eTeam && //same team
-			pAdjacentPlot->isWater()==false && //land
-			pAdjacentPlot->isImpassable(NO_TEAM)==false && //no strange features
-			pAdjacentPlot->countPassableNeighbors(false)>2) //no peninsula
-		{
-			return pAdjacentPlot;
-		}
-	}
-
-	return NULL;
-}
-
-#if defined(MOD_BALANCE_CORE)
 MultiunitFormationTypes MilitaryAIHelpers::GetCurrentBestFormationTypeForCityAttack()
 {
 	int iTurnMin = 100;
@@ -6384,7 +6354,6 @@ MultiunitFormationTypes MilitaryAIHelpers::GetCurrentBestFormationTypeForCityAtt
 	}
 	return MUFORMATION_BASIC_CITY_ATTACK_FORCE;
 }
-#endif
 
 int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEnemy, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bMustBeDeepWaterNaval, CvPlot* pMuster, CvPlot* pTarget, int* piNumberSlotsRequired, int* piNumberLandReservesUsed)
 {
@@ -6448,7 +6417,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 					pTarget = MilitaryAIHelpers::GetCoastalPlotNearPlot(pTarget);
 
 				SPathFinderUserData data( pPlayer->GetID(), PT_GENERIC_SAME_AREA, eEnemy );
-				data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
+				data.iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 				if(!GC.GetStepFinder().DoesPathExist(pMuster, pTarget, data))
 				{
 					if(GC.getLogging() && GC.getAILogging())
@@ -6466,7 +6435,7 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes eEne
 		{
 			//land based ops need a wide path so they don't get stuck - but they don't need to stay within their area
 			SPathFinderUserData data( pPlayer->GetID(), iRequiredSlots>5 ? PT_GENERIC_ANY_AREA_WIDE : PT_GENERIC_ANY_AREA, eEnemy );
-			data.iFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
+			data.iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 			if(!GC.GetStepFinder().DoesPathExist(pMuster, pTarget, data))
 			{
 				if(GC.getLogging() && GC.getAILogging())

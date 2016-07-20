@@ -471,17 +471,10 @@ bool IsTestStrategy_NeedAirCarriers(CvPlayer* pPlayer);
 
 // Functions that evaluate which operation to launch
 int ComputeRecommendedNavySize(CvPlayer* pPlayer);
-#if defined(MOD_BALANCE_CORE)
 int NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEnemy, MultiunitFormationTypes formation, bool bRequiresNavalMoves=false, bool bMustBeDeepWaterNaval=false, CvPlot* pMuster=NULL, CvPlot* pTarget=NULL, int* piNumberSlotsRequired=NULL, int* piNumberLandReservesUsed=NULL);
-#else
-int NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves=false, int* piNumberSlotsRequired=NULL, int* piNumberLandReservesUsed=NULL);
-#endif
 UnitAITypes FirstSlotCityCanFill(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bAtCoastalCity, bool bSecondaryUnit);
-#if defined(MOD_BALANCE_CORE)
 MultiunitFormationTypes GetCurrentBestFormationTypeForCityAttack();
-#endif
 CvPlot* GetCoastalPlotNearPlot(CvPlot *pTarget);
-CvPlot* GetLandPlotAdjacentToTarget(CvPlot *pTarget);
 }
 
 #endif //CIV5_MILITARY_AI_H

@@ -343,13 +343,13 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 		if (m_pBest==NULL)
 			//search exhausted
 			break;
-		else if ( IsPathDest(m_pBest->m_iX,m_pBest->m_iY) )
+		else if (IsPathDest(m_pBest->m_iX,m_pBest->m_iY))
 		{
 			//we did it!
 			bSuccess = true;
 			break;
 		}
-		else if (m_iDestHitCount>2 && !HaveFlag(CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
+		else if (m_iDestHitCount>2 && !IsApproximateMode())
 		{
 			//touched the target several times, but no success yet?
 			//that's fishy. take what we have and don't waste any more time
@@ -656,6 +656,11 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 	udFunc(udNotifyList, NULL, addnode, ASNL_ADDOPEN, m_sData);
 }
 
+const CvAStarNode * CvAStar::GetNode(int iCol, int iRow) const
+{
+	return &(m_ppaaNodes[iCol][iRow]);
+}
+
 //	--------------------------------------------------------------------------------
 /// Refresh parent node (after linking in a child)
 void CvAStar::UpdateParents(CvAStarNode* node)
@@ -859,7 +864,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 
 	kToNodeCacheData.bIsRevealedToTeam = pPlot->isRevealed(eUnitTeam);
 	kToNodeCacheData.bPlotVisibleToTeam = pPlot->isVisible(eUnitTeam);
-	kToNodeCacheData.bIsWater = pPlot->needsEmbarkation(pUnit); //not all water plots count as water ...
+	kToNodeCacheData.bIsNonNativeDomain = pPlot->needsEmbarkation(pUnit); //not all water plots count as water ...
 
 	kToNodeCacheData.bContainsOtherFriendlyTeamCity = false;
 	CvCity* pCity = pPlot->getPlotCity();
@@ -932,8 +937,22 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 //	--------------------------------------------------------------------------------
 int DestinationReached(int iToX, int iToY, const SPathFinderUserData&, const CvAStar* finder)
 {
-	if ( finder->HaveFlag(CvUnit::MOVEFLAG_APPROXIMATE_TARGET) )
+	if ( finder->HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING2) )
+	{
+		if (finder->HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN))
+			if (finder->GetNode(iToX,iToY)->m_kCostCacheData.bIsNonNativeDomain)
+				return false;
+
+		return ::plotDistance(iToX,iToY,finder->GetDestX(),finder->GetDestY()) < 3;
+	}
+	else if ( finder->HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING1) )
+	{
+		if (finder->HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN))
+			if (finder->GetNode(iToX,iToY)->m_kCostCacheData.bIsNonNativeDomain)
+				return false;
+
 		return ::plotDistance(iToX,iToY,finder->GetDestX(),finder->GetDestY()) < 2;
+	}
 	else
 		return iToX==finder->GetDestX() && iToY==finder->GetDestY();
 }
@@ -971,7 +990,8 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		if(pUnit->IsDeclareWar())
 			iMoveFlags |= CvUnit::MOVEFLAG_DECLARE_WAR;
 
-		if(finder->HaveFlag(CvUnit::MOVEFLAG_APPROXIMATE_TARGET)) 
+		//allow other units on the target plot if we don't really want to go there exactly
+		if(finder->IsApproximateMode()) 
 			iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
 
 		//special checks for attack flag
@@ -1098,7 +1118,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 
 	// If we are a land unit and we are ending the turn on water, make the cost a little higher 
 	// so that we favor staying on land or getting back to land as quickly as possible
-	if(eUnitDomain == DOMAIN_LAND && kToNodeCacheData.bIsWater)
+	if(eUnitDomain == DOMAIN_LAND && kToNodeCacheData.bIsNonNativeDomain)
 		iCost += PATH_END_TURN_WATER;
 
 	// when in doubt we prefer to end our turn on a route
@@ -1166,8 +1186,8 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPat
 	DomainTypes eUnitDomain = pUnitDataCache->getDomainType();
 
 	//this is quite tricky with passable ice plots which can be either water or land
-	bool bToPlotIsWater = kToNodeCacheData.bIsWater || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
-	bool bFromPlotIsWater = kFromNodeCacheData.bIsWater || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
+	bool bToPlotIsWater = kToNodeCacheData.bIsNonNativeDomain || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
+	bool bFromPlotIsWater = kFromNodeCacheData.bIsNonNativeDomain || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
 	int iBaseMovesInCurrentDomain = pUnitDataCache->baseMoves(bFromPlotIsWater?DOMAIN_SEA:DOMAIN_LAND);
 
 	if (iStartMoves==0)
@@ -1335,19 +1355,19 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 		if(pCacheData->CanEverEmbark())
 		{
 			//don't embark if forbidden - but move along if already on water plot
-			if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) && kToNodeCacheData.bIsWater && !kFromNodeCacheData.bIsWater)
+			if (finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK) && kToNodeCacheData.bIsNonNativeDomain && !kFromNodeCacheData.bIsNonNativeDomain)
 				return FALSE;
 
 			//don't move to dangerous water plots (unless the current plot is dangerous too)
-			if (finder->HaveFlag(CvUnit::MOVEFLAG_SAFE_EMBARK) && kToNodeCacheData.bIsWater && kToNodeCacheData.iPlotDanger>10 && kFromNodeCacheData.iPlotDanger<10 )
+			if (finder->HaveFlag(CvUnit::MOVEFLAG_SAFE_EMBARK) && kToNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.iPlotDanger>10 && kFromNodeCacheData.iPlotDanger<10 )
 				return FALSE;
 
 			//embark required and possible?
-			if(!kFromNodeCacheData.bIsWater && kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true, kToNodeCacheData.iMoveFlags))
+			if(!kFromNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true, kToNodeCacheData.iMoveFlags))
 				return FALSE;
 
 			//disembark required and possible?
-			if(kFromNodeCacheData.bIsWater && !kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canDisembarkOnto(*pFromPlot, *pToPlot, true, kToNodeCacheData.iMoveFlags))
+			if(kFromNodeCacheData.bIsNonNativeDomain && !kToNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canDisembarkOnto(*pFromPlot, *pToPlot, true, kToNodeCacheData.iMoveFlags))
 				return FALSE;
 		}
 
@@ -1487,7 +1507,7 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 				bAllow = true;
 		}
 
-		if (!bAllow && finder->HaveFlag(CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
+		if (!bAllow && finder->HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
 		{
 			std::vector<int> vAreas = pToPlot->getAllAdjacentAreas();
 			bAllow = (std::find(vAreas.begin(),vAreas.end(),pFromPlot->getArea()) != vAreas.end());

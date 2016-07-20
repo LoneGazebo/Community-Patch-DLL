@@ -3426,7 +3426,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 					bool bFoundWayHome = false;
 					for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 					{
-						if(pUnit->GeneratePath(pLoopCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET | CvUnit::MOVEFLAG_IGNORE_STACKING))
+						if(pUnit->GeneratePath(pLoopCity->plot(),CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_IGNORE_STACKING))
 						{
 							bFoundWayHome = true;
 							break;
@@ -3773,12 +3773,12 @@ void CvHomelandAI::ExecuteWriterMoves()
 					{
 						// Find which plot (in or adjacent), we can reach in the fewest turns
 						int iTurns = INT_MAX;
-						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX,&iTurns))
+						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,&iTurns))
 						{
 							// In less than one turn?
 							if (iTurns == 0)
 							{
-								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), CvUnit::MOVEFLAG_APPROXIMATE_TARGET);
+								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 								pUnit->PushMission(CvTypes::getMISSION_GREAT_WORK());
 								UnitProcessed(pUnit->GetID());
 								if(GC.getLogging() && GC.getAILogging())
@@ -3797,7 +3797,7 @@ void CvHomelandAI::ExecuteWriterMoves()
 							// In multiple moves
 							else
 							{
-								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), CvUnit::MOVEFLAG_APPROXIMATE_TARGET);
+								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 								pUnit->finishMoves();
 								UnitProcessed(pUnit->GetID());
 								if(GC.getLogging() && GC.getAILogging())
@@ -3904,12 +3904,12 @@ void CvHomelandAI::ExecuteArtistMoves()
 					{
 						// Find which plot (in or adjacent), we can reach in the fewest turns
 						int iTurns = INT_MAX;
-						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX,&iTurns))
+						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,&iTurns))
 						{
 							// In less than one turn?
 							if (iTurns == 0)
 							{
-								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), CvUnit::MOVEFLAG_APPROXIMATE_TARGET);
+								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 								pUnit->PushMission(CvTypes::getMISSION_GREAT_WORK());
 								UnitProcessed(pUnit->GetID());
 								if(GC.getLogging() && GC.getAILogging())
@@ -3927,7 +3927,7 @@ void CvHomelandAI::ExecuteArtistMoves()
 							// In multiple moves
 							else
 							{
-								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), CvUnit::MOVEFLAG_APPROXIMATE_TARGET);
+								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 								pUnit->finishMoves();
 								UnitProcessed(pUnit->GetID());
 								if(GC.getLogging() && GC.getAILogging())
@@ -4033,12 +4033,12 @@ void CvHomelandAI::ExecuteMusicianMoves()
 					{
 						// Find which plot (in or adjacent), we can reach in the fewest turns
 						int iTurns = INT_MAX;
-						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX,&iTurns))
+						if (pUnit->GeneratePath(pTargetCity->plot(),CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,&iTurns))
 						{
 							// In less than one turn?
 							if (iTurns == 0)
 							{
-								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), CvUnit::MOVEFLAG_APPROXIMATE_TARGET);
+								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 								pUnit->PushMission(CvTypes::getMISSION_GREAT_WORK());
 								UnitProcessed(pUnit->GetID());
 								if(GC.getLogging() && GC.getAILogging())
@@ -4056,7 +4056,7 @@ void CvHomelandAI::ExecuteMusicianMoves()
 							// In multiple moves
 							else
 							{
-								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), CvUnit::MOVEFLAG_APPROXIMATE_TARGET);
+								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetCity->plot()->getX(), pTargetCity->plot()->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 								pUnit->finishMoves();
 								UnitProcessed(pUnit->GetID());
 								if(GC.getLogging() && GC.getAILogging())
@@ -4707,7 +4707,7 @@ void CvHomelandAI::ExecuteProphetMoves()
 				{
 					if(iTargetTurns==0)
 					{
-						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROXIMATE_TARGET);
+						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 
 						if(pUnit->canMove())
 							pUnit->PushMission(CvTypes::getMISSION_SPREAD_RELIGION());
@@ -4723,7 +4723,7 @@ void CvHomelandAI::ExecuteProphetMoves()
 					}
 					else
 					{
-						ExecuteMoveToTarget(pUnit.pointer(), pTarget->plot(), CvUnit::MOVEFLAG_APPROXIMATE_TARGET);
+						ExecuteMoveToTarget(pUnit.pointer(), pTarget->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -5699,7 +5699,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 		{
 			if(iTargetTurns==0)
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET);
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(),CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 
 				if(pUnit->canMove())
 					pUnit->PushMission(CvTypes::getMISSION_SPREAD_RELIGION());
@@ -5715,7 +5715,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 			}
 			else
 			{
-				ExecuteMoveToTarget(pUnit.pointer(),pTarget->plot(),CvUnit::MOVEFLAG_APPROXIMATE_TARGET);
+				ExecuteMoveToTarget(pUnit.pointer(),pTarget->plot(),CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -5757,7 +5757,7 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 		{
 			if(iTargetTurns == 0)
 			{
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROXIMATE_TARGET);
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 
 				if(pUnit->canMove())
 					pUnit->PushMission(CvTypes::getMISSION_REMOVE_HERESY());
@@ -5773,7 +5773,7 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 			}
 			else
 			{
-				ExecuteMoveToTarget(pUnit.pointer(), pTarget->plot(), CvUnit::MOVEFLAG_APPROXIMATE_TARGET);
+				ExecuteMoveToTarget(pUnit.pointer(), pTarget->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 
 				if(GC.getLogging() && GC.getAILogging())
 				{

@@ -6636,7 +6636,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(UnitHandle pUnit, int* piTurns)
 
 	for (std::vector<SPlotWithScore>::iterator it=vTargets.begin(); it!=vTargets.end(); ++it)
 	{
-		if (pUnit->GeneratePath(it->pPlot,CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX, piTurns) )
+		if (pUnit->GeneratePath(it->pPlot,CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX, piTurns) )
 			return it->pPlot->getPlotCity();
 	}
 
@@ -6673,7 +6673,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(UnitHandle pUnit, int* piTurns)
 
 	for (std::vector<SPlotWithScore>::iterator it=vTargets.begin(); it!=vTargets.end(); ++it)
 	{
-		if (pUnit->GeneratePath(it->pPlot,CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX, piTurns) )
+		if (pUnit->GeneratePath(it->pPlot,CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX, piTurns) )
 			return it->pPlot->getPlotCity();
 	}
 
@@ -6841,7 +6841,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingR
 
 	for (size_t i=0; i<vCandidates.size(); i++)
 	{
-		if (!pUnit || pUnit->GeneratePath(vCandidates[i].pPlot,CvUnit::MOVEFLAG_APPROXIMATE_TARGET,INT_MAX,piTurns))
+		if (!pUnit || pUnit->GeneratePath(vCandidates[i].pPlot,CvUnit::MOVEFLAG_APPROX_TARGET_RING1,INT_MAX,piTurns))
 		{
 			return vCandidates[i].pPlot->getPlotCity();
 		}

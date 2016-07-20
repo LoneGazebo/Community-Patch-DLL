@@ -1990,7 +1990,7 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(UnitHandle pUnit)
 			CvCity* pCity = vTargets.GetElement(i);
 			if(pCity != NULL)
 			{
-				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
+				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
 					return pCity;
 			}
 		}
@@ -2038,7 +2038,7 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(UnitHandle pUnit)
 			CvCity* pCity = vTargets.GetElement(i);
 			if(pCity != NULL)
 			{
-				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
+				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
 					return pCity;
 			}
 		}
@@ -2607,7 +2607,7 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician, bool bOnlySafe
 
 	CvPlayer &kTargetPlayer = GET_PLAYER(eTargetPlayer);
 
-	int iMoveFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
+	int iMoveFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 	if (!bOnlySafePaths)
 		iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_DANGER;
 

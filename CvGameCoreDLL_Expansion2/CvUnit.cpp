@@ -26957,7 +26957,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			}
 
 			//the given target may be different from the actual target
-			if (iFlags & MOVEFLAG_APPROXIMATE_TARGET)
+			if (iFlags & MOVEFLAG_APPROX_TARGET_RING1)
 			{
 				pDestPlot = m_kLastPath.GetFinalPlot();
 				//check if we are there yet

@@ -4214,8 +4214,13 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 		// Check to make sure escort can get to civilian
 		if(pOperation->GetMusterPlot() != NULL)
 		{
+			//nothing to do?
+			if(pEscort && pCivilian->plot() == pEscort->plot())
+			{
+				return;
+			}
 			//civilian and escort have not yet met up
-			if(pEscort && pEscort->plot() != pCivilian->plot())
+			else if(pEscort && pEscort->plot() != pCivilian->plot())
 			{
 				//civilian is already there
 				if(pCivilian->plot() == pOperation->GetMusterPlot())
@@ -4233,6 +4238,10 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 							MoveToUsingSafeEmbark(pEscort, pOperation->GetTargetPlot(),false,0);
 							pEscort->finishMoves();
 							UnitProcessed(pEscort->GetID());
+
+							//try again next turn
+							pOperation->SetMusterPlot(pCivilian->plot());
+
 							if(GC.getLogging() && GC.getAILogging())
 							{
 								CvString strLogString;
@@ -4298,7 +4307,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 			}
 			else
 			{
-				//no escort or escort is with civilian
+				//no escort
 				if(pCivilian->plot() == pOperation->GetMusterPlot())
 				{
 					//check if the civilian is in danger
@@ -4309,6 +4318,8 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 						if (pBetterPlot)
 						{
 							ExecuteMoveToPlotIgnoreDanger(pCivilian,pBetterPlot);
+
+							//update this so we can advance to next stage
 							pOperation->SetMusterPlot(pBetterPlot);
 						}
 					}
@@ -4316,15 +4327,8 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 					UnitProcessed(pCivilian->GetID());
 				}
 				else
-					//if this fails, we just freeze and wait for better times
+					//continue moving. if this should fail, we just freeze and wait for better times
 					MoveToUsingSafeEmbark(pCivilian,pOperation->GetMusterPlot(),true,0);
-
-				if (pEscort)
-				{
-					MoveToUsingSafeEmbark(pEscort,pCivilian->plot(),true,0);
-					pEscort->finishMoves();
-					UnitProcessed(pEscort->GetID());
-				}
 			}
 		}
 	}
@@ -9058,84 +9062,18 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 	if (!pUnit || !pTarget)
 		return false;
 
-	int iBestTurns = iMaxTurns;
-	int iBestScore = INT_MAX;
-	CvPlot* pBestPlot = NULL;
-
 	//nothing to do?
-	if (plotDistance(pUnit->getX(),pUnit->getY(),pTarget->getX(),pTarget->getY())<=2)
+	if (plotDistance(pUnit->getX(),pUnit->getY(),pTarget->getX(),pTarget->getY())<3 && (eDomain==NO_DOMAIN || pTarget->getDomain()==eDomain))
 		return true;
 
-	//see where our unit can go in the allowed amount of turns
-	ReachablePlots reachablePlots;
-	if (pUnit)
+	int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_SAFE_EMBARK;
+	if (eDomain==pUnit->getDomainType())
+		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
+
+	int iTurns = pUnit->TurnsToReachTarget(pTarget,iFlags,iMaxTurns);
+	if (iTurns <= iMaxTurns)
 	{
-		SPathFinderUserData data(pUnit.pointer(),0,iMaxTurns);
-		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
-		reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
-	}
-
-	// Look at spaces adjacent to target - not the target itself!
-	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
-	{
-		CvPlot* pLoopPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), iI);
-		if (!pLoopPlot)
-			continue;
-
-		//if we can't reach it, bad luck
-		ReachablePlots::iterator it = reachablePlots.find(SMovePlot(pLoopPlot->GetPlotIndex()));
-		if (it==reachablePlots.end())
-			continue;
-
-		if (eDomain != NO_DOMAIN && pLoopPlot->getDomain() != eDomain)
-			continue;
-
-		//if it is a city, make sure we are friends with them, else we will automatically attack
-		if(pLoopPlot->isCity() && !pLoopPlot->isFriendlyCity(*pUnit, false))
-			continue;
-
-		if(pUnit->canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
-		{
-			int iDanger = pUnit->GetDanger(pLoopPlot);
-			//double danger for embarkation because we can't fight back
-			if (iDanger<INT_MAX && pLoopPlot->needsEmbarkation(pUnit.pointer()))
-				iDanger *= 2;
-			//note: this check works for civilian also, they have infinite danger if they could be captured 
-			if(iDanger > pUnit->GetCurrHitPoints())
-				continue;
-
-			//check if we can close our formation
-			int iNeighborCount = 0;
-			for(int iJ = RING0_PLOTS; iJ < RING1_PLOTS; iJ++)
-			{
-				CvPlot* pNeighborPlot = iterateRingPlots(pLoopPlot->getX(), pLoopPlot->getY(), iJ);
-				if (pNeighborPlot)
-				{
-					UnitHandle pDefender = pNeighborPlot->getBestDefender(pUnit->getOwner());
-					if (pDefender && pDefender->TurnProcessed())
-						iNeighborCount++;
-				}
-			}
-					
-			//we check all plots ... don't just use the first one
-			int iDistanceToTarget = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pTarget->getX(), pTarget->getY());
-			int iTurns = it->iTurns;
-			if (iTurns<INT_MAX)
-			{
-				int iScore = iTurns + iDistanceToTarget - iNeighborCount;
-				if ( iScore < iBestScore )
-				{
-					iBestTurns = iTurns;
-					iBestScore = iScore;
-					pBestPlot = pLoopPlot;
-				}
-			}
-		}
-	}
-
-	if (pBestPlot)
-	{
-		bool bResult = MoveToUsingSafeEmbark(pUnit, pBestPlot, false, 0);
+		bool bResult = MoveToUsingSafeEmbark(pUnit, pTarget, true, iFlags);
 		TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit.pointer());
 		return bResult;
 	}
@@ -9150,16 +9088,18 @@ bool CvTacticalAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 	if (!bMustBeSafeOnLandToo)
 		iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_DANGER;
 
-	//get a feel for how long it should take to get there
-	int iRefLength = pUnit->TurnsToReachTarget(pTargetPlot,true);
-	int iActualLength = 0;
-
-	if(pUnit->GeneratePath(pTargetPlot,iMoveFlags,INT_MAX,&iActualLength))
+	int iActualTurns = 0;
+	if(pUnit->GeneratePath(pTargetPlot,iMoveFlags,INT_MAX,&iActualTurns))
 	{
 		//don't act on it for now
-		if (MOD_BALANCE_CORE_MILITARY_LOGGING && iActualLength>2*iRefLength)
+		if (MOD_BALANCE_CORE_MILITARY_LOGGING)
 		{
-			OutputDebugString("warning: unit taking a long detour!\n");
+			//get a feel for how long it should take to get there (don't overwrite unit path cache)
+			SPathFinderUserData data(pUnit.pointer(),CvUnit::MOVEFLAG_IGNORE_STACKING);
+			int iRefTurns =  GC.GetPathFinder().GetPathLengthInTurns(pUnit->plot(),pTargetPlot,data);
+			
+			if (iActualTurns>2*iRefTurns)
+				OutputDebugString("warning: unit taking a long detour!\n");
 		}
 
 		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), iMoveFlags);
