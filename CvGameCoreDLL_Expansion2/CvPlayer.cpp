@@ -40098,7 +40098,7 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 					{
 						if (getCapitalCity() && pLoopArea->GetID() != getCapitalCity()->getArea())
 						{
-							fScore *= 3;
+							fScore *= 2;
 						}
 					}
 				}

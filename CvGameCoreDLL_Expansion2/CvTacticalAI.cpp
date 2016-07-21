@@ -2753,9 +2753,7 @@ void CvTacticalAI::PlotOperationalArmyMoves()
 	CvAIOperation* nextOp = m_pPlayer->getFirstAIOperation();
 	while(nextOp != NULL)
 	{
-		nextOp->DoTurn();
-
-		if (nextOp->ShouldAbort())
+		if (!nextOp->DoTurn())
 			opsToKill.push_back(nextOp->GetID());
 
 		nextOp = m_pPlayer->getNextAIOperation();

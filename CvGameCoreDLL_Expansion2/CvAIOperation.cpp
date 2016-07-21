@@ -535,7 +535,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 					if (pLoopUnit->plot() && pLoopUnit->plot()->getOwner() != m_eOwner)
 						iDistance++;
 
-					UnitChoices.push_back(pLoopUnit->GetID(), 1000 - iDistance*10 - pLoopUnit->GetPower());
+					UnitChoices.push_back(pLoopUnit->GetID(), 10000 - iDistance*30 - pLoopUnit->GetPower());
 				}
 			}
 
@@ -882,23 +882,23 @@ void CvAIOperation::Kill()
 	GET_PLAYER(eOwner).deleteAIOperation(iID);
 }
 
-void CvAIOperation::Move()
+bool CvAIOperation::Move()
 {
 	if (m_viArmyIDs.empty())
-		return;
+		return false;
 
 	//single army only for now
 	CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[0]);
 	if (!pThisArmy)
 	{
 		SetToAbort(AI_ABORT_NO_UNITS);
-		return;
+		return false;
 	}
 
 	pThisArmy->UpdateCheckpointTurns();
 	pThisArmy->RemoveStuckUnits();
 	if (ShouldAbort())
-		return;
+		return false;
 
 	float fOldVarX,fOldVarY;
 	CvPlot* pOldCOM = pThisArmy->GetCenterOfMass(false,&fOldVarX,&fOldVarY);
@@ -913,7 +913,7 @@ void CvAIOperation::Move()
 		GET_PLAYER(m_eOwner).GetTacticalAI()->PlotArmyMovesCombat(pThisArmy);
 		break;
 	default:
-		return;
+		return false;
 	}
 
 	//exclude rapid response ops etc
@@ -923,25 +923,30 @@ void CvAIOperation::Move()
 		CvPlot* pNewCOM = pThisArmy->GetCenterOfMass(false,&fNewVarX,&fNewVarY);
 		if (pNewCOM == pOldCOM && fNewVarX>=fOldVarX && fNewVarY>=fOldVarY)
 		{
-			OutputDebugString("Warning: Army not making progress!\n");
+			OutputDebugString( CvString::format("Warning: Operation %d with army at (%d,%d) not making progress!\n",m_iID,pThisArmy->GetX(),pThisArmy->GetY()).c_str() );
 		}
 	}
 
 	SetLastTurnMoved(GC.getGame().getGameTurn());
+	return true;
 }
 
 /// Update operation for the next turn
-void CvAIOperation::DoTurn()
+bool CvAIOperation::DoTurn()
 {
 	if (GetLastTurnMoved()==GC.getGame().getGameTurn())
-		return;
+		return true;
 
 	LogOperationStatus(true);
 
-	Move();
-	CheckTransitionToNextStage();
-
-	LogOperationStatus(false);
+	if ( Move() )
+	{
+		CheckTransitionToNextStage();
+		LogOperationStatus(false);
+		return true;
+	}
+	else
+		return false;
 }
 
 /// Delete an army associated with this operation (by ID)

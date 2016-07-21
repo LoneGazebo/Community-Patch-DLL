@@ -15591,15 +15591,13 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 {
 	VALIDATE_OBJECT
 
+	//no modifiers for embarked defense
 	if ( (!pInPlot && isEmbarked()) || (pInPlot && pInPlot->needsEmbarkation(this) && CanEverEmbark()) )
-	{
 		return GetEmbarkedUnitDefense();
-	}
 
-	if(GetBaseCombatStrength() == 0)
+	int iCombat = GetBaseCombatStrength();
+	if (iCombat==0)
 		return 0;
-
-	int iCombat;
 
 	int iTempModifier;
 	int iModifier = GetGenericMaxStrengthModifier(pAttacker, pInPlot, /*bIgnoreUnitAdjacency*/ bFromRangedAttack, pInPlot);
@@ -15718,7 +15716,8 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	if(iModifier < -90)
 		iModifier = -90;
 
-	iCombat = GetBaseCombatStrength() * (iModifier + 100);
+	// finally apply the modifier
+	iCombat *= (iModifier + 100);
 
 	// Boats do more damage VS one another
 	if(pAttacker != NULL)
@@ -16377,26 +16376,11 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		if (!pDefender->IsCanDefend(pTargetPlot))
 			return /*4*/ GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
 
-		if (pDefender->CanEverEmbark() && pTargetPlot && pTargetPlot->needsEmbarkation(pDefender))
-		{
-			iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
-		}
-		// Use Ranged combat value for defender, UNLESS it's a boat or an Impi (ranged support)
-#if defined(MOD_BALANCE_CORE)
-		//Correction - make this apply to all ranged units, naval too.
-		else if (!pDefender->isRangedSupportFire() && pDefender->isRanged())
-#else
-		else if (!pDefender->isRangedSupportFire() && pDefender->getDomainType() != DOMAIN_SEA)
-#endif
-		{
+		// Use Ranged combat value for defender (except impi)
+		if (pDefender->isRanged() && !pDefender->isRangedSupportFire())
 			iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false, pTargetPlot, pFromPlot);
-			if (iDefenderStrength==0)
-				iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, /*bFromRangedAttack*/ true);
-		}
 		else
-		{
 			iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, /*bFromRangedAttack*/ true);
-		}
 	}
 	else
 	{
@@ -17872,7 +17856,7 @@ int CvUnit::withdrawalProbability() const
 /// How many enemy Units are adjacent to this guy?
 int CvUnit::GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude) const
 {
-	return plot()->GetNumEnemyUnitsAdjacent( getTeam(), getDomainType(), pUnitToExclude);
+	return plot()->GetNumEnemyUnitsAdjacent( getTeam(), plot()->getDomain(), pUnitToExclude);
 }
 
 //	--------------------------------------------------------------------------------

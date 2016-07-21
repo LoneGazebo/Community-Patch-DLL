@@ -223,8 +223,8 @@ public:
 	virtual bool ShouldAbort();
 	virtual void SetToAbort(AIOperationAbortReason eReason);
 	virtual void Kill();
-	virtual void DoTurn();
-	virtual void Move();
+	virtual bool DoTurn();
+	virtual bool Move();
 
 	virtual void BuildListOfUnitsWeStillNeedToBuild();
 	size_t GetNumUnitsNeededToBeBuilt()	{ return m_viListOfUnitsWeStillNeedToBuild.size(); }

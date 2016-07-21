@@ -945,7 +945,7 @@ int DestinationReached(int iToX, int iToY, const SPathFinderUserData&, const CvA
 				return false;
 
 		//important: if we mark an occupied plot as destination, we won't be able to move through it
-		if (finder->GetNode(iToX,iToY)->m_kCostCacheData.bFriendlyUnitLimitReached)
+		if (finder->GetNode(iToX,iToY)->m_kCostCacheData.bFriendlyUnitLimitReached && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING))
 			return false;
 
 		return ::plotDistance(iToX,iToY,finder->GetDestX(),finder->GetDestY()) < 3;
@@ -957,7 +957,7 @@ int DestinationReached(int iToX, int iToY, const SPathFinderUserData&, const CvA
 				return false;
 
 		//important: if we mark an occupied plot as destination, we won't be able to move through it
-		if (finder->GetNode(iToX,iToY)->m_kCostCacheData.bFriendlyUnitLimitReached)
+		if (finder->GetNode(iToX,iToY)->m_kCostCacheData.bFriendlyUnitLimitReached && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING))
 			return false;
 
 		return ::plotDistance(iToX,iToY,finder->GetDestX(),finder->GetDestY()) < 2;
