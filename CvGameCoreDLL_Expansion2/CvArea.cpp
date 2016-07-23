@@ -556,7 +556,6 @@ void CvArea::changeNumRevealedTiles(TeamTypes eIndex, int iChange)
 	CvAssert(getNumRevealedTiles(eIndex) >= 0);
 }
 
-
 //	--------------------------------------------------------------------------------
 CvCity* CvArea::getTargetCity(PlayerTypes eIndex) const
 {
@@ -566,7 +565,6 @@ CvCity* CvArea::getTargetCity(PlayerTypes eIndex) const
 
 	return getCity(m_aTargetCities[eIndex]);
 }
-
 
 //	--------------------------------------------------------------------------------
 void CvArea::setTargetCity(PlayerTypes eIndex, CvCity* pNewValue)

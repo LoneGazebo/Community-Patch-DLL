@@ -97,7 +97,7 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 
 	if (pUnit)
 	{
-		if(!pUnit->canEnterTerrain(*pPlot))
+		if(!pUnit->canMoveInto(*pPlot))
 		{
 			return false;
 		}
@@ -711,6 +711,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	{
 		iValueModifier -= (int)iTotalPlotValue * 20 / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields");
+	}
+
+	if ( iTotalFoodValue>10*iTotalProductionValue )
+	{
+		iValueModifier -= (int)iTotalPlotValue * 20 / 100;
+		if (pDebug) vQualifiersNegative.push_back("(V) extremely unbalanced yields");
 	}
 
 	if (pPlot->isRiver())

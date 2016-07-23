@@ -4617,7 +4617,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		{
 			if(eDomain == DOMAIN_SEA)
 			{
-				return canCrossOceans() || kPlayer.CanCrossOcean();
+				return ((iMoveFlags&CvUnit::MOVEFLAG_DESTINATION)==0) || canCrossOceans() || kPlayer.CanCrossOcean();
 			}
 			else if(eDomain == DOMAIN_LAND)
 			{
@@ -4655,27 +4655,30 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	}
 	else //passable. need to check for negative promotions / traits and their exceptions
 	{
+		//special handling for ocean
 		if (enterPlot.isDeepWater() && enterPlot.getFeatureType()==NO_FEATURE)
 		{
-			PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
-			bool bOceanImpassable =  isHasPromotion(ePromotionOceanImpassable);
-			if(bOceanImpassable)
+			if (iMoveFlags&CvUnit::MOVEFLAG_DESTINATION)
 			{
-				return false;
+				PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
+				bool bOceanImpassable = isHasPromotion(ePromotionOceanImpassable);
+				if(bOceanImpassable)
+				{
+					return false;
+				}
+
+				PromotionTypes ePromotionOceanImpassableUntilAstronomy = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY();
+				bool bOceanImpassableUntilAstronomy = isHasPromotion(ePromotionOceanImpassableUntilAstronomy) || 
+					(eDomain==DOMAIN_LAND && !IsEmbarkDeepWater() && !IsEmbarkAllWater() && !kPlayer.CanCrossOcean());
+
+				if(bOceanImpassableUntilAstronomy )
+				{
+					CvTeam& kTeam = GET_TEAM(getTeam());
+					return kTeam.GetTeamTechs()->HasTech( GC.getGame().getOceanPassableTech() );
+				}
 			}
-
-			PromotionTypes ePromotionOceanImpassableUntilAstronomy = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY();
-			bool bOceanImpassableUntilAstronomy = isHasPromotion(ePromotionOceanImpassableUntilAstronomy) || 
-				(eDomain==DOMAIN_LAND && !IsEmbarkDeepWater() && !IsEmbarkAllWater() && !kPlayer.CanCrossOcean());
-
-			if(bOceanImpassableUntilAstronomy )
-			{
-				CvTeam& kTeam = GET_TEAM(getTeam());
-				return kTeam.GetTeamTechs()->HasTech( GC.getGame().getOceanPassableTech() );
-			}	
 		}
-
-		if(enterPlot.getFeatureType() != NO_FEATURE && isFeatureImpassable(enterPlot.getFeatureType()))
+		else if(enterPlot.getFeatureType() != NO_FEATURE && isFeatureImpassable(enterPlot.getFeatureType()))
 		{
 			return false;
 		}
@@ -25274,7 +25277,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 
 	if(getDomainType() == DOMAIN_LAND || getDomainType() == DOMAIN_SEA)
 	{
-		if(canEnterTerrain(swapPlot))
+		if(canEnterTerrain(swapPlot,CvUnit::MOVEFLAG_DESTINATION))
 		{
 			// Can I get there this turn?
 			SPathFinderUserData data(this,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
@@ -25314,7 +25317,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 								if(AreUnitsOfSameType(*pLoopUnit))
 								{
 									CvPlot* here = plot();
-									if(here && pLoopUnit->canEnterTerrain(*here) && pLoopUnit->canMove())
+									if(here && pLoopUnit->canEnterTerrain(*here,CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->canMove())
 									{
 										// Can the unit I am swapping with get to me this turn?
 										SPathFinderUserData data(pLoopUnit,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);

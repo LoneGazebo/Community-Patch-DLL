@@ -2817,7 +2817,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							if(pLoopPlotSearch->isWater())
 								continue;
 
-							if(pUnit->canMoveInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION) && pUnit->canEnterTerrain(*pLoopPlotSearch) )
+							if(pUnit->canMoveInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION))
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
 								break;
@@ -2886,7 +2886,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							if (m_pPlayer->GetPlotDanger(*pLoopPlotSearch,pUnit.pointer())>20)
 								continue;
 
-							if(pUnit->canMoveInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION) && pUnit->canEnterTerrain(*pLoopPlotSearch))
+							if(pUnit->canMoveInto(*pLoopPlotSearch,CvUnit::MOVEFLAG_DESTINATION))
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
 								break;

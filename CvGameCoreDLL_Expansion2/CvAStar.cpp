@@ -891,19 +891,15 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 	kToNodeCacheData.bFriendlyUnitLimitReached = (iNumUnits >= pPlot->getUnitLimit());
 	kToNodeCacheData.bIsValidRoute = pPlot->isValidRoute(pUnit);
 
-	//now the big ones ... do this last, the path dest check needs some of the value above as input
-	bool bIsDestination = finder->IsPathDest(node->m_iX,node->m_iY);
+	//do not use DestinationReached() here, approximate destination won't do
+	bool bIsDestination = node->m_iX == finder->GetDestX() && node->m_iY == finder->GetDestY() || !finder->HasValidDestination();
 
-	//use the flags mostly as provided - attack needs manual handling though
+	//use the flags mostly as provided
+	//destination will be handled later once we know whether we would like to end the turn here
+	//attack only applies to the true (non-approximate) destination or to any plot if we don't have a destination (reachable plots)
 	int iMoveFlags = finder->GetData().iFlags & ~CvUnit::MOVEFLAG_ATTACK & ~CvUnit::MOVEFLAG_DESTINATION;
-
-	//if we might want the end the move here (explicit destination or no destination known yet)
-	if (bIsDestination || !finder->HasValidDestination())
+	if (bIsDestination)
 	{
-		//if we are simply checking the reachable plots, we don't have a destination, but we still need to set the attack flags
-		if (bIsDestination)
-			iMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;
-
 		//special checks for attack flag
 		if (pCacheData->IsCanAttack())
 		{
@@ -923,7 +919,8 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 	}
 
 	kToNodeCacheData.iMoveFlags = iMoveFlags;
-	kToNodeCacheData.bCanEnterTerrain = pUnit->canEnterTerrain(*pPlot,iMoveFlags);
+	kToNodeCacheData.bCanEnterTerrainIntermediate = pUnit->canEnterTerrain(*pPlot,iMoveFlags); //assuming we will _not_ stop here
+	kToNodeCacheData.bCanEnterTerrainPermanent = pUnit->canEnterTerrain(*pPlot,iMoveFlags|CvUnit::MOVEFLAG_DESTINATION); //assuming we will stop here
 	kToNodeCacheData.bCanEnterTerritory = pUnit->canEnterTerritory(ePlotTeam,finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE));
 
 	if (bDoDanger)
@@ -1033,7 +1030,7 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 			if(!pUnit->canEnterTerrain(*pToPlot))
 				return FALSE;
 
-			if(!pUnit->canEnterTerritory(pToPlot->getTeam(),finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER)))
+			if(!pUnit->canEnterTerritory(pToPlot->getTeam(),finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE)))
 				return FALSE;
 		}
 
@@ -1167,7 +1164,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 }
 
 //	--------------------------------------------------------------------------------
-/// Standard path finder - compute cost of a path
+/// Standard path finder - compute cost of a move
 int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData&, CvAStar* finder)
 {
 	int iStartMoves = parent->m_iMoves;
@@ -1237,16 +1234,22 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPat
 	//base cost
 	int iCost = (PATH_BASE_COST * iMovementCost);
 
-	//extra cost for ending the turn on various types of undesirable plots (unless explicitly requested)
-	if(iMovesLeft == 0 && !bIsPathDest)
+	//do we end the turn here
+	if(iMovesLeft == 0)
 	{
+		// check whether we're allowed to end the turn in this terrain
+		if (kToNodeCacheData.bIsRevealedToTeam && !kToNodeCacheData.bCanEnterTerrainPermanent)
+			return -1; //forbidden
 		// check stacking (if visible)
 		if (kToNodeCacheData.bPlotVisibleToTeam && bCheckStacking && kToNodeCacheData.bFriendlyUnitLimitReached)
-				return -1; //forbidden
+			return -1; //forbidden
+		// can't stay in other players' cities
 		if (kToNodeCacheData.bIsRevealedToTeam && kToNodeCacheData.bContainsOtherFriendlyTeamCity)
 			return -1; //forbidden
 
-		iCost += PathEndTurnCost(pToPlot,kToNodeCacheData,pUnitDataCache,node->m_iTurns);
+		//extra cost for ending the turn on various types of undesirable plots (unless explicitly requested)
+		if (!bIsPathDest)
+			iCost += PathEndTurnCost(pToPlot,kToNodeCacheData,pUnitDataCache,node->m_iTurns);
 	}
 
 	if(finder->HaveFlag(CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
@@ -1301,19 +1304,18 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 	CvUnit* pUnit = pCacheData->pUnit;
 	TeamTypes eUnitTeam = pCacheData->getTeam();
 	bool bCheckStacking =  !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING);
-	bool bIsDestination = kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_DESTINATION;
 
 	bool bNextNodeHostile = kToNodeCacheData.bContainsEnemyCity || kToNodeCacheData.bContainsVisibleEnemyDefender;
 	bool bNextNodeVisibleToTeam = kToNodeCacheData.bPlotVisibleToTeam;
 
-	// we would run into an enemy or run into unknown territory, so we must be able to end the turn on the parent plot
+	// we would run into an enemy or run into unknown territory, so we must be able to end the turn on the _parent_ plot
 	if (bNextNodeHostile || !bNextNodeVisibleToTeam)
 	{
 		//don't leak information
 		if (kFromNodeCacheData.bIsRevealedToTeam)
 		{
 			// most importantly, we need to be able to end the turn there
-			if(!kFromNodeCacheData.bCanEnterTerrain || !kFromNodeCacheData.bCanEnterTerritory)
+			if(!kFromNodeCacheData.bCanEnterTerrainPermanent || !kFromNodeCacheData.bCanEnterTerritory)
 				return FALSE;
 
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
@@ -1339,10 +1341,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 	//some checks about units etc. they need to be visible, else we leak information in the UI
 	if (kToNodeCacheData.bPlotVisibleToTeam)
 	{
-		//check friendly stacking - this is also checked in canMoveInto but this way it's maybe faster
-		if(bCheckStacking && bIsDestination && kToNodeCacheData.bFriendlyUnitLimitReached)
-			return FALSE;
-
+		//we check stacking once we know whether we end the turn here (in PathCost)
 		if(!pUnit->canMoveInto(*pToPlot, kToNodeCacheData.iMoveFlags))
 			return FALSE;
 	}
@@ -1350,15 +1349,18 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 	//some checks about terrain etc. needs to be revealed, otherwise we leak information in the UI
 	if (kToNodeCacheData.bIsRevealedToTeam)
 	{
-		// check impassable terrain - in case this plot is visible we already checked in canMoveInto, but it should be fast
-		if(!kToNodeCacheData.bCanEnterTerrain)
+		// if we can't enter the plot even temporarily, that's it. 
+		// if we can enter, there's another check in PathCost once we know whether we need to stay here
+		if(!kToNodeCacheData.bCanEnterTerrainIntermediate)
 			return FALSE;
-
 		if(!kToNodeCacheData.bCanEnterTerritory)
 			return FALSE;
 
-		//got to be careful here, don't plot moves through enemy cities (but allow them as attack targets for melee)
-		if (kToNodeCacheData.bContainsEnemyCity && (!bIsDestination || !pUnit->IsCanAttackWithMove()))
+		//do not use DestinationReached() here, approximate destination won't do (also we don't use MOVEFLAG_DESTINATION in pathfinder)
+		bool bIsDestination = node->m_iX == finder->GetDestX() && node->m_iY == finder->GetDestY() || !finder->HasValidDestination();
+
+		//don't allow moves through enemy cities (but allow them as attack targets for melee)
+		if (kToNodeCacheData.bContainsEnemyCity && !(bIsDestination && pUnit->IsCanAttackWithMove()))
 			return FALSE;
 
 		if(pCacheData->CanEverEmbark())
@@ -1454,7 +1456,7 @@ int PathNodeAdd(CvAStarNode* /*parent*/, CvAStarNode* node, int operation, const
 			!finder->HaveFlag(CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS) && 
 			!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) && 
 			node->m_kCostCacheData.bFriendlyUnitLimitReached == false &&
-			node->m_kCostCacheData.bCanEnterTerrain && 
+			node->m_kCostCacheData.bCanEnterTerrainPermanent && 
 			node->m_kCostCacheData.bCanEnterTerritory )
 		{
 			// Retrieve the secondary node
@@ -2371,6 +2373,15 @@ ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPa
 		{
 			bValid = true;
 		}
+
+		//need to check this here, during pathfinding we don't know that we're not just moving through
+		//this is practially a PathDestValid check after the fact. also compare the PathCost turn end checks.
+		if (temp->m_kCostCacheData.bIsRevealedToTeam && !temp->m_kCostCacheData.bCanEnterTerrainPermanent)
+			bValid = false;
+		if (temp->m_kCostCacheData.bPlotVisibleToTeam && !HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) && temp->m_kCostCacheData.bFriendlyUnitLimitReached)
+			bValid = false;
+		if (temp->m_kCostCacheData.bIsRevealedToTeam && temp->m_kCostCacheData.bContainsOtherFriendlyTeamCity)
+			bValid = false;
 
 		if (bValid)
 			plots.insert( SMovePlot(GC.getMap().plotNum(temp->m_iX, temp->m_iY),temp->m_iTurns,temp->m_iMoves) );

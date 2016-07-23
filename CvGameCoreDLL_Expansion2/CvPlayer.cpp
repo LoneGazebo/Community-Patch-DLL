@@ -40102,6 +40102,17 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 						}
 					}
 				}
+				EconomicAIStrategyTypes eStrategyReallyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS");
+				if(eStrategyExpandToOtherContinents != NO_ECONOMICAISTRATEGY)
+				{
+					if (GetEconomicAI()->IsUsingStrategy(eStrategyReallyExpandToOtherContinents))
+					{
+						if (getCapitalCity() && pLoopArea->GetID() != getCapitalCity()->getArea())
+						{
+							fScore *= 2;
+						}
+					}
+				}
 
 				int nEnemyCities = 0, nMyCities = 0;
 				for(int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; ++iPlayer)
@@ -42507,6 +42518,9 @@ void CvPlayer::updatePlotFoundValues(bool bOverrideRevealedCheck)
 			m_viPlotFoundValues[iI] = pCalc->PlotFoundValue(pPlot, this);
 	}
 
+	std::map<int,int> minDistancePerArea;
+	std::map<int,int> countPerArea;
+
 	// second pass: non-maxima suppression and aggregation
 	int iGoodEnoughToBeWorthOurTime = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
@@ -42540,7 +42554,34 @@ void CvPlayer::updatePlotFoundValues(bool bOverrideRevealedCheck)
 				int iAddValue = (int)pow((float)iRefValue-iGoodEnoughToBeWorthOurTime,1.5f);
 				int newValue = pLoopArea->getTotalFoundValue() + iAddValue;
 				pLoopArea->setTotalFoundValue(newValue);
+				
+				//track the distance from our existing cities
+				int iCityDistance = GetCityDistance(pPlot);
+				if (minDistancePerArea.find(pLoopArea->GetID())==minDistancePerArea.end())
+					minDistancePerArea[pLoopArea->GetID()] = iCityDistance;
+				else if (iCityDistance < minDistancePerArea[pLoopArea->GetID()])
+					minDistancePerArea[pLoopArea->GetID()] = iCityDistance;
+
+				//track the number of cities we could found there
+				if (countPerArea.find(pLoopArea->GetID())==countPerArea.end())
+					countPerArea[pLoopArea->GetID()] = 1;
+				else
+					countPerArea[pLoopArea->GetID()]++;
 			}
+		}
+	}
+
+	//try to make it so that we settle close areas first and try to correct the bias towards large areas
+	for (CvArea* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
+	{
+		if (pLoopArea->getTotalFoundValue()>0)
+		{
+			//take care with overflow here
+			float fDistScale = 0.5f + MapToPercent( minDistancePerArea[pLoopArea->GetID()],30,10 )/200.f;
+			float fCountScale = 1/sqrt( (float)countPerArea[pLoopArea->GetID()] );
+
+			pLoopArea->setTotalFoundValue( int(pLoopArea->getTotalFoundValue() * fDistScale) );
+			pLoopArea->setTotalFoundValue( int(pLoopArea->getTotalFoundValue() * fCountScale) );
 		}
 	}
 
