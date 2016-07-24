@@ -794,7 +794,8 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 				bool bUnitMayBeRelevant = (pLoopUnit->getDomainType() == DOMAIN_AIR ||
 						pLoopUnit->isRanged() || //ranged power is cross-domain!
 						(pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) ||
-						(pLoopUnit->getDomainType() == DOMAIN_SEA && pZone->IsWater()));
+						((pLoopUnit->getDomainType() == DOMAIN_SEA || (!pLoopUnit->isRanged() && pClosestCity) && pZone->IsWater()))); 
+						//embarked melee still count in water zone if there's a city to attack
 
 				if (!bUnitMayBeRelevant)
 					continue;
@@ -805,6 +806,8 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 
 				//a little cheating for AI - invisible units still count with reduced strength
 				bool bVisible = pPlot->isVisible(eTeam) || pPlot->isAdjacentVisible(eTeam, false);
+				//embarked units count only partially
+				bool bReducedStrength = pLoopUnit->isEmbarked();
 
 				//if there is a city, units in adjacent zones can also count
 				int iDistance = 0;
@@ -813,6 +816,10 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 					iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pClosestCity->getX(), pClosestCity->getY());
 					if (iDistance > m_iTacticalRange)
 						continue;
+
+					//if on another continent, they can't easily take part in the fight
+					if (!pClosestCity->isMatchingArea(pLoopUnit->plot()))
+						bReducedStrength = true;
 				}
 				else
 				{
@@ -832,7 +839,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 
 					int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true) / 100;
 
-					if(!bVisible)
+					if(!bVisible || bReducedStrength)
 					{
 						iUnitStrength /= 2;
 						iRangedStrength /= 2;

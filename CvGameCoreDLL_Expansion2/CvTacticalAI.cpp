@@ -2169,7 +2169,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 			CvCity* pCity = pPlot->getPlotCity();
 
 			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
-			if (pZone && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+			if (pZone && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY && !pCity->isInDangerOfFalling())
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{

@@ -170,7 +170,9 @@ CvPlot::CvPlot() :
 //	--------------------------------------------------------------------------------
 CvPlot::~CvPlot()
 {
-	FSerialization::plotsToCheck.erase(m_iPlotIndex);
+	std::set<int>::iterator it = FSerialization::plotsToCheck.find(m_iPlotIndex);
+	if (it!=FSerialization::plotsToCheck.end())
+		FSerialization::plotsToCheck.erase(it);
 	uninit();
 }
 
@@ -3238,6 +3240,7 @@ int CvPlot::getUnitPower(PlayerTypes eOwner) const
 #if defined(MOD_BALANCE_CORE)
 
 //	--------------------------------------------------------------------------------
+//int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding, bool bIgnoreFeature, bool bHelp) const
 int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 {
 	// Cities also give a boost - damage is split between city and unit - assume a flat 100% defense bonus for simplicity
