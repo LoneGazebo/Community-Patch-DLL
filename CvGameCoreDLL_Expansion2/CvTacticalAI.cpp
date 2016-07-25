@@ -10804,8 +10804,12 @@ int CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget)
 				//we want to be close to the target 
 				iScore -= iDistance * 100;
 
+				bool bMyCity = (pPlot->isCity() && pPlot->getOwner()==m_pPlayer->GetID());
+				if (bMyCity)
+					iScore -= 1000;
+
 				//we want to be able to attack a lot of plots
-				if (pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->getDomain())>0)
+				if (pPlot->GetNumEnemyUnitsAdjacent(m_pPlayer->getTeam(), pPlot->getDomain())>0 && !bMyCity)
 				{
 					//good plot for melee
 					iScore += pPlot->countPassableNeighbors(pPlot->isWater(), NULL) * 30;

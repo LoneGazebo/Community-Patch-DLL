@@ -26546,8 +26546,11 @@ void CvUnit::PlayActionSound()
 
 bool CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns)
 {
+	//important, avoid deadlocks
+	CvTwoLayerPathFinder& kPathfinder = gDLL->IsGameCoreThread() ? GC.GetPathFinder() : GC.GetInterfacePathFinder();
+
 	SPathFinderUserData data(this,iFlags,iMaxTurns);
-	SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
+	SPath newPath = kPathfinder.GetPath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
 
 	//now copy the new path
 	//but skip the first node, it's the current unit plot

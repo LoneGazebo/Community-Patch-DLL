@@ -6517,7 +6517,11 @@ bool CvPlot::isBlockaded(PlayerTypes ePlayer)
 						continue;
 
 					if (pLoopPlot->isWater()==isWater() && pLoopPlot->getArea()==getArea() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
-						return true;
+					{
+						SPathFinderUserData data(NO_PLAYER,PT_GENERIC_SAME_AREA,-1,iRange);
+						if (GC.GetStepFinder().GetPath(pLoopPlot,this,data).length()<=iRange)
+							return true;
+					}
 				}
 			}
 		}
