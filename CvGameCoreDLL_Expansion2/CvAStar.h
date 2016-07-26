@@ -22,6 +22,7 @@
 
 #define PATH_BASE_COST (100) //base cost per plot respectively movement point expended
 
+class CvAStar;
 typedef int(*CvAPointFunc)(int, int, const SPathFinderUserData&, const CvAStar*);
 typedef int(*CvAHeuristic)(int, int, int, int, int, int);
 typedef int(*CvAStarFunc)(CvAStarNode*, CvAStarNode*, int, const SPathFinderUserData&, CvAStar*);
@@ -371,7 +372,18 @@ public:
 
 protected:
 	// set up the function pointers which do the actual work
+	virtual bool Configure(PathType ePathType) = 0;
+	virtual bool CanEndTurnAtNode(CvAStarNode* temp) = 0;
+};
+
+//-------------------------------------------------------------------------------------------------
+// Derived class for abstract pathfinding without complex unit movement rules
+//-------------------------------------------------------------------------------------------------
+class CvStepFinder : public CvPathFinder
+{
+protected:
 	virtual bool Configure(PathType ePathType);
+	virtual bool CanEndTurnAtNode(CvAStarNode* temp);
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -393,6 +405,7 @@ public:
 protected:
 	// set the function pointers which do the actual work
 	virtual bool Configure(PathType ePathType);
+	virtual bool CanEndTurnAtNode(CvAStarNode* temp);
 
 private:
 	CvAStarNode** m_ppaaPartialMoveNodes;

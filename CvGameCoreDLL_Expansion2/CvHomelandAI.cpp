@@ -722,12 +722,10 @@ void CvHomelandAI::FindHomelandTargets()
 					if(pLoopPlot->getOwner() == m_pPlayer->GetID())
 					{
 						// Find proper improvement
-						BuildTypes eBuild;
 						for(int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
 						{
-							// we've already checked for pLoopPlot is water and builds on sea tiles are a Resource Trade no need for an additional check, we just need to know if we can build it or not - Iamblichos
-							eBuild = ((BuildTypes)iJ);
-							if(eBuild != NO_BUILD)
+							BuildTypes eBuild = ((BuildTypes)iJ);
+							if(eBuild != NO_BUILD && pLoopPlot->canBuild(eBuild,m_pPlayer->GetID()))
 							{
 								newTarget.SetTargetType(AI_HOMELAND_TARGET_NAVAL_RESOURCE);
 								newTarget.SetTargetX(pLoopPlot->getX());
@@ -783,7 +781,7 @@ void CvHomelandAI::FindHomelandTargets()
 				if( (eFort != NO_IMPROVEMENT && pLoopPlot->getImprovementType() == eFort) ||
 					(eCitadel != NO_IMPROVEMENT && pLoopPlot->getImprovementType() == eCitadel) )
 				{
-					int iWeight = 100000 + pLoopPlot->defenseModifier(m_pPlayer->getTeam(),false);
+					int iWeight = 100000 + pLoopPlot->defenseModifier(m_pPlayer->getTeam(),false,false);
 
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_FORT);
 					newTarget.SetTargetX(pLoopPlot->getX());
@@ -867,7 +865,7 @@ void CvHomelandAI::FindHomelandTargets()
 			else if(pLoopPlot->isRoute() && pLoopPlot->getOwner() == m_pPlayer->GetID())
 			{
 				//Let's weight them based on defense and danger - this should make us muster in more tactically - responsible places
-				int iWeight = pLoopPlot->defenseModifier(eTeam, true);
+				int iWeight = pLoopPlot->defenseModifier(eTeam, false, false);
 				iWeight += m_pPlayer->GetPlotDanger(*pLoopPlot);
 				if(iWeight > 0)
 				{
@@ -1722,15 +1720,15 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 			bool bResult = false;
 			if (pUnit->at(iTargetX, iTargetY))
 			{
-				pUnit->PushMission(CvTypes::getMISSION_BUILD(), m_TargetedNavalResources[iTargetIndex].GetAuxIntData(), -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pTarget);
+				pUnit->PushMission(CvTypes::getMISSION_BUILD(), m_TargetedNavalResources[iTargetIndex].GetAuxIntData(), -1, 0, false, false, MISSIONAI_BUILD, pTarget);
 				bResult = true;
 			}
 			else
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), iTargetX, iTargetY);
-				if(pUnit->plot() == pTarget)
+				if(pUnit->plot() == pTarget && pUnit->canMove())
 				{
-					pUnit->PushMission(CvTypes::getMISSION_BUILD(), m_TargetedNavalResources[iTargetIndex].GetAuxIntData(), -1, 0, (pUnit->GetLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pTarget);
+					pUnit->PushMission(CvTypes::getMISSION_BUILD(), m_TargetedNavalResources[iTargetIndex].GetAuxIntData(), -1, 0, false, false, MISSIONAI_BUILD, pTarget);
 					bResult = true;
 				}
 				else

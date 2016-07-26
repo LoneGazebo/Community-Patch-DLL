@@ -1593,11 +1593,11 @@ void CvTacticalAI::FindTacticalTargets()
 				// ... defensive bastion?
 #if defined(MOD_BALANCE_CORE_MILITARY)
 				else if(m_pPlayer->GetID() == pLoopPlot->getOwner() &&
-				        pLoopPlot->defenseModifier(m_pPlayer->getTeam(), true) > 15 &&
+				        pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 20 &&
 						m_pPlayer->GetPlotDanger(*pLoopPlot) > 0)
 				{
 					CvCity* pDefenseCity = pLoopPlot->GetAdjacentFriendlyCity(m_pPlayer->getTeam(), true/*bLandOnly*/);
-					if(pDefenseCity || pLoopPlot->IsChokePoint() || pLoopPlot->defenseModifier(m_pPlayer->getTeam(), true)>=50)
+					if(pDefenseCity || pLoopPlot->IsChokePoint() || pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false)>=50)
 #else
 				else if(m_pPlayer->GetID() == pLoopPlot->getOwner() &&
 				        pLoopPlot->defenseModifier(m_pPlayer->getTeam(), true) > 0 &&
@@ -5126,7 +5126,7 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 						}
 						else
 						{
-							iScore += pPlot->defenseModifier(m_pPlayer->getTeam(),false) * 2;
+							iScore += pPlot->defenseModifier(m_pPlayer->getTeam(),false,false) * 2;
 						}
 						if (bForcedToUseWater)
 						{
@@ -5277,7 +5277,7 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 						}
 						else
 						{
-							iScore += pPlot->defenseModifier(m_pPlayer->getTeam(),false) * 2;
+							iScore += pPlot->defenseModifier(m_pPlayer->getTeam(),false,false) * 2;
 						}
 						if (bForcedToUseWater)
 						{
@@ -11124,7 +11124,7 @@ bool CvTacticalAI::IsHighPriorityCivilianTarget(CvTacticalTarget* pTarget)
 						CvPlot *pLoopPlot = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
 						if (pLoopPlot != NULL)
 						{
-							if((pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false) > 10) && pLoopPlot->getNumUnits() > 0)
+							if((pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) > 10) && pLoopPlot->getNumUnits() > 0)
 							{
 								if(pLoopPlot->getUnitByIndex(0)->getOwner() == m_pPlayer->GetID())
 								{
@@ -11184,7 +11184,7 @@ bool CvTacticalAI::IsMediumPriorityCivilianTarget(CvTacticalTarget* pTarget)
 					CvPlot *pLoopPlot = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
 					if (pLoopPlot != NULL)
 					{
-						if((pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false) > 15) && pLoopPlot->getNumUnits() > 0)
+						if((pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) > 15) && pLoopPlot->getNumUnits() > 0)
 						{
 							if(pLoopPlot->getUnitByIndex(0)->getOwner() == m_pPlayer->GetID())
 							{

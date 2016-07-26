@@ -21,8 +21,7 @@
 class CvRandom;
 class CvGame;
 class CvPlayerAI;
-class CvAStar;
-class CvPathFinder;
+class CvStepFinder;
 class CvTwoLayerPathFinder;
 class CvInterface;
 class CvEngine;
@@ -219,7 +218,7 @@ public:
 
 	CvTwoLayerPathFinder& GetPathFinder();
 	CvTwoLayerPathFinder& GetInterfacePathFinder();
-	CvPathFinder& GetStepFinder();
+	CvStepFinder& GetStepFinder();
 
 	ICvDLLDatabaseUtility1* getDatabaseLoadUtility();
 
@@ -8911,7 +8910,7 @@ public:
 	//
 	void SetPathFinder(CvTwoLayerPathFinder* pVal);
 	void SetInterfacePathFinder(CvTwoLayerPathFinder* pVal);
-	void SetStepFinder(CvPathFinder* pVal);
+	void SetStepFinder(CvStepFinder* pVal);
 
 	// So that CvEnums are moddable in the DLL
 	int getNumDirections() const;
@@ -8963,7 +8962,7 @@ protected:
 
 	CvTwoLayerPathFinder* m_pathFinder;
 	CvTwoLayerPathFinder* m_interfacePathFinder;
-	CvPathFinder* m_stepFinder;
+	CvStepFinder* m_stepFinder;
 	
 	ICvDLLDatabaseUtility1* m_pkDatabaseLoadUtility;
 	int m_aiPlotDirectionX[NUM_DIRECTION_TYPES+2];

@@ -3240,8 +3240,7 @@ int CvPlot::getUnitPower(PlayerTypes eOwner) const
 #if defined(MOD_BALANCE_CORE)
 
 //	--------------------------------------------------------------------------------
-//int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding, bool bIgnoreFeature, bool bHelp) const
-int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
+int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool bIgnoreFeature, bool bForHelp) const
 {
 	// Cities also give a boost - damage is split between city and unit - assume a flat 100% defense bonus for simplicity
 	if (isCity())
@@ -3254,23 +3253,26 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 		iModifier += /*25*/ GC.getHILLS_EXTRA_DEFENSE();
 
 	// Feature
-	if(getFeatureType() != NO_FEATURE)
+	if(!bIgnoreFeature && getFeatureType() != NO_FEATURE)
 		iModifier += GC.getFeatureInfo(getFeatureType())->getDefenseModifier();
 
 	// Terrain
 	if(getTerrainType() != NO_TERRAIN)
 		iModifier += GC.getTerrainInfo(getTerrainType())->getDefenseModifier();
 
-	// Improvements count extra, but include them for tooltips only if the tile is revealed
-	ImprovementTypes eImprovement = bHelp ? getRevealedImprovementType(GC.getGame().getActiveTeam()) : getImprovementType();
-	if(eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
+	if (!bIgnoreImprovement)
 	{
-		//only friendly or unowned fortresses can be used for combat, but include them in the tooltips always
-		if(bHelp || (eDefender != NO_TEAM && (getTeam() == NO_TEAM || GET_TEAM(eDefender).isFriendlyTerritory(getTeam()))))
+		// Improvements count extra, but include them for tooltips only if the tile is revealed
+		ImprovementTypes eImprovement = bForHelp ? getRevealedImprovementType(GC.getGame().getActiveTeam()) : getImprovementType();
+		if(eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
 		{
-			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eImprovement);
-			if (pkImprovement)
-				iModifier += pkImprovement->GetDefenseModifier();
+			//only friendly or unowned fortresses can be used for combat, but include them in the tooltips always
+			if(bForHelp || (eDefender != NO_TEAM && (getTeam() == NO_TEAM || GET_TEAM(eDefender).isFriendlyTerritory(getTeam()))))
+			{
+				CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eImprovement);
+				if (pkImprovement)
+					iModifier += pkImprovement->GetDefenseModifier();
+			}
 		}
 	}
 
@@ -14877,7 +14879,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 		// Get score for this sentry point (defense and danger)
 		int iScore = GET_PLAYER(eOwner).GetPlotDanger(*this);
 
-		iScore += defenseModifier(eTeam, true);
+		iScore += defenseModifier(eTeam, true, true);
 
 		//Bonus for nearby owned tiles
 		iScore += (iNearbyOwned * 3);

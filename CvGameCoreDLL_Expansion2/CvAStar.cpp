@@ -1084,7 +1084,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 
 	if(pUnit->IsCombatUnit())
 	{
-		iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (200 - ((pUnit->noDefensiveBonus()) ? 0 : pToPlot->defenseModifier(eUnitTeam, false)))));
+		iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (200 - ((pUnit->noDefensiveBonus()) ? 0 : pToPlot->defenseModifier(eUnitTeam, false, false)))));
 	}
 
 	// Damage caused by features (mods)
@@ -1273,7 +1273,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPat
 		//AI makes sure to use defensive bonuses etc. humans have to do it manually ... it's part of the fun!
 		if(node->m_kCostCacheData.bContainsVisibleEnemyDefender && pUnitDataCache->isAIControl())
 		{
-			iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (200 - ((pUnit->noDefensiveBonus()) ? 0 : pFromPlot->defenseModifier(eUnitTeam, false)))));
+			iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (200 - ((pUnit->noDefensiveBonus()) ? 0 : pFromPlot->defenseModifier(eUnitTeam, false, false)))));
 
 			//avoid river attack penalty
 			if(!pUnit->isRiverCrossingNoPenalty() && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
@@ -2166,6 +2166,22 @@ CvAStarNode* CvTwoLayerPathFinder::GetPartialMoveNode(int iCol, int iRow)
 }
 
 //	--------------------------------------------------------------------------------
+//	version for unit pathing
+bool CvTwoLayerPathFinder::CanEndTurnAtNode(CvAStarNode* temp)
+{
+	if (!temp)
+		return false;
+	if (temp->m_kCostCacheData.bIsRevealedToTeam && !temp->m_kCostCacheData.bCanEnterTerrainPermanent)
+		return false;
+	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) && temp->m_kCostCacheData.bFriendlyUnitLimitReached)
+		return false;
+	if (temp->m_kCostCacheData.bIsRevealedToTeam && temp->m_kCostCacheData.bContainsOtherFriendlyTeamCity)
+		return false;
+
+	return true;
+}
+
+//	--------------------------------------------------------------------------------
 /// can do only certain types of path here
 bool CvTwoLayerPathFinder::Configure(PathType ePathType)
 {
@@ -2188,10 +2204,18 @@ bool CvTwoLayerPathFinder::Configure(PathType ePathType)
 	return true;
 }
 
+
+//	--------------------------------------------------------------------------------
+//default version for step paths - m_kCostCacheData is not valid
+bool CvStepFinder::CanEndTurnAtNode(CvAStarNode*)
+{
+	return true;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // CvPathFinder convenience functions
 //////////////////////////////////////////////////////////////////////////
-bool CvPathFinder::Configure(PathType ePathType)
+bool CvStepFinder::Configure(PathType ePathType)
 {
 	switch(ePathType)
 	{
@@ -2364,24 +2388,16 @@ ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPa
 	{
 		CvAStarNode* temp = *it;
 
-		bool bValid = false;
-		if (temp->m_iTurns < data.iMaxTurns)
-		{
-			bValid = true;
-		}
-		else if (temp->m_iTurns == data.iMaxTurns && temp->m_iMoves >= data.iMinMovesLeft)
-		{
-			bValid = true;
-		}
+		bool bValid = true;
+
+		if (temp->m_iTurns > data.iMaxTurns)
+			bValid = false;
+		else if (temp->m_iTurns == data.iMaxTurns && temp->m_iMoves < data.iMinMovesLeft)
+			bValid = false;
 
 		//need to check this here, during pathfinding we don't know that we're not just moving through
 		//this is practially a PathDestValid check after the fact. also compare the PathCost turn end checks.
-		if (temp->m_kCostCacheData.bIsRevealedToTeam && !temp->m_kCostCacheData.bCanEnterTerrainPermanent)
-			bValid = false;
-		if (temp->m_kCostCacheData.bPlotVisibleToTeam && !HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) && temp->m_kCostCacheData.bFriendlyUnitLimitReached)
-			bValid = false;
-		if (temp->m_kCostCacheData.bIsRevealedToTeam && temp->m_kCostCacheData.bContainsOtherFriendlyTeamCity)
-			bValid = false;
+		bValid = bValid && CanEndTurnAtNode(temp);
 
 		if (bValid)
 			plots.insert( SMovePlot(GC.getMap().plotNum(temp->m_iX, temp->m_iY),temp->m_iTurns,temp->m_iMoves) );

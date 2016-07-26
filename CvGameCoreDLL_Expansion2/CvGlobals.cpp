@@ -2560,7 +2560,7 @@ void CvGlobals::init()
 
 	SetPathFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
 	SetInterfacePathFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
-	SetStepFinder(FNEW(CvPathFinder, c_eCiv5GameplayDLL, 0));
+	SetStepFinder(FNEW(CvStepFinder, c_eCiv5GameplayDLL, 0));
 
 #if defined(MOD_BALANCE_CORE)
 	GetPathFinder().SetName("generic pf");
@@ -2702,7 +2702,7 @@ CvTwoLayerPathFinder& CvGlobals::GetInterfacePathFinder()
 	return *m_interfacePathFinder;
 }
 
-CvPathFinder& CvGlobals::GetStepFinder()
+CvStepFinder& CvGlobals::GetStepFinder()
 {
 	return *m_stepFinder;
 }
@@ -7121,7 +7121,7 @@ void CvGlobals::SetInterfacePathFinder(CvTwoLayerPathFinder* pVal)
 {
 	m_interfacePathFinder = pVal;
 }
-void CvGlobals::SetStepFinder(CvPathFinder* pVal)
+void CvGlobals::SetStepFinder(CvStepFinder* pVal)
 {
 	m_stepFinder = pVal;
 }
