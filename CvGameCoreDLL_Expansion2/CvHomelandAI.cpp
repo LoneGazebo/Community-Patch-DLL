@@ -2786,7 +2786,7 @@ void CvHomelandAI::PlotAirliftMoves()
 	}
 }
 
-/// Log that we couldn't find assignments for some units
+/// Log that we couldn't find assignments for some units - this is the catchall, last-resort handler that makes sure we can end the turn
 void CvHomelandAI::ReviewUnassignedUnits()
 {
 	// Loop through all remaining units
@@ -2796,6 +2796,14 @@ void CvHomelandAI::ReviewUnassignedUnits()
 		if(pUnit)
 		{
 #if defined(MOD_BALANCE_CORE)
+			//safety check. in case we have a unit with queued missions, 
+			//don't finish its moves, else it won't be able to execute the mission
+			if (pUnit->GetLengthMissionQueue()>0)
+			{
+				pUnit->SetTurnProcessed(true);
+				continue;
+			}
+
 			pUnit->setHomelandMove(AI_HOMELAND_MOVE_UNASSIGNED);
 			if(pUnit->getDomainType() == DOMAIN_LAND)
 			{

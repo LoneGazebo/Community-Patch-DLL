@@ -984,6 +984,10 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 	if(pCacheData->IsImmobile())
 		return FALSE;
 
+	//in this case we don't know the real target plot yet, need to rely on PathValid() checks later 
+	if(finder->IsApproximateMode()) 
+		return true;
+
 	//checks which need visibility (logically so we don't leak information)
 	if (pToPlot->isVisible(eTeam))
 	{
@@ -995,10 +999,6 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 
 		if(pUnit->IsDeclareWar())
 			iMoveFlags |= CvUnit::MOVEFLAG_DECLARE_WAR;
-
-		//allow other units on the target plot if we don't really want to go there exactly
-		if(finder->IsApproximateMode()) 
-			iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
 
 		//special checks for attack flag
 		if (pCacheData->IsCanAttack())
