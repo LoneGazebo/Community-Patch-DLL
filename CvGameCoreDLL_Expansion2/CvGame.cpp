@@ -146,6 +146,7 @@ CvGame::CvGame() :
 #if defined(MOD_BALANCE_CORE)
 	m_pGameCorporations = NULL;
 	m_pGameContracts = NULL;
+	m_ppaiContractUnits = NULL;
 #endif
 
 	m_pAdvisorCounsel = NULL;
@@ -1023,6 +1024,16 @@ void CvGame::uninit()
 		}
 		SAFE_DELETE_ARRAY(m_ppaaiTeamVictoryRank);
 	}
+#if defined(MOD_BALANCE_CORE_JFD)
+	if(m_ppaiContractUnits != NULL)
+	{
+		for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
+		{
+			SAFE_DELETE_ARRAY(m_ppaiContractUnits[iI]);
+		}
+		SAFE_DELETE_ARRAY(m_ppaiContractUnits);
+	}
+#endif
 
 	m_aszDestroyedCities.clear();
 	m_aszGreatPeopleBorn.clear();
@@ -1318,6 +1329,18 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 				m_ppaaiTeamVictoryRank[iI][iJ] = NO_TEAM;
 			}
 		}
+#if defined(MOD_BALANCE_CORE_JFD)
+		CvAssertMsg(m_ppaiContractUnits==NULL, "about to leak memory, CvGame::m_ppaiContractUnits");
+		m_ppaiContractUnits = FNEW(int*[GC.getNumContractInfos()], c_eCiv5GameplayDLL, 0);
+		for(iI = 0; iI < GC.getNumContractInfos(); iI++)
+		{
+			m_ppaiContractUnits[iI] = FNEW(int[GC.getNumUnitInfos()], c_eCiv5GameplayDLL, 0);
+			for(int iJ = 0; iJ <GC.getNumUnitInfos(); iJ++)
+			{
+				m_ppaiContractUnits[iI][iJ] = 0;
+			}
+		}
+#endif
 
 		CvAssertMsg(m_pSettlerSiteEvaluator==NULL, "about to leak memory, CvGame::m_pSettlerSiteEvaluator");
 		m_pSettlerSiteEvaluator = FNEW(CvSiteEvaluatorForSettler, c_eCiv5GameplayDLL, 0);
@@ -5440,16 +5463,30 @@ void CvGame::DoUpdateDiploVictory()
 				{
 					if (pPlayer->isAlive())
 					{
-#if defined(MOD_BALANCE_CORE)
-						fCityStatesToCount += 1.25f;
+#if defined(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+						if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+						{
+							fCityStatesToCount += 1.34f;
+						}
+						else
+						{
+							fCityStatesToCount += 1.0f;
+						}
 #else
 						fCityStatesToCount += 1.0f;
 #endif
 					}
 					else
 					{
-#if defined(MOD_BALANCE_CORE)
-						fCityStatesToCount += 0.75f;
+#if defined(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+						if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+						{
+							fCityStatesToCount += 0.75f;
+						}
+						else
+						{
+							fCityStatesToCount += 0.5f;
+						}
 #else
 						fCityStatesToCount += 0.5f;
 #endif
@@ -5461,16 +5498,28 @@ void CvGame::DoUpdateDiploVictory()
 			{
 				if (pPlayer->isAlive())
 				{
-#if defined(MOD_BALANCE_CORE)
-					fCivsToCount += 1.25f;
-#else
-					fCivsToCount += 1.0f;
+#if defined(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+					if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+					{
+						fCivsToCount += 1.5f;
+					}
+					else
+					{
+						fCivsToCount += 1.0f;
+					}
 #endif
 				}
 				else
 				{
-#if defined(MOD_BALANCE_CORE)
-					fCivsToCount += 0.75f;
+#if defined(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+					if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+					{
+						fCivsToCount += 0.75f;
+					}
+					else
+					{
+						fCivsToCount += 0.5f;
+					}
 #else
 					fCivsToCount += 0.5f;
 #endif
@@ -9299,8 +9348,8 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 				CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
 				if (kPlayer.isAlive())
 				{
-#if defined(MOD_BALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY)
-					if(MOD_BALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY)
+#if defined(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
+					if(MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 					{
 						if(kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
 							continue;
@@ -10475,7 +10524,9 @@ void CvGame::Read(FDataStream& kStream)
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_pabSpecialUnitValid, GC.getNumSpecialUnitInfos());
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaaiTeamVictoryRank, GC.getNUM_VICTORY_POINT_AWARDS(), GC.getNumVictoryInfos());
-
+#if defined(MOD_BALANCE_CORE_JFD)
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiContractUnits, GC.getNumUnitInfos(), GC.getNumContractInfos());
+#endif
 	kStream >> m_aszDestroyedCities;
 	kStream >> m_aszGreatPeopleBorn;
 
@@ -10711,7 +10762,9 @@ void CvGame::Write(FDataStream& kStream) const
 	CvInfosSerializationHelper::WriteHashedDataArray<SpecialUnitTypes, bool>(kStream, m_pabSpecialUnitValid, GC.getNumSpecialUnitInfos());
 
 	CvInfosSerializationHelper::WriteHashedDataArray<VictoryTypes, int>(kStream, m_ppaaiTeamVictoryRank, GC.getNUM_VICTORY_POINT_AWARDS(), GC.getNumSpecialUnitInfos());
-
+#if defined(MOD_BALANCE_CORE_JFD)
+	CvInfosSerializationHelper::WriteHashedDataArray<ContractTypes, int>(kStream, m_ppaiContractUnits,  GC.getNumUnitInfos(), GC.getNumContractInfos());
+#endif
 	kStream << m_aszDestroyedCities;
 	kStream << m_aszGreatPeopleBorn;
 
@@ -13233,7 +13286,27 @@ bool CvGame::AnyoneHasUnitClass(UnitClassTypes iUnitClassType) const
 	return false;
 }
 #endif
+#if defined(MOD_BALANCE_CORE_JFD)	
+void CvGame::SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eContract > -1 && eContract < GC.getNumContratInfos(), "Invalid eContract index.");
+	CvAssertMsg(eUnit > -1 && eUnit < GC.getNumUnitInfos(), "Invalid eUnit index.");
 
+	if(m_ppaiContractUnits[eContract][eUnit] != iValue)
+	{
+		m_ppaiContractUnits[eContract][eUnit] = iValue;
+	}
+}
+int CvGame::GetContractUnits(ContractTypes eContract, UnitTypes eUnit) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eContract > -1 && eContract < GC.getNumContratInfos(), "Invalid eContract index.");
+	CvAssertMsg(eUnit > -1 && eUnit < GC.getNumUnitInfos(), "Invalid eUnit index.");
+
+	return m_ppaiContractUnits[eContract][eUnit];
+}
+#endif
 #if defined(MOD_BALANCE_CORE)
 
 PlayerTypes CvGame::GetCorporationFounder(CorporationTypes eCorporation) const

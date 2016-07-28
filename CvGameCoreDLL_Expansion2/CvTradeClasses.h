@@ -187,6 +187,7 @@ public:
 
 	bool HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, SPath* pPathOut=NULL);
 	void UpdateTradePathCache(uint iOriginPlayer);
+	void InvalidateTradePathCache(uint iPlayer);
 
 protected:
 

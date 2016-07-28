@@ -210,7 +210,11 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsWork);
 	Method(IsGoldenAge);
 	Method(CanCoexistWithEnemyUnit);
-
+#if defined(MOD_BALANCE_CORE)
+	Method(IsContractUnit);
+	Method(IsSpecificContractUnit);
+	Method(GetContractUnit);
+#endif
 	Method(IsGreatPerson);
 
 	Method(IsFighting);
@@ -2362,6 +2366,37 @@ int CvLuaUnit::lCanCoexistWithEnemyUnit(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//bool IsContractUnit
+int CvLuaUnit::lIsContractUnit(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const bool bResult = pkUnit->isContractUnit();
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsSpecificContractUnit
+int CvLuaUnit::lIsSpecificContractUnit(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 2);
+	const bool bResult = (pkUnit->getContract() == eContract);
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaUnit::lGetContractUnit(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const ContractTypes eResult = pkUnit->getContract();
+	lua_pushinteger(L, eResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool IsGreatPerson();
 int CvLuaUnit::lIsGreatPerson(lua_State* L)
@@ -5268,35 +5303,7 @@ int CvLuaUnit::lSetSpreadsLeft(lua_State* L)
 int CvLuaUnit::lGetTourismBlastStrength(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && pkUnit && pkUnit->GetTourismBlastStrength() > 0)
-	{
-		CvPlayer &kUnitOwner = GET_PLAYER(pkUnit->getOwner());
-		PlayerTypes eOwner = pkUnit->plot()->getOwner();
 
-		if (eOwner != NO_PLAYER)
-		{
-			InfluenceLevelTypes eLevel = kUnitOwner.GetCulture()->GetInfluenceLevel(eOwner);
-			if(eLevel <= INFLUENCE_LEVEL_EXOTIC)
-			{
-				int iTourismNeededForFamiliar = GC.getCULTURE_LEVEL_FAMILIAR() + 2;
-				int iInfluenceOn = kUnitOwner.GetCulture()->GetInfluenceOn(eOwner);
-				int iLifetimeCulture = GET_PLAYER(eOwner).GetJONSCultureEverGenerated();
-				int iTourismDifference = 0;
-
-				//Get % needed for Familiarity
-				if (iTourismNeededForFamiliar > 0)
-				{
-					iTourismDifference = (iLifetimeCulture * iTourismNeededForFamiliar) / 100;
-				}
-				//Subtract existing %
-				iTourismDifference -= iInfluenceOn;
-				lua_pushinteger(L, iTourismDifference);
-				return 1;
-			}
-		}
-	}
-#endif
 	int iStrength = pkUnit->GetTourismBlastStrength();
 
 	lua_pushinteger(L, iStrength);

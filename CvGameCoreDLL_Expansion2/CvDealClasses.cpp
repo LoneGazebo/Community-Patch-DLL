@@ -4201,19 +4201,27 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									iEra = 1;
 								}
 								int iHandicap = 0;
+								int iYieldHandicap = 0;
 								CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
 								if(pHandicapInfo)
 								{
 									iHandicap = pHandicapInfo->getAIDifficultyBonus();
-									iHandicap *= iEra;
+									iYieldHandicap = (iHandicap * iEra * 10);
 								}
 								if(iHandicap > 0)
-								{	
-									GET_PLAYER(eAcceptedToPlayer).GetTreasury()->ChangeGold(iHandicap);
-									GET_PLAYER(eAcceptedToPlayer).ChangeGoldenAgeProgressMeter(iHandicap);
-									GET_PLAYER(eAcceptedToPlayer).changeJONSCulture(iHandicap / 3);
+								{				
+									GET_PLAYER(eAcceptedToPlayer).GetTreasury()->ChangeGold(iYieldHandicap);
+									GET_PLAYER(eAcceptedToPlayer).ChangeGoldenAgeProgressMeter(iYieldHandicap);
+									GET_PLAYER(eAcceptedToPlayer).changeJONSCulture(iYieldHandicap);
+
+									if(GET_PLAYER(eAcceptedToPlayer).getCapitalCity() != NULL)
+									{
+										GET_PLAYER(eAcceptedToPlayer).getCapitalCity()->ChangeJONSCultureStored(iYieldHandicap);
+										GET_PLAYER(eAcceptedToPlayer).getCapitalCity()->changeFood(iHandicap);
+									}
 				
-									int iBeakersBonus = GET_PLAYER(eAcceptedToPlayer).GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 15));
+									int iBeakersBonus = GET_PLAYER(eAcceptedToPlayer).GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), iHandicap);
+
 									TechTypes eCurrentTech = GET_PLAYER(eAcceptedToPlayer).GetPlayerTechs()->GetCurrentResearch();
 									if(eCurrentTech == NO_TECH)
 									{
@@ -4221,22 +4229,13 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									}
 									else
 									{
-										GET_TEAM(GET_PLAYER(eAcceptedToPlayer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, GET_PLAYER(eAcceptedToPlayer).GetID());
+										GET_TEAM(GET_PLAYER(eAcceptedToPlayer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, eAcceptedToPlayer);
 									}
-									int iLoop;
-									CvCity* pLoopCity;
-									for(pLoopCity = GET_PLAYER(eAcceptedToPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eAcceptedToPlayer).nextCity(&iLoop))
-									{
-										if(pLoopCity != NULL)
-										{
-											pLoopCity->changeFood(iHandicap / 4);
-											pLoopCity->ChangeJONSCultureStored(iHandicap / 2);
-										}
-									}
+
 									if((GC.getLogging() && GC.getAILogging()))
 									{
 										CvString strLogString;
-										strLogString.Format("CBP AI DIFFICULTY BONUS FROM WAR VICTORY: Received %d Handicap Bonus", iHandicap);
+										strLogString.Format("CBP AI DIFFICULTY BONUS FROM WAR VICTORY: Received %d Handicap Bonus (%d in Yields).", iHandicap, iYieldHandicap);
 										GET_PLAYER(eAcceptedToPlayer).GetHomelandAI()->LogHomelandMessage(strLogString);
 									}
 								}
@@ -4331,19 +4330,27 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									iEra = 1;
 								}
 								int iHandicap = 0;
+								int iYieldHandicap = 0;
 								CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
 								if(pHandicapInfo)
 								{
 									iHandicap = pHandicapInfo->getAIDifficultyBonus();
-									iHandicap *= iEra;
+									iYieldHandicap = (iHandicap * iEra * 10);
 								}
 								if(iHandicap > 0)
-								{	
-									GET_PLAYER(eAcceptedFromPlayer).GetTreasury()->ChangeGold(iHandicap);
-									GET_PLAYER(eAcceptedFromPlayer).ChangeGoldenAgeProgressMeter(iHandicap);
-									GET_PLAYER(eAcceptedFromPlayer).changeJONSCulture(iHandicap / 3);
+								{				
+									GET_PLAYER(eAcceptedFromPlayer).GetTreasury()->ChangeGold(iYieldHandicap);
+									GET_PLAYER(eAcceptedFromPlayer).ChangeGoldenAgeProgressMeter(iYieldHandicap);
+									GET_PLAYER(eAcceptedFromPlayer).changeJONSCulture(iYieldHandicap);
+
+									if(GET_PLAYER(eAcceptedFromPlayer).getCapitalCity() != NULL)
+									{
+										GET_PLAYER(eAcceptedFromPlayer).getCapitalCity()->ChangeJONSCultureStored(iYieldHandicap);
+										GET_PLAYER(eAcceptedFromPlayer).getCapitalCity()->changeFood(iHandicap);
+									}
 				
-									int iBeakersBonus = GET_PLAYER(eAcceptedFromPlayer).GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 15));
+									int iBeakersBonus = GET_PLAYER(eAcceptedFromPlayer).GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), iHandicap);
+
 									TechTypes eCurrentTech = GET_PLAYER(eAcceptedFromPlayer).GetPlayerTechs()->GetCurrentResearch();
 									if(eCurrentTech == NO_TECH)
 									{
@@ -4351,22 +4358,13 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 									}
 									else
 									{
-										GET_TEAM(GET_PLAYER(eAcceptedFromPlayer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, GET_PLAYER(eAcceptedFromPlayer).GetID());
+										GET_TEAM(GET_PLAYER(eAcceptedFromPlayer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, eAcceptedFromPlayer);
 									}
-									int iLoop;
-									CvCity* pLoopCity;
-									for(pLoopCity = GET_PLAYER(eAcceptedFromPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eAcceptedFromPlayer).nextCity(&iLoop))
-									{
-										if(pLoopCity != NULL)
-										{
-											pLoopCity->changeFood(iHandicap / 4);
-											pLoopCity->ChangeJONSCultureStored(iHandicap / 2);
-										}
-									}
+
 									if((GC.getLogging() && GC.getAILogging()))
 									{
 										CvString strLogString;
-										strLogString.Format("CBP AI DIFFICULTY BONUS FROM WAR VICTORY: Received %d Handicap Bonus", iHandicap);
+										strLogString.Format("CBP AI DIFFICULTY BONUS FROM WAR VICTORY: Received %d Handicap Bonus (%d in Yields).", iHandicap, iYieldHandicap);
 										GET_PLAYER(eAcceptedFromPlayer).GetHomelandAI()->LogHomelandMessage(strLogString);
 									}
 								}

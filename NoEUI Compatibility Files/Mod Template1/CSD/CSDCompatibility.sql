@@ -7,7 +7,7 @@ UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_ENVOY';
 UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_DIPLOMAT';
 UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_AMBASSADOR';
 
-UPDATE Units SET GlobalFaithPurchaseCooldown =		15  WHERE Type = 'UNIT_GREAT_DIPLOMAT'; 
+UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_GREAT_DIPLOMAT'; 
 
 UPDATE Buildings SET PrereqTech = 'TECH_EDUCATION' WHERE Type = 'BUILDING_CHANCERY';
 UPDATE Buildings SET PrereqTech = 'TECH_REPLACEABLE_PARTS' WHERE Type = 'BUILDING_WIRE_SERVICE';
@@ -128,10 +128,10 @@ UPDATE Buildings SET RAToVotes = '0' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTU
 
 -- Building Costs
 
-UPDATE Buildings SET Cost = '150' WHERE Type = 'BUILDING_COURT_SCRIBE';
-UPDATE Buildings SET Cost = '275' WHERE Type = 'BUILDING_CHANCERY';
+UPDATE Buildings SET Cost = '125' WHERE Type = 'BUILDING_COURT_SCRIBE';
+UPDATE Buildings SET Cost = '250' WHERE Type = 'BUILDING_CHANCERY';
 UPDATE Buildings SET GoldMaintenance = '2' WHERE Type = 'BUILDING_CHANCERY';
-UPDATE Buildings SET Cost = '800' WHERE Type = 'BUILDING_WIRE_SERVICE';
+UPDATE Buildings SET Cost = '700' WHERE Type = 'BUILDING_WIRE_SERVICE';
 UPDATE Buildings SET GoldMaintenance = '4' WHERE Type = 'BUILDING_WIRE_SERVICE';
 
 -- Building Requirements

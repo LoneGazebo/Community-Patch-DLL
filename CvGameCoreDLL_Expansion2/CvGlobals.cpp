@@ -2560,7 +2560,7 @@ void CvGlobals::init()
 
 	SetPathFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
 	SetInterfacePathFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
-	SetStepFinder(FNEW(CvPathFinder, c_eCiv5GameplayDLL, 0));
+	SetStepFinder(FNEW(CvStepFinder, c_eCiv5GameplayDLL, 0));
 
 #if defined(MOD_BALANCE_CORE)
 	GetPathFinder().SetName("generic pf");
@@ -2594,6 +2594,10 @@ void CvGlobals::uninit()
 	SAFE_DELETE(m_pTraits);
 	SAFE_DELETE(m_pReligions);
 	SAFE_DELETE(m_pBeliefs);
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE(m_pCorporations);
+	SAFE_DELETE(m_pContracts);
+#endif
 	SAFE_DELETE(m_pLeagueSpecialSessions);
 	SAFE_DELETE(m_pLeagueNames);
 	SAFE_DELETE(m_pLeagueProjects);
@@ -2603,11 +2607,6 @@ void CvGlobals::uninit()
 #if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
 	SAFE_DELETE(m_pAchievements);
 #endif
-#if defined(MOD_BALANCE_CORE)
-	SAFE_DELETE(m_pCorporations);
-	SAFE_DELETE(m_pContracts);
-#endif
-
 	SAFE_DELETE(m_pImprovements); // player uses the improvement count in deallocating.
 	SAFE_DELETE(m_pTechs);        // improvements uses tech to deallocate. arrghh!
 
@@ -2702,7 +2701,7 @@ CvTwoLayerPathFinder& CvGlobals::GetInterfacePathFinder()
 	return *m_interfacePathFinder;
 }
 
-CvPathFinder& CvGlobals::GetStepFinder()
+CvStepFinder& CvGlobals::GetStepFinder()
 {
 	return *m_stepFinder;
 }
@@ -4143,19 +4142,19 @@ CvCorporationXMLEntries* CvGlobals::GetGameCorporations() const
 
 int CvGlobals::getNumContractInfos()
 {
-	return (int)m_pContracts->GetContractEntries().size();
+	return (int)m_paContractInfo.size();
 }
 
 std::vector<CvContractEntry*>& CvGlobals::getContractInfo()
 {
-	return m_pContracts->GetContractEntries();
+	return m_paContractInfo;
 }
 
 CvContractEntry* CvGlobals::getContractInfo(ContractTypes eContract)
 {
 	CvAssert(eContract > -1);
 	CvAssert(eContract < GC.getNumContractInfos());
-	return m_pContracts->GetContractEntries()[eContract];
+	return m_paContractInfo[eContract];
 }
 
 CvContractXMLEntries* CvGlobals::GetGameContracts() const
@@ -6929,6 +6928,7 @@ void CvGlobals::deleteInfoArrays()
 	deleteInfoArray(m_paEventChoiceInfo);
 	deleteInfoArray(m_paCityEventInfo);
 	deleteInfoArray(m_paCityEventChoiceInfo);
+	deleteInfoArray(m_paContractInfo);
 #endif
 	deleteInfoArray(m_paHandicapInfo);
 	deleteInfoArray(m_paGameSpeedInfo);
@@ -7121,7 +7121,7 @@ void CvGlobals::SetInterfacePathFinder(CvTwoLayerPathFinder* pVal)
 {
 	m_interfacePathFinder = pVal;
 }
-void CvGlobals::SetStepFinder(CvPathFinder* pVal)
+void CvGlobals::SetStepFinder(CvStepFinder* pVal)
 {
 	m_stepFinder = pVal;
 }

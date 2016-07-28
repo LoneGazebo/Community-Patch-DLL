@@ -381,7 +381,7 @@ int CustomMods::getOption(string sOption, int defValue) {
 		MOD_OPT_CACHE(BALANCE_CORE_JFD);
 		MOD_OPT_CACHE(BALANCE_CORE_MILITARY_RESISTANCE);
 		MOD_OPT_CACHE(BALANCE_CORE_PANTHEON_RESET_FOUND);
-		MOD_OPT_CACHE(BALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY);
+		MOD_OPT_CACHE(BALANCE_CORE_VICTORY_GAME_CHANGES);
 		MOD_OPT_CACHE(BALANCE_CORE_EVENTS);
 		MOD_OPT_CACHE(NO_RANDOM_TEXT_CIVS);
 
@@ -572,7 +572,7 @@ int CustomMods::getCivOption(const char* szCiv, const char* szName, int defValue
 
 void CheckSentinel(uint value)
 {
-#ifdef STACKWALKER
+#if defined(STACKWALKER) && defined(MOD_CORE_DEBUGGING)
 	if (MOD_CORE_DEBUGGING)
 	{
 		FILogFile* pLog=LOGFILEMGR.GetLog( "Deserialization.txt", FILogFile::kDontTimeStamp );

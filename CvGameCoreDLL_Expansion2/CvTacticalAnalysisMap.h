@@ -583,12 +583,12 @@ public:
 
 	CvTacticalAnalysisCell* GetCell(int iPlotIndex)
 	{
-		return &m_pCells[iPlotIndex];
-	};
+		return (iPlotIndex>=0 && iPlotIndex<(int)m_pCells.size()) ? &m_pCells[iPlotIndex] : NULL;
+	}
 	int GetDominancePercentage() const
 	{
 		return m_iDominancePercentage;
-	};
+	}
 	bool IsInEnemyDominatedZone(CvPlot* pPlot);
 
 	// Routines to update the map

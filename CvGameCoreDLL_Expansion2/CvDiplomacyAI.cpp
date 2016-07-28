@@ -3816,11 +3816,30 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 10;
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 10;
 	}
+
+	//Special check for culture
 	if(IsCloseToCultureVictory())
 	{
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 10;
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * -10;
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * -10;
+		if(ePlayer == GetPlayer()->GetCulture()->GetCivLowestInfluence(false))
+		{
+			if(GetPlayerMilitaryStrengthComparedToUs(ePlayer) < STRENGTH_AVERAGE)
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 10;
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 10;
+			}
+			else
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 10;
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * -10;
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * -10;
+			}
+		}
+		else
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 10;
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * -10;
+			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * -10;
+		}
 	}
 
 	if(GetPlayer()->IsCramped())
@@ -8531,7 +8550,7 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 		
 		CvCity* pLoopCity;
 		int iOurDanger = 0;
-		int iThierDanger = 0;
+		int iTheirDanger = 0;
 		int iLoop;
 		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
@@ -8555,16 +8574,16 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 
 			if(pLoopCity->isUnderSiege())
 			{
-				iThierDanger++;
+				iTheirDanger++;
 			}
 			if(pLoopCity->isInDangerOfFalling())
 			{
-				iThierDanger++;
+				iTheirDanger++;
 			}
 		}
 		
 		iWantPeace += iOurDanger;
-		iWantPeace += (iThierDanger * -1);
+		iWantPeace += (iTheirDanger * -1);
 
 		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1)
 		{
@@ -10067,52 +10086,20 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 						{
 							if( GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(GET_PLAYER(eLoopPlayer).getTeam()))
 							{
-								if(GET_PLAYER(eLoopPlayer).isHuman())
+								int iWarScore = GetWarScore(eLoopPlayer);	
+								if(iWarScore < 0)
 								{
-									bool bWillConsiderPeace = IsWillingToMakePeaceWithHuman(eLoopPlayer);
-									if(bWillConsiderPeace)
+									if(GetPlayer()->GetCulture()->GetWarWeariness() > 10 || GetPlayer()->IsEmpireVeryUnhappy() || GetDiploBalance() > 7)
 									{
-										if(GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireUnhappy())
-										{
-											eWarGoal = WAR_GOAL_PEACE;
-										}
-										else if(GetDiploBalance() > 7)
-										{
-											eWarGoal = WAR_GOAL_PEACE;
-										}
-										else
-										{
-											//If we aren't winning at this point, let's end the fight.
-											int iWarScore = GetWarScore(eLoopPlayer);	
-											if(iWarScore < 0)
-											{
-												eWarGoal = WAR_GOAL_PEACE;
-											}
-										}
+										eWarGoal = WAR_GOAL_PEACE;
 									}
-								}
-								else
-								{
-									bool bWillConsiderPeace = IsWantsPeaceWithPlayer(eLoopPlayer);
-									if(bWillConsiderPeace)
+									else if(GetMeanness() <= 7)
 									{
-										if(GetPlayer()->GetCulture()->GetWarWeariness() > 0 && GetPlayer()->IsEmpireUnhappy())
-										{
-											eWarGoal = WAR_GOAL_PEACE;
-										}
-										else if(GetDiploBalance() > 8)
-										{
-											eWarGoal = WAR_GOAL_PEACE;
-										}
-										else
-										{
-											//If we aren't winning at this point, let's end the fight.
-											int iWarScore = GetWarScore(eLoopPlayer);	
-											if(iWarScore < 0)
-											{
-												eWarGoal = WAR_GOAL_PEACE;
-											}
-										}
+										eWarGoal = WAR_GOAL_PEACE;
+									}
+									else
+									{
+										eWarGoal = WAR_GOAL_DAMAGE;
 									}
 								}
 							}
@@ -16093,11 +16080,7 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer)
 	// Want final value to be about 1/20th that (Jon wanted max Opinion hit to be 100)
 	// Average WarmongerHate is 5, so divide by 100 to get to 1/20th.
 	iReturnValue *= GetWarmongerHate();
-#if defined(MOD_BALANCE_CORE)
-	iReturnValue /= 125;
-#else
 	iReturnValue /= 100;
-#endif
 	return iReturnValue;
 }
 
@@ -21697,6 +21680,21 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 					return;
 				}
 			}
+#if defined(MOD_BALANCE_CORE)
+			else
+			{
+				bool bDealGood;
+				bool bDontChange;
+				bool bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithHuman(pDeal, ePlayer, true, true, bDealGood, bDontChange);
+				if(!bAbleToEqualize)
+				{
+					pDeal->ClearItems();
+					pTargetDeal->ClearItems();
+					ClearDealToRenew();
+					return;
+				}
+			}
+#endif
 			eStatement = DIPLO_STATEMENT_RENEW_DEAL;
 		}
 		else

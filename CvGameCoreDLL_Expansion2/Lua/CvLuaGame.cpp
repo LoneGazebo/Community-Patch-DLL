@@ -501,7 +501,8 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetInactiveContract);
 	Method(IsContractActive);
 	Method(IsContractAvailable);
-	Method(GetContractUnit);
+	Method(SetContractUnits);
+	Method(GetContractUnits);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -3796,7 +3797,7 @@ int CvLuaGame::lGetNumUnavailableContracts(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsContractActive(lua_State* L)
 {
-	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 1);
+	const ContractTypes eContract = (ContractTypes)lua_tointeger(L, 1);
 	const bool bResult = GC.getGame().GetGameContracts()->IsContractActive(eContract);
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -3804,7 +3805,7 @@ int CvLuaGame::lIsContractActive(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lIsContractAvailable(lua_State* L)
 {
-	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 1);
+	const ContractTypes eContract = (ContractTypes)lua_tointeger(L, 1);
 	const bool bResult = GC.getGame().GetGameContracts()->IsContractAvailable(eContract);
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -3812,7 +3813,7 @@ int CvLuaGame::lIsContractAvailable(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetActiveContract(lua_State* L)
 {
-	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 1);
+	const ContractTypes eContract = (ContractTypes)lua_tointeger(L, 1);
 
 	const CvContract* pContract = GC.getGame().GetGameContracts()->GetActiveContract(eContract);
 
@@ -3823,20 +3824,25 @@ int CvLuaGame::lGetActiveContract(lua_State* L)
 int CvLuaGame::lGetInactiveContract(lua_State* L)
 {
 	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 1);
-
 	const CvContract* pContract = GC.getGame().GetGameContracts()->GetInactiveContract(eContract);
 
 	lua_pushinteger(L, (int)pContract->m_eContract);
 	return 1;
 }
-//------------------------------------------------------------------------------
-int CvLuaGame::lGetContractUnit(lua_State* L)
+int CvLuaGame::lSetContractUnits(lua_State* L)
 {
 	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 1);
-
-	UnitTypes eUnit = GC.getGame().GetGameContracts()->GetContractUnit(eContract);
-
-	lua_pushinteger(L, (int)eUnit);
+	UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 2);
+	int iValue = lua_tointeger(L, 3);
+	GC.getGame().SetContractUnits(eContract, eUnit, iValue);
+	return 0;
+}
+int CvLuaGame::lGetContractUnits(lua_State* L)
+{
+	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 1);
+	UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 2);
+	int iResult = GC.getGame().GetContractUnits(eContract, eUnit);
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 #endif

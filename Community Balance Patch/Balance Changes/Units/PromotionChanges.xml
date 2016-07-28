@@ -872,9 +872,9 @@
 			<Description>TXT_KEY_PROMOTION_SCOUTING_2</Description>
 			<Help>TXT_KEY_PROMOTION_SCOUTING_2_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereq>PROMOTION_SCOUTING_1</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_WOODLAND_TRAILBLAZER_II</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_SURVIVALISM_2</PromotionPrereqOr2>
+			<PromotionPrereqOr1>PROMOTION_SCOUTING_1</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_WOODLAND_TRAILBLAZER_II</PromotionPrereqOr2>
+			<PromotionPrereqOr3>PROMOTION_SURVIVALISM_2</PromotionPrereqOr3>
 			<OrderPriority>1</OrderPriority>
 			<VisibilityChange>1</VisibilityChange>
 			<PortraitIndex>38</PortraitIndex>
@@ -1091,7 +1091,7 @@
 			<Description>TXT_KEY_PROMOTION_WOLFPACK_2</Description>
 			<Help>TXT_KEY_PROMOTION_WOLFPACK_2_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereq>PROMOTION_WOLFPACK_1</PromotionPrereq>
+			<PromotionPrereqOr1>PROMOTION_WOLFPACK_1</PromotionPrereqOr1>
 			<PortraitIndex>19</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
@@ -1103,7 +1103,7 @@
 			<Description>TXT_KEY_PROMOTION_WOLFPACK_3</Description>
 			<Help>TXT_KEY_PROMOTION_WOLFPACK_3_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereq>PROMOTION_WOLFPACK_2</PromotionPrereq>
+			<PromotionPrereqOr1>PROMOTION_WOLFPACK_2</PromotionPrereqOr1>
 			<PortraitIndex>20</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
@@ -1126,7 +1126,7 @@
 			<Description>TXT_KEY_PROMOTION_FLIGHT_DECK_2</Description>
 			<Help>TXT_KEY_PROMOTION_FLIGHT_DECK_2_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereq>PROMOTION_FLIGHT_DECK_1</PromotionPrereq>
+			<PromotionPrereqOr1>PROMOTION_FLIGHT_DECK_1</PromotionPrereqOr1>
 			<PortraitIndex>16</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
@@ -1138,7 +1138,7 @@
 			<Description>TXT_KEY_PROMOTION_FLIGHT_DECK_3</Description>
 			<Help>TXT_KEY_PROMOTION_FLIGHT_DECK_3_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereq>PROMOTION_FLIGHT_DECK_2</PromotionPrereq>
+			<PromotionPrereqOr1>PROMOTION_FLIGHT_DECK_2</PromotionPrereqOr1>
 			<PortraitIndex>17</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
@@ -1603,9 +1603,9 @@
 			<Description>TXT_KEY_PROMOTION_ANTI_AIR_II</Description>
 			<Help>TXT_KEY_PROMOTION_ANTI_AIR_II_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereq>PROMOTION_ANTI_AIR</PromotionPrereq>
-			<PromotionPrereqOr1>PROMOTION_DRILL_2</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_COVER_1</PromotionPrereqOr2>
+			<PromotionPrereqOr1>PROMOTION_ANTI_AIR</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_DRILL_2</PromotionPrereqOr2>
+			<PromotionPrereqOr3>PROMOTION_COVER_1</PromotionPrereqOr3>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>

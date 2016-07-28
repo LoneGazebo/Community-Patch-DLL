@@ -56,6 +56,13 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
+	<!-- FEATURE: Allows you to define a yield gained by a feature when you increase your era. -->
+	<Table name="Feature_EraYieldChanges">
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
 	<!-- PANTHEON: Allows you to define any belief to grant 1 yield per X pop, where X is the number below. (FAITH ONLY)-->
 	<Table name="Belief_YieldPerPop">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
@@ -468,6 +475,12 @@
 
 	<!-- TRAIT: Allows you to define a yield that is gained every time you buy a tile -->
 	<Table name="Trait_YieldFromTilePurchase">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- TRAIT: Allows you to define a yield that is gained every time you acquire a tile -->
+	<Table name="Trait_YieldFromTileEarn">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>

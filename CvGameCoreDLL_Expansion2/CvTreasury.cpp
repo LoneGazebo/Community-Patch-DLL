@@ -1154,15 +1154,10 @@ void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, CvStrin
 	strLog += str;
 }
 #if defined(MOD_BALANCE_CORE)
-int CvTreasury::GetContractGoldMaintenance() const
+int CvTreasury::GetContractGoldMaintenance()
 {
-	CvContract* pContract = m_pPlayer->GetContracts()->GetContract();
-	if(pContract)
-	{
-		int iMaintenance = pContract->m_iContractMaintenance;
-		return iMaintenance;
-	}
-	return 0;
+	int iMaintenance = m_pPlayer->GetContracts()->GetContractGoldMaintenance();
+	return iMaintenance;
 }
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

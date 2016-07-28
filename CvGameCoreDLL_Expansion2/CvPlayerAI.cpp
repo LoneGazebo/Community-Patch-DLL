@@ -284,6 +284,9 @@ void CvPlayerAI::AI_unitUpdate()
 
 	if(isHuman())
 	{
+		//useful for debugging
+		GetTacticalAI()->GetTacticalAnalysisMap()->Refresh();
+
 		CvUnit::dispatchingNetMessage(true);
 		// The homeland AI goes first.
 		GetHomelandAI()->FindAutomatedUnits();
@@ -1387,25 +1390,23 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 
 	// If closing in on a Culture win, go for the Concert Tour
 	if (GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetNumCivsInfluentialOn() > (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2))
-	{		
+	{
 		if(pTarget)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pTarget->getOwner() != NO_PLAYER && GET_PLAYER(pTarget->getOwner()).isMajorCiv())
+			{
+				if(GetCulture()->GetTurnsToInfluential(pTarget->getOwner()) <= 100)
+				{
+#endif
 			return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+#if defined(MOD_BALANCE_CORE)
+				}
+			}
+#endif
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-	{
-		if(IsEmpireSuperUnhappy())
-		{
-			if(pTarget)
-			{
-				return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
-			}
-		}
-	}
-#endif
 	// Create Great Work if there is a slot
 	GreatWorkType eGreatWork = pGreatMusician->GetGreatWork();
 	if (GetEconomicAI()->GetBestGreatWorkCity(pGreatMusician->plot(), eGreatWork))
@@ -1987,7 +1988,7 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(UnitHandle pUnit)
 			CvCity* pCity = vTargets.GetElement(i);
 			if(pCity != NULL)
 			{
-				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
+				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
 					return pCity;
 			}
 		}
@@ -2035,7 +2036,7 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(UnitHandle pUnit)
 			CvCity* pCity = vTargets.GetElement(i);
 			if(pCity != NULL)
 			{
-				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROXIMATE_TARGET))
+				if (pUnit->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
 					return pCity;
 			}
 		}
@@ -2604,7 +2605,7 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician, bool bOnlySafe
 
 	CvPlayer &kTargetPlayer = GET_PLAYER(eTargetPlayer);
 
-	int iMoveFlags = CvUnit::MOVEFLAG_APPROXIMATE_TARGET;
+	int iMoveFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 	if (!bOnlySafePaths)
 		iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_DANGER;
 

@@ -126,7 +126,7 @@ public:
 	void SetExpensePerTurnFromVassalTaxesTimes100(int iValue);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	int GetContractGoldMaintenance() const;
+	int GetContractGoldMaintenance();
 #endif
 
 protected:

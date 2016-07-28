@@ -1717,6 +1717,13 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 	else
 		iResearchCost = (iResearchCost / 100);
 
+#if defined(MOD_BALANCE_CORE)
+	if(iResearchCost >= MAX_INT)
+	{
+		iResearchCost = (MAX_INT - 1);
+	}
+#endif
+
 	return iResearchCost;
 }
 

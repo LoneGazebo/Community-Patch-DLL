@@ -28,8 +28,7 @@ CvContractEntry::CvContractEntry(void):
 	m_iPromotionType(NO_PROMOTION),
 	m_iTurns(-1),
 	m_piYieldCost(NULL),
-	m_piFlavor(NULL),
-	m_iContractUnit(NO_UNIT)
+	m_piFlavor(NULL)
 {
 }
 
@@ -111,10 +110,6 @@ PromotionTypes CvContractEntry::GetPromotionType() const
 {
 	return (PromotionTypes)m_iPromotionType;
 }
-UnitTypes CvContractEntry::GetContractUnit() const
-{
-	return (UnitTypes)m_iContractUnit;
-}
 int CvContractEntry::GetTurns() const
 {
 	return m_iTurns;
@@ -167,9 +162,6 @@ bool CvContractEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	szTextVal = kResults.GetText("PromotionType");
 	m_iPromotionType = GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("ContractUnit");
-	m_iContractUnit = GC.getInfoTypeForString(szTextVal, true);
 	
 	szTextVal = kResults.GetText("Category");
 	m_strCategory = szTextVal;
@@ -236,17 +228,15 @@ CvContractEntry* CvContractXMLEntries::GetEntry(int index)
 CvContract::CvContract()
 	: m_eContract(NO_CONTRACT)
 	, m_eContractHolder(NO_PLAYER)
-	, m_eContractUnit(NO_UNIT)
 	, m_iContractTurns(-1)
 	, m_iContractTurnStart(-1)
 	, m_iContractMaintenance(-1)
 {
 }
 
-CvContract::CvContract(ContractTypes eContract, PlayerTypes eContractHolder, UnitTypes eContractUnit, int iTurns, int iMaintenance)
+CvContract::CvContract(ContractTypes eContract, PlayerTypes eContractHolder, int iTurns, int iMaintenance)
 	: m_eContract(eContract)
 	, m_eContractHolder(eContractHolder)
-	, m_eContractUnit(eContractUnit)
 	, m_iContractTurns(iTurns)
 	, m_iContractMaintenance(iMaintenance)
 {
@@ -262,7 +252,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvContract& writeTo)
 
 	loadFrom >> writeTo.m_eContract;
 	loadFrom >> writeTo.m_eContractHolder;
-	loadFrom >> writeTo.m_eContractUnit;
 	loadFrom >> writeTo.m_iContractTurns;
 	loadFrom >> writeTo.m_iContractMaintenance;
 
@@ -280,7 +269,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvContract& readFrom)
 
 	saveTo << readFrom.m_eContract;
 	saveTo << readFrom.m_eContractHolder;
-	saveTo << readFrom.m_eContractUnit;
 	saveTo << readFrom.m_iContractTurns;
 	saveTo << readFrom.m_iContractMaintenance;
 
@@ -307,14 +295,13 @@ FDataStream& operator>>(FDataStream& loadFrom, ContractTypes& writeTo)
 // CvPlayerContracts
 //=====================================
 /// Constructor
-CvPlayerContracts::CvPlayerContracts(void):
-	m_pPlayer(NULL),
-	m_eActiveContract(NO_CONTRACT)
+CvPlayerContracts::CvPlayerContracts():
+	m_pPlayer(NULL)
 {
 }
 
 	/// Destructor
-CvPlayerContracts::~CvPlayerContracts(void)
+CvPlayerContracts::~CvPlayerContracts()
 {
 	Uninit();
 }
@@ -323,30 +310,40 @@ CvPlayerContracts::~CvPlayerContracts(void)
 void CvPlayerContracts::Init(CvPlayer* pPlayer)
 {
 	m_pPlayer = pPlayer;
-
 	Reset();
 }
 
 /// Cleanup
 void CvPlayerContracts::Uninit()
 {
-	m_eActiveContract = NO_CONTRACT;
 }
 
 /// Reset
 void CvPlayerContracts::Reset()
 {
+	VALIDATE_OBJECT
+	Uninit();
+
+	m_abActiveContract.clear();
+	m_abActiveContract.resize(GC.getNumContractInfos());
+	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
+	{
+		m_abActiveContract[iI] = false;
+	}
 }
 
 /// Serialization read
 void CvPlayerContracts::Read(FDataStream& kStream)
 {
+	VALIDATE_OBJECT
+	Reset();
+
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
 
-	MOD_SERIALIZE_READ(79, kStream, m_eActiveContract, NO_CONTRACT);
+	kStream >> m_abActiveContract;
 }
 
 /// Serialization write
@@ -357,44 +354,95 @@ void CvPlayerContracts::Write(FDataStream& kStream)
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
-	MOD_SERIALIZE_WRITE(kStream, m_eActiveContract);
+	kStream << m_abActiveContract;
 }
 
-CvContract * CvPlayerContracts::GetContract() const
+/// Serialization read
+FDataStream& operator>>(FDataStream& loadFrom, CvPlayerContracts& writeTo)
 {
-	return GC.getGame().GetGameContracts()->GetActiveContract(m_eActiveContract);
+	uint uiVersion;
+
+	loadFrom >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(loadFrom);
+
+	int iEntriesToRead;
+	CvContract tempItem;
+
+	writeTo.m_ActivePlayerContracts.clear();
+	loadFrom >> iEntriesToRead;
+	for(int iI = 0; iI < iEntriesToRead; iI++)
+	{
+		loadFrom >> tempItem;
+		writeTo.m_ActivePlayerContracts.push_back(tempItem);
+	}
+
+	return loadFrom;
+}
+
+/// Serialization write
+FDataStream& operator<<(FDataStream& saveTo, const CvPlayerContracts& readFrom)
+{
+	uint uiVersion = 0;
+	saveTo << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(saveTo);
+
+	ContractList::const_iterator it;
+	saveTo << readFrom.m_ActivePlayerContracts.size();
+	for(it = readFrom.m_ActivePlayerContracts.begin(); it != readFrom.m_ActivePlayerContracts.end(); it++)
+	{
+		saveTo << *it;
+	}
+
+	return saveTo;
+}
+
+CvContract* CvPlayerContracts::GetContract(ContractTypes eContract)
+{
+	if(eContract == NO_CONTRACT)
+		return NULL;
+
+	ContractList::iterator it;
+	for(it = m_ActivePlayerContracts.begin(); it != m_ActivePlayerContracts.end(); it++)
+	{
+		if(it->m_eContract == eContract)
+		{
+			CvContractEntry* pContract = GC.getContractInfo(eContract);
+			if(pContract)
+			{
+				return GC.getGame().GetGameContracts()->GetActiveContract(eContract);
+			}
+		}
+	}
+	return NULL;
 }
 bool CvPlayerContracts::PlayerHasContract(ContractTypes eContract) const
 {
-	return (m_eActiveContract == eContract);
+	VALIDATE_OBJECT
+	CvAssertMsg(eContract >= 0, "eContract expected to be >= 0");
+	CvAssertMsg(eContract < GC.GetNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
+	return m_abActiveContract[eContract];
 }
 bool CvPlayerContracts::PlayerHasAnyContract() const
 {
-	return (m_eActiveContract != NO_CONTRACT);
+	return (m_ActivePlayerContracts.size() > 0);
 }
-void CvPlayerContracts::SetActiveContract(ContractTypes eContract)
+void CvPlayerContracts::SetActiveContract(ContractTypes eContract, bool bValue)
 {
-	m_eActiveContract = eContract;
-}
-ContractTypes CvPlayerContracts::GetActiveContract() const
-{
-	return m_eActiveContract;
+	VALIDATE_OBJECT
+	CvAssertMsg(eContract >= 0, "eContract expected to be >= 0");
+	CvAssertMsg(eContract < GC.GetNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
+	if(m_abActiveContract[eContract] != bValue)
+	{
+		m_abActiveContract[eContract] = bValue;
+	}
 }
 
 //Found a contract - this is the core starter for contracts.
 void CvPlayerContracts::StartContract(ContractTypes eContract)
 {
-	if(PlayerHasAnyContract())
-		return;
-
 	CvContractEntry* pContract = GC.getContractInfo((ContractTypes)eContract);
 	if(pContract)
 	{
-		UnitTypes eUnit = GC.getGame().GetGameContracts()->GetContractUnit(eContract);
-		if(eUnit == NO_UNIT)
-		{
-			eUnit = pContract->GetContractUnit();
-		}
 		int iTurns = pContract->GetTurns();
 		int iValue = 0;
 		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_GetContractDuration, m_pPlayer->GetID(), eContract) == GAMEEVENTRETURN_VALUE) 
@@ -413,41 +461,199 @@ void CvPlayerContracts::StartContract(ContractTypes eContract)
 				iMaintenance = iValue;
 			}
 		}
-		CvContract kContract = CvContract(eContract, m_pPlayer->GetID(), eUnit, iTurns, iMaintenance);
+		CvContract kContract = CvContract(eContract, m_pPlayer->GetID(), iTurns, iMaintenance);
 	
-		// Set the player's contract
-		SetActiveContract(eContract);
+		// Set the contract as active.
+		SetActiveContract(eContract, true);
+
+		InitContractUnits(eContract);
+
+		m_ActivePlayerContracts.push_back(kContract);
 	
 		//Add to active list.
 		GC.getGame().GetGameContracts()->StartContract(kContract);
 
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_ContractStarted, m_pPlayer->GetID(), eContract, eUnit, iTurns, iMaintenance);
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_ContractStarted, m_pPlayer->GetID(), eContract, iTurns, iMaintenance);
 	}
 }
 
-bool CvPlayerContracts::UnitIsContractResourceFree(UnitTypes eUnit)
+// Destroy contract
+void CvPlayerContracts::EndContract(ContractTypes eContract)
 {
-	CvContract* pContract = GetContract();
-	if(pContract)
+	ContractList::iterator it;
+	for(it = m_ActivePlayerContracts.begin(); it != m_ActivePlayerContracts.end(); it++)
 	{
-		if(pContract->m_eContractUnit == eUnit)
+		CvContract kContract = (*it);
+		if(kContract.m_eContract == eContract)
+		{
+			SetActiveContract(eContract, false);
+
+			//Erase from active list.
+			m_ActivePlayerContracts.erase(it);
+
+			GC.getGame().GetGameContracts()->EndContract(it->m_eContract, it->m_eContractHolder);
+
+			break;
+		}
+	}
+}
+
+int CvPlayerContracts::GetContractGoldMaintenance()
+{
+	int iMaintenance = 0;
+	ContractList::iterator it;
+	for(it = m_ActivePlayerContracts.begin(); it != m_ActivePlayerContracts.end(); it++)
+	{
+		CvContract kContract = (*it);
+		if(kContract.m_iContractMaintenance > 0)
+		{
+			iMaintenance += kContract.m_iContractMaintenance;
+		}
+	}
+	return iMaintenance;
+}
+
+bool CvPlayerContracts::UnitIsActiveContractUnit(UnitTypes eUnit)
+{
+	if(eUnit == NO_UNIT)
+		return false;
+
+	ContractList::iterator it;
+	for(it = m_ActivePlayerContracts.begin(); it != m_ActivePlayerContracts.end(); it++)
+	{
+		CvContract* pContract = GetContract(it->m_eContract);
+				
+		if(pContract && GC.getGame().GetContractUnits(it->m_eContract, eUnit) > 0)
+		{
 			return true;
+		}
 	}
 	return false;
 }
-bool CvPlayerContracts::UnitIsMaintenanceFree(UnitTypes eUnit)
+
+void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 {
-	CvContract* pContract = GetContract();
+	if(eContract == NO_CONTRACT)
+		return;
+
+	CvContractEntry* pContract = GC.getContractInfo(eContract);
 	if(pContract)
 	{
-		if(pContract->m_eContractUnit == eUnit)
-			return true;
+		for(int iI = 0; iI < GC.getNumUnitInfos(); iI++)
+		{
+			UnitTypes eUnit = (UnitTypes)iI;
+				
+			if(eUnit == NO_UNIT)
+				continue;
+
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+			if(pkUnitInfo)
+			{
+				int iNumUnits = GC.getGame().GetContractUnits(eContract, eUnit);
+				if(iNumUnits > 0)
+				{
+					CvCity* pLoopCity;
+					CvCity* pBestCity = NULL;
+					int iLoop;
+					int iBestPop = 0;
+					for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+					{
+						if(pLoopCity == NULL)
+							continue;
+
+						if(pkUnitInfo->GetDomainType() == DOMAIN_SEA)
+						{
+							if(!pLoopCity->isCoastal())
+								continue;
+
+							if(pLoopCity->isCapital())
+							{
+								pBestCity = pLoopCity;
+								break;
+							}
+							else if(pLoopCity->getPopulation() > iBestPop)
+							{
+								pBestCity = pLoopCity;
+							}
+						}
+						else
+						{
+							if(pLoopCity->isCapital())
+							{
+								pBestCity = pLoopCity;
+								break;
+							}
+							else if(pLoopCity->getPopulation() > iBestPop)
+							{
+								pBestCity = pLoopCity;
+							}
+						}
+					}
+					if(pBestCity != NULL)
+					{
+						// Init unit
+						CvUnit* pUnit = m_pPlayer->initUnit(eUnit, pLoopCity->getX(), pLoopCity->getY(), pkUnitInfo->GetDefaultUnitAIType(), NO_DIRECTION, true, true, 0, 0, eContract);
+						iNumUnits--;	// Reduce the count since we just added the seed rebel
+
+						// Valid Promotion for this Unit?
+						PromotionTypes ePromotion = pContract->GetPromotionType();
+						if(pUnit && ePromotion != NO_PROMOTION && ::IsPromotionValidForUnitCombatType(ePromotion, pUnit->getUnitType()))
+						{
+							pUnit->setHasPromotion(ePromotion, true);
+						}
+
+						// Loop until all rebels are placed
+						do
+						{
+							iNumUnits--;
+
+							// Init unit
+							pUnit = m_pPlayer->initUnit(eUnit, pLoopCity->getX(), pLoopCity->getY(), pkUnitInfo->GetDefaultUnitAIType(), NO_DIRECTION, false, true, 0, 0, eContract);
+							CvAssert(pUnit);
+							if (pUnit)
+							{
+								if (!pUnit->jumpToNearestValidPlotWithinRange(5))
+									pUnit->kill(false);		// Could not find a spot!
+
+								// Valid Promotion for this Unit?
+								PromotionTypes ePromotion = pContract->GetPromotionType();
+								if(pUnit && ePromotion != NO_PROMOTION && ::IsPromotionValidForUnitCombatType(ePromotion, pUnit->getUnitType()))
+								{
+									pUnit->setHasPromotion(ePromotion, true);
+								}
+							}
+						}
+						while(iNumUnits > 0);
+					}
+				}
+			}
+		}
 	}
-	return false;
 }
-int CvPlayerContracts::GetContractTurnsRemaining() const
+void CvPlayerContracts::DisbandContractUnits(ContractTypes eContract)
 {
-	CvContract* pContract = GetContract();
+	if(eContract == NO_CONTRACT)
+		return;
+
+	CvUnit* pLoopUnit;
+	int iLoop = 0;
+
+	for(pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+	{
+		if(pLoopUnit != NULL && pLoopUnit->getContract() == eContract)
+		{
+			pLoopUnit->kill(true);
+		}
+	}
+}
+
+
+int CvPlayerContracts::GetContractTurnsRemaining(ContractTypes eContract)
+{
+	if(eContract == NO_CONTRACT)
+		return -1;
+
+	CvContract* pContract = GetContract(eContract);
 	if(pContract)
 	{
 		int iStart = pContract->m_iContractTurnStart;
@@ -459,24 +665,36 @@ int CvPlayerContracts::GetContractTurnsRemaining() const
 	}
 	return -1;
 }
+int CvPlayerContracts::GetNumActivePlayerContracts() const
+{
+	return m_ActivePlayerContracts.size();
+}
+
 void CvPlayerContracts::DoTurn()
 {
-	CvContract* pContract = GetContract();
-	if(pContract)
+	ContractList::iterator it;
+	for(it = m_ActivePlayerContracts.begin(); it != m_ActivePlayerContracts.end(); it++)
 	{
-		int iStartTurn = pContract->m_iContractTurnStart;
-		int iTurns = pContract->m_iContractTurns;
-		if((iStartTurn + iTurns) <= GC.getGame().getGameTurn())
+		CvContract* pContract = GetContract(it->m_eContract);
+		if(pContract)
 		{
-			GC.getGame().GetGameContracts()->EndContract(pContract->m_eContract, pContract->m_eContractHolder);
+			int iStartTurn = pContract->m_iContractTurnStart;
+			int iTurns = pContract->m_iContractTurns;
+			if((iStartTurn + iTurns) <= GC.getGame().getGameTurn())
+			{
+				GC.getGame().GetGameContracts()->EndContract(pContract->m_eContract, pContract->m_eContractHolder);
+			}
 		}
 	}
 }
 
-// Wrapper function to quickly get the CorporationEntry of a player's corporation
-CvContractEntry * CvPlayerContracts::GetContractEntry() const
+// Wrapper function to quickly get the ContractEntry of a player's contract
+CvContractEntry* CvPlayerContracts::GetContractEntry(ContractTypes eContract)
 {
-	CvContract* pContract = GetContract();
+	if(eContract == NO_CONTRACT)
+		return NULL;
+
+	CvContract* pContract = GetContract(eContract);
 	if (!pContract)
 		return NULL;
 
@@ -494,14 +712,12 @@ CvGameContracts::CvGameContracts(void)
 /// Destructor
 CvGameContracts::~CvGameContracts(void)
 {
-
 }
 
 // Initialize class data
 void CvGameContracts::Init()
 {
-	m_InactiveContracts.clear();
-
+	Reset();
 	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
 		ContractTypes eContract = (ContractTypes)iI;
@@ -511,15 +727,24 @@ void CvGameContracts::Init()
 		CvContractEntry* pContract = GC.getContractInfo(eContract);
 		if(pContract)
 		{
-			UnitTypes eUnit = pContract->GetContractUnit();
 			int iTurns = pContract->GetTurns();
 			int iMaintenance = pContract->GetMaintenance();
 
-			CvContract kContract = CvContract(eContract, NO_PLAYER, eUnit, iTurns, iMaintenance);
+			CvContract kContract = CvContract(eContract, NO_PLAYER, iTurns, iMaintenance);
 			// Add contract to game inactive contracts
 			m_InactiveContracts.push_back(kContract);
 		}
 	}
+}
+
+/// Cleanup
+void CvGameContracts::Uninit()
+{
+}
+
+/// Reset
+void CvGameContracts::Reset()
+{
 }
 
 /// Handle turn-by-turn contract updates
@@ -532,26 +757,37 @@ void CvGameContracts::DoUpdateContracts()
 {
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_ContractsRefreshed);
 
+	//This is expensive, so do it sparingly!
 	ContractList::iterator it;
 	for(it = m_InactiveContracts.begin(); it != m_InactiveContracts.end(); it++)
 	{
 		CvContract kContract = (*it);
-		int iValue = 0;
-		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_GetContractUnit, kContract.m_eContract) == GAMEEVENTRETURN_VALUE) 
+		for(int iI = 0; iI < GC.getNumUnitInfos(); iI++)
 		{
-			UnitTypes eUnitType = (UnitTypes)iValue;
-			if (eUnitType != NO_UNIT && GC.getUnitInfo(eUnitType) != NULL) 
+			UnitTypes eUnit = (UnitTypes)iI;
+				
+			if(eUnit == NO_UNIT)
+				continue;
+
+			CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
+			if(pkUnitEntry)
 			{
-				kContract.m_eContractUnit = eUnitType;
+				bool bIn = false;
+				int iValue = 0;
+				if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_GetNumContractUnit, it->m_eContract, eUnit) == GAMEEVENTRETURN_VALUE) 
+				{		
+					if(iValue > 0)
+					{
+						GC.getGame().SetContractUnits(it->m_eContract, eUnit, iValue);
+						bIn = true;
+					}
+				}
+				if(!bIn)
+				{
+					//Zero out so we don't waste memory.
+					GC.getGame().SetContractUnits(it->m_eContract, eUnit, 0);
+				}
 			}
-			else
-			{
-				kContract.m_eContractUnit = GC.getContractInfo(kContract.m_eContract)->GetContractUnit();
-			}
-		}
-		else
-		{
-			kContract.m_eContractUnit = GC.getContractInfo(kContract.m_eContract)->GetContractUnit();
 		}
 	}
 }
@@ -559,6 +795,9 @@ void CvGameContracts::DoUpdateContracts()
 // Get this contract, or NULL if it does not exist
 CvContract* CvGameContracts::GetActiveContract(ContractTypes eContract)
 {
+	if(eContract == NO_CONTRACT)
+		return NULL;
+
 	ContractList::iterator it;
 	for(it = m_ActiveContracts.begin(); it != m_ActiveContracts.end(); it++)
 	{
@@ -572,6 +811,9 @@ CvContract* CvGameContracts::GetActiveContract(ContractTypes eContract)
 }
 CvContract* CvGameContracts::GetInactiveContract(ContractTypes eContract)
 {
+	if(eContract == NO_CONTRACT)
+		return NULL;
+
 	ContractList::iterator it;
 	for(it = m_InactiveContracts.begin(); it != m_InactiveContracts.end(); it++)
 	{
@@ -665,7 +907,7 @@ void CvGameContracts::EndContract(ContractTypes eContract, PlayerTypes ePlayer)
 			CvPlayer& kPlayer = GET_PLAYER(eHolder);
 
 			// Destroy contract for this player
-			kPlayer.GetContracts()->Uninit();
+			kPlayer.GetContracts()->EndContract(eContract);
 
 			//Erase from active list.
 			m_ActiveContracts.erase(it);
@@ -682,20 +924,6 @@ void CvGameContracts::EndContract(ContractTypes eContract, PlayerTypes ePlayer)
 			break;
 		}
 	}
-}
-
-UnitTypes CvGameContracts::GetContractUnit(ContractTypes eContract)
-{
-	ContractList::iterator it;
-	for(it = m_InactiveContracts.begin(); it != m_InactiveContracts.end(); it++)
-	{
-		CvContract kContract = (*it);
-		if(kContract.m_eContract == eContract && kContract.m_eContractUnit != NO_UNIT)
-		{
-			return kContract.m_eContractUnit;
-		}
-	}
-	return NO_UNIT;
 }
 
 /// Serialization read

@@ -1386,8 +1386,12 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(PlayerHasAnyContract);
 	Method(GetContractTurnsRemaining);
 	Method(GetContractGoldMaintenance);
-	Method(GetActiveContract);
 	Method(StartContract);
+	Method(EndContract);
+	Method(UnitIsActiveContractUnit);
+	Method(GetNumActivePlayerContracts);
+	Method(DisbandContractUnits);
+	Method(InitContractUnits);
 
 	//Other
 
@@ -14340,7 +14344,8 @@ int CvLuaPlayer::lPlayerHasAnyContract(lua_State* L)
 int CvLuaPlayer::lGetContractTurnsRemaining(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetContracts()->GetContractTurnsRemaining();
+	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetContracts()->GetContractTurnsRemaining(eContract);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -14351,13 +14356,6 @@ int CvLuaPlayer::lGetContractGoldMaintenance(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-int CvLuaPlayer::lGetActiveContract(lua_State* L)
-{
-	CvPlayer* pkPlayer = GetInstance(L);
-	ContractTypes eContract = pkPlayer->GetContracts()->GetActiveContract();
-	lua_pushinteger(L, (int)eContract);
-	return 1;
-}
 int CvLuaPlayer::lStartContract(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -14365,6 +14363,43 @@ int CvLuaPlayer::lStartContract(lua_State* L)
 
 	pkPlayer->GetContracts()->StartContract(eContract);
 	return 1;
+}
+int CvLuaPlayer::lEndContract(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 2);
+
+	pkPlayer->GetContracts()->EndContract(eContract);
+	return 1;
+}
+int CvLuaPlayer::lUnitIsActiveContractUnit(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 2);
+	const bool bResult = pkPlayer->GetContracts()->UnitIsActiveContractUnit(eUnit);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+int CvLuaPlayer::lGetNumActivePlayerContracts(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetContracts()->GetNumActivePlayerContracts();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lInitContractUnits(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 2);
+	pkPlayer->GetContracts()->InitContractUnits(eContract);
+	return 0;
+}
+int CvLuaPlayer::lDisbandContractUnits(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 2);
+	pkPlayer->GetContracts()->DisbandContractUnits(eContract);
+	return 0;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)

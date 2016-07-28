@@ -7742,10 +7742,21 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 	{
 		changeDefensivePactTradingAllowedCount(iChange);
 	}
-
 	if(pTech->IsResearchAgreementTradingAllowed())
 	{
-		ChangeResearchAgreementTradingAllowedCount(iChange);
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if(MOD_DIPLOMACY_CIV4_FEATURES)
+		{
+			if(GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
+			{
+				ChangeResearchAgreementTradingAllowedCount(iChange);
+			}
+		}
+		else
+		{
+			ChangeResearchAgreementTradingAllowedCount(iChange);
+		}
+#endif
 	}
 
 	if(pTech->IsTradeAgreementTradingAllowed())
@@ -8370,6 +8381,23 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 						CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, eNewValue);
 						DLLUI->AddPopup(kPopupInfo);
 					}
+#if defined(MOD_BALANCE_CORE)
+					for(iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+					{
+						CvFeatureInfo* pFeatureEntry = GC.getFeatureInfo((FeatureTypes)iI);
+						if(pFeatureEntry)
+						{
+							for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+							{
+								int iYield = pFeatureEntry->GetEraYieldChanges(iJ);
+								if(iYield > 0)
+								{
+									changeFeatureYieldChange(((FeatureTypes)iI), ((YieldTypes)iJ), iYield);
+								}
+							}
+						}
+					}
+#endif
 
 					//Notify Everyone
 					for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
@@ -8693,62 +8721,52 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
 		if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && (eNewValue != GC.getGame().getStartEra()))
 		{
-			CvCity* pLoopCity;
-			int iLoop;
-			int iEra = GetCurrentEra();
-			if(iEra <= 0)
+			PlayerTypes ePlayer;
+			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
-				iEra = 1;
-			}
-			int iHandicap = 1;
-			CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
-			if(pHandicapInfo)
-			{
-				iHandicap = pHandicapInfo->getAIDifficultyBonus();
-				iHandicap *= iEra;
-			}
-			if(iHandicap > 0)
-			{
-				PlayerTypes ePlayer;
-				for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+				ePlayer = (PlayerTypes) iPlayerLoop;
+				CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+				if(ePlayer != NO_PLAYER && !kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 				{
-					ePlayer = (PlayerTypes) iPlayerLoop;
-					CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-					if(ePlayer != NO_PLAYER && !kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+					int iEra = kPlayer.GetCurrentEra();
+					if(iEra <= 0)
 					{
-						kPlayer.GetTreasury()->ChangeGold(iHandicap);
-						kPlayer.ChangeGoldenAgeProgressMeter(iHandicap);
-						kPlayer.changeJONSCulture(iHandicap / 3);
+						iEra = 1;
+					}
+					int iHandicap = 0;
+					int iYieldHandicap = 0;
+					CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
+					if(pHandicapInfo)
+					{
+						iHandicap = pHandicapInfo->getAIDifficultyBonus();
+						iYieldHandicap = (iHandicap * iEra * 10);
+					}
+					if(iHandicap > 0)
+					{					
+						kPlayer.GetTreasury()->ChangeGold(iYieldHandicap);
+						kPlayer.ChangeGoldenAgeProgressMeter(iYieldHandicap);
+						kPlayer.changeJONSCulture(iYieldHandicap);
 						if(kPlayer.getCapitalCity() != NULL)
 						{
-							kPlayer.getCapitalCity()->ChangeJONSCultureStored(iHandicap / 3);
+							kPlayer.getCapitalCity()->ChangeJONSCultureStored(iYieldHandicap);
+							kPlayer.getCapitalCity()->changeFood(iHandicap);
 						}
+				
+						int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), iHandicap);
 
-						int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 5));
-						
-						if(iBeakersBonus > 0)
+						TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
+						if(eCurrentTech == NO_TECH)
 						{
-							TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
-							if(eCurrentTech == NO_TECH)
-							{
-								kPlayer.changeOverflowResearch(iBeakersBonus);
-							}
-							else
-							{
-								GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, ePlayer);
-							}
+							kPlayer.changeOverflowResearch(iBeakersBonus);
 						}
-						for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+						else
 						{
-							if(pLoopCity != NULL)
-							{
-								pLoopCity->changeFood(iHandicap / 5);
-							}
+							GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, kPlayer.GetID());
 						}
 						if((GC.getLogging() && GC.getAILogging()))
 						{
 							CvString strLogString;
-							strLogString.Format("CBP AI DIFFICULTY BONUS ERA CHANGE: Received %d Handicap Bonus", iHandicap);
+							strLogString.Format("CBP AI DIFFICULTY BONUS FROM ERA CHANGE: Received %d Handicap Bonus (%d in Yields).", iHandicap, iYieldHandicap);
 							kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
 						}
 					}

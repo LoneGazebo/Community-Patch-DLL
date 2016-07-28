@@ -928,7 +928,8 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 						return false;
 					}
 				}
-				if(iValueImOffering > 0 && (iTotalValueToMe > 0))
+				//Let's not lowball, it leads to spam.
+				if(iValueImOffering > 0 && (iTotalValueToMe > 0) && !bCantMatchOffer)
 				{
 					return true;
 				}
@@ -1347,11 +1348,11 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 	// We passed in Value, we want to know how much GPT we get for it
 	if(bNumGPTFromValue)
 	{
-		iValueTimes100 = (iGPTorValue * 100)/iNumTurns;
+		iValueTimes100 = (iGPTorValue * 100)/max(1, iNumTurns);
 	}
 	else
 	{
-		iValueTimes100 = (iGPTorValue * iNumTurns);
+		iValueTimes100 = (iGPTorValue * max(1, iNumTurns));
 		iValueTimes100 = ((iValueTimes100 * GC.getEACH_GOLD_PER_TURN_VALUE_PERCENT()) / 100);
 	}
 
@@ -1378,8 +1379,10 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 				iModifier = 100;
 				break;
 			case MAJOR_CIV_APPROACH_FRIENDLY:
-			case MAJOR_CIV_APPROACH_NEUTRAL:
 				iModifier = 100;
+				break;
+			case MAJOR_CIV_APPROACH_NEUTRAL:
+				iModifier = 95;
 				break;
 			default:
 				CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Gold valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -1406,8 +1409,10 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 			iModifier = 110;
 			break;
 		case MAJOR_CIV_APPROACH_FRIENDLY:
-		case MAJOR_CIV_APPROACH_NEUTRAL:
 			iModifier = 100;
+			break;
+		case MAJOR_CIV_APPROACH_NEUTRAL:
+			iModifier = 95;
 			break;
 		default:
 			CvAssertMsg(false, "DEAL_AI: AI player has no valid Approach for Gold valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -2230,7 +2235,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	CvPlayer& buyingPlayer = GET_PLAYER(bFromMe ? eOtherPlayer : GetPlayer()->GetID());
 
 	//initial value - if we founded the city, we like it more
-	int iItemValue = (pCity->getOriginalOwner() == buyingPlayer.GetID()) ? 20000 : 15000;
+	int iItemValue = (pCity->getOriginalOwner() == buyingPlayer.GetID()) ? 25000 : 20000;
 
 	//If at war, halve the value (that way it'll fit in a peace deal's valuation model).
 	if (!sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
@@ -2239,7 +2244,36 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	}
 
 	//economic value is important
-	iItemValue += (pCity->getEconomicValue(buyingPlayer.GetID()) / 2);
+	int iEconomicValue = pCity->getEconomicValue(buyingPlayer.GetID());
+
+	//If not as good as any of our cities, we don't want it.
+	bool bNoGood = true;
+	//We're buying a city.
+	if(!bFromMe)
+	{
+		CvCity* pLoopCity;
+		int iCityLoop;
+		for(pLoopCity = buyingPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = buyingPlayer.nextCity(&iCityLoop))
+		{
+			if(pLoopCity != NULL)
+			{
+				//If city we're looking at is better than or equal to one of our cities, go for it.
+
+				//Ignore smaller cities. We only want fair comparisons.
+				if(pLoopCity->getPopulation() < pCity->getPopulation())
+					continue;
+
+				//Better and possibly bigger? Good.
+				if(iEconomicValue >= pLoopCity->getEconomicValue(buyingPlayer.GetID()))
+				{
+					bNoGood = false;
+					break;
+				}
+			}
+		}
+	}
+	
+	iItemValue += (iEconomicValue / 2);
 
 	//first some amount for the territory
 	int iInternalBorderCount = 0;
@@ -2387,12 +2421,12 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 
 	//buyer likes it close to home (up to 50% bonus) - this is in addition to the tile overlap above
 	int iRefDist = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT();
-	if(iBuyerDistance > (iRefDist * 2))
+	if(iBuyerDistance > (iRefDist + 2))
 	{
 		return MAX_INT;
 	}
 	
-	iItemValue /= (iBuyerDistance / 2);
+	iItemValue -= (iBuyerDistance * 1000);
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -2410,7 +2444,10 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		if(pDeal != NULL)
 		{
 			int iNumCities = pDeal->GetNumCities(m_pPlayer->GetID());
-			iItemValue *= (10 * iNumCities);
+			if(iNumCities > 0)
+			{
+				iItemValue += (5000 * iNumCities);
+			}
 		}
 	}
 
@@ -7584,7 +7621,7 @@ bool CvDealAI::IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 
 	int iCityLoop;
 	CvCity* pBestBuyCity = NULL;
-	int iBestBuyCity = 120; //initial value, must be a good deal for us!
+	int iBestBuyCity = 100; //initial value, must be a fair deal for us!
 
 	//check their cities
 	for(CvCity* pTheirCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pTheirCity != NULL; pTheirCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
@@ -7598,7 +7635,7 @@ bool CvDealAI::IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 			int iMyPrice = GetCityValue(pTheirCity->getX(), pTheirCity->getY(), false, eOtherPlayer, false, pDeal);
 
 			int iBuyRatio = (iMyPrice*100)/max(1,iTheirPrice);
-			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iBuyRatio>iBestBuyCity)
+			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iBuyRatio > iBestBuyCity)
 			{
 				pBestBuyCity = pTheirCity;
 				iBestBuyCity = iBuyRatio;

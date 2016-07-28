@@ -253,7 +253,7 @@ public:
 	bool GetCachedAttackTarget(PlayerTypes eEnemy, AIOperationTypes eAIOperationType);
 	bool IsCurrentAttackTarget(CvCity* pCity);
 	void ClearCachedTargets();
-	CvMilitaryTarget FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
+	CvMilitaryTarget FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL, bool bCheckWar = false);
 	CvMilitaryTarget FindBestAttackTargetGlobal(AIOperationTypes eAIOperationType, int* piWinningScore = NULL, bool bCheckWar = false);
 #endif
 	CvMilitaryTarget FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
@@ -353,6 +353,32 @@ public:
 	{
 		return m_iNumLandAttacksRequested;
 	};
+	int GetRecommendLandArmySize() const
+	{
+		return m_iRecommendedMilitarySize;
+	};
+	int GetRecommendNavySize() const
+	{
+		return m_iRecNavySize;
+	};
+	int GetNumLandUnits() const
+	{
+		return m_iNumLandUnits;
+	};
+	int GetNumNavalUnits() const
+	{
+		return m_iNumNavalUnits;
+	};
+	int GetNumAAUnits() const
+	{
+		return m_iNumAntiAirUnits;
+	};
+
+	void SetNumFreeCarrier(int iValue);
+	int GetNumFreeCarrier() const;
+
+	void SetNumFreeCargo(int iValue);
+	int GetNumFreeCargo() const;
 #endif
 private:
 
@@ -426,6 +452,8 @@ private:
 	int m_iNumNavalAttacksRequested;
 #if defined(MOD_BALANCE_CORE)
 	int m_iCurrentWarFocus;
+	int m_iFreeCarrier;
+	int m_iFreeCargo;
 #endif
 	DefenseState m_eLandDefenseState;
 	DefenseState m_eNavalDefenseState;
@@ -471,17 +499,10 @@ bool IsTestStrategy_NeedAirCarriers(CvPlayer* pPlayer);
 
 // Functions that evaluate which operation to launch
 int ComputeRecommendedNavySize(CvPlayer* pPlayer);
-#if defined(MOD_BALANCE_CORE)
 int NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEnemy, MultiunitFormationTypes formation, bool bRequiresNavalMoves=false, bool bMustBeDeepWaterNaval=false, CvPlot* pMuster=NULL, CvPlot* pTarget=NULL, int* piNumberSlotsRequired=NULL, int* piNumberLandReservesUsed=NULL);
-#else
-int NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves=false, int* piNumberSlotsRequired=NULL, int* piNumberLandReservesUsed=NULL);
-#endif
 UnitAITypes FirstSlotCityCanFill(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bAtCoastalCity, bool bSecondaryUnit);
-#if defined(MOD_BALANCE_CORE)
 MultiunitFormationTypes GetCurrentBestFormationTypeForCityAttack();
-#endif
 CvPlot* GetCoastalPlotNearPlot(CvPlot *pTarget);
-CvPlot* GetLandPlotAdjacentToTarget(CvPlot *pTarget);
 }
 
 #endif //CIV5_MILITARY_AI_H

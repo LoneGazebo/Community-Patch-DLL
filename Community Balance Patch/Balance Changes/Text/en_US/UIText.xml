@@ -504,46 +504,18 @@
 
 
 		<!-- New Musician Text -->
-		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR">
-			<Text>Your musicians journey across {1_PlayerAdj} lands, introducing your culture to the {1_PlayerAdj} people. Your [ICON_TOURISM] Cultural Influence is now [COLOR_MAGENTA]Familiar[ENDCOLOR] to them, and you receive {2_Num} [ICON_HAPPINESS_1] Happiness in your [ICON_CAPITAL] Capital!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_S">
-			<Text>Tour through {1_PlayerAdj} lands completed!</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET">
-			<Text>{1_PlayerAdj} musicians are touring your empire, increasing their [ICON_TOURISM] Cultural Influence over you to [COLOR_MAGENTA]Familiar[ENDCOLOR] status!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_UNKNOWN_TOUR_TARGET_S">
-			<Text>Unknown musicians arrive from {@1_Civname}!</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR">
-			<Text>Your musicians were happily received by the {1_PlayerAdj} people. You gain +[COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_TOURISM] Cultural Influence over them, and [COLOR_POSITIVE_TEXT]{3_num}[ENDCOLOR] [ICON_HAPPINESS_1] Happiness in your [ICON_CAPITAL] Capital. All {1_PlayerName} Cities experience 'We Love the King Day' for {4_num} turns!</Text>
+			<Text>Your musicians were happily received by the {1_PlayerAdj} people. You gain +[COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_TOURISM] Tourism with them, and they gained {3_num} [ICON_HAPPINESS_1] Happiness.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_S">
 			<Text>Tour of {1_PlayerAdj} lands completed!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET">
-			<Text>{1_PlayerAdj} musicians recently toured your empire, and were warmly received. {1_PlayerAdj} [ICON_TOURISM] Cultural Influence over you has increased by [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR], however your cities experience 'We Love the King Day' for [COLOR_POSITVE_TEXT]{3_Num}[ENDCOLOR] turns!</Text>
+			<Text>{1_PlayerAdj} musicians recently toured your empire, and were warmly received. {1_PlayerAdj} [ICON_TOURISM] Cultural Influence over you has increased by [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR], and you gained [COLOR_POSITVE_TEXT]{3_Num}[ENDCOLOR] [ICON_HAPPINESS_1] Happiness!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET_S">
 			<Text>Familiar musicians arrive from {1_PlayerAdj!}</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_POPULAR_TOUR">
-			<Text>Your musicians were wildly received by the people of {1_PlayerAdj}. You gain +[COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_TOURISM] Cultural Influence over them, and [COLOR_POSITIVE_TEXT]{3_num}[ENDCOLOR] [ICON_HAPPINESS_1] Happiness in your [ICON_CAPITAL] Capital. All {1_PlayerName} Cities experience 'We Love the King Day' for {4_num} turns!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_POPULAR_TOUR_S">
-			<Text>Sell-out concert tour of {1_PlayerAdj} completed!</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_POPULAR_TOUR_TARGET">
-			<Text>{1_PlayerAdj} musicians recently toured your empire, and received much praise. {1_PlayerAdj} [ICON_TOURISM] Cultural Influence over you has increased by [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR], however your Cities experience 'We Love the King Day' for [COLOR_POSITVE_TEXT]{3_Num}[ENDCOLOR] turns!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_POPULAR_TOUR_TARGET_S">
-			<Text>Popular musicians arrive from {1_PlayerAdj!}</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_YIELD_FROM_CITY_YIELDS">

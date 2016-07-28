@@ -145,6 +145,11 @@ bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCit
 	return false;
 }
 
+void CvGameTrade::InvalidateTradePathCache(uint iPlayer)
+{
+	m_lastTradePathUpdate[iPlayer] = -1;
+}
+
 void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 {
 	CvPlayer& kPlayer1 = GET_PLAYER((PlayerTypes)iPlayer1);
@@ -163,21 +168,15 @@ void CvGameTrade::UpdateTradePathCache(uint iPlayer1)
 	//note that the ID changes when a city is conquered, so there might be some stale entries in here ...
 	TradePathLookup previousPathsLand, previousPathsWater;
 	for (TradePathLookup::iterator it=m_aPotentialTradePathsLand.begin(); it!=m_aPotentialTradePathsLand.end(); ++it)
-	{
 		if ( kPlayer1.getCity(it->first) )
-		{
 			previousPathsLand.insert( *it );
-			m_aPotentialTradePathsLand.erase(it);
-		}
-	}
 	for (TradePathLookup::iterator it=m_aPotentialTradePathsWater.begin(); it!=m_aPotentialTradePathsWater.end(); ++it)
-	{
 		if ( kPlayer1.getCity(it->first) )
-		{
 			previousPathsWater.insert( *it );
-			m_aPotentialTradePathsWater.erase(it);
-		}
-	}
+	for (TradePathLookup::iterator it=previousPathsLand.begin(); it!=previousPathsLand.end(); ++it)
+		m_aPotentialTradePathsLand.erase(it->first);
+	for (TradePathLookup::iterator it=previousPathsWater.begin(); it!=previousPathsWater.end(); ++it)
+		m_aPotentialTradePathsWater.erase(it->first);
 
 	//do not check whether we are at war here! the trade route cache is also used for military target selection
 	int iOriginCityLoop;

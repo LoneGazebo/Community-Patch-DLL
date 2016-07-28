@@ -42,7 +42,7 @@ DELETE FROM Policy_BuildingClassCultureChanges
 WHERE PolicyType = 'POLICY_MERCHANT_NAVY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Policies
-SET UpgradeCSTerritory = '1'
+SET MinorBullyScoreModifier = '25'
 WHERE Type = 'POLICY_MERCHANT_NAVY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Naval Tradition -- Military Tradition -- Free GA, Improved Embark, and reveals all capitals.
@@ -54,11 +54,19 @@ SET EmbarkedExtraMoves = '2'
 WHERE Type = 'POLICY_NAVAL_TRADITION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Policies
-SET RevealAllCapitals = '1'
+SET RevealAllCapitals = '0'
 WHERE Type = 'POLICY_NAVAL_TRADITION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 INSERT INTO Policy_FreeUnitClasses (PolicyType, UnitClassType, Count)
 SELECT 'POLICY_NAVAL_TRADITION', 'UNITCLASS_GREAT_ADMIRAL', '1';
+
+UPDATE Policies
+SET UpgradeCSTerritory = '1'
+WHERE Type = 'POLICY_NAVAL_TRADITION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+UPDATE Policies
+SET IncludesOneShotFreeUnits = '1'
+WHERE Type = 'POLICY_NAVAL_TRADITION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Navigation School - Now Exploration --  +33% to Great Admiral and Great General Production -- Barracks, Armories and Military Academies provide +1 Science.
 DELETE FROM Policy_FreePromotions
@@ -74,6 +82,10 @@ WHERE Type = 'POLICY_NAVIGATION_SCHOOL' AND EXISTS (SELECT * FROM COMMUNITY WHER
 
 DELETE FROM Policy_FreeUnitClasses
 WHERE PolicyType = 'POLICY_NAVIGATION_SCHOOL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+UPDATE Policies
+SET IncludesOneShotFreeUnits = '0'
+WHERE Type = 'POLICY_NAVIGATION_SCHOOL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Treasure Fleets -- Now called Civilizing Mission -- Receive a free Factory, and a lump sum of Gold, when you conquer a city. Garrisons are free.
 UPDATE Policies

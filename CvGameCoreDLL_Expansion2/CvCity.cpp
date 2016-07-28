@@ -361,6 +361,7 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE)
 	, m_abIsPurchased("CvCity::m_abIsPurchased", m_syncArchive)
 	, m_abTraded("CvCity::m_abTraded", m_syncArchive)
+	, m_abPaidAdoptionBonus("CvCity::m_abPaidAdoptionBonus", m_syncArchive)
 	, m_iExtraBuildingMaintenance("CvCity::m_iExtraBuildingMaintenance", m_syncArchive)
 	, m_paiNumTerrainWorked("CvCity::m_paiNumTerrainWorked", m_syncArchive)
 	, m_paiNumFeaturelessTerrainWorked("CvCity::m_paiNumFeaturelessTerrainWorked", m_syncArchive)
@@ -394,6 +395,7 @@ CvCity::CvCity() :
 	, m_ppaiEventResourceYield(0)
 	, m_ppaiEventTerrainYield(0)
 	, m_ppaiEventFeatureYield(0)
+	, m_ppaiEventSpecialistYield(0)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_abOwedChosenBuilding("CvCity::m_abOwedChosenBuilding", m_syncArchive)
@@ -580,6 +582,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	setupGraphical();
 
 	pPlot->updateCityRoute();
+
+	//force recalculation of trade routes
+	GC.getGame().GetGameTrade()->InvalidateTradePathCache(eOwner);
 
 	for(iI = 0; iI < MAX_TEAMS; iI++)
 	{
@@ -788,46 +793,52 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
-	if(MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && !owningPlayer.isHuman())
+	if(MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && !owningPlayer.isHuman() && bInitialFounding)
 	{
-		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-		if(iEra <= 0)
-		{
-			iEra = 1;
-		}
-		int iHandicap = 0;
 		CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
 		if(pHandicapInfo)
 		{
-			if(bInitialFounding)
+			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+			if(iEra <= 0)
+			{
+				iEra = 1;
+			}
+			int iHandicap = 0;
+			int iYieldHandicap = 0;
+			CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
+			if(pHandicapInfo)
 			{
 				iHandicap = pHandicapInfo->getAIDifficultyBonus();
-				iHandicap *= iEra;
+				iYieldHandicap = (iHandicap * iEra * 10);
 			}
-		}
-		if(iHandicap > 0)
-		{	
-			owningPlayer.GetTreasury()->ChangeGold(iHandicap);
-			owningPlayer.ChangeGoldenAgeProgressMeter(iHandicap);
-			owningPlayer.changeJONSCulture(iHandicap / 3);
-			ChangeJONSCultureStored(iHandicap / 3);
+			if(iHandicap > 0)
+			{				
+				GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iYieldHandicap);
+				GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(iYieldHandicap);
+				GET_PLAYER(getOwner()).changeJONSCulture(iYieldHandicap);
+
+				ChangeJONSCultureStored(iYieldHandicap);
 				
-			int iBeakersBonus = owningPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap / 10));
-			TechTypes eCurrentTech = owningPlayer.GetPlayerTechs()->GetCurrentResearch();
-			if(eCurrentTech == NO_TECH)
-			{
-				owningPlayer.changeOverflowResearch(iBeakersBonus);
-			}
-			else
-			{
-				GET_TEAM(owningPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, owningPlayer.GetID());
-			}
-			changeFood(iHandicap / 3);
-			if((GC.getLogging() && GC.getAILogging()))
-			{
-				CvString strLogString;
-				strLogString.Format("CBP AI DIFFICULTY BONUS FROM CITY FOUNDING: Received %d Handicap Bonus", iHandicap);
-				owningPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
+				int iBeakersBonus = GET_PLAYER(getOwner()).GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), iHandicap);
+
+				TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+				if(eCurrentTech == NO_TECH)
+				{
+					GET_PLAYER(getOwner()).changeOverflowResearch(iBeakersBonus);
+				}
+				else
+				{
+					GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, getOwner());
+				}
+
+				changeFood(iHandicap);
+
+				if((GC.getLogging() && GC.getAILogging()))
+				{
+					CvString strLogString;
+					strLogString.Format("CBP AI DIFFICULTY BONUS FROM CITY FOUNDING: Received %d Handicap Bonus (%d in Yields).", iHandicap, iYieldHandicap);
+					GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
 			}
 		}
 	}
@@ -1136,6 +1147,12 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 #endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	if(MOD_BALANCE_CORE_EVENTS)
+	{
+		owningPlayer.CheckActivePlayerEvents(this);
+	}
+#endif
 #if defined(MOD_BALANCE_CORE)
 	//Update our CoM for the diplo AI.
 	owningPlayer.SetCenterOfMassEmpire();
@@ -1204,6 +1221,15 @@ void CvCity::uninit()
 		}
 	}
 	SAFE_DELETE_ARRAY(m_ppaiEventResourceYield);
+
+	if(m_ppaiEventSpecialistYield)
+	{
+		for(int i=0; i < GC.getNumSpecialistInfos(); i++)
+		{
+			SAFE_DELETE_ARRAY(m_ppaiEventSpecialistYield[i]);
+		}
+	}
+	SAFE_DELETE_ARRAY(m_ppaiEventSpecialistYield);
 	
 	if(m_ppaiImprovementYieldChange || m_ppaiEventImprovementYield)
 	{
@@ -1584,6 +1610,13 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiNumTimesOwned.setAt(iI, false);
 #endif
 	}
+#if defined(MOD_BALANCE_CORE)
+	m_abPaidAdoptionBonus.resize(GC.getNumReligionInfos());
+	for(iI = 0; iI < GC.getNumReligionInfos(); iI++)
+	{
+		m_abPaidAdoptionBonus.setAt(iI, false);
+	}
+#endif
 
 	m_abRevealed.resize(REALLY_MAX_TEAMS);
 	for(iI = 0; iI < REALLY_MAX_TEAMS; iI++)
@@ -1974,6 +2007,17 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 			{
 				m_ppaiEventResourceYield[iI][iJ] = 0;
+			}
+		}
+
+		CvAssertMsg(m_ppaiEventSpecialistYield==NULL, "about to leak memory, CvCity::m_ppaiEventSpecialistYield");
+		m_ppaiEventSpecialistYield = FNEW(int*[iNumSpecialistInfos], c_eCiv5GameplayDLL, 0);
+		for(iI = 0; iI < iNumSpecialistInfos; iI++)
+		{
+			m_ppaiEventSpecialistYield[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				m_ppaiEventSpecialistYield[iI][iJ] = 0;
 			}
 		}
 		
@@ -3258,6 +3302,30 @@ void CvCity::ChangeEventResourceYield(ResourceTypes eResource, YieldTypes eIndex
 	if(iChange != 0)
 	{
 		m_ppaiEventResourceYield[eResource][eIndex2] += iChange;
+		updateYield();
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::GetEventSpecialistYield(SpecialistTypes eSpecialist, YieldTypes eIndex2)	const
+{
+	CvAssertMsg(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eResource < GC.getNumSpecialistInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	return m_ppaiEventSpecialistYield[eSpecialist][eIndex2];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeEventSpecialistYield(SpecialistTypes eSpecialist, YieldTypes eIndex2, int iChange)
+{
+	CvAssertMsg(eResource >= 0, "eResource is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eResource < GC.getNumSpecialistInfos(), "eResource is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+
+	if(iChange != 0)
+	{
+		m_ppaiEventSpecialistYield[eSpecialist][eIndex2] += iChange;
 		updateYield();
 	}
 }
@@ -4779,6 +4847,16 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 						bChanged = true;
 					}
 				}
+				for(int iJ = 0; iJ < GC.getNumSpecialistInfos(); iJ++)
+				{
+					const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iJ);
+					CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+					if(pkSpecialistInfo)
+					{
+						ChangeEventSpecialistYield(eSpecialist, eYield, pkEventChoiceInfo->getCitySpecialistYieldChange(eSpecialist, eYield) * -1);
+						bChanged = true;
+					}
+				}
 			}
 			if(pkEventChoiceInfo->getCityHappiness() != 0)
 			{
@@ -5736,7 +5814,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				int iEventDuration = pkEventChoiceInfo->getEventDuration();
 				iEventDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iEventDuration /= 100;
-				ChangeEventChoiceDuration(eEventChoice, iEventDuration);
+				ChangeEventChoiceDuration(eEventChoice, max(1, iEventDuration));
 			}
 			//Do the cost first, as that goes through whether or not the event succeeds!
 			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -6053,6 +6131,15 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						ChangeEventResourceYield(eResource, eYield, pkEventChoiceInfo->getResourceYield(eResource, eYield));
 					}
 				}
+				for(int iJ = 0; iJ < GC.getNumSpecialistInfos(); iJ++)
+				{
+					const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iJ);
+					CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+					if(pkSpecialistInfo)
+					{
+						ChangeEventSpecialistYield(eSpecialist, eYield, pkEventChoiceInfo->getCitySpecialistYieldChange(eSpecialist, eYield));
+					}
+				}
 			}
 			for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
 			{
@@ -6231,14 +6318,14 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				int iTurns = pkEventChoiceInfo->getResistanceTurns();
 				iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iTurns /= 100;
-				ChangeResistanceTurns(iTurns);
+				ChangeResistanceTurns(max(1, iTurns));
 			}
 			if(pkEventChoiceInfo->getWLTKD() != 0)
 			{
 				int iTurns = pkEventChoiceInfo->getWLTKD();
 				iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iTurns /= 100;
-				ChangeWeLoveTheKingDayCounter(iTurns);
+				ChangeWeLoveTheKingDayCounter(max(1, iTurns));
 			}
 			if(pkEventChoiceInfo->getCityHappiness() != 0)
 			{
@@ -12904,9 +12991,18 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						plot()->AddArchaeologicalRecord(CvTypes::getARTIFACT_ANCIENT_RUIN(), GET_PLAYER(getOwner()).GetCurrentEra(), getOwner(), NO_PLAYER);
 					}
 					GreatWorkType eGreatArtifact = CultureHelpers::GetArtifact(plot());
-					GreatWorkClass eClass = CultureHelpers::GetGreatWorkClass(eGreatArtifact);
-					int iGWindex = 	GC.getGame().GetGameCulture()->CreateGreatWork(eGreatArtifact, eClass, plot()->GetArchaeologicalRecord().m_ePlayer1, plot()->GetArchaeologicalRecord().m_eEra, "");
-					GetCityBuildings()->SetBuildingGreatWork(eBuildingClass, iI, iGWindex);
+					if(eGreatArtifact != NO_GREAT_WORK)
+					{
+						GreatWorkClass eClass = CultureHelpers::GetGreatWorkClass(eGreatArtifact);
+						if(eClass != NO_GREAT_WORK_CLASS)
+						{
+							int iGWindex = 	GC.getGame().GetGameCulture()->CreateGreatWork(eGreatArtifact, eClass, plot()->GetArchaeologicalRecord().m_ePlayer1, plot()->GetArchaeologicalRecord().m_eEra, "");
+							if(iGWindex != -1)
+							{
+								GetCityBuildings()->SetBuildingGreatWork(eBuildingClass, iI, iGWindex);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -13804,7 +13900,22 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 #endif
 	GET_PLAYER(getOwner()).UpdateReligion();
 }
-
+#if defined(MOD_BALANCE_CORE)
+bool CvCity::HasPaidAdoptionBonus(ReligionTypes eReligion) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eReligion >= 0, "eReligion expected to be >= 0");
+	CvAssertMsg(eReligion < GC.getNumReligionInfos(), "eReligion expected to be < getNumReligionInfos");
+	return m_abPaidAdoptionBonus[eReligion];
+}
+void CvCity::SetPaidAdoptionBonus(ReligionTypes eReligion, bool bNewValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eReligion >= 0, "eReligion expected to be >= 0");
+	CvAssertMsg(eReligion < GC.getNumReligionInfos(), "eReligion expected to be < getNumReligionInfos");
+	m_abPaidAdoptionBonus.setAt(eReligion, bNewValue);
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Culture from eSpecialist
 int CvCity::GetCultureFromSpecialist(SpecialistTypes eSpecialist) const
@@ -20078,9 +20189,12 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 					iYieldValue += (pReligions->GetNumFollowers(eReligion) / iGoldPerXFollowers);
 				}
 			}
-			int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield, getOwner(), this);
-			iYieldValue += (pReligions->GetNumCitiesFollowing(eReligion) * iYieldPerFollowingCity);
 
+			int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield);
+			if(iYieldPerFollowingCity > 0)
+			{
+				iYieldValue += iYieldPerFollowingCity;
+			}
 
 			//Pantheon safe (only checks for local followers)
 			int iYieldPerXFollowers = pReligion->m_Beliefs.GetYieldPerXFollowers(eYield, getOwner(), this);
@@ -20088,6 +20202,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 			{
 				iYieldValue += (pReligions->GetNumFollowers(eReligion, getOwner()) / iYieldPerXFollowers);
 			}
+
 			int iLuxCulture = pReligion->m_Beliefs.GetYieldPerLux(eYield, getOwner(), this);
 			if(iLuxCulture > 0)
 			{		
@@ -20694,8 +20809,8 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	}
 #endif
 
-#if defined(MOD_DIPLOMACY_CITYSTATES) && !defined(MOD_API_UNIFIED_YIELDS)
-	if(!MOD_API_UNIFIED_YIELDS && MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(getOwner()).IsLeagueArt() && eIndex == YIELD_SCIENCE)
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	if(GET_PLAYER(getOwner()).IsLeagueArt() && eIndex == YIELD_SCIENCE)
 	{
 		iValue += GetBaseScienceFromArt();
 	}
@@ -21567,6 +21682,9 @@ int CvCity::GetTradeRouteCityMod(YieldTypes eIndex) const
 		{
 			continue;
 		}
+
+		if(pGameTrade->GetOriginCity(pGameTrade->GetTradeConnection(ui)) != this)
+			continue;
 
 		CvCity* pOriginCity = CvGameTrade::GetOriginCity(pGameTrade->GetTradeConnection(ui));
 		CvCity* pDestCity = CvGameTrade::GetDestCity(pGameTrade->GetTradeConnection(ui));
@@ -22479,6 +22597,9 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpeciali
 	int iYieldMultiplier = GET_PLAYER(getOwner()).getSpecialistExtraYield(eSpecialist, eIndex) +
 	                       GET_PLAYER(getOwner()).getSpecialistExtraYield(eIndex) +
 	                       GET_PLAYER(getOwner()).GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, eIndex);
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	iYieldMultiplier += GetEventSpecialistYield(eSpecialist, eIndex);
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	iYieldMultiplier += GET_PLAYER(getOwner()).getSpecialistYieldChange(eSpecialist, eIndex);
 
@@ -24324,7 +24445,7 @@ int CvCity::GetBuyPlotScore(int& iBestX, int& iBestY)
 			if(pLoopPlot != NULL)
 			{
 				// Can we actually buy this plot?
-				if(CanBuyPlot(pLoopPlot->getX(), pLoopPlot->getY()))
+				if(CanBuyPlot(pLoopPlot->getX(), pLoopPlot->getY(), true))
 				{
 					iTempScore = GetIndividualPlotScore(pLoopPlot);
 
@@ -27449,6 +27570,7 @@ void CvCity::read(FDataStream& kStream)
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiEventResourceYield, NUM_YIELD_TYPES, GC.getNumResourceInfos());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiEventTerrainYield, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiEventFeatureYield, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiEventSpecialistYield, NUM_YIELD_TYPES, GC.getNumSpecialistInfos());
 #endif
 
 	CvCityManager::OnCityCreated(this);
@@ -27548,6 +27670,7 @@ VALIDATE_OBJECT
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes>(kStream, m_ppaiEventResourceYield, NUM_YIELD_TYPES, GC.getNumResourceInfos());
 	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiEventTerrainYield, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiEventFeatureYield, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
+	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiEventSpecialistYield, NUM_YIELD_TYPES, GC.getNumSpecialistInfos());
 #endif
 }
 

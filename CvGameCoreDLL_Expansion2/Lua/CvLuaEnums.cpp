@@ -914,6 +914,18 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(NUM_MINOR_CIV_QUEST_TYPES);
 	EnumEnd(L);
 
+#if defined(MOD_BALANCE_CORE)
+	//Corps
+	EnumStart(L, "CorporationTypes");
+	RegisterEnum(NO_CORPORATION);
+	EnumEnd(L);
+
+	//Contracts
+	EnumStart(L, "ContractTypes");
+	RegisterEnum(NO_CONTRACT);
+	EnumEnd(L);
+#endif
+
 
 	// Resource Usage
 	EnumStart(L, "ResourceUsageTypes");

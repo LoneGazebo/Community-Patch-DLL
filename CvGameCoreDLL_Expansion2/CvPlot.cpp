@@ -170,7 +170,9 @@ CvPlot::CvPlot() :
 //	--------------------------------------------------------------------------------
 CvPlot::~CvPlot()
 {
-	FSerialization::plotsToCheck.erase(m_iPlotIndex);
+	std::set<int>::iterator it = FSerialization::plotsToCheck.find(m_iPlotIndex);
+	if (it!=FSerialization::plotsToCheck.end())
+		FSerialization::plotsToCheck.erase(it);
 	uninit();
 }
 
@@ -3238,7 +3240,7 @@ int CvPlot::getUnitPower(PlayerTypes eOwner) const
 #if defined(MOD_BALANCE_CORE)
 
 //	--------------------------------------------------------------------------------
-int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
+int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool bIgnoreFeature, bool bForHelp) const
 {
 	// Cities also give a boost - damage is split between city and unit - assume a flat 100% defense bonus for simplicity
 	if (isCity())
@@ -3251,23 +3253,26 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 		iModifier += /*25*/ GC.getHILLS_EXTRA_DEFENSE();
 
 	// Feature
-	if(getFeatureType() != NO_FEATURE)
+	if(!bIgnoreFeature && getFeatureType() != NO_FEATURE)
 		iModifier += GC.getFeatureInfo(getFeatureType())->getDefenseModifier();
 
 	// Terrain
 	if(getTerrainType() != NO_TERRAIN)
 		iModifier += GC.getTerrainInfo(getTerrainType())->getDefenseModifier();
 
-	// Improvements count extra, but include them for tooltips only if the tile is revealed
-	ImprovementTypes eImprovement = bHelp ? getRevealedImprovementType(GC.getGame().getActiveTeam()) : getImprovementType();
-	if(eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
+	if (!bIgnoreImprovement)
 	{
-		//only friendly or unowned fortresses can be used for combat, but include them in the tooltips always
-		if(bHelp || (eDefender != NO_TEAM && (getTeam() == NO_TEAM || GET_TEAM(eDefender).isFriendlyTerritory(getTeam()))))
+		// Improvements count extra, but include them for tooltips only if the tile is revealed
+		ImprovementTypes eImprovement = bForHelp ? getRevealedImprovementType(GC.getGame().getActiveTeam()) : getImprovementType();
+		if(eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
 		{
-			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eImprovement);
-			if (pkImprovement)
-				iModifier += pkImprovement->GetDefenseModifier();
+			//only friendly or unowned fortresses can be used for combat, but include them in the tooltips always
+			if(bForHelp || (eDefender != NO_TEAM && (getTeam() == NO_TEAM || GET_TEAM(eDefender).isFriendlyTerritory(getTeam()))))
+			{
+				CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eImprovement);
+				if (pkImprovement)
+					iModifier += pkImprovement->GetDefenseModifier();
+			}
 		}
 	}
 
@@ -5855,10 +5860,37 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 		{
 			setOwnershipDuration(0);
-
+#if defined(MOD_BALANCE_CORE)
+			FeatureTypes eFeature = getFeatureType();
+			if(eFeature != NO_FEATURE)
+			{
+				PromotionTypes eFreePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getPromotionIfOwned();
+				if(eFreePromotion != NO_PROMOTION)
+				{
+					if(!GET_PLAYER(eNewValue).IsFreePromotion(eFreePromotion))
+					{
+						GET_PLAYER(eNewValue).ChangeFreePromotionCount(eFreePromotion, 1);
+					}
+				}
+			}
+#endif
 			// Plot was owned by someone else
 			if(isOwned())
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(eFeature != NO_FEATURE)
+				{
+					PromotionTypes eFreePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getPromotionIfOwned();
+					if(eFreePromotion != NO_PROMOTION)
+					{
+						if(GET_PLAYER(eOldOwner).IsFreePromotion(eFreePromotion))
+						{
+							GET_PLAYER(eOldOwner).ChangeFreePromotionCount(eFreePromotion, -1);
+						}
+
+					}
+				}
+#endif
 #if defined(MOD_API_EXTENSIONS)
 				changeAdjacentSight(getTeam(), GC.getPLOT_VISIBILITY_RANGE(), false, NO_INVISIBLE, NO_DIRECTION);
 #else
@@ -6514,7 +6546,11 @@ bool CvPlot::isBlockaded(PlayerTypes ePlayer)
 						continue;
 
 					if (pLoopPlot->isWater()==isWater() && pLoopPlot->getArea()==getArea() && pLoopPlot->IsBlockadeUnit(ePlayer,false))
-						return true;
+					{
+						SPathFinderUserData data(NO_PLAYER,PT_GENERIC_SAME_AREA,-1,iRange);
+						if (GC.GetStepFinder().GetPath(pLoopPlot,this,data).length()<=iRange)
+							return true;
+					}
 				}
 			}
 		}
@@ -10064,10 +10100,6 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 				iYield += 1;
 			}
 			if(eYield == YIELD_PRODUCTION && isMountain() && !isFreshWater())
-			{
-				iYield += 2;
-			}
-			else if(eYield == YIELD_PRODUCTION && isMountain() && isFreshWater())
 			{
 				iYield += 2;
 			}
@@ -14870,7 +14902,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 		// Get score for this sentry point (defense and danger)
 		int iScore = GET_PLAYER(eOwner).GetPlotDanger(*this);
 
-		iScore += defenseModifier(eTeam, true);
+		iScore += defenseModifier(eTeam, true, true);
 
 		//Bonus for nearby owned tiles
 		iScore += (iNearbyOwned * 3);

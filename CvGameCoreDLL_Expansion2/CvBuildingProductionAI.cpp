@@ -317,9 +317,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 	if(iNumWar > 0 && pkBuildingInfo->GetDefenseModifier() <= 0)
 	{
-		iBonus -= 100;
-		//Ad
-		iBonus -= (iNumWar * 25);
+		iBonus -= 150;
+
+		iBonus -= (iNumWar * 40);
 		if(kPlayer.getNumCities() > 1 && m_pCity->GetThreatCriteria() != -1)
 		{
 			//More cities = more threat.
@@ -685,9 +685,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Courthouse? Let's get it ASAP.
 	if(pkBuildingInfo->IsNoOccupiedUnhappiness())
 	{
-		if(m_pCity->IsOccupied() && !m_pCity->IsNoOccupiedUnhappiness())
+		if(m_pCity->IsOccupied())
 		{
-			iBonus += 600;
+			//Extend based on population.
+			iBonus += 100 * m_pCity->getPopulation();
 			bGoodforGPTHappiness = true;
 		}
 	}
@@ -932,9 +933,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if(pEntry)
 		{
 			EraTypes eEra = (EraTypes)pEntry->GetEra();
-			if(eEra != NO_ERA && eEra < kPlayer.GetCurrentEra())
+			if(eEra != NO_ERA)
 			{
-				iBonus += (40 * (kPlayer.GetCurrentEra() + 2 - eEra));
+				int iValue = kPlayer.GetCurrentEra() - eEra;
+				if(iValue > 0)
+				{
+					iBonus += (150 * iValue);
+				}
 			}
 		}
 	}
@@ -948,7 +953,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	if(bInterruptBuildings)
 	{
-		iValue /= 2;
+		iValue /= 4;
 	}
 
 	return iValue;

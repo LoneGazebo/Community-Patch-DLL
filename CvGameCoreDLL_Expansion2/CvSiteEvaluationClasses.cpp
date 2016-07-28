@@ -97,7 +97,7 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 
 	if (pUnit)
 	{
-		if(!pUnit->canEnterTerrain(*pPlot))
+		if(!pUnit->canMoveInto(*pPlot))
 		{
 			return false;
 		}
@@ -420,6 +420,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		}
 	}
 
+	int iGoodPlotsInRing1 = 0;
 	int iRange = pPlayer ? max(2,min(5,pPlayer->getWorkPlotDistance())) : 3;
 	for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 	{
@@ -493,6 +494,10 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (iDistance==0)
 			if (pDebug) vQualifiersPositive.push_back( CvString::format("raw plot value %d", iPlotValue).c_str() );
 
+		// need at least some good plots in immediate range
+		if (iDistance==1 && iPlotValue>0)
+			iGoodPlotsInRing1++;
+
 		// avoid this
 		if (iDistance==1 && !pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && pLoopPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 			bIsAlmostCoast = true;
@@ -564,6 +569,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 				}
 			}
 		}
+		
 		if(bLikesMountains)
 		{
 			if(pLoopPlot->isMountain())
@@ -577,6 +583,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		}
 	}
 
+	if (iGoodPlotsInRing1<2)
+		return 0;
 
 	//take into account only the best 80% of the plots - in the near term the city will not work all plots anyways
 	std::stable_sort( workablePlots.begin(), workablePlots.end() );
@@ -705,6 +713,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields");
 	}
 
+	if ( iTotalFoodValue>10*iTotalProductionValue )
+	{
+		iValueModifier -= (int)iTotalPlotValue * 20 / 100;
+		if (pDebug) vQualifiersNegative.push_back("(V) extremely unbalanced yields");
+	}
+
 	if (pPlot->isRiver())
 	{
 		iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100;
@@ -727,13 +741,10 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (pPlayer)
 		{
 			int iNavalFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iNavalIndex);
-			if (iNavalFlavor > 7)
+			// we really like the coast (England, Norway, Polynesia, Carthage, etc.)
+			if (iNavalFlavor > 7 || pPlayer->getCivilizationInfo().isCoastalCiv())
 			{
 				iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
-			}
-			if (pPlayer->getCivilizationInfo().isCoastalCiv()) // we really like the coast (England, Norway, Polynesia, Carthage, etc.)
-			{
-				iValueModifier += iTotalPlotValue;
 			}
 		}
 	}

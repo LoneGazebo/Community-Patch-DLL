@@ -143,6 +143,9 @@ public:
 	void ChangeEventResourceYield(ResourceTypes eResource, YieldTypes eYield, int iValue);
 	int GetEventResourceYield(ResourceTypes eResource, YieldTypes eYield) const;
 
+	void ChangeEventSpecialistYield(SpecialistTypes eSpecialist, YieldTypes eYield, int iValue);
+	int GetEventSpecialistYield(SpecialistTypes eSpecialist, YieldTypes eYield) const;
+
 	void ChangeEventTerrainYield(TerrainTypes eTerrain, YieldTypes eYield, int iValue);
 	int GetEventTerrainYield(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeEventFeatureYield(FeatureTypes eFeature, YieldTypes eYield, int iValue);
@@ -415,6 +418,10 @@ public:
 	void UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields=true);
 #else
 	void UpdateReligion(ReligionTypes eNewMajority);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	bool HasPaidAdoptionBonus(ReligionTypes eReligion) const;
+	void SetPaidAdoptionBonus(ReligionTypes eReligion, bool bNewValue);
 #endif
 
 	int GetCultureFromSpecialist(SpecialistTypes eSpecialist) const;
@@ -1666,6 +1673,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<bool>, CvCity> m_abIsPurchased;
 	FAutoVariable<std::vector<bool>, CvCity> m_abTraded;
+	FAutoVariable<std::vector<bool>, CvCity> m_abPaidAdoptionBonus;
 	FAutoVariable<int, CvCity> m_iExtraBuildingMaintenance;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumTerrainWorked;
 	FAutoVariable<std::vector<int>, CvCity> m_paiNumFeaturelessTerrainWorked;
@@ -1757,6 +1765,7 @@ protected:
 	int** m_ppaiEventBuildingClassYieldModifier;
 	int** m_ppaiEventImprovementYield;
 	int** m_ppaiEventResourceYield;
+	int** m_ppaiEventSpecialistYield;
 	int** m_ppaiEventTerrainYield;
 	int** m_ppaiEventFeatureYield;
 #endif

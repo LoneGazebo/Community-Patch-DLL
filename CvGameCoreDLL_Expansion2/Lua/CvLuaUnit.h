@@ -215,6 +215,12 @@ protected:
 	static int lIsGoldenAge(lua_State* L);
 	static int lCanCoexistWithEnemyUnit(lua_State* L);
 
+#if defined(MOD_BALANCE_CORE)
+	static int lIsContractUnit(lua_State* L);
+	static int lIsSpecificContractUnit(lua_State* L);
+	static int lGetContractUnit(lua_State* L);
+#endif
+
 	static int lIsGreatPerson(lua_State* L);
 
 	static int lIsFighting(lua_State* L);

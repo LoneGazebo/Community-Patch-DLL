@@ -3,36 +3,45 @@
 <GameData>
 	<!-- Lua Functions-->
 	<!--
-	Game.DoUpdateContracts() - forces a refresh of the unit type for contracts (auto-does this when human enters new era, but you can also force it if you want)
+	Game.DoUpdateContracts() - forces a refresh of the unit type for inactive contracts for all players (auto-does this when human enters new era, but you can also force it if you want)
 	Game.GetNumActiveContracts()
 	Game.GetNumInactiveContracts()
 	Game.GetNumAvailableContracts()
 	Game.GetNumUnavailableContracts()
-	Game.GetActiveContract(ContractTypes eContract) grabs as an ID value
-	Game.GetInactiveContract(ContractTypes eContract) grabs as an ID value
+	Game.GetActiveContract(ContractTypes eContract) grabs as an ID value - returns NULL if inactive!
+	Game.GetInactiveContract(ContractTypes eContract) grabs as an ID value - returns NULL if active!
 	Game.IsContractActive(ContractTypes eContract) use with contract table iterator to get a list of all unavailable (i.e. active) contracts
 	Game.IsContractAvailable(ContractTypes eContract) use with contract table iterator to get a list of all available (i.e. inactive) contracts
-	Game.GetContractUnit(ContractTypes eContract) gets the unit, either XML default or your randomized unit, depending on whether or not you've set that.
+	Game.SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iValue) - if you want to set it manually for a contract
+	Game.GetContractUnits(ContractTypes eContract, UnitTypes eUnit) - grabs quantity of units - use with iterator to get a list of all units available for a contract - adds to contract value
 	
 	Player.PlayerHasContract(ContractTypes eContract)
 	Player.PlayerHasAnyContract()
-	Player.GetContractTurnsRemaining()
+	Player.GetContractTurnsRemaining(ContractTypes eContract)
 	Player.GetContractGoldMaintenance() - UI value for contract maintenance - note that supply/resource cost and unit maintenance are all bypassed for contract units, so this is the flat cost of the units based on the XML/LUA
-	Player.GetActiveContract();
 	Player.StartContract(ContractTypes eContract)
+	Player.EndContract(ContractTypes eContract)
+	Player.UnitIsActiveContractUnit(UnitTypes eUnit) - looks at all active contracts for player
+	Player.GetNumActivePlayerContracts()
+	Player.InitContractUnits(ContractTypes eContract) - creates units for a contract for a player. Prioritizes coastal cities for naval units, large cities above all (capital if possible) - automatically happens in StartContract, you may not need this.
+	Player.DisbandContractUnits(ContractTypes eContract) - disbands units associated with a contract for a player.
+	
+	Unit.IsContractUnit() - checks to see if unit is a contract unit
+	Unit.IsSpecificContractUnit(UnitTypes eContract) - checks for a specific contract
+	Unit.GetContractUnit() - gets the unit's contract type - returns -1 if no contract.
 	-->
 	<!-- Lua Hooks-->
 	<!--
 
 	These three will get an input from your lua
-	GetContractUnit(ContractTypes eContract) this one hooks to your random table and sets the unit type for the inactive list. This list can then be used in your UI to populate the unit type for each contract
+	GetNumContractUnit(ContractTypes eContract, UnitTypes eUnit) this one hooks to your random table and grabs a number (1 through whatever). This number is assigned to a unit type to determine how many of a specific unit spawn from a contract. Use this with your unit table to populate contracts with units.
 	GetContractMaintenance(PlayerTypes ePlayer, ContractTypes eContract) can alter the contract maintenance here - defaults to XML value if nothing happens
 	GetContractDuration(PlayerTypes ePlayer, ContractTypes eContract) - can alter the contract duration here - defaults to XML value if nothing happens
 	
 	These three are simply hooks for lua events (notifications etc.)
-	ContractStarted(PlayerTypes ePlayer, ContractTypes eContract, UnitTypes eUnit, int iTurns, int iMaintenance)
+	ContractStarted(PlayerTypes ePlayer, ContractTypes eContract, int iTurns, int iMaintenance)
 	ContractEnded(PlayerTypes ePlayer, ContractTypes eContract)
-	ContractsRefreshed()
+	ContractsRefreshed() - simply a hook
 	
 	-->
 	<Table name="Contracts">
@@ -51,8 +60,7 @@
 		<Column name="PrereqReligion" type="text" reference="Religions(Type)" default="NULL"/>
 		<Column name="PrereqCiv" type="text" reference="Civilizations(Type)" default="NULL"/>
 		<Column name="PolicyType" type="text" reference="Policies(Type)" default="NULL"/>
-		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" default="NULL"/>
-		<Column name="ContractUnit" type="text" reference="Units(Type)" default="NULL"/>		
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" default="NULL"/>	
 		<Column name="IsHolyOrder" type="boolean" default="false"/>
 		<Column name="IsSlavery" type="boolean" default="false"/>
 		<Column name="PrereqPietyLevel" type="text" default="NULL"/>
@@ -72,8 +80,7 @@
 		<Column name="FlavorType" type="text" reference="Flavors(Type)"/>
 		<Column name="Flavor" type="integer"/>
 	</Table>
-	<!--
-	<Contracts>
+	<!--<Contracts>
 		<Row>
 			<ID>0</ID>
 			<Type>CONTRACT_KNIGHTS_OF_GAZEBO</Type>
@@ -82,8 +89,8 @@
 			<Adjective>TXT_KEY_CONTRACT_KNIGHTS_OF_GAZEBO_ADJ</Adjective>
 			<Civilopedia>TXT_KEY_CONTRACT_KNIGHTS_OF_GAZEBO_PEDIA</Civilopedia>
 			<Category>TXT_KEY_CATEGORY_KNIGHTS</Category>
-			<ContractUnit>UNIT_KNIGHT</ContractUnit>
 			<IsHolyOrder>true</IsHolyOrder>
+			<PromotionType>PROMOTION_DRILL_1</PromotionType>
 			<Maintenance>10</Maintenance>
 			<ContractTurns>30</ContractTurns>
 		</Row>
@@ -101,6 +108,5 @@
 			<FlavorType>FLAVOR_GOLD</FlavorType>
 			<Flavor>100</Flavor>
 		</Row>
-	</Contract_Flavor>
-	-->
+	</Contract_Flavor>-->
 </GameData>

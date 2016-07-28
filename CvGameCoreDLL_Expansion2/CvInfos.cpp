@@ -5257,6 +5257,7 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_iAdjacentUnitFreePromotion(NO_PROMOTION),
 #if defined(MOD_BALANCE_CORE)
 	m_iPrereqTechPassable(NO_TECH),
+	m_iPromotionIfOwned(NO_PROMOTION),
 	m_iLocationUnitFreePromotion(NO_PROMOTION),
 	m_iSpawnLocationUnitFreePromotion(NO_PROMOTION),
 	m_iAdjacentSpawnLocationUnitFreePromotion(NO_PROMOTION),
@@ -5303,6 +5304,7 @@ CvFeatureInfo::~CvFeatureInfo()
 	{
 		CvDatabaseUtility::SafeDelete2DArray(m_ppiTechYieldChanges);
 	}
+	SAFE_DELETE_ARRAY(m_piEraYieldChange);
 #endif
 	SAFE_DELETE_ARRAY(m_pi3DAudioScriptFootstepIndex);
 	SAFE_DELETE_ARRAY(m_pbTerrain);
@@ -5390,6 +5392,10 @@ int CvFeatureInfo::getAdjacentUnitFreePromotion() const
 	return m_iAdjacentUnitFreePromotion;
 }
 #if defined(MOD_BALANCE_CORE)
+int CvFeatureInfo::getPromotionIfOwned() const
+{
+	return m_iPromotionIfOwned;
+}
 int CvFeatureInfo::getLocationUnitFreePromotion() const
 {
 	return m_iLocationUnitFreePromotion;
@@ -5550,6 +5556,13 @@ int CvFeatureInfo::GetTechYieldChanges(int i, int j) const
 	CvAssertMsg(j > -1, "Index out of bounds");
 	return m_ppiTechYieldChanges[i][j];
 }
+//------------------------------------------------------------------------------
+int CvFeatureInfo::GetEraYieldChanges(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piEraYieldChange ? m_piEraYieldChange[i] : -1;
+}
 #endif
 //------------------------------------------------------------------------------
 int CvFeatureInfo::get3DAudioScriptFootstepIndex(int i) const
@@ -5618,6 +5631,9 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	szTextVal = kResults.GetText("PassableTechFeature");
 	m_iPrereqTechPassable = GC.getInfoTypeForString(szTextVal, true);
 
+	szTextVal = kResults.GetText("FreePromotionIfOwned");
+	m_iPromotionIfOwned = GC.getInfoTypeForString(szTextVal, true);
+
 	szTextVal = kResults.GetText("LocationUnitFreePromotion");
 	m_iLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
 	
@@ -5670,6 +5686,7 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piRiverYieldChange, "Feature_RiverYieldChanges", "FeatureType", szFeatureType);
 	kUtility.SetYields(m_piHillsYieldChange, "Feature_HillsYieldChanges", "FeatureType", szFeatureType);
 #if defined(MOD_API_UNIFIED_YIELDS)
+	kUtility.SetYields(m_piEraYieldChange, "Feature_EraYieldChanges", "FeatureType", szFeatureType);
 	kUtility.SetYields(m_piCoastalLandYieldChange, "Feature_CoastalLandYields", "FeatureType", szFeatureType);
 	kUtility.SetYields(m_piFreshWaterChange, "Feature_FreshWaterYields", "FeatureType", szFeatureType);
 
@@ -8287,7 +8304,8 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_iCoastal(0),
 	 m_bCoastalOnly(false),
 	 m_bTradeCapped(false),
-	 m_bCapitalEffectOnly(false)
+	 m_bCapitalEffectOnly(false),
+	 m_bInstantYieldAllCities(false)
 {
 }
 //------------------------------------------------------------------------------
@@ -8311,6 +8329,7 @@ CvModEventChoiceInfo::~CvModEventChoiceInfo()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifier);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiTerrainYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiFeatureYield);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiResourceYield);
 }
@@ -8551,6 +8570,15 @@ int CvModEventChoiceInfo::getResourceYield(int i, int j) const
 	CvAssertMsg(j > -1, "Index out of bounds");
 	return m_ppiResourceYield[i][j];
 }
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getGlobalSpecialistYieldChange(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiSpecialistYield[i][j];
+}
 // Filters
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getPrereqTech() const
@@ -8790,6 +8818,11 @@ bool CvModEventChoiceInfo::isCapitalEffectOnly() const
 	return m_bCapitalEffectOnly;
 }
 //------------------------------------------------------------------------------
+bool CvModEventChoiceInfo::isInstantYieldAllCities() const
+{
+	return m_bInstantYieldAllCities;
+}
+//------------------------------------------------------------------------------
 const char* CvModEventChoiceInfo::getDisabledTooltip() const
 {
 	return m_strDisabledTooltip;
@@ -8824,6 +8857,7 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 	m_bTradeCapped = kResults.GetBool("LessThanMaximumTradeRoutes");
 
 	m_bCapitalEffectOnly = kResults.GetBool("CapitalEffectOnly");
+	m_bInstantYieldAllCities = kResults.GetBool("YieldBonusAllCities");
 	
 	m_iNumFreePolicies = kResults.GetInt("EventFreePolicies");
 	m_iNumFreeTechs = kResults.GetInt("EventFreeTechs");
@@ -8895,7 +8929,7 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 			pEventNotificationInfo.m_strDescription = pEventChoiceTypes->GetText("Description");
 			pEventNotificationInfo.m_strShortDescription = pEventChoiceTypes->GetText("ShortDescription");
 			pEventNotificationInfo.m_bWorldEvent = pEventChoiceTypes->GetBool("IsWorldEvent");
-			pEventNotificationInfo.m_bWorldEvent = pEventChoiceTypes->GetBool("NeedPlayerID");
+			pEventNotificationInfo.m_bNeedPlayerID = pEventChoiceTypes->GetBool("NeedPlayerID");
 			pEventNotificationInfo.m_iVariable1 = pEventChoiceTypes->GetBool("Variable1");
 			pEventNotificationInfo.m_iVariable2 = pEventChoiceTypes->GetBool("Variable2");
 			idx++;
@@ -9036,6 +9070,28 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 			const int iYieldChange = pResults->GetInt(2);
 
 			m_ppiFeatureYield[FeatureID][iYieldID] = iYieldChange;
+		}
+	}
+	//SpecialistYieldChanges
+	{
+		kUtility.Initialize2DArray(m_ppiSpecialistYield, "Specialists", "Yields");
+
+		std::string strKey("EventChoice_SpecialistYieldChange");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Specialists.ID as SpecialistID, Yields.ID as YieldID, YieldChange from EventChoice_SpecialistYieldChange inner join Specialists on Specialists.Type = SpecialistType inner join Yields on Yields.Type = YieldType where EventChoiceType = ?");
+		}
+
+		pResults->Bind(1, szEventType);
+
+		while(pResults->Step())
+		{
+			const int SpecialistID = pResults->GetInt(0);
+			const int iYieldID = pResults->GetInt(1);
+			const int iYieldChange = pResults->GetInt(2);
+
+			m_ppiSpecialistYield[SpecialistID][iYieldID] = iYieldChange;
 		}
 	}
 
@@ -9881,6 +9937,7 @@ CvModEventCityChoiceInfo::~CvModEventCityChoiceInfo()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiFeatureYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiResourceYield);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYield);
 }
 //------------------------------------------------------------------------------
 bool CvModEventCityChoiceInfo::isParentEvent(CityEventTypes eCityEvent) const
@@ -10109,6 +10166,15 @@ int CvModEventCityChoiceInfo::getResourceYield(int i, int j) const
 	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
 	return m_ppiResourceYield[i][j];
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getCitySpecialistYieldChange(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiSpecialistYield[i][j];
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getEventResourceChange(ResourceTypes eResource) const
@@ -10688,6 +10754,28 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 			const int iYieldChange = pResults->GetInt(2);
 
 			m_ppiFeatureYield[FeatureID][iYieldID] = iYieldChange;
+		}
+	}
+	//SpecialistYieldChanges
+	{
+		kUtility.Initialize2DArray(m_ppiSpecialistYield, "Specialists", "Yields");
+
+		std::string strKey("CityEventChoice_SpecialistYieldChange");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Specialists.ID as SpecialistID, Yields.ID as YieldID, YieldChange from CityEventChoice_SpecialistYieldChange inner join Specialists on Specialists.Type = SpecialistType inner join Yields on Yields.Type = YieldType where CityEventChoiceType = ?");
+		}
+
+		pResults->Bind(1, szEventType);
+
+		while(pResults->Step())
+		{
+			const int SpecialistID = pResults->GetInt(0);
+			const int iYieldID = pResults->GetInt(1);
+			const int iYieldChange = pResults->GetInt(2);
+
+			m_ppiSpecialistYield[SpecialistID][iYieldID] = iYieldChange;
 		}
 	}
 	

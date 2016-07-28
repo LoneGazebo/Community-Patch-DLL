@@ -478,8 +478,12 @@ protected:
 	LUAAPIEXTN(PlayerHasAnyContract, int);
 	LUAAPIEXTN(GetContractTurnsRemaining, int);
 	LUAAPIEXTN(GetContractGoldMaintenance, int);
-	LUAAPIEXTN(GetActiveContract, int);
 	LUAAPIEXTN(StartContract, int);
+	LUAAPIEXTN(EndContract, int);
+	LUAAPIEXTN(UnitIsActiveContractUnit, int);
+	LUAAPIEXTN(GetNumActivePlayerContracts, int);
+	LUAAPIEXTN(DisbandContractUnits, int);
+	LUAAPIEXTN(InitContractUnits, int);
 #endif
 	static int lGetCombatBonusVsHigherTech(lua_State* L);
 	static int lGetCombatBonusVsLargerCiv(lua_State* L);

@@ -1,3 +1,8 @@
+-- Wonders
+	UPDATE Language_en_US
+	SET Text = 'Wonders are the remarkable, one-of-a-kind buildings that ensure that a civilization will be remembered throughout all of history. Wonders engage the mind and lift the spirits.[NEWLINE][NEWLINE]The Pyramids, Notre Dame Cathedral, and Stonehenge are examples of wonders. Wonders require much time and energy from your cities to construct, but once completed, they provide your civilization with many benefits.[NEWLINE][NEWLINE]There are three basic types of wonders: World Wonders, National Wonders and Project Wonders. Only one copy of a World Wonder may be constructed anywhere in the world in a given game. National Wonders are less exclusive: each nation may construct one (but only one) copy of a National Wonder.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]World Wonder Production Modifiers[ENDCOLOR]: In addition to certain Traits and Policies, [ICON_RES_MARBLE] Marble and [ICON_RES_STONE] Stone increase the production modifier of cities with these resources nearby. Marble increases Wonder production by 15% for all pre-Industrial Wonders, whereas Stone increases Wonder production by 10% for all pre-Medieval Wonders.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]World Wonder Production Costs[ENDCOLOR]: For every Wonder you control, the cost of future Wonders goes up. This cost varies based on the Era of the Wonder.[NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]For every owned Wonder of the same Era: 25%. [NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]For every owned Wonder from the previous Era: 15%. [NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]For every owned Wonder from Eras prior to your previous Era: 10%.[NEWLINE][NEWLINE]If you build too many Wonders during an Era, your ability to gain future Wonders will be compromised, so don''t be too greedy!'
+	WHERE Tag = 'TXT_KEY_PEDIA_WONDERS_HELP_TEXT';
+
 -- Barb CS
 
 	UPDATE Language_en_US
@@ -533,3 +538,19 @@
 	SET Text = 'Found in the Earth''s crust and upper mantle, stone is perhaps the most crucial element in human construction efforts throughout history. There are three major classifications of stone - Sedimentary, Igneous, and Metamorphic - each differing in their origin.[NEWLINE][NEWLINE]+10% [ICON_PRODUCTION] Production when building pre-Renaissance Wonders in the City where it is worked.'
 	WHERE Tag = 'TXT_KEY_CIV5_RESOURCE_STONE_TEXT';
 
+
+-- Founding Cities
+
+	UPDATE Language_en_US
+	SET Text = 'City Locations and Yields'
+	WHERE Tag = 'TXT_KEY_CITIES_WHERETOCONSTRUCT_HEADING2_TITLE';
+
+	
+	UPDATE Language_en_US
+	SET Text = 'Cities should be founded in locations with plenty of food and production and with access to resources such as wheat, fish, and cattle. Cities founded on hills gain a defensive bonus, making it harder for enemies to capture them. It''s often a good idea to build a city on a river or coastal hex, as cities built in different locations have different starting yields:[NEWLINE][ICON_BULLET] Cities on mountains: +2 [ICON_PRODUCTION] Production. [NEWLINE][ICON_BULLET] Cities on hills: +1 [ICON_PRODUCTION] Production.[NEWLINE][ICON_BULLET] Cities on fresh water: +1 [ICON_FOOD] Food. [NEWLINE][ICON_BULLET] Cities without fresh water or hills: +1 [ICON_GOLD] Gold.'
+	WHERE Tag = 'TXT_KEY_CITIES_WHERETOCONSTRUCT_HEADING2_BODY';
+
+	-- Trade Routes
+	UPDATE Language_en_US
+	SET Text = 'Trade Routes are established between two cities of different civilizations, providing Gold to each every turn. The civilization that the Trade Route originates from gets a larger sum of Gold than the destination civilization. The amount of Gold a Trade Route produces is dependent upon the resource diversity and revenue of the origin city.[NEWLINE][NEWLINE]Trade Routes can also be created between two cities of the same civilization. Once the origin city has a Granary, it can send Food to the destination city, and once it has a Workshop it can send Production. These types of internal Trade Routes do not benefit the origin city.[NEWLINE][NEWLINE]You can only have a limited number of Trade Routes at any time. Researching certain technologies increases the number of routes you have available. For details about your existing Trade Routes, open the Trade Route Overview screen, located in the Additional Information drop-down menu.[NEWLINE][NEWLINE]The distance that Trade Routes can travel is affected by roads, terrain, hostile troops, and features. Keep this in mind when expanding, and when trying to link cities via trade routes.'
+	WHERE Tag = 'TXT_KEY_TRADE_ROUTES_HEADING2_BODY';
