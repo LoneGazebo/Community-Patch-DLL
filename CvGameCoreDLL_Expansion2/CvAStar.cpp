@@ -1544,8 +1544,10 @@ int StepCostEstimate(const CvAStarNode* parent, const CvAStarNode* node, int, co
 		iScale /= 3;
 	else if (pToPlot->isRoughGround())
 		iScale *= 2;
-	else if (pFromPlot->isWater()!=pToPlot->isWater())
-		iScale *= 2;
+	else if (pFromPlot->isWater() != pToPlot->isWater())
+		iScale *= 2; //dis/embarkation
+	else if (pFromPlot->isWater() && pToPlot->isWater())
+		iScale /= 2; //movement on water is usually faster
 
 	return PATH_BASE_COST*iScale/100;
 }
@@ -1588,24 +1590,28 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, int, co
 	//this is the important check here - stay within the same area
 	if(!bAnyArea && pFromPlot->getArea() != pToPlot->getArea())
 	{
-		bool bAllow = false;
+		bool bAllowStep = false;
 
-		//be a little lenient with cities
-		if (pFromPlot->isCity())
+		//be a little lenient with cities - on the first and last leg!
+		bool bAllowAreaChange = !parent->m_pParent || finder->IsPathDest(node->m_iX, node->m_iY);
+		if (bAllowAreaChange)
 		{
-			CvCity* pCity = pFromPlot->getPlotCity();
-			if (pCity->isMatchingArea(pToPlot))
-				bAllow = true;
+			if (pFromPlot->isCity())
+			{
+				CvCity* pCity = pFromPlot->getPlotCity();
+				if (pCity->isMatchingArea(pToPlot))
+					bAllowStep = true;
+			}
+
+			if (pToPlot->isCity())
+			{
+				CvCity* pCity = pToPlot->getPlotCity();
+				if (pCity->isMatchingArea(pFromPlot))
+					bAllowStep = true;
+			}
 		}
 
-		if (pToPlot->isCity())
-		{
-			CvCity* pCity = pToPlot->getPlotCity();
-			if (pCity->isMatchingArea(pFromPlot))
-				bAllow = true;
-		}
-
-		if (!bAllow)
+		if (!bAllowStep)
 			return FALSE;
 	}
 
