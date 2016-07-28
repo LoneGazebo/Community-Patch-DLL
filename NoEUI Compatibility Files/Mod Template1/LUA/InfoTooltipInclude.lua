@@ -1480,11 +1480,13 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 	end
 
 	-- Base Yield from League Art (CSD)
-	local iYieldFromLeague = pCity:GetBaseYieldRateFromLeague(iYieldType);
-	if (iYieldFromLeague ~= 0) then
-		if (iYieldType == YieldTypes.YIELD_SCIENCE) then
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART", iYieldFromLeague, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+	if (iYieldType == YieldTypes.YIELD_SCIENCE) then
+		local iYieldFromLeague = pCity:GetBaseYieldRateFromLeague(iYieldType);
+		if (iYieldFromLeague ~= 0) then
+			if (iYieldType == YieldTypes.YIELD_SCIENCE) then
+			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART", iYieldFromLeague, strIconString);
+			strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+			end
 		end
 	end
 

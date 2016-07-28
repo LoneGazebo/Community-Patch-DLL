@@ -22,6 +22,7 @@ enum AIHomelandTargetType
     AI_HOMELAND_TARGET_NONE,
     AI_HOMELAND_TARGET_CITY,
     AI_HOMELAND_TARGET_SENTRY_POINT,
+	AI_HOMELAND_TARGET_SENTRY_POINT_NAVAL,
     AI_HOMELAND_TARGET_FORT,
     AI_HOMELAND_TARGET_NAVAL_RESOURCE,
     AI_HOMELAND_TARGET_HOME_ROAD,
@@ -310,6 +311,9 @@ private:
 	void PlotOpportunisticSettlementMoves();
 #endif
 	void PlotSentryMoves();
+#if defined(MOD_BALANCE_CORE)
+	void PlotSentryNavalMoves();
+#endif
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	void PlotWorkerMoves(bool bSecondary = false);
 #else
@@ -361,7 +365,7 @@ private:
 	void ExecuteWorkerMoves();
 #endif
 	void ExecuteMovesToSafestPlot();
-	void ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags);
+	void ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags, bool bFinishMoves = false);
 
 	void ExecuteHeals();
 	void ExecuteWriterMoves();
@@ -392,6 +396,9 @@ private:
 
 	// Internal low-level utility routines
 	void EliminateAdjacentSentryPoints();
+#if defined(MOD_BALANCE_CORE)
+	void EliminateAdjacentNavalSentryPoints();
+#endif
 	void EliminateAdjacentHomelandRoads();
 	bool FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime);
 	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
@@ -433,6 +440,9 @@ private:
 	std::vector<CvHomelandTarget> m_TargetedHomelandRoads;
 	std::vector<CvHomelandTarget> m_TargetedAncientRuins;
 	std::vector<CvHomelandTarget> m_TargetedAntiquitySites;
+#if defined(MOD_BALANCE_CORE)
+	std::vector<CvHomelandTarget> m_TargetedNavalSentryPoints;
+#endif
 
 	// Targeting ranges (pulled in from GlobalAIDefines.XML)
 	int m_iRandomRange;

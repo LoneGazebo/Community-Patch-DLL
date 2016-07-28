@@ -370,7 +370,7 @@
 #define MOD_BALANCE_CORE_JFD						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_JFD())
 #define MOD_BALANCE_CORE_MILITARY_RESISTANCE		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_MILITARY_RESISTANCE())
 #define MOD_BALANCE_CORE_PANTHEON_RESET_FOUND		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_PANTHEON_RESET_FOUND())
-#define MOD_BALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY())
+#define MOD_BALANCE_CORE_VICTORY_GAME_CHANGES		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_VICTORY_GAME_CHANGES())
 #define MOD_BALANCE_CORE_EVENTS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_EVENTS())
 #define MOD_NO_RANDOM_TEXT_CIVS						(MOD_COMMUNITY_PATCH && gCustomMods.isNO_RANDOM_TEXT_CIVS())
 
@@ -1187,10 +1187,10 @@ enum BattleTypeTypes
 #define GAMEEVENT_GreatWorkCreated          "GreatWorkCreated",             "iii"
 #define GAMEEVENT_PlayerAdoptsCurrency		"PlayerAdoptsCurrency", "iii"
 //Contracts
-#define GAMEEVENT_GetContractUnit			"GetContractUnit", "i"
+#define GAMEEVENT_GetNumContractUnit		"GetNumContractUnit", "ii"
 #define GAMEEVENT_GetContractMaintenance	"GetContractMaintenance", "ii"
 #define GAMEEVENT_GetContractDuration		"GetContractDuration", "ii"
-#define GAMEEVENT_ContractStarted			"ContractStarted", "iiiii"
+#define GAMEEVENT_ContractStarted			"ContractStarted", "iiii"
 #define GAMEEVENT_ContractEnded				"ContractEnded", "ii"
 #define GAMEEVENT_ContractsRefreshed		"ContractsRefreshed", ""
 //Other
@@ -1415,7 +1415,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_JFD);
 	MOD_OPT_DECL(BALANCE_CORE_MILITARY_RESISTANCE);
 	MOD_OPT_DECL(BALANCE_CORE_PANTHEON_RESET_FOUND);
-	MOD_OPT_DECL(BALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY);
+	MOD_OPT_DECL(BALANCE_CORE_VICTORY_GAME_CHANGES);
 	MOD_OPT_DECL(BALANCE_CORE_EVENTS);
 	MOD_OPT_DECL(NO_RANDOM_TEXT_CIVS);
 

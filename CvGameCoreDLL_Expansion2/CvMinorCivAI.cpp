@@ -6102,11 +6102,12 @@ void CvMinorCivAI::DoTestEndSkirmishes(PlayerTypes eNewAlly)
 
 					if(kOtherMinor.GetMinorCivAI()->IsPermanentWar(GetPlayer()->getTeam()))
 						continue;
-
-					if(kOtherMinor.GetMinorCivAI()->GetAlly() == NO_PLAYER)
+					
+					//No ally, or not at war with their ally? Peace!
+					if(kOtherMinor.GetMinorCivAI()->GetAlly() == NO_PLAYER || !GET_TEAM(GET_PLAYER(kOtherMinor.GetMinorCivAI()->GetAlly()).getTeam()).isAtWar(GetPlayer()->getTeam()))
 					{
 						// We are at war with our new ally's ally!
-						CUSTOMLOG("CS %i is at war with CS %i but neither has an ally %i - making peace", GetPlayer()->GetID(), iOtherMinorLoop, ((int) eNewAlly));
+						CUSTOMLOG("CS %i is at war with CS %i but neither has an ally or a warring ally %i - making peace", GetPlayer()->GetID(), iOtherMinorLoop, ((int) eNewAlly));
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 						GET_TEAM(GetPlayer()->getTeam()).makePeace(eLoopTeam, true, false, GetPlayer()->GetID());
 #else

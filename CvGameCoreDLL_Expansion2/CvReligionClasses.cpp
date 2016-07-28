@@ -4348,7 +4348,9 @@ int CvPlayerReligions::GetNumDomesticFollowers(ReligionTypes eReligion) const
 //=====================================
 /// Constructor
 CvCityReligions::CvCityReligions(void):
+#if !defined(MOD_BALANCE_CORE)
 	m_bHasPaidAdoptionBonus(false),
+#endif
 #if defined(MOD_BALANCE_CORE)
 	m_pCity(NULL),
 	m_majorityCityReligion(NO_RELIGION),
@@ -4368,7 +4370,9 @@ CvCityReligions::~CvCityReligions(void)
 void CvCityReligions::Init(CvCity* pCity)
 {
 	m_pCity = pCity;
+#if !defined(MOD_BALANCE_CORE)
 	m_bHasPaidAdoptionBonus = false;
+#endif
 	m_iReligiousPressureModifier = 0;
 	m_ReligionStatus.clear();
 #if defined(MOD_BALANCE_CORE)
@@ -4387,7 +4391,9 @@ void CvCityReligions::Copy(CvCityReligions* pOldCity)
 {
 	m_ReligionStatus.clear();
 
+#if !defined(MOD_BALANCE_CORE)
 	SetPaidAdoptionBonus(pOldCity->HasPaidAdoptionBonus());
+#endif
 	SetReligiousPressureModifier(pOldCity->GetReligiousPressureModifier());
 
 	ReligionInCityList::iterator religionIt;
@@ -5676,7 +5682,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 		CvCity* pHolyCity = NULL;
 		PlayerTypes eReligionController = NO_PLAYER;
 		CvPlot* pkPlot = GC.getMap().plot(pNewReligion->m_iHolyCityX, pNewReligion->m_iHolyCityY);
-		if(pkPlot)
+		if(pkPlot != NULL)
 		{
 			pHolyCity = pkPlot->getPlotCity();
 		}
@@ -5684,15 +5690,15 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 		{
 			eReligionController = pHolyCity->getOwner();
 		}
-		else
-		{
-			eReligionController = pNewReligion->m_eFounder;
-		}
 #endif
 		GET_PLAYER(pNewReligion->m_eFounder).UpdateReligion();
 
 		// Pay adoption bonuses (if any)
+#if defined(MOD_BALANCE_CORE)
+		if(!m_pCity->HasPaidAdoptionBonus(eMajority))
+#else
 		if(!m_bHasPaidAdoptionBonus)
+#endif
 		{
 			int iGoldBonus = 0;
 			if(eResponsibleParty != NO_PLAYER)
@@ -5711,7 +5717,11 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 			if(iGoldBonus > 0)
 			{
 				GET_PLAYER(pNewReligion->m_eFounder).GetTreasury()->ChangeGold(iGoldBonus);
+#if defined(MOD_BALANCE_CORE)
+				m_pCity->SetPaidAdoptionBonus(eMajority, true);
+#else
 				SetPaidAdoptionBonus(true);
+#endif
 
 				if(pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
 				{
@@ -5725,13 +5735,21 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				}
 			}
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			if(eReligionController != NO_PLAYER && GET_PLAYER(eReligionController).GetReligions()->GetCurrentReligion() == eMajority)
 			{
-				CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-				if(kLoopPlayer.isAlive() && pHolyCity != NULL && pHolyCity->getOwner() == (PlayerTypes)iPlayerLoop)
+				GET_PLAYER(eReligionController).doInstantYield(INSTANT_YIELD_TYPE_CONVERSION, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pHolyCity);
+				for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
-					kLoopPlayer.doInstantYield(INSTANT_YIELD_TYPE_CONVERSION, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pHolyCity);
-					SetPaidAdoptionBonus(true);
+					YieldTypes eYield = (YieldTypes)iI;
+					if(eYield == NO_YIELD)
+						continue;
+
+					int iValue = pNewReligion->m_Beliefs.GetYieldFromConversion(eYield, eReligionController, pHolyCity);
+					if(iValue > 0)
+					{
+						m_pCity->SetPaidAdoptionBonus(eMajority, true);
+						break;
+					}
 				}
 			}
 #endif
@@ -6029,7 +6047,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityReligions& writeTo)
 
 	loadFrom >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(loadFrom);
-
+#if !defined(MOD_BALANCE_CORE)
 	if(uiVersion >= 2)
 	{
 		bool bTemp;
@@ -6040,6 +6058,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityReligions& writeTo)
 	{
 		writeTo.SetPaidAdoptionBonus(false);
 	}
+#endif
 
 	if (uiVersion >= 3)
 	{
@@ -6076,8 +6095,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvCityReligions& readFrom)
 
 	saveTo << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
+#if !defined(MOD_BALANCE_CORE)
 	saveTo << readFrom.HasPaidAdoptionBonus();
+#endif
 
 	saveTo << readFrom.GetReligiousPressureModifier();
 
@@ -8833,7 +8853,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 		}
 		if(pEntry->GetYieldPerXFollowers(iI) > 0)
 		{
-			iRtnValue += ((iFlavorGrowth + m_pPlayer->getTotalPopulation() * 2) / pEntry->GetYieldPerXFollowers(iI));
+			iRtnValue += ((iFlavorGrowth + iFlavorExpansion + m_pPlayer->getTotalPopulation() * 5) / pEntry->GetYieldPerXFollowers(iI));
 		}
 		if(pEntry->GetYieldFromKnownPantheons(iI) > 0)
 		{

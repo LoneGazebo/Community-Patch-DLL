@@ -1377,25 +1377,32 @@ void CvGameCorporations::FoundCorporation(PlayerTypes ePlayer, CorporationTypes 
 			Localization::String strMessage;
 			Localization::String strSummary;
 			strMessage = Localization::Lookup("TXT_KEY_CORPORATION_FOUNDED_OTHER_PLAYER");
-
+			strSummary = Localization::Lookup("TXT_KEY_CORPORATION_FOUNDED_OTHER_PLAYER_SUMMARY");
 			// Notify player has met this team
 			if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
 				CvPlayerAI& player = GET_PLAYER(ePlayer);
 				if(GC.getGame().isGameMultiPlayer() && player.isHuman())
+				{
 					strMessage << player.getNickName();
+					strSummary << player.getNickName();
+				}
 				else
+				{
 					strMessage << player.getName();
+					strSummary << player.getName();
+				}
 			}
 			// Has not met this team
 			else
 			{
 				Localization::String unmetPlayer = Localization::Lookup("TXT_KEY_UNMET_PLAYER");
 				strMessage << unmetPlayer;
+				strSummary << unmetPlayer;
 			}
 
 			strMessage << (pkCorporationInfo->GetDescriptionKey());
-			strSummary = Localization::Lookup("TXT_KEY_CORPORATION_FOUNDED_OTHER_PLAYER_SUMMARY");
+			 
 			if(pNotification)
 			{
 				pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, ePlayer);

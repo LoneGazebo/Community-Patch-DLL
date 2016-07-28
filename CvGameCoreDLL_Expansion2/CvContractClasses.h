@@ -6,6 +6,7 @@
 #if defined(MOD_BALANCE_CORE)
 
 #include "CvWeightedVector.h"
+#include "FAutoVariable.h"
 
 class CvContractEntry: public CvBaseInfo
 {
@@ -31,7 +32,6 @@ public:
 	PolicyTypes GetPolicyType() const;
 	PromotionTypes GetPromotionType() const;
 	int GetTurns() const;
-	UnitTypes GetContractUnit() const;
 	int GetYieldCost(YieldTypes eYield) const;
 	int GetFlavorValue(FlavorTypes eFlavor) const;
 	
@@ -53,7 +53,6 @@ protected:
 	int m_iPolicyType;
 	int m_iPromotionType;
 	int m_iTurns;
-	int m_iContractUnit;
 	int* m_piYieldCost;
 	int* m_piFlavor;
 
@@ -90,12 +89,11 @@ class CvContract
 {
 public:
 	CvContract();
-	CvContract(ContractTypes eContract, PlayerTypes eContractHolder, UnitTypes eContractUnit, int iTurns, int iMaintenance);
+	CvContract(ContractTypes eContract, PlayerTypes eContractHolder, int iTurns, int iMaintenance);
 
 	// Public data
 	ContractTypes m_eContract;
 	PlayerTypes m_eContractHolder;
-	UnitTypes m_eContractUnit;
 	int m_iContractTurns;
 	int m_iContractTurnStart;
 	int m_iContractMaintenance;
@@ -109,7 +107,7 @@ FDataStream& operator<<(FDataStream&, const ContractTypes&);
 
 class CvPlayerContracts;
 
-typedef FStaticVector<CvContract, 16, false, c_eCiv5GameplayDLL > ContractList;
+typedef FStaticVector<CvContract, 24, false, c_eCiv5GameplayDLL > ContractList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:		CvGameContracts
@@ -122,7 +120,11 @@ public:
 	~CvGameContracts(void);
 
 	void Init();
+	void Uninit();
+	void Reset();
 	void DoTurn();
+	void Read(FDataStream& kStream);
+	void Write(FDataStream& kStream);
 
 	void DoUpdateContracts();
 
@@ -141,11 +143,10 @@ public:
 	void StartContract(CvContract kContract);
 	void EndContract(ContractTypes eContract, PlayerTypes ePlayer);
 
-	UnitTypes GetContractUnit(ContractTypes eContract);
-
 	ContractList m_ActiveContracts;
 	ContractList m_InactiveContracts;
 };
+
 
 FDataStream& operator>>(FDataStream&, CvGameContracts&);
 FDataStream& operator<<(FDataStream&, const CvGameContracts&);
@@ -161,37 +162,47 @@ class CvPlayerContracts
 {
 public:
 	CvPlayerContracts(void);
-	~CvPlayerContracts(void);
+	virtual ~CvPlayerContracts(void);
 	void Init(CvPlayer* pPlayer);
 	void Uninit();
 	void Reset();
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream);
 
-	CvContract* GetContract() const;
+	CvContract* GetContract(ContractTypes eContract);
 
 	void DoTurn();
 	bool PlayerHasContract(ContractTypes eContract) const;
 	bool PlayerHasAnyContract() const;
 
-	bool UnitIsContractResourceFree(UnitTypes eUnit);
-	bool UnitIsMaintenanceFree(UnitTypes eUnit);
+	bool UnitIsActiveContractUnit(UnitTypes eUnit);
 
-	int GetContractTurnsRemaining() const;
+	int GetContractTurnsRemaining(ContractTypes eContract);
+	int GetNumActivePlayerContracts() const;
 
-	ContractTypes GetActiveContract() const;
-	void SetActiveContract(ContractTypes eContract);
+	void SetActiveContract(ContractTypes eContract, bool bValue);
 	void StartContract(ContractTypes eContract);
+	void EndContract(ContractTypes eContract);
 
-	CvContractEntry* GetContractEntry() const;
+	void InitContractUnits(ContractTypes eContract);
 
+	void DisbandContractUnits(ContractTypes eContract);
 
+	int GetContractGoldMaintenance();
+
+	CvContractEntry* GetContractEntry(ContractTypes eContract);
+
+	ContractList m_ActivePlayerContracts;
 
 private:
 	
 	CvPlayer* m_pPlayer;
-	ContractTypes m_eActiveContract;
+	std::vector<bool> m_abActiveContract;
+
 };
+
+FDataStream& operator>>(FDataStream&, CvPlayerContracts&);
+FDataStream& operator<<(FDataStream&, const CvPlayerContracts&);
 
 #endif
 #endif

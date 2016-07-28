@@ -495,6 +495,14 @@ void CvTacticalAI::CommandeerUnits()
 		{
 			continue;
 		}
+#if defined(MOD_BALANCE_CORE)
+		//Don't poach garrisons.
+		if(pLoopUnit->getArmyID() == -1)
+		{
+			if(pLoopUnit->getHomelandMove() == AI_HOMELAND_MOVE_GARRISON || pLoopUnit->getHomelandMove() == AI_HOMELAND_MOVE_GARRISON_CITY_STATE || pLoopUnit->IsGarrisoned())
+				continue;
+		}
+#endif
 
 		// We want ALL the barbarians and air units (that are combat ready)
 		if(pLoopUnit->isBarbarian() || (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->getDamage() < 50 && !ShouldRebase(pLoopUnit)))

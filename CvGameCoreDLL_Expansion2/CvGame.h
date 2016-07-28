@@ -659,7 +659,10 @@ public:
 	bool AnyoneHasUnit(UnitTypes iUnitType) const;
 	bool AnyoneHasUnitClass(UnitClassTypes iUnitClassType) const;
 #endif
-
+#if defined(MOD_BALANCE_CORE_JFD)	
+	void SetContractUnits(ContractTypes eContract, UnitTypes eUnit, int iValue);
+	int GetContractUnits(ContractTypes eContract, UnitTypes eUnit) const;
+#endif
 	//Function to determine city size from city population
 	unsigned int GetVariableCitySizeFromPopulation(unsigned int nPopulation);
 
@@ -802,6 +805,9 @@ protected:
 
 	int** m_apaiPlayerVote;
 	int** m_ppaaiTeamVictoryRank;
+#if defined(MOD_BALANCE_CORE_JFD)
+	int** m_ppaiContractUnits;
+#endif
 
 	Database::Results* m_pDiploResponseQuery;
 
@@ -836,7 +842,7 @@ protected:
 
 #if defined(MOD_BALANCE_CORE)
 	CvGameCorporations*		   m_pGameCorporations;
-	CvGameContracts*			m_pGameContracts;
+	CvGameContracts*		   m_pGameContracts;
 #endif
 
 	//necessary because we only want to hide the mouseover of the most recently moused over unit -KS

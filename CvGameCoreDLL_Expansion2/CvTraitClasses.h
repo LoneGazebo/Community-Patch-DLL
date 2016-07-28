@@ -266,6 +266,7 @@ public:
 	int GetYieldFromExport(int i) const;
 	int GetYieldFromImport(int i) const;
 	int GetYieldFromTilePurchase(int i) const;
+	int GetYieldFromTileEarn(int i) const;
 	int GetYieldFromCSAlly(int i) const;
 	int GetYieldFromCSFriend(int i) const;
 	int GetYieldFromSettle(int i) const;
@@ -531,6 +532,7 @@ protected:
 	int* m_piYieldFromExport;
 	int* m_piYieldFromImport;
 	int* m_piYieldFromTilePurchase;
+	int* m_piYieldFromTileEarn;
 	int* m_piYieldFromCSAlly;
 	int* m_piYieldFromCSFriend;
 	int* m_piYieldFromSettle;
@@ -1265,6 +1267,10 @@ public:
 	{
 		return m_iYieldFromTilePurchase[(int)eYield];
 	};
+	int GetYieldFromTileEarn(YieldTypes eYield) const
+	{
+		return m_iYieldFromTileEarn[(int)eYield];
+	};
 	int GetYieldFromCSAlly(YieldTypes eYield) const
 	{
 		return m_iYieldFromCSAlly[(int)eYield];
@@ -1665,6 +1671,7 @@ private:
 	int m_iYieldFromExport[NUM_YIELD_TYPES];
 	int m_iYieldFromImport[NUM_YIELD_TYPES];
 	int m_iYieldFromTilePurchase[NUM_YIELD_TYPES];
+	int m_iYieldFromTileEarn[NUM_YIELD_TYPES];
 	int m_iYieldFromCSAlly[NUM_YIELD_TYPES];
 	int m_iYieldFromCSFriend[NUM_YIELD_TYPES];
 	int m_iYieldFromSettle[NUM_YIELD_TYPES];

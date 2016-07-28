@@ -334,6 +334,10 @@ void CvHomelandAI::EstablishHomelandPriorities()
 	int iFlavorWonder = 0;
 	int iFlavorMilitaryTraining = 0;
 	int iFlavorCulture = 0;
+#if defined(MOD_BALANCE_CORE)
+	int iFlavorNaval = 0;
+	int iFlavorNavalMelee = 0;
+#endif
 
 	m_MovePriorityList.clear();
 
@@ -394,6 +398,16 @@ void CvHomelandAI::EstablishHomelandPriorities()
 			iFlavorNavalImprove = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
 		}
 #endif // AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS
+#if defined(MOD_BALANCE_CORE)
+		else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NAVAL")
+		{
+			iFlavorNaval = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
+		}
+		else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NAVAL_RECON")
+		{
+			iFlavorNavalMelee = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
+		}
+#endif
 	}
 
 	// Loop through each possible homeland move (other than "none" or "unassigned")
@@ -435,6 +449,11 @@ void CvHomelandAI::EstablishHomelandPriorities()
 		case AI_HOMELAND_MOVE_SENTRY:
 			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_SENTRY();
 			break;
+#if defined(MOD_BALANCE_CORE)
+		case AI_HOMELAND_MOVE_SENTRY_NAVAL:
+			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_SENTRY();
+			break;
+#endif
 		case AI_HOMELAND_MOVE_WORKER:
 			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_WORKER();
 			break;
@@ -561,7 +580,13 @@ void CvHomelandAI::EstablishHomelandPriorities()
 #if defined(MOD_BALANCE_CORE)
 				if(m_pPlayer->IsAtWarAnyMajor())
 				{
-					iPriority /= max (2, iFlavorDefense);
+					iPriority /= min (4, iFlavorDefense);
+				}
+				break;
+			case AI_HOMELAND_MOVE_SENTRY_NAVAL:
+				if(m_pPlayer->IsAtWarAnyMajor())
+				{
+					iPriority /= min (4, iFlavorNaval);
 				}
 				break;
 #endif
@@ -593,8 +618,10 @@ void CvHomelandAI::EstablishHomelandPriorities()
 
 				// Other miscellaneous types
 			case AI_HOMELAND_MOVE_EXPLORE:
+				iPriority += iFlavorExplore;
 			case AI_HOMELAND_MOVE_EXPLORE_SEA:
 				iPriority += iFlavorExplore;
+				iPriority += iFlavorNavalMelee;
 				break;
 
 			case AI_HOMELAND_MOVE_SETTLE:
@@ -685,6 +712,9 @@ void CvHomelandAI::FindHomelandTargets()
 	m_TargetedHomelandRoads.clear();
 	m_TargetedAncientRuins.clear();
 	m_TargetedAntiquitySites.clear();
+#if defined(MOD_BALANCE_CORE)
+	m_TargetedNavalSentryPoints.clear();
+#endif
 
 	TeamTypes eTeam = m_pPlayer->getTeam();
 
@@ -722,10 +752,22 @@ void CvHomelandAI::FindHomelandTargets()
 					if(pLoopPlot->getOwner() == m_pPlayer->GetID())
 					{
 						// Find proper improvement
+						BuildTypes eBuild;
 						for(int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
 						{
-							BuildTypes eBuild = ((BuildTypes)iJ);
-							if(eBuild != NO_BUILD && pLoopPlot->canBuild(eBuild,m_pPlayer->GetID()))
+							eBuild = ((BuildTypes)iJ);
+							if(eBuild == NO_BUILD)
+								continue;
+
+							CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+							if(!pkBuildInfo)
+								continue;
+
+							ImprovementTypes eNavalImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+							if(eNavalImprovement == NO_IMPROVEMENT)
+								continue;
+
+							if(GC.getImprovementInfo(eNavalImprovement)->IsImprovementResourceTrade(pLoopPlot->getResourceType()))
 							{
 								newTarget.SetTargetType(AI_HOMELAND_TARGET_NAVAL_RESOURCE);
 								newTarget.SetTargetX(pLoopPlot->getX());
@@ -733,7 +775,6 @@ void CvHomelandAI::FindHomelandTargets()
 								newTarget.SetAuxData(pLoopPlot);
 								newTarget.SetAuxIntData(eBuild);
 								m_TargetedNavalResources.push_back(newTarget);								
-								//why break, just build all builds available that we can.
 							}
 						}
 					}
@@ -827,6 +868,73 @@ void CvHomelandAI::FindHomelandTargets()
 					}
 				}
 			}
+#if defined(MOD_BALANCE_CORE)
+			// ... possible naval sentry point?
+			else if(pLoopPlot->isWater() && 
+				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
+			{
+				int iDistance = m_pPlayer->GetCityDistance(pLoopPlot);
+				
+				if(iDistance > 3)
+					continue;
+
+				int iWeight = 0;
+				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+				{
+					iWeight += 25;
+				}
+				
+				if(iDistance == 3)
+				{
+					iWeight += 50;
+				}
+				else if(iDistance == 2)
+				{
+					iWeight += 30;
+				}
+				else if(iDistance == 1)
+				{
+					iWeight += 20;
+				}
+				if(pLoopPlot->getNumUnits() > 0)
+				{
+					CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
+					if(pUnit != NULL)
+					{
+						if(pUnit->IsCivilianUnit())
+						{
+							iWeight += 25;
+						}
+						else if(pUnit->isEmbarked())
+						{
+							iWeight += 50;
+						}
+					}
+				}
+				CvCity* pWorkingCity = pLoopPlot->getWorkingCity();
+				if(pWorkingCity != NULL && pWorkingCity->getOwner() == m_pPlayer->GetID())
+				{
+					if(m_pPlayer->getNumCities() > 1 && pWorkingCity->GetThreatCriteria() != -1)
+					{
+						//More cities = more threat.
+						int iThreat = (m_pPlayer->getNumCities() - pWorkingCity->GetThreatCriteria()) * 10;
+						if(iThreat > 0)
+						{
+							iWeight += iThreat;
+						}
+					}
+				}
+				if(iWeight > 0)
+				{
+					newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT_NAVAL);
+					newTarget.SetTargetX(pLoopPlot->getX());
+					newTarget.SetTargetY(pLoopPlot->getY());
+					newTarget.SetAuxData(pLoopPlot);
+					newTarget.SetAuxIntData(iWeight);
+					m_TargetedNavalSentryPoints.push_back(newTarget);
+				}
+			}
+#endif
 			// ... enemy civilian (or embarked) unit?
 			else if(pLoopPlot->isVisibleOtherUnit(m_pPlayer->GetID()))
 			{
@@ -882,6 +990,9 @@ void CvHomelandAI::FindHomelandTargets()
 
 	// Post-processing on targets
 	EliminateAdjacentSentryPoints();
+#if defined(MOD_BALANCE_CORE)
+	EliminateAdjacentNavalSentryPoints();
+#endif
 	EliminateAdjacentHomelandRoads();
 	std::stable_sort(m_TargetedCities.begin(), m_TargetedCities.end());
 }
@@ -929,6 +1040,11 @@ void CvHomelandAI::AssignHomelandMoves()
 		case AI_HOMELAND_MOVE_SENTRY:
 			PlotSentryMoves();
 			break;
+#if defined(MOD_BALANCE_CORE)
+		case AI_HOMELAND_MOVE_SENTRY_NAVAL:
+			PlotSentryNavalMoves();
+			break;
+#endif
 		case AI_HOMELAND_MOVE_WORKER:
 			PlotWorkerMoves();
 			break;
@@ -1159,7 +1275,11 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 					if(pGarrison)
 					{
 						ExecuteMoveToTarget(pGarrison, pTarget, 0);
-
+#if defined(MOD_BALANCE_CORE)
+						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pGarrison);
+						pGarrison->finishMoves();
+						UnitProcessed(pGarrison->GetID());
+#endif
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
@@ -1382,6 +1502,11 @@ void CvHomelandAI::PlotMobileReserveMoves()
 				if(pReserve)
 				{
 					ExecuteMoveToTarget(pReserve, pTarget, CvUnit::MOVEFLAG_IGNORE_DANGER);
+#if defined(MOD_BALANCE_CORE)
+					TacticalAIHelpers::PerformRangedAttackWithoutMoving(pReserve);
+					pReserve->finishMoves();
+					UnitProcessed(pReserve->GetID());
+#endif
 
 					if(GC.getLogging() && GC.getAILogging())
 					{
@@ -1418,7 +1543,11 @@ void CvHomelandAI::PlotSentryMoves()
 				if(pSentry)
 				{
 					ExecuteMoveToTarget(pSentry, pTarget, 0);
-
+#if defined(MOD_BALANCE_CORE)
+					TacticalAIHelpers::PerformRangedAttackWithoutMoving(pSentry);
+					pSentry->finishMoves();
+					UnitProcessed(pSentry->GetID());
+#endif
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
@@ -1430,6 +1559,80 @@ void CvHomelandAI::PlotSentryMoves()
 		}
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+void CvHomelandAI::PlotSentryNavalMoves()
+{
+	// Do we have any targets of this type?
+	if(!m_TargetedNavalSentryPoints.empty())
+	{
+		// Prioritize them (LATER)
+
+		// See how many moves of this type we can execute
+		for(unsigned int iI = 0; iI < m_TargetedNavalSentryPoints.size(); iI++)
+		{
+			AI_PERF_FORMAT("Homeland-perf.csv", ("PlotNavalSentryMoves, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
+
+			CvPlot* pTarget = GC.getMap().plot(m_TargetedNavalSentryPoints[iI].GetTargetX(), m_TargetedNavalSentryPoints[iI].GetTargetY());
+
+			FindUnitsForThisMove(AI_HOMELAND_MOVE_SENTRY_NAVAL, (iI == 0)/*bFirstTime*/);
+
+			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
+			{
+				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 4);
+				if(pSentry)
+				{
+					if(pSentry->plot() == pTarget)
+					{
+						//Remove all status if not fortified so we can see if it is possible to fortify.
+						if(pSentry->getFortifyTurns() <= 0)
+						{
+							pSentry->SetActivityType(NO_ACTIVITY);
+						}
+						if(pSentry->canFortify(pSentry->plot()))
+						{
+							pSentry->PushMission(CvTypes::getMISSION_FORTIFY());
+						}
+						else if(pSentry->canSentry(pSentry->plot()))
+						{
+							pSentry->PushMission(CvTypes::getMISSION_ALERT());
+						}
+						else
+						{
+							pSentry->PushMission(CvTypes::getMISSION_SKIP());
+						}
+#if defined(MOD_BALANCE_CORE)
+						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pSentry);
+						pSentry->finishMoves();
+						UnitProcessed(pSentry->GetID());
+#endif
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("%s %d AT NAVAL sentry point, chillin, X: %d, Y: %d, Priority: %d", pSentry->getName().c_str(), pSentry->GetID(), m_TargetedNavalSentryPoints[iI].GetTargetX(), m_TargetedNavalSentryPoints[iI].GetTargetY(), m_TargetedNavalSentryPoints[iI].GetAuxIntData());
+							LogHomelandMessage(strLogString);
+						}
+					}
+					else
+					{
+						ExecuteMoveToTarget(pSentry, pTarget, 0);
+#if defined(MOD_BALANCE_CORE)
+						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pSentry);
+						pSentry->finishMoves();
+						UnitProcessed(pSentry->GetID());
+#endif
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Moving %s %d to NAVAL sentry point, X: %d, Y: %d, Priority: %d", pSentry->getName().c_str(), pSentry->GetID(), m_TargetedNavalSentryPoints[iI].GetTargetX(), m_TargetedNavalSentryPoints[iI].GetTargetY(), m_TargetedNavalSentryPoints[iI].GetAuxIntData());
+							LogHomelandMessage(strLogString);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+#endif
 
 #if defined(MOD_AI_SECONDARY_SETTLERS)
 void CvHomelandAI::PlotOpportunisticSettlementMoves()
@@ -1773,6 +1976,9 @@ void CvHomelandAI::PlotPatrolMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && pUnit->IsCombatUnit() && pUnit->getDomainType() != DOMAIN_AIR)
 		{
+			if(pUnit->plot()->getOwner() != m_pPlayer->GetID())
+				continue;
+
 			CvHomelandUnit unit;
 			unit.SetID(pUnit->GetID());
 			m_CurrentMoveUnits.push_back(unit);
@@ -1836,12 +2042,20 @@ void CvHomelandAI::ExecutePatrolMoves()
 			ReachablePlots::const_iterator itPlot = mapReachablePlots[vTargets[i]].find(dummy);
 			if (itPlot!=mapReachablePlots[vTargets[i]].end() && itPlot->iTurns<iBestTurns)
 			{
+				//No patrols in place.
+				if(vTargets[i] != NULL && vTargets[i] == pUnit->plot())
+					continue;
+
 				//try not to create a unit carpet without any space to move
 				for(int iJ = 0; iJ < RING5_PLOTS; iJ++)
 				{
 					CvPlot* pLoopPlot = iterateRingPlots(vTargets[i], iJ);
 
 					if(pLoopPlot == NULL)
+						continue;
+
+					//Don't patrol into cities.
+					if(pLoopPlot->isCity() && pUnit->getDomainType() == DOMAIN_SEA)
 						continue;
 
 					if (pUnit->canMoveInto(*vTargets[i]) && pLoopPlot->getDomain()==pUnit->getDomainType() && pLoopPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(),NO_DOMAIN)<4)
@@ -1889,30 +2103,18 @@ void CvHomelandAI::PlotUpgradeMoves()
 		// Don't try and upgrade a human player's unit or one already recruited for an operation
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 
-#if defined(MOD_AI_SMART_UPGRADES)
-		if(pUnit && !pUnit->isHuman() && (MOD_AI_SMART_UPGRADES || pUnit->getArmyID() == -1))
-		{
-			// Also eligible to upgrade if army is not moving/at destination
-			if (MOD_AI_SMART_UPGRADES)
-			{
-				int iArmyId = pUnit->getArmyID();
-				if (iArmyId != -1)
-				{
-					CvArmyAI* pThisArmy = m_pPlayer->getArmyAI(iArmyId);
-
-					if (pThisArmy)
-					{
-						if((pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION) || (pThisArmy->GetArmyAIState() == ARMYAISTATE_AT_DESTINATION))
-						{
-							continue;
-						}
-					}
-				}
-			}
-#else
 		if(pUnit && !pUnit->isHuman() && pUnit->getArmyID() == -1)
 		{
+#if defined(MOD_BALANCE_CORE)
+			//Let's only worry about units in our land.
+			if(pUnit->plot()->getOwner() != m_pPlayer->GetID())
+				continue;
+
+			//And on land.
+			if(pUnit->isEmbarked() && pUnit->getDomainType() != DOMAIN_SEA)
+				continue;
 #endif
+
 			// Can this unit be upgraded?
 			UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
 			if(eUpgradeUnitType != NO_UNIT)
@@ -2052,6 +2254,10 @@ void CvHomelandAI::PlotUpgradeMoves()
 
 		// Couldn't do all upgrades this turn, get ready for highest priority unit to upgrade
 		UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
+#if defined(MOD_BALANCE_CORE)
+		if(!pUnit)
+			return;
+#endif
 
 		int iAmountRequired = pUnit->upgradePrice(pUnit->GetUpgradeUnitType());
 		bool bRequiresGold = (iAmountRequired > 0);
@@ -2086,7 +2292,9 @@ void CvHomelandAI::PlotUpgradeMoves()
 		}
 
 		// Already in friendly territory
+#if !defined(MOD_BALANCE_CORE)
 		if(pUnit->plot()->getOwner() == pUnit->getOwner())
+#endif
 		{
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -2099,7 +2307,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 				LogHomelandMessage(strLogString);
 			}
 		}
-
+#if !defined(MOD_BALANCE_CORE)
 		else
 		{
 			// Move top priority unit toward closest city
@@ -2139,6 +2347,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 				}
 			}
 		}
+#endif
 	}
 
 	return;
@@ -2165,7 +2374,11 @@ void CvHomelandAI::PlotAncientRuinMoves()
 				if(pIndy)
 				{
 					ExecuteMoveToTarget(pIndy, pTarget, CvUnit::MOVEFLAG_IGNORE_DANGER);
-
+#if defined(MOD_BALANCE_CORE)
+					TacticalAIHelpers::PerformRangedAttackWithoutMoving(pIndy);
+					pIndy->finishMoves();
+					UnitProcessed(pIndy->GetID());
+#endif
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
@@ -2773,7 +2986,7 @@ void CvHomelandAI::PlotAirliftMoves()
 			CvUnit *pUnit = GetBestUnitToReachTarget(pTarget, MAX_INT);
 			if(pUnit)
 			{
-				ExecuteMoveToTarget(pUnit,pTarget,0);
+				ExecuteMoveToTarget(pUnit,pTarget,0, true);
 
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -2810,6 +3023,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				if(!pUnit->isEmbarked() && pUnit->plot()->getOwner()==pUnit->getOwner())
 				{
 #if !defined(MOD_CORE_REDUCE_RANDOMNESS)
+					
 					CvPlot* pLoopPlotSearch = NULL;
 					for (int iI = 0; iI < 3; iI++)
 					{
@@ -2831,6 +3045,12 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						}
 					}
 #endif
+					//Remove all status if not fortified so we can see if it is possible to fortify.
+					if(pUnit->getFortifyTurns() <= 0)
+					{
+						pUnit->SetActivityType(NO_ACTIVITY);
+					}
+
 					if(pUnit->canFortify(pUnit->plot()))
 					{
 						pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
@@ -2858,21 +3078,40 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				else
 				{
 					//We really need to do something with this unit - let's bring it home if we can.
+					bool bStuck = true;
 					CvCity* pBestCity = m_pPlayer->GetClosestCity( pUnit->plot() );
 					if(pBestCity != NULL)
 					{
-						MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestCity->plot(), DOMAIN_LAND, 12);
-						pUnit->SetTurnProcessed(true);
-						pUnit->finishMoves();
+						if(MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestCity->plot(), DOMAIN_LAND, 12))
+						{
+							pUnit->SetTurnProcessed(true);
+							pUnit->finishMoves();
+							CvString strTemp;
+							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
+							if(pkUnitInfo)
+							{
+								strTemp = pkUnitInfo->GetDescription();
+								CvString strLogString;
+								strLogString.Format("Unassigned %s %d moving homeward, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
+								LogHomelandMessage(strLogString);
+							}
+							bStuck = false;
+							continue;
+						}
+					}
+					//Stuck and not at home? Scrap it.
+					if(bStuck)
+					{
 						CvString strTemp;
 						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
 						if(pkUnitInfo)
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s %d moving homeward, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Unassigned %s %d SCRAPPED, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
+						pUnit->scrap();
 						continue;
 					}
 				}
@@ -2939,20 +3178,39 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						}
 					}
 
+					bool bStuck = true;
 					if(pBestPlot != NULL)
 					{
-						MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestPlot, DOMAIN_SEA, 23);
-						pUnit->SetTurnProcessed(true);
-						pUnit->finishMoves();
+						if(MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestPlot, DOMAIN_SEA, 23))
+						{
+							pUnit->SetTurnProcessed(true);
+							pUnit->finishMoves();
+							CvString strTemp;
+							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
+							if(pkUnitInfo)
+							{
+								strTemp = pkUnitInfo->GetDescription();
+								CvString strLogString;
+								strLogString.Format("Unassigned %s %d wandering homeward, at, X: %d, Y: %d - to X: %d, Y: %d.", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY(), pBestPlot->getX(), pBestPlot->getY());
+								LogHomelandMessage(strLogString);
+							}
+							bStuck = false;
+							continue;
+						}
+					}
+					//Stuck and not at home? Scrap it.
+					if(bStuck)
+					{
 						CvString strTemp;
 						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
 						if(pkUnitInfo)
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s %d wandering homeward, at, X: %d, Y: %d - to X: %d, Y: %d.", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY(), pBestPlot->getX(), pBestPlot->getY());
+							strLogString.Format("Unassigned %s %d SCRAPPED, at X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
+						pUnit->scrap();
 						continue;
 					}
 				}
@@ -3624,7 +3882,11 @@ void CvHomelandAI::ExecuteHeals()
 					continue;
 				}
 			}
-
+			//Remove all status if not fortified so we can see if it is possible to fortify.
+			if(pUnit->getFortifyTurns() <= 0)
+			{
+				pUnit->SetActivityType(NO_ACTIVITY);
+			}
 			if(pUnit->canFortify(pUnit->plot()))
 			{
 				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
@@ -3674,7 +3936,7 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 
 //	---------------------------------------------------------------------------
 /// Find one unit to move to target, starting with high priority list
-void CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags)
+void CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags, bool bFinishMoves)
 {
 	if (!pUnit || !pTarget)
 		return;
@@ -3683,6 +3945,11 @@ void CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlag
 
 	if(pUnit->plot() == pTarget)
 	{
+		//Remove all status if not fortified so we can see if it is possible to fortify.
+		if(pUnit->getFortifyTurns() <= 0)
+		{
+			pUnit->SetActivityType(NO_ACTIVITY);
+		}
 		if (pUnit->canFortify(pUnit->plot()))
 		{
 			pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
@@ -3691,7 +3958,10 @@ void CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlag
 		else
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 
-		UnitProcessed(pUnit->GetID());
+		if(bFinishMoves)
+		{
+			UnitProcessed(pUnit->GetID());
+		}
 #if defined(MOD_BALANCE_CORE)
 		if(GC.getLogging() && GC.getAILogging())
 		{
@@ -3706,8 +3976,11 @@ void CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlag
 	{
 		// Best units have already had a full path check to the target, so just add the move
 		MoveToUsingSafeEmbark(pUnit, pTarget, true, iFlags);
-		pUnit->finishMoves();
-		UnitProcessed(pUnit->GetID());
+		if(bFinishMoves)
+		{
+			pUnit->finishMoves();
+			UnitProcessed(pUnit->GetID());
+		}
 		return;
 	}
 }
@@ -4227,7 +4500,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 								CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), MAX_INT);
 								if(pEng)
 								{
-									ExecuteMoveToTarget(pEng, pWonderCity->plot(), 0);
+									ExecuteMoveToTarget(pEng, pWonderCity->plot(), 0, true);
 
 									if(GC.getLogging() && GC.getAILogging())
 									{
@@ -4298,7 +4571,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 							CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), MAX_INT);
 							if(pEng)
 							{
-								ExecuteMoveToTarget(pEng, pWonderCity->plot(), 0);
+								ExecuteMoveToTarget(pEng, pWonderCity->plot(), 0, true);
 
 								if(GC.getLogging() && GC.getAILogging())
 								{
@@ -4386,7 +4659,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 				}
 				else if (pUnit->GetDanger()>0)
 				{
-					ExecuteMoveToTarget(pUnit.pointer(), pTarget, CvUnit::MOVEFLAG_SAFE_EMBARK|CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
+					ExecuteMoveToTarget(pUnit.pointer(), pTarget, CvUnit::MOVEFLAG_SAFE_EMBARK|CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY, true);
 
 					if(GC.getLogging() && GC.getAILogging())
 					{
@@ -4495,7 +4768,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 				}
 				else
 				{
-					ExecuteMoveToTarget(pUnit.pointer(),pTarget, 0);
+					ExecuteMoveToTarget(pUnit.pointer(),pTarget, 0, true);
 
 					if(GC.getLogging() && GC.getAILogging())
 					{
@@ -4729,7 +5002,7 @@ void CvHomelandAI::ExecuteProphetMoves()
 					}
 					else
 					{
-						ExecuteMoveToTarget(pUnit.pointer(), pTarget->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+						ExecuteMoveToTarget(pUnit.pointer(), pTarget->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1, true);
 
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -5721,7 +5994,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 			}
 			else
 			{
-				ExecuteMoveToTarget(pUnit.pointer(),pTarget->plot(),CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+				ExecuteMoveToTarget(pUnit.pointer(),pTarget->plot(),CvUnit::MOVEFLAG_APPROX_TARGET_RING1, true);
 
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -5779,7 +6052,7 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 			}
 			else
 			{
-				ExecuteMoveToTarget(pUnit.pointer(), pTarget->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+				ExecuteMoveToTarget(pUnit.pointer(), pTarget->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1, true);
 
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -6698,6 +6971,41 @@ void CvHomelandAI::EliminateAdjacentSentryPoints()
 		}
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+/// Don't allow adjacent tiles to both be sentry points
+void CvHomelandAI::EliminateAdjacentNavalSentryPoints()
+{
+	// First, sort the sentry points by priority
+	std::stable_sort(m_TargetedNavalSentryPoints.begin(), m_TargetedNavalSentryPoints.end());
+
+	// Create temporary copy of list
+	std::vector<CvHomelandTarget> tempPoints;
+	tempPoints = m_TargetedNavalSentryPoints;
+
+	// Clear out main list
+	m_TargetedNavalSentryPoints.clear();
+
+	// Loop through all points in copy
+	std::vector<CvHomelandTarget>::iterator it, it2;
+	for(it = tempPoints.begin(); it != tempPoints.end(); ++it)
+	{
+		bool bFoundAdjacent = false;
+		// Is it adjacent to a point in the main list?
+		for(it2 = m_TargetedNavalSentryPoints.begin(); it2 != m_TargetedNavalSentryPoints.end(); ++it2)
+		{
+			if(plotDistance(it->GetTargetX(), it->GetTargetY(), it2->GetTargetX(), it2->GetTargetY()) == 1)
+			{
+				bFoundAdjacent = true;
+				break;
+			}
+		}
+		if(!bFoundAdjacent)
+		{
+			m_TargetedNavalSentryPoints.push_back(*it);
+		}
+	}
+}
+#endif
 
 /// Don't allow adjacent tiles to both be mobile reserve muster points
 void CvHomelandAI::EliminateAdjacentHomelandRoads()
@@ -6755,7 +7063,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 				{
 					continue;
 				}
-				if(pLoopUnit->getDomainType()!=DOMAIN_LAND)
+				if(eMove != AI_HOMELAND_MOVE_SENTRY_NAVAL && pLoopUnit->getDomainType()!=DOMAIN_LAND)
 					continue;
 
 				bool bSuitableUnit = false;
@@ -6765,6 +7073,10 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 				{
 				case AI_HOMELAND_MOVE_GARRISON:
 				case AI_HOMELAND_MOVE_GARRISON_CITY_STATE:
+					//Don't poach garrisons for garrisons.
+					if(pLoopUnit->IsGarrisoned())
+						continue;
+
 					// Want to put ranged units in cities to give them a ranged attack
 					if(pLoopUnit->isRanged())
 					{
@@ -6785,7 +7097,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 
 				case AI_HOMELAND_MOVE_SENTRY:
 					// No ranged units as sentries
-					if(pLoopUnit->isFortifyable() && !pLoopUnit->noDefensiveBonus() && (UnitAITypes)pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE)
+					if(pLoopUnit->isFortifyable() && !pLoopUnit->IsGarrisoned() && !pLoopUnit->noDefensiveBonus() && (UnitAITypes)pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE)
 					{
 						bSuitableUnit = true;
 
@@ -6796,6 +7108,21 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 						}
 					}
 					break;
+#if defined(MOD_BALANCE_CORE)
+				case AI_HOMELAND_MOVE_SENTRY_NAVAL:
+					// No ranged units as sentries
+					if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit() && (UnitAITypes)pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE_SEA)
+					{
+						bSuitableUnit = true;
+
+						// Units with extra defense are especially valuable
+						if(!pLoopUnit->isRanged() || (pLoopUnit->getDefenseModifier() > 0) || (pLoopUnit->getExtraRangedDefenseModifier() > 0) || (pLoopUnit->getExtraVisibilityRange() > 0))
+						{
+							bHighPriority = true;
+						}
+					}
+					break;
+#endif
 
 				case AI_HOMELAND_MOVE_MOBILE_RESERVE:
 					// Ranged units are excellent in the mobile reserve as are fast movers
@@ -7681,6 +8008,12 @@ bool CvHomelandAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 		}
 		else
 		{
+			//Remove all status if not fortified so we can see if it is possible to fortify.
+			if(pUnit->getFortifyTurns() <= 0)
+			{
+				pUnit->SetActivityType(NO_ACTIVITY);
+			}
+
 			// No safe path so just stay put and fortify until life improves for you.
 			if (pUnit->canFortify(pUnit->plot()))
 				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());

@@ -985,7 +985,7 @@
 	<!-- Debugging -->
 	<Row Class="6" Name="CORE_DEBUGGING" Value="0"/>
 	<!-- JFD's Mods -->
-	<Row Class="6" Name="BALANCE_CORE_JFD" Value="0"/>
+	<Row Class="6" Name="BALANCE_CORE_JFD" Value="1"/>
 	<!-- Resistance Mod for Units based on # of capitals controlled. -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_RESISTANCE" Value="0"/>
 	<!-- Religion Founding removes all pantheon followers in your empire. Currently unimplemented. -->
@@ -995,7 +995,7 @@
 	<!-- Enables PtP minimum military system for CSs, and also the revocation system. -->
 	<Row Class="6" Name="BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE" Value="0"/>
 	<!-- Cultural Victory requires Ideology and Content Population to win -->
-	<Row Class="6" Name="BALANCE_CORE_DIPLO_VICTORY_REQUIRES_IDEOLOGY" Value="0"/>
+	<Row Class="6" Name="BALANCE_CORE_VICTORY_GAME_CHANGES" Value="0"/>
 	<!-- Missing strategic resources for buildings greatly increases their maintenance -->
 	<Row Class="6" Name="BALANCE_CORE_BUILDING_RESOURCE_MAINTENANCE" Value="0"/>
 	<!-- Adds Events System for Player and Global Events -->

@@ -339,6 +339,8 @@
 		<Column name="CoastalOnly" type="boolean" default="false"/>
 		<!-- EXCEPTION: Set this to true to make event choice elements that affect cities ONLY affect your Capital. -->
 		<Column name="CapitalEffectOnly" type="boolean" default="false"/>
+		<!-- ADDITION: Set this to true to make event_instantyield choice elements below that normally only affect your Capital affect ALL cities. -->
+		<Column name="YieldBonusAllCities" type="boolean" default="false"/>
 		
 		<!-- Grants a Policy. -->
 		<Column name="EventPolicy" type="text" reference="Policies(Type)" default="NULL"/>
@@ -445,20 +447,20 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
-	<!-- Grants all cities a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. Can scale with era. -->
+	<!-- Grants all cities a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. Can scale with era. Can also use coastal/capital valuation above to enable/disable certain cities from gaining the bonus. -->
 	<Table name="EventChoice_CityYield">
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
-	<!-- Grants all city buildings of a class (existing and future) a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<!-- Grants all city buildings of a class (existing and future) a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. Can also use coastal/capital valuation above to enable/disable certain cities from gaining the bonus. -->
 	<Table name="EventChoice_BuildingClassYieldChange">
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
 		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="YieldChange" type="integer"/>
 	</Table>
-	<!-- Grants all city buildings of a class (existing and future) a certain X yield modifier. Can be turned off via the 'expires' tag and a set duration. -->
+	<!-- Grants all city buildings of a class (existing and future) a certain X yield modifier. Can be turned off via the 'expires' tag and a set duration. Can also use coastal/capital valuation above to enable/disable certain cities from gaining the bonus. -->
 	<Table name="EventChoice_BuildingClassYieldModifier">
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
 		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
@@ -471,31 +473,38 @@
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
 		<Column name="Quantity" type="integer"/>
 	</Table>
-	<!-- Grants features in all cities of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<!-- Grants features in all cities of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. Can also use coastal/capital valuation above to enable/disable certain cities from gaining the bonus. -->
 	<Table name="EventChoice_FeatureYieldChange">
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
 		<Column name="FeatureType" type="text" reference="Features(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="YieldChange" type="integer"/>
 	</Table>
-	<!-- Grants improvements in all cities of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<!-- Grants improvements in all cities of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. Can also use coastal/capital valuation above to enable/disable certain cities from gaining the bonus. -->
 	<Table name="EventChoice_ImprovementYieldChange">
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="YieldChange" type="integer"/>
 	</Table>
-	<!-- Grants resources in all cities of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<!-- Grants resources in all cities of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. Can also use coastal/capital valuation above to enable/disable certain cities from gaining the bonus. -->
 	<Table name="EventChoice_ResourceYieldChange">
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="YieldChange" type="integer"/>
 	</Table>
-	<!-- Grants terrains in all cities of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
+	<!-- Grants terrains in all cities of a type a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. Can also use coastal/capital valuation above to enable/disable certain cities from gaining the bonus. -->
 	<Table name="EventChoice_TerrainYieldChange">
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
 		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer"/>
+	</Table>
+	<!-- Grants specialists of a type in all cities a certain bonus X yield. Can be turned off via the 'expires' tag and a set duration. Can also use coastal/capital valuation above to enable/disable certain cities from gaining the bonus. -->
+	<Table name="EventChoice_SpecialistYieldChange">
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="YieldChange" type="integer"/>
 	</Table>
@@ -918,6 +927,13 @@
 	<Table name="CityEventChoice_TerrainYieldChange">
 		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
 		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer"/>
+	</Table>
+	<!-- Grants this city's specialists of a type a certain bonus X yield. Can be turned off via the 'expires' tag and a set duration. -->
+	<Table name="CityEventChoice_SpecialistYieldChange">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="YieldChange" type="integer"/>
 	</Table>

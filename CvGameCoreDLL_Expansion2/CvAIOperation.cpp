@@ -2671,7 +2671,7 @@ CvPlot* CvAIOperationNavalSuperiority::FindBestTarget(CvPlot** ppMuster) const
 	CvPlot* pRefPlot = GetTargetPlot();
 	if (pRefPlot)
 	{
-		CvPlot* pTarget = OperationalAIHelpers::FindEnemies(m_eOwner,m_eEnemy,DOMAIN_SEA,false,pRefPlot->getArea(),pRefPlot);
+		CvPlot* pTarget = OperationalAIHelpers::FindEnemies(m_eOwner,m_eEnemy,DOMAIN_SEA,true,pRefPlot->getArea(),pRefPlot);
 		if (ppMuster)
 			*ppMuster = pTarget;
 		return pTarget;
@@ -2912,7 +2912,7 @@ CvPlot* CvAIOperationDefenseRapidResponse::FindBestTarget(CvPlot** ppMuster) con
 	if (pRefPlot)
 		iRefArea = pRefPlot->getArea();
 
-	CvPlot* pTarget = OperationalAIHelpers::FindEnemies(m_eOwner,m_eEnemy,DOMAIN_LAND,false,iRefArea,pRefPlot);
+	CvPlot* pTarget = OperationalAIHelpers::FindEnemies(m_eOwner,m_eEnemy,DOMAIN_LAND,true,iRefArea,pRefPlot);
 	if (ppMuster)
 		*ppMuster = pTarget;
 	return pTarget;
@@ -3659,7 +3659,7 @@ bool OperationalAIHelpers::IsSlotRequired(PlayerTypes ePlayer, const OperationSl
 }
 
 bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, const ReachablePlots& turnsFromMuster, 
-														CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iDistance)
+														CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iDistance, CvMultiUnitFormationInfo* thisFormation)
 {
 	if (!pLoopUnit->canRecruitFromTacticalAI() || pLoopUnit->getArmyID() != -1 || pLoopUnit->isTrade())
 		return false;
@@ -3718,13 +3718,28 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 		*/
 		return false;
 	}
+	CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
+	
+	//Check formation entry here.
+	if(thisFormation)
+	{
+		// Request moves for all units
+		for(int iI = 0; iI < thisFormation->getNumFormationSlotEntries(); iI++)
+		{
+			const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);
+			if (!unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) && !unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
+			{
+				return false;
+			}
+		}
+	}
 
 	//check if the unit is engaged with the enemy ...
 	if (pLoopUnit->IsEnemyInMovementRange())
 		return false;
 
 	//don't take explorers
-	CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
+
 	if (unitInfo == NULL || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
 	{
 		return false;

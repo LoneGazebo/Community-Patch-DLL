@@ -5,7 +5,7 @@
 		<Row>
 			<Class>UNITCLASS_EMISSARY</Class>
 			<Type>UNIT_EMISSARY</Type>
-			<Cost>150</Cost>
+			<Cost>100</Cost>
 			<Moves>2</Moves>
 			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_LOW</CivilianAttackPriority>
 			<CombatLimit>0</CombatLimit>
@@ -28,7 +28,7 @@
 		<Row>
 			<Class>UNITCLASS_ENVOY</Class>
 			<Type>UNIT_ENVOY</Type>
-			<Cost>400</Cost>
+			<Cost>250</Cost>
 			<Moves>3</Moves>
 			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_LOW</CivilianAttackPriority>
 			<CombatClass>UNITCOMBAT_DIPLOMACY</CombatClass>
@@ -51,7 +51,7 @@
 		<Row>
 			<Class>UNITCLASS_DIPLOMAT</Class>
 			<Type>UNIT_DIPLOMAT</Type>
-			<Cost>600</Cost>
+			<Cost>500</Cost>
 			<Moves>4</Moves>
 			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_LOW</CivilianAttackPriority>
 			<CombatClass>UNITCOMBAT_DIPLOMACY</CombatClass>
@@ -74,7 +74,7 @@
 		<Row>
 			<Class>UNITCLASS_AMBASSADOR</Class>
 			<Type>UNIT_AMBASSADOR</Type>
-			<Cost>900</Cost>
+			<Cost>800</Cost>
 			<Moves>4</Moves>
 			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_LOW</CivilianAttackPriority>
 			<CombatClass>UNITCOMBAT_DIPLOMACY</CombatClass>

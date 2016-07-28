@@ -9030,6 +9030,7 @@ protected:
 	std::vector<CvModEventChoiceInfo*> m_paEventChoiceInfo;
 	std::vector<CvModCityEventInfo*> m_paCityEventInfo;
 	std::vector<CvModEventCityChoiceInfo*> m_paCityEventChoiceInfo;
+	std::vector<CvContractEntry*> m_paContractInfo;
 #endif
 	std::vector<CvBaseInfo*> m_paUnitCombatClassInfo;
 	std::vector<CvBaseInfo*> m_paUnitAIInfos;

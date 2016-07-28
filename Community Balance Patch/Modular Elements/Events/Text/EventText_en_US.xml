@@ -21,7 +21,7 @@
 			<Text>Spare no expense - the people shall be clean!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_BATHS_DECISION_CHOICE_2_HELP">
-			<Text>+1 [ICON_HAPPINESS_1] Happiness in all Cities. All Baths cost an additional 1 [ICON_GOLD] Gold.</Text>
+			<Text>+1 [ICON_HAPPINESS_1] Happiness in all Cities. All Baths cost an additional 3 [ICON_GOLD] Gold.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PLAYER_EVENT_BATHS_DECISION_CHOICE_3">

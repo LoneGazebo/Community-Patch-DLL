@@ -342,6 +342,8 @@ void CvEconomicAI::Reset()
 #if defined(MOD_BALANCE_CORE)
 	m_iVisibleAntiquitySitesOwn = 0;
 	m_iVisibleAntiquitySitesNeutral = 0;
+	m_iExplorersNeeded = 0;
+	m_iNavalExplorersNeeded = 0;
 #endif
 
 	// Cached AI defines
@@ -463,6 +465,8 @@ void CvEconomicAI::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	kStream >>  m_iVisibleAntiquitySitesOwn;
 	kStream >> m_iVisibleAntiquitySitesNeutral;
+	kStream >> m_iExplorersNeeded;
+	kStream >> m_iNavalExplorersNeeded;
 #endif
 
 	kStream >> iEntriesToRead;
@@ -528,6 +532,8 @@ void CvEconomicAI::Write(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	kStream <<  m_iVisibleAntiquitySitesOwn;
 	kStream << m_iVisibleAntiquitySitesNeutral;
+	kStream << m_iExplorersNeeded;
+	kStream << m_iNavalExplorersNeeded;
 #endif
 
 	kStream << (int)m_RequestedSavings.size();
@@ -1033,7 +1039,30 @@ const std::vector<SPlotWithScore>& CvEconomicAI::GetExplorationPlots(DomainTypes
 
 	return (domain==DOMAIN_SEA) ? m_vPlotsToExploreSea : m_vPlotsToExploreLand;
 }
-
+#if defined(MOD_BALANCE_CORE)
+void CvEconomicAI::SetExplorersNeeded(int iValue)
+{
+	if(iValue != m_iExplorersNeeded)
+	{
+		m_iExplorersNeeded = iValue;
+	}
+}
+int CvEconomicAI::GetExplorersNeeded() const
+{
+	return m_iExplorersNeeded;
+}
+void CvEconomicAI::SetNavalExplorersNeeded(int iValue)
+{
+	if(iValue != m_iNavalExplorersNeeded)
+	{
+		m_iNavalExplorersNeeded = iValue;
+	}
+}
+int CvEconomicAI::GetNavalExplorersNeeded() const
+{
+	return m_iNavalExplorersNeeded;
+}
+#endif
 //	---------------------------------------------------------------------------
 //compute score for yet-to-be revealed plots
 int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked)
@@ -1206,7 +1235,12 @@ int CvEconomicAI::AmountAvailableForPurchase(PurchaseType ePurchase)
 	CvAssert(false);
 	return false;  // Should never reach here
 }
-
+#if defined(MOD_BALANCE_CORE)
+int CvEconomicAI::GetPurchaseSaveAmout(PurchaseType ePurchase)
+{
+	return (m_RequestedSavings[(int)ePurchase].m_iAmount);
+}
+#endif
 /// What is the ratio of workers we have to the number of cities we have?
 double CvEconomicAI::GetWorkersToCitiesRatio()
 {
@@ -1799,46 +1833,303 @@ void CvEconomicAI::DoHurry()
 	iTreasuryBuffer *= GC.getGame().getGameSpeedInfo().getGoldPercent();
 	iTreasuryBuffer /= 100;
 
-	if(IsSavingForThisPurchase(PURCHASE_TYPE_UNIT_UPGRADE) || IsSavingForThisPurchase(PURCHASE_TYPE_TILE) || IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT) || IsSavingForThisPurchase(PURCHASE_TYPE_MAJOR_CIV_TRADE) || IsSavingForThisPurchase(PURCHASE_TYPE_MAJOR_CIV_TRADE))
-	{
-		iTreasuryBuffer *= 2;
-	}
-	
-	//Let's check our average income over five-turn periods
 	CvTreasury* pTreasury = m_pPlayer->GetTreasury();
-	int iGPT = pTreasury->CalculateBaseNetGold();
+	int iOurGold = pTreasury->GetGold();
 
-	//Are we in debt?
-	if(iGPT < 0)
+	if(pTreasury->GetGold() < iTreasuryBuffer)
 		return;
 
-	if(pTreasury->GetGold() >= iTreasuryBuffer)
+	int iPurchaseBuffer = 0;
+	for(int iPurchaseType = 0; iPurchaseType < NUM_PURCHASE_TYPES; iPurchaseType++)
 	{
-		// Which city needs hurrying most?
-		CvCity* pMostThreatenedCity = m_pPlayer->GetThreatenedCityRank();
+		PurchaseType ePurchase = (PurchaseType)iPurchaseType;
+		if(ePurchase == NO_PURCHASE_TYPE)
+			continue;
 
-		// Look at each of our cities
-		for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		if(IsSavingForThisPurchase(ePurchase))
 		{
-			// Are we out of cash?
-			if (pTreasury->GetGold() < iTreasuryBuffer) 
-			{
-				return;
-			}
+			iPurchaseBuffer += GetPurchaseSaveAmout(ePurchase);
+		}
+	}
 
-			//Is the city threatened - don't invest there. Always be able to hurry things in the capital.
-			if(pLoopCity != pMostThreatenedCity || pLoopCity->isCapital())
+	if(iOurGold <= iPurchaseBuffer)
+		return;
+	
+	//Let's check our average income over five-turn periods
+	int iGPT = pTreasury->CalculateBaseNetGold();
+
+	//Are we in major debt?
+	if(iGPT < -10)
+		return;
+
+	// Which city needs hurrying most?
+	CvCity* pMostThreatenedCity = m_pPlayer->GetThreatenedCityRank();
+
+	// Look at each of our cities
+	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	{
+		// Are we out of cash?
+		if (pTreasury->GetGold() < iTreasuryBuffer) 
+		{
+			return;
+		}
+
+		//Is the city threatened - don't invest there. Always be able to hurry things in the capital.
+		if(pLoopCity != pMostThreatenedCity || pLoopCity->isCapital())
+		{
+			if(m_pPlayer->GetPlayerTraits()->IsNoAnnexing() || !pLoopCity->IsPuppet())
 			{
-				if(m_pPlayer->GetPlayerTraits()->IsNoAnnexing() || !pLoopCity->IsPuppet())
+				CvCityBuildable selection = (pLoopCity->GetCityStrategyAI()->ChooseHurry());
+					//Units
+				switch(selection.m_eBuildableType)
 				{
-					CvCityBuildable selection = (pLoopCity->GetCityStrategyAI()->ChooseHurry());
-						//Units
-					switch(selection.m_eBuildableType)
+				case CITY_BUILDABLE_UNIT:
+				case CITY_BUILDABLE_UNIT_FOR_ARMY:
+				{
+					int iPaidUnits = m_pPlayer->GetNumUnitsOutOfSupply();
+					if(iPaidUnits <= 0)
 					{
-					case CITY_BUILDABLE_UNIT:
-					case CITY_BUILDABLE_UNIT_FOR_ARMY:
+						UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+						if(pkUnitInfo)
+						{
+							if(pLoopCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eUnitType, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
+							{
+								if(pLoopCity->isProductionUnit())
+								{
+									CvUnitEntry* pkUnitEntry = GC.getUnitInfo(pLoopCity->getProductionUnit());
+									CvUnitEntry* pkUnitInfo = GC.GetGameUnits()->GetEntry(eUnitType);
+
+									if(pkUnitEntry->GetUnitClassType() != pkUnitInfo->GetUnitClassType())
+									{
+										int iGoldCost = pLoopCity->GetPurchaseCost(eUnitType);
+										if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost))
+										{	
+											//Log it
+											if(GC.getLogging() && GC.getAILogging())
+											{
+												CvString strLogString;
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+													if(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+													{
+														strLogString.Format("MOD - Investing in unit: %s in %s. Cost: %d, Balance (before buy): %d",
+														pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+														m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+													}
+													else
+													{
+#endif
+												strLogString.Format("MOD - Buying unit: %s in %s. Cost: %d, Balance (before buy): %d",
+													pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+												m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+													}
+#endif
+											}
+
+											//take the money...
+											m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
+
+											//and train it!
+											UnitAITypes eUnitAI =  pkUnitInfo->GetDefaultUnitAIType();
+											int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, false);
+											CvAssertMsg(iResult != -1, "Unable to create unit");
+											if (iResult != -1)
+											{
+												CvUnit* pUnit = m_pPlayer->getUnit(iResult);
+												if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
+												{
+													pUnit->setMoves(0);
+												}
+												pLoopCity->SetUnitPurchaseCooldown(pkUnitInfo->GetCooldown());
+
+#if defined(MOD_EVENTS_CITY)
+												if (MOD_EVENTS_CITY) {
+													GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, pLoopCity->getOwner(), pLoopCity->GetID(), pUnit->GetID(), true, false);
+												}
+#endif
+											}
+
+											pLoopCity->CleanUpQueue();
+										}
+									}
+								}
+								else
+								{
+									CvUnitEntry* pkUnitInfo = GC.GetGameUnits()->GetEntry(eUnitType);
+									int iGoldCost = pLoopCity->GetPurchaseCost(eUnitType);
+									if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost))
+									{	
+										//Log it
+										if(GC.getLogging() && GC.getAILogging())
+										{
+											CvString strLogString;
+											strLogString.Format("MOD - Buying unit: %s in %s. Cost: %d, Balance (before buy): %d",
+												pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+											m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+										}
+
+										//take the money...
+										m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+										if(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+										{
+											const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitInfo->GetUnitClassType());
+											pLoopCity->SetUnitInvestment(eUnitClass, true);
+										}
+										else
+										{
+#endif
+										//and train it!
+										UnitAITypes eUnitAI =  pkUnitInfo->GetDefaultUnitAIType();
+										int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, false);
+										CvAssertMsg(iResult != -1, "Unable to create unit");
+										if (iResult != -1)
+										{
+											CvUnit* pUnit = m_pPlayer->getUnit(iResult);
+											if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
+											{
+												pUnit->setMoves(0);
+											}
+											pLoopCity->SetUnitPurchaseCooldown(pkUnitInfo->GetCooldown());
+
+#if defined(MOD_EVENTS_CITY)
+											if (MOD_EVENTS_CITY) {
+												GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, pLoopCity->getOwner(), pLoopCity->GetID(), pUnit->GetID(), true, false);
+											}
+#endif
+										}
+
+										pLoopCity->CleanUpQueue();
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+										}
+#endif
+									}
+								}
+							}
+						}
+					}
+				}
+				break;
+
+				case CITY_BUILDABLE_BUILDING:
+				{
+					BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
+					if(pLoopCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, NO_UNIT, eBuildingType, NO_PROJECT, YIELD_GOLD))
 					{
-						int iPaidUnits = m_pPlayer->GetNumUnitsOutOfSupply();
+						if(pLoopCity->isProductionBuilding())
+						{
+							CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(pLoopCity->getProductionBuilding());
+							CvBuildingEntry* pkBuildingInfo = GC.GetGameBuildings()->GetEntry(eBuildingType);
+
+							if(pkBuildingEntry->GetBuildingClassType() != pkBuildingInfo->GetBuildingClassType())
+							{
+								int iGoldCost = pLoopCity->GetPurchaseCost(eBuildingType);
+								if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_BUILDING, iGoldCost))
+								{
+									//Log it
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strLogString;
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+										strLogString.Format("MOD - Investing in building: %s in %s. Cost: %d, Balance (before buy): %d",
+#else
+										strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
+#endif
+										pkBuildingInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+										m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+									}
+					
+									//take the money...
+									m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
+				
+									//and build it!
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+									if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+									{
+									const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+									pLoopCity->SetBuildingInvestment(eBuildingClass, true);
+									}
+									else
+									{
+#endif
+									pLoopCity->CreateBuilding(eBuildingType);
+									pLoopCity->SetBuildingPurchaseCooldown(pkBuildingEntry->GetCooldown());
+#if defined(MOD_EVENTS_CITY)
+									if (MOD_EVENTS_CITY) 
+									{
+										GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, pLoopCity->getOwner(), pLoopCity->GetID(), eBuildingType, true, false);
+									}
+#endif
+									pLoopCity->CleanUpQueue();
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+									}
+#endif
+								}
+							}
+						}
+						else
+						{
+							CvBuildingEntry* pkBuildingInfo = GC.GetGameBuildings()->GetEntry(eBuildingType);
+							int iGoldCost = pLoopCity->GetPurchaseCost(eBuildingType);
+							if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_BUILDING, iGoldCost))
+							{
+								//Log it
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									CvString strLogString;
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+									if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+									{
+										strLogString.Format("MOD - Investing in building: %s in %s. Cost: %d, Balance (before buy): %d",
+										pkBuildingInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+										m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+									}
+									else
+									{
+#endif
+									strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
+									pkBuildingInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+									m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+									}
+#endif
+								}
+					
+								//take the money...
+								m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
+				
+								//and build it!
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+								if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+								{
+								const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+								pLoopCity->SetBuildingInvestment(eBuildingClass, true);
+								}
+								else
+								{
+#endif
+								pLoopCity->CreateBuilding(eBuildingType);
+								pLoopCity->SetBuildingPurchaseCooldown(pkBuildingInfo->GetCooldown());
+#if defined(MOD_EVENTS_CITY)
+								if (MOD_EVENTS_CITY) 
+								{
+									GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, pLoopCity->getOwner(), pLoopCity->GetID(), eBuildingType, true, false);
+								}
+#endif
+								pLoopCity->CleanUpQueue();
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+								}
+#endif
+							}
+						}
+					}
+				}
+				break;
+
+				case CITY_BUILDABLE_UNIT_FOR_OPERATION:
+				{
+					int iPaidUnits = m_pPlayer->GetNumUnitsOutOfSupply();
 						if(iPaidUnits <= 0)
 						{
 							UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
@@ -1862,29 +2153,37 @@ void CvEconomicAI::DoHurry()
 												{
 													CvString strLogString;
 #if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-														if(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-														{
-															strLogString.Format("MOD - Investing in unit: %s in %s. Cost: %d, Balance (before buy): %d",
-															pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
-															m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-														}
-														else
-														{
-#endif
-													strLogString.Format("MOD - Buying unit: %s in %s. Cost: %d, Balance (before buy): %d",
+													if(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+													{
+														strLogString.Format("MOD - Investing in unit: %s in %s. Cost: %d, Balance (before buy): %d",
 														pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+														m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+													}
+													else
+													{
+#endif
+													strLogString.Format("MOD - Buying unit %s for operation in %s. Cost: %d, Balance (before buy): %d",
+													pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
 													m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 #if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-														}
+													}
 #endif
 												}
 
 												//take the money...
 												m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
-
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+												if(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+												{
+													const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitInfo->GetUnitClassType());
+													pLoopCity->SetUnitInvestment(eUnitClass, true);
+												}
+												else
+												{
+#endif
 												//and train it!
 												UnitAITypes eUnitAI =  pkUnitInfo->GetDefaultUnitAIType();
-												int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, false);
+												int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, true);
 												CvAssertMsg(iResult != -1, "Unable to create unit");
 												if (iResult != -1)
 												{
@@ -1893,7 +2192,7 @@ void CvEconomicAI::DoHurry()
 													{
 														pUnit->setMoves(0);
 													}
-													pLoopCity->SetUnitPurchaseCooldown(pkUnitInfo->GetCooldown());
+													pLoopCity->SetUnitPurchaseCooldown(pkUnitEntry->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 													if (MOD_EVENTS_CITY) {
@@ -1902,7 +2201,11 @@ void CvEconomicAI::DoHurry()
 #endif
 												}
 
+												m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
 												pLoopCity->CleanUpQueue();
+#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
+												}
+#endif
 											}
 										}
 									}
@@ -1916,25 +2219,17 @@ void CvEconomicAI::DoHurry()
 											if(GC.getLogging() && GC.getAILogging())
 											{
 												CvString strLogString;
-												strLogString.Format("MOD - Buying unit: %s in %s. Cost: %d, Balance (before buy): %d",
-													pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+												strLogString.Format("MOD - Buying unit %s for operation in %s. Cost: %d, Balance (before buy): %d",
+												pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
 												m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 											}
 
 											//take the money...
 											m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
-#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-											if(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-											{
-												const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitInfo->GetUnitClassType());
-												pLoopCity->SetUnitInvestment(eUnitClass, true);
-											}
-											else
-											{
-#endif
+
 											//and train it!
 											UnitAITypes eUnitAI =  pkUnitInfo->GetDefaultUnitAIType();
-											int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, false);
+											int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, true);
 											CvAssertMsg(iResult != -1, "Unable to create unit");
 											if (iResult != -1)
 											{
@@ -1952,263 +2247,15 @@ void CvEconomicAI::DoHurry()
 #endif
 											}
 
+											m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
 											pLoopCity->CleanUpQueue();
-#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-											}
-#endif
 										}
 									}
 								}
 							}
 						}
-					}
-					break;
-
-					case CITY_BUILDABLE_BUILDING:
-					{
-						BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
-						if(pLoopCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, NO_UNIT, eBuildingType, NO_PROJECT, YIELD_GOLD))
-						{
-							if(pLoopCity->isProductionBuilding())
-							{
-								CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(pLoopCity->getProductionBuilding());
-								CvBuildingEntry* pkBuildingInfo = GC.GetGameBuildings()->GetEntry(eBuildingType);
-
-								if(pkBuildingEntry->GetBuildingClassType() != pkBuildingInfo->GetBuildingClassType())
-								{
-									int iGoldCost = pLoopCity->GetPurchaseCost(eBuildingType);
-									if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_BUILDING, iGoldCost))
-									{
-										//Log it
-										if(GC.getLogging() && GC.getAILogging())
-										{
-											CvString strLogString;
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-											strLogString.Format("MOD - Investing in building: %s in %s. Cost: %d, Balance (before buy): %d",
-#else
-											strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
-#endif
-											pkBuildingInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
-											m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-										}
-					
-										//take the money...
-										m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
-				
-										//and build it!
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-										if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-										{
-										const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
-										pLoopCity->SetBuildingInvestment(eBuildingClass, true);
-										}
-										else
-										{
-#endif
-										pLoopCity->CreateBuilding(eBuildingType);
-										pLoopCity->SetBuildingPurchaseCooldown(pkBuildingEntry->GetCooldown());
-#if defined(MOD_EVENTS_CITY)
-										if (MOD_EVENTS_CITY) 
-										{
-											GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, pLoopCity->getOwner(), pLoopCity->GetID(), eBuildingType, true, false);
-										}
-#endif
-										pLoopCity->CleanUpQueue();
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-										}
-#endif
-									}
-								}
-							}
-							else
-							{
-								CvBuildingEntry* pkBuildingInfo = GC.GetGameBuildings()->GetEntry(eBuildingType);
-								int iGoldCost = pLoopCity->GetPurchaseCost(eBuildingType);
-								if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_BUILDING, iGoldCost))
-								{
-									//Log it
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strLogString;
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-										if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-										{
-											strLogString.Format("MOD - Investing in building: %s in %s. Cost: %d, Balance (before buy): %d",
-											pkBuildingInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
-											m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-										}
-										else
-										{
-#endif
-										strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
-										pkBuildingInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
-										m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-										}
-#endif
-									}
-					
-									//take the money...
-									m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
-				
-									//and build it!
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-									if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-									{
-									const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
-									pLoopCity->SetBuildingInvestment(eBuildingClass, true);
-									}
-									else
-									{
-#endif
-									pLoopCity->CreateBuilding(eBuildingType);
-									pLoopCity->SetBuildingPurchaseCooldown(pkBuildingInfo->GetCooldown());
-#if defined(MOD_EVENTS_CITY)
-									if (MOD_EVENTS_CITY) 
-									{
-										GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, pLoopCity->getOwner(), pLoopCity->GetID(), eBuildingType, true, false);
-									}
-#endif
-									pLoopCity->CleanUpQueue();
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-									}
-#endif
-								}
-							}
-						}
-					}
-					break;
-
-					case CITY_BUILDABLE_UNIT_FOR_OPERATION:
-					{
-						int iPaidUnits = m_pPlayer->GetNumUnitsOutOfSupply();
-							if(iPaidUnits <= 0)
-							{
-								UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-								CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
-								if(pkUnitInfo)
-								{
-									if(pLoopCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eUnitType, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
-									{
-										if(pLoopCity->isProductionUnit())
-										{
-											CvUnitEntry* pkUnitEntry = GC.getUnitInfo(pLoopCity->getProductionUnit());
-											CvUnitEntry* pkUnitInfo = GC.GetGameUnits()->GetEntry(eUnitType);
-
-											if(pkUnitEntry->GetUnitClassType() != pkUnitInfo->GetUnitClassType())
-											{
-												int iGoldCost = pLoopCity->GetPurchaseCost(eUnitType);
-												if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost))
-												{	
-													//Log it
-													if(GC.getLogging() && GC.getAILogging())
-													{
-														CvString strLogString;
-#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-														if(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-														{
-															strLogString.Format("MOD - Investing in unit: %s in %s. Cost: %d, Balance (before buy): %d",
-															pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
-															m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-														}
-														else
-														{
-#endif
-														strLogString.Format("MOD - Buying unit %s for operation in %s. Cost: %d, Balance (before buy): %d",
-														pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
-														m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-														}
-#endif
-													}
-
-													//take the money...
-													m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
-#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-													if(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-													{
-														const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitInfo->GetUnitClassType());
-														pLoopCity->SetUnitInvestment(eUnitClass, true);
-													}
-													else
-													{
-#endif
-													//and train it!
-													UnitAITypes eUnitAI =  pkUnitInfo->GetDefaultUnitAIType();
-													int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, true);
-													CvAssertMsg(iResult != -1, "Unable to create unit");
-													if (iResult != -1)
-													{
-														CvUnit* pUnit = m_pPlayer->getUnit(iResult);
-														if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
-														{
-															pUnit->setMoves(0);
-														}
-														pLoopCity->SetUnitPurchaseCooldown(pkUnitEntry->GetCooldown());
-
-#if defined(MOD_EVENTS_CITY)
-														if (MOD_EVENTS_CITY) {
-															GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, pLoopCity->getOwner(), pLoopCity->GetID(), pUnit->GetID(), true, false);
-														}
-#endif
-													}
-
-													m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
-													pLoopCity->CleanUpQueue();
-#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-													}
-#endif
-												}
-											}
-										}
-										else
-										{
-											CvUnitEntry* pkUnitInfo = GC.GetGameUnits()->GetEntry(eUnitType);
-											int iGoldCost = pLoopCity->GetPurchaseCost(eUnitType);
-											if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost))
-											{	
-												//Log it
-												if(GC.getLogging() && GC.getAILogging())
-												{
-													CvString strLogString;
-													strLogString.Format("MOD - Buying unit %s for operation in %s. Cost: %d, Balance (before buy): %d",
-													pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
-													m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-												}
-
-												//take the money...
-												m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
-
-												//and train it!
-												UnitAITypes eUnitAI =  pkUnitInfo->GetDefaultUnitAIType();
-												int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, true);
-												CvAssertMsg(iResult != -1, "Unable to create unit");
-												if (iResult != -1)
-												{
-													CvUnit* pUnit = m_pPlayer->getUnit(iResult);
-													if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
-													{
-														pUnit->setMoves(0);
-													}
-													pLoopCity->SetUnitPurchaseCooldown(pkUnitInfo->GetCooldown());
-
-#if defined(MOD_EVENTS_CITY)
-													if (MOD_EVENTS_CITY) {
-														GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, pLoopCity->getOwner(), pLoopCity->GetID(), pUnit->GetID(), true, false);
-													}
-#endif
-												}
-
-												m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
-												pLoopCity->CleanUpQueue();
-											}
-										}
-									}
-								}
-							}
-					}
-					break;
-					}
+				}
+				break;
 				}
 			}
 		}
@@ -2369,6 +2416,10 @@ void CvEconomicAI::DoPlotPurchases()
 				}
 #if defined(MOD_BALANCE_CORE)
 				}
+				else
+				{
+					StartSaveForPurchase(PURCHASE_TYPE_TILE, iCost, /*Priority*/ 2);
+				}
 #endif
 			}
 		}
@@ -2475,6 +2526,8 @@ void CvEconomicAI::DoReconState()
 	int iPlotsPerExplorer = 50 - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
 	int iNumExplorersNeededTimes100 = 100 + (iNumPlotsToExplore*100) / iPlotsPerExplorer;
 
+	SetExplorersNeeded(iNumExplorersNeededTimes100 / 100);
+
 	//there is a slight hysteresis here to avoid unit AI flipping back and forth
 	if(iNumExploringUnits*100 < iNumExplorersNeededTimes100-50 || m_eReconState == RECON_STATE_NEEDED)
 	{
@@ -2554,6 +2607,8 @@ void CvEconomicAI::DoReconState()
 
 		// estimate one explorer per x open plots
 		int iNumExplorersNeededTimes100 = 100 * (iNumPlotsToExplore * 100) / iPlotsPerExplorer;
+
+		SetNavalExplorersNeeded(iNumExplorersNeededTimes100 / 100);
 
 		//there is a slight hysteresis here to avoid unit AI flipping back and forth
 		if(iNumExploringUnits*100 < iNumExplorersNeededTimes100-50 || m_eReconState == RECON_STATE_NEEDED)

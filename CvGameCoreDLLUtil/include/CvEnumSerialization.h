@@ -249,6 +249,9 @@ FDataStream & operator>>(FDataStream&, ResolutionDecisionTypes&);
 #if defined(MOD_BALANCE_CORE)
 FDataStream & operator<<(FDataStream&, const CorporationTypes&);
 FDataStream & operator>>(FDataStream&, CorporationTypes&);
+
+FDataStream & operator<<(FDataStream&, const ContractTypes&);
+FDataStream & operator>>(FDataStream&, ContractTypes&);
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 FDataStream & operator<<(FDataStream&, const EventTypes&);

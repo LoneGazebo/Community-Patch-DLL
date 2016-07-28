@@ -2644,6 +2644,9 @@
 		</Row>
 
 		<!-- Score Text -->
+		<Row Tag="TXT_KEY_REPLAY_DATA_TOURISMPERTURN">
+			<Text>Tourism [ICON_TOURISM] Per Turn</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_MY_SCORE_ALLIES">
 			<Text>{1_Num} from City-State Alliances</Text>
 		</Row>

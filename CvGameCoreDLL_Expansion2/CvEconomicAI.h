@@ -166,6 +166,12 @@ public:
 	CvCity* GetBestGreatWorkCity(CvPlot *pStartPlot, GreatWorkType eGreatWork) const;
 
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+	void SetExplorersNeeded(int iValue);
+	int GetExplorersNeeded() const;
+
+	void SetNavalExplorersNeeded(int iValue);
+	int GetNavalExplorersNeeded() const;
+
 	static int ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked);
 	const std::vector<SPlotWithScore>& GetExplorationPlots(DomainTypes domain);
 #else
@@ -183,6 +189,9 @@ public:
 	void CancelSaveForPurchase(PurchaseType ePurchase);
 	bool CanWithdrawMoneyForPurchase(PurchaseType ePurchase, int iAmount, int iPriority = -1);
 	int AmountAvailableForPurchase(PurchaseType ePurchase);
+#if defined(MOD_BALANCE_CORE)
+	int GetPurchaseSaveAmout(PurchaseType ePurchase);
+#endif
 
 	double GetWorkersToCitiesRatio();
 	double GetImprovedToImprovablePlotsRatio();
@@ -282,6 +291,8 @@ private:
 	int m_iLastTurnWorkerDisbanded;
 	int m_iVisibleAntiquitySites;
 #if defined(MOD_BALANCE_CORE)
+	int m_iExplorersNeeded;
+	int m_iNavalExplorersNeeded;
 	int m_iVisibleAntiquitySitesOwn;
 	int m_iVisibleAntiquitySitesNeutral;
 #endif

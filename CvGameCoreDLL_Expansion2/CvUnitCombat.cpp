@@ -1207,6 +1207,12 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 				if(pkAttacker)
 				{
 					bBarbarian = pCity->isBarbarian();
+#if defined(MOD_BALANCE_CORE)
+					if(pCity->getDamage() != pCity->GetMaxHitPoints())
+					{
+						ApplyPostCityCombatEffects(pkAttacker, pCity, iDamage);
+					}
+#endif
 					pCity->changeDamage(iDamage);
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
@@ -1228,6 +1234,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 					}
 #endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
+
 					//apply damage to garrison
 					CvUnitCombat::ApplyExtraUnitDamage(pkAttacker, kCombatInfo, uiParentEventID);
 #endif
@@ -4388,6 +4395,10 @@ void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefe
 
 		if(iGoldPlundered > 0)
 		{
+#if defined(MOD_BALANCE_CORE)
+			iGoldPlundered *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iGoldPlundered /= 100;
+#endif
 			GET_PLAYER(pkAttacker->getOwner()).GetTreasury()->ChangeGold(iGoldPlundered);
 
 			CvPlayer& kCityPlayer = GET_PLAYER(pkDefender->getOwner());

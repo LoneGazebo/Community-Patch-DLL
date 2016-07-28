@@ -307,7 +307,7 @@ public:
 	virtual AIOperationMovementType GetMoveType() const { return AI_OPERATION_MOVETYPE_COMBAT; }
 	virtual bool IsCivilianOperation() const { return false; }
 	virtual bool IsNavalOperation() const { return false; }
-	virtual int GetDeployRange() const { return 2; }
+	virtual int GetDeployRange() const { return 3; }
 	virtual bool CheckTransitionToNextStage();
 	virtual void SetToAbort(AIOperationAbortReason eReason);
 
@@ -1084,7 +1084,7 @@ public:
 	}
 	virtual int GetDeployRange() const
 	{
-		return 10;
+		return 12;
 	}
 	virtual AITacticalTargetType GetTargetType() const
 	{ 
@@ -1108,7 +1108,7 @@ namespace OperationalAIHelpers
 	CvPlot* FindBestBarbCamp(PlayerTypes ePlayer, CvPlot** ppMuster);
 	CvPlot* FindEnemies(PlayerTypes ePlayer, PlayerTypes eEnemy, DomainTypes eDomain, bool bHomelandOnly, int iRefArea, CvPlot* pRefPlot);
 	bool IsSlotRequired(PlayerTypes ePlayer, const OperationSlot& thisOperationSlot);
-	bool IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, const ReachablePlots& turnsFromMuster, CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iDistance);
+	bool IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, const ReachablePlots& turnsFromMuster, CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iDistance, CvMultiUnitFormationInfo* thisFormation = NULL);
 	bool NeedOceanMoves(PlayerTypes ePlayer, CvPlot* pMusterPlot, CvPlot* pTargetPlot);
 	CvCity* GetNearestCoastalCityFriendly(PlayerTypes ePlayer, CvPlot* pRefPlot);
 	CvCity* GetNearestCoastalCityFriendly(PlayerTypes ePlayer, PlayerTypes eEnemy);

@@ -460,6 +460,7 @@ public:
 	ReligionTypes GetSecondaryReligion();
 	BeliefTypes GetSecondaryReligionPantheonBelief();
 	int GetFollowersOtherReligions(ReligionTypes eReligion);
+#if !defined(MOD_BALANCE_CORE)
 	bool HasPaidAdoptionBonus() const
 	{
 		return m_bHasPaidAdoptionBonus;
@@ -468,6 +469,7 @@ public:
 	{
 		m_bHasPaidAdoptionBonus = bNewValue;
 	};
+#endif
 	int GetReligiousPressureModifier() const
 	{
 		return m_iReligiousPressureModifier;
@@ -530,7 +532,9 @@ private:
 	void LogFollowersChange(CvReligiousFollowChangeReason eReason);
 
 	CvCity* m_pCity;
+#if !defined(MOD_BALANCE_CORE)
 	bool m_bHasPaidAdoptionBonus;
+#endif
 	int m_iReligiousPressureModifier;
 
 #if defined(MOD_BALANCE_CORE)

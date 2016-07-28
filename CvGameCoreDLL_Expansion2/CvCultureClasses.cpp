@@ -3246,12 +3246,12 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		m_pPlayer->SetNumArchaeologyChoices(m_pPlayer->GetNumArchaeologyChoices() - 1);
 		m_pPlayer->GetCulture()->RemoveDigCompletePlot(pPlot);
 #if defined(MOD_BALANCE_CORE)
-		if(m_pPlayer->CanArchaeologicalDigTourism())
+		if(m_pPlayer->GetArchaeologicalDigTourism() > 0)
 		{
 			int iTourism = m_pPlayer->GetEventTourism();
 			m_pPlayer->ChangeNumHistoricEvents(1);
 			// Culture boost based on previous turns
-			int iPreviousTurnsToCount = 10;
+			int iPreviousTurnsToCount = m_pPlayer->GetArchaeologicalDigTourism();
 			// Calculate boost
 			iTourism *= m_pPlayer->GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 			iTourism /= 100;
@@ -4937,7 +4937,13 @@ int CvPlayerCulture::GetTourismBlastStrength(int iMultiplier)
 	int iStrength = 0;
 	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 	{
-		iStrength = iMultiplier * (GetTourism() + (m_pPlayer->GetTotalJONSCulturePerTurn() / 2));
+		CvCity *pLoopCity;
+		int iLoop;
+		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		{
+			iMultiplier += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
+		}
+		iStrength = m_pPlayer->GetTourismYieldFromPreviousTurns(GC.getGame().getGameTurn(), iMultiplier);
 	}
 	else
 	{
@@ -7260,7 +7266,7 @@ CvString CvCityCulture::GetThemingTooltip(BuildingClassTypes eBuildingClass) con
 			int iIndex = GetThemingBonusIndex(eBuildingClass);
 			if (iIndex >= 0)
 			{
-				szBonusString.Format("+%d: ", GetThemingBonus(eBuildingClass));
+				szBonusString.Format("+%d [ICON_TOURISM]/[ICON_CULTURE]: ", GetThemingBonus(eBuildingClass));
 
 				if (pkBuilding->GetBuildingClassType() == (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_LOUVRE") ||
 					pkBuilding->GetBuildingClassType() == (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_HERMITAGE"))

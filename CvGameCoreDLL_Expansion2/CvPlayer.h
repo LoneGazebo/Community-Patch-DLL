@@ -144,10 +144,12 @@ public:
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	void DoEvents();
 	void DoCancelEventChoice(EventChoiceTypes eEventChoice);
+	void CheckActivePlayerEvents(CvCity* pCity);
 	bool IsEventValid(EventTypes eEvent);
 	bool IsEventChoiceValid(EventChoiceTypes eEventChoice, EventTypes eParentEvent);
 	void DoStartEvent(EventTypes eEvent);
 	void DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent = NO_EVENT);
+	void DoEventSyncChoices(EventChoiceTypes eEventChoice, CvCity* pCity);
 	CvString GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYieldsOnly);
 	CvString GetDisabledTooltip(EventChoiceTypes eEventChoice);
 
@@ -180,9 +182,13 @@ public:
 	void DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID);
 	bool CanLiberatePlayer(PlayerTypes ePlayer);
 	bool CanLiberatePlayerCity(PlayerTypes ePlayer);
-
+#if defined(MOD_BALANCE_CORE)
+	CvUnit* initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION, bool bNoMove = false, bool bSetupGraphical = true, int iMapLayer = 0, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT);
+#else
 	CvUnit* initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION, bool bNoMove=false, bool bSetupGraphical=true, int iMapLayer = 0, int iNumGoodyHutsPopped = 0);
+#endif
 	CvUnit* initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION, bool bNoMove = false, bool bSetupGraphical = true, int iMapLayer = 0, int iNumGoodyHutsPopped = 0);
+
 #if defined(MOD_BALANCE_CORE)
 	CvUnit* initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION, bool bNoMove = false, bool bSetupGraphical = true, int iMapLayer = 0, int iNumGoodyHutsPopped = 0);
 #endif
@@ -526,6 +532,9 @@ public:
 	void ChangeSpecialistCultureChange(int iChange);
 
 	int GetCultureYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
+#if defined(MOD_BALANCE_CORE)
+	int GetTourismYieldFromPreviousTurns(int iGameTurn, int iNumPreviousTurnsToCount);
+#endif
 
 	int GetNumCitiesFreeCultureBuilding() const;
 	void ChangeNumCitiesFreeCultureBuilding(int iChange);
@@ -1398,11 +1407,9 @@ public:
 	void DoArmyDiversity();
 	int GetArmyDiversity() const;
 
-	bool CanArchaeologicalDigTourism() const;
 	void ChangeArchaeologicalDigTourism(int iChange);
 	int GetArchaeologicalDigTourism() const;
 
-	bool CanGoldenAgeTourism() const;
 	void ChangeGoldenAgeTourism(int iChange);
 	int GetGoldenAgeTourism() const;
 

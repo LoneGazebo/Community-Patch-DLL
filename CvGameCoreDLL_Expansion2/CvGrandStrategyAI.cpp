@@ -906,10 +906,15 @@ int CvGrandStrategyAI::GetCulturePriority()
 						const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
 						if(eBuildingLoop == NO_BUILDING)
 							continue;
-						if(pEntry->GetBuildingClassTourism(eBuildingLoop))
+
+						CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
+						if(pkLoopBuilding)
 						{
-							iPriorityBonus += 100;
-							break;
+							if(pEntry->GetBuildingClassTourism(pkLoopBuilding->GetBuildingClassType()))
+							{
+								iPriorityBonus += 100;
+								break;
+							}
 						}
 					}
 					if(pEntry->GetFaithBuildingTourism() > 0)

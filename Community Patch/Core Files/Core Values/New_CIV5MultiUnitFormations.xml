@@ -724,15 +724,9 @@
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_RAPID_RESPONSE_FORCE</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_COUNTER</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_RANGED</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_RAPID_RESPONSE_FORCE</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_RANGED</PrimaryUnitType>
+			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 		</Row>
 		<Delete MultiUnitFormationType="MUFORMATION_CLOSE_CITY_DEFENSE"/>
 		<Row>

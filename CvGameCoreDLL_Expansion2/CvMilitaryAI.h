@@ -253,7 +253,7 @@ public:
 	bool GetCachedAttackTarget(PlayerTypes eEnemy, AIOperationTypes eAIOperationType);
 	bool IsCurrentAttackTarget(CvCity* pCity);
 	void ClearCachedTargets();
-	CvMilitaryTarget FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
+	CvMilitaryTarget FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL, bool bCheckWar = false);
 	CvMilitaryTarget FindBestAttackTargetGlobal(AIOperationTypes eAIOperationType, int* piWinningScore = NULL, bool bCheckWar = false);
 #endif
 	CvMilitaryTarget FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
@@ -353,6 +353,32 @@ public:
 	{
 		return m_iNumLandAttacksRequested;
 	};
+	int GetRecommendLandArmySize() const
+	{
+		return m_iRecommendedMilitarySize;
+	};
+	int GetRecommendNavySize() const
+	{
+		return m_iRecNavySize;
+	};
+	int GetNumLandUnits() const
+	{
+		return m_iNumLandUnits;
+	};
+	int GetNumNavalUnits() const
+	{
+		return m_iNumNavalUnits;
+	};
+	int GetNumAAUnits() const
+	{
+		return m_iNumAntiAirUnits;
+	};
+
+	void SetNumFreeCarrier(int iValue);
+	int GetNumFreeCarrier() const;
+
+	void SetNumFreeCargo(int iValue);
+	int GetNumFreeCargo() const;
 #endif
 private:
 
@@ -426,6 +452,8 @@ private:
 	int m_iNumNavalAttacksRequested;
 #if defined(MOD_BALANCE_CORE)
 	int m_iCurrentWarFocus;
+	int m_iFreeCarrier;
+	int m_iFreeCargo;
 #endif
 	DefenseState m_eLandDefenseState;
 	DefenseState m_eNavalDefenseState;

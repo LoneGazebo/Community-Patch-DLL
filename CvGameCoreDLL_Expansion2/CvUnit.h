@@ -126,13 +126,19 @@ public:
 	};
 
 	inline DestructionNotification<UnitHandle>& getDestructionNotification() { return m_destructionNotification; }
-
+#if defined(MOD_BALANCE_CORE)
+	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT);
+#else
 	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0);
+#endif
 #if defined(MOD_BALANCE_CORE)
 	void initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	void initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT);
+#else
 	void initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0);
-
+#endif
 	
 	void uninit();
 
@@ -147,6 +153,10 @@ public:
 
 	void doTurn();
 	bool isActionRecommended(int iAction);
+
+#if defined(MOD_BALANCE_CORE)
+	void DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot = NULL, CvPlot* pNewPlot = NULL);
+#endif
 
 	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker) const;
 
@@ -274,6 +284,9 @@ public:
 
 	int getTurnPromotionGained(PromotionTypes ePromotion);
 	void SetTurnPromotionGained(PromotionTypes ePromotion, int iValue);
+
+	int getNegatorPromotion();
+	void SetNegatorPromotion(int iValue);
 #endif
 
 	bool canEmbarkAtPlot(const CvPlot* pPlot) const;
@@ -972,6 +985,10 @@ public:
 	int getPlaguedCount() const;
 	void changePlagued(int iChange);
 	bool isPlagued() const;
+
+	void setContractUnit(ContractTypes eContract);
+	bool isContractUnit() const;
+	ContractTypes getContract() const;
 #endif
 
 	int getExtraEnemyHeal() const;
@@ -1669,6 +1686,8 @@ protected:
 #if defined(MOD_BALANCE_CORE_JFD)
 	FAutoVariable<int, CvUnit> m_iPlagueChance;
 	FAutoVariable<int, CvUnit> m_iIsPlagued;
+	FAutoVariable<ContractTypes, CvUnit> m_eUnitContract;
+	FAutoVariable<int, CvUnit> m_iNegatorPromotion;
 #endif
 	FAutoVariable<int, CvUnit> m_iExtraEnemyHeal;
 	FAutoVariable<int, CvUnit> m_iExtraNeutralHeal;

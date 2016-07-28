@@ -1649,6 +1649,7 @@ public:
 	int getOccurrenceFrequency() const;
 	int getAdjacentUnitFreePromotion() const;
 #if defined(MOD_BALANCE_CORE)
+	int getPromotionIfOwned() const;
 	int getLocationUnitFreePromotion() const;
 	int getAdjacentSpawnLocationUnitFreePromotion() const;
 	int getSpawnLocationUnitFreePromotion() const;
@@ -1689,6 +1690,7 @@ public:
 	int getCoastalLandYieldChange(int i) const;
 	int getFreshWaterYieldChange(int i) const;
 	int GetTechYieldChanges(int i, int j) const;
+	int GetEraYieldChanges(int i) const;
 #endif
 	int get3DAudioScriptFootstepIndex(int i) const;
 
@@ -1721,6 +1723,7 @@ protected:
 	int m_iOccurrenceFrequency;
 	int m_iAdjacentUnitFreePromotion;
 #if defined(MOD_BALANCE_CORE)
+	int m_iPromotionIfOwned;
 	int m_iLocationUnitFreePromotion;
 	int m_iSpawnLocationUnitFreePromotion;
 	int m_iAdjacentSpawnLocationUnitFreePromotion;
@@ -1761,6 +1764,7 @@ protected:
 	int* m_piCoastalLandYieldChange;
 	int* m_piFreshWaterChange;
 	int** m_ppiTechYieldChanges;
+	int* m_piEraYieldChange;
 #endif
 	int* m_pi3DAudioScriptFootstepIndex;
 	bool* m_pbTerrain;
@@ -2774,6 +2778,7 @@ public:
 	int getFeatureYield(int i, int j) const;
 	int getImprovementYield(int i, int j) const;
 	int getResourceYield(int i, int j) const;
+	int getGlobalSpecialistYieldChange(int i, int j) const;
 	int getPlayerHappiness() const;
 	int getCityHappinessGlobal() const;
 	int getCityUnhappinessNeedMod(int i) const;
@@ -2830,6 +2835,7 @@ public:
 	bool isCoastalOnly() const;
 	bool isTradeCapped() const;
 	bool isCapitalEffectOnly() const;
+	bool isInstantYieldAllCities() const;
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -2870,6 +2876,7 @@ protected:
 	int** m_ppiFeatureYield;
 	int** m_ppiImprovementYield;
 	int** m_ppiResourceYield;
+	int** m_ppiSpecialistYield;
 	CvString m_strDisabledTooltip;
 	//Filters
 
@@ -2919,6 +2926,7 @@ protected:
 	bool m_bCoastalOnly;
 	bool m_bTradeCapped;
 	bool m_bCapitalEffectOnly;
+	bool m_bInstantYieldAllCities;
 
 	CvEventNotificationInfo* m_paNotificationInfo;
 	int m_iNotificationInfos;
@@ -3166,6 +3174,7 @@ public:
 	int getResourceYield(int i, int j) const;
 	int getEventResourceChange(ResourceTypes eResource) const;
 	int getCityUnhappinessNeedMod(int i) const;
+	int getCitySpecialistYieldChange(int i, int j) const;
 	const char* getDisabledTooltip() const;
 	int getEventPromotion() const;
 	int ConvertsCityToPlayerReligion() const;
@@ -3269,6 +3278,7 @@ protected:
 	int** m_ppiBuildingClassYieldModifier;
 	int** m_ppiTerrainYield;
 	int** m_ppiFeatureYield;
+	int ** m_ppiSpecialistYield;
 	int** m_ppiImprovementYield;
 	int** m_ppiResourceYield;
 	bool* m_pbParentEventIDs;

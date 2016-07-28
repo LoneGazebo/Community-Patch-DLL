@@ -151,6 +151,9 @@ ALTER TABLE Improvements ADD COLUMN 'UnitFreePromotion' TEXT DEFAULT NULL;
 -- Allows you to set a tech that makes an impassable terrain/feature element passable.
 ALTER TABLE Features ADD COLUMN 'PassableTechFeature' TEXT DEFAULT NULL;
 
+-- Allows you to set a promotion gained for owning a feature. Applies to new units.
+ALTER TABLE Features ADD COLUMN 'FreePromotionIfOwned' TEXT DEFAULT NULL;
+
 -- Allows you to set a tech that makes an impassable terrain/feature element passable.
 ALTER TABLE Terrains ADD COLUMN 'PassableTechTerrain' TEXT DEFAULT NULL;
 
@@ -206,9 +209,9 @@ ALTER TABLE Buildings ADD COLUMN 'BorderObstacleWater' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'UpgradeCSTerritory' BOOLEAN DEFAULT 0;
 
 -- Adds event tourism from digging up sites.
-ALTER TABLE Policies ADD COLUMN 'ArchaeologicalDigTourism' BOOLEAN DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'ArchaeologicalDigTourism' INTEGER DEFAULT 0;
 -- Adds event tourism from golden ages starting.
-ALTER TABLE Policies ADD COLUMN 'GoldenAgeTourism' BOOLEAN DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'GoldenAgeTourism' INTEGER DEFAULT 0;
 
 -- Reduces specialist unhappiness in cities by a set amount, either in capital or in all cities.
 

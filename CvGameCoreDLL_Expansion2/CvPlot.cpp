@@ -5860,10 +5860,37 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 		{
 			setOwnershipDuration(0);
-
+#if defined(MOD_BALANCE_CORE)
+			FeatureTypes eFeature = getFeatureType();
+			if(eFeature != NO_FEATURE)
+			{
+				PromotionTypes eFreePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getPromotionIfOwned();
+				if(eFreePromotion != NO_PROMOTION)
+				{
+					if(!GET_PLAYER(eNewValue).IsFreePromotion(eFreePromotion))
+					{
+						GET_PLAYER(eNewValue).ChangeFreePromotionCount(eFreePromotion, 1);
+					}
+				}
+			}
+#endif
 			// Plot was owned by someone else
 			if(isOwned())
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(eFeature != NO_FEATURE)
+				{
+					PromotionTypes eFreePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getPromotionIfOwned();
+					if(eFreePromotion != NO_PROMOTION)
+					{
+						if(GET_PLAYER(eOldOwner).IsFreePromotion(eFreePromotion))
+						{
+							GET_PLAYER(eOldOwner).ChangeFreePromotionCount(eFreePromotion, -1);
+						}
+
+					}
+				}
+#endif
 #if defined(MOD_API_EXTENSIONS)
 				changeAdjacentSight(getTeam(), GC.getPLOT_VISIBILITY_RANGE(), false, NO_INVISIBLE, NO_DIRECTION);
 #else
@@ -10073,10 +10100,6 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 				iYield += 1;
 			}
 			if(eYield == YIELD_PRODUCTION && isMountain() && !isFreshWater())
-			{
-				iYield += 2;
-			}
-			else if(eYield == YIELD_PRODUCTION && isMountain() && isFreshWater())
 			{
 				iYield += 2;
 			}

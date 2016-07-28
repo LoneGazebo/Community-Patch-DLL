@@ -1390,25 +1390,23 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 
 	// If closing in on a Culture win, go for the Concert Tour
 	if (GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetNumCivsInfluentialOn() > (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2))
-	{		
+	{
 		if(pTarget)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pTarget->getOwner() != NO_PLAYER && GET_PLAYER(pTarget->getOwner()).isMajorCiv())
+			{
+				if(GetCulture()->GetTurnsToInfluential(pTarget->getOwner()) <= 100)
+				{
+#endif
 			return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+#if defined(MOD_BALANCE_CORE)
+				}
+			}
+#endif
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-	{
-		if(IsEmpireSuperUnhappy())
-		{
-			if(pTarget)
-			{
-				return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
-			}
-		}
-	}
-#endif
 	// Create Great Work if there is a slot
 	GreatWorkType eGreatWork = pGreatMusician->GetGreatWork();
 	if (GetEconomicAI()->GetBestGreatWorkCity(pGreatMusician->plot(), eGreatWork))

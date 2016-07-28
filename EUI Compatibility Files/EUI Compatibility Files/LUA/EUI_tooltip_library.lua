@@ -1867,9 +1867,11 @@ local function GetYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_EVENTS", city:GetEventCityYield(yieldID), yieldIconString)
 -- END CBP
 -- Base Yield from League Art (CSD)
-	local iYieldFromLeague = city:GetBaseYieldRateFromLeague(YieldTypes.YIELD_SCIENCE);
-	if (iYieldFromLeague ~= 0) then
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART", iYieldFromLeague, yieldIconString)
+	if(yieldID == YieldTypes.YIELD_SCIENCE) then
+		local iYieldFromLeague = city:GetBaseYieldRateFromLeague(yieldID);
+		if (iYieldFromLeague ~= 0) then
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART", iYieldFromLeague, yieldIconString)
+		end
 	end
 -- END
 

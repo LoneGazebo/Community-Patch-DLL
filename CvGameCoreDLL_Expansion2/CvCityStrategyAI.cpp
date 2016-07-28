@@ -4491,7 +4491,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	//Note: values are weighted based on static per turn values and instant or % values. This is for control.
 	if(pkBuildingInfo->GetYieldChange(eYield) > 0)
 	{
-		iYieldValue += (pkBuildingInfo->GetYieldChange(eYield) * 10);
+		iYieldValue += (pkBuildingInfo->GetYieldChange(eYield) * 15);
 	}
 	if(pkBuildingInfo->GetScienceFromYield(eYield) > 0)
 	{
@@ -4832,13 +4832,9 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 
 	//Deficient Yield?
-	if(pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
-	{
-		iYieldValue *= 2;
-	}
 	if(pCity->GetCityStrategyAI()->GetFocusYield() == eYield)
 	{
-		iYieldValue *= 2;
+		iYieldValue *= 10;
 	}
 
 	if(eYield == YIELD_CULTURE)
@@ -4846,11 +4842,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		AICityStrategyTypes eNeedCulture = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_FIRST_CULTURE_BUILDING");
 		if(eNeedCulture != NO_AICITYSTRATEGY && pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedCulture))
 		{
-			iYieldValue *= 2;
+			iYieldValue *= 10;
 		}
 		if(kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
 		{
-			iYieldValue *= 2;
+			iYieldValue *= 10;
 		}
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
@@ -4860,7 +4856,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			{
 				if(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
 				{
-					iYieldValue *= 2;
+					iYieldValue *= 10;
 				}
 			}
 		}
@@ -4871,25 +4867,25 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		AICityStrategyTypes eNeedScience = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_FIRST_SCIENCE_BUILDING");
 		if(eNeedScience != NO_AICITYSTRATEGY && pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedScience))
 		{
-			iYieldValue *= 2;
+			iYieldValue *= 10;
 		}
 		if(kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
 		{
-			iYieldValue *= 2;
+			iYieldValue *= 10;
 		}
 	}
 	if(eYield == YIELD_PRODUCTION)
 	{
 		if(kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
 		{
-			iYieldValue *= 2;
+			iYieldValue *= 10;
 		}
 	}
 	if(eYield == YIELD_TOURISM)
 	{
 		if(kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
 		{
-			iYieldValue *= 2;
+			iYieldValue *= 10;
 		}
 	}
 
@@ -4898,7 +4894,12 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		AICityStrategyTypes eNeedFaith = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_FIRST_FAITH_BUILDING");
 		if(eNeedFaith != NO_AICITYSTRATEGY && pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFaith))
 		{
-			iYieldValue *= 2;
+			iYieldValue *= 50;
+		}
+		EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
+		if (eStrategyBuildingReligion != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion))
+		{
+			iYieldValue *= 25;
 		}
 	}
 	AIGrandStrategyTypes eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
@@ -4910,19 +4911,19 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	//GS Yield Valuation
 	if(bSeekingDiploVictory && eYield == YIELD_GOLD)
 	{
-		iYieldValue *= 2;
+		iYieldValue *= 5;
 	}
 	if(bSeekingConquestVictory && eYield == YIELD_PRODUCTION)
 	{
-		iYieldValue *= 2;
+		iYieldValue *= 5;
 	}
 	if(bSeekingCultureVictory && (eYield == YIELD_CULTURE || eYield == YIELD_TOURISM))
 	{
-		iYieldValue *= 2;
+		iYieldValue *= 5;
 	}
 	if(bSeekingScienceVictory && eYield == YIELD_SCIENCE)
 	{
-		iYieldValue *= 2;
+		iYieldValue *= 5;
 	}
 
 	return iYieldValue;

@@ -102,8 +102,8 @@ public:
 	bool IsCorporationRandomForeignFranchise() const;
 	int GetAdditionalNumFranchisesMod() const;
 	bool IsUpgradeCSTerritory() const;
-	bool IsArchaeologicalDigTourism() const;
-	bool IsGoldenAgeTourism() const;
+	int GetArchaeologicalDigTourism() const;
+	int GetGoldenAgeTourism() const;
 #endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
@@ -612,8 +612,8 @@ private:
 	bool m_bCorporationRandomForeignFranchise;
 	int m_iAdditionalNumFranchisesMod;
 	bool m_bUpgradeCSTerritory;
-	bool m_bArchaeologicalDigTourism;
-	bool m_bGoldenAgeTourism;
+	bool m_iArchaeologicalDigTourism;
+	bool m_iGoldenAgeTourism;
 	int* m_piConquerorYield;
 	int* m_piFounderYield;
 	int* m_piReligionYieldMod;
