@@ -1601,6 +1601,7 @@ protected:
 	const MissionQueueNode* HeadMissionQueueNode() const;
 	MissionQueueNode* HeadMissionQueueNode();
 
+	bool HaveCachedPathTo(const CvPlot* pToPlot, int iFlags);
 	void ClearPathCache();
 	bool VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns);
 	bool ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns);

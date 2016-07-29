@@ -25750,7 +25750,7 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 	// this method is only called from ContinueMission and that all previous path data is deleted when a mission is started
 	// we can assume that other than the unit that is moving, nothing on the map will change
 	// so we can re-use the cached path data most of the time
-	if (m_kLastPath.empty())
+	if (m_kLastPath.empty() || !HaveCachedPathTo(pDestPlot,iFlags))
 		return ComputePath(pDestPlot, iFlags, iMaxTurns);
 
 	//visibility might have changed because of this same unit's movement
@@ -26923,6 +26923,17 @@ bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 
 // PATH-FINDING ROUTINES
 
+bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags)
+{
+	return (
+		m_uiLastPathCacheOrigin == plot()->GetPlotIndex() &&
+		m_uiLastPathCacheDestination == pToPlot->GetPlotIndex() && 
+		m_uiLastPathFlags == iFlags &&
+		m_uiLastPathLength == m_kLastPath.size() &&
+		m_uiLastPathTurn == GC.getGame().getGameTurn() 
+		);
+}
+
 //	--------------------------------------------------------------------------------
 /// Use pathfinder to create a path
 bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int* piPathTurns)
@@ -26931,18 +26942,11 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 		return false;
 
 	bool bHavePath = false;
-
-	if (m_uiLastPathCacheOrigin != plot()->GetPlotIndex() ||
-		m_uiLastPathCacheDestination != pToPlot->GetPlotIndex() || 
-		m_uiLastPathFlags != iFlags ||
-		m_uiLastPathLength != m_kLastPath.size() ||
-		m_uiLastPathTurn != GC.getGame().getGameTurn() )	
-	{
-		bHavePath = ComputePath(pToPlot, iFlags, iMaxTurns);
-	}
-	else
+	if (HaveCachedPathTo(pToPlot,iFlags))
 		//we can re-use the old path if we have one (and need one at all)
 		bHavePath = at(pToPlot->getX(),pToPlot->getY()) || !m_kLastPath.empty();
+	else
+		bHavePath = ComputePath(pToPlot, iFlags, iMaxTurns);
 
 	if(piPathTurns != NULL)
 	{
