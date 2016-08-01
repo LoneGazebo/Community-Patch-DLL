@@ -1105,7 +1105,13 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, int& iValueImOffering, int& iValueThey
 	PlayerTypes eOtherPlayer;
 
 	eOtherPlayer = pDeal->m_eFromPlayer == eMyPlayer ? pDeal->m_eToPlayer : pDeal->m_eFromPlayer;
-
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	// We're offering help to a player
+	if (MOD_DIPLOMACY_CIV4_FEATURES && eOtherPlayer != NO_PLAYER && GetPlayer()->GetDiplomacyAI()->IsOfferingGift(eOtherPlayer))
+	{
+		return 1;
+	}
+#endif
 	TradedItemList::iterator it;
 	for(it = pDeal->m_TradedItems.begin(); it != pDeal->m_TradedItems.end(); ++it)
 	{

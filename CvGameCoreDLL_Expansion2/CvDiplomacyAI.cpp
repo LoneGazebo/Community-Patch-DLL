@@ -40372,6 +40372,7 @@ void CvDiplomacyAI::DoGenerousOffer(PlayerTypes ePlayer, DiploStatementTypes& eS
 			{
 				eStatement = eTempStatement;
 				SetOfferingGift(ePlayer, true);
+				bRandPassed = true;
 			}
 			else
 			{

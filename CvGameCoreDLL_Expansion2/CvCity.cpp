@@ -22081,7 +22081,6 @@ void CvCity::DoBarbIncursion()
 		if(CvBarbarians::ShouldSpawnBarbFromCity(plot()))
 		{
 			CvBarbarians::DoSpawnBarbarianUnit(plot(), false, false);
-			CvBarbarians::DoCityActivationNotice(plot());
 		
 			if(GC.getLogging() && GC.getAILogging())
 			{

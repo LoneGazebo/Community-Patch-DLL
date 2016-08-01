@@ -4248,6 +4248,12 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		CvMap& theMap = GC.getMap();
 		theMap.updateDeferredFog();
 	}
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	if(pNewCity != NULL && pNewCity->getOwner() == BARBARIAN_PLAYER)
+	{
+		CvBarbarians::DoCityActivationNotice(pNewCity->plot());
+	}
+#endif
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem && pNewCity != NULL)
