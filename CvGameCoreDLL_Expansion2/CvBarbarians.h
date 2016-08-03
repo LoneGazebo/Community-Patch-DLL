@@ -29,10 +29,6 @@ public:
 
 	static void DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians, bool bFinishMoves);
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	static const std::vector<CvPlot*>& GetBarbCampPlots() { return m_vPlotsWithCamp; } 
-#endif
-
 	static void MapInit(int iWorldNumPlots);
 	static void Uninit();
 
@@ -64,10 +60,6 @@ private:
 	static short* m_aiPlotBarbCityNumUnitsSpawned;
 #endif
 	static short* m_aiPlotBarbCampNumUnitsSpawned;
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	static std::vector<CvPlot*> m_vPlotsWithCamp;
-#endif
 
 };
 

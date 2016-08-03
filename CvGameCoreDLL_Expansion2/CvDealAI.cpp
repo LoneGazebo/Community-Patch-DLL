@@ -352,14 +352,14 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		{
 			szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_GENEROUS);
 			eAnimation = LEADERHEAD_ANIM_YES;
-			GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, iDealValueToMe);
+			GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, (iDealValueToMe / 5));
 		}
 		// Acceptable deal for us
 		else
 		{
 			szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_ACCEPTABLE);
 			eAnimation = LEADERHEAD_ANIM_YES;
-			GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, (iDealValueToMe / 2));
+			GetPlayer()->GetDiplomacyAI()->ChangeRecentTradeValue(eFromPlayer, (iDealValueToMe / 10));
 		}
 #if defined(MOD_BALANCE_CORE)
 		}
@@ -1109,7 +1109,13 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, int& iValueImOffering, int& iValueThey
 	PlayerTypes eOtherPlayer;
 
 	eOtherPlayer = pDeal->m_eFromPlayer == eMyPlayer ? pDeal->m_eToPlayer : pDeal->m_eFromPlayer;
-
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	// We're offering help to a player
+	if (MOD_DIPLOMACY_CIV4_FEATURES && eOtherPlayer != NO_PLAYER && GetPlayer()->GetDiplomacyAI()->IsOfferingGift(eOtherPlayer))
+	{
+		return 1;
+	}
+#endif
 	TradedItemList::iterator it;
 	for(it = pDeal->m_TradedItems.begin(); it != pDeal->m_TradedItems.end(); ++it)
 	{

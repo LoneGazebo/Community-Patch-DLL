@@ -2036,7 +2036,6 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	pPlot = plot();
 #if defined(MOD_BALANCE_CORE)
 	int iLostPromotions = 0;
-	bool bFree = false;
 #endif
 	// Transfer Promotions over
 	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
@@ -2053,62 +2052,44 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 				continue;
 			}
 #endif
-			// Old unit has the promotion
-			bGivePromotion = false;
-			if(pUnit->isHasPromotion(ePromotion))
-			{
-				if(!pkPromotionInfo->IsLostWithUpgrade())
-				{
-					bGivePromotion = true;
-				}
-				else
-				{
 #if defined(MOD_BALANCE_CORE)
-					if(ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE() || ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY())
+			bool bFree = false;
+			if(ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE() || ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY())
+			{
+				//Can't embark yet, or the unit should auto get it?
+				if(pUnit->isHasPromotion(ePromotion))
+				{
+					if(!GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater() && !GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbarkAllWaterPassage() && getUnitInfo().GetFreePromotions(ePromotion))
 					{
-						//Can't embark yet, or the unit should auto get it?
-						if(!GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater() && !GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbarkAllWaterPassage() && getUnitInfo().GetFreePromotions(ePromotion))
-						{
-							bGivePromotion = true;
-						}
+						bGivePromotion = true;
 					}
 				}
+			}
+			else
 #endif
+			// Old unit has the promotion
+			if(pUnit->isHasPromotion(ePromotion) && !pkPromotionInfo->IsLostWithUpgrade())
+			{
+				bGivePromotion = true;
 			}
 
 			// New unit gets promotion for free (as per XML)
 			else if(getUnitInfo().GetFreePromotions(ePromotion) && (!bIsUpgrade || !pkPromotionInfo->IsNotWithUpgrade()))
 			{
-				bGivePromotion = true;
 #if defined(MOD_BALANCE_CORE)
 				bFree = true;
-				if(ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE() || ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY())
-				{
-					if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater() || GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbarkAllWaterPassage())
-					{
-						bGivePromotion = false;
-						bFree = false;
-					}
-				}
 #endif
+				bGivePromotion = true;
 			}
 
 			// if we get this due to a policy or wonder
 			else if(GET_PLAYER(getOwner()).IsFreePromotion(ePromotion) && (
-						::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForCivilianUnitType(ePromotion, getUnitType())))
+			            ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForCivilianUnitType(ePromotion, getUnitType())))
 			{
-				bGivePromotion = true;
 #if defined(MOD_BALANCE_CORE)
 				bFree = true;
-				if(ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE() || ePromotion == (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY())
-				{
-					if(!GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater() && !GET_TEAM(GET_PLAYER(getOwner()).getTeam()).canEmbarkAllWaterPassage())
-					{
-						bGivePromotion = false;
-						bFree = false;
-					}
-				}
 #endif
+				bGivePromotion = true;
 			}
 #if defined(MOD_BALANCE_CORE)
 			if(pUnit->getUnitCombatType() != getUnitCombatType())
@@ -12713,10 +12694,9 @@ bool CvUnit::blastTourism()
 
 		int iCap = 3;
 
-		// Loop through owner's cities.
-		if(pPlot->getWorkingCity() != NULL && pPlot->getWorkingCity()->getOwner() == eOwner)
+		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 		{
-			pPlot->getWorkingCity()->ChangeBaseHappinessFromBuildings(iCap);
+			GET_PLAYER(getOwner()).getCapitalCity()->ChangeBaseHappinessFromBuildings(iCap);
 		}
 
 		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
@@ -12736,7 +12716,6 @@ bool CvUnit::blastTourism()
 			Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET");
 			localizedText << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
 			localizedText << iTourismBlast;
-			localizedText << iCap;
 			Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET_S");
 			localizedSummary << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
 			pNotifications2->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), eOwner);

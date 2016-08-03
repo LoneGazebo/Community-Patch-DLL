@@ -1236,6 +1236,9 @@ void CvTacticalAI::EstablishBarbarianPriorities()
 	// Loop through each possible tactical move (other than "none" or "unassigned")
 	for(int iI = 0; iI < NUM_AI_BARBARIAN_MOVES; iI++)
 	{
+		if((AIBarbarianTacticalMove)iI == AI_TACTICAL_BARBARIAN_NONE)
+			continue;
+
 		// Set base value
 		switch((AIBarbarianTacticalMove)iI)
 		{
@@ -1305,7 +1308,11 @@ void CvTacticalAI::EstablishBarbarianPriorities()
 		if(iPriority >= 0)
 		{
 			// Finally, add a random die roll to each priority
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+			iPriority += GC.getGame().getSmallFakeRandNum(GC.getAI_TACTICAL_MOVE_PRIORITY_RANDOMNESS());
+#else
 			iPriority += GC.getGame().getJonRandNum(GC.getAI_TACTICAL_MOVE_PRIORITY_RANDOMNESS(), "Tactical AI Move Priority");
+#endif
 
 			// Store off this move and priority
 			CvTacticalMove move;
@@ -9745,7 +9752,7 @@ bool CvTacticalAI::NearVisibleEnemy(UnitHandle pUnit, int iRange)
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kPlayer.isAlive() && atWar(kPlayer.getTeam(), m_pPlayer->getTeam()))
+		if(kPlayer.isAlive() && !kPlayer.isBarbarian() && atWar(kPlayer.getTeam(), m_pPlayer->getTeam()))
 		{
 			// Loop through their units
 			for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
@@ -9780,23 +9787,27 @@ bool CvTacticalAI::NearVisibleEnemy(UnitHandle pUnit, int iRange)
 				}
 			}
 		}
-	}
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	//also check barbarian camps!
-	const std::vector<CvPlot*>& vCamps = CvBarbarians::GetBarbCampPlots();
-	for (std::vector<CvPlot*>::const_iterator it=vCamps.begin(); it!=vCamps.end(); ++it)
-	{
-		if ((*it)->isRevealed(m_pPlayer->getTeam()))
+		else if(kPlayer.isBarbarian())
 		{
-			if(plotDistance((*it)->getX(), (*it)->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+			for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 			{
-				return true;
+				CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+				if(pLoopPlot == NULL)
+					continue;
+
+				if(pLoopPlot->getImprovementType() != GC.getBARBARIAN_CAMP_IMPROVEMENT() && pLoopPlot->getNumDefenders(BARBARIAN_PLAYER) <= 0)
+					continue;
+
+				if(!pLoopPlot->isVisible(m_pPlayer->getTeam()))
+					continue;
+
+				if(plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+				{
+					return true;
+				}
 			}
 		}
 	}
-
-#endif
 
 	return false;
 }

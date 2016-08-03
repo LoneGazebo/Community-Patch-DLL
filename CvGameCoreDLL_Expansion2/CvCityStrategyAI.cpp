@@ -3273,7 +3273,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 			continue;
 		}
 		//No improved, no city, no impassable, no water.
-		if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT && !pLoopPlot->isCity() && !pLoopPlot->isImpassable() && !pLoopPlot->isWater())
+		if(!pLoopPlot->isImpassable() && !pLoopPlot->isWater())
 		{
 			CvUnit* pLoopUnit;
 			for(int iUnitLoop = 0; iUnitLoop < pLoopPlot->getNumUnits(); iUnitLoop++)
@@ -3285,6 +3285,14 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 					iNumWorkersHere++;
 				}
 			}
+			//Already improved? Continue.
+			if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+				continue;
+
+			//Skip cities.
+			if(pLoopPlot->isCity())
+				continue;
+
 			for(int iI = 0; iI < GC.getNumBuildInfos(); ++iI)
 			{
 				CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes) iI);
@@ -3316,8 +3324,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 	{
 		return true;
 	}
-	//Not enough workers here? 3:1 ratio is good ratio.
-	if((iNumWorkersHere * 3) < iCanImprove)
+	//Not enough workers here? 4:1 ratio is good ratio.
+	if((iNumWorkersHere * 4) < iCanImprove)
 	{
 		return false;
 	}

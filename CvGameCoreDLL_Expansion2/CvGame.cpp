@@ -11538,7 +11538,13 @@ void CvGame::DoMinorBuyout(PlayerTypes eMajor, PlayerTypes eMinor)
 	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
 	CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
-
+#if defined(MOD_BALANCE_CORE)
+	if(eMajor != NO_PLAYER && GET_PLAYER(eMajor).GetPlayerTraits()->IsDiplomaticMarriage())
+	{
+		GET_PLAYER(eMinor).GetMinorCivAI()->DoMarriage(eMajor);
+		return;
+	}
+#endif
 	gDLL->sendMinorBuyout(eMajor, eMinor);
 }
 #if defined(MOD_BALANCE_CORE)

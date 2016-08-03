@@ -131,16 +131,16 @@ SET Text = 'You received tribute recently'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_RECENTLY';
 
 -- Razing
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Razing[ENDCOLOR] The City will burn [ICON_RAZING] down each turn until it reaches 0 population, and is removed from the game. This produces a lot of [ICON_HAPPINESS_4] Unhappiness, but also greatly increases your [COLOR_POSITIVE_TEXT]War Score[ENDCOLOR] versus this player.'
 WHERE Tag = 'TXT_KEY_POPUP_CITY_CAPTURE_INFO_RAZE';
 
 -- LUA
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = 'Base Yield:'
 WHERE Tag = 'TXT_KEY_PEDIA_YIELD_LABEL';
 
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = 'Connected By:'
 WHERE Tag = 'TXT_KEY_PEDIA_IMPROVEMENTS_LABEL';
 
@@ -149,7 +149,7 @@ SET Text = '{@1_ImprovementDescription}: +{3_Yield} {4_Icon} {@2_YieldDescriptio
 WHERE Tag = 'TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_YIELDCHANGES';
 
 UPDATE Language_en_US
-SET Text = '{@1_ImprovementDescription}: +{3_Yield} {4_Icon} {@2_YieldDescription} ({TXT_KEY_ABLTY_NO_FRESH_WATER_STRING})'
+SET Text = '{@1_ImprovementDescription}: +{3_Yield} {4_Icon} {@2_YieldDescription} {TXT_KEY_ABLTY_NO_FRESH_WATER_STRING}'
 WHERE Tag = 'TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_NOFRESHWATERYIELDCHANGES';
 
 UPDATE Language_en_US
@@ -169,7 +169,7 @@ SET Text = '{1_ImprovementName:textkey}: +{3_Num} {2_YieldType:textkey} (Fresh W
 WHERE Tag = 'TXT_KEY_FRESH_WATER';
 
 UPDATE Language_en_US
-SET Text = '{@1_ImprovementDescription}: +{3_Yield} {4_Icon} {@2_YieldDescription} ({TXT_KEY_ABLTY_FRESH_WATER_STRING})'
+SET Text = '{@1_ImprovementDescription}: +{3_Yield} {4_Icon} {@2_YieldDescription} {TXT_KEY_ABLTY_FRESH_WATER_STRING}'
 WHERE Tag = 'TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_FRESHWATERYIELDCHANGES';
 
 UPDATE Language_en_US
@@ -184,19 +184,19 @@ WHERE Tag = 'TXT_KEY_FREE_PROMOTION_FROM_TECH';
 -- Fixed diacritics for spy names.
 
 UPDATE Language_en_US
-SET Text = 'Antônio'
+SET Text = 'Antï¿½nio'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_0';
 
 UPDATE Language_en_US
-SET Text = 'Estêvão'
+SET Text = 'Estï¿½vï¿½o'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_3';
 
 UPDATE Language_en_US
-SET Text = 'Fernão'
+SET Text = 'Fernï¿½o'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_4';
 
 UPDATE Language_en_US
-SET Text = 'Tomé'
+SET Text = 'Tomï¿½'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_8';
 
 UPDATE Language_en_US

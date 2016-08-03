@@ -648,8 +648,6 @@ void CvPlayerCorporations::SetCorporationOfficesAsFranchises(bool bValue)
 {
 	if(bValue != m_bCorporationOfficesAsFranchises)
 		m_bCorporationOfficesAsFranchises = bValue;
-
-	RecalculateNumFranchises();
 }
 
 bool CvPlayerCorporations::IsCorporationRandomForeignFranchise() const
@@ -661,9 +659,6 @@ void CvPlayerCorporations::SetCorporationRandomForeignFranchise(bool bValue)
 {
 	if (bValue != m_bCorporationRandomForeignFranchise)
 		m_bCorporationRandomForeignFranchise = bValue;
-
-	if (m_bCorporationRandomForeignFranchise)
-		RecalculateNumFranchises();
 }
 
 bool CvPlayerCorporations::IsCorporationFreeFranchiseAbovePopular() const
@@ -675,9 +670,6 @@ void CvPlayerCorporations::SetCorporationFreeFranchiseAbovePopular(bool bValue)
 {
 	if(bValue != m_bCorporationFreeFranchiseAbovePopular)
 		m_bCorporationFreeFranchiseAbovePopular = bValue;
-
-	if (m_bCorporationFreeFranchiseAbovePopular)
-		RecalculateNumFranchises();
 }
 
 // Get our headquarters
@@ -778,6 +770,19 @@ void CvPlayerCorporations::RecalculateNumFranchises()
 	iFranchises += iFreeFranchises;
 
 	m_iNumFranchises = iFranchises;
+
+	int iLoop;
+	CvCity* pLoopCity;
+	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	{
+		YieldTypes eYield;
+
+		for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			eYield = (YieldTypes) iI;
+			pLoopCity->UpdateYieldFromCorporationFranchises(eYield);
+		}
+	}
 }
 
 // Attempt to spread a corporation to pDestCity

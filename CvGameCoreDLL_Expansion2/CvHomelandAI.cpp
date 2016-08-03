@@ -580,13 +580,13 @@ void CvHomelandAI::EstablishHomelandPriorities()
 #if defined(MOD_BALANCE_CORE)
 				if(m_pPlayer->IsAtWarAnyMajor())
 				{
-					iPriority /= min (4, iFlavorDefense);
+					iPriority /= min (4, max(1, iFlavorDefense));
 				}
 				break;
 			case AI_HOMELAND_MOVE_SENTRY_NAVAL:
 				if(m_pPlayer->IsAtWarAnyMajor())
 				{
-					iPriority /= min (4, iFlavorNaval);
+					iPriority /= min (4, max(1, iFlavorNaval));
 				}
 				break;
 #endif

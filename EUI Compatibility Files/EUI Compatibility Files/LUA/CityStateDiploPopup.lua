@@ -840,7 +840,7 @@ function OnMarriageButtonClicked()
 
 	if gk_mode and minorPlayer:CanMajorMarry(activePlayerID) then
 		OnCloseButtonClicked()
-		Game.DoMinorMarriage(activePlayerID, g_minorCivID)
+		Game.DoMinorBuyout(activePlayerID, g_minorCivID)
 	end
 end
 Controls.MarriageButton:RegisterCallback( Mouse.eLClick, OnMarriageButtonClicked )

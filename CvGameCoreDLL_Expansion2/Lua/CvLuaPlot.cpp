@@ -137,7 +137,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetNumVisiblePotentialEnemyDefenders);
 	Method(IsVisibleEnemyUnit);
 	Method(IsVisibleOtherUnit);
-	Method(getNumFriendlyUnitsOfType);
+	Method(GetNumFriendlyUnitsOfType);
 	Method(IsFighting);
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_STACKING_RULES)
@@ -1012,7 +1012,7 @@ int CvLuaPlot::lIsVisibleOtherUnit(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int GetNumFriendlyUnitsOfType(CvUnit* pUnit);
-int CvLuaPlot::lgetNumFriendlyUnitsOfType(lua_State* L)
+int CvLuaPlot::lGetNumFriendlyUnitsOfType(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
