@@ -259,9 +259,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		return 0;
 
 	//Sanitize...
-	if(iTempWeight > 700)
+	if(iTempWeight > 800)
 	{
-		iTempWeight = 700;
+		iTempWeight = 800;
 	}
 
 	if (!pkUnitEntry)
@@ -787,7 +787,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return 0;
 		}
 		//Don't build a settler if we're about to grow.
-		if(m_pCity->getFoodTurnsLeft() <= 2)
+		if(m_pCity->getFoodTurnsLeft() <= 4)
 		{
 			return 0;
 		}
@@ -800,51 +800,86 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			return 0;
 		}
-		if(kPlayer.getNumCities() < 2 && kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true) <= 0)
+		if(kPlayer.IsEmpireVeryUnhappy())
 		{
-			iBonus += 3000;
+			return 0;
 		}
-		else if(kPlayer.getNumCities() <= 3 && GC.getGame().getGameTurn() >= 100 && kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true) <= 0)
+
+		if(kPlayer.IsEmpireUnhappy() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
 		{
-			iBonus += 3000;
+			return 0;
 		}
+		if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
+		{
+			return 0;
+		}
+
+		//Already have a settler out? Ignore.
+		int iNumSettlers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
+		if(iNumSettlers > 0)
+		{
+			return 0;
+		}
+		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+		// scale based on flavor and world size
+		if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
+		{
+			return 0;
+		}
+		int iBestArea, iSecondBestArea;
+		int iNumGoodAreas = kPlayer.GetBestSettleAreas(kPlayer.GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
+		if(iNumGoodAreas == 0)
+		{
+			return 0;
+		}
+		//We have a good spot? Okay, let's see how important that is to us.
 		else
 		{
-			EconomicAIStrategyTypes eStrategyEnoughSettlers = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
-			if(eStrategyEnoughSettlers != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyEnoughSettlers))
+			int iFlavorExpansion = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+			iFlavorExpansion += iNumGoodAreas;
+
+			// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"
+			EconomicAIStrategyTypes eExpandOther = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
+			if (eExpandOther != NO_ECONOMICAISTRATEGY)
 			{
-				return 0;
-			}
-			AICityStrategyTypes eStrategyEnoughSettlers2 = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_SETTLERS");
-			if(eStrategyEnoughSettlers2 != NO_AICITYSTRATEGY)
-			{
-				if(m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyEnoughSettlers2))
+				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOther))
 				{
-					return 0;
+					iFlavorExpansion += 1;
 				}
 			}
-			
-			if(kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true) > 1)
+
+			// If we are running "ECONOMICAISTRATEGY_EARLY_EXPANSION"
+			EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
+			if (eEarlyExpand != NO_ECONOMICAISTRATEGY)
 			{
-				iBonus -= 1000;
+				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eEarlyExpand))
+				{
+					iFlavorExpansion += 1;
+				}
 			}
+
+			// If we are running "ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY"
+			EconomicAIStrategyTypes eExpandCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY");
+			if (eExpandCrazy != NO_ECONOMICAISTRATEGY)
+			{
+				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandCrazy))
+				{
+					iFlavorExpansion += 3;
+				}
+			}
+
 			if(kPlayer.getSettlerProductionModifier() > 0)
 			{
-				iBonus += (kPlayer.getSettlerProductionModifier() * 2);
+				iFlavorExpansion += 1;
 			}
 			if(m_pCity->isCapital() && kPlayer.getCapitalSettlerProductionModifier() > 0)
 			{
-				iBonus += (kPlayer.getCapitalSettlerProductionModifier() * 2);
+				iFlavorExpansion += 1;
 			}
-			
-			if(!kPlayer.HaveGoodSettlePlot(-1))
-			{
-				return 0;
-			}
-			else
-			{
-				iBonus += 900;
-			}
+
+			int iNumCities = kPlayer.getNumCities();
+			int iSettlerDesire = (iFlavorExpansion - iNumCities) * 20;
+			iBonus += iSettlerDesire;
 		}
 	}
 	if(!kPlayer.isMinorCiv())
@@ -920,13 +955,19 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			iBonus += -100;
 		}
-		if(kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false) < 1)
+		int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
+		if(iNumBuilders == 0)
 		{
-			iBonus += 100;
+			iBonus += 50;
 		}
 		int iFirstUnitID;
 		//There's a worker waiting here? Abort!
 		if(m_pCity->plot()->getNumUnitsOfAIType(UNITAI_WORKER, iFirstUnitID) > 0)
+		{
+			return 0;
+		}
+		int iCurrentNumCities = kPlayer.getNumCities();
+		if(iNumBuilders >= iCurrentNumCities)
 		{
 			return 0;
 		}
@@ -938,12 +979,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
 		if(eWantWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 		{
-			iBonus += 50;
+			iBonus += 25;
 		}
 		AICityStrategyTypes eNeedWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
 		if(eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
 		{
-			iBonus += 100;
+			iBonus += 75;
 		}
 	}
 	

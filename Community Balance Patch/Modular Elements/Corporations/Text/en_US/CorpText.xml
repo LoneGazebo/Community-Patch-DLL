@@ -544,7 +544,7 @@
 			<Text>+4 [ICON_GOLD] Gold for every Global Franchise, +1 [ICON_GOLD] Gold on all Trader Sid's Monopoly Resources near the City, and [ICON_INTERNATIONAL_TRADE] Trade Routes to this City generate +2 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_TRADER_SIDS">
-			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes from to foreign Cities with a Trader Sid's Franchise produce +50% additional [ICON_GOLD] Gold.</Text>
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes from owned Cities with a Trader Sid's Office to foreign Cities with a Trader Sid's Franchise produce +50% additional [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADER_SIDS_OFFICE_BENEFIT_HELP">
 			<Text>Current Office Bonus: +{1_Num} [ICON_GOLD] Gold.</Text>

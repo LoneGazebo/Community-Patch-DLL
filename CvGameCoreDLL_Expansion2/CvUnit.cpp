@@ -12694,10 +12694,9 @@ bool CvUnit::blastTourism()
 
 		int iCap = 3;
 
-		// Loop through owner's cities.
-		if(pPlot->getWorkingCity() != NULL && pPlot->getWorkingCity()->getOwner() == eOwner)
+		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 		{
-			pPlot->getWorkingCity()->ChangeBaseHappinessFromBuildings(iCap);
+			GET_PLAYER(getOwner()).getCapitalCity()->ChangeBaseHappinessFromBuildings(iCap);
 		}
 
 		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
@@ -12717,7 +12716,6 @@ bool CvUnit::blastTourism()
 			Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET");
 			localizedText << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
 			localizedText << iTourismBlast;
-			localizedText << iCap;
 			Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_FAMILIAR_TOUR_TARGET_S");
 			localizedSummary << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
 			pNotifications2->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, localizedText.toUTF8(), localizedSummary.toUTF8(), getX(), getY(), eOwner);

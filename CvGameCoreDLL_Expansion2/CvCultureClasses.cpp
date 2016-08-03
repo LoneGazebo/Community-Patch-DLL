@@ -3248,10 +3248,10 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 #if defined(MOD_BALANCE_CORE)
 		if(m_pPlayer->GetArchaeologicalDigTourism() > 0)
 		{
-			int iTourism = m_pPlayer->GetEventTourism();
+			int iTourism = m_pPlayer->GetArchaeologicalDigTourism();
 			m_pPlayer->ChangeNumHistoricEvents(1);
 			// Culture boost based on previous turns
-			int iPreviousTurnsToCount = m_pPlayer->GetArchaeologicalDigTourism();
+			int iPreviousTurnsToCount = 10;
 			// Calculate boost
 			iTourism *= m_pPlayer->GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 			iTourism /= 100;

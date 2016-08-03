@@ -4967,22 +4967,25 @@ void CvCityReligions::AddProphetSpread(ReligionTypes eReligion, int iPressure, P
 		if (it->m_eReligion > RELIGION_PANTHEON &&  it->m_eReligion != eReligion)
 		{
 			const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(it->m_eReligion, NO_PLAYER);
-			if(eResponsiblePlayer != NO_PLAYER)
+			if(pReligion)
 			{
-				int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention(eResponsiblePlayer);  // Normally 0
-				if (iPressureRetention > 0)
+				if(eResponsiblePlayer != NO_PLAYER)
 				{
-					ePressureRetainedReligion = it->m_eReligion;
-					iPressureRetained = it->m_iPressure * iPressureRetention / 100;
+					int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention(eResponsiblePlayer);  // Normally 0
+					if (iPressureRetention > 0)
+					{
+						ePressureRetainedReligion = it->m_eReligion;
+						iPressureRetained = it->m_iPressure * iPressureRetention / 100;
+					}
 				}
-			}
-			else
-			{
-				int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention(eResponsiblePlayer);  // Normally 0
-				if (iPressureRetention > 0)
+				else
 				{
-					ePressureRetainedReligion = it->m_eReligion;
-					iPressureRetained = it->m_iPressure * iPressureRetention / 100;
+					int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention(eResponsiblePlayer);  // Normally 0
+					if (iPressureRetention > 0)
+					{
+						ePressureRetainedReligion = it->m_eReligion;
+						iPressureRetained = it->m_iPressure * iPressureRetention / 100;
+					}
 				}
 			}
 		}
@@ -5103,11 +5106,14 @@ void CvCityReligions::SimulateProphetSpread(ReligionTypes eReligion, int iPressu
 		if (it->m_eReligion > RELIGION_PANTHEON && eReligion != it->m_eReligion)
 		{
 			const CvReligion *pReligion = GC.getGame().GetGameReligions()->GetReligion(it->m_eReligion, NO_PLAYER);
-			int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention();  // Normally 0
-			if (iPressureRetention > 0)
+			if(pReligion)
 			{
-				ePressureRetainedReligion = it->m_eReligion;
-				iPressureRetained = it->m_iPressure * iPressureRetention / 100;
+				int iPressureRetention = pReligion->m_Beliefs.GetInquisitorPressureRetention();  // Normally 0
+				if (iPressureRetention > 0)
+				{
+					ePressureRetainedReligion = it->m_eReligion;
+					iPressureRetained = it->m_iPressure * iPressureRetention / 100;
+				}
 			}
 		}
 	}

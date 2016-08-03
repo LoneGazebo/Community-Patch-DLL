@@ -18,11 +18,6 @@ short* CvBarbarians::m_aiPlotBarbCitySpawnCounter = NULL;
 short* CvBarbarians::m_aiPlotBarbCityNumUnitsSpawned = NULL;
 #endif
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-std::vector<CvPlot*> CvBarbarians::m_vPlotsWithCamp;
-#endif
-
-
 //	---------------------------------------------------------------------------
 bool CvBarbarians::IsPlotValidForBarbCamp(CvPlot* pPlot)
 {
@@ -78,12 +73,6 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_BarbariansCampCleared, pPlot->getX(), pPlot->getY(), ePlayer);
 	}
 #endif
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	std::vector<CvPlot*>::iterator it = std::find(m_vPlotsWithCamp.begin(),m_vPlotsWithCamp.end(),pPlot);
-	if (it!=m_vPlotsWithCamp.end())
-		m_vPlotsWithCamp.erase(it);
-#endif
-
 }
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
@@ -174,6 +163,13 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 
 	// Increment # of barbs spawned from this camp
 	m_aiPlotBarbCampNumUnitsSpawned[pPlot->GetPlotIndex()]++;	// This starts at -1 so when a camp is first created it will bump up to 0, which is correct
+
+	//// If it's too early to spawn then add in a small amount to delay things a bit - between 3 and 6 extra turns
+	//if (CanBarbariansSpawn())
+	//{
+	//	iNumTurnsToSpawn += 3;
+	//	iNumTurnsToSpawn += auto_ptr<ICvGame1> pGame = GameCore::GetGame();\n.getJonRandNum(4, "Early game Barb Spawn Rand call");
+	//}
 
 	// Difficulty level can add time between spawns (e.g. Settler is +8 turns)
 	CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(kGame.getHandicapType());
@@ -327,6 +323,8 @@ void CvBarbarians::MapInit(int iWorldNumPlots)
 {
 	Uninit();
 
+	int iI;
+
 	if (iWorldNumPlots > 0)
 	{
 		if (m_aiPlotBarbCampSpawnCounter == NULL)
@@ -349,7 +347,7 @@ void CvBarbarians::MapInit(int iWorldNumPlots)
 #endif
 
 		// Default values
-		for (int iI = 0; iI < iWorldNumPlots; ++iI)
+		for (iI = 0; iI < iWorldNumPlots; ++iI)
 		{
 			m_aiPlotBarbCampSpawnCounter[iI] = -1;
 			m_aiPlotBarbCampNumUnitsSpawned[iI] = -1;
@@ -383,10 +381,6 @@ void CvBarbarians::Uninit()
 	{
 		SAFE_DELETE_ARRAY(m_aiPlotBarbCityNumUnitsSpawned);
 	}
-#endif
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	 m_vPlotsWithCamp.clear();
 #endif
 }
 
@@ -679,28 +673,6 @@ void CvBarbarians::DoCamps()
 			while(iNumCampsToAdd > 0 && iCount < iNumLandPlots);
 		}
 	}
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	 m_vPlotsWithCamp.clear();
-
-	// Is there an appropriate Improvement to place as a Barb Camp?
-	if(eCamp != NO_IMPROVEMENT)
-	{
-		CvMap& kMap = GC.getMap();
-		// Figure out how many Nonvisible tiles we have to base # of camps to spawn on
-		for(int iI = 0; iI < kMap.numPlots(); iI++)
-		{
-			CvPlot* pLoopPlot = kMap.plotByIndexUnchecked(iI);
-
-			// See how many camps we already have
-			if(pLoopPlot->getImprovementType() == eCamp)
-			{
-				m_vPlotsWithCamp.push_back(pLoopPlot);
-			}
-		}
-	}
-#endif
-
 
 	if(bAlwaysRevealedBarbCamp)
 		GC.getMap().updateDeferredFog();

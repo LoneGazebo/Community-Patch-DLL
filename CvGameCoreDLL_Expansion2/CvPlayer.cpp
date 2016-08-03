@@ -13682,7 +13682,11 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 				}
 				else
 				{
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+					int iRand = GC.getGame().getSmallFakeRandNum(avValidGoodies.size(),*pPlot);
+#else
 					int iRand = GC.getGame().getJonRandNum(avValidGoodies.size(), "Picking a Goody result");
+#endif
 					eGoody = (GoodyTypes) avValidGoodies[iRand];
 					receiveGoody(pPlot, eGoody, pUnit);
 				}
@@ -23212,10 +23216,10 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 #if defined(MOD_BALANCE_CORE)
 		if(iChange > 0 && GetGoldenAgeTourism() > 0)
 		{
-			int iTourism = GetEventTourism();
+			int iTourism = GetGoldenAgeTourism();
 			ChangeNumHistoricEvents(1);
 			// Culture boost based on previous turns
-			int iPreviousTurnsToCount = GetGoldenAgeTourism();
+			int iPreviousTurnsToCount = 10;
 			// Calculate boost
 			iTourism *= GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 			iTourism /= 100;
@@ -41036,7 +41040,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 				continue;
 
 			int iDistanceToDanger = plotDistance(*(vSettlePlots[i].pPlot),*(vBadPlots[j]));
-			if (iDistanceToDanger<5 && iDistanceToSettler>1)
+			if (iDistanceToDanger<6 && iDistanceToSettler>1)
 			{
 				isDangerous = true;
 				break;
@@ -41048,7 +41052,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		{
 			int iDistanceToCity = GetCityDistance(vSettlePlots[i].pPlot);
 			//also consider settler plot here in case of re-targeting an operation
-			if (iDistanceToCity>7 && iDistanceToSettler>2)
+			if (iDistanceToCity>4 && iDistanceToSettler>1)
 				isDangerous = true;
 		}
 
@@ -41057,10 +41061,10 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		{
 			CvPlot* pTestPlot = vSettlePlots[i].pPlot;
 
-			//if the muster plot is more than 10 turns away it's unsafe by definition
+			//if the muster plot is more than 6 turns away it's unsafe by definition
 			SMovePlot test(pTestPlot->GetPlotIndex());
 			ReachablePlots::iterator it = reachablePlots.find(test);
-			if (it==reachablePlots.end() || it->iTurns>=10)
+			if (it==reachablePlots.end() || it->iTurns>=6)
 				isDangerous = true;
 		}
 

@@ -777,7 +777,7 @@ function OnMarriageButtonClicked()
 
 	if (pMinor:CanMajorMarry(iActivePlayer)) then
 		UIManager:DequeuePopup( ContextPtr );
-		Game.DoMinorMarriage(iActivePlayer, pMinor:GetID());
+		Game.DoMinorBuyout(iActivePlayer, pMinor:GetID());
 	end
 end
 Controls.MarriageButton:RegisterCallback( Mouse.eLClick, OnMarriageButtonClicked );
