@@ -478,8 +478,29 @@ void CvBarbarians::DoCamps()
 			iNumNotVisiblePlots++;
 
 			vAllPlots.push_back(pLoopPlot);
+
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+			if (vAllPlots.size()>1)
+			{
+				//do one iteration of a fisher-yates shuffle
+				int iSwap = kGame.getSmallFakeRandNum( vAllPlots.size(), *pLoopPlot);
+				std::swap(vAllPlots[iSwap],vAllPlots.back());
+			}
+#endif
+
 			if (pLoopPlot->isCoastalLand())
+			{
 				vCoastalPlots.push_back(pLoopPlot);
+
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+				if (vCoastalPlots.size()>1)
+				{
+					//do one iteration of a fisher-yates shuffle
+					int iSwap = kGame.getSmallFakeRandNum( vCoastalPlots.size(), *pLoopPlot);
+					std::swap(vCoastalPlots[iSwap],vCoastalPlots.back());
+				}
+#endif
+			}
 		}
 
 		int iNumValidCampPlots = iNumNotVisiblePlots;
@@ -544,11 +565,13 @@ void CvBarbarians::DoCamps()
 
 				//make sure we have suitable plots ..
 				bWantsCoastal &= !vCoastalPlots.empty();
+
+				int iPlotIndex = kGame.getSmallFakeRandNum( min(9u, bWantsCoastal ? vCoastalPlots.size() : vAllPlots.size()) );
 #else
 				bool bWantsCoastal = kGame.getJonRandNum(/*6*/ GC.getBARBARIAN_CAMP_COASTAL_SPAWN_ROLL(), "Barb Camp Plot-Finding Roll - Coastal Bias") == 0 ? true : false;
+				int iPlotIndex = kGame.getJonRandNum( bWantsCoastal ? vCoastalPlots.size() : vAllPlots.size(), "Barb Camp Plot-Finding Roll");
 #endif
 
-				int iPlotIndex = kGame.getJonRandNum( bWantsCoastal ? vCoastalPlots.size() : vAllPlots.size(), "Barb Camp Plot-Finding Roll");
 				CvPlot* pLoopPlot = bWantsCoastal ? vCoastalPlots[iPlotIndex] : vAllPlots[iPlotIndex];
 
 #if defined(MOD_BUGFIX_BARB_CAMP_TERRAINS)
@@ -760,11 +783,15 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eU
 
 			if(bValid)
 			{
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+				iValue = 1 + kGame.getSmallFakeRandNum(9);
+#else
 				iValue = (1 + kGame.getJonRandNum(1000, "Barb Unit Selection"));
+#endif
 
 				if(kUnit.GetUnitAIType(eUnitAI))
 				{
-					iValue += 200;
+					iValue += 2;
 				}
 
 				if(iValue > iBestValue)

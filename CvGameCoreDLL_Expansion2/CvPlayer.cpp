@@ -12823,7 +12823,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	CvString strTempBuffer;
 	TechTypes eBestTech;
 	UnitTypes eUnit;
-	int iGold;
+	int iGold = 0;
 	int iOffset;
 	int iRange;
 	int iBarbCount;
@@ -12847,7 +12847,8 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	strBuffer = kGoodyInfo.GetDescription();
 
 	// Gold
-	iGold = kGoodyInfo.getGold() + (kGoodyInfo.getNumGoldRandRolls() * GC.getGame().getJonRandNum(kGoodyInfo.getGoldRandAmount(), "Goody Gold Rand"));
+	if (kGoodyInfo.getNumGoldRandRolls()>0 && kGoodyInfo.getGoldRandAmount()>0)
+		iGold = kGoodyInfo.getGold() + (kGoodyInfo.getNumGoldRandRolls() * GC.getGame().getJonRandNum(kGoodyInfo.getGoldRandAmount(), "Goody Gold Rand"));
 
 	if(iGold != 0)
 	{

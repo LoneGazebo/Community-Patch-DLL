@@ -9827,12 +9827,12 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
 //	--------------------------------------------------------------------------------
-// Get a fake random number which depends on game state - experimental
+// Get a fake random number which depends only on game state
 // for small numbers (e.g. direction rolls) this should be good enough
 int CvGame::getSmallFakeRandNum(int iNum, CvPlot& input)
 {
 	if (iNum>0)
-		return (input.getX()+input.getY()+getGameTurn()+m_iGlobalAssetCounter) % iNum;
+		return (input.getX()*17+input.getY()*23+getGameTurn()*3+m_iGlobalAssetCounter*11) % iNum;
 	else
 		return 0;
 }
