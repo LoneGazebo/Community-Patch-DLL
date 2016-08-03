@@ -518,7 +518,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 
 		SPathFinderUserData data(m_eOwner,PT_GENERIC_SAME_AREA,m_eEnemy);
 		data.iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
-		if (GC.GetStepFinder().DoesPathExist(pMusterPlot->getX(), pMusterPlot->getY(), pTargetPlot->getX(), pTargetPlot->getY(), data))
+		if (GC.GetStepFinder().DoesPathExist(pMusterPlot, pTargetPlot, data))
 		{
 			ReachablePlots turnsFromMuster;
 			SPathFinderUserData data(m_eOwner,PT_GENERIC_REACHABLE_PLOTS,-1,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
@@ -589,7 +589,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 			return false;
 		}
 	}
-	else
+	else //non-naval operation
 	{
 		ReachablePlots turnsFromMuster;
 		SPathFinderUserData data(m_eOwner,PT_GENERIC_REACHABLE_PLOTS,-1,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
@@ -3661,7 +3661,7 @@ bool OperationalAIHelpers::IsSlotRequired(PlayerTypes ePlayer, const OperationSl
 bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, const ReachablePlots& turnsFromMuster, 
 														CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iDistance, CvMultiUnitFormationInfo* thisFormation)
 {
-	if (!pLoopUnit->canRecruitFromTacticalAI() || pLoopUnit->getArmyID() != -1)
+	if (!pLoopUnit->canRecruitFromTacticalAI() || pLoopUnit->getArmyID() != -1 || pLoopUnit->isTrade())
 		return false;
 
 	// Get raw distance to the muster point (pathfinder is too expensive)
@@ -3809,8 +3809,10 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 		}
 		else
 		{
-			iDistance = it->iTurns;
-			return true;
+			//plausi check - pathfinding only for units where we are pretty sure it will work
+			//could be removed if performance critical (iDistance = it->iTurns)
+			iDistance = pLoopUnit->TurnsToReachTarget(pMusterPlot,CvUnit::MOVEFLAG_IGNORE_STACKING|CvUnit::MOVEFLAG_APPROX_TARGET_RING1,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
+			return (iDistance<INT_MAX);
 		}
 	}
 
