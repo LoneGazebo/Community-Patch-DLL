@@ -254,7 +254,7 @@ public:
 	CvPlot** getNeighborsShuffled(const CvPlot* pPlot)
 	{
 		memcpy(m_apShuffledNeighbors, m_pPlotNeighbors+plotNum(pPlot->getX(),pPlot->getY())*(NUM_DIRECTION_TYPES+2), 6*sizeof(CvPlot*));
-		shuffleArray(m_apShuffledNeighbors,6,GC.getGame().getJonRand());
+		shuffleArray(m_apShuffledNeighbors,6,GC.getGame().getRand());
 		return m_apShuffledNeighbors;
 	}
 	CvPlot* getNeighborUnchecked(int iX, int iY, DirectionTypes eDir) const

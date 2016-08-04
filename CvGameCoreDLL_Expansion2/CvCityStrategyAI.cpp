@@ -856,7 +856,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 	iTempWeight = 0;
 
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
 
 	// Reset vector holding items we can currently build
 	m_Buildables.clear();
@@ -1196,7 +1196,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 	iTempWeight = 0;
 
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
 
 	// Reset vector holding items we can currently build
 	m_Buildables.clear();
@@ -2747,7 +2747,7 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 		if (pEntry != NULL)
 			strDesc = pEntry->GetDescription();
 
-		strTemp.Format("SEED: %I64u, CHOSEN: %s, %s, TURNS: %d", GC.getGame().getJonRand().getSeed(), 
+		strTemp.Format("SEED: %I64u, CHOSEN: %s, %s, TURNS: %d", GC.getGame().getRand().getSeed(), 
 			strDesc.c_str(), bRush?"Rush if possible":"Do not rush", buildable.m_iTurnsToConstruct);
 
 		strOutBuf = strBaseString + strTemp;

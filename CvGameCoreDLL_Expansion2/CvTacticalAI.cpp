@@ -1309,9 +1309,9 @@ void CvTacticalAI::EstablishBarbarianPriorities()
 		{
 			// Finally, add a random die roll to each priority
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-			iPriority += GC.getGame().getSmallFakeRandNum(GC.getAI_TACTICAL_MOVE_PRIORITY_RANDOMNESS());
+			iPriority += GC.getGame().getSmallFakeRandNum(GC.getAI_TACTICAL_MOVE_PRIORITY_RANDOMNESS(), iPriority);
 #else
-			iPriority += GC.getGame().getJonRandNum(GC.getAI_TACTICAL_MOVE_PRIORITY_RANDOMNESS(), "Tactical AI Move Priority");
+			iPriority += GC.getGame().getRandNum(GC.getAI_TACTICAL_MOVE_PRIORITY_RANDOMNESS(), "Tactical AI Move Priority");
 #endif
 
 			// Store off this move and priority
@@ -9748,11 +9748,15 @@ bool CvTacticalAI::NearVisibleEnemy(UnitHandle pUnit, int iRange)
 	CvCity* pLoopCity = NULL;
 	int iLoop;
 
+	//barbarians don't have homeland AI, so we always assume there's an enemy nearby
+	if (pUnit->getOwner()==BARBARIAN_PLAYER)
+		return true;
+
 	// Loop through enemies
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kPlayer.isAlive() && !kPlayer.isBarbarian() && atWar(kPlayer.getTeam(), m_pPlayer->getTeam()))
+		if(kPlayer.isAlive() && atWar(kPlayer.getTeam(), m_pPlayer->getTeam()))
 		{
 			// Loop through their units
 			for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
@@ -9787,26 +9791,14 @@ bool CvTacticalAI::NearVisibleEnemy(UnitHandle pUnit, int iRange)
 				}
 			}
 		}
-		else if(kPlayer.isBarbarian())
-		{
-			for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
-			{
-				CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-				if(pLoopPlot == NULL)
-					continue;
+	}
 
-				if(pLoopPlot->getImprovementType() != GC.getBARBARIAN_CAMP_IMPROVEMENT() && pLoopPlot->getNumDefenders(BARBARIAN_PLAYER) <= 0)
-					continue;
-
-				if(!pLoopPlot->isVisible(m_pPlayer->getTeam()))
-					continue;
-
-				if(plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
-				{
-					return true;
-				}
-			}
-		}
+	//special: check for empty barbarian camps (if there is a unit there, we'd already have triggered above)
+	for (iLoop=RING0_PLOTS; iLoop<RING4_PLOTS; iLoop++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(pUnit->plot(),iLoop);
+		if (pLoopPlot && pLoopPlot->getRevealedImprovementType(pUnit->getTeam())==GC.getBARBARIAN_CAMP_IMPROVEMENT())
+			return true;
 	}
 
 	return false;

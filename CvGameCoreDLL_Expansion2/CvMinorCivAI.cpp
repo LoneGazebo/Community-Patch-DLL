@@ -986,12 +986,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = pkSmallAwardInfo->GetInfluence();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
-				iBonus -= GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus -= GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			else
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
 			{
@@ -1025,12 +1025,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = pkSmallAwardInfo->GetAdmiralPoints();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
-				iBonus -= GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus -= GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			else
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
 			{
@@ -1074,12 +1074,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = pkSmallAwardInfo->GetGeneralPoints();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
-				iBonus -= GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus -= GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			else
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
 			{
@@ -1123,12 +1123,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = iEra * pkSmallAwardInfo->GetCulture();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
-				iBonus -= GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus -= GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			else
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
 			{
@@ -1169,12 +1169,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = pkSmallAwardInfo->GetExperience();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
-				iBonus -= GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus -= GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			else
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
 			{
@@ -1218,12 +1218,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = iEra * pkSmallAwardInfo->GetFaith();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
-				iBonus -= GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus -= GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			else
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
 			{
@@ -1264,12 +1264,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = iEra * pkSmallAwardInfo->GetFood();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
-				iBonus -= GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus -= GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			else
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
 			{
@@ -1315,12 +1315,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = iEra * pkSmallAwardInfo->GetGAP();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
-				iBonus -= GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus -= GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			else
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
 			{
@@ -1366,12 +1366,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = iEra * pkSmallAwardInfo->GetGold();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
-				iBonus -= GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus -= GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			else
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
 			{
@@ -1412,12 +1412,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = iEra * pkSmallAwardInfo->GetGPPoints();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
-				iBonus -= GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus -= GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			else
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
 			{
@@ -1456,12 +1456,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = iEra * pkSmallAwardInfo->GetGPPointsGlobal();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
-				iBonus -= GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus -= GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			else
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
 			{
@@ -1500,12 +1500,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = iEra * pkSmallAwardInfo->GetHappiness();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
-				iBonus -= GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus -= GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			else
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
 			{
@@ -1549,12 +1549,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = iEra * pkSmallAwardInfo->GetTourism();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
-				iBonus -= GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus -= GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			else
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
 			{
@@ -1601,12 +1601,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = iEra * pkSmallAwardInfo->GetProduction();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
-				iBonus -= GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus -= GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			else
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
 			{
@@ -1647,12 +1647,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer)
 			int iBonus = iEra * pkSmallAwardInfo->GetProduction();
 			if(ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
-				iBonus -= GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus -= GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			else
 			{
-				iBonus += GC.getGame().getJonRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
+				iBonus += GC.getGame().getRandNum(pkSmallAwardInfo->GetRandom(), "MINOR CIV AI: Adding random bonus to quest.");
 			}
 			if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
 			{
@@ -3615,7 +3615,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 
 		FAssertMsg(eBuilding != NO_BUILDING, "MINOR CIV AI: For some reason we got NO_BUILDING when starting a quest for a major to find a Wonder.");
 
-		int iActionAmount = 1 + GC.getGame().getJonRandNum(GET_PLAYER(m_eAssignedPlayer).getNumCities(), "Minor Civ AI: Number of Actions");
+		int iActionAmount = 1 + GC.getGame().getRandNum(GET_PLAYER(m_eAssignedPlayer).getNumCities(), "Minor Civ AI: Number of Actions");
 		if(iActionAmount > GET_PLAYER(m_eAssignedPlayer).getNumCities())
 		{
 			iActionAmount = GET_PLAYER(m_eAssignedPlayer).getNumCities();
@@ -3639,7 +3639,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 
 		if (!pCity)
 			return;
-		int iActionAmount = GC.getGame().getJonRandNum(4, "Minor Civ AI: Number of Actions");
+		int iActionAmount = GC.getGame().getRandNum(4, "Minor Civ AI: Number of Actions");
 		if(iActionAmount <= 0)
 		{
 			iActionAmount = 1;
@@ -5183,7 +5183,7 @@ void CvMinorCivAI::DoPickPersonality()
 	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
 	int* pFlavors = pFlavorManager->GetAllPersonalityFlavors();
 
-	MinorCivPersonalityTypes eRandPersonality = (MinorCivPersonalityTypes) GC.getGame().getJonRandNum(NUM_MINOR_CIV_PERSONALITY_TYPES, "Minor Civ AI: Picking Personality for this Game (should happen only once per player)");
+	MinorCivPersonalityTypes eRandPersonality = (MinorCivPersonalityTypes) GC.getGame().getRandNum(NUM_MINOR_CIV_PERSONALITY_TYPES, "Minor Civ AI: Picking Personality for this Game (should happen only once per player)");
 #if defined(MOD_API_EXTENSIONS)
 	SetPersonality(eRandPersonality);
 #else
@@ -5668,7 +5668,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 				if (MOD_GLOBAL_CS_GIFTS) {
 					if (eRealPersonality == MINOR_CIV_PERSONALITY_IRRATIONAL) {
 						// Assumes MINOR_CIV_PERSONALITY_IRRATIONAL is the last entry in the enum
-						eFakePersonality = (MinorCivPersonalityTypes) GC.getGame().getJonRandNum(NUM_MINOR_CIV_PERSONALITY_TYPES-1, "Minor Civ AI: Picking fake personality for irrational CS");
+						eFakePersonality = (MinorCivPersonalityTypes) GC.getGame().getRandNum(NUM_MINOR_CIV_PERSONALITY_TYPES-1, "Minor Civ AI: Picking fake personality for irrational CS");
 					}
 					
 		 			// Personality modifiers - friendly = x1.5, hostile = x0.5
@@ -5782,13 +5782,13 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 							CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
 							if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC) {
 								if (iUnitGift > 0) {
-									if (GC.getGame().getJonRandNum(100, "Minor Civ AI: Decide if we give a unit to the meeting player") < iUnitGift) {
+									if (GC.getGame().getRandNum(100, "Minor Civ AI: Decide if we give a unit to the meeting player") < iUnitGift) {
 										CvUnit* pUnit = DoSpawnUnit(ePlayer, true, true);
 										if (pUnit != NULL) {
 #if defined(MOD_UNITS_XP_TIMES_100)
-											pUnit->changeExperienceTimes100(100 * (pPlayer->GetCurrentEra() * GC.getMINOR_CIV_FIRST_CONTACT_XP_PER_ERA() + GC.getGame().getJonRandNum(GC.getMINOR_CIV_FIRST_CONTACT_XP_RANDOM(), "Minor Civ AI: Random XP for unit")));
+											pUnit->changeExperienceTimes100(100 * (pPlayer->GetCurrentEra() * GC.getMINOR_CIV_FIRST_CONTACT_XP_PER_ERA() + GC.getGame().getRandNum(GC.getMINOR_CIV_FIRST_CONTACT_XP_RANDOM(), "Minor Civ AI: Random XP for unit")));
 #else
-											pUnit->changeExperience(pPlayer->GetCurrentEra() * GC.getMINOR_CIV_FIRST_CONTACT_XP_PER_ERA() + GC.getGame().getJonRandNum(GC.getMINOR_CIV_FIRST_CONTACT_XP_RANDOM(), "Minor Civ AI: Random XP for unit"));
+											pUnit->changeExperience(pPlayer->GetCurrentEra() * GC.getMINOR_CIV_FIRST_CONTACT_XP_PER_ERA() + GC.getGame().getRandNum(GC.getMINOR_CIV_FIRST_CONTACT_XP_RANDOM(), "Minor Civ AI: Random XP for unit"));
 #endif
 											iGift = pUnit->getUnitType();
 										}
@@ -6314,7 +6314,7 @@ void CvMinorCivAI::DoAddStartingResources(CvPlot* pCityPlot)
 			pCityPlot->setResourceType(NO_RESOURCE, 0, true);
 			if (veUniqueLuxuries.size() > 0)
 			{
-				int iRoll = GC.getGame().getJonRandNum(veUniqueLuxuries.size(), "Rolling for Mercantile city-state special luxury"); // range = [0, size - 1]
+				int iRoll = GC.getGame().getRandNum(veUniqueLuxuries.size(), "Rolling for Mercantile city-state special luxury"); // range = [0, size - 1]
 				int iQuantity = GC.getMINOR_CIV_MERCANTILE_RESOURCES_QUANTITY();
 				ResourceTypes eSpecialLuxury = veUniqueLuxuries[iRoll];
 
@@ -6866,7 +6866,7 @@ void CvMinorCivAI::DoTestStartGlobalQuest()
 	}
 
 	// There are valid quests, so pick one at random
-	int iRandIndex = GC.getGame().getJonRandNum(veValidQuests.size(), "Picking random global quest for Minor to give to players.");
+	int iRandIndex = GC.getGame().getRandNum(veValidQuests.size(), "Picking random global quest for Minor to give to players.");
 	eQuest = veValidQuests[iRandIndex];
 
 	// Give out the quest
@@ -6929,7 +6929,7 @@ void CvMinorCivAI::DoTestStartPersonalQuest(PlayerTypes ePlayer)
 		return;
 	}
 
-	int iRandIndex = GC.getGame().getJonRandNum(veValidQuests.size(), "Picking random quest for Minor to give to a player.");
+	int iRandIndex = GC.getGame().getRandNum(veValidQuests.size(), "Picking random quest for Minor to give to a player.");
 	eQuest = veValidQuests[iRandIndex];
 
 	AddQuestForPlayer(ePlayer, eQuest, GC.getGame().getGameTurn());
@@ -9083,7 +9083,7 @@ void CvMinorCivAI::DoTestSeedGlobalQuestCountdown(bool bForceSeed)
 	if(GC.getGame().getElapsedGameTurns() == GetFirstPossibleTurnForGlobalQuests())
 	{
 		int iRand = /*20*/ GC.getMINOR_CIV_GLOBAL_QUEST_FIRST_POSSIBLE_TURN_RAND();
-		iNumTurns += GC.getGame().getJonRandNum(iRand, "Random # of turns for Minor Civ global quest counter - first time.");
+		iNumTurns += GC.getGame().getRandNum(iRand, "Random # of turns for Minor Civ global quest counter - first time.");
 	}
 	else
 	{
@@ -9095,7 +9095,7 @@ void CvMinorCivAI::DoTestSeedGlobalQuestCountdown(bool bForceSeed)
 			iRand *= /*200*/ GC.getMINOR_CIV_GLOBAL_QUEST_RAND_TURNS_BETWEEN_HOSTILE_MULTIPLIER();
 			iRand /= 100;
 		}
-		iNumTurns += GC.getGame().getJonRandNum(iRand, "Random # of turns for Minor Civ global quest counter.");
+		iNumTurns += GC.getGame().getRandNum(iRand, "Random # of turns for Minor Civ global quest counter.");
 	}
 
 	// Modify for Game Speed
@@ -9144,7 +9144,7 @@ void CvMinorCivAI::DoTestSeedQuestCountdownForPlayer(PlayerTypes ePlayer, bool b
 	if(GC.getGame().getElapsedGameTurns() == GetFirstPossibleTurnForPersonalQuests())
 	{
 		int iRand = /*20*/ GC.getMINOR_CIV_PERSONAL_QUEST_FIRST_POSSIBLE_TURN_RAND();
-		iNumTurns += GC.getGame().getJonRandNum(iRand, "Random # of turns for Minor Civ personal quest counter - first time.");
+		iNumTurns += GC.getGame().getRandNum(iRand, "Random # of turns for Minor Civ personal quest counter - first time.");
 	}
 	else
 	{
@@ -9156,7 +9156,7 @@ void CvMinorCivAI::DoTestSeedQuestCountdownForPlayer(PlayerTypes ePlayer, bool b
 			iRand *= /*200*/ GC.getMINOR_CIV_PERSONAL_QUEST_RAND_TURNS_BETWEEN_HOSTILE_MULTIPLIER();
 			iRand /= 100;
 		}
-		iNumTurns += GC.getGame().getJonRandNum(iRand, "Random # of turns for Minor Civ personal quest counter.");
+		iNumTurns += GC.getGame().getRandNum(iRand, "Random # of turns for Minor Civ personal quest counter.");
 	}
 
 	// Modify for Game Speed
@@ -9785,7 +9785,7 @@ PlayerTypes CvMinorCivAI::SpawnRebels()
 			iRebelBuildUp += iWar;
 		}
 
-		iRebelBuildUp += GC.getGame().getJonRandNum(GC.getGame().getCurrentEra(), "Rebel possibility rand roll");
+		iRebelBuildUp += GC.getGame().getRandNum(GC.getGame().getCurrentEra(), "Rebel possibility rand roll");
 
 		if(iRebelBuildUp >= iRebelBoilPoint)
 		{
@@ -9844,7 +9844,7 @@ void CvMinorCivAI::DoRebellion()
 	int iNumRebels = (GetPlayer()->getNumMilitaryUnits() * 60); //Based on number of military units of CS.
 	int iExtraRoll = 100; //1+ Rebels maximum
 	iExtraRoll += (GC.getGame().getCurrentEra() * 40); //Increase possible rebel spawns as game continues.
-	iNumRebels += GC.getGame().getJonRandNum(iExtraRoll, "Rebel count rand roll");
+	iNumRebels += GC.getGame().getRandNum(iExtraRoll, "Rebel count rand roll");
 	iNumRebels /= 100;
 	CvGame& theGame = GC.getGame();
 	PlayerTypes eMinor = GetPlayer()->GetID();
@@ -9886,7 +9886,7 @@ void CvMinorCivAI::DoRebellion()
 			if(pPlot->getNumUnits() > 0)
 				continue;
 
-			int iTempWeight = theGame.getJonRandNum(10, "Uprising rand plot location.");
+			int iTempWeight = theGame.getRandNum(10, "Uprising rand plot location.");
 
 			// Add weight if there's an improvement here!
 			if(pPlot->getImprovementType() != NO_IMPROVEMENT)
@@ -10144,7 +10144,7 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 			return NO_RESOURCE;
 		}
 
-		int iRandIndex = GC.getGame().getJonRandNum(veValidResources.size(), "Finding random Resource for Minor to give out a quest to connect.");
+		int iRandIndex = GC.getGame().getRandNum(veValidResources.size(), "Finding random Resource for Minor to give out a quest to connect.");
 		eBestResource = veValidResources[iRandIndex];
 	}
 
@@ -10229,7 +10229,7 @@ BuildingTypes CvMinorCivAI::GetBestWonderForQuest(PlayerTypes ePlayer)
 		return NO_BUILDING;
 	}
 
-	int iRandIndex = GC.getGame().getJonRandNum(veValidBuildings.size(), "Finding random Wonder for Minor to give out a quest to construct.");
+	int iRandIndex = GC.getGame().getRandNum(veValidBuildings.size(), "Finding random Wonder for Minor to give out a quest to construct.");
 	eBestWonder = veValidBuildings[iRandIndex];
 
 	return eBestWonder;
@@ -10322,7 +10322,7 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 		return NO_BUILDING;
 	}
 
-	int iRandIndex = GC.getGame().getJonRandNum(veValidBuildings.size(), "Finding random Wonder for Minor to give out a quest to construct.");
+	int iRandIndex = GC.getGame().getRandNum(veValidBuildings.size(), "Finding random Wonder for Minor to give out a quest to construct.");
 	eBestNationalWonder = veValidBuildings[iRandIndex];
 
 	return eBestNationalWonder;
@@ -10444,7 +10444,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateLiberate(PlayerTypes eForPlayer)
 	if(veValidTargets.size() == 0)
 		return NO_PLAYER;
 
-	int iRandIndex = GC.getGame().getJonRandNum(veValidTargets.size(), "Finding random City State Target for Minor to give out a quest to liberate.");
+	int iRandIndex = GC.getGame().getRandNum(veValidTargets.size(), "Finding random City State Target for Minor to give out a quest to liberate.");
 	eBestCityStateLiberate = veValidTargets[iRandIndex];
 
 	return eBestCityStateLiberate;
@@ -10560,7 +10560,7 @@ UnitTypes CvMinorCivAI::GetBestGreatPersonForQuest(PlayerTypes ePlayer)
 		return NO_UNIT;
 	}
 
-	int iRandIndex = GC.getGame().getJonRandNum(veValidUnits.size(), "Finding random Great Person for Minor to give out a quest to spawn.");
+	int iRandIndex = GC.getGame().getRandNum(veValidUnits.size(), "Finding random Great Person for Minor to give out a quest to spawn.");
 	eBestUnit = veValidUnits[iRandIndex];
 
 	return eBestUnit;
@@ -10683,7 +10683,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes eForPlayer, bool bN
 
 	if(!bNoRandom)
 	{
-		int iRandIndex = GC.getGame().getJonRandNum(veValidTargets.size(), "Finding random City State Target for Minor to give out a quest to kill.");
+		int iRandIndex = GC.getGame().getRandNum(veValidTargets.size(), "Finding random City State Target for Minor to give out a quest to kill.");
 		eBestCityStateTarget = veValidTargets.GetElement(iRandIndex);
 	}
 	else
@@ -10783,7 +10783,7 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 					iValue += pLoopCity->getNumWorldWonders();
 					iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
 					iValue += pLoopCity->getBaseYieldRate(YIELD_SCIENCE);
-					iValue += GC.getGame().getJonRandNum(100, "MINOR CIV AI: Random Quest Target.");
+					iValue += GC.getGame().getRandNum(100, "MINOR CIV AI: Random Quest Target.");
 					iValue -= pLoopCity->getStrengthValue() / 100;
 					if(iValue <= 0)
 					{
@@ -10868,7 +10868,7 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer)
 		return NO_BUILDING;
 	}
 
-	int iRandIndex = GC.getGame().getJonRandNum(veValidBuildings.size(), "Finding random Wonder for Minor to give out a quest to construct.");
+	int iRandIndex = GC.getGame().getRandNum(veValidBuildings.size(), "Finding random Wonder for Minor to give out a quest to construct.");
 	eBestBuilding = veValidBuildings[iRandIndex];
 
 	return eBestBuilding;
@@ -11350,7 +11350,7 @@ PlayerTypes CvMinorCivAI::GetBestPlayerToFind(PlayerTypes ePlayer)
 		return NO_PLAYER;
 	}
 
-	int iRandIndex = GC.getGame().getJonRandNum(veValidTargets.size(), "Finding random Major player Target for Minor to give out a quest to find.");
+	int iRandIndex = GC.getGame().getRandNum(veValidTargets.size(), "Finding random Major player Target for Minor to give out a quest to find.");
 	eBestTargetPlayer = veValidTargets[iRandIndex];
 
 	return eBestTargetPlayer;
@@ -11455,7 +11455,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateMeetTarget(PlayerTypes eForPlayer)
 	if(veValidTargets.size() == 0)
 		return NO_PLAYER;
 
-	int iRandIndex = GC.getGame().getJonRandNum(veValidTargets.size(), "Finding random City State Target for Minor to give out a quest to kill.");
+	int iRandIndex = GC.getGame().getRandNum(veValidTargets.size(), "Finding random City State Target for Minor to give out a quest to kill.");
 	eBestCityStateTarget = veValidTargets[iRandIndex];
 
 	return eBestCityStateTarget;
@@ -14552,7 +14552,7 @@ void CvMinorCivAI::DoSeedUnitSpawnCounter(PlayerTypes ePlayer, bool bBias)
 
 	// Add some randomness
 	int iRand = /*3*/ GC.getFRIENDS_RAND_TURNS_UNIT_SPAWN();
-	iNumTurns += GC.getGame().getJonRandNum(iRand, "Rand turns for Friendly Minor unit spawn");
+	iNumTurns += GC.getGame().getRandNum(iRand, "Rand turns for Friendly Minor unit spawn");
 
 	// If we're biasing the result then decrease the number of turns
 	if(bBias)
@@ -14991,7 +14991,7 @@ void CvMinorCivAI::DoMarriage(PlayerTypes eMajor)
 	GET_PLAYER(eMajor).GetDiplomacyAI()->LogMinorCivBuyout(GetPlayer()->GetID(), iBuyoutCost, /*bSaving*/ false);
 
 	// Show special notifications
-	int iCoinToss = GC.getGame().getJonRandNum(2, "Coin toss roll to determine flavor message for minor civ buyout notification.");
+	int iCoinToss = GC.getGame().getRandNum(2, "Coin toss roll to determine flavor message for minor civ buyout notification.");
 	Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_1");
 	if (iCoinToss == 0) // Is it a boy or a girl?
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_2");
@@ -15174,7 +15174,7 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 	GET_PLAYER(eMajor).GetDiplomacyAI()->LogMinorCivBuyout(GetPlayer()->GetID(), iBuyoutCost, /*bSaving*/ false);
 
 	// Show special notifications
-	int iCoinToss = GC.getGame().getJonRandNum(2, "Coin toss roll to determine flavor message for minor civ buyout notification.");
+	int iCoinToss = GC.getGame().getRandNum(2, "Coin toss roll to determine flavor message for minor civ buyout notification.");
 	Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BUYOUT_TT_1");
 	if (iCoinToss == 0) // Is it a boy or a girl?
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BUYOUT_TT_2");
@@ -16674,7 +16674,7 @@ void CvMinorCivAI::DoElection()
 	if(wvVotes.size() > 0)
 	{
 		RandomNumberDelegate fcn;
-		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
 		PlayerTypes eElectionWinner = wvVotes.ChooseByWeight(&fcn, "Choosing CS election winner by weight");
 
 		for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
@@ -17301,7 +17301,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 	// Minor Civ Aggressor - chance of permanent war
 	else if(pEnemyTeam->IsMinorCivAggressor())
 	{
-		iRand = GC.getGame().getJonRandNum(100, "MINOR CIV AI: Become Wary Of aggressor roll.");
+		iRand = GC.getGame().getRandNum(100, "MINOR CIV AI: Become Wary Of aggressor roll.");
 
 		if(iRand < /*50*/ GC.getPERMANENT_WAR_AGGRESSOR_CHANCE())
 		{
@@ -17404,7 +17404,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 			if(GET_TEAM(pOtherMinorCiv->getTeam()).isAtWar(eEnemyTeam))
 				iChance += /*50*/ GC.getPERMANENT_WAR_OTHER_AT_WAR();
 
-			iRand = GC.getGame().getJonRandNum(100, "MINOR CIV AI: Third party minor to become Wary Of aggressor roll.");
+			iRand = GC.getGame().getRandNum(100, "MINOR CIV AI: Third party minor to become Wary Of aggressor roll.");
 			if(iRand < iChance)
 			{
 				if(!pOtherMinorCiv->GetMinorCivAI()->IsWaryOfTeam(eEnemyTeam))
@@ -17665,7 +17665,7 @@ TechTypes CvMinorCivAI::GetGoodTechPlayerDoesntHave(PlayerTypes ePlayer, int iRo
 				}
 
 				// Random factor so that the same thing isn't always picked
-				iValue += GC.getGame().getJonRandNum(iValue / 4, "Minor Civ Quest Reward: Tech - Adding random weight to Tech Reward");
+				iValue += GC.getGame().getRandNum(iValue / 4, "Minor Civ Quest Reward: Tech - Adding random weight to Tech Reward");
 
 				TechVector.push_back(iTechLoop, iValue);
 			}

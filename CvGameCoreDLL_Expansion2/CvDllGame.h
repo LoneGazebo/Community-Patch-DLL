@@ -50,7 +50,7 @@ public:
 	GameStateTypes DLLCALL GetGameState();
 	HandicapTypes DLLCALL GetHandicapType() const;
 	ICvRandom1* DLLCALL GetRandomNumberGenerator();
-	int DLLCALL GetJonRandNum(int iNum, const char* pszLog);
+	int DLLCALL GetJonRandNum(int iNum, const char* pszLog); //name has to stay like this
 	int DLLCALL GetMaxTurns() const;
 	int DLLCALL GetNumGameTurnActive();
 	PlayerTypes DLLCALL GetPausePlayer();

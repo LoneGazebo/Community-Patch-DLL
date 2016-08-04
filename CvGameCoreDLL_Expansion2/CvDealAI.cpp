@@ -504,7 +504,7 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 				// IMPORTANT NOTE: This APPEARS to be very bad for multiplayer, but the only changes made to the game state are the fact that the human
 				// made a demand, and if the deal went through. These are both sent over the network later in this function.
 
-				int iAsyncRand = GC.getGame().getAsyncRandNum(100, "Deal AI: ASYNC RAND call to determine if AI will give into a human demand.");
+				int iAsyncRand = GC.getGame().getRandNum(100, "Deal AI: ASYNC RAND call to determine if AI will give into a human demand.");
 
 				// Are they going to say no matter what?
 				if(iAsyncRand > iOddsOfGivingIn)
@@ -7393,7 +7393,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 		// Any extras?
 		if(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false) > 3 && GetPlayer()->getNumResourceAvailable(eResource, true) <= 0)
 		{
-			iRand = GC.getGame().getJonRandNum(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false), "DealAI: Strat to ask for");
+			iRand = GC.getGame().getRandNum(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false), "DealAI: Strat to ask for");
 			iRand /= 2;
 			if(iRand <= 0)
 			{
@@ -8302,7 +8302,7 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 		// IMPORTANT NOTE: This APPEARS to be very bad for multiplayer, but the only changes made to the game state are the fact that the human
 		// made a demand, and if the deal went through. These are both sent over the network later in this function.
 
-		int iAsyncRand = GC.getGame().getAsyncRandNum(100, "Deal AI: ASYNC RAND call to determine if AI will give into a human demand.");
+		int iAsyncRand = GC.getGame().getRandNum(100, "Deal AI: ASYNC RAND call to determine if AI will give into a human demand.");
 
 		// Are they going to say no matter what?
 		if(iAsyncRand > iOddsOfGivingIn)

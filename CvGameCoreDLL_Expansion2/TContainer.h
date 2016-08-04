@@ -16,7 +16,7 @@
 //helper function to generate unique IDs
 int GetNextGlobalID();
 //helper function to generate a pseudorandom number
-int GetJonRand(int iRange);
+int getRand(int iRange);
 
 //the ordered container
 template <class T>
@@ -194,7 +194,7 @@ template <class T>
 void TContainer<T>::OrderShuffled()
 {
 	//needs to be based on jonRand for reproducability
-	std::random_shuffle( m_order.begin(), m_order.end(), GetJonRand );
+	std::random_shuffle( m_order.begin(), m_order.end(), getRand );
 }
 
 template <class T>
