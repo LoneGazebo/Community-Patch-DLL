@@ -518,6 +518,8 @@ CvPlayer::CvPlayer() :
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_iHalfSpecialistFoodCapitalCount("CvPlayer::m_iHalfSpecialistFoodCapitalCount", m_syncArchive)
+	, m_iTradeRouteLandDistanceModifier("CvPlayer::m_iTradeRouteLandDistanceModifier", m_syncArchive)
+	, m_iTradeRouteSeaDistanceModifier("CvPlayer::m_iTradeRouteSeaDistanceModifier", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_aistrInstantYield("CvPlayer::m_aistrInstantYield", m_syncArchive)
@@ -1432,6 +1434,8 @@ void CvPlayer::uninit()
 	m_iHalfSpecialistFoodCount = 0;
 #if defined(MOD_BALANCE_CORE)
 	m_iHalfSpecialistFoodCapitalCount = 0;
+	m_iTradeRouteLandDistanceModifier = 0;
+	m_iTradeRouteSeaDistanceModifier = 0;
 #endif
 	m_iMilitaryFoodProductionCount = 0;
 	m_iGoldenAgeCultureBonusDisabledCount = 0;
@@ -26601,7 +26605,7 @@ void CvPlayer::changeHalfSpecialistFoodCount(int iChange)
 }
 
 #if defined(MOD_BALANCE_CORE)
-	//	--------------------------------------------------------------------------------
+//	--------------------------------------------------------------------------------
 int CvPlayer::getHalfSpecialistFoodCapitalCount() const
 {
 	return m_iHalfSpecialistFoodCapitalCount;
@@ -26624,6 +26628,35 @@ void CvPlayer::changeHalfSpecialistFoodCapitalCount(int iChange)
 		CvAssert(getHalfSpecialistFoodCapitalCount() >= 0);
 	}
 }
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getTradeRouteLandDistanceModifier() const
+{
+	return m_iTradeRouteLandDistanceModifier;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeTradeRouteLandDistanceModifier(int iChange)
+{
+	if(iChange != 0)
+	{
+		m_iTradeRouteLandDistanceModifier = (m_iTradeRouteLandDistanceModifier + iChange);
+		CvAssert(getTradeRouteLandDistanceModifier() >= 0);
+	}
+}
+int CvPlayer::getTradeRouteSeaDistanceModifier() const
+{
+	return m_iTradeRouteSeaDistanceModifier;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeTradeRouteSeaDistanceModifier(int iChange)
+{
+	if(iChange != 0)
+	{
+		m_iTradeRouteSeaDistanceModifier = (m_iTradeRouteSeaDistanceModifier + iChange);
+		CvAssert(getTradeRouteSeaDistanceModifier() >= 0);
+	}
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eIndex) const
 {
@@ -37458,6 +37491,19 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	}
 	ChangeRazingSpeedBonus(pPolicy->GetRazingSpeedBonus() * iChange);
 	ChangeNoPartisans(pPolicy->IsNoPartisans() * iChange);
+
+	if(pPolicy->GetTradeRouteLandDistanceModifier() != 0)
+	{
+		changeTradeRouteLandDistanceModifier(pPolicy->GetTradeRouteLandDistanceModifier() * iChange);
+	}
+	if(pPolicy->GetTradeRouteSeaDistanceModifier() != 0)
+	{
+		changeTradeRouteSeaDistanceModifier(pPolicy->GetTradeRouteSeaDistanceModifier() * iChange);
+	}
+	if(pPolicy->GetEspionageModifier() != 0)
+	{
+		ChangeEspionageModifier(pPolicy->GetEspionageModifier() * iChange);
+	}
 #endif
 	ChangeExtraHappinessPerLuxury(pPolicy->GetExtraHappinessPerLuxury() * iChange);
 	ChangeUnhappinessFromUnitsMod(pPolicy->GetUnhappinessFromUnitsMod() * iChange);
@@ -40717,6 +40763,10 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 				if (nEnemyCities>0 && nMyCities==0)
 					fScore *= 0.67f;
 
+				if(fScore > 0)
+				{
+					iNumFound++;
+				}
 				if(fScore > fBestScore)
 				{
 					// Already have a best area?  If so demote to 2nd
@@ -40742,14 +40792,14 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 	iFirstArea = iBestArea;
 	iSecondArea = iSecondBestArea;
 
-	if(iSecondArea != -1)
-	{
-		iNumFound = 2;
-	}
-	else if(iFirstArea != -1)
-	{
-		iNumFound = 1;
-	}
+	//if(iSecondArea != -1)
+//	{
+	//	iNumFound = 2;
+//	}
+//	else if(iFirstArea != -1)
+//	{
+//		iNumFound = 1;
+//	}
 	return iNumFound;
 }
 

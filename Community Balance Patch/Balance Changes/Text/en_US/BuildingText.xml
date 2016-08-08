@@ -106,7 +106,7 @@
 			<Text>Unique Swedish replacement for the Public School. This building is cheaper, more effective, and costs less maintenance than the building it replaces, and also boosts the city's [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SKOLA_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Illiteracy. +1 [ICON_CULTURE] Culture for every 3 [ICON_CITIZEN] Citizens, and +1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]Allows Archaeologists to be built in this city.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Illiteracy. +1 [ICON_CULTURE] Culture for every 3 [ICON_CITIZEN] Citizens, and +1 [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen in the City.[NEWLINE][NEWLINE]Allows Archaeologists to be built in this city.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BASILICA_DESC">
 			<Text>Basilica</Text>
@@ -281,7 +281,7 @@
 			<Text>Mine Field</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROVE_STRATEGY">
-			<Text>The Council generates Science every time the city grows, and is available very early. Build this building if you wish to have a technological advantage over your rivals, though the value of this advantage diminishes as the city becomes larger.</Text>
+			<Text>The Council generates Science every time city grows, and is availble very early. Build this building if you wish to have a technological advantage over your rivals, though the value of this advantage diminishes as the city becomes larger.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_STRATEGY">
 			<Text>The Bath generates Culture, and boosts the Gold and Culture yield of Temples, Gardens, and Amphitheaters in the City. Also generates additional Culture during Golden Ages. Baths can be constructed only in cities next to a river.</Text>

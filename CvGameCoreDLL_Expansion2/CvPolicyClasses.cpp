@@ -94,6 +94,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bUpgradeCSTerritory(false),
 	m_iArchaeologicalDigTourism(0),
 	m_iGoldenAgeTourism(0),
+	m_iTradeRouteLandDistanceModifier(0),
+	m_iTradeRouteSeaDistanceModifier(0),
+	m_iEspionageModifier(0),
 #endif
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
@@ -459,6 +462,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bUpgradeCSTerritory = kResults.GetBool("UpgradeCSTerritory");
 	m_iArchaeologicalDigTourism = kResults.GetInt("ArchaeologicalDigTourism");
 	m_iGoldenAgeTourism = kResults.GetInt("GoldenAgeTourism");
+	m_iTradeRouteLandDistanceModifier = kResults.GetInt("TradeRouteLandDistanceModifier");
+	m_iTradeRouteSeaDistanceModifier = kResults.GetInt("TradeRouteSeaDistanceModifier");
+	m_iEspionageModifier = kResults.GetInt("EspionageModifier");
 #endif
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
 	m_iUnhappinessFromUnitsMod = kResults.GetInt("UnhappinessFromUnitsMod");
@@ -1540,6 +1546,18 @@ int CvPolicyEntry::GetArchaeologicalDigTourism() const
 int CvPolicyEntry::GetGoldenAgeTourism() const
 {
 	return m_iGoldenAgeTourism;
+}
+int CvPolicyEntry::GetTradeRouteLandDistanceModifier() const
+{
+	return m_iTradeRouteLandDistanceModifier;
+}
+int CvPolicyEntry::GetTradeRouteSeaDistanceModifier() const
+{
+	return m_iTradeRouteSeaDistanceModifier;
+}
+int CvPolicyEntry::GetEspionageModifier() const
+{
+	return m_iEspionageModifier;
 }
 #endif
 /// Happiness from each connected Luxury Resource

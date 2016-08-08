@@ -2252,7 +2252,10 @@ void CvDiplomacyAI::update()
 			m_aGreetPlayers.erase(itr);
 
 			const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_INTRO);
-			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), eActivePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
+			if(szText)
+			{
+				CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), eActivePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
+			}
 		}
 	}
 #endif
@@ -17473,6 +17476,9 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					pRenewDeal->m_bCheckedForRenewal = true;
 				}
 				ClearDealToRenew();
+#if defined(MOD_BALANCE_CORE)
+				pDeal->ClearItems();
+#endif
 			}
 
 			if(eMessageType != NUM_DIPLO_MESSAGE_TYPES)
@@ -21592,7 +21598,11 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 			int iNumDeals = 0;
 			if(iDealTypes == 0)
 			{
+#if defined(MOD_BALANCE_CORE)
+				iNumDeals = kGameDeals.GetNumHistoricDeals(ePlayer);
+#else
 				iNumDeals = kGameDeals.GetNumHistoricDeals(ePlayer,12);
+#endif
 			}
 			else
 			{
@@ -34627,7 +34637,11 @@ void CvDiplomacyAI::ClearDealToRenew()
 		int iNumDeals = 0;
 		if(iDealTypes == 0)
 		{
+#if defined(MOD_BALANCE_CORE)
+			iNumDeals = kGameDeals.GetNumHistoricDeals(m_pPlayer->GetID());
+#else
 			iNumDeals = kGameDeals.GetNumHistoricDeals(m_pPlayer->GetID(),12);
+#endif
 		}
 		else
 		{

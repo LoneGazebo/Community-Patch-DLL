@@ -4668,6 +4668,10 @@ void CvGameDeals::DoUpdateCurrentDealsList()
 	m_CurrentDeals.clear();
 	for(it = tempDeals.begin(); it != tempDeals.end(); ++it)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(it->m_iFinalTurn < 0)
+			continue;
+#endif
 		if(it->m_iFinalTurn <= GC.getGame().getGameTurn())
 		{
 			m_HistoricalDeals.push_back(*it);

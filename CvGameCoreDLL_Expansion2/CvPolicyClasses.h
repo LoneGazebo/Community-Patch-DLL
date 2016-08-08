@@ -104,6 +104,9 @@ public:
 	bool IsUpgradeCSTerritory() const;
 	int GetArchaeologicalDigTourism() const;
 	int GetGoldenAgeTourism() const;
+	int GetTradeRouteLandDistanceModifier() const;
+	int GetTradeRouteSeaDistanceModifier() const;
+	int GetEspionageModifier() const;
 #endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
@@ -614,6 +617,9 @@ private:
 	bool m_bUpgradeCSTerritory;
 	bool m_iArchaeologicalDigTourism;
 	bool m_iGoldenAgeTourism;
+	int m_iTradeRouteLandDistanceModifier;
+	int m_iTradeRouteSeaDistanceModifier;
+	int m_iEspionageModifier;
 	int* m_piConquerorYield;
 	int* m_piFounderYield;
 	int* m_piReligionYieldMod;

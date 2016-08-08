@@ -356,7 +356,7 @@ ALTER TABLE Policies ADD COLUMN 'DoubleBorderGA' BOOLEAN DEFAULT 0;
 -- Free Population
 ALTER TABLE Policies ADD COLUMN 'FreePopulation' INTEGER DEFAULT 0;
 
--- Extra Votes
+-- Extra Moves for Civilian Units
 ALTER TABLE Policies ADD COLUMN 'ExtraMoves' INTEGER DEFAULT 0;
 
 -- Religious Pressure Mod Trade Route
@@ -663,6 +663,13 @@ ALTER TABLE Policies ADD COLUMN 'GreatEngineerRateModifier' INTEGER DEFAULT 0;
 
 -- Great Engineer Policy bonus - rate modifier.
 ALTER TABLE Policies ADD COLUMN 'CityStateCombatModifier' INTEGER DEFAULT 0;
+
+-- Trade Route Modifiers for Policies
+ALTER TABLE Policies ADD COLUMN 'TradeRouteLandDistanceModifier' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'TradeRouteSeaDistanceModifier' INTEGER DEFAULT 0;
+
+--Espionage Modifier for Policies - should be negative for player benefit!
+ALTER TABLE Policies ADD COLUMN 'EspionageModifier' INTEGER DEFAULT 0;
 
 -- C4DF Function
 

@@ -95,6 +95,7 @@ CvTeam::CvTeam()
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppaaiFeatureYieldChange = NULL;
 	m_ppaaiTerrainYieldChange = NULL;
+	m_paiTradeRouteDomainExtraRange = NULL;
 #endif
 
 	m_ppaaiImprovementYieldChange = NULL;
@@ -162,6 +163,7 @@ void CvTeam::uninit()
 	m_aiForceTeamVoteEligibilityCount = NULL;
 
 #if defined(MOD_API_UNIFIED_YIELDS)
+	m_paiTradeRouteDomainExtraRange = NULL;
 	m_ppaaiFeatureYieldChange = NULL;
 	m_ppaaiTerrainYieldChange = NULL;
 #endif
@@ -315,6 +317,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		int numBuildingInfos = GC.getNumBuildingInfos();
 #if defined(MOD_API_UNIFIED_YIELDS)
 		int numFeatureInfos = GC.getNumFeatureInfos();
+		int numDomainInfos = NUM_DOMAIN_TYPES;
 #endif
 		int numTerrainInfos = GC.getNumTerrainInfos();
 		int numImprovementInfos = GC.getNumImprovementInfos();
@@ -348,6 +351,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 			{&m_aiVictoryCountdown,					numVictoryInfos, 0},
 
 #if defined(MOD_API_UNIFIED_YIELDS)
+			{&m_paiTradeRouteDomainExtraRange,		numDomainInfos, 0},
 			// If adding more entries into this strucure, you also need to update CvTeamData in Cvteam.h to match
 			{&m_ppaaiFeatureYieldChange,			numFeatureInfos, NUM_YIELD_TYPES},
 			{&m_ppaaiTerrainYieldChange,			numTerrainInfos, NUM_YIELD_TYPES},
@@ -419,6 +423,10 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		}
 
 #if defined(MOD_API_UNIFIED_YIELDS)
+		for(int i = 0; i < NUM_DOMAIN_TYPES; i++)
+		{
+			m_paiTradeRouteDomainExtraRange[i] = 0;
+		}
 		for(int j = 0; j < NUM_YIELD_TYPES; j++)
 		{
 			for(int i = 0; i < numFeatureInfos; i++)
@@ -5172,6 +5180,24 @@ void CvTeam::changeRouteChange(RouteTypes eIndex, int iChange)
 	m_paiRouteChange[eIndex] = (m_paiRouteChange[eIndex] + iChange);
 }
 
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvTeam::getTradeRouteDomainExtraRange(DomainTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_paiTradeRouteDomainExtraRange[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvTeam::changeTradeRouteDomainExtraRange(DomainTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_paiTradeRouteDomainExtraRange[eIndex] = (m_paiTradeRouteDomainExtraRange[eIndex] + iChange);
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 int CvTeam::getBuildTimeChange(BuildTypes eIndex) const
 {
@@ -7820,6 +7846,12 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 	{
 		changeRouteChange(((RouteTypes)iI), (GC.getRouteInfo((RouteTypes) iI)->getTechMovementChange(eTech) * iChange));
 	}
+#if defined(MOD_BALANCE_CORE)
+	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+	{
+		changeTradeRouteDomainExtraRange((DomainTypes)iI, (pTech->GetTradeRouteDomainExtraRange((DomainTypes)iI) * iChange));
+	}
+#endif
 
 	for (int i = 0; i < GC.getNumBuildInfos(); i++)
 	{

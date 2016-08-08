@@ -1264,6 +1264,12 @@ public:
 	bool isHalfSpecialistFoodCapital() const;
 	void changeHalfSpecialistFoodCapitalCount(int iChange);
 
+	int getTradeRouteLandDistanceModifier() const;
+	void changeTradeRouteLandDistanceModifier(int iChange);
+
+	int getTradeRouteSeaDistanceModifier() const;
+	void changeTradeRouteSeaDistanceModifier(int iChange);
+
 	void ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain, int iChange);
 	int GetDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain) const;
 #endif
@@ -2900,6 +2906,8 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iHalfSpecialistFoodCount;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvPlayer> m_iHalfSpecialistFoodCapitalCount;
+	FAutoVariable<int, CvPlayer> m_iTradeRouteLandDistanceModifier;
+	FAutoVariable<int, CvPlayer> m_iTradeRouteSeaDistanceModifier;
 #endif
 	FAutoVariable<int, CvPlayer> m_iMilitaryFoodProductionCount;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeCultureBonusDisabledCount;

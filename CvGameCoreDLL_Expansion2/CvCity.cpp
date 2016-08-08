@@ -308,8 +308,11 @@ CvCity::CvCity() :
 	, m_aiChangeGrowthExtraYield("CvCity::m_aiChangeGrowthExtraYield", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
+	, m_iTradeRouteSeaDistanceModifier("CvCity::m_iTradeRouteSeaDistanceModifier", m_syncArchive)
+	, m_iTradeRouteLandDistanceModifier("CvCity::m_iTradeRouteLandDistanceModifier", m_syncArchive)
 	, m_iTradePriorityLand("CvCity::m_iTradePriorityLand", m_syncArchive)
 	, m_iTradePrioritySea("CvCity::m_iTradePrioritySea", m_syncArchive)
+	, m_iNearbySettlerValue("CvCity::m_iNearbySettlerValue", m_syncArchive)
 	, m_iThreatCriteria("CvCity::m_iThreatCriteria", m_syncArchive)
 	, m_iUnitPurchaseCooldown("CvCity::m_iUnitPurchaseCooldown", m_syncArchive)
 	, m_iBuildingPurchaseCooldown("CvCity::m_iBuildingPurchaseCooldown", m_syncArchive)
@@ -1461,7 +1464,10 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iNumNearbyMountains = 0;
 	m_iLocalUnhappinessMod = 0;
 	m_iTradePriorityLand = 0;
+	m_iTradeRouteSeaDistanceModifier = 0;
+	m_iTradeRouteLandDistanceModifier = 0;
 	m_iTradePrioritySea = 0;
+	m_iNearbySettlerValue = 0;
 	m_iThreatCriteria = 0;
 	m_iUnitPurchaseCooldown = 0;
 	m_iBuildingPurchaseCooldown = 0;
@@ -2634,6 +2640,8 @@ void CvCity::doTurn()
 	//Do bad barb stuff!
 	DoBarbIncursion();
 
+	UpdateNearbySettleSites();
+
 	CvUnit* pLoopUnit;
 	if(plot() != NULL)
 	{
@@ -3163,6 +3171,119 @@ int CvCity::GetTradePrioritySea() const
 {
 	VALIDATE_OBJECT
 	return m_iTradePrioritySea;
+}
+
+void CvCity::UpdateNearbySettleSites()
+{
+	if(GET_PLAYER(getOwner()).isBarbarian() || GET_PLAYER(getOwner()).isHuman() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing())
+	{
+		return;
+	}
+
+	int iSettlerDistance;
+	int iDistanceDropoff;
+	int iValue;
+	int iDanger;
+	int iBestValue = 0;
+	m_iNearbySettlerValue = 0;
+
+	int iSettlerX = getX();
+	int iSettlerY = getY();
+
+	int iEvalDistance = GC.getSETTLER_EVALUATION_DISTANCE();
+	int iDistanceDropoffMod = GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER();
+	int iBeginSearchX = iSettlerX - iEvalDistance;
+	int iBeginSearchY = iSettlerY - iEvalDistance;
+	int iEndSearchX   = iSettlerX + iEvalDistance;
+	int iEndSearchY   = iSettlerY + iEvalDistance;
+
+	CvMap& kMap = GC.getMap();
+
+	TeamTypes eUnitTeam = getTeam();
+
+	CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
+	int iCapArea = NULL;
+	if(pCapital != NULL)
+	{
+		iCapArea = pCapital->getArea();
+	}
+
+	for(int iPlotX = iBeginSearchX; iPlotX != iEndSearchX; iPlotX++)
+	{
+		for(int iPlotY = iBeginSearchY; iPlotY != iEndSearchY; iPlotY++)
+		{
+			CvPlot* pPlot = kMap.plot(iPlotX, iPlotY);
+			if(!pPlot)
+			{
+				continue;
+			}
+
+			//if (!pPlot->isVisible(pUnit->getTeam(), false /*bDebug*/))
+			if(!pPlot->isRevealed(eUnitTeam))
+			{
+				continue;
+			}
+
+			// Can't actually found here!
+			if(!GET_PLAYER(getOwner()).canFound(iPlotX, iPlotY))
+			{
+				continue;
+			}
+
+			// Do we have to check if this is a safe place to go?
+			if(!pPlot->isVisibleEnemyUnit(GET_PLAYER(getOwner()).GetID()))
+			{
+				iSettlerDistance = plotDistance(iPlotX, iPlotY, iSettlerX, iSettlerY);
+
+				iValue = GET_PLAYER(getOwner()).getPlotFoundValue(iPlotX, iPlotY) / 100;
+
+				iDistanceDropoff = (iDistanceDropoffMod * iSettlerDistance) / iEvalDistance;
+				iValue = iValue * (100 - iDistanceDropoff) / 100;
+				iDanger = GET_PLAYER(getOwner()).GetPlotDanger(*pPlot);
+				if(iDanger < 1000)
+				{
+					iValue = ((1000 - iDanger) * iValue) / 2000;
+
+					if(iValue > iBestValue)
+					{
+						iBestValue = iValue;
+					}
+				}
+			}
+		}
+	}
+	m_iNearbySettlerValue = iBestValue;
+}
+int CvCity::GetNearbySettleSiteValue() const
+{
+	VALIDATE_OBJECT
+	return m_iNearbySettlerValue;
+}
+
+void CvCity::ChangeTradeRouteSeaDistanceModifier(int iValue)
+{
+	if(iValue != 0)
+	{
+		m_iTradeRouteSeaDistanceModifier += iValue;
+	}
+}
+int CvCity::GetTradeRouteSeaDistanceModifier() const
+{
+	VALIDATE_OBJECT
+	return m_iTradeRouteSeaDistanceModifier;
+}
+
+void CvCity::ChangeTradeRouteLandDistanceModifier(int iValue)
+{
+	if(iValue != 0)
+	{
+		m_iTradeRouteLandDistanceModifier += iValue;
+	}
+}
+int CvCity::GetTradeRouteLandDistanceModifier() const
+{
+	VALIDATE_OBJECT
+	return m_iTradeRouteLandDistanceModifier;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -13050,6 +13171,16 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				changeSpecialistExtraYield(((SpecialistTypes)iI), ((YieldTypes)iJ), (pBuildingInfo->GetSpecialistYieldChangeLocal(iI, iJ) * iChange));
 			}
+		}
+
+		//Trade Routes
+		if(pBuildingInfo->GetTradeRouteLandDistanceModifier() != 0)
+		{
+			ChangeTradeRouteLandDistanceModifier(pBuildingInfo->GetTradeRouteLandDistanceModifier() * iChange);
+		}
+		if(pBuildingInfo->GetTradeRouteSeaDistanceModifier() != 0)
+		{
+			ChangeTradeRouteSeaDistanceModifier(pBuildingInfo->GetTradeRouteSeaDistanceModifier() * iChange);
 		}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)

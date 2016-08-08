@@ -344,6 +344,11 @@ public:
 	int getRouteChange(RouteTypes eIndex) const;
 	void changeRouteChange(RouteTypes eIndex, int iChange);
 
+#if defined(MOD_BALANCE_CORE)
+	int getTradeRouteDomainExtraRange(DomainTypes eIndex) const;
+	void changeTradeRouteDomainExtraRange(DomainTypes eIndex, int iChange);
+#endif
+
 	int getBuildTimeChange(BuildTypes eIndex) const;
 	void changeBuildTimeChange(BuildTypes eIndex, int iChange);
 
@@ -633,6 +638,7 @@ protected:
 	                 FAllocArrayType< int,
 	                 FAllocArrayType< int,
 #if defined(MOD_API_UNIFIED_YIELDS)
+					 FAllocArrayType< int,
 	                 FAllocArray2DType< int,
 	                 FAllocArray2DType< int,
 #endif
@@ -646,7 +652,7 @@ protected:
 					 >
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
-					 > >
+					 > > >
 #endif
 					 CvTeamData;
 #else
@@ -690,6 +696,7 @@ protected:
 	int* m_aiVictoryCountdown;
 
 #if defined(MOD_API_UNIFIED_YIELDS)
+	int* m_paiTradeRouteDomainExtraRange;
 	int** m_ppaaiFeatureYieldChange;
 	int** m_ppaaiTerrainYieldChange;
 #endif

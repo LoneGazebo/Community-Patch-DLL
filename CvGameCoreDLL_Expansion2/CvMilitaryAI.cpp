@@ -3188,7 +3188,7 @@ void CvMilitaryAI::UpdateBaseData()
 	int iFlavorDefense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE"));
 
 	// Scale up or down based on true threat level and a bit by flavors (multiplier should range from about 0.5 to about 1.5)
-	fMultiplier = (float)0.40 + (((float)(m_pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorOffense + iFlavorDefense)) / (float)100.0);
+	fMultiplier = (float)0.50 + (((float)(m_pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorOffense + iFlavorDefense)) / (float)100.0);
 
 	// first get the number of defenders that we think we need
 
@@ -3214,11 +3214,11 @@ void CvMilitaryAI::UpdateBaseData()
 				{
 					if(m_pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE || m_pPlayer->GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE)
 					{
-						fMultiplier += 0.25f;
+						fMultiplier += 0.3f;
 					}
 					else if(m_pPlayer->GetDiplomacyAI()->GetWarmongerThreat(eOtherPlayer) >= THREAT_MAJOR || m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false) <= MAJOR_CIV_APPROACH_GUARDED)
 					{
-						fMultiplier += 0.25f;
+						fMultiplier += 0.3f;
 					}
 				}
 			}
@@ -5608,7 +5608,7 @@ void CvMilitaryAI::UpdateWarType()
 	int iEnemyLand = 0;
 	m_iCurrentWarFocus = 0;
 	int iLoop;
-	//the muster city for a given target can belong to any player, no only to ourselves
+
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{	
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -5645,7 +5645,7 @@ void CvMilitaryAI::UpdateWarType()
 	{
 		m_iCurrentWarFocus = 2;
 	}
-	else
+	else if(iEnemyLand >= iEnemyWater)
 	{
 		m_iCurrentWarFocus = 1;
 	}
@@ -6339,7 +6339,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 
 	iNumUnitsWanted += iNumCoastalCities;
 	// Scale up or down based on true threat level and a bit by flavors (multiplier should range from about 0.75 to 2.0)
-	dMultiplier = (float)0.40 + (((float)(pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorNaval + iFlavorNavalRecon)) / (float)100.0);
+	dMultiplier = (float)0.50 + (((float)(pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorNaval + iFlavorNavalRecon)) / (float)100.0);
 
 	//Look at neighbors - if they're stronger than us, let's increase our amount.
 	PlayerTypes eOtherPlayer;
@@ -6355,11 +6355,11 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 				{
 					if(pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE || pPlayer->GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE)
 					{
-						dMultiplier += 0.25;
+						dMultiplier += 0.3;
 					}
 					else if(pPlayer->GetDiplomacyAI()->GetWarmongerThreat(eOtherPlayer) >= THREAT_MAJOR || pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false) <= MAJOR_CIV_APPROACH_GUARDED)
 					{
-						dMultiplier += 0.25;
+						dMultiplier += 0.3;
 					}
 				}
 			}
