@@ -873,7 +873,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 		return GetAirUnitDamage(pUnit, iAirAction);
 
 	//simple caching for speedup
-	SUnitStats unitStats(pUnit);
+	SUnitInfo unitStats(pUnit);
 	if (unitStats==m_lastUnit)
 		return m_lastResult;
 

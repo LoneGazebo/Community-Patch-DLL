@@ -9775,7 +9775,7 @@ int CvGame::getRandNum(int iNum, const char* pszLog)
 	if (iNum > 0)
 		return getRand().get(iNum, pszLog);
 
-	return -getRand().get(-iNum, pszLog);
+	return getRand().get(-iNum, pszLog)*(-1);
 #else
 	return m_jonRand.get(iNum, pszLog);
 #endif

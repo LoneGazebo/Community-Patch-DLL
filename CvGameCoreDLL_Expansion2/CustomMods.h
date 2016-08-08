@@ -61,6 +61,7 @@
 
 /// radical rewrite
 #define MOD_BALANCE_CORE_NEW_TACTICAL_AI
+#define MOD_CORE_NEW_DEPLOYMENT_LOGIC
 
 /// for testing
 #define MOD_CORE_REDUCE_RANDOMNESS
