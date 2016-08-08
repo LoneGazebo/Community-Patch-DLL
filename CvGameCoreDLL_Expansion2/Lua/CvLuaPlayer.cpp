@@ -6445,6 +6445,7 @@ int CvLuaPlayer::lGetGoldenAgeGreatMerchantRateModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES) && defined(MOD_API_UNIFIED_YIELDS)
 //------------------------------------------------------------------------------

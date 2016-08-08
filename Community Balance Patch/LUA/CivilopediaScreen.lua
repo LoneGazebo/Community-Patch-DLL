@@ -734,11 +734,10 @@ CivilopediaCategory[CategoryBuildings].PopulateList = function()
 	end
 	
 	local sectionID = 0;
-	
 	if(Game == nil or not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
 		--Add Faith Buildings first
-		sortedList[CategoryBuildings][sectionID] = {};
 		local tableid = 1;
+		sortedList[CategoryBuildings][sectionID] = {};	
 		for building in DB.Query("SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas from Buildings inner join  BuildingClasses on Buildings.BuildingClass = BuildingClasses.Type where Buildings.FaithCost > 0 and Buildings.Cost == -1 and BuildingClasses.MaxGlobalInstances < 0 and (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) and BuildingClasses.MaxTeamInstances < 0;") do
 			AddArticle(0, tableid, building);
 			tableid = tableid + 1;
@@ -746,12 +745,22 @@ CivilopediaCategory[CategoryBuildings].PopulateList = function()
 		sectionID = sectionID + 1;
 	end
 	
+	--CORPS
+	--Add Corporation Buildings Second
+	local tableid = 1;
+	sortedList[CategoryBuildings][sectionID] = {};
+	for building in DB.Query("SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas from Buildings inner join  BuildingClasses on Buildings.BuildingClass = BuildingClasses.Type where Buildings.IsCorporation > 0 and BuildingClasses.MaxGlobalInstances < 0 and (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) and BuildingClasses.MaxTeamInstances < 0;") do
+		AddArticle(1, tableid, building);
+		tableid = tableid + 1;
+	end
+	sectionID = sectionID + 1;
+	
 	local sql = [[
 		SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas 
 		FROM Buildings 
 		INNER JOIN BuildingClasses ON Buildings.BuildingClass = BuildingClasses.Type 
 		INNER JOIN Technologies ON Buildings.PrereqTech = Technologies.Type 
-		WHERE (FaithCost == 0 or Buildings.Cost >= 0) AND BuildingClasses.MaxGlobalInstances < 0 AND (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) AND BuildingClasses.MaxTeamInstances < 0 AND Technologies.Era = ?;]];
+		WHERE (FaithCost == 0 or Buildings.Cost >= 0) AND Buildings.IsCorporation == 0 AND BuildingClasses.MaxGlobalInstances < 0 AND BuildingClasses.MaxPlayerInstances <> 1 AND BuildingClasses.MaxTeamInstances < 0 AND Technologies.Era = ?;]];
 	
 	local BuildingsByEra = DB.CreateQuery(sql);
 	
@@ -776,7 +785,7 @@ CivilopediaCategory[CategoryBuildings].PopulateList = function()
 				SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas 
 				FROM Buildings 
 				INNER JOIN BuildingClasses ON Buildings.BuildingClass = BuildingClasses.Type 
-				WHERE Buildings.PrereqTech IS NULL AND (Buildings.FaithCost == 0 or Buildings.Cost >= 0) AND BuildingClasses.MaxGlobalInstances < 0 AND (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) AND BuildingClasses.MaxTeamInstances < 0;]];
+				WHERE Buildings.PrereqTech IS NULL AND (Buildings.FaithCost == 0 or Buildings.Cost >= 0) AND Buildings.IsCorporation == 0 AND BuildingClasses.MaxGlobalInstances < 0 AND (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) AND BuildingClasses.MaxTeamInstances < 0;]];
 		
 			for building in DB.Query(sql) do
 				AddArticle(eraID, tableid, building);
@@ -805,7 +814,7 @@ CivilopediaCategory[CategoryWonders].PopulateList = function()
 	for building in GameInfo.Buildings() do	
 		-- exclude wonders etc.				
 		local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
-		if thisBuildingClass.MaxGlobalInstances > 0  then
+		if thisBuildingClass.MaxGlobalInstances > 0 and building.IsCorporation == 0 then
 			local article = {};
 			local name = Locale.ConvertTextKey( building.Description )
 			article.entryName = name;
@@ -891,6 +900,38 @@ CivilopediaCategory[CategoryWonders].PopulateList = function()
 	
 	-- sort this list alphabetically by localized name
 	table.sort(sortedList[CategoryWonders][3], Alphabetically);
+	
+		-- fourth Corporations
+	sortedList[CategoryWonders][4] = {};
+	local tableid = 1;
+
+	for building in GameInfo.Buildings() do	
+		-- exclude wonders etc.				
+		local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
+		if thisBuildingClass.MaxGlobalInstances > 0 and building.IsCorporation > 0 then
+			local article = {};
+			local name = Locale.ConvertTextKey( building.Description )
+			article.entryName = name;
+			article.entryID = building.ID;
+			article.entryCategory = CategoryWonders;
+			article.tooltipTextureOffset, article.tooltipTexture = IconLookup( building.PortraitIndex, buttonSize, building.IconAtlas );				
+			if not article.tooltipTextureOffset then
+				article.tooltipTexture = defaultErrorTextureSheet;
+				article.tooltipTextureOffset = nullOffset;
+			end				
+			
+			sortedList[CategoryWonders][4][tableid] = article;
+			tableid = tableid + 1;
+			
+			-- index by various keys
+			searchableList[Locale.ToLower(name)] = article;
+			searchableTextKeyList[building.Description] = article;
+			categorizedList[(CategoryWonders * absurdlyLargeNumTopicsInCategory) + building.ID] = article;
+		end
+	end
+	
+	-- sort this list alphabetically by localized name
+	table.sort(sortedList[CategoryWonders][4], Alphabetically);
 					
 end
 
@@ -2499,7 +2540,7 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 				 abilitiesString = abilitiesString .. "[NEWLINE]";
 			end
 			
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_NOFRESHWATERYIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield , Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
+			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_NOFRESHWATERYIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
 			numAbilities = numAbilities + 1;
 		end	
 
@@ -6047,6 +6088,9 @@ CivilopediaCategory[CategoryBuildings].SelectHeading = function( selectedEraID, 
 		PopulateAndAdd(sectionID, "TXT_KEY_PEDIA_RELIGIOUS");
 		sectionID = sectionID + 1;
 	end
+	
+	PopulateAndAdd(sectionID, "TXT_KEY_TOPIC_CORPORATION");
+	sectionID = sectionID + 1;
 
 	for era in GameInfo.Eras() do
 		local eraID = era.ID;
@@ -6081,7 +6125,7 @@ CivilopediaCategory[CategoryWonders].SelectHeading = function( selectedSectionID
 		otherSortedList[tostring( thisListInstance.ListItemButton )] = sortOrder;
 	end
 
-	for section = 1, 3, 1 do	
+	for section = 1, 4, 1 do	
 		-- add a section header
 		local thisHeaderInstance = g_ListHeadingManager:GetInstance();
 		if thisHeaderInstance then
@@ -7030,6 +7074,9 @@ CivilopediaCategory[CategoryBuildings].DisplayList = function()
 		PopulateAndAdd(0, "TXT_KEY_PEDIA_RELIGIOUS");
 		sectionID = sectionID + 1;
 	end
+	
+	PopulateAndAdd(sectionID, "TXT_KEY_TOPIC_CORPORATION");
+	sectionID = sectionID + 1;
 
 	for era in GameInfo.Eras() do
 		local eraID = era.ID;
@@ -7060,7 +7107,7 @@ CivilopediaCategory[CategoryWonders].DisplayList = function()
 		otherSortedList[tostring( thisListInstance.ListItemButton )] = sortOrder;
 	end
 
-	for section = 1, 3, 1 do	
+	for section = 1, 4, 1 do	
 		local thisHeaderInstance = g_ListHeadingManager:GetInstance();
 		if thisHeaderInstance then
 			sortedList[CategoryWonders][section].headingOpen = true; -- ain't lua great

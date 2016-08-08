@@ -323,6 +323,7 @@ public:
 	int GetLandTourismEnd() const;
 	int GetSeaTourismEnd() const;
 	int GetAlwaysHeal() const;
+	bool IsCorp() const;
 #endif
 	bool IsPlayerBorderObstacle() const;
 	bool IsCityWall() const;
@@ -457,6 +458,9 @@ public:
 	int GetYieldPerFranchise(int i) const;
 #endif
 	int GetHurryModifier(int i) const;
+#if defined(MOD_BALANCE_CORE)
+	int GetHurryModifierLocal(int i) const;
+#endif
 	bool IsBuildingClassNeededInCity(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	bool IsBuildingClassNeededAnywhere(int i) const;
@@ -478,6 +482,8 @@ public:
 
 	int GetImprovementYieldChangeGlobal(int i, int j) const;
 	int* GetImprovementYieldChangeGlobalArray(int i) const;
+	int GetSpecialistYieldChangeLocal(int i, int j) const;
+	int* GetSpecialistYieldChangeLocalArray(int i) const;
 #endif
 	int GetSpecialistYieldChange(int i, int j) const;
 	int* GetSpecialistYieldChangeArray(int i) const;
@@ -735,6 +741,7 @@ private:
 	int m_iLandTourism;
 	int m_iSeaTourism;
 	int m_iAlwaysHeal;
+	bool m_bIsCorp;
 #endif
 	bool m_bPlayerBorderObstacle;
 	bool m_bCapital;
@@ -832,6 +839,7 @@ private:
 
 	bool* m_pbBuildingClassNeededInCity;
 #if defined(MOD_BALANCE_CORE)
+	int* m_paiHurryModifierLocal;
 	bool* m_pbBuildingClassNeededAnywhere;
 	bool* m_pbBuildingClassNeededNowhere;
 #endif
@@ -842,6 +850,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int** m_ppaiImprovementYieldChange;
 	int** m_ppaiImprovementYieldChangeGlobal;
+	int** m_ppaiSpecialistYieldChangeLocal;
 #endif
 	int** m_ppaiSpecialistYieldChange;
 	int** m_ppaiResourceYieldModifier;

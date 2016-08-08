@@ -371,12 +371,14 @@ CvCity::CvCity() :
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_paiBuildingClassCulture("CvCity::m_paiBuildingClassCulture", m_syncArchive)
+	, m_paiHurryModifier("CvCity::m_paiHurryModifier", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_vClosestNeighbors("CvCity::m_vClosestNeighbors", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_ppaiImprovementYieldChange(0)
+	, m_ppaaiSpecialistExtraYield("CvCity::m_ppaaiSpecialistExtraYield", m_syncArchive)
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	, m_ppaiPlotYieldChange(0)
@@ -1292,6 +1294,8 @@ void CvCity::uninit()
 	SAFE_DELETE_ARRAY(m_ppaiLocalBuildingClassYield);
 	SAFE_DELETE_ARRAY(m_ppaiEventBuildingClassYield);
 	SAFE_DELETE_ARRAY(m_ppaiEventBuildingClassYieldModifier);
+
+	m_ppaaiSpecialistExtraYield.clear();
 #endif
 
 	m_pCityBuildings->Uninit();
@@ -1782,6 +1786,28 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		for(iI = 0; iI < iNumBuildingClassInfos; iI++)
 		{
 			m_paiBuildingClassCulture.setAt(iI, 0);
+		}
+		
+		int iNumHurryInfos = GC.getNumHurryInfos();
+		CvAssertMsg((0 < iNumHurryInfos),  "GC.getNumHurryInfos() is not greater than zero but an array is being allocated in CvCity::reset");
+		m_paiHurryModifier.clear();
+		m_paiHurryModifier.resize(iNumHurryInfos);
+		for(iI = 0; iI < iNumHurryInfos; iI++)
+		{
+			m_paiHurryModifier.setAt(iI, 0);
+		}
+
+		Firaxis::Array< int, NUM_YIELD_TYPES > yield;
+		for( unsigned int j = 0; j < NUM_YIELD_TYPES; ++j )
+		{
+			yield[j] = 0;
+		}
+
+		m_ppaaiSpecialistExtraYield.clear();
+		m_ppaaiSpecialistExtraYield.resize(GC.getNumSpecialistInfos());
+		for( unsigned int i = 0; i < m_ppaaiSpecialistExtraYield.size(); ++i )
+		{
+			m_ppaaiSpecialistExtraYield.setAt( i, yield );
 		}
 #endif
 
@@ -5277,7 +5303,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice)
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getObsoleteTech()))
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_OBSOLETE_TECH");
 		localizedDurationText << GC.getTechInfo((TechTypes)pkEventInfo->getObsoleteTech())->GetDescription();
@@ -11141,6 +11167,13 @@ int CvCity::GetPurchaseCostFromProduction(int iProduction)
 			iPurchaseCost *= (100 + iHurryMod);
 			iPurchaseCost /= 100;
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(getHurryModifier(eHurry) != 0)
+		{
+			iPurchaseCost *= (100 + getHurryModifier(eHurry));
+			iPurchaseCost /= 100;
+		}
+#endif
 	}
 
 	// Game Speed modifier
@@ -13004,6 +13037,18 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						}
 					}
 				}
+			}
+		}
+		// Hurries
+		for(int iI = 0; iI < GC.getNumHurryInfos(); iI++)
+		{
+			changeHurryModifier((HurryTypes) iI, (pBuildingInfo->GetHurryModifierLocal(iI) * iChange));
+		}
+		for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+		{
+			for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				changeSpecialistExtraYield(((SpecialistTypes)iI), ((YieldTypes)iJ), (pBuildingInfo->GetSpecialistYieldChangeLocal(iI, iJ) * iChange));
 			}
 		}
 #endif
@@ -14893,6 +14938,13 @@ int CvCity::getHurryCostModifier(HurryTypes eHurry, int iBaseModifier, int iProd
 			iModifier *= (100 + GET_PLAYER(getOwner()).getHurryModifier(eHurry));
 			iModifier /= 100;
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(getHurryModifier(eHurry) != 0)
+		{
+			iModifier *= (100 + getHurryModifier(eHurry));
+			iModifier /= 100;
+		}
+#endif
 	}
 
 	return iModifier;
@@ -17003,6 +17055,57 @@ int CvCity::GetFaithPerTurnFromTraits() const
 
 	return iRtnValue;
 }
+#endif
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvCity::getHurryModifier(HurryTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_paiHurryModifier[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::changeHurryModifier(HurryTypes eIndex, int iChange)
+{
+	if(iChange != 0)
+	{
+		CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+		CvAssertMsg(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+		m_paiHurryModifier.setAt(eIndex, m_paiHurryModifier[eIndex] + iChange);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::getSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 expected to be >= 0");
+	CvAssertMsg(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+	return m_ppaaiSpecialistExtraYield[eIndex1][eIndex2];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvCity::changeSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2, int iChange)
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 expected to be >= 0");
+	CvAssertMsg(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppaaiSpecialistExtraYield[eIndex1];
+		yields[eIndex2] = (m_ppaaiSpecialistExtraYield[eIndex1][eIndex2] + iChange);
+		m_ppaaiSpecialistExtraYield.setAt(eIndex1, yields);
+		CvAssert(getSpecialistExtraYield(eIndex1, eIndex2) >= 0);
+
+		updateExtraSpecialistYield();
+	}
+}
+
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -22600,6 +22703,7 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpeciali
 	iYieldMultiplier += GetEventSpecialistYield(eSpecialist, eIndex);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
+	iYieldMultiplier += getSpecialistExtraYield(eSpecialist, eIndex);
 	iYieldMultiplier += GET_PLAYER(getOwner()).getSpecialistYieldChange(eSpecialist, eIndex);
 
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();

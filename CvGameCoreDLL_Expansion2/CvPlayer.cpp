@@ -7237,7 +7237,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getObsoleteTech()))
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_OBSOLETE_TECH");
 		localizedDurationText << GC.getTechInfo((TechTypes)pkEventInfo->getObsoleteTech())->GetDescription();

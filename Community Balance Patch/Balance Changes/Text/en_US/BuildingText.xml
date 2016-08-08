@@ -103,10 +103,10 @@
 			<Text>Swedish state schools are funded by tax money. This goes for both primary and secondary school (Swedish: grundskola), high school (Swedish: gymnasium) and universities. When studying at a university, however, you might have to pay for accommodation and literature. There are private schools as well who also receive funding from the government, but they may charge a fee from the parents.[NEWLINE][NEWLINE]Compulsory education starts at seven years of age, with an optional year in förskola (pre-school). The Swedish primary school is split into three parts; Lågstadiet – “the low stage”, which covers grades 1 to 3. This is where you learn the basics of the three main subjects – in Swedish called kärnämnen – Swedish, English and mathematics. It also includes some natural science. Mellanstadiet – “the middle stage”, which covers grades 4 to 6, introduces the children to more detailed subjects. Woodwork and needlework, social and domestic science, and even a second, foreign language in grade 6, a B-språk (B-language). The languages available are usually French, Spanish or German depending on the school. Högstadiet, “the high stage”, is the last stage of the compulsory education, between grades 7 and 9. This is when studies get more in-depth and are taken to an international level.[NEWLINE][NEWLINE]Swedish children take national exams at grades 3, 6 and 9. Children at grade 3 take these exams in two of the three main subjects: Swedish and mathematics. In grade 5 the exams extend to the third main subject, English, and in grade 9 the exams also extend to natural science, foreign languages, and one of the four subjects in "Samhällsorientering" (geography, history, religious studies, and civics). They first receive grades in grade 6. The grading system is letter-based, ranging from A-F, where F is the lowest grade and A is the highest. F means "not approved", while all other ratings above F mean "approved". There are only objectives for E, C and A; D means the person has met most (but not all) objectives for C, while B means the person has met most objectives for A. When applying to gymnasium (high schools) or universities, a meritvärde (“meritous point value”) is calculated. E is worth 10 points, D 12.5 points, C 15 points, and so on. Children not being approved in Swedish, English and mathematics will have to study at a special high school program called the “individual program”. Once they are approved, they may apply to an ordinary high school program. Swedes study at high school for three years, between the ages of 16 and 18.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SKOLA_STRATEGY">
-			<Text>Unique Swedish replacement for the Public School. This building is cheaper and costs less maintenance than the building it replaces, and also boosts the city's [ICON_CULTURE] Culture.</Text>
+			<Text>Unique Swedish replacement for the Public School. This building is cheaper, more effective, and costs less maintenance than the building it replaces, and also boosts the city's [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SKOLA_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Illiteracy. +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens, and +1 [ICON_RESEARCH] Science for every 3 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]Allows Archaeologists to be built in this city.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Illiteracy. +1 [ICON_CULTURE] Culture for every 3 [ICON_CITIZEN] Citizens, and +1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]Allows Archaeologists to be built in this city.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BASILICA_DESC">
 			<Text>Basilica</Text>
@@ -293,7 +293,7 @@
 			<Text>The Well can only be constructed in a city not on a river. The Well increases the city's Food and Production based on the city's population, but has a lower efficiency (per citizen) than a Water Mill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_STRATEGY">
-			<Text>The Wind Plant is a Modern-era building which can only be constructed in a city not on a river. The Wind Plant increases the Production output of every Grassland and Plains tile the city works.</Text>
+			<Text>The Wind Plant is a Modern-era building which can only be constructed in a city not on a river. The Wind Plant increases the Production, Science, and Gold output of every Grassland and Plains tile the city works.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROCER_STRATEGY">
 			<Text>The Grocer is a Renaissance-era building which can only be constructed if you have already built an Aqueduct in the City. The Grocer helps your City grow more quickly, and combats Poverty.</Text>
@@ -323,13 +323,13 @@
 			<Text>Carries over 15% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct). Reduces [ICON_HAPPINESS_3] Poverty.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_HELP">
-			<Text>+2 [ICON_PRODUCTION] Production on every Grassland and Plains tile. Requires [ICON_RES_ALUMINUM] Aluminum to be constructed. [NEWLINE][NEWLINE]City must not be built next to a River.</Text>
+			<Text>+2 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold on every Grassland and Plains tile. Requires [ICON_RES_ALUMINUM] Aluminum to be constructed. [NEWLINE][NEWLINE]City must not be built next to a River.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_HELP">
 			<Text>+15% [ICON_FOOD] Food in City.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_HELP">
-			<Text>+15% [ICON_PRODUCTION] Production. Requires 2 [ICON_RES_COAL] Coal. Increases [ICON_HAPPINESS_3] Poverty, and cannot be built if you have a Nuclear or Solar plant in the City. Requires a Factory in the City.</Text>
+			<Text>+34% [ICON_PRODUCTION] Production. Requires 2 [ICON_RES_COAL] Coal. Increases [ICON_HAPPINESS_3] Poverty, and cannot be built if you have a Nuclear or Solar plant in the City. Requires a Factory in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_HELP">
 			<Text>Requires 1 [ICON_RES_IRON] Iron. Enemy Naval Units and Embarked Units must expend 1 extra [ICON_MOVES] movement per Tile if they move into a Tile worked by this City.[NEWLINE][NEWLINE]City must be built on the coast.</Text>
@@ -502,7 +502,7 @@
 			<Text>Reduces [ICON_HAPPINESS_3] Illiteracy. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%. +20% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PAGODA_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Boredom. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%. +2 to all City Yields for every World Religion that has at least one Follower in this City.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Boredom. +2 to all City Yields for every World Religion that has at least one Follower in this City.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_THRONE_ROOM">
@@ -615,7 +615,7 @@
 			<Text>Stationary steam engines are fixed steam engines used for pumping or driving mills and factories, and for power generation. They are distinct from locomotive engines used on railways, traction engines for heavy steam haulage on roads, steam cars (and other motor vehicles), agricultural engines used for ploughing or threshing, marine engines, and the steam turbines used as the mechanism of power generation for most nuclear power plants. They were introduced during the 18th century and widely made for the whole of the 19th century and most of the first half of the 20th century, only declining as electricity supply and the internal combustion engine became more widespread.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production for every 2 [ICON_CITIZEN] Citizens in the City. Trade routes other players make to a city with a Steam Mill will generate an extra 3 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 3 [ICON_GOLD] Gold for the trade route.[NEWLINE]Nearby [ICON_RES_COAL] Coal: +3 [ICON_PRODUCTION] Production.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production for every 2 [ICON_CITIZEN] Citizens in the City. All Engineers Specialists in the City gain +2 [ICON_GOLD] Gold, and all Merchant Specialists in the City gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Trade routes other players make to a city with a Steam Mill will generate an extra 3 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 3 [ICON_GOLD] Gold for the trade route.[NEWLINE][NEWLINE]Nearby [ICON_RES_COAL] Coal: +3 [ICON_PRODUCTION] Production.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_STRATEGY">
 			<Text>Unique English replacement for the Factory. The Steam Mill is cheaper, requires no [ICON_RES_COAL] Coal, is available earlier than the Factory, and provides additional Production to [ICON_RES_COAL] Coal worked by the City. The Steam Mill also boosts the city's Gold income from Trade Routes, thus encouraging other Civlizations to trade with you. Since Steam Mills do not require Coal, you can use your Coal surplus to build Seaports and Coal Plants, or you can trade it away for a large amount of gold.</Text>
@@ -627,7 +627,7 @@
 			<Text>A foundry is a factory that produces metal castings. Metals are cast into shapes by melting them into a liquid, pouring the metal in a mold, and removing the mold material or casting after the metal has solidified as it cools. The most common metals processed are aluminium and cast iron. However, other metals, such as bronze, brass, steel, magnesium, and zinc, are also used to produce castings in foundries. In this process, parts of desired shapes and sizes can be formed. In the context of war, foundries were essential to the production of cannonry and other essential siege equipment.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SIEGE_WORKSHOP_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production from Mines worked by this City. +50% [ICON_PRODUCTION] Production towards Siege units. All Siege units trained in this City receive the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free.[NEWLINE]Nearby [ICON_RES_IRON] Iron: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COPPER] Copper: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production from Mines worked by this City. +50% [ICON_PRODUCTION] Production towards Siege units, and all Siege units trained in this City receive the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free.[NEWLINE][NEWLINE]When you construct a Unit in this City, gain 20 [ICON_RESEARCH] Science, scaling with Era.[NEWLINE]Nearby [ICON_RES_IRON] Iron: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COPPER] Copper: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SIEGE_WORKSHOP_STRATEGY">
 			<Text>Unique Ottoman replacement for the Forge. Generates extra Science, produces Siege units much more quickly than normal, and grants them the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free. Use these attributes to build a massive force of artillery to take down an enemy's walls and conquer their lands!</Text>

@@ -242,6 +242,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iLandTourism(0),
 	m_iSeaTourism(0),
 	m_iAlwaysHeal(0),
+	m_bIsCorp(false),
 #endif
 	m_bPlayerBorderObstacle(false),
 	m_bCapital(false),
@@ -325,6 +326,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_paiHurryModifier(NULL),
 	m_pbBuildingClassNeededInCity(NULL),
 #if defined(MOD_BALANCE_CORE)
+	m_paiHurryModifierLocal(NULL),
 	m_pbBuildingClassNeededAnywhere(NULL),
 	m_pbBuildingClassNeededNowhere(NULL),
 #endif
@@ -337,6 +339,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_ppaiImprovementYieldChange(NULL),
 	m_ppaiImprovementYieldChangeGlobal(NULL),
+	m_ppaiSpecialistYieldChangeLocal(NULL),
 #endif
 	m_ppaiSpecialistYieldChange(NULL),
 	m_ppaiResourceYieldModifier(NULL),
@@ -426,6 +429,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_paiHurryModifier);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededInCity);
 #if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_paiHurryModifierLocal);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededAnywhere);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededNowhere);
 #endif
@@ -440,6 +444,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #if defined(MOD_BALANCE_CORE)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChangeGlobal);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldChangeLocal);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldModifier);
@@ -527,6 +532,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iLandTourism = kResults.GetInt("FinishLandTRTourism");
 	m_iSeaTourism = kResults.GetInt("FinishSeaTRTourism");
 	m_iAlwaysHeal = kResults.GetInt("AlwaysHeal");
+	m_bIsCorp = kResults.GetBool("IsCorporation");
 #endif
 	m_bPlayerBorderObstacle = kResults.GetBool("PlayerBorderObstacle");
 	m_bCapital = kResults.GetBool("Capital");
@@ -819,6 +825,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByValue(m_piResourceFaithChanges, "Resources", "Building_ResourceFaithChanges", "ResourceType", "BuildingType", szBuildingType, "FaithChange");
 
 	kUtility.PopulateArrayByValue(m_paiHurryModifier, "HurryInfos", "Building_HurryModifiers", "HurryType", "BuildingType", szBuildingType, "HurryCostModifier");
+#if defined(MOD_BALANCE_CORE)
+	kUtility.PopulateArrayByValue(m_paiHurryModifierLocal, "HurryInfos", "Building_HurryModifiersLocal", "HurryType", "BuildingType", szBuildingType, "HurryCostModifier");
+#endif
 
 	//kUtility.PopulateArrayByValue(m_piProductionTraits, "Traits", "Building_ProductionTraits", "TraitType", "BuildingType", szBuildingType, "Trait");
 
@@ -1018,6 +1027,29 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			const int yield = pResults->GetInt(2);
 
 			m_ppaiPlotYieldChange[PlotID][YieldID] = yield;
+		}
+	}
+
+	//SpecialistYieldChangesLocal
+	{
+		kUtility.Initialize2DArray(m_ppaiSpecialistYieldChangeLocal, "Specialists", "Yields");
+
+		std::string strKey("Building_SpecialistYieldChangesLocal");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Specialists.ID as SpecialistID, Yields.ID as YieldID, Yield from Building_SpecialistYieldChangesLocal inner join Specialists on Specialists.Type = SpecialistType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while(pResults->Step())
+		{
+			const int SpecialistID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppaiSpecialistYieldChangeLocal[SpecialistID][YieldID] = yield;
 		}
 	}
 #endif
@@ -2146,6 +2178,10 @@ int CvBuildingEntry::GetAlwaysHeal() const
 {
 	return m_iAlwaysHeal;
 }
+bool CvBuildingEntry::IsCorp() const
+{
+	return m_bIsCorp;
+}
 #endif
 /// Is this an obstacle at the edge of your empire (e.g. Great Wall) -- for just the owning player
 bool CvBuildingEntry::IsPlayerBorderObstacle() const
@@ -2875,6 +2911,15 @@ int CvBuildingEntry::GetHurryModifier(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_paiHurryModifier ? m_paiHurryModifier[i] : -1;
 }
+#if defined(MOD_BALANCE_CORE)
+/// Local Modifier to Hurry cost
+int CvBuildingEntry::GetHurryModifierLocal(int i) const
+{
+	CvAssertMsg(i < GC.getNumHurryInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_paiHurryModifierLocal ? m_paiHurryModifierLocal[i] : -1;
+}
+#endif
 
 /// Can it only built if there is a building of this class in the city?
 bool CvBuildingEntry::IsBuildingClassNeededInCity(int i) const
@@ -2978,7 +3023,22 @@ int* CvBuildingEntry::GetImprovementYieldChangeGlobalArray(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_ppaiImprovementYieldChangeGlobal[i];
 }
-
+/// Change to specialist yield by type
+int CvBuildingEntry::GetSpecialistYieldChangeLocal(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppaiSpecialistYieldChangeLocal ? m_ppaiSpecialistYieldChangeLocal[i][j] : -1;
+}
+/// Array of changes to specialist yield
+int* CvBuildingEntry::GetSpecialistYieldChangeLocalArray(int i) const
+{
+	CvAssertMsg(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_ppaiSpecialistYieldChangeLocal[i];
+}
 #endif
 
 /// Change to specialist yield by type

@@ -150,7 +150,7 @@
 			<Text>[NEWLINE] [ICON_BULLET]Building Modifier from 'We Love the King Day:' {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_GOLD_FROM_INTERNAL_TRADE">
-			<Text>{1_Num} from [ICON_INTERNATIONAL_TRADE] Internal Trade Routes (Autarky).</Text>
+			<Text>{1_Num} from [ICON_INTERNATIONAL_TRADE] Internal Trade Routes</Text>
 		</Row>
 		<!-- Austria Text -->
 		<Row Tag="TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED">
@@ -561,10 +561,10 @@
 
 		<!-- Honor ProdMod Text-->
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_PUPPET_POLICY">
-			<Text>[NEWLINE][ICON_BULLET]Modifier for [ICON_PUPPET] Puppet from Martial Law: {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET]Modifier for [ICON_PUPPET] Puppet from Policies: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_OCCUPIED_POLICY">
-			<Text>[NEWLINE][ICON_BULLET]Modifier for [ICON_OCCUPIED] Occupied from Martial Law: {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET]Modifier for [ICON_OCCUPIED] Occupied from Policies: {1_Num}%</Text>
 		</Row>
 
 		<!-- Conscription popup-->

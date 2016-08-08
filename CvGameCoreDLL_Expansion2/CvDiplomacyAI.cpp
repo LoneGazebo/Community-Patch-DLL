@@ -8579,6 +8579,11 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
+		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) == 0)
+		{
+			return false;
+		}
+
 		int iRequestPeaceTurnThreshold = /*4*/ GC.getREQUEST_PEACE_TURN_THRESHOLD();
 		int iWantPeace = 0;
 		
@@ -17442,14 +17447,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #else
 			bool bDealAcceptable = m_pPlayer->GetDealAI()->IsDealWithHumanAcceptable(pDeal, ePlayer, iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, bCantMatchOffer);
 #endif
-#if defined(MOD_BALANCE_CORE)
-			if(bCantMatchOffer)
-			{
-				SetCantMatchDeal(ePlayer, true);
-			}
-			if(!IsCantMatchDeal(ePlayer))
-			{
-#endif
 			if(!bDealAcceptable)
 			{
 				if(iValueTheyreOffering > iValueImOffering)
@@ -17488,18 +17485,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				szText = GetDiploStringForMessage(eMessageType);
 				CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
 			}
-#if defined(MOD_BALANCE_CORE)
-			}
-			else
-			{
-				CvDeal* pRenewDeal = GetDealToRenew();
-				if (pRenewDeal)
-				{
-					pRenewDeal->m_bCheckedForRenewal = true;
-				}
-				ClearDealToRenew();
-			}
-#endif
 		}
 		// Offer to an AI player
 		else

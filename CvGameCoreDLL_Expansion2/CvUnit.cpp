@@ -25875,7 +25875,7 @@ int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 		return -1;
 
 	//support units cannot attack themselves
-	if (IsCityAttackSupport() && bIsEnemyCity)
+	if (IsCityAttackSupport() && !bIsEnemyCity)
 		return -1;
 
 	//embarked can't do a move-attack

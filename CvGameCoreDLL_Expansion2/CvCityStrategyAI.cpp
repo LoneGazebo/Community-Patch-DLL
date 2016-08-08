@@ -4135,6 +4135,61 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					// Player mod
 					iMod += pCity->GetPlayer()->getGreatPeopleRateModifier();
 
+					GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+					if(eGreatPerson != NO_GREATPERSON)
+					{
+						if(pCity->GetPlayer()->isGoldenAge())
+						{
+							GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+							if(eGreatPerson != NO_GREATPERSON)
+							{
+								iMod += pCity->GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
+								iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+
+								ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
+								if(eMajority != NO_RELIGION)
+								{
+									const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
+									if(pReligion)
+									{
+										iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, pCity->getOwner());
+										BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+										if (eSecondaryPantheon != NO_BELIEF)
+										{
+											iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+										}
+									}
+								}
+							}
+						}
+						int iNumPuppets = pCity->GetPlayer()->GetNumPuppetCities();
+						if(iNumPuppets > 0)
+						{
+							iMod += (iNumPuppets * pCity->GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));			
+						}
+					}
+					if(pCity->isCapital())
+					{
+						int iNumMarried = 0;
+						// Loop through all minors and get the total number we've met.
+						for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+						{
+							PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+
+							if (eMinor != pCity->GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+							{
+								if (pCity->GetPlayer()->IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(pCity->GetPlayer()->GetID()))
+								{
+									iNumMarried++;
+								}
+							}
+						}
+						if(pCity->GetPlayer()->IsDiplomaticMarriage() && iNumMarried > 0)
+						{
+							iMod += (iNumMarried * GC.getBALANCE_MARRIAGE_GP_RATE());
+						}
+					}
+
 					// Trait mod to this specific class
 					if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 					{
@@ -4144,14 +4199,26 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 					{
 						iMod += pCity->GetPlayer()->getGreatWriterRateModifier();
+						if (pCity->GetPlayer()->isGoldenAge())
+						{
+							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier();
+						}
 					}					
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 					{
 						iMod += pCity->GetPlayer()->getGreatArtistRateModifier();
+						if (pCity->GetPlayer()->isGoldenAge())
+						{
+							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier();
+						}
 					}					
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 					{
 						iMod += pCity->GetPlayer()->getGreatMusicianRateModifier();
+						if (pCity->GetPlayer()->isGoldenAge())
+						{
+							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier();
+						}
 					}
 					else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 					{
@@ -4176,8 +4243,11 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 			}
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if (iTotalGPPChange >= 1500)
+#else
 	if (iTotalGPPChange >= 800)
+#endif
 	{
 		return true;
 	}

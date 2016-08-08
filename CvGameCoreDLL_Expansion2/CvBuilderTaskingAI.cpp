@@ -109,6 +109,32 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 			{
 				m_bEvaluateAdjacent = true;
 			}
+			//GP? Oh, is it our special unit, and is also a GP (i.e. Venice)? This sucks, but we need to drill down and find our UU, and our build.
+			else
+			{
+				CvCivilizationInfo* pkInfo = GC.getCivilizationInfo(m_pPlayer->getCivilizationType());
+				if(pkInfo)
+				{
+					// Loop through all units
+					for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+					{
+						// Is this one overridden for our civ?
+						if(pkInfo->isCivilizationUnitOverridden(iI))
+						{
+							UnitTypes eCivilizationUnit = static_cast<UnitTypes>(pkInfo->getCivilizationUnits(iI));
+							if(eCivilizationUnit != NO_UNIT)
+							{
+								CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eCivilizationUnit);
+								if(pkUnitEntry && pkUnitEntry->GetBuilds((BuildTypes)i))
+								{
+									m_bEvaluateAdjacent = true;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 #endif
 	}
@@ -2574,6 +2600,7 @@ int CvBuilderTaskingAI::ScorePlot()
 					iScore += m_aiProjectedPlotYields[eFocusYield] * 100;
 				}
 			}
+			
 			//Because this evaluates territory outside of our base territory, let's cut this down a bit.
 			iScore /= 3;
 		}
@@ -2855,6 +2882,23 @@ int CvBuilderTaskingAI::ScorePlot()
 			{
 				iScore *= (7 + m_pTargetPlot->ComputeYieldFromAdjacentTerrain(*pImprovement, eYield));
 			}
+		}
+	}
+	if(pImprovement->GetCultureBombRadius() > 0)
+	{
+		int iAdjacentGood = 0;
+		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
+		{
+			CvPlot* pAdjacentPlot = plotDirection(m_pTargetPlot->getX(), m_pTargetPlot->getY(), ((DirectionTypes) iDirectionLoop));
+
+			if(pAdjacentPlot != NULL && pAdjacentPlot->getOwner() != m_pPlayer->GetID())
+			{
+				iAdjacentGood++;
+			}
+		}
+		if(iAdjacentGood > 0)
+		{
+			iScore *= iAdjacentGood;
 		}
 	}
 #endif

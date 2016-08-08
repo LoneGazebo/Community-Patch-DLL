@@ -516,19 +516,19 @@
 			<Text>Undertake a complete rework of our Windmills, starting immediately.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WINDMILLS_MODERNIZE_CHOICE_1_HELP">
-			<Text>Lose 2000 [ICON_GOLD] Gold. All Windmills gain a +10% [ICON_PRODUCTION] Production boost.</Text>
+			<Text>Spend {1_YieldCost}. All Windmills gain a +10% [ICON_PRODUCTION] Production boost.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WINDMILLS_MODERNIZE_CHOICE_2">
 			<Text>Coordinate with our Manufactories and integrate them into our modern industrial processes.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WINDMILLS_MODERNIZE_CHOICE_2_HELP">
-			<Text>Lose 1000 [ICON_GOLD] Gold and 4 [ICON_RES_IRON] Iron. All Windmills gain a +15% [ICON_PRODUCTION] Production boost.</Text>
+			<Text>Spend {1_YieldCost} and 4 [ICON_RES_IRON] Iron. All Windmills gain a +15% [ICON_PRODUCTION] Production boost.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WINDMILLS_MODERNIZE_CHOICE_3">
 			<Text>Retrofit them where we can, otherwise they're fine.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WINDMILLS_MODERNIZE_CHOICE_3_HELP">
-			<Text>Lose 500 [ICON_GOLD] Gold. All Windmills gain a +3 [ICON_PRODUCTION] Production.</Text>
+			<Text>Spend {1_YieldCost}. All Windmills gain a +3 [ICON_PRODUCTION] Production.</Text>
 		</Row>
 		
 		<!-- Stadium -->
