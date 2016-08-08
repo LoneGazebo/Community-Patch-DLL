@@ -240,6 +240,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiGreatPersonExpendedYield(NULL),
 	m_ppiGreatPersonBornYield(NULL),
 	m_piGoldenAgeGreatPersonRateModifier(NULL),
+	m_piPerPuppetGreatPersonRateModifier(NULL),
 	m_ppiCityYieldFromUnimprovedFeature(NULL),
 #endif
 	m_ppiUnimprovedFeatureYieldChanges(NULL)
@@ -1356,6 +1357,12 @@ int CvTraitEntry::GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPer
 	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
 	return m_piGoldenAgeGreatPersonRateModifier ? m_piGoldenAgeGreatPersonRateModifier[(int)eGreatPerson] : 0;
 }
+int CvTraitEntry::GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
+{
+	CvAssertMsg((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
+	return m_piPerPuppetGreatPersonRateModifier ? m_piPerPuppetGreatPersonRateModifier[(int)eGreatPerson] : 0;
+}
 
 int CvTraitEntry::GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
@@ -2381,7 +2388,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		}
 	}
 	kUtility.PopulateArrayByValue(m_piGoldenAgeGreatPersonRateModifier, "GreatPersons", "Trait_GoldenAgeGreatPersonRateModifier", "GreatPersonType", "TraitType", szTraitType, "Modifier");
-
+	kUtility.PopulateArrayByValue(m_piPerPuppetGreatPersonRateModifier, "GreatPersons", "Trait_PerPuppetGreatPersonRateModifier", "GreatPersonType", "TraitType", szTraitType, "Modifier");
+	
 	//CityYieldFromUnimprovedFeature
 	{
 		kUtility.Initialize2DArray(m_ppiCityYieldFromUnimprovedFeature, "Features", "Yields");
@@ -3068,8 +3076,6 @@ void CvPlayerTraits::InitPlayerTraits()
 						yields[iYield] = (m_ppiGreatPersonBornYield[iGreatPersonLoop][iYield] + iChange2);
 						m_ppiGreatPersonBornYield[iGreatPersonLoop] = yields;
 					}
-
-					m_piGoldenAgeGreatPersonRateModifier[iGreatPersonLoop] = trait->GetGoldenAgeGreatPersonRateModifier((GreatPersonTypes) iGreatPersonLoop);
 				}
 #endif
 
@@ -3089,6 +3095,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			for(int iGreatPersonLoop = 0; iGreatPersonLoop < GC.getNumGreatPersonInfos(); iGreatPersonLoop++)
 			{
 				m_piGoldenAgeGreatPersonRateModifier[iGreatPersonLoop] = trait->GetGoldenAgeGreatPersonRateModifier((GreatPersonTypes) iGreatPersonLoop);
+				m_piPerPuppetGreatPersonRateModifier[iGreatPersonLoop] = trait->GetPerPuppetGreatPersonRateModifier((GreatPersonTypes) iGreatPersonLoop);
 			}
 #endif
 
@@ -3174,6 +3181,7 @@ void CvPlayerTraits::Uninit()
 	m_ppiGreatPersonExpendedYield.clear();
 	m_ppiGreatPersonBornYield.clear();
 	m_piGoldenAgeGreatPersonRateModifier.clear();
+	m_piPerPuppetGreatPersonRateModifier.clear();
 	m_ppiCityYieldFromUnimprovedFeature.clear();
 #endif
 	m_ppaaiUnimprovedFeatureYieldChange.clear();
@@ -3484,9 +3492,13 @@ void CvPlayerTraits::Reset()
 	m_piGoldenAgeGreatPersonRateModifier.clear();
 	m_piGoldenAgeGreatPersonRateModifier.resize(GC.getNumGreatPersonInfos());
 
+	m_piPerPuppetGreatPersonRateModifier.clear();
+	m_piPerPuppetGreatPersonRateModifier.resize(GC.getNumGreatPersonInfos());
+
 	for(int iGreatPerson = 0; iGreatPerson < GC.getNumGreatPersonInfos(); iGreatPerson++)
 	{
 		m_piGoldenAgeGreatPersonRateModifier[iGreatPerson] = 0;
+		m_piPerPuppetGreatPersonRateModifier[iGreatPerson] = 0;
 	}
 	m_abTerrainClaimBoost.clear();
 	m_abTerrainClaimBoost.resize(GC.getNumTerrainInfos());
@@ -3830,6 +3842,12 @@ int CvPlayerTraits::GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatP
 	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
 	return m_piGoldenAgeGreatPersonRateModifier[(int)eGreatPerson];
 }
+int CvPlayerTraits::GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
+{
+	CvAssertMsg((int)eGreatPerson < GC.getNumGreatPersonTInfos(), "Yield type out of bounds");
+	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
+	return m_piPerPuppetGreatPersonRateModifier[(int)eGreatPerson];
+}
 
 int CvPlayerTraits::GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield) const
 {
@@ -3989,7 +4007,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 			if (pkResource != NULL && pkResource->GetRequiredCivilization() == m_pPlayer->getCivilizationType())
 			{
-				int iRandomFlavor = GC.getGame().getJonRandNum(100, "Resource Flavor");
+				int iRandomFlavor = GC.getGame().getRandNum(100, "Resource Flavor");
 				//If we've already got this resource, divide the value by the amount.
 				if(m_pPlayer->getNumResourceTotal(eResource, false) > 0)
 				{
@@ -5401,6 +5419,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_ppiGreatPersonExpendedYield;
 	kStream >> m_ppiGreatPersonBornYield;
 	kStream >> m_piGoldenAgeGreatPersonRateModifier;
+	kStream >> m_piPerPuppetGreatPersonRateModifier;
 	kStream >> m_ppiCityYieldFromUnimprovedFeature;
 #endif
 	kStream >> m_ppaaiUnimprovedFeatureYieldChange;
@@ -5701,6 +5720,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_ppiGreatPersonExpendedYield;
 	kStream << m_ppiGreatPersonBornYield;
 	kStream << m_piGoldenAgeGreatPersonRateModifier;
+	kStream << m_piPerPuppetGreatPersonRateModifier;
 	kStream << m_ppiCityYieldFromUnimprovedFeature;
 #endif
 	kStream << m_ppaaiUnimprovedFeatureYieldChange;
@@ -5730,7 +5750,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 	}
 
 	// Roll die to see if it converts
-	if(GC.getGame().getJonRandNum(100, "Barbarian Camp Conversion") < m_iLandBarbarianConversionPercent)
+	if(GC.getGame().getRandNum(100, "Barbarian Camp Conversion") < m_iLandBarbarianConversionPercent)
 	{
 		pPlot->setImprovementType(NO_IMPROVEMENT);
 
@@ -5821,7 +5841,7 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(UnitHandle pUnit)
 	}
 
 	// Roll die to see if it converts
-	if(GC.getGame().getJonRandNum(100, "Barbarian Naval Unit Conversion") < m_iSeaBarbarianConversionPercent)
+	if(GC.getGame().getRandNum(100, "Barbarian Naval Unit Conversion") < m_iSeaBarbarianConversionPercent)
 	{
 		int iNumGold = /*25*/ GC.getGOLD_FROM_BARBARIAN_CONVERSION();
 		m_pPlayer->GetTreasury()->ChangeGold(iNumGold);

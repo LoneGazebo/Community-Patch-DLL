@@ -371,12 +371,14 @@ CvCity::CvCity() :
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_paiBuildingClassCulture("CvCity::m_paiBuildingClassCulture", m_syncArchive)
+	, m_paiHurryModifier("CvCity::m_paiHurryModifier", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_vClosestNeighbors("CvCity::m_vClosestNeighbors", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_ppaiImprovementYieldChange(0)
+	, m_ppaaiSpecialistExtraYield("CvCity::m_ppaaiSpecialistExtraYield", m_syncArchive)
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	, m_ppaiPlotYieldChange(0)
@@ -1292,6 +1294,8 @@ void CvCity::uninit()
 	SAFE_DELETE_ARRAY(m_ppaiLocalBuildingClassYield);
 	SAFE_DELETE_ARRAY(m_ppaiEventBuildingClassYield);
 	SAFE_DELETE_ARRAY(m_ppaiEventBuildingClassYieldModifier);
+
+	m_ppaaiSpecialistExtraYield.clear();
 #endif
 
 	m_pCityBuildings->Uninit();
@@ -1782,6 +1786,28 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		for(iI = 0; iI < iNumBuildingClassInfos; iI++)
 		{
 			m_paiBuildingClassCulture.setAt(iI, 0);
+		}
+		
+		int iNumHurryInfos = GC.getNumHurryInfos();
+		CvAssertMsg((0 < iNumHurryInfos),  "GC.getNumHurryInfos() is not greater than zero but an array is being allocated in CvCity::reset");
+		m_paiHurryModifier.clear();
+		m_paiHurryModifier.resize(iNumHurryInfos);
+		for(iI = 0; iI < iNumHurryInfos; iI++)
+		{
+			m_paiHurryModifier.setAt(iI, 0);
+		}
+
+		Firaxis::Array< int, NUM_YIELD_TYPES > yield;
+		for( unsigned int j = 0; j < NUM_YIELD_TYPES; ++j )
+		{
+			yield[j] = 0;
+		}
+
+		m_ppaaiSpecialistExtraYield.clear();
+		m_ppaaiSpecialistExtraYield.resize(GC.getNumSpecialistInfos());
+		for( unsigned int i = 0; i < m_ppaaiSpecialistExtraYield.size(); ++i )
+		{
+			m_ppaaiSpecialistExtraYield.setAt( i, yield );
 		}
 #endif
 
@@ -3499,7 +3525,7 @@ void CvCity::DoEvents()
 				}
 			}
 
-			int iRandom = GC.getGame().getJonRandNum(1000, "Random Event Chance");
+			int iRandom = GC.getGame().getRandNum(1000, "Random Event Chance");
 			int iLimit = pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
 			if(iRandom < iLimit)
 			{
@@ -3574,7 +3600,7 @@ void CvCity::DoEvents()
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
 		}
-		int iRandIndex = GC.getGame().getJonRandNum(veValidEvents.size(), "Picking random event for player.");
+		int iRandIndex = GC.getGame().getRandNum(veValidEvents.size(), "Picking random event for player.");
 		CityEventTypes eChosenEvent = veValidEvents[iRandIndex];
 		if(eChosenEvent != NO_EVENT)
 		{
@@ -5277,7 +5303,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice)
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+	if(pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getObsoleteTech()))
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_OBSOLETE_TECH");
 		localizedDurationText << GC.getTechInfo((TechTypes)pkEventInfo->getObsoleteTech())->GetDescription();
@@ -5833,7 +5859,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			//Let's see if it even happens.
 			if(pkEventChoiceInfo->getEventChance() > 0)
 			{
-				int iRandom = GC.getGame().getJonRandNum(100, "Random Event Chance");
+				int iRandom = GC.getGame().getRandNum(100, "Random Event Chance");
 				int iLimit = pkEventChoiceInfo->getEventChance();
 				if(iRandom < iLimit)
 				{
@@ -5983,7 +6009,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 							if(GetCityBuildings()->GetNumFreeBuilding(eBuildingType) > 0)
 								continue;
 
-							int iRandom = GC.getGame().getJonRandNum(100, "Random Event Chance");
+							int iRandom = GC.getGame().getRandNum(100, "Random Event Chance");
 							if(iRandom < iChance)
 							{					
 								GetCityBuildings()->SetNumRealBuilding(eBuildingType, 0, true);
@@ -6185,7 +6211,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 
 						if (pLoopPlot->HasImprovement(eImprovement)) 
 						{
-							int iValue = GC.getGame().getJonRandNum(100, "Improvement Destruction");
+							int iValue = GC.getGame().getRandNum(100, "Improvement Destruction");
 							if(pkEventChoiceInfo->isCoastal() && pLoopPlot->isCoastalLand())
 							{
 								iValue += 100;
@@ -6385,7 +6411,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					if(pPlot->getNumUnits() > 0)
 						continue;
 
-					int iTempWeight = theGame.getJonRandNum(10, "Uprising rand plot location.");
+					int iTempWeight = theGame.getRandNum(10, "Uprising rand plot location.");
 
 					// Add weight if there's an improvement here!
 					if(pPlot->getImprovementType() != NO_IMPROVEMENT)
@@ -6522,7 +6548,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					if(pPlot->getNumUnits() > 0)
 						continue;
 
-					int iTempWeight = theGame.getJonRandNum(10, "Uprising rand plot location.");
+					int iTempWeight = theGame.getRandNum(10, "Uprising rand plot location.");
 
 					// Add weight if there's an improvement here!
 					if(pPlot->getImprovementType() != NO_IMPROVEMENT)
@@ -9176,7 +9202,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 
 	do
 	{
-		iVectorIndex = GC.getGame().getJonRandNum(veValidLuxuryResources.size(), "Picking random Luxury for City to demand.");
+		iVectorIndex = GC.getGame().getRandNum(veValidLuxuryResources.size(), "Picking random Luxury for City to demand.");
 		eResource = (ResourceTypes) veValidLuxuryResources[iVectorIndex];
 		bResourceValid = true;
 
@@ -9327,7 +9353,7 @@ void CvCity::DoSeedResourceDemandedCountdown()
 	}
 
 	int iRand = /*10*/ GC.getRESOURCE_DEMAND_COUNTDOWN_RAND();
-	iNumTurns += GC.getGame().getJonRandNum(iRand, "City Resource demanded rand.");
+	iNumTurns += GC.getGame().getRandNum(iRand, "City Resource demanded rand.");
 
 	SetResourceDemandedCountdown(iNumTurns);
 }
@@ -11141,6 +11167,13 @@ int CvCity::GetPurchaseCostFromProduction(int iProduction)
 			iPurchaseCost *= (100 + iHurryMod);
 			iPurchaseCost /= 100;
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(getHurryModifier(eHurry) != 0)
+		{
+			iPurchaseCost *= (100 + getHurryModifier(eHurry));
+			iPurchaseCost /= 100;
+		}
+#endif
 	}
 
 	// Game Speed modifier
@@ -12799,7 +12832,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 							if (pkResource != NULL && pkResource->GetRequiredCivilization() == owningPlayer.getCivilizationType())
 							{
-								int iRandomFlavor = GC.getGame().getJonRandNum(100, "Resource Flavor");
+								int iRandomFlavor = GC.getGame().getRandNum(100, "Resource Flavor");
 								//If we've already got this resource, divide the value by the amount.
 								if(owningPlayer.getNumResourceTotal(eResource, false) > 0)
 								{
@@ -13004,6 +13037,18 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						}
 					}
 				}
+			}
+		}
+		// Hurries
+		for(int iI = 0; iI < GC.getNumHurryInfos(); iI++)
+		{
+			changeHurryModifier((HurryTypes) iI, (pBuildingInfo->GetHurryModifierLocal(iI) * iChange));
+		}
+		for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+		{
+			for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				changeSpecialistExtraYield(((SpecialistTypes)iI), ((YieldTypes)iJ), (pBuildingInfo->GetSpecialistYieldChangeLocal(iI, iJ) * iChange));
 			}
 		}
 #endif
@@ -14893,6 +14938,13 @@ int CvCity::getHurryCostModifier(HurryTypes eHurry, int iBaseModifier, int iProd
 			iModifier *= (100 + GET_PLAYER(getOwner()).getHurryModifier(eHurry));
 			iModifier /= 100;
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(getHurryModifier(eHurry) != 0)
+		{
+			iModifier *= (100 + getHurryModifier(eHurry));
+			iModifier /= 100;
+		}
+#endif
 	}
 
 	return iModifier;
@@ -15436,7 +15488,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 									}
 									if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 									{
-										int iChance = GC.getGame().getJonRandNum(100, "Random Boat Chance");
+										int iChance = GC.getGame().getRandNum(100, "Random Boat Chance");
 										if(iChance < 50)
 										{
 											continue;
@@ -15464,7 +15516,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 									{
 										continue;
 									}
-									int iCombatStrength = (pkUnitEntry->GetCombat() + GC.getGame().getJonRandNum(pkUnitEntry->GetCombat(), "Random Unit bump"));
+									int iCombatStrength = (pkUnitEntry->GetCombat() + GC.getGame().getRandNum(pkUnitEntry->GetCombat(), "Random Unit bump"));
 									if(iCombatStrength > iStrengthBest)
 									{
 										iStrengthBest = iCombatStrength;
@@ -17004,6 +17056,57 @@ int CvCity::GetFaithPerTurnFromTraits() const
 	return iRtnValue;
 }
 #endif
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvCity::getHurryModifier(HurryTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_paiHurryModifier[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::changeHurryModifier(HurryTypes eIndex, int iChange)
+{
+	if(iChange != 0)
+	{
+		CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+		CvAssertMsg(eIndex < GC.getNumHurryInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+		m_paiHurryModifier.setAt(eIndex, m_paiHurryModifier[eIndex] + iChange);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::getSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 expected to be >= 0");
+	CvAssertMsg(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+	return m_ppaaiSpecialistExtraYield[eIndex1][eIndex2];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvCity::changeSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2, int iChange)
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 expected to be >= 0");
+	CvAssertMsg(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppaaiSpecialistExtraYield[eIndex1];
+		yields[eIndex2] = (m_ppaaiSpecialistExtraYield[eIndex1][eIndex2] + iChange);
+		m_ppaaiSpecialistExtraYield.setAt(eIndex1, yields);
+		CvAssert(getSpecialistExtraYield(eIndex1, eIndex2) >= 0);
+
+		updateExtraSpecialistYield();
+	}
+}
+
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::GetFaithPerTurnFromReligion() const
@@ -17915,7 +18018,7 @@ bool CvCity::DoRazingTurn()
 			CvGame& theGame = GC.getGame();
 			int iNumRebels = (getPopulation() * 9); //Based on city size.
 			int iExtraRoll = (theGame.getCurrentEra() * 9 * getPopulation()); //Increase possible partisan spawns as game continues and cities grow.
-			iNumRebels += theGame.getJonRandNum(iExtraRoll, "Rebel count rand roll");
+			iNumRebels += theGame.getRandNum(iExtraRoll, "Rebel count rand roll");
 			iNumRebels /= 100;		
 	
 			if(iNumRebels <= 0)
@@ -17961,7 +18064,7 @@ bool CvCity::DoRazingTurn()
 				if(pPlot->getNumUnits() > 0)
 					continue;
 
-				int iTempWeight = theGame.getJonRandNum(10, "Uprising rand plot location.");
+				int iTempWeight = theGame.getRandNum(10, "Uprising rand plot location.");
 
 				// Add weight if there's an improvement here!
 				if(pPlot->getImprovementType() != NO_IMPROVEMENT)
@@ -18023,7 +18126,7 @@ bool CvCity::DoRazingTurn()
 						{
 							bNotification = true;
 							pFirstUnit->setMoves(0);
-							pFirstUnit->setDamage(theGame.getJonRandNum(60, "damage"));
+							pFirstUnit->setDamage(theGame.getRandNum(60, "damage"));
 						}
 					}
 					iNumRebels--;	// Reduce the count since we just added the seed rebel
@@ -18046,7 +18149,7 @@ bool CvCity::DoRazingTurn()
 							{
 								bNotification = true;
 								pmUnit->setMoves(1);
-								pmUnit->setDamage(theGame.getJonRandNum(60, "damage"));
+								pmUnit->setDamage(theGame.getRandNum(60, "damage"));
 							}
 						}
 
@@ -18066,7 +18169,7 @@ bool CvCity::DoRazingTurn()
 								{
 									bNotification = true;
 									pUnit->setMoves(1);
-									pUnit->setDamage(theGame.getJonRandNum(60, "damage"));
+									pUnit->setDamage(theGame.getRandNum(60, "damage"));
 								}
 							}
 						}
@@ -18143,7 +18246,7 @@ bool CvCity::DoRazingTurn()
 						{
 							bNotification = true;
 							pFirstUnit->setMoves(1);
-							pFirstUnit->setDamage(theGame.getJonRandNum(60, "damage"));
+							pFirstUnit->setDamage(theGame.getRandNum(60, "damage"));
 						}
 					}
 					iNumRebels--;	// Reduce the count since we just added the seed rebel
@@ -18166,7 +18269,7 @@ bool CvCity::DoRazingTurn()
 							{
 								bNotification = true;
 								pmUnit->setMoves(1);
-								pmUnit->setDamage(theGame.getJonRandNum(60, "damage"));
+								pmUnit->setDamage(theGame.getRandNum(60, "damage"));
 							}
 						}
 
@@ -18187,7 +18290,7 @@ bool CvCity::DoRazingTurn()
 								{
 									bNotification = true;
 									pUnit->setMoves(1);
-									pUnit->setDamage(theGame.getJonRandNum(60, "damage"));
+									pUnit->setDamage(theGame.getRandNum(60, "damage"));
 								}
 							}
 						}
@@ -22099,7 +22202,7 @@ void CvCity::DoBarbIncursion()
 			return;
 
 		int iCityStrength = getStrengthValue(false);
-		iCityStrength += GC.getGame().getJonRandNum(iCityStrength, "Barbarian Random Strength Bump");
+		iCityStrength += GC.getGame().getRandNum(iCityStrength, "Barbarian Random Strength Bump");
 		iCityStrength /= 100;
 
 		CvPlot* pLoopPlot;
@@ -22113,14 +22216,14 @@ void CvCity::DoBarbIncursion()
 				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit())
 				{			
 					int iBarbStrength = (pUnit->GetBaseCombatStrength() * 20);
-					iBarbStrength += GC.getGame().getJonRandNum(iBarbStrength, "Barbarian Random Strength Bump");
+					iBarbStrength += GC.getGame().getRandNum(iBarbStrength, "Barbarian Random Strength Bump");
 					if(iBarbStrength > iCityStrength)
 					{
 						int iTheft = (iBarbStrength - iCityStrength);
 
 						if(iTheft > 0)
 						{
-							int iYield = GC.getGame().getJonRandNum(10, "Barbarian Theft Value");		
+							int iYield = GC.getGame().getRandNum(10, "Barbarian Theft Value");		
 							if(iYield <= 2)
 							{
 								int iGold = ((getBaseYieldRate(YIELD_GOLD) * iTheft) / 100);
@@ -22600,6 +22703,7 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpeciali
 	iYieldMultiplier += GetEventSpecialistYield(eSpecialist, eIndex);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
+	iYieldMultiplier += getSpecialistExtraYield(eSpecialist, eIndex);
 	iYieldMultiplier += GET_PLAYER(getOwner()).getSpecialistYieldChange(eSpecialist, eIndex);
 
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
@@ -23783,7 +23887,7 @@ CvPlot* CvCity::GetNextBuyablePlot(void)
 	CvPlot* pPickedPlot = NULL;
 	if(iListLength > 0)
 	{
-		int iPickedIndex = GC.getGame().getJonRandNum(iListLength, "GetNextBuyablePlot picker");
+		int iPickedIndex = GC.getGame().getRandNum(iListLength, "GetNextBuyablePlot picker");
 		pPickedPlot = GC.getMap().plotByIndex(aiPlotList[iPickedIndex]);
 	}
 
@@ -27357,7 +27461,7 @@ void CvCity::doMeltdown()
 		{
 			if(pkBuildingInfo->GetNukeExplosionRand() != 0)
 			{
-				if(GC.getGame().getJonRandNum(pkBuildingInfo->GetNukeExplosionRand(), "Meltdown!!!") == 0)
+				if(GC.getGame().getRandNum(pkBuildingInfo->GetNukeExplosionRand(), "Meltdown!!!") == 0)
 				{
 					if(m_pCityBuildings->GetNumRealBuilding((BuildingTypes)iI) > 0)
 					{
@@ -28312,7 +28416,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 	int iAttackerRoll = 0;
 	if(bIncludeRand)
 	{
-		iAttackerRoll = GC.getGame().getJonRandNum(/*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "City Ranged Attack Damage");
+		iAttackerRoll = GC.getGame().getRandNum(/*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "City Ranged Attack Damage");
 	}
 	else
 	{
@@ -28367,7 +28471,7 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	int iDefenderRoll = 0;
 	if(bIncludeRand)
 	{
-		iDefenderRoll = /*200*/ GC.getGame().getJonRandNum(GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE(), "Unit Air Strike Combat Damage");
+		iDefenderRoll = /*200*/ GC.getGame().getRandNum(GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE(), "Unit Air Strike Combat Damage");
 		iDefenderRoll *= iDefenderDamageRatio;
 		iDefenderRoll /= GetMaxHitPoints();
 	}

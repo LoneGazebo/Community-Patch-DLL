@@ -536,7 +536,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					}
 					else
 					{
-						iValue *= 2;
+						iValue *= 4;
 					}
 				}
 				else if(bAlone)
@@ -565,7 +565,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					}
 					else
 					{
-						iValue *= 2;
+						iValue *= 4;
 					}
 				}
 				else if(bAlone)
@@ -768,7 +768,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			if(iGPT <= 0)
 			{
-				iBonus += (iGPT * -10);
+				iBonus += (iGPT * -8);
 			}
 		}
 	}
@@ -787,12 +787,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return 0;
 		}
 		//Don't build a settler if we're about to grow.
-		if(m_pCity->getFoodTurnsLeft() <= 4)
+		if(m_pCity->getFoodTurnsLeft() <= 2)
 		{
 			return 0;
 		}
 		//Or if we're small.
-		if(m_pCity->getPopulation() <= 4)
+		if(m_pCity->getPopulation() <= 5)
 		{
 			return 0;
 		}
@@ -800,32 +800,17 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			return 0;
 		}
-		if(kPlayer.IsEmpireVeryUnhappy())
+		if(kPlayer.IsEmpireSuperUnhappy())
 		{
 			return 0;
 		}
-
-		if(kPlayer.IsEmpireUnhappy() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
-		{
-			return 0;
-		}
-		if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
-		{
-			return 0;
-		}
-
 		//Already have a settler out? Ignore.
 		int iNumSettlers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
-		if(iNumSettlers > 0)
+		if(iNumSettlers > 1)
 		{
 			return 0;
 		}
-		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
-		// scale based on flavor and world size
-		if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
-		{
-			return 0;
-		}
+		
 		int iBestArea, iSecondBestArea;
 		int iNumGoodAreas = kPlayer.GetBestSettleAreas(kPlayer.GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
 		if(iNumGoodAreas == 0)
@@ -877,8 +862,24 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				iFlavorExpansion += 1;
 			}
 
+			if(kPlayer.IsEmpireUnhappy() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
+			{
+				iFlavorExpansion -= 2;
+			}
+			if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
+			{
+				iFlavorExpansion -= 2;
+			}
+
+			MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+			// scale based on flavor and world size
+			if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
+			{
+				iFlavorExpansion -= 2;
+			}
+
 			int iNumCities = kPlayer.getNumCities();
-			int iSettlerDesire = (iFlavorExpansion - iNumCities) * 20;
+			int iSettlerDesire = (iFlavorExpansion - iNumCities) * 22;
 			iBonus += iSettlerDesire;
 		}
 	}

@@ -291,7 +291,7 @@ void CvGrandStrategyAI::DoTurn()
 
 		// Random element
 #if !defined(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
-		iPriority += GC.getGame().getJonRandNum(/*50*/ GC.getAI_GS_RAND_ROLL(), "Grand Strategy AI: GS rand roll.");
+		iPriority += GC.getGame().getRandNum(/*50*/ GC.getAI_GS_RAND_ROLL(), "Grand Strategy AI: GS rand roll.");
 #endif
 		// Give a boost to the current strategy so that small fluctuation doesn't cause a big change
 		if(GetActiveGrandStrategy() == eGrandStrategy && GetActiveGrandStrategy() != NO_AIGRANDSTRATEGY)

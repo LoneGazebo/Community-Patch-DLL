@@ -411,7 +411,12 @@
 		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
 		<Column name="Modifier" type="integer"/>
 	</Table>
-
+	<Table name="Trait_PerPuppetGreatPersonRateModifier">
+		<!-- TRAIT: Every owned puppet increases specific GP rate by x percent. -->
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
+		<Column name="Modifier" type="integer"/>
+	</Table>
 	<GreatPersons>
 		<Row>
 			<ID>0</ID>

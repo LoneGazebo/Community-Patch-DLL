@@ -69,6 +69,10 @@
 			<Text>What are Resource Monopolies?</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_WONDER_SECTION_4">
+			<Text>Corporation HQs</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_TOPIC_CORPORATION">
 			<Text>Corporations</Text>
 		</Row>

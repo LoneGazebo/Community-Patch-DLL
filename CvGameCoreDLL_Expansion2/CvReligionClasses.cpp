@@ -919,7 +919,7 @@ ReligionTypes CvGameReligions::GetReligionToFound(PlayerTypes ePlayer)
 		
 		// Pick a random one if required
 		if (MOD_RELIGION_RANDOMISE) {
-			index = GC.getGame().getJonRandNum(availableReligions.size(), "Random Religion To Found");
+			index = GC.getGame().getRandNum(availableReligions.size(), "Random Religion To Found");
 		}
 		
 		// CUSTOMLOG("GetReligionToFound: Using random %i", availableReligions[index]);
@@ -3409,7 +3409,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 #endif
 	iChance += (iFaith - iCost);
 
-	int iRand = GC.getGame().getJonRandNum(100, "Religion: spawn Great Prophet roll.");
+	int iRand = GC.getGame().getRandNum(100, "Religion: spawn Great Prophet roll.");
 	if(iRand >= iChance)
 	{
 		return false;
@@ -3463,7 +3463,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				iTempWeight = pLoopCity->GetFaithPerTurn() * 5;
-				iTempWeight += theGame.getJonRandNum(15, "Faith rand weight.");
+				iTempWeight += theGame.getRandNum(15, "Faith rand weight.");
 
 				if(iTempWeight > iBestWeight)
 				{
@@ -6304,12 +6304,12 @@ BeliefTypes CvReligionAI::ChoosePantheonBelief()
 			for (int iI = 0; iI < beliefChoices.size(); iI++)
 				beliefChoices.IncreaseWeight(iI, -beliefChoices.GetWeight(beliefChoices.size()-1));
 #endif // AUI_RELIGION_RELATIVE_BELIEF_SCORE
-		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
 		rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 #else
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
 #endif
@@ -6365,12 +6365,12 @@ BeliefTypes CvReligionAI::ChooseFounderBelief()
 			for (int iI = 0; iI < beliefChoices.size(); iI++)
 				beliefChoices.IncreaseWeight(iI, -beliefChoices.GetWeight(beliefChoices.size()-1));
 #endif // AUI_RELIGION_RELATIVE_BELIEF_SCORE
-		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
 		rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 #else
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
 #endif
@@ -6426,12 +6426,12 @@ BeliefTypes CvReligionAI::ChooseFollowerBelief()
 			for (int iI = 0; iI < beliefChoices.size(); iI++)
 				beliefChoices.IncreaseWeight(iI, -beliefChoices.GetWeight(beliefChoices.size()-1));
 #endif // AUI_RELIGION_RELATIVE_BELIEF_SCORE
-		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
 		rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 #else
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
 #endif
@@ -6487,12 +6487,12 @@ BeliefTypes CvReligionAI::ChooseEnhancerBelief()
 			for (int iI = 0; iI < beliefChoices.size(); iI++)
 				beliefChoices.IncreaseWeight(iI, -beliefChoices.GetWeight(beliefChoices.size()-1));
 #endif // AUI_RELIGION_RELATIVE_BELIEF_SCORE
-		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
 		rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 #else
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
 #endif
@@ -6551,12 +6551,12 @@ BeliefTypes CvReligionAI::ChooseBonusBelief(int iExcludeBelief1, int iExcludeBel
 			for (int iI = 0; iI < beliefChoices.size(); iI++)
 				beliefChoices.IncreaseWeight(iI, -beliefChoices.GetWeight(beliefChoices.size()-1));
 #endif // AUI_RELIGION_RELATIVE_BELIEF_SCORE
-		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
 		rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 #else
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
 #endif
@@ -6612,12 +6612,12 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 			for (int iI = 0; iI < beliefChoices.size(); iI++)
 				beliefChoices.IncreaseWeight(iI, -beliefChoices.GetWeight(beliefChoices.size()-1));
 #endif // AUI_RELIGION_RELATIVE_BELIEF_SCORE
-		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
 		rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 #else
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
 #endif
@@ -9646,7 +9646,7 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion)
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	//pick a random building class
 	if (choices.size()>1)
-		return choices[ GC.getGame().getJonRandNum(choices.size(),"Faith Building Class") ];
+		return choices[ GC.getGame().getRandNum(choices.size(),"Faith Building Class") ];
 	else if (choices.size()==1)
 		return choices[0];
 #endif

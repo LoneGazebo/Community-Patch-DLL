@@ -4364,7 +4364,17 @@ int CvLuaCity::lGetSpecialistCityModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const int iIndex = lua_tointeger(L, 2);
-	const int iResult = pkCity->GetSpecialistRateModifier(toValue<SpecialistTypes>(L, 2));
+	int iResult = pkCity->GetSpecialistRateModifier(toValue<SpecialistTypes>(L, 2));
+
+	int iNumPuppets = GET_PLAYER(pkCity->getOwner()).GetNumPuppetCities();
+	if(iNumPuppets > 0)
+	{
+		GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist((SpecialistTypes)toValue<SpecialistTypes>(L, 2));
+		if(eGreatPerson != NO_GREATPERSON)
+		{
+			iResult += (iNumPuppets * GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));			
+		}
+	}
 
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -5327,7 +5337,7 @@ int CvLuaCity::lGetSpecialistYield(lua_State* L)
 
 	const PlayerTypes ePlayer = pkCity->getOwner();
 
-	const int iValue = GET_PLAYER(ePlayer).specialistYield(eSpecialist, eYield);
+	const int iValue = (GET_PLAYER(ePlayer).specialistYield(eSpecialist, eYield) + pkCity->getSpecialistExtraYield(eSpecialist, eYield));
 
 	lua_pushinteger(L, iValue);
 
