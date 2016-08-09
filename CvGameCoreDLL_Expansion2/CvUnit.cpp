@@ -26067,7 +26067,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			}
 
 			//the given target may be different from the actual target
-			if (iFlags & MOVEFLAG_APPROX_TARGET_RING1)
+			if ((iFlags & MOVEFLAG_APPROX_TARGET_RING1) || (iFlags & MOVEFLAG_APPROX_TARGET_RING2))
 			{
 				pDestPlot = m_kLastPath.GetFinalPlot();
 				//check if we are there yet
@@ -26136,7 +26136,12 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 
 		if (bMoved)
 		{
+			//this plot has now been consumed
 			m_kLastPath.pop_front();
+
+			//keep the cache in sync
+			m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
+			m_uiLastPathLength = m_kLastPath.size();
 
 			//have we used up all plots for this turn?
 			if (!m_kLastPath.empty() && m_kLastPath.front().m_iTurns>1)
@@ -26637,6 +26642,9 @@ void CvUnit::ClearMissionQueue(bool bKeepPathCache, int iUnitCycleTimer)
 	VALIDATE_OBJECT
 	CvAssert(getOwner() != NO_PLAYER);
 
+	//make sure to show the latest status in the GUI
+	PublishQueuedVisualizationMoves();
+	
 	CvUnitMission::ClearMissionQueue(this, bKeepPathCache, iUnitCycleTimer);
 }
 
