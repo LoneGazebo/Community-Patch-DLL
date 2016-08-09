@@ -2079,7 +2079,9 @@ private:
 	// JdH <=
 #endif
 	DiplomacyPlayerType	m_eTargetPlayer;
-
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	DiplomacyPlayerType	m_eTargetPlayerType;
+#endif
 	// Data members for injecting test messages
 	PlayerTypes			m_eTestToPlayer;
 	DiploStatementTypes m_eTestStatement;

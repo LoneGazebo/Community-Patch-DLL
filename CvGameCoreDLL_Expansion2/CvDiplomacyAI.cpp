@@ -2956,10 +2956,8 @@ void CvDiplomacyAI::DoUpdateOnePlayerOpinion(PlayerTypes ePlayer)
 		eOpinion = MAJOR_CIV_OPINION_ALLY;
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-		if (MOD_ACTIVE_DIPLOMACY) {
-			// JdH => calculate ai to human trade priority for multiplayer
-			DoUpdateHumanTradePriority(ePlayer, GC.getOPINION_THRESHOLD_ALLY());
-		}
+		// JdH => calculate ai to human trade priority for multiplayer
+		DoUpdateHumanTradePriority(ePlayer, GC.getOPINION_THRESHOLD_ALLY());
 #endif
 	}
 	// Different teams
@@ -2987,10 +2985,8 @@ void CvDiplomacyAI::DoUpdateOnePlayerOpinion(PlayerTypes ePlayer)
 		//	eOpinion = MAJOR_CIV_OPINION_COMPETITOR;
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-		if (MOD_ACTIVE_DIPLOMACY) {
-			// JdH => calculate ai to human trade priority for multiplayer
-			DoUpdateHumanTradePriority(ePlayer, iOpinionWeight);
-		}
+		// JdH => calculate ai to human trade priority for multiplayer
+		DoUpdateHumanTradePriority(ePlayer, iOpinionWeight);
 #endif
 	}
 
