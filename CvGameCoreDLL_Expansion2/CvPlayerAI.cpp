@@ -728,6 +728,14 @@ void CvPlayerAI::AI_considerAnnex()
 			unraze(pCity);
 			return; //one annexation per turn is enough
 		}
+#if defined(MOD_BALANCE_CORE)
+		//Original City and puppeted? Stop!
+		if(pCity->getOriginalOwner() == GetID() && pCity->IsPuppet())
+		{
+			pCity->DoAnnex();
+			return;
+		}
+#endif
 
 		CityAndProduction kEval;
 		kEval.pCity = pCity;

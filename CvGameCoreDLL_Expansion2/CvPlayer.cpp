@@ -456,6 +456,7 @@ CvPlayer::CvPlayer() :
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_iHappinessPerXPopulationGlobal("CvPlayer::m_iHappinessPerXPopulationGlobal", m_syncArchive)
 	, m_iIdeologyPoint("CvPlayer::m_iIdeologyPoint", m_syncArchive)
+	, m_iXCSAlliesLowersPolicyNeedWonders("CvPlayer::m_iXCSAlliesLowersPolicyNeedWonders", m_syncArchive)
 #endif
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	, m_iConversionModifier("CvPlayer::m_iConversionModifier", m_syncArchive)
@@ -1268,6 +1269,7 @@ void CvPlayer::uninit()
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iHappinessPerXPopulationGlobal = 0;
 	m_iIdeologyPoint = 0;
+	m_iXCSAlliesLowersPolicyNeedWonders = 0;
 #endif
 	m_iHappinessFromLeagues = 0;
 	m_iEspionageModifier = 0;
@@ -7520,7 +7522,6 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 			DisabledTT += localizedDurationText.toUTF8();
 		}
 	}
-	bool bHas = true;
 	for(int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
 	{
 		const ResourceTypes eResource = static_cast<ResourceTypes>(iJ);
@@ -7532,12 +7533,13 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 				if(getNumResourceTotal(eResource, false) < pkEventInfo->getResourceRequired(eResource))
 				{
 					localizedDurationText = Localization::Lookup("TXT_KEY_NEED_RESOURCE");
-					localizedDurationText << GC.getResourceInfo((ResourceTypes)pkEventInfo->getResourceRequired(eResource))->GetDescription();
+					localizedDurationText << pkResource->GetDescription();
 					DisabledTT += localizedDurationText.toUTF8();
 				}
 			}
 		}
 	}
+	bool bHas = true;
 	for(int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
 	{
 		const FeatureTypes eFeature = static_cast<FeatureTypes>(iJ);
@@ -7561,7 +7563,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 				if(iHave < iNeeded)
 				{
 					localizedDurationText = Localization::Lookup("TXT_KEY_NEED_FEATURE");
-					localizedDurationText << GC.getFeatureInfo((FeatureTypes)pkEventInfo->getFeatureRequired(eFeature))->GetDescription();
+					localizedDurationText << pkFeature->GetDescription();
 					DisabledTT += localizedDurationText.toUTF8();
 				}
 			}
@@ -7621,16 +7623,15 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		if(eImprovement != NO_IMPROVEMENT)
 		{
 			bool bHas = false;
-			CvPlot* pLoopPlot;
-			int iNumPlotsInEntireWorld = GC.getMap().numPlots();
-			for(int iI = 0; iI < iNumPlotsInEntireWorld; iI++)
+			const CvPlotsVector& aiPlots = GetPlots();
+			for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
 			{
-				pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-
-				if(pLoopPlot == NULL)
+				if (aiPlots[uiPlotIndex] == -1)
 					continue;
 
-				if(pLoopPlot->getOwner() == GetID() && pLoopPlot->getImprovementType() == eImprovement)
+				CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
+
+				if(pPlot->getOwner() == GetID() && pPlot->getImprovementType() == eImprovement)
 				{
 					bHas = true;
 					break;
@@ -14637,6 +14638,50 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 		if(GetPlayerPolicies() && !isMinorCiv() && !isBarbarian())
 		{
 			int iNumPolicies = GetPlayerPolicies()->GetNumPoliciesOwned(true);
+			int iCSPolicyReduction = GetCSAlliesLowersPolicyNeedWonders();
+			if(iCSPolicyReduction > 0)
+			{
+				int iNumAllies = 0;
+				// Loop through all minors and get the total number we've met.
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+				{
+					PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+
+					if (eMinor != GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+					{
+						if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(GetID()))
+						{
+							iNumAllies++;
+						}
+					}
+				}
+				if(iNumAllies > 0)
+				{
+					iNumPolicies += (iNumAllies / iCSPolicyReduction);
+				}
+			}
+			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+			ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(GetID());
+			if(eFoundedReligion != NO_RELIGION)
+			{
+				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
+				if(pReligion)
+				{
+					CvPlot* pPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+					if(pPlot != NULL && pPlot->getOwner() == GetID())
+					{
+						int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(GetID());
+						if(iReligionPolicyReduction > 0)
+						{
+							int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eFoundedReligion);
+							if(iNumFollowerCities > 0)
+							{
+								iNumPolicies += (iNumFollowerCities / iReligionPolicyReduction);
+							}
+						}
+					}
+				}
+			}
 			//If # of policies will do it, then we need to see the either/or here.
 			if(pBuildingInfo.GetNumPoliciesNeeded() > 0)
 			{
@@ -21668,6 +21713,23 @@ void CvPlayer::ChangeIdeologyPoint(int iChange)
 {
 	SetIdeologyPoint(m_iIdeologyPoint + iChange);
 }
+
+/// How much Happiness are we getting from large empires?
+int CvPlayer::GetCSAlliesLowersPolicyNeedWonders() const
+{
+	return m_iXCSAlliesLowersPolicyNeedWonders;
+}
+
+//	--------------------------------------------------------------------------------
+/// Change the amount of Happiness we're getting from large empires
+void CvPlayer::ChangeCSAlliesLowersPolicyNeedWonders(int iChange)
+{
+	if(iChange != 0)
+	{
+		m_iXCSAlliesLowersPolicyNeedWonders += iChange;
+	}
+}
+
 #endif
 //	--------------------------------------------------------------------------------
 /// Happiness from Minors
@@ -37452,6 +37514,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeHappinessPerTradeRoute(pPolicy->GetHappinessPerTradeRoute() * iChange);
 	ChangeHappinessPerXPopulation(pPolicy->GetHappinessPerXPopulation() * iChange);
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	ChangeCSAlliesLowersPolicyNeedWonders(pPolicy->GetXCSAlliesLowersPolicyNeedWonders() * iChange);
 	ChangeHappinessPerXPopulationGlobal(pPolicy->GetHappinessPerXPopulationGlobal() * iChange);
 	ChangeIdeologyPoint(pPolicy->GetIdeologyPoint() * iChange);
 	ChangeEventTourism(pPolicy->GetEventTourism() * iChange);

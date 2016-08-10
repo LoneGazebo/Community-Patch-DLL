@@ -3242,7 +3242,7 @@ void CvCity::UpdateNearbySettleSites()
 				iDanger = GET_PLAYER(getOwner()).GetPlotDanger(*pPlot);
 				if(iDanger < 1000)
 				{
-					iValue = ((1000 - iDanger) * iValue) / 2000;
+					iValue = ((1000 - iDanger) * iValue) / 2500;
 
 					if(iValue > iBestValue)
 					{
@@ -16711,7 +16711,7 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 					{
 						iValidTilesTerrain = GetNearbyMountains();
 					}
-					else if(pReligion->m_Beliefs.RequiresNoImprovementFeature(getOwner()))
+					else if(pReligion->m_Beliefs.RequiresNoFeature(getOwner()))
 					{
 						iValidTilesTerrain = GetNumFeaturelessTerrainWorked(eTerrain);
 					}
@@ -16746,7 +16746,7 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 						{
 							iValidTilesTerrain = GetNearbyMountains();
 						}
-						else if(pReligion->m_Beliefs.RequiresNoImprovementFeature(getOwner()))
+						else if(pReligion->m_Beliefs.RequiresNoFeature(getOwner()))
 						{
 							iValidTilesTerrain = GetNumFeaturelessTerrainWorked(eTerrain);
 						}

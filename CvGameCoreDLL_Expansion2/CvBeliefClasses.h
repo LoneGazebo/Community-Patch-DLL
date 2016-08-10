@@ -81,7 +81,7 @@ public:
 	bool RequiresImprovement() const;
 	bool RequiresResource() const;
 	bool RequiresNoImprovement() const;
-	bool RequiresNoImprovementFeature() const;
+	bool RequiresNoFeature() const;
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
@@ -110,6 +110,7 @@ public:
 	int GetMissionaryInfluenceCS()const;
 	int GetHappinessPerPantheon() const;
 	int GetExtraVotes() const;
+	int GetPolicyReductionWonderXFollowerCities() const;
 	int GetMaxYieldPerFollower(int i) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -236,7 +237,7 @@ protected:
 	bool m_bRequiresImprovement;
 	bool m_bRequiresResource;
 	bool m_bRequiresNoImprovement;
-	bool m_bRequiresNoImprovementFeature;
+	bool m_bRequiresNoFeature;
 #endif
 
 	EraTypes m_eObsoleteEra;
@@ -328,6 +329,7 @@ protected:
 	int m_iMissionaryInfluenceCS;
 	int m_iHappinessPerPantheon;
 	int m_iExtraVotes;
+	int m_iPolicyReductionWonderXFollowerCities;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	CivilizationTypes m_eRequiredCivilization;
@@ -426,6 +428,7 @@ public:
 	int GetMissionaryInfluenceCS(PlayerTypes ePlayer = NO_PLAYER) const;
 	int GetHappinessPerPantheon(PlayerTypes ePlayer = NO_PLAYER) const;
 	int GetExtraVotes(PlayerTypes ePlayer = NO_PLAYER) const;
+	int GetPolicyReductionWonderXFollowerCities(PlayerTypes ePlayer = NO_PLAYER) const;
 #endif
 	EraTypes GetObsoleteEra(PlayerTypes ePlayer = NO_PLAYER) const;
 	ResourceTypes GetResourceRevealed(PlayerTypes ePlayer = NO_PLAYER) const;
@@ -502,7 +505,7 @@ public:
 	bool RequiresImprovement(PlayerTypes ePlayer = NO_PLAYER) const;
 	bool RequiresResource(PlayerTypes ePlayer = NO_PLAYER) const;
 	bool RequiresNoImprovement(PlayerTypes ePlayer = NO_PLAYER) const;
-	bool RequiresNoImprovementFeature(PlayerTypes ePlayer = NO_PLAYER) const;
+	bool RequiresNoFeature(PlayerTypes ePlayer = NO_PLAYER) const;
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)

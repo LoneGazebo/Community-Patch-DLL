@@ -8407,7 +8407,15 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 							{
 								iValidTiles++;
 							}
-							else if(pEntry->RequiresNoImprovementFeature() && pPlot->getFeatureType() == NO_FEATURE)
+							else if(pEntry->RequiresImprovement() && pPlot->getImprovementType() != NO_IMPROVEMENT)
+							{
+								iValidTiles++;
+							}
+							else if(pEntry->RequiresResource() && pPlot->getResourceType(m_pPlayer->getTeam()) != NO_RESOURCE)
+							{
+								iValidTiles++;
+							}
+							else if(pEntry->RequiresNoFeature() && pPlot->getFeatureType() == NO_FEATURE)
 							{
 								iValidTiles++;
 							}
@@ -8434,6 +8442,14 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 					if(pPlot->getFeatureType() == eFeature)
 					{
 						if(pEntry->RequiresNoImprovement() && pPlot->getImprovementType() == NO_IMPROVEMENT)
+						{
+							iValidTiles++;
+						}
+						else if(pEntry->RequiresImprovement() && pPlot->getImprovementType() != NO_IMPROVEMENT)
+						{
+							iValidTiles++;
+						}
+						else if(pEntry->RequiresResource() && pPlot->getResourceType(m_pPlayer->getTeam()) != NO_RESOURCE)
 						{
 							iValidTiles++;
 						}
@@ -8953,7 +8969,9 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 #endif
 	iRtnValue += iFlavorDefense * pEntry->GetCombatModifierFriendlyCities() / 4;
 	iRtnValue += iFlavorOffense * pEntry->GetCombatModifierEnemyCities() / 4;
-
+#if defined(MOD_BALANCE_CORE)
+	iRtnValue += iFlavorReligion * pEntry->GetPolicyReductionWonderXFollowerCities();
+#endif
 	// Chosen EARLY?
 	if (iReligionsEnhancedPercent < 33)
 	{

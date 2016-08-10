@@ -835,7 +835,7 @@ void UnitPathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 	pCacheData->m_bIsEmbarked = pUnit->isEmbarked();
 	pCacheData->m_bCanAttack = pUnit->IsCanAttack();
 	//danger is relevant for AI controlled units, if we didn't explicitly disable it
-	pCacheData->m_bDoDanger = pCacheData->m_bAIControl && (!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER) || finder->HaveFlag(CvUnit::MOVEFLAG_SAFE_EMBARK));
+	pCacheData->m_bDoDanger = pCacheData->isAIControl() && (!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER) || finder->HaveFlag(CvUnit::MOVEFLAG_SAFE_EMBARK));
 }
 
 //	--------------------------------------------------------------------------------
@@ -1447,10 +1447,13 @@ int PathNodeAdd(CvAStarNode* /*parent*/, CvAStarNode* node, int operation, const
 {
 	if(operation == ASNL_ADDOPEN)
 	{
+		const UnitPathCacheData* pUnitDataCache = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
+
 		// Are there movement points left and we're worried about stacking?
 		if( node->m_iMoves > 0 &&							//important, otherwise we get into an endless loop!
 			node->m_iMoves <= GC.getMOVE_DENOMINATOR() &&	//doesn't make sense to waste more than 1 move
-			node->m_iTurns < 2 &&							//only in the first turn, otherwise the block will likely have moved 
+			node->m_iTurns < 2 &&							//only in the first turn, otherwise the block will likely have moved
+			pUnitDataCache->isAIControl() &&				//only for AI units, for humans it's confusing and they can handle it anyway
 			!finder->IsPathDest(node->m_iX, node->m_iY) && 
 			!finder->IsPathStart(node->m_iX, node->m_iY) && 
 			!finder->HaveFlag(CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS) && 

@@ -70,7 +70,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_bRequiresImprovement(false),
 	m_bRequiresResource(false),
 	m_bRequiresNoImprovement(false),
-	m_bRequiresNoImprovementFeature(false),
+	m_bRequiresNoFeature(false),
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
@@ -99,6 +99,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iMissionaryInfluenceCS(0),
 	m_iHappinessPerPantheon(0),
 	m_iExtraVotes(0),
+	m_iPolicyReductionWonderXFollowerCities(0),
 	m_piMaxYieldPerFollower(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -479,9 +480,9 @@ bool CvBeliefEntry::RequiresNoImprovement() const
 	return m_bRequiresNoImprovement;
 }
 /// Accessor: is this a belief that grants faith only from no improvements on a feature?
-bool CvBeliefEntry::RequiresNoImprovementFeature() const
+bool CvBeliefEntry::RequiresNoFeature() const
 {
-	return m_bRequiresNoImprovementFeature;
+	return m_bRequiresNoFeature;
 }
 #endif
 
@@ -656,6 +657,11 @@ int CvBeliefEntry::GetHappinessPerPantheon() const
 int CvBeliefEntry::GetExtraVotes() const
 {
 	return m_iExtraVotes;
+}
+/// Accessor: Extra Policy Reduction Wonder X Follower Cities
+int CvBeliefEntry::GetPolicyReductionWonderXFollowerCities() const
+{
+	return m_iPolicyReductionWonderXFollowerCities;
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -1090,7 +1096,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bRequiresImprovement			  = kResults.GetBool("RequiresImprovement");
 	m_bRequiresResource				  = kResults.GetBool("RequiresResource");
 	m_bRequiresNoImprovement		  = kResults.GetBool("RequiresNoImprovement");
-	m_bRequiresNoImprovementFeature	  = kResults.GetBool("RequiresNoImprovementFeature");
+	m_bRequiresNoFeature			  = kResults.GetBool("RequiresNoImprovementFeature");
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	m_bIsHalvedFollowers			  = kResults.GetBool("HalvedFollowers");
@@ -1099,6 +1105,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iMissionaryInfluenceCS = kResults.GetInt("MissionaryInfluenceCS");
 	m_iHappinessPerPantheon = kResults.GetInt("HappinessPerPantheon");
 	m_iExtraVotes = kResults.GetInt("ExtraVotes");
+	m_iPolicyReductionWonderXFollowerCities = kResults.GetInt("PolicyReductionWonderXFollowerCities");
 #endif
 #if defined(MOD_BALANCE_CORE)
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
@@ -2214,6 +2221,21 @@ int CvReligionBeliefs::GetExtraVotes(PlayerTypes ePlayer) const
 
 	return rtnValue;
 }
+int CvReligionBeliefs::GetPolicyReductionWonderXFollowerCities(PlayerTypes ePlayer) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		{
+			rtnValue += pBeliefs->GetEntry(*it)->GetPolicyReductionWonderXFollowerCities();
+		}
+	}
+
+	return rtnValue;
+}
 EraTypes CvReligionBeliefs::GetObsoleteEra(PlayerTypes ePlayer) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
@@ -3242,7 +3264,7 @@ bool CvReligionBeliefs::RequiresNoImprovement(PlayerTypes ePlayer) const
 	return false;
 }
 /// Is there a belief that requires improvements?
-bool CvReligionBeliefs::RequiresNoImprovementFeature(PlayerTypes ePlayer) const
+bool CvReligionBeliefs::RequiresNoFeature(PlayerTypes ePlayer) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 
@@ -3250,7 +3272,7 @@ bool CvReligionBeliefs::RequiresNoImprovementFeature(PlayerTypes ePlayer) const
 	{
 		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
 		{
-			if (pBeliefs->GetEntry(*it)->RequiresNoImprovementFeature())
+			if (pBeliefs->GetEntry(*it)->RequiresNoFeature())
 			{
 				return true;
 			}

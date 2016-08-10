@@ -5274,7 +5274,7 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 						}
 					}
 					//Did you found the religion and own the Holy City? More votes for you.
-					if(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer) == eReligion)
+					if(pkPlot != NULL && pkPlot->getOwner() == ePlayer)
 					{
 						iVotes += it->GetEffects()->iVotesForFollowingReligion;
 						iVotes += iReligionAlly++;

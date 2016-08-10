@@ -21705,21 +21705,6 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 					return;
 				}
 			}
-#if defined(MOD_BALANCE_CORE)
-			else
-			{
-				bool bDealGood;
-				bool bDontChange;
-				bool bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithHuman(pDeal, ePlayer, true, true, bDealGood, bDontChange);
-				if(!bAbleToEqualize)
-				{
-					pDeal->ClearItems();
-					pTargetDeal->ClearItems();
-					ClearDealToRenew();
-					return;
-				}
-			}
-#endif
 			eStatement = DIPLO_STATEMENT_RENEW_DEAL;
 		}
 		else

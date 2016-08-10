@@ -749,6 +749,9 @@ public:
 	int GetIdeologyPoint() const;
 	void SetIdeologyPoint(int iValue);
 	void ChangeIdeologyPoint(int iChange);
+
+	void ChangeCSAlliesLowersPolicyNeedWonders(int iValue);
+	int GetCSAlliesLowersPolicyNeedWonders() const;
 #endif
 
 	int GetHappinessFromMinorCivs() const;
@@ -2684,6 +2687,7 @@ protected:
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	FAutoVariable<int, CvPlayer> m_iHappinessPerXPopulationGlobal;
 	FAutoVariable<int, CvPlayer> m_iIdeologyPoint;
+	FAutoVariable<int, CvPlayer> m_iXCSAlliesLowersPolicyNeedWonders;
 #endif
 	FAutoVariable<int, CvPlayer> m_iHappinessFromLeagues;
 	FAutoVariable<int, CvPlayer> m_iSpecialPolicyBuildingHappiness;  //unused

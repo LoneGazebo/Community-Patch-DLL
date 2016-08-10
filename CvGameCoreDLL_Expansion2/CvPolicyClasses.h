@@ -107,6 +107,7 @@ public:
 	int GetTradeRouteLandDistanceModifier() const;
 	int GetTradeRouteSeaDistanceModifier() const;
 	int GetEspionageModifier() const;
+	int GetXCSAlliesLowersPolicyNeedWonders() const;
 #endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
@@ -625,6 +626,7 @@ private:
 	int* m_piReligionYieldMod;
 	int* m_piGoldenAgeYieldMod;
 	int** m_ppiReligionBuildingYieldMod;
+	int m_iXCSAlliesLowersPolicyNeedWonders;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;

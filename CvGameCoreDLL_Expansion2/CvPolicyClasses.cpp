@@ -97,6 +97,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iTradeRouteLandDistanceModifier(0),
 	m_iTradeRouteSeaDistanceModifier(0),
 	m_iEspionageModifier(0),
+	m_iXCSAlliesLowersPolicyNeedWonders(0),
 #endif
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
@@ -465,6 +466,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTradeRouteLandDistanceModifier = kResults.GetInt("TradeRouteLandDistanceModifier");
 	m_iTradeRouteSeaDistanceModifier = kResults.GetInt("TradeRouteSeaDistanceModifier");
 	m_iEspionageModifier = kResults.GetInt("EspionageModifier");
+	m_iXCSAlliesLowersPolicyNeedWonders = kResults.GetInt("XCSAlliesLowersPolicyNeedWonders");
 #endif
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
 	m_iUnhappinessFromUnitsMod = kResults.GetInt("UnhappinessFromUnitsMod");
@@ -1558,6 +1560,10 @@ int CvPolicyEntry::GetTradeRouteSeaDistanceModifier() const
 int CvPolicyEntry::GetEspionageModifier() const
 {
 	return m_iEspionageModifier;
+}
+int CvPolicyEntry::GetXCSAlliesLowersPolicyNeedWonders() const
+{
+	return m_iXCSAlliesLowersPolicyNeedWonders;
 }
 #endif
 /// Happiness from each connected Luxury Resource
