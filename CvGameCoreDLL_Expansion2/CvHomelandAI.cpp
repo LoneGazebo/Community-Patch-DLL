@@ -3487,28 +3487,18 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 
 			//see if we can make an easy kill
 			CvUnit* pEnemyUnit = pEvalPlot->getVisibleEnemyDefender(pUnit->getOwner());
-			if (pEnemyUnit)
+			if (pEnemyUnit && TacticalAIHelpers::KillUnitIfPossible(pUnit.pointer(),pEnemyUnit))
 			{
-				if (TacticalAIHelpers::KillUnitIfPossible(pUnit.pointer(),pEnemyUnit))
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						CvString strTemp = pUnit->getUnitInfo().GetDescription();
-						strLogString.Format("%s killed a weak enemy, at X: %d, Y: %d, From X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
-					}
-
-					// Only mark as done if out of movement
-					if(pUnit->getMoves() <= 0)
-					{
-						pUnit->finishMoves();
-						UnitProcessed(pUnit->GetID());
-						break;
-					}
+					CvString strLogString;
+					CvString strTemp = pUnit->getUnitInfo().GetDescription();
+					strLogString.Format("%s killed a weak enemy, at X: %d, Y: %d, From X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
 				}
-				else
-					continue;
+
+				//we just moved, eligiblePlots are no longer valid
+				break;
 			}
 
 			//do this after the enemy unit check
@@ -3562,7 +3552,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 					}
 				}
 
-				int iRandom = GC.getGame().getRandNum(50,"explore target tiebreak");
+				int iRandom = GC.getGame().getSmallFakeRandNum(47,*pEvalPlot);
 				int iTotalScore = iScoreBase+iScoreExtra+iScoreBonus+iRandom;
 
 				//careful with plots that are too dangerous
@@ -3595,7 +3585,10 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 
 		//if we made an opportunity attack, we're done
 		if(!pUnit->canMove())
+		{
+			UnitProcessed(pUnit->GetID());
 			continue;
+		}
 
 		//if we didn't find a worthwhile plot among our adjacent plots, check the global targets
 		if(!pBestPlot && pUnit->movesLeft() > 0)
@@ -3626,12 +3619,9 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 			it->PushPrevPlot( pCurPlot->GetPlotIndex() );
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, false, false, MISSIONAI_EXPLORE, pBestPlot);
 
-			// Only mark as done if out of movement
-			if(pUnit->getMoves() <= 0)
-			{
-				pUnit->finishMoves();
+			// Only mark as done if out of movement - we'll do a second pass later
+			if(!pUnit->canMove())
 				UnitProcessed(pUnit->GetID());
-			}
 
 			if(GC.getLogging() && GC.getAILogging())
 			{

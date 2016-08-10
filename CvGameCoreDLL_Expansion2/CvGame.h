@@ -149,7 +149,7 @@ public:
 	int getNumHumansInHumanWars(PlayerTypes ignorePlayer = NO_PLAYER);
 	int getNumSequentialHumans(PlayerTypes ignorePlayer = NO_PLAYER);
 
-	int getGameTurn();
+	int getGameTurn() const;
 	void setGameTurn(int iNewValue);
 	void incrementGameTurn();
 	int getTurnYear(int iGameTurn);
@@ -436,10 +436,11 @@ public:
 	int getRandNumVA(int iNum, const char* pszLog, ...);
 
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	//experimental
+	//get random number from gamestate without a seed in the generator
 	int	getSmallFakeRandNum(int iNum, CvPlot& input);
 	int	getSmallFakeRandNum(int iNum, int iSeed);
 	int	getSmallFakeRandNum(int iNum);
+	int getSeedFromGameState() const;
 #endif
 
 	int calculateSyncChecksum();
