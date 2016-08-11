@@ -507,7 +507,6 @@ void CvBarbarians::DoCamps()
 		int iFogTilesPerBarbarianCamp = kMap.getWorldInfo().getFogTilesPerBarbarianCamp();
 		int iCampTargetNum = (iFogTilesPerBarbarianCamp != 0)? iNumValidCampPlots / iFogTilesPerBarbarianCamp : 0;
 		int iNumCampsToAdd = iCampTargetNum - iNumCampsInExistence;
-		int iMaxCampsThisArea;
 
 		if(iNumCampsToAdd > 0 && GC.getBARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING() > 0) // slewis - added the barbarian chance for the FoR scenario
 		{
@@ -544,14 +543,6 @@ void CvBarbarians::DoCamps()
 			int iPlayerCapitalMinDistance = /*4*/ GC.getBARBARIAN_CAMP_MINIMUM_DISTANCE_CAPITAL();
 			int iBarbCampMinDistance = /*7*/ GC.getBARBARIAN_CAMP_MINIMUM_DISTANCE_ANOTHER_CAMP();
 			int iMaxDistanceToLook = iPlayerCapitalMinDistance > iBarbCampMinDistance ? iPlayerCapitalMinDistance : iBarbCampMinDistance;
-			int iPlotDistance;
-
-			int iDX, iDY;
-			CvPlot* pNearbyCampPlot;
-			bool bSomethingTooClose;
-
-			CvString strBuffer;
-
 			int iPlayerLoop;
 
 			// Find Plots to put the Camps
@@ -559,21 +550,26 @@ void CvBarbarians::DoCamps()
 			{
 				iCount++;
 
-			// Do a random roll to bias in favor of Coastal land Tiles so that the Barbs will spawn Boats :) - required 1/6 of the time
+				// Do a random roll to bias in favor of Coastal land Tiles so that the Barbs will spawn Boats :) - required 1/6 of the time
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-				bool bWantsCoastal = kGame.getSmallFakeRandNum(/*6*/ GC.getBARBARIAN_CAMP_COASTAL_SPAWN_ROLL()) == 0 ? true : false;
+				// make sure we have suitable coastal plots!
+				bool bWantsCoastal = kGame.getSmallFakeRandNum(/*6*/ GC.getBARBARIAN_CAMP_COASTAL_SPAWN_ROLL()) == 0 ? !vCoastalPlots.empty() : false;
 
-				//make sure we have suitable plots ..
-				bWantsCoastal &= !vCoastalPlots.empty();
+				// if we don't have any valid plots left at all, then bail
+				if (vAllPlots.empty())
+					break;
 
-				int iPlotIndex = kGame.getSmallFakeRandNum( min(9u, bWantsCoastal ? vCoastalPlots.size() : vAllPlots.size()) );
+				std::vector<CvPlot*>& vRelevantPlots = bWantsCoastal ? vCoastalPlots : vAllPlots;
+
+				int iPlotIndex = kGame.getSmallFakeRandNum( min(9u, vRelevantPlots.size()) );
 #else
 				bool bWantsCoastal = kGame.getRandNum(/*6*/ GC.getBARBARIAN_CAMP_COASTAL_SPAWN_ROLL(), "Barb Camp Plot-Finding Roll - Coastal Bias") == 0 ? true : false;
 				int iPlotIndex = kGame.getRandNum( bWantsCoastal ? vCoastalPlots.size() : vAllPlots.size(), "Barb Camp Plot-Finding Roll");
 #endif
 
-				CvPlot* pLoopPlot = bWantsCoastal ? vCoastalPlots[iPlotIndex] : vAllPlots[iPlotIndex];
+				CvPlot* pLoopPlot = vRelevantPlots[iPlotIndex];
 
+				//now do some additional (expensive) checks we shouldn't do above
 #if defined(MOD_BUGFIX_BARB_CAMP_TERRAINS)
 				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eCamp);
 				if(MOD_BUGFIX_BARB_CAMP_TERRAINS == false || pkImprovementInfo == NULL || 
@@ -581,25 +577,23 @@ void CvBarbarians::DoCamps()
 				{
 #endif
 					// Max Camps for this area
-					iMaxCampsThisArea = iCampTargetNum * pLoopPlot->area()->getNumTiles() / iNumLandPlots;
-					// Add 1 just in case the above algorithm rounded something off
-					iMaxCampsThisArea++;
+					int iMaxCampsThisArea = iCampTargetNum * pLoopPlot->area()->getNumTiles() / iNumLandPlots + 1;
 
 					// Already enough Camps in this Area?
 					if(pLoopPlot->area()->getNumImprovements(eCamp) <= iMaxCampsThisArea)
 					{
-						bSomethingTooClose = false;
+						bool bSomethingTooClose = false;
 
 						// Look at nearby Plots to make sure another camp isn't too close
-						for(iDX = -(iMaxDistanceToLook); iDX <= iMaxDistanceToLook; iDX++)
+						for(int iDX = -(iMaxDistanceToLook); iDX <= iMaxDistanceToLook; iDX++)
 						{
-							for(iDY = -(iMaxDistanceToLook); iDY <= iMaxDistanceToLook; iDY++)
+							for(int iDY = -(iMaxDistanceToLook); iDY <= iMaxDistanceToLook; iDY++)
 							{
-								pNearbyCampPlot = plotXY(pLoopPlot->getX(), pLoopPlot->getY(), iDX, iDY);
+								CvPlot* pNearbyCampPlot = plotXY(pLoopPlot->getX(), pLoopPlot->getY(), iDX, iDY);
 
 								if(pNearbyCampPlot != NULL)
 								{
-									iPlotDistance = plotDistance(pNearbyCampPlot->getX(), pNearbyCampPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY());
+									int iPlotDistance = plotDistance(pNearbyCampPlot->getX(), pNearbyCampPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY());
 
 									// Can't be too close to a player
 									if(iPlotDistance <= iPlayerCapitalMinDistance)
@@ -629,19 +623,22 @@ void CvBarbarians::DoCamps()
 									}
 								}
 							}
+
 							if(bSomethingTooClose)
 							{
 								break;
 							}
 						}
 
-						// Found a camp too close, check another Plot
-						if(bSomethingTooClose)
+						// Found a camp or a city too close, check another one
+						if (bSomethingTooClose || !CvBarbarians::IsPlotValidForBarbCamp(pLoopPlot))
+						{
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+							//if we're using the fake random generator, it will produce the same candidate every time, need to remove it from the pool
+							vRelevantPlots.erase(vRelevantPlots.begin() + iPlotIndex);
+#endif
 							continue;
-
-						// Last check
-						if(!CvBarbarians::IsPlotValidForBarbCamp(pLoopPlot))
-							continue;
+						}
 
 						pLoopPlot->setImprovementType(eCamp);
 #if !defined(MOD_BUGFIX_BARB_CAMP_SPAWNING)
