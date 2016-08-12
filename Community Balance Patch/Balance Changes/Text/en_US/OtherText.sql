@@ -128,6 +128,9 @@ UPDATE Language_en_US
 SET Text = 'Ideological tenets may not be purchased until you have chosen an Ideology. This choice becomes available if you are in the Atomic Era, or have unlocked 18 Policies and have advanced at least to the Industrial Era, whichever comes first.'
 WHERE Tag = 'TXT_KEY_POLICYSCREEN_IDEOLOGY_NOT_STARTED' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'You have moved beyond the Modern Era. The ideas of modernity now permeate your society. Your people clamor for you to pick an Ideology for your civilization.'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_CHOOSE_IDEOLOGY_ERA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 	
 UPDATE Language_en_US
 SET Text = 'Allows your Cities to build Atomic Bombs and Nuclear Missiles.[NEWLINE][NEWLINE]If you are the [COLOR_POSITIVE_TEXT]first[ENDCOLOR] to complete this, receive a free Research Lab and Atomic Bomb in your [ICON_CAPITAL] Capital.'

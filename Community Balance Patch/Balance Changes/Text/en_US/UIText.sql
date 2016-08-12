@@ -10,7 +10,7 @@ SET Text = 'You have killed a group of Barbarians near {1_CivName:textkey}! They
 WHERE Tag = 'TXT_KEY_NOTIFICATION_MINOR_BARB_KILLED';
 
 -- Culture Victory changes
-	
+
 UPDATE Language_en_US
 SET Text = 'To win a cultural victory, you must have an Ideology, your people must be [COLOR_POSITIVE_TEXT]Content[ENDCOLOR], and you must be [COLOR_MAGENTA]Influential[ENDCOLOR] over every other civilization in the game. See the section on Victory for details.'
 WHERE Tag = 'TXT_KEY_CULTURE_VICTORY_HEADING2_BODY';
