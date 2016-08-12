@@ -2886,7 +2886,7 @@
 			<PortraitIndex>43</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SCOUTING</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_RECON_EXPERIENCE</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_RECON_BANDEIRANTES</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
 		</Row>
 		<Row>
