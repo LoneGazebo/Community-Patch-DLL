@@ -8,8 +8,7 @@ SET RequiresPeace = '0'
 WHERE Type = 'BELIEF_SWORD_PLOWSHARES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Guruship (Now Mandir)
-UPDATE Belief_YieldChangeAnySpecialist
-SET Yield = '0'
+DELETE FROM Belief_YieldChangeAnySpecialist
 WHERE BeliefType = 'BELIEF_GURUSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Holy Warriors (Now Synagogue)
@@ -22,13 +21,11 @@ SET BuildingClassType = 'BUILDINGCLASS_STUPA'
 WHERE BeliefType = 'BELIEF_MONASTERIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Feed the World (Now Thrift)
-UPDATE Belief_BuildingClassYieldChanges
-SET YieldChange = '0'
+DELETE FROM Belief_BuildingClassYieldChanges
 WHERE BeliefType = 'BELIEF_FEED_WORLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Peace Gardens (Now Cooperation)
-UPDATE Belief_BuildingClassHappiness
-SET Happiness = '0'
+DELETE FROM Belief_BuildingClassHappiness
 WHERE BeliefType = 'BELIEF_PEACE_GARDENS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Choral Music (Now Scholarship)
@@ -36,8 +33,7 @@ UPDATE Beliefs
 SET MinFollowers = '0'
 WHERE Type = 'BELIEF_CHORAL_MUSIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
-UPDATE Belief_BuildingClassYieldChanges
-SET YieldChange = '0'
+DELETE FROM Belief_BuildingClassYieldChanges
 WHERE BeliefType = 'BELIEF_CHORAL_MUSIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs
@@ -45,17 +41,14 @@ SET HalvedFollowers = '1'
 WHERE Type = 'BELIEF_CHORAL_MUSIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Religious Art (Now Mastery)
-UPDATE Belief_BuildingClassYieldChanges
-SET YieldChange = '0'
+DELETE FROM Belief_BuildingClassYieldChanges
 WHERE BeliefType = 'BELIEF_RELIGIOUS_ART' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
-UPDATE Belief_BuildingClassTourism
-SET Tourism = '0'
+DELETE FROM Belief_BuildingClassTourism
 WHERE BeliefType = 'BELIEF_RELIGIOUS_ART' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Liturgical Drama (Now Veneration)
-UPDATE Belief_BuildingClassYieldChanges
-SET YieldChange = '0'
+DELETE FROM Belief_BuildingClassYieldChanges
 WHERE BeliefType = 'BELIEF_LITURGICAL_DRAMA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs
@@ -67,8 +60,7 @@ UPDATE Beliefs
 SET MinFollowers = '0'
 WHERE Type = 'BELIEF_ASCETISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
-UPDATE Belief_BuildingClassHappiness
-SET Happiness = '0'
+DELETE FROM Belief_BuildingClassHappiness
 WHERE BeliefType = 'BELIEF_ASCETISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs
@@ -76,8 +68,7 @@ SET HalvedFollowers = '1'
 WHERE Type = 'BELIEF_ASCETISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Religious Center (Now Order)
-UPDATE Belief_BuildingClassHappiness
-SET Happiness = '0'
+DELETE FROM Belief_BuildingClassHappiness
 WHERE BeliefType = 'BELIEF_RELIGIOUS_CENTER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs
@@ -93,8 +84,7 @@ DELETE FROM Belief_MaxYieldModifierPerFollower
 WHERE BeliefType = 'BELIEF_RELIGIOUS_COMMUNITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Divine Inspiration (Now Inspiration)
-UPDATE Belief_YieldChangeWorldWonder
-SET Yield = '0'
+DELETE FROM Belief_YieldChangeWorldWonder
 WHERE BeliefType = 'BELIEF_DIVINE_INSPIRATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs

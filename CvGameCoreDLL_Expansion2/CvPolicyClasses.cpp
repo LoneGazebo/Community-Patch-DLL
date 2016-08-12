@@ -94,6 +94,10 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bUpgradeCSTerritory(false),
 	m_iArchaeologicalDigTourism(0),
 	m_iGoldenAgeTourism(0),
+	m_iTradeRouteLandDistanceModifier(0),
+	m_iTradeRouteSeaDistanceModifier(0),
+	m_iEspionageModifier(0),
+	m_iXCSAlliesLowersPolicyNeedWonders(0),
 #endif
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
@@ -459,6 +463,10 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bUpgradeCSTerritory = kResults.GetBool("UpgradeCSTerritory");
 	m_iArchaeologicalDigTourism = kResults.GetInt("ArchaeologicalDigTourism");
 	m_iGoldenAgeTourism = kResults.GetInt("GoldenAgeTourism");
+	m_iTradeRouteLandDistanceModifier = kResults.GetInt("TradeRouteLandDistanceModifier");
+	m_iTradeRouteSeaDistanceModifier = kResults.GetInt("TradeRouteSeaDistanceModifier");
+	m_iEspionageModifier = kResults.GetInt("EspionageModifier");
+	m_iXCSAlliesLowersPolicyNeedWonders = kResults.GetInt("XCSAlliesLowersPolicyNeedWonders");
 #endif
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
 	m_iUnhappinessFromUnitsMod = kResults.GetInt("UnhappinessFromUnitsMod");
@@ -1540,6 +1548,22 @@ int CvPolicyEntry::GetArchaeologicalDigTourism() const
 int CvPolicyEntry::GetGoldenAgeTourism() const
 {
 	return m_iGoldenAgeTourism;
+}
+int CvPolicyEntry::GetTradeRouteLandDistanceModifier() const
+{
+	return m_iTradeRouteLandDistanceModifier;
+}
+int CvPolicyEntry::GetTradeRouteSeaDistanceModifier() const
+{
+	return m_iTradeRouteSeaDistanceModifier;
+}
+int CvPolicyEntry::GetEspionageModifier() const
+{
+	return m_iEspionageModifier;
+}
+int CvPolicyEntry::GetXCSAlliesLowersPolicyNeedWonders() const
+{
+	return m_iXCSAlliesLowersPolicyNeedWonders;
 }
 #endif
 /// Happiness from each connected Luxury Resource
@@ -2891,6 +2915,9 @@ CvPolicyBranchEntry::CvPolicyBranchEntry(void):
 	m_iFreeFinishingPolicy(NO_POLICY),
 	m_iFirstAdopterFreePolicies(0),
 	m_iSecondAdopterFreePolicies(0),
+#if defined(MOD_BALANCE_CORE)
+	m_iNumPolicyRequirement(0),
+#endif
 	m_piPolicyBranchDisables(NULL)
 {
 }
@@ -2930,6 +2957,9 @@ bool CvPolicyBranchEntry::CacheResults(Database::Results& kResults, CvDatabaseUt
 	m_bDelayWhenNoCulture = kResults.GetBool("AIDelayNoCulture");
 	m_bDelayWhenNoCityStates = kResults.GetBool("AIDelayNoCityStates");
 	m_bDelayWhenNoScience = kResults.GetBool("AIDelayNoScience");
+#if defined(MOD_BALANCE_CORE)
+	m_iNumPolicyRequirement = kResults.GetInt("NumPolicyRequirement");
+#endif
 
 	//PolicyBranch_Disables
 	{
@@ -3035,7 +3065,13 @@ bool CvPolicyBranchEntry::IsDelayWhenNoScience() const
 {
 	return m_bDelayWhenNoScience;
 }
-
+#if defined(MOD_BALANCE_CORE)
+/// Policies needed to unlock branch.
+int CvPolicyBranchEntry::GetNumPolicyRequirement() const
+{
+	return m_iNumPolicyRequirement;
+}
+#endif
 //=====================================
 // CvPolicyXMLEntries
 //=====================================
@@ -4442,6 +4478,13 @@ bool CvPlayerPolicies::CanUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 					}
 				}
 			}
+			//Using a system of numbers instead? Okay.
+			int iNumPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(true, true);
+			if(iNumPolicies >= pkBranchEntry->GetNumPolicyRequirement())
+			{
+				bCanUnlockEarly = true;
+			}
+
 			if(!bCanUnlockEarly && GET_TEAM(GetPlayer()->getTeam()).GetCurrentEra() < ePrereqEra)
 			{
 				return false;
@@ -5291,6 +5334,13 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 	}
 #if defined(MOD_BALANCE_CORE_IDEOLOGY_START)
 	if(MOD_BALANCE_CORE_IDEOLOGY_START && m_pPlayer->GetIdeologyPoint() >= GC.getBALANCE_MOD_POLICY_BRANCHES_NEEDED_IDEOLOGY())
+	{
+		if (m_pPlayer->GetCurrentEra() >= GD_INT_GET(IDEOLOGY_PREREQ_ERA))
+		{
+			return true;
+		}
+	}
+	if(MOD_BALANCE_CORE_IDEOLOGY_START && m_pPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(true, true) >= GC.getBALANCE_MOD_POLICIES_NEEDED_IDEOLOGY())
 	{
 		if (m_pPlayer->GetCurrentEra() >= GD_INT_GET(IDEOLOGY_PREREQ_ERA))
 		{

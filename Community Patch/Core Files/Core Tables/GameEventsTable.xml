@@ -304,6 +304,26 @@
 		<Column name="FeatureType" type="text" reference="Features(Type)"/>
 		<Column name="Quantity" type="integer"/>
 	</Table>
+
+	<!-- This is the linker table for connecting events to one another. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
+	<Table name="Event_EventLinks">
+		<!-- This is the parent. This is the event/choice that will or will not fire based on your data below. -->
+		<Column name="EventType" type="text" reference="Events(Type)"/>
+		<!-- These four elements: set the event/event choice/city event/city event choice you want to link this event to. 
+			You can add elements to each of these so that an event requires another event, event choice, city event, AND a city event choice if you want.
+			You'll notice one has the word 'linker' after it - this is to distinguish this event/choice from the event/choice defined above (i.e. the parent)
+		-->
+		<Column name="EventLinker" type="text" reference="Events(Type)"/>
+		<Column name="EventChoice" type="text" reference="EventChoices(Type)"/>
+		<Column name="CityEvent" type="text" reference="CityEvents(Type)"/>
+		<Column name="CityEventChoice" type="text" reference="CityEventChoices(Type)"/>
+		<!-- This makes the event link span all known players and all known player cities looking for the four elements above. Be sparing with this, can be expensive! -->
+		<Column name="CheckKnownPlayers" type="boolean" default="false"/>
+		<!-- Defaults to TRUE, meaning that any event/choice defined above must be active for the event to fire. Setting it to false makes it so that any event/choice defined above that is NOT active is the trigger.
+		Think of this as a boolean switch - if the state of the event(s) above are hoped to be inactive, make this false. If you want it active, leave it true.
+		-->
+		<Column name="CheckForActive" type="boolean" default="true"/>
+	</Table>
 	
 	<!-- == PLAYER EVENT CHOICES == -->
 	<Table name="EventChoices">
@@ -420,6 +440,8 @@
 		<Column name="RequiredActiveEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
 		<Column name="RequiredActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
 		<Column name="RequiredActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
+		<Column name="RequiredNoActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
+		<Column name="RequiredNoActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
 		<!-- Same concept, but won't fire if a player event is active, or another player does NOT have the player event active. -->
 		<Column name="RequiredNoActivePlayerEvent" type="text" reference="Events(Type)" default="NULL"/>
 		<Column name="RequiredNoActivePlayerEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
@@ -570,6 +592,26 @@
 		<Column name="FlavorType" type="text" reference="Flavors(Type)"/>
 		<Column name="Flavor" type="integer"/>
 	</Table>
+
+	<!-- This is the linker table for connecting events to one another. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
+	<Table name="EventChoice_EventLinks">
+		<!-- This is the parent. This is the event/choice that will or will not fire based on your data below. -->
+		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
+		<!-- These four elements: set the event/event choice/city event/city event choice you want to link this event to. 
+			You can add elements to each of these so that an event requires another event, event choice, city event, AND a city event choice if you want.
+			You'll notice one has the word 'linker' after it - this is to distinguish this event/choice from the event/choice defined above (i.e. the parent)
+		-->
+		<Column name="Event" type="text" reference="Events(Type)"/>
+		<Column name="EventChoiceLinker" type="text" reference="EventChoices(Type)"/>
+		<Column name="CityEvent" type="text" reference="CityEvents(Type)"/>
+		<Column name="CityEventChoice" type="text" reference="CityEventChoices(Type)"/>
+		<!-- This makes the event link span all known players and all known player cities looking for the four elements above. Be sparing with this, can be expensive! -->
+		<Column name="CheckKnownPlayers" type="boolean" default="false"/>
+		<!-- Defaults to TRUE, meaning that any event/choice defined above must be active for the event to fire. Setting it to false makes it so that any event/choice defined above that is NOT active is the trigger.
+		Think of this as a boolean switch - if the state of the event(s) above are hoped to be inactive, make this false. If you want it active, leave it true.
+		-->
+		<Column name="CheckForActive" type="boolean" default="true"/>
+	</Table>
 	
 	<!-- Notifications -->
 	
@@ -704,6 +746,8 @@
 		<Column name="RequiredNoActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
 		<Column name="RequiredNoActiveCityEventAnywhere" type="text" reference="CityEvents(Type)" default="NULL"/>
 		<Column name="RequiredNoActiveCityEventChoiceAnywhere" type="text" reference="CityEventChoices(Type)" default="NULL"/>
+		<Column name="RequiredActiveCityEventAnywhere" type="text" reference="CityEvents(Type)" default="NULL"/>
+		<Column name="RequiredActiveCityEventChoiceAnywhere" type="text" reference="CityEventChoices(Type)" default="NULL"/>
 		<Column name="RequiredNoActivePlayerEvent" type="text" reference="Events(Type)" default="NULL"/>
 		<Column name="RequiredNoActivePlayerEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
 		<Column name="RequiredActivePlayerEventOtherPlayer" type="text" reference="Events(Type)" default="NULL"/>
@@ -719,6 +763,28 @@
 		<Column name="CityEventType" type="text" reference="CityEvents(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
+	</Table>
+
+	<!-- This is the linker table for connecting events to one another. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
+	<Table name="CityEvent_EventLinks">
+		<!-- This is the parent. This is the event/choice that will or will not fire based on your data below. -->
+		<Column name="CityEventType" type="text" reference="CityEvents(Type)"/>
+		<!-- These four elements: set the event/event choice/city event/city event choice you want to link this event to. 
+			You can add elements to each of these so that an event requires another event, event choice, city event, AND a city event choice if you want.
+			You'll notice one has the word 'linker' after it - this is to distinguish this event/choice from the event/choice defined above (i.e. the parent)
+		-->
+		<Column name="Event" type="text" reference="Events(Type)"/>
+		<Column name="EventChoice" type="text" reference="EventChoices(Type)"/>
+		<Column name="CityEventLinker" type="text" reference="CityEvents(Type)"/>
+		<Column name="CityEventChoice" type="text" reference="CityEventChoices(Type)"/>
+		<!-- This makes the event link span all known players and all known player cities looking for the four elements above. Be sparing with this, can be expensive! -->
+		<Column name="CheckKnownPlayers" type="boolean" default="false"/>
+		<!-- This looks only at the event city. Only works if you have a CityEvent or CityEventChoice defined above. Also does not work with CheckKnownPlayers-->
+		<Column name="CheckOnlyEventCity" type="boolean" default="false"/>
+		<!-- Defaults to TRUE, meaning that any event/choice defined above must be active for the event to fire. Setting it to false makes it so that any event/choice defined above that is NOT active is the trigger.
+		Think of this as a boolean switch - if the state of the event(s) above are hoped to be inactive, make this false. If you want it active, leave it true.
+		-->
+		<Column name="CheckForActive" type="boolean" default="true"/>
 	</Table>
 	
 	<Table name="CityEventChoices">
@@ -1004,6 +1070,28 @@
 		<Column name="FlavorType" type="text" reference="Flavors(Type)"/>
 		<Column name="Flavor" type="integer"/>
 	</Table>
+
+	<!-- This is the linker table for connecting events to one another. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
+	<Table name="CityEventChoice_EventLinks">
+		<!-- This is the parent. This is the event/choice that will or will not fire based on your data below. -->
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<!-- These four elements: set the event/event choice/city event/city event choice you want to link this event to. 
+			You can add elements to each of these so that an event requires another event, event choice, city event, AND a city event choice if you want.
+			You'll notice one has the word 'linker' after it - this is to distinguish this event/choice from the event/choice defined above (i.e. the parent)
+		-->
+		<Column name="Event" type="text" reference="Events(Type)"/>
+		<Column name="EventChoice" type="text" reference="EventChoices(Type)"/>
+		<Column name="CityEvent" type="text" reference="CityEvents(Type)"/>
+		<Column name="CityEventChoiceLinker" type="text" reference="CityEventChoices(Type)"/>
+		<!-- This makes the event link span all known players and all known player cities looking for the four elements above. Be sparing with this, can be expensive! -->
+		<Column name="CheckKnownPlayers" type="boolean" default="false"/>
+		<!-- This looks only at the event city. Only works if you have a CityEvent or CityEventChoice defined above. Also does not work with CheckKnownPlayers-->
+		<Column name="CheckOnlyEventCity" type="boolean" default="false"/>
+		<!-- Defaults to TRUE, meaning that any event/choice defined above must be active for the event to fire. Setting it to false makes it so that any event/choice defined above that is NOT active is the trigger.
+		Think of this as a boolean switch - if the state of the event(s) above are hoped to be inactive, make this false. If you want it active, leave it true.
+		-->
+		<Column name="CheckForActive" type="boolean" default="true"/>
+	</Table>
 	
 	<!-- Notifications -->
 	
@@ -1029,6 +1117,7 @@
 		<Column name="NeedPlayerID" type="boolean" default="false"/>
 		<Column name="ExtraVariable" type="int" default="-1"/>
 	</Table>
+	
 	<Table name="EventClassTypes">
 		<Column name="ID" type="integer" primarykey="true" autoincrement="true" />
 		<Column name="Type" type="text" notnull="true" unique="true" />

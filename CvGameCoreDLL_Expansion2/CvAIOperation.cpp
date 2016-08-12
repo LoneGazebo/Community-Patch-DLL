@@ -2101,6 +2101,49 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 		if (pClosestCity)
 			pMusterPlot = pClosestCity->plot();
 	}
+	//Let's not muster in the city - it is hard to this because of garrisons.
+	if(IsNavalOperation() && !pMusterPlot->isCoastalLand())
+	{
+		CvPlot* pCoastalPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMusterPlot);
+		if(pCoastalPlot != NULL)
+		{
+			pMusterPlot = pCoastalPlot;
+		}
+	}
+	if(pMusterPlot->isCity())
+	{
+		for (int iCityPlotLoop = 0; iCityPlotLoop < pMusterPlot->getPlotCity()->GetNumWorkablePlots(); iCityPlotLoop++)
+		{
+			CvPlot* pLoopPlot = iterateRingPlots(pMusterPlot->getX(), pMusterPlot->getY(), iCityPlotLoop);
+
+			// Invalid plot or not owned by this player
+			if (pLoopPlot == NULL || pLoopPlot->getOwner() != eOwner) 
+			{
+				continue;
+			}
+
+			//No water and no impassable
+			if(IsNavalOperation() && !pLoopPlot->isWater())
+				continue;
+
+			if(!IsNavalOperation() && pLoopPlot->isWater())
+				continue;
+
+			if(pLoopPlot->isImpassable())
+				continue;
+
+			//Empty
+			if(pLoopPlot->getNumDefenders(eOwner) > 0)
+				continue;
+
+			//Not dangerous
+			if(GET_PLAYER(m_eOwner).GetPlotDanger(*pLoopPlot, pOurCivilian) < INT_MAX)
+			{
+				pMusterPlot = pLoopPlot;
+				break;
+			}
+		}
+	}
 
 	SetupWithSingleArmy(pOurCivilian->plot(),pTargetSite,pTargetSite,pOurCivilian);
 }
@@ -3723,16 +3766,23 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	//Check formation entry here.
 	if(thisFormation)
 	{
+		bool bGood = false;
 		// Request moves for all units
 		for(int iI = 0; iI < thisFormation->getNumFormationSlotEntries(); iI++)
 		{
 			const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);
-			if (!unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) && !unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
+			if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
 			{
-				return false;
+				bGood = true;
+				break;
 			}
 		}
+		if(!bGood)
+		{
+			return false;
+		}
 	}
+	
 
 	//check if the unit is engaged with the enemy ...
 	if (pLoopUnit->IsEnemyInMovementRange())

@@ -2574,6 +2574,38 @@ private:
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  class : CvEventLinkingInfo
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvEventLinkingInfo
+{
+	friend class CvModEventInfo;
+
+public:
+	CvEventLinkingInfo() :
+	  m_bCheckWorld(false),
+	  m_bActive(false),
+	  m_iEvent(-1),
+	  m_iEventChoice(-1),
+	  m_iCityEvent(-1),
+	  m_iCityEventChoice(-1)
+	  {
+	  };
+	  int GetLinkingEvent() {return m_iEvent;};
+	  int GetLinkingEventChoice() {return m_iEventChoice;};
+	  int GetCityLinkingEvent() {return m_iCityEvent;};
+	  int GetCityLinkingEventChoice() {return m_iCityEventChoice;};
+	  bool CheckOtherPlayers() {return m_bCheckWorld;};
+	  bool CheckForActive() {return m_bActive;};
+
+protected:
+	bool m_bCheckWorld;
+	bool m_bActive;
+	int m_iEvent;
+	int m_iEventChoice;
+	int m_iCityEvent;
+	int m_iCityEventChoice;
+};
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  class : CvModEventInfo
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class CvModEventInfo : public CvBaseInfo
@@ -2638,6 +2670,9 @@ public:
 	bool isVassal() const;
 	int getNumCoastalRequired() const;
 	bool isTradeCapped() const;
+		
+	CvEventLinkingInfo *GetLinkerInfo(int i) const;
+	int GetNumLinkers() const {return m_iLinkerInfos;};
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -2699,6 +2734,9 @@ protected:
 	bool m_bMaster;
 	int m_iCoastal;
 	bool m_bTradeCapped;
+	
+	CvEventLinkingInfo* m_paLinkerInfo;
+	int m_iLinkerInfos;
 
 private:
 	CvModEventInfo(const CvModEventInfo&);
@@ -2736,6 +2774,40 @@ protected:
 	int m_iVariable1;
 	int m_iVariable2;
 };
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  class : CvEventChoiceLinkingInfo
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvEventChoiceLinkingInfo
+{
+	friend class CvModEventChoiceInfo;
+
+public:
+	CvEventChoiceLinkingInfo() :
+	  m_bCheckWorld(false),
+	  m_bActive(false),
+	  m_iEvent(-1),
+	  m_iEventChoice(-1),
+	  m_iCityEvent(-1),
+	  m_iCityEventChoice(-1)
+	  {
+	  };
+	  int GetLinkingEvent() {return m_iEvent;};
+	  int GetLinkingEventChoice() {return m_iEventChoice;};
+	  int GetCityLinkingEvent() {return m_iCityEvent;};
+	  int GetCityLinkingEventChoice() {return m_iCityEventChoice;};
+	  bool CheckOtherPlayers() {return m_bCheckWorld;};
+	  bool CheckForActive() {return m_bActive;};
+
+protected:
+	bool m_bCheckWorld;
+	bool m_bActive;
+	int m_iEvent;
+	int m_iEventChoice;
+	int m_iCityEvent;
+	int m_iCityEventChoice;
+};
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  class : CvModEventChoiceInfo
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2817,6 +2889,8 @@ public:
 	int getRequiredActiveEventChoice() const;
 	int getRequiredActiveCityEvent() const;
 	int getRequiredActiveCityEventChoice() const;
+	int getRequiredNoActiveCityEvent() const;
+	int getRequiredNoActiveCityEventChoice() const;
 	int getRequiredNoActiveEvent() const;
 	int getRequiredNoActiveEventChoice() const;
 	int getRequiredActiveOtherPlayerEvent() const;
@@ -2836,6 +2910,9 @@ public:
 	bool isTradeCapped() const;
 	bool isCapitalEffectOnly() const;
 	bool isInstantYieldAllCities() const;
+		
+	CvEventChoiceLinkingInfo *GetLinkerInfo(int i) const;
+	int GetNumLinkers() const {return m_iLinkerInfos;};
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -2916,6 +2993,8 @@ protected:
 	int m_iRequiredNoActiveEventChoice;
 	int m_iRequiredActiveCityEvent;
 	int m_iRequiredActiveCityEventChoice;
+	int m_iRequiredNoActiveCityEvent;
+	int m_iRequiredNoActiveCityEventChoice;
 	bool m_bOneShot;
 	bool m_bMetAnotherCiv;
 	bool m_bInDebt;
@@ -2931,9 +3010,47 @@ protected:
 	CvEventNotificationInfo* m_paNotificationInfo;
 	int m_iNotificationInfos;
 
+	CvEventChoiceLinkingInfo* m_paLinkerInfo;
+	int m_iLinkerInfos;
+
 private:
 	CvModEventChoiceInfo(const CvModEventChoiceInfo&);
 	CvModEventChoiceInfo& operator=(const CvModEventChoiceInfo&);
+};
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  class : CvCityEventLinkingInfo
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvCityEventLinkingInfo
+{
+	friend class CvModCityEventInfo;
+
+public:
+	CvCityEventLinkingInfo() :
+	  m_bCheckWorld(false),
+	  m_bActive(false),
+	  m_iEvent(-1),
+	  m_iEventChoice(-1),
+	  m_iCityEvent(-1),
+	  m_iCityEventChoice(-1),
+	  m_bOnlyActiveCity(false)
+	  {
+	  };
+	  int GetLinkingEvent() {return m_iEvent;};
+	  int GetLinkingEventChoice() {return m_iEventChoice;};
+	  int GetCityLinkingEvent() {return m_iCityEvent;};
+	  int GetCityLinkingEventChoice() {return m_iCityEventChoice;};
+	  bool CheckOtherPlayers() {return m_bCheckWorld;};
+	  bool CheckForActive() {return m_bActive;};
+	  bool CheckOnlyActiveCity() {return m_bOnlyActiveCity;};
+
+protected:
+	bool m_bCheckWorld;
+	bool m_bActive;
+	bool m_bOnlyActiveCity;
+	int m_iEvent;
+	int m_iEventChoice;
+	int m_iCityEvent;
+	int m_iCityEventChoice;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -3012,12 +3129,17 @@ public:
 	int getRequiredNoActiveCityEventChoice() const;
 	int getRequiredNoActiveCityEventAnywhere() const;
 	int getRequiredNoActiveCityEventChoiceAnywhere() const;
+	int getRequiredActiveCityEventAnywhere() const;
+	int getRequiredActiveCityEventChoiceAnywhere() const;
 	int getRequiredNoActivePlayerEvent() const;
 	int getRequiredNoActivePlayerEventChoice() const;
 	int getRequiredActiveOtherPlayerEvent() const;
 	int getRequiredActiveOtherPlayerEventChoice() const;
 	int getRequiredNoActiveOtherPlayerEvent() const;
 	int getRequiredNoActiveOtherPlayerEventChoice() const;
+	
+	CvCityEventLinkingInfo *GetLinkerInfo(int i) const;
+	int GetNumLinkers() const {return m_iCityLinkerInfos;};
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -3095,6 +3217,11 @@ protected:
 	int m_iRequiredNoActiveCityEventChoice;
 	int m_iRequiredNoActiveCityEventAnywhere;
 	int m_iRequiredNoActiveCityEventChoiceAnywhere;
+	int m_iRequiredActiveCityEventAnywhere;
+	int m_iRequiredActiveCityEventChoiceAnywhere;
+	
+	CvCityEventLinkingInfo* m_paCityLinkerInfo;
+	int m_iCityLinkerInfos;
 
 private:
 	CvModCityEventInfo(const CvModCityEventInfo&);
@@ -3131,6 +3258,42 @@ protected:
 	CvString m_strShortDescription;
 	bool m_bWorldEvent;
 	bool m_bNeedPlayerID;
+};
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  class : CvCityEventChoiceLinkingInfo
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvCityEventChoiceLinkingInfo
+{
+	friend class CvModEventCityChoiceInfo;
+
+public:
+	CvCityEventChoiceLinkingInfo() :
+	  m_bCheckWorld(false),
+	  m_bActive(false),
+	  m_iEvent(-1),
+	  m_iEventChoice(-1),
+	  m_iCityEvent(-1),
+	  m_iCityEventChoice(-1),
+	  m_bOnlyActiveCity(false)
+	  {
+	  };
+	  int GetLinkingEvent() {return m_iEvent;};
+	  int GetLinkingEventChoice() {return m_iEventChoice;};
+	  int GetCityLinkingEvent() {return m_iCityEvent;};
+	  int GetCityLinkingEventChoice() {return m_iCityEventChoice;};
+	  bool CheckOtherPlayers() {return m_bCheckWorld;};
+	  bool CheckForActive() {return m_bActive;};
+	  bool CheckOnlyActiveCity() {return m_bOnlyActiveCity;};
+
+protected:
+	bool m_bCheckWorld;
+	bool m_bActive;
+	bool m_bOnlyActiveCity;
+	int m_iEvent;
+	int m_iEventChoice;
+	int m_iCityEvent;
+	int m_iCityEventChoice;
 };
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  class : CvModEventCityChoiceInfo
@@ -3247,6 +3410,9 @@ public:
 	CvCityEventNotificationInfo *GetNotificationInfo(int i) const;
 	int GetNumNotifications() const {return m_iCityNotificationInfos;};
 
+	CvCityEventChoiceLinkingInfo *GetLinkerInfo(int i) const;
+	int GetNumLinkers() const {return m_iCityLinkerInfos;};
+
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
@@ -3355,6 +3521,8 @@ protected:
 
 	CvCityEventNotificationInfo* m_paCityNotificationInfo;
 	int m_iCityNotificationInfos;
+	CvCityEventChoiceLinkingInfo* m_paCityLinkerInfo;
+	int m_iCityLinkerInfos;
 
 private:
 	CvModEventCityChoiceInfo(const CvModEventCityChoiceInfo&);

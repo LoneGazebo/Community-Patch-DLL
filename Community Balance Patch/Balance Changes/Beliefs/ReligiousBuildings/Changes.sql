@@ -131,7 +131,8 @@ VALUES
 INSERT INTO Building_ImprovementYieldChanges
 	(BuildingType, ImprovementType, YieldType, Yield)
 VALUES
-	('BUILDING_CATHEDRAL', 'IMPROVEMENT_FARM', 'YIELD_GOLD', 1);
+	('BUILDING_CATHEDRAL', 'IMPROVEMENT_FARM', 'YIELD_GOLD', 1),
+	('BUILDING_CATHEDRAL', 'IMPROVEMENT_FARM', 'YIELD_PRODUCTION', 1);
 
 INSERT INTO Building_Flavors
 	(BuildingType, FlavorType, Flavor)
@@ -165,4 +166,4 @@ VALUES
 INSERT INTO Building_DomainFreeExperiences
 	(BuildingType, DomainType, Experience)
 VALUES
-	('BUILDING_ORDER', 'DOMAIN_LAND', 10);
+	('BUILDING_ORDER', 'DOMAIN_LAND', 15);

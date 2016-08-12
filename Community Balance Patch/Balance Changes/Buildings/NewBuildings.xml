@@ -243,8 +243,8 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<ConversionModifier>-20</ConversionModifier>
 			<Cost>-1</Cost>
-			<Defense>300</Defense>
-			<ExtraCityHitPoints>25</ExtraCityHitPoints>
+			<Defense>1000</Defense>
+			<ExtraCityHitPoints>50</ExtraCityHitPoints>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>

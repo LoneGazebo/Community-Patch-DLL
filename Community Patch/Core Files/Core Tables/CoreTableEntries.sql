@@ -55,15 +55,29 @@ ALTER TABLE Beliefs ADD COLUMN 'RequiresResource' BOOLEAN DEFAULT 0;
 
 -- NOTE: THESE TWO (RequiresImprovement and RequiresResource) interact, and can be used to refine belief yields.
 
--- Belief requires no improvement on a terrain type to grant its yield.
+-- Belief requires no improvement to grant its yield on a tile.
 
 ALTER TABLE Beliefs ADD COLUMN 'RequiresNoImprovement' BOOLEAN DEFAULT 0;
 
--- Belief requires no improvement on a feature type to grant its yield.
+-- Belief requires no feature to grant its yield on a tile. Ignore the 'improvement' part.
 
 ALTER TABLE Beliefs ADD COLUMN 'RequiresNoImprovementFeature' BOOLEAN DEFAULT 0;
 
 -- NOTE: THESE TWO (RequiresNoImprovement and RequiresNoImprovementFeature) interact, and can be used to refine belief yields.
+
+-- Belief - reduces policy cost of Wonders by 1 for every x cities following religion
+
+ALTER TABLE Beliefs ADD COLUMN 'PolicyReductionWonderXFollowerCities' INTEGER DEFAULT 0;
+
+-- Policy - reduces policy cost of Wonders by 1 for every x CS allies
+ALTER TABLE Policies ADD COLUMN 'XCSAlliesLowersPolicyNeedWonders' INTEGER DEFAULT 0;
+
+-- Policy Branch - number of unlocked policies (finishers excluded) before branch is unlocked.
+ALTER TABLE PolicyBranchTypes ADD COLUMN 'NumPolicyRequirement' INTEGER DEFAULT 0;
+
+-- Belief - increases pressure from trade routes
+
+ALTER TABLE Beliefs ADD COLUMN 'PressureChangeTradeRoute' INTEGER DEFAULT 0;
 
 -- Give CSs defensive units at the beginning of the game.
 
@@ -356,7 +370,7 @@ ALTER TABLE Policies ADD COLUMN 'DoubleBorderGA' BOOLEAN DEFAULT 0;
 -- Free Population
 ALTER TABLE Policies ADD COLUMN 'FreePopulation' INTEGER DEFAULT 0;
 
--- Extra Votes
+-- Extra Moves for Civilian Units
 ALTER TABLE Policies ADD COLUMN 'ExtraMoves' INTEGER DEFAULT 0;
 
 -- Religious Pressure Mod Trade Route
@@ -663,6 +677,13 @@ ALTER TABLE Policies ADD COLUMN 'GreatEngineerRateModifier' INTEGER DEFAULT 0;
 
 -- Great Engineer Policy bonus - rate modifier.
 ALTER TABLE Policies ADD COLUMN 'CityStateCombatModifier' INTEGER DEFAULT 0;
+
+-- Trade Route Modifiers for Policies
+ALTER TABLE Policies ADD COLUMN 'TradeRouteLandDistanceModifier' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'TradeRouteSeaDistanceModifier' INTEGER DEFAULT 0;
+
+--Espionage Modifier for Policies - should be negative for player benefit!
+ALTER TABLE Policies ADD COLUMN 'EspionageModifier' INTEGER DEFAULT 0;
 
 -- C4DF Function
 

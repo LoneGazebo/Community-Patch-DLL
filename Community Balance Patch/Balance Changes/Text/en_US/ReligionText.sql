@@ -7,7 +7,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_HUNT' AND EXISTS (SELECT * FROM COMMUNITY WH
 
 -- Fertility Rites (Now Goddess of Fertility)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food and +1 [ICON_PEACE] Faith from Shrines and Wells, and 15% faster [ICON_FOOD] Growth Rate'
+SET Text = '+1 [ICON_FOOD] Food and [ICON_PEACE] Faith from Shrines and Wells, and 15% faster [ICON_FOOD] Growth Rate'
 WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -18,12 +18,12 @@ WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- God of the Sea
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and +1 [ICON_PRODUCTION] Production from Fishing Boats and Atolls. +3 [ICON_FOOD] Food in coastal Cities'
+SET Text = '+1 [ICON_PEACE] Faith and [ICON_PRODUCTION] Production from Fishing Boats and Atolls. +3 [ICON_FOOD] Food in coastal Cities'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of the Open Sky
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture for every 2 Plains or Grassland tiles (without hills or features) worked by a City, +1 [ICON_PEACE] Faith and +1 [ICON_GOLD] Gold from Pastures'
+SET Text = '+1 [ICON_CULTURE] Culture for every 2 Plains or Grassland tiles (without hills or features) worked by a City, +1 [ICON_PEACE] Faith and [ICON_GOLD] Gold from Pastures'
 WHERE Tag = 'TXT_KEY_BELIEF_OPEN_SKY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Messenger of the Gods
@@ -200,7 +200,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_EVANGELISM_SHORT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Defender Faith
 UPDATE Language_en_US
-SET Text = 'Land Units gain +10% [ICON_STRENGTH] Combat Strength versus Land Units in own lands, and an additional +10% versus Land Units of players that follow a different Religion. +1 [ICON_PEACE] Faith from all Defensive Buildings.'
+SET Text = 'Land Units gain +15% [ICON_STRENGTH] Combat Strength versus Land Units in own lands, and an additional +15% versus Land Units of players that follow a different Religion. +2 [ICON_PEACE] Faith and +3 [ICON_CULTURE] Culture from all Defensive Buildings.'
 WHERE Tag = 'TXT_KEY_BELIEF_DEFENDER_FAITH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Jesuit Education 
@@ -221,7 +221,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_SACRED_SITES' AND EXISTS (SELECT * FROM COMMUNITY WH
 
 -- Glory of God
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase any type of [ICON_GREAT_PEOPLE] Great Person (in Industrial Era). +50 [ICON_GOLD] Gold, [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith when you expend a [ICON_GREAT_PEOPLE] Great Person, scaling with Era.'
+SET Text = 'Use [ICON_PEACE] Faith to purchase any type of [ICON_GREAT_PEOPLE] Great Person (in Industrial Era). Gain 30 [ICON_GOLD] Gold, [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith when you expend a [ICON_GREAT_PEOPLE] Great Person, scaling with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_TO_GLORY_OF_GOD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Underground Sect (Now Faith of the  Masses)
@@ -236,7 +236,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_UNDERGROUND_SECT_SHORT' AND EXISTS (SELECT * FROM CO
 -- Unity of the Prophets (Now Knowledge Through Faith)
 
 UPDATE Language_en_US
-SET Text = 'Landmarks and Great Person Improvements produce +3 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture.'
+SET Text = 'Landmarks and Great Person Improvements produce +3 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture. [ICON_GREAT_WORK] Great Works produce +1 [ICON_CULTURE] Culture.'
 WHERE Tag = 'TXT_KEY_BELIEF_UNITY_OF_PROPHETS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -246,7 +246,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_UNITY_OF_PROPHETS_SHORT' AND EXISTS (SELECT * FROM C
 -- Religious Buildings
 		
 UPDATE Language_en_US
-SET Text = 'Can only be built in cities following a religion with the Cathedrals belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Poverty and boosts the [ICON_GOLD] Gold yield of nearby farms.'
+SET Text = 'Can only be built in cities following a religion with the Cathedrals belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Poverty and boosts the [ICON_GOLD] Gold and [ICON_PRODUCTION] Production yield of nearby farms.'
 WHERE Tag = 'TXT_KEY_BUILDING_CATHEDRAL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -277,7 +277,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIQUARY_SHORT' AND EXISTS (SELECT * FROM COMMUNITY
 
 -- Just War (Now Martyrdom)
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture in Holy City for every 6 followers of this Religion in Foreign Cities. Holy City gains 100 [ICON_PEACE] Faith each time the owner expends a Great Person. Bonus scales with Era.'
+SET Text = '+1 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture in Holy City for every 6 followers of this Religion in Foreign Cities. Holy City gains 100 [ICON_PEACE] Faith each time the owner expends a Great Person. Bonus scales with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_JUST_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -322,7 +322,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_MISSIONARY_ZEAL_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Holy Order
 UPDATE Language_en_US
-SET Text = 'Religion spreads to Cities 30% further away, and to friendly City-States at double rate.'
+SET Text = 'Religion spreads to Cities 50% further away, and to friendly City-States at double rate. Pressure via owned [ICON_INTERNATIONAL_TRADE] Trade Routes tripled.'
 WHERE Tag = 'TXT_KEY_BELIEF_HOLY_ORDER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -340,22 +340,22 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_UNITY_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Cathedral
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Cathedrals (hover for more info)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Cathedrals'
 WHERE Tag = 'TXT_KEY_BELIEF_CATHEDRALS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Pagoda
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Pagodas (hover for more info)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Pagodas'
 WHERE Tag = 'TXT_KEY_BELIEF_PAGODAS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Mosque
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Mosques (hover for more info)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Mosques'
 WHERE Tag = 'TXT_KEY_BELIEF_MOSQUES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Sword into Plowshare (Now Church)
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Churches (hover for more info)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Churches'
 WHERE Tag = 'TXT_KEY_BELIEF_SWORD_PLOWSHARES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -368,12 +368,12 @@ SET Text = 'Mandirs'
 WHERE Tag = 'TXT_KEY_BELIEF_GURUSHIP_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Mandirs (hover for more info)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Mandirs'
 WHERE Tag = 'TXT_KEY_BELIEF_GURUSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Holy Warriors (Now Synagogue)
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Synagogues (hover for more info)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Synagogues'
 WHERE Tag = 'TXT_KEY_BELIEF_HOLY_WARRIORS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -382,7 +382,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_HOLY_WARRIORS_SHORT' AND EXISTS (SELECT * FROM COMMU
 
 -- Monasteries (Now Stupa)
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Stupas (hover for more info)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Stupas'
 WHERE Tag = 'TXT_KEY_BELIEF_MONASTERIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -441,7 +441,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_ASCETISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Religious Center (Now Order)
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Orders (hover for more info)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Orders'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_CENTER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -491,7 +491,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_CEREMONIAL_BURIAL' AND EXISTS (SELECT * FROM COMMUNI
 
 -- Church Property (Now Holy Law)
 UPDATE Language_en_US
-SET Text = 'Unlocks Divine Court National Wonder (+4 [ICON_PEACE] Faith, +6 [ICON_GOLD] Gold, +5 [ICON_GOLD] Gold from Holy Sites; unlocks Reformation Belief). Receive 75 [ICON_PEACE] Faith, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold when you purchase a Policy. Bonus scales with Era.'
+SET Text = 'Unlocks Divine Court National Wonder (+4 [ICON_PEACE] Faith, +6 [ICON_GOLD] Gold, +5 [ICON_GOLD] Gold from Holy Sites; unlocks Reformation Belief). Gain 100 [ICON_PEACE] Faith, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold when you unlock a Policy, scaling with Era. World Wonders require 1 less unlocked Policy per every 8 Cities following your Religion.'
 WHERE Tag = 'TXT_KEY_BELIEF_CHURCH_PROPERTY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -518,7 +518,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_INITIATION_RITES_SHORT' AND EXISTS (SELECT * FROM CO
 
 -- Papal Primacy (Now Council of Elders)
 UPDATE Language_en_US
-SET Text = 'Unlocks Holy Council National Wonder (+4 [ICON_PEACE] Faith, +5 [ICON_FOOD] Food, +5 [ICON_RESEARCH] Science from Holy Sites; unlocks Reformation Belief). Receive a boost to current [ICON_RESEARCH] Science research when a city adopts your Religion. Bonus scales with Era.'
+SET Text = 'Unlocks Holy Council National Wonder (+4 [ICON_PEACE] Faith, +5 [ICON_FOOD] Food, +5 [ICON_RESEARCH] Science from Holy Sites; unlocks Reformation Belief). Receive a boost to current [ICON_RESEARCH] Science research when a city adopts your Religion, scaling with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_PAPAL_PRIMACY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

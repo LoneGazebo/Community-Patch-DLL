@@ -908,24 +908,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				// Major civ
 				else
 				{
-					//Can't make peace yet?
-					if(pFromTeam->GetNumTurnsLockedIntoWar(pOtherPlayer->getTeam()) > 0)
-						return false;
-
-					//Can't make peace yet?
-					if(GET_TEAM(pOtherPlayer->getTeam()).GetNumTurnsLockedIntoWar(pFromPlayer->getTeam()) > 0)
+					//Either side can't make peace yet?
+					if(!GET_TEAM(pFromPlayer->getTeam()).canChangeWarPeace(pOtherPlayer->getTeam()))
 						return false;
 
 					//Either side can't make peace yet?
-					if(!pFromPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(pOtherPlayer->GetID()))
-						return false;
-
-					//Either side can't make peace yet?
-					if(!pOtherPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(pFromPlayer->GetID()))
-						return false;
-
-					int iTurns = 30;
-					if(GET_TEAM(pOtherPlayer->getTeam()).GetNumTurnsAtWar(pFromPlayer->getTeam()) <= iTurns)
+					if(!GET_TEAM(pOtherPlayer->getTeam()).canChangeWarPeace(pFromPlayer->getTeam()))
 						return false;
 				
 					//Only matters if not a peace deal (i.e. we're not making negotiations)
@@ -992,7 +980,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 		//Need embassy.
-		if (!GET_TEAM(eFromTeam).HasEmbassyAtTeam(eToTeam))
+		if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
 			return false;
 
 		//Not allowed in peace deals.
@@ -2742,22 +2730,19 @@ void CvGameDeals::Init()
 void CvGameDeals::AddProposedDeal(CvDeal kDeal)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	if (MOD_ACTIVE_DIPLOMACY) {
-		PlayerTypes eFrom = kDeal.GetFromPlayer();
-		PlayerTypes eTo = kDeal.GetToPlayer();
-
-		if (CvPreGame::isHuman(eFrom) && CvPreGame::isHuman(eTo))
-		{
-			// only one deal from Human to Human
-			CvDeal kRemovedDeal;
-			while (RemoveProposedDeal(eFrom, eTo, &kRemovedDeal, true))
-			{//deal from eCancelPlayer
-				FinalizeDeal(kRemovedDeal, false);
-			}
-			while (RemoveProposedDeal(eTo, eFrom, &kRemovedDeal, true))
-			{//deal to eCancelPlayer
-				FinalizeDeal(kRemovedDeal, false);
-			}
+	PlayerTypes eFrom = kDeal.GetFromPlayer();
+	PlayerTypes eTo = kDeal.GetToPlayer();
+	if (CvPreGame::isHuman(eFrom) && CvPreGame::isHuman(eTo))
+	{
+		// only one deal from Human to Human
+		CvDeal kRemovedDeal;
+		while (RemoveProposedDeal(eFrom, eTo, &kRemovedDeal, true))
+		{//deal from eCancelPlayer
+			FinalizeDeal(kRemovedDeal, false);
+		}
+		while (RemoveProposedDeal(eTo, eFrom, &kRemovedDeal, true))
+		{//deal to eCancelPlayer
+			FinalizeDeal(kRemovedDeal, false);
 		}
 	}
 #endif
@@ -3068,9 +3053,9 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 		// if the deal is renewed do not start it up
 		if(it->m_bToRenewed)
 		{
-			if (MOD_ACTIVE_DIPLOMACY) {
-				LogDealFailed(&kDeal, true, !bAccepted, false);
-			}
+#if defined(MOD_ACTIVE_DIPLOMACY) 
+			LogDealFailed(&kDeal, true, !bAccepted, false);
+#endif			
 			continue;
 		}
 
@@ -4580,14 +4565,12 @@ void CvGameDeals::DoTurn()
 PlayerTypes CvGameDeals::HasMadeProposal(PlayerTypes ePlayer)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	if (MOD_ACTIVE_DIPLOMACY) {
-		for (DealList::const_iterator it = m_ProposedDeals.begin(); it != m_ProposedDeals.end(); ++it)
-		{
-			if (it->GetFromPlayer() == ePlayer)
-				return it->GetToPlayer();
-		}
-	} else {
-#endif
+	for (DealList::const_iterator it = m_ProposedDeals.begin(); it != m_ProposedDeals.end(); ++it)
+	{
+	if (it->GetFromPlayer() == ePlayer)
+		return it->GetToPlayer();		
+	} 
+#else
 	if(m_ProposedDeals.size() > 0)
 	{
 		DealList::iterator iter;
@@ -4595,10 +4578,7 @@ PlayerTypes CvGameDeals::HasMadeProposal(PlayerTypes ePlayer)
 			if(iter->m_eFromPlayer == ePlayer)
 				return iter->m_eToPlayer;
 	}
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	}
 #endif
-
 	return NO_PLAYER;
 }
 
@@ -4624,17 +4604,16 @@ CvDeal* CvGameDeals::GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPla
 #endif
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	if (MOD_ACTIVE_DIPLOMACY) {
-		int start = latest ? m_ProposedDeals.size() - 1 : 0;
-		int end = latest ? -1 : m_ProposedDeals.size();
-		int inc = latest ? -1 : 1;
-		for (int i = start; i != end; i += inc) {
-			CvDeal* pDeal = &m_ProposedDeals[i];
-			if (pDeal->GetFromPlayer() == eFromPlayer && pDeal->GetToPlayer() == eToPlayer)
-				return pDeal;
-		}
-	} else {
-#endif
+	int start = latest ? m_ProposedDeals.size() - 1 : 0;
+	int end = latest ? -1 : m_ProposedDeals.size();
+	int inc = latest ? -1 : 1;
+	for (int i = start; i != end; i += inc)
+	{
+		CvDeal* pDeal = &m_ProposedDeals[i];
+		if (pDeal->GetFromPlayer() == eFromPlayer && pDeal->GetToPlayer() == eToPlayer)
+			return pDeal;
+	}
+#else
 	if(m_ProposedDeals.size() > 0)
 	{
 		DealList::iterator iter;
@@ -4642,10 +4621,7 @@ CvDeal* CvGameDeals::GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPla
 			if(iter->m_eFromPlayer == eFromPlayer && iter->m_eToPlayer == eToPlayer)
 				return &(*iter);
 	}
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	}
 #endif
-
 	return NULL;
 }
 
@@ -4668,6 +4644,10 @@ void CvGameDeals::DoUpdateCurrentDealsList()
 	m_CurrentDeals.clear();
 	for(it = tempDeals.begin(); it != tempDeals.end(); ++it)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(it->m_iFinalTurn < 0)
+			continue;
+#endif
 		if(it->m_iFinalTurn <= GC.getGame().getGameTurn())
 		{
 			m_HistoricalDeals.push_back(*it);
@@ -4823,24 +4803,21 @@ void CvGameDeals::DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 #if defined(MOD_ACTIVE_DIPLOMACY)
-		if (MOD_ACTIVE_DIPLOMACY) {
-			CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
-			if (   (eTargetPlayers == DIPLO_AI_PLAYERS && !kLoopPlayer.isHuman())
-				|| (eTargetPlayers == DIPLO_ALL_PLAYERS)
-				|| (eLoopPlayer == static_cast<PlayerTypes>(eTargetPlayers)))
-			{
-				CvDeal kDeal;
-				while (RemoveProposedDeal(eCancelPlayer, eLoopPlayer, &kDeal, true))
-				{//deal from eCancelPlayer
-					FinalizeDeal(kDeal, false);
-				}
-				while (RemoveProposedDeal(eLoopPlayer, eCancelPlayer, &kDeal, true))
-				{//deal to eCancelPlayer
-					FinalizeDeal(kDeal, false);
-				}
+		CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if ((eTargetPlayers == DIPLO_AI_PLAYERS && !kLoopPlayer.isHuman()) || (eTargetPlayers == DIPLO_ALL_PLAYERS) || (eLoopPlayer == static_cast<PlayerTypes>(eTargetPlayers)))
+		{
+			CvDeal kDeal;
+			while (RemoveProposedDeal(eCancelPlayer, eLoopPlayer, &kDeal, true))
+			{//deal from eCancelPlayer
+				FinalizeDeal(kDeal, false);
 			}
-		} else {
-#endif
+			while (RemoveProposedDeal(eLoopPlayer, eCancelPlayer, &kDeal, true))
+			{//deal to eCancelPlayer
+				FinalizeDeal(kDeal, false);
+			}
+		}
+#else 
+
 		if(GetProposedDeal(eCancelPlayer, eLoopPlayer))
 		{//deal from eCancelPlayer
 			FinalizeDeal(eCancelPlayer, eLoopPlayer, false);
@@ -4849,8 +4826,7 @@ void CvGameDeals::DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer)
 		{//deal to eCancelPlayer
 			FinalizeDeal(eLoopPlayer, eCancelPlayer, false);
 		}
-#if defined(MOD_ACTIVE_DIPLOMACY)
-		}
+
 #endif
 	}
 }
@@ -5722,19 +5698,17 @@ CvDeal* CvGameDeals::GetCurrentDeal(PlayerTypes ePlayer, uint index)
 CvDeal* CvGameDeals::GetHistoricDeal(PlayerTypes ePlayer, uint index)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	if (MOD_ACTIVE_DIPLOMACY) {
-		//iterate backwards, usually the latest deals are most interesting
-		uint iCount = 0;
-		for (int i = m_HistoricalDeals.size() - 1; i >= 0; --i)
+	//iterate backwards, usually the latest deals are most interesting
+	uint iCount = 0;
+	for (int i = m_HistoricalDeals.size() - 1; i >= 0; --i)
+	{
+		CvDeal& kDeal = m_HistoricalDeals[i];
+		if((kDeal.m_eToPlayer == ePlayer || kDeal.m_eFromPlayer == ePlayer) && (iCount++ == index))
 		{
-			CvDeal& kDeal = m_HistoricalDeals[i];
-			if((kDeal.m_eToPlayer == ePlayer || kDeal.m_eFromPlayer == ePlayer) && (iCount++ == index))
-			{
-				return &kDeal;
-			}
+			return &kDeal;
 		}
-	} else {
-#endif
+	}
+#else
 	DealList::iterator iter;
 	DealList::iterator end = m_HistoricalDeals.end();
 
@@ -5748,10 +5722,7 @@ CvDeal* CvGameDeals::GetHistoricDeal(PlayerTypes ePlayer, uint index)
 			return &(*iter);
 		}
 	}
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	}
 #endif
-
 	return NULL;
 }
 
@@ -5844,20 +5815,18 @@ FDataStream& OldLoad(FDataStream& loadFrom, CvGameDeals& writeTo)
 	CvDeal tempItem;
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	if (MOD_ACTIVE_DIPLOMACY) {
-		// JdH => savegame compatible load
-		loadFrom >> iEntriesToRead;
-		for (int iI = 0; iI < iEntriesToRead; iI++)
+	// JdH => savegame compatible load
+	loadFrom >> iEntriesToRead;
+	for (int iI = 0; iI < iEntriesToRead; iI++)
+	{
+		loadFrom >> tempItem;
+		if (CvPreGame::isHuman(tempItem.GetFromPlayer()) && CvPreGame::isHuman(tempItem.GetToPlayer())) 
 		{
-			loadFrom >> tempItem;
-			if (CvPreGame::isHuman(tempItem.GetFromPlayer()) && CvPreGame::isHuman(tempItem.GetToPlayer())) 
-			{
-				// only load human to humand deals until other problems are fixed
-				writeTo.m_ProposedDeals.push_back(tempItem);
-			}
+			// only load human to humand deals until other problems are fixed
+			writeTo.m_ProposedDeals.push_back(tempItem);
 		}
-	} else {
-#endif
+	}
+#else
 	writeTo.m_ProposedDeals.clear();
 	loadFrom >> iEntriesToRead;
 	for(int iI = 0; iI < iEntriesToRead; iI++)
@@ -5865,8 +5834,7 @@ FDataStream& OldLoad(FDataStream& loadFrom, CvGameDeals& writeTo)
 		loadFrom = OldLoad(loadFrom, tempItem);
 		writeTo.m_ProposedDeals.push_back(tempItem);
 	}
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	}
+
 #endif
 
 	writeTo.m_CurrentDeals.clear();
@@ -5899,20 +5867,18 @@ FDataStream& operator>>(FDataStream& loadFrom, CvGameDeals& writeTo)
 	MOD_SERIALIZE_INIT_READ(loadFrom);
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	if (MOD_ACTIVE_DIPLOMACY) {
-		// JdH => savegame compatible load
-		loadFrom >> iEntriesToRead;
-		for (int iI = 0; iI < iEntriesToRead; iI++)
+	// JdH => savegame compatible load
+	loadFrom >> iEntriesToRead;
+	for (int iI = 0; iI < iEntriesToRead; iI++)
+	{
+		loadFrom >> tempItem;
+		if (CvPreGame::isHuman(tempItem.GetFromPlayer()) && CvPreGame::isHuman(tempItem.GetToPlayer()))
 		{
-			loadFrom >> tempItem;
-			if (CvPreGame::isHuman(tempItem.GetFromPlayer()) && CvPreGame::isHuman(tempItem.GetToPlayer()))
-			{
-				// only load human to humand deals until other problems are fixed
-				writeTo.m_ProposedDeals.push_back(tempItem);
-			}
+			// only load human to humand deals until other problems are fixed
+			writeTo.m_ProposedDeals.push_back(tempItem);
 		}
-	} else {
-#endif
+	}
+#else
 	writeTo.m_ProposedDeals.clear();
 	loadFrom >> iEntriesToRead;
 	for(int iI = 0; iI < iEntriesToRead; iI++)
@@ -5920,10 +5886,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvGameDeals& writeTo)
 		loadFrom >> tempItem;
 		writeTo.m_ProposedDeals.push_back(tempItem);
 	}
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	}
 #endif
-
 	writeTo.m_CurrentDeals.clear();
 	loadFrom >> iEntriesToRead;
 	for(int iI = 0; iI < iEntriesToRead; iI++)
@@ -5952,30 +5915,26 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGameDeals& readFrom)
 	MOD_SERIALIZE_INIT_WRITE(saveTo);
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	if (MOD_ACTIVE_DIPLOMACY) {
-		// JdH => savegame compatible save
-		DealList saveList;
-		for (it = readFrom.m_ProposedDeals.begin(); it != readFrom.m_ProposedDeals.end(); ++it)
+	// JdH => savegame compatible save
+	DealList saveList;
+	for (it = readFrom.m_ProposedDeals.begin(); it != readFrom.m_ProposedDeals.end(); ++it)
+	{
+		if (CvPreGame::isHuman(it->GetFromPlayer()) && CvPreGame::isHuman(it->GetToPlayer()))
 		{
-			if (CvPreGame::isHuman(it->GetFromPlayer()) && CvPreGame::isHuman(it->GetToPlayer()))
-			{
-				// only save human to human deals until we save notifications & requests too
-				saveList.push_back(*it);
-			}
+			// only save human to human deals until we save notifications & requests too
+			saveList.push_back(*it);
 		}
-		saveTo << saveList.size();
-		for (it = saveList.begin(); it != saveList.end(); ++it) 
-		{
-			saveTo << *it;
-		}
-	} else {
-#endif
+	}
+	saveTo << saveList.size();
+	for (it = saveList.begin(); it != saveList.end(); ++it) 
+	{
+		saveTo << *it;
+	}
+#else
 	saveTo << readFrom.m_ProposedDeals.size();
 	for(it = readFrom.m_ProposedDeals.begin(); it != readFrom.m_ProposedDeals.end(); ++it)
 	{
 		saveTo << *it;
-	}
-#if defined(MOD_ACTIVE_DIPLOMACY)
 	}
 #endif
 	saveTo << readFrom.m_CurrentDeals.size();

@@ -8077,6 +8077,20 @@ bool CvModEventInfo::isTradeCapped() const
 {
 	return m_bTradeCapped;
 }
+CvEventLinkingInfo *CvModEventInfo::GetLinkerInfo(int i) const
+{
+	CvAssertMsg(i < GC.getNumLinkerInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if (m_paLinkerInfo[0].GetCityLinkingEvent() == -1 && m_paLinkerInfo[0].GetCityLinkingEventChoice() == -1 && m_paLinkerInfo[0].GetLinkingEvent() == -1 && m_paLinkerInfo[0].GetLinkingEventChoice() == -1)
+	{
+		return NULL;
+	}
+	else
+	{
+		return &m_paLinkerInfo[i];
+	}
+}
 //------------------------------------------------------------------------------
 bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
@@ -8215,7 +8229,42 @@ bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	kUtility.PopulateArrayByValue(m_piRequiredResource, "Resources", "Event_MinimumResourceRequired", "ResourceType", "EventType", szEventType, "Quantity");
 	kUtility.PopulateArrayByValue(m_piRequiredFeature, "Features", "Event_MinimumFeatureRequired", "FeatureType", "EventType", szEventType, "Quantity");
 
+	{
+		//Initialize Linker Table
+		const size_t iNumLinkers = kUtility.MaxRows("Notifications");
+		m_paLinkerInfo = FNEW(CvEventLinkingInfo[iNumLinkers], c_eCiv5GameplayDLL, 0);
+		int idx = 0;
 
+		std::string strEventTypesKey = "Event_EventLinks";
+		Database::Results* pEventTypes = kUtility.GetResults(strEventTypesKey);
+		if(pEventTypes == NULL)
+		{
+			pEventTypes = kUtility.PrepareResults(strEventTypesKey, "select EventLinker, EventChoice, CityEvent, CityEventChoice, CheckKnownPlayers, CheckForActive from Event_EventLinks where EventType = ?");
+		}
+
+		const size_t lenEventType = strlen(szEventType);
+		pEventTypes->Bind(1, szEventType, lenEventType, false);
+
+		while(pEventTypes->Step())
+		{
+
+			CvEventLinkingInfo& pEventLinkingInfo= m_paLinkerInfo[idx];
+			szTextVal = pEventTypes->GetText("EventLinker");
+			pEventLinkingInfo.m_iEvent =  GC.getInfoTypeForString(szTextVal, true);
+			szTextVal = pEventTypes->GetText("EventChoic");
+			pEventLinkingInfo.m_iEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+			szTextVal = pEventTypes->GetText("CityEvent");
+			pEventLinkingInfo.m_iCityEvent =  GC.getInfoTypeForString(szTextVal, true);
+			szTextVal = pEventTypes->GetText("CityEventChoice");
+			pEventLinkingInfo.m_iCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+			pEventLinkingInfo.m_bCheckWorld = pEventTypes->GetBool("CheckKnownPlayers");
+			pEventLinkingInfo.m_bActive = pEventTypes->GetBool("CheckForActive");
+			idx++;
+		}
+
+		m_iLinkerInfos = idx;
+		pEventTypes->Reset();
+	}	
 	return true;
 }
 //======================================================================================================
@@ -8282,6 +8331,8 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_iRequiredNoActiveEventChoice(-1),
 	 m_iRequiredActiveCityEvent(-1),
 	 m_iRequiredActiveCityEventChoice(-1),
+	 m_iRequiredNoActiveCityEvent(-1),
+	 m_iRequiredNoActiveCityEventChoice(-1),
 	 m_ppiBuildingClassYield(NULL),
 	 m_ppiBuildingClassYieldModifier(NULL),
 	 m_piCityYield(NULL),
@@ -8738,6 +8789,16 @@ int CvModEventChoiceInfo::getRequiredActiveCityEventChoice() const
 	return m_iRequiredActiveCityEventChoice;
 }
 //------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getRequiredNoActiveCityEvent() const
+{
+	return m_iRequiredNoActiveCityEvent;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getRequiredNoActiveCityEventChoice() const
+{
+	return m_iRequiredNoActiveCityEventChoice;
+}
+//------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getRequiredNoActiveEvent() const
 {
 	return m_iRequiredNoActiveEvent;
@@ -8826,6 +8887,20 @@ bool CvModEventChoiceInfo::isInstantYieldAllCities() const
 const char* CvModEventChoiceInfo::getDisabledTooltip() const
 {
 	return m_strDisabledTooltip;
+}
+CvEventChoiceLinkingInfo *CvModEventChoiceInfo::GetLinkerInfo(int i) const
+{
+	CvAssertMsg(i < GC.getNumLinkerInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if (m_paLinkerInfo[0].GetCityLinkingEvent() == -1 && m_paLinkerInfo[0].GetCityLinkingEventChoice() == -1 && m_paLinkerInfo[0].GetLinkingEvent() == -1 && m_paLinkerInfo[0].GetLinkingEventChoice() == -1)
+	{
+		return NULL;
+	}
+	else
+	{
+		return &m_paLinkerInfo[i];
+	}
 }
 //------------------------------------------------------------------------------
 bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -8936,6 +9011,41 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 		}
 
 		m_iNotificationInfos = idx;
+		pEventChoiceTypes->Reset();
+	}
+	{
+		//Initialize Linker Table
+		const size_t iNumLinkers = kUtility.MaxRows("Notifications");
+		m_paLinkerInfo = FNEW(CvEventChoiceLinkingInfo[iNumLinkers], c_eCiv5GameplayDLL, 0);
+		int idx = 0;
+
+		std::string strEventChoiceTypesKey = "EventChoice_EventLinks";
+		Database::Results* pEventChoiceTypes = kUtility.GetResults(strEventChoiceTypesKey);
+		if(pEventChoiceTypes == NULL)
+		{
+			pEventChoiceTypes = kUtility.PrepareResults(strEventChoiceTypesKey, "select Event, EventChoiceLinker, CityEvent, CityEventChoice, CheckKnownPlayers, CheckForActive from EventChoice_EventLinks where EventChoiceType = ?");
+		}
+
+		const size_t lenEventChoiceType = strlen(szEventType);
+		pEventChoiceTypes->Bind(1, szEventType, lenEventChoiceType, false);
+
+		while(pEventChoiceTypes->Step())
+		{
+			CvEventChoiceLinkingInfo& pEventChoiceLinkingInfo= m_paLinkerInfo[idx];
+			szTextVal = pEventChoiceTypes->GetText("Event");
+			pEventChoiceLinkingInfo.m_iEvent =  GC.getInfoTypeForString(szTextVal, true);
+			szTextVal = pEventChoiceTypes->GetText("EventChoiceLinker");
+			pEventChoiceLinkingInfo.m_iEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+			szTextVal = pEventChoiceTypes->GetText("CityEvent");
+			pEventChoiceLinkingInfo.m_iCityEvent =  GC.getInfoTypeForString(szTextVal, true);
+			szTextVal = pEventChoiceTypes->GetText("CityEventChoice");
+			pEventChoiceLinkingInfo.m_iCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+			pEventChoiceLinkingInfo.m_bCheckWorld = pEventChoiceTypes->GetBool("CheckKnownPlayers");
+			pEventChoiceLinkingInfo.m_bActive = pEventChoiceTypes->GetBool("CheckForActive");
+			idx++;
+		}
+
+		m_iLinkerInfos = idx;
 		pEventChoiceTypes->Reset();
 	}
 
@@ -9161,6 +9271,12 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 	szTextVal = kResults.GetText("RequiredActiveCityEventChoice");
 	m_iRequiredActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
 
+	szTextVal = kResults.GetText("RequiredNoActiveCityEvent");
+	m_iRequiredNoActiveCityEvent =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredNoActiveCityEventChoice");
+	m_iRequiredNoActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+
 	szTextVal = kResults.GetText("RequiredNoActivePlayerEvent");
 	m_iRequiredNoActiveEvent =  GC.getInfoTypeForString(szTextVal, true);
 
@@ -9268,7 +9384,9 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_iRequiredNoActiveCityEvent(-1),
 	 m_iRequiredNoActiveCityEventChoice(-1),
 	 m_iRequiredNoActiveCityEventAnywhere(-1),
-	 m_iRequiredNoActiveCityEventChoiceAnywhere(-1)
+	 m_iRequiredNoActiveCityEventChoiceAnywhere(-1),
+	 m_iRequiredActiveCityEventAnywhere(-1),
+	 m_iRequiredActiveCityEventChoiceAnywhere(-1)
 {
 }
 //------------------------------------------------------------------------------
@@ -9489,6 +9607,16 @@ int CvModCityEventInfo::getRequiredNoActiveCityEventChoiceAnywhere() const
 	return m_iRequiredNoActiveCityEventChoiceAnywhere;
 }
 //------------------------------------------------------------------------------
+int CvModCityEventInfo::getRequiredActiveCityEventAnywhere() const
+{
+	return m_iRequiredActiveCityEventAnywhere;
+}
+//------------------------------------------------------------------------------
+int CvModCityEventInfo::getRequiredActiveCityEventChoiceAnywhere() const
+{
+	return m_iRequiredActiveCityEventChoiceAnywhere;
+}
+//------------------------------------------------------------------------------
 int CvModCityEventInfo::getRequiredNoActivePlayerEvent() const
 {
 	return m_iRequiredNoActiveEvent;
@@ -9644,6 +9772,20 @@ bool CvModCityEventInfo::lacksPlayerMajority() const
 {
 	return m_bLacksPlayerMajority;
 }
+CvCityEventLinkingInfo *CvModCityEventInfo::GetLinkerInfo(int i) const
+{
+	CvAssertMsg(i < GC.getNumLinkerInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if (m_paCityLinkerInfo[0].GetCityLinkingEvent() == -1 && m_paCityLinkerInfo[0].GetCityLinkingEventChoice() == -1 && m_paCityLinkerInfo[0].GetLinkingEvent() == -1 && m_paCityLinkerInfo[0].GetLinkingEventChoice() == -1)
+	{
+		return NULL;
+	}
+	else
+	{
+		return &m_paCityLinkerInfo[i];
+	}
+}
 //------------------------------------------------------------------------------
 bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
@@ -9767,6 +9909,12 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 	szTextVal = kResults.GetText("RequiredNoActiveCityEventChoiceAnywhere");
 	m_iRequiredNoActiveCityEventChoiceAnywhere =  GC.getInfoTypeForString(szTextVal, true);
 
+	szTextVal = kResults.GetText("RequiredActiveCityEventAnywhere");
+	m_iRequiredActiveCityEventAnywhere =  GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("RequiredActiveCityEventChoiceAnywhere");
+	m_iRequiredActiveCityEventChoiceAnywhere =  GC.getInfoTypeForString(szTextVal, true);
+
 	szTextVal = kResults.GetText("RequiredNoActivePlayerEvent");
 	m_iRequiredNoActiveEvent =  GC.getInfoTypeForString(szTextVal, true);
 
@@ -9805,7 +9953,42 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bNearMountain = kResults.GetBool("RequiresNearbyMountain");
 	m_bNearNaturalWonder = kResults.GetBool("RequiresNearbyNaturalWonder");
 
+	{
+		//Initialize Linker Table
+		const size_t iNumLinkers = kUtility.MaxRows("Notifications");
+		m_paCityLinkerInfo = FNEW(CvCityEventLinkingInfo[iNumLinkers], c_eCiv5GameplayDLL, 0);
+		int idx = 0;
 
+		std::string strCityEventTypesKey = "CityEvent_EventLinks";
+		Database::Results* pCityEventTypes = kUtility.GetResults(strCityEventTypesKey);
+		if(pCityEventTypes == NULL)
+		{
+			pCityEventTypes = kUtility.PrepareResults(strCityEventTypesKey, "select Event, EventChoice, CityEventLinker, CityEventChoice, CheckKnownPlayers, CheckOnlyEventCity, CheckForActive from CityEvent_EventLinks where CityEventType = ?");
+		}
+
+		const size_t lenCityEventChoiceType = strlen(szEventType);
+		pCityEventTypes->Bind(1, szEventType, lenCityEventChoiceType, false);
+
+		while(pCityEventTypes->Step())
+		{
+			CvCityEventLinkingInfo& pCityEventLinkingInfo= m_paCityLinkerInfo[idx];
+			szTextVal = pCityEventTypes->GetText("Event");
+			pCityEventLinkingInfo.m_iEvent =  GC.getInfoTypeForString(szTextVal, true);
+			szTextVal = pCityEventTypes->GetText("EventChoice");
+			pCityEventLinkingInfo.m_iEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+			szTextVal = pCityEventTypes->GetText("CityEventLinker");
+			pCityEventLinkingInfo.m_iCityEvent =  GC.getInfoTypeForString(szTextVal, true);
+			szTextVal = pCityEventTypes->GetText("CityEventChoice");
+			pCityEventLinkingInfo.m_iCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+			pCityEventLinkingInfo.m_bCheckWorld = pCityEventTypes->GetBool("CheckKnownPlayers");
+			pCityEventLinkingInfo.m_bOnlyActiveCity = pCityEventTypes->GetBool("CheckOnlyEventCity");
+			pCityEventLinkingInfo.m_bActive = pCityEventTypes->GetBool("CheckForActive");
+			idx++;
+		}
+
+		m_iCityLinkerInfos = idx;
+		pCityEventTypes->Reset();
+	}
 	return true;
 }
 //======================================================================================================
@@ -10108,6 +10291,21 @@ CvCityEventNotificationInfo *CvModEventCityChoiceInfo::GetNotificationInfo(int i
 	else
 	{
 		return &m_paCityNotificationInfo[i];
+	}
+}
+
+CvCityEventChoiceLinkingInfo *CvModEventCityChoiceInfo::GetLinkerInfo(int i) const
+{
+	CvAssertMsg(i < GC.getNumLinkerInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if (m_paCityLinkerInfo[0].GetCityLinkingEvent() == -1 && m_paCityLinkerInfo[0].GetCityLinkingEventChoice() == -1 && m_paCityLinkerInfo[0].GetLinkingEvent() == -1 && m_paCityLinkerInfo[0].GetLinkingEventChoice() == -1)
+	{
+		return NULL;
+	}
+	else
+	{
+		return &m_paCityLinkerInfo[i];
 	}
 }
 //------------------------------------------------------------------------------
@@ -10623,6 +10821,42 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 		m_iCityNotificationInfos = idx;
 		pCityEventChoiceTypes->Reset();
 	}
+	{
+		//Initialize Linker Table
+		const size_t iNumLinkers = kUtility.MaxRows("Notifications");
+		m_paCityLinkerInfo = FNEW(CvCityEventChoiceLinkingInfo[iNumLinkers], c_eCiv5GameplayDLL, 0);
+		int idx = 0;
+
+		std::string strCityEventChoiceTypesKey = "CityEventChoice_EventLinks";
+		Database::Results* pCityEventChoiceTypes = kUtility.GetResults(strCityEventChoiceTypesKey);
+		if(pCityEventChoiceTypes == NULL)
+		{
+			pCityEventChoiceTypes = kUtility.PrepareResults(strCityEventChoiceTypesKey, "select Event, EventChoice, CityEvent, CityEventChoiceLinker, CheckKnownPlayers, CheckOnlyEventCity, CheckForActive from CityEventChoice_EventLinks where CityEventChoiceType = ?");
+		}
+
+		const size_t lenCityEventChoiceType = strlen(szEventType);
+		pCityEventChoiceTypes->Bind(1, szEventType, lenCityEventChoiceType, false);
+
+		while(pCityEventChoiceTypes->Step())
+		{
+			CvCityEventChoiceLinkingInfo& pCityEventLinkingInfo= m_paCityLinkerInfo[idx];
+			szTextVal = pCityEventChoiceTypes->GetText("Event");
+			pCityEventLinkingInfo.m_iEvent =  GC.getInfoTypeForString(szTextVal, true);
+			szTextVal = pCityEventChoiceTypes->GetText("EventChoice");
+			pCityEventLinkingInfo.m_iEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+			szTextVal = pCityEventChoiceTypes->GetText("CityEvent");
+			pCityEventLinkingInfo.m_iCityEvent =  GC.getInfoTypeForString(szTextVal, true);
+			szTextVal = pCityEventChoiceTypes->GetText("CityEventChoiceLinker");
+			pCityEventLinkingInfo.m_iCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
+			pCityEventLinkingInfo.m_bOnlyActiveCity = pCityEventChoiceTypes->GetBool("CheckOnlyEventCity");
+			pCityEventLinkingInfo.m_bActive = pCityEventChoiceTypes->GetBool("CheckForActive");
+			idx++;
+		}
+
+		m_iCityLinkerInfos = idx;
+		pCityEventChoiceTypes->Reset();
+	}
+	
 	//BuildingYieldChanges
 	{
 		kUtility.Initialize2DArray(m_ppiBuildingClassYield, "BuildingClasses", "Yields");

@@ -1646,7 +1646,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				return 0;
 			}
 			//Don't accept resources we already have.
-			if(GetPlayer()->getNumResourceAvailable(eResource, true) > 0)
+			if(GetPlayer()->getNumResourceAvailable(eResource, false) > 0)
 			{
 				return 0;
 			}

@@ -25897,6 +25897,12 @@ int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 	if(bIsEnemyCity)
 	{
 		CvUnitCombat::AttackCity(*this, *pPathPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && pPathPlot->isCity() && pPathPlot->isBarbarian())
+		{
+			CvBarbarians::DoCityAttacked(pPathPlot);
+		}
+#endif
 		return 1;
 	}
 	// Normal unit combat
@@ -25909,12 +25915,6 @@ int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 		{
 			CvBarbarians::DoCampAttacked(pPathPlot);
 		}
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && pPathPlot->isCity() && pPathPlot->isBarbarian())
-		{
-			CvBarbarians::DoCityAttacked(pPathPlot);
-		}
-#endif
 
 		return 1;
 	}

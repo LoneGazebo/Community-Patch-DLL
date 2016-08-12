@@ -1196,11 +1196,23 @@ int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, const CvPl
 		{
 			rtnValue += pPlot->getNumResource() * m_iFlavorMultiplier[SITE_EVALUATION_RESOURCES];
 
+#if defined(MOD_BALANCE_CORE)
+			//Since there aren't 'multiple' luxuries on a tile, increase this value.
+			if(eResourceUsage == RESOURCEUSAGE_LUXURY)
+				rtnValue *= 3;
+#endif
+
 			if(pPlayer)
 			{
 				// If we don't have this resource yet, increase it's value
 				if(pPlayer->getNumResourceTotal(eResource) == 0)
 					rtnValue *= 3;
+
+#if defined(MOD_BALANCE_CORE)
+				//If luxury and we already do, increase a little for trade
+				else if(eResourceUsage == RESOURCEUSAGE_LUXURY && pPlayer->getNumResourceTotal(eResource) > 0)
+					rtnValue *= 2;
+#endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 				if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && (GC.getMap().getNumResources(eResource) > 0))
 				{

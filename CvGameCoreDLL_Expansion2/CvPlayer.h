@@ -749,6 +749,9 @@ public:
 	int GetIdeologyPoint() const;
 	void SetIdeologyPoint(int iValue);
 	void ChangeIdeologyPoint(int iChange);
+
+	void ChangeCSAlliesLowersPolicyNeedWonders(int iValue);
+	int GetCSAlliesLowersPolicyNeedWonders() const;
 #endif
 
 	int GetHappinessFromMinorCivs() const;
@@ -1263,6 +1266,12 @@ public:
 	int getHalfSpecialistFoodCapitalCount() const;
 	bool isHalfSpecialistFoodCapital() const;
 	void changeHalfSpecialistFoodCapitalCount(int iChange);
+
+	int getTradeRouteLandDistanceModifier() const;
+	void changeTradeRouteLandDistanceModifier(int iChange);
+
+	int getTradeRouteSeaDistanceModifier() const;
+	void changeTradeRouteSeaDistanceModifier(int iChange);
 
 	void ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain, int iChange);
 	int GetDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain) const;
@@ -2678,6 +2687,7 @@ protected:
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	FAutoVariable<int, CvPlayer> m_iHappinessPerXPopulationGlobal;
 	FAutoVariable<int, CvPlayer> m_iIdeologyPoint;
+	FAutoVariable<int, CvPlayer> m_iXCSAlliesLowersPolicyNeedWonders;
 #endif
 	FAutoVariable<int, CvPlayer> m_iHappinessFromLeagues;
 	FAutoVariable<int, CvPlayer> m_iSpecialPolicyBuildingHappiness;  //unused
@@ -2900,6 +2910,8 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iHalfSpecialistFoodCount;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvPlayer> m_iHalfSpecialistFoodCapitalCount;
+	FAutoVariable<int, CvPlayer> m_iTradeRouteLandDistanceModifier;
+	FAutoVariable<int, CvPlayer> m_iTradeRouteSeaDistanceModifier;
 #endif
 	FAutoVariable<int, CvPlayer> m_iMilitaryFoodProductionCount;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeCultureBonusDisabledCount;

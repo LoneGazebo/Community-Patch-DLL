@@ -141,7 +141,7 @@
 			<Text>[NEWLINE]{2_Yield} Great {1_Name} Points in City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_TURNS">
-			<Text>[NEWLINE]Lasts for: {1_Turns} Turns.</Text>
+			<Text>[NEWLINE]Lasts for: {1_Turns} Turns</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_YIELD_DURATION">
 			<Text>{1_Num} Turns</Text>

@@ -96,6 +96,14 @@ public:
 	void SetTradePrioritySea(int iValue);
 	int GetTradePrioritySea(void) const;
 
+	void UpdateNearbySettleSites();
+	int GetNearbySettleSiteValue() const;
+
+	void ChangeTradeRouteSeaDistanceModifier(int iValue);
+	int GetTradeRouteSeaDistanceModifier() const;
+
+	void ChangeTradeRouteLandDistanceModifier(int iValue);
+	int GetTradeRouteLandDistanceModifier() const;
 #endif
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -1627,6 +1635,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iThreatCriteria;
 	FAutoVariable<int, CvCity> m_iTradePriorityLand;
 	FAutoVariable<int, CvCity> m_iTradePrioritySea;
+	FAutoVariable<int, CvCity> m_iNearbySettlerValue;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iBuildingPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iReligiousTradeModifier;
@@ -1653,6 +1662,8 @@ protected:
 	FAutoVariable<int, CvCity> m_iChangeUnculturedUnhappiness;
 	FAutoVariable<int, CvCity> m_iChangeIlliteracyUnhappiness;
 	FAutoVariable<int, CvCity> m_iChangeMinorityUnhappiness;
+	FAutoVariable<int, CvCity> m_iTradeRouteSeaDistanceModifier;
+	FAutoVariable<int, CvCity> m_iTradeRouteLandDistanceModifier;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromReligion;
 #if defined(MOD_BALANCE_CORE)

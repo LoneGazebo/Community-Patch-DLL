@@ -645,8 +645,14 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 				GET_PLAYER(eOriginPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eDestPlayer, iTradeValueOrigin);
 			}
 		}
-
-	
+	}
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		GET_PLAYER(eOriginPlayer).CalculateNetHappiness();
+		if(eOriginPlayer != eDestPlayer)
+		{
+			GET_PLAYER(eDestPlayer).CalculateNetHappiness();
+		}
 	}
 #endif
 
@@ -4610,65 +4616,29 @@ int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 		// not implemented
 		iTraitRange = 0;
 #endif
+#if defined(MOD_BALANCE_CORE)
+		m_pPlayer->getTradeRouteSeaDistanceModifier();
+#endif
 		break;
 	case DOMAIN_LAND:
 		iTraitRange = m_pPlayer->GetPlayerTraits()->GetLandTradeRouteRangeBonus();
+#if defined(MOD_BALANCE_CORE)
+		m_pPlayer->getTradeRouteLandDistanceModifier();
+#endif
 		break;
 	}
 
-	CvPlayerTechs* pMyPlayerTechs = m_pPlayer->GetPlayerTechs();
-	CvTeamTechs* pMyTeamTechs = GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).GetTeamTechs();
-	CvTechEntry* pTechInfo = NULL; 
+	int iExtendedRange = GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).getTradeRouteDomainExtraRange(eDomain);
 
-	int iExtendedRange = 0;
-	for(int iTechLoop = 0; iTechLoop < pMyPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
-	{
-		TechTypes eTech = (TechTypes)iTechLoop;
-		if (!pMyTeamTechs->HasTech(eTech))
-		{
-			continue;
-		}
-
-		pTechInfo = pMyPlayerTechs->GetTechs()->GetEntry(eTech);
-		CvAssertMsg(pTechInfo, "null tech entry");
-		if (pTechInfo)
-		{
-			iExtendedRange += pTechInfo->GetTradeRouteDomainExtraRange(eDomain);
-		}
-	}
-	
 	int iRangeModifier = 0;
-	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	switch (eDomain)
 	{
-		BuildingTypes eBuilding = (BuildingTypes)GET_PLAYER(pOriginCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(iI);
-		if(eBuilding != NO_BUILDING)
-		{
-			CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
-			if (!pBuildingEntry)
-			{
-				continue;
-			}
-
-			if (pBuildingEntry && pOriginCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()))
-			{
-				if (pBuildingEntry->GetTradeRouteSeaDistanceModifier() > 0 && eDomain == DOMAIN_SEA)
-				{
-#if defined(MOD_BUGFIX_MINOR)
-					iRangeModifier += pBuildingEntry->GetTradeRouteSeaDistanceModifier() * pOriginCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID());
-#else
-					iRangeModifier += pBuildingEntry->GetTradeRouteSeaDistanceModifier();
-#endif
-				}
-				else if (pBuildingEntry->GetTradeRouteLandDistanceModifier() > 0 && eDomain == DOMAIN_LAND)
-				{
-#if defined(MOD_BUGFIX_MINOR)
-					iRangeModifier += pBuildingEntry->GetTradeRouteLandDistanceModifier() * pOriginCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID());
-#else
-					iRangeModifier += pBuildingEntry->GetTradeRouteLandDistanceModifier();
-#endif
-				}
-			}
-		}
+	case DOMAIN_SEA:
+		iRangeModifier = pOriginCity->GetTradeRouteSeaDistanceModifier();
+		break;
+	case DOMAIN_LAND:
+		iRangeModifier = pOriginCity->GetTradeRouteLandDistanceModifier();
+		break;
 	}
 
 #if defined(MOD_BALANCE_CORE)

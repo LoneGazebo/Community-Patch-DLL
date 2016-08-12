@@ -1574,15 +1574,10 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 	CvMilitaryTarget chosenTarget;
 	CvPlayer &kEnemy = GET_PLAYER(eEnemy);
 
-	// Estimate the relative strength of units near our cities and near their cities (can't use TacticalAnalysisMap because we may be not at war)
+	// Estimate the relative strength of our strongest city (this is purely beneficial from figuring out which of their cities is weakest, as this shouldn't really affect muster)
+	int iBestPower = 0;
 	for (pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
 	{
-		CvPlot* pPlot = pFriendlyCity->plot();
-		//If there aren't at least 8 non-occupied plots around this city, abort.
-		if(pPlot != NULL && !TacticalAIHelpers::CountDeploymentPlots(m_pPlayer->getTeam(), pPlot, 8, 3))
-		{
-			continue;
-		}
 		int iPower = 0;
 		bool bGeneralInTheVicinity = false;
 		int iAuraEffectChange = 0;
@@ -1615,7 +1610,18 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 			iPower *= 12;
 			iPower /= 10;
 		}
-		pFriendlyCity->iScratch = iPower;
+		if(iPower > iBestPower)
+		{
+			iBestPower = iPower;
+		}
+	}
+	//Now set our scratch value for all cities. We only want highest because we're just trying to figure out which of their cities is the weakest.
+	if(iBestPower > 0)
+	{
+		for (pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
+		{
+			pFriendlyCity->iScratch = iBestPower;
+		}
 	}
 	for(pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
 	{
@@ -1667,6 +1673,12 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 	CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES, true> prelimWeightedTargetList;
 	for(pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
 	{
+		CvPlot* pPlot = pFriendlyCity->plot();
+		//If there aren't at least 8 non-occupied plots around this city, abort.
+		if(pPlot != NULL && !TacticalAIHelpers::CountDeploymentPlots(m_pPlayer->getTeam(), pPlot, 8, 3))
+		{
+			continue;
+		}
 		for(pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
 		{
 			if(pFriendlyCity != NULL && pEnemyCity != NULL && pEnemyCity->plot()->isRevealed(m_pPlayer->getTeam()))
@@ -3188,7 +3200,7 @@ void CvMilitaryAI::UpdateBaseData()
 	int iFlavorDefense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE"));
 
 	// Scale up or down based on true threat level and a bit by flavors (multiplier should range from about 0.5 to about 1.5)
-	fMultiplier = (float)0.40 + (((float)(m_pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorOffense + iFlavorDefense)) / (float)100.0);
+	fMultiplier = (float)0.50 + (((float)(m_pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorOffense + iFlavorDefense)) / (float)100.0);
 
 	// first get the number of defenders that we think we need
 
@@ -3214,23 +3226,24 @@ void CvMilitaryAI::UpdateBaseData()
 				{
 					if(m_pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE || m_pPlayer->GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE)
 					{
-						fMultiplier += 0.25f;
+						fMultiplier += 0.3f;
 					}
 					else if(m_pPlayer->GetDiplomacyAI()->GetWarmongerThreat(eOtherPlayer) >= THREAT_MAJOR || m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false) <= MAJOR_CIV_APPROACH_GUARDED)
 					{
-						fMultiplier += 0.25f;
+						fMultiplier += 0.3f;
 					}
 				}
 			}
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
-	//More wonders = much greater need for units to defend them!
-	fMultiplier += ((float)(m_pPlayer->GetNumWonders() / 5));
-#endif
 
 	m_iMandatoryReserveSize = (int)((float)iNumUnitsWanted * fMultiplier);
+
+#if defined(MOD_BALANCE_CORE)
+	//More wonders = much greater need for units to defend them!
+	m_iMandatoryReserveSize += ((m_pPlayer->GetNumWonders() / 5));
+#endif
 
 	// add in a few for the difficulty level (all above Chieftain are boosted)
 	int iDifficulty = max(0,GC.getGame().getHandicapInfo().GetID() - 1);
@@ -5608,7 +5621,7 @@ void CvMilitaryAI::UpdateWarType()
 	int iEnemyLand = 0;
 	m_iCurrentWarFocus = 0;
 	int iLoop;
-	//the muster city for a given target can belong to any player, no only to ourselves
+
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{	
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -5645,7 +5658,7 @@ void CvMilitaryAI::UpdateWarType()
 	{
 		m_iCurrentWarFocus = 2;
 	}
-	else
+	else if(iEnemyLand >= iEnemyWater)
 	{
 		m_iCurrentWarFocus = 1;
 	}
@@ -6339,7 +6352,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 
 	iNumUnitsWanted += iNumCoastalCities;
 	// Scale up or down based on true threat level and a bit by flavors (multiplier should range from about 0.75 to 2.0)
-	dMultiplier = (float)0.40 + (((float)(pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorNaval + iFlavorNavalRecon)) / (float)100.0);
+	dMultiplier = (float)0.44 + (((float)(pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorNaval + iFlavorNavalRecon)) / (float)100.0);
 
 	//Look at neighbors - if they're stronger than us, let's increase our amount.
 	PlayerTypes eOtherPlayer;
@@ -6355,11 +6368,11 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 				{
 					if(pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE || pPlayer->GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(eOtherPlayer) > STRENGTH_AVERAGE)
 					{
-						dMultiplier += 0.25;
+						dMultiplier += 0.32;
 					}
 					else if(pPlayer->GetDiplomacyAI()->GetWarmongerThreat(eOtherPlayer) >= THREAT_MAJOR || pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false) <= MAJOR_CIV_APPROACH_GUARDED)
 					{
-						dMultiplier += 0.25;
+						dMultiplier += 0.32;
 					}
 				}
 			}

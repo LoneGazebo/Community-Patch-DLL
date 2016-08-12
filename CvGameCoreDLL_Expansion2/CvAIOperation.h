@@ -636,6 +636,7 @@ public:
 	{
 		return MUFORMATION_COLONIZATION_PARTY;
 	}
+	virtual bool IsNavalOperation() const { return true; }
 
 protected:
 	virtual bool RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy);

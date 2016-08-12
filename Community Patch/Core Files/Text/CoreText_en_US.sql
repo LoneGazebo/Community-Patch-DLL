@@ -180,6 +180,21 @@ UPDATE Language_en_US
 SET Text = 'Allowed units receive [COLOR_POSITIVE_TEXT]{@1_PromotionName}[ENDCOLOR] Promotion: {@2_PromotionHelp}'
 WHERE Tag = 'TXT_KEY_FREE_PROMOTION_FROM_TECH';
 
+UPDATE Language_en_US
+SET Text = 'A current war prevents this action.'
+WHERE Tag = 'TXT_KEY_DIPLO_ALREADY_AT_WAR';
+
+UPDATE Language_en_US
+SET Text = 'A City-State Alliance prevents this.'
+WHERE Tag = 'TXT_KEY_DIPLO_NO_WAR_ALLIES';
+
+UPDATE Language_en_US
+SET Text = 'A City-State Alliance prevents this.'
+WHERE Tag = 'TXT_KEY_DIPLO_MINOR_ALLY_AT_WAR';
+
+UPDATE Language_en_US
+SET Text = 'City-State is permanently at war.'
+WHERE Tag = 'TXT_KEY_DIPLO_MINOR_PERMANENT_WAR';
 
 -- Fixed diacritics for spy names.
 

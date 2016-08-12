@@ -2054,11 +2054,15 @@ void CvHomelandAI::ExecutePatrolMoves()
 					if(pLoopPlot == NULL)
 						continue;
 
-					//Don't patrol into cities.
-					if(pLoopPlot->isCity() && pUnit->getDomainType() == DOMAIN_SEA)
+					//Don't patrol in place.
+					if(pLoopPlot == pUnit->plot())
 						continue;
 
-					if (pUnit->canMoveInto(*vTargets[i]) && pLoopPlot->getDomain()==pUnit->getDomainType() && pLoopPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(),NO_DOMAIN)<4)
+					//Don't patrol into cities.
+					if(pLoopPlot->isCity())
+						continue;
+
+					if (pUnit->canMoveInto(*vTargets[i]) && pLoopPlot->getDomain()==pUnit->getDomainType() && pLoopPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(),NO_DOMAIN)<3)
 					{
 						iBestTurns = itPlot->iTurns;
 						pBestTarget = GC.getMap().plotByIndexUnchecked(itPlot->iPlotIndex);
@@ -6823,10 +6827,10 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 		bool bKill = false;
 
 		if ( pUnit->getDomainType()==DOMAIN_SEA )
-			bKill = (iWaterRoutes+2<iLandRoutes);
+			bKill = ((iWaterRoutes+2<iLandRoutes) || (iWaterRoutes == 0));
 
 		if ( pUnit->getDomainType()==DOMAIN_LAND )
-			bKill = (iLandRoutes+2<iWaterRoutes);
+			bKill = ((iLandRoutes+2<iWaterRoutes) || (iLandRoutes == 0));
 
 		if (bKill)
 		{

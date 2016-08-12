@@ -62,8 +62,7 @@ DELETE FROM Policy_BuildingClassProductionModifiers
 WHERE PolicyType = 'POLICY_SOCIALIST_REALISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Worker's Faculties
-UPDATE Policy_BuildingClassYieldModifiers
-SET YieldMod = '0'
+DELETE FROM Policy_BuildingClassYieldModifiers
 WHERE PolicyType = 'POLICY_WORKERS_FACULTIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 --Peace, Land, Bread
