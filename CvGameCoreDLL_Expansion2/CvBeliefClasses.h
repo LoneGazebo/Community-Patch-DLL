@@ -85,6 +85,7 @@ public:
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	int GetPressureChangeTradeRoute() const;
 	bool IsHalvedFollowers() const;
 	int GetYieldPerPop(int i) const;
 	int GetYieldPerGPT(int i) const;
@@ -303,6 +304,7 @@ protected:
     bool* m_pbBuildingClassEnabled;
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	int m_iGetPressureChangeTradeRoute;
 	bool m_bIsHalvedFollowers;
 	int* m_piYieldPerPop;
 	int* m_piYieldPerGPT;
@@ -509,6 +511,7 @@ public:
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	int GetPressureChangeTradeRoute(PlayerTypes ePlayer = NO_PLAYER) const;
 	bool IsHalvedFollowers(PlayerTypes ePlayer = NO_PLAYER) const;
 	int GetYieldPerPop(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
 	int GetYieldPerGPT(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, CvCity* pCity = NULL) const;

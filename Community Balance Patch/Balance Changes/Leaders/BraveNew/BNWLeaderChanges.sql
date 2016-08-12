@@ -236,6 +236,11 @@ UPDATE Traits
 SET GreatGeneralExtraBonus = '10'
 WHERE Type = 'TRAIT_BUFFALO_HORNS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+INSERT INTO Trait_MaintenanceModifierUnitCombats
+	(TraitType, UnitCombatType, MaintenanceModifier)
+VALUES
+	('TRAIT_BUFFALO_HORNS', 'UNITCOMBAT_GUN', -50);
+
 -- New BNW Leader Data and Yields
 
 -- New Improvement

@@ -645,8 +645,14 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 				GET_PLAYER(eOriginPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eDestPlayer, iTradeValueOrigin);
 			}
 		}
-
-	
+	}
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		GET_PLAYER(eOriginPlayer).CalculateNetHappiness();
+		if(eOriginPlayer != eDestPlayer)
+		{
+			GET_PLAYER(eDestPlayer).CalculateNetHappiness();
+		}
 	}
 #endif
 

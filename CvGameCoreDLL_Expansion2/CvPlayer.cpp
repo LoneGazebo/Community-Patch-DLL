@@ -5453,17 +5453,79 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 	if(pkEventInfo->isRequiresWar() && GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
 		return false;
 
-	if(pkEventInfo->getRequiredActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) <= 0)
+	if(pkEventInfo->getRequiredActiveEvent() != -1 && (GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) <= 0 && !IsEventFired((EventTypes)pkEventInfo->getRequiredActiveEvent())))
 		return false;
 
-	if(pkEventInfo->getRequiredActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) <= 0)
+	if(pkEventInfo->getRequiredActiveEventChoice() != -1 && (GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) <= 0 && !IsEventChoiceFired((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice())))
 		return false;
 
-	if(pkEventInfo->getRequiredNoActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActiveEvent()) > 0)
+	if(pkEventInfo->getRequiredNoActiveEvent() != -1 && (GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) > 0 || IsEventFired((EventTypes)pkEventInfo->getRequiredActiveEvent())))
 		return false;
 
-	if(pkEventInfo->getRequiredNoActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActiveEventChoice()) > 0)
+	if(pkEventInfo->getRequiredNoActiveEventChoice() != -1 && (GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) > 0 || IsEventChoiceFired((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice())))
 		return false;
+
+	//Let's do our linker checks here.
+	for(int iI = 0; iI < pkEventInfo->GetNumLinkers(); iI++)
+	{
+		CvEventLinkingInfo* pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
+		if(pLinkerInfo)
+		{
+			EventTypes eLinkerEvent = (EventTypes)pLinkerInfo->GetLinkingEvent();
+			EventChoiceTypes eLinkerEventChoice = (EventChoiceTypes)pLinkerInfo->GetLinkingEventChoice();
+			CityEventTypes eLinkerCityEvent = (CityEventTypes)pLinkerInfo->GetCityLinkingEvent();
+			CityEventChoiceTypes eLinkerCityEventChoice = (CityEventChoiceTypes)pLinkerInfo->GetCityLinkingEventChoice();
+
+			PlayerTypes ePlayer;
+			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				ePlayer = (PlayerTypes) iPlayerLoop;
+				if(ePlayer == NO_PLAYER)
+					continue;
+
+				CvPlayer &kPlayer2 = GET_PLAYER(ePlayer);
+
+				if(!pLinkerInfo->CheckOtherPlayers() && ePlayer != GetID())
+					continue;
+
+				if(eLinkerEvent != NO_EVENT)
+				{
+					bool bActive = (kPlayer2.GetEventCooldown(eLinkerEvent) > 0 || kPlayer2.IsEventFired(eLinkerEvent));
+					if(bActive != pLinkerInfo->CheckForActive())
+						return false;
+				}
+
+				if(eLinkerEventChoice != NO_EVENT_CHOICE)
+				{
+					bool bActive = (kPlayer2.GetEventChoiceDuration(eLinkerEventChoice) > 0 || kPlayer2.IsEventChoiceFired(eLinkerEventChoice));
+					if(bActive != pLinkerInfo->CheckForActive())
+						return false;
+				}
+
+				if(eLinkerCityEvent != NO_EVENT_CITY || eLinkerCityEventChoice != NO_EVENT_CHOICE_CITY)
+				{
+					int iLoop;
+					CvCity* pLoopCity;
+					for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+					{
+						if(eLinkerCityEvent != NO_EVENT_CITY)
+						{
+							bool bActive = (pLoopCity->GetEventCooldown(eLinkerCityEvent) > 0 || pLoopCity->IsEventFired(eLinkerCityEvent));
+							if(bActive != pLinkerInfo->CheckForActive())
+								return false;
+						}
+
+						if(eLinkerCityEventChoice != NO_EVENT_CHOICE_CITY)
+						{
+							bool bActive = (pLoopCity->GetEventChoiceDuration(eLinkerCityEventChoice) > 0 || pLoopCity->IsEventChoiceFired(eLinkerCityEventChoice));
+							if(bActive != pLinkerInfo->CheckForActive())
+								return false;
+						}
+					}
+				}
+			}
+		}
+	}
 
 	if(pkEventInfo->getRequiredStateReligion() != -1)
 	{
@@ -5801,7 +5863,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 		int iLoop;
 		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 		{
-			if(pCity != NULL && pCity->GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent()) > 0)
+			if(pCity != NULL && (pCity->GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent()) > 0 || pCity->IsEventFired((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent())))
 			{
 				bHas = true;
 				break;
@@ -5820,7 +5882,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 		int iLoop;
 		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 		{
-			if(pCity != NULL && pCity->GetEventChoiceDuration((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice()) > 0)
+			if(pCity != NULL && (pCity->GetEventChoiceDuration((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice()) > 0 || pCity->IsEventChoiceFired((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice())))
 			{
 				bHas = true;
 				break;
@@ -5839,7 +5901,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 		int iLoop;
 		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 		{
-			if(pCity != NULL && pCity->GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent()) > 0)
+			if(pCity != NULL && (pCity->GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent()) > 0 || pCity->IsEventFired((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent())))
 			{
 				bHas = true;
 				break;
@@ -5858,7 +5920,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 		int iLoop;
 		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 		{
-			if(pCity != NULL && pCity->GetEventChoiceDuration((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice()) > 0)
+			if(pCity != NULL && (pCity->GetEventChoiceDuration((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice()) > 0 || pCity->IsEventChoiceFired((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice())))
 			{
 				bHas = true;
 				break;
@@ -5896,7 +5958,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 			{
 				if(pkEventInfo->getRequiredActiveOtherPlayerEvent() != -1)
 				{
-					if(GET_PLAYER(eLoopPlayer).GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveOtherPlayerEvent()) > 0)
+					if(GET_PLAYER(eLoopPlayer).IsEventFired((EventTypes)pkEventInfo->getRequiredActiveOtherPlayerEvent()) || GET_PLAYER(eLoopPlayer).GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveOtherPlayerEvent()) > 0)
 					{
 						bHas = true;
 						break;
@@ -5904,7 +5966,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 				}
 				if(pkEventInfo->getRequiredActiveOtherPlayerEventChoice() != -1)
 				{
-					if(GET_PLAYER(eLoopPlayer).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveOtherPlayerEventChoice()) > 0)
+					if(GET_PLAYER(eLoopPlayer).IsEventChoiceFired((EventChoiceTypes)pkEventInfo->getRequiredActiveOtherPlayerEventChoice()) || GET_PLAYER(eLoopPlayer).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveOtherPlayerEventChoice()) > 0)
 					{
 						bHas = true;
 						break;
@@ -5912,7 +5974,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 				}
 				if(pkEventInfo->getRequiredNoActiveOtherPlayerEvent() != -1)
 				{
-					if(GET_PLAYER(eLoopPlayer).GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActiveOtherPlayerEvent()) > 0)
+					if(GET_PLAYER(eLoopPlayer).IsEventFired((EventTypes)pkEventInfo->getRequiredActiveOtherPlayerEvent()) || GET_PLAYER(eLoopPlayer).GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveOtherPlayerEvent()) > 0)
 					{
 						bHas = false;
 						break;
@@ -5920,7 +5982,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 				}
 				if(pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice() != -1)
 				{
-					if(GET_PLAYER(eLoopPlayer).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice()) > 0)
+					if(GET_PLAYER(eLoopPlayer).IsEventChoiceFired((EventChoiceTypes)pkEventInfo->getRequiredActiveOtherPlayerEventChoice()) || GET_PLAYER(eLoopPlayer).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveOtherPlayerEventChoice()) > 0)
 					{
 						bHas = false;
 						break;
@@ -6044,16 +6106,78 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 			return false;
 	}
 
-	if(pkEventInfo->getRequiredActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) <= 0)
+	//Let's do our linker checks here.
+	for(int iI = 0; iI < pkEventInfo->GetNumLinkers(); iI++)
+	{
+		CvEventChoiceLinkingInfo* pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
+		if(pLinkerInfo)
+		{
+			EventTypes eLinkerEvent = (EventTypes)pLinkerInfo->GetLinkingEvent();
+			EventChoiceTypes eLinkerEventChoice = (EventChoiceTypes)pLinkerInfo->GetLinkingEventChoice();
+			CityEventTypes eLinkerCityEvent = (CityEventTypes)pLinkerInfo->GetCityLinkingEvent();
+			CityEventChoiceTypes eLinkerCityEventChoice = (CityEventChoiceTypes)pLinkerInfo->GetCityLinkingEventChoice();
+
+			PlayerTypes ePlayer;
+			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				ePlayer = (PlayerTypes) iPlayerLoop;
+				if(ePlayer == NO_PLAYER)
+					continue;
+
+				CvPlayer &kPlayer2 = GET_PLAYER(ePlayer);
+
+				if(!pLinkerInfo->CheckOtherPlayers() && ePlayer != GetID())
+					continue;
+
+				if(eLinkerEvent != NO_EVENT)
+				{
+					bool bActive = (kPlayer2.GetEventCooldown(eLinkerEvent) > 0 || kPlayer2.IsEventFired(eLinkerEvent));
+					if(bActive != pLinkerInfo->CheckForActive())
+						return false;
+				}
+
+				if(eLinkerEventChoice != NO_EVENT_CHOICE)
+				{
+					bool bActive = (kPlayer2.GetEventChoiceDuration(eLinkerEventChoice) > 0 || kPlayer2.IsEventChoiceFired(eLinkerEventChoice));
+					if(bActive != pLinkerInfo->CheckForActive())
+						return false;
+				}
+
+				if(eLinkerCityEvent != NO_EVENT_CITY || eLinkerCityEventChoice != NO_EVENT_CHOICE_CITY)
+				{
+					int iLoop;
+					CvCity* pLoopCity;
+					for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+					{
+						if(eLinkerCityEvent != NO_EVENT_CITY)
+						{
+							bool bActive = (pLoopCity->GetEventCooldown(eLinkerCityEvent) > 0 || pLoopCity->IsEventFired(eLinkerCityEvent));
+							if(bActive != pLinkerInfo->CheckForActive())
+								return false;
+						}
+
+						if(eLinkerCityEventChoice != NO_EVENT_CHOICE_CITY)
+						{
+							bool bActive = (pLoopCity->GetEventChoiceDuration(eLinkerCityEventChoice) > 0 || pLoopCity->IsEventChoiceFired(eLinkerCityEventChoice));
+							if(bActive != pLinkerInfo->CheckForActive())
+								return false;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if(pkEventInfo->getRequiredActiveEvent() != -1 && (GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) <= 0 && !IsEventFired((EventTypes)pkEventInfo->getRequiredActiveEvent())))
 		return false;
 
-	if(pkEventInfo->getRequiredActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) <= 0)
+	if(pkEventInfo->getRequiredActiveEventChoice() != -1 && (GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) <= 0 && !IsEventChoiceFired((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice())))
 		return false;
 
-	if(pkEventInfo->getRequiredNoActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActiveEvent()) > 0)
+	if(pkEventInfo->getRequiredNoActiveEvent() != -1 && (GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) > 0 || IsEventFired((EventTypes)pkEventInfo->getRequiredActiveEvent())))
 		return false;
 
-	if(pkEventInfo->getRequiredNoActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActiveEventChoice()) > 0)
+	if(pkEventInfo->getRequiredNoActiveEventChoice() != -1 && (GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) > 0 || IsEventChoiceFired((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice())))
 		return false;
 
 	if(pkEventInfo->hasMetAnotherCiv())
@@ -6381,14 +6505,14 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 		return false;
 	}
 
-	if(pkEventInfo->getRequiredActiveCityEvent() != -1)
+		if(pkEventInfo->getRequiredActiveCityEvent() != -1)
 	{
 		bool bHas = false;
 		CvCity* pCity = NULL;
 		int iLoop;
 		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 		{
-			if(pCity != NULL && pCity->GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent()) > 0)
+			if(pCity != NULL && (pCity->GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent()) > 0 || pCity->IsEventFired((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent())))
 			{
 				bHas = true;
 				break;
@@ -6407,13 +6531,51 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 		int iLoop;
 		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 		{
-			if(pCity != NULL && pCity->GetEventChoiceDuration((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice()) > 0)
+			if(pCity != NULL && (pCity->GetEventChoiceDuration((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice()) > 0 || pCity->IsEventChoiceFired((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice())))
 			{
 				bHas = true;
 				break;
 			}
 		}
 		if(!bHas)
+		{
+			return false;
+		}
+	}
+
+	if(pkEventInfo->getRequiredNoActiveCityEvent() != -1)
+	{
+		bool bHas = false;
+		CvCity* pCity = NULL;
+		int iLoop;
+		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+		{
+			if(pCity != NULL && (pCity->GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent()) > 0 || pCity->IsEventFired((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent())))
+			{
+				bHas = true;
+				break;
+			}
+		}
+		if(bHas)
+		{
+			return false;
+		}
+	}
+
+	if(pkEventInfo->getRequiredNoActiveCityEventChoice() != -1)
+	{
+		bool bHas = false;
+		CvCity* pCity = NULL;
+		int iLoop;
+		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+		{
+			if(pCity != NULL && (pCity->GetEventChoiceDuration((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice()) > 0 || pCity->IsEventChoiceFired((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice())))
+			{
+				bHas = true;
+				break;
+			}
+		}
+		if(bHas)
 		{
 			return false;
 		}
@@ -7355,25 +7517,199 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		}
 	}
 
-	if(pkEventInfo->getRequiredActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) <= 0)
+	//Let's do our linker checks here.
+	for(int iI = 0; iI < pkEventInfo->GetNumLinkers(); iI++)
+	{
+		CvEventChoiceLinkingInfo* pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
+		if(pLinkerInfo)
+		{
+			EventTypes eLinkerEvent = (EventTypes)pLinkerInfo->GetLinkingEvent();
+			EventChoiceTypes eLinkerEventChoice = (EventChoiceTypes)pLinkerInfo->GetLinkingEventChoice();
+			CityEventTypes eLinkerCityEvent = (CityEventTypes)pLinkerInfo->GetCityLinkingEvent();
+			CityEventChoiceTypes eLinkerCityEventChoice = (CityEventChoiceTypes)pLinkerInfo->GetCityLinkingEventChoice();
+
+			PlayerTypes ePlayer;
+
+			bool bEventFound = false;
+			bool bEventChoiceFound = false;
+			bool bCityEventFound = false;
+			bool bCityEventChoiceFound = false;
+			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				ePlayer = (PlayerTypes) iPlayerLoop;
+				if(ePlayer == NO_PLAYER)
+					continue;
+
+				if(!pLinkerInfo->CheckOtherPlayers() && ePlayer != GetID())
+					continue;
+
+				if(eLinkerEvent != NO_EVENT && !bEventFound)
+				{
+					bool bActive = (GetEventCooldown(eLinkerEvent) > 0 || IsEventFired(eLinkerEvent));
+					if(bActive != pLinkerInfo->CheckForActive())
+					{
+						if(bActive)
+						{
+							if(pLinkerInfo->CheckOtherPlayers())
+							{
+								localizedDurationText = Localization::Lookup("TXT_KEY_NEED_OTHER_PLAYER_EVENT_ACTIVE");
+							}
+							else
+							{	
+								localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_EVENT");
+							}
+						}
+						else
+						{
+							if(pLinkerInfo->CheckOtherPlayers())
+							{
+								localizedDurationText = Localization::Lookup("TXT_KEY_NEED_OTHER_PLAYER_EVENT_NO_ACTIVE");
+							}
+							else
+							{
+								localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_ACTIVE_PLAYER_EVENT");
+								
+							}
+						}
+						localizedDurationText << GC.getEventInfo(eLinkerEvent)->GetDescription();
+						DisabledTT += localizedDurationText.toUTF8();
+						bEventFound = true;
+					}
+				}
+
+				if(eLinkerEventChoice != NO_EVENT_CHOICE && !bEventChoiceFound)
+				{
+					bool bActive = (GetEventChoiceDuration(eLinkerEventChoice) > 0 || IsEventChoiceFired(eLinkerEventChoice));
+					if(bActive != pLinkerInfo->CheckForActive())
+					{
+						if(bActive)
+						{
+							if(pLinkerInfo->CheckOtherPlayers())
+							{
+								localizedDurationText = Localization::Lookup("TXT_KEY_NEED_OTHER_PLAYER_EVENT_CHOICE_ACTIVE");
+
+							}
+							else
+							{
+								localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_EVENT_CHOICE");
+							}
+						}
+						else
+						{
+							if(pLinkerInfo->CheckOtherPlayers())
+							{
+								localizedDurationText = Localization::Lookup("TXT_KEY_NEED_OTHER_PLAYER_NO_EVENT_CHOICE_ACTIVE");
+							}
+							else
+							{
+								localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_ACTIVE_PLAYER_EVENT_CHOICE");
+							}
+						}
+						localizedDurationText << GC.getEventChoiceInfo(eLinkerEventChoice)->GetDescription();
+						DisabledTT += localizedDurationText.toUTF8();
+						bEventChoiceFound = true;
+						break;
+					}
+				}
+
+				if(eLinkerCityEvent != NO_EVENT_CITY || eLinkerCityEventChoice != NO_EVENT_CHOICE_CITY)
+				{
+					int iLoop;
+					CvCity* pLoopCity;
+					for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+					{
+						if(eLinkerCityEvent != NO_EVENT_CITY && !bCityEventFound)
+						{
+							bool bActive = (pLoopCity->GetEventCooldown(eLinkerCityEvent) > 0 || pLoopCity->IsEventFired(eLinkerCityEvent));
+							if(bActive != pLinkerInfo->CheckForActive())
+							{
+								if(bActive)
+								{
+									if(pLinkerInfo->CheckOtherPlayers())
+									{
+										localizedDurationText = Localization::Lookup("TXT_KEY_NEED_OTHER_PLAYER_CITY_EVENT_ACTIVE");
+									}
+									else
+									{
+										localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_CITY_EVENT");
+									}
+								}
+								else
+								{
+									if(pLinkerInfo->CheckOtherPlayers())
+									{
+										localizedDurationText = Localization::Lookup("TXT_KEY_NEED_OTHER_PLAYER_NO_CITY_EVENT_ACTIVE");
+									}
+									else
+									{
+										localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_ACTIVE_CITY_EVENT");
+									}
+								}
+								localizedDurationText << GC.getCityEventInfo(eLinkerCityEvent)->GetDescription();
+								DisabledTT += localizedDurationText.toUTF8();
+								bCityEventFound = true;
+								break;
+							}
+						}
+
+						if(!bCityEventChoiceFound && eLinkerCityEventChoice != NO_EVENT_CHOICE_CITY)
+						{
+							bool bActive = (pLoopCity->GetEventChoiceDuration(eLinkerCityEventChoice) > 0 || pLoopCity->IsEventChoiceFired(eLinkerCityEventChoice));
+							if(bActive != pLinkerInfo->CheckForActive())
+							{
+								if(bActive)
+								{
+									if(pLinkerInfo->CheckOtherPlayers())
+									{
+										localizedDurationText = Localization::Lookup("TXT_KEY_NEED_OTHER_PLAYER_CITY_EVENT_CHOICE_ACTIVE");
+									}
+									else
+									{
+										localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_CITY_EVENT_CHOICE");
+									}
+								}
+								else
+								{
+									if(pLinkerInfo->CheckOtherPlayers())
+									{
+										localizedDurationText = Localization::Lookup("TXT_KEY_NEED_OTHER_PLAYER_CITY_EVENT_CHOICE_NO_ACTIVE");
+									}
+									else
+									{
+										localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_ACTIVE_CITY_EVENT_CHOICE");
+									}
+								}
+								localizedDurationText << GC.getCityEventChoiceInfo(eLinkerCityEventChoice)->GetDescription();
+								DisabledTT += localizedDurationText.toUTF8();
+								bCityEventChoiceFound = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if(pkEventInfo->getRequiredActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) <= 0 && !IsEventFired((EventTypes)pkEventInfo->getRequiredActiveEvent()))
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_EVENT");
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if(pkEventInfo->getRequiredActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) <= 0)
+	if(pkEventInfo->getRequiredActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) <= 0 && IsEventChoiceFired((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()))
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_EVENT_CHOICE");
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if(pkEventInfo->getRequiredNoActiveEvent() != -1 && GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActiveEvent()) > 0)
+	if(pkEventInfo->getRequiredNoActiveEvent() != -1 && (GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveEvent()) > 0 || IsEventFired((EventTypes)pkEventInfo->getRequiredActiveEvent())))
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NOT_ACTIVE_EVENT");
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if(pkEventInfo->getRequiredNoActiveEventChoice() != -1 && GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActiveEventChoice()) > 0)
+	if(pkEventInfo->getRequiredNoActiveEventChoice() != -1 && (GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice()) > 0 || IsEventChoiceFired((EventChoiceTypes)pkEventInfo->getRequiredActiveEventChoice())))
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NOT_ACTIVE_EVENT_CHOICE");
 		DisabledTT += localizedDurationText.toUTF8();
@@ -7735,7 +8071,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		int iLoop;
 		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 		{
-			if(pCity != NULL && pCity->GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent()) > 0)
+			if(pCity != NULL && (pCity->GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent()) > 0 || pCity->IsEventFired((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent())))
 			{
 				bHas = true;
 				break;
@@ -7756,7 +8092,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		int iLoop;
 		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 		{
-			if(pCity != NULL && pCity->GetEventChoiceDuration((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice()) > 0)
+			if(pCity != NULL && (pCity->GetEventChoiceDuration((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice()) > 0 || pCity->IsEventChoiceFired((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice())))
 			{
 				bHas = true;
 				break;
@@ -7765,6 +8101,48 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		if(!bHas)
 		{
 			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_CITY_EVENT_CHOICE");
+			localizedDurationText << GC.getCityEventChoiceInfo((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice())->GetDescription();
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+	if(pkEventInfo->getRequiredNoActiveCityEvent() != -1)
+	{
+		bool bHas = true;
+		CvCity* pCity = NULL;
+		int iLoop;
+		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+		{
+			if(pCity != NULL && (pCity->GetEventCooldown((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent()) > 0 || pCity->IsEventFired((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent())))
+			{
+				bHas = false;
+				break;
+			}
+		}
+		if(!bHas)
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_ACTIVE_CITY_EVENT");
+			localizedDurationText << GC.getCityEventInfo((CityEventTypes)pkEventInfo->getRequiredActiveCityEvent())->GetDescription();
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
+	if(pkEventInfo->getRequiredNoActiveCityEventChoice() != -1)
+	{
+		bool bHas = true;
+		CvCity* pCity = NULL;
+		int iLoop;
+		for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+		{
+			if(pCity != NULL && (pCity->GetEventChoiceDuration((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice()) > 0 || pCity->IsEventChoiceFired((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice())))
+			{
+				bHas = false;
+				break;
+			}
+		}
+		if(!bHas)
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_ACTIVE_CITY_EVENT_CHOICE");
 			localizedDurationText << GC.getCityEventChoiceInfo((CityEventChoiceTypes)pkEventInfo->getRequiredActiveCityEventChoice())->GetDescription();
 			DisabledTT += localizedDurationText.toUTF8();
 		}
@@ -7802,7 +8180,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 			{
 				if(pkEventInfo->getRequiredActiveOtherPlayerEvent() != -1)
 				{
-					if(GET_PLAYER(eLoopPlayer).GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveOtherPlayerEvent()) > 0)
+					if(GET_PLAYER(eLoopPlayer).GetEventCooldown((EventTypes)pkEventInfo->getRequiredActiveOtherPlayerEvent()) > 0 || GET_PLAYER(eLoopPlayer).IsEventFired((EventTypes)pkEventInfo->getRequiredActiveOtherPlayerEvent()))
 					{
 						bHas = true;
 						break;
@@ -7810,7 +8188,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 				}
 				if(pkEventInfo->getRequiredActiveOtherPlayerEventChoice() != -1)
 				{
-					if(GET_PLAYER(eLoopPlayer).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveOtherPlayerEventChoice()) > 0)
+					if(GET_PLAYER(eLoopPlayer).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredActiveOtherPlayerEventChoice()) > 0 || GET_PLAYER(eLoopPlayer).IsEventChoiceFired((EventChoiceTypes)pkEventInfo->getRequiredActiveOtherPlayerEventChoice()))
 					{
 						bHas = true;
 						break;
@@ -7818,7 +8196,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 				}
 				if(pkEventInfo->getRequiredNoActiveOtherPlayerEvent() != -1)
 				{
-					if(GET_PLAYER(eLoopPlayer).GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActiveOtherPlayerEvent()) > 0)
+					if(GET_PLAYER(eLoopPlayer).GetEventCooldown((EventTypes)pkEventInfo->getRequiredNoActiveOtherPlayerEvent()) > 0 || GET_PLAYER(eLoopPlayer).IsEventFired((EventTypes)pkEventInfo->getRequiredNoActiveOtherPlayerEvent()))
 					{
 						bHas = false;
 						break;
@@ -7826,7 +8204,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 				}
 				if(pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice() != -1)
 				{
-					if(GET_PLAYER(eLoopPlayer).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice()) > 0)
+					if(GET_PLAYER(eLoopPlayer).GetEventChoiceDuration((EventChoiceTypes)pkEventInfo->getRequiredNoActiveOtherPlayerEventChoice()) > 0 || GET_PLAYER(eLoopPlayer).IsEventChoiceFired((EventChoiceTypes)pkEventInfo->getRequiredActiveOtherPlayerEventChoice()))
 					{
 						bHas = false;
 						break;
@@ -32229,7 +32607,7 @@ void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
 			iAverageDistanceBetweenCities /= 3;
 		}
 		//If small empire (CS, OCC, etc.), increase the value.
-		if(GET_PLAYER(ePlayer).getNumCities() <= 1)
+		if(GET_PLAYER(ePlayer).getNumCities() <= 2)
 		{
 			iAverageDistanceBetweenCities *= 3;
 			iAverageDistanceBetweenCities /= 2;
@@ -32237,22 +32615,17 @@ void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
 #endif
 
 		// Closest Cities must be within a certain range
-		if(iAverageDistanceBetweenCities <= /*7*/ GC.getPROXIMITY_NEIGHBORS_CLOSEST_CITY_REQUIREMENT())
+		if(iAverageDistanceBetweenCities < /*6*/ GC.getPROXIMITY_NEIGHBORS_CLOSEST_CITY_REQUIREMENT())
 		{
 			eProximity = PLAYER_PROXIMITY_NEIGHBORS;
 		}
-		// If our closest Cities are pretty near one another  and our average is less than the max then we can be considered CLOSE (will also look at City average below)
-		else if(iAverageDistanceBetweenCities <= /*10*/ GC.getPROXIMITY_CLOSE_CLOSEST_CITY_POSSIBILITY())
+		// If our closest Cities are pretty near one another and our average is less than the max then we can be considered CLOSE
+		else if(iAverageDistanceBetweenCities < /*12*/ GC.getPROXIMITY_CLOSE_CLOSEST_CITY_POSSIBILITY())
 		{
 			eProximity = PLAYER_PROXIMITY_CLOSE;
 		}
-		// If our closest Cities are pretty near one another  and our average is less than the max then we can be considered CLOSE (will also look at City average below)
-		else if(iAverageDistanceBetweenCities <= /*14*/ GC.getPROXIMITY_CLOSE_CLOSEST_CITY_POSSIBILITY())
-		{
-			eProximity = PLAYER_PROXIMITY_CLOSE;
-		}
-		// If our closest Cities are pretty near one another  and our average is less than the max then we can be considered CLOSE (will also look at City average below)
-		else if(iAverageDistanceBetweenCities <= /*20*/ GC.getPROXIMITY_FAR_DISTANCE_MAX())
+		// If our closest Cities are far awat from one another and our average is less than the max then we can be considered FAR
+		else if(iAverageDistanceBetweenCities < /*180*/ GC.getPROXIMITY_FAR_DISTANCE_MAX())
 		{
 			eProximity = PLAYER_PROXIMITY_FAR;
 		}
@@ -37733,7 +38106,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				{
 					continue;
 				}
-				if(pLoopCity->IsResistance() || pLoopCity->IsRazing())
+				if(pLoopCity->IsRazing())
 				{
 					continue;
 				}

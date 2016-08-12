@@ -908,24 +908,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				// Major civ
 				else
 				{
-					//Can't make peace yet?
-					if(pFromTeam->GetNumTurnsLockedIntoWar(pOtherPlayer->getTeam()) > 0)
-						return false;
-
-					//Can't make peace yet?
-					if(GET_TEAM(pOtherPlayer->getTeam()).GetNumTurnsLockedIntoWar(pFromPlayer->getTeam()) > 0)
+					//Either side can't make peace yet?
+					if(!GET_TEAM(pFromPlayer->getTeam()).canChangeWarPeace(pOtherPlayer->getTeam()))
 						return false;
 
 					//Either side can't make peace yet?
-					if(!pFromPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(pOtherPlayer->GetID()))
-						return false;
-
-					//Either side can't make peace yet?
-					if(!pOtherPlayer->GetDiplomacyAI()->IsWantsPeaceWithPlayer(pFromPlayer->GetID()))
-						return false;
-
-					int iTurns = 30;
-					if(GET_TEAM(pOtherPlayer->getTeam()).GetNumTurnsAtWar(pFromPlayer->getTeam()) <= iTurns)
+					if(!GET_TEAM(pOtherPlayer->getTeam()).canChangeWarPeace(pFromPlayer->getTeam()))
 						return false;
 				
 					//Only matters if not a peace deal (i.e. we're not making negotiations)
@@ -992,7 +980,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 		//Need embassy.
-		if (!GET_TEAM(eFromTeam).HasEmbassyAtTeam(eToTeam))
+		if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
 			return false;
 
 		//Not allowed in peace deals.

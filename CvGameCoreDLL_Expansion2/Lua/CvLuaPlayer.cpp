@@ -5875,9 +5875,10 @@ int CvLuaPlayer::lGetNumPolicies(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 #if defined(MOD_BALANCE_CORE)
 	bool bIgnoreFinishers = luaL_optbool(L, 2, false);
+	bool bIgnoreDummy = luaL_optbool(L, 3, false);
 	if(pkPlayer->GetPlayerPolicies())
 	{
-		const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(bIgnoreFinishers);
+		const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(bIgnoreFinishers, bIgnoreDummy);
 #else
 		const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned();
 #endif

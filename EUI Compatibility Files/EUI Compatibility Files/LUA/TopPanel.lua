@@ -286,7 +286,6 @@ end
 local function UpdateTopPanelNow()
 
 	g_requestTopPanelUpdate = false
-
 	-----------------------------
 	-- Update science stats
 	-----------------------------
@@ -2588,6 +2587,9 @@ function()
 	if g_clockFormat then
 		Controls.CurrentTime:SetText( os_date( g_clockFormat ) )
 	end
+
+	g_activePlayerID = Game.GetActivePlayer()
+	g_activePlayer = Players[g_activePlayerID]
 
 	if g_isPopupUp ~= UI.IsPopupUp() then
 		Controls.TopPanelMask:SetHide( g_isPopupUp or g_isSmallScreen )

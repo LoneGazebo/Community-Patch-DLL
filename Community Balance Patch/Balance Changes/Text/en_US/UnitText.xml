@@ -481,5 +481,20 @@
 		<Row Tag="TXT_KEY_PROMOTION_BOARDING_PARTY_4_HELP">
 			<Text>+50% bonus to [COLOR_POSITIVE_TEXT]Flank Attack[ENDCOLOR] [ICON_STRENGTH] Combat Strength bonus.</Text>
 		</Row>
+
+
+		<Row Tag="TXT_KEY_PROMOTION_SACRED_STEPS">
+			<Text>Sacred Steps</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SACRED_STEPS_HELP">
+			<Text>+2 [ICON_MOVES] Movement.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_EVERLASTING_YOUTH">
+			<Text>Everlasting Youth</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_EVERLASTING_YOUTH_HELP">
+			<Text>Unit heals every turn regardless of actions taken.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

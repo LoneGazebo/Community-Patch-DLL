@@ -685,6 +685,9 @@ public:
 	bool IsDelayWhenNoCulture() const;
 	bool IsDelayWhenNoCityStates() const;
 	bool IsDelayWhenNoScience() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetNumPolicyRequirement() const;
+#endif
 
 	// Accessor Functions (Arrays)
 	int GetPolicyBranchDisables(int i) const;
@@ -702,6 +705,9 @@ private:
 	bool m_bDelayWhenNoCulture;
 	bool m_bDelayWhenNoCityStates;
 	bool m_bDelayWhenNoScience;
+#if defined(MOD_BALANCE_CORE)
+	int m_iNumPolicyRequirement;
+#endif
 
 	// Arrays
 	int* m_piPolicyBranchDisables;

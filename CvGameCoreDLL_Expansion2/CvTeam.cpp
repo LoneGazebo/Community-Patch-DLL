@@ -1177,6 +1177,11 @@ bool CvTeam::canChangeWarPeace(TeamTypes eTeam) const
 	{
 		return false;
 	}
+
+	if(GetNumTurnsLockedIntoWar(eTeam) > 0 || GET_TEAM(eTeam).GetNumTurnsLockedIntoWar(GetID()) > 0)
+	{
+		return false;
+	}
 #endif
 
 	if(isPermanentWarPeace(eTeam) || GET_TEAM(eTeam).isPermanentWarPeace(GetID()))

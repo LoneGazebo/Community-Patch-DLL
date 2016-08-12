@@ -124,7 +124,7 @@ local g_primaryColors = EUI.PrimaryColors
 local g_backgroundColors = EUI.BackgroundColors
 
 local g_cityHexHighlight
-
+local g_requestTopPanelUpdate
 local g_dirtyCityBanners = {}
 
 --local g_CovertOpsBannerContainer = civBE_mode and ContextPtr:LookUpControl( "../CovertOpsBannerContainer" )
@@ -925,6 +925,7 @@ local function RefreshCityBannersNow()
 	local isDebug = Game.IsDebugMode() or g_activePlayer:IsObserver()
 	------------------------------
 	-- Loop all dirty city banners
+	local bUpdated = false;
 	for plotIndex in pairs( g_dirtyCityBanners ) do
 
 		local instance = g_cityBanners[ plotIndex ]
@@ -1345,10 +1346,15 @@ local function RefreshCityBannersNow()
 				end
 				Events_RequestYieldDisplay( YieldDisplayTypes.CITY_OWNED, city:GetX(), city:GetY() )
 			end
+
+			bUpdated = true;
 		-- No city on this plot ? Destroy !
 		else
 			DestroyCityBanner( plotIndex, instance )
 		end
+	end
+	if bUpdated then
+		g_requestTopPanelUpdate = true;
 	end
 	-- Loop all dirty city banners
 	------------------------------

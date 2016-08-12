@@ -2915,6 +2915,9 @@ CvPolicyBranchEntry::CvPolicyBranchEntry(void):
 	m_iFreeFinishingPolicy(NO_POLICY),
 	m_iFirstAdopterFreePolicies(0),
 	m_iSecondAdopterFreePolicies(0),
+#if defined(MOD_BALANCE_CORE)
+	m_iNumPolicyRequirement(0),
+#endif
 	m_piPolicyBranchDisables(NULL)
 {
 }
@@ -2954,6 +2957,9 @@ bool CvPolicyBranchEntry::CacheResults(Database::Results& kResults, CvDatabaseUt
 	m_bDelayWhenNoCulture = kResults.GetBool("AIDelayNoCulture");
 	m_bDelayWhenNoCityStates = kResults.GetBool("AIDelayNoCityStates");
 	m_bDelayWhenNoScience = kResults.GetBool("AIDelayNoScience");
+#if defined(MOD_BALANCE_CORE)
+	m_iNumPolicyRequirement = kResults.GetInt("NumPolicyRequirement");
+#endif
 
 	//PolicyBranch_Disables
 	{
@@ -3059,7 +3065,13 @@ bool CvPolicyBranchEntry::IsDelayWhenNoScience() const
 {
 	return m_bDelayWhenNoScience;
 }
-
+#if defined(MOD_BALANCE_CORE)
+/// Policies needed to unlock branch.
+int CvPolicyBranchEntry::GetNumPolicyRequirement() const
+{
+	return m_iNumPolicyRequirement;
+}
+#endif
 //=====================================
 // CvPolicyXMLEntries
 //=====================================
@@ -4466,6 +4478,13 @@ bool CvPlayerPolicies::CanUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 					}
 				}
 			}
+			//Using a system of numbers instead? Okay.
+			int iNumPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(true, true);
+			if(iNumPolicies >= pkBranchEntry->GetNumPolicyRequirement())
+			{
+				bCanUnlockEarly = true;
+			}
+
 			if(!bCanUnlockEarly && GET_TEAM(GetPlayer()->getTeam()).GetCurrentEra() < ePrereqEra)
 			{
 				return false;
@@ -5315,6 +5334,13 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 	}
 #if defined(MOD_BALANCE_CORE_IDEOLOGY_START)
 	if(MOD_BALANCE_CORE_IDEOLOGY_START && m_pPlayer->GetIdeologyPoint() >= GC.getBALANCE_MOD_POLICY_BRANCHES_NEEDED_IDEOLOGY())
+	{
+		if (m_pPlayer->GetCurrentEra() >= GD_INT_GET(IDEOLOGY_PREREQ_ERA))
+		{
+			return true;
+		}
+	}
+	if(MOD_BALANCE_CORE_IDEOLOGY_START && m_pPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(true, true) >= GC.getBALANCE_MOD_POLICIES_NEEDED_IDEOLOGY())
 	{
 		if (m_pPlayer->GetCurrentEra() >= GD_INT_GET(IDEOLOGY_PREREQ_ERA))
 		{

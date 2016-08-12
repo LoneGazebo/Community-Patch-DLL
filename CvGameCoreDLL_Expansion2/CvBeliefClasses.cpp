@@ -74,6 +74,7 @@ CvBeliefEntry::CvBeliefEntry() :
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	m_iGetPressureChangeTradeRoute(0),
 	m_bIsHalvedFollowers(false),
 	m_piYieldPerPop(NULL),
 	m_piYieldPerGPT(NULL),
@@ -491,6 +492,10 @@ bool CvBeliefEntry::RequiresNoFeature() const
 bool CvBeliefEntry::IsHalvedFollowers() const
 {
 	return m_bIsHalvedFollowers;
+}
+int CvBeliefEntry::GetPressureChangeTradeRoute() const
+{
+	return m_iGetPressureChangeTradeRoute;
 }
 /// Accessor:: Yield Per Pop
 int CvBeliefEntry::GetYieldPerPop(int i) const
@@ -1099,6 +1104,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bRequiresNoFeature			  = kResults.GetBool("RequiresNoImprovementFeature");
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	m_iGetPressureChangeTradeRoute = kResults.GetInt("PressureChangeTradeRoute");
 	m_bIsHalvedFollowers			  = kResults.GetBool("HalvedFollowers");
 	m_iCombatVersusOtherReligionOwnLands = kResults.GetInt("CombatVersusOtherReligionOwnLands");
 	m_iCombatVersusOtherReligionTheirLands = kResults.GetInt("CombatVersusOtherReligionTheirLands");
@@ -3330,6 +3336,22 @@ int CvReligionBeliefs::GetYieldPerPop(YieldTypes eYieldType, PlayerTypes ePlayer
 		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
 		{
 			rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerPop(eYieldType);
+		}
+	}
+
+	return rtnValue;
+}
+/// Get bonus pressure from trade routes
+int CvReligionBeliefs::GetPressureChangeTradeRoute(PlayerTypes ePlayer) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		if(IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		{
+			rtnValue += pBeliefs->GetEntry(*it)->GetPressureChangeTradeRoute();
 		}
 	}
 

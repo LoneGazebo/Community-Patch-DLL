@@ -358,10 +358,24 @@ function UpdateDisplay()
 
 				elseif (not player:CanUnlockPolicyBranch(i)) then
 					
-					strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK");
+					local iNumPolicies = player:GetNumPolicies(true, true);
+					local iNeed = policyBranchInfo.NumPolicyRequirement;
+					local iNeeded = iNeed - iNumPolicies;
+					if(iNeeded > 0) then
+						strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_NEED_MORE", iNeeded);
+					else
+						strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK");
+					end
 					
+					-- Wrong Era and Need Policies
+					if(bEraLock and iNeeded > 0) then
+						local strEra = GameInfo.Eras[iEraPrereq].Description;
+						strToolTip = strToolTip .. " " .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_ERA_ALT", strEra);
+						local strEraTitle = Locale.ConvertTextKey(strEra);
+						thisButton:SetText( strEraTitle );
+
 					-- Not in prereq Era
-					if (bEraLock) then
+					elseif (bEraLock and iNeeded <= 0) then
 						local strEra = GameInfo.Eras[iEraPrereq].Description;
 						strToolTip = strToolTip .. " " .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_ERA", strEra);
 						
@@ -716,6 +730,9 @@ function UpdateDisplay()
 	    Controls.IdeologyTitle:SetText(ideologyTitle);
 	    Controls.ChooseTenetTitle:SetText(ideologyTitle);
 		Controls.NoIdeology:SetHide(true);
+		--CBP
+		Controls.PoliciesLeft:SetHide(true);
+		--END
 		Controls.DisabledIdeology:SetHide(true);
 		Controls.HasIdeology:SetHide(false);
 		
@@ -775,7 +792,14 @@ function UpdateDisplay()
 		local bDisablePolicies = Game.IsOption(GameOptionTypes.GAMEOPTION_NO_POLICIES);
 		Controls.NoIdeology:SetHide(bDisablePolicies);
 	    Controls.DisabledIdeology:SetHide(not bDisablePolicies);
-		
+		--CBP
+		local iNumPolicies = player:GetNumPolicies(true, true);
+		local iNeed = GameDefines.BALANCE_MOD_POLICIES_NEEDED_IDEOLOGY;
+		local iNeeded = iNeed - iNumPolicies;
+		local strPoliciesLeft = Locale.ConvertTextKey("TXT_KEY_POLICYSCREEN_POLICIES_NEEDED_UNTIL_IDEOLOGY", iNeeded);
+		Controls.PoliciesLeftLabel:SetText(strPoliciesLeft);
+		Controls.PoliciesLeft:SetHide(bDisablePolicies);
+		--END
 	end
 end
 Events.EventPoliciesDirty.Add( UpdateDisplay );

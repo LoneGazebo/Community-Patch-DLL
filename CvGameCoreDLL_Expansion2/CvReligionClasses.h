@@ -642,10 +642,10 @@ private:
 	void DoFaithPurchasesInCities(CvCity* pCity);
 #endif
 	void DoFaithPurchases();
-	void BuyMissionary(ReligionTypes eReligion);
-	void BuyInquisitor(ReligionTypes eReligion);
-	void BuyGreatPerson(UnitTypes eUnit);
-	void BuyFaithBuilding(ReligionTypes eReligion, BuildingClassTypes eBuildingClass);
+	bool BuyMissionary(ReligionTypes eReligion);
+	bool BuyInquisitor(ReligionTypes eReligion);
+	bool BuyGreatPerson(UnitTypes eUnit);
+	bool BuyFaithBuilding(CvCity* pCity, BuildingTypes eBuilding);
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	bool BuyAnyAvailableNonFaithUnit();
 #endif

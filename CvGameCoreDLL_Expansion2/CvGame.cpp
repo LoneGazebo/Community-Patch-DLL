@@ -4659,7 +4659,7 @@ int CvGame::getNumSequentialHumans(PlayerTypes ignorePlayer)
 }
 
 //	------------------------------------------------------------------------------------------------
-int CvGame::getGameTurn()
+int CvGame::getGameTurn() const
 {
 	return CvPreGame::gameTurn();
 }
@@ -9775,7 +9775,7 @@ int CvGame::getRandNum(int iNum, const char* pszLog)
 	if (iNum > 0)
 		return getRand().get(iNum, pszLog);
 
-	return (getRand().get(iNum, pszLog) * -1);
+	return (getRand().get(-iNum, pszLog) * -1);
 #else
 	return m_jonRand.get(iNum, pszLog);
 #endif
@@ -9808,26 +9808,36 @@ int CvGame::getRandNumVA(int iNum, const char* pszLog, ...)
 //	--------------------------------------------------------------------------------
 // Get a fake random number which depends only on game state
 // for small numbers (e.g. direction rolls) this should be good enough
+// most importantly, it should reduce desyncs in multiplayer
+
+int CvGame::getSeedFromGameState() const
+{
+	return m_iCultureAverage + m_iScienceAverage + m_iDefenseAverage + m_iGoldAverage + m_iGlobalPopulation + m_iGlobalAssetCounter + getGameTurn();
+}
 int CvGame::getSmallFakeRandNum(int iNum, CvPlot& input)
 {
+	int iFake = getSeedFromGameState()+input.getX()*17+input.getY()*23+getGameTurn()*2+m_iGlobalAssetCounter*10;
+	
 	if (iNum>0)
-		return (input.getX()*17+input.getY()*23+getGameTurn()*3+m_iGlobalAssetCounter*11) % iNum;
+		return iFake % iNum; 
 	else
-		return 0;
+		return (-1) * ((iFake) % (-iNum));
 }
-int CvGame::getSmallFakeRandNum(int iNum, int iSeed)
+int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
+	int iFake = getSeedFromGameState()+iExtraSeed;
 	if (iNum>0)
-		return (getGameTurn()+m_iGlobalAssetCounter*3+iSeed) % iNum;
+		return iFake % iNum; 
 	else
-		return 0;
+		return (-1) * ((iFake) % (-iNum));
 }
 int CvGame::getSmallFakeRandNum(int iNum)
 {
+	int iFake = getSeedFromGameState();
 	if (iNum>0)
-		return (getGameTurn()+m_iGlobalAssetCounter) % iNum;
+		return iFake % iNum; 
 	else
-		return 0;
+		return (-1) * ((iFake) % (-iNum));
 }
 #endif
 

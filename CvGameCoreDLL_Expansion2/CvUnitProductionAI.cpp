@@ -480,11 +480,35 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Policy unlock or move-on-purchase? These are usually cheap and good, so get em!
 		if(pkUnitEntry->GetPolicyType() != NO_POLICY || pkUnitEntry->CanMoveAfterPurchase())
 		{
-			int iGoldCost = m_pCity->GetPurchaseCost(eUnit);
-			if((kPlayer.GetTreasury()->GetGold() - iGoldCost) > 0)
+			if(bCombat && bAtWar)
 			{
-				//Bonus based on difference in gold - the more money we have, the more we want this!
-				iBonus += ((kPlayer.GetTreasury()->GetGold() - iGoldCost));
+				int iGoldCost = m_pCity->GetPurchaseCost(eUnit);
+				int iSurplus = ((kPlayer.GetTreasury()->GetGold() - iGoldCost) / 50);
+				if(iSurplus > 0)
+				{
+					//Bonus based on difference in gold - the more money we have, the more we want this!
+					iBonus += iSurplus;
+				}
+			}
+			else if(bCombat && !bAtWar)
+			{
+				int iGoldCost = m_pCity->GetPurchaseCost(eUnit);
+				int iSurplus = ((kPlayer.GetTreasury()->GetGold() - iGoldCost) / 100);
+				if(iSurplus > 0)
+				{
+					//Bonus based on difference in gold - the more money we have, the more we want this!
+					iBonus += iSurplus;
+				}
+			}
+			else if(!bCombat)
+			{
+				int iGoldCost = m_pCity->GetPurchaseCost(eUnit);
+				int iSurplus = ((kPlayer.GetTreasury()->GetGold() - iGoldCost) / 100);
+				if(iSurplus > 0)
+				{
+					//Bonus based on difference in gold - the more money we have, the more we want this!
+					iBonus += iSurplus;
+				}
 			}
 		}
 
@@ -649,6 +673,34 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					iInfluence /= 4;
 				}
 			}
+			if(kPlayer.GetPlayerTraits()->IsDiplomaticMarriage())
+			{
+				iInfluence *= 2;
+			}
+			else if(kPlayer.GetPlayerTraits()->GetCityStateCombatModifier() > 0)
+			{
+				iInfluence *= 2;
+			}
+			else if(kPlayer.GetPlayerTraits()->GetCityStateFriendshipModifier() > 0)
+			{
+				iInfluence *= 2;
+			}
+			else if(kPlayer.GetPlayerTraits()->GetCityStateBonusModifier() > 0)
+			{
+				iInfluence *= 2;
+			}
+			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				const YieldTypes eYield = static_cast<YieldTypes>(iI);
+				if(eYield != NO_YIELD)
+				{
+					if(kPlayer.GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0 || kPlayer.GetPlayerTraits()->GetYieldFromCSFriend(eYield) > 0)
+					{
+						iInfluence *= 3;
+						break;
+					}
+				}
+			}
 			iBonus += iInfluence;
 		}
 #endif
@@ -694,6 +746,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		////////////
 		if(pkUnitEntry->GetCombat() > 0)
 		{
+			int iReligiousBonus = 0;
 			ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pCity->getOwner());
 			if(eReligion == NO_RELIGION)
 			{
@@ -714,23 +767,23 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						{
 							if(pEntry->GetFaithFromKills() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK)))
 							{
-								iBonus += (pEntry->GetFaithFromKills());
+								iReligiousBonus += (pEntry->GetFaithFromKills());
 							}
 							if(pEntry->GetCombatModifierEnemyCities() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_RANGED) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_CITY_BOMBARD)))
 							{
-								iBonus += (pEntry->GetCombatModifierEnemyCities());
+								iReligiousBonus += (pEntry->GetCombatModifierEnemyCities());
 							}
 							if(pEntry->GetCombatModifierFriendlyCities() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_DEFENSE) || pkUnitEntry->GetUnitAIType(UNITAI_COUNTER)))
 							{
-								iBonus += (pEntry->GetCombatModifierFriendlyCities());
+								iReligiousBonus += (pEntry->GetCombatModifierFriendlyCities());
 							}
 							if(pEntry->GetCombatVersusOtherReligionOwnLands() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_DEFENSE) || pkUnitEntry->GetUnitAIType(UNITAI_COUNTER)))
 							{
-								iBonus += (pEntry->GetCombatVersusOtherReligionOwnLands());
+								iReligiousBonus += (pEntry->GetCombatVersusOtherReligionOwnLands());
 							}
 							if(pEntry->GetCombatVersusOtherReligionTheirLands() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_RANGED) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_CITY_BOMBARD)))
 							{
-								iBonus += (pEntry->GetCombatVersusOtherReligionTheirLands());
+								iReligiousBonus += (pEntry->GetCombatVersusOtherReligionTheirLands());
 							}
 							for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 							{
@@ -739,7 +792,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 								{
 									if(pEntry->GetYieldFromKills(eYield) > 0)
 									{
-										iBonus += (pEntry->GetYieldFromKills(eYield));
+										iReligiousBonus += (pEntry->GetYieldFromKills(eYield));
 									}
 								}
 							}
@@ -747,6 +800,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					}
 				}
 			}
+			iReligiousBonus /= 10;
+			iBonus += iReligiousBonus;
 		}
 
 		//////////////
@@ -1171,9 +1226,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		int iDemand = kPlayer.getNumMilitaryUnits();
 		int iPercent = (iDemand * 100) / iSupply;
-		int iRemainder = (150 - iPercent);
+		int iRemainder = (160 - iPercent);
 
-		//Closer we get to cap over 50%, fewer units we should be making.
+		//Closer we get to cap over 60%, fewer units we should be making.
 		iBonus *= iRemainder;
 		iBonus /= 100;
 	}
