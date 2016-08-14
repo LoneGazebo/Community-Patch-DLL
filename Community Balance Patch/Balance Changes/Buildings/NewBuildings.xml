@@ -243,8 +243,8 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<ConversionModifier>-20</ConversionModifier>
 			<Cost>-1</Cost>
-			<Defense>300</Defense>
-			<ExtraCityHitPoints>25</ExtraCityHitPoints>
+			<Defense>1000</Defense>
+			<ExtraCityHitPoints>50</ExtraCityHitPoints>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -584,8 +584,8 @@
 			<ReligiousPressureModifier>15</ReligiousPressureModifier>
 			<ConversionModifier>15</ConversionModifier>
 			<AllowsRangeStrike>true</AllowsRangeStrike>
-			<Defense>800</Defense>
-			<ExtraCityHitPoints>75</ExtraCityHitPoints>
+			<Defense>1800</Defense>
+			<ExtraCityHitPoints>125</ExtraCityHitPoints>
 			<HurryCostModifier>33</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>16</PortraitIndex>

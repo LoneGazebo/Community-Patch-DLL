@@ -1,6 +1,6 @@
 -- Unlock Time
 UPDATE PolicyBranchTypes
-SET EraPrereq = 'ERA_RENAISSANCE'
+SET EraPrereq = 'ERA_INDUSTRIAL'
 WHERE Type = 'POLICY_BRANCH_EXPLORATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Opener -- Now called Imperialism -- Grants +1 Movement and +1 Sight for Naval Units, and speeds production of land units by +5%, with an additional +4% for every policy unlocked in Imperialism. Receive 1 extra happiness for every owned luxury, and 1 Happiness for every garrisoned unit.
@@ -101,9 +101,9 @@ SET GarrisonFreeMaintenance = '1'
 WHERE Type = 'POLICY_TREASURE_FLEETS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Finisher
-UPDATE Policies
-SET IdeologyPoint = '1'
-WHERE Type = 'POLICY_EXPLORATION_FINISHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+--UPDATE Policies
+--SET IdeologyPoint = '1'
+--WHERE Type = 'POLICY_EXPLORATION_FINISHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- NEW
 

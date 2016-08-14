@@ -728,6 +728,14 @@ void CvPlayerAI::AI_considerAnnex()
 			unraze(pCity);
 			return; //one annexation per turn is enough
 		}
+#if defined(MOD_BALANCE_CORE)
+		//Original City and puppeted? Stop!
+		if(pCity->getOriginalOwner() == GetID() && pCity->IsPuppet())
+		{
+			pCity->DoAnnex();
+			return;
+		}
+#endif
 
 		CityAndProduction kEval;
 		kEval.pCity = pCity;
@@ -1487,7 +1495,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 
 	bool bTheVeniceException = false;
-	if (GetPlayerTraits()->IsNoAnnexing())
+	if (GetPlayerTraits()->IsNoAnnexing() && !GreatMerchantWantsCash())
 	{
 		bTheVeniceException = true;
 	}
@@ -1542,6 +1550,12 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 		}
+#if defined(MOD_BALANCE_CORE)
+		else if(bTheVeniceException)
+		{
+			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+		}
+#endif
 	}
 
 #if defined(MOD_BALANCE_CORE)
@@ -1809,7 +1823,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	PlayerTypes eID = GetDiplomacyAI()->GetPlayer()->GetID();
 	
 	int iFlavorDiplo =  GET_PLAYER(eID).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-	int iDesiredEmb = (iFlavorDiplo - 3);
+	int iDesiredEmb = (iFlavorDiplo - 2);
 	int iNumMinors = GC.getGame().GetNumMinorCivsAlive();
 	if(iDesiredEmb > iNumMinors)
 	{
@@ -1876,8 +1890,8 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pMerchant, bool bOnlySafe
 	int iPathTurns;
 	CvTeam& myTeam = GET_TEAM(getTeam());
 
-	//bool bIsVenice = GetPlayerTraits()->IsNoAnnexing();
-	//bool bWantsCash = GreatMerchantWantsCash();
+	bool bIsVenice = GetPlayerTraits()->IsNoAnnexing();
+	bool bWantsCash = GreatMerchantWantsCash();
 
 	// Loop through each city state
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
@@ -1909,7 +1923,13 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pMerchant, bool bOnlySafe
 		bool bMinorCivApproachIsCorrect = (GetDiplomacyAI()->GetMinorCivApproach(kPlayer.GetID()) != MINOR_CIV_APPROACH_CONQUEST);
 		bool bAtPeace = !myTeam.isAtWar(kPlayer.getTeam());
 		bool bNotPlanningAWar = GetDiplomacyAI()->GetWarGoal(kPlayer.GetID()) == NO_WAR_GOAL_TYPE;
-
+#if defined(MOD_BALANCE_CORE)
+		int iNumUnits = 0;
+		if(bIsVenice && !bWantsCash)
+		{
+			iNumUnits = (kPlayer.getNumMilitaryUnits() / 2);
+		}
+#endif
 		if(bMinorCivApproachIsCorrect && bAtPeace && bNotPlanningAWar)
 		{
 			// Search all the plots adjacent to this city (since can't enter the minor city plot itself)
@@ -1929,6 +1949,12 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pMerchant, bool bOnlySafe
 					if(bRightOwner && bIsRevealed)
 					{
 						iPathTurns = pMerchant->TurnsToReachTarget(pAdjacentPlot, !bOnlySafePaths/*bIgnoreUnits*/, false, iBestTurnsToReach);
+#if defined(MOD_BALANCE_CORE)
+						if(bIsVenice)
+						{
+							iPathTurns -= iNumUnits;
+						}
+#endif
 						if(iPathTurns < iBestTurnsToReach)
 						{
 							iBestTurnsToReach = iPathTurns;

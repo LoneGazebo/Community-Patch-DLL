@@ -803,7 +803,12 @@
 			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
-			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_COLONIZATION_PARTY</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 		</Row>
 		<Delete MultiUnitFormationType="MUFORMATION_QUICK_COLONY_SETTLER"/>
 		<Row>

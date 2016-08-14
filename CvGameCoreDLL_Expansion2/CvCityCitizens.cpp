@@ -1547,14 +1547,14 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	}
 	else
 	{
-		iFlavorGold = GET_PLAYER(m_pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-		iFlavorScience = GET_PLAYER(m_pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-		iFlavorCulture = GET_PLAYER(m_pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-		iFlavorProduction = GET_PLAYER(m_pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
-		iFlavorFaith = GET_PLAYER(m_pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
-		iFlavorHappiness = GET_PLAYER(m_pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_HAPPINESS"));
-		iFlavorGrowth = GET_PLAYER(m_pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
-		iFlavorDiplomacy = GET_PLAYER(m_pCity->getOwner()).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+		iFlavorGold = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+		iFlavorScience = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+		iFlavorCulture = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+		iFlavorProduction = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
+		iFlavorFaith = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+		iFlavorHappiness = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_HAPPINESS"));
+		iFlavorGrowth = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+		iFlavorDiplomacy = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 	}
 
 	int iValue = 0;
@@ -1583,7 +1583,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		//Increase penalty based on function of excess food value and growth thresholds. 
 		int iFoodNeeded = (m_pCity->growthThreshold() * 100);
 		int iRemainder = 0;
-		iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 4), 1));
+		iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 3), 1));
 		if((eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
 		{
 			iPenalty += iRemainder;
@@ -1598,7 +1598,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		}
 		if(iExcessFoodTimes100 < 200 && !bAvoidGrowth)
 		{
-			iPenalty *= 10;
+			iPenalty *= 15;
 		}
 	}
 	if(iExcessFoodTimes100 >= 0 && bAvoidGrowth)
@@ -1641,7 +1641,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			}
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
-				iValue *= 4;
+				iValue *= 5;
 			}
 			if(eYield == YIELD_FOOD)
 			{
@@ -1707,57 +1707,54 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			iValue += iYield;
 		}
 	}
-	pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-	if(pSpecialistInfo)
+
+	for(int i = 0; i < GC.getNumFlavorTypes(); i++)
 	{
-		for(int i = 0; i < GC.getNumFlavorTypes(); i++)
+		int iSpecialistFlavor = pSpecialistInfo->getFlavorValue((FlavorTypes)i);
+		if(iSpecialistFlavor > 0)
 		{
-			int iSpecialistFlavor = pSpecialistInfo->getFlavorValue((FlavorTypes)i);
-			if(iSpecialistFlavor > 0)
+			if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_GOLD")
 			{
-				if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_GOLD")
-				{
-					iValue += (iSpecialistFlavor * iFlavorGold);
-				}
-				else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_PRODUCTION")
-				{
-					iValue += iSpecialistFlavor * iFlavorProduction;
-				}
-				else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_RELIGION")
-				{
-					iValue += iSpecialistFlavor * iFlavorFaith;
-				}
-				else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_CULTURE")
-				{
-					iValue += iSpecialistFlavor * iFlavorCulture;
-				}
-				else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_GROWTH")
-				{
-					iValue += iSpecialistFlavor * iFlavorGrowth;
-				}
-				else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_SCIENCE")
-				{
-					iValue += iSpecialistFlavor * iFlavorScience;
-				}
-				else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_HAPPINESS")
-				{
-					iValue += iSpecialistFlavor * iFlavorHappiness;
-				}
-				else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_DIPLOMACY")
-				{
-					iValue += iSpecialistFlavor * iFlavorDiplomacy;
-				}
-				else
-				{
-					iValue += iSpecialistFlavor /= 2;
-				}
+				iValue += (iSpecialistFlavor * iFlavorGold);
+			}
+			else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_PRODUCTION")
+			{
+				iValue += iSpecialistFlavor * iFlavorProduction;
+			}
+			else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_RELIGION")
+			{
+				iValue += iSpecialistFlavor * iFlavorFaith;
+			}
+			else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_CULTURE")
+			{
+				iValue += iSpecialistFlavor * iFlavorCulture;
+			}
+			else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_GROWTH")
+			{
+				iValue += iSpecialistFlavor * iFlavorGrowth;
+			}
+			else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_SCIENCE")
+			{
+				iValue += iSpecialistFlavor * iFlavorScience;
+			}
+			else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_HAPPINESS")
+			{
+				iValue += iSpecialistFlavor * iFlavorHappiness;
+			}
+			else if(GC.getFlavorTypes((FlavorTypes)i) == "FLAVOR_DIPLOMACY")
+			{
+				iValue += iSpecialistFlavor * iFlavorDiplomacy;
+			}
+			else
+			{
+				iValue += iSpecialistFlavor /= 2;
 			}
 		}
 	}
 	int iGPPYieldValue = pSpecialistInfo->getGreatPeopleRateChange() * 3; // TODO: un-hardcode this
 	if(eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
 	{
-		iGPPYieldValue *= 6;
+		iGPPYieldValue *= 5;
 	}
 	bool bGPCity = false;
 	AICityStrategyTypes eGoodGP = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY");
@@ -1767,9 +1764,116 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	}
 	if(bGPCity)
 	{
-		iGPPYieldValue *= 3;
+		iGPPYieldValue *= 5;
 	}
 	iValue += iGPPYieldValue;
+
+	int iMod = 0;
+	// City mods
+	iMod += m_pCity->getGreatPeopleRateModifier();
+
+	// Player mod
+	iMod += GetPlayer()->getGreatPeopleRateModifier();
+
+	iMod += m_pCity->GetSpecialistRateModifier(eSpecialist);
+
+	// Player and Golden Age mods to this specific class
+	if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+	{
+		iMod += GetPlayer()->getGreatScientistRateModifier();
+	}
+	else if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
+	{ 
+		if (GetPlayer()->isGoldenAge())
+		{
+			iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier();
+		}
+		iMod += GetPlayer()->getGreatWriterRateModifier();
+	}
+	else if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
+	{
+		if (GetPlayer()->isGoldenAge())
+		{
+			iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier();
+		}
+		iMod += GetPlayer()->getGreatArtistRateModifier();
+	}
+	else if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+	{
+		if (GetPlayer()->isGoldenAge())
+		{
+			iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier();
+		}
+		iMod += GetPlayer()->getGreatMusicianRateModifier();
+	}
+	else if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+	{
+		iMod += GetPlayer()->getGreatMerchantRateModifier();
+	}
+	else if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
+	{
+		iMod += GetPlayer()->getGreatEngineerRateModifier();
+	}
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	else if(MOD_DIPLOMACY_CITYSTATES && (UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+	{
+		iMod += GetPlayer()->getGreatDiplomatRateModifier();
+	}
+#endif
+
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+	if(eGreatPerson != NO_GREATPERSON)
+	{
+		if (GetPlayer()->isGoldenAge())
+		{
+			iMod += GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
+			iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+
+			ReligionTypes eMajority = GetCity()->GetCityReligions()->GetReligiousMajority();
+			if(eMajority != NO_RELIGION)
+			{
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
+				if(pReligion)
+				{
+					iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, m_pCity->getOwner());
+					BeliefTypes eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+					if (eSecondaryPantheon != NO_BELIEF)
+					{
+						iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+					}
+				}
+			}
+		}	
+		int iNumPuppets = GetPlayer()->GetNumPuppetCities();
+		if(iNumPuppets > 0)
+		{
+			iMod += (iNumPuppets * GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));			
+		}
+	}
+	if(GetCity()->isCapital())
+	{
+		int iNumMarried = 0;
+		// Loop through all minors and get the total number we've met.
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+
+			if (eMinor != GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+			{
+				if (GetPlayer()->IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GetPlayer()->GetID()))
+				{
+					iNumMarried++;
+				}
+			}
+		}
+		if(GetPlayer()->IsDiplomaticMarriage() && iNumMarried > 0)
+		{
+			iMod += (iNumMarried * GC.getBALANCE_MARRIAGE_GP_RATE());
+		}
+	}
+
+	iValue *= (100 + iMod);
+	iValue /= 100;
 
 	///////
 	//Penalties
@@ -1788,7 +1892,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 
 	iHappinessYieldValue = (GET_PLAYER(m_pCity->getOwner()).GetUnhappinessFromCitySpecialists(pAssumeCityAnnexed, pAssumeCityPuppeted) / 100);
 
-	iValue -= (iHappinessYieldValue * 5);
+	iValue -= (iHappinessYieldValue * 8);
 	iValue -= iPenalty;
 
 	//Bonus for art-producing specialists
@@ -1804,7 +1908,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			}
 			else
 			{
-				iValue += (iEmptySlots * 3);
+				iValue += (iEmptySlots * 5);
 			}
 		}
 		else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
@@ -1816,7 +1920,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			}
 			else
 			{
-				iValue += (iEmptySlots * 3);
+				iValue += (iEmptySlots * 5);
 			}
 		}
 		else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
@@ -1828,20 +1932,16 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			}
 			else
 			{
-				iValue += (iEmptySlots * 3);
+				iValue += (iEmptySlots * 5);
 			}
 			if(GET_PLAYER(m_pCity->getOwner()).GetDiplomacyAI()->IsGoingForCultureVictory())
 			{
-				iValue *= 2;
-			}
-			else
-			{
-				iValue /= 2;
+				iValue *= 3;
 			}
 		}
 	}
 	//Every citizen should increase our desire for more specialists.
-	int iPop = m_pCity->getPopulation() * 5;
+	int iPop = m_pCity->getPopulation() * 2;
 	iValue *= (100 + iPop);
 	iValue /= 100;
 
@@ -3137,23 +3237,34 @@ void CvCityCitizens::DoSpecialists()
 					if (GetPlayer()->isGoldenAge())
 					{
 						GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
-
-						iMod += GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
-						iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
-
-						ReligionTypes eMajority = GetCity()->GetCityReligions()->GetReligiousMajority();
-						if(eMajority != NO_RELIGION)
+						if(eGreatPerson != NO_GREATPERSON)
 						{
-							const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, GetCity()->getOwner());
-							if(pReligion)
+							iMod += GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
+							iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+
+							ReligionTypes eMajority = GetCity()->GetCityReligions()->GetReligiousMajority();
+							if(eMajority != NO_RELIGION)
 							{
-								iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, GetCity()->getOwner());
-								BeliefTypes eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-								if (eSecondaryPantheon != NO_BELIEF)
+								const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, GetCity()->getOwner());
+								if(pReligion)
 								{
-									iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+									iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, GetCity()->getOwner());
+									BeliefTypes eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+									if (eSecondaryPantheon != NO_BELIEF)
+									{
+										iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+									}
 								}
 							}
+						}	
+					}
+					int iNumPuppets = GetPlayer()->GetNumPuppetCities();
+					if(iNumPuppets > 0)
+					{
+						GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+						if(eGreatPerson != NO_GREATPERSON)
+						{
+							iMod += (iNumPuppets * GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));			
 						}
 					}
 #endif

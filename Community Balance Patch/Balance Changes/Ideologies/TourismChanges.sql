@@ -1,3 +1,8 @@
+
+UPDATE PostDefines
+SET Key = 'ERA_MODERN'
+WHERE Name = 'IDEOLOGY_START_ERA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
+
 -- New Resolutions
 INSERT INTO Resolutions
 	(Type, Description, Help, VoterDecision, ProposerDecision, TourismMod, TechPrereqAnyMember)

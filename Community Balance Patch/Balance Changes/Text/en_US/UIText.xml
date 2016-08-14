@@ -150,7 +150,7 @@
 			<Text>[NEWLINE] [ICON_BULLET]Building Modifier from 'We Love the King Day:' {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_GOLD_FROM_INTERNAL_TRADE">
-			<Text>{1_Num} from [ICON_INTERNATIONAL_TRADE] Internal Trade Routes (Autarky).</Text>
+			<Text>{1_Num} from [ICON_INTERNATIONAL_TRADE] Internal Trade Routes</Text>
 		</Row>
 		<!-- Austria Text -->
 		<Row Tag="TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED">
@@ -561,10 +561,10 @@
 
 		<!-- Honor ProdMod Text-->
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_PUPPET_POLICY">
-			<Text>[NEWLINE][ICON_BULLET]Modifier for [ICON_PUPPET] Puppet from Martial Law: {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET]Modifier for [ICON_PUPPET] Puppet from Policies: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_OCCUPIED_POLICY">
-			<Text>[NEWLINE][ICON_BULLET]Modifier for [ICON_OCCUPIED] Occupied from Martial Law: {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET]Modifier for [ICON_OCCUPIED] Occupied from Policies: {1_Num}%</Text>
 		</Row>
 
 		<!-- Conscription popup-->
@@ -897,6 +897,20 @@
 		</Row>
 		<Row Tag="TXT_KEY_CO_PUBLIC_OPINION_REVOLUTIONARY_WAVE_VC">
 			<Text>[ICON_CITIZEN] Population must be [COLOR_POSITIVE_TEXT]Content[ENDCOLOR]. Currently: [COLOR_NEGATIVE_TEXT]Revolutionary Wave[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_ERA_ALT">
+			<Text>[COLOR_WARNING_TEXT]If you enter the {1_EraString:textkey} you can bypass the Policy requirement.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICYSCREEN_POLICIES_NEEDED_UNTIL_IDEOLOGY">
+			<Text>Number of Policies Remaining until Ideologies are unlocked: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PEDIA_ERA_YIELD">
+			<Text>Yield increase per Era:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_NATURAL_WONDER_FOUND_PROMOTE_OWNED">
+			<Text>[NEWLINE]Free Promotion for newly-created, valid units (if owned by player):[NEWLINE]{1_PromoteString}</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

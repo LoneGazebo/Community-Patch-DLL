@@ -103,7 +103,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	// preparation done, now here comes the interesting part
 	//----
 
-	if(pToPlot->isRoughGround() && pUnit->IsRoughTerrainEndsTurn())
+	if(pToPlot->isRoughGround() && pUnit->IsRoughTerrainEndsTurn() && !(bRouteFrom && bRouteTo))
 	{
 		// Is a unit's movement consumed for entering rough terrain?
 		return INT_MAX;

@@ -33,8 +33,6 @@
 !*.gr2
 !*.mp3
 
-!*.db
-
 BuildOutput/
 BuildTemp/
 Mod/

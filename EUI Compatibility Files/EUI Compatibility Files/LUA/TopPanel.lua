@@ -286,7 +286,6 @@ end
 local function UpdateTopPanelNow()
 
 	g_requestTopPanelUpdate = false
-
 	-----------------------------
 	-- Update science stats
 	-----------------------------
@@ -1319,7 +1318,7 @@ if civ5_mode then
 -- COMMUNITY PATCH CHANGES BELOW
 			local iUnhappinessPublicOpinion = g_activePlayer:GetUnhappinessFromPublicOpinion();
 			iUnhappinessPublicOpinion = iUnhappinessPublicOpinion + g_activePlayer:GetUnhappinessFromWarWeariness();
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", bnw_mode and iUnhappinessPublicOpinion or 0 )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessPublicOpinion)
 			local iUnhappinessFromStarving = g_activePlayer:GetUnhappinessFromCityStarving();
 			local iUnhappinessFromPillaged = g_activePlayer:GetUnhappinessFromCityPillaged();
 			local iUnhappinessFromGold = g_activePlayer:GetUnhappinessFromCityGold();
@@ -2588,6 +2587,9 @@ function()
 	if g_clockFormat then
 		Controls.CurrentTime:SetText( os_date( g_clockFormat ) )
 	end
+
+	g_activePlayerID = Game.GetActivePlayer()
+	g_activePlayer = Players[g_activePlayerID]
 
 	if g_isPopupUp ~= UI.IsPopupUp() then
 		Controls.TopPanelMask:SetHide( g_isPopupUp or g_isSmallScreen )

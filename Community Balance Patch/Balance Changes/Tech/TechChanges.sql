@@ -120,6 +120,13 @@ UPDATE Technologies
 SET InternationalTradeRoutesChange = '1'
 WHERE Type = 'TECH_ELECTRICITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+-- Add Land Trade Route extension to Machinery
+
+INSERT INTO Technology_TradeRouteDomainExtraRange
+	(TechType, DomainType, Range)
+VALUES
+('TECH_MACHINERY', 'DOMAIN_LAND', '10');
+
 -- City Embark Less/No Cost at Navigation, Rocketry
 UPDATE Technologies
 SET CityLessEmbarkCost = '1'

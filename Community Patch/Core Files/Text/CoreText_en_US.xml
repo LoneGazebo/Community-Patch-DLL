@@ -2689,31 +2689,28 @@
 		</Row>
 		<!-- LUA for CBP -->
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DOF">
-			<Text>These Players have made a Declaration of Friendship.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DOF_YOU">
-			<Text>You have a Declaration of Friendship with them.</Text>
+			<Text>A Declaration of Friendship prevents this.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DP">
-			<Text>These Players have a Defensive Pact.</Text>
+			<Text>A Defensive Pact prevents this.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DP_YOU">
-			<Text>You have signed a Defensive Pact.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NO_WAR_ALLIES_US">
-			<Text>You are allied with them.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE">
-			<Text>Cannot have Gold Per Turn and Gold in same trade.</Text>
+
+		<Row Tag="TXT_KEY_DIPLO_WAR_SCORE">
+			<Text>Warscore must be above zero. Current Warscore: {1_Num}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT">
 			<Text>Cannot add to non-surrendering party in Peace Deal</Text>
 		</Row>
-
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_BLOCKED">
-			<Text>A diplomatic situation prevents war.</Text>
+			<Text>A diplomatic situation prevents this action.</Text>
 		</Row>
-
+		<Row Tag="TXT_KEY_DIPLO_CANNOT_PEACE">
+			<Text>Cannot broker or make peace with this player.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NEED_EMBASSY">
+			<Text>An embassy is required to trade this item.</Text>
+		</Row>
+		
 		<!-- Peace Out Details - Lua -->
 		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR">
 			<Text>Peace Deal Value: {1_Num}.</Text>
@@ -6278,7 +6275,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_DIPLO_WAR_NO_PEACE_THIRD_PARTY_TT">
-			<Text>Can only include City-States allied with either party in Peace Deals.</Text>
+			<Text>Can only include allied City-States in a Peace Deal.</Text>
 		</Row>
 
 		<!-- Team Tourism -->
@@ -6511,7 +6508,11 @@
 		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_17">
 			<Text>Sarcophagus of Ptolemy I</Text>
 		</Row>
-		
+
+		<!--Policies-->
+		<Row Tag="TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_NEED_MORE">
+			<Text>[COLOR_WARNING_TEXT]You must unlock {1_Num} Policies from other Branches before this Branch becomes unlocked. Finishers do not count towards this amount.[ENDCOLOR]</Text>
+		</Row>
 	</Language_en_US>
 	<PostDefines>
 		<Row Name="PROMOTION_DEEPWATER_EMBARKATION">

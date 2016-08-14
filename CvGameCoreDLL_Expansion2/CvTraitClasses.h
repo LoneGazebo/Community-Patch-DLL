@@ -301,6 +301,7 @@ public:
 	int GetGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
 	int GetGreatPersonBornYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
 	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
+	int GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
 	int GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 #endif
 	int GetUnimprovedFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
@@ -567,6 +568,7 @@ protected:
 	int** m_ppiGreatPersonExpendedYield;
 	int ** m_ppiGreatPersonBornYield;
 	int* m_piGoldenAgeGreatPersonRateModifier;
+	int* m_piPerPuppetGreatPersonRateModifier;
 	int** m_ppiCityYieldFromUnimprovedFeature;
 #endif
 	int** m_ppiUnimprovedFeatureYieldChanges;
@@ -1371,6 +1373,7 @@ public:
 	int GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const;
 	int GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const;
 	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
+	int GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
 	int GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield) const;
 #endif
 	int GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const;
@@ -1710,6 +1713,7 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonExpendedYield;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonBornYield;
 	std::vector<int> m_piGoldenAgeGreatPersonRateModifier;
+	std::vector<int> m_piPerPuppetGreatPersonRateModifier;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiCityYieldFromUnimprovedFeature;
 #endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiUnimprovedFeatureYieldChange;

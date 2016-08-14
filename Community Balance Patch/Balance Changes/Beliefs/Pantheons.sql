@@ -51,8 +51,7 @@ WHERE YieldType = 'YIELD_FAITH' AND BeliefType = 'BELIEF_ONE_WITH_NATURE' AND EX
 
 -- Liturgy (Now Goddess of Wisdom)
 
-UPDATE Belief_ResourceYieldChanges
-SET Yield = '0'
+DELETE FROM Belief_ResourceYieldChanges
 WHERE BeliefType = 'BELIEF_FORMAL_LITURGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Stone Circles
@@ -95,8 +94,7 @@ SET PlotCultureCostModifier = '-20'
 WHERE Type = 'BELIEF_RELIGIOUS_SETTLEMENTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of Festivals
-UPDATE Belief_ResourceYieldChanges
-SET Yield = '0'
+DELETE FROM Belief_ResourceYieldChanges
 WHERE BeliefType = 'BELIEF_GOD_FESTIVALS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Oral Tradition
@@ -110,8 +108,7 @@ SET Yield = '1'
 WHERE BeliefType = 'BELIEF_ORAL_TRADITION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Ancestor Worship
-UPDATE Belief_BuildingClassYieldChanges
-SET YieldChange = '0'
+DELETE FROM Belief_BuildingClassYieldChanges
 WHERE BeliefType = 'BELIEF_ANCESTOR_WORSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 --Desert Folklore
@@ -129,8 +126,7 @@ WHERE Type = 'BELIEF_DESERT_FOLKLORE' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Sacred Path
 
-UPDATE Belief_FeatureYieldChanges
-SET Yield = '0'
+DELETE FROM Belief_FeatureYieldChanges
 WHERE BeliefType = 'BELIEF_SACRED_PATH' AND FeatureType = 'FEATURE_JUNGLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Goddess of Protection
@@ -169,13 +165,11 @@ UPDATE Beliefs
 SET HappinessPerPantheon = '1'
 WHERE Type = 'BELIEF_TEARS_OF_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
-UPDATE Belief_ResourceYieldChanges
-SET Yield = '0'
+DELETE FROM Belief_ResourceYieldChanges
 WHERE BeliefType = 'BELIEF_TEARS_OF_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Earth Mother
-UPDATE Belief_ResourceYieldChanges
-SET Yield = '0'
+DELETE FROM Belief_ResourceYieldChanges
 WHERE BeliefType = 'BELIEF_EARTH_MOTHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs
@@ -188,8 +182,7 @@ WHERE BeliefType = 'BELIEF_GOD_KING' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 
 -- Sun God
 
-UPDATE Belief_ResourceYieldChanges
-SET Yield = '0'
+DELETE FROM Belief_ResourceYieldChanges
 WHERE BeliefType = 'BELIEF_SUN_GOD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs

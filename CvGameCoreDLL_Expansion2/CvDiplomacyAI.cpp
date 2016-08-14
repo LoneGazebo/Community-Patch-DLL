@@ -2252,7 +2252,10 @@ void CvDiplomacyAI::update()
 			m_aGreetPlayers.erase(itr);
 
 			const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_INTRO);
-			CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), eActivePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
+			if(szText)
+			{
+				CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), eActivePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
+			}
 		}
 	}
 #endif
@@ -2953,10 +2956,8 @@ void CvDiplomacyAI::DoUpdateOnePlayerOpinion(PlayerTypes ePlayer)
 		eOpinion = MAJOR_CIV_OPINION_ALLY;
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-		if (MOD_ACTIVE_DIPLOMACY) {
-			// JdH => calculate ai to human trade priority for multiplayer
-			DoUpdateHumanTradePriority(ePlayer, GC.getOPINION_THRESHOLD_ALLY());
-		}
+		// JdH => calculate ai to human trade priority for multiplayer
+		DoUpdateHumanTradePriority(ePlayer, GC.getOPINION_THRESHOLD_ALLY());
 #endif
 	}
 	// Different teams
@@ -2984,10 +2985,8 @@ void CvDiplomacyAI::DoUpdateOnePlayerOpinion(PlayerTypes ePlayer)
 		//	eOpinion = MAJOR_CIV_OPINION_COMPETITOR;
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-		if (MOD_ACTIVE_DIPLOMACY) {
-			// JdH => calculate ai to human trade priority for multiplayer
-			DoUpdateHumanTradePriority(ePlayer, iOpinionWeight);
-		}
+		// JdH => calculate ai to human trade priority for multiplayer
+		DoUpdateHumanTradePriority(ePlayer, iOpinionWeight);
 #endif
 	}
 
@@ -3792,18 +3791,18 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
 		break;
 	case DISPUTE_LEVEL_WEAK:
-		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR];
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE];
+		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY];
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 2;
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 2;
 		break;
 	case DISPUTE_LEVEL_STRONG:
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * 2;
-		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 2;
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 5;
-		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 5;
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * 3;
+		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 3;
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 10;
+		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 10;
 		break;
 	case DISPUTE_LEVEL_FIERCE:
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 10;
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 15;
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 10;
 		break;
 	}
@@ -3996,12 +3995,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 						viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 2;
 
 						//Is this a neighbor? We want our neighbors on our good side if we're going to war with others
-						if(GET_PLAYER(eLoopPlayer).GetProximityToPlayer(GetPlayer()->GetID()) >= PLAYER_PROXIMITY_CLOSE)
+						if(GET_PLAYER(ePlayer).GetProximityToPlayer(GetPlayer()->GetID()) >= PLAYER_PROXIMITY_CLOSE)
 						{
 							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 3;
 						}
 						//Is the target also a neighbor? Doubly important to have him on our good side!
-						if(GET_PLAYER(ePlayer).GetProximityToPlayer(GetPlayer()->GetID()) >= PLAYER_PROXIMITY_CLOSE)
+						if(GET_PLAYER(eLoopPlayer).GetProximityToPlayer(GetPlayer()->GetID()) >= PLAYER_PROXIMITY_CLOSE)
 						{
 							viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_FRIENDLY] * 3;
 						}
@@ -8549,11 +8548,6 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 		{
 			return false;
 		}
-		// If either of us are locked in, then we're not willing to make peace (this prevents weird greetings and stuff) - we use > 1 because it'll get decremented after it appears the human make peace again
-		if(GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(kHumanPlayer.getTeam()) > 1)
-			return false;
-		if(GET_TEAM(kHumanPlayer.getTeam()).GetNumTurnsLockedIntoWar(GetPlayer()->getTeam()) > 1)
-			return false;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		if (MOD_DIPLOMACY_CIV4_FEATURES) 
@@ -8579,6 +8573,11 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
+		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) == 0)
+		{
+			return false;
+		}
+
 		int iRequestPeaceTurnThreshold = /*4*/ GC.getREQUEST_PEACE_TURN_THRESHOLD();
 		int iWantPeace = 0;
 		
@@ -12384,16 +12383,6 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 		{
 			eDisputeLevel = DISPUTE_LEVEL_NONE;
 
-#if defined(MOD_BALANCE_CORE)
-			// Look at our Proximity to the other Player
-			eProximity = GetPlayer()->GetProximityToPlayer(ePlayer);
-			if(eProximity <= PLAYER_PROXIMITY_FAR)
-			{
-				SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
-				return;
-			}
-#endif
-
 			iLandDisputeWeight = 0;
 
 			// Expansion aggression
@@ -12426,13 +12415,11 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 
 			// Look at our Proximity to the other Player
 			eProximity = GetPlayer()->GetProximityToPlayer(ePlayer);
-#if !defined(MOD_BALANCE_CORE)
 			if(eProximity == PLAYER_PROXIMITY_DISTANT)
 				iLandDisputeWeight += /*0*/ GC.getLAND_DISPUTE_DISTANT();
 			else if(eProximity == PLAYER_PROXIMITY_FAR)
 				iLandDisputeWeight += /*10*/ GC.getLAND_DISPUTE_FAR();
 			else 
-#endif	
 				if(eProximity == PLAYER_PROXIMITY_CLOSE)
 				iLandDisputeWeight += /*18*/ GC.getLAND_DISPUTE_CLOSE();
 			else if(eProximity == PLAYER_PROXIMITY_NEIGHBORS)
@@ -13240,6 +13227,8 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 	//Let's get our imperial center of mass.
 	CvPlot* pOurCenterPlot = NULL;
 
+	AggressivePostureTypes eAggressivePosture = AGGRESSIVE_POSTURE_NONE;
+
 	//They promised not to expand? Let's compare their distance to our promise CoM (this keeps us from triggering our own promise)
 	if(IsPlayerMadeExpansionPromise(ePlayer) && (GetPromisePlotOtherPlayer(ePlayer) != -1))
 	{
@@ -13287,6 +13276,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 
 				pLog->Msg(strOutBuf);
 			}
+			SetExpansionAggressivePosture(ePlayer, eAggressivePosture);
 			return;
 		}
 		pOurCenterPlot = GC.getMap().plotByIndex(GetPromisePlotOtherPlayer(ePlayer));
@@ -13377,8 +13367,6 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 	if(pOurCenterPlot == NULL)
 		return;
 
-	AggressivePostureTypes eAggressivePosture;
-
 	// If they have no capital then, uh... just stop I guess
 	if(GET_PLAYER(ePlayer).getCapitalCity() == NULL)
 		return;
@@ -13447,11 +13435,13 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 	int iDistanceUsToThemThisTurn = plotDistance(pTheirCenterPlot->getX(), pTheirCenterPlot->getY(), pOurCenterPlot->getX(), pOurCenterPlot->getY());
 	int iDistanceUsToThemLastTurn = plotDistance(pTheirCenterPlotLastTurn->getX(), pTheirCenterPlotLastTurn->getY(), pOurCenterPlot->getX(), pOurCenterPlot->getY());
 
+	int iAggregateChange = iDistanceUsToThemLastTurn - iDistanceUsToThemThisTurn;
+
 	//Save off our new value for next turn, it'll be our new test point.
 	SetLastTurnCenterofMass(ePlayer, pTheirCenterPlot->GetPlotIndex());
 
-	//If the distance is lower, but they didn't move, we can't be mad at them for expanding, so no change in aggressive posture.
-	if(iDistanceUsToThemThisTurn < iDistanceUsToThemLastTurn && pTheirCenterPlotLastTurn == pTheirCenterPlot)
+	//If their CoM didn't move, we can't be mad at them for expanding, so no change in aggressive posture.
+	if(pTheirCenterPlotLastTurn == pTheirCenterPlot)
 	{ 
 		if(GC.getLogging() && GC.getAILogging())
 		{
@@ -13492,17 +13482,13 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 
 			pLog->Msg(strOutBuf);
 		}
-		return;
 	}
 
-	//If the distance is lower, and their plots aren't the same, then they settled! Let's see if this makes us mad.
+	//If their plots aren't the same, then they settled or conquered! Let's see if this makes us mad.
 	if(pTheirCenterPlotLastTurn != pTheirCenterPlot)
 	{ 
-		eAggressivePosture = AGGRESSIVE_POSTURE_NONE;
-
-		//Theoretically this turn should be smaller than last turn. If not, then we're not expanding towards each other, so remove the expansion penalty.
-		int iAggregateChange = iDistanceUsToThemLastTurn - iDistanceUsToThemThisTurn;
-		if(iAggregateChange < 0)
+		//Theoretically, if we've gotten this far, this turn should be smaller than last turn. If not, then we're not expanding towards each other, so remove the expansion penalty.
+		if(iAggregateChange <= 0)
 		{
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -13543,103 +13529,99 @@ void CvDiplomacyAI::DoUpdateOnePlayerExpansionAggressivePosture(PlayerTypes ePla
 
 				pLog->Msg(strOutBuf);
 			}
-			return;
 		}
-
-		//We made it this far? That means we are closer this turn than last, thus its time to update our aggressive stance.
-
-		//Boldness should matter a little.
-		iDistanceUsToThemThisTurn -= (GetBoldness() / 5);
-
-		if(GC.getLogging() && GC.getAILogging())
+		else
 		{
-			CvString strOutBuf;
-			CvString strBaseString;
-			CvString playerName;
-			CvString otherplayerName;
-			CvString strDesc;
-			CvString strLogName;
-
-			// Find the name of this civ and city
-			playerName = GetPlayer()->getCivilizationShortDescription();
-			otherplayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
-
-			// Open the log file
-			if(GC.getPlayerAndCityAILogSplit())
+			//We made it this far? That means we are closer this turn than last, thus its time to update our aggressive stance.
+			if(GC.getLogging() && GC.getAILogging())
 			{
-				strLogName = "DiplomacyAI_ExpansionLogic_Log_" + playerName + ".csv";
-			}
-			else
-			{
-				strLogName = "DiplomacyAI_ExpansionLogic_Log.csv";
-			}
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString playerName;
+				CvString otherplayerName;
+				CvString strDesc;
+				CvString strLogName;
 
-			FILogFile* pLog;
-			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+				// Find the name of this civ and city
+				playerName = GetPlayer()->getCivilizationShortDescription();
+				otherplayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
 
-			// Get the leading info for this line
-			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-			strBaseString += playerName + ", ";
-			strBaseString += otherplayerName + ", ";
+				// Open the log file
+				if(GC.getPlayerAndCityAILogSplit())
+				{
+					strLogName = "DiplomacyAI_ExpansionLogic_Log_" + playerName + ".csv";
+				}
+				else
+				{
+					strLogName = "DiplomacyAI_ExpansionLogic_Log.csv";
+				}
 
-			CvString strRank; 
-			strOutBuf = strBaseString + "Aggregate change, update chance of aggressive posture for other player at value: ";
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
-			strDesc.Format("%03d.", iDistanceUsToThemThisTurn);
-			strOutBuf += strDesc;
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += playerName + ", ";
+				strBaseString += otherplayerName + ", ";
 
-			pLog->Msg(strOutBuf);
-		}
+				CvString strRank; 
+				strOutBuf = strBaseString + "Aggregate change, update chance of aggressive posture for other player at value: ";
 
-		if(iDistanceUsToThemThisTurn <= /*3*/ GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_HIGH())
-			eAggressivePosture = AGGRESSIVE_POSTURE_HIGH;
-		else if(iDistanceUsToThemThisTurn <= /*5*/ GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_MEDIUM())
-			eAggressivePosture = AGGRESSIVE_POSTURE_MEDIUM;
-		else if(iDistanceUsToThemThisTurn <= /*9*/ GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_LOW())
-			eAggressivePosture = AGGRESSIVE_POSTURE_LOW;
+				strDesc.Format("%03d.", iDistanceUsToThemThisTurn);
+				strOutBuf += strDesc;
 
-		if(GC.getLogging() && GC.getAILogging())
-		{
-			CvString strOutBuf;
-			CvString strBaseString;
-			CvString playerName;
-			CvString otherplayerName;
-			CvString strDesc;
-			CvString strLogName;
-
-			// Find the name of this civ and city
-			playerName = GetPlayer()->getCivilizationShortDescription();
-			otherplayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
-
-			// Open the log file
-			if(GC.getPlayerAndCityAILogSplit())
-			{
-				strLogName = "DiplomacyAI_ExpansionLogic_Log_" + playerName + ".csv";
-			}
-			else
-			{
-				strLogName = "DiplomacyAI_ExpansionLogic_Log.csv";
+				pLog->Msg(strOutBuf);
 			}
 
-			FILogFile* pLog;
-			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+			if(iDistanceUsToThemThisTurn <= /*2*/ (GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_HIGH() + (GetBoldness() / 4)))
+				eAggressivePosture = AGGRESSIVE_POSTURE_HIGH;
+			else if(iDistanceUsToThemThisTurn <= /*5*/ (GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_MEDIUM() + (GetBoldness() / 4)))
+				eAggressivePosture = AGGRESSIVE_POSTURE_MEDIUM;
+			else if(iDistanceUsToThemThisTurn <= /*9*/ (GC.getEXPANSION_CAPITAL_DISTANCE_AGGRESSIVE_POSTURE_LOW() + (GetBoldness() / 4)))
+				eAggressivePosture = AGGRESSIVE_POSTURE_LOW;
 
-			// Get the leading info for this line
-			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-			strBaseString += playerName + ", ";
-			strBaseString += otherplayerName + ", ";
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString playerName;
+				CvString otherplayerName;
+				CvString strDesc;
+				CvString strLogName;
 
-			CvString strRank; 
-			strOutBuf = strBaseString + ",***** NEW AGGRESSIVE POSTURE CHOSEN: ";
+				// Find the name of this civ and city
+				playerName = GetPlayer()->getCivilizationShortDescription();
+				otherplayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
 
-			strDesc.Format("%03d.", (int)eAggressivePosture);
-			strOutBuf += strDesc;
+				// Open the log file
+				if(GC.getPlayerAndCityAILogSplit())
+				{
+					strLogName = "DiplomacyAI_ExpansionLogic_Log_" + playerName + ".csv";
+				}
+				else
+				{
+					strLogName = "DiplomacyAI_ExpansionLogic_Log.csv";
+				}
 
-			pLog->Msg(strOutBuf);
-		}
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
-		SetExpansionAggressivePosture(ePlayer, eAggressivePosture);
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += playerName + ", ";
+				strBaseString += otherplayerName + ", ";
+
+				CvString strRank; 
+				strOutBuf = strBaseString + ",***** NEW AGGRESSIVE POSTURE CHOSEN: ";
+
+				strDesc.Format("%03d.", (int)eAggressivePosture);
+				strOutBuf += strDesc;
+
+				pLog->Msg(strOutBuf);
+			}
+		}	
 	}
+	SetExpansionAggressivePosture(ePlayer, eAggressivePosture);
 #else
 
 	int iMyCapitalX = GetPlayer()->getCapitalCity()->getX();
@@ -17442,14 +17424,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #else
 			bool bDealAcceptable = m_pPlayer->GetDealAI()->IsDealWithHumanAcceptable(pDeal, ePlayer, iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, bCantMatchOffer);
 #endif
-#if defined(MOD_BALANCE_CORE)
-			if(bCantMatchOffer)
-			{
-				SetCantMatchDeal(ePlayer, true);
-			}
-			if(!IsCantMatchDeal(ePlayer))
-			{
-#endif
 			if(!bDealAcceptable)
 			{
 				if(iValueTheyreOffering > iValueImOffering)
@@ -17476,6 +17450,9 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					pRenewDeal->m_bCheckedForRenewal = true;
 				}
 				ClearDealToRenew();
+#if defined(MOD_BALANCE_CORE)
+				pDeal->ClearItems();
+#endif
 			}
 
 			if(eMessageType != NUM_DIPLO_MESSAGE_TYPES)
@@ -17488,18 +17465,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				szText = GetDiploStringForMessage(eMessageType);
 				CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
 			}
-#if defined(MOD_BALANCE_CORE)
-			}
-			else
-			{
-				CvDeal* pRenewDeal = GetDealToRenew();
-				if (pRenewDeal)
-				{
-					pRenewDeal->m_bCheckedForRenewal = true;
-				}
-				ClearDealToRenew();
-			}
-#endif
 		}
 		// Offer to an AI player
 		else
@@ -21607,7 +21572,11 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 			int iNumDeals = 0;
 			if(iDealTypes == 0)
 			{
+#if defined(MOD_BALANCE_CORE)
+				iNumDeals = kGameDeals.GetNumHistoricDeals(ePlayer);
+#else
 				iNumDeals = kGameDeals.GetNumHistoricDeals(ePlayer,12);
+#endif
 			}
 			else
 			{
@@ -21714,21 +21683,6 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 					return;
 				}
 			}
-#if defined(MOD_BALANCE_CORE)
-			else
-			{
-				bool bDealGood;
-				bool bDontChange;
-				bool bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithHuman(pDeal, ePlayer, true, true, bDealGood, bDontChange);
-				if(!bAbleToEqualize)
-				{
-					pDeal->ClearItems();
-					pTargetDeal->ClearItems();
-					ClearDealToRenew();
-					return;
-				}
-			}
-#endif
 			eStatement = DIPLO_STATEMENT_RENEW_DEAL;
 		}
 		else
@@ -34642,7 +34596,11 @@ void CvDiplomacyAI::ClearDealToRenew()
 		int iNumDeals = 0;
 		if(iDealTypes == 0)
 		{
+#if defined(MOD_BALANCE_CORE)
+			iNumDeals = kGameDeals.GetNumHistoricDeals(m_pPlayer->GetID());
+#else
 			iNumDeals = kGameDeals.GetNumHistoricDeals(m_pPlayer->GetID(),12);
+#endif
 		}
 		else
 		{

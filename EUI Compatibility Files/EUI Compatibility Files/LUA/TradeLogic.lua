@@ -4191,7 +4191,15 @@ function ShowOtherPlayerChooser( isUs, type )
 			
 			local strToolTip = "";
 			local iFromTeam = Players[iFromPlayer]:GetTeam();
-			
+			local iToTeam = Players[iToPlayer]:GetTeam();
+			-- NO Met
+			if (not Teams[iFromTeam]:IsHasMet(iLoopTeam) or not Teams[iToTeam]:IsHasMet(iLoopTeam)) then
+				otherPlayerButtonSubTableNameButton:SetHide(true);
+			end
+			if(iFromTeam == iLoopTeam or iToTeam == iLoopTeam)then
+				otherPlayerButtonSubTableNameButton:SetHide(true);
+			end
+
     		if( g_iUsTeam ~= iLoopTeam and g_iThemTeam ~= iLoopTeam and
                 g_Deal:IsPossibleToTradeItem( iFromPlayer, iToPlayer, tradeType, iLoopTeam ) ) then
                 
@@ -4203,94 +4211,116 @@ function ShowOtherPlayerChooser( isUs, type )
     		    
     			-- Why won't they make peace?
     			if (type == PEACE) then
-					
-					-- CBP: No peace with non allied if not at war
-					if (g_pUsTeam:IsAtWar(g_iThemTeam)) then
-						strToolTip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_WAR_NO_PEACE_THIRD_PARTY_TT" );
-					else
-						if(not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam) or not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
-							strToolTip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT" );
 
+					if (not Teams[iToTeam]:HasEmbassyAtTeam(iFromTeam)) then
+						if(strToolTip ~= "") then
+							strToolTip = strToolTip .. "[NEWLINE]";
+						end
+						strToolTip = strToolTip .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEED_EMBASSY" );
+					end
+					if (not pLoopPlayer:IsMinorCiv()) then
+						-- CBP: No peace with non allied if not at war
+						if (g_pUsTeam:IsAtWar(g_iThemTeam)) then
+							if(strToolTip ~= "") then
+								strToolTip = strToolTip .. "[NEWLINE]";
+							end
+							strToolTip = strToolTip .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_WAR_NO_PEACE_THIRD_PARTY_TT" );
+						end
 						-- Not at war
-						elseif (not Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
-							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_AT_WAR");
-    				
-    					-- Minor that won't make peace
-    					elseif (pLoopPlayer:IsMinorCiv()) then
-    					
-    						local pMinorTeam = Teams[iLoopTeam];
-    						local iAlly = pLoopPlayer:GetAlly();
-    					
-    						-- Minor in permanent war with this guy
-    						if (pLoopPlayer:IsMinorPermanentWar(iFromPlayer)) then
-    							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_PERMANENT_WAR");
-			    			-- Minor allied to a player
-	    					elseif (pMinorTeam:IsAtWar(iFromTeam) and iAlly ~= -1 and Teams[Players[iAlly]:GetTeam()]:IsAtWar(iFromTeam)) then
-			    				strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_ALLY_AT_WAR");
-    						end
-    					
-    					-- Major that won't make peace
+						if (not Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
+							if(strToolTip ~= "") then
+								strToolTip = strToolTip .. "[NEWLINE]";
+							end
+							strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_AT_WAR");
     					else
+							-- Can't force third party peace with a loser. Has to be a sizeable difference
+							local iFromWarScore = Players[iFromPlayer]:GetWarScore(iLoopPlayer);
+
+							if(iFromWarScore <= 0) then
+								if(strToolTip ~= "") then
+									strToolTip = strToolTip .. "[NEWLINE]";
+								end
+								strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_WAR_SCORE", iFromWarScore);
+							end
+						end
+
+						if (not Teams[iLoopTeam]:CanChangeWarPeace(iFromTeam)) then
+							if(strToolTip ~= "") then
+								strToolTip = strToolTip .. "[NEWLINE]";
+							end
+							strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_CANNOT_PEACE");
+    					end
+					-- Minor that won't make peace    				
+					else	
+    					local pMinorTeam = Teams[iLoopTeam];
+    					local iAlly = pLoopPlayer:GetAlly();
     					
-    						-- AI don't want no peace!
-    						if (not Players[iFromPlayer]:IsWillAcceptPeaceWithPlayer(iLoopPlayer)) then
-    							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_THIS_GUY_WANTS_WAR");
-    						-- Other AI don't want no peace!
-    						elseif (not pLoopPlayer:IsWillAcceptPeaceWithPlayer(iFromPlayer)) then
-    							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_OTHER_GUY_WANTS_WAR");
-    						end
-    					
+    					-- Minor in permanent war with this guy
+    					if (pLoopPlayer:IsMinorPermanentWar(iFromPlayer)) then
+ 							if(strToolTip ~= "") then
+								strToolTip = strToolTip .. "[NEWLINE]";
+							end
+    						strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_PERMANENT_WAR");
+						end
+			    		-- Minor allied to a player
+	    				if (pMinorTeam:IsAtWar(iFromTeam) and iAlly ~= -1 and Teams[Players[iAlly]:GetTeam()]:IsAtWar(iFromTeam)) then
+							if(strToolTip ~= "") then
+								strToolTip = strToolTip .. "[NEWLINE]";
+							end
+			    			strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_MINOR_ALLY_AT_WAR");
     					end
 					end
     			-- Why won't they make war?
     			else
 					-- CBP: No peace with non allied if not at war
 					if (not g_pUsTeam:IsAtWar(g_iThemTeam)) then
-
-						-- CBP: Need Embassy:
-						if (not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam) or not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
-							strToolTip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT" ) ;
-
 						-- Already at war
-						elseif (Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
-							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_ALREADY_AT_WAR");
-
-						-- Locked in to peace
-						elseif (Teams[iFromTeam]:IsForcePeace(iLoopTeam)) then
-							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_FORCE_PEACE");
-
+						if (Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
+							if(strToolTip ~= "") then
+								strToolTip = strToolTip .. "[NEWLINE]";
+							end
+							strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_ALREADY_AT_WAR");
+						end
+						-- NO WAR
+						if (not Teams[iFromTeam]:CanDeclareWar(iLoopTeam, iFromPlayer)) then
+							if(strToolTip ~= "") then
+								strToolTip = strToolTip .. "[NEWLINE]";
+							end							
+							strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_BLOCKED");
+						end
+						-- CBP: Need Embassy:
+						if (not Teams[iToTeam]:HasEmbassyAtTeam(iFromTeam)) then
+							if(strToolTip ~= "") then
+								strToolTip = strToolTip .. "[NEWLINE]";
+							end
+							strToolTip = strToolTip .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEED_EMBASSY" ) ;
+						end		
 						-- City-State ally
-						elseif (pLoopPlayer:IsMinorCiv() and pLoopPlayer:GetAlly() == iFromPlayer) then
-							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_ALLIES");
-
-	-- CBP
-						-- City-State ally
-						elseif (pLoopPlayer:IsMinorCiv() and pLoopPlayer:GetAlly() == iToPlayer) then
-							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_ALLIES_US");
-
-						-- DOF
-						elseif (pLoopPlayer:IsDoF(iFromPlayer)) then
-							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DOF");
-
-						-- DOF YOU
-						elseif (pLoopPlayer:IsDoF(iToPlayer)) then
-							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DOF_YOU");
-
-						-- DP
-						elseif (Teams[iLoopTeam]:IsDefensivePact(iLoopTeam)) then
-							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DP");
-
-						-- DP You
-						elseif (Teams[iLoopTeam]:IsDefensivePact(g_iUsTeam)) then
-							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DP_YOU");
-
-						-- DP You
-						elseif (not g_pUsTeam:CanDeclareWar(iLoopTeam, iFromPlayer)) then
-							strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_BLOCKED");
-	-- END
+						if (pLoopPlayer:IsMinorCiv()) then
+							if (pLoopPlayer:GetAlly() == iToPlayer or pLoopPlayer:GetAlly() == iFromPlayer) then
+								if(strToolTip ~= "") then
+									strToolTip = strToolTip .. "[NEWLINE]";
+								end
+								strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_ALLIES");
+							end
+						else
+							-- DOF
+							if (pLoopPlayer:IsDoF(iFromPlayer) or pLoopPlayer:IsDoF(iToPlayer)) then
+								if(strToolTip ~= "") then
+									strToolTip = strToolTip .. "[NEWLINE]";
+								end
+								strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DOF");
+							end
+							-- DP
+							if (Teams[iLoopTeam]:IsDefensivePact(iFromTeam) or Teams[iLoopTeam]:IsDefensivePact(iToTeam)) then
+								if(strToolTip ~= "") then
+									strToolTip = strToolTip .. "[NEWLINE]";
+								end
+								strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DP");
+							end
 						end
 					end
-    				
+  				
     			end
 			end
 				

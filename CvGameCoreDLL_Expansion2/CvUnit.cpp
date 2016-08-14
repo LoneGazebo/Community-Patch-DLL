@@ -25875,7 +25875,7 @@ int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 		return -1;
 
 	//support units cannot attack themselves
-	if (IsCityAttackSupport() && bIsEnemyCity)
+	if (IsCityAttackSupport() && !bIsEnemyCity)
 		return -1;
 
 	//embarked can't do a move-attack
@@ -25897,6 +25897,12 @@ int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 	if(bIsEnemyCity)
 	{
 		CvUnitCombat::AttackCity(*this, *pPathPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && pPathPlot->isCity() && pPathPlot->isBarbarian())
+		{
+			CvBarbarians::DoCityAttacked(pPathPlot);
+		}
+#endif
 		return 1;
 	}
 	// Normal unit combat
@@ -25909,12 +25915,6 @@ int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 		{
 			CvBarbarians::DoCampAttacked(pPathPlot);
 		}
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && pPathPlot->isCity() && pPathPlot->isBarbarian())
-		{
-			CvBarbarians::DoCityAttacked(pPathPlot);
-		}
-#endif
 
 		return 1;
 	}
@@ -26067,7 +26067,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			}
 
 			//the given target may be different from the actual target
-			if (iFlags & MOVEFLAG_APPROX_TARGET_RING1)
+			if ((iFlags & MOVEFLAG_APPROX_TARGET_RING1) || (iFlags & MOVEFLAG_APPROX_TARGET_RING2))
 			{
 				pDestPlot = m_kLastPath.GetFinalPlot();
 				//check if we are there yet
@@ -26136,7 +26136,12 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 
 		if (bMoved)
 		{
+			//this plot has now been consumed
 			m_kLastPath.pop_front();
+
+			//keep the cache in sync
+			m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
+			m_uiLastPathLength = m_kLastPath.size();
 
 			//have we used up all plots for this turn?
 			if (!m_kLastPath.empty() && m_kLastPath.front().m_iTurns>1)
@@ -26637,6 +26642,9 @@ void CvUnit::ClearMissionQueue(bool bKeepPathCache, int iUnitCycleTimer)
 	VALIDATE_OBJECT
 	CvAssert(getOwner() != NO_PLAYER);
 
+	//make sure to show the latest status in the GUI
+	PublishQueuedVisualizationMoves();
+	
 	CvUnitMission::ClearMissionQueue(this, bKeepPathCache, iUnitCycleTimer);
 }
 

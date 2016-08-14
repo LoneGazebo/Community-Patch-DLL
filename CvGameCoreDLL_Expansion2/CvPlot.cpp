@@ -9028,19 +9028,29 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 			bool bRequiresImprovement = pReligion->m_Beliefs.RequiresImprovement(pWorkingCity->getOwner());
 			bool bRequiresNoImprovement = pReligion->m_Beliefs.RequiresNoImprovement(pWorkingCity->getOwner());
 			bool bRequiresResource = pReligion->m_Beliefs.RequiresResource(pWorkingCity->getOwner());
-			bool bRequiresNoImprovementFeature = pReligion->m_Beliefs.RequiresNoImprovementFeature(pWorkingCity->getOwner());
+			bool bRequiresNoFeature = pReligion->m_Beliefs.RequiresNoFeature(pWorkingCity->getOwner());
+			bool bRequiresEmptyTile = (bRequiresResource && bRequiresNoFeature);
+			bool bRequiresBoth = (bRequiresImprovement && bRequiresResource);
 			int iValue = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield, pWorkingCity->getOwner());
 			if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
 			{	
-				if(bRequiresImprovement)
+				if(bRequiresBoth)
+				{
+					if(getImprovementType() != NO_IMPROVEMENT && getResourceType(pWorkingCity->getTeam()) != NO_RESOURCE)
+					{
+						if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(pWorkingCity->getTeam())) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+						{
+							iReligionChange += iValue;
+						}
+					}
+				}
+				else if(bRequiresImprovement)
 				{
 					if(getImprovementType() != NO_IMPROVEMENT)
 					{
-						
-						iReligionChange += iValue;
-						if(bRequiresResource && getResourceType(pWorkingCity->getTeam()) == NO_RESOURCE)
+						if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(pWorkingCity->getTeam())) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
 						{
-							iReligionChange -= iValue;
+							iReligionChange += iValue;
 						}
 					}
 				}
@@ -9049,14 +9059,13 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 					if(getResourceType(pWorkingCity->getTeam()) != NO_RESOURCE)
 					{
 						iReligionChange += iValue;
-						if(bRequiresImprovement && getImprovementType() == NO_IMPROVEMENT)
-						{
-							iReligionChange -= iValue;
-						}
-						else if(bRequiresImprovement && getImprovementType() != NO_IMPROVEMENT && !GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(pWorkingCity->getTeam())) && !GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() && !GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
-						{
-							iReligionChange -= iValue;
-						}
+					}
+				}
+				else if(bRequiresEmptyTile)
+				{
+					if(getImprovementType() == NO_IMPROVEMENT && getFeatureType() == NO_FEATURE)
+					{
+						iReligionChange += iValue;
 					}
 				}
 				else if(bRequiresNoImprovement)
@@ -9064,10 +9073,13 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 					if(getImprovementType() == NO_IMPROVEMENT)
 					{
 						iReligionChange += iValue;
-						if(bRequiresNoImprovementFeature && getFeatureType() != NO_FEATURE)
-						{
-							iReligionChange -= iValue;
-						}
+					}
+				}
+				else if(bRequiresNoFeature)
+				{
+					if(getFeatureType() == NO_FEATURE)
+					{
+						iReligionChange += iValue;
 					}
 				}
 				if(iReligionChange > iValue)
@@ -9088,20 +9100,31 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 				//Change for improvement/resource
 				int iReligionChange = 0;
 				bool bRequiresImprovement = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresImprovement();
-				bool bRequiresResource = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresResource();
 				bool bRequiresNoImprovement = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresNoImprovement();
-				bool bRequiresNoImprovementFeature = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresNoImprovementFeature();
-				int iValue = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield, pWorkingCity->getOwner());
+				bool bRequiresResource = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresResource();
+				bool bRequiresNoFeature = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresNoFeature();
+				bool bRequiresEmptyTile = (bRequiresResource && bRequiresNoFeature);
+				bool bRequiresBoth = (bRequiresImprovement && bRequiresResource);
+				int iValue = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
 				if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
-				{		
-					if(bRequiresImprovement)
+				{	
+					if(bRequiresBoth)
+					{
+						if(getImprovementType() != NO_IMPROVEMENT && getResourceType(pWorkingCity->getTeam()) != NO_RESOURCE)
+						{
+							if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(pWorkingCity->getTeam())) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+							{
+								iReligionChange += iValue;
+							}
+						}
+					}
+					else if(bRequiresImprovement)
 					{
 						if(getImprovementType() != NO_IMPROVEMENT)
 						{
-							iReligionChange += iValue;
-							if(bRequiresResource && getResourceType(pWorkingCity->getTeam()) == NO_RESOURCE)
+							if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(pWorkingCity->getTeam())) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
 							{
-								iReligionChange -= iValue;
+								iReligionChange += iValue;
 							}
 						}
 					}
@@ -9110,14 +9133,13 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 						if(getResourceType(pWorkingCity->getTeam()) != NO_RESOURCE)
 						{
 							iReligionChange += iValue;
-							if(bRequiresImprovement && getImprovementType() == NO_IMPROVEMENT)
-							{
-								iReligionChange -= iValue;
-							}
-							else if(bRequiresImprovement && getImprovementType() != NO_IMPROVEMENT && !GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType(pWorkingCity->getTeam())) && !GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson() && !GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
-							{
-								iReligionChange -= iValue;
-							}
+						}
+					}
+					else if(bRequiresEmptyTile)
+					{
+						if(getImprovementType() == NO_IMPROVEMENT && getFeatureType() == NO_FEATURE)
+						{
+							iReligionChange += iValue;
 						}
 					}
 					else if(bRequiresNoImprovement)
@@ -9125,10 +9147,13 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 						if(getImprovementType() == NO_IMPROVEMENT)
 						{
 							iReligionChange += iValue;
-							if(bRequiresNoImprovementFeature && getFeatureType() != NO_FEATURE)
-							{
-								iReligionChange -= iValue;
-							}
+						}
+					}
+					else if(bRequiresNoFeature)
+					{
+						if(getFeatureType() == NO_FEATURE)
+						{
+							iReligionChange += iValue;
 						}
 					}
 					if(iReligionChange > iValue)
@@ -9138,7 +9163,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 				}
 				else
 				{
-					iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
+					iReligionChange = iValue;
 				}
 #else
 				iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
@@ -9259,10 +9284,18 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 					//Change for improvement/resource
 					int iReligionChange = 0;
-					bool bRequiresNoImprovement = pReligion->m_Beliefs.RequiresNoImprovementFeature(pWorkingCity->getOwner());
+					bool bRequiresNoImprovement = pReligion->m_Beliefs.RequiresNoImprovement(pWorkingCity->getOwner());
+					bool bRequiresImprovement = pReligion->m_Beliefs.RequiresImprovement(pWorkingCity->getOwner());
 					if(MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresNoImprovement)
 					{		
 						if(bRequiresNoImprovement && getImprovementType() == NO_IMPROVEMENT)
+						{
+							iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner());
+						}
+					}
+					else if(MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresImprovement)
+					{		
+						if(bRequiresNoImprovement && getImprovementType() != NO_IMPROVEMENT)
 						{
 							iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner());
 						}
@@ -9279,12 +9312,20 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 						//Change for improvement/resource
 						int iReligionChange = 0;
-						bool bRequiresNoImprovement = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresNoImprovementFeature();
+						bool bRequiresNoImprovement = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresNoImprovement();
+						bool bRequiresImprovement = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresImprovement();
 						if(MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresNoImprovement)
 						{		
 							if(bRequiresNoImprovement && getImprovementType() == NO_IMPROVEMENT)
 							{
-								iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFeatureYieldChange(getFeatureType(), eYield);
+								iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner());
+							}
+						}
+						else if(MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresImprovement)
+						{		
+							if(bRequiresNoImprovement && getImprovementType() != NO_IMPROVEMENT)
+							{
+								iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield, pWorkingCity->getOwner());
 							}
 						}
 						else

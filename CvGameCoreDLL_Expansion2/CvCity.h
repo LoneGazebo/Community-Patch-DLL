@@ -96,6 +96,14 @@ public:
 	void SetTradePrioritySea(int iValue);
 	int GetTradePrioritySea(void) const;
 
+	void UpdateNearbySettleSites();
+	int GetNearbySettleSiteValue() const;
+
+	void ChangeTradeRouteSeaDistanceModifier(int iValue);
+	int GetTradeRouteSeaDistanceModifier() const;
+
+	void ChangeTradeRouteLandDistanceModifier(int iValue);
+	int GetTradeRouteLandDistanceModifier() const;
 #endif
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -263,6 +271,12 @@ public:
 
 	void UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature = NO_FEATURE);
 	void UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eFeature = NO_FEATURE);
+
+	int getHurryModifier(HurryTypes eIndex) const;
+	void changeHurryModifier(HurryTypes eIndex, int iChange);
+
+	int getSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
+	void changeSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2, int iChange);
 #endif
 	int GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
@@ -1621,6 +1635,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iThreatCriteria;
 	FAutoVariable<int, CvCity> m_iTradePriorityLand;
 	FAutoVariable<int, CvCity> m_iTradePrioritySea;
+	FAutoVariable<int, CvCity> m_iNearbySettlerValue;
 	FAutoVariable<int, CvCity> m_iUnitPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iBuildingPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iReligiousTradeModifier;
@@ -1647,6 +1662,8 @@ protected:
 	FAutoVariable<int, CvCity> m_iChangeUnculturedUnhappiness;
 	FAutoVariable<int, CvCity> m_iChangeIlliteracyUnhappiness;
 	FAutoVariable<int, CvCity> m_iChangeMinorityUnhappiness;
+	FAutoVariable<int, CvCity> m_iTradeRouteSeaDistanceModifier;
+	FAutoVariable<int, CvCity> m_iTradeRouteLandDistanceModifier;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromReligion;
 #if defined(MOD_BALANCE_CORE)
@@ -1707,6 +1724,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_paiFreePromotionCount;
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	FAutoVariable<std::vector<int>, CvCity> m_paiBuildingClassCulture;
+	FAutoVariable<std::vector<int>, CvCity> m_paiHurryModifier;
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -1736,6 +1754,7 @@ protected:
 	int** m_ppaiFeatureYieldChange;
 #if defined(MOD_BALANCE_CORE)
 	int** m_ppaiImprovementYieldChange;
+	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvCity> m_ppaaiSpecialistExtraYield;
 #endif
 	int** m_ppaiTerrainYieldChange;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -1748,7 +1767,7 @@ protected:
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int** m_ppaiReligionBuildingYieldRateModifier;
-	int ** m_ppaiLocalBuildingClassYield;
+	int** m_ppaiLocalBuildingClassYield;
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	FAutoVariable<std::vector<int>, CvCity> m_aiEventCooldown;

@@ -259,9 +259,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		return 0;
 
 	//Sanitize...
-	if(iTempWeight > 800)
+	if(iTempWeight > 1000)
 	{
-		iTempWeight = 800;
+		iTempWeight = 1000;
 	}
 
 	if (!pkUnitEntry)
@@ -480,11 +480,35 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Policy unlock or move-on-purchase? These are usually cheap and good, so get em!
 		if(pkUnitEntry->GetPolicyType() != NO_POLICY || pkUnitEntry->CanMoveAfterPurchase())
 		{
-			int iGoldCost = m_pCity->GetPurchaseCost(eUnit);
-			if((kPlayer.GetTreasury()->GetGold() - iGoldCost) > 0)
+			if(bCombat && bAtWar)
 			{
-				//Bonus based on difference in gold - the more money we have, the more we want this!
-				iBonus += ((kPlayer.GetTreasury()->GetGold() - iGoldCost));
+				int iGoldCost = m_pCity->GetPurchaseCost(eUnit);
+				int iSurplus = ((kPlayer.GetTreasury()->GetGold() - iGoldCost) / 50);
+				if(iSurplus > 0)
+				{
+					//Bonus based on difference in gold - the more money we have, the more we want this!
+					iBonus += iSurplus;
+				}
+			}
+			else if(bCombat && !bAtWar)
+			{
+				int iGoldCost = m_pCity->GetPurchaseCost(eUnit);
+				int iSurplus = ((kPlayer.GetTreasury()->GetGold() - iGoldCost) / 100);
+				if(iSurplus > 0)
+				{
+					//Bonus based on difference in gold - the more money we have, the more we want this!
+					iBonus += iSurplus;
+				}
+			}
+			else if(!bCombat)
+			{
+				int iGoldCost = m_pCity->GetPurchaseCost(eUnit);
+				int iSurplus = ((kPlayer.GetTreasury()->GetGold() - iGoldCost) / 100);
+				if(iSurplus > 0)
+				{
+					//Bonus based on difference in gold - the more money we have, the more we want this!
+					iBonus += iSurplus;
+				}
 			}
 		}
 
@@ -530,9 +554,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				
 				if(bAtWar)
 				{
-					if(kPlayer.GetMilitaryAI()->GetWarType() == 2 && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+					if(kPlayer.GetMilitaryAI()->GetWarType() == 2)
 					{
-						iValue *= 8;
+						iValue *= 5;
 					}
 					else
 					{
@@ -559,9 +583,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				int iValue = iDesired - iCurrent;
 				if(bAtWar)
 				{
-					if(kPlayer.GetMilitaryAI()->GetWarType() == 1 && pkUnitEntry->GetDomainType() == DOMAIN_LAND)
+					if(kPlayer.GetMilitaryAI()->GetWarType() == 1)
 					{
-						iBonus *= 8;
+						iValue *= 5;
 					}
 					else
 					{
@@ -649,40 +673,70 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					iInfluence /= 4;
 				}
 			}
+			if(kPlayer.GetPlayerTraits()->IsDiplomaticMarriage())
+			{
+				iInfluence *= 2;
+			}
+			else if(kPlayer.GetPlayerTraits()->GetCityStateCombatModifier() > 0)
+			{
+				iInfluence *= 2;
+			}
+			else if(kPlayer.GetPlayerTraits()->GetCityStateFriendshipModifier() > 0)
+			{
+				iInfluence *= 2;
+			}
+			else if(kPlayer.GetPlayerTraits()->GetCityStateBonusModifier() > 0)
+			{
+				iInfluence *= 2;
+			}
+			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				const YieldTypes eYield = static_cast<YieldTypes>(iI);
+				if(eYield != NO_YIELD)
+				{
+					if(kPlayer.GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0 || kPlayer.GetPlayerTraits()->GetYieldFromCSFriend(eYield) > 0)
+					{
+						iInfluence *= 3;
+						break;
+					}
+				}
+			}
 			iBonus += iInfluence;
 		}
 #endif
-
-		EconomicAIStrategyTypes eStrategySS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");	
-		if(eStrategySS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategySS))
+		if(pkUnitEntry->GetSpaceshipProject() != NO_PROJECT)
 		{
-			iBonus += 500;
-			if(kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
+			EconomicAIStrategyTypes eStrategySS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");	
+			if(eStrategySS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategySS))
 			{
 				iBonus += 500;
-			}
-			else if(kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
-			{
-				iBonus -= 300;
-			}
-			else if(kPlayer.GetDiplomacyAI()->IsCloseToDominationVictory())
-			{
-				iBonus -= 300;
-			}
-			else if(kPlayer.GetDiplomacyAI()->IsCloseToDiploVictory())
-			{
-				iBonus -= 300;
-			}
-
-			if(pkUnitEntry->GetSpaceshipProject() != NO_PROJECT)
-			{
-				if(m_pCity->getSpaceProductionModifier() > 0)
+				if(kPlayer.GetDiplomacyAI()->IsCloseToSSVictory())
 				{
-					iBonus += (m_pCity->getSpaceProductionModifier() * 2);
+					iBonus += 500;
 				}
-				else
+				else if(kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory())
 				{
-					iBonus -= 25;
+					iBonus -= 300;
+				}
+				else if(kPlayer.GetDiplomacyAI()->IsCloseToDominationVictory())
+				{
+					iBonus -= 300;
+				}
+				else if(kPlayer.GetDiplomacyAI()->IsCloseToDiploVictory())
+				{
+					iBonus -= 300;
+				}
+
+				if(pkUnitEntry->GetSpaceshipProject() != NO_PROJECT)
+				{
+					if(m_pCity->getSpaceProductionModifier() > 0)
+					{
+						iBonus += (m_pCity->getSpaceProductionModifier() * 2);
+					}
+					else
+					{
+						iBonus -= 25;
+					}
 				}
 			}
 		}
@@ -692,6 +746,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		////////////
 		if(pkUnitEntry->GetCombat() > 0)
 		{
+			int iReligiousBonus = 0;
 			ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pCity->getOwner());
 			if(eReligion == NO_RELIGION)
 			{
@@ -712,23 +767,23 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						{
 							if(pEntry->GetFaithFromKills() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK)))
 							{
-								iBonus += (pEntry->GetFaithFromKills());
+								iReligiousBonus += (pEntry->GetFaithFromKills());
 							}
 							if(pEntry->GetCombatModifierEnemyCities() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_RANGED) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_CITY_BOMBARD)))
 							{
-								iBonus += (pEntry->GetCombatModifierEnemyCities());
+								iReligiousBonus += (pEntry->GetCombatModifierEnemyCities());
 							}
 							if(pEntry->GetCombatModifierFriendlyCities() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_DEFENSE) || pkUnitEntry->GetUnitAIType(UNITAI_COUNTER)))
 							{
-								iBonus += (pEntry->GetCombatModifierFriendlyCities());
+								iReligiousBonus += (pEntry->GetCombatModifierFriendlyCities());
 							}
 							if(pEntry->GetCombatVersusOtherReligionOwnLands() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_DEFENSE) || pkUnitEntry->GetUnitAIType(UNITAI_COUNTER)))
 							{
-								iBonus += (pEntry->GetCombatVersusOtherReligionOwnLands());
+								iReligiousBonus += (pEntry->GetCombatVersusOtherReligionOwnLands());
 							}
 							if(pEntry->GetCombatVersusOtherReligionTheirLands() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_RANGED) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_CITY_BOMBARD)))
 							{
-								iBonus += (pEntry->GetCombatVersusOtherReligionTheirLands());
+								iReligiousBonus += (pEntry->GetCombatVersusOtherReligionTheirLands());
 							}
 							for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 							{
@@ -737,7 +792,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 								{
 									if(pEntry->GetYieldFromKills(eYield) > 0)
 									{
-										iBonus += (pEntry->GetYieldFromKills(eYield));
+										iReligiousBonus += (pEntry->GetYieldFromKills(eYield));
 									}
 								}
 							}
@@ -745,6 +800,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					}
 				}
 			}
+			iReligiousBonus /= 10;
+			iBonus += iReligiousBonus;
 		}
 
 		//////////////
@@ -768,7 +825,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			if(iGPT <= 0)
 			{
-				iBonus += (iGPT * -10);
+				iBonus += (iGPT * -8);
 			}
 		}
 	}
@@ -787,12 +844,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return 0;
 		}
 		//Don't build a settler if we're about to grow.
-		if(m_pCity->getFoodTurnsLeft() <= 4)
+		if(m_pCity->getFoodTurnsLeft() <= 2)
 		{
 			return 0;
 		}
 		//Or if we're small.
-		if(m_pCity->getPopulation() <= 4)
+		if(m_pCity->getPopulation() <= 5)
 		{
 			return 0;
 		}
@@ -800,35 +857,19 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			return 0;
 		}
-		if(kPlayer.IsEmpireVeryUnhappy())
+		if(kPlayer.IsEmpireSuperUnhappy())
 		{
 			return 0;
 		}
-
-		if(kPlayer.IsEmpireUnhappy() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
-		{
-			return 0;
-		}
-		if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
-		{
-			return 0;
-		}
-
 		//Already have a settler out? Ignore.
 		int iNumSettlers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
-		if(iNumSettlers > 0)
+		if(iNumSettlers > 1)
 		{
 			return 0;
 		}
-		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
-		// scale based on flavor and world size
-		if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
-		{
-			return 0;
-		}
-		int iBestArea, iSecondBestArea;
-		int iNumGoodAreas = kPlayer.GetBestSettleAreas(kPlayer.GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
-		if(iNumGoodAreas == 0)
+		
+		int iSettleValuation = m_pCity->GetNearbySettleSiteValue();
+		if(iSettleValuation <= 0)
 		{
 			return 0;
 		}
@@ -836,7 +877,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		else
 		{
 			int iFlavorExpansion = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-			iFlavorExpansion += iNumGoodAreas;
 
 			// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"
 			EconomicAIStrategyTypes eExpandOther = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
@@ -864,7 +904,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandCrazy))
 				{
-					iFlavorExpansion += 3;
+					iFlavorExpansion += 2;
 				}
 			}
 
@@ -877,14 +917,36 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				iFlavorExpansion += 1;
 			}
 
+			if(kPlayer.IsEmpireUnhappy() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
+			{
+				iFlavorExpansion -= 2;
+			}
+			if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
+			{
+				iFlavorExpansion -= 2;
+			}
+
+			MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+			// scale based on flavor and world size
+			if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
+			{
+				iFlavorExpansion -= 1;
+			}
 			int iNumCities = kPlayer.getNumCities();
-			int iSettlerDesire = (iFlavorExpansion - iNumCities) * 20;
+			
+			iFlavorExpansion -= iNumCities;
+			
+			if(iFlavorExpansion <= 0)
+			{
+				iFlavorExpansion = 1;
+			}
+			
+			int iSettlerDesire = (iFlavorExpansion * iSettleValuation);
 			iBonus += iSettlerDesire;
 		}
 	}
 	if(!kPlayer.isMinorCiv())
 	{
-
 		//Archaeologists? Only if we have digs nearby.
 		if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ARCHAEOLOGIST)
 		{
@@ -1031,7 +1093,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if(kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver() > 0)
 			{
-				iBonus += (kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver() * 2);
+				iBonus += (kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver() * 5);
 			}
 		}
 
@@ -1043,22 +1105,22 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			//Let's try to build our units in our best cities only.
 			if(m_pCity == kPlayer.GetBestMilitaryCity((UnitCombatTypes)pkUnitEntry->GetUnitCombatType()))
 			{
-				iBonus += 50;
+				iBonus += 25;
 			}
 			//Discourage bad cities.
 			else
 			{
-				iBonus -= 50;
+				iBonus -= 25;
 			}
 			//Let's try to build our units in our best cities only. More cities we have, the more this matters.
 			if(m_pCity == kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, (DomainTypes)pkUnitEntry->GetDomainType()))
 			{
-				iBonus += 50;
+				iBonus += 25;
 			}
 			//Discourage bad cities.
 			else
 			{
-				iBonus -= 50;
+				iBonus -= 25;
 			}
 		}
 		//Promotion Bonus
@@ -1072,21 +1134,21 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
 					{
-						iBonus += 25;
+						iBonus += 15;
 					}
 				}
 				if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitClass(iI, pkUnitEntry->GetUnitClassType()))
 				{
 					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
 					{
-						iBonus += 25;
+						iBonus += 15;
 					}
 				}
 				if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitCombat(iI, pkUnitEntry->GetUnitCombatType()))
 				{
 					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
 					{
-						iBonus += 25;
+						iBonus += 15;
 					}
 				}
 			}
@@ -1095,7 +1157,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Uniques? They're generally good enough to spam.
 		if(kPlayer.getCivilizationInfo().isCivilizationUnitOverridden(pkUnitEntry->GetUnitClassType()))
 		{
-			iBonus += 150;
+			iBonus += 100;
 		}
 
 		//For an operation? Build it!
@@ -1107,18 +1169,18 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			else if(bForOperation)
 			{
-				iBonus += 100;
+				iBonus += 50;
 			}
 			else
 			{
 				//////Let's get the military unit AI type we have the least of and boost the lowest type.
 				if(kPlayer.GetArmyDiversity() == (int)pkUnitEntry->GetDefaultUnitAIType())
 				{
-					iBonus += 150;
+					iBonus += 50;
 				}
 				else
 				{
-					iBonus -= 150;
+					iBonus -= 50;
 				}
 			}
 		}
@@ -1128,12 +1190,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	{
 		if(bCombat)
 		{
-			iBonus += 30;
+			iBonus += 50;
 		}
 		//Fewer civilians til we rectify this!
 		else
 		{
-			iBonus -= 30;
+			iBonus -= 50;
 		}
 	}
 
@@ -1142,8 +1204,15 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	{
 		if(iGPT < 0)
 		{
-			//Every -1 GPT = -30 penalty.
-			iBonus += iGPT * 30;
+			//Every -1 GPT = -40 penalty.
+			if(!!bAtWar)
+			{
+				iBonus += iGPT * 40;
+			}
+			else
+			{
+				iBonus += iGPT;
+			}
 		}
 	}
 
@@ -1157,9 +1226,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		int iDemand = kPlayer.getNumMilitaryUnits();
 		int iPercent = (iDemand * 100) / iSupply;
-		int iRemainder = (130 - iPercent);
+		int iRemainder = (160 - iPercent);
 
-		//Closer we get to cap over 30%, fewer units we should be making.
+		//Closer we get to cap over 60%, fewer units we should be making.
 		iBonus *= iRemainder;
 		iBonus /= 100;
 	}

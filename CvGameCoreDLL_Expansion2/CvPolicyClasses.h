@@ -104,6 +104,10 @@ public:
 	bool IsUpgradeCSTerritory() const;
 	int GetArchaeologicalDigTourism() const;
 	int GetGoldenAgeTourism() const;
+	int GetTradeRouteLandDistanceModifier() const;
+	int GetTradeRouteSeaDistanceModifier() const;
+	int GetEspionageModifier() const;
+	int GetXCSAlliesLowersPolicyNeedWonders() const;
 #endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
@@ -614,11 +618,15 @@ private:
 	bool m_bUpgradeCSTerritory;
 	bool m_iArchaeologicalDigTourism;
 	bool m_iGoldenAgeTourism;
+	int m_iTradeRouteLandDistanceModifier;
+	int m_iTradeRouteSeaDistanceModifier;
+	int m_iEspionageModifier;
 	int* m_piConquerorYield;
 	int* m_piFounderYield;
 	int* m_piReligionYieldMod;
 	int* m_piGoldenAgeYieldMod;
 	int** m_ppiReligionBuildingYieldMod;
+	int m_iXCSAlliesLowersPolicyNeedWonders;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -677,6 +685,9 @@ public:
 	bool IsDelayWhenNoCulture() const;
 	bool IsDelayWhenNoCityStates() const;
 	bool IsDelayWhenNoScience() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetNumPolicyRequirement() const;
+#endif
 
 	// Accessor Functions (Arrays)
 	int GetPolicyBranchDisables(int i) const;
@@ -694,6 +705,9 @@ private:
 	bool m_bDelayWhenNoCulture;
 	bool m_bDelayWhenNoCityStates;
 	bool m_bDelayWhenNoScience;
+#if defined(MOD_BALANCE_CORE)
+	int m_iNumPolicyRequirement;
+#endif
 
 	// Arrays
 	int* m_piPolicyBranchDisables;

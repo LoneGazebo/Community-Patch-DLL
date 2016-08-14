@@ -5875,9 +5875,10 @@ int CvLuaPlayer::lGetNumPolicies(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 #if defined(MOD_BALANCE_CORE)
 	bool bIgnoreFinishers = luaL_optbool(L, 2, false);
+	bool bIgnoreDummy = luaL_optbool(L, 3, false);
 	if(pkPlayer->GetPlayerPolicies())
 	{
-		const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(bIgnoreFinishers);
+		const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(bIgnoreFinishers, bIgnoreDummy);
 #else
 		const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned();
 #endif
@@ -6445,6 +6446,7 @@ int CvLuaPlayer::lGetGoldenAgeGreatMerchantRateModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES) && defined(MOD_API_UNIFIED_YIELDS)
 //------------------------------------------------------------------------------
