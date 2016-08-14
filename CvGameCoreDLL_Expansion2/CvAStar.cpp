@@ -1412,7 +1412,7 @@ int PathAdd(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUse
 	if(operation == ASNC_INITIALADD)
 	{
 		//in this case we did not call PathCost() before, so we have to set the initial values here
-		node->m_iMoves = pUnit->movesLeft();
+		node->m_iMoves = finder->GetData().iStartMoves;
 		node->m_iTurns = 1;
 
 		UpdateNodeCacheData(node,pUnit,pCacheData->DoDanger(),finder);
@@ -2888,6 +2888,7 @@ SPathFinderUserData::SPathFinderUserData(const CvUnit* pUnit, int _iFlags, int _
 	iTypeParameter = -1; //typical invalid enum
 	iMaxNormalizedDistance = INT_MAX;
 	iMinMovesLeft = 0;
+	iStartMoves = pUnit->getMoves();
 }
 
 //	---------------------------------------------------------------------------
