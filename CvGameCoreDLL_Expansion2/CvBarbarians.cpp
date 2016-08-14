@@ -561,7 +561,7 @@ void CvBarbarians::DoCamps()
 
 				std::vector<CvPlot*>& vRelevantPlots = bWantsCoastal ? vCoastalPlots : vAllPlots;
 
-				int iPlotIndex = kGame.getSmallFakeRandNum( min(9u, vRelevantPlots.size()) );
+				int iPlotIndex = kGame.getSmallFakeRandNum( min(9u, vRelevantPlots.size()), (int)vRelevantPlots.size() );
 #else
 				bool bWantsCoastal = kGame.getRandNum(/*6*/ GC.getBARBARIAN_CAMP_COASTAL_SPAWN_ROLL(), "Barb Camp Plot-Finding Roll - Coastal Bias") == 0 ? true : false;
 				int iPlotIndex = kGame.getRandNum( bWantsCoastal ? vCoastalPlots.size() : vAllPlots.size(), "Barb Camp Plot-Finding Roll");
@@ -687,6 +687,13 @@ void CvBarbarians::DoCamps()
 						iNumCampsToAdd--;
 					}
 #if defined(MOD_BUGFIX_BARB_CAMP_TERRAINS)
+				}
+				else
+				{
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+					//if we're using the fake random generator, it will produce the same candidate every time, need to remove it from the pool
+					vRelevantPlots.erase(vRelevantPlots.begin() + iPlotIndex);
+#endif
 				}
 #endif
 			}
