@@ -389,30 +389,33 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 		}
 		//Check for specific resource usage by units.
-		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		if(pkUnitEntry->GetSpaceshipProject() == NO_PROJECT)
 		{
-			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-			if (eResourceLoop != NO_RESOURCE)
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
-				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResourceLoop);
-				if(pkResourceInfo != NULL)
-				{	
-					//Aluminum Check
-					ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
-					if(eResourceLoop == eAluminumResource)
-					{
-						if(pkUnitEntry->GetResourceQuantityRequirement(eResourceLoop) > 0)
+				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+				if (eResourceLoop != NO_RESOURCE)
+				{
+					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResourceLoop);
+					if(pkResourceInfo != NULL)
+					{	
+						//Aluminum Check
+						ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
+						if(eResourceLoop == eAluminumResource)
 						{
-							//We need at least 4 aluminum to get off the planet, so let's save that much if we've got the Apollo.
-							if(kPlayer.getNumResourceAvailable(eResourceLoop, false) <= 4)
+							if(pkUnitEntry->GetResourceQuantityRequirement(eResourceLoop) > 0)
 							{
-								return 0;
+								//We need at least 4 aluminum to get off the planet, so let's save that much if we've got the Apollo.
+								if(kPlayer.getNumResourceAvailable(eResourceLoop, false) <= 4)
+								{
+									return 0;
+								}
 							}
 						}
-					}
-					if(pkUnitEntry->GetResourceQuantityRequirement(iResourceLoop) > 0)
-					{
-						iBonus += (kPlayer.getNumResourceAvailable(eResourceLoop, false));
+						if(pkUnitEntry->GetResourceQuantityRequirement(iResourceLoop) > 0)
+						{
+							iBonus += (kPlayer.getNumResourceAvailable(eResourceLoop, false));
+						}
 					}
 				}
 			}
@@ -1029,7 +1032,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return 0;
 		}
 		int iCurrentNumCities = kPlayer.getNumCities();
-		if(iNumBuilders >= iCurrentNumCities)
+		iCurrentNumCities -= iNumBuilders;
+		if(iCurrentNumCities <= 0)
 		{
 			return 0;
 		}
@@ -1041,12 +1045,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
 		if(eWantWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 		{
-			iBonus += 25;
+			iBonus += (25 * iCurrentNumCities);
 		}
 		AICityStrategyTypes eNeedWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
 		if(eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
 		{
-			iBonus += 75;
+			iBonus += (50 * iCurrentNumCities);
 		}
 	}
 	

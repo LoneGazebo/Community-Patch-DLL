@@ -164,18 +164,13 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 	//Final failsafe
 	if(!pDeal->IsPeaceTreatyTrade(eFromPlayer))
 	{
-		//Getting 'error' values in this deal? It is bad, abort!
-		if((iValueTheyreOffering == INT_MAX) || (iValueImOffering == INT_MAX))
-		{
-			bDealAcceptable = false;
-			iDealValueToMe = -500;
-		}
 		if(pDeal->GetRequestingPlayer() == GetPlayer()->GetID())
 		{
 			bDealAcceptable = true;
 			pDeal->SetRequestingPlayer(NO_PLAYER);
 		}
-		if(iDealValueToMe == INT_MAX)
+		//Getting 'error' values in this deal? It is bad, abort!
+		else if((iValueTheyreOffering == INT_MAX) || (iValueImOffering == INT_MAX) || (iDealValueToMe == INT_MAX))
 		{
 			bDealAcceptable = false;
 			iDealValueToMe = -500;
@@ -204,8 +199,6 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 		{
 			pDeal->SetRequestingPlayer(NO_PLAYER);
 		}
-		eResponse = DEAL_RESPONSE_ACCEPTABLE;
-		eUIState = DIPLO_UI_STATE_TRADE_AI_ACCEPTS_OFFER;
 #endif
 	}
 	// We want more from this Deal
@@ -1103,7 +1096,7 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, int& iValueImOffering, int& iValueThey
 
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
-	int iItemValue;
+	int iItemValue = -1;
 
 	bool bFromMe;
 	PlayerTypes eOtherPlayer;
@@ -1134,9 +1127,26 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, int& iValueImOffering, int& iValueThey
 		int iValueMultiplier = bFromMe ? -1 : 1;
 
 #if defined(MOD_BALANCE_CORE)
-		iItemValue = GetTradeItemValue(it->m_eItemType, bFromMe, eOtherPlayer, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1, it->m_iDuration, bUseEvenValue, pDeal);
-		it->m_iValue = iItemValue;
-		it->m_bValueIsEven = bUseEvenValue;
+		if(bFromMe)
+		{
+			if(!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eOtherPlayer, it->m_eItemType, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1))
+			{
+				iItemValue=INT_MAX;
+			}
+		}
+		else
+		{
+			if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), it->m_eItemType, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1))
+			{
+				iItemValue=INT_MAX;
+			}
+		}
+		if(iItemValue != INT_MAX)
+		{
+			iItemValue = GetTradeItemValue(it->m_eItemType, bFromMe, eOtherPlayer, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1, it->m_iDuration, bUseEvenValue, pDeal);
+			it->m_iValue = iItemValue;
+			it->m_bValueIsEven = bUseEvenValue;
+		}
 #else
 		iItemValue = GetTradeItemValue(it->m_eItemType, bFromMe, eOtherPlayer, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1, it->m_iDuration, bUseEvenValue);
 #endif
@@ -6605,11 +6615,8 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			if((!bSecondPass || (iCurrentCityValue < iCityValueToSurrender)) && iCurrentCityValue > 0)
 			{
 				bSecondPass = true;
-				if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
-				{
-					pDeal->AddCityTrade(eLosingPlayer, iSortedCityID);
-					iCityValueToSurrender -= iCurrentCityValue;
-				}
+				pDeal->AddCityTrade(eLosingPlayer, iSortedCityID);
+				iCityValueToSurrender -= iCurrentCityValue;
 			}
 		}
 	}
@@ -6618,14 +6625,10 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	if (iPercentGoldToGive > 0)
 	{
 		iGold = pDeal->GetGoldAvailable(eLosingPlayer, TRADE_ITEM_GOLD);
+		iGold = iGold * iPercentGoldToGive / 100;
 		if(iGold > 0)
 		{
-			iGold = iGold * iPercentGoldToGive / 100;
-
-			if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_GOLD, iGold))
-			{
-				pDeal->AddGoldTrade(eLosingPlayer, iGold);
-			}
+			pDeal->AddGoldTrade(eLosingPlayer, iGold);
 		}
 	}
 
@@ -6634,14 +6637,11 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	if (iPercentGPTToGive > 0)
 	{
 		iGPT = pLosingPlayer->calculateGoldRate();
-		if (iGPT > 0)
-		{
-			iGPT = ((iGPT * iPercentGPTToGive) / 100);
+		iGPT = ((iGPT * iPercentGPTToGive) / 100);
 
-			if(iGPT > 0 && pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_GOLD_PER_TURN, iGPT, iDuration))
-			{
-				pDeal->AddGoldPerTurnTrade(eLosingPlayer, iGPT, iDuration);
-			}
+		if(iGPT > 0)
+		{
+			pDeal->AddGoldPerTurnTrade(eLosingPlayer, iGPT, iDuration);
 		}
 	}
 
@@ -6719,11 +6719,8 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 				// City is worth less than what is left to be added to the deal, so add it
 				if(iCurrentResourceValue <= iResourceValueToSurrender && iCurrentResourceValue > 0)
 				{
-					if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_RESOURCES, eResourceList, 1))
-					{
-						pDeal->AddResourceTrade(eLosingPlayer, eResourceList, 1, GC.getGame().GetDealDuration());
-						iResourceValueToSurrender -= iCurrentResourceValue;
-					}
+					pDeal->AddResourceTrade(eLosingPlayer, eResourceList, 1, GC.getGame().GetDealDuration());
+					iResourceValueToSurrender -= iCurrentResourceValue;
 				}
 			}
 		}
@@ -6802,11 +6799,8 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 				// City is worth less than what is left to be added to the deal, so add it
 				if(iCurrentResourceValue < iResourceValueToSurrender && iCurrentResourceValue > 0)
 				{
-					if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_RESOURCES, eResourceList, iResourceQuantity))
-					{
-						pDeal->AddResourceTrade(eLosingPlayer, eResourceList, iResourceQuantity, GC.getGame().GetDealDuration());
-						iResourceValueToSurrender -= iCurrentResourceValue;
-					}
+					pDeal->AddResourceTrade(eLosingPlayer, eResourceList, iResourceQuantity, GC.getGame().GetDealDuration());
+					iResourceValueToSurrender -= iCurrentResourceValue;
 				}
 			}
 		}
@@ -6814,17 +6808,11 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if(MOD_DIPLOMACY_CIV4_FEATURES && bBecomeMyVassal)
 	{
-		if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_VASSALAGE))
-		{
-			pDeal->AddVassalageTrade(eLosingPlayer);
-		}
+		pDeal->AddVassalageTrade(eLosingPlayer);
 	}
 	if(MOD_DIPLOMACY_CIV4_FEATURES && bRevokeMyVassals)
 	{
-		if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_VASSALAGE_REVOKE))
-		{
-			pDeal->AddRevokeVassalageTrade(eLosingPlayer);
-		}
+		pDeal->AddRevokeVassalageTrade(eLosingPlayer);
 	}
 #endif
 #else
@@ -7147,8 +7135,8 @@ void CvDealAI::DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal)
 
 			// Add peace with this minor to the deal
 			// slewis - if there is not a peace deal with them already on the table and we can trade it
-			if(!pDeal->IsThirdPartyPeaceTrade(GetPlayer()->GetID(), pMinor->getTeam()) && pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eToPlayer, TRADE_ITEM_THIRD_PARTY_PEACE, pMinor->getTeam()))
-			{
+			if(!pDeal->IsThirdPartyPeaceTrade(GetPlayer()->GetID(), pMinor->getTeam()))
+			{	
 				pDeal->AddThirdPartyPeace(GetPlayer()->GetID(), pMinor->getTeam(), iPeaceDuration);
 			}
 		}
@@ -7173,7 +7161,7 @@ void CvDealAI::DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal)
 
 			// Add peace with this minor to the deal
 			// slewis - if there is not a peace deal with them already on the table and we can trade it
-			if(!pDeal->IsThirdPartyPeaceTrade(eToPlayer, pMinor->getTeam()) && pDeal->IsPossibleToTradeItem(eToPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_PEACE, pMinor->getTeam()))
+			if(!pDeal->IsThirdPartyPeaceTrade(eToPlayer, pMinor->getTeam()))
 			{
 				pDeal->AddThirdPartyPeace(eToPlayer, pMinor->getTeam(), iPeaceDuration);
 			}

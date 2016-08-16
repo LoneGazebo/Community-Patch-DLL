@@ -14461,14 +14461,6 @@ int CvLuaPlayer::lIsEventChoiceActive(lua_State* L)
 									{
 										if(pkEventInfo->getNumChoices() == 1)
 										{
-											if(pkPlayer->GetEventCooldown(eEvent) > 0)
-											{
-												bResult = true;
-												break;
-											}
-										}
-										else
-										{
 											bResult = true;
 											break;
 										}
@@ -14480,11 +14472,7 @@ int CvLuaPlayer::lIsEventChoiceActive(lua_State* L)
 				}
 				else
 				{
-					if(pkEventChoiceInfo->isOneShot() && pkPlayer->IsEventChoiceFired(eEventChoice))
-					{
-						bResult = true;
-					}
-					else if(pkEventChoiceInfo->Expires())
+					if(pkEventChoiceInfo->isOneShot() || pkEventChoiceInfo->Expires())
 					{
 						bResult = true;
 					}

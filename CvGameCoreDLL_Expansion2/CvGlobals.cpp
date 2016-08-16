@@ -3357,6 +3357,86 @@ CvModEventCityChoiceInfo* CvGlobals::getCityEventChoiceInfo(CityEventChoiceTypes
 	else
 		return NULL;
 }
+
+int CvGlobals::getNumEventLinkingInfos()
+{
+	return (int)m_paEventLinkingInfo.size();
+}
+
+std::vector<CvEventLinkingInfo*>& CvGlobals::getEventLinkingInfo()
+{
+	return m_paEventLinkingInfo;
+}
+
+CvEventLinkingInfo* CvGlobals::getEventLinkingInfo(EventTypes e)
+{
+	CvAssert(e > -1);
+	CvAssert(e < GC.getNumEventLinkingInfo());
+	if(e > -1 && e < (int)m_paEventLinkingInfo.size())
+		return m_paEventLinkingInfo[e];
+	else
+		return NULL;
+}
+
+int CvGlobals::getNumEventChoiceLinkingInfos()
+{
+	return (int)m_paEventChoiceLinkingInfo.size();
+}
+
+std::vector<CvEventChoiceLinkingInfo*>& CvGlobals::getEventChoiceLinkingInfo()
+{
+	return m_paEventChoiceLinkingInfo;
+}
+
+CvEventChoiceLinkingInfo* CvGlobals::getEventChoiceLinkingInfo(EventChoiceTypes e)
+{
+	CvAssert(e > -1);
+	CvAssert(e < GC.getNumEventChoiceLinkingInfo());
+	if(e > -1 && e < (int)m_paEventChoiceLinkingInfo.size())
+		return m_paEventChoiceLinkingInfo[e];
+	else
+		return NULL;
+}
+
+int CvGlobals::getNumCityEventLinkingInfos()
+{
+	return (int)m_paCityEventLinkingInfo.size();
+}
+
+std::vector<CvCityEventLinkingInfo*>& CvGlobals::getCityEventLinkingInfo()
+{
+	return m_paCityEventLinkingInfo;
+}
+
+CvCityEventLinkingInfo* CvGlobals::getCityEventLinkingInfo(CityEventTypes e)
+{
+	CvAssert(e > -1);
+	CvAssert(e < GC.getNumCityEventLinkingInfo());
+	if(e > -1 && e < (int)m_paCityEventLinkingInfo.size())
+		return m_paCityEventLinkingInfo[e];
+	else
+		return NULL;
+}
+
+int CvGlobals::getNumCityEventChoiceLinkingInfos()
+{
+	return (int)m_paCityEventChoiceLinkingInfo.size();
+}
+
+std::vector<CvCityEventChoiceLinkingInfo*>& CvGlobals::getCityEventChoiceLinkingInfo()
+{
+	return m_paCityEventChoiceLinkingInfo;
+}
+
+CvCityEventChoiceLinkingInfo* CvGlobals::getCityEventChoiceLinkingInfo(CityEventChoiceTypes e)
+{
+	CvAssert(e > -1);
+	CvAssert(e < GC.getNumCityEventChoiceLinkingInfo());
+	if(e > -1 && e < (int)m_paCityEventChoiceLinkingInfo.size())
+		return m_paCityEventChoiceLinkingInfo[e];
+	else
+		return NULL;
+}
 #endif
 
 int CvGlobals::getNumUnitCombatClassInfos()
@@ -6930,6 +7010,12 @@ void CvGlobals::deleteInfoArrays()
 	deleteInfoArray(m_paEventChoiceInfo);
 	deleteInfoArray(m_paCityEventInfo);
 	deleteInfoArray(m_paCityEventChoiceInfo);
+
+	deleteInfoArray(m_paEventLinkingInfo);
+	deleteInfoArray(m_paEventChoiceLinkingInfo);
+	deleteInfoArray(m_paCityEventLinkingInfo);
+	deleteInfoArray(m_paCityEventChoiceLinkingInfo);
+
 	deleteInfoArray(m_paContractInfo);
 #endif
 	deleteInfoArray(m_paHandicapInfo);

@@ -7111,7 +7111,9 @@ void CvReligionAI::DoFaithPurchases()
 
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, m_pPlayer->GetID());
+#if !defined(MOD_BALANCE_CORE)
 	bool bTooManyMissionaries = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_MISSIONARY) > GC.getRELIGION_MAX_MISSIONARIES();
+#endif
 
 	CvString strLogMsg;
 	if(GC.getLogging())
@@ -7147,20 +7149,9 @@ void CvReligionAI::DoFaithPurchases()
 	UnitTypes eProphetType = kPlayer.GetSpecificUnitType("UNITCLASS_PROPHET", true);
 	
 	UnitClassTypes eUnitClassMissionary = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MISSIONARY");
-	if(eUnitClassMissionary != NO_UNITCLASS && m_pPlayer->GetPlayerTraits()->NoTrain(eUnitClassMissionary))
-	{
-		bTooManyMissionaries = true;
-	}
-
-	//Let's not spread a non-founder religion outside of our owned cities. That makes us a pawn!
-	if(eReligion != kPlayer.GetReligions()->GetReligionCreatedByPlayer())
-	{
-		if(AreAllOurCitiesConverted(eReligion, true /*bIncludePuppets*/))
-		{
-			bTooManyMissionaries = true;
-		}
-	}
-
+	int iNumMissionaries =  m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_MISSIONARY);
+	int iMaxMissionaries = GC.getRELIGION_MAX_MISSIONARIES();
+	
 	//Do we have any useful beliefs to consider?
 	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 	int iBonusValue = 0;
@@ -7200,6 +7191,31 @@ void CvReligionAI::DoFaithPurchases()
 			}
 		}
 	}
+	iMaxMissionaries += iBonusValue;
+	bool bTooManyMissionaries = false;
+	if(eUnitClassMissionary != NO_UNITCLASS && m_pPlayer->GetPlayerTraits()->NoTrain(eUnitClassMissionary))
+	{
+		bTooManyMissionaries = true;
+	}
+	//Let's not spread a non-founder religion outside of our owned cities. That makes us a pawn!
+	else if(eReligion != kPlayer.GetReligions()->GetReligionCreatedByPlayer())
+	{
+		iMaxMissionaries = 1;
+		if(AreAllOurCitiesConverted(eReligion, true /*bIncludePuppets*/))
+		{
+			iMaxMissionaries = 0;
+			bTooManyMissionaries = true;
+		}
+		else if(iNumMissionaries >= iMaxMissionaries)
+		{
+			bTooManyMissionaries = true;
+		}
+	}
+	else if(iNumMissionaries >= iMaxMissionaries)
+	{
+		bTooManyMissionaries = true;
+	}
+
 	//Let's see about our religious flavor...
 	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
 	int iFlavorReligion = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
@@ -7320,16 +7336,32 @@ void CvReligionAI::DoFaithPurchases()
 		//Let's make sure all of our non-puppet cities are converted.
 		if((eReligion != NO_RELIGION) && !AreAllOurCitiesConverted(eReligion, false /*bIncludePuppets*/) && !bTooManyMissionaries)
 		{
-			if ((eProphetType != NO_UNIT) && ChooseProphetConversionCity(true/*bOnlyBetterThanEnhancingReligion*/) && (m_pPlayer->GetReligions()->GetNumProphetsSpawned(true) <= iFlavorReligion) && BuyGreatPerson(eProphetType))
+			if ((eProphetType != NO_UNIT) && ChooseProphetConversionCity(true/*bOnlyBetterThanEnhancingReligion*/) && (m_pPlayer->GetReligions()->GetNumProphetsSpawned(true) <= iFlavorReligion))
 			{
-				if(GC.getLogging())
+				if(BuyGreatPerson(eProphetType))
 				{
-					strLogMsg += ", Bought a Prophet, badly need to Convert Non-Puppet Cities";
-					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
-					CvString strFaith;
-					strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
-					strLogMsg += strFaith;
-					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+					if(GC.getLogging())
+					{
+						strLogMsg += ", Bought a Prophet, badly need to Convert Non-Puppet Cities";
+						GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+						CvString strFaith;
+						strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
+						strLogMsg += strFaith;
+						GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+					}
+				}
+				else if (!m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
+				{
+					if(GC.getLogging())
+					{
+						strLogMsg += ", Saving up for a Prophet, as we need to convert Non-Puppet Cities.";
+						GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+						CvString strFaith;
+						strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
+						strLogMsg += strFaith;
+						GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+					}
+					return;
 				}
 			}
 			else if (!m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
@@ -7346,24 +7378,24 @@ void CvReligionAI::DoFaithPurchases()
 						GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 					}
 				}
-			}
-			else
-			{
-				if(GC.getLogging())
+				else
 				{
-					strLogMsg += ", Saving up for a Prophet or Missionary, as we need to convert Non-Puppet Cities.";
-					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
-					CvString strFaith;
-					strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
-					strLogMsg += strFaith;
-					GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+					if(GC.getLogging())
+					{
+						strLogMsg += ", Saving up for a Prophet or Missionary, as we need to convert Non-Puppet Cities.";
+						GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+						CvString strFaith;
+						strFaith.Format(", Faith: %d", m_pPlayer->GetFaith());
+						strLogMsg += strFaith;
+						GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+					}
+					return;
 				}
-				return;
 			}
 		}
 		//FOURTH PRIORITY
 		// Might as well convert puppet-cities to build our religious strength
-		if((eReligion != NO_RELIGION) && !AreAllOurCitiesConverted(eReligion, true /*bIncludePuppets*/) && !bTooManyMissionaries && !m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
+		if((eReligion != NO_RELIGION) && m_pPlayer->GetNumPuppetCities() > 0 && !AreAllOurCitiesConverted(eReligion, true /*bIncludePuppets*/) && !bTooManyMissionaries && !m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 		{
 			if(BuyMissionary(eReligion))
 			{
@@ -7393,25 +7425,14 @@ void CvReligionAI::DoFaithPurchases()
 		}
 	}
 	// FOREIGN UNITS
-	bool bStillTooManyMissionaries = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_MISSIONARY) > (GC.getRELIGION_MAX_MISSIONARIES() + iBonusValue);
-	//Let's not spread a non-founder religion outside of our owned cities. That makes us a pawn!
-	if(eReligion != kPlayer.GetReligions()->GetReligionCreatedByPlayer())
-	{
-		if(AreAllOurCitiesConverted(eReligion, true /*bIncludePuppets*/))
-		{
-			bStillTooManyMissionaries = true;
-		}
-	}
+	bool bStillTooManyMissionaries = (m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_MISSIONARY) > iMaxMissionaries);
 	if((eReligion != NO_RELIGION) && (pMyReligion != NULL) && (pCapital != NULL) && !bStillTooManyMissionaries && AreAllOurCitiesConverted(eReligion, false /*bIncludePuppets*/) && !m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 	{
 		if(m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread())
 		{
-			if (pMyReligion)
+			if(pMyReligion->m_Beliefs.GetUniqueCiv(m_pPlayer->GetID()) == m_pPlayer->getCivilizationType())
 			{
-				if(pMyReligion->m_Beliefs.GetUniqueCiv() == m_pPlayer->getCivilizationType())
-				{
-					return;
-				}
+				return;
 			}
 		}
 		// FLAVOR DEPENDENCIES

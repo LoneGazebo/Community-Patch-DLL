@@ -5071,13 +5071,6 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		toPlayer.GetLeagueAI()->CancelVoteCommitmentsToPlayer(eFromPlayer);
 	}
 #if defined(MOD_BALANCE_CORE)
-	else if(pItem->m_eItemType == TRADE_ITEM_ALLOW_EMBASSY)
-	{
-		TeamTypes eTargetTeam = (TeamTypes) pItem->m_iData1;
-		GET_TEAM(eTargetTeam).SetHasEmbassyAtTeam(eFromTeam, false);
-	}
-#endif
-#if defined(MOD_BALANCE_CORE)
 	//Deal cancelled? That makes us sad.
 	if(bCancelled)
 	{

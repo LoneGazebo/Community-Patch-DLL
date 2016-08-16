@@ -3242,7 +3242,7 @@ void CvCity::UpdateNearbySettleSites()
 				iDanger = GET_PLAYER(getOwner()).GetPlotDanger(*pPlot);
 				if(iDanger < 1000)
 				{
-					iValue = ((1000 - iDanger) * iValue) / 7000;
+					iValue = ((1000 - iDanger) * iValue) / 7500;
 
 					if(iValue > iBestValue)
 					{
@@ -3881,9 +3881,9 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 		return false;
 
 	//Let's do our linker checks here.
-	for(int iI = 0; iI < pkEventInfo->GetNumLinkers(); iI++)
+	for(int iI = 0; iI <= pkEventInfo->GetNumLinkers(); iI++)
 	{
-		CvCityEventLinkingInfo* pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
+		CvCityEventLinkingInfo *pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
 		if(pLinkerInfo)
 		{
 			EventTypes eLinkerEvent = (EventTypes)pLinkerInfo->GetLinkingEvent();
@@ -4149,7 +4149,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	if(pkEventInfo->hasCityConnection() && !IsRouteToCapitalConnected())
 		return false;
 
-	if(pkEventInfo->hasTradeConnection() && !HasTradeRouteFrom(this) && !HasTradeRouteTo(this))
+	if(pkEventInfo->hasTradeConnection() && !HasTradeRouteFromAnyCity() && !HasTradeRouteToAnyCity())
 		return false;
 
 	if(pkEventInfo->isNearMountain() && GetNearbyMountains() <= 0)
@@ -4476,9 +4476,9 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	}
 
 	//Let's do our linker checks here.
-	for(int iI = 0; iI < pkEventInfo->GetNumLinkers(); iI++)
+	for(int iI = 0; iI <= pkEventInfo->GetNumLinkers(); iI++)
 	{
-		CvCityEventChoiceLinkingInfo* pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
+		CvCityEventChoiceLinkingInfo *pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
 		if(pLinkerInfo)
 		{
 			EventTypes eLinkerEvent = (EventTypes)pLinkerInfo->GetLinkingEvent();
@@ -4669,7 +4669,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if(pkEventInfo->hasCityConnection() && !IsRouteToCapitalConnected())
 		return false;
 
-	if(pkEventInfo->hasTradeConnection() && !HasTradeRouteFrom(this) && !HasTradeRouteTo(this))
+	if(pkEventInfo->hasTradeConnection() && !HasTradeRouteFromAnyCity() && !HasTradeRouteToAnyCity()) 
 		return false;
 
 	if(pkEventInfo->isNearMountain() && GetNearbyMountains() <= 0)
@@ -5464,9 +5464,9 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice)
 	}
 
 	//Let's do our linker checks here.
-	for(int iI = 0; iI < pkEventInfo->GetNumLinkers(); iI++)
+	for(int iI = 0; iI <= pkEventInfo->GetNumLinkers(); iI++)
 	{
-		CvCityEventChoiceLinkingInfo* pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
+		CvCityEventChoiceLinkingInfo *pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
 		if(pLinkerInfo)
 		{
 			EventTypes eLinkerEvent = (EventTypes)pLinkerInfo->GetLinkingEvent();
@@ -5903,7 +5903,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice)
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if(pkEventInfo->hasTradeConnection() && !HasTradeRouteFrom(this) && !HasTradeRouteTo(this))
+	if(pkEventInfo->hasTradeConnection() && !HasTradeRouteFromAnyCity() && !HasTradeRouteToAnyCity())
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_TRADE_CONNECTION");
 		DisabledTT += localizedDurationText.toUTF8();
@@ -18613,7 +18613,7 @@ bool CvCity::DoRazingTurn()
 					CvAssert(pFirstUnit);
 					if (pFirstUnit)
 					{
-						if (!pFirstUnit->jumpToNearestValidPlotWithinRange(5))
+						if (!pFirstUnit->jumpToNearestValidPlotWithinRangeIgnoreEnemy(5))
 						{
 							pFirstUnit->kill(false);		// Could not find a spot!
 						}
@@ -18636,7 +18636,7 @@ bool CvCity::DoRazingTurn()
 						CvAssert(pmUnit);
 						if (pmUnit)
 						{
-							if (!pmUnit->jumpToNearestValidPlotWithinRange(5))
+							if (!pmUnit->jumpToNearestValidPlotWithinRangeIgnoreEnemy(5))
 							{
 								pmUnit->kill(false);		// Could not find a spot!
 							}
@@ -18656,7 +18656,7 @@ bool CvCity::DoRazingTurn()
 							CvAssert(pUnit);
 							if (pUnit)
 							{
-								if (!pUnit->jumpToNearestValidPlotWithinRange(5))
+								if (!pUnit->jumpToNearestValidPlotWithinRangeIgnoreEnemy(5))
 								{
 									pUnit->kill(false);		// Could not find a spot!
 								}

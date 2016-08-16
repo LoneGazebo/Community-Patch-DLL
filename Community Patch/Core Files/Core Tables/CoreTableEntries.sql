@@ -235,14 +235,14 @@ ALTER TABLE Policies ADD COLUMN 'NoUnhappfromXSpecialistsCapital' INTEGER DEFAUL
 -- Half specialist food in just capital
 ALTER TABLE Policies ADD COLUMN 'HalfSpecialistFoodCapital' BOOLEAN DEFAULT 0;
 
--- Flat boosts to city yield for happiness sources (buildings) - values should be positive to be good!
+-- % modifiers to city unhappiness sources - values should be negative to be good!
 ALTER TABLE Buildings ADD COLUMN 'PovertyHappinessChange' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'DefenseHappinessChange' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'IlliteracyHappinessChange' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'UnculturedHappinessChange' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'MinorityHappinessChange' INTEGER DEFAULT 0;
 
--- Flat global boosts to city yield for happiness sources (buildings) - values should be positive to be good!
+-- % global modifiers to city unhappiness sources - values should be negative to be good!
 ALTER TABLE Buildings ADD COLUMN 'PovertyHappinessChangeGlobal' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'DefenseHappinessChangeGlobal' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'IlliteracyHappinessChangeGlobal' INTEGER DEFAULT 0;

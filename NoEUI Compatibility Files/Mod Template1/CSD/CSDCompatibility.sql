@@ -134,6 +134,10 @@ UPDATE Buildings SET GoldMaintenance = '2' WHERE Type = 'BUILDING_CHANCERY';
 UPDATE Buildings SET Cost = '700' WHERE Type = 'BUILDING_WIRE_SERVICE';
 UPDATE Buildings SET GoldMaintenance = '4' WHERE Type = 'BUILDING_WIRE_SERVICE';
 
+INSERT INTO Building_FreeUnits (BuildingType, UnitType, NumUnits)
+SELECT 'BUILDING_COURT_SCRIBE' , 'UNIT_EMISSARY' , '1'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
 -- Building Requirements
 DELETE FROM Building_PrereqBuildingClasses WHERE BuildingType = 'BUILDING_PRINTING_PRESS';
 DELETE FROM Building_PrereqBuildingClasses WHERE BuildingType = 'BUILDING_FOREIGN_OFFICE';

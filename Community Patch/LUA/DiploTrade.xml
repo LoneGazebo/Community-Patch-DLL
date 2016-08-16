@@ -287,6 +287,8 @@
 			<GridButton Style="FrameButton200" String="TXT_KEY_CANCEL_BUTTON" ID="CancelButton" Font="TwCenMT22"/>
 			<!-- Propose Button -->
 			<GridButton Style="FrameButton200" String="TXT_KEY_DIPLO_PROPOSE" ID="ProposeButton" Font="TwCenMT22"/>
+			<!-- CBP -->
+			<GridButton Style="FrameButton200" String="TXT_KEY_DIPLO_PROPOSE" ID="DenounceButton" Font="TwCenMT22"  Hidden="1"/>
 		</Stack>
 	</Grid>
 </Context>

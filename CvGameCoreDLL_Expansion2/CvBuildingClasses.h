@@ -830,8 +830,6 @@ private:
 	int* m_piResourceMonopolyAnds;
 	int* m_piResourceMonopolyOrs;
 	int* m_piYieldPerFranchise;
-	int* m_piFranchiseTradeRouteCityYieldMod;
-	int* m_piFranchiseTradeRouteYieldMod;
 	int m_iGPRateModifierPerXFranchises;
 	int* m_piResourceQuantityPerXFranchises;
 #endif

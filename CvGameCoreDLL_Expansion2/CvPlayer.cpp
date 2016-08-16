@@ -5466,9 +5466,9 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 		return false;
 
 	//Let's do our linker checks here.
-	for(int iI = 0; iI < pkEventInfo->GetNumLinkers(); iI++)
+	for(int iI = 0; iI <= pkEventInfo->GetNumLinkers(); iI++)
 	{
-		CvEventLinkingInfo* pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
+		CvEventLinkingInfo *pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
 		if(pLinkerInfo)
 		{
 			EventTypes eLinkerEvent = (EventTypes)pLinkerInfo->GetLinkingEvent();
@@ -6107,9 +6107,9 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 	}
 
 	//Let's do our linker checks here.
-	for(int iI = 0; iI < pkEventInfo->GetNumLinkers(); iI++)
+	for(int iI = 0; iI <= pkEventInfo->GetNumLinkers(); iI++)
 	{
-		CvEventChoiceLinkingInfo* pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
+		CvEventChoiceLinkingInfo *pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
 		if(pLinkerInfo)
 		{
 			EventTypes eLinkerEvent = (EventTypes)pLinkerInfo->GetLinkingEvent();
@@ -7518,9 +7518,9 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 	}
 
 	//Let's do our linker checks here.
-	for(int iI = 0; iI < pkEventInfo->GetNumLinkers(); iI++)
+	for(int iI = 0; iI <= pkEventInfo->GetNumLinkers(); iI++)
 	{
-		CvEventChoiceLinkingInfo* pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
+		CvEventChoiceLinkingInfo *pLinkerInfo = pkEventInfo->GetLinkerInfo(iI);
 		if(pLinkerInfo)
 		{
 			EventTypes eLinkerEvent = (EventTypes)pLinkerInfo->GetLinkingEvent();
@@ -22177,6 +22177,10 @@ void CvPlayer::ChangeEspionageModifier(int iChange)
 /// At what rank do spies start the game at?
 int CvPlayer::GetStartingSpyRank() const
 {
+	if(m_iSpyStartingRank > SPY_RANK_SPECIAL_AGENT)
+	{
+		return SPY_RANK_SPECIAL_AGENT;
+	}
 	return m_iSpyStartingRank;
 }
 
@@ -36022,7 +36026,7 @@ void CvPlayer::deleteAIOperation(int iID)
 	}
 }
 
-bool CvPlayer::StopAllOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason)
+bool CvPlayer::StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason)
 {
 	bool bFoundOne = false;
 
@@ -36031,7 +36035,7 @@ bool CvPlayer::StopAllOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
-		if(pThisOperation->IsOffensive() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
+		if(pThisOperation->IsOffensive() && !pThisOperation->IsNavalOperation() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if( (ePlayer == NO_PLAYER && pThisOperation->GetEnemy() != BARBARIAN_PLAYER) || ePlayer == pThisOperation->GetEnemy())
 			{
@@ -36047,7 +36051,7 @@ bool CvPlayer::StopAllOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool
 	return bFoundOne;
 }
 
-bool CvPlayer::StopAllDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason)
+bool CvPlayer::StopAllLandDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason)
 {
 	bool bFoundOne = false;
 
@@ -36056,7 +36060,54 @@ bool CvPlayer::StopAllDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOp
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		CvAIOperation* pThisOperation = iter->second;
-		if(pThisOperation->IsDefensive() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
+		if(pThisOperation->IsDefensive() && !pThisOperation->IsNavalOperation() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
+		{
+			if(ePlayer == NO_PLAYER || ePlayer == pThisOperation->GetEnemy())
+			{
+				bFoundOne = true;
+				pThisOperation->SetToAbort(eReason);
+			}
+		}
+	}
+
+	return bFoundOne;
+}
+
+bool CvPlayer::StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason)
+{
+	bool bFoundOne = false;
+
+	// loop through all entries looking for match
+	std::map<int , CvAIOperation*>::iterator iter;
+	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	{
+		CvAIOperation* pThisOperation = iter->second;
+		if(pThisOperation->IsOffensive() && pThisOperation->IsNavalOperation() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
+		{
+			if( (ePlayer == NO_PLAYER && pThisOperation->GetEnemy() != BARBARIAN_PLAYER) || ePlayer == pThisOperation->GetEnemy())
+			{
+				if (bIncludeSneakOps || !pThisOperation->IsAllowedDuringPeace())
+				{
+					bFoundOne = true;
+					pThisOperation->SetToAbort(eReason);
+				}
+			}
+		}
+	}
+
+	return bFoundOne;
+}
+
+bool CvPlayer::StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason)
+{
+	bool bFoundOne = false;
+
+	// loop through all entries looking for match
+	std::map<int , CvAIOperation*>::iterator iter;
+	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
+	{
+		CvAIOperation* pThisOperation = iter->second;
+		if(pThisOperation->IsDefensive() && pThisOperation->IsNavalOperation() && pThisOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED)
 		{
 			if(ePlayer == NO_PLAYER || ePlayer == pThisOperation->GetEnemy())
 			{

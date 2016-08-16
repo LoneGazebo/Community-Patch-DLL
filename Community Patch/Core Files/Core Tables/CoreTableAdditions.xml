@@ -858,6 +858,8 @@
 			<Type>YIELD_GREAT_GENERAL_POINTS</Type>
 			<Description>TXT_KEY_YIELD_GREAT_GENERAL_POINTS</Description>
 			<IconString>[ICON_GREAT_GENERAL]</IconString>
+			<ColorString>[COLOR_WHITE]</ColorString>
+			<ImageTexture>yieldatlas_128_general.dds</ImageTexture>
 			<MinCity>0</MinCity>
 			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
@@ -866,6 +868,8 @@
 			<Type>YIELD_GREAT_ADMIRAL_POINTS</Type>
 			<Description>TXT_KEY_YIELD_GREAT_ADMIRAL_POINTS</Description>
 			<IconString>[ICON_GREAT_ADMIRAL]</IconString>
+			<ColorString>[COLOR_WHITE]</ColorString>
+			<ImageTexture>yieldatlas_128_admiral.dds</ImageTexture>
 			<MinCity>0</MinCity>
 			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
@@ -882,6 +886,8 @@
 			<Type>YIELD_CULTURE_LOCAL</Type>
 			<Description>TXT_KEY_YIELD_CULTURE_LOCAL</Description>
 			<IconString>[ICON_CULTURE]</IconString>
+			<ColorString>[COLOR_WHITE]</ColorString>
+			<ImageTexture>yieldatlas_128_culturelocal.dds</ImageTexture>
 			<MinCity>0</MinCity>
 			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
