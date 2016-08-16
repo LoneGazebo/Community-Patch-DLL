@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 3/22/2016 9:19:00 PM -->
+<GameData>
+	<UnitPromotions>
+		<Row>
+			<Type>PROMOTION_DEEPWATER_EMBARKATION</Type>
+			<Description>TXT_KEY_PROMOTION_DEEPWATER_EMBARKATION</Description>
+			<Help>TXT_KEY_PROMOTION_DEEPWATER_EMBARKATION_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>22</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_DEEPWATER_EMBARKATION</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+			<EmbarkedDeepWater>true</EmbarkedDeepWater>
+		</Row>
+	</UnitPromotions>
+</GameData>

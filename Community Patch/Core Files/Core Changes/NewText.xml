@@ -1,0 +1,4561 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 7/12/2014 9:12:37 PM -->
+<GameData>
+	<!-- Theming Concept -->
+	<Concepts>
+		<Row>
+			<Type>CONCEPT_THEMING_BONUSES</Type>
+			<Topic>TXT_KEY_TOPIC_CULTURE</Topic>
+			<Description>TXT_KEY_CONCEPT_THEMING_BONUSES</Description>
+			<Summary>TXT_KEY_CONCEPT_THEMING_BONUSES_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_CONCEPT_THEMING_BONUSES_QUEST</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_CULTURE</CivilopediaHeaderType>
+		</Row>
+	</Concepts>	
+	<!-- NEW DIPLOMACY TEXTS -->
+	<Diplomacy_Responses>
+		<!-- Cant match offer negative -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER_NEGATIVE</ResponseType>
+			<Response>TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE%</Response>
+		</Row>
+		<!-- Human over AI -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_AI_CLASSICAL</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_CLASSICAL%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_AI_RENAISSANCE</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_RENAISSANCE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_AI_MODERN</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_MODERN%</Response>
+		</Row>
+		<!-- AI over Human -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_HUMAN_CLASSICAL</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_CLASSICAL%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_HUMAN_RENAISSANCE</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_RENAISSANCE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_HUMAN_MODERN</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_MODERN%</Response>
+		</Row>
+
+		<!-- Victory Competition Diplomacy Statements -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONQUEST</ResponseType>
+			<Response>TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONQUEST%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONGRESS</ResponseType>
+			<Response>TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONGRESS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_CULTURE</ResponseType>
+			<Response>TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_CULTURE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_SPACESHIP</ResponseType>
+			<Response>TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_SPACESHIP%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_CONFUSED</ResponseType>
+			<Response>TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_CONFUSED%</Response>
+		</Row>
+
+		<!-- AI War Gone to War In Past Multiple Times -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DOW_OLD_ENEMIES</ResponseType>
+			<Response>TXT_KEY_GENERIC_DOW_OLD_ENEMIES%</Response>
+		</Row>
+
+		<!-- Player is a warmonger - DOW -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DOW_WARMONGER</ResponseType>
+			<Response>TXT_KEY_GENERIC_DOW_WARMONGER%</Response>
+		</Row>
+
+		<!-- Player is warmonger - DOW'd on -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_ATTACKED_STRONG_WARMONGER</ResponseType>
+			<Response>TXT_KEY_GENERIC_ATTACKED_STRONG_WARMONGER%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_ATTACKED_WEAK_WARMONGER</ResponseType>
+			<Response>TXT_KEY_GENERIC_ATTACKED_WEAK_WARMONGER%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_ATTACKED_WARMONGER</ResponseType>
+			<Response>TXT_KEY_GENERIC_ATTACKED_WARMONGER%</Response>
+		</Row>
+
+		<!-- DOW'd on by different ideology -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_ATTACKED_IDEOLOGY_DIFFERENCE</ResponseType>
+			<Response>TXT_KEY_GENERIC_ATTACKED_IDEOLOGY_DIFFERENCE%</Response>
+		</Row>
+
+		<!-- DOW'd on by same ideology -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_ATTACKED_IDEOLOGY_SAME</ResponseType>
+			<Response>TXT_KEY_GENERIC_ATTACKED_IDEOLOGY_SAME%</Response>
+		</Row>
+
+		<!-- DOW different ideology -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DOW_IDEOLOGY_DIFFERENCE</ResponseType>
+			<Response>TXT_KEY_GENERIC_DOW_IDEOLOGY_DIFFERENCE%</Response>
+		</Row>
+		<!-- DOW same ideology -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DOW_IDEOLOGY_SAME</ResponseType>
+			<Response>TXT_KEY_GENERIC_DOW_IDEOLOGY_SAME%</Response>
+		</Row>
+		<!-- End DOF Explanations -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_END_WORK_WITH_US_BLOCK_VICTORY</ResponseType>
+			<Response>TXT_KEY_END_WORK_WITH_US_BLOCK%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_END_WORK_WITH_US_IDEOLOGY</ResponseType>
+			<Response>TXT_KEY_END_WORK_WITH_US_IDEOLOGY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_END_WORK_WITH_US_FAITH</ResponseType>
+			<Response>TXT_KEY_END_WORK_WITH_US_FAITH%</Response>
+		</Row>
+		
+		<!-- Victory Block Diplomacy Statements -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_WORLD_CONQUEST</ResponseType>
+			<Response>TXT_KEY_GENERIC_BLOCK_ANNOUNCE_WORLD_CONQUEST%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_WORLD_CONGRESS</ResponseType>
+			<Response>TXT_KEY_GENERIC_BLOCK_ANNOUNCE_WORLD_CONGRESS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_CULTURE</ResponseType>
+			<Response>TXT_KEY_GENERIC_BLOCK_ANNOUNCE_CULTURE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_SPACESHIP</ResponseType>
+			<Response>TXT_KEY_GENERIC_BLOCK_ANNOUNCE_SPACESHIP%</Response>
+		</Row>
+		<!-- Insulted -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_WAR_DEMAND_INSULTED</ResponseType>
+			<Response>TXT_KEY_WAR_DEMAND_INSULTED%</Response>
+		</Row>
+		
+		<!-- Defense Pact Offer -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DEFENSIVE_PACT_REQUEST</ResponseType>
+			<Response>TXT_KEY_DEFENSE_PACT_OFFER%</Response>
+		</Row>
+
+		<!-- Trade Cities-->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_TRADE_CITIES_REQUEST</ResponseType>
+			<Response>TXT_KEY_CITY_TRADE_OFFER%</Response>
+		</Row>
+
+		<!-- Exchange Cities-->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_EXCHANGE_CITIES_REQUEST</ResponseType>
+			<Response>TXT_KEY_CITY_EXCHANGE_OFFER%</Response>
+		</Row>
+
+		<!-- 3rd Party War-->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_THIRD_PARTY_WAR_REQUEST</ResponseType>
+			<Response>TXT_KEY_THIRD_PARTY_WAR_OFFER%</Response>
+		</Row>
+
+		<!-- 3rd Party Peace-->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_THIRD_PARTY_PEACE_REQUEST</ResponseType>
+			<Response>TXT_KEY_THIRD_PARTY_PEACE_OFFER%</Response>
+		</Row>
+
+		<!-- 3rd Party Peace-->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_VOTE_COMMITMENT_REQUEST</ResponseType>
+			<Response>TXT_KEY_VOTE_COMMITMENT_REQUEST%</Response>
+		</Row>
+
+		<!-- DOF Friend Levels -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DOF_UNTRUSTWORTHY</ResponseType>
+			<Response>TXT_KEY_DOF_UNTRUSTWORTHY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DOF_FRIENDS</ResponseType>
+			<Response>TXT_KEY_DOF_FRIENDS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DOF_ALLIES</ResponseType>
+			<Response>TXT_KEY_DOF_OLD_FRIENDS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DOF_BATTLE_BROTHERS</ResponseType>
+			<Response>TXT_KEY_DOF_BATTLE_BROTHERS%</Response>
+		</Row>
+		
+		<!-- Denounce Statements-->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_AUTOCRACY</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_AUTOCRACY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_ORDER</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_ORDER%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_FREEDOM</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_FREEDOM%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_AUTOCRACY_OTHER</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_AUTOCRACY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_ORDER_OTHER</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_ORDER%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_FREEDOM_OTHER</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_FREEDOM%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_IDEOLOGY_GENERIC</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_IDEOLOGY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_WARMONGER</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_WARMONGER%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_MINORS</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_MINORS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_MINORS_BULLY</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_MINORS_BULLY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_NUKED</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_NUKE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_DOF_ENEMY</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_ENEMY_FRIENDSHIP%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_DOF_DOGPILE</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_DOGPILE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_SPIES</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_SPIES%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_LAND</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_COVET%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_DOF_UNTRUSTWORTHY</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_PROMISE_BROKEN%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_DIGGING</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_ARTIFACTS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_FAITH</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_FAITH%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_WONDERS</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_WONDERS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_VICTORY_DISPUTE</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_VICTORY_DISPUTE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_VICTORY_BLOCK</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_VICTORY_BLOCK%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DENOUNCE_UNFORGIVEABLE</ResponseType>
+			<Response>TXT_KEY_RESPONSE_DENOUNCE_BETRAYAL%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_STRATEGIC_TRADE</ResponseType>
+			<Response>TXT_KEY_RESPONSE_STRATEGIC_TRADE_REQUEST%</Response>
+		</Row>
+		<!-- Generic -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_GENERIC_PEACE_OFFER%</Response>
+		</Row>
+	<!-- Alexander -->
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ALEXANDER">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ALEXANDER_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Askia -->
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASKIA">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ASKIA_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Augustus -->
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AUGUSTUS">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Bismarck -->
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BISMARCK">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_BISMARCK_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Catherine -->
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CATHERINE">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_CATHERINE_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Darius -->
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DARIUS">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_DARIUS_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Elizabeth -->
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ELIZABETH">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ELIZABETH_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Gandhi -->
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GANDHI">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_GANDHI_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Harun Al-Rashid -->
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARUN_AL_RASHID">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_HARUN_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Hiawatha -->
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HIAWATHA">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_HIAWATHA_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Montezuma -->
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MONTEZUMA">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Napoleon -->
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NAPOLEON">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_NAPOLEON_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Oda Nobunaga -->
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ODA_NOBUNAGA">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ODA_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Ramesses -->
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMESSES">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMESSES_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Ramkhamhaeng -->
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_RAMKHAMHAENG">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Suleiman -->
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SULEIMAN">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_SULEIMAN_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Washington -->
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WASHINGTON">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_WASHINGTON_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Wu Zetian -->
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WU_ZETIAN">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_WUZETIAN_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Genghis Khan -->
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GENGHIS_KHAN">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_GENGHIS_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Isabella -->
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ISABELLA">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ISABELLA_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Pachacuti -->
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACHACUTI">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_PACHACUTI_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Kamehameha -->
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_KAMEHAMEHA">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Harald -->
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_HARALD">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_HARALD_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Sejong -->
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SEJONG">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_SEJONG_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Nebuchadnezzar -->
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Attila -->
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ATTILA">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ATTILA_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Boudicca -->
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_BOUDICCA">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_BOUDICCA_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Dido -->
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_DIDO">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_DIDO_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Gustavus Adolphus -->
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Maria -->
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Pacal -->
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PACAL">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_PACAL_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Theodora -->
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_THEODORA">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_THEODORA_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Selassie -->
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SELASSIE">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_SELASSIE_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- William -->
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_WILLIAM">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_WILLIAM_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Ahmad Al-Mansur -->
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Ashurbanipal -->
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ASHURBANIPAL">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Casimir -->
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_CASIMIR">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_CASIMIR_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Enrico Dandolo -->
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_ENRICO_DANDOLO">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Gajah Mada -->
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_GAJAH_MADA">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Maria I -->
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_MARIA_I">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_MARIA_I_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Pedro -->
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_PEDRO">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_PEDRO_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Pocatello -->
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_POCATELLO">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_POCATELLO_TRADE_CANT_MATCH%</Response>
+		</Row>
+
+		<!--
+	//////////////////////////////
+	//////////////////////////////
+	////////NEXT LEADER///////////
+	-->
+		<!-- Shaka -->
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_LETS_HEAR_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_LETSHEARIT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_WINNER_PEACE_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_WINWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_DEMANDTRIBUTE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_GENEROUS</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_TRADE_YES_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_ACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_TRADE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_TRADE_ACCEPT_AI_DEMAND</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_TRADE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_TRADE_REJECT_UNACCEPTABLE</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_TRADE_NEEDMORE_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_TRADE_DEAL_UNCHANGED</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_AGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_TRADE_REJECT_INSULTING</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_TRADE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_TRADE_AI_MAKES_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_TRADEREQUEST_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_TRADE_NO_DEAL_POSSIBLE</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_DISAGREE_SHORT%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_ATTACKED_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_ATTACKED%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_DOW_GENERIC</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_DECLAREWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_WARBLUFF%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_PEACE_MADE_BY_HUMAN_GRACIOUS</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_LOSEWAR%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_SO_BE_IT</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_TRIBUTE_YES_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_REPEAT_NO</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_YES</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_TRIBUTE_YES_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_HOSTILE</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_TRIBUTE_NO_ANGRY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_WEAK</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_TRIBUTE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_HUMAN_DEMAND_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_TRADE_NO_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_EMBASSY_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_TRADEREQUEST_HAPPY%</Response>
+		</Row>
+		<Row LeaderType="LEADER_SHAKA">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
+			<Response>TXT_KEY_LEADER_SHAKA_TRADE_CANT_MATCH%</Response>
+		</Row>
+	</Diplomacy_Responses>
+</GameData>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context Font="TwCenMT14" FontStyle="Base" Color="Beige" Color1="Black" >
+	<Box Style="BGBlock_ClearTopBar" />
+	<Grid Size="400,400" Anchor="C,C" Offset="0,0" ID="MainGrid" Style="Grid9DetailFive140" >
+
+		<!-- Side treatments -->
+		<Box Style="MenuLeftSideTreatment"/>
+		<Box Style="MenuRightSideTreatment"/>
+
+		<Label Style="MenuTitleCaption" TruncateWidth="320" ID="TitleLabel"/>
+
+		<Box ID="EventBox" Size="350,130" Anchor="C,T" Offset="0,0"  Color="255,255,255,0" >
+			<Stack Anchor="L,T" Offset="0,0" Size="560,350" Padding="10" StackGrowth="Bottom">
+				<Image Anchor="C,T" Offset="-15,50" Hidden="0" Texture="EventFrame.dds" Size="365,105" ID="EventArtFrame">
+					<Image Anchor="C,C" Offset="0,0" Hidden="0" Size="350,100" Texture="cityeventdefaultbackground.dds" ID="EventArt"/>
+				</Image>
+				<Label Anchor="L,T" Offset="10,0" WrapWidth="330" LeadingOffset="-4" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" ID="DescriptionLabel"/>
+			</Stack>
+		</Box>
+
+		<GridButton Size="200,36" Anchor="R,B" Style="BaseButton" AnchorSide="I.O" Offset="25,-90" ID="CloseButton" Hidden="0">
+			<Label Anchor="C,C" Offset="0,-2" String="TXT_KEY_CLOSE"  Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT22" FontStyle="Shadow" />
+		</GridButton>
+	</Grid>
+</Context>

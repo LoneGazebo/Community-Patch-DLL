@@ -1,0 +1,4 @@
+ALTER TABLE Traits
+  ADD CrossesIce INTEGER DEFAULT 0;
+
+INSERT INTO CustomModDbUpdates(Name, Value) VALUES('TRAITS_CROSSES_ICE', 1);
