@@ -11343,7 +11343,8 @@ int TacticalAIHelpers::GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvP
 	SPathFinderUserData data(pUnit,iFlags,1);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 	data.iMinMovesLeft = iMinMovesLeft;
-	data.iStartMoves = iStartMoves;
+	if (iStartMoves>0) //overwrite this only if we have a sane value
+		data.iStartMoves = iStartMoves;
 	resultSet = GC.GetPathFinder().GetPlotsInReach(pStartPlot->getX(),pStartPlot->getY(),data);
 
 	return (int)resultSet.size();
@@ -12043,7 +12044,7 @@ void ScoreAttack(int iPrevDamage, CvUnit* pUnit, CvUnit* pEnemy, STacticalAssign
 
 STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot, const CvTacticalPosition& assumedPosition)
 {
-	//default action
+	//default action is invalid
 	STacticalAssignment result(unit.iPlotIndex,plot.iPlotIndex,unit.iUnitID,unit.iMovesLeft,-1,STacticalAssignment::A_ENDTURN);
 
 	int iScale = 100;
@@ -12055,7 +12056,8 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 	//are we done?
 	if (unit.iMovesLeft == 0)
 	{
-		result.iScore = 1;
+		if (plot.iPlotIndex == unit.iPlotIndex) 
+			result.iScore = 1;
 		return result;
 	}
 		
@@ -12231,7 +12233,7 @@ CvTacticalPlot::CvTacticalPlot(CvPlot* plot, PlayerTypes ePlayer)
 	nFriendlyUnitsAdjacent = 0;
 
 	//initial values are "real", will be updated later on
-	if (pPlot && ePlayer!=NO_PLAYER)
+	if (plot && ePlayer!=NO_PLAYER)
 	{
 		pPlot=plot;
 		nEnemyUnitsAdjacent = pPlot->GetNumEnemyUnitsAdjacent(GET_PLAYER(ePlayer).getTeam(),pPlot->getDomain());
@@ -12432,12 +12434,9 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches)
 		overAllChoices.insert( overAllChoices.end(), thisUnitChoices.begin(), thisUnitChoices.end() );
 	}
 	
-	//keep only the better half
-	std::sort(overAllChoices.begin(),overAllChoices.end());
-	overAllChoices.erase( overAllChoices.begin() + overAllChoices.size()/2 + 1, overAllChoices.end() );
-
-	int iBranches = 0;
-	for (vector<STacticalAssignment>::iterator itMove = overAllChoices.begin(); itMove != overAllChoices.end() && iBranches<iMaxBranches; ++itMove)
+	int iNewBranches = 0;
+	std::sort(overAllChoices.begin(), overAllChoices.end());
+	for (vector<STacticalAssignment>::iterator itMove = overAllChoices.begin(); itMove != overAllChoices.end() && iNewBranches<iMaxBranches; ++itMove)
 	{
 		int iUnitID = 0;
 		if (isDelayedMove(*itMove,&iUnitID))
@@ -12458,7 +12457,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches)
 							pGrandChild->addAssignment(*itMove);
 					}
 
-					iBranches++;
+					iNewBranches++;
 					break;
 				}
 			}
@@ -12469,11 +12468,11 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches)
 			if (pNewChild)
 				pNewChild->addAssignment(*itMove);
 
-			iBranches++;
+			iNewBranches++;
 		}
 	}
 	
-	return !overAllChoices.empty();
+	return (iNewBranches>0);
 }
 
 bool CvTacticalPosition::isDelayedMove(const STacticalAssignment& move, int* piUnitID) const
@@ -12507,9 +12506,29 @@ bool CvTacticalPosition::isDelayedMove(const STacticalAssignment& move, int* piU
 	return false; //no info, assume it's ok
 }
 
+CvTacticalPosition::CvTacticalPosition(const CvTacticalPosition& other)
+{
+	ePlayer = other.ePlayer;
+	bOffensive = other.bOffensive;
+	pTargetPlot = other.pTargetPlot;
+
+	//not set
+	iTotalScore = 0;
+	parentPosition = 0;
+
+	//childPositions stays empty!
+	//reachablePlotLookup stays empty for now
+
+	//copied from other, modified when addAssignment is called
+	tacticalPlotLookup = other.tacticalPlotLookup;
+	tactPlots = other.tactPlots;
+	availableUnits = other.availableUnits;
+	assignedMoves = other.assignedMoves;
+}
+
+
 CvTacticalPosition* CvTacticalPosition::addChild()
 {
-	//default copy constructor is ok, only the root position owns any memory
 	CvTacticalPosition* newPosition = new CvTacticalPosition(*this);
 	if (newPosition)
 	{
@@ -12602,15 +12621,14 @@ void CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 	}
 	else
 	{
-		std::remove_if(availableUnits.begin(), availableUnits.end(), IsMatchingUnit(newAssignment.iUnitID));
+		availableUnits.erase( std::remove_if(availableUnits.begin(), availableUnits.end(), IsMatchingUnit(newAssignment.iUnitID)) );
 	}
 }
 
-void CvTacticalPosition::addOpenPlot(const CvTacticalPlot& newPlot)
+void CvTacticalPosition::addTacticalPlot(const CvTacticalPlot& newPlot)
 {
 	if (tacticalPlotLookup.find(newPlot.getPlotIndex()) == tacticalPlotLookup.end())
 	{
-		openPlots.push_back( (int)tactPlots.size() );
 		tacticalPlotLookup[newPlot.getPlotIndex()] = (int)tactPlots.size();
 		tactPlots.push_back( newPlot );
 	}
@@ -12660,6 +12678,9 @@ std::vector<CvUnit*> TacticalAIHelpers::FindUnitsForZone(PlayerTypes ePlayer, Cv
 	int iLoop;
 	for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 	{
+		if (!pLoopUnit || !pLoopUnit->canMove() || pLoopUnit->getArmyID()!=-1)
+			continue;
+
 		bool bZoneMatch = (kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetCell(pLoopUnit->plot()->GetPlotIndex())->GetDominanceZone() == pZone->GetDominanceZoneID());
 
 		//if there is a city, units in adjacent zones can also count
@@ -12711,7 +12732,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const std::vector<CvUnit*>& 
 
 	result.clear();
 
-	map<int,ReachablePlots> possibleMoves;
+	//map<int,ReachablePlots> possibleMoves;
 	deque<CvTacticalPosition*> openPositions;
 	vector<CvTacticalPosition*> closedPositions;
 
@@ -12725,11 +12746,8 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const std::vector<CvUnit*>& 
 		CvUnit *pOpUnit = *it;
 
 		//moves left will be checked later. we respect ZOC here, might need to recompute in case an enemy is killed
-		ReachablePlots reachablePlots;
+		ReachablePlots reachablePlots, relevantReachablePlots;
 		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pOpUnit, pOpUnit->plot(), reachablePlots, true, true, false, 0);
-		
-		//remember where each unit can go
-		initialPosition->addAvailableUnit(pOpUnit, reachablePlots);
 
 		//create the union of reachable plots for all units
 		for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
@@ -12737,8 +12755,14 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const std::vector<CvUnit*>& 
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->iPlotIndex );
 			//important: we skip plots with neutral units!
 			if (pPlot && pPlot->isVisible(pOpUnit->getTeam()) && !pPlot->isVisibleOtherUnit(pOpUnit->getOwner()))
-				initialPosition->addOpenPlot( CvTacticalPlot(pPlot,pOpUnit->getOwner()) );
+			{
+				initialPosition->addTacticalPlot(CvTacticalPlot(pPlot, pOpUnit->getOwner()));
+				relevantReachablePlots.insert(*it);
+			}
 		}
+
+		//remember where each unit can go
+		initialPosition->addAvailableUnit(pOpUnit, relevantReachablePlots);
 	}	
 
 	openPositions.push_back(initialPosition);
@@ -12844,7 +12868,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		}
 	}
 
-	return false;
+	return true;
 }
 #endif
 

@@ -1005,12 +1005,12 @@ struct STacticalAssignment
 {
 	enum eAssignmentType { A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_ENDTURN };
 
+	eAssignmentType eType;
+	int iUnitID;
+	int iScore;
 	int iFromPlotIndex;
 	int iToPlotIndex;
-	int iUnitID;
 	int iRemainingMoves;
-	int iScore;
-	eAssignmentType eType;
 
 	int iDamage; //just in case of attack, not set in constructor
 
@@ -1043,10 +1043,10 @@ class CvTacticalPlot;
 
 class CvTacticalPosition
 {
-	//set in constructor
-	PlayerTypes ePlayer;
-	bool bOffensive;
-	CvPlot* pTargetPlot;
+	//moves already assigned to get into this position (complete, mostly redundant with parent)
+	vector<STacticalAssignment> assignedMoves;
+	//which units do still need an assignment
+	vector<SUnitStats> availableUnits;
 
 	//for final sorting
 	int iTotalScore;
@@ -1055,15 +1055,16 @@ class CvTacticalPosition
 	CvTacticalPosition* parentPosition;
 	vector<CvTacticalPosition*> childPositions;
 
-	map<int,int> tacticalPlotLookup; //tactical plots don't store adjacency info, so we need to take a detour via CvPlot
+	vector<CvTacticalPlot> tactPlots; //storage for tactical plots (complete, mostly redundant with parent)
+	map<int, int> tacticalPlotLookup; //tactical plots don't store adjacency info, so we need to take a detour via CvPlot
 	map<int,ReachablePlots> reachablePlotLookup; //reachable plots, only for those units where it's different from parent
 
-	vector<CvTacticalPlot> tactPlots; //storage for tactical plots (complete, mostly redundant with parent)
-	vector<int> openPlots; //which tactical plots do still need an assignment
-	vector<SUnitStats> availableUnits; //which units do still need an assignment
+	//set in constructor, constant afterwards
+	PlayerTypes ePlayer;
+	bool bOffensive;
+	CvPlot* pTargetPlot;
 
-	vector<STacticalAssignment> assignedMoves; //moves already assigned to get into this position (complete, mostly redundant with parent)
-
+	//------------
 	const ReachablePlots& getReachablePlotsForUnit(int iUnit) const;
 	vector<STacticalAssignment> getPreferredAssignmentsForUnit(SUnitStats unit, int nMaxCount) const;
 	CvTacticalPosition* addChild();
@@ -1071,13 +1072,14 @@ class CvTacticalPosition
 	bool isDelayedMove(const STacticalAssignment& move, int* piUnitID=NULL) const;
 
 public:
+	CvTacticalPosition(const CvTacticalPosition& other);
 	CvTacticalPosition(PlayerTypes player, bool bOffensiveMove, CvPlot* pTarget) : ePlayer(player), pTargetPlot(pTarget), bOffensive(bOffensiveMove), iTotalScore(0), parentPosition(NULL) {}
 	~CvTacticalPosition() { for (size_t i=0; i<childPositions.size(); i++) delete childPositions[i]; }
 
 	bool isComplete() const { return availableUnits.empty(); }
 	void computeScore();
 	bool makeNextAssignments(int iMaxBranches);
-	void addOpenPlot(const CvTacticalPlot& newPlot);
+	void addTacticalPlot(const CvTacticalPlot& newPlot);
 	void addAvailableUnit(const CvUnit* pUnit, const ReachablePlots& reachablePlots);
 	int countChildren() const;
 
@@ -1086,7 +1088,7 @@ public:
 	bool isOffensive() const { return bOffensive; }
 	PlayerTypes getPlayer() const { return ePlayer; }
 	void setParent(CvTacticalPosition* pParent) { parentPosition = pParent; }
-	const vector<CvTacticalPosition*> getChildren() const { return childPositions; }
+	const vector<CvTacticalPosition*>& getChildren() const { return childPositions; }
 	vector<STacticalAssignment> getAssignments() const { return assignedMoves; }
 
 	//sort descending
@@ -1108,10 +1110,6 @@ public:
 	bool isFriendlyUnit() const { return bBlockedByFriendly; }
 	void setDamage(int iDamage) { iDamageDealt = iDamage; }
 	int getDamage() const { return iDamageDealt; }
-
-	//tricky ... maybe should be linked to player boldness?
-	bool noTrap() const { return nFriendlyUnitsAdjacent+2>=nEnemyUnitsAdjacent; }
-
 	void update(bool bFriendlyEndTurn, bool bBlockedByEnemy, CvTacticalPosition& currentPosition);
 
 protected:
