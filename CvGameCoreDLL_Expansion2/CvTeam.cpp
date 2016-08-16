@@ -1418,6 +1418,15 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 					CvPlayerAI& kDefendingPlayer = GET_PLAYER(eDefendingPlayer);
 					if(kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eTeam)
 					{
+						//Setup our defenses!
+						if(!kAttackingPlayer.isHuman())
+						{
+							kAttackingPlayer.GetMilitaryAI()->SetupDefenses(eDefendingPlayer);
+						}
+						if(!kDefendingPlayer.isHuman())
+						{
+							kDefendingPlayer.GetMilitaryAI()->SetupDefenses(eAttackingPlayer);
+						}
 						// Forget any of that liberation crud!
 						int iNumCitiesLiberated = kDefendingPlayer.GetDiplomacyAI()->GetNumCitiesLiberated(eAttackingPlayer);
 						kDefendingPlayer.GetDiplomacyAI()->ChangeNumCitiesLiberated(eAttackingPlayer, -iNumCitiesLiberated);
@@ -5470,18 +5479,21 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 			}
 #if defined(MOD_BALANCE_CORE)
 			bool bFirst = true;
-			for(int iK = 0; iK < MAX_TEAMS; iK++)
+			if(!pkProject->IsSpaceship())
 			{
-				const TeamTypes eLoopTeam = static_cast<TeamTypes>(iK);
-				CvTeam& kLoopTeam = GET_TEAM(eLoopTeam);
-				if(kLoopTeam.isAlive() && !kLoopTeam.isMinorCiv())
+				for(int iK = 0; iK < MAX_TEAMS; iK++)
 				{
-					if(eLoopTeam != GetID())
+					const TeamTypes eLoopTeam = static_cast<TeamTypes>(iK);
+					CvTeam& kLoopTeam = GET_TEAM(eLoopTeam);
+					if(kLoopTeam.isAlive() && !kLoopTeam.isMinorCiv())
 					{
-						if(kLoopTeam.getProjectCount(eIndex) > 0)
+						if(eLoopTeam != GetID())
 						{
-							bFirst = false;
-							break;
+							if(kLoopTeam.getProjectCount(eIndex) > 0)
+							{
+								bFirst = false;
+								break;
+							}
 						}
 					}
 				}

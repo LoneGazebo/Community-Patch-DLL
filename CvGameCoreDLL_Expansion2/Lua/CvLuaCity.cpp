@@ -5581,14 +5581,6 @@ int CvLuaCity::lIsCityEventChoiceActive(lua_State* L)
 										{
 											if(pkEventInfo->getNumChoices() == 1)
 											{
-												if(pkCity->GetEventCooldown(eEvent) > 0)
-												{
-													bResult = true;
-													break;
-												}
-											}
-											else
-											{
 												bResult = true;
 												break;
 											}
@@ -5601,11 +5593,7 @@ int CvLuaCity::lIsCityEventChoiceActive(lua_State* L)
 				}
 				else
 				{		
-					if(pkEventChoiceInfo->isOneShot() && pkCity->IsEventChoiceFired(eEventChoice))
-					{
-						bResult = true;
-					}
-					else if(pkEventChoiceInfo->Expires())
+					if(pkEventChoiceInfo->isOneShot() || pkEventChoiceInfo->Expires())
 					{
 						bResult = true;
 					}

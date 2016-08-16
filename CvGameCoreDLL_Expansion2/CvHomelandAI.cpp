@@ -8024,7 +8024,7 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 		return false;
 
 	//nothing to do?
-	if (plotDistance(pUnit->getX(),pUnit->getY(),pTarget->getX(),pTarget->getY())<=2)
+	if ((pUnit->getDomainType() == pTarget->getDomain()) && plotDistance(pUnit->getX(),pUnit->getY(),pTarget->getX(),pTarget->getY())<=2)
 		return true;
 
 	//see where our unit can go in the allowed amount of turns

@@ -7779,7 +7779,9 @@ CvModEventInfo::CvModEventInfo() :
 	 m_bVassal(false),
 	 m_bMaster(false),
 	 m_iCoastal(0),
-	 m_bTradeCapped(false)
+	 m_bTradeCapped(false),
+	 m_paLinkerInfo(NULL),
+	 m_iLinkerInfos(0)
 {
 }
 //------------------------------------------------------------------------------
@@ -7788,6 +7790,7 @@ CvModEventInfo::~CvModEventInfo()
 	SAFE_DELETE_ARRAY(m_piMinimumYield);
 	SAFE_DELETE_ARRAY(m_piRequiredResource);
 	SAFE_DELETE_ARRAY(m_piRequiredFeature);
+	SAFE_DELETE_ARRAY(m_paLinkerInfo);
 }
 //------------------------------------------------------------------------------
 int CvModEventInfo::getRandomChance() const
@@ -8079,7 +8082,7 @@ bool CvModEventInfo::isTradeCapped() const
 }
 CvEventLinkingInfo *CvModEventInfo::GetLinkerInfo(int i) const
 {
-	CvAssertMsg(i < GC.getNumLinkerInfos(), "Index out of bounds");
+	CvAssertMsg(i < GC.getNumEventLinkingInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
 	if (m_paLinkerInfo[0].GetCityLinkingEvent() == -1 && m_paLinkerInfo[0].GetCityLinkingEventChoice() == -1 && m_paLinkerInfo[0].GetLinkingEvent() == -1 && m_paLinkerInfo[0].GetLinkingEventChoice() == -1)
@@ -8251,7 +8254,7 @@ bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 			CvEventLinkingInfo& pEventLinkingInfo= m_paLinkerInfo[idx];
 			szTextVal = pEventTypes->GetText("EventLinker");
 			pEventLinkingInfo.m_iEvent =  GC.getInfoTypeForString(szTextVal, true);
-			szTextVal = pEventTypes->GetText("EventChoic");
+			szTextVal = pEventTypes->GetText("EventChoice");
 			pEventLinkingInfo.m_iEventChoice =  GC.getInfoTypeForString(szTextVal, true);
 			szTextVal = pEventTypes->GetText("CityEvent");
 			pEventLinkingInfo.m_iCityEvent =  GC.getInfoTypeForString(szTextVal, true);
@@ -8356,7 +8359,9 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_bCoastalOnly(false),
 	 m_bTradeCapped(false),
 	 m_bCapitalEffectOnly(false),
-	 m_bInstantYieldAllCities(false)
+	 m_bInstantYieldAllCities(false),
+	 m_paLinkerInfo(NULL),
+	 m_iLinkerInfos(0)
 {
 }
 //------------------------------------------------------------------------------
@@ -8383,6 +8388,7 @@ CvModEventChoiceInfo::~CvModEventChoiceInfo()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiResourceYield);
+	SAFE_DELETE_ARRAY(m_paLinkerInfo);
 }
 //------------------------------------------------------------------------------
 bool CvModEventChoiceInfo::isParentEvent(EventTypes eEvent) const
@@ -8890,7 +8896,7 @@ const char* CvModEventChoiceInfo::getDisabledTooltip() const
 }
 CvEventChoiceLinkingInfo *CvModEventChoiceInfo::GetLinkerInfo(int i) const
 {
-	CvAssertMsg(i < GC.getNumLinkerInfos(), "Index out of bounds");
+	CvAssertMsg(i < GC.getNumEventChoiceLinkingInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
 	if (m_paLinkerInfo[0].GetCityLinkingEvent() == -1 && m_paLinkerInfo[0].GetCityLinkingEventChoice() == -1 && m_paLinkerInfo[0].GetLinkingEvent() == -1 && m_paLinkerInfo[0].GetLinkingEventChoice() == -1)
@@ -9386,13 +9392,16 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_iRequiredNoActiveCityEventAnywhere(-1),
 	 m_iRequiredNoActiveCityEventChoiceAnywhere(-1),
 	 m_iRequiredActiveCityEventAnywhere(-1),
-	 m_iRequiredActiveCityEventChoiceAnywhere(-1)
+	 m_iRequiredActiveCityEventChoiceAnywhere(-1),
+	 m_paCityLinkerInfo(NULL),
+	 m_iCityLinkerInfos(0)
 {
 }
 //------------------------------------------------------------------------------
 CvModCityEventInfo::~CvModCityEventInfo()
 {
 	SAFE_DELETE_ARRAY(m_piMinimumYield);
+	SAFE_DELETE_ARRAY(m_paCityLinkerInfo);
 }
 //------------------------------------------------------------------------------
 int CvModCityEventInfo::getEventClass() const
@@ -9774,7 +9783,7 @@ bool CvModCityEventInfo::lacksPlayerMajority() const
 }
 CvCityEventLinkingInfo *CvModCityEventInfo::GetLinkerInfo(int i) const
 {
-	CvAssertMsg(i < GC.getNumLinkerInfos(), "Index out of bounds");
+	CvAssertMsg(i < GC.getNumCityEventLinkingInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
 	if (m_paCityLinkerInfo[0].GetCityLinkingEvent() == -1 && m_paCityLinkerInfo[0].GetCityLinkingEventChoice() == -1 && m_paCityLinkerInfo[0].GetLinkingEvent() == -1 && m_paCityLinkerInfo[0].GetLinkingEventChoice() == -1)
@@ -10093,7 +10102,9 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bHasPlayerReligion(false),
 	 m_bLacksPlayerReligion(false),
 	 m_bHasPlayerMajority(false),
-	 m_bLacksPlayerMajority(false)
+	 m_bLacksPlayerMajority(false),
+	 m_paCityLinkerInfo(NULL),
+	 m_iCityLinkerInfos(0)
 {
 }
 //------------------------------------------------------------------------------
@@ -10121,6 +10132,7 @@ CvModEventCityChoiceInfo::~CvModEventCityChoiceInfo()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiResourceYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYield);
+	SAFE_DELETE_ARRAY(m_paCityLinkerInfo);
 }
 //------------------------------------------------------------------------------
 bool CvModEventCityChoiceInfo::isParentEvent(CityEventTypes eCityEvent) const
@@ -10296,7 +10308,7 @@ CvCityEventNotificationInfo *CvModEventCityChoiceInfo::GetNotificationInfo(int i
 
 CvCityEventChoiceLinkingInfo *CvModEventCityChoiceInfo::GetLinkerInfo(int i) const
 {
-	CvAssertMsg(i < GC.getNumLinkerInfos(), "Index out of bounds");
+	CvAssertMsg(i < GC.getNumCityEventChoiceLinkingInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
 	if (m_paCityLinkerInfo[0].GetCityLinkingEvent() == -1 && m_paCityLinkerInfo[0].GetCityLinkingEventChoice() == -1 && m_paCityLinkerInfo[0].GetLinkingEvent() == -1 && m_paCityLinkerInfo[0].GetLinkingEventChoice() == -1)
