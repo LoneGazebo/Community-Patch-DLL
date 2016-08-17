@@ -414,22 +414,6 @@ void CvCityConnections::UpdateRouteInfo(void)
 				vConnectedCities.push_back(pCity);
 			}
 		}
-
-		//Now set up the city connection flags for the plots with a route
-		for (size_t i = 0; i < vConnectedCities.size(); i++)
-		{
-			for (size_t j = i+1; j < vConnectedCities.size(); j++)
-			{
-				//find the shortest path between any two connected cities
-				SPath path = GC.GetStepFinder().GetPath(vConnectedCities[i]->plot(), vConnectedCities[j]->plot(), data);
-				for (int k = 0; k < path.length(); k++)
-				{
-					CvPlot* pPlot = path.get(k);
-					if (pPlot && !pPlot->isWater() && !pPlot->isCity()) //should be only land, but doesn't hurt to check
-						m_plotsWithConnectionToCapital.push_back(pPlot->GetPlotIndex());
-				}
-			}
-		}
 		
 		//Set industrial routes as needed.
 		if ( GET_TEAM(m_pPlayer->getTeam()).GetBestPossibleRoute()==GC.getGame().GetIndustrialRoute() )
@@ -445,6 +429,24 @@ void CvCityConnections::UpdateRouteInfo(void)
 				CvCity* pCity = pPlot->getPlotCity();
 				if (pCity && pCity->getOwner()==m_pPlayer->GetID())
 					pCity->SetIndustrialRouteToCapitalConnected(true);
+			}
+		}
+
+		//Now set up the city connection flags for the plots with a route
+		data.ePathType = PT_CITY_CONNECTION_LAND;
+		data.iTypeParameter = ROUTE_ROAD;
+		for (size_t i = 0; i < vConnectedCities.size(); i++)
+		{
+			for (size_t j = i + 1; j < vConnectedCities.size(); j++)
+			{
+				//find the shortest path between any two connected cities
+				SPath path = GC.GetStepFinder().GetPath(vConnectedCities[i]->plot(), vConnectedCities[j]->plot(), data);
+				for (int k = 0; k < path.length(); k++)
+				{
+					CvPlot* pPlot = path.get(k);
+					if (pPlot && !pPlot->isWater() && !pPlot->isCity()) //should be only land, but doesn't hurt to check
+						m_plotsWithConnectionToCapital.push_back(pPlot->GetPlotIndex());
+				}
 			}
 		}
 	}
