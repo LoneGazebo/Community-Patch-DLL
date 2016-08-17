@@ -396,6 +396,9 @@ void CvCityConnections::UpdateRouteInfo(void)
 	CvCity* pCapital = m_pPlayer->getCapitalCity();
 	if (pCapital)
 	{
+		//need to check those later
+		std::vector<CvCity*> vConnectedCities;
+
 		//Let's check for road first (railroad also counts as road).
 		SPathFinderUserData data(m_pPlayer->GetID(), PT_CITY_CONNECTION_MIXED, ROUTE_ROAD);
 		ReachablePlots capitalRoadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data);
@@ -405,12 +408,27 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 			//if it's one of our own cities, set the connection flag - also for the capital itself
 			CvCity* pCity = pPlot->getPlotCity();
-			if (pCity && pCity->getOwner()==m_pPlayer->GetID())
+			if (pCity && pCity->getOwner() == m_pPlayer->GetID())
+			{
 				pCity->SetRouteToCapitalConnected(true);
+				vConnectedCities.push_back(pCity);
+			}
+		}
 
-			//set up city connection flags on plots
-			if (pPlot && !pPlot->isWater() && !pPlot->isCity()) //should be only land, but doesn't hurt to check
-				m_plotsWithConnectionToCapital.push_back(pPlot->GetPlotIndex());
+		//Now set up the city connection flags for the plots with a route
+		for (size_t i = 0; i < vConnectedCities.size(); i++)
+		{
+			for (size_t j = i+1; j < vConnectedCities.size(); j++)
+			{
+				//find the shortest path between any two connected cities
+				SPath path = GC.GetStepFinder().GetPath(vConnectedCities[i]->plot(), vConnectedCities[j]->plot(), data);
+				for (int k = 0; k < path.length(); k++)
+				{
+					CvPlot* pPlot = path.get(k);
+					if (pPlot && !pPlot->isWater() && !pPlot->isCity()) //should be only land, but doesn't hurt to check
+						m_plotsWithConnectionToCapital.push_back(pPlot->GetPlotIndex());
+				}
+			}
 		}
 		
 		//Set industrial routes as needed.
