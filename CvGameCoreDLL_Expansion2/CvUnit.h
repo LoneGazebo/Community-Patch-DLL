@@ -834,6 +834,12 @@ public:
 	{
 		m_iDeployFromOperationTurn = iTurn;
 	};
+#if defined(MOD_BALANCE_CORE)
+	int GetDeployFromOperationTurn()
+	{
+		return m_iDeployFromOperationTurn;
+	};
+#endif
 
 	bool IsRecon() const;
 	int GetReconCount() const;

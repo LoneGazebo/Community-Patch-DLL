@@ -2085,7 +2085,6 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 #endif
 {
 	CvString strBuffer;
-	int iI;
 
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
@@ -2099,13 +2098,13 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 		setAtWar(eTeam, false);
 		GET_TEAM(eTeam).setAtWar(GetID(), false);
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if(MOD_DIPLOMACY_CIV4_FEATURES)
+#if defined(MOD_BALANCE_CORE)
+		//Secondary major declarations
+		for(int iI = 0; iI < MAX_TEAMS; iI++)
 		{
-			//Secondary major declarations
-			for(int iI = 0; iI < MAX_TEAMS; iI++)
+			if(GET_TEAM((TeamTypes)iI).isAlive())
 			{
-				if(GET_TEAM((TeamTypes)iI).isAlive())
+				if(MOD_DIPLOMACY_CIV4_FEATURES)
 				{
 					//Are we a vassal of the from player?
 					if(GET_TEAM((TeamTypes)iI).IsVassal(GetID()))
@@ -2124,6 +2123,42 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 #else
 						GET_TEAM((TeamTypes)iI).DoMakePeace(GetID(), true, false);
 #endif
+					}
+				}
+				if(GET_TEAM((TeamTypes)iI).isMinorCiv())
+				{
+					for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+					{
+						CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
+						if(kPlayer.getTeam() == (TeamTypes)iI && kPlayer.isAlive())
+						{
+							for(int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_CIV_PLAYERS; iPlayerLoop2++)
+							{
+								CvPlayerAI& kPlayer2 = GET_PLAYER((PlayerTypes) iPlayerLoop2);
+								if(kPlayer2.getTeam() == GetID() && kPlayer.isAlive())
+								{
+									if(kPlayer.GetMinorCivAI()->IsAllies((PlayerTypes)iPlayerLoop2))
+									{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+										GET_TEAM((TeamTypes)iI).DoMakePeace((PlayerTypes)iPlayerLoop, true, eTeam, true, false);
+#else
+										GET_TEAM((TeamTypes)iI).DoMakePeace(eTeam, true, false);
+#endif
+									}
+								}
+								else if(kPlayer2.getTeam() == eTeam && kPlayer.isAlive())
+								{
+									if(kPlayer.GetMinorCivAI()->IsAllies((PlayerTypes)iPlayerLoop2))
+									{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+										GET_TEAM((TeamTypes)iI).DoMakePeace((PlayerTypes)iPlayerLoop, true, GetID(), true, false);
+#else
+										GET_TEAM((TeamTypes)iI).DoMakePeace(GetID(), true, false);
+#endif
+									}
+								}
+							}
+						}
 					}
 				}
 			}
@@ -2322,7 +2357,7 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 		if(!bSuppressNotification)
 		{
 			PlayerTypes ePlayer;
-			for(iI = 0; iI < MAX_PLAYERS; iI++)
+			for(int iI = 0; iI < MAX_PLAYERS; iI++)
 			{
 				ePlayer = (PlayerTypes) iI;
 
@@ -8776,48 +8811,13 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				ePlayer = (PlayerTypes) iPlayerLoop;
 				CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 				if(ePlayer != NO_PLAYER && !kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && kPlayer.isAlive() && kPlayer.getTeam() == GetID())
-				{
-					int iEra = kPlayer.GetCurrentEra();
-					if(iEra <= 0)
+				{					
+					int iYieldHandicap = kPlayer.DoDifficultyBonus();
+					if((GC.getLogging() && GC.getAILogging()))
 					{
-						iEra = 1;
-					}
-					int iHandicap = 0;
-					int iYieldHandicap = 0;
-					CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
-					if(pHandicapInfo)
-					{
-						iHandicap = pHandicapInfo->getAIDifficultyBonus();
-						iYieldHandicap = (iHandicap * iEra * 10);
-					}
-					if(iHandicap > 0)
-					{					
-						kPlayer.GetTreasury()->ChangeGold(iYieldHandicap);
-						kPlayer.ChangeGoldenAgeProgressMeter(iYieldHandicap);
-						kPlayer.changeJONSCulture(iYieldHandicap);
-						if(kPlayer.getCapitalCity() != NULL)
-						{
-							kPlayer.getCapitalCity()->ChangeJONSCultureStored(iYieldHandicap);
-							kPlayer.getCapitalCity()->changeFood(iHandicap);
-						}
-				
-						int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), iHandicap);
-
-						TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
-						if(eCurrentTech == NO_TECH)
-						{
-							kPlayer.changeOverflowResearch(iBeakersBonus);
-						}
-						else
-						{
-							GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, kPlayer.GetID());
-						}
-						if((GC.getLogging() && GC.getAILogging()))
-						{
-							CvString strLogString;
-							strLogString.Format("CBP AI DIFFICULTY BONUS FROM ERA CHANGE: Received %d Handicap Bonus (%d in Yields).", iHandicap, iYieldHandicap);
-							kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
-						}
+						CvString strLogString;
+						strLogString.Format("CBP AI DIFFICULTY BONUS FROM ERA CHANGE: Received Handicap Bonus (%d in Yields).", iYieldHandicap);
+						kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 				}
 			}

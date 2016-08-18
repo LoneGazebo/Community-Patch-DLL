@@ -175,9 +175,9 @@ int CvAIOperation::GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const
 	{
 		int iRange = OperationalAIHelpers::GetGatherRangeForXUnits(iNumUnits);
 
-		//naval gets more space - but be careful, this number has quadratic runtime impact!
+		//naval needs less space.
 		if ( IsNavalOperation() )
-			iRange++;
+			iRange--;
 
 		for(int iX = -iRange; iX <= iRange; iX++)
 		{
@@ -1844,40 +1844,70 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 			//check if we're at the target
 			CvPlot *pTarget = pThisArmy->GetGoalPlot();
 			CvPlot *pCenterOfMass = pThisArmy->GetCenterOfMass();
-			if(pCenterOfMass && pTarget && plotDistance(*pCenterOfMass,*pTarget) <= GetDeployRange())
+			if(pCenterOfMass && pTarget)
 			{
-				// Notify Diplo AI we're in place for attack
-				if(!GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(GET_PLAYER(m_eEnemy).getTeam()))
+				bool bInPlace = false;
+				if(plotDistance(*pCenterOfMass,*pTarget) <= GetDeployRange())
 				{
-					GET_PLAYER(m_eOwner).GetDiplomacyAI()->SetMusteringForAttack(m_eEnemy, true);
+					bInPlace = true;
 				}
-
-				// Notify tactical AI to focus on this area
-				if (GetTargetType()!=AI_TACTICAL_TARGET_NONE)
+				else
 				{
-					CvTemporaryZone zone;
-					if(pTarget->getWorkingCity() != NULL && pTarget->getWorkingCity()->getOwner() == m_eEnemy)
+					for (UnitHandle pUnit = pThisArmy->GetFirstUnit(); pUnit.pointer(); pUnit = pThisArmy->GetNextUnit())
 					{
-						zone.SetX(pTarget->getWorkingCity()->getX());
-						zone.SetY(pTarget->getWorkingCity()->getY());
-					}
-					else
-					{
-						zone.SetX(pTarget->getX());
-						zone.SetY(pTarget->getY());
-					}
+						CvPlot* pAdjacentPlot;
+						int iI;
+						while(!bInPlace && pUnit)
+						{
+							for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+							{
+								pAdjacentPlot = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
 
-					zone.SetTargetType( GetTargetType() );
-					zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
-					GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
+								if(pAdjacentPlot != NULL && ((pAdjacentPlot->getOwner() == m_eEnemy) || (pAdjacentPlot->getNumDefenders(m_eEnemy) > 0)))
+								{
+									pTarget = pAdjacentPlot;
+									bInPlace = true;
+									break;
+								}
+							}
+						}
+					}
 				}
+				if(bInPlace)
+				{
+					// Notify Diplo AI we're in place for attack
+					if(!GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(GET_PLAYER(m_eEnemy).getTeam()))
+					{
+						GET_PLAYER(m_eOwner).GetDiplomacyAI()->SetMusteringForAttack(m_eEnemy, true);
+					}
 
-				//that's it. skip STATE_AT_TARGET so the army will be disbanded next turn!
-				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
-				pThisArmy->SetArmyAIState(ARMYAISTATE_AT_DESTINATION);
-				LogOperationSpecialMessage("Transition to finished stage");
+					// Notify tactical AI to focus on this area
+					if (GetTargetType()!=AI_TACTICAL_TARGET_NONE)
+					{
+						CvTemporaryZone zone;
+						if(pTarget->getWorkingCity() != NULL && pTarget->getWorkingCity()->getOwner() == m_eEnemy)
+						{
+							zone.SetX(pTarget->getWorkingCity()->getX());
+							zone.SetY(pTarget->getWorkingCity()->getY());
+						}
+						else
+						{
+							zone.SetX(pTarget->getX());
+							zone.SetY(pTarget->getY());
+						}
 
-				bStateChanged = true;
+						zone.SetTargetType( GetTargetType() );
+						zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+						GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
+					}
+
+					//that's it. skip STATE_AT_TARGET so the army will be disbanded next turn!
+					m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+					pThisArmy->SetArmyAIState(ARMYAISTATE_AT_DESTINATION);
+					LogOperationSpecialMessage("Transition to finished stage");
+
+					bStateChanged = true;
+				}
 			}
 			break;
 		}
@@ -2101,15 +2131,9 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 		if (pClosestCity)
 			pMusterPlot = pClosestCity->plot();
 	}
-	//Let's not muster in the city - it is hard to this because of garrisons.
-	if(IsNavalOperation() && !pMusterPlot->isCoastalLand())
-	{
-		CvPlot* pCoastalPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMusterPlot);
-		if(pCoastalPlot != NULL)
-		{
-			pMusterPlot = pCoastalPlot;
-		}
-	}
+
+	//Let's not muster in the city - it is hard to this because of garrisons - and we don't want to steal it
+	//todo: choose a muster plot on the way to the target!
 	if(pMusterPlot->isCity())
 	{
 		for (int iCityPlotLoop = 0; iCityPlotLoop < pMusterPlot->getPlotCity()->GetNumWorkablePlots(); iCityPlotLoop++)
@@ -2122,7 +2146,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 				continue;
 			}
 
-			//No water and no impassable
+			//No water and not impassable
 			if(IsNavalOperation() && !pLoopPlot->isWater())
 				continue;
 
@@ -2137,7 +2161,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 				continue;
 
 			//Not dangerous
-			if(GET_PLAYER(m_eOwner).GetPlotDanger(*pLoopPlot, pOurCivilian) < INT_MAX)
+			if (pOurCivilian->GetDanger(pLoopPlot)==0)
 			{
 				pMusterPlot = pLoopPlot;
 				break;
@@ -2145,7 +2169,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 		}
 	}
 
-	SetupWithSingleArmy(pOurCivilian->plot(),pTargetSite,pTargetSite,pOurCivilian);
+	SetupWithSingleArmy(pMusterPlot,pTargetSite,pTargetSite,pOurCivilian);
 }
 
 bool CvAIOperationCivilian::CheckTransitionToNextStage()
@@ -3544,13 +3568,9 @@ int OperationalAIHelpers::GetGatherRangeForXUnits(int iTotalUnits)
 	{
 		iRange = 3;
 	}
-	else if(iTotalUnits <= 10)
-	{
-		iRange = 4;
-	}
 	else
 	{
-		iRange = 5;
+		iRange = 4;
 	}
 
 	return iRange;

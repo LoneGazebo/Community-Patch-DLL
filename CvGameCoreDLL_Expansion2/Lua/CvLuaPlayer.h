@@ -159,7 +159,10 @@ protected:
 	static int lCalculateUnitSupply(lua_State* L);
 
 	static int lGetNumMaintenanceFreeUnits(lua_State* L);
-
+#if defined(MOD_BALANCE_CORE)
+	static int lGetBaseBuildingMaintenance(lua_State* L);
+	static int lGetBaseUnitMaintenance(lua_State* L);
+#endif
 	static int lGetBuildingGoldMaintenance(lua_State* L);
 	static int lSetBaseBuildingGoldMaintenance(lua_State* L);
 	static int lChangeBaseBuildingGoldMaintenance(lua_State* L);

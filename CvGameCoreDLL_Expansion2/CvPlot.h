@@ -303,6 +303,7 @@ public:
 	bool isVisibleEnemyDefender(const CvUnit* pUnit) const;
 	CvUnit* getVisibleEnemyDefender(PlayerTypes ePlayer) const;
 	int getNumDefenders(PlayerTypes ePlayer) const;
+	int getNumNavalDefenders(PlayerTypes ePlayer) const;
 	int getNumVisibleEnemyDefenders(const CvUnit* pUnit) const;
 	int getNumVisiblePotentialEnemyDefenders(const CvUnit* pUnit) const;
 	int getNumUnitsOfAIType(UnitAITypes eType, int& iFirstUnitID) const;

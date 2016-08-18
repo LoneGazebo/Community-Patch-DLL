@@ -578,6 +578,8 @@ public:
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
 #if defined(MOD_BALANCE_CORE)
 	void DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity);
+	void DoWarVictoryBonuses();
+	int DoDifficultyBonus();
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)

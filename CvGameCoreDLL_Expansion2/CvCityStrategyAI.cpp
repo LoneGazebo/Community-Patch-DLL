@@ -3274,28 +3274,35 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 			if(pLoopPlot->isCity())
 				continue;
 
-			for(int iI = 0; iI < GC.getNumBuildInfos(); ++iI)
+			if(pLoopPlot->IsImprovementPillaged())
 			{
-				CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes) iI);
-				if(!pkBuildInfo)
+				iCanImprove++;
+			}
+			else
+			{
+				for(int iI = 0; iI < GC.getNumBuildInfos(); ++iI)
 				{
-					continue;
-				}
-				ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
-				if(eImprovement == NO_IMPROVEMENT)
-				{
-					continue;
-				}
+					CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes) iI);
+					if(!pkBuildInfo)
+					{
+						continue;
+					}
+					ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+					if(eImprovement == NO_IMPROVEMENT)
+					{
+						continue;
+					}
 
-				CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);
-				if(pkEntry->IsCreatedByGreatPerson())
-					continue;
+					CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);
+					if(pkEntry->IsCreatedByGreatPerson())
+						continue;
 
-				//Valid right now with any worker valid build?
-				if(GET_PLAYER(pCity->getOwner()).canBuild(pLoopPlot, (BuildTypes)iI))
-				{
-					iCanImprove++;
-					break;
+					//Valid right now with any worker valid build?
+					if(GET_PLAYER(pCity->getOwner()).canBuild(pLoopPlot, (BuildTypes)iI))
+					{
+						iCanImprove++;
+						break;
+					}
 				}
 			}
 		}

@@ -5427,8 +5427,8 @@ bool CvUnit::jumpToNearestValidPlot()
 
 	if(pBestPlot != NULL)
 	{
+		ClearMissionQueue(); //do this before changing the position in case we have queued moves
 		setXY(pBestPlot->getX(), pBestPlot->getY());
-		ClearMissionQueue();
 		SetActivityType(ACTIVITY_AWAKE);
 	}
 	else

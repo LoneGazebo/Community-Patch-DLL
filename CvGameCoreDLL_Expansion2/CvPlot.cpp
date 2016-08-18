@@ -4433,7 +4433,34 @@ int CvPlot::getNumDefenders(PlayerTypes ePlayer) const
 
 	return 0;
 }
+#if defined(MOD_BALANCE_CORE)
+//	-----------------------------------------------------------------------------------------------
+int CvPlot::getNumNavalDefenders(PlayerTypes ePlayer) const
+{
+	const IDInfo* pUnitNode = m_units.head();
+	if(pUnitNode != NULL)
+	{
+		int iCount = 0;
+		do
+		{
+			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+			pUnitNode = m_units.next(pUnitNode);
 
+			if(pLoopUnit)
+			{
+				if( (ePlayer==NO_PLAYER || pLoopUnit->getOwner()==ePlayer) && pLoopUnit->IsCanDefend() && !pLoopUnit->isEmbarked() && (pLoopUnit->getDomainType() != DOMAIN_SEA))
+				{
+					++iCount;
+				}
+			}
+		}
+		while(pUnitNode != NULL);
+		return iCount;
+	}
+
+	return 0;
+}
+#endif
 //	-----------------------------------------------------------------------------------------------
 int CvPlot::getNumVisibleEnemyDefenders(const CvUnit* pUnit) const
 {
@@ -9485,7 +9512,18 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, bool bI
 
 	if(eTeam != NO_TEAM)
 	{
-		iYield += ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GET_TEAM(eTeam).getTerrainYieldChange(getTerrainType(), eYield) : GET_TEAM(eTeam).getFeatureYieldChange(getFeatureType(), eYield));
+		int iBonusYield = ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GET_TEAM(eTeam).getTerrainYieldChange(getTerrainType(), eYield) : GET_TEAM(eTeam).getFeatureYieldChange(getFeatureType(), eYield));
+		
+		if(IsNaturalWonder() && !bIgnoreFeature && m_eOwner != NO_PLAYER)
+		{
+			int iMod = GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerTraits()->GetNaturalWonderYieldModifier();
+			if(iMod > 0)
+			{
+				iBonusYield *= (100 + iMod);
+				iBonusYield /= 100;
+			}
+		}
+		iYield += iBonusYield;
 	}
 #endif
 
@@ -13975,7 +14013,7 @@ bool CvPlot::IsWithinDistanceOfUnit(PlayerTypes ePlayer, UnitTypes eOtherUnit, i
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
-	if(iDistance == 0 && this != NULL)
+	if(iDistance >= 0 && this != NULL)
 	{
 		for(int iI = 0; iI < this->getNumUnits(); iI++)
 		{
@@ -14040,7 +14078,7 @@ bool CvPlot::IsWithinDistanceOfUnitCombatType(PlayerTypes ePlayer, UnitCombatTyp
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
-	if(iDistance == 0 && this != NULL)
+	if(iDistance >= 0 && this != NULL)
 	{
 		for(int iI = 0; iI < this->getNumUnits(); iI++)
 		{
@@ -14105,7 +14143,7 @@ bool CvPlot::IsWithinDistanceOfUnitClass(PlayerTypes ePlayer, UnitClassTypes eUn
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
-	if(iDistance == 0 && this != NULL)
+	if(iDistance >= 0 && this != NULL)
 	{
 		for(int iI = 0; iI < this->getNumUnits(); iI++)
 		{
@@ -14170,7 +14208,7 @@ bool CvPlot::IsWithinDistanceOfUnitPromotion(PlayerTypes ePlayer, PromotionTypes
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
-	if(iDistance == 0 && this != NULL)
+	if(iDistance >= 0 && this != NULL)
 	{
 		for(int iI = 0; iI < this->getNumUnits(); iI++)
 		{

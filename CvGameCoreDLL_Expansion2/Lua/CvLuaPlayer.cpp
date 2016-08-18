@@ -169,6 +169,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetNumMaintenanceFreeUnits);
 
+#if defined(MOD_BALANCE_CORE)
+	Method(GetBaseBuildingMaintenance);
+	Method(GetBaseUnitMaintenance);
+#endif
 	Method(GetBuildingGoldMaintenance);
 	Method(SetBaseBuildingGoldMaintenance);
 	Method(ChangeBaseBuildingGoldMaintenance);
@@ -2303,7 +2307,45 @@ int CvLuaPlayer::lGetNumMaintenanceFreeUnits(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetNumMaintenanceFreeUnits);
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//int GetBaseBuildingMaintenance();
+int CvLuaPlayer::lGetBaseBuildingMaintenance(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
 
+	const int iResult = pkPlayer->GetTreasury()->GetBaseBuildingGoldMaintenance();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetBaseUnitMaintenance();
+int CvLuaPlayer::lGetBaseUnitMaintenance(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	// If player has 0 Cities then no Unit cost
+	if(pkPlayer->getNumCities() == 0)
+	{
+		return 0;
+	}
+
+	const CvHandicapInfo& playerHandicap = pkPlayer->getHandicapInfo();
+	int iFreeUnits = playerHandicap.getGoldFreeUnits();
+
+	// Defined in XML by unit info type
+	iFreeUnits += pkPlayer->GetNumMaintenanceFreeUnits();
+	iFreeUnits += pkPlayer->getBaseFreeUnits();
+
+	int iPaidUnits = max(0, pkPlayer->getNumUnits() - iFreeUnits);
+
+	int iBaseUnitCost = iPaidUnits * pkPlayer->getGoldPerUnitTimes100();
+
+	int iResult = (iBaseUnitCost / 100);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetBuildingGoldMaintenance();
 int CvLuaPlayer::lGetBuildingGoldMaintenance(lua_State* L)

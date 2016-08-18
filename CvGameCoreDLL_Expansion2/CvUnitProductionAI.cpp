@@ -1020,10 +1020,14 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			iBonus += -100;
 		}
+		if(GC.getGame().getGameTurn() <= 20)
+		{
+			iBonus += -200;
+		}
 		int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
 		if(iNumBuilders == 0)
 		{
-			iBonus += 50;
+			iBonus += 200;
 		}
 		int iFirstUnitID;
 		//There's a worker waiting here? Abort!
@@ -1045,12 +1049,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
 		if(eWantWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 		{
-			iBonus += (25 * iCurrentNumCities);
+			iBonus += (50 * iCurrentNumCities);
 		}
 		AICityStrategyTypes eNeedWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
 		if(eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
 		{
-			iBonus += (50 * iCurrentNumCities);
+			iBonus += (75 * iCurrentNumCities);
 		}
 	}
 	
@@ -1230,9 +1234,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		int iDemand = kPlayer.getNumMilitaryUnits();
 		int iPercent = (iDemand * 100) / iSupply;
-		int iRemainder = (160 - iPercent);
+		int iRemainder = (140 - iPercent);
 
-		//Closer we get to cap over 60%, fewer units we should be making.
+		//Closer we get to cap over 40%, fewer units we should be making.
 		iBonus *= iRemainder;
 		iBonus /= 100;
 	}
