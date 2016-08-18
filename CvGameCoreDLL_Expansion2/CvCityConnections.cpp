@@ -396,8 +396,11 @@ void CvCityConnections::UpdateRouteInfo(void)
 	CvCity* pCapital = m_pPlayer->getCapitalCity();
 	if (pCapital)
 	{
-		//Let's check for road/railroad first.
-		SPathFinderUserData data(m_pPlayer->GetID(), PT_CITY_CONNECTION_LAND, ROUTE_ROAD);
+		//need to check those later
+		std::vector<CvCity*> vConnectedCities;
+
+		//Let's check for road first (railroad also counts as road).
+		SPathFinderUserData data(m_pPlayer->GetID(), PT_CITY_CONNECTION_MIXED, ROUTE_ROAD);
 		ReachablePlots capitalRoadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data);
 		for (ReachablePlots::iterator it = capitalRoadConnectedPlots.begin(); it != capitalRoadConnectedPlots.end(); ++it)
 		{
@@ -405,48 +408,17 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 			//if it's one of our own cities, set the connection flag - also for the capital itself
 			CvCity* pCity = pPlot->getPlotCity();
-			if (pCity && pCity->getOwner()==m_pPlayer->GetID())
+			if (pCity && pCity->getOwner() == m_pPlayer->GetID())
 			{
 				pCity->SetRouteToCapitalConnected(true);
-
-				//find the shortest path
-				SPath path = GC.GetStepFinder().GetPath(pCapital->plot(),pPlot,data);
-				for (int i=0; i<path.length(); i++)
-				{
-					CvPlot* pConnectionPlot = path.get(i);
-					if (pConnectionPlot && !pConnectionPlot->isWater() && !pConnectionPlot->isCity()) //should be only land, but doesn't hurt to check
-						m_plotsWithConnectionToCapital.push_back(pConnectionPlot->GetPlotIndex());
-				}
-			}
-		}
-
-		//And now for harbors.
-		data.ePathType = PT_CITY_CONNECTION_MIXED;
-		capitalRoadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data);
-		for (ReachablePlots::iterator it = capitalRoadConnectedPlots.begin(); it != capitalRoadConnectedPlots.end(); ++it)
-		{
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->iPlotIndex );
-
-			//if it's one of our own cities, set the connection flag - also for the capital itself
-			CvCity* pCity = pPlot->getPlotCity();
-			if (pCity && pCity->getOwner()==m_pPlayer->GetID() && !pCity->IsRouteToCapitalConnected())
-			{
-				pCity->SetRouteToCapitalConnected(true);
-
-				//find the shortest path
-				SPath path = GC.GetStepFinder().GetPath(pCapital->plot(),pPlot,data);
-				for (int i=0; i<path.length(); i++)
-				{
-					CvPlot* pConnectionPlot = path.get(i);
-					if (pConnectionPlot && !pConnectionPlot->isWater() && !pConnectionPlot->isCity()) //should be only land, but doesn't hurt to check
-						m_plotsWithConnectionToCapital.push_back(pConnectionPlot->GetPlotIndex());
-				}
+				vConnectedCities.push_back(pCity);
 			}
 		}
 		
 		//Set industrial routes as needed.
 		if ( GET_TEAM(m_pPlayer->getTeam()).GetBestPossibleRoute()==GC.getGame().GetIndustrialRoute() )
 		{
+			//with water and railroad only 
 			data.iTypeParameter = ROUTE_RAILROAD;
 			ReachablePlots capitalRailroadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data);
 			for (ReachablePlots::iterator it = capitalRailroadConnectedPlots.begin(); it != capitalRailroadConnectedPlots.end(); ++it)
@@ -457,6 +429,24 @@ void CvCityConnections::UpdateRouteInfo(void)
 				CvCity* pCity = pPlot->getPlotCity();
 				if (pCity && pCity->getOwner()==m_pPlayer->GetID())
 					pCity->SetIndustrialRouteToCapitalConnected(true);
+			}
+		}
+
+		//Now set up the city connection flags for the plots with a route
+		data.ePathType = PT_CITY_CONNECTION_LAND;
+		data.iTypeParameter = ROUTE_ROAD;
+		for (size_t i = 0; i < vConnectedCities.size(); i++)
+		{
+			for (size_t j = i + 1; j < vConnectedCities.size(); j++)
+			{
+				//find the shortest path between any two connected cities
+				SPath path = GC.GetStepFinder().GetPath(vConnectedCities[i]->plot(), vConnectedCities[j]->plot(), data);
+				for (int k = 0; k < path.length(); k++)
+				{
+					CvPlot* pPlot = path.get(k);
+					if (pPlot && !pPlot->isWater() && !pPlot->isCity()) //should be only land, but doesn't hurt to check
+						m_plotsWithConnectionToCapital.push_back(pPlot->GetPlotIndex());
+				}
 			}
 		}
 	}

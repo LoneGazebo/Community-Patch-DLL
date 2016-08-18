@@ -415,7 +415,7 @@
 			<Text>{1_Num} [ICON_TOURISM] Tourism from your Civilization Trait</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_FROM_TRAIT_BONUS">
-			<Text>+{1_Num} {2_IconString} from Trait</Text>
+			<Text>{1_Num} {2_IconString} from Trait</Text>
 		</Row>
 
 		<!-- Trade LUA -->

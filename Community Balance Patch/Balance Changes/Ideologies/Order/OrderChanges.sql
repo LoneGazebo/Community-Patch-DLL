@@ -62,7 +62,8 @@ DELETE FROM Policy_BuildingClassProductionModifiers
 WHERE PolicyType = 'POLICY_SOCIALIST_REALISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Worker's Faculties
-DELETE FROM Policy_BuildingClassYieldModifiers
+UPDATE Policy_BuildingClassYieldModifiers
+SET YieldMod = '10'
 WHERE PolicyType = 'POLICY_WORKERS_FACULTIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 --Peace, Land, Bread
@@ -103,11 +104,6 @@ SET OneShot = '1'
 WHERE Type = 'POLICY_YOUNG_PIONEERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- NEW
-
-INSERT INTO Policy_BuildingClassYieldChanges
-	(PolicyType, BuildingClassType, YieldType, YieldChange)
-VALUES
-	('POLICY_WORKERS_FACULTIES', 'BUILDINGCLASS_FACTORY', 'YIELD_SCIENCE', 3);
 
 INSERT INTO Policy_BuildingClassCultureChanges
 	(PolicyType, BuildingClassType, CultureChange)

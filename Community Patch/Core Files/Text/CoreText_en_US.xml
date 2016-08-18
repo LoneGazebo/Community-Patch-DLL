@@ -2728,6 +2728,10 @@
 			<Text>Maximum trade value of items in Peace Deal with AI. If the value to the left of this exceeds this number, the AI will refuse the deal.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE">
+			<Text>Cannot have Gold Per Turn and Gold in same trade.</Text>
+		</Row>
+
 		<!-- Regular Deal Details - Lua -->
 		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE">
 			<Text>Deal Value for Them: {1_Num}.</Text>

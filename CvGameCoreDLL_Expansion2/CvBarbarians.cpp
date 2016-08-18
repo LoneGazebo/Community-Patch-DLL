@@ -520,7 +520,7 @@ void CvBarbarians::DoCamps()
 			else
 			{
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-				if( kGame.getSmallFakeRandNum(GC.getBARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING()) == 0)
+				if (kGame.getSmallFakeRandNum(GC.getBARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING(), iNumValidCampPlots) == 0)
 #else
 				if(kGame.getRandNum(/*2*/ GC.getBARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING(), "Random roll to see if Barb Camp spawns this turn") > 0)
 #endif
@@ -553,7 +553,7 @@ void CvBarbarians::DoCamps()
 				// Do a random roll to bias in favor of Coastal land Tiles so that the Barbs will spawn Boats :) - required 1/6 of the time
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
 				// make sure we have suitable coastal plots!
-				bool bWantsCoastal = kGame.getSmallFakeRandNum(/*6*/ GC.getBARBARIAN_CAMP_COASTAL_SPAWN_ROLL()) == 0 ? !vCoastalPlots.empty() : false;
+				bool bWantsCoastal = kGame.getSmallFakeRandNum(/*6*/ GC.getBARBARIAN_CAMP_COASTAL_SPAWN_ROLL(), iNumValidCampPlots) == 0 ? !vCoastalPlots.empty() : false;
 
 				// if we don't have any valid plots left at all, then bail
 				if (vAllPlots.empty())
@@ -561,7 +561,7 @@ void CvBarbarians::DoCamps()
 
 				std::vector<CvPlot*>& vRelevantPlots = bWantsCoastal ? vCoastalPlots : vAllPlots;
 
-				int iPlotIndex = kGame.getSmallFakeRandNum( min(9u, vRelevantPlots.size()) );
+				int iPlotIndex = kGame.getSmallFakeRandNum( min(9u, vRelevantPlots.size()), (int)vRelevantPlots.size() );
 #else
 				bool bWantsCoastal = kGame.getRandNum(/*6*/ GC.getBARBARIAN_CAMP_COASTAL_SPAWN_ROLL(), "Barb Camp Plot-Finding Roll - Coastal Bias") == 0 ? true : false;
 				int iPlotIndex = kGame.getRandNum( bWantsCoastal ? vCoastalPlots.size() : vAllPlots.size(), "Barb Camp Plot-Finding Roll");
@@ -688,6 +688,13 @@ void CvBarbarians::DoCamps()
 					}
 #if defined(MOD_BUGFIX_BARB_CAMP_TERRAINS)
 				}
+				else
+				{
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+					//if we're using the fake random generator, it will produce the same candidate every time, need to remove it from the pool
+					vRelevantPlots.erase(vRelevantPlots.begin() + iPlotIndex);
+#endif
+				}
 #endif
 			}
 			while(iNumCampsToAdd > 0 && iCount < iNumLandPlots);
@@ -781,7 +788,7 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eU
 			if(bValid)
 			{
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-				iValue = 1 + kGame.getSmallFakeRandNum(9);
+				iValue = 1 + kGame.getSmallFakeRandNum(9, pArea->GetID());
 #else
 				iValue = (1 + kGame.getRandNum(1000, "Barb Unit Selection"));
 #endif

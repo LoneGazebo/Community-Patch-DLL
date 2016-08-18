@@ -2552,15 +2552,15 @@ int CvBuilderTaskingAI::ScorePlot()
 	if(m_bEvaluateAdjacent)
 	{
 		CvCity* pCapitalCity = m_pPlayer->getCapitalCity();
-		CvCityStrategyAI* pCapitalCityStrategy = pCapitalCity->GetCityStrategyAI();
-		bool bAnyNegativeMultiplier = false;
-		YieldTypes eFocusYield = pCapitalCityStrategy->GetFocusYield();
-		if(!pCapitalCityStrategy)
+		if(pCapitalCity)
 		{
-			return -1;
-		}
-		if(pCapitalCity != NULL)
-		{
+			CvCityStrategyAI* pCapitalCityStrategy = pCapitalCity->GetCityStrategyAI();
+			bool bAnyNegativeMultiplier = false;
+			YieldTypes eFocusYield = pCapitalCityStrategy->GetFocusYield();
+			if(!pCapitalCityStrategy)
+			{
+				return -1;
+			}
 			for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 			{
 				int iMultiplier = pCapitalCityStrategy->GetYieldDeltaTimes100((YieldTypes)ui);
@@ -2931,6 +2931,11 @@ int CvBuilderTaskingAI::ScorePlot()
 	//Great improvements are great!
 	if(pImprovement->IsCreatedByGreatPerson())
 	{
+		//Not adjacent and not a culture bomb? No outside city borders!
+		if(!m_bEvaluateAdjacent && !pCity && pImprovement->GetCultureBombRadius() <= 0)
+		{
+			return 0;
+		}
 		iScore *= 5;
 	}
 

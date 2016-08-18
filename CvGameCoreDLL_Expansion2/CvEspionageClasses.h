@@ -149,7 +149,7 @@ struct IntrigueNotificationMessage
 	CvString m_strSpyName;
 	bool m_bShared;
 };
-typedef FStaticVector<CvEspionageSpy, 8, false, c_eCiv5GameplayDLL > SpyList;
+typedef FStaticVector<CvEspionageSpy, 14, false, c_eCiv5GameplayDLL > SpyList;
 typedef FStaticVector<TechTypes, 1, false, c_eCiv5GameplayDLL> TechList;
 typedef FStaticVector<TechList, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> PlayerTechList;
 typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> NumTechsToStealList;

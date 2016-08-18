@@ -3237,29 +3237,10 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 	{
 		return true;
 	}
-
-	AICityStrategyTypes eNeedImproversStrategy = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
-
-	if(eNeedImproversStrategy != NO_ECONOMICAISTRATEGY)
-	{
-		if(pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedImproversStrategy))
-			return false;
-	}
-
+	
 	int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
 
-	// If it's a minor with at least 1 worker per city, always return true
-	if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
-	{
-		if(iNumBuilders >= kPlayer.getNumCities())
-			return true;
-	}
-
 #if defined(MOD_BALANCE_CORE)
-	//Gotta have at least one!
-	if(iNumBuilders <= 1)
-		return false;
-
 	int iX = pCity->getX(); int iY = pCity->getY(); int iOwner = pCity->getOwner();
 
 	int iNumWorkersHere = 0;
@@ -3293,28 +3274,35 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 			if(pLoopPlot->isCity())
 				continue;
 
-			for(int iI = 0; iI < GC.getNumBuildInfos(); ++iI)
+			if(pLoopPlot->IsImprovementPillaged())
 			{
-				CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes) iI);
-				if(!pkBuildInfo)
+				iCanImprove++;
+			}
+			else
+			{
+				for(int iI = 0; iI < GC.getNumBuildInfos(); ++iI)
 				{
-					continue;
-				}
-				ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
-				if(eImprovement == NO_IMPROVEMENT)
-				{
-					continue;
-				}
+					CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes) iI);
+					if(!pkBuildInfo)
+					{
+						continue;
+					}
+					ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+					if(eImprovement == NO_IMPROVEMENT)
+					{
+						continue;
+					}
 
-				CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);
-				if(pkEntry->IsCreatedByGreatPerson())
-					continue;
+					CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);
+					if(pkEntry->IsCreatedByGreatPerson())
+						continue;
 
-				//Valid right now with any worker valid build?
-				if(GET_PLAYER(pCity->getOwner()).canBuild(pLoopPlot, (BuildTypes)iI))
-				{
-					iCanImprove++;
-					break;
+					//Valid right now with any worker valid build?
+					if(GET_PLAYER(pCity->getOwner()).canBuild(pLoopPlot, (BuildTypes)iI))
+					{
+						iCanImprove++;
+						break;
+					}
 				}
 			}
 		}
@@ -3324,12 +3312,32 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 	{
 		return true;
 	}
+	//Gotta have at least one!
+	if(iNumBuilders <= 1)
+		return false;
+
 	//Not enough workers here? 4:1 ratio is good ratio.
 	if((iNumWorkersHere * 4) < iCanImprove)
 	{
 		return false;
 	}
 #endif
+	AICityStrategyTypes eNeedImproversStrategy = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
+
+	if(eNeedImproversStrategy != NO_ECONOMICAISTRATEGY)
+	{
+		if(pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedImproversStrategy))
+			return false;
+	}
+
+
+
+	// If it's a minor with at least 1 worker per city, always return true
+	if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
+	{
+		if(iNumBuilders >= kPlayer.getNumCities())
+			return true;
+	}
 
 	CvAICityStrategyEntry* pCityStrategy = pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy);
 

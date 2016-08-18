@@ -380,6 +380,9 @@ public:
 	void SetNumFreeCargo(int iValue);
 	int GetNumFreeCargo() const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	void SetupDefenses(PlayerTypes ePlayer);
+#endif
 private:
 
 	// Functions to process a turn
@@ -393,6 +396,17 @@ private:
 	void WarStateChange(PlayerTypes ePlayer, WarStateTypes eNewWarState, WarStateTypes eOldWarState);
 	void UpdateMilitaryStrategies();
 	void UpdateOperations();
+#if defined(MOD_BALANCE_CORE)
+	void DoNuke(PlayerTypes ePlayer);
+	void DoBarbs();
+	void CheckLandDefenses(PlayerTypes ePlayer);
+	void CheckSeaDefenses(PlayerTypes ePlayer);
+	void DoLandAttacks(PlayerTypes ePlayer);
+	void DoSeaAttacks(PlayerTypes ePlayer);
+	void DoMinorCivAttacks(PlayerTypes ePlayer);
+	int GetEnemyLandValue(PlayerTypes ePlayer);
+	int GetEnemySeaValue(PlayerTypes ePlayer);
+#endif
 	void MakeEmergencyPurchases();
 	void MakeOffensivePurchases();
 	void RequestImprovements();
@@ -502,6 +516,8 @@ int ComputeRecommendedNavySize(CvPlayer* pPlayer);
 int NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEnemy, MultiunitFormationTypes formation, bool bRequiresNavalMoves=false, bool bMustBeDeepWaterNaval=false, CvPlot* pMuster=NULL, CvPlot* pTarget=NULL, int* piNumberSlotsRequired=NULL, int* piNumberLandReservesUsed=NULL);
 UnitAITypes FirstSlotCityCanFill(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bAtCoastalCity, bool bSecondaryUnit);
 MultiunitFormationTypes GetCurrentBestFormationTypeForCityAttack();
+MultiunitFormationTypes GetCurrentBestFormationTypeForNavalAttack();
+MultiunitFormationTypes GetCurrentBestFormationTypeForPureNavalAttack();
 CvPlot* GetCoastalPlotNearPlot(CvPlot *pTarget);
 }
 

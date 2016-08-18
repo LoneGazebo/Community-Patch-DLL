@@ -3674,7 +3674,7 @@ int CvReligionBeliefs::GetMaxYieldPerFollower(YieldTypes eYieldType, PlayerTypes
 
 	return rtnValue;
 }
-/// Get yield from beliefs from # of followers
+/// Get unique civ
 CivilizationTypes CvReligionBeliefs::GetUniqueCiv(PlayerTypes ePlayer) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();

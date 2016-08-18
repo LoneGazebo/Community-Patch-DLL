@@ -253,9 +253,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		return 0;
 
 	//Sanitize...
-	if(iValue > 850)
+	if(iValue > 750)
 	{
-		iValue = 850;
+		iValue = 750;
 	}
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);

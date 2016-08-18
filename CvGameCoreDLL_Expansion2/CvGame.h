@@ -439,8 +439,6 @@ public:
 	//get random number from gamestate without a seed in the generator
 	int	getSmallFakeRandNum(int iNum, CvPlot& input);
 	int	getSmallFakeRandNum(int iNum, int iSeed);
-	int	getSmallFakeRandNum(int iNum);
-	int getSeedFromGameState() const;
 #endif
 
 	int calculateSyncChecksum();
@@ -461,7 +459,7 @@ public:
 	uint getNumReplayMessages() const;
 	const CvReplayMessage* getReplayMessage(uint i) const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	void getGlobalAverage() const;
+	void updateGlobalAverage();
 	int GetCultureAverage() const;
 	void SetCultureAverage(int iValue);
 	int GetScienceAverage() const;

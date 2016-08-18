@@ -284,6 +284,9 @@ public:
 	void LogHomelandMessage(const CvString& strMsg);
 	void LogPatrolMessage(const CvString& strMsg, CvUnit* pPatrolUnit);
 
+#if defined(MOD_BALANCE_CORE)
+	bool MoveCivilianToGarrison(CvUnit* pUnit);
+#endif
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	bool MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits = false, bool bSecondary = false);
 #else

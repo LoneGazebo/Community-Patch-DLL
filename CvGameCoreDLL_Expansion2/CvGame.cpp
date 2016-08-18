@@ -392,7 +392,7 @@ void CvGame::init(HandicapTypes eHandicap)
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		getGlobalAverage();
+		updateGlobalAverage();
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -8082,7 +8082,7 @@ void CvGame::doTurn()
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		getGlobalAverage();
+		updateGlobalAverage();
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -9810,13 +9810,9 @@ int CvGame::getRandNumVA(int iNum, const char* pszLog, ...)
 // for small numbers (e.g. direction rolls) this should be good enough
 // most importantly, it should reduce desyncs in multiplayer
 
-int CvGame::getSeedFromGameState() const
-{
-	return m_iCultureAverage + m_iScienceAverage + m_iDefenseAverage + m_iGoldAverage + m_iGlobalPopulation + m_iGlobalAssetCounter + getGameTurn();
-}
 int CvGame::getSmallFakeRandNum(int iNum, CvPlot& input)
 {
-	int iFake = getSeedFromGameState()+input.getX()*17+input.getY()*23+getGameTurn()*2+m_iGlobalAssetCounter*10;
+	int iFake = input.getX() * 17 + input.getY() * 23 + getGameTurn() * 3;
 	
 	if (iNum>0)
 		return iFake % iNum; 
@@ -9825,20 +9821,14 @@ int CvGame::getSmallFakeRandNum(int iNum, CvPlot& input)
 }
 int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
-	int iFake = getSeedFromGameState()+iExtraSeed;
+	int iFake = getGameTurn() + abs(iExtraSeed);
+
 	if (iNum>0)
-		return iFake % iNum; 
+		return iFake % iNum;
 	else
 		return (-1) * ((iFake) % (-iNum));
 }
-int CvGame::getSmallFakeRandNum(int iNum)
-{
-	int iFake = getSeedFromGameState();
-	if (iNum>0)
-		return iFake % iNum; 
-	else
-		return (-1) * ((iFake) % (-iNum));
-}
+
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -10096,7 +10086,7 @@ uint CvGame::getNumReplayMessages() const
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 //	--------------------------------------------------------------------------------
-void CvGame::getGlobalAverage() const
+void CvGame::updateGlobalAverage()
 {
 	CvCity* pLoopCity;
 	int iCityLoop;
@@ -10164,11 +10154,11 @@ void CvGame::getGlobalAverage() const
 	std::nth_element(vfGoldYield.begin(), vfGoldYield.begin()+n, vfGoldYield.end());
 	
 	//And set it.
-	GC.getGame().SetCultureAverage((int)vfCultureYield[n]);
-	GC.getGame().SetScienceAverage((int)vfScienceYield[n]);
-	GC.getGame().SetDefenseAverage((int)vfDefenseYield[n]);
-	GC.getGame().SetGoldAverage((int)vfGoldYield[n]);
-	GC.getGame().SetGlobalPopulation(iTotalPopulation);
+	SetCultureAverage((int)vfCultureYield[n]);
+	SetScienceAverage((int)vfScienceYield[n]);
+	SetDefenseAverage((int)vfDefenseYield[n]);
+	SetGoldAverage((int)vfGoldYield[n]);
+	SetGlobalPopulation(iTotalPopulation);
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetCultureAverage(int iValue)

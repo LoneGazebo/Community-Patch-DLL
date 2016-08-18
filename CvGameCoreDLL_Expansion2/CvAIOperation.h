@@ -788,7 +788,7 @@ public:
 	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
-
+	virtual int GetDeployRange() const { return 3; }
 	virtual bool IsNavalOperation() const
 	{
 		return true;
@@ -824,6 +824,7 @@ public:
 	{ 
 		return AI_TACTICAL_TARGET_BOMBARDMENT_ZONE;
 	}
+	virtual int GetDeployRange() const { return 3; }
 
 protected:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
@@ -886,6 +887,7 @@ public:
 	{
 		return "AI_OPERATION_NAVAL_ONLY_CITY_ATTACK";
 	}
+
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -305,7 +305,7 @@
 		<Column name="Quantity" type="integer"/>
 	</Table>
 
-	<!-- This is the linker table for connecting events to one another. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
+	<!-- This is the linker table for connecting events to one another. MAKE SURE THAT THIS TABLE APPEARS AFTER ALL EVENTS/CHOICES INCLUDED IN IT. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
 	<Table name="Event_EventLinks">
 		<!-- This is the parent. This is the event/choice that will or will not fire based on your data below. -->
 		<Column name="EventType" type="text" reference="Events(Type)"/>
@@ -593,7 +593,7 @@
 		<Column name="Flavor" type="integer"/>
 	</Table>
 
-	<!-- This is the linker table for connecting events to one another. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
+	<!-- This is the linker table for connecting events to one another. MAKE SURE THAT THIS TABLE APPEARS AFTER ALL EVENTS/CHOICES INCLUDED IN IT. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
 	<Table name="EventChoice_EventLinks">
 		<!-- This is the parent. This is the event/choice that will or will not fire based on your data below. -->
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
@@ -765,7 +765,7 @@
 		<Column name="Yield" type="integer"/>
 	</Table>
 
-	<!-- This is the linker table for connecting events to one another. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
+	<!-- This is the linker table for connecting events to one another. MAKE SURE THAT THIS TABLE APPEARS AFTER ALL EVENTS/CHOICES INCLUDED IN IT. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
 	<Table name="CityEvent_EventLinks">
 		<!-- This is the parent. This is the event/choice that will or will not fire based on your data below. -->
 		<Column name="CityEventType" type="text" reference="CityEvents(Type)"/>
@@ -1071,7 +1071,7 @@
 		<Column name="Flavor" type="integer"/>
 	</Table>
 
-	<!-- This is the linker table for connecting events to one another. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
+	<!-- This is the linker table for connecting events to one another. MAKE SURE THAT THIS TABLE APPEARS AFTER ALL EVENTS/CHOICES INCLUDED IN IT. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
 	<Table name="CityEventChoice_EventLinks">
 		<!-- This is the parent. This is the event/choice that will or will not fire based on your data below. -->
 		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>

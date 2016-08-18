@@ -616,8 +616,8 @@ private:
 	bool m_bCorporationRandomForeignFranchise;
 	int m_iAdditionalNumFranchisesMod;
 	bool m_bUpgradeCSTerritory;
-	bool m_iArchaeologicalDigTourism;
-	bool m_iGoldenAgeTourism;
+	int m_iArchaeologicalDigTourism;
+	int m_iGoldenAgeTourism;
 	int m_iTradeRouteLandDistanceModifier;
 	int m_iTradeRouteSeaDistanceModifier;
 	int m_iEspionageModifier;
