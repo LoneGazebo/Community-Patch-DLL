@@ -2101,15 +2101,9 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 		if (pClosestCity)
 			pMusterPlot = pClosestCity->plot();
 	}
-	//Let's not muster in the city - it is hard to this because of garrisons.
-	if(IsNavalOperation() && !pMusterPlot->isCoastalLand())
-	{
-		CvPlot* pCoastalPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pMusterPlot);
-		if(pCoastalPlot != NULL)
-		{
-			pMusterPlot = pCoastalPlot;
-		}
-	}
+
+	//Let's not muster in the city - it is hard to this because of garrisons - and we don't want to steal it
+	//todo: choose a muster plot on the way to the target!
 	if(pMusterPlot->isCity())
 	{
 		for (int iCityPlotLoop = 0; iCityPlotLoop < pMusterPlot->getPlotCity()->GetNumWorkablePlots(); iCityPlotLoop++)
@@ -2122,7 +2116,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 				continue;
 			}
 
-			//No water and no impassable
+			//No water and not impassable
 			if(IsNavalOperation() && !pLoopPlot->isWater())
 				continue;
 
@@ -2137,7 +2131,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 				continue;
 
 			//Not dangerous
-			if(GET_PLAYER(m_eOwner).GetPlotDanger(*pLoopPlot, pOurCivilian) < INT_MAX)
+			if (pOurCivilian->GetDanger(pLoopPlot)==0)
 			{
 				pMusterPlot = pLoopPlot;
 				break;
@@ -2145,7 +2139,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 		}
 	}
 
-	SetupWithSingleArmy(pOurCivilian->plot(),pTargetSite,pTargetSite,pOurCivilian);
+	SetupWithSingleArmy(pMusterPlot, pTargetSite, pTargetSite, pOurCivilian);
 }
 
 bool CvAIOperationCivilian::CheckTransitionToNextStage()
