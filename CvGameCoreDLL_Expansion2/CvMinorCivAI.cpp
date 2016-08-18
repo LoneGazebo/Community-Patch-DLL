@@ -12145,9 +12145,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	{
 		CvPlayerAI& kNewAlly = GET_PLAYER(eNewAlly);
 		CvTeam& kNewAllyTeam = GET_TEAM(kNewAlly.getTeam());
-#if !defined(MOD_BALANCE_CORE)
 		CvTeam& kOurTeam = GET_TEAM(GetPlayer()->getTeam());
-#endif
 
 		TeamTypes eLoopTeam;
 		for(int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
@@ -12156,55 +12154,39 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 
 			if(!GET_TEAM(eLoopTeam).isAlive())
 				continue;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			//Cannot declare war on vassals or masters if one or more of them is an invalid war target (due to forced peace) - this prevents cascade wars
-			//Should be an extreme fringe case - only applies if new ally is unable to make war with a target
-			bool bCannotWar = false;
-			if(MOD_DIPLOMACY_CIV4_FEATURES)
-			{
-				PlayerTypes eLoopPlayer;
-				for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-					if(GET_PLAYER(eLoopPlayer).isAlive())
+			if(kNewAllyTeam.isAtWar(eLoopTeam))
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			{
+				//Cannot declare war on vassals!
+				bool bCannotWar = false;
+				if(MOD_DIPLOMACY_CIV4_FEATURES)
+				{
+					PlayerTypes eLoopPlayer;
+					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(eLoopTeam))
+						eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+						if(!kOurTeam.canDeclareWar(GET_PLAYER(eLoopPlayer).getTeam(), GetPlayer()->GetID()))
 						{
-							if(!kNewAllyTeam.canDeclareWar(GET_PLAYER(eLoopPlayer).getTeam(), kNewAlly.GetID()))
-							{
-								bCannotWar = true;
-								break;
-							}
-						}
-						else if(GET_TEAM(eLoopTeam).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()))
-						{
-							if(!kNewAllyTeam.canDeclareWar(eLoopTeam, kNewAlly.GetID()))
-							{
-								bCannotWar = true;
-								break;
-							}
+							bCannotWar = true;
+							break;
 						}
 					}
 				}
-			}
 #endif
-			if(kNewAllyTeam.isAtWar(eLoopTeam))
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-			{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-				if(!bCannotWar && eLoopTeam != NO_TEAM)
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+				if(!bCannotWar)
 				{
-					GET_TEAM(eLoopTeam).declareWar(GetPlayer()->getTeam(), true);
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+					kOurTeam.declareWar(eLoopTeam, false, GetPlayer()->GetID());
 #else
-				kOurTeam.declareWar(eLoopTeam, false, GetPlayer()->GetID());
+					kOurTeam.declareWar(eLoopTeam);
 #endif
-#if defined(MOD_BALANCE_CORE_MILITARY)
+#endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 				}
-#endif
 			}
-#else
-				kOurTeam.declareWar(eLoopTeam);
 #endif
 		}
 	}

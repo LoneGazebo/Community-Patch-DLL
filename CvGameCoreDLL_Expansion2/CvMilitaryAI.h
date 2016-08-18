@@ -516,6 +516,8 @@ int ComputeRecommendedNavySize(CvPlayer* pPlayer);
 int NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEnemy, MultiunitFormationTypes formation, bool bRequiresNavalMoves=false, bool bMustBeDeepWaterNaval=false, CvPlot* pMuster=NULL, CvPlot* pTarget=NULL, int* piNumberSlotsRequired=NULL, int* piNumberLandReservesUsed=NULL);
 UnitAITypes FirstSlotCityCanFill(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bAtCoastalCity, bool bSecondaryUnit);
 MultiunitFormationTypes GetCurrentBestFormationTypeForCityAttack();
+MultiunitFormationTypes GetCurrentBestFormationTypeForNavalAttack();
+MultiunitFormationTypes GetCurrentBestFormationTypeForPureNavalAttack();
 CvPlot* GetCoastalPlotNearPlot(CvPlot *pTarget);
 }
 

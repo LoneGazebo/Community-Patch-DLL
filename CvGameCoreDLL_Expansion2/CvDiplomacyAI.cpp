@@ -20143,8 +20143,7 @@ void CvDiplomacyAI::DoStrategicTrade(PlayerTypes ePlayer, DiploStatementTypes& e
 		if(GetPlayer()->GetDealAI()->IsMakeOfferForStrategicResource(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_STRATEGIC_TRADE;
-			int iTurnsBetweenStatements = 15;
-#if defined(MOD_BALANCE_CORE)
+			int iTurnsBetweenStatements = 20;
 			if(GetNeediness() > 7)
 			{
 				iTurnsBetweenStatements /= 2;
@@ -20166,9 +20165,6 @@ void CvDiplomacyAI::DoStrategicTrade(PlayerTypes ePlayer, DiploStatementTypes& e
 				}
 			}
 			if(iMessageMax >= iTurnsBetweenStatements && (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements))
-#else
-			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-#endif
 			{
 				eStatement = eTempStatement;
 			}

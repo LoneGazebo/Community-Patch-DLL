@@ -2062,6 +2062,12 @@ void CvHomelandAI::ExecutePatrolMoves()
 					if(pLoopPlot->isCity())
 						continue;
 
+					//Lots of adjacent units? Ignore.
+					if(pLoopPlot->GetNumFriendlyUnitsAdjacent(m_pPlayer->getTeam(), pUnit->getDomainType(), pUnit) > 2)
+					{
+						continue;
+					}
+
 					if (pUnit->canMoveInto(*vTargets[i]) && pLoopPlot->getDomain()==pUnit->getDomainType() && pLoopPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(),NO_DOMAIN)<3)
 					{
 						iBestTurns = itPlot->iTurns;
@@ -3022,7 +3028,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 			}
 
 			pUnit->setHomelandMove(AI_HOMELAND_MOVE_UNASSIGNED);
-			if(pUnit->getDomainType() == DOMAIN_LAND)
+			if(pUnit->getDomainType() == DOMAIN_LAND && pUnit->getMoves() > 0)
 			{
 				if(!pUnit->isEmbarked() && pUnit->plot()->getOwner()==pUnit->getOwner())
 				{
@@ -3807,7 +3813,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				continue;
 			}
 
-			if(MoveCivilianToSafety(pUnit.pointer(), true /*bIgnoreUnits*/), bSecondary)
+			if(MoveCivilianToGarrison(pUnit.pointer()))
 #else
 			if(MoveCivilianToSafety(pUnit.pointer(), true /*bIgnoreUnits*/))
 #endif
@@ -6005,8 +6011,18 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 			{
 				pUnit->SetAutomateType(NO_AUTOMATE);
 			}
-
+			else
+			{
+				MoveCivilianToGarrison(pUnit.pointer());
+				// slewis - this was removed because a unit would eat all its moves. So if it didn't do anything this turn, it wouldn't be able to work 
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+				if (!m_pPlayer->isHuman())
+				{
+					pUnit->finishMoves();
+				}		
+			}
 			UnitProcessed(pUnit->GetID());
+			continue;
 		}
 #endif
 	}
@@ -6536,7 +6552,128 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	}
 }
 
+#if defined(MOD_BALANCE_CORE)
+bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
+{
+	WeightedPlotVector aBestPlotList;
+	aBestPlotList.clear();
+	int iLoopCity;
+	for(CvCity *pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
+	{
+		if(pLoopCity != NULL)
+		{
+			if(pLoopCity->isInDangerOfFalling())
+				continue;
 
+			CvPlot* pLoopPlot = pLoopCity->plot();
+
+			if(!pLoopPlot->isValidMovePlot(pUnit->getOwner(), true))
+			{
+				continue;
+			}
+
+#if defined(MOD_GLOBAL_STACKING_RULES)
+			if (pLoopPlot->getMaxFriendlyUnitsOfType(pUnit) >= pLoopPlot->getUnitLimit())
+#else
+			if (pLoopPlot->getMaxFriendlyUnitsOfType(pUnit) < GC.getPLOT_UNIT_LIMIT())
+#endif
+			{
+				continue;
+			}
+
+			//Flat value.
+			int iValue = pLoopCity->getPopulation();
+
+			if(pLoopPlot->getArea() != pUnit->getArea())
+			{
+				iValue /= 2;
+			}
+			int iFirstUnitID;
+			int iNumFriendlies = pLoopPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType(), iFirstUnitID) * 10;
+
+			iValue -= iNumFriendlies;
+
+			//Add back in our value if this is our plot.
+			if(pLoopPlot == pUnit->plot())
+			{
+				iValue += 10;
+			}
+			
+			aBestPlotList.push_back(pLoopPlot, iValue);
+		}
+	}
+
+	// Now loop through the sorted score list and go to the best one we can reach in one turn.
+	CvPlot* pBestPlot = NULL;
+	//we already know that the plot is in reach
+	if (aBestPlotList.size()>0)
+	{
+		aBestPlotList.SortItems(); //highest score will be first
+		pBestPlot=aBestPlotList.GetElement(0);
+	}
+
+	if(pBestPlot != NULL)
+	{
+		if(pUnit->atPlot(*pBestPlot))
+		{
+			if (pUnit->canHold(pBestPlot))
+			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					CvString strTemp;
+					strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+					strLogString.Format("%s (%d) tried to spread out but is at the best spot, X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pBestPlot->getX(), pBestPlot->getY());
+					LogHomelandMessage(strLogString);
+				}
+
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+				return true;
+			}
+			else
+			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					CvString strTemp;
+					strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+					strLogString.Format("%s (%d) tried to spread out but cannot hold in current location, X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pBestPlot->getX(), pBestPlot->getY());
+					LogHomelandMessage(strLogString);
+				}
+				pUnit->SetAutomateType(NO_AUTOMATE);
+			}
+		}
+		else
+		{
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				CvString strTemp;
+				strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+				strLogString.Format("%s (%d) spreading out, X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pBestPlot->getX(), pBestPlot->getY());
+				LogHomelandMessage(strLogString);
+			}
+
+			MoveToUsingSafeEmbark(pUnit, pBestPlot, true, 0);
+			return true;
+		}
+	}
+	else
+	{
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strLogString;
+			CvString strTemp;
+			strTemp = pUnit->getUnitInfo().GetDescription();
+			strLogString.Format("%s (%d) tried to spread out but couldn't find a good place to go", strTemp.GetCString(), pUnit->GetID());
+			LogHomelandMessage(strLogString);
+		}
+	}
+
+
+	return false;
+}
+#endif
 /// Fleeing to safety for civilian units
 #if defined(MOD_AI_SECONDARY_WORKERS)
 bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits, bool bSecondary)

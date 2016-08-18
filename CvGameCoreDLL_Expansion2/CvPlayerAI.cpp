@@ -786,6 +786,13 @@ void CvPlayerAI::AI_considerAnnex()
 			pTargetCity = aCityAndProductions[ui].pCity;
 			break;
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(aCityAndProductions[ui].pCity->IsRazing())
+		{
+			pTargetCity = aCityAndProductions[ui].pCity;
+			break;
+		}
+#endif
 	}
 
 	if (pTargetCity)
@@ -794,6 +801,13 @@ void CvPlayerAI::AI_considerAnnex()
 		{
 			pTargetCity->DoAnnex();
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(pTargetCity->IsRazing())
+		{
+			unraze(pTargetCity);
+			pTargetCity->DoAnnex();
+		}
+#endif
 	}
 }
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -1823,7 +1837,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	PlayerTypes eID = GetDiplomacyAI()->GetPlayer()->GetID();
 	
 	int iFlavorDiplo =  GET_PLAYER(eID).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-	int iDesiredEmb = (iFlavorDiplo - 2);
+	int iDesiredEmb = (iFlavorDiplo - 1);
 	int iNumMinors = GC.getGame().GetNumMinorCivsAlive();
 	if(iDesiredEmb > iNumMinors)
 	{
@@ -1843,17 +1857,17 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 		}
 	}
 
-	if (eDirective == GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT && (GC.getGame().getGameTurn() - pGreatDiplomat->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
-
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 	{
 		if(pCity == NULL || (iEmbassies >= iDesiredEmb) || bTheAustriaException || bTheVeniceException)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 		}
+	}
+
+	if (eDirective != GREAT_PEOPLE_DIRECTIVE_USE_POWER && (GC.getGame().getGameTurn() - pGreatDiplomat->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 
 	return eDirective;

@@ -864,6 +864,14 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!pFromTeam->isAtWar(eThirdTeam))
 			return false;
 
+		//Either side can't make peace yet?
+		if(!pFromTeam->canChangeWarPeace(eThirdTeam))
+			return false;
+
+		//Either side can't make peace yet?
+		if(!GET_TEAM(eThirdTeam).canChangeWarPeace(eFromTeam))
+			return false;
+
 #if defined(MOD_BALANCE_CORE)
 		PlayerTypes eLoopPlayer;
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -907,18 +915,26 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 				// Major civ
 				else
-				{
-					//Either side can't make peace yet?
-					if(!GET_TEAM(pFromPlayer->getTeam()).canChangeWarPeace(pOtherPlayer->getTeam()))
-						return false;
-
-					//Either side can't make peace yet?
-					if(!GET_TEAM(pOtherPlayer->getTeam()).canChangeWarPeace(pFromPlayer->getTeam()))
-						return false;
-				
+				{				
 					//Only matters if not a peace deal (i.e. we're not making negotiations)
 					if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 					{
+						if(!IsPossibleToTradeItem(eLoopPlayer, ePlayer, TRADE_ITEM_PEACE_TREATY))
+						{
+							return false;
+						}
+						else if(!IsPossibleToTradeItem(ePlayer, eLoopPlayer, TRADE_ITEM_PEACE_TREATY))
+						{
+							return false;
+						}
+
+						//Either side can't make peace yet because of city capture?
+						if(pOtherPlayer->GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(ePlayer) <= 1)
+							return false;
+
+						if(pFromPlayer->GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) <= 1)
+							return false;
+
 						//Can't force third party peace with a loser. Has to be a sizeable difference
 						int iFromWarScore = pFromPlayer->GetDiplomacyAI()->GetWarScore(pOtherPlayer->GetID());
 
@@ -4102,259 +4118,12 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 					{
 						if((kDeal.GetSurrenderingPlayer() == eAcceptedFromPlayer) && !bDone)
 						{
-							int iTurns = GET_PLAYER(eAcceptedToPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory();
-							if(iTurns > 0)
-							{
-								if(iTurns < GC.getGame().goldenAgeLength())
-								{
-									iTurns = GC.getGame().goldenAgeLength();
-								}
-								// Player modifier
-								int iLengthModifier = GET_PLAYER(eAcceptedToPlayer).getGoldenAgeModifier();
-
-								// Trait modifier
-								iLengthModifier += GET_PLAYER(eAcceptedToPlayer).GetPlayerTraits()->GetGoldenAgeDurationModifier();
-
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-								// Do we get increased Golden Ages from a resource monopoly?
-								if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-								{
-									for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-									{
-										ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-										if(eResourceLoop != NO_RESOURCE)
-										{
-											CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-											if (pInfo && pInfo->isMonopoly())
-											{
-												if(GET_PLAYER(eAcceptedToPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
-												{
-													int iTemp = pInfo->getMonopolyGALength();
-													iTemp += GET_PLAYER(eAcceptedToPlayer).GetMonopolyModPercent();
-													iLengthModifier += iTemp;
-												}
-											}
-										}
-									}
-								}
-#endif
-								if(iLengthModifier != 0)
-								{
-									iTurns = iTurns * (100 + iLengthModifier) / 100;
-								}
-								int iValue = GET_PLAYER(eAcceptedToPlayer).GetGoldenAgeProgressMeter();
-								GET_PLAYER(eAcceptedToPlayer).changeGoldenAgeTurns(iTurns, iValue);
-							}
-
-							int iTourism = GET_PLAYER(eAcceptedToPlayer).GetEventTourism();
-							GET_PLAYER(eAcceptedToPlayer).ChangeNumHistoricEvents(1);
-							// Culture boost based on previous turns
-							int iPreviousTurnsToCount = 10;
-							// Calculate boost
-							iTourism *= GET_PLAYER(eAcceptedToPlayer).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-							iTourism /= 100;
-							if(iTourism > 0)
-							{
-								GET_PLAYER(eAcceptedToPlayer).GetCulture()->AddTourismAllKnownCivs(iTourism);
-								if(eAcceptedToPlayer == GC.getGame().getActivePlayer())
-								{
-									CvCity* pCity = GET_PLAYER(eAcceptedToPlayer).getCapitalCity();
-									if(pCity != NULL)
-									{
-										char text[256] = {0};
-										float fDelay = 0.5f;
-										sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-										DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
-										CvNotifications* pNotification = GET_PLAYER(eAcceptedToPlayer).GetNotifications();
-										if(pNotification)
-										{
-											CvString strMessage;
-											CvString strSummary;
-											strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_WAR", iTourism);
-											strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
-											pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCity->getX(), pCity->getY(), eAcceptedToPlayer);
-										}
-									}
-								}
-							}
-#if defined(MOD_BALANCE_CORE_DIFFICULTY)
-							if(MOD_BALANCE_CORE_DIFFICULTY && !GET_PLAYER(eAcceptedToPlayer).isMinorCiv() && !GET_PLAYER(eAcceptedToPlayer).isHuman())
-							{
-								int iEra = GET_PLAYER(eAcceptedToPlayer).GetCurrentEra();
-								if(iEra <= 0)
-								{
-									iEra = 1;
-								}
-								int iHandicap = 0;
-								int iYieldHandicap = 0;
-								CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
-								if(pHandicapInfo)
-								{
-									iHandicap = pHandicapInfo->getAIDifficultyBonus();
-									iYieldHandicap = (iHandicap * iEra * 10);
-								}
-								if(iHandicap > 0)
-								{				
-									GET_PLAYER(eAcceptedToPlayer).GetTreasury()->ChangeGold(iYieldHandicap);
-									GET_PLAYER(eAcceptedToPlayer).ChangeGoldenAgeProgressMeter(iYieldHandicap);
-									GET_PLAYER(eAcceptedToPlayer).changeJONSCulture(iYieldHandicap);
-
-									if(GET_PLAYER(eAcceptedToPlayer).getCapitalCity() != NULL)
-									{
-										GET_PLAYER(eAcceptedToPlayer).getCapitalCity()->ChangeJONSCultureStored(iYieldHandicap);
-										GET_PLAYER(eAcceptedToPlayer).getCapitalCity()->changeFood(iHandicap);
-									}
-				
-									int iBeakersBonus = GET_PLAYER(eAcceptedToPlayer).GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), iHandicap);
-
-									TechTypes eCurrentTech = GET_PLAYER(eAcceptedToPlayer).GetPlayerTechs()->GetCurrentResearch();
-									if(eCurrentTech == NO_TECH)
-									{
-										GET_PLAYER(eAcceptedToPlayer).changeOverflowResearch(iBeakersBonus);
-									}
-									else
-									{
-										GET_TEAM(GET_PLAYER(eAcceptedToPlayer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, eAcceptedToPlayer);
-									}
-
-									if((GC.getLogging() && GC.getAILogging()))
-									{
-										CvString strLogString;
-										strLogString.Format("CBP AI DIFFICULTY BONUS FROM WAR VICTORY: Received %d Handicap Bonus (%d in Yields).", iHandicap, iYieldHandicap);
-										GET_PLAYER(eAcceptedToPlayer).GetHomelandAI()->LogHomelandMessage(strLogString);
-									}
-								}
-							}
-#endif
+							GET_PLAYER(eAcceptedToPlayer).DoWarVictoryBonuses();
 							bDone = true;
 						}
 						else if((kDeal.GetSurrenderingPlayer() == eAcceptedToPlayer) && !bDone)
 						{
-							int iTurns = GET_PLAYER(eAcceptedFromPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory();
-							if(iTurns > 0)
-							{
-								if(iTurns < GC.getGame().goldenAgeLength())
-								{
-									iTurns = GC.getGame().goldenAgeLength();
-								}
-								// Player modifier
-								int iLengthModifier = GET_PLAYER(eAcceptedFromPlayer).getGoldenAgeModifier();
-
-								// Trait modifier
-								iLengthModifier += GET_PLAYER(eAcceptedFromPlayer).GetPlayerTraits()->GetGoldenAgeDurationModifier();
-
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-								// Do we get increased Golden Ages from a resource monopoly?
-								if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-								{
-									for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-									{
-										ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-										if(eResourceLoop != NO_RESOURCE)
-										{
-											CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-											if (pInfo && pInfo->isMonopoly())
-											{
-												if(GET_PLAYER(eAcceptedFromPlayer).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
-												{
-													int iTemp = pInfo->getMonopolyGALength();
-													iTemp += GET_PLAYER(eAcceptedFromPlayer).GetMonopolyModPercent();
-													iLengthModifier += iTemp;
-												}
-											}
-										}
-									}
-								}
-#endif
-								if(iLengthModifier != 0)
-								{
-									iTurns = iTurns * (100 + iLengthModifier) / 100;
-								}
-								
-								int iValue = GET_PLAYER(eAcceptedFromPlayer).GetGoldenAgeProgressMeter();
-								GET_PLAYER(eAcceptedFromPlayer).changeGoldenAgeTurns(iTurns, iValue);
-							}
-
-							int iTourism = GET_PLAYER(eAcceptedFromPlayer).GetEventTourism();
-							GET_PLAYER(eAcceptedFromPlayer).ChangeNumHistoricEvents(1);
-							// Culture boost based on previous turns
-							int iPreviousTurnsToCount = 10;
-							// Calculate boost
-							iTourism *= GET_PLAYER(eAcceptedFromPlayer).GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
-							iTourism /= 100;
-							if(iTourism > 0)
-							{
-								GET_PLAYER(eAcceptedFromPlayer).GetCulture()->AddTourismAllKnownCivs(iTourism);
-								if(eAcceptedFromPlayer == GC.getGame().getActivePlayer())
-								{
-									CvCity* pCity = GET_PLAYER(eAcceptedFromPlayer).getCapitalCity();
-									if(pCity != NULL)
-									{
-										char text[256] = {0};
-										float fDelay = 0.5f;
-										sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
-										DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
-										CvNotifications* pNotification = GET_PLAYER(eAcceptedFromPlayer).GetNotifications();
-										if(pNotification)
-										{
-											CvString strMessage;
-											CvString strSummary;
-											strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_WAR", iTourism);
-											strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
-											pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCity->getX(), pCity->getY(), eAcceptedFromPlayer);
-										}
-									}
-								}
-							}
-#if defined(MOD_BALANCE_CORE_DIFFICULTY)
-							if(MOD_BALANCE_CORE_DIFFICULTY && !GET_PLAYER(eAcceptedFromPlayer).isMinorCiv() && !GET_PLAYER(eAcceptedFromPlayer).isHuman())
-							{
-								int iEra = GET_PLAYER(eAcceptedFromPlayer).GetCurrentEra();
-								if(iEra <= 0)
-								{
-									iEra = 1;
-								}
-								int iHandicap = 0;
-								int iYieldHandicap = 0;
-								CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
-								if(pHandicapInfo)
-								{
-									iHandicap = pHandicapInfo->getAIDifficultyBonus();
-									iYieldHandicap = (iHandicap * iEra * 10);
-								}
-								if(iHandicap > 0)
-								{				
-									GET_PLAYER(eAcceptedFromPlayer).GetTreasury()->ChangeGold(iYieldHandicap);
-									GET_PLAYER(eAcceptedFromPlayer).ChangeGoldenAgeProgressMeter(iYieldHandicap);
-									GET_PLAYER(eAcceptedFromPlayer).changeJONSCulture(iYieldHandicap);
-
-									if(GET_PLAYER(eAcceptedFromPlayer).getCapitalCity() != NULL)
-									{
-										GET_PLAYER(eAcceptedFromPlayer).getCapitalCity()->ChangeJONSCultureStored(iYieldHandicap);
-										GET_PLAYER(eAcceptedFromPlayer).getCapitalCity()->changeFood(iHandicap);
-									}
-				
-									int iBeakersBonus = GET_PLAYER(eAcceptedFromPlayer).GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), iHandicap);
-
-									TechTypes eCurrentTech = GET_PLAYER(eAcceptedFromPlayer).GetPlayerTechs()->GetCurrentResearch();
-									if(eCurrentTech == NO_TECH)
-									{
-										GET_PLAYER(eAcceptedFromPlayer).changeOverflowResearch(iBeakersBonus);
-									}
-									else
-									{
-										GET_TEAM(GET_PLAYER(eAcceptedFromPlayer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, eAcceptedFromPlayer);
-									}
-
-									if((GC.getLogging() && GC.getAILogging()))
-									{
-										CvString strLogString;
-										strLogString.Format("CBP AI DIFFICULTY BONUS FROM WAR VICTORY: Received %d Handicap Bonus (%d in Yields).", iHandicap, iYieldHandicap);
-										GET_PLAYER(eAcceptedFromPlayer).GetHomelandAI()->LogHomelandMessage(strLogString);
-									}
-								}
-							}
-#endif
+							GET_PLAYER(eAcceptedFromPlayer).DoWarVictoryBonuses();
 							bDone = true;
 						}
 					}
