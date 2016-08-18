@@ -3684,20 +3684,17 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 					bool bFoundWayHome = false;
 					for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 					{
-						if(pUnit->GeneratePath(pLoopCity->plot(),CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_IGNORE_STACKING))
+						if(pUnit->GeneratePath(pLoopCity->plot(),CvUnit::MOVEFLAG_APPROX_TARGET_RING2,23))
 						{
+							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopCity->getX(), pLoopCity->getY(), CvUnit::MOVEFLAG_APPROX_TARGET_RING2);
+							pUnit->finishMoves();
+							UnitProcessed(pUnit->GetID());
 							bFoundWayHome = true;
 							break;
 						}
 					}
 
-					if(bFoundWayHome)
-					{
-						MoveToEmptySpaceNearTarget(pUnit.pointer(),pLoopCity->plot(),DOMAIN_LAND,23);
-						pUnit->finishMoves();
-						UnitProcessed(pUnit->GetID());
-					}
-					else
+					if(!bFoundWayHome)
 						bDisband = true;
 				}
 
@@ -7786,7 +7783,7 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 		return false;
 	}
 
-	if(!pUnit->canMoveInto(*pPlot))
+	if(!pUnit->canMoveInto(*pPlot,CvUnit::MOVEFLAG_DESTINATION))
 	{
 		return false;
 	}
