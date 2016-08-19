@@ -40767,10 +40767,11 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 				if (nEnemyCities>0 && nMyCities==0)
 					fScore *= 0.50f;
 
-				if(fScore > 0)
+				if(fScore > iMinScore)
 				{
 					iNumFound++;
 				}
+
 				if(fScore > fBestScore)
 				{
 					// Already have a best area?  If so demote to 2nd
@@ -40796,14 +40797,6 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 	iFirstArea = iBestArea;
 	iSecondArea = iSecondBestArea;
 
-	//if(iSecondArea != -1)
-//	{
-	//	iNumFound = 2;
-//	}
-//	else if(iFirstArea != -1)
-//	{
-//		iNumFound = 1;
-//	}
 	return max(10, iNumFound);
 }
 
