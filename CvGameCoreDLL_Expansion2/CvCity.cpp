@@ -2849,6 +2849,7 @@ void CvCity::doTurn()
 		{
 			ChangeJONSCultureStored(getJONSCulturePerTurn());
 #if defined(MOD_BALANCE_CORE_POLICIES)
+			ChangeJONSCultureStored(getYieldRate(YIELD_CULTURE_LOCAL, false));
 			//Doubles during Golden Age
 			if(GET_PLAYER(getOwner()).IsDoubleBorderGA() && (GET_PLAYER(getOwner()).isGoldenAge() || (GetWeLoveTheKingDayCounter() > 0)))
 			{
@@ -22026,7 +22027,7 @@ int CvCity::GetBuildingYieldChangeFromCorporationFranchises(BuildingClassTypes e
 	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eBuildingClass expected to be < GC.getNumBuildingClassInfos()");
 
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < GC.getNumYieldInfos(), "eIndex expected to be < GC.getNumYieldInfos()");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
