@@ -98,13 +98,6 @@ INSERT INTO Event_MinimumStartYield (EventType,YieldType,Yield) VALUES ('PLAYER_
 
 INSERT INTO Event_MinimumResourceRequired (EventType,ResourceType,Quantity) VALUES ('PLAYER_EVENT_WINDMILLS_MODERNIZE','RESOURCE_IRON',4);
 
-INSERT INTO Event_EventLinks (EventType,EventLinker,EventChoice,CityEvent,CityEventChoice,CheckKnownPlayers,CheckForActive) VALUES ('PLAYER_EVENT_COMET','PLAYER_EVENT_COMET',NULL,NULL,NULL,'false','false'),
- ('PLAYER_EVENT_METEOR','PLAYER_EVENT_METEOR',NULL,NULL,NULL,'false','false'),
- ('PLAYER_EVENT_ECLIPSE','PLAYER_EVENT_ECLIPSE',NULL,NULL,NULL,'false','false'),
- ('PLAYER_EVENT_ICE_AGE','PLAYER_EVENT_ICE_AGE',NULL,NULL,NULL,'false','false'),
- ('PLAYER_EVENT_HEAT_WAVE','PLAYER_EVENT_HEAT_WAVE',NULL,NULL,NULL,'false','false'),
- ('PLAYER_EVENT_STADIUM_WORLD_EVENT','PLAYER_EVENT_STADIUM_WORLD_EVENT',NULL,NULL,NULL,'false','false');
-
 INSERT INTO EventChoices (Type,Description,Help,DisabledTooltip,EventChoiceAudio,IsOneShot,EventDuration,EraScaling,EventChance,Expires,MinimumNationalPopulation,MinimumNumberCities,MinimumNumCoastalCities,AffectsCoastalCitiesOnly,LessThanMaximumTradeRoutes,RequiredCiv,RequiredEra,ObsoleteEra,IsUnhappy,IsSuperUnhappy,ImprovementAnywhereRequired,RequiredPolicy,RequiredIdeology,RequiresWar,RequiresWarMinor,UnitClassRequired,PrereqTech,ObsoleteTech,RequiresPantheon,RequiredReligion,RequiredStateReligion,RequiresAnyStateReligion,RequiredAnywhereBuildingClass,RequiredNowhereBuildingClass,RequiresHolyCity,RequiresIdeology,CapitalEffectOnly,EventPolicy,EventPromotion,EventTech,EventBuildingClassGlobal,EventFreePolicies,FreeGreatPeople,GoldenAgeTurns,WLTKDTurns,ResistanceTurns,PlayerHappiness,HappinessPerCity,RandomBarbarianSpawn,FreeUnitsTechAppropriate,HasMetAMajorCiv,InDebt,LosingMoney,IsVassalOfSomeone,IsMasterOfSomeone) VALUES ('PLAYER_EVENT_COMET_CHOICE_1','TXT_KEY_EVENT_COMET_CHOICE_1','TXT_KEY_EVENT_COMET_CHOICE_1_HELP',NULL,'AS2D_EVENT_CHOICE','false',30,'true',0,'false',0,0,0,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false','false',NULL,NULL,NULL,NULL,0,0,0,0,0,0,0,0,0,'false','false','false','false','false'),
  ('PLAYER_EVENT_COMET_CHOICE_2','TXT_KEY_EVENT_COMET_CHOICE_2','TXT_KEY_EVENT_COMET_CHOICE_2_HELP',NULL,'AS2D_EVENT_CHOICE','false',30,'false',0,'true',0,0,0,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false','false',NULL,NULL,NULL,NULL,0,0,0,0,0,0,1,0,0,'false','false','false','false','false'),
  ('PLAYER_EVENT_COMET_CHOICE_3','TXT_KEY_EVENT_COMET_CHOICE_3','TXT_KEY_EVENT_COMET_CHOICE_3_HELP',NULL,'AS2D_EVENT_CHOICE','false',30,'true',50,'false',0,0,0,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'true','false','false',NULL,NULL,NULL,NULL,0,0,0,0,0,0,0,0,0,'false','false','false','false','false'),
@@ -176,6 +169,13 @@ INSERT INTO EventChoices (Type,Description,Help,DisabledTooltip,EventChoiceAudio
  ('PLAYER_EVENT_FACTORY_PARTNERSHIP_CHOICE_5','TXT_KEY_PLAYER_EVENT_FACTORY_PARTNERSHIP_CHOICE_5','TXT_KEY_PLAYER_EVENT_FACTORY_PARTNERSHIP_CHOICE_5_HELP',NULL,'AS2D_EVENT_CHOICE','true',30,'false',0,'false',0,0,0,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false','false',NULL,NULL,NULL,NULL,0,0,0,0,0,0,0,0,0,'false','false','false','false','false'),
  ('PLAYER_EVENT_PUBLIC_SCHOOL_DECISION_CHOICE_1','TXT_KEY_PLAYER_EVENT_PUBLIC_SCHOOL_DECISION_CHOICE_1','TXT_KEY_PLAYER_EVENT_PUBLIC_SCHOOL_DECISION_CHOICE_1_HELP',NULL,'AS2D_EVENT_CHOICE','true',30,'false',0,'false',0,0,0,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false','false',NULL,NULL,NULL,NULL,0,0,0,0,0,0,0,0,0,'false','false','false','false','false'),
  ('PLAYER_EVENT_PUBLIC_SCHOOL_DECISION_CHOICE_2','TXT_KEY_PLAYER_EVENT_PUBLIC_SCHOOL_DECISION_CHOICE_2','TXT_KEY_PLAYER_EVENT_PUBLIC_SCHOOL_DECISION_CHOICE_2_HELP',NULL,'AS2D_EVENT_CHOICE','true',30,'false',0,'false',0,0,0,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false','false',NULL,NULL,NULL,NULL,0,0,0,0,0,0,0,0,0,'false','false','false','false','false');
+
+INSERT INTO Event_EventLinks (EventType,EventLinker,EventChoice,CityEvent,CityEventChoice,CheckKnownPlayers,CheckForActive) VALUES ('PLAYER_EVENT_COMET','PLAYER_EVENT_COMET',NULL,NULL,NULL,'false','false'),
+ ('PLAYER_EVENT_METEOR','PLAYER_EVENT_METEOR',NULL,NULL,NULL,'false','false'),
+ ('PLAYER_EVENT_ECLIPSE','PLAYER_EVENT_ECLIPSE',NULL,NULL,NULL,'false','false'),
+ ('PLAYER_EVENT_ICE_AGE','PLAYER_EVENT_ICE_AGE',NULL,NULL,NULL,'false','false'),
+ ('PLAYER_EVENT_HEAT_WAVE','PLAYER_EVENT_HEAT_WAVE',NULL,NULL,NULL,'false','false'),
+ ('PLAYER_EVENT_STADIUM_WORLD_EVENT','PLAYER_EVENT_STADIUM_WORLD_EVENT',NULL,NULL,NULL,'false','false');
 
 INSERT INTO EventChoice_ResourceQuantity (EventChoiceType,ResourceType,Quantity) VALUES ('PLAYER_EVENT_WINDMILLS_MODERNIZE_CHOICE_2','RESOURCE_IRON',-4),
  ('PLAYER_EVENT_METEOR_CHOICE_1','RESOURCE_IRON',1);
@@ -445,30 +445,6 @@ INSERT INTO CityEvent_MinimumStartYield (CityEventType,YieldType,Yield) VALUES (
  ('CITY_EVENT_CORRUPTION_FOOD_SPOILED','YIELD_FOOD',50),
  ('CITY_EVENT_CORRUPTION_BANDITS','YIELD_GOLD',50);
 
-INSERT INTO CityEvent_EventLinks (CityEventType,Event,EventChoice,CityEventLinker,CityEventChoice,CheckKnownPlayers,CheckOnlyEventCity,CheckForActive) VALUES ('CITY_EVENT_DROUGHT',NULL,'PLAYER_EVENT_HEAT_WAVE_CHOICE_2',NULL,NULL,'false','false','true'),
- ('CITY_EVENT_DROUGHT_SEVERE',NULL,'PLAYER_EVENT_HEAT_WAVE_CHOICE_3',NULL,NULL,'false','false','true'),
- ('CITY_EVENT_DROUGHT_CRITICAL',NULL,'PLAYER_EVENT_HEAT_WAVE_CHOICE_4',NULL,NULL,'false','false','true'),
- ('CITY_EVENT_ICE_AGE_EXPOSURE','PLAYER_EVENT_ICE_AGE',NULL,NULL,'CITY_EVENT_ICE_AGE_EXPOSURE_CHOICE_1','false','true','true'),
- ('CITY_EVENT_ICE_AGE_NO_FUEL','PLAYER_EVENT_ICE_AGE',NULL,NULL,'CITY_EVENT_ICE_AGE_NO_FUEL_CHOICE_1','false','true','true'),
- ('CITY_EVENT_ICE_AGE_FROZEN_WATER','PLAYER_EVENT_ICE_AGE',NULL,NULL,'CITY_EVENT_ICE_AGE_FROZEN_WATER_CHOICE_1','false','true','true'),
- ('CITY_EVENT_ICE_AGE_BITTER_WINDS','PLAYER_EVENT_ICE_AGE',NULL,NULL,'CITY_EVENT_ICE_AGE_BITTER_WINDS_CHOICE_1','false','true','true'),
- ('CITY_EVENT_STADIUM_WORLD_EVENT','PLAYER_EVENT_STADIUM_WORLD_EVENT',NULL,NULL,NULL,'false','false','true'),
- ('CITY_EVENT_PLAGUE','PLAYER_EVENT_PLAGUE',NULL,NULL,NULL,'false','false','true'),
- ('CITY_EVENT_STONE_WORKS_DISCOVERY',NULL,NULL,'CITY_EVENT_STONE_WORKS_DISCOVERY',NULL,'false','false','false'),
- ('CITY_EVENT_FISHING_EXPEDITION',NULL,NULL,'CITY_EVENT_FISHING_EXPEDITION',NULL,'false','false','false'),
- ('CITY_EVENT_FISHING_EXPEDITION',NULL,NULL,'CITY_EVENT_ICE_AGE_FROZEN_WATER',NULL,'false','true','false'),
- ('CITY_EVENT_AMPHITHEATER_NEW_DRAMA',NULL,NULL,'CITY_EVENT_AMPHITHEATER_NEW_DRAMA',NULL,'false','false','false'),
- ('CITY_EVENT_TEMPLE_CONCERNS',NULL,NULL,'CITY_EVENT_TEMPLE_CONCERNS',NULL,'false','false','false'),
- ('CITY_EVENT_LIGHTHOUSE',NULL,NULL,'CITY_EVENT_LIGHTHOUSE',NULL,'false','false','false'),
- ('CITY_EVENT_LIGHTHOUSE',NULL,NULL,'CITY_EVENT_ICE_AGE_FROZEN_WATER',NULL,'false','true','false'),
- ('CITY_EVENT_HOSPITAL_OVERCROWDING',NULL,NULL,'CITY_EVENT_HOSPITAL_OVERCROWDING',NULL,'false','false','false'),
- ('CITY_EVENT_MINE_COLLAPSE',NULL,NULL,'CITY_EVENT_AVALANCHE',NULL,'false','true','false'),
- ('CITY_EVENT_AVALANCHE',NULL,NULL,'CITY_EVENT_FOREST_FIRE',NULL,'false','true','false'),
- ('CITY_EVENT_FOREST_FIRE',NULL,NULL,'CITY_EVENT_MINE_COLLAPSE',NULL,'false','true','false'),
- ('CITY_EVENT_FLOODING',NULL,NULL,'CITY_EVENT_ICE_AGE_FROZEN_WATER',NULL,'false','true','false'),
- ('CITY_EVENT_WANDERER',NULL,NULL,'CITY_EVENT_WANDERER',NULL,'false','false','false'),
- ('CITY_EVENT_NOMADS',NULL,NULL,'CITY_EVENT_NOMADS',NULL,'false','false','false');
-
 INSERT INTO CityEventChoices (Type,Description,Help,DisabledTooltip,EventChoiceAudio,EventChance,IsOneShot,EraScaling,EventDuration,Expires,MinimumCityPopulation,MaximumCityPopulation,RequiredCiv,RequiredEra,IsUnhappy,IsSuperUnhappy,ObsoleteEra,RequiredPolicy,RequiredIdeology,RequiresWar,RequiresWarMinor,PrereqTech,ObsoleteTech,RequiresPantheon,RequiredReligion,RequiredStateReligion,RequiresAnyStateReligion,RequiredBuildingClass,CannotHaveBuildingClass,RequiresHolyCity,RequiresIdeology,NearbyFeature,NearbyTerrain,LocalResourceRequired,HasTradeConnection,HasCityConnection,RequiresGarrison,CapitalOnly,CoastalOnly,RiverOnly,RequiresResistance,RequiresWLTKD,RequiresOccupied,RequiresRazing,HasAnyReligion,RequiresPuppet,RequiresNearbyNaturalWonder,RequiresNearbyMountain,EventBuildingClassDestruction,EventBuildingClass,CityWideBuildingDestructionChance,WLTKDTurns,ResistanceTurns,CityHappiness,RandomBarbarianSpawn,ConvertToPlayerReligionPercent,ConvertToPlayerMajorityReligionPercent,ImprovementRequired,FreeUnitsTechAppropriate,HasMetAMajorCiv,InDebt,LosingMoney,IsVassalOfSomeone,IsMasterOfSomeone,CityHasPlayerReligion,CityLacksPlayerReligion,CityHasPlayerMajorityReligion,CityLacksPlayerMajorityReligion) VALUES ('CITY_EVENT_DROUGHT_CHOICE_1','TXT_KEY_CITY_EVENT_DROUGHT_CHOICE_1_DESCRIPTION','TXT_KEY_CITY_EVENT_DROUGHT_CHOICE_1_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','false',50,'true',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,0,0,0,0,0,0,0,NULL,0,'false','false','false','false','false','false','false','false','false'),
  ('CITY_EVENT_SEVERE_DROUGHT_CHOICE_1','TXT_KEY_CITY_EVENT_SEVERE_DROUGHT_CHOICE_1_DESCRIPTION','TXT_KEY_CITY_EVENT_SEVERE_DROUGHT_CHOICE_1_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','false',50,'true',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,0,0,0,0,0,0,0,NULL,0,'false','false','false','false','false','false','false','false','false'),
  ('CITY_EVENT_CRITICAL_DROUGHT_CHOICE_1','TXT_KEY_CITY_EVENT_CRITICAL_DROUGHT_CHOICE_1_DESCRIPTION','TXT_KEY_CITY_EVENT_CRITICAL_DROUGHT_CHOICE_1_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','false',50,'true',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,0,0,0,0,0,0,0,NULL,0,'false','false','false','false','false','false','false','false','false'),
@@ -540,6 +516,30 @@ INSERT INTO CityEventChoices (Type,Description,Help,DisabledTooltip,EventChoiceA
  ('CITY_EVENT_OCCUPIED_REBELS_CHOICE_1','TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_1','TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_1_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','false',-1,'false',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','true','false','false','false',NULL,NULL,0,0,0,0,0,0,0,NULL,0,'false','false','false','false','false','false','false','false','false'),
  ('CITY_EVENT_OCCUPIED_REBELS_CHOICE_2','TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_2','TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_2_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','false',-1,'false',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,0,0,3,0,4,0,0,NULL,0,'false','false','false','false','false','false','false','false','false'),
  ('CITY_EVENT_OCCUPIED_REBELS_CHOICE_3','TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_3','TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_3_HELP',NULL,'AS2D_EVENT_CHOICE',0,'false','false',-1,'false',0,0,NULL,NULL,'false','false',NULL,NULL,NULL,'false','false',NULL,NULL,'false',NULL,NULL,'false',NULL,NULL,'false','false',NULL,NULL,NULL,'false','false','false','false','false','false','false','false','false','false','false','false','false','false',NULL,NULL,15,0,0,0,0,0,0,NULL,0,'false','false','false','false','false','false','false','false','false');
+
+INSERT INTO CityEvent_EventLinks (CityEventType,Event,EventChoice,CityEventLinker,CityEventChoice,CheckKnownPlayers,CheckOnlyEventCity,CheckForActive) VALUES ('CITY_EVENT_DROUGHT',NULL,'PLAYER_EVENT_HEAT_WAVE_CHOICE_2',NULL,NULL,'false','false','true'),
+ ('CITY_EVENT_DROUGHT_SEVERE',NULL,'PLAYER_EVENT_HEAT_WAVE_CHOICE_3',NULL,NULL,'false','false','true'),
+ ('CITY_EVENT_DROUGHT_CRITICAL',NULL,'PLAYER_EVENT_HEAT_WAVE_CHOICE_4',NULL,NULL,'false','false','true'),
+ ('CITY_EVENT_ICE_AGE_EXPOSURE','PLAYER_EVENT_ICE_AGE',NULL,NULL,'CITY_EVENT_ICE_AGE_EXPOSURE_CHOICE_1','false','true','true'),
+ ('CITY_EVENT_ICE_AGE_NO_FUEL','PLAYER_EVENT_ICE_AGE',NULL,NULL,'CITY_EVENT_ICE_AGE_NO_FUEL_CHOICE_1','false','true','true'),
+ ('CITY_EVENT_ICE_AGE_FROZEN_WATER','PLAYER_EVENT_ICE_AGE',NULL,NULL,'CITY_EVENT_ICE_AGE_FROZEN_WATER_CHOICE_1','false','true','true'),
+ ('CITY_EVENT_ICE_AGE_BITTER_WINDS','PLAYER_EVENT_ICE_AGE',NULL,NULL,'CITY_EVENT_ICE_AGE_BITTER_WINDS_CHOICE_1','false','true','true'),
+ ('CITY_EVENT_STADIUM_WORLD_EVENT',NULL,'PLAYER_EVENT_STADIUM_WORLD_EVENT_CHOICE_1',NULL,NULL,'false','false','true'),
+ ('CITY_EVENT_PLAGUE','PLAYER_EVENT_PLAGUE',NULL,NULL,NULL,'false','false','true'),
+ ('CITY_EVENT_STONE_WORKS_DISCOVERY',NULL,NULL,'CITY_EVENT_STONE_WORKS_DISCOVERY',NULL,'false','false','false'),
+ ('CITY_EVENT_FISHING_EXPEDITION',NULL,NULL,'CITY_EVENT_FISHING_EXPEDITION',NULL,'false','false','false'),
+ ('CITY_EVENT_FISHING_EXPEDITION',NULL,NULL,'CITY_EVENT_ICE_AGE_FROZEN_WATER',NULL,'false','true','false'),
+ ('CITY_EVENT_AMPHITHEATER_NEW_DRAMA',NULL,NULL,'CITY_EVENT_AMPHITHEATER_NEW_DRAMA',NULL,'false','false','false'),
+ ('CITY_EVENT_TEMPLE_CONCERNS',NULL,NULL,'CITY_EVENT_TEMPLE_CONCERNS',NULL,'false','false','false'),
+ ('CITY_EVENT_LIGHTHOUSE',NULL,NULL,'CITY_EVENT_LIGHTHOUSE',NULL,'false','false','false'),
+ ('CITY_EVENT_LIGHTHOUSE',NULL,NULL,'CITY_EVENT_ICE_AGE_FROZEN_WATER',NULL,'false','true','false'),
+ ('CITY_EVENT_HOSPITAL_OVERCROWDING',NULL,NULL,'CITY_EVENT_HOSPITAL_OVERCROWDING',NULL,'false','false','false'),
+ ('CITY_EVENT_MINE_COLLAPSE',NULL,NULL,'CITY_EVENT_AVALANCHE',NULL,'false','true','false'),
+ ('CITY_EVENT_AVALANCHE',NULL,NULL,'CITY_EVENT_FOREST_FIRE',NULL,'false','true','false'),
+ ('CITY_EVENT_FOREST_FIRE',NULL,NULL,'CITY_EVENT_MINE_COLLAPSE',NULL,'false','true','false'),
+ ('CITY_EVENT_FLOODING',NULL,NULL,'CITY_EVENT_ICE_AGE_FROZEN_WATER',NULL,'false','true','false'),
+ ('CITY_EVENT_WANDERER',NULL,NULL,'CITY_EVENT_WANDERER',NULL,'false','false','false'),
+ ('CITY_EVENT_NOMADS',NULL,NULL,'CITY_EVENT_NOMADS',NULL,'false','false','false');
 
 INSERT INTO CityEventChoice_Notification (CityEventChoiceType,NotificationType,Description,ShortDescription,IsWorldEvent,NeedCityCoordinates,NeedPlayerID,ExtraVariable) VALUES ('CITY_EVENT_FISHING_EXPEDITION_CHOICE_1','NOTIFICATION_GENERIC','TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_1_SUCCESSFUL','TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_1_SUCCESSFUL_S','false','true','false',-1),
  ('CITY_EVENT_FISHING_EXPEDITION_CHOICE_2','NOTIFICATION_GENERIC','TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2_SUCCESSFUL','TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2_SUCCESSFUL_S','false','true','false',-1),

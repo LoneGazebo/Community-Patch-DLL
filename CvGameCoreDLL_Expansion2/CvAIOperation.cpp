@@ -1857,18 +1857,19 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 					{
 						CvPlot* pAdjacentPlot;
 						int iI;
-						while(!bInPlace && pUnit)
-						{
-							for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-							{
-								pAdjacentPlot = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
 
-								if(pAdjacentPlot != NULL && ((pAdjacentPlot->getOwner() == m_eEnemy) || (pAdjacentPlot->getNumDefenders(m_eEnemy) > 0)))
-								{
-									pTarget = pAdjacentPlot;
-									bInPlace = true;
-									break;
-								}
+						if(bInPlace)
+							break;
+
+						for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+						{
+							pAdjacentPlot = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
+
+							if(pAdjacentPlot != NULL && ((pAdjacentPlot->getOwner() == m_eEnemy) || (pAdjacentPlot->getNumDefenders(m_eEnemy) > 0)))
+							{
+								pTarget = pAdjacentPlot;
+								bInPlace = true;
+								break;
 							}
 						}
 					}

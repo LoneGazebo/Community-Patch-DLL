@@ -22938,21 +22938,8 @@ void CvPlayer::DoChangeGreatGeneralRate()
 	{
 		if(pLoopCity != NULL)
 		{
-			for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
-			{
-				const BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
-				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-				if(pkBuildingInfo)
-				{
-					if(pkBuildingInfo->GetYieldChange(YIELD_GREAT_GENERAL_POINTS) > 0)
-					{
-						if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-						{
-							iGreatGeneralPoints += pkBuildingInfo->GetYieldChange(YIELD_GREAT_GENERAL_POINTS);
-						}
-					}
-				}
-			}
+			iGreatGeneralPoints += pLoopCity->getYieldRate(YIELD_GREAT_GENERAL_POINTS, false);
+
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
 			if(pReligion)
 			{
@@ -23018,21 +23005,8 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 	{
 		if(pLoopCity != NULL)
 		{
-			for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
-			{
-				const BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
-				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-				if(pkBuildingInfo)
-				{
-					if(pkBuildingInfo->GetYieldChange(YIELD_GREAT_ADMIRAL_POINTS) > 0)
-					{
-						if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-						{
-							iGreatAdmiralPoints += pkBuildingInfo->GetYieldChange(YIELD_GREAT_ADMIRAL_POINTS);
-						}
-					}
-				}
-			}
+			iGreatAdmiralPoints += pLoopCity->getYieldRate(YIELD_GREAT_ADMIRAL_POINTS, false);
+			
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
 			if(pReligion)
 			{
