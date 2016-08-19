@@ -39,9 +39,8 @@
 	5.) If you are creating a multi-choice event, make sure that all Events and Event Choices have both Help and Description elements set.
 	6.) If you are creating a single-choice (i.e. a pure event), you only need to set Help and Description for the Choice (not the base Event).
 	7.) Make sure to set the NumChoices element for each event - 1 for single-choice events, 2+ for multi-choice events.
-	8.) Player and City level events can interact, though only through a 'chaining' system using these attributes:
-			'RequiredActiveEvent/RequiredActiveEventChoice/RequiredActiveCityEvent/RequiredActiveCityEventChoice'
-		If you assign a City Event, for example, a RequiredActiveEvent value, the event will only fire if the player has had the player level event (i.e. the event's duration cooldown is still active).
+	8.) Player and City level events can interact, though only through a 'chaining' system using the EventLinkertables below.
+		If you assign a City Event, for example, a linker value, the event will only fire if the player has had the player level event (i.e. the event's duration cooldown is still active).
 		Using this, you can chain events and event choices off of each other, though (for the sake of performance) you can only assign one of each of these values to each event/choice.
 		There are also options for 'no' event (i.e. two events can't be active at the same time) and 'otherplayer' (i.e. an event can only fire if another player has an event/choice active).
 	9.) Events and choices can be given the 'one-shot' status, meaning that, once the event/choice has fired or is taken by the player/city, it will never happen again for the player or that city. 
