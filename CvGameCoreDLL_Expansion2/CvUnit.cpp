@@ -4600,7 +4600,8 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		//special handling for ocean
 		if (enterPlot.isDeepWater() && enterPlot.getFeatureType()==NO_FEATURE)
 		{
-			if (iMoveFlags&CvUnit::MOVEFLAG_DESTINATION)
+			//true naval units can enter ocean plots if they don't stay there. embarked units need the tech in any case
+			if ( (iMoveFlags&CvUnit::MOVEFLAG_DESTINATION) || enterPlot.needsEmbarkation(this))
 			{
 				PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
 				bool bOceanImpassable = isHasPromotion(ePromotionOceanImpassable);
@@ -7934,7 +7935,7 @@ void CvUnit::doHeal()
 		if(IsCombatUnit())
 		{
 			ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
-			if( IsHurt() && !hasMoved() && plot()->getImprovementType()==eCamp )
+			if( IsHurt() && !hasMoved() && (plot()->getImprovementType()==eCamp || plot()->getOwner()==BARBARIAN_PLAYER) )
 			{
 				changeDamage( -GC.getBALANCE_BARBARIAN_HEAL_RATE() );
 			}
@@ -24493,9 +24494,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 			SPathFinderUserData data(this,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
 
 			//need to be careful here, this method may be called from GUI and gamecore, this can lead to a deadlock
-			CvTwoLayerPathFinder& kPathfinder = gDLL->IsGameCoreThread() ? GC.GetPathFinder() : GC.GetInterfacePathFinder();
-			SPath path = kPathfinder.GetPath(plot(), &swapPlot, data);
-
+			SPath path = GC.GetPathFinder().GetPath(plot(), &swapPlot, data);
 			if (!!path)
 			{
 				CvPlot* pEndTurnPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
@@ -24531,7 +24530,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 									{
 										// Can the unit I am swapping with get to me this turn?
 										SPathFinderUserData data(pLoopUnit,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
-										SPath path = kPathfinder.GetPath(pLoopUnit->plot(), plot(), data);
+										SPath path = GC.GetPathFinder().GetPath(pLoopUnit->plot(), plot(), data);
 										if (!!path)
 										{
 											CvPlot* pPathEndTurnPlot = PathHelpers::GetPathEndFirstTurnPlot(path);
@@ -25756,11 +25755,8 @@ void CvUnit::PlayActionSound()
 
 bool CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns)
 {
-	//important, avoid deadlocks
-	CvTwoLayerPathFinder& kPathfinder = gDLL->IsGameCoreThread() ? GC.GetPathFinder() : GC.GetInterfacePathFinder();
-
 	SPathFinderUserData data(this,iFlags,iMaxTurns);
-	SPath newPath = kPathfinder.GetPath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
+	SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
 
 	//now copy the new path
 	//but skip the first node, it's the current unit plot

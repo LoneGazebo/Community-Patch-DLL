@@ -6816,7 +6816,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 #endif
 
 #if defined(AUI_TACTICAL_EXECUTE_BARBARIAN_MOVES_CIVILIANS_MOVE_PASSIVELY)
-					if(bAggressive && pUnit->IsCanDefend())
+					if(bAggressive && pUnit->IsCanDefend() && pUnit->GetCurrHitPoints()>pUnit->GetDanger())
 #else
 					if(bAggressive)
 #endif
@@ -9102,8 +9102,13 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 		return false;
 
 	//nothing to do?
-	if (plotDistance(pUnit->getX(),pUnit->getY(),pTarget->getX(),pTarget->getY())<3 && (eDomain==NO_DOMAIN || pTarget->getDomain()==eDomain))
+	if ( (plotDistance(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY()) < 3) && 
+		 (eDomain == NO_DOMAIN || pTarget->getDomain() == eDomain) &&
+		 (pUnit->plot()->isAdjacentToArea(pTarget->getArea()) ) )
+	{
+		pUnit->PushMission(CvTypes::getMISSION_SKIP());
 		return true;
+	}
 
 	int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_SAFE_EMBARK;
 	if (eDomain==pTarget->getDomain())
@@ -9207,7 +9212,7 @@ CvPlot* CvTacticalAI::FindPassiveBarbarianLandMove(UnitHandle pUnit)
 	for(unsigned int iI = 0; iI < m_AllTargets.size(); iI++)
 	{
 		// Is this target a camp?
-		if(m_AllTargets[iI].GetTargetType()==AI_TACTICAL_TARGET_BARBARIAN_CAMP)
+		if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_BARBARIAN_CAMP || m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY_TO_DEFEND)
 		{
 			iValue = plotDistance(pUnit->getX(), pUnit->getY(), m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY());
 			if(iValue < iBestValue)
@@ -11389,7 +11394,7 @@ int TacticalAIHelpers::GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvP
 	SPathFinderUserData data(pUnit,iFlags,1);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 	data.iMinMovesLeft = iMinMovesLeft;
-	resultSet = GC.GetPathFinder().GetPlotsInReach(pStartPlot->getX(),pStartPlot->getY(),data);
+	resultSet = GC.GetPathFinder().GetPlotsInReach(pStartPlot->getX(), pStartPlot->getY(), data);
 
 	return (int)resultSet.size();
 }
@@ -11678,8 +11683,8 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 
 		CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
 		int iDanger = kPlayer.GetPlotDanger(*pPlot, pUnit);
-		int iCityDistance = kPlayer.GetCityDistance(pPlot);
 
+		int iCityDistance = kPlayer.GetCityDistance(pPlot);
 		bool bIsZeroDanger = (iDanger <= 0);
 		bool bIsInCity = pPlot->isFriendlyCity(*pUnit, false);
 		bool bIsInCover = (pPlot->getNumDefenders(pUnit->getOwner()) > 0) && !pUnit->IsCanDefend(pPlot); // only move to cover if I'm defenseless here
@@ -11689,13 +11694,20 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		bool bWouldEmbark = bWrongDomain && !pUnit->isEmbarked();
 
 		//avoid overflow further down and useful handling for civilians
-		if (iDanger==INT_MAX)
-			iDanger = 10000 + kPlayer.GetCityDistance(pPlot);
+		if (iDanger == INT_MAX)
+			iDanger = 10000;
+
+		//we can't heal after moving and lose fortification bonus, so the current plot gets a bonus
+		if (pPlot != pUnit->plot() && pUnit->canHeal(pUnit->plot()))
+			iDanger++;
+
+		//use city distance as tiebreaker
+		iDanger = iDanger*10 + kPlayer.GetCityDistance(pPlot);
 
 		//discourage water tiles for land units
 		//note that zero danger status has already been established, this is only for sorting now
 		if (bWrongDomain)
-			iDanger += 10;
+			iDanger += 100;
 
 		if(bIsInCity)
 		{

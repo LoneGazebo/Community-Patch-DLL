@@ -1085,7 +1085,7 @@ void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 
 	//potential deadlock - need to use special pathfinder instance
-	ReachablePlots plots = GC.GetInterfacePathFinder().GetPlotsInReach(pkUnit->getX(),pkUnit->getY(),data);
+	ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pkUnit->getX(),pkUnit->getY(),data);
 	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -1102,13 +1102,12 @@ void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 void CvDllGameContext::TEMPOnHexUnitChangedAttack(ICvUnit1* pUnit)
 {
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pUnit);
-	CvTwoLayerPathFinder& thePathfinder = GC.GetInterfacePathFinder();
 
 	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS|CvUnit::MOVEFLAG_DECLARE_WAR|CvUnit::MOVEFLAG_ATTACK,1);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 
 	//potential deadlock - need to use special pathfinder instance
-	ReachablePlots plots = GC.GetInterfacePathFinder().GetPlotsInReach(pkUnit->getX(),pkUnit->getY(),data);
+	ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pkUnit->getX(),pkUnit->getY(),data);
 	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -1126,7 +1125,7 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit);
 
 	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_DECLARE_WAR);
-	SPath path = GC.GetInterfacePathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), iMouseMapX, iMouseMapY, data);
+	SPath path = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), iMouseMapX, iMouseMapY, data);
 
 	if (!!path)
 	{
