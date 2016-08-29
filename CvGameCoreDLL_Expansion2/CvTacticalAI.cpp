@@ -4386,9 +4386,19 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 					{
 						bPathFound = true;
 
-						if (iTurns>1)
+						if (iTurns > 1)
+						{
 							//strange, escort seems to be faster than the civilian, let's hope it's better the other way around
-							pCommonPlot = pCivilian->GetPathEndFirstTurnPlot();
+							CvPlot* pAltPlot = pCivilian->GetPathEndFirstTurnPlot();
+							if (pEscort->canMoveInto(*pAltPlot,CvUnit::MOVEFLAG_DESTINATION))
+								pCommonPlot = pAltPlot;
+							else
+							{
+								pAltPlot = pCivilian->GetPathNodeArray().GetFirstPlot();
+								if (pEscort->canMoveInto(*pAltPlot, CvUnit::MOVEFLAG_DESTINATION))
+									pCommonPlot = pAltPlot;
+							}
+						}
 
 						ExecuteMoveToPlotIgnoreDanger(pEscort, pCommonPlot, bSaveMoves);
 						ExecuteMoveToPlotIgnoreDanger(pCivilian, pEscort->plot(), bSaveMoves);
@@ -6071,9 +6081,9 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 #if defined(MOD_AI_SMART_AIR_TACTICS)
 	if (MOD_AI_SMART_AIR_TACTICS) {
 		// Start by sending possible air sweeps
-		for(unsigned int iI = 0; iI < m_CurrentAirUnits.size(); iI++)
+		for(unsigned int iI = 0; iI < m_CurrentAirSweepUnits.size(); iI++)
 		{
-			CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentAirUnits[iI].GetID());
+			CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentAirSweepUnits[iI].GetID());
 
 			if(pUnit && pUnit->canMove())
 			{
@@ -6082,7 +6092,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 					if (pTarget)
 					{
 						pUnit->PushMission(CvTypes::getMISSION_AIR_SWEEP(), pTargetPlot->getX(), pTargetPlot->getY());
-						UnitProcessed(m_CurrentAirUnits[iI].GetID(), false /*bMarkTacticalMap*/);
+						UnitProcessed(m_CurrentAirSweepUnits[iI].GetID(), false /*bMarkTacticalMap*/);
 
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -8145,12 +8155,12 @@ CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget
 }
 
 #ifdef MOD_AI_SMART_AIR_TACTICS
-//AMS: Fills m_CurrentAirUnits with all units able to sweep at target plot.
+//AMS: Fills m_CurrentAirSweepUnits with all units able to sweep at target plot.
 void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 {
 	list<int>::iterator it;
 	UnitHandle pLoopUnit;
-	m_CurrentAirUnits.clear();
+	m_CurrentAirSweepUnits.clear();
 	int interceptionsOnPlot = m_pPlayer->GetMilitaryAI()->GetMaxPossibleInterceptions(pTarget, true);
 
 	// Loop through all units available to tactical AI this turn
@@ -8175,7 +8185,7 @@ void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 					unit.SetID(pLoopUnit->GetID());
 					unit.SetAttackStrength(iAttackStrength);
 					unit.SetHealthPercent(pLoopUnit->GetCurrHitPoints(), pLoopUnit->GetMaxHitPoints());
-					m_CurrentAirUnits.push_back(unit);
+					m_CurrentAirSweepUnits.push_back(unit);
 
 					interceptionsOnPlot--;
 
@@ -8195,7 +8205,7 @@ void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 		}
 	}
 
-	std::stable_sort(m_CurrentAirUnits.begin(), m_CurrentAirUnits.end());
+	std::stable_sort(m_CurrentAirSweepUnits.begin(), m_CurrentAirSweepUnits.end());
 }
 
 CvUnit* CvTacticalAI::GetProbableInterceptor(CvPlot* pTargetPlot) const
@@ -8536,7 +8546,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 	if (bAirUnitsAdded)
 		FindAirUnitsToAirSweep(pTarget);
 	else
-		m_CurrentAirUnits.clear();
+		m_CurrentAirSweepUnits.clear();
 
 	// Now sort them in the order we'd like them to attack
 	std::stable_sort(m_CurrentMoveUnits.begin(), m_CurrentMoveUnits.end());
