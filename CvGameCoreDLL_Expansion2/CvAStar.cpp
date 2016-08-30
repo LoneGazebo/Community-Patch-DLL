@@ -941,8 +941,7 @@ int DestinationReached(int iToX, int iToY, const SPathFinderUserData&, const CvA
 			if (finder->GetNode(iToX,iToY)->m_kCostCacheData.bIsNonNativeDomain)
 				return false;
 
-		//important: if we mark an occupied plot as destination, we won't be able to move through it
-		if (finder->GetNode(iToX,iToY)->m_kCostCacheData.bFriendlyUnitLimitReached && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING))
+		if (!finder->CanEndTurnAtNode(finder->GetNode(iToX, iToY)))
 			return false;
 
 		//the main check
@@ -951,7 +950,6 @@ int DestinationReached(int iToX, int iToY, const SPathFinderUserData&, const CvA
 
 		//now make sure it's the right area ...
 		return GC.getMap().plotUnchecked(iToX, iToY)->isAdjacentToArea( GC.getMap().plotUnchecked(finder->GetDestX(), finder->GetDestY())->getArea() );
-
 	}
 	else if ( finder->HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING1) )
 	{
@@ -959,8 +957,7 @@ int DestinationReached(int iToX, int iToY, const SPathFinderUserData&, const CvA
 			if (finder->GetNode(iToX,iToY)->m_kCostCacheData.bIsNonNativeDomain)
 				return false;
 
-		//important: if we mark an occupied plot as destination, we won't be able to move through it
-		if (finder->GetNode(iToX,iToY)->m_kCostCacheData.bFriendlyUnitLimitReached && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING))
+		if (!finder->CanEndTurnAtNode(finder->GetNode(iToX, iToY)))
 			return false;
 
 		return ::plotDistance(iToX,iToY,finder->GetDestX(),finder->GetDestY()) < 2;

@@ -370,10 +370,11 @@ public:
 	virtual ReachablePlots GetPlotsInReach(int iXstart, int iYstart, const SPathFinderUserData& data);
 	virtual ReachablePlots GetPlotsInReach(const CvPlot* pStartPlot, const SPathFinderUserData& data);
 
+	virtual bool CanEndTurnAtNode(CvAStarNode* temp) = 0;
+
 protected:
 	// set up the function pointers which do the actual work
 	virtual bool Configure(PathType ePathType) = 0;
-	virtual bool CanEndTurnAtNode(CvAStarNode* temp) = 0;
 };
 
 //-------------------------------------------------------------------------------------------------
