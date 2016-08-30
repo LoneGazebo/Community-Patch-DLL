@@ -1851,19 +1851,13 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 				{
 					bInPlace = true;
 				}
-				else
+				else if (GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy)) //check for nearby enemy (but not for sneak attacks)
 				{
 					for (UnitHandle pUnit = pThisArmy->GetFirstUnit(); pUnit.pointer(); pUnit = pThisArmy->GetNextUnit())
 					{
-						CvPlot* pAdjacentPlot;
-						int iI;
-
-						if(bInPlace)
-							break;
-
-						for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+						for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 						{
-							pAdjacentPlot = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
+							CvPlot* pAdjacentPlot = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
 
 							if(pAdjacentPlot != NULL && ((pAdjacentPlot->getOwner() == m_eEnemy) || (pAdjacentPlot->getNumDefenders(m_eEnemy) > 0)))
 							{
@@ -1872,8 +1866,12 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 								break;
 							}
 						}
+
+						if (bInPlace)
+							break;
 					}
 				}
+
 				if(bInPlace)
 				{
 					// Notify Diplo AI we're in place for attack

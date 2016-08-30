@@ -516,6 +516,7 @@ protected:
 	static int lIsNearSapper(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	static int lIsHalfNearSapper(lua_State* L);
+	static int lGetNearbyUnitClassModifierFromUnitClass(lua_State* L);
 #endif
 	static int lGetNearbyImprovementModifier(lua_State* L);
 	static int lIsFriendlyUnitAdjacent(lua_State* L);

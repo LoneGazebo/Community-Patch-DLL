@@ -538,9 +538,7 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 // Initializes all data that is not serialized but needs to be initialized after loading.
 void CvMap::setup()
 {
-	GC.GetPathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY());
-	GC.GetInterfacePathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY());
-	GC.GetStepFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY());
+	GC.InitializePathfinders(getGridWidth(), getGridHeight(), isWrapX(), isWrapY());
 }
 
 //////////////////////////////////////

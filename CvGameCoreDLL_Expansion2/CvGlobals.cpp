@@ -2559,16 +2559,9 @@ void CvGlobals::init()
 	memcpy(m_aeTurnRightDirection, aeTurnRightDirection, sizeof(m_aeTurnRightDirection));
 	memcpy(m_aaiRingPlotIndex, aaiRingPlotIndex, sizeof(m_aaiRingPlotIndex));
 
-	SetPathFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
-	SetInterfacePathFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
-	SetStepFinder(FNEW(CvStepFinder, c_eCiv5GameplayDLL, 0));
-
-#if defined(MOD_BALANCE_CORE)
-	GetPathFinder().SetName("generic pf");
-	GetInterfacePathFinder().SetName("iface pf");
-	GetStepFinder().SetName("stepfinder");
-#endif
-
+	m_pathFinder = new CvTwoLayerPathFinder();
+	m_interfacePathFinder = new CvTwoLayerPathFinder();
+	m_stepFinder = new CvStepFinder();
 }
 
 //
@@ -2692,21 +2685,35 @@ CvRandom& CvGlobals::getASyncRand()
 	return *m_asyncRand;
 }
 
-CvTwoLayerPathFinder& CvGlobals::GetPathFinder()
+void CvGlobals::InitializePathfinders(int iX, int iY, bool bWx, bool bWy)
 {
-	return *m_pathFinder;
+	if (m_pathFinder)
+	{
+		m_pathFinder->Initialize(iX, iY, bWx, bWy);
+		m_pathFinder->SetName("unit pf");
+	}
+	if (m_interfacePathFinder)
+	{
+		m_interfacePathFinder->Initialize(iX, iY, bWx, bWy);
+		m_interfacePathFinder->SetName("iface pf");
+	}
+	if (m_stepFinder)
+	{
+		m_stepFinder->Initialize(iX, iY, bWx, bWy);
+		m_stepFinder->SetName("stepfinder");
+	}
 }
 
-CvTwoLayerPathFinder& CvGlobals::GetInterfacePathFinder()
+CvTwoLayerPathFinder& CvGlobals::GetPathFinder()
 {
-	return *m_interfacePathFinder;
+	//important, avoid deadlocks
+	return gDLL->IsGameCoreThread() ? *m_pathFinder : *m_interfacePathFinder;
 }
 
 CvStepFinder& CvGlobals::GetStepFinder()
 {
 	return *m_stepFinder;
 }
-
 
 ICvDLLDatabaseUtility1* CvGlobals::getDatabaseLoadUtility()
 {
@@ -7199,19 +7206,6 @@ bool CvGlobals::IsGraphicsInitialized() const
 void CvGlobals::SetGraphicsInitialized(bool bVal)
 {
 	m_bGraphicsInitialized = bVal;
-}
-
-void CvGlobals::SetPathFinder(CvTwoLayerPathFinder* pVal)
-{
-	m_pathFinder = pVal;
-}
-void CvGlobals::SetInterfacePathFinder(CvTwoLayerPathFinder* pVal)
-{
-	m_interfacePathFinder = pVal;
-}
-void CvGlobals::SetStepFinder(CvStepFinder* pVal)
-{
-	m_stepFinder = pVal;
 }
 
 void CvGlobals::setOutOfSyncDebuggingEnabled(bool isEnabled)

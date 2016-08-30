@@ -3400,7 +3400,7 @@ bool CvPlot::needsEmbarkation(const CvUnit* pUnit) const
         if (pUnit->getDomainType()==DOMAIN_LAND)
         {
 #endif      
-            return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain();
+            return isWater() && !isIce() && !IsAllowsWalkWater() && !pUnit->canMoveAllTerrain() && !pUnit->canLoad(*this);
         }
         else
             return false;
@@ -4764,26 +4764,22 @@ int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 #endif
 				{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-					if (pLoopUnit->getNumberStackingUnits() == 0)
+					if(!pLoopUnit->isCargo())
 					{
-						iNumUnitsOfSameType;
-					}
-					if ((pUnit->getNumberStackingUnits() == 0) && (pLoopUnit->getNumberStackingUnits() == 0))
-					{
-						iNumUnitsOfSameType++;
-					}
-					if (pLoopUnit->getNumberStackingUnits() > 0)
-					{
-						iNumUnitsOfSameType++;
-						if (pUnit->getNumberStackingUnits() > 0)
+						if(!pLoopUnit->IsStackingUnit() && !pUnit->IsStackingUnit())
 						{
-							iNumUnitsOfSameType = getUnitLimit();
+							iNumUnitsOfSameType++;
 						}
-					}
-					if(pLoopUnit->isCargo())
-					{
-						iNumUnitsOfSameType = 0;
-					}
+						if(pLoopUnit->IsStackingUnit())
+						{
+							iNumUnitsOfSameType++;
+							// We really don't want stacking units to stack with other stacking units, they are meant to stack with non stacking unit so add an increment.
+							if(pUnit->IsStackingUnit())
+							{
+								iNumUnitsOfSameType++;
+							}
+						}
+					}				
 #else
 					// We should allow as many cargo units as we want
 					if(!pLoopUnit->isCargo())
@@ -5046,7 +5042,7 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 		break;
 
 	case DOMAIN_LAND:
-		return !isCity() || (isCity() && (IsFriendlyTerritory(unit.getOwner()) || unit.isRivalTerritory()) );
+		return !isCity() || (isCity() && (IsFriendlyTerritory(unit.getOwner()) || unit.isRivalTerritory())) || unit.canLoad(*this);
 		break;
 
 	default:
@@ -5409,6 +5405,32 @@ int CvPlot::ComputeYieldFromOtherAdjacentImprovement(CvImprovementEntry& kImprov
 					if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eImprovement)
 					{
 						iRtnValue += kImprovement.GetAdjacentImprovementYieldChanges(eImprovement, eYield);
+					}
+				}
+			}
+		}
+	}
+
+	return iRtnValue;
+}
+int CvPlot::ComputeYieldFromAdjacentResource(CvImprovementEntry& kImprovement, YieldTypes eYield) const
+{
+	CvPlot* pAdjacentPlot;
+	int iRtnValue = 0;
+
+	for(int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
+	{
+		ResourceTypes eResource = (ResourceTypes)iJ;
+		if(eResource != NO_RESOURCE)
+		{
+			if(kImprovement.GetAdjacentResourceYieldChanges(eResource, eYield) > 0)
+			{
+				for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				{
+					pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+					if(pAdjacentPlot && pAdjacentPlot->getResourceType() == eResource)
+					{
+						iRtnValue += kImprovement.GetAdjacentResourceYieldChanges(eResource, eYield);
 					}
 				}
 			}
@@ -8027,6 +8049,62 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				for(int iJ = 0; iJ < NUM_DIRECTION_TYPES; ++iJ)
 				{
 					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iJ));
+					// Do not change!!
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getResourceType() != NO_RESOURCE)
+					{	
+						bool bUp = false;
+						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
+						{
+							if(pImprovement2->GetAdjacentResourceYieldChanges(pAdjacentPlot->getResourceType(), (YieldTypes)iK) > 0)
+							{
+								bUp = true;								
+								break;
+							}
+						}
+						if(bUp)
+						{
+							pAdjacentPlot->updateYield();
+						}
+					}
+				}
+			}
+		}
+		if(eBuilder != NO_PLAYER && eOldImprovement != NO_IMPROVEMENT && getOwner() == eBuilder)
+		{
+			CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(eOldImprovement);
+			if(pImprovement2)
+			{
+				for(int iJ = 0; iJ < NUM_DIRECTION_TYPES; ++iJ)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iJ));
+
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getResourceType() != NO_RESOURCE)
+					{	
+						bool bUp = false;
+						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
+						{
+							if(pImprovement2->GetAdjacentResourceYieldChanges(pAdjacentPlot->getResourceType(), (YieldTypes)iK) > 0)
+							{
+								bUp = true;								
+								break;
+							}
+						}
+						if(bUp)
+						{
+							pAdjacentPlot->updateYield();
+						}
+					}
+				}
+			}
+		}
+		if(eBuilder != NO_PLAYER && eNewValue != NO_IMPROVEMENT && getOwner() == eBuilder)
+		{
+			CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(eNewValue);
+			if(pImprovement2)
+			{
+				for(int iJ = 0; iJ < NUM_DIRECTION_TYPES; ++iJ)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iJ));
 
 					if(pAdjacentPlot != NULL && pAdjacentPlot->getTerrainType() != NO_TERRAIN && pAdjacentPlot->getOwner() == eBuilder)
 					{	
@@ -9712,6 +9790,17 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 				{
 					iYield += pImprovement2->GetAdjacentImprovementYieldChanges(eImprovement, eYield);
 				}
+			}
+		}
+	}
+	if(ePlayer != NO_PLAYER && getOwner() == ePlayer)
+	{
+		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		{
+			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+			if(pAdjacentPlot != NULL && pAdjacentPlot->getResourceType() != NO_RESOURCE)
+			{
+				iYield += pImprovement->GetAdjacentResourceYieldChanges(pAdjacentPlot->getResourceType(), eYield);
 			}
 		}
 	}
@@ -13191,6 +13280,25 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 						if(pImprovement2 && pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield) > 0)
 						{
 							iYield += pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield);
+						}
+					}
+				}
+			}
+		}
+		if(pWorkingCity != NULL)
+		{
+			if(ePlayer != NO_PLAYER && getResourceType() != NO_RESOURCE && getOwner() == ePlayer)
+			{
+				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
+					{
+						CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
+						if(pImprovement2 && pImprovement2->GetAdjacentResourceYieldChanges(getResourceType(), eYield) > 0)
+						{
+							iYield += pImprovement2->GetAdjacentResourceYieldChanges(getResourceType(), eYield);
 						}
 					}
 				}

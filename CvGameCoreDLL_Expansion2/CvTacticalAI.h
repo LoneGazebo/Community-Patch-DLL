@@ -946,7 +946,7 @@ private:
 	std::list<int> m_CurrentTurnUnits;
 
 #if defined(MOD_AI_SMART_AIR_TACTICS)
-	std::vector<CvTacticalUnit> m_CurrentAirUnits;
+	std::vector<CvTacticalUnit> m_CurrentAirSweepUnits;
 #endif
 
 #if defined(MOD_BALANCE_CORE)

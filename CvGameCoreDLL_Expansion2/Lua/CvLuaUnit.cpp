@@ -507,6 +507,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsNearSapper);
 #if defined(MOD_BALANCE_CORE)
 	Method(IsHalfNearSapper);
+	Method(GetNearbyUnitClassModifierFromUnitClass);
 #endif
 	Method(GetNearbyImprovementModifier);
 	Method(IsFriendlyUnitAdjacent);
@@ -4891,6 +4892,14 @@ int CvLuaUnit::lIsHalfNearSapper(lua_State* L)
 
 	const bool bResult = pkUnit->IsHalfNearSapper(pkCity);
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+//bool GetNearbyUnitClassModifierFromUnitClass();
+int CvLuaUnit::lGetNearbyUnitClassModifierFromUnitClass(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int bResult = pkUnit->GetNearbyUnitClassModifierFromUnitClass(pkUnit->plot());
+	lua_pushinteger(L, bResult);
 	return 1;
 }
 #endif

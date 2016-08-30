@@ -178,7 +178,7 @@ protected:
 	double m_fMajorAfraidMod;
 	double m_fMajorFriendlyMod;
 	double m_fMajorNeutralMod;
-	double m_fMinorNeutralrMod;
+	double m_fMinorNeutralMinorMod;
 	double m_fMinorFriendlyMod;
 	double m_fMinorBullyMod;
 	double m_fMinorConquestMod;
