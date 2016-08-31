@@ -178,7 +178,7 @@ public:
 		return HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING1) || HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING2);
 	}
 
-	virtual bool CanEndTurnAtNode(CvAStarNode* temp) = 0;
+	virtual bool CanEndTurnAtNode(const CvAStarNode* temp) const = 0;
 
 	//--------------------------------------- PROTECTED FUNCTIONS -------------------------------------------
 protected:
@@ -382,7 +382,7 @@ protected:
 //-------------------------------------------------------------------------------------------------
 class CvStepFinder : public CvPathFinder
 {
-	virtual bool CanEndTurnAtNode(CvAStarNode* temp);
+	virtual bool CanEndTurnAtNode(const CvAStarNode* temp) const;
 
 protected:
 	virtual bool Configure(PathType ePathType);
@@ -403,7 +403,7 @@ public:
 
 	//has to be public for the free functions to access it
 	CvAStarNode* GetPartialMoveNode(int iCol, int iRow);
-	virtual bool CanEndTurnAtNode(CvAStarNode* temp);
+	virtual bool CanEndTurnAtNode(const CvAStarNode* temp) const;
 
 protected:
 	// set the function pointers which do the actual work

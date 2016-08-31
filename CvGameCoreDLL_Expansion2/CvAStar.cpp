@@ -2179,7 +2179,7 @@ CvAStarNode* CvTwoLayerPathFinder::GetPartialMoveNode(int iCol, int iRow)
 
 //	--------------------------------------------------------------------------------
 //	version for unit pathing
-bool CvTwoLayerPathFinder::CanEndTurnAtNode(CvAStarNode* temp)
+bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 {
 	if (!temp)
 		return false;
@@ -2219,7 +2219,7 @@ bool CvTwoLayerPathFinder::Configure(PathType ePathType)
 
 //	--------------------------------------------------------------------------------
 //default version for step paths - m_kCostCacheData is not valid
-bool CvStepFinder::CanEndTurnAtNode(CvAStarNode*)
+bool CvStepFinder::CanEndTurnAtNode(const CvAStarNode*) const
 {
 	return true;
 }
