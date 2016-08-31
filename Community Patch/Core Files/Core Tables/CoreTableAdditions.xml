@@ -618,6 +618,13 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
+	<!-- Improvement: allows a resource to boost the base yield of an adjacent improvement -->
+	<Table name="Improvement_AdjacentResourceYieldChanges">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
 	<Table name="Improvement_AdjacentTerrainYieldChanges">
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>

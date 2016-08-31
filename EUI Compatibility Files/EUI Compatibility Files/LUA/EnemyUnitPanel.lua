@@ -609,7 +609,13 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_IMPROVEMENT_NEAR" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 			end
-
+			-- Nearby UnitClass modifier
+			if (pMyUnit:GetNearbyUnitClassModifierFromUnitClass(pFromPlot) ~= 0) then
+				iModifier = pMyUnit:GetNearbyUnitClassModifierFromUnitClass(pFromPlot);
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_UNITCLASS_NEAR" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
 			-- Empire Unhappy
 			iModifier = pMyUnit:GetUnhappinessCombatPenalty();
 			if (iModifier ~= 0) then
@@ -946,6 +952,13 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				iModifier = pMyUnit:GetNearbyImprovementModifier(pFromPlot);
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_IMPROVEMENT_NEAR" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+			-- Nearby UnitClass modifier
+			if (pMyUnit:GetNearbyUnitClassModifierFromUnitClass(pFromPlot) ~= 0) then
+				iModifier = pMyUnit:GetNearbyUnitClassModifierFromUnitClass(pFromPlot);
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_UNITCLASS_NEAR" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 			end
 			
@@ -1542,6 +1555,13 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_IMPROVEMENT_NEAR" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+				end
+				-- Nearby UnitClass modifier
+				if (pTheirUnit:GetNearbyUnitClassModifierFromUnitClass(pToPlot) ~= 0) then
+					iModifier = pTheirUnit:GetNearbyUnitClassModifierFromUnitClass(pToPlot);
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_UNITCLASS_NEAR" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				end
 				
 				-- Flanking bonus
