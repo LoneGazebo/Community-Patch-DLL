@@ -11700,6 +11700,54 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 				}
 			}
 		}
+		CvPlot* pCityPlot = plot();
+		for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
+		{
+			int iI;
+			for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+			{
+				const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
+				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
+				if(pkPromotionInfo != NULL)
+				{
+					if(pkPromotionInfo->GetWonderProductionModifier() > 0)
+					{
+						if(pCityPlot->getUnitByIndex(iUnitLoop)->isHasPromotion(eLoopPromotion))
+						{
+							iTempMod = pkPromotionInfo->GetWonderProductionModifier();
+							iMultiplier += iTempMod;
+							if(toolTipSink && iTempMod)
+							{
+								GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_UNITPROMOTION", iTempMod);
+							}
+						}
+					}
+				}
+			}
+		}
+		int iNumberOfImprovements = 0;
+		CvPlot* pLoopPlot;
+		for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
+		{
+			pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
+			if(pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
+			{
+				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+				{
+					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+					if(pImprovementInfo->GetWonderProductionModifier() > 0)
+					{
+						iTempMod = pImprovementInfo->GetWonderProductionModifier();
+						iMultiplier += iTempMod;
+						iNumberOfImprovements++;
+					}
+				}
+			}
+		}
+		if(toolTipSink && iTempMod && iNumberOfImprovements)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_IMPROVEMENT", iTempMod * iNumberOfImprovements);
+		}
 	}
 	// Not-wonder bonus
 	else
@@ -11734,6 +11782,127 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		}
 	}
 
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionModifierToBuilding() > 0)
+	{
+		int iMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionToBuildingDiscount(eBuilding);
+		iTempMod = (GetWonderProductionModifier() * iMod) / 100;
+		iMultiplier += iTempMod;
+		if(toolTipSink && iTempMod)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_CITY_TRAIT", iTempMod);
+		}
+
+		iTempMod = (GET_PLAYER(getOwner()).getWonderProductionModifier() * iMod) / 100;
+		if(GET_PLAYER(getOwner()).isGoldenAge() && GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionModGA() > 0)
+		{
+			iTempMod += (GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionModGA() * iMod) / 100;
+		}
+		iMultiplier += iTempMod;
+		if(toolTipSink && iTempMod)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_PLAYER_TRAIT", iTempMod);
+		}
+
+		BuildingTypes ePyramidWonder = (BuildingTypes) GC.getInfoTypeForString("BUILDING_PYRAMID");
+		iTempMod = (GetLocalResourceWonderProductionMod(ePyramidWonder) * iMod) / 100;
+		iMultiplier += iTempMod;
+		if(toolTipSink && iTempMod)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_RESOURCE_TRAIT", iTempMod);
+		}
+
+		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+		if(eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			if(pReligion)
+			{
+				// Depends on era of wonder
+				EraTypes eEra;
+				TechTypes eTech = (TechTypes)thisBuildingEntry->GetPrereqAndTech();
+				if(eTech != NO_TECH)
+				{
+					CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
+					if(pEntry)
+					{
+						eEra = (EraTypes)pEntry->GetEra();
+						if(eEra != NO_ERA)
+						{
+							iTempMod = (pReligion->m_Beliefs.GetWonderProductionModifier(eEra, getOwner()) * iMod) / 100;
+							BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+							if (eSecondaryPantheon != NO_BELIEF)
+							{
+								if((int)eEra < GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetObsoleteEra())
+								{
+									iTempMod += (GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetWonderProductionModifier() * iMod) / 100;
+								}
+							}
+							iMultiplier += iTempMod;
+							if(toolTipSink && iTempMod)
+							{
+								GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_RELIGION_TRAIT", iTempMod);
+							}
+						}
+					}
+				}
+			}
+		}
+		iTempMod = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_WONDER_PRODUCTION_MODIFIER) * iMod) / 100;
+		iMultiplier += iTempMod;
+		if(toolTipSink && iTempMod)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_POLICY_TRAIT", iTempMod);
+		}
+
+		CvPlot* pCityPlot = plot();
+		for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
+		{
+			int iI;
+			for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+			{
+				const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
+				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
+				if(pkPromotionInfo != NULL)
+				{
+					if(pkPromotionInfo->GetWonderProductionModifier() > 0)
+					{
+						if(pCityPlot->getUnitByIndex(iUnitLoop)->isHasPromotion(eLoopPromotion))
+						{
+							iTempMod = (pkPromotionInfo->GetWonderProductionModifier() * iMod) / 100;
+							iMultiplier += iTempMod;
+							if(toolTipSink && iTempMod)
+							{
+								GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_UNIT_TRAIT", iTempMod);
+							}
+						}
+					}
+				}
+			}
+		}
+		int iNumberOfImprovements = 0;
+		CvPlot* pLoopPlot;
+		for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
+		{
+			pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
+			if(pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
+			{
+				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+				{
+					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+					if(pImprovementInfo->GetWonderProductionModifier() > 0)
+					{
+						iTempMod = (pImprovementInfo->GetWonderProductionModifier() * iMod) / 100;
+						iMultiplier += iTempMod;
+						iNumberOfImprovements++;						
+					}
+				}
+			}
+		}
+		if(toolTipSink && iTempMod && iNumberOfImprovements)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_IMPROVEMENT_TRAIT", iTempMod * iNumberOfImprovements);
+		}
+	}
 	return iMultiplier;
 }
 

@@ -81,6 +81,12 @@ public:
 	bool IsCanChangePort() const;
 #endif
 	int GetCombat() const;
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	int StackCombat() const;
+#endif
+#if defined(MOD_CARGO_SHIPS)
+	int CargoCombat() const;
+#endif
 	void SetCombat(int iNum);
 	int GetCombatLimit() const;
 	int GetRangedCombat() const;
@@ -273,6 +279,12 @@ private:
 	bool m_bCanChangePort;
 #endif
 	int m_iCombat;
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	int m_iStackCombat;
+#endif
+#if defined(MOD_CARGO_SHIPS)
+	int m_iCargoCombat;
+#endif
 	int m_iCombatLimit;
 	int m_iRangedCombat;
 	int m_iRangedCombatLimit;

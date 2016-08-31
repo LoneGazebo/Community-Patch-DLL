@@ -36,7 +36,7 @@ CvDangerPlots::CvDangerPlots(void)
 	m_fMajorAfraidMod = GC.getAI_DANGER_MAJOR_APPROACH_AFRAID();
 	m_fMajorFriendlyMod = GC.getAI_DANGER_MAJOR_APPROACH_FRIENDLY();
 	m_fMajorNeutralMod = GC.getAI_DANGER_MAJOR_APPROACH_NEUTRAL();
-	m_fMinorNeutralrMod = GC.getAI_DANGER_MINOR_APPROACH_NEUTRAL();
+	m_fMinorNeutralMinorMod = GC.getAI_DANGER_MINOR_APPROACH_NEUTRAL();
 	m_fMinorFriendlyMod = GC.getAI_DANGER_MINOR_APPROACH_FRIENDLY();
 	m_fMinorBullyMod = GC.getAI_DANGER_MINOR_APPROACH_BULLY();
 	m_fMinorConquestMod = GC.getAI_DANGER_MINOR_APPROACH_CONQUEST();
@@ -421,7 +421,7 @@ bool CvDangerPlots::IsDangerByRelationshipZero(PlayerTypes ePlayer, CvPlot* pPlo
 		switch(GET_PLAYER(m_ePlayer).GetDiplomacyAI()->GetMinorCivApproach(ePlayer))
 		{
 		case MINOR_CIV_APPROACH_IGNORE:
-			bResultMultiplierIsZero = m_fMinorNeutralrMod == 0.f;
+			bResultMultiplierIsZero = m_fMinorNeutralMinorMod == 0.f;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		case MINOR_CIV_APPROACH_FRIENDLY:

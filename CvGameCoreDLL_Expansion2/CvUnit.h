@@ -236,6 +236,11 @@ public:
 	void unloadAll();
 	const CvUnit* getTransportUnit() const;
 	CvUnit* getTransportUnit();
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	const CvUnit* getStackingUnit() const;
+	CvUnit* getStackingUnit();
+	void setStackingUnit(CvUnit* pStackingUnit);
+#endif
 	bool isCargo() const;
 	void setTransportUnit(CvUnit* pTransportUnit);
 
@@ -646,7 +651,14 @@ public:
 	ImprovementTypes GetCombatBonusImprovement() const;
 	void SetCombatBonusImprovement(ImprovementTypes eImprovement);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	int GetNearbyUnitClassBonus() const;
+	void SetNearbyUnitClassBonus(int iCombatBonus);
+	int GetNearbyUnitClassBonusRange() const;
+	void SetNearbyUnitClassBonusRange(int iBonusRange);
+	UnitClassTypes GetCombatBonusFromNearbyUnitClass() const;
+	void SetCombatBonusFromNearbyUnitClass(UnitClassTypes eUnitClass);
+#endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool canCrossMountains() const;
 	int getCanCrossMountainsCount() const;
@@ -1154,6 +1166,9 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsHalfSappingCity(const CvCity* pTargetCity) const;
 	bool IsHalfNearSapper(const CvCity* pTargetCity) const;
+	int GetNearbyUnitClassModifierFromUnitClass(const CvPlot* pAtPlot = NULL) const;
+	int GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClassRange, int iUnitClassModifier, const CvPlot* pAtPlot = NULL) const;
+	void DoNearbyUnitPromotion(CvPlot* pPlot = NULL);
 #endif
 
 	bool IsCanHeavyCharge() const;
@@ -1389,6 +1404,8 @@ public:
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int getNumberStackingUnits() const;
+	bool IsStackingUnit() const;
+	bool IsCargoCombatUnit() const;
 #endif
 
 	bool IsAirSweepCapable() const;
@@ -1758,6 +1775,11 @@ protected:
 	FAutoVariable<int, CvUnit> m_iNearbyImprovementBonusRange;
 	FAutoVariable<ImprovementTypes, CvUnit> m_eCombatBonusImprovement;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvUnit> m_iNearbyUnitClassBonus;
+	FAutoVariable<int, CvUnit> m_iNearbyUnitClassBonusRange;
+	FAutoVariable<UnitClassTypes, CvUnit> m_iCombatBonusFromNearbyUnitClass;
+#endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;
 #endif
@@ -1859,6 +1881,9 @@ protected:
 	IDInfo m_combatUnit;
 	IDInfo m_combatCity;
 	IDInfo m_transportUnit;
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	IDInfo m_stackingUnit;
+#endif
 
 	std::vector<int> m_extraDomainModifiers;
 
@@ -1955,7 +1980,10 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	void DoPlagueTransfer(CvUnit& defender);
 #endif
-
+#if defined(MOD_CARGO_SHIPS)
+	void DoCargoPromotions(CvUnit& cargounit);
+	void RemoveCargoPromotions(CvUnit& cargounit);
+#endif
 	// these are do to a unit using Heavy Charge against you
 	bool CanFallBackFromMelee(CvUnit& pAttacker);
 	bool DoFallBackFromMelee(CvUnit& pAttacker);

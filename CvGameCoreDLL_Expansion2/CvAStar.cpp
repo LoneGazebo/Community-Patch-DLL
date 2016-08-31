@@ -945,7 +945,13 @@ int DestinationReached(int iToX, int iToY, const SPathFinderUserData&, const CvA
 		if (finder->GetNode(iToX,iToY)->m_kCostCacheData.bFriendlyUnitLimitReached && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING))
 			return false;
 
-		return ::plotDistance(iToX,iToY,finder->GetDestX(),finder->GetDestY()) < 3;
+		//the main check
+		if (::plotDistance(iToX, iToY, finder->GetDestX(), finder->GetDestY()) > 2)
+			return false;
+
+		//now make sure it's the right area ...
+		return GC.getMap().plotUnchecked(iToX, iToY)->isAdjacentToArea( GC.getMap().plotUnchecked(finder->GetDestX(), finder->GetDestY())->getArea() );
+
 	}
 	else if ( finder->HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING1) )
 	{

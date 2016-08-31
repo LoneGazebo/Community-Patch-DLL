@@ -221,8 +221,8 @@ public:
 
 	CvRandom& getASyncRand();
 
+	void InitializePathfinders(int iX, int iY, bool bWx, bool bWy);
 	CvTwoLayerPathFinder& GetPathFinder();
-	CvTwoLayerPathFinder& GetInterfacePathFinder();
 	CvStepFinder& GetStepFinder();
 
 	ICvDLLDatabaseUtility1* getDatabaseLoadUtility();
@@ -8929,13 +8929,6 @@ public:
 
 	bool readEventTriggerInfoArray(FDataStream& kStream);
 	void writeEventTriggerInfoArray(FDataStream& kStream);
-
-	//
-	// additional accessors for initting globals
-	//
-	void SetPathFinder(CvTwoLayerPathFinder* pVal);
-	void SetInterfacePathFinder(CvTwoLayerPathFinder* pVal);
-	void SetStepFinder(CvStepFinder* pVal);
 
 	// So that CvEnums are moddable in the DLL
 	int getNumDirections() const;

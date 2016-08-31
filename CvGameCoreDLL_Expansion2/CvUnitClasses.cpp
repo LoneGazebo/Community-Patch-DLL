@@ -66,6 +66,12 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bCanChangePort(false),
 #endif
 	m_iCombat(0),
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	m_iStackCombat(0),
+#endif
+#if defined(MOD_CARGO_SHIPS)
+	m_iCargoCombat(0),
+#endif
 	m_iCombatLimit(0),
 	m_iRangedCombat(0),
 	m_iRangedCombatLimit(0),
@@ -322,6 +328,10 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	m_iNumberStackingUnits = kResults.GetInt("NumberStackingUnits");
+	m_iStackCombat = kResults.GetInt("StackCombat");
+#endif
+#if defined(MOD_CARGO_SHIPS)
+	m_iCargoCombat = kResults.GetInt("CargoCombat");
 #endif
 
 	//References
@@ -1190,6 +1200,17 @@ void CvUnitEntry::SetCommandType(int iNewType)
 int CvUnitEntry::GetNumberStackingUnits() const
 {
 	return m_iNumberStackingUnits;
+}
+
+int CvUnitEntry::StackCombat() const
+{
+	return m_iStackCombat;
+}
+#endif
+#if defined(MOD_CARGO_SHIPS)
+int CvUnitEntry::CargoCombat() const
+{
+	return m_iCargoCombat;
 }
 #endif
 
