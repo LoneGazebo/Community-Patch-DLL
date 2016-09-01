@@ -4764,22 +4764,36 @@ int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 #endif
 				{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-					if(!pLoopUnit->isCargo())
+					if(!MOD_GLOBAL_STACKING_RULES)
 					{
-						if(!pLoopUnit->IsStackingUnit() && !pUnit->IsStackingUnit())
+						if(!pLoopUnit->isCargo())
 						{
 							iNumUnitsOfSameType++;
 						}
-						if(pLoopUnit->IsStackingUnit())
+					}
+					else
+					{
+						if(MOD_GLOBAL_STACKING_RULES)
 						{
-							iNumUnitsOfSameType++;
-							// We really don't want stacking units to stack with other stacking units, they are meant to stack with non stacking unit so add an increment.
-							if(pUnit->IsStackingUnit())
+							if(!pLoopUnit->isCargo())
 							{
+								if(!pLoopUnit->IsStackingUnit() && !pUnit->IsStackingUnit())
+								{
 								iNumUnitsOfSameType++;
+								}
+								if(pLoopUnit->IsStackingUnit())
+								{
+									iNumUnitsOfSameType++;
+									// We really don't want stacking units to stack with other stacking units, they are meant to stack with non stacking unit so add an increment.
+									if(pUnit->IsStackingUnit())
+									{
+										iNumUnitsOfSameType++;
+									}
+								}
 							}
 						}
-					}				
+					}
+
 #else
 					// We should allow as many cargo units as we want
 					if(!pLoopUnit->isCargo())

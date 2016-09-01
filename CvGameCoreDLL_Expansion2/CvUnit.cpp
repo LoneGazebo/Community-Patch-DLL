@@ -3039,9 +3039,10 @@ void CvUnit::doTurn()
 		}
 	}				
 #endif
-	DoNearbyUnitPromotion();
-
 	doDelayedDeath();
+#if defined(MOD_BALANCE_CORE)
+	DoNearbyUnitPromotion(plot());
+#endif
 }
 //	--------------------------------------------------------------------------------
 bool CvUnit::isActionRecommended(int iAction)
@@ -14114,6 +14115,10 @@ UnitCombatTypes CvUnit::getUnitPromotionType() const
 
 bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 {
+#if defined(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
+	ImprovementTypes eImprovement = pPlot->getImprovementType();
+	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+#endif
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
@@ -14123,7 +14128,18 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 		return true;
 		break;
 	case DOMAIN_SEA:
-		return pPlot->isWater();
+#if defined(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
+		if(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
+		{
+			return (pPlot->isWater() || pPlot->isCity() || pkImprovementInfo->IsMakesPassable());
+		}
+		else
+		{
+			return (pPlot->isWater());
+		}
+#else
+		return (pPlot->isWater());
+#endif
 		break;
 	case DOMAIN_HOVER:
 		return true;
@@ -18194,11 +18210,6 @@ bool CvUnit::isFull() const
 int CvUnit::cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo, DomainTypes eDomainCargo) const
 {
 	VALIDATE_OBJECT
-#if defined(MOD_CARGO_SHIPS)
-	IDInfo* pUnitNode;
-	CvUnit* pLoopUnit;
-	CvPlot* pPlot;
-#endif
 	if(specialCargo() != NO_SPECIALUNIT)
 	{
 		if(specialCargo() != eSpecialCargo)
@@ -18215,32 +18226,38 @@ int CvUnit::cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo, DomainTypes eDom
 		}
 	}
 #if defined(MOD_CARGO_SHIPS)
-	if(domainCargo() == DOMAIN_LAND)
+	if(MOD_CARGO_SHIPS)
 	{
-		pPlot = plot();
-		pUnitNode = pPlot->headUnitNode();
-		while (pUnitNode != NULL)
+		IDInfo* pUnitNode;
+		CvUnit* pLoopUnit;
+		CvPlot* pPlot;
+		if(domainCargo() == DOMAIN_LAND)
 		{
-			pLoopUnit = ::getUnit(*pUnitNode);
-			pUnitNode = pPlot->nextUnitNode(pUnitNode);
-			if(pLoopUnit)
+			pPlot = plot();
+			pUnitNode = pPlot->headUnitNode();
+			while (pUnitNode != NULL)
 			{
-				CvPlot* pAdjacentPlot;
-				int iI;
-				for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+				pLoopUnit = ::getUnit(*pUnitNode);
+				pUnitNode = pPlot->nextUnitNode(pUnitNode);
+				if(pLoopUnit != NULL)
 				{
-					pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-					if(pAdjacentPlot != NULL)
+					CvPlot* pAdjacentPlot;
+					int iI;
+					for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 					{
-						if(pLoopUnit->isCargo() && pLoopUnit->IsCanAttackWithMove() && pLoopUnit->canMoveInto(*pAdjacentPlot, MOVEFLAG_ATTACK))
+						pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+						if(pAdjacentPlot != NULL)
 						{
-							return std::max(0, (cargoSpace() - getCargo() + 1));
+							if(pLoopUnit->isCargo() && pLoopUnit->IsCanAttackWithMove() && pLoopUnit->canMoveInto(*pAdjacentPlot, MOVEFLAG_ATTACK))
+							{
+								return std::max(0, (cargoSpace() - getCargo() + 1));
+							}
 						}
 					}
 				}
 			}
+			return std::max(0, (cargoSpace() - getCargo()));
 		}
-		return std::max(0, (cargoSpace() - getCargo()));
 	}
 	else
 	{
@@ -18815,7 +18832,7 @@ if (!bDoEvade)
 				}
 			}
 		}
-#if defined(MOD_GLOBAL_STACKING_RULES)
+#if defined(MOD_BALANCE_CORE)
 		if(IsCombatUnit())
 		{
 			pUnitNode = pNewPlot->headUnitNode();
@@ -18825,20 +18842,24 @@ if (!bDoEvade)
 				pUnitNode = pNewPlot->nextUnitNode(pUnitNode);
 				if (pLoopUnit != NULL)
 				{
-					if(pLoopUnit->IsStackingUnit())
+					if(MOD_GLOBAL_STACKING_RULES)
 					{
-						if(pNewPlot->GetNumCombatUnits()>1)
+						if(pLoopUnit->IsStackingUnit())
 						{
-							pLoopUnit->SetBaseCombatStrength(pLoopUnit->getUnitInfo().GetCombat() + pLoopUnit->getUnitInfo().StackCombat());
-						}
-						else
-						{
-							pLoopUnit->SetBaseCombatStrength(pLoopUnit->getUnitInfo().GetCombat());
+							if(pNewPlot->GetNumCombatUnits()>1)
+							{
+								pLoopUnit->SetBaseCombatStrength(pLoopUnit->getUnitInfo().GetCombat() + pLoopUnit->getUnitInfo().StackCombat());
+							}
+							else
+							{
+								pLoopUnit->SetBaseCombatStrength(pLoopUnit->getUnitInfo().GetCombat());
+							}
 						}
 					}
-#if defined(MOD_CARGO_SHIPS)
-					DoCargoPromotions(*pLoopUnit);
-#endif
+					if(MOD_CARGO_SHIPS)
+					{
+						DoCargoPromotions(*pLoopUnit);
+					}
 				}
 			}
 			DoNearbyUnitPromotion(pNewPlot);
@@ -19148,7 +19169,7 @@ if (!bDoEvade)
 				}
 			}
 		}
-#if defined(MOD_GLOBAL_STACKING_RULES)
+#if defined(MOD_BALANCE_CORE)
 		if(IsCombatUnit())
 		{
 			pUnitNode = pOldPlot->headUnitNode();
@@ -19158,31 +19179,34 @@ if (!bDoEvade)
 				pUnitNode = pOldPlot->nextUnitNode(pUnitNode);
 				if (pLoopUnit != NULL)
 				{
-					if(pLoopUnit->IsStackingUnit())
+					if(MOD_GLOBAL_STACKING_RULES)
 					{
-						if(pOldPlot->GetNumCombatUnits()>1)
+						if(pLoopUnit->IsStackingUnit())
 						{
-							pLoopUnit->SetBaseCombatStrength(pLoopUnit->getUnitInfo().GetCombat() + pLoopUnit->getUnitInfo().StackCombat());
-						}
-						else
-						{
-							pLoopUnit->SetBaseCombatStrength(pLoopUnit->getUnitInfo().GetCombat());
+							if(pOldPlot->GetNumCombatUnits()>1)
+							{
+								pLoopUnit->SetBaseCombatStrength(pLoopUnit->getUnitInfo().GetCombat() + pLoopUnit->getUnitInfo().StackCombat());
+							}
+							else
+							{
+								pLoopUnit->SetBaseCombatStrength(pLoopUnit->getUnitInfo().GetCombat());
+							}
 						}
 					}
-#if defined(MOD_CARGO_SHIPS)
-					if(pLoopUnit->IsCargoCombatUnit() && !pLoopUnit->hasCargo())
+					if(MOD_CARGO_SHIPS)
 					{
-						if(!pLoopUnit->hasCargo())
+						if(pLoopUnit->IsCargoCombatUnit() && !pLoopUnit->hasCargo())
 						{
-							RemoveCargoPromotions(*pLoopUnit);
-							pLoopUnit->SetBaseCombatStrength(pLoopUnit->getUnitInfo().GetCombat());
+							if(!pLoopUnit->hasCargo())
+							{
+								RemoveCargoPromotions(*pLoopUnit);
+								pLoopUnit->SetBaseCombatStrength(pLoopUnit->getUnitInfo().GetCombat());
+							}
 						}
 					}
-#endif
 				}
 			}
 		}
-
 #endif
 	}
 
@@ -23260,21 +23284,34 @@ void CvUnit::setTransportUnit(CvUnit* pTransportUnit)
 			CvAssertMsg(pTransportUnit->cargoSpaceAvailable(getSpecialUnitType(), getDomainType()) > 0, "Cargo space is expected to be available");
 
 			m_transportUnit = pTransportUnit->GetIDInfo();
-#if !defined(MOD_CARGO_SHIPS)
+#if defined(MOD_CARGO_SHIPS)
+			if(!MOD_CARGO_SHIPS)
+			{
+				if(getDomainType() != DOMAIN_AIR)
+				{
+					SetActivityType(ACTIVITY_SLEEP);
+				}
+			}
+#else
 			if(getDomainType() != DOMAIN_AIR)
 			{
 				SetActivityType(ACTIVITY_SLEEP);
 			}
 #endif
 #if defined(MOD_CARGO_SHIPS)
-			if(GC.getGame().isFinalInitialized() && getDomainType() == DOMAIN_AIR)
+			if(MOD_CARGO_SHIPS)
 			{
-				finishMoves();
+				if(GC.getGame().isFinalInitialized() && getDomainType() == DOMAIN_AIR)
+				{
+					finishMoves();
+				}
 			}
-#else		
-			if(GC.getGame().isFinalInitialized())
+			else
 			{
-				finishMoves();
+				if(GC.getGame().isFinalInitialized())
+				{
+					finishMoves();
+				}
 			}
 #endif
 			pTransportUnit->changeCargo(1);
