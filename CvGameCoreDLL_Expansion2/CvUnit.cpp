@@ -14117,7 +14117,7 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return (!pPlot->isWater() || IsHoveringUnit()) && !isCargo();
+		return !pPlot->isWater() || IsHoveringUnit() || isCargo();
 		break;
 	case DOMAIN_AIR:
 		return true;

@@ -532,7 +532,11 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+<<<<<<< HEAD
+        <FileName>Core Files/PNM Mods DB/GLOBAL/CargoShipMod.sql</FileName>
+=======
         <FileName>Core Files/Core Values/CargoShipMod.sql</FileName>
+>>>>>>> 666b26dabc7b738808b414feb3561275a4433bf8
       </Action>
     </ModActions>
     <Homepage>
@@ -1220,6 +1224,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\PNM Mods DB\GLOBAL\CannotEmbark.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\GLOBAL\CargoShipMod.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
