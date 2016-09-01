@@ -1125,14 +1125,14 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, int& iValueImOffering, int& iValueThey
 #if defined(MOD_BALANCE_CORE)
 		if(bFromMe)
 		{
-			if(!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eOtherPlayer, it->m_eItemType, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1))
+			if(!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eOtherPlayer, it->m_eItemType, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1, true, true))
 			{
 				iItemValue=INT_MAX;
 			}
 		}
 		else
 		{
-			if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), it->m_eItemType, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1))
+			if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), it->m_eItemType, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1, true, true))
 			{
 				iItemValue=INT_MAX;
 			}
@@ -8761,7 +8761,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	}
 
 	// BASE COST = (TurnsLeft * 30 * (era ^ 0.7))	-- Ancient Era is 1, Classical Era is 2 because I incremented it
-	iItemValue = iTurnsLeft * /*30*/ GC.getGame().getGameSpeedInfo().getTechCostPerTurnMultiplier();
+	iItemValue = iTurnsLeft * /*30*/ max(100, GC.getGame().getGameSpeedInfo().getTechCostPerTurnMultiplier());
 	float fItemMultiplier = (float)(pow( (double) std::max(1, (iTechEra + 1)), (double) /*0.7*/ GC.getTECH_COST_ERA_EXPONENT() ) );
 	iItemValue = (int)(iItemValue * fItemMultiplier);
 
@@ -8837,10 +8837,10 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
 		{
 			case MAJOR_CIV_APPROACH_HOSTILE:
-				iItemValue *= 25;
+				iItemValue *= 50;
 				break;
 			case MAJOR_CIV_APPROACH_GUARDED:
-				iItemValue *= 40;
+				iItemValue *= 75;
 				break;
 			case MAJOR_CIV_APPROACH_AFRAID:
 				iItemValue *= 100;
@@ -8863,6 +8863,10 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 			iItemValue /= 2;
 		}
 	}
+
+	if(iItemValue <= 250)
+		return 250;
+
 #endif
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?

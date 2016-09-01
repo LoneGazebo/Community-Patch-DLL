@@ -5914,7 +5914,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			if(eFeature != NO_FEATURE)
 			{
 				PromotionTypes eFreePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getPromotionIfOwned();
-				if(eFreePromotion != NO_PROMOTION)
+				if(eFreePromotion != NO_PROMOTION && eNewValue != NO_PLAYER)
 				{
 					if(!GET_PLAYER(eNewValue).IsFreePromotion(eFreePromotion))
 					{
@@ -5930,7 +5930,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				if(eFeature != NO_FEATURE)
 				{
 					PromotionTypes eFreePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getPromotionIfOwned();
-					if(eFreePromotion != NO_PROMOTION)
+					if(eFreePromotion != NO_PROMOTION && eOldOwner != NO_PLAYER)
 					{
 						if(GET_PLAYER(eOldOwner).IsFreePromotion(eFreePromotion))
 						{

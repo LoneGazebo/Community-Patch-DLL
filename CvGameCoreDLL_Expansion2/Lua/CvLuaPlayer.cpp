@@ -1390,6 +1390,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(PlayerHasAnyContract);
 	Method(GetContractTurnsRemaining);
 	Method(GetContractGoldMaintenance);
+	Method(ChangeContractTurns);
 	Method(StartContract);
 	Method(EndContract);
 	Method(UnitIsActiveContractUnit);
@@ -14400,6 +14401,16 @@ int CvLuaPlayer::lGetContractGoldMaintenance(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+int CvLuaPlayer::lChangeContractTurns(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 2);
+	const int iValue = lua_tointeger(L, 3);
+
+	pkPlayer->GetContracts()->ChangeContractEndTurn(eContract, iValue);
+	return 1;
+}
+
 int CvLuaPlayer::lStartContract(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -14413,7 +14424,7 @@ int CvLuaPlayer::lEndContract(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 2);
 
-	pkPlayer->GetContracts()->EndContract(eContract);
+	GC.getGame().GetGameContracts()->EndContract(eContract, pkPlayer->GetID());
 	return 1;
 }
 int CvLuaPlayer::lUnitIsActiveContractUnit(lua_State* L)

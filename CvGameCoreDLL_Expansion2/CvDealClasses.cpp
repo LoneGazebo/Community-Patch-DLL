@@ -823,15 +823,14 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(eThirdTeam == NO_TEAM)
 			return false;
 
-		//Can't already be offering this.
-		if (!bFinalizing && IsThirdPartyPeaceTrade( ePlayer, eThirdTeam))
-			return false;
-#endif
-#if defined(MOD_BALANCE_CORE)
 		//If not at war, need embassy.
 		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 		{
 			if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
+				return false;
+		
+			//Can't already be offering this.
+			if (!bFinalizing && IsThirdPartyPeaceTrade( ePlayer, eThirdTeam))
 				return false;
 		}
 
@@ -919,11 +918,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					//Only matters if not a peace deal (i.e. we're not making negotiations)
 					if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 					{
-						if(!IsPossibleToTradeItem(eLoopPlayer, ePlayer, TRADE_ITEM_PEACE_TREATY))
+						if(pFromPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(eLoopPlayer) < GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 						{
 							return false;
 						}
-						else if(!IsPossibleToTradeItem(ePlayer, eLoopPlayer, TRADE_ITEM_PEACE_TREATY))
+						if(pOtherPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(ePlayer) < GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 						{
 							return false;
 						}
@@ -938,7 +937,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 						//Can't force third party peace with a loser. Has to be a sizeable difference
 						int iFromWarScore = pFromPlayer->GetDiplomacyAI()->GetWarScore(pOtherPlayer->GetID());
 
-						if(iFromWarScore <= 0)
+						if(iFromWarScore < 75)
 							return false;
 					}
 				}

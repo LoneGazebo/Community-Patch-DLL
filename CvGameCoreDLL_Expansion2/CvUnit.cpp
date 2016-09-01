@@ -352,6 +352,7 @@ CvUnit::CvUnit() :
 	, m_iNumGoodyHutsPopped("CvUnit::m_iNumGoodyHutsPopped", m_syncArchive)
 	, m_iLastGameTurnAtFullHealth("CvUnit::m_iLastGameTurnAtFullHealth", m_syncArchive, -1)
 #if defined(MOD_BALANCE_CORE)
+	, m_iOriginCity("CvUnit::m_iOriginCity", m_syncArchive)
 	, m_iCannotBeCapturedCount("CvUnit::m_iCannotBeCapturedCount", m_syncArchive)
 	, m_iForcedDamage("CvUnit::m_iForcedDamage", m_syncArchive)
 	, m_iChangeDamage("CvUnit::m_iForcedDamage", m_syncArchive)
@@ -520,7 +521,12 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	//--------------------------------
 	// Init pre-setup() data
 	setXY(iX, iY, false, false, false, false, bNoMove);
-
+#if defined(MOD_BALANCE_CORE)
+	if(plot() != NULL && plot()->getWorkingCity() != NULL && plot()->getWorkingCity()->getOwner() == getOwner())
+	{
+		setOriginCity(plot()->getWorkingCity()->GetID());
+	}
+#endif
 	//--------------------------------
 	// Init non-saved data
 
@@ -960,7 +966,12 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	//--------------------------------
 	// Init pre-setup() data
 	setXY(iX, iY, false, false, false, false, bNoMove);
-
+#if defined(MOD_BALANCE_CORE)
+	if(plot() != NULL && plot()->getWorkingCity() != NULL && plot()->getWorkingCity()->getOwner() == getOwner())
+	{
+		setOriginCity(plot()->getWorkingCity()->GetID());
+	}
+#endif
 	//--------------------------------
 	// Init non-saved data
 
@@ -1596,6 +1607,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iCityAttackOnlyCount = 0;
 	m_iCaptureDefeatedEnemyCount = 0;
 #if defined(MOD_BALANCE_CORE)
+	m_iOriginCity = 0;
 	m_iCannotBeCapturedCount = 0;
 	m_iForcedDamage = 0;
 	m_iChangeDamage = 0;
@@ -13375,6 +13387,7 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 			//Insta-heal removed, gain health with each promotion instead.
 			changeDamage((-GC.getINSTA_HEAL_RATE() / 5));
 		}
+		GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, getOriginCity(), getDomainType(), true, false, NO_YIELD, this);
 #endif
 
 #if defined(MOD_EVENTS_UNIT_UPGRADES)
@@ -19536,7 +19549,28 @@ bool CvUnit::onMap() const
 	return (plot() != NULL);
 }
 
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+CvCity* CvUnit::getOriginCity()
+{
+	if(getOwner() == NO_PLAYER)
+		return NULL;
 
+	if(m_iOriginCity == -1)
+		return NULL;
+
+	VALIDATE_OBJECT
+	return GET_PLAYER(getOwner()).getCity(m_iOriginCity);
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::setOriginCity(int iNewValue)
+{
+	VALIDATE_OBJECT
+	m_iOriginCity = iNewValue;
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvUnit::getLastMoveTurn() const
 {
@@ -24471,11 +24505,11 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 				ChangePromotionDuration(NO_PROMOTION, 0);
 			}
 		}
-		if(thisPromotion.NegatesPromotion())
+		if(thisPromotion.NegatesPromotion() != NO_PROMOTION)
 		{
 			if(bNewValue)
 			{
-				SetNegatorPromotion((int)eIndex);
+				SetNegatorPromotion((int)thisPromotion.NegatesPromotion());
 			}
 			else
 			{

@@ -330,9 +330,9 @@ void CvCityCitizens::DoTurn()
 		if(!(MOD_UI_CITY_PRODUCTION && thisPlayer.isHuman()))
 		{
 #endif
-			if(GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+			if(GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
 			{
-				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+				SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 			}
 			if(IsNoAutoAssignSpecialists())
 			{
@@ -346,9 +346,9 @@ void CvCityCitizens::DoTurn()
 		}
 		if(!thisPlayer.isHuman())
 		{
-			if(GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+			if(GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
 			{
-				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+				SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 			}
 			if(IsNoAutoAssignSpecialists())
 			{

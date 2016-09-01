@@ -1066,6 +1066,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityCanAcquirePlot			"CityCanAcquirePlot",			"iiii"
 #define GAMEEVENT_CityCanAirlift				"CityCanAirlift",				"ii"
 #define GAMEEVENT_CityConnected					"CityConnected",				"iiiiib"
+#define GAMEEVENT_CityPuppeted					"CityPuppeted",					"ii"
 #define GAMEEVENT_CityConnections				"CityConnections",				"ib"
 #define GAMEEVENT_CityConstructed				"CityConstructed",				"iiibb"
 #define GAMEEVENT_CityCreated					"CityCreated",					"iiibb"

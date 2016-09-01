@@ -11703,9 +11703,12 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && IsMarried(ePlayer))
+	if (iBaseFriendship > iFriendshipAnchor)
 	{
-		iChangeThisTurn = 0;
+		if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && IsMarried(ePlayer))
+		{
+			iChangeThisTurn = 0;
+		}
 	}
 #endif
 	// Shift on top of base rate
@@ -12156,37 +12159,12 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 				continue;
 
 			if(kNewAllyTeam.isAtWar(eLoopTeam))
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			{
-				//Cannot declare war on vassals!
-				bool bCannotWar = false;
-				if(MOD_DIPLOMACY_CIV4_FEATURES)
-				{
-					PlayerTypes eLoopPlayer;
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-						if(!kOurTeam.canDeclareWar(GET_PLAYER(eLoopPlayer).getTeam(), GetPlayer()->GetID()))
-						{
-							bCannotWar = true;
-							break;
-						}
-					}
-				}
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-				if(!bCannotWar)
-				{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-					kOurTeam.declareWar(eLoopTeam, false, GetPlayer()->GetID());
-#else
-					kOurTeam.declareWar(eLoopTeam);
-#endif
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-				}
+			{
+				kOurTeam.declareWar(eLoopTeam, false, GetPlayer()->GetID());
 			}
+#else
+				kOurTeam.declareWar(eLoopTeam);
 #endif
 		}
 	}

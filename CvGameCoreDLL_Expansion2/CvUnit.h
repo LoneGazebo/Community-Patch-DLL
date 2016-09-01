@@ -835,6 +835,11 @@ public:
 	CvArea* area() const;
 	bool onMap() const;
 
+#if defined(MOD_BALANCE_CORE)
+	void setOriginCity(int ID);
+	CvCity* getOriginCity();
+#endif
+
 	int getLastMoveTurn() const;
 	void setLastMoveTurn(int iNewValue);
 
@@ -1687,6 +1692,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iCityAttackOnlyCount;
 	FAutoVariable<int, CvUnit> m_iCaptureDefeatedEnemyCount;
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvUnit> m_iOriginCity;
 	FAutoVariable<int, CvUnit> m_iCannotBeCapturedCount;
 	FAutoVariable<int, CvUnit> m_iForcedDamage;
 	FAutoVariable<int, CvUnit> m_iChangeDamage;

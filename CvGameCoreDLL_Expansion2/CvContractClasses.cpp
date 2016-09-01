@@ -357,61 +357,15 @@ void CvPlayerContracts::Write(FDataStream& kStream)
 	kStream << m_abActiveContract;
 }
 
-/// Serialization read
-FDataStream& operator>>(FDataStream& loadFrom, CvPlayerContracts& writeTo)
-{
-	uint uiVersion;
-
-	loadFrom >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(loadFrom);
-
-	int iEntriesToRead;
-	CvContract tempItem;
-
-	writeTo.m_ActivePlayerContracts.clear();
-	loadFrom >> iEntriesToRead;
-	for(int iI = 0; iI < iEntriesToRead; iI++)
-	{
-		loadFrom >> tempItem;
-		writeTo.m_ActivePlayerContracts.push_back(tempItem);
-	}
-
-	return loadFrom;
-}
-
-/// Serialization write
-FDataStream& operator<<(FDataStream& saveTo, const CvPlayerContracts& readFrom)
-{
-	uint uiVersion = 0;
-	saveTo << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(saveTo);
-
-	ContractList::const_iterator it;
-	saveTo << readFrom.m_ActivePlayerContracts.size();
-	for(it = readFrom.m_ActivePlayerContracts.begin(); it != readFrom.m_ActivePlayerContracts.end(); it++)
-	{
-		saveTo << *it;
-	}
-
-	return saveTo;
-}
-
 CvContract* CvPlayerContracts::GetContract(ContractTypes eContract)
 {
 	if(eContract == NO_CONTRACT)
 		return NULL;
 
-	ContractList::iterator it;
-	for(it = m_ActivePlayerContracts.begin(); it != m_ActivePlayerContracts.end(); it++)
+	CvContractEntry* pContract = GC.getContractInfo(eContract);
+	if(pContract)
 	{
-		if(it->m_eContract == eContract)
-		{
-			CvContractEntry* pContract = GC.getContractInfo(eContract);
-			if(pContract)
-			{
-				return GC.getGame().GetGameContracts()->GetActiveContract(eContract);
-			}
-		}
+		return GC.getGame().GetGameContracts()->GetActiveContract(eContract);
 	}
 	return NULL;
 }
@@ -424,7 +378,15 @@ bool CvPlayerContracts::PlayerHasContract(ContractTypes eContract) const
 }
 bool CvPlayerContracts::PlayerHasAnyContract() const
 {
-	return (m_ActivePlayerContracts.size() > 0);
+	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
+	{
+		CvContractEntry* pContract = GC.getContractInfo((ContractTypes)iI);
+		if(pContract && PlayerHasContract((ContractTypes) iI))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 void CvPlayerContracts::SetActiveContract(ContractTypes eContract, bool bValue)
 {
@@ -467,8 +429,6 @@ void CvPlayerContracts::StartContract(ContractTypes eContract)
 		SetActiveContract(eContract, true);
 
 		InitContractUnits(eContract);
-
-		m_ActivePlayerContracts.push_back(kContract);
 	
 		//Add to active list.
 		GC.getGame().GetGameContracts()->StartContract(kContract);
@@ -480,37 +440,42 @@ void CvPlayerContracts::StartContract(ContractTypes eContract)
 // Destroy contract
 void CvPlayerContracts::EndContract(ContractTypes eContract)
 {
-	ContractList::iterator it;
-	for(it = m_ActivePlayerContracts.begin(); it != m_ActivePlayerContracts.end(); it++)
+	CvContractEntry* pContract = GC.getContractInfo(eContract);
+	if(pContract)
 	{
-		CvContract kContract = (*it);
-		if(kContract.m_eContract == eContract)
-		{
-			SetActiveContract(eContract, false);
+		SetActiveContract(eContract, false);
 
-			//Erase from active list.
-			m_ActivePlayerContracts.erase(it);
-
-			GC.getGame().GetGameContracts()->EndContract(it->m_eContract, it->m_eContractHolder);
-
-			break;
-		}
+		GC.getGame().GetGameContracts()->EndContract(eContract, m_pPlayer->GetID());
 	}
 }
 
 int CvPlayerContracts::GetContractGoldMaintenance()
 {
 	int iMaintenance = 0;
-	ContractList::iterator it;
-	for(it = m_ActivePlayerContracts.begin(); it != m_ActivePlayerContracts.end(); it++)
+	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
-		CvContract kContract = (*it);
-		if(kContract.m_iContractMaintenance > 0)
+		CvContractEntry* pContract = GC.getContractInfo((ContractTypes)iI);
+		if(pContract && PlayerHasContract((ContractTypes)iI))
 		{
-			iMaintenance += kContract.m_iContractMaintenance;
+			CvContract* pContractInfo = GetContract((ContractTypes)iI);
+			if(pContractInfo)
+			{
+				if(pContractInfo->m_iContractMaintenance != 0)
+				{
+					iMaintenance += pContractInfo->m_iContractMaintenance;
+				}
+			}
 		}
 	}
 	return iMaintenance;
+}
+void CvPlayerContracts::ChangeContractEndTurn(ContractTypes eContract, int iValue)
+{
+	CvContract* pContract = GetContract(eContract);
+	if(pContract && iValue != 0)
+	{
+		pContract->m_iContractTurns = iValue;
+	}
 }
 
 bool CvPlayerContracts::UnitIsActiveContractUnit(UnitTypes eUnit)
@@ -518,14 +483,19 @@ bool CvPlayerContracts::UnitIsActiveContractUnit(UnitTypes eUnit)
 	if(eUnit == NO_UNIT)
 		return false;
 
-	ContractList::iterator it;
-	for(it = m_ActivePlayerContracts.begin(); it != m_ActivePlayerContracts.end(); it++)
+	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
-		CvContract* pContract = GetContract(it->m_eContract);
-				
-		if(pContract && GC.getGame().GetContractUnits(it->m_eContract, eUnit) > 0)
+		CvContractEntry* pContract = GC.getContractInfo((ContractTypes)iI);
+		if(pContract && PlayerHasContract((ContractTypes)iI))
 		{
-			return true;
+			CvContract* pContractInfo = GetContract((ContractTypes)iI);
+			if(pContractInfo)
+			{
+				if(GC.getGame().GetContractUnits((ContractTypes)iI, eUnit) > 0)
+				{
+					return true;
+				}
+			}
 		}
 	}
 	return false;
@@ -667,22 +637,28 @@ int CvPlayerContracts::GetContractTurnsRemaining(ContractTypes eContract)
 }
 int CvPlayerContracts::GetNumActivePlayerContracts() const
 {
-	return m_ActivePlayerContracts.size();
+	int iNum = 0;
+	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
+	{
+		CvContractEntry* pContract = GC.getContractInfo((ContractTypes)iI);
+		if(pContract && PlayerHasContract((ContractTypes) iI))
+		{
+			iNum++;
+		}
+	}
+	return iNum;
 }
 
 void CvPlayerContracts::DoTurn()
 {
-	ContractList::iterator it;
-	for(it = m_ActivePlayerContracts.begin(); it != m_ActivePlayerContracts.end(); it++)
+	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
-		CvContract* pContract = GetContract(it->m_eContract);
-		if(pContract)
+		CvContractEntry* pContract = GC.getContractInfo((ContractTypes)iI);
+		if(pContract && PlayerHasContract((ContractTypes)iI))
 		{
-			int iStartTurn = pContract->m_iContractTurnStart;
-			int iTurns = pContract->m_iContractTurns;
-			if((iStartTurn + iTurns) <= GC.getGame().getGameTurn())
+			if(GetContractTurnsRemaining((ContractTypes)iI) <= 0)
 			{
-				GC.getGame().GetGameContracts()->EndContract(pContract->m_eContract, pContract->m_eContractHolder);
+				GC.getGame().GetGameContracts()->EndContract((ContractTypes)iI, m_pPlayer->GetID());
 			}
 		}
 	}

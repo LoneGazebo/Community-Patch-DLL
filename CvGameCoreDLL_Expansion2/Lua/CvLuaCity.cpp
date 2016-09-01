@@ -332,6 +332,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetNumTeamWonders);
 	Method(GetNumNationalWonders);
 	Method(GetNumBuildings);
+#if defined(MOD_BALANCE_CORE)
+	Method(GetNumTotalBuildings);
+#endif
 
 	Method(GetWonderProductionModifier);
 	Method(ChangeWonderProductionModifier);
@@ -3202,6 +3205,27 @@ int CvLuaCity::lGetNumBuildings(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+int CvLuaCity::lGetNumTotalBuildings(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iResult = 0;
+	
+	for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	{
+		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+		if(pkBuildingInfo)
+		{
+			iResult += pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+		}
+	}
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 
 //------------------------------------------------------------------------------
 //int GetWonderProductionModifier();
@@ -5109,6 +5133,9 @@ int CvLuaCity::lGetSpecialistYieldChange(lua_State* L)
 	{
 		iRtnValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange(eSpecialist, eYield);
 	}
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	iRtnValue += pkCity->GetEventSpecialistYield(eSpecialist, eYield);
+#endif
 
 	lua_pushinteger(L, iRtnValue);
 

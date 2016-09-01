@@ -1016,6 +1016,9 @@ public:
 	int GetYieldFromPurchase(YieldTypes eIndex) const;
 	void ChangeYieldFromPurchase(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromUnitLevelUp(YieldTypes eIndex) const;
+	void ChangeYieldFromUnitLevelUp(YieldTypes eIndex, int iChange);
+
 	int GetBuildingScienceFromYield(YieldTypes eIndex1) const;
 	void ChangeBuildingScienceFromYield(YieldTypes eIndex, int iChange);
 
@@ -1626,6 +1629,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromBorderGrowth;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPolicyUnlock;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPurchase;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromUnitLevelUp;
 	FAutoVariable<std::vector<int>, CvCity> m_aiScienceFromYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiBuildingScienceFromYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiSpecialistRateModifier;

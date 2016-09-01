@@ -481,6 +481,7 @@ protected:
 	LUAAPIEXTN(PlayerHasAnyContract, int);
 	LUAAPIEXTN(GetContractTurnsRemaining, int);
 	LUAAPIEXTN(GetContractGoldMaintenance, int);
+	LUAAPIEXTN(ChangeContractTurns, int);
 	LUAAPIEXTN(StartContract, int);
 	LUAAPIEXTN(EndContract, int);
 	LUAAPIEXTN(UnitIsActiveContractUnit, int);

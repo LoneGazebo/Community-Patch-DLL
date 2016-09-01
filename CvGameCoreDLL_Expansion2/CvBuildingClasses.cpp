@@ -293,6 +293,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromUnitProduction(NULL),
 	m_piYieldFromBorderGrowth(NULL),
 	m_piYieldFromPolicyUnlock(NULL),
+	m_piYieldFromUnitLevelUp(NULL),
 	m_piYieldFromPurchase(NULL),
 #endif
 	m_piYieldChange(NULL),
@@ -397,6 +398,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromUnitProduction);
 	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
 	SAFE_DELETE_ARRAY(m_piYieldFromPolicyUnlock);
+	SAFE_DELETE_ARRAY(m_piYieldFromUnitLevelUp);
 	SAFE_DELETE_ARRAY(m_piYieldFromPurchase);
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
@@ -806,6 +808,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromUnitProduction, "Building_YieldFromUnitProduction", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromBorderGrowth, "Building_YieldFromBorderGrowth", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPolicyUnlock, "Building_YieldFromPolicyUnlock", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromUnitLevelUp, "Building_YieldFromUnitLevelUp", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPurchase, "Building_YieldFromPurchase", "BuildingType", szBuildingType);
 #endif
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
@@ -2527,6 +2530,19 @@ int* CvBuildingEntry::GetYieldFromPolicyUnlockArray() const
 {
 	return m_piYieldFromPolicyUnlock;
 }
+
+int CvBuildingEntry::GetYieldFromUnitLevelUp(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromUnitLevelUp[i];
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromUnitLevelUpArray() const
+{
+	return m_piYieldFromUnitLevelUp;
+}
+
 
 int CvBuildingEntry::GetYieldFromPurchase(int i) const
 {

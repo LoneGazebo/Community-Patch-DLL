@@ -2491,7 +2491,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	}
 
 	//If this is way too far away, let's not penalize it too much.
-	iScore -= iDistance;
+	iScore -= (iDistance * 3);
 
 	//All CSs should theoretically be valuable if we've gotten this far.
 	if(iScore <= 0)
