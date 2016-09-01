@@ -22,22 +22,6 @@ UPDATE Units
 SET SpecialCargo = 'SPECIALUNIT_CARGO_ARMY', DomainCargo = 'DOMAIN_LAND', CargoCombat = 20
 WHERE Type IN (SELECT Type FROM Units WHERE CombatClass = 'UNITCOMBAT_NAVALMELEE') AND EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );
 
-UPDATE Language_en_US 
-SET Text = Text||(SELECT ' '||Text FROM Language_en_US WHERE Tag = 'TXT_KEY_ARMY_CARGO_UNIT_1')
-WHERE Tag IN (SELECT Help FROM Units WHERE SpecialCargo = 'SPECIALUNIT_CARGO_ARMY' AND Type IN (SELECT UnitType FROM Unit_FreePromotions WHERE PromotionType = 'PROMOTION_CARGO_I')) AND EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );
-
-UPDATE Language_en_US 
-SET Text = Text||(SELECT ' '||Text FROM Language_en_US WHERE Tag = 'TXT_KEY_ARMY_CARGO_UNIT_2')
-WHERE Tag IN (SELECT Help FROM Units WHERE SpecialCargo = 'SPECIALUNIT_CARGO_ARMY' AND Type IN (SELECT UnitType FROM Unit_FreePromotions WHERE PromotionType = 'PROMOTION_CARGO_II')) AND EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );
-
-UPDATE Language_en_US 
-SET Text = Text||(SELECT ' '||Text FROM Language_en_US WHERE Tag = 'TXT_KEY_ARMY_CARGO_UNIT_3')
-WHERE Tag IN (SELECT Help FROM Units WHERE SpecialCargo = 'SPECIALUNIT_CARGO_ARMY' AND Type IN (SELECT UnitType FROM Unit_FreePromotions WHERE PromotionType = 'PROMOTION_CARGO_III')) AND EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );
-
-UPDATE Language_en_US 
-SET Text = Text||(SELECT ' '||Text FROM Language_en_US WHERE Tag = 'TXT_KEY_ARMY_CARGO_UNIT_4')
-WHERE Tag IN (SELECT Help FROM Units WHERE SpecialCargo = 'SPECIALUNIT_CARGO_ARMY' AND Type IN (SELECT UnitType FROM Unit_FreePromotions WHERE PromotionType = 'PROMOTION_CARGO_IV')) AND EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );
-
 INSERT INTO Unit_FreePromotions
 		(UnitType,	PromotionType)
 SELECT	Type,		('PROMOTION_CARGO_I')
@@ -74,7 +58,7 @@ SELECT		'PROMOTION_ARMY_ON_SHIP',	'TXT_KEY_PROMOTION_ARMY_ON_SHIP',	'TXT_KEY_PRO
 WHERE EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );
 
 INSERT INTO UnitPromotions
-			(Type,								Description,							Help,											Sound,				CombatPercent,	RangeChange,	CannotBeChosen,	PortraitIndex,	IconAtlas,			PediaType,		PediaEntry)
+			(Type,							Description,							Help,											Sound,				CombatPercent,	RangeChange,	CannotBeChosen,	PortraitIndex,	IconAtlas,			PediaType,		PediaEntry)
 SELECT		'PROMOTION_ARMY_RANGE_PENALTY',	'TXT_KEY_PROMOTION_ARMY_RANGE_PENALTY',	'TXT_KEY_PROMOTION_ARMY_RANGE_PENALTY_HELP',	'AS2D_IF_LEVELUP',	-25,			-1,				1,				57,				'ABILITY_ATLAS',	'PEDIA_SHARED', 'TXT_KEY_PROMOTION_ARMY_RANGE_PENALTY'
 WHERE EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );
 
@@ -83,16 +67,32 @@ INSERT INTO Language_en_US
 SELECT		'TXT_KEY_PROMOTION_ARMY_SUPPORT',						'Pirate Ship' UNION ALL
 SELECT		'TXT_KEY_PROMOTION_ARMY_SUPPORT_HELP',					'Before engaging in naval melee combat, this unit has an extra attack' UNION ALL
 SELECT		'TXT_KEY_PROMOTION_ARMY_ON_SHIP',						'Military Unit on Ship' UNION ALL
-SELECT		'TXT_KEY_PROMOTION_ARMY_ON_SHIP_HELP',					'Unit is cargo on and can embark or disembark from Ship to Land.' UNION ALL
+SELECT		'TXT_KEY_PROMOTION_ARMY_ON_SHIP_HELP',					'This unit is cargo and can unload from Ship to Land only.' UNION ALL
 SELECT		'TXT_KEY_SPECIALUNIT_CARGO_ARMY',						'Army Cargo Unit' UNION ALL
 SELECT		'TXT_KEY_PROMOTION_ARMY_RANGE_PENALTY',					'Ranged Naval Penalty' UNION ALL
 SELECT		'TXT_KEY_PROMOTION_ARMY_RANGE_PENALTY_HELP',			'-25% [ICON_STRENGTH] Ranged Strength and -1 Range when using Ranged Attacks' UNION ALL
-SELECT		'TXT_KEY_PROMOTION_ARMY_SCOUT_SHIP',					'Scout Unit on Ship' UNION ALL
+SELECT		'TXT_KEY_PROMOTION_ARMY_SCOUT_SHIP',					'Recon Unit on Ship' UNION ALL
 SELECT		'TXT_KEY_PROMOTION_ARMY_SCOUT_SHIP_HELP',				'+2 Visibility Range' UNION ALL
-SELECT		'TXT_KEY_PROMOTION_POLYNESIA_CARGO',					'Polynesia Cargo Movement' UNION ALL
-SELECT		'TXT_KEY_PROMOTION_POLYNESIA_CARGO_HELP',				'1 Extra Movement for Naval Units with Land Cargo' UNION ALL
-SELECT		'TXT_KEY_ARMY_CARGO_UNIT_1',							'[NEWLINE]Can carry 1 Melee, Archer, Siege, Mounted, Recon, Armor, Helicopter, or Gunpowder Units.' UNION ALL
-SELECT		'TXT_KEY_ARMY_CARGO_UNIT_2',							'[NEWLINE]Can carry 2 Melee, Archer, Siege, Mounted, Recon, Armor, Helicopter, or Gunpowder Units.' UNION ALL
-SELECT		'TXT_KEY_ARMY_CARGO_UNIT_3',							'[NEWLINE]Can carry 3 Melee, Archer, Siege, Mounted, Recon, Armor, Helicopter, or Gunpowder Units.' UNION ALL
-SELECT		'TXT_KEY_ARMY_CARGO_UNIT_4',							'[NEWLINE]Can carry 4 Melee, Archer, Siege, Mounted, Recon, Armor, Helicopter, or Gunpowder Units.'
+SELECT		'TXT_KEY_PROMOTION_POLYNESIA_CARGO',					'Polynesia Cargo Ship Movement' UNION ALL
+SELECT		'TXT_KEY_PROMOTION_POLYNESIA_CARGO_HELP',				'+1 Extra Movement for Naval Units with Land Cargo' UNION ALL
+SELECT		'TXT_KEY_ARMY_CARGO_UNIT_1',							'[NEWLINE]Can carry 1 Land Unit.' UNION ALL
+SELECT		'TXT_KEY_ARMY_CARGO_UNIT_2',							'[NEWLINE]Can carry 2 Land Units.' UNION ALL
+SELECT		'TXT_KEY_ARMY_CARGO_UNIT_3',							'[NEWLINE]Can carry 3 Land Units.' UNION ALL
+SELECT		'TXT_KEY_ARMY_CARGO_UNIT_4',							'[NEWLINE]Can carry 4 Land Units.'
 WHERE EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );
+
+UPDATE Language_en_US 
+SET Text = Text||(SELECT ' '||Text FROM Language_en_US WHERE Tag = 'TXT_KEY_ARMY_CARGO_UNIT_1')
+WHERE Tag IN (SELECT Help FROM Units WHERE SpecialCargo = 'SPECIALUNIT_CARGO_ARMY' AND Type IN (SELECT UnitType FROM Unit_FreePromotions WHERE PromotionType = 'PROMOTION_CARGO_I')) AND EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );
+
+UPDATE Language_en_US 
+SET Text = Text||(SELECT ' '||Text FROM Language_en_US WHERE Tag = 'TXT_KEY_ARMY_CARGO_UNIT_2')
+WHERE Tag IN (SELECT Help FROM Units WHERE SpecialCargo = 'SPECIALUNIT_CARGO_ARMY' AND Type IN (SELECT UnitType FROM Unit_FreePromotions WHERE PromotionType = 'PROMOTION_CARGO_II')) AND EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );
+
+UPDATE Language_en_US 
+SET Text = Text||(SELECT ' '||Text FROM Language_en_US WHERE Tag = 'TXT_KEY_ARMY_CARGO_UNIT_3')
+WHERE Tag IN (SELECT Help FROM Units WHERE SpecialCargo = 'SPECIALUNIT_CARGO_ARMY' AND Type IN (SELECT UnitType FROM Unit_FreePromotions WHERE PromotionType = 'PROMOTION_CARGO_III')) AND EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );
+
+UPDATE Language_en_US 
+SET Text = Text||(SELECT ' '||Text FROM Language_en_US WHERE Tag = 'TXT_KEY_ARMY_CARGO_UNIT_4')
+WHERE Tag IN (SELECT Help FROM Units WHERE SpecialCargo = 'SPECIALUNIT_CARGO_ARMY' AND Type IN (SELECT UnitType FROM Unit_FreePromotions WHERE PromotionType = 'PROMOTION_CARGO_IV')) AND EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );
