@@ -5615,6 +5615,12 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		iValue += kPlayer.GetPlayerTraits()->GetCapitalBuildingModifier();
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(kPlayer.GetPlayerTraits()->GetWonderProductionToBuildingDiscount(eBuilding) > 0)
+	{
+		iValue += pCity->getProductionModifier(eBuilding);
+	}
+#endif
 	if(pkBuildingInfo->GetXBuiltTriggersIdeologyChoice())
 	{
 		if (kPlayer.getBuildingClassCount((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()) < pkBuildingInfo->GetXBuiltTriggersIdeologyChoice())

@@ -950,6 +950,10 @@ int DestinationReached(int iToX, int iToY, const SPathFinderUserData&, const CvA
 
 		//now make sure it's the right area ...
 		return GC.getMap().plotUnchecked(iToX, iToY)->isAdjacentToArea( GC.getMap().plotUnchecked(finder->GetDestX(), finder->GetDestY())->getArea() );
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
 	}
 	else if ( finder->HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING1) )
 	{
