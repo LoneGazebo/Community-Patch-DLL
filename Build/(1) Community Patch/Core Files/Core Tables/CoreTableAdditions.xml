@@ -56,6 +56,13 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
+	<!-- FEATURE: Allows you to define a yield gained by a feature when you increase your era. -->
+	<Table name="Feature_EraYieldChanges">
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
 	<!-- PANTHEON: Allows you to define any belief to grant 1 yield per X pop, where X is the number below. (FAITH ONLY)-->
 	<Table name="Belief_YieldPerPop">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
@@ -245,7 +252,7 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
-	<!-- BUILDING: Allows you to define a building to grant a yield when a city spends gold to buy something (All 5 base yields) -->
+	<!-- BUILDING: Allows you to define a building to grant a yield when a city spends gold to buy something (All yields) -->
 	<Table name="Building_YieldFromPurchase">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
@@ -256,6 +263,21 @@
 	<Table name="Building_YieldPerXTerrainTimes100">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
 		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+
+	<!-- BUILDING: Allows you to define a hurruy modifier for local hurries in a city. -->
+	<Table name="Building_HurryModifiersLocal">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="HurryType" type="text" reference="HurryInfos(Type)"/>
+		<Column name="HurryCostModifier" type="integer"/>
+	</Table>
+
+	<!-- BUILDING: Allows you to modify a local specialist value. -->
+	<Table name="Building_SpecialistYieldChangesLocal">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
@@ -378,7 +400,14 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
-
+	<!-- TRAIT: Allows you to define a yield that is gained from mountains based on the number of mountains adjacent to a mountain. 
+	Yield here is maximum yield for mountain clusters. All mountains have a minimum of 1 yield from the value below, so the yield will be somewhere between 1 and x, where x is the maximum value or # of adjacent mountains. -->
+	<Table name="Trait_MountainRangeYield">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	
 	<!-- TRAIT: Allows you to define a yield that is gained from converted GAP when you start a Golden Age. Value is a % (so 100 = 100% of GAP). -->
 	<Table name="Trait_GAPToYield">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
@@ -427,6 +456,12 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- TRAIT: Allows you to define a yield that is gained in every city based on the number of CS friends you have.-->
+	<Table name="Trait_YieldFromCSFriend">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 	<!-- TRAIT: Allows you to define a yield that is gained when a city is founded -->
 	<Table name="Trait_YieldFromSettle">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
@@ -455,6 +490,12 @@
 
 	<!-- TRAIT: Allows you to define a yield that is gained every time you buy a tile -->
 	<Table name="Trait_YieldFromTilePurchase">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- TRAIT: Allows you to define a yield that is gained every time you acquire a tile -->
+	<Table name="Trait_YieldFromTileEarn">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
@@ -503,35 +544,6 @@
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
 		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
 	</Table>
-
-	<!-- BUILDING: Allows you to define a building to grant a yield based on # of corporate franchises in unowned major cities-->
-	<Table name="Building_CorporationYield">
-		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
-		<Column name="Yield" type="integer" default="0"/>
-	</Table>
-
-	<!-- BUILDING: Allows you to define a building to grant a yield based on # of corporate franchises in unowned major cities-->
-	<Table name="Building_CorporationYieldModTrade">
-		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
-		<Column name="Yield" type="integer" default="0"/>
-	</Table>
-
-	<!-- BUILDING: Allows you to define a building to grant a yield based on # of corporate franchises in unowned major cities-->
-	<Table name="Building_CorporationTradeRouteMod">
-		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
-		<Column name="Yield" type="integer" default="0"/>
-	</Table>
-
-	<!-- BUILDING: Allows you to define a building to grant a resource based on # of franchies in world -->
-	<Table name="Building_CorporationResourceQuantity">
-		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
-		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
-		<Column name="Quantity" type="integer"/>
-	</Table>
-
 
 	<!-- BUILDINGS: Allows you to define a Resource Monopoly AND or OR requirement for the city. Must have DEALS functions enabled to use. -->
 	<Table name="Building_ResourceMonopolyOrs">
@@ -606,18 +618,255 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
+	<!-- Improvement: allows a resource to boost the base yield of an adjacent improvement -->
+	<Table name="Improvement_AdjacentResourceYieldChanges">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
 	<Table name="Improvement_AdjacentTerrainYieldChanges">
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
+	<!-- Promotion: Unit gains a bonus from revealing tiles. Value is equal to the number of tiles explored this turn. -->
+	<Table name="UnitPromotions_YieldFromScouting">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<!-- Corporations System -->
+	<Table name="Corporations">
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)" default="NULL"/>
+		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="ResourceBonusHelp" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="OfficeBonusHelp" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="TradeRouteBonusHelp" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="OfficeBenefitHelper" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="HeadquartersBuildingClass" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="OfficeBuildingClass" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="FranchiseBuildingClass" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="MaxFranchises" type="integer" default="0"/>
+		<Column name="NumFreeTradeRoutes" type="integer" default="0"/>
+		<Column name="TradeRouteRecipientBonus" type="integer" default="0"/>
+		<Column name="TradeRouteTargetBonus" type="integer" default="0"/>
+		<Column name="TradeRouteLandDistanceModifier" type="integer" default="0"/>
+		<Column name="TradeRouteSeaDistanceModifier" type="integer" default="0"/>
+		<Column name="TradeRouteSpeedModifier" type="integer" default="100"/>
+		<Column name="TradeRouteInvulnerable" type="boolean" default="false"/>
+		<Column name="TradeRouteVisionBoost" type="integer" default="0"/>
+		<Column name="PortraitIndex" type="integer" default="-1"/>
+		<Column name="IconAtlas" type="text" default="NULL" reference="IconTextureAtlases(Atlas)"/>
+	</Table>
+	<!-- Applies the modifier to the origin city yields - when sending to Franchises -->
+	<Table name="Corporation_TradeRouteCityYield">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="YieldType" type="text" notnull="true" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- Applies the modifer to what the trade route yields - when sending to Franchises -->
+	<Table name="Corporation_TradeRouteMod">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="YieldType" type="text" notnull="true" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- Applies specialist yield change to all cities with Corporation Headquarters and Offices (stacks) -->
+	<Table name="Corporation_SpecialistYieldChanges">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
+		<Column name="YieldType" type="text" notnull="true" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- Applies yield change to all cities with Corporation Headquarters and Offices (stacks) -->
+	<Table name="Corporation_BuildingClassYieldChanges">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer" default="0"/>
+	</Table>
+	<!-- Applies yield change to all cities with Corporation Headquarters and Offices (stacks) -->
+	<Table name="Corporation_ResourceYieldChanges">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<Table name="Building_FranchiseTradeRouteCityYield">
+		<Column name="BuildingType" type="text" notnull="true" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="text" notnull="true" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- Grants a yield based on # of corporate franchises in unowned major cities -->
+	<Table name="Building_YieldPerFranchise">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- Grant a resource based on # of franchies in world -->
+	<Table name="Building_ResourceQuantityPerXFranchises">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="NumFranchises" type="integer"/>
+	</Table>
+	<!-- Non-functional ATM -->
+	<Table name="Corporation_ResourceMonopolyAnds">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+	</Table>
+	<Table name="Corporation_ResourceMonopolyOrs">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+	</Table>
+	<Table name="Corporation_NumFreeResource">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="NumResource" type="integer" default="0"/>
+	</Table>
+	<Table name="Corporation_UnitResourceProductionModifier">
+		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="Modifier" type="integer" default="0"/>
+	</Table>
+	<!-- End Corporations -->
+	<!-- Stuff for CBO Egypt-->
+	<GreatWorkArtifactClasses>
+		<Row Type="ARTIFACT_SARCOPHAGUS" Value="7"/>
+	</GreatWorkArtifactClasses>
+	<GreatWorks>
+		<!-- GREAT ARTIFACTS -->
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_1</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_1</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_2</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_2</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_3</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_3</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_4</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_4</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_5</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_5</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_6</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_6</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_7</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_7</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_8</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_8</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_9</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_9</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_10</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_10</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_11</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_11</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_12</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_12</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_13</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_13</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_14</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_14</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_15</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_15</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_16</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_16</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_EGYPT_SARCOPHAGUS_17</Type>
+			<GreatWorkClassType>GREAT_WORK_ARTIFACT</GreatWorkClassType>
+			<ArtifactClassType>ARTIFACT_SARCOPHAGUS</ArtifactClassType>
+			<Description>TXT_KEY_ARTIFACT_SARCOPHAGUS_17</Description>
+			<Image>Sarcophagus.dds</Image>
+		</Row>
+	</GreatWorks>
 	<Yields>
 		<Row>
 			<ID>8</ID>
 			<Type>YIELD_GREAT_GENERAL_POINTS</Type>
 			<Description>TXT_KEY_YIELD_GREAT_GENERAL_POINTS</Description>
 			<IconString>[ICON_GREAT_GENERAL]</IconString>
+			<ColorString>[COLOR_WHITE]</ColorString>
+			<ImageTexture>yieldatlas_128_general.dds</ImageTexture>
 			<MinCity>0</MinCity>
 			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
@@ -626,6 +875,8 @@
 			<Type>YIELD_GREAT_ADMIRAL_POINTS</Type>
 			<Description>TXT_KEY_YIELD_GREAT_ADMIRAL_POINTS</Description>
 			<IconString>[ICON_GREAT_ADMIRAL]</IconString>
+			<ColorString>[COLOR_WHITE]</ColorString>
+			<ImageTexture>yieldatlas_128_admiral.dds</ImageTexture>
 			<MinCity>0</MinCity>
 			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
@@ -642,6 +893,8 @@
 			<Type>YIELD_CULTURE_LOCAL</Type>
 			<Description>TXT_KEY_YIELD_CULTURE_LOCAL</Description>
 			<IconString>[ICON_CULTURE]</IconString>
+			<ColorString>[COLOR_WHITE]</ColorString>
+			<ImageTexture>yieldatlas_128_culturelocal.dds</ImageTexture>
 			<MinCity>0</MinCity>
 			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
@@ -677,5 +930,24 @@
 			<MinCity>0</MinCity>
 			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
+		<Row>
+			<ID>16</ID>
+			<Type>YIELD_JFD_SOVEREIGNTY</Type>
+			<Description>TXT_KEY_YIELD_JFD_SOVEREIGNTY</Description>
+			<IconString>[ICON_CULTURE]</IconString>
+			<MinCity>0</MinCity>
+			<AIWeightPercent>80</AIWeightPercent>
+		</Row>
 	</Yields>
+	<Notifications>
+		<Row>
+			<NotificationType>NOTIFICATION_EVENT_CHOICE</NotificationType>
+		</Row>
+		<Row>
+			<NotificationType>NOTIFICATION_EVENT_CHOICE_CITY</NotificationType>
+		</Row>
+		<Row>
+			<NotificationType>NOTIFICATION_INSTANT_YIELD</NotificationType>
+		</Row>
+	</Notifications>
 </GameData>

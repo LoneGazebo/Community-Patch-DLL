@@ -6,6 +6,11 @@ INSERT INTO Defines(Name, Value) VALUES('AI_CONFIG_MILITARY_AIRCRAFT_PER_CARRIER
 -- Number of water tiles per ship for (small?) bodies of water, the default is 5, but 7 or 8 would be sufficient
 INSERT INTO Defines(Name, Value) VALUES('AI_CONFIG_MILITARY_TILES_PER_SHIP', 6);
 
+
+-- Priority caller for homeland AI secondary settler
+INSERT INTO Defines(Name, Value) VALUES('AI_HOMELAND_MOVE_PRIORITY_SECONDARY_SETTLER', 1);
+INSERT INTO Defines(Name, Value) VALUES('AI_HOMELAND_MOVE_PRIORITY_SECONDARY_WORKER', 3);
+
 -- Warmonger weight for capturing a major civ's city
 --INSERT INTO Defines(Name, Value) VALUES('WARMONGER_THREAT_MAJOR_CITY_WEIGHT', 1000);
 -- Warmonger weight for capturing a minor civ's city

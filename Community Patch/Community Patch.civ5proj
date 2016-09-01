@@ -529,6 +529,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Tables/JFDContracts.xml</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/PNM Mods DB/GLOBAL/CargoShipMod.sql</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -1211,6 +1216,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\PNM Mods DB\GLOBAL\CannotEmbark.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\GLOBAL\CargoShipMod.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
