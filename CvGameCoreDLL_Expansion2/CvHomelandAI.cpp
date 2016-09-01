@@ -2516,7 +2516,11 @@ void CvHomelandAI::PlotEngineerMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pUnit->AI_getUnitAIType() == UNITAI_ENGINEER || (pUnit->getUnitInfo().GetUnitAIType(UNITAI_ENGINEER) && !m_pPlayer->IsAtWar()))
+#else
 			if(pUnit->AI_getUnitAIType() == UNITAI_ENGINEER)
+#endif
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -4461,34 +4465,39 @@ void CvHomelandAI::ExecuteEngineerMoves()
 				pWonderCity = m_pPlayer->GetCitySpecializationAI()->GetWonderBuildCity();
 				if(pWonderCity)
 				{
-					int iProductionSoFar = pWonderCity->getProduction();
-					int iProductionRemaining = pWonderCity->getProductionNeeded(eNextWonderDesired);
-
-					if(pWonderCity->getProductionBuilding() == eNextWonderDesired && iProductionSoFar * 3 < iProductionRemaining)
-					{
-						// If engineer can move to city before half done
-						int iTurnsRemaining = pWonderCity->getProductionTurnsLeft();
-						iTurnsToTarget = pUnit->TurnsToReachTarget(pWonderCity->plot(), true);
-						if(iTurnsToTarget * 3 < iTurnsRemaining)
-						{
-							bForceWonderCity = false;
-
-							// Already at target and the wonder is underway?
-							if(pWonderCity->getProductionBuilding() == eNextWonderDesired && iTurnsToTarget == 0 && pUnit->plot() == pWonderCity->plot())
-							{
-								pUnit->PushMission(CvTypes::getMISSION_HURRY());
-								UnitProcessed(pUnit->GetID());
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strLogString;
-									strLogString.Format("Great Engineer hurrying wonder chosen by city specialization AI at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-									LogHomelandMessage(strLogString);
-									continue;
-								}
 #if defined(MOD_BALANCE_CORE)
-								pUnit->finishMoves();
-								continue;
+					if(pUnit->AI_getUnitAIType() == UNITAI_ENGINEER)
+					{
 #endif
+						int iProductionSoFar = pWonderCity->getProduction();
+						int iProductionRemaining = pWonderCity->getProductionNeeded(eNextWonderDesired);
+
+						if(pWonderCity->getProductionBuilding() == eNextWonderDesired && iProductionSoFar * 3 < iProductionRemaining)
+						{
+							// If engineer can move to city before half done
+							int iTurnsRemaining = pWonderCity->getProductionTurnsLeft();
+							iTurnsToTarget = pUnit->TurnsToReachTarget(pWonderCity->plot(), true);
+							if(iTurnsToTarget * 3 < iTurnsRemaining)
+							{
+								bForceWonderCity = false;
+
+								// Already at target and the wonder is underway?
+								if(pWonderCity->getProductionBuilding() == eNextWonderDesired && iTurnsToTarget == 0 && pUnit->plot() == pWonderCity->plot())
+								{
+									pUnit->PushMission(CvTypes::getMISSION_HURRY());
+									UnitProcessed(pUnit->GetID());
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strLogString;
+										strLogString.Format("Great Engineer hurrying wonder chosen by city specialization AI at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+										LogHomelandMessage(strLogString);
+										continue;
+									}
+#if defined(MOD_BALANCE_CORE)
+									pUnit->finishMoves();
+									continue;
+#endif
+								}
 							}
 
 							// No, then move there
@@ -4511,7 +4520,24 @@ void CvHomelandAI::ExecuteEngineerMoves()
 								}
 							}
 						}
+#if defined(MOD_BALANCE_CORE)
 					}
+					else if(pUnit->IsCombatUnit())
+					{
+						CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), MAX_INT);
+						if(pEng)
+						{
+							ExecuteMoveToTarget(pEng, pWonderCity->plot(), 0, true);
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("Moving %s as garrison to city to boost production at specialization wonder city at, X: %d, Y: %d", pEng->getName().c_str(), pWonderCity->getX(),  pWonderCity->getY());
+								LogHomelandMessage(strLogString);
+							}
+							continue;
+						}
+					}
+#endif
 				}
 
 				if(bForceWonderCity)
@@ -4520,50 +4546,73 @@ void CvHomelandAI::ExecuteEngineerMoves()
 
 					if(pWonderCity)
 					{
-						iTurnsToTarget = pUnit->TurnsToReachTarget(pWonderCity->plot(), true);
-
-						// Already at target?
-						if(iTurnsToTarget == 0 && pUnit->plot() == pWonderCity->plot())
-						{
-							// Switch production
-							pWonderCity->pushOrder(ORDER_CONSTRUCT, eNextWonderDesired, -1, false, false, false);
-
-							if (pWonderCity->getProductionTurnsLeft() > 1)
-							{
-								// Rush it
-								pUnit->PushMission(CvTypes::getMISSION_HURRY());
-								UnitProcessed(pUnit->GetID());
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strLogString;
-									strLogString.Format("Great Engineer hurrying free wonder at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-									LogHomelandMessage(strLogString);
-									continue;
-								}
 #if defined(MOD_BALANCE_CORE)
-								pUnit->finishMoves();
-								continue;
+						if(pUnit->AI_getUnitAIType() == UNITAI_ENGINEER)
+						{
 #endif
+							iTurnsToTarget = pUnit->TurnsToReachTarget(pWonderCity->plot(), true);
+
+							// Already at target?
+							if(iTurnsToTarget == 0 && pUnit->plot() == pWonderCity->plot())
+							{
+								// Switch production
+								pWonderCity->pushOrder(ORDER_CONSTRUCT, eNextWonderDesired, -1, false, false, false);
+
+								if (pWonderCity->getProductionTurnsLeft() > 1)
+								{
+									// Rush it
+									pUnit->PushMission(CvTypes::getMISSION_HURRY());
+									UnitProcessed(pUnit->GetID());
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strLogString;
+										strLogString.Format("Great Engineer hurrying free wonder at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+										LogHomelandMessage(strLogString);
+										continue;
+									}
+#if defined(MOD_BALANCE_CORE)
+									pUnit->finishMoves();
+									continue;
+#endif
+								}
+								else
+								{
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strLogString;
+										strLogString.Format("Great Engineer not needed to hurry 1-turn wonder at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+										LogHomelandMessage(strLogString);
+										continue;
+									}
+#if defined(MOD_BALANCE_CORE)
+									UnitProcessed(pUnit->GetID());
+									pUnit->finishMoves();
+									continue;
+#endif
+								}
 							}
+							// No, then move there
 							else
 							{
-								if(GC.getLogging() && GC.getAILogging())
+								CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), MAX_INT);
+								if(pEng)
 								{
-									CvString strLogString;
-									strLogString.Format("Great Engineer not needed to hurry 1-turn wonder at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-									LogHomelandMessage(strLogString);
-									continue;
-								}
-#if defined(MOD_BALANCE_CORE)
-								UnitProcessed(pUnit->GetID());
-								pUnit->finishMoves();
-								continue;
-#endif
-							}
-						}
+									ExecuteMoveToTarget(pEng, pWonderCity->plot(), 0, true);
 
-						// No, then move there
-						else
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strLogString;
+										strLogString.Format("Moving %s for free wonder to city at, X: %d, Y: %d", pEng->getName().c_str(), pWonderCity->getX(),  pWonderCity->getY());
+										LogHomelandMessage(strLogString);
+									}
+#if defined(MOD_BALANCE_CORE)
+									continue;
+#endif
+								}
+							}
+#if defined(MOD_BALANCE_CORE)
+						}
+						else if(pUnit->IsCombatUnit())
 						{
 							CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), MAX_INT);
 							if(pEng)
@@ -4573,15 +4622,13 @@ void CvHomelandAI::ExecuteEngineerMoves()
 								if(GC.getLogging() && GC.getAILogging())
 								{
 									CvString strLogString;
-									strLogString.Format("Moving %s for free wonder to city at, X: %d, Y: %d", pEng->getName().c_str(), pWonderCity->getX(),  pWonderCity->getY());
+									strLogString.Format("Moving %s as garrison to boost wonder in city at, X: %d, Y: %d", pEng->getName().c_str(), pWonderCity->getX(),  pWonderCity->getY());
 									LogHomelandMessage(strLogString);
 								}
-#if defined(MOD_BALANCE_CORE)
 								continue;
-#endif
 							}
 						}
-
+#endif
 					}
 				}
 			}

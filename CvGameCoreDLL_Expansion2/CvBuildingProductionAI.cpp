@@ -253,9 +253,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		return 0;
 
 	//Sanitize...
-	if(iValue > 750)
+	if(iValue > 500)
 	{
-		iValue = 750;
+		iValue = 500;
 	}
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
@@ -317,9 +317,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 	if(iNumWar > 0 && pkBuildingInfo->GetDefenseModifier() <= 0)
 	{
-		iBonus -= 200;
-
-		iBonus -= (iNumWar * 100);
+		iBonus -= (iNumWar * 200);
 
 		if(kPlayer.getNumCities() > 1 && m_pCity->GetThreatCriteria() != -1)
 		{
@@ -332,15 +330,19 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 		if(m_pCity->IsBastion())
 		{
-			iBonus -= 200;
-		}
-		if(m_pCity->IsBlockaded(true))
-		{
-			iBonus -= 200;
+			iBonus -= 300;
 		}
 		if(m_pCity->IsBlockadedWaterAndLand())
 		{
-			iBonus -= 200;
+			iBonus -= 600;
+		}
+		else if(m_pCity->IsBlockaded(true))
+		{
+			iBonus -= 400;
+		}
+		else if(m_pCity->IsBlockaded(false))
+		{
+			iBonus -= 400;
 		}
 	}
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -823,22 +825,29 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if(eYield == NO_YIELD)
 			continue;
 
+		if(!MOD_BALANCE_CORE_JFD && eYield > YIELD_CULTURE_LOCAL)
+			continue;
+
 		iYieldValue = CityStrategyAIHelpers::GetBuildingYieldValue(m_pCity, eBuilding, eYield);
 
-		int iYieldTrait = CityStrategyAIHelpers::GetBuildingTraitValue(m_pCity, eYield, eBuilding);
+		int iYieldTrait = CityStrategyAIHelpers::GetBuildingTraitValue(m_pCity, eYield, eBuilding, iYieldValue);
 
-		if(eYield == eDeficientYield)
+		if((iYieldValue > 0) || (iYieldTrait > 0))
 		{
-			iYieldValue *= 5;
-		}
-		//Help with poverty
-		if(eYield == YIELD_GOLD && ((iYieldValue > 0) || (iYieldTrait > 0)))
-		{
-			if(iGPT < 0)
+			if(eYield == eDeficientYield)
 			{
-				iYieldValue += (iGPT * -20);
+				iYieldValue *= 5;
+				iYieldTrait *= 5;
 			}
-			bGoodforGPTHappiness = true;
+			//Help with poverty
+			if(eYield == YIELD_GOLD)
+			{
+				if(iGPT < 0)
+				{
+					iYieldValue += (iGPT * -20);
+				}
+				bGoodforGPTHappiness = true;
+			}
 		}
 
 		iBonus += iYieldValue;

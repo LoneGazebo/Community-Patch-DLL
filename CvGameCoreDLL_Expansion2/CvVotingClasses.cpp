@@ -5254,7 +5254,7 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 				if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
 				{
-					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, ePlayer);
 					CvPlot* pkPlot = NULL;
 					int iReligionAlly = 0;
 					if(pReligion)

@@ -10,6 +10,7 @@
 #include "ICvDLLUserInterface.h"
 #include "CvGameCoreUtils.h"
 #include "CvInfosSerializationHelper.h"
+#include "CvInternalGameCoreUtils.h"
 #include "CvDiplomacyAI.h"
 #include "CvGrandStrategyAI.h"
 
@@ -103,6 +104,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iStartingSpies(0),
 	m_iStartingSpyRank(0),
 	m_iQuestYieldModifier(0),
+	m_iWonderProductionModifierToBuilding(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -377,7 +379,13 @@ int CvTraitEntry::GetCapitalBuildingModifier() const
 {
 	return m_iCapitalBuildingModifier;
 }
-
+#if defined(MOD_BALANCE_CORE)
+/// Accessor:: discount when constructing a building based on Wonder Production Modifier present
+int CvTraitEntry::GetWonderProductionModifierToBuilding() const
+{
+	return m_iWonderProductionModifierToBuilding;
+}
+#endif
 /// Accessor:: cheaper purchase of tiles for culture border expansion
 int CvTraitEntry::GetPlotBuyCostModifier() const
 {
@@ -1731,6 +1739,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iStartingSpies						= kResults.GetInt("StartingSpies");
 	m_iStartingSpyRank						= kResults.GetInt("StartingSpyRank");
 	m_iQuestYieldModifier					= kResults.GetInt("MinorQuestYieldModifier");
+	m_iWonderProductionModifierToBuilding	= kResults.GetInt("WonderProductionModifierToBuilding");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -2735,6 +2744,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iStartingSpies += trait->GetStartingSpies();
 			m_iStartingSpyRank += trait->GetStartingSpyRank();
 			m_iQuestYieldModifier += trait->GetQuestYieldModifier();
+			m_iWonderProductionModifierToBuilding += trait->GetWonderProductionModifierToBuilding();
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
@@ -3270,6 +3280,7 @@ void CvPlayerTraits::Reset()
 	m_bNoNaturalReligionSpread = false;
 	m_iTourismToGAP = 0;
 	m_iEventTourismBoost = 0;
+	m_iWonderProductionModifierToBuilding = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -4242,6 +4253,19 @@ int CvPlayerTraits::GetCapitalBuildingDiscount(BuildingTypes eBuilding)
 }
 
 #if defined(MOD_BALANCE_CORE)
+int CvPlayerTraits::GetWonderProductionToBuildingDiscount(BuildingTypes eBuilding)
+{
+	CvBuildingEntry* thisBuildingEntry = GC.getBuildingInfo(eBuilding);
+	const CvBuildingClassInfo& kBuildingClassInfo = thisBuildingEntry->GetBuildingClassInfo();
+	if(GetWonderProductionModifierToBuilding() > 0)
+	{
+		if(!(::isWorldWonderClass(kBuildingClassInfo) || ::isTeamWonderClass(kBuildingClassInfo) || ::isNationalWonderClass(kBuildingClassInfo)))
+		{
+			return (GetWonderProductionModifierToBuilding());
+		}
+	}
+	return 0;
+}
 TechTypes CvPlayerTraits::GetFreeBuildingPrereqTech() const
 {
 	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
@@ -4999,6 +5023,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(74, kStream, m_iStartingSpies, 0);
 	MOD_SERIALIZE_READ(74, kStream, m_iStartingSpyRank, 0);
 	MOD_SERIALIZE_READ(74, kStream, m_iQuestYieldModifier, 0);
+	MOD_SERIALIZE_READ(74, kStream, m_iWonderProductionModifierToBuilding, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -5527,6 +5552,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iStartingSpies);
 	MOD_SERIALIZE_WRITE(kStream, m_iStartingSpyRank);
 	MOD_SERIALIZE_WRITE(kStream, m_iQuestYieldModifier);
+	MOD_SERIALIZE_WRITE(kStream, m_iWonderProductionModifierToBuilding);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);

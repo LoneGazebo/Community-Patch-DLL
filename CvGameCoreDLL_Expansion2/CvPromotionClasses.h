@@ -155,6 +155,10 @@ public:
 	bool IsCityStateOnly() const;
 	bool IsBarbarianOnly() const;
 	int GetMoraleBreakChance() const;
+	UnitClassTypes GetCombatBonusFromNearbyUnitClass() const;
+	int GetNearbyUnitClassBonusRange() const;
+	int GetNearbyUnitClassBonus() const;
+	int GetWonderProductionModifier() const;
 #endif
 	bool IsCannotBeChosen() const;
 	bool IsLostWithUpgrade() const;
@@ -225,6 +229,11 @@ public:
 	bool IsIgnoreGreatGeneralBenefit() const;
 	bool IsIgnoreZOC() const;
 	bool IsSapper() const;
+#if defined(MOD_BALANCE_CORE)
+	bool IsNearbyPromotion() const;
+	int NearbyRange() const;
+	PromotionTypes AddedFromNearbyPromotion() const;
+#endif
 	bool IsCanHeavyCharge() const;
 	bool HasPostCombatPromotions() const;
 	bool ArePostCombatPromotionsExclusive() const;
@@ -413,6 +422,12 @@ protected:
 	int m_iNearbyImprovementBonusRange;
 	ImprovementTypes m_eCombatBonusImprovement;
 #endif
+#if defined(MOD_BALANCE_CORE)	
+	int m_iNearbyUnitClassBonus;
+	int m_iNearbyUnitClassBonusRange;
+	UnitClassTypes m_iCombatBonusFromNearbyUnitClass;
+	int m_iWonderProductionModifier;
+#endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool m_bCanCrossMountains;
 #endif
@@ -456,6 +471,11 @@ protected:
 	bool m_bHasPostCombatPromotions;
 	bool m_bPostCombatPromotionsExclusive;
 	bool m_bSapper;
+#if defined(MOD_BALANCE_CORE)
+	bool m_bIsNearbyPromotion;
+	int m_iNearbyRange;
+	PromotionTypes m_eAddedFromNearbyPromotion;
+#endif
 	bool m_bCanHeavyCharge;
 
 	CvString m_strSound;

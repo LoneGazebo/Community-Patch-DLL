@@ -5523,7 +5523,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 
 	if(!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
 	{
-		if((GetReligions()->GetCurrentReligion() != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
+		if((GetReligions()->GetCurrentReligion(false) != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
 			return false;
 	}
 
@@ -5956,7 +5956,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 
 	if(!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
 	{
-		if((GetReligions()->GetCurrentReligion() != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
+		if((GetReligions()->GetCurrentReligion(false) != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
 			return false;
 	}
 
@@ -7217,7 +7217,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 
 	if(!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
 	{
-		if((GetReligions()->GetCurrentReligion() != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
+		if((GetReligions()->GetCurrentReligion(false) != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
 		{
 			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_SPECIFIC_RELIGION");
 			localizedDurationText << GC.getReligionInfo((ReligionTypes)pkEventInfo->getRequiredReligion())->GetDescription();
@@ -7775,7 +7775,7 @@ void CvPlayer::CheckActivePlayerEvents(CvCity* pCity)
 		EventChoiceTypes eEventChoice = (EventChoiceTypes)iLoop;
 		if(eEventChoice != NO_EVENT_CHOICE)
 		{
-			if(GetEventChoiceDuration(eEventChoice) > 0)
+			if(GetEventChoiceDuration(eEventChoice) > 0 || IsEventChoiceFired(eEventChoice))
 			{
 				DoEventSyncChoices(eEventChoice, pCity);
 			}
@@ -9543,7 +9543,7 @@ bool CvPlayer::CanLiberatePlayerCity(PlayerTypes ePlayer)
 #if defined(MOD_BALANCE_CORE_JFD)
 CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract)
 #else
-CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped
+CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped)
 #endif
 {
 	CvAssertMsg(eUnit != NO_UNIT, "Unit is not assigned a valid value");
@@ -24277,7 +24277,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 		if(pLoopCity == NULL)
 			continue;
 
-		//If we passed ina city, only check that city.
+		//If we passed in a city, only check that city.
 		if(pCity != NULL && pLoopCity != pCity)
 			continue;
 
@@ -24640,6 +24640,26 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue += (pUnit->getYieldFromScouting(eYield) * pUnit->GetNumTilesRevealedThisTurn());
 					break;
 				}
+				case INSTANT_YIELD_TYPE_LEVEL_UP:
+				{
+					if(pUnit == NULL)
+						continue;
+
+					if(eYield == YIELD_GREAT_ADMIRAL_POINTS && !bDomainSea)
+					{
+						continue;
+					}
+					if(eYield == YIELD_GREAT_GENERAL_POINTS && bDomainSea)
+					{
+						continue;
+					}
+					if(iPassYield != 0)
+					{
+						iValue += (iPassYield * pLoopCity->GetYieldFromUnitLevelUp(eYield));
+					}
+					break;
+				}
+				
 			}
 			//Now, let's apply these yields here as total yields.
 			if(iValue != 0)
@@ -25181,6 +25201,20 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				return;
 			}
+			case INSTANT_YIELD_TYPE_LEVEL_UP:
+			{
+				if(pUnit != NULL)
+				{
+					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
+					if(pkUnitInfo)
+					{
+						localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_LEVEL_UP");
+						localizedText << totalyieldString;
+						localizedText << pkUnitInfo->GetDescriptionKey();
+						break;
+					}
+				}
+			}		
 		}
 		if(pCity == NULL)
 		{
@@ -29673,6 +29707,10 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 							GET_TEAM(getTeam()).DoEndVassal(eTheirTeam, true, true);
 							GET_TEAM(eTheirTeam).DoEndVassal(getTeam(), true, true);
 						}
+#endif
+#if defined(MOD_BALANCE_CORE)
+						GET_TEAM(getTeam()).setAtWar(eTheirTeam, false, false);
+						GET_TEAM(eTheirTeam).setAtWar(getTeam(), false, false);
 #endif
 					}
 				}

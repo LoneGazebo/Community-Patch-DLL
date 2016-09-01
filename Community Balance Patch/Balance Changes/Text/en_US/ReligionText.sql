@@ -259,7 +259,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_MOSQUE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNI
 
 -- Religious Texts (Now Hymns)
 UPDATE Language_en_US
-SET Text = 'Religion spreads 25% faster (50% with Printing Press). Your spies exert religious pressure on the Cities they occupy.'
+SET Text = 'Religion spreads 30% faster (60% with Printing Press). Your spies exert religious pressure on the Cities they occupy.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_TEXTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -322,7 +322,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_MISSIONARY_ZEAL_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Holy Order
 UPDATE Language_en_US
-SET Text = 'Religion spreads to Cities 50% further away, and to friendly City-States at double rate. Pressure via owned [ICON_INTERNATIONAL_TRADE] Trade Routes tripled.'
+SET Text = 'Religion spreads to Cities 30% further away, and to friendly City-States at double rate. Pressure via owned [ICON_INTERNATIONAL_TRADE] Trade Routes tripled.'
 WHERE Tag = 'TXT_KEY_BELIEF_HOLY_ORDER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

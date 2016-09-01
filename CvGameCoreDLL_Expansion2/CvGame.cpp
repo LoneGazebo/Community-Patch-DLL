@@ -9039,7 +9039,11 @@ void CvGame::updateMoves()
 									{
 										if(pLoopUnit->getOwner() == pLoopUnitInner->getOwner())	// Could be a dying Unit from another player here
 										{
+#if defined(MOD_GLOBAL_STACKING_RULES)
+											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit.pointer()) > pLoopUnit->plot()->getUnitLimit())
+#else
 											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit.pointer()) > GC.getPLOT_UNIT_LIMIT())
+#endif
 											{
 												if(pLoopUnitInner->getFortifyTurns() >= iNumTurnsFortified)
 												{

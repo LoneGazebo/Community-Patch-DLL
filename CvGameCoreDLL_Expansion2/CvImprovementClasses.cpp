@@ -94,6 +94,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iImprovementResource(NO_RESOURCE),
 	m_iImprovementResourceQuantity(0),
 	m_iUnitFreePromotionImprovement(NO_PROMOTION),
+	m_iWonderProductionModifier(0),
 #endif
 	m_iImprovementPillage(NO_IMPROVEMENT),
 	m_iImprovementUpgrade(NO_IMPROVEMENT),
@@ -169,6 +170,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_piAdjacentTwoSameTypeYield(NULL),
 	m_ppiAdjacentImprovementYieldChanges(NULL),
 	m_ppiAdjacentTerrainYieldChanges(NULL),
+	m_ppiAdjacentResourceYieldChanges(NULL),
 #endif
 	m_ppiTechYieldChanges(NULL),
 	m_ppiTechNoFreshWaterYieldChanges(NULL),
@@ -201,6 +203,10 @@ CvImprovementEntry::~CvImprovementEntry(void)
 	if(m_ppiAdjacentImprovementYieldChanges != NULL)
 	{
 		CvDatabaseUtility::SafeDelete2DArray(m_ppiAdjacentImprovementYieldChanges);
+	}
+	if(m_ppiAdjacentResourceYieldChanges != NULL)
+	{
+		CvDatabaseUtility::SafeDelete2DArray(m_ppiAdjacentResourceYieldChanges);
 	}
 	if(m_ppiAdjacentTerrainYieldChanges!= NULL)
 	{
@@ -340,6 +346,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	{
 		m_iUnitFreePromotionImprovement = GC.getInfoTypeForString(szTextVal, true);
 	}
+	m_iWonderProductionModifier = kResults.GetInt("WonderProductionModifier");
 #endif
 	//References
 	const char* szWorldsoundscapeAudioScript = kResults.GetText("WorldSoundscapeAudioScript");
@@ -482,6 +489,36 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 			const int yield = pResults->GetInt(2);
 
 			m_ppiAdjacentImprovementYieldChanges[improvement_idx][yield_idx] = yield;
+		}
+
+		pResults->Reset();
+	}
+	//AdjacentResourceYieldChanges
+	{
+		const int iNumResources = kUtility.MaxRows("Resources");
+		CvAssertMsg(iNumResources > 0, "Num Resource Infos <= 0");
+		kUtility.Initialize2DArray(m_ppiAdjacentResourceYieldChanges, iNumResources, iNumYields);
+
+		std::string strKey = "Improvements - AdjacentResourceYieldChanges";
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Resources.ID as ResourceID, Yield from Improvement_AdjacentResourceYieldChanges inner join Yields on YieldType = Yields.Type inner join Resources on ResourceType = Resources.Type where ImprovementType = ?");
+		}
+
+		pResults->Bind(1, szImprovementType, lenImprovementType, false);
+
+		while(pResults->Step())
+		{
+			const int yield_idx = pResults->GetInt(0);
+			CvAssert(yield_idx > -1);
+
+			const int resource_idx = pResults->GetInt(1);
+			CvAssert(resource_idx > -1);
+
+			const int yield = pResults->GetInt(2);
+
+			m_ppiAdjacentResourceYieldChanges[resource_idx][yield_idx] = yield;
 		}
 
 		pResults->Reset();
@@ -802,6 +839,10 @@ int CvImprovementEntry::GetResourceQuantityFromImprovement() const
 int CvImprovementEntry::GetUnitFreePromotion() const
 {
 	return m_iUnitFreePromotionImprovement;
+}
+int CvImprovementEntry::GetWonderProductionModifier() const
+{
+	return m_iWonderProductionModifier;
 }
 #endif
 /// Returns the type of improvement that results from this improvement being pillaged
@@ -1267,6 +1308,21 @@ int CvImprovementEntry::GetAdjacentImprovementYieldChanges(int i, int j) const
 int* CvImprovementEntry::GetAdjacentImprovementYieldChangesArray(int i)
 {
 	return m_ppiAdjacentImprovementYieldChanges[i];
+}
+
+/// How much an improvement yields if built next to a resource
+int CvImprovementEntry::GetAdjacentResourceYieldChanges(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiAdjacentResourceYieldChanges[i][j];
+}
+
+int* CvImprovementEntry::GetAdjacentResourceYieldChangesArray(int i)
+{
+	return m_ppiAdjacentResourceYieldChanges[i];
 }
 
 int CvImprovementEntry::GetAdjacentTerrainYieldChanges(int i, int j) const

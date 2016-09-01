@@ -4858,6 +4858,22 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			iYieldValue += kPlayer.GetPlayerTraits()->GetInvestmentModifier() * -1;
 		}
 	}
+	if(pkBuildingInfo->GetYieldFromUnitLevelUp(eYield) > 0)
+	{
+		if(kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, DOMAIN_LAND) == pCity)
+		{
+			iYieldValue += pkBuildingInfo->GetYieldFromUnitLevelUp(eYield) * 5;
+		}
+		if(kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, DOMAIN_SEA) == pCity)
+		{
+			iYieldValue += pkBuildingInfo->GetYieldFromUnitLevelUp(eYield) * 5;
+		}
+		if(kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, DOMAIN_AIR) == pCity)
+		{
+			iYieldValue += pkBuildingInfo->GetYieldFromUnitLevelUp(eYield) * 5;
+		}
+	}
+	
 	if(pkBuildingInfo->GetYieldFromUnitProduction(eYield) > 0)
 	{
 		iYieldValue += pCity->getFreeExperience() + pkBuildingInfo->GetYieldFromUnitProduction(eYield);
@@ -5026,9 +5042,22 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 
-	//Start with 1 value for modifier.
+	//Start with 0 value for modifier.
 
-	int iValue = 1;
+	int iValue = 0;
+
+	//GWS
+	if(kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier() > 0 && pkBuildingInfo->GetNumThemingBonuses() > 0)
+	{
+		if(pCity->isCapital())
+		{
+			iValue += kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier();
+		}
+		else
+		{
+			iValue -= kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier();
+		}
+	}
 
 	// == Grand Strategy ==
 	AIGrandStrategyTypes eGrandStrategy = kPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy();
@@ -5566,17 +5595,17 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 
 	CvPlayerAI& kPlayer = GET_PLAYER(pCity->getOwner());
 
-	//Start with 1 value for modifier.
+	//Start with 0 value for modifier.
 
-	int iValue = 1;
+	int iValue = 0;
 
 	if(pkBuildingInfo->GetBuildingProductionModifier() > 0)
 	{
-		iValue += pCity->getPopulation();
+		iValue += pCity->getPopulation() * 2;
 	}
 	if(pkBuildingInfo->IsAllowsPuppetPurchase() && pCity->IsPuppet())
 	{
-		iValue += 25;
+		iValue += 50;
 	}
 	if(kPlayer.GetPlayerTraits()->GetCapitalBuildingDiscount(eBuilding) > 0)
 	{
@@ -5595,7 +5624,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	}
 	if(pkBuildingInfo->GetCityConnectionTradeRouteModifier() != 0 && pCity->IsRouteToCapitalConnected())
 	{
-		iValue += 10;
+		iValue += pkBuildingInfo->GetCityConnectionTradeRouteModifier();
 	}
 	if(pkBuildingInfo->GetCityCountUnhappinessMod() != 0)
 	{
@@ -5611,7 +5640,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 		{
 			if(pCity->GetCityBuildings()->GetNumBuilding(eFreeBuildingThisCity) <= 0)
 			{
-				iValue += 15;
+				iValue += pCity->getPopulation() * 3;
 			}
 		}
 	}
@@ -5626,7 +5655,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 
 	return iValue;
 }
-int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYield, BuildingTypes eBuilding)
+int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYield, BuildingTypes eBuilding, int iValue)
 {
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -5639,9 +5668,7 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 
 	CvPlayerAI& kPlayer = GET_PLAYER(pCity->getOwner());
 
-	int iBonus = 1;
-	
-	//Strategy-specific yield bonuses (that lack a yield modifier)
+	int iBonus = 0;
 
 	//GWS
 	GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
@@ -5661,22 +5688,14 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 	{
 		iBonus += (pkBuildingInfo->GetGreatWorkCount() * kPlayer.GetPlayerTraits()->GetMusicYieldChanges(eYield) * 10);
 	}
+	
+	//Strategy-specific yield bonuses (that lack a yield modifier)
 
 	if(kPlayer.GetPlayerTraits()->GetBuildingClassYieldChange((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield) > 0)
 	{
 		iBonus += (kPlayer.GetPlayerTraits()->GetBuildingClassYieldChange((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), eYield) * 5);
 	}
-	if(kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier() > 0 && pkBuildingInfo->GetNumThemingBonuses() > 0)
-	{
-		if(pCity->isCapital())
-		{
-			iBonus += kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier();
-		}
-		else
-		{
-			iBonus -= kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier();
-		}
-	}
+
 	if(kPlayer.GetPlayerTraits()->GetGreatWorkYieldChanges(eYield) > 0 && pkBuildingInfo->GetGreatWorkCount() > 0)
 	{
 		iBonus += (kPlayer.GetPlayerTraits()->GetGreatWorkYieldChanges(eYield) * 5);
@@ -5691,83 +5710,86 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 	{
 		if(pkBuildingInfo->GetGreatWorkCount() > 0)
 		{
-			iBonus += 20 * pkBuildingInfo->GetGreatWorkCount();
+			iBonus += 25 * pkBuildingInfo->GetGreatWorkCount();
 		}
 	}
 
-	if(eYield == YIELD_SCIENCE)
+	if(iValue > 0)
 	{
-		if(kPlayer.GetPlayerTraits()->IsMayaCalendarBonuses())
+		if(eYield == YIELD_SCIENCE)
 		{
-			iBonus += 15;
+			if(kPlayer.GetPlayerTraits()->IsMayaCalendarBonuses())
+			{
+				iBonus += 15;
+			}
+			if(kPlayer.GetPlayerTraits()->GetGreatScientistRateModifier() > 0)
+			{
+				iBonus += 15;
+			}
+			if(kPlayer.GetPlayerTraits()->IsTechBoostFromCapitalScienceBuildings())
+			{
+				iBonus += 15;
+			}
+			if(kPlayer.GetPlayerTraits()->IsTechFromCityConquer())
+			{
+				iBonus += 15;
+			}
+			if(kPlayer.GetPlayerTraits()->GetCombatBonusVsHigherTech() != 0)
+			{
+				iBonus -= 15;
+			}
 		}
-		if(kPlayer.GetPlayerTraits()->GetGreatScientistRateModifier() > 0)
+		else if(eYield == YIELD_FAITH)
 		{
-			iBonus += 15;
+			if(kPlayer.GetPlayerTraits()->IsUniqueBeliefsOnly())
+			{
+				iBonus += 25;
+			}
+			if(kPlayer.GetPlayerTraits()->IsBonusReligiousBelief())
+			{
+				iBonus += 25;
+			}
+			if(kPlayer.GetPlayerTraits()->IsReconquista())
+			{
+				iBonus += 25;
+			}
+			if(kPlayer.GetPlayerTraits()->IsPopulationBoostReligion())
+			{
+				iBonus += 25;
+			}
+			if(kPlayer.GetPlayerTraits()->GetFaithFromKills() > 0)
+			{
+				iBonus += 25;
+			}
+			if(kPlayer.GetPlayerTraits()->IsFaithFromUnimprovedForest())
+			{
+				iBonus += 25;
+			}
 		}
-		if(kPlayer.GetPlayerTraits()->IsTechBoostFromCapitalScienceBuildings())
+		else if(eYield == YIELD_GOLD)
 		{
-			iBonus += 15;
+			if(kPlayer.GetPlayerTraits()->IsAbleToAnnexCityStates())
+			{
+				iBonus += 25;
+			}
+			if(kPlayer.GetPlayerTraits()->IsDiplomaticMarriage())
+			{
+				iBonus += 25;
+			}
+			if(kPlayer.GetPlayerTraits()->IsNoAnnexing())
+			{
+				iBonus += 25;
+			}
+			if(kPlayer.GetPlayerTraits()->GetLuxuryHappinessRetention())
+			{
+				iBonus += 25;
+			}
 		}
-		if(kPlayer.GetPlayerTraits()->IsTechFromCityConquer())
-		{
-			iBonus += 15;
-		}
-		if(kPlayer.GetPlayerTraits()->GetCombatBonusVsHigherTech() != 0)
-		{
-			iBonus -= 15;
-		}
-	}
-	else if(eYield == YIELD_FAITH)
-	{
-		if(kPlayer.GetPlayerTraits()->IsUniqueBeliefsOnly())
-		{
-			iBonus += 25;
-		}
-		if(kPlayer.GetPlayerTraits()->IsBonusReligiousBelief())
-		{
-			iBonus += 25;
-		}
-		if(kPlayer.GetPlayerTraits()->IsReconquista())
-		{
-			iBonus += 25;
-		}
-		if(kPlayer.GetPlayerTraits()->IsPopulationBoostReligion())
-		{
-			iBonus += 25;
-		}
-		if(kPlayer.GetPlayerTraits()->GetFaithFromKills() > 0)
-		{
-			iBonus += 25;
-		}
-		if(kPlayer.GetPlayerTraits()->IsFaithFromUnimprovedForest())
-		{
-			iBonus += 25;
-		}
-	}
-	else if(eYield == YIELD_GOLD)
-	{
-		if(kPlayer.GetPlayerTraits()->IsAbleToAnnexCityStates())
-		{
-			iBonus += 25;
-		}
-		if(kPlayer.GetPlayerTraits()->IsDiplomaticMarriage())
-		{
-			iBonus += 25;
-		}
-		if(kPlayer.GetPlayerTraits()->IsNoAnnexing())
-		{
-			iBonus += 25;
-		}
-		if(kPlayer.GetPlayerTraits()->GetLuxuryHappinessRetention())
-		{
-			iBonus += 25;
-		}
-	}
 
-	if(MOD_BALANCE_CORE_JFD && (iBonus > 1) && (eYield == YIELD_JFD_CRIME || (eYield == YIELD_JFD_DISEASE)))
-	{
-		return iBonus *= -1;
+		if(MOD_BALANCE_CORE_JFD && (eYield == YIELD_JFD_CRIME || (eYield == YIELD_JFD_DISEASE)))
+		{
+			return iBonus *= -1;
+		}
 	}
 
 	return iBonus;

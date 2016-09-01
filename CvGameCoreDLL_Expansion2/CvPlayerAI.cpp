@@ -1167,6 +1167,11 @@ void CvPlayerAI::ProcessGreatPeople(void)
 			pLoopUnit->SetGreatPeopleDirective(GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND);
 			continue;
 		}
+		else if (pLoopUnit->IsCombatUnit() && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_ENGINEER) && !IsAtWar())
+		{
+			pLoopUnit->SetGreatPeopleDirective(GREAT_PEOPLE_DIRECTIVE_USE_POWER);
+			continue;
+		}
 		else
 #endif
 		if(pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson || pLoopUnit->getArmyID()!=-1)
@@ -2486,7 +2491,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	}
 
 	//If this is way too far away, let's not penalize it too much.
-	iScore -= iDistance;
+	iScore -= (iDistance * 3);
 
 	//All CSs should theoretically be valuable if we've gotten this far.
 	if(iScore <= 0)

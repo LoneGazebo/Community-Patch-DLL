@@ -362,7 +362,7 @@
 			<Type>BUILDING_MOMA</Type>
 			<BuildingClass>BUILDINGCLASS_HERMITAGE</BuildingClass>
 			<Cost>125</Cost>
-			<PrereqTech>TECH_ARCHAEOLOGY</PrereqTech>
+			<PrereqTech>TECH_SCIENTIFIC_THEORY</PrereqTech>
 			<Help>TXT_KEY_BUILDING_MOMA_HELP</Help>
 			<Description>TXT_KEY_BUILDING_MOMA</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_MOMA_TEXT</Civilopedia>

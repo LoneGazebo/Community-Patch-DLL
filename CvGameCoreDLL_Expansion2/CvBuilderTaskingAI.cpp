@@ -2848,6 +2848,7 @@ int CvBuilderTaskingAI::ScorePlot()
 			int iAdjacentValue = pImprovement->GetYieldAdjacentSameType(eYield);
 			int iAdjacentTwoValue = pImprovement->GetYieldAdjacentTwoSameType(eYield);
 			int iAdjacentOtherValue = 0;
+			int iAdjacentResourceValue = 0;
 			int iAdjacentTerrainValue = 0;
 			for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
 			{
@@ -2855,6 +2856,14 @@ int CvBuilderTaskingAI::ScorePlot()
 				if(eImprovement != NO_IMPROVEMENT)
 				{
 					iAdjacentOtherValue += pImprovement->GetAdjacentImprovementYieldChanges(eImprovement, eYield);
+				}
+			}
+			for(int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
+			{
+				ResourceTypes eResource = (ResourceTypes)iJ;
+				if(eResource != NO_RESOURCE)
+				{
+					iAdjacentResourceValue += pImprovement->GetAdjacentResourceYieldChanges(eResource, eYield);
 				}
 			}
 			for(int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
@@ -2882,6 +2891,11 @@ int CvBuilderTaskingAI::ScorePlot()
 			{
 				iScore *= (7 + m_pTargetPlot->ComputeYieldFromAdjacentTerrain(*pImprovement, eYield));
 			}
+			if(iAdjacentResourceValue > 0)
+			{
+				iScore *= (7 + m_pTargetPlot->ComputeYieldFromAdjacentResource(*pImprovement, eYield));
+			}
+
 		}
 	}
 	if(pImprovement->GetCultureBombRadius() > 0)

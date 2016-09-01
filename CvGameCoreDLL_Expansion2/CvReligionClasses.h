@@ -375,7 +375,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	void SetPlayerReligion(ReligionTypes eReligion);
-	ReligionTypes GetCurrentReligion() const;
+	ReligionTypes GetCurrentReligion(bool bIncludePantheon = true) const;
 #endif
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	bool CanAffordNextPurchase();

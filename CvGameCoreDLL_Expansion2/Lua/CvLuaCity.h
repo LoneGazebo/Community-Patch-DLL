@@ -320,6 +320,9 @@ protected:
 	static int lGetNumTeamWonders(lua_State* L);
 	static int lGetNumNationalWonders(lua_State* L);
 	static int lGetNumBuildings(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lGetNumTotalBuildings(lua_State* L);
+#endif
 
 	static int lGetWonderProductionModifier(lua_State* L);
 	static int lChangeWonderProductionModifier(lua_State* L);

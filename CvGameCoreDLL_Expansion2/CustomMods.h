@@ -375,7 +375,8 @@
 #define MOD_NO_RANDOM_TEXT_CIVS						(MOD_COMMUNITY_PATCH && gCustomMods.isNO_RANDOM_TEXT_CIVS())
 
 #endif
-
+// Changes melee ship units to be cargo carrying units with added promotions for ship and cargo
+#define MOD_CARGO_SHIPS								gCustomMods.isCARGO_SHIPS
 // Changes for the CivIV Diplomacy Features mod by Putmalk - AFFECTS SAVE GAME DATA FORMAT (v36)
 #define MOD_DIPLOMACY_CIV4_FEATURES                 gCustomMods.isDIPLOMACY_CIV4_FEATURES()
 // Adds an option to Advanced Setup to allow gaining Great General and Great Admiral Points from fighting with Barbarians
@@ -1065,6 +1066,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityCanAcquirePlot			"CityCanAcquirePlot",			"iiii"
 #define GAMEEVENT_CityCanAirlift				"CityCanAirlift",				"ii"
 #define GAMEEVENT_CityConnected					"CityConnected",				"iiiiib"
+#define GAMEEVENT_CityPuppeted					"CityPuppeted",					"ii"
 #define GAMEEVENT_CityConnections				"CityConnections",				"ib"
 #define GAMEEVENT_CityConstructed				"CityConstructed",				"iiibb"
 #define GAMEEVENT_CityCreated					"CityCreated",					"iiibb"
@@ -1419,7 +1421,8 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_EVENTS);
 	MOD_OPT_DECL(NO_RANDOM_TEXT_CIVS);
 
-	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES); 
+	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES);
+	MOD_OPT_DECL(CARGO_SHIPS);
 	MOD_OPT_DECL(BARBARIAN_GG_GA_POINTS);
 	MOD_OPT_DECL(TRAITS_GG_FROM_BARBARIANS);
 	MOD_OPT_DECL(TRAITS_CROSSES_ICE);

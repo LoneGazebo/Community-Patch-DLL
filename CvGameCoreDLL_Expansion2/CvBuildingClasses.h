@@ -396,6 +396,9 @@ public:
 	int GetYieldFromPolicyUnlock(int i) const;
 	int* GetYieldFromPolicyUnlockArray() const;
 
+	int GetYieldFromUnitLevelUp(int i) const;
+	int* GetYieldFromUnitLevelUpArray() const;
+
 	int GetYieldFromPurchase(int i) const;
 	int* GetYieldFromPurchaseArray() const;
 
@@ -802,6 +805,7 @@ private:
 	int* m_piYieldFromUnitProduction;
 	int* m_piYieldFromBorderGrowth;
 	int* m_piYieldFromPolicyUnlock;
+	int* m_piYieldFromUnitLevelUp;
 	int* m_piYieldFromPurchase;
 	int* m_piScienceFromYield;
 #endif
