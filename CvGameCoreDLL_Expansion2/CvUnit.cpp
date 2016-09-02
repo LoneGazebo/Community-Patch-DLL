@@ -14131,7 +14131,7 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 #if defined(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
 		if(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
 		{
-			return (pPlot->isWater() || pPlot->isCity() || pkImprovementInfo->IsMakesPassable());
+			return (pPlot->isWater() || pPlot->isCity() || (pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable()));
 		}
 		else
 		{
