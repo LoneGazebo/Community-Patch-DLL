@@ -3206,7 +3206,7 @@ void CvCity::UpdateNearbySettleSites()
 				iDanger = GET_PLAYER(getOwner()).GetPlotDanger(*pPlot);
 				if(iDanger < 1000)
 				{
-					iValue = ((1000 - iDanger) * iValue) / 7500;
+					iValue = ((1000 - iDanger) * iValue) / 8000;
 
 					if(iValue > iBestValue)
 					{
@@ -5083,6 +5083,8 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			if(pkEventChoiceInfo->IsEraScaling())
 			{
 				iValue *= iEra;
+				iValue *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
+				iValue /= 100;
 			}
 			if(iValue > 0)
 			{
@@ -5363,6 +5365,13 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice)
 				}
 			}
 		}
+	}
+
+	//Let's narrow down all events here!
+	if(GetEventChoiceDuration(eChosenEventChoice) > 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_ACTIVE");
+		DisabledTT += localizedDurationText.toUTF8();
 	}
 
 	//Let's narrow down all events here!
@@ -6259,6 +6268,8 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 							iEra = 1;
 						}
 						iBonus *= iEra;
+						iBonus *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
+						iBonus /= 100;
 					}
 					if(iBonus != 0)
 					{
@@ -6364,7 +6375,12 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 										{
 											pUnit->kill(false);	// Could not find a valid spot!
 										}
-										pUnit->setMoves(0);
+										else
+										{
+											pUnit->setMoves(0);
+											//Lua Hook
+											GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, getOwner(), eEventChoice, pUnit);
+										}
 									}
 								}
 							}
@@ -6395,7 +6411,12 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 							{
 								pUnit->kill(false);	// Could not find a valid spot!
 							}
-							pUnit->setMoves(0);
+							else
+							{
+								pUnit->setMoves(0);
+								//Lua Hook
+								GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, getOwner(), eEventChoice, pUnit);
+							}
 						}
 					}
 				}
@@ -6455,270 +6476,14 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			{
 				// In hundreds
 				int iNumRebels = pkEventChoiceInfo->getRandomBarbs();
-				CvGame& theGame = GC.getGame();
-
-				int iBestPlot = -1;
-				int iBestPlotWeight = -1;
-				CvPlot* pPlot;
-
-				CvCityCitizens* pCitizens = GetCityCitizens();
-
-				// Start at 1, since ID 0 is the city plot itself
-
-				for(int iPlotLoop = 1; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
-				{
-					pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
-
-					if(!pPlot)		// Should be valid, but make sure
-						continue;
-
-					// Can't be impassable
-					if(!pPlot->isValidMovePlot(BARBARIAN_PLAYER))
-						continue;
-
-					// Can't be water
-					if(pPlot->isWater())
-						continue;
-
-					// Can't be ANOTHER city
-					if(pPlot->isCity())
-						continue;
-
-					// Don't place on a plot where a unit is already standing
-					if(pPlot->getNumUnits() > 0)
-						continue;
-
-					int iTempWeight = theGame.getRandNum(10, "Uprising rand plot location.");
-
-					// Add weight if there's an improvement here!
-					if(pPlot->getImprovementType() != NO_IMPROVEMENT)
-					{
-						iTempWeight += 4;
-
-						// If also a a resource, even more weight!
-						if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
-							iTempWeight += 3;
-					}
-			
-					// Don't pick plots that aren't ours
-					if(pPlot->getOwner() != GetID())
-						iTempWeight = -1;
-
-					// Add weight if there's a defensive bonus for this plot
-					if(pPlot->defenseModifier(BARBARIAN_TEAM, false, false))
-						iTempWeight += 4;
-
-					if(iTempWeight > iBestPlotWeight)
-					{
-						iBestPlotWeight = iTempWeight;
-						iBestPlot = iPlotLoop;
-					}
-				}
-
-				// Found valid plot
-				if(iBestPlot != -1)
-				{
-					// Make barbs able to enter ANYONE'S territory
-					theGame.SetBarbarianReleaseTurn(0);
-
-					pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
-
-					// Pick a unit type - should give us more melee than ranged
-					UnitTypes eUnit = theGame.GetCompetitiveSpawnUnitType(getOwner(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ true, false, true);
-					UnitTypes emUnit = theGame.GetCompetitiveSpawnUnitType(getOwner(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ false, false, true);
-
-					// Init unit
-					CvUnit* pstartUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-					CvAssert(pstartUnit);
-					if (pstartUnit)
-					{
-						if (!pstartUnit->jumpToNearestValidPlotWithinRange(3))
-						{
-							pstartUnit->kill(false);		// Could not find a spot!
-						}
-						else
-						{
-							pstartUnit->setMoves(0);
-						}
-					}
-					iNumRebels--;	// Reduce the count since we just added the seed rebel
-
-					// Loop until all rebels are placed
-					if(iNumRebels > 0)
-					{
-						do
-						{
-							iNumRebels--;
-
-							// Init unit
-							CvUnit* pmUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-							CvAssert(pmUnit);
-							if (pmUnit)
-							{
-								if (!pmUnit->jumpToNearestValidPlotWithinRange(3))
-								{
-									pmUnit->kill(false);		// Could not find a spot!
-								}
-								else
-								{
-									pmUnit->setMoves(0);
-								}
-							}
-
-							iNumRebels--;
-							if(iNumRebels > 0)
-							{
-								// Init unit
-								CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-								CvAssert(pUnit);
-								if (pUnit)
-								{
-									if (!pUnit->jumpToNearestValidPlotWithinRange(3))
-									{
-										pUnit->kill(false);		// Could not find a spot!
-									}
-									else
-									{
-										pUnit->setMoves(0);
-									}
-								}
-							}
-						}
-						while(iNumRebels > 0);
-					}
-				}
+				GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, this, iNumRebels, false, false, false, false);
 			}
 			if(pkEventChoiceInfo->getFreeScaledUnits() > 0)
 			{
 				// In hundreds
 				int iNumRecruits = pkEventChoiceInfo->getFreeScaledUnits();
-				CvGame& theGame = GC.getGame();
 
-				int iBestPlot = -1;
-				int iBestPlotWeight = -1;
-				CvPlot* pPlot;
-
-				CvCityCitizens* pCitizens = GetCityCitizens();
-
-				// Start at 1, since ID 0 is the city plot itself
-
-				for(int iPlotLoop = 1; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
-				{
-					pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
-
-					if(!pPlot)		// Should be valid, but make sure
-						continue;
-
-					// Can't be impassable
-					if(!pPlot->isValidMovePlot(getOwner()))
-						continue;
-
-					// Can't be water
-					if(pPlot->isWater())
-						continue;
-
-					// Can't be ANOTHER city
-					if(pPlot->isCity())
-						continue;
-
-					// Don't place on a plot where a unit is already standing
-					if(pPlot->getNumUnits() > 0)
-						continue;
-
-					int iTempWeight = theGame.getRandNum(10, "Uprising rand plot location.");
-
-					// Add weight if there's an improvement here!
-					if(pPlot->getImprovementType() != NO_IMPROVEMENT)
-					{
-						iTempWeight += 4;
-
-						// If also a a resource, even more weight!
-						if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
-							iTempWeight += 3;
-					}
-			
-					// Don't pick plots that aren't ours
-					if(pPlot->getOwner() != GetID())
-						iTempWeight = -1;
-
-					// Add weight if there's a defensive bonus for this plot
-					if(pPlot->defenseModifier(BARBARIAN_TEAM, false, false))
-						iTempWeight += 4;
-
-					if(iTempWeight > iBestPlotWeight)
-					{
-						iBestPlotWeight = iTempWeight;
-						iBestPlot = iPlotLoop;
-					}
-				}
-
-				// Found valid plot
-				if(iBestPlot != -1)
-				{
-					pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
-
-					// Pick a unit type - should give us more melee than ranged
-					UnitTypes eUnit = theGame.GetCompetitiveSpawnUnitType(getOwner(), /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, false, true);
-					UnitTypes emUnit = theGame.GetCompetitiveSpawnUnitType(getOwner(), /*bIncludeUUs*/ false, /*bIncludeRanged*/ false, false, true);
-
-					CvUnit* pstartUnit = GET_PLAYER(getOwner()).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-					CvAssert(pstartUnit);
-					if (pstartUnit)
-					{
-						if (!pstartUnit->jumpToNearestValidPlotWithinRange(3))
-						{
-							pstartUnit->kill(false);		// Could not find a spot!
-						}
-						else
-						{
-							pstartUnit->setMoves(0);
-						}
-					}
-					iNumRecruits--;	// Reduce the count since we just added the seed rebel
-					if(iNumRecruits > 0)
-					{
-						// Loop until all rebels are placed
-						do
-						{
-							iNumRecruits--;
-
-							// Init unit
-							CvUnit* pmUnit = GET_PLAYER(getOwner()).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-							CvAssert(pmUnit);
-							if (pmUnit)
-							{
-								if (!pmUnit->jumpToNearestValidPlotWithinRange(3))
-								{
-									pmUnit->kill(false);		// Could not find a spot!
-								}
-								else
-								{
-									pmUnit->setMoves(0);
-								}
-							}
-
-							iNumRecruits--;
-							if(iNumRecruits > 0)
-							{		
-								// Init unit
-								CvUnit* pUnit = GET_PLAYER(getOwner()).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-								CvAssert(pUnit);
-								if (pUnit)
-								{
-									if (!pUnit->jumpToNearestValidPlotWithinRange(3))
-									{
-										pUnit->kill(false);		// Could not find a spot!
-									}
-									else
-									{
-										pUnit->setMoves(0);
-									}
-								}
-								}
-						}
-						while(iNumRecruits > 0);
-					}
-				}
+				GC.getGame().DoSpawnUnitsAroundTargetCity(getOwner(), this, iNumRecruits, false, false, false, false);
 			}
 			//Let's do our notification stuff here.
 			for(int iI = 0; iI < pkEventChoiceInfo->GetNumNotifications(); iI++)
@@ -18296,10 +18061,9 @@ bool CvCity::DoRazingTurn()
 			}
 
 			// In hundreds
-			CvGame& theGame = GC.getGame();
 			int iNumRebels = (getPopulation() * 9); //Based on city size.
-			int iExtraRoll = (theGame.getCurrentEra() * 9 * getPopulation()); //Increase possible partisan spawns as game continues and cities grow.
-			iNumRebels += theGame.getRandNum(iExtraRoll, "Rebel count rand roll");
+			int iExtraRoll = (GC.getGame().getCurrentEra() * 9 * getPopulation()); //Increase possible partisan spawns as game continues and cities grow.
+			iNumRebels += GC.getGame().getRandNum(iExtraRoll, "Rebel count rand roll");
 			iNumRebels /= 100;		
 	
 			if(iNumRebels <= 0)
@@ -18312,151 +18076,10 @@ bool CvCity::DoRazingTurn()
 			}
 			int iStatic = iNumRebels;
 			GET_PLAYER(getOwner()).SetSpawnCooldown(iNumRebels * 2);
-
-			bool bNotification = false;
-			int iBestPlot = -1;
-			int iBestPlotWeight = -1;
-			CvPlot* pPlot;
-
-			CvCityCitizens* pCitizens = GetCityCitizens();
-
-			// Start at 1, since ID 0 is the city plot itself
-
-			for(int iPlotLoop = 1; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
-			{
-				pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
-
-				if(!pPlot)		// Should be valid, but make sure
-					continue;
-
-				// Can't be impassable
-				if(!pPlot->isValidMovePlot(BARBARIAN_PLAYER))
-					continue;
-
-				// Can't be water
-				if(pPlot->isWater())
-					continue;
-
-				// Can't be ANOTHER city
-				if(pPlot->isCity())
-					continue;
-
-				// Don't place on a plot where a unit is already standing
-				if(pPlot->getNumUnits() > 0)
-					continue;
-
-				int iTempWeight = theGame.getRandNum(10, "Uprising rand plot location.");
-
-				// Add weight if there's an improvement here!
-				if(pPlot->getImprovementType() != NO_IMPROVEMENT)
-				{
-					iTempWeight += 4;
-
-					// If also a a resource, even more weight!
-					if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
-						iTempWeight += 3;
-				}
 			
-				// Don't pick plots that aren't ours
-				if(pPlot->getOwner() != GET_PLAYER(getOwner()).GetID())
-					iTempWeight = -1;
-
-				// Add weight if there's a defensive bonus for this plot
-				if(pPlot->defenseModifier(GET_PLAYER(eFormerOwner).getTeam(), false, false))
-					iTempWeight += 4;
-
-				if(iTempWeight > iBestPlotWeight)
-				{
-					iBestPlotWeight = iTempWeight;
-					iBestPlot = iPlotLoop;
-				}
-			}
-			//Not at war? Barb partisans!
 			if(GET_TEAM(GET_PLAYER(eFormerOwner).getTeam()).isAtWar(getTeam()))
 			{
-				// Found valid plot
-				if(iBestPlot != -1)
-				{
-					pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
-
-					// Pick a unit type - should give us more melee than ranged
-					UnitTypes eUnit = NO_UNIT;
-					if(isCoastal())
-					{
-						eUnit = theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, true, true);
-					}
-					else
-					{
-						eUnit = theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, false, true);
-					}
-					UnitTypes emUnit= theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ false, false, true);
-					if(eUnit == NO_UNIT || emUnit == NO_UNIT)
-					{
-						return false;
-					}
-					// Init unit
-					CvUnit* pFirstUnit = GET_PLAYER(eFormerOwner).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-					CvAssert(pFirstUnit);
-					if (pFirstUnit)
-					{
-						if (!pFirstUnit->jumpToNearestValidPlotWithinRangeIgnoreEnemy(5))
-						{
-							pFirstUnit->kill(false);		// Could not find a spot!
-						}
-						else
-						{
-							bNotification = true;
-							pFirstUnit->setMoves(0);
-							pFirstUnit->setDamage(theGame.getRandNum(60, "damage"));
-						}
-					}
-					iNumRebels--;	// Reduce the count since we just added the seed rebel
-
-					// Loop until all rebels are placed
-					do
-					{
-						iNumRebels--;
-
-						// Init unit
-						CvUnit* pmUnit = GET_PLAYER(eFormerOwner).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-						CvAssert(pmUnit);
-						if (pmUnit)
-						{
-							if (!pmUnit->jumpToNearestValidPlotWithinRangeIgnoreEnemy(5))
-							{
-								pmUnit->kill(false);		// Could not find a spot!
-							}
-							else
-							{
-								bNotification = true;
-								pmUnit->setMoves(1);
-								pmUnit->setDamage(theGame.getRandNum(60, "damage"));
-							}
-						}
-
-						iNumRebels--;
-						if(iNumRebels > 0)
-						{
-							// Init unit
-							CvUnit* pUnit = GET_PLAYER(eFormerOwner).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-							CvAssert(pUnit);
-							if (pUnit)
-							{
-								if (!pUnit->jumpToNearestValidPlotWithinRangeIgnoreEnemy(5))
-								{
-									pUnit->kill(false);		// Could not find a spot!
-								}
-								else
-								{
-									bNotification = true;
-									pUnit->setMoves(1);
-									pUnit->setDamage(theGame.getRandNum(60, "damage"));
-								}
-							}
-						}
-					}
-					while(iNumRebels > 0);
-				}
+				bool bNotification = GC.getGame().DoSpawnUnitsAroundTargetCity(eFormerOwner, this, iNumRebels, true, false, false, true);
 				if(bNotification)
 				{
 					if(!GET_PLAYER(eFormerOwner).GetTacticalAI()->IsTemporaryZoneCity(this))
@@ -18494,90 +18117,7 @@ bool CvCity::DoRazingTurn()
 			}
 			else
 			{
-				// Found valid plot
-				if(iBestPlot != -1)
-				{
-					pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
-
-					// Pick a unit type - should give us more melee than ranged
-					UnitTypes eUnit = NO_UNIT;
-					if(isCoastal())
-					{
-						eUnit = theGame.GetCompetitiveSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, true, true);
-					}
-					else
-					{
-						eUnit = theGame.GetCompetitiveSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, false, true);
-					}
-					UnitTypes emUnit= theGame.GetCompetitiveSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ false, /*bIncludeRanged*/ false, false, true);
-					if(eUnit == NO_UNIT || emUnit == NO_UNIT)
-					{
-						return false;
-					}
-					// Init unit
-					CvUnit* pFirstUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-					CvAssert(pFirstUnit);
-					if (pFirstUnit)
-					{
-						if (!pFirstUnit->jumpToNearestValidPlotWithinRange(5))
-						{
-							pFirstUnit->kill(false);		// Could not find a spot!
-						}
-						else
-						{
-							bNotification = true;
-							pFirstUnit->setMoves(1);
-							pFirstUnit->setDamage(theGame.getRandNum(60, "damage"));
-						}
-					}
-					iNumRebels--;	// Reduce the count since we just added the seed rebel
-
-					// Loop until all rebels are placed
-					do
-					{
-						iNumRebels--;
-
-						// Init unit
-						CvUnit* pmUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-						CvAssert(pmUnit);
-						if (pmUnit)
-						{
-							if (!pmUnit->jumpToNearestValidPlotWithinRange(5))
-							{
-								pmUnit->kill(false);		// Could not find a spot!
-							}
-							else
-							{
-								bNotification = true;
-								pmUnit->setMoves(1);
-								pmUnit->setDamage(theGame.getRandNum(60, "damage"));
-							}
-						}
-
-						iNumRebels--;
-						if(iNumRebels > 0)
-						{
-
-							// Init unit
-							CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-							CvAssert(pUnit);
-							if (pUnit)
-							{
-								if (!pUnit->jumpToNearestValidPlotWithinRange(5))
-								{
-									pUnit->kill(false);		// Could not find a spot!
-								}
-								else
-								{
-									bNotification = true;
-									pUnit->setMoves(1);
-									pUnit->setDamage(theGame.getRandNum(60, "damage"));
-								}
-							}
-						}
-					}
-					while(iNumRebels > 0);
-				}
+				bool bNotification = GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, this, iNumRebels, false, false, false, false);
 				if(bNotification)
 				{
 					CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();

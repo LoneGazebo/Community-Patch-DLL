@@ -2086,7 +2086,7 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		//if it's fallout, try to scrub it in spite of the danger
 		if(pPlot->getFeatureType() == FEATURE_FALLOUT && !pUnit->ignoreFeatureDamage() && (pUnit->GetCurrHitPoints() < (pUnit->GetMaxHitPoints() / 2)))
 		{
-			if(GC.getLogging() && GC.getAILogging())
+			if(GC.getLogging() && GC.getAILogging() && m_bLogging)
 			{
 				CvString strLog;
 				strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to fallout", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot));
@@ -2096,7 +2096,7 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		}
 		else if(pPlot->getFeatureType() != FEATURE_FALLOUT)
 		{
-			if(GC.getLogging() && GC.getAILogging())
+			if(GC.getLogging() && GC.getAILogging() && m_bLogging)
 			{
 				CvString strLog;
 				strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to danger", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot));
@@ -2134,6 +2134,28 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 
 		return false;
 	}
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	if(MOD_GLOBAL_STACKING_RULES)
+	{
+		const IDInfo* pUnitNode = pPlot->headUnitNode();
+		const CvUnit* pLoopUnit = NULL;
+
+		//Another unit already working here? Bail!
+		while(pUnitNode != NULL)
+		{
+			pLoopUnit = ::getUnit(*pUnitNode);
+			pUnitNode = pPlot->nextUnitNode(pUnitNode);
+
+			if(pLoopUnit && pLoopUnit != pUnit)
+			{
+				if(pLoopUnit->IsWork() && pLoopUnit->getBuildType() != NO_BUILD)
+				{
+					return false;
+				}
+			}
+		}
+	}
+#endif
 
 	return true;
 }

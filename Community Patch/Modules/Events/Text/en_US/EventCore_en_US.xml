@@ -412,7 +412,7 @@
 		<Row Tag="TXT_KEY_NEED_BE_COASTAL">
 			<Text>[NEWLINE] [ICON_BULLET] City must be coastal</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_NEED_BE_CAPITAL">
 			<Text>[NEWLINE] [ICON_BULLET] City must be a Capital</Text>
 		</Row>

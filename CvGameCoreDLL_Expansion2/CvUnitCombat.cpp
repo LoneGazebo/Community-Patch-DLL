@@ -4398,6 +4398,11 @@ void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefe
 #if defined(MOD_BALANCE_CORE)
 			iGoldPlundered *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iGoldPlundered /= 100;
+
+			if(iGoldPlundered > pkDefender->getPopulation() * 100)
+			{
+				 iGoldPlundered = (pkDefender->getPopulation() * 100);
+			}
 #endif
 			GET_PLAYER(pkAttacker->getOwner()).GetTreasury()->ChangeGold(iGoldPlundered);
 

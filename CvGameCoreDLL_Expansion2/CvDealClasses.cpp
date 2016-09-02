@@ -490,7 +490,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			}
 
 			// Can't trade them something they're already giving us in the deal
-			if(IsResourceTrade(eToPlayer, eResource))
+			if(!bFinalizing && IsResourceTrade(eToPlayer, eResource))
 				return false;
 
 			// AI can't trade an obsolete resource

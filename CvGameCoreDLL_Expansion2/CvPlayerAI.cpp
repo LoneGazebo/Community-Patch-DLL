@@ -1838,17 +1838,15 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
-
-	PlayerTypes eID = GetDiplomacyAI()->GetPlayer()->GetID();
 	
-	int iFlavorDiplo =  GET_PLAYER(eID).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+	int iFlavorDiplo =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 	int iDesiredEmb = (iFlavorDiplo - 1);
 	int iNumMinors = GC.getGame().GetNumMinorCivsAlive();
 	if(iDesiredEmb > iNumMinors)
 	{
 		iDesiredEmb = iNumMinors;
 	}
-	int iEmbassies = GET_PLAYER(eID).GetImprovementLeagueVotes();
+	int iEmbassies = GetImprovementLeagueVotes();
 
 	//Embassy numbers should be based on Diplomacy Flavor. More flavor, more embassies!
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && pCity != NULL)
@@ -2197,12 +2195,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	{
 		return 0;
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(!pUnit->canTrade(pCity->plot()))
-	{
-		return 0;
-	}
-#endif
+
 	if(pMinorCivAI->IsNoAlly() && pMinorCivAI->IsFriends(GetID()))
 	{
 		return 0;
@@ -2349,7 +2342,6 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 				{
 					iScore *= 3;
 					iScore /= 2;
-					break;
 				}
 			}
 		}
@@ -2376,17 +2368,21 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	
 	if(eAlliedPlayer != NO_PLAYER)
 	{
+		int iHighestInfluence = 0;
 		// Loop through other players to see if we can pass them in influence
 		for(iOtherMajorLoop = 0; iOtherMajorLoop < MAX_MAJOR_CIVS; iOtherMajorLoop++)
 		{
 			eOtherMajor = (PlayerTypes) iOtherMajorLoop;
 
 			iOtherPlayerFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(eOtherMajor);
-			if(eOtherMajor != NO_PLAYER && GET_TEAM(GET_PLAYER(GetID()).getTeam()).isHasMet(GET_PLAYER(eOtherMajor).getTeam()))
+			if(iOtherPlayerFriendshipWithMinor > iHighestInfluence)
+			{
+				iHighestInfluence = iOtherPlayerFriendshipWithMinor;
+			}
+			if(eOtherMajor != NO_PLAYER && eOtherMajor != GetID() && GET_TEAM(GET_PLAYER(GetID()).getTeam()).isHasMet(GET_PLAYER(eOtherMajor).getTeam()))
 			{
 				MajorCivApproachTypes eApproachType = GetDiplomacyAI()->GetMajorCivApproach(eOtherMajor, false);
 				MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eOtherMajor);
-
 				// If another player is allied, let's evaluate that.
 				// Only care if they are allies
 				if(pMinorCivAI->IsAllies(eOtherMajor))
@@ -2397,18 +2393,18 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 						//If their influence is way higher than ours, let's tune this down...
 						if(iOtherPlayerFriendshipWithMinor >= (60 + iFriendship + iFriendshipWithMinor))
 						{
-							iScore /= 2;
+							iScore /= 4;
 						}
 						//If we can pass them, ramp it up!
 						else if(iOtherPlayerFriendshipWithMinor < (iFriendship + iFriendshipWithMinor)) 
 						{
-							iScore *= 2;
+							iScore *= 4;
 						}
 					}
 					// If a teammate is allied, let's discourage going there.
 					else
 					{
-						iScore /= 2;
+						iScore /= 5;
 					}
 					// If a friendly player is allied, let's discourage going there.
 					if(eApproachType == MAJOR_CIV_APPROACH_FRIENDLY)
@@ -2438,31 +2434,35 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 				} 
 			}
 		}
+		int iDifference = (iFriendshipWithMinor - iHighestInfluence);
 		// Are we allied? Yay! But let's be careful.
 		if(pMinorCivAI->IsAllies(GetID()))
 		{
 			// Are WE allies by a wide margin (over 100)? If so, let's find someone new to love.
-			if(iFriendshipWithMinor >= 100) 
+			if(iDifference >= 60) 
 			{
-				iScore /= 2;
+				iScore /= 5;
 			}
 			// Are we close to losing our status? If so, obsess away!
-			else if(pMinorCivAI->IsCloseToNotBeingAllies(GetID()))
+			else if(iDifference <= 30 || pMinorCivAI->IsCloseToNotBeingAllies(GetID()))
 			{
-				iScore *= 10;
+				iScore *= 5;
 			}
 		}
 	}
-	// Are we close to becoming an normal (60) ally and no one else ? If so, obsess away!
-	if((iFriendshipWithMinor + iFriendship) >= pMinorCivAI->GetAlliesThreshold())
+	else
 	{
-			iScore *= 2;
-	}
+		// Are we close to becoming an normal (60) ally and no one else ? If so, obsess away!
+		if((iFriendshipWithMinor + iFriendship) >= pMinorCivAI->GetAlliesThreshold())
+		{
+			iScore *= 4;
+		}
 
-	// Are we already Friends? If so, let's stay the course.
-	if(pMinorCivAI->IsFriends(GetID()))
-	{
-		iScore *= 2;
+		// Are we already Friends? If so, let's stay the course.
+		if(pMinorCivAI->IsFriends(GetID()))
+		{
+			iScore *= 4;
+		}
 	}
 
 	// **************************
@@ -2491,7 +2491,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	}
 
 	//If this is way too far away, let's not penalize it too much.
-	iScore -= (iDistance * 3);
+	iScore -= (iDistance * 4);
 
 	//All CSs should theoretically be valuable if we've gotten this far.
 	if(iScore <= 0)
