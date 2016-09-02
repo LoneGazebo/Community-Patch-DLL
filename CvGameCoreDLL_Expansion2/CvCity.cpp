@@ -2568,7 +2568,6 @@ void CvCity::doTurn()
 
 	VALIDATE_OBJECT
 	CvPlot* pLoopPlot;
-	int iI;
 
 	if(getDamage() > 0)
 	{
@@ -2824,7 +2823,7 @@ void CvCity::doTurn()
 		{
 			AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("doImprovement, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 
-			for(iI = 0; iI < GetNumWorkablePlots(); iI++)
+			for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 			{
 				pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
 
@@ -2960,7 +2959,7 @@ void CvCity::doTurn()
 			CvPlot* pPlot;
 			int iCount;
 
-			for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
 				CvAssert(getBaseYieldRate((YieldTypes)iI) >= 0);
 				CvAssert(getYieldRate((YieldTypes)iI, false) >= 0);

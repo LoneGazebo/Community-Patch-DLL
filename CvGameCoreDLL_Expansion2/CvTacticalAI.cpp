@@ -7326,29 +7326,26 @@ void CvTacticalAI::ExecuteNavalBlockadeMove(CvPlot* pTarget)
 /// Find one unit to move to target, starting with high priority list
 void CvTacticalAI::ExecuteMoveToTarget(CvPlot* pTarget, bool bSaveMoves)
 {
-	std::vector<CvTacticalUnit>::iterator it;
+	UnitHandle pUnit;
 
-	// Start with high priority list
-	for(it = m_CurrentMoveHighPriorityUnits.begin(); it != m_CurrentMoveHighPriorityUnits.end(); ++it)
+	if (m_CurrentMoveHighPriorityUnits.size() > 0 && m_CurrentMoveUnits.size() > 0)
 	{
-		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
-
-		// Don't move high priority unit if regular priority unit is closer
-		if(m_CurrentMoveUnits.size() > 0 && m_CurrentMoveUnits.begin()->GetMovesToTarget() < it->GetMovesToTarget())
-		{
-			break;
-		}
-
-		ExecuteMoveToPlotIgnoreDanger(pUnit,pTarget,bSaveMoves);
-		return;
+		if (m_CurrentMoveUnits.begin()->GetMovesToTarget() < m_CurrentMoveHighPriorityUnits.begin()->GetMovesToTarget())
+			pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID());
+		else
+			pUnit = m_pPlayer->getUnit(m_CurrentMoveHighPriorityUnits.begin()->GetID());
+	}
+	else if (m_CurrentMoveHighPriorityUnits.size() > 0)
+	{
+		pUnit = m_pPlayer->getUnit(m_CurrentMoveHighPriorityUnits.begin()->GetID());
+	}
+	else if (m_CurrentMoveUnits.size() > 0)
+	{
+		pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID());
 	}
 
-	// Then regular priority
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
-	{
-		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
+	if (pUnit)
 		ExecuteMoveToPlotIgnoreDanger(pUnit,pTarget,bSaveMoves);
-	}
 }
 
 /// Set up fighters to intercept enemy air units

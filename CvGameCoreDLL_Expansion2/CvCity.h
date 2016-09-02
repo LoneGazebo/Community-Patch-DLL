@@ -18,8 +18,6 @@
 #include "CvEnumSerialization.h"
 #include "FStlContainerSerialization.h"
 #include "FAutoVariable.h"
-#include "FAutoVector.h"
-
 #include "CvPreGame.h"
 
 // 0 = center of city, 1-6 = the edge of city on points, 7-12 = one tile out
