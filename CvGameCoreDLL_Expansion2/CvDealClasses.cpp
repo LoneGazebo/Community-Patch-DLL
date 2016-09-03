@@ -469,12 +469,26 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 						iNumInExistingDeal += it->m_iData2;
 					}
 				}
+				if(iNumInRenewDeal > 0)
+				{
+					// Offering up more of a Resource than we have available
+					if(iNumAvailable + iNumInRenewDeal - iNumInExistingDeal < 0)
+						return false;
+				}
+				else
+				{
+					// Offering up more of a Resource than we have available
+					if(iNumAvailable + iNumInRenewDeal - iNumInExistingDeal < iResourceQuantity)
+						return false;
+				}
 			}
-
-			// Offering up more of a Resource than we have available
-			if(iNumAvailable + iNumInRenewDeal - iNumInExistingDeal < iResourceQuantity)
-				return false;
-
+			else
+			{
+				// Offering up more of a Resource than we have available
+				if(iNumAvailable < iResourceQuantity)
+					return false;
+			}
+			
 			// Must be a Luxury or a Strategic Resource
 			ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
 			if(eUsage != RESOURCEUSAGE_LUXURY && eUsage != RESOURCEUSAGE_STRATEGIC)
@@ -482,10 +496,21 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 			if(eUsage == RESOURCEUSAGE_LUXURY)
 			{
-				// Can't trade Luxury if the other player already has one
-				if(pToPlayer->getNumResourceAvailable(eResource) > MAX(iNumInRenewDeal - iNumInExistingDeal, 0))
+				if (pRenewDeal)
 				{
-					return false;
+					// Can't trade Luxury if the other player already has one
+					if((pToPlayer->getNumResourceAvailable(eResource) - iNumInRenewDeal) > 0)
+					{
+						return false;
+					}
+				}
+				else
+				{
+					// Can't trade Luxury if the other player already has one
+					if(pToPlayer->getNumResourceAvailable(eResource) > 0)
+					{
+						return false;
+					}
 				}
 			}
 
