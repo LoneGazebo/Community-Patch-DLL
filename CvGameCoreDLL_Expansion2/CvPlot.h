@@ -180,7 +180,14 @@ public:
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	inline int getUnitLimit() const 
 	{
-		return isCity() ? GC.getCITY_UNIT_LIMIT() : (GC.getPLOT_UNIT_LIMIT() + getAdditionalUnitsFromImprovement() + getStackingUnits());
+		if(isWater())
+		{
+			return (GC.getPLOT_UNIT_LIMIT() + getAdditionalUnitsFromImprovement());
+		}
+		else		
+		{
+			return isCity() ? (GC.getCITY_UNIT_LIMIT() + getStackingUnits()) : (GC.getPLOT_UNIT_LIMIT() + getAdditionalUnitsFromImprovement() + getStackingUnits());
+		}
 	}
 #endif
 
@@ -388,6 +395,7 @@ public:
 	int ComputeYieldFromTwoAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue, YieldTypes eYield) const;
 	int ComputeYieldFromOtherAdjacentImprovement(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
 	int ComputeYieldFromAdjacentTerrain(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
+	int ComputeYieldFromAdjacentResource(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
 #else
 	int ComputeCultureFromAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue) const;
 #endif
@@ -510,10 +518,11 @@ public:
 			if (eTerrain != NO_TERRAIN) {
 				CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
 				if (pkTerrainInfo) {
-					if (!bIgnoreTerrainDamage) {
+					// no damage for units on montain cities
+					if (!bIgnoreTerrainDamage && !isCity())
+					{						
 						damage += pkTerrainInfo->getTurnDamage();
 					}
-					
 					if (bExtraTerrainDamage) {
 						damage += pkTerrainInfo->getExtraTurnDamage();
 					}

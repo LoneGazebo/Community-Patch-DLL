@@ -857,8 +857,6 @@ function UpdateWindow( city )
 		Controls.ProductionPortrait:SetHide(true);
 		noProduction = true;
 	end
-
-	DoUpdateProductionInfo(noProduction);
 	
 	Controls.ProductionPortrait:SetToolTipString( strToolTip );
 	

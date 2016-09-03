@@ -181,6 +181,7 @@ public:
 	int GetNumActivePlayerContracts() const;
 
 	void SetActiveContract(ContractTypes eContract, bool bValue);
+	void SetActiveContractTurns(ContractTypes eContract, int iValue);
 	void StartContract(ContractTypes eContract);
 	void EndContract(ContractTypes eContract);
 
@@ -189,10 +190,9 @@ public:
 	void DisbandContractUnits(ContractTypes eContract);
 
 	int GetContractGoldMaintenance();
+	void ChangeContractEndTurn(ContractTypes eContract, int iValue);
 
 	CvContractEntry* GetContractEntry(ContractTypes eContract);
-
-	ContractList m_ActivePlayerContracts;
 
 private:
 	

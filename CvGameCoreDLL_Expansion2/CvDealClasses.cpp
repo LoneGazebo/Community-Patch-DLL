@@ -469,12 +469,26 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 						iNumInExistingDeal += it->m_iData2;
 					}
 				}
+				if(iNumInRenewDeal > 0)
+				{
+					// Offering up more of a Resource than we have available
+					if(iNumAvailable + iNumInRenewDeal - iNumInExistingDeal < 0)
+						return false;
+				}
+				else
+				{
+					// Offering up more of a Resource than we have available
+					if(iNumAvailable + iNumInRenewDeal - iNumInExistingDeal < iResourceQuantity)
+						return false;
+				}
 			}
-
-			// Offering up more of a Resource than we have available
-			if(iNumAvailable + iNumInRenewDeal - iNumInExistingDeal < iResourceQuantity)
-				return false;
-
+			else
+			{
+				// Offering up more of a Resource than we have available
+				if(iNumAvailable < iResourceQuantity)
+					return false;
+			}
+			
 			// Must be a Luxury or a Strategic Resource
 			ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
 			if(eUsage != RESOURCEUSAGE_LUXURY && eUsage != RESOURCEUSAGE_STRATEGIC)
@@ -482,15 +496,26 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 			if(eUsage == RESOURCEUSAGE_LUXURY)
 			{
-				// Can't trade Luxury if the other player already has one
-				if(pToPlayer->getNumResourceAvailable(eResource) > MAX(iNumInRenewDeal - iNumInExistingDeal, 0))
+				if (pRenewDeal)
 				{
-					return false;
+					// Can't trade Luxury if the other player already has one
+					if((pToPlayer->getNumResourceAvailable(eResource) - iNumInRenewDeal) > 0)
+					{
+						return false;
+					}
+				}
+				else
+				{
+					// Can't trade Luxury if the other player already has one
+					if(pToPlayer->getNumResourceAvailable(eResource) > 0)
+					{
+						return false;
+					}
 				}
 			}
 
 			// Can't trade them something they're already giving us in the deal
-			if(IsResourceTrade(eToPlayer, eResource))
+			if(!bFinalizing && IsResourceTrade(eToPlayer, eResource))
 				return false;
 
 			// AI can't trade an obsolete resource
@@ -823,15 +848,14 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(eThirdTeam == NO_TEAM)
 			return false;
 
-		//Can't already be offering this.
-		if (!bFinalizing && IsThirdPartyPeaceTrade( ePlayer, eThirdTeam))
-			return false;
-#endif
-#if defined(MOD_BALANCE_CORE)
 		//If not at war, need embassy.
 		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 		{
 			if (!GET_TEAM(eToTeam).HasEmbassyAtTeam(eFromTeam))
+				return false;
+		
+			//Can't already be offering this.
+			if (!bFinalizing && IsThirdPartyPeaceTrade( ePlayer, eThirdTeam))
 				return false;
 		}
 
@@ -919,11 +943,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					//Only matters if not a peace deal (i.e. we're not making negotiations)
 					if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 					{
-						if(!IsPossibleToTradeItem(eLoopPlayer, ePlayer, TRADE_ITEM_PEACE_TREATY))
+						if(pFromPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(eLoopPlayer) < GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 						{
 							return false;
 						}
-						else if(!IsPossibleToTradeItem(ePlayer, eLoopPlayer, TRADE_ITEM_PEACE_TREATY))
+						if(pOtherPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(ePlayer) < GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 						{
 							return false;
 						}
@@ -938,7 +962,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 						//Can't force third party peace with a loser. Has to be a sizeable difference
 						int iFromWarScore = pFromPlayer->GetDiplomacyAI()->GetWarScore(pOtherPlayer->GetID());
 
-						if(iFromWarScore <= 0)
+						if(iFromWarScore < 75)
 							return false;
 					}
 				}

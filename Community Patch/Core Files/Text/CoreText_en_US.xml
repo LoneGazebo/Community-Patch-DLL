@@ -6398,6 +6398,9 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_SCOUTING">
 			<Text>[ICON_MOVES] Exploration:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_LEVEL_UP">
+			<Text>[ICON_STRENGTH] {2_Unit} Leveled Up:[NEWLINE]{1_YieldString}</Text>
+		</Row>
 
 
 		<!-- Tooltip for Investments in cities -->

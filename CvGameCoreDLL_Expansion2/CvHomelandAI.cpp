@@ -1987,10 +1987,126 @@ void CvHomelandAI::PlotPatrolMoves()
 
 	if(m_CurrentMoveUnits.size() > 0)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(m_pPlayer->IsAtWarAnyMajor())
+		{
+			ExecuteAggressivePatrolMoves();
+		}
+		else
+		{
+#endif
 		ExecutePatrolMoves();
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+void CvHomelandAI::ExecuteAggressivePatrolMoves()
+{
+//check what kind of units we have
+	int iUnitsSea = 0, iUnitsLand = 0;
+	for(MoveUnitsArray::iterator itUnit = m_CurrentMoveUnits.begin(); itUnit != m_CurrentMoveUnits.end(); ++itUnit)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(itUnit->GetID());
+		if (pUnit && pUnit->IsCombatUnit())
+		{
+			if (pUnit->getDomainType()==DOMAIN_SEA)
+				iUnitsSea++;
+			if (pUnit->getDomainType()==DOMAIN_LAND)
+				iUnitsLand++;
+		}
+	}
+	
+	//get the most exposed cities and their surrounding plots
+	std::vector<CvPlot*> vLandTargets, vWaterTargets;
+	if (iUnitsLand>0)
+		vLandTargets = HomelandAIHelpers::GetAggressivePatrolTargets(m_pPlayer->GetID(),false,5);
+	if (iUnitsSea>0)
+		vWaterTargets = HomelandAIHelpers::GetAggressivePatrolTargets(m_pPlayer->GetID(),true,5);
 
+	SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_REACHABLE_PLOTS,-1,23);
+	std::map<CvPlot*,ReachablePlots> mapReachablePlots;
+	for (size_t i=0; i<vLandTargets.size(); i++)
+		mapReachablePlots[vLandTargets[i]] = GC.GetStepFinder().GetPlotsInReach(vLandTargets[i],data);
+	for (size_t i=0; i<vWaterTargets.size(); i++)
+		//the stepfinder works for both land and water, so do the work only if necessary
+		if (mapReachablePlots.find(vWaterTargets[i])==mapReachablePlots.end())
+				mapReachablePlots[vWaterTargets[i]] = GC.GetStepFinder().GetPlotsInReach(vWaterTargets[i],data);
+
+	//for each unit, check which city is closest
+	for(MoveUnitsArray::iterator itUnit = m_CurrentMoveUnits.begin(); itUnit != m_CurrentMoveUnits.end(); ++itUnit)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(itUnit->GetID());
+		if(!pUnit || pUnit->IsCivilianUnit() || pUnit->getDomainType()==DOMAIN_AIR)
+			continue;
+
+		//the target we're looking at depends on the domain of the unit
+		std::vector<CvPlot*>& vTargets = (pUnit->getDomainType()==DOMAIN_SEA) ? vWaterTargets : vLandTargets;
+
+		int iBestTurns = INT_MAX;
+		CvPlot* pBestTarget = NULL;
+		for (size_t i=0; i<vTargets.size(); i++)
+		{
+			SMovePlot dummy(pUnit->plot()->GetPlotIndex(),0,0);
+			ReachablePlots::const_iterator itPlot = mapReachablePlots[vTargets[i]].find(dummy);
+			if (itPlot!=mapReachablePlots[vTargets[i]].end() && itPlot->iTurns<iBestTurns)
+			{
+				//No patrols in place.
+				if(vTargets[i] != NULL && vTargets[i] == pUnit->plot())
+					continue;
+
+				//try not to create a unit carpet without any space to move
+				for(int iJ = 0; iJ < RING5_PLOTS; iJ++)
+				{
+					CvPlot* pLoopPlot = iterateRingPlots(vTargets[i], iJ);
+
+					if(pLoopPlot == NULL)
+						continue;
+
+					//Don't patrol in place.
+					if(pLoopPlot == pUnit->plot())
+						continue;
+
+					//Don't patrol into cities.
+					if(pLoopPlot->isCity())
+						continue;
+
+					//Lots of adjacent units? Ignore.
+					if(pLoopPlot->GetNumFriendlyUnitsAdjacent(m_pPlayer->getTeam(), pUnit->getDomainType(), pUnit) > 2)
+					{
+						continue;
+					}
+
+					if (pUnit->canMoveInto(*vTargets[i]) && pLoopPlot->getDomain()==pUnit->getDomainType() && pLoopPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(),NO_DOMAIN)<3)
+					{
+						iBestTurns = itPlot->iTurns;
+						pBestTarget = GC.getMap().plotByIndexUnchecked(itPlot->iPlotIndex);
+					}
+				}
+			}
+		}
+
+		if(pBestTarget)
+		{
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				CvString strTemp;
+
+				strTemp = pUnit->getUnitInfo().GetDescription();
+				strLogString.Format("%s (%d) aggressively patrolling to, X: %d, Y: %d, Current X: %d, Current Y: %d", strTemp.GetCString(), pUnit->GetID(), pBestTarget->getX(), pBestTarget->getY(), pUnit->getX(), pUnit->getY());
+				LogHomelandMessage(strLogString);
+			}
+
+			//use the exact target location - GetPatrolTarget makes sure there is a free spot
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
+			pUnit->finishMoves();
+			UnitProcessed(pUnit->GetID());
+		}
+	}
+}
+#endif
 /// When nothing better to do, distribute units across cities
 void CvHomelandAI::ExecutePatrolMoves()
 {
@@ -2072,7 +2188,6 @@ void CvHomelandAI::ExecutePatrolMoves()
 					{
 						iBestTurns = itPlot->iTurns;
 						pBestTarget = GC.getMap().plotByIndexUnchecked(itPlot->iPlotIndex);
-						break;
 					}
 				}
 			}
@@ -2516,7 +2631,11 @@ void CvHomelandAI::PlotEngineerMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pUnit->AI_getUnitAIType() == UNITAI_ENGINEER || (pUnit->getUnitInfo().GetUnitAIType(UNITAI_ENGINEER) && !m_pPlayer->IsAtWar()))
+#else
 			if(pUnit->AI_getUnitAIType() == UNITAI_ENGINEER)
+#endif
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -4461,34 +4580,39 @@ void CvHomelandAI::ExecuteEngineerMoves()
 				pWonderCity = m_pPlayer->GetCitySpecializationAI()->GetWonderBuildCity();
 				if(pWonderCity)
 				{
-					int iProductionSoFar = pWonderCity->getProduction();
-					int iProductionRemaining = pWonderCity->getProductionNeeded(eNextWonderDesired);
-
-					if(pWonderCity->getProductionBuilding() == eNextWonderDesired && iProductionSoFar * 3 < iProductionRemaining)
-					{
-						// If engineer can move to city before half done
-						int iTurnsRemaining = pWonderCity->getProductionTurnsLeft();
-						iTurnsToTarget = pUnit->TurnsToReachTarget(pWonderCity->plot(), true);
-						if(iTurnsToTarget * 3 < iTurnsRemaining)
-						{
-							bForceWonderCity = false;
-
-							// Already at target and the wonder is underway?
-							if(pWonderCity->getProductionBuilding() == eNextWonderDesired && iTurnsToTarget == 0 && pUnit->plot() == pWonderCity->plot())
-							{
-								pUnit->PushMission(CvTypes::getMISSION_HURRY());
-								UnitProcessed(pUnit->GetID());
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strLogString;
-									strLogString.Format("Great Engineer hurrying wonder chosen by city specialization AI at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-									LogHomelandMessage(strLogString);
-									continue;
-								}
 #if defined(MOD_BALANCE_CORE)
-								pUnit->finishMoves();
-								continue;
+					if(pUnit->AI_getUnitAIType() == UNITAI_ENGINEER)
+					{
 #endif
+						int iProductionSoFar = pWonderCity->getProduction();
+						int iProductionRemaining = pWonderCity->getProductionNeeded(eNextWonderDesired);
+
+						if(pWonderCity->getProductionBuilding() == eNextWonderDesired && iProductionSoFar * 3 < iProductionRemaining)
+						{
+							// If engineer can move to city before half done
+							int iTurnsRemaining = pWonderCity->getProductionTurnsLeft();
+							iTurnsToTarget = pUnit->TurnsToReachTarget(pWonderCity->plot(), true);
+							if(iTurnsToTarget * 3 < iTurnsRemaining)
+							{
+								bForceWonderCity = false;
+
+								// Already at target and the wonder is underway?
+								if(pWonderCity->getProductionBuilding() == eNextWonderDesired && iTurnsToTarget == 0 && pUnit->plot() == pWonderCity->plot())
+								{
+									pUnit->PushMission(CvTypes::getMISSION_HURRY());
+									UnitProcessed(pUnit->GetID());
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strLogString;
+										strLogString.Format("Great Engineer hurrying wonder chosen by city specialization AI at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+										LogHomelandMessage(strLogString);
+										continue;
+									}
+#if defined(MOD_BALANCE_CORE)
+									pUnit->finishMoves();
+									continue;
+#endif
+								}
 							}
 
 							// No, then move there
@@ -4511,7 +4635,24 @@ void CvHomelandAI::ExecuteEngineerMoves()
 								}
 							}
 						}
+#if defined(MOD_BALANCE_CORE)
 					}
+					else if(pUnit->IsCombatUnit())
+					{
+						CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), MAX_INT);
+						if(pEng)
+						{
+							ExecuteMoveToTarget(pEng, pWonderCity->plot(), 0, true);
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("Moving %s as garrison to city to boost production at specialization wonder city at, X: %d, Y: %d", pEng->getName().c_str(), pWonderCity->getX(),  pWonderCity->getY());
+								LogHomelandMessage(strLogString);
+							}
+							continue;
+						}
+					}
+#endif
 				}
 
 				if(bForceWonderCity)
@@ -4520,50 +4661,73 @@ void CvHomelandAI::ExecuteEngineerMoves()
 
 					if(pWonderCity)
 					{
-						iTurnsToTarget = pUnit->TurnsToReachTarget(pWonderCity->plot(), true);
-
-						// Already at target?
-						if(iTurnsToTarget == 0 && pUnit->plot() == pWonderCity->plot())
-						{
-							// Switch production
-							pWonderCity->pushOrder(ORDER_CONSTRUCT, eNextWonderDesired, -1, false, false, false);
-
-							if (pWonderCity->getProductionTurnsLeft() > 1)
-							{
-								// Rush it
-								pUnit->PushMission(CvTypes::getMISSION_HURRY());
-								UnitProcessed(pUnit->GetID());
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strLogString;
-									strLogString.Format("Great Engineer hurrying free wonder at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-									LogHomelandMessage(strLogString);
-									continue;
-								}
 #if defined(MOD_BALANCE_CORE)
-								pUnit->finishMoves();
-								continue;
+						if(pUnit->AI_getUnitAIType() == UNITAI_ENGINEER)
+						{
 #endif
+							iTurnsToTarget = pUnit->TurnsToReachTarget(pWonderCity->plot(), true);
+
+							// Already at target?
+							if(iTurnsToTarget == 0 && pUnit->plot() == pWonderCity->plot())
+							{
+								// Switch production
+								pWonderCity->pushOrder(ORDER_CONSTRUCT, eNextWonderDesired, -1, false, false, false);
+
+								if (pWonderCity->getProductionTurnsLeft() > 1)
+								{
+									// Rush it
+									pUnit->PushMission(CvTypes::getMISSION_HURRY());
+									UnitProcessed(pUnit->GetID());
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strLogString;
+										strLogString.Format("Great Engineer hurrying free wonder at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+										LogHomelandMessage(strLogString);
+										continue;
+									}
+#if defined(MOD_BALANCE_CORE)
+									pUnit->finishMoves();
+									continue;
+#endif
+								}
+								else
+								{
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strLogString;
+										strLogString.Format("Great Engineer not needed to hurry 1-turn wonder at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+										LogHomelandMessage(strLogString);
+										continue;
+									}
+#if defined(MOD_BALANCE_CORE)
+									UnitProcessed(pUnit->GetID());
+									pUnit->finishMoves();
+									continue;
+#endif
+								}
 							}
+							// No, then move there
 							else
 							{
-								if(GC.getLogging() && GC.getAILogging())
+								CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), MAX_INT);
+								if(pEng)
 								{
-									CvString strLogString;
-									strLogString.Format("Great Engineer not needed to hurry 1-turn wonder at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-									LogHomelandMessage(strLogString);
-									continue;
-								}
-#if defined(MOD_BALANCE_CORE)
-								UnitProcessed(pUnit->GetID());
-								pUnit->finishMoves();
-								continue;
-#endif
-							}
-						}
+									ExecuteMoveToTarget(pEng, pWonderCity->plot(), 0, true);
 
-						// No, then move there
-						else
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strLogString;
+										strLogString.Format("Moving %s for free wonder to city at, X: %d, Y: %d", pEng->getName().c_str(), pWonderCity->getX(),  pWonderCity->getY());
+										LogHomelandMessage(strLogString);
+									}
+#if defined(MOD_BALANCE_CORE)
+									continue;
+#endif
+								}
+							}
+#if defined(MOD_BALANCE_CORE)
+						}
+						else if(pUnit->IsCombatUnit())
 						{
 							CvUnit *pEng = GetBestUnitToReachTarget(pWonderCity->plot(), MAX_INT);
 							if(pEng)
@@ -4573,15 +4737,13 @@ void CvHomelandAI::ExecuteEngineerMoves()
 								if(GC.getLogging() && GC.getAILogging())
 								{
 									CvString strLogString;
-									strLogString.Format("Moving %s for free wonder to city at, X: %d, Y: %d", pEng->getName().c_str(), pWonderCity->getX(),  pWonderCity->getY());
+									strLogString.Format("Moving %s as garrison to boost wonder in city at, X: %d, Y: %d", pEng->getName().c_str(), pWonderCity->getX(),  pWonderCity->getY());
 									LogHomelandMessage(strLogString);
 								}
-#if defined(MOD_BALANCE_CORE)
 								continue;
-#endif
 							}
 						}
-
+#endif
 					}
 				}
 			}
@@ -8410,8 +8572,94 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, int 
 
 	return iBaseScore;
 }
+//check all tactical zones to find the one we need to support most
+std::vector<CvPlot*> HomelandAIHelpers::GetAggressivePatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets)
+{
+	if (ePlayer==NO_PLAYER)
+		return std::vector<CvPlot*>();
 
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	const std::vector<PlayerTypes>& vEnemies = kPlayer.GetPlayersAtWarWith();
+	CvTacticalAnalysisMap* pTactMap = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap();
 
+	std::vector<SPlotWithScore> vTargets;
+	for(int iI = 0; iI < pTactMap->GetNumZones(); iI++)
+	{
+		CvTacticalDominanceZone* pZone = pTactMap->GetZoneByIndex(iI);
+
+		if (!pZone || pZone->IsWater()!=bWater)
+			continue;
+
+		PlayerTypes eOwner = pZone->GetOwner();
+		if(eOwner == NO_PLAYER)
+			continue;
+
+		if((eOwner != ePlayer) && !GET_PLAYER(eOwner).IsAtWarWith(ePlayer))
+			continue;
+
+		//watch out, a city can occur multiple times (islands ...)
+		CvCity* pZoneCity = pZone->GetZoneCity();
+		if (!pZoneCity)
+			continue;
+
+		int iFriendlyPower = pZone->GetFriendlyStrength();
+		int iEnemyPower = pZone->GetEnemyStrength();
+
+		if(bWater)
+		{
+			iEnemyPower += pZone->GetEnemyNavalUnitCount() * 100;
+		}
+
+		iEnemyPower += (GET_PLAYER(ePlayer).getNumCities() - pZoneCity->GetThreatCriteria()) * 100;
+
+		const std::vector<int>& vNeighborZones = pZone->GetNeighboringZones();
+		for (size_t i=0; i<vNeighborZones.size(); i++)
+		{
+			CvTacticalDominanceZone* pOtherZone = pTactMap->GetZoneByID( vNeighborZones[i] );
+			if (!pOtherZone)
+				continue;
+
+			//some base strength for zones with low visibility
+			if (pOtherZone->GetOwner()!=ePlayer)
+				iEnemyPower += (pOtherZone->GetOwner()!=NO_PLAYER) ? 10000 : 2000;
+
+			if (std::find(vEnemies.begin(),vEnemies.end(),pOtherZone->GetOwner())!=vEnemies.end())
+				iEnemyPower += pOtherZone->GetNeutralStrength();
+
+			CvCity* pOtherZoneCity = pOtherZone->GetZoneCity();
+			if (pOtherZoneCity)
+			{
+				iEnemyPower += (GET_PLAYER(ePlayer).getNumCities() - pOtherZoneCity->GetThreatCriteria()) * 100;
+			}
+
+			if(bWater)
+			{
+				iEnemyPower += pZone->GetEnemyNavalUnitCount() * 100;
+			}
+
+			//different domain counts less
+			int iScale = (pOtherZone->IsWater() != pZone->IsWater()) ? 3 : 1;
+			iEnemyPower += pOtherZone->GetEnemyStrength() / iScale;
+
+			iFriendlyPower =+ pOtherZone->GetFriendlyStrength();
+		}
+
+		int iScore = (iEnemyPower*1000)/max(1,iFriendlyPower);
+		vTargets.push_back( SPlotWithScore(pZoneCity->plot(),iScore) );
+	}
+
+	//sort descending!
+	std::sort( vTargets.begin(), vTargets.end() );
+	std::reverse( vTargets.begin(), vTargets.end() );
+
+	std::vector<CvPlot*> vResult;
+	for (size_t i=0; i<MIN(vTargets.size(),(size_t)nMaxTargets); i++)
+		//copy the top N results, take care not to have duplicate cities in there
+		if (std::find(vResult.begin(),vResult.end(),vTargets[i].pPlot)==vResult.end())
+			vResult.push_back( vTargets[i].pPlot );
+
+	return vResult;
+}
 //check all tactical zones to find the one we need to support most
 std::vector<CvPlot*> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets)
 {
@@ -8437,6 +8685,13 @@ std::vector<CvPlot*> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bo
 		int iFriendlyPower = pZone->GetFriendlyStrength();
 		int iEnemyPower = pZone->GetEnemyStrength();
 
+		if(bWater)
+		{
+			iEnemyPower += pZone->GetEnemyNavalUnitCount() * 100;
+		}
+
+		iEnemyPower += (GET_PLAYER(ePlayer).getNumCities() - pZoneCity->GetThreatCriteria()) * 100;
+
 		const std::vector<int>& vNeighborZones = pZone->GetNeighboringZones();
 		for (size_t i=0; i<vNeighborZones.size(); i++)
 		{
@@ -8450,6 +8705,17 @@ std::vector<CvPlot*> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bo
 
 			if (std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
 				iEnemyPower += pOtherZone->GetNeutralStrength();
+
+			CvCity* pOtherZoneCity = pOtherZone->GetZoneCity();
+			if (pOtherZoneCity)
+			{
+				iEnemyPower += (GET_PLAYER(ePlayer).getNumCities() - pOtherZoneCity->GetThreatCriteria()) * 100;
+			}
+
+			if(bWater)
+			{
+				iEnemyPower += pZone->GetEnemyNavalUnitCount() * 100;
+			}
 
 			//different domain counts less
 			int iScale = (pOtherZone->IsWater() != pZone->IsWater()) ? 3 : 1;

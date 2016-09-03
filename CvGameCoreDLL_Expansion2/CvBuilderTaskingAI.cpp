@@ -2086,7 +2086,7 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		//if it's fallout, try to scrub it in spite of the danger
 		if(pPlot->getFeatureType() == FEATURE_FALLOUT && !pUnit->ignoreFeatureDamage() && (pUnit->GetCurrHitPoints() < (pUnit->GetMaxHitPoints() / 2)))
 		{
-			if(GC.getLogging() && GC.getAILogging())
+			if(GC.getLogging() && GC.getAILogging() && m_bLogging)
 			{
 				CvString strLog;
 				strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to fallout", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot));
@@ -2096,7 +2096,7 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		}
 		else if(pPlot->getFeatureType() != FEATURE_FALLOUT)
 		{
-			if(GC.getLogging() && GC.getAILogging())
+			if(GC.getLogging() && GC.getAILogging() && m_bLogging)
 			{
 				CvString strLog;
 				strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to danger", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot));
@@ -2134,6 +2134,28 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 
 		return false;
 	}
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	if(MOD_GLOBAL_STACKING_RULES)
+	{
+		const IDInfo* pUnitNode = pPlot->headUnitNode();
+		const CvUnit* pLoopUnit = NULL;
+
+		//Another unit already working here? Bail!
+		while(pUnitNode != NULL)
+		{
+			pLoopUnit = ::getUnit(*pUnitNode);
+			pUnitNode = pPlot->nextUnitNode(pUnitNode);
+
+			if(pLoopUnit && pLoopUnit != pUnit)
+			{
+				if(pLoopUnit->IsWork() && pLoopUnit->getBuildType() != NO_BUILD)
+				{
+					return false;
+				}
+			}
+		}
+	}
+#endif
 
 	return true;
 }
@@ -2848,6 +2870,7 @@ int CvBuilderTaskingAI::ScorePlot()
 			int iAdjacentValue = pImprovement->GetYieldAdjacentSameType(eYield);
 			int iAdjacentTwoValue = pImprovement->GetYieldAdjacentTwoSameType(eYield);
 			int iAdjacentOtherValue = 0;
+			int iAdjacentResourceValue = 0;
 			int iAdjacentTerrainValue = 0;
 			for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
 			{
@@ -2855,6 +2878,14 @@ int CvBuilderTaskingAI::ScorePlot()
 				if(eImprovement != NO_IMPROVEMENT)
 				{
 					iAdjacentOtherValue += pImprovement->GetAdjacentImprovementYieldChanges(eImprovement, eYield);
+				}
+			}
+			for(int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
+			{
+				ResourceTypes eResource = (ResourceTypes)iJ;
+				if(eResource != NO_RESOURCE)
+				{
+					iAdjacentResourceValue += pImprovement->GetAdjacentResourceYieldChanges(eResource, eYield);
 				}
 			}
 			for(int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
@@ -2882,6 +2913,11 @@ int CvBuilderTaskingAI::ScorePlot()
 			{
 				iScore *= (7 + m_pTargetPlot->ComputeYieldFromAdjacentTerrain(*pImprovement, eYield));
 			}
+			if(iAdjacentResourceValue > 0)
+			{
+				iScore *= (7 + m_pTargetPlot->ComputeYieldFromAdjacentResource(*pImprovement, eYield));
+			}
+
 		}
 	}
 	if(pImprovement->GetCultureBombRadius() > 0)

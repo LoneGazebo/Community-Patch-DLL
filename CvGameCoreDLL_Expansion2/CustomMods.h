@@ -307,6 +307,9 @@
 #define MOD_DIPLOMACY_CITYSTATES_HURRY              (MOD_DIPLOMACY_CITYSTATES && gCustomMods.isDIPLOMACY_CITYSTATES_HURRY())
 #endif
 
+// To turn off or on ships firing while in Cities
+#define MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS		 gCustomMods.isSHIPS_FIRE_IN_CITIES_IMPROVEMENTS()
+
 //Flips open borders to apply in opposite ways- you have to give open borders to gain the tourism bonus
 #define MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS
 
@@ -375,7 +378,8 @@
 #define MOD_NO_RANDOM_TEXT_CIVS						(MOD_COMMUNITY_PATCH && gCustomMods.isNO_RANDOM_TEXT_CIVS())
 
 #endif
-
+// Changes melee ship units to be cargo carrying units with added promotions for ship and cargo
+#define MOD_CARGO_SHIPS								gCustomMods.isCARGO_SHIPS()
 // Changes for the CivIV Diplomacy Features mod by Putmalk - AFFECTS SAVE GAME DATA FORMAT (v36)
 #define MOD_DIPLOMACY_CIV4_FEATURES                 gCustomMods.isDIPLOMACY_CIV4_FEATURES()
 // Adds an option to Advanced Setup to allow gaining Great General and Great Admiral Points from fighting with Barbarians
@@ -1065,6 +1069,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityCanAcquirePlot			"CityCanAcquirePlot",			"iiii"
 #define GAMEEVENT_CityCanAirlift				"CityCanAirlift",				"ii"
 #define GAMEEVENT_CityConnected					"CityConnected",				"iiiiib"
+#define GAMEEVENT_CityPuppeted					"CityPuppeted",					"ii"
 #define GAMEEVENT_CityConnections				"CityConnections",				"ib"
 #define GAMEEVENT_CityConstructed				"CityConstructed",				"iiibb"
 #define GAMEEVENT_CityCreated					"CityCreated",					"iiibb"
@@ -1214,8 +1219,8 @@ enum BattleTypeTypes
 #define GAMEEVENT_EventChoiceCanTake		"EventChoiceCanTake", "ii"
 #define GAMEEVENT_CityEventChoiceCanTake    "CityEventChoiceCanTake", "iii"
 #define GAMEEVENT_EventCanTake				"EventCanTake", "ii"
-#define GAMEEVENT_CityEventCanTake			 "CityEventCanTake", "iii"
-
+#define GAMEEVENT_CityEventCanTake			"CityEventCanTake", "iii"
+#define GAMEEVENT_EventUnitCreated			"EventUnitCreated", "iii"
 
 // Serialization wrappers
 #define MOD_SERIALIZE
@@ -1357,7 +1362,7 @@ public:
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_QUESTS); 
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_RESOLUTIONS); 
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_HURRY);
-
+	MOD_OPT_DECL(SHIPS_FIRE_IN_CITIES_IMPROVEMENTS);
 	MOD_OPT_DECL(COMMUNITY_PATCH);
 	MOD_OPT_DECL(BALANCE_CORE);
 	MOD_OPT_DECL(BALANCE_CORE_YIELDS);
@@ -1419,7 +1424,8 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_EVENTS);
 	MOD_OPT_DECL(NO_RANDOM_TEXT_CIVS);
 
-	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES); 
+	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES);
+	MOD_OPT_DECL(CARGO_SHIPS);
 	MOD_OPT_DECL(BARBARIAN_GG_GA_POINTS);
 	MOD_OPT_DECL(TRAITS_GG_FROM_BARBARIANS);
 	MOD_OPT_DECL(TRAITS_CROSSES_ICE);

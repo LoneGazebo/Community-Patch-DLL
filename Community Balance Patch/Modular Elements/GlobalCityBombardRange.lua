@@ -13,7 +13,7 @@ function Initialise()
   
     gBombardTechs[iTech] = iRange
   
-    for iTeam = 0, GameDefines.MAX_CIV_TEAMS-1, 1 do
+    for iTeam = 0, GameDefines.MAX_CIV_TEAMS, 1 do
       if (Teams[iTeam]:IsHasTech(iTech)) then
 	    gTeamRange[iTeam] = iRange
 	  end

@@ -343,7 +343,7 @@ int GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding, YieldTypes eYi
 int GetBuildingGrandStrategyValue(CvCity *pCity, BuildingTypes eBuilding, PlayerTypes ePlayer);
 int GetBuildingPolicyValue(CvCity *pCity, BuildingTypes eBuilding);
 int GetBuildingBasicValue(CvCity *pCity, BuildingTypes eBuilding);
-int GetBuildingTraitValue(CvCity *pCity, YieldTypes eYield, BuildingTypes eBuilding);
+int GetBuildingTraitValue(CvCity *pCity, YieldTypes eYield, BuildingTypes eBuilding, int iValue);
 #endif
 }
 

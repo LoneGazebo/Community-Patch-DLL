@@ -331,6 +331,7 @@ CvCity::CvCity() :
 	, m_aiYieldFromBorderGrowth("CvCity::m_aiYieldFromBorderGrowth", m_syncArchive)
 	, m_aiYieldFromPolicyUnlock("CvCity::m_aiYieldFromPolicyUnlock", m_syncArchive)
 	, m_aiYieldFromPurchase("CvCity::m_aiYieldFromPurchase", m_syncArchive)
+	, m_aiYieldFromUnitLevelUp("CvCity::m_aiYieldFromUnitLevelUp", m_syncArchive)
 	, m_aiScienceFromYield("CvCity::m_aiScienceFromYield", m_syncArchive)
 	, m_aiBuildingScienceFromYield("CvCity::m_aiBuildingScienceFromYield", m_syncArchive)
 	, m_aiSpecialistRateModifier("CvCity::m_aiSpecialistRateModifier", m_syncArchive)
@@ -854,7 +855,12 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			owningPlayer.changeNumResourceTotal(plot()->getResourceType(), plot()->getNumResourceForPlayer(getOwner()));
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	if(MOD_BALANCE_CORE_EVENTS)
+	{
+		owningPlayer.CheckActivePlayerEvents(this);
+	}
+#endif
 	CvPlot* pLoopPlot;
 
 	// We may need to link Resources to this City if it's constructed within previous borders and the Resources were too far away for another City to link to
@@ -878,7 +884,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			}
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	//Update our CoM for the diplo AI.
+	owningPlayer.SetCenterOfMassEmpire();
+#endif	
 	PlayerTypes ePlayer;
 
 	// Update Proximity between this Player and all others
@@ -1113,16 +1122,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE_EVENTS)
-	if(MOD_BALANCE_CORE_EVENTS)
-	{
-		owningPlayer.CheckActivePlayerEvents(this);
-	}
-#endif
-#if defined(MOD_BALANCE_CORE)
-	//Update our CoM for the diplo AI.
-	owningPlayer.SetCenterOfMassEmpire();
-#endif	
+
 	owningPlayer.CalculateNetHappiness();
 
 	AI_init();
@@ -1448,6 +1448,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromBorderGrowth.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPolicyUnlock.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPurchase.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromUnitLevelUp.resize(NUM_YIELD_TYPES);
 	m_aiScienceFromYield.resize(NUM_YIELD_TYPES);
 	m_aiBuildingScienceFromYield.resize(NUM_YIELD_TYPES);
 	m_aiThemingYieldBonus.resize(NUM_YIELD_TYPES);
@@ -1515,6 +1516,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromBorderGrowth.setAt(iI, 0);
 		m_aiYieldFromPolicyUnlock.setAt(iI, 0);
 		m_aiYieldFromPurchase.setAt(iI, 0);
+		m_aiYieldFromUnitLevelUp.setAt(iI, 0);
 		m_aiScienceFromYield.setAt(iI, 0);
 		m_aiBuildingScienceFromYield.setAt(iI, 0);
 		m_aiThemingYieldBonus.setAt(iI, 0);
@@ -3203,7 +3205,7 @@ void CvCity::UpdateNearbySettleSites()
 				iDanger = GET_PLAYER(getOwner()).GetPlotDanger(*pPlot);
 				if(iDanger < 1000)
 				{
-					iValue = ((1000 - iDanger) * iValue) / 6000;
+					iValue = ((1000 - iDanger) * iValue) / 8000;
 
 					if(iValue > iBestValue)
 					{
@@ -5080,6 +5082,8 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			if(pkEventChoiceInfo->IsEraScaling())
 			{
 				iValue *= iEra;
+				iValue *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
+				iValue /= 100;
 			}
 			if(iValue > 0)
 			{
@@ -5360,6 +5364,13 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice)
 				}
 			}
 		}
+	}
+
+	//Let's narrow down all events here!
+	if(GetEventChoiceDuration(eChosenEventChoice) > 0)
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_ACTIVE");
+		DisabledTT += localizedDurationText.toUTF8();
 	}
 
 	//Let's narrow down all events here!
@@ -6256,6 +6267,8 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 							iEra = 1;
 						}
 						iBonus *= iEra;
+						iBonus *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
+						iBonus /= 100;
 					}
 					if(iBonus != 0)
 					{
@@ -6361,7 +6374,12 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 										{
 											pUnit->kill(false);	// Could not find a valid spot!
 										}
-										pUnit->setMoves(0);
+										else
+										{
+											pUnit->setMoves(0);
+											//Lua Hook
+											GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, getOwner(), eEventChoice, pUnit);
+										}
 									}
 								}
 							}
@@ -6392,7 +6410,12 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 							{
 								pUnit->kill(false);	// Could not find a valid spot!
 							}
-							pUnit->setMoves(0);
+							else
+							{
+								pUnit->setMoves(0);
+								//Lua Hook
+								GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, getOwner(), eEventChoice, pUnit);
+							}
 						}
 					}
 				}
@@ -6452,270 +6475,14 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			{
 				// In hundreds
 				int iNumRebels = pkEventChoiceInfo->getRandomBarbs();
-				CvGame& theGame = GC.getGame();
-
-				int iBestPlot = -1;
-				int iBestPlotWeight = -1;
-				CvPlot* pPlot;
-
-				CvCityCitizens* pCitizens = GetCityCitizens();
-
-				// Start at 1, since ID 0 is the city plot itself
-
-				for(int iPlotLoop = 1; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
-				{
-					pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
-
-					if(!pPlot)		// Should be valid, but make sure
-						continue;
-
-					// Can't be impassable
-					if(!pPlot->isValidMovePlot(BARBARIAN_PLAYER))
-						continue;
-
-					// Can't be water
-					if(pPlot->isWater())
-						continue;
-
-					// Can't be ANOTHER city
-					if(pPlot->isCity())
-						continue;
-
-					// Don't place on a plot where a unit is already standing
-					if(pPlot->getNumUnits() > 0)
-						continue;
-
-					int iTempWeight = theGame.getRandNum(10, "Uprising rand plot location.");
-
-					// Add weight if there's an improvement here!
-					if(pPlot->getImprovementType() != NO_IMPROVEMENT)
-					{
-						iTempWeight += 4;
-
-						// If also a a resource, even more weight!
-						if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
-							iTempWeight += 3;
-					}
-			
-					// Don't pick plots that aren't ours
-					if(pPlot->getOwner() != GetID())
-						iTempWeight = -1;
-
-					// Add weight if there's a defensive bonus for this plot
-					if(pPlot->defenseModifier(BARBARIAN_TEAM, false, false))
-						iTempWeight += 4;
-
-					if(iTempWeight > iBestPlotWeight)
-					{
-						iBestPlotWeight = iTempWeight;
-						iBestPlot = iPlotLoop;
-					}
-				}
-
-				// Found valid plot
-				if(iBestPlot != -1)
-				{
-					// Make barbs able to enter ANYONE'S territory
-					theGame.SetBarbarianReleaseTurn(0);
-
-					pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
-
-					// Pick a unit type - should give us more melee than ranged
-					UnitTypes eUnit = theGame.GetCompetitiveSpawnUnitType(getOwner(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ true, false, true);
-					UnitTypes emUnit = theGame.GetCompetitiveSpawnUnitType(getOwner(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ false, false, true);
-
-					// Init unit
-					CvUnit* pstartUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-					CvAssert(pstartUnit);
-					if (pstartUnit)
-					{
-						if (!pstartUnit->jumpToNearestValidPlotWithinRange(3))
-						{
-							pstartUnit->kill(false);		// Could not find a spot!
-						}
-						else
-						{
-							pstartUnit->setMoves(0);
-						}
-					}
-					iNumRebels--;	// Reduce the count since we just added the seed rebel
-
-					// Loop until all rebels are placed
-					if(iNumRebels > 0)
-					{
-						do
-						{
-							iNumRebels--;
-
-							// Init unit
-							CvUnit* pmUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-							CvAssert(pmUnit);
-							if (pmUnit)
-							{
-								if (!pmUnit->jumpToNearestValidPlotWithinRange(3))
-								{
-									pmUnit->kill(false);		// Could not find a spot!
-								}
-								else
-								{
-									pmUnit->setMoves(0);
-								}
-							}
-
-							iNumRebels--;
-							if(iNumRebels > 0)
-							{
-								// Init unit
-								CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-								CvAssert(pUnit);
-								if (pUnit)
-								{
-									if (!pUnit->jumpToNearestValidPlotWithinRange(3))
-									{
-										pUnit->kill(false);		// Could not find a spot!
-									}
-									else
-									{
-										pUnit->setMoves(0);
-									}
-								}
-							}
-						}
-						while(iNumRebels > 0);
-					}
-				}
+				GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, this, iNumRebels, false, false, false, false);
 			}
 			if(pkEventChoiceInfo->getFreeScaledUnits() > 0)
 			{
 				// In hundreds
 				int iNumRecruits = pkEventChoiceInfo->getFreeScaledUnits();
-				CvGame& theGame = GC.getGame();
 
-				int iBestPlot = -1;
-				int iBestPlotWeight = -1;
-				CvPlot* pPlot;
-
-				CvCityCitizens* pCitizens = GetCityCitizens();
-
-				// Start at 1, since ID 0 is the city plot itself
-
-				for(int iPlotLoop = 1; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
-				{
-					pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
-
-					if(!pPlot)		// Should be valid, but make sure
-						continue;
-
-					// Can't be impassable
-					if(!pPlot->isValidMovePlot(getOwner()))
-						continue;
-
-					// Can't be water
-					if(pPlot->isWater())
-						continue;
-
-					// Can't be ANOTHER city
-					if(pPlot->isCity())
-						continue;
-
-					// Don't place on a plot where a unit is already standing
-					if(pPlot->getNumUnits() > 0)
-						continue;
-
-					int iTempWeight = theGame.getRandNum(10, "Uprising rand plot location.");
-
-					// Add weight if there's an improvement here!
-					if(pPlot->getImprovementType() != NO_IMPROVEMENT)
-					{
-						iTempWeight += 4;
-
-						// If also a a resource, even more weight!
-						if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
-							iTempWeight += 3;
-					}
-			
-					// Don't pick plots that aren't ours
-					if(pPlot->getOwner() != GetID())
-						iTempWeight = -1;
-
-					// Add weight if there's a defensive bonus for this plot
-					if(pPlot->defenseModifier(BARBARIAN_TEAM, false, false))
-						iTempWeight += 4;
-
-					if(iTempWeight > iBestPlotWeight)
-					{
-						iBestPlotWeight = iTempWeight;
-						iBestPlot = iPlotLoop;
-					}
-				}
-
-				// Found valid plot
-				if(iBestPlot != -1)
-				{
-					pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
-
-					// Pick a unit type - should give us more melee than ranged
-					UnitTypes eUnit = theGame.GetCompetitiveSpawnUnitType(getOwner(), /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, false, true);
-					UnitTypes emUnit = theGame.GetCompetitiveSpawnUnitType(getOwner(), /*bIncludeUUs*/ false, /*bIncludeRanged*/ false, false, true);
-
-					CvUnit* pstartUnit = GET_PLAYER(getOwner()).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-					CvAssert(pstartUnit);
-					if (pstartUnit)
-					{
-						if (!pstartUnit->jumpToNearestValidPlotWithinRange(3))
-						{
-							pstartUnit->kill(false);		// Could not find a spot!
-						}
-						else
-						{
-							pstartUnit->setMoves(0);
-						}
-					}
-					iNumRecruits--;	// Reduce the count since we just added the seed rebel
-					if(iNumRecruits > 0)
-					{
-						// Loop until all rebels are placed
-						do
-						{
-							iNumRecruits--;
-
-							// Init unit
-							CvUnit* pmUnit = GET_PLAYER(getOwner()).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-							CvAssert(pmUnit);
-							if (pmUnit)
-							{
-								if (!pmUnit->jumpToNearestValidPlotWithinRange(3))
-								{
-									pmUnit->kill(false);		// Could not find a spot!
-								}
-								else
-								{
-									pmUnit->setMoves(0);
-								}
-							}
-
-							iNumRecruits--;
-							if(iNumRecruits > 0)
-							{		
-								// Init unit
-								CvUnit* pUnit = GET_PLAYER(getOwner()).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-								CvAssert(pUnit);
-								if (pUnit)
-								{
-									if (!pUnit->jumpToNearestValidPlotWithinRange(3))
-									{
-										pUnit->kill(false);		// Could not find a spot!
-									}
-									else
-									{
-										pUnit->setMoves(0);
-									}
-								}
-								}
-						}
-						while(iNumRecruits > 0);
-					}
-				}
+				GC.getGame().DoSpawnUnitsAroundTargetCity(getOwner(), this, iNumRecruits, false, false, false, false);
 			}
 			//Let's do our notification stuff here.
 			for(int iI = 0; iI < pkEventChoiceInfo->GetNumNotifications(); iI++)
@@ -11699,6 +11466,54 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 				}
 			}
 		}
+		CvPlot* pCityPlot = plot();
+		for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
+		{
+			int iI;
+			for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+			{
+				const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
+				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
+				if(pkPromotionInfo != NULL)
+				{
+					if(pkPromotionInfo->GetWonderProductionModifier() > 0)
+					{
+						if(pCityPlot->getUnitByIndex(iUnitLoop)->isHasPromotion(eLoopPromotion))
+						{
+							iTempMod = pkPromotionInfo->GetWonderProductionModifier();
+							iMultiplier += iTempMod;
+							if(toolTipSink && iTempMod)
+							{
+								GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_UNITPROMOTION", iTempMod);
+							}
+						}
+					}
+				}
+			}
+		}
+		int iNumberOfImprovements = 0;
+		CvPlot* pLoopPlot;
+		for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
+		{
+			pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
+			if(pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
+			{
+				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+				{
+					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+					if(pImprovementInfo->GetWonderProductionModifier() > 0)
+					{
+						iTempMod = pImprovementInfo->GetWonderProductionModifier();
+						iMultiplier += iTempMod;
+						iNumberOfImprovements++;
+					}
+				}
+			}
+		}
+		if(toolTipSink && iTempMod && iNumberOfImprovements)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_IMPROVEMENT", iTempMod * iNumberOfImprovements);
+		}
 	}
 	// Not-wonder bonus
 	else
@@ -11733,6 +11548,127 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		}
 	}
 
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionModifierToBuilding() > 0)
+	{
+		int iMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionToBuildingDiscount(eBuilding);
+		iTempMod = (GetWonderProductionModifier() * iMod) / 100;
+		iMultiplier += iTempMod;
+		if(toolTipSink && iTempMod)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_CITY_TRAIT", iTempMod);
+		}
+
+		iTempMod = (GET_PLAYER(getOwner()).getWonderProductionModifier() * iMod) / 100;
+		if(GET_PLAYER(getOwner()).isGoldenAge() && GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionModGA() > 0)
+		{
+			iTempMod += (GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionModGA() * iMod) / 100;
+		}
+		iMultiplier += iTempMod;
+		if(toolTipSink && iTempMod)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_PLAYER_TRAIT", iTempMod);
+		}
+
+		BuildingTypes ePyramidWonder = (BuildingTypes) GC.getInfoTypeForString("BUILDING_PYRAMID");
+		iTempMod = (GetLocalResourceWonderProductionMod(ePyramidWonder) * iMod) / 100;
+		iMultiplier += iTempMod;
+		if(toolTipSink && iTempMod)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_RESOURCE_TRAIT", iTempMod);
+		}
+
+		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+		if(eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			if(pReligion)
+			{
+				// Depends on era of wonder
+				EraTypes eEra;
+				TechTypes eTech = (TechTypes)thisBuildingEntry->GetPrereqAndTech();
+				if(eTech != NO_TECH)
+				{
+					CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
+					if(pEntry)
+					{
+						eEra = (EraTypes)pEntry->GetEra();
+						if(eEra != NO_ERA)
+						{
+							iTempMod = (pReligion->m_Beliefs.GetWonderProductionModifier(eEra, getOwner()) * iMod) / 100;
+							BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+							if (eSecondaryPantheon != NO_BELIEF)
+							{
+								if((int)eEra < GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetObsoleteEra())
+								{
+									iTempMod += (GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetWonderProductionModifier() * iMod) / 100;
+								}
+							}
+							iMultiplier += iTempMod;
+							if(toolTipSink && iTempMod)
+							{
+								GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_RELIGION_TRAIT", iTempMod);
+							}
+						}
+					}
+				}
+			}
+		}
+		iTempMod = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_WONDER_PRODUCTION_MODIFIER) * iMod) / 100;
+		iMultiplier += iTempMod;
+		if(toolTipSink && iTempMod)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_POLICY_TRAIT", iTempMod);
+		}
+
+		CvPlot* pCityPlot = plot();
+		for(int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
+		{
+			int iI;
+			for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+			{
+				const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
+				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
+				if(pkPromotionInfo != NULL)
+				{
+					if(pkPromotionInfo->GetWonderProductionModifier() > 0)
+					{
+						if(pCityPlot->getUnitByIndex(iUnitLoop)->isHasPromotion(eLoopPromotion))
+						{
+							iTempMod = (pkPromotionInfo->GetWonderProductionModifier() * iMod) / 100;
+							iMultiplier += iTempMod;
+							if(toolTipSink && iTempMod)
+							{
+								GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_UNIT_TRAIT", iTempMod);
+							}
+						}
+					}
+				}
+			}
+		}
+		int iNumberOfImprovements = 0;
+		CvPlot* pLoopPlot;
+		for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
+		{
+			pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
+			if(pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
+			{
+				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+				{
+					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+					if(pImprovementInfo->GetWonderProductionModifier() > 0)
+					{
+						iTempMod = (pImprovementInfo->GetWonderProductionModifier() * iMod) / 100;
+						iMultiplier += iTempMod;
+						iNumberOfImprovements++;						
+					}
+				}
+			}
+		}
+		if(toolTipSink && iTempMod && iNumberOfImprovements)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_IMPROVEMENT_TRAIT", iTempMod * iNumberOfImprovements);
+		}
+	}
 	return iMultiplier;
 }
 
@@ -13293,7 +13229,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						if(owningTeam.GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(eLoopResource)->getTechCityTrade()))
 						{
+#if defined(MOD_BALANCE_CORE)
+							if(pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && (GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsAdjacentCity() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eLoopResource))))
+#else
 							if(pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eLoopResource)))
+#endif
 							{
 								if(!pLoopPlot->IsImprovementPillaged())
 								{
@@ -13418,6 +13358,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromPurchase(eYield) > 0))
 			{
 				ChangeYieldFromPurchase(eYield, pBuildingInfo->GetYieldFromPurchase(eYield) * iChange);
+			}
+
+			if(MOD_BALANCE_CORE && (pBuildingInfo->GetYieldFromUnitLevelUp(eYield) > 0))
+			{
+				ChangeYieldFromUnitLevelUp(eYield, pBuildingInfo->GetYieldFromUnitLevelUp(eYield) * iChange);
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -18115,10 +18060,9 @@ bool CvCity::DoRazingTurn()
 			}
 
 			// In hundreds
-			CvGame& theGame = GC.getGame();
 			int iNumRebels = (getPopulation() * 9); //Based on city size.
-			int iExtraRoll = (theGame.getCurrentEra() * 9 * getPopulation()); //Increase possible partisan spawns as game continues and cities grow.
-			iNumRebels += theGame.getRandNum(iExtraRoll, "Rebel count rand roll");
+			int iExtraRoll = (GC.getGame().getCurrentEra() * 9 * getPopulation()); //Increase possible partisan spawns as game continues and cities grow.
+			iNumRebels += GC.getGame().getRandNum(iExtraRoll, "Rebel count rand roll");
 			iNumRebels /= 100;		
 	
 			if(iNumRebels <= 0)
@@ -18131,151 +18075,10 @@ bool CvCity::DoRazingTurn()
 			}
 			int iStatic = iNumRebels;
 			GET_PLAYER(getOwner()).SetSpawnCooldown(iNumRebels * 2);
-
-			bool bNotification = false;
-			int iBestPlot = -1;
-			int iBestPlotWeight = -1;
-			CvPlot* pPlot;
-
-			CvCityCitizens* pCitizens = GetCityCitizens();
-
-			// Start at 1, since ID 0 is the city plot itself
-
-			for(int iPlotLoop = 1; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
-			{
-				pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
-
-				if(!pPlot)		// Should be valid, but make sure
-					continue;
-
-				// Can't be impassable
-				if(!pPlot->isValidMovePlot(BARBARIAN_PLAYER))
-					continue;
-
-				// Can't be water
-				if(pPlot->isWater())
-					continue;
-
-				// Can't be ANOTHER city
-				if(pPlot->isCity())
-					continue;
-
-				// Don't place on a plot where a unit is already standing
-				if(pPlot->getNumUnits() > 0)
-					continue;
-
-				int iTempWeight = theGame.getRandNum(10, "Uprising rand plot location.");
-
-				// Add weight if there's an improvement here!
-				if(pPlot->getImprovementType() != NO_IMPROVEMENT)
-				{
-					iTempWeight += 4;
-
-					// If also a a resource, even more weight!
-					if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
-						iTempWeight += 3;
-				}
 			
-				// Don't pick plots that aren't ours
-				if(pPlot->getOwner() != GET_PLAYER(getOwner()).GetID())
-					iTempWeight = -1;
-
-				// Add weight if there's a defensive bonus for this plot
-				if(pPlot->defenseModifier(GET_PLAYER(eFormerOwner).getTeam(), false, false))
-					iTempWeight += 4;
-
-				if(iTempWeight > iBestPlotWeight)
-				{
-					iBestPlotWeight = iTempWeight;
-					iBestPlot = iPlotLoop;
-				}
-			}
-			//Not at war? Barb partisans!
 			if(GET_TEAM(GET_PLAYER(eFormerOwner).getTeam()).isAtWar(getTeam()))
 			{
-				// Found valid plot
-				if(iBestPlot != -1)
-				{
-					pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
-
-					// Pick a unit type - should give us more melee than ranged
-					UnitTypes eUnit = NO_UNIT;
-					if(isCoastal())
-					{
-						eUnit = theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, true, true);
-					}
-					else
-					{
-						eUnit = theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, false, true);
-					}
-					UnitTypes emUnit= theGame.GetCompetitiveSpawnUnitType(eFormerOwner, /*bIncludeUUs*/ false, /*bIncludeRanged*/ false, false, true);
-					if(eUnit == NO_UNIT || emUnit == NO_UNIT)
-					{
-						return false;
-					}
-					// Init unit
-					CvUnit* pFirstUnit = GET_PLAYER(eFormerOwner).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-					CvAssert(pFirstUnit);
-					if (pFirstUnit)
-					{
-						if (!pFirstUnit->jumpToNearestValidPlotWithinRangeIgnoreEnemy(5))
-						{
-							pFirstUnit->kill(false);		// Could not find a spot!
-						}
-						else
-						{
-							bNotification = true;
-							pFirstUnit->setMoves(0);
-							pFirstUnit->setDamage(theGame.getRandNum(60, "damage"));
-						}
-					}
-					iNumRebels--;	// Reduce the count since we just added the seed rebel
-
-					// Loop until all rebels are placed
-					do
-					{
-						iNumRebels--;
-
-						// Init unit
-						CvUnit* pmUnit = GET_PLAYER(eFormerOwner).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-						CvAssert(pmUnit);
-						if (pmUnit)
-						{
-							if (!pmUnit->jumpToNearestValidPlotWithinRangeIgnoreEnemy(5))
-							{
-								pmUnit->kill(false);		// Could not find a spot!
-							}
-							else
-							{
-								bNotification = true;
-								pmUnit->setMoves(1);
-								pmUnit->setDamage(theGame.getRandNum(60, "damage"));
-							}
-						}
-
-						iNumRebels--;
-						if(iNumRebels > 0)
-						{
-							// Init unit
-							CvUnit* pUnit = GET_PLAYER(eFormerOwner).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-							CvAssert(pUnit);
-							if (pUnit)
-							{
-								if (!pUnit->jumpToNearestValidPlotWithinRangeIgnoreEnemy(5))
-								{
-									pUnit->kill(false);		// Could not find a spot!
-								}
-								else
-								{
-									bNotification = true;
-									pUnit->setMoves(1);
-									pUnit->setDamage(theGame.getRandNum(60, "damage"));
-								}
-							}
-						}
-					}
-					while(iNumRebels > 0);
-				}
+				bool bNotification = GC.getGame().DoSpawnUnitsAroundTargetCity(eFormerOwner, this, iNumRebels, true, false, false, true);
 				if(bNotification)
 				{
 					if(!GET_PLAYER(eFormerOwner).GetTacticalAI()->IsTemporaryZoneCity(this))
@@ -18313,90 +18116,7 @@ bool CvCity::DoRazingTurn()
 			}
 			else
 			{
-				// Found valid plot
-				if(iBestPlot != -1)
-				{
-					pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
-
-					// Pick a unit type - should give us more melee than ranged
-					UnitTypes eUnit = NO_UNIT;
-					if(isCoastal())
-					{
-						eUnit = theGame.GetCompetitiveSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, true, true);
-					}
-					else
-					{
-						eUnit = theGame.GetCompetitiveSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, false, true);
-					}
-					UnitTypes emUnit= theGame.GetCompetitiveSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ false, /*bIncludeRanged*/ false, false, true);
-					if(eUnit == NO_UNIT || emUnit == NO_UNIT)
-					{
-						return false;
-					}
-					// Init unit
-					CvUnit* pFirstUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-					CvAssert(pFirstUnit);
-					if (pFirstUnit)
-					{
-						if (!pFirstUnit->jumpToNearestValidPlotWithinRange(5))
-						{
-							pFirstUnit->kill(false);		// Could not find a spot!
-						}
-						else
-						{
-							bNotification = true;
-							pFirstUnit->setMoves(1);
-							pFirstUnit->setDamage(theGame.getRandNum(60, "damage"));
-						}
-					}
-					iNumRebels--;	// Reduce the count since we just added the seed rebel
-
-					// Loop until all rebels are placed
-					do
-					{
-						iNumRebels--;
-
-						// Init unit
-						CvUnit* pmUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-						CvAssert(pmUnit);
-						if (pmUnit)
-						{
-							if (!pmUnit->jumpToNearestValidPlotWithinRange(5))
-							{
-								pmUnit->kill(false);		// Could not find a spot!
-							}
-							else
-							{
-								bNotification = true;
-								pmUnit->setMoves(1);
-								pmUnit->setDamage(theGame.getRandNum(60, "damage"));
-							}
-						}
-
-						iNumRebels--;
-						if(iNumRebels > 0)
-						{
-
-							// Init unit
-							CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-							CvAssert(pUnit);
-							if (pUnit)
-							{
-								if (!pUnit->jumpToNearestValidPlotWithinRange(5))
-								{
-									pUnit->kill(false);		// Could not find a spot!
-								}
-								else
-								{
-									bNotification = true;
-									pUnit->setMoves(1);
-									pUnit->setDamage(theGame.getRandNum(60, "damage"));
-								}
-							}
-						}
-					}
-					while(iNumRebels > 0);
-				}
+				bool bNotification = GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, this, iNumRebels, false, false, false, false);
 				if(bNotification)
 				{
 					CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
@@ -18472,6 +18192,11 @@ void CvCity::SetPuppet(bool bValue)
 		m_bPuppet = bValue;
 	}
 #if defined(MOD_BALANCE_CORE)
+	if(bValue)
+	{
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityPuppeted, getOwner(), GetID());
+	}
+
 	if(bValue && IsNoWarmongerYet())
 	{
 		PlayerTypes eFormerOwner = getPreviousOwner();
@@ -21572,6 +21297,31 @@ void CvCity::ChangeYieldFromPurchase(YieldTypes eIndex, int iChange)
 }
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
+int CvCity::GetYieldFromUnitLevelUp(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromUnitLevelUp[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromUnitLevelUp(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if(iChange != 0)
+	{
+		m_aiYieldFromUnitLevelUp.setAt(eIndex, m_aiYieldFromUnitLevelUp[eIndex] + iChange);
+		CvAssert(GetYieldFromUnitLevelUp(eIndex) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
 int CvCity::GetScienceFromYield(YieldTypes eIndex1) const
 {
 	VALIDATE_OBJECT
@@ -24073,7 +23823,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 							bNoNeighbor = false;
 							break;
 						}
-						if(pAdjacentPlot->getOwner() != NO_PLAYER && !GET_PLAYER(pAdjacentPlot->getOwner()).isMinorCiv())
+						if(bForPurchase && pAdjacentPlot->getOwner() != NO_PLAYER && !GET_PLAYER(pAdjacentPlot->getOwner()).isMinorCiv())
 						{
 							if(GET_PLAYER(pAdjacentPlot->getOwner()).GetDiplomacyAI()->GetPlayerMadeBorderPromise(getOwner()))
 							{

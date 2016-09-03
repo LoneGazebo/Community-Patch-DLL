@@ -3512,8 +3512,8 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_iShareOpinionDuration(0),
 	m_iTechCostPerTurnMultiplier(0),
-	m_iMinimumVoluntaryVassalTurns(0),
-	m_iMinimumVassalTurns(0),
+	m_iMinimumVoluntaryVassalTurns(15),
+	m_iMinimumVassalTurns(75),
 	m_iMinimumVassalTaxTurns(0),
 	m_iNumTurnsBetweenVassals(0),
 	m_iMinimumVassalLiberateTurns(0),

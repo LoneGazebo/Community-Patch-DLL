@@ -236,8 +236,12 @@
 	<!-- Changes for the Civ4 Diplomacy Features mod by Putmalk (v36) -->
 	<!-- See also: "Diplomacy - CivIV Features" -->
     <Row Class="6" Name="DIPLOMACY_CIV4_FEATURES" Value="0"/>
+	<!-- Allows Land Units to become Cargo of Melee Ships -->
+	<Row Class="5" Name="CARGO_SHIPS" Value="0"/>
+	<!-- Switch Value to 1 to allow Ranged Boats to fire from Cities or Passable Improvements -->
+	<Row Class="4" Name="SHIPS_FIRE_IN_CITIES_IMPROVEMENTS" Value="0"/>
 	<!-- Changes for Advanced Setup that allow players to acquire GG and GA points from fighting Barbarians -->
-		<Row Class="5" Name="BARBARIAN_GG_GA_POINTS" Value="1"/>
+	<Row Class="5" Name="BARBARIAN_GG_GA_POINTS" Value="1"/>
     <!-- Permits units to earn GG/GA points from killing barbarians, this is the trait version (ie applies to all units of the civ) of PROMOTIONS_GG_FROM_BARBARIANS (v83) -->
 	<!-- See also: "Global - Commander Points From Barbarians" -->
     <Row Class="2" Name="TRAITS_GG_FROM_BARBARIANS" Value="0" DbUpdates="1"/>

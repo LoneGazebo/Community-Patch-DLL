@@ -4834,7 +4834,6 @@ CvCity* CvPlayer::GetThreatenedCityRank(int iValue)
 	CvCity* pLoopCity = NULL;
 	int iLoop;
 
-	//Reset the critera.
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		if(pLoopCity != NULL)
@@ -5523,7 +5522,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 
 	if(!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
 	{
-		if((GetReligions()->GetCurrentReligion() != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
+		if((GetReligions()->GetCurrentReligion(false) != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
 			return false;
 	}
 
@@ -5956,7 +5955,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 
 	if(!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
 	{
-		if((GetReligions()->GetCurrentReligion() != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
+		if((GetReligions()->GetCurrentReligion(false) != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
 			return false;
 	}
 
@@ -7217,7 +7216,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 
 	if(!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
 	{
-		if((GetReligions()->GetCurrentReligion() != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
+		if((GetReligions()->GetCurrentReligion(false) != (ReligionTypes)pkEventInfo->getRequiredReligion()) && (GetReligions()->GetReligionInMostCities() != (ReligionTypes)pkEventInfo->getRequiredReligion()))
 		{
 			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_SPECIFIC_RELIGION");
 			localizedDurationText << GC.getReligionInfo((ReligionTypes)pkEventInfo->getRequiredReligion())->GetDescription();
@@ -7775,7 +7774,7 @@ void CvPlayer::CheckActivePlayerEvents(CvCity* pCity)
 		EventChoiceTypes eEventChoice = (EventChoiceTypes)iLoop;
 		if(eEventChoice != NO_EVENT_CHOICE)
 		{
-			if(GetEventChoiceDuration(eEventChoice) > 0)
+			if(GetEventChoiceDuration(eEventChoice) > 0 || IsEventChoiceFired(eEventChoice))
 			{
 				DoEventSyncChoices(eEventChoice, pCity);
 			}
@@ -8648,7 +8647,6 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 			{
 				// In hundreds
 				int iNumRebels = pkEventChoiceInfo->getRandomBarbs();
-				CvGame& theGame = GC.getGame();
 
 				CvCity *pLoopCity;
 				int iLoop;
@@ -8665,136 +8663,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 						{
 							continue;
 						}
-						int iBestPlot = -1;
-						int iBestPlotWeight = -1;
-						CvPlot* pPlot;
-
-						CvCityCitizens* pCitizens = pLoopCity->GetCityCitizens();
-
-						// Start at 1, since ID 0 is the city plot itself
-
-						for(int iPlotLoop = 1; iPlotLoop < pLoopCity->GetNumWorkablePlots(); iPlotLoop++)
-						{
-							pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
-
-							if(!pPlot)		// Should be valid, but make sure
-								continue;
-
-							// Can't be impassable
-							if(!pPlot->isValidMovePlot(BARBARIAN_PLAYER))
-								continue;
-
-							// Can't be water
-							if(pPlot->isWater())
-								continue;
-
-							// Can't be ANOTHER city
-							if(pPlot->isCity())
-								continue;
-
-							// Don't place on a plot where a unit is already standing
-							if(pPlot->getNumUnits() > 0)
-								continue;
-
-							int iTempWeight = theGame.getRandNum(10, "Uprising rand plot location.");
-
-							// Add weight if there's an improvement here!
-							if(pPlot->getImprovementType() != NO_IMPROVEMENT)
-							{
-								iTempWeight += 4;
-
-								// If also a a resource, even more weight!
-								if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
-									iTempWeight += 3;
-							}
-			
-							// Don't pick plots that aren't ours
-							if(pPlot->getOwner() != GetID())
-								iTempWeight = -1;
-
-							// Add weight if there's a defensive bonus for this plot
-							if(pPlot->defenseModifier(BARBARIAN_TEAM, false, false))
-								iTempWeight += 4;
-
-							if(iTempWeight > iBestPlotWeight)
-							{
-								iBestPlotWeight = iTempWeight;
-								iBestPlot = iPlotLoop;
-							}
-						}
-
-						// Found valid plot
-						if(iBestPlot != -1)
-						{
-							// Make barbs able to enter ANYONE'S territory
-							theGame.SetBarbarianReleaseTurn(0);
-
-							pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
-
-							// Pick a unit type - should give us more melee than ranged
-							UnitTypes eUnit = theGame.GetCompetitiveSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ true, false, true);
-							UnitTypes emUnit = theGame.GetCompetitiveSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ false, false, true);
-
-							// Init unit
-							CvUnit* pstartUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-							CvAssert(pstartUnit);
-							if (pstartUnit)
-							{
-								if (!pstartUnit->jumpToNearestValidPlotWithinRange(3))
-								{
-									pstartUnit->kill(false);		// Could not find a spot!
-								}
-								else
-								{
-									pstartUnit->setMoves(0);
-								}
-							}
-							iNumRebels--;	// Reduce the count since we just added the seed rebel
-
-							// Loop until all rebels are placed
-							if(iNumRebels > 0)
-							{
-								do
-								{
-									iNumRebels--;
-
-									// Init unit
-									CvUnit* pmUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-									CvAssert(pmUnit);
-									if (pmUnit)
-									{
-										if (!pmUnit->jumpToNearestValidPlotWithinRange(3))
-										{
-											pmUnit->kill(false);		// Could not find a spot!
-										}
-										else
-										{
-											pmUnit->setMoves(0);
-										}
-									}
-
-									iNumRebels--;
-									if(iNumRebels > 0)
-									{		
-										// Init unit
-										CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-										CvAssert(pUnit);
-										if (pUnit)
-										{
-											if (!pUnit->jumpToNearestValidPlotWithinRange(3))
-											{
-												pUnit->kill(false);		// Could not find a spot!
-											}
-											else
-											{
-												pUnit->setMoves(0);
-											}
-										}
-										}
-								}
-								while(iNumRebels > 0);
-							}
-						}
+						GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, pLoopCity, iNumRebels, false, false, false, false);
 					}
 				}
 			}
@@ -8802,7 +8671,6 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 			{
 				// In hundreds
 				int iNumRecruits = pkEventChoiceInfo->getFreeScaledUnits();
-				CvGame& theGame = GC.getGame();
 
 				CvCity *pLoopCity;
 				int iLoop;
@@ -8819,132 +8687,8 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 						{
 							continue;
 						}
-						int iBestPlot = -1;
-						int iBestPlotWeight = -1;
-						CvPlot* pPlot;
 
-						CvCityCitizens* pCitizens = pLoopCity->GetCityCitizens();
-
-						// Start at 1, since ID 0 is the city plot itself
-
-						for(int iPlotLoop = 1; iPlotLoop < pLoopCity->GetNumWorkablePlots(); iPlotLoop++)
-						{
-							pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
-
-							if(!pPlot)		// Should be valid, but make sure
-								continue;
-
-							// Can't be impassable
-							if(!pPlot->isValidMovePlot(GetID()))
-								continue;
-
-							// Can't be water
-							if(pPlot->isWater())
-								continue;
-
-							// Can't be ANOTHER city
-							if(pPlot->isCity())
-								continue;
-
-							// Don't place on a plot where a unit is already standing
-							if(pPlot->getNumUnits() > 0)
-								continue;
-
-							int iTempWeight = theGame.getRandNum(10, "Uprising rand plot location.");
-
-							// Add weight if there's an improvement here!
-							if(pPlot->getImprovementType() != NO_IMPROVEMENT)
-							{
-								iTempWeight += 4;
-
-								// If also a a resource, even more weight!
-								if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
-									iTempWeight += 3;
-							}
-			
-							// Don't pick plots that aren't ours
-							if(pPlot->getOwner() != GetID())
-								iTempWeight = -1;
-
-							// Add weight if there's a defensive bonus for this plot
-							if(pPlot->defenseModifier(getTeam(), false, false))
-								iTempWeight += 4;
-
-							if(iTempWeight > iBestPlotWeight)
-							{
-								iBestPlotWeight = iTempWeight;
-								iBestPlot = iPlotLoop;
-							}
-						}
-
-						// Found valid plot
-						if(iBestPlot != -1)
-						{
-							pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
-
-							// Pick a unit type - should give us more melee than ranged
-							UnitTypes eUnit = theGame.GetCompetitiveSpawnUnitType(GetID(), /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, false, true);
-							UnitTypes emUnit = theGame.GetCompetitiveSpawnUnitType(GetID(), /*bIncludeUUs*/ false, /*bIncludeRanged*/ false, false, true);
-
-							CvUnit* pstartUnit = GET_PLAYER(GetID()).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-							CvAssert(pstartUnit);
-							if (pstartUnit)
-							{
-								if (!pstartUnit->jumpToNearestValidPlotWithinRange(3))
-								{
-									pstartUnit->kill(false);		// Could not find a spot!
-								}
-								else
-								{
-									pstartUnit->setMoves(0);
-								}
-							}
-							iNumRecruits--;	// Reduce the count since we just added the seed rebel
-
-							// Loop until all rebels are placed
-							if(iNumRecruits > 0)
-							{
-								do
-								{
-									iNumRecruits--;
-
-									// Init unit
-									CvUnit* pmUnit = initUnit(emUnit, pPlot->getX(), pPlot->getY());
-									CvAssert(pmUnit);
-									if (pmUnit)
-									{
-										if (!pmUnit->jumpToNearestValidPlotWithinRange(3))
-										{
-											pmUnit->kill(false);		// Could not find a spot!
-										}
-										else
-										{
-											pmUnit->setMoves(0);
-										}
-									}
-
-									iNumRecruits--;
-									if(iNumRecruits > 0)
-									{		
-										// Init unit
-										CvUnit* pUnit = initUnit(eUnit, pPlot->getX(), pPlot->getY());
-										CvAssert(pUnit);
-										if (pUnit)
-										{
-											if (!pUnit->jumpToNearestValidPlotWithinRange(3))
-											{
-												pUnit->kill(false);		// Could not find a spot!
-											}
-											else
-											{
-												pUnit->setMoves(0);
-											}
-										}
-										}
-								}
-								while(iNumRecruits > 0);
-							}
-						}
+						GC.getGame().DoSpawnUnitsAroundTargetCity(GetID(), pLoopCity, iNumRecruits, true, false, false, true);
 					}
 				}
 			}
@@ -8993,7 +8737,12 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 											{
 												pUnit->kill(false);	// Could not find a valid spot!
 											}
-											pUnit->setMoves(0);
+											else
+											{
+												pUnit->setMoves(0);
+												//Lua Hook
+												GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, GetID(), eEventChoice, pUnit);
+											}
 										}
 									}
 								}
@@ -9039,7 +8788,12 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent)
 									{
 										pUnit->kill(false);	// Could not find a valid spot!
 									}
-									pUnit->setMoves(0);
+									else
+									{
+										pUnit->setMoves(0);
+										//Lua Hook
+										GAMEEVENTINVOKE_HOOK(GAMEEVENT_EventUnitCreated, GetID(), eEventChoice, pUnit);
+									}
 								}
 							}
 						}
@@ -9543,7 +9297,7 @@ bool CvPlayer::CanLiberatePlayerCity(PlayerTypes ePlayer)
 #if defined(MOD_BALANCE_CORE_JFD)
 CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract)
 #else
-CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped
+CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped)
 #endif
 {
 	CvAssertMsg(eUnit != NO_UNIT, "Unit is not assigned a valid value");
@@ -24277,7 +24031,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 		if(pLoopCity == NULL)
 			continue;
 
-		//If we passed ina city, only check that city.
+		//If we passed in a city, only check that city.
 		if(pCity != NULL && pLoopCity != pCity)
 			continue;
 
@@ -24640,6 +24394,26 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue += (pUnit->getYieldFromScouting(eYield) * pUnit->GetNumTilesRevealedThisTurn());
 					break;
 				}
+				case INSTANT_YIELD_TYPE_LEVEL_UP:
+				{
+					if(pUnit == NULL)
+						continue;
+
+					if(eYield == YIELD_GREAT_ADMIRAL_POINTS && !bDomainSea)
+					{
+						continue;
+					}
+					if(eYield == YIELD_GREAT_GENERAL_POINTS && bDomainSea)
+					{
+						continue;
+					}
+					if(iPassYield != 0)
+					{
+						iValue += (iPassYield * pLoopCity->GetYieldFromUnitLevelUp(eYield));
+					}
+					break;
+				}
+				
 			}
 			//Now, let's apply these yields here as total yields.
 			if(iValue != 0)
@@ -25181,6 +24955,20 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				return;
 			}
+			case INSTANT_YIELD_TYPE_LEVEL_UP:
+			{
+				if(pUnit != NULL)
+				{
+					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
+					if(pkUnitInfo)
+					{
+						localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_LEVEL_UP");
+						localizedText << totalyieldString;
+						localizedText << pkUnitInfo->GetDescriptionKey();
+						break;
+					}
+				}
+			}		
 		}
 		if(pCity == NULL)
 		{
@@ -29673,6 +29461,10 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 							GET_TEAM(getTeam()).DoEndVassal(eTheirTeam, true, true);
 							GET_TEAM(eTheirTeam).DoEndVassal(getTeam(), true, true);
 						}
+#endif
+#if defined(MOD_BALANCE_CORE)
+						GET_TEAM(getTeam()).setAtWar(eTheirTeam, false, false);
+						GET_TEAM(eTheirTeam).setAtWar(getTeam(), false, false);
 #endif
 					}
 				}

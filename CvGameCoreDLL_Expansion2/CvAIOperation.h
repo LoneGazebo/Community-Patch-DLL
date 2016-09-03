@@ -236,7 +236,7 @@ public:
 	virtual bool FinishedBuilding(OperationSlot thisOperationSlot);
 
 	virtual bool RecruitUnit(CvUnit* pUnit);
-	virtual bool GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot);
+	virtual bool GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvArmyAI* pThisArmy = NULL);
 	bool DeleteArmyAI(int iID);
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
 	virtual CvPlot* ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const;
@@ -857,6 +857,8 @@ public:
 	{ 
 		return AI_TACTICAL_TARGET_BOMBARDMENT_ZONE;
 	}
+	virtual bool IsDefensive() const { return true; }
+	virtual bool IsOffensive() const { return false; }
 
 protected:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
@@ -886,6 +888,10 @@ public:
 	virtual const char* GetOperationName() const
 	{
 		return "AI_OPERATION_NAVAL_ONLY_CITY_ATTACK";
+	}
+	virtual bool IsAllowedDuringPeace() const
+	{ 
+		return true; 
 	}
 
 };

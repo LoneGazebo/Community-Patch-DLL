@@ -130,6 +130,7 @@ public:
 	int GetStartingSpies() const;
 	int GetStartingSpyRank() const;
 	int GetQuestYieldModifier() const;
+	int GetWonderProductionModifierToBuilding() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -404,6 +405,7 @@ protected:
 	int m_iTourismToGAP;
 	int m_iEventTourismBoost;
 	int m_iEventGP;
+	int m_iWonderProductionModifierToBuilding;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -931,6 +933,10 @@ public:
 	{
 		return m_iQuestYieldModifier;
 	};
+	int GetWonderProductionModifierToBuilding() const
+	{
+		return m_iWonderProductionModifierToBuilding;
+	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const
@@ -1399,6 +1405,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	TechTypes GetFreeBuildingPrereqTech() const;
 	TechTypes GetCapitalFreeBuildingPrereqTech() const;
+	int GetWonderProductionToBuildingDiscount(BuildingTypes eBuilding);
 #endif
 	BuildingTypes GetFreeBuilding() const;
 #if defined(MOD_BALANCE_CORE)
@@ -1539,6 +1546,7 @@ private:
 	int m_iStartingSpies;
 	int m_iStartingSpyRank;
 	int m_iQuestYieldModifier;
+	int m_iWonderProductionModifierToBuilding;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;

@@ -453,7 +453,7 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 	turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 
 	int iDistance = 1000;
-	if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,pMusterPlot,turnsFromMuster,pTargetPlot,IsNavalOperation(),bMustBeDeepWaterNaval,iDistance))
+	if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,pMusterPlot,turnsFromMuster,pTargetPlot,IsNavalOperation(),bMustBeDeepWaterNaval,iDistance, thisFormation))
 	{
 		std::deque<OperationSlot>::iterator it;
 		for(it = m_viListOfUnitsWeStillNeedToBuild.begin(); it != m_viListOfUnitsWeStillNeedToBuild.end(); ++it)
@@ -491,7 +491,7 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 	return false;
 }
 
-bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot)
+bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvArmyAI* pArmy)
 {
 	if (!pMusterPlot || !pTargetPlot)
 		return false;
@@ -511,6 +511,13 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 	m_viListOfUnitsWeStillNeedToBuild.clear();
 
 	CvString strMsg;
+
+	CvMultiUnitFormationInfo* thisFormation = NULL;
+	if(pArmy != NULL)
+	{
+		thisFormation = GC.getMultiUnitFormationInfo(pArmy->GetFormationIndex());
+	}
+
 	if (IsNavalOperation())
 	{
 		//todo: optimize this, it's double pathfinding
@@ -529,7 +536,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 			for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 			{
 				int iDistance = 1000;
-				if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,turnsFromMuster,pTargetPlot,true,bMustBeDeepWaterNaval,iDistance))
+				if ((pArmy != NULL && pLoopUnit->getArmyID() == pArmy->GetID()) || OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,turnsFromMuster,pTargetPlot,true,bMustBeDeepWaterNaval,iDistance, thisFormation))
 				{
 					// When in doubt prefer units in our own territory
 					if (pLoopUnit->plot() && pLoopUnit->plot()->getOwner() != m_eOwner)
@@ -600,7 +607,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 		for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 		{
 			int iDistance = 1000;
-			if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,turnsFromMuster,pTargetPlot,false,false,iDistance))
+			if ((pArmy != NULL && pLoopUnit->getArmyID() == pArmy->GetID()) || OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,turnsFromMuster,pTargetPlot,false,false,iDistance, thisFormation))
 			{
 				// When in doubt prefer units in our own territory
 				if (pLoopUnit->plot() && pLoopUnit->plot()->getOwner() != m_eOwner)
@@ -1815,7 +1822,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 	{
 		case ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE:
 		{
-			if(GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot()))
+			if(GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot(), pThisArmy))
 			{
 				pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
 				m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
@@ -2187,7 +2194,7 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 	{
 		case ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE:
 		{
-			if(GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot()))
+			if(GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot(), pThisArmy))
 			{
 				pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
 				m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
@@ -2935,14 +2942,17 @@ CvAIOperationDefenseRapidResponse::~CvAIOperationDefenseRapidResponse()
 }
 
 /// Kick off this operation
-void CvAIOperationDefenseRapidResponse::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
+void CvAIOperationDefenseRapidResponse::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iAreaID, CvCity* pTarget, CvCity* pMuster)
 {
 	//do this before calling any FindX methods!
 	Reset(iID,eOwner,eEnemy);
 
-	CvPlot* pMusterPlot;
-	CvPlot* pTargetPlot = FindBestTarget(&pMusterPlot);
-	if (!pTargetPlot)
+	if(iAreaID == -1)
+		return;
+
+	CvPlot* pMusterPlot = pMuster->plot();
+	CvPlot* pTargetPlot = pTarget->plot();
+	if (!pTargetPlot || !pMusterPlot)
 		return;
 
 	SetupWithSingleArmy(pMusterPlot,pTargetPlot);
@@ -3096,7 +3106,7 @@ bool CvAIOperationNukeAttack::CheckTransitionToNextStage()
 	//don't care about the intermediate niceties ... just nuke away!
 	if(pTargetPlot && pArmy)
 	{
-		if(pArmy->GetNumSlotsFilled()>0 || GrabUnitsFromTheReserves(GetMusterPlot(),pTargetPlot))
+		if(pArmy->GetNumSlotsFilled()>0 || GrabUnitsFromTheReserves(GetMusterPlot(),pTargetPlot, pArmy))
 		{
 			// Now get the nuke
 			UnitHandle pNuke = pArmy->GetFirstUnit();
@@ -3783,10 +3793,9 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
 	
 	//Check formation entry here.
-	if(thisFormation)
+	if(thisFormation != NULL)
 	{
 		bool bGood = false;
-		// Request moves for all units
 		for(int iI = 0; iI < thisFormation->getNumFormationSlotEntries(); iI++)
 		{
 			const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);

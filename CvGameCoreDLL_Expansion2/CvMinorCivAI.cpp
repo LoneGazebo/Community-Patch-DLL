@@ -9846,8 +9846,6 @@ void CvMinorCivAI::DoRebellion()
 	iExtraRoll += (GC.getGame().getCurrentEra() * 40); //Increase possible rebel spawns as game continues.
 	iNumRebels += GC.getGame().getRandNum(iExtraRoll, "Rebel count rand roll");
 	iNumRebels /= 100;
-	CvGame& theGame = GC.getGame();
-	PlayerTypes eMinor = GetPlayer()->GetID();
 
 	// Find a city to pop up a bad man
 	CvCity* pBestCity = GetPlayer()->getCapitalCity();
@@ -9855,119 +9853,7 @@ void CvMinorCivAI::DoRebellion()
 	// Found a place to set up an uprising?
 	if(pBestCity != NULL)
 	{
-		int iBestPlot = -1;
-		int iBestPlotWeight = -1;
-		CvPlot* pPlot;
-
-		CvCityCitizens* pCitizens = pBestCity->GetCityCitizens();
-
-		// Start at 1, since ID 0 is the city plot itself
-
-		for(int iPlotLoop = 1; iPlotLoop < pBestCity->GetNumWorkablePlots(); iPlotLoop++)
-		{
-			pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
-
-			if(!pPlot)		// Should be valid, but make sure
-				continue;
-
-			// Can't be impassable
-			if(!pPlot->isValidMovePlot(BARBARIAN_PLAYER))
-				continue;
-
-			// Can't be water
-			if(pPlot->isWater())
-				continue;
-
-			// Can't be ANOTHER city
-			if(pPlot->isCity())
-				continue;
-
-			// Don't place on a plot where a unit is already standing
-			if(pPlot->getNumUnits() > 0)
-				continue;
-
-			int iTempWeight = theGame.getRandNum(10, "Uprising rand plot location.");
-
-			// Add weight if there's an improvement here!
-			if(pPlot->getImprovementType() != NO_IMPROVEMENT)
-			{
-				iTempWeight += 4;
-
-				// If also a a resource, even more weight!
-				if(pPlot->getResourceType(GetPlayer()->getTeam()) != NO_RESOURCE)
-					iTempWeight += 3;
-			}
-			
-			// Don't pick plots that aren't ours
-			if(pPlot->getOwner() != eMinor)
-				iTempWeight = -1;
-
-			// Add weight if there's a defensive bonus for this plot
-			if(pPlot->defenseModifier(BARBARIAN_TEAM, false, false))
-				iTempWeight += 4;
-
-			if(iTempWeight > iBestPlotWeight)
-			{
-				iBestPlotWeight = iTempWeight;
-				iBestPlot = iPlotLoop;
-			}
-		}
-
-		// Found valid plot
-		if(iBestPlot != -1)
-		{
-			// Make barbs able to enter ANYONE'S territory
-			theGame.SetBarbarianReleaseTurn(0);
-
-			pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
-
-			// Pick a unit type - should give us more melee than ranged
-			UnitTypes eUnit = theGame.GetRandomSpawnUnitType(eMinor, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
-			UnitTypes emUnit = theGame.GetRandomSpawnUnitType(eMinor, /*bIncludeUUs*/ true, /*bIncludeRanged*/ false);
-
-			// Init unit
-			GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-			iNumRebels--;	// Reduce the count since we just added the seed rebel
-
-			// Loop until all rebels are placed
-			do
-			{
-				iNumRebels--;
-
-				// Init unit
-				CvUnit* pmUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(emUnit, pPlot->getX(), pPlot->getY());
-				CvAssert(pmUnit);
-				if (pmUnit)
-				{
-					if (!pmUnit->jumpToNearestValidPlotWithinRange(3))
-					{
-						pmUnit->kill(false);		// Could not find a spot!
-					}
-					else
-					{
-						pmUnit->setMoves(0);
-					}
-				}
-
-				iNumRebels--;
-
-				// Init unit
-				CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-				CvAssert(pUnit);
-				if (pUnit)
-				{
-					if (!pUnit->jumpToNearestValidPlotWithinRange(3))
-					{
-						pUnit->kill(false);		// Could not find a spot!
-					}
-					else
-					{
-						pUnit->setMoves(0);
-					}
-				}
-			}
-			while(iNumRebels > 0);
-		}
+		GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, pBestCity, iNumRebels, false, false, false, false);
 	}
 }
 
@@ -11703,9 +11589,12 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && IsMarried(ePlayer))
+	if (iBaseFriendship > iFriendshipAnchor)
 	{
-		iChangeThisTurn = 0;
+		if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && IsMarried(ePlayer))
+		{
+			iChangeThisTurn = 0;
+		}
 	}
 #endif
 	// Shift on top of base rate
@@ -12156,37 +12045,12 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 				continue;
 
 			if(kNewAllyTeam.isAtWar(eLoopTeam))
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			{
-				//Cannot declare war on vassals!
-				bool bCannotWar = false;
-				if(MOD_DIPLOMACY_CIV4_FEATURES)
-				{
-					PlayerTypes eLoopPlayer;
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-						if(!kOurTeam.canDeclareWar(GET_PLAYER(eLoopPlayer).getTeam(), GetPlayer()->GetID()))
-						{
-							bCannotWar = true;
-							break;
-						}
-					}
-				}
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-				if(!bCannotWar)
-				{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-					kOurTeam.declareWar(eLoopTeam, false, GetPlayer()->GetID());
-#else
-					kOurTeam.declareWar(eLoopTeam);
-#endif
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-				}
+			{
+				kOurTeam.declareWar(eLoopTeam, false, GetPlayer()->GetID());
 			}
+#else
+				kOurTeam.declareWar(eLoopTeam);
 #endif
 		}
 	}

@@ -320,6 +320,9 @@ CvUnit::CvUnit() :
 	, m_eGreatPeopleDirectiveType("CvUnit::m_eGreatPeopleDirectiveType", m_syncArchive)
 	, m_combatUnit()
 	, m_transportUnit()
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	, m_stackingUnit()
+#endif
 	, m_extraDomainModifiers()
 	, m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility("CvUnit::m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility", m_syncArchive, "")
 	, m_strScriptData("CvUnit::m_szScriptData", m_syncArchive)
@@ -349,6 +352,7 @@ CvUnit::CvUnit() :
 	, m_iNumGoodyHutsPopped("CvUnit::m_iNumGoodyHutsPopped", m_syncArchive)
 	, m_iLastGameTurnAtFullHealth("CvUnit::m_iLastGameTurnAtFullHealth", m_syncArchive, -1)
 #if defined(MOD_BALANCE_CORE)
+	, m_iOriginCity("CvUnit::m_iOriginCity", m_syncArchive)
 	, m_iCannotBeCapturedCount("CvUnit::m_iCannotBeCapturedCount", m_syncArchive)
 	, m_iForcedDamage("CvUnit::m_iForcedDamage", m_syncArchive)
 	, m_iChangeDamage("CvUnit::m_iForcedDamage", m_syncArchive)
@@ -375,6 +379,11 @@ CvUnit::CvUnit() :
 	, m_iNearbyImprovementCombatBonus("CvUnit::m_iNearbyImprovementCombatBonus", m_syncArchive)
 	, m_iNearbyImprovementBonusRange("CvUnit::m_iNearbyImprovementBonusRange", m_syncArchive)
 	, m_eCombatBonusImprovement("CvUnit::m_eCombatBonusImprovement", m_syncArchive)
+#endif
+#if defined(MOD_BALANCE_CORE)
+	, m_iCombatBonusFromNearbyUnitClass("CvUnit::m_iCombatBonusFromNearbyUnitClass", m_syncArchive)
+	, m_iNearbyUnitClassBonusRange("CvUnit::m_iNearbyUnitClassBonusRange", m_syncArchive)
+	, m_iNearbyUnitClassBonus("CvUnit::m_iNearbyUnitClassBonus", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	, m_iCanCrossMountainsCount("CvUnit::m_iCanCrossMountainsCount", m_syncArchive)
@@ -512,7 +521,12 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	//--------------------------------
 	// Init pre-setup() data
 	setXY(iX, iY, false, false, false, false, bNoMove);
-
+#if defined(MOD_BALANCE_CORE)
+	if(plot() != NULL && plot()->getWorkingCity() != NULL && plot()->getWorkingCity()->getOwner() == getOwner())
+	{
+		setOriginCity(plot()->getWorkingCity()->GetID());
+	}
+#endif
 	//--------------------------------
 	// Init non-saved data
 
@@ -952,7 +966,12 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	//--------------------------------
 	// Init pre-setup() data
 	setXY(iX, iY, false, false, false, false, bNoMove);
-
+#if defined(MOD_BALANCE_CORE)
+	if(plot() != NULL && plot()->getWorkingCity() != NULL && plot()->getWorkingCity()->getOwner() == getOwner())
+	{
+		setOriginCity(plot()->getWorkingCity()->GetID());
+	}
+#endif
 	//--------------------------------
 	// Init non-saved data
 
@@ -1588,6 +1607,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iCityAttackOnlyCount = 0;
 	m_iCaptureDefeatedEnemyCount = 0;
 #if defined(MOD_BALANCE_CORE)
+	m_iOriginCity = 0;
 	m_iCannotBeCapturedCount = 0;
 	m_iForcedDamage = 0;
 	m_iChangeDamage = 0;
@@ -1667,6 +1687,11 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iNearbyImprovementCombatBonus = 0;
 	m_iNearbyImprovementBonusRange = 0;
 	m_eCombatBonusImprovement = NO_IMPROVEMENT;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	m_iNearbyUnitClassBonus = 0;
+	m_iNearbyUnitClassBonusRange = 0;
+	m_iCombatBonusFromNearbyUnitClass = NO_UNITCLASS;
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	m_iCanCrossMountainsCount = 0;
@@ -1790,7 +1815,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 
 	m_combatUnit.reset();
 	m_transportUnit.reset();
-
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	m_stackingUnit.reset();
+#endif
 	m_extraDomainModifiers.clear();
 
 	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
@@ -3012,8 +3039,10 @@ void CvUnit::doTurn()
 		}
 	}				
 #endif
-
 	doDelayedDeath();
+#if defined(MOD_BALANCE_CORE)
+	DoNearbyUnitPromotion(plot());
+#endif
 }
 //	--------------------------------------------------------------------------------
 bool CvUnit::isActionRecommended(int iAction)
@@ -3568,38 +3597,41 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 				}
 			}
 		}
-		//Improvement that provides free promotion?
+		//Improvement that provides free promotion? Only if player owns them. Do NOT CHANGE!
 		ImprovementTypes eNeededImprovement = pNewPlot->getImprovementType();
 		if(eNeededImprovement != NO_IMPROVEMENT)
 		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getImprovementInfo(eNeededImprovement)->GetUnitFreePromotion();
-			if(ePromotion != NO_PROMOTION)
+			if(pNewPlot->getOwner() == getOwner())
 			{
-				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				PromotionTypes ePromotion = (PromotionTypes)GC.getImprovementInfo(eNeededImprovement)->GetUnitFreePromotion();
+				if(ePromotion != NO_PROMOTION)
 				{
-					bool bNoPromotion = false;
-					// Check for negating promotions
-					if(pkOriginalPromotionInfo->IsBarbarianOnly() && !isBarbarian())
+					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
-						bNoPromotion = true;
-					}
-					if(pkOriginalPromotionInfo->IsCityStateOnly() && !GET_PLAYER(getOwner()).isMinorCiv())
-					{
-						bNoPromotion = true;
-					}
-					if(!bNoPromotion)
-					{
-						PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
-						// Unit has negation promotion
-						if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
+						bool bNoPromotion = false;
+						// Check for negating promotions
+						if(pkOriginalPromotionInfo->IsBarbarianOnly() && !isBarbarian())
 						{
 							bNoPromotion = true;
 						}
-					}
-					if(!bNoPromotion)
-					{
-						setHasPromotion(ePromotion, true);
+						if(pkOriginalPromotionInfo->IsCityStateOnly() && !GET_PLAYER(getOwner()).isMinorCiv())
+						{
+							bNoPromotion = true;
+						}
+						if(!bNoPromotion)
+						{
+							PromotionTypes eNegatorPromotion = (PromotionTypes)getNegatorPromotion();
+							// Unit has negation promotion
+							if(eNegatorPromotion != NO_PROMOTION && ePromotion == eNegatorPromotion)
+							{
+								bNoPromotion = true;
+							}
+						}
+						if(!bNoPromotion)
+						{
+							setHasPromotion(ePromotion, true);
+						}
 					}
 				}
 			}
@@ -7985,20 +8017,30 @@ void CvUnit::DoAttrition()
 	}
 
 #if defined(MOD_API_PLOT_BASED_DAMAGE)
-	if (MOD_API_PLOT_BASED_DAMAGE) {
+	if (MOD_API_PLOT_BASED_DAMAGE)
+	// Do not change - no damage for cargo units or Domain Sea
+	{
 		int iDamage = plot()->getTurnDamage(ignoreTerrainDamage(), ignoreFeatureDamage(), extraTerrainDamage(), extraFeatureDamage());
-
-		if (0 != iDamage) {
-			if (iDamage > 0) {
-				// CUSTOMLOG("Applying terrain/feature damage (of %i) for player/unit %i/%i at (%i, %i)", iDamage, getOwner(), GetID(), plot()->getX(), plot()->getY());
-				CvString strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
-				changeDamage(iDamage, NO_PLAYER, 0.0, &strAppendText);
-			} else {
-				// CUSTOMLOG("Applying terrain/feature healing (of %i) for player/unit %i/%i at (%i, %i)", iDamage, getOwner(), GetID(), plot()->getX(), plot()->getY());
-				changeDamage(iDamage, NO_PLAYER);
+		if(!isCargo() && getDomainType() != DOMAIN_SEA)
+		{
+			if (0 != iDamage)
+			{
+				if (iDamage > 0)
+				{
+					// CUSTOMLOG("Applying terrain/feature damage (of %i) for player/unit %i/%i at (%i, %i)", iDamage, getOwner(), GetID(), plot()->getX(), plot()->getY());
+					CvString strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
+					changeDamage(iDamage, NO_PLAYER, 0.0, &strAppendText);
+				}
+				else
+				{
+					// CUSTOMLOG("Applying terrain/feature healing (of %i) for player/unit %i/%i at (%i, %i)", iDamage, getOwner(), GetID(), plot()->getX(), plot()->getY());
+					changeDamage(iDamage, NO_PLAYER);
+				}
 			}
 		}
-	} else {
+	}
+	else
+	{
 #endif
 		// slewis - helicopters take attrition when ending their turn over mountains.
 		if(getDomainType() == DOMAIN_LAND && pPlot->isMountain() && !canMoveAllTerrain())
@@ -13346,6 +13388,7 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 			//Insta-heal removed, gain health with each promotion instead.
 			changeDamage((-GC.getINSTA_HEAL_RATE() / 5));
 		}
+		GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, getOriginCity(), getDomainType(), true, false, NO_YIELD, this);
 #endif
 
 #if defined(MOD_EVENTS_UNIT_UPGRADES)
@@ -14072,16 +14115,31 @@ UnitCombatTypes CvUnit::getUnitPromotionType() const
 
 bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 {
+#if defined(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
+	ImprovementTypes eImprovement = pPlot->getImprovementType();
+	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+#endif
 	switch (getDomainType())
 	{
 	case DOMAIN_LAND:
-		return (!pPlot->isWater() || IsHoveringUnit()) && !isCargo();
+		return !pPlot->isWater() || IsHoveringUnit() || isCargo();
 		break;
 	case DOMAIN_AIR:
 		return true;
 		break;
 	case DOMAIN_SEA:
-		return pPlot->isWater();
+#if defined(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
+		if(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
+		{
+			return (pPlot->isWater() || pPlot->isCity() || (pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable()));
+		}
+		else
+		{
+			return (pPlot->isWater());
+		}
+#else
+		return (pPlot->isWater());
+#endif
 		break;
 	case DOMAIN_HOVER:
 		return true;
@@ -14998,6 +15056,12 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	{
 		iModifier += iNearbyImprovementModifier;
 	}
+	// UnitClass grants a combat bonus if nearby
+	int iNearbyUnitClassModifier = GetNearbyUnitClassModifierFromUnitClass(pFromPlot);
+	if(iNearbyUnitClassModifier != 0)
+	{
+		iModifier += iNearbyUnitClassModifier;
+	}
 
 	// Adjacent Friendly military Unit?
 	if (pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
@@ -15825,6 +15889,12 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	if(iNearbyImprovementModifier != 0)
 	{
 		iModifier += iNearbyImprovementModifier;
+	}
+	// UnitClass grants a combat bonus if nearby
+	int iNearbyUnitClassModifier = GetNearbyUnitClassModifierFromUnitClass();
+	if(iNearbyUnitClassModifier != 0)
+	{
+		iModifier += iNearbyUnitClassModifier;
 	}
 
 	// Our empire fights well in Golden Ages?
@@ -17079,7 +17149,37 @@ void CvUnit::SetCombatBonusImprovement(ImprovementTypes eImprovement)
 	m_eCombatBonusImprovement = eImprovement;
 }
 #endif
+#if defined(MOD_BALANCE_CORE)
+int CvUnit::GetNearbyUnitClassBonus() const
+{
+	return m_iNearbyUnitClassBonus;
+}
 
+void CvUnit::SetNearbyUnitClassBonus(int iCombatBonus)
+{
+	m_iNearbyUnitClassBonus = iCombatBonus;
+}
+
+int CvUnit::GetNearbyUnitClassBonusRange() const
+{
+	return m_iNearbyUnitClassBonusRange;
+}
+
+void CvUnit::SetNearbyUnitClassBonusRange(int iBonusRange)
+{
+	m_iNearbyUnitClassBonusRange = iBonusRange;
+}
+
+UnitClassTypes CvUnit::GetCombatBonusFromNearbyUnitClass() const
+{
+	return m_iCombatBonusFromNearbyUnitClass;
+}
+
+void CvUnit::SetCombatBonusFromNearbyUnitClass(UnitClassTypes eUnitClass)
+{
+	m_iCombatBonusFromNearbyUnitClass = eUnitClass;
+}
+#endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 //	--------------------------------------------------------------------------------
 bool CvUnit::canCrossMountains() const
@@ -18125,8 +18225,47 @@ int CvUnit::cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo, DomainTypes eDom
 			return 0;
 		}
 	}
-
+#if defined(MOD_CARGO_SHIPS)
+	if(MOD_CARGO_SHIPS)
+	{
+		IDInfo* pUnitNode;
+		CvUnit* pLoopUnit;
+		CvPlot* pPlot;
+		if(domainCargo() == DOMAIN_LAND)
+		{
+			pPlot = plot();
+			pUnitNode = pPlot->headUnitNode();
+			while (pUnitNode != NULL)
+			{
+				pLoopUnit = ::getUnit(*pUnitNode);
+				pUnitNode = pPlot->nextUnitNode(pUnitNode);
+				if(pLoopUnit != NULL)
+				{
+					CvPlot* pAdjacentPlot;
+					int iI;
+					for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+					{
+						pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+						if(pAdjacentPlot != NULL)
+						{
+							if(pLoopUnit->isCargo() && pLoopUnit->IsCanAttackWithMove() && pLoopUnit->canMoveInto(*pAdjacentPlot, MOVEFLAG_ATTACK))
+							{
+								return std::max(0, (cargoSpace() - getCargo() + 1));
+							}
+						}
+					}
+				}
+			}
+			return std::max(0, (cargoSpace() - getCargo()));
+		}
+		else
+ 			return std::max(0, (cargoSpace() - getCargo()));
+	}
+	else
+		return std::max(0, (cargoSpace() - getCargo()));
+#else
 	return std::max(0, (cargoSpace() - getCargo()));
+#endif
 }
 
 
@@ -18693,6 +18832,39 @@ if (!bDoEvade)
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(IsCombatUnit())
+		{
+			pUnitNode = pNewPlot->headUnitNode();
+			while(pUnitNode != NULL)
+			{
+				pLoopUnit = ::getUnit(*pUnitNode);
+				pUnitNode = pNewPlot->nextUnitNode(pUnitNode);
+				if (pLoopUnit != NULL)
+				{
+					if(MOD_GLOBAL_STACKING_RULES)
+					{
+						if(pLoopUnit->IsStackingUnit())
+						{
+							if(pNewPlot->GetNumCombatUnits()>1)
+							{
+								pLoopUnit->SetBaseCombatStrength(pLoopUnit->getUnitInfo().GetCombat() + pLoopUnit->getUnitInfo().StackCombat());
+							}
+							else
+							{
+								pLoopUnit->SetBaseCombatStrength(pLoopUnit->getUnitInfo().GetCombat());
+							}
+						}
+					}
+					if(MOD_CARGO_SHIPS)
+					{
+						DoCargoPromotions(*pLoopUnit);
+					}
+				}
+			}
+			DoNearbyUnitPromotion(pNewPlot);
+		}
+#endif
 		if(IsGainsYieldFromScouting())
 		{
 			bool bSea = false;
@@ -18997,6 +19169,45 @@ if (!bDoEvade)
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(IsCombatUnit())
+		{
+			pUnitNode = pOldPlot->headUnitNode();
+			while(pUnitNode != NULL)
+			{
+				pLoopUnit = ::getUnit(*pUnitNode);
+				pUnitNode = pOldPlot->nextUnitNode(pUnitNode);
+				if (pLoopUnit != NULL)
+				{
+					if(MOD_GLOBAL_STACKING_RULES)
+					{
+						if(pLoopUnit->IsStackingUnit())
+						{
+							if(pOldPlot->GetNumCombatUnits()>1)
+							{
+								pLoopUnit->SetBaseCombatStrength(pLoopUnit->getUnitInfo().GetCombat() + pLoopUnit->getUnitInfo().StackCombat());
+							}
+							else
+							{
+								pLoopUnit->SetBaseCombatStrength(pLoopUnit->getUnitInfo().GetCombat());
+							}
+						}
+					}
+					if(MOD_CARGO_SHIPS)
+					{
+						if(pLoopUnit->IsCargoCombatUnit() && !pLoopUnit->hasCargo())
+						{
+							if(!pLoopUnit->hasCargo())
+							{
+								RemoveCargoPromotions(*pLoopUnit);
+								pLoopUnit->SetBaseCombatStrength(pLoopUnit->getUnitInfo().GetCombat());
+							}
+						}
+					}
+				}
+			}
+		}
+#endif
 	}
 
 	if(pNewPlot != NULL && iMapLayer == DEFAULT_UNIT_MAP_LAYER)
@@ -19362,7 +19573,28 @@ bool CvUnit::onMap() const
 	return (plot() != NULL);
 }
 
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+CvCity* CvUnit::getOriginCity()
+{
+	if(getOwner() == NO_PLAYER)
+		return NULL;
 
+	if(m_iOriginCity == -1)
+		return NULL;
+
+	VALIDATE_OBJECT
+	return GET_PLAYER(getOwner()).getCity(m_iOriginCity);
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::setOriginCity(int iNewValue)
+{
+	VALIDATE_OBJECT
+	m_iOriginCity = iNewValue;
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvUnit::getLastMoveTurn() const
 {
@@ -19730,7 +19962,7 @@ void CvUnit::setMoves(int iNewValue)
 		auto_ptr<ICvPlot1> pDllSelectionPlot(DLLUI->getSelectionPlot());
 		int iSelectionPlotIndex = (pDllSelectionPlot.get() != NULL)? pDllSelectionPlot->GetPlotIndex() : -1;
 
-		if(pPlot->GetPlotIndex() == iSelectionPlotIndex)
+		if(pPlot && pPlot->GetPlotIndex() == iSelectionPlotIndex)
 		{
 			DLLUI->setDirty(PlotListButtons_DIRTY_BIT, true);
 		}
@@ -21804,6 +22036,91 @@ int CvUnit::GetNearbyImprovementModifier()const
 	return 0;
 }
 
+#if defined(MOD_BALANCE_CORE)
+int CvUnit::GetNearbyUnitClassModifierFromUnitClass(const CvPlot* pAtPlot) const
+{
+	return GetNearbyUnitClassModifier(GetCombatBonusFromNearbyUnitClass(), GetNearbyUnitClassBonusRange(), GetNearbyUnitClassBonus(), pAtPlot);
+}
+
+int CvUnit::GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClassRange, int iUnitClassModifier, const CvPlot* pAtPlot) const
+{
+	if(iUnitClassModifier != 0)
+	{
+		if (pAtPlot == NULL)
+		{
+			pAtPlot = plot();
+			if (pAtPlot == NULL)
+				return false;
+		}
+
+		CvPlot* pLoopPlot;
+		// Look around this Unit to see if there's a nearby UnitClass that will give us the modifier
+		for(int iX = -iUnitClassRange; iX <= iUnitClassRange; iX++)
+		{
+			for(int iY = -iUnitClassRange; iY <= iUnitClassRange; iY++)
+			{
+				pLoopPlot = plotXYWithRangeCheck(pAtPlot->getX(), pAtPlot->getY(), iX, iY, iUnitClassRange);
+				if(pLoopPlot != NULL)
+				{
+					// Is the right Unitclass here?
+					IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+					if (pUnitNode != NULL)
+					{
+						CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+						pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+						if(pLoopUnit)
+						{
+							if (pLoopUnit->getUnitClassType() == eUnitClass)
+							{
+								if(GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(getOwner()).getTeam())
+								{
+									return iUnitClassModifier;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+void CvUnit::DoNearbyUnitPromotion(CvPlot* pPlot)
+{
+	if (pPlot == NULL)
+	{
+		pPlot = plot();
+	}
+	if(pPlot != NULL)
+	{
+		int iI;
+		for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+		{
+			const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
+			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
+			if(pkPromotionInfo != NULL)
+			{
+				if(pkPromotionInfo->IsNearbyPromotion())
+				{
+					if(!IsWithinDistanceOfUnitPromotion(pkPromotionInfo->AddedFromNearbyPromotion(), pkPromotionInfo->NearbyRange(), true, false))
+					{
+						setHasPromotion(eLoopPromotion, false);
+					}
+					else
+					{
+						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, getUnitType()))
+						{
+							setHasPromotion(eLoopPromotion, true);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+#endif 
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsGreatGeneral() const
 {
@@ -22967,17 +23284,36 @@ void CvUnit::setTransportUnit(CvUnit* pTransportUnit)
 			CvAssertMsg(pTransportUnit->cargoSpaceAvailable(getSpecialUnitType(), getDomainType()) > 0, "Cargo space is expected to be available");
 
 			m_transportUnit = pTransportUnit->GetIDInfo();
-
+#if defined(MOD_CARGO_SHIPS)
+			if(!MOD_CARGO_SHIPS)
+			{
+				if(getDomainType() != DOMAIN_AIR)
+				{
+					SetActivityType(ACTIVITY_SLEEP);
+				}
+			}
+#else
 			if(getDomainType() != DOMAIN_AIR)
 			{
 				SetActivityType(ACTIVITY_SLEEP);
 			}
-
-			if(GC.getGame().isFinalInitialized())
+#endif
+#if defined(MOD_CARGO_SHIPS)
+			if(MOD_CARGO_SHIPS)
 			{
-				finishMoves();
+				if(GC.getGame().isFinalInitialized() && getDomainType() == DOMAIN_AIR)
+				{
+					finishMoves();
+				}
 			}
-
+			else
+			{
+				if(GC.getGame().isFinalInitialized())
+				{
+					finishMoves();
+				}
+			}
+#endif
 			pTransportUnit->changeCargo(1);
 			pTransportUnit->SetActivityType(ACTIVITY_AWAKE);
 		}
@@ -24129,6 +24465,14 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			}
 		}
 #endif
+#if defined(MOD_BALANCE_CORE)
+		if (thisPromotion.GetNearbyUnitClassBonus() > 0)
+		{
+			SetNearbyUnitClassBonus(thisPromotion.GetNearbyUnitClassBonus());
+			SetNearbyUnitClassBonusRange(thisPromotion.GetNearbyUnitClassBonusRange());
+			SetCombatBonusFromNearbyUnitClass(thisPromotion.GetCombatBonusFromNearbyUnitClass());
+		}
+#endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 		if (MOD_PROMOTIONS_CROSS_MOUNTAINS) {
 			changeCanCrossMountainsCount((thisPromotion.CanCrossMountains()) ? iChange : 0);
@@ -24198,11 +24542,11 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 				ChangePromotionDuration(NO_PROMOTION, 0);
 			}
 		}
-		if(thisPromotion.NegatesPromotion())
+		if(thisPromotion.NegatesPromotion() != NO_PROMOTION)
 		{
 			if(bNewValue)
 			{
-				SetNegatorPromotion((int)eIndex);
+				SetNegatorPromotion((int)thisPromotion.NegatesPromotion());
 			}
 			else
 			{
@@ -24591,6 +24935,10 @@ void CvUnit::read(FDataStream& kStream)
 	kStream >> m_combatUnit.iID;
 	kStream >> m_transportUnit.eOwner;
 	kStream >> m_transportUnit.iID;
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	kStream >> m_stackingUnit.eOwner;
+	kStream >> m_stackingUnit.iID;
+#endif
 	kStream >> m_missionAIUnit.eOwner;
 	kStream >> m_missionAIUnit.iID;
 	kStream >> m_extraDomainModifiers;
@@ -24671,6 +25019,10 @@ void CvUnit::write(FDataStream& kStream) const
 	kStream << m_combatUnit.iID;
 	kStream << m_transportUnit.eOwner;
 	kStream << m_transportUnit.iID;
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	kStream << m_stackingUnit.eOwner;
+	kStream << m_stackingUnit.iID;
+#endif
 	kStream << m_missionAIUnit.eOwner;
 	kStream << m_missionAIUnit.iID;
 	kStream << m_extraDomainModifiers;
@@ -28623,5 +28975,148 @@ int CvUnit::getNumberStackingUnits() const
 {
 	VALIDATE_OBJECT
 	return getUnitInfo().GetNumberStackingUnits();
+}
+bool CvUnit::IsStackingUnit() const
+{
+	VALIDATE_OBJECT
+	return getUnitInfo().GetNumberStackingUnits()>0;
+}
+bool CvUnit::IsCargoCombatUnit() const
+{
+	VALIDATE_OBJECT
+	return getUnitInfo().CargoCombat()>0;
+}
+const CvUnit* CvUnit::getStackingUnit() const
+{
+	VALIDATE_OBJECT
+	return getUnit(m_stackingUnit);
+}
+
+//	--------------------------------------------------------------------------------
+CvUnit* CvUnit::getStackingUnit()
+{
+	VALIDATE_OBJECT
+	return getUnit(m_stackingUnit);
+}
+void CvUnit::setStackingUnit(CvUnit* pStackingUnit)
+{
+	VALIDATE_OBJECT
+	if(pStackingUnit != NULL)
+	{
+		if(pStackingUnit->IsStackingUnit())
+		{
+			m_stackingUnit = pStackingUnit->GetIDInfo();
+		}
+	}
+	else
+	{
+		m_stackingUnit.reset();
+	}
+}
+#endif
+#if defined(MOD_CARGO_SHIPS)
+void CvUnit::DoCargoPromotions(CvUnit& cargounit)
+{
+	if(cargounit.IsCargoCombatUnit() && cargounit.hasCargo())
+	{
+		cargounit.SetBaseCombatStrength(cargounit.getUnitInfo().GetCombat() + ((cargounit.getUnitInfo().GetCombat() * cargounit.getUnitInfo().CargoCombat() * cargounit.getCargo()) / 100));
+		PromotionTypes ePromotionPrizeShips = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_PRIZE_SHIPS", true);
+		PromotionTypes ePromotionArmySupport = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_SUPPORT", true);
+		if(cargounit.isHasPromotion(ePromotionPrizeShips))
+		{
+			cargounit.setHasPromotion(ePromotionArmySupport, true);
+		}
+		if(isCargo())
+		{
+			UnitCombatTypes eUnitCombatReconType = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
+			PromotionTypes ePromotionEmbarkAllWater = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ALLWATER_EMBARKATION", true);
+			PromotionTypes ePromotionPolynesiaCargo = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_POLYNESIA_CARGO", true);
+			PromotionTypes ePromotionScoutShip = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_SCOUT_SHIP", true);
+			PromotionTypes ePromotionArmyOnShip = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_ON_SHIP", true);
+			PromotionTypes ePromotionRangePenalty = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_RANGE_PENALTY", true);
+			setHasPromotion(ePromotionArmyOnShip, true);
+			if(isRanged())
+			{
+				setHasPromotion(ePromotionRangePenalty, true);
+			}
+			if(getUnitCombatType() == eUnitCombatReconType)
+			{
+				cargounit.setHasPromotion(ePromotionScoutShip, true);
+			}
+			else
+			{
+				cargounit.setHasPromotion(ePromotionScoutShip, false);
+			}
+			if(isHasPromotion(ePromotionEmbarkAllWater))
+			{
+				cargounit.setHasPromotion(ePromotionPolynesiaCargo, true);
+			}
+			else
+			{
+				cargounit.setHasPromotion(ePromotionPolynesiaCargo, false);
+			}
+			if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+			{
+				setMoves((getUnitInfo().GetMoves() * 60) + 120);
+			}
+		}
+	}
+}
+
+void CvUnit::RemoveCargoPromotions(CvUnit& cargounit)
+{
+	bool scoutcheck = false;
+	bool scoutPromcheck = false;
+	bool allembark = false;
+	bool allembarkProm = false;
+	if(isCargo())
+	{
+		UnitCombatTypes eUnitCombatReconType = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
+		PromotionTypes ePromotionEmbarkAllWater = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ALLWATER_EMBARKATION", true);
+		if(getUnitCombatType() == eUnitCombatReconType)
+		{
+			scoutcheck = true;
+		}
+		if(isHasPromotion(ePromotionEmbarkAllWater))
+		{
+			allembark = true;
+		}
+	}
+	else if(!isCargo())
+	{
+		PromotionTypes ePromotionArmyOnShip = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_ON_SHIP", true);
+		PromotionTypes ePromotionRangePenalty = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_RANGE_PENALTY", true);
+		if(isHasPromotion(ePromotionArmyOnShip))
+		{
+			setHasPromotion(ePromotionArmyOnShip, false);
+		}
+		if(isHasPromotion(ePromotionRangePenalty))
+		{
+			setHasPromotion(ePromotionRangePenalty, false);
+		}
+	}
+	PromotionTypes ePromotionArmySupport = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_SUPPORT", true);
+	if(cargounit.isHasPromotion(ePromotionArmySupport))
+	{
+		cargounit.setHasPromotion(ePromotionArmySupport, false);
+	}
+	PromotionTypes ePromotionScoutShip = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_SCOUT_SHIP", true);
+	if(cargounit.isHasPromotion(ePromotionScoutShip))
+	{
+		scoutPromcheck = true;
+	}
+	if(!scoutcheck && scoutPromcheck)
+	{
+		cargounit.setHasPromotion(ePromotionScoutShip, false);
+	}
+	PromotionTypes ePromotionPolynesiaCargo = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_POLYNESIA_CARGO", true);
+	if(cargounit.isHasPromotion(ePromotionPolynesiaCargo))
+	{
+		allembarkProm = true;
+	}
+	if(!allembark && allembarkProm)
+	{
+		cargounit.setHasPromotion(ePromotionPolynesiaCargo, false);
+	}
 }
 #endif

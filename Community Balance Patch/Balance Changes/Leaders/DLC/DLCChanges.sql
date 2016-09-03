@@ -135,7 +135,8 @@ VALUES
 INSERT INTO Improvement_YieldAdjacentSameType
 	(ImprovementType, YieldType, Yield)
 VALUES
-	('IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1);
+	('IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_MOAI', 'YIELD_PRODUCTION', 1);
 
 INSERT INTO Building_Flavors
 	(BuildingType, FlavorType, Flavor)
@@ -147,11 +148,6 @@ INSERT INTO Improvement_AdjacentImprovementYieldChanges
 	(ImprovementType, OtherImprovementType, YieldType, Yield)
 VALUES
 	('IMPROVEMENT_TERRACE_FARM', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 1);
-
-INSERT INTO Improvement_YieldAdjacentSameType
-	(ImprovementType, YieldType, Yield)
-VALUES
-	('IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1);
 
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)

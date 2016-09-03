@@ -8367,7 +8367,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 //	--------------------------------------------------------------------------------
 /// Pick a random a Unit type that is ranked by unit power and restricted to units available to ePlayer's technology
 #if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource)
+UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly)
 #else
 UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged)
 #endif
@@ -8450,6 +8450,13 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 			{
 				continue;
 			}
+#if defined(MOD_BALANCE_CORE)
+			//Skip own player if to include own UUs.
+			else if(bIncludeOwnUUsOnly && ((UnitTypes)GET_PLAYER(ePlayer).getCivilizationInfo().getCivilizationUnits(eLoopUnitClass) != eLoopUnit))
+			{
+				continue;
+			}
+#endif
 			else
 			{
 				// Cannot be a UU from a civ that is in our game
@@ -8458,6 +8465,7 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 					PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
 					if(GET_PLAYER(eMajorLoop).isAlive())
 					{
+
 						UnitTypes eUniqueUnitInGame = (UnitTypes) GET_PLAYER(eMajorLoop).getCivilizationInfo().getCivilizationUnits(eLoopUnitClass);
 						if(eLoopUnit == eUniqueUnitInGame)
 						{
@@ -8561,7 +8569,162 @@ UnitTypes CvGame::GetCsGiftSpawnUnitType(PlayerTypes ePlayer)
 	return eChosenUnit;
 }
 #endif
+#if defined(MOD_BALANCE_CORE)
+bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, int iNumber, bool bIncludeUUs, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly)
+{
+	if(pCity == NULL)
+		return false;
 
+	if(ePlayer == BARBARIAN_PLAYER)
+	{
+		SetBarbarianReleaseTurn(0);
+	}
+
+	if(iNumber <= 0)
+		return false;
+
+	int iBestPlot = -1;
+	int iBestPlotWeight = -1;
+	CvPlot* pPlot;
+
+	CvCityCitizens* pCitizens = pCity->GetCityCitizens();
+
+	// Start at 1, since ID 0 is the city plot itself
+
+	for(int iPlotLoop = 1; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
+	{
+		pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
+
+		if(!pPlot)		// Should be valid, but make sure
+			continue;
+
+		// Can't be impassable
+		if(!pPlot->isValidMovePlot(pCity->getOwner()))
+			continue;
+
+		// Can't be water
+		if(pPlot->isWater())
+			continue;
+
+		// Can't be ANOTHER city
+		if(pPlot->isCity())
+			continue;
+
+		// Don't place on a plot where a unit is already standing
+		if(pPlot->getNumUnits() > 0)
+			continue;
+
+		int iTempWeight = getRandNum(10, "Uprising rand plot location.");
+
+		// Add weight if there's an improvement here!
+		if(pPlot->getImprovementType() != NO_IMPROVEMENT)
+		{
+			iTempWeight += 4;
+
+			// If also a a resource, even more weight!
+			if(pPlot->getResourceType(pCity->getTeam()) != NO_RESOURCE)
+				iTempWeight += 3;
+		}
+			
+		// Don't pick plots that aren't ours
+		if(pPlot->getOwner() != pCity->GetID())
+			iTempWeight = -1;
+
+		// Add weight if there's a defensive bonus for this plot
+		if(pPlot->defenseModifier(BARBARIAN_TEAM, false, false))
+			iTempWeight += 4;
+
+		if(iTempWeight > iBestPlotWeight)
+		{
+			iBestPlotWeight = iTempWeight;
+			iBestPlot = iPlotLoop;
+		}
+	}
+	bool bUnitCreated = false;
+	// Found valid plot
+	if(iBestPlot != -1)
+	{
+		pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
+
+		// Pick a unit type - should give us more melee than ranged
+		UnitTypes eUnit = GetCompetitiveSpawnUnitType(ePlayer, /*bIncludeUUs*/ bIncludeUUs, /*bIncludeRanged*/ true, bIncludeShips, bNoResource, bIncludeOwnUUsOnly);
+		UnitTypes emUnit = GetCompetitiveSpawnUnitType(ePlayer, /*bIncludeUUs*/ bIncludeUUs, /*bIncludeRanged*/ false, bIncludeShips, bNoResource, bIncludeOwnUUsOnly);
+
+		CvUnit* pstartUnit = GET_PLAYER(ePlayer).initUnit(emUnit, pPlot->getX(), pPlot->getY());
+		CvAssert(pstartUnit);
+		if (pstartUnit)
+		{
+			if (!pstartUnit->jumpToNearestValidPlotWithinRange(3))
+			{
+				pstartUnit->kill(false);		// Could not find a spot!
+			}
+			else
+			{
+				pstartUnit->setMoves(0);
+				if(ePlayer != BARBARIAN_PLAYER)
+				{
+					pCity->addProductionExperience(pstartUnit);
+				}
+				bUnitCreated = true;
+			}
+		}
+		iNumber--;	// Reduce the count since we just added the seed rebel
+		if(iNumber > 0)
+		{
+			// Loop until all rebels are placed
+			do
+			{
+				iNumber--;
+
+				// Init unit
+				CvUnit* pmUnit = GET_PLAYER(ePlayer).initUnit(emUnit, pPlot->getX(), pPlot->getY());
+				CvAssert(pmUnit);
+				if (pmUnit)
+				{
+					if (!pmUnit->jumpToNearestValidPlotWithinRange(3))
+					{
+						pmUnit->kill(false);		// Could not find a spot!
+					}
+					else
+					{
+						pmUnit->setMoves(0);
+						if(ePlayer != BARBARIAN_PLAYER)
+						{
+							pCity->addProductionExperience(pmUnit);
+						}
+						bUnitCreated = true;
+					}
+				}
+				if(iNumber > 0)
+				{
+					iNumber--;
+					// Init unit
+					CvUnit* pUnit = GET_PLAYER(ePlayer).initUnit(eUnit, pPlot->getX(), pPlot->getY());
+					CvAssert(pUnit);
+					if (pUnit)
+					{
+						if (!pUnit->jumpToNearestValidPlotWithinRange(3))
+						{
+							pUnit->kill(false);		// Could not find a spot!
+						}
+						else
+						{
+							pUnit->setMoves(0);
+							if(ePlayer != BARBARIAN_PLAYER)
+							{
+								pCity->addProductionExperience(pUnit);
+							}
+							bUnitCreated = true;
+						}
+					}
+					}
+			}
+			while(iNumber > 0);
+		}
+	}
+	return bUnitCreated;
+}
+#endif
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
 UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal)
@@ -9039,7 +9202,11 @@ void CvGame::updateMoves()
 									{
 										if(pLoopUnit->getOwner() == pLoopUnitInner->getOwner())	// Could be a dying Unit from another player here
 										{
+#if defined(MOD_GLOBAL_STACKING_RULES)
+											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit.pointer()) > pLoopUnit->plot()->getUnitLimit())
+#else
 											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit.pointer()) > GC.getPLOT_UNIT_LIMIT())
+#endif
 											{
 												if(pLoopUnitInner->getFortifyTurns() >= iNumTurnsFortified)
 												{
