@@ -4240,13 +4240,17 @@ void CvMilitaryAI::CheckSeaDefenses(PlayerTypes ePlayer)
 			CvCity* pThreatCity = m_pPlayer->GetThreatenedCityRank(iThreat);
 			if(pThreatCity != NULL && pThreatCity->isCoastal())
 			{
-				bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, &iOperationID, ePlayer);
-				if (!bHasOperationUnderway)
+				CvPlot* pCoastalPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pThreatCity->plot());
+				if(pCoastalPlot != NULL)
 				{
-					iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, ePlayer, MUFORMATION_NAVAL_BOMBARDMENT, true, false, MilitaryAIHelpers::GetCoastalPlotNearPlot(pThreatCity->plot()), MilitaryAIHelpers::GetCoastalPlotNearPlot(pThreatCity->plot()), &iNumRequiredSlots);
-					if(iFilledSlots > 0 && ((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild))
+					bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, &iOperationID, ePlayer);
+					if (!bHasOperationUnderway)
 					{
-						m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer, pThreatCity->getArea(), pThreatCity, pThreatCity);
+						iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, ePlayer, MUFORMATION_NAVAL_BOMBARDMENT, true, false, pCoastalPlot, pCoastalPlot, &iNumRequiredSlots);
+						if(iFilledSlots > 0 && ((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingBuild))
+						{
+							m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, ePlayer, pCoastalPlot->getArea(), pThreatCity, pThreatCity);
+						}
 					}
 				}
 			}
