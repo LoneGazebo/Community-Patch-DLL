@@ -274,7 +274,7 @@ public:
 	void Update();
 
 	// Public exploration routines
-	CvPlot* GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidatesToCheck) const;
+	CvPlot* GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidatesToCheck, int iMaxTurns) const;
 	bool ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pPlot);
 #if defined(MOD_BALANCE_CORE)
 	bool FindTestArchaeologistPlotPrimer(CvUnit* pUnit);

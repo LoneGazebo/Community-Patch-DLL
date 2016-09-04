@@ -8936,12 +8936,16 @@ ResourceTypes CvCity::GetResourceDemanded(bool bHideUnknown) const
 
 	if(eResourceDemanded != NO_RESOURCE)
 	{
-		TechTypes eRevealTech = (TechTypes) GC.getResourceInfo(eResourceDemanded)->getTechReveal();
-
-		// Is there no Reveal Tech or do we have it?
-		if(eRevealTech == NO_TECH || GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eRevealTech))
+		CvResourceInfo* pInfo = GC.getResourceInfo(eResourceDemanded);
+		if (pInfo)
 		{
-			return eResourceDemanded;
+			TechTypes eRevealTech = (TechTypes)pInfo->getTechReveal();
+
+			// Is there no Reveal Tech or do we have it?
+			if (eRevealTech == NO_TECH || GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eRevealTech))
+			{
+				return eResourceDemanded;
+			}
 		}
 	}
 

@@ -206,7 +206,7 @@ void CvHomelandAI::Update()
 	}
 }
 
-CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidates) const
+CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidates, int iMaxTurns) const
 {
 	if (!pUnit)
 		return NULL;
@@ -260,11 +260,11 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 	//sorts ascending by the first element of the iterator ... which is our distance. nice.
 	std::stable_sort(vPlotsByDistance.begin(), vPlotsByDistance.end());
 
-	//see where our scout can go
+	//see where our scout can go within the allowed turns
 	ReachablePlots reachablePlots;
 	if (pUnit)
 	{
-		SPathFinderUserData data(pUnit,CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY|CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE,INT_MAX);
+		SPathFinderUserData data(pUnit, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, iMaxTurns);
 		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 		reachablePlots = GC.GetPathFinder().GetPlotsInReach(iRefX, iRefY, data);
 	}
@@ -3622,7 +3622,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				{
 					CvString strLogString;
 					CvString strTemp = pUnit->getUnitInfo().GetDescription();
-					strLogString.Format("%s killed a weak enemy, at X: %d, Y: %d, From X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					strLogString.Format("%s killed a weak enemy, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 
@@ -3720,9 +3720,15 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 		}
 
 		//if we didn't find a worthwhile plot among our adjacent plots, check the global targets
-		if(!pBestPlot && pUnit->movesLeft() > 0)
+		if (!pBestPlot && pUnit->movesLeft() > 0)
+		{
 			//check at least 5 candidates
-			pBestPlot = GetBestExploreTarget(pUnit.pointer(),5);
+			pBestPlot = GetBestExploreTarget(pUnit.pointer(), 5, 9);
+
+			//if nothing found, retry with larger distance - but this is sloooooow
+			if (!pBestPlot)
+				pBestPlot = GetBestExploreTarget(pUnit.pointer(), 5, 42);
+		}
 
 		//make sure we're not in an endless loop
 		if(pBestPlot)

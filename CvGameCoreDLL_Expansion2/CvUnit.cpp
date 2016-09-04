@@ -26501,6 +26501,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			//in that case don't execute the move
 			if (pPathPlot && m_kLastPath.front().m_iMoves>getMoves())
 			{
+				finishMoves();
 				return 0;
 			}
 

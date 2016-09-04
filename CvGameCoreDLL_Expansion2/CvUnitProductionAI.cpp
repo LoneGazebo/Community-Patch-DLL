@@ -422,13 +422,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 
 		//Let's look at what this can build (if a combat unit).
-		for (int i = 0; i < GC.getNumBuildInfos(); i++) 
+		if (bCombat)
 		{
-			CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
-					
-			if (pkBuild && (pkUnitEntry->GetBuilds((BuildTypes)i) || kPlayer.GetPlayerTraits()->HasUnitClassCanBuild(i, pkUnitEntry->GetUnitClassType())))
+			for (int i = 0; i < GC.getNumBuildInfos(); i++)
 			{
-				if(bCombat)
+				CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
+					
+				if (pkBuild && (pkUnitEntry->GetBuilds((BuildTypes)i) || kPlayer.GetPlayerTraits()->HasUnitClassCanBuild(i, pkUnitEntry->GetUnitClassType())))
 				{
 					iBonus += 10;
 				}
@@ -862,7 +862,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return 0;
 		}
 		//Or if we're small.
-		if(m_pCity->getPopulation() <= 5)
+		if(m_pCity->getPopulation() <= 4)
 		{
 			return 0;
 		}

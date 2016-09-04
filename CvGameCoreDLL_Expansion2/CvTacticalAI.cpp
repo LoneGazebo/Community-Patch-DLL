@@ -1830,8 +1830,8 @@ void CvTacticalAI::ProcessDominanceZones()
 								CvString strLogString;
 								CvCity* pZoneCity = pZone->GetZoneCity();
 								CvTacticalMoveXMLEntry* pkMoveInfo = GC.getTacticalMoveInfo(moveToPassOn.m_eMoveType);
-								strLogString.Format("Using move %s for zone %d (city %s - %s) - turn slice %d", pkMoveInfo ? pkMoveInfo->GetType() : "unknown", 
-									pZone->GetDominanceZoneID(), pZoneCity ? pZoneCity->getName().c_str() : "none", postureNames[ePosture], GC.getGame().getTurnSlice() );
+								strLogString.Format("Using move %s for zone %d (city %s - %s)", pkMoveInfo ? pkMoveInfo->GetType() : "unknown", 
+									pZone->GetDominanceZoneID(), pZoneCity ? pZoneCity->getName().c_str() : "none", postureNames[ePosture]);
 								LogTacticalMessage(strLogString);
 								
 							}
@@ -11389,7 +11389,7 @@ int TacticalAIHelpers::GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvP
 
 	resultSet.clear();
 
-	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_INTERMEDIATE_STOPS;
+	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING;
 
 	if (!bCheckTerritory)
 		iFlags |= CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
