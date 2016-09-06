@@ -3211,7 +3211,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					CvCity* pBestCity = m_pPlayer->GetClosestCity( pUnit->plot() );
 					if(pBestCity != NULL)
 					{
-						if(MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestCity->plot(), DOMAIN_LAND, 12))
+						if(MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestCity->plot(), DOMAIN_LAND, 42))
 						{
 							pUnit->SetTurnProcessed(true);
 							pUnit->finishMoves();
@@ -3310,7 +3310,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					bool bStuck = true;
 					if(pBestPlot != NULL)
 					{
-						if(MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestPlot, DOMAIN_SEA, 23))
+						if(MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestPlot, DOMAIN_SEA, 42))
 						{
 							pUnit->SetTurnProcessed(true);
 							pUnit->finishMoves();
@@ -8326,42 +8326,21 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 		return false;
 
 	//nothing to do?
-	if ((pUnit->getDomainType() == pTarget->getDomain()) && plotDistance(pUnit->getX(),pUnit->getY(),pTarget->getX(),pTarget->getY())<=2)
+	if ((plotDistance(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY()) < 3) &&
+		(eDomain == NO_DOMAIN || pTarget->getDomain() == eDomain) &&
+		(pUnit->plot()->isAdjacentToArea(pTarget->getArea())))
+	{
+		pUnit->PushMission(CvTypes::getMISSION_SKIP());
 		return true;
-
-	//see where our unit can go in the allowed amount of turns
-	ReachablePlots reachablePlots;
-	if (pUnit)
-	{
-		SPathFinderUserData data(pUnit,0,iMaxTurns);
-		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
-		reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	}
 
-	// Look at spaces adjacent to target
-	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
-	{
-		CvPlot* pLoopPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), iI);
-		if (!pLoopPlot)
-			continue;
+	int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_SAFE_EMBARK;
+	if (eDomain == pTarget->getDomain())
+		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 
-		//if we can't reach it, bad luck
-		if (reachablePlots.find(SMovePlot(pLoopPlot->GetPlotIndex()))==reachablePlots.end())
-			continue;
-
-		if(eDomain!=NO_DOMAIN && pLoopPlot->getDomain()!=eDomain)
-			continue;
-
-		if(pUnit->canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION ))
-		{
-			// And if it is a city, make sure we are friends with them, else we will automatically attack
-			if(pLoopPlot->getPlotCity() == NULL || pLoopPlot->isFriendlyCity(*pUnit, false))
-			{
-				// Go ahead with mission
-				return MoveToUsingSafeEmbark(pUnit, pLoopPlot, false, 0);
-			}
-		}
-	}
+	int iTurns = pUnit->TurnsToReachTarget(pTarget, iFlags, iMaxTurns);
+	if (iTurns <= iMaxTurns)
+		return MoveToUsingSafeEmbark(pUnit, pTarget, true, iFlags);
 
 	return false;
 }
