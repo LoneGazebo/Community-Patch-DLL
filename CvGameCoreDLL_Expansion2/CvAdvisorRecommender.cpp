@@ -56,7 +56,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 
 	CvCityStrategyAI* pCityStrategy = pCity->GetCityStrategyAI();
 
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getAsyncRandNum);;
 
 	CvCityBuildable buildable;
 	int iWeight;
@@ -209,8 +209,8 @@ void CvAdvisorRecommender::UpdateTechRecommendations(PlayerTypes ePlayer)
 
 	// Use the synchronous random number generate
 	// Asynchronous one would be:
-	fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
-	//fcn = MakeDelegate (&GC.getGame(), &CvGame::getRandNum);
+	fcn = MakeDelegate(&GC.getGame(), &CvGame::getAsyncRandNum);
+	//fcn = MakeDelegate (&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Loop through adding the researchable techs
 	for(iTechLoop = 0; iTechLoop < pPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)

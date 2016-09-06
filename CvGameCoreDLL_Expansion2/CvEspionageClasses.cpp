@@ -216,7 +216,7 @@ void CvPlayerEspionage::Init(CvPlayer* pPlayer)
 	for(uint ui = 0; ui < m_aiSpyListNameOrder.size(); ui++)
 	{
 		uint uiTempValue;
-		uint uiTargetSlot = GC.getGame().getRandNum(m_aiSpyListNameOrder.size(), "Randomizing m_aiSpyListNameOrder list");
+		uint uiTargetSlot = GC.getGame().getJonRandNum(m_aiSpyListNameOrder.size(), "Randomizing m_aiSpyListNameOrder list");
 		uiTempValue = m_aiSpyListNameOrder[ui];
 		m_aiSpyListNameOrder[ui] = m_aiSpyListNameOrder[uiTargetSlot];
 		m_aiSpyListNameOrder[uiTargetSlot] = uiTempValue;
@@ -298,7 +298,7 @@ void CvPlayerEspionage::DoTurn()
 		}
 		else
 		{
-			m_pPlayer->ChangeSpyCooldown(-1 * GC.getGame().getRandNum(GC.getBALANCE_SPY_SABOTAGE_RATE(), "Random roll for cooldown"));
+			m_pPlayer->ChangeSpyCooldown(-1 * GC.getGame().getJonRandNum(GC.getBALANCE_SPY_SABOTAGE_RATE(), "Random roll for cooldown"));
 		}
 	}
 #endif
@@ -704,7 +704,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			int iSpyResult;
 			if(pCityEspionage->HasCounterSpy())
 			{
-				iSpyResult = GC.getGame().getRandNum(300, "Random roll for the result of a spy mission with a counterspy in the city");
+				iSpyResult = GC.getGame().getJonRandNum(300, "Random roll for the result of a spy mission with a counterspy in the city");
 				int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
 				iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * 30;
 				iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
@@ -753,7 +753,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			}
 			else
 			{
-				iSpyResult = GC.getGame().getRandNum(300, "Random roll for the result of a spying mission without a counterspy in the city");
+				iSpyResult = GC.getGame().getJonRandNum(300, "Random roll for the result of a spying mission without a counterspy in the city");
 				iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 				iSpyResult /= 100;
 				if(iSpyResult < 100)
@@ -1273,10 +1273,10 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 		{
 			bool bCanDie = false;
 			int iSpyResult = 0;
-			iSpyResult = GC.getGame().getRandNum(125, "Random roll for the result of an advanced spy action");
+			iSpyResult = GC.getGame().getJonRandNum(125, "Random roll for the result of an advanced spy action");
 
-			iSpyResult += GC.getGame().getRandNum((pCity->GetEspionageModifier() / 4), "Random roll for the result of an advanced spy action");
-			iSpyResult += GC.getGame().getRandNum((GET_PLAYER(eCityOwner).GetEspionageModifier() / 4), "Random roll for the result of an advanced spy action");
+			iSpyResult += GC.getGame().getJonRandNum((pCity->GetEspionageModifier() / 4), "Random roll for the result of an advanced spy action");
+			iSpyResult += GC.getGame().getJonRandNum((GET_PLAYER(eCityOwner).GetEspionageModifier() / 4), "Random roll for the result of an advanced spy action");
 
 			//Subtract City value (higher value targets are easier to hit)
 			iSpyResult -= iCityValue;
@@ -1429,7 +1429,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				m_aiNumSpyActionsDone[pCity->getOwner()]++;
 #endif
 				
-				int iTest = GC.getGame().getRandNum(aiAdvancedAction.size(), "Randomizing Advanced Actions");
+				int iTest = GC.getGame().getJonRandNum(aiAdvancedAction.size(), "Randomizing Advanced Actions");
 				int iSpyResult = aiAdvancedAction[iTest];
 
 				//Rebellion
@@ -1447,7 +1447,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 					// In hundreds
 					int iNumRebels = (iRank * (100 + iTurnsActive)); //Based on rank of spy.
 					int iExtraRoll = (iRank * (100 + iTurnsActive)); //1+ Rebels maximum
-					iNumRebels += GC.getGame().getRandNum(iExtraRoll + iTurnsActive, "Rebel count rand roll");
+					iNumRebels += GC.getGame().getJonRandNum(iExtraRoll + iTurnsActive, "Rebel count rand roll");
 					iNumRebels /= 100;
 					int iNumRebelTotal = iNumRebels;
 					CvGame& theGame = GC.getGame();
@@ -1486,7 +1486,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 							if(pPlot->getNumUnits() > 0)
 								continue;
 
-							int iTempWeight = theGame.getRandNum(10, "Uprising rand plot location.");
+							int iTempWeight = theGame.getJonRandNum(10, "Uprising rand plot location.");
 
 							// Add weight if there's an improvement here!
 							if(pPlot->getImprovementType() != NO_IMPROVEMENT)
@@ -1612,7 +1612,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						strNotification << iDamage;
 						pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
 					}
-					int iNewResult = GC.getGame().getRandNum(100, "Random roll for the result of an advanced-action spy mission");
+					int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
 					if(iNewResult > 45)
 					{
 						LevelUpSpy(uiSpyIndex);
@@ -1691,7 +1691,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						strNotification << pCity->getNameKey();
 						pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
 					}
-					int iNewResult = GC.getGame().getRandNum(100, "Random roll for the result of an advanced-action spy mission");
+					int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
 					if(iNewResult > 45)
 					{
 						LevelUpSpy(uiSpyIndex);
@@ -1771,7 +1771,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 							strNotification << iSetback;
 							pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
 						}
-						int iNewResult = GC.getGame().getRandNum(100, "Random roll for the result of an advanced-action spy mission");
+						int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
 						if(iNewResult > 45)
 						{
 							LevelUpSpy(uiSpyIndex);
@@ -1858,7 +1858,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 							pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
 						}
 
-						int iNewResult = GC.getGame().getRandNum(100, "Random roll for the result of an advanced-action spy mission");
+						int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
 						if(iNewResult > 55)
 						{
 							LevelUpSpy(uiSpyIndex);
@@ -1940,7 +1940,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 							strNotification << iSetback;
 							pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
 						}
-						int iNewResult = GC.getGame().getRandNum(100, "Random roll for the result of an advanced-action spy mission");
+						int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
 						if(iNewResult > 60)
 						{
 							LevelUpSpy(uiSpyIndex);
@@ -2022,7 +2022,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 							strNotification << iSetback;
 							pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
 						}
-						int iNewResult = GC.getGame().getRandNum(100, "Random roll for the result of an advanced-action spy mission");
+						int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
 						if(iNewResult > 70)
 						{
 							LevelUpSpy(uiSpyIndex);
@@ -2123,7 +2123,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 							strNotification << iSetback;
 							pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
 						}
-						int iNewResult = GC.getGame().getRandNum(100, "Random roll for the result of an advanced-action spy mission");
+						int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
 						if(iNewResult > 85)
 						{
 							LevelUpSpy(uiSpyIndex);
@@ -2205,7 +2205,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 							strNotification << iTheft;
 							pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eCityOwner);
 						}
-						int iNewResult = GC.getGame().getRandNum(100, "Random roll for the result of an advanced-action spy mission");
+						int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
 						if(iNewResult > 95)
 						{
 							LevelUpSpy(uiSpyIndex);
@@ -2338,7 +2338,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
 	{
 		int iTempValue;
-		uint uiTargetSlot = GC.getGame().getRandNum(aiMajorCivIndex.size(), "Randomizing aiMajorCivIndex list within UncoverIntrigue");
+		uint uiTargetSlot = GC.getGame().getJonRandNum(aiMajorCivIndex.size(), "Randomizing aiMajorCivIndex list within UncoverIntrigue");
 		iTempValue = aiMajorCivIndex[ui];
 		aiMajorCivIndex[ui] = aiMajorCivIndex[uiTargetSlot];
 		aiMajorCivIndex[uiTargetSlot] = iTempValue;
@@ -2407,7 +2407,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 			if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 			{
-				int iNewResult = GC.getGame().getRandNum(100, "Random roll for the result of diplomatic intrigue");
+				int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of diplomatic intrigue");
 				if(iNewResult >= 80)
 				{
 					LevelUpSpy(uiSpyIndex);
@@ -2422,7 +2422,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 			if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 			{
-				int iNewResult = GC.getGame().getRandNum(100, "Random roll for the result of diplomatic intrigue");
+				int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of diplomatic intrigue");
 				if(iNewResult >= 80)
 				{
 					LevelUpSpy(uiSpyIndex);
@@ -2437,7 +2437,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 			if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 			{
-				int iNewResult = GC.getGame().getRandNum(100, "Random roll for the result of diplomatic intrigue");
+				int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of diplomatic intrigue");
 				if(iNewResult >= 80)
 				{
 					LevelUpSpy(uiSpyIndex);
@@ -2466,7 +2466,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 				if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 				{
-					int iNewResult = GC.getGame().getRandNum(100, "Random roll for the result of diplomatic intrigue");
+					int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of diplomatic intrigue");
 					if(iNewResult >= 85)
 					{
 						LevelUpSpy(uiSpyIndex);
@@ -2479,7 +2479,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 				if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 				{
-					int iNewResult = GC.getGame().getRandNum(100, "Random roll for the result of diplomatic intrigue");
+					int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of diplomatic intrigue");
 					if(iNewResult >= 85)
 					{
 						LevelUpSpy(uiSpyIndex);
@@ -2535,7 +2535,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 					if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 					{
-						int iNewResult = GC.getGame().getRandNum(100, "Random roll for the result of diplomatic intrigue");
+						int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of diplomatic intrigue");
 						if(iNewResult >= 90)
 						{
 							LevelUpSpy(uiSpyIndex);
@@ -2549,7 +2549,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 					if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 					{
-						int iNewResult = GC.getGame().getRandNum(100, "Random roll for the result of diplomatic intrigue");
+						int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of diplomatic intrigue");
 						if(iNewResult >= 90)
 						{
 							LevelUpSpy(uiSpyIndex);
@@ -2588,7 +2588,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 		if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 		{
-			int iNewResult = GC.getGame().getRandNum(100, "Random roll for the result of diplomatic intrigue");
+			int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of diplomatic intrigue");
 			if(iNewResult >= 90)
 			{
 				LevelUpSpy(uiSpyIndex);
@@ -2624,7 +2624,7 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
 	{
 		int iTempValue;
-		uint uiTargetSlot = GC.getGame().getRandNum(aiMajorCivIndex.size(), "Randomizing aiMajorCivIndex list within UncoverIntrigue");
+		uint uiTargetSlot = GC.getGame().getJonRandNum(aiMajorCivIndex.size(), "Randomizing aiMajorCivIndex list within UncoverIntrigue");
 		iTempValue = aiMajorCivIndex[ui];
 		aiMajorCivIndex[ui] = aiMajorCivIndex[uiTargetSlot];
 		aiMajorCivIndex[uiTargetSlot] = iTempValue;
@@ -2814,7 +2814,7 @@ bool pickSpyName(const CvCivilizationInfo& kCivInfo, CvEspionageSpy* pSpy)
 {
 	int iCivSpyNames = kCivInfo.getNumSpyNames();
 	if (iCivSpyNames > 0) {
-		int iOffset = GC.getGame().getRandNum(iCivSpyNames, "Spy name offset");
+		int iOffset = GC.getGame().getJonRandNum(iCivSpyNames, "Spy name offset");
 
 		for (int i = 0; i < iCivSpyNames; i++) {
 			const char* szSpyName = kCivInfo.getSpyNames((i + iOffset) % iCivSpyNames);
@@ -2866,7 +2866,7 @@ void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
 
 	// Try to locate a spy name not in use by a civ not in the game
 	int iMaxCivs = GC.getNumCivilizationInfos();
-	int iCivOffset = GC.getGame().getRandNum(iMaxCivs, "Civ offset");
+	int iCivOffset = GC.getGame().getJonRandNum(iMaxCivs, "Civ offset");
 
 	for (int i = 0; i < GC.getNumCivilizationInfos(); i++) {
 		const CivilizationTypes eCiv = static_cast<CivilizationTypes>((i + iCivOffset) % iMaxCivs);
@@ -2884,7 +2884,7 @@ void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
 	}
 
 	// Try to locate a spy name not in use by a civ in the game
-	int iPlayerOffset = GC.getGame().getRandNum(MAX_MAJOR_CIVS, "Player offset");
+	int iPlayerOffset = GC.getGame().getJonRandNum(MAX_MAJOR_CIVS, "Player offset");
 
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++) {
 		const PlayerTypes ePlayer = static_cast<PlayerTypes>((i + iPlayerOffset) % MAX_MAJOR_CIVS);
@@ -3990,7 +3990,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	pMinorCivAI->SetCoupAttempted(m_pPlayer->GetID(), true);
 #endif
 	bool bAttemptSuccess = false;
-	int iRandRoll = GC.getGame().getRandNum(100, "Roll for the result of an attempted coup");
+	int iRandRoll = GC.getGame().getJonRandNum(100, "Roll for the result of an attempted coup");
 	if(iRandRoll <= GetCoupChanceOfSuccess(uiSpyIndex))
 	{
 		// swap influence from ally to 2nd place ally
@@ -7702,7 +7702,7 @@ void CvEspionageAI::AttemptCoups()
 		}
 
 		int iChanceOfSuccess = pEspionage->GetCoupChanceOfSuccess(uiSpy);
-		int iRoll = GC.getGame().getRandNum(100, "Random roll to see if we should attempt a coup");
+		int iRoll = GC.getGame().getJonRandNum(100, "Random roll to see if we should attempt a coup");
 		if (iRoll < iChanceOfSuccess)
 		{
 			pEspionage->AttemptCoup(uiSpy);
@@ -8140,7 +8140,7 @@ void CvEspionageAI::BuildOffenseCityList(EspionageCityList& aOffenseCityList)
 			if(iValue <= 0)
 				continue;
 			//Randomness to try and make the AI less spammy
-			iValue += GC.getGame().getRandNum(iValue, "Randomizing amount of turns left to make AI less spammy");
+			iValue += GC.getGame().getJonRandNum(iValue, "Randomizing amount of turns left to make AI less spammy");
 			int iAdvancedPenalty = pLoopCity->GetBlockBuildingDestruction() + pLoopCity->GetBlockWWDestruction() + pLoopCity->GetBlockUDestruction() + pLoopCity->GetBlockGPDestruction() + pLoopCity->GetBlockGold() + pLoopCity->GetBlockScience() + pLoopCity->GetBlockRebellion() + pLoopCity->GetBlockUnrest();
 			if(iAdvancedPenalty > 0)
 			{

@@ -911,7 +911,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 					{
 						if(IsEventChoiceValid(eEventChoice, eChosenEvent))
 						{
-							int iRandom = GC.getGame().getRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
+							int iRandom = GC.getGame().getJonRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
 							if(iRandom <= 0)
 							{
 								iRandom = 1;

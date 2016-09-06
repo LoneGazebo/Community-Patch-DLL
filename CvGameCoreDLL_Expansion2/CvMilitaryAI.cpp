@@ -3820,8 +3820,8 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 				if (bRollForNuke)
 				{
 					int iFlavorNuke = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_USE_NUKE"));
-					int iRoll  = GC.getGame().getRandNum(10, "Roll to see if we're going to nuke!");
-					int iRoll2 = GC.getGame().getRandNum(10, "Second roll to see if we're going to nuke!");
+					int iRoll  = GC.getGame().getJonRandNum(10, "Roll to see if we're going to nuke!");
+					int iRoll2 = GC.getGame().getJonRandNum(10, "Second roll to see if we're going to nuke!");
 					if (iRoll < iFlavorNuke && iRoll2 < iFlavorNuke)
 					{
 						bLaunchNuke = true;

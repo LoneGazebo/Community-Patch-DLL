@@ -2598,7 +2598,7 @@ TeamTypes CvTeam::GetTeamVotingForInDiplo() const
 			CvAssertMsg(iNumAtTop <= veVoteCandidates.size(), "Should not have more top vote candidates than there are total candidates. Please send Anton your save file and version.");
 			if (iNumAtTop > 0 && iNumAtTop <= veVoteCandidates.size())
 			{
-				RandomNumberDelegate randFn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
+				RandomNumberDelegate randFn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 				eVoteTeam = veVoteCandidates.ChooseFromTopChoices(iNumAtTop, &randFn, "Tie for most favored other team to vote for. Rolling to choose.");
 			}
 		}
@@ -6832,7 +6832,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 								int iTotal = GetNumVassals() * 2;											
 								for (int iK = 0; iK < iTotal; iK++)
 								{											
-									int iUnit = GC.getGame().getRandNum(aExtraUnits.size(), "Random vassal levy");
+									int iUnit = GC.getGame().getJonRandNum(aExtraUnits.size(), "Random vassal levy");
 									CvUnit* pNewUnit = GET_PLAYER(eLoopPlayer).initUnit(aExtraUnits[iUnit], pMasterCity->getX(), pMasterCity->getY(), aExtraUnitAITypes[iUnit]);
 									bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
 									if(bJumpSuccess)

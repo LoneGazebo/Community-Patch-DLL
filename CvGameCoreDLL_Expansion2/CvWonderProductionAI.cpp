@@ -209,7 +209,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bAdjustForOtherPlayers, in
 	int iCityLoop;
 	BuildingTypes eSelection;
 
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Reset list of all the possible wonders
 	m_Buildables.clear();
@@ -367,7 +367,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonderForGreatEngineer(int& iWonderWei
 	pCityToBuildAt = 0;
 	iWonderWeight = 0;
 
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Reset list of all the possible wonders
 	m_Buildables.clear();

@@ -3609,7 +3609,7 @@ void CvCity::DoEvents()
 				}
 			}
 
-			int iRandom = GC.getGame().getRandNum(1000, "Random Event Chance");
+			int iRandom = GC.getGame().getJonRandNum(1000, "Random Event Chance");
 			int iLimit = pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
 			if(iRandom < iLimit)
 			{
@@ -3684,7 +3684,7 @@ void CvCity::DoEvents()
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
 		}
-		int iRandIndex = GC.getGame().getRandNum(veValidEvents.size(), "Picking random event for player.");
+		int iRandIndex = GC.getGame().getJonRandNum(veValidEvents.size(), "Picking random event for player.");
 		CityEventTypes eChosenEvent = veValidEvents[iRandIndex];
 		if(eChosenEvent != NO_EVENT)
 		{
@@ -5944,7 +5944,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			//Let's see if it even happens.
 			if(pkEventChoiceInfo->getEventChance() > 0)
 			{
-				int iRandom = GC.getGame().getRandNum(100, "Random Event Chance");
+				int iRandom = GC.getGame().getJonRandNum(100, "Random Event Chance");
 				int iLimit = pkEventChoiceInfo->getEventChance();
 				if(iRandom < iLimit)
 				{
@@ -6094,7 +6094,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 							if(GetCityBuildings()->GetNumFreeBuilding(eBuildingType) > 0)
 								continue;
 
-							int iRandom = GC.getGame().getRandNum(100, "Random Event Chance");
+							int iRandom = GC.getGame().getJonRandNum(100, "Random Event Chance");
 							if(iRandom < iChance)
 							{					
 								GetCityBuildings()->SetNumRealBuilding(eBuildingType, 0, true);
@@ -6298,7 +6298,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 
 						if (pLoopPlot->HasImprovement(eImprovement)) 
 						{
-							int iValue = GC.getGame().getRandNum(100, "Improvement Destruction");
+							int iValue = GC.getGame().getJonRandNum(100, "Improvement Destruction");
 							if(pkEventChoiceInfo->isCoastal() && pLoopPlot->isCoastalLand())
 							{
 								iValue += 100;
@@ -9051,7 +9051,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 
 	do
 	{
-		iVectorIndex = GC.getGame().getRandNum(veValidLuxuryResources.size(), "Picking random Luxury for City to demand.");
+		iVectorIndex = GC.getGame().getJonRandNum(veValidLuxuryResources.size(), "Picking random Luxury for City to demand.");
 		eResource = (ResourceTypes) veValidLuxuryResources[iVectorIndex];
 		bResourceValid = true;
 
@@ -9202,7 +9202,7 @@ void CvCity::DoSeedResourceDemandedCountdown()
 	}
 
 	int iRand = /*10*/ GC.getRESOURCE_DEMAND_COUNTDOWN_RAND();
-	iNumTurns += GC.getGame().getRandNum(iRand, "City Resource demanded rand.");
+	iNumTurns += GC.getGame().getJonRandNum(iRand, "City Resource demanded rand.");
 
 	SetResourceDemandedCountdown(iNumTurns);
 }
@@ -12862,7 +12862,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 							if (pkResource != NULL && pkResource->GetRequiredCivilization() == owningPlayer.getCivilizationType())
 							{
-								int iRandomFlavor = GC.getGame().getRandNum(100, "Resource Flavor");
+								int iRandomFlavor = GC.getGame().getJonRandNum(100, "Resource Flavor");
 								//If we've already got this resource, divide the value by the amount.
 								if(owningPlayer.getNumResourceTotal(eResource, false) > 0)
 								{
@@ -15537,7 +15537,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 									}
 									if(pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 									{
-										int iChance = GC.getGame().getRandNum(100, "Random Boat Chance");
+										int iChance = GC.getGame().getJonRandNum(100, "Random Boat Chance");
 										if(iChance < 50)
 										{
 											continue;
@@ -15565,7 +15565,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 									{
 										continue;
 									}
-									int iCombatStrength = (pkUnitEntry->GetCombat() + GC.getGame().getRandNum(pkUnitEntry->GetCombat(), "Random Unit bump"));
+									int iCombatStrength = (pkUnitEntry->GetCombat() + GC.getGame().getJonRandNum(pkUnitEntry->GetCombat(), "Random Unit bump"));
 									if(iCombatStrength > iStrengthBest)
 									{
 										iStrengthBest = iCombatStrength;
@@ -18066,7 +18066,7 @@ bool CvCity::DoRazingTurn()
 			// In hundreds
 			int iNumRebels = (getPopulation() * 9); //Based on city size.
 			int iExtraRoll = (GC.getGame().getCurrentEra() * 9 * getPopulation()); //Increase possible partisan spawns as game continues and cities grow.
-			iNumRebels += GC.getGame().getRandNum(iExtraRoll, "Rebel count rand roll");
+			iNumRebels += GC.getGame().getJonRandNum(iExtraRoll, "Rebel count rand roll");
 			iNumRebels /= 100;		
 	
 			if(iNumRebels <= 0)
@@ -22056,7 +22056,7 @@ void CvCity::DoBarbIncursion()
 			return;
 
 		int iCityStrength = getStrengthValue(false);
-		iCityStrength += GC.getGame().getRandNum(iCityStrength, "Barbarian Random Strength Bump");
+		iCityStrength += GC.getGame().getJonRandNum(iCityStrength, "Barbarian Random Strength Bump");
 		iCityStrength /= 100;
 
 		CvPlot* pLoopPlot;
@@ -22070,14 +22070,14 @@ void CvCity::DoBarbIncursion()
 				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit())
 				{			
 					int iBarbStrength = (pUnit->GetBaseCombatStrength() * 20);
-					iBarbStrength += GC.getGame().getRandNum(iBarbStrength, "Barbarian Random Strength Bump");
+					iBarbStrength += GC.getGame().getJonRandNum(iBarbStrength, "Barbarian Random Strength Bump");
 					if(iBarbStrength > iCityStrength)
 					{
 						int iTheft = (iBarbStrength - iCityStrength);
 
 						if(iTheft > 0)
 						{
-							int iYield = GC.getGame().getRandNum(10, "Barbarian Theft Value");		
+							int iYield = GC.getGame().getJonRandNum(10, "Barbarian Theft Value");		
 							if(iYield <= 2)
 							{
 								int iGold = ((getBaseYieldRate(YIELD_GOLD) * iTheft) / 100);
@@ -23741,7 +23741,7 @@ CvPlot* CvCity::GetNextBuyablePlot(void)
 	CvPlot* pPickedPlot = NULL;
 	if(iListLength > 0)
 	{
-		int iPickedIndex = GC.getGame().getRandNum(iListLength, "GetNextBuyablePlot picker");
+		int iPickedIndex = GC.getGame().getJonRandNum(iListLength, "GetNextBuyablePlot picker");
 		pPickedPlot = GC.getMap().plotByIndex(aiPlotList[iPickedIndex]);
 	}
 
@@ -27315,7 +27315,7 @@ void CvCity::doMeltdown()
 		{
 			if(pkBuildingInfo->GetNukeExplosionRand() != 0)
 			{
-				if(GC.getGame().getRandNum(pkBuildingInfo->GetNukeExplosionRand(), "Meltdown!!!") == 0)
+				if(GC.getGame().getJonRandNum(pkBuildingInfo->GetNukeExplosionRand(), "Meltdown!!!") == 0)
 				{
 					if(m_pCityBuildings->GetNumRealBuilding((BuildingTypes)iI) > 0)
 					{
@@ -28270,7 +28270,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 	int iAttackerRoll = 0;
 	if(bIncludeRand)
 	{
-		iAttackerRoll = GC.getGame().getRandNum(/*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "City Ranged Attack Damage");
+		iAttackerRoll = GC.getGame().getJonRandNum(/*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "City Ranged Attack Damage");
 	}
 	else
 	{
@@ -28325,7 +28325,7 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	int iDefenderRoll = 0;
 	if(bIncludeRand)
 	{
-		iDefenderRoll = /*200*/ GC.getGame().getRandNum(GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE(), "Unit Air Strike Combat Damage");
+		iDefenderRoll = /*200*/ GC.getGame().getJonRandNum(GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE(), "Unit Air Strike Combat Damage");
 		iDefenderRoll *= iDefenderDamageRatio;
 		iDefenderRoll /= GetMaxHitPoints();
 	}

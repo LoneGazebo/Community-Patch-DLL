@@ -857,7 +857,7 @@ void CvHomelandAI::FindHomelandTargets()
 							}
 						}
 #if !defined(MOD_CORE_REDUCE_RANDOMNESS)
-						iWeight += GC.getGame().getRandNum(25, "Roll for randomness");
+						iWeight += GC.getGame().getJonRandNum(25, "Roll for randomness");
 #endif
 						newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT);
 						newTarget.SetTargetX(pLoopPlot->getX());
@@ -3156,7 +3156,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					CvPlot* pLoopPlotSearch = NULL;
 					for (int iI = 0; iI < 3; iI++)
 					{
-						int iRandomDirection = GC.getGame().getRandNum(NUM_DIRECTION_TYPES,"random unassigned move");
+						int iRandomDirection = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES,"random unassigned move");
 						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
 						if (pLoopPlotSearch != NULL)
 						{
@@ -3207,7 +3207,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				else
 				{
 					//We really need to do something with this unit - let's bring it home if we can.
-					bool bStuck = (m_pPlayer->getNumCities()>0); //if we don't have cities we aren't stuck!
+					bool bStuck = true;
 					CvCity* pBestCity = m_pPlayer->GetClosestCity( pUnit->plot() );
 					if(pBestCity != NULL)
 					{
@@ -3253,7 +3253,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					CvPlot* pLoopPlotSearch = NULL;
 					for (int iI = 0; iI < 3; iI++)
 					{
-						int iRandomDirection = GC.getGame().getRandNum(NUM_DIRECTION_TYPES,"random unassigned move");
+						int iRandomDirection = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES,"random unassigned move");
 						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
 						if (pLoopPlotSearch != NULL)
 						{
@@ -3307,7 +3307,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						}
 					}
 
-					bool bStuck = (m_pPlayer->getNumCities()>0); //if we don't have cities we aren't stuck!
+					bool bStuck = true;
 					if(pBestPlot != NULL)
 					{
 						if(MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestPlot, DOMAIN_SEA, 23))
@@ -3460,7 +3460,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 					CvPlot* pLoopPlotSearch = NULL;
 					for (int iI = 0; iI < 3; iI++)
 					{
-						int iRandomDirection = GC.getGame().getRandNum(NUM_DIRECTION_TYPES,"random settler move");
+						int iRandomDirection = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES,"random settler move");
 						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
 						if (pLoopPlotSearch != NULL)
 						{
