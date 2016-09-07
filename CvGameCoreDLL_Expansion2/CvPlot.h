@@ -567,8 +567,11 @@ public:
 	void setTerrainType(TerrainTypes eNewValue, bool bRecalculate = true, bool bRebuildGraphics = true);
 
 	void setFeatureType(FeatureTypes eNewValue, int iVariety = -1);
-
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+	bool IsNaturalWonder(bool orPseudoNatural = false) const;
+#else
 	bool IsNaturalWonder() const;
+#endif
 
 	ResourceTypes getResourceType(TeamTypes eTeam = NO_TEAM) const;
 	ResourceTypes getNonObsoleteResourceType(TeamTypes eTeam = NO_TEAM) const;

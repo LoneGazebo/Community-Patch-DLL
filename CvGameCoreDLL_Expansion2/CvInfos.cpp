@@ -5276,6 +5276,9 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_bNukeImmune(false),
 	m_bRough(false),
 	m_bNaturalWonder(false),
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+	m_bPseudoNaturalWonder(false),
+#endif
 	m_iWorldSoundscapeScriptId(0),
 	m_iEffectProbability(0),
 	m_piYieldChange(NULL),
@@ -5482,10 +5485,24 @@ bool CvFeatureInfo::IsRough() const
 	return m_bRough;
 }
 //------------------------------------------------------------------------------
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+bool CvFeatureInfo::IsNaturalWonder(bool orPseudoNatural) const
+#else
 bool CvFeatureInfo::IsNaturalWonder() const
+#endif
 {
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+	return m_bNaturalWonder || (orPseudoNatural && IsPseudoNaturalWonder());
+#else
 	return m_bNaturalWonder;
+#endif
 }
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+bool CvFeatureInfo::IsPseudoNaturalWonder() const
+{
+	return m_bPseudoNaturalWonder;
+}
+#endif
 //------------------------------------------------------------------------------
 const char* CvFeatureInfo::getArtDefineTag() const
 {
@@ -5665,7 +5682,9 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bNukeImmune = kResults.GetBool("NukeImmune");
 	m_bRough = kResults.GetBool("Rough");
 	m_bNaturalWonder = kResults.GetBool("NaturalWonder");
-
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+	m_bPseudoNaturalWonder = kResults.GetBool("PseudoNaturalWonder");
+#endif
 	m_strEffectType = kResults.GetText("EffectType");
 	m_strEffectTypeTag = kResults.GetText("EffectTypeTag");
 

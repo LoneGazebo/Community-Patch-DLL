@@ -5134,7 +5134,11 @@ int CvLeague::GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield)
 	if (pInfo)
 	{
 		// Natural Wonders
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+		if (pInfo->IsNaturalWonder(true))
+#else
 		if (pInfo->IsNaturalWonder())
+#endif
 		{
 			int iNaturalWonderMod = 0;
 			if (eYield == YIELD_CULTURE)

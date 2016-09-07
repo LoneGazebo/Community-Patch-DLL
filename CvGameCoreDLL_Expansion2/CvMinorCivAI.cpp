@@ -11091,7 +11091,11 @@ CvPlot* CvMinorCivAI::GetTargetPlot(PlayerTypes ePlayer)
 				{
 					continue;
 				}
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+				if(pPlot->IsNaturalWonder(true))
+#else
 				if(pPlot->IsNaturalWonder())
+#endif
 				{
 					iValue += 33;
 				}

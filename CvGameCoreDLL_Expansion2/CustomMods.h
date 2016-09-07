@@ -310,6 +310,9 @@
 // To turn off or on ships firing while in Cities
 #define MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS		 gCustomMods.isSHIPS_FIRE_IN_CITIES_IMPROVEMENTS()
 
+// Ability to add new natural wonder features with graphics
+#define MOD_PSEUDO_NATURAL_WONDER					gCustomMods.isPSEUDO_NATURAL_WONDER()
+
 //Flips open borders to apply in opposite ways- you have to give open borders to gain the tourism bonus
 #define MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS
 
@@ -1363,6 +1366,7 @@ public:
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_RESOLUTIONS); 
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_HURRY);
 	MOD_OPT_DECL(SHIPS_FIRE_IN_CITIES_IMPROVEMENTS);
+	MOD_OPT_DECL(PSEUDO_NATURAL_WONDER);
 	MOD_OPT_DECL(COMMUNITY_PATCH);
 	MOD_OPT_DECL(BALANCE_CORE);
 	MOD_OPT_DECL(BALANCE_CORE_YIELDS);

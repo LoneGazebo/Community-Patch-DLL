@@ -40258,7 +40258,11 @@ void CvPlayer::UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell)
 		for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-			if (pPlot && pPlot->getOwner()==GetID() && pPlot->IsNaturalWonder() )
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+			if (pPlot && pPlot->getOwner()==GetID() && pPlot->IsNaturalWonder(true))
+#else
+			if (pPlot && pPlot->getOwner()==GetID() && pPlot->IsNaturalWonder())
+#endif
 				m_plotsAreaEffectPositiveFromTraits.push_back( iPlotLoop );
 		}
 	}
@@ -40409,7 +40413,11 @@ int CvPlayer::GetNumNaturalWondersInOwnedPlots()
 		}
 
 		CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[ui]);
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+		if (pPlot && pPlot->IsNaturalWonder(true))
+#else
 		if (pPlot && pPlot->IsNaturalWonder())
+#endif
 		{
 			iValue++;
 		}
