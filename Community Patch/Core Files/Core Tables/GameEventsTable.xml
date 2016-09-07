@@ -125,7 +125,8 @@
 		<!-- GameEvents.CityEventCanTake(iPlayer, iCityID, iEvent)-->
 		<!-- GameEvents.EventChoiceCanTake(iPlayer, iChoice)-->
 		<!-- GameEvents.CityEventChoiceCanTake(iPlayer, iCityID, iChoice)-->
-	
+	<!-- Note: the following lua hook fires if a unit is created via the (city)eventchoice_freeunits or (city)eventchoice_freeunitclasses player and city event tables -->
+		<!-- GameEvents.EventUnitCreated(iPlayer, iEventChoice, CvUnit* pUnit)-->
 	
 	<!-- Lua Functions
 		PLAYER EVENTS:
@@ -497,13 +498,13 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="YieldChange" type="integer"/>
 	</Table>
-	<!-- Creates Units in all cities -->
+	<!-- Creates Units in all cities (unless controlled for above) -->
 	<Table name="EventChoice_FreeUnitClasses">
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
 		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
 		<Column name="Quantity" type="integer"/>
 	</Table>
-	<!-- Creates specific unit type in all cities -->
+	<!-- Creates specific unit type in all cities (unless controlled for above) -->
 	<Table name="EventChoice_FreeUnits">
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
 		<Column name="UnitType" type="text" reference="Units(Type)"/>

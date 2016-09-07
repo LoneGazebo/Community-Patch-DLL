@@ -444,8 +444,6 @@ void CvPlayerContracts::EndContract(ContractTypes eContract)
 	if(pContract)
 	{
 		SetActiveContract(eContract, false);
-
-		GC.getGame().GetGameContracts()->EndContract(eContract, m_pPlayer->GetID());
 	}
 }
 
@@ -474,7 +472,7 @@ void CvPlayerContracts::ChangeContractEndTurn(ContractTypes eContract, int iValu
 	CvContract* pContract = GetContract(eContract);
 	if(pContract && iValue != 0)
 	{
-		pContract->m_iContractTurns = iValue;
+		pContract->m_iContractTurns += iValue;
 	}
 }
 

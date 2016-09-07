@@ -557,7 +557,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 		{
 			iEra = 1;
 		}
-		iTurnsPerCircuit = ((m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size() - iEra) * 2) / iRouteSpeed;
+		iTurnsPerCircuit = ((m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size() + iEra) * 2) / iRouteSpeed;
 		if(iTurnsPerCircuit <= 1)
 		{
 			iTurnsPerCircuit = 1;

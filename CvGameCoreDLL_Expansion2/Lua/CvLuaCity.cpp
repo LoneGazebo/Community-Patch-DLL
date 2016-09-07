@@ -3210,7 +3210,9 @@ int CvLuaCity::lGetNumTotalBuildings(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	int iResult = 0;
-	
+	const bool bSkipDummy = luaL_optbool(L, 2, true);
+	const bool bSkipWW = luaL_optbool(L, 3, true);
+	const bool bSkipNW = luaL_optbool(L, 4, true);
 	for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
@@ -3218,6 +3220,15 @@ int CvLuaCity::lGetNumTotalBuildings(lua_State* L)
 
 		if(pkBuildingInfo)
 		{
+			if(bSkipDummy && pkBuildingInfo->IsDummy())
+				continue;
+
+			if(bSkipWW && ::isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
+				continue;
+
+			if(bSkipNW && ::isNationalWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
+				continue;
+
 			iResult += pkCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 		}
 	}

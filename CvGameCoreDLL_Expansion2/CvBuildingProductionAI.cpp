@@ -317,12 +317,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 	if(iNumWar > 0 && pkBuildingInfo->GetDefenseModifier() <= 0)
 	{
-		iBonus -= (iNumWar * 200);
-
 		if(kPlayer.getNumCities() > 1 && m_pCity->GetThreatCriteria() != -1)
 		{
 			//More cities = more threat.
-			int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatCriteria()) * 50;
+			int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatCriteria()) * 250;
 			if(iThreat > 0)
 			{
 				iBonus -= iThreat;
@@ -330,19 +328,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 		if(m_pCity->IsBastion())
 		{
-			iBonus -= 300;
+			iBonus -= (iNumWar * 500);
 		}
-		if(m_pCity->IsBlockadedWaterAndLand())
+		if(m_pCity->IsBlockadedWaterAndLand() || m_pCity->IsBlockaded(true) || m_pCity->IsBlockaded(false))
 		{
-			iBonus -= 600;
-		}
-		else if(m_pCity->IsBlockaded(true))
-		{
-			iBonus -= 400;
-		}
-		else if(m_pCity->IsBlockaded(false))
-		{
-			iBonus -= 400;
+			iBonus -= (iNumWar * 500);
 		}
 	}
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)

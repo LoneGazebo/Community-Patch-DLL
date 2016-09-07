@@ -446,13 +446,20 @@ void CvArmyAI::UpdateCheckpointTurns()
 			CvPlot* pCurrentPlot = GC.getMap().plot(GetX(), GetY());
 			if(pUnit && pCurrentPlot)
 			{
-				//be lenient here, for some ops the muster point may be far away and intermittendly occupied by foreign units ...
-				int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
-				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pCurrentPlot, iFlags, GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
-				if(iTurnsToReachCheckpoint < MAX_INT)
-					SetEstimatedTurn(iI, iTurnsToReachCheckpoint);
+				if(pUnit->plot() == pCurrentPlot)
+				{
+					SetEstimatedTurn(iI, 0);
+				}
 				else
-					SetEstimatedTurn(iI, ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT);
+				{
+					//be lenient here, for some ops the muster point may be far away and intermittendly occupied by foreign units ...
+					int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
+					int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pCurrentPlot, iFlags, GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
+					if(iTurnsToReachCheckpoint < MAX_INT)
+						SetEstimatedTurn(iI, iTurnsToReachCheckpoint);
+					else
+						SetEstimatedTurn(iI, ARMYSLOT_UNKNOWN_TURN_AT_CHECKPOINT);
+				}
 			}
 		}
 	}

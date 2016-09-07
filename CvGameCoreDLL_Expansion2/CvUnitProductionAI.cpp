@@ -559,11 +559,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					if(kPlayer.GetMilitaryAI()->GetWarType() == 2)
 					{
-						iValue *= 6;
+						iValue *= 8;
 					}
 					else
 					{
-						iValue *= 3;
+						iValue *= 4;
 					}
 				}
 				else if(bAlone)
@@ -588,11 +588,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					if(kPlayer.GetMilitaryAI()->GetWarType() == 1)
 					{
-						iValue *= 6;
+						iValue *= 8;
 					}
 					else
 					{
-						iValue *= 3;
+						iValue *= 4;
 					}
 				}
 				else if(bAlone)
@@ -676,21 +676,26 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					iInfluence /= 4;
 				}
 			}
+			bool bAlwaysOne = false;
 			if(kPlayer.GetPlayerTraits()->IsDiplomaticMarriage())
 			{
 				iInfluence *= 5;
+				bAlwaysOne = true;
 			}
 			else if(kPlayer.GetPlayerTraits()->GetCityStateCombatModifier() > 0)
 			{
 				iInfluence *= 5;
+				bAlwaysOne = true;
 			}
 			else if(kPlayer.GetPlayerTraits()->GetCityStateFriendshipModifier() > 0)
 			{
 				iInfluence *= 5;
+				bAlwaysOne = true;
 			}
 			else if(kPlayer.GetPlayerTraits()->GetCityStateBonusModifier() > 0)
 			{
 				iInfluence *= 5;
+				bAlwaysOne = true;
 			}
 			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
@@ -700,9 +705,14 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					if(kPlayer.GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0 || kPlayer.GetPlayerTraits()->GetYieldFromCSFriend(eYield) > 0)
 					{
 						iInfluence *= 5;
+						bAlwaysOne = true;
 						break;
 					}
 				}
+			}
+			if(bAlwaysOne && kPlayer.GetNumUnitsWithUnitAI(UNITAI_MESSENGER, true, true) <= 0)
+			{
+				iInfluence *= 10;
 			}
 			iBonus += iInfluence;
 		}
@@ -1245,9 +1255,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		int iDemand = kPlayer.getNumMilitaryUnits();
 		int iPercent = (iDemand * 100) / iSupply;
-		int iRemainder = (130 - iPercent);
+		int iRemainder = (125 - iPercent);
 
-		//Closer we get to cap over 30%, fewer units we should be making.
+		//Closer we get to cap over 25%, fewer units we should be making.
 		iBonus *= iRemainder;
 		iBonus /= 100;
 	}

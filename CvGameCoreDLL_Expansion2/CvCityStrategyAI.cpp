@@ -5652,6 +5652,10 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		iValue += pkBuildingInfo->GetGlobalCultureRateModifier();
 	}
+    if(kPlayer.GetPlayerTraits()->GetWonderProductionToBuildingDiscount(eBuilding) > 0)
+    {
+        iValue += pCity->getProductionModifier(eBuilding);
+    }
 
 	return iValue;
 }

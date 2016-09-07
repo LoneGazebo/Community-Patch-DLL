@@ -1219,8 +1219,8 @@ enum BattleTypeTypes
 #define GAMEEVENT_EventChoiceCanTake		"EventChoiceCanTake", "ii"
 #define GAMEEVENT_CityEventChoiceCanTake    "CityEventChoiceCanTake", "iii"
 #define GAMEEVENT_EventCanTake				"EventCanTake", "ii"
-#define GAMEEVENT_CityEventCanTake			 "CityEventCanTake", "iii"
-
+#define GAMEEVENT_CityEventCanTake			"CityEventCanTake", "iii"
+#define GAMEEVENT_EventUnitCreated			"EventUnitCreated", "iii"
 
 // Serialization wrappers
 #define MOD_SERIALIZE
