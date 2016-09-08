@@ -308,7 +308,7 @@ void CvPlayerAI::AI_unitUpdate()
 }
 
 #if defined(MOD_BALANCE_CORE)
-void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift)
+void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift, bool bAllowRaze)
 #else
 void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 #endif
@@ -388,7 +388,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	}
 
 	// Do we want to burn this city down?
-	if(canRaze(pCity))
+	if (canRaze(pCity) && bAllowRaze)
 	{
 		// Burn the city if the empire is unhappy - keeping the city will only make things worse or if map hint dictates
 		// Huns will burn down everything possible once they have a core of a few cities (was 3, but this put Attila out of the running long term as a conqueror)
@@ -407,15 +407,15 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 		if(IsEmpireUnhappy() && !pCity->HasAnyWonder())
 		{
 			MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(pCity->getOriginalOwner());
-			if(eOpinion <= MAJOR_CIV_OPINION_ENEMY)
+			if (eOpinion <= MAJOR_CIV_OPINION_ENEMY)
 			{
 				pCity->doTask(TASK_RAZE);
 				return;
 			}
 
-			if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOldOwner).getTeam()))
+			if (GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOldOwner).getTeam()))
 			{
-				if(GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
+				if (GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
 				{
 					pCity->doTask(TASK_RAZE);
 					return;
@@ -690,8 +690,8 @@ void CvPlayerAI::AI_considerAnnex()
 {
 	AI_PERF("AI-perf.csv", "AI_ considerAnnex");
 
-	// if the empire is unhappy, don't consider annexing
-	if (IsEmpireUnhappy())
+	// if the empire is very unhappy, don't consider annexing
+	if (IsEmpireVeryUnhappy())
 	{
 		return;
 	}
@@ -723,19 +723,15 @@ void CvPlayerAI::AI_considerAnnex()
 	for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 	{
 		//simple check to stop razing "good" cities
-		if (pCity->IsRazing() && pCity->HasAnyWonder())
-		{
+		if (pCity->IsRazing() && pCity->HasAnyWonder() && !IsEmpireVeryUnhappy())
 			unraze(pCity);
-			return; //one annexation per turn is enough
-		}
-#if defined(MOD_BALANCE_CORE)
+
 		//Original City and puppeted? Stop!
 		if(pCity->getOriginalOwner() == GetID() && pCity->IsPuppet())
 		{
 			pCity->DoAnnex();
 			return;
 		}
-#endif
 
 		CityAndProduction kEval;
 		kEval.pCity = pCity;

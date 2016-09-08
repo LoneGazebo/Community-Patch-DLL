@@ -2883,6 +2883,19 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	}
 
 #if defined(MOD_BALANCE_CORE)
+	// Check if we want to keep this city - compare yields with our capital
+	bool bAllowRaze = true;
+	CvCity* pCapital = getCapitalCity();
+	if (pCapital)
+	{
+		int iGoodCategories = 0;
+		for (int i = 0; i < 6; i++)
+			if (pOldCity->getYieldRateTimes100((YieldTypes)i, true) * 2 > pCapital->getYieldRateTimes100((YieldTypes)i, true))
+				iGoodCategories++;
+
+		bAllowRaze = (iGoodCategories < 3);
+	}
+
 	// Remove Corporation from this city if acquired to another player by any means
 	if (pOldCity->getOwner() != NO_PLAYER && pOldCity->getOwner() != GetID())
 	{
@@ -4190,7 +4203,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if(!isHuman())
 			{
 #if defined(MOD_BALANCE_CORE)
-				AI_conquerCity(pNewCity, eOldOwner, bGift); // could delete the pointer...
+				AI_conquerCity(pNewCity, eOldOwner, bGift, bAllowRaze); // could delete the pointer...
 #else
 				AI_conquerCity(pNewCity, eOldOwner); // could delete the pointer...
 #endif

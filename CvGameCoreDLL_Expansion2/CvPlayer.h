@@ -2514,7 +2514,7 @@ public:
 	virtual void AI_doTurnUnitsPost() = 0;
 	virtual void AI_unitUpdate() = 0;
 #if defined(MOD_BALANCE_CORE)
-	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift) = 0;
+	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift, bool bAllowRaze) = 0;
 #else
 	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner) = 0;
 #endif
