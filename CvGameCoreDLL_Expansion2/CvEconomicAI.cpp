@@ -3185,7 +3185,7 @@ void CvEconomicAI::UpdateExplorePlots()
 				m_vPlotsToExploreSea.push_back( SPlotWithScore(pPlot, iScore) );
 
 				// close coast is also interesting for embarked scouting
-				if (pPlot->isShallowWater() && m_pPlayer->GetCityDistance(pPlot)<15 )
+				if (pPlot->isShallowWater() && m_pPlayer->GetCityDistanceInTurns(pPlot)<8 )
 					m_vPlotsToExploreLand.push_back( SPlotWithScore(pPlot, iScore) );
 			}
 		}

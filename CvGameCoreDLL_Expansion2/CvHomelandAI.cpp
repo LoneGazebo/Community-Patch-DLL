@@ -285,7 +285,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 			iRating /= 2;
 
 		//try to explore close to our cities first to find potential settle spots
-		int iCityDistance = m_pPlayer->GetCityDistance(pEvalPlot);
+		int iCityDistance = m_pPlayer->GetCityDistanceInTurns(pEvalPlot);
 		iRating = max(1, iRating-iCityDistance); 
 
 		//reverse the score calculation below to get an upper bound on the distance
@@ -814,7 +814,7 @@ void CvHomelandAI::FindHomelandTargets()
 			}
 			// ... possible sentry point?
 			else if(pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isWater() && 
-				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && m_pPlayer->GetCityDistance(pLoopPlot)>1)
+				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && m_pPlayer->GetCityDistanceInTurns(pLoopPlot)>1)
 			{
 				ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 				ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
@@ -873,7 +873,7 @@ void CvHomelandAI::FindHomelandTargets()
 			else if(pLoopPlot->isWater() && 
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 			{
-				int iDistance = m_pPlayer->GetCityDistance(pLoopPlot);
+				int iDistance = m_pPlayer->GetCityDistanceInTurns(pLoopPlot);
 				
 				if(iDistance > 3)
 					continue;

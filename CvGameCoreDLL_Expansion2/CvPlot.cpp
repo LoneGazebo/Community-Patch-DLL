@@ -10413,8 +10413,8 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvPlot* pRefPlot)
 		return 0;
 
 	//give a bonus to fertile tiles that are close to our own territory
-	int iDistToOwnCities = pPlayer->GetCityDistance(this);
-	int iDistRef = pPlayer->GetCityDistance(pRefPlot);
+	int iDistToOwnCities = pPlayer->GetCityDistanceInTurns(this);
+	int iDistRef = pPlayer->GetCityDistanceInTurns(pRefPlot);
 	
 	if(!pPlayer->GetID() == getOwner())
 	{

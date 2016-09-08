@@ -2423,7 +2423,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		iItemValue /= 100;
 	}
 
-	//note: cannot use GetCityDistance() here, as the city's distance to itself would be zero
+	//note: cannot use GetCityDistanceInTurns() here, as the city's distance to itself would be zero
 	int iBuyerDistance = INT_MAX;
 	int iLoop = 0;
 	for (CvCity* pRefCity = buyingPlayer.firstCity(&iLoop); pRefCity != NULL; pRefCity = buyingPlayer.nextCity(&iLoop))

@@ -34999,7 +34999,7 @@ void CvPlayer::SetClosestCityMapDirty()
 	GC.getGame().SetClosestCityMapDirty();
 }
 
-int CvPlayer::GetCityDistance( const CvPlot* pPlot ) const
+int CvPlayer::GetCityDistanceInTurns( const CvPlot* pPlot ) const
 {
 	if (pPlot && m_pCityDistance)
 		return m_pCityDistance->GetClosestFeatureDistance( *pPlot );
@@ -40732,7 +40732,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 		//take into account distance from existing cities
 		int iUnitDistance = pUnit ? plotDistance(pUnit->getX(),pUnit->getY(),pPlot->getX(),pPlot->getY()) : INT_MAX;
-		int iRelevantDistance = min(iUnitDistance,GetCityDistance(pPlot));
+		int iRelevantDistance = min(iUnitDistance,GetCityDistanceInTurns(pPlot));
 		int iScale = MapToPercent( iRelevantDistance, iEvalDistance, GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() );
 
 		//on a new continent we want to settle along the coast
@@ -40868,7 +40868,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		//if it's too far from our existing cities, it's dangerous
 		if (!isDangerous && !bWantOffshore)
 		{
-			int iDistanceToCity = GetCityDistance(vSettlePlots[i].pPlot);
+			int iDistanceToCity = GetCityDistanceInTurns(vSettlePlots[i].pPlot);
 			//also consider settler plot here in case of re-targeting an operation
 			if (iDistanceToCity>4 && iDistanceToSettler>1)
 				isDangerous = true;
@@ -42967,7 +42967,7 @@ void CvPlayer::updatePlotFoundValues(bool bOverrideRevealedCheck)
 				pLoopArea->setTotalFoundValue(newValue);
 				
 				//track the distance from our existing cities
-				int iCityDistance = GetCityDistance(pPlot);
+				int iCityDistance = GetCityDistanceInTurns(pPlot);
 				if (minDistancePerArea.find(pLoopArea->GetID())==minDistancePerArea.end())
 					minDistancePerArea[pLoopArea->GetID()] = iCityDistance;
 				else if (iCityDistance < minDistancePerArea[pLoopArea->GetID()])

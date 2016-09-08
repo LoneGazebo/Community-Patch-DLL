@@ -13133,7 +13133,7 @@ void CvGame::SetClosestCityMapDirty()
 	m_globalCityDistance.SetDirty();
 }
 
-int CvGame::GetClosestCityDistance( const CvPlot* pPlot )
+int CvGame::GetClosestCityDistanceInTurns( const CvPlot* pPlot )
 {
 	if (!pPlot)
 		return INT_MAX;

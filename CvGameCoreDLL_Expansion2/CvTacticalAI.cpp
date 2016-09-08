@@ -6389,8 +6389,8 @@ bool IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandidate, bool bWater)
 	if (pCandidate->getNumUnits()>0)
 		return false;
 
-	int iCityDistance = pPlayer->GetCityDistance(pCandidate);
-	if (iCityDistance<4 || iCityDistance>6)
+	int iCityDistance = pPlayer->GetCityDistanceInTurns(pCandidate);
+	if (iCityDistance<2 || iCityDistance>3)
 		return false;
 
 	if (pCandidate->getRouteType()!=NO_ROUTE)
@@ -9459,7 +9459,7 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 #endif
 
 			//magic knowledge - gravitate towards cities
-			int iCityDistance = GC.getGame().GetClosestCityDistance(pPlot);
+			int iCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pPlot);
 			if (iCityDistance<10)
 				iValue += (10-iCityDistance);
 
@@ -11699,7 +11699,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
 		int iDanger = kPlayer.GetPlotDanger(*pPlot, pUnit);
 
-		int iCityDistance = kPlayer.GetCityDistance(pPlot);
+		int iCityDistance = kPlayer.GetCityDistanceInTurns(pPlot);
 		bool bIsZeroDanger = (iDanger <= 0);
 		bool bIsInCity = pPlot->isFriendlyCity(*pUnit, false);
 		bool bIsInCover = (pPlot->getNumDefenders(pUnit->getOwner()) > 0) && !pUnit->IsCanDefend(pPlot); // only move to cover if I'm defenseless here
@@ -11717,7 +11717,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			iDanger++;
 
 		//use city distance as tiebreaker
-		iDanger = iDanger*10 + kPlayer.GetCityDistance(pPlot);
+		iDanger = iDanger * 10 + iCityDistance;
 
 		//discourage water tiles for land units
 		//note that zero danger status has already been established, this is only for sorting now
@@ -11824,7 +11824,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWi
 			if ( GET_PLAYER( pUnit->getOwner() ).GetPlotDanger(*pPlot,pUnit) > 0)
 				continue;
 
-			int iScore = pUnit->healRate(pPlot) - GET_PLAYER(pUnit->getOwner()).GetCityDistance(pPlot);
+			int iScore = pUnit->healRate(pPlot) - GET_PLAYER(pUnit->getOwner()).GetCityDistanceInTurns(pPlot);
 			vCandidates.push_back( SPlotWithScore(pPlot, iScore) );
 		}
 

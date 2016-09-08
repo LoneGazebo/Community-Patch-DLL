@@ -677,7 +677,8 @@ public:
 #endif
 
 	void SetClosestCityMapDirty();
-	int GetClosestCityDistance( const CvPlot* pPlot );
+	//assuming a typical unit with baseMoves==2
+	int GetClosestCityDistanceInTurns( const CvPlot* pPlot );
 	CvCity* GetClosestCity( const CvPlot* pPlot );
 
 	//------------------------------------------------------------

@@ -381,7 +381,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	//use a slightly negative base value to discourage settling in bad lands
 	int iDefaultPlotValue = -100;
 
-	int iBorderlandRange = 6;
+	//this is in turns for a typical unit
+	int iBorderlandRange = 3;
 	int iCapitalArea = NULL;
 
 	bool bIsAlmostCoast = false;
@@ -432,13 +433,13 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		int iRingModifier = m_iRingModifier[iDistance];
 
 		//not only our cities, also other player's cities!
-		int iExistingCityDistance = GC.getGame().GetClosestCityDistance(pLoopPlot);
+		int iExistingCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pLoopPlot);
 
 		//count the tile only if the city will be able to work it
-		if ( !pLoopPlot->isValidMovePlot(pPlayer->GetID()) || pLoopPlot->getWorkingCity()!=NULL || iExistingCityDistance<=2 ) 
+		if ( !pLoopPlot->isValidMovePlot(pPlayer->GetID()) || pLoopPlot->getWorkingCity()!=NULL || iExistingCityDistance<2 ) 
 			iRingModifier = 0;
 
-		if (iExistingCityDistance==3)
+		if (iExistingCityDistance==2)
 			//this plot will likely be contested between the two cities, reduce its value
 			iRingModifier /= 2;
 
@@ -767,7 +768,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	if (pPlayer && !pPlayer->isHuman())
 	{
 		//Check for strategic landgrab
-		int iOwnCityDistance = pPlayer->GetCityDistance(pPlot);
+		int iOwnCityDistance = pPlayer->GetCityDistanceInTurns(pPlot);
 		int iOtherCityDistance = INT_MAX;
 
 		//check if the closest city is our or somebody else's
@@ -775,7 +776,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if( pClosestCity && pClosestCity->getOwner()!=pPlayer->GetID() )
 		{
 			//this includes minors
-			iOtherCityDistance = GC.getGame().GetClosestCityDistance(pPlot);
+			iOtherCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pPlot);
 
 			PlayerTypes eOtherPlayer = (PlayerTypes) pClosestCity->getOwner();
 			PlayerProximityTypes eProximity = GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID());
@@ -801,12 +802,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		{
 			CvPlayer& kNeighbor = GET_PLAYER((PlayerTypes)i);
 			if (kNeighbor.isAlive() && i!=pPlayer->GetID())
-				vNeighboringMajors.push_back( std::make_pair(kNeighbor.GetCityDistance(pPlot),i) );
+				vNeighboringMajors.push_back( std::make_pair(kNeighbor.GetCityDistanceInTurns(pPlot),i) );
 		}
 		//sort ascending
 		std::sort(vNeighboringMajors.begin(),vNeighboringMajors.end());
 		//if the neighbor is much closer then we are
-		if (!vNeighboringMajors.empty() && vNeighboringMajors.front().first < iOwnCityDistance-2)
+		if (!vNeighboringMajors.empty() && vNeighboringMajors.front().first < iOwnCityDistance-1)
 		{
 			int iBoldness = pPlayer->GetDiplomacyAI()->GetBoldness();
 			float fThreshold = 1.5f - iBoldness*0.1f;
