@@ -5134,7 +5134,11 @@ int CvLeague::GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield)
 	if (pInfo)
 	{
 		// Natural Wonders
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+		if (pInfo->IsNaturalWonder(true))
+#else
 		if (pInfo->IsNaturalWonder())
+#endif
 		{
 			int iNaturalWonderMod = 0;
 			if (eYield == YIELD_CULTURE)
@@ -7985,7 +7989,7 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 void CvLeague::UpdateName()
 {
 	// Roll for a new name type
-	int iRoll = GC.getGame().getRandNum(GC.getNumLeagueNameInfos(), "Rolling for league name variation");
+	int iRoll = GC.getGame().getJonRandNum(GC.getNumLeagueNameInfos(), "Rolling for league name variation");
 	CvLeagueNameEntry* pInfo = GC.getLeagueNameInfo((LeagueNameTypes)iRoll);
 	if (pInfo)
 	{
@@ -10530,7 +10534,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 		CvWeightedVector<VoteConsideration, 4, false> vVotesAllocated;
 		for (int i = 0; i < iVotes; i++)
 		{
-			RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
+			RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 			VoteConsideration chosen = vConsiderations.ChooseByWeight(&fcn, "Choosing a vote to allocate");
 			if (chosen.bEnact)
 			{
@@ -13339,7 +13343,7 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 				vConsiderations.SetWeight(i, 1);
 			}
 		}
-		RandomNumberDelegate fn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
+		RandomNumberDelegate fn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 		ProposalConsideration proposal = vConsiderations.ChooseFromTopChoices(MIN(vConsiderations.size(), LeagueHelpers::AI_CHOOSE_PROPOSAL_FROM_TOP), &fn, "Choosing proposal from top choices");
 		if (proposal.bEnact)
 		{

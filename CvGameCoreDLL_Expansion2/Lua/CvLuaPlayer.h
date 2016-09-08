@@ -1422,6 +1422,10 @@ protected:
 	static int lSetEventChoiceCooldown  (lua_State* L);
 	static int lIsEventChoiceValid (lua_State* L);
 	static int lGetEventHappiness (lua_State* L);
+	static int lGetActivePlayerEventChoices(lua_State* L);
+	static int lGetActiveCityEventChoices(lua_State* L);
+	static int lGetRecentPlayerEventChoices(lua_State* L);
+	static int lGetRecentCityEventChoices(lua_State* L);
 #endif
 };
 

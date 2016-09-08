@@ -80,7 +80,8 @@
 		<Column name="FlavorType" type="text" reference="Flavors(Type)"/>
 		<Column name="Flavor" type="integer"/>
 	</Table>
-	<!--<Contracts>
+	<!--
+	<Contracts>
 		<Row>
 			<ID>0</ID>
 			<Type>CONTRACT_KNIGHTS_OF_GAZEBO</Type>

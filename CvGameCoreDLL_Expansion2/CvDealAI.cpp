@@ -497,7 +497,7 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 				// IMPORTANT NOTE: This APPEARS to be very bad for multiplayer, but the only changes made to the game state are the fact that the human
 				// made a demand, and if the deal went through. These are both sent over the network later in this function.
 
-				int iAsyncRand = GC.getGame().getRandNum(100, "Deal AI: ASYNC RAND call to determine if AI will give into a human demand.");
+				int iAsyncRand = GC.getGame().getAsyncRandNum(100, "Deal AI: ASYNC RAND call to determine if AI will give into a human demand.");
 
 				// Are they going to say no matter what?
 				if(iAsyncRand > iOddsOfGivingIn)
@@ -3520,7 +3520,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 			return INT_MAX;
 		}
 		//Can they make peace?
-		if(!GET_PLAYER(eWithPlayer).isMinorCiv() && GET_TEAM(eWithTeam).GetNumTurnsLockedIntoWar(GET_PLAYER(eOtherPlayer).getTeam()) > 0)
+		if (!GET_PLAYER(eWithPlayer).isMinorCiv() && !GET_TEAM(eWithTeam).canChangeWarPeace(GET_PLAYER(eOtherPlayer).getTeam()))
 		{
 			return INT_MAX;
 		}
@@ -3533,7 +3533,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 			return INT_MAX;
 		}
 		//Can they make peace?
-		if(!GET_PLAYER(eWithPlayer).isMinorCiv() && GET_TEAM(eWithTeam).GetNumTurnsLockedIntoWar(GetPlayer()->getTeam()) > 0)
+		if (!GET_PLAYER(eWithPlayer).isMinorCiv() && !GET_TEAM(eWithTeam).canChangeWarPeace(GetPlayer()->getTeam()))
 		{
 			return INT_MAX;
 		}
@@ -3642,30 +3642,30 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		//Their war score with the player
 		int iTheirWarScore = GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetWarScore(eWithPlayer);
 
-		iItemValue += (iTheirWarScore * 15);
+		iItemValue += (iTheirWarScore * 5);
 
-		// Add 40 gold per era
-		int iExtraCost = eOurEra * 40;
+		// Add 25 gold per era
+		int iExtraCost = eOurEra * 25;
 		iItemValue += iExtraCost;
-
-		MajorCivApproachTypes eWarMajorCivApproach = pDiploAI->GetMajorCivApproach(eWithPlayer, true);
 
 		if(!GET_PLAYER(eWithPlayer).isMinorCiv())
 		{
+			MajorCivApproachTypes eWarMajorCivApproach = pDiploAI->GetMajorCivApproach(eWithPlayer, true);
+
 			// Modify for our feelings towards the player we're at war with
 			if(eWarMajorCivApproach == MAJOR_CIV_APPROACH_FRIENDLY)
 			{
-				iItemValue *= 300;
+				iItemValue *= 200;
 				iItemValue /= 100;
 			}
 			else if(eWarMajorCivApproach == MAJOR_CIV_APPROACH_NEUTRAL)
 			{
-				iItemValue *= 75;
+				iItemValue *= 50;
 				iItemValue /= 100;
 			}
 			else if(eWarMajorCivApproach == MAJOR_CIV_APPROACH_AFRAID)
 			{
-				iItemValue *= 125;
+				iItemValue *= 75;
 				iItemValue /= 100;
 			}
 			else
@@ -3673,7 +3673,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 				return INT_MAX;
 			}
 		}
-		if(GET_PLAYER(eWithPlayer).isMinorCiv())
+		else if(GET_PLAYER(eWithPlayer).isMinorCiv())
 		{
 			//Way less value.
 			iItemValue /= 50;
@@ -3705,8 +3705,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		}
 		else if(eAskingMajorCivApproach == MAJOR_CIV_APPROACH_NEUTRAL)
 		{
-			iItemValue *= 125;
-			iItemValue /= 100;
+			return INT_MAX;
 		}
 		else if(eAskingMajorCivApproach == MAJOR_CIV_APPROACH_AFRAID)
 		{
@@ -3715,10 +3714,14 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		}
 		else if(eAskingMajorCivApproach == MAJOR_CIV_APPROACH_GUARDED)
 		{
-			iItemValue *= 75;
+			return INT_MAX;
+		}
+		else if (eAskingMajorCivApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
+		{
+			iItemValue *= 125;
 			iItemValue /= 100;
 		}
-		else if(eAskingMajorCivApproach <= MAJOR_CIV_APPROACH_DECEPTIVE)
+		else if (eAskingMajorCivApproach <= MAJOR_CIV_APPROACH_HOSTILE)
 		{
 			return INT_MAX;
 		}
@@ -7377,7 +7380,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 		// Any extras?
 		if(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false) > 3 && GetPlayer()->getNumResourceAvailable(eResource, true) <= 0)
 		{
-			iRand = GC.getGame().getRandNum(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false), "DealAI: Strat to ask for");
+			iRand = GC.getGame().getJonRandNum(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false), "DealAI: Strat to ask for");
 			iRand /= 2;
 			if(iRand <= 0)
 			{
@@ -8286,7 +8289,7 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 		// IMPORTANT NOTE: This APPEARS to be very bad for multiplayer, but the only changes made to the game state are the fact that the human
 		// made a demand, and if the deal went through. These are both sent over the network later in this function.
 
-		int iAsyncRand = GC.getGame().getRandNum(100, "Deal AI: ASYNC RAND call to determine if AI will give into a human demand.");
+		int iAsyncRand = GC.getGame().getAsyncRandNum(100, "Deal AI: ASYNC RAND call to determine if AI will give into a human demand.");
 
 		// Are they going to say no matter what?
 		if(iAsyncRand > iOddsOfGivingIn)
@@ -8497,7 +8500,11 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 		iPlotValue /= 100;
 
 		// Is there a Natural Wonder here? 500% of plot.
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+		if(pPlot->IsNaturalWonder(true))
+#else
 		if(pPlot->IsNaturalWonder())
+#endif
 		{
 			iPlotValue *= 500;
 			iPlotValue /= 100;

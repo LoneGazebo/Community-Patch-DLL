@@ -1430,7 +1430,6 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 
 	CvPlayerAI& kUnitOwner = GET_PLAYER(hUnit->getOwner());
 
-
 	if(!kUnitOwner.isSimultaneousTurns())
 	{
 		if(!kUnitOwner.isTurnActive())

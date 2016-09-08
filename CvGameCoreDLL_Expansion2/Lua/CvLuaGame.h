@@ -496,6 +496,8 @@ protected:
 	static int lIsContractAvailable(lua_State* L);
 	static int lSetContractUnits(lua_State* L);
 	static int lGetContractUnits(lua_State* L);
+	static int lGetInactiveContractUnitList(lua_State* L);
+	static int lGetActiveContractUnitList(lua_State* L);
 #endif
 };
 

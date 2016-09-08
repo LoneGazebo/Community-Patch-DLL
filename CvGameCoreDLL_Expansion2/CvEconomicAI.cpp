@@ -2739,7 +2739,7 @@ void CvEconomicAI::DisbandUselessSettlers()
 	}
 
 	//Don't disband during the early game.
-	if(iNumCities <= 4 || (GC.getGame().getGameTurn() <= 150))
+	if(iNumCities <= 4 && (GC.getGame().getGameTurn() <= 150))
 	{
 		return;
 	}

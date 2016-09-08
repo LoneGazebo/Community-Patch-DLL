@@ -769,7 +769,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 	while(iCount < iTimeout)
 	{
 		iCount++;
-		pTestPlot = plotCheckInvalid(GC.getGame().getRandNum(getGridWidth(), "Rand Plot Width"), GC.getGame().getRandNum(getGridHeight(), "Rand Plot Height"));
+		pTestPlot = plotCheckInvalid(GC.getGame().getJonRandNum(getGridWidth(), "Rand Plot Width"), GC.getGame().getJonRandNum(getGridHeight(), "Rand Plot Height"));
 
 		CvAssertMsg(pTestPlot != NULL, "TestPlot is not assigned a valid value");
 
@@ -1241,7 +1241,7 @@ int CvMap::getRandomResourceQuantity(ResourceTypes eIndex)
 
 	CvAssertMsg(iNumRands > 0, "Resource should have at least 1 Quantity type to choose from")
 
-	int iRand = GC.getGame().getRandNum(iNumRands, "Picking from random Resource Quantity types");
+	int iRand = GC.getGame().getJonRandNum(iNumRands, "Picking from random Resource Quantity types");
 
 	return thisResourceInfo->getResourceQuantityType(iRand);
 }
@@ -1652,7 +1652,11 @@ void CvMap::DoPlaceNaturalWonders()
 	{
 		eFeature = (FeatureTypes) iFeatureLoop;
 		CvFeatureInfo* feature = GC.getFeatureInfo(eFeature);
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+		if(feature && feature->IsNaturalWonder(true))
+#else
 		if(feature && feature->IsNaturalWonder())
+#endif
 		{
 			eNWFeature = eFeature;
 
@@ -1750,7 +1754,7 @@ void CvMap::DoPlaceNaturalWonders()
 	{
 		iCount++;
 
-		iPlotRand = GC.getGame().getRandNum(iNumMapPlots, "Randomly Placing Natural Wonders");
+		iPlotRand = GC.getGame().getJonRandNum(iNumMapPlots, "Randomly Placing Natural Wonders");
 
 		pRandPlot = plotByIndex(iPlotRand);
 
@@ -1847,7 +1851,11 @@ void CvMap::DoPlaceNaturalWonders()
 
 				if(pLoopPlot != NULL)
 				{
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+					if(pLoopPlot->IsNaturalWonder(true))
+#else
 					if(pLoopPlot->IsNaturalWonder())
+#endif
 					{
 						// Found a NW too close
 						bValid = false;

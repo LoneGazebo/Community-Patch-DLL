@@ -704,7 +704,7 @@ void CvTacticalAnalysisMap::AddToDominanceZones(int iIndex, CvTacticalAnalysisCe
 		if (pCity && eOwnerPlayer!=pCity->getOwner())
 			pCity = NULL;
 	}
-	else //look at the city
+	else if (pCity) //look at the city
 	{
 		eOwnerTeam = pCity->getTeam();
 		eOwnerPlayer = pCity->getOwner();

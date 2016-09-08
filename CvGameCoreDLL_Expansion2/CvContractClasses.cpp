@@ -729,8 +729,7 @@ void CvGameContracts::DoTurn()
 
 void CvGameContracts::DoUpdateContracts()
 {
-	GAMEEVENTINVOKE_HOOK(GAMEEVENT_ContractsRefreshed);
-
+	
 	//This is expensive, so do it sparingly!
 	ContractList::iterator it;
 	for(it = m_InactiveContracts.begin(); it != m_InactiveContracts.end(); it++)
@@ -764,6 +763,8 @@ void CvGameContracts::DoUpdateContracts()
 			}
 		}
 	}
+
+	GAMEEVENTINVOKE_HOOK(GAMEEVENT_ContractsRefreshed);
 }
 
 // Get this contract, or NULL if it does not exist

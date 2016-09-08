@@ -381,7 +381,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if(kPlayer.getNumResourceAvailable((ResourceTypes)pkUnitEntry->GetResourceType(), false) > 0)
 			{
-				iBonus += 25;
+				iBonus += 50 * kPlayer.getNumResourceAvailable((ResourceTypes)pkUnitEntry->GetResourceType(), false);
 			}
 			else
 			{
@@ -414,7 +414,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						}
 						if(pkUnitEntry->GetResourceQuantityRequirement(iResourceLoop) > 0)
 						{
-							iBonus += (kPlayer.getNumResourceAvailable(eResourceLoop, false));
+							iBonus += (25 * kPlayer.getNumResourceAvailable(eResourceLoop, false));
 						}
 					}
 				}
@@ -422,13 +422,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 
 		//Let's look at what this can build (if a combat unit).
-		for (int i = 0; i < GC.getNumBuildInfos(); i++) 
+		if (bCombat)
 		{
-			CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
-					
-			if (pkBuild && (pkUnitEntry->GetBuilds((BuildTypes)i) || kPlayer.GetPlayerTraits()->HasUnitClassCanBuild(i, pkUnitEntry->GetUnitClassType())))
+			for (int i = 0; i < GC.getNumBuildInfos(); i++)
 			{
-				if(bCombat)
+				CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
+					
+				if (pkBuild && (pkUnitEntry->GetBuilds((BuildTypes)i) || kPlayer.GetPlayerTraits()->HasUnitClassCanBuild(i, pkUnitEntry->GetUnitClassType())))
 				{
 					iBonus += 10;
 				}
@@ -445,7 +445,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitEntry->GetUnitClassType());
 			if(m_pCity->IsUnitInvestment(eUnitClass))
 			{
-				iBonus += 100;
+				iBonus += 500;
 			}
 		}
 #endif
@@ -615,7 +615,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			else
 			{
-				iBonus += (10 * iAircraft);
+				iBonus += (5 * iAircraft);
 			}
 		}
 
@@ -862,7 +862,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return 0;
 		}
 		//Or if we're small.
-		if(m_pCity->getPopulation() <= 5)
+		if(m_pCity->getPopulation() <= 4)
 		{
 			return 0;
 		}
@@ -876,7 +876,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		//Already have a settler out? Ignore.
 		int iNumSettlers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
-		if(iNumSettlers > 1)
+		if(iNumSettlers > 0)
 		{
 			return 0;
 		}
@@ -1134,22 +1134,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			//Let's try to build our units in our best cities only.
 			if(m_pCity == kPlayer.GetBestMilitaryCity((UnitCombatTypes)pkUnitEntry->GetUnitCombatType()))
 			{
-				iBonus += 25;
-			}
-			//Discourage bad cities.
-			else
-			{
-				iBonus -= 25;
+				iBonus += 100;
 			}
 			//Let's try to build our units in our best cities only. More cities we have, the more this matters.
 			if(m_pCity == kPlayer.GetBestMilitaryCity(NO_UNITCOMBAT, (DomainTypes)pkUnitEntry->GetDomainType()))
 			{
-				iBonus += 25;
-			}
-			//Discourage bad cities.
-			else
-			{
-				iBonus -= 25;
+				iBonus += 100;
 			}
 		}
 		//Promotion Bonus
@@ -1163,21 +1153,21 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				{
 					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
 					{
-						iBonus += 15;
+						iBonus += 30;
 					}
 				}
 				if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitClass(iI, pkUnitEntry->GetUnitClassType()))
 				{
 					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
 					{
-						iBonus += 15;
+						iBonus += 30;
 					}
 				}
 				if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitCombat(iI, pkUnitEntry->GetUnitCombatType()))
 				{
 					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
 					{
-						iBonus += 15;
+						iBonus += 30;
 					}
 				}
 			}
@@ -1194,22 +1184,18 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if(pArmy != NULL && pArmy->GetGoalPlot() != NULL)
 			{
-				iBonus += 100;
+				iBonus += 250;
 			}
 			else if(bForOperation)
 			{
-				iBonus += 50;
+				iBonus += 250;
 			}
-			else
+			else if (eDomain == DOMAIN_LAND)
 			{
 				//////Let's get the military unit AI type we have the least of and boost the lowest type.
 				if(kPlayer.GetArmyDiversity() == (int)pkUnitEntry->GetDefaultUnitAIType())
 				{
-					iBonus += 50;
-				}
-				else
-				{
-					iBonus -= 50;
+					iBonus += 200;
 				}
 			}
 		}

@@ -711,7 +711,7 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 		break;
 
 	default:
-		eFacing = (DirectionTypes)GC.getGame().getRandNum(NUM_DIRECTION_TYPES, "Picking Random Unit Direction");
+		eFacing = (DirectionTypes)GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES, "Picking Random Unit Direction");
 	}
 
 	if(ePlayer != NO_PLAYER)
@@ -1355,7 +1355,11 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 		else
 		{
 			CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeatureType);
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+			if(pkFeatureInfo != NULL && pkFeatureInfo->IsNaturalWonder(true))
+#else
 			if(pkFeatureInfo != NULL && pkFeatureInfo->IsNaturalWonder())
+#endif
 			{
 				kPlotData.SetFeatureType(CvWorldBuilderMap::PlotMapData::InvalidFeature);
 				kPlotData.SetNaturalWonderType((byte)eFeatureType);

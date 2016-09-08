@@ -1424,6 +1424,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetEventChoiceCooldown);
 	Method(IsEventChoiceValid);
 	Method(GetEventHappiness);
+	Method(GetActivePlayerEventChoices);
+	Method(GetActiveCityEventChoices);
+	Method(GetRecentPlayerEventChoices);
+	Method(GetRecentCityEventChoices);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -14624,6 +14628,314 @@ int CvLuaPlayer::lGetEventHappiness(lua_State* L)
 		iHappiness += pLoopCity->GetEventHappiness();
 	}
 	lua_pushinteger(L, iHappiness);
+	return 1;
+}
+
+int CvLuaPlayer::lGetActivePlayerEventChoices(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	
+	lua_createtable(L, 0, 0);
+	int idx = 1;
+
+	for (int iI = 0; iI < GC.getNumEventChoiceInfos(); iI++)
+	{
+		EventChoiceTypes eEventChoice = (EventChoiceTypes)iI;
+		if (eEventChoice == NO_EVENT_CHOICE)
+			continue;
+
+		CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
+		if (pkEventChoiceInfo != NULL)
+		{
+			if (pkPlayer->IsEventChoiceActive(eEventChoice))
+			{
+				EventTypes eParentEvent = NO_EVENT;
+				bool bNotChoice = false;
+				for (int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
+				{
+					EventTypes eEvent = (EventTypes)iLoop;
+					if (eEvent != NO_EVENT)
+					{
+						if (pkEventChoiceInfo->isParentEvent(eEvent))
+						{
+							eParentEvent = eEvent;
+							CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+							if (pkEventInfo != NULL)
+							{
+								if (pkEventInfo->getNumChoices() == 1)
+								{
+									bNotChoice = true;
+								}
+								break;
+							}
+						}
+					}
+				}
+				if (bNotChoice)
+					continue;			
+
+				int iDuration = pkPlayer->GetEventChoiceDuration(eEventChoice);
+				if (!pkEventChoiceInfo->Expires())
+				{ 
+					iDuration = -1;
+				}
+
+				lua_createtable(L, 0, 0);
+				const int t = lua_gettop(L);
+
+				lua_pushinteger(L, eEventChoice);
+				lua_setfield(L, t, "EventChoice");
+				lua_pushinteger(L, iDuration);
+				lua_setfield(L, t, "Duration");
+				lua_pushinteger(L, eParentEvent);
+				lua_setfield(L, t, "ParentEvent");
+
+				lua_rawseti(L, -2, idx++);
+			}
+		}
+	}
+
+	return 1;
+}
+int CvLuaPlayer::lGetActiveCityEventChoices(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	lua_createtable(L, 0, 0);
+	int idx = 1;
+
+	for (int iI = 0; iI < GC.getNumCityEventChoiceInfos(); iI++)
+	{
+		CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iI;
+		if (eEventChoice == NO_EVENT_CHOICE_CITY)
+			continue;
+
+		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+		if (pkEventChoiceInfo != NULL)
+		{
+			CvCity* pLoopCity;
+			int iLoop;
+
+			for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+			{
+				if (pLoopCity != NULL && pLoopCity->IsEventChoiceActive(eEventChoice))
+				{
+					CityEventTypes eParentEvent = NO_EVENT_CITY;
+					bool bNotChoice = false;
+					for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
+					{
+						CityEventTypes eEvent = (CityEventTypes)iLoop;
+						if (eEvent != NO_EVENT)
+						{
+							if (pkEventChoiceInfo->isParentEvent(eEvent))
+							{
+								eParentEvent = eEvent;
+								CvModCityEventInfo* pkCityEventInfo = GC.getCityEventInfo(eEvent);
+								if (pkCityEventInfo != NULL)
+								{
+									if (pkCityEventInfo->getNumChoices() == 1)
+									{
+										bNotChoice = true;
+									}
+									break;
+								}
+							}
+						}
+					}
+
+					if (bNotChoice)
+						continue;
+
+					int iDuration = pLoopCity->GetEventChoiceDuration(eEventChoice);
+					if (!pkEventChoiceInfo->Expires())
+					{
+						iDuration = -1;
+					}
+
+					lua_createtable(L, 0, 0);
+					const int t = lua_gettop(L);
+
+					lua_pushinteger(L, eEventChoice);
+					lua_setfield(L, t, "EventChoice");
+					lua_pushinteger(L, iDuration);
+					lua_setfield(L, t, "Duration");
+					lua_pushinteger(L, eParentEvent);
+					lua_setfield(L, t, "ParentEvent");
+					lua_pushinteger(L, pLoopCity->getX());
+					lua_setfield(L, t, "CityX");
+					lua_pushinteger(L, pLoopCity->getY());
+					lua_setfield(L, t, "CityY");
+
+					lua_rawseti(L, -2, idx++);
+				}
+			}
+		}
+	}
+
+	return 1;
+}
+
+int CvLuaPlayer::lGetRecentPlayerEventChoices(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	lua_createtable(L, 0, 0);
+	int idx = 1;
+
+	for (int iI = 0; iI < GC.getNumEventChoiceInfos(); iI++)
+	{
+		EventChoiceTypes eEventChoice = (EventChoiceTypes)iI;
+		if (eEventChoice == NO_EVENT_CHOICE)
+			continue;
+
+		CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
+		if (pkEventChoiceInfo != NULL)
+		{
+			if (pkPlayer->IsEventChoiceActive(eEventChoice))
+			{
+				bool bInstant = false;
+				EventTypes eParentEvent = NO_EVENT;
+				for (int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
+				{
+					EventTypes eEvent = (EventTypes)iLoop;
+					if (eEvent != NO_EVENT)
+					{
+						if (pkEventChoiceInfo->isParentEvent(eEvent))
+						{							
+							CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+							if (pkEventInfo != NULL)
+							{
+								if (pkEventInfo->getNumChoices() == 1)
+								{
+									bInstant = true;
+								}
+								if (pkEventInfo->getNumChoices() > 1)
+								{
+									eParentEvent = eEvent;
+								}
+								break;
+							}
+						}
+					}
+				}
+				if (bInstant)
+				{
+					int iDuration = pkPlayer->GetEventChoiceDuration(eEventChoice);
+					if (!pkEventChoiceInfo->Expires())
+					{
+						iDuration = -1;
+					}
+
+					lua_createtable(L, 0, 0);
+					const int t = lua_gettop(L);
+
+					lua_pushinteger(L, eEventChoice);
+					lua_setfield(L, t, "EventChoice");
+					lua_pushinteger(L, iDuration);
+					lua_setfield(L, t, "Duration");
+					if (bInstant)
+					{
+						lua_pushinteger(L, -1);
+						lua_setfield(L, t, "ParentEvent");
+					}
+					else
+					{
+						lua_pushinteger(L, eParentEvent);
+						lua_setfield(L, t, "ParentEvent");
+					}					
+
+					lua_rawseti(L, -2, idx++);
+				}
+			}
+		}
+	}
+	return 1;
+}
+int CvLuaPlayer::lGetRecentCityEventChoices(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	lua_createtable(L, 0, 0);
+	int idx = 1;
+
+	for (int iI = 0; iI < GC.getNumCityEventChoiceInfos(); iI++)
+	{
+		CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iI;
+		if (eEventChoice == NO_EVENT_CHOICE_CITY)
+			continue;
+
+		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+		if (pkEventChoiceInfo != NULL)
+		{
+			CvCity* pLoopCity;
+			int iLoop;
+
+			for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+			{
+				if (pLoopCity != NULL && pLoopCity->IsEventChoiceActive(eEventChoice))
+				{
+					bool bInstant = false;
+					CityEventTypes eParentEvent = NO_EVENT_CITY;
+					for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
+					{
+						CityEventTypes eEvent = (CityEventTypes)iLoop;
+						if (eEvent != NO_EVENT)
+						{
+							if (pkEventChoiceInfo->isParentEvent(eEvent))
+							{
+								CvModCityEventInfo* pkCityEventInfo = GC.getCityEventInfo(eEvent);
+								if (pkCityEventInfo != NULL)
+								{
+									if (pkCityEventInfo->getNumChoices() == 1)
+									{
+										bInstant = true;
+									}
+									else if (pkCityEventInfo->getNumChoices() > 1)
+									{
+										eParentEvent = eEvent;
+									}
+									break;
+								}
+							}
+						}
+					}
+					if (bInstant)
+					{
+						int iDuration = pLoopCity->GetEventChoiceDuration(eEventChoice);
+						if (!pkEventChoiceInfo->Expires())
+						{
+							iDuration = -1;
+						}
+
+						lua_createtable(L, 0, 0);
+						const int t = lua_gettop(L);
+
+						lua_pushinteger(L, eEventChoice);
+						lua_setfield(L, t, "EventChoice");
+						lua_pushinteger(L, iDuration);
+						lua_setfield(L, t, "Duration");
+						if (bInstant)
+						{
+							lua_pushinteger(L, -1);
+							lua_setfield(L, t, "ParentEvent");
+						}
+						else
+						{
+							lua_pushinteger(L, eParentEvent);
+							lua_setfield(L, t, "ParentEvent");
+						}
+						lua_pushinteger(L, pLoopCity->getX());
+						lua_setfield(L, t, "CityX");
+						lua_pushinteger(L, pLoopCity->getY());
+						lua_setfield(L, t, "CityY");
+
+						lua_rawseti(L, -2, idx++);
+					}
+				}
+			}
+		}
+	}
+
 	return 1;
 }
 #endif

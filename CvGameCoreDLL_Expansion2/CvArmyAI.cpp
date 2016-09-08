@@ -675,11 +675,18 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 	CvPlot* pMusterPlot = GC.getMap().plot(GetX(), GetY());
 	if(pMusterPlot)
 	{
-		int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
-		int iTurnsToReachCheckpoint = pThisUnit->TurnsToReachTarget(pMusterPlot, iFlags, GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
-		if(iTurnsToReachCheckpoint < MAX_INT)
+		if (pThisUnit->plot() == pMusterPlot)
 		{
-			SetEstimatedTurn(iSlotNum, iTurnsToReachCheckpoint);
+			SetEstimatedTurn(iSlotNum, 0);
+		}
+		else
+		{
+			int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
+			int iTurnsToReachCheckpoint = pThisUnit->TurnsToReachTarget(pMusterPlot, iFlags, GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
+			if (iTurnsToReachCheckpoint < MAX_INT)
+			{
+				SetEstimatedTurn(iSlotNum, iTurnsToReachCheckpoint);
+			}
 		}
 	}
 }

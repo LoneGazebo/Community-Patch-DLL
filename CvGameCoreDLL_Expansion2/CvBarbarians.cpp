@@ -141,7 +141,7 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
 	int iNumTurnsToSpawn = 12 + kGame.getSmallFakeRandNum(10,*pPlot);
 #else
-	int iNumTurnsToSpawn = 8 + kGame.getRandNum(5, "Barb Spawn Rand call");
+	int iNumTurnsToSpawn = 8 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
 #endif
 
 	// Raging
@@ -168,7 +168,7 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	//if (CanBarbariansSpawn())
 	//{
 	//	iNumTurnsToSpawn += 3;
-	//	iNumTurnsToSpawn += auto_ptr<ICvGame1> pGame = GameCore::GetGame();\n.getRandNum(4, "Early game Barb Spawn Rand call");
+	//	iNumTurnsToSpawn += auto_ptr<ICvGame1> pGame = GameCore::GetGame();\n.getJonRandNum(4, "Early game Barb Spawn Rand call");
 	//}
 
 	// Difficulty level can add time between spawns (e.g. Settler is +8 turns)
@@ -200,7 +200,7 @@ void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
 	int iNumTurnsToSpawn = 12 + kGame.getSmallFakeRandNum(10,*pPlot);
 #else
-	int iNumTurnsToSpawn = 15 + kGame.getRandNum(5, "Barb Spawn Rand call");
+	int iNumTurnsToSpawn = 15 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
 #endif
 
 	// Raging
@@ -522,7 +522,7 @@ void CvBarbarians::DoCamps()
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
 				if (kGame.getSmallFakeRandNum(GC.getBARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING(), iNumValidCampPlots) == 0)
 #else
-				if(kGame.getRandNum(/*2*/ GC.getBARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING(), "Random roll to see if Barb Camp spawns this turn") > 0)
+				if(kGame.getJonRandNum(/*2*/ GC.getBARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING(), "Random roll to see if Barb Camp spawns this turn") > 0)
 #endif
 				{
 					iNumCampsToAdd = 1;
@@ -563,8 +563,8 @@ void CvBarbarians::DoCamps()
 
 				int iPlotIndex = kGame.getSmallFakeRandNum( min(9u, vRelevantPlots.size()), (int)vRelevantPlots.size() );
 #else
-				bool bWantsCoastal = kGame.getRandNum(/*6*/ GC.getBARBARIAN_CAMP_COASTAL_SPAWN_ROLL(), "Barb Camp Plot-Finding Roll - Coastal Bias") == 0 ? true : false;
-				int iPlotIndex = kGame.getRandNum( bWantsCoastal ? vCoastalPlots.size() : vAllPlots.size(), "Barb Camp Plot-Finding Roll");
+				bool bWantsCoastal = kGame.getJonRandNum(/*6*/ GC.getBARBARIAN_CAMP_COASTAL_SPAWN_ROLL(), "Barb Camp Plot-Finding Roll - Coastal Bias") == 0 ? true : false;
+				int iPlotIndex = kGame.getJonRandNum( bWantsCoastal ? vCoastalPlots.size() : vAllPlots.size(), "Barb Camp Plot-Finding Roll");
 #endif
 
 				CvPlot* pLoopPlot = vRelevantPlots[iPlotIndex];
@@ -790,7 +790,7 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eU
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
 				iValue = 1 + kGame.getSmallFakeRandNum(9, pArea->GetID());
 #else
-				iValue = (1 + kGame.getRandNum(1000, "Barb Unit Selection"));
+				iValue = (1 + kGame.getJonRandNum(1000, "Barb Unit Selection"));
 #endif
 
 				if(kUnit.GetUnitAIType(eUnitAI))
@@ -1000,7 +1000,7 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
 			int iIndex = kGame.getSmallFakeRandNum(vBalidBarbSpawnPlots.size(),*pPlot);
 #else
-			int iIndex = kGame.getRandNum(vBalidBarbSpawnPlots.size(), "Barb Unit Location Spawn Roll");
+			int iIndex = kGame.getJonRandNum(vBalidBarbSpawnPlots.size(), "Barb Unit Location Spawn Roll");
 #endif
 			CvPlot* pSpawnPlot = vBalidBarbSpawnPlots[iIndex];
 			UnitAITypes eUnitAI = pSpawnPlot->isWater() ? UNITAI_ATTACK_SEA : UNITAI_FAST_ATTACK;

@@ -2704,24 +2704,34 @@ CvAIOperationNavalBombardment::~CvAIOperationNavalBombardment()
 }
 
 /// Kick off this operation
-void CvAIOperationNavalBombardment::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
-{
-	if(eEnemy == NO_PLAYER)
-		eEnemy = BARBARIAN_PLAYER;
+//void CvAIOperationNavalBombardment::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
+//{
+//	if(eEnemy == NO_PLAYER)
+//		eEnemy = BARBARIAN_PLAYER;
 
 	//do this before calling any FindX methods!
-	Reset(iID,eOwner,eEnemy);
+//	Reset(iID,eOwner,eEnemy);
 
-	CvPlot* pMuster = NULL;
-	CvPlot* pTarget = FindBestTarget(&pMuster);
+//	CvPlot* pMuster = NULL;
+//	CvPlot* pTarget = FindBestTarget(&pMuster);
 
-	SetupWithSingleArmy(pMuster,pTarget);
-}
+//	SetupWithSingleArmy(pMuster,pTarget);
+//}
 
 /// Find the barbarian camp we want to eliminate
 CvPlot* CvAIOperationNavalBombardment::FindBestTarget(CvPlot** ppMuster) const
 {
-	return OperationalAIHelpers::FindBestCoastalBombardmentTarget(m_eOwner,m_eEnemy,ppMuster);
+	CvPlot* pRefPlot = GetTargetPlot();
+	if (pRefPlot)
+	{
+		CvPlot* pTarget = OperationalAIHelpers::FindEnemies(m_eOwner, m_eEnemy, DOMAIN_SEA, false, pRefPlot->getArea(), pRefPlot);
+		if (ppMuster)
+			*ppMuster = pTarget;
+		return pTarget;
+	}
+
+	return NULL;
+	//return OperationalAIHelpers::FindBestCoastalBombardmentTarget(m_eOwner,m_eEnemy,ppMuster);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
