@@ -2514,7 +2514,7 @@ public:
 	virtual void AI_doTurnUnitsPost() = 0;
 	virtual void AI_unitUpdate() = 0;
 #if defined(MOD_BALANCE_CORE)
-	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift) = 0;
+	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift, bool bAllowRaze) = 0;
 #else
 	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner) = 0;
 #endif
@@ -2577,7 +2577,8 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	void SetClosestCityMapDirty();
-	int GetCityDistance( const CvPlot* pPlot ) const;
+	//assuming a typical unit with baseMoves==2
+	int GetCityDistanceInTurns( const CvPlot* pPlot ) const;
 	CvCity* GetClosestCity( const CvPlot* pPlot) const;
 #endif
 

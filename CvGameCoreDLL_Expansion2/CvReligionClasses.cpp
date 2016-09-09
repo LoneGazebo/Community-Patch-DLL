@@ -7955,8 +7955,8 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry)
 		PlayerTypes ePlotOwner = pPlot->getOwner();
 		if(pPlot->isRevealed(m_pPlayer->getTeam()) && (ePlotOwner == NO_PLAYER || ePlotOwner == m_pPlayer->GetID()))
 		{
-			// Also skip if closest city of ours is not within 3
-			if (m_pPlayer->GetCityDistance(pPlot)>3)
+			// Also skip if closest city of ours is not within 2 turns
+			if (m_pPlayer->GetCityDistanceInTurns(pPlot)>2)
 				continue;
 
 			// Score it

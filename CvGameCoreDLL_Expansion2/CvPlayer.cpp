@@ -2883,6 +2883,19 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	}
 
 #if defined(MOD_BALANCE_CORE)
+	// Check if we want to keep this city - compare yields with our capital
+	bool bAllowRaze = true;
+	CvCity* pCapital = getCapitalCity();
+	if (pCapital)
+	{
+		int iGoodCategories = 0;
+		for (int i = 0; i < 6; i++)
+			if (pOldCity->getYieldRateTimes100((YieldTypes)i, true) * 2 > pCapital->getYieldRateTimes100((YieldTypes)i, true))
+				iGoodCategories++;
+
+		bAllowRaze = (iGoodCategories < 3);
+	}
+
 	// Remove Corporation from this city if acquired to another player by any means
 	if (pOldCity->getOwner() != NO_PLAYER && pOldCity->getOwner() != GetID())
 	{
@@ -4190,7 +4203,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if(!isHuman())
 			{
 #if defined(MOD_BALANCE_CORE)
-				AI_conquerCity(pNewCity, eOldOwner, bGift); // could delete the pointer...
+				AI_conquerCity(pNewCity, eOldOwner, bGift, bAllowRaze); // could delete the pointer...
 #else
 				AI_conquerCity(pNewCity, eOldOwner); // could delete the pointer...
 #endif
@@ -24260,7 +24273,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_U_PROD:
 				{
-					iValue += pLoopCity->GetYieldFromUnitProduction(eYield);
+					if (pLoopCity->GetYieldFromUnitProduction(eYield) > 0)
+					{
+						int iBonus = iPassYield;
+						iBonus *= (100 + pLoopCity->GetYieldFromUnitProduction(eYield));
+						iBonus /= 100;
+
+						iValue += iBonus;
+					}
 					break;
 				}
 				case INSTANT_YIELD_TYPE_PURCHASE:
@@ -24410,9 +24430,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						continue;
 					}
-					if(iPassYield != 0)
+					if (iPassYield != 0 && pLoopCity->GetYieldFromUnitLevelUp(eYield) > 0)
 					{
-						iValue += (iPassYield * pLoopCity->GetYieldFromUnitLevelUp(eYield));
+						iValue += ((((iPassYield * iPassYield) - (2 * iPassYield) + 1)) * pLoopCity->GetYieldFromUnitLevelUp(eYield));
 					}
 					break;
 				}
@@ -35002,7 +35022,7 @@ void CvPlayer::SetClosestCityMapDirty()
 	GC.getGame().SetClosestCityMapDirty();
 }
 
-int CvPlayer::GetCityDistance( const CvPlot* pPlot ) const
+int CvPlayer::GetCityDistanceInTurns( const CvPlot* pPlot ) const
 {
 	if (pPlot && m_pCityDistance)
 		return m_pCityDistance->GetClosestFeatureDistance( *pPlot );
@@ -40743,7 +40763,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 		//take into account distance from existing cities
 		int iUnitDistance = pUnit ? plotDistance(pUnit->getX(),pUnit->getY(),pPlot->getX(),pPlot->getY()) : INT_MAX;
-		int iRelevantDistance = min(iUnitDistance,GetCityDistance(pPlot));
+		int iRelevantDistance = min(iUnitDistance,GetCityDistanceInTurns(pPlot));
 		int iScale = MapToPercent( iRelevantDistance, iEvalDistance, GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() );
 
 		//on a new continent we want to settle along the coast
@@ -40879,7 +40899,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		//if it's too far from our existing cities, it's dangerous
 		if (!isDangerous && !bWantOffshore)
 		{
-			int iDistanceToCity = GetCityDistance(vSettlePlots[i].pPlot);
+			int iDistanceToCity = GetCityDistanceInTurns(vSettlePlots[i].pPlot);
 			//also consider settler plot here in case of re-targeting an operation
 			if (iDistanceToCity>4 && iDistanceToSettler>1)
 				isDangerous = true;
@@ -42978,7 +42998,7 @@ void CvPlayer::updatePlotFoundValues(bool bOverrideRevealedCheck)
 				pLoopArea->setTotalFoundValue(newValue);
 				
 				//track the distance from our existing cities
-				int iCityDistance = GetCityDistance(pPlot);
+				int iCityDistance = GetCityDistanceInTurns(pPlot);
 				if (minDistancePerArea.find(pLoopArea->GetID())==minDistancePerArea.end())
 					minDistancePerArea[pLoopArea->GetID()] = iCityDistance;
 				else if (iCityDistance < minDistancePerArea[pLoopArea->GetID()])

@@ -24931,14 +24931,14 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 #if defined(MOD_EVENTS_CITY)
 				}
 #endif
+
+				iProductionNeeded = getProductionNeeded(eTrainUnit) * 100;
 #if defined(MOD_BALANCE_CORE)
-				if(!GET_PLAYER(getOwner()).getUnit(iResult)->IsCivilianUnit())
+				if (!GET_PLAYER(getOwner()).getUnit(iResult)->IsCivilianUnit())
 				{
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_U_PROD, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_U_PROD, true, NO_GREATPERSON, NO_BUILDING, iProductionNeeded, false, NO_PLAYER, NULL, false, this);
 				}
 #endif
-				iProductionNeeded = getProductionNeeded(eTrainUnit) * 100;
-
 				// max overflow is the value of the item produced (to eliminate prebuild exploits)
 				int iOverflow = getUnitProductionTimes100(eTrainUnit) - iProductionNeeded;
 				int iMaxOverflow = std::max(iProductionNeeded, getCurrentProductionDifferenceTimes100(false, false));

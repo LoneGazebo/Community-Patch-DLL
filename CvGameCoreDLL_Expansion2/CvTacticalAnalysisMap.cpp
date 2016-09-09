@@ -689,13 +689,13 @@ void CvTacticalAnalysisMap::AddToDominanceZones(int iIndex, CvTacticalAnalysisCe
 	newZone.SetAreaID(pPlot->getArea());
 	newZone.SetWater(pPlot->isWater());
 
-	int iCityDistance = GC.getGame().GetClosestCityDistance(pPlot);
+	int iCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pPlot);
 	CvCity* pCity = GC.getGame().GetClosestCity(pPlot);
 	PlayerTypes eOwnerPlayer = NO_PLAYER;
 	TeamTypes eOwnerTeam = NO_TEAM;
 
 	//for plots far away from a city, check the owner
-	if (iCityDistance>3)
+	if (iCityDistance>2)
 	{
 		eOwnerTeam = pPlot->getTeam();
 		eOwnerPlayer = pPlot->getOwner();

@@ -285,7 +285,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 			iRating /= 2;
 
 		//try to explore close to our cities first to find potential settle spots
-		int iCityDistance = m_pPlayer->GetCityDistance(pEvalPlot);
+		int iCityDistance = m_pPlayer->GetCityDistanceInTurns(pEvalPlot);
 		iRating = max(1, iRating-iCityDistance); 
 
 		//reverse the score calculation below to get an upper bound on the distance
@@ -836,7 +836,7 @@ void CvHomelandAI::FindHomelandTargets()
 			}
 			// ... possible sentry point?
 			else if(pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isWater() && 
-				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && m_pPlayer->GetCityDistance(pLoopPlot)>1)
+				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && m_pPlayer->GetCityDistanceInTurns(pLoopPlot)>1)
 			{
 				ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 				ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
@@ -895,7 +895,7 @@ void CvHomelandAI::FindHomelandTargets()
 			else if(pLoopPlot->isWater() && 
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 			{
-				int iDistance = m_pPlayer->GetCityDistance(pLoopPlot);
+				int iDistance = m_pPlayer->GetCityDistanceInTurns(pLoopPlot);
 				
 				if(iDistance > 3)
 					continue;
@@ -2082,6 +2082,9 @@ void CvHomelandAI::ExecuteAggressivePatrolMoves()
 					if(pLoopPlot == NULL)
 						continue;
 
+					if (pLoopPlot->getDomain() != pUnit->getDomainType())
+						continue;
+
 					//Don't patrol into cities.
 					if(pLoopPlot->isCity())
 						continue;
@@ -2113,10 +2116,28 @@ void CvHomelandAI::ExecuteAggressivePatrolMoves()
 				LogHomelandMessage(strLogString);
 			}
 
-			//use the exact target location - GetPatrolTarget makes sure there is a free spot
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
-			pUnit->finishMoves();
-			UnitProcessed(pUnit->GetID());
+			if (pBestTarget != pUnit->plot())
+			{
+				//use the exact target location - GetPatrolTarget makes sure there is a free spot
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
+				pUnit->finishMoves();
+				UnitProcessed(pUnit->GetID());
+			}
+			else
+			{
+				if (pUnit->canFortify(pUnit->plot()))
+				{
+					pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+					pUnit->SetTurnProcessed(true);
+					pUnit->finishMoves();
+				}
+				else
+				{
+					pUnit->PushMission(CvTypes::getMISSION_SKIP());
+					pUnit->SetTurnProcessed(true);
+					pUnit->finishMoves();
+				}
+			}
 		}
 	}
 }
@@ -2181,6 +2202,9 @@ void CvHomelandAI::ExecutePatrolMoves()
 					if(pLoopPlot == NULL)
 						continue;
 
+					if (pLoopPlot->getDomain() != pUnit->getDomainType())
+						continue;
+
 					//Don't patrol into cities.
 					if(pLoopPlot->isCity())
 						continue;
@@ -2212,10 +2236,28 @@ void CvHomelandAI::ExecutePatrolMoves()
 				LogHomelandMessage(strLogString);
 			}
 
-			//use the exact target location - GetPatrolTarget makes sure there is a free spot
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
-			pUnit->finishMoves();
-			UnitProcessed(pUnit->GetID());
+			if (pBestTarget != pUnit->plot())
+			{
+				//use the exact target location - GetPatrolTarget makes sure there is a free spot
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestTarget->getX(), pBestTarget->getY());
+				pUnit->finishMoves();
+				UnitProcessed(pUnit->GetID());
+			}
+			else
+			{
+				if (pUnit->canFortify(pUnit->plot()))
+				{
+					pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+					pUnit->SetTurnProcessed(true);
+					pUnit->finishMoves();
+				}
+				else
+				{
+					pUnit->PushMission(CvTypes::getMISSION_SKIP());
+					pUnit->SetTurnProcessed(true);
+					pUnit->finishMoves();
+				}
+			}
 		}
 	}
 }
@@ -8550,10 +8592,7 @@ std::vector<CvPlot*> HomelandAIHelpers::GetAggressivePatrolTargets(PlayerTypes e
 			continue;
 
 		PlayerTypes eOwner = pZone->GetOwner();
-		if(eOwner == NO_PLAYER)
-			continue;
-
-		if((eOwner != ePlayer) && !GET_PLAYER(eOwner).IsAtWarWith(ePlayer))
+		if ((eOwner != ePlayer) || !GET_PLAYER(eOwner).IsAtWarWith(ePlayer))
 			continue;
 
 		//watch out, a city can occur multiple times (islands ...)

@@ -1235,6 +1235,9 @@ protected:
 	static int lIsSpyDiplomat(lua_State* L);
 	static int lIsSpySchmoozing(lua_State* L);
 	static int lCanSpyStageCoup(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lValidHeistLocation(lua_State* L);
+#endif
 	static int lGetAvailableSpyRelocationCities(lua_State* L);
 	static int lGetNumTechsToSteal(lua_State* L);
 	static int lGetIntrigueMessages(lua_State* L);

@@ -6520,6 +6520,59 @@
 		<Row Tag="TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_NEED_MORE">
 			<Text>[COLOR_WARNING_TEXT]You must unlock {1_Num} Policies from other Branches before this Branch becomes unlocked. Finishers do not count towards this amount.[ENDCOLOR]</Text>
 		</Row>
+		
+		<!-- Spy GW Theft Text-->
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_GW">
+			<Text>{1_SpyRank} {2_SpyName} cannot steal Great Works from {@3_CivShortName} because they have none, or we have no empty slots in our Empire!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_GW_S">
+			<Text>Can't steal Great Works from {@1_CivShortName}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_KILLED_GW_S">
+			<Text>{1_SpyName} killed during heist!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_KILLED_GW">
+			<Text>Your spy {1_SpyRank} {2_SpyName} was killed by {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {3_CivAdj}} counterspy during a Great Work heist in {4_CityName}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STEAL_GW">
+			<Text>{1_SpyRank} {2_SpyName} gathered enough intelligence in {3_CityName} to conduct a Great Work heist against {@4_CivShortName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STEAL_GW_S">
+			<Text>Great Work Heist</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_STATE_PREPARING_HEIST">
+			<Text>Preparing Heist</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_SPY_HEIST_TT">
+			<Text>{1_RankName} {2_SpyName} is preparing for a Great Work Heist in {3_CityName}.[NEWLINE][NEWLINE]A spy may only attempt a Heist if the targeted civilization has at least one Great Work, and you have an empty Great Work slot of the same type.[NEWLINE][NEWLINE]If the city's owner has a spy in the city, your spy has a chance of being discovered and killed when they attempt the Heist![NEWLINE][NEWLINE]While preparing, your Spy will also disrupt the city through Advanced Actions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_BE_THIEF">
+			<Text>Do you want this spy to be a Thief? A spy can be a Thief if they are placed in a non-capital city of another major civilization. A Thief will attempt a Great Work Heist (if possible) and will conduct Advanced Actions against the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLOMAT_PICKER_THIEF">
+			<Text>Thief</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_DETECTED_S">
+			<Text>{1_GW} stolen!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_DETECTED_W_TIP">
+			<Text>During a Heist, an unidentified spy stole {1_GW} from {2_CityName}![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_DETECTED">
+			<Text>An unidentified spy stole {1_GW} from {2_CityName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_IDENTIFIED_S">
+			<Text>{1_CivShortDesc} stole {2_GW}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_IDENTIFIED_W_TIP">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy stole {2_GW} from {3_CityName} during a heist![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_IDENTIFIED">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy stole {2_GW} from {3_CityName} during a heist!</Text>
+		</Row>
 	</Language_en_US>
 	<PostDefines>
 		<Row Name="PROMOTION_DEEPWATER_EMBARKATION">

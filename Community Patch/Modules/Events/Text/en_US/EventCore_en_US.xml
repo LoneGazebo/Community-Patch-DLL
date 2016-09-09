@@ -57,7 +57,7 @@
 			<Text>Permanent Effect</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_BONUS">
-			<Text>One-Time Bonus</Text>
+			<Text>Instant Event</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_CHOICE_SORT_NAME">
 			<Text>Sort by Event Name</Text>

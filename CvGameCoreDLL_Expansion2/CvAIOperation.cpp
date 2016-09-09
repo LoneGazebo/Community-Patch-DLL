@@ -1574,6 +1574,10 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 	if (!pDeployPlot)
 		pDeployPlot = GetPlotXInStepPath(pMusterPlot,pTargetPlot,GetDeployRange(),false);
 
+	if (!pDeployPlot && IsNavalOperation() && pTargetPlot->isWater())
+	{
+		pDeployPlot = pTargetPlot;
+	}
 	if (!pDeployPlot)
 	{
 		if (GC.getLogging() && GC.getAILogging())
@@ -2077,7 +2081,7 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget(CvPlot** ppMuster) const
 			iValue = pLoopCity->countNumImprovedPlots();
 
 			// Adjust value based on proximity to our start location
-			iDistance = GET_PLAYER(m_eOwner).GetCityDistance(pLoopCity->plot());
+			iDistance = GET_PLAYER(m_eOwner).GetCityDistanceInTurns(pLoopCity->plot());
 			if(iDistance > 0)
 			{
 				iValue = iValue * 100 / iDistance;

@@ -43,7 +43,7 @@ public:
 
 	void AI_unitUpdate();
 #if defined(MOD_BALANCE_CORE)
-	void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift);
+	void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift, bool bAllowRaze);
 #else
 	void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner);
 #endif

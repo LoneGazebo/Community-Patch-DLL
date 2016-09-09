@@ -9940,7 +9940,7 @@ int CvGame::getJonRandNum(int iNum, const char* pszLog)
 	if (iNum > 0)
 		return m_jonRand.get(iNum, pszLog);
 
-	return (int)m_jonRand.get(-iNum, pszLog)*(-1);
+	return -(int)m_jonRand.get(-iNum, pszLog);
 #else
 	return m_jonRand.get(iNum, pszLog);
 #endif
@@ -10003,9 +10003,9 @@ int CvGame::getSmallFakeRandNum(int iNum, CvPlot& input)
 	int iFake = input.getX() * 17 + input.getY() * 23 + getGameTurn() * 3;
 	
 	if (iNum>0)
-		return iFake % iNum; 
+		return (iFake*iFake) % iNum; 
 	else
-		return (-1) * ((iFake) % (-iNum));
+		return (-1) * ((iFake*iFake) % (-iNum));
 }
 
 int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
@@ -10013,9 +10013,9 @@ int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 	int iFake = getGameTurn() + abs(iExtraSeed);
 
 	if (iNum>0)
-		return iFake % iNum;
+		return (iFake*iFake) % iNum;
 	else
-		return (-1) * ((iFake) % (-iNum));
+		return (-1) * ((iFake*iFake) % (-iNum));
 }
 
 #endif
@@ -10476,7 +10476,7 @@ void CvGame::SetHighestPotential()
 			int iLoop = 0;
 			for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 			{				
-				iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);;
+				iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);
 				pLoopCity->SetEspionageRanking(iPotential, bNotify);
 			}
 		}
@@ -13137,7 +13137,7 @@ void CvGame::SetClosestCityMapDirty()
 	m_globalCityDistance.SetDirty();
 }
 
-int CvGame::GetClosestCityDistance( const CvPlot* pPlot )
+int CvGame::GetClosestCityDistanceInTurns( const CvPlot* pPlot )
 {
 	if (!pPlot)
 		return INT_MAX;

@@ -47,18 +47,19 @@ void CvDistanceMap::Reset()
 /// Updates the danger plots values to reflect threats across the map
 void CvDistanceMap::Update()
 {
+	//we consciously ignore plots which are more than X turns away
+	int iMaxTurns = 42;
+
 	const CvMap& map = GC.getMap();
 	int nPlots = map.numPlots();
 
-	m_vDistance = std::vector<int>(nPlots,INT_MAX);
+	m_vDistance = std::vector<int>(nPlots, iMaxTurns);
 	m_vClosestFeature = std::vector<int>(nPlots,0);
 	m_bArrayAllocated = true;
 		
-	// since we know there are very few cities compared to the number of plots,
-	// we don't need to do the full distance transform
-
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
+		//if we have a set player, ignore all others
 		if (m_ePlayer!=NO_PLAYER && m_ePlayer!=i)
 			continue;
 
@@ -67,30 +68,27 @@ void CvDistanceMap::Update()
 		int iCityIndex = 0;
 		for(CvCity* pLoopCity = thisPlayer.firstCity(&iCityIndex); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iCityIndex))
 		{
-			CvPlot* pCityPlot = pLoopCity->plot();
+			ReachablePlots turnsFromCity;
+			SPathFinderUserData data(m_ePlayer, PT_GENERIC_REACHABLE_PLOTS, -1, iMaxTurns);
+			turnsFromCity = GC.GetStepFinder().GetPlotsInReach(pLoopCity->plot(), data);
 
-			for (int iPlotIndex=0; iPlotIndex<nPlots; iPlotIndex++)
+			for (ReachablePlots::iterator it = turnsFromCity.begin(); it != turnsFromCity.end(); ++it)
 			{
-				CvPlot* pPlot = map.plotByIndexUnchecked(iPlotIndex);
-				if (pPlot)
-				{
-					int iDistance = plotDistance( pCityPlot->getX(),pCityPlot->getY(),pPlot->getX(),pPlot->getY() );
-
-					bool bUpdate = (iDistance < m_vDistance[iPlotIndex]);
+				int iDistance = it->iTurns;
+				bool bUpdate = (iDistance < m_vDistance[it->iPlotIndex]);
 					
-					//in case of equal distance, take care not to prefer the player with the lower ID
-					if (iDistance == m_vDistance[iPlotIndex]) 
-					{
-						PlayerTypes currentOwner = (PlayerTypes) UNPACK_OWNER(m_vClosestFeature[iPlotIndex]);
-						CvCity* pCurrentCity = GET_PLAYER(currentOwner).getCity( UNPACK_ID(m_vClosestFeature[iPlotIndex]) );
-						bUpdate = (pCurrentCity->getGameTurnFounded() > pLoopCity->getGameTurnFounded());
-					}
+				//in case of equal distance, take care not to prefer the player with the lower ID
+				if (iDistance == m_vDistance[it->iPlotIndex])
+				{
+					PlayerTypes currentOwner = (PlayerTypes)UNPACK_OWNER(m_vClosestFeature[it->iPlotIndex]);
+					CvCity* pCurrentCity = GET_PLAYER(currentOwner).getCity(UNPACK_ID(m_vClosestFeature[it->iPlotIndex]));
+					bUpdate = (pCurrentCity->getGameTurnFounded() > pLoopCity->getGameTurnFounded());
+				}
 
-					if (bUpdate)
-					{
-						m_vDistance[iPlotIndex] = iDistance;
-						m_vClosestFeature[iPlotIndex] = PACK(pLoopCity->getOwner(), pLoopCity->GetID());
-					}
+				if (bUpdate)
+				{
+					m_vDistance[it->iPlotIndex] = iDistance;
+					m_vClosestFeature[it->iPlotIndex] = PACK(pLoopCity->getOwner(), pLoopCity->GetID());
 				}
 			}
 		}
