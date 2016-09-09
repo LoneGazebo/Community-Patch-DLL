@@ -2560,11 +2560,14 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	CvBuildInfo& thisBuildInfo = *GC.getBuildInfo(eBuild);
 	if(thisBuildInfo.isRepair())
 	{
-#if defined(MOD_BALANCE_CORE)
-		//Can't repair outside of owned territory.
-		if(ePlayer != NO_PLAYER && getOwner() != NO_PLAYER && getOwner() != ePlayer)
+#if defined(MOD_NO_REPAIR_FOREIGN_LANDS)
+		if(MOD_NO_REPAIR_FOREIGN_LANDS)
 		{
-			return false;
+			//Can't repair outside of owned territory.
+			if(ePlayer != NO_PLAYER && getOwner() != NO_PLAYER && getOwner() != ePlayer)
+			{
+				return false;
+			}
 		}
 #endif
 		if(IsImprovementPillaged() || IsRoutePillaged())
@@ -9997,10 +10000,13 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 	{
 		return 0;
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(isIce())
+#if defined(MOD_NO_YIELD_ICE)
+	if(MOD_NO_YIELD_ICE)
 	{
-		return 0;
+		if(isIce())
+		{
+			return 0;
+		}
 	}
 #endif
 

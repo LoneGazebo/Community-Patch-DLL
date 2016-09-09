@@ -88,7 +88,7 @@ function SetIcon(x, y)
 	local feature = pNaturalWonderPlot:GetFeatureType();
 	--print(feature);
 	local info = GameInfo.Features[feature];
-	if(info.NaturalWonder)then
+	if(info.NaturalWonder or info.PseudoNaturalWonder)then
 		IconHookup(info.PortraitIndex, 128, info.IconAtlas, Controls.Icon);
 		Controls.WonderLabel:LocalizeAndSetText(info.Description);
 	end

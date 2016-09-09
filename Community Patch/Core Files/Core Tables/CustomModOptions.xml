@@ -242,6 +242,20 @@
 	<Row Class="4" Name="SHIPS_FIRE_IN_CITIES_IMPROVEMENTS" Value="0"/>
 	<!-- Ability to add more natural wonders to the game -->
 	<Row Class="4" Name="PSEUDO_NATURAL_WONDER" Value="0"/>
+	<!-- Prophets do not auto spawn once you hit faith threshhold (pre-Industrial Era only), must be set to 'Save for Great Prophet' in ReligiousOverview.lua -->
+	<Row Class="4" Name="NO_AUTO_SPAWN_PROPHET" Value="0"/>
+	<!-- Alters Assyria's conquest trait. Now player can chooses a free tech upon city conquest -->
+	<Row Class="5" Name="ALTERNATE_ASSYRIA_TRAIT" Value="0"/>
+	<!-- No exploit to pillage and repair in foreign lands during war -->
+	<Row Class="5" Name="NO_REPAIR_FOREIGN_LANDS" Value="0"/>
+	<!-- Ice Features are prevented from having a yield -->
+	<Row Class="5" Name="NO_YIELD_ICE" Value="0"/>
+	<!-- Fixes an exploit of gifting to Major Civs -->
+	<Row Class="5" Name="NO_MAJORCIV_GIFTING" Value="0"/>
+	<!-- No healing on mountains if not a city plot -->
+	<Row Class="5" Name="NO_HEALING_ON_MOUNTAINS" Value="0"/>
+	<!-- Players can pillage permanent improvements if at war -->
+	<Row Class="4" Name="PILLAGE_PERMANENT_IMPROVEMENTS" Value="0"/>
 	<!-- Changes for Advanced Setup that allow players to acquire GG and GA points from fighting Barbarians -->
 	<Row Class="5" Name="BARBARIAN_GG_GA_POINTS" Value="1"/>
     <!-- Permits units to earn GG/GA points from killing barbarians, this is the trait version (ie applies to all units of the civ) of PROMOTIONS_GG_FROM_BARBARIANS (v83) -->
