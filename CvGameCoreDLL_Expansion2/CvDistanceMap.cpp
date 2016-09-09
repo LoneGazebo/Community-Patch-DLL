@@ -82,7 +82,10 @@ void CvDistanceMap::Update()
 				{
 					PlayerTypes currentOwner = (PlayerTypes)UNPACK_OWNER(m_vClosestFeature[it->iPlotIndex]);
 					CvCity* pCurrentCity = GET_PLAYER(currentOwner).getCity(UNPACK_ID(m_vClosestFeature[it->iPlotIndex]));
-					bUpdate = (pCurrentCity->getGameTurnFounded() > pLoopCity->getGameTurnFounded());
+					if(pCurrentCity != NULL)
+					{
+						bUpdate = (pCurrentCity->getGameTurnFounded() > pLoopCity->getGameTurnFounded());
+					}
 				}
 
 				if (bUpdate)
