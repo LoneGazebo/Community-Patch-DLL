@@ -1574,6 +1574,10 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 	if (!pDeployPlot)
 		pDeployPlot = GetPlotXInStepPath(pMusterPlot,pTargetPlot,GetDeployRange(),false);
 
+	if (!pDeployPlot && IsNavalOperation() && pTargetPlot->isWater())
+	{
+		pDeployPlot = pTargetPlot;
+	}
 	if (!pDeployPlot)
 	{
 		if (GC.getLogging() && GC.getAILogging())
@@ -2077,7 +2081,7 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget(CvPlot** ppMuster) const
 			iValue = pLoopCity->countNumImprovedPlots();
 
 			// Adjust value based on proximity to our start location
-			iDistance = GET_PLAYER(m_eOwner).GetCityDistance(pLoopCity->plot());
+			iDistance = GET_PLAYER(m_eOwner).GetCityDistanceInTurns(pLoopCity->plot());
 			if(iDistance > 0)
 			{
 				iValue = iValue * 100 / iDistance;
@@ -2704,24 +2708,34 @@ CvAIOperationNavalBombardment::~CvAIOperationNavalBombardment()
 }
 
 /// Kick off this operation
-void CvAIOperationNavalBombardment::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
-{
-	if(eEnemy == NO_PLAYER)
-		eEnemy = BARBARIAN_PLAYER;
+//void CvAIOperationNavalBombardment::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
+//{
+//	if(eEnemy == NO_PLAYER)
+//		eEnemy = BARBARIAN_PLAYER;
 
 	//do this before calling any FindX methods!
-	Reset(iID,eOwner,eEnemy);
+//	Reset(iID,eOwner,eEnemy);
 
-	CvPlot* pMuster = NULL;
-	CvPlot* pTarget = FindBestTarget(&pMuster);
+//	CvPlot* pMuster = NULL;
+//	CvPlot* pTarget = FindBestTarget(&pMuster);
 
-	SetupWithSingleArmy(pMuster,pTarget);
-}
+//	SetupWithSingleArmy(pMuster,pTarget);
+//}
 
 /// Find the barbarian camp we want to eliminate
 CvPlot* CvAIOperationNavalBombardment::FindBestTarget(CvPlot** ppMuster) const
 {
-	return OperationalAIHelpers::FindBestCoastalBombardmentTarget(m_eOwner,m_eEnemy,ppMuster);
+	CvPlot* pRefPlot = GetTargetPlot();
+	if (pRefPlot)
+	{
+		CvPlot* pTarget = OperationalAIHelpers::FindEnemies(m_eOwner, m_eEnemy, DOMAIN_SEA, false, pRefPlot->getArea(), pRefPlot);
+		if (ppMuster)
+			*ppMuster = pTarget;
+		return pTarget;
+	}
+
+	return NULL;
+	//return OperationalAIHelpers::FindBestCoastalBombardmentTarget(m_eOwner,m_eEnemy,ppMuster);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

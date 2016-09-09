@@ -498,7 +498,7 @@ int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iM
 	}
 #endif
 
-	iAdjust = GC.getGame().getRandNum((iPlusMinus * 2 + 1), "Adjusting Personality Flavor");
+	iAdjust = GC.getGame().getJonRandNum((iPlusMinus * 2 + 1), "Adjusting Personality Flavor");
 	iRtnValue = iOriginalValue + iAdjust - iPlusMinus;
 
 	if(iRtnValue < iMin)

@@ -12,6 +12,8 @@
 #ifndef CIV5_GLOBALS_H
 #define CIV5_GLOBALS_H
 
+#include <vector>
+
 //
 // 'global' vars for Civ V.  singleton class.
 // All globals and global types should be contained in this class

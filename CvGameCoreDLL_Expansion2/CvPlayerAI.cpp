@@ -308,7 +308,7 @@ void CvPlayerAI::AI_unitUpdate()
 }
 
 #if defined(MOD_BALANCE_CORE)
-void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift)
+void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift, bool bAllowRaze)
 #else
 void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 #endif
@@ -388,7 +388,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	}
 
 	// Do we want to burn this city down?
-	if(canRaze(pCity))
+	if (canRaze(pCity) && bAllowRaze)
 	{
 		// Burn the city if the empire is unhappy - keeping the city will only make things worse or if map hint dictates
 		// Huns will burn down everything possible once they have a core of a few cities (was 3, but this put Attila out of the running long term as a conqueror)
@@ -407,18 +407,20 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 		if(IsEmpireUnhappy() && !pCity->HasAnyWonder())
 		{
 			MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(pCity->getOriginalOwner());
-			if(eOpinion <= MAJOR_CIV_OPINION_ENEMY)
+			if (eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE)
 			{
 				pCity->doTask(TASK_RAZE);
 				return;
 			}
-
-			if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOldOwner).getTeam()))
+			else if (eOpinion == MAJOR_CIV_OPINION_ENEMY)
 			{
-				if(GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
+				if (GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOldOwner).getTeam()))
 				{
-					pCity->doTask(TASK_RAZE);
-					return;
+					if (GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
+					{
+						pCity->doTask(TASK_RAZE);
+						return;
+					}
 				}
 			}
 		}
@@ -690,8 +692,8 @@ void CvPlayerAI::AI_considerAnnex()
 {
 	AI_PERF("AI-perf.csv", "AI_ considerAnnex");
 
-	// if the empire is unhappy, don't consider annexing
-	if (IsEmpireUnhappy())
+	// if the empire is very unhappy, don't consider annexing
+	if (IsEmpireVeryUnhappy())
 	{
 		return;
 	}
@@ -911,7 +913,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 					{
 						if(IsEventChoiceValid(eEventChoice, eChosenEvent))
 						{
-							int iRandom = GC.getGame().getRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
+							int iRandom = GC.getGame().getJonRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
 							if(iRandom <= 0)
 							{
 								iRandom = 1;
@@ -1769,6 +1771,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 	int iFriendlies = 0;
 	if(bWar && (pGreatAdmiral->plot()->getNumDefenders(GetID()) > 0))
 	{
+		iFriendlies++;
 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
 			CvPlot *pLoopPlot = plotDirection(pGreatAdmiral->plot()->getX(), pGreatAdmiral->plot()->getY(), ((DirectionTypes)iI));
@@ -1782,7 +1785,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 			}
 		}
 	}
-	if(iFriendlies > 3)
+	if(iFriendlies > 2)
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
@@ -1833,11 +1836,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	{
 		bTheAustriaException = true;
 	}
-
-	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatDiplomat->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
 	
 	int iFlavorDiplo =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 	int iDesiredEmb = (iFlavorDiplo - 1);
@@ -1868,7 +1866,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 		}
 	}
 
-	if (eDirective != GREAT_PEOPLE_DIRECTIVE_USE_POWER && (GC.getGame().getGameTurn() - pGreatDiplomat->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+	if ((GC.getGame().getGameTurn() - pGreatDiplomat->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}

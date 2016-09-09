@@ -18,7 +18,6 @@
 #include "CvEnumSerialization.h"
 #include "FStlContainerSerialization.h"
 #include "FAutoVariable.h"
-#include "FAutoVector.h"
 
 #include "CvPreGame.h"
 

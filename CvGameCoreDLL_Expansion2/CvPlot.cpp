@@ -477,7 +477,7 @@ void CvPlot::doImprovement()
 					{
 						if(thisImprovementInfo->GetImprovementResourceDiscoverRand(iI) > 0)
 						{
-							if(GC.getGame().getRandNum(thisImprovementInfo->GetImprovementResourceDiscoverRand(iI), "Resource Discovery") == 0)
+							if(GC.getGame().getJonRandNum(thisImprovementInfo->GetImprovementResourceDiscoverRand(iI), "Resource Discovery") == 0)
 							{
 								iResourceNum = GC.getMap().getRandomResourceQuantity((ResourceTypes)iI);
 								setResourceType((ResourceTypes)iI, iResourceNum);
@@ -10447,8 +10447,8 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvPlot* pRefPlot)
 		return 0;
 
 	//give a bonus to fertile tiles that are close to our own territory
-	int iDistToOwnCities = pPlayer->GetCityDistance(this);
-	int iDistRef = pPlayer->GetCityDistance(pRefPlot);
+	int iDistToOwnCities = pPlayer->GetCityDistanceInTurns(this);
+	int iDistRef = pPlayer->GetCityDistanceInTurns(pRefPlot);
 	
 	if(!pPlayer->GetID() == getOwner())
 	{

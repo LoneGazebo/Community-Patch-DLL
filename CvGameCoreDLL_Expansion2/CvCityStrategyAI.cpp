@@ -856,7 +856,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 	iTempWeight = 0;
 
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Reset vector holding items we can currently build
 	m_Buildables.clear();
@@ -975,7 +975,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	int iModifiedYield = iBaseYield * GetCity()->getBaseYieldRateModifier(YIELD_PRODUCTION);
 	iModifiedYield /= 1000;
 
-	if (iModifiedYield >= 4 || m_BuildablesPrecheck.size() <= 0)
+	if (iModifiedYield >= 5 || m_BuildablesPrecheck.size() <= 0)
 	{
 		for (iProcessLoop = 0; iProcessLoop < GC.getNumProcessInfos(); iProcessLoop++)
 		{
@@ -1196,7 +1196,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 	iTempWeight = 0;
 
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Reset vector holding items we can currently build
 	m_Buildables.clear();
@@ -2747,7 +2747,7 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 		if (pEntry != NULL)
 			strDesc = pEntry->GetDescription();
 
-		strTemp.Format("SEED: %I64u, CHOSEN: %s, %s, TURNS: %d", GC.getGame().getRand().getSeed(), 
+		strTemp.Format("SEED: %I64u, CHOSEN: %s, %s, TURNS: %d", GC.getGame().getJonRand().getSeed(), 
 			strDesc.c_str(), bRush?"Rush if possible":"Do not rush", buildable.m_iTurnsToConstruct);
 
 		strOutBuf = strBaseString + strTemp;
@@ -5049,7 +5049,7 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	//GWS
 	if(kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier() > 0 && pkBuildingInfo->GetNumThemingBonuses() > 0)
 	{
-		if(pCity->isCapital())
+		if (pCity != NULL && pCity->isCapital())
 		{
 			iValue += kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier();
 		}

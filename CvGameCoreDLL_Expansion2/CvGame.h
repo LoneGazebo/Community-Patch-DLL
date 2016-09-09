@@ -426,19 +426,18 @@ public:
 	void removeGreatPersonBornName(const CvString& szName);
 #endif
 
-	//for map generation
 	CvRandom& getMapRand();
 	int getMapRandNum(int iNum, const char* pszLog);
 
-	//for game - branches internally depending on AI or UI
-	CvRandom& getRand();
-	int getRandNum(int iNum, const char* pszLog);
-	int getRandNumVA(int iNum, const char* pszLog, ...);
+	CvRandom& getJonRand();
+	int getJonRandNum(int iNum, const char* pszLog);
+	int getJonRandNumVA(int iNum, const char* pszLog, ...);
+	int getAsyncRandNum(int iNum, const char* pszLog);
 
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
 	//get random number from gamestate without a seed in the generator
 	int	getSmallFakeRandNum(int iNum, CvPlot& input);
-	int	getSmallFakeRandNum(int iNum, int iSeed);
+	int	getSmallFakeRandNum(int iNum, int iExtraSeed);
 #endif
 
 	int calculateSyncChecksum();
@@ -678,7 +677,8 @@ public:
 #endif
 
 	void SetClosestCityMapDirty();
-	int GetClosestCityDistance( const CvPlot* pPlot );
+	//assuming a typical unit with baseMoves==2
+	int GetClosestCityDistanceInTurns( const CvPlot* pPlot );
 	CvCity* GetClosestCity( const CvPlot* pPlot );
 
 	//------------------------------------------------------------

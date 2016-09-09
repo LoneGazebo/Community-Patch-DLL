@@ -573,7 +573,9 @@ VALUES
 INSERT INTO Building_YieldFromUnitLevelUp
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_DOJO', 'YIELD_CULTURE', 15);
+	('BUILDING_DOJO', 'YIELD_CULTURE', 5),
+	('BUILDING_DOJO', 'YIELD_SCIENCE', 5),
+	('BUILDING_DOJO', 'YIELD_PRODUCTION', 5);
 
 INSERT INTO Building_SpecialistYieldChangesLocal
 	(BuildingType, SpecialistType, YieldType, Yield)
@@ -584,7 +586,7 @@ VALUES
 INSERT INTO Building_YieldFromUnitProduction
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_SIEGE_WORKSHOP', 'YIELD_SCIENCE', 15);
+	('BUILDING_SIEGE_WORKSHOP', 'YIELD_SCIENCE', 50);
 	
 
 INSERT INTO Building_LakePlotYieldChanges

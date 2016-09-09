@@ -30,6 +30,9 @@ enum CvSpyState
     SPY_STATE_TRAVELLING,
     SPY_STATE_SURVEILLANCE,
     SPY_STATE_GATHERING_INTEL,
+#if defined(MOD_BALANCE_CORE)
+	SPY_STATE_PREPARING_HEIST,
+#endif
     SPY_STATE_RIG_ELECTION,
     SPY_STATE_COUNTER_INTEL,
 	SPY_STATE_MAKING_INTRODUCTIONS,
@@ -93,6 +96,7 @@ public:
 	bool m_bPassive;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
+	bool m_bIsThief;
 	void SetSpyActiveTurn(int iGameTurn);
 	int GetSpyActiveTurn();
 	void ChangeAdvancedActions(int iValue);
@@ -119,6 +123,12 @@ struct HeistLocation
 	int m_iX;
 	int m_iY;
 };
+#if defined(MOD_BALANCE_CORE)
+struct GWList
+{
+	int m_iGreatWorkIndex;
+};
+#endif
 struct SpyNotificationMessage
 {
 	int m_iCityX;
@@ -133,6 +143,7 @@ struct SpyNotificationMessage
 	int m_iGold;
 	int m_iScience;
 	bool m_bRebellion;
+	const char* m_strGWText;
 #endif
 };
 struct IntrigueNotificationMessage
@@ -154,7 +165,10 @@ typedef FStaticVector<TechTypes, 1, false, c_eCiv5GameplayDLL> TechList;
 typedef FStaticVector<TechList, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> PlayerTechList;
 typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> NumTechsToStealList;
 #if defined(MOD_BALANCE_CORE)
+typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> NumGWToStealList;
+typedef Firaxis::Array<std::vector<GWList>, MAX_MAJOR_CIVS> GreatWorkStealList;
 typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> NumSpyActionsDone;
+typedef Firaxis::Array<int, MAX_MAJOR_CIVS> MaxGWCost;
 #endif
 typedef Firaxis::Array<int, MAX_MAJOR_CIVS> MaxTechCost;
 typedef Firaxis::Array<std::vector<HeistLocation>, MAX_MAJOR_CIVS> HeistLocationList;
@@ -189,8 +203,13 @@ public:
 	CvCity* GetCityWithSpy(uint uiSpyIndex);
 	int  GetSpyIndexInCity(CvCity* pCity);
 	bool CanEverMoveSpyTo(CvCity* pCity);
+#if defined(MOD_BALANCE_CORE)
+	bool CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat, bool bAsThief);
+	bool MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat, bool bAsThief = false);
+#else
 	bool CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat);
 	bool MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat);
+#endif
 	bool ExtractSpyFromCity(uint uiSpyIndex);
 	void LevelUpSpy(uint uiSpyIndex);
 
@@ -215,6 +234,12 @@ public:
 	bool IsSchmoozing (uint uiSpyIndex);
 	bool IsAnySchmoozing (CvCity* pCity);
 
+#if defined(MOD_BALANCE_CORE)
+	bool IsThief(uint uiSpyIndex);
+	bool IsPreparingHeist(uint uiSpyIndex);
+	bool IsAnyPreparingHeist(CvCity* pCity);
+#endif
+
 	bool CanStageCoup(uint uiSpyIndex);
 	int GetCoupChanceOfSuccess(uint uiSpyIndex);
 	bool AttemptCoup(uint uiSpyIndex);
@@ -233,13 +258,17 @@ public:
 	int GetNumTechsToSteal(PlayerTypes ePlayer);
 #if defined(MOD_BALANCE_CORE)
 	int GetNumSpyActionsDone(PlayerTypes ePlayer);
+
+	void BuildStealableGWList(PlayerTypes ePlayer);
+	bool IsGWStealable(PlayerTypes ePlayer, int iGreatWorkIndex);
+	int GetNumGWToSteal(PlayerTypes ePlayer);
 #endif
 
 	bool IsMyDiplomatVisitingThem(PlayerTypes ePlayer, bool bIncludeTravelling = false);
 	bool IsOtherDiplomatVisitingMe(PlayerTypes ePlayer);
 
 #if defined(MOD_BALANCE_CORE_SPIES)
-	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, TechTypes eStolenTech, BuildingTypes eBuilding, UnitTypes eUnit, bool bUnrest, int iValue, int iScienceValue, bool bRebel);
+	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, TechTypes eStolenTech, BuildingTypes eBuilding, UnitTypes eUnit, bool bUnrest, int iValue, int iScienceValue, bool bRebel, const char* GreatWorkName = NULL);
 #else
 	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, TechTypes eStolenTech);
 #endif
@@ -268,6 +297,9 @@ public:
 	std::vector<SpyNotificationMessage> m_aSpyNotificationMessages; // cleared every turn after displayed for the player
 	std::vector<IntrigueNotificationMessage> m_aIntrigueNotificationMessages; // cleared only between games
 #if defined(MOD_BALANCE_CORE)
+	MaxGWCost m_aiMaxGWCost;
+	NumGWToStealList m_aiNumGWToStealList;
+	GreatWorkStealList m_aPlayerStealableGWList;
 	NumSpyActionsDone m_aiNumSpyActionsDone;
 #endif
 private:
@@ -367,6 +399,9 @@ public:
 
 	void DoTurn(void);
 	void StealTechnology(void);
+#if defined(MOD_BALANCE_CORE)
+	void StealGreatWork(void);
+#endif
 	void UpdateCivOutOfTechTurn(void);
 	void AttemptCoups(void);
 	void FindTargetSpyNumbers(int* piTargetOffensiveSpies, int* piTargetDefensiveSpies, int* piTargetCityStateSpies, int* piTargetDiplomatSpies);

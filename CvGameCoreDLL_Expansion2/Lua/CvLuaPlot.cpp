@@ -2042,7 +2042,9 @@ int CvLuaPlot::lIsResourceConnectedByImprovement(lua_State* L)
 #if defined(MOD_BALANCE_CORE)
 		if(!bResult)
 		{
-			if(GET_TEAM(GC.getGame().getActiveTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getResourceInfo(kPlot->getResourceType())->getTechCityTrade()))
+			CvResourceInfo* pInfo = GC.getResourceInfo(kPlot->getResourceType());
+
+			if (pInfo && GET_TEAM(GC.getGame().getActiveTeam()).GetTeamTechs()->HasTech((TechTypes)pInfo->getTechCityTrade()))
 			{
 				if(pkImprovementInfo->IsCreatedByGreatPerson() || pkImprovementInfo->IsAdjacentCity())
 				{

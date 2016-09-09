@@ -61,9 +61,7 @@ public:
 	// allocate memory
 	virtual void Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY);
 	virtual void DeInit();
-
-	// Pure virtual method to set up function pointers. needs to be implemented in derived class
-	virtual bool Configure(PathType eType) = 0;
+	virtual bool IsInitialized(int iXstart, int iYstart, int iXdest, int iYdest);
 
 	// Generates a path
 	bool FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data);
@@ -179,9 +177,13 @@ public:
 	}
 
 	virtual bool CanEndTurnAtNode(const CvAStarNode* temp) const = 0;
+	virtual bool AddStopNodeIfRequired(const CvAStarNode* current, const CvAStarNode* next) = 0;
 
 	//--------------------------------------- PROTECTED FUNCTIONS -------------------------------------------
 protected:
+
+	// Pure virtual method to set up function pointers. needs to be implemented in derived class
+	virtual bool Configure(PathType eType) = 0;
 
 	inline int GetNormalizedLength() const
 	{
@@ -205,9 +207,6 @@ protected:
 	void CreateChildren(CvAStarNode* node);
 	NodeState LinkChild(CvAStarNode* node, CvAStarNode* check);
 	void UpdateParents(CvAStarNode* node);
-
-	void StackPush(CvAStarNode* node);
-	CvAStarNode* StackPop();
 
 	inline int xRange(int iX) const;
 	inline int yRange(int iY) const;
@@ -359,8 +358,6 @@ inline int CvAStar::udFunc(CvAStarConst2Func func, const CvAStarNode* param1, co
 class CvPathFinder : public CvAStar
 {
 public:
-	// configures the AStar implementation according to the desired PathType and generates a path
-	// path in this case can also be a set of plots, for some path types there is no destination
 	virtual SPath GetPath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data);
 	virtual SPath GetPath(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data);
 	virtual bool DoesPathExist(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data);
@@ -371,10 +368,6 @@ public:
 	virtual int GetPathLengthInTurns(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data);
 	virtual ReachablePlots GetPlotsInReach(int iXstart, int iYstart, const SPathFinderUserData& data);
 	virtual ReachablePlots GetPlotsInReach(const CvPlot* pStartPlot, const SPathFinderUserData& data);
-
-protected:
-	// set up the function pointers which do the actual work
-	virtual bool Configure(PathType ePathType) = 0;
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -383,6 +376,7 @@ protected:
 class CvStepFinder : public CvPathFinder
 {
 	virtual bool CanEndTurnAtNode(const CvAStarNode* temp) const;
+	virtual bool AddStopNodeIfRequired(const CvAStarNode* current, const CvAStarNode* next);
 
 protected:
 	virtual bool Configure(PathType ePathType);
@@ -404,6 +398,7 @@ public:
 	//has to be public for the free functions to access it
 	CvAStarNode* GetPartialMoveNode(int iCol, int iRow);
 	virtual bool CanEndTurnAtNode(const CvAStarNode* temp) const;
+	virtual bool AddStopNodeIfRequired(const CvAStarNode* current, const CvAStarNode* next);
 
 protected:
 	// set the function pointers which do the actual work
@@ -422,7 +417,6 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int operation,
 int PathHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY);
 int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 int PathAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
-int PathNodeAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFinderUserData& data, CvAStar* finder);
 
 int StepHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY);
 int StepDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);

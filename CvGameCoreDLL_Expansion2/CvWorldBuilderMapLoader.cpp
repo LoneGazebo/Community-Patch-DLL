@@ -711,7 +711,7 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 		break;
 
 	default:
-		eFacing = (DirectionTypes)GC.getGame().getRandNum(NUM_DIRECTION_TYPES, "Picking Random Unit Direction");
+		eFacing = (DirectionTypes)GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES, "Picking Random Unit Direction");
 	}
 
 	if(ePlayer != NO_PLAYER)

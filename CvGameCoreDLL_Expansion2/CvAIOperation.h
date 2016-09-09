@@ -806,7 +806,7 @@ public:
 	CvAIOperationNavalBombardment();
 	virtual ~CvAIOperationNavalBombardment();
 
-	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	//virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual MultiunitFormationTypes GetFormation() const
 	{
@@ -824,7 +824,10 @@ public:
 	{ 
 		return AI_TACTICAL_TARGET_BOMBARDMENT_ZONE;
 	}
-	virtual int GetDeployRange() const { return 3; }
+	virtual int GetDeployRange() const { return 2; }
+
+	virtual bool IsDefensive() const { return false; }
+	virtual bool IsOffensive() const { return true; }
 
 protected:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
