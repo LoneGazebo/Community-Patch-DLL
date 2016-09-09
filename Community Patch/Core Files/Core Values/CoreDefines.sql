@@ -14,6 +14,26 @@ SELECT 'GLOBAL_RESOURCE_MONOPOLY_THRESHOLD', '50';
 INSERT INTO Defines (Name, Value)
 SELECT 'STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD', '25';
 
+-- No pillage and repairing in foreign lands
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'NO_REPAIR_FOREIGN_LANDS';
+
+-- No yield from Ice Features
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'NO_YIELD_ICE';
+
+-- No major civ gifting exploit fix
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'NO_MAJORCIV_GIFTING';
+
+-- No healing on mountains if not city plot
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'NO_HEALING_ON_MOUNTAINS';
+
+-- If player is using Alternate Assyria Trait...choose a free tech
+UPDATE CustomModOptions SET Value = 0 WHERE Name = 'ALTERNATE_ASSYRIA_TRAIT';
+
+INSERT INTO Language_en_US
+			(Tag,										Text)
+SELECT		'TXT_KEY_SCIENCE_BOOST_CONQUEST_ASSYRIA',	'Your soldiers found [ICON_RESEARCH] Science during the conquest of {1_Name}!'
+WHERE EXISTS (SELECT * FROM CustomModOptions WHERE Name='ALTERNATE_ASSYRIA_TRAIT' AND Value= 1 );
+
 --Diplo Distances
 --2
 UPDATE Defines

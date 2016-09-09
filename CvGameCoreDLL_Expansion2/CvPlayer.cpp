@@ -3012,7 +3012,26 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			// Will this be the first time we have owned this city?
 			if (!pOldCity->isEverOwned(GetID()))
 			{
+#if defined(MOD_ALTERNATE_ASSYRIA_TRAIT)
+				if(MOD_ALTERNATE_ASSYRIA_TRAIT)
+				{
+					if(!isHuman())
+					{
+						AI_chooseFreeTech();
+					}
+					else
+					{
+						const char* strTargetNameKey = pOldCity->getNameKey();
+						Localization::String localizedText = Localization::Lookup("TXT_KEY_SCIENCE_BOOST_CONQUEST_ASSYRIA");
+						localizedText << strTargetNameKey;
+						chooseTech(1, localizedText.toUTF8());
+					}
+				}
+				else
+					DoTechFromCityConquer(pOldCity);
+#else
 				DoTechFromCityConquer(pOldCity);
+#endif
 			}
 		}
 	}

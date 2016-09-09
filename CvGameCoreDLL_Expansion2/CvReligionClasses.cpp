@@ -3407,7 +3407,9 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 	{
 		return false;
 	}
-
+#if defined(MOD_NO_AUTO_SPAWN_PROPHET)
+	bool prophetboughtwithfaith = false;
+#endif
 	const CvReligion* pReligion = NULL;
 	const int iFaith = kPlayer.GetFaith();
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
@@ -3461,7 +3463,39 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 	{
 #if defined(MOD_BUGFIX_MINOR)
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
+#if defined(MOD_NO_AUTO_SPAWN_PROPHET)
+		if(MOD_NO_AUTO_SPAWN_PROPHET)
+		{
+			if (kPlayer.isHuman())
+			{
+				switch (kPlayer.GetFaithPurchaseType())
+				{
+					case FAITH_PURCHASE_SAVE_PROPHET:
+						pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true /*bIncrementCount*/, true, false);
+						prophetboughtwithfaith = true;
+						break;
+					case NO_AUTOMATIC_FAITH_PURCHASE:
+						CvNotifications* pNotifications = kPlayer.GetNotifications();
+						if(pNotifications)
+						{
+							CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_FAITH_FOR_MISSIONARY");
+							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_FAITH_FOR_MISSIONARY");
+							pNotifications->Add(NOTIFICATION_CAN_BUILD_MISSIONARY, strBuffer, strSummary, -1, -1, -1);
+							kPlayer.GetReligions()->SetFaithAtLastNotify(kPlayer.GetFaith());
+						}
+						break;
+				}
+			}
+			else
+			{		
+				pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true /*bIncrementCount*/, true, false);
+			}
+		}
+		else
+			pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true /*bIncrementCount*/, true, false);
+#else
 		pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true /*bIncrementCount*/, true, false);
+#endif	
 #else
 		pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true /*bIncrementCount*/, true);
 #endif
@@ -3473,11 +3507,38 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 #endif
 #endif
 #if defined(MOD_RELIGION_KEEP_PROPHET_OVERFLOW)
-		if (MOD_RELIGION_KEEP_PROPHET_OVERFLOW && iBaseChance >= 100) {
+		if (MOD_RELIGION_KEEP_PROPHET_OVERFLOW && iBaseChance >= 100)
+		{
+#if defined(MOD_NO_AUTO_SPAWN_PROPHET)
+			if(MOD_NO_AUTO_SPAWN_PROPHET)
+			{
+				if (!kPlayer.isHuman() || prophetboughtwithfaith)
+				{
+					kPlayer.ChangeFaith(-1 * iCost);
+				}
+			}
+			else
+				kPlayer.ChangeFaith(-1 * iCost);
+#else
 			kPlayer.ChangeFaith(-1 * iCost);
-		} else {
 #endif
-			kPlayer.SetFaith(0);
+		}
+		else
+		{
+#if defined(MOD_NO_AUTO_SPAWN_PROPHET)
+			if(MOD_NO_AUTO_SPAWN_PROPHET)
+			{
+				if (!kPlayer.isHuman() || prophetboughtwithfaith)
+				{
+					kPlayer.SetFaith(0);
+				}
+			}
+			else
+				kPlayer.SetFaith(0);
+#endif
+#endif
+		kPlayer.SetFaith(0);
+
 #if defined(MOD_RELIGION_KEEP_PROPHET_OVERFLOW)
 		}
 #endif
@@ -3523,7 +3584,39 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 		{
 #if defined(MOD_BUGFIX_MINOR)
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
+#if defined(MOD_NO_AUTO_SPAWN_PROPHET)
+			if(MOD_NO_AUTO_SPAWN_PROPHET)
+			{
+				if (kPlayer.isHuman())
+				{
+					switch (kPlayer.GetFaithPurchaseType())
+					{
+						case FAITH_PURCHASE_SAVE_PROPHET:
+							pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true /*bIncrementCount*/, true, false);
+							prophetboughtwithfaith = true;
+							break;
+						case NO_AUTOMATIC_FAITH_PURCHASE:
+							CvNotifications* pNotifications = kPlayer.GetNotifications();
+							if(pNotifications)
+							{
+								CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_FAITH_FOR_MISSIONARY");
+								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_FAITH_FOR_MISSIONARY");
+								pNotifications->Add(NOTIFICATION_CAN_BUILD_MISSIONARY, strBuffer, strSummary, -1, -1, -1);
+								kPlayer.GetReligions()->SetFaithAtLastNotify(kPlayer.GetFaith());
+							}
+							break;
+					}
+				}
+				else
+				{		
+					pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true /*bIncrementCount*/, true, false);
+				}
+			}
+			else
+				pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true /*bIncrementCount*/, true, false);
+#else
 			pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true /*bIncrementCount*/, true, false);
+#endif	
 #else
 			pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true /*bIncrementCount*/, true);
 #endif
@@ -3535,11 +3628,37 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 #endif
 #endif
 #if defined(MOD_RELIGION_KEEP_PROPHET_OVERFLOW)
-		if (MOD_RELIGION_KEEP_PROPHET_OVERFLOW && iBaseChance >= 100) {
+		if (MOD_RELIGION_KEEP_PROPHET_OVERFLOW && iBaseChance >= 100)
+		{
+#if defined(MOD_NO_AUTO_SPAWN_PROPHET)
+			if(MOD_NO_AUTO_SPAWN_PROPHET)
+			{			
+				if (!kPlayer.isHuman() || prophetboughtwithfaith)
+				{
+					kPlayer.ChangeFaith(-1 * iCost);
+				}
+			}
+			else
+				kPlayer.ChangeFaith(-1 * iCost);
+		}
+#else
 			kPlayer.ChangeFaith(-1 * iCost);
-		} else {
 #endif
-			kPlayer.SetFaith(0);
+		else
+		{
+#if defined(MOD_NO_AUTO_SPAWN_PROPHET)
+			if(MOD_NO_AUTO_SPAWN_PROPHET)
+			{
+				if (!kPlayer.isHuman() || prophetboughtwithfaith)
+				{
+					kPlayer.SetFaith(0);
+				}
+			}
+			else
+				kPlayer.SetFaith(0);
+#endif
+#endif
+		kPlayer.SetFaith(0);
 #if defined(MOD_RELIGION_KEEP_PROPHET_OVERFLOW)
 		}
 #endif
