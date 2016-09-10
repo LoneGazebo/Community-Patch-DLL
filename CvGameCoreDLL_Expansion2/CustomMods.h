@@ -147,8 +147,6 @@
 #define AUI_RELIGION_FIX_DO_FAITH_PURCHASES_ENHANCE_RELIGION
 /// Since Venice can purchase stuff at puppets, the function will no longer treat Venice's puppets as ordinary puppets
 #define AUI_RELIGION_FIX_ARE_ALL_OUR_CITIES_HAVE_FAITH_BUILDING_VENICE_PUPPETS
-/// If the first adjusted value is out of bounds, keep rerolling with the amount with which it is out of bounds until we remain in bounds
-#define AUI_DIPLOMACY_GET_RANDOM_PERSONALITY_WEIGHT_USE_REROLLS
 
 // unhappiness from public opinion scales linearly with dissatisfaction
 #define MOD_CORE_SMOOTH_PUBLIC_OPINION

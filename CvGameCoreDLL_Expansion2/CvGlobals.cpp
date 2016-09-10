@@ -2501,7 +2501,7 @@ void CvGlobals::init()
 	};
 
 	CvAssertMsg(gDLL != NULL, "Civ app needs to set gDLL");
-	m_asyncRand = FNEW(CvRandom, c_eCiv5GameplayDLL, 0);
+	m_asyncRand = FNEW(CvRandom("UiRng"), c_eCiv5GameplayDLL, 0);
 
 	gDLL->InitGlobals();	// some globals need to be allocated outside the dll
 

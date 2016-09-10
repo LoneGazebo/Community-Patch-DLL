@@ -5428,7 +5428,7 @@ bool CvUnit::jumpToNearestValidPlot()
 										iValue += plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pNearestCity->getX(), pNearestCity->getY());
 									}
 
-									if(iValue < iBestValue || (iValue == iBestValue && GC.getGame().getJonRandNum(3,"jump to plot")<2) )
+									if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
 									{
 										iBestValue = iValue;
 										pBestPlot = pLoopPlot;
@@ -5523,7 +5523,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 											iValue *= 3;
 										}
 
-										if(iValue < iBestValue || (iValue == iBestValue && GC.getGame().getJonRandNum(3,"jump to plot")<2) )
+										if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
 										{
 											iBestValue = iValue;
 											pBestPlot = pLoopPlot;
@@ -28559,7 +28559,11 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	if(iValue > 0)
 	{
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+		iValue += GC.getGame().getSmallFakeRandNum(11, iValue);
+#else
 		iValue += GC.getGame().getJonRandNum(15, "AI Promote");
+#endif
 	}
 
 	return iValue;

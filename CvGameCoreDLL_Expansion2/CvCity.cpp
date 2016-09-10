@@ -9202,7 +9202,11 @@ void CvCity::DoSeedResourceDemandedCountdown()
 	}
 
 	int iRand = /*10*/ GC.getRESOURCE_DEMAND_COUNTDOWN_RAND();
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+	iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, getPopulation());
+#else
 	iNumTurns += GC.getGame().getJonRandNum(iRand, "City Resource demanded rand.");
+#endif
 
 	SetResourceDemandedCountdown(iNumTurns);
 }

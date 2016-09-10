@@ -2403,44 +2403,14 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue) const
 	int iAdjust = GC.getGame().getJonRandNum((iPlusMinus * 2 + 1), "Diplomacy AI Random Weight");
 	int iRtnValue = iOriginalValue + iAdjust - iPlusMinus;
 
-#if defined(AUI_DIPLOMACY_GET_RANDOM_PERSONALITY_WEIGHT_USE_REROLLS)
-	int iRerolls = 0;
-	if(iRtnValue < iMin)
-	{
-		iRerolls = iMin - iRtnValue;
-		iRtnValue = iMin;
-	}
-	else if(iRtnValue > iMax)
-	{
-		iRerolls = iRtnValue - iMax;
-		iRtnValue = iMax;
-	}
+	//for stupid settings, try to make it so that we don't cluster at the extreme values
+	if (iRtnValue < iMin)
+		iRtnValue = iMin + ((iMin-iRtnValue) % (iMax-iMin));
+	if (iRtnValue > iMax)
+		iRtnValue = iMax - ((iRtnValue-iMax) % (iMax-iMin));
 
-	while (iRerolls != 0)
-	{
-		iAdjust = GC.getGame().getJonRandNum(2 * iRerolls + 1, "Adjusting Personality Flavor") - iRerolls;
-		iRtnValue += iAdjust;
-
-		iRerolls = 0;
-		if (iRtnValue < iMin)
-		{
-			iRerolls = iMin - iRtnValue;
-			iRtnValue = iMin;
-		}
-		else if (iRtnValue > iMax)
-		{
-			iRerolls = iRtnValue - iMax;
-			iRtnValue = iMax;
-		}
-	}
-#else
-	if(iRtnValue < iMin)
-		iRtnValue = iMin;
-	else if(iRtnValue > iMax)
-		iRtnValue = iMax;
-#endif // AUI_DIPLOMACY_GET_RANDOM_PERSONALITY_WEIGHT_USE_REROLLS
-
-	return iRtnValue;
+	//if that didn't help, clamp it down hard
+	return range(iRtnValue,iMin,iMax);
 }
 
 
@@ -17846,7 +17816,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				{
 					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_SCIENCE));
 					int iThreshold = iValue;
-					int iRandRoll = GC.getGame().getJonRandNum((175 - iScienceFlavor), "Diplomacy AI: good turn to bully a minor?");
+					int iRandRoll = GC.getGame().getJonRandNumVA((175 - iScienceFlavor), "Diplomacy AI player %d: good turn to bully minor player %d for science?", m_pPlayer->GetID(), eMinor );
 
 					if(iRandRoll < iThreshold)
 						bWantsToBullyUnit = true;
@@ -17856,7 +17826,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				{
 					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_PRODUCTION));
 					int iThreshold = iValue;
-					int iRandRoll = GC.getGame().getJonRandNum((175 - iProductionFlavor), "Diplomacy AI: good turn to bully a minor?");
+					int iRandRoll = GC.getGame().getJonRandNumVA((175 - iProductionFlavor), "Diplomacy AI player %d: good turn to bully minor player %d for hammers?", m_pPlayer->GetID(), eMinor);
 
 					if(iRandRoll < iThreshold)
 						bWantsToBullyUnit = true;
@@ -17866,7 +17836,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				{
 					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_CULTURE));
 					int iThreshold = iValue;
-					int iRandRoll = GC.getGame().getJonRandNum((175 - iCultureFlavor), "Diplomacy AI: good turn to bully a minor?");
+					int iRandRoll = GC.getGame().getJonRandNumVA((175 - iCultureFlavor), "Diplomacy AI player %d: good turn to bully minor player %d for culture?", m_pPlayer->GetID(), eMinor);
 
 					if(iRandRoll < iThreshold)
 						bWantsToBullyUnit = true;
@@ -17876,7 +17846,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				{
 					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_FAITH));
 					int iThreshold = iValue;
-					int iRandRoll = GC.getGame().getJonRandNum((175 - iFaithFlavor), "Diplomacy AI: good turn to bully a minor?");
+					int iRandRoll = GC.getGame().getJonRandNumVA((175 - iFaithFlavor), "Diplomacy AI player %d: good turn to bully minor player %d for faith?", m_pPlayer->GetID(), eMinor);
 
 					if(iRandRoll < iThreshold)
 						bWantsToBullyUnit = true;
@@ -17886,7 +17856,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				{
 					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_FOOD));
 					int iThreshold = iValue;
-					int iRandRoll = GC.getGame().getJonRandNum((175 - iGrowthFlavor), "Diplomacy AI: good turn to bully a minor?");
+					int iRandRoll = GC.getGame().getJonRandNumVA((175 - iGrowthFlavor), "Diplomacy AI player %d: good turn to bully minor player %d for food?", m_pPlayer->GetID(), eMinor);
 
 					if(iRandRoll < iThreshold)
 						bWantsToBullyUnit = true;
@@ -17903,7 +17873,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					else
 					{
 						int iThreshold = iTileImprovementFlavor * 3; //antonjs: todo: XML
-						int iRandRoll = GC.getGame().getJonRandNum(100, "Diplomacy AI: good turn to bully a unit (worker) from a minor?");
+						int iRandRoll = GC.getGame().getJonRandNumVA(100, "Diplomacy AI player %d: good turn to bully minor player %d for a worker?", m_pPlayer->GetID(), eMinor);
 
 						if(iRandRoll < iThreshold)
 							bWantsToBullyUnit = true;
@@ -17924,7 +17894,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	else
 	{
 		int iThreshold = iTileImprovementFlavor * 3; //antonjs: todo: XML
-		int iRandRoll = GC.getGame().getJonRandNum(100, "Diplomacy AI: good turn to bully a unit (worker) from a minor?");
+		int iRandRoll = GC.getGame().getJonRandNumVA(100, "Diplomacy AI player %d: good turn to bully any minor player for a worker?", m_pPlayer->GetID());
 
 		if(iRandRoll < iThreshold)
 			bWantsToBullyUnit = true;
@@ -17953,7 +17923,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	else
 	{
 		int iThreshold = iGoldFlavor * 4; //antonjs: todo: XML
-		int iRandRoll = GC.getGame().getJonRandNum(100, "Diplomacy AI: good turn to bully gold from a minor?");
+		int iRandRoll = GC.getGame().getJonRandNumVA(100, "Diplomacy AI player %d: good turn to bully any minor player for gold?", m_pPlayer->GetID());
 
 		if(iRandRoll < iThreshold)
 			bWantsToBullyGold = true;
