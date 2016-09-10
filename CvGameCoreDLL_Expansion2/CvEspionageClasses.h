@@ -376,6 +376,9 @@ FDataStream& operator<<(FDataStream&, const CvCityEspionage&);
 //!  - Object is in the player class
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> EspionageAIOutOfTechTurnList;
+#if defined(MOD_BALANCE_CORE)
+typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> EspionageAIOutOfGWTurnList;
+#endif
 typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> EspionageAILastTurns;
 typedef FStaticVector<int, MAX_MAJOR_CIVS, false, c_eCiv5GameplayDLL> EspionageAICount;
 typedef std::vector<CvCity*> EspionageCityList;
@@ -401,6 +404,7 @@ public:
 	void StealTechnology(void);
 #if defined(MOD_BALANCE_CORE)
 	void StealGreatWork(void);
+	void UpdateCivOutOfGWTurn();
 #endif
 	void UpdateCivOutOfTechTurn(void);
 	void AttemptCoups(void);
@@ -419,6 +423,9 @@ public:
 
 	CvPlayer* m_pPlayer;
 	EspionageAIOutOfTechTurnList m_aiCivOutOfTechTurn; // when a civ has run out of techs to steal relative to us
+#if defined(MOD_BALANCE_CORE)
+	EspionageAIOutOfGWTurnList m_aiCivOutOfGWTurn; // when a civ has run out of techs to steal relative to us
+#endif
 
 	EspionageAICount m_aiNumSpiesCaught; // how many spies we caught
 	EspionageAICount m_aiNumSpiesKilled;   // how many spies we killed

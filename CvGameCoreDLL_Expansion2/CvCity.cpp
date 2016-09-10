@@ -24936,7 +24936,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 #if defined(MOD_BALANCE_CORE)
 				if (!GET_PLAYER(getOwner()).getUnit(iResult)->IsCivilianUnit())
 				{
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_U_PROD, true, NO_GREATPERSON, NO_BUILDING, iProductionNeeded, false, NO_PLAYER, NULL, false, this);
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_U_PROD, true, NO_GREATPERSON, NO_BUILDING, (iProductionNeeded / 100), false, NO_PLAYER, NULL, false, this);
 				}
 #endif
 				// max overflow is the value of the item produced (to eliminate prebuild exploits)

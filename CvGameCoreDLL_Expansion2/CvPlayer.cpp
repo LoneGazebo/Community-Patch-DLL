@@ -3849,7 +3849,15 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 #if defined(MOD_BALANCE_CORE)
 				else if(GetPlayerTraits()->IsKeepConqueredBuildings())
 				{
-					eBuilding = eLoopBuilding;
+					//If we keep buildings, but we have a replacement, grab the replacement instead.
+					if (playerCivilizationInfo.isCivilizationBuildingOverridden(iI))
+					{
+						eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
+					}
+					else
+					{
+						eBuilding = eLoopBuilding;
+					}
 				}
 #endif
 				else
@@ -27290,7 +27298,7 @@ void CvPlayer::DoArmyDiversity()
 	//////Let's get sum total of all land military unit AI types and boost the lowest type.
 	int iLowest = MAX_INT;
 	int iUnitAI = -1;
-	m_iUnitDiversity = -1;
+
 	for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++)
 	{
 		UnitAITypes eUnitAI = (UnitAITypes)iI;
@@ -27307,8 +27315,14 @@ void CvPlayer::DoArmyDiversity()
 			}
 		}
 	}
-	if(iUnitAI != -1)
+	if (iUnitAI != m_iUnitDiversity)
 	{
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			CvString strLogString;
+			strLogString.Format("ARMY DIVERSITY CHANGE! WE NEED: %d AI TYPE.", iUnitAI);
+			GetHomelandAI()->LogHomelandMessage(strLogString);
+		}
 		m_iUnitDiversity = iUnitAI;
 	}
 }

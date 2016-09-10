@@ -793,6 +793,7 @@ public:
 	{
 		return true;
 	};
+	virtual MultiunitFormationTypes GetFormation() const;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -806,7 +807,7 @@ public:
 	CvAIOperationNavalBombardment();
 	virtual ~CvAIOperationNavalBombardment();
 
-	//virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual MultiunitFormationTypes GetFormation() const
 	{
@@ -824,10 +825,11 @@ public:
 	{ 
 		return AI_TACTICAL_TARGET_BOMBARDMENT_ZONE;
 	}
-	virtual int GetDeployRange() const { return 2; }
 
 	virtual bool IsDefensive() const { return false; }
 	virtual bool IsOffensive() const { return true; }
+
+	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 protected:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
@@ -843,6 +845,8 @@ public:
 
 	CvAIOperationNavalSuperiority();
 	virtual ~CvAIOperationNavalSuperiority();
+
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual int GetOperationType() const
 	{
@@ -862,6 +866,8 @@ public:
 	}
 	virtual bool IsDefensive() const { return true; }
 	virtual bool IsOffensive() const { return false; }
+
+	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 protected:
 	virtual CvPlot* FindBestTarget(CvPlot** ppMuster) const;
@@ -1000,7 +1006,7 @@ public:
 
 	CvAIOperationNavalInvasion() {}
 	virtual ~CvAIOperationNavalInvasion() {}
-
+	virtual AIOperationMovementType GetMoveType() const { return AI_OPERATION_MOVETYPE_ESCORT; }
 	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 
 	virtual bool IsNavalOperation() const
@@ -1016,10 +1022,7 @@ public:
 	{
 		return "AI_OPERATION_NAVAL_INVASION";
 	}
-	virtual MultiunitFormationTypes GetFormation() const
-	{
-		return MUFORMATION_NAVAL_INVASION;
-	}
+	virtual MultiunitFormationTypes GetFormation() const;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1031,7 +1034,7 @@ class CvAIOperationNavalInvasionSneaky : public CvAIOperationNavalInvasion
 public:
 	CvAIOperationNavalInvasionSneaky();
 	virtual ~CvAIOperationNavalInvasionSneaky();
-
+	virtual AIOperationMovementType GetMoveType() const { return AI_OPERATION_MOVETYPE_ESCORT; }
 	virtual int GetOperationType() const
 	{
 		return AI_OPERATION_NAVAL_INVASION_SNEAKY;
@@ -1055,7 +1058,7 @@ class CvAIOperationNavalInvasionCityState : public CvAIOperationNavalInvasionSne
 public:
 	CvAIOperationNavalInvasionCityState() {}
 	virtual ~CvAIOperationNavalInvasionCityState() {}
-
+	virtual AIOperationMovementType GetMoveType() const { return AI_OPERATION_MOVETYPE_ESCORT; }
 	virtual int GetOperationType() const
 	{
 		return AI_OPERATION_NAVAL_INVASION_CITY_STATE;

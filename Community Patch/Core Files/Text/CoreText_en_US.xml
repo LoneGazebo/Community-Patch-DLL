@@ -6546,7 +6546,7 @@
 			<Text>Preparing Heist</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_SPY_HEIST_TT">
-			<Text>{1_RankName} {2_SpyName} is preparing for a Great Work Heist in {3_CityName}.[NEWLINE][NEWLINE]A spy may only attempt a Heist if the targeted civilization has at least one Great Work, and you have an empty Great Work slot of the same type.[NEWLINE][NEWLINE]If the city's owner has a spy in the city, your spy has a chance of being discovered and killed when they attempt the Heist![NEWLINE][NEWLINE]While preparing, your Spy will also disrupt the city through Advanced Actions.</Text>
+			<Text>{1_RankName} {2_SpyName} is preparing for a Great Work Heist in {3_CityName}.[NEWLINE][NEWLINE]A spy may only attempt a Heist if the targeted civilization's cities have at least one Great Work (and you have spies in those cities), and if you have an empty Great Work slot of the same type.[NEWLINE][NEWLINE]If the city's owner has a spy in the city, your spy has a chance of being discovered and killed when they attempt the Heist![NEWLINE][NEWLINE]While preparing, your Spy will also disrupt the city through Advanced Actions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SPY_BE_THIEF">
 			<Text>Do you want this spy to be a Thief? A spy can be a Thief if they are placed in a non-capital city of another major civilization. A Thief will attempt a Great Work Heist (if possible) and will conduct Advanced Actions against the City.</Text>

@@ -1522,13 +1522,14 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 
 			--CBP
 			local bCheckThief = false;
-			if (not bCheckDiplomat and pActivePlayer:ValidHeistLocation(selectedAgentIndex, city)) then
+			if (pActivePlayer:ValidHeistLocation(selectedAgentIndex, city)) then
+				bCheckDiplomat = true;
 				bCheckThief = true;
 			end
 			--END
 
 			ApplyGenericEntrySettings(cityEntry, v, agent, bTickTock)
-			
+
 			if (bCheckDiplomat) then
 				cityEntry.CitySelectButton:RegisterCallback(Mouse.eLClick, function()
 					g_ConfirmAction = function()
@@ -1539,13 +1540,19 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 						Network.SendMoveSpy(Game.GetActivePlayer(), selectedAgentIndex, v.PlayerID, v.CityID, false);
 						Refresh();
 					end
-					Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_SPY_BE_DIPLOMAT");
+
+					if(bCheckThief)then			
+						Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_SPY_BE_THIEF");
+						Controls.YesString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_THIEF");
+					else
+						Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_SPY_BE_DIPLOMAT");
+						Controls.YesString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_DIPLOMAT");					
+					end
+					Controls.NoString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_SPY");
 					Controls.ConfirmContent:CalculateSize();
 					local width, height = Controls.ConfirmContent:GetSizeVal();
 					Controls.ConfirmFrame:SetSizeVal(width + 60, height + 120);
 					Controls.ChooseConfirm:SetHide(false);
-					Controls.YesString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_DIPLOMAT");
-					Controls.NoString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_SPY");
 				end);
 			else
 				cityEntry.CitySelectButton:RegisterCallback(Mouse.eLClick, function()
@@ -1553,32 +1560,6 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 					Refresh();
 				end);
 			end
-			--CBP
-			if (bCheckThief) then
-				cityEntry.CitySelectButton:RegisterCallback(Mouse.eLClick, function()
-					g_ConfirmAction = function()
-						Network.SendMoveSpy(Game.GetActivePlayer(), selectedAgentIndex, v.PlayerID, v.CityID, true);
-						Refresh();
-					end
-					g_DenyAction = function()
-						Network.SendMoveSpy(Game.GetActivePlayer(), selectedAgentIndex, v.PlayerID, v.CityID, false);
-						Refresh();
-					end
-					Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_SPY_BE_THIEF");
-					Controls.ConfirmContent:CalculateSize();
-					local width, height = Controls.ConfirmContent:GetSizeVal();
-					Controls.ConfirmFrame:SetSizeVal(width + 60, height + 120);
-					Controls.ChooseConfirm:SetHide(false);
-					Controls.YesString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_THIEF");
-					Controls.NoString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_SPY");
-				end);
-			else
-				cityEntry.CitySelectButton:RegisterCallback(Mouse.eLClick, function()
-					Network.SendMoveSpy(Game.GetActivePlayer(), selectedAgentIndex, v.PlayerID, v.CityID, false);
-					Refresh();
-				end);
-			end
-			--END
 		else
 			local cityEntry = g_TheirCityManager:GetInstance();
 			local agent = GetAgentForCity(v.PlayerID, v.CityID);

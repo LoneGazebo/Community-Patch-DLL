@@ -3,7 +3,7 @@
 -- America
 --------------------
 UPDATE Language_en_US
-SET Text = 'All land military units have +1 sight. 50% discount when purchasing tiles. Can Purchase tiles already owned by other Civilizations, though at a much higher [ICON_GOLD] Gold cost than normal.'
+SET Text = 'All land military units have +1 sight. 50% discount when purchasing tiles, and tile purchases grant +25 [ICON_GOLDEN_AGE] Golden Age Points, scaling with Era. May purchase tiles owned by other Civilizations at a much higher [ICON_GOLD] Gold cost than normal.'
 WHERE Tag = 'TXT_KEY_TRAIT_RIVER_EXPANSION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -883,7 +883,7 @@ SET Text = 'Ostrog is a Russian term for a small fort, typically wooden and ofte
 WHERE Tag = 'TXT_KEY_BUILDINGS_KREPOST_PEDIA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'All Strategic Resources provide +1 [ICON_RESEARCH] Science and double their normal quantity. Receive +15 [ICON_RESEARCH] Science when you purchase or acquire a tile, scaling with Era.'
+SET Text = 'All Strategic Resources provide +1 [ICON_RESEARCH] Science and double their normal quantity. Receive +25 [ICON_RESEARCH] Science when you naturally gain a tile, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_STRATEGIC_RICHES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

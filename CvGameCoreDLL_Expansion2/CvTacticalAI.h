@@ -834,6 +834,7 @@ private:
 	bool ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iNumMeleeUnits, int iNumRangedUnits, int iDeployRange);
 	bool ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, int iNumUnits);
 	void ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
+	void ExecuteNavalFormationEscortMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
 
 	// Routines to process and sort targets
 	void IdentifyPriorityTargets();

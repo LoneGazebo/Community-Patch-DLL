@@ -1855,7 +1855,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 			//check if we're at the target
 			CvPlot *pTarget = pThisArmy->GetGoalPlot();
 			CvPlot *pCenterOfMass = pThisArmy->GetCenterOfMass();
-			if(pCenterOfMass && pTarget)
+			if(pCenterOfMass && pTarget && IsOffensive())
 			{
 				bool bInPlace = false;
 				if(plotDistance(*pCenterOfMass,*pTarget) <= GetDeployRange())
@@ -2676,7 +2676,11 @@ void CvAIOperationNavalOnlyBasic::Init(int iID, PlayerTypes eOwner, PlayerTypes 
 
 	SetupWithSingleArmy(pMusterPlot,pTarget->plot(),pGoalPlot);
 }
-
+MultiunitFormationTypes CvAIOperationNavalOnlyBasic::GetFormation() const
+{
+	//varies with era
+	return MilitaryAIHelpers::GetCurrentBestFormationTypeForPureNavalAttack();
+}
 /// Returns true when we should abort the operation totally (besides when we have lost all units in it)
 AIOperationAbortReason CvAIOperationNavalOnlyBasic::VerifyOrAdjustTarget(CvArmyAI* pArmy)
 {
@@ -2708,20 +2712,38 @@ CvAIOperationNavalBombardment::~CvAIOperationNavalBombardment()
 }
 
 /// Kick off this operation
-//void CvAIOperationNavalBombardment::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int /*iAreaID*/, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
-//{
-//	if(eEnemy == NO_PLAYER)
-//		eEnemy = BARBARIAN_PLAYER;
-
+void CvAIOperationNavalBombardment::Init(int iID, PlayerTypes eOwner, PlayerTypes eAlly, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster)
+{
 	//do this before calling any FindX methods!
-//	Reset(iID,eOwner,eEnemy);
+	Reset(iID, eOwner, eAlly);
 
-//	CvPlot* pMuster = NULL;
-//	CvPlot* pTarget = FindBestTarget(&pMuster);
+	CvPlot* pMusterPlot;
+	CvPlot* pTargetPlot;
+	if (pTarget && pMuster)
+	{
+		pMusterPlot = pMuster->plot();
+		pTargetPlot = pTarget->plot();
+	}
+	else
+		pTargetPlot = FindBestTarget(&pMusterPlot);
 
-//	SetupWithSingleArmy(pMuster,pTarget);
-//}
+	SetupWithSingleArmy(pMusterPlot, pTargetPlot);
+}
 
+/// Returns true when we should abort the operation totally (besides when we have lost all units in it)
+AIOperationAbortReason CvAIOperationNavalBombardment::VerifyOrAdjustTarget(CvArmyAI* pArmy)
+{
+	CvPlot* pNewTarget = FindBestTarget(NULL);
+
+	if (pNewTarget)
+	{
+		SetTargetPlot(pNewTarget);
+		pArmy->SetGoalPlot(pNewTarget);
+		return NO_ABORT_REASON;
+	}
+
+	return AI_ABORT_NO_TARGET;
+}
 /// Find the barbarian camp we want to eliminate
 CvPlot* CvAIOperationNavalBombardment::FindBestTarget(CvPlot** ppMuster) const
 {
@@ -2752,6 +2774,39 @@ CvAIOperationNavalSuperiority::~CvAIOperationNavalSuperiority()
 {
 }
 
+/// Kick off this operation
+void CvAIOperationNavalSuperiority::Init(int iID, PlayerTypes eOwner, PlayerTypes eAlly, int /*iAreaID*/, CvCity* pTarget, CvCity* pMuster)
+{
+	//do this before calling any FindX methods!
+	Reset(iID, eOwner, eAlly);
+
+	CvPlot* pMusterPlot;
+	CvPlot* pTargetPlot;
+	if (pTarget && pMuster)
+	{
+		pMusterPlot = pMuster->plot();
+		pTargetPlot = pTarget->plot();
+	}
+	else
+		pTargetPlot = FindBestTarget(&pMusterPlot);
+
+	SetupWithSingleArmy(pMusterPlot, pTargetPlot);
+}
+
+/// Returns true when we should abort the operation totally (besides when we have lost all units in it)
+AIOperationAbortReason CvAIOperationNavalSuperiority::VerifyOrAdjustTarget(CvArmyAI* pArmy)
+{
+	CvPlot* pNewTarget = FindBestTarget(NULL);
+
+	if (pNewTarget)
+	{
+		SetTargetPlot(pNewTarget);
+		pArmy->SetGoalPlot(pNewTarget);
+		return NO_ABORT_REASON;
+	}
+
+	return AI_ABORT_NO_TARGET;
+}
 /// Find the nearest enemy naval unit to eliminate
 CvPlot* CvAIOperationNavalSuperiority::FindBestTarget(CvPlot** ppMuster) const
 {
@@ -3024,7 +3079,11 @@ void CvAIOperationNavalInvasion::Init(int iID, PlayerTypes eOwner, PlayerTypes e
 
 	SetupWithSingleArmy(pCoastalMuster,pCoastalTarget);
 }
-
+MultiunitFormationTypes CvAIOperationNavalInvasion::GetFormation() const
+{
+	//varies with era
+	return MilitaryAIHelpers::GetCurrentBestFormationTypeForNavalAttack();
+}
 /// Start the civilian off to a new target plot
 bool CvAIOperationCivilianFoundCityOverseas::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 {
@@ -3929,6 +3988,9 @@ CvPlot* OperationalAIHelpers::FindEnemies(PlayerTypes ePlayer, PlayerTypes eEnem
 			continue;
 
 		if (bHomelandOnly && pLoopPlot->getOwner()!=ePlayer)
+			continue;
+
+		if (!bHomelandOnly && pLoopPlot->getOwner() == ePlayer)
 			continue;
 
 		if (iRefArea!=-1 && pLoopPlot->getArea()!=iRefArea && !pLoopPlot->isAdjacentToArea(iRefArea))

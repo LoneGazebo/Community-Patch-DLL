@@ -146,6 +146,7 @@ struct CvMilitaryTarget
 	bool m_bAttackBySea;
 #if defined(MOD_BALANCE_CORE)
 	bool m_bOcean;
+	bool m_bNoLandPath;
 #endif
 };
 
@@ -166,6 +167,7 @@ struct SCachedTarget
 	int iMusterCity;
 	int bAttackBySea;
 	int bOcean;
+	int bNoLandPath;
 	int iScore;
 	int iTurnChosen;
 };
@@ -257,7 +259,7 @@ public:
 	CvMilitaryTarget FindBestAttackTargetGlobal(AIOperationTypes eAIOperationType, int* piWinningScore = NULL, bool bCheckWar = false);
 #endif
 	CvMilitaryTarget FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
-	void CheckApproachFromLandAndSea(PlayerTypes eEnemy, CvMilitaryTarget& target);
+	void CheckApproachFromLandAndSea(PlayerTypes eEnemy, CvMilitaryTarget& target, AIOperationTypes eAIOperationType);
 	int ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOperationType);
 	CityAttackApproaches EvaluateMilitaryApproaches(CvCity* pCity, bool bAttackByLand, bool bAttackBySea);
 

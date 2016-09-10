@@ -274,13 +274,21 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		return 0;
 	}
 
+
+	//% Value that will modify the base value.
+	int iBonus = 0;
+
 	bool bAtWar = false;
 	if(kPlayer.isMinorCiv())
 	{
 		int iNumUnits = kPlayer.getNumMilitaryUnits();
-		if(iNumUnits >= (4 * kPlayer.getNumCities()))
+		if(iNumUnits >= (6 * kPlayer.getNumCities()))
 		{
 			return 0;
+		}
+		else
+		{
+			iBonus += 100;
 		}
 	}
 	else
@@ -330,8 +338,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 	}
 
-	//% Value that will modify the base value.
-	int iBonus = 0;
 	
 	//////////////////
 	//DOMAINS AND LOCATION CHECKS
@@ -1190,12 +1196,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				iBonus += 250;
 			}
-			else if (eDomain == DOMAIN_LAND)
+			if (eDomain == DOMAIN_LAND)
 			{
 				//////Let's get the military unit AI type we have the least of and boost the lowest type.
 				if(kPlayer.GetArmyDiversity() == (int)pkUnitEntry->GetDefaultUnitAIType())
 				{
-					iBonus += 200;
+					iBonus += 250;
 				}
 			}
 		}
