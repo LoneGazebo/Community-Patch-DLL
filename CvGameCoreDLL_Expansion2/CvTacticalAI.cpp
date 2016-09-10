@@ -9332,7 +9332,7 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 						// Optimization
 						if(iDistance < iMovementRate * iBestValue && iDistance < (m_iSeaBarbarianRange * 3))
 						{
-							iValue = pUnit->TurnsToReachTarget(pPlot);
+							iValue = pUnit->TurnsToReachTarget(pPlot, 0, m_iSeaBarbarianRange);
 							if(iValue < iBestValue)
 							{
 								iBestValue = iValue;
