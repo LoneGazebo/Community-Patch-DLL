@@ -27367,11 +27367,10 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 	if(pToPlot == NULL)
 		return false;
 
-	bool bHavePath = false;
-	if (HaveCachedPathTo(pToPlot,iFlags))
-		//we can re-use the old path if we have one (and need one at all)
-		bHavePath = at(pToPlot->getX(),pToPlot->getY()) || !m_kLastPath.empty();
-	else
+	//can we re-use the old path?
+	bool bHavePath = HaveCachedPathTo(pToPlot, iFlags);
+
+	if (!bHavePath)
 		bHavePath = ComputePath(pToPlot, iFlags, iMaxTurns);
 
 	if(piPathTurns != NULL)
@@ -27391,7 +27390,7 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 				}
 			}
 		}
-		else //we're already there!
+		else if (bHavePath) //we're already there (at least approximately)!
 			*piPathTurns = 0;
 	}
 

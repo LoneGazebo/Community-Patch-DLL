@@ -9311,109 +9311,27 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 			pTarget = GetNextZoneTarget();
 		}
 
-		// The obvious way to do this next part is to plot moves to each naval tile adjacent to each camp ...
-		// starting with the first camp and then proceeding to the final one.  But our optimization (to drop out
-		// targets that are further from the closest we've found so far) might in worst case not help at all if we
-		// check the closest camp last.  So instead we'll loop by DIRECTIONS first which should mean we pick up some plot
-		// from a close camp early (and the optimization will help)
-		for(int jJ = 0; jJ < NUM_DIRECTION_TYPES; jJ++)
+		// Try to sail to the second closest camp - this should result in patrolling behavior
+		pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
+		while(pTarget != NULL)
 		{
-			pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
-			while(pTarget != NULL)
+			CvPlot* pCamp = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
+			if(pCamp != pNearestCamp && pCamp->isAdjacentToShallowWater())
 			{
-				CvPlot* pCamp = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-				if(pCamp != pNearestCamp)
+				iValue = pUnit->TurnsToReachTarget(pCamp, CvUnit::MOVEFLAG_APPROX_TARGET_RING1, m_iSeaBarbarianRange);
+				if(iValue < iBestValue)
 				{
-					CvPlot* pPlot = plotDirection(pCamp->getX(), pCamp->getY(), ((DirectionTypes)jJ));
-					if(pPlot && pPlot->isWater())
-					{
-						int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
-
-						// Optimization
-						if(iDistance < iMovementRate * iBestValue && iDistance < (m_iSeaBarbarianRange * 3))
-						{
-							iValue = pUnit->TurnsToReachTarget(pPlot, 0, m_iSeaBarbarianRange);
-							if(iValue < iBestValue)
-							{
-								iBestValue = iValue;
-								pBestMovePlot = pPlot;
-							}
-						}
-					}
-				}
-				pTarget = GetNextZoneTarget();
-			}
-		}
-	}
-
-	// No obvious target, let's scan nearby tiles for the best choice, borrowing some of the code from the explore AI
-	if(pBestMovePlot == NULL)
-	{
-		// Now looking for BEST score
-		iBestValue = 0;
-		int iMovementRange = pUnit->movesLeft() / GC.getMOVE_DENOMINATOR();
-		for(int iX = -iMovementRange; iX <= iMovementRange; iX++)
-		{
-			for(int iY = -iMovementRange; iY <= iMovementRange; iY++)
-			{
-				CvPlot* pConsiderPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iX, iY, iMovementRange);
-				if(!pConsiderPlot)
-				{
-					continue;
-				}
-
-				if(pUnit->atPlot(*pConsiderPlot))
-				{
-					continue;
-				}
-
-				if(!pConsiderPlot->isRevealed(pUnit->getTeam()))
-				{
-					continue;
-				}
-
-				if(pConsiderPlot->area() != pUnit->area())
-				{
-					continue;
-				}
-
-				if(!pUnit->CanReachInXTurns( pConsiderPlot, 1))
-				{
-					continue;
-				}
-
-				// Value them based on their explore value
-				DomainTypes eDomain = pUnit->getDomainType();
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-				iValue = CvEconomicAI::ScoreExplorePlot2(pConsiderPlot, m_pPlayer, eDomain, false);
-#else
-				iValue = CvEconomicAI::ScoreExplorePlot(pConsiderPlot, pUnit->getTeam(), pUnit->getUnitInfo().GetBaseSightRange(), eDomain);
-#endif
-
-				// Add special value for being near enemy lands
-				if(pConsiderPlot->isAdjacentOwned())
-				{
-					iValue += 100;
-				}
-				else if(pConsiderPlot->isOwned())
-				{
-					iValue += 200;
-				}
-
-				// If still have no value, score equal to distance from my current plot
-				if(iValue == 0)
-				{
-					iValue = plotDistance(pUnit->getX(), pUnit->getY(), pConsiderPlot->getX(), pConsiderPlot->getY());
-				}
-
-				if(iValue > iBestValue)
-				{
-					pBestMovePlot = pConsiderPlot;
 					iBestValue = iValue;
+					pBestMovePlot = pUnit->GetPathNodeArray().GetFinalPlot();
 				}
 			}
+			pTarget = GetNextZoneTarget();
 		}
 	}
+
+	// No obvious target ... next try
+	if (pBestMovePlot == NULL)
+		pBestMovePlot = FindBarbarianExploreTarget(pUnit);
 
 	return pBestMovePlot;
 }
@@ -9421,83 +9339,56 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 /// Scan nearby tiles for the best choice, borrowing code from the explore AI
 CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 {
-	CvPlot* pBestMovePlot = NULL;
-	int iBestValue;
-	int iValue;
+	CvPlot* pBestMovePlot = 0;
+	int iBestValue = 0;
 
-	// Now looking for BEST score
-	iBestValue = 0;
-	int iMovementRange = pUnit->baseMoves();
-	for(int iX = -iMovementRange; iX <= iMovementRange; iX++)
+	ReachablePlots reachablePlots;
+	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit.pointer(), pUnit->plot(), reachablePlots, true, true, false, 0);
+	for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 	{
-		for(int iY = -iMovementRange; iY <= iMovementRange; iY++)
-		{
-			CvPlot* pPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iX, iY, iMovementRange);
-			if(!pPlot)
-			{
-				continue;
-			}
+		CvPlot* pConsiderPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
-			if(pUnit->atPlot(*pPlot))
-			{
-				continue;
-			}
+		if (pUnit->atPlot(*pConsiderPlot))
+			continue;
 
-			if(!pPlot->isRevealed(pUnit->getTeam()))
-			{
-				continue;
-			}
+		if (!pConsiderPlot->isRevealed(pUnit->getTeam()))
+			continue;
 
-			if (!pUnit->isMatchingDomain(pPlot))
-			{
-				continue;
-			}
-
-			//allow disembarking
-			if( (pPlot->area() != pUnit->area() ) && !pUnit->isEmbarked() )
-			{
-				continue;
-			}
-
-			if(!pUnit->CanReachInXTurns( pPlot, 2))
-			{
-				continue;
-			}
-
-			// Value them based on their explore value
-			DomainTypes eDomain = pUnit->getDomainType();
+		// Value them based on their explore value
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-			iValue = CvEconomicAI::ScoreExplorePlot2(pPlot, m_pPlayer, eDomain, pUnit->isEmbarked());
+		int iValue = CvEconomicAI::ScoreExplorePlot2(pConsiderPlot, m_pPlayer, pUnit->getDomainType(), false);
 #else
-			iValue = CvEconomicAI::ScoreExplorePlot(pPlot, pUnit->getTeam(), pUnit->getUnitInfo().GetBaseSightRange(), eDomain);
+		int iValue = CvEconomicAI::ScoreExplorePlot(pConsiderPlot, pUnit->getTeam(), pUnit->getUnitInfo().GetBaseSightRange(), eDomain);
 #endif
 
-			//magic knowledge - gravitate towards cities
-			int iCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pPlot);
-			if (iCityDistance<10)
-				iValue += (10-iCityDistance);
+		// disembark if possible
+		if (pUnit->isNativeDomain(pConsiderPlot))
+		{
+			iValue += 200;
+		}
 
-			// Add special value for popping up on hills or near enemy lands
-			if(pPlot->isAdjacentOwned())
-			{
-				iValue += 100;
-			}
-			else if(pPlot->isOwned())
-			{
-				iValue += 200;
-			}
+		// Add special value enemy lands
+		if (pConsiderPlot->isAdjacentOwned() || pConsiderPlot->isOwned())
+		{
+			iValue += 100;
+		}
 
-			// If still have no value, score equal to distance from my current plot
-			if(iValue == 0)
-				iValue = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
+		//magic knowledge - gravitate towards cities
+		int iCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pConsiderPlot);
+		if (iCityDistance<10)
+			iValue += (10 - iCityDistance);
 
-			if(iValue > iBestValue)
-			{
-				pBestMovePlot = pPlot;
-				iBestValue = iValue;
-			}
+		// If still have no value, score equal to distance from my current plot
+		if (iValue == 0)
+			iValue = plotDistance(pUnit->getX(), pUnit->getY(), pConsiderPlot->getX(), pConsiderPlot->getY());
+
+		if (iValue > iBestValue)
+		{
+			pBestMovePlot = pConsiderPlot;
+			iBestValue = iValue;
 		}
 	}
+
 	return pBestMovePlot;
 }
 
