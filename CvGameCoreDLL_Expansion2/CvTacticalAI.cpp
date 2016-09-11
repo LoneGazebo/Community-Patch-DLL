@@ -11605,6 +11605,10 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		int iDanger = kPlayer.GetPlotDanger(*pPlot, pUnit);
 
 		int iCityDistance = kPlayer.GetCityDistanceInTurns(pPlot);
+		//when in doubt, prefer to move
+		if (pUnit->atPlot(*pPlot))
+			iCityDistance++;
+
 		bool bIsZeroDanger = (iDanger <= 0);
 		bool bIsInCity = pPlot->isFriendlyCity(*pUnit, false);
 		bool bIsInCover = (pPlot->getNumDefenders(pUnit->getOwner()) > 0) && !pUnit->IsCanDefend(pPlot); // only move to cover if I'm defenseless here
