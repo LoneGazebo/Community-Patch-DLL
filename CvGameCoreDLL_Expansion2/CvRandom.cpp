@@ -20,8 +20,9 @@
 #define RANDOM_C      (12345)
 #define RANDOM_SHIFT  (16)
 
-CvRandom::CvRandom() :
-	m_ullRandomSeed(0)
+CvRandom::CvRandom(const std::string& name) :
+	m_name(name)
+	, m_ullRandomSeed(0)
 	, m_ulCallCount(0)
 	, m_ulResetCount(0)
 	, m_bSynchronous(true)
@@ -29,6 +30,8 @@ CvRandom::CvRandom() :
 	reset();
 }
 
+/*
+// private
 CvRandom::CvRandom(const CvRandom& source) :
 	m_ullRandomSeed(source.m_ullRandomSeed)
 	, m_ulCallCount(source.m_ulCallCount)
@@ -36,14 +39,11 @@ CvRandom::CvRandom(const CvRandom& source) :
 	, m_bSynchronous(source.m_bSynchronous)
 {
 }
+*/
 
 bool CvRandom::operator==(const CvRandom& source) const
 {
-#if defined(MOD_BUGFIX_RANDOM)
-	return(m_ullRandomSeed == source.m_ullRandomSeed && m_ulCallCount == source.m_ulCallCount);
-#else
 	return(m_ullRandomSeed == source.m_ullRandomSeed);
-#endif
 }
 
 bool CvRandom::operator!=(const CvRandom& source) const
@@ -77,17 +77,10 @@ void CvRandom::uninit()
 // Initializes data members that are serialized.
 void CvRandom::reset(unsigned long long ullSeed)
 {
-	//--------------------------------
-	// Uninit class
-	uninit();
+	if (ullSeed != m_ullRandomSeed)
+		reseed(ullSeed);
 
-#if defined(MOD_BUGFIX_RANDOM)
-	reseed(ullSeed);
-#else
-	recordCallStack();
-	m_ulRandomSeed = ulSeed;
-	m_ulResetCount++;
-#endif
+	m_ulCallCount = 0;
 }
 
 unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
@@ -96,6 +89,10 @@ unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 	{
 		OutputDebugString("Warning: GUI is accessing the synchronous random number generator while the game core is running.");
 	}
+
+	//catch trivial cases
+	if (ulNum < 2)
+		return 0;
 
 	m_ulCallCount++;
 
@@ -110,12 +107,12 @@ unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 			CvGame& kGame = GC.getGame();
 			if(kGame.getTurnSlice() > 0 || ((iRandLogging & RAND_LOGGING_PREGAME_FLAG) != 0))
 			{
-				FILogFile* pLog = LOGFILEMGR.GetLog("RandCalls.csv", FILogFile::kDontTimeStamp, "Game Turn, Turn Slice, Range, Value, Seed, Instance, Type, Location\n");
+				FILogFile* pLog = LOGFILEMGR.GetLog("RandCalls.csv", FILogFile::kDontTimeStamp);
 				if(pLog)
 				{
 					char szOut[1024] = {0};
-					sprintf_s(szOut, "%d, %d, %u, %u, %I64u, %8x, %s, %s\n", kGame.getGameTurn(), kGame.getTurnSlice(), 
-						ulNum, ul, m_ullRandomSeed, (void*)this, m_bSynchronous?"sync":"async", (pszLog != NULL)?pszLog:"Unknown");
+					sprintf_s(szOut, "%s, %d, %d, max %u, res %u, seed %I64u, cc %d, rc %d, %s, %s\n", m_name.c_str(), kGame.getGameTurn(), kGame.getTurnSlice(), 
+						ulNum, ul, ullNewSeed, m_ulCallCount, m_ulResetCount, m_bSynchronous ? "sync" : "async", (pszLog != NULL) ? pszLog : "Unknown");
 					pLog->Msg(szOut);
 
 #if defined(MOD_CORE_DEBUGGING)
@@ -142,11 +139,19 @@ float CvRandom::getFloat()
 
 void CvRandom::reseed(unsigned long long ullNewValue)
 {
+	if (GC.getRandLogging())
+	{
+		FILogFile* pLog = LOGFILEMGR.GetLog("RandCalls.csv", FILogFile::kDontTimeStamp);
+		char szOut[1024] = { 0 };
+		sprintf_s(szOut, "%s reseeding: old seed seed %I64u, new seed %I64u, reseed count %d, call count %d\n",
+			m_name.c_str(), m_ullRandomSeed, ullNewValue, m_ulResetCount, m_ulCallCount);
+		pLog->Msg(szOut);
+	}
+
 	m_ulResetCount++;
 	m_ullRandomSeed = ullNewValue;
-#if defined(MOD_BUGFIX_RANDOM)
-	m_ulCallCount = 0;
-#endif
+
+	//do not reset the call count
 }
 
 
@@ -174,11 +179,13 @@ void CvRandom::read(FDataStream& kStream)
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ_NO_SENTINEL(kStream);
 
+	//don't load the name
 	kStream >> m_ullRandomSeed;
 	kStream >> m_ulCallCount;
 	kStream >> m_ulResetCount;
-	bool bDummy;
-	kStream >> bDummy;
+
+	bool dummy; //don't load m_bSync, it's true be default ...
+	kStream >> dummy;
 }
 
 
@@ -189,11 +196,13 @@ void CvRandom::write(FDataStream& kStream) const
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE_NO_SENTINEL(kStream);
 
+	//don't save the name
 	kStream << m_ullRandomSeed;
 	kStream << m_ulCallCount;
 	kStream << m_ulResetCount;
-	//dummy
-	kStream << false;
+
+	bool dummy; //don't save m_bSync, it's always true ...
+	kStream << dummy;
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvRandom& readFrom)
@@ -206,4 +215,13 @@ FDataStream& operator>>(FDataStream& loadFrom, CvRandom& writeTo)
 {
 	writeTo.read(loadFrom);
 	return loadFrom;
+}
+
+void CvRandom::CopyFrom(const CvRandom& rhs)
+{
+	m_ullRandomSeed = rhs.m_ullRandomSeed;
+	m_ulCallCount = rhs.m_ulCallCount;
+	m_ulResetCount = rhs.m_ulResetCount;
+	m_bSynchronous = rhs.m_bSynchronous;
+	m_name = rhs.m_name + "(Copy)";
 }

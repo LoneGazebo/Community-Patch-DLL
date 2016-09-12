@@ -86,6 +86,7 @@ CvTacticalDominanceZone::CvTacticalDominanceZone(void)
 #endif
 	m_iEnemyRangedUnitCount = 0;
 	m_iEnemyNavalUnitCount = 0;
+	m_iFriendlyNavalUnitCount = 0;
 	m_iZoneValue = 0;
 	m_iRangeClosestEnemyUnit = -1;
 	m_bIsWater = false;
@@ -538,10 +539,10 @@ void CvTacticalAnalysisMap::SetTargetFlankBonusCells(CvPlot* pTarget)
 	int iCellIndex;
 
 	// No flank attacks on units at sea (where all combat is bombards)
-	if(pTarget->isWater())
-	{
-		return;
-	}
+	//if(pTarget->isWater())
+	//{
+	//	return;
+	//}
 
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
@@ -884,6 +885,10 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						else
 							pZone->AddFriendlyMeleeUnitCount(1);
 
+						//this only applies for enemy zones? why?
+						if (pLoopUnit->getDomainType() == DOMAIN_SEA)
+							pZone->AddFriendlyNavalUnitCount(1);
+
 						//CvString msg;
 						//msg.Format("Zone %d, Friendly %s %d at %d,%d - distance %d, strength %d, ranged strength %d",
 						//	pZone->GetDominanceZoneID(), pLoopUnit->getName().c_str(), pLoopUnit->GetID(), 
@@ -954,7 +959,7 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 #if defined(MOD_BALANCE_CORE)
 				if (GET_PLAYER(m_ePlayer).IsCityAlreadyTargeted(pClosestCity) || GET_PLAYER(m_ePlayer).GetMilitaryAI()->IsCurrentAttackTarget(pClosestCity) )
 				{
-					iBaseValue *= 4;
+					iBaseValue *= 10;
 				}
 #endif
 			}
@@ -1224,12 +1229,20 @@ eTacticalDominanceFlags CvTacticalAnalysisMap::ComputeDominance(CvTacticalDomina
 		}
 		else
 		{
-			int iRatio = ((pZone->GetFriendlyStrength()+pZone->GetFriendlyRangedStrength())*100) / (pZone->GetEnemyStrength()+pZone->GetEnemyRangedStrength());
-			if(iRatio > 100 + m_iDominancePercentage)
+			if ((pZone->GetZoneCity() != NULL && pZone->GetZoneCity()->isCoastal()) || pZone->IsWater())
+			{
+				if (pZone->GetEnemyNavalUnitCount() <= 0 || pZone->GetEnemyNavalUnitCount() < pZone->GetFriendlyNavalUnitCount())
+				{
+					pZone->SetNavalInvasion(true);
+				}
+			}
+
+			int iRatio = ((pZone->GetFriendlyStrength() + pZone->GetFriendlyRangedStrength()) * 100) / (pZone->GetEnemyStrength() + pZone->GetEnemyRangedStrength());
+			if (iRatio > 100 + m_iDominancePercentage)
 			{
 				pZone->SetDominanceFlag(TACTICAL_DOMINANCE_FRIENDLY);
 			}
-			else if(iRatio < 100 - m_iDominancePercentage)
+			else if (iRatio < 100 - m_iDominancePercentage)
 			{
 				pZone->SetDominanceFlag(TACTICAL_DOMINANCE_ENEMY);
 			}
@@ -1372,6 +1385,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTacticalDominanceZone& read
 	saveTo << readFrom.m_iNeutralUnitStrength;
 	saveTo << readFrom.m_iEnemyRangedUnitCount;
 	saveTo << readFrom.m_iEnemyNavalUnitCount;
+	saveTo << readFrom.m_iFriendlyNavalUnitCount;
 	saveTo << readFrom.m_iZoneValue;
 	saveTo << readFrom.m_iRangeClosestEnemyUnit;
 	saveTo << readFrom.m_bIsWater;
@@ -1409,6 +1423,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTacticalDominanceZone& writeTo)
 	loadFrom >> writeTo.m_iNeutralUnitStrength;
 	loadFrom >> writeTo.m_iEnemyRangedUnitCount;
 	loadFrom >> writeTo.m_iEnemyNavalUnitCount;
+	loadFrom >> writeTo.m_iFriendlyNavalUnitCount;
 	loadFrom >> writeTo.m_iZoneValue;
 	loadFrom >> writeTo.m_iRangeClosestEnemyUnit;
 	loadFrom >> writeTo.m_bIsWater;

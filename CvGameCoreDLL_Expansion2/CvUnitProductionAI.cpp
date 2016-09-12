@@ -282,13 +282,14 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	if(kPlayer.isMinorCiv())
 	{
 		int iNumUnits = kPlayer.getNumMilitaryUnits();
-		if(iNumUnits >= (6 * kPlayer.getNumCities()))
+		int iEra = (kPlayer.GetCurrentEra() + 1) * 3;
+		if (iNumUnits >= iEra)
 		{
 			return 0;
 		}
 		else
 		{
-			iBonus += 100;
+			iBonus += (iEra - iNumUnits) * 25;
 		}
 	}
 	else
@@ -409,7 +410,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 						if(eResourceLoop == eAluminumResource)
 						{
-							if(pkUnitEntry->GetResourceQuantityRequirement(eResourceLoop) > 0)
+							if(pkUnitEntry->GetResourceQuantityRequirement(iResourceLoop) > 0)
 							{
 								//We need at least 4 aluminum to get off the planet, so let's save that much if we've got the Apollo.
 								if(kPlayer.getNumResourceAvailable(eResourceLoop, false) <= 4)
@@ -420,7 +421,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						}
 						if(pkUnitEntry->GetResourceQuantityRequirement(iResourceLoop) > 0)
 						{
-							iBonus += (25 * kPlayer.getNumResourceAvailable(eResourceLoop, false));
+							iBonus += (34 * kPlayer.getNumResourceAvailable(eResourceLoop, false));
 						}
 					}
 				}
@@ -846,6 +847,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				iBonus += (iGPT * -8);
 			}
+			int iUnhappyGold = m_pCity->getUnhappinessFromGold();
+			if (iUnhappyGold > 0)
+			{
+				iBonus += (iUnhappyGold * 25);
+			}
 		}
 	}
 
@@ -1065,12 +1071,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
 		if(eWantWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 		{
-			iBonus += (40 * iCurrentNumCities);
+			iBonus += (50 * iCurrentNumCities);
 		}
 		AICityStrategyTypes eNeedWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_TILE_IMPROVERS");
 		if(eNeedWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedWorkers))
 		{
-			iBonus += (60 * iCurrentNumCities);
+			iBonus += (75 * iCurrentNumCities);
 		}
 	}
 	

@@ -935,7 +935,7 @@ bool CvDllGameContext::RandomNumberGeneratorSyncCheck(PlayerTypes ePlayer, ICvRa
 unsigned int CvDllGameContext::CreateRandomNumberGenerator()
 {
 	uint index = m_uiRngCounter++;
-	std::pair<uint, CvRandom*> entry(index, FNEW(CvRandom, c_eCiv5GameplayDLL, 0));
+	std::pair<uint, CvRandom*> entry(index, FNEW(CvRandom( CvString::format("GenericRng%02d",index).c_str() ), c_eCiv5GameplayDLL, 0));
 
 	m_RandomNumberGenerators.push_back(entry);
 	return index;

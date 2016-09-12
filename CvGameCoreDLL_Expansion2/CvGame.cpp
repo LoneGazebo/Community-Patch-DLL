@@ -97,7 +97,8 @@ CvGameInitialItemsOverrides::CvGameInitialItemsOverrides()
 
 //------------------------------------------------------------------------------
 CvGame::CvGame() :
-	m_jonRand()
+	m_jonRand("GameRng")
+	, m_mapRand("PreGameRng")
 	, m_endTurnTimer()
 	, m_endTurnTimerSemaphore(0)
 	, m_curTurnTimer()
@@ -246,11 +247,7 @@ void CvGame::init(HandicapTypes eHandicap)
 
 		for(int i = 0; i < iNumPlayers; i++)
 		{
-#if defined(MOD_BUGFIX_RANDOM)
 			int j = (getJonRandNum(iNumPlayers - i, NULL) + i);
-#else
-			int j = (getJonRand().get(iNumPlayers - i, NULL) + i);
-#endif
 
 			if(i != j)
 			{
@@ -8882,14 +8879,21 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		// Is this Unit already assigned to another minor civ?
 		if (setUniquesAlreadyAssigned.count(eLoopUnit) > 0)
 			continue;
+
 #if defined(MOD_BALANCE_CORE)
-		//Weight minor civ gifts higher, so they're more likely to spawn each game.
+
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+		int iRandom = getSmallFakeRandNum(5, eLoopUnit);
+#else
 		int iRandom = getJonRandNum(5, "Random Value For Gift");
+#endif
 		if(iRandom < 0)
 		{
 			iRandom = 1;
 		}
-		if(pkUnitInfo->IsMinorCivGift())
+
+		//Weight minor civ gift units higher, so they're more likely to spawn each game.
+		if (pkUnitInfo->IsMinorCivGift())
 		{
 			veUnitRankings.push_back(eLoopUnit, iRandom * 2);
 		}
@@ -9963,18 +9967,10 @@ int CvGame::getJonRandNumVA(int iNum, const char* pszLog, ...)
 		vsprintf_s(szOutput, uiOutputSize, pszLog, vl);
 		va_end(vl);
 
-#if defined(MOD_BUGFIX_RANDOM)
 		return getJonRandNum(iNum, szOutput);
-#else
-		return m_jonRand.get(iNum, szOutput);
-#endif
 	}
 	else
-#if defined(MOD_BUGFIX_RANDOM)
 		return getJonRandNum(iNum, NULL);
-#else
-		return m_jonRand.get(iNum);
-#endif
 }
 
 //	--------------------------------------------------------------------------------

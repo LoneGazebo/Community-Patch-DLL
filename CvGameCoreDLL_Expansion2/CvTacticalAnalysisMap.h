@@ -488,6 +488,14 @@ public:
 	{
 		m_iEnemyNavalUnitCount += iUnitCount;
 	};
+	inline int GetFriendlyNavalUnitCount() const
+	{
+		return m_iFriendlyNavalUnitCount;
+	};
+	inline void AddFriendlyNavalUnitCount(int iUnitCount)
+	{
+		m_iFriendlyNavalUnitCount += iUnitCount;
+	};
 	inline int GetDominanceZoneValue() const
 	{
 		return m_iZoneValue;
@@ -544,6 +552,7 @@ private:
 	int m_iNeutralUnitStrength;
 	int m_iEnemyRangedUnitCount;
 	int m_iEnemyNavalUnitCount;
+	int m_iFriendlyNavalUnitCount;
 	int m_iZoneValue;
 	int m_iRangeClosestEnemyUnit;
 	bool m_bIsWater;

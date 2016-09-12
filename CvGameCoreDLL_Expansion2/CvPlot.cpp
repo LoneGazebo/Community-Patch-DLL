@@ -14010,6 +14010,19 @@ bool CvPlot::isImpassable(TeamTypes eTeam) const
 	return m_bIsImpassable;
 }
 
+bool CvPlot::hasSharedAdjacentArea(CvPlot* pOtherPlot) const
+{
+	if (pOtherPlot == NULL)
+		return false;
+
+	std::vector<int> myAreas = getAllAdjacentAreas();
+	std::vector<int> theirAreas = pOtherPlot->getAllAdjacentAreas();
+	std::vector<int> shared(MAX(myAreas.size(), theirAreas.size()));
+
+	std::vector<int>::iterator result = std::set_intersection(myAreas.begin(), myAreas.end(), theirAreas.begin(), theirAreas.end(), shared.begin());
+	return (result != shared.begin());
+}
+
 //--------------------------------------------------------------------
 // in updateImpassable we check terrain and features (per plot), combined with technologies (per team). here we additionally look at traits (per player). 
 // result is a simplified version of canMoveInto. since we don't know the particular of the unit, we are more restrictive here

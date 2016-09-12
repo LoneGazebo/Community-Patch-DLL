@@ -1756,18 +1756,15 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 		{
 			bool bCanDie = false;
 			int iSpyResult = 0;
-			iSpyResult = GC.getGame().getJonRandNum(150, "Random roll for the result of an advanced spy action");
+			iSpyResult = GC.getGame().getJonRandNum(125, "Random roll for the result of an advanced spy action");
 
-			iSpyResult += GC.getGame().getJonRandNum((pCity->GetEspionageModifier() / 2), "Random roll for the result of an advanced spy action");
-			iSpyResult += GC.getGame().getJonRandNum((GET_PLAYER(eCityOwner).GetEspionageModifier() / 2), "Random roll for the result of an advanced spy action");
-
-			iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
-			iSpyResult /= 100;
+			iSpyResult += GC.getGame().getJonRandNum((pCity->GetEspionageModifier() / 4), "Random roll for the result of an advanced spy action");
+			iSpyResult += GC.getGame().getJonRandNum((GET_PLAYER(eCityOwner).GetEspionageModifier() / 4), "Random roll for the result of an advanced spy action");
 
 			//Subtract City value (higher value targets are easier to hit)
 			iSpyResult -= iCityValue;
 
-			if (pCityEspionage->HasCounterSpy())
+			if(pCityEspionage->HasCounterSpy())
 			{			
 				int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
 				

@@ -12,12 +12,13 @@
 #ifndef CIV5_RANDOM_H
 #define CIV5_RANDOM_H
 
+#include <string>
+
 class CvRandom
 {
 
 public:
-	CvRandom();
-	CvRandom(const CvRandom& source);
+	CvRandom(const std::string& name);
 	virtual ~CvRandom();
 
 	void init(unsigned long long ulSeed);
@@ -40,14 +41,24 @@ public:
 	bool operator==(const CvRandom& rhs) const;
 	bool operator!=(const CvRandom& rhs) const;
 
-protected:
+	void CopyFrom(const CvRandom& rhs);
 
+protected:
 	unsigned long long m_ullRandomSeed;
 
 	// for OOS checks/debugging
+	std::string m_name;
 	unsigned long m_ulCallCount;
 	unsigned long m_ulResetCount;
-	bool m_bSynchronous;		// If true, the instance is marked as being one that should be synchronous across multi-player games.
+
+	// If true, the instance is marked as being one that should be synchronous across multi-player games.
+	bool m_bSynchronous;
+
+private:
+	//nobody should be calling this
+	CvRandom(const CvRandom& source);
+	CvRandom();
+	CvRandom operator=(const CvRandom&);
 };
 
 FDataStream& operator<<(FDataStream& saveTo, const CvRandom& readFrom);

@@ -140,6 +140,12 @@ public:
 	int GetGoalX() const;
 	int GetGoalY() const;
 
+#if defined(MOD_BALANCE_CORE)
+	//Water parameters
+	void SetOceanMoves(bool bValue);
+	bool NeedOceanMoves() const;
+#endif
+
 	// Unit handling
 	void AddUnit(int iUnitId, int iSlotNum);
 	bool RemoveUnit(int iUnitId);
@@ -161,6 +167,9 @@ protected:
 	int m_iCurrentY;
 	int m_iGoalX;
 	int m_iGoalY;
+#if defined(MOD_BALANCE_CORE)
+	bool m_bOceanMoves;
+#endif
 	int m_eDomainType; // DomainTypes
 	int m_iFormationIndex;
 	int m_eAIState; // ArmyAIState

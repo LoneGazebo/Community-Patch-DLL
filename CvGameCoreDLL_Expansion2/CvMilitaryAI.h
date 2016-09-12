@@ -406,8 +406,8 @@ private:
 	void DoLandAttacks(PlayerTypes ePlayer);
 	void DoSeaAttacks(PlayerTypes ePlayer);
 	void DoMinorCivAttacks(PlayerTypes ePlayer);
-	int GetEnemyLandValue(PlayerTypes ePlayer);
-	int GetEnemySeaValue(PlayerTypes ePlayer);
+	int GetEnemyLandValue(PlayerTypes ePlayer, CvMilitaryTarget& target);
+	int GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& target);
 #endif
 	void MakeEmergencyPurchases();
 	void MakeOffensivePurchases();

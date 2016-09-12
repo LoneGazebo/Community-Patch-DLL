@@ -466,6 +466,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 
+	bool bGoodforGPTHappiness = false;
+
 	//No Sea Trade Connections?
 	if(pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteSeaGoldBonus() > 0)
 	{
@@ -486,6 +488,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0)
 			{
 				iBonus += 50;
+			}
+
+			int iUnhappyConnection = m_pCity->getUnhappinessFromConnection();
+			if (iUnhappyConnection > 0)
+			{
+				iBonus += (iUnhappyConnection * 50);
+				bGoodforGPTHappiness = true;
 			}
 		}
 		else
@@ -572,8 +581,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	/////////
 	////Happiness (CBP)
 	////////
-	
-	bool bGoodforGPTHappiness = false;
+
 
 	if(kPlayer.IsEmpireUnhappy())
 	{
@@ -615,7 +623,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if(iUnhappyGold > 0)
 		{
 			bTested = true;
-			iBonus += (iUnhappyGold * 5);
+			iBonus += (iUnhappyGold * 25);
 			bGoodforGPTHappiness = true;
 		}
 	}
@@ -625,7 +633,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if(iUnhappyDefense > 0)
 		{
 			bTested = true;
-			iBonus += (iUnhappyDefense * 5);
+			iBonus += (iUnhappyDefense * 25);
 			bGoodforGPTHappiness = true;
 		}
 	}
@@ -635,7 +643,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if(iUnhappyReligion > 0)
 		{
 			bTested = true;
-			iBonus += (iUnhappyReligion * 5);
+			iBonus += (iUnhappyReligion * 25);
 			bGoodforGPTHappiness = true;
 		}
 	}
@@ -645,7 +653,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if(iUnhappyCulture > 0)
 		{
 			bTested = true;
-			iBonus += (iUnhappyCulture * 5);
+			iBonus += (iUnhappyCulture * 25);
 			bGoodforGPTHappiness = true;
 		}
 	}
@@ -655,7 +663,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if(iUnhappyScience > 0)
 		{
 			bTested = true;
-			iBonus += (iUnhappyScience * 5);
+			iBonus += (iUnhappyScience * 25);
 			bGoodforGPTHappiness = true;
 		}
 	}
@@ -681,7 +689,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if(m_pCity->IsOccupied())
 		{
 			//Extend based on population.
-			iBonus += 100 * m_pCity->getPopulation();
+			iBonus += 200 * m_pCity->getPopulation();
 			bGoodforGPTHappiness = true;
 		}
 	}
