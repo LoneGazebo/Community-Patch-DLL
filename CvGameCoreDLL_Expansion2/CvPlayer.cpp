@@ -3849,7 +3849,15 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 #if defined(MOD_BALANCE_CORE)
 				else if(GetPlayerTraits()->IsKeepConqueredBuildings())
 				{
-					eBuilding = eLoopBuilding;
+					//If we keep buildings, but we have a replacement, grab the replacement instead.
+					if (playerCivilizationInfo.isCivilizationBuildingOverridden(iI))
+					{
+						eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
+					}
+					else
+					{
+						eBuilding = eLoopBuilding;
+					}
 				}
 #endif
 				else
@@ -27290,7 +27298,7 @@ void CvPlayer::DoArmyDiversity()
 	//////Let's get sum total of all land military unit AI types and boost the lowest type.
 	int iLowest = MAX_INT;
 	int iUnitAI = -1;
-	m_iUnitDiversity = -1;
+
 	for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++)
 	{
 		UnitAITypes eUnitAI = (UnitAITypes)iI;
@@ -27307,8 +27315,14 @@ void CvPlayer::DoArmyDiversity()
 			}
 		}
 	}
-	if(iUnitAI != -1)
+	if (iUnitAI != m_iUnitDiversity)
 	{
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			CvString strLogString;
+			strLogString.Format("ARMY DIVERSITY CHANGE! WE NEED: %d AI TYPE.", iUnitAI);
+			GetHomelandAI()->LogHomelandMessage(strLogString);
+		}
 		m_iUnitDiversity = iUnitAI;
 	}
 }
@@ -35324,13 +35338,13 @@ CvAIOperation* CvPlayer::getAIOperation(int iID)
 
 
 //	--------------------------------------------------------------------------------
-CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, int iArea, CvCity* pTarget, CvCity* pMuster)
+CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, int iArea, CvCity* pTarget, CvCity* pMuster, bool bOceanMoves)
 {
 	CvAIOperation* pNewOperation = CvAIOperation::CreateOperation((AIOperationTypes) OperationType);
 	if(pNewOperation)
 	{
 		m_AIOperations.insert(std::make_pair(m_iNextOperationID.get(), pNewOperation));
-		pNewOperation->Init(m_iNextOperationID, m_eID, eEnemy, iArea, pTarget, pMuster);
+		pNewOperation->Init(m_iNextOperationID, m_eID, eEnemy, iArea, pTarget, pMuster, bOceanMoves);
 		m_iNextOperationID++;
 	}
 	return pNewOperation;
@@ -35457,7 +35471,7 @@ bool CvPlayer::haveAIOperationOfType(int iOperationType, int* piID /* optional r
 		{
 			if(eTargetPlayer == NO_PLAYER || eTargetPlayer == pThisOperation->GetEnemy())
 			{
-				if(pTarget == NULL || pTarget == pThisOperation->GetTargetPlot())
+				if(pTarget == NULL || pTarget == pThisOperation->GetTargetPlot() || pTarget == pThisOperation->GetMusterPlot())
 				{
 					// Fill in optional parameter (ID) if passed in
 					if(piID != NULL)
@@ -35501,7 +35515,15 @@ bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPe
 {
 	CvAIOperation* pOperation;
 	std::map<int , CvAIOperation*>::const_iterator iter;
-
+	AIOperationState eOperationState = INVALID_AI_OPERATION_STATE;
+	if (iPercentToTarget <= 50)
+	{
+		eOperationState = AI_OPERATION_STATE_GATHERING_FORCES;
+	}
+	else
+	{
+		eOperationState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+	}
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		pOperation = iter->second;
@@ -35510,8 +35532,7 @@ bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPe
 		{
 			if(iIgnoreOperationID == -1 || iIgnoreOperationID != pOperation->GetID())
 			{
-				//don't hit the pathfinder if we don't care about the result
-				if(iPercentToTarget==100 || pOperation->PercentFromMusterPointToTarget() < iPercentToTarget)
+				if (pOperation->GetOperationState() <= eOperationState)
 				{
 					if(pOperation->GetTargetPlot() != NULL)
 					{
@@ -40673,7 +40694,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	//if we want to go to other continents, we need a very large search radius
 	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 	EconomicAIStrategyTypes eStrategyReallyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS");
-	bool bWantOffshore = GetEconomicAI()->IsUsingStrategy(eStrategyReallyExpandToOtherContinents) && GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents);
+	bool bWantOffshore = GetEconomicAI()->IsUsingStrategy(eStrategyReallyExpandToOtherContinents) || GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents);
 
 	CvMap& kMap = GC.getMap();
 	int iNumPlots = kMap.numPlots();

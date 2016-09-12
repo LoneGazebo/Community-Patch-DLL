@@ -788,6 +788,7 @@ private:
 	// Routines to manage identifying and implementing tactical moves
 	bool PlotCaptureCityMoves();
 	bool PlotDamageCityMoves();
+	bool PlotNavalDamageCityMoves();
 	void PlotBarbarianCampMoves();
 	void PlotDestroyUnitMoves(AITacticalTargetType movePriorit, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
 	void PlotMovesToSafety(bool bCombatUnits);
@@ -834,6 +835,7 @@ private:
 	bool ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iNumMeleeUnits, int iNumRangedUnits, int iDeployRange);
 	bool ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, int iNumUnits);
 	void ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
+	void ExecuteNavalFormationEscortMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
 
 	// Routines to process and sort targets
 	void IdentifyPriorityTargets();

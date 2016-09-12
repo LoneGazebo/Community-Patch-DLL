@@ -261,11 +261,19 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				break;
 				case YIELD_FOOD:
 				{
+					if(m_pCity->GetCityCitizens()->IsForcedAvoidGrowth())
+						return 0;
+
+					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+					if (iExcessFoodTimes100 < 0)
+					{
+						iModifier += 25;
+					}
 					if(MOD_BALANCE_CORE_HAPPINESS)
 					{
 						if(m_pCity->getUnhappinessFromStarving() > 0)
 						{
-							iModifier += (m_pCity->getUnhappinessFromStarving() * 2);
+							iModifier += (m_pCity->getUnhappinessFromStarving() * 5);
 						}
 					}
 					if(eGrowCrazy != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eGrowCrazy))

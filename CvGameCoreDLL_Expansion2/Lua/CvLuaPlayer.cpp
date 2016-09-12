@@ -13365,6 +13365,11 @@ int CvLuaPlayer::lCanSpyStageCoup(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lValidHeistLocation(lua_State* L)
 {
+	if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
 	CvPlayer* pkPlayer = GetInstance(L);
 	int iSpyIndex = lua_tointeger(L, 2);
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);

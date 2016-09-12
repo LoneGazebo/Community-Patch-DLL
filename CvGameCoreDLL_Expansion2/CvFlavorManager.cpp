@@ -501,12 +501,14 @@ int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iM
 	iAdjust = GC.getGame().getJonRandNum((iPlusMinus * 2 + 1), "Adjusting Personality Flavor");
 	iRtnValue = iOriginalValue + iAdjust - iPlusMinus;
 
-	if(iRtnValue < iMin)
-		iRtnValue = iMin;
-	else if(iRtnValue > iMax)
-		iRtnValue = iMax;
+	//for stupid settings, try to make it so that we don't cluster at the extreme values
+	if (iRtnValue < iMin)
+		iRtnValue = iMin + ((iMin - iRtnValue) % (iMax - iMin));
+	if (iRtnValue > iMax)
+		iRtnValue = iMax - ((iRtnValue - iMax) % (iMax - iMin));
 
-	return iRtnValue;
+	//if that didn't help, clamp it down hard
+	return range(iRtnValue, iMin, iMax);
 }
 
 /// Sends current flavor settings to all recipients

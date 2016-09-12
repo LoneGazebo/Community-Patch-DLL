@@ -1545,6 +1545,9 @@ void CvHomelandAI::PlotMobileReserveMoves()
 /// Send units to sentry points around borders
 void CvHomelandAI::PlotSentryMoves()
 {
+	if (m_pPlayer->IsAtWar())
+		return;
+
 	// Do we have any targets of this type?
 	if(!m_TargetedSentryPoints.empty())
 	{
@@ -1584,6 +1587,9 @@ void CvHomelandAI::PlotSentryMoves()
 #if defined(MOD_BALANCE_CORE)
 void CvHomelandAI::PlotSentryNavalMoves()
 {
+	if (m_pPlayer->IsAtWar())
+		return;
+
 	// Do we have any targets of this type?
 	if(!m_TargetedNavalSentryPoints.empty())
 	{

@@ -2158,7 +2158,7 @@ public:
 	CvAIOperation* getNextAIOperation();
 	CvAIOperation* getAIOperation(int iID);
 	const CvAIOperation* getAIOperation(int iID) const;
-	CvAIOperation* addAIOperation(int iOperationType, PlayerTypes eEnemy=NO_PLAYER, int iArea=-1, CvCity* pTarget=NULL, CvCity* pMuster=NULL);
+	CvAIOperation* addAIOperation(int iOperationType, PlayerTypes eEnemy = NO_PLAYER, int iArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bNeedOceanMoves = false);
 	void deleteAIOperation(int iID);
 	bool haveAIOperationOfType(int iOperationType, int* piID=NULL, PlayerTypes eTargetPlayer = NO_PLAYER, CvPlot* pTargetPlot=NULL);
 	int numOperationsOfType(int iOperationType);

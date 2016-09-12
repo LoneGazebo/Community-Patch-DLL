@@ -9209,7 +9209,11 @@ void CvCity::DoSeedResourceDemandedCountdown()
 	}
 
 	int iRand = /*10*/ GC.getRESOURCE_DEMAND_COUNTDOWN_RAND();
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+	iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, getPopulation());
+#else
 	iNumTurns += GC.getGame().getJonRandNum(iRand, "City Resource demanded rand.");
+#endif
 
 	SetResourceDemandedCountdown(iNumTurns);
 }
@@ -24936,7 +24940,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 #if defined(MOD_BALANCE_CORE)
 				if (!GET_PLAYER(getOwner()).getUnit(iResult)->IsCivilianUnit())
 				{
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_U_PROD, true, NO_GREATPERSON, NO_BUILDING, iProductionNeeded, false, NO_PLAYER, NULL, false, this);
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_U_PROD, true, NO_GREATPERSON, NO_BUILDING, (iProductionNeeded / 100), false, NO_PLAYER, NULL, false, this);
 				}
 #endif
 				// max overflow is the value of the item produced (to eliminate prebuild exploits)

@@ -938,6 +938,8 @@ public:
 	bool GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::vector<CvPlot*>& vResult) const;
 
 	void updateImpassable(TeamTypes eTeam = NO_TEAM);
+
+	bool hasSharedAdjacentArea(CvPlot* pOtherPlot) const;
 #endif
 
 	bool canPlaceUnit(PlayerTypes ePlayer) const;

@@ -5428,7 +5428,7 @@ bool CvUnit::jumpToNearestValidPlot()
 										iValue += plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pNearestCity->getX(), pNearestCity->getY());
 									}
 
-									if(iValue < iBestValue || (iValue == iBestValue && GC.getGame().getJonRandNum(3,"jump to plot")<2) )
+									if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
 									{
 										iBestValue = iValue;
 										pBestPlot = pLoopPlot;
@@ -5523,7 +5523,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 											iValue *= 3;
 										}
 
-										if(iValue < iBestValue || (iValue == iBestValue && GC.getGame().getJonRandNum(3,"jump to plot")<2) )
+										if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
 										{
 											iBestValue = iValue;
 											pBestPlot = pLoopPlot;
@@ -27390,11 +27390,10 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 	if(pToPlot == NULL)
 		return false;
 
-	bool bHavePath = false;
-	if (HaveCachedPathTo(pToPlot,iFlags))
-		//we can re-use the old path if we have one (and need one at all)
-		bHavePath = at(pToPlot->getX(),pToPlot->getY()) || !m_kLastPath.empty();
-	else
+	//can we re-use the old path?
+	bool bHavePath = HaveCachedPathTo(pToPlot, iFlags);
+
+	if (!bHavePath)
 		bHavePath = ComputePath(pToPlot, iFlags, iMaxTurns);
 
 	if(piPathTurns != NULL)
@@ -27414,7 +27413,7 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 				}
 			}
 		}
-		else //we're already there!
+		else if (bHavePath) //we're already there (at least approximately)!
 			*piPathTurns = 0;
 	}
 
@@ -28582,7 +28581,11 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	if(iValue > 0)
 	{
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+		iValue += GC.getGame().getSmallFakeRandNum(11, iValue);
+#else
 		iValue += GC.getGame().getJonRandNum(15, "AI Promote");
+#endif
 	}
 
 	return iValue;
