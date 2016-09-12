@@ -106,8 +106,11 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 	{
 		return false;
 	}
-
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+	if(pPlot->IsNaturalWonder(true))
+#else
 	if(pPlot->IsNaturalWonder())
+#endif
 		return false;
 
 	//need at least one conventionally accessible plot around the city
@@ -504,7 +507,11 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			bIsAlmostCoast = true;
 
 		// if this tile is a NW boost the value just so that we force the AI to claim them (if we can work it)
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+		if (pLoopPlot->IsNaturalWonder(true) && iPlotValue>0)
+#else
 		if (pLoopPlot->IsNaturalWonder() && iPlotValue>0)
+#endif
 			iPlotValue *= 15;
 
 		// lower value a lot if we or somebody else already own this tile
@@ -532,8 +539,11 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		{
 			++iWetlandsCount;
 		}
-
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+		if (pLoopPlot->IsNaturalWonder(true))
+#else
 		if (pLoopPlot->IsNaturalWonder())
+#endif
 		{
 			++iNaturalWonderCount;
 		}
@@ -701,8 +711,11 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		iValueModifier += (int)iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT() / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) city on resource");
 	}
-
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+	if (pPlot->IsNaturalWonder(true))
+#else
 	if (pPlot->IsNaturalWonder())
+#endif
 	{
 		iValueModifier += (int)iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT() / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) city on natural wonder");

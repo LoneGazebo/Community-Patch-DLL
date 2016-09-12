@@ -2255,7 +2255,8 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	CvPlayer& buyingPlayer = GET_PLAYER(bFromMe ? eOtherPlayer : GetPlayer()->GetID());
 
 	//initial value - if we founded the city, we like it more
-	int iItemValue = (pCity->getOriginalOwner() == buyingPlayer.GetID()) ? 25000 : 20000;
+	bool bOurs = pCity->getOriginalOwner() == buyingPlayer.GetID();
+	int iItemValue = (bOurs) ? 25000 : 20000;
 
 	//If at war, halve the value (that way it'll fit in a peace deal's valuation model).
 	if (!sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
@@ -2267,10 +2268,11 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	int iEconomicValue = pCity->getEconomicValue(buyingPlayer.GetID());
 
 	//If not as good as any of our cities, we don't want it.
-	bool bNoGood = true;
+	bool bGood = false;
 	//We're buying a city.
 	if(!bFromMe)
 	{
+		int iBetterThanTotal = 0;
 		CvCity* pLoopCity;
 		int iCityLoop;
 		for(pLoopCity = buyingPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = buyingPlayer.nextCity(&iCityLoop))
@@ -2279,19 +2281,50 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			{
 				//If city we're looking at is better than or equal to one of our cities, go for it.
 
-				//Ignore smaller cities. We only want fair comparisons.
-				if(pLoopCity->getPopulation() < pCity->getPopulation())
-					continue;
+				int iEconomicDelta = (pLoopCity->getEconomicValue(buyingPlayer.GetID()) / (max(1, pLoopCity->getPopulation())));
+				int iTargetEconomicDelta = (iEconomicValue / (max(1, pCity->getPopulation())));
 
-				//Better and possibly bigger? Good.
-				if(iEconomicValue >= pLoopCity->getEconomicValue(buyingPlayer.GetID()))
+				//Better per capita? Not good!
+				if (iTargetEconomicDelta > iEconomicDelta)
 				{
-					bNoGood = false;
-					break;
+					iBetterThanTotal++;
 				}
 			}
 		}
+		if (iBetterThanTotal > (buyingPlayer.getNumCities() / 2))
+		{
+			bGood = true;
+		}
 	}
+	//We're selling a city.
+	else if (bFromMe)
+	{
+		CvCity* pLoopCity;
+		int iCityLoop;
+		int iBetterThanTotal = 0;
+		for (pLoopCity = sellingPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = sellingPlayer.nextCity(&iCityLoop))
+		{
+			if (pLoopCity != NULL)
+			{
+				//If city they're looking at is better than or equal to one of our cities, do not trade it.
+
+				int iEconomicDelta = (pLoopCity->getEconomicValue(sellingPlayer.GetID()) / (max(1, pLoopCity->getPopulation())));
+				int iTargetEconomicDelta = (iEconomicValue / (max(1, pCity->getPopulation())));
+
+				//Better per capita? Not good!
+				if (iTargetEconomicDelta > iEconomicDelta)
+				{
+					iBetterThanTotal++;
+				}
+			}
+		}
+		//Top half of our cities? Do not sell!
+		if (iBetterThanTotal > (sellingPlayer.getNumCities() / 2))
+		{
+			bGood = true;
+		}
+	}
+		
 	
 	iItemValue += (iEconomicValue / 2);
 
@@ -2299,13 +2332,13 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	int iInternalBorderCount = 0;
 	int iCityTiles = 0;
 #if defined(MOD_BALANCE_CORE)
-	if(pCity->IsRazing() || pCity->IsResistance())
-	{
-		return INT_MAX;
-	}
-	//I traded for this city once before? Don't trade again.
 	if (sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
 	{
+		if (!bOurs && (pCity->IsRazing() || pCity->IsResistance()))
+		{
+			return INT_MAX;
+		}
+		//I traded for this city once before? Don't trade again.
 		if(bFromMe && pCity->IsTraded(GetPlayer()->GetID()))
 		{
 			return INT_MAX;
@@ -2342,8 +2375,21 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	//re-use the gold value as a general unit and penalize unhappy citizens
 	iItemValue -= pCity->getUnhappyCitizenCount() * goldPerPlot;
 
-	// Opinion also matters - but not if we're doing this for a peace settlement
 	if (sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
+	{
+		//Not good? Offer much less.
+		if (!bFromMe && !bGood && !bOurs)
+		{
+			iItemValue /= 4;
+		}
+		if (bFromMe && bGood)
+		{
+			return MAX_INT;
+		}
+	}
+
+	// Opinion also matters - but not if we're doing this for a peace settlement
+	if (!bFromMe && sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
 	{
 		//brainfuck. we do this from the buyer's perspective and assume he knows the seller's opinion of him
 		//so the less the seller likes the buyer, the more we offer for the city
@@ -2354,7 +2400,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
 			//won't give up the city at any price if we're not friends
-			if(pCity->getOriginalOwner() == buyingPlayer.GetID())
+			if(bOurs)
 			{
 				iItemValue *= 300;
 			}
@@ -2365,7 +2411,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			break;
 		case MAJOR_CIV_APPROACH_NEUTRAL:
 			//won't give up the city at any price if we're not friends
-			if(pCity->getOriginalOwner() == buyingPlayer.GetID())
+			if (bOurs)
 			{
 				iItemValue *= 500;
 			}
@@ -2376,7 +2422,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			break;
 		case MAJOR_CIV_APPROACH_GUARDED:
 			//won't give up the city at any price if we're not friends
-			if(pCity->getOriginalOwner() == buyingPlayer.GetID())
+			if (bOurs)
 			{
 				iItemValue *= 600;
 			}
@@ -2387,7 +2433,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			break;
 		case MAJOR_CIV_APPROACH_DECEPTIVE:
 			//won't give up the city at any price if we're not friends
-			if(pCity->getOriginalOwner() == buyingPlayer.GetID())
+			if (bOurs)
 			{
 				iItemValue *= 700;
 			}
@@ -2398,7 +2444,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			break;
 		case MAJOR_CIV_APPROACH_HOSTILE:
 			//won't give up the city at any price if we're not friends
-			if(pCity->getOriginalOwner() == buyingPlayer.GetID())
+			if (bOurs)
 			{
 				iItemValue *= 900;
 			}
@@ -2410,7 +2456,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		case MAJOR_CIV_APPROACH_WAR:
 		default:
 			//won't give up the city at any price if we're not friends
-			if(pCity->getOriginalOwner() == buyingPlayer.GetID())
+			if (bOurs)
 			{
 				iItemValue *= 1200;
 			}
@@ -2419,6 +2465,32 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 				return INT_MAX;
 			}
 			break;
+		}
+		iItemValue /= 100;
+	}
+
+	// Opinion also matters - but not if we're doing this for a peace settlement
+	if (bFromMe && sellingPlayer.IsAtPeaceWith(buyingPlayer.GetID()))
+	{
+		//brainfuck. we do this from the buyer's perspective and assume he knows the seller's opinion of him
+		//so the less the seller likes the buyer, the more we offer for the city
+		switch (sellingPlayer.GetDiplomacyAI()->GetMajorCivApproach(buyingPlayer.GetID(), false))
+		{
+		case MAJOR_CIV_APPROACH_FRIENDLY:
+			iItemValue *= 100;
+			break;
+		case MAJOR_CIV_APPROACH_AFRAID:
+			iItemValue *= 125;
+			break;
+		case MAJOR_CIV_APPROACH_NEUTRAL:
+			iItemValue *= 150;
+			break;
+		case MAJOR_CIV_APPROACH_GUARDED:
+		case MAJOR_CIV_APPROACH_DECEPTIVE:
+		case MAJOR_CIV_APPROACH_HOSTILE:
+		case MAJOR_CIV_APPROACH_WAR:
+		default:
+			return MAX_INT;
 		}
 		iItemValue /= 100;
 	}
@@ -2472,7 +2544,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	}
 
 	//if we currently own the city, the price is higher.
-	if (pCity->getOwner() == buyingPlayer.GetID())
+	if (bFromMe && pCity->getOwner() == buyingPlayer.GetID())
 	{
 		if (pCity->IsPuppet())
 		{
@@ -2488,7 +2560,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		int iWonders = pCity->getNumWorldWonders() + pCity->getNumNationalWonders();
 		if (iWonders>0)
 		{
-			iItemValue *= 120;
+			iItemValue *= (100 * iWonders);
 			iItemValue /= 100;
 		}
 	}
@@ -2498,7 +2570,10 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 	iItemValue /= 100;
 
 	// Original capitals are very valuable
-	if (pCity->IsOriginalMajorCapital())
+	if (bFromMe && pCity->IsOriginalMajorCapital())
+		return MAX_INT;
+
+	if (!bFromMe && pCity->IsOriginalMajorCapital())
 		iItemValue *= 4;
 
 	// so here's the tricky part - convert to gold
@@ -3524,7 +3599,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 			return INT_MAX;
 		}
 		//Can they make peace?
-		if(!GET_PLAYER(eWithPlayer).isMinorCiv() && GET_TEAM(eWithTeam).GetNumTurnsLockedIntoWar(GET_PLAYER(eOtherPlayer).getTeam()) > 0)
+		if (!GET_PLAYER(eWithPlayer).isMinorCiv() && !GET_TEAM(eWithTeam).canChangeWarPeace(GET_PLAYER(eOtherPlayer).getTeam()))
 		{
 			return INT_MAX;
 		}
@@ -3537,7 +3612,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 			return INT_MAX;
 		}
 		//Can they make peace?
-		if(!GET_PLAYER(eWithPlayer).isMinorCiv() && GET_TEAM(eWithTeam).GetNumTurnsLockedIntoWar(GetPlayer()->getTeam()) > 0)
+		if (!GET_PLAYER(eWithPlayer).isMinorCiv() && !GET_TEAM(eWithTeam).canChangeWarPeace(GetPlayer()->getTeam()))
 		{
 			return INT_MAX;
 		}
@@ -3646,30 +3721,30 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		//Their war score with the player
 		int iTheirWarScore = GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetWarScore(eWithPlayer);
 
-		iItemValue += (iTheirWarScore * 15);
+		iItemValue += (iTheirWarScore * 5);
 
-		// Add 40 gold per era
-		int iExtraCost = eOurEra * 40;
+		// Add 25 gold per era
+		int iExtraCost = eOurEra * 25;
 		iItemValue += iExtraCost;
-
-		MajorCivApproachTypes eWarMajorCivApproach = pDiploAI->GetMajorCivApproach(eWithPlayer, true);
 
 		if(!GET_PLAYER(eWithPlayer).isMinorCiv())
 		{
+			MajorCivApproachTypes eWarMajorCivApproach = pDiploAI->GetMajorCivApproach(eWithPlayer, true);
+
 			// Modify for our feelings towards the player we're at war with
 			if(eWarMajorCivApproach == MAJOR_CIV_APPROACH_FRIENDLY)
 			{
-				iItemValue *= 300;
+				iItemValue *= 200;
 				iItemValue /= 100;
 			}
 			else if(eWarMajorCivApproach == MAJOR_CIV_APPROACH_NEUTRAL)
 			{
-				iItemValue *= 75;
+				iItemValue *= 50;
 				iItemValue /= 100;
 			}
 			else if(eWarMajorCivApproach == MAJOR_CIV_APPROACH_AFRAID)
 			{
-				iItemValue *= 125;
+				iItemValue *= 75;
 				iItemValue /= 100;
 			}
 			else
@@ -3677,7 +3752,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 				return INT_MAX;
 			}
 		}
-		if(GET_PLAYER(eWithPlayer).isMinorCiv())
+		else if(GET_PLAYER(eWithPlayer).isMinorCiv())
 		{
 			//Way less value.
 			iItemValue /= 50;
@@ -3709,8 +3784,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		}
 		else if(eAskingMajorCivApproach == MAJOR_CIV_APPROACH_NEUTRAL)
 		{
-			iItemValue *= 125;
-			iItemValue /= 100;
+			return INT_MAX;
 		}
 		else if(eAskingMajorCivApproach == MAJOR_CIV_APPROACH_AFRAID)
 		{
@@ -3719,10 +3793,14 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		}
 		else if(eAskingMajorCivApproach == MAJOR_CIV_APPROACH_GUARDED)
 		{
-			iItemValue *= 75;
+			return INT_MAX;
+		}
+		else if (eAskingMajorCivApproach == MAJOR_CIV_APPROACH_DECEPTIVE)
+		{
+			iItemValue *= 125;
 			iItemValue /= 100;
 		}
-		else if(eAskingMajorCivApproach <= MAJOR_CIV_APPROACH_DECEPTIVE)
+		else if (eAskingMajorCivApproach <= MAJOR_CIV_APPROACH_HOSTILE)
 		{
 			return INT_MAX;
 		}
@@ -8501,7 +8579,11 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 		iPlotValue /= 100;
 
 		// Is there a Natural Wonder here? 500% of plot.
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+		if(pPlot->IsNaturalWonder(true))
+#else
 		if(pPlot->IsNaturalWonder())
+#endif
 		{
 			iPlotValue *= 500;
 			iPlotValue /= 100;

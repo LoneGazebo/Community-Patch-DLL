@@ -1879,6 +1879,7 @@ void CvTacticalAI::AssignTacticalMove(CvTacticalMove move)
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_DAMAGE_CITY])
 	{
 		PlotDamageCityMoves();
+		PlotNavalDamageCityMoves();
 	}
 	else if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_DESTROY_HIGH_UNIT])
 	{
@@ -2268,7 +2269,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 			CvCity* pCity = pPlot->getPlotCity();
 
 			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
-			if (pZone && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+			if (pZone && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_ENEMY && !IsTemporaryZoneCity(pCity))
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -2287,7 +2288,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 			}
 
 			//If don't have units nearby to actually conquer, and bad dominance flag, get out.
-			if (pZone && pZone->GetDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY && !FindUnitsWithinStrikingDistance(pPlot, true /*bNoRanged*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlocked*/))
+			if (pZone && pZone->GetDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && !IsTemporaryZoneCity(pCity) && !FindUnitsWithinStrikingDistance(pPlot, true /*bNoRanged*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlocked*/))
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -2351,6 +2352,118 @@ bool CvTacticalAI::PlotDamageCityMoves()
 					{
 						CvString strLogString;
 						strLogString.Format("Siege of %s is pointless, required damage %d, expected damage %d", pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+						LogTacticalMessage(strLogString);
+					}
+				}
+			}
+		}
+
+		pTarget = GetNextZoneTarget();
+	}
+	return bAttackMade;
+}
+
+/// Assign a group of units to take down each city we can capture
+bool CvTacticalAI::PlotNavalDamageCityMoves()
+{
+	int iRequiredDamage;
+	bool bAttackMade = false;
+
+	// See how many moves of this type we can execute
+	CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY);
+	while (pTarget != NULL)
+	{
+		// See what units we have who can reach target this turn
+		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
+		if (pPlot != NULL && pPlot->isCity())
+		{
+			m_CurrentMoveCities.clear();
+			CvCity* pCity = pPlot->getPlotCity();
+
+			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
+			if (pZone && !pZone->IsNavalInvasion())
+			{
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strPlayerName, strCityName, strLogString, strTemp;
+					strPlayerName = m_pPlayer->getCivilizationShortDescription();
+					strCityName = pCity->getName();
+					strLogString.Format("City of ");
+					strLogString += strCityName;
+					strTemp.Format(", is in enemy dominated COASTAL zone - won't attack, X: %d, Y: %d, ", pCity->getX(), pCity->getY());
+					strLogString += strTemp + strPlayerName;
+					LogTacticalMessage(strLogString);
+				}
+
+				pTarget = GetNextZoneTarget();
+				continue;
+			}
+
+			//If don't have units nearby to actually conquer, and bad dominance flag, get out.
+			if (pZone && !FindUnitsWithinStrikingDistance(pPlot, false /*bNoRanged*/, true /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlocked*/))
+			{
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strPlayerName, strCityName, strLogString, strTemp;
+					strPlayerName = m_pPlayer->getCivilizationShortDescription();
+					strCityName = pCity->getName();
+					strLogString.Format("NAVY Pulling back from City of ");
+					strLogString += strCityName;
+					strTemp.Format(", no melee support, X: %d, Y: %d, ", pCity->getX(), pCity->getY());
+					strLogString += strTemp + strPlayerName;
+					LogTacticalMessage(strLogString);
+				}
+
+				pTarget = GetNextZoneTarget();
+				continue;
+			}
+
+			iRequiredDamage = pCity->GetMaxHitPoints() - pCity->getDamage();
+			pTarget->SetAuxIntData(iRequiredDamage);
+			// If we have the city already down to minimum, don't use ranged... Only try to capture.
+			bool bNoRangedUnits = (iRequiredDamage <= 1);
+			//ideally we should check unit danger, respectively if it can survive an attack
+			if (FindUnitsWithinStrikingDistance(pPlot, bNoRangedUnits, true /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
+			{
+				int iExpectedDamage = ComputeTotalExpectedDamage(pTarget, pPlot);
+
+				// Don't want to hammer away to try and take down a city for more than 12 turns
+				if ((iExpectedDamage - GC.getCITY_HIT_POINTS_HEALED_PER_TURN()) > (iRequiredDamage / 12))
+				{
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Laying NAVAL siege to %s, required damage %d, expected damage %d", pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
+						LogTacticalMessage(strLogString);
+					}
+
+					//see whether we need to preserve melee units for capturing
+					int iRangedCount = 0, iMeleeCount = 0;
+					for (unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
+					{
+						CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
+						if (!pUnit || !pUnit->canMove())
+							continue;
+
+						// Are we a melee unit
+						if (pUnit->IsCanAttackRanged())
+							iRangedCount++;
+						else
+							iMeleeCount++;
+					}
+
+					// Fire away!
+					ExecuteAttack(pTarget, pPlot, iMeleeCount<3);
+					bAttackMade = true;
+
+					MoveUpReliefUnits(*pTarget);
+				}
+				else
+				{
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("NAVAL Siege of %s is pointless, required damage %d, expected damage %d", pCity->getName().c_str(), iRequiredDamage, iExpectedDamage);
 						LogTacticalMessage(strLogString);
 					}
 				}
@@ -3691,6 +3804,7 @@ void CvTacticalAI::PlotSitAndBombardMoves()
 		if(target.IsTargetStillAlive(m_pPlayer->GetID()))
 		{
 			PlotDamageCityMoves();
+			PlotNavalDamageCityMoves();
 		}
 
 		// Attack ancillary target (nearby units)
@@ -3798,6 +3912,7 @@ void CvTacticalAI::PlotSteamrollMoves()
 
 	// See if it is time to go after the city
 	PlotDamageCityMoves();
+	PlotNavalDamageCityMoves();
 
 	PlotCloseOnTarget(false /*bCheckDominance*/);
 #else
@@ -3851,6 +3966,7 @@ void CvTacticalAI::PlotSurgicalCityStrikeMoves()
 
 		if(target.IsTargetStillAlive(m_pPlayer->GetID()))
 			PlotDamageCityMoves();
+			PlotNavalDamageCityMoves();
 
 		// Take any other really good attacks we've set up
 		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
@@ -4446,12 +4562,21 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 								pCommonPlot = pEscort->GetPathEndFirstTurnPlot();
 
 							ExecuteMoveToPlotIgnoreDanger(pEscort, pCommonPlot, bSaveMoves);
-							ExecuteMoveToPlotIgnoreDanger(pCivilian, pEscort->plot(), bSaveMoves);
-							if(GC.getLogging() && GC.getAILogging())
+							//Did he actually move?
+							if (pEscort->plot() != pCivilian->plot())
 							{
-								strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) with escort %s. Civilian leading.", 
-								pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), 
-								pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY(), pEscort->getName().c_str() );
+								ExecuteMoveToPlotIgnoreDanger(pCivilian, pEscort->plot(), bSaveMoves);
+
+								if (GC.getLogging() && GC.getAILogging())
+								{
+									strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) with escort %s. Civilian leading.",
+										pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(),
+										pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY(), pEscort->getName().c_str());
+								}
+							}
+							else
+							{
+								bPathFound = false;
 							}
 						}
 					}
@@ -4642,10 +4767,21 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 			}
 		}
 
-		if (pThisArmy->GetDomainType()==DOMAIN_SEA)
-			ExecuteNavalFormationMoves(pThisArmy, pThisTurnTarget);
+		if (pThisArmy->GetDomainType() == DOMAIN_SEA)
+		{
+			if (pOperation->GetMoveType() == AI_OPERATION_MOVETYPE_ESCORT)
+			{
+				ExecuteNavalFormationEscortMoves(pThisArmy, pThisTurnTarget);
+			}
+			else
+			{
+				ExecuteNavalFormationMoves(pThisArmy, pThisTurnTarget);
+			}
+		}
 		else
+		{
 			ExecuteFormationMoves(pThisArmy, pThisTurnTarget);
+		}
 	}
 
 	if(m_GeneralsToMove.size() > 0)
@@ -4740,8 +4876,8 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI* pArmy)
 	bool bFoundEnoughDeploymentPlots = false;
 	if (ScoreDeploymentPlots(pTarget, pArmy, iUnits, 0, iRange))
 	{
-		// Did we get twice as many possible plots as units?
-		if (m_TempTargets.size() >= (unsigned)(iUnits * 2))
+		// Did we get as many possible plots as units?
+		if (m_TempTargets.size() >= (unsigned)iUnits)
 		{
 			bFoundEnoughDeploymentPlots = true;
 		}
@@ -5369,28 +5505,26 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 
 	return true;
 }
-
-/// Complete moves for all units requested through calls to MoveWithFormation()
-void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget)
+void CvTacticalAI::ExecuteNavalFormationEscortMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget)
 {
 	UnitHandle pUnit;
 	CvPlot* pLoopPlot;
 	FStaticVector<CvOperationUnit, SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES, true, c_eCiv5GameplayDLL, 0>::iterator it;
 
-	if(m_OperationUnits.size() == 0)
+	if (m_OperationUnits.size() == 0)
 	{
 		return;
 	}
 
 #if defined(MOD_BALANCE_CORE)
 	//Let's make sure we aren't excluding units here - assume 2 moves per turn (with embarkation changes ...)
-	int iMaxTurns = max(5,pArmy->GetFurthestUnitDistance(pTurnTarget)/2+1);
+	int iMaxTurns = max(5, pArmy->GetFurthestUnitDistance(pTurnTarget) / 2 + 1);
 #endif
 
 	int iNavalUnits = 0;
 	int iEscortedUnits = 0;
-	std::map<int,ReachablePlots> unitMovePlots;
-	for(it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
+	std::map<int, ReachablePlots> unitMovePlots;
+	for (it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
 	{
 		CvUnit *pOpUnit = m_pPlayer->getUnit(it->GetUnitID());
 		if (pOpUnit)
@@ -5413,28 +5547,28 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 		}
 
 		// see where our units can go
-		SPathFinderUserData data(pOpUnit,CvUnit::MOVEFLAG_IGNORE_STACKING,iMaxTurns);
+		SPathFinderUserData data(pOpUnit, CvUnit::MOVEFLAG_IGNORE_STACKING, iMaxTurns);
 		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 		unitMovePlots[it->GetUnitID()] = GC.GetPathFinder().GetPlotsInReach(pOpUnit->plot(), data);
 	}
 
 	CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
-	if(!pOperation)
+	if (!pOperation)
 		return;
 
 	// Range around target based on number of units we need to place
-	int iRange = pOperation->GetGatherTolerance(pArmy,pTurnTarget);
+	int iRange = pOperation->GetGatherTolerance(pArmy, pTurnTarget);
 
 	// See if we have enough places to put everyone
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if(!ScoreDeploymentPlots(pTurnTarget, pArmy, iNavalUnits, iEscortedUnits, iRange) && 
-		!ScoreDeploymentPlots(pTurnTarget, pArmy, iNavalUnits, iEscortedUnits, iRange+1))
+	if (!ScoreDeploymentPlots(pTurnTarget, pArmy, iNavalUnits, iEscortedUnits, iRange) &&
+		!ScoreDeploymentPlots(pTurnTarget, pArmy, iNavalUnits, iEscortedUnits, iRange + 1))
 #else
-	if(!ScoreDeploymentPlots(pTurnTarget, pArmy, iMostUnits, 0, iRange) &&
-	        !ScoreDeploymentPlots(pTurnTarget, pArmy, iMostUnits, 0, 3))
+	if (!ScoreDeploymentPlots(pTurnTarget, pArmy, iMostUnits, 0, iRange) &&
+		!ScoreDeploymentPlots(pTurnTarget, pArmy, iMostUnits, 0, 3))
 #endif
 	{
-		if(GC.getLogging() && GC.getAILogging())
+		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvString strLogString;
 			strLogString.Format("Operation aborting. Army ID: %d. Not enough spaces to deploy near turn target", pArmy->GetID());
@@ -5450,12 +5584,12 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 		bool bDone = false;
 		int iMostUnitsToPlace = iEscortedUnits;
 
-		for(unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
+		for (unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
 		{
 			pLoopPlot = GC.getMap().plot(m_TempTargets[iI].GetTargetX(), m_TempTargets[iI].GetTargetY());
-			if(FindClosestNavalOperationUnit(pLoopPlot, unitMovePlots, true))
+			if (FindClosestNavalOperationUnit(pLoopPlot, unitMovePlots, true))
 			{
-				for(unsigned int jJ = 0; jJ < m_CurrentMoveUnits.size(); jJ++)
+				for (unsigned int jJ = 0; jJ < m_CurrentMoveUnits.size(); jJ++)
 				{
 					CvBlockingUnit block;
 					block.SetUnitID(m_CurrentMoveUnits[jJ].GetID());
@@ -5465,7 +5599,7 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 					m_PotentialBlocks.push_back(block);
 				}
 				iMostUnitsToPlace--;
-				if(iMostUnitsToPlace == 0)
+				if (iMostUnitsToPlace == 0)
 				{
 					bDone = true;
 				}
@@ -5479,23 +5613,23 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 
 
 		// Log if someone in army didn't get a move assigned (how do we address this in the future?)
-		if(m_ChosenBlocks.size() < (unsigned int)iEscortedUnits)
+		if (m_ChosenBlocks.size() < (unsigned int)iEscortedUnits)
 		{
-			if(GC.getLogging() && GC.getAILogging())
+			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strMsg;
 				strMsg.Format("No naval deployment move for %d units in first pass", iEscortedUnits - m_ChosenBlocks.size());
 				LogTacticalMessage(strMsg);
 			}
 		}
-		
-		if(iNavalUnits > 0)
+
+		if (iNavalUnits > 0)
 		{
 			// Now repeat for the naval escorts, using new target plots of where the embarked units ended up.
 			m_TempTargets.clear();
 			CvTacticalTarget temp;
 
-			for(it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
+			for (it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
 			{
 				CvUnit *pOpUnit = m_pPlayer->getUnit(it->GetUnitID());
 				if (pOpUnit)
@@ -5509,9 +5643,9 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 				}
 			}
 			//Not enough plots? Add in our chosen plots from the above function.
-			if(m_TempTargets.size() < (unsigned int)iNavalUnits)
+			if (m_TempTargets.size() < (unsigned int)iNavalUnits)
 			{
-				for(unsigned int iI = 0; iI < m_ChosenBlocks.size(); iI++)
+				for (unsigned int iI = 0; iI < m_ChosenBlocks.size(); iI++)
 				{
 					temp.SetTargetX(m_ChosenBlocks[iI].GetPlot()->getX());
 					temp.SetTargetY(m_ChosenBlocks[iI].GetPlot()->getY());
@@ -5523,12 +5657,12 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 			bDone = false;
 			int iLeastUnitsToPlace = iNavalUnits;
 
-			for(unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
+			for (unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
 			{
 				pLoopPlot = GC.getMap().plot(m_TempTargets[iI].GetTargetX(), m_TempTargets[iI].GetTargetY());
-				if(FindClosestNavalOperationUnit(pLoopPlot, unitMovePlots, false))
+				if (FindClosestNavalOperationUnit(pLoopPlot, unitMovePlots, false))
 				{
-					for(unsigned int jJ = 0; jJ < m_CurrentMoveUnits.size(); jJ++)
+					for (unsigned int jJ = 0; jJ < m_CurrentMoveUnits.size(); jJ++)
 					{
 						CvBlockingUnit block;
 						block.SetUnitID(m_CurrentMoveUnits[jJ].GetID());
@@ -5538,7 +5672,7 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 						m_PotentialBlocks.push_back(block);
 					}
 					iLeastUnitsToPlace--;
-					if(iLeastUnitsToPlace == 0)
+					if (iLeastUnitsToPlace == 0)
 					{
 						bDone = true;
 					}
@@ -5549,15 +5683,231 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 			AssignDeployingUnits(iNavalUnits - iLeastUnitsToPlace);
 			PerformChosenMoves();
 
-			if(m_ChosenBlocks.size() < (unsigned int)iNavalUnits)
+			if (m_ChosenBlocks.size() < (unsigned int)iNavalUnits)
 			{
-				if(GC.getLogging() && GC.getAILogging())
+				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strMsg;
 					strMsg.Format("No naval deployment move for %d units in second pass", iNavalUnits - m_ChosenBlocks.size());
 					LogTacticalMessage(strMsg);
 				}
 			}
+		}
+	}
+}
+/// Complete moves for all units requested through calls to MoveWithFormation()
+void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget)
+{
+	AITacticalTargetType eTargetType;
+	CvPlot* pLoopPlot;
+	FStaticVector<CvOperationUnit, SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES, true, c_eCiv5GameplayDLL, 0>::iterator it;
+
+	if(m_OperationUnits.size() == 0)
+	{
+		return;
+	}
+
+	CvPlot* pCurrent = pArmy->Plot();
+	if (!pCurrent)
+		return;
+
+	int iMeleeUnits = 0;
+	int iRangedUnits = 0;
+	std::map<int,ReachablePlots> unitMovePlots;
+	for(it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
+	{
+		CvUnit *pOpUnit = m_pPlayer->getUnit(it->GetUnitID());
+		if (pOpUnit->IsCanAttackRanged())
+		{
+			iRangedUnits++;
+		}
+		else
+		{
+			iMeleeUnits++;
+		}
+
+		// see where our units can go
+		SPathFinderUserData data(pOpUnit,CvUnit::MOVEFLAG_IGNORE_STACKING,5);
+		data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+		unitMovePlots[it->GetUnitID()] = GC.GetPathFinder().GetPlotsInReach(pOpUnit->plot(), data);
+	}
+
+#if defined(MOD_BALANCE_CORE)
+	//the direction we are coming from
+	DirectionTypes eFromDir = estimateDirection(pTurnTarget->getX(),pTurnTarget->getY(),pCurrent->getX(),pCurrent->getY());
+	if(GC.getLogging() && GC.getAILogging())
+	{
+		CvString strMsg;
+		strMsg.Format("Trying to move army %d from (%d,%d), to (%d,%d)",pArmy->GetID(),pCurrent->getX(),pCurrent->getY(),pTurnTarget->getX(),pTurnTarget->getY());
+		LogTacticalMessage(strMsg);
+	}
+#endif
+
+	// See if we have enough places to put everyone
+	if(!ScoreFormationPlots(pArmy, pTurnTarget, iMeleeUnits + iRangedUnits))
+	{
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strLogString;
+			strLogString.Format("Operation aborting. Army ID: %d. Not enough spaces to deploy along formation's path", pArmy->GetID());
+			LogTacticalMessage(strLogString);
+		}
+		m_pPlayer->getAIOperation(pArmy->GetOperationID())->SetToAbort(AI_ABORT_NO_ROOM_DEPLOY);
+		return;
+	}
+
+	// Compute the moves to get the best deployment
+	std::stable_sort(m_TempTargets.begin(), m_TempTargets.end());
+
+	// First loop for melee units who should be out front
+	int iMeleeUnitsToPlace = iMeleeUnits;
+	bool bDone = false;
+	if(iMeleeUnitsToPlace > 0)
+	{
+		for(unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
+		{
+			eTargetType = m_TempTargets[iI].GetTargetType();
+
+			pLoopPlot = GC.getMap().plot(m_TempTargets[iI].GetTargetX(), m_TempTargets[iI].GetTargetY());
+
+			// Don't use if there's already someone here
+			if (!pLoopPlot->getBestDefender(NO_PLAYER))
+			{
+				//find a unit that's a little bit further back, and then try to move it to this good plot
+				CvPlot* pIdealUnitPlot = plotDirection(pLoopPlot->getX(),pLoopPlot->getY(),eFromDir);
+				if(FindClosestOperationUnit( pIdealUnitPlot, unitMovePlots, false /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, false))
+				{
+					UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strMsg;
+						strMsg.Format("Deploying melee unit (first pass) %d (%s), to %d,%d, from %d,%d", pInnerUnit->GetID(), pInnerUnit->getName().GetCString(), pLoopPlot->getX(), pLoopPlot->getY(), pInnerUnit->getX(), pInnerUnit->getY());
+						LogTacticalMessage(strMsg);
+					}
+					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false, 0);
+					pInnerUnit->finishMoves();
+					iMeleeUnitsToPlace--;
+				}
+			}
+			if (iMeleeUnitsToPlace == 0)
+			{
+				bDone = true;
+			}
+		}
+	}
+
+	// Second loop for ranged units
+	int iRangedUnitsToPlace = iRangedUnits;
+	if(iRangedUnitsToPlace > 0)
+	{
+		bDone = false;
+		for(unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
+		{
+			eTargetType = m_TempTargets[iI].GetTargetType();
+
+			pLoopPlot = GC.getMap().plot(m_TempTargets[iI].GetTargetX(), m_TempTargets[iI].GetTargetY());
+			if (eTargetType == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
+			{
+				// Don't use if there's already someone here
+				if (!pLoopPlot->getBestDefender(NO_PLAYER))
+				{
+					//find a unit that's a little bit further back, and then try to move it to this good plot
+					CvPlot* pIdealUnitPlot = plotDirection(pLoopPlot->getX(),pLoopPlot->getY(),eFromDir);
+					if(FindClosestOperationUnit( pIdealUnitPlot, unitMovePlots, true /*bIncludeRanged*/, true /*bMustBeRangedUnit*/, false))
+					{
+						UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strMsg;
+							strMsg.Format("Deploying ranged unit (first pass) %d (%s), to %d,%d, from %d,%d", pInnerUnit->GetID(), pInnerUnit->getName().GetCString(), pLoopPlot->getX(), pLoopPlot->getY(), pInnerUnit->getX(), pInnerUnit->getY());
+							LogTacticalMessage(strMsg);
+						}
+						MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false, 0);
+						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pInnerUnit.pointer());
+						pInnerUnit->finishMoves();
+						iRangedUnitsToPlace--;
+					}
+				}
+			}
+			if (iRangedUnitsToPlace == 0)
+			{
+				bDone = true;
+			}
+		}
+	}
+
+	// Third loop for all units we couldn't put in an ideal spot
+	for(unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
+	{
+		eTargetType = m_TempTargets[iI].GetTargetType();
+
+		pLoopPlot = GC.getMap().plot(m_TempTargets[iI].GetTargetX(), m_TempTargets[iI].GetTargetY());
+
+		// Don't use if there's already someone here
+		if (!pLoopPlot->getBestDefender(NO_PLAYER))
+		{
+			//find a unit that's a little bit further back, and then try to move it to this good plot
+			CvPlot* pIdealUnitPlot = plotDirection(pLoopPlot->getX(),pLoopPlot->getY(),eFromDir);
+			if(FindClosestOperationUnit( pIdealUnitPlot, unitMovePlots, true /*bIncludeRanged*/, false /*bMustBeRangedUnit*/, false))
+			{
+				UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Deploying third wave unit %d (%s), second pass, to %d,%d, from %d,%d", pInnerUnit->GetID(), pInnerUnit->getName().GetCString(), pLoopPlot->getX(), pLoopPlot->getY(), pInnerUnit->getX(), pInnerUnit->getY());
+					LogTacticalMessage(strMsg);
+				}
+
+				MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false, 0);
+				TacticalAIHelpers::PerformRangedAttackWithoutMoving(pInnerUnit.pointer());
+				pInnerUnit->finishMoves();
+				if(!pInnerUnit->isRanged())
+				{
+					iMeleeUnitsToPlace--;
+				}
+				else
+				{
+					iRangedUnitsToPlace--;
+				}
+			}
+		}
+#if defined(MOD_BALANCE_CORE)
+		if (iRangedUnitsToPlace == 0 && iMeleeUnitsToPlace == 0)
+#else
+		if (iRangedUnitsToPlace == 0)
+#endif
+		{
+			bDone = true;
+		}
+	}
+
+	// Log if someone in army didn't get a move assigned
+#if defined(MOD_BALANCE_CORE)
+	if (iRangedUnitsToPlace > 0 || iMeleeUnitsToPlace > 0)
+#else
+	if (iRangedUnitsToPlace > 0)
+#endif
+	{
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strMsg;
+#if defined(MOD_BALANCE_CORE)
+			strMsg.Format("No army deployment move for %d ranged units, %d melee units.", iRangedUnitsToPlace, iMeleeUnitsToPlace);
+#else
+			strMsg.Format("No army deployment move for %d ranged units", iRangedUnitsToPlace);
+#endif
+			LogTacticalMessage(strMsg);
+		}
+
+		// Loop through all units available to operation and move them blindly
+		FStaticVector<CvOperationUnit, SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES, true, c_eCiv5GameplayDLL, 0>::iterator it;
+		for (it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
+		{
+			UnitHandle pLoopUnit = m_pPlayer->getUnit(it->GetUnitID());
+			if (!pLoopUnit || !pLoopUnit->canMove())
+				continue;
+
+			MoveToEmptySpaceNearTarget(pLoopUnit,pTurnTarget,DOMAIN_SEA,12);
 		}
 	}
 }

@@ -6000,10 +6000,13 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_NO_MAJORCIV_GIFTING)
 	else
 	{
-		return false;
+		if(MOD_NO_MAJORCIV_GIFTING)
+		{
+			return false;
+		}
 	}
 #endif
 
@@ -7574,11 +7577,14 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible, bool bCheckMovement
 		}
 	}
 #endif
-
-	//no healing on mountains outside of cities (inca)
-	if (pPlot->isMountain() && !pPlot->isCity())
-		return false;
-	
+#if defined(MOD_NO_HEALING_ON_MOUNTAINS)
+	if(MOD_NO_HEALING_ON_MOUNTAINS)
+	{
+		//no healing on mountains outside of cities (inca)
+		if (pPlot->isMountain() && !pPlot->isCity())
+			return false;
+	}
+#endif
 	// Unit now has to be able to Fortify to Heal (since they're very similar states, and Heal gives a defense bonus)
 	if(!bTestVisible)
 	{
@@ -9723,7 +9729,11 @@ bool CvUnit::sellExoticGoods()
 					{
 						
 						CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+						if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder(true) && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType() == NO_RESOURCE))
+#else
 						if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType() == NO_RESOURCE))
+#endif
 						{
 							if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 							{
@@ -9741,7 +9751,11 @@ bool CvUnit::sellExoticGoods()
 						for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
 						{
 							CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+							if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder(true) && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType() == NO_RESOURCE))
+#else
 							if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType() == NO_RESOURCE))
+#endif
 							{
 								//If we can build on an empty spot, do so.
 								if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
@@ -10103,7 +10117,16 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pPlot->getImprovementType());
 		if(pImprovementInfo->IsPermanent())
 		{
+#if defined(MOD_PILLAGE_PERMANENT_IMPROVEMENTS)
+			if(MOD_PILLAGE_PERMANENT_IMPROVEMENTS)
+			{
+				return true;
+			}
+			else
+				return false;
+#else
 			return false;
+#endif
 		}
 		else if(pImprovementInfo->IsGoody())
 		{

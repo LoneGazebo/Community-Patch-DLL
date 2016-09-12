@@ -131,16 +131,16 @@ SET Text = 'You received tribute recently'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_RECENTLY';
 
 -- Razing
-UPDATE Language_en_US
+UPDATE Language_en_US	
 SET Text = '[COLOR_POSITIVE_TEXT]Razing[ENDCOLOR] The City will burn [ICON_RAZING] down each turn until it reaches 0 population, and is removed from the game. This produces a lot of [ICON_HAPPINESS_4] Unhappiness, but also greatly increases your [COLOR_POSITIVE_TEXT]War Score[ENDCOLOR] versus this player.'
 WHERE Tag = 'TXT_KEY_POPUP_CITY_CAPTURE_INFO_RAZE';
 
 -- LUA
-UPDATE Language_en_US
+UPDATE Language_en_US	
 SET Text = 'Base Yield:'
 WHERE Tag = 'TXT_KEY_PEDIA_YIELD_LABEL';
 
-UPDATE Language_en_US
+UPDATE Language_en_US	
 SET Text = 'Connected By:'
 WHERE Tag = 'TXT_KEY_PEDIA_IMPROVEMENTS_LABEL';
 
@@ -180,23 +180,38 @@ UPDATE Language_en_US
 SET Text = 'Allowed units receive [COLOR_POSITIVE_TEXT]{@1_PromotionName}[ENDCOLOR] Promotion: {@2_PromotionHelp}'
 WHERE Tag = 'TXT_KEY_FREE_PROMOTION_FROM_TECH';
 
+UPDATE Language_en_US
+SET Text = 'A current war prevents this action.'
+WHERE Tag = 'TXT_KEY_DIPLO_ALREADY_AT_WAR';
+
+UPDATE Language_en_US
+SET Text = 'A City-State Alliance prevents this.'
+WHERE Tag = 'TXT_KEY_DIPLO_NO_WAR_ALLIES';
+
+UPDATE Language_en_US
+SET Text = 'A City-State Alliance prevents this.'
+WHERE Tag = 'TXT_KEY_DIPLO_MINOR_ALLY_AT_WAR';
+
+UPDATE Language_en_US
+SET Text = 'City-State is permanently at war.'
+WHERE Tag = 'TXT_KEY_DIPLO_MINOR_PERMANENT_WAR';
 
 -- Fixed diacritics for spy names.
 
 UPDATE Language_en_US
-SET Text = 'Antï¿½nio'
+SET Text = 'Antônio'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_0';
 
 UPDATE Language_en_US
-SET Text = 'Estï¿½vï¿½o'
+SET Text = 'Estêvão'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_3';
 
 UPDATE Language_en_US
-SET Text = 'Fernï¿½o'
+SET Text = 'Fernão'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_4';
 
 UPDATE Language_en_US
-SET Text = 'Tomï¿½'
+SET Text = 'Tomé'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_8';
 
 UPDATE Language_en_US
@@ -238,12 +253,6 @@ WHERE Tag = 'TXT_KEY_DIPLO_ASSISTANCE_TO_THEM';
 UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]Your recent diplomatic actions disappoint them.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_REFUSED_REQUESTS';
-
--- Unit Settle Help
-
-UPDATE Language_en_US
-SET Text = 'Cannot found a City here. If on a Standard or smaller size map, cities must have 3 Tiles between them. If Large or greater, cities must have 4 tiles between them.'
-WHERE Tag = 'TXT_KEY_MISSION_BUILD_CITY_DISABLED_HELP';
 
 -- Diplo Text for DoF changed
 UPDATE Language_en_US
@@ -373,6 +382,12 @@ UPDATE Language_en_US
 SET Text = 'Crom'
 WHERE Tag = 'TXT_KEY_LEADER_BARBARIAN';
 
+-- War
+
+UPDATE Language_en_US
+SET Text = '[COLOR_CYAN]Capture chance if defeated: {1_Num}%[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_EUPANEL_CAPTURE_CHANCE';
+
 -- Religion
 
 UPDATE Language_en_US
@@ -400,3 +415,35 @@ WHERE Tag = 'TXT_KEY_EO_CITY_POTENTIAL_CANNOT_STEAL_TT';
 UPDATE Language_en_US
 SET Text = 'The Potential of {1_CityName} is believed to be {2_Num}.[NEWLINE][NEWLINE]Potential reflects the vulnerability of a city to Espionage. The higher the value, the more vulnerable the city. The base value [COLOR_POSITIVE_TEXT](a scale, from 1 to 10)[ENDCOLOR] is based on the overall prosperity and happiness of the city, specifically its science and gold output. Potential may be decreased by defensive buildings in the city, such as the Constabulary and the Police Station.'
 WHERE Tag = 'TXT_KEY_EO_CITY_ONCE_KNOWN_POTENTIAL_TT';
+
+-- Notification
+
+UPDATE Language_en_US
+SET Text = '{1_CivName:textkey} lost {1_CivName: plural 1?its; other?their;} [ICON_CAPITAL] Capital'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_SUMMARY_PLAYER_LOST_CAPITAL';
+
+-- Ocean travel change
+
+UPDATE Language_en_US
+SET Text = 'Can never end turn on an Ocean tile. May move through Ocean tiles if ending on a Coastal tile.'
+WHERE Tag = 'TXT_KEY_PEDIA_PROMOTION_OCEAN_IMPASSABLE';
+
+UPDATE Language_en_US
+SET Text = 'Cannot end turn on an Ocean tile until you have researched [COLOR_POSITIVE_TEXT]Astronomy[ENDCOLOR]. May move through Ocean tiles if ending on a Coastal tile.'
+WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Cannot End Turn on Ocean Tile until Astronomy'
+WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Cannot End Turn on Ocean Tile'
+WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE';
+
+UPDATE Language_en_US
+SET Text = 'The Trireme is the first naval unit available to civilizations in the game. It is a melee attack unit, engaging units at sea or cities (but it has no ranged attack). The Trireme is useful for clearing barbarian ships out of home waters and for limited exploration (it cannot end its turn on Deep Ocean hexes outside of the city borders unless it is from Polynesia).'
+WHERE Tag = 'TXT_KEY_UNIT_TRIREME_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'The Galleass is the first naval unit with a ranged attack generally available to the civilizations in the game. It is much stronger than earlier naval units but a bit slower. It cannot initiate melee combat. The Galleass is useful for clearing enemy ships out of shallow waters. It cannot end its turn on Deep Ocean hexes unless it is from Polynesia.'
+WHERE Tag = 'TXT_KEY_UNIT_GALLEASS_STRATEGY';

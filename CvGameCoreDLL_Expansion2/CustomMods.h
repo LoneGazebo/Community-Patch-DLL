@@ -292,7 +292,20 @@
 #define MOD_GLOBAL_SEPARATE_GP_COUNTERS             gCustomMods.isGLOBAL_SEPARATE_GP_COUNTERS()
 // Removes free GP (from buildings, policies, traits, etc) from the GP counters (v61)
 #define MOD_GLOBAL_TRULY_FREE_GP                    gCustomMods.isGLOBAL_TRULY_FREE_GP()
-
+// No auto spawn great prophets for human players, must select pulldown menu in Lua when you are ready to spawn one, only pre-Industrial era
+#define MOD_NO_AUTO_SPAWN_PROPHET					gCustomMods.isNO_AUTO_SPAWN_PROPHET()
+// Change Assyria's trait to choosing a free tech upon city conquest
+#define MOD_ALTERNATE_ASSYRIA_TRAIT					gCustomMods.isALTERNATE_ASSYRIA_TRAIT()
+// No repairing tiles in foreign lands -- prevents an exploit where a human player can pillage and repair
+#define MOD_NO_REPAIR_FOREIGN_LANDS					gCustomMods.isNO_REPAIR_FOREIGN_LANDS()
+// No yield from Ice Features
+#define MOD_NO_YIELD_ICE							gCustomMods.isNO_YIELD_ICE()
+// No major civ gifting exploit
+#define MOD_NO_MAJORCIV_GIFTING						gCustomMods.isNO_MAJORCIV_GIFTING()
+// no healing on mountains if not a city plot
+#define MOD_NO_HEALING_ON_MOUNTAINS					gCustomMods.isNO_HEALING_ON_MOUNTAINS()
+// Allows pillaging of permanent improvements if at war
+#define MOD_PILLAGE_PERMANENT_IMPROVEMENTS			gCustomMods.isPILLAGE_PERMANENT_IMPROVEMENTS()
 // Tech bonuses from other teams require an embassy or spy in their capital and not from just having met them (v30)
 #define MOD_DIPLOMACY_TECH_BONUSES                  gCustomMods.isDIPLOMACY_TECH_BONUSES()
 // Human players will auto-denounce AI players before going to war with them (v39)
@@ -307,6 +320,9 @@
 
 // To turn off or on ships firing while in Cities
 #define MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS		 gCustomMods.isSHIPS_FIRE_IN_CITIES_IMPROVEMENTS()
+
+// Ability to add new natural wonder features with graphics
+#define MOD_PSEUDO_NATURAL_WONDER					gCustomMods.isPSEUDO_NATURAL_WONDER()
 
 //Flips open borders to apply in opposite ways- you have to give open borders to gain the tourism bonus
 #define MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS
@@ -1352,7 +1368,13 @@ public:
 	MOD_OPT_DECL(GLOBAL_CANNOT_EMBARK);
 	MOD_OPT_DECL(GLOBAL_SEPARATE_GP_COUNTERS);
 	MOD_OPT_DECL(GLOBAL_TRULY_FREE_GP);
-	
+	MOD_OPT_DECL(NO_AUTO_SPAWN_PROPHET);
+	MOD_OPT_DECL(ALTERNATE_ASSYRIA_TRAIT);
+	MOD_OPT_DECL(NO_REPAIR_FOREIGN_LANDS);
+	MOD_OPT_DECL(NO_YIELD_ICE);
+	MOD_OPT_DECL(NO_MAJORCIV_GIFTING);
+	MOD_OPT_DECL(NO_HEALING_ON_MOUNTAINS);
+	MOD_OPT_DECL(PILLAGE_PERMANENT_IMPROVEMENTS);
 	MOD_OPT_DECL(DIPLOMACY_TECH_BONUSES);
 	MOD_OPT_DECL(DIPLOMACY_AUTO_DENOUNCE);
 	MOD_OPT_DECL(DIPLOMACY_NO_LEADERHEADS);
@@ -1361,6 +1383,7 @@ public:
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_RESOLUTIONS); 
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_HURRY);
 	MOD_OPT_DECL(SHIPS_FIRE_IN_CITIES_IMPROVEMENTS);
+	MOD_OPT_DECL(PSEUDO_NATURAL_WONDER);
 	MOD_OPT_DECL(COMMUNITY_PATCH);
 	MOD_OPT_DECL(BALANCE_CORE);
 	MOD_OPT_DECL(BALANCE_CORE_YIELDS);

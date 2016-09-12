@@ -1652,7 +1652,11 @@ void CvMap::DoPlaceNaturalWonders()
 	{
 		eFeature = (FeatureTypes) iFeatureLoop;
 		CvFeatureInfo* feature = GC.getFeatureInfo(eFeature);
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+		if(feature && feature->IsNaturalWonder(true))
+#else
 		if(feature && feature->IsNaturalWonder())
+#endif
 		{
 			eNWFeature = eFeature;
 
@@ -1847,7 +1851,11 @@ void CvMap::DoPlaceNaturalWonders()
 
 				if(pLoopPlot != NULL)
 				{
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+					if(pLoopPlot->IsNaturalWonder(true))
+#else
 					if(pLoopPlot->IsNaturalWonder())
+#endif
 					{
 						// Found a NW too close
 						bValid = false;

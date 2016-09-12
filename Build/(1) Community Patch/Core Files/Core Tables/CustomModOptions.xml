@@ -22,6 +22,9 @@
     <!--   The sql/xml changes for GLOBAL_STACKING_RULES can be found in DB/GLOBAL/SackingRules.sql/xml -->
     <!--   If these file(s) have been deleted, eg for compatibility with other mods, the option will be forced off -->
 
+	<!-- If A declares war on B that preempts a co-op war, A is locked into the war for the same number of turns as if they had agreed to the co-op war (v86) -->
+    <Row Class="5" Name="GLOBAL_EARLY_COOP_WAR_LOCK" Value="1"/>
+
     <!-- Changes the stacking limits based on what the tile is (city, fort, plain, etc) (v19) -->
     <!-- See also: "Global - 2 Units Per Fort" -->
     <!-- See also: "Global - 3 Units Per City" -->
@@ -69,6 +72,10 @@
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="6" Name="GLOBAL_CITY_WORKING" Value="0" DbUpdates="1"/>
 
+    <!-- Enables rebasing to and airlifting to/from improvements (v74) -->
+    <!-- See also: "Units - Dwarf Broad Axeman" -->
+    <Row Class="5" Name="GLOBAL_RELOCATION" Value="0" DbUpdates="1"/>
+
     <!-- Mountain plots return their terrain as TERRAIN_MOUNTAIN and any land unit may enter a mountain that has a road/rail route (v19) -->
     <!-- See also: "Improvement - Tunnel" -->
     <Row Class="5" Name="GLOBAL_ALPINE_PASSES" Value="0" DbUpdates="1"/>
@@ -92,6 +99,10 @@
     <!-- City States give different gifts depending on their type (cultural, religious, maritime, etc) (v19) -->
     <!-- See also: "Global - City States Gifts" -->
     <Row Class="6" Name="GLOBAL_CS_GIFTS" Value="0"/>
+    
+    <!-- Units gifted from City States receive XP from their spawning city, not the CS capital (v84) -->
+    <!-- See also: "Global - City States Gifts" -->
+    <Row Class="4" Name="GLOBAL_CS_GIFTS_LOCAL_XP" Value="1"/>
     
     <!-- City States allied to a major behave as an overseas territory of that major (v39) -->
     <!-- See also: "Global - City States Overseas Territory" -->
@@ -178,6 +189,10 @@
     <!-- See also: "Global - Great Work Vaults" -->
     <Row Class="6" Name="GLOBAL_GREATWORK_YIELDTYPES" Value="0" DbUpdates="1"/>
 
+	<!-- Great Artists, Writers and Musicians that do NOT create Great Works can be "reborn" (v84) -->
+    <!-- See also: "Global - No Lost Greatworks" -->
+    <Row Class="4" Name="GLOBAL_NO_LOST_GREATWORKS" Value="1"/>
+	
     <!-- Units of this type will not be gifted by City States (v46) -->
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="4" Name="GLOBAL_EXCLUDE_FROM_GIFTS" Value="0" DbUpdates="1"/>
@@ -221,14 +236,24 @@
 	<!-- Changes for the Civ4 Diplomacy Features mod by Putmalk (v36) -->
 	<!-- See also: "Diplomacy - CivIV Features" -->
     <Row Class="6" Name="DIPLOMACY_CIV4_FEATURES" Value="0"/>
+	<!-- Allows Land Units to become Cargo of Melee Ships -->
+		<Row Class="5" Name="CARGO_SHIPS" Value="0"/>
 	<!-- Changes for Advanced Setup that allow players to acquire GG and GA points from fighting Barbarians -->
 		<Row Class="5" Name="BARBARIAN_GG_GA_POINTS" Value="1"/>
+    <!-- Permits units to earn GG/GA points from killing barbarians, this is the trait version (ie applies to all units of the civ) of PROMOTIONS_GG_FROM_BARBARIANS (v83) -->
+	<!-- See also: "Global - Commander Points From Barbarians" -->
+    <Row Class="2" Name="TRAITS_GG_FROM_BARBARIANS" Value="0" DbUpdates="1"/>
     <!-- Permits land units to cross ice, this is the trait version (ie applies to all units of the civ) of PROMOTIONS_CROSS_ICE (v19) -->
     <Row Class="2" Name="TRAITS_CROSSES_ICE" Value="0" DbUpdates="1"/>
 
     <!-- Permits cities to work more rings (v19) -->
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="2" Name="TRAITS_CITY_WORKING" Value="0"/>
+
+    <!-- Enables traits to be enabled/obsoleted via beliefs and policies (v77) -->
+	<!-- See also: "Belief - One With Natural Wonders" -->
+	<!-- See also: "Policy - Diplomatic Marriage" -->
+    <Row Class="6" Name="TRAITS_OTHER_PREREQS" Value="0" DbUpdates="1"/>
 
     <!-- Enables any belief to be selected, even if already taken (v46) -->
     <!-- See also: "Civilization - Morindim" -->
@@ -245,6 +270,13 @@
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="2" Name="TECHS_CITY_WORKING" Value="0"/>
 
+    <!-- Permits variable great general and admiral aura ranges (v83) -->
+	<!-- See also: "Promotions - Colonels" -->
+	<!-- See also: "Global - Commander Influence Borders" -->
+    <Row Class="2" Name="PROMOTIONS_AURA_CHANGE" Value="0" DbUpdates="1"/>
+    <!-- Permits units to earn GG/GA points from killing barbarians (v83) -->
+	<!-- See also: "Global - Commander Points From Barbarians" -->
+    <Row Class="2" Name="PROMOTIONS_GG_FROM_BARBARIANS" Value="0" DbUpdates="1"/>
     <!-- Permits variable recon ranges by creating extra recon range promotions (like extra sight range) (v19) -->
     <!-- See also: "Promotions - Heli AirRecon" -->
     <!-- See also: "Promotions - Jet Long Range Recon" -->
@@ -265,7 +297,7 @@
     <Row Class="2" Name="PROMOTIONS_HALF_MOVE" Value="0" DbUpdates="1"/>
     <!-- Permits Deep Water (Ocean) embarkation for hovering units (v19) -->
     <!-- See also: "Promotions - Terrain Crossing" -->
-    <Row Class="2" Name="PROMOTIONS_DEEP_WATER_EMBARKATION" Value="0" DbUpdates="1"/>
+    <Row Class="2" Name="PROMOTIONS_DEEP_WATER_EMBARKATION" Value="1" DbUpdates="1"/>
     <!-- Permits naval units to transfer their moves to Great Admirals (like land units can to Great Generals) (v39) -->
     <!-- See also: "Promotions - Flagship" -->
     <Row Class="2" Name="PROMOTIONS_FLAGSHIP" Value="0"/>
@@ -304,6 +336,19 @@
     <!-- Permits wonder resource (ie Marble) trade routes to be established (v43) -->
     <!-- See also: "Trade - Marble Shipments" -->
     <Row Class="6" Name="TRADE_WONDER_RESOURCE_ROUTES" Value="0"/>
+
+	<!-- Permits units to have no supply cost (v77) -->
+	<!-- See also: "Units - Missiles No Supply" -->
+    <Row Class="5" Name="UNITS_NO_SUPPLY" Value="0" DbUpdates="1"/>
+
+    <!-- Permits units to have other than GameDefines.MAX_HIT_POINTS maximum hit points (v77) -->
+	<!-- Note: Enabling this option requires custom versions of PlotMouseoverInclude.lua, EnemyUnitPanel.lua and UnitPanel.lua to remove references to GameDefines.MAX_HIT_POINTS -->
+	<!-- See also: "Units - Tough Nuts" -->
+    <Row Class="5" Name="UNITS_MAX_HP" Value="0" DbUpdates="1"/>
+	
+    <!-- Enables the XP times 100 API (v77) -->
+	<!-- See also: "Units - XP Times 100" -->
+    <Row Class="4" Name="UNITS_XP_TIMES_100" Value="1"/>
 
     <!-- Restricts worker suggestions to local tiles (at the limits specified - limits are distances between the unit and the plot as the crow flies, NOT path lengths) (v19) -->
     <!-- See also: "UI - No Auto-Embark Workers" -->
@@ -387,7 +432,9 @@
     <Row Class="6" Name="AI_SMART_AIR_TACTICS" Value="0"/>
     <!-- Improves the AI's melee tactics (v51) -->
     <Row Class="6" Name="AI_SMART_MELEE_TACTICS" Value="0"/>
-
+	 <!-- Features from the "Smart AI V3 mod" by Ninakoru - see http://forums.civfanatics.com/showthread.php?t=562319 (v85) -->
+    <!-- See also: "AI - Smart V3" -->
+    <Row Class="6" Name="AI_SMART_V3" Value="1"/>
     <!-- Events sent when terraforming occurs (v33) -->
     <!--   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end) -->
     <!--   GameEvents.TerraformingPlot.Add(function(iEvent, iPlotX, iPlotY, iInfo, iNewValue, iOldValue, iNewExtra, iOldExtra) end) -->
@@ -417,7 +464,7 @@
     <Row Class="3" Name="EVENTS_NEW_ERA" Value="0"/>
 
     <!-- Event sent when the team discovers a new Natural Wonder (v19) -->
-    <!--   GameEvents.NaturalWonderDiscovered.Add(function(iTeam, iFeature, iX, iY, bFirst) end) -->
+    <!--   GameEvents.NaturalWonderDiscovered.Add(function(iTeam, iFeature, iX, iY, bFirst, iPlayer, iUnit) end) -->
     <!-- See also: "Religion - Natural Wonder Epiphany" -->
     <Row Class="3" Name="EVENTS_NW_DISCOVERY" Value="0"/>
 
@@ -436,6 +483,10 @@
     <!-- See also: "Global - City State Airbases" -->
     <Row Class="3" Name="EVENTS_MINORS" Value="0"/>
 
+    <!-- Event sent upon a City State giving a gift (v73) -->
+    <!--   GameEvents.MinorGift.Add(function(iMinor, iMajor, iData2, iData3, iFlags, bOpt1, bOpt2, sType) end) -->
+    <Row Class="3" Name="EVENTS_MINORS_GIFTS" Value="0"/>
+
     <!-- Events sent on interaction with City States (v68) -->
     <!--   GameEvents.PlayerCanProtect.Add(function(iPlayer, iCS) return true end) -->
     <!--   GameEvents.PlayerProtected.Add(function(iPlayer, iCS) end) -->
@@ -450,6 +501,8 @@
     <!--   GameEvents.PlayerCanGiftUnit.Add(function(iPlayer, iCS, iUnit) return true end) -->
     <!--   GameEvents.PlayerCanGiftImprovement.Add(function(iPlayer, iCS) return true end) -->
     <!--   GameEvents.PlayerGifted.Add(function(iPlayer, iCS, iGold, iUnitType, iPlotX, iPlotY) end) -->
+    <!--   GameEvents.PlayerCanTransitMinorCity.Add(function(iPlayer, iCS, iCity, iPlotX, iPlotY) return true end) (v74) -->
+    <!--   GameEvents.UnitCanTransitMinorCity.Add(function(iPlayer, iUnit, iCS, iCity, iPlotX, iPlotY) return true end) (v74) -->
     <Row Class="3" Name="EVENTS_MINORS_INTERACTION" Value="0"/>
 
     <!-- Events sent by Barbarians (v68) -->
@@ -528,6 +581,10 @@
     <!--   GameEvents.CitySoldBuilding.Add(function(iPlayer, iCity, iBuilding) end) -->
     <Row Class="3" Name="EVENTS_CITY" Value="0"/>
 
+    <!-- Event sent after a civilization moves their capital (v73) -->
+    <!--   GameEvents.CapitalChanged.Add(function(iPlayer, iNewCapital, iOldCapital) end) -->
+    <Row Class="3" Name="EVENTS_CITY_CAPITAL" Value="0"/>
+    
     <!-- Event sent to ascertain if a city can acquire a plot (v20) -->
     <!--   GameEvents.CityCanAcquirePlot.Add(function(iPlayer, iCity, iPlotX, iPlotY) return true end) -->
     <!-- See also: "Global - Coastal Waters Only" -->
@@ -571,7 +628,12 @@
     <!-- See also: "Global - Spice Islands" -->
     <Row Class="3" Name="EVENTS_AREA_RESOURCES" Value="0"/>
 
-    <!-- Event sent to ascertain if a unit can rebase to a specific plot (either a city or a carrier) (v19) -->
+	<!-- Events sent to ascertain if a unit can airlift from/to a specific plot (v74) -->
+	<!--   GameEvents.CanAirliftFrom.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end) -->
+	<!--   GameEvents.CanAirliftTo.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end) -->
+    <Row Class="3" Name="EVENTS_AIRLIFT" Value="0"/>
+
+    <!-- Events sent to ascertain if a unit can rebase to a specific plot (either a city or a carrier) (v19) -->
     <!--   GameEvents.CanLoadAt.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end) -->
     <!--   GameEvents.CanRebaseInCity.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end) -->
     <!--   GameEvents.CanRebaseTo.Add(function(iPlayer, iUnit, iPlotX, iPlotY, bIsCity) return false end) -->
@@ -601,9 +663,15 @@
     <Row Class="3" Name="EVENTS_UNIT_PREKILL" Value="0"/>
 
     <!-- Event sent as a unit is captured (v46) -->
+	<!--   GameEvents.UnitCaptured.Add(function(iByPlayer, iByUnit, iCapturedPlayer, iCapturedUnit, bWillBeKilled, iReason) end) (v69) -->
+	<!--     iReason - 0=Move, 1=Combat, 2=Trait (barb land), 3=Trait (barb naval), 4=Belief (barb) -->
     <!--   GameEvents.UnitCaptureType.Add(function(iPlayer, iUnit, iUnitType, iByCiv) return iCaptureUnitType; end) -->
     <Row Class="3" Name="EVENTS_UNIT_CAPTURE" Value="0"/>
 
+	<!-- Events sent as units perform actions (v86) -->
+	<!--   GameEvents.UnitCanPillage.Add(function(iPlayer, iUnit, iImprovement, iRoute) return true end) -->
+	<!--   GameEvents.UnitPillageGold.Add(function(iPlayer, iUnit, iImprovement, iGold) return iGold end) -->
+    <Row Class="3" Name="EVENTS_UNIT_ACTIONS" Value="0"/>
     <!-- Events sent as units are promoted/upgraded (v19) -->
     <!--   GameEvents.CanHavePromotion.Add(function(iPlayer, iUnit, iPromotionType) return true end) -->
     <!--   GameEvents.UnitPromoted.Add(function(iPlayer, iUnit, iPromotionType) end) -->
@@ -730,7 +798,7 @@
     <Row Class="2" Name="API_LUA_EXTENSIONS" Value="1"/>
     <!-- * Enables the Extensions API (v19) -->
     <!-- See also: "Unique Building - Cistern" -->
-    <Row Class="2" Name="API_EXTENSIONS" Value="1" DbUpdates="0"/>
+    <Row Class="2" Name="API_EXTENSIONS" Value="1"/>
     <!-- * Push various hard-coded values controlling the game out into XML - see DB/CONFIG/GameInXml.sql for specific values (v53) -->
     <Row Class="2" Name="CONFIG_GAME_IN_XML" Value="1" DbUpdates="0"/>
     <!-- * Push various hard-coded values controlling the AI out into XML - see DB/CONFIG/AiInXml.sql for specific values (v19) -->
@@ -739,12 +807,17 @@
     <!-- Some bug fixes cannot be turned on or off, those entries (*) are just here to get their entries into the CustomMod.log file -->
 	<!-- * Fixes the bug where a city doesn't work its centre tile (v45) -->
     <Row Class="1" Name="BUGFIX_CITY_CENTRE_WORKING" Value="1"/>
-	<!-- * Adds missing policy events when adopting an ideology (v33) -->
+	<!-- * Fixes the bug of creating a capital from a puppet city, and leaving it that way (v73) -->
+    <Row Class="1" Name="BUGFIX_NO_PUPPET_CAPITALS" Value="1"/>
+    <!-- * Adds missing policy events when adopting an ideology (v33) -->
     <Row Class="1" Name="BUGFIX_MISSING_POLICY_EVENTS" Value="1"/>
 	<!-- * Fixes trade routes sticking to coastal water when the player has the EmbarkAllWater trait (v33) -->
     <Row Class="1" Name="BUGFIX_TRADE_ROUTES_EMBARK_ALL_WATER" Value="1"/>
 	<!-- * Fixes the bug where Venice puppets it's own capital (v42) -->
     <Row Class="1" Name="BUGFIX_VENICE_PUPPETS_CAPITAL" Value="1"/>
+    <!-- Fixes the issues with using dummy policies (v77) -->
+    <!-- See also: "Policy - Dummies" -->
+    <Row Class="1" Name="BUGFIX_DUMMY_POLICIES" Value="0" DbUpdates="1"/>
 	<!-- Fixes the research overflow bug/exploit (v52) -->
     <!-- See also: "Bugfix - Research Overflow Exploit" -->
     <Row Class="1" Name="BUGFIX_RESEARCH_OVERFLOW" Value="1"/>
@@ -893,8 +966,12 @@
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_LOGGING" Value="0"/>
 	<!-- Resources can give monopoly bonuses - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_RESOURCE_MONOPOLIES" Value="0"/>
+	<!-- Enables/Disables Strategic Monopolies - COMMUNITY_PATCH -->
+	 <Row Class="6" Name="BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC" Value="0"/>
 	<!-- Gold purchases in cities reduce production cost by 50% instead of buying it outright - COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_BUILDING_INVESTMENTS" Value="0"/>  
+	<Row Class="6" Name="BALANCE_CORE_BUILDING_INVESTMENTS" Value="0"/>
+	<!-- Units are invested at 50% (see define) of their production cost, instead of being built outright. -->
+	<Row Class="6" Name="BALANCE_CORE_UNIT_INVESTMENTS" Value="0"/>
 	<!-- Great Engineers Produce their building on the same turn their expended -->
 	<Row Class="6" Name="BALANCE_CORE_ENGINEER_HURRY" Value="0"/>
 	<!-- Maya cannot buy a prophet without a religion -->
@@ -908,15 +985,25 @@
 	<!-- Boost to GM and GD -->
 	<Row Class="6" Name="BALANCE_CORE_NEW_GP_ATTRIBUTES" Value="0"/>
 	<!-- Debugging -->
-	<Row Class="6" Name="BALANCE_CORE_DEBUGGING" Value="0"/>
+	<Row Class="6" Name="CORE_DEBUGGING" Value="0"/>
 	<!-- JFD's Mods -->
-	<Row Class="6" Name="BALANCE_CORE_JFD" Value="0"/>
+	<Row Class="6" Name="BALANCE_CORE_JFD" Value="1"/>
 	<!-- Resistance Mod for Units based on # of capitals controlled. -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_RESISTANCE" Value="0"/>
 	<!-- Religion Founding removes all pantheon followers in your empire. Currently unimplemented. -->
 	<Row Class="6" Name="BALANCE_CORE_PANTHEON_RESET_FOUND" Value="0"/>
 	<!-- Removes era-specific messages for civ influence. Useful for mods like Unique Cultural Influence that add special notifications. -->
 	<Row Class="6" Name="BALANCE_CORE_DIPLOMACY_ERA_INFLUENCE" Value="1"/>
+	<!-- Enables PtP minimum military system for CSs, and also the revocation system. -->
+	<Row Class="6" Name="BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE" Value="0"/>
+	<!-- Cultural Victory requires Ideology and Content Population to win -->
+	<Row Class="6" Name="BALANCE_CORE_VICTORY_GAME_CHANGES" Value="0"/>
+	<!-- Missing strategic resources for buildings greatly increases their maintenance -->
+	<Row Class="6" Name="BALANCE_CORE_BUILDING_RESOURCE_MAINTENANCE" Value="0"/>
+	<!-- Adds Events System for Player and Global Events -->
+	<Row Class="6" Name="BALANCE_CORE_EVENTS" Value="1"/>
+	<!-- Enables Hidamari's override forcing civs to use civ-specific text only -->
+	<Row Class="6" Name="NO_RANDOM_TEXT_CIVS" Value="0"/>
   </CustomModOptions>
 
 	<!-- Events for JFD Piety -->
@@ -933,7 +1020,12 @@
 	<!--   GameEvents.GovernmentCooldownChanges.Add(function(iPlayer, iChange) end) -->
 	<!--   GameEvents.ReformCooldownRateChanges.Add(function(iPlayer, iChange) end) -->
 	<!--   GameEvents.GovernmentCooldownRateChanges.Add(function(iPlayer, iChange) end) -->
-	<!--   GameEvents.GreatWorkCreated.Add(function(iUnit, iGreatWork) end) -->
+	<!--   GameEvents.GreatWorkCreated.Add(function(iPlayer, iUnit, iGreatWork) end) -->
+	<!--   GameEvents.CityInvestedBuilding.Add(function(iPlayer, iCity, iBuildingClass, bValue) end) -->
+	<!--   GameEvents.CityInvestedUnit.Add(function(iPlayer, iCity, iUnitClass, bValue) end) -->
+	
+	<!-- Events System -->
+	<!-- GameEvents.EventActivated(iPlayer, iEvent, iChoice)-->
 
 	<CustomModPostDefines>
     <!-- Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker (v19) -->

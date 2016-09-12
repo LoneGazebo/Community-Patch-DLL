@@ -62,6 +62,9 @@ void CvArmyAI::Reset(int iID, PlayerTypes eOwner, int iOperationID)
 	m_eDomainType = DOMAIN_LAND;
 	m_iFormationIndex = NO_MUFORMATION;
 	m_eAIState = NO_ARMYAISTATE;
+#if defined(MOD_BALANCE_CORE)
+	m_bOceanMoves = false;
+#endif
 
 	m_FormationEntries.clear();
 }
@@ -118,6 +121,9 @@ void CvArmyAI::Read(FDataStream& kStream)
 	kStream >> m_iFormationIndex;
 	kStream >> m_eAIState;
 	kStream >> m_iOperationID;
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_bOceanMoves;
+#endif
 
 	int iEntriesToRead;
 	kStream >> iEntriesToRead;
@@ -147,6 +153,9 @@ void CvArmyAI::Write(FDataStream& kStream) const
 	kStream << m_iFormationIndex;
 	kStream << m_eAIState;
 	kStream << m_iOperationID;
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_bOceanMoves;
+#endif
 
 	kStream << (int)m_FormationEntries.size();
 	for(uint ui = 0; ui < m_FormationEntries.size(); ui++)
@@ -650,6 +659,22 @@ int CvArmyAI::GetGoalY() const
 	return m_iGoalY;
 }
 
+#if defined(MOD_BALANCE_CORE)
+//Water parameters
+void CvArmyAI::SetOceanMoves(bool bValue)
+{
+	if (bValue != m_bOceanMoves)
+	{
+		m_bOceanMoves = bValue;
+	}
+}
+
+/// Retrieve target plot X coordinate
+bool CvArmyAI::NeedOceanMoves() const
+{
+	return m_bOceanMoves;
+}
+#endif
 // UNIT HANDLING
 
 /// Add a unit to our army (and we know which slot)

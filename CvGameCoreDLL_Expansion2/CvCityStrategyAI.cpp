@@ -975,7 +975,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	int iModifiedYield = iBaseYield * GetCity()->getBaseYieldRateModifier(YIELD_PRODUCTION);
 	iModifiedYield /= 1000;
 
-	if (iModifiedYield >= 4 || m_BuildablesPrecheck.size() <= 0)
+	if (iModifiedYield >= 5 || m_BuildablesPrecheck.size() <= 0)
 	{
 		for (iProcessLoop = 0; iProcessLoop < GC.getNumProcessInfos(); iProcessLoop++)
 		{
@@ -5049,7 +5049,7 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	//GWS
 	if(kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier() > 0 && pkBuildingInfo->GetNumThemingBonuses() > 0)
 	{
-		if(pCity->isCapital())
+		if (pCity != NULL && pCity->isCapital())
 		{
 			iValue += kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier();
 		}

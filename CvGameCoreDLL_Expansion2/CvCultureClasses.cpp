@@ -7404,7 +7404,11 @@ int CvCityCulture::GetCultureFromNaturalWonders() const
 	for (size_t ui=0; ui<vWorkedPlots.size(); ui++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndex(vWorkedPlots[ui]);
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+		if(pLoopPlot->getFeatureType() != NO_FEATURE && GC.getFeatureInfo(pLoopPlot->getFeatureType())->IsNaturalWonder(true))
+#else
 		if(pLoopPlot->getFeatureType() != NO_FEATURE && GC.getFeatureInfo(pLoopPlot->getFeatureType())->IsNaturalWonder())
+#endif
 		{
 			iRtnValue += pLoopPlot->getYield(YIELD_CULTURE);
 		}

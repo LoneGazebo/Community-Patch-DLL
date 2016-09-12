@@ -287,4 +287,10 @@
 			<Flavor>3</Flavor>
 		</Row>
 	</SpecialistFlavors>
+	<ReplayDataSets>
+		<Row>
+			<Type>REPLAYDATASET_TOURISMPERTURN</Type>
+			<Description>TXT_KEY_REPLAY_VIEWER_GRAPHBY_TOURISM</Description>
+		</Row>
+	</ReplayDataSets>
 </GameData>

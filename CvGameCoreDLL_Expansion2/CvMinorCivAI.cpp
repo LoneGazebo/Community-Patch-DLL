@@ -3498,7 +3498,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 						// Not willing to build units to get this off the ground
 						if (iFilledSlots >= iNumRequiredSlots)
 						{
-							pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinorCap->getArea(), pMinorCap, pMinorCap);
+							pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinorCap->getArea(), pMinorCap, pAssignedPlayer->GetClosestCity(pMinorCap->plot()));
 						}
 					}
 				}
@@ -3575,14 +3575,10 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 				int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE, 
 					false, false, pAssignedPlayer->GetClosestCity(pMinorCap->plot())->plot(), pMinorCap->plot(), &iNumRequiredSlots);
 
-				CvCity* pMusterCity = pAssignedPlayer->getCapitalCity();
-				if(pMusterCity != NULL)
+				// Not willing to build units to get this off the ground
+				if (iFilledSlots >= iNumRequiredSlots)
 				{
-					// Not willing to build units to get this off the ground
-					if (iFilledSlots >= iNumRequiredSlots)
-					{
-						pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMusterCity);
-					}
+					pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pAssignedPlayer->GetClosestCity(pMinorCap->plot()));
 				}
 			}
 		}
@@ -11091,7 +11087,11 @@ CvPlot* CvMinorCivAI::GetTargetPlot(PlayerTypes ePlayer)
 				{
 					continue;
 				}
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+				if(pPlot->IsNaturalWonder(true))
+#else
 				if(pPlot->IsNaturalWonder())
+#endif
 				{
 					iValue += 33;
 				}

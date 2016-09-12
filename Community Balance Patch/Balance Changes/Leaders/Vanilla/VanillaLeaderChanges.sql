@@ -573,7 +573,9 @@ VALUES
 INSERT INTO Building_YieldFromUnitLevelUp
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_DOJO', 'YIELD_CULTURE', 15);
+	('BUILDING_DOJO', 'YIELD_CULTURE', 4),
+	('BUILDING_DOJO', 'YIELD_SCIENCE', 4),
+	('BUILDING_DOJO', 'YIELD_FAITH', 4);
 
 INSERT INTO Building_SpecialistYieldChangesLocal
 	(BuildingType, SpecialistType, YieldType, Yield)
@@ -584,7 +586,7 @@ VALUES
 INSERT INTO Building_YieldFromUnitProduction
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_SIEGE_WORKSHOP', 'YIELD_SCIENCE', 15);
+	('BUILDING_SIEGE_WORKSHOP', 'YIELD_SCIENCE', 20);
 	
 
 INSERT INTO Building_LakePlotYieldChanges
@@ -855,12 +857,12 @@ VALUES
 INSERT INTO Trait_YieldFromTilePurchase
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_STRATEGIC_RICHES', 'YIELD_SCIENCE', 15);
+	('TRAIT_RIVER_EXPANSION', 'YIELD_GOLDEN_AGE_POINTS', 25);
 
 INSERT INTO Trait_YieldFromTileEarn
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_STRATEGIC_RICHES', 'YIELD_SCIENCE', 15);
+	('TRAIT_STRATEGIC_RICHES', 'YIELD_SCIENCE', 25);
 
 INSERT INTO Trait_ResourceQuantityModifiers
 	(TraitType, ResourceType, ResourceQuantityModifier)

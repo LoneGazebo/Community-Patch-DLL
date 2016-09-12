@@ -1,98 +1,193 @@
 -------------------------------------------------
--- City Events Info Log Popup
+-- Notification Log Popup
 -------------------------------------------------
 include( "IconSupport" );
 include( "InstanceManager" );
-local g_CityEventsInstanceManager = InstanceManager:new( "CityEventsButton", "Button", Controls.CityEventsButtonStack );
-local m_pCity = nil;
+include( "CommonBehaviors" );
+
+local g_ItemManagers = {
+	InstanceManager:new( "ItemInstance", "Button", Controls.CityEventsStack ),
+}
+
+local bHidden = true;
+
+local screenSizeX, screenSizeY = UIManager:GetScreenSizeVal()
+local spWidth, spHeight = Controls.ItemScrollPanel:GetSizeVal();
+
+-- Original UI designed at 1050px 
+local heightOffset = screenSizeY - 1020;
+
+spHeight = spHeight + heightOffset;
+Controls.ItemScrollPanel:SetSizeVal(spWidth, spHeight); 
+Controls.ItemScrollPanel:CalculateInternalSize();
+Controls.ItemScrollPanel:ReprocessAnchoring();
+
+local bpWidth, bpHeight = Controls.BottomPanel:GetSizeVal();
+--bpHeight = bpHeight * heightRatio;
+--print(heightOffset);
+--print(bpHeight);
+bpHeight = bpHeight + heightOffset 
+--print(bpHeight);
+
 -------------------------------------------------
 -- On Popup
 -------------------------------------------------
-function UpdateCityEvents()
-			
-	g_CityEventsInstanceManager:ResetInstances();
-	local count = 0;
-	local player = Players[Game.GetActivePlayer()];
-	for pCity in player:Cities() do
-		if(pCity ~= nil) then
-			for info in GameInfo.CityEventChoices() do
-				if pCity:IsCityEventChoiceActive(info.ID) then
-					local pEventInfo = nil
-					for row in GameInfo.CityEvent_ParentEvents("CityEventChoiceType = '" .. info.Type .. "'") do
-						pEventInfo = GameInfo.CityEvents[row.CityEventType]
-						break
-					end
-					if pEventInfo then
-						print("Found an event choice")
-						count = count+1;
-						local CityStr = Locale.ConvertTextKey(pCity:GetNameKey())
-						local DescStr = ""
-						
-						if(pEventInfo.Description ~= nil) then
-							DescStr = Locale.Lookup(pEventInfo.Description)
-						else
-							DescStr = Locale.Lookup(info.Description)
-						end
-						local HelpStr = Locale.ConvertTextKey(pCity:GetScaledEventChoiceValue(info.ID))
-						local duration = pCity:GetCityEventChoiceCooldown(info.ID)
-						AddCityEventsButton(DescStr, HelpStr, duration, CityStr, pCity);
-					end
-				end
-			end
+function RefreshData()
+	
+	local iActivePlayer = Game.GetActivePlayer();
+	local pPlayer = Players[iActivePlayer];	
+	
+	g_Model = {};
+
+	local map = Map;
+
+	local iTotal = 0;	
+	local activeCityRecentEventChoices = pPlayer:GetActiveCityEventChoices();
+	for i,v in ipairs(activeCityRecentEventChoices) do
+		
+		print("found an event choice")
+		local eventChoice = {
+			EventChoice = v.EventChoice,
+			Duration = v.Duration,
+			ParentEvent = v.ParentEvent,
+			CityX = v.CityX,
+			CityY = v.CityY,
+		};
+
+		local pTargetCity = nil;
+		local pLoopPlot = map.GetPlot(eventChoice.CityX, eventChoice.CityY);
+		if(pLoopPlot ~= nil) then
+			pTargetCity = pLoopPlot:GetPlotCity();
 		end
+
+		eventChoice.CityName = pTargetCity:GetName();
+
+		local pEventChoiceInfo = GameInfo.CityEventChoices[eventChoice.EventChoice];
+		local pParentEventInfo = GameInfo.CityEvents[eventChoice.ParentEvent];
+
+		local szParentDescString = Locale.Lookup(pParentEventInfo.Description);
+		local szChoiceDescString;
+		local szChoiceHelpString;
+
+		szChoiceDescString = Locale.Lookup(pEventChoiceInfo.Description);
+		szChoiceHelpString = Locale.ConvertTextKey(pTargetCity:GetScaledEventChoiceValue(pEventChoiceInfo.ID));
+		
+		eventChoice.EventParentName = szParentDescString;
+		eventChoice.EventChoiceName = szChoiceDescString;
+		eventChoice.EventChoiceDescription = szChoiceHelpString;
+			
+		iTotal = iTotal + 1;
+		table.insert(g_Model, eventChoice);
 	end
-	if(count > 0) then
+	if(iTotal > 0) then
 		Controls.NoCityEvents:SetHide(true);
 	else
 		Controls.NoCityEvents:SetHide(false);
 	end
+end
+
+function SortByEventTitle(a, b)
+	return Locale.Compare(a.EventParentName, b.EventParentName) == -1;
+end
+
+function SortByCityName(a, b)
+	return Locale.Compare(a.CityName, b.CityName) == -1;
+end
+
+g_SortOptions = {
+	{"TXT_KEY_EVENT_CHOICE_SORT_NAME", SortByEventTitle},
+	{"TXT_KEY_EVENT_CHOICE_SORT_CITY_NAME", SortByCityName},
+}
+g_CurrentSortOption = 2;
+
+function SortData()
+	table.sort(g_Model, g_SortOptions[g_CurrentSortOption][2]);
+end
+
+function Initialize()	
+	local sortByPulldown = Controls.SortByPullDown;
+	sortByPulldown:ClearEntries();
+	for i, v in ipairs(g_SortOptions) do
+		local controlTable = {};
+		sortByPulldown:BuildEntry( "InstanceOne", controlTable );
+		controlTable.Button:LocalizeAndSetText(v[1]);
+		
+		controlTable.Button:RegisterCallback(Mouse.eLClick, function()
+			sortByPulldown:GetButton():LocalizeAndSetText(v[1]);
+			g_CurrentSortOption = i;
+			
+			SortData();
+			DisplayData();
+		end);
+	end
+	sortByPulldown:CalculateInternals();
+	sortByPulldown:GetButton():LocalizeAndSetText(g_SortOptions[g_CurrentSortOption][1]);
+end
+
+function DisplayData()
 	
-	Controls.CityEventsButtonStack:CalculateSize();
-	Controls.CityEventsButtonStack:ReprocessAnchoring();
-	Controls.CityEventsScrollPanel:CalculateInternalSize();
-end
-Events.SerialEventGameMessagePopup.Add( OnPopup );
-
-
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-function AddCityEventsButton( DescStr, HelpStr, duration, CityStr, pCity )	
-
-	local controlTable = g_CityEventsInstanceManager:GetInstance();
-	controlTable.CityEventsHelpText:SetText(HelpStr);	
-	if(duration > 0) then
-		controlTable.CityEventsText:SetText("[COLOR_CYAN]" .. DescStr .. "[ENDCOLOR]" .. " (" .. Locale.ConvertTextKey("TXT_KEY_TP_TURNS_REMAINING", duration) .. ")");
-	else
-		controlTable.CityEventsText:SetText("[COLOR_CYAN]" .. DescStr .. "[ENDCOLOR]");
+	for _, itemManager in ipairs(g_ItemManagers) do
+		itemManager:ResetInstances();
 	end
-	controlTable.CityName:SetText("[COLOR_POSITIVE_TEXT]" .. CityStr .. "[ENDCOLOR]");
-    
-    controlTable.TextStack:CalculateSize();
-    controlTable.TextStack:ReprocessAnchoring();
-    
-    local sizeY = controlTable.TextStack:GetSizeY()
-    controlTable.Button:SetSizeY(sizeY);
-    controlTable.TextAnim:SetSizeY(sizeY);
-    controlTable.TextHL:SetSizeY(sizeY);
+		
+	for _, eventChoice in ipairs(g_Model) do
+		
+		local itemInstance = g_ItemManagers[1]:GetInstance();
+		
+		itemInstance.CityEventChoiceLocation:SetText("[COLOR_MAGENTA]" .. eventChoice.CityName .. "[ENDCOLOR]");
 
-	controlTable.Button:SetVoids( pCity:GetX(), pCity:GetY() );
+		itemInstance.CityParentEventTitle:SetText("[COLOR_CYAN]" .. eventChoice.EventParentName .. "[ENDCOLOR]");
+		itemInstance.CityEventChoiceTitle:SetText(Locale.ConvertTextKey("TXT_KEY_EVENT_CHOICE_UI") .. " " .. eventChoice.EventChoiceName);
+		itemInstance.CityEventChoiceHelpText:SetText(Locale.ConvertTextKey("TXT_KEY_EVENT_CHOICE_RESULT_UI") .. " " .. eventChoice.EventChoiceDescription);
+		if(eventChoice.Duration > 0) then
+			itemInstance.CityEventChoiceDuration:SetText(Locale.ConvertTextKey("TXT_KEY_TP_TURNS_REMAINING", eventChoice.Duration));
+		else
+			itemInstance.CityEventChoiceDuration:SetText(Locale.ConvertTextKey("TXT_KEY_TP_PERMANENT"));
+		end
 
-	controlTable.Button:RegisterCallback( Mouse.eLClick, OnEventInfoClicked );
-end
+		local buttonWidth, buttonHeight = itemInstance.Button:GetSizeVal();
+		local descWidth, descHeight = itemInstance.CityEventChoiceHelpText:GetSizeVal();
 
-function OnEventInfoClicked(x, y)
-	local plot = Map.GetPlot( x, y );
-	if( plot ~= nil ) then
-		UI.LookAt(plot, 0);
-		local hex = ToHexFromGrid(Vector2(plot:GetX(), plot:GetY()));
-		Events.GameplayFX(hex.x, hex.y, -1);
+		local newHeight = math.max(150, descHeight + 40);	
+		
+		itemInstance.Button:SetSizeVal(buttonWidth, newHeight);
+		itemInstance.Box:SetSizeVal(buttonWidth, newHeight);
+		itemInstance.BounceAnim:SetSizeVal(buttonWidth, newHeight + 5);
+		itemInstance.BounceGrid:SetSizeVal(buttonWidth, newHeight + 5);
+
+		itemInstance.GoToCity:RegisterCallback(Mouse.eLClick, function() 
+			local plot = Map.GetPlot(eventChoice.CityX, eventChoice.CityY);
+			UI.LookAt(plot, 0);  
+		end);
 	end
+
+	Controls.CityEventsStack:CalculateSize();
+    Controls.CityEventsStack:ReprocessAnchoring();
+	Controls.ItemStack:CalculateSize();
+    Controls.ItemStack:ReprocessAnchoring();
+	Controls.ItemScrollPanel:CalculateInternalSize();
+
 end
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function ShowHideHandler( bIsHide, bInitState )
-    if( not bIsHide ) then
-		UpdateCityEvents();
-	end
+
+	bHidden = bIsHide;
+    if( not bInitState ) then
+        if( not bIsHide ) then
+        	UI.incTurnTimerSemaphore();
+        	Events.SerialEventGameMessagePopupShown(g_PopupInfo);
+        	
+        	Initialize();
+        	RefreshData();
+        	SortData();
+        	DisplayData();             	
+        else			
+			if(g_PopupInfo ~= nil) then
+				Events.SerialEventGameMessagePopupProcessed.CallImmediate(g_PopupInfo.Type, 0);
+			end
+            UI.decTurnTimerSemaphore();
+        end
+    end
 end
 ContextPtr:SetShowHideHandler( ShowHideHandler );

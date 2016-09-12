@@ -3,120 +3,185 @@
 -------------------------------------------------
 include( "IconSupport" );
 include( "InstanceManager" );
-local g_RecentEventsInstanceManager = InstanceManager:new( "RecentEventsButton", "Button", Controls.RecentEventsButtonStack );
+include( "CommonBehaviors" );
+
+local g_ItemManagers = {
+	InstanceManager:new( "ItemInstance", "Button", Controls.RecentEventsStack ),
+}
+
+local bHidden = true;
+
+local screenSizeX, screenSizeY = UIManager:GetScreenSizeVal()
+local spWidth, spHeight = Controls.ItemScrollPanel:GetSizeVal();
+
+-- Original UI designed at 1050px 
+local heightOffset = screenSizeY - 1020;
+
+spHeight = spHeight + heightOffset;
+Controls.ItemScrollPanel:SetSizeVal(spWidth, spHeight); 
+Controls.ItemScrollPanel:CalculateInternalSize();
+Controls.ItemScrollPanel:ReprocessAnchoring();
+
+local bpWidth, bpHeight = Controls.BottomPanel:GetSizeVal();
+--bpHeight = bpHeight * heightRatio;
+--print(heightOffset);
+--print(bpHeight);
+bpHeight = bpHeight + heightOffset 
+--print(bpHeight);
 
 -------------------------------------------------
 -- On Popup
 -------------------------------------------------
-function UpdateRecentEvents()
+function RefreshData()
 	
-	g_RecentEventsInstanceManager:ResetInstances();
-	local count = 0;
-	local CityStr = "";
-	local player = Players[Game.GetActivePlayer()];
-	if player then
-		for info in GameInfo.EventChoices() do
-			if(player:IsEventChoiceActive(info.ID, true)) then
-				local pEventInfo = nil
-				for row in GameInfo.Event_ParentEvents("EventChoiceType = '" .. info.Type .. "'") do
-					pEventInfo = GameInfo.Events[row.EventType]
-					break
-				end
-				if pEventInfo then
-					print("Found an event choice")
-					count = count+1;
-					local pCity = nil;
-					local DescStr = "";				
-					if(pEventInfo.Description ~= nil) then
-						DescStr = Locale.Lookup(pEventInfo.Description)
-					else
-						DescStr = Locale.Lookup(info.Description)
-					end
-					local HelpStr = Locale.ConvertTextKey(player:GetScaledEventChoiceValue(info.ID))
-					AddRecentEventsButton(DescStr, HelpStr, CityStr, pCity);
-				end
-			end
+	local iActivePlayer = Game.GetActivePlayer();
+	local pPlayer = Players[iActivePlayer];	
+	
+	g_Model = {};
+
+	local map = Map;
+
+	local iTotal = 0;	
+	local activeRecentEventChoices = pPlayer:GetRecentPlayerEventChoices();
+	for i,v in ipairs(activeRecentEventChoices) do
+		
+		print("found an event choice")
+		local eventChoice = {
+			EventChoice = v.EventChoice,
+			Duration = v.Duration,
+			ParentEvent = v.ParentEvent,
+		};
+
+		local pEventChoiceInfo = GameInfo.EventChoices[eventChoice.EventChoice];
+
+		local szParentDescString = "";
+		local szChoiceDescString;
+		local szChoiceHelpString;
+
+		szChoiceDescString = Locale.Lookup(pEventChoiceInfo.Description);
+		szChoiceHelpString = Locale.ConvertTextKey(pPlayer:GetScaledEventChoiceValue(pEventChoiceInfo.ID));
+		
+		if(eventChoice.ParentEvent ~= -1) then
+			local pParentEventInfo = GameInfo.Events[eventChoice.ParentEvent];
+			szParentDescString = Locale.Lookup(pParentEventInfo.Description);
+			eventChoice.EventParentName = szParentDescString;
+			eventChoice.EventChoiceName = szChoiceDescString;
+		else
+			eventChoice.EventParentName = szChoiceDescString;
+			eventChoice.EventChoiceName = "";
 		end
-		for pCity in player:Cities() do
-			if(pCity ~= nil) then
-				for info in GameInfo.CityEventChoices() do
-					if pCity:IsCityEventChoiceActive(info.ID, true) then
-						local pEventInfo = nil
-						for row in GameInfo.CityEvent_ParentEvents("CityEventChoiceType = '" .. info.Type .. "'") do
-							pEventInfo = GameInfo.CityEvents[row.CityEventType]
-							break
-						end
-						if pEventInfo then
-							print("Found an event choice")
-							count = count+1;
-							CityStr = Locale.ConvertTextKey(pCity:GetNameKey())
-							local DescStr = "";			
-							if(pEventInfo.Description ~= nil) then
-								DescStr = Locale.Lookup(pEventInfo.Description)
-							else
-								DescStr = Locale.Lookup(info.Description)
-							end
-							local HelpStr = Locale.ConvertTextKey(pCity:GetScaledEventChoiceValue(info.ID))
-							AddRecentEventsButton(DescStr, HelpStr, CityStr, pCity);
-						end
-					end
-				end
-			end
-		end
+
+		eventChoice.EventChoiceDescription = szChoiceHelpString;
+			
+		iTotal = iTotal + 1;
+		table.insert(g_Model, eventChoice);
 	end
-	if(count > 0) then
+	if(iTotal > 0) then
 		Controls.NoRecentEvents:SetHide(true);
 	else
 		Controls.NoRecentEvents:SetHide(false);
 	end
+end
+
+function SortByEventTitle(a, b)
+	return Locale.Compare(a.EventParentName, b.EventParentName) == -1;
+end
+
+function SortByEventDuration(a, b)
+	return a.Duration < b.Duration;
+end
+
+g_SortOptions = {
+	{"TXT_KEY_EVENT_CHOICE_SORT_NAME", SortByEventTitle},
+	{"TXT_KEY_EVENT_CHOICE_SORT_DURATION", SortByEventDuration},
+}
+g_CurrentSortOption = 2;
+
+function SortData()
+	table.sort(g_Model, g_SortOptions[g_CurrentSortOption][2]);
+end
+
+function Initialize()	
+	local sortByPulldown = Controls.SortByPullDown;
+	sortByPulldown:ClearEntries();
+	for i, v in ipairs(g_SortOptions) do
+		local controlTable = {};
+		sortByPulldown:BuildEntry( "InstanceOne", controlTable );
+		controlTable.Button:LocalizeAndSetText(v[1]);
+		
+		controlTable.Button:RegisterCallback(Mouse.eLClick, function()
+			sortByPulldown:GetButton():LocalizeAndSetText(v[1]);
+			g_CurrentSortOption = i;
+			
+			SortData();
+			DisplayData();
+		end);
+	end
+	sortByPulldown:CalculateInternals();
+	sortByPulldown:GetButton():LocalizeAndSetText(g_SortOptions[g_CurrentSortOption][1]);
+end
+
+function DisplayData()
 	
-	Controls.RecentEventsButtonStack:CalculateSize();
-	Controls.RecentEventsButtonStack:ReprocessAnchoring();
-	Controls.RecentEventsScrollPanel:CalculateInternalSize();
-end
-Events.SerialEventGameMessagePopup.Add( OnPopup );
-
-
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-function AddRecentEventsButton( DescStr, HelpStr, CityStr, pCity)	
-
-	local controlTable = g_RecentEventsInstanceManager:GetInstance();
-	controlTable.RecentEventsHelpText:SetText(HelpStr);	
-	controlTable.RecentEventsText:SetText("[COLOR_CYAN]" .. DescStr .. "[ENDCOLOR]");
-
-	if(CityStr ~= "")then
-		controlTable.CityName:SetText("[COLOR_POSITIVE_TEXT]" .. CityStr .. "[ENDCOLOR]");
-	else
-		controlTable.CityName:SetHide(true);
+	for _, itemManager in ipairs(g_ItemManagers) do
+		itemManager:ResetInstances();
 	end
-	if(pCity ~= nil) then
-		controlTable.Button:SetVoids( pCity:GetX(), pCity:GetY() );
-		controlTable.Button:RegisterCallback( Mouse.eLClick, OnEventInfoClicked );
+		
+	for _, eventChoice in ipairs(g_Model) do
+		
+		local itemInstance = g_ItemManagers[1]:GetInstance();
+		
+		if(eventChoice.EventParentName ~= "") then
+			itemInstance.RecentParentEventTitle:SetText("[COLOR_CYAN]" .. eventChoice.EventParentName .. "[ENDCOLOR]");
+			itemInstance.RecentEventChoiceTitle:SetText(eventChoice.EventChoiceName);
+		else
+			itemInstance.RecentParentEventTitle:SetText("[COLOR_CYAN]" .. eventChoice.EventChoiceName .. "[ENDCOLOR]");
+		end
+		itemInstance.RecentEventChoiceHelpText:SetText(Locale.ConvertTextKey("TXT_KEY_EVENT_CHOICE_RESULT_UI") .. " " .. eventChoice.EventChoiceDescription);
+		if(eventChoice.Duration > 0) then
+			itemInstance.RecentEventChoiceDuration:SetText(Locale.ConvertTextKey("TXT_KEY_TP_TURNS_REMAINING", eventChoice.Duration));
+		else
+			itemInstance.RecentEventChoiceDuration:SetText(Locale.ConvertTextKey("TXT_KEY_TP_BONUS"));
+		end
+
+		local buttonWidth, buttonHeight = itemInstance.Button:GetSizeVal();
+		local descWidth, descHeight = itemInstance.RecentEventChoiceHelpText:GetSizeVal();
+
+		local newHeight = math.max(100, descHeight + 40);	
+		
+		itemInstance.Button:SetSizeVal(buttonWidth, newHeight);
+		itemInstance.Box:SetSizeVal(buttonWidth, newHeight);
+		itemInstance.BounceAnim:SetSizeVal(buttonWidth, newHeight + 5);
+		itemInstance.BounceGrid:SetSizeVal(buttonWidth, newHeight + 5);
 	end
 
-    controlTable.TextStack:CalculateSize();
-    controlTable.TextStack:ReprocessAnchoring();
-    
-    local sizeY = controlTable.TextStack:GetSizeY()
-    controlTable.Button:SetSizeY(sizeY);
-    controlTable.TextAnim:SetSizeY(sizeY);
-    controlTable.TextHL:SetSizeY(sizeY);
-end
+	Controls.RecentEventsStack:CalculateSize();
+    Controls.RecentEventsStack:ReprocessAnchoring();
+	Controls.ItemStack:CalculateSize();
+    Controls.ItemStack:ReprocessAnchoring();
+	Controls.ItemScrollPanel:CalculateInternalSize();
 
-function OnEventInfoClicked(x, y)
-	local plot = Map.GetPlot( x, y );
-	if( plot ~= nil ) then
-		UI.LookAt(plot, 0);
-		local hex = ToHexFromGrid(Vector2(plot:GetX(), plot:GetY()));
-		Events.GameplayFX(hex.x, hex.y, -1);
-	end
 end
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function ShowHideHandler( bIsHide, bInitState )
-    if( not bIsHide ) then
-		UpdateRecentEvents();
-	end
+
+	bHidden = bIsHide;
+    if( not bInitState ) then
+        if( not bIsHide ) then
+        	UI.incTurnTimerSemaphore();
+        	Events.SerialEventGameMessagePopupShown(g_PopupInfo);
+        	
+        	Initialize();
+        	RefreshData();
+        	SortData();
+        	DisplayData();             	
+        else			
+			if(g_PopupInfo ~= nil) then
+				Events.SerialEventGameMessagePopupProcessed.CallImmediate(g_PopupInfo.Type, 0);
+			end
+            UI.decTurnTimerSemaphore();
+        end
+    end
 end
 ContextPtr:SetShowHideHandler( ShowHideHandler );

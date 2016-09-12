@@ -183,6 +183,9 @@ ALTER TABLE Features ADD COLUMN 'SpawnLocationUnitFreePromotion' TEXT DEFAULT NU
 
 ALTER TABLE Features ADD COLUMN 'AdjacentSpawnLocationUnitFreePromotion' TEXT DEFAULT NULL;
 
+--Ability to add additional Natural Wonders with Graphics
+ALTER TABLE Features ADD PseudoNaturalWonder INTEGER DEFAULT 0;
+
 -- Grants a free valid promotion to a unit when it enters a type of terrain (grassland, plains, coast, etc.).
 
 ALTER TABLE Terrains ADD COLUMN 'LocationUnitFreePromotion' TEXT DEFAULT NULL;

@@ -55,15 +55,29 @@ ALTER TABLE Beliefs ADD COLUMN 'RequiresResource' BOOLEAN DEFAULT 0;
 
 -- NOTE: THESE TWO (RequiresImprovement and RequiresResource) interact, and can be used to refine belief yields.
 
--- Belief requires no improvement on a terrain type to grant its yield.
+-- Belief requires no improvement to grant its yield on a tile.
 
 ALTER TABLE Beliefs ADD COLUMN 'RequiresNoImprovement' BOOLEAN DEFAULT 0;
 
--- Belief requires no improvement on a feature type to grant its yield.
+-- Belief requires no feature to grant its yield on a tile. Ignore the 'improvement' part.
 
 ALTER TABLE Beliefs ADD COLUMN 'RequiresNoImprovementFeature' BOOLEAN DEFAULT 0;
 
 -- NOTE: THESE TWO (RequiresNoImprovement and RequiresNoImprovementFeature) interact, and can be used to refine belief yields.
+
+-- Belief - reduces policy cost of Wonders by 1 for every x cities following religion
+
+ALTER TABLE Beliefs ADD COLUMN 'PolicyReductionWonderXFollowerCities' INTEGER DEFAULT 0;
+
+-- Policy - reduces policy cost of Wonders by 1 for every x CS allies
+ALTER TABLE Policies ADD COLUMN 'XCSAlliesLowersPolicyNeedWonders' INTEGER DEFAULT 0;
+
+-- Policy Branch - number of unlocked policies (finishers excluded) before branch is unlocked.
+ALTER TABLE PolicyBranchTypes ADD COLUMN 'NumPolicyRequirement' INTEGER DEFAULT 0;
+
+-- Belief - increases pressure from trade routes
+
+ALTER TABLE Beliefs ADD COLUMN 'PressureChangeTradeRoute' INTEGER DEFAULT 0;
 
 -- Give CSs defensive units at the beginning of the game.
 
@@ -87,6 +101,14 @@ ALTER TABLE Traits ADD COLUMN 'NoConnectionUnhappiness' BOOLEAN DEFAULT 0;
 -- No unhappiness from religious strife.
 
 ALTER TABLE Traits ADD COLUMN 'IsNoReligiousStrife' BOOLEAN DEFAULT 0;
+
+-- Extra Wonder Production during Golden Ages.
+
+ALTER TABLE Traits ADD COLUMN 'WonderProductionModGA' INTEGER DEFAULT 0;
+
+-- Abnormal scaler for Specialist yields in cities UA. +specialist yield in medieval/industrial/atomic eras.
+
+ALTER TABLE Traits ADD COLUMN 'IsOddEraScaler' BOOLEAN DEFAULT 0;
 
 -- No natural religion spread to/from unowned cities
 
@@ -143,6 +165,9 @@ ALTER TABLE Improvements ADD COLUMN 'UnitFreePromotion' TEXT DEFAULT NULL;
 -- Allows you to set a tech that makes an impassable terrain/feature element passable.
 ALTER TABLE Features ADD COLUMN 'PassableTechFeature' TEXT DEFAULT NULL;
 
+-- Allows you to set a promotion gained for owning a feature. Applies to new units.
+ALTER TABLE Features ADD COLUMN 'FreePromotionIfOwned' TEXT DEFAULT NULL;
+
 -- Allows you to set a tech that makes an impassable terrain/feature element passable.
 ALTER TABLE Terrains ADD COLUMN 'PassableTechTerrain' TEXT DEFAULT NULL;
 
@@ -198,9 +223,9 @@ ALTER TABLE Buildings ADD COLUMN 'BorderObstacleWater' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'UpgradeCSTerritory' BOOLEAN DEFAULT 0;
 
 -- Adds event tourism from digging up sites.
-ALTER TABLE Policies ADD COLUMN 'ArchaeologicalDigTourism' BOOLEAN DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'ArchaeologicalDigTourism' INTEGER DEFAULT 0;
 -- Adds event tourism from golden ages starting.
-ALTER TABLE Policies ADD COLUMN 'GoldenAgeTourism' BOOLEAN DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'GoldenAgeTourism' INTEGER DEFAULT 0;
 
 -- Reduces specialist unhappiness in cities by a set amount, either in capital or in all cities.
 
@@ -210,14 +235,14 @@ ALTER TABLE Policies ADD COLUMN 'NoUnhappfromXSpecialistsCapital' INTEGER DEFAUL
 -- Half specialist food in just capital
 ALTER TABLE Policies ADD COLUMN 'HalfSpecialistFoodCapital' BOOLEAN DEFAULT 0;
 
--- Flat boosts to city yield for happiness sources (buildings) - values should be positive to be good!
+-- % modifiers to city unhappiness sources - values should be negative to be good!
 ALTER TABLE Buildings ADD COLUMN 'PovertyHappinessChange' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'DefenseHappinessChange' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'IlliteracyHappinessChange' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'UnculturedHappinessChange' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'MinorityHappinessChange' INTEGER DEFAULT 0;
 
--- Flat global boosts to city yield for happiness sources (buildings) - values should be positive to be good!
+-- % global modifiers to city unhappiness sources - values should be negative to be good!
 ALTER TABLE Buildings ADD COLUMN 'PovertyHappinessChangeGlobal' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'DefenseHappinessChangeGlobal' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'IlliteracyHappinessChangeGlobal' INTEGER DEFAULT 0;
@@ -345,7 +370,7 @@ ALTER TABLE Policies ADD COLUMN 'DoubleBorderGA' BOOLEAN DEFAULT 0;
 -- Free Population
 ALTER TABLE Policies ADD COLUMN 'FreePopulation' INTEGER DEFAULT 0;
 
--- Extra Votes
+-- Extra Moves for Civilian Units
 ALTER TABLE Policies ADD COLUMN 'ExtraMoves' INTEGER DEFAULT 0;
 
 -- Religious Pressure Mod Trade Route
@@ -584,6 +609,26 @@ ALTER TABLE UnitPromotions ADD COLUMN 'CityStateOnly' BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions_Features ADD COLUMN 'DoubleHeal' BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions_Terrains ADD COLUMN 'DoubleHeal' BOOLEAN DEFAULT 0;
 
+-- Combat Modifier for determined range near a defined UnitClass
+ALTER TABLE UnitPromotions ADD CombatBonusFromNearbyUnitClass INTEGER DEFAULT -1;
+ALTER TABLE UnitPromotions ADD NearbyUnitClassBonusRange INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD NearbyUnitClassBonus INTEGER DEFAULT 0;
+
+-- Requres some Explanation: Unit A has X promotion, Unit B gains promotion by adding these Values to a Promotion that it wishes to gain when near some distance
+-- AddedFromNearbyPromotion = 'Unit A's promotion' IsNearbyPromotion must be set to 1 or true, and NearbyRange is distance in which the promotion triggers.
+ALTER TABLE UnitPromotions ADD AddedFromNearbyPromotion INTEGER DEFAULT -1;
+ALTER TABLE UnitPromotions ADD IsNearbyPromotion BOOLEAN DEFAULT 0;
+ALTER TABLE UnitPromotions ADD NearbyRange INTEGER DEFAULT 0;
+
+-- City Gains Wonder Production Modifier while this Unit is stationed in this City
+ALTER TABLE UnitPromotions ADD WonderProductionModifier INTEGER DEFAULT 0;
+
+-- % of Total Wonder Production Modifier from traits, policies, beliefs, units, improvements, etc. is added to building production modifier when building non-wonderclass buildings, value of 100 is all, 50 is 50%, etc.
+ALTER TABLE Traits ADD WonderProductionModifierToBuilding INTEGER DEFAULT 0;
+
+--Grants Wonder Production Modifier based on number of City Improvements. Value is % gained.
+ALTER TABLE Improvements ADD WonderProductionModifier INTEGER DEFAULT 0;
+
 -- Unit stuff for minor civs
 ALTER TABLE Units ADD COLUMN 'MinorCivGift' BOOLEAN DEFAULT 0;
 
@@ -603,11 +648,16 @@ ALTER TABLE Resources ADD COLUMN 'IsMonopoly' BOOLEAN DEFAULT 0;
 
 -- Cooldowns for Units/Buildings
 ALTER TABLE Units ADD COLUMN 'PurchaseCooldown' INTEGER DEFAULT 0;
+-- Affects Faith purchases for all faith buys in all cities.
+ALTER TABLE Units ADD COLUMN 'GlobalFaithPurchaseCooldown' INTEGER DEFAULT 0;
 
 ALTER TABLE Buildings ADD COLUMN 'PurchaseCooldown' INTEGER DEFAULT 0;
 
 -- Allows Courthouses to be built in any city
 ALTER TABLE Buildings ADD COLUMN 'BuildAnywhere' BOOLEAN DEFAULT 0;
+
+-- Builds 1+ artifact in the building, up to the number of artifact slots in the building.
+ALTER TABLE Buildings ADD COLUMN 'FreeArtifacts' INTEGER DEFAULT 0;
 
 -- Adds Mounted trait to a unit that isn't in the unitcombat_mounted combat class
 ALTER TABLE Units ADD COLUMN 'IsMounted' BOOLEAN DEFAULT 0;
@@ -633,9 +683,27 @@ ALTER TABLE Traits ADD COLUMN 'StartingSpies' INTEGER DEFAULT 0;
 -- Spies begin at x rank
 ALTER TABLE Traits ADD COLUMN 'StartingSpyRank' INTEGER DEFAULT 0;
 
+-- Boost CS Quest Value
+ALTER TABLE Traits ADD COLUMN 'MinorQuestYieldModifier' INTEGER DEFAULT 0;
+
+-- Limits the amount that can be built of a Unit class per city
+ALTER TABLE UnitClasses ADD COLUMN 'UnitInstancePerCity' INTEGER DEFAULT -1;
 
 -- Trade Route Internal Capital Bonus -- policy -- Internal TR from Capital stronger!
 ALTER TABLE Policies ADD COLUMN 'InternalTradeRouteYieldModifierCapital' INTEGER DEFAULT 0;
+
+-- Great Engineer Policy bonus - rate modifier.
+ALTER TABLE Policies ADD COLUMN 'GreatEngineerRateModifier' INTEGER DEFAULT 0;
+
+-- Great Engineer Policy bonus - rate modifier.
+ALTER TABLE Policies ADD COLUMN 'CityStateCombatModifier' INTEGER DEFAULT 0;
+
+-- Trade Route Modifiers for Policies
+ALTER TABLE Policies ADD COLUMN 'TradeRouteLandDistanceModifier' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'TradeRouteSeaDistanceModifier' INTEGER DEFAULT 0;
+
+--Espionage Modifier for Policies - should be negative for player benefit!
+ALTER TABLE Policies ADD COLUMN 'EspionageModifier' INTEGER DEFAULT 0;
 
 -- C4DF Function
 
@@ -673,23 +741,22 @@ ALTER TABLE Buildings ADD COLUMN 'BlockScienceTheft' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'BlockGoldTheft' INTEGER DEFAULT 0;
 
 
-
--- CORPORATIONS
-ALTER TABLE Policies ADD COLUMN 'MaxCorporations' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'CorporationMaxFranchises' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'FreeBuildingTradeTargetCity' TEXT DEFAULT NULL;
-ALTER TABLE Buildings ADD COLUMN 'CorporationID' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'CorporationHQID' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'CorporationGPChange' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'TradeRouteInvulnerable' BOOLEAN DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'TRSpeedBoost' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'TRVisionBoost' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'CorporationHelper' TEXT DEFAULT NULL;
+-- Resources
 ALTER TABLE Resources ADD COLUMN 'StrategicHelp' TEXT DEFAULT NULL;
 
-ALTER TABLE Policies ADD COLUMN 'OrderCorporation' BOOLEAN DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'AutocracyCorporation' BOOLEAN DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'FreedomCorporation' BOOLEAN DEFAULT 0;
+-- CORPORATIONS
+ALTER TABLE Technologies ADD COLUMN 'CorporationsEnabled' BOOLEAN;
+
+ALTER TABLE Buildings ADD COLUMN 'IsCorporation' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'GPRateModifierPerXFranchises' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'TRSpeedBoost' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'TRVisionBoost' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'OfficeBenefitHelper' TEXT DEFAULT NULL;
+-- Corporation Policies
+ALTER TABLE Policies ADD COLUMN 'CorporationOfficesAsFranchises' BOOLEAN DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'CorporationFreeFranchiseAbovePopular' BOOLEAN DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'CorporationRandomForeignFranchise' BOOLEAN DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'AdditionalNumFranchisesMod' INTEGER DEFAULT 0;				-- 20 = 20% additional, NOT 1/5 of existing value. this stacks, so 120%, 140%, 160%, etc...
 
 -- Minor Civs
 ALTER TABLE MinorCivilizations ADD COLUMN 'BullyUnitClass' TEXT DEFAULT NULL;
@@ -706,6 +773,8 @@ ALTER TABLE Buildings ADD COLUMN 'SecondaryPantheon' BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions ADD COLUMN 'PlagueChance' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD COLUMN 'IsPlague' BOOLEAN DEFAULT 0;
 
+ALTER TABLE Buildings ADD COLUMN 'IsDummy' BOOLEAN DEFAULT 0;
+
 -- HH Mod
 ALTER TABLE Policies ADD COLUMN 'ExtraNaturalWonderHappiness' INTEGER DEFAULT 0;
 --ALTER TABLE Policies ADD CONSTRAINT ck_ExtraNaturalWonderHappiness CHECK (ExtraNaturalWonderHappiness >= 0);
@@ -713,7 +782,7 @@ ALTER TABLE Policies ADD COLUMN 'ExtraNaturalWonderHappiness' INTEGER DEFAULT 0;
 -- Worlds
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCities' INTEGER DEFAULT 0;
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCityStates' INTEGER DEFAULT 0;
-
+ALTER TABLE Worlds ADD COLUMN 'ReformationPercentRequired' INTEGER DEFAULT 100;
 
 -- CSD
 
@@ -776,3 +845,34 @@ ALTER TABLE Technologies	ADD		VassalageTradingAllowed			boolean;									-- Enab
 ALTER TABLE Eras			ADD		VassalageEnabled				boolean;									-- Enables Vassalage (era)
 ALTER TABLE Resolutions		ADD		VassalMaintenanceGoldPercent	integer	DEFAULT	0;
 ALTER TABLE Resolutions		ADD		EndAllCurrentVassals			boolean	DEFAULT	0;
+
+-- Whoward Tables
+
+ALTER TABLE Traits
+  ADD GGFromBarbarians INTEGER DEFAULT 0;
+
+INSERT INTO CustomModDbUpdates(Name, Value) VALUES('TRAITS_GG_FROM_BARBARIANS', 1);
+
+
+ALTER TABLE UnitPromotions
+  ADD AuraRangeChange INTEGER DEFAULT 0;
+  
+ALTER TABLE UnitPromotions
+  ADD AuraEffectChange INTEGER DEFAULT 0;
+  
+INSERT OR REPLACE INTO Defines(Name, Value)
+  VALUES('GREAT_GENERAL_MAX_RANGE', 2);
+
+INSERT INTO CustomModDbUpdates(Name, Value) VALUES('PROMOTIONS_AURA_CHANGE', 1);
+
+ALTER TABLE Traits
+  ADD ExtraSupply INTEGER DEFAULT 0;
+
+ALTER TABLE Traits
+  ADD ExtraSupplyPerCity INTEGER DEFAULT 0;
+
+ALTER TABLE Traits
+  ADD ExtraSupplyPerPopulation INTEGER DEFAULT 0;
+
+INSERT INTO CustomModDbUpdates(Name, Value) VALUES('TRAITS_EXTRA_SUPPLY', 1);
+
