@@ -492,7 +492,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 			// Friendly cities always safe
 			if(!m_pCells[iI].IsFriendlyCity())
 			{
-				if(!pPlot->isVisibleToEnemyTeam(GET_PLAYER(m_ePlayer).getTeam()))
+				if(!pPlot->isVisibleToEnemy(m_ePlayer))
 				{
 					m_pCells[iI].SetNotVisibleToEnemy(true);
 				}
