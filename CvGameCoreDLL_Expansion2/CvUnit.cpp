@@ -1607,7 +1607,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iCityAttackOnlyCount = 0;
 	m_iCaptureDefeatedEnemyCount = 0;
 #if defined(MOD_BALANCE_CORE)
-	m_iOriginCity = 0;
+	m_iOriginCity = -1;
 	m_iCannotBeCapturedCount = 0;
 	m_iForcedDamage = 0;
 	m_iChangeDamage = 0;

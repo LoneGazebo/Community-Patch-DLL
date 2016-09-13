@@ -5439,12 +5439,6 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 				return false;
 		}
 	}
-
-	//Don't do choice ones in MP
-	bool bDontShowRewardPopup = (GC.getGame().isReallyNetworkMultiPlayer());
-
-	if(pkEventInfo->getNumChoices() > 1 && bDontShowRewardPopup)
-		return false;
 		
 	//Let's narrow down all events here!
 	if(pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
@@ -10461,7 +10455,13 @@ void CvPlayer::doTurn()
 	{
 		if(GC.getGame().isOption(GAMEOPTION_EVENTS))
 		{
-			DoEvents();
+			//Don't do events in MP
+			bool bDontShowRewardPopup = (GC.getGame().isReallyNetworkMultiPlayer() || GC.getGame().isNetworkMultiPlayer());
+
+			if (!bDontShowRewardPopup)
+			{
+				DoEvents();
+			}
 		}
 	}
 #endif

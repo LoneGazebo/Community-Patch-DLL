@@ -3118,6 +3118,26 @@ CvFeatureInfo* CvGlobals::getFeatureInfo(FeatureTypes eFeatureNum)
 		return NULL;
 }
 
+int CvGlobals::getNumDomainInfos()
+{
+	return (int)m_paDomainInfo.size();
+}
+
+std::vector<CvDomainInfo*>& CvGlobals::getDomainInfo()
+{
+	return m_paDomainInfo;
+}
+
+CvDomainInfo* CvGlobals::getDomainInfo(DomainTypes eDomainNum)
+{
+	CvAssert(eDomainNum > -1);
+	CvAssert(eDomainNum < GC.getNumDomainInfos());
+	if (eDomainNum > -1 && eDomainNum < (int)m_paDomainInfo.size())
+		return m_paDomainInfo[eDomainNum];
+	else
+		return NULL;
+}
+
 int& CvGlobals::getNumPlayableCivilizationInfos()
 {
 	return m_iNumPlayableCivilizationInfos;
@@ -7067,6 +7087,7 @@ void CvGlobals::deleteInfoArrays()
 #endif
 	deleteInfoArray(m_paTerrainInfo);
 	deleteInfoArray(m_paFeatureInfo);
+	deleteInfoArray(m_paDomainInfo);
 	deleteInfoArray(m_paResourceClassInfo);
 	deleteInfoArray(m_paResourceInfo);
 	deleteInfoArray(m_paUnitDomainInfo);

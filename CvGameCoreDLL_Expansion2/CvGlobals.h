@@ -345,6 +345,10 @@ public:
 	std::vector<CvFeatureInfo*>& getFeatureInfo();
 	CvFeatureInfo* getFeatureInfo(FeatureTypes eFeatureNum);
 
+	int getNumDomainInfos();
+	std::vector<CvDomainInfo*>& getDomainInfo();
+	CvDomainInfo* getDomainInfo(DomainTypes eDomainNum);
+
 	int& getNumPlayableCivilizationInfos();
 	int& getNumAIPlayableCivilizationInfos();
 	int getNumCivilizationInfos();
@@ -9025,6 +9029,7 @@ protected:
 	std::vector<CvYieldInfo*> m_paYieldInfo;
 	std::vector<CvRouteInfo*> m_paRouteInfo;
 	std::vector<CvFeatureInfo*> m_paFeatureInfo;
+	std::vector<CvDomainInfo*> m_paDomainInfo;
 	std::vector<CvResourceClassInfo*> m_paResourceClassInfo;
 	std::vector<CvResourceInfo*> m_paResourceInfo;
 	std::vector<CvBuildInfo*> m_paBuildInfo;

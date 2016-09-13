@@ -9606,33 +9606,27 @@ CvPlot* CvTacticalAI::FindPassiveBarbarianLandMove(UnitHandle pUnit)
 CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 {
 	CvPlot* pBestMovePlot = NULL;
-	int iBestValue;
-	int iValue;
+	int iBestValue = MAX_INT;
 	CvTacticalTarget* pTarget;
-	int iMovementRate;
 
-	iMovementRate = pUnit->baseMoves();
-	iBestValue = MAX_INT;
-	pBestMovePlot = NULL;
+	SPathFinderUserData data(pUnit.pointer(), 0, m_iSeaBarbarianRange/2);
+	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+	ReachablePlots movePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 
 	// Loop through all unit targets to find the closest
 	pTarget = GetFirstUnitTarget();
 	while(pTarget != NULL)
 	{
-		// Is this unit nearby enough?
-		if(plotDistance(pUnit->getX(), pUnit->getY(), pTarget->GetTargetX(), pTarget->GetTargetY()) < m_iSeaBarbarianRange)
+		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
+
+		SMovePlot dummy(pPlot->GetPlotIndex(), 0, 0);
+		ReachablePlots::const_iterator itPlot = movePlots.find(dummy);
+		if (itPlot != movePlots.end() && itPlot->iTurns < iBestValue)
 		{
-			CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-			if(pPlot && pUnit->getArea() == pPlot->getArea())
-			{
-				iValue = pUnit->TurnsToReachTarget(pPlot, false, false, iBestValue);
-				if(iValue < iBestValue)
-				{
-					iBestValue = iValue;
-					pBestMovePlot = pPlot;
-				}
-			}
+			iBestValue = itPlot->iTurns;
+			pBestMovePlot = pPlot;
 		}
+
 		pTarget = GetNextUnitTarget();
 	}
 
@@ -9652,12 +9646,17 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 		pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
 		while(pTarget != NULL)
 		{
-			int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pTarget->GetTargetX(), pTarget->GetTargetY());
-			if(iDistance < iBestCampDistance)
+			CvPlot* pCamp = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
+			if (pCamp->isAdjacentToShallowWater())
 			{
-				pNearestCamp = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-				iBestCampDistance = iDistance;
+				int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pTarget->GetTargetX(), pTarget->GetTargetY());
+				if (iDistance < iBestCampDistance)
+				{
+					pNearestCamp = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
+					iBestCampDistance = iDistance;
+				}
 			}
+
 			pTarget = GetNextZoneTarget();
 		}
 
@@ -9668,7 +9667,7 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 			CvPlot* pCamp = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 			if(pCamp != pNearestCamp && pCamp->isAdjacentToShallowWater())
 			{
-				iValue = pUnit->TurnsToReachTarget(pCamp, CvUnit::MOVEFLAG_APPROX_TARGET_RING1, m_iSeaBarbarianRange);
+				int iValue = pUnit->TurnsToReachTarget(pCamp, CvUnit::MOVEFLAG_APPROX_TARGET_RING1, m_iSeaBarbarianRange);
 				if(iValue < iBestValue)
 				{
 					iBestValue = iValue;
@@ -11955,6 +11954,10 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		int iDanger = kPlayer.GetPlotDanger(*pPlot, pUnit);
 
 		int iCityDistance = kPlayer.GetCityDistanceInTurns(pPlot);
+		//when in doubt, prefer to move
+		if (pUnit->atPlot(*pPlot))
+			iCityDistance++;
+
 		bool bIsZeroDanger = (iDanger <= 0);
 		bool bIsInCity = pPlot->isFriendlyCity(*pUnit, false);
 		bool bIsInCover = (pPlot->getNumDefenders(pUnit->getOwner()) > 0) && !pUnit->IsCanDefend(pPlot); // only move to cover if I'm defenseless here

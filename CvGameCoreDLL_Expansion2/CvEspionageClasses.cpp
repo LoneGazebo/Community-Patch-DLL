@@ -5331,7 +5331,7 @@ bool CvPlayerEspionage::IsOtherDiplomatVisitingMe(PlayerTypes ePlayer)
 ///              of the turn. This prevents notifications from coming in during someone's turn, allowing players to game the system by watching when
 ///              the messages come in to determine which player did the spying.
 #if defined(MOD_BALANCE_CORE_SPIES)
-void CvPlayerEspionage::AddSpyMessage(int iCityX, int iCityY, PlayerTypes eAttackingPlayer, int iSpyResult, TechTypes eStolenTech, BuildingTypes eBuilding, UnitTypes eUnit, bool bUnrest, int iValue, int iScienceValue, bool bRebel, const char* GWName)
+void CvPlayerEspionage::AddSpyMessage(int iCityX, int iCityY, PlayerTypes eAttackingPlayer, int iSpyResult, TechTypes eStolenTech, BuildingTypes eBuilding, UnitTypes eUnit, bool bUnrest, int iValue, int iScienceValue, bool bRebel, int iGreatWorkIndex)
 #else
 void CvPlayerEspionage::AddSpyMessage(int iCityX, int iCityY, PlayerTypes eAttackingPlayer, int iSpyResult, TechTypes eStolenTech)
 #endif
@@ -5352,7 +5352,7 @@ void CvPlayerEspionage::AddSpyMessage(int iCityX, int iCityY, PlayerTypes eAttac
 				m_aSpyNotificationMessages[ui].m_iGold = iValue;
 				m_aSpyNotificationMessages[ui].m_iScience = iScienceValue;
 				m_aSpyNotificationMessages[ui].m_bRebellion = bRebel;
-				m_aSpyNotificationMessages[ui].m_strGWText = GWName;
+				m_aSpyNotificationMessages[ui].m_iGWIndex = iGreatWorkIndex;
 			}
 #endif
 			// found the appropriate message, now leaving the function
@@ -5376,7 +5376,7 @@ void CvPlayerEspionage::AddSpyMessage(int iCityX, int iCityY, PlayerTypes eAttac
 		kMessage.m_iGold = iValue;
 		kMessage.m_iScience = iScienceValue;
 		kMessage.m_bRebellion = bRebel;
-		kMessage.m_strGWText = GWName;
+		kMessage.m_iGWIndex = iGreatWorkIndex;
 	}
 #endif
 	m_aSpyNotificationMessages.push_back(kMessage);
@@ -5423,10 +5423,10 @@ void CvPlayerEspionage::ProcessSpyMessages()
 			pTechEntry = GC.getTechInfo(m_aSpyNotificationMessages[ui].m_eStolenTech);
 		}
 #if defined(MOD_BALANCE_CORE_SPIES)
-		const char* GWString = NULL;
-		if (m_aSpyNotificationMessages[ui].m_strGWText != NULL)
+		int iGWIndex = -1;
+		if (m_aSpyNotificationMessages[ui].m_iGWIndex != -1)
 		{
-			GWString = m_aSpyNotificationMessages[ui].m_strGWText;
+			iGWIndex = m_aSpyNotificationMessages[ui].m_iGWIndex;
 		}
 
 		CvBuildingEntry* pBuildingInfo = NULL;
@@ -5439,7 +5439,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 		int iDamage = 0;
 		bool bGreatPerson = false;
 		bool bAdvanced = false;
-		if(!pTechEntry && GWString == NULL && MOD_BALANCE_CORE_SPIES && GC.getBALANCE_SPY_SABOTAGE_RATE() > 0)
+		if (!pTechEntry && iGWIndex == -1 && MOD_BALANCE_CORE_SPIES && GC.getBALANCE_SPY_SABOTAGE_RATE() > 0)
 		{
 			if(m_aSpyNotificationMessages[ui].m_eDamagedBuilding != NO_BUILDING)
 			{
@@ -6168,7 +6168,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 		}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-		if (bMultiplayer || (!bAdvanced && !pTechEntry && GWString == NULL))
+		if (bMultiplayer || (!bAdvanced && !pTechEntry && iGWIndex == -1))
 #else
 		if(bMultiplayer || !pTechEntry)
 #endif
@@ -6318,7 +6318,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
-		else if (GWString != NULL)
+		else if (iGWIndex != -1)
 		{
 			switch (m_aSpyNotificationMessages[ui].m_iSpyResult)
 			{
@@ -6329,7 +6329,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 			{
 				// notify defending player that a spy of unknown origin stole a tech
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_DETECTED_S");
-				strSummary << GWString;
+				strSummary << GC.getGame().GetGameCulture()->GetGreatWorkName(iGWIndex);
 
 				Localization::String strNotification;
 				if (pCityEspionage->m_aiSpyAssignment[m_pPlayer->GetID()] == -1)  // no defensive spy
@@ -6340,7 +6340,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 				{
 					strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_DETECTED");
 				}
-				strNotification << GWString;
+				strNotification << GC.getGame().GetGameCulture()->GetGreatWorkName(iGWIndex);
 				strNotification << pCity->getNameKey();
 				pNotifications->Add(NOTIFICATION_TECH_STOLEN_SPY_DETECTED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 			}
@@ -6349,7 +6349,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 			{
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_IDENTIFIED_S");
 				strSummary << GET_PLAYER(m_aSpyNotificationMessages[ui].m_eAttackingPlayer).getCivilizationInfo().getShortDescriptionKey();
-				strSummary << GWString;
+				strSummary << GC.getGame().GetGameCulture()->GetGreatWorkName(iGWIndex);
 
 				Localization::String strNotification;
 				if (pCityEspionage->m_aiSpyAssignment[m_pPlayer->GetID()] == -1)  // no defensive spy
@@ -6361,7 +6361,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 					strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_IDENTIFIED");
 				}
 				strNotification << GET_PLAYER(m_aSpyNotificationMessages[ui].m_eAttackingPlayer).getCivilizationInfo().getAdjectiveKey();
-				strNotification << GWString;
+				strNotification << GC.getGame().GetGameCulture()->GetGreatWorkName(iGWIndex);
 				strNotification << pCity->getNameKey();
 				pNotifications->Add(NOTIFICATION_TECH_STOLEN_SPY_IDENTIFIED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, m_aSpyNotificationMessages[ui].m_eAttackingPlayer);
 
@@ -7701,6 +7701,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 			loadFrom >> kMessage.m_iGold;
 			loadFrom >> kMessage.m_iScience;
 			loadFrom >> kMessage.m_bRebellion;
+			loadFrom >> kMessage.m_iGWIndex;
 		}
 #endif
 		writeTo.m_aSpyNotificationMessages.push_back(kMessage);
@@ -7829,6 +7830,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlayerEspionage& readFrom)
 			saveTo << readFrom.m_aSpyNotificationMessages[ui].m_iGold;
 			saveTo << readFrom.m_aSpyNotificationMessages[ui].m_iScience;
 			saveTo << readFrom.m_aSpyNotificationMessages[ui].m_bRebellion;
+			saveTo << readFrom.m_aSpyNotificationMessages[ui].m_iGWIndex;
 		}
 #endif
 	}
@@ -8690,7 +8692,7 @@ void CvEspionageAI::StealGreatWork()
 												break;
 											}
 											iGreatWorkIndex = pPlayerCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
-											if (iGreatWorkIndex == pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer][iGrab].m_iGreatWorkIndex)
+											if (iGreatWorkIndex != -1 && iGreatWorkIndex == pEspionage->m_aPlayerStealableGWList[uiDefendingPlayer][iGrab].m_iGreatWorkIndex)
 											{
 												// and create great work at home
 												BuildingClassTypes eGWBuildingClass;
@@ -8746,7 +8748,7 @@ void CvEspionageAI::StealGreatWork()
 																	if (pCulture)
 																	{
 #if defined(MOD_BALANCE_CORE_SPIES)
-																		pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[m_pPlayer->GetID()], NO_TECH, NO_BUILDING, NO_UNIT, false, 0, 0, false, pCulture->GetGreatWorkName(iGreatWorkIndex).GetCString());
+																		pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[m_pPlayer->GetID()], NO_TECH, NO_BUILDING, NO_UNIT, false, 0, 0, false, iGreatWorkIndex);
 #else
 																		pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), m_pPlayer->GetID(), pCityEspionage->m_aiResult[m_pPlayer->GetID()], NO_TECH);
 																	

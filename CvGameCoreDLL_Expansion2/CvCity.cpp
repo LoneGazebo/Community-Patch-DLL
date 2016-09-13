@@ -1131,7 +1131,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	AI_init();
 
-	//if (GC.getGame().getGameTurn() == 0)
+	if (GC.getGame().getGameTurn() == 0)
 	{
 		chooseProduction();
 	}
@@ -2638,7 +2638,13 @@ void CvCity::doTurn()
 	{
 		if(GC.getGame().isOption(GAMEOPTION_EVENTS))
 		{
-			DoEvents();
+			//Don't do events in MP
+			bool bDontShowRewardPopup = (GC.getGame().isReallyNetworkMultiPlayer() || GC.getGame().isNetworkMultiPlayer());
+
+			if (!bDontShowRewardPopup)
+			{
+				DoEvents();
+			}
 		}
 	}
 #endif
@@ -3841,12 +3847,6 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 
 	CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
 	
-	//Don't do choice ones in MP
-	bool bDontShowRewardPopup = (GC.getGame().isReallyNetworkMultiPlayer());
-
-	if(pkEventInfo->getNumChoices() > 1 && bDontShowRewardPopup)
-		return false;
-
 	//Let's do our linker checks here.
 	for(int iI = 0; iI <= pkEventInfo->GetNumLinkers(); iI++)
 	{
