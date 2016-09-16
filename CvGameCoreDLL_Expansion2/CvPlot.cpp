@@ -5922,7 +5922,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 	// Remove effects for old owner before changing the member
 	if(getOwner() != eNewValue)
 	{
-		PlayerTypes eOldOwner = getOwner();;
+		PlayerTypes eOldOwner = getOwner();
 
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_PLOT_OWNER_CHANGE, eNewValue, "", getX(), getY());
 

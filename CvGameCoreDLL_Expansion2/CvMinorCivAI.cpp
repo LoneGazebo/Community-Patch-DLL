@@ -9139,8 +9139,7 @@ void CvMinorCivAI::DoTestSeedQuestCountdownForPlayer(PlayerTypes ePlayer, bool b
 	// Quests are now available for the first time?
 	if(GC.getGame().getElapsedGameTurns() == GetFirstPossibleTurnForPersonalQuests())
 	{
-		int iRand = /*20*/ GC.getMINOR_CIV_PERSONAL_QUEST_FIRST_POSSIBLE_TURN_RAND();
-		iNumTurns += GC.getGame().getJonRandNum(iRand, "Random # of turns for Minor Civ personal quest counter - first time.");
+		iNumTurns += GC.getGame().getSmallFakeRandNum((GC.getMINOR_CIV_PERSONAL_QUEST_FIRST_POSSIBLE_TURN_RAND() / 2), GC.getGame().getElapsedGameTurns()) * 2;
 	}
 	else
 	{
@@ -9152,7 +9151,7 @@ void CvMinorCivAI::DoTestSeedQuestCountdownForPlayer(PlayerTypes ePlayer, bool b
 			iRand *= /*200*/ GC.getMINOR_CIV_PERSONAL_QUEST_RAND_TURNS_BETWEEN_HOSTILE_MULTIPLIER();
 			iRand /= 100;
 		}
-		iNumTurns += GC.getGame().getJonRandNum(iRand, "Random # of turns for Minor Civ personal quest counter.");
+		iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, GC.getGame().getElapsedGameTurns()) * 2;
 	}
 
 	// Modify for Game Speed
@@ -11953,6 +11952,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	if(GetPermanentAlly() != NO_PLAYER && eNewAlly != GetPermanentAlly())
 	{
 		m_eAlly = GetPermanentAlly();
+		GET_PLAYER(GetPermanentAlly()).RefreshCSAlliesFriends();
 		return;
 	}
 #endif
@@ -12022,12 +12022,20 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 
 #if !defined(NO_ACHIEVEMENTS)
 		//Achievement Test
-		kNewAlly.GetPlayerAchievements().AlliedWithCityState(GetPlayer()->GetID());;
+		kNewAlly.GetPlayerAchievements().AlliedWithCityState(GetPlayer()->GetID());
 #endif
 	}
 
 	// Alter who gets this guy's resources
 	DoUpdateAlliesResourceBonus(eNewAlly, eOldAlly);
+	if (eNewAlly != NO_PLAYER)
+	{
+		GET_PLAYER(eNewAlly).RefreshCSAlliesFriends();
+	}
+	if (eOldAlly != NO_PLAYER)
+	{
+		GET_PLAYER(eOldAlly).RefreshCSAlliesFriends();
+	}
 
 	// Declare war on Ally's enemies
 	if(eNewAlly != NO_PLAYER)
@@ -12407,6 +12415,10 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 			SetAlly(ePlayer);
 		else
 			SetAlly(NO_PLAYER);	// We KNOW no one else can be higher, so set the Ally to NO_PLAYER
+	}
+	if (ePlayer != NO_PLAYER)
+	{
+		GET_PLAYER(ePlayer).RefreshCSAlliesFriends();
 	}
 }
 

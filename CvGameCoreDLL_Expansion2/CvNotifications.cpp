@@ -781,6 +781,12 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 				break;
 
 #if defined(MOD_BALANCE_CORE)
+			case NOTIFICATION_PLAYER_DEAL_RECEIVED:
+				eBlockingType = ENDTURN_BLOCKING_PENDING_DEAL;
+				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+				return true;
+				break;
+
 			case 826076831:
 			case 419811917:
 				eBlockingType = ENDTURN_BLOCKING_EVENT_CHOICE;

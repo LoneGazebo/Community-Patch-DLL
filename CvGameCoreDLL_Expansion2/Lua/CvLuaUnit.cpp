@@ -359,6 +359,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(UnitCombatModifier);
 #if defined(MOD_BALANCE_CORE)
 	Method(IsMounted);
+	Method(IsStrongerDamaged);
 	Method(BarbarianCombatBonus);
 #endif
 	Method(DomainModifier);
@@ -3628,6 +3629,16 @@ int CvLuaUnit::lIsMounted(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }	
+//------------------------------------------------------------------------------
+int CvLuaUnit::lIsStrongerDamaged(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const bool bResult = pkUnit->IsStrongerDamaged();
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
 #endif
 //------------------------------------------------------------------------------
 //int domainModifier(int /*DomainTypes*/ eDomain);

@@ -200,7 +200,7 @@ for k, v, w in ([[
 	NOTIFICATION_DEAL_EXPIRED_TRADE_AGREEMENT	DiplomacyX		B
 	NOTIFICATION_TECH_AWARD				TechAward
 	NOTIFICATION_PLAYER_DEAL			Diplomacy
-	NOTIFICATION_PLAYER_DEAL_RECEIVED		Diplomacy		B
+	NOTIFICATION_PLAYER_DEAL_RECEIVED		DiplomacyPlayer		
 	NOTIFICATION_PLAYER_DEAL_RESOLVED		Diplomacy		B
 	NOTIFICATION_PROJECT_COMPLETED			ProjectConstructed
 
@@ -463,6 +463,10 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 		elseif type == NotificationTypes.NOTIFICATION_TECH_AWARD then
 			itemInfo = GameInfo.Technologies[ iExtraGameData ]
 			itemImage = instance.TechAwardImage
+
+		elseif type == NotificationTypes.NOTIFICATION_PLAYER_DEAL_RECEIVED then
+			itemInfo = GameInfo.Leaders[ iExtraGameData ]
+			itemImage = instance.DiplomacyPlayerImage
 
 		elseif type == NotificationTypes.NOTIFICATION_GREAT_WORK_COMPLETED_ACTIVE_PLAYER then
 			smallCivFrame = instance.WonderSmallCivFrame

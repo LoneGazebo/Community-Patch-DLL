@@ -912,5 +912,15 @@
 		<Row Tag="TXT_KEY_POP_NATURAL_WONDER_FOUND_PROMOTE_OWNED">
 			<Text>[NEWLINE]Free Promotion for newly-created, valid units (if owned by player):[NEWLINE]{1_PromoteString}</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_JAPAN_UA">
+			<Text>{1_Num}% Penalty from lack of Trade Routes (Sakoku)[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GWAM_BONUS_SAKOKU">
+			<Text>Due to the birth of {2_UnitName}, your [ICON_CAPITAL] Capital gains {1_Num} [ICON_GREAT_WRITER] Great Writer, [ICON_GREAT_ARTIST] Artist, and [ICON_GREAT_MUSICIAN] Musician points.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_GWAM_BONUS_SAKOKU_S">
+			<Text>Patronage of the Daimyo</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

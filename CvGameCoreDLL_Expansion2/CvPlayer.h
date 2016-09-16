@@ -1115,6 +1115,7 @@ public:
 	void addInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	void setInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantYieldText(InstantYieldType iType)  const;
+	void doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName);
 #endif
 	// Great People Expenditure
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
@@ -1490,6 +1491,14 @@ public:
 
 	void ChangeFaithPurchaseCooldown(int iValue);
 	int GetFaithPurchaseCooldown() const;
+
+	int GetNumCSAllies() const;
+	void SetNumCSAllies(int iValue);
+
+	int GetNumCSFriends() const;
+	void SetNumCSFriends(int iValue);
+
+	void RefreshCSAlliesFriends();
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyUnhappinessMod() const;
@@ -2978,6 +2987,8 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMonopolyModPercent;
 	FAutoVariable<int, CvPlayer> m_iCachedValueOfPeaceWithHuman;
 	FAutoVariable<int, CvPlayer> m_iFaithPurchaseCooldown;
+	FAutoVariable<int, CvPlayer> m_iCSAllies;
+	FAutoVariable<int, CvPlayer> m_iCSFriends;
 	std::vector<int> m_piCityFeatures;
 	std::vector<int> m_piNumBuildings;
 	FAutoVariable<int, CvPlayer> m_iCitiesFeatureSurrounded;

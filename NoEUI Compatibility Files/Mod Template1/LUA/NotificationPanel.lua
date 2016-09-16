@@ -118,7 +118,7 @@ g_NameTable[ NotificationTypes.NOTIFICATION_DEAL_EXPIRED_RESEARCH_AGREEMENT ]	= 
 g_NameTable[ NotificationTypes.NOTIFICATION_DEAL_EXPIRED_TRADE_AGREEMENT ]		= "DiplomacyX";
 g_NameTable[ NotificationTypes.NOTIFICATION_TECH_AWARD ]						= "TechAward";
 g_NameTable[ NotificationTypes.NOTIFICATION_PLAYER_DEAL ]						= "Diplomacy";
-g_NameTable[ NotificationTypes.NOTIFICATION_PLAYER_DEAL_RECEIVED ]				= "Diplomacy";
+g_NameTable[ NotificationTypes.NOTIFICATION_PLAYER_DEAL_RECEIVED ]				= "DiplomacyPlayer";
 g_NameTable[ NotificationTypes.NOTIFICATION_PLAYER_DEAL_RESOLVED ]				= "Diplomacy";
 g_NameTable[ NotificationTypes.NOTIFICATION_PROJECT_COMPLETED ]					= "ProjectConstructed";
 
@@ -346,6 +346,9 @@ function OnNotificationAdded( Id, type, toolTip, strSummary, iGameValue, iExtraG
 			if portraitIndex ~= -1 then
 				IconHookup( portraitIndex, 80, thisFeatureInfo.IconAtlas, instance.NaturalWonderImage );				
 			end
+		elseif type == NotificationTypes.NOTIFICATION_PLAYER_DEAL_RECEIVED then
+			local index = iGameValue;
+			CivIconHookup( index, 80, instance.DiplomacyPlayerImage, instance.CivIconBG, instance.CivIconShadow, false, true );
 		elseif type == NotificationTypes.NOTIFICATION_TECH_AWARD then
 			local thisTechInfo = GameInfo.Technologies[iExtraGameData];
 			local portraitIndex = thisTechInfo.PortraitIndex;

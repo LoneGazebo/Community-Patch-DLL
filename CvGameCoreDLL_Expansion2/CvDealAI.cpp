@@ -7455,7 +7455,8 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 		// Any extras?
 		if(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false) > 3 && GetPlayer()->getNumResourceAvailable(eResource, true) <= 0)
 		{
-			iRand = GC.getGame().getJonRandNum(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false), "DealAI: Strat to ask for");
+			int iNum = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false);
+			iRand = GC.getGame().getSmallFakeRandNum(max(iNum, 10), eResource);
 			iRand /= 2;
 			if(iRand <= 0)
 			{

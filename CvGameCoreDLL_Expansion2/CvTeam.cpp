@@ -317,7 +317,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		int numBuildingInfos = GC.getNumBuildingInfos();
 #if defined(MOD_API_UNIFIED_YIELDS)
 		int numFeatureInfos = GC.getNumFeatureInfos();
-		int numDomainInfos = NUM_DOMAIN_TYPES;
+		int numDomainInfos = GC.getNumDomainInfos();
 #endif
 		int numTerrainInfos = GC.getNumTerrainInfos();
 		int numImprovementInfos = GC.getNumImprovementInfos();
@@ -423,7 +423,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		}
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-		for(int i = 0; i < NUM_DOMAIN_TYPES; i++)
+		for (int i = 0; i < numDomainInfos; i++)
 		{
 			m_paiTradeRouteDomainExtraRange[i] = 0;
 		}
@@ -5234,7 +5234,7 @@ void CvTeam::changeRouteChange(RouteTypes eIndex, int iChange)
 int CvTeam::getTradeRouteDomainExtraRange(DomainTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumDomainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiTradeRouteDomainExtraRange[eIndex];
 }
 
@@ -5242,7 +5242,7 @@ int CvTeam::getTradeRouteDomainExtraRange(DomainTypes eIndex) const
 void CvTeam::changeTradeRouteDomainExtraRange(DomainTypes eIndex, int iChange)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumDomainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiTradeRouteDomainExtraRange[eIndex] = (m_paiTradeRouteDomainExtraRange[eIndex] + iChange);
 }
 #endif
@@ -6618,7 +6618,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				bTechRevealsArtifacts = pArtifactResource->getTechReveal() == eIndex;			
 			}
 
-			ResourceTypes eHiddenArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_HIDDEN_ARTIFACTS", true);;
+			ResourceTypes eHiddenArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_HIDDEN_ARTIFACTS", true);
 			CvResourceInfo* pHiddenArtifactResource = NULL;
 			if(eHiddenArtifactResource != NO_RESOURCE)
 			{
@@ -9142,6 +9142,7 @@ void CvTeam::Read(FDataStream& kStream)
 	m_pTeamTechs->Read(kStream);
 
 #if defined(MOD_API_UNIFIED_YIELDS)
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiTradeRouteDomainExtraRange, GC.getNumDomainInfos());
 	FeatureArrayHelpers::ReadYieldArray(kStream, m_ppaaiFeatureYieldChange, NUM_YIELD_TYPES);
 	TerrainArrayHelpers::ReadYieldArray(kStream, m_ppaaiTerrainYieldChange, NUM_YIELD_TYPES);
 #endif
@@ -9317,6 +9318,7 @@ void CvTeam::Write(FDataStream& kStream) const
 	m_pTeamTechs->Write(kStream);
 
 #if defined(MOD_API_UNIFIED_YIELDS)
+	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes, int>(kStream, m_paiTradeRouteDomainExtraRange, GC.getNumDomainInfos());
 	FeatureArrayHelpers::WriteYieldArray(kStream, m_ppaaiFeatureYieldChange, GC.getNumFeatureInfos());
 	TerrainArrayHelpers::WriteYieldArray(kStream, m_ppaaiTerrainYieldChange, GC.getNumTerrainInfos());
 #endif

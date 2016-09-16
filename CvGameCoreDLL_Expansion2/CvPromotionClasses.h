@@ -159,6 +159,7 @@ public:
 	int GetNearbyUnitClassBonusRange() const;
 	int GetNearbyUnitClassBonus() const;
 	int GetWonderProductionModifier() const;
+	bool IsStrongerDamaged() const;
 #endif
 	bool IsCannotBeChosen() const;
 	bool IsLostWithUpgrade() const;
@@ -394,6 +395,7 @@ protected:
 	bool m_bIsLostOnMove;
 	bool m_bCityStateOnly;
 	bool m_bBarbarianOnly;
+	bool m_bStrongerDamaged;
 #endif
 	bool m_bCannotBeChosen;
 	bool m_bLostWithUpgrade;

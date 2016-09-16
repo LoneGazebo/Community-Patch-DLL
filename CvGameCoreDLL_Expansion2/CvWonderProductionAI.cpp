@@ -336,7 +336,14 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bAdjustForOtherPlayers, in
 		if(m_Buildables.GetTotalWeight() > 0)
 		{
 			int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
-			eSelection = (BuildingTypes)m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing wonder from Top Choices");
+			if (pWonderCity->isBarbarian())
+			{
+				eSelection = (BuildingTypes)m_Buildables.GetElement(0);
+			}
+			else
+			{
+				eSelection = (BuildingTypes)m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing wonder from Top Choices");
+			}
 			iWonderWeight = m_Buildables.GetTotalWeight();
 			return eSelection;
 		}

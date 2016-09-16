@@ -115,7 +115,7 @@ public:
 	bool IsConnectionInternational (const TradeConnection& kTradeConnection);
 
 	bool IsCityConnectedToPlayer (CvCity* pCity, PlayerTypes eOtherPlayer, bool bOnlyOwnedByCityOwner);
-	bool IsPlayerConnectedToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer);
+	bool IsPlayerConnectedToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer, bool bFirstPlayerOnly = false);
 	int CountNumPlayerConnectionsToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer);
 
 	bool CitiesHaveTradeConnection (CvCity* pFirstCity, CvCity* pSecondCity);

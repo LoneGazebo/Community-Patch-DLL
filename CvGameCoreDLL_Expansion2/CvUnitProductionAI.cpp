@@ -273,7 +273,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	{
 		return 0;
 	}
-
+	if ((m_pCity->isUnderSiege() || m_pCity->isInDangerOfFalling()) && !bCombat)
+	{
+		return 0;
+	}
 
 	//% Value that will modify the base value.
 	int iBonus = 0;

@@ -48,10 +48,6 @@ UPDATE Traits
 SET NaturalWonderYieldModifier = '50'
 WHERE Type = 'TRAIT_WAYFINDING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Traits
-SET CombatBoostNearNaturalWonder = '1'
-WHERE Type = 'TRAIT_WAYFINDING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 -- Spain
 
 UPDATE Traits
@@ -263,3 +259,13 @@ INSERT INTO Trait_MountainRangeYield
 VALUES
 	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_GOLD', '3'),
 	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_FOOD', '3');
+
+INSERT INTO Trait_UnimprovedFeatureYieldChanges
+	(TraitType, FeatureType, YieldType, Yield)
+VALUES
+	('TRAIT_WAYFINDING', 'FEATURE_ATOLL', 'YIELD_FOOD', 2);
+
+INSERT INTO Trait_ImprovementYieldChanges
+	(TraitType, ImprovementType, YieldType, Yield)
+VALUES
+	('TRAIT_WAYFINDING', 'IMPROVEMENT_FISHING_BOATS', 'YIELD_FOOD', 2);

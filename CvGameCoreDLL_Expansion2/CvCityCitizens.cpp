@@ -3963,6 +3963,15 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		{
 			GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(newUnit->getUnitClassType());
 			GET_PLAYER(m_pCity->getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, m_pCity);
+			GET_PLAYER(m_pCity->getOwner()).doInstantGWAM(eGreatPerson, newUnit->getUnitName());
+		}
+	}
+	else
+	{
+		if (newUnit != NULL)
+		{
+			GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(newUnit->getUnitClassType());
+			GET_PLAYER(m_pCity->getOwner()).doInstantGWAM(eGreatPerson, newUnit->getUnitName());
 		}
 	}
 #endif

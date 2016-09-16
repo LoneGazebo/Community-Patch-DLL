@@ -961,6 +961,15 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 				{
 					iBaseValue *= 10;
 				}
+				if (pClosestCity->GetPlayer()->isMinorCiv())
+				{
+					//At war with ally of this minor? Greatly reduce priority.
+					PlayerTypes eAlly = pClosestCity->GetPlayer()->GetMinorCivAI()->GetAlly();
+					if (eAlly != NO_PLAYER && GET_TEAM(GET_PLAYER(m_ePlayer).getTeam()).isAtWar(GET_PLAYER(eAlly).getTeam()))
+					{
+						iBaseValue = 1;
+					}
+				}
 #endif
 			}
 

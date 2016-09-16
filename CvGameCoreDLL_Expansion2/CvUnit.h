@@ -1173,6 +1173,9 @@ public:
 	int GetNearbyUnitClassModifierFromUnitClass(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClassRange, int iUnitClassModifier, const CvPlot* pAtPlot = NULL) const;
 	void DoNearbyUnitPromotion(CvPlot* pPlot = NULL);
+
+	bool IsStrongerDamaged() const;
+	void ChangeIsStrongerDamaged(int iChange);
 #endif
 
 	bool IsCanHeavyCharge() const;
@@ -1854,6 +1857,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iSapperCount;
 	FAutoVariable<int, CvUnit> m_iCanHeavyCharge;
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvUnit> m_iStrongerDamaged;
 	FAutoVariable<int, CvUnit> m_iCanMoraleBreak;
 #endif
 	FAutoVariable<int, CvUnit> m_iNumExoticGoods;

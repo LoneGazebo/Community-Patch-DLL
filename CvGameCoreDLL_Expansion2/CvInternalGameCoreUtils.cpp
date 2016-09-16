@@ -12,7 +12,7 @@
 //------------------------------------------------------------------------------
 bool isWorldWonderClass(const CvBuildingClassInfo& kBuildingClass)
 {
-	return kBuildingClass.getMaxGlobalInstances() != -1;;
+	return kBuildingClass.getMaxGlobalInstances() != -1;
 }
 //------------------------------------------------------------------------------
 bool isTeamWonderClass(const CvBuildingClassInfo& kBuildingClass)

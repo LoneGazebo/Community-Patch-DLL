@@ -143,7 +143,7 @@ struct SpyNotificationMessage
 	int m_iGold;
 	int m_iScience;
 	bool m_bRebellion;
-	const char* m_strGWText;
+	int m_iGWIndex;
 #endif
 };
 struct IntrigueNotificationMessage
@@ -268,7 +268,7 @@ public:
 	bool IsOtherDiplomatVisitingMe(PlayerTypes ePlayer);
 
 #if defined(MOD_BALANCE_CORE_SPIES)
-	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, TechTypes eStolenTech, BuildingTypes eBuilding, UnitTypes eUnit, bool bUnrest, int iValue, int iScienceValue, bool bRebel, const char* GreatWorkName = NULL);
+	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, TechTypes eStolenTech, BuildingTypes eBuilding, UnitTypes eUnit, bool bUnrest, int iValue, int iScienceValue, bool bRebel, int iGreatWorkIndex = -1);
 #else
 	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, TechTypes eStolenTech);
 #endif

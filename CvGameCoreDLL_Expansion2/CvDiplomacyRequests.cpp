@@ -184,7 +184,11 @@ void CvDiplomacyRequests::BeginTurn(void)
 			{
 				CvPlayer& kFrom = GET_PLAYER(iter->m_eFromPlayer);
 				CvString leaderMessage = CvString::format("%s: %s", kFrom.getName(), iter->m_strMessage.c_str());
-				iter->m_iLookupIndex = pNotifications->Add(NOTIFICATION_PLAYER_DEAL_RECEIVED, leaderMessage, kFrom.getCivilizationDescription(), iter->m_eFromPlayer, -2, -1, -1);
+
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_MP_DIPLO_CONTACT_SUMMARY");
+				strSummary << kFrom.getCivilizationShortDescriptionKey();
+
+				iter->m_iLookupIndex = pNotifications->Add(NOTIFICATION_PLAYER_DEAL_RECEIVED, leaderMessage, strSummary.toUTF8(), iter->m_eFromPlayer, -2, GET_TEAM(kFrom.getTeam()).getLeaderID(), -1);
 			}
 		}
 	}
@@ -219,6 +223,58 @@ void CvDiplomacyRequests::EndTurn(void)
 	m_eNextAIPlayer = NO_PLAYER;
 #endif
 }
+#if defined(MOD_ACTIVE_DIPLOMACY)
+//	----------------------------------------------------------------------------
+//	Called from within CvPlayer at the end of turn
+void CvDiplomacyRequests::CheckRemainingNotifications()
+{
+	RequestList::iterator iter = m_aRequests.begin();
+	while (iter != m_aRequests.end())
+	{
+		if (CvPreGame::isHuman(iter->m_eFromPlayer))
+			++iter;
+		else
+		{
+			if (iter->m_iLookupIndex >= 0)
+			{
+				CvDeal* pDeal = GC.getGame().GetGameDeals().GetProposedDeal(iter->m_eFromPlayer, m_ePlayer, false);
+				if (!pDeal)
+				{
+					iter = m_aRequests.erase(iter);
+					continue;
+				}
+
+				bool bBad = pDeal->AreAllTradeItemsValid();
+				if (!bBad && !CvPreGame::isHuman(iter->m_eFromPlayer))
+				{
+					int iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer;
+					bool bCantMatchOffer;
+					bBad = GET_PLAYER(iter->m_eFromPlayer).GetDealAI()->IsDealWithHumanAcceptable(pDeal, m_ePlayer, /*Passed by reference*/ iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, &bCantMatchOffer, false);
+				}
+				if (bBad)
+				{
+					GC.getGame().GetGameDeals().RemoveProposedDeal(iter->m_eFromPlayer, m_ePlayer, NULL, false);
+
+					if (iter->m_iLookupIndex >= 0)
+						GET_PLAYER(m_ePlayer).GetNotifications()->Dismiss(iter->m_iLookupIndex, false);
+
+					iter = m_aRequests.erase(iter);
+
+					CvPlayerAI& kFromPlayer = GET_PLAYER(iter->m_eFromPlayer);
+					Localization::String strMessage;
+					Localization::String strSummary;
+
+					strSummary = Localization::Lookup("TXT_KEY_DEAL_WITHDRAWN");
+					strMessage = Localization::Lookup("TXT_KEY_DEAL_WITHDRAWN_BY_THEM");
+					strMessage << kFromPlayer.getNickName();
+					GET_PLAYER(m_ePlayer).GetNotifications()->Add(NOTIFICATION_PLAYER_DEAL_RESOLVED, strMessage.toUTF8(), strSummary.toUTF8(), iter->m_eFromPlayer, -1, -1);
+				}
+			}
+			iter = m_aRequests.erase(iter);
+		}
+	}
+}
+#endif
 
 //	----------------------------------------------------------------------------
 /// Adds a new notification to the list
@@ -245,51 +301,6 @@ bool CvDiplomacyRequests::Add(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploT
 	return true;
 }
 #if defined(MOD_ACTIVE_DIPLOMACY)
-//	----------------------------------------------------------------------------
-void CvDiplomacyRequests::CheckValidity()
-{
-	CvPlayer& kTo = GET_PLAYER(m_ePlayer);
-	CvNotifications* pNotifications = kTo.GetNotifications();
-	std::set<PlayerTypes> aValid;
-	for(RequestList::iterator iter = m_aRequests.begin(); iter != m_aRequests.end(); ++iter)
-	{
-		if (CvPreGame::isHuman(iter->m_eFromPlayer))
-			continue;
-
-		if (aValid.find(iter->m_eFromPlayer) != aValid.end())
-			continue;
-
-		CvDeal* pDeal = GC.getGame().GetGameDeals().GetProposedDeal(iter->m_eFromPlayer, m_ePlayer, false);
-		if (!pDeal)
-		{
-			iter = m_aRequests.erase(iter);
-			continue;
-		}
-
-		bool bBad = pDeal->AreAllTradeItemsValid();
-		if (!bBad && !CvPreGame::isHuman(iter->m_eFromPlayer))
-		{
-			int iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer;
-			bool bCantMatchOffer;
-			bBad = GET_PLAYER(iter->m_eFromPlayer).GetDealAI()->IsDealWithHumanAcceptable(pDeal, m_ePlayer, /*Passed by reference*/ iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, &bCantMatchOffer, false);
-		}
-		if(bBad)
-		{
-			GC.getGame().GetGameDeals().RemoveProposedDeal(iter->m_eFromPlayer, m_ePlayer, NULL, false);
-
-			if (pNotifications && iter->m_iLookupIndex >= 0)
-				pNotifications->Dismiss(iter->m_iLookupIndex, false);
-
-			iter = m_aRequests.erase(iter);
-
-			// TODO: add notification that player had withdrawn the offer
-		}
-		else
-		{
-			aValid.insert(iter->m_eFromPlayer);
-		}
-	}
-}
 //	----------------------------------------------------------------------------
 void CvDiplomacyRequests::ActivateNext()
 {
