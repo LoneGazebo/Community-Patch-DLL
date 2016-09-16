@@ -46,8 +46,8 @@ public:
 	int GetFirstFreeUnitClass() const;
 	int GetFirstFreeTechs() const;
 	int GetEmbarkedMoveChange() const;
-	int GetNumInternationalTradeRoutesChange() const;;
-	int GetInfluenceSpreadModifier() const;;
+	int GetNumInternationalTradeRoutesChange() const;
+	int GetInfluenceSpreadModifier() const;
 	int GetExtraVotesPerDiplomat() const;
 
 	int GetGridX() const;

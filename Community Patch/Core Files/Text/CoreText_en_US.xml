@@ -6573,6 +6573,16 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_GW_STOLEN_SPY_IDENTIFIED">
 			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy stole {2_GW} from {3_CityName} during a heist!</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DIPLOMATIC_REQUEST">
+			<Text>PENDING DIPLOMACY</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DIPLOMATIC_REQUEST_TT">
+			<Text>A diplomatic message from another Civilization awaits your consideration.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MP_DIPLO_CONTACT_SUMMARY">
+			<Text>Incoming message from {1_LeaderName}</Text>
+		</Row>
 	</Language_en_US>
 	<PostDefines>
 		<Row Name="PROMOTION_DEEPWATER_EMBARKATION">

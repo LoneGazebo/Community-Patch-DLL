@@ -5866,13 +5866,13 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 			if(eResponsibleParty != NO_PLAYER)
 			{
 				iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts(eResponsibleParty);
-				iGoldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();;
+				iGoldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iGoldBonus /= 100;
 			}
 			else
 			{
 				iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts();
-				iGoldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();;
+				iGoldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iGoldBonus /= 100;
 			}
 

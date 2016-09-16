@@ -222,7 +222,7 @@ void CvBuildingProductionAI::LogPossibleBuilds()
 		{
 			for(int iI = 0; iI < m_Buildables.size(); iI++)
 			{
-				CvBuildingEntry* pBuildingEntry = pGameBuildings->GetEntry(m_Buildables.GetElement(iI));;
+				CvBuildingEntry* pBuildingEntry = pGameBuildings->GetEntry(m_Buildables.GetElement(iI));
 				if(pBuildingEntry != NULL)
 				{
 					CvString strTemp;

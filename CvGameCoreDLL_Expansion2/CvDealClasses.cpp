@@ -2864,6 +2864,7 @@ bool CvGameDeals::FinalizeDeal(CvDeal kDeal, bool bAccepted)
 		if(bValid && bAccepted)
 		{
 			FinalizeDealValidAndAccepted(eFromPlayer, eToPlayer, kDeal, bAccepted, veNowAtPeacePairs);
+			GET_PLAYER(eToPlayer).GetDiplomacyRequests()->CheckRemainingNotifications();
 		}
 	}
 	

@@ -362,6 +362,7 @@ CvUnit::CvUnit() :
 	, m_iGainsXPFromScouting("CvUnit::m_iGainsXPFromScouting", m_syncArchive)
 	, m_iBarbCombatBonus("CvUnit::m_iBarbCombatBonus", m_syncArchive)
 	, m_iCanMoraleBreak("CvUnit::m_iCanMoraleBreak", m_syncArchive)
+	, m_iStrongerDamaged("CvUnit::m_iStrongerDamaged", m_syncArchive)
 #endif
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
 	, m_iExtraReconRange("CvUnit::m_iExtraReconRange", m_syncArchive)
@@ -1707,6 +1708,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGainsXPFromScouting = 0;
 	m_iBarbCombatBonus = 0;
 	m_iCanMoraleBreak = 0;
+	m_iStrongerDamaged = 0;
 #endif
 #if defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
 	m_iGGFromBarbariansCount = 0;
@@ -5248,6 +5250,12 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	{
 		// Mod (Policies, etc.)
 		iWoundedDamageMultiplier += GET_PLAYER(getOwner()).GetWoundedUnitDamageMod();
+#if defined(MOD_BALANCE_CORE)
+		if (IsStrongerDamaged() && iWoundedDamageMultiplier != 0)
+		{
+			iWoundedDamageMultiplier += GC.getTRAIT_WOUNDED_DAMAGE_MOD();
+		}
+#endif
 
 #if defined(MOD_UNITS_MAX_HP)
 		iDamageRatio = GetMaxHitPoints() - (iCurrentDamage * iWoundedDamageMultiplier / 100);
@@ -5268,7 +5276,14 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	int iRoll = 0;
 	if(bIncludeRand)
 	{
-		iRoll = /*400*/ GC.getGame().getJonRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Combat Damage");
+		if (isBarbarian())
+		{
+			iRoll = /*1200*/ (GC.getGame().getSmallFakeRandNum(10, GetID()) * 120);
+		}
+		else
+		{
+			iRoll = /*1200*/ GC.getGame().getJonRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Combat Damage");
+		}
 		iRoll *= iDamageRatio;
 #if defined(MOD_UNITS_MAX_HP)
 		iRoll /= GetMaxHitPoints();
@@ -14920,6 +14935,12 @@ int CvUnit::GetBaseCombatStrengthConsideringDamage() const
 
 	// Mod (Policies, etc.) - lower means Units are less bothered by damage
 	iWoundedDamageMultiplier += GET_PLAYER(getOwner()).GetWoundedUnitDamageMod();
+#if defined(MOD_BALANCE_CORE)
+	if (IsStrongerDamaged() && iWoundedDamageMultiplier != 0)
+	{
+		iWoundedDamageMultiplier += GC.getTRAIT_WOUNDED_DAMAGE_MOD();
+	}
+#endif
 
 	int iStrength = GetMaxAttackStrength(NULL,NULL,NULL) / 100;
 
@@ -14965,19 +14986,20 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	// units cannot heal anymore, but strength is unaffected
-#else
+	if (!MOD_BALANCE_CORE_MILITARY)
+	{
 	// Over our strategic resource limit?
 	iTempModifier = GetStrategicResourceCombatPenalty();
-	if(iTempModifier != 0)
+	if (iTempModifier != 0)
 		iModifier += iTempModifier;
 #endif
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	}
+#endif
 	if (pFromPlot == NULL)
 	{
 		pFromPlot = plot();
 	}
-
 	// Great General nearby
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	int iAuraEffectChange = 0;
@@ -15007,24 +15029,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			int iCSBonus = GET_PLAYER(eAlly).GetPlayerTraits()->GetAllianceCSStrength();
 			if(iCSBonus > 0)
 			{
-				int iNumAllies = 0;
-				// Loop through all minors and get the total number we've met.
-				for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-				{
-					PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
-
-					if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
-					{
-						if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(eAlly))
-						{
-							iNumAllies++;
-							if(iNumAllies >= GC.getBALANCE_MAX_CS_ALLY_STRENGTH())
-							{
-								break;
-							}
-						}
-					}
-				}
+				int iNumAllies = GET_PLAYER(eAlly).GetNumCSAllies();
 				if(iNumAllies > GC.getBALANCE_MAX_CS_ALLY_STRENGTH())
 				{
 					iNumAllies = GC.getBALANCE_MAX_CS_ALLY_STRENGTH();
@@ -15038,24 +15043,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		int iCSBonus = GET_PLAYER(getOwner()).GetPlayerTraits()->GetAllianceCSStrength();
 		if(iCSBonus > 0)
 		{
-			int iNumAllies = 0;
-			// Loop through all minors and get the total number we've met.
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
-
-				if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
-				{
-					if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(getOwner()))
-					{
-						iNumAllies++;
-						if(iNumAllies >= GC.getBALANCE_MAX_CS_ALLY_STRENGTH())
-						{
-							break;
-						}
-					}
-				}
-			}
+			int iNumAllies = GET_PLAYER(getOwner()).GetNumCSAllies();
 			if(iNumAllies > GC.getBALANCE_MAX_CS_ALLY_STRENGTH())
 			{
 				iNumAllies = GC.getBALANCE_MAX_CS_ALLY_STRENGTH();
@@ -15411,6 +15399,10 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	{
 		iModifier += (getDamage() / 5);
 	}
+	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && IsStrongerDamaged())
+	{
+		iModifier += (getDamage() / 3);
+	}
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
@@ -15595,6 +15587,10 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
 	{
 		iModifier += (getDamage() / 5);
+	}
+	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && IsStrongerDamaged())
+	{
+		iModifier += (getDamage() / 3);
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
@@ -15926,9 +15922,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 #if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	//If Japan, you should get stronger as you lose health.
-	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
+	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
 	{
 		iModifier += (getDamage() / 5);
+	}
+	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && IsStrongerDamaged())
+	{
+		iModifier += (getDamage() / 3);
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
@@ -16373,7 +16373,12 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	int iWoundedDamageMultiplier = /*50*/ GC.getWOUNDED_DAMAGE_MULTIPLIER();
 	iWoundedDamageMultiplier += kPlayer.GetWoundedUnitDamageMod();
 
-
+#if defined(MOD_BALANCE_CORE)
+	if (IsStrongerDamaged() && iWoundedDamageMultiplier != 0)
+	{
+		iWoundedDamageMultiplier += GC.getTRAIT_WOUNDED_DAMAGE_MOD();
+	}
+#endif
 	int iAttackerDamageRatio = GC.getMAX_HIT_POINTS() - ((getDamage() - iAssumeExtraDamage) * iWoundedDamageMultiplier / 100);
 	if(iAttackerDamageRatio < 0)
 		iAttackerDamageRatio = 0;
@@ -16385,7 +16390,14 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	int iAttackerRoll = 0;
 	if(bIncludeRand)
 	{
-		iAttackerRoll = /*300*/ GC.getGame().getJonRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Ranged Combat Damage");
+		if (isBarbarian())
+		{
+			iAttackerRoll = /*300*/ GC.getGame().getSmallFakeRandNum(10, GetID()) * 120;
+		}
+		else
+		{
+			iAttackerRoll = /*300*/ GC.getGame().getJonRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Ranged Combat Damage");
+		}
 		iAttackerRoll *= iAttackerDamageRatio;
 		iAttackerRoll /= GC.getMAX_HIT_POINTS();
 	}
@@ -22550,6 +22562,18 @@ bool CvUnit::IsHalfNearSapper(const CvCity* pTargetCity) const
 
 	return false;
 }
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsStrongerDamaged() const
+{
+	return m_iStrongerDamaged> 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeIsStrongerDamaged(int iChange)
+{
+	m_iStrongerDamaged += iChange;
+}
+
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -24576,6 +24600,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 				SetNegatorPromotion(-1);
 			}
 		}
+		ChangeIsStrongerDamaged((thisPromotion.IsStrongerDamaged()) ? iChange : 0);
 #endif
 		ChangeCanHeavyChargeCount((thisPromotion.IsCanHeavyCharge()) ? iChange : 0);
 
@@ -28442,7 +28467,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				}
 			}
 
-			iTemp = pkPromotionInfo->GetFeatureDefensePercent(iI);;
+			iTemp = pkPromotionInfo->GetFeatureDefensePercent(iI);
 			if(iTemp != 0)
 			{
 				iExtra = getExtraFeatureDefensePercent(eFeature);

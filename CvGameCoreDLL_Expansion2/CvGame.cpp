@@ -3900,7 +3900,7 @@ void CvGame::doControl(ControlTypes eControl)
 	case CONTROL_VICTORY_SCREEN:
 	{
 		CvPopupInfo kPopup(BUTTONPOPUP_VICTORY_INFO, getActivePlayer());
-		kPopup.iData1 = 1;;
+		kPopup.iData1 = 1;
 		GC.GetEngineUserInterface()->AddPopup(kPopup);
 	}
 	break;
@@ -5809,7 +5809,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 
     if(!probabilities.empty())
     {
-        tempRand=getAsyncRandNum(totbias, "Diplomacy Rand");
+		tempRand = getSmallFakeRandNum(totbias, GC.getGame().getGameTurn());
         for (choice=0; choice<biasList.size(); choice++){
             if(tempRand < biasList[choice]){
                 break;
@@ -5840,7 +5840,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 
     if(!probabilities.empty())
     {
-        tempRand=getAsyncRandNum(totbias, "Diplomacy Rand");
+		tempRand = getSmallFakeRandNum(totbias, GC.getGame().getGameTurn());
         for (choice=0; choice<biasList.size(); choice++){
             if(tempRand < biasList[choice]){
                 break;
@@ -9092,7 +9092,7 @@ void CvGame::updateMoves()
 							if(pReadyUnit && !player.GetTacticalAI()->IsInQueuedAttack(pReadyUnit))
 #endif
 							{
-								int iWaitTime = 100;
+								int iWaitTime = 1000;
 								if(!isNetworkMultiPlayer())
 								{
 									iWaitTime = 10;
@@ -10424,7 +10424,7 @@ void CvGame::SetHighestPotential()
 			int iLoop = 0;
 			for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 			{				
-				iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);;
+				iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);
 
 				if (iPotential > m_iLargestBasePotential)
 				{

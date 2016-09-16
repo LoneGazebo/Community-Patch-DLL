@@ -496,7 +496,15 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 
 			-- COMMUNITY (Bushido)
 			if (pMyPlayer:GetWoundedUnitDamageMod() ~= 0) then
-			   iModifier = (pMyUnit:GetDamage() / 10);
+				iModifier = pMyUnit:GetDamage() / 5;
+			    if (iModifier ~= 0) then
+				   controlTable = g_MyCombatDataIM:GetInstance();
+				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
+				   controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				end
+			end
+			if (pMyUnit:IsStrongerDamaged()) then
+				iModifier = pMyUnit:GetDamage() / 4;
 			    if (iModifier ~= 0) then
 				   controlTable = g_MyCombatDataIM:GetInstance();
 				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
@@ -998,7 +1006,15 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 
 			-- COMMUNITY (Bushido)
 			if (pMyPlayer:GetWoundedUnitDamageMod() ~= 0) then
-			   iModifier = (pMyUnit:GetDamage() / 10);
+			   iModifier =  pMyUnit:GetDamage() / 5;
+			    if (iModifier ~= 0) then
+				   controlTable = g_MyCombatDataIM:GetInstance();
+				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
+				   controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				end
+			end
+			if (pMyUnit:IsStrongerDamaged()) then
+			   iModifier = pMyUnit:GetDamage() / 3;
 			    if (iModifier ~= 0) then
 				   controlTable = g_MyCombatDataIM:GetInstance();
 				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
@@ -1439,8 +1455,16 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 
 			-- COMMUNITY (Bushido)
 				if (pTheirPlayer:GetWoundedUnitDamageMod() ~= 0) then
-				   iModifier = (pTheirUnit:GetDamage() / 10);
+				   iModifier = pTheirUnit:GetDamage() / 5;
 				   if (iModifier ~= 0) then
+					   controlTable = g_TheirCombatDataIM:GetInstance();
+					   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
+					   controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					end
+				end
+				if (pTheirUnit:IsStrongerDamaged()) then
+				   iModifier =  pTheirUnit:GetDamage() / 3;
+					if (iModifier ~= 0) then
 					   controlTable = g_TheirCombatDataIM:GetInstance();
 					   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
 					   controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );

@@ -3515,7 +3515,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 					CvPlot* pLoopPlotSearch = NULL;
 					for (int iI = 0; iI < 3; iI++)
 					{
-						int iRandomDirection = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES,"random settler move");
+						int iRandomDirection = GC.getGame().getSmallFakeRandNum(NUM_DIRECTION_TYPES, iI);
 						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
 						if (pLoopPlotSearch != NULL)
 						{

@@ -34,7 +34,7 @@
 // FIRST: Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
 #define NO_ACHIEVEMENTS
 // SECOND: UN-COMMENT out this line to include Jai der Herr's Active Diplomacy mod for Multiplayer games.
-//#define MOD_ACTIVE_DIPLOMACY
+#define MOD_ACTIVE_DIPLOMACY
 
 /////////////////////////////////
 //END MULTIPLAYER INSTRUCTIONS

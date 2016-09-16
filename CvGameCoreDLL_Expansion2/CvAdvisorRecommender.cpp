@@ -56,7 +56,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 
 	CvCityStrategyAI* pCityStrategy = pCity->GetCityStrategyAI();
 
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getAsyncRandNum);;
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getAsyncRandNum);
 
 	CvCityBuildable buildable;
 	int iWeight;

@@ -2925,6 +2925,7 @@
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_RIGHTEOUSNESS</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
+			<StrongerDamaged>true</StrongerDamaged>
 			<AttackWoundedMod>20</AttackWoundedMod>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 		</Row>
@@ -2938,6 +2939,7 @@
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_COURAGE</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
+			<StrongerDamaged>true</StrongerDamaged>
 			<AttackMod>15</AttackMod>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 		</Row>
@@ -2951,6 +2953,7 @@
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BENEVOLENCE</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
+			<StrongerDamaged>true</StrongerDamaged>
 			<AdjacentTileHealChange>5</AdjacentTileHealChange>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 		</Row>
@@ -2964,6 +2967,7 @@
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_RESPECT</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
+			<StrongerDamaged>true</StrongerDamaged>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 		</Row>
 		<Row>
@@ -2976,6 +2980,7 @@
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SINCERITY</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
+			<StrongerDamaged>true</StrongerDamaged>
 			<ExperiencePercent>50</ExperiencePercent>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 		</Row>
@@ -2989,6 +2994,7 @@
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUSHIDO_HONOR</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
+			<StrongerDamaged>true</StrongerDamaged>
 			<OutsideFriendlyLandsModifier>15</OutsideFriendlyLandsModifier>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 		</Row>
@@ -3002,6 +3008,7 @@
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_LOYALTY</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
+			<StrongerDamaged>true</StrongerDamaged>
 			<FriendlyLandsModifier>15</FriendlyLandsModifier>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 		</Row>
@@ -3016,6 +3023,7 @@
 			<PediaEntry>TXT_KEY_PROMOTION_SELF_CONTROL</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
 			<DefenseMod>15</DefenseMod>
+			<StrongerDamaged>true</StrongerDamaged>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 		</Row>
 		<Row>

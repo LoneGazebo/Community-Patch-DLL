@@ -47,7 +47,7 @@ public:
 	bool HasRequestFrom(PlayerTypes eFromPlayer) const;
 	bool Add(PlayerTypes ePlayerID, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
 	void ActivateAllFrom(PlayerTypes eFromPlayer);
-	void CheckValidity();
+	void CheckRemainingNotifications();
 #else
 	bool  Add(PlayerTypes ePlayerID, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
 #endif

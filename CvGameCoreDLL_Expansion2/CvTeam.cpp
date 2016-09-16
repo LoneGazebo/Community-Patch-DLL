@@ -317,7 +317,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		int numBuildingInfos = GC.getNumBuildingInfos();
 #if defined(MOD_API_UNIFIED_YIELDS)
 		int numFeatureInfos = GC.getNumFeatureInfos();
-		int numDomainInfos = GC.getNumDomainInfos();;
+		int numDomainInfos = GC.getNumDomainInfos();
 #endif
 		int numTerrainInfos = GC.getNumTerrainInfos();
 		int numImprovementInfos = GC.getNumImprovementInfos();
@@ -6618,7 +6618,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				bTechRevealsArtifacts = pArtifactResource->getTechReveal() == eIndex;			
 			}
 
-			ResourceTypes eHiddenArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_HIDDEN_ARTIFACTS", true);;
+			ResourceTypes eHiddenArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_HIDDEN_ARTIFACTS", true);
 			CvResourceInfo* pHiddenArtifactResource = NULL;
 			if(eHiddenArtifactResource != NO_RESOURCE)
 			{

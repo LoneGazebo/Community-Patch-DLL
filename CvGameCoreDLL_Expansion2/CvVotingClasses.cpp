@@ -4205,7 +4205,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 		iVotes += iBaseVotes;
 
 		// Extra votes (ie. leading in previous failed Diplo Victory proposals)
-		int iExtraVotes = pMember->iExtraVotes;;
+		int iExtraVotes = pMember->iExtraVotes;
 		iVotes += iExtraVotes;
 
 		// Hosting the league
