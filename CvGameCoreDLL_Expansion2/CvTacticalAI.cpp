@@ -9667,11 +9667,18 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 			CvPlot* pCamp = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 			if(pCamp != pNearestCamp && pCamp->isAdjacentToShallowWater())
 			{
-				int iValue = pUnit->TurnsToReachTarget(pCamp, CvUnit::MOVEFLAG_APPROX_TARGET_RING1, m_iSeaBarbarianRange);
-				if(iValue < iBestValue)
+				for (ReachablePlots::const_iterator it = movePlots.begin(); it != movePlots.end(); ++it)
 				{
-					iBestValue = iValue;
-					pBestMovePlot = pUnit->GetPathNodeArray().GetFinalPlot();
+					CvPlot* pTestPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+					if (plotDistance(*pTestPlot, *pCamp) == 1)
+					{
+						int iValue = it->iTurns;
+						if (iValue < iBestValue)
+						{
+							iBestValue = iValue;
+							pBestMovePlot = pTestPlot;
+						}
+					}
 				}
 			}
 			pTarget = GetNextZoneTarget();
@@ -11974,13 +11981,17 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		if (pPlot != pUnit->plot() && pUnit->canHeal(pUnit->plot()))
 			iDanger++;
 
+		//try to hide - if there are few enemy units, this might be a tiebreaker
+		if (pPlot->isVisibleToEnemy(pUnit->getOwner()))
+			iDanger+=10;
+
 		//use city distance as tiebreaker
 		iDanger = iDanger * 10 + iCityDistance;
 
 		//discourage water tiles for land units
 		//note that zero danger status has already been established, this is only for sorting now
 		if (bWrongDomain)
-			iDanger += 100;
+			iDanger += 500;
 
 		if(bIsInCity)
 		{

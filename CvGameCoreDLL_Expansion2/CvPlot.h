@@ -253,7 +253,7 @@ public:
 #else
 	bool isVisibleToCivTeam() const;
 #endif
-	bool isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const;
+	bool isVisibleToEnemy(PlayerTypes eFriendlyPlayer) const;
 	bool isVisibleToWatchingHuman() const;
 	bool isAdjacentVisible(TeamTypes eTeam, bool bDebug=false) const;
 	bool isAdjacentNonvisible(TeamTypes eTeam) const;

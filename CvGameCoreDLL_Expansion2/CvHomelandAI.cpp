@@ -3783,6 +3783,22 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 			//if nothing found, retry with larger distance - but this is sloooooow
 			if (!pBestPlot)
 				pBestPlot = GetBestExploreTarget(pUnit.pointer(), 5, 42);
+
+			//verify that we don't move into danger ...
+			if (pBestPlot)
+			{
+				if (pUnit->GeneratePath(pBestPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
+				{
+					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
+					if (pUnit->GetDanger(pEndTurnPlot) > pUnit->GetCurrHitPoints() / 2)
+					{
+						//move to safety instead
+						pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit.pointer(), true);
+					}
+				}
+				else
+					pBestPlot = 0;
+			}
 		}
 
 		if(pBestPlot && pBestPlot != pUnit->plot())

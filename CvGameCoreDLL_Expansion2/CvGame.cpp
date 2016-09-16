@@ -1683,8 +1683,11 @@ void CvGame::update()
 					changeTurnSlice(1);
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-					// JdH: humans may have been activated, check for AI diplomacy
-					CvDiplomacyRequests::DoAIDiplomacyWithHumans();
+					if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+					{
+						// JdH: humans may have been activated, check for AI diplomacy
+						CvDiplomacyRequests::DoAIMPDiplomacyWithHumans();
+					}
 #endif
 
 					gDLL->FlushTurnReminders();
@@ -8186,8 +8189,11 @@ void CvGame::doTurn()
 	testVictory();
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	// JdH: humans may have been activated, check for AI diplomacy
-	CvDiplomacyRequests::DoAIDiplomacyWithHumans();
+	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	{
+		// JdH: humans may have been activated, check for AI diplomacy
+		CvDiplomacyRequests::DoAIMPDiplomacyWithHumans();
+	}
 #endif
 
 	// Who's Winning
@@ -9293,16 +9299,19 @@ void CvGame::updateTimers()
 			kPlayer.updateTimers();
 		}
 	}
-#if !defined(MOD_ACTIVE_DIPLOMACY)
-	if(isHotSeat())
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
-		// For Hot Seat, all the AIs will get a chance to do diplomacy with the active human player
-		PlayerTypes eActivePlayer = getActivePlayer();
-		if(eActivePlayer != NO_PLAYER)
+		if(isHotSeat())
 		{
-			CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
-			if(kActivePlayer.isAlive() && kActivePlayer.isHuman() && kActivePlayer.isTurnActive())
-				CvDiplomacyRequests::DoAIDiplomacy(eActivePlayer);
+			// For Hot Seat, all the AIs will get a chance to do diplomacy with the active human player
+			PlayerTypes eActivePlayer = getActivePlayer();
+			if(eActivePlayer != NO_PLAYER)
+			{
+				CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
+				if(kActivePlayer.isAlive() && kActivePlayer.isHuman() && kActivePlayer.isTurnActive())
+					CvDiplomacyRequests::DoAIDiplomacy(eActivePlayer);
+			}
 		}
 	}
 #endif

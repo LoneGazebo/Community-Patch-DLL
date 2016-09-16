@@ -3979,22 +3979,18 @@ bool CvPlot::isVisibleToCivTeam() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const
+bool CvPlot::isVisibleToEnemy(PlayerTypes eFriendlyPlayer) const
 {
-	int iI;
+	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(eFriendlyPlayer).GetPlayersAtWarWith();
 
-	for(iI = 0; iI < MAX_CIV_TEAMS; ++iI)
+	for (std::vector<PlayerTypes>::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
 	{
-		CvTeam& kTeam = GET_TEAM((TeamTypes)iI);
-
-		if(kTeam.isAlive())
+		CvPlayer& kEnemy = GET_PLAYER(*it);
+		if (kEnemy.isAlive() && kEnemy.IsAtWarWith(eFriendlyPlayer))
 		{
-			if(kTeam.isAtWar(eFriendlyTeam))
+			if (isVisible(kEnemy.getTeam()))
 			{
-				if(isVisible(((TeamTypes)iI)))
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 	}

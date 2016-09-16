@@ -3298,8 +3298,13 @@ bool isSpyNameInUse(const char* szSpyName)
 bool pickSpyName(const CvCivilizationInfo& kCivInfo, CvEspionageSpy* pSpy)
 {
 	int iCivSpyNames = kCivInfo.getNumSpyNames();
-	if (iCivSpyNames > 0) {
+	if (iCivSpyNames > 0)
+	{
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+		int iOffset = GC.getGame().getSmallFakeRandNum(iCivSpyNames, iCivSpyNames);
+#else
 		int iOffset = GC.getGame().getJonRandNum(iCivSpyNames, "Spy name offset");
+#endif
 
 		for (int i = 0; i < iCivSpyNames; i++) {
 			const char* szSpyName = kCivInfo.getSpyNames((i + iOffset) % iCivSpyNames);
