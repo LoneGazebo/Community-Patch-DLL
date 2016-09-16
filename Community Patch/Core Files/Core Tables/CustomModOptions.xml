@@ -256,6 +256,10 @@
 	<Row Class="5" Name="NO_HEALING_ON_MOUNTAINS" Value="0"/>
 	<!-- Players can pillage permanent improvements if at war -->
 	<Row Class="4" Name="PILLAGE_PERMANENT_IMPROVEMENTS" Value="0"/>
+	<!-- This adds the ability for AI players to contact human players in multiplayer with trade deals -->
+	<Row Class="5" Name="ACTIVE_DIPLOMACY" Value="0"/>
+	<!-- Grants Celts maximum up to 3 unimproved adjacent forests for faith -->
+	<Row Class="4" Name="ALTERNATE_CELTS" Value="0"/>
 	<!-- Changes for Advanced Setup that allow players to acquire GG and GA points from fighting Barbarians -->
 	<Row Class="5" Name="BARBARIAN_GG_GA_POINTS" Value="1"/>
     <!-- Permits units to earn GG/GA points from killing barbarians, this is the trait version (ie applies to all units of the civ) of PROMOTIONS_GG_FROM_BARBARIANS (v83) -->

@@ -16930,8 +16930,25 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eF
 				}
 				if (iAdjacentFeatures > 2)
 				{
+#if defined(MOD_ALTERNATE_CELTS)
+					if(MOD_ALTERNATE_CELTS)
+					{
+						iYield += iBaseYield * 3;
+					}
+					else
+					{
+						iYield += iBaseYield * 2;
+					}
+#else
+					iYield += iBaseYield * 2;
+#endif
+				}
+#if defined(MOD_ALTERNATE_CELTS)
+				else if (iAdjacentFeatures > 1 && MOD_ALTERNATE_CELTS)
+				{
 					iYield += iBaseYield * 2;
 				}
+#endif
 				else if (iAdjacentFeatures > 0)
 				{
 					iYield += iBaseYield;
@@ -16982,8 +16999,25 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eF
 					}
 					if (iAdjacentFeatures > 2)
 					{
+#if defined(MOD_ALTERNATE_CELTS)
+						if(MOD_ALTERNATE_CELTS)
+						{
+							iYield += iBaseYield * 3;
+						}
+						else
+						{
+							iYield += iBaseYield * 2;
+						}
+#else
+						iYield += iBaseYield * 2;
+#endif
+					}
+#if defined(MOD_ALTERNATE_CELTS)
+					else if (iAdjacentFeatures > 1 && MOD_ALTERNATE_CELTS)
+					{
 						iYield += iBaseYield * 2;
 					}
+#endif
 					else if (iAdjacentFeatures > 0)
 					{
 						iYield += iBaseYield;

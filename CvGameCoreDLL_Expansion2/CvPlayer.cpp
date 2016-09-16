@@ -10408,7 +10408,24 @@ void CvPlayer::doTurn()
 				GetMilitaryAI()->ResetCounters();
 				GetGrandStrategyAI()->DoTurn();
 #if defined(MOD_ACTIVE_DIPLOMACY)
-				GetDiplomacyAI()->DoTurn(DIPLO_AI_PLAYERS);
+				if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+				{
+					GetDiplomacyAI()->DoTurn(DIPLO_AI_PLAYERS);
+				}
+				else
+				{
+					if(GC.getGame().isHotSeat() && !isHuman())
+					{
+						// In Hotseat, AIs only do their diplomacy pass for other AIs on their turn
+						// Diplomacy toward a human is done at the beginning of the humans turn.
+						GetDiplomacyAI()->DoTurn(DIPLO_AI_PLAYERS);		// Do diplomacy for toward everyone
+					}
+					else
+						GetDiplomacyAI()->DoTurn(DIPLO_ALL_PLAYERS);	// Do diplomacy for toward everyone
+
+					if (!isHuman())
+						bHasActiveDiploRequest = CvDiplomacyRequests::HasActiveDiploRequestWithHuman(GetID());
+				}
 #else
 				if(GC.getGame().isHotSeat() && !isHuman())
 				{
@@ -29833,11 +29850,14 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 			}
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-			if (isHuman())
+			if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 			{
-				// JdH: we just activated a human
-				// later the AI players need to try to contact the player
-				CvDiplomacyRequests::s_aDiploHumans.push_back(GetID());
+				if (isHuman())
+				{
+					// JdH: we just activated a human
+					// later the AI players need to try to contact the player
+					CvDiplomacyRequests::s_aDiploHumans.push_back(GetID());
+				}
 			}
 #endif
 

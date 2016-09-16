@@ -33,8 +33,8 @@
 
 // FIRST: Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
 #define NO_ACHIEVEMENTS
-// SECOND: UN-COMMENT out this line to include Jai der Herr's Active Diplomacy mod for Multiplayer games.
-#define MOD_ACTIVE_DIPLOMACY
+//adds active diplomacy to Multiplayer games
+#define MOD_ACTIVE_DIPLOMACY			 gCustomMods.isACTIVE_DIPLOMACY()
 
 /////////////////////////////////
 //END MULTIPLAYER INSTRUCTIONS
@@ -397,8 +397,9 @@
 // Changes for the CivIV Diplomacy Features mod by Putmalk - AFFECTS SAVE GAME DATA FORMAT (v36)
 #define MOD_DIPLOMACY_CIV4_FEATURES                 gCustomMods.isDIPLOMACY_CIV4_FEATURES()
 // Adds an option to Advanced Setup to allow gaining Great General and Great Admiral Points from fighting with Barbarians
-#define MOD_BARBARIAN_GG_GA_POINTS					gCustomMods.isBARBARIAN_GG_GA_POINTS
-
+#define MOD_BARBARIAN_GG_GA_POINTS					gCustomMods.isBARBARIAN_GG_GA_POINTS()
+// Grants Celts maximum up to 3 unimproved adjacent forests for faith
+#define MOD_ALTERNATE_CELTS							gCustomMods.isALTERNATE_CELTS()
 // Permits units to earn GG/GA points from killing barbarians (v83)
 #define MOD_TRAITS_GG_FROM_BARBARIANS               gCustomMods.isTRAITS_GG_FROM_BARBARIANS()
 // Permits land units to cross ice - AFFECTS SAVE GAME DATA FORMAT
@@ -1448,6 +1449,7 @@ public:
 	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES);
 	MOD_OPT_DECL(CARGO_SHIPS);
 	MOD_OPT_DECL(BARBARIAN_GG_GA_POINTS);
+	MOD_OPT_DECL(ALTERNATE_CELTS);
 	MOD_OPT_DECL(TRAITS_GG_FROM_BARBARIANS);
 	MOD_OPT_DECL(TRAITS_CROSSES_ICE);
 	MOD_OPT_DECL(TRAITS_CITY_WORKING);
@@ -1578,7 +1580,7 @@ public:
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_ABORT);
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_RESULT);
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_ENDED);
-
+	MOD_OPT_DECL(ACTIVE_DIPLOMACY);
 	MOD_OPT_DECL(API_ESPIONAGE);
 	MOD_OPT_DECL(API_TRADEROUTES);
 	MOD_OPT_DECL(API_RELIGION);
