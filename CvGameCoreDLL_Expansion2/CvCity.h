@@ -457,8 +457,6 @@ public:
 	bool isCapital() const;
 	bool IsOriginalCapital() const;
 	bool IsOriginalMajorCapital() const; // is the original capital of a major civ
-	bool IsEverCapital() const;
-	void SetEverCapital(bool bValue);
 
 	bool isCoastal(int iMinWaterSize = -1) const;
 #if defined(MOD_API_EXTENSIONS)
@@ -1590,7 +1588,6 @@ protected:
 	FAutoVariable<bool, CvCity> m_bOccupied;
 	FAutoVariable<bool, CvCity> m_bPuppet;
 	FAutoVariable<bool, CvCity> m_bIgnoreCityForHappiness;
-	FAutoVariable<bool, CvCity> m_bEverCapital;
 	FAutoVariable<bool, CvCity> m_bIndustrialRouteToCapital;
 	FAutoVariable<bool, CvCity> m_bFeatureSurrounded;
 

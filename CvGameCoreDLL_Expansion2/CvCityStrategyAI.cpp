@@ -919,7 +919,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	{
 		if(pLoopCity && !pLoopCity->IsPuppet())
 		{
-			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildings();
+			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
 			for (size_t i=0; i<vBuildings.size(); i++)
 				vTotalBuildingCount[ vBuildings[i] ]++;
 		}

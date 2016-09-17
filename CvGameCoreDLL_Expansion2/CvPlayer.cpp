@@ -3202,7 +3202,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	iPopulation = pOldCity->getPopulation();
 	iOldPopulation = iPopulation;
 	iHighestPopulation = pOldCity->getHighestPopulation();
-	bool bEverCapital = pOldCity->IsEverCapital();
 	strName = pOldCity->getNameKey();
 	int iOldCultureLevel = pOldCity->GetJONSCultureLevel();
 	bool bHasMadeAttack = pOldCity->isMadeAttack();
@@ -3497,13 +3496,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			pNewCity->setPreviousOwner(eOldOwner);
 			pNewCity->setOriginalOwner(eOriginalOwner);
 			pNewCity->setGameTurnFounded(iGameTurnFounded);
-			pNewCity->SetEverCapital(bEverCapital);
 		} else {
 #endif
 			pNewCity->setPreviousOwner(NO_PLAYER);
 			pNewCity->setOriginalOwner(m_eID);
 			pNewCity->setGameTurnFounded(GC.getGame().getGameTurn());
-			pNewCity->SetEverCapital(false);
 #if defined(MOD_GLOBAL_CS_LIBERATE_AFTER_BUYOUT)
 		}
 #endif
@@ -3516,7 +3513,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		pNewCity->setPreviousOwner(eOldOwner);
 		pNewCity->setOriginalOwner(eOriginalOwner);
 		pNewCity->setGameTurnFounded(iGameTurnFounded);
-		pNewCity->SetEverCapital(bEverCapital);
 	}
 
 	// Population change for capturing a city
@@ -11874,7 +11870,7 @@ bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 	bool bOriginalCapital =	pCity->getX() == pOriginalOwner->GetOriginalCapitalX() &&
 	                        pCity->getY() == pOriginalOwner->GetOriginalCapitalY();
 
-	if(!bIgnoreCapitals && pCity->IsEverCapital() && bOriginalCapital)
+	if(!bIgnoreCapitals && bOriginalCapital)
 	{
 		return false;
 	}
@@ -14113,7 +14109,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 	{
 		if(pLoopCity && !pLoopCity->IsPuppet())
 		{
-			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildings();
+			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
 			for (size_t i=0; i<vBuildings.size(); i++)
 				vTotalBuildingCount[ vBuildings[i] ]++;
 		}
@@ -27319,9 +27315,9 @@ void CvPlayer::DoArmyDiversity()
 	{
 		if (GC.getLogging() && GC.getAILogging())
 		{
-			CvString strLogString;
-			strLogString.Format("ARMY DIVERSITY CHANGE! WE NEED: %d AI TYPE.", iUnitAI);
-			GetHomelandAI()->LogHomelandMessage(strLogString);
+			CvString strLogString("ARMY DIVERSITY CHANGE! WE NEED: "), strAI;
+			getUnitAIString(strAI, (UnitAITypes)iUnitAI);
+			GetHomelandAI()->LogHomelandMessage(strLogString + strAI);
 		}
 		m_iUnitDiversity = iUnitAI;
 	}
@@ -28029,8 +28025,6 @@ void CvPlayer::setCapitalCity(CvCity* pNewCapitalCity)
 			}
 
 			m_iCapitalCityID = pNewCapitalCity->GetID();
-
-			pNewCapitalCity->SetEverCapital(true);
 		}
 		else
 		{

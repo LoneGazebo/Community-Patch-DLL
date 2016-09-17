@@ -205,7 +205,6 @@ CvCity::CvCity() :
 	, m_bOccupied("CvCity::m_bOccupied", m_syncArchive)
 	, m_bPuppet("CvCity::m_bPuppet", m_syncArchive)
 	, m_bIgnoreCityForHappiness("CvCity::m_bIgnoreCityForHappiness", m_syncArchive)
-	, m_bEverCapital("CvCity::m_bEverCapital", m_syncArchive)
 	, m_bIndustrialRouteToCapital("CvCity::m_bIndustrialRouteToCapital", m_syncArchive)
 	, m_bFeatureSurrounded("CvCity::m_bFeatureSurrounded", m_syncArchive)
 	, m_ePreviousOwner("CvCity::m_ePreviousOwner", m_syncArchive)
@@ -1383,7 +1382,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_bOccupied = false;
 	m_bPuppet = false;
 	m_bIgnoreCityForHappiness = false;
-	m_bEverCapital = false;
 	m_bIndustrialRouteToCapital = false;
 	m_bFeatureSurrounded = false;
 	m_bOwedCultureBuilding = false;
@@ -7640,7 +7638,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	{
 		if(pLoopCity && !pLoopCity->IsPuppet())
 		{
-			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildings();
+			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
 			for (size_t i=0; i<vBuildings.size(); i++)
 				vTotalBuildingCount[ vBuildings[i] ]++;
 		}
@@ -14156,24 +14154,6 @@ bool CvCity::IsOriginalMajorCapital() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvCity::IsEverCapital() const
-{
-	VALIDATE_OBJECT
-	return m_bEverCapital;
-}
-
-//	--------------------------------------------------------------------------------
-void CvCity::SetEverCapital(bool bValue)
-{
-	VALIDATE_OBJECT
-	if(IsEverCapital() != bValue)
-	{
-		m_bEverCapital = bValue;
-	}
-}
-
-
-//	--------------------------------------------------------------------------------
 bool CvCity::isCoastal(int iMinWaterSize) const
 {
 	VALIDATE_OBJECT
@@ -14186,7 +14166,7 @@ bool CvCity::isAddsFreshWater() const {
 	VALIDATE_OBJECT
 
 	//ideally this should be cached and changed when a building is added/removed ...
-	const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildings();
+	const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildingsHere();
 	for(size_t iBuilding = 0; iBuilding < vBuildings.size(); iBuilding++)
 	{
 		CvBuildingEntry* pInfo = GC.getBuildingInfo(vBuildings[iBuilding]);
@@ -18432,7 +18412,7 @@ int CvCity::GetLocalHappiness() const
 			}
 
 			// Buildings
-			const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildings();
+			const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildingsHere();
 			for(size_t jJ = 0; jJ < vBuildings.size(); jJ++)
 			{
 				BuildingTypes eBuilding = vBuildings[jJ];
@@ -18495,7 +18475,7 @@ void CvCity::UpdateComboHappiness()
 	// Building Class Combo Mods
 	int iSpecialBuildingHappiness = 0;
 
-	const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildings();
+	const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildingsHere();
 	for(size_t jJ = 0; jJ < vBuildings.size(); jJ++)
 	{
 		BuildingTypes eBuildingA = vBuildings[jJ];

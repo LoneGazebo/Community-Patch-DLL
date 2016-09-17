@@ -4983,30 +4983,23 @@ int CvCityBuildings::GetCityStateTradeRouteProductionModifier() const
 	if (iCityStates==0)
 		return 0;
 
-	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	const std::vector<BuildingTypes>& vBuildings = GetAllBuildingsHere();
+	for (size_t iI = 0; iI < vBuildings.size(); iI++)
 	{
-		BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
-		CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
-		if (pkCivInfo)
+		BuildingTypes eBuilding = vBuildings[iI];
+		if (NO_BUILDING != eBuilding)
 		{
-			BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eLoopBuildingClass);
-			if (NO_BUILDING != eBuilding)
+			CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
+			if (pkEntry)
 			{
-				if (GetNumBuilding(eBuilding) > 0)
+				int iProductionModifier = pkEntry->GetCityStateTradeRouteProductionModifier();
+				if (iProductionModifier > 0)
 				{
-					CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
-					if (pkEntry)
-					{
-						int iProductionModifier = pkEntry->GetCityStateTradeRouteProductionModifier();
-						if (iProductionModifier > 0)
-						{
 #if defined(MOD_BUGFIX_MINOR)
-							iRtnValue = iProductionModifier * iCityStates * GetNumBuilding(eBuilding);
+					iRtnValue = iProductionModifier * iCityStates * GetNumBuilding(eBuilding);
 #else
-							iRtnValue = iProductionModifier * iCityStates;
+					iRtnValue = iProductionModifier * iCityStates;
 #endif
-						}
-					}
 				}
 			}
 		}
