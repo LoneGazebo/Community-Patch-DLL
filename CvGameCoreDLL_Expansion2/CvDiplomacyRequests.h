@@ -32,10 +32,8 @@ public:
 	//// Serialization routines
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
-#if !defined(MOD_ACTIVE_DIPLOMACY)
 	PlayerTypes GetNextAIPlayer() const;
 	void SetNextAIPlayer(PlayerTypes eNextPlayer);
-#endif
 	bool HasPendingRequests() const;
 	bool HasActiveRequest() const;
 	bool HasActiveRequestFrom(PlayerTypes eFromPlayer) const;
@@ -44,13 +42,11 @@ public:
 	void BeginTurn(void);
 	void EndTurn(void);
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	bool HasRequestFrom(PlayerTypes eFromPlayer) const;
-	bool Add(PlayerTypes ePlayerID, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
 	void ActivateAllFrom(PlayerTypes eFromPlayer);
-	void CheckValidity();
-#else
-	bool  Add(PlayerTypes ePlayerID, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
+	void CheckRemainingNotifications();
 #endif
+	bool Add(PlayerTypes ePlayerID, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
+
 	void  ActiveRequestComplete();
 
 	struct Request
@@ -65,23 +61,21 @@ public:
 		int							m_iLookupIndex;     // internal use - identifier to keep the connection between the ui and this system
 		int							m_iExtraGameData;
 	};
-#if !defined(MOD_ACTIVE_DIPLOMACY)
+
 	void Activate(Request& kRequest);
 
 	static void DoAIDiplomacy(PlayerTypes eTargetPlayer);
-#endif
+
 	static void SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
 	static void SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pkDeal, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType);
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	static bool HasDiploRequestWithHuman(PlayerTypes eSourcePlayer);
-	static void DoAIDiplomacyWithHumans();
+	static void DoAIMPDiplomacyWithHumans();
 
 	// activated human players since last human diplo check.
 	static std::vector<PlayerTypes> s_aDiploHumans;
-#else
-	static bool HasActiveDiploRequestWithHuman(PlayerTypes eSourcePlayer);
 #endif
+	static bool HasActiveDiploRequestWithHuman(PlayerTypes eSourcePlayer);
 
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
@@ -91,9 +85,7 @@ protected:
 	void Send(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
 
 	PlayerTypes m_ePlayer;
-#if !defined(MOD_ACTIVE_DIPLOMACY)
 	PlayerTypes	m_eNextAIPlayer;		/// The next AI player to ask if they want to do diplomacy with us (humans only).
-#endif
 
 	typedef std::list<Request> RequestList;
 	RequestList m_aRequests;

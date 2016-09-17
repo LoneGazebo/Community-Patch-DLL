@@ -114,6 +114,10 @@ ALTER TABLE Traits ADD COLUMN 'IsOddEraScaler' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'NoNaturalReligionSpread' BOOLEAN DEFAULT 0;
 
+-- No trade routes to player if not already trading w/ you, tourism penalty if not trading (-50%)
+
+ALTER TABLE Traits ADD COLUMN 'NoOpenTrade' BOOLEAN DEFAULT 0;
+
 -- Earn a free building only in your capital as your trait. No tech requirement.
 
 ALTER TABLE Traits ADD COLUMN 'FreeCapitalBuilding' TEXT DEFAULT NULL;
@@ -607,6 +611,9 @@ ALTER TABLE UnitPromotions ADD COLUMN 'BarbarianOnly' BOOLEAN DEFAULT 0;
 -- Promotion bonuses restricted to City States.
 
 ALTER TABLE UnitPromotions ADD COLUMN 'CityStateOnly' BOOLEAN DEFAULT 0;
+
+-- Promotion grants the same bonus as the Japan UA
+ALTER TABLE UnitPromotions ADD COLUMN 'StrongerDamaged' BOOLEAN DEFAULT 0;
 
 -- Double Heal in Feature/Terrain
 ALTER TABLE UnitPromotions_Features ADD COLUMN 'DoubleHeal' BOOLEAN DEFAULT 0;

@@ -5418,7 +5418,7 @@ void BuildingArrayHelpers::Write(FDataStream& kStream, int* paiBuildingArray, in
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 		if(pkBuildingInfo)
 		{
-			CvInfosSerializationHelper::WriteHashed(kStream, pkBuildingInfo);;
+			CvInfosSerializationHelper::WriteHashed(kStream, pkBuildingInfo);
 			kStream << paiBuildingArray[iI];
 		}
 		else

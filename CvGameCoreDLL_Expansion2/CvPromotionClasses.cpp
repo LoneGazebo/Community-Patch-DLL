@@ -120,6 +120,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bIsLostOnMove(false),
 	m_bCityStateOnly(false),
 	m_bBarbarianOnly(false),
+	m_bStrongerDamaged(false),
 	m_iNegatesPromotion(NO_PROMOTION),
 	m_iForcedDamageValue(0),
 	m_iChangeDamageValue(0),
@@ -303,6 +304,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bIsLostOnMove = kResults.GetBool("IsLostOnMove");
 	m_bCityStateOnly = kResults.GetBool("CityStateOnly");
 	m_bBarbarianOnly = kResults.GetBool("BarbarianOnly");
+	m_bStrongerDamaged = kResults.GetBool("StrongerDamaged");
 	const char* szNegatesPromotion = kResults.GetText("NegatesPromotion");
 	m_iNegatesPromotion = GC.getInfoTypeForString(szNegatesPromotion, true);
 	m_iForcedDamageValue = kResults.GetInt("ForcedDamageValue");
@@ -1557,6 +1559,10 @@ bool CvPromotionEntry::IsCityStateOnly() const
 bool CvPromotionEntry::IsBarbarianOnly() const
 {
 	return m_bBarbarianOnly;
+}
+bool CvPromotionEntry::IsStrongerDamaged() const
+{
+	return m_bStrongerDamaged;
 }
 int CvPromotionEntry::NegatesPromotion() const
 {

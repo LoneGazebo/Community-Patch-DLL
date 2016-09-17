@@ -263,14 +263,20 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		}
 		m_pPlayer->GetDiplomacyAI()->ClearDealToRenew();
 	}
-
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	GC.getGame().GetGameDeals().FinalizeDeal(kDeal, true);
+	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	{
+		GC.getGame().GetGameDeals().FinalizeMPDeal(kDeal, true);
+	}
+	else
+	{
+		GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
+		GC.getGame().GetGameDeals().FinalizeDeal(eFromPlayer, GetPlayer()->GetID(), true);
+	}
 #else
 	GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
 	GC.getGame().GetGameDeals().FinalizeDeal(eFromPlayer, GetPlayer()->GetID(), true);
-#endif
-
+#endif	
 	if(GET_PLAYER(eFromPlayer).isHuman())
 	{
 		iDealValueToMe -= GetCachedValueOfPeaceWithHuman();
@@ -630,9 +636,16 @@ void CvDealAI::DoAcceptedDemand(PlayerTypes eFromPlayer, const CvDeal& kDeal)
 	CvGameDeals& kGameDeals = kGame.GetGameDeals();
 	const PlayerTypes eActivePlayer = kGame.getActivePlayer();
 	const PlayerTypes ePlayer = GetPlayer()->GetID();
-
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	kGameDeals.FinalizeDeal(kDeal, true);
+	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	{
+		kGameDeals.FinalizeMPDeal(kDeal, true);
+	}
+	else
+	{
+		kGameDeals.AddProposedDeal(kDeal);
+		kGameDeals.FinalizeDeal(eFromPlayer, ePlayer, true);
+	}
 #else
 	kGameDeals.AddProposedDeal(kDeal);
 	kGameDeals.FinalizeDeal(eFromPlayer, ePlayer, true);
@@ -7459,7 +7472,8 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 		// Any extras?
 		if(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false) > 3 && GetPlayer()->getNumResourceAvailable(eResource, true) <= 0)
 		{
-			iRand = GC.getGame().getJonRandNum(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false), "DealAI: Strat to ask for");
+			int iNum = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false);
+			iRand = GC.getGame().getSmallFakeRandNum(max(iNum, 10), eResource);
 			iRand /= 2;
 			if(iRand <= 0)
 			{

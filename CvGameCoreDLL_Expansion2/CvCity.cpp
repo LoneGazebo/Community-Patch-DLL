@@ -708,25 +708,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 #if defined(MOD_BALANCE_CORE)
 		if(MOD_BALANCE_CORE && isCapital())
 		{
-			int iNumAllies = 0;
-			int iNumFriends = 0;
-			// Loop through all minors and get the total number we've met.
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
-
-				if (eMinor != owningPlayer.GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
-				{
-					if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(owningPlayer.GetID()))
-					{
-						iNumAllies++;
-					}
-					else if (GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(owningPlayer.GetID()))
-					{
-						iNumFriends++;
-					}
-				}
-			}
+			int iNumAllies = GET_PLAYER(getOwner()).GetNumCSAllies();
+			int iNumFriends = GET_PLAYER(getOwner()).GetNumCSFriends();
 			if(iNumAllies > 0 || iNumFriends > 0)
 			{
 				//If we get a yield bonus in all cities because of CS alliance, this is a good place to change it.
@@ -1130,7 +1113,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	AI_init();
 
-	//if (GC.getGame().getGameTurn() == 0)
+	if (GC.getGame().getGameTurn() == 0)
 	{
 		chooseProduction();
 	}
@@ -2636,7 +2619,13 @@ void CvCity::doTurn()
 	{
 		if(GC.getGame().isOption(GAMEOPTION_EVENTS))
 		{
-			DoEvents();
+			//Don't do events in MP
+			bool bDontShowRewardPopup = (GC.getGame().isReallyNetworkMultiPlayer() || GC.getGame().isNetworkMultiPlayer());
+
+			if (!bDontShowRewardPopup)
+			{
+				DoEvents();
+			}
 		}
 	}
 #endif
@@ -2677,27 +2666,11 @@ void CvCity::doTurn()
 
 	if(MOD_BALANCE_CORE && !GET_PLAYER(getOwner()).isMinorCiv() && !GET_PLAYER(getOwner()).isBarbarian())
 	{
-		int iNumAllies = 0;
-		int iNumFriends = 0;
+		int iNumAllies = GET_PLAYER(getOwner()).GetNumCSAllies();
+		int iNumFriends = GET_PLAYER(getOwner()).GetNumCSFriends();
 		// Loop through all minors and get the total number we've met.
 		if(isCapital())
 		{
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
-
-				if (eMinor != GET_PLAYER(getOwner()).GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
-				{
-					if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(GET_PLAYER(getOwner()).GetID()))
-					{
-						iNumAllies++;
-					}
-					else if (GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(GET_PLAYER(getOwner()).GetID()))
-					{
-						iNumFriends++;
-					}
-				}
-			}
 			//If we get a yield bonus in all cities because of CS alliance, this is a good place to refresh it.
 			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
 			if(iEra <= 0)
@@ -3839,12 +3812,6 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 
 	CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
 	
-	//Don't do choice ones in MP
-	bool bDontShowRewardPopup = (GC.getGame().isReallyNetworkMultiPlayer());
-
-	if(pkEventInfo->getNumChoices() > 1 && bDontShowRewardPopup)
-		return false;
-
 	//Let's do our linker checks here.
 	for(int iI = 0; iI <= pkEventInfo->GetNumLinkers(); iI++)
 	{
@@ -16943,8 +16910,25 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eF
 				}
 				if (iAdjacentFeatures > 2)
 				{
+#if defined(MOD_ALTERNATE_CELTS)
+					if(MOD_ALTERNATE_CELTS)
+					{
+						iYield += iBaseYield * 3;
+					}
+					else
+					{
+						iYield += iBaseYield * 2;
+					}
+#else
+					iYield += iBaseYield * 2;
+#endif
+				}
+#if defined(MOD_ALTERNATE_CELTS)
+				else if (iAdjacentFeatures > 1 && MOD_ALTERNATE_CELTS)
+				{
 					iYield += iBaseYield * 2;
 				}
+#endif
 				else if (iAdjacentFeatures > 0)
 				{
 					iYield += iBaseYield;
@@ -16995,8 +16979,25 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eF
 					}
 					if (iAdjacentFeatures > 2)
 					{
+#if defined(MOD_ALTERNATE_CELTS)
+						if(MOD_ALTERNATE_CELTS)
+						{
+							iYield += iBaseYield * 3;
+						}
+						else
+						{
+							iYield += iBaseYield * 2;
+						}
+#else
+						iYield += iBaseYield * 2;
+#endif
+					}
+#if defined(MOD_ALTERNATE_CELTS)
+					else if (iAdjacentFeatures > 1 && MOD_ALTERNATE_CELTS)
+					{
 						iYield += iBaseYield * 2;
 					}
+#endif
 					else if (iAdjacentFeatures > 0)
 					{
 						iYield += iBaseYield;
@@ -22053,8 +22054,8 @@ void CvCity::DoBarbIncursion()
 		if(GET_PLAYER(BARBARIAN_PLAYER).GetID() == NO_PLAYER || getOwner() == NO_PLAYER || GET_PLAYER(getOwner()).isMinorCiv() || GET_PLAYER(getOwner()).isBarbarian())
 			return;
 
-		int iCityStrength = getStrengthValue(false);
-		iCityStrength += GC.getGame().getJonRandNum(iCityStrength, "Barbarian Random Strength Bump");
+		int iCityStrength = getStrengthValue(true);
+		iCityStrength += (GC.getGame().getSmallFakeRandNum(10, getOwner()) * 10);
 		iCityStrength /= 100;
 
 		CvPlot* pLoopPlot;
@@ -22067,15 +22068,15 @@ void CvCity::DoBarbIncursion()
 				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
 				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit())
 				{			
-					int iBarbStrength = (pUnit->GetBaseCombatStrength() * 20);
-					iBarbStrength += GC.getGame().getJonRandNum(iBarbStrength, "Barbarian Random Strength Bump");
+					int iBarbStrength = (pUnit->GetBaseCombatStrength() * 3);
+					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, pUnit->GetID()) * 10;
 					if(iBarbStrength > iCityStrength)
 					{
 						int iTheft = (iBarbStrength - iCityStrength);
 
 						if(iTheft > 0)
 						{
-							int iYield = GC.getGame().getJonRandNum(10, "Barbarian Theft Value");		
+							int iYield = GC.getGame().getSmallFakeRandNum(10, pUnit->GetID());
 							if(iYield <= 2)
 							{
 								int iGold = ((getBaseYieldRate(YIELD_GOLD) * iTheft) / 100);
@@ -23739,8 +23740,16 @@ CvPlot* CvCity::GetNextBuyablePlot(void)
 	CvPlot* pPickedPlot = NULL;
 	if(iListLength > 0)
 	{
-		int iPickedIndex = GC.getGame().getJonRandNum(iListLength, "GetNextBuyablePlot picker");
-		pPickedPlot = GC.getMap().plotByIndex(aiPlotList[iPickedIndex]);
+		if (isBarbarian())
+		{
+			int iPickedIndex = 0;
+			pPickedPlot = GC.getMap().plotByIndex(aiPlotList[iPickedIndex]);
+		}
+		else
+		{
+			int iPickedIndex = GC.getGame().getJonRandNum(iListLength, "GetNextBuyablePlot picker");
+			pPickedPlot = GC.getMap().plotByIndex(aiPlotList[iPickedIndex]);
+		}
 	}
 
 	return pPickedPlot;
@@ -28284,7 +28293,14 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 	int iAttackerRoll = 0;
 	if(bIncludeRand)
 	{
-		iAttackerRoll = GC.getGame().getJonRandNum(/*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "City Ranged Attack Damage");
+		if (isBarbarian())
+		{
+			iAttackerRoll = GC.getGame().getSmallFakeRandNum(10, GetID()) * 120;
+		}
+		else
+		{
+			iAttackerRoll = GC.getGame().getJonRandNum(/*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "City Ranged Attack Damage");
+		}
 	}
 	else
 	{

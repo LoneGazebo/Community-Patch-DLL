@@ -1683,8 +1683,11 @@ void CvGame::update()
 					changeTurnSlice(1);
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-					// JdH: humans may have been activated, check for AI diplomacy
-					CvDiplomacyRequests::DoAIDiplomacyWithHumans();
+					if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+					{
+						// JdH: humans may have been activated, check for AI diplomacy
+						CvDiplomacyRequests::DoAIMPDiplomacyWithHumans();
+					}
 #endif
 
 					gDLL->FlushTurnReminders();
@@ -3900,7 +3903,7 @@ void CvGame::doControl(ControlTypes eControl)
 	case CONTROL_VICTORY_SCREEN:
 	{
 		CvPopupInfo kPopup(BUTTONPOPUP_VICTORY_INFO, getActivePlayer());
-		kPopup.iData1 = 1;;
+		kPopup.iData1 = 1;
 		GC.GetEngineUserInterface()->AddPopup(kPopup);
 	}
 	break;
@@ -5809,7 +5812,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 
     if(!probabilities.empty())
     {
-        tempRand=getAsyncRandNum(totbias, "Diplomacy Rand");
+		tempRand = getSmallFakeRandNum(totbias, GC.getGame().getGameTurn());
         for (choice=0; choice<biasList.size(); choice++){
             if(tempRand < biasList[choice]){
                 break;
@@ -5840,7 +5843,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 
     if(!probabilities.empty())
     {
-        tempRand=getAsyncRandNum(totbias, "Diplomacy Rand");
+		tempRand = getSmallFakeRandNum(totbias, GC.getGame().getGameTurn());
         for (choice=0; choice<biasList.size(); choice++){
             if(tempRand < biasList[choice]){
                 break;
@@ -8186,8 +8189,11 @@ void CvGame::doTurn()
 	testVictory();
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	// JdH: humans may have been activated, check for AI diplomacy
-	CvDiplomacyRequests::DoAIDiplomacyWithHumans();
+	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	{
+		// JdH: humans may have been activated, check for AI diplomacy
+		CvDiplomacyRequests::DoAIMPDiplomacyWithHumans();
+	}
 #endif
 
 	// Who's Winning
@@ -9092,7 +9098,7 @@ void CvGame::updateMoves()
 							if(pReadyUnit && !player.GetTacticalAI()->IsInQueuedAttack(pReadyUnit))
 #endif
 							{
-								int iWaitTime = 100;
+								int iWaitTime = 1000;
 								if(!isNetworkMultiPlayer())
 								{
 									iWaitTime = 10;
@@ -9293,16 +9299,19 @@ void CvGame::updateTimers()
 			kPlayer.updateTimers();
 		}
 	}
-#if !defined(MOD_ACTIVE_DIPLOMACY)
-	if(isHotSeat())
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
-		// For Hot Seat, all the AIs will get a chance to do diplomacy with the active human player
-		PlayerTypes eActivePlayer = getActivePlayer();
-		if(eActivePlayer != NO_PLAYER)
+		if(isHotSeat())
 		{
-			CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
-			if(kActivePlayer.isAlive() && kActivePlayer.isHuman() && kActivePlayer.isTurnActive())
-				CvDiplomacyRequests::DoAIDiplomacy(eActivePlayer);
+			// For Hot Seat, all the AIs will get a chance to do diplomacy with the active human player
+			PlayerTypes eActivePlayer = getActivePlayer();
+			if(eActivePlayer != NO_PLAYER)
+			{
+				CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
+				if(kActivePlayer.isAlive() && kActivePlayer.isHuman() && kActivePlayer.isTurnActive())
+					CvDiplomacyRequests::DoAIDiplomacy(eActivePlayer);
+			}
 		}
 	}
 #endif
@@ -10424,7 +10433,7 @@ void CvGame::SetHighestPotential()
 			int iLoop = 0;
 			for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 			{				
-				iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);;
+				iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);
 
 				if (iPotential > m_iLargestBasePotential)
 				{

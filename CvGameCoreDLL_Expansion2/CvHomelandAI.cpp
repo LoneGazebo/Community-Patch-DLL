@@ -3515,7 +3515,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 					CvPlot* pLoopPlotSearch = NULL;
 					for (int iI = 0; iI < 3; iI++)
 					{
-						int iRandomDirection = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES,"random settler move");
+						int iRandomDirection = GC.getGame().getSmallFakeRandNum(NUM_DIRECTION_TYPES, iI);
 						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
 						if (pLoopPlotSearch != NULL)
 						{
@@ -3768,7 +3768,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 		}
 
 		//if we made an opportunity attack, we're done
-		if(!pUnit->canMove())
+		if(!pUnit->canMove() || pUnit->isOutOfAttacks())
 		{
 			UnitProcessed(pUnit->GetID());
 			continue;
@@ -3801,50 +3801,49 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 			}
 		}
 
-		//make sure we're not in an endless loop
-		if(pBestPlot)
+		if(pBestPlot && pBestPlot != pUnit->plot())
 		{
-			CvAssertMsg(!pUnit->atPlot(*pBestPlot), "Exploring unit is already at the best place to explore");
-
-			if ( (pBestPlot->GetPlotIndex() == it->GetPrevPlot1()) && (pCurPlot->GetPlotIndex() == it->GetPrevPlot2()) )
+			//make sure we're not in an endless loop
+			if ((pBestPlot->GetPlotIndex() == it->GetPrevPlot1()) && (pCurPlot->GetPlotIndex() == it->GetPrevPlot2()))
 			{
-				if(GC.getLogging() && GC.getAILogging())
+				CvAssertMsg(!pUnit->atPlot(*pBestPlot), "Exploring unit is already at the best place to explore");
+
+				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strTemp = pUnit->getUnitInfo().GetDescription();
 					CvString msg = CvString::format("Warning: Explorer %s is maybe caught in a loop at %d,%d\n", strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY());
-					LogHomelandMessage( msg );
+					LogHomelandMessage(msg);
 				}
 
 				//reset
 				pBestPlot = NULL;
 			}
-		}
-
-		if(pBestPlot && pBestPlot != pUnit->plot())
-		{
-			it->PushPrevPlot( pCurPlot->GetPlotIndex() );
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, false, false, MISSIONAI_EXPLORE, pBestPlot);
-
-			// Only mark as done if out of movement - we'll do a second pass later
-			if(!pUnit->canMove())
-				UnitProcessed(pUnit->GetID());
-
-			if(GC.getLogging() && GC.getAILogging())
+			else
 			{
-				CvString strLogString;
-				CvString strTemp = pUnit->getUnitInfo().GetDescription();
-				if(bFoundNearbyExplorePlot)
-				{			
-					strLogString.Format("%s Explored to nearby target, To X: %d, Y: %d, From X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY(), iUnitX, iUnitY);
-				}
-				else
+				it->PushPrevPlot(pCurPlot->GetPlotIndex());
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, false, false, MISSIONAI_EXPLORE, pBestPlot);
+
+				// Only mark as done if out of movement - we'll do a second pass later
+				if (!pUnit->canMove())
+					UnitProcessed(pUnit->GetID());
+
+				if (GC.getLogging() && GC.getAILogging())
 				{
-					strLogString.Format("%s Explored to distant target, To X: %d, Y: %d, From X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY(), iUnitX, iUnitY);
+					CvString strLogString;
+					CvString strTemp = pUnit->getUnitInfo().GetDescription();
+					if (bFoundNearbyExplorePlot)
+					{
+						strLogString.Format("%s Explored to nearby target, To X: %d, Y: %d, From X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY(), iUnitX, iUnitY);
+					}
+					else
+					{
+						strLogString.Format("%s Explored to distant target, To X: %d, Y: %d, From X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY(), iUnitX, iUnitY);
+					}
+					LogHomelandMessage(strLogString);
 				}
-				LogHomelandMessage(strLogString);
 			}
 		}
-		else //no target
+		if (pBestPlot == NULL) //no target
 		{
 			if(pUnit->isHuman())
 			{

@@ -417,6 +417,12 @@
 		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
 		<Column name="Modifier" type="integer"/>
 	</Table>
+	<Table name="Trait_GreatPersonBirthGWAM">
+		<!-- TRAIT: Birth of a Great Person increases all GWAM in Capital by a % of value needed for next GWAM. -->
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
+		<Column name="Value" type="integer"/>
+	</Table>
 	<GreatPersons>
 		<Row>
 			<ID>0</ID>

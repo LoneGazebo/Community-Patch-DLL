@@ -1128,7 +1128,14 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 		iRushIfMoreThanXTurns /= 100;
 
 		int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
-		selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city build from Top 2 Choices");
+		if (m_pCity->isBarbarian())
+		{
+			selection = m_Buildables.GetElement(0);
+		}
+		else
+		{
+			selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city build from Top 2 Choices");
+		}
 
 		bool bRush = selection.m_iTurnsToConstruct > iRushIfMoreThanXTurns;
 
@@ -1391,7 +1398,14 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 	{
 		// Choose from the best options (currently 2)
 		int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
-		selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city hurry from Top Choices");
+		if (m_pCity->isBarbarian())
+		{
+			selection = m_Buildables.GetElement(0);
+		}
+		else
+		{
+			selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city hurry from Top Choices");
+		}
 		return selection;
 	}
 
@@ -3380,7 +3394,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalGrowth(AICityStrategyTyp
 
 					if(pLoopPlot->isWater() && !pLoopPlot->isLake())
 					{
-						iNumOceanPlots++;;
+						iNumOceanPlots++;
 					}
 				}
 			}
@@ -4169,6 +4183,10 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 									}
 								}
 							}
+						}
+						if (pCity->GetPlayer()->GetPlayerTraits()->GetGreatPersonGWAM(eGreatPerson) > 0)
+						{
+							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetGreatPersonGWAM(eGreatPerson);
 						}
 						int iNumPuppets = pCity->GetPlayer()->GetNumPuppetCities();
 						if(iNumPuppets > 0)
@@ -5547,9 +5565,9 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		iValue += 25;
 	}
 
-	if(pkBuildingInfo->GetExtraSpies() > 0 || pkBuildingInfo->GetEspionageModifier() > 0 || pkBuildingInfo->GetGlobalEspionageModifier() > 0 || pkBuildingInfo->GetSpyRankChange() > 0 || pkBuildingInfo->GetInstantSpyRankChange() > 0)
+	if(pkBuildingInfo->GetExtraSpies() > 0 || pkBuildingInfo->GetEspionageModifier() < 0 || pkBuildingInfo->GetGlobalEspionageModifier() < 0 || pkBuildingInfo->GetSpyRankChange() > 0 || pkBuildingInfo->GetInstantSpyRankChange() > 0)
 	{
-		iValue += ((kPlayer.GetEspionage()->GetNumSpies() + kPlayer.GetPlayerTraits()->GetExtraSpies() * 10) + pkBuildingInfo->GetEspionageModifier() > 0 + pkBuildingInfo->GetGlobalEspionageModifier() + (pkBuildingInfo->GetSpyRankChange() + pkBuildingInfo->GetInstantSpyRankChange() * 10));
+		iValue += ((kPlayer.GetEspionage()->GetNumSpies() + kPlayer.GetPlayerTraits()->GetExtraSpies() * 10) + (pkBuildingInfo->GetEspionageModifier() * -1) + (pkBuildingInfo->GetGlobalEspionageModifier() * -1) + (pkBuildingInfo->GetSpyRankChange() + pkBuildingInfo->GetInstantSpyRankChange() * 10));
 
 		if(kPlayer.GetEspionageModifier() != 0)
 		{

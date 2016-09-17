@@ -414,7 +414,7 @@ public:
 	int* GetYieldChangePerPopArray() const;
 	int GetYieldChangePerReligion(int i) const;
 	int* GetYieldChangePerReligionArray() const;
-	int GetYieldModifier(int i) const;;
+	int GetYieldModifier(int i) const;
 	int* GetYieldModifierArray() const;
 	int GetAreaYieldModifier(int i) const;
 	int* GetAreaYieldModifierArray() const;

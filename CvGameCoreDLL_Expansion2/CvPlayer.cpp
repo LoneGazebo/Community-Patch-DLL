@@ -561,6 +561,8 @@ CvPlayer::CvPlayer() :
 	, m_iMonopolyModPercent("CvPlayer::m_iMonopolyModPercent", m_syncArchive)
 	, m_iCachedValueOfPeaceWithHuman("CvPlayer::m_iCachedValueOfPeaceWithHuman", m_syncArchive)
 	, m_iFaithPurchaseCooldown("CvPlayer::m_iFaithPurchaseCooldown", m_syncArchive)
+	, m_iCSAllies("CvPlayer::m_iCSAllies", m_syncArchive)
+	, m_iCSFriends("CvPlayer::m_iCSFriends", m_syncArchive)
 	, m_iCitiesFeatureSurrounded("CvPlayer::m_iCitiesFeatureSurrounded", m_syncArchive)
 	, m_aiBestMilitaryCombatClassCity("CvPlayer::m_aiBestMilitaryCombatClassCity", m_syncArchive)
 	, m_aiBestMilitaryDomainCity("CvPlayer::m_aiBestMilitaryDomainCity", m_syncArchive)
@@ -1070,14 +1072,14 @@ void CvPlayer::init(PlayerTypes eID)
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_SPIES_ADVANCED)
 	{
-		setAdvancedActionGold(10);
-		setAdvancedActionScience(10);
-		setAdvancedActionUnrest(4);
+		setAdvancedActionGold(16);
+		setAdvancedActionScience(14);
+		setAdvancedActionUnrest(6);
 		setAdvancedActionRebellion(4);
-		setAdvancedActionGP(5);
-		setAdvancedActionUnit(6);
-		setAdvancedActionWonder(6);
-		setAdvancedActionBuilding(6);
+		setAdvancedActionGP(8);
+		setAdvancedActionUnit(10);
+		setAdvancedActionWonder(2);
+		setAdvancedActionBuilding(12);
 	}
 	SetBaseLuxuryHappiness(0);
 	GET_TEAM(getTeam()).DoUpdateBestRoute();
@@ -1496,6 +1498,8 @@ void CvPlayer::uninit()
 	m_iMonopolyModPercent = 0;
 	m_iCachedValueOfPeaceWithHuman = 0;
 	m_iFaithPurchaseCooldown = 0;
+	m_iCSAllies = 0;
+	m_iCSFriends = 0;
 	m_iCitiesFeatureSurrounded = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
@@ -5435,12 +5439,6 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 				return false;
 		}
 	}
-
-	//Don't do choice ones in MP
-	bool bDontShowRewardPopup = (GC.getGame().isReallyNetworkMultiPlayer());
-
-	if(pkEventInfo->getNumChoices() > 1 && bDontShowRewardPopup)
-		return false;
 		
 	//Let's narrow down all events here!
 	if(pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
@@ -10328,6 +10326,7 @@ void CvPlayer::doTurn()
 	}
 	if(MOD_BALANCE_CORE && !isMinorCiv() && !isBarbarian())
 	{
+		RefreshCSAlliesFriends();
 #endif
 	DoUpdateCramped();
 
@@ -10405,7 +10404,24 @@ void CvPlayer::doTurn()
 				GetMilitaryAI()->ResetCounters();
 				GetGrandStrategyAI()->DoTurn();
 #if defined(MOD_ACTIVE_DIPLOMACY)
-				GetDiplomacyAI()->DoTurn(DIPLO_AI_PLAYERS);
+				if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+				{
+					GetDiplomacyAI()->DoTurn(DIPLO_AI_PLAYERS);
+				}
+				else
+				{
+					if(GC.getGame().isHotSeat() && !isHuman())
+					{
+						// In Hotseat, AIs only do their diplomacy pass for other AIs on their turn
+						// Diplomacy toward a human is done at the beginning of the humans turn.
+						GetDiplomacyAI()->DoTurn(DIPLO_AI_PLAYERS);		// Do diplomacy for toward everyone
+					}
+					else
+						GetDiplomacyAI()->DoTurn(DIPLO_ALL_PLAYERS);	// Do diplomacy for toward everyone
+
+					if (!isHuman())
+						bHasActiveDiploRequest = CvDiplomacyRequests::HasActiveDiploRequestWithHuman(GetID());
+				}
 #else
 				if(GC.getGame().isHotSeat() && !isHuman())
 				{
@@ -10457,7 +10473,13 @@ void CvPlayer::doTurn()
 	{
 		if(GC.getGame().isOption(GAMEOPTION_EVENTS))
 		{
-			DoEvents();
+			//Don't do events in MP
+			bool bDontShowRewardPopup = (GC.getGame().isReallyNetworkMultiPlayer() || GC.getGame().isNetworkMultiPlayer());
+
+			if (!bDontShowRewardPopup)
+			{
+				DoEvents();
+			}
 		}
 	}
 #endif
@@ -12599,9 +12621,6 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		if(pBestCity != NULL)
 		{
 			pBestCity->changePopulation(kGoodyInfo.getPopulation());
-#if defined(MOD_BALANCE_CORE)
-			doInstantYield(INSTANT_YIELD_TYPE_BIRTH, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pBestCity);
-#endif
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -14354,24 +14373,8 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 			int iCSPolicyReduction = GetCSAlliesLowersPolicyNeedWonders();
 			if(iCSPolicyReduction > 0)
 			{
-				int iNumAllies = 0;
-				// Loop through all minors and get the total number we've met.
-				for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-				{
-					PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
-
-					if (eMinor != GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
-					{
-						if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(GetID()))
-						{
-							iNumAllies++;
-						}
-					}
-				}
-				if(iNumAllies > 0)
-				{
-					iNumPolicies += (iNumAllies / iCSPolicyReduction);
-				}
+				int iNumAllies = GetNumCSAllies();
+				iNumPolicies += (iNumAllies / iCSPolicyReduction);
 			}
 			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 			ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(GetID());
@@ -24071,7 +24074,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			continue;
 
 		//If we passed in a city, only check that city.
-		if(pCity != NULL && pLoopCity != pCity)
+		if (pCity != NULL && pLoopCity != pCity)
 			continue;
 
 		CvString yieldString = "";
@@ -25051,6 +25054,50 @@ CvString CvPlayer::getInstantYieldText(InstantYieldType iType) const
 	CvAssertMsg(iType >= 0, "iType expected to be >= 0");
 	CvAssertMsg(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 	return m_aistrInstantYield[iType];
+}
+void CvPlayer::doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName)
+{
+	CvCity* pCapital = getCapitalCity();
+	int iEventGP = GetPlayerTraits()->GetGreatPersonGWAM(eGreatPerson);
+	if (pCapital != NULL && iEventGP > 0)
+	{
+		float fDelay = 0.5f;
+		for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
+		{
+			const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
+			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+			if (pkSpecialistInfo)
+			{
+				if (((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER")) || ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST")) || ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN")))
+				{
+					int iGPThreshold = pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+					iGPThreshold *= 100;
+					//Get % of threshold for test.
+					iGPThreshold *= iEventGP;
+					iGPThreshold /= 100;
+
+					pCapital->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, iGPThreshold);
+					if (GetID() == GC.getGame().getActivePlayer())
+					{
+						iGPThreshold /= 100;
+						char text[256] = { 0 };
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", iGPThreshold);
+						DLLUI->AddPopupText(pCapital->getX(), pCapital->getY(), text, fDelay);
+						CvNotifications* pNotification = GetNotifications();
+						if (pNotification)
+						{
+							Localization::String strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_GWAM_BONUS_SAKOKU");
+							strMessage << iGPThreshold;
+							strMessage << strUnitName.c_str();
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_GWAM_BONUS_SAKOKU_S");
+							pNotification->Add(NOTIFICATION_GOLDEN_AGE_BEGUN_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+						}
+					}
+				}
+			}
+		}
+	}
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -27761,6 +27808,55 @@ void CvPlayer::ChangeFaithPurchaseCooldown(int iValue)
 {
 	m_iFaithPurchaseCooldown += iValue;
 }
+
+int CvPlayer::GetNumCSAllies() const
+{
+	return m_iCSAllies;
+}
+void CvPlayer::SetNumCSAllies(int iChange)
+{
+	if (m_iCSAllies != iChange)
+	{
+		m_iCSAllies = iChange;
+	}
+}
+
+int CvPlayer::GetNumCSFriends() const
+{
+	return m_iCSFriends;
+}
+void CvPlayer::SetNumCSFriends(int iChange)
+{
+	if (m_iCSFriends != iChange)
+	{
+		m_iCSFriends = iChange;
+	}
+}
+
+void CvPlayer::RefreshCSAlliesFriends()
+{
+	int iFriends = 0;
+	int iAllies = 0;
+	// Loop through all minors and get the total number we've met.
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+
+		if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+		{
+			if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(GetID()))
+			{
+				iAllies++;
+			}
+			if (GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(GetID()))
+			{
+				iFriends++;
+			}
+		}
+	}
+	SetNumCSAllies(iAllies);
+	SetNumCSFriends(iFriends);
+}
 #endif
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetAbleToAnnexCityStatesCount() const
@@ -29748,11 +29844,14 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 			}
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-			if (isHuman())
+			if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 			{
-				// JdH: we just activated a human
-				// later the AI players need to try to contact the player
-				CvDiplomacyRequests::s_aDiploHumans.push_back(GetID());
+				if (isHuman())
+				{
+					// JdH: we just activated a human
+					// later the AI players need to try to contact the player
+					CvDiplomacyRequests::s_aDiploHumans.push_back(GetID());
+				}
 			}
 #endif
 
@@ -39357,6 +39456,20 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 			}
 		}
 	}
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(pGreatPeopleUnit->getUnitClassType());
+	if (eGreatPerson != NO_GREATPERSON)
+	{
+		CvPlot* pPlot = GC.getMap().plot(iX, iY);
+		if (pPlot != NULL && pPlot->isCity() && pPlot->getOwner() == GetID())
+		{
+			doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pPlot->getPlotCity());
+		}
+		else if (getCapitalCity() != NULL)
+		{
+			doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, getCapitalCity());
+		}
+		doInstantGWAM(eGreatPerson, pGreatPeopleUnit->getUnitName());
+	}
 #endif
 	// Notification
 	if(GetNotifications())
@@ -39420,6 +39533,14 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 #endif
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(pGreatPeopleUnit->getUnitClassType());
+	if (eGreatPerson != NO_GREATPERSON)
+	{
+		doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pGreatPeopleUnit->plot()->getWorkingCity());
+		doInstantGWAM(eGreatPerson, pGreatPeopleUnit->getUnitName());
+	}
+#endif
 
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
@@ -40316,9 +40437,9 @@ void CvPlayer::UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 #if defined(MOD_PSEUDO_NATURAL_WONDER)
-			if (pPlot && pPlot->getOwner()==GetID() && pPlot->IsNaturalWonder(true))
+			if (pPlot && pPlot->IsNaturalWonder(true))
 #else
-			if (pPlot && pPlot->getOwner()==GetID() && pPlot->IsNaturalWonder())
+			if (pPlot && pPlot->IsNaturalWonder())
 #endif
 				m_plotsAreaEffectPositiveFromTraits.push_back( iPlotLoop );
 		}
@@ -41217,6 +41338,14 @@ bool CvPlayer::IsAllowedToTradeWith(PlayerTypes eOtherPlayer)
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && GC.getGame().GetGameLeagues()->IsIdeologyEmbargoed(GetID(), eOtherPlayer) && eOtherPlayer != m_eID)
 	{
 		return false;
+	}
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	if (GET_PLAYER(eOtherPlayer).isMajorCiv() && GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsNoOpenTrade())
+	{
+		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eOtherPlayer, GetID(), true))
+			return false;
 	}
 #endif
 	return true;

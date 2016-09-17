@@ -781,6 +781,12 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 				break;
 
 #if defined(MOD_BALANCE_CORE)
+			case NOTIFICATION_PLAYER_DEAL_RECEIVED:
+				eBlockingType = ENDTURN_BLOCKING_PENDING_DEAL;
+				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+				return true;
+				break;
+
 			case 826076831:
 			case 419811917:
 				eBlockingType = ENDTURN_BLOCKING_EVENT_CHOICE;
@@ -1021,22 +1027,29 @@ void CvNotifications::Activate(Notification& notification)
 	case NOTIFICATION_PLAYER_DEAL_RECEIVED:
 	{
 #if defined(MOD_ACTIVE_DIPLOMACY)
-		// JdH => we need to switch behaviour for AI vs Human players.
-		PlayerTypes eFrom = static_cast<PlayerTypes>(notification.m_iX);
-		CvPlayer& kFrom = GET_PLAYER(eFrom);
-		if (kFrom.isHuman() && notification.m_iY != -2 /* request hack */)
+		if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 		{
+			// JdH => we need to switch behaviour for AI vs Human players.
+			PlayerTypes eFrom = static_cast<PlayerTypes>(notification.m_iX);
+			CvPlayer& kFrom = GET_PLAYER(eFrom);
+			if (kFrom.isHuman() && notification.m_iY != -2 /* request hack */)
+			{
 			// Keep old PvP notification behaviour
-			GC.GetEngineUserInterface()->OpenPlayerDealScreen(eFrom);
+				GC.GetEngineUserInterface()->OpenPlayerDealScreen(eFrom);
+			}
+			else
+			{
+				// This request was sent by an AI.
+				PlayerTypes eTo = notification.m_ePlayerID;
+				CvPlayer& kTo = GET_PLAYER(eTo);
+				kTo.GetDiplomacyRequests()->ActivateAllFrom(eFrom);
+			}
+			// JdH <=
 		}
 		else
 		{
-			// This request was sent by an AI.
-			PlayerTypes eTo = notification.m_ePlayerID;
-			CvPlayer& kTo = GET_PLAYER(eTo);
-			kTo.GetDiplomacyRequests()->ActivateAllFrom(eFrom);
+			GC.GetEngineUserInterface()->OpenPlayerDealScreen((PlayerTypes) notification.m_iX);
 		}
-		// JdH <=
 #else
 		GC.GetEngineUserInterface()->OpenPlayerDealScreen((PlayerTypes) notification.m_iX);
 #endif
@@ -1828,30 +1841,54 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		CvGame& game = GC.getGame();
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-		if (game.GetGameDeals().GetProposedDeal(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX), true) == NULL)
+		if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+		{
+			if (game.GetGameDeals().GetProposedMPDeal(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX), true) == NULL)
+			{
+				return true;
+			}
+		}
+		else
+		{
+			if(!game.GetGameDeals().ProposedDealExists(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX)))
+			{
+				return true;
+			}
+		}
 #else
 		if(!game.GetGameDeals().ProposedDealExists(m_ePlayer, (PlayerTypes)(m_aNotifications[iIndex].m_iX)))
-#endif
+
 		{
 			return true;
 		}
+#endif
 	}
 	break;
 	case NOTIFICATION_PLAYER_DEAL_RECEIVED:
 	{
 		CvGame& game = GC.getGame();
 #if defined(MOD_ACTIVE_DIPLOMACY)
-		// JdH =>
-		PlayerTypes eFrom = static_cast<PlayerTypes>(m_aNotifications[iIndex].m_iX);
-		if (m_aNotifications[iIndex].m_iY != -1 /* no deal request */) // TODO: check if pvp deals really use m_iY == -1
+		if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 		{
-			return false;
+			// JdH =>
+			PlayerTypes eFrom = static_cast<PlayerTypes>(m_aNotifications[iIndex].m_iX);
+			if (m_aNotifications[iIndex].m_iY != -1 /* no deal request */) // TODO: check if pvp deals really use m_iY == -1
+			{
+				return false;
+			}
+			else if (game.GetGameDeals().GetProposedMPDeal(eFrom, m_ePlayer, true) == NULL)
+			{
+				return true;
+			}
+			// JdH <=
 		}
-		else if (game.GetGameDeals().GetProposedDeal(eFrom, m_ePlayer, true) == NULL)
+		else
 		{
-			return true;
+			if(!game.GetGameDeals().ProposedDealExists((PlayerTypes)(m_aNotifications[iIndex].m_iX),  m_ePlayer))
+			{
+				return true;
+			}
 		}
-		// JdH <=
 #else
 		if(!game.GetGameDeals().ProposedDealExists((PlayerTypes)(m_aNotifications[iIndex].m_iX),  m_ePlayer))
 		{

@@ -95,6 +95,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iAllianceCSStrength(0),
 	m_iTourismGABonus(0),
 	m_bNoNaturalReligionSpread(false),
+	m_bNoOpenTrade(false),
 	m_iTourismToGAP(0),
 	m_iEventTourismBoost(0),
 	m_iEventGP(0),
@@ -243,6 +244,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiGreatPersonBornYield(NULL),
 	m_piGoldenAgeGreatPersonRateModifier(NULL),
 	m_piPerPuppetGreatPersonRateModifier(NULL),
+	m_piGreatPersonGWAM(NULL),
 	m_ppiCityYieldFromUnimprovedFeature(NULL),
 #endif
 	m_ppiUnimprovedFeatureYieldChanges(NULL)
@@ -625,6 +627,10 @@ bool CvTraitEntry::IsUniqueBeliefsOnly() const
 bool CvTraitEntry::IsNoNaturalReligionSpread() const
 {
 	return m_bNoNaturalReligionSpread;
+}
+bool CvTraitEntry::IsNoOpenTrade() const
+{
+	return m_bNoOpenTrade;
 }
 int CvTraitEntry::GetTourismGABonus() const
 {
@@ -1372,6 +1378,13 @@ int CvTraitEntry::GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eGreatPer
 	return m_piPerPuppetGreatPersonRateModifier ? m_piPerPuppetGreatPersonRateModifier[(int)eGreatPerson] : 0;
 }
 
+int CvTraitEntry::GetGreatPersonGWAM(GreatPersonTypes eGreatPerson) const
+{
+	CvAssertMsg((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
+	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
+	return m_piGreatPersonGWAM ? m_piGreatPersonGWAM[(int)eGreatPerson] : 0;
+}
+
 int CvTraitEntry::GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
 	CvAssertMsg(eIndex1 < GC.getNumFeatureInfos(), "Index out of bounds");
@@ -1730,6 +1743,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bMountainPass							= kResults.GetBool("MountainPass");
 	m_bUniqueBeliefsOnly					= kResults.GetBool("UniqueBeliefsOnly");
 	m_bNoNaturalReligionSpread				= kResults.GetBool("NoNaturalReligionSpread");
+	m_bNoOpenTrade							= kResults.GetBool("NoOpenTrade");
 	m_iTourismToGAP							= kResults.GetInt("TourismToGAP");
 	m_iEventTourismBoost					= kResults.GetInt("EventTourismBoost");
 	m_iEventGP								= kResults.GetInt("EventGP");
@@ -2398,6 +2412,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	}
 	kUtility.PopulateArrayByValue(m_piGoldenAgeGreatPersonRateModifier, "GreatPersons", "Trait_GoldenAgeGreatPersonRateModifier", "GreatPersonType", "TraitType", szTraitType, "Modifier");
 	kUtility.PopulateArrayByValue(m_piPerPuppetGreatPersonRateModifier, "GreatPersons", "Trait_PerPuppetGreatPersonRateModifier", "GreatPersonType", "TraitType", szTraitType, "Modifier");
+	kUtility.PopulateArrayByValue(m_piGreatPersonGWAM, "GreatPersons", "Trait_GreatPersonBirthGWAM", "GreatPersonType", "TraitType", szTraitType, "Value");
 	
 	//CityYieldFromUnimprovedFeature
 	{
@@ -2730,6 +2745,10 @@ void CvPlayerTraits::InitPlayerTraits()
 			if(trait->IsNoNaturalReligionSpread())
 			{
 				m_bNoNaturalReligionSpread = true;
+			}
+			if (trait->IsNoOpenTrade())
+			{
+				m_bNoOpenTrade  = true;
 			}
 			m_iTourismToGAP += trait->GetTourismToGAP();
 			m_iEventTourismBoost += trait->GetEventTourismBoost();
@@ -3106,6 +3125,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_piGoldenAgeGreatPersonRateModifier[iGreatPersonLoop] = trait->GetGoldenAgeGreatPersonRateModifier((GreatPersonTypes) iGreatPersonLoop);
 				m_piPerPuppetGreatPersonRateModifier[iGreatPersonLoop] = trait->GetPerPuppetGreatPersonRateModifier((GreatPersonTypes) iGreatPersonLoop);
+				m_piGreatPersonGWAM[iGreatPersonLoop] = trait->GetGreatPersonGWAM((GreatPersonTypes)iGreatPersonLoop);
 			}
 #endif
 
@@ -3192,6 +3212,7 @@ void CvPlayerTraits::Uninit()
 	m_ppiGreatPersonBornYield.clear();
 	m_piGoldenAgeGreatPersonRateModifier.clear();
 	m_piPerPuppetGreatPersonRateModifier.clear();
+	m_piGreatPersonGWAM.clear();
 	m_ppiCityYieldFromUnimprovedFeature.clear();
 #endif
 	m_ppaaiUnimprovedFeatureYieldChange.clear();
@@ -3278,6 +3299,7 @@ void CvPlayerTraits::Reset()
 	m_bMountainPass = false;
 	m_bUniqueBeliefsOnly = false;
 	m_bNoNaturalReligionSpread = false;
+	m_bNoOpenTrade = false;
 	m_iTourismToGAP = 0;
 	m_iEventTourismBoost = 0;
 	m_iWonderProductionModifierToBuilding = 0;
@@ -3506,10 +3528,14 @@ void CvPlayerTraits::Reset()
 	m_piPerPuppetGreatPersonRateModifier.clear();
 	m_piPerPuppetGreatPersonRateModifier.resize(GC.getNumGreatPersonInfos());
 
+	m_piGreatPersonGWAM.clear();
+	m_piGreatPersonGWAM.resize(GC.getNumGreatPersonInfos());
+
 	for(int iGreatPerson = 0; iGreatPerson < GC.getNumGreatPersonInfos(); iGreatPerson++)
 	{
 		m_piGoldenAgeGreatPersonRateModifier[iGreatPerson] = 0;
 		m_piPerPuppetGreatPersonRateModifier[iGreatPerson] = 0;
+		m_piGreatPersonGWAM[iGreatPerson] = 0;
 	}
 	m_abTerrainClaimBoost.clear();
 	m_abTerrainClaimBoost.resize(GC.getNumTerrainInfos());
@@ -3858,6 +3884,12 @@ int CvPlayerTraits::GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eGreatP
 	CvAssertMsg((int)eGreatPerson < GC.getNumGreatPersonTInfos(), "Yield type out of bounds");
 	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
 	return m_piPerPuppetGreatPersonRateModifier[(int)eGreatPerson];
+}
+int CvPlayerTraits::GetGreatPersonGWAM(GreatPersonTypes eGreatPerson) const
+{
+	CvAssertMsg((int)eGreatPerson < GC.getNumGreatPersonTInfos(), "Yield type out of bounds");
+	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
+	return m_piGreatPersonGWAM[(int)eGreatPerson];
 }
 
 int CvPlayerTraits::GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield) const
@@ -5020,6 +5052,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_bMountainPass, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bUniqueBeliefsOnly, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bNoNaturalReligionSpread, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bNoOpenTrade, false);
 	MOD_SERIALIZE_READ(66, kStream, m_iGrowthBoon, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSDefense, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSStrength, 0);
@@ -5455,6 +5488,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_ppiGreatPersonBornYield;
 	kStream >> m_piGoldenAgeGreatPersonRateModifier;
 	kStream >> m_piPerPuppetGreatPersonRateModifier;
+	kStream >> m_piGreatPersonGWAM;
 	kStream >> m_ppiCityYieldFromUnimprovedFeature;
 #endif
 	kStream >> m_ppaaiUnimprovedFeatureYieldChange;
@@ -5549,6 +5583,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bMountainPass);
 	MOD_SERIALIZE_WRITE(kStream, m_bUniqueBeliefsOnly);
 	MOD_SERIALIZE_WRITE(kStream, m_bNoNaturalReligionSpread);
+	MOD_SERIALIZE_WRITE(kStream, m_bNoOpenTrade);
 	MOD_SERIALIZE_WRITE(kStream, m_iGrowthBoon);
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSDefense);
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSStrength);
@@ -5757,6 +5792,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_ppiGreatPersonBornYield;
 	kStream << m_piGoldenAgeGreatPersonRateModifier;
 	kStream << m_piPerPuppetGreatPersonRateModifier;
+	kStream << m_piGreatPersonGWAM;
 	kStream << m_ppiCityYieldFromUnimprovedFeature;
 #endif
 	kStream << m_ppaaiUnimprovedFeatureYieldChange;

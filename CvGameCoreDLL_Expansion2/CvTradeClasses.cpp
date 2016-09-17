@@ -860,7 +860,7 @@ int CvGameTrade::GetDomainModifierTimes100 (DomainTypes eDomain)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvGameTrade::IsPlayerConnectedToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer)
+bool CvGameTrade::IsPlayerConnectedToPlayer(PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer, bool bFirstPlayerOnly)
 {
 	for (uint ui = 0; ui < m_aTradeConnections.size(); ui++)
 	{
@@ -875,7 +875,7 @@ bool CvGameTrade::IsPlayerConnectedToPlayer (PlayerTypes eFirstPlayer, PlayerTyp
 		{
 			return true;
 		}
-		else if (pConnection->m_eOriginOwner == eSecondPlayer && pConnection->m_eDestOwner == eFirstPlayer)
+		else if (!bFirstPlayerOnly && pConnection->m_eOriginOwner == eSecondPlayer && pConnection->m_eDestOwner == eFirstPlayer)
 		{
 			return true;
 		}
@@ -5714,6 +5714,24 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 				if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
 				{
 					iScore *= 10;
+				}
+			}
+		}
+		if (m_pPlayer->GetPlayerTraits()->IsNoOpenTrade() && GET_PLAYER(kTradeConnection.m_eDestOwner).isMajorCiv())
+		{
+			if (GET_PLAYER(kTradeConnection.m_eDestOwner).GetDiplomacyAI()->IsCloseToCultureVictory())
+			{
+				iScore /= 10;
+			}
+			else
+			{
+				if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner, true))
+				{
+					iScore *= 10;
+				}
+				else
+				{
+					iScore /= 10;
 				}
 			}
 		}
