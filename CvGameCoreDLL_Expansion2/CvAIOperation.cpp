@@ -1104,7 +1104,7 @@ bool CvAIOperation::BuyFinalUnit()
 	if (IsNavalOperation())
 		pCity = OperationalAIHelpers::GetNearestCoastalCityFriendly(m_eOwner, m_eEnemy);
 	else
-		pCity = GET_PLAYER(m_eOwner).GetClosestCity( GetMusterPlot() );
+		pCity = GET_PLAYER(m_eOwner).GetClosestCityByEstimatedTurns(GetMusterPlot());
 
 	if (!pCity)
 		return false;
@@ -2097,14 +2097,14 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget(CvPlot** ppMuster) const
 	for(pLoopCity = kEnemyPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kEnemyPlayer.nextCity(&iLoop))
 	{
 		// Make sure city is in the same area as our potential muster point
-		CvCity* pClosestCity = GET_PLAYER(m_eOwner).GetClosestCity(pLoopCity->plot());
+		CvCity* pClosestCity = GET_PLAYER(m_eOwner).GetClosestCityByEstimatedTurns(pLoopCity->plot());
 		if(pClosestCity && pLoopCity->getArea() == pClosestCity->getArea())
 		{
 			// Initial value of target is the number of improved plots
 			iValue = pLoopCity->countNumImprovedPlots();
 
 			// Adjust value based on proximity to our start location
-			iDistance = GET_PLAYER(m_eOwner).GetCityDistanceInTurns(pLoopCity->plot());
+			iDistance = GET_PLAYER(m_eOwner).GetCityDistanceInEstimatedTurns(pLoopCity->plot());
 			if(iDistance > 0)
 			{
 				iValue = iValue * 100 / iDistance;
@@ -2123,7 +2123,7 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget(CvPlot** ppMuster) const
 
 	if (ppMuster)
 	{
-		CvCity *pClosest = pBestTargetCity ? GET_PLAYER(m_eOwner).GetClosestCity(pBestTargetCity->plot()) : NULL;
+		CvCity *pClosest = pBestTargetCity ? GET_PLAYER(m_eOwner).GetClosestCityByEstimatedTurns(pBestTargetCity->plot()) : NULL;
 		*ppMuster = pClosest ? pClosest->plot() : NULL;
 	}
 
@@ -2160,7 +2160,7 @@ void CvAIOperationCivilian::Init(int iID, PlayerTypes eOwner, PlayerTypes /* eEn
 	//don't wait for the escort in the wild (happens with settlers a lot)
 	if (IsEscorted() && !pMusterPlot->IsFriendlyTerritory(eOwner))
 	{
-		CvCity* pClosestCity = GET_PLAYER(eOwner).GetClosestCity(pOurCivilian->plot());
+		CvCity* pClosestCity = GET_PLAYER(eOwner).GetClosestCityByEstimatedTurns(pOurCivilian->plot());
 		if (pClosestCity)
 			pMusterPlot = pClosestCity->plot();
 	}

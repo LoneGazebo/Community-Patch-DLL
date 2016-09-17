@@ -948,7 +948,7 @@ protected:
 	class PlotBoolField
 	{
 	public:
-		enum { eCount = 4, eSize = 32 };
+		enum config { eCount = 4, eSize = 32 };
 		DWORD m_dwBits[eCount];
 
 		bool GetBit(const uint uiEntry) const

@@ -8126,7 +8126,9 @@ void CvGame::doTurn()
 	 // the AI players are processed.
 		for(iI = 0; iI < MAX_PLAYERS; iI++)
 			aiShuffle[iI] = iI;
-		shuffleArray(aiShuffle, MAX_PLAYERS, getJonRand());
+
+		//use the pre-game RNG here
+		shuffleArray(aiShuffle, MAX_PLAYERS, getMapRand());
 
 		for(iI = 0; iI < MAX_PLAYERS; iI++)
 		{
@@ -10003,7 +10005,7 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 // for small numbers (e.g. direction rolls) this should be good enough
 // most importantly, it should reduce desyncs in multiplayer
 
-int CvGame::getSmallFakeRandNum(int iNum, CvPlot& input)
+int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
 	int iFake = input.getX() * 17 + input.getY() * 23 + getGameTurn() * 3;
 	
@@ -12481,6 +12483,11 @@ void CvGame::LogGameState(bool bLogHeaders)
 
 		pLog->Msg(strOutput);
 	}
+
+#if defined(MOD_CORE_DEBUGGING) && defined(MOD_CORE_HOTPLOTS)
+	if (MOD_CORE_DEBUGGING)
+		GC.getMap().Dump();
+#endif
 }
 
 //	------------------------------------------------------------------------------------------------

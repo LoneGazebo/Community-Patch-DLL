@@ -781,7 +781,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	if (pPlayer && !pPlayer->isHuman())
 	{
 		//Check for strategic landgrab
-		int iOwnCityDistance = pPlayer->GetCityDistanceInTurns(pPlot);
+		int iOwnCityDistance = pPlayer->GetCityDistanceInEstimatedTurns(pPlot);
 		int iOtherCityDistance = INT_MAX;
 
 		//check if the closest city is our or somebody else's
@@ -815,7 +815,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		{
 			CvPlayer& kNeighbor = GET_PLAYER((PlayerTypes)i);
 			if (kNeighbor.isAlive() && i!=pPlayer->GetID())
-				vNeighboringMajors.push_back( std::make_pair(kNeighbor.GetCityDistanceInTurns(pPlot),i) );
+				vNeighboringMajors.push_back( std::make_pair(kNeighbor.GetCityDistanceInEstimatedTurns(pPlot),i) );
 		}
 		//sort ascending
 		std::sort(vNeighboringMajors.begin(),vNeighboringMajors.end());

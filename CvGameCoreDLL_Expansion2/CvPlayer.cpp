@@ -25556,9 +25556,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 	}
 
 	// Note: this is the same transport method (though without a delay) as a Militaristic city-state gifting a unit
-
-	CvCity* pMajorCity = GetClosestCity(pMinorPlot);
-
+	CvCity* pMajorCity = GetClosestCityByEstimatedTurns(pMinorPlot);
 	int iX = pMinorCapital->getX();
 	int iY = pMinorCapital->getY();
 	if(pMajorCity != NULL)
@@ -35148,7 +35146,7 @@ void CvPlayer::SetClosestCityMapDirty()
 	GC.getGame().SetClosestCityMapDirty();
 }
 
-int CvPlayer::GetCityDistanceInTurns( const CvPlot* pPlot ) const
+int CvPlayer::GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const
 {
 	if (pPlot && m_pCityDistance)
 		return m_pCityDistance->GetClosestFeatureDistance( *pPlot );
@@ -35156,7 +35154,7 @@ int CvPlayer::GetCityDistanceInTurns( const CvPlot* pPlot ) const
 		return INT_MAX;
 }
 
-CvCity* CvPlayer::GetClosestCity( const CvPlot* pPlot ) const
+CvCity* CvPlayer::GetClosestCityByEstimatedTurns( const CvPlot* pPlot ) const
 {
 	if (pPlot && m_pCityDistance)
 		return getCity(m_pCityDistance->GetClosestFeatureID( *pPlot ));
@@ -40918,7 +40916,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 		//take into account distance from existing cities
 		int iUnitDistance = pUnit ? plotDistance(pUnit->getX(),pUnit->getY(),pPlot->getX(),pPlot->getY()) : INT_MAX;
-		int iRelevantDistance = min(iUnitDistance,GetCityDistanceInTurns(pPlot));
+		int iRelevantDistance = min(iUnitDistance,GetCityDistanceInEstimatedTurns(pPlot));
 		int iScale = MapToPercent( iRelevantDistance, iEvalDistance, GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() );
 
 		//on a new continent we want to settle along the coast
@@ -41054,7 +41052,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		//if it's too far from our existing cities, it's dangerous
 		if (!isDangerous && !bWantOffshore)
 		{
-			int iDistanceToCity = GetCityDistanceInTurns(vSettlePlots[i].pPlot);
+			int iDistanceToCity = GetCityDistanceInEstimatedTurns(vSettlePlots[i].pPlot);
 			//also consider settler plot here in case of re-targeting an operation
 			if (iDistanceToCity>4 && iDistanceToSettler>1)
 				isDangerous = true;
@@ -43161,7 +43159,7 @@ void CvPlayer::updatePlotFoundValues(bool bOverrideRevealedCheck)
 				pLoopArea->setTotalFoundValue(newValue);
 				
 				//track the distance from our existing cities
-				int iCityDistance = GetCityDistanceInTurns(pPlot);
+				int iCityDistance = GetCityDistanceInEstimatedTurns(pPlot);
 				if (minDistancePerArea.find(pLoopArea->GetID())==minDistancePerArea.end())
 					minDistancePerArea[pLoopArea->GetID()] = iCityDistance;
 				else if (iCityDistance < minDistancePerArea[pLoopArea->GetID()])

@@ -3486,19 +3486,20 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 			if(!pAssignedPlayer->isHuman() && pAssignedPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
 			{
 				CvCity* pMinorCap = pMinor->getCapitalCity();
-				if (pMinorCap && pMinorCap->getArea() == pAssignedPlayer->getCapitalCity()->getArea())
+				if (pMinorCap && pAssignedPlayer->getCapitalCity() && pMinorCap->getArea() == pAssignedPlayer->getCapitalCity()->getArea())
 				{
-					PlayerProximityTypes eProximity;
-					eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
-					if(eProximity == PLAYER_PROXIMITY_NEIGHBORS)
+					CvCity* pClosestCity = pAssignedPlayer->GetClosestCityByEstimatedTurns(pMinorCap->plot());
+
+					PlayerProximityTypes eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
+					if (eProximity == PLAYER_PROXIMITY_NEIGHBORS && pClosestCity)
 					{
 						int iNumRequiredSlots;
 						int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE, false, false, 
-							pAssignedPlayer->GetClosestCity(pMinorCap->plot())->plot(), pMinorCap->plot(), &iNumRequiredSlots);
+							pClosestCity->plot(), pMinorCap->plot(), &iNumRequiredSlots);
 						// Not willing to build units to get this off the ground
 						if (iFilledSlots >= iNumRequiredSlots)
 						{
-							pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinorCap->getArea(), pMinorCap, pAssignedPlayer->GetClosestCity(pMinorCap->plot()));
+							pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinorCap->getArea(), pMinorCap, pClosestCity);
 						}
 					}
 				}
@@ -3570,15 +3571,19 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 			if((pMinor->GetMinorCivAI()->GetAlly() != NO_PLAYER) && (pMinor->GetMinorCivAI()->GetAlly() == eMajor))
 			{
 				CvCity* pMinorCap = pMinor->getCapitalCity();
-
-				int iNumRequiredSlots;
-				int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE, 
-					false, false, pAssignedPlayer->GetClosestCity(pMinorCap->plot())->plot(), pMinorCap->plot(), &iNumRequiredSlots);
-
-				// Not willing to build units to get this off the ground
-				if (iFilledSlots >= iNumRequiredSlots)
+				CvCity* pClosestCity = pAssignedPlayer->GetClosestCityByEstimatedTurns(pMinorCap->plot());
+				if (pClosestCity)
 				{
-					pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pAssignedPlayer->GetClosestCity(pMinorCap->plot()));
+					int iNumRequiredSlots;
+					int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, pMinor->GetID(), MUFORMATION_CLOSE_CITY_DEFENSE,
+						false, false, pClosestCity->plot(), pMinorCap->plot(), &iNumRequiredSlots);
+
+					// Not willing to build units to get this off the ground
+					if (iFilledSlots >= iNumRequiredSlots)
+					{
+						pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinor->getCapitalCity()->getArea(), 
+							pMinor->getCapitalCity(), pClosestCity);
+					}
 				}
 			}
 		}
@@ -14547,8 +14552,7 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 #endif
 		}
 
-		CvCity* pMajorCity = GET_PLAYER(eMajor).GetClosestCity(pMinorCapitalPlot);
-
+		CvCity* pMajorCity = GET_PLAYER(eMajor).GetClosestCityByEstimatedTurns(pMinorCapitalPlot);
 		int iX = pMinorCapital->getX();
 		int iY = pMinorCapital->getY();
 #if defined(MOD_GLOBAL_CS_GIFTS)

@@ -6754,7 +6754,7 @@ bool IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandidate, bool bWater)
 	if (pCandidate->getNumUnits()>0)
 		return false;
 
-	int iCityDistance = pPlayer->GetCityDistanceInTurns(pCandidate);
+	int iCityDistance = pPlayer->GetCityDistanceInEstimatedTurns(pCandidate);
 	if (iCityDistance<2 || iCityDistance>3)
 		return false;
 
@@ -6983,16 +6983,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 				//not in an army and not at home? we really need to do something
 				if(pUnit->getArmyID() == -1 && pUnit->plot()->getOwner() != pUnit->getOwner())
 				{
-					CvCity* pClosestCity = NULL;
-					if(pUnit->getDomainType() == DOMAIN_LAND)
-					{
-						pClosestCity = m_pPlayer->GetClosestCity(pUnit->plot());
-					}
-					else if(pUnit->getDomainType() == DOMAIN_SEA)
-					{
-						pClosestCity = m_pPlayer->GetClosestCity(pUnit->plot(),INT_MAX,true);
-					}
-
+					CvCity* pClosestCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
 					CvPlot* pMovePlot = pClosestCity ? pClosestCity->plot() : NULL;
 					if(pMovePlot != NULL)
 					{
@@ -8328,7 +8319,7 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 		if(pUnit)
 		{
 			// Compute moves to nearest city and use as sort criteria
-			CvCity* pNearestCity = m_pPlayer->GetClosestCity(pUnit->plot());
+			CvCity* pNearestCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
 			if(pNearestCity != NULL && pUnit->CanReachInXTurns(pNearestCity->plot(),5))
 			{
 				if(MoveToEmptySpaceNearTarget(pUnit, pNearestCity->plot(), pUnit->getDomainType(), 42))
@@ -10635,7 +10626,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 				//try to go to a city
 				CvCity* pCity = m_pPlayer->GetMilitaryAI()->GetMostThreatenedCity();
 				if(!pCity)
-					pCity = m_pPlayer->GetClosestCity(pGeneral->plot());
+					pCity = m_pPlayer->GetClosestCityByEstimatedTurns(pGeneral->plot());
 
 				if(pCity != NULL)
 				{
@@ -11960,7 +11951,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
 		int iDanger = kPlayer.GetPlotDanger(*pPlot, pUnit);
 
-		int iCityDistance = kPlayer.GetCityDistanceInTurns(pPlot);
+		int iCityDistance = kPlayer.GetCityDistanceInEstimatedTurns(pPlot);
 		//when in doubt, prefer to move
 		if (pUnit->atPlot(*pPlot))
 			iCityDistance++;
@@ -12093,7 +12084,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWi
 			if ( GET_PLAYER( pUnit->getOwner() ).GetPlotDanger(*pPlot,pUnit) > 0)
 				continue;
 
-			int iScore = pUnit->healRate(pPlot) - GET_PLAYER(pUnit->getOwner()).GetCityDistanceInTurns(pPlot);
+			int iScore = pUnit->healRate(pPlot) - GET_PLAYER(pUnit->getOwner()).GetCityDistanceInEstimatedTurns(pPlot);
 			vCandidates.push_back( SPlotWithScore(pPlot, iScore) );
 		}
 

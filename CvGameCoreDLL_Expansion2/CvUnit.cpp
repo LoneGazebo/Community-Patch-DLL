@@ -5396,6 +5396,16 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 
 	changeMoves(-iMoveCost);
 	setXY(targetPlot.getX(), targetPlot.getY(), true, true, bShow && targetPlot.isVisibleToWatchingHuman(), bShow);
+
+#if defined(MOD_CORE_HOTPLOTS)
+	//feedback for pathfinder (only for long range moves)
+	if (plotDistance(*pOldPlot, targetPlot) == 1 && m_kLastPath.size()>7 )
+	{
+		GC.getMap().SetNumUnitsPassed(&targetPlot, NO_DIRECTION, GC.getMap().GetNumUnitsPassed(&targetPlot, NO_DIRECTION) + 100);
+		DirectionTypes eDir = directionXY(pOldPlot, &targetPlot);
+		GC.getMap().SetNumUnitsPassed(&targetPlot, eDir, GC.getMap().GetNumUnitsPassed(&targetPlot, eDir) + 100);
+	}
+#endif
 }
 
 
@@ -6903,7 +6913,7 @@ bool CvUnit::canEmbarkAtPlot(const CvPlot* pPlot) const
 	}
 
 	// search the water plots around this plot to see if any are vacant
-	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
+	CvPlot** aNeighbors = GC.getMap().getNeighborsShuffled(pPlot);
 	for(size_t i=0; i<NUM_DIRECTION_TYPES; i++)
 	{
 		CvPlot* pEvalPlot = aNeighbors[i];
@@ -6933,7 +6943,7 @@ bool CvUnit::canDisembarkAtPlot(const CvPlot* pPlot) const
 	}
 
 	// search the water plots around this plot to see if any are vacant
-	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
+	CvPlot** aNeighbors = GC.getMap().getNeighborsShuffled(pPlot);
 	for(size_t i=0; i<NUM_DIRECTION_TYPES; i++)
 	{
 		CvPlot* pEvalPlot = aNeighbors[i];

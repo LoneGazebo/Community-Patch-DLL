@@ -1461,7 +1461,7 @@ void CvCitySpecializationAI::FindBestSites()
 #endif
 
 			// Check if within range of any of our cities
-			CvCity* pNearestCity = m_pPlayer->GetClosestCity(pPlot);
+			CvCity* pNearestCity = m_pPlayer->GetClosestCityByEstimatedTurns(pPlot);
 			if(pNearestCity != NULL)
 			{
 				if(plotDistance(pPlot->getX(), pPlot->getY(), pNearestCity->getX(), pNearestCity->getY()) <= iEvalDistance)

@@ -337,6 +337,11 @@ void CvMap::InitPlots()
 	memset(m_pPlotNeighbors, 0, iNumPlots*(NUM_DIRECTION_TYPES + 2)*sizeof(CvPlot*));
 	PrecalcNeighbors();
 #endif
+
+#if defined(MOD_CORE_HOTPLOTS)
+	m_paiNumUnitsPassed = FNEW(int[iNumPlots*(NUM_DIRECTION_TYPES + 2)], c_eCiv5GameplayDLL, 0);
+	memset(m_paiNumUnitsPassed, 0, iNumPlots*(NUM_DIRECTION_TYPES + 2)*sizeof(CvPlot*));
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -424,6 +429,27 @@ void CvMap::PrecalcNeighbors()
 	}
 }
 #endif
+
+//	--------------------------------------------------------------------------------
+CvPlot** CvMap::getNeighborsShuffled(const CvPlot* pPlot)
+{
+	if (!pPlot)
+		return NULL;
+
+	int aiShuffle[3][6] = {
+		{ 4, 5, 2, 1, 3, 0 },
+		{ 3, 0, 4, 1, 2, 5 },
+		{ 1, 2, 4, 5, 0, 3 } };
+
+	int iShuffleType = GC.getGame().getSmallFakeRandNum(3, *pPlot);
+	int iBaseIndex = plotNum(pPlot->getX(), pPlot->getY())*(NUM_DIRECTION_TYPES + 2);
+
+	for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
+		m_apShuffledNeighbors[i] = m_pPlotNeighbors[iBaseIndex + aiShuffle[iShuffleType][i]];
+
+	return m_apShuffledNeighbors;
+}
+
 //	--------------------------------------------------------------------------------
 void CvMap::uninit()
 {
@@ -443,6 +469,9 @@ void CvMap::uninit()
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_pIsImpassable);
 	SAFE_DELETE_ARRAY(m_pPlotNeighbors);
+#endif
+#if defined(MOD_CORE_HOTPLOTS)
+	SAFE_DELETE_ARRAY(m_paiNumUnitsPassed);
 #endif
 
 	m_iGridWidth = 0;
@@ -2329,3 +2358,45 @@ int CvMap::GetAIMapHint()
 {
 	return m_iAIMapHints;
 }
+
+
+//	--------------------------------------------------------------------------------
+#if defined(MOD_CORE_HOTPLOTS)
+
+void CvMap::DoStatDecay(float fFactor)
+{
+	for (int i = 0; i < numPlots()*(NUM_DIRECTION_TYPES + 2); i++)
+	{
+		m_paiNumUnitsPassed[i] = int(m_paiNumUnitsPassed[i] * fFactor);
+	}
+}
+
+void CvMap::Dump() const
+{
+	if (!GC.getLogging() || !GC.getAILogging())
+		return;
+
+	CvString fname = CvString::format("MapStats%03d.txt", GC.getGame().getGameTurn());
+	FILogFile* pLog = LOGFILEMGR.GetLog(fname.c_str(), FILogFile::kDontTimeStamp);
+	if (!pLog)
+		return;
+
+	pLog->Msg("#x,y,land,self,ne,e,se,sw,w,nw\n");
+	for (int i = 0; i<GC.getMap().numPlots(); i++)
+	{
+		const CvPlot* pPlot = plotByIndex(i);
+		CvString dump = CvString::format("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+			pPlot->getX(), pPlot->getY(), pPlot->isWater() ? 0 : 1,
+			GetNumUnitsPassed(pPlot, NO_DIRECTION),
+			GetNumUnitsPassed(pPlot, DIRECTION_NORTHEAST),
+			GetNumUnitsPassed(pPlot, DIRECTION_EAST),
+			GetNumUnitsPassed(pPlot, DIRECTION_SOUTHEAST),
+			GetNumUnitsPassed(pPlot, DIRECTION_SOUTHWEST),
+			GetNumUnitsPassed(pPlot, DIRECTION_WEST),
+			GetNumUnitsPassed(pPlot, DIRECTION_NORTHWEST)
+			);
+		pLog->Msg(dump.c_str());
+	}
+	pLog->Close();
+}
+#endif

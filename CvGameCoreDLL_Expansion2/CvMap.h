@@ -128,7 +128,7 @@ public:
 	void updateLayout(bool bDebug);
 	void updateSight(bool bIncrement);
 	void updateCenterUnit();
-	void updateWorkingCity(CvPlot* pPlot=0, int iRange=0);
+	void updateWorkingCity(CvPlot* pPlot = 0, int iRange = 0);
 	void updateYield();
 	void updateAdjacency();
 
@@ -225,7 +225,7 @@ public:
 
 	__forceinline CvPlot* plot(int iX, int iY) const
 	{
-		if((iX == INVALID_PLOT_COORD) || (iY == INVALID_PLOT_COORD))
+		if ((iX == INVALID_PLOT_COORD) || (iY == INVALID_PLOT_COORD))
 		{
 			return NULL;
 		}
@@ -235,7 +235,7 @@ public:
 	}
 	__forceinline CvPlot* plotCheckInvalid(int iX, int iY) const
 	{
-		if((iX == INVALID_PLOT_COORD) || (iY == INVALID_PLOT_COORD))
+		if ((iX == INVALID_PLOT_COORD) || (iY == INVALID_PLOT_COORD))
 		{
 			return NULL;
 		}
@@ -249,23 +249,35 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	CvPlot** getNeighborsUnchecked(const CvPlot* pPlot) const
 	{
-		return m_pPlotNeighbors+plotNum(pPlot->getX(),pPlot->getY())*(NUM_DIRECTION_TYPES+2);
+		return m_pPlotNeighbors + plotNum(pPlot->getX(), pPlot->getY())*(NUM_DIRECTION_TYPES + 2);
 	}
-	CvPlot** getNeighborsShuffled(const CvPlot* pPlot)
-	{
-		memcpy(m_apShuffledNeighbors, m_pPlotNeighbors+plotNum(pPlot->getX(),pPlot->getY())*(NUM_DIRECTION_TYPES+2), 6*sizeof(CvPlot*));
-		shuffleArray(m_apShuffledNeighbors,6,GC.getGame().getJonRand());
-		return m_apShuffledNeighbors;
-	}
+	CvPlot** getNeighborsShuffled(const CvPlot* pPlot);
 	CvPlot* getNeighborUnchecked(int iX, int iY, DirectionTypes eDir) const
 	{
-		return m_pPlotNeighbors[ plotNum(iX,iY)*(NUM_DIRECTION_TYPES+2)+(int)eDir ];
+		return m_pPlotNeighbors[plotNum(iX, iY)*(NUM_DIRECTION_TYPES + 2) + (int)eDir];
 	}
-#endif
-	CvPlotManager& plotManager() { return m_kPlotManager; }
-#if defined(MOD_BALANCE_CORE)
+
 	void PrecalcNeighbors();
 #endif
+
+#if defined(MOD_CORE_HOTPLOTS)
+	void SetNumUnitsPassed(const CvPlot* pPlot, DirectionTypes eDir, int iValue)
+	{
+		if (pPlot)
+			m_paiNumUnitsPassed[plotNum(pPlot->getX(), pPlot->getY())*(NUM_DIRECTION_TYPES + 2) + eDir] = iValue;
+	}
+
+	int GetNumUnitsPassed(const CvPlot* pPlot, DirectionTypes eDir) const
+	{
+		return m_paiNumUnitsPassed[plotNum(pPlot->getX(), pPlot->getY())*(NUM_DIRECTION_TYPES + 2) + eDir];
+	}
+
+	void DoStatDecay(float fFactor = 0.9f);
+	void Dump() const;
+#endif
+
+	CvPlotManager& plotManager() { return m_kPlotManager; }
+
 	/// Areas
 	int getIndexAfterLastArea();
 	int getNumAreas();
@@ -347,6 +359,10 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	CvPlot** m_pPlotNeighbors;			//precomputed neighbors for each plot
 	CvPlot* m_apShuffledNeighbors[6];	//scratchpad for shuffled access to neighbors
+#endif
+
+#if defined(MOD_CORE_HOTPLOTS)
+	int* m_paiNumUnitsPassed;			///for pathfinding stats
 #endif
 
 	short* m_pYields;
