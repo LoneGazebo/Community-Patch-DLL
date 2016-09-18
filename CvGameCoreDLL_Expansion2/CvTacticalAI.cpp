@@ -9559,6 +9559,12 @@ CvPlot* CvTacticalAI::FindBestBarbarianLandMove(UnitHandle pUnit)
 		pBestMovePlot = FindBarbarianExploreTarget(pUnit);
 	}
 
+	// if nothing to explore, go back to camp
+	if (pBestMovePlot == NULL)
+	{
+		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange, AI_TACTICAL_TARGET_BARBARIAN_CAMP);
+	}
+
 	return pBestMovePlot;
 }
 
@@ -11975,6 +11981,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			iDanger++;
 
 		//try to hide - if there are few enemy units, this might be a tiebreaker
+		//this is cheating a bit, really we need to check if the plot is visible for the enemy units visible to us
 		if (pPlot->isVisibleToEnemy(pUnit->getOwner()))
 			iDanger+=10;
 
