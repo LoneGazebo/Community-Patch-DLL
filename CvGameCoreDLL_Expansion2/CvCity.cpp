@@ -14469,14 +14469,14 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 	{
 		int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
 		iSpecialists += iExtra;
-		int iPopulation = (getPopulation() - iSpecialists);
+		int iPopulation = max(0,(getPopulation() - iSpecialists)); //guard against stupidity
 
 		int iFoodPerPop = /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
 #if defined(MOD_BALANCE_CORE)
 		iFoodPerPop += GetAdditionalFood();
 #endif
 
-		int iNum = iPopulation * iFoodPerPop;
+		int iNormalFood = iPopulation * iFoodPerPop;
 
 		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
 		if(iEra <= GC.getFOOD_CONSUMPTION_PER_POPULATION())
@@ -14497,8 +14497,8 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 		{
 			iSpecialistFood /= 2;
 		}
-		iNum += iSpecialistFood;
-		return iNum;
+
+		return iNormalFood + iSpecialistFood;
 	}
 	else
 	{

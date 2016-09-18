@@ -6537,6 +6537,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 					if(pUnit->CanSwapWithUnitHere(*pFriendlyPlot))
 					{
 						// Move up there
+						pOtherUnit->SetActivityType(ACTIVITY_AWAKE);
 						pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pOtherUnit->getX(), pOtherUnit->getY());
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -10336,6 +10337,7 @@ void CvTacticalAI::PerformChosenMoves(CvPlot* pFinalTarget)
 										if(pUnit->CanSwapWithUnitHere(*pFriendlyPlot))
 										{
 											// Move up there
+											pFriendlyUnit->SetActivityType(ACTIVITY_AWAKE);
 											pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pFriendlyUnit->getX(), pFriendlyUnit->getY());
 											if(pPlotBeforeMove != pUnit->plot())
 											{

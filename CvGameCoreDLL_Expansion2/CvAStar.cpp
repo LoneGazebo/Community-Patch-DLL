@@ -22,21 +22,24 @@
 #include "CvDllInterfaces.h"
 #include "cvStopWatch.h"
 #include "CvUnitMovement.h"
+#include <numeric>
 
-//PATH_BASE_COST is defined in AStar.h, value 100
+//PATH_BASE_COST is defined in AStar.h (value 100) - a simple moves costs 6000!
 #define PATH_ATTACK_WEIGHT										(200)	//per percent penalty on attack
 #define PATH_DEFENSE_WEIGHT										(100)	//per percent defense bonus on turn end plot
-#define PATH_STEP_WEIGHT										(PATH_BASE_COST)	//per plot in path (very small)
+#define PATH_STEP_WEIGHT_HOTPLOTS								(1000)	//per plot in path
+#define PATH_STEP_WEIGHT										(100)	//relatively small
 #define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
 #define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
-#define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(23)	//accept four plots detour to save on maintenance
-#define PATH_END_TURN_FOREIGN_TERRITORY							(PATH_BASE_COST)		//per turn end plot outside of our territory
+#define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(20)	//accept four plots detour to save on maintenance
+#define PATH_END_TURN_FOREIGN_TERRITORY							(PATH_BASE_COST*10)		//per turn end plot outside of our territory
 #define PATH_END_TURN_NO_ROUTE									(PATH_BASE_COST*10)		//when in doubt, prefer to end the turn on a plot with a route
 #define PATH_END_TURN_WATER										(PATH_BASE_COST*20)		//embarkation should be avoided (land units only)
 #define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*90)		//one of these is worth 1.5 plots of detour
 #define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*150)	//one of these is worth 2.5 plots of detour
 #define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_BASE_COST*210)	//one of these is worth 3.5 plots of detour
 #define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(PATH_BASE_COST*210)	//don't make it even so we don't get ties
+#define BASE_TEMP_STEP											(100)	//for unit successfully passing a plot
 
 #include <xmmintrin.h>
 #include "LintFree.h"
@@ -507,7 +510,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 			continue;
 
 		//check if we already found a better way ...
-		if (check->m_eCvAStarListType == CVASTARLIST_OPEN)
+		if (check->m_eCvAStarListType == CVASTARLIST_OPEN || check->m_eCvAStarListType == CVASTARLIST_CLOSED)
 		{
 			if ((check->m_iTurns < node->m_iTurns) || (check->m_iTurns == node->m_iTurns && check->m_iMoves > node->m_iMoves))
 			{
@@ -550,7 +553,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 			if(isValid(x, y))
 			{
 				CvAStarNode* check = &(m_ppaaNodes[x][y]);
-				if (!check)
+				if (!check || check == node->m_pParent)
 					continue;
 
 				if(udFunc(udValid, node, check, 0, m_sData))
@@ -595,7 +598,11 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 
 	//final check. there may have been a previous path here.
 	//in that case we want to keep the one with the lower total cost, which should correspond to the shorter one
-	if (check->m_iKnownCost > 0 && iKnownCost > check->m_iKnownCost)
+	if (check->m_iKnownCost > 0 && iKnownCost >= check->m_iKnownCost)
+		return NS_OBSOLETE;
+
+	//safety check for loops. compare coords in case of two layer pathfinder
+	if (node->m_pParent && node->m_pParent->m_iX == check->m_iX && node->m_pParent->m_iY == check->m_iY)
 		return NS_OBSOLETE;
 
 	//remember the connection
@@ -606,8 +613,6 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 	{
 		if(iKnownCost < check->m_iKnownCost)
 		{
-			FAssert(node->m_pParent != check);
-
 			//heap order will be restored when calling getBest
 			check->m_pParent = node;
 			check->m_iKnownCost = iKnownCost;
@@ -621,7 +626,6 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 	{
 		if(iKnownCost < check->m_iKnownCost)
 		{
-			FAssert(node->m_pParent != check);
 			check->m_pParent = node;
 			check->m_iKnownCost = iKnownCost;
 			check->m_iTotalCost = iKnownCost*giKnownCostWeight + check->m_iHeuristicCost*giHeuristicCostWeight;
@@ -630,10 +634,9 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 			UpdateParents(check);
 		}
 	}
-	else //new node is previously untouched
+	//new node is previously untouched
+	else if (check->m_eCvAStarListType == NO_CVASTARLIST)
 	{
-		FAssert(check->m_eCvAStarListType == NO_CVASTARLIST);
-		FAssert(node->m_pParent != check);
 		check->m_pParent = node;
 		check->m_iKnownCost = iKnownCost;
 		check->m_iHeuristicCost = udHeuristic ? udHeuristic(node->m_iX, node->m_iY, check->m_iX, check->m_iY, m_iXdest, m_iYdest) : 0;
@@ -724,8 +727,7 @@ SPath CvAStar::GetCurrentPath() const
 	//walk backwards ...
 	while(pNode != NULL)
 	{
-		SPathNode node(pNode);
-		ret.vPlots.push_back(node);
+		ret.vPlots.push_back(SPathNode(pNode));
 		pNode = pNode->m_pParent;
 	}
 
@@ -1290,7 +1292,14 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPat
 		}
 	}
 
-	iCost += PATH_STEP_WEIGHT;
+	//when in doubt prefer the shorter path
+#if defined(MOD_CORE_HOTPLOTS)
+	if (finder->HaveFlag(CvUnit::MOVEFLAG_USE_HOTPLOTS))
+		iCost += finder->GetStepWeight(node);
+	else
+#endif
+		iCost += PATH_STEP_WEIGHT;
+
 	return iCost;
 }
 
@@ -2068,8 +2077,6 @@ CvTwoLayerPathFinder::CvTwoLayerPathFinder()
 /// Destructor
 CvTwoLayerPathFinder::~CvTwoLayerPathFinder()
 {
-	CvAStar::DeInit();
-
 	DeInit();
 }
 
@@ -2103,6 +2110,18 @@ void CvTwoLayerPathFinder::Initialize(int iColumns, int iRows, bool bWrapX, bool
 			apNeighbors += 6;
 		}
 	}
+
+#if defined(MOD_CORE_HOTPLOTS)
+	int iNumPlots = m_iColumns*m_iRows;
+	m_paiNodeTemperature = new int[iNumPlots*(NUM_DIRECTION_TYPES + 2)];
+	memset(m_paiNodeTemperature, 0, iNumPlots*(NUM_DIRECTION_TYPES + 2)*sizeof(CvPlot*));
+
+	m_eCurrentFacingDirection = NO_DIRECTION;
+	m_iTempMean = 0;
+	m_iTempStdev = 0;
+	m_iTempMedian = 0;
+#endif
+
 };
 
 //	--------------------------------------------------------------------------------
@@ -2120,6 +2139,10 @@ void CvTwoLayerPathFinder::DeInit()
 
 		SAFE_DELETE_ARRAY(m_ppaaPartialMoveNodes);
 	}
+
+#if defined(MOD_CORE_HOTPLOTS)
+	SAFE_DELETE_ARRAY(m_paiNodeTemperature);
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -2196,6 +2219,138 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 	return false;
 }
 
+#if defined(MOD_CORE_HOTPLOTS)
+int CvTwoLayerPathFinder::GetStepWeight(const CvAStarNode* node) const
+{
+	if (!node)
+		return 0;
+
+	int iIndex = (m_iColumns*node->m_iY + node->m_iX) * (NUM_DIRECTION_TYPES + 2);
+	int iTemperature = m_paiNodeTemperature[iIndex + m_eCurrentFacingDirection];
+
+	if (iTemperature > m_iTempMedian * 4)
+		return PATH_STEP_WEIGHT;
+	if (iTemperature > m_iTempMedian * 2)
+		return PATH_STEP_WEIGHT_HOTPLOTS/4;
+	if (iTemperature > m_iTempMedian * 1)
+		return PATH_STEP_WEIGHT_HOTPLOTS/2;
+
+	return PATH_STEP_WEIGHT_HOTPLOTS;
+}
+
+void CvTwoLayerPathFinder::DoTemperatureDecay(float fFactor)
+{
+	std::vector<int> v;
+
+	for (int i = 0; i < m_iColumns*m_iRows; i++)
+	{
+		int iBase = i * (NUM_DIRECTION_TYPES + 2);
+		for (int j = 0; j < (NUM_DIRECTION_TYPES + 2); j++)
+		{
+			int iNewValue = int(m_paiNodeTemperature[iBase + j] * fFactor);
+			m_paiNodeTemperature[iBase + j] = iNewValue;
+
+			//ignore all zeros for the stats
+			if (iNewValue>0)
+				v.push_back(iNewValue);
+		}
+	}
+
+	if (!v.empty())
+	{
+		int iSum = std::accumulate(v.begin(), v.end(), 0);
+		int iSqSum = std::inner_product(v.begin(), v.end(), v.begin(), 0);
+
+		m_iTempMean = iSum / v.size();
+		m_iTempStdev = (int)std::sqrt((float)iSqSum / v.size() - m_iTempMean * m_iTempMean);
+
+		std::nth_element(v.begin(), v.begin() + v.size() / 2, v.end());
+		m_iTempMedian = v[v.size() / 2];
+	}
+	else
+		m_iTempMean = m_iTempStdev = m_iTempMedian = 0;
+
+#if defined(MOD_CORE_DEBUGGING)
+	OutputDebugString(CvString::format("avg temp %.2f, stdev %.2f, median %.2f\n", m_iTempMean/100.f, m_iTempStdev/100.f, m_iTempMedian/100.f).c_str());
+	if (MOD_CORE_DEBUGGING)
+		DumpStats();
+#endif
+}
+
+void CvTwoLayerPathFinder::DumpStats() const
+{
+	if (!GC.getLogging() || !GC.getAILogging())
+		return;
+
+	CvString fname = CvString::format("MapStats%03d.txt", GC.getGame().getGameTurn());
+	FILogFile* pLog = LOGFILEMGR.GetLog(fname.c_str(), FILogFile::kDontTimeStamp);
+	if (!pLog)
+		return;
+
+	pLog->Msg("#x,y,land,self,ne,e,se,sw,w,nw\n");
+	for (int i = 0; i<m_iColumns*m_iRows; i++)
+	{
+		const CvPlot* pPlot = GC.getMap().plotByIndex(i);
+		int iIndex = (m_iColumns*pPlot->getY() + pPlot->getX()) * (NUM_DIRECTION_TYPES + 2);
+
+		CvString dump = CvString::format("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+			pPlot->getX(), pPlot->getY(), pPlot->isWater() ? 0 : 1,
+			m_paiNodeTemperature[iIndex + NO_DIRECTION],
+			m_paiNodeTemperature[iIndex + DIRECTION_NORTHEAST],
+			m_paiNodeTemperature[iIndex + DIRECTION_EAST],
+			m_paiNodeTemperature[iIndex + DIRECTION_SOUTHEAST],
+			m_paiNodeTemperature[iIndex + DIRECTION_SOUTHWEST],
+			m_paiNodeTemperature[iIndex + DIRECTION_WEST],
+			m_paiNodeTemperature[iIndex + DIRECTION_NORTHWEST]
+			);
+		pLog->Msg(dump.c_str());
+	}
+	pLog->Close();
+}
+
+SPath CvTwoLayerPathFinder::GetPath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data)
+{
+	//important: set up the rough direction so the temperature lookup works
+	m_eCurrentFacingDirection = estimateDirection(iXstart, iYstart, iXdest, iYdest);
+
+	SPath result = CvPathFinder::GetPath(iXstart, iYstart, iXdest, iYdest, data);
+
+	//feedback for next pathfinder run (only for long range moves)
+	if (result.length()>11)
+	{
+//-----------------
+		//do it again for comparison
+		SPathFinderUserData data2(data);
+		data2.iFlags |= CvUnit::MOVEFLAG_USE_HOTPLOTS;
+		result = CvPathFinder::GetPath(iXstart, iYstart, iXdest, iYdest, data2);
+//-----------------
+		DirectionTypes eDir = estimateDirection(iXstart, iYstart, iXdest, iYdest);
+
+		for (int i = 0; i < result.length(); i++)
+		{
+			CvPlot* pPlot = result.get(i);
+			//aggregate for all directions
+			m_paiNodeTemperature[pPlot->GetPlotIndex()*(NUM_DIRECTION_TYPES + 2) + NO_DIRECTION] += BASE_TEMP_STEP;
+			//aggregate for differentiated per main direction
+			m_paiNodeTemperature[pPlot->GetPlotIndex()*(NUM_DIRECTION_TYPES + 2) + eDir] += BASE_TEMP_STEP;
+		}
+	}
+
+	return result;
+}
+
+//wrapper for CvPlot*
+SPath CvTwoLayerPathFinder::GetPath(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data)
+{
+	if (pStartPlot == NULL || pEndPlot == NULL)
+		return SPath();
+
+	return GetPath(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), data);
+}
+
+#endif
+
+
 //	--------------------------------------------------------------------------------
 /// can do only certain types of path here
 bool CvTwoLayerPathFinder::Configure(PathType ePathType)
@@ -2269,15 +2424,15 @@ bool CvStepFinder::Configure(PathType ePathType)
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_BUILD_ROUTE:
-		SetFunctionPointers(DestinationReached, NULL, NULL, BuildRouteCost, BuildRouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, NULL, NULL, BuildRouteCost, BuildRouteValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_AREA_CONNECTION:
-		SetFunctionPointers(NULL, NULL, NULL, NULL, AreaValid, NULL, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, NULL, NULL, NULL, AreaValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_LANDMASS_CONNECTION:
-		SetFunctionPointers(NULL, NULL, NULL, NULL, LandmassValid, NULL, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, NULL, NULL, NULL, LandmassValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_INFLUENCE:
@@ -2285,19 +2440,19 @@ bool CvStepFinder::Configure(PathType ePathType)
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_LAND:
-		SetFunctionPointers(DestinationReached, NULL, StepHeuristic, NULL, RouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, NULL, StepHeuristic, NULL, RouteValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_WATER:
-		SetFunctionPointers(DestinationReached, NULL, StepHeuristic, NULL, WaterRouteValid, NULL, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(DestinationReached, NULL, StepHeuristic, NULL, WaterRouteValid, StepAdd, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_CITY_CONNECTION_MIXED:
-		SetFunctionPointers(DestinationReached, NULL, StepHeuristic, NULL, RouteValid, NULL, NULL, RouteGetNumExtraChildren, RouteGetExtraChild, NULL, NULL);
+		SetFunctionPointers(DestinationReached, NULL, StepHeuristic, NULL, RouteValid, StepAdd, NULL, RouteGetNumExtraChildren, RouteGetExtraChild, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_AIR_REBASE:
-		SetFunctionPointers(DestinationReached, NULL, StepHeuristic, NULL, RebaseValid, NULL, NULL, RebaseGetNumExtraChildren, RebaseGetExtraChild, UnitPathInitialize, UnitPathUninitialize);
+		SetFunctionPointers(DestinationReached, NULL, StepHeuristic, NULL, RebaseValid, StepAdd, NULL, RebaseGetNumExtraChildren, RebaseGetExtraChild, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	default:

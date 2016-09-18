@@ -260,22 +260,6 @@ public:
 	void PrecalcNeighbors();
 #endif
 
-#if defined(MOD_CORE_HOTPLOTS)
-	void SetNumUnitsPassed(const CvPlot* pPlot, DirectionTypes eDir, int iValue)
-	{
-		if (pPlot)
-			m_paiNumUnitsPassed[plotNum(pPlot->getX(), pPlot->getY())*(NUM_DIRECTION_TYPES + 2) + eDir] = iValue;
-	}
-
-	int GetNumUnitsPassed(const CvPlot* pPlot, DirectionTypes eDir) const
-	{
-		return m_paiNumUnitsPassed[plotNum(pPlot->getX(), pPlot->getY())*(NUM_DIRECTION_TYPES + 2) + eDir];
-	}
-
-	void DoStatDecay(float fFactor = 0.9f);
-	void Dump() const;
-#endif
-
 	CvPlotManager& plotManager() { return m_kPlotManager; }
 
 	/// Areas
@@ -359,10 +343,6 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	CvPlot** m_pPlotNeighbors;			//precomputed neighbors for each plot
 	CvPlot* m_apShuffledNeighbors[6];	//scratchpad for shuffled access to neighbors
-#endif
-
-#if defined(MOD_CORE_HOTPLOTS)
-	int* m_paiNumUnitsPassed;			///for pathfinding stats
 #endif
 
 	short* m_pYields;

@@ -78,7 +78,7 @@
 	#define AUI_PLOT_OBSERVER_NO_NW_POPUPS
 
 //keep stats of which plots are often used for moving units
-//#define MOD_CORE_HOTPLOTS 
+#define MOD_CORE_HOTPLOTS 
 
 /// Flavors that weren't previously fetched but were still (attempted to be) used in processing later are now fetched
 #define AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS

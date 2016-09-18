@@ -8043,6 +8043,10 @@ void CvGame::doTurn()
 
 	gDLL->DoTurn();
 
+#if defined(MOD_CORE_HOTPLOTS)
+	GC.GetPathFinder().DoTemperatureDecay();
+#endif
+
 	CvBarbarians::BeginTurn();
 
 	doUpdateCacheOnTurn();
@@ -12483,11 +12487,6 @@ void CvGame::LogGameState(bool bLogHeaders)
 
 		pLog->Msg(strOutput);
 	}
-
-#if defined(MOD_CORE_DEBUGGING) && defined(MOD_CORE_HOTPLOTS)
-	if (MOD_CORE_DEBUGGING)
-		GC.getMap().Dump();
-#endif
 }
 
 //	------------------------------------------------------------------------------------------------

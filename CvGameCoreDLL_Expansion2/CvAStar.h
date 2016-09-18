@@ -178,6 +178,7 @@ public:
 
 	virtual bool CanEndTurnAtNode(const CvAStarNode* temp) const = 0;
 	virtual bool AddStopNodeIfRequired(const CvAStarNode* current, const CvAStarNode* next) = 0;
+	virtual int GetStepWeight(const CvAStarNode* node) const { return 0; }
 
 	//--------------------------------------- PROTECTED FUNCTIONS -------------------------------------------
 protected:
@@ -392,6 +393,10 @@ public:
 	CvTwoLayerPathFinder();
 	~CvTwoLayerPathFinder();
 
+	// Finds a path and keeps stats about it
+	virtual SPath GetPath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data);
+	virtual SPath GetPath(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data);
+
 	virtual void Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY);
 	virtual void DeInit();
 
@@ -400,17 +405,29 @@ public:
 	virtual bool CanEndTurnAtNode(const CvAStarNode* temp) const;
 	virtual bool AddStopNodeIfRequired(const CvAStarNode* current, const CvAStarNode* next);
 
+#if defined(MOD_CORE_HOTPLOTS)
+	virtual int GetStepWeight(const CvAStarNode* node) const;
+	void DoTemperatureDecay(float fFactor = 0.9f);
+	void DumpStats() const;
+#endif
+
 protected:
 	// set the function pointers which do the actual work
 	virtual bool Configure(PathType ePathType);
 
 private:
 	CvAStarNode** m_ppaaPartialMoveNodes;
+
+#if defined(MOD_CORE_HOTPLOTS)
+	DirectionTypes m_eCurrentFacingDirection;
+	int m_iTempMean, m_iTempStdev, m_iTempMedian;
+	int* m_paiNodeTemperature;
+#endif
 };
 
 
 // C-style non-member functions (used by path finder)
-int DestinationReached(int iToX, int iToyY, const SPathFinderUserData& data, const CvAStar* finder);
+int DestinationReached(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
 
 int PathDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
 int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);
