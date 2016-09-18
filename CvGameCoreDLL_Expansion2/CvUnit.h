@@ -122,7 +122,6 @@ public:
 		MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN	= 0x20000, //no embarkation on approximate target tile
 		MOVEFLAG_IGNORE_ZOC						= 0x40000, //ignore zones of control
 		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x80000, //pretend we can enter everybody's territory
-		MOVEFLAG_USE_HOTPLOTS					= 0x100000, //prefer plots which have recently been used for a similar path
 	};
 
 	inline DestructionNotification<UnitHandle>& getDestructionNotification() { return m_destructionNotification; }

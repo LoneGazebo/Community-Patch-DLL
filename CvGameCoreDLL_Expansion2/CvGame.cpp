@@ -8043,10 +8043,6 @@ void CvGame::doTurn()
 
 	gDLL->DoTurn();
 
-#if defined(MOD_CORE_HOTPLOTS)
-	GC.GetPathFinder().DoTemperatureDecay();
-#endif
-
 	CvBarbarians::BeginTurn();
 
 	doUpdateCacheOnTurn();

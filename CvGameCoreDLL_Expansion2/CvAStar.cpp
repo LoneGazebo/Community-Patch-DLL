@@ -27,7 +27,6 @@
 //PATH_BASE_COST is defined in AStar.h (value 100) - a simple moves costs 6000!
 #define PATH_ATTACK_WEIGHT										(200)	//per percent penalty on attack
 #define PATH_DEFENSE_WEIGHT										(100)	//per percent defense bonus on turn end plot
-#define PATH_STEP_WEIGHT_HOTPLOTS								(1000)	//per plot in path
 #define PATH_STEP_WEIGHT										(100)	//relatively small
 #define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
 #define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
@@ -1293,12 +1292,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPat
 	}
 
 	//when in doubt prefer the shorter path
-#if defined(MOD_CORE_HOTPLOTS)
-	if (finder->HaveFlag(CvUnit::MOVEFLAG_USE_HOTPLOTS))
-		iCost += finder->GetStepWeight(node);
-	else
-#endif
-		iCost += PATH_STEP_WEIGHT;
+	iCost += PATH_STEP_WEIGHT;
 
 	return iCost;
 }
@@ -2110,18 +2104,6 @@ void CvTwoLayerPathFinder::Initialize(int iColumns, int iRows, bool bWrapX, bool
 			apNeighbors += 6;
 		}
 	}
-
-#if defined(MOD_CORE_HOTPLOTS)
-	int iNumPlots = m_iColumns*m_iRows;
-	m_paiNodeTemperature = new int[iNumPlots*(NUM_DIRECTION_TYPES + 2)];
-	memset(m_paiNodeTemperature, 0, iNumPlots*(NUM_DIRECTION_TYPES + 2)*sizeof(CvPlot*));
-
-	m_eCurrentFacingDirection = NO_DIRECTION;
-	m_iTempMean = 0;
-	m_iTempStdev = 0;
-	m_iTempMedian = 0;
-#endif
-
 };
 
 //	--------------------------------------------------------------------------------
@@ -2139,10 +2121,6 @@ void CvTwoLayerPathFinder::DeInit()
 
 		SAFE_DELETE_ARRAY(m_ppaaPartialMoveNodes);
 	}
-
-#if defined(MOD_CORE_HOTPLOTS)
-	SAFE_DELETE_ARRAY(m_paiNodeTemperature);
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -2218,138 +2196,6 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 
 	return false;
 }
-
-#if defined(MOD_CORE_HOTPLOTS)
-int CvTwoLayerPathFinder::GetStepWeight(const CvAStarNode* node) const
-{
-	if (!node)
-		return 0;
-
-	int iIndex = (m_iColumns*node->m_iY + node->m_iX) * (NUM_DIRECTION_TYPES + 2);
-	int iTemperature = m_paiNodeTemperature[iIndex + m_eCurrentFacingDirection];
-
-	if (iTemperature > m_iTempMedian * 4)
-		return PATH_STEP_WEIGHT;
-	if (iTemperature > m_iTempMedian * 2)
-		return PATH_STEP_WEIGHT_HOTPLOTS/4;
-	if (iTemperature > m_iTempMedian * 1)
-		return PATH_STEP_WEIGHT_HOTPLOTS/2;
-
-	return PATH_STEP_WEIGHT_HOTPLOTS;
-}
-
-void CvTwoLayerPathFinder::DoTemperatureDecay(float fFactor)
-{
-	std::vector<int> v;
-
-	for (int i = 0; i < m_iColumns*m_iRows; i++)
-	{
-		int iBase = i * (NUM_DIRECTION_TYPES + 2);
-		for (int j = 0; j < (NUM_DIRECTION_TYPES + 2); j++)
-		{
-			int iNewValue = int(m_paiNodeTemperature[iBase + j] * fFactor);
-			m_paiNodeTemperature[iBase + j] = iNewValue;
-
-			//ignore all zeros for the stats
-			if (iNewValue>0)
-				v.push_back(iNewValue);
-		}
-	}
-
-	if (!v.empty())
-	{
-		int iSum = std::accumulate(v.begin(), v.end(), 0);
-		int iSqSum = std::inner_product(v.begin(), v.end(), v.begin(), 0);
-
-		m_iTempMean = iSum / v.size();
-		m_iTempStdev = (int)std::sqrt((float)iSqSum / v.size() - m_iTempMean * m_iTempMean);
-
-		std::nth_element(v.begin(), v.begin() + v.size() / 2, v.end());
-		m_iTempMedian = v[v.size() / 2];
-	}
-	else
-		m_iTempMean = m_iTempStdev = m_iTempMedian = 0;
-
-#if defined(MOD_CORE_DEBUGGING)
-	OutputDebugString(CvString::format("avg temp %.2f, stdev %.2f, median %.2f\n", m_iTempMean/100.f, m_iTempStdev/100.f, m_iTempMedian/100.f).c_str());
-	if (MOD_CORE_DEBUGGING)
-		DumpStats();
-#endif
-}
-
-void CvTwoLayerPathFinder::DumpStats() const
-{
-	if (!GC.getLogging() || !GC.getAILogging())
-		return;
-
-	CvString fname = CvString::format("MapStats%03d.txt", GC.getGame().getGameTurn());
-	FILogFile* pLog = LOGFILEMGR.GetLog(fname.c_str(), FILogFile::kDontTimeStamp);
-	if (!pLog)
-		return;
-
-	pLog->Msg("#x,y,land,self,ne,e,se,sw,w,nw\n");
-	for (int i = 0; i<m_iColumns*m_iRows; i++)
-	{
-		const CvPlot* pPlot = GC.getMap().plotByIndex(i);
-		int iIndex = (m_iColumns*pPlot->getY() + pPlot->getX()) * (NUM_DIRECTION_TYPES + 2);
-
-		CvString dump = CvString::format("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
-			pPlot->getX(), pPlot->getY(), pPlot->isWater() ? 0 : 1,
-			m_paiNodeTemperature[iIndex + NO_DIRECTION],
-			m_paiNodeTemperature[iIndex + DIRECTION_NORTHEAST],
-			m_paiNodeTemperature[iIndex + DIRECTION_EAST],
-			m_paiNodeTemperature[iIndex + DIRECTION_SOUTHEAST],
-			m_paiNodeTemperature[iIndex + DIRECTION_SOUTHWEST],
-			m_paiNodeTemperature[iIndex + DIRECTION_WEST],
-			m_paiNodeTemperature[iIndex + DIRECTION_NORTHWEST]
-			);
-		pLog->Msg(dump.c_str());
-	}
-	pLog->Close();
-}
-
-SPath CvTwoLayerPathFinder::GetPath(int iXstart, int iYstart, int iXdest, int iYdest, const SPathFinderUserData& data)
-{
-	//important: set up the rough direction so the temperature lookup works
-	m_eCurrentFacingDirection = estimateDirection(iXstart, iYstart, iXdest, iYdest);
-
-	SPath result = CvPathFinder::GetPath(iXstart, iYstart, iXdest, iYdest, data);
-
-	//feedback for next pathfinder run (only for long range moves)
-	if (result.length()>11)
-	{
-//-----------------
-		//do it again for comparison
-		SPathFinderUserData data2(data);
-		data2.iFlags |= CvUnit::MOVEFLAG_USE_HOTPLOTS;
-		result = CvPathFinder::GetPath(iXstart, iYstart, iXdest, iYdest, data2);
-//-----------------
-		DirectionTypes eDir = estimateDirection(iXstart, iYstart, iXdest, iYdest);
-
-		for (int i = 0; i < result.length(); i++)
-		{
-			CvPlot* pPlot = result.get(i);
-			//aggregate for all directions
-			m_paiNodeTemperature[pPlot->GetPlotIndex()*(NUM_DIRECTION_TYPES + 2) + NO_DIRECTION] += BASE_TEMP_STEP;
-			//aggregate for differentiated per main direction
-			m_paiNodeTemperature[pPlot->GetPlotIndex()*(NUM_DIRECTION_TYPES + 2) + eDir] += BASE_TEMP_STEP;
-		}
-	}
-
-	return result;
-}
-
-//wrapper for CvPlot*
-SPath CvTwoLayerPathFinder::GetPath(const CvPlot* pStartPlot, const CvPlot* pEndPlot, const SPathFinderUserData& data)
-{
-	if (pStartPlot == NULL || pEndPlot == NULL)
-		return SPath();
-
-	return GetPath(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), data);
-}
-
-#endif
-
 
 //	--------------------------------------------------------------------------------
 /// can do only certain types of path here
