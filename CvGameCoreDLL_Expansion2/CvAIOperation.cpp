@@ -3231,7 +3231,7 @@ void CvAIOperationNukeAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEne
 	CvPlot* pMuster = NULL;
 	CvPlot* pTarget = FindBestTarget(&pMuster);
 
-	SetupWithSingleArmy(pMuster,pTarget);
+	SetupWithSingleArmy(pMuster, pTarget, pMuster);
 }
 
 bool CvAIOperationNukeAttack::CheckTransitionToNextStage()
@@ -3301,7 +3301,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 					if(plotDistance(pLoopUnit->getX(),pLoopUnit->getY(),pLoopCity->getX(),pLoopCity->getY()) <= iUnitRange)
 					{
 						CvPlot* pCityPlot = pLoopCity->plot();
-						int iThisCityValue = pLoopCity->getPopulation();
+						int iThisCityValue = pLoopCity->getPopulation() + pLoopCity->getEconomicValue(enemyPlayer.GetID());
 						iThisCityValue -= pLoopCity->getDamage() / 5; // No point nuking a city that is already trashed unless it is good city
 
 						// check to see if there is anything good or bad in the radius that we should account for

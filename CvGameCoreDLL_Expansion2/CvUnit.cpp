@@ -522,12 +522,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	//--------------------------------
 	// Init pre-setup() data
 	setXY(iX, iY, false, false, false, false, bNoMove);
-#if defined(MOD_BALANCE_CORE)
-	if(plot() != NULL && plot()->getWorkingCity() != NULL && plot()->getWorkingCity()->getOwner() == getOwner())
-	{
-		setOriginCity(plot()->getWorkingCity()->GetID());
-	}
-#endif
+
 	//--------------------------------
 	// Init non-saved data
 
@@ -610,7 +605,12 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	{
 		kPlayer.changeNumMilitaryUnits(1);
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if (plot() != NULL && plot()->getWorkingCity() != NULL && plot()->getWorkingCity()->getOwner() == getOwner())
+	{
+		setOriginCity(plot()->getWorkingCity()->GetID());
+	}
+#endif
 	// Free Promotions from Unit XML
 	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{

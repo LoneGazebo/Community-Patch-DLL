@@ -1,4 +1,4 @@
-// CustomMods.cpp
+﻿// CustomMods.cpp
 #include "CvGameCoreDLLPCH.h"
 
 // must be included after all other headers
@@ -391,6 +391,7 @@ int CustomMods::getOption(string sOption, int defValue) {
 		MOD_OPT_CACHE(BALANCE_CORE_VICTORY_GAME_CHANGES);
 		MOD_OPT_CACHE(BALANCE_CORE_EVENTS);
 		MOD_OPT_CACHE(NO_RANDOM_TEXT_CIVS);
+		MOD_OPT_CACHE(BALANCE_RETROACTIVE_PROMOS);
 		MOD_OPT_CACHE(ALTERNATE_CELTS);
 		MOD_OPT_CACHE(DIPLOMACY_CIV4_FEATURES);
 		MOD_OPT_CACHE(CARGO_SHIPS);

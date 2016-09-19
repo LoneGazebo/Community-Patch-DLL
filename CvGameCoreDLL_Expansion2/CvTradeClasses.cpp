@@ -4897,6 +4897,58 @@ int CvPlayerTrade::GetNumDifferentTradingPartners (void)
 
 	return iResult;
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvPlayerTrade::GetNumDifferentMajorCivTradingPartners(void)
+{
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+
+	std::vector<bool> abConnections;
+	abConnections.resize(MAX_CIV_PLAYERS, false);
+
+	int iResult = 0;
+
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
+	{
+		if (pTrade->IsTradeRouteIndexEmpty(ui))
+		{
+			continue;
+		}
+
+		const TradeConnection* pTradeConnection = &(pTrade->GetTradeConnection(ui));
+		if (pTradeConnection->m_eOriginOwner == pTradeConnection->m_eDestOwner)
+		{
+			continue;
+		}
+
+		if (GET_PLAYER(pTradeConnection->m_eDestOwner).isMinorCiv())
+			continue;
+
+		if (GET_PLAYER(pTradeConnection->m_eOriginOwner).isMinorCiv())
+			continue;
+
+		// this involves us
+		if (pTradeConnection->m_eOriginOwner == m_pPlayer->GetID())
+		{
+			if (!abConnections[pTradeConnection->m_eDestOwner])
+			{
+				abConnections[pTradeConnection->m_eDestOwner] = true;
+				iResult++;
+			}
+		}
+		else if (pTradeConnection->m_eDestOwner == m_pPlayer->GetID())
+		{
+			if (!abConnections[pTradeConnection->m_eOriginOwner])
+			{
+				abConnections[pTradeConnection->m_eOriginOwner] = true;
+				iResult++;
+			}
+		}
+	}
+
+	return iResult;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 void CvPlayerTrade::UpdateTradeConnectionWasPlundered()
@@ -5725,13 +5777,20 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 			}
 			else
 			{
-				if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner, true))
+				if (m_pPlayer->GetTrade()->GetNumDifferentMajorCivTradingPartners() <= 0)
 				{
 					iScore *= 10;
 				}
 				else
 				{
-					iScore /= 10;
+					if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner, true))
+					{
+						iScore *= 10;
+					}
+					else
+					{
+						iScore /= 10;
+					}
 				}
 			}
 		}

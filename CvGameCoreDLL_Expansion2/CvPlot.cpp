@@ -1509,7 +1509,11 @@ int CvPlot::seeThroughLevel(bool bIncludeShubbery) const
 		iLevel += GC.getFeatureInfo(getFeatureType())->getSeeThroughChange();
 	}
 
-	if(isMountain())
+#if defined(MOD_BALANCE_CORE)
+	if (isMountain() && (getFeatureType() == NO_FEATURE))
+#else
+	if (isMountain())
+#endif
 	{
 		iLevel += GC.getMOUNTAIN_SEE_THROUGH_CHANGE();
 	}

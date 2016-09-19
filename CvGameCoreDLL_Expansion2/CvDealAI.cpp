@@ -1084,7 +1084,7 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 
 			// They don't think they're getting enough for what's on their side of the table
 #if defined(MOD_BALANCE_CORE_DEALS)
-			int iLowEndOfWhatTheyWillAccept = iValueTheyThinkTheyreOffering - (iValueTheyThinkTheyreOffering * GET_PLAYER(eOtherPlayer).GetDealAI()->GetDealPercentLeewayWithAI(eOtherPlayer) / 100);
+			int iLowEndOfWhatTheyWillAccept = iValueTheyThinkTheyreOffering - (iValueTheyThinkTheyreOffering * GET_PLAYER(eOtherPlayer).GetDealAI()->GetDealPercentLeewayWithAI(m_pPlayer->GetID()) / 100);
 #else
 			int iLowEndOfWhatTheyWillAccept = iValueTheyThinkTheyreOffering - (iValueTheyThinkTheyreOffering * GET_PLAYER(eOtherPlayer).GetDealAI()->GetDealPercentLeewayWithAI() / 100);
 #endif
@@ -1575,11 +1575,6 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			{
 				iItemValue *= 2; //last one is twice as valuable
 			}
-			//Don't offer resources they already have.
-			if(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, true) > 0)
-			{
-				return INT_MAX;
-			}
 			if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetPlayer()->GetID(), eResource))
 			{
 				return INT_MAX;
@@ -1665,11 +1660,6 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		else
 		{
 			if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetPlayer()->GetID(), eResource))
-			{
-				return 0;
-			}
-			//Don't accept resources we already have.
-			if(GetPlayer()->getNumResourceAvailable(eResource, false) > 0)
 			{
 				return 0;
 			}
@@ -3177,10 +3167,6 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	{
 		return INT_MAX;
 	}
-	if(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false) <= MAJOR_CIV_APPROACH_GUARDED)
-	{
-		return INT_MAX;
-	}
 	if(!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
 	{
 		return INT_MAX;
@@ -3204,7 +3190,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 				return INT_MAX;
 				break;
 			case STRENGTH_POOR:
-				return INT_MAX;
+				iItemValue += 50;
 				break;
 			case STRENGTH_AVERAGE:
 				iItemValue += 100;

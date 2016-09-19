@@ -56,6 +56,7 @@ Controls["ChooseArchaeologyButton"]:RegisterCallback(Mouse.eRClick, GenericRight
 Controls["LeagueCallForVotesButton"]:RegisterCallback(Mouse.eRClick, GenericRightClick);
 Controls["ChooseIdeologyButton"]:RegisterCallback(Mouse.eRClick, GenericRightClick);
 -- CP
+Controls["DiplomacyPlayer"]:RegisterCallback(Mouse.eRClick, GenericRightClick)
 Controls["EventChoiceButton"]:RegisterCallback(Mouse.eLClick, GenericLeftClick);
 Controls["EventChoiceButton"]:RegisterCallback(Mouse.eRClick, GenericRightClick);
 Controls["CityEventChoiceButton"]:RegisterCallback(Mouse.eLClick, GenericLeftClick);
@@ -275,6 +276,7 @@ function OnNotificationAdded( Id, type, toolTip, strSummary, iGameValue, iExtraG
 		--CP
 		name == "EventChoice" or
 		name == "CityEventChoice" or
+		name == "DiplomacyPlayer" or
 		-- END
 		name == "ChooseIdeology") then
         
@@ -455,6 +457,7 @@ function RemoveNotificationID( Id )
 		--CP
 		name == "EventChoice" or
 		name == "CityEventChoice" or
+		name == "DiplomacyPlayer" or
 		--END
 		name == "ChooseIdeology")
     then

@@ -302,6 +302,9 @@ public:
 	int GetNumTradeUnitsRemaining (bool bIncludeBeingBuilt);
 
 	int GetNumDifferentTradingPartners (void);
+#if defined(MOD_BALANCE_CORE)
+	int GetNumDifferentMajorCivTradingPartners(void);
+#endif
 
 	void UpdateTradeConnectionWasPlundered();
 	void AddTradeConnectionWasPlundered(const TradeConnection& kTradeConnection);

@@ -9144,7 +9144,7 @@ void CvMinorCivAI::DoTestSeedQuestCountdownForPlayer(PlayerTypes ePlayer, bool b
 	// Quests are now available for the first time?
 	if(GC.getGame().getElapsedGameTurns() == GetFirstPossibleTurnForPersonalQuests())
 	{
-		iNumTurns += GC.getGame().getSmallFakeRandNum((GC.getMINOR_CIV_PERSONAL_QUEST_FIRST_POSSIBLE_TURN_RAND() / 2), GC.getGame().getElapsedGameTurns()) * 2;
+		iNumTurns += GC.getGame().getSmallFakeRandNum(GC.getMINOR_CIV_PERSONAL_QUEST_FIRST_POSSIBLE_TURN_RAND(), GC.getGame().getElapsedGameTurns());
 	}
 	else
 	{
@@ -9156,7 +9156,7 @@ void CvMinorCivAI::DoTestSeedQuestCountdownForPlayer(PlayerTypes ePlayer, bool b
 			iRand *= /*200*/ GC.getMINOR_CIV_PERSONAL_QUEST_RAND_TURNS_BETWEEN_HOSTILE_MULTIPLIER();
 			iRand /= 100;
 		}
-		iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, GC.getGame().getElapsedGameTurns()) * 2;
+		iNumTurns += GC.getGame().getSmallFakeRandNum((iRand / 3), GC.getGame().getElapsedGameTurns()) * 4;
 	}
 
 	// Modify for Game Speed
@@ -13027,7 +13027,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 
 	if(bProtect)
 	{
-		int iWarningMax = 10;
+		int iWarningMax = 12;
 		iWarningMax *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iWarningMax /= 100;
 
@@ -13077,11 +13077,14 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 				}
 				else if(fRankRatio < 0.6 && GetNumTurnsSincePtPWarning(eMajor) > 0)
 				{
-					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER");
-					strMessage << GetPlayer()->getNameKey() << (iWarningMax - GetNumTurnsSincePtPWarning(eMajor));
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT");
-					strSummary << GetPlayer()->getNameKey();
-					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+					if (GetNumTurnsSincePtPWarning(eMajor) % 4 == 0)
+					{
+						Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER");
+						strMessage << GetPlayer()->getNameKey() << (iWarningMax - GetNumTurnsSincePtPWarning(eMajor));
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT");
+						strSummary << GetPlayer()->getNameKey();
+						AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+					}
 					ChangeNumTurnsSincePtPWarning(eMajor, 1);
 					break;
 				}

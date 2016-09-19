@@ -1256,9 +1256,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		int iDemand = kPlayer.getNumMilitaryUnits();
 		int iPercent = (iDemand * 100) / iSupply;
-		int iRemainder = (125 - iPercent);
+		int iRemainder = (150 - iPercent);
 
-		//Closer we get to cap over 25%, fewer units we should be making.
+		//Closer we get to cap over 50%, fewer units we should be making.
 		iBonus *= iRemainder;
 		iBonus /= 100;
 	}

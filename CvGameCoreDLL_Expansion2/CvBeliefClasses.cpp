@@ -877,7 +877,7 @@ int CvBeliefEntry::GetTerrainYieldChange(int i, int j) const
 #if defined(MOD_API_UNIFIED_YIELDS)
 int CvBeliefEntry::GetTradeRouteYieldChange(int i, int j) const
 {
-	CvAssertMsg(i < GC.getNumDomainInfos(), "Index out of bounds");
+	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
