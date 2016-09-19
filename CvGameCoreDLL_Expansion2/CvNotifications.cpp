@@ -573,6 +573,9 @@ bool CvNotifications::MayUserDismiss(int iLookupIndex)
 			case NOTIFICATION_CHOOSE_ARCHAEOLOGY:
 			case NOTIFICATION_LEAGUE_CALL_FOR_VOTES:
 			case NOTIFICATION_CHOOSE_IDEOLOGY:
+#if defined(MOD_BALANCE_CORE)
+			case NOTIFICATION_PLAYER_DEAL_RECEIVED:
+#endif
 				return false;
 				break;
 

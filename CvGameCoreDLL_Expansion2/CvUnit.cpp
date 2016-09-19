@@ -1849,12 +1849,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_eActivityType = ACTIVITY_AWAKE;
 	m_eAutomateType = NO_AUTOMATE;
 
-	m_kLastPath.clear();
-	m_uiLastPathCacheOrigin = 0xFFFFFFFF;
-	m_uiLastPathCacheDestination = 0xFFFFFFFF;
-	m_uiLastPathFlags = 0xFFFFFFFF;
-	m_uiLastPathLength = 0xFFFFFFFF;
-	m_uiLastPathTurn = 0xFFFFFFFF;
+	ClearPathCache();
 
 #if defined(MOD_BALANCE_CORE)
 	m_iScienceBlastStrength = 0;
@@ -26201,8 +26196,8 @@ bool CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns)
 	m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
 	m_uiLastPathCacheDestination = pToPlot->GetPlotIndex();
 	m_uiLastPathFlags = iFlags;
-	m_uiLastPathLength = m_kLastPath.size();
 	m_uiLastPathTurn = GC.getGame().getGameTurn();
+	m_uiLastPathLength = (!!newPath) ? m_kLastPath.size() : 0xFFFFFFFF; //length UINT_MAX means invalid
 
 	return !!newPath;
 }
@@ -26210,7 +26205,7 @@ bool CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns)
 //	---------------------------------------------------------------------------
 bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns)
 {
-	bool bGenerated = false;
+	bool bHaveValidPath = false;
 
 	// this method is only called from ContinueMission and that all previous path data is deleted when a mission is started
 	// we can assume that other than the unit that is moving, nothing on the map will change
@@ -26228,12 +26223,12 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 			// The path destination is now visible, recalculate now in case it can't be reached (occupied)
 			SPathFinderUserData data(this,iFlags,iMaxTurns);
 			SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), pkPathDest->getX(), pkPathDest->getY(), data);
-			bGenerated =  !!newPath;
+			bHaveValidPath = !!newPath;
 
-			if (!bGenerated && pDestPlot != pkPathDest)
+			if (!bHaveValidPath && pDestPlot != pkPathDest)
 			{
 				// Hmm, failed for some reason, re-do the entire path
-				bGenerated = ComputePath(pDestPlot, iFlags, iMaxTurns);
+				bHaveValidPath = ComputePath(pDestPlot, iFlags, iMaxTurns);
 			}
 		}
 		else
@@ -26248,29 +26243,29 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 				{
 					SPathFinderUserData data(this,iFlags,iMaxTurns);
 					SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), pkTurnDest->getX(), pkTurnDest->getY(), data);
-					bGenerated =  !!newPath;
+					bHaveValidPath = !!newPath;
 
-					if (!bGenerated && pDestPlot != pkTurnDest)
+					if (!bHaveValidPath && pDestPlot != pkTurnDest)
 					{
 						// Hmm, failed for some reason, re-do the entire path
-						bGenerated = ComputePath(pDestPlot, iFlags, iMaxTurns);
+						bHaveValidPath = ComputePath(pDestPlot, iFlags, iMaxTurns);
 					}
 				}
 				else
 				{
 					// Can't find the dest in the path, regenerate
-					bGenerated = ComputePath(pDestPlot, iFlags, iMaxTurns);	
+					bHaveValidPath = ComputePath(pDestPlot, iFlags, iMaxTurns);
 				}
 			}
 			else
 			{
 				// The path is still good, just use the next node
-				bGenerated = true;
+				bHaveValidPath = IsCachedPathValid();
 			}
 		}
 	}
 
-	return bGenerated;
+	return bHaveValidPath;
 }
 
 bool CvUnit::CheckDOWNeededForMove(int iX, int iY)
@@ -27396,6 +27391,10 @@ bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 }
 
 // PATH-FINDING ROUTINES
+bool CvUnit::IsCachedPathValid()
+{
+	return m_uiLastPathLength != 0xFFFFFFFF;
+}
 
 bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags)
 {
@@ -27403,8 +27402,8 @@ bool CvUnit::HaveCachedPathTo(const CvPlot* pToPlot, int iFlags)
 		m_uiLastPathCacheOrigin == plot()->GetPlotIndex() &&
 		m_uiLastPathCacheDestination == pToPlot->GetPlotIndex() && 
 		m_uiLastPathFlags == iFlags &&
-		m_uiLastPathLength == m_kLastPath.size() &&
-		m_uiLastPathTurn == GC.getGame().getGameTurn() 
+		m_uiLastPathTurn == GC.getGame().getGameTurn() && 
+		(m_uiLastPathLength == m_kLastPath.size() || m_uiLastPathLength == 0xFFFFFFFF)
 		);
 }
 
@@ -27442,7 +27441,7 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 			*piPathTurns = 0;
 	}
 
-	return bHavePath;
+	return IsCachedPathValid();
 }
 
 //	--------------------------------------------------------------------------------
@@ -27461,8 +27460,8 @@ void CvUnit::ClearPathCache()
 	m_uiLastPathCacheOrigin = 0xFFFFFFFF;
 	m_uiLastPathCacheDestination = 0xFFFFFFFF;
 	m_uiLastPathFlags = 0xFFFFFFFF;
-	m_uiLastPathLength = 0xFFFFFFFF;
 	m_uiLastPathTurn = 0xFFFFFFFF;
+	m_uiLastPathLength = 0xFFFFFFFF;
 }
 
 //	--------------------------------------------------------------------------------

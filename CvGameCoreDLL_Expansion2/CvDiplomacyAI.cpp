@@ -2241,11 +2241,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 void CvDiplomacyAI::update()
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
-<<<<<<< HEAD
 	if(!GC.getGame().isReallyNetworkMultiPlayer() || !MOD_ACTIVE_DIPLOMACY)
-=======
-	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
->>>>>>> origin/master
 	{
 		if(!m_aGreetPlayers.empty())
 		{
@@ -7957,19 +7953,11 @@ void CvDiplomacyAI::MakeWar()
 #endif
 				{
 					iWeight = (int)GetWarProjection(eTarget) + 1;
-<<<<<<< HEAD
 
 					// Square the distance enum to make it crucial
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
 
-=======
-
-					// Square the distance enum to make it crucial
-					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
-					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
-
->>>>>>> origin/master
 					if(iPlayerLoop < MAX_MAJOR_CIVS)
 					{
 						if(GetMajorCivOpinion(eTarget) == MAJOR_CIV_OPINION_UNFORGIVABLE)
@@ -15066,7 +15054,6 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 					const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_INTRO);
 					CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
 				}
-<<<<<<< HEAD
 			}
 		}
 		else
@@ -15113,54 +15100,6 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 				}
 			}
 		}
-=======
-			}
-		}
-		else
-		{
-			if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
-			{
-				if(!GetPlayer()->isHuman())
-				{
-					// Should fire off a diplo message when we meet a human
-					if(GET_PLAYER(ePlayer).isHuman())
-					{
-						if(!IsAtWar(ePlayer))
-						{
-							if(GC.getGame().isFinalInitialized())
-							{
-								if(std::find(m_aGreetPlayers.begin(), m_aGreetPlayers.end(), ePlayer) == m_aGreetPlayers.end())
-								{
-									// Put in the list of people to greet when their turn comes up.
-									m_aGreetPlayers.push_back(ePlayer);
-								}
-							}
-						}
-					}
-				}
-				else
-				{
-					// Human to Human will just send a notification
-					CvPlayer& kTargetPlayer = GET_PLAYER(ePlayer);
-					if(kTargetPlayer.isHuman())
-					{
-						if(!IsAtWar(ePlayer))
-						{
-							if(GC.getGame().isFinalInitialized())
-							{
-								CvNotifications* pNotifications = kTargetPlayer.GetNotifications();
-								if(pNotifications)
-								{
-									CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MET_MINOR_CIV", GetPlayer()->getNameKey());
-									pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strBuffer, -1, -1, GetPlayer()->GetID());
-								}
-							}
-						}
-					}
-				}
-			}
-		}
->>>>>>> origin/master
 
 #else
 		if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
@@ -17742,19 +17681,11 @@ void CvDiplomacyAI::DoContactMajorCivs()
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		if (m_eTargetPlayer >= DIPLO_FIRST_PLAYER)
-<<<<<<< HEAD
 		{
 			DoContactPlayer((PlayerTypes)m_eTargetPlayer);
 		}
 		else if (m_eTargetPlayer == DIPLO_ALL_PLAYERS || m_eTargetPlayer == DIPLO_AI_PLAYERS)
 		{
-=======
-		{
-			DoContactPlayer((PlayerTypes)m_eTargetPlayer);
-		}
-		else if (m_eTargetPlayer == DIPLO_ALL_PLAYERS || m_eTargetPlayer == DIPLO_AI_PLAYERS)
-		{
->>>>>>> origin/master
 			for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				eLoopPlayer = (PlayerTypes)iPlayerLoop;
@@ -17835,17 +17766,10 @@ void CvDiplomacyAI::DoContactMajorCivs()
 			// No humans
 			if(GET_PLAYER(eLoopPlayer).isHuman())
 				continue;
-<<<<<<< HEAD
 
 			DoContactPlayer(eLoopPlayer);
 		}
 
-=======
-
-			DoContactPlayer(eLoopPlayer);
-		}
-
->>>>>>> origin/master
 		// Loop through HUMAN Players - if we're not in MP
 		if(!CvPreGame::isNetworkMultiplayerGame())
 		{

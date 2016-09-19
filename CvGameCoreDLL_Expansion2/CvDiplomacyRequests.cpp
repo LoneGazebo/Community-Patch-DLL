@@ -83,16 +83,7 @@ void CvDiplomacyRequests::Init(PlayerTypes ePlayer)
 void CvDiplomacyRequests::Uninit(void)
 {
 	m_ePlayer = NO_PLAYER;
-<<<<<<< HEAD
 	m_eNextAIPlayer = NO_PLAYER;
-=======
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
-	{
-		m_eNextAIPlayer = NO_PLAYER;
-	}
-#endif
->>>>>>> origin/master
 	m_aRequests.clear();
 	m_bRequestActive = false;
 	m_eRequestActiveFromPlayer = NO_PLAYER;
@@ -650,16 +641,7 @@ void CvDiplomacyRequests::DoAIDiplomacy(PlayerTypes eTargetPlayer)
 void CvDiplomacyRequests::ActiveRequestComplete()
 {
 	m_bRequestActive = false;
-<<<<<<< HEAD
 	m_eRequestActiveFromPlayer = NO_PLAYER;
-=======
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
-	{
-		m_eRequestActiveFromPlayer = NO_PLAYER;
-	}
-#endif
->>>>>>> origin/master
 }
 
 //	---------------------------------------------------------------------------

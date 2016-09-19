@@ -4306,7 +4306,6 @@ PlayerTypes CvGameDeals::HasMadeProposal(PlayerTypes ePlayer)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
-<<<<<<< HEAD
 	{
 		for (DealList::const_iterator it = m_ProposedDeals.begin(); it != m_ProposedDeals.end(); ++it)
 		{
@@ -4316,17 +4315,6 @@ PlayerTypes CvGameDeals::HasMadeProposal(PlayerTypes ePlayer)
 	}
 	else
 	{
-=======
-	{
-		for (DealList::const_iterator it = m_ProposedDeals.begin(); it != m_ProposedDeals.end(); ++it)
-		{
-		if (it->GetFromPlayer() == ePlayer)
-			return it->GetToPlayer();		
-		}
-	}
-	else
-	{
->>>>>>> origin/master
 		if(m_ProposedDeals.size() > 0)
 		{
 			DealList::iterator iter;
@@ -5459,7 +5447,6 @@ CvDeal* CvGameDeals::GetHistoricDeal(PlayerTypes ePlayer, uint index)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
-<<<<<<< HEAD
 	{
 		//iterate backwards, usually the latest deals are most interesting
 		uint iCount = 0;
@@ -5480,28 +5467,6 @@ CvDeal* CvGameDeals::GetHistoricDeal(PlayerTypes ePlayer, uint index)
 		uint iCount = 0;
 		for(iter = m_HistoricalDeals.begin(); iter != end; ++iter)
 		{
-=======
-	{
-		//iterate backwards, usually the latest deals are most interesting
-		uint iCount = 0;
-		for (int i = m_HistoricalDeals.size() - 1; i >= 0; --i)
-		{
-			CvDeal& kDeal = m_HistoricalDeals[i];
-			if((kDeal.m_eToPlayer == ePlayer || kDeal.m_eFromPlayer == ePlayer) && (iCount++ == index))
-			{
-				return &kDeal;
-			}
-		}
-	}
-	else
-	{
-		DealList::iterator iter;
-		DealList::iterator end = m_HistoricalDeals.end();
-
-		uint iCount = 0;
-		for(iter = m_HistoricalDeals.begin(); iter != end; ++iter)
-		{
->>>>>>> origin/master
 			if((iter->m_eToPlayer == ePlayer ||
 		        iter->m_eFromPlayer == ePlayer) &&
 		        (iCount++ == index))
@@ -5748,7 +5713,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGameDeals& readFrom)
 		// JdH => savegame compatible save
 		DealList saveList;
 		for (it = readFrom.m_ProposedDeals.begin(); it != readFrom.m_ProposedDeals.end(); ++it)
-<<<<<<< HEAD
 		{
 			if (CvPreGame::isHuman(it->GetFromPlayer()) && CvPreGame::isHuman(it->GetToPlayer()))
 			{
@@ -5759,18 +5723,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGameDeals& readFrom)
 		saveTo << saveList.size();
 		for (it = saveList.begin(); it != saveList.end(); ++it) 
 		{
-=======
-		{
-			if (CvPreGame::isHuman(it->GetFromPlayer()) && CvPreGame::isHuman(it->GetToPlayer()))
-			{
-				// only save human to human deals until we save notifications & requests too
-				saveList.push_back(*it);
-			}
-		}
-		saveTo << saveList.size();
-		for (it = saveList.begin(); it != saveList.end(); ++it) 
-		{
->>>>>>> origin/master
 			saveTo << *it;
 		}
 	}

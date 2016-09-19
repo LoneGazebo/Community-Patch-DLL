@@ -17015,26 +17015,14 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eF
 							iYield += iBaseYield * 2;
 						}
 #else
-<<<<<<< HEAD
 						iYield += iBaseYield * 2;
 #endif
 					}
 #if defined(MOD_ALTERNATE_CELTS)
 					else if (iAdjacentFeatures > 1 && MOD_ALTERNATE_CELTS)
 					{
-=======
->>>>>>> origin/master
-						iYield += iBaseYield * 2;
-#endif
-					}
-<<<<<<< HEAD
-=======
-#if defined(MOD_ALTERNATE_CELTS)
-					else if (iAdjacentFeatures > 1 && MOD_ALTERNATE_CELTS)
-					{
 						iYield += iBaseYield * 2;
 					}
->>>>>>> origin/master
 #endif
 					else if (iAdjacentFeatures > 0)
 					{

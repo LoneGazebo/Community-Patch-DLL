@@ -3850,7 +3850,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				else if(GetPlayerTraits()->IsKeepConqueredBuildings())
 				{
 					//If we keep buildings, but we have a replacement, grab the replacement instead.
-					if (playerCivilizationInfo.isCivilizationBuildingOverridden(iI))
+					if (playerCivilizationInfo.isCivilizationBuildingOverridden(eBuildingClass))
 					{
 						eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
 					}
@@ -41375,7 +41375,7 @@ bool CvPlayer::IsAllowedToTradeWith(PlayerTypes eOtherPlayer)
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	if (GET_PLAYER(eOtherPlayer).isMajorCiv() && GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsNoOpenTrade())
+	if (eOtherPlayer != m_eID && GET_PLAYER(eOtherPlayer).isMajorCiv() && GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsNoOpenTrade())
 	{
 		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eOtherPlayer, GetID(), true))
 			return false;

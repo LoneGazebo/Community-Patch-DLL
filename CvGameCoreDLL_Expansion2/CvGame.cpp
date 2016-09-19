@@ -4529,7 +4529,8 @@ CivilizationTypes CvGame::getActiveCivilizationType()
 //	--------------------------------------------------------------------------------
 bool CvGame::isReallyNetworkMultiPlayer() const
 {
-	return CvPreGame::isReallyNetworkMultiPlayer();
+	return true;
+	//return CvPreGame::isReallyNetworkMultiPlayer();
 }
 #endif
 
@@ -9302,11 +9303,7 @@ void CvGame::updateTimers()
 		}
 	}
 #if defined(MOD_ACTIVE_DIPLOMACY)
-<<<<<<< HEAD
 	if(!GC.getGame().isReallyNetworkMultiPlayer() || !MOD_ACTIVE_DIPLOMACY)
-=======
-	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
->>>>>>> origin/master
 	{
 		if(isHotSeat())
 		{
