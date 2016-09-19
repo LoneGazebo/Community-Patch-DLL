@@ -2587,8 +2587,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void SetClosestCityMapDirty();
 	//assuming a typical unit with baseMoves==2
-	int GetCityDistanceInTurns( const CvPlot* pPlot ) const;
-	CvCity* GetClosestCity( const CvPlot* pPlot) const;
+	int GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const;
+	CvCity* GetClosestCityByEstimatedTurns( const CvPlot* pPlot) const;
 #endif
 
 protected:

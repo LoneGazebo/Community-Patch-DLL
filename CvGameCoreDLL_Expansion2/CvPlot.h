@@ -253,7 +253,7 @@ public:
 #else
 	bool isVisibleToCivTeam() const;
 #endif
-	bool isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const;
+	bool isVisibleToEnemy(PlayerTypes eFriendlyPlayer) const;
 	bool isVisibleToWatchingHuman() const;
 	bool isAdjacentVisible(TeamTypes eTeam, bool bDebug=false) const;
 	bool isAdjacentNonvisible(TeamTypes eTeam) const;
@@ -948,7 +948,7 @@ protected:
 	class PlotBoolField
 	{
 	public:
-		enum { eCount = 4, eSize = 32 };
+		enum config { eCount = 4, eSize = 32 };
 		DWORD m_dwBits[eCount];
 
 		bool GetBit(const uint uiEntry) const

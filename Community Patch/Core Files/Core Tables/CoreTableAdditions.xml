@@ -378,6 +378,12 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+	<!-- POLICY: Allows you to define a policy yield that is increased by WLTKD -->
+	<Table name="Policy_WLTKDYieldMod">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
 
 	<!-- BUILDING: Allows you to define a building yield that is increased by Golden Ages -->
 	<Table name="Building_GoldenAgeYieldMod">

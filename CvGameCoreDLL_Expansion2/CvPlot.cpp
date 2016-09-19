@@ -1509,7 +1509,11 @@ int CvPlot::seeThroughLevel(bool bIncludeShubbery) const
 		iLevel += GC.getFeatureInfo(getFeatureType())->getSeeThroughChange();
 	}
 
-	if(isMountain())
+#if defined(MOD_BALANCE_CORE)
+	if (isMountain() && (getFeatureType() == NO_FEATURE))
+#else
+	if (isMountain())
+#endif
 	{
 		iLevel += GC.getMOUNTAIN_SEE_THROUGH_CHANGE();
 	}
@@ -3979,22 +3983,18 @@ bool CvPlot::isVisibleToCivTeam() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const
+bool CvPlot::isVisibleToEnemy(PlayerTypes eFriendlyPlayer) const
 {
-	int iI;
+	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(eFriendlyPlayer).GetPlayersAtWarWith();
 
-	for(iI = 0; iI < MAX_CIV_TEAMS; ++iI)
+	for (std::vector<PlayerTypes>::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
 	{
-		CvTeam& kTeam = GET_TEAM((TeamTypes)iI);
-
-		if(kTeam.isAlive())
+		CvPlayer& kEnemy = GET_PLAYER(*it);
+		if (kEnemy.isAlive() && kEnemy.IsAtWarWith(eFriendlyPlayer))
 		{
-			if(kTeam.isAtWar(eFriendlyTeam))
+			if (isVisible(kEnemy.getTeam()))
 			{
-				if(isVisible(((TeamTypes)iI)))
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 	}
@@ -10453,8 +10453,8 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvPlot* pRefPlot)
 		return 0;
 
 	//give a bonus to fertile tiles that are close to our own territory
-	int iDistToOwnCities = pPlayer->GetCityDistanceInTurns(this);
-	int iDistRef = pPlayer->GetCityDistanceInTurns(pRefPlot);
+	int iDistToOwnCities = pPlayer->GetCityDistanceInEstimatedTurns(this);
+	int iDistRef = pPlayer->GetCityDistanceInEstimatedTurns(pRefPlot);
 	
 	if(!pPlayer->GetID() == getOwner())
 	{

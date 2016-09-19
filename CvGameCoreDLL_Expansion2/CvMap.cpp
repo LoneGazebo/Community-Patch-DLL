@@ -424,6 +424,27 @@ void CvMap::PrecalcNeighbors()
 	}
 }
 #endif
+
+//	--------------------------------------------------------------------------------
+CvPlot** CvMap::getNeighborsShuffled(const CvPlot* pPlot)
+{
+	if (!pPlot)
+		return NULL;
+
+	int aiShuffle[3][6] = {
+		{ 4, 5, 2, 1, 3, 0 },
+		{ 3, 0, 4, 1, 2, 5 },
+		{ 1, 2, 4, 5, 0, 3 } };
+
+	int iShuffleType = GC.getGame().getSmallFakeRandNum(3, *pPlot);
+	int iBaseIndex = plotNum(pPlot->getX(), pPlot->getY())*(NUM_DIRECTION_TYPES + 2);
+
+	for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
+		m_apShuffledNeighbors[i] = m_pPlotNeighbors[iBaseIndex + aiShuffle[iShuffleType][i]];
+
+	return m_apShuffledNeighbors;
+}
+
 //	--------------------------------------------------------------------------------
 void CvMap::uninit()
 {
@@ -2329,3 +2350,5 @@ int CvMap::GetAIMapHint()
 {
 	return m_iAIMapHints;
 }
+
+

@@ -3206,7 +3206,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	iPopulation = pOldCity->getPopulation();
 	iOldPopulation = iPopulation;
 	iHighestPopulation = pOldCity->getHighestPopulation();
-	bool bEverCapital = pOldCity->IsEverCapital();
 	strName = pOldCity->getNameKey();
 	int iOldCultureLevel = pOldCity->GetJONSCultureLevel();
 	bool bHasMadeAttack = pOldCity->isMadeAttack();
@@ -3501,13 +3500,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			pNewCity->setPreviousOwner(eOldOwner);
 			pNewCity->setOriginalOwner(eOriginalOwner);
 			pNewCity->setGameTurnFounded(iGameTurnFounded);
-			pNewCity->SetEverCapital(bEverCapital);
 		} else {
 #endif
 			pNewCity->setPreviousOwner(NO_PLAYER);
 			pNewCity->setOriginalOwner(m_eID);
 			pNewCity->setGameTurnFounded(GC.getGame().getGameTurn());
-			pNewCity->SetEverCapital(false);
 #if defined(MOD_GLOBAL_CS_LIBERATE_AFTER_BUYOUT)
 		}
 #endif
@@ -3520,7 +3517,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		pNewCity->setPreviousOwner(eOldOwner);
 		pNewCity->setOriginalOwner(eOriginalOwner);
 		pNewCity->setGameTurnFounded(iGameTurnFounded);
-		pNewCity->SetEverCapital(bEverCapital);
 	}
 
 	// Population change for capturing a city
@@ -10408,7 +10404,24 @@ void CvPlayer::doTurn()
 				GetMilitaryAI()->ResetCounters();
 				GetGrandStrategyAI()->DoTurn();
 #if defined(MOD_ACTIVE_DIPLOMACY)
-				GetDiplomacyAI()->DoTurn(DIPLO_AI_PLAYERS);
+				if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+				{
+					GetDiplomacyAI()->DoTurn(DIPLO_AI_PLAYERS);
+				}
+				else
+				{
+					if(GC.getGame().isHotSeat() && !isHuman())
+					{
+						// In Hotseat, AIs only do their diplomacy pass for other AIs on their turn
+						// Diplomacy toward a human is done at the beginning of the humans turn.
+						GetDiplomacyAI()->DoTurn(DIPLO_AI_PLAYERS);		// Do diplomacy for toward everyone
+					}
+					else
+						GetDiplomacyAI()->DoTurn(DIPLO_ALL_PLAYERS);	// Do diplomacy for toward everyone
+
+					if (!isHuman())
+						bHasActiveDiploRequest = CvDiplomacyRequests::HasActiveDiploRequestWithHuman(GetID());
+				}
 #else
 				if(GC.getGame().isHotSeat() && !isHuman())
 				{
@@ -11879,7 +11892,7 @@ bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 	bool bOriginalCapital =	pCity->getX() == pOriginalOwner->GetOriginalCapitalX() &&
 	                        pCity->getY() == pOriginalOwner->GetOriginalCapitalY();
 
-	if(!bIgnoreCapitals && pCity->IsEverCapital() && bOriginalCapital)
+	if(!bIgnoreCapitals && bOriginalCapital)
 	{
 		return false;
 	}
@@ -14115,7 +14128,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 	{
 		if(pLoopCity && !pLoopCity->IsPuppet())
 		{
-			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildings();
+			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
 			for (size_t i=0; i<vBuildings.size(); i++)
 				vTotalBuildingCount[ vBuildings[i] ]++;
 		}
@@ -25048,40 +25061,62 @@ void CvPlayer::doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName
 	int iEventGP = GetPlayerTraits()->GetGreatPersonGWAM(eGreatPerson);
 	if (pCapital != NULL && iEventGP > 0)
 	{
-		float fDelay = 0.5f;
+		int iGPWriter = 0;
+		int iGPArtist = 0;
+		int iGPMusician = 0;
 		for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
 		{
 			const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
 			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
 			if (pkSpecialistInfo)
 			{
-				if (((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER")) || ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST")) || ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN")))
+				if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 				{
-					int iGPThreshold = pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
-					iGPThreshold *= 100;
+					iGPWriter = pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+					iGPWriter *= 100;
 					//Get % of threshold for test.
-					iGPThreshold *= iEventGP;
-					iGPThreshold /= 100;
+					iGPWriter *= iEventGP;
+					iGPWriter /= 100;
 
-					pCapital->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, iGPThreshold);
-					if (GetID() == GC.getGame().getActivePlayer())
-					{
-						iGPThreshold /= 100;
-						char text[256] = { 0 };
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", iGPThreshold);
-						DLLUI->AddPopupText(pCapital->getX(), pCapital->getY(), text, fDelay);
-						CvNotifications* pNotification = GetNotifications();
-						if (pNotification)
-						{
-							Localization::String strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_GWAM_BONUS_SAKOKU");
-							strMessage << iGPThreshold;
-							strMessage << strUnitName.c_str();
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_GWAM_BONUS_SAKOKU_S");
-							pNotification->Add(NOTIFICATION_GOLDEN_AGE_BEGUN_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-						}
-					}
+					pCapital->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, iGPWriter);
 				}
+				if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
+				{
+					iGPArtist = pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+					iGPArtist *= 100;
+					//Get % of threshold for test.
+					iGPArtist *= iEventGP;
+					iGPArtist /= 100;
+
+					pCapital->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, iGPArtist);
+				}
+				if ((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+				{
+					iGPMusician = pCapital->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+					iGPMusician *= 100;
+					//Get % of threshold for test.
+					iGPMusician *= iEventGP;
+					iGPMusician /= 100;
+
+					pCapital->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eSpecialist, iGPMusician);
+				}
+			}
+		}
+		if (GetID() == GC.getGame().getActivePlayer())
+		{
+			iGPWriter /= 100;
+			iGPArtist /= 100;
+			iGPMusician /= 100;
+			CvNotifications* pNotification = GetNotifications();
+			if (pNotification)
+			{
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_TOURISM_EVENT_GWAM_BONUS_SAKOKU");
+				strMessage << iGPWriter;
+				strMessage << iGPArtist;
+				strMessage << iGPMusician;
+				strMessage << strUnitName.c_str();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_GWAM_BONUS_SAKOKU_S");
+				pNotification->Add(NOTIFICATION_GOLDEN_AGE_BEGUN_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 			}
 		}
 	}
@@ -25543,9 +25578,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 	}
 
 	// Note: this is the same transport method (though without a delay) as a Militaristic city-state gifting a unit
-
-	CvCity* pMajorCity = GetClosestCity(pMinorPlot);
-
+	CvCity* pMajorCity = GetClosestCityByEstimatedTurns(pMinorPlot);
 	int iX = pMinorCapital->getX();
 	int iY = pMinorCapital->getY();
 	if(pMajorCity != NULL)
@@ -27349,9 +27382,9 @@ void CvPlayer::DoArmyDiversity()
 	{
 		if (GC.getLogging() && GC.getAILogging())
 		{
-			CvString strLogString;
-			strLogString.Format("ARMY DIVERSITY CHANGE! WE NEED: %d AI TYPE.", iUnitAI);
-			GetHomelandAI()->LogHomelandMessage(strLogString);
+			CvString strLogString("ARMY DIVERSITY CHANGE! WE NEED: "), strAI;
+			getUnitAIString(strAI, (UnitAITypes)iUnitAI);
+			GetHomelandAI()->LogHomelandMessage(strLogString + strAI);
 		}
 		m_iUnitDiversity = iUnitAI;
 	}
@@ -28108,8 +28141,6 @@ void CvPlayer::setCapitalCity(CvCity* pNewCapitalCity)
 			}
 
 			m_iCapitalCityID = pNewCapitalCity->GetID();
-
-			pNewCapitalCity->SetEverCapital(true);
 		}
 		else
 		{
@@ -29833,11 +29864,14 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 			}
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-			if (isHuman())
+			if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 			{
-				// JdH: we just activated a human
-				// later the AI players need to try to contact the player
-				CvDiplomacyRequests::s_aDiploHumans.push_back(GetID());
+				if (isHuman())
+				{
+					// JdH: we just activated a human
+					// later the AI players need to try to contact the player
+					CvDiplomacyRequests::s_aDiploHumans.push_back(GetID());
+				}
 			}
 #endif
 
@@ -34354,7 +34388,7 @@ void CvPlayer::changeTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2
 int CvPlayer::getTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2) const
 {
 	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumDomainInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex1 < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 	return m_ppiTradeRouteYieldChange[eIndex1][eIndex2];
@@ -34364,7 +34398,7 @@ int CvPlayer::getTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2) 
 void CvPlayer::changeTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2, int iChange)
 {
 	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumDomainInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex1 < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
 
@@ -35134,7 +35168,7 @@ void CvPlayer::SetClosestCityMapDirty()
 	GC.getGame().SetClosestCityMapDirty();
 }
 
-int CvPlayer::GetCityDistanceInTurns( const CvPlot* pPlot ) const
+int CvPlayer::GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const
 {
 	if (pPlot && m_pCityDistance)
 		return m_pCityDistance->GetClosestFeatureDistance( *pPlot );
@@ -35142,7 +35176,7 @@ int CvPlayer::GetCityDistanceInTurns( const CvPlot* pPlot ) const
 		return INT_MAX;
 }
 
-CvCity* CvPlayer::GetClosestCity( const CvPlot* pPlot ) const
+CvCity* CvPlayer::GetClosestCityByEstimatedTurns( const CvPlot* pPlot ) const
 {
 	if (pPlot && m_pCityDistance)
 		return getCity(m_pCityDistance->GetClosestFeatureID( *pPlot ));
@@ -37786,6 +37820,19 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		iMod = pPolicy->GetYieldFromMinorDemand(iI) * iChange;
 		if(iMod != 0)
 			ChangeYieldFromMinorDemand(eYield, iMod);
+
+		iMod = pPolicy->GetYieldFromWLTKD(iI) * iChange;
+		if (iMod != 0)
+		{
+			int iLoop;
+			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			{
+				if (pLoopCity != NULL)
+				{
+					pLoopCity->ChangeYieldFromWLTKD((YieldTypes)iI, pPolicy->GetYieldFromWLTKD(iI) * iChange);
+				}
+			}
+		}
 #endif
 	}
 
@@ -40904,7 +40951,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 		//take into account distance from existing cities
 		int iUnitDistance = pUnit ? plotDistance(pUnit->getX(),pUnit->getY(),pPlot->getX(),pPlot->getY()) : INT_MAX;
-		int iRelevantDistance = min(iUnitDistance,GetCityDistanceInTurns(pPlot));
+		int iRelevantDistance = min(iUnitDistance,GetCityDistanceInEstimatedTurns(pPlot));
 		int iScale = MapToPercent( iRelevantDistance, iEvalDistance, GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() );
 
 		//on a new continent we want to settle along the coast
@@ -41040,7 +41087,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 		//if it's too far from our existing cities, it's dangerous
 		if (!isDangerous && !bWantOffshore)
 		{
-			int iDistanceToCity = GetCityDistanceInTurns(vSettlePlots[i].pPlot);
+			int iDistanceToCity = GetCityDistanceInEstimatedTurns(vSettlePlots[i].pPlot);
 			//also consider settler plot here in case of re-targeting an operation
 			if (iDistanceToCity>4 && iDistanceToSettler>1)
 				isDangerous = true;
@@ -43147,7 +43194,7 @@ void CvPlayer::updatePlotFoundValues(bool bOverrideRevealedCheck)
 				pLoopArea->setTotalFoundValue(newValue);
 				
 				//track the distance from our existing cities
-				int iCityDistance = GetCityDistanceInTurns(pPlot);
+				int iCityDistance = GetCityDistanceInEstimatedTurns(pPlot);
 				if (minDistancePerArea.find(pLoopArea->GetID())==minDistancePerArea.end())
 					minDistancePerArea[pLoopArea->GetID()] = iCityDistance;
 				else if (iCityDistance < minDistancePerArea[pLoopArea->GetID()])

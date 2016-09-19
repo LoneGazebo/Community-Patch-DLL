@@ -1683,8 +1683,11 @@ void CvGame::update()
 					changeTurnSlice(1);
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-					// JdH: humans may have been activated, check for AI diplomacy
-					CvDiplomacyRequests::DoAIDiplomacyWithHumans();
+					if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+					{
+						// JdH: humans may have been activated, check for AI diplomacy
+						CvDiplomacyRequests::DoAIMPDiplomacyWithHumans();
+					}
 #endif
 
 					gDLL->FlushTurnReminders();
@@ -8123,7 +8126,9 @@ void CvGame::doTurn()
 	 // the AI players are processed.
 		for(iI = 0; iI < MAX_PLAYERS; iI++)
 			aiShuffle[iI] = iI;
-		shuffleArray(aiShuffle, MAX_PLAYERS, getJonRand());
+
+		//use the pre-game RNG here
+		shuffleArray(aiShuffle, MAX_PLAYERS, getMapRand());
 
 		for(iI = 0; iI < MAX_PLAYERS; iI++)
 		{
@@ -8186,8 +8191,11 @@ void CvGame::doTurn()
 	testVictory();
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	// JdH: humans may have been activated, check for AI diplomacy
-	CvDiplomacyRequests::DoAIDiplomacyWithHumans();
+	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	{
+		// JdH: humans may have been activated, check for AI diplomacy
+		CvDiplomacyRequests::DoAIMPDiplomacyWithHumans();
+	}
 #endif
 
 	// Who's Winning
@@ -9293,16 +9301,23 @@ void CvGame::updateTimers()
 			kPlayer.updateTimers();
 		}
 	}
-#if !defined(MOD_ACTIVE_DIPLOMACY)
-	if(isHotSeat())
+#if defined(MOD_ACTIVE_DIPLOMACY)
+<<<<<<< HEAD
+	if(!GC.getGame().isReallyNetworkMultiPlayer() || !MOD_ACTIVE_DIPLOMACY)
+=======
+	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+>>>>>>> origin/master
 	{
-		// For Hot Seat, all the AIs will get a chance to do diplomacy with the active human player
-		PlayerTypes eActivePlayer = getActivePlayer();
-		if(eActivePlayer != NO_PLAYER)
+		if(isHotSeat())
 		{
-			CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
-			if(kActivePlayer.isAlive() && kActivePlayer.isHuman() && kActivePlayer.isTurnActive())
-				CvDiplomacyRequests::DoAIDiplomacy(eActivePlayer);
+			// For Hot Seat, all the AIs will get a chance to do diplomacy with the active human player
+			PlayerTypes eActivePlayer = getActivePlayer();
+			if(eActivePlayer != NO_PLAYER)
+			{
+				CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
+				if(kActivePlayer.isAlive() && kActivePlayer.isHuman() && kActivePlayer.isTurnActive())
+					CvDiplomacyRequests::DoAIDiplomacy(eActivePlayer);
+			}
 		}
 	}
 #endif
@@ -9921,7 +9936,7 @@ int CvGame::getMapRandNum(int iNum, const char* pszLog)
 	if (iNum > 0)
 		return m_mapRand.get(iNum, pszLog);
 
-	return -(int)m_mapRand.get(-iNum, pszLog);
+	return (int)m_mapRand.get(-iNum, pszLog)*(-1);
 #else
 	return m_mapRand.get(iNum, pszLog);
 #endif
@@ -9944,7 +9959,7 @@ int CvGame::getJonRandNum(int iNum, const char* pszLog)
 	if (iNum > 0)
 		return m_jonRand.get(iNum, pszLog);
 
-	return -(int)m_jonRand.get(-iNum, pszLog);
+	return (int)m_jonRand.get(-iNum, pszLog)*(-1);
 #else
 	return m_jonRand.get(iNum, pszLog);
 #endif
@@ -9982,7 +9997,7 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 	if (iNum > 0)
 		return GC.getASyncRand().get(iNum, pszLog);
 
-	return -(int)GC.getASyncRand().get(-iNum, pszLog);
+	return (int)GC.getASyncRand().get(-iNum, pszLog)*(-1);
 #else
 	return GC.getASyncRand().get(iNum, pszLog);
 #endif
@@ -9994,7 +10009,7 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 // for small numbers (e.g. direction rolls) this should be good enough
 // most importantly, it should reduce desyncs in multiplayer
 
-int CvGame::getSmallFakeRandNum(int iNum, CvPlot& input)
+int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
 	int iFake = input.getX() * 17 + input.getY() * 23 + getGameTurn() * 3;
 	

@@ -15,8 +15,8 @@
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
 			<ProductionFreeUnits>7</ProductionFreeUnits>
-			<ProductionFreeUnitsPopulationPercent>50</ProductionFreeUnitsPopulationPercent>
-			<ProductionFreeUnitsPerCity>3</ProductionFreeUnitsPerCity>
+			<ProductionFreeUnitsPopulationPercent>25</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPerCity>2</ProductionFreeUnitsPerCity>
 			<RouteCostPercent>75</RouteCostPercent>
 			<UnitCostPercent>90</UnitCostPercent>
 			<BuildingCostPercent>100</BuildingCostPercent>
@@ -72,7 +72,7 @@
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
 			<ProductionFreeUnits>6</ProductionFreeUnits>
-			<ProductionFreeUnitsPopulationPercent>50</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>25</ProductionFreeUnitsPopulationPercent>
 			<ProductionFreeUnitsPerCity>2</ProductionFreeUnitsPerCity>
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
@@ -130,7 +130,7 @@
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
 			<ProductionFreeUnits>6</ProductionFreeUnits>
-			<ProductionFreeUnitsPopulationPercent>50</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>25</ProductionFreeUnitsPopulationPercent>
 			<ProductionFreeUnitsPerCity>2</ProductionFreeUnitsPerCity>
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
@@ -188,7 +188,7 @@
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
 			<ProductionFreeUnits>5</ProductionFreeUnits>
-			<ProductionFreeUnitsPopulationPercent>50</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
 			<ProductionFreeUnitsPerCity>2</ProductionFreeUnitsPerCity>
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
@@ -246,7 +246,7 @@
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
 			<ProductionFreeUnits>5</ProductionFreeUnits>
-			<ProductionFreeUnitsPopulationPercent>45</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
 			<ProductionFreeUnitsPerCity>2</ProductionFreeUnitsPerCity>
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
@@ -305,7 +305,7 @@
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
 			<ProductionFreeUnits>4</ProductionFreeUnits>
-			<ProductionFreeUnitsPopulationPercent>40</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
@@ -365,7 +365,7 @@
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
 			<ProductionFreeUnits>3</ProductionFreeUnits>
-			<ProductionFreeUnitsPopulationPercent>35</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
@@ -425,7 +425,7 @@
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
 			<ProductionFreeUnits>2</ProductionFreeUnits>
-			<ProductionFreeUnitsPopulationPercent>30</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
@@ -485,7 +485,7 @@
 			<Gold>0</Gold>
 			<GoldFreeUnits>0</GoldFreeUnits>
 			<ProductionFreeUnits>6</ProductionFreeUnits>
-			<ProductionFreeUnitsPopulationPercent>50</ProductionFreeUnitsPopulationPercent>
+			<ProductionFreeUnitsPopulationPercent>25</ProductionFreeUnitsPopulationPercent>
 			<ProductionFreeUnitsPerCity>2</ProductionFreeUnitsPerCity>
 			<RouteCostPercent>100</RouteCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>

@@ -205,7 +205,6 @@ CvCity::CvCity() :
 	, m_bOccupied("CvCity::m_bOccupied", m_syncArchive)
 	, m_bPuppet("CvCity::m_bPuppet", m_syncArchive)
 	, m_bIgnoreCityForHappiness("CvCity::m_bIgnoreCityForHappiness", m_syncArchive)
-	, m_bEverCapital("CvCity::m_bEverCapital", m_syncArchive)
 	, m_bIndustrialRouteToCapital("CvCity::m_bIndustrialRouteToCapital", m_syncArchive)
 	, m_bFeatureSurrounded("CvCity::m_bFeatureSurrounded", m_syncArchive)
 	, m_ePreviousOwner("CvCity::m_ePreviousOwner", m_syncArchive)
@@ -1366,7 +1365,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_bOccupied = false;
 	m_bPuppet = false;
 	m_bIgnoreCityForHappiness = false;
-	m_bEverCapital = false;
 	m_bIndustrialRouteToCapital = false;
 	m_bFeatureSurrounded = false;
 	m_bOwedCultureBuilding = false;
@@ -7607,7 +7605,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	{
 		if(pLoopCity && !pLoopCity->IsPuppet())
 		{
-			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildings();
+			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
 			for (size_t i=0; i<vBuildings.size(); i++)
 				vTotalBuildingCount[ vBuildings[i] ]++;
 		}
@@ -12878,6 +12876,28 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		if(pBuildingInfo->GetTrainedFreePromotion() != NO_PROMOTION)
 		{
 			changeFreePromotionCount(((PromotionTypes)(pBuildingInfo->GetTrainedFreePromotion())), iChange);
+#if defined(MOD_BALANCE_CORE)
+			//Let's give this to all units from this city.
+			if (MOD_BALANCE_RETROACTIVE_PROMOS)
+			{
+				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo((PromotionTypes)pBuildingInfo->GetTrainedFreePromotion());
+				if (pkPromotionInfo)
+				{
+					int iUnitLoop;
+					CvUnit* pLoopUnit = NULL;
+					for (pLoopUnit = GetPlayer()->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iUnitLoop))
+					{
+						if (pLoopUnit->getOriginCity() != this)
+							continue;
+
+						if ((pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pLoopUnit->getUnitCombatType()))
+						{
+							pLoopUnit->setHasPromotion((PromotionTypes)pBuildingInfo->GetTrainedFreePromotion(), true);
+						}
+					}
+				}
+			}
+#endif
 		}
 
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
@@ -13242,7 +13262,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						if(owningTeam.GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(eLoopResource)->getTechCityTrade()))
 						{
+#if defined(MOD_BALANCE_CORE)
+							if(pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && (GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsAdjacentCity() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eLoopResource))))
+#else
 							if(pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eLoopResource)))
+#endif
 							{
 								if(!pLoopPlot->IsImprovementPillaged())
 								{
@@ -14123,24 +14147,6 @@ bool CvCity::IsOriginalMajorCapital() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvCity::IsEverCapital() const
-{
-	VALIDATE_OBJECT
-	return m_bEverCapital;
-}
-
-//	--------------------------------------------------------------------------------
-void CvCity::SetEverCapital(bool bValue)
-{
-	VALIDATE_OBJECT
-	if(IsEverCapital() != bValue)
-	{
-		m_bEverCapital = bValue;
-	}
-}
-
-
-//	--------------------------------------------------------------------------------
 bool CvCity::isCoastal(int iMinWaterSize) const
 {
 	VALIDATE_OBJECT
@@ -14153,7 +14159,7 @@ bool CvCity::isAddsFreshWater() const {
 	VALIDATE_OBJECT
 
 	//ideally this should be cached and changed when a building is added/removed ...
-	const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildings();
+	const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildingsHere();
 	for(size_t iBuilding = 0; iBuilding < vBuildings.size(); iBuilding++)
 	{
 		CvBuildingEntry* pInfo = GC.getBuildingInfo(vBuildings[iBuilding]);
@@ -14489,14 +14495,14 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 	{
 		int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
 		iSpecialists += iExtra;
-		int iPopulation = (getPopulation() - iSpecialists);
+		int iPopulation = max(0,(getPopulation() - iSpecialists)); //guard against stupidity
 
 		int iFoodPerPop = /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
 #if defined(MOD_BALANCE_CORE)
 		iFoodPerPop += GetAdditionalFood();
 #endif
 
-		int iNum = iPopulation * iFoodPerPop;
+		int iNormalFood = iPopulation * iFoodPerPop;
 
 		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
 		if(iEra <= GC.getFOOD_CONSUMPTION_PER_POPULATION())
@@ -14517,8 +14523,8 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 		{
 			iSpecialistFood /= 2;
 		}
-		iNum += iSpecialistFood;
-		return iNum;
+
+		return iNormalFood + iSpecialistFood;
 	}
 	else
 	{
@@ -16930,8 +16936,25 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eF
 				}
 				if (iAdjacentFeatures > 2)
 				{
+#if defined(MOD_ALTERNATE_CELTS)
+					if(MOD_ALTERNATE_CELTS)
+					{
+						iYield += iBaseYield * 3;
+					}
+					else
+					{
+						iYield += iBaseYield * 2;
+					}
+#else
+					iYield += iBaseYield * 2;
+#endif
+				}
+#if defined(MOD_ALTERNATE_CELTS)
+				else if (iAdjacentFeatures > 1 && MOD_ALTERNATE_CELTS)
+				{
 					iYield += iBaseYield * 2;
 				}
+#endif
 				else if (iAdjacentFeatures > 0)
 				{
 					iYield += iBaseYield;
@@ -16982,8 +17005,37 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eF
 					}
 					if (iAdjacentFeatures > 2)
 					{
+#if defined(MOD_ALTERNATE_CELTS)
+						if(MOD_ALTERNATE_CELTS)
+						{
+							iYield += iBaseYield * 3;
+						}
+						else
+						{
+							iYield += iBaseYield * 2;
+						}
+#else
+<<<<<<< HEAD
+						iYield += iBaseYield * 2;
+#endif
+					}
+#if defined(MOD_ALTERNATE_CELTS)
+					else if (iAdjacentFeatures > 1 && MOD_ALTERNATE_CELTS)
+					{
+=======
+>>>>>>> origin/master
+						iYield += iBaseYield * 2;
+#endif
+					}
+<<<<<<< HEAD
+=======
+#if defined(MOD_ALTERNATE_CELTS)
+					else if (iAdjacentFeatures > 1 && MOD_ALTERNATE_CELTS)
+					{
 						iYield += iBaseYield * 2;
 					}
+>>>>>>> origin/master
+#endif
 					else if (iAdjacentFeatures > 0)
 					{
 						iYield += iBaseYield;
@@ -18399,7 +18451,7 @@ int CvCity::GetLocalHappiness() const
 			}
 
 			// Buildings
-			const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildings();
+			const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildingsHere();
 			for(size_t jJ = 0; jJ < vBuildings.size(); jJ++)
 			{
 				BuildingTypes eBuilding = vBuildings[jJ];
@@ -18462,7 +18514,7 @@ void CvCity::UpdateComboHappiness()
 	// Building Class Combo Mods
 	int iSpecialBuildingHappiness = 0;
 
-	const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildings();
+	const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildingsHere();
 	for(size_t jJ = 0; jJ < vBuildings.size(); jJ++)
 	{
 		BuildingTypes eBuildingA = vBuildings[jJ];

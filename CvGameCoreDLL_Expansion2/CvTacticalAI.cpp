@@ -3273,7 +3273,7 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 			//ranged garrisons are used in ExecuteSafeBombards. special handling only for melee garrisons here
 			for (int i=RING0_PLOTS; i<RING1_PLOTS; i++)
 			{
-				CvPlot* pNeighbor = iterateRingPlots( pPlot,i );
+				CvPlot* pNeighbor = iterateRingPlots( pPlot,i ); //todo: randomize order? but the chance of multiple potential victims is low
 				if (pNeighbor)
 				{
 					UnitHandle pEnemy = pNeighbor->getBestDefender(NO_PLAYER,m_pPlayer->GetID(),pGarrison,true);
@@ -6537,6 +6537,7 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 					if(pUnit->CanSwapWithUnitHere(*pFriendlyPlot))
 					{
 						// Move up there
+						pOtherUnit->SetActivityType(ACTIVITY_AWAKE);
 						pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pOtherUnit->getX(), pOtherUnit->getY());
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -6754,7 +6755,7 @@ bool IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandidate, bool bWater)
 	if (pCandidate->getNumUnits()>0)
 		return false;
 
-	int iCityDistance = pPlayer->GetCityDistanceInTurns(pCandidate);
+	int iCityDistance = pPlayer->GetCityDistanceInEstimatedTurns(pCandidate);
 	if (iCityDistance<2 || iCityDistance>3)
 		return false;
 
@@ -6983,16 +6984,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 				//not in an army and not at home? we really need to do something
 				if(pUnit->getArmyID() == -1 && pUnit->plot()->getOwner() != pUnit->getOwner())
 				{
-					CvCity* pClosestCity = NULL;
-					if(pUnit->getDomainType() == DOMAIN_LAND)
-					{
-						pClosestCity = m_pPlayer->GetClosestCity(pUnit->plot());
-					}
-					else if(pUnit->getDomainType() == DOMAIN_SEA)
-					{
-						pClosestCity = m_pPlayer->GetClosestCity(pUnit->plot(),INT_MAX,true);
-					}
-
+					CvCity* pClosestCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
 					CvPlot* pMovePlot = pClosestCity ? pClosestCity->plot() : NULL;
 					if(pMovePlot != NULL)
 					{
@@ -8328,7 +8320,7 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 		if(pUnit)
 		{
 			// Compute moves to nearest city and use as sort criteria
-			CvCity* pNearestCity = m_pPlayer->GetClosestCity(pUnit->plot());
+			CvCity* pNearestCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
 			if(pNearestCity != NULL && pUnit->CanReachInXTurns(pNearestCity->plot(),5))
 			{
 				if(MoveToEmptySpaceNearTarget(pUnit, pNearestCity->plot(), pUnit->getDomainType(), 42))
@@ -9567,6 +9559,12 @@ CvPlot* CvTacticalAI::FindBestBarbarianLandMove(UnitHandle pUnit)
 		pBestMovePlot = FindBarbarianExploreTarget(pUnit);
 	}
 
+	// if nothing to explore, go back to camp
+	if (pBestMovePlot == NULL)
+	{
+		pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange, AI_TACTICAL_TARGET_BARBARIAN_CAMP);
+	}
+
 	return pBestMovePlot;
 }
 
@@ -9667,11 +9665,18 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 			CvPlot* pCamp = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 			if(pCamp != pNearestCamp && pCamp->isAdjacentToShallowWater())
 			{
-				int iValue = pUnit->TurnsToReachTarget(pCamp, CvUnit::MOVEFLAG_APPROX_TARGET_RING1, m_iSeaBarbarianRange);
-				if(iValue < iBestValue)
+				for (ReachablePlots::const_iterator it = movePlots.begin(); it != movePlots.end(); ++it)
 				{
-					iBestValue = iValue;
-					pBestMovePlot = pUnit->GetPathNodeArray().GetFinalPlot();
+					CvPlot* pTestPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+					if (plotDistance(*pTestPlot, *pCamp) == 1)
+					{
+						int iValue = it->iTurns;
+						if (iValue < iBestValue)
+						{
+							iBestValue = iValue;
+							pBestMovePlot = pTestPlot;
+						}
+					}
 				}
 			}
 			pTarget = GetNextZoneTarget();
@@ -9897,7 +9902,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 					bTypeMatch = true;
 				}
 			}
-			else if(m_pPlayer->isMinorCiv())
+			else if(m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
 			{
 				if(target.GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
 			        target.GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
@@ -10338,6 +10343,7 @@ void CvTacticalAI::PerformChosenMoves(CvPlot* pFinalTarget)
 										if(pUnit->CanSwapWithUnitHere(*pFriendlyPlot))
 										{
 											// Move up there
+											pFriendlyUnit->SetActivityType(ACTIVITY_AWAKE);
 											pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pFriendlyUnit->getX(), pFriendlyUnit->getY());
 											if(pPlotBeforeMove != pUnit->plot())
 											{
@@ -10628,7 +10634,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 				//try to go to a city
 				CvCity* pCity = m_pPlayer->GetMilitaryAI()->GetMostThreatenedCity();
 				if(!pCity)
-					pCity = m_pPlayer->GetClosestCity(pGeneral->plot());
+					pCity = m_pPlayer->GetClosestCityByEstimatedTurns(pGeneral->plot());
 
 				if(pCity != NULL)
 				{
@@ -11953,7 +11959,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
 		int iDanger = kPlayer.GetPlotDanger(*pPlot, pUnit);
 
-		int iCityDistance = kPlayer.GetCityDistanceInTurns(pPlot);
+		int iCityDistance = kPlayer.GetCityDistanceInEstimatedTurns(pPlot);
 		//when in doubt, prefer to move
 		if (pUnit->atPlot(*pPlot))
 			iCityDistance++;
@@ -11974,13 +11980,21 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		if (pPlot != pUnit->plot() && pUnit->canHeal(pUnit->plot()))
 			iDanger++;
 
+		//try to hide - if there are few enemy units, this might be a tiebreaker
+<<<<<<< HEAD
+		//this is cheating a bit, really we need to check if the plot is visible for the enemy units visible to us
+=======
+>>>>>>> origin/master
+		if (pPlot->isVisibleToEnemy(pUnit->getOwner()))
+			iDanger+=10;
+
 		//use city distance as tiebreaker
 		iDanger = iDanger * 10 + iCityDistance;
 
 		//discourage water tiles for land units
 		//note that zero danger status has already been established, this is only for sorting now
 		if (bWrongDomain)
-			iDanger += 100;
+			iDanger += 500;
 
 		if(bIsInCity)
 		{
@@ -12082,7 +12096,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bWi
 			if ( GET_PLAYER( pUnit->getOwner() ).GetPlotDanger(*pPlot,pUnit) > 0)
 				continue;
 
-			int iScore = pUnit->healRate(pPlot) - GET_PLAYER(pUnit->getOwner()).GetCityDistanceInTurns(pPlot);
+			int iScore = pUnit->healRate(pPlot) - GET_PLAYER(pUnit->getOwner()).GetCityDistanceInEstimatedTurns(pPlot);
 			vCandidates.push_back( SPlotWithScore(pPlot, iScore) );
 		}
 

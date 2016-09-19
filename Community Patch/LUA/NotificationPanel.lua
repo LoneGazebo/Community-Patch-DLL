@@ -453,6 +453,7 @@ function RemoveNotificationID( Id )
 		name == "ChooseArchaeology" or
 		name == "LeagueCallForVotes" or
 		--CP
+		name == "DiplomacyPlayer" or
 		name == "EventChoice" or
 		name == "CityEventChoice" or
 		--END

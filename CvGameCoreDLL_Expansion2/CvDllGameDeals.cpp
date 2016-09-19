@@ -90,7 +90,12 @@ void CvDllGameDeals::AddProposedDeal(ICvDeal1* pDeal)
 bool CvDllGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bAccepted)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	return m_pGameDeals->FinalizeDeal(eFromPlayer, eToPlayer, bAccepted, true);
+	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	{
+		return m_pGameDeals->FinalizeMPDealLatest(eFromPlayer, eToPlayer, bAccepted, true);
+	}
+	else
+		return m_pGameDeals->FinalizeDeal(eFromPlayer, eToPlayer, bAccepted);
 #else
 	return m_pGameDeals->FinalizeDeal(eFromPlayer, eToPlayer, bAccepted);
 #endif
@@ -116,7 +121,12 @@ PlayerTypes CvDllGameDeals::HasMadeProposal(PlayerTypes eFromPlayer)
 bool CvDllGameDeals::ProposedDealExists(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	return m_pGameDeals->GetProposedDeal(eFromPlayer, eToPlayer, 0) != NULL;
+	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	{
+		return m_pGameDeals->GetProposedMPDeal(eFromPlayer, eToPlayer, 0) != NULL;
+	}
+	else
+		return m_pGameDeals->ProposedDealExists(eFromPlayer, eToPlayer);
 #else
 	return m_pGameDeals->ProposedDealExists(eFromPlayer, eToPlayer);
 #endif
@@ -125,7 +135,15 @@ bool CvDllGameDeals::ProposedDealExists(PlayerTypes eFromPlayer, PlayerTypes eTo
 ICvDeal1* CvDllGameDeals::GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	CvDeal* pDeal = m_pGameDeals->GetProposedDeal(eFromPlayer, eToPlayer, 0);
+	CvDeal* pDeal;
+	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	{
+		pDeal = m_pGameDeals->GetProposedMPDeal(eFromPlayer, eToPlayer, 0);
+	}
+	else
+	{
+		pDeal = m_pGameDeals->GetProposedDeal(eFromPlayer, eToPlayer);
+	}
 #else
 	CvDeal* pDeal = m_pGameDeals->GetProposedDeal(eFromPlayer, eToPlayer);
 #endif

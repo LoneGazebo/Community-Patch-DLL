@@ -128,7 +128,7 @@ public:
 	void updateLayout(bool bDebug);
 	void updateSight(bool bIncrement);
 	void updateCenterUnit();
-	void updateWorkingCity(CvPlot* pPlot=0, int iRange=0);
+	void updateWorkingCity(CvPlot* pPlot = 0, int iRange = 0);
 	void updateYield();
 	void updateAdjacency();
 
@@ -225,7 +225,7 @@ public:
 
 	__forceinline CvPlot* plot(int iX, int iY) const
 	{
-		if((iX == INVALID_PLOT_COORD) || (iY == INVALID_PLOT_COORD))
+		if ((iX == INVALID_PLOT_COORD) || (iY == INVALID_PLOT_COORD))
 		{
 			return NULL;
 		}
@@ -235,7 +235,7 @@ public:
 	}
 	__forceinline CvPlot* plotCheckInvalid(int iX, int iY) const
 	{
-		if((iX == INVALID_PLOT_COORD) || (iY == INVALID_PLOT_COORD))
+		if ((iX == INVALID_PLOT_COORD) || (iY == INVALID_PLOT_COORD))
 		{
 			return NULL;
 		}
@@ -249,23 +249,19 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	CvPlot** getNeighborsUnchecked(const CvPlot* pPlot) const
 	{
-		return m_pPlotNeighbors+plotNum(pPlot->getX(),pPlot->getY())*(NUM_DIRECTION_TYPES+2);
+		return m_pPlotNeighbors + plotNum(pPlot->getX(), pPlot->getY())*(NUM_DIRECTION_TYPES + 2);
 	}
-	CvPlot** getNeighborsShuffled(const CvPlot* pPlot)
-	{
-		memcpy(m_apShuffledNeighbors, m_pPlotNeighbors+plotNum(pPlot->getX(),pPlot->getY())*(NUM_DIRECTION_TYPES+2), 6*sizeof(CvPlot*));
-		shuffleArray(m_apShuffledNeighbors,6,GC.getGame().getJonRand());
-		return m_apShuffledNeighbors;
-	}
+	CvPlot** getNeighborsShuffled(const CvPlot* pPlot);
 	CvPlot* getNeighborUnchecked(int iX, int iY, DirectionTypes eDir) const
 	{
-		return m_pPlotNeighbors[ plotNum(iX,iY)*(NUM_DIRECTION_TYPES+2)+(int)eDir ];
+		return m_pPlotNeighbors[plotNum(iX, iY)*(NUM_DIRECTION_TYPES + 2) + (int)eDir];
 	}
-#endif
-	CvPlotManager& plotManager() { return m_kPlotManager; }
-#if defined(MOD_BALANCE_CORE)
+
 	void PrecalcNeighbors();
 #endif
+
+	CvPlotManager& plotManager() { return m_kPlotManager; }
+
 	/// Areas
 	int getIndexAfterLastArea();
 	int getNumAreas();

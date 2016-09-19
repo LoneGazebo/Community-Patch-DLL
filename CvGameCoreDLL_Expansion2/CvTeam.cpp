@@ -317,7 +317,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		int numBuildingInfos = GC.getNumBuildingInfos();
 #if defined(MOD_API_UNIFIED_YIELDS)
 		int numFeatureInfos = GC.getNumFeatureInfos();
-		int numDomainInfos = GC.getNumDomainInfos();
+		int numDomainInfos = NUM_DOMAIN_TYPES;
 #endif
 		int numTerrainInfos = GC.getNumTerrainInfos();
 		int numImprovementInfos = GC.getNumImprovementInfos();
@@ -5234,7 +5234,7 @@ void CvTeam::changeRouteChange(RouteTypes eIndex, int iChange)
 int CvTeam::getTradeRouteDomainExtraRange(DomainTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumDomainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiTradeRouteDomainExtraRange[eIndex];
 }
 
@@ -5242,7 +5242,7 @@ int CvTeam::getTradeRouteDomainExtraRange(DomainTypes eIndex) const
 void CvTeam::changeTradeRouteDomainExtraRange(DomainTypes eIndex, int iChange)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumDomainInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_paiTradeRouteDomainExtraRange[eIndex] = (m_paiTradeRouteDomainExtraRange[eIndex] + iChange);
 }
 #endif
@@ -9142,7 +9142,7 @@ void CvTeam::Read(FDataStream& kStream)
 	m_pTeamTechs->Read(kStream);
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiTradeRouteDomainExtraRange, GC.getNumDomainInfos());
+	MOD_SERIALIZE_READ_ARRAY(66, kStream, &m_paiTradeRouteDomainExtraRange[0], int, NUM_DOMAIN_TYPES, 0);
 	FeatureArrayHelpers::ReadYieldArray(kStream, m_ppaaiFeatureYieldChange, NUM_YIELD_TYPES);
 	TerrainArrayHelpers::ReadYieldArray(kStream, m_ppaaiTerrainYieldChange, NUM_YIELD_TYPES);
 #endif
@@ -9318,7 +9318,7 @@ void CvTeam::Write(FDataStream& kStream) const
 	m_pTeamTechs->Write(kStream);
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes, int>(kStream, m_paiTradeRouteDomainExtraRange, GC.getNumDomainInfos());
+	MOD_SERIALIZE_WRITE_CONSTARRAY(kStream, &m_paiTradeRouteDomainExtraRange[0], int, NUM_DOMAIN_TYPES);
 	FeatureArrayHelpers::WriteYieldArray(kStream, m_ppaaiFeatureYieldChange, GC.getNumFeatureInfos());
 	TerrainArrayHelpers::WriteYieldArray(kStream, m_ppaaiTerrainYieldChange, GC.getNumTerrainInfos());
 #endif

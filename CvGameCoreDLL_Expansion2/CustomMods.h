@@ -33,8 +33,8 @@
 
 // FIRST: Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
 #define NO_ACHIEVEMENTS
-// SECOND: UN-COMMENT out this line to include Jai der Herr's Active Diplomacy mod for Multiplayer games.
-#define MOD_ACTIVE_DIPLOMACY
+//adds active diplomacy to Multiplayer games
+#define MOD_ACTIVE_DIPLOMACY			 gCustomMods.isACTIVE_DIPLOMACY()
 
 /////////////////////////////////
 //END MULTIPLAYER INSTRUCTIONS
@@ -76,8 +76,6 @@
 	#define AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
 	#define AUI_GAME_OBSERVER_CAN_OPEN_CITIES
 	#define AUI_PLOT_OBSERVER_NO_NW_POPUPS
-
-#define AUI_WORKER_EVALUATE_WORKER_RETREAT_AND_BUILD 
 
 /// Flavors that weren't previously fetched but were still (attempted to be) used in processing later are now fetched
 #define AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS
@@ -390,6 +388,7 @@
 #define MOD_BALANCE_CORE_VICTORY_GAME_CHANGES		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_VICTORY_GAME_CHANGES())
 #define MOD_BALANCE_CORE_EVENTS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_EVENTS())
 #define MOD_NO_RANDOM_TEXT_CIVS						(MOD_COMMUNITY_PATCH && gCustomMods.isNO_RANDOM_TEXT_CIVS())
+#define MOD_BALANCE_RETROACTIVE_PROMOS				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_RETROACTIVE_PROMOS())
 
 #endif
 // Changes melee ship units to be cargo carrying units with added promotions for ship and cargo
@@ -397,8 +396,9 @@
 // Changes for the CivIV Diplomacy Features mod by Putmalk - AFFECTS SAVE GAME DATA FORMAT (v36)
 #define MOD_DIPLOMACY_CIV4_FEATURES                 gCustomMods.isDIPLOMACY_CIV4_FEATURES()
 // Adds an option to Advanced Setup to allow gaining Great General and Great Admiral Points from fighting with Barbarians
-#define MOD_BARBARIAN_GG_GA_POINTS					gCustomMods.isBARBARIAN_GG_GA_POINTS
-
+#define MOD_BARBARIAN_GG_GA_POINTS					gCustomMods.isBARBARIAN_GG_GA_POINTS()
+// Grants Celts maximum up to 3 unimproved adjacent forests for faith
+#define MOD_ALTERNATE_CELTS							gCustomMods.isALTERNATE_CELTS()
 // Permits units to earn GG/GA points from killing barbarians (v83)
 #define MOD_TRAITS_GG_FROM_BARBARIANS               gCustomMods.isTRAITS_GG_FROM_BARBARIANS()
 // Permits land units to cross ice - AFFECTS SAVE GAME DATA FORMAT
@@ -1444,10 +1444,12 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_VICTORY_GAME_CHANGES);
 	MOD_OPT_DECL(BALANCE_CORE_EVENTS);
 	MOD_OPT_DECL(NO_RANDOM_TEXT_CIVS);
+	MOD_OPT_DECL(BALANCE_RETROACTIVE_PROMOS);
 
 	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES);
 	MOD_OPT_DECL(CARGO_SHIPS);
 	MOD_OPT_DECL(BARBARIAN_GG_GA_POINTS);
+	MOD_OPT_DECL(ALTERNATE_CELTS);
 	MOD_OPT_DECL(TRAITS_GG_FROM_BARBARIANS);
 	MOD_OPT_DECL(TRAITS_CROSSES_ICE);
 	MOD_OPT_DECL(TRAITS_CITY_WORKING);
@@ -1578,7 +1580,7 @@ public:
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_ABORT);
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_RESULT);
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_ENDED);
-
+	MOD_OPT_DECL(ACTIVE_DIPLOMACY);
 	MOD_OPT_DECL(API_ESPIONAGE);
 	MOD_OPT_DECL(API_TRADEROUTES);
 	MOD_OPT_DECL(API_RELIGION);

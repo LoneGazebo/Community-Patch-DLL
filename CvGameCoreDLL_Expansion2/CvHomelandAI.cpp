@@ -285,7 +285,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 			iRating /= 2;
 
 		//try to explore close to our cities first to find potential settle spots
-		int iCityDistance = m_pPlayer->GetCityDistanceInTurns(pEvalPlot);
+		int iCityDistance = m_pPlayer->GetCityDistanceInEstimatedTurns(pEvalPlot);
 		iRating = max(1, iRating-iCityDistance); 
 
 		//reverse the score calculation below to get an upper bound on the distance
@@ -836,7 +836,7 @@ void CvHomelandAI::FindHomelandTargets()
 			}
 			// ... possible sentry point?
 			else if(pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isWater() && 
-				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && m_pPlayer->GetCityDistanceInTurns(pLoopPlot)>1)
+				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) && m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot)>1)
 			{
 				ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 				ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
@@ -895,7 +895,7 @@ void CvHomelandAI::FindHomelandTargets()
 			else if(pLoopPlot->isWater() && 
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 			{
-				int iDistance = m_pPlayer->GetCityDistanceInTurns(pLoopPlot);
+				int iDistance = m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot);
 				
 				if(iDistance > 3)
 					continue;
@@ -3263,7 +3263,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				{
 					//We really need to do something with this unit - let's bring it home if we can.
 					bool bStuck = true;
-					CvCity* pBestCity = m_pPlayer->GetClosestCity( pUnit->plot() );
+					CvCity* pBestCity = m_pPlayer->GetClosestCityByEstimatedTurns( pUnit->plot() );
 					if(pBestCity != NULL)
 					{
 						if(MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestCity->plot(), DOMAIN_LAND, 42))
@@ -3783,6 +3783,22 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 			//if nothing found, retry with larger distance - but this is sloooooow
 			if (!pBestPlot)
 				pBestPlot = GetBestExploreTarget(pUnit.pointer(), 5, 42);
+
+			//verify that we don't move into danger ...
+			if (pBestPlot)
+			{
+				if (pUnit->GeneratePath(pBestPlot, CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
+				{
+					CvPlot* pEndTurnPlot = pUnit->GetPathEndFirstTurnPlot();
+					if (pUnit->GetDanger(pEndTurnPlot) > pUnit->GetCurrHitPoints() / 2)
+					{
+						//move to safety instead
+						pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit.pointer(), true);
+					}
+				}
+				else
+					pBestPlot = 0;
+			}
 		}
 
 		if(pBestPlot && pBestPlot != pUnit->plot())
@@ -6556,7 +6572,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			nSlotsInCarriers += pLoopUnit->cargoSpace();
 
 			//for simplicity we don't do carrier to carrier rebasing, only carrier to city
-			CvCity* pRefCity = m_pPlayer->GetClosestCity(pLoopUnit->plot());
+			CvCity* pRefCity = m_pPlayer->GetClosestCityByEstimatedTurns(pLoopUnit->plot());
 			if (pRefCity)
 			{
 				pRefCity->AttachUnit(pLoopUnit);

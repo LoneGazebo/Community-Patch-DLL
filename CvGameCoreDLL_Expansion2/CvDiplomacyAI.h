@@ -59,13 +59,14 @@ FDataStream& operator>>(FDataStream&, DeclarationLogData&);
 class CvDiplomacyAI
 {
 public:
+	// This has been moved to CvEnums.h to make compatible for MOD_ACTIVE_DIPLOMACY
 #if !defined(MOD_ACTIVE_DIPLOMACY)
 	enum DiplomacyPlayerType
 	{
-	    DIPLO_FIRST_PLAYER		=  0,
-	    DIPLO_ALL_PLAYERS		= -1,
-	    DIPLO_AI_PLAYERS		= -2,
-	    DIPLO_HUMAN_PLAYERS		= -3
+		DIPLO_FIRST_PLAYER		=  0,
+		DIPLO_ALL_PLAYERS		= -1,
+		DIPLO_AI_PLAYERS		= -2,
+		DIPLO_HUMAN_PLAYERS		= -3
 	};
 #endif
 
@@ -2070,14 +2071,11 @@ private:
 	StateAllWars m_eStateAllWars;
 
 	// Other
-#if !defined(MOD_ACTIVE_DIPLOMACY)
 	typedef std::vector<PlayerTypes> PlayerTypesArray;
 	PlayerTypesArray	m_aGreetPlayers;
-#else
 	// JdH =>
 	void DoUpdateHumanTradePriority(PlayerTypes ePlayer, int iOpinionWeight);
 	// JdH <=
-#endif
 	DiplomacyPlayerType	m_eTargetPlayer;
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	DiplomacyPlayerType	m_eTargetPlayerType;
