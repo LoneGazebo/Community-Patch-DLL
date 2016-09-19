@@ -1635,6 +1635,7 @@ protected:
 	MissionQueueNode* HeadMissionQueueNode();
 
 	bool HaveCachedPathTo(const CvPlot* pToPlot, int iFlags);
+	bool IsCachedPathValid();
 	void ClearPathCache();
 	bool VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns);
 	bool ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns);
@@ -1977,8 +1978,8 @@ protected:
 	mutable uint m_uiLastPathCacheOrigin;
 	mutable uint m_uiLastPathCacheDestination;
 	mutable uint m_uiLastPathFlags;
-	mutable uint m_uiLastPathLength;
 	mutable uint m_uiLastPathTurn;
+	mutable uint m_uiLastPathLength;
 
 	bool canAdvance(const CvPlot& pPlot, int iThreshold) const;
 
