@@ -5024,7 +5024,7 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget)
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strMsg;
-		strMsg.Format("Trying to move army %d from (%d,%d), to (%d,%d)",pArmy->GetID(),pCurrent->getX(),pCurrent->getY(),pTurnTarget->getX(),pTurnTarget->getY());
+		strMsg.Format("Trying to move army %d from (%d:%d), to (%d:%d)",pArmy->GetID(),pCurrent->getX(),pCurrent->getY(),pTurnTarget->getX(),pTurnTarget->getY());
 		LogTacticalMessage(strMsg);
 	}
 #endif
@@ -5484,6 +5484,7 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 						// Save this in our list of potential targets
 						target.SetTargetX(pPlot->getX());
 						target.SetTargetY(pPlot->getY());
+						target.SetAuxIntData(iScore);
 						m_TempTargets.push_back(target);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
@@ -5737,7 +5738,7 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strMsg;
-		strMsg.Format("Trying to move army %d from (%d,%d), to (%d,%d)",pArmy->GetID(),pCurrent->getX(),pCurrent->getY(),pTurnTarget->getX(),pTurnTarget->getY());
+		strMsg.Format("Trying to move army %d from (%d:%d), to (%d:%d)",pArmy->GetID(),pCurrent->getX(),pCurrent->getY(),pTurnTarget->getX(),pTurnTarget->getY());
 		LogTacticalMessage(strMsg);
 	}
 #endif

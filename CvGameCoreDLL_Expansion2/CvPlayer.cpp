@@ -40908,7 +40908,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			continue;
 		}
 
-		if(pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != eOwner)
+		if ((pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != eOwner) || (pPlot->getImprovementType() == (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT()))
 		{
 			//--------------
 			if (bLogging) 
