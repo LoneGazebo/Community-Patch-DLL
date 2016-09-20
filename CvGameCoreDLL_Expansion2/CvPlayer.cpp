@@ -5222,36 +5222,38 @@ void CvPlayer::DoEvents()
 
 	//Let's loop through all events.
 	FStaticVector<EventTypes, 256, true, c_eCiv5GameplayDLL, 0> veValidEvents;
+	int iTotalWeight = 0;
+
 	for(int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
 	{
 		EventTypes eEvent = (EventTypes)iLoop;
-		if(eEvent != NO_EVENT)
+		if (eEvent != NO_EVENT)
 		{
 			CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-			if(pkEventInfo == NULL)
+			if (pkEventInfo == NULL)
 			{
 				continue;
 			}
 
-			if(pkEventInfo->getRandomChance() == -1)
+			if (pkEventInfo->getRandomChance() == -1)
 				continue;
 
-			if(pkEventInfo->isOneShot() && IsEventFired(eEvent))
+			if (pkEventInfo->isOneShot() && IsEventFired(eEvent))
 				continue;
 
 			//Lua Hook
-			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EventCanTake, GetID(), eEvent) == GAMEEVENTRETURN_FALSE) 
+			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EventCanTake, GetID(), eEvent) == GAMEEVENTRETURN_FALSE)
 			{
 				continue;
 			}
 
 			//Global Cooldown Second - if we've had this event recently, let's check this.
-			if(GetEventCooldown(eEvent) > 0)
+			if (GetEventCooldown(eEvent) > 0)
 			{
-				if(GC.getLogging())
+				if (GC.getLogging())
 				{
 					CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-					if(pkEventInfo != NULL)
+					if (pkEventInfo != NULL)
 					{
 						CvString playerName;
 						FILogFile* pLog;
@@ -5270,12 +5272,13 @@ void CvPlayer::DoEvents()
 				ChangeEventCooldown(eEvent, -1);
 				continue;
 			}
-			if(GetPlayerEventCooldown() > 0)
+
+			if (GetPlayerEventCooldown() > 0)
 			{
-				if(GC.getLogging())
+				if (GC.getLogging())
 				{
 					CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-					if(pkEventInfo != NULL)
+					if (pkEventInfo != NULL)
 					{
 						CvString playerName;
 						FILogFile* pLog;
@@ -5292,110 +5295,135 @@ void CvPlayer::DoEvents()
 					}
 				}
 				ChangePlayerEventCooldown(-1);
-				if(!pkEventInfo->IgnoresGlobalCooldown())
+				if (!pkEventInfo->IgnoresGlobalCooldown())
 				{
 					return;
 				}
 			}
 
-			int iRandom = GC.getGame().getJonRandNum(1000, "Random Event Chance");
-			int iLimit = pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
-			if(iRandom < iLimit)
+			//most expensive check last
+			if (IsEventValid(eEvent))
 			{
-				//Check validity (expensive!)
-				if(!IsEventValid(eEvent))
-					continue;
-
-				//We did it! But reverse our increment.
-				IncrementEvent(eEvent, -GetEventIncrement(eEvent));
-				if(GC.getLogging())
-				{
-					CvString playerName;
-					FILogFile* pLog;
-					CvString strBaseString;
-					CvString strOutBuf;
-					CvString strFileName = "EventLogging.csv";
-					playerName = getCivilizationShortDescription();
-					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-					strBaseString += playerName + ", ";
-					strOutBuf.Format("Event added to list for player. Event: %s", pkEventInfo->GetDescription());
-					strBaseString += strOutBuf;
-					pLog->Msg(strBaseString);
-				}
+				veValidEvents.push_back(eEvent);
+				iTotalWeight = pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
 			}
-			else
-			{
-				//We didn't do it? Bummer. BUT if there's a delta, the chance gets higher next turn...
-				if(pkEventInfo->getRandomChanceDelta() > 0)
-				{
-					//Check validity (expensive!)
-					if(!IsEventValid(eEvent))
-						continue;
-
-					IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
-					if(GC.getLogging())
-					{
-						CvString playerName;
-						FILogFile* pLog;
-						CvString strBaseString;
-						CvString strOutBuf;
-						CvString strFileName = "EventLogging.csv";
-						playerName = getCivilizationShortDescription();
-						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-						strBaseString += playerName + ", ";
-						strOutBuf.Format("Event failed random test. Incrementing. Event: %s, Increment: %d", pkEventInfo->GetDescription(), GetEventIncrement(eEvent));
-						strBaseString += strOutBuf;
-						pLog->Msg(strBaseString);
-					}
-				}
-				continue;
-			}
-
-			veValidEvents.push_back(eEvent);
 		}
 	}
+
+	EventTypes eChosenEvent = NO_EVENT;
 	if(veValidEvents.size() > 0)
 	{
 		if(GC.getLogging())
 		{
-			CvString playerName;
-			FILogFile* pLog;
 			CvString strBaseString;
 			CvString strOutBuf;
 			CvString strFileName = "EventLogging.csv";
-			playerName = getCivilizationShortDescription();
-			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+			CvString playerName = getCivilizationShortDescription();
+			FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 			strBaseString += playerName + ", ";
 			strOutBuf.Format("Found %d Events for seeding", veValidEvents.size());
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
 		}
-		int iRandIndex = GC.getGame().getJonRandNum(veValidEvents.size(), "Picking random event for player.");
-		EventTypes eChosenEvent = veValidEvents[iRandIndex];
-		if(eChosenEvent != NO_EVENT)
-		{
-			CvModEventInfo* pkEventInfo = GC.getEventInfo(eChosenEvent);
-			if(pkEventInfo != NULL)
-			{
-				for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-					if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive())
-					{
-						//Not global?
-						if(!pkEventInfo->isGlobal() && ePlayer != GetID())
-							continue;
 
-						GET_PLAYER(ePlayer).DoStartEvent(eChosenEvent);
+		int iRandIndex = GC.getGame().getJonRandNum(1000 * veValidEvents.size(), "Picking random event for player.");
+
+		//did we hit an event?
+		if (iRandIndex < iTotalWeight)
+		{
+			EventTypes eChosenEvent = NO_EVENT;
+
+			//which one is it?
+			int iWeight = 0;
+			for (size_t iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
+			{
+				EventTypes eEvent = veValidEvents[iLoop];
+				CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+				if (!pkEventInfo)
+					continue;
+
+				iWeight += pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
+				if (iRandIndex < iWeight)
+					eChosenEvent = eEvent;
+			}
+
+			if (eChosenEvent != NO_EVENT)
+			{
+				CvModEventInfo* pkEventInfo = GC.getEventInfo(eChosenEvent);
+				if (pkEventInfo != NULL)
+				{
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+						if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive())
+						{
+							//Not global?
+							if (!pkEventInfo->isGlobal() && ePlayer != GetID())
+								continue;
+
+							GET_PLAYER(ePlayer).DoStartEvent(eChosenEvent);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	int iRandom = GC.getGame().getJonRandNum(1000, "Random Event Chance Update");
+	for (size_t iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
+	{
+		EventTypes eEvent = veValidEvents[iLoop];
+		if (eEvent != NO_EVENT)
+		{
+			CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+			if (!pkEventInfo)
+				continue;
+				
+			int iLimit = pkEventInfo->getRandomChance() + GetEventIncrement(eChosenEvent);
+			if (iRandom < iLimit)
+			{
+				//this is becoming less likely
+				IncrementEvent(eEvent, -GetEventIncrement(eEvent));
+				if (GC.getLogging())
+				{
+					CvString strBaseString;
+					CvString strOutBuf;
+					CvString strFileName = "EventLogging.csv";
+					CvString playerName = getCivilizationShortDescription();
+					FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					strBaseString += playerName + ", ";
+					strOutBuf.Format("Resetting event chance for: %s", pkEventInfo->GetDescription());
+					strBaseString += strOutBuf;
+					pLog->Msg(strBaseString);
+				}
+			}
+			else
+			{
+				//make it more likely
+				if (pkEventInfo->getRandomChanceDelta() > 0)
+				{
+					IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
+					if (GC.getLogging())
+					{
+						CvString strBaseString;
+						CvString strOutBuf;
+						CvString strFileName = "EventLogging.csv";
+						CvString playerName = getCivilizationShortDescription();
+						FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+						strBaseString += playerName + ", ";
+						strOutBuf.Format("Incrementing event chance for: %s, Increment: %d", pkEventInfo->GetDescription(), GetEventIncrement(eEvent));
+						strBaseString += strOutBuf;
+						pLog->Msg(strBaseString);
 					}
 				}
 			}
 		}
 	}
 }
+
 bool CvPlayer::IsEventValid(EventTypes eEvent)
 {
 	CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
@@ -40843,6 +40871,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 	EconomicAIStrategyTypes eStrategyReallyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS");
 	bool bWantOffshore = GetEconomicAI()->IsUsingStrategy(eStrategyReallyExpandToOtherContinents) || GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents);
+	bool bCanEmbark = GET_TEAM(getTeam()).canEmbark() || GetPlayerTraits()->IsEmbarkedAllWater();
 
 	CvMap& kMap = GC.getMap();
 	int iNumPlots = kMap.numPlots();
@@ -40930,7 +40959,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			continue;
 		}
 
-		if(pUnit && pPlot->getArea() != pUnit->getArea() && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbark())
+		if(pUnit && pPlot->getArea() != pUnit->getArea() && !bCanEmbark)
 		{
 			//--------------
 			if (bLogging) 
@@ -40951,7 +40980,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 		//take into account distance from existing cities
 		int iUnitDistance = pUnit ? plotDistance(pUnit->getX(),pUnit->getY(),pPlot->getX(),pPlot->getY()) : INT_MAX;
-		int iRelevantDistance = min(iUnitDistance,GetCityDistanceInEstimatedTurns(pPlot));
+		int iRelevantDistance = min(iUnitDistance,GetCityDistanceInEstimatedTurns(pPlot)*2); //times 2 to get the approximate plot distance
 		int iScale = MapToPercent( iRelevantDistance, iEvalDistance, GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() );
 
 		//on a new continent we want to settle along the coast

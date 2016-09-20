@@ -436,7 +436,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		int iRingModifier = m_iRingModifier[iDistance];
 
 		//not only our cities, also other player's cities!
-		int iExistingCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pLoopPlot);
+		//times 2 to get approximate plot distance
+		int iExistingCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pLoopPlot)*2;
 
 		//count the tile only if the city will be able to work it
 		if ( !pLoopPlot->isValidMovePlot(pPlayer->GetID()) || pLoopPlot->getWorkingCity()!=NULL || iExistingCityDistance<2 ) 
@@ -708,7 +709,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	// Finally, look at the city plot itself
 	if (pPlot->getResourceType(eTeam) != NO_RESOURCE)
 	{
-		iValueModifier += (int)iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT() / 100;
+		iValueModifier += (iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT()) / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) city on resource");
 	}
 #if defined(MOD_PSEUDO_NATURAL_WONDER)
@@ -717,33 +718,33 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	if (pPlot->IsNaturalWonder())
 #endif
 	{
-		iValueModifier += (int)iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT() / 100;
+		iValueModifier += (iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT()) / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) city on natural wonder");
 	}
 
-	if ( iTotalFoodValue>5*iTotalProductionValue || iTotalProductionValue > 2*iTotalFoodValue )
+	if ( iTotalProductionValue > 3*iTotalFoodValue )
 	{
-		iValueModifier -= (int)iTotalPlotValue * 20 / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields");
+		iValueModifier -= 20 * iTotalPlotValue / 100;
+		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking food)");
 	}
 
-	if ( iTotalFoodValue>10*iTotalProductionValue )
+	if ( iTotalFoodValue > 8*iTotalProductionValue )
 	{
-		iValueModifier -= (int)iTotalPlotValue * 20 / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) extremely unbalanced yields");
+		iValueModifier -= 20 * iTotalPlotValue / 100;
+		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking hammers)");
 	}
 
 	if (pPlot->isRiver())
 	{
-		iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100;
+		iValueModifier += (iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT()) / 100;
 		if(pPlayer && pPlayer->GetPlayerTraits()->IsRiverTradeRoad())
-			iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100 * 2;
+			iValueModifier += (iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT()) / 100;
 		if (pDebug) vQualifiersPositive.push_back("(V) river");
 	}
 
 	if (bIsAlmostCoast)
 	{
-		iValueModifier -= (iTotalPlotValue * 25) / 100;
+		iValueModifier -= 20 * iTotalPlotValue / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) almost coast");
 	}
 
@@ -789,7 +790,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if( pClosestCity && pClosestCity->getOwner()!=pPlayer->GetID() )
 		{
 			//this includes minors
-			iOtherCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pPlot);
+			//times 2 to get approximate plot distance
+			iOtherCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pPlot)*2;
 
 			PlayerTypes eOtherPlayer = (PlayerTypes) pClosestCity->getOwner();
 			PlayerProximityTypes eProximity = GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID());
@@ -822,12 +824,19 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		//if the neighbor is much closer then we are
 		if (!vNeighboringMajors.empty() && vNeighboringMajors.front().first < iOwnCityDistance-1)
 		{
+			int iEnemyMight = GET_PLAYER((PlayerTypes)vNeighboringMajors.front().second).GetMilitaryMight();
 			int iBoldness = pPlayer->GetDiplomacyAI()->GetBoldness();
-			float fThreshold = 1.5f - iBoldness*0.1f;
-			if ( pPlayer->GetMilitaryMight() < GET_PLAYER( (PlayerTypes)vNeighboringMajors.front().second ).GetMilitaryMight()*fThreshold )
+			float fThresholdA = 1.5f - iBoldness*0.05f;
+			if ( pPlayer->GetMilitaryMight() < iEnemyMight*fThresholdA )
 			{
-				iStratModifier -= (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
-				if (pDebug) vQualifiersNegative.push_back("(S) cannot defend");
+				iStratModifier -= (iTotalPlotValue * GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
+				if (pDebug) vQualifiersNegative.push_back("(S) hard to defend");
+			}
+			float fThresholdB = 1.5f - iBoldness*0.1f;
+			if (pPlayer->GetMilitaryMight() < iEnemyMight*fThresholdB)
+			{
+				iStratModifier -= (iTotalPlotValue * GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
+				if (pDebug) vQualifiersNegative.push_back("(S) very hard to defend");
 			}
 		}
 
@@ -848,7 +857,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (iOwnCityDistance <= iMinDistance)
 		{
 			//this case should be handled by the distance check in CanFound() also
-			iValueModifier -= iTotalPlotValue / 2;
+			iValueModifier -= (20*iTotalPlotValue) / 100;
 			if (pDebug) vQualifiersNegative.push_back("(V) too close to existing friendly city");
 		}
 
