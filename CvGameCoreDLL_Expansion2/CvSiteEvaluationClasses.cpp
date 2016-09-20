@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+﻿/*	-------------------------------------------------------------------------------------------------------
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -385,7 +385,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	int iDefaultPlotValue = -100;
 
 	//this is in turns for a typical unit
-	int iBorderlandRange = 3;
+	int iBorderlandRange = 4;
 	int iCapitalArea = NULL;
 
 	bool bIsAlmostCoast = false;
@@ -436,7 +436,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		int iRingModifier = m_iRingModifier[iDistance];
 
 		//not only our cities, also other player's cities!
-		int iExistingCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pLoopPlot);
+		//times 2 to get approximate plot distance
+		int iExistingCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pLoopPlot)*2;
 
 		//count the tile only if the city will be able to work it
 		if ( !pLoopPlot->isValidMovePlot(pPlayer->GetID()) || pLoopPlot->getWorkingCity()!=NULL || iExistingCityDistance<2 ) 
@@ -708,7 +709,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	// Finally, look at the city plot itself
 	if (pPlot->getResourceType(eTeam) != NO_RESOURCE)
 	{
-		iValueModifier += (int)iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT() / 100;
+		iValueModifier += (iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT()) / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) city on resource");
 	}
 #if defined(MOD_PSEUDO_NATURAL_WONDER)
@@ -717,33 +718,33 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	if (pPlot->IsNaturalWonder())
 #endif
 	{
-		iValueModifier += (int)iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT() / 100;
+		iValueModifier += (iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT()) / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) city on natural wonder");
 	}
 
-	if ( iTotalFoodValue>5*iTotalProductionValue || iTotalProductionValue > 2*iTotalFoodValue )
+	if ( iTotalProductionValue > 3*iTotalFoodValue )
 	{
-		iValueModifier -= (int)iTotalPlotValue * 20 / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields");
+		iValueModifier -= 20 * iTotalPlotValue / 100;
+		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking food)");
 	}
 
-	if ( iTotalFoodValue>10*iTotalProductionValue )
+	if ( iTotalFoodValue > 8*iTotalProductionValue )
 	{
-		iValueModifier -= (int)iTotalPlotValue * 20 / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) extremely unbalanced yields");
+		iValueModifier -= 20 * iTotalPlotValue / 100;
+		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking hammers)");
 	}
 
 	if (pPlot->isRiver())
 	{
-		iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100;
+		iValueModifier += (iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT()) / 100;
 		if(pPlayer && pPlayer->GetPlayerTraits()->IsRiverTradeRoad())
-			iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100 * 2;
+			iValueModifier += (iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT()) / 100;
 		if (pDebug) vQualifiersPositive.push_back("(V) river");
 	}
 
 	if (bIsAlmostCoast)
 	{
-		iValueModifier -= (iTotalPlotValue * 25) / 100;
+		iValueModifier -= 20 * iTotalPlotValue / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) almost coast");
 	}
 
@@ -793,41 +794,37 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 			PlayerTypes eOtherPlayer = (PlayerTypes) pClosestCity->getOwner();
 			PlayerProximityTypes eProximity = GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID());
-			if(eProximity >= PLAYER_PROXIMITY_CLOSE && iOtherCityDistance<=iBorderlandRange)
+			if(eProximity >= PLAYER_PROXIMITY_CLOSE && iOtherCityDistance <= iBorderlandRange)
 			{
+				int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetBoldness();
+
 				//Neighbor must not be too strong
-				if ( pPlayer->GetMilitaryMight() > GET_PLAYER(eOtherPlayer).GetMilitaryMight()*1.2f )
+				if (pPlayer->GetMilitaryMight() > GET_PLAYER(eOtherPlayer).GetMilitaryMight()*(1.2f - iBoldnessDelta*0.05f))
 				{
 					iStratModifier += (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
 					if (pDebug) vQualifiersPositive.push_back("(S) landgrab");
 				}
-				else if ( pPlayer->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight()*0.8f )
-				{
-					iStratModifier -= (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
-					if (pDebug) vQualifiersNegative.push_back("(S) too dangerous");
-				}
 			}
 		}
 
-		//check if this location can be defended ...
-		std::vector< std::pair<int,int> > vNeighboringMajors; 
+		//check if this location can be defended (from majors)
 		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 		{
 			CvPlayer& kNeighbor = GET_PLAYER((PlayerTypes)i);
-			if (kNeighbor.isAlive() && i!=pPlayer->GetID())
-				vNeighboringMajors.push_back( std::make_pair(kNeighbor.GetCityDistanceInEstimatedTurns(pPlot),i) );
-		}
-		//sort ascending
-		std::sort(vNeighboringMajors.begin(),vNeighboringMajors.end());
-		//if the neighbor is much closer then we are
-		if (!vNeighboringMajors.empty() && vNeighboringMajors.front().first < iOwnCityDistance-1)
-		{
-			int iBoldness = pPlayer->GetDiplomacyAI()->GetBoldness();
-			float fThreshold = 1.5f - iBoldness*0.1f;
-			if ( pPlayer->GetMilitaryMight() < GET_PLAYER( (PlayerTypes)vNeighboringMajors.front().second ).GetMilitaryMight()*fThreshold )
+			if (kNeighbor.isAlive() && i != pPlayer->GetID())
 			{
-				iStratModifier -= (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
-				if (pDebug) vQualifiersNegative.push_back("(S) cannot defend");
+				int iEnemyDistance = kNeighbor.GetCityDistanceInEstimatedTurns(pPlot);
+				if (iEnemyDistance < max(iOwnCityDistance - 1, iBorderlandRange))
+				{
+					int iEnemyMight = kNeighbor.GetMilitaryMight();
+					int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - kNeighbor.GetDiplomacyAI()->GetBoldness();
+
+					if (pPlayer->GetMilitaryMight() < iEnemyMight*(1.2f - iBoldnessDelta*0.05f))
+					{
+						iStratModifier -= (iTotalPlotValue * GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
+						if (pDebug) vQualifiersNegative.push_back("(S) hard to defend");
+					}
+				}
 			}
 		}
 
@@ -848,7 +845,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (iOwnCityDistance <= iMinDistance)
 		{
 			//this case should be handled by the distance check in CanFound() also
-			iValueModifier -= iTotalPlotValue / 2;
+			iValueModifier -= (20*iTotalPlotValue) / 100;
 			if (pDebug) vQualifiersNegative.push_back("(V) too close to existing friendly city");
 		}
 

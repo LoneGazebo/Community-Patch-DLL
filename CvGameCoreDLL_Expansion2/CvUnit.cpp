@@ -170,6 +170,9 @@ CvUnit::CvUnit() :
 	, m_iAlwaysHealCount("CvUnit::m_iAlwaysHealCount", m_syncArchive)
 	, m_iHealOutsideFriendlyCount("CvUnit::m_iHealOutsideFriendlyCount", m_syncArchive)
 	, m_iHillsDoubleMoveCount("CvUnit::m_iHillsDoubleMoveCount", m_syncArchive)
+#if defined(MOD_BALANCE_CORE)
+	, m_iMountainsDoubleMoveCount("CvUnit::m_iMountainsDoubleMoveCount", m_syncArchive)
+#endif
 	, m_iImmuneToFirstStrikesCount("CvUnit::m_iImmuneToFirstStrikesCount", m_syncArchive)
 	, m_iExtraVisibilityRange("CvUnit::m_iExtraVisibilityRange", m_syncArchive)
 	, m_iExtraMoves("CvUnit::m_iExtraMoves", m_syncArchive)
@@ -1617,6 +1620,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iAlwaysHealCount = 0;
 	m_iHealOutsideFriendlyCount = 0;
 	m_iHillsDoubleMoveCount = 0;
+#if defined(MOD_BALANCE_CORE)
+	m_iMountainsDoubleMoveCount = 0;
+#endif
 	m_iImmuneToFirstStrikesCount = 0;
 	m_iExtraVisibilityRange = 0;
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
@@ -5271,14 +5277,7 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	int iRoll = 0;
 	if(bIncludeRand)
 	{
-		if (isBarbarian())
-		{
-			iRoll = /*1200*/ (GC.getGame().getSmallFakeRandNum(10, GetID()) * 120);
-		}
-		else
-		{
-			iRoll = /*1200*/ GC.getGame().getJonRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Combat Damage");
-		}
+		iRoll = /*1200*/ GC.getGame().getJonRandNumVA(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Combat Damage (%s at %d,%d)", getName().c_str(), getX(), getY() );
 		iRoll *= iDamageRatio;
 #if defined(MOD_UNITS_MAX_HP)
 		iRoll /= GetMaxHitPoints();
@@ -20898,8 +20897,27 @@ void CvUnit::changeHillsDoubleMoveCount(int iChange)
 	m_iHillsDoubleMoveCount = (m_iHillsDoubleMoveCount + iChange);
 	CvAssert(getHillsDoubleMoveCount() >= 0);
 }
-
-
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvUnit::getMountainsDoubleMoveCount() const
+{
+	VALIDATE_OBJECT
+	return m_iMountainsDoubleMoveCount;
+}
+//	--------------------------------------------------------------------------------
+bool CvUnit::isMountainsDoubleMove() const
+{
+	VALIDATE_OBJECT
+	return (getMountainsDoubleMoveCount() > 0);
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changeMountainsDoubleMoveCount(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iMountainsDoubleMoveCount = (m_iMountainsDoubleMoveCount + iChange);
+	CvAssert(getMountainsDoubleMoveCount() >= 0);
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvUnit::getImmuneToFirstStrikesCount() const
 {
@@ -24562,6 +24580,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeCityAttackOnlyCount((thisPromotion.IsCityAttackSupport()) ? iChange: 0);
 		ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange: 0);
 #if defined(MOD_BALANCE_CORE)
+		changeMountainsDoubleMoveCount((thisPromotion.IsMountainsDoubleMove()) ? iChange : 0);
 		ChangeBarbarianCombatBonus((thisPromotion.GetBarbarianCombatBonus()) * iChange);
 		ChangeGainsXPFromScouting((thisPromotion.IsGainsXPFromScouting()) ? iChange: 0);
 		ChangeCannotBeCapturedCount((thisPromotion.CannotBeCaptured()) ? iChange: 0);
@@ -27876,11 +27895,11 @@ void CvUnit::AI_promote()
 		{
 			CvString szMsg;
 			if(iNumValidPromotions == 1)
-				szMsg.Format("--> Took Only Available Promotion, %s, Received by %s %d, X: %d, Y: %d, Damage: %d",
-								pkPromoInfo->GetDescription(), getName().GetCString(), GetID(), getX(), getY(), getDamage());
+				szMsg.Format("--> Took Only Available Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
+								pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
 			else
-				szMsg.Format("--> Chosen Promotion, %s, Received by %s %d, X: %d, Y: %d, Damage: %d",
-							 pkPromoInfo->GetDescription(), getName().GetCString(), GetID(), getX(), getY(), getDamage());
+				szMsg.Format("--> Chosen Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
+							 pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
 			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
 		}
 	}

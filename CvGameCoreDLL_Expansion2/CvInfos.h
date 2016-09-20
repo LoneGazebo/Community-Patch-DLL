@@ -1805,6 +1805,14 @@ public:
 	int getPopulationChangeOffset() const;
 	int getPopulationChangeDivisor() const;
 	int getMinCity() const;
+#if defined(MOD_BALANCE_CORE)
+	int getMinCityFlatFreshWater() const;
+	int getMinCityFlatNoFreshWater() const;
+	int getMinCityHillFreshWater() const;
+	int getMinCityHillNoFreshWater() const;
+	int getMinCityMountainFreshWater() const;
+	int getMinCityMountainNoFreshWater() const;
+#endif
 	int getGoldenAgeYield() const;
 	int getGoldenAgeYieldThreshold() const;
 	int getGoldenAgeYieldMod() const;
@@ -1824,6 +1832,14 @@ protected:
 	int m_iPopulationChangeOffset;
 	int m_iPopulationChangeDivisor;
 	int m_iMinCity;
+#if defined(MOD_BALANCE_CORE)
+	int m_iMinCityFlatFreshWater;
+	int m_iMinCityFlatNoFreshWater;
+	int m_iMinCityHillFreshWater;
+	int m_iMinCityHillNoFreshWater;
+	int m_iMinCityMountainFreshWater;
+	int m_iMinCityMountainNoFreshWater;
+#endif
 	int m_iGoldenAgeYield;
 	int m_iGoldenAgeYieldThreshold;
 	int m_iGoldenAgeYieldMod;

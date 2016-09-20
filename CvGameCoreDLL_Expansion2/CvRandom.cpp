@@ -1,4 +1,4 @@
-/*	-------------------------------------------------------------------------------------------------------
+﻿/*	-------------------------------------------------------------------------------------------------------
 	? 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
@@ -111,7 +111,7 @@ unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 				if(pLog)
 				{
 					char szOut[1024] = {0};
-					sprintf_s(szOut, "%s, %d, %d, max %u, res %u, seed %I64u, cc %d, rc %d, %s, %s\n", m_name.c_str(), kGame.getGameTurn(), kGame.getTurnSlice(), 
+					sprintf_s(szOut, "%s, %d, max %u, res %u, seed %I64u, cc %d, rc %d, %s, %s\n", m_name.c_str(), kGame.getGameTurn(), 
 						ulNum, ul, ullNewSeed, m_ulCallCount, m_ulResetCount, m_bSynchronous ? "sync" : "async", (pszLog != NULL) ? pszLog : "Unknown");
 					pLog->Msg(szOut);
 

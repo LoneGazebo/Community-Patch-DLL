@@ -1,4 +1,4 @@
-#include "CvGameCoreDLLPCH.h"
+﻿#include "CvGameCoreDLLPCH.h"
 #include "CvPlot.h"
 #include "CvCity.h"
 #include "CvUnit.h"
@@ -167,7 +167,12 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		{
 			iRegularCost /= 2;
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		else if(pToPlot->isMountain() && pUnit->isMountainsDoubleMove())
+		{
+			iRegularCost /= 2;
+		}
+#endif
 		else if((eToFeature == NO_FEATURE) ? pUnit->isTerrainDoubleMove(eToTerrain) : pUnit->isFeatureDoubleMove(eToFeature))
 		{
 			iRegularCost /= 2;

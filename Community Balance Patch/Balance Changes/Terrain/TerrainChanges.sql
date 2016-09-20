@@ -19,6 +19,17 @@ UPDATE Terrains
 SET Movement = '2'
 WHERE Type = 'TERRAIN_SNOW' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
 
+-- New City Yields Method
+UPDATE Yields
+SET MinCityFlatFreshWater = 1, MinCityMountainFreshWater = 1
+WHERE Type = 'YIELD_FOOD';
 
+UPDATE Yields
+SET MinCityFlatNoFreshWater = 1, MinCityMountainNoFreshWater = 1
+WHERE Type = 'YIELD_GOLD';
+
+UPDATE Yields
+SET MinCityMountainNoFreshWater = 2
+WHERE Type = 'YIELD_PRODUCTION';
 
 

@@ -1,4 +1,4 @@
-// CustomMods.cpp
+﻿// CustomMods.cpp
 #include "CvGameCoreDLLPCH.h"
 
 // must be included after all other headers

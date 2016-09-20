@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+﻿/*	-------------------------------------------------------------------------------------------------------
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2494,7 +2494,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		iItemValue /= 100;
 	}
 
-	//note: cannot use GetCityDistanceInEstimatedTurns() here, as the city's distance to itself would be zero
+	//note: cannot use GetCityDistanceInEstimatedTurns() here, as the city itself is included in the map result would be zero
 	int iBuyerDistance = INT_MAX;
 	int iLoop = 0;
 	for (CvCity* pRefCity = buyingPlayer.firstCity(&iLoop); pRefCity != NULL; pRefCity = buyingPlayer.nextCity(&iLoop))

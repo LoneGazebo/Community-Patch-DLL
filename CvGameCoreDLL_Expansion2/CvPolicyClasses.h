@@ -285,6 +285,10 @@ public:
 	int GetGarrisonsOccupiedUnhapppinessMod() const;
 	int GetTradeReligionModifier() const;
 	int GetBestRangedUnitSpawnSettle() const;
+	int GetBestNumberLandCombatUnitClass() const;
+	int GetBestNumberLandRangedUnitClass() const;
+	int GetBestNumberSeaCombatUnitClass() const;
+	int GetBestNumberSeaRangedUnitClass() const;
 	int GetConquerorYield(int i) const;
 	int GetFounderYield(int i) const;
 	int GetReligionBuildingYieldMod(int i, int j) const;
@@ -608,6 +612,10 @@ private:
 	int m_iGarrisonsOccupiedUnhapppinessMod;
 	int m_iTradeReligionModifier;
 	int m_iBestRangedUnitSpawnSettle;
+	int m_iBestNumberLandCombatUnitClass;
+	int m_iBestNumberLandRangedUnitClass;
+	int m_iBestNumberSeaCombatUnitClass;
+	int m_iBestNumberSeaRangedUnitClass;
 	int m_iFreePopulation;
 	int m_iExtraMoves;
 	int m_iMaxCorporations;

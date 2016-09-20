@@ -726,6 +726,12 @@
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
 		<Column name="NumFranchises" type="integer"/>
 	</Table>
+	<!-- Grants Combat units of any civilization (like Building_FreeUnits)-->
+	<Table name="Building_FreeSpecUnits">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="NumUnits" type="integer"/>
+	</Table>
 	<!-- Non-functional ATM -->
 	<Table name="Corporation_ResourceMonopolyAnds">
 		<Column name="CorporationType" type="text" notnull="true" reference="Corporations(Type)"/>

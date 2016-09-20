@@ -5222,36 +5222,38 @@ void CvPlayer::DoEvents()
 
 	//Let's loop through all events.
 	FStaticVector<EventTypes, 256, true, c_eCiv5GameplayDLL, 0> veValidEvents;
+	int iTotalWeight = 0;
+
 	for(int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
 	{
 		EventTypes eEvent = (EventTypes)iLoop;
-		if(eEvent != NO_EVENT)
+		if (eEvent != NO_EVENT)
 		{
 			CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-			if(pkEventInfo == NULL)
+			if (pkEventInfo == NULL)
 			{
 				continue;
 			}
 
-			if(pkEventInfo->getRandomChance() == -1)
+			if (pkEventInfo->getRandomChance() == -1)
 				continue;
 
-			if(pkEventInfo->isOneShot() && IsEventFired(eEvent))
+			if (pkEventInfo->isOneShot() && IsEventFired(eEvent))
 				continue;
 
 			//Lua Hook
-			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EventCanTake, GetID(), eEvent) == GAMEEVENTRETURN_FALSE) 
+			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EventCanTake, GetID(), eEvent) == GAMEEVENTRETURN_FALSE)
 			{
 				continue;
 			}
 
 			//Global Cooldown Second - if we've had this event recently, let's check this.
-			if(GetEventCooldown(eEvent) > 0)
+			if (GetEventCooldown(eEvent) > 0)
 			{
-				if(GC.getLogging())
+				if (GC.getLogging())
 				{
 					CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-					if(pkEventInfo != NULL)
+					if (pkEventInfo != NULL)
 					{
 						CvString playerName;
 						FILogFile* pLog;
@@ -5270,12 +5272,13 @@ void CvPlayer::DoEvents()
 				ChangeEventCooldown(eEvent, -1);
 				continue;
 			}
-			if(GetPlayerEventCooldown() > 0)
+
+			if (GetPlayerEventCooldown() > 0)
 			{
-				if(GC.getLogging())
+				if (GC.getLogging())
 				{
 					CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-					if(pkEventInfo != NULL)
+					if (pkEventInfo != NULL)
 					{
 						CvString playerName;
 						FILogFile* pLog;
@@ -5292,110 +5295,135 @@ void CvPlayer::DoEvents()
 					}
 				}
 				ChangePlayerEventCooldown(-1);
-				if(!pkEventInfo->IgnoresGlobalCooldown())
+				if (!pkEventInfo->IgnoresGlobalCooldown())
 				{
 					return;
 				}
 			}
 
-			int iRandom = GC.getGame().getJonRandNum(1000, "Random Event Chance");
-			int iLimit = pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
-			if(iRandom < iLimit)
+			//most expensive check last
+			if (IsEventValid(eEvent))
 			{
-				//Check validity (expensive!)
-				if(!IsEventValid(eEvent))
-					continue;
-
-				//We did it! But reverse our increment.
-				IncrementEvent(eEvent, -GetEventIncrement(eEvent));
-				if(GC.getLogging())
-				{
-					CvString playerName;
-					FILogFile* pLog;
-					CvString strBaseString;
-					CvString strOutBuf;
-					CvString strFileName = "EventLogging.csv";
-					playerName = getCivilizationShortDescription();
-					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-					strBaseString += playerName + ", ";
-					strOutBuf.Format("Event added to list for player. Event: %s", pkEventInfo->GetDescription());
-					strBaseString += strOutBuf;
-					pLog->Msg(strBaseString);
-				}
+				veValidEvents.push_back(eEvent);
+				iTotalWeight = pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
 			}
-			else
-			{
-				//We didn't do it? Bummer. BUT if there's a delta, the chance gets higher next turn...
-				if(pkEventInfo->getRandomChanceDelta() > 0)
-				{
-					//Check validity (expensive!)
-					if(!IsEventValid(eEvent))
-						continue;
-
-					IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
-					if(GC.getLogging())
-					{
-						CvString playerName;
-						FILogFile* pLog;
-						CvString strBaseString;
-						CvString strOutBuf;
-						CvString strFileName = "EventLogging.csv";
-						playerName = getCivilizationShortDescription();
-						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-						strBaseString += playerName + ", ";
-						strOutBuf.Format("Event failed random test. Incrementing. Event: %s, Increment: %d", pkEventInfo->GetDescription(), GetEventIncrement(eEvent));
-						strBaseString += strOutBuf;
-						pLog->Msg(strBaseString);
-					}
-				}
-				continue;
-			}
-
-			veValidEvents.push_back(eEvent);
 		}
 	}
+
+	EventTypes eChosenEvent = NO_EVENT;
 	if(veValidEvents.size() > 0)
 	{
 		if(GC.getLogging())
 		{
-			CvString playerName;
-			FILogFile* pLog;
 			CvString strBaseString;
 			CvString strOutBuf;
 			CvString strFileName = "EventLogging.csv";
-			playerName = getCivilizationShortDescription();
-			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+			CvString playerName = getCivilizationShortDescription();
+			FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 			strBaseString += playerName + ", ";
 			strOutBuf.Format("Found %d Events for seeding", veValidEvents.size());
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
 		}
-		int iRandIndex = GC.getGame().getJonRandNum(veValidEvents.size(), "Picking random event for player.");
-		EventTypes eChosenEvent = veValidEvents[iRandIndex];
-		if(eChosenEvent != NO_EVENT)
-		{
-			CvModEventInfo* pkEventInfo = GC.getEventInfo(eChosenEvent);
-			if(pkEventInfo != NULL)
-			{
-				for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-					if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive())
-					{
-						//Not global?
-						if(!pkEventInfo->isGlobal() && ePlayer != GetID())
-							continue;
 
-						GET_PLAYER(ePlayer).DoStartEvent(eChosenEvent);
+		int iRandIndex = GC.getGame().getJonRandNum(1000 * veValidEvents.size(), "Picking random event for player.");
+
+		//did we hit an event?
+		if (iRandIndex < iTotalWeight)
+		{
+			EventTypes eChosenEvent = NO_EVENT;
+
+			//which one is it?
+			int iWeight = 0;
+			for (size_t iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
+			{
+				EventTypes eEvent = veValidEvents[iLoop];
+				CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+				if (!pkEventInfo)
+					continue;
+
+				iWeight += pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
+				if (iRandIndex < iWeight)
+					eChosenEvent = eEvent;
+			}
+
+			if (eChosenEvent != NO_EVENT)
+			{
+				CvModEventInfo* pkEventInfo = GC.getEventInfo(eChosenEvent);
+				if (pkEventInfo != NULL)
+				{
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+						if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive())
+						{
+							//Not global?
+							if (!pkEventInfo->isGlobal() && ePlayer != GetID())
+								continue;
+
+							GET_PLAYER(ePlayer).DoStartEvent(eChosenEvent);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	int iRandom = GC.getGame().getJonRandNum(1000, "Random Event Chance Update");
+	for (size_t iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
+	{
+		EventTypes eEvent = veValidEvents[iLoop];
+		if (eEvent != NO_EVENT)
+		{
+			CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+			if (!pkEventInfo)
+				continue;
+				
+			int iLimit = pkEventInfo->getRandomChance() + GetEventIncrement(eChosenEvent);
+			if (iRandom < iLimit)
+			{
+				//this is becoming less likely
+				IncrementEvent(eEvent, -GetEventIncrement(eEvent));
+				if (GC.getLogging())
+				{
+					CvString strBaseString;
+					CvString strOutBuf;
+					CvString strFileName = "EventLogging.csv";
+					CvString playerName = getCivilizationShortDescription();
+					FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					strBaseString += playerName + ", ";
+					strOutBuf.Format("Resetting event chance for: %s", pkEventInfo->GetDescription());
+					strBaseString += strOutBuf;
+					pLog->Msg(strBaseString);
+				}
+			}
+			else
+			{
+				//make it more likely
+				if (pkEventInfo->getRandomChanceDelta() > 0)
+				{
+					IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
+					if (GC.getLogging())
+					{
+						CvString strBaseString;
+						CvString strOutBuf;
+						CvString strFileName = "EventLogging.csv";
+						CvString playerName = getCivilizationShortDescription();
+						FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+						strBaseString += playerName + ", ";
+						strOutBuf.Format("Incrementing event chance for: %s, Increment: %d", pkEventInfo->GetDescription(), GetEventIncrement(eEvent));
+						strBaseString += strOutBuf;
+						pLog->Msg(strBaseString);
 					}
 				}
 			}
 		}
 	}
 }
+
 bool CvPlayer::IsEventValid(EventTypes eEvent)
 {
 	CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
@@ -38466,6 +38494,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								else
 								{
 									pNewUnit = initUnit(eUnit, iX, iY);
+									getCapitalCity()->addProductionExperience(pNewUnit);
 								}
 
 								CvAssert(pNewUnit);
@@ -38633,6 +38662,391 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									else
 									{
 										pNewUnit->jumpToNearestValidPlot();
+									}
+								}
+							}
+						}
+					}
+				}
+				int iNumFreeCombatLandUnits = pPolicy->GetBestNumberLandCombatUnitClass();
+				CvCity* pCapital = getCapitalCity();
+				if(iNumFreeCombatLandUnits > 0)
+				{
+					UnitTypes eBestLandUnit = NO_UNIT;
+					int iStrengthBestLandCombat = 0;
+					for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+					{
+						const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+						if(pkUnitClassInfo)
+						{
+							const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
+							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+							if(pUnitEntry)
+							{
+								if(!pCapital->canTrain(eUnit))
+								{
+									continue;
+								}
+								if(pUnitEntry->GetRangedCombat() > 0)
+								{
+									continue;
+								}
+								if(pUnitEntry->GetDomainType() == DOMAIN_LAND)
+								{
+									bool bBad = false;
+									ResourceTypes eResource;
+									for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+									{
+										eResource = (ResourceTypes) iResourceLoop;
+										int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
+										if (iNumResource > 0)
+										{
+											if(getNumResourceAvailable(eResource, true) < iNumResource)
+											{
+												bBad = true;
+												break;
+											}
+										}
+									}
+									if(bBad)
+									{
+										continue;
+									}
+									int iCombatLandStrength = (std::max(1, pUnitEntry->GetCombat()));
+									if(iCombatLandStrength > iStrengthBestLandCombat)
+									{
+										iStrengthBestLandCombat = iCombatLandStrength;
+										eBestLandUnit = eUnit;
+									}
+								}
+							}
+						}
+					}
+					if(eBestLandUnit != NO_UNIT)
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeCombatLandUnits; iUnitLoop++)
+						{
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestLandUnit);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eBestLandUnit, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeCombatLandUnits; iUnitLoop++)
+						{
+							UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eWarrior);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eWarrior, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+				}
+				int iNumFreeRangedLandUnits = pPolicy->GetBestNumberLandRangedUnitClass();
+				if(iNumFreeRangedLandUnits > 0)
+				{
+					UnitTypes eBestLandRangedUnit = NO_UNIT;
+					int iStrengthBestLandRanged = 0;
+					for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+					{
+						const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+						if(pkUnitClassInfo)
+						{
+							const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
+							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+							if(pUnitEntry)
+							{
+								if(!pCapital->canTrain(eUnit))
+								{
+									continue;
+								}
+								if(pUnitEntry->GetDomainType() == DOMAIN_LAND && pUnitEntry->GetRangedCombat() > 0)
+								{
+									bool bBad = false;
+									ResourceTypes eResource;
+									for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+									{
+										eResource = (ResourceTypes) iResourceLoop;
+										int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
+										if (iNumResource > 0)
+										{
+											if(getNumResourceAvailable(eResource, true) < iNumResource)
+											{
+												bBad = true;
+												break;
+											}
+										}
+									}
+									if(bBad)
+									{
+										continue;
+									}
+									int iCombatLandRangedStrength = (std::max(1, pUnitEntry->GetRangedCombat()));
+									if(iCombatLandRangedStrength > iStrengthBestLandRanged)
+									{
+										iStrengthBestLandRanged = iCombatLandRangedStrength;
+										eBestLandRangedUnit = eUnit;
+									}
+								}
+							}
+						}
+					}
+					if(eBestLandRangedUnit != NO_UNIT)
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeRangedLandUnits; iUnitLoop++)
+						{
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestLandRangedUnit);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eBestLandRangedUnit, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeRangedLandUnits; iUnitLoop++)
+						{
+							UnitTypes eArcher = (UnitTypes)GC.getInfoTypeForString("UNIT_ARCHER");
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eArcher);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eArcher, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+				}
+				int iNumFreeCombatSeaUnits = pPolicy->GetBestNumberSeaCombatUnitClass();
+				if(iNumFreeCombatSeaUnits > 0 && pCapital->isCoastal())
+				{
+					UnitTypes eBestSeaUnit = NO_UNIT;
+					int iStrengthBestSeaCombat = 0;
+					for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+					{
+						const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+						if(pkUnitClassInfo)
+						{
+							const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
+							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+							if(pUnitEntry)
+							{
+								if(!pCapital->canTrain(eUnit))
+								{
+									continue;
+								}
+								if(pUnitEntry->GetRangedCombat() > 0)
+								{
+									continue;
+								}
+								if(pUnitEntry->GetDomainType() == DOMAIN_SEA)
+								{
+									bool bBad = false;
+									ResourceTypes eResource;
+									for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+									{
+										eResource = (ResourceTypes) iResourceLoop;
+										int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
+										if (iNumResource > 0)
+										{
+											if(getNumResourceAvailable(eResource, true) < iNumResource)
+											{
+												bBad = true;
+												break;
+											}
+										}
+									}
+									if(bBad)
+									{
+										continue;
+									}
+									int iCombatSeaStrength = (std::max(1, pUnitEntry->GetCombat()));
+									if(iCombatSeaStrength > iStrengthBestSeaCombat)
+									{
+										iStrengthBestSeaCombat = iCombatSeaStrength;
+										eBestSeaUnit = eUnit;
+									}
+								}
+							}
+						}
+					}
+					if(eBestSeaUnit != NO_UNIT)
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeCombatSeaUnits; iUnitLoop++)
+						{
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestSeaUnit);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eBestSeaUnit, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeCombatSeaUnits; iUnitLoop++)
+						{
+							UnitTypes eCaravel = (UnitTypes)GC.getInfoTypeForString("UNIT_CARAVEL");
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eCaravel);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eCaravel, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+				}
+				int iNumFreeRangedSeaUnits = pPolicy->GetBestNumberSeaRangedUnitClass();
+				if(iNumFreeRangedSeaUnits > 0 && pCapital->isCoastal())
+				{
+					UnitTypes eBestSeaRangedUnit = NO_UNIT;
+					int iStrengthBestSeaRanged = 0;
+					for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+					{
+						const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+						if(pkUnitClassInfo)
+						{
+							const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
+							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+							if(pUnitEntry)
+							{
+								if(!pCapital->canTrain(eUnit))
+								{
+									continue;
+								}
+								if(pUnitEntry->GetDomainType() == DOMAIN_SEA && pUnitEntry->GetRangedCombat() > 0)
+								{
+									bool bBad = false;
+									ResourceTypes eResource;
+									for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+									{
+										eResource = (ResourceTypes) iResourceLoop;
+										int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
+										if (iNumResource > 0)
+										{
+											if(getNumResourceAvailable(eResource, true) < iNumResource)
+											{
+												bBad = true;
+												break;
+											}
+										}
+									}
+									if(bBad)
+									{
+										continue;
+									}
+									int iCombatSeaRangedStrength = (std::max(1, pUnitEntry->GetRangedCombat()));
+									if(iCombatSeaRangedStrength > iStrengthBestSeaRanged)
+									{
+										iStrengthBestSeaRanged = iCombatSeaRangedStrength;
+										eBestSeaRangedUnit = eUnit;
+									}
+								}
+							}
+						}
+					}
+					if(eBestSeaRangedUnit != NO_UNIT)
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeRangedSeaUnits; iUnitLoop++)
+						{
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestSeaRangedUnit);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eBestSeaRangedUnit, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeRangedSeaUnits; iUnitLoop++)
+						{
+							UnitTypes eGalleass = (UnitTypes)GC.getInfoTypeForString("UNIT_GALLEASS");
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eGalleass);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eGalleass, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
 									}
 								}
 							}
@@ -40875,6 +41289,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 	EconomicAIStrategyTypes eStrategyReallyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS");
 	bool bWantOffshore = GetEconomicAI()->IsUsingStrategy(eStrategyReallyExpandToOtherContinents) || GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents);
+	bool bCanEmbark = GET_TEAM(getTeam()).canEmbark() || GetPlayerTraits()->IsEmbarkedAllWater();
 
 	CvMap& kMap = GC.getMap();
 	int iNumPlots = kMap.numPlots();
@@ -40962,7 +41377,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			continue;
 		}
 
-		if(pUnit && pPlot->getArea() != pUnit->getArea() && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbark())
+		if(pUnit && pPlot->getArea() != pUnit->getArea() && !bCanEmbark)
 		{
 			//--------------
 			if (bLogging) 
@@ -40983,7 +41398,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 
 		//take into account distance from existing cities
 		int iUnitDistance = pUnit ? plotDistance(pUnit->getX(),pUnit->getY(),pPlot->getX(),pPlot->getY()) : INT_MAX;
-		int iRelevantDistance = min(iUnitDistance,GetCityDistanceInEstimatedTurns(pPlot));
+		int iRelevantDistance = min(iUnitDistance,GetCityDistanceInEstimatedTurns(pPlot)*2); //times 2 to get the approximate plot distance
 		int iScale = MapToPercent( iRelevantDistance, iEvalDistance, GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() );
 
 		//on a new continent we want to settle along the coast
