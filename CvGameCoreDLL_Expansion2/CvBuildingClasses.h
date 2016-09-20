@@ -468,6 +468,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsBuildingClassNeededAnywhere(int i) const;
 	bool IsBuildingClassNeededNowhere(int i) const;
+	int GetNumFreeSpecialUnits(int i) const;
 #endif
 	int GetNumFreeUnits(int i) const;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
@@ -844,6 +845,7 @@ private:
 	int* m_paiHurryModifierLocal;
 	bool* m_pbBuildingClassNeededAnywhere;
 	bool* m_pbBuildingClassNeededNowhere;
+	int* m_piNumSpecFreeUnits;
 #endif
 	int* m_piNumFreeUnits;
 

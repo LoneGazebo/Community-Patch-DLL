@@ -12295,7 +12295,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			CvUnit* pFreeUnit;
 
 			int iFreeUnitLoop;
-
+			int iFreeSpecUnitLoop;
 			for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
 			{
 				const UnitTypes eUnit = static_cast<UnitTypes>(iUnitLoop);
@@ -12350,7 +12350,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 								else
 								{
 #endif
-								pFreeUnit = owningPlayer.initUnit(eUnit, getX(), getY());
+									pFreeUnit = owningPlayer.initUnit(eUnit, getX(), getY());
+									addProductionExperience(pFreeUnit);
 #if defined(MOD_BALANCE_CORE)
 								}
 #endif
@@ -12555,6 +12556,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							{
 #endif
 							pFreeUnit = owningPlayer.initUnit(eFreeUnitType, getX(), getY());
+							addProductionExperience(pFreeUnit);
 #if defined(MOD_BALANCE_CORE)
 							if(pFreeUnit && pFreeUnit->isTrade())
 							{
@@ -12692,7 +12694,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							else if (pFreeUnit->IsGreatPerson())
 							{
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
-								if (MOD_GLOBAL_SEPARATE_GP_COUNTERS) {
+								if (MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+								{
 									if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")) {
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 										owningPlayer.incrementGreatMerchantsCreated(MOD_GLOBAL_TRULY_FREE_GP);
@@ -12705,14 +12708,17 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #else
 										owningPlayer.incrementGreatScientistsCreated();
 #endif
-									} else {
+									}
+									else
+									{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 										owningPlayer.incrementGreatEngineersCreated(MOD_GLOBAL_TRULY_FREE_GP);
 #else
 										owningPlayer.incrementGreatEngineersCreated();
 #endif
 									}
-								} else
+								}
+								else
 #endif
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 								owningPlayer.incrementGreatPeopleCreated(MOD_GLOBAL_TRULY_FREE_GP);
@@ -12727,6 +12733,20 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #endif
 						}
 					}
+#if defined(MOD_BALANCE_CORE)
+					for(iFreeSpecUnitLoop = 0; iFreeSpecUnitLoop < pBuildingInfo->GetNumFreeSpecialUnits(iUnitLoop); iFreeSpecUnitLoop++)
+					{
+						pFreeUnit = NULL;
+						const UnitTypes eFreeSpecUnitType = (UnitTypes)pkUnitInfo->GetUnitClassType();
+						if(eFreeSpecUnitType != NO_UNIT)
+						{
+							pFreeUnit = owningPlayer.initUnit(eUnit, getX(), getY());
+							addProductionExperience(pFreeUnit);
+						}
+						if (!pFreeUnit->jumpToNearestValidPlot())
+							pFreeUnit->kill(false);	// Could not find a valid spot!
+					}
+#endif
 				}
 			}
 
@@ -12919,6 +12939,28 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		if(pBuildingInfo->GetTrainedFreePromotion() != NO_PROMOTION)
 		{
 			changeFreePromotionCount(((PromotionTypes)(pBuildingInfo->GetTrainedFreePromotion())), iChange);
+#if defined(MOD_BALANCE_CORE)
+			//Let's give this to all units from this city.
+			if (MOD_BALANCE_RETROACTIVE_PROMOS)
+			{
+				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo((PromotionTypes)pBuildingInfo->GetTrainedFreePromotion());
+				if (pkPromotionInfo)
+				{
+					int iUnitLoop;
+					CvUnit* pLoopUnit = NULL;
+					for (pLoopUnit = GetPlayer()->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iUnitLoop))
+					{
+						if (pLoopUnit->getOriginCity() != this)
+							continue;
+
+						if ((pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pLoopUnit->getUnitCombatType()))
+						{
+							pLoopUnit->setHasPromotion((PromotionTypes)pBuildingInfo->GetTrainedFreePromotion(), true);
+						}
+					}
+				}
+			}
+#endif
 		}
 
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
@@ -13283,7 +13325,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						if(owningTeam.GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(eLoopResource)->getTechCityTrade()))
 						{
+#if defined(MOD_BALANCE_CORE)
+							if(pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && (GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsAdjacentCity() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eLoopResource))))
+#else
 							if(pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eLoopResource)))
+#endif
 							{
 								if(!pLoopPlot->IsImprovementPillaged())
 								{
@@ -17032,35 +17078,14 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eF
 							iYield += iBaseYield * 2;
 						}
 #else
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 						iYield += iBaseYield * 2;
 #endif
 					}
 #if defined(MOD_ALTERNATE_CELTS)
 					else if (iAdjacentFeatures > 1 && MOD_ALTERNATE_CELTS)
 					{
->>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
-						iYield += iBaseYield * 2;
-#endif
-					}
-<<<<<<< HEAD
-=======
-						iYield += iBaseYield * 2;
-#endif
-					}
->>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
-#if defined(MOD_ALTERNATE_CELTS)
-					else if (iAdjacentFeatures > 1 && MOD_ALTERNATE_CELTS)
-					{
 						iYield += iBaseYield * 2;
 					}
-<<<<<<< HEAD
-=======
->>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
-=======
->>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 #endif
 					else if (iAdjacentFeatures > 0)
 					{

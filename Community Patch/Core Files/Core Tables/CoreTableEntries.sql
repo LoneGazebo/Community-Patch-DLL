@@ -615,6 +615,9 @@ ALTER TABLE UnitPromotions ADD COLUMN 'CityStateOnly' BOOLEAN DEFAULT 0;
 -- Promotion grants the same bonus as the Japan UA
 ALTER TABLE UnitPromotions ADD COLUMN 'StrongerDamaged' BOOLEAN DEFAULT 0;
 
+-- Double Movement on Mountains
+ALTER TABLE UnitPromotions ADD COLUMN 'MountainsDoubleMove' BOOLEAN DEFAULT 0;
+
 -- Double Heal in Feature/Terrain
 ALTER TABLE UnitPromotions_Features ADD COLUMN 'DoubleHeal' BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions_Terrains ADD COLUMN 'DoubleHeal' BOOLEAN DEFAULT 0;
@@ -793,6 +796,20 @@ ALTER TABLE Policies ADD COLUMN 'ExtraNaturalWonderHappiness' INTEGER DEFAULT 0;
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCities' INTEGER DEFAULT 0;
 ALTER TABLE Worlds ADD COLUMN 'MinDistanceCityStates' INTEGER DEFAULT 0;
 ALTER TABLE Worlds ADD COLUMN 'ReformationPercentRequired' INTEGER DEFAULT 100;
+
+-- New City Plot Yields Method
+ALTER TABLE Yields ADD COLUMN 'MinCityFlatFreshWater' INTEGER DEFAULT 0;
+ALTER TABLE Yields ADD COLUMN 'MinCityFlatNoFreshWater' INTEGER DEFAULT 0;
+ALTER TABLE Yields ADD COLUMN 'MinCityHillFreshWater' INTEGER DEFAULT 0;
+ALTER TABLE Yields ADD COLUMN 'MinCityHillNoFreshWater' INTEGER DEFAULT 0;
+ALTER TABLE Yields ADD COLUMN 'MinCityMountainFreshWater' INTEGER DEFAULT 0;
+ALTER TABLE Yields ADD COLUMN 'MinCityMountainNoFreshWater' INTEGER DEFAULT 0;
+
+-- Policy Initialize Number of best units in captial. Requries 'IncludesOneShotFreeUnits' Set to true.
+ALTER TABLE Policies ADD COLUMN 'BestNumberLandCombatUnitClass' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'BestNumberLandRangedUnitClass' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'BestNumberSeaCombatUnitClass' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'BestNumberSeaRangedUnitClass' INTEGER DEFAULT 0;
 
 -- CSD
 

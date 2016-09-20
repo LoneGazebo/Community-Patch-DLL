@@ -83,22 +83,7 @@ void CvDiplomacyRequests::Init(PlayerTypes ePlayer)
 void CvDiplomacyRequests::Uninit(void)
 {
 	m_ePlayer = NO_PLAYER;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
-	{
-		m_eNextAIPlayer = NO_PLAYER;
-	}
-#endif
-<<<<<<< HEAD
-=======
 	m_eNextAIPlayer = NO_PLAYER;
->>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
-=======
->>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 	m_aRequests.clear();
 	m_bRequestActive = false;
 	m_eRequestActiveFromPlayer = NO_PLAYER;
@@ -259,63 +244,8 @@ bool CvDiplomacyRequests::Add(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploT
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
-<<<<<<< HEAD
-		// JdH: we remove all pending requests that are not from humans at the end of the turn
-		GC.getGame().GetGameDeals().DoCancelAllProposedMPDealsWithPlayer(m_ePlayer, DIPLO_AI_PLAYERS);
-		RequestList::iterator iter = m_aRequests.begin();
-		while (iter != m_aRequests.end())
-		{
-			if (CvPreGame::isHuman(iter->m_eFromPlayer))
-				++iter;
-			else
-			{
-				if (iter->m_iLookupIndex >= 0)
-				{
-					// we had a notification: Cancel it
-					GET_PLAYER(m_ePlayer).GetNotifications()->Dismiss(iter->m_iLookupIndex, false);
-				}
-				iter = m_aRequests.erase(iter);
-			}
-		}
-	}
-	else
-	{
-		m_eNextAIPlayer = NO_PLAYER;
-	}	
-#else
-	m_eNextAIPlayer = NO_PLAYER;
-=======
 		BeginTurn(); // this adds notifications, if necessary
 		Update(); // this activates requests if appropriate
-	}
->>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
-#endif
-	return true;
-}
-
-//	----------------------------------------------------------------------------
-/// Adds a new notification to the list
-bool CvDiplomacyRequests::Add(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData /*= -1*/)
-{
-	// Queue it up
-	m_aRequests.push_back(Request());
-	Request& newRequest = m_aRequests.back();
-
-	newRequest.Clear();
-	newRequest.m_eFromPlayer = eFromPlayer;
-	newRequest.m_eDiploType = eDiploType;
-	newRequest.m_strMessage = pszMessage;
-	newRequest.m_iExtraGameData = iExtraGameData;
-	newRequest.m_eAnimationType = eAnimationType;
-	newRequest.m_iTurn = GC.getGame().getGameTurn();
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
-	{
-		if (GET_PLAYER(m_ePlayer).isTurnActive())
-		{
-			BeginTurn(); // this adds notifications, if necessary
-			Update(); // this activates requests if appropriate
-		}
 	}
 #endif
 	return true;
@@ -679,22 +609,7 @@ void CvDiplomacyRequests::DoAIDiplomacy(PlayerTypes eTargetPlayer)
 void CvDiplomacyRequests::ActiveRequestComplete()
 {
 	m_bRequestActive = false;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
-#if defined(MOD_ACTIVE_DIPLOMACY)
-	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
-	{
-		m_eRequestActiveFromPlayer = NO_PLAYER;
-	}
-#endif
-<<<<<<< HEAD
-=======
 	m_eRequestActiveFromPlayer = NO_PLAYER;
->>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
-=======
->>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 }
 
 //	---------------------------------------------------------------------------

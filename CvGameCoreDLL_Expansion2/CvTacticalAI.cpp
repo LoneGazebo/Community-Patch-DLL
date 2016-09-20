@@ -11998,14 +11998,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			iDanger++;
 
 		//try to hide - if there are few enemy units, this might be a tiebreaker
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 		//this is cheating a bit, really we need to check if the plot is visible for the enemy units visible to us
->>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
-=======
-		//this is cheating a bit, really we need to check if the plot is visible for the enemy units visible to us
->>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 		if (pPlot->isVisibleToEnemy(pUnit->getOwner()))
 			iDanger+=10;
 

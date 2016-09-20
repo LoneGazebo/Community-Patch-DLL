@@ -955,7 +955,11 @@ public:
 	int getHillsDoubleMoveCount() const;
 	bool isHillsDoubleMove() const;
 	void changeHillsDoubleMoveCount(int iChange);
-
+#if defined(MOD_BALANCE_CORE)
+	int getMountainsDoubleMoveCount() const;
+	bool isMountainsDoubleMove() const;
+	void changeMountainsDoubleMoveCount(int iChange);
+#endif
 	int getImmuneToFirstStrikesCount() const;
 	void changeImmuneToFirstStrikesCount(int iChange);
 
@@ -1706,6 +1710,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_iAlwaysHealCount;
 	FAutoVariable<int, CvUnit> m_iHealOutsideFriendlyCount;
 	FAutoVariable<int, CvUnit> m_iHillsDoubleMoveCount;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvUnit> m_iMountainsDoubleMoveCount;
+#endif
 	FAutoVariable<int, CvUnit> m_iImmuneToFirstStrikesCount;
 	FAutoVariable<int, CvUnit> m_iExtraVisibilityRange;
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)

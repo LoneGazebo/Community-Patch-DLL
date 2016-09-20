@@ -38494,6 +38494,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								else
 								{
 									pNewUnit = initUnit(eUnit, iX, iY);
+									getCapitalCity()->addProductionExperience(pNewUnit);
 								}
 
 								CvAssert(pNewUnit);
@@ -38661,6 +38662,391 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									else
 									{
 										pNewUnit->jumpToNearestValidPlot();
+									}
+								}
+							}
+						}
+					}
+				}
+				int iNumFreeCombatLandUnits = pPolicy->GetBestNumberLandCombatUnitClass();
+				CvCity* pCapital = getCapitalCity();
+				if(iNumFreeCombatLandUnits > 0)
+				{
+					UnitTypes eBestLandUnit = NO_UNIT;
+					int iStrengthBestLandCombat = 0;
+					for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+					{
+						const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+						if(pkUnitClassInfo)
+						{
+							const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
+							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+							if(pUnitEntry)
+							{
+								if(!pCapital->canTrain(eUnit))
+								{
+									continue;
+								}
+								if(pUnitEntry->GetRangedCombat() > 0)
+								{
+									continue;
+								}
+								if(pUnitEntry->GetDomainType() == DOMAIN_LAND)
+								{
+									bool bBad = false;
+									ResourceTypes eResource;
+									for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+									{
+										eResource = (ResourceTypes) iResourceLoop;
+										int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
+										if (iNumResource > 0)
+										{
+											if(getNumResourceAvailable(eResource, true) < iNumResource)
+											{
+												bBad = true;
+												break;
+											}
+										}
+									}
+									if(bBad)
+									{
+										continue;
+									}
+									int iCombatLandStrength = (std::max(1, pUnitEntry->GetCombat()));
+									if(iCombatLandStrength > iStrengthBestLandCombat)
+									{
+										iStrengthBestLandCombat = iCombatLandStrength;
+										eBestLandUnit = eUnit;
+									}
+								}
+							}
+						}
+					}
+					if(eBestLandUnit != NO_UNIT)
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeCombatLandUnits; iUnitLoop++)
+						{
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestLandUnit);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eBestLandUnit, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeCombatLandUnits; iUnitLoop++)
+						{
+							UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eWarrior);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eWarrior, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+				}
+				int iNumFreeRangedLandUnits = pPolicy->GetBestNumberLandRangedUnitClass();
+				if(iNumFreeRangedLandUnits > 0)
+				{
+					UnitTypes eBestLandRangedUnit = NO_UNIT;
+					int iStrengthBestLandRanged = 0;
+					for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+					{
+						const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+						if(pkUnitClassInfo)
+						{
+							const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
+							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+							if(pUnitEntry)
+							{
+								if(!pCapital->canTrain(eUnit))
+								{
+									continue;
+								}
+								if(pUnitEntry->GetDomainType() == DOMAIN_LAND && pUnitEntry->GetRangedCombat() > 0)
+								{
+									bool bBad = false;
+									ResourceTypes eResource;
+									for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+									{
+										eResource = (ResourceTypes) iResourceLoop;
+										int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
+										if (iNumResource > 0)
+										{
+											if(getNumResourceAvailable(eResource, true) < iNumResource)
+											{
+												bBad = true;
+												break;
+											}
+										}
+									}
+									if(bBad)
+									{
+										continue;
+									}
+									int iCombatLandRangedStrength = (std::max(1, pUnitEntry->GetRangedCombat()));
+									if(iCombatLandRangedStrength > iStrengthBestLandRanged)
+									{
+										iStrengthBestLandRanged = iCombatLandRangedStrength;
+										eBestLandRangedUnit = eUnit;
+									}
+								}
+							}
+						}
+					}
+					if(eBestLandRangedUnit != NO_UNIT)
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeRangedLandUnits; iUnitLoop++)
+						{
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestLandRangedUnit);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eBestLandRangedUnit, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeRangedLandUnits; iUnitLoop++)
+						{
+							UnitTypes eArcher = (UnitTypes)GC.getInfoTypeForString("UNIT_ARCHER");
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eArcher);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eArcher, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+				}
+				int iNumFreeCombatSeaUnits = pPolicy->GetBestNumberSeaCombatUnitClass();
+				if(iNumFreeCombatSeaUnits > 0 && pCapital->isCoastal())
+				{
+					UnitTypes eBestSeaUnit = NO_UNIT;
+					int iStrengthBestSeaCombat = 0;
+					for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+					{
+						const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+						if(pkUnitClassInfo)
+						{
+							const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
+							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+							if(pUnitEntry)
+							{
+								if(!pCapital->canTrain(eUnit))
+								{
+									continue;
+								}
+								if(pUnitEntry->GetRangedCombat() > 0)
+								{
+									continue;
+								}
+								if(pUnitEntry->GetDomainType() == DOMAIN_SEA)
+								{
+									bool bBad = false;
+									ResourceTypes eResource;
+									for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+									{
+										eResource = (ResourceTypes) iResourceLoop;
+										int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
+										if (iNumResource > 0)
+										{
+											if(getNumResourceAvailable(eResource, true) < iNumResource)
+											{
+												bBad = true;
+												break;
+											}
+										}
+									}
+									if(bBad)
+									{
+										continue;
+									}
+									int iCombatSeaStrength = (std::max(1, pUnitEntry->GetCombat()));
+									if(iCombatSeaStrength > iStrengthBestSeaCombat)
+									{
+										iStrengthBestSeaCombat = iCombatSeaStrength;
+										eBestSeaUnit = eUnit;
+									}
+								}
+							}
+						}
+					}
+					if(eBestSeaUnit != NO_UNIT)
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeCombatSeaUnits; iUnitLoop++)
+						{
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestSeaUnit);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eBestSeaUnit, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeCombatSeaUnits; iUnitLoop++)
+						{
+							UnitTypes eCaravel = (UnitTypes)GC.getInfoTypeForString("UNIT_CARAVEL");
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eCaravel);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eCaravel, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+				}
+				int iNumFreeRangedSeaUnits = pPolicy->GetBestNumberSeaRangedUnitClass();
+				if(iNumFreeRangedSeaUnits > 0 && pCapital->isCoastal())
+				{
+					UnitTypes eBestSeaRangedUnit = NO_UNIT;
+					int iStrengthBestSeaRanged = 0;
+					for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+					{
+						const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+						if(pkUnitClassInfo)
+						{
+							const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
+							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+							if(pUnitEntry)
+							{
+								if(!pCapital->canTrain(eUnit))
+								{
+									continue;
+								}
+								if(pUnitEntry->GetDomainType() == DOMAIN_SEA && pUnitEntry->GetRangedCombat() > 0)
+								{
+									bool bBad = false;
+									ResourceTypes eResource;
+									for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+									{
+										eResource = (ResourceTypes) iResourceLoop;
+										int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
+										if (iNumResource > 0)
+										{
+											if(getNumResourceAvailable(eResource, true) < iNumResource)
+											{
+												bBad = true;
+												break;
+											}
+										}
+									}
+									if(bBad)
+									{
+										continue;
+									}
+									int iCombatSeaRangedStrength = (std::max(1, pUnitEntry->GetRangedCombat()));
+									if(iCombatSeaRangedStrength > iStrengthBestSeaRanged)
+									{
+										iStrengthBestSeaRanged = iCombatSeaRangedStrength;
+										eBestSeaRangedUnit = eUnit;
+									}
+								}
+							}
+						}
+					}
+					if(eBestSeaRangedUnit != NO_UNIT)
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeRangedSeaUnits; iUnitLoop++)
+						{
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestSeaRangedUnit);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eBestSeaRangedUnit, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeRangedSeaUnits; iUnitLoop++)
+						{
+							UnitTypes eGalleass = (UnitTypes)GC.getInfoTypeForString("UNIT_GALLEASS");
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eGalleass);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eGalleass, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
 									}
 								}
 							}
