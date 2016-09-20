@@ -1588,8 +1588,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		int iAuraEffectChange = 0;
 		for(int iI = 0; iI < pFriendlyCity->GetNumWorkablePlots(); iI++)
 		{
-			CvPlot* pLoopPlot;
-			pLoopPlot = pFriendlyCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+			CvPlot* pLoopPlot = pFriendlyCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 
 			if(pLoopPlot != NULL)
 			{
@@ -1643,8 +1642,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 			int iAuraEffectChange = 0;
 			for(int iI = 0; iI < pEnemyCity->GetNumWorkablePlots(); iI++)	
 			{
-				CvPlot* pLoopPlot;
-				pLoopPlot = pEnemyCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+				CvPlot* pLoopPlot = pEnemyCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 
 				if(pLoopPlot != NULL)
 				{
@@ -1689,11 +1687,9 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 			if(pFriendlyCity != NULL && pEnemyCity != NULL && pEnemyCity->plot()->isRevealed(m_pPlayer->getTeam()))
 			{
 				CvMilitaryTarget target;
-				int iWeight;
 				target.m_pMusterCity = pFriendlyCity;
 				target.m_pTargetCity = pEnemyCity;
-				target.iMusterNearbyUnitPower = pFriendlyCity->iScratch;
-				target.iTargetNearbyUnitPower = pEnemyCity->iScratch;
+				target.iStrengthRatioTimes100 = ((pFriendlyCity->iScratch + pFriendlyCity->GetPower()) * 100) / (pEnemyCity->iScratch + pEnemyCity->GetPower() + 1);
 
 				CheckApproachFromLandAndSea(eEnemy, target, eAIOperationType);
 
@@ -1717,7 +1713,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 						continue;
 				}
 
-				iWeight = 1000 - target.m_iPathLength; // Start by using the path length as the weight, shorter paths have higher weight
+				int iWeight = 1000 - target.m_iPathLength; // Start by using the path length as the weight, shorter paths have higher weight
 				prelimWeightedTargetList.push_back(target, iWeight);
 			}
 		}
@@ -2008,17 +2004,8 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	}
 
 	//strength values for each target are estimated before calling this function
-	float fFriendlyStrength = (float)target.iMusterNearbyUnitPower;
-	fFriendlyStrength *= target.m_pMusterCity->getStrengthValue();
-	fFriendlyStrength /= 1000.f;
-	float fEnemyStrength = (float)target.iTargetNearbyUnitPower; 
-	fEnemyStrength *= target.m_pTargetCity->getStrengthValue();
-	fEnemyStrength /= 1000.f;
-	fFriendlyStrength = max(1.f, fFriendlyStrength);
-	fEnemyStrength = max(1.f, fEnemyStrength);
-	float fStrengthRatio = min( 10.f, fFriendlyStrength / fEnemyStrength );
-
-	float fDesirability = 100;
+	float fStrengthRatio = min(10.f, target.iStrengthRatioTimes100 / 100.f);
+	float fDesirability = 100.f;
 
 	bool bMinorButMajorWar = false;
 	if(m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
@@ -2201,8 +2188,9 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		CvString playerName = GetPlayer()->getCivilizationShortDescription();
 		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 
-		CvString msg = CvString::format( "%s is evaluating attack on %s from base in %s. Approach is %.2f. Distance is %d (weight %.2f), desirability %.2f, strength ratio %.2f, economic value %.2f --> score %d\n", m_pPlayer->getCivilizationShortDescription(),
-			target.m_pTargetCity->getName().c_str(), target.m_pMusterCity->getName().c_str(), fApproachMultiplier, target.m_iPathLength, fDistWeightInterpolated, fDesirability, fStrengthRatio, fEconomicValue, iRtnValue );
+		CvString msg = CvString::format( "%03d, %s is evaluating attack on %s from base in %s. Approach is %.2f. Distance is %d (weight %.2f), desirability %.2f, strength ratio %.2f, economic value %.2f --> score %d\n", 
+			GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription(), target.m_pTargetCity->getName().c_str(), target.m_pMusterCity->getName().c_str(), 
+			fApproachMultiplier, target.m_iPathLength, fDistWeightInterpolated, fDesirability, fStrengthRatio, fEconomicValue, iRtnValue );
 		pLog->Msg( msg.c_str() );
 	}
 

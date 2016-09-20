@@ -84,15 +84,21 @@ void CvDiplomacyRequests::Uninit(void)
 {
 	m_ePlayer = NO_PLAYER;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		m_eNextAIPlayer = NO_PLAYER;
 	}
 #endif
+<<<<<<< HEAD
 =======
 	m_eNextAIPlayer = NO_PLAYER;
 >>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
+=======
+>>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 	m_aRequests.clear();
 	m_bRequestActive = false;
 	m_eRequestActiveFromPlayer = NO_PLAYER;
@@ -674,15 +680,21 @@ void CvDiplomacyRequests::ActiveRequestComplete()
 {
 	m_bRequestActive = false;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		m_eRequestActiveFromPlayer = NO_PLAYER;
 	}
 #endif
+<<<<<<< HEAD
 =======
 	m_eRequestActiveFromPlayer = NO_PLAYER;
 >>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
+=======
+>>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 }
 
 //	---------------------------------------------------------------------------

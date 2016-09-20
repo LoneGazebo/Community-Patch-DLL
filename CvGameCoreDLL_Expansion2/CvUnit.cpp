@@ -5271,14 +5271,7 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	int iRoll = 0;
 	if(bIncludeRand)
 	{
-		if (isBarbarian())
-		{
-			iRoll = /*1200*/ (GC.getGame().getSmallFakeRandNum(10, GetID()) * 120);
-		}
-		else
-		{
-			iRoll = /*1200*/ GC.getGame().getJonRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Combat Damage");
-		}
+		iRoll = /*1200*/ GC.getGame().getJonRandNumVA(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Combat Damage (%s at %d,%d)", getName().c_str(), getX(), getY() );
 		iRoll *= iDamageRatio;
 #if defined(MOD_UNITS_MAX_HP)
 		iRoll /= GetMaxHitPoints();
@@ -27876,11 +27869,11 @@ void CvUnit::AI_promote()
 		{
 			CvString szMsg;
 			if(iNumValidPromotions == 1)
-				szMsg.Format("--> Took Only Available Promotion, %s, Received by %s %d, X: %d, Y: %d, Damage: %d",
-								pkPromoInfo->GetDescription(), getName().GetCString(), GetID(), getX(), getY(), getDamage());
+				szMsg.Format("--> Took Only Available Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
+								pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
 			else
-				szMsg.Format("--> Chosen Promotion, %s, Received by %s %d, X: %d, Y: %d, Damage: %d",
-							 pkPromoInfo->GetDescription(), getName().GetCString(), GetID(), getX(), getY(), getDamage());
+				szMsg.Format("--> Chosen Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
+							 pkPromoInfo->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
 			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
 		}
 	}

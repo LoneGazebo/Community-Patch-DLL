@@ -2242,10 +2242,14 @@ void CvDiplomacyAI::update()
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 =======
 	if (!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 >>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
+=======
+	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+>>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 	{
 		if(!m_aGreetPlayers.empty())
 		{
@@ -7958,18 +7962,24 @@ void CvDiplomacyAI::MakeWar()
 				{
 					iWeight = (int)GetWarProjection(eTarget) + 1;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 					// Square the distance enum to make it crucial
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
 
 =======
+=======
+>>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 
 					// Square the distance enum to make it crucial
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
 					iWeight *= (1 + (int)GetPlayer()->GetProximityToPlayer(eTarget));
 
+<<<<<<< HEAD
 >>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
+=======
+>>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 					if(iPlayerLoop < MAX_MAJOR_CIVS)
 					{
 						if(GetMajorCivOpinion(eTarget) == MAJOR_CIV_OPINION_UNFORGIVABLE)
@@ -10880,7 +10890,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 #if defined(MOD_BALANCE_CORE_DEALS)
 	if(MOD_BALANCE_CORE_DEALS)
 	{
-		int iNumDPsAlreadyWanted = GetNumDefensivePactsWanted();
+		int iNumDPsWanted = GetNumDefensivePactsWanted();
 		int iLoyalty = GetPlayer()->GetDiplomacyAI()->GetLoyalty();
 		int iNumCivs = 0;
 
@@ -10893,7 +10903,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 				iNumCivs++;
 			}
 		}
-		iLoyalty = ((iLoyalty * iNumCivs) / 50);
+		iLoyalty = ((iLoyalty * iNumCivs) / 40);
 		if(iLoyalty <= 0)
 		{
 			iLoyalty = 1;
@@ -10920,20 +10930,20 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 					// Do we already have a DP?
 					if(!GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eLoopPlayer).getTeam()))
 					{
-						//We don't want spam - let's limit this to the civ's loyalty metric (to prevent backstabs and to keep the AI from overcomitting).
-						if ((GetPlayer()->GetDiplomacyAI()->GetNumDefensePacts() + iNumDPsAlreadyWanted) <= iLoyalty)
+						// If we're Friendly and have the appropriate tech...
+						if(!IsWantsDefensivePactWithPlayer(eLoopPlayer))
 						{
-							// If we're Friendly and have the appropriate tech...
-							if(!IsWantsDefensivePactWithPlayer(eLoopPlayer))
+							if((GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_FRIENDLY) || (GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_AFRAID))
 							{
-								if((GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_FRIENDLY) || (GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_AFRAID))
+								if(eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
 								{
-									if(eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+									if(GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_AVERAGE)
 									{
-										if(GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_AVERAGE)
+										//We don't want to ally with competitors.
+										if((GetVictoryDisputeLevel(eLoopPlayer) < DISPUTE_LEVEL_STRONG) && (GetVictoryBlockLevel(eLoopPlayer) < BLOCK_LEVEL_STRONG))
 										{
-											//We don't want to ally with competitors.
-											if((GetVictoryDisputeLevel(eLoopPlayer) < DISPUTE_LEVEL_STRONG) && (GetVictoryBlockLevel(eLoopPlayer) < BLOCK_LEVEL_STRONG))
+											//We don't want spam - let's limit this to the civ's loyalty metric (to prevent backstabs and to keep the AI from overcomitting).
+											if(GetPlayer()->GetDiplomacyAI()->GetNumDefensePacts() <= iLoyalty)
 											{
 												if(GET_TEAM(GetPlayer()->getTeam()).isDefensivePactTradingAllowedWithTeam(GET_PLAYER(eLoopPlayer).getTeam()) ||	   // We have Tech & embassy to make a RA
 														GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isDefensivePactTradingAllowed()) // They have Tech & embassy to make RA
@@ -10944,13 +10954,13 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 													for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 													{
 														eLoopOtherPlayer = (PlayerTypes) iPlayerLoop;
-														if(eLoopOtherPlayer != NO_PLAYER && IsPlayerValid(eLoopOtherPlayer))
+														if(eLoopOtherPlayer != NO_PLAYER && !GET_PLAYER(eLoopOtherPlayer).isMinorCiv() && IsPlayerValid(eLoopOtherPlayer))
 														{
-															if (GET_TEAM(GET_PLAYER(eLoopOtherPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eLoopPlayer).getTeam()))
+															MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(eLoopOtherPlayer);
+															if(eOpinion < MAJOR_CIV_OPINION_NEUTRAL)
 															{
-																MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(eLoopOtherPlayer);
-																if(eOpinion < MAJOR_CIV_OPINION_NEUTRAL)
-																{										
+																if(GET_TEAM(GET_PLAYER(eLoopOtherPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eLoopPlayer).getTeam()))
+																{
 																	bFalseFriend = true;
 																	break;
 																}
@@ -10960,7 +10970,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 													if(!bFalseFriend)
 													{		
 														DoAddWantsDefensivePactWithPlayer(eLoopPlayer);
-														iNumDPsAlreadyWanted++;	// This was calculated above, increment it by one since we know we've added another
+														iNumDPsWanted++;	// This was calculated above, increment it by one since we know we've added another
 													}
 												}
 											}
@@ -10991,16 +11001,16 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 						{
 							bCancel = true;
 						}
-						if(GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) < STRENGTH_AVERAGE)
+						if(GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) <= STRENGTH_AVERAGE)
 						{
 							bCancel = true;
 						}
-						if (GetPlayer()->GetDiplomacyAI()->GetNumDefensePacts() > iLoyalty)
+						if(GetPlayer()->GetDiplomacyAI()->GetNumDefensePacts() > iLoyalty)
 						{
 							bCancel = true;
 						}
-						else if((!GET_TEAM(GetPlayer()->getTeam()).isDefensivePactTradingAllowedWithTeam(GET_PLAYER(eLoopPlayer).getTeam()) ||	   // We have Tech & embassy to make a RA
-								  !GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isDefensivePactTradingAllowed())) // They have Tech & embassy to make RA
+						else if(!(GET_TEAM(GetPlayer()->getTeam()).isDefensivePactTradingAllowedWithTeam(GET_PLAYER(eLoopPlayer).getTeam()) ||	   // We have Tech & embassy to make a RA
+								  GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isDefensivePactTradingAllowed())) // They have Tech & embassy to make RA
 						{
 							bCancel = true;
 						}
@@ -11014,7 +11024,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 								if(eLoopOtherPlayer != NO_PLAYER && !GET_PLAYER(eLoopOtherPlayer).isMinorCiv() && ((GetMajorCivApproach(eLoopOtherPlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_FRIENDLY) && (GetMajorCivApproach(eLoopOtherPlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_AFRAID)))
 								{
 									MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(eLoopOtherPlayer);
-									if(eOpinion < MAJOR_CIV_OPINION_NEUTRAL)
+									if(eOpinion <= MAJOR_CIV_OPINION_NEUTRAL)
 									{
 										if(GET_TEAM(GET_PLAYER(eLoopOtherPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eLoopPlayer).getTeam()))
 										{
@@ -15067,6 +15077,7 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 					CvDiplomacyRequests::SendRequest(GetPlayer()->GetID(), ePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
 				}
 <<<<<<< HEAD
+<<<<<<< HEAD
 			}
 		}
 		else
@@ -15114,6 +15125,8 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 			}
 		}
 =======
+=======
+>>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 			}
 		}
 		else
@@ -15160,7 +15173,10 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 				}
 			}
 		}
+<<<<<<< HEAD
 >>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
+=======
+>>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 
 #else
 		if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
@@ -17743,11 +17759,15 @@ void CvDiplomacyAI::DoContactMajorCivs()
 	{
 		if (m_eTargetPlayer >= DIPLO_FIRST_PLAYER)
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 		{
 			DoContactPlayer((PlayerTypes)m_eTargetPlayer);
 		}
 		else if (m_eTargetPlayer == DIPLO_ALL_PLAYERS || m_eTargetPlayer == DIPLO_AI_PLAYERS)
 		{
+<<<<<<< HEAD
 =======
 		{
 			DoContactPlayer((PlayerTypes)m_eTargetPlayer);
@@ -17755,6 +17775,8 @@ void CvDiplomacyAI::DoContactMajorCivs()
 		else if (m_eTargetPlayer == DIPLO_ALL_PLAYERS || m_eTargetPlayer == DIPLO_AI_PLAYERS)
 		{
 >>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
+=======
+>>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 			for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				eLoopPlayer = (PlayerTypes)iPlayerLoop;
@@ -17836,16 +17858,22 @@ void CvDiplomacyAI::DoContactMajorCivs()
 			if(GET_PLAYER(eLoopPlayer).isHuman())
 				continue;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 			DoContactPlayer(eLoopPlayer);
 		}
 
 =======
+=======
+>>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 
 			DoContactPlayer(eLoopPlayer);
 		}
 
+<<<<<<< HEAD
 >>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
+=======
+>>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 		// Loop through HUMAN Players - if we're not in MP
 		if(!CvPreGame::isNetworkMultiplayerGame())
 		{
@@ -20951,12 +20979,6 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 				{
 					continue;
 				}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-				if (pCurrentDeal->m_bIsGift)
-				{
-					continue;
-				}
-#endif
 
 				// if they don't involve the player, bail
 				if(!(pCurrentDeal->m_eFromPlayer == m_pPlayer->GetID() || pCurrentDeal->m_eToPlayer == m_pPlayer->GetID()))
@@ -21107,9 +21129,6 @@ void CvDiplomacyAI::DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStateme
 			{
 				eStatement = eTempStatement;
 				pDeal->SetRequestingPlayer(GetPlayer()->GetID());
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-				pDeal->m_bIsGift = true;
-#endif
 			}
 
 			// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
@@ -39771,9 +39790,6 @@ void CvDiplomacyAI::DoGenerousOffer(PlayerTypes ePlayer, DiploStatementTypes& eS
 				eStatement = eTempStatement;
 				SetOfferingGift(ePlayer, true);
 				bRandPassed = true;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-				pDeal->m_bIsGift = true;
-#endif
 			}
 			else
 			{

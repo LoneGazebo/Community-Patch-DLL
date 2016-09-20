@@ -1,4 +1,4 @@
--- treat mountain as a normal tile which is simply impassable without the proper trait
+﻿-- treat mountain as a normal tile which is simply impassable without the proper trait
 
 -- note: +2 will be added to see from and see through values for the plot type. influence cost also handled via plot type
 UPDATE Terrains

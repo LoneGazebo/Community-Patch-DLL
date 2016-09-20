@@ -9303,10 +9303,14 @@ void CvGame::updateTimers()
 	}
 #if defined(MOD_ACTIVE_DIPLOMACY)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 =======
 	if(!GC.getGame().isReallyNetworkMultiPlayer() || !MOD_ACTIVE_DIPLOMACY)
 >>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
+=======
+	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+>>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 	{
 		if(isHotSeat())
 		{

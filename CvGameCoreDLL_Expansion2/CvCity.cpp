@@ -3506,6 +3506,8 @@ void CvCity::DoEvents()
 
 	//Let's loop through all events.
 	FStaticVector<CityEventTypes, 256, true, c_eCiv5GameplayDLL, 0> veValidEvents;
+	int iTotalWeight = 0;
+
 	for(int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 	{
 		CityEventTypes eEvent = (CityEventTypes)iLoop;
@@ -3584,28 +3586,88 @@ void CvCity::DoEvents()
 				}
 			}
 
-			int iRandom = GC.getGame().getJonRandNum(1000, "Random Event Chance");
-			int iLimit = pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
-			if(iRandom < iLimit)
+			//most expensive check last
+			if (IsCityEventValid(eEvent))
 			{
-				//Check validity (expensive!)
-				if(!IsCityEventValid(eEvent))
+				veValidEvents.push_back(eEvent);
+				iTotalWeight = pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
+			}
+		}
+	}
+
+	if(veValidEvents.size() > 0)
+	{
+		if(GC.getLogging())
+		{
+			CvString strBaseString;
+			CvString strOutBuf;
+			CvString strFileName = "EventCityLogging.csv";
+			CvString playerName = getName();
+			FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + ", ";
+			strOutBuf.Format("Found %d Events for seeding", veValidEvents.size());
+			strBaseString += strOutBuf;
+			pLog->Msg(strBaseString);
+		}
+
+		int iRandIndex = GC.getGame().getJonRandNumVA(1000*veValidEvents.size(), "Picking random event for city %s.", getName().c_str());
+
+		//did we hit an event?
+		if (iRandIndex < iTotalWeight)
+		{
+			CityEventTypes eChosenEvent = NO_EVENT_CITY;
+
+			//which one is it?
+			int iWeight = 0;
+			for (size_t iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
+			{
+				CityEventTypes eEvent = veValidEvents[iLoop];
+				CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+				if (!pkEventInfo)
 					continue;
 
-				//We did it! But reverse our increment.
-				IncrementEvent(eEvent, -GetEventIncrement(eEvent));
-				if(GC.getLogging())
+				iWeight += pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
+				if (iRandIndex < iWeight)
+					eChosenEvent = eEvent;
+			}
+
+			if (eChosenEvent != NO_EVENT_CITY)
+			{
+				CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eChosenEvent);
+				if (pkEventInfo != NULL)
 				{
-					CvString playerName;
-					FILogFile* pLog;
+					DoStartEvent(eChosenEvent);
+				}
+			}
+		}
+	}
+
+	int iRandom = GC.getGame().getJonRandNum(1000, "Random Event Chance Update");
+	for (size_t iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
+	{
+		CityEventTypes eEvent = veValidEvents[iLoop];
+		if (eEvent != NO_EVENT)
+		{
+			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+			if (!pkEventInfo)
+				continue;
+
+			int iLimit = pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
+			if (iRandom < iLimit)
+			{
+				//We did it! But reset our increment.
+				IncrementEvent(eEvent, -GetEventIncrement(eEvent));
+				if (GC.getLogging())
+				{
 					CvString strBaseString;
 					CvString strOutBuf;
 					CvString strFileName = "EventCityLogging.csv";
-					playerName = getName();
-					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+					CvString playerName = getName();
+					FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 					strBaseString += playerName + ", ";
-					strOutBuf.Format("Event added to list for city. Event: %s", pkEventInfo->GetDescription());
+					strOutBuf.Format("Resetting event chance: %s", pkEventInfo->GetDescription());
 					strBaseString += strOutBuf;
 					pLog->Msg(strBaseString);
 				}
@@ -3613,60 +3675,23 @@ void CvCity::DoEvents()
 			else
 			{
 				//We didn't do it? Bummer. BUT if there's a delta, the chance gets higher next turn...
-				if(pkEventInfo->getRandomChanceDelta() > 0)
+				if (pkEventInfo->getRandomChanceDelta() > 0)
 				{
-					//Check validity (expensive!)
-					if(!IsCityEventValid(eEvent))
-						continue;
-
 					IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
-					if(GC.getLogging())
+					if (GC.getLogging())
 					{
-						CvString playerName;
-						FILogFile* pLog;
 						CvString strBaseString;
 						CvString strOutBuf;
 						CvString strFileName = "EventCityLogging.csv";
-						playerName = getName();
-						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+						CvString playerName = getName();
+						FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 						strBaseString += playerName + ", ";
-						strOutBuf.Format("City Event failed random test. Incrementing. Event: %s, Increment: %d", pkEventInfo->GetDescription(), GetEventIncrement(eEvent));
+						strOutBuf.Format("Incrementing event chance: %s, Increment: %d", pkEventInfo->GetDescription(), GetEventIncrement(eEvent));
 						strBaseString += strOutBuf;
 						pLog->Msg(strBaseString);
 					}
 				}
-				continue;
-			}
-
-			veValidEvents.push_back(eEvent);
-		}
-	}
-	if(veValidEvents.size() > 0)
-	{
-		if(GC.getLogging())
-		{
-			CvString playerName;
-			FILogFile* pLog;
-			CvString strBaseString;
-			CvString strOutBuf;
-			CvString strFileName = "EventCityLogging.csv";
-			playerName = getName();
-			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-			strBaseString += playerName + ", ";
-			strOutBuf.Format("Found %d Events for seeding", veValidEvents.size());
-			strBaseString += strOutBuf;
-			pLog->Msg(strBaseString);
-		}
-		int iRandIndex = GC.getGame().getJonRandNum(veValidEvents.size(), "Picking random event for player.");
-		CityEventTypes eChosenEvent = veValidEvents[iRandIndex];
-		if(eChosenEvent != NO_EVENT)
-		{
-			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eChosenEvent);
-			if(pkEventInfo != NULL)
-			{
-				DoStartEvent(eChosenEvent);
 			}
 		}
 	}
@@ -12894,28 +12919,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		if(pBuildingInfo->GetTrainedFreePromotion() != NO_PROMOTION)
 		{
 			changeFreePromotionCount(((PromotionTypes)(pBuildingInfo->GetTrainedFreePromotion())), iChange);
-#if defined(MOD_BALANCE_CORE)
-			//Let's give this to all units from this city.
-			if (MOD_BALANCE_RETROACTIVE_PROMOS)
-			{
-				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo((PromotionTypes)pBuildingInfo->GetTrainedFreePromotion());
-				if (pkPromotionInfo)
-				{
-					int iUnitLoop;
-					CvUnit* pLoopUnit = NULL;
-					for (pLoopUnit = GetPlayer()->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iUnitLoop))
-					{
-						if (pLoopUnit->getOriginCity() != this)
-							continue;
-
-						if ((pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT) && pkPromotionInfo->GetUnitCombatClass(pLoopUnit->getUnitCombatType()))
-						{
-							pLoopUnit->setHasPromotion((PromotionTypes)pBuildingInfo->GetTrainedFreePromotion(), true);
-						}
-					}
-				}
-			}
-#endif
 		}
 
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
@@ -13280,11 +13283,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						if(owningTeam.GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(eLoopResource)->getTechCityTrade()))
 						{
-#if defined(MOD_BALANCE_CORE)
-							if(pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && (GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsCreatedByGreatPerson() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsAdjacentCity() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eLoopResource))))
-#else
 							if(pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eLoopResource)))
-#endif
 							{
 								if(!pLoopPlot->IsImprovementPillaged())
 								{
@@ -17034,6 +17033,7 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eF
 						}
 #else
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 						iYield += iBaseYield * 2;
 #endif
@@ -17046,13 +17046,21 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eF
 #endif
 					}
 <<<<<<< HEAD
+=======
+						iYield += iBaseYield * 2;
+#endif
+					}
+>>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 #if defined(MOD_ALTERNATE_CELTS)
 					else if (iAdjacentFeatures > 1 && MOD_ALTERNATE_CELTS)
 					{
 						iYield += iBaseYield * 2;
 					}
+<<<<<<< HEAD
 =======
 >>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
+=======
+>>>>>>> 51c72f0066b33d122c852cbdedfcf21e78380909
 #endif
 					else if (iAdjacentFeatures > 0)
 					{
