@@ -436,7 +436,7 @@ public:
 
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
 	//get random number from gamestate without a seed in the generator
-	int	getSmallFakeRandNum(int iNum, CvPlot& input);
+	int	getSmallFakeRandNum(int iNum, const CvPlot& input);
 	int	getSmallFakeRandNum(int iNum, int iExtraSeed);
 #endif
 

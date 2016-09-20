@@ -303,6 +303,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldChangesNaturalWonder(NULL),
 	m_piYieldChangeWorldWonder(NULL),
 	m_piYieldFromMinorDemand(NULL),
+	m_piYieldFromWLTKD(NULL),
 #endif
 	m_ppiBuildingClassYieldModifiers(NULL),
 	m_ppiBuildingClassYieldChanges(NULL),
@@ -374,6 +375,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldChangesNaturalWonder);
 	SAFE_DELETE_ARRAY(m_piYieldChangeWorldWonder);
 	SAFE_DELETE_ARRAY(m_piYieldFromMinorDemand);
+	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
@@ -995,6 +997,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldChangesNaturalWonder, "Policy_YieldChangesNaturalWonder", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldChangeWorldWonder, "Policy_YieldChangeWorldWonder", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromMinorDemand, "Policy_YieldFromMinorDemand", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromWLTKD, "Policy_WLTKDYieldMod", "PolicyType", szPolicyType);
 #endif
 
 	//ImprovementCultureChanges
@@ -2741,7 +2744,7 @@ int CvPolicyEntry::GetTerrainYieldChanges(int i, int j) const
 
 int CvPolicyEntry::GetTradeRouteYieldChange(int i, int j) const
 {
-	CvAssertMsg(i < GC.getNumDomainInfos(), "Index out of bounds");
+	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
@@ -2843,6 +2846,18 @@ int CvPolicyEntry::GetYieldFromMinorDemand(int i) const
 int* CvPolicyEntry::GetYieldFromMinorDemandArray() const
 {
 	return m_piYieldFromMinorDemand;
+}
+
+int CvPolicyEntry::GetYieldFromWLTKD(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromWLTKD ? m_piYieldFromWLTKD[i] : 0;
+}
+
+int* CvPolicyEntry::GetYieldFromWLTKDArray() const
+{
+	return m_piYieldFromWLTKD;
 }
 #endif
 

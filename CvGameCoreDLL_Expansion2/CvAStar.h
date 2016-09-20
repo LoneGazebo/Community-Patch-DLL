@@ -410,7 +410,7 @@ private:
 
 
 // C-style non-member functions (used by path finder)
-int DestinationReached(int iToX, int iToyY, const SPathFinderUserData& data, const CvAStar* finder);
+int DestinationReached(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
 
 int PathDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
 int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int operation, const SPathFinderUserData& data, const CvAStar* finder);

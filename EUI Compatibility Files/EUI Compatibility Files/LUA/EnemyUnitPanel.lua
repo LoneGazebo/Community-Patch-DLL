@@ -504,7 +504,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				end
 			end
 			if (pMyUnit:IsStrongerDamaged()) then
-				iModifier = pMyUnit:GetDamage() / 4;
+				iModifier = pMyUnit:GetDamage() / 3;
 			    if (iModifier ~= 0) then
 				   controlTable = g_MyCombatDataIM:GetInstance();
 				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );

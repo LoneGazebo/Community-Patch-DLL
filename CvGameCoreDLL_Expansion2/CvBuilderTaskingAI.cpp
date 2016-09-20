@@ -769,11 +769,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 
 	// check for no brainer bail-outs
 	// if the builder is already building something
-#ifdef AUI_WORKER_EVALUATE_WORKER_RETREAT_AND_BUILD
-	if (pUnit->getBuildType() != NO_BUILD && m_pPlayer->GetPlotDanger(*pUnit->plot(), pUnit) < pUnit->GetCurrHitPoints())
-#else
-	if(pUnit->getBuildType() != NO_BUILD)
-#endif
+	if (pUnit->getBuildType() != NO_BUILD && pUnit->GetDanger() < pUnit->GetCurrHitPoints() / 2)
 	{
 		paDirectives[0].m_eDirective = BuilderDirective::BUILD_IMPROVEMENT;
 		paDirectives[0].m_eBuild = pUnit->getBuildType();

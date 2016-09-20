@@ -1330,7 +1330,7 @@ int CvTraitEntry::GetYieldChangeWorldWonder(int i) const
 
 int CvTraitEntry::GetTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2) const
 {
-	CvAssertMsg(eIndex1 < GC.getNumDomainInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 < NUM_DOMAIN_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
@@ -4076,10 +4076,10 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 				pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
 #if defined(MOD_PSEUDO_NATURAL_WONDER)
 				if( pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && 
-					pLoopPlot->isValidMovePlot(pCity->getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder(true) && (pLoopPlot->getFeatureType() == NO_FEATURE))
+					pLoopPlot->isValidMovePlot(pCity->getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder(true) && !pLoopPlot->isMountain() && (pLoopPlot->getFeatureType() == NO_FEATURE))
 #else
 				if( pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && 
-					pLoopPlot->isValidMovePlot(pCity->getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() == NO_FEATURE))
+					pLoopPlot->isValidMovePlot(pCity->getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder()  && !pLoopPlot->isMountain() && (pLoopPlot->getFeatureType() == NO_FEATURE))
 #endif
 				{
 					if(pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)

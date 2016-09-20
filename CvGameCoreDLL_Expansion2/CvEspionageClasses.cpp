@@ -219,6 +219,9 @@ void CvPlayerEspionage::Init(CvPlayer* pPlayer)
 		m_aiSpyListNameOrder.push_back(i);
 	}
 
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+	//do nothing
+#else
 	for(uint ui = 0; ui < m_aiSpyListNameOrder.size(); ui++)
 	{
 		uint uiTempValue;
@@ -227,6 +230,8 @@ void CvPlayerEspionage::Init(CvPlayer* pPlayer)
 		m_aiSpyListNameOrder[ui] = m_aiSpyListNameOrder[uiTargetSlot];
 		m_aiSpyListNameOrder[uiTargetSlot] = uiTempValue;
 	}
+#endif
+
 	m_iSpyListNameOrderIndex = 0;
 
 	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)

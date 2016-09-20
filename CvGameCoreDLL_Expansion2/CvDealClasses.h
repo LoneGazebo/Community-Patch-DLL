@@ -121,6 +121,9 @@ public:
 	bool m_bConsideringForRenewal; // is currently considering renewing this deal
 	bool m_bCheckedForRenewal; // this deal has been discussed with the player for renewal
 	bool m_bDealCancelled;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool m_bIsGift;
+#endif
 
 	TradedItemList m_TradedItems;
 

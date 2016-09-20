@@ -1600,8 +1600,6 @@
 			<Help>TXT_KEY_PROMOTION_ANTI_AIR_II_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_ANTI_AIR</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_DRILL_2</PromotionPrereqOr2>
-			<PromotionPrereqOr3>PROMOTION_COVER_1</PromotionPrereqOr3>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
@@ -3310,6 +3308,18 @@
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_EVERLASTING_YOUTH</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_MORALE_EVENT</Type>
+			<Description>TXT_KEY_PROMOTION_MORALE</Description>
+			<Help>TXT_KEY_PROMOTION_MORALE_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<CombatPercent>10</CombatPercent>
+			<PortraitIndex>59</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_MORALE</PediaEntry>
 		</Row>
 	</UnitPromotions>
 </GameData>

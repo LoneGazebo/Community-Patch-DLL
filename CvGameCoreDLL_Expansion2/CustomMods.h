@@ -77,8 +77,6 @@
 	#define AUI_GAME_OBSERVER_CAN_OPEN_CITIES
 	#define AUI_PLOT_OBSERVER_NO_NW_POPUPS
 
-#define AUI_WORKER_EVALUATE_WORKER_RETREAT_AND_BUILD 
-
 /// Flavors that weren't previously fetched but were still (attempted to be) used in processing later are now fetched
 #define AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS
 /// Fixes the code that checks for cramped status (it always triggered originally, now it only triggers if we really are cramped)
@@ -390,6 +388,7 @@
 #define MOD_BALANCE_CORE_VICTORY_GAME_CHANGES		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_VICTORY_GAME_CHANGES())
 #define MOD_BALANCE_CORE_EVENTS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_EVENTS())
 #define MOD_NO_RANDOM_TEXT_CIVS						(MOD_COMMUNITY_PATCH && gCustomMods.isNO_RANDOM_TEXT_CIVS())
+#define MOD_BALANCE_RETROACTIVE_PROMOS				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_RETROACTIVE_PROMOS())
 
 #endif
 // Changes melee ship units to be cargo carrying units with added promotions for ship and cargo
@@ -1445,6 +1444,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_VICTORY_GAME_CHANGES);
 	MOD_OPT_DECL(BALANCE_CORE_EVENTS);
 	MOD_OPT_DECL(NO_RANDOM_TEXT_CIVS);
+	MOD_OPT_DECL(BALANCE_RETROACTIVE_PROMOS);
 
 	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES);
 	MOD_OPT_DECL(CARGO_SHIPS);

@@ -8126,7 +8126,9 @@ void CvGame::doTurn()
 	 // the AI players are processed.
 		for(iI = 0; iI < MAX_PLAYERS; iI++)
 			aiShuffle[iI] = iI;
-		shuffleArray(aiShuffle, MAX_PLAYERS, getJonRand());
+
+		//use the pre-game RNG here
+		shuffleArray(aiShuffle, MAX_PLAYERS, getMapRand());
 
 		for(iI = 0; iI < MAX_PLAYERS; iI++)
 		{
@@ -9300,7 +9302,11 @@ void CvGame::updateTimers()
 		}
 	}
 #if defined(MOD_ACTIVE_DIPLOMACY)
+<<<<<<< HEAD
 	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+=======
+	if(!GC.getGame().isReallyNetworkMultiPlayer() || !MOD_ACTIVE_DIPLOMACY)
+>>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
 	{
 		if(isHotSeat())
 		{
@@ -9930,7 +9936,7 @@ int CvGame::getMapRandNum(int iNum, const char* pszLog)
 	if (iNum > 0)
 		return m_mapRand.get(iNum, pszLog);
 
-	return -(int)m_mapRand.get(-iNum, pszLog);
+	return (int)m_mapRand.get(-iNum, pszLog)*(-1);
 #else
 	return m_mapRand.get(iNum, pszLog);
 #endif
@@ -9953,7 +9959,7 @@ int CvGame::getJonRandNum(int iNum, const char* pszLog)
 	if (iNum > 0)
 		return m_jonRand.get(iNum, pszLog);
 
-	return -(int)m_jonRand.get(-iNum, pszLog);
+	return (int)m_jonRand.get(-iNum, pszLog)*(-1);
 #else
 	return m_jonRand.get(iNum, pszLog);
 #endif
@@ -9991,7 +9997,7 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 	if (iNum > 0)
 		return GC.getASyncRand().get(iNum, pszLog);
 
-	return -(int)GC.getASyncRand().get(-iNum, pszLog);
+	return (int)GC.getASyncRand().get(-iNum, pszLog)*(-1);
 #else
 	return GC.getASyncRand().get(iNum, pszLog);
 #endif
@@ -10003,7 +10009,7 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 // for small numbers (e.g. direction rolls) this should be good enough
 // most importantly, it should reduce desyncs in multiplayer
 
-int CvGame::getSmallFakeRandNum(int iNum, CvPlot& input)
+int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
 	int iFake = input.getX() * 17 + input.getY() * 23 + getGameTurn() * 3;
 	

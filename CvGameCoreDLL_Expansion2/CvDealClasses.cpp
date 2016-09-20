@@ -151,6 +151,9 @@ CvDeal::CvDeal()
 	m_bConsideringForRenewal = false;
 	m_bCheckedForRenewal = false;
 	m_bDealCancelled = false;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_bIsGift = false;
+#endif
 }
 
 /// Constructor with typical parameters
@@ -162,6 +165,9 @@ CvDeal::CvDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 	m_bConsideringForRenewal = false;
 	m_bCheckedForRenewal = false;
 	m_bDealCancelled = false;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_bIsGift = false;
+#endif
 }
 
 /// Copy Constructor with typical parameters
@@ -179,6 +185,9 @@ CvDeal::CvDeal(const CvDeal& source)
 	m_bConsideringForRenewal = source.m_bConsideringForRenewal;
 	m_bCheckedForRenewal = source.m_bCheckedForRenewal;
 	m_bDealCancelled = source.m_bDealCancelled;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_bIsGift = source.m_bIsGift;
+#endif
 	m_TradedItems.clear();
 	TradedItemList::const_iterator it;
 	for(it = source.m_TradedItems.begin(); it != source.m_TradedItems.end(); ++it)
@@ -207,6 +216,9 @@ CvDeal& CvDeal::operator=(const CvDeal& source)
 	m_bConsideringForRenewal = source.m_bConsideringForRenewal;
 	m_bCheckedForRenewal = source.m_bCheckedForRenewal;
 	m_bDealCancelled = source.m_bDealCancelled;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_bIsGift = source.m_bIsGift;
+#endif
 	m_TradedItems.clear();
 	TradedItemList::const_iterator it;
 	for(it = source.m_TradedItems.begin(); it != source.m_TradedItems.end(); ++it)
@@ -228,6 +240,9 @@ void CvDeal::ClearItems()
 	m_bConsideringForRenewal = false;
 	m_bCheckedForRenewal = false;
 	m_bDealCancelled = false;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_bIsGift = false;
+#endif
 
 	SetPeaceTreatyType(NO_PEACE_TREATY_TYPE);
 	SetSurrenderingPlayer(NO_PLAYER);
@@ -2513,6 +2528,9 @@ FDataStream& OldLoad(FDataStream& loadFrom, CvDeal& writeTo)
 	loadFrom >> writeTo.m_iStartTurn;
 	loadFrom >> writeTo.m_bConsideringForRenewal;
 	loadFrom >> writeTo.m_bDealCancelled;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	loadFrom >> writeTo.m_bIsGift;
+#endif
 	loadFrom >> writeTo.m_ePeaceTreatyType;
 	loadFrom >> writeTo.m_eSurrenderingPlayer;
 	loadFrom >> writeTo.m_eDemandingPlayer;
@@ -2552,6 +2570,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvDeal& writeTo)
 		writeTo.m_bCheckedForRenewal = false;
 	}
 	loadFrom >> writeTo.m_bDealCancelled;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	loadFrom >> writeTo.m_bIsGift;
+#endif
 	loadFrom >> writeTo.m_ePeaceTreatyType;
 	loadFrom >> writeTo.m_eSurrenderingPlayer;
 	loadFrom >> writeTo.m_eDemandingPlayer;
@@ -2589,6 +2610,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvDeal& readFrom)
 	saveTo << readFrom.m_bConsideringForRenewal;
 	saveTo << readFrom.m_bCheckedForRenewal;
 	saveTo << readFrom.m_bDealCancelled;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	saveTo << readFrom.m_bIsGift;
+#endif
 	saveTo << readFrom.m_ePeaceTreatyType;
 	saveTo << readFrom.m_eSurrenderingPlayer;
 	saveTo << readFrom.m_eDemandingPlayer;
@@ -3619,7 +3643,6 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 		}
 		// **** END HACK ****
 
-
 		if(bValid && bAccepted)
 		{
 			// Determine total duration of the Deal
@@ -4283,6 +4306,7 @@ PlayerTypes CvGameDeals::HasMadeProposal(PlayerTypes ePlayer)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+<<<<<<< HEAD
 	{
 		for (DealList::const_iterator it = m_ProposedDeals.begin(); it != m_ProposedDeals.end(); ++it)
 		{
@@ -4292,6 +4316,17 @@ PlayerTypes CvGameDeals::HasMadeProposal(PlayerTypes ePlayer)
 	}
 	else
 	{
+=======
+	{
+		for (DealList::const_iterator it = m_ProposedDeals.begin(); it != m_ProposedDeals.end(); ++it)
+		{
+		if (it->GetFromPlayer() == ePlayer)
+			return it->GetToPlayer();		
+		}
+	}
+	else
+	{
+>>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
 		if(m_ProposedDeals.size() > 0)
 		{
 			DealList::iterator iter;
@@ -5424,6 +5459,7 @@ CvDeal* CvGameDeals::GetHistoricDeal(PlayerTypes ePlayer, uint index)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+<<<<<<< HEAD
 	{
 		//iterate backwards, usually the latest deals are most interesting
 		uint iCount = 0;
@@ -5444,6 +5480,28 @@ CvDeal* CvGameDeals::GetHistoricDeal(PlayerTypes ePlayer, uint index)
 		uint iCount = 0;
 		for(iter = m_HistoricalDeals.begin(); iter != end; ++iter)
 		{
+=======
+	{
+		//iterate backwards, usually the latest deals are most interesting
+		uint iCount = 0;
+		for (int i = m_HistoricalDeals.size() - 1; i >= 0; --i)
+		{
+			CvDeal& kDeal = m_HistoricalDeals[i];
+			if((kDeal.m_eToPlayer == ePlayer || kDeal.m_eFromPlayer == ePlayer) && (iCount++ == index))
+			{
+				return &kDeal;
+			}
+		}
+	}
+	else
+	{
+		DealList::iterator iter;
+		DealList::iterator end = m_HistoricalDeals.end();
+
+		uint iCount = 0;
+		for(iter = m_HistoricalDeals.begin(); iter != end; ++iter)
+		{
+>>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
 			if((iter->m_eToPlayer == ePlayer ||
 		        iter->m_eFromPlayer == ePlayer) &&
 		        (iCount++ == index))
@@ -5690,6 +5748,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGameDeals& readFrom)
 		// JdH => savegame compatible save
 		DealList saveList;
 		for (it = readFrom.m_ProposedDeals.begin(); it != readFrom.m_ProposedDeals.end(); ++it)
+<<<<<<< HEAD
 		{
 			if (CvPreGame::isHuman(it->GetFromPlayer()) && CvPreGame::isHuman(it->GetToPlayer()))
 			{
@@ -5700,6 +5759,18 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGameDeals& readFrom)
 		saveTo << saveList.size();
 		for (it = saveList.begin(); it != saveList.end(); ++it) 
 		{
+=======
+		{
+			if (CvPreGame::isHuman(it->GetFromPlayer()) && CvPreGame::isHuman(it->GetToPlayer()))
+			{
+				// only save human to human deals until we save notifications & requests too
+				saveList.push_back(*it);
+			}
+		}
+		saveTo << saveList.size();
+		for (it = saveList.begin(); it != saveList.end(); ++it) 
+		{
+>>>>>>> 8b092948a77c4bd5bf4e2a0c459cd548e22363a3
 			saveTo << *it;
 		}
 	}

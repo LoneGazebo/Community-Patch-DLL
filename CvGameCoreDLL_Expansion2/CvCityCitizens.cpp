@@ -3626,6 +3626,10 @@ void CvCityCitizens::ChangeNumDefaultSpecialists(int iChange)
 
 	SpecialistTypes eSpecialist = (SpecialistTypes) GC.getDEFAULT_SPECIALIST();
 	m_aiSpecialistCounts[eSpecialist] += iChange;
+
+	if (m_aiSpecialistCounts[eSpecialist] > m_pCity->getPopulation())
+		OutputDebugString("warning: implausible number of specialists!\n");
+
 #if defined(MOD_BALANCE_CORE)
 	GetCity()->processSpecialist(eSpecialist, iChange, bUpdateNow);
 #else
@@ -3671,6 +3675,9 @@ int CvCityCitizens::GetTotalSpecialistCount() const
 			iNumSpecialists += GetSpecialistCount(eSpecialist);
 		}
 	}
+
+	if (iNumSpecialists>m_pCity->getPopulation())
+		OutputDebugString("warning: implausible number of specialists!\n");
 
 	return iNumSpecialists;
 }

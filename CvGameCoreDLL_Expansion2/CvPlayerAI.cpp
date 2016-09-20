@@ -725,19 +725,15 @@ void CvPlayerAI::AI_considerAnnex()
 	for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 	{
 		//simple check to stop razing "good" cities
-		if (pCity->IsRazing() && pCity->HasAnyWonder())
-		{
+		if (pCity->IsRazing() && pCity->HasAnyWonder() && !IsEmpireVeryUnhappy())
 			unraze(pCity);
-			return; //one annexation per turn is enough
-		}
-#if defined(MOD_BALANCE_CORE)
+
 		//Original City and puppeted? Stop!
 		if(pCity->getOriginalOwner() == GetID() && pCity->IsPuppet())
 		{
 			pCity->DoAnnex();
 			return;
 		}
-#endif
 
 		CityAndProduction kEval;
 		kEval.pCity = pCity;
