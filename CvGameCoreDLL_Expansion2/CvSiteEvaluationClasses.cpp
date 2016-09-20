@@ -385,7 +385,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	int iDefaultPlotValue = -100;
 
 	//this is in turns for a typical unit
-	int iBorderlandRange = 3;
+	int iBorderlandRange = 4;
 	int iCapitalArea = NULL;
 
 	bool bIsAlmostCoast = false;
@@ -790,53 +790,41 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if( pClosestCity && pClosestCity->getOwner()!=pPlayer->GetID() )
 		{
 			//this includes minors
-			//times 2 to get approximate plot distance
-			iOtherCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pPlot)*2;
+			iOtherCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pPlot);
 
 			PlayerTypes eOtherPlayer = (PlayerTypes) pClosestCity->getOwner();
 			PlayerProximityTypes eProximity = GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID());
-			if(eProximity >= PLAYER_PROXIMITY_CLOSE && iOtherCityDistance<=iBorderlandRange)
+			if(eProximity >= PLAYER_PROXIMITY_CLOSE && iOtherCityDistance <= iBorderlandRange)
 			{
+				int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetBoldness();
+
 				//Neighbor must not be too strong
-				if ( pPlayer->GetMilitaryMight() > GET_PLAYER(eOtherPlayer).GetMilitaryMight()*1.2f )
+				if (pPlayer->GetMilitaryMight() > GET_PLAYER(eOtherPlayer).GetMilitaryMight()*(1.2f - iBoldnessDelta*0.05f))
 				{
 					iStratModifier += (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
 					if (pDebug) vQualifiersPositive.push_back("(S) landgrab");
 				}
-				else if ( pPlayer->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight()*0.8f )
-				{
-					iStratModifier -= (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
-					if (pDebug) vQualifiersNegative.push_back("(S) too dangerous");
-				}
 			}
 		}
 
-		//check if this location can be defended ...
-		std::vector< std::pair<int,int> > vNeighboringMajors; 
+		//check if this location can be defended (from majors)
 		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 		{
 			CvPlayer& kNeighbor = GET_PLAYER((PlayerTypes)i);
-			if (kNeighbor.isAlive() && i!=pPlayer->GetID())
-				vNeighboringMajors.push_back( std::make_pair(kNeighbor.GetCityDistanceInEstimatedTurns(pPlot),i) );
-		}
-		//sort ascending
-		std::sort(vNeighboringMajors.begin(),vNeighboringMajors.end());
-		//if the neighbor is much closer then we are
-		if (!vNeighboringMajors.empty() && vNeighboringMajors.front().first < iOwnCityDistance-1)
-		{
-			int iEnemyMight = GET_PLAYER((PlayerTypes)vNeighboringMajors.front().second).GetMilitaryMight();
-			int iBoldness = pPlayer->GetDiplomacyAI()->GetBoldness();
-			float fThresholdA = 1.5f - iBoldness*0.05f;
-			if ( pPlayer->GetMilitaryMight() < iEnemyMight*fThresholdA )
+			if (kNeighbor.isAlive() && i != pPlayer->GetID())
 			{
-				iStratModifier -= (iTotalPlotValue * GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
-				if (pDebug) vQualifiersNegative.push_back("(S) hard to defend");
-			}
-			float fThresholdB = 1.5f - iBoldness*0.1f;
-			if (pPlayer->GetMilitaryMight() < iEnemyMight*fThresholdB)
-			{
-				iStratModifier -= (iTotalPlotValue * GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
-				if (pDebug) vQualifiersNegative.push_back("(S) very hard to defend");
+				int iEnemyDistance = kNeighbor.GetCityDistanceInEstimatedTurns(pPlot);
+				if (iEnemyDistance < max(iOwnCityDistance - 1, iBorderlandRange))
+				{
+					int iEnemyMight = kNeighbor.GetMilitaryMight();
+					int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - kNeighbor.GetDiplomacyAI()->GetBoldness();
+
+					if (pPlayer->GetMilitaryMight() < iEnemyMight*(1.2f - iBoldnessDelta*0.05f))
+					{
+						iStratModifier -= (iTotalPlotValue * GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
+						if (pDebug) vQualifiersNegative.push_back("(S) hard to defend");
+					}
+				}
 			}
 		}
 
