@@ -5680,9 +5680,18 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice)
 		{
 			if(GetCityBuildings()->GetNumBuildingClass(eBuilding) <= 0)
 			{
-				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS_LOCAL");
-				localizedDurationText << GC.getBuildingClassInfo((BuildingClassTypes)pkEventInfo->getBuildingRequired())->GetDescription();
-				DisabledTT += localizedDurationText.toUTF8();
+				CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+
+				if (pCivilizationInfo != NULL)
+				{
+					BuildingTypes eBuildingType = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings((BuildingClassTypes)pkEventInfo->getBuildingRequired());
+					if (eBuildingType != NO_BUILDING)
+					{
+						localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS_LOCAL");
+						localizedDurationText << GC.getBuildingInfo(eBuildingType)->GetDescription();
+						DisabledTT += localizedDurationText.toUTF8();
+					}
+				}
 			}
 		}
 	}
@@ -5693,9 +5702,18 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice)
 		{
 			if(GetCityBuildings()->GetNumBuildingClass(eBuilding) > 0)
 			{
-				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_BUILDING_CLASS_LOCAL");
-				localizedDurationText << GC.getBuildingClassInfo((BuildingClassTypes)pkEventInfo->getBuildingLimiter())->GetDescription();
-				DisabledTT += localizedDurationText.toUTF8();
+				CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+
+				if (pCivilizationInfo != NULL)
+				{
+					BuildingTypes eBuildingType = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings((BuildingClassTypes)pkEventInfo->getBuildingLimiter());
+					if (eBuildingType != NO_BUILDING)
+					{
+						localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_BUILDING_CLASS_LOCAL");
+						localizedDurationText << GC.getBuildingInfo(eBuildingType)->GetDescription();
+						DisabledTT += localizedDurationText.toUTF8();
+					}
+				}
 			}
 		}
 	}
@@ -22095,7 +22113,7 @@ void CvCity::DoBarbIncursion()
 				if(pUnit != NULL && pUnit->isBarbarian() && pUnit->IsCombatUnit())
 				{			
 					int iBarbStrength = (pUnit->GetBaseCombatStrength() * 3);
-					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, pUnit->GetID()) * 10;
+					iBarbStrength += GC.getGame().getSmallFakeRandNum(10, pUnit->GetID()) * 15;
 					if(iBarbStrength > iCityStrength)
 					{
 						int iTheft = (iBarbStrength - iCityStrength);

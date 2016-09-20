@@ -4529,8 +4529,7 @@ CivilizationTypes CvGame::getActiveCivilizationType()
 //	--------------------------------------------------------------------------------
 bool CvGame::isReallyNetworkMultiPlayer() const
 {
-	return true;
-	//return CvPreGame::isReallyNetworkMultiPlayer();
+	return CvPreGame::isReallyNetworkMultiPlayer();
 }
 #endif
 

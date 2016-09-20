@@ -7477,9 +7477,18 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		}
 		if(!bHas)
 		{
-			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_UNITCLASS_TYPE");
-			localizedDurationText << GC.getUnitClassInfo((UnitClassTypes)pkEventInfo->getUnitTypeRequired())->GetDescription();
-			DisabledTT += localizedDurationText.toUTF8();
+			CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+
+			if (pCivilizationInfo != NULL)
+			{
+				UnitTypes eUnitType = (UnitTypes)pCivilizationInfo->getCivilizationUnits((UnitClassTypes)pkEventInfo->getUnitTypeRequired());
+				if (eUnitType != NO_UNIT)
+				{
+					localizedDurationText = Localization::Lookup("TXT_KEY_NEED_UNITCLASS_TYPE");
+					localizedDurationText << GC.getUnitInfo(eUnitType)->GetDescription();
+					DisabledTT += localizedDurationText.toUTF8();
+				}
+			}
 		}
 	}
 
@@ -7643,9 +7652,18 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 			}
 			if(!bHas)
 			{
-				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS");
-				localizedDurationText << GC.getBuildingClassInfo((BuildingClassTypes)pkEventInfo->getBuildingRequired())->GetDescription();
-				DisabledTT += localizedDurationText.toUTF8();
+				CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+
+				if (pCivilizationInfo != NULL)
+				{
+					BuildingTypes eBuildingType = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings((BuildingClassTypes)pkEventInfo->getBuildingRequired());
+					if (eBuildingType != NO_BUILDING)
+					{
+						localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS");
+						localizedDurationText << GC.getBuildingInfo(eBuildingType)->GetDescription();
+						DisabledTT += localizedDurationText.toUTF8();
+					}
+				}
 			}
 		}
 	}
@@ -7667,9 +7685,18 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 			}
 			if(bHas)
 			{
-				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_BUILDING_CLASS");
-				localizedDurationText << GC.getBuildingClassInfo((BuildingClassTypes)pkEventInfo->getBuildingLimiter())->GetDescription();
-				DisabledTT += localizedDurationText.toUTF8();
+				CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+
+				if (pCivilizationInfo != NULL)
+				{
+					BuildingTypes eBuildingType = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings((BuildingClassTypes)pkEventInfo->getBuildingLimiter());
+					if (eBuildingType != NO_BUILDING)
+					{
+						localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_BUILDING_CLASS");
+						localizedDurationText << GC.getBuildingInfo(eBuildingType)->GetDescription();
+						DisabledTT += localizedDurationText.toUTF8();
+					}
+				}
 			}
 		}
 	}
@@ -38981,22 +39008,27 @@ bool CvPlayer::HasActiveDiplomacyRequests() const
 	CvDiplomacyRequests* pkDiploRequests = GetDiplomacyRequests();
 	if(pkDiploRequests && pkDiploRequests->HasActiveRequest())
 		return true;
-
-	// Do I have any for others?
-	for(int i = 0; i < MAX_PLAYERS; ++i)
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	if (!MOD_ACTIVE_DIPLOMACY || !GC.getGame().isReallyNetworkMultiPlayer())
 	{
-		const CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)i);
-		if(kPlayer.isAlive())
+#endif
+		// Do I have any for others?
+		for (int i = 0; i < MAX_PLAYERS; ++i)
 		{
-			pkDiploRequests = kPlayer.GetDiplomacyRequests();
-			if(pkDiploRequests)
+			const CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)i);
+			if (kPlayer.isAlive())
 			{
-				if(pkDiploRequests->HasActiveRequestFrom(ePlayer))
-					return true;
+				pkDiploRequests = kPlayer.GetDiplomacyRequests();
+				if (pkDiploRequests)
+				{
+					if (pkDiploRequests->HasActiveRequestFrom(ePlayer))
+						return true;
+				}
 			}
 		}
+#if defined(MOD_ACTIVE_DIPLOMACY)
 	}
-
+#endif
 	return false;
 }
 

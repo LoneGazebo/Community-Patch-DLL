@@ -2241,7 +2241,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 void CvDiplomacyAI::update()
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	if(!GC.getGame().isReallyNetworkMultiPlayer() || !MOD_ACTIVE_DIPLOMACY)
+	if (!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		if(!m_aGreetPlayers.empty())
 		{
