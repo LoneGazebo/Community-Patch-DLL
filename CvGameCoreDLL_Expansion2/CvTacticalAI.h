@@ -833,7 +833,6 @@ private:
 	void ExecuteGatherMoves(CvArmyAI* pArmy);
 	void ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget);
 	bool ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iNumMeleeUnits, int iNumRangedUnits, int iDeployRange);
-	bool ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, int iNumUnits);
 	void ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
 	void ExecuteNavalFormationEscortMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
 

@@ -691,7 +691,7 @@ void CvTacticalAnalysisMap::AddToDominanceZones(int iIndex, CvTacticalAnalysisCe
 	newZone.SetWater(pPlot->isWater());
 
 	int iCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pPlot);
-	CvCity* pCity = GC.getGame().GetClosestCity(pPlot);
+	CvCity* pCity = GC.getGame().GetClosestCityByEstimatedTurns(pPlot);
 	PlayerTypes eOwnerPlayer = NO_PLAYER;
 	TeamTypes eOwnerTeam = NO_TEAM;
 

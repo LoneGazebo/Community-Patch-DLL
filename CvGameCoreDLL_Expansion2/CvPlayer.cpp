@@ -697,7 +697,8 @@ CvPlayer::CvPlayer() :
 	m_pBuilderTaskingAI = FNEW(CvBuilderTaskingAI, c_eCiv5GameplayDLL, 0);
 	m_pDangerPlots = FNEW(CvDangerPlots, c_eCiv5GameplayDLL, 0);
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	m_pCityDistance = FNEW(CvDistanceMap, c_eCiv5GameplayDLL, 0);
+	m_pCityDistanceTurns = FNEW(CvDistanceMapTurns, c_eCiv5GameplayDLL, 0);
+	m_pCityDistancePlots = FNEW(CvDistanceMapPlots, c_eCiv5GameplayDLL, 0);
 #endif
 	m_pCityConnections = FNEW(CvCityConnections, c_eCiv5GameplayDLL, 0);
 	m_pTreasury = FNEW(CvTreasury, c_eCiv5GameplayDLL, 0);
@@ -729,7 +730,8 @@ CvPlayer::~CvPlayer()
 
 	SAFE_DELETE(m_pDangerPlots);
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	SAFE_DELETE(m_pCityDistance);
+	SAFE_DELETE(m_pCityDistanceTurns);
+	SAFE_DELETE(m_pCityDistancePlots);
 #endif
 	delete m_pPlayerPolicies;
 	delete m_pEconomicAI;
@@ -1173,7 +1175,8 @@ void CvPlayer::uninit()
 	}
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	m_pCityDistance->Reset();
+	m_pCityDistanceTurns->Reset();
+	m_pCityDistancePlots->Reset();
 #endif
 
 	m_ppaaiSpecialistExtraYield.clear();
@@ -1938,7 +1941,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_pDangerPlots->Init(eID, false /*bAllocate*/);
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-		m_pCityDistance->SetPlayer(eID);
+		m_pCityDistanceTurns->SetPlayer(eID);
+		m_pCityDistancePlots->SetPlayer(eID);
 #endif
 
 		m_pTreasury->Init(this);
@@ -2126,7 +2130,8 @@ void CvPlayer::gameStartInit()
 #if defined(MOD_BALANCE_CORE)
 	//make sure the non-serialized infos are up to date
 	m_pDangerPlots->Init(GetID(), true);
-	m_pCityDistance->SetPlayer(GetID());
+	m_pCityDistanceTurns->SetPlayer(GetID());
+	m_pCityDistancePlots->SetPlayer(GetID());
 #else
 	// if the game is loaded, don't init the danger plots. This was already done in the serialization process.
 	if(CvPreGame::gameStartType() != GAME_LOADED)
@@ -35190,24 +35195,42 @@ void CvPlayer::deleteCity(int iID)
 #if defined(MOD_BALANCE_CORE)
 void CvPlayer::SetClosestCityMapDirty()
 {
-	if (m_pCityDistance)
-		m_pCityDistance->SetDirty();
+	if (m_pCityDistanceTurns)
+		m_pCityDistanceTurns->SetDirty();
+	if (m_pCityDistancePlots)
+		m_pCityDistancePlots->SetDirty();
 
 	GC.getGame().SetClosestCityMapDirty();
 }
 
 int CvPlayer::GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const
 {
-	if (pPlot && m_pCityDistance)
-		return m_pCityDistance->GetClosestFeatureDistance( *pPlot );
+	if (pPlot && m_pCityDistanceTurns)
+		return m_pCityDistanceTurns->GetClosestFeatureDistance( *pPlot );
 	else
 		return INT_MAX;
 }
 
 CvCity* CvPlayer::GetClosestCityByEstimatedTurns( const CvPlot* pPlot ) const
 {
-	if (pPlot && m_pCityDistance)
-		return getCity(m_pCityDistance->GetClosestFeatureID( *pPlot ));
+	if (pPlot && m_pCityDistanceTurns)
+		return getCity(m_pCityDistanceTurns->GetClosestFeatureID( *pPlot ));
+	else
+		return NULL;
+}
+
+int CvPlayer::GetCityDistanceInPlots(const CvPlot* pPlot) const
+{
+	if (pPlot && m_pCityDistancePlots)
+		return m_pCityDistancePlots->GetClosestFeatureDistance(*pPlot);
+	else
+		return INT_MAX;
+}
+
+CvCity* CvPlayer::GetClosestCityByPlots(const CvPlot* pPlot) const
+{
+	if (pPlot && m_pCityDistancePlots)
+		return getCity(m_pCityDistancePlots->GetClosestFeatureID(*pPlot));
 	else
 		return NULL;
 }
