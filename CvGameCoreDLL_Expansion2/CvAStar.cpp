@@ -1502,13 +1502,13 @@ int StepCostEstimate(const CvAStarNode* parent, const CvAStarNode* node, int, co
 	bool bIsValidRoute = pFromPlot->isRoute() && !pFromPlot->IsRoutePillaged() && pToPlot->isRoute() && !pToPlot->IsRoutePillaged();
 
 	if (bIsValidRoute)
-		iScale /= 3;
+		iScale = 67;
 	else if (pToPlot->isRoughGround())
-		iScale *= 2;
+		iScale = 200;
 	else if (pFromPlot->isWater() != pToPlot->isWater())
-		iScale *= 2; //dis/embarkation
+		iScale = 200; //dis/embarkation
 	else if (pFromPlot->isWater() && pToPlot->isWater())
-		iScale /= 2; //movement on water is usually faster
+		iScale = 67; //movement on water is usually faster
 
 	return PATH_BASE_COST*iScale/100;
 }
@@ -1660,16 +1660,8 @@ int StepAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFi
 /// Step path finder - add a new node to the path. calculate turns as normalized distance
 int StepAddWithTurnsFromCost(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUserData&, CvAStar*)
 {
-	if(operation == ASNC_INITIALADD)
-	{
-		node->m_iTurns = 0;
-	}
-	else
-	{
-		//assume a unit has 2*PATH_BASE_COST movement points per turn
-		node->m_iTurns = node->m_iKnownCost / 2 / PATH_BASE_COST + 1;
-	}
-
+	//assume a unit has 2*PATH_BASE_COST movement points per turn
+	node->m_iTurns = node->m_iKnownCost > 0 ? max(1,node->m_iKnownCost / (2 * PATH_BASE_COST)) : 0;
 	node->m_iMoves = 0;
 	return 1;
 }

@@ -10331,295 +10331,177 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 	{
 		CvPlot* pBestPlot = NULL;
 		int iBestScore = -1;
+		int iMoveFlags = 0;
 		UnitHandle pGeneral = m_pPlayer->getUnit(m_GeneralsToMove[iI].GetUnitID());
-		iBestScore = 0;
 
-		if(pGeneral)
+		if(!pGeneral)
+			continue;
+
+		//Should we consider using our heal?
+		if(pGeneral->canRepairFleet(pGeneral->plot()))
 		{
-			CvArmyAI* pArmy = m_pPlayer->getArmyAI(pGeneral->getArmyID());
-			if(pArmy)
+			int iInjured = 0;
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 			{
-				if(pArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP && pArmy->Plot() != NULL)
+				CvPlot *pLoopPlot = plotDirection(pGeneral->plot()->getX(), pGeneral->plot()->getY(), ((DirectionTypes)iI));
+				if (pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
 				{
-					ExecuteMoveToPlotIgnoreDanger(pGeneral, pArmy->Plot());
-					if(GC.getLogging() && GC.getAILogging())
+					CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
+					if(pUnit != NULL && pUnit->getOwner() == pGeneral->getOwner() && (pUnit->GetCurrHitPoints() <= (pUnit->GetMaxHitPoints() / 2)))
 					{
-						CvString strMsg;
-						strMsg.Format("Deploying %s %d for gathering army, To X: %d, To Y: %d, At X: %d, At Y: %d",
-							pGeneral->getName().GetCString(), pGeneral->GetID(), pArmy->GetX(), pArmy->GetY(),
-										pGeneral->getX(), pGeneral->getY());
-						LogTacticalMessage(strMsg);
-					}
-					continue;
-				}
-				else if(pArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION && pArmy->Plot() != NULL)
-				{
-					CvAIOperation* pOperation = GET_PLAYER(pArmy->GetOwner()).getAIOperation(pArmy->GetOperationID());
-					if (pOperation && pOperation->IsNavalOperation())
-					{
-						MoveToUsingSafeEmbark(pGeneral, pArmy->Plot(), true, 0);
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Deploying %s %d for moving army, To X: %d, To Y: %d, At X: %d, At Y: %d",
-								pGeneral->getName().GetCString(), pGeneral->GetID(), pArmy->GetX(), pArmy->GetY(),
-											pGeneral->getX(), pGeneral->getY());
-							LogTacticalMessage(strMsg);
-						}
-						continue;
+						iInjured++;
 					}
 				}
 			}
-			//Should we consider using our heal?
-			if(pGeneral->canRepairFleet(pGeneral->plot()))
+			CvUnit* pUnit = pGeneral->plot()->getUnitByIndex(0);
+			if(pUnit != NULL && pUnit->getOwner() == pGeneral->getOwner() && (pUnit->GetCurrHitPoints() <= (pUnit->GetMaxHitPoints() / 2)))
 			{
-				int iInjured = 0;
-				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				iInjured++;
+			}
+			//A lot of injured ships around us
+			if(iInjured >= 3)
+			{
+				pGeneral->PushMission(CvTypes::getMISSION_REPAIR_FLEET());
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					CvPlot *pLoopPlot = plotDirection(pGeneral->plot()->getX(), pGeneral->plot()->getY(), ((DirectionTypes)iI));
-					if (pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
-					{
-						CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-						if(pUnit != NULL && pUnit->getOwner() == pGeneral->getOwner() && (pUnit->GetCurrHitPoints() <= (pUnit->GetMaxHitPoints() / 2)))
-						{
-							iInjured++;
-						}
-					}
+					CvString strMsg;
+					strMsg.Format("Expending for REPAIR FLEET ACTION - Great Admiral - %s, At X: %d, At Y: %d",
+						pGeneral->getName().GetCString(), pGeneral->getX(), pGeneral->getY());
+					LogTacticalMessage(strMsg);
 				}
-				CvUnit* pUnit = pGeneral->plot()->getUnitByIndex(0);
-				if(pUnit != NULL && pUnit->getOwner() == pGeneral->getOwner() && (pUnit->GetCurrHitPoints() <= (pUnit->GetMaxHitPoints() / 2)))
+				UnitProcessed(pGeneral->GetID());
+				pGeneral->finishMoves();
+				continue;
+			}
+		}
+
+		CvPlot* pArmyCOM = pArmyAI ? pArmyAI->GetCenterOfMass() : NULL;
+
+		ReachablePlots reachablePlots;
+		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pGeneral.pointer(),pGeneral->plot(),reachablePlots,true,true,false);
+		for (ReachablePlots::const_iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
+		{
+			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+			if (!pEvalPlot)
+				continue;
+
+			int iScore = ScoreGreatGeneralPlot(pGeneral, pEvalPlot);
+
+			if (pArmyCOM && iScore>0)
+			{
+				//try to stay with the army center
+				int iDistance = plotDistance(pEvalPlot->getX(), pEvalPlot->getY(), pArmyCOM->getX(), pArmyCOM->getY());
+				iScore *= MapToPercent(iDistance,6,0);
+			}
+
+			if(iScore > iBestScore)
+			{
+				iBestScore = iScore;
+				pBestPlot = pEvalPlot;
+			}
+		}
+
+		if (pBestPlot == NULL)
+		{
+			//if this will be a multi-turn move, be careful
+			iMoveFlags = CvUnit::MOVEFLAG_SAFE_EMBARK;
+
+			//nothing near us, check all possible defenders
+			int iHighestScore = 0;
+			int iUnitLoop=0;
+			for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))				
+			{
+				if (!pLoopUnit->IsCombatUnit())
+					continue;
+
+				//only consider units from our own army
+				if (pArmyAI && pLoopUnit->getArmyID()!=pArmyAI->GetID())
+					continue;
+
+				CvPlot* pLoopPlot = pLoopUnit->plot();
+				int iScore = ScoreGreatGeneralPlot(pGeneral,pLoopPlot);
+
+				//we don't want to adjust our position too much
+				int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pGeneral->getX(), pGeneral->getY());
+				iScore *= MapToPercent(iDistance,15,2);
+
+				if (iScore>iHighestScore)
 				{
-					iInjured++;
+					pBestPlot = pLoopPlot;
+					iHighestScore = iScore;
 				}
-				//A lot of injured ships around us
-				if(iInjured >= 3)
+			}
+		}
+
+		//ok, one last attempt
+		if(pBestPlot == NULL)
+		{
+			//try to go to a city
+			CvCity* pCity = m_pPlayer->GetMilitaryAI()->GetMostThreatenedCity();
+			if(!pCity)
+				pCity = m_pPlayer->GetClosestCityByEstimatedTurns(pGeneral->plot());
+
+			if(pCity != NULL)
+			{
+				pBestPlot = pCity->plot();
+
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					pGeneral->PushMission(CvTypes::getMISSION_REPAIR_FLEET());
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Expending for REPAIR FLEET ACTION - Great Admiral - %s, At X: %d, At Y: %d",
-							pGeneral->getName().GetCString(), pGeneral->getX(), pGeneral->getY());
-						LogTacticalMessage(strMsg);
-					}
-					UnitProcessed(pGeneral->GetID());
+					CvString strMsg;
+					strMsg.Format("No good plot, so %s is moving to a threatened city, To X: %d, To Y: %d, At X: %d, At Y: %d",
+									pGeneral->getName().GetCString(), pBestPlot->getX(), pBestPlot->getY(),
+									pGeneral->getX(), pGeneral->getY());
+					LogTacticalMessage(strMsg);
+				}
+			}
+		}
+
+		if(pBestPlot != NULL)
+		{
+			UnitHandle pDefender(NULL);
+			pGeneral->GeneratePath(pBestPlot,iMoveFlags);
+			CvPlot *pMovePlot = pGeneral->GetPathEndFirstTurnPlot();
+			if(pMovePlot != NULL)
+			{
+				pDefender = pMovePlot->getBestDefender(m_pPlayer->GetID());
+				if(pDefender || pGeneral->GetDanger(pMovePlot)==0)
+				{
+					ExecuteMoveToPlotIgnoreDanger(pGeneral, pMovePlot);
 					pGeneral->finishMoves();
-					continue;
-				}
-			}
-
-			CvPlot* pArmyCOM = pArmyAI ? pArmyAI->GetCenterOfMass() : NULL;
-
-			ReachablePlots reachablePlots;
-			TacticalAIHelpers::GetAllPlotsInReachThisTurn(pGeneral.pointer(),pGeneral->plot(),reachablePlots,true,true,false);
-			for (ReachablePlots::const_iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
-			{
-				CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-				if (!pEvalPlot)
-					continue;
-
-				int iScore = ScoreGreatGeneralPlot(pGeneral, pEvalPlot);
-
-				if (pArmyCOM && iScore>0)
-				{
-					//try to stay with the army center
-					int iDistance = plotDistance(pEvalPlot->getX(), pEvalPlot->getY(), pArmyCOM->getX(), pArmyCOM->getY());
-					iScore *= MapToPercent(iDistance,6,0);
-				}
-				//Is this plot closer to our target? Let's do it.
-				int iClosestPlot = MAX_INT;
-				if(pArmyAI && pArmyAI->GetGoalPlot() != NULL)
-				{
-					int iGoalDistance = plotDistance(pEvalPlot->getX(), pEvalPlot->getY(), pArmyAI->GetGoalPlot()->getX(), pArmyAI->GetGoalPlot()->getY());
-					if(iGoalDistance < iClosestPlot)
-					{
-						iScore *= 2;
-					}
-				}
-
-				if(iScore > iBestScore)
-				{
-					iBestScore = iScore;
-					pBestPlot = pEvalPlot;
-				}
-			}
-
-			if (pBestPlot == NULL)
-			{
-				//nothing near us, check all possible defenders
-				int iHighestScore = 0;
-				int iUnitLoop=0;
-				for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))				
-				{
-					if (!pLoopUnit->IsCombatUnit())
-						continue;
-
-					//only consider units from our own army
-					if (pArmyAI && pLoopUnit->getArmyID()!=pArmyAI->GetID())
-						continue;
-
-					CvPlot* pLoopPlot = pLoopUnit->plot();
-					int iScore = ScoreGreatGeneralPlot(pGeneral,pLoopPlot);
-
-					//we don't want to adjust our position too much
-					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pGeneral->getX(), pGeneral->getY());
-					iScore *= MapToPercent(iDistance,15,2);
-
-					if (iScore>iHighestScore)
-					{
-						pBestPlot = pLoopPlot;
-						iHighestScore = iScore;
-					}
-				}
-			}
-
-			//ok, one last attempt
-			int iMoveFlags = CvUnit::MOVEFLAG_IGNORE_DANGER;
-			if(pBestPlot == NULL)
-			{
-				//try to go to a city
-				CvCity* pCity = m_pPlayer->GetMilitaryAI()->GetMostThreatenedCity();
-				if(!pCity)
-					pCity = m_pPlayer->GetClosestCityByEstimatedTurns(pGeneral->plot());
-
-				if(pCity != NULL)
-				{
-					iMoveFlags = CvUnit::MOVEFLAG_SAFE_EMBARK;
-					pBestPlot = pCity->plot();
-
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("No good plot, so %s is moving to a threatened city, To X: %d, To Y: %d, At X: %d, At Y: %d",
-										pGeneral->getName().GetCString(), pBestPlot->getX(), pBestPlot->getY(),
-										pGeneral->getX(), pGeneral->getY());
-						LogTacticalMessage(strMsg);
-					}
-				}
-			}
-
-			if(pBestPlot != NULL)
-			{
-				UnitHandle pDefender(NULL);
-				pGeneral->GeneratePath(pBestPlot,iMoveFlags);
-				CvPlot *pMovePlot = pGeneral->GetPathEndFirstTurnPlot();
-				bool bSafe = false;
-				if(pMovePlot != NULL)
-				{
-					pDefender = pMovePlot->getBestDefender(m_pPlayer->GetID());
-					if(pDefender || (pMovePlot->getOwner() == m_pPlayer->GetID() && !m_pPlayer->IsAtWar()))
-					{
-						ExecuteMoveToPlotIgnoreDanger(pGeneral, pBestPlot);
-						bSafe = true;
-					}
-					else
-					{
-						for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-						{
-							CvPlot *pLoopPlot = plotDirection(pMovePlot->getX(), pMovePlot->getY(), ((DirectionTypes)iI));
-							if (pLoopPlot != NULL)
-							{
-								pDefender = pLoopPlot->getBestDefender(m_pPlayer->GetID());
-								if(pDefender)
-								{
-									if(pGeneral->CanReachInXTurns(pLoopPlot, 1))
-									{
-										ExecuteMoveToPlotIgnoreDanger(pGeneral, pLoopPlot);
-										bSafe = true;
-										break;
-									}
-								}
-							}
-						}
-					}
-					//Moving with an army but not a safe route at the moment? Just head towards the target.
-					if(!bSafe && pArmyAI && pGeneral->getArmyID() == pArmyAI->GetID() && !m_pPlayer->IsAtWar())
-					{
-						int iClosestPlot = MAX_INT;
-						ReachablePlots reachablePlots;
-						TacticalAIHelpers::GetAllPlotsInReachThisTurn(pGeneral.pointer(),pGeneral->plot(),reachablePlots,true,true,false);
-						for (ReachablePlots::const_iterator it=reachablePlots.begin(); it!=reachablePlots.end(); ++it)
-						{
-							CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-							if (!pEvalPlot)
-								continue;
-
-							
-							if(pArmyAI && pArmyAI->GetGoalPlot() != NULL)
-							{
-								int iGoalDistance = plotDistance(pEvalPlot->getX(), pEvalPlot->getY(), pArmyAI->GetGoalPlot()->getX(), pArmyAI->GetGoalPlot()->getY());
-								if(iGoalDistance < iClosestPlot)
-								{
-									iClosestPlot = iGoalDistance;
-									pBestPlot = pEvalPlot;
-								}
-							}
-						}
-						if(pBestPlot != NULL)
-						{
-							ExecuteMoveToPlotIgnoreDanger(pGeneral, pBestPlot);
-							bSafe = true;
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strMsg;
-								strMsg.Format("Deploying %s %d to assist troops BOLDLY, To X: %d, To Y: %d, At X: %d, At Y: %d, Dist from Target: %d",
-												pGeneral->getName().GetCString(), pGeneral->GetID(), pBestPlot->getX(), pBestPlot->getY(),
-												pGeneral->getX(), pGeneral->getY(), iClosestPlot);
-								LogTacticalMessage(strMsg);
-							}
-						}
-					}
-				}
-				if(bSafe)
-				{
 					UnitProcessed(pGeneral->GetID());
-					pGeneral->finishMoves();
 
 					//defender must stay here now, whether he wants to or not
-					if(pDefender)
+					if(pDefender && pDefender->canMove())
 					{
 						TacticalAIHelpers::PerformRangedAttackWithoutMoving(pDefender.pointer());
-						UnitProcessed(pDefender->GetID());
 						pDefender->finishMoves();
+						UnitProcessed(pDefender->GetID());
 					}
 
-					if(pArmyAI != NULL)
-					{
-						int iDistanceRemaining = plotDistance(pGeneral->getX(), pGeneral->getY(), pBestPlot->getX(), pBestPlot->getY());
-
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strMsg;
-							strMsg.Format("Deploying %s %d to assist troops, To X: %d, To Y: %d, At X: %d, At Y: %d, Dist from Target: %d",
-											pGeneral->getName().GetCString(), pGeneral->GetID(), pBestPlot->getX(), pBestPlot->getY(),
-											pGeneral->getX(), pGeneral->getY(), iDistanceRemaining);
-							LogTacticalMessage(strMsg);
-						}
-					}
 					continue;
 				}
-				else
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strMsg;
-						strMsg.Format("Deploying %s %d to assist troops, but couldn't find a safe plot. Going to flee. To X: %d, To Y: %d, At X: %d, At Y: %d",
-										pGeneral->getName().GetCString(), pGeneral->GetID(), pBestPlot->getX(), pBestPlot->getY(),
-										pGeneral->getX(), pGeneral->getY());
-						LogTacticalMessage(strMsg);
+			}
 
-						CvPlot* pSafestPlot = TacticalAIHelpers::FindSafestPlotInReach(pGeneral.pointer(),true);
-						if(pSafestPlot != NULL)
-						{
-							pGeneral->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafestPlot->getX(), pSafestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
-							pGeneral->finishMoves();
-							UnitProcessed(pGeneral->GetID());						
-						}
-					}
+			//if we get here, pathfinding failed or the target plot was not acceptable
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strMsg;
+				strMsg.Format("Deploying %s %d to assist troops, but couldn't find a safe plot. Going to flee. To X: %d, To Y: %d, At X: %d, At Y: %d",
+								pGeneral->getName().GetCString(), pGeneral->GetID(), pBestPlot->getX(), pBestPlot->getY(),
+								pGeneral->getX(), pGeneral->getY());
+				LogTacticalMessage(strMsg);
+
+				CvPlot* pSafestPlot = TacticalAIHelpers::FindSafestPlotInReach(pGeneral.pointer(),true);
+				if(pSafestPlot != NULL)
+				{
+					pGeneral->PushMission(CvTypes::getMISSION_MOVE_TO(), pSafestPlot->getX(), pSafestPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+					pGeneral->finishMoves();
+					UnitProcessed(pGeneral->GetID());						
 				}
 			}
 		}
 	}
+
 	return;
 }
 

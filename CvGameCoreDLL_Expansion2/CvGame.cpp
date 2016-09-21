@@ -13155,6 +13155,32 @@ void CvGame::SetClosestCityMapDirty()
 {
 	m_globalCityDistanceTurns.SetDirty();
 	m_globalCityDistancePlots.SetDirty();
+
+	//debugging
+	if (false)
+	{
+		CvString fname = CvString::format("CityDistance%03d.txt",getGameTurn());
+		FILogFile* pLog = LOGFILEMGR.GetLog(fname.c_str(), FILogFile::kDontTimeStamp);
+		if (pLog)
+		{
+			pLog->Msg("#x,y,water,plot dist,plot city,plot owner,turn dist,turn city,turn owner\n");
+			for (int i = 0; i < GC.getMap().numPlots(); i++)
+			{
+				CvPlot* pPlot = GC.getMap().plotByIndex(i);
+				int iDP = m_globalCityDistancePlots.GetClosestFeatureDistance(*pPlot);
+				int iCP = m_globalCityDistancePlots.GetClosestFeatureID(*pPlot);
+				int iOP = m_globalCityDistancePlots.GetClosestFeatureOwner(*pPlot);
+				int iDT = m_globalCityDistanceTurns.GetClosestFeatureDistance(*pPlot);
+				int iCT = m_globalCityDistancePlots.GetClosestFeatureID(*pPlot);
+				int iOT = m_globalCityDistancePlots.GetClosestFeatureOwner(*pPlot);
+
+				CvString dump = CvString::format("%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+					pPlot->getX(), pPlot->getY(), pPlot->isWater() ? 1 : 0, iDP, iCP, iOP, iDT, iCT, iOT);
+
+				pLog->Msg(dump.c_str());
+			}
+		}
+	}
 }
 
 int CvGame::GetClosestCityDistanceInTurns( const CvPlot* pPlot )

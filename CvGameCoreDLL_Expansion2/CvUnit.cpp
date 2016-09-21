@@ -24906,7 +24906,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 								if(AreUnitsOfSameType(*pLoopUnit))
 								{
 									CvPlot* here = plot();
-									if(here && pLoopUnit->canEnterTerrain(*here,CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->canMove())
+									if(here && pLoopUnit->canEnterTerrain(*here,CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->ReadyToMove())
 									{
 										// Can the unit I am swapping with get to me this turn?
 										SPathFinderUserData data(pLoopUnit,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);

@@ -5315,7 +5315,6 @@ void CvPlayer::DoEvents()
 		}
 	}
 
-	EventTypes eChosenEvent = NO_EVENT;
 	if(veValidEvents.size() > 0)
 	{
 		if(GC.getLogging())
@@ -5368,6 +5367,22 @@ void CvPlayer::DoEvents()
 								continue;
 
 							GET_PLAYER(ePlayer).DoStartEvent(eChosenEvent);
+
+							//reset probability
+							IncrementEvent(eChosenEvent, -GetEventIncrement(eChosenEvent));
+							if (GC.getLogging())
+							{
+								CvString strBaseString;
+								CvString strOutBuf;
+								CvString strFileName = "EventLogging.csv";
+								CvString playerName = getCivilizationShortDescription();
+								FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+								strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+								strBaseString += playerName + ", ";
+								strOutBuf.Format("Resetting event chance for: %s", pkEventInfo->GetDescription());
+								strBaseString += strOutBuf;
+								pLog->Msg(strBaseString);
+							}
 						}
 					}
 				}
@@ -5375,7 +5390,6 @@ void CvPlayer::DoEvents()
 		}
 	}
 
-	int iRandom = GC.getGame().getJonRandNum(1000, "Random Event Chance Update");
 	for (size_t iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
 	{
 		EventTypes eEvent = veValidEvents[iLoop];
@@ -5384,12 +5398,11 @@ void CvPlayer::DoEvents()
 			CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
 			if (!pkEventInfo)
 				continue;
-				
-			int iLimit = pkEventInfo->getRandomChance() + GetEventIncrement(eChosenEvent);
-			if (iRandom < iLimit)
+
+			//make it more likely
+			if (pkEventInfo->getRandomChanceDelta() > 0)
 			{
-				//this is becoming less likely
-				IncrementEvent(eEvent, -GetEventIncrement(eEvent));
+				IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
 				if (GC.getLogging())
 				{
 					CvString strBaseString;
@@ -5399,30 +5412,9 @@ void CvPlayer::DoEvents()
 					FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 					strBaseString += playerName + ", ";
-					strOutBuf.Format("Resetting event chance for: %s", pkEventInfo->GetDescription());
+					strOutBuf.Format("Incrementing event chance for: %s, Increment: %d", pkEventInfo->GetDescription(), GetEventIncrement(eEvent));
 					strBaseString += strOutBuf;
 					pLog->Msg(strBaseString);
-				}
-			}
-			else
-			{
-				//make it more likely
-				if (pkEventInfo->getRandomChanceDelta() > 0)
-				{
-					IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
-					if (GC.getLogging())
-					{
-						CvString strBaseString;
-						CvString strOutBuf;
-						CvString strFileName = "EventLogging.csv";
-						CvString playerName = getCivilizationShortDescription();
-						FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-						strBaseString += playerName + ", ";
-						strOutBuf.Format("Incrementing event chance for: %s, Increment: %d", pkEventInfo->GetDescription(), GetEventIncrement(eEvent));
-						strBaseString += strOutBuf;
-						pLog->Msg(strBaseString);
-					}
 				}
 			}
 		}
