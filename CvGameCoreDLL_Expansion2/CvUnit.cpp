@@ -5292,7 +5292,14 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	int iRoll = 0;
 	if(bIncludeRand)
 	{
-		iRoll = /*1200*/ GC.getGame().getJonRandNumVA(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Combat Damage (%s at %d,%d)", getName().c_str(), getX(), getY() );
+		if (isBarbarian())
+		{
+			iRoll = /*1200*/ (GC.getGame().getSmallFakeRandNum(10, GetID()) * 120);
+		}
+		else
+		{
+			iRoll = /*1200*/ GC.getGame().getJonRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Combat Damage");
+		}
 		iRoll *= iDamageRatio;
 #if defined(MOD_UNITS_MAX_HP)
 		iRoll /= GetMaxHitPoints();

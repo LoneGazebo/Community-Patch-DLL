@@ -13459,18 +13459,25 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 			{
 #if defined(MOD_BUGFIX_MINOR)
 				// Fix the bug where the AI won't get anything for Goody Hut pickers!!!
-				if (pUnit && pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_GOODY_HUT_PICKER()) && GC.getGame().getActivePlayer() == GetID())
-				{
+				if (pUnit && pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_GOODY_HUT_PICKER()) && GET_PLAYER(pUnit->getOwner()).isHuman())
 #else
 				if (pUnit && pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_GOODY_HUT_PICKER()))
-				{
-					if(GC.getGame().getActivePlayer() == GetID())
 #endif
+				{
+					if (GC.getGame().getActivePlayer() == GetID())
+
 					{
 						CvPopupInfo kPopupInfo(BUTTONPOPUP_CHOOSE_GOODY_HUT_REWARD, GetID(), pUnit->GetID());
 						GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
 						// We are adding a popup that the player must make a choice in, make sure they are not in the end-turn phase.
+#if defined(MOD_BUGFIX_MINOR)
+						if (!GC.getGame().isReallyNetworkMultiPlayer())
+						{
+							CancelActivePlayerEndTurn();
+						}
+#else
 						CancelActivePlayerEndTurn();
+#endif
 					}
 				}
 				else
