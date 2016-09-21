@@ -1429,7 +1429,22 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(getUnitClassType());
+	if (eGreatPerson != NO_GREATPERSON)
+	{
+		CvCity* pCity = plot()->getWorkingCity();
+		if (pCity != NULL && pCity->getOwner() == GetID())
+		{
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pCity);
+		}
+		else if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
+		{
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, GET_PLAYER(getOwner()).getCapitalCity());
+		}
+		GET_PLAYER(getOwner()).doInstantGWAM(eGreatPerson, getUnitName());
+	}
+#endif
 	// Update UI
 	if(getOwner() == GC.getGame().getActivePlayer())
 	{

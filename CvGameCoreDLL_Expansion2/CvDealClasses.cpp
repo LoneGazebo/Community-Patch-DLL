@@ -2888,7 +2888,15 @@ bool CvGameDeals::FinalizeMPDeal(CvDeal kDeal, bool bAccepted)
 		if(bValid && bAccepted)
 		{
 			FinalizeDealValidAndAccepted(eFromPlayer, eToPlayer, kDeal, bAccepted, veNowAtPeacePairs);
-			GET_PLAYER(eToPlayer).GetDiplomacyRequests()->CheckRemainingNotifications();
+			PlayerTypes eLoopPlayer;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				if (eLoopPlayer != NO_PLAYER)
+				{
+					GET_PLAYER(eLoopPlayer).GetDiplomacyRequests()->CheckRemainingNotifications();
+				}
+			}
 		}
 	}
 	
@@ -4360,6 +4368,8 @@ CvDeal* CvGameDeals::GetProposedMPDeal(PlayerTypes eFromPlayer, PlayerTypes eToP
 	{
 		CvDeal* pDeal = &m_ProposedDeals[i];
 		if (pDeal->GetFromPlayer() == eFromPlayer && pDeal->GetToPlayer() == eToPlayer)
+			return pDeal;
+		else if (pDeal->GetFromPlayer() == eToPlayer && pDeal->GetToPlayer() == eFromPlayer)
 			return pDeal;
 	}
 	return NULL;

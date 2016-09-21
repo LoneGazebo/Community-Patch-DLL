@@ -39935,20 +39935,6 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 			}
 		}
 	}
-	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(pGreatPeopleUnit->getUnitClassType());
-	if (eGreatPerson != NO_GREATPERSON)
-	{
-		CvPlot* pPlot = GC.getMap().plot(iX, iY);
-		if (pPlot != NULL && pPlot->isCity() && pPlot->getOwner() == GetID())
-		{
-			doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pPlot->getPlotCity());
-		}
-		else if (getCapitalCity() != NULL)
-		{
-			doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, getCapitalCity());
-		}
-		doInstantGWAM(eGreatPerson, pGreatPeopleUnit->getUnitName());
-	}
 #endif
 	// Notification
 	if(GetNotifications())
@@ -40012,14 +39998,6 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 #endif
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(pGreatPeopleUnit->getUnitClassType());
-	if (eGreatPerson != NO_GREATPERSON)
-	{
-		doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pGreatPeopleUnit->plot()->getWorkingCity());
-		doInstantGWAM(eGreatPerson, pGreatPeopleUnit->getUnitName());
-	}
-#endif
 
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
