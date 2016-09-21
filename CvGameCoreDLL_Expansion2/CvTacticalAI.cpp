@@ -470,19 +470,6 @@ void CvTacticalAI::CommandeerUnits()
 			//does it need healing? unless barbarian or japanese!
 			if ((pLoopUnit->getDamage()>80 || pLoopUnit->isProjectedToDieNextTurn()) && !m_pPlayer->isBarbarian() && !m_pPlayer->GetPlayerTraits()->IsFightWellDamaged() && !pLoopUnit->IsStrongerDamaged())
 			{
-				//need to split from army?
-				if (pLoopUnit->getArmyID() != -1)
-				{
-					CvArmyAI* pArmy = m_pPlayer->getArmyAI(pLoopUnit->getArmyID());
-					if (pArmy)
-					{
-						if(pArmy->GetArmyAIState() != ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
-						{
-							pArmy->RemoveUnit( pLoopUnit->GetID() );
-						}
-					}
-				}
-
 				//need to start healing
 				m_HealingUnits.insert( pLoopUnit->GetID() );
 				continue;
@@ -7049,6 +7036,19 @@ void CvTacticalAI::ExecuteHeals()
 		CvPlot* pBetterPlot = NULL;
 		if(pUnit)
 		{
+			//need to split from army?
+			if (pUnit->getArmyID() != -1)
+			{
+				CvArmyAI* pArmy = m_pPlayer->getArmyAI(pUnit->getArmyID());
+				if (pArmy)
+				{
+					if (pArmy->GetArmyAIState() != ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
+					{
+						pArmy->RemoveUnit(pUnit->GetID());
+					}
+				}
+			}
+
 			//find a suitable spot for healing
 			if (pUnit->getDomainType()==DOMAIN_LAND)
 			{
@@ -10263,12 +10263,12 @@ void CvTacticalAI::PerformChosenMoves(CvPlot* pFinalTarget)
 					{
 						if(m_ChosenBlocks[iI].GetPlot()->getNumNavalDefenders(m_pPlayer->GetID()) > 0 || !MoveToUsingSafeEmbark(pUnit, m_ChosenBlocks[iI].GetPlot(), false, 0))
 						{
-							MoveToEmptySpaceNearTarget(pUnit, m_ChosenBlocks[iI].GetPlot(), pUnit->getDomainType(), 12);
+							ExecuteMoveToPlotIgnoreDanger(pUnit, m_ChosenBlocks[iI].GetPlot());
 						}		
 					}
 					else
 					{
-						MoveToEmptySpaceNearTarget(pUnit, m_ChosenBlocks[iI].GetPlot(), pUnit->getDomainType(), 12);
+						ExecuteMoveToPlotIgnoreDanger(pUnit, m_ChosenBlocks[iI].GetPlot());
 					}
 
 					// Use number of choices field to indicate already moved
@@ -10299,7 +10299,7 @@ void CvTacticalAI::PerformChosenMoves(CvPlot* pFinalTarget)
 			if(m_ChosenBlocks[iI].GetNumChoices() != -1)
 			{
 				CvPlot* pPlotBeforeMove = pUnit->plot();
-				if(MoveToEmptySpaceNearTarget(UnitHandle(pUnit), m_ChosenBlocks[iI].GetPlot(), pUnit->getDomainType(), 12))
+				if(MoveToUsingSafeEmbark(pUnit, m_ChosenBlocks[iI].GetPlot(), false, 0))
 				{
 					if(pPlotBeforeMove != pUnit->plot())
 					{
