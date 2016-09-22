@@ -33,8 +33,8 @@
 
 // FIRST: Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
 #define NO_ACHIEVEMENTS
-// SECOND: UN-COMMENT out this line to include Jai der Herr's Active Diplomacy mod for Multiplayer games.
-//#define MOD_ACTIVE_DIPLOMACY
+//adds active diplomacy to Multiplayer games
+#define MOD_ACTIVE_DIPLOMACY			 gCustomMods.isACTIVE_DIPLOMACY()
 
 /////////////////////////////////
 //END MULTIPLAYER INSTRUCTIONS
@@ -77,8 +77,6 @@
 	#define AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
 	#define AUI_GAME_OBSERVER_CAN_OPEN_CITIES
 	#define AUI_PLOT_OBSERVER_NO_NW_POPUPS
-
-#define AUI_WORKER_EVALUATE_WORKER_RETREAT_AND_BUILD 
 
 /// Flavors that weren't previously fetched but were still (attempted to be) used in processing later are now fetched
 #define AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS
@@ -148,8 +146,6 @@
 #define AUI_RELIGION_FIX_DO_FAITH_PURCHASES_ENHANCE_RELIGION
 /// Since Venice can purchase stuff at puppets, the function will no longer treat Venice's puppets as ordinary puppets
 #define AUI_RELIGION_FIX_ARE_ALL_OUR_CITIES_HAVE_FAITH_BUILDING_VENICE_PUPPETS
-/// If the first adjusted value is out of bounds, keep rerolling with the amount with which it is out of bounds until we remain in bounds
-#define AUI_DIPLOMACY_GET_RANDOM_PERSONALITY_WEIGHT_USE_REROLLS
 
 // unhappiness from public opinion scales linearly with dissatisfaction
 #define MOD_CORE_SMOOTH_PUBLIC_OPINION
@@ -295,7 +291,20 @@
 #define MOD_GLOBAL_SEPARATE_GP_COUNTERS             gCustomMods.isGLOBAL_SEPARATE_GP_COUNTERS()
 // Removes free GP (from buildings, policies, traits, etc) from the GP counters (v61)
 #define MOD_GLOBAL_TRULY_FREE_GP                    gCustomMods.isGLOBAL_TRULY_FREE_GP()
-
+// No auto spawn great prophets for human players, must select pulldown menu in Lua when you are ready to spawn one, only pre-Industrial era
+#define MOD_NO_AUTO_SPAWN_PROPHET					gCustomMods.isNO_AUTO_SPAWN_PROPHET()
+// Change Assyria's trait to choosing a free tech upon city conquest
+#define MOD_ALTERNATE_ASSYRIA_TRAIT					gCustomMods.isALTERNATE_ASSYRIA_TRAIT()
+// No repairing tiles in foreign lands -- prevents an exploit where a human player can pillage and repair
+#define MOD_NO_REPAIR_FOREIGN_LANDS					gCustomMods.isNO_REPAIR_FOREIGN_LANDS()
+// No yield from Ice Features
+#define MOD_NO_YIELD_ICE							gCustomMods.isNO_YIELD_ICE()
+// No major civ gifting exploit
+#define MOD_NO_MAJORCIV_GIFTING						gCustomMods.isNO_MAJORCIV_GIFTING()
+// no healing on mountains if not a city plot
+#define MOD_NO_HEALING_ON_MOUNTAINS					gCustomMods.isNO_HEALING_ON_MOUNTAINS()
+// Allows pillaging of permanent improvements if at war
+#define MOD_PILLAGE_PERMANENT_IMPROVEMENTS			gCustomMods.isPILLAGE_PERMANENT_IMPROVEMENTS()
 // Tech bonuses from other teams require an embassy or spy in their capital and not from just having met them (v30)
 #define MOD_DIPLOMACY_TECH_BONUSES                  gCustomMods.isDIPLOMACY_TECH_BONUSES()
 // Human players will auto-denounce AI players before going to war with them (v39)
@@ -307,6 +316,12 @@
 #define MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS        (MOD_DIPLOMACY_CITYSTATES && gCustomMods.isDIPLOMACY_CITYSTATES_RESOLUTIONS())
 #define MOD_DIPLOMACY_CITYSTATES_HURRY              (MOD_DIPLOMACY_CITYSTATES && gCustomMods.isDIPLOMACY_CITYSTATES_HURRY())
 #endif
+
+// To turn off or on ships firing while in Cities
+#define MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS		 gCustomMods.isSHIPS_FIRE_IN_CITIES_IMPROVEMENTS()
+
+// Ability to add new natural wonder features with graphics
+#define MOD_PSEUDO_NATURAL_WONDER					gCustomMods.isPSEUDO_NATURAL_WONDER()
 
 //Flips open borders to apply in opposite ways- you have to give open borders to gain the tourism bonus
 #define MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS
@@ -374,14 +389,17 @@
 #define MOD_BALANCE_CORE_VICTORY_GAME_CHANGES		(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_VICTORY_GAME_CHANGES())
 #define MOD_BALANCE_CORE_EVENTS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_EVENTS())
 #define MOD_NO_RANDOM_TEXT_CIVS						(MOD_COMMUNITY_PATCH && gCustomMods.isNO_RANDOM_TEXT_CIVS())
+#define MOD_BALANCE_RETROACTIVE_PROMOS				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_RETROACTIVE_PROMOS())
 
 #endif
-
+// Changes melee ship units to be cargo carrying units with added promotions for ship and cargo
+#define MOD_CARGO_SHIPS								gCustomMods.isCARGO_SHIPS()
 // Changes for the CivIV Diplomacy Features mod by Putmalk - AFFECTS SAVE GAME DATA FORMAT (v36)
 #define MOD_DIPLOMACY_CIV4_FEATURES                 gCustomMods.isDIPLOMACY_CIV4_FEATURES()
 // Adds an option to Advanced Setup to allow gaining Great General and Great Admiral Points from fighting with Barbarians
-#define MOD_BARBARIAN_GG_GA_POINTS					gCustomMods.isBARBARIAN_GG_GA_POINTS
-
+#define MOD_BARBARIAN_GG_GA_POINTS					gCustomMods.isBARBARIAN_GG_GA_POINTS()
+// Grants Celts maximum up to 3 unimproved adjacent forests for faith
+#define MOD_ALTERNATE_CELTS							gCustomMods.isALTERNATE_CELTS()
 // Permits units to earn GG/GA points from killing barbarians (v83)
 #define MOD_TRAITS_GG_FROM_BARBARIANS               gCustomMods.isTRAITS_GG_FROM_BARBARIANS()
 // Permits land units to cross ice - AFFECTS SAVE GAME DATA FORMAT
@@ -1066,6 +1084,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityCanAcquirePlot			"CityCanAcquirePlot",			"iiii"
 #define GAMEEVENT_CityCanAirlift				"CityCanAirlift",				"ii"
 #define GAMEEVENT_CityConnected					"CityConnected",				"iiiiib"
+#define GAMEEVENT_CityPuppeted					"CityPuppeted",					"ii"
 #define GAMEEVENT_CityConnections				"CityConnections",				"ib"
 #define GAMEEVENT_CityConstructed				"CityConstructed",				"iiibb"
 #define GAMEEVENT_CityCreated					"CityCreated",					"iiibb"
@@ -1215,8 +1234,8 @@ enum BattleTypeTypes
 #define GAMEEVENT_EventChoiceCanTake		"EventChoiceCanTake", "ii"
 #define GAMEEVENT_CityEventChoiceCanTake    "CityEventChoiceCanTake", "iii"
 #define GAMEEVENT_EventCanTake				"EventCanTake", "ii"
-#define GAMEEVENT_CityEventCanTake			 "CityEventCanTake", "iii"
-
+#define GAMEEVENT_CityEventCanTake			"CityEventCanTake", "iii"
+#define GAMEEVENT_EventUnitCreated			"EventUnitCreated", "iii"
 
 // Serialization wrappers
 #define MOD_SERIALIZE
@@ -1350,7 +1369,13 @@ public:
 	MOD_OPT_DECL(GLOBAL_CANNOT_EMBARK);
 	MOD_OPT_DECL(GLOBAL_SEPARATE_GP_COUNTERS);
 	MOD_OPT_DECL(GLOBAL_TRULY_FREE_GP);
-	
+	MOD_OPT_DECL(NO_AUTO_SPAWN_PROPHET);
+	MOD_OPT_DECL(ALTERNATE_ASSYRIA_TRAIT);
+	MOD_OPT_DECL(NO_REPAIR_FOREIGN_LANDS);
+	MOD_OPT_DECL(NO_YIELD_ICE);
+	MOD_OPT_DECL(NO_MAJORCIV_GIFTING);
+	MOD_OPT_DECL(NO_HEALING_ON_MOUNTAINS);
+	MOD_OPT_DECL(PILLAGE_PERMANENT_IMPROVEMENTS);
 	MOD_OPT_DECL(DIPLOMACY_TECH_BONUSES);
 	MOD_OPT_DECL(DIPLOMACY_AUTO_DENOUNCE);
 	MOD_OPT_DECL(DIPLOMACY_NO_LEADERHEADS);
@@ -1358,7 +1383,8 @@ public:
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_QUESTS); 
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_RESOLUTIONS); 
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_HURRY);
-
+	MOD_OPT_DECL(SHIPS_FIRE_IN_CITIES_IMPROVEMENTS);
+	MOD_OPT_DECL(PSEUDO_NATURAL_WONDER);
 	MOD_OPT_DECL(COMMUNITY_PATCH);
 	MOD_OPT_DECL(BALANCE_CORE);
 	MOD_OPT_DECL(BALANCE_CORE_YIELDS);
@@ -1419,9 +1445,12 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_VICTORY_GAME_CHANGES);
 	MOD_OPT_DECL(BALANCE_CORE_EVENTS);
 	MOD_OPT_DECL(NO_RANDOM_TEXT_CIVS);
+	MOD_OPT_DECL(BALANCE_RETROACTIVE_PROMOS);
 
-	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES); 
+	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES);
+	MOD_OPT_DECL(CARGO_SHIPS);
 	MOD_OPT_DECL(BARBARIAN_GG_GA_POINTS);
+	MOD_OPT_DECL(ALTERNATE_CELTS);
 	MOD_OPT_DECL(TRAITS_GG_FROM_BARBARIANS);
 	MOD_OPT_DECL(TRAITS_CROSSES_ICE);
 	MOD_OPT_DECL(TRAITS_CITY_WORKING);
@@ -1552,7 +1581,7 @@ public:
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_ABORT);
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_RESULT);
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_ENDED);
-
+	MOD_OPT_DECL(ACTIVE_DIPLOMACY);
 	MOD_OPT_DECL(API_ESPIONAGE);
 	MOD_OPT_DECL(API_TRADEROUTES);
 	MOD_OPT_DECL(API_RELIGION);

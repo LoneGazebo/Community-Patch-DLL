@@ -180,7 +180,14 @@ public:
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	inline int getUnitLimit() const 
 	{
-		return isCity() ? GC.getCITY_UNIT_LIMIT() : (GC.getPLOT_UNIT_LIMIT() + getAdditionalUnitsFromImprovement() + getStackingUnits());
+		if(isWater())
+		{
+			return (GC.getPLOT_UNIT_LIMIT() + getAdditionalUnitsFromImprovement());
+		}
+		else		
+		{
+			return isCity() ? (GC.getCITY_UNIT_LIMIT() + getStackingUnits()) : (GC.getPLOT_UNIT_LIMIT() + getAdditionalUnitsFromImprovement() + getStackingUnits());
+		}
 	}
 #endif
 
@@ -246,7 +253,7 @@ public:
 #else
 	bool isVisibleToCivTeam() const;
 #endif
-	bool isVisibleToEnemyTeam(TeamTypes eFriendlyTeam) const;
+	bool isVisibleToEnemy(PlayerTypes eFriendlyPlayer) const;
 	bool isVisibleToWatchingHuman() const;
 	bool isAdjacentVisible(TeamTypes eTeam, bool bDebug=false) const;
 	bool isAdjacentNonvisible(TeamTypes eTeam) const;
@@ -303,6 +310,7 @@ public:
 	bool isVisibleEnemyDefender(const CvUnit* pUnit) const;
 	CvUnit* getVisibleEnemyDefender(PlayerTypes ePlayer) const;
 	int getNumDefenders(PlayerTypes ePlayer) const;
+	int getNumNavalDefenders(PlayerTypes ePlayer) const;
 	int getNumVisibleEnemyDefenders(const CvUnit* pUnit) const;
 	int getNumVisiblePotentialEnemyDefenders(const CvUnit* pUnit) const;
 	int getNumUnitsOfAIType(UnitAITypes eType, int& iFirstUnitID) const;
@@ -387,6 +395,7 @@ public:
 	int ComputeYieldFromTwoAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue, YieldTypes eYield) const;
 	int ComputeYieldFromOtherAdjacentImprovement(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
 	int ComputeYieldFromAdjacentTerrain(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
+	int ComputeYieldFromAdjacentResource(CvImprovementEntry& kImprovement, YieldTypes eYield) const;
 #else
 	int ComputeCultureFromAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue) const;
 #endif
@@ -509,10 +518,11 @@ public:
 			if (eTerrain != NO_TERRAIN) {
 				CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
 				if (pkTerrainInfo) {
-					if (!bIgnoreTerrainDamage) {
+					// no damage for units on montain cities
+					if (!bIgnoreTerrainDamage && !isCity())
+					{						
 						damage += pkTerrainInfo->getTurnDamage();
 					}
-					
 					if (bExtraTerrainDamage) {
 						damage += pkTerrainInfo->getExtraTurnDamage();
 					}
@@ -557,8 +567,11 @@ public:
 	void setTerrainType(TerrainTypes eNewValue, bool bRecalculate = true, bool bRebuildGraphics = true);
 
 	void setFeatureType(FeatureTypes eNewValue, int iVariety = -1);
-
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+	bool IsNaturalWonder(bool orPseudoNatural = false) const;
+#else
 	bool IsNaturalWonder() const;
+#endif
 
 	ResourceTypes getResourceType(TeamTypes eTeam = NO_TEAM) const;
 	ResourceTypes getNonObsoleteResourceType(TeamTypes eTeam = NO_TEAM) const;
@@ -925,6 +938,8 @@ public:
 	bool GetPlotsAtRangeX(int iRange, bool bFromPlot, bool bWithLOS, std::vector<CvPlot*>& vResult) const;
 
 	void updateImpassable(TeamTypes eTeam = NO_TEAM);
+
+	bool hasSharedAdjacentArea(CvPlot* pOtherPlot) const;
 #endif
 
 	bool canPlaceUnit(PlayerTypes ePlayer) const;
@@ -933,7 +948,7 @@ protected:
 	class PlotBoolField
 	{
 	public:
-		enum { eCount = 4, eSize = 32 };
+		enum config { eCount = 4, eSize = 32 };
 		DWORD m_dwBits[eCount];
 
 		bool GetBit(const uint uiEntry) const

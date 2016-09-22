@@ -159,7 +159,10 @@ protected:
 	static int lCalculateUnitSupply(lua_State* L);
 
 	static int lGetNumMaintenanceFreeUnits(lua_State* L);
-
+#if defined(MOD_BALANCE_CORE)
+	static int lGetBaseBuildingMaintenance(lua_State* L);
+	static int lGetBaseUnitMaintenance(lua_State* L);
+#endif
 	static int lGetBuildingGoldMaintenance(lua_State* L);
 	static int lSetBaseBuildingGoldMaintenance(lua_State* L);
 	static int lChangeBaseBuildingGoldMaintenance(lua_State* L);
@@ -478,6 +481,7 @@ protected:
 	LUAAPIEXTN(PlayerHasAnyContract, int);
 	LUAAPIEXTN(GetContractTurnsRemaining, int);
 	LUAAPIEXTN(GetContractGoldMaintenance, int);
+	LUAAPIEXTN(ChangeContractTurns, int);
 	LUAAPIEXTN(StartContract, int);
 	LUAAPIEXTN(EndContract, int);
 	LUAAPIEXTN(UnitIsActiveContractUnit, int);
@@ -1231,6 +1235,9 @@ protected:
 	static int lIsSpyDiplomat(lua_State* L);
 	static int lIsSpySchmoozing(lua_State* L);
 	static int lCanSpyStageCoup(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lValidHeistLocation(lua_State* L);
+#endif
 	static int lGetAvailableSpyRelocationCities(lua_State* L);
 	static int lGetNumTechsToSteal(lua_State* L);
 	static int lGetIntrigueMessages(lua_State* L);
@@ -1418,6 +1425,10 @@ protected:
 	static int lSetEventChoiceCooldown  (lua_State* L);
 	static int lIsEventChoiceValid (lua_State* L);
 	static int lGetEventHappiness (lua_State* L);
+	static int lGetActivePlayerEventChoices(lua_State* L);
+	static int lGetActiveCityEventChoices(lua_State* L);
+	static int lGetRecentPlayerEventChoices(lua_State* L);
+	static int lGetRecentCityEventChoices(lua_State* L);
 #endif
 };
 

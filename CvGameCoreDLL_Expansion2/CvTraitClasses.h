@@ -117,6 +117,7 @@ public:
 	bool IsMountainPass() const;
 	bool IsUniqueBeliefsOnly() const;
 	bool IsNoNaturalReligionSpread() const;
+	bool IsNoOpenTrade() const;
 	int  GetGrowthBoon() const;
 	int GetAllianceCSDefense() const;
 	int GetAllianceCSStrength() const;
@@ -130,6 +131,7 @@ public:
 	int GetStartingSpies() const;
 	int GetStartingSpyRank() const;
 	int GetQuestYieldModifier() const;
+	int GetWonderProductionModifierToBuilding() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -302,6 +304,7 @@ public:
 	int GetGreatPersonBornYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
 	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
 	int GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
+	int GetGreatPersonGWAM(GreatPersonTypes eIndex1) const;
 	int GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 #endif
 	int GetUnimprovedFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
@@ -401,9 +404,11 @@ protected:
 	int m_iAllianceCSStrength;
 	int m_iTourismGABonus;
 	bool m_bNoNaturalReligionSpread;
+	bool m_bNoOpenTrade;
 	int m_iTourismToGAP;
 	int m_iEventTourismBoost;
 	int m_iEventGP;
+	int m_iWonderProductionModifierToBuilding;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -569,6 +574,7 @@ protected:
 	int ** m_ppiGreatPersonBornYield;
 	int* m_piGoldenAgeGreatPersonRateModifier;
 	int* m_piPerPuppetGreatPersonRateModifier;
+	int* m_piGreatPersonGWAM;
 	int** m_ppiCityYieldFromUnimprovedFeature;
 #endif
 	int** m_ppiUnimprovedFeatureYieldChanges;
@@ -879,6 +885,10 @@ public:
 	{
 		return m_bNoNaturalReligionSpread;
 	};
+	bool IsNoOpenTrade() const
+	{
+		return m_bNoOpenTrade;
+	};
 	int GetGrowthBoon() const
 	{
 		return m_iGrowthBoon;
@@ -930,6 +940,10 @@ public:
 	int GetQuestYieldModifier() const
 	{
 		return m_iQuestYieldModifier;
+	};
+	int GetWonderProductionModifierToBuilding() const
+	{
+		return m_iWonderProductionModifierToBuilding;
 	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1374,6 +1388,7 @@ public:
 	int GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const;
 	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
 	int GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
+	int GetGreatPersonGWAM(GreatPersonTypes eGreatPerson) const;
 	int GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield) const;
 #endif
 	int GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const;
@@ -1399,6 +1414,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	TechTypes GetFreeBuildingPrereqTech() const;
 	TechTypes GetCapitalFreeBuildingPrereqTech() const;
+	int GetWonderProductionToBuildingDiscount(BuildingTypes eBuilding);
 #endif
 	BuildingTypes GetFreeBuilding() const;
 #if defined(MOD_BALANCE_CORE)
@@ -1526,6 +1542,7 @@ private:
 	bool m_bMountainPass;
 	bool m_bUniqueBeliefsOnly;
 	bool m_bNoNaturalReligionSpread;
+	bool m_bNoOpenTrade;
 	int m_iTourismToGAP;
 	int m_iEventTourismBoost;
 	int m_iGrowthBoon;
@@ -1539,6 +1556,7 @@ private:
 	int m_iStartingSpies;
 	int m_iStartingSpyRank;
 	int m_iQuestYieldModifier;
+	int m_iWonderProductionModifierToBuilding;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1714,6 +1732,7 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonBornYield;
 	std::vector<int> m_piGoldenAgeGreatPersonRateModifier;
 	std::vector<int> m_piPerPuppetGreatPersonRateModifier;
+	std::vector<int> m_piGreatPersonGWAM;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiCityYieldFromUnimprovedFeature;
 #endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiUnimprovedFeatureYieldChange;

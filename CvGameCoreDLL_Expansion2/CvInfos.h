@@ -1671,7 +1671,12 @@ public:
 	bool isVisibleAlways() const;
 	bool isNukeImmune() const;
 	bool IsRough() const;
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+	bool IsNaturalWonder(bool orPseudoNatural = false) const;
+	bool IsPseudoNaturalWonder() const;
+#else
 	bool IsNaturalWonder() const;
+#endif
 
 	const char* getArtDefineTag() const;
 	void setArtDefineTag(const char* szTag);
@@ -1746,6 +1751,9 @@ protected:
 	bool m_bNukeImmune;
 	bool m_bRough;
 	bool m_bNaturalWonder;
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+	bool m_bPseudoNaturalWonder;
+#endif
 
 	// Set each time the game is started
 	bool m_bClearable;
@@ -1797,6 +1805,14 @@ public:
 	int getPopulationChangeOffset() const;
 	int getPopulationChangeDivisor() const;
 	int getMinCity() const;
+#if defined(MOD_BALANCE_CORE)
+	int getMinCityFlatFreshWater() const;
+	int getMinCityFlatNoFreshWater() const;
+	int getMinCityHillFreshWater() const;
+	int getMinCityHillNoFreshWater() const;
+	int getMinCityMountainFreshWater() const;
+	int getMinCityMountainNoFreshWater() const;
+#endif
 	int getGoldenAgeYield() const;
 	int getGoldenAgeYieldThreshold() const;
 	int getGoldenAgeYieldMod() const;
@@ -1816,6 +1832,14 @@ protected:
 	int m_iPopulationChangeOffset;
 	int m_iPopulationChangeDivisor;
 	int m_iMinCity;
+#if defined(MOD_BALANCE_CORE)
+	int m_iMinCityFlatFreshWater;
+	int m_iMinCityFlatNoFreshWater;
+	int m_iMinCityHillFreshWater;
+	int m_iMinCityHillNoFreshWater;
+	int m_iMinCityMountainFreshWater;
+	int m_iMinCityMountainNoFreshWater;
+#endif
 	int m_iGoldenAgeYield;
 	int m_iGoldenAgeYieldThreshold;
 	int m_iGoldenAgeYieldMod;
@@ -2648,18 +2672,6 @@ public:
 	int getFeatureRequired(FeatureTypes eFeature) const;
 	int getRequiredStateReligion() const;
 	bool hasStateReligion() const;
-	int getRequiredActiveEvent() const;
-	int getRequiredActiveEventChoice() const;
-	int getRequiredActiveCityEvent() const;
-	int getRequiredActiveCityEventChoice() const;
-	int getRequiredNoActiveEvent() const;
-	int getRequiredNoActiveEventChoice() const;
-	int getRequiredActiveOtherPlayerEvent() const;
-	int getRequiredActiveOtherPlayerEventChoice() const;
-	int getRequiredNoActiveOtherPlayerEvent() const;
-	int getRequiredNoActiveOtherPlayerEventChoice() const;
-	int getRequiredNoActiveCityEvent() const;
-	int getRequiredNoActiveCityEventChoice() const;
 	bool isUnhappy() const;
 	bool isSuperUnhappy() const;
 	bool isOneShot() const;
@@ -2714,18 +2726,6 @@ protected:
 	bool m_bHasStateReligion;
 	bool m_bUnhappy;
 	bool m_bSuperUnhappy;
-	int m_iRequiredActiveEvent;
-	int m_iRequiredActiveEventChoice;
-	int m_iRequiredActiveCityEvent;
-	int m_iRequiredActiveCityEventChoice;
-	int m_iRequiredActiveEventOtherPlayer;
-	int m_iRequiredActiveEventChoiceOtherPlayer;
-	int m_iRequiredNoActiveEventOtherPlayer;
-	int m_iRequiredNoActiveEventChoiceOtherPlayer;
-	int m_iRequiredNoActiveCityEvent;
-	int m_iRequiredNoActiveCityEventChoice;
-	int m_iRequiredNoActiveEvent;
-	int m_iRequiredNoActiveEventChoice;
 	bool m_bOneShot;
 	bool m_bMetAnotherCiv;
 	bool m_bInDebt;
@@ -2885,18 +2885,6 @@ public:
 	int getFeatureRequired(FeatureTypes eFeature) const;
 	int getRequiredStateReligion() const;
 	bool hasStateReligion() const;
-	int getRequiredActiveEvent() const;
-	int getRequiredActiveEventChoice() const;
-	int getRequiredActiveCityEvent() const;
-	int getRequiredActiveCityEventChoice() const;
-	int getRequiredNoActiveCityEvent() const;
-	int getRequiredNoActiveCityEventChoice() const;
-	int getRequiredNoActiveEvent() const;
-	int getRequiredNoActiveEventChoice() const;
-	int getRequiredActiveOtherPlayerEvent() const;
-	int getRequiredActiveOtherPlayerEventChoice() const;
-	int getRequiredNoActiveOtherPlayerEvent() const;
-	int getRequiredNoActiveOtherPlayerEventChoice() const;
 	bool isUnhappy() const;
 	bool isSuperUnhappy() const;
 	bool isOneShot() const;
@@ -2983,18 +2971,6 @@ protected:
 	bool m_bHasStateReligion;
 	bool m_bUnhappy;
 	bool m_bSuperUnhappy;
-	int m_iRequiredActiveEvent;
-	int m_iRequiredActiveEventChoice;
-	int m_iRequiredActiveEventOtherPlayer;
-	int m_iRequiredActiveEventChoiceOtherPlayer;
-	int m_iRequiredNoActiveEventOtherPlayer;
-	int m_iRequiredNoActiveEventChoiceOtherPlayer;
-	int m_iRequiredNoActiveEvent;
-	int m_iRequiredNoActiveEventChoice;
-	int m_iRequiredActiveCityEvent;
-	int m_iRequiredActiveCityEventChoice;
-	int m_iRequiredNoActiveCityEvent;
-	int m_iRequiredNoActiveCityEventChoice;
 	bool m_bOneShot;
 	bool m_bMetAnotherCiv;
 	bool m_bInDebt;
@@ -3121,22 +3097,6 @@ public:
 	bool lacksPlayerReligion() const;
 	bool hasPlayerMajority() const;
 	bool lacksPlayerMajority() const;
-	int getRequiredActiveEvent() const;
-	int getRequiredActiveEventChoice() const;
-	int getRequiredActiveCityEvent() const;
-	int getRequiredActiveCityEventChoice() const;
-	int getRequiredNoActiveCityEvent() const;
-	int getRequiredNoActiveCityEventChoice() const;
-	int getRequiredNoActiveCityEventAnywhere() const;
-	int getRequiredNoActiveCityEventChoiceAnywhere() const;
-	int getRequiredActiveCityEventAnywhere() const;
-	int getRequiredActiveCityEventChoiceAnywhere() const;
-	int getRequiredNoActivePlayerEvent() const;
-	int getRequiredNoActivePlayerEventChoice() const;
-	int getRequiredActiveOtherPlayerEvent() const;
-	int getRequiredActiveOtherPlayerEventChoice() const;
-	int getRequiredNoActiveOtherPlayerEvent() const;
-	int getRequiredNoActiveOtherPlayerEventChoice() const;
 	
 	CvCityEventLinkingInfo *GetLinkerInfo(int i) const;
 	int GetNumLinkers() const {return m_iCityLinkerInfos;};
@@ -3203,22 +3163,6 @@ protected:
 	bool m_bLacksPlayerReligion;
 	bool m_bHasPlayerMajority;
 	bool m_bLacksPlayerMajority;
-	int m_iRequiredActiveEvent;
-	int m_iRequiredActiveEventChoice;
-	int m_iRequiredActiveCityEvent;
-	int m_iRequiredActiveCityEventChoice;
-	int m_iRequiredActiveEventOtherPlayer;
-	int m_iRequiredActiveEventChoiceOtherPlayer;
-	int m_iRequiredNoActiveEventOtherPlayer;
-	int m_iRequiredNoActiveEventChoiceOtherPlayer;
-	int m_iRequiredNoActiveEvent;
-	int m_iRequiredNoActiveEventChoice;
-	int m_iRequiredNoActiveCityEvent;
-	int m_iRequiredNoActiveCityEventChoice;
-	int m_iRequiredNoActiveCityEventAnywhere;
-	int m_iRequiredNoActiveCityEventChoiceAnywhere;
-	int m_iRequiredActiveCityEventAnywhere;
-	int m_iRequiredActiveCityEventChoiceAnywhere;
 	
 	CvCityEventLinkingInfo* m_paCityLinkerInfo;
 	int m_iCityLinkerInfos;
@@ -3390,18 +3334,6 @@ public:
 	bool isLosingMoney() const;
 	bool isMaster() const;
 	bool isVassal() const;
-	int getRequiredActiveEvent() const;
-	int getRequiredActiveEventChoice() const;
-	int getRequiredActiveCityEvent() const;
-	int getRequiredActiveCityEventChoice() const;
-	int getRequiredNoActiveCityEvent() const;
-	int getRequiredNoActiveCityEventChoice() const;
-	int getRequiredNoActivePlayerEvent() const;
-	int getRequiredNoActivePlayerEventChoice() const;
-	int getRequiredActiveOtherPlayerEvent() const;
-	int getRequiredActiveOtherPlayerEventChoice() const;
-	int getRequiredNoActiveOtherPlayerEvent() const;
-	int getRequiredNoActiveOtherPlayerEventChoice() const;
 	bool hasPlayerReligion() const;
 	bool lacksPlayerReligion() const;
 	bool hasPlayerMajority() const;
@@ -3502,18 +3434,6 @@ protected:
 	bool m_bLosingMoney;
 	bool m_bVassal;
 	bool m_bMaster;
-	int m_iRequiredActiveEvent;
-	int m_iRequiredActiveEventChoice;
-	int m_iRequiredActiveCityEvent;
-	int m_iRequiredActiveCityEventChoice;
-	int m_iRequiredActiveEventOtherPlayer;
-	int m_iRequiredActiveEventChoiceOtherPlayer;
-	int m_iRequiredNoActiveEventOtherPlayer;
-	int m_iRequiredNoActiveEventChoiceOtherPlayer;
-	int m_iRequiredNoActiveEvent;
-	int m_iRequiredNoActiveEventChoice;
-	int m_iRequiredNoActiveCityEvent;
-	int m_iRequiredNoActiveCityEventChoice;
 	bool m_bHasPlayerReligion;
 	bool m_bLacksPlayerReligion;
 	bool m_bHasPlayerMajority;

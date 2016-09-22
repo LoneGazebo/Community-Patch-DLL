@@ -94,7 +94,7 @@ void CvDllRandom::CopyFrom(ICvRandom1* pOther)
 {
 	CvRandom* pkOther = GC.UnwrapRandomPointer(pOther);
 	if(pkOther != NULL)
-		*m_pRandom = *pkOther;
+		m_pRandom->CopyFrom(*pkOther);
 }
 //------------------------------------------------------------------------------
 unsigned short CvDllRandom::Get(unsigned short usNum, const char* pszLog)

@@ -207,12 +207,12 @@ HandicapTypes CvDllGame::GetHandicapType() const
 //------------------------------------------------------------------------------
 ICvRandom1* CvDllGame::GetRandomNumberGenerator()
 {
-	return new CvDllRandom(&m_pGame->getRand());
+	return new CvDllRandom(&m_pGame->getJonRand());
 }
 //------------------------------------------------------------------------------
 int CvDllGame::GetJonRandNum(int iNum, const char* pszLog)
 {
-	return m_pGame->getRandNum(iNum, pszLog);
+	return m_pGame->getJonRandNum(iNum, pszLog);
 }
 //------------------------------------------------------------------------------
 int CvDllGame::GetMaxTurns() const
@@ -533,7 +533,7 @@ bool CvDllGame::CanMoveUnitTo(ICvUnit1* pUnit, ICvPlot1* pPlot) const
 	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
 
 	// can the unit actually walk there
-	return GC.GetInterfacePathFinder().DoesPathExist(pkUnit->getX(), pkUnit->getY(), pkPlot->getX(), pkPlot->getY(), data);
+	return GC.GetPathFinder().DoesPathExist(pkUnit->getX(), pkUnit->getY(), pkPlot->getX(), pkPlot->getY(), data);
 }
 
 //------------------------------------------------------------------------------

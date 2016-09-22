@@ -115,7 +115,7 @@ public:
 	bool IsConnectionInternational (const TradeConnection& kTradeConnection);
 
 	bool IsCityConnectedToPlayer (CvCity* pCity, PlayerTypes eOtherPlayer, bool bOnlyOwnedByCityOwner);
-	bool IsPlayerConnectedToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer);
+	bool IsPlayerConnectedToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer, bool bFirstPlayerOnly = false);
 	int CountNumPlayerConnectionsToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer);
 
 	bool CitiesHaveTradeConnection (CvCity* pFirstCity, CvCity* pSecondCity);
@@ -302,6 +302,9 @@ public:
 	int GetNumTradeUnitsRemaining (bool bIncludeBeingBuilt);
 
 	int GetNumDifferentTradingPartners (void);
+#if defined(MOD_BALANCE_CORE)
+	int GetNumDifferentMajorCivTradingPartners(void);
+#endif
 
 	void UpdateTradeConnectionWasPlundered();
 	void AddTradeConnectionWasPlundered(const TradeConnection& kTradeConnection);

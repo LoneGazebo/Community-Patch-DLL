@@ -578,6 +578,8 @@ public:
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
 #if defined(MOD_BALANCE_CORE)
 	void DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity);
+	void DoWarVictoryBonuses();
+	int DoDifficultyBonus();
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -1113,6 +1115,7 @@ public:
 	void addInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	void setInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantYieldText(InstantYieldType iType)  const;
+	void doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName);
 #endif
 	// Great People Expenditure
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
@@ -1488,6 +1491,14 @@ public:
 
 	void ChangeFaithPurchaseCooldown(int iValue);
 	int GetFaithPurchaseCooldown() const;
+
+	int GetNumCSAllies() const;
+	void SetNumCSAllies(int iValue);
+
+	int GetNumCSFriends() const;
+	void SetNumCSFriends(int iValue);
+
+	void RefreshCSAlliesFriends();
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyUnhappinessMod() const;
@@ -2156,14 +2167,17 @@ public:
 	CvAIOperation* getNextAIOperation();
 	CvAIOperation* getAIOperation(int iID);
 	const CvAIOperation* getAIOperation(int iID) const;
-	CvAIOperation* addAIOperation(int iOperationType, PlayerTypes eEnemy=NO_PLAYER, int iArea=-1, CvCity* pTarget=NULL, CvCity* pMuster=NULL);
+	CvAIOperation* addAIOperation(int iOperationType, PlayerTypes eEnemy = NO_PLAYER, int iArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bNeedOceanMoves = false);
 	void deleteAIOperation(int iID);
 	bool haveAIOperationOfType(int iOperationType, int* piID=NULL, PlayerTypes eTargetPlayer = NO_PLAYER, CvPlot* pTargetPlot=NULL);
 	int numOperationsOfType(int iOperationType);
 	bool IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain=NO_DOMAIN, int iPercentToTarget=100, int iIgnoreOperationID=-1) const;
 
-	bool StopAllDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
-	bool StopAllOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason);
+	bool StopAllLandDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
+	bool StopAllLandOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason);
+
+	bool StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
+	bool StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, bool bIncludeSneakOps, AIOperationAbortReason eReason);
 
 #if defined(MOD_BALANCE_CORE)
 	bool IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain=NO_DOMAIN, int iPercentToTarget=100, int iIgnoreOperationID=-1) const;
@@ -2509,7 +2523,7 @@ public:
 	virtual void AI_doTurnUnitsPost() = 0;
 	virtual void AI_unitUpdate() = 0;
 #if defined(MOD_BALANCE_CORE)
-	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift) = 0;
+	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift, bool bAllowRaze) = 0;
 #else
 	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner) = 0;
 #endif
@@ -2572,8 +2586,11 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	void SetClosestCityMapDirty();
-	int GetCityDistance( const CvPlot* pPlot ) const;
-	CvCity* GetClosestCity( const CvPlot* pPlot) const;
+	//assuming a typical unit with baseMoves==2
+	int GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const;
+	CvCity* GetClosestCityByEstimatedTurns( const CvPlot* pPlot) const;
+	int GetCityDistanceInPlots(const CvPlot* pPlot) const;
+	CvCity* GetClosestCityByPlots(const CvPlot* pPlot) const;
 #endif
 
 protected:
@@ -2972,6 +2989,8 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMonopolyModPercent;
 	FAutoVariable<int, CvPlayer> m_iCachedValueOfPeaceWithHuman;
 	FAutoVariable<int, CvPlayer> m_iFaithPurchaseCooldown;
+	FAutoVariable<int, CvPlayer> m_iCSAllies;
+	FAutoVariable<int, CvPlayer> m_iCSFriends;
 	std::vector<int> m_piCityFeatures;
 	std::vector<int> m_piNumBuildings;
 	FAutoVariable<int, CvPlayer> m_iCitiesFeatureSurrounded;
@@ -3223,7 +3242,7 @@ protected:
 	CvDangerPlots* m_pDangerPlots;
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	CvDistanceMap* m_pCityDistance;
+	CvDistanceMap *m_pCityDistanceTurns, *m_pCityDistancePlots;
 	FAutoVariable<int, CvPlayer> m_iFoundValueOfCapital;
 	std::vector<int> m_viPlotFoundValues;
 	int	m_iPlotFoundValuesUpdateTurn;

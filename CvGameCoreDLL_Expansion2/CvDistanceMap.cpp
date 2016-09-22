@@ -44,21 +44,22 @@ void CvDistanceMap::Reset()
 	m_bDirty = true;
 }
 
-/// Updates the danger plots values to reflect threats across the map
-void CvDistanceMap::Update()
+/// Updates the lookup table
+void CvDistanceMapTurns::Update()
 {
+	//we consciously ignore plots which are more than X turns away
+	int iMaxTurns = 42;
+
 	const CvMap& map = GC.getMap();
 	int nPlots = map.numPlots();
 
-	m_vDistance = std::vector<int>(nPlots,INT_MAX);
+	m_vDistance = std::vector<int>(nPlots, iMaxTurns);
 	m_vClosestFeature = std::vector<int>(nPlots,0);
 	m_bArrayAllocated = true;
 		
-	// since we know there are very few cities compared to the number of plots,
-	// we don't need to do the full distance transform
-
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
+		//if we have a set player, ignore all others
 		if (m_ePlayer!=NO_PLAYER && m_ePlayer!=i)
 			continue;
 
@@ -67,22 +68,75 @@ void CvDistanceMap::Update()
 		int iCityIndex = 0;
 		for(CvCity* pLoopCity = thisPlayer.firstCity(&iCityIndex); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iCityIndex))
 		{
+			ReachablePlots turnsFromCity;
+			SPathFinderUserData data(m_ePlayer, PT_GENERIC_REACHABLE_PLOTS, -1, iMaxTurns);
+			turnsFromCity = GC.GetStepFinder().GetPlotsInReach(pLoopCity->plot(), data);
+
+			for (ReachablePlots::iterator it = turnsFromCity.begin(); it != turnsFromCity.end(); ++it)
+			{
+				int iDistance = it->iTurns;
+				bool bUpdate = (iDistance < m_vDistance[it->iPlotIndex]);
+					
+				//in case of equal distance, take care not to prefer the player with the lower ID
+				if (iDistance == m_vDistance[it->iPlotIndex])
+				{
+					PlayerTypes currentOwner = (PlayerTypes)UNPACK_OWNER(m_vClosestFeature[it->iPlotIndex]);
+					CvCity* pCurrentCity = GET_PLAYER(currentOwner).getCity(UNPACK_ID(m_vClosestFeature[it->iPlotIndex]));
+					//it can happen that there is no current city if the plot has never been updated because it's very remote
+					bUpdate = (pCurrentCity==NULL) || (pCurrentCity->getGameTurnFounded() > pLoopCity->getGameTurnFounded());
+				}
+
+				if (bUpdate)
+				{
+					m_vDistance[it->iPlotIndex] = iDistance;
+					m_vClosestFeature[it->iPlotIndex] = PACK(pLoopCity->getOwner(), pLoopCity->GetID());
+				}
+			}
+		}
+	}
+
+	m_bDirty = false;
+}
+
+/// Updates the lookup table
+void CvDistanceMapPlots::Update()
+{
+	const CvMap& map = GC.getMap();
+	int nPlots = map.numPlots();
+
+	m_vDistance = std::vector<int>(nPlots, INT_MAX);
+	m_vClosestFeature = std::vector<int>(nPlots, 0);
+	m_bArrayAllocated = true;
+
+	// since we know there are very few cities compared to the number of plots,
+	// we don't need to do the full distance transform
+
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		if (m_ePlayer != NO_PLAYER && m_ePlayer != i)
+			continue;
+
+		// for each city
+		CvPlayer& thisPlayer = GET_PLAYER((PlayerTypes)i);
+		int iCityIndex = 0;
+		for (CvCity* pLoopCity = thisPlayer.firstCity(&iCityIndex); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iCityIndex))
+		{
 			CvPlot* pCityPlot = pLoopCity->plot();
 
-			for (int iPlotIndex=0; iPlotIndex<nPlots; iPlotIndex++)
+			for (int iPlotIndex = 0; iPlotIndex<nPlots; iPlotIndex++)
 			{
 				CvPlot* pPlot = map.plotByIndexUnchecked(iPlotIndex);
 				if (pPlot)
 				{
-					int iDistance = plotDistance( pCityPlot->getX(),pCityPlot->getY(),pPlot->getX(),pPlot->getY() );
+					int iDistance = plotDistance(pCityPlot->getX(), pCityPlot->getY(), pPlot->getX(), pPlot->getY());
 
 					bool bUpdate = (iDistance < m_vDistance[iPlotIndex]);
-					
+
 					//in case of equal distance, take care not to prefer the player with the lower ID
-					if (iDistance == m_vDistance[iPlotIndex]) 
+					if (iDistance == m_vDistance[iPlotIndex])
 					{
-						PlayerTypes currentOwner = (PlayerTypes) UNPACK_OWNER(m_vClosestFeature[iPlotIndex]);
-						CvCity* pCurrentCity = GET_PLAYER(currentOwner).getCity( UNPACK_ID(m_vClosestFeature[iPlotIndex]) );
+						PlayerTypes currentOwner = (PlayerTypes)UNPACK_OWNER(m_vClosestFeature[iPlotIndex]);
+						CvCity* pCurrentCity = GET_PLAYER(currentOwner).getCity(UNPACK_ID(m_vClosestFeature[iPlotIndex]));
 						bUpdate = (pCurrentCity->getGameTurnFounded() > pLoopCity->getGameTurnFounded());
 					}
 
@@ -98,6 +152,7 @@ void CvDistanceMap::Update()
 
 	m_bDirty = false;
 }
+
 
 //	-----------------------------------------------------------------------------------------------
 void CvDistanceMap::SetDirty()

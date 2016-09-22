@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -557,7 +557,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 		{
 			iEra = 1;
 		}
-		iTurnsPerCircuit = ((m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size() - iEra) * 2) / iRouteSpeed;
+		iTurnsPerCircuit = ((m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size() + iEra) * 2) / iRouteSpeed;
 		if(iTurnsPerCircuit <= 1)
 		{
 			iTurnsPerCircuit = 1;
@@ -860,7 +860,7 @@ int CvGameTrade::GetDomainModifierTimes100 (DomainTypes eDomain)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvGameTrade::IsPlayerConnectedToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer)
+bool CvGameTrade::IsPlayerConnectedToPlayer(PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer, bool bFirstPlayerOnly)
 {
 	for (uint ui = 0; ui < m_aTradeConnections.size(); ui++)
 	{
@@ -875,7 +875,7 @@ bool CvGameTrade::IsPlayerConnectedToPlayer (PlayerTypes eFirstPlayer, PlayerTyp
 		{
 			return true;
 		}
-		else if (pConnection->m_eOriginOwner == eSecondPlayer && pConnection->m_eDestOwner == eFirstPlayer)
+		else if (!bFirstPlayerOnly && pConnection->m_eOriginOwner == eSecondPlayer && pConnection->m_eDestOwner == eFirstPlayer)
 		{
 			return true;
 		}
@@ -4897,6 +4897,58 @@ int CvPlayerTrade::GetNumDifferentTradingPartners (void)
 
 	return iResult;
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvPlayerTrade::GetNumDifferentMajorCivTradingPartners(void)
+{
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+
+	std::vector<bool> abConnections;
+	abConnections.resize(MAX_CIV_PLAYERS, false);
+
+	int iResult = 0;
+
+	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
+	{
+		if (pTrade->IsTradeRouteIndexEmpty(ui))
+		{
+			continue;
+		}
+
+		const TradeConnection* pTradeConnection = &(pTrade->GetTradeConnection(ui));
+		if (pTradeConnection->m_eOriginOwner == pTradeConnection->m_eDestOwner)
+		{
+			continue;
+		}
+
+		if (GET_PLAYER(pTradeConnection->m_eDestOwner).isMinorCiv())
+			continue;
+
+		if (GET_PLAYER(pTradeConnection->m_eOriginOwner).isMinorCiv())
+			continue;
+
+		// this involves us
+		if (pTradeConnection->m_eOriginOwner == m_pPlayer->GetID())
+		{
+			if (!abConnections[pTradeConnection->m_eDestOwner])
+			{
+				abConnections[pTradeConnection->m_eDestOwner] = true;
+				iResult++;
+			}
+		}
+		else if (pTradeConnection->m_eDestOwner == m_pPlayer->GetID())
+		{
+			if (!abConnections[pTradeConnection->m_eOriginOwner])
+			{
+				abConnections[pTradeConnection->m_eOriginOwner] = true;
+				iResult++;
+			}
+		}
+	}
+
+	return iResult;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 void CvPlayerTrade::UpdateTradeConnectionWasPlundered()
@@ -5714,6 +5766,31 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 				if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
 				{
 					iScore *= 10;
+				}
+			}
+		}
+		if (m_pPlayer->GetPlayerTraits()->IsNoOpenTrade() && GET_PLAYER(kTradeConnection.m_eDestOwner).isMajorCiv())
+		{
+			if (GET_PLAYER(kTradeConnection.m_eDestOwner).GetDiplomacyAI()->IsCloseToCultureVictory())
+			{
+				iScore /= 10;
+			}
+			else
+			{
+				if (m_pPlayer->GetTrade()->GetNumDifferentMajorCivTradingPartners() <= 0)
+				{
+					iScore *= 10;
+				}
+				else
+				{
+					if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner, true))
+					{
+						iScore *= 10;
+					}
+					else
+					{
+						iScore /= 10;
+					}
 				}
 			}
 		}

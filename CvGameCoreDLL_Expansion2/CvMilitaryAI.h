@@ -127,8 +127,7 @@ struct CvMilitaryTarget
 #if defined(MOD_BALANCE_CORE)
 		m_bOcean(false),
 #endif
-		iMusterNearbyUnitPower(0),
-		iTargetNearbyUnitPower(0),
+		iStrengthRatioTimes100(100),
 		m_iPathLength(0)
 	{
 	}
@@ -140,12 +139,12 @@ struct CvMilitaryTarget
 
 	CvCity* m_pTargetCity;
 	CvCity* m_pMusterCity;
-	int iTargetNearbyUnitPower;
-	int iMusterNearbyUnitPower;
+	int iStrengthRatioTimes100;
 	int m_iPathLength;
 	bool m_bAttackBySea;
 #if defined(MOD_BALANCE_CORE)
 	bool m_bOcean;
+	bool m_bNoLandPath;
 #endif
 };
 
@@ -166,6 +165,7 @@ struct SCachedTarget
 	int iMusterCity;
 	int bAttackBySea;
 	int bOcean;
+	int bNoLandPath;
 	int iScore;
 	int iTurnChosen;
 };
@@ -257,7 +257,7 @@ public:
 	CvMilitaryTarget FindBestAttackTargetGlobal(AIOperationTypes eAIOperationType, int* piWinningScore = NULL, bool bCheckWar = false);
 #endif
 	CvMilitaryTarget FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
-	void CheckApproachFromLandAndSea(PlayerTypes eEnemy, CvMilitaryTarget& target);
+	void CheckApproachFromLandAndSea(PlayerTypes eEnemy, CvMilitaryTarget& target, AIOperationTypes eAIOperationType);
 	int ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOperationType);
 	CityAttackApproaches EvaluateMilitaryApproaches(CvCity* pCity, bool bAttackByLand, bool bAttackBySea);
 
@@ -380,6 +380,9 @@ public:
 	void SetNumFreeCargo(int iValue);
 	int GetNumFreeCargo() const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	void SetupDefenses(PlayerTypes ePlayer);
+#endif
 private:
 
 	// Functions to process a turn
@@ -393,6 +396,17 @@ private:
 	void WarStateChange(PlayerTypes ePlayer, WarStateTypes eNewWarState, WarStateTypes eOldWarState);
 	void UpdateMilitaryStrategies();
 	void UpdateOperations();
+#if defined(MOD_BALANCE_CORE)
+	void DoNuke(PlayerTypes ePlayer);
+	void DoBarbs();
+	void CheckLandDefenses(PlayerTypes ePlayer);
+	void CheckSeaDefenses(PlayerTypes ePlayer);
+	void DoLandAttacks(PlayerTypes ePlayer);
+	void DoSeaAttacks(PlayerTypes ePlayer);
+	void DoMinorCivAttacks(PlayerTypes ePlayer);
+	int GetEnemyLandValue(PlayerTypes ePlayer, CvMilitaryTarget& target);
+	int GetEnemySeaValue(PlayerTypes ePlayer, CvMilitaryTarget& target);
+#endif
 	void MakeEmergencyPurchases();
 	void MakeOffensivePurchases();
 	void RequestImprovements();
@@ -502,6 +516,8 @@ int ComputeRecommendedNavySize(CvPlayer* pPlayer);
 int NumberOfFillableSlots(CvPlayer* pPlayer, PlayerTypes pEnemy, MultiunitFormationTypes formation, bool bRequiresNavalMoves=false, bool bMustBeDeepWaterNaval=false, CvPlot* pMuster=NULL, CvPlot* pTarget=NULL, int* piNumberSlotsRequired=NULL, int* piNumberLandReservesUsed=NULL);
 UnitAITypes FirstSlotCityCanFill(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves, bool bAtCoastalCity, bool bSecondaryUnit);
 MultiunitFormationTypes GetCurrentBestFormationTypeForCityAttack();
+MultiunitFormationTypes GetCurrentBestFormationTypeForNavalAttack();
+MultiunitFormationTypes GetCurrentBestFormationTypeForPureNavalAttack();
 CvPlot* GetCoastalPlotNearPlot(CvPlot *pTarget);
 }
 

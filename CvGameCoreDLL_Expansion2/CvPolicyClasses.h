@@ -285,6 +285,10 @@ public:
 	int GetGarrisonsOccupiedUnhapppinessMod() const;
 	int GetTradeReligionModifier() const;
 	int GetBestRangedUnitSpawnSettle() const;
+	int GetBestNumberLandCombatUnitClass() const;
+	int GetBestNumberLandRangedUnitClass() const;
+	int GetBestNumberSeaCombatUnitClass() const;
+	int GetBestNumberSeaRangedUnitClass() const;
 	int GetConquerorYield(int i) const;
 	int GetFounderYield(int i) const;
 	int GetReligionBuildingYieldMod(int i, int j) const;
@@ -325,6 +329,8 @@ public:
 	int* GetYieldChangeWorldWonderArray() const;
 	int GetYieldFromMinorDemand(int i) const;
 	int* GetYieldFromMinorDemandArray() const;
+	int GetYieldFromWLTKD(int i) const;
+	int* GetYieldFromWLTKDArray() const;
 #endif
 	int GetBuildingClassYieldModifiers(int i, int j) const;
 	int GetBuildingClassYieldChanges(int i, int j) const;
@@ -606,6 +612,10 @@ private:
 	int m_iGarrisonsOccupiedUnhapppinessMod;
 	int m_iTradeReligionModifier;
 	int m_iBestRangedUnitSpawnSettle;
+	int m_iBestNumberLandCombatUnitClass;
+	int m_iBestNumberLandRangedUnitClass;
+	int m_iBestNumberSeaCombatUnitClass;
+	int m_iBestNumberSeaRangedUnitClass;
 	int m_iFreePopulation;
 	int m_iExtraMoves;
 	int m_iMaxCorporations;
@@ -616,8 +626,8 @@ private:
 	bool m_bCorporationRandomForeignFranchise;
 	int m_iAdditionalNumFranchisesMod;
 	bool m_bUpgradeCSTerritory;
-	bool m_iArchaeologicalDigTourism;
-	bool m_iGoldenAgeTourism;
+	int m_iArchaeologicalDigTourism;
+	int m_iGoldenAgeTourism;
 	int m_iTradeRouteLandDistanceModifier;
 	int m_iTradeRouteSeaDistanceModifier;
 	int m_iEspionageModifier;
@@ -653,6 +663,7 @@ private:
 	int* m_piYieldChangesNaturalWonder;
 	int* m_piYieldChangeWorldWonder;
 	int* m_piYieldFromMinorDemand;
+	int* m_piYieldFromWLTKD;
 #endif
 	int** m_ppiBuildingClassYieldModifiers;
 	int** m_ppiBuildingClassYieldChanges;

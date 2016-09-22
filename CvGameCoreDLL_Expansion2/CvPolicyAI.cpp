@@ -152,7 +152,7 @@ void CvPolicyAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropaga
 int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 {
 	RandomNumberDelegate fcn;
-	fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
+	fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 	int iRtnValue = (int)NO_POLICY;
 	int iPolicyLoop;
 	vector<int> aLevel3Tenets;
@@ -608,7 +608,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	// Next look at free policies we can get
 	iFreedomPriority += PolicyHelpers::GetNumFreePolicies(eFreedomBranch) * GC.getIDEOLOGY_SCORE_PER_FREE_TENET();
 	iAutocracyPriority += PolicyHelpers::GetNumFreePolicies(eAutocracyBranch) * GC.getIDEOLOGY_SCORE_PER_FREE_TENET();
-	iOrderPriority += PolicyHelpers::GetNumFreePolicies(eOrderBranch) * GC.getIDEOLOGY_SCORE_PER_FREE_TENET();;
+	iOrderPriority += PolicyHelpers::GetNumFreePolicies(eOrderBranch) * GC.getIDEOLOGY_SCORE_PER_FREE_TENET();
 
 	stage = "After Free Policies";
 	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
@@ -639,7 +639,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				}
 				else if (eOtherPlayerIdeology == eOrderBranch)
 				{
-					iAutocracyPriority += GC.getIDEOLOGY_SCORE_HOSTILE();;
+					iAutocracyPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
 					iFreedomPriority += GC.getIDEOLOGY_SCORE_HOSTILE();
 				}
 				break;
@@ -764,14 +764,14 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	// bigger random add-on
-	iFreedomPriority += GC.getGame().getRandNum(75, "Freedom random priority bump");
-	iAutocracyPriority += GC.getGame().getRandNum(75, "Autocracy random priority bump");
-	iOrderPriority += GC.getGame().getRandNum(75, "Order random priority bump");
+	iFreedomPriority += GC.getGame().getJonRandNum(75, "Freedom random priority bump");
+	iAutocracyPriority += GC.getGame().getJonRandNum(75, "Autocracy random priority bump");
+	iOrderPriority += GC.getGame().getJonRandNum(75, "Order random priority bump");
 #else
 	// Small random add-on
-	iFreedomPriority += GC.getGame().getRandNum(10, "Freedom random priority bump");
-	iAutocracyPriority += GC.getGame().getRandNum(10, "Autocracy random priority bump");
-	iOrderPriority += GC.getGame().getRandNum(10, "Order random priority bump");
+	iFreedomPriority += GC.getGame().getJonRandNum(10, "Freedom random priority bump");
+	iAutocracyPriority += GC.getGame().getJonRandNum(10, "Autocracy random priority bump");
+	iOrderPriority += GC.getGame().getJonRandNum(10, "Order random priority bump");
 #endif
 	stage = "After Random (1 to 10)";
 	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);

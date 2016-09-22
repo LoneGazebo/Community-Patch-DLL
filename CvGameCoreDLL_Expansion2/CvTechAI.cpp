@@ -178,8 +178,8 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 
 	// Use the synchronous random number generate
 	// Asynchronous one would be:
-	//	fcn = MakeDelegate (&GC.getGame(), &CvGame::getRandNum);
-	fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
+	//	fcn = MakeDelegate (&GC.getGame(), &CvGame::getAsyncRandNum);
+	fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Create a new vector holding only techs we can currently research
 	m_ResearchableTechs.clear();
@@ -220,7 +220,14 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 	if(m_ResearchableTechs.GetTotalWeight() > 0)
 	{
 		int iNumChoices =GC.getGame().getHandicapInfo().GetTechNumOptions();
-		rtnValue = (TechTypes) m_ResearchableTechs.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing tech from Top Choices");
+		if (pPlayer->isBarbarian())
+		{
+			rtnValue = (TechTypes)m_ResearchableTechs.GetElement(0);
+		}
+		else
+		{
+			rtnValue = (TechTypes)m_ResearchableTechs.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing tech from Top Choices");
+		}
 		LogResearchChoice(rtnValue);
 	}
 

@@ -12,6 +12,8 @@
 #ifndef CIV5_GLOBALS_H
 #define CIV5_GLOBALS_H
 
+#include <vector>
+
 //
 // 'global' vars for Civ V.  singleton class.
 // All globals and global types should be contained in this class
@@ -79,6 +81,11 @@ class CvModEventInfo;
 class CvModEventChoiceInfo;
 class CvModCityEventInfo;
 class CvModEventCityChoiceInfo;
+
+class CvEventLinkingInfo;
+class CvEventChoiceLinkingInfo;
+class CvCityEventLinkingInfo;
+class CvCityEventChoiceLinkingInfo;
 #endif
 class CvMultiUnitFormationInfo;
 class CvEconomicAIStrategyXMLEntries;
@@ -216,8 +223,8 @@ public:
 
 	CvRandom& getASyncRand();
 
+	void InitializePathfinders(int iX, int iY, bool bWx, bool bWy);
 	CvTwoLayerPathFinder& GetPathFinder();
-	CvTwoLayerPathFinder& GetInterfacePathFinder();
 	CvStepFinder& GetStepFinder();
 
 	ICvDLLDatabaseUtility1* getDatabaseLoadUtility();
@@ -384,6 +391,22 @@ public:
 	std::vector<CvModEventCityChoiceInfo*>& getCityEventChoiceInfo();
 	_Ret_maybenull_ CvModEventCityChoiceInfo* getCityEventChoiceInfo(CityEventChoiceTypes e);
 
+	int getNumEventLinkingInfos();
+	std::vector<CvEventLinkingInfo*>& getEventLinkingInfo();
+	_Ret_maybenull_ CvEventLinkingInfo* getEventLinkingInfo(EventTypes e);
+
+	int getNumEventChoiceLinkingInfos();
+	std::vector<CvEventChoiceLinkingInfo*>& getEventChoiceLinkingInfo();
+	_Ret_maybenull_ CvEventChoiceLinkingInfo* getEventChoiceLinkingInfo(EventChoiceTypes e);
+
+	int getNumCityEventLinkingInfos();
+	std::vector<CvCityEventLinkingInfo*>& getCityEventLinkingInfo();
+	_Ret_maybenull_ CvCityEventLinkingInfo* getCityEventLinkingInfo(CityEventTypes e);
+
+	int getNumCityEventChoiceLinkingInfos();
+	std::vector<CvCityEventChoiceLinkingInfo*>& getCityEventChoiceLinkingInfo();
+	_Ret_maybenull_ CvCityEventChoiceLinkingInfo* getCityEventChoiceLinkingInfo(CityEventChoiceTypes e);
+	
 #endif
 
 	int getNumUnitCombatClassInfos();
@@ -8909,13 +8932,6 @@ public:
 	bool readEventTriggerInfoArray(FDataStream& kStream);
 	void writeEventTriggerInfoArray(FDataStream& kStream);
 
-	//
-	// additional accessors for initting globals
-	//
-	void SetPathFinder(CvTwoLayerPathFinder* pVal);
-	void SetInterfacePathFinder(CvTwoLayerPathFinder* pVal);
-	void SetStepFinder(CvStepFinder* pVal);
-
 	// So that CvEnums are moddable in the DLL
 	int getNumDirections() const;
 	int getNumGameOptions() const;
@@ -9034,6 +9050,10 @@ protected:
 	std::vector<CvModEventChoiceInfo*> m_paEventChoiceInfo;
 	std::vector<CvModCityEventInfo*> m_paCityEventInfo;
 	std::vector<CvModEventCityChoiceInfo*> m_paCityEventChoiceInfo;
+	std::vector<CvEventLinkingInfo*> m_paEventLinkingInfo;
+	std::vector<CvEventChoiceLinkingInfo*> m_paEventChoiceLinkingInfo;
+	std::vector<CvCityEventLinkingInfo*> m_paCityEventLinkingInfo;
+	std::vector<CvCityEventChoiceLinkingInfo*> m_paCityEventChoiceLinkingInfo;
 	std::vector<CvContractEntry*> m_paContractInfo;
 #endif
 	std::vector<CvBaseInfo*> m_paUnitCombatClassInfo;

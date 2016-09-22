@@ -22,20 +22,51 @@
 			<Text>[COLOR_WARNING_TEXT]You cannot take this Event Choice. Either you do not meet the requirements, or its effects are still active.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NO_PLAYER_EVENTS">
-			<Text>You have no active Player Events</Text>
+			<Text>You have no active Player Event Choices</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NO_CITY_EVENTS">
-			<Text>You have no active City Events</Text>
+			<Text>You have no active City Event Choices</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_RECENT_CITY_EVENTS">
+			<Text>You have no recent City Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NO_RECENT_EVENTS">
 			<Text>You have no recent Events</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_RECENT_EVENT_INFORMATION">
-			<Text>Recent Events</Text>
+			<Text>Player Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_RECENT_EVENT_INFORMATION">
+			<Text>City Events</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RECENT_EVENT_TT">
-			<Text>Lists all recent Events that do not expire, are not unique, and/or did not include choices.</Text>
+			<Text>Lists all Events that are instant effects (i.e. lacked player choice).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RECENT_CHOICE_TT">
+			<Text>Lists all Events that required player input.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EVENT_CHOICE_UI">
+			<Text>Your Choice:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_CHOICE_RESULT_UI">
+			<Text>Result:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_PERMANENT">
+			<Text>Permanent Effect</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_BONUS">
+			<Text>Instant Event</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_CHOICE_SORT_NAME">
+			<Text>Sort by Event Name</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_CHOICE_SORT_DURATION">
+			<Text>Sort by Duration</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_CHOICE_SORT_CITY_NAME">
+			<Text>Sort by City Name</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_YIELD_FROM_EVENTS">
@@ -108,13 +139,13 @@
 			<Text>Events Overview</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_INFORMATION">
-			<Text>Active Player Events</Text>
+			<Text>Player Choices</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_INFORMATION">
-			<Text>Active City Events</Text>
+			<Text>City Choices</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_TURNS_REMAINING">
-			<Text>Turns Remaining: {1_Num}</Text>
+			<Text>Turn(s) Remaining: {1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED">
 			<Text>{3_Value} {2_Icon} {1_Yield}</Text>
@@ -412,7 +443,7 @@
 		<Row Tag="TXT_KEY_NEED_BE_COASTAL">
 			<Text>[NEWLINE] [ICON_BULLET] City must be coastal</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_NEED_BE_CAPITAL">
 			<Text>[NEWLINE] [ICON_BULLET] City must be a Capital</Text>
 		</Row>

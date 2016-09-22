@@ -370,6 +370,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	static int lBarbarianCombatBonus(lua_State* L);
 	static int lIsMounted(lua_State* L);
+	static int lIsStrongerDamaged(lua_State* L);
 #endif
 	static int lDomainModifier(lua_State* L);
 	static int lGetStrategicResourceCombatPenalty(lua_State* L);
@@ -516,6 +517,7 @@ protected:
 	static int lIsNearSapper(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	static int lIsHalfNearSapper(lua_State* L);
+	static int lGetNearbyUnitClassModifierFromUnitClass(lua_State* L);
 #endif
 	static int lGetNearbyImprovementModifier(lua_State* L);
 	static int lIsFriendlyUnitAdjacent(lua_State* L);

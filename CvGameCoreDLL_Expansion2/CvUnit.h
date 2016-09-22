@@ -120,9 +120,8 @@ public:
 		MOVEFLAG_APPROX_TARGET_RING1			= 0x8000, //don't need to reach the target exactly, a ring1 tile is good enough
 		MOVEFLAG_APPROX_TARGET_RING2			= 0x10000, //don't need to reach the target exactly, a ring2 tile is good enough
 		MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN	= 0x20000, //no embarkation on approximate target tile
-		MOVEFLAG_NO_INTERMEDIATE_STOPS			= 0x40000, //disable the second layer of nodes
-		MOVEFLAG_IGNORE_ZOC						= 0x80000, //ignore zones of control
-		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x100000, //pretend we can enter everybody's territory
+		MOVEFLAG_IGNORE_ZOC						= 0x40000, //ignore zones of control
+		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x80000, //pretend we can enter everybody's territory
 	};
 
 	inline DestructionNotification<UnitHandle>& getDestructionNotification() { return m_destructionNotification; }
@@ -211,6 +210,9 @@ public:
 	void move(CvPlot& pPlot, bool bShow);
 	bool jumpToNearestValidPlot();
 	bool jumpToNearestValidPlotWithinRange(int iRange);
+#if defined(MOD_BALANCE_CORE)
+	bool jumpToNearestValidPlotWithinRangeIgnoreEnemy(int iRange);
+#endif
 
 	bool canScrap(bool bTestVisible = false) const;
 	void scrap();
@@ -233,6 +235,11 @@ public:
 	void unloadAll();
 	const CvUnit* getTransportUnit() const;
 	CvUnit* getTransportUnit();
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	const CvUnit* getStackingUnit() const;
+	CvUnit* getStackingUnit();
+	void setStackingUnit(CvUnit* pStackingUnit);
+#endif
 	bool isCargo() const;
 	void setTransportUnit(CvUnit* pTransportUnit);
 
@@ -643,7 +650,14 @@ public:
 	ImprovementTypes GetCombatBonusImprovement() const;
 	void SetCombatBonusImprovement(ImprovementTypes eImprovement);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	int GetNearbyUnitClassBonus() const;
+	void SetNearbyUnitClassBonus(int iCombatBonus);
+	int GetNearbyUnitClassBonusRange() const;
+	void SetNearbyUnitClassBonusRange(int iBonusRange);
+	UnitClassTypes GetCombatBonusFromNearbyUnitClass() const;
+	void SetCombatBonusFromNearbyUnitClass(UnitClassTypes eUnitClass);
+#endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	bool canCrossMountains() const;
 	int getCanCrossMountainsCount() const;
@@ -820,6 +834,11 @@ public:
 	CvArea* area() const;
 	bool onMap() const;
 
+#if defined(MOD_BALANCE_CORE)
+	void setOriginCity(int ID);
+	CvCity* getOriginCity();
+#endif
+
 	int getLastMoveTurn() const;
 	void setLastMoveTurn(int iNewValue);
 
@@ -831,6 +850,12 @@ public:
 	{
 		m_iDeployFromOperationTurn = iTurn;
 	};
+#if defined(MOD_BALANCE_CORE)
+	int GetDeployFromOperationTurn()
+	{
+		return m_iDeployFromOperationTurn;
+	};
+#endif
 
 	bool IsRecon() const;
 	int GetReconCount() const;
@@ -930,7 +955,11 @@ public:
 	int getHillsDoubleMoveCount() const;
 	bool isHillsDoubleMove() const;
 	void changeHillsDoubleMoveCount(int iChange);
-
+#if defined(MOD_BALANCE_CORE)
+	int getMountainsDoubleMoveCount() const;
+	bool isMountainsDoubleMove() const;
+	void changeMountainsDoubleMoveCount(int iChange);
+#endif
 	int getImmuneToFirstStrikesCount() const;
 	void changeImmuneToFirstStrikesCount(int iChange);
 
@@ -1145,6 +1174,12 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsHalfSappingCity(const CvCity* pTargetCity) const;
 	bool IsHalfNearSapper(const CvCity* pTargetCity) const;
+	int GetNearbyUnitClassModifierFromUnitClass(const CvPlot* pAtPlot = NULL) const;
+	int GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClassRange, int iUnitClassModifier, const CvPlot* pAtPlot = NULL) const;
+	void DoNearbyUnitPromotion(CvPlot* pPlot = NULL);
+
+	bool IsStrongerDamaged() const;
+	void ChangeIsStrongerDamaged(int iChange);
 #endif
 
 	bool IsCanHeavyCharge() const;
@@ -1380,6 +1415,8 @@ public:
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int getNumberStackingUnits() const;
+	bool IsStackingUnit() const;
+	bool IsCargoCombatUnit() const;
 #endif
 
 	bool IsAirSweepCapable() const;
@@ -1602,6 +1639,7 @@ protected:
 	MissionQueueNode* HeadMissionQueueNode();
 
 	bool HaveCachedPathTo(const CvPlot* pToPlot, int iFlags);
+	bool IsCachedPathValid();
 	void ClearPathCache();
 	bool VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns);
 	bool ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns);
@@ -1661,6 +1699,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iCityAttackOnlyCount;
 	FAutoVariable<int, CvUnit> m_iCaptureDefeatedEnemyCount;
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvUnit> m_iOriginCity;
 	FAutoVariable<int, CvUnit> m_iCannotBeCapturedCount;
 	FAutoVariable<int, CvUnit> m_iForcedDamage;
 	FAutoVariable<int, CvUnit> m_iChangeDamage;
@@ -1671,6 +1710,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_iAlwaysHealCount;
 	FAutoVariable<int, CvUnit> m_iHealOutsideFriendlyCount;
 	FAutoVariable<int, CvUnit> m_iHillsDoubleMoveCount;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvUnit> m_iMountainsDoubleMoveCount;
+#endif
 	FAutoVariable<int, CvUnit> m_iImmuneToFirstStrikesCount;
 	FAutoVariable<int, CvUnit> m_iExtraVisibilityRange;
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
@@ -1749,6 +1791,11 @@ protected:
 	FAutoVariable<int, CvUnit> m_iNearbyImprovementBonusRange;
 	FAutoVariable<ImprovementTypes, CvUnit> m_eCombatBonusImprovement;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvUnit> m_iNearbyUnitClassBonus;
+	FAutoVariable<int, CvUnit> m_iNearbyUnitClassBonusRange;
+	FAutoVariable<UnitClassTypes, CvUnit> m_iCombatBonusFromNearbyUnitClass;
+#endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	FAutoVariable<int, CvUnit> m_iCanCrossMountainsCount;
 #endif
@@ -1818,6 +1865,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iSapperCount;
 	FAutoVariable<int, CvUnit> m_iCanHeavyCharge;
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<int, CvUnit> m_iStrongerDamaged;
 	FAutoVariable<int, CvUnit> m_iCanMoraleBreak;
 #endif
 	FAutoVariable<int, CvUnit> m_iNumExoticGoods;
@@ -1850,6 +1898,9 @@ protected:
 	IDInfo m_combatUnit;
 	IDInfo m_combatCity;
 	IDInfo m_transportUnit;
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	IDInfo m_stackingUnit;
+#endif
 
 	std::vector<int> m_extraDomainModifiers;
 
@@ -1934,8 +1985,8 @@ protected:
 	mutable uint m_uiLastPathCacheOrigin;
 	mutable uint m_uiLastPathCacheDestination;
 	mutable uint m_uiLastPathFlags;
-	mutable uint m_uiLastPathLength;
 	mutable uint m_uiLastPathTurn;
+	mutable uint m_uiLastPathLength;
 
 	bool canAdvance(const CvPlot& pPlot, int iThreshold) const;
 
@@ -1946,7 +1997,10 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	void DoPlagueTransfer(CvUnit& defender);
 #endif
-
+#if defined(MOD_CARGO_SHIPS)
+	void DoCargoPromotions(CvUnit& cargounit);
+	void RemoveCargoPromotions(CvUnit& cargounit);
+#endif
 	// these are do to a unit using Heavy Charge against you
 	bool CanFallBackFromMelee(CvUnit& pAttacker);
 	bool DoFallBackFromMelee(CvUnit& pAttacker);

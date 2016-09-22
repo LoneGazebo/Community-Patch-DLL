@@ -359,6 +359,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(UnitCombatModifier);
 #if defined(MOD_BALANCE_CORE)
 	Method(IsMounted);
+	Method(IsStrongerDamaged);
 	Method(BarbarianCombatBonus);
 #endif
 	Method(DomainModifier);
@@ -507,6 +508,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsNearSapper);
 #if defined(MOD_BALANCE_CORE)
 	Method(IsHalfNearSapper);
+	Method(GetNearbyUnitClassModifierFromUnitClass);
 #endif
 	Method(GetNearbyImprovementModifier);
 	Method(IsFriendlyUnitAdjacent);
@@ -3627,6 +3629,16 @@ int CvLuaUnit::lIsMounted(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }	
+//------------------------------------------------------------------------------
+int CvLuaUnit::lIsStrongerDamaged(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const bool bResult = pkUnit->IsStrongerDamaged();
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
 #endif
 //------------------------------------------------------------------------------
 //int domainModifier(int /*DomainTypes*/ eDomain);
@@ -4891,6 +4903,14 @@ int CvLuaUnit::lIsHalfNearSapper(lua_State* L)
 
 	const bool bResult = pkUnit->IsHalfNearSapper(pkCity);
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+//bool GetNearbyUnitClassModifierFromUnitClass();
+int CvLuaUnit::lGetNearbyUnitClassModifierFromUnitClass(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int bResult = pkUnit->GetNearbyUnitClassModifierFromUnitClass(pkUnit->plot());
+	lua_pushinteger(L, bResult);
 	return 1;
 }
 #endif

@@ -56,6 +56,10 @@ local g_ProgressBarStates = {
 		IconOffset = {x = 45,y = 0},
 		ProgressBarTexture = "MeterBarGreatEspionageBlue.dds",
 	},
+	TXT_KEY_SPY_STATE_PREPARING_HEIST = {
+		IconOffset = {x = 45,y = 0},
+		ProgressBarTexture = "MeterBarGreatEspionageGreen.dds",
+	},
 }
 	
 -- Agent text color based on agent activity.
@@ -67,6 +71,7 @@ local g_TextColors = {
 	TXT_KEY_SPY_STATE_RIGGING_ELECTION	   = {x = 255/255, y = 222/255, z =   9/255, w = 255/255},
 	TXT_KEY_SPY_STATE_MAKING_INTRODUCTIONS = {x = 128/255, y = 150/255, z = 228/255, w = 255/255},
 	TXT_KEY_SPY_STATE_SCHMOOZING		   = {x = 255/255, y = 222/255, z =   9/255, w = 255/255},
+	TXT_KEY_SPY_STATE_PREPARING_HEIST	   = {x = 128/255, y = 150/255, z = 228/255, w = 255/255},
 }
 
 g_Tabs = {
@@ -428,7 +433,9 @@ function RelocateAgent(agentID, city)
 	elseif (agent.AgentActivity == Locale.Lookup("TXT_KEY_SPY_STATE_TRAVELLING")) then
 		strActivityTT = Locale.Lookup("TXT_KEY_EO_SPY_TRAVELLING_TT", agent.Rank, agent.Name, city:GetName());
 	elseif (agent.AgentActivity == Locale.Lookup("TXT_KEY_SPY_STATE_SURVEILLANCE")) then
-		strActivityTT = Locale.Lookup("TXT_KEY_EO_SPY_SURVEILLANCE_TT", agent.Rank, agent.Name, city:GetName());			
+		strActivityTT = Locale.Lookup("TXT_KEY_EO_SPY_SURVEILLANCE_TT", agent.Rank, agent.Name, city:GetName());
+	elseif (agent.AgentActivity == Locale.Lookup("TXT_KEY_SPY_STATE_PREPARING_HEIST")) then
+		strActivityTT = Locale.Lookup("TXT_KEY_EO_SPY_HEIST_TT", agent.Rank, agent.Name, city:GetName());			
 	elseif (agent.AgentActivity == Locale.Lookup("TXT_KEY_SPY_STATE_GATHERING_INTEL")) then
 		strActivityTT = Locale.Lookup("TXT_KEY_EO_SPY_GATHERING_INTEL_TT", agent.Rank, agent.Name, city:GetName());	
 	elseif (agent.AgentActivity == Locale.Lookup("TXT_KEY_SPY_STATE_RIGGING_ELECTION")) then
@@ -635,6 +642,8 @@ function RefreshAgents()
 				strActivityTT = Locale.Lookup("TXT_KEY_EO_SPY_TRAVELLING_TT", v.Rank, v.Name, city:GetName());
 			elseif (v.AgentActivity == Locale.Lookup("TXT_KEY_SPY_STATE_SURVEILLANCE")) then
 				strActivityTT = Locale.Lookup("TXT_KEY_EO_SPY_SURVEILLANCE_TT", v.Rank, v.Name, city:GetName());			
+			elseif (v.AgentActivity == Locale.Lookup("TXT_KEY_SPY_STATE_PREPARING_HEIST")) then
+				strActivityTT = Locale.Lookup("TXT_KEY_EO_SPY_HEIST_TT", v.Rank, v.Name, city:GetName());			
 			elseif (v.AgentActivity == Locale.Lookup("TXT_KEY_SPY_STATE_GATHERING_INTEL")) then
 				strActivityTT = Locale.Lookup("TXT_KEY_EO_SPY_GATHERING_INTEL_TT", v.Rank, v.Name, city:GetName());	
 			elseif (v.AgentActivity == Locale.Lookup("TXT_KEY_SPY_STATE_RIGGING_ELECTION")) then
@@ -1509,10 +1518,18 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 			local bCheckDiplomat = false;
 			if (city:IsCapital() and (not Players[v.PlayerID]:IsMinorCiv()) and (not pMyTeam:IsAtWar(city:GetTeam()))) then
 				bCheckDiplomat = true;
-			end 
+			end
+
+			--CBP
+			local bCheckThief = false;
+			if (pActivePlayer:ValidHeistLocation(selectedAgentIndex, city)) then
+				bCheckDiplomat = true;
+				bCheckThief = true;
+			end
+			--END
 
 			ApplyGenericEntrySettings(cityEntry, v, agent, bTickTock)
-			
+
 			if (bCheckDiplomat) then
 				cityEntry.CitySelectButton:RegisterCallback(Mouse.eLClick, function()
 					g_ConfirmAction = function()
@@ -1523,13 +1540,19 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 						Network.SendMoveSpy(Game.GetActivePlayer(), selectedAgentIndex, v.PlayerID, v.CityID, false);
 						Refresh();
 					end
-					Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_SPY_BE_DIPLOMAT");
+
+					if(bCheckThief)then			
+						Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_SPY_BE_THIEF");
+						Controls.YesString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_THIEF");
+					else
+						Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_SPY_BE_DIPLOMAT");
+						Controls.YesString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_DIPLOMAT");					
+					end
+					Controls.NoString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_SPY");
 					Controls.ConfirmContent:CalculateSize();
 					local width, height = Controls.ConfirmContent:GetSizeVal();
 					Controls.ConfirmFrame:SetSizeVal(width + 60, height + 120);
 					Controls.ChooseConfirm:SetHide(false);
-					Controls.YesString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_DIPLOMAT");
-					Controls.NoString:LocalizeAndSetText("TXT_KEY_DIPLOMAT_PICKER_SPY");
 				end);
 			else
 				cityEntry.CitySelectButton:RegisterCallback(Mouse.eLClick, function()

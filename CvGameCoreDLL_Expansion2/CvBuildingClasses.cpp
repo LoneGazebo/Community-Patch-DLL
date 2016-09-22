@@ -293,6 +293,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromUnitProduction(NULL),
 	m_piYieldFromBorderGrowth(NULL),
 	m_piYieldFromPolicyUnlock(NULL),
+	m_piYieldFromUnitLevelUp(NULL),
 	m_piYieldFromPurchase(NULL),
 #endif
 	m_piYieldChange(NULL),
@@ -329,6 +330,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_paiHurryModifierLocal(NULL),
 	m_pbBuildingClassNeededAnywhere(NULL),
 	m_pbBuildingClassNeededNowhere(NULL),
+	m_piNumSpecFreeUnits(NULL),
 #endif
 	m_piNumFreeUnits(NULL),
 	m_bArtInfoEraVariation(false),
@@ -397,6 +399,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromUnitProduction);
 	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
 	SAFE_DELETE_ARRAY(m_piYieldFromPolicyUnlock);
+	SAFE_DELETE_ARRAY(m_piYieldFromUnitLevelUp);
 	SAFE_DELETE_ARRAY(m_piYieldFromPurchase);
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
@@ -432,6 +435,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_paiHurryModifierLocal);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededAnywhere);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededNowhere);
+	SAFE_DELETE_ARRAY(m_piNumSpecFreeUnits);
 #endif
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
@@ -806,6 +810,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromUnitProduction, "Building_YieldFromUnitProduction", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromBorderGrowth, "Building_YieldFromBorderGrowth", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPolicyUnlock, "Building_YieldFromPolicyUnlock", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromUnitLevelUp, "Building_YieldFromUnitLevelUp", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPurchase, "Building_YieldFromPurchase", "BuildingType", szBuildingType);
 #endif
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
@@ -847,6 +852,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassNeededNowhere, "BuildingClasses", "Building_ClassNeededNowhere", "BuildingClassType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByValue(m_paiBuildingClassLocalHappiness, "BuildingClasses", "Building_BuildingClassLocalHappiness", "BuildingClassType", "BuildingType", szBuildingType, "Happiness");
 	kUtility.PopulateArrayByValue(m_paiSpecificGreatPersonRateModifier, "Specialists", "Building_SpecificGreatPersonRateModifier", "SpecialistType", "BuildingType", szBuildingType, "Modifier");
+	kUtility.PopulateArrayByValue(m_piNumSpecFreeUnits, "Units", "Building_FreeSpecUnits", "UnitType", "BuildingType", szBuildingType, "NumUnits");
 #endif
 	//kUtility.PopulateArrayByExistence(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByValue(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType, "NumUnits");
@@ -2528,6 +2534,19 @@ int* CvBuildingEntry::GetYieldFromPolicyUnlockArray() const
 	return m_piYieldFromPolicyUnlock;
 }
 
+int CvBuildingEntry::GetYieldFromUnitLevelUp(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromUnitLevelUp[i];
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromUnitLevelUpArray() const
+{
+	return m_piYieldFromUnitLevelUp;
+}
+
+
 int CvBuildingEntry::GetYieldFromPurchase(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
@@ -2942,6 +2961,13 @@ bool CvBuildingEntry::IsBuildingClassNeededNowhere(int i) const
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pbBuildingClassNeededNowhere ? m_pbBuildingClassNeededNowhere[i] : false;
+}
+// Free units which appear near the capital, can be any UnitType of other civs or not
+int CvBuildingEntry::GetNumFreeSpecialUnits(int i) const
+{
+	CvAssertMsg(i < GC.getNumUnitInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piNumSpecFreeUnits ? m_piNumSpecFreeUnits[i] : -1;
 }
 #endif
 /// Free units which appear near the capital
@@ -4967,30 +4993,23 @@ int CvCityBuildings::GetCityStateTradeRouteProductionModifier() const
 	if (iCityStates==0)
 		return 0;
 
-	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	const std::vector<BuildingTypes>& vBuildings = GetAllBuildingsHere();
+	for (size_t iI = 0; iI < vBuildings.size(); iI++)
 	{
-		BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
-		CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
-		if (pkCivInfo)
+		BuildingTypes eBuilding = vBuildings[iI];
+		if (NO_BUILDING != eBuilding)
 		{
-			BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eLoopBuildingClass);
-			if (NO_BUILDING != eBuilding)
+			CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
+			if (pkEntry)
 			{
-				if (GetNumBuilding(eBuilding) > 0)
+				int iProductionModifier = pkEntry->GetCityStateTradeRouteProductionModifier();
+				if (iProductionModifier > 0)
 				{
-					CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
-					if (pkEntry)
-					{
-						int iProductionModifier = pkEntry->GetCityStateTradeRouteProductionModifier();
-						if (iProductionModifier > 0)
-						{
 #if defined(MOD_BUGFIX_MINOR)
-							iRtnValue = iProductionModifier * iCityStates * GetNumBuilding(eBuilding);
+					iRtnValue = iProductionModifier * iCityStates * GetNumBuilding(eBuilding);
 #else
-							iRtnValue = iProductionModifier * iCityStates;
+					iRtnValue = iProductionModifier * iCityStates;
 #endif
-						}
-					}
 				}
 			}
 		}
@@ -5409,7 +5428,7 @@ void BuildingArrayHelpers::Write(FDataStream& kStream, int* paiBuildingArray, in
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 		if(pkBuildingInfo)
 		{
-			CvInfosSerializationHelper::WriteHashed(kStream, pkBuildingInfo);;
+			CvInfosSerializationHelper::WriteHashed(kStream, pkBuildingInfo);
 			kStream << paiBuildingArray[iI];
 		}
 		else

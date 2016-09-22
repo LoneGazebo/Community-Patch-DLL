@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -106,8 +106,11 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 	{
 		return false;
 	}
-
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+	if(pPlot->IsNaturalWonder(true))
+#else
 	if(pPlot->IsNaturalWonder())
+#endif
 		return false;
 
 	//need at least one conventionally accessible plot around the city
@@ -381,7 +384,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	//use a slightly negative base value to discourage settling in bad lands
 	int iDefaultPlotValue = -100;
 
-	int iBorderlandRange = 6;
+	//this is in turns for a typical unit
+	int iBorderlandRange = 4;
 	int iCapitalArea = NULL;
 
 	bool bIsAlmostCoast = false;
@@ -432,13 +436,13 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		int iRingModifier = m_iRingModifier[iDistance];
 
 		//not only our cities, also other player's cities!
-		int iExistingCityDistance = GC.getGame().GetClosestCityDistance(pLoopPlot);
+		int iExistingCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pLoopPlot);
 
 		//count the tile only if the city will be able to work it
-		if ( !pLoopPlot->isValidMovePlot(pPlayer->GetID()) || pLoopPlot->getWorkingCity()!=NULL || iExistingCityDistance<=2 ) 
+		if ( !pLoopPlot->isValidMovePlot(pPlayer->GetID()) || pLoopPlot->getWorkingCity()!=NULL || iExistingCityDistance<2 ) 
 			iRingModifier = 0;
 
-		if (iExistingCityDistance==3)
+		if (iExistingCityDistance==2)
 			//this plot will likely be contested between the two cities, reduce its value
 			iRingModifier /= 2;
 
@@ -503,7 +507,11 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			bIsAlmostCoast = true;
 
 		// if this tile is a NW boost the value just so that we force the AI to claim them (if we can work it)
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+		if (pLoopPlot->IsNaturalWonder(true) && iPlotValue>0)
+#else
 		if (pLoopPlot->IsNaturalWonder() && iPlotValue>0)
+#endif
 			iPlotValue *= 15;
 
 		// lower value a lot if we or somebody else already own this tile
@@ -531,8 +539,11 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		{
 			++iWetlandsCount;
 		}
-
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+		if (pLoopPlot->IsNaturalWonder(true))
+#else
 		if (pLoopPlot->IsNaturalWonder())
+#endif
 		{
 			++iNaturalWonderCount;
 		}
@@ -697,39 +708,42 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	// Finally, look at the city plot itself
 	if (pPlot->getResourceType(eTeam) != NO_RESOURCE)
 	{
-		iValueModifier += (int)iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT() / 100;
+		iValueModifier += (iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT()) / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) city on resource");
 	}
-
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+	if (pPlot->IsNaturalWonder(true))
+#else
 	if (pPlot->IsNaturalWonder())
+#endif
 	{
-		iValueModifier += (int)iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT() / 100;
+		iValueModifier += (iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT()) / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) city on natural wonder");
 	}
 
-	if ( iTotalFoodValue>5*iTotalProductionValue || iTotalProductionValue > 2*iTotalFoodValue )
+	if ( iTotalProductionValue > 3*iTotalFoodValue )
 	{
-		iValueModifier -= (int)iTotalPlotValue * 20 / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields");
+		iValueModifier -= 20 * iTotalPlotValue / 100;
+		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking food)");
 	}
 
-	if ( iTotalFoodValue>10*iTotalProductionValue )
+	if ( iTotalFoodValue > 8*iTotalProductionValue )
 	{
-		iValueModifier -= (int)iTotalPlotValue * 20 / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) extremely unbalanced yields");
+		iValueModifier -= 20 * iTotalPlotValue / 100;
+		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking hammers)");
 	}
 
 	if (pPlot->isRiver())
 	{
-		iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100;
+		iValueModifier += (iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT()) / 100;
 		if(pPlayer && pPlayer->GetPlayerTraits()->IsRiverTradeRoad())
-			iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100 * 2;
+			iValueModifier += (iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT()) / 100;
 		if (pDebug) vQualifiersPositive.push_back("(V) river");
 	}
 
 	if (bIsAlmostCoast)
 	{
-		iValueModifier -= (iTotalPlotValue * 25) / 100;
+		iValueModifier -= 20 * iTotalPlotValue / 100;
 		if (pDebug) vQualifiersNegative.push_back("(V) almost coast");
 	}
 
@@ -766,58 +780,39 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	// AI only
 	if (pPlayer && !pPlayer->isHuman())
 	{
-		//Check for strategic landgrab
-		int iOwnCityDistance = pPlayer->GetCityDistance(pPlot);
-		int iOtherCityDistance = INT_MAX;
+		int iOwnCityDistance = pPlayer->GetCityDistanceInEstimatedTurns(pPlot);
 
-		//check if the closest city is our or somebody else's
-		CvCity* pClosestCity = GC.getGame().GetClosestCity(pPlot);
-		if( pClosestCity && pClosestCity->getOwner()!=pPlayer->GetID() )
-		{
-			//this includes minors
-			iOtherCityDistance = GC.getGame().GetClosestCityDistance(pPlot);
-
-			PlayerTypes eOtherPlayer = (PlayerTypes) pClosestCity->getOwner();
-			PlayerProximityTypes eProximity = GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID());
-			if(eProximity >= PLAYER_PROXIMITY_CLOSE && iOtherCityDistance<=iBorderlandRange)
-			{
-				//Neighbor must not be too strong
-				if ( pPlayer->GetMilitaryMight() > GET_PLAYER(eOtherPlayer).GetMilitaryMight()*1.2f )
-				{
-					iStratModifier += (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
-					if (pDebug) vQualifiersPositive.push_back("(S) landgrab");
-				}
-				else if ( pPlayer->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight()*0.8f )
-				{
-					iStratModifier -= (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
-					if (pDebug) vQualifiersNegative.push_back("(S) too dangerous");
-				}
-			}
-		}
-
-		//check if this location can be defended ...
-		std::vector< std::pair<int,int> > vNeighboringMajors; 
+		//check if this location can be defended (from majors)
 		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 		{
 			CvPlayer& kNeighbor = GET_PLAYER((PlayerTypes)i);
-			if (kNeighbor.isAlive() && i!=pPlayer->GetID())
-				vNeighboringMajors.push_back( std::make_pair(kNeighbor.GetCityDistance(pPlot),i) );
-		}
-		//sort ascending
-		std::sort(vNeighboringMajors.begin(),vNeighboringMajors.end());
-		//if the neighbor is much closer then we are
-		if (!vNeighboringMajors.empty() && vNeighboringMajors.front().first < iOwnCityDistance-2)
-		{
-			int iBoldness = pPlayer->GetDiplomacyAI()->GetBoldness();
-			float fThreshold = 1.5f - iBoldness*0.1f;
-			if ( pPlayer->GetMilitaryMight() < GET_PLAYER( (PlayerTypes)vNeighboringMajors.front().second ).GetMilitaryMight()*fThreshold )
+			if (kNeighbor.isAlive() && i != pPlayer->GetID())
 			{
-				iStratModifier -= (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
-				if (pDebug) vQualifiersNegative.push_back("(S) cannot defend");
+				int iEnemyDistance = kNeighbor.GetCityDistanceInEstimatedTurns(pPlot);
+				int iEnemyMight = kNeighbor.GetMilitaryMight();
+				int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - kNeighbor.GetDiplomacyAI()->GetBoldness();
+
+				if (iEnemyDistance < max(iOwnCityDistance - 1, iBorderlandRange))
+				{
+					//stay away if we are weak
+					if (pPlayer->GetMilitaryMight() < iEnemyMight*(1.2f - iBoldnessDelta*0.05f))
+					{
+						iStratModifier -= (iTotalPlotValue * GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
+						if (pDebug) vQualifiersNegative.push_back("(S) hard to defend");
+					}
+
+					//landgrab if the neighbor is weak
+					if (pPlayer->GetMilitaryMight() > iEnemyMight*(1.2f - iBoldnessDelta*0.05f))
+					{
+						iStratModifier += (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
+						if (pDebug) vQualifiersPositive.push_back("(S) landgrab");
+					}
+				}
 			}
 		}
 
 		// where is our personal sweet spot?
+		// this is handled in plots, not in turns
 		int iMinDistance = /*3*/ GC.getMIN_CITY_RANGE();
 		if(pPlayer->isMinorCiv())
 		{
@@ -834,7 +829,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (iOwnCityDistance <= iMinDistance)
 		{
 			//this case should be handled by the distance check in CanFound() also
-			iValueModifier -= iTotalPlotValue / 2;
+			iValueModifier -= (20*iTotalPlotValue) / 100;
 			if (pDebug) vQualifiersNegative.push_back("(V) too close to existing friendly city");
 		}
 
@@ -870,7 +865,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			iSweetMin = iMinDistance;
 
 		//this affects both friendly and other cities
-		if (min(iOwnCityDistance,iOtherCityDistance) >= iSweetMin && max(iOwnCityDistance,iOtherCityDistance) <= iSweetMax) 
+		int iCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pPlot);
+		int iMyCityDistance = pPlayer->GetCityDistanceInPlots(pPlot);
+		if (iCityDistance >= iSweetMin && iMyCityDistance <= iSweetMax)
 		{
 			iValueModifier += (iTotalPlotValue*20)/100; //make this a small bonus, there is a separate distance check anyway
 			if (pDebug) vQualifiersPositive.push_back("(V) optimal distance to existing cities");

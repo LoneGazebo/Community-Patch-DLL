@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+﻿/*	-------------------------------------------------------------------------------------------------------
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -18,8 +18,6 @@
 #include "CvEnumSerialization.h"
 #include "FStlContainerSerialization.h"
 #include "FAutoVariable.h"
-#include "FAutoVector.h"
-
 #include "CvPreGame.h"
 
 // 0 = center of city, 1-6 = the edge of city on points, 7-12 = one tile out
@@ -459,8 +457,6 @@ public:
 	bool isCapital() const;
 	bool IsOriginalCapital() const;
 	bool IsOriginalMajorCapital() const; // is the original capital of a major civ
-	bool IsEverCapital() const;
-	void SetEverCapital(bool bValue);
 
 	bool isCoastal(int iMinWaterSize = -1) const;
 #if defined(MOD_API_EXTENSIONS)
@@ -1015,6 +1011,9 @@ public:
 	void ChangeYieldFromPolicyUnlock(YieldTypes eIndex, int iChange);
 	int GetYieldFromPurchase(YieldTypes eIndex) const;
 	void ChangeYieldFromPurchase(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromUnitLevelUp(YieldTypes eIndex) const;
+	void ChangeYieldFromUnitLevelUp(YieldTypes eIndex, int iChange);
 
 	int GetBuildingScienceFromYield(YieldTypes eIndex1) const;
 	void ChangeBuildingScienceFromYield(YieldTypes eIndex, int iChange);
@@ -1589,7 +1588,6 @@ protected:
 	FAutoVariable<bool, CvCity> m_bOccupied;
 	FAutoVariable<bool, CvCity> m_bPuppet;
 	FAutoVariable<bool, CvCity> m_bIgnoreCityForHappiness;
-	FAutoVariable<bool, CvCity> m_bEverCapital;
 	FAutoVariable<bool, CvCity> m_bIndustrialRouteToCapital;
 	FAutoVariable<bool, CvCity> m_bFeatureSurrounded;
 
@@ -1626,6 +1624,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromBorderGrowth;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPolicyUnlock;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromPurchase;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldFromUnitLevelUp;
 	FAutoVariable<std::vector<int>, CvCity> m_aiScienceFromYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiBuildingScienceFromYield;
 	FAutoVariable<std::vector<int>, CvCity> m_aiSpecialistRateModifier;

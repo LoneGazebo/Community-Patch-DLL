@@ -39,9 +39,8 @@
 	5.) If you are creating a multi-choice event, make sure that all Events and Event Choices have both Help and Description elements set.
 	6.) If you are creating a single-choice (i.e. a pure event), you only need to set Help and Description for the Choice (not the base Event).
 	7.) Make sure to set the NumChoices element for each event - 1 for single-choice events, 2+ for multi-choice events.
-	8.) Player and City level events can interact, though only through a 'chaining' system using these attributes:
-			'RequiredActiveEvent/RequiredActiveEventChoice/RequiredActiveCityEvent/RequiredActiveCityEventChoice'
-		If you assign a City Event, for example, a RequiredActiveEvent value, the event will only fire if the player has had the player level event (i.e. the event's duration cooldown is still active).
+	8.) Player and City level events can interact, though only through a 'chaining' system using the EventLinkertables below.
+		If you assign a City Event, for example, a linker value, the event will only fire if the player has had the player level event (i.e. the event's duration cooldown is still active).
 		Using this, you can chain events and event choices off of each other, though (for the sake of performance) you can only assign one of each of these values to each event/choice.
 		There are also options for 'no' event (i.e. two events can't be active at the same time) and 'otherplayer' (i.e. an event can only fire if another player has an event/choice active).
 	9.) Events and choices can be given the 'one-shot' status, meaning that, once the event/choice has fired or is taken by the player/city, it will never happen again for the player or that city. 
@@ -126,7 +125,8 @@
 		<!-- GameEvents.CityEventCanTake(iPlayer, iCityID, iEvent)-->
 		<!-- GameEvents.EventChoiceCanTake(iPlayer, iChoice)-->
 		<!-- GameEvents.CityEventChoiceCanTake(iPlayer, iCityID, iChoice)-->
-	
+	<!-- Note: the following lua hook fires if a unit is created via the (city)eventchoice_freeunits or (city)eventchoice_freeunitclasses player and city event tables -->
+		<!-- GameEvents.EventUnitCreated(iPlayer, iEventChoice, CvUnit* pUnit)-->
 	
 	<!-- Lua Functions
 		PLAYER EVENTS:
@@ -266,22 +266,6 @@
 		<!-- C4DF Only -->
 		<Column name="IsVassalOfSomeone" type="boolean" default="false"/>
 		<Column name="IsMasterOfSomeone" type="boolean" default="false"/>
-		<!-- These filters look for specific events or event choices to see if they've been actived by the player/city. This allows you to create 'chained' events that rely on a prior event. -->
-		<!-- Note that these values look at the EventCooldown value for events, and the Duration value for choices. -->
-		<!-- For example, if an event has a cooldown of 30 turns, and that event fires, there is a 30 turn window in which an event dependent on that one can fire (using the RequiredActiveEvent tag below) -->
-		<Column name="RequiredActiveEvent" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredActiveEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
-		<Column name="RequiredActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
-		<Column name="RequiredActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
-		<Column name="RequiredNoActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
-		<Column name="RequiredNoActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
-		<!-- Same concept, but breaks if an event is active, or another player does NOT have the event active. -->
-		<Column name="RequiredNoActivePlayerEvent" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredNoActivePlayerEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
-		<Column name="RequiredActiveEventOtherPlayer" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredActiveEventChoiceOtherPlayer" type="text" reference="EventChoices(Type)" default="NULL"/>
-		<Column name="RequiredNoActiveEventOtherPlayer" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredNoActiveEventChoiceOtherPlayer" type="text" reference="EventChoices(Type)" default="NULL"/>
 	</Table>
 	
 	<!-- Filters: -->
@@ -305,7 +289,7 @@
 		<Column name="Quantity" type="integer"/>
 	</Table>
 
-	<!-- This is the linker table for connecting events to one another. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
+	<!-- This is the linker table for connecting events to one another. MAKE SURE THAT THIS TABLE APPEARS AFTER ALL EVENTS/CHOICES INCLUDED IN IT. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
 	<Table name="Event_EventLinks">
 		<!-- This is the parent. This is the event/choice that will or will not fire based on your data below. -->
 		<Column name="EventType" type="text" reference="Events(Type)"/>
@@ -433,22 +417,6 @@
 		<!-- C4DF Only -->
 		<Column name="IsVassalOfSomeone" type="boolean" default="false"/>
 		<Column name="IsMasterOfSomeone" type="boolean" default="false"/>
-		<!-- These filters look for specific events or event choices to see if they've been actived by the player/city. This allows you to create 'chained' events that rely on a prior event. -->
-		<!-- Note that these values look at the EventCooldown value for events, and the Duration value for choices. -->
-		<!-- For example, if an event has a cooldown of 30 turns, and that event fires, there is a 30 turn window in which an event dependent on that one can fire (using the RequiredActiveEvent tag below) -->
-		<Column name="RequiredActiveEvent" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredActiveEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
-		<Column name="RequiredActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
-		<Column name="RequiredActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
-		<Column name="RequiredNoActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
-		<Column name="RequiredNoActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
-		<!-- Same concept, but won't fire if a player event is active, or another player does NOT have the player event active. -->
-		<Column name="RequiredNoActivePlayerEvent" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredNoActivePlayerEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
-		<Column name="RequiredActiveEventOtherPlayer" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredActiveEventChoiceOtherPlayer" type="text" reference="EventChoices(Type)" default="NULL"/>
-		<Column name="RequiredNoActiveEventOtherPlayer" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredNoActiveEventChoiceOtherPlayer" type="text" reference="EventChoices(Type)" default="NULL"/>
 	</Table>
 	<!-- Parent Event is ESSENTIAL - this table assigns choices to events. Make sure the EventType matches the name of an EventType from above! -->
 	<Table name="Event_ParentEvents">
@@ -530,13 +498,13 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="YieldChange" type="integer"/>
 	</Table>
-	<!-- Creates Units in all cities -->
+	<!-- Creates Units in all cities (unless controlled for above) -->
 	<Table name="EventChoice_FreeUnitClasses">
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
 		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
 		<Column name="Quantity" type="integer"/>
 	</Table>
-	<!-- Creates specific unit type in all cities -->
+	<!-- Creates specific unit type in all cities (unless controlled for above) -->
 	<Table name="EventChoice_FreeUnits">
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
 		<Column name="UnitType" type="text" reference="Units(Type)"/>
@@ -593,7 +561,7 @@
 		<Column name="Flavor" type="integer"/>
 	</Table>
 
-	<!-- This is the linker table for connecting events to one another. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
+	<!-- This is the linker table for connecting events to one another. MAKE SURE THAT THIS TABLE APPEARS AFTER ALL EVENTS/CHOICES INCLUDED IN IT. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
 	<Table name="EventChoice_EventLinks">
 		<!-- This is the parent. This is the event/choice that will or will not fire based on your data below. -->
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
@@ -734,26 +702,6 @@
 		<Column name="IsSuperUnhappy" type="boolean" default="false"/>
 		<Column name="RequiresNearbyNaturalWonder" type="boolean" default="false"/>
 		<Column name="RequiresNearbyMountain" type="boolean" default="false"/>
-		<!-- These filters look for specific events or event choices to see if they've been actived by the player/city. This allows you to create 'chained' events that rely on a prior event. -->
-		<!-- Note that these values look at the EventCooldown value for events, and the Duration value for choices. -->
-		<!-- For example, if an event has a cooldown of 30 turns, and that event fires, there is a 30 turn window in which an event dependent on that one can fire (using the RequiredActiveEvent tag below) -->
-		<Column name="RequiredActiveEvent" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredActiveEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
-		<Column name="RequiredActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
-		<Column name="RequiredActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
-		<!-- Same concept, but won't fire if a city event is active here, or another player does NOT have the player/city event active. You cannot check for other player city events being active, sorry. -->
-		<Column name="RequiredNoActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
-		<Column name="RequiredNoActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
-		<Column name="RequiredNoActiveCityEventAnywhere" type="text" reference="CityEvents(Type)" default="NULL"/>
-		<Column name="RequiredNoActiveCityEventChoiceAnywhere" type="text" reference="CityEventChoices(Type)" default="NULL"/>
-		<Column name="RequiredActiveCityEventAnywhere" type="text" reference="CityEvents(Type)" default="NULL"/>
-		<Column name="RequiredActiveCityEventChoiceAnywhere" type="text" reference="CityEventChoices(Type)" default="NULL"/>
-		<Column name="RequiredNoActivePlayerEvent" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredNoActivePlayerEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
-		<Column name="RequiredActivePlayerEventOtherPlayer" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredActivePlayerEventChoiceOtherPlayer" type="text" reference="EventChoices(Type)" default="NULL"/>
-		<Column name="RequiredNoActivePlayerEventOtherPlayer" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredNoActivePlayerEventChoiceOtherPlayer" type="text" reference="EventChoices(Type)" default="NULL"/>
 	</Table>
 	
 	<!-- Filter -->
@@ -765,7 +713,7 @@
 		<Column name="Yield" type="integer"/>
 	</Table>
 
-	<!-- This is the linker table for connecting events to one another. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
+	<!-- This is the linker table for connecting events to one another. MAKE SURE THAT THIS TABLE APPEARS AFTER ALL EVENTS/CHOICES INCLUDED IN IT. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
 	<Table name="CityEvent_EventLinks">
 		<!-- This is the parent. This is the event/choice that will or will not fire based on your data below. -->
 		<Column name="CityEventType" type="text" reference="CityEvents(Type)"/>
@@ -907,22 +855,6 @@
 		<Column name="IsSuperUnhappy" type="boolean" default="false"/>
 		<Column name="RequiresNearbyNaturalWonder" type="boolean" default="false"/>
 		<Column name="RequiresNearbyMountain" type="boolean" default="false"/>
-		<!-- These filters look for specific events or event choices to see if they've been actived by the player/city. This allows you to create 'chained' events that rely on a prior event. -->
-		<!-- Note that these values look at the EventCooldown value for events, and the Duration value for choices. -->
-		<!-- For example, if an event has a cooldown of 30 turns, and that event fires, there is a 30 turn window in which an event dependent on that one can fire (using the RequiredActiveEvent tag below) -->
-		<Column name="RequiredActiveEvent" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredActiveEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
-		<Column name="RequiredActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
-		<Column name="RequiredActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
-		<!-- Same concept, but won't fire if a city event is active here, or another player does NOT have the player/city event active. You cannot check for other player city events being active, sorry. -->
-		<Column name="RequiredNoActiveCityEvent" type="text" reference="CityEvents(Type)" default="NULL"/>
-		<Column name="RequiredNoActiveCityEventChoice" type="text" reference="CityEventChoices(Type)" default="NULL"/>
-		<Column name="RequiredNoActivePlayerEvent" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredNoActivePlayerEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
-		<Column name="RequiredActivePlayerEventOtherPlayer" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredActivePlayerEventChoiceOtherPlayer" type="text" reference="EventChoices(Type)" default="NULL"/>
-		<Column name="RequiredNoActivePlayerEventOtherPlayer" type="text" reference="Events(Type)" default="NULL"/>
-		<Column name="RequiredNoActivePlayerEventChoiceOtherPlayer" type="text" reference="EventChoices(Type)" default="NULL"/>
 	</Table>
 	<!-- Parent Event is essential - this table assigns choices to events. Make sure the CityEventType matches the name of an CityEventType from above! -->
 	<Table name="CityEvent_ParentEvents">
@@ -1071,7 +1003,7 @@
 		<Column name="Flavor" type="integer"/>
 	</Table>
 
-	<!-- This is the linker table for connecting events to one another. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
+	<!-- This is the linker table for connecting events to one another. MAKE SURE THAT THIS TABLE APPEARS AFTER ALL EVENTS/CHOICES INCLUDED IN IT. You can have multiple of rows of these with the same event type to make specific events that need a specific setup to function (a la parent events above)-->
 	<Table name="CityEventChoice_EventLinks">
 		<!-- This is the parent. This is the event/choice that will or will not fire based on your data below. -->
 		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>

@@ -788,6 +788,7 @@ private:
 	// Routines to manage identifying and implementing tactical moves
 	bool PlotCaptureCityMoves();
 	bool PlotDamageCityMoves();
+	bool PlotNavalDamageCityMoves();
 	void PlotBarbarianCampMoves();
 	void PlotDestroyUnitMoves(AITacticalTargetType movePriorit, bool bMustBeAbleToKill, bool bAttackAtPoorOdds=false);
 	void PlotMovesToSafety(bool bCombatUnits);
@@ -832,8 +833,8 @@ private:
 	void ExecuteGatherMoves(CvArmyAI* pArmy);
 	void ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget);
 	bool ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iNumMeleeUnits, int iNumRangedUnits, int iDeployRange);
-	bool ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, int iNumUnits);
 	void ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
+	void ExecuteNavalFormationEscortMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
 
 	// Routines to process and sort targets
 	void IdentifyPriorityTargets();
@@ -946,7 +947,7 @@ private:
 	std::list<int> m_CurrentTurnUnits;
 
 #if defined(MOD_AI_SMART_AIR_TACTICS)
-	std::vector<CvTacticalUnit> m_CurrentAirUnits;
+	std::vector<CvTacticalUnit> m_CurrentAirSweepUnits;
 #endif
 
 #if defined(MOD_BALANCE_CORE)

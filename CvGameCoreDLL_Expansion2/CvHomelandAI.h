@@ -274,7 +274,7 @@ public:
 	void Update();
 
 	// Public exploration routines
-	CvPlot* GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidatesToCheck) const;
+	CvPlot* GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidatesToCheck, int iMaxTurns) const;
 	bool ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pPlot);
 #if defined(MOD_BALANCE_CORE)
 	bool FindTestArchaeologistPlotPrimer(CvUnit* pUnit);
@@ -284,6 +284,9 @@ public:
 	void LogHomelandMessage(const CvString& strMsg);
 	void LogPatrolMessage(const CvString& strMsg, CvUnit* pPatrolUnit);
 
+#if defined(MOD_BALANCE_CORE)
+	bool MoveCivilianToGarrison(CvUnit* pUnit);
+#endif
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	bool MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits = false, bool bSecondary = false);
 #else
@@ -393,6 +396,9 @@ private:
 	void ExecuteTradeUnitMoves();
 	void ExecuteArchaeologistMoves();
 	void ExecutePatrolMoves();
+#if defined(MOD_BALANCE_CORE)
+	void ExecuteAggressivePatrolMoves();
+#endif
 
 	// Internal low-level utility routines
 	void EliminateAdjacentSentryPoints();
@@ -464,6 +470,8 @@ bool CvHomelandUnitAuxIntReverseSort(const CvHomelandUnit& obj1, const CvHomelan
 int ScoreAirBase(CvPlot* pAirBasePlot, PlayerTypes ePlayer, int iRange);
 bool IsGoodUnitMix(CvPlot* pAirBasePlot, CvUnit* pUnit);
 std::vector<CvPlot*> GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets = 5);
+
+std::vector<CvPlot*> GetAggressivePatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets = 5);
 
 }
 

@@ -44,14 +44,6 @@ UPDATE Improvements
 SET CultureAdjacentSameType = '0'
 WHERE Type = 'IMPROVEMENT_MOAI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Traits
-SET NaturalWonderYieldModifier = '50'
-WHERE Type = 'TRAIT_WAYFINDING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Traits
-SET CombatBoostNearNaturalWonder = '1'
-WHERE Type = 'TRAIT_WAYFINDING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 -- Spain
 
 UPDATE Traits
@@ -130,12 +122,13 @@ VALUES
 INSERT INTO Improvement_TechYieldChanges
 	(ImprovementType, TechType, YieldType, Yield)
 VALUES
-	('IMPROVEMENT_MOAI', 'TECH_CONSTRUCTION', 'YIELD_PRODUCTION', 2);
+	('IMPROVEMENT_MOAI', 'TECH_CONSTRUCTION', 'YIELD_PRODUCTION', 1);
 
 INSERT INTO Improvement_YieldAdjacentSameType
 	(ImprovementType, YieldType, Yield)
 VALUES
-	('IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1);
+	('IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_MOAI', 'YIELD_PRODUCTION', 1);
 
 INSERT INTO Building_Flavors
 	(BuildingType, FlavorType, Flavor)
@@ -148,15 +141,11 @@ INSERT INTO Improvement_AdjacentImprovementYieldChanges
 VALUES
 	('IMPROVEMENT_TERRACE_FARM', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 1);
 
-INSERT INTO Improvement_YieldAdjacentSameType
-	(ImprovementType, YieldType, Yield)
-VALUES
-	('IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1);
-
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
 VALUES
-	('IMPROVEMENT_TERRACE_FARM', 'YIELD_PRODUCTION', 1);
+	('IMPROVEMENT_TERRACE_FARM', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_MOAI', 'YIELD_PRODUCTION', 1);
 
 INSERT INTO Trait_YieldFromConquest
 	(TraitType, YieldType, Yield)
@@ -266,3 +255,13 @@ INSERT INTO Trait_MountainRangeYield
 VALUES
 	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_GOLD', '3'),
 	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_FOOD', '3');
+
+INSERT INTO Trait_UnimprovedFeatureYieldChanges
+	(TraitType, FeatureType, YieldType, Yield)
+VALUES
+	('TRAIT_WAYFINDING', 'FEATURE_ATOLL', 'YIELD_FOOD', 2);
+
+INSERT INTO Trait_ImprovementYieldChanges
+	(TraitType, ImprovementType, YieldType, Yield)
+VALUES
+	('TRAIT_WAYFINDING', 'IMPROVEMENT_FISHING_BOATS', 'YIELD_FOOD', 2);

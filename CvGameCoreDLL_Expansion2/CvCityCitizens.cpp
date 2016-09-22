@@ -330,9 +330,9 @@ void CvCityCitizens::DoTurn()
 		if(!(MOD_UI_CITY_PRODUCTION && thisPlayer.isHuman()))
 		{
 #endif
-			if(GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+			if(GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
 			{
-				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+				SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 			}
 			if(IsNoAutoAssignSpecialists())
 			{
@@ -346,9 +346,9 @@ void CvCityCitizens::DoTurn()
 		}
 		if(!thisPlayer.isHuman())
 		{
-			if(GetFocusType() != CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
+			if(GetFocusType() != NO_CITY_AI_FOCUS_TYPE)
 			{
-				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+				SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 			}
 			if(IsNoAutoAssignSpecialists())
 			{
@@ -3626,6 +3626,10 @@ void CvCityCitizens::ChangeNumDefaultSpecialists(int iChange)
 
 	SpecialistTypes eSpecialist = (SpecialistTypes) GC.getDEFAULT_SPECIALIST();
 	m_aiSpecialistCounts[eSpecialist] += iChange;
+
+	if (m_aiSpecialistCounts[eSpecialist] > m_pCity->getPopulation())
+		OutputDebugString("warning: implausible number of specialists!\n");
+
 #if defined(MOD_BALANCE_CORE)
 	GetCity()->processSpecialist(eSpecialist, iChange, bUpdateNow);
 #else
@@ -3671,6 +3675,9 @@ int CvCityCitizens::GetTotalSpecialistCount() const
 			iNumSpecialists += GetSpecialistCount(eSpecialist);
 		}
 	}
+
+	if (iNumSpecialists>m_pCity->getPopulation())
+		OutputDebugString("warning: implausible number of specialists!\n");
 
 	return iNumSpecialists;
 }
@@ -3958,11 +3965,6 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), GetCity()->getX(), GetCity()->getY(), -1);
 				}
 			}
-		}
-		if(newUnit != NULL)
-		{
-			GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(newUnit->getUnitClassType());
-			GET_PLAYER(m_pCity->getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, m_pCity);
 		}
 	}
 #endif

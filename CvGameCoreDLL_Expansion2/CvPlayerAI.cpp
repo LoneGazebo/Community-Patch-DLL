@@ -308,7 +308,7 @@ void CvPlayerAI::AI_unitUpdate()
 }
 
 #if defined(MOD_BALANCE_CORE)
-void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift)
+void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner, bool bGift, bool bAllowRaze)
 #else
 void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 #endif
@@ -388,7 +388,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	}
 
 	// Do we want to burn this city down?
-	if(canRaze(pCity))
+	if (canRaze(pCity) && bAllowRaze)
 	{
 		// Burn the city if the empire is unhappy - keeping the city will only make things worse or if map hint dictates
 		// Huns will burn down everything possible once they have a core of a few cities (was 3, but this put Attila out of the running long term as a conqueror)
@@ -407,18 +407,20 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 		if(IsEmpireUnhappy() && !pCity->HasAnyWonder())
 		{
 			MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(pCity->getOriginalOwner());
-			if(eOpinion <= MAJOR_CIV_OPINION_ENEMY)
+			if (eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE)
 			{
 				pCity->doTask(TASK_RAZE);
 				return;
 			}
-
-			if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOldOwner).getTeam()))
+			else if (eOpinion == MAJOR_CIV_OPINION_ENEMY)
 			{
-				if(GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
+				if (GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOldOwner).getTeam()))
 				{
-					pCity->doTask(TASK_RAZE);
-					return;
+					if (GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
+					{
+						pCity->doTask(TASK_RAZE);
+						return;
+					}
 				}
 			}
 		}
@@ -690,8 +692,8 @@ void CvPlayerAI::AI_considerAnnex()
 {
 	AI_PERF("AI-perf.csv", "AI_ considerAnnex");
 
-	// if the empire is unhappy, don't consider annexing
-	if (IsEmpireUnhappy())
+	// if the empire is very unhappy, don't consider annexing
+	if (IsEmpireVeryUnhappy())
 	{
 		return;
 	}
@@ -723,19 +725,15 @@ void CvPlayerAI::AI_considerAnnex()
 	for(pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 	{
 		//simple check to stop razing "good" cities
-		if (pCity->IsRazing() && pCity->HasAnyWonder())
-		{
+		if (pCity->IsRazing() && pCity->HasAnyWonder() && !IsEmpireVeryUnhappy())
 			unraze(pCity);
-			return; //one annexation per turn is enough
-		}
-#if defined(MOD_BALANCE_CORE)
+
 		//Original City and puppeted? Stop!
 		if(pCity->getOriginalOwner() == GetID() && pCity->IsPuppet())
 		{
 			pCity->DoAnnex();
 			return;
 		}
-#endif
 
 		CityAndProduction kEval;
 		kEval.pCity = pCity;
@@ -786,6 +784,13 @@ void CvPlayerAI::AI_considerAnnex()
 			pTargetCity = aCityAndProductions[ui].pCity;
 			break;
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(aCityAndProductions[ui].pCity->IsRazing())
+		{
+			pTargetCity = aCityAndProductions[ui].pCity;
+			break;
+		}
+#endif
 	}
 
 	if (pTargetCity)
@@ -794,6 +799,13 @@ void CvPlayerAI::AI_considerAnnex()
 		{
 			pTargetCity->DoAnnex();
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(pTargetCity->IsRazing())
+		{
+			unraze(pTargetCity);
+			pTargetCity->DoAnnex();
+		}
+#endif
 	}
 }
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -897,7 +909,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 					{
 						if(IsEventChoiceValid(eEventChoice, eChosenEvent))
 						{
-							int iRandom = GC.getGame().getRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
+							int iRandom = GC.getGame().getJonRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
 							if(iRandom <= 0)
 							{
 								iRandom = 1;
@@ -1151,6 +1163,11 @@ void CvPlayerAI::ProcessGreatPeople(void)
 		if(pLoopUnit->IsCityAttackSupport())
 		{
 			pLoopUnit->SetGreatPeopleDirective(GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND);
+			continue;
+		}
+		else if (pLoopUnit->IsCombatUnit() && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_ENGINEER) && !IsAtWar())
+		{
+			pLoopUnit->SetGreatPeopleDirective(GREAT_PEOPLE_DIRECTIVE_USE_POWER);
 			continue;
 		}
 		else
@@ -1750,6 +1767,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 	int iFriendlies = 0;
 	if(bWar && (pGreatAdmiral->plot()->getNumDefenders(GetID()) > 0))
 	{
+		iFriendlies++;
 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
 			CvPlot *pLoopPlot = plotDirection(pGreatAdmiral->plot()->getX(), pGreatAdmiral->plot()->getY(), ((DirectionTypes)iI));
@@ -1763,7 +1781,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 			}
 		}
 	}
-	if(iFriendlies > 3)
+	if(iFriendlies > 2)
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
@@ -1779,6 +1797,10 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 		}
 	}
 	if(iGreatAdmiralCount > 1 && pGreatAdmiral->canGetFreeLuxury())
+	{
+		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+	}
+	else if (iGreatAdmiralCount > 0 && IsEmpireUnhappy() && pGreatAdmiral->canGetFreeLuxury())
 	{
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
@@ -1814,22 +1836,15 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	{
 		bTheAustriaException = true;
 	}
-
-	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatDiplomat->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
-
-	PlayerTypes eID = GetDiplomacyAI()->GetPlayer()->GetID();
 	
-	int iFlavorDiplo =  GET_PLAYER(eID).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-	int iDesiredEmb = (iFlavorDiplo - 2);
+	int iFlavorDiplo =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+	int iDesiredEmb = (iFlavorDiplo - 1);
 	int iNumMinors = GC.getGame().GetNumMinorCivsAlive();
 	if(iDesiredEmb > iNumMinors)
 	{
 		iDesiredEmb = iNumMinors;
 	}
-	int iEmbassies = GET_PLAYER(eID).GetImprovementLeagueVotes();
+	int iEmbassies = GetImprovementLeagueVotes();
 
 	//Embassy numbers should be based on Diplomacy Flavor. More flavor, more embassies!
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && pCity != NULL)
@@ -1843,17 +1858,17 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 		}
 	}
 
-	if (eDirective == GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT && (GC.getGame().getGameTurn() - pGreatDiplomat->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
-
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 	{
 		if(pCity == NULL || (iEmbassies >= iDesiredEmb) || bTheAustriaException || bTheVeniceException)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 		}
+	}
+
+	if ((GC.getGame().getGameTurn() - pGreatDiplomat->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 
 	return eDirective;
@@ -2178,12 +2193,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	{
 		return 0;
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(!pUnit->canTrade(pCity->plot()))
-	{
-		return 0;
-	}
-#endif
+
 	if(pMinorCivAI->IsNoAlly() && pMinorCivAI->IsFriends(GetID()))
 	{
 		return 0;
@@ -2330,7 +2340,6 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 				{
 					iScore *= 3;
 					iScore /= 2;
-					break;
 				}
 			}
 		}
@@ -2357,17 +2366,21 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	
 	if(eAlliedPlayer != NO_PLAYER)
 	{
+		int iHighestInfluence = 0;
 		// Loop through other players to see if we can pass them in influence
 		for(iOtherMajorLoop = 0; iOtherMajorLoop < MAX_MAJOR_CIVS; iOtherMajorLoop++)
 		{
 			eOtherMajor = (PlayerTypes) iOtherMajorLoop;
 
 			iOtherPlayerFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(eOtherMajor);
-			if(eOtherMajor != NO_PLAYER && GET_TEAM(GET_PLAYER(GetID()).getTeam()).isHasMet(GET_PLAYER(eOtherMajor).getTeam()))
+			if(iOtherPlayerFriendshipWithMinor > iHighestInfluence)
+			{
+				iHighestInfluence = iOtherPlayerFriendshipWithMinor;
+			}
+			if(eOtherMajor != NO_PLAYER && eOtherMajor != GetID() && GET_TEAM(GET_PLAYER(GetID()).getTeam()).isHasMet(GET_PLAYER(eOtherMajor).getTeam()))
 			{
 				MajorCivApproachTypes eApproachType = GetDiplomacyAI()->GetMajorCivApproach(eOtherMajor, false);
 				MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eOtherMajor);
-
 				// If another player is allied, let's evaluate that.
 				// Only care if they are allies
 				if(pMinorCivAI->IsAllies(eOtherMajor))
@@ -2378,18 +2391,18 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 						//If their influence is way higher than ours, let's tune this down...
 						if(iOtherPlayerFriendshipWithMinor >= (60 + iFriendship + iFriendshipWithMinor))
 						{
-							iScore /= 2;
+							iScore /= 4;
 						}
 						//If we can pass them, ramp it up!
 						else if(iOtherPlayerFriendshipWithMinor < (iFriendship + iFriendshipWithMinor)) 
 						{
-							iScore *= 2;
+							iScore *= 4;
 						}
 					}
 					// If a teammate is allied, let's discourage going there.
 					else
 					{
-						iScore /= 2;
+						iScore /= 5;
 					}
 					// If a friendly player is allied, let's discourage going there.
 					if(eApproachType == MAJOR_CIV_APPROACH_FRIENDLY)
@@ -2419,31 +2432,35 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 				} 
 			}
 		}
+		int iDifference = (iFriendshipWithMinor - iHighestInfluence);
 		// Are we allied? Yay! But let's be careful.
 		if(pMinorCivAI->IsAllies(GetID()))
 		{
 			// Are WE allies by a wide margin (over 100)? If so, let's find someone new to love.
-			if(iFriendshipWithMinor >= 100) 
+			if(iDifference >= 60) 
 			{
-				iScore /= 2;
+				iScore /= 5;
 			}
 			// Are we close to losing our status? If so, obsess away!
-			else if(pMinorCivAI->IsCloseToNotBeingAllies(GetID()))
+			else if(iDifference <= 30 || pMinorCivAI->IsCloseToNotBeingAllies(GetID()))
 			{
-				iScore *= 10;
+				iScore *= 5;
 			}
 		}
 	}
-	// Are we close to becoming an normal (60) ally and no one else ? If so, obsess away!
-	if((iFriendshipWithMinor + iFriendship) >= pMinorCivAI->GetAlliesThreshold())
+	else
 	{
-			iScore *= 2;
-	}
+		// Are we close to becoming an normal (60) ally and no one else ? If so, obsess away!
+		if((iFriendshipWithMinor + iFriendship) >= pMinorCivAI->GetAlliesThreshold())
+		{
+			iScore *= 4;
+		}
 
-	// Are we already Friends? If so, let's stay the course.
-	if(pMinorCivAI->IsFriends(GetID()))
-	{
-		iScore *= 2;
+		// Are we already Friends? If so, let's stay the course.
+		if(pMinorCivAI->IsFriends(GetID()))
+		{
+			iScore *= 4;
+		}
 	}
 
 	// **************************
@@ -2472,7 +2489,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	}
 
 	//If this is way too far away, let's not penalize it too much.
-	iScore -= iDistance;
+	iScore -= (iDistance * 4);
 
 	//All CSs should theoretically be valuable if we've gotten this far.
 	if(iScore <= 0)

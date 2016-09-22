@@ -23,34 +23,44 @@
 
 			<Stack Anchor="C,T" Size="971,32" Offset="0,0" Padding="0" StackGrowth="Right">
 
-				<Button  Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_PLAYER_EVENT_INFORMATION" ID="PlayerEvents" >
+				<Button  Anchor="L,T" Size="250,24" Offset="0,0" String="TXT_KEY_PLAYER_EVENT_INFORMATION" ToolTip="TXT_KEY_RECENT_CHOICE_TT" ID="PlayerEvents" >
 					<ShowOnMouseOver>
-						<AlphaAnim Anchor="L,C" Size="300,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1"  >
-							<Grid   Size="300,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+						<AlphaAnim Anchor="L,C" Size="250,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1"  >
+							<Grid   Size="250,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL" />
 						</AlphaAnim>
 					</ShowOnMouseOver>
 					<!-- Selected State  -->
-					<Grid Anchor="C,C" Offset="0,1" Size="300,26"  Style="Grid9FrameTurns" Hidden="1" ID="PlayerEventsInfoHighlight" />
+					<Grid Anchor="C,C" Offset="0,1" Size="250,26"  Style="Grid9FrameTurns" Hidden="1" ID="PlayerEventsInfoHighlight" />
 				</Button>
 
-				<Button  Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_CITY_EVENT_INFORMATION" ID="CityEvents" >
+				<Button  Anchor="L,T" Size="250,24" Offset="0,0" String="TXT_KEY_CITY_EVENT_INFORMATION" ToolTip="TXT_KEY_RECENT_CHOICE_TT" ID="CityEvents" >
 					<ShowOnMouseOver>
-						<AlphaAnim Anchor="L,C" Size="300,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1"  >
-							<Grid   Size="300,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+						<AlphaAnim Anchor="L,C" Size="250,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1"  >
+							<Grid   Size="250,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL" />
 						</AlphaAnim>
 					</ShowOnMouseOver>
 					<!-- Selected State  -->
-					<Grid Anchor="C,C" Offset="0,1" Size="300,26"  Style="Grid9FrameTurns" Hidden="1" ID="CityEventsInfoHighlight" />
+					<Grid Anchor="C,C" Offset="0,1" Size="250,26"  Style="Grid9FrameTurns" Hidden="1" ID="CityEventsInfoHighlight" />
 				</Button>
 
-				<Button  Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_RECENT_EVENT_INFORMATION" ToolTip="TXT_KEY_RECENT_EVENT_TT" ID="RecentEvents" >
+				<Button  Anchor="L,T" Size="250,24" Offset="0,0" String="TXT_KEY_RECENT_EVENT_INFORMATION" ToolTip="TXT_KEY_RECENT_EVENT_TT" ID="RecentEvents" >
 					<ShowOnMouseOver>
-						<AlphaAnim Anchor="L,C" Size="300,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1"  >
-							<Grid   Size="300,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+						<AlphaAnim Anchor="L,C" Size="250,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1"  >
+							<Grid   Size="250,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL" />
 						</AlphaAnim>
 					</ShowOnMouseOver>
 					<!-- Selected State  -->
-					<Grid Anchor="C,C" Offset="0,1" Size="300,26"  Style="Grid9FrameTurns" Hidden="1" ID="RecentEventsInfoHighlight" />
+					<Grid Anchor="C,C" Offset="0,1" Size="250,26"  Style="Grid9FrameTurns" Hidden="1" ID="RecentEventsInfoHighlight" />
+				</Button>
+
+				<Button  Anchor="L,T" Size="250,24" Offset="0,0" String="TXT_KEY_CITY_RECENT_EVENT_INFORMATION" ToolTip="TXT_KEY_RECENT_EVENT_TT" ID="CityRecentEvents" >
+					<ShowOnMouseOver>
+						<AlphaAnim Anchor="L,C" Size="250,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1"  >
+							<Grid   Size="250,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+						</AlphaAnim>
+					</ShowOnMouseOver>
+					<!-- Selected State  -->
+					<Grid Anchor="C,C" Offset="0,1" Size="250,26"  Style="Grid9FrameTurns" Hidden="1" ID="CityRecentEventsInfoHighlight" />
 				</Button>
 			</Stack>
 			<Image Anchor="C,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="971.5" />
@@ -74,5 +84,5 @@
 	<LuaContext FileName="Assets/UI/InGame/Popups/PlayerEventsInfo" ID="PlayerEventsInfo" Hidden="0" />
 	<LuaContext FileName="Assets/UI/InGame/Popups/CityEventsInfo" ID="CityEventsInfo" Hidden="1" />
 	<LuaContext FileName="Assets/UI/InGame/Popups/RecentEventsInfo" ID="RecentEventsInfo" Hidden="1" />
-
+	<LuaContext FileName="Assets/UI/InGame/Popups/CityRecentEventsInfo" ID="CityRecentEventsInfo" Hidden="1" />
 </Context>

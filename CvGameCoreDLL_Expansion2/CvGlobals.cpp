@@ -2501,7 +2501,7 @@ void CvGlobals::init()
 	};
 
 	CvAssertMsg(gDLL != NULL, "Civ app needs to set gDLL");
-	m_asyncRand = FNEW(CvRandom, c_eCiv5GameplayDLL, 0);
+	m_asyncRand = FNEW(CvRandom("UiRng"), c_eCiv5GameplayDLL, 0);
 
 	gDLL->InitGlobals();	// some globals need to be allocated outside the dll
 
@@ -2559,16 +2559,9 @@ void CvGlobals::init()
 	memcpy(m_aeTurnRightDirection, aeTurnRightDirection, sizeof(m_aeTurnRightDirection));
 	memcpy(m_aaiRingPlotIndex, aaiRingPlotIndex, sizeof(m_aaiRingPlotIndex));
 
-	SetPathFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
-	SetInterfacePathFinder(FNEW(CvTwoLayerPathFinder, c_eCiv5GameplayDLL, 0));
-	SetStepFinder(FNEW(CvStepFinder, c_eCiv5GameplayDLL, 0));
-
-#if defined(MOD_BALANCE_CORE)
-	GetPathFinder().SetName("generic pf");
-	GetInterfacePathFinder().SetName("iface pf");
-	GetStepFinder().SetName("stepfinder");
-#endif
-
+	m_pathFinder = new CvTwoLayerPathFinder();
+	m_interfacePathFinder = new CvTwoLayerPathFinder();
+	m_stepFinder = new CvStepFinder();
 }
 
 //
@@ -2692,21 +2685,35 @@ CvRandom& CvGlobals::getASyncRand()
 	return *m_asyncRand;
 }
 
-CvTwoLayerPathFinder& CvGlobals::GetPathFinder()
+void CvGlobals::InitializePathfinders(int iX, int iY, bool bWx, bool bWy)
 {
-	return *m_pathFinder;
+	if (m_pathFinder)
+	{
+		m_pathFinder->Initialize(iX, iY, bWx, bWy);
+		m_pathFinder->SetName("unit pf");
+	}
+	if (m_interfacePathFinder)
+	{
+		m_interfacePathFinder->Initialize(iX, iY, bWx, bWy);
+		m_interfacePathFinder->SetName("iface pf");
+	}
+	if (m_stepFinder)
+	{
+		m_stepFinder->Initialize(iX, iY, bWx, bWy);
+		m_stepFinder->SetName("stepfinder");
+	}
 }
 
-CvTwoLayerPathFinder& CvGlobals::GetInterfacePathFinder()
+CvTwoLayerPathFinder& CvGlobals::GetPathFinder()
 {
-	return *m_interfacePathFinder;
+	//important, avoid deadlocks
+	return gDLL->IsGameCoreThread() ? *m_pathFinder : *m_interfacePathFinder;
 }
 
 CvStepFinder& CvGlobals::GetStepFinder()
 {
 	return *m_stepFinder;
 }
-
 
 ICvDLLDatabaseUtility1* CvGlobals::getDatabaseLoadUtility()
 {
@@ -3354,6 +3361,86 @@ CvModEventCityChoiceInfo* CvGlobals::getCityEventChoiceInfo(CityEventChoiceTypes
 	CvAssert(e < GC.getNumCityEventChoiceInfos());
 	if(e > -1 && e < (int)m_paCityEventChoiceInfo.size())
 		return m_paCityEventChoiceInfo[e];
+	else
+		return NULL;
+}
+
+int CvGlobals::getNumEventLinkingInfos()
+{
+	return (int)m_paEventLinkingInfo.size();
+}
+
+std::vector<CvEventLinkingInfo*>& CvGlobals::getEventLinkingInfo()
+{
+	return m_paEventLinkingInfo;
+}
+
+CvEventLinkingInfo* CvGlobals::getEventLinkingInfo(EventTypes e)
+{
+	CvAssert(e > -1);
+	CvAssert(e < GC.getNumEventLinkingInfo());
+	if(e > -1 && e < (int)m_paEventLinkingInfo.size())
+		return m_paEventLinkingInfo[e];
+	else
+		return NULL;
+}
+
+int CvGlobals::getNumEventChoiceLinkingInfos()
+{
+	return (int)m_paEventChoiceLinkingInfo.size();
+}
+
+std::vector<CvEventChoiceLinkingInfo*>& CvGlobals::getEventChoiceLinkingInfo()
+{
+	return m_paEventChoiceLinkingInfo;
+}
+
+CvEventChoiceLinkingInfo* CvGlobals::getEventChoiceLinkingInfo(EventChoiceTypes e)
+{
+	CvAssert(e > -1);
+	CvAssert(e < GC.getNumEventChoiceLinkingInfo());
+	if(e > -1 && e < (int)m_paEventChoiceLinkingInfo.size())
+		return m_paEventChoiceLinkingInfo[e];
+	else
+		return NULL;
+}
+
+int CvGlobals::getNumCityEventLinkingInfos()
+{
+	return (int)m_paCityEventLinkingInfo.size();
+}
+
+std::vector<CvCityEventLinkingInfo*>& CvGlobals::getCityEventLinkingInfo()
+{
+	return m_paCityEventLinkingInfo;
+}
+
+CvCityEventLinkingInfo* CvGlobals::getCityEventLinkingInfo(CityEventTypes e)
+{
+	CvAssert(e > -1);
+	CvAssert(e < GC.getNumCityEventLinkingInfo());
+	if(e > -1 && e < (int)m_paCityEventLinkingInfo.size())
+		return m_paCityEventLinkingInfo[e];
+	else
+		return NULL;
+}
+
+int CvGlobals::getNumCityEventChoiceLinkingInfos()
+{
+	return (int)m_paCityEventChoiceLinkingInfo.size();
+}
+
+std::vector<CvCityEventChoiceLinkingInfo*>& CvGlobals::getCityEventChoiceLinkingInfo()
+{
+	return m_paCityEventChoiceLinkingInfo;
+}
+
+CvCityEventChoiceLinkingInfo* CvGlobals::getCityEventChoiceLinkingInfo(CityEventChoiceTypes e)
+{
+	CvAssert(e > -1);
+	CvAssert(e < GC.getNumCityEventChoiceLinkingInfo());
+	if(e > -1 && e < (int)m_paCityEventChoiceLinkingInfo.size())
+		return m_paCityEventChoiceLinkingInfo[e];
 	else
 		return NULL;
 }
@@ -6930,6 +7017,12 @@ void CvGlobals::deleteInfoArrays()
 	deleteInfoArray(m_paEventChoiceInfo);
 	deleteInfoArray(m_paCityEventInfo);
 	deleteInfoArray(m_paCityEventChoiceInfo);
+
+	deleteInfoArray(m_paEventLinkingInfo);
+	deleteInfoArray(m_paEventChoiceLinkingInfo);
+	deleteInfoArray(m_paCityEventLinkingInfo);
+	deleteInfoArray(m_paCityEventChoiceLinkingInfo);
+
 	deleteInfoArray(m_paContractInfo);
 #endif
 	deleteInfoArray(m_paHandicapInfo);
@@ -7113,19 +7206,6 @@ bool CvGlobals::IsGraphicsInitialized() const
 void CvGlobals::SetGraphicsInitialized(bool bVal)
 {
 	m_bGraphicsInitialized = bVal;
-}
-
-void CvGlobals::SetPathFinder(CvTwoLayerPathFinder* pVal)
-{
-	m_pathFinder = pVal;
-}
-void CvGlobals::SetInterfacePathFinder(CvTwoLayerPathFinder* pVal)
-{
-	m_interfacePathFinder = pVal;
-}
-void CvGlobals::SetStepFinder(CvStepFinder* pVal)
-{
-	m_stepFinder = pVal;
 }
 
 void CvGlobals::setOutOfSyncDebuggingEnabled(bool isEnabled)

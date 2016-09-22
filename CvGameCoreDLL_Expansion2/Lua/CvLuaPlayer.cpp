@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -169,6 +169,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetNumMaintenanceFreeUnits);
 
+#if defined(MOD_BALANCE_CORE)
+	Method(GetBaseBuildingMaintenance);
+	Method(GetBaseUnitMaintenance);
+#endif
 	Method(GetBuildingGoldMaintenance);
 	Method(SetBaseBuildingGoldMaintenance);
 	Method(ChangeBaseBuildingGoldMaintenance);
@@ -1153,6 +1157,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsSpyDiplomat);
 	Method(IsSpySchmoozing);
 	Method(CanSpyStageCoup);
+#if defined(MOD_BALANCE_CORE)
+	Method(ValidHeistLocation);
+#endif
 	Method(GetAvailableSpyRelocationCities);
 	Method(GetNumTechsToSteal);
 	Method(GetIntrigueMessages);
@@ -1386,6 +1393,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(PlayerHasAnyContract);
 	Method(GetContractTurnsRemaining);
 	Method(GetContractGoldMaintenance);
+	Method(ChangeContractTurns);
 	Method(StartContract);
 	Method(EndContract);
 	Method(UnitIsActiveContractUnit);
@@ -1419,6 +1427,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetEventChoiceCooldown);
 	Method(IsEventChoiceValid);
 	Method(GetEventHappiness);
+	Method(GetActivePlayerEventChoices);
+	Method(GetActiveCityEventChoices);
+	Method(GetRecentPlayerEventChoices);
+	Method(GetRecentCityEventChoices);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -2303,7 +2315,45 @@ int CvLuaPlayer::lGetNumMaintenanceFreeUnits(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetNumMaintenanceFreeUnits);
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//int GetBaseBuildingMaintenance();
+int CvLuaPlayer::lGetBaseBuildingMaintenance(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
 
+	const int iResult = pkPlayer->GetTreasury()->GetBaseBuildingGoldMaintenance();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetBaseUnitMaintenance();
+int CvLuaPlayer::lGetBaseUnitMaintenance(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	// If player has 0 Cities then no Unit cost
+	if(pkPlayer->getNumCities() == 0)
+	{
+		return 0;
+	}
+
+	const CvHandicapInfo& playerHandicap = pkPlayer->getHandicapInfo();
+	int iFreeUnits = playerHandicap.getGoldFreeUnits();
+
+	// Defined in XML by unit info type
+	iFreeUnits += pkPlayer->GetNumMaintenanceFreeUnits();
+	iFreeUnits += pkPlayer->getBaseFreeUnits();
+
+	int iPaidUnits = max(0, pkPlayer->getNumUnits() - iFreeUnits);
+
+	int iBaseUnitCost = iPaidUnits * pkPlayer->getGoldPerUnitTimes100();
+
+	int iResult = (iBaseUnitCost / 100);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetBuildingGoldMaintenance();
 int CvLuaPlayer::lGetBuildingGoldMaintenance(lua_State* L)
@@ -13199,6 +13249,9 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 		case SPY_STATE_TERMINATED:
 			lua_pushstring(L, "TXT_KEY_SPY_STATE_TERMINATED");
 			break;
+		case SPY_STATE_PREPARING_HEIST:
+			lua_pushstring(L, "TXT_KEY_SPY_STATE_PREPARING_HEIST");
+			break;
 #endif
 		default:
 			CvAssertMsg(false, "pSpy->m_eSpyState not in case statement");
@@ -13308,6 +13361,24 @@ int CvLuaPlayer::lCanSpyStageCoup(lua_State* L)
 	lua_pushboolean(L, bCanStageCoup);
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lValidHeistLocation(lua_State* L)
+{
+	if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	CvPlayer* pkPlayer = GetInstance(L);
+	int iSpyIndex = lua_tointeger(L, 2);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
+	bool bCanMoveInto = pkPlayer->GetEspionage()->CanMoveSpyTo(pkCity, iSpyIndex, false, true);
+
+	lua_pushboolean(L, bCanMoveInto);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetAvailableSpyRelocationCities(lua_State* L)
 {
@@ -13330,7 +13401,11 @@ int CvLuaPlayer::lGetAvailableSpyRelocationCities(lua_State* L)
 			// Just find first coastal city
 			for(CvCity* pCity = kPlayer.firstCity(&iLoop); pCity != NULL; pCity = kPlayer.nextCity(&iLoop))
 			{
+#if defined(MOD_BALANCE_CORE)
+				if (pkPlayerEspionage->CanMoveSpyTo(pCity, uiSpyIndex, false, false))
+#else
 				if(pkPlayerEspionage->CanMoveSpyTo(pCity, uiSpyIndex, false))
+#endif
 				{
 					lua_createtable(L, 0, 0);
 					const int t = lua_gettop(L);
@@ -14358,6 +14433,16 @@ int CvLuaPlayer::lGetContractGoldMaintenance(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+int CvLuaPlayer::lChangeContractTurns(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 2);
+	const int iValue = lua_tointeger(L, 3);
+
+	pkPlayer->GetContracts()->ChangeContractEndTurn(eContract, iValue);
+	return 1;
+}
+
 int CvLuaPlayer::lStartContract(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -14371,7 +14456,7 @@ int CvLuaPlayer::lEndContract(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	ContractTypes eContract = (ContractTypes)lua_tointeger(L, 2);
 
-	pkPlayer->GetContracts()->EndContract(eContract);
+	GC.getGame().GetGameContracts()->EndContract(eContract, pkPlayer->GetID());
 	return 1;
 }
 int CvLuaPlayer::lUnitIsActiveContractUnit(lua_State* L)
@@ -14461,14 +14546,6 @@ int CvLuaPlayer::lIsEventChoiceActive(lua_State* L)
 									{
 										if(pkEventInfo->getNumChoices() == 1)
 										{
-											if(pkPlayer->GetEventCooldown(eEvent) > 0)
-											{
-												bResult = true;
-												break;
-											}
-										}
-										else
-										{
 											bResult = true;
 											break;
 										}
@@ -14480,11 +14557,7 @@ int CvLuaPlayer::lIsEventChoiceActive(lua_State* L)
 				}
 				else
 				{
-					if(pkEventChoiceInfo->isOneShot() && pkPlayer->IsEventChoiceFired(eEventChoice))
-					{
-						bResult = true;
-					}
-					else if(pkEventChoiceInfo->Expires())
+					if(pkEventChoiceInfo->isOneShot() || pkEventChoiceInfo->Expires())
 					{
 						bResult = true;
 					}
@@ -14583,6 +14656,314 @@ int CvLuaPlayer::lGetEventHappiness(lua_State* L)
 		iHappiness += pLoopCity->GetEventHappiness();
 	}
 	lua_pushinteger(L, iHappiness);
+	return 1;
+}
+
+int CvLuaPlayer::lGetActivePlayerEventChoices(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	
+	lua_createtable(L, 0, 0);
+	int idx = 1;
+
+	for (int iI = 0; iI < GC.getNumEventChoiceInfos(); iI++)
+	{
+		EventChoiceTypes eEventChoice = (EventChoiceTypes)iI;
+		if (eEventChoice == NO_EVENT_CHOICE)
+			continue;
+
+		CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
+		if (pkEventChoiceInfo != NULL)
+		{
+			if (pkPlayer->IsEventChoiceActive(eEventChoice))
+			{
+				EventTypes eParentEvent = NO_EVENT;
+				bool bNotChoice = false;
+				for (int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
+				{
+					EventTypes eEvent = (EventTypes)iLoop;
+					if (eEvent != NO_EVENT)
+					{
+						if (pkEventChoiceInfo->isParentEvent(eEvent))
+						{
+							eParentEvent = eEvent;
+							CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+							if (pkEventInfo != NULL)
+							{
+								if (pkEventInfo->getNumChoices() == 1)
+								{
+									bNotChoice = true;
+								}
+								break;
+							}
+						}
+					}
+				}
+				if (bNotChoice)
+					continue;			
+
+				int iDuration = pkPlayer->GetEventChoiceDuration(eEventChoice);
+				if (!pkEventChoiceInfo->Expires())
+				{ 
+					iDuration = -1;
+				}
+
+				lua_createtable(L, 0, 0);
+				const int t = lua_gettop(L);
+
+				lua_pushinteger(L, eEventChoice);
+				lua_setfield(L, t, "EventChoice");
+				lua_pushinteger(L, iDuration);
+				lua_setfield(L, t, "Duration");
+				lua_pushinteger(L, eParentEvent);
+				lua_setfield(L, t, "ParentEvent");
+
+				lua_rawseti(L, -2, idx++);
+			}
+		}
+	}
+
+	return 1;
+}
+int CvLuaPlayer::lGetActiveCityEventChoices(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	lua_createtable(L, 0, 0);
+	int idx = 1;
+
+	for (int iI = 0; iI < GC.getNumCityEventChoiceInfos(); iI++)
+	{
+		CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iI;
+		if (eEventChoice == NO_EVENT_CHOICE_CITY)
+			continue;
+
+		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+		if (pkEventChoiceInfo != NULL)
+		{
+			CvCity* pLoopCity;
+			int iLoop;
+
+			for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+			{
+				if (pLoopCity != NULL && pLoopCity->IsEventChoiceActive(eEventChoice))
+				{
+					CityEventTypes eParentEvent = NO_EVENT_CITY;
+					bool bNotChoice = false;
+					for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
+					{
+						CityEventTypes eEvent = (CityEventTypes)iLoop;
+						if (eEvent != NO_EVENT)
+						{
+							if (pkEventChoiceInfo->isParentEvent(eEvent))
+							{
+								eParentEvent = eEvent;
+								CvModCityEventInfo* pkCityEventInfo = GC.getCityEventInfo(eEvent);
+								if (pkCityEventInfo != NULL)
+								{
+									if (pkCityEventInfo->getNumChoices() == 1)
+									{
+										bNotChoice = true;
+									}
+									break;
+								}
+							}
+						}
+					}
+
+					if (bNotChoice)
+						continue;
+
+					int iDuration = pLoopCity->GetEventChoiceDuration(eEventChoice);
+					if (!pkEventChoiceInfo->Expires())
+					{
+						iDuration = -1;
+					}
+
+					lua_createtable(L, 0, 0);
+					const int t = lua_gettop(L);
+
+					lua_pushinteger(L, eEventChoice);
+					lua_setfield(L, t, "EventChoice");
+					lua_pushinteger(L, iDuration);
+					lua_setfield(L, t, "Duration");
+					lua_pushinteger(L, eParentEvent);
+					lua_setfield(L, t, "ParentEvent");
+					lua_pushinteger(L, pLoopCity->getX());
+					lua_setfield(L, t, "CityX");
+					lua_pushinteger(L, pLoopCity->getY());
+					lua_setfield(L, t, "CityY");
+
+					lua_rawseti(L, -2, idx++);
+				}
+			}
+		}
+	}
+
+	return 1;
+}
+
+int CvLuaPlayer::lGetRecentPlayerEventChoices(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	lua_createtable(L, 0, 0);
+	int idx = 1;
+
+	for (int iI = 0; iI < GC.getNumEventChoiceInfos(); iI++)
+	{
+		EventChoiceTypes eEventChoice = (EventChoiceTypes)iI;
+		if (eEventChoice == NO_EVENT_CHOICE)
+			continue;
+
+		CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
+		if (pkEventChoiceInfo != NULL)
+		{
+			if (pkPlayer->IsEventChoiceActive(eEventChoice))
+			{
+				bool bInstant = false;
+				EventTypes eParentEvent = NO_EVENT;
+				for (int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
+				{
+					EventTypes eEvent = (EventTypes)iLoop;
+					if (eEvent != NO_EVENT)
+					{
+						if (pkEventChoiceInfo->isParentEvent(eEvent))
+						{							
+							CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+							if (pkEventInfo != NULL)
+							{
+								if (pkEventInfo->getNumChoices() == 1)
+								{
+									bInstant = true;
+								}
+								if (pkEventInfo->getNumChoices() > 1)
+								{
+									eParentEvent = eEvent;
+								}
+								break;
+							}
+						}
+					}
+				}
+				if (bInstant)
+				{
+					int iDuration = pkPlayer->GetEventChoiceDuration(eEventChoice);
+					if (!pkEventChoiceInfo->Expires())
+					{
+						iDuration = -1;
+					}
+
+					lua_createtable(L, 0, 0);
+					const int t = lua_gettop(L);
+
+					lua_pushinteger(L, eEventChoice);
+					lua_setfield(L, t, "EventChoice");
+					lua_pushinteger(L, iDuration);
+					lua_setfield(L, t, "Duration");
+					if (bInstant)
+					{
+						lua_pushinteger(L, -1);
+						lua_setfield(L, t, "ParentEvent");
+					}
+					else
+					{
+						lua_pushinteger(L, eParentEvent);
+						lua_setfield(L, t, "ParentEvent");
+					}					
+
+					lua_rawseti(L, -2, idx++);
+				}
+			}
+		}
+	}
+	return 1;
+}
+int CvLuaPlayer::lGetRecentCityEventChoices(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	lua_createtable(L, 0, 0);
+	int idx = 1;
+
+	for (int iI = 0; iI < GC.getNumCityEventChoiceInfos(); iI++)
+	{
+		CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iI;
+		if (eEventChoice == NO_EVENT_CHOICE_CITY)
+			continue;
+
+		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+		if (pkEventChoiceInfo != NULL)
+		{
+			CvCity* pLoopCity;
+			int iLoop;
+
+			for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+			{
+				if (pLoopCity != NULL && pLoopCity->IsEventChoiceActive(eEventChoice))
+				{
+					bool bInstant = false;
+					CityEventTypes eParentEvent = NO_EVENT_CITY;
+					for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
+					{
+						CityEventTypes eEvent = (CityEventTypes)iLoop;
+						if (eEvent != NO_EVENT)
+						{
+							if (pkEventChoiceInfo->isParentEvent(eEvent))
+							{
+								CvModCityEventInfo* pkCityEventInfo = GC.getCityEventInfo(eEvent);
+								if (pkCityEventInfo != NULL)
+								{
+									if (pkCityEventInfo->getNumChoices() == 1)
+									{
+										bInstant = true;
+									}
+									else if (pkCityEventInfo->getNumChoices() > 1)
+									{
+										eParentEvent = eEvent;
+									}
+									break;
+								}
+							}
+						}
+					}
+					if (bInstant)
+					{
+						int iDuration = pLoopCity->GetEventChoiceDuration(eEventChoice);
+						if (!pkEventChoiceInfo->Expires())
+						{
+							iDuration = -1;
+						}
+
+						lua_createtable(L, 0, 0);
+						const int t = lua_gettop(L);
+
+						lua_pushinteger(L, eEventChoice);
+						lua_setfield(L, t, "EventChoice");
+						lua_pushinteger(L, iDuration);
+						lua_setfield(L, t, "Duration");
+						if (bInstant)
+						{
+							lua_pushinteger(L, -1);
+							lua_setfield(L, t, "ParentEvent");
+						}
+						else
+						{
+							lua_pushinteger(L, eParentEvent);
+							lua_setfield(L, t, "ParentEvent");
+						}
+						lua_pushinteger(L, pLoopCity->getX());
+						lua_setfield(L, t, "CityX");
+						lua_pushinteger(L, pLoopCity->getY());
+						lua_setfield(L, t, "CityY");
+
+						lua_rawseti(L, -2, idx++);
+					}
+				}
+			}
+		}
+	}
+
 	return 1;
 }
 #endif

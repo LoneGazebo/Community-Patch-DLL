@@ -120,6 +120,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bIsLostOnMove(false),
 	m_bCityStateOnly(false),
 	m_bBarbarianOnly(false),
+	m_bStrongerDamaged(false),
 	m_iNegatesPromotion(NO_PROMOTION),
 	m_iForcedDamageValue(0),
 	m_iChangeDamageValue(0),
@@ -152,6 +153,13 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNearbyImprovementCombatBonus(0),
 	m_iNearbyImprovementBonusRange(0),
 	m_eCombatBonusImprovement(NO_IMPROVEMENT),
+#endif
+#if defined(MOD_BALANCE_CORE)
+	m_iNearbyUnitClassBonus(0),
+	m_iNearbyUnitClassBonusRange(0),
+	m_iCombatBonusFromNearbyUnitClass(NO_UNITCLASS),
+	m_iWonderProductionModifier(0),
+	m_bMountainsDoubleMove(false),
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	m_bCanCrossMountains(false),
@@ -196,6 +204,11 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bHasPostCombatPromotions(false),
 	m_bPostCombatPromotionsExclusive(false),
 	m_bSapper(false),
+#if defined(MOD_BALANCE_CORE)
+	m_bIsNearbyPromotion(false),
+	m_iNearbyRange(0),
+	m_eAddedFromNearbyPromotion(NO_PROMOTION),
+#endif
 	m_bCanHeavyCharge(false),
 	m_piTerrainAttackPercent(NULL),
 	m_piTerrainDefensePercent(NULL),
@@ -292,6 +305,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bIsLostOnMove = kResults.GetBool("IsLostOnMove");
 	m_bCityStateOnly = kResults.GetBool("CityStateOnly");
 	m_bBarbarianOnly = kResults.GetBool("BarbarianOnly");
+	m_bStrongerDamaged = kResults.GetBool("StrongerDamaged");
 	const char* szNegatesPromotion = kResults.GetText("NegatesPromotion");
 	m_iNegatesPromotion = GC.getInfoTypeForString(szNegatesPromotion, true);
 	m_iForcedDamageValue = kResults.GetInt("ForcedDamageValue");
@@ -330,6 +344,14 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			m_eCombatBonusImprovement = (ImprovementTypes)GC.getInfoTypeForString(szTextVal, true);
 		}
 	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	const char* szCombatBonusFromNearbyUnitClass = kResults.GetText("CombatBonusFromNearbyUnitClass");
+	m_iCombatBonusFromNearbyUnitClass = (UnitClassTypes)GC.getInfoTypeForString(szCombatBonusFromNearbyUnitClass, true);
+	m_iNearbyUnitClassBonusRange = kResults.GetInt("NearbyUnitClassBonusRange");
+	m_iNearbyUnitClassBonus = kResults.GetInt("NearbyUnitClassBonus");
+	m_iWonderProductionModifier = kResults.GetInt("WonderProductionModifier");
+	m_bMountainsDoubleMove = kResults.GetBool("MountainsDoubleMove");
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	if (MOD_PROMOTIONS_CROSS_MOUNTAINS) {
@@ -382,6 +404,12 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bHasPostCombatPromotions = kResults.GetBool("HasPostCombatPromotions");
 	m_bPostCombatPromotionsExclusive = kResults.GetBool("PostCombatPromotionsExclusive");
 	m_bSapper = kResults.GetBool("Sapper");
+#if defined(MOD_BALANCE_CORE)
+	m_bIsNearbyPromotion = kResults.GetBool("IsNearbyPromotion");
+	m_iNearbyRange = kResults.GetInt("NearbyRange");
+	const char* szAddedFromNearbyPromotion = kResults.GetText("AddedFromNearbyPromotion");
+	m_eAddedFromNearbyPromotion = (PromotionTypes)GC.getInfoTypeForString(szAddedFromNearbyPromotion, true);
+#endif
 	m_bCanHeavyCharge = kResults.GetBool("HeavyCharge");
 
 	m_iVisibilityChange = kResults.GetInt("VisibilityChange");
@@ -1534,6 +1562,10 @@ bool CvPromotionEntry::IsBarbarianOnly() const
 {
 	return m_bBarbarianOnly;
 }
+bool CvPromotionEntry::IsStrongerDamaged() const
+{
+	return m_bStrongerDamaged;
+}
 int CvPromotionEntry::NegatesPromotion() const
 {
 	return m_iNegatesPromotion;
@@ -1690,6 +1722,32 @@ int CvPromotionEntry::GetNearbyImprovementBonusRange() const
 ImprovementTypes CvPromotionEntry::GetCombatBonusImprovement() const
 {
 	return m_eCombatBonusImprovement;
+}
+#endif
+#if defined(MOD_BALANCE_CORE)
+/// Get the UnitClass we want to receive the bonus from.
+UnitClassTypes CvPromotionEntry::GetCombatBonusFromNearbyUnitClass() const
+{
+	return m_iCombatBonusFromNearbyUnitClass;
+}
+/// Distance from this UnitClass
+int CvPromotionEntry::GetNearbyUnitClassBonusRange() const
+{
+	return m_iNearbyUnitClassBonusRange;
+}
+/// Bonus from this UnitClass
+int CvPromotionEntry::GetNearbyUnitClassBonus() const
+{
+	return m_iNearbyUnitClassBonus;
+}
+int CvPromotionEntry::GetWonderProductionModifier() const
+{
+	return m_iWonderProductionModifier;
+}
+/// Accessor: Double movement in hills
+bool CvPromotionEntry::IsMountainsDoubleMove() const
+{
+	return m_bMountainsDoubleMove;
 }
 #endif
 
@@ -1887,6 +1945,23 @@ bool CvPromotionEntry::IsSapper() const
 {
 	return m_bSapper;
 }
+
+#if defined(MOD_BALANCE_CORE)
+bool CvPromotionEntry::IsNearbyPromotion() const
+{
+	return m_bIsNearbyPromotion;
+}
+
+int CvPromotionEntry::NearbyRange() const
+{
+	return m_iNearbyRange;
+}
+
+PromotionTypes CvPromotionEntry::AddedFromNearbyPromotion() const
+{
+	return m_eAddedFromNearbyPromotion;
+}
+#endif
 
 /// Accessor: Can this unit doa heavy charge (which either force an enemy to retreat or take extra damage)
 bool CvPromotionEntry::IsCanHeavyCharge() const
@@ -2726,7 +2801,7 @@ PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eInde
 	int iNumChoices = aPossiblePromotions.size();
 	if (iNumChoices > 0)
 	{
-		int iChoice = GC.getGame().getRandNum(iNumChoices, "Random Promotion Pick");
+		int iChoice = GC.getGame().getJonRandNum(iNumChoices, "Random Promotion Pick");
 		return (PromotionTypes)aPossiblePromotions[iChoice];
 	}
 

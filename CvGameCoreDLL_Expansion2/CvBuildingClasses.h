@@ -396,6 +396,9 @@ public:
 	int GetYieldFromPolicyUnlock(int i) const;
 	int* GetYieldFromPolicyUnlockArray() const;
 
+	int GetYieldFromUnitLevelUp(int i) const;
+	int* GetYieldFromUnitLevelUpArray() const;
+
 	int GetYieldFromPurchase(int i) const;
 	int* GetYieldFromPurchaseArray() const;
 
@@ -411,7 +414,7 @@ public:
 	int* GetYieldChangePerPopArray() const;
 	int GetYieldChangePerReligion(int i) const;
 	int* GetYieldChangePerReligionArray() const;
-	int GetYieldModifier(int i) const;;
+	int GetYieldModifier(int i) const;
 	int* GetYieldModifierArray() const;
 	int GetAreaYieldModifier(int i) const;
 	int* GetAreaYieldModifierArray() const;
@@ -465,6 +468,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsBuildingClassNeededAnywhere(int i) const;
 	bool IsBuildingClassNeededNowhere(int i) const;
+	int GetNumFreeSpecialUnits(int i) const;
 #endif
 	int GetNumFreeUnits(int i) const;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
@@ -802,6 +806,7 @@ private:
 	int* m_piYieldFromUnitProduction;
 	int* m_piYieldFromBorderGrowth;
 	int* m_piYieldFromPolicyUnlock;
+	int* m_piYieldFromUnitLevelUp;
 	int* m_piYieldFromPurchase;
 	int* m_piScienceFromYield;
 #endif
@@ -830,8 +835,6 @@ private:
 	int* m_piResourceMonopolyAnds;
 	int* m_piResourceMonopolyOrs;
 	int* m_piYieldPerFranchise;
-	int* m_piFranchiseTradeRouteCityYieldMod;
-	int* m_piFranchiseTradeRouteYieldMod;
 	int m_iGPRateModifierPerXFranchises;
 	int* m_piResourceQuantityPerXFranchises;
 #endif
@@ -842,6 +845,7 @@ private:
 	int* m_paiHurryModifierLocal;
 	bool* m_pbBuildingClassNeededAnywhere;
 	bool* m_pbBuildingClassNeededNowhere;
+	int* m_piNumSpecFreeUnits;
 #endif
 	int* m_piNumFreeUnits;
 
@@ -1036,7 +1040,7 @@ public:
 	bool CheckForSevenAncientWondersBuilt();
 
 #if defined(MOD_BALANCE_CORE)
-	const std::vector<BuildingTypes>& GetAllBuildings() const { return m_buildingsThatExistAtLeastOnce; }
+	const std::vector<BuildingTypes>& GetAllBuildingsHere() const { return m_buildingsThatExistAtLeastOnce; }
 #endif
 private:
 	void NotifyNewBuildingStarted(BuildingTypes eIndex);

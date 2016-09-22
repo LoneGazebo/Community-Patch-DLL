@@ -84,11 +84,13 @@ function OnPlayerEventsInfoButton()
 	Controls.PlayerEventsInfoHighlight:SetHide(false);
 	Controls.CityEventsInfoHighlight:SetHide(true);
 	Controls.RecentEventsInfoHighlight:SetHide(true);
+	Controls.CityRecentEventsInfoHighlight:SetHide(true);
 
 	-- Set Panels
     Controls.PlayerEventsInfo:SetHide( false );
     Controls.CityEventsInfo:SetHide( true );
 	Controls.RecentEventsInfo:SetHide(true);
+	Controls.CityRecentEventsInfo:SetHide(true);
 
     m_CurrentPanel = Controls.PlayerEventsInfo;
 end
@@ -102,11 +104,13 @@ function OnCityEventsInfoButton()
 	Controls.PlayerEventsInfoHighlight:SetHide(true);
 	Controls.CityEventsInfoHighlight:SetHide(false);
 	Controls.RecentEventsInfoHighlight:SetHide(true);
+	Controls.CityRecentEventsInfoHighlight:SetHide(true);
 
 	-- Set Panels
     Controls.PlayerEventsInfo:SetHide( true );
     Controls.CityEventsInfo:SetHide( false );
 	Controls.RecentEventsInfo:SetHide(true);
+	Controls.CityRecentEventsInfo:SetHide(true);
 
 
     m_CurrentPanel = Controls.CityEventsInfo;
@@ -120,18 +124,36 @@ function OnRecentEventsInfoButton()
 	Controls.PlayerEventsInfoHighlight:SetHide(true);
 	Controls.CityEventsInfoHighlight:SetHide(true);
 	Controls.RecentEventsInfoHighlight:SetHide(false);
+	Controls.CityRecentEventsInfoHighlight:SetHide(true);
 
 	-- Set Panels
     Controls.PlayerEventsInfo:SetHide( true );
     Controls.CityEventsInfo:SetHide( true );
 	Controls.RecentEventsInfo:SetHide(false);
-
+	Controls.CityRecentEventsInfo:SetHide(true);
 
     m_CurrentPanel = Controls.RecentEventsInfo;
 end
 Controls.RecentEvents:RegisterCallback( Mouse.eLClick, OnRecentEventsInfoButton );
 
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+function OnCityRecentEventsInfoButton()
+	-- Set Tabs
+	Controls.PlayerEventsInfoHighlight:SetHide(true);
+	Controls.CityEventsInfoHighlight:SetHide(true);
+	Controls.RecentEventsInfoHighlight:SetHide(true);
+	Controls.CityRecentEventsInfoHighlight:SetHide(false);
 
+	-- Set Panels
+    Controls.PlayerEventsInfo:SetHide( true );
+    Controls.CityEventsInfo:SetHide( true );
+	Controls.RecentEventsInfo:SetHide(true);
+	Controls.CityRecentEventsInfo:SetHide(false);
+
+    m_CurrentPanel = Controls.CityRecentEventsInfo;
+end
+Controls.CityRecentEvents:RegisterCallback( Mouse.eLClick, OnCityRecentEventsInfoButton );
 
 ----------------------------------------------------------------
 -- 'Active' (local human) player has changed

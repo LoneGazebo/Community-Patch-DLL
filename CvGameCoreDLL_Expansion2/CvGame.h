@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+﻿/*	-------------------------------------------------------------------------------------------------------
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -426,21 +426,18 @@ public:
 	void removeGreatPersonBornName(const CvString& szName);
 #endif
 
-	//for map generation
 	CvRandom& getMapRand();
 	int getMapRandNum(int iNum, const char* pszLog);
 
-	//for game - branches internally depending on AI or UI
-	CvRandom& getRand();
-	int getRandNum(int iNum, const char* pszLog);
-	int getRandNumVA(int iNum, const char* pszLog, ...);
+	CvRandom& getJonRand();
+	int getJonRandNum(int iNum, const char* pszLog);
+	int getJonRandNumVA(int iNum, const char* pszLog, ...);
+	int getAsyncRandNum(int iNum, const char* pszLog);
 
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
 	//get random number from gamestate without a seed in the generator
-	int	getSmallFakeRandNum(int iNum, CvPlot& input);
-	int	getSmallFakeRandNum(int iNum, int iSeed);
-	int	getSmallFakeRandNum(int iNum);
-	int getSeedFromGameState() const;
+	int	getSmallFakeRandNum(int iNum, const CvPlot& input);
+	int	getSmallFakeRandNum(int iNum, int iExtraSeed);
 #endif
 
 	int calculateSyncChecksum();
@@ -461,7 +458,7 @@ public:
 	uint getNumReplayMessages() const;
 	const CvReplayMessage* getReplayMessage(uint i) const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	void getGlobalAverage() const;
+	void updateGlobalAverage();
 	int GetCultureAverage() const;
 	void SetCultureAverage(int iValue);
 	int GetScienceAverage() const;
@@ -520,7 +517,7 @@ public:
 
 	UnitTypes GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged);
 #if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
-	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource = false);
+	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource = false, bool bIncludeOwnUUsOnly = false);
 #else
 	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged);
 #endif
@@ -536,7 +533,9 @@ public:
 #else
 	UnitTypes GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	bool DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, int iNumber, bool bIncludeUUs, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly);
+#endif
 	CvSiteEvaluatorForSettler* GetSettlerSiteEvaluator();
 	CvSiteEvaluatorForStart* GetStartSiteEvaluator();
 	CvStartPositioner* GetStartPositioner();
@@ -678,8 +677,11 @@ public:
 #endif
 
 	void SetClosestCityMapDirty();
-	int GetClosestCityDistance( const CvPlot* pPlot );
-	CvCity* GetClosestCity( const CvPlot* pPlot );
+	//assuming a typical unit with baseMoves==2
+	int GetClosestCityDistanceInTurns( const CvPlot* pPlot );
+	CvCity* GetClosestCityByEstimatedTurns( const CvPlot* pPlot );
+	int GetClosestCityDistanceInPlots(const CvPlot* pPlot);
+	CvCity* GetClosestCityByPlots(const CvPlot* pPlot);
 
 	//------------------------------------------------------------
 	//------------------------------------------------------------
@@ -865,7 +867,8 @@ protected:
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int		m_iLargestBasePotential;
 #endif
-	CvDistanceMap m_globalCityDistance;
+	CvDistanceMapTurns m_globalCityDistanceTurns;
+	CvDistanceMapPlots m_globalCityDistancePlots;
 
 	//----------------------------------------------------------------
 

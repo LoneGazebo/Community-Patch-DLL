@@ -940,10 +940,10 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 				// City can not contain our franchise already
 				if (!pLoopCity->IsHasFranchise(GetFoundedCorporation()))
 				{
-					int iScore = GC.getGame().getRandNum(100, "Random Corp Spread");
+					int iScore = GC.getGame().getJonRandNum(100, "Random Corp Spread");
 					if (m_pPlayer->GetTrade()->IsConnectedToPlayer(pLoopCity->getOwner()))
 					{
-						iScore += GC.getGame().getRandNum(100, "Random Corp Spread");
+						iScore += GC.getGame().getJonRandNum(100, "Random Corp Spread");
 					}
 					if (pCapital != NULL)
 					{
@@ -962,7 +962,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 	}
 	if (pBestCity != NULL && iBestScore != 0)
 	{
-		int iSpreadChance = GC.getGame().getRandNum((1500 + (GetNumFranchises() * 10)), "Random Corp Spread");
+		int iSpreadChance = GC.getGame().getJonRandNum((1500 + (GetNumFranchises() * 10)), "Random Corp Spread");
 		if (iSpreadChance <= iBestScore)
 		{
 			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eFranchiseBuilding);
@@ -1141,6 +1141,36 @@ int CvPlayerCorporations::GetMaxNumFranchises() const
 
 	// Add in any "bonus" franchises from policies
 	iReturnValue += GetAdditionalNumFranchises();
+
+	int iFreeFranchises = 0; // From Infiltration
+
+	// Search all players for Franchises (Autocracy)
+	if(IsCorporationFreeFranchiseAbovePopular())
+	{
+		for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
+		{
+			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+			if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian())
+			{
+				if(m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) < INFLUENCE_LEVEL_POPULAR)
+					continue;
+
+				CvCity* pLoopCity;
+				int iLoop;
+				for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+				{
+					if (pLoopCity != NULL)
+					{
+						if (pLoopCity->IsHasFranchise(GetFoundedCorporation()))
+						{
+							iFreeFranchises++;
+						}
+					}
+				}
+			}
+		}
+		iReturnValue += iFreeFranchises;
+	}
 
 	int iModifier = 100 + GetAdditionalNumFranchisesMod();
 	

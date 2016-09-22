@@ -209,7 +209,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bAdjustForOtherPlayers, in
 	int iCityLoop;
 	BuildingTypes eSelection;
 
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Reset list of all the possible wonders
 	m_Buildables.clear();
@@ -336,7 +336,14 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bAdjustForOtherPlayers, in
 		if(m_Buildables.GetTotalWeight() > 0)
 		{
 			int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
-			eSelection = (BuildingTypes)m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing wonder from Top Choices");
+			if (pWonderCity->isBarbarian())
+			{
+				eSelection = (BuildingTypes)m_Buildables.GetElement(0);
+			}
+			else
+			{
+				eSelection = (BuildingTypes)m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing wonder from Top Choices");
+			}
 			iWonderWeight = m_Buildables.GetTotalWeight();
 			return eSelection;
 		}
@@ -367,7 +374,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonderForGreatEngineer(int& iWonderWei
 	pCityToBuildAt = 0;
 	iWonderWeight = 0;
 
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Reset list of all the possible wonders
 	m_Buildables.clear();

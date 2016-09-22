@@ -31,7 +31,7 @@ public:
 
 protected:
 
-	virtual void Update();
+	virtual void Update() = 0;
 
 	PlayerTypes m_ePlayer; //may be no_player
 	bool m_bArrayAllocated;
@@ -39,6 +39,18 @@ protected:
 
 	std::vector<int> m_vClosestFeature; //plot index to feature
 	std::vector<int> m_vDistance;		//plot index to distance
+};
+
+class CvDistanceMapTurns : public CvDistanceMap
+{
+protected:
+	virtual void Update();
+};
+
+class CvDistanceMapPlots : public CvDistanceMap
+{
+protected:
+	virtual void Update();
 };
 
 #endif //CIV5_PROJECT_CLASSES_H

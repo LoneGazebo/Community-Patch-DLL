@@ -270,6 +270,10 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iGarrisonsOccupiedUnhapppinessMod(0),
 	m_iTradeReligionModifier(0),
 	m_iBestRangedUnitSpawnSettle(0),
+	m_iBestNumberLandCombatUnitClass(0),
+	m_iBestNumberLandRangedUnitClass(0),
+	m_iBestNumberSeaCombatUnitClass(0),
+	m_iBestNumberSeaRangedUnitClass(0),
 	m_iFreePopulation(0),
 	m_iExtraMoves(0),
 	m_iMaxCorporations(0),
@@ -303,6 +307,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldChangesNaturalWonder(NULL),
 	m_piYieldChangeWorldWonder(NULL),
 	m_piYieldFromMinorDemand(NULL),
+	m_piYieldFromWLTKD(NULL),
 #endif
 	m_ppiBuildingClassYieldModifiers(NULL),
 	m_ppiBuildingClassYieldChanges(NULL),
@@ -374,6 +379,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldChangesNaturalWonder);
 	SAFE_DELETE_ARRAY(m_piYieldChangeWorldWonder);
 	SAFE_DELETE_ARRAY(m_piYieldFromMinorDemand);
+	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
@@ -592,6 +598,10 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iGarrisonsOccupiedUnhapppinessMod = kResults.GetInt("GarrisonsOccupiedUnhapppinessMod");
 	m_iTradeReligionModifier = kResults.GetInt("TradeReligionModifier");
 	m_iBestRangedUnitSpawnSettle = kResults.GetInt("BestRangedUnitSpawnSettle");
+	m_iBestNumberLandCombatUnitClass = kResults.GetInt("BestNumberLandCombatUnitClass");
+	m_iBestNumberLandRangedUnitClass = kResults.GetInt("BestNumberLandRangedUnitClass");
+	m_iBestNumberSeaCombatUnitClass = kResults.GetInt("BestNumberSeaCombatUnitClass");
+	m_iBestNumberSeaRangedUnitClass = kResults.GetInt("BestNumberSeaRangedUnitClass");
 	m_iFreePopulation = kResults.GetInt("FreePopulation");
 	m_iExtraMoves = kResults.GetInt("ExtraMoves");
 	m_iMaxCorporations = kResults.GetInt("MaxCorporations");
@@ -995,6 +1005,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldChangesNaturalWonder, "Policy_YieldChangesNaturalWonder", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldChangeWorldWonder, "Policy_YieldChangeWorldWonder", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromMinorDemand, "Policy_YieldFromMinorDemand", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromWLTKD, "Policy_WLTKDYieldMod", "PolicyType", szPolicyType);
 #endif
 
 	//ImprovementCultureChanges
@@ -2596,6 +2607,26 @@ int CvPolicyEntry::GetBestRangedUnitSpawnSettle() const
 {
 	return m_iBestRangedUnitSpawnSettle;
 }
+/// Policy Grants best number of land combat units
+int CvPolicyEntry::GetBestNumberLandCombatUnitClass() const
+{
+	return m_iBestNumberLandCombatUnitClass;
+}
+/// Policy Grants best number of land ranged units
+int CvPolicyEntry::GetBestNumberLandRangedUnitClass() const
+{
+	return m_iBestNumberLandRangedUnitClass;
+}
+/// Policy Grants best number of sea comat units
+int CvPolicyEntry::GetBestNumberSeaCombatUnitClass() const
+{
+	return m_iBestNumberSeaCombatUnitClass;
+}
+/// Policy Grants best number of sea ranged units
+int CvPolicyEntry::GetBestNumberSeaRangedUnitClass() const
+{
+	return m_iBestNumberSeaRangedUnitClass;
+}
 /// Does this Policy grant free population?
 int CvPolicyEntry::GetFreePopulation() const
 {
@@ -2741,7 +2772,7 @@ int CvPolicyEntry::GetTerrainYieldChanges(int i, int j) const
 
 int CvPolicyEntry::GetTradeRouteYieldChange(int i, int j) const
 {
-	CvAssertMsg(i < GC.getNumDomainInfos(), "Index out of bounds");
+	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
@@ -2843,6 +2874,18 @@ int CvPolicyEntry::GetYieldFromMinorDemand(int i) const
 int* CvPolicyEntry::GetYieldFromMinorDemandArray() const
 {
 	return m_piYieldFromMinorDemand;
+}
+
+int CvPolicyEntry::GetYieldFromWLTKD(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromWLTKD ? m_piYieldFromWLTKD[i] : 0;
+}
+
+int* CvPolicyEntry::GetYieldFromWLTKDArray() const
+{
+	return m_piYieldFromWLTKD;
 }
 #endif
 

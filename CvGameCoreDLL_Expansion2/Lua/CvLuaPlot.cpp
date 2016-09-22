@@ -1,5 +1,5 @@
 ﻿/*	-------------------------------------------------------------------------------------------------------
-	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2042,7 +2042,9 @@ int CvLuaPlot::lIsResourceConnectedByImprovement(lua_State* L)
 #if defined(MOD_BALANCE_CORE)
 		if(!bResult)
 		{
-			if(GET_TEAM(GC.getGame().getActiveTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getResourceInfo(kPlot->getResourceType())->getTechCityTrade()))
+			CvResourceInfo* pInfo = GC.getResourceInfo(kPlot->getResourceType());
+
+			if (pInfo && GET_TEAM(GC.getGame().getActiveTeam()).GetTeamTechs()->HasTech((TechTypes)pInfo->getTechCityTrade()))
 			{
 				if(pkImprovementInfo->IsCreatedByGreatPerson() || pkImprovementInfo->IsAdjacentCity())
 				{

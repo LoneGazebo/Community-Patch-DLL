@@ -424,6 +424,27 @@ void CvMap::PrecalcNeighbors()
 	}
 }
 #endif
+
+//	--------------------------------------------------------------------------------
+CvPlot** CvMap::getNeighborsShuffled(const CvPlot* pPlot)
+{
+	if (!pPlot)
+		return NULL;
+
+	int aiShuffle[3][6] = {
+		{ 4, 5, 2, 1, 3, 0 },
+		{ 3, 0, 4, 1, 2, 5 },
+		{ 1, 2, 4, 5, 0, 3 } };
+
+	int iShuffleType = GC.getGame().getSmallFakeRandNum(3, *pPlot);
+	int iBaseIndex = plotNum(pPlot->getX(), pPlot->getY())*(NUM_DIRECTION_TYPES + 2);
+
+	for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
+		m_apShuffledNeighbors[i] = m_pPlotNeighbors[iBaseIndex + aiShuffle[iShuffleType][i]];
+
+	return m_apShuffledNeighbors;
+}
+
 //	--------------------------------------------------------------------------------
 void CvMap::uninit()
 {
@@ -538,9 +559,7 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 // Initializes all data that is not serialized but needs to be initialized after loading.
 void CvMap::setup()
 {
-	GC.GetPathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY());
-	GC.GetInterfacePathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY());
-	GC.GetStepFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY());
+	GC.InitializePathfinders(getGridWidth(), getGridHeight(), isWrapX(), isWrapY());
 }
 
 //////////////////////////////////////
@@ -771,7 +790,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 	while(iCount < iTimeout)
 	{
 		iCount++;
-		pTestPlot = plotCheckInvalid(GC.getGame().getRandNum(getGridWidth(), "Rand Plot Width"), GC.getGame().getRandNum(getGridHeight(), "Rand Plot Height"));
+		pTestPlot = plotCheckInvalid(GC.getGame().getJonRandNum(getGridWidth(), "Rand Plot Width"), GC.getGame().getJonRandNum(getGridHeight(), "Rand Plot Height"));
 
 		CvAssertMsg(pTestPlot != NULL, "TestPlot is not assigned a valid value");
 
@@ -1243,7 +1262,7 @@ int CvMap::getRandomResourceQuantity(ResourceTypes eIndex)
 
 	CvAssertMsg(iNumRands > 0, "Resource should have at least 1 Quantity type to choose from")
 
-	int iRand = GC.getGame().getRandNum(iNumRands, "Picking from random Resource Quantity types");
+	int iRand = GC.getGame().getJonRandNum(iNumRands, "Picking from random Resource Quantity types");
 
 	return thisResourceInfo->getResourceQuantityType(iRand);
 }
@@ -1654,7 +1673,11 @@ void CvMap::DoPlaceNaturalWonders()
 	{
 		eFeature = (FeatureTypes) iFeatureLoop;
 		CvFeatureInfo* feature = GC.getFeatureInfo(eFeature);
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+		if(feature && feature->IsNaturalWonder(true))
+#else
 		if(feature && feature->IsNaturalWonder())
+#endif
 		{
 			eNWFeature = eFeature;
 
@@ -1752,7 +1775,7 @@ void CvMap::DoPlaceNaturalWonders()
 	{
 		iCount++;
 
-		iPlotRand = GC.getGame().getRandNum(iNumMapPlots, "Randomly Placing Natural Wonders");
+		iPlotRand = GC.getGame().getJonRandNum(iNumMapPlots, "Randomly Placing Natural Wonders");
 
 		pRandPlot = plotByIndex(iPlotRand);
 
@@ -1849,7 +1872,11 @@ void CvMap::DoPlaceNaturalWonders()
 
 				if(pLoopPlot != NULL)
 				{
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+					if(pLoopPlot->IsNaturalWonder(true))
+#else
 					if(pLoopPlot->IsNaturalWonder())
+#endif
 					{
 						// Found a NW too close
 						bValid = false;
@@ -2323,3 +2350,5 @@ int CvMap::GetAIMapHint()
 {
 	return m_iAIMapHints;
 }
+
+

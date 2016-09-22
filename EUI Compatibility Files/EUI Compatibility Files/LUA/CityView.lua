@@ -424,10 +424,8 @@ local function GetSpecialistYields( city, specialist )
 		for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
 			specialistYield = city:GetSpecialistYield( specialistID, yieldID )
 			-- COMMUNITY PATCH BEGINS
-			if(specialistYield > 0) then
-				local extraYield = city:GetSpecialistYieldChange( specialistID, yieldID)
-				specialistYield = (specialistYield + extraYield)
-			end
+			local extraYield = city:GetSpecialistYieldChange( specialistID, yieldID)
+			specialistYield = (specialistYield + extraYield)
 			-- COMMUNITY PATCH ENDS
 			specialistYieldModifier = city:GetBaseYieldRateModifier( yieldID )
 			if yieldID == YieldTypes.YIELD_CULTURE then

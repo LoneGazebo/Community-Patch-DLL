@@ -3512,8 +3512,8 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_iShareOpinionDuration(0),
 	m_iTechCostPerTurnMultiplier(0),
-	m_iMinimumVoluntaryVassalTurns(0),
-	m_iMinimumVassalTurns(0),
+	m_iMinimumVoluntaryVassalTurns(15),
+	m_iMinimumVassalTurns(75),
 	m_iMinimumVassalTaxTurns(0),
 	m_iNumTurnsBetweenVassals(0),
 	m_iMinimumVassalLiberateTurns(0),
@@ -5276,6 +5276,9 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_bNukeImmune(false),
 	m_bRough(false),
 	m_bNaturalWonder(false),
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+	m_bPseudoNaturalWonder(false),
+#endif
 	m_iWorldSoundscapeScriptId(0),
 	m_iEffectProbability(0),
 	m_piYieldChange(NULL),
@@ -5482,10 +5485,24 @@ bool CvFeatureInfo::IsRough() const
 	return m_bRough;
 }
 //------------------------------------------------------------------------------
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+bool CvFeatureInfo::IsNaturalWonder(bool orPseudoNatural) const
+#else
 bool CvFeatureInfo::IsNaturalWonder() const
+#endif
 {
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+	return m_bNaturalWonder || (orPseudoNatural && IsPseudoNaturalWonder());
+#else
 	return m_bNaturalWonder;
+#endif
 }
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+bool CvFeatureInfo::IsPseudoNaturalWonder() const
+{
+	return m_bPseudoNaturalWonder;
+}
+#endif
 //------------------------------------------------------------------------------
 const char* CvFeatureInfo::getArtDefineTag() const
 {
@@ -5665,7 +5682,9 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bNukeImmune = kResults.GetBool("NukeImmune");
 	m_bRough = kResults.GetBool("Rough");
 	m_bNaturalWonder = kResults.GetBool("NaturalWonder");
-
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+	m_bPseudoNaturalWonder = kResults.GetBool("PseudoNaturalWonder");
+#endif
 	m_strEffectType = kResults.GetText("EffectType");
 	m_strEffectTypeTag = kResults.GetText("EffectTypeTag");
 
@@ -5745,6 +5764,14 @@ CvYieldInfo::CvYieldInfo() :
 	m_iPopulationChangeOffset(0),
 	m_iPopulationChangeDivisor(0),
 	m_iMinCity(0),
+#if defined(MOD_BALANCE_CORE)
+	m_iMinCityFlatFreshWater(0),
+	m_iMinCityFlatNoFreshWater(0),
+	m_iMinCityHillFreshWater(0),
+	m_iMinCityHillNoFreshWater(0),
+	m_iMinCityMountainFreshWater(0),
+	m_iMinCityMountainNoFreshWater(0),
+#endif
 	m_iGoldenAgeYield(0),
 	m_iGoldenAgeYieldThreshold(0),
 	m_iGoldenAgeYieldMod(0),
@@ -5798,6 +5825,38 @@ int CvYieldInfo::getMinCity() const
 {
 	return m_iMinCity;
 }
+#if defined (MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvYieldInfo::getMinCityFlatFreshWater() const
+{
+	return m_iMinCityFlatFreshWater;
+}
+//------------------------------------------------------------------------------
+int CvYieldInfo::getMinCityFlatNoFreshWater() const
+{
+	return m_iMinCityFlatNoFreshWater;
+}
+//------------------------------------------------------------------------------
+int CvYieldInfo::getMinCityHillFreshWater() const
+{
+	return m_iMinCityHillFreshWater;
+}
+//------------------------------------------------------------------------------
+int CvYieldInfo::getMinCityHillNoFreshWater() const
+{
+	return m_iMinCityHillNoFreshWater;
+}
+//------------------------------------------------------------------------------
+int CvYieldInfo::getMinCityMountainFreshWater() const
+{
+	return m_iMinCityMountainFreshWater;
+}
+//------------------------------------------------------------------------------
+int CvYieldInfo::getMinCityMountainNoFreshWater() const
+{
+	return m_iMinCityMountainNoFreshWater;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvYieldInfo::getGoldenAgeYield() const
 {
@@ -5835,6 +5894,14 @@ bool CvYieldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	kResults.GetValue("PopulationChangeOffset", m_iPopulationChangeOffset);
 	kResults.GetValue("PopulationChangeDivisor", m_iPopulationChangeDivisor);
 	kResults.GetValue("MinCity", m_iMinCity);
+#if defined(MOD_BALANCE_CORE)
+	kResults.GetValue("MinCityFlatFreshWater", m_iMinCityFlatFreshWater);
+	kResults.GetValue("MinCityFlatNoFreshWater", m_iMinCityFlatNoFreshWater);
+	kResults.GetValue("MinCityHillFreshWater", m_iMinCityHillFreshWater);
+	kResults.GetValue("MinCityHillNoFreshWater", m_iMinCityHillNoFreshWater);
+	kResults.GetValue("MinCityMountainFreshWater", m_iMinCityMountainFreshWater);
+	kResults.GetValue("MinCityMountainNoFreshWater", m_iMinCityMountainNoFreshWater);
+#endif
 	kResults.GetValue("GoldenAgeYield", m_iGoldenAgeYield);
 	kResults.GetValue("GoldenAgeYieldThreshold", m_iGoldenAgeYieldThreshold);
 	kResults.GetValue("GoldenAgeYieldMod", m_iGoldenAgeYieldMod);
@@ -7760,18 +7827,6 @@ CvModEventInfo::CvModEventInfo() :
 	 m_piMinimumYield(NULL),
 	 m_strSplashArt(""),
 	 m_strEventAudio(""),
-	 m_iRequiredActiveEvent(-1),
-	 m_iRequiredActiveEventChoice(-1),
-	 m_iRequiredActiveCityEvent(-1),
-	 m_iRequiredActiveCityEventChoice(-1),
-	 m_iRequiredActiveEventOtherPlayer(-1),
-	 m_iRequiredActiveEventChoiceOtherPlayer(-1),
-	 m_iRequiredNoActiveEventOtherPlayer(-1),
-	 m_iRequiredNoActiveEventChoiceOtherPlayer(-1),
-	 m_iRequiredNoActiveCityEvent(-1),
-	 m_iRequiredNoActiveCityEventChoice(-1),
-	 m_iRequiredNoActiveEvent(-1),
-	 m_iRequiredNoActiveEventChoice(-1),
 	 m_bOneShot(false),
 	 m_bInDebt(false),
 	 m_bLosingMoney(false),
@@ -7779,7 +7834,9 @@ CvModEventInfo::CvModEventInfo() :
 	 m_bVassal(false),
 	 m_bMaster(false),
 	 m_iCoastal(0),
-	 m_bTradeCapped(false)
+	 m_bTradeCapped(false),
+	 m_paLinkerInfo(NULL),
+	 m_iLinkerInfos(0)
 {
 }
 //------------------------------------------------------------------------------
@@ -7788,6 +7845,7 @@ CvModEventInfo::~CvModEventInfo()
 	SAFE_DELETE_ARRAY(m_piMinimumYield);
 	SAFE_DELETE_ARRAY(m_piRequiredResource);
 	SAFE_DELETE_ARRAY(m_piRequiredFeature);
+	SAFE_DELETE_ARRAY(m_paLinkerInfo);
 }
 //------------------------------------------------------------------------------
 int CvModEventInfo::getRandomChance() const
@@ -7977,67 +8035,6 @@ int CvModEventInfo::getFeatureRequired(FeatureTypes eFeature) const
 	return m_piRequiredFeature ? m_piRequiredFeature[eFeature] : -1;
 }
 //------------------------------------------------------------------------------
-int CvModEventInfo::getRequiredActiveEvent() const
-{
-	return m_iRequiredActiveEvent;
-}
-//------------------------------------------------------------------------------
-int CvModEventInfo::getRequiredActiveEventChoice() const
-{
-	return m_iRequiredActiveEventChoice;
-}
-//------------------------------------------------------------------------------
-int CvModEventInfo::getRequiredActiveCityEvent() const
-{
-	return m_iRequiredActiveCityEvent;
-}
-//------------------------------------------------------------------------------
-int CvModEventInfo::getRequiredActiveCityEventChoice() const
-{
-	return m_iRequiredActiveCityEventChoice;
-}
-//------------------------------------------------------------------------------
-int CvModEventInfo::getRequiredNoActiveCityEvent() const
-{
-	return m_iRequiredNoActiveCityEvent;
-}
-//------------------------------------------------------------------------------
-int CvModEventInfo::getRequiredNoActiveCityEventChoice() const
-{
-	return m_iRequiredNoActiveCityEventChoice;
-}
-
-//------------------------------------------------------------------------------
-int CvModEventInfo::getRequiredNoActiveEvent() const
-{
-	return m_iRequiredNoActiveEvent;
-}
-//------------------------------------------------------------------------------
-int CvModEventInfo::getRequiredNoActiveEventChoice() const
-{
-	return m_iRequiredNoActiveEventChoice;
-}
-//------------------------------------------------------------------------------
-int CvModEventInfo::getRequiredActiveOtherPlayerEvent() const
-{
-	return m_iRequiredActiveEventOtherPlayer;
-}
-//------------------------------------------------------------------------------
-int CvModEventInfo::getRequiredActiveOtherPlayerEventChoice() const
-{
-	return m_iRequiredActiveEventChoiceOtherPlayer;
-}
-//------------------------------------------------------------------------------
-int CvModEventInfo::getRequiredNoActiveOtherPlayerEvent() const
-{
-	return m_iRequiredNoActiveEventOtherPlayer;
-}
-//------------------------------------------------------------------------------
-int CvModEventInfo::getRequiredNoActiveOtherPlayerEventChoice() const
-{
-	return m_iRequiredNoActiveEventChoiceOtherPlayer;
-}
-//------------------------------------------------------------------------------
 bool CvModEventInfo::isOneShot() const
 {
 	return m_bOneShot;
@@ -8079,7 +8076,7 @@ bool CvModEventInfo::isTradeCapped() const
 }
 CvEventLinkingInfo *CvModEventInfo::GetLinkerInfo(int i) const
 {
-	CvAssertMsg(i < GC.getNumLinkerInfos(), "Index out of bounds");
+	CvAssertMsg(i < GC.getNumEventLinkingInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
 	if (m_paLinkerInfo[0].GetCityLinkingEvent() == -1 && m_paLinkerInfo[0].GetCityLinkingEventChoice() == -1 && m_paLinkerInfo[0].GetLinkingEvent() == -1 && m_paLinkerInfo[0].GetLinkingEventChoice() == -1)
@@ -8179,42 +8176,6 @@ bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	szTextVal = kResults.GetText("RequiredStateReligion");
 	m_iRequiredStateReligion =  GC.getInfoTypeForString(szTextVal, true);
 
-	szTextVal = kResults.GetText("RequiredActiveEvent");
-	m_iRequiredActiveEvent =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveEventChoice");
-	m_iRequiredActiveEventChoice =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNotActiveEvent");
-	m_iRequiredNoActiveEvent =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNotActiveEventChoice");
-	m_iRequiredNoActiveEventChoice =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveEventOtherPlayer");
-	m_iRequiredActiveEventOtherPlayer =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveEventChoiceOtherPlayer");
-	m_iRequiredActiveEventChoiceOtherPlayer =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActiveEventOtherPlayer");
-	m_iRequiredNoActiveEventOtherPlayer =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActiveEventChoiceOtherPlayer");
-	m_iRequiredNoActiveEventChoiceOtherPlayer=  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveCityEvent");
-	m_iRequiredActiveCityEvent =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveCityEventChoice");
-	m_iRequiredActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActiveCityEvent");
-	m_iRequiredNoActiveCityEvent =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActiveCityEventChoice");
-	m_iRequiredNoActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
-
 	m_bHasStateReligion = kResults.GetBool("RequiresAnyStateReligion");
 
 	m_bUnhappy = kResults.GetBool("IsUnhappy");
@@ -8251,7 +8212,7 @@ bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 			CvEventLinkingInfo& pEventLinkingInfo= m_paLinkerInfo[idx];
 			szTextVal = pEventTypes->GetText("EventLinker");
 			pEventLinkingInfo.m_iEvent =  GC.getInfoTypeForString(szTextVal, true);
-			szTextVal = pEventTypes->GetText("EventChoic");
+			szTextVal = pEventTypes->GetText("EventChoice");
 			pEventLinkingInfo.m_iEventChoice =  GC.getInfoTypeForString(szTextVal, true);
 			szTextVal = pEventTypes->GetText("CityEvent");
 			pEventLinkingInfo.m_iCityEvent =  GC.getInfoTypeForString(szTextVal, true);
@@ -8321,18 +8282,6 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_strEventChoiceSoundEffect(""),
 	 m_piConvertReligion(NULL),
 	 m_piConvertReligionPercent(NULL),
-	 m_iRequiredActiveEvent(-1),
-	 m_iRequiredActiveEventChoice(-1),
-	 m_iRequiredActiveEventOtherPlayer(-1),
-	 m_iRequiredActiveEventChoiceOtherPlayer(-1),
-	 m_iRequiredNoActiveEventOtherPlayer(-1),
-	 m_iRequiredNoActiveEventChoiceOtherPlayer(-1),
-	 m_iRequiredNoActiveEvent(-1),
-	 m_iRequiredNoActiveEventChoice(-1),
-	 m_iRequiredActiveCityEvent(-1),
-	 m_iRequiredActiveCityEventChoice(-1),
-	 m_iRequiredNoActiveCityEvent(-1),
-	 m_iRequiredNoActiveCityEventChoice(-1),
 	 m_ppiBuildingClassYield(NULL),
 	 m_ppiBuildingClassYieldModifier(NULL),
 	 m_piCityYield(NULL),
@@ -8356,7 +8305,9 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_bCoastalOnly(false),
 	 m_bTradeCapped(false),
 	 m_bCapitalEffectOnly(false),
-	 m_bInstantYieldAllCities(false)
+	 m_bInstantYieldAllCities(false),
+	 m_paLinkerInfo(NULL),
+	 m_iLinkerInfos(0)
 {
 }
 //------------------------------------------------------------------------------
@@ -8383,6 +8334,7 @@ CvModEventChoiceInfo::~CvModEventChoiceInfo()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiResourceYield);
+	SAFE_DELETE_ARRAY(m_paLinkerInfo);
 }
 //------------------------------------------------------------------------------
 bool CvModEventChoiceInfo::isParentEvent(EventTypes eEvent) const
@@ -8769,66 +8721,6 @@ bool CvModEventChoiceInfo::isSuperUnhappy() const
 	return m_bSuperUnhappy;
 }
 //------------------------------------------------------------------------------
-int CvModEventChoiceInfo::getRequiredActiveEvent() const
-{
-	return m_iRequiredActiveEvent;
-}
-//------------------------------------------------------------------------------
-int CvModEventChoiceInfo::getRequiredActiveEventChoice() const
-{
-	return m_iRequiredActiveEventChoice;
-}
-//------------------------------------------------------------------------------
-int CvModEventChoiceInfo::getRequiredActiveCityEvent() const
-{
-	return m_iRequiredActiveCityEvent;
-}
-//------------------------------------------------------------------------------
-int CvModEventChoiceInfo::getRequiredActiveCityEventChoice() const
-{
-	return m_iRequiredActiveCityEventChoice;
-}
-//------------------------------------------------------------------------------
-int CvModEventChoiceInfo::getRequiredNoActiveCityEvent() const
-{
-	return m_iRequiredNoActiveCityEvent;
-}
-//------------------------------------------------------------------------------
-int CvModEventChoiceInfo::getRequiredNoActiveCityEventChoice() const
-{
-	return m_iRequiredNoActiveCityEventChoice;
-}
-//------------------------------------------------------------------------------
-int CvModEventChoiceInfo::getRequiredNoActiveEvent() const
-{
-	return m_iRequiredNoActiveEvent;
-}
-//------------------------------------------------------------------------------
-int CvModEventChoiceInfo::getRequiredNoActiveEventChoice() const
-{
-	return m_iRequiredNoActiveEventChoice;
-}
-//------------------------------------------------------------------------------
-int CvModEventChoiceInfo::getRequiredActiveOtherPlayerEvent() const
-{
-	return m_iRequiredActiveEventOtherPlayer;
-}
-//------------------------------------------------------------------------------
-int CvModEventChoiceInfo::getRequiredActiveOtherPlayerEventChoice() const
-{
-	return m_iRequiredActiveEventChoiceOtherPlayer;
-}
-//------------------------------------------------------------------------------
-int CvModEventChoiceInfo::getRequiredNoActiveOtherPlayerEvent() const
-{
-	return m_iRequiredNoActiveEventOtherPlayer;
-}
-//------------------------------------------------------------------------------
-int CvModEventChoiceInfo::getRequiredNoActiveOtherPlayerEventChoice() const
-{
-	return m_iRequiredNoActiveEventChoiceOtherPlayer;
-}
-//------------------------------------------------------------------------------
 bool CvModEventChoiceInfo::isOneShot() const
 {
 	return m_bOneShot;
@@ -8890,7 +8782,7 @@ const char* CvModEventChoiceInfo::getDisabledTooltip() const
 }
 CvEventChoiceLinkingInfo *CvModEventChoiceInfo::GetLinkerInfo(int i) const
 {
-	CvAssertMsg(i < GC.getNumLinkerInfos(), "Index out of bounds");
+	CvAssertMsg(i < GC.getNumEventChoiceLinkingInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
 	if (m_paLinkerInfo[0].GetCityLinkingEvent() == -1 && m_paLinkerInfo[0].GetCityLinkingEventChoice() == -1 && m_paLinkerInfo[0].GetLinkingEvent() == -1 && m_paLinkerInfo[0].GetLinkingEventChoice() == -1)
@@ -9259,43 +9151,6 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 	szTextVal = kResults.GetText("RequiredStateReligion");
 	m_iRequiredStateReligion =  GC.getInfoTypeForString(szTextVal, true);
 
-	szTextVal = kResults.GetText("RequiredActiveEvent");
-	m_iRequiredActiveEvent =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveEventChoice");
-	m_iRequiredActiveEventChoice =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveCityEvent");
-	m_iRequiredActiveCityEvent =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveCityEventChoice");
-	m_iRequiredActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActiveCityEvent");
-	m_iRequiredNoActiveCityEvent =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActiveCityEventChoice");
-	m_iRequiredNoActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActivePlayerEvent");
-	m_iRequiredNoActiveEvent =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActivePlayerEventChoice");
-	m_iRequiredNoActiveEventChoice =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveEventOtherPlayer");
-	m_iRequiredActiveEventOtherPlayer =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveEventChoiceOtherPlayer");
-	m_iRequiredActiveEventChoiceOtherPlayer =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActiveEventOtherPlayer");
-	m_iRequiredNoActiveEventOtherPlayer =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActiveEventChoiceOtherPlayer");
-	m_iRequiredNoActiveEventChoiceOtherPlayer=  GC.getInfoTypeForString(szTextVal, true);
-
-
 	m_bHasStateReligion = kResults.GetBool("RequiresAnyStateReligion");
 
 	m_bUnhappy = kResults.GetBool("IsUnhappy");
@@ -9347,10 +9202,6 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_bSuperUnhappy(false),
 	 m_strSplashArt(""),
 	 m_strEventAudio(""),
-	 m_iRequiredActiveEvent(-1),
-	 m_iRequiredActiveEventChoice(-1),
-	 m_iRequiredActiveCityEvent(-1),
-	 m_iRequiredActiveCityEventChoice(-1),
 	 m_bIsResistance(false),
 	 m_bIsWLTKD(false),
 	 m_bIsOccupied(false),
@@ -9375,24 +9226,15 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_bHasPlayerMajority(false),
 	 m_bLacksPlayerReligion(false),
 	 m_bLacksPlayerMajority(false),
-	 m_iRequiredActiveEventOtherPlayer(-1),
-	 m_iRequiredActiveEventChoiceOtherPlayer(-1),
-	 m_iRequiredNoActiveEventOtherPlayer(-1),
-	 m_iRequiredNoActiveEventChoiceOtherPlayer(-1),
-	 m_iRequiredNoActiveEvent(-1),
-	 m_iRequiredNoActiveEventChoice(-1),
-	 m_iRequiredNoActiveCityEvent(-1),
-	 m_iRequiredNoActiveCityEventChoice(-1),
-	 m_iRequiredNoActiveCityEventAnywhere(-1),
-	 m_iRequiredNoActiveCityEventChoiceAnywhere(-1),
-	 m_iRequiredActiveCityEventAnywhere(-1),
-	 m_iRequiredActiveCityEventChoiceAnywhere(-1)
+	 m_paCityLinkerInfo(NULL),
+	 m_iCityLinkerInfos(0)
 {
 }
 //------------------------------------------------------------------------------
 CvModCityEventInfo::~CvModCityEventInfo()
 {
 	SAFE_DELETE_ARRAY(m_piMinimumYield);
+	SAFE_DELETE_ARRAY(m_paCityLinkerInfo);
 }
 //------------------------------------------------------------------------------
 int CvModCityEventInfo::getEventClass() const
@@ -9567,87 +9409,6 @@ bool CvModCityEventInfo::isSuperUnhappy() const
 	return m_bSuperUnhappy;
 }
 //------------------------------------------------------------------------------
-int CvModCityEventInfo::getRequiredActiveEvent() const
-{
-	return m_iRequiredActiveEvent;
-}
-//------------------------------------------------------------------------------
-int CvModCityEventInfo::getRequiredActiveEventChoice() const
-{
-	return m_iRequiredActiveEventChoice;
-}
-//------------------------------------------------------------------------------
-int CvModCityEventInfo::getRequiredActiveCityEvent() const
-{
-	return m_iRequiredActiveCityEvent;
-}
-//------------------------------------------------------------------------------
-int CvModCityEventInfo::getRequiredActiveCityEventChoice() const
-{
-	return m_iRequiredActiveCityEventChoice;
-}
-//------------------------------------------------------------------------------
-int CvModCityEventInfo::getRequiredNoActiveCityEvent() const
-{
-	return m_iRequiredNoActiveCityEvent;
-}
-//------------------------------------------------------------------------------
-int CvModCityEventInfo::getRequiredNoActiveCityEventChoice() const
-{
-	return m_iRequiredNoActiveCityEventChoice;
-}
-//------------------------------------------------------------------------------
-int CvModCityEventInfo::getRequiredNoActiveCityEventAnywhere() const
-{
-	return m_iRequiredNoActiveCityEventAnywhere;
-}
-//------------------------------------------------------------------------------
-int CvModCityEventInfo::getRequiredNoActiveCityEventChoiceAnywhere() const
-{
-	return m_iRequiredNoActiveCityEventChoiceAnywhere;
-}
-//------------------------------------------------------------------------------
-int CvModCityEventInfo::getRequiredActiveCityEventAnywhere() const
-{
-	return m_iRequiredActiveCityEventAnywhere;
-}
-//------------------------------------------------------------------------------
-int CvModCityEventInfo::getRequiredActiveCityEventChoiceAnywhere() const
-{
-	return m_iRequiredActiveCityEventChoiceAnywhere;
-}
-//------------------------------------------------------------------------------
-int CvModCityEventInfo::getRequiredNoActivePlayerEvent() const
-{
-	return m_iRequiredNoActiveEvent;
-}
-//------------------------------------------------------------------------------
-int CvModCityEventInfo::getRequiredNoActivePlayerEventChoice() const
-{
-	return m_iRequiredNoActiveEventChoice;
-}
-
-//------------------------------------------------------------------------------
-int CvModCityEventInfo::getRequiredActiveOtherPlayerEvent() const
-{
-	return m_iRequiredActiveEventOtherPlayer;
-}
-//------------------------------------------------------------------------------
-int CvModCityEventInfo::getRequiredActiveOtherPlayerEventChoice() const
-{
-	return m_iRequiredActiveEventChoiceOtherPlayer;
-}
-//------------------------------------------------------------------------------
-int CvModCityEventInfo::getRequiredNoActiveOtherPlayerEvent() const
-{
-	return m_iRequiredNoActiveEventOtherPlayer;
-}
-//------------------------------------------------------------------------------
-int CvModCityEventInfo::getRequiredNoActiveOtherPlayerEventChoice() const
-{
-	return m_iRequiredNoActiveEventChoiceOtherPlayer;
-}
-//------------------------------------------------------------------------------
 int CvModCityEventInfo::getLocalResourceRequired() const
 {
 	return m_iLocalResourceRequired;
@@ -9774,7 +9535,7 @@ bool CvModCityEventInfo::lacksPlayerMajority() const
 }
 CvCityEventLinkingInfo *CvModCityEventInfo::GetLinkerInfo(int i) const
 {
-	CvAssertMsg(i < GC.getNumLinkerInfos(), "Index out of bounds");
+	CvAssertMsg(i < GC.getNumCityEventLinkingInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
 	if (m_paCityLinkerInfo[0].GetCityLinkingEvent() == -1 && m_paCityLinkerInfo[0].GetCityLinkingEventChoice() == -1 && m_paCityLinkerInfo[0].GetLinkingEvent() == -1 && m_paCityLinkerInfo[0].GetLinkingEventChoice() == -1)
@@ -9885,54 +9646,6 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 	szTextVal = kResults.GetText("RequiredStateReligion");
 	m_iRequiredStateReligion =  GC.getInfoTypeForString(szTextVal, true);
 
-	szTextVal = kResults.GetText("RequiredActiveEvent");
-	m_iRequiredActiveEvent =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveEventChoice");
-	m_iRequiredActiveEventChoice =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveCityEvent");
-	m_iRequiredActiveCityEvent =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveCityEventChoice");
-	m_iRequiredActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActiveCityEvent");
-	m_iRequiredNoActiveCityEvent =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActiveCityEventChoice");
-	m_iRequiredNoActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActiveCityEventAnywhere");
-	m_iRequiredNoActiveCityEventAnywhere =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActiveCityEventChoiceAnywhere");
-	m_iRequiredNoActiveCityEventChoiceAnywhere =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveCityEventAnywhere");
-	m_iRequiredActiveCityEventAnywhere =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveCityEventChoiceAnywhere");
-	m_iRequiredActiveCityEventChoiceAnywhere =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActivePlayerEvent");
-	m_iRequiredNoActiveEvent =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActivePlayerEventChoice");
-	m_iRequiredNoActiveEventChoice =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActivePlayerEventOtherPlayer");
-	m_iRequiredActiveEventOtherPlayer =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActivePlayerEventChoiceOtherPlayer");
-	m_iRequiredActiveEventChoiceOtherPlayer =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActivePlayerEventOtherPlayer");
-	m_iRequiredNoActiveEventOtherPlayer =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActivePlayerEventChoiceOtherPlayer");
-	m_iRequiredNoActiveEventChoiceOtherPlayer=  GC.getInfoTypeForString(szTextVal, true);
-
 	szTextVal = kResults.GetText("CityEventAudio");
 	m_strEventAudio = szTextVal;
 
@@ -10042,10 +9755,6 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_piConvertReligionPercent(NULL),
 	 m_piBuildingDestructionChance(NULL),
 	 m_iLocalResourceRequired(-1),
-	 m_iRequiredActiveEvent(-1),
-	 m_iRequiredActiveEventChoice(-1),
-	 m_iRequiredActiveCityEvent(-1),
-	 m_iRequiredActiveCityEventChoice(-1),
 	 m_bIsResistance(false),
 	 m_bIsWLTKD(false),
 	 m_bIsOccupied(false),
@@ -10079,21 +9788,15 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iCityHappiness(0),
 	 m_piResourceChange(NULL),
 	 m_piCityUnhappinessNeedMod(NULL),
-	 m_iRequiredActiveEventOtherPlayer(-1),
-	 m_iRequiredActiveEventChoiceOtherPlayer(-1),
-	 m_iRequiredNoActiveEventOtherPlayer(-1),
-	 m_iRequiredNoActiveEventChoiceOtherPlayer(-1),
-	 m_iRequiredNoActiveEvent(-1),
-	 m_iRequiredNoActiveEventChoice(-1),
-	 m_iRequiredNoActiveCityEvent(-1),
-	 m_iRequiredNoActiveCityEventChoice(-1),
 	 m_strDisabledTooltip(""),
 	 m_iConvertsCityToPlayerReligion(0),
 	 m_iConvertsCityToPlayerMajorityReligion(0),
 	 m_bHasPlayerReligion(false),
 	 m_bLacksPlayerReligion(false),
 	 m_bHasPlayerMajority(false),
-	 m_bLacksPlayerMajority(false)
+	 m_bLacksPlayerMajority(false),
+	 m_paCityLinkerInfo(NULL),
+	 m_iCityLinkerInfos(0)
 {
 }
 //------------------------------------------------------------------------------
@@ -10121,6 +9824,7 @@ CvModEventCityChoiceInfo::~CvModEventCityChoiceInfo()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiResourceYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYield);
+	SAFE_DELETE_ARRAY(m_paCityLinkerInfo);
 }
 //------------------------------------------------------------------------------
 bool CvModEventCityChoiceInfo::isParentEvent(CityEventTypes eCityEvent) const
@@ -10296,7 +10000,7 @@ CvCityEventNotificationInfo *CvModEventCityChoiceInfo::GetNotificationInfo(int i
 
 CvCityEventChoiceLinkingInfo *CvModEventCityChoiceInfo::GetLinkerInfo(int i) const
 {
-	CvAssertMsg(i < GC.getNumLinkerInfos(), "Index out of bounds");
+	CvAssertMsg(i < GC.getNumCityEventChoiceLinkingInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
 	if (m_paCityLinkerInfo[0].GetCityLinkingEvent() == -1 && m_paCityLinkerInfo[0].GetCityLinkingEventChoice() == -1 && m_paCityLinkerInfo[0].GetLinkingEvent() == -1 && m_paCityLinkerInfo[0].GetLinkingEventChoice() == -1)
@@ -10556,67 +10260,6 @@ bool CvModEventCityChoiceInfo::isUnhappy() const
 bool CvModEventCityChoiceInfo::isSuperUnhappy() const
 {
 	return m_bSuperUnhappy;
-}
-//------------------------------------------------------------------------------
-int CvModEventCityChoiceInfo::getRequiredActiveEvent() const
-{
-	return m_iRequiredActiveEvent;
-}
-//------------------------------------------------------------------------------
-int CvModEventCityChoiceInfo::getRequiredActiveEventChoice() const
-{
-	return m_iRequiredActiveEventChoice;
-}
-//------------------------------------------------------------------------------
-int CvModEventCityChoiceInfo::getRequiredActiveCityEvent() const
-{
-	return m_iRequiredActiveCityEvent;
-}
-//------------------------------------------------------------------------------
-int CvModEventCityChoiceInfo::getRequiredActiveCityEventChoice() const
-{
-	return m_iRequiredActiveCityEventChoice;
-}
-//------------------------------------------------------------------------------
-int CvModEventCityChoiceInfo::getRequiredNoActiveCityEvent() const
-{
-	return m_iRequiredNoActiveCityEvent;
-}
-//------------------------------------------------------------------------------
-int CvModEventCityChoiceInfo::getRequiredNoActiveCityEventChoice() const
-{
-	return m_iRequiredNoActiveCityEventChoice;
-}
-//------------------------------------------------------------------------------
-int CvModEventCityChoiceInfo::getRequiredNoActivePlayerEvent() const
-{
-	return m_iRequiredNoActiveEvent;
-}
-//------------------------------------------------------------------------------
-int CvModEventCityChoiceInfo::getRequiredNoActivePlayerEventChoice() const
-{
-	return m_iRequiredNoActiveEventChoice;
-}
-
-//------------------------------------------------------------------------------
-int CvModEventCityChoiceInfo::getRequiredActiveOtherPlayerEvent() const
-{
-	return m_iRequiredActiveEventOtherPlayer;
-}
-//------------------------------------------------------------------------------
-int CvModEventCityChoiceInfo::getRequiredActiveOtherPlayerEventChoice() const
-{
-	return m_iRequiredActiveEventChoiceOtherPlayer;
-}
-//------------------------------------------------------------------------------
-int CvModEventCityChoiceInfo::getRequiredNoActiveOtherPlayerEvent() const
-{
-	return m_iRequiredNoActiveEventOtherPlayer;
-}
-//------------------------------------------------------------------------------
-int CvModEventCityChoiceInfo::getRequiredNoActiveOtherPlayerEventChoice() const
-{
-	return m_iRequiredNoActiveEventChoiceOtherPlayer;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getLocalResourceRequired() const
@@ -11077,42 +10720,6 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 
 	szTextVal = kResults.GetText("RequiredStateReligion");
 	m_iRequiredStateReligion =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveEvent");
-	m_iRequiredActiveEvent =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveEventChoice");
-	m_iRequiredActiveEventChoice =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveCityEvent");
-	m_iRequiredActiveCityEvent =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActiveCityEventChoice");
-	m_iRequiredActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
-	
-	szTextVal = kResults.GetText("RequiredNoActiveCityEvent");
-	m_iRequiredNoActiveCityEvent =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActiveCityEventChoice");
-	m_iRequiredNoActiveCityEventChoice =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActivePlayerEvent");
-	m_iRequiredNoActiveEvent =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActivePlayerEventChoice");
-	m_iRequiredNoActiveEventChoice =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActivePlayerEventOtherPlayer");
-	m_iRequiredActiveEventOtherPlayer =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredActivePlayerEventChoiceOtherPlayer");
-	m_iRequiredActiveEventChoiceOtherPlayer =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActivePlayerEventOtherPlayer");
-	m_iRequiredNoActiveEventOtherPlayer =  GC.getInfoTypeForString(szTextVal, true);
-
-	szTextVal = kResults.GetText("RequiredNoActivePlayerEventChoiceOtherPlayer");
-	m_iRequiredNoActiveEventChoiceOtherPlayer=  GC.getInfoTypeForString(szTextVal, true);
 
 	szTextVal = kResults.GetText("NearbyFeature");
 	m_iNearbyFeature =  GC.getInfoTypeForString(szTextVal, true);

@@ -156,7 +156,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders)
 			int iFlavorWonder = kOwner.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
 			int iFlavorGP = kOwner.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GREAT_PEOPLE"));
 			int iFlavor = (iFlavorWonder > iFlavorGP ) ? iFlavorWonder : iFlavorGP;
-			if (GC.getGame().getRandNum(11, "Random roll for whether to continue building wonders") <= iFlavor)
+			if (GC.getGame().getJonRandNum(11, "Random roll for whether to continue building wonders") <= iFlavor)
 				bBuildWonder = true;
 #if defined(MOD_AI_SMART_V3)
 			}
@@ -359,7 +359,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 					{
 						if(IsCityEventChoiceValid(eEventChoice, eChosenEvent))
 						{
-							int iRandom = GC.getGame().getRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
+							int iRandom = GC.getGame().getJonRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
 							if(iRandom <= 0)
 							{
 								iRandom = 1;
