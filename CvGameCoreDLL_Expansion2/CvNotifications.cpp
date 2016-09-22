@@ -573,6 +573,9 @@ bool CvNotifications::MayUserDismiss(int iLookupIndex)
 			case NOTIFICATION_CHOOSE_ARCHAEOLOGY:
 			case NOTIFICATION_LEAGUE_CALL_FOR_VOTES:
 			case NOTIFICATION_CHOOSE_IDEOLOGY:
+#if defined(MOD_BALANCE_CORE)
+			case NOTIFICATION_PLAYER_DEAL_RECEIVED:
+#endif
 				return false;
 				break;
 
@@ -1872,6 +1875,10 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		{
 			// JdH =>
 			PlayerTypes eFrom = static_cast<PlayerTypes>(m_aNotifications[iIndex].m_iX);
+			if (!GET_PLAYER(m_ePlayer).GetDiplomacyRequests()->HasActiveRequestFrom(eFrom))
+			{
+				return true;
+			}
 			if (m_aNotifications[iIndex].m_iY != -1 /* no deal request */) // TODO: check if pvp deals really use m_iY == -1
 			{
 				return false;

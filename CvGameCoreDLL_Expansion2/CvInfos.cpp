@@ -5764,6 +5764,14 @@ CvYieldInfo::CvYieldInfo() :
 	m_iPopulationChangeOffset(0),
 	m_iPopulationChangeDivisor(0),
 	m_iMinCity(0),
+#if defined(MOD_BALANCE_CORE)
+	m_iMinCityFlatFreshWater(0),
+	m_iMinCityFlatNoFreshWater(0),
+	m_iMinCityHillFreshWater(0),
+	m_iMinCityHillNoFreshWater(0),
+	m_iMinCityMountainFreshWater(0),
+	m_iMinCityMountainNoFreshWater(0),
+#endif
 	m_iGoldenAgeYield(0),
 	m_iGoldenAgeYieldThreshold(0),
 	m_iGoldenAgeYieldMod(0),
@@ -5817,6 +5825,38 @@ int CvYieldInfo::getMinCity() const
 {
 	return m_iMinCity;
 }
+#if defined (MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvYieldInfo::getMinCityFlatFreshWater() const
+{
+	return m_iMinCityFlatFreshWater;
+}
+//------------------------------------------------------------------------------
+int CvYieldInfo::getMinCityFlatNoFreshWater() const
+{
+	return m_iMinCityFlatNoFreshWater;
+}
+//------------------------------------------------------------------------------
+int CvYieldInfo::getMinCityHillFreshWater() const
+{
+	return m_iMinCityHillFreshWater;
+}
+//------------------------------------------------------------------------------
+int CvYieldInfo::getMinCityHillNoFreshWater() const
+{
+	return m_iMinCityHillNoFreshWater;
+}
+//------------------------------------------------------------------------------
+int CvYieldInfo::getMinCityMountainFreshWater() const
+{
+	return m_iMinCityMountainFreshWater;
+}
+//------------------------------------------------------------------------------
+int CvYieldInfo::getMinCityMountainNoFreshWater() const
+{
+	return m_iMinCityMountainNoFreshWater;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvYieldInfo::getGoldenAgeYield() const
 {
@@ -5854,6 +5894,14 @@ bool CvYieldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	kResults.GetValue("PopulationChangeOffset", m_iPopulationChangeOffset);
 	kResults.GetValue("PopulationChangeDivisor", m_iPopulationChangeDivisor);
 	kResults.GetValue("MinCity", m_iMinCity);
+#if defined(MOD_BALANCE_CORE)
+	kResults.GetValue("MinCityFlatFreshWater", m_iMinCityFlatFreshWater);
+	kResults.GetValue("MinCityFlatNoFreshWater", m_iMinCityFlatNoFreshWater);
+	kResults.GetValue("MinCityHillFreshWater", m_iMinCityHillFreshWater);
+	kResults.GetValue("MinCityHillNoFreshWater", m_iMinCityHillNoFreshWater);
+	kResults.GetValue("MinCityMountainFreshWater", m_iMinCityMountainFreshWater);
+	kResults.GetValue("MinCityMountainNoFreshWater", m_iMinCityMountainNoFreshWater);
+#endif
 	kResults.GetValue("GoldenAgeYield", m_iGoldenAgeYield);
 	kResults.GetValue("GoldenAgeYieldThreshold", m_iGoldenAgeYieldThreshold);
 	kResults.GetValue("GoldenAgeYieldMod", m_iGoldenAgeYieldMod);

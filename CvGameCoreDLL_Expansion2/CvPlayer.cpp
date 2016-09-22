@@ -3855,7 +3855,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				else if(GetPlayerTraits()->IsKeepConqueredBuildings())
 				{
 					//If we keep buildings, but we have a replacement, grab the replacement instead.
-					if (playerCivilizationInfo.isCivilizationBuildingOverridden(iI))
+					if (playerCivilizationInfo.isCivilizationBuildingOverridden(eBuildingClass))
 					{
 						eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
 					}
@@ -7502,9 +7502,18 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		}
 		if(!bHas)
 		{
-			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_UNITCLASS_TYPE");
-			localizedDurationText << GC.getUnitClassInfo((UnitClassTypes)pkEventInfo->getUnitTypeRequired())->GetDescription();
-			DisabledTT += localizedDurationText.toUTF8();
+			CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+
+			if (pCivilizationInfo != NULL)
+			{
+				UnitTypes eUnitType = (UnitTypes)pCivilizationInfo->getCivilizationUnits((UnitClassTypes)pkEventInfo->getUnitTypeRequired());
+				if (eUnitType != NO_UNIT)
+				{
+					localizedDurationText = Localization::Lookup("TXT_KEY_NEED_UNITCLASS_TYPE");
+					localizedDurationText << GC.getUnitInfo(eUnitType)->GetDescription();
+					DisabledTT += localizedDurationText.toUTF8();
+				}
+			}
 		}
 	}
 
@@ -7668,9 +7677,18 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 			}
 			if(!bHas)
 			{
-				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS");
-				localizedDurationText << GC.getBuildingClassInfo((BuildingClassTypes)pkEventInfo->getBuildingRequired())->GetDescription();
-				DisabledTT += localizedDurationText.toUTF8();
+				CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+
+				if (pCivilizationInfo != NULL)
+				{
+					BuildingTypes eBuildingType = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings((BuildingClassTypes)pkEventInfo->getBuildingRequired());
+					if (eBuildingType != NO_BUILDING)
+					{
+						localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS");
+						localizedDurationText << GC.getBuildingInfo(eBuildingType)->GetDescription();
+						DisabledTT += localizedDurationText.toUTF8();
+					}
+				}
 			}
 		}
 	}
@@ -7692,9 +7710,18 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 			}
 			if(bHas)
 			{
-				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_BUILDING_CLASS");
-				localizedDurationText << GC.getBuildingClassInfo((BuildingClassTypes)pkEventInfo->getBuildingLimiter())->GetDescription();
-				DisabledTT += localizedDurationText.toUTF8();
+				CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(getCivilizationType());
+
+				if (pCivilizationInfo != NULL)
+				{
+					BuildingTypes eBuildingType = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings((BuildingClassTypes)pkEventInfo->getBuildingLimiter());
+					if (eBuildingType != NO_BUILDING)
+					{
+						localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_BUILDING_CLASS");
+						localizedDurationText << GC.getBuildingInfo(eBuildingType)->GetDescription();
+						DisabledTT += localizedDurationText.toUTF8();
+					}
+				}
 			}
 		}
 	}
@@ -13429,18 +13456,25 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 			{
 #if defined(MOD_BUGFIX_MINOR)
 				// Fix the bug where the AI won't get anything for Goody Hut pickers!!!
-				if (pUnit && pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_GOODY_HUT_PICKER()) && GC.getGame().getActivePlayer() == GetID())
-				{
+				if (pUnit && pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_GOODY_HUT_PICKER()) && GET_PLAYER(pUnit->getOwner()).isHuman())
 #else
 				if (pUnit && pUnit->isHasPromotion((PromotionTypes)GC.getPROMOTION_GOODY_HUT_PICKER()))
-				{
-					if(GC.getGame().getActivePlayer() == GetID())
 #endif
+				{
+					if (GC.getGame().getActivePlayer() == GetID())
+
 					{
 						CvPopupInfo kPopupInfo(BUTTONPOPUP_CHOOSE_GOODY_HUT_REWARD, GetID(), pUnit->GetID());
 						GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
 						// We are adding a popup that the player must make a choice in, make sure they are not in the end-turn phase.
+#if defined(MOD_BUGFIX_MINOR)
+						if (!GC.getGame().isReallyNetworkMultiPlayer())
+						{
+							CancelActivePlayerEndTurn();
+						}
+#else
 						CancelActivePlayerEndTurn();
+#endif
 					}
 				}
 				else
@@ -38482,6 +38516,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								else
 								{
 									pNewUnit = initUnit(eUnit, iX, iY);
+									getCapitalCity()->addProductionExperience(pNewUnit);
 								}
 
 								CvAssert(pNewUnit);
@@ -38649,6 +38684,391 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									else
 									{
 										pNewUnit->jumpToNearestValidPlot();
+									}
+								}
+							}
+						}
+					}
+				}
+				int iNumFreeCombatLandUnits = pPolicy->GetBestNumberLandCombatUnitClass();
+				CvCity* pCapital = getCapitalCity();
+				if(iNumFreeCombatLandUnits > 0)
+				{
+					UnitTypes eBestLandUnit = NO_UNIT;
+					int iStrengthBestLandCombat = 0;
+					for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+					{
+						const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+						if(pkUnitClassInfo)
+						{
+							const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
+							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+							if(pUnitEntry)
+							{
+								if(!pCapital->canTrain(eUnit))
+								{
+									continue;
+								}
+								if(pUnitEntry->GetRangedCombat() > 0)
+								{
+									continue;
+								}
+								if(pUnitEntry->GetDomainType() == DOMAIN_LAND)
+								{
+									bool bBad = false;
+									ResourceTypes eResource;
+									for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+									{
+										eResource = (ResourceTypes) iResourceLoop;
+										int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
+										if (iNumResource > 0)
+										{
+											if(getNumResourceAvailable(eResource, true) < iNumResource)
+											{
+												bBad = true;
+												break;
+											}
+										}
+									}
+									if(bBad)
+									{
+										continue;
+									}
+									int iCombatLandStrength = (std::max(1, pUnitEntry->GetCombat()));
+									if(iCombatLandStrength > iStrengthBestLandCombat)
+									{
+										iStrengthBestLandCombat = iCombatLandStrength;
+										eBestLandUnit = eUnit;
+									}
+								}
+							}
+						}
+					}
+					if(eBestLandUnit != NO_UNIT)
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeCombatLandUnits; iUnitLoop++)
+						{
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestLandUnit);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eBestLandUnit, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeCombatLandUnits; iUnitLoop++)
+						{
+							UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eWarrior);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eWarrior, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+				}
+				int iNumFreeRangedLandUnits = pPolicy->GetBestNumberLandRangedUnitClass();
+				if(iNumFreeRangedLandUnits > 0)
+				{
+					UnitTypes eBestLandRangedUnit = NO_UNIT;
+					int iStrengthBestLandRanged = 0;
+					for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+					{
+						const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+						if(pkUnitClassInfo)
+						{
+							const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
+							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+							if(pUnitEntry)
+							{
+								if(!pCapital->canTrain(eUnit))
+								{
+									continue;
+								}
+								if(pUnitEntry->GetDomainType() == DOMAIN_LAND && pUnitEntry->GetRangedCombat() > 0)
+								{
+									bool bBad = false;
+									ResourceTypes eResource;
+									for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+									{
+										eResource = (ResourceTypes) iResourceLoop;
+										int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
+										if (iNumResource > 0)
+										{
+											if(getNumResourceAvailable(eResource, true) < iNumResource)
+											{
+												bBad = true;
+												break;
+											}
+										}
+									}
+									if(bBad)
+									{
+										continue;
+									}
+									int iCombatLandRangedStrength = (std::max(1, pUnitEntry->GetRangedCombat()));
+									if(iCombatLandRangedStrength > iStrengthBestLandRanged)
+									{
+										iStrengthBestLandRanged = iCombatLandRangedStrength;
+										eBestLandRangedUnit = eUnit;
+									}
+								}
+							}
+						}
+					}
+					if(eBestLandRangedUnit != NO_UNIT)
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeRangedLandUnits; iUnitLoop++)
+						{
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestLandRangedUnit);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eBestLandRangedUnit, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeRangedLandUnits; iUnitLoop++)
+						{
+							UnitTypes eArcher = (UnitTypes)GC.getInfoTypeForString("UNIT_ARCHER");
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eArcher);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eArcher, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+				}
+				int iNumFreeCombatSeaUnits = pPolicy->GetBestNumberSeaCombatUnitClass();
+				if(iNumFreeCombatSeaUnits > 0 && pCapital->isCoastal())
+				{
+					UnitTypes eBestSeaUnit = NO_UNIT;
+					int iStrengthBestSeaCombat = 0;
+					for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+					{
+						const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+						if(pkUnitClassInfo)
+						{
+							const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
+							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+							if(pUnitEntry)
+							{
+								if(!pCapital->canTrain(eUnit))
+								{
+									continue;
+								}
+								if(pUnitEntry->GetRangedCombat() > 0)
+								{
+									continue;
+								}
+								if(pUnitEntry->GetDomainType() == DOMAIN_SEA)
+								{
+									bool bBad = false;
+									ResourceTypes eResource;
+									for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+									{
+										eResource = (ResourceTypes) iResourceLoop;
+										int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
+										if (iNumResource > 0)
+										{
+											if(getNumResourceAvailable(eResource, true) < iNumResource)
+											{
+												bBad = true;
+												break;
+											}
+										}
+									}
+									if(bBad)
+									{
+										continue;
+									}
+									int iCombatSeaStrength = (std::max(1, pUnitEntry->GetCombat()));
+									if(iCombatSeaStrength > iStrengthBestSeaCombat)
+									{
+										iStrengthBestSeaCombat = iCombatSeaStrength;
+										eBestSeaUnit = eUnit;
+									}
+								}
+							}
+						}
+					}
+					if(eBestSeaUnit != NO_UNIT)
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeCombatSeaUnits; iUnitLoop++)
+						{
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestSeaUnit);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eBestSeaUnit, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeCombatSeaUnits; iUnitLoop++)
+						{
+							UnitTypes eCaravel = (UnitTypes)GC.getInfoTypeForString("UNIT_CARAVEL");
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eCaravel);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eCaravel, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+				}
+				int iNumFreeRangedSeaUnits = pPolicy->GetBestNumberSeaRangedUnitClass();
+				if(iNumFreeRangedSeaUnits > 0 && pCapital->isCoastal())
+				{
+					UnitTypes eBestSeaRangedUnit = NO_UNIT;
+					int iStrengthBestSeaRanged = 0;
+					for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+					{
+						const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+						if(pkUnitClassInfo)
+						{
+							const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
+							CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+							if(pUnitEntry)
+							{
+								if(!pCapital->canTrain(eUnit))
+								{
+									continue;
+								}
+								if(pUnitEntry->GetDomainType() == DOMAIN_SEA && pUnitEntry->GetRangedCombat() > 0)
+								{
+									bool bBad = false;
+									ResourceTypes eResource;
+									for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+									{
+										eResource = (ResourceTypes) iResourceLoop;
+										int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
+										if (iNumResource > 0)
+										{
+											if(getNumResourceAvailable(eResource, true) < iNumResource)
+											{
+												bBad = true;
+												break;
+											}
+										}
+									}
+									if(bBad)
+									{
+										continue;
+									}
+									int iCombatSeaRangedStrength = (std::max(1, pUnitEntry->GetRangedCombat()));
+									if(iCombatSeaRangedStrength > iStrengthBestSeaRanged)
+									{
+										iStrengthBestSeaRanged = iCombatSeaRangedStrength;
+										eBestSeaRangedUnit = eUnit;
+									}
+								}
+							}
+						}
+					}
+					if(eBestSeaRangedUnit != NO_UNIT)
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeRangedSeaUnits; iUnitLoop++)
+						{
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestSeaRangedUnit);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eBestSeaRangedUnit, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						for(int iUnitLoop = 0; iUnitLoop < iNumFreeRangedSeaUnits; iUnitLoop++)
+						{
+							UnitTypes eGalleass = (UnitTypes)GC.getInfoTypeForString("UNIT_GALLEASS");
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eGalleass);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = pCapital->CreateUnit(eGalleass, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit = getUnit(iResult);
+									if (!pUnit->jumpToNearestValidPlot())
+									{
+										pUnit->kill(false);	// Could not find a valid spot!
 									}
 								}
 							}
@@ -39024,22 +39444,27 @@ bool CvPlayer::HasActiveDiplomacyRequests() const
 	CvDiplomacyRequests* pkDiploRequests = GetDiplomacyRequests();
 	if(pkDiploRequests && pkDiploRequests->HasActiveRequest())
 		return true;
-
-	// Do I have any for others?
-	for(int i = 0; i < MAX_PLAYERS; ++i)
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	if (!MOD_ACTIVE_DIPLOMACY || !GC.getGame().isReallyNetworkMultiPlayer())
 	{
-		const CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)i);
-		if(kPlayer.isAlive())
+#endif
+		// Do I have any for others?
+		for (int i = 0; i < MAX_PLAYERS; ++i)
 		{
-			pkDiploRequests = kPlayer.GetDiplomacyRequests();
-			if(pkDiploRequests)
+			const CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)i);
+			if (kPlayer.isAlive())
 			{
-				if(pkDiploRequests->HasActiveRequestFrom(ePlayer))
-					return true;
+				pkDiploRequests = kPlayer.GetDiplomacyRequests();
+				if (pkDiploRequests)
+				{
+					if (pkDiploRequests->HasActiveRequestFrom(ePlayer))
+						return true;
+				}
 			}
 		}
+#if defined(MOD_ACTIVE_DIPLOMACY)
 	}
-
+#endif
 	return false;
 }
 
@@ -39532,20 +39957,6 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 			}
 		}
 	}
-	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(pGreatPeopleUnit->getUnitClassType());
-	if (eGreatPerson != NO_GREATPERSON)
-	{
-		CvPlot* pPlot = GC.getMap().plot(iX, iY);
-		if (pPlot != NULL && pPlot->isCity() && pPlot->getOwner() == GetID())
-		{
-			doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pPlot->getPlotCity());
-		}
-		else if (getCapitalCity() != NULL)
-		{
-			doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, getCapitalCity());
-		}
-		doInstantGWAM(eGreatPerson, pGreatPeopleUnit->getUnitName());
-	}
 #endif
 	// Notification
 	if(GetNotifications())
@@ -39609,14 +40020,6 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 #endif
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(pGreatPeopleUnit->getUnitClassType());
-	if (eGreatPerson != NO_GREATPERSON)
-	{
-		doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pGreatPeopleUnit->plot()->getWorkingCity());
-		doInstantGWAM(eGreatPerson, pGreatPeopleUnit->getUnitName());
-	}
-#endif
 
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
@@ -41419,7 +41822,7 @@ bool CvPlayer::IsAllowedToTradeWith(PlayerTypes eOtherPlayer)
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	if (GET_PLAYER(eOtherPlayer).isMajorCiv() && GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsNoOpenTrade())
+	if (eOtherPlayer != m_eID && GET_PLAYER(eOtherPlayer).isMajorCiv() && GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsNoOpenTrade())
 	{
 		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eOtherPlayer, GetID(), true))
 			return false;

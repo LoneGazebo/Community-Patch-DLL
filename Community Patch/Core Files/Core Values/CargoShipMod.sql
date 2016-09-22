@@ -92,7 +92,3 @@ WHERE Tag IN (SELECT Help FROM Units WHERE SpecialCargo = 'SPECIALUNIT_CARGO_ARM
 UPDATE Language_en_US 
 SET Text = Text||(SELECT ' '||Text FROM Language_en_US WHERE Tag = 'TXT_KEY_ARMY_CARGO_UNIT_3')
 WHERE Tag IN (SELECT Help FROM Units WHERE SpecialCargo = 'SPECIALUNIT_CARGO_ARMY' AND Type IN (SELECT UnitType FROM Unit_FreePromotions WHERE PromotionType = 'PROMOTION_CARGO_III')) AND EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );
-
-UPDATE Language_en_US 
-SET Text = Text||(SELECT ' '||Text FROM Language_en_US WHERE Tag = 'TXT_KEY_ARMY_CARGO_UNIT_4')
-WHERE Tag IN (SELECT Help FROM Units WHERE SpecialCargo = 'SPECIALUNIT_CARGO_ARMY' AND Type IN (SELECT UnitType FROM Unit_FreePromotions WHERE PromotionType = 'PROMOTION_CARGO_IV')) AND EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );

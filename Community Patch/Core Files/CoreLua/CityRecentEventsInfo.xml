@@ -26,9 +26,9 @@
 			<PullDown  Anchor="L,C" Offset="20,0" Style="GenericPullDown" ScrollThreshold="110" Size="260,27" AutoSizePopUp="1" SpaceForScroll="1" ID="SortByPullDown" />
 		</Box>
 		
-		<ScrollPanel Anchor="L,T" Size="955,550" Offset="5,50" Vertical="1" ID="ItemScrollPanel" AutoScrollBar="0">
+		<ScrollPanel Anchor="L,T" Size="955,360" Offset="5,50" Vertical="1" ID="ItemScrollPanel" AutoScrollBar="0">
 			<!-- Scroll Controls -->
-			<ScrollBar Style="VertSlider" Length="525" Offset="0,18" Anchor="L,T" AnchorSide="I,I"/>
+			<ScrollBar Style="VertSlider" Length="360" Offset="0,18" Anchor="L,T" AnchorSide="I,I"/>
 			<UpButton Offset="0,0" Style="ScrollBarUp" Anchor="L,T" AnchorSide="I,I"/>
 			<DownButton Offset="0,0" Style="ScrollBarDown" Anchor="L,B" AnchorSide="I,I"/>
 			<Stack Anchor="L,T" Offset="18,0" StackGrowth="Bottom" Padding="0" ID="ItemStack">

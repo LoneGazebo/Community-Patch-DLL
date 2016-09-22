@@ -8938,7 +8938,13 @@ void CvPlot::setPlotCity(CvCity* pNewValue)
 					pLoopPlot->changePlayerCityRadiusCount(getPlotCity()->getOwner(), 1);
 				}
 			}
-
+#if defined(MOD_BALANCE_CORE)
+			if(isMountain())
+			{
+				ImprovementTypes eMachuPichu = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_JFD_MACHU_PICCHU");
+				setImprovementType(eMachuPichu);
+			}
+#endif
 			// Is a route is here?  If we already owned this plot, then we were paying maintenance, now we don't have to.
 			if(getRouteType() != NO_ROUTE && getPlotCity()->getOwner() == getOwner())
 			{
@@ -10311,19 +10317,35 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 #if defined(MOD_BALANCE_YIELD_SCALE_ERA)
 		if(MOD_BALANCE_YIELD_SCALE_ERA && pCity->plot() == this)
 		{
-			//Non-hill, non-freshwater city plots should make one extra gold
-			if(eYield == YIELD_GOLD && !isHills() && !isFreshWater())
+			//Flatland City Fresh Water yields
+			if(!isHills() && !isMountain() && isFreshWater())
 			{
-				iYield += 1;
+				iYield += kYield.getMinCityFlatFreshWater();
 			}
-			//Non-hill, freshwater plots should make one extra food
-			if(eYield == YIELD_FOOD && !isHills() && isFreshWater())
+			//Flatland City No Fresh Water yields
+			if(!isHills() && !isMountain() && !isFreshWater())
 			{
-				iYield += 1;
+				iYield += kYield.getMinCityFlatNoFreshWater();
 			}
-			if(eYield == YIELD_PRODUCTION && isMountain() && !isFreshWater())
+			// Hill City Fresh Water yields
+			if(isHills() && isFreshWater())
 			{
-				iYield += 2;
+				iYield +=kYield.getMinCityHillFreshWater();
+			}
+			// Hill City No Fresh Water yields
+			if(isHills() && !isFreshWater())
+			{
+				iYield += kYield.getMinCityHillNoFreshWater();
+			}
+			// Mountain City Fresh Water yields
+			if(isMountain() && isFreshWater())
+			{
+				iYield += kYield.getMinCityMountainFreshWater();
+			}
+			// Mountain City No Fresh Water yields
+			if(isMountain() && !isFreshWater())
+			{
+				iYield += kYield.getMinCityMountainNoFreshWater();
 			}
 		}
 #endif

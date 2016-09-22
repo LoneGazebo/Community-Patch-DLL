@@ -330,6 +330,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_paiHurryModifierLocal(NULL),
 	m_pbBuildingClassNeededAnywhere(NULL),
 	m_pbBuildingClassNeededNowhere(NULL),
+	m_piNumSpecFreeUnits(NULL),
 #endif
 	m_piNumFreeUnits(NULL),
 	m_bArtInfoEraVariation(false),
@@ -434,6 +435,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_paiHurryModifierLocal);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededAnywhere);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededNowhere);
+	SAFE_DELETE_ARRAY(m_piNumSpecFreeUnits);
 #endif
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
@@ -850,6 +852,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassNeededNowhere, "BuildingClasses", "Building_ClassNeededNowhere", "BuildingClassType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByValue(m_paiBuildingClassLocalHappiness, "BuildingClasses", "Building_BuildingClassLocalHappiness", "BuildingClassType", "BuildingType", szBuildingType, "Happiness");
 	kUtility.PopulateArrayByValue(m_paiSpecificGreatPersonRateModifier, "Specialists", "Building_SpecificGreatPersonRateModifier", "SpecialistType", "BuildingType", szBuildingType, "Modifier");
+	kUtility.PopulateArrayByValue(m_piNumSpecFreeUnits, "Units", "Building_FreeSpecUnits", "UnitType", "BuildingType", szBuildingType, "NumUnits");
 #endif
 	//kUtility.PopulateArrayByExistence(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByValue(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType, "NumUnits");
@@ -2958,6 +2961,13 @@ bool CvBuildingEntry::IsBuildingClassNeededNowhere(int i) const
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pbBuildingClassNeededNowhere ? m_pbBuildingClassNeededNowhere[i] : false;
+}
+// Free units which appear near the capital, can be any UnitType of other civs or not
+int CvBuildingEntry::GetNumFreeSpecialUnits(int i) const
+{
+	CvAssertMsg(i < GC.getNumUnitInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piNumSpecFreeUnits ? m_piNumSpecFreeUnits[i] : -1;
 }
 #endif
 /// Free units which appear near the capital

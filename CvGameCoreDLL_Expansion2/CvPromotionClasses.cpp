@@ -159,6 +159,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNearbyUnitClassBonusRange(0),
 	m_iCombatBonusFromNearbyUnitClass(NO_UNITCLASS),
 	m_iWonderProductionModifier(0),
+	m_bMountainsDoubleMove(false),
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	m_bCanCrossMountains(false),
@@ -350,6 +351,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iNearbyUnitClassBonusRange = kResults.GetInt("NearbyUnitClassBonusRange");
 	m_iNearbyUnitClassBonus = kResults.GetInt("NearbyUnitClassBonus");
 	m_iWonderProductionModifier = kResults.GetInt("WonderProductionModifier");
+	m_bMountainsDoubleMove = kResults.GetBool("MountainsDoubleMove");
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
 	if (MOD_PROMOTIONS_CROSS_MOUNTAINS) {
@@ -1741,6 +1743,11 @@ int CvPromotionEntry::GetNearbyUnitClassBonus() const
 int CvPromotionEntry::GetWonderProductionModifier() const
 {
 	return m_iWonderProductionModifier;
+}
+/// Accessor: Double movement in hills
+bool CvPromotionEntry::IsMountainsDoubleMove() const
+{
+	return m_bMountainsDoubleMove;
 }
 #endif
 

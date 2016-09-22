@@ -52,6 +52,9 @@
 	UPDATE Units SET OneShotTourismPercentOthers = '0' WHERE Type = 'UNIT_MUSICIAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	UPDATE Units SET OneShotTourism = '12' WHERE Type = 'UNIT_MUSICIAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+UPDATE Units
+SET SpecialCargo = 'SPECIALUNIT_CARGO_ARMY', DomainCargo = 'DOMAIN_LAND', CargoCombat = 20
+WHERE Type = 'UNIT_MISSILE_CRUISER' AND EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );
 
 INSERT INTO Unit_AITypes
 	(UnitType, UnitAIType)
@@ -73,6 +76,15 @@ VALUES
 	('UNIT_VENETIAN_GALLEASS', 'UNITAI_EXPLORE_SEA'),
 	('UNIT_CRUISER', 'UNITAI_EXPLORE_SEA');
 
+INSERT INTO Unit_FreePromotions
+		(UnitType,	PromotionType)
+SELECT	Type,		('PROMOTION_CARGO_IV')
+FROM Units WHERE (Class = 'UNITCLASS_MISSILE_CRUISER') AND EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );	
+
+UPDATE Language_en_US 
+SET Text = Text||(SELECT ' '||Text FROM Language_en_US WHERE Tag = 'TXT_KEY_ARMY_CARGO_UNIT_4')
+WHERE Tag IN (SELECT Help FROM Units WHERE SpecialCargo = 'SPECIALUNIT_CARGO_ARMY' AND Type IN (SELECT UnitType FROM Unit_FreePromotions WHERE PromotionType = 'PROMOTION_CARGO_IV')) AND EXISTS (SELECT * FROM CustomModOptions WHERE Name='CARGO_SHIPS' AND Value= 1 );
+	
 INSERT INTO Missions
 	(Type, Description, Help, DisabledHelp, EntityEventType, Time, Target, Build, Sound, HotKey, AltDown, ShiftDown, CtrlDown, HotKeyPriority, HotKeyAlt, AltDownAlt, ShiftDownAlt, CtrlDownAlt, HotKeyPriorityAlt, OrderPriority, Visible, IconIndex, IconAtlas)
 VALUES

@@ -151,6 +151,9 @@ CvDeal::CvDeal()
 	m_bConsideringForRenewal = false;
 	m_bCheckedForRenewal = false;
 	m_bDealCancelled = false;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_bIsGift = false;
+#endif
 }
 
 /// Constructor with typical parameters
@@ -162,6 +165,9 @@ CvDeal::CvDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 	m_bConsideringForRenewal = false;
 	m_bCheckedForRenewal = false;
 	m_bDealCancelled = false;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_bIsGift = false;
+#endif
 }
 
 /// Copy Constructor with typical parameters
@@ -179,6 +185,9 @@ CvDeal::CvDeal(const CvDeal& source)
 	m_bConsideringForRenewal = source.m_bConsideringForRenewal;
 	m_bCheckedForRenewal = source.m_bCheckedForRenewal;
 	m_bDealCancelled = source.m_bDealCancelled;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_bIsGift = source.m_bIsGift;
+#endif
 	m_TradedItems.clear();
 	TradedItemList::const_iterator it;
 	for(it = source.m_TradedItems.begin(); it != source.m_TradedItems.end(); ++it)
@@ -207,6 +216,9 @@ CvDeal& CvDeal::operator=(const CvDeal& source)
 	m_bConsideringForRenewal = source.m_bConsideringForRenewal;
 	m_bCheckedForRenewal = source.m_bCheckedForRenewal;
 	m_bDealCancelled = source.m_bDealCancelled;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_bIsGift = source.m_bIsGift;
+#endif
 	m_TradedItems.clear();
 	TradedItemList::const_iterator it;
 	for(it = source.m_TradedItems.begin(); it != source.m_TradedItems.end(); ++it)
@@ -228,6 +240,9 @@ void CvDeal::ClearItems()
 	m_bConsideringForRenewal = false;
 	m_bCheckedForRenewal = false;
 	m_bDealCancelled = false;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_bIsGift = false;
+#endif
 
 	SetPeaceTreatyType(NO_PEACE_TREATY_TYPE);
 	SetSurrenderingPlayer(NO_PLAYER);
@@ -2513,6 +2528,9 @@ FDataStream& OldLoad(FDataStream& loadFrom, CvDeal& writeTo)
 	loadFrom >> writeTo.m_iStartTurn;
 	loadFrom >> writeTo.m_bConsideringForRenewal;
 	loadFrom >> writeTo.m_bDealCancelled;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	loadFrom >> writeTo.m_bIsGift;
+#endif
 	loadFrom >> writeTo.m_ePeaceTreatyType;
 	loadFrom >> writeTo.m_eSurrenderingPlayer;
 	loadFrom >> writeTo.m_eDemandingPlayer;
@@ -2552,6 +2570,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvDeal& writeTo)
 		writeTo.m_bCheckedForRenewal = false;
 	}
 	loadFrom >> writeTo.m_bDealCancelled;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	loadFrom >> writeTo.m_bIsGift;
+#endif
 	loadFrom >> writeTo.m_ePeaceTreatyType;
 	loadFrom >> writeTo.m_eSurrenderingPlayer;
 	loadFrom >> writeTo.m_eDemandingPlayer;
@@ -2589,6 +2610,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvDeal& readFrom)
 	saveTo << readFrom.m_bConsideringForRenewal;
 	saveTo << readFrom.m_bCheckedForRenewal;
 	saveTo << readFrom.m_bDealCancelled;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	saveTo << readFrom.m_bIsGift;
+#endif
 	saveTo << readFrom.m_ePeaceTreatyType;
 	saveTo << readFrom.m_eSurrenderingPlayer;
 	saveTo << readFrom.m_eDemandingPlayer;
@@ -2864,7 +2888,15 @@ bool CvGameDeals::FinalizeMPDeal(CvDeal kDeal, bool bAccepted)
 		if(bValid && bAccepted)
 		{
 			FinalizeDealValidAndAccepted(eFromPlayer, eToPlayer, kDeal, bAccepted, veNowAtPeacePairs);
-			GET_PLAYER(eToPlayer).GetDiplomacyRequests()->CheckRemainingNotifications();
+			PlayerTypes eLoopPlayer;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				if (eLoopPlayer != NO_PLAYER)
+				{
+					GET_PLAYER(eLoopPlayer).GetDiplomacyRequests()->CheckRemainingNotifications();
+				}
+			}
 		}
 	}
 	
@@ -3619,7 +3651,6 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 		}
 		// **** END HACK ****
 
-
 		if(bValid && bAccepted)
 		{
 			// Determine total duration of the Deal
@@ -4337,6 +4368,8 @@ CvDeal* CvGameDeals::GetProposedMPDeal(PlayerTypes eFromPlayer, PlayerTypes eToP
 	{
 		CvDeal* pDeal = &m_ProposedDeals[i];
 		if (pDeal->GetFromPlayer() == eFromPlayer && pDeal->GetToPlayer() == eToPlayer)
+			return pDeal;
+		else if (pDeal->GetFromPlayer() == eToPlayer && pDeal->GetToPlayer() == eFromPlayer)
 			return pDeal;
 	}
 	return NULL;

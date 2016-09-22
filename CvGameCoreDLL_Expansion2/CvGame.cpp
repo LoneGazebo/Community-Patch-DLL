@@ -9314,7 +9314,7 @@ void CvGame::updateTimers()
 		}
 	}
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	if(!GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	if(!GC.getGame().isReallyNetworkMultiPlayer() || !MOD_ACTIVE_DIPLOMACY)
 	{
 		if(isHotSeat())
 		{
