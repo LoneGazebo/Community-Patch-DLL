@@ -448,9 +448,8 @@ CvAStarNode* CvAStar::GetBest()
 	//make sure heap order is valid after all the updates in the previous round
 	std::make_heap(m_openNodes.begin(),m_openNodes.end(),PrNodeIsBetter());
 
-	CvAStarNode* temp = m_openNodes.front();
 	std::pop_heap(m_openNodes.begin(),m_openNodes.end(),PrNodeIsBetter());
-	m_openNodes.pop_back();
+	CvAStarNode* temp = m_openNodes.back();	m_openNodes.pop_back();
 
 	udFunc(udNotifyList, NULL, temp, ASNL_DELETEOPEN, m_sData);
 
@@ -1661,7 +1660,7 @@ int StepAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFi
 int StepAddWithTurnsFromCost(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUserData&, CvAStar*)
 {
 	//assume a unit has 2*PATH_BASE_COST movement points per turn
-	node->m_iTurns = node->m_iKnownCost > 0 ? max(1,node->m_iKnownCost / (2 * PATH_BASE_COST)) : 0;
+	node->m_iTurns = (node->m_iKnownCost + PATH_BASE_COST) / (2 * PATH_BASE_COST);
 	node->m_iMoves = 0;
 	return 1;
 }
