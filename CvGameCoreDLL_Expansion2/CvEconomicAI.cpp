@@ -3341,7 +3341,7 @@ void CvEconomicAI::LogStrategy(EconomicAIStrategyTypes eStrategy, bool bValue)
 }
 
 /// Log that a strategy is being turned on or off
-void CvEconomicAI::LogScrapUnit(UnitHandle pUnit, int iNumWorkers, int iNumCities, int iNumImprovedPlots, int iNumValidPlots)
+void CvEconomicAI::LogScrapUnit(CvUnit* pUnit, int iNumWorkers, int iNumCities, int iNumImprovedPlots, int iNumValidPlots)
 {
 	if(!GC.getLogging() || !GC.getAILogging())
 	{

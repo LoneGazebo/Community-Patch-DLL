@@ -1469,10 +1469,10 @@ public:
 private:
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
 	bool ConvertBarbarianCamp(CvUnit* pByUnit, CvPlot* pPlot);
-	bool ConvertBarbarianNavalUnit(CvUnit* pByUnit, UnitHandle pUnit);
+	bool ConvertBarbarianNavalUnit(CvUnit* pByUnit, CvUnit* pUnit);
 #else
 	bool ConvertBarbarianCamp(CvPlot* pPlot);
-	bool ConvertBarbarianNavalUnit(UnitHandle pUnit);
+	bool ConvertBarbarianNavalUnit(CvUnit* pUnit);
 #endif
 
 	CvTraitXMLEntries* m_pTraits;

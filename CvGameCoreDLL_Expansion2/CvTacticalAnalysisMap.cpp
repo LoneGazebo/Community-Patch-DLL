@@ -661,7 +661,7 @@ bool CvTacticalAnalysisMap::PopulateCell(int iIndex, CvPlot* pPlot)
 
 	cell.SetImpassableTerritory(bImpassableTerritory);
 
-	UnitHandle pDefender = pPlot->getBestDefender(NO_PLAYER,m_ePlayer);
+	CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER,m_ePlayer);
 	if (pDefender)
 	{
 		if (pDefender->isEnemy(ourTeam))

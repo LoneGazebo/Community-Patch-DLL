@@ -303,7 +303,7 @@ public:
 	{
 		return m_iNumAirUnits > 0;
 	};
-	UnitHandle FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband, int& iScore);
+	CvUnit* FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband, int& iScore);
 	ArmyType GetArmyBeingBuilt() const
 	{
 		return m_eArmyTypeBeingBuilt;
@@ -336,7 +336,7 @@ public:
 	void LogCityRazed(CvCity* pCity, PlayerTypes eOldOwner);
 	void LogPeace(PlayerTypes eOpponent);
 	void LogPeace(TeamTypes eOpponentTeam);
-	void LogDeficitScrapUnit(UnitHandle pUnit);
+	void LogDeficitScrapUnit(CvUnit* pUnit);
 	void LogMilitarySummaryMessage(const CvString& strMsg);
 
 #if defined(MOD_BALANCE_CORE)
@@ -418,7 +418,7 @@ private:
 	void LogWarStateChange(PlayerTypes ePlayer, WarStateTypes eNewWarState, WarStateTypes eOldWarState);
 	void LogMilitaryStatus();
 	void LogAvailableForces();
-	void LogScrapUnit(UnitHandle pUnit, bool bDeficit, bool bConquest);
+	void LogScrapUnit(CvUnit* pUnit, bool bDeficit, bool bConquest);
 	void LogAttackTargets(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES, true>& weightedTargetList);
 	void LogChosenTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, CvMilitaryTarget& target);
 	CvString GetLogFileName(CvString& playerName, bool bSummary=false) const;

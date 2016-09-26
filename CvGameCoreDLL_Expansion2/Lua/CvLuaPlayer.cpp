@@ -2189,10 +2189,9 @@ int CvLuaPlayer::lHasReadyUnit(lua_State* L)
 int CvLuaPlayer::lGetFirstReadyUnit(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const UnitHandle MyUnitHandle;
-	MyUnitHandle = pkPlayer->GetFirstReadyUnit();
+	const CvUnit* MyCvUnit = pkPlayer->GetFirstReadyUnit();
 
-	CvLuaUnit::Push(L, MyUnitHandle);
+	CvLuaUnit::Push(L, const_cast<CvUnit*>(MyCvUnit));
 	return 1;
 }
 //------------------------------------------------------------------------------

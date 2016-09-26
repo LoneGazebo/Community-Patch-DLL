@@ -3833,12 +3833,12 @@ void CvReligionBeliefs::Write(FDataStream& kStream) const
 
 /// Is there an adjacent barbarian naval unit that could be converted?
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
-bool CvBeliefHelpers::ConvertBarbarianUnit(const CvUnit *pByUnit, UnitHandle pUnit)
+bool CvBeliefHelpers::ConvertBarbarianUnit(const CvUnit *pByUnit, CvUnit* pUnit)
 #else
-bool CvBeliefHelpers::ConvertBarbarianUnit(CvPlayer *pPlayer, UnitHandle pUnit)
+bool CvBeliefHelpers::ConvertBarbarianUnit(CvPlayer *pPlayer, CvUnit* pUnit)
 #endif
 {
-	UnitHandle pNewUnit;
+	CvUnit* pNewUnit;
 	CvPlot *pPlot = pUnit->plot();
 
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
@@ -3852,7 +3852,7 @@ bool CvBeliefHelpers::ConvertBarbarianUnit(CvPlayer *pPlayer, UnitHandle pUnit)
 	// Convert the barbarian into our unit
 	pNewUnit = pPlayer->initUnit(pUnit->getUnitType(), pUnit->getX(), pUnit->getY(), pUnit->AI_getUnitAIType(), NO_DIRECTION, true /*bNoMove*/, false);
 	CvAssertMsg(pNewUnit, "pNewUnit is not assigned a valid value");
-	pNewUnit->convert(pUnit.pointer(), false);
+	pNewUnit->convert(pUnit, false);
 	pNewUnit->setupGraphical();
 	pNewUnit->finishMoves(); // No move first turn
 

@@ -6789,7 +6789,7 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 }
 
 /// Find the city where a missionary should next spread his religion
-CvCity* CvReligionAI::ChooseMissionaryTargetCity(UnitHandle pUnit, int* piTurns)
+CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, int* piTurns)
 {
 	ReligionTypes eMyReligion = GetReligionToSpread();
 	if(eMyReligion <= RELIGION_PANTHEON)
@@ -6833,7 +6833,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(UnitHandle pUnit, int* piTurns)
 }
 
 /// Find the city where an inquisitor should next remove heresy
-CvCity* CvReligionAI::ChooseInquisitorTargetCity(UnitHandle pUnit, int* piTurns)
+CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, int* piTurns)
 {
 	ReligionTypes eMyReligion = GetReligionToSpread();
 	if(eMyReligion <= RELIGION_PANTHEON)
@@ -6869,7 +6869,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(UnitHandle pUnit, int* piTurns)
 	//nobody to burn at the stake? find a city to garrison him in
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if(pLoopCity && pLoopCity->plot()->getMaxFriendlyUnitsOfType(pUnit.pointer())==0)
+		if(pLoopCity && pLoopCity->plot()->getMaxFriendlyUnitsOfType(pUnit)==0)
 			return pLoopCity;
 	}
 
@@ -6877,7 +6877,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(UnitHandle pUnit, int* piTurns)
 }
 
 /// If we were going to use a prophet to convert a city, which one would it be?
-CvCity *CvReligionAI::ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingReligion, UnitHandle pUnit, int* piTurns) const
+CvCity *CvReligionAI::ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingReligion, CvUnit* pUnit, int* piTurns) const
 {
 	CvCity *pHolyCity = NULL;
 	int iMinScore = 50;  // Not zero because we don't want prophets to ALWAYS pick something up
@@ -9247,7 +9247,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 }
 
 /// AI's evaluation of this city as a target for a missionary
-int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
+int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit)
 {
 	int iScore = 0;
 #if defined(MOD_BALANCE_CORE)
@@ -9402,7 +9402,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
 }
 
 /// AI's evaluation of this city as a target for an inquisitor
-int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, UnitHandle pUnit)
+int CvReligionAI::ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit)
 {
 	int iScore = 0;
 	ReligionTypes eMyReligion = GetReligionToSpread();

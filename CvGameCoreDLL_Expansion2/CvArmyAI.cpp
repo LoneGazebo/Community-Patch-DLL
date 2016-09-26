@@ -80,7 +80,7 @@ void CvArmyAI::Kill()
 
 	while(iUnitID != ARMYSLOT_NO_UNIT)
 	{
-		UnitHandle pThisUnit = GET_PLAYER(GetOwner()).getUnit(iUnitID);
+		CvUnit* pThisUnit = GET_PLAYER(GetOwner()).getUnit(iUnitID);
 		if(pThisUnit)
 		{
 			pThisUnit->setArmyID(-1);
@@ -207,7 +207,7 @@ int CvArmyAI::GetMovementRate()
 	int iMovementAverage = 2;   // A reasonable default
 	int iNumUnits = 0;
 	int iTotalMovementAllowance = 0;
-	UnitHandle pUnit;
+	CvUnit* pUnit;
 
 	pUnit = GetFirstUnit();
 	while(pUnit)
@@ -232,7 +232,7 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 	int iTotalY = 0;
 	int iNumUnits = 0;
 
-	UnitHandle pUnit = GetFirstUnit();
+	CvUnit* pUnit = GetFirstUnit();
 	if (!pUnit)
 		return NULL;
 
@@ -336,7 +336,7 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 int CvArmyAI::GetFurthestUnitDistance(CvPlot* pPlot)
 {
 	int iLargestDistance = 0;
-	UnitHandle pUnit;
+	CvUnit* pUnit;
 	int iNewDistance;
 
 	pUnit = GetFirstUnit();
@@ -524,7 +524,7 @@ int CvArmyAI::GetUnitsOfType(MultiunitPositionTypes ePosition) const
 /// Can all units in this army move on ocean?
 bool CvArmyAI::IsAllOceanGoing()
 {
-	UnitHandle pUnit;
+	CvUnit* pUnit;
 
 	pUnit = GetFirstUnit();
 	while(pUnit)
@@ -556,7 +556,7 @@ int CvArmyAI::GetTotalPower()
 
 	while(iUnitID != ARMYSLOT_NO_UNIT)
 	{
-		UnitHandle pThisUnit = GET_PLAYER(GetOwner()).getUnit(iUnitID);
+		CvUnit* pThisUnit = GET_PLAYER(GetOwner()).getUnit(iUnitID);
 		if(pThisUnit)
 		{
 			iRtnValue += pThisUnit->GetPower();
@@ -683,7 +683,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum)
 	CvAssertMsg(iUnitID != ARMYSLOT_NO_UNIT,"Expect unit to be non-NULL");
 
 	CvPlayer& thisPlayer = GET_PLAYER(m_eOwner);
-	UnitHandle pThisUnit = thisPlayer.getUnit(iUnitID);
+	CvUnit* pThisUnit = thisPlayer.getUnit(iUnitID);
 
 	// remove this unit from an army if it is already in one
 	thisPlayer.removeFromArmy(pThisUnit->getArmyID(), GetID());
@@ -717,7 +717,7 @@ bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 		CvArmyFormationSlot slot = m_FormationEntries[iI];
 		if(slot.GetUnitID() == iUnitToRemoveID)
 		{
-			UnitHandle pThisUnit = GET_PLAYER(GetOwner()).getUnit(iUnitToRemoveID);
+			CvUnit* pThisUnit = GET_PLAYER(GetOwner()).getUnit(iUnitToRemoveID);
 			if(pThisUnit)
 			{
 				// Clears unit's army ID and erase from formation entries
@@ -801,15 +801,15 @@ int CvArmyAI::GetNextUnitID()
 	return ARMYSLOT_NO_UNIT;
 }
 
-/// Retrieve units from the army - first call (UnitHandle version)
-UnitHandle CvArmyAI::GetFirstUnit()
+/// Retrieve units from the army - first call (CvUnit* version)
+CvUnit* CvArmyAI::GetFirstUnit()
 {
-	UnitHandle pRtnValue;
+	CvUnit* pRtnValue = NULL;
 
 	int iUnitID = GetFirstUnitID();
 	if(iUnitID != ARMYSLOT_NO_UNIT)
 	{
-		pRtnValue = UnitHandle(GET_PLAYER(m_eOwner).getUnit(iUnitID));
+		pRtnValue = GET_PLAYER(m_eOwner).getUnit(iUnitID);
 
 		FAssertMsg(pRtnValue, "Bogus unit in army - tell Ed");
 	}
@@ -817,15 +817,15 @@ UnitHandle CvArmyAI::GetFirstUnit()
 	return pRtnValue;
 }
 
-/// Retrieve units from the army - subsequent call (UnitHandle version)
-UnitHandle CvArmyAI::GetNextUnit()
+/// Retrieve units from the army - subsequent call (CvUnit* version)
+CvUnit* CvArmyAI::GetNextUnit()
 {
-	UnitHandle pRtnValue;
+	CvUnit* pRtnValue = NULL;
 
 	int iUnitID = GetNextUnitID();
 	if(iUnitID != ARMYSLOT_NO_UNIT)
 	{
-		pRtnValue = UnitHandle(GET_PLAYER(m_eOwner).getUnit(iUnitID));
+		pRtnValue = GET_PLAYER(m_eOwner).getUnit(iUnitID);
 
 		FAssertMsg(pRtnValue, "Bogus unit in army - tell Ed");
 	}
@@ -834,11 +834,11 @@ UnitHandle CvArmyAI::GetNextUnit()
 }
 
 /// Find first unit who is sitting in this domain
-UnitHandle CvArmyAI::GetFirstUnitInDomain(DomainTypes eDomain)
+CvUnit* CvArmyAI::GetFirstUnitInDomain(DomainTypes eDomain)
 {
-	UnitHandle pUnit, pCurrentUnit;
+	CvUnit* pUnit = NULL;
 
-	pCurrentUnit = GetFirstUnit();
+	CvUnit* pCurrentUnit = GetFirstUnit();
 	while(pCurrentUnit)
 	{
 		if(pCurrentUnit->plot()->isWater() && eDomain == DOMAIN_SEA || !pCurrentUnit->plot()->isWater() && eDomain == DOMAIN_LAND)

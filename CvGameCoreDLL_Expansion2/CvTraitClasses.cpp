@@ -4246,7 +4246,7 @@ bool CvPlayerTraits::CheckForBarbarianConversion(CvPlot* pPlot)
 			{
 				if(pAdjacentPlot->isWater())
 				{
-					UnitHandle pNavalUnit = pAdjacentPlot->getBestDefender(BARBARIAN_PLAYER);
+					CvUnit* pNavalUnit = pAdjacentPlot->getBestDefender(BARBARIAN_PLAYER);
 					if(pNavalUnit)
 					{
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
@@ -5813,7 +5813,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvUnit* pByUnit, CvPlot* pPlot)
 bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 #endif
 {
-	UnitHandle pGiftUnit;
+	CvUnit* pGiftUnit;
 
 	// Has this camp already decided not to convert?
 	if(pPlot->IsBarbarianCampNotConverting())
@@ -5899,12 +5899,12 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 
 /// Is there an adjacent barbarian naval unit that could be converted?
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
-bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pByUnit, UnitHandle pUnit)
+bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pByUnit, CvUnit* pUnit)
 #else
-bool CvPlayerTraits::ConvertBarbarianNavalUnit(UnitHandle pUnit)
+bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pUnit)
 #endif
 {
-	UnitHandle pGiftUnit;
+	CvUnit* pGiftUnit;
 
 	// Has this unit already decided not to convert?
 	if(pUnit->IsNotConverting())
@@ -5927,7 +5927,7 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(UnitHandle pUnit)
 		// Convert the barbarian into our unit
 		pGiftUnit = m_pPlayer->initUnit(pUnit->getUnitType(), pUnit->getX(), pUnit->getY(), pUnit->AI_getUnitAIType(), NO_DIRECTION, true /*bNoMove*/, false);
 		CvAssertMsg(pGiftUnit, "GiftUnit is not assigned a valid value");
-		pGiftUnit->convert(pUnit.pointer(), false);
+		pGiftUnit->convert(pUnit, false);
 		pGiftUnit->setupGraphical();
 		pGiftUnit->finishMoves(); // No move first turn
 

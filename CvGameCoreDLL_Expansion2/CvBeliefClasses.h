@@ -594,9 +594,9 @@ private:
 namespace CvBeliefHelpers
 {
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
-	bool ConvertBarbarianUnit(const CvUnit *pByUnit, UnitHandle pUnit);
+	bool ConvertBarbarianUnit(const CvUnit *pByUnit, CvUnit* pUnit);
 #else
-	bool ConvertBarbarianUnit(CvPlayer *pPlayer, UnitHandle pUnit);
+	bool ConvertBarbarianUnit(CvPlayer *pPlayer, CvUnit* pUnit);
 #endif
 }
 

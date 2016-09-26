@@ -57,11 +57,11 @@
 
 //	---------------------------------------------------------------------------
 /// Perform automated mission
-void CvUnitMission::AutoMission(UnitHandle hUnit)
+void CvUnitMission::AutoMission(CvUnit* hUnit)
 {
 	CvAssert(hUnit->getOwner() != NO_PLAYER);
 
-	const MissionQueueNode* pkMissionNode = HeadMissionQueueNode(hUnit->m_missionQueue);
+	const MissionData* pkMissionNode = HeadMissionData(hUnit->m_missionQueue);
 	if(pkMissionNode != NULL)
 	{
 		if(!hUnit->IsBusy() && !hUnit->isDelayedDeath())
@@ -108,13 +108,12 @@ void CvUnitMission::AutoMission(UnitHandle hUnit)
 		}
 	}
 
-	hUnit.ignoreDestruction(true);
 	hUnit->doDelayedDeath();
 }
 
 //	---------------------------------------------------------------------------
 /// Queue up a new mission
-void CvUnitMission::PushMission(UnitHandle hUnit, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI, CvPlot* pMissionAIPlot, CvUnit* pMissionAIUnit)
+void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI, CvPlot* pMissionAIPlot, CvUnit* pMissionAIUnit)
 {
 	if(CvPreGame::isHuman(hUnit->getOwner()))
 	{
@@ -333,14 +332,13 @@ void CvUnitMission::PushMission(UnitHandle hUnit, MissionTypes eMission, int iDa
 		}
 
 		////gDLL->getEventReporterIFace()->selectionGroupPushMission(this, eMission);
-		hUnit.ignoreDestruction(true);
 		hUnit->doDelayedDeath();
 	}
 }
 
 //	---------------------------------------------------------------------------
 /// Retrieve next mission
-void CvUnitMission::PopMission(UnitHandle hUnit)
+void CvUnitMission::PopMission(CvUnit* hUnit)
 {
 	CvAssert(hUnit->getOwner() != NO_PLAYER);
 
@@ -393,21 +391,21 @@ void CvUnitMission::PopMission(UnitHandle hUnit)
 			}
 		}
 
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit.pointer()));
+		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
 		gDLL->GameplayUnitWork(pDllUnit.get(), -1);
 	}
 
-	MissionQueueNode* pTailNode = TailMissionQueueNode(hUnit->m_missionQueue);
+	MissionData* pTailNode = TailMissionData(hUnit->m_missionQueue);
 
 	if(pTailNode != NULL)
 	{
-		DeleteMissionQueueNode(hUnit, pTailNode);
+		DeleteMissionData(hUnit, pTailNode);
 	}
 }
 
 //	---------------------------------------------------------------------------
 /// Have a unit wait for another units missions to complete
-void CvUnitMission::WaitFor(UnitHandle hUnit, UnitHandle hWaitForUnit)
+void CvUnitMission::WaitFor(CvUnit* hUnit, CvUnit* hWaitForUnit)
 {
 	if(CvPreGame::isHuman(hUnit->getOwner()))
 	{
@@ -442,9 +440,10 @@ void CvUnitMission::WaitFor(UnitHandle hUnit, UnitHandle hWaitForUnit)
 
 //	---------------------------------------------------------------------------
 /// Periodic update routine to advance the state of missions
-void CvUnitMission::UpdateMission(UnitHandle& hUnit)
+void CvUnitMission::UpdateMission(CvUnit* hUnit)
 {
-	CvAssert(hUnit->getOwner() != NO_PLAYER);
+	if (!hUnit)
+		return;
 
 	if(hUnit->GetMissionTimer() > 0)
 	{
@@ -472,7 +471,7 @@ void CvUnitMission::UpdateMission(UnitHandle& hUnit)
 
 //	---------------------------------------------------------------------------
 /// Yes, please hit me again. I like pain.
-void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
+void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 {
 	bool bContinueMissionRestart = true;	// to make this function no longer recursive
 	while(bContinueMissionRestart)
@@ -483,11 +482,11 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 		bool bAction = false; // are we taking an action this turn?
 
 		CvAssert(!hUnit->isInCombat());
-		CvAssert(hUnit->HeadMissionQueueNode() != NULL);
+		CvAssert(hUnit->HeadMissionData() != NULL);
 		CvAssert(hUnit->getOwner() != NO_PLAYER);
 		CvAssert(hUnit->GetActivityType() == ACTIVITY_MISSION);
 
-		if(HeadMissionQueueNode(hUnit->m_missionQueue) == NULL)
+		if(HeadMissionData(hUnit->m_missionQueue) == NULL)
 		{
 			// just in case...
 			hUnit->SetActivityType(ACTIVITY_AWAKE);
@@ -503,7 +502,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 		}
 
 		//tutorial hints
-		const MissionData* pkMissionData = (HeadMissionQueueNode(hUnit->m_missionQueue));
+		const MissionData* pkMissionData = (HeadMissionData(hUnit->m_missionQueue));
 		if(pkMissionData->iPushTurn == GC.getGame().getGameTurn() || (pkMissionData->iFlags & CvUnit::MOVEFLAG_IGNORE_STACKING))
 		{
 			if(pkMissionData->eMissionType == CvTypes::getMISSION_MOVE_TO() && !hUnit->IsDoingPartialMove() && hUnit->canMove() && !hUnit->HasQueuedVisualizationMoves())
@@ -550,7 +549,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 								CvUnit* pDefender = pDestPlot->getVisibleEnemyDefender(hUnit->getOwner());
 								if(pDefender)
 								{
-									CombatPredictionTypes ePrediction = GC.getGame().GetCombatPrediction(hUnit.pointer(), pDefender);
+									CombatPredictionTypes ePrediction = GC.getGame().GetCombatPrediction(hUnit, pDefender);
 									if(ePrediction == COMBAT_PREDICTION_TOTAL_DEFEAT || ePrediction == COMBAT_PREDICTION_MAJOR_DEFEAT)
 									{
 										if(!GC.getGame().isOption(GAMEOPTION_NO_TUTORIAL))
@@ -577,7 +576,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 
 		// extra crash protection, should never happen (but a previous bug in groupAttack was causing a NULL here)
 		// while that bug is fixed, no reason to not be a little more careful
-		if(HeadMissionQueueNode(hUnit->m_missionQueue) == NULL)
+		if(HeadMissionData(hUnit->m_missionQueue) == NULL)
 		{
 			hUnit->SetActivityType(ACTIVITY_AWAKE);
 			return;
@@ -588,7 +587,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 		//   then try to follow the mission
 		if(!bDone && hUnit->canMove() && !hUnit->IsDoingPartialMove())
 		{
-			const MissionData& kMissionData = *HeadMissionQueueNode(kMissionQueue);
+			const MissionData& kMissionData = *HeadMissionData(kMissionQueue);
 
 			if(kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO() ||
 			        kMissionData.eMissionType == CvTypes::getMISSION_EMBARK() ||
@@ -718,7 +717,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 						if(pUnit2->AreUnitsOfSameType(*(hUnit)) && pUnit2->ReadyToMove())
 						{
 							// Start the swap
-							hUnit->UnitPathTo(HeadMissionQueueNode(kMissionQueue)->iData1, HeadMissionQueueNode(kMissionQueue)->iData2, CvUnit::MOVEFLAG_IGNORE_STACKING);
+							hUnit->UnitPathTo(HeadMissionData(kMissionQueue)->iData1, HeadMissionData(kMissionQueue)->iData2, CvUnit::MOVEFLAG_IGNORE_STACKING);
 
 							// Move the other unit back out
 							pUnit2->UnitPathTo(pOriginationPlot->getX(), pOriginationPlot->getY(), 0);
@@ -732,14 +731,14 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 			{
 				if((hUnit->AI_getUnitAIType() == UNITAI_DEFENSE) && hUnit->plot()->isCity() && (hUnit->plot()->getTeam() == hUnit->getTeam()))
 				{
-					if(hUnit->plot()->getBestDefender(hUnit->getOwner()) == hUnit.pointer())
+					if(hUnit->plot()->getBestDefender(hUnit->getOwner()) == hUnit)
 					{
 						bAction = false;
 						bDone = true;
 						break;
 					}
 				}
-				UnitHandle pTargetUnit = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
+				CvUnit* pTargetUnit = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
 				if(pTargetUnit)
 				{
 					if(hUnit->GetMissionAIType() != MISSIONAI_SHADOW && hUnit->GetMissionAIType() != MISSIONAI_GROUP)
@@ -816,9 +815,9 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 		}
 
 		// check to see if mission is done
-		if(!bDone && (hUnit->HeadMissionQueueNode() != NULL))
+		if(!bDone && (hUnit->HeadMissionData() != NULL))
 		{
-			const MissionData& kMissionData = *HeadMissionQueueNode(kMissionQueue);
+			const MissionData& kMissionData = *HeadMissionData(kMissionQueue);
 
 			if(kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO() ||
 			        kMissionData.eMissionType == CvTypes::getMISSION_SWAP_UNITS() ||
@@ -851,7 +850,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT())
 			{
-				UnitHandle pTargetUnit = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
+				CvUnit* pTargetUnit = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
 				if((!pTargetUnit) ||hUnit-> plot() == pTargetUnit->plot())
 				{
 					bDone = true;
@@ -921,7 +920,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 #endif
 		}
 
-		if(HeadMissionQueueNode(kMissionQueue) != NULL)
+		if(HeadMissionData(kMissionQueue) != NULL)
 		{
 			// if there is an action, if it's done or there are not moves left, and a player is watching, watch the movement
 			if(bAction && (bDone || !hUnit->canMove()) && hUnit->plot()->isVisibleToWatchingHuman())
@@ -933,7 +932,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 			{
 				if(hUnit->IsWork())
 				{
-					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit.pointer()));
+					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
 					gDLL->GameplayUnitWork(pDllUnit.get(), -1);
 				}
 
@@ -941,7 +940,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 				{
 					if(hUnit->getOwner() == GC.getGame().getActivePlayer() && hUnit->IsSelected())
 					{
-						const MissionData& kMissionData = *HeadMissionQueueNode(kMissionQueue);
+						const MissionData& kMissionData = *HeadMissionData(kMissionQueue);
 
 						if((kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO()) ||
 						        (kMissionData.eMissionType == CvTypes::getMISSION_ROUTE_TO()) ||
@@ -985,7 +984,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 
 					hUnit->PublishQueuedVisualizationMoves();
 
-					DeleteMissionQueueNode(hUnit, HeadMissionQueueNode(hUnit->m_missionQueue));
+					DeleteMissionData(hUnit, HeadMissionData(hUnit->m_missionQueue));
 				}
 			}
 			else
@@ -1007,9 +1006,9 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 
 //	---------------------------------------------------------------------------
 /// Eligible to start a new mission?
-bool CvUnitMission::CanStartMission(UnitHandle hUnit, int iMission, int iData1, int iData2, CvPlot* pPlot, bool bTestVisible)
+bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int iData2, CvPlot* pPlot, bool bTestVisible)
 {
-	UnitHandle pTargetUnit;
+	CvUnit* pTargetUnit;
 
 	if(hUnit->IsBusy())
 	{
@@ -1413,7 +1412,7 @@ bool CvUnitMission::CanStartMission(UnitHandle hUnit, int iMission, int iData1, 
 
 //	---------------------------------------------------------------------------
 /// Initiate a mission
-void CvUnitMission::StartMission(UnitHandle hUnit)
+void CvUnitMission::StartMission(CvUnit* hUnit)
 {
 	bool bDelete;
 	bool bAction;
@@ -1426,7 +1425,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 
 	CvAssert(!hUnit->IsBusy());
 	CvAssert(hUnit->getOwner() != NO_PLAYER);
-	CvAssert(hUnit->HeadMissionQueueNode() != NULL);
+	CvAssert(hUnit->HeadMissionData() != NULL);
 
 	CvPlayerAI& kUnitOwner = GET_PLAYER(hUnit->getOwner());
 
@@ -1544,7 +1543,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 
 				if(pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
 				{
-					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit.pointer()));
+					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
 					gDLL->GameplayUnitWork(pDllUnit.get(), 0);
 				}
 			}
@@ -1585,7 +1584,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_NUKE())
 			{
-				MissionData& kMissionData = *hUnit->HeadMissionQueueNode();
+				MissionData& kMissionData = *hUnit->HeadMissionData();
 				if(GC.getMap().plot(kMissionData.iData1, kMissionData.iData2) == NULL || !hUnit->canNukeAt(hUnit->plot(), kMissionData.iData1, kMissionData.iData2))
 				{
 					// Invalid, delete the mission
@@ -1601,7 +1600,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 					// The Paradrop needs to have GameplayUnitMissionEnd, so if no mission timer will be started, do it now.
 					if (hUnit->plot()->isActiveVisible() && (!hUnit->isHuman() || !hUnit->plot()->isVisibleToWatchingHuman() || CalculateMissionTimer(hUnit) == 0))
 					{
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit.pointer()));
+						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
 						gDLL->GameplayUnitMissionEnd(pDllUnit.get());
 					}
 				}
@@ -1623,7 +1622,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 					// The Rebase needs to have GameplayUnitMissionEnd, so if no mission timer will be started, do it now.
 					if (hUnit->plot()->isActiveVisible() && (!hUnit->isHuman() || !hUnit->plot()->isVisibleToWatchingHuman() || CalculateMissionTimer(hUnit) == 0))
 					{
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit.pointer()));
+						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
 						gDLL->GameplayUnitMissionEnd(pDllUnit.get());
 					}
 				}
@@ -1631,7 +1630,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_RANGE_ATTACK())
 			{
-				MissionData& kMissionData = *hUnit->HeadMissionQueueNode();
+				MissionData& kMissionData = *hUnit->HeadMissionData();
 				if(GC.getMap().plot(kMissionData.iData1, kMissionData.iData2) == NULL || !hUnit->canRangeStrikeAt(kMissionData.iData1, kMissionData.iData2))
 				{
 					// Invalid, delete the mission
@@ -1657,7 +1656,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_JOIN())
 			{
-				if(hUnit->join((SpecialistTypes)(hUnit->HeadMissionQueueNode()->iData1)))
+				if(hUnit->join((SpecialistTypes)(hUnit->HeadMissionData()->iData1)))
 				{
 					bAction = true;
 				}
@@ -1665,7 +1664,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_CONSTRUCT())
 			{
-				if(hUnit->construct((BuildingTypes)(hUnit->HeadMissionQueueNode()->iData1)))
+				if(hUnit->construct((BuildingTypes)(hUnit->HeadMissionData()->iData1)))
 				{
 					bAction = true;
 				}
@@ -1763,7 +1762,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_GOLDEN_AGE())
 			{
 				//just play animation, not golden age - JW
-				if(hUnit->HeadMissionQueueNode()->iData1 != -1)
+				if(hUnit->HeadMissionData()->iData1 != -1)
 				{
 					bAction = true;
 				}
@@ -1824,15 +1823,15 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_BUILD())
 			{
 				// Gold cost for Improvement construction
-				kUnitOwner.GetTreasury()->ChangeGold(-(kUnitOwner.getBuildCost(hUnit->plot(), (BuildTypes)(hUnit->HeadMissionQueueNode()->iData1))));
+				kUnitOwner.GetTreasury()->ChangeGold(-(kUnitOwner.getBuildCost(hUnit->plot(), (BuildTypes)(hUnit->HeadMissionData()->iData1))));
 
-				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit.pointer()));
-				gDLL->GameplayUnitWork(pDllUnit.get(), (hUnit->HeadMissionQueueNode()->iData1));
+				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
+				gDLL->GameplayUnitWork(pDllUnit.get(), (hUnit->HeadMissionData()->iData1));
 			}
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_LEAD())
 			{
-				if(hUnit->lead(hUnit->HeadMissionQueueNode()->iData1))
+				if(hUnit->lead(hUnit->HeadMissionData()->iData1))
 				{
 					bAction = true;
 				}
@@ -1846,7 +1845,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_GIVE_POLICIES())
 			{
 				//just play animation, not golden age - JW
-				if(hUnit->HeadMissionQueueNode()->iData1 != -1)
+				if(hUnit->HeadMissionData()->iData1 != -1)
 				{
 					bAction = true;
 				}
@@ -1862,7 +1861,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_ONE_SHOT_TOURISM())
 			{
 				//just play animation, not golden age - JW
-				if(hUnit->HeadMissionQueueNode()->iData1 != -1)
+				if(hUnit->HeadMissionData()->iData1 != -1)
 				{
 					bAction = true;
 				}
@@ -1905,7 +1904,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 		}
 	}
 
-	if(hUnit->HeadMissionQueueNode() != NULL)
+	if(hUnit->HeadMissionData() != NULL)
 	{
 		if(bAction)
 		{
@@ -1930,7 +1929,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 					}
 				}
 
-				DeleteMissionQueueNode(hUnit, hUnit->HeadMissionQueueNode());
+				DeleteMissionData(hUnit, hUnit->HeadMissionData());
 			}
 			else if(hUnit->GetActivityType() == ACTIVITY_MISSION)
 			{
@@ -1943,9 +1942,9 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 
 //	---------------------------------------------------------------------------
 /// Where does this mission end?
-CvPlot* CvUnitMission::LastMissionPlot(UnitHandle hUnit)
+CvPlot* CvUnitMission::LastMissionPlot(CvUnit* hUnit)
 {
-	const MissionQueueNode* pMissionNode = TailMissionQueueNode(hUnit->m_missionQueue);
+	const MissionData* pMissionNode = TailMissionData(hUnit->m_missionQueue);
 
 	while(pMissionNode != NULL)
 	{
@@ -1958,7 +1957,7 @@ CvPlot* CvUnitMission::LastMissionPlot(UnitHandle hUnit)
 
 		else if(pMissionNode->eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT())
 		{
-			UnitHandle pTargetUnit = GET_PLAYER((PlayerTypes)pMissionNode->iData1).getUnit(pMissionNode->iData2);
+			CvUnit* pTargetUnit = GET_PLAYER((PlayerTypes)pMissionNode->iData1).getUnit(pMissionNode->iData2);
 			if(pTargetUnit)
 			{
 				return pTargetUnit->plot();
@@ -1980,7 +1979,7 @@ CvPlot* CvUnitMission::LastMissionPlot(UnitHandle hUnit)
 		}
 #endif
 
-		pMissionNode = PrevMissionQueueNode(hUnit->m_missionQueue, pMissionNode);
+		pMissionNode = PrevMissionData(hUnit->m_missionQueue, pMissionNode);
 	}
 
 	return hUnit->plot();
@@ -1995,18 +1994,18 @@ CvPlot* CvUnitMission::LastMissionPlot(UnitHandle hUnit)
 //		 still used to keep the units sequencing their missions with each other.
 //		 i.e. each unit will get a chance to complete a mission segment, rather than a unit
 //		 exhausting its mission queue all in one go.
-int CvUnitMission::CalculateMissionTimer(UnitHandle hUnit, int iSteps)
+int CvUnitMission::CalculateMissionTimer(CvUnit* hUnit, int iSteps)
 {
-	UnitHandle pTargetUnit;
+	CvUnit* pTargetUnit;
 	CvPlot* pTargetPlot;
 	int iTime = 0;
 
-	MissionQueueNode* pkMissionNode;
+	MissionData* pkMissionNode;
 	if(!hUnit->isHuman())
 	{
 		iTime = 0;
 	}
-	else if((pkMissionNode = HeadMissionQueueNode(hUnit->m_missionQueue)) != NULL)
+	else if((pkMissionNode = HeadMissionData(hUnit->m_missionQueue)) != NULL)
 	{
 		MissionData& kMissionData = *pkMissionNode;
 
@@ -2067,19 +2066,19 @@ int CvUnitMission::CalculateMissionTimer(UnitHandle hUnit, int iSteps)
 }
 
 //	---------------------------------------------------------------------------
-void CvUnitMission::UpdateMissionTimer(UnitHandle hUnit, int iSteps)
+void CvUnitMission::UpdateMissionTimer(CvUnit* hUnit, int iSteps)
 {
 	hUnit->SetMissionTimer(CalculateMissionTimer(hUnit, iSteps));
 }
 
 //	---------------------------------------------------------------------------
 /// Retrieve a specified mission index in the queue.  Can return NULL
-const MissionData* CvUnitMission::GetMissionData(UnitHandle hUnit, int iNode)
+const MissionData* CvUnitMission::GetMissionData(CvUnit* hUnit, int iNode)
 {
 	int iCount = 0;
 
 	const MissionQueue& kQueue = hUnit->m_missionQueue;
-	const MissionQueueNode* pMissionNode = HeadMissionQueueNode(kQueue);
+	const MissionData* pMissionNode = HeadMissionData(kQueue);
 
 	while(pMissionNode != NULL)
 	{
@@ -2090,7 +2089,7 @@ const MissionData* CvUnitMission::GetMissionData(UnitHandle hUnit, int iNode)
 
 		iCount++;
 
-		pMissionNode = NextMissionQueueNode(kQueue, pMissionNode);
+		pMissionNode = NextMissionData(kQueue, pMissionNode);
 	}
 
 	return NULL;
@@ -2098,7 +2097,7 @@ const MissionData* CvUnitMission::GetMissionData(UnitHandle hUnit, int iNode)
 
 //	---------------------------------------------------------------------------
 /// Push onto back end of mission queue
-void CvUnitMission::InsertAtEndMissionQueue(UnitHandle hUnit, MissionData mission, bool bStart)
+void CvUnitMission::InsertAtEndMissionQueue(CvUnit* hUnit, MissionData mission, bool bStart)
 {
 	CvAssert(hUnit->getOwner() != NO_PLAYER);
 
@@ -2123,16 +2122,16 @@ void CvUnitMission::InsertAtEndMissionQueue(UnitHandle hUnit, MissionData missio
 
 //	---------------------------------------------------------------------------
 /// Delete a specific mission from queue
-MissionData* CvUnitMission::DeleteMissionQueueNode(UnitHandle hUnit, MissionData* pNode)
+MissionData* CvUnitMission::DeleteMissionData(CvUnit* hUnit, MissionData* pNode)
 {
-	MissionQueueNode* pNextMissionNode;
+	MissionData* pNextMissionNode;
 
 	CvAssertMsg(pNode != NULL, "Node is not assigned a valid value");
 	CvAssert(hUnit->getOwner() != NO_PLAYER);
 
 	MissionQueue& kQueue = hUnit->m_missionQueue;
 
-	if(pNode == HeadMissionQueueNode(kQueue))
+	if(pNode == HeadMissionData(kQueue))
 	{
 		DeactivateHeadMission(hUnit, /*iUnitCycleTimer*/ 1);
 	}
@@ -2141,7 +2140,7 @@ MissionData* CvUnitMission::DeleteMissionQueueNode(UnitHandle hUnit, MissionData
 	if(pNextMissionNode == NULL)
 		hUnit->ClearPathCache();
 
-	if(pNextMissionNode == HeadMissionQueueNode(kQueue))
+	if(pNextMissionNode == HeadMissionData(kQueue))
 	{
 		ActivateHeadMission(hUnit);
 	}
@@ -2158,7 +2157,7 @@ MissionData* CvUnitMission::DeleteMissionQueueNode(UnitHandle hUnit, MissionData
 
 //	---------------------------------------------------------------------------
 /// Clear all queued missions
-void CvUnitMission::ClearMissionQueue(UnitHandle hUnit, bool bKeepPathCache, int iUnitCycleTimerOverride)
+void CvUnitMission::ClearMissionQueue(CvUnit* hUnit, bool bKeepPathCache, int iUnitCycleTimerOverride)
 {
 	//VALIDATE_OBJECT
 	CvAssert(hUnit->getOwner() != NO_PLAYER);
@@ -2185,7 +2184,7 @@ void CvUnitMission::ClearMissionQueue(UnitHandle hUnit, bool bKeepPathCache, int
 
 //	---------------------------------------------------------------------------
 /// Start our first mission
-void CvUnitMission::ActivateHeadMission(UnitHandle hUnit)
+void CvUnitMission::ActivateHeadMission(CvUnit* hUnit)
 {
 	VALIDATE_OBJECT
 	CvAssert(hUnit->getOwner() != NO_PLAYER);
@@ -2200,7 +2199,7 @@ void CvUnitMission::ActivateHeadMission(UnitHandle hUnit)
 
 //	---------------------------------------------------------------------------
 /// Deactivate our first mission, waking up the unit
-void CvUnitMission::DeactivateHeadMission(UnitHandle hUnit, int iUnitCycleTimer)
+void CvUnitMission::DeactivateHeadMission(CvUnit* hUnit, int iUnitCycleTimer)
 {
 	VALIDATE_OBJECT
 	CvAssert(hUnit->getOwner() != NO_PLAYER);
@@ -2229,42 +2228,42 @@ void CvUnitMission::DeactivateHeadMission(UnitHandle hUnit, int iUnitCycleTimer)
 
 //	---------------------------------------------------------------------------
 /// Retrieve the mission after a specific one
-const MissionQueueNode* CvUnitMission::NextMissionQueueNode(const MissionQueue& kQueue, const MissionQueueNode* pNode)
+const MissionData* CvUnitMission::NextMissionData(const MissionQueue& kQueue, const MissionData* pNode)
 {
 	return kQueue.next(pNode);
 }
 
 //	---------------------------------------------------------------------------
 /// Retrieve the mission before a specific one
-const MissionQueueNode* CvUnitMission::PrevMissionQueueNode(const MissionQueue& kQueue, const MissionQueueNode* pNode)
+const MissionData* CvUnitMission::PrevMissionData(const MissionQueue& kQueue, const MissionData* pNode)
 {
 	return kQueue.prev(pNode);
 }
 
 //	---------------------------------------------------------------------------
 /// Retrieve the first mission in the queue (const correct version)
-const MissionQueueNode* CvUnitMission::HeadMissionQueueNode(const MissionQueue& kQueue)
+const MissionData* CvUnitMission::HeadMissionData(const MissionQueue& kQueue)
 {
 	return kQueue.head();
 }
 
 //	---------------------------------------------------------------------------
 /// Retrieve the first mission in the queue
-MissionQueueNode* CvUnitMission::HeadMissionQueueNode(MissionQueue& kQueue)
+MissionData* CvUnitMission::HeadMissionData(MissionQueue& kQueue)
 {
 	return kQueue.head();
 }
 
 //	---------------------------------------------------------------------------
 /// Retrieve the last mission in the queue (const correct version)
-const MissionQueueNode* CvUnitMission::TailMissionQueueNode(const MissionQueue& kQueue)
+const MissionData* CvUnitMission::TailMissionData(const MissionQueue& kQueue)
 {
 	return ((MissionQueue&)kQueue).tail();
 }
 
 //	---------------------------------------------------------------------------
 /// Retrieve the last mission in the queue
-MissionQueueNode* CvUnitMission::TailMissionQueueNode(MissionQueue& kQueue)
+MissionData* CvUnitMission::TailMissionData(MissionQueue& kQueue)
 {
 	return kQueue.tail();
 }
@@ -2284,18 +2283,18 @@ int	CvUnitMission::GetLengthMissionQueue(const MissionQueue& kQueue)
 }
 
 //	---------------------------------------------------------------------------
-const MissionData* CvUnitMission::GetHeadMissionData(UnitHandle hUnit)
+const MissionData* CvUnitMission::GetHeadMissionData(CvUnit* hUnit)
 {
-	CvAssert(hUnit.pointer() != NULL);
+	CvAssert(hUnit != NULL);
 	if(hUnit->m_missionQueue.getLength())
 		return (hUnit->m_missionQueue.head());
 	return NULL;
 }
 
 //	---------------------------------------------------------------------------
-const MissionData* CvUnitMission::IsHeadMission(UnitHandle hUnit, int iMission)
+const MissionData* CvUnitMission::IsHeadMission(CvUnit* hUnit, int iMission)
 {
-	CvAssert(hUnit.pointer() != NULL);
+	CvAssert(hUnit != NULL);
 	if(hUnit->m_missionQueue.getLength())
 	{
 		const MissionData& kMissionData = *hUnit->m_missionQueue.head();
@@ -2307,10 +2306,10 @@ const MissionData* CvUnitMission::IsHeadMission(UnitHandle hUnit, int iMission)
 
 //	---------------------------------------------------------------------------
 //	Returns true if the is a move mission at the head of the unit queue and it is complete
-bool CvUnitMission::HasCompletedMoveMission(UnitHandle hUnit)
+bool CvUnitMission::HasCompletedMoveMission(CvUnit* hUnit)
 {
-	MissionQueueNode* pkMissionNode;
-	if((pkMissionNode = HeadMissionQueueNode(hUnit->m_missionQueue)) != NULL)
+	MissionData* pkMissionNode;
+	if((pkMissionNode = HeadMissionData(hUnit->m_missionQueue)) != NULL)
 	{
 		MissionData& kMissionData = *pkMissionNode;
 		if((kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO()) ||
@@ -2321,7 +2320,7 @@ bool CvUnitMission::HasCompletedMoveMission(UnitHandle hUnit)
 
 			if(kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT())
 			{
-				UnitHandle pTargetUnit = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
+				CvUnit* pTargetUnit = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
 				if(pTargetUnit)
 				{
 					pTargetPlot = pTargetUnit->plot();

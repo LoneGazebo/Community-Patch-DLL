@@ -1006,14 +1006,14 @@ void CvNotifications::Activate(Notification& notification)
 #endif
 	case NOTIFICATION_UNIT_PROMOTION:
 	{
-		UnitHandle pUnit = GET_PLAYER(m_ePlayer).getUnit(notification.m_iExtraGameData);
+		CvUnit* pUnit = GET_PLAYER(m_ePlayer).getUnit(notification.m_iExtraGameData);
 		if(pUnit)
 		{
 			CvPlot* pPlot = pUnit->plot();
 			if(pPlot)
 			{
 				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
-				auto_ptr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit.pointer());
+				auto_ptr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
 
 				GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 				GC.GetEngineUserInterface()->selectUnit(pDllUnit.get(), false);
@@ -1832,7 +1832,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	break;
 	case NOTIFICATION_UNIT_PROMOTION:
 	{
-		UnitHandle pUnit = GET_PLAYER(m_ePlayer).getUnit(m_aNotifications[iIndex].m_iExtraGameData);
+		CvUnit* pUnit = GET_PLAYER(m_ePlayer).getUnit(m_aNotifications[iIndex].m_iExtraGameData);
 		if(!pUnit || !pUnit->isPromotionReady())
 		{
 			return true;

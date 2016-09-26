@@ -630,9 +630,9 @@ public:
 	BeliefTypes ChooseReformationBelief();
 #endif
 
-	CvCity* ChooseMissionaryTargetCity(UnitHandle pUnit, int* piTurns = NULL);
-	CvCity* ChooseInquisitorTargetCity(UnitHandle pUnit, int* piTurns = NULL);
-	CvCity *ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingReligion, UnitHandle pUnit = NULL, int* piTurns = NULL) const;
+	CvCity* ChooseMissionaryTargetCity(CvUnit* pUnit, int* piTurns = NULL);
+	CvCity* ChooseInquisitorTargetCity(CvUnit* pUnit, int* piTurns = NULL);
+	CvCity *ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingReligion, CvUnit* pUnit = NULL, int* piTurns = NULL) const;
 
 	CvPlayer* GetPlayer();
 	ReligionTypes GetReligionToSpread() const;
@@ -657,8 +657,8 @@ private:
 	int ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity);
 	int ScoreBeliefForPlayer(CvBeliefEntry* pEntry);
 
-	int ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit);
-	int ScoreCityForInquisitor(CvCity* pCity, UnitHandle pUnit);
+	int ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit);
+	int ScoreCityForInquisitor(CvCity* pCity, CvUnit* pUnit);
 
 	bool ShouldBecomeNewMajority(CvCity* pCity, ReligionTypes eReligion, int iNewPressure) const;
 	bool AreAllOurCitiesConverted(ReligionTypes eReligion, bool bIncludePuppets) const;

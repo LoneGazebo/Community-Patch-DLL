@@ -10070,7 +10070,7 @@ bool CvPlayer::isBarbarian() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::doBarbarianRansom(int iOption, int iUnitID)
 {
-	UnitHandle pUnit = getUnit(iUnitID);
+	CvUnit* pUnit = getUnit(iUnitID);
 
 	// Pay the Price
 	if(iOption == 0)
@@ -11289,13 +11289,11 @@ bool CvPlayer::hasBusyUnitOrCity() const
 }
 
 //	--------------------------------------------------------------------------------
-const UnitHandle CvPlayer::getBusyUnit() const
+const CvUnit* CvPlayer::getBusyUnit() const
 {
-	const UnitHandle result;
-	const CvUnit* pLoopUnit;
+	const CvUnit* result = NULL;
 	int iLoop;
-
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	for(const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(pLoopUnit->IsBusy())
 		{
@@ -31872,8 +31870,8 @@ void CvPlayer::DoDeficit()
 	{
 		if(GC.getGame().getJonRandNum(100, "Disband rand") < 50)
 		{
-			UnitHandle pLandUnit;
-			UnitHandle pNavalUnit;
+			CvUnit* pLandUnit = NULL;
+			CvUnit* pNavalUnit = NULL;
 			int iLandScore = MAX_INT;
 			int iNavalScore = MAX_INT;
 

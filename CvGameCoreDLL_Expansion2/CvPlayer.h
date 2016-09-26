@@ -272,7 +272,7 @@ public:
 	void EndTurnsForReadyUnits();
 	bool hasAutoUnit() const;
 	bool hasBusyUnit() const;
-	const UnitHandle getBusyUnit() const;
+	const CvUnit* getBusyUnit() const;
 	bool hasBusyCity() const;
 	bool hasBusyUnitOrCity() const;
 	const CvCity* getBusyCity() const;

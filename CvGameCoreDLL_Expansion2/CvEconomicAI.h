@@ -276,7 +276,7 @@ private:
 
 	// Logging functions
 	void LogStrategy(EconomicAIStrategyTypes eStrategy, bool bValue);
-	void LogScrapUnit(UnitHandle pUnit, int iNumWorkers, int iNumCities, int iNumImprovedPlots, int iNumValidPlots);
+	void LogScrapUnit(CvUnit* pUnit, int iNumWorkers, int iNumCities, int iNumImprovedPlots, int iNumValidPlots);
 
 
 	CvPlayer* m_pPlayer;
