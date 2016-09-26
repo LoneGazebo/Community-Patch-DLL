@@ -104,7 +104,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 	{
 		//for ranged every tile we can enter with movement left is a base for attack
 		std::set<int> attackableTiles;
-		TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit,reachablePlots,attackableTiles);
+		TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit,reachablePlots,attackableTiles,false);
 
 		for (std::set<int>::iterator attackTile=attackableTiles.begin(); attackTile!=attackableTiles.end(); ++attackTile)
 		{
@@ -547,14 +547,6 @@ bool CvDangerPlots::ShouldIgnoreUnit(CvUnit* pUnit, bool bIgnoreVisibility)
 		return true;
 	}
 #endif // AUI_DANGER_PLOTS_SHOULD_IGNORE_UNIT_MAJORS_SEE_BARBARIANS_IN_FOG
-
-	CvPlot* pPlot = pUnit->plot();
-	CvAssertMsg(pPlot, "Plot is null?")
-
-	if(NULL != pPlot && !pPlot->isVisibleOtherUnit(m_ePlayer) && !bIgnoreVisibility)
-	{
-		return true;
-	}
 
 	return false;
 }

@@ -434,7 +434,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 				m_pCells[iPlotIndex].SetEnemyCanMovePast(true);
 				std::set<int> rangedPlots;
 				//this generates some overlap, but preventing that is about as bad as ignoring it
-				TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,pMoveTile,rangedPlots);
+				TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,pMoveTile,rangedPlots,false);
 				for (std::set<int>::iterator attackTile=rangedPlots.begin(); attackTile!=rangedPlots.end(); ++attackTile)
 				{
 					m_pCells[*attackTile].SetSubjectToAttack(true);

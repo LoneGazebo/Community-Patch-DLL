@@ -3128,11 +3128,11 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity*
 
 
 //	--------------------------------------------------------------------------------
-UnitHandle CvPlot::getBestGarrison(PlayerTypes eOwner) const
+CvUnit* CvPlot::getBestGarrison(PlayerTypes eOwner) const
 {
 	const IDInfo* pUnitNode = headUnitNode();
-	UnitHandle pLoopUnit;
-	UnitHandle pBestUnit;
+	CvUnit* pLoopUnit = NULL;
+	CvUnit* pBestUnit = NULL;
 
 	while(pUnitNode != NULL)
 	{
@@ -3141,7 +3141,7 @@ UnitHandle CvPlot::getBestGarrison(PlayerTypes eOwner) const
 
 		if(pLoopUnit && (pLoopUnit->getOwner() == eOwner) && pLoopUnit->CanGarrison() && !pLoopUnit->isDelayedDeath())
 		{
-			if(pLoopUnit->isBetterDefenderThan(pBestUnit.pointer(),NULL))
+			if(pLoopUnit->isBetterDefenderThan(pBestUnit,NULL))
 			{
 				pBestUnit = pLoopUnit;
 			}
@@ -3152,11 +3152,11 @@ UnitHandle CvPlot::getBestGarrison(PlayerTypes eOwner) const
 }
 
 //	--------------------------------------------------------------------------------
-UnitHandle CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy, bool bTestCanMove, bool bNoncombatAllowed) const
+CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy, bool bTestCanMove, bool bNoncombatAllowed) const
 {
 	const IDInfo* pUnitNode = headUnitNode();
-	UnitHandle pLoopUnit;
-	UnitHandle pBestUnit;
+	CvUnit* pLoopUnit = NULL;
+	CvUnit* pBestUnit = NULL;
 
 	while(pUnitNode != NULL)
 	{
@@ -3177,7 +3177,7 @@ UnitHandle CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPla
 							{
 								if((pAttacker == NULL) || (pAttacker->getDomainType() != DOMAIN_AIR) || (pLoopUnit->getDamage() < pAttacker->GetRangedCombatLimit()))
 								{
-									if(pLoopUnit->isBetterDefenderThan(pBestUnit.pointer(), pAttacker))
+									if(pLoopUnit->isBetterDefenderThan(pBestUnit, pAttacker))
 									{
 										pBestUnit = pLoopUnit;
 									}
@@ -4642,6 +4642,36 @@ bool CvPlot::isVisibleOtherUnit(PlayerTypes ePlayer) const
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
 			{
 				if(isOtherTeam(pLoopUnit, eTeam))
+				{
+					return true;
+				}
+			}
+		}
+		while(pUnitNode != NULL);
+	}
+
+	return false;
+}
+
+bool CvPlot::isVisibleNeutralCombatUnit(PlayerTypes ePlayer) const
+{
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	if (!isVisible(eTeam))
+		return false;
+
+	CvAssertMsg(ePlayer != NO_PLAYER, "Source player must be valid");
+	const IDInfo* pUnitNode = m_units.head();
+	if(pUnitNode)
+	{
+		do
+		{
+			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+			pUnitNode = m_units.next(pUnitNode);
+
+			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
+			{
+				if(isOtherTeam(pLoopUnit, eTeam) && !isEnemy(pLoopUnit,eTeam,false))
 				{
 					return true;
 				}

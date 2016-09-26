@@ -545,8 +545,6 @@ public:
 	bool canCoexistWithEnemyUnit(TeamTypes eTeam) const;
 
 	bool isMustSetUpToRangedAttack() const;
-	int getMustSetUpToRangedAttackCount() const;
-	void changeMustSetUpToRangedAttackCount(int iChange);
 
 	bool isRangedSupportFire() const;
 	int getRangedSupportFireCount() const;
@@ -570,7 +568,7 @@ public:
 	int GetBaseCombatStrengthConsideringDamage() const;
 
 	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacency, const CvPlot* pFromPlot = NULL) const;
-	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender) const;
+	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, bool bIgnoreFlanking = false) const;
 	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, bool bFromRangedAttack = false) const;
 	int GetEmbarkedUnitDefense() const;
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -1694,7 +1692,8 @@ protected:
 	FAutoVariable<int, CvUnit> m_iRiverCrossingNoPenaltyCount;
 	FAutoVariable<int, CvUnit> m_iEnemyRouteCount;
 	FAutoVariable<int, CvUnit> m_iRivalTerritoryCount;
-	FAutoVariable<int, CvUnit> m_iMustSetUpToRangedAttackCount;
+	//to be removed
+		FAutoVariable<int, CvUnit> m_iMustSetUpToRangedAttackCount;
 	FAutoVariable<int, CvUnit> m_iRangeAttackIgnoreLOSCount;
 	FAutoVariable<int, CvUnit> m_iCityAttackOnlyCount;
 	FAutoVariable<int, CvUnit> m_iCaptureDefeatedEnemyCount;
@@ -1875,7 +1874,8 @@ protected:
 	FAutoVariable<bool, CvUnit> m_bInfoBarDirty;
 	FAutoVariable<bool, CvUnit> m_bNotConverting;
 	FAutoVariable<bool, CvUnit> m_bAirCombat;
-	FAutoVariable<bool, CvUnit> m_bSetUpForRangedAttack;
+	//to be removed
+		FAutoVariable<bool, CvUnit> m_bSetUpForRangedAttack;
 	FAutoVariable<bool, CvUnit> m_bEmbarked;
 	FAutoVariable<bool, CvUnit> m_bPromotedFromGoody;
 	FAutoVariable<bool, CvUnit> m_bAITurnProcessed;

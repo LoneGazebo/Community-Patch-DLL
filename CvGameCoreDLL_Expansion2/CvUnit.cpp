@@ -884,7 +884,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	CvPlot* pUnitPlot = plot();
 	if(pUnitPlot && pUnitPlot->isCity())
 	{
-		pUnitPlot->getPlotCity()->SetGarrison( pUnitPlot->getBestGarrison( getOwner() ).pointer() );
+		pUnitPlot->getPlotCity()->SetGarrison( pUnitPlot->getBestGarrison( getOwner() ) );
 	}
 
 	m_iArmyId = -1;
@@ -1481,7 +1481,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	CvPlot* pUnitPlot = plot();
 	if(pUnitPlot && pUnitPlot->isCity())
 	{
-		pUnitPlot->getPlotCity()->SetGarrison( pUnitPlot->getBestGarrison( getOwner() ).pointer() );
+		pUnitPlot->getPlotCity()->SetGarrison( pUnitPlot->getBestGarrison( getOwner() ) );
 	}
 
 #if defined(MOD_BALANCE_CORE)
@@ -4995,7 +4995,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 #if defined(MOD_GLOBAL_CAPTURE_AFTER_ATTACKING)
 			// If there are only enemy civilians in the plot, then we don't need remaining attacks to capture them
 			// eg a worker in a barbarian camp where we just killed the defender
-			if (plot.getBestDefender(NO_PLAYER) != ((UnitHandle) NULL))
+			if (plot.getBestDefender(NO_PLAYER) != NULL)
 			{
 				return false;
 			}
@@ -6835,50 +6835,20 @@ int CvUnit::getNegatorPromotion()
 //	--------------------------------------------------------------------------------
 bool CvUnit::canSetUpForRangedAttack(const CvPlot* /*pPlot*/) const
 {
-	VALIDATE_OBJECT
-	if(!isMustSetUpToRangedAttack())
-	{
-		return false;
-	}
-
-	if(isSetUpForRangedAttack())
-	{
-		return false;
-	}
-
-	if(isEmbarked())
-		return false;
-
-	if(movesLeft() <= 0)
-	{
-		return false;
-	}
-
-	return true;
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isSetUpForRangedAttack() const
 {
-	VALIDATE_OBJECT
-	return m_bSetUpForRangedAttack;
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::setSetUpForRangedAttack(bool bValue)
+void CvUnit::setSetUpForRangedAttack(bool /*bValue*/)
 {
-	VALIDATE_OBJECT
-	if(isSetUpForRangedAttack() != bValue)
-	{
-		m_bSetUpForRangedAttack = bValue;
-
-		if(bValue)
-		{
-			changeMoves(-GC.getMOVE_DENOMINATOR());
-		}
-	}
+	return;
 }
-
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::canEmbarkAtPlot(const CvPlot* pPlot) const
@@ -14740,29 +14710,13 @@ bool CvUnit::canCoexistWithEnemyUnit(TeamTypes eTeam) const
 	return false;
 }
 
-
-//	--------------------------------------------------------------------------------
-int CvUnit::getMustSetUpToRangedAttackCount() const
-{
-	VALIDATE_OBJECT
-	return m_iMustSetUpToRangedAttackCount;
-}
-
 //	--------------------------------------------------------------------------------
 bool CvUnit::isMustSetUpToRangedAttack() const
 {
 	VALIDATE_OBJECT
-	return getMustSetUpToRangedAttackCount() > 0;
+	//no longer used
+	return false;
 }
-
-//	--------------------------------------------------------------------------------
-void CvUnit::changeMustSetUpToRangedAttackCount(int iChange)
-{
-	VALIDATE_OBJECT
-	m_iMustSetUpToRangedAttackCount = (m_iMustSetUpToRangedAttackCount + iChange);
-	CvAssert(getMustSetUpToRangedAttackCount() >= 0);
-}
-
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getRangedSupportFireCount() const
@@ -15383,13 +15337,13 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 
 //	--------------------------------------------------------------------------------
 /// What is the max strength of this Unit when attacking?
-int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender) const
+int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, bool bIgnoreFlanking) const
 {
 	VALIDATE_OBJECT
 	if(GetBaseCombatStrength() == 0)
 		return 0;
 
-	int iModifier = GetGenericMaxStrengthModifier(pDefender, pToPlot, /*bIgnoreFlanking*/ false, pFromPlot);
+	int iModifier = GetGenericMaxStrengthModifier(pDefender, pToPlot, bIgnoreFlanking, pFromPlot);
 
 	// Generic Attack bonus
 	int iTempModifier = getAttackModifier();
@@ -19526,7 +19480,7 @@ if (!bDoEvade)
 	if (pkPrevGarrisonedCity)
 	{
 		//when moving out, another unit might be present to take over garrison duty
-		pkPrevGarrisonedCity->SetGarrison( pkPrevGarrisonedCity->plot()->getBestGarrison( pkPrevGarrisonedCity->getOwner() ).pointer() );
+		pkPrevGarrisonedCity->SetGarrison( pkPrevGarrisonedCity->plot()->getBestGarrison( pkPrevGarrisonedCity->getOwner() ) );
 		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkPrevGarrisonedCity));
 		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
 	}
@@ -19535,7 +19489,7 @@ if (!bDoEvade)
 		if (pNewPlot->isCity())
 		{
 			//when moving in, see if we're better than the previous garrison
-			CvUnit* pBestGarrison = pNewPlot->getBestGarrison(pNewPlot->getOwner()).pointer();
+			CvUnit* pBestGarrison = pNewPlot->getBestGarrison(pNewPlot->getOwner());
 			if (pBestGarrison==this)
 			{
 				CvCity* pkNewGarrisonedCity = pNewPlot->getPlotCity();
@@ -24526,7 +24480,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeRiverCrossingNoPenaltyCount((thisPromotion.IsRiver()) ? iChange : 0);
 		changeEnemyRouteCount((thisPromotion.IsEnemyRoute()) ? iChange : 0);
 		changeRivalTerritoryCount((thisPromotion.IsRivalTerritory()) ? iChange : 0);
-		changeMustSetUpToRangedAttackCount((thisPromotion.IsMustSetUpToRangedAttack()) ? iChange : 0);
+		//no longer used!
+		//changeMustSetUpToRangedAttackCount((thisPromotion.IsMustSetUpToRangedAttack()) ? iChange : 0);
 		changeRangedSupportFireCount((thisPromotion.IsRangedSupportFire()) ? iChange : 0);
 		changeAlwaysHealCount((thisPromotion.IsAlwaysHeal()) ? iChange : 0);
 		changeHealOutsideFriendlyCount((thisPromotion.IsHealOutsideFriendly()) ? iChange : 0);

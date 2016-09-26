@@ -953,7 +953,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	DoSeedResourceDemandedCountdown();
 
 	// Garrisoned?
-	SetGarrison( plot()->getBestGarrison(getOwner()).pointer() );
+	SetGarrison( plot()->getBestGarrison(getOwner()) );
 
 	// Update Unit Maintenance for the player
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());

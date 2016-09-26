@@ -2562,7 +2562,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 	}
 	else
 	{
-		CvUnit* pBestDefender = plot.getBestDefender(NO_PLAYER, kAttacker.getOwner()).pointer();
+		CvUnit* pBestDefender = plot.getBestDefender(NO_PLAYER, kAttacker.getOwner());
 		BATTLE_JOINED(pBestDefender, BATTLE_UNIT_DEFENDER, false);
 	}
 #endif
@@ -2848,7 +2848,7 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 	}
 	else
 	{
-		pDefenderUnit = pkTargetPlot->getBestDefender(NO_PLAYER, pkAttacker->getOwner()).pointer();
+		pDefenderUnit = pkTargetPlot->getBestDefender(NO_PLAYER, pkAttacker->getOwner());
 	}
 #endif
 
