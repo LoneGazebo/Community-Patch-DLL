@@ -9727,8 +9727,10 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 {
 	CvPlot* pBestMovePlot = NULL;
 	int iBestValue = 0;
-	CvPlot* pPlot;
 	int iMaxTurns = iRange/2+3;
+
+	// fill this in once we have our first match
+	ReachablePlots reachablePlots;
 
 	// Loop through all appropriate targets to find the closest
 	for(unsigned int iI = 0; iI < m_AllTargets.size(); iI++)
@@ -9794,88 +9796,44 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 		// Is this unit near enough?
 		if(bTypeMatch)
 		{
-			pPlot = GC.getMap().plot(target.GetTargetX(), target.GetTargetY());
-#if defined(MOD_BALANCE_CORE)
-			//Since we redefined it above, let's check things.
-			if(pPlot == NULL)
-			{
+			CvPlot* pPlot = GC.getMap().plot(target.GetTargetX(), target.GetTargetY());
+			if(!pPlot)
 				continue;
-			}
-			//Naval unit? Let's get a water plot.
+
+			if(pNoLikeUnit && pPlot->getMaxFriendlyUnitsOfType(pNoLikeUnit)>0)
+				continue;
+
+			//Naval unit? Let's get a water plot (if ranged)
 			if(!pPlot->isWater() && pUnit->getDomainType() == DOMAIN_SEA)
-			{
-				if(pUnit->isRanged())
-				{
-					CvPlot* pNewPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pPlot);
-					//No water plot? Ignore.
-					if(pNewPlot == NULL)
-					{
-						continue;
-					}
-					else
-					{
-						pPlot = pNewPlot;
-					}
-				}
-				else
-				{
-					continue;
-				}
-			}
+				pPlot = pUnit->isRanged() ? MilitaryAIHelpers::GetCoastalPlotNearPlot(pPlot) : NULL;
+
 			//Since we redefined it above, let's check things.
-			if(pPlot == NULL)
-			{
+			if(!pPlot)
 				continue;
-			}
-			int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
-#else
-			int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), target.GetTargetX(), target.GetTargetY());
-#endif
-			if(iDistance == 0)
-			{
+
+			//shortcut, may happen often
+			if (pUnit->plot()==pPlot)
 				return pPlot;
-			}
-			else if(iDistance < iRange)
+	
+			//see how far the unit can go
+			if (reachablePlots.empty())
 			{
-				if(pUnit->getArea() == pPlot->getArea())
-				{
-					if(!pNoLikeUnit || pPlot->getMaxFriendlyUnitsOfType(pNoLikeUnit) == 0)
-					{
-						int iTurns = pUnit->TurnsToReachTarget(pPlot, true, true, iMaxTurns);
-						int iValue = target.GetAuxIntData() / max(1,iTurns);
+				SPathFinderUserData data(pUnit.pointer(),0,iMaxTurns);
+				data.ePathType = PT_UNIT_REACHABLE_PLOTS;
+				reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
+			}
 
-						if( iValue > iBestValue)
-						{
-							pBestMovePlot = pPlot;
-							iBestValue = iValue;
-						}
-					}
-				}
-#if defined(MOD_BALANCE_CORE)
-				else
-				{
-					//Not same area for naval units? Abort.
-					if(pUnit->getDomainType() == DOMAIN_SEA)
-					{
-						continue;
-					}
-					else if(pUnit->getDomainType() == DOMAIN_LAND)
-					{
-						if(!pNoLikeUnit || pPlot->getMaxFriendlyUnitsOfType(pNoLikeUnit) == 0)
-						{
-							int iTurns = pUnit->TurnsToReachTarget(pPlot, true, true, iMaxTurns);
-							//Half because area switch
-							int iValue = target.GetAuxIntData() / max(1,iTurns) / 2;
+			//how long would it take to go to the target
+			SMovePlot test(pPlot->GetPlotIndex());
+			ReachablePlots::iterator it = reachablePlots.find(test);
+			if (it==reachablePlots.end())
+				continue;
 
-							if( iValue > iBestValue)
-							{
-								pBestMovePlot = pPlot;
-								iBestValue = iValue;
-							}
-						}
-					}
-				}
-#endif
+			int iValue = target.GetAuxIntData() / max(1,it->iTurns);
+			if( iValue > iBestValue)
+			{
+				pBestMovePlot = pPlot;
+				iBestValue = iValue;
 			}
 		}
 	}
