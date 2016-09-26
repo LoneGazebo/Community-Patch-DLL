@@ -1657,7 +1657,7 @@ int StepAdd(CvAStarNode* parent, CvAStarNode* node, int operation, const SPathFi
 }
 
 /// Step path finder - add a new node to the path. calculate turns as normalized distance
-int StepAddWithTurnsFromCost(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUserData&, CvAStar*)
+int StepAddWithTurnsFromCost(CvAStarNode*, CvAStarNode* node, int /*operation*/, const SPathFinderUserData&, CvAStar*)
 {
 	//assume a unit has 2*PATH_BASE_COST movement points per turn
 	node->m_iTurns = (node->m_iKnownCost + PATH_BASE_COST) / (2 * PATH_BASE_COST);

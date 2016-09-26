@@ -792,40 +792,9 @@ void CvHomelandAI::FindHomelandTargets()
 			// ... antiquity site?
 			else if((pLoopPlot->getResourceType(eTeam) == GC.getARTIFACT_RESOURCE() || pLoopPlot->getResourceType(eTeam) == GC.getHIDDEN_ARTIFACT_RESOURCE()))
 			{
-				// check for any other units working in this plot
-				const IDInfo* pUnitNode = pLoopPlot->headUnitNode();
-				const CvUnit* pLoopUnit = NULL;
-
-				bool bWorking = false;
-				while (pUnitNode != NULL)
-				{
-					pLoopUnit = ::getUnit(*pUnitNode);
-					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-
-					if (pLoopUnit != NULL)
-					{
-						if (pLoopUnit->IsWork() && pLoopUnit->getBuildType() != NO_BUILD)
-						{
-							bWorking = true;
-							break;
-						}
-					}
-				}
-				if (bWorking)
-					continue;
-
-				if(pLoopPlot->getOwner() != NO_PLAYER)
-				{
-					if(pLoopPlot->getOwner() == m_pPlayer->GetID() || !m_pPlayer->GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(pLoopPlot->getOwner()))
-					{
-						newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
-						newTarget.SetTargetX(pLoopPlot->getX());
-						newTarget.SetTargetY(pLoopPlot->getY());
-						newTarget.SetAuxData(pLoopPlot);
-						m_TargetedAntiquitySites.push_back(newTarget);
-					}
-				}
-				else
+				if( pLoopPlot->getOwner() == NO_PLAYER ||
+					pLoopPlot->getOwner() == m_pPlayer->GetID() || 
+					!m_pPlayer->GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(pLoopPlot->getOwner()) )
 				{
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
 					newTarget.SetTargetX(pLoopPlot->getX());
@@ -7747,6 +7716,31 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 	for (it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); it++)
 	{
 		CvPlot* pTarget = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
+		if (pUnit->plot()==pTarget)
+		{
+			pBestTarget = pTarget;
+			break;
+		}
+
+		//ignore if another digger is already near
+		bool bIgnore = false;
+		for (int i=0; i<RING1_PLOTS; i++)
+		{
+			int iUnitID = 0;
+			CvPlot* pTest = iterateRingPlots(pTarget,i);
+			if (pTest && pTest->getNumUnitsOfAIType(UNITAI_ARCHAEOLOGIST,iUnitID)>0)
+			{
+				if (iUnitID != pUnit->GetID())
+				{
+					bIgnore = true;
+					break;
+				}
+			}
+		}
+
+		if (bIgnore)
+			continue;
+
 		if (m_pPlayer->GetPlotDanger(*pTarget) == 0)
 		{
 			if(!pTarget->isRevealed(m_pPlayer->getTeam()))
@@ -8233,60 +8227,8 @@ bool CvHomelandAI::FindTestArchaeologistPlotPrimer(CvUnit *pUnit)
 	}
 	return false;
 }
-/// Find best target for this archaeologist
-CvPlot* CvHomelandAI::FindTestArchaeologistPlot(CvUnit *pUnit)
-{
-	if(pUnit->AI_getUnitAIType() != UNITAI_ARCHAEOLOGIST)
-	{
-		return NULL;
-	}
-	CvPlot *pBestTarget = NULL;
-	int iBestTurns = MAX_INT;
-
-	// Reverse the logic from most of the Homeland moves; for this we'll loop through units and find the best targets for them (instead of vice versa)
-	std::vector<CvHomelandTarget>::iterator it;
-	for (it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); it++)
-	{
-		CvPlot* pTarget = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
-		if (m_pPlayer->GetPlotDanger(*pTarget) == 0)
-		{
-			if(!pTarget->isRevealed(m_pPlayer->getTeam()))
-			{
-				continue;
-			}
-			int iTurns = pUnit->TurnsToReachTarget(pTarget, false, false, iBestTurns);
-
-			if (iTurns < iBestTurns)
-			{
-				pBestTarget = pTarget;
-				iBestTurns = iTurns;
-			}
-		}
-	}
-	// Erase this site from future contention
-	if (pBestTarget)
-	{
-		for (it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); it++)
-		{
-			if (it->GetTargetX() == pBestTarget->getX() && it->GetTargetY() == pBestTarget->getY())
-			{
-				m_TargetedAntiquitySites.erase(it);
-				break;
-			}
-		}
-	}
-	else
-	{
-		if(pUnit->isHuman())
-		{
-			pUnit->SetAutomateType(NO_AUTOMATE);
-			UnitProcessed(pUnit->GetID());
-		}
-	}
-
-	return pBestTarget;
-}
 #endif
+
 /// Build log filename
 CvString CvHomelandAI::GetLogFileName(CvString& playerName) const
 {

@@ -278,7 +278,6 @@ public:
 	bool ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pPlot);
 #if defined(MOD_BALANCE_CORE)
 	bool FindTestArchaeologistPlotPrimer(CvUnit* pUnit);
-	CvPlot* FindTestArchaeologistPlot(CvUnit* pUnit);
 #endif
 	// Public logging
 	void LogHomelandMessage(const CvString& strMsg);
