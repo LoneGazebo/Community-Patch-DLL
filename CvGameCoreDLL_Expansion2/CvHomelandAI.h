@@ -409,7 +409,7 @@ private:
 	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
 
 	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, DomainTypes eDomain, int iMaxTurns);
-	bool MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo, int iFlags);
+	bool MoveToUsingSafeEmbark(CvUnit* pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo, int iFlags);
 
 	CvPlot* FindArchaeologistTarget(CvUnit *pUnit);
 	void UnitProcessed(int iID);

@@ -3104,7 +3104,7 @@ void CvMilitaryAI::LogPeace(TeamTypes eOpponentTeam)
 
 
 /// Log that a unit is being scrapped because of the deficit checks
-void CvMilitaryAI::LogDeficitScrapUnit(UnitHandle pUnit)
+void CvMilitaryAI::LogDeficitScrapUnit(CvUnit* pUnit)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -4767,8 +4767,8 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 
 	bool bInDeficit = false;
 	bool bConquestGrandStrategy = false;
-	UnitHandle pNavalUnit;
-	UnitHandle pLandUnit;
+	CvUnit* pNavalUnit = NULL;
+	CvUnit* pLandUnit = NULL;
 	int iNavalScore = MAX_INT;
 	int iLandScore = MAX_INT;
 
@@ -4882,11 +4882,11 @@ bool CvMilitaryAI::IsAttackReady(MultiunitFormationTypes eFormation, AIOperation
 }
 
 /// Score the strength of the units for a domain; best candidate to scrap (with lowest score) is returned. Only supports land and naval units
-UnitHandle CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband, int& iReturnedScore)
+CvUnit* CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisband, int& iReturnedScore)
 {
-	CvUnit* pLoopUnit;
+	CvUnit* pLoopUnit = NULL;
 	int iUnitLoop;
-	UnitHandle pBestUnit;
+	CvUnit* pBestUnit = NULL;
 	int iScore;
 	int iBestScore = MAX_INT;
 
@@ -5740,7 +5740,7 @@ void CvMilitaryAI::LogWarStateChange(PlayerTypes ePlayer, WarStateTypes eNewWarS
 }
 
 /// Log that a unit is being scrapped
-void CvMilitaryAI::LogScrapUnit(UnitHandle pUnit, bool bDeficit, bool bConquest)
+void CvMilitaryAI::LogScrapUnit(CvUnit* pUnit, bool bDeficit, bool bConquest)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{

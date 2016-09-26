@@ -169,8 +169,8 @@ public:
 	int getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int iNowExtra, int iThenExtra) const;
 	int getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity** ppCity) const;
 
-	UnitHandle getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bTestPotentialEnemy = false, bool bTestCanMove = false, bool bNoncombatAllowed = false) const;
-	UnitHandle getBestGarrison(PlayerTypes eOwner) const;
+	CvUnit* getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bTestPotentialEnemy = false, bool bTestCanMove = false, bool bNoncombatAllowed = false) const;
+	CvUnit* getBestGarrison(PlayerTypes eOwner) const;
 	CvUnit* getSelectedUnit() const;
 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;
 
@@ -772,10 +772,10 @@ public:
 	void getVisibleImprovementState(ImprovementTypes& eType, bool& bWorked);				// determines how the improvement state is shown in the engine
 	void getVisibleResourceState(ResourceTypes& eType, bool& bImproved, bool& bWorked);		// determines how the resource state is shown in the engine
 
-	UnitHandle getCenterUnit();
-	const UnitHandle getCenterUnit() const;
+	CvUnit* getCenterUnit();
+	const CvUnit* getCenterUnit() const;
 	const CvUnit* getDebugCenterUnit() const;
-	void setCenterUnit(UnitHandle pNewValue);
+	void setCenterUnit(CvUnit* pNewValue);
 
 	int getInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible) const;
 	bool isInvisibleVisible(TeamTypes eTeam, InvisibleTypes eInvisible) const;
@@ -1040,7 +1040,7 @@ protected:
 	float m_fPopupDelay;
 #endif
 
-	UnitHandle m_pCenterUnit;
+	CvUnit* m_pCenterUnit;
 
 	short m_apaiInvisibleVisibilityCount[MAX_TEAMS][NUM_INVISIBLE_TYPES];
 

@@ -37,14 +37,7 @@ class CvPathNode;
 class CvTacticalMove;
 #endif
 
-typedef MissionData MissionQueueNode;
-
-typedef FFastSmallFixedList< MissionQueueNode, 12, true, c_eCiv5GameplayDLL > MissionQueue;
-
-typedef FObjectHandle<CvUnit> UnitHandle;
-typedef FStaticVector<CvPlot*, 20, true, c_eCiv5GameplayDLL, 0> UnitMovementQueue;
-
-typedef	FFastVector<std::pair<CvPlot*, bool>, true, c_eCiv5GameplayDLL> DangerPlotList;
+typedef FFastSmallFixedList< MissionData, 12, true, c_eCiv5GameplayDLL > MissionQueue;
 
 struct CvUnitCaptureDefinition
 {
@@ -124,7 +117,6 @@ public:
 		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x80000, //pretend we can enter everybody's territory
 	};
 
-	inline DestructionNotification<UnitHandle>& getDestructionNotification() { return m_destructionNotification; }
 #if defined(MOD_BALANCE_CORE)
 	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT);
 #else
@@ -1635,8 +1627,8 @@ public:
 	static CvUnit* createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef);
 
 protected:
-	const MissionQueueNode* HeadMissionQueueNode() const;
-	MissionQueueNode* HeadMissionQueueNode();
+	const MissionData* HeadMissionData() const;
+	MissionData* HeadMissionData();
 
 	bool HaveCachedPathTo(const CvPlot* pToPlot, int iFlags);
 	bool IsCachedPathValid();
@@ -1944,11 +1936,9 @@ protected:
 	FAutoVariable<ActivityTypes, CvUnit> m_eActivityType;
 	FAutoVariable<AutomateTypes, CvUnit> m_eAutomateType;
 	FAutoVariable<UnitAITypes, CvUnit> m_eUnitAIType;
-	DestructionNotification<UnitHandle> m_destructionNotification;
 
-	UnitHandle  m_thisHandle;
-
-	UnitMovementQueue m_unitMoveLocs;
+	//not serialized
+	std::vector<CvPlot*> m_unitMoveLocs;
 
 	FAutoVariable<bool, CvUnit> m_bIgnoreDangerWakeup; // slewis - make this an autovariable when saved games are broken
 	FAutoVariable<int, CvUnit> m_iEmbarkedAllWaterCount;

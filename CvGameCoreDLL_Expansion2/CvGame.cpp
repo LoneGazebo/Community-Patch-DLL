@@ -3084,7 +3084,7 @@ void CvGame::selectAll(CvPlot* pPlot)
 
 	if(pPlot != NULL)
 	{
-		CvUnit* pCenterUnit = pPlot->getCenterUnit().pointer();
+		CvUnit* pCenterUnit = pPlot->getCenterUnit();
 
 		if((pCenterUnit != NULL) && (pCenterUnit->getOwner() == getActivePlayer()))
 		{
@@ -8987,9 +8987,7 @@ void CvGame::updateWar()
 //	-----------------------------------------------------------------------------------------------
 void CvGame::updateMoves()
 {
-	UnitHandle pLoopUnit;
-	pLoopUnit.ignoreDestruction(true); // It's acceptable for the unit to become invalid during AutoMoves()
-
+	CvUnit* pLoopUnit = NULL;
 	int iLoop;
 	int iI;
 
@@ -9227,9 +9225,9 @@ void CvGame::updateMoves()
 										if(pLoopUnit->getOwner() == pLoopUnitInner->getOwner())	// Could be a dying Unit from another player here
 										{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit.pointer()) > pLoopUnit->plot()->getUnitLimit())
+											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit) > pLoopUnit->plot()->getUnitLimit())
 #else
-											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit.pointer()) > GC.getPLOT_UNIT_LIMIT())
+											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit) > GC.getPLOT_UNIT_LIMIT())
 #endif
 											{
 												if(pLoopUnitInner->getFortifyTurns() >= iNumTurnsFortified)

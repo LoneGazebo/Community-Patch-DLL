@@ -75,13 +75,13 @@ public:
 	CvPlot* FindBestMerchantTargetPlot(CvUnit* pGreatMerchant, bool bOnlySafePaths);
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	//For Great Diplomats
-	CvCity* FindBestDiplomatTargetCity(UnitHandle pUnit);
-	CvPlot* ChooseDiplomatTargetPlot(UnitHandle pUnit);
-	int ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit);
+	CvCity* FindBestDiplomatTargetCity(CvUnit* pUnit);
+	CvPlot* ChooseDiplomatTargetPlot(CvUnit* pUnit);
+	int ScoreCityForDiplomat(CvCity* pCity, CvUnit* pUnit);
 	//And for messengers
-	CvCity* FindBestMessengerTargetCity(UnitHandle pUnit);
-	int ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit);
-	CvPlot* ChooseMessengerTargetPlot(UnitHandle pUnit);
+	CvCity* FindBestMessengerTargetCity(CvUnit* pUnit);
+	int ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit);
+	CvPlot* ChooseMessengerTargetPlot(CvUnit* pUnit);
 #endif
 
 	CvPlot* FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, const std::vector<CvPlot*>& vPlotsToAvoid, int& iScore);

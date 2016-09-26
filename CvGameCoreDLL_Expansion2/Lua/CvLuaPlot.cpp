@@ -719,8 +719,8 @@ int CvLuaPlot::lGetBestDefender(lua_State* L)
 	const bool bTestAtWar = luaL_optint(L, 5, 0);
 	const bool bTestPotentialEnemy = luaL_optint(L, 6, 0);
 	const bool bTestCanMove = luaL_optint(L, 7, 0);
-	UnitHandle pkUnit = pkPlot->getBestDefender(eOwner, eAttackingPlayer, pkAttacker, bTestAtWar, bTestPotentialEnemy, bTestCanMove);
-	CvLuaUnit::Push(L, pkUnit.pointer());
+	CvUnit* pkUnit = pkPlot->getBestDefender(eOwner, eAttackingPlayer, pkAttacker, bTestAtWar, bTestPotentialEnemy, bTestCanMove);
+	CvLuaUnit::Push(L, pkUnit);
 	return 1;
 }
 //------------------------------------------------------------------------------

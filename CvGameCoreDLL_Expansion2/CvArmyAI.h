@@ -152,9 +152,9 @@ public:
 	bool CanTacticalAIInterruptUnit(int iUnitId) const;
 	int GetFirstUnitID();
 	int GetNextUnitID();
-	UnitHandle GetFirstUnit();
-	UnitHandle GetNextUnit();
-	UnitHandle GetFirstUnitInDomain(DomainTypes eDomain);
+	CvUnit* GetFirstUnit();
+	CvUnit* GetNextUnit();
+	CvUnit* GetFirstUnitInDomain(DomainTypes eDomain);
 
 	// Per turn processing
 	bool IsDelayedDeath();

@@ -669,7 +669,7 @@ void CvPlot::updateCenterUnit()
 
 	if(!getCenterUnit())
 	{
-		UnitHandle hBestDefender = getBestDefender(NO_PLAYER, GC.getGame().getActivePlayer());
+		CvUnit* hBestDefender = getBestDefender(NO_PLAYER, GC.getGame().getActivePlayer());
 		if(hBestDefender && hBestDefender->getDomainType() != DOMAIN_AIR && !hBestDefender->isInvisible(eActiveTeam,false))
 			setCenterUnit(hBestDefender);
 	}
@@ -694,7 +694,7 @@ void CvPlot::updateCenterUnit()
 
 	IDInfo* pUnitNode;
 	CvUnit* pLoopUnit;
-	CvUnit* pCenterUnit = getCenterUnit().pointer();
+	CvUnit* pCenterUnit = getCenterUnit();
 	pUnitNode = headUnitNode();
 	while(pUnitNode != NULL)
 	{
@@ -3128,11 +3128,11 @@ int CvPlot::getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity*
 
 
 //	--------------------------------------------------------------------------------
-UnitHandle CvPlot::getBestGarrison(PlayerTypes eOwner) const
+CvUnit* CvPlot::getBestGarrison(PlayerTypes eOwner) const
 {
 	const IDInfo* pUnitNode = headUnitNode();
-	UnitHandle pLoopUnit;
-	UnitHandle pBestUnit;
+	CvUnit* pLoopUnit = NULL;
+	CvUnit* pBestUnit = NULL;
 
 	while(pUnitNode != NULL)
 	{
@@ -3141,7 +3141,7 @@ UnitHandle CvPlot::getBestGarrison(PlayerTypes eOwner) const
 
 		if(pLoopUnit && (pLoopUnit->getOwner() == eOwner) && pLoopUnit->CanGarrison() && !pLoopUnit->isDelayedDeath())
 		{
-			if(pLoopUnit->isBetterDefenderThan(pBestUnit.pointer(),NULL))
+			if(pLoopUnit->isBetterDefenderThan(pBestUnit,NULL))
 			{
 				pBestUnit = pLoopUnit;
 			}
@@ -3152,11 +3152,11 @@ UnitHandle CvPlot::getBestGarrison(PlayerTypes eOwner) const
 }
 
 //	--------------------------------------------------------------------------------
-UnitHandle CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy, bool bTestCanMove, bool bNoncombatAllowed) const
+CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy, bool bTestCanMove, bool bNoncombatAllowed) const
 {
 	const IDInfo* pUnitNode = headUnitNode();
-	UnitHandle pLoopUnit;
-	UnitHandle pBestUnit;
+	CvUnit* pLoopUnit = NULL;
+	CvUnit* pBestUnit = NULL;
 
 	while(pUnitNode != NULL)
 	{
@@ -3177,7 +3177,7 @@ UnitHandle CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPla
 							{
 								if((pAttacker == NULL) || (pAttacker->getDomainType() != DOMAIN_AIR) || (pLoopUnit->getDamage() < pAttacker->GetRangedCombatLimit()))
 								{
-									if(pLoopUnit->isBetterDefenderThan(pBestUnit.pointer(), pAttacker))
+									if(pLoopUnit->isBetterDefenderThan(pBestUnit, pAttacker))
 									{
 										pBestUnit = pLoopUnit;
 									}
@@ -3217,13 +3217,9 @@ CvUnit* CvPlot::getSelectedUnit() const
 //	--------------------------------------------------------------------------------
 int CvPlot::getUnitPower(PlayerTypes eOwner) const
 {
-	const IDInfo* pUnitNode;
+	const IDInfo* pUnitNode = headUnitNode();
 	const CvUnit* pLoopUnit;
-	int iCount;
-
-	iCount = 0;
-
-	pUnitNode = headUnitNode();
+	int iCount = 0;
 
 	while(pUnitNode != NULL)
 	{
@@ -11925,13 +11921,13 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 
 
 //	--------------------------------------------------------------------------------
-UnitHandle CvPlot::getCenterUnit()
+CvUnit* CvPlot::getCenterUnit()
 {
 	return m_pCenterUnit;
 }
 
 //	--------------------------------------------------------------------------------
-const UnitHandle CvPlot::getCenterUnit() const
+const CvUnit* CvPlot::getCenterUnit() const
 {
 	return m_pCenterUnit;
 }
@@ -11940,9 +11936,7 @@ const UnitHandle CvPlot::getCenterUnit() const
 //	--------------------------------------------------------------------------------
 const CvUnit* CvPlot::getDebugCenterUnit() const
 {
-	const CvUnit* pCenterUnit;
-
-	pCenterUnit = getCenterUnit().pointer();
+	const CvUnit* pCenterUnit = getCenterUnit();
 
 	if(pCenterUnit == NULL)
 	{
@@ -11961,18 +11955,14 @@ const CvUnit* CvPlot::getDebugCenterUnit() const
 
 
 //	--------------------------------------------------------------------------------
-void CvPlot::setCenterUnit(UnitHandle pNewValue)
+void CvPlot::setCenterUnit(CvUnit* pNewValue)
 {
-	UnitHandle pOldValue;
-
-	pOldValue = getCenterUnit();
-
+	CvUnit* pOldValue = getCenterUnit();
 	m_pCenterUnit = pNewValue;
-	m_pCenterUnit.ignoreDestruction(true);
 
 	if(pOldValue != pNewValue)
 	{
-		UnitHandle newCenterUnit = getCenterUnit();
+		CvUnit* newCenterUnit = getCenterUnit();
 		if(newCenterUnit)
 		{
 			newCenterUnit->setInfoBarDirty(true);
@@ -14875,7 +14865,7 @@ int CvPlot::GetAdjacentEnemyPower(PlayerTypes ePlayer) const
 		if (!pNeighborPlot)
 			continue;
 
-		UnitHandle pEnemy = pNeighborPlot->getBestDefender(NO_PLAYER,ePlayer,NULL,true);
+		CvUnit* pEnemy = pNeighborPlot->getBestDefender(NO_PLAYER,ePlayer,NULL,true);
 		if (pEnemy && pEnemy->getDomainType() == DOMAIN_LAND && pEnemy->IsCombatUnit())
 			if (!pEnemy->isInvisible(kPlayer.getTeam(),false))
 				iEnemyPower += pEnemy->GetPower();

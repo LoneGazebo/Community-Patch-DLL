@@ -953,7 +953,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	DoSeedResourceDemandedCountdown();
 
 	// Garrisoned?
-	SetGarrison( plot()->getBestGarrison(getOwner()).pointer() );
+	SetGarrison( plot()->getBestGarrison(getOwner()) );
 
 	// Update Unit Maintenance for the player
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
@@ -18461,7 +18461,7 @@ int CvCity::GetLocalHappiness() const
 	int iHappinessPerGarrison = kPlayer.GetHappinessPerGarrisonedUnit();
 	if(iHappinessPerGarrison > 0)
 	{
-		UnitHandle pDefender = plot()->getBestDefender(getOwner());
+		CvUnit* pDefender = plot()->getBestDefender(getOwner());
 		if(pDefender && pDefender->getDomainType() == DOMAIN_LAND)
 		{
 			iLocalHappiness += kPlayer.GetHappinessPerGarrisonedUnit();
@@ -28269,7 +28269,7 @@ bool CvCity::canRangedStrikeTarget(const CvPlot& targetPlot) const
 CvUnit* CvCity::rangedStrikeTarget(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
-	UnitHandle pDefender = pPlot->getBestDefender(NO_PLAYER, getOwner(), NULL, true, false, false, /*bNoncombatAllowed*/ true);
+	CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwner(), NULL, true, false, false, /*bNoncombatAllowed*/ true);
 
 	if(pDefender)
 	{
@@ -28277,12 +28277,12 @@ CvUnit* CvCity::rangedStrikeTarget(const CvPlot* pPlot) const
 		{
 #if defined(MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY)
 			// If the defender is a sub and the plot is ice, return NULL
-			if (pDefender.pointer()->getInvisibleType() == 0 && pPlot->getFeatureType() == FEATURE_ICE) {
+			if (pDefender->getInvisibleType() == 0 && pPlot->getFeatureType() == FEATURE_ICE) {
 				return NULL;
 			}
 #endif
 
-			return pDefender.pointer();
+			return pDefender;
 		}
 	}
 
