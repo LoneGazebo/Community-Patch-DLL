@@ -15724,14 +15724,12 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 //	--------------------------------------------------------------------------------
 int CvUnit::GetEmbarkedUnitDefense() const
 {
-	int iRtnValue;
-	int iModifier;
 	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 	EraTypes eEra = kPlayer.GetCurrentEra();
 
-	iRtnValue = GC.getEraInfo(eEra)->getEmbarkedUnitDefense() * 100;
+	int iRtnValue = GC.getEraInfo(eEra)->getEmbarkedUnitDefense() * 100 + GetBaseCombatStrength() * 20;
 
-	iModifier = GetEmbarkDefensiveModifier();
+	int iModifier = GetEmbarkDefensiveModifier();
 	if(iModifier > 0)
 	{
 		iRtnValue = iRtnValue * (100 + iModifier);
@@ -16370,8 +16368,15 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 
 		// Use Ranged combat value for defender (except impi)
 		if (pDefender->isRanged() && !pDefender->isRangedSupportFire())
-			iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false, pTargetPlot, pFromPlot);
+		{
+			//have to consider embarkation explicitly
+			if ( (!pTargetPlot && pDefender->isEmbarked()) || (pTargetPlot && pTargetPlot->needsEmbarkation(pDefender) && pDefender->CanEverEmbark()) )
+				iDefenderStrength = GetEmbarkedUnitDefense();
+			else
+				iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false, pTargetPlot, pFromPlot);
+		}
 		else
+			//this considers embarkation implicitly
 			iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, /*bFromRangedAttack*/ true);
 	}
 	else

@@ -3612,7 +3612,7 @@ bool CvAIOperationCivilian::IsEscorted()
 		CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[0]);
 
 		//the unit to be escorted is always the first one
-		CvUnit* pCivilian = pThisArmy->GetFirstUnit();
+		/*CvUnit* pCivilian =*/ pThisArmy->GetFirstUnit();
 		//the second unit would be the first escort
 		CvUnit* pEscort = pThisArmy->GetNextUnit();
 
