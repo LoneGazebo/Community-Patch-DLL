@@ -32,7 +32,7 @@
 /////////////////////////////////////////
 
 // FIRST: Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
-#define NO_ACHIEVEMENTS
+//#define NO_ACHIEVEMENTS
 //adds active diplomacy to Multiplayer games
 #define MOD_ACTIVE_DIPLOMACY			 gCustomMods.isACTIVE_DIPLOMACY()
 

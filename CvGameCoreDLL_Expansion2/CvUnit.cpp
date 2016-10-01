@@ -2839,7 +2839,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 							if(kCaptureDef.eCapturingPlayer != kCaptureDef.eOriginalOwner)
 							{
 #if defined(MOD_BALANCE_CORE)
-								if(kCaptureDef.eOriginalOwner != NO_PLAYER && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman() && !GET_PLAYER(kCaptureDef.eCapturingPlayer).IsAtWarWith(kCaptureDef.eOriginalOwner))
+								if (kCaptureDef.eOriginalOwner != NO_PLAYER && GET_PLAYER(kCaptureDef.eOriginalOwner).isAlive() && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman() && !GET_PLAYER(kCaptureDef.eCapturingPlayer).IsAtWarWith(kCaptureDef.eOriginalOwner))
 								{
 									MajorCivOpinionTypes eMajorOpinion = NO_MAJOR_CIV_OPINION_TYPE;
 									MinorCivApproachTypes eMinorOpinion = NO_MINOR_CIV_APPROACH;

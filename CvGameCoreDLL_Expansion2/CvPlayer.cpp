@@ -661,6 +661,7 @@ CvPlayer::CvPlayer() :
 	, m_piYieldChangesNaturalWonder(NULL)
 	, m_piYieldChangeWorldWonder(NULL)
 	, m_piYieldFromMinorDemand(NULL)
+	, m_piYieldFromWLTKD(NULL)
 	, m_piCityFeatures(NULL)
 	, m_piNumBuildings(NULL)
 	, m_ppiBuildingClassYieldChange("CvPlayer::m_ppiBuildingClassYieldChange", m_syncArchive)
@@ -2076,6 +2077,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_piYieldFromMinorDemand.clear();
 		m_piYieldFromMinorDemand.resize(NUM_YIELD_TYPES, 0);
+
+		m_piYieldFromWLTKD.clear();
+		m_piYieldFromWLTKD.resize(NUM_YIELD_TYPES, 0);
 
 		m_piCityFeatures.clear();
 		m_piCityFeatures.resize(GC.getNumFeatureInfos(), 0);
@@ -34666,6 +34670,25 @@ void CvPlayer::ChangeYieldFromMinorDemand(YieldTypes eYield, int iChange)
 		m_piYieldFromMinorDemand[eYield] += iChange;
 	}
 }
+
+int CvPlayer::GetYieldFromWLTKD(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_piYieldFromWLTKD[eYield];
+}
+
+void CvPlayer::ChangeYieldFromWLTKD(YieldTypes eYield, int iChange)
+{
+	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_piYieldFromWLTKD[eYield] += iChange;
+	}
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::getBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes eIndex2) const
 {
@@ -37525,6 +37548,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	{
 		ChangeEspionageModifier(pPolicy->GetEspionageModifier() * iChange);
 	}
+	ChangeGreatScientistBeakerMod(pPolicy->GetGreatScientistBeakerModifier() * iChange);
 #endif
 	ChangeExtraHappinessPerLuxury(pPolicy->GetExtraHappinessPerLuxury() * iChange);
 	ChangeUnhappinessFromUnitsMod(pPolicy->GetUnhappinessFromUnitsMod() * iChange);
@@ -37898,16 +37922,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 		iMod = pPolicy->GetYieldFromWLTKD(iI) * iChange;
 		if (iMod != 0)
-		{
-			int iLoop;
-			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-			{
-				if (pLoopCity != NULL)
-				{
-					pLoopCity->ChangeYieldFromWLTKD((YieldTypes)iI, pPolicy->GetYieldFromWLTKD(iI) * iChange);
-				}
-			}
-		}
+			ChangeYieldFromWLTKD(eYield, iMod);
 #endif
 	}
 
@@ -39661,6 +39676,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_piYieldChangesNaturalWonder;
 	kStream >> m_piYieldChangeWorldWonder;
 	kStream >> m_piYieldFromMinorDemand;
+	kStream >> m_piYieldFromWLTKD;
 	kStream >> m_ppiBuildingClassYieldChange;
 	kStream >> m_piCityFeatures;
 	kStream >> m_piNumBuildings;
@@ -39847,6 +39863,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_piYieldChangesNaturalWonder;
 	kStream << m_piYieldChangeWorldWonder;
 	kStream << m_piYieldFromMinorDemand;
+	kStream << m_piYieldFromWLTKD;
 	kStream << m_ppiBuildingClassYieldChange;
 	kStream << m_piCityFeatures;
 	kStream << m_piNumBuildings;

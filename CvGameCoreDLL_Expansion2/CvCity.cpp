@@ -20474,7 +20474,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			if(eMajority == eReligionFounded)
 			{
 				int iWLTKD = pReligion->m_Beliefs.GetYieldFromWLTKD(eIndex, getOwner());
-				if(iWLTKD > 0)
+				if(iWLTKD != 0)
 				{
 					if(GetWeLoveTheKingDayCounter() > 0)
 					{
@@ -20490,15 +20490,15 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	}
 	if(GetWeLoveTheKingDayCounter() > 0)
 	{
-		if(GetYieldFromWLTKD(eIndex) > 0)
+		if (GET_PLAYER(getOwner()).GetYieldFromWLTKD(eIndex) + GetYieldFromWLTKD(eIndex) != 0)
 		{
-			iTempMod = GetYieldFromWLTKD(eIndex);
+			iTempMod = (GetYieldFromWLTKD(eIndex) + GET_PLAYER(getOwner()).GetYieldFromWLTKD(eIndex));
 			iModifier += iTempMod;
 			if(toolTipSink){
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODUCTION_WLTKD_BUILDING", iTempMod);
 			}
 		}
-		if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetWLTKDCulture() > 0 && eIndex == YIELD_CULTURE)
+		if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetWLTKDCulture() != 0 && eIndex == YIELD_CULTURE)
 		{
 			iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetWLTKDCulture();
 			iModifier += iTempMod;

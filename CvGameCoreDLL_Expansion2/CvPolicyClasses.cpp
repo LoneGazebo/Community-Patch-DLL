@@ -255,6 +255,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bNoUnhappyIsolation(false),
 	m_bDoubleBorderGA(false),
 	m_iIncreasedQuestInfluence(0),
+	m_iGreatScientistBeakerModifier(0),
 	m_iInternalTradeGold(0),
 	m_iCitadelBoost(0),
 	m_iPuppetProdMod(0),
@@ -611,6 +612,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bNoUnhappyIsolation = kResults.GetBool("NoUnhappyIsolation");
 	m_bDoubleBorderGA = kResults.GetBool("DoubleBorderGA");
 	m_iIncreasedQuestInfluence = kResults.GetInt("IncreasedQuestRewards");
+	m_iGreatScientistBeakerModifier = kResults.GetInt("GreatScientistBeakerModifier");
 	m_iInternalTradeGold = kResults.GetInt("InternalTradeGold");
 	m_iCitadelBoost = kResults.GetInt("CitadelBoost");
 	m_iPuppetProdMod = kResults.GetInt("PuppetProdMod");
@@ -2527,6 +2529,11 @@ bool CvPolicyEntry::GetDoubleBorderGA() const
 int CvPolicyEntry::GetIncreasedQuestInfluence() const
 {
 	return m_iIncreasedQuestInfluence;
+}
+/// Better beakers?
+int CvPolicyEntry::GetGreatScientistBeakerModifier() const
+{
+	return m_iGreatScientistBeakerModifier;
 }
 /// Citadel Boost?
 int CvPolicyEntry::GetCitadelBoost() const

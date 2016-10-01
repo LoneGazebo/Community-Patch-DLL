@@ -2090,6 +2090,9 @@ public:
 	int GetYieldFromMinorDemand(YieldTypes eYield) const;
 	void ChangeYieldFromMinorDemand(YieldTypes eYield, int iChange);
 
+	int GetYieldFromWLTKD(YieldTypes eYield) const;
+	void ChangeYieldFromWLTKD(YieldTypes eYield, int iChange);
+
 	int getBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
 	void changeBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange);
 #endif
@@ -3202,6 +3205,7 @@ protected:
 	std::vector<int> m_piYieldChangesNaturalWonder;
 	std::vector<int> m_piYieldChangeWorldWonder;
 	std::vector<int> m_piYieldFromMinorDemand;
+	std::vector<int> m_piYieldFromWLTKD;
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppiBuildingClassYieldChange;
 #endif
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiImprovementYieldChange;
