@@ -3070,7 +3070,7 @@ void CvGame::selectAll(CvPlot* pPlot)
 
 	if(pPlot != NULL)
 	{
-		CvUnit* pCenterUnit = pPlot->getCenterUnit().pointer();
+		CvUnit* pCenterUnit = pPlot->getCenterUnit();
 
 		if((pCenterUnit != NULL) && (pCenterUnit->getOwner() == getActivePlayer()))
 		{
@@ -8227,7 +8227,18 @@ void CvGame::doTurn()
 
 	if(isNetworkMultiPlayer())
 	{//autosave after doing a turn
+#if defined(MOD_BALANCE_CORE)
+		if (GC.getGame().isOption(GAMEOPTION_DYNAMIC_TURNS) || GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
+		{
+			gDLL->AutoSave(false, true);
+		}
+		else
+		{
+#endif
 		gDLL->AutoSave(false);
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 	}
 
 	gDLL->PublishNewGameTurn(getGameTurn());
@@ -8973,9 +8984,7 @@ void CvGame::updateWar()
 //	-----------------------------------------------------------------------------------------------
 void CvGame::updateMoves()
 {
-	UnitHandle pLoopUnit;
-	pLoopUnit.ignoreDestruction(true); // It's acceptable for the unit to become invalid during AutoMoves()
-
+	CvUnit* pLoopUnit = NULL;
 	int iLoop;
 	int iI;
 
@@ -9125,8 +9134,6 @@ void CvGame::updateMoves()
 					}
 				}
 
-
-
 				if(player.isAutoMoves() && (!player.isHuman() || processPlayerAutoMoves))
 				{
 					bool bRepeatAutomoves = false;
@@ -9215,9 +9222,9 @@ void CvGame::updateMoves()
 										if(pLoopUnit->getOwner() == pLoopUnitInner->getOwner())	// Could be a dying Unit from another player here
 										{
 #if defined(MOD_GLOBAL_STACKING_RULES)
-											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit.pointer()) > pLoopUnit->plot()->getUnitLimit())
+											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit) > pLoopUnit->plot()->getUnitLimit())
 #else
-											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit.pointer()) > GC.getPLOT_UNIT_LIMIT())
+											if(pLoopUnit->AreUnitsOfSameType(*pLoopUnitInner) && pLoopUnit->plot()->getMaxFriendlyUnitsOfType(pLoopUnit) > GC.getPLOT_UNIT_LIMIT())
 #endif
 											{
 												if(pLoopUnitInner->getFortifyTurns() >= iNumTurnsFortified)
@@ -13141,7 +13148,34 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 
 void CvGame::SetClosestCityMapDirty()
 {
-	m_globalCityDistance.SetDirty();
+	m_globalCityDistanceTurns.SetDirty();
+	m_globalCityDistancePlots.SetDirty();
+
+	//debugging
+	if (false)
+	{
+		CvString fname = CvString::format("CityDistance%03d.txt",getGameTurn());
+		FILogFile* pLog = LOGFILEMGR.GetLog(fname.c_str(), FILogFile::kDontTimeStamp);
+		if (pLog)
+		{
+			pLog->Msg("#x,y,water,plot dist,plot city,plot owner,turn dist,turn city,turn owner\n");
+			for (int i = 0; i < GC.getMap().numPlots(); i++)
+			{
+				CvPlot* pPlot = GC.getMap().plotByIndex(i);
+				int iDP = m_globalCityDistancePlots.GetClosestFeatureDistance(*pPlot);
+				int iCP = m_globalCityDistancePlots.GetClosestFeatureID(*pPlot);
+				int iOP = m_globalCityDistancePlots.GetClosestFeatureOwner(*pPlot);
+				int iDT = m_globalCityDistanceTurns.GetClosestFeatureDistance(*pPlot);
+				int iCT = m_globalCityDistancePlots.GetClosestFeatureID(*pPlot);
+				int iOT = m_globalCityDistancePlots.GetClosestFeatureOwner(*pPlot);
+
+				CvString dump = CvString::format("%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+					pPlot->getX(), pPlot->getY(), pPlot->isWater() ? 1 : 0, iDP, iCP, iOP, iDT, iCT, iOT);
+
+				pLog->Msg(dump.c_str());
+			}
+		}
+	}
 }
 
 int CvGame::GetClosestCityDistanceInTurns( const CvPlot* pPlot )
@@ -13149,17 +13183,38 @@ int CvGame::GetClosestCityDistanceInTurns( const CvPlot* pPlot )
 	if (!pPlot)
 		return INT_MAX;
 
-	return m_globalCityDistance.GetClosestFeatureDistance( *pPlot );
+	return m_globalCityDistanceTurns.GetClosestFeatureDistance(*pPlot);
 }
 
-CvCity* CvGame::GetClosestCity( const CvPlot* pPlot )
+CvCity* CvGame::GetClosestCityByEstimatedTurns( const CvPlot* pPlot )
 {
 	if (!pPlot)
 		return NULL;
 
-	int owner = m_globalCityDistance.GetClosestFeatureOwner( *pPlot );
-	int id = m_globalCityDistance.GetClosestFeatureID( *pPlot );
+	int owner = m_globalCityDistanceTurns.GetClosestFeatureOwner(*pPlot);
+	int id = m_globalCityDistanceTurns.GetClosestFeatureID(*pPlot);
 	if (owner!=NO_PLAYER)
+		return GET_PLAYER((PlayerTypes)owner).getCity(id);
+	else
+		return NULL;
+}
+
+int CvGame::GetClosestCityDistanceInPlots(const CvPlot* pPlot)
+{
+	if (!pPlot)
+		return INT_MAX;
+
+	return m_globalCityDistancePlots.GetClosestFeatureDistance(*pPlot);
+}
+
+CvCity* CvGame::GetClosestCityByPlots(const CvPlot* pPlot)
+{
+	if (!pPlot)
+		return NULL;
+
+	int owner = m_globalCityDistancePlots.GetClosestFeatureOwner(*pPlot);
+	int id = m_globalCityDistancePlots.GetClosestFeatureID(*pPlot);
+	if (owner != NO_PLAYER)
 		return GET_PLAYER((PlayerTypes)owner).getCity(id);
 	else
 		return NULL;

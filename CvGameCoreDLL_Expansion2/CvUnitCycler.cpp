@@ -72,7 +72,7 @@ void CvUnitCycler::Rebuild(CvUnit *pkStartUnit /* = NULL */)
 		m_kNodeList.insertAtEnd(pkStartUnit->GetID());
 
 		// Current unit is the first one
-		UnitHandle pCurrentUnit = pkStartUnit;
+		CvUnit* pCurrentUnit = pkStartUnit;
 		pCurrentUnit->SetCycleOrder(1);
 
 		// Loop through units until everyone is accounted for
@@ -148,7 +148,7 @@ CvUnit *CvUnitCycler::Cycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* p
 {
 	const CLLNode<int>* pUnitNode;
 	const CLLNode<int>* pFirstUnitNode;
-	UnitHandle pLoopUnit;
+	CvUnit* pLoopUnit;
 
 	if (pbWrap != NULL)
 	{
@@ -216,7 +216,7 @@ CvUnit *CvUnitCycler::Cycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* p
 						}
 					}
 
-					return pLoopUnit.pointer();
+					return pLoopUnit;
 				}
 			}
 

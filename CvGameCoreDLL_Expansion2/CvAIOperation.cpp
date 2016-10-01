@@ -855,7 +855,7 @@ bool CvAIOperation::ShouldAbort()
 		{
 			CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
 
-			UnitHandle pUnit = pArmy->GetFirstUnit();
+			CvUnit* pUnit = pArmy->GetFirstUnit();
 			while(pUnit)
 			{
 				pUnit->SetDeployFromOperationTurn(GC.getGame().getGameTurn());
@@ -1070,7 +1070,7 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 				//problem: center of mass may be on a mountain etc ...
 				if (!pCenterOfMass->isValidMovePlot(kPlayer.GetID()))
 				{
-					UnitHandle pFirstUnit = pArmy->GetFirstUnit();
+					CvUnit* pFirstUnit = pArmy->GetFirstUnit();
 					if (pFirstUnit)
 						pCenterOfMass = pFirstUnit->plot();
 					else
@@ -1081,7 +1081,7 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 				pArmy->SetXY(pCenterOfMass->getX(), pCenterOfMass->getY());
 
 				//get where we want to be next
-				pRtnValue = GetPlotXInStepPath(pCenterOfMass,pGoalPlot,pArmy->GetMovementRate()+1,true);
+				pRtnValue = GetPlotXInStepPath(pCenterOfMass,pGoalPlot,pArmy->GetMovementRate(),true);
 				if (!pRtnValue)
 				{
 					// Can't plot a path, probably due to change of control of hexes.  Will probably abort the operation
@@ -1360,7 +1360,7 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn)
 					}
 					else
 					{
-						UnitHandle pThisUnit = GET_PLAYER(m_eOwner).getUnit(pSlot->GetUnitID());
+						CvUnit* pThisUnit = GET_PLAYER(m_eOwner).getUnit(pSlot->GetUnitID());
 						if(pThisUnit)
 						{
 							szTemp2.Format("%s %d at (%d:%d) - ETA %d, ", 
@@ -1387,7 +1387,7 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn)
 				while(iUnitID != ARMYSLOT_NO_UNIT)
 				{
 					// do something with each entry
-					UnitHandle pThisUnit = GET_PLAYER(m_eOwner).getUnit(iUnitID);
+					CvUnit* pThisUnit = GET_PLAYER(m_eOwner).getUnit(iUnitID);
 					if(pThisUnit)
 					{
 						szTemp2.Format("%s %d at (%d:%d),", pThisUnit->getName().GetCString(), pThisUnit->GetID(), pThisUnit->getX(), pThisUnit->getY());
@@ -1409,7 +1409,7 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn)
 				while(iUnitID != ARMYSLOT_NO_UNIT)
 				{
 					// do something with each entry
-					UnitHandle pThisUnit = GET_PLAYER(m_eOwner).getUnit(iUnitID);
+					CvUnit* pThisUnit = GET_PLAYER(m_eOwner).getUnit(iUnitID);
 					if(pThisUnit)
 					{
 						szTemp2.Format("%s %d at (%d:%d), ", pThisUnit->getName().GetCString(), pThisUnit->GetID(), pThisUnit->getX(), pThisUnit->getY());
@@ -1667,7 +1667,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, Weig
 	const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(thisOperationSlot.m_iSlotID);
 	if (pSlot->GetUnitID() > ARMYSLOT_NO_UNIT)
 	{
-		UnitHandle pUnit = GET_PLAYER(m_eOwner).getUnit(pSlot->GetUnitID());
+		CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(pSlot->GetUnitID());
 		if (pUnit)
 		{
 			if (GC.getLogging() && GC.getAILogging())
@@ -1883,7 +1883,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 				}
 				else if (GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy)) //check for nearby enemy (but not for sneak attacks)
 				{
-					for (UnitHandle pUnit = pThisArmy->GetFirstUnit(); pUnit.pointer(); pUnit = pThisArmy->GetNextUnit())
+					for (CvUnit* pUnit = pThisArmy->GetFirstUnit(); pUnit; pUnit = pThisArmy->GetNextUnit())
 					{
 						for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 						{
@@ -2391,14 +2391,14 @@ bool CvAIOperationCivilianFoundCity::PerformMission(CvUnit* pSettler)
 
 AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvArmyAI* pArmy)
 {
-	UnitHandle pSettler = pArmy->GetFirstUnit();
+	CvUnit* pSettler = pArmy->GetFirstUnit();
 	if (!pSettler)
 		return AI_ABORT_NO_UNITS;
 
 	bool bCanFound = pSettler->canFound(GetTargetPlot()) && pSettler->GeneratePath(GetTargetPlot(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY);
 	if (!bCanFound)
 	{
-		if (RetargetCivilian(pSettler.pointer(),pArmy))
+		if (RetargetCivilian(pSettler,pArmy))
 			return NO_ABORT_REASON;
 		else
 			return AI_ABORT_NO_TARGET;
@@ -2406,7 +2406,7 @@ AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvAr
 	else
 	{
 		// let's see if the target still makes sense
-		CvPlot* pBetterTarget = FindBestTargetIncludingCurrent(pSettler.pointer(), !IsEscorted());
+		CvPlot* pBetterTarget = FindBestTargetIncludingCurrent(pSettler, !IsEscorted());
 
 		// No targets at all!
 		if(pBetterTarget == NULL)
@@ -3175,7 +3175,7 @@ bool CvAIOperationCivilianFoundCityOverseas::RetargetCivilian(CvUnit* pCivilian,
 	{
 		//throw out any ships on the wrong water body - todo: isn't this a bit early?
 		std::vector<int> aiUnitsToRemove;
-		for (UnitHandle pUnit = pArmy->GetFirstUnit(); pUnit.pointer(); pUnit = pArmy->GetNextUnit())
+		for (CvUnit* pUnit = pArmy->GetFirstUnit(); pUnit; pUnit = pArmy->GetNextUnit())
 		{
 			if (pUnit->TurnsToReachTarget(pBetterTarget,CvUnit::MOVEFLAG_APPROX_TARGET_RING1,MAX_INT) == MAX_INT)
 				aiUnitsToRemove.push_back(pUnit->GetID());
@@ -3248,7 +3248,7 @@ bool CvAIOperationNukeAttack::CheckTransitionToNextStage()
 		if(pArmy->GetNumSlotsFilled()>0 || GrabUnitsFromTheReserves(GetMusterPlot(),pTargetPlot, pArmy))
 		{
 			// Now get the nuke
-			UnitHandle pNuke = pArmy->GetFirstUnit();
+			CvUnit* pNuke = pArmy->GetFirstUnit();
 			if(pNuke)
 			{
 				if(pNuke->canMove() && pNuke->canNukeAt(pNuke->plot(),pTargetPlot->getX(),pTargetPlot->getY()))
@@ -3581,11 +3581,11 @@ AIOperationAbortReason CvAIOperationCivilian::VerifyOrAdjustTarget(CvArmyAI* pAr
 	if (IsEscorted())
 		return NO_ABORT_REASON;
 
-	UnitHandle pCivilian = pArmy->GetFirstUnit();
+	CvUnit* pCivilian = pArmy->GetFirstUnit();
 	if (!pCivilian)
 		return AI_ABORT_LOST_CIVILIAN;
 
-	if (GET_PLAYER(m_eOwner).GetPlotDanger(*pTarget, pCivilian.pointer()) < INT_MAX && GET_PLAYER(m_eOwner).IsAtPeaceWith(pTarget->getOwner()))
+	if (GET_PLAYER(m_eOwner).GetPlotDanger(*pTarget, pCivilian) < INT_MAX && GET_PLAYER(m_eOwner).IsAtPeaceWith(pTarget->getOwner()))
 	{
 		return NO_ABORT_REASON;
 	}
@@ -3612,9 +3612,11 @@ bool CvAIOperationCivilian::IsEscorted()
 		CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[0]);
 
 		//the unit to be escorted is always the first one
-		UnitHandle pCivilian = pThisArmy->GetFirstUnit();
+		CvUnit* pCivilian = pThisArmy->GetFirstUnit();
+		if (!pCivilian)
+			return false;
 		//the second unit would be the first escort
-		UnitHandle pEscort = pThisArmy->GetNextUnit();
+		CvUnit* pEscort = pThisArmy->GetNextUnit();
 
 		return pEscort;
 	}
@@ -3627,12 +3629,12 @@ AIOperationAbortReason CvAIOperationCivilianMerchantDelegation::VerifyOrAdjustTa
 	if (result != NO_ABORT_REASON)
 		return result;
 
-	UnitHandle pCivilian = pArmy->GetFirstUnit();
+	CvUnit* pCivilian = pArmy->GetFirstUnit();
 	if (!pCivilian)
 		return AI_ABORT_LOST_CIVILIAN;
 
 	if (GetTargetPlot()==NULL || !pCivilian->canTrade( GetTargetPlot() ))
-		RetargetCivilian(pCivilian.pointer(), pArmy);
+		RetargetCivilian(pCivilian, pArmy);
 
 	return (GetTargetPlot() != NULL) ? NO_ABORT_REASON : AI_ABORT_NO_TARGET;
 }
@@ -3644,12 +3646,12 @@ AIOperationAbortReason CvAIOperationCivilianDiplomatDelegation::VerifyOrAdjustTa
 	if (result != NO_ABORT_REASON)
 		return result;
 
-	UnitHandle pCivilian = pArmy->GetFirstUnit();
+	CvUnit* pCivilian = pArmy->GetFirstUnit();
 	if (!pCivilian)
 		return AI_ABORT_NO_UNITS;
 
 	if (GetTargetPlot()==NULL || !pCivilian->canTrade( GetTargetPlot() ))
-		RetargetCivilian(pCivilian.pointer(), pArmy);
+		RetargetCivilian(pCivilian, pArmy);
 
 	return (GetTargetPlot() != NULL) ? NO_ABORT_REASON : AI_ABORT_NO_TARGET;
 }
@@ -3661,12 +3663,12 @@ AIOperationAbortReason CvAIOperationCivilianConcertTour::VerifyOrAdjustTarget(Cv
 	if (result != NO_ABORT_REASON)
 		return result;
 
-	UnitHandle pCivilian = pArmy->GetFirstUnit();
+	CvUnit* pCivilian = pArmy->GetFirstUnit();
 	if (!pCivilian)
 		return AI_ABORT_LOST_CIVILIAN;
 
 	if (GetTargetPlot()==NULL || !pCivilian->canBlastTourism( GetTargetPlot() ))
-		RetargetCivilian(pCivilian.pointer(), pArmy);
+		RetargetCivilian(pCivilian, pArmy);
 
 	return (GetTargetPlot() != NULL) ? NO_ABORT_REASON : AI_ABORT_NO_TARGET;
 }

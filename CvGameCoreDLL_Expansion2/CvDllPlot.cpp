@@ -317,7 +317,7 @@ void CvDllPlot::UpdateLayout(bool bDebug)
 //------------------------------------------------------------------------------
 ICvUnit1* CvDllPlot::GetCenterUnit()
 {
-	CvUnit* pkUnit = m_pPlot->getCenterUnit().pointer();
+	CvUnit* pkUnit = m_pPlot->getCenterUnit();
 	return (NULL != pkUnit)? new CvDllUnit(pkUnit) : NULL;
 }
 //------------------------------------------------------------------------------

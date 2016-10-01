@@ -2562,7 +2562,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 	}
 	else
 	{
-		CvUnit* pBestDefender = plot.getBestDefender(NO_PLAYER, kAttacker.getOwner()).pointer();
+		CvUnit* pBestDefender = plot.getBestDefender(NO_PLAYER, kAttacker.getOwner());
 		BATTLE_JOINED(pBestDefender, BATTLE_UNIT_DEFENDER, false);
 	}
 #endif
@@ -2848,7 +2848,7 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 	}
 	else
 	{
-		pDefenderUnit = pkTargetPlot->getBestDefender(NO_PLAYER, pkAttacker->getOwner()).pointer();
+		pDefenderUnit = pkTargetPlot->getBestDefender(NO_PLAYER, pkAttacker->getOwner());
 	}
 #endif
 
@@ -3527,7 +3527,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 	// Unit that attacks loses his Fort bonus
 	kAttacker.setFortifyTurns(0);
 
-	UnitHandle pDefender;
+	CvUnit* pDefender;
 	pDefender = targetPlot.getBestDefender(NO_PLAYER, kAttacker.getOwner(), &kAttacker, true);
 
 	// JAR - without pDefender, nothing in here is going to work, just crash
@@ -3573,7 +3573,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 	}
 
 	CvCombatInfo kCombatInfo;
-	GenerateMeleeCombatInfo(kAttacker, pDefender.pointer(), targetPlot, &kCombatInfo);
+	GenerateMeleeCombatInfo(kAttacker, pDefender, targetPlot, &kCombatInfo);
 
 	CvAssertMsg(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
 
@@ -3608,7 +3608,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 		kMission.setMissionTime(kAttacker.getCombatTimer() * gDLL->getSecsPerTurn());
 		kMission.setMissionType(CvTypes::getMISSION_SURRENDER());
 		kMission.setUnit(BATTLE_UNIT_ATTACKER, &kAttacker);
-		kMission.setUnit(BATTLE_UNIT_DEFENDER, pDefender.pointer());
+		kMission.setUnit(BATTLE_UNIT_DEFENDER, pDefender);
 		kMission.setPlot(&targetPlot);
 
 		// Surrender mission
@@ -3722,7 +3722,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 				uiParentEventID = gDLL->GameplayUnitCombat(pDllCombatInfo.get());
 
 				// Set the combat units so that other missions do not continue until combat is over.
-				kAttacker.setCombatUnit(pDefender.pointer(), true);
+				kAttacker.setCombatUnit(pDefender, true);
 				pDefender->setCombatUnit(&kAttacker, false);
 
 				eResult = ATTACK_QUEUED;

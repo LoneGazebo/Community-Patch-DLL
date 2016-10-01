@@ -272,7 +272,7 @@ public:
 	void EndTurnsForReadyUnits();
 	bool hasAutoUnit() const;
 	bool hasBusyUnit() const;
-	const UnitHandle getBusyUnit() const;
+	const CvUnit* getBusyUnit() const;
 	bool hasBusyCity() const;
 	bool hasBusyUnitOrCity() const;
 	const CvCity* getBusyCity() const;
@@ -2589,6 +2589,8 @@ public:
 	//assuming a typical unit with baseMoves==2
 	int GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const;
 	CvCity* GetClosestCityByEstimatedTurns( const CvPlot* pPlot) const;
+	int GetCityDistanceInPlots(const CvPlot* pPlot) const;
+	CvCity* GetClosestCityByPlots(const CvPlot* pPlot) const;
 #endif
 
 protected:
@@ -3240,7 +3242,7 @@ protected:
 	CvDangerPlots* m_pDangerPlots;
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	CvDistanceMap* m_pCityDistance;
+	CvDistanceMap *m_pCityDistanceTurns, *m_pCityDistancePlots;
 	FAutoVariable<int, CvPlayer> m_iFoundValueOfCapital;
 	std::vector<int> m_viPlotFoundValues;
 	int	m_iPlotFoundValuesUpdateTurn;

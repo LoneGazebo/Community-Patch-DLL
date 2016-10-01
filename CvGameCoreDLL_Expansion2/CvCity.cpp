@@ -953,7 +953,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	DoSeedResourceDemandedCountdown();
 
 	// Garrisoned?
-	SetGarrison( plot()->getBestGarrison(getOwner()).pointer() );
+	SetGarrison( plot()->getBestGarrison(getOwner()) );
 
 	// Update Unit Maintenance for the player
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
@@ -3638,46 +3638,9 @@ void CvCity::DoEvents()
 				if (pkEventInfo != NULL)
 				{
 					DoStartEvent(eChosenEvent);
-				}
-			}
-		}
-	}
 
-	int iRandom = GC.getGame().getJonRandNum(1000, "Random Event Chance Update");
-	for (size_t iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
-	{
-		CityEventTypes eEvent = veValidEvents[iLoop];
-		if (eEvent != NO_EVENT)
-		{
-			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-			if (!pkEventInfo)
-				continue;
-
-			int iLimit = pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
-			if (iRandom < iLimit)
-			{
-				//We did it! But reset our increment.
-				IncrementEvent(eEvent, -GetEventIncrement(eEvent));
-				if (GC.getLogging())
-				{
-					CvString strBaseString;
-					CvString strOutBuf;
-					CvString strFileName = "EventCityLogging.csv";
-					CvString playerName = getName();
-					FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-					strBaseString += playerName + ", ";
-					strOutBuf.Format("Resetting event chance: %s", pkEventInfo->GetDescription());
-					strBaseString += strOutBuf;
-					pLog->Msg(strBaseString);
-				}
-			}
-			else
-			{
-				//We didn't do it? Bummer. BUT if there's a delta, the chance gets higher next turn...
-				if (pkEventInfo->getRandomChanceDelta() > 0)
-				{
-					IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
+					//We did it! But reset our increment.
+					IncrementEvent(eChosenEvent, -GetEventIncrement(eChosenEvent));
 					if (GC.getLogging())
 					{
 						CvString strBaseString;
@@ -3687,10 +3650,40 @@ void CvCity::DoEvents()
 						FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 						strBaseString += playerName + ", ";
-						strOutBuf.Format("Incrementing event chance: %s, Increment: %d", pkEventInfo->GetDescription(), GetEventIncrement(eEvent));
+						strOutBuf.Format("Resetting event chance: %s", pkEventInfo->GetDescription());
 						strBaseString += strOutBuf;
 						pLog->Msg(strBaseString);
 					}
+				}
+			}
+		}
+	}
+
+	for (size_t iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
+	{
+		CityEventTypes eEvent = veValidEvents[iLoop];
+		if (eEvent != NO_EVENT)
+		{
+			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+			if (!pkEventInfo)
+				continue;
+
+			//We didn't do it? Bummer. BUT if there's a delta, the chance gets higher next turn...
+			if (pkEventInfo->getRandomChanceDelta() > 0)
+			{
+				IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
+				if (GC.getLogging())
+				{
+					CvString strBaseString;
+					CvString strOutBuf;
+					CvString strFileName = "EventCityLogging.csv";
+					CvString playerName = getName();
+					FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					strBaseString += playerName + ", ";
+					strOutBuf.Format("Incrementing event chance: %s, Increment: %d", pkEventInfo->GetDescription(), GetEventIncrement(eEvent));
+					strBaseString += strOutBuf;
+					pLog->Msg(strBaseString);
 				}
 			}
 		}
@@ -18468,7 +18461,7 @@ int CvCity::GetLocalHappiness() const
 	int iHappinessPerGarrison = kPlayer.GetHappinessPerGarrisonedUnit();
 	if(iHappinessPerGarrison > 0)
 	{
-		UnitHandle pDefender = plot()->getBestDefender(getOwner());
+		CvUnit* pDefender = plot()->getBestDefender(getOwner());
 		if(pDefender && pDefender->getDomainType() == DOMAIN_LAND)
 		{
 			iLocalHappiness += kPlayer.GetHappinessPerGarrisonedUnit();
@@ -28276,7 +28269,7 @@ bool CvCity::canRangedStrikeTarget(const CvPlot& targetPlot) const
 CvUnit* CvCity::rangedStrikeTarget(const CvPlot* pPlot) const
 {
 	VALIDATE_OBJECT
-	UnitHandle pDefender = pPlot->getBestDefender(NO_PLAYER, getOwner(), NULL, true, false, false, /*bNoncombatAllowed*/ true);
+	CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwner(), NULL, true, false, false, /*bNoncombatAllowed*/ true);
 
 	if(pDefender)
 	{
@@ -28284,12 +28277,12 @@ CvUnit* CvCity::rangedStrikeTarget(const CvPlot* pPlot) const
 		{
 #if defined(MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY)
 			// If the defender is a sub and the plot is ice, return NULL
-			if (pDefender.pointer()->getInvisibleType() == 0 && pPlot->getFeatureType() == FEATURE_ICE) {
+			if (pDefender->getInvisibleType() == 0 && pPlot->getFeatureType() == FEATURE_ICE) {
 				return NULL;
 			}
 #endif
 
-			return pDefender.pointer();
+			return pDefender;
 		}
 	}
 

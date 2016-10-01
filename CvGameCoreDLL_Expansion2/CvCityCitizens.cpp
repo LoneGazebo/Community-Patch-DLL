@@ -3305,7 +3305,11 @@ void CvCityCitizens::DoSpecialists()
 					if(!GET_PLAYER(GetCity()->getOwner()).isMinorCiv())
 					{
 						// Reset progress on this Specialist
+#if defined(MOD_BALANCE_CORE)
+						DoResetSpecialistGreatPersonProgressTimes100(eSpecialist, (iGPThreshold * 100));
+#else
 						DoResetSpecialistGreatPersonProgressTimes100(eSpecialist);
+#endif
 
 						// Now... actually create the GP!
 						const UnitClassTypes eUnitClass = (UnitClassTypes) pkSpecialistInfo->getGreatPeopleUnitClass();
@@ -3728,12 +3732,19 @@ void CvCityCitizens::ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes
 }
 
 /// Reset Specialist progress
+#if defined(MOD_BALANCE_CORE)
+void CvCityCitizens::DoResetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex, int iAmountToRemove)
+#else
 void CvCityCitizens::DoResetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex)
+#endif
 {
 	CvAssert(eIndex > -1);
 	CvAssert(eIndex < GC.getNumSpecialistInfos());
-
+#if defined(MOD_BALANCE_CORE)
+	m_aiSpecialistGreatPersonProgressTimes100[eIndex] -= iAmountToRemove;
+#else
 	m_aiSpecialistGreatPersonProgressTimes100[eIndex] = 0;
+#endif
 }
 
 /// How many Specialists are assigned to eBuilding?

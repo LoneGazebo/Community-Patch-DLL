@@ -1,5 +1,5 @@
-﻿/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2189,10 +2189,9 @@ int CvLuaPlayer::lHasReadyUnit(lua_State* L)
 int CvLuaPlayer::lGetFirstReadyUnit(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const UnitHandle MyUnitHandle;
-	MyUnitHandle = pkPlayer->GetFirstReadyUnit();
+	const CvUnit* MyCvUnit = pkPlayer->GetFirstReadyUnit();
 
-	CvLuaUnit::Push(L, MyUnitHandle);
+	CvLuaUnit::Push(L, const_cast<CvUnit*>(MyCvUnit));
 	return 1;
 }
 //------------------------------------------------------------------------------

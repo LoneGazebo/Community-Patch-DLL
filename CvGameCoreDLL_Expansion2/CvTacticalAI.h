@@ -778,6 +778,9 @@ private:
 	// Internal turn update routines - commandeered unit processing
 	void UpdatePostures();
 	AITacticalPosture SelectPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture);
+#if defined(MOD_BALANCE_CORE)
+	AITacticalPosture SelectNavalPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture);
+#endif
 	void EstablishTacticalPriorities();
 	void EstablishBarbarianPriorities();
 	void FindTacticalTargets();
@@ -829,11 +832,10 @@ private:
 
 	// Operational AI support functions
 	void ClearEnemiesNearArmy(CvArmyAI* pArmy);
-	void MoveWithFormation(UnitHandle pUnit, MultiunitPositionTypes ePosition);
+	void MoveWithFormation(CvUnit* pUnit, MultiunitPositionTypes ePosition);
 	void ExecuteGatherMoves(CvArmyAI* pArmy);
 	void ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pTurnTarget);
 	bool ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iNumMeleeUnits, int iNumRangedUnits, int iDeployRange);
-	bool ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, int iNumUnits);
 	void ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
 	void ExecuteNavalFormationEscortMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
 
@@ -861,8 +863,8 @@ private:
 	void ExecuteBarbarianMoves(bool bAggressive);
 	void ExecuteBarbarianCivilianEscortMove();
 	void ExecuteMoveToPlotIgnoreDanger(CvPlot* pTarget, bool bSaveMoves=false);
-	void ExecuteMoveToPlotIgnoreDanger(UnitHandle pUnit, CvPlot* pTarget, bool bSaveMoves = false);
-	bool ExecuteMoveOfBlockingUnit(UnitHandle pUnit, CvPlot* pPreferredDirection=NULL);
+	void ExecuteMoveToPlotIgnoreDanger(CvUnit* pUnit, CvPlot* pTarget, bool bSaveMoves = false);
+	bool ExecuteMoveOfBlockingUnit(CvUnit* pUnit, CvPlot* pPreferredDirection=NULL);
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);
 	void ExecuteMoveToTarget(CvPlot* pTarget, bool bSaveMoves=false);
 	void ExecuteAirInterceptMoves();
@@ -877,10 +879,10 @@ private:
 
 	// Internal low-level utility routines
 #if defined(MOD_AI_SMART_RANGED_UNITS)
-	CvPlot* GetBestRepositionPlot(UnitHandle unitH, CvPlot* plotTarget, int iAcceptableDanger);
+	CvPlot* GetBestRepositionPlot(CvUnit* unitH, CvPlot* plotTarget, int iAcceptableDanger);
 #endif
 	bool FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0, bool bRangedOnly=false);
-	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, bool bNoRangedUnits=false, bool bNavalOnly=false, bool bMustMoveThrough=false, bool bIncludeBlockedUnits=false);
+	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, bool bNoRangedUnits = false, bool bNavalOnly = false, bool bMustMoveThrough = false, bool bIncludeBlockedUnits = false, bool bIncludeInactiveUnits = false);
 	bool FindUnitsForPillage(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints);
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot);
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
@@ -898,23 +900,23 @@ private:
 	CvUnit* GetProbableInterceptor(CvPlot* pTarget) const;
 #endif
 	int ComputeTotalExpectedDamage(CvTacticalTarget* target, CvPlot* pTargetPlot);
-	int ComputeTotalExpectedCityBombardDamage(UnitHandle pTarget);
-	bool IsExpectedToDamageWithRangedAttack(UnitHandle pAttacker, CvPlot* pTarget, int iMinDamage=0);
+	int ComputeTotalExpectedCityBombardDamage(CvUnit* pTarget);
+	bool IsExpectedToDamageWithRangedAttack(CvUnit* pAttacker, CvPlot* pTarget, int iMinDamage=0);
 
-	bool MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTargetPlot, DomainTypes eDomain, int iMaxTurns);
-	bool MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo, int iFlags);
+	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot, DomainTypes eDomain, int iMaxTurns);
+	bool MoveToUsingSafeEmbark(CvUnit* pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo, int iFlags);
 
-	CvPlot* FindBestBarbarianLandMove(UnitHandle pUnit);
-	CvPlot* FindPassiveBarbarianLandMove(UnitHandle pUnit);
-	CvPlot* FindBestBarbarianSeaMove(UnitHandle pUnit);
-	CvPlot* FindBarbarianExploreTarget(UnitHandle pUnit);
-	CvPlot* FindBarbarianGankTradeRouteTarget(UnitHandle pUnit);
+	CvPlot* FindBestBarbarianLandMove(CvUnit* pUnit);
+	CvPlot* FindPassiveBarbarianLandMove(CvUnit* pUnit);
+	CvPlot* FindBestBarbarianSeaMove(CvUnit* pUnit);
+	CvPlot* FindBarbarianExploreTarget(CvUnit* pUnit);
+	CvPlot* FindBarbarianGankTradeRouteTarget(CvUnit* pUnit);
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	CvPlot* FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalTargetType eType = AI_TACTICAL_TARGET_NONE, CvUnit* pNoLikeUnit = NULL, bool bAllowDefensiveTargets=false, bool bHighPriorityOnly = false);
+	CvPlot* FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTargetType eType = AI_TACTICAL_TARGET_NONE, CvUnit* pNoLikeUnit = NULL, bool bAllowDefensiveTargets=false, bool bHighPriorityOnly = false);
 #else
-	CvPlot* FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalTargetType eType = AI_TACTICAL_TARGET_NONE, CvUnit* pNoLikeUnit = NULL);
+	CvPlot* FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTargetType eType = AI_TACTICAL_TARGET_NONE, CvUnit* pNoLikeUnit = NULL);
 #endif
-	bool NearVisibleEnemy(UnitHandle pUnit, int iRange);
+	bool NearVisibleEnemy(CvUnit* pUnit, int iRange);
 	void UnitProcessed(int iID, bool bMarkTacticalMap=true);
 	bool UseThisDominanceZone(CvTacticalDominanceZone* pZone);
 	bool IsVeryHighPriorityCivilianTarget(CvTacticalTarget* pTarget);
@@ -935,7 +937,7 @@ private:
 	int ScoreAssignments(bool bCanLeaveOpenings);
 	int ScoreCloseOnPlots(CvPlot* pTarget);
 	int ScoreHedgehogPlots(CvPlot* pTarget);
-	int ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget);
+	int ScoreGreatGeneralPlot(CvUnit* pGeneral, CvPlot* pTarget);
 
 	// Logging functions
 	CvString GetLogFileName(CvString& playerName) const;

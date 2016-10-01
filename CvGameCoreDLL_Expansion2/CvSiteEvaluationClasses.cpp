@@ -1,5 +1,5 @@
-﻿/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -436,8 +436,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		int iRingModifier = m_iRingModifier[iDistance];
 
 		//not only our cities, also other player's cities!
-		//times 2 to get approximate plot distance
-		int iExistingCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pLoopPlot)*2;
+		int iExistingCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pLoopPlot);
 
 		//count the tile only if the city will be able to work it
 		if ( !pLoopPlot->isValidMovePlot(pPlayer->GetID()) || pLoopPlot->getWorkingCity()!=NULL || iExistingCityDistance<2 ) 
@@ -781,31 +780,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	// AI only
 	if (pPlayer && !pPlayer->isHuman())
 	{
-		//Check for strategic landgrab
 		int iOwnCityDistance = pPlayer->GetCityDistanceInEstimatedTurns(pPlot);
-		int iOtherCityDistance = INT_MAX;
-
-		//check if the closest city is our or somebody else's
-		CvCity* pClosestCity = GC.getGame().GetClosestCity(pPlot);
-		if( pClosestCity && pClosestCity->getOwner()!=pPlayer->GetID() )
-		{
-			//this includes minors
-			iOtherCityDistance = GC.getGame().GetClosestCityDistanceInTurns(pPlot);
-
-			PlayerTypes eOtherPlayer = (PlayerTypes) pClosestCity->getOwner();
-			PlayerProximityTypes eProximity = GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID());
-			if(eProximity >= PLAYER_PROXIMITY_CLOSE && iOtherCityDistance <= iBorderlandRange)
-			{
-				int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetBoldness();
-
-				//Neighbor must not be too strong
-				if (pPlayer->GetMilitaryMight() > GET_PLAYER(eOtherPlayer).GetMilitaryMight()*(1.2f - iBoldnessDelta*0.05f))
-				{
-					iStratModifier += (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
-					if (pDebug) vQualifiersPositive.push_back("(S) landgrab");
-				}
-			}
-		}
 
 		//check if this location can be defended (from majors)
 		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
@@ -814,21 +789,30 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			if (kNeighbor.isAlive() && i != pPlayer->GetID())
 			{
 				int iEnemyDistance = kNeighbor.GetCityDistanceInEstimatedTurns(pPlot);
+				int iEnemyMight = kNeighbor.GetMilitaryMight();
+				int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - kNeighbor.GetDiplomacyAI()->GetBoldness();
+
 				if (iEnemyDistance < max(iOwnCityDistance - 1, iBorderlandRange))
 				{
-					int iEnemyMight = kNeighbor.GetMilitaryMight();
-					int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - kNeighbor.GetDiplomacyAI()->GetBoldness();
-
+					//stay away if we are weak
 					if (pPlayer->GetMilitaryMight() < iEnemyMight*(1.2f - iBoldnessDelta*0.05f))
 					{
 						iStratModifier -= (iTotalPlotValue * GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
 						if (pDebug) vQualifiersNegative.push_back("(S) hard to defend");
+					}
+
+					//landgrab if the neighbor is weak
+					if (pPlayer->GetMilitaryMight() > iEnemyMight*(1.2f - iBoldnessDelta*0.05f))
+					{
+						iStratModifier += (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
+						if (pDebug) vQualifiersPositive.push_back("(S) landgrab");
 					}
 				}
 			}
 		}
 
 		// where is our personal sweet spot?
+		// this is handled in plots, not in turns
 		int iMinDistance = /*3*/ GC.getMIN_CITY_RANGE();
 		if(pPlayer->isMinorCiv())
 		{
@@ -845,7 +829,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (iOwnCityDistance <= iMinDistance)
 		{
 			//this case should be handled by the distance check in CanFound() also
-			iValueModifier -= (20*iTotalPlotValue) / 100;
+			iValueModifier -= (30*iTotalPlotValue) / 100;
 			if (pDebug) vQualifiersNegative.push_back("(V) too close to existing friendly city");
 		}
 
@@ -881,7 +865,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 			iSweetMin = iMinDistance;
 
 		//this affects both friendly and other cities
-		if (min(iOwnCityDistance,iOtherCityDistance) >= iSweetMin && max(iOwnCityDistance,iOtherCityDistance) <= iSweetMax) 
+		int iCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pPlot);
+		int iMyCityDistance = pPlayer->GetCityDistanceInPlots(pPlot);
+		if (iCityDistance >= iSweetMin && iMyCityDistance <= iSweetMax)
 		{
 			iValueModifier += (iTotalPlotValue*20)/100; //make this a small bonus, there is a separate distance check anyway
 			if (pDebug) vQualifiersPositive.push_back("(V) optimal distance to existing cities");

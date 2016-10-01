@@ -697,7 +697,8 @@ CvPlayer::CvPlayer() :
 	m_pBuilderTaskingAI = FNEW(CvBuilderTaskingAI, c_eCiv5GameplayDLL, 0);
 	m_pDangerPlots = FNEW(CvDangerPlots, c_eCiv5GameplayDLL, 0);
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	m_pCityDistance = FNEW(CvDistanceMap, c_eCiv5GameplayDLL, 0);
+	m_pCityDistanceTurns = FNEW(CvDistanceMapTurns, c_eCiv5GameplayDLL, 0);
+	m_pCityDistancePlots = FNEW(CvDistanceMapPlots, c_eCiv5GameplayDLL, 0);
 #endif
 	m_pCityConnections = FNEW(CvCityConnections, c_eCiv5GameplayDLL, 0);
 	m_pTreasury = FNEW(CvTreasury, c_eCiv5GameplayDLL, 0);
@@ -729,7 +730,8 @@ CvPlayer::~CvPlayer()
 
 	SAFE_DELETE(m_pDangerPlots);
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	SAFE_DELETE(m_pCityDistance);
+	SAFE_DELETE(m_pCityDistanceTurns);
+	SAFE_DELETE(m_pCityDistancePlots);
 #endif
 	delete m_pPlayerPolicies;
 	delete m_pEconomicAI;
@@ -1173,7 +1175,8 @@ void CvPlayer::uninit()
 	}
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	m_pCityDistance->Reset();
+	m_pCityDistanceTurns->Reset();
+	m_pCityDistancePlots->Reset();
 #endif
 
 	m_ppaaiSpecialistExtraYield.clear();
@@ -1938,7 +1941,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_pDangerPlots->Init(eID, false /*bAllocate*/);
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-		m_pCityDistance->SetPlayer(eID);
+		m_pCityDistanceTurns->SetPlayer(eID);
+		m_pCityDistancePlots->SetPlayer(eID);
 #endif
 
 		m_pTreasury->Init(this);
@@ -2126,7 +2130,8 @@ void CvPlayer::gameStartInit()
 #if defined(MOD_BALANCE_CORE)
 	//make sure the non-serialized infos are up to date
 	m_pDangerPlots->Init(GetID(), true);
-	m_pCityDistance->SetPlayer(GetID());
+	m_pCityDistanceTurns->SetPlayer(GetID());
+	m_pCityDistancePlots->SetPlayer(GetID());
 #else
 	// if the game is loaded, don't init the danger plots. This was already done in the serialization process.
 	if(CvPreGame::gameStartType() != GAME_LOADED)
@@ -4860,7 +4865,7 @@ void CvPlayer::UpdateCityThreatCriteria()
 				if(pLoopCity->GetThreatCriteria() != -1)
 					continue;
 
-				if(GetMilitaryAI()->GetMostThreatenedCity(iWorst) == pLoopCity)
+				if(GetMilitaryAI()->GetMostThreatenedCity(iWorst, true) == pLoopCity)
 				{
 					pLoopCity->SetThreatCritera(iWorst);
 					break;
@@ -5310,7 +5315,6 @@ void CvPlayer::DoEvents()
 		}
 	}
 
-	EventTypes eChosenEvent = NO_EVENT;
 	if(veValidEvents.size() > 0)
 	{
 		if(GC.getLogging())
@@ -5363,6 +5367,22 @@ void CvPlayer::DoEvents()
 								continue;
 
 							GET_PLAYER(ePlayer).DoStartEvent(eChosenEvent);
+
+							//reset probability
+							IncrementEvent(eChosenEvent, -GetEventIncrement(eChosenEvent));
+							if (GC.getLogging())
+							{
+								CvString strBaseString;
+								CvString strOutBuf;
+								CvString strFileName = "EventLogging.csv";
+								CvString playerName = getCivilizationShortDescription();
+								FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+								strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+								strBaseString += playerName + ", ";
+								strOutBuf.Format("Resetting event chance for: %s", pkEventInfo->GetDescription());
+								strBaseString += strOutBuf;
+								pLog->Msg(strBaseString);
+							}
 						}
 					}
 				}
@@ -5370,7 +5390,6 @@ void CvPlayer::DoEvents()
 		}
 	}
 
-	int iRandom = GC.getGame().getJonRandNum(1000, "Random Event Chance Update");
 	for (size_t iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
 	{
 		EventTypes eEvent = veValidEvents[iLoop];
@@ -5379,12 +5398,11 @@ void CvPlayer::DoEvents()
 			CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
 			if (!pkEventInfo)
 				continue;
-				
-			int iLimit = pkEventInfo->getRandomChance() + GetEventIncrement(eChosenEvent);
-			if (iRandom < iLimit)
+
+			//make it more likely
+			if (pkEventInfo->getRandomChanceDelta() > 0)
 			{
-				//this is becoming less likely
-				IncrementEvent(eEvent, -GetEventIncrement(eEvent));
+				IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
 				if (GC.getLogging())
 				{
 					CvString strBaseString;
@@ -5394,30 +5412,9 @@ void CvPlayer::DoEvents()
 					FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 					strBaseString += playerName + ", ";
-					strOutBuf.Format("Resetting event chance for: %s", pkEventInfo->GetDescription());
+					strOutBuf.Format("Incrementing event chance for: %s, Increment: %d", pkEventInfo->GetDescription(), GetEventIncrement(eEvent));
 					strBaseString += strOutBuf;
 					pLog->Msg(strBaseString);
-				}
-			}
-			else
-			{
-				//make it more likely
-				if (pkEventInfo->getRandomChanceDelta() > 0)
-				{
-					IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
-					if (GC.getLogging())
-					{
-						CvString strBaseString;
-						CvString strOutBuf;
-						CvString strFileName = "EventLogging.csv";
-						CvString playerName = getCivilizationShortDescription();
-						FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-						strBaseString += playerName + ", ";
-						strOutBuf.Format("Incrementing event chance for: %s, Increment: %d", pkEventInfo->GetDescription(), GetEventIncrement(eEvent));
-						strBaseString += strOutBuf;
-						pLog->Msg(strBaseString);
-					}
 				}
 			}
 		}
@@ -10073,7 +10070,7 @@ bool CvPlayer::isBarbarian() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::doBarbarianRansom(int iOption, int iUnitID)
 {
-	UnitHandle pUnit = getUnit(iUnitID);
+	CvUnit* pUnit = getUnit(iUnitID);
 
 	// Pay the Price
 	if(iOption == 0)
@@ -11292,13 +11289,11 @@ bool CvPlayer::hasBusyUnitOrCity() const
 }
 
 //	--------------------------------------------------------------------------------
-const UnitHandle CvPlayer::getBusyUnit() const
+const CvUnit* CvPlayer::getBusyUnit() const
 {
-	const UnitHandle result;
-	const CvUnit* pLoopUnit;
+	const CvUnit* result = NULL;
 	int iLoop;
-
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	for(const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(pLoopUnit->IsBusy())
 		{
@@ -31875,8 +31870,8 @@ void CvPlayer::DoDeficit()
 	{
 		if(GC.getGame().getJonRandNum(100, "Disband rand") < 50)
 		{
-			UnitHandle pLandUnit;
-			UnitHandle pNavalUnit;
+			CvUnit* pLandUnit = NULL;
+			CvUnit* pNavalUnit = NULL;
 			int iLandScore = MAX_INT;
 			int iNavalScore = MAX_INT;
 
@@ -35224,24 +35219,42 @@ void CvPlayer::deleteCity(int iID)
 #if defined(MOD_BALANCE_CORE)
 void CvPlayer::SetClosestCityMapDirty()
 {
-	if (m_pCityDistance)
-		m_pCityDistance->SetDirty();
+	if (m_pCityDistanceTurns)
+		m_pCityDistanceTurns->SetDirty();
+	if (m_pCityDistancePlots)
+		m_pCityDistancePlots->SetDirty();
 
 	GC.getGame().SetClosestCityMapDirty();
 }
 
 int CvPlayer::GetCityDistanceInEstimatedTurns( const CvPlot* pPlot ) const
 {
-	if (pPlot && m_pCityDistance)
-		return m_pCityDistance->GetClosestFeatureDistance( *pPlot );
+	if (pPlot && m_pCityDistanceTurns)
+		return m_pCityDistanceTurns->GetClosestFeatureDistance( *pPlot );
 	else
 		return INT_MAX;
 }
 
 CvCity* CvPlayer::GetClosestCityByEstimatedTurns( const CvPlot* pPlot ) const
 {
-	if (pPlot && m_pCityDistance)
-		return getCity(m_pCityDistance->GetClosestFeatureID( *pPlot ));
+	if (pPlot && m_pCityDistanceTurns)
+		return getCity(m_pCityDistanceTurns->GetClosestFeatureID( *pPlot ));
+	else
+		return NULL;
+}
+
+int CvPlayer::GetCityDistanceInPlots(const CvPlot* pPlot) const
+{
+	if (pPlot && m_pCityDistancePlots)
+		return m_pCityDistancePlots->GetClosestFeatureDistance(*pPlot);
+	else
+		return INT_MAX;
+}
+
+CvCity* CvPlayer::GetClosestCityByPlots(const CvPlot* pPlot) const
+{
+	if (pPlot && m_pCityDistancePlots)
+		return getCity(m_pCityDistancePlots->GetClosestFeatureID(*pPlot));
 	else
 		return NULL;
 }
@@ -41311,7 +41324,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 			continue;
 		}
 
-		if(pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != eOwner)
+		if ((pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != eOwner) || (pPlot->getImprovementType() == (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT()))
 		{
 			//--------------
 			if (bLogging) 

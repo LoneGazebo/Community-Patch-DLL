@@ -891,7 +891,7 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 		if(pPlot->getImprovementType() == eCamp)
 		{
 #if defined(MOD_EVENTS_BARBARIANS)
-			eUnit = GetRandomBarbarianUnitType(pPlot, UNITAI_FAST_ATTACK);
+			eUnit = GetRandomBarbarianUnitType(pPlot, UNITAI_RANGED);
 #else
 			eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pPlot->getArea()), UNITAI_RANGED);
 #endif

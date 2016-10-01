@@ -4954,7 +4954,7 @@ int CvLuaUnit::lGetNumEnemyUnitsAdjacent(lua_State* L)
 int CvLuaUnit::lGetTransportUnit(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	UnitHandle pkTransportUnit = pkUnit->getTransportUnit();
+	CvUnit* pkTransportUnit = pkUnit->getTransportUnit();
 
 	CvLuaUnit::Push(L, pkTransportUnit);
 	return 1;

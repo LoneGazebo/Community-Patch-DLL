@@ -169,7 +169,11 @@ public:
 	int GetSpecialistGreatPersonProgress(SpecialistTypes eIndex) const;
 	int GetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex) const;
 	void ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex, int iChange);
+#if defined(MOD_BALANCE_CORE)
+	void DoResetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex, int iAmountToRemove);
+#else
 	void DoResetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex);
+#endif
 
 	int GetNumSpecialistsInBuilding(BuildingTypes eBuilding) const;
 	int GetNumForcedSpecialistsInBuilding(BuildingTypes eBuilding) const;

@@ -2619,7 +2619,7 @@ void CvEconomicAI::DoReconState()
 			for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 			{
 				if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA && 
-					((pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK_SEA) || (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ASSAULT_SEA)) )
+					pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK_SEA)
 				{
 					if(pLoopUnit->getArmyID() == -1 && pLoopUnit->canRecruitFromTacticalAI())
 					{
@@ -3341,7 +3341,7 @@ void CvEconomicAI::LogStrategy(EconomicAIStrategyTypes eStrategy, bool bValue)
 }
 
 /// Log that a strategy is being turned on or off
-void CvEconomicAI::LogScrapUnit(UnitHandle pUnit, int iNumWorkers, int iNumCities, int iNumImprovedPlots, int iNumValidPlots)
+void CvEconomicAI::LogScrapUnit(CvUnit* pUnit, int iNumWorkers, int iNumCities, int iNumImprovedPlots, int iNumValidPlots)
 {
 	if(!GC.getLogging() || !GC.getAILogging())
 	{

@@ -447,3 +447,8 @@ WHERE Tag = 'TXT_KEY_UNIT_TRIREME_STRATEGY';
 UPDATE Language_en_US
 SET Text = 'The Galleass is the first naval unit with a ranged attack generally available to the civilizations in the game. It is much stronger than earlier naval units but a bit slower. It cannot initiate melee combat. The Galleass is useful for clearing enemy ships out of shallow waters. It cannot end its turn on Deep Ocean hexes unless it is from Polynesia.'
 WHERE Tag = 'TXT_KEY_UNIT_GALLEASS_STRATEGY';
+
+INSERT INTO Language_en_US
+			(Tag,										Text)
+SELECT		'TXT_KEY_SCIENCE_BOOST_CONQUEST_ASSYRIA',	'Your soldiers found [ICON_RESEARCH] Science during the conquest of {1_Name}!'
+WHERE EXISTS (SELECT * FROM CustomModOptions WHERE Name='ALTERNATE_ASSYRIA_TRAIT' AND Value= 1 );

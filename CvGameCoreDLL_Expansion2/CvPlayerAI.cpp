@@ -1651,8 +1651,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 
 	if(bWar)
 	{
-		UnitHandle pDefender = pGreatGeneral->plot()->getBestDefender(GetID());
-		int iFriendlies = pGreatGeneral->GetNumSpecificPlayerUnitsAdjacent(pDefender.pointer());
+		CvUnit* pDefender = pGreatGeneral->plot()->getBestDefender(GetID());
+		int iFriendlies = pGreatGeneral->GetNumSpecificPlayerUnitsAdjacent(pDefender);
 		if(iFriendlies > 0)
 			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
@@ -1985,7 +1985,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pMerchant, bool bOnlySafe
 }
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-CvCity* CvPlayerAI::FindBestDiplomatTargetCity(UnitHandle pUnit)
+CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 {
 	CvWeightedVector<CvCity *, SAFE_ESTIMATE_NUM_CITIES, true> vTargets;
 
@@ -2032,7 +2032,7 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(UnitHandle pUnit)
 	return NULL;
 }
 
-CvCity* CvPlayerAI::FindBestMessengerTargetCity(UnitHandle pUnit)
+CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit)
 {
 	CvWeightedVector<CvCity *, SAFE_ESTIMATE_NUM_CITIES, true> vTargets;
 
@@ -2080,7 +2080,7 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(UnitHandle pUnit)
 	return NULL;
 }	
 
-int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
+int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, CvUnit* pUnit)
 {
 	int iScore = 0;
 	int iI;
@@ -2173,7 +2173,7 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
 	return iScore;
 }
 	
-int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
+int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 {	
 	//First, the exclusions!
 
@@ -2500,7 +2500,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	return iScore;
 }
 
-CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit)
+CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)
 {
 	if(pUnit->AI_getUnitAIType() != UNITAI_DIPLOMAT)
 	{
@@ -2543,7 +2543,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit)
 				continue;
 			}
 			// Don't be captured
-			if(GetPlotDanger(*pLoopPlot,pUnit.pointer())>0)
+			if(GetPlotDanger(*pLoopPlot,pUnit)>0)
 				continue;
 
 			int	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
@@ -2559,7 +2559,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit)
 	return pBestTarget;
 }
 
-CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit)
+CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit)
 {
 	//this function is used for diplomat influence spread as well (embassies go through ChooseDiplomatTargetPlot)
 	if(pUnit->AI_getUnitAIType() != UNITAI_MESSENGER && pUnit->AI_getUnitAIType() != UNITAI_DIPLOMAT)
@@ -2587,7 +2587,7 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit)
 		}
 
 #if defined(MOD_BALANCE_CORE)
-		if(GetPlotDanger(*pLoopPlot,pUnit.pointer())>0)
+		if(GetPlotDanger(*pLoopPlot,pUnit)>0)
 			continue;
 #endif
 

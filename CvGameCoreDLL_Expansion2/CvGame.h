@@ -1,5 +1,5 @@
-﻿/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -679,7 +679,9 @@ public:
 	void SetClosestCityMapDirty();
 	//assuming a typical unit with baseMoves==2
 	int GetClosestCityDistanceInTurns( const CvPlot* pPlot );
-	CvCity* GetClosestCity( const CvPlot* pPlot );
+	CvCity* GetClosestCityByEstimatedTurns( const CvPlot* pPlot );
+	int GetClosestCityDistanceInPlots(const CvPlot* pPlot);
+	CvCity* GetClosestCityByPlots(const CvPlot* pPlot);
 
 	//------------------------------------------------------------
 	//------------------------------------------------------------
@@ -865,7 +867,8 @@ protected:
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int		m_iLargestBasePotential;
 #endif
-	CvDistanceMap m_globalCityDistance;
+	CvDistanceMapTurns m_globalCityDistanceTurns;
+	CvDistanceMapPlots m_globalCityDistancePlots;
 
 	//----------------------------------------------------------------
 

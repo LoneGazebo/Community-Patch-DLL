@@ -348,7 +348,6 @@ CvUnit::CvUnit() :
 	, m_eActivityType("CvUnit::m_eActivityType", m_syncArchive, true)
 	, m_eAutomateType("CvUnit::m_eAutomateType", m_syncArchive)
 	, m_eUnitAIType("CvUnit::m_eUnitAIType", m_syncArchive)
-	, m_thisHandle(this)
 	, m_bWaitingForMove(false)
 	, m_pReligion(FNEW(CvUnitReligion, c_eCiv5GameplayDLL, 0))
 	, m_iMapLayer("CvUnit::m_iMapLayer", m_syncArchive, DEFAULT_UNIT_MAP_LAYER)
@@ -436,8 +435,6 @@ CvUnit::CvUnit() :
 //	--------------------------------------------------------------------------------
 CvUnit::~CvUnit()
 {
-	m_thisHandle.ignoreDestruction(true);
-
 	//really shouldn't happen that it's not present, but there was a crash here
 	std::vector<CvUnit*>::iterator it = std::find( FSerialization::unitsToCheck.begin(), FSerialization::unitsToCheck.end(), this);
 	if (it!=FSerialization::unitsToCheck.end())
@@ -884,7 +881,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	CvPlot* pUnitPlot = plot();
 	if(pUnitPlot && pUnitPlot->isCity())
 	{
-		pUnitPlot->getPlotCity()->SetGarrison( pUnitPlot->getBestGarrison( getOwner() ).pointer() );
+		pUnitPlot->getPlotCity()->SetGarrison( pUnitPlot->getBestGarrison( getOwner() ) );
 	}
 
 	m_iArmyId = -1;
@@ -1481,7 +1478,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	CvPlot* pUnitPlot = plot();
 	if(pUnitPlot && pUnitPlot->isCity())
 	{
-		pUnitPlot->getPlotCity()->SetGarrison( pUnitPlot->getBestGarrison( getOwner() ).pointer() );
+		pUnitPlot->getPlotCity()->SetGarrison( pUnitPlot->getBestGarrison( getOwner() ) );
 	}
 
 #if defined(MOD_BALANCE_CORE)
@@ -4995,7 +4992,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 #if defined(MOD_GLOBAL_CAPTURE_AFTER_ATTACKING)
 			// If there are only enemy civilians in the plot, then we don't need remaining attacks to capture them
 			// eg a worker in a barbarian camp where we just killed the defender
-			if (plot.getBestDefender(NO_PLAYER) != ((UnitHandle) NULL))
+			if (plot.getBestDefender(NO_PLAYER) != ((CvUnit*) NULL))
 			{
 				return false;
 			}
@@ -5708,7 +5705,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 
 		if (!bTestVisibility)
 		{
-			UnitHandle pUnit = GET_PLAYER(m_eOwner).getUnit(GetID());
+			CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(GetID());
 			if(pUnit)
 			{
 				CvCity* pTarget = GET_PLAYER(m_eOwner).GetReligionAI()->ChooseMissionaryTargetCity(pUnit);
@@ -5781,7 +5778,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 
 		if (!bTestVisibility)
 		{
-			UnitHandle pUnit = GET_PLAYER(m_eOwner).getUnit(GetID());
+			CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(GetID());
 			if(pUnit)
 			{
 				CvPlot* pTarget = GET_PLAYER(m_eOwner).ChooseMessengerTargetPlot(pUnit);
@@ -8439,7 +8436,7 @@ bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY) const
 		pAdjacentPlot = plotDirection(iX, iY, ((DirectionTypes)iI));
 		if(pAdjacentPlot != NULL)
 		{
-			UnitHandle pDefender = pAdjacentPlot->getBestDefender(NO_PLAYER, getOwner(), NULL, true);
+			CvUnit* pDefender = pAdjacentPlot->getBestDefender(NO_PLAYER, getOwner(), NULL, true);
 			if (pDefender)
 			{
 				return false;
@@ -13339,7 +13336,7 @@ bool CvUnit::canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const
 		}
 
 		// The command is always possible if it's coming from a Warlord unit that gives just experience points
-		UnitHandle pWarlord = GET_PLAYER(getOwner()).getUnit(iLeaderUnitId);
+		CvUnit* pWarlord = GET_PLAYER(getOwner()).getUnit(iLeaderUnitId);
 		if(pWarlord &&
 				NO_UNIT != pWarlord->getUnitType() &&
 				pWarlord->getUnitInfo().GetLeaderExperience() > 0 &&
@@ -13370,7 +13367,7 @@ bool CvUnit::canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const
 	{
 		if(iLeaderUnitId >= 0)
 		{
-			UnitHandle pWarlord = GET_PLAYER(getOwner()).getUnit(iLeaderUnitId);
+			CvUnit* pWarlord = GET_PLAYER(getOwner()).getUnit(iLeaderUnitId);
 			if(pWarlord && NO_UNIT != pWarlord->getUnitType())
 			{
 				return (pWarlord->getUnitInfo().GetLeaderPromotion() == ePromotion);
@@ -13407,7 +13404,7 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 
 	if(iLeaderUnitId >= 0)
 	{
-		UnitHandle pWarlord = GET_PLAYER(getOwner()).getUnit(iLeaderUnitId);
+		CvUnit* pWarlord = GET_PLAYER(getOwner()).getUnit(iLeaderUnitId);
 		if(pWarlord)
 		{
 			pWarlord->giveExperience();
@@ -13442,7 +13439,10 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 			//Insta-heal removed, gain health with each promotion instead.
 			changeDamage((-GC.getINSTA_HEAL_RATE() / 5));
 		}
-		GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, getOriginCity(), getDomainType(), true, false, NO_YIELD, this);
+		if (getOriginCity() != NULL)
+		{
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, getOriginCity(), getDomainType(), true, false, NO_YIELD, this);
+		}
 #endif
 
 #if defined(MOD_EVENTS_UNIT_UPGRADES)
@@ -13495,7 +13495,7 @@ bool CvUnit::lead(int iUnitId)
 	}
 	else
 	{
-		UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(iUnitId);
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iUnitId);
 
 		if(!pUnit || !pUnit->canPromote(eLeaderPromotion, GetID()))
 		{
@@ -13544,7 +13544,7 @@ int CvUnit::canLead(const CvPlot* pPlot, int iUnitId) const
 	}
 	else
 	{
-		const UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(iUnitId);
+		const CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iUnitId);
 		if(pUnit && pUnit != this && pUnit->canPromote((PromotionTypes)kUnitInfo.GetLeaderPromotion(), GetID()))
 		{
 			iNumUnits = 1;
@@ -14534,7 +14534,7 @@ bool CvUnit::canBuildRoute() const
 BuildTypes CvUnit::getBuildType() const
 {
 	VALIDATE_OBJECT
-	const MissionQueueNode* pkMissionNode = HeadMissionQueueNode();
+	const MissionData* pkMissionNode = HeadMissionData();
 	if(pkMissionNode != NULL)
 	{
 		if(pkMissionNode->eMissionType == CvTypes::getMISSION_ROUTE_TO())
@@ -19097,7 +19097,7 @@ if (!bDoEvade)
 				// Have a naval unit here?
 				if(isBarbarian() && getDomainType() == DOMAIN_SEA && pAdjacentPlot->isWater())
 				{
-					UnitHandle pAdjacentUnit = pAdjacentPlot->getBestDefender(NO_PLAYER, BARBARIAN_PLAYER, NULL, true);
+					CvUnit* pAdjacentUnit = pAdjacentPlot->getBestDefender(NO_PLAYER, BARBARIAN_PLAYER, NULL, true);
 					if(pAdjacentUnit)
 					{
 						GET_PLAYER(pAdjacentUnit->getOwner()).GetPlayerTraits()->CheckForBarbarianConversion(this, pAdjacentPlot);
@@ -19118,7 +19118,7 @@ if (!bDoEvade)
 						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, kPlayer.GetID());
 						if (pReligion && pReligion->m_Beliefs.IsConvertsBarbarians(getOwner()))
 						{
-							UnitHandle pAdjacentUnit = pAdjacentPlot->getBestDefender(BARBARIAN_PLAYER);
+							CvUnit* pAdjacentUnit = pAdjacentPlot->getBestDefender(BARBARIAN_PLAYER);
 							if(pAdjacentUnit)
 							{
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
@@ -19526,7 +19526,7 @@ if (!bDoEvade)
 	if (pkPrevGarrisonedCity)
 	{
 		//when moving out, another unit might be present to take over garrison duty
-		pkPrevGarrisonedCity->SetGarrison( pkPrevGarrisonedCity->plot()->getBestGarrison( pkPrevGarrisonedCity->getOwner() ).pointer() );
+		pkPrevGarrisonedCity->SetGarrison( pkPrevGarrisonedCity->plot()->getBestGarrison( pkPrevGarrisonedCity->getOwner() ) );
 		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkPrevGarrisonedCity));
 		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
 	}
@@ -19535,7 +19535,7 @@ if (!bDoEvade)
 		if (pNewPlot->isCity())
 		{
 			//when moving in, see if we're better than the previous garrison
-			CvUnit* pBestGarrison = pNewPlot->getBestGarrison(pNewPlot->getOwner()).pointer();
+			CvUnit* pBestGarrison = pNewPlot->getBestGarrison(pNewPlot->getOwner());
 			if (pBestGarrison==this)
 			{
 				CvCity* pkNewGarrisonedCity = pNewPlot->getPlotCity();
@@ -21769,7 +21769,7 @@ bool CvUnit::IsNearCityAttackSupport(const CvPlot* pAtPlot, const CvUnit* pIgnor
 	const std::vector<int>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
 	for(std::vector<int>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
 	{
-		UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(*it);
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(*it);
 
 		if (pUnit && pUnit != pIgnoreThisGeneral && pUnit->IsCityAttackSupport())
 		{
@@ -21814,7 +21814,7 @@ bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThis
 	const std::vector<int>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
 	for(std::vector<int>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
 	{
-		UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(*it);
+		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(*it);
 
 		if (pUnit && pUnit != pIgnoreThisGeneral && !pUnit->IsCityAttackSupport())
 		{
@@ -21971,7 +21971,7 @@ int CvUnit::GetReverseGreatGeneralModifier(const CvPlot* pAtPlot) const
 
 		for(std::vector<int>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
 		{
-			UnitHandle pUnit = kLoopPlayer.getUnit(*it);
+			CvUnit* pUnit = kLoopPlayer.getUnit(*it);
 
 			if (pUnit)
 			{
@@ -24954,7 +24954,7 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 								if(AreUnitsOfSameType(*pLoopUnit))
 								{
 									CvPlot* here = plot();
-									if(here && pLoopUnit->canEnterTerrain(*here,CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->canMove())
+									if(here && pLoopUnit->canEnterTerrain(*here,CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->ReadyToMove())
 									{
 										// Can the unit I am swapping with get to me this turn?
 										SPathFinderUserData data(pLoopUnit,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING,1);
@@ -25061,7 +25061,7 @@ void CvUnit::read(FDataStream& kStream)
 	kStream >> uSize;
 	for(UINT uIdx = 0; uIdx < uSize; ++uIdx)
 	{
-		MissionQueueNode Node;
+		MissionData Node;
 
 		kStream >> Node.eMissionType;
 		kStream >> Node.iData1;
@@ -25141,7 +25141,7 @@ void CvUnit::write(FDataStream& kStream) const
 	kStream << m_missionQueue.getLength();
 	for(int uIdx = 0; uIdx < m_missionQueue.getLength(); ++uIdx)
 	{
-		MissionQueueNode* pNode = m_missionQueue.getAt(uIdx);
+		MissionData* pNode = m_missionQueue.getAt(uIdx);
 
 		kStream << pNode->eMissionType;
 		kStream << pNode->iData1;
@@ -25722,7 +25722,7 @@ void CvUnit::PublishQueuedVisualizationMoves()
 		CvPlotIndexVector kPlotArray;
 
 		kPlotArray.reserve(m_unitMoveLocs.size());
-		for(UnitMovementQueue::const_iterator itr = m_unitMoveLocs.begin(); itr != m_unitMoveLocs.end(); ++itr)
+		for(std::vector<CvPlot*>::const_iterator itr = m_unitMoveLocs.begin(); itr != m_unitMoveLocs.end(); ++itr)
 		{
 			kPlotArray.push_back((*itr)->GetPlotIndex());
 		}
@@ -25762,7 +25762,7 @@ FAutoArchive& CvUnit::getSyncArchive()
 bool CvUnit::IsDoingPartialMove() const
 {
 	VALIDATE_OBJECT
-	const MissionQueueNode* pkMissionNode = HeadMissionQueueNode();
+	const MissionData* pkMissionNode = HeadMissionData();
 	if(!pkMissionNode)
 	{
 		return false;
@@ -26133,7 +26133,7 @@ RouteTypes CvUnit::GetBestBuildRoute(CvPlot* pPlot, BuildTypes* peBestBuild) con
 	
 #if defined(MOD_GLOBAL_QUICK_ROUTES)
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-	const MissionQueueNode* pkMissionNode = HeadMissionQueueNode();
+	const MissionData* pkMissionNode = HeadMissionData();
 	bool bOnlyRoad = MOD_GLOBAL_QUICK_ROUTES && kPlayer.isHuman() && (pkMissionNode != NULL && pkMissionNode->eMissionType == CvTypes::getMISSION_ROUTE_TO());
 	
 	if (bOnlyRoad) {
@@ -26386,7 +26386,7 @@ int CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 		return -1;
 
 	bool bIsEnemyCity = pPathPlot->isEnemyCity(*this);
-	UnitHandle pBestDefender = pPathPlot->getBestDefender(NO_PLAYER, getOwner(), this, true);
+	CvUnit* pBestDefender = pPathPlot->getBestDefender(NO_PLAYER, getOwner(), this, true);
 
 	//nothing to attack?
 	if ( !bIsEnemyCity && !pBestDefender )
@@ -26624,7 +26624,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags, int iPrevETA, bool bBuildingR
 			// Since we can't move into the tile, there may be an enemy unit there
 			// We can't move into tiles with enemy combat units, so getBestDefender should return null on the tile
 			// If there is no defender but we can attack move into the tile, then we know that it is a civilian unit and we should be able to move into it
-			const UnitHandle pDefender = pDestPlot->getBestDefender(NO_PLAYER, getOwner(), this, true);
+			const CvUnit* pDefender = pDestPlot->getBestDefender(NO_PLAYER, getOwner(), this, true);
 			if(!pDefender && !pDestPlot->isEnemyCity(*this) && canMoveInto(*pDestPlot, MOVEFLAG_ATTACK))
 			{
 				// Turn on ability to move into enemy units in this case so we can capture civilians
@@ -27094,7 +27094,7 @@ void CvUnit::AutoMission()
 void CvUnit::UpdateMission()
 {
 	VALIDATE_OBJECT
-	CvUnitMission::UpdateMission(m_thisHandle);
+	CvUnitMission::UpdateMission(this);
 }
 
 //	--------------------------------------------------------------------------------
@@ -27201,7 +27201,7 @@ const MissionData* CvUnit::GetMissionData(int iIndex)
 
 //	--------------------------------------------------------------------------------
 /// Retrieve the first mission in the queue (const correct version)
-const MissionQueueNode* CvUnit::HeadMissionQueueNode() const
+const MissionData* CvUnit::HeadMissionData() const
 {
 	VALIDATE_OBJECT
 	if(m_missionQueue.getLength() > 0)
@@ -27216,7 +27216,7 @@ const MissionQueueNode* CvUnit::HeadMissionQueueNode() const
 
 //	--------------------------------------------------------------------------------
 /// Retrieve the first mission in the queue
-MissionQueueNode* CvUnit::HeadMissionQueueNode()
+MissionData* CvUnit::HeadMissionData()
 {
 	VALIDATE_OBJECT
 	if(m_missionQueue.getLength() > 0)
@@ -27542,7 +27542,7 @@ bool CvUnit::canAdvance(const CvPlot& plot, int iThreshold) const
 CvUnit* CvUnit::airStrikeTarget(CvPlot& targetPlot, bool bNoncombatAllowed) const
 {
 	VALIDATE_OBJECT
-	UnitHandle pDefender;
+	CvUnit* pDefender;
 
 	pDefender = targetPlot.getBestDefender(NO_PLAYER, getOwner(), this, true, false, false, bNoncombatAllowed);	// All defaults, except test for war, and allow noncombat units
 
@@ -27550,7 +27550,7 @@ CvUnit* CvUnit::airStrikeTarget(CvPlot& targetPlot, bool bNoncombatAllowed) cons
 	{
 		if(!pDefender->IsDead())
 		{
-			return pDefender.pointer();
+			return pDefender;
 		}
 	}
 
@@ -27561,6 +27561,10 @@ CvUnit* CvUnit::airStrikeTarget(CvPlot& targetPlot, bool bNoncombatAllowed) cons
 bool CvUnit::CanWithdrawFromMelee(CvUnit& attacker)
 {
 	VALIDATE_OBJECT
+
+	if (isEmbarked() && getDomainType() == DOMAIN_LAND)
+		return false;
+
 	int iWithdrawChance = getExtraWithdrawal();
 
 	// Does attacker have a speed greater than 1?
