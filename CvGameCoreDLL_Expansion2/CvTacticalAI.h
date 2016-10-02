@@ -1012,12 +1012,13 @@ struct STacticalAssignment
 	int iFromPlotIndex;
 	int iToPlotIndex;
 	int iRemainingMoves;
+	bool bIsCombat;
 
 	int iDamage; //just in case of attack, not set in constructor
 
 	//convenience constructor
-	STacticalAssignment(int iFromPlot = 0, int iToPlot = 0, int iUnit = 0, int iRemainingMoves_=0, int iScore_ = 0, eAssignmentType eType_ = A_ENDTURN) :
-		iFromPlotIndex(iFromPlot), iToPlotIndex(iToPlot), iUnitID(iUnit), iRemainingMoves(iRemainingMoves_), iScore(iScore_), eType(eType_), iDamage(0) {}
+	STacticalAssignment(int iFromPlot = 0, int iToPlot = 0, int iUnit = 0, int iRemainingMoves_= 0, bool bIsCombat_ = true, int iScore_ = 0, eAssignmentType eType_ = A_ENDTURN) :
+		iFromPlotIndex(iFromPlot), iToPlotIndex(iToPlot), iUnitID(iUnit), iRemainingMoves(iRemainingMoves_), bIsCombat(bIsCombat_), iScore(iScore_), eType(eType_), iDamage(0) {}
 
 	//sort descending
 	bool operator<(const STacticalAssignment& rhs) { return iScore>rhs.iScore; }
@@ -1025,22 +1026,28 @@ struct STacticalAssignment
 
 struct SUnitStats
 {
+	enum eMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_SUPPORT };
+
 	int iUnitID;
 	int iPlotIndex;
 	int iAttacksLeft;
 	int iMovesLeft;
 	STacticalAssignment::eAssignmentType eLastAssignment;
+	eMovementStrategy eStrategy;
 
 	//convenience constructor
-	SUnitStats(const CvUnit* pUnit) :
+	SUnitStats(const CvUnit* pUnit, eMovementStrategy eStrategy_) :
 		iUnitID(pUnit->GetID()), iPlotIndex(pUnit->plot()->GetPlotIndex()), iAttacksLeft(pUnit->getNumAttacks() - pUnit->getNumAttacksMadeThisTurn()), 
-		iMovesLeft(pUnit->getMoves()), eLastAssignment(STacticalAssignment::A_ENDTURN) {}
-	SUnitStats(int iUnit, int iPlot, int iAttacks, int iMoves) : 
-		iUnitID(iUnit), iPlotIndex(iPlot), iAttacksLeft(iAttacks), iMovesLeft(iMoves), eLastAssignment(STacticalAssignment::A_ENDTURN) {}
+		iMovesLeft(pUnit->getMoves()), eLastAssignment(STacticalAssignment::A_ENDTURN), eStrategy(eStrategy_) {}
+	SUnitStats(int iUnit, int iPlot, int iAttacks, int iMoves, eMovementStrategy eStrategy_) : 
+		iUnitID(iUnit), iPlotIndex(iPlot), iAttacksLeft(iAttacks), iMovesLeft(iMoves), eLastAssignment(STacticalAssignment::A_ENDTURN), eStrategy(eStrategy_) {}
+
+	bool isCombatUnit() const { return eStrategy==MS_FIRSTLINE || eStrategy==MS_SECONDLINE; }
 };
 
 //forward
 class CvTacticalPlot;
+extern int g_siTacticalPositionCount;
 
 class CvTacticalPosition
 {
@@ -1054,7 +1061,7 @@ protected:
 	int iTotalScore;
 	
 	//so we can look up stuff we haven't cached locally
-	CvTacticalPosition* parentPosition;
+	const CvTacticalPosition* parentPosition;
 	vector<CvTacticalPosition*> childPositions;
 
 	vector<CvTacticalPlot> tactPlots; //storage for tactical plots (complete, mostly redundant with parent)
@@ -1066,6 +1073,7 @@ protected:
 	PlayerTypes ePlayer;
 	bool bOffensive;
 	CvPlot* pTargetPlot;
+	int iID;
 
 	//------------
 	const ReachablePlots& getReachablePlotsForUnit(int iUnit) const;
@@ -1077,11 +1085,19 @@ protected:
 	void findCompatibleMoves(const STacticalAssignment& initial, const vector<STacticalAssignment>& choice, vector<STacticalAssignment>& result) const;
 	bool movesAreCompatible(const STacticalAssignment& A, const STacticalAssignment& B) const;
 	bool movesAreEquivalent(const vector<STacticalAssignment>& seqA, const vector<STacticalAssignment>& seqB) const;
-	int findUnitAtPlot(int iPlotIndex) const;
+	int findBlockingUnitAtPlot(int iPlotIndex) const;
+
+	//finding a particular unit
+	struct PrMatchingUnit
+	{
+		int iUnitID;
+		PrMatchingUnit(int iID) : iUnitID(iID) {}
+		bool operator()(const SUnitStats& other) { return iUnitID == other.iUnitID; }
+	};
 
 public:
 	CvTacticalPosition(const CvTacticalPosition& other);
-	CvTacticalPosition(PlayerTypes player, bool bOffensiveMove, CvPlot* pTarget) : ePlayer(player), pTargetPlot(pTarget), bOffensive(bOffensiveMove), iTotalScore(0), parentPosition(NULL) {}
+	CvTacticalPosition(PlayerTypes player, bool bOffensiveMove, CvPlot* pTarget);
 	~CvTacticalPosition() { for (size_t i=0; i<childPositions.size(); i++) delete childPositions[i]; }
 
 	bool isComplete() const { return availableUnits.empty(); }
@@ -1090,7 +1106,6 @@ public:
 	void addTacticalPlot(const CvPlot* pPlot, PlayerTypes ePlayer);
 	void addAvailableUnit(const CvUnit* pUnit, const CvPlot* pAssumedPlot, bool bInitialSetup);
 	int countChildren() const;
-	const STacticalAssignment& getLastAssignment() const { if (assignedMoves.empty()) return STacticalAssignment(); else return assignedMoves.back(); }
 
 	const CvTacticalPlot& getTactPlot(int plotindex) const;
 	CvTacticalPlot& getTactPlot(int plotindex);
@@ -1109,7 +1124,7 @@ public:
 	//debugging
 	void dumpPlotStatus(const char* filename) const;
 	void exportToDotFile(const char* filename) const;
-	void dumpChildren(std::ofstream& out) const;
+	void dumpChildren(ofstream& out) const;
 };
 
 class CvTacticalPlot
