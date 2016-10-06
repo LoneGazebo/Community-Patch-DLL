@@ -878,8 +878,18 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 	kToNodeCacheData.bContainsEnemyCity = pPlot->isEnemyCity(*pUnit);
 	if (kToNodeCacheData.bPlotVisibleToTeam)
 	{
-		kToNodeCacheData.bContainsVisibleEnemy = pPlot->isVisibleEnemyUnit(pUnit);
-		kToNodeCacheData.bContainsVisibleEnemyDefender = pPlot->isVisibleEnemyDefender(pUnit);
+		bool bIgnore = false;
+		if (finder->HaveFlag(CvUnit::MOVEFLAG_SELECTIVE_ZOC))
+		{
+			const set<int>& ignoreEnemies = finder->GetData().plotsToIgnoreForZOC;
+			bIgnore = (ignoreEnemies.find(pPlot->GetPlotIndex()) != ignoreEnemies.end());
+		}
+
+		if (!bIgnore)
+		{
+			kToNodeCacheData.bContainsVisibleEnemy = pPlot->isVisibleEnemyUnit(pUnit);
+			kToNodeCacheData.bContainsVisibleEnemyDefender = pPlot->isVisibleEnemyDefender(pUnit);
+		}
 	}
 	else
 	{
@@ -1170,7 +1180,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 
 //	--------------------------------------------------------------------------------
 /// Standard path finder - compute cost of a move
-int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData&, CvAStar* finder)
+int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData& data, CvAStar* finder)
 {
 	int iStartMoves = parent->m_iMoves;
 	int iTurns = parent->m_iTurns;
@@ -1220,7 +1230,12 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPat
 		int iMaxMoves = pUnitDataCache->baseMoves(pToPlot->getDomain())*GC.getMOVE_DENOMINATOR(); //important, use the cached value
 
 		if (bCheckZOC)
-			iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves);
+		{
+			if (finder->HaveFlag(CvUnit::MOVEFLAG_SELECTIVE_ZOC))
+				iMovementCost = CvUnitMovement::MovementCostSelectiveZOC(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves, data.plotsToIgnoreForZOC);
+			else
+				iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves);
+		}
 		else
 			iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves);
 	}

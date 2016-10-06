@@ -283,6 +283,15 @@ int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, c
 }
 
 //	---------------------------------------------------------------------------
+int CvUnitMovement::MovementCostSelectiveZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, const set<int>& plotsToIgnore)
+{
+	if(IsSlowedByZOC(pUnit, pFromPlot, pToPlot, plotsToIgnore))
+		return iMovesRemaining;
+
+	return MovementCostNoZOC(pUnit,pFromPlot,pToPlot,iMovesRemaining,iMaxMoves);
+}
+
+//	---------------------------------------------------------------------------
 int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves)
 {
 	int iCost = GetCostsForMove(pUnit, pFromPlot, pToPlot);
@@ -294,6 +303,107 @@ int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPl
 		iCost += (iLeftOverMoves-iMaxMoves);
 
 	return std::min( iCost, iMovesRemaining );
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, const set<int>& plotsToIgnore)
+{
+	if (pUnit->IsIgnoreZOC())
+		return false;
+
+	// Zone of Control
+	if(GC.getZONE_OF_CONTROL_ENABLED() <= 0)
+		return false;
+
+	TeamTypes eUnitTeam = pUnit->getTeam();
+	DomainTypes eUnitDomain = pUnit->getDomainType();
+	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
+
+	//there are only two plots we need to check
+	DirectionTypes moveDir = directionXY(pFromPlot,pToPlot);
+	int eRight = (int(moveDir) + 1) % 6;
+	int eLeft = (int(moveDir) + 5) % 6; 
+	CvPlot* aPlotsToCheck[2];
+	aPlotsToCheck[0] = plotDirection(pFromPlot->getX(),pFromPlot->getY(),(DirectionTypes)eRight);
+	aPlotsToCheck[1] = plotDirection(pFromPlot->getX(),pFromPlot->getY(),(DirectionTypes)eLeft);
+	for (int iCount=0; iCount<2; iCount++)
+	{
+		CvPlot* pAdjPlot = aPlotsToCheck[iCount];
+		if(!pAdjPlot)
+			continue;
+
+		//this is the only difference to the regular version below
+		if(plotsToIgnore.find(pAdjPlot->GetPlotIndex())!=plotsToIgnore.end())
+			continue;
+
+		// check city zone of control
+		if(pAdjPlot->isEnemyCity(*pUnit))
+			return true;
+
+		// Loop through all units to see if there's an enemy unit here
+		IDInfo* pAdjUnitNode = pAdjPlot->headUnitNode();
+		while(pAdjUnitNode != NULL)
+		{
+			CvUnit* pLoopUnit = NULL;
+			if((pAdjUnitNode->eOwner >= 0) && pAdjUnitNode->eOwner < MAX_PLAYERS)
+				pLoopUnit = (GET_PLAYER(pAdjUnitNode->eOwner).getUnit(pAdjUnitNode->iID));
+
+			pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
+
+			if(!pLoopUnit) 
+				continue;
+
+			if(pLoopUnit->isInvisible(eUnitTeam,false))
+				continue;
+
+			// Combat unit?
+			if(!pLoopUnit->IsCombatUnit())
+				continue;
+
+			// Embarked units don't have ZOC
+			if(pLoopUnit->isEmbarked())
+				continue;
+
+			// At war with this unit's team?
+			TeamTypes eLoopUnitTeam = pLoopUnit->getTeam();
+			if(eLoopUnitTeam == BARBARIAN_TEAM || kUnitTeam.isAtWar(eLoopUnitTeam) || pLoopUnit->isAlwaysHostile(*pAdjPlot) )
+			{
+				// Same Domain?
+				DomainTypes eLoopUnitDomain = pLoopUnit->getDomainType();
+				if(eLoopUnitDomain != eUnitDomain)
+				{
+					// hovering units always exert a ZOC
+					if (pLoopUnit->IsHoveringUnit() || eLoopUnitDomain==DOMAIN_HOVER)
+					{
+						// continue on
+					}
+					// water unit can ZoC embarked land unit
+					else if(eLoopUnitDomain == DOMAIN_SEA && (pToPlot->needsEmbarkation(pUnit) || pFromPlot->needsEmbarkation(pUnit)) )
+					{
+						// continue on
+					}
+					else
+					{
+						// ignore this unit
+						continue;
+					}
+				}
+				else
+				{
+					//land units don't ZoC embarked units (if they stay embarked)
+					if(eLoopUnitDomain == DOMAIN_LAND && pToPlot->needsEmbarkation(pUnit) && pFromPlot->needsEmbarkation(pUnit))
+					{
+						continue;
+					}
+				}
+
+				//ok, all conditions fulfilled
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -320,7 +430,6 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 	for (int iCount=0; iCount<2; iCount++)
 	{
 		CvPlot* pAdjPlot = aPlotsToCheck[iCount];
-
 		if(!pAdjPlot)
 			continue;
 

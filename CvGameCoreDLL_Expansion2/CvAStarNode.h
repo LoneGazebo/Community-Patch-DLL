@@ -159,6 +159,7 @@ struct SPathFinderUserData
 	int			iMaxNormalizedDistance;
 	int			iMinMovesLeft;
 	int			iStartMoves;
+	set<int>	plotsToIgnoreForZOC;
 };
 
 //-------------------------------------------------------------------------------------------------
