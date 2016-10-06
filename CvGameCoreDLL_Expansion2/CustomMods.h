@@ -417,6 +417,12 @@
 // Permits cities to work more rings - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_POLICIES_CITY_WORKING                   gCustomMods.isPOLICIES_CITY_WORKING()
 
+// Restricts a Team from passing into the next era before they have found all techs of their current era
+#define MOD_ERA_RESTRICTION							gCustomMods.isERA_RESTRICTION()
+
+// turn on or off yields for terrains that have a feature with GetPlayerTraits()->IsTradeRouteOnly
+#define MOD_USE_TRADE_FEATURES						gCustomMods.isUSE_TRADE_FEATURES()
+
 // Permits cities to work more rings - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_TECHS_CITY_WORKING                      gCustomMods.isTECHS_CITY_WORKING()
 
@@ -1459,7 +1465,8 @@ public:
 	MOD_OPT_DECL(TRAITS_EXTRA_SUPPLY);
 
 	MOD_OPT_DECL(POLICIES_CITY_WORKING);
-
+	MOD_OPT_DECL(ERA_RESTRICTION);
+	MOD_OPT_DECL(USE_TRADE_FEATURES);
 	MOD_OPT_DECL(TECHS_CITY_WORKING);
 
 	MOD_OPT_DECL(PROMOTIONS_AURA_CHANGE);

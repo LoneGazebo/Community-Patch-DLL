@@ -96,6 +96,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iTourismGABonus(0),
 	m_bNoNaturalReligionSpread(false),
 	m_bNoOpenTrade(false),
+	m_bGoldenAgeOnWar(false),
 	m_iTourismToGAP(0),
 	m_iEventTourismBoost(0),
 	m_iEventGP(0),
@@ -106,6 +107,10 @@ CvTraitEntry::CvTraitEntry() :
 	m_iStartingSpyRank(0),
 	m_iQuestYieldModifier(0),
 	m_iWonderProductionModifierToBuilding(0),
+	m_iPolicyGEorGM(0),
+	m_iGAGarrisonCityRangeStrikeModifier(0),
+	m_bBestUnitSpawnOnImpDOW(false),
+	m_iBestUnitImprovement(NO_IMPROVEMENT),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -218,6 +223,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_bFreeGreatWorkOnConquest(false),
 	m_bPopulationBoostReligion(false),
 	m_bCombatBoostNearNaturalWonder(false),
+	m_piNumPledgesDomainProdMod(NULL),
+	m_piFreeUnitClassesDOW(NULL),
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiBuildingClassYieldChanges(NULL),
@@ -386,6 +393,18 @@ int CvTraitEntry::GetCapitalBuildingModifier() const
 int CvTraitEntry::GetWonderProductionModifierToBuilding() const
 {
 	return m_iWonderProductionModifierToBuilding;
+}
+int CvTraitEntry::GetGoldenAgeGarrisonedCityRangeStrikeModifier() const
+{
+	return m_iGAGarrisonCityRangeStrikeModifier;
+}
+bool CvTraitEntry::IsBestUnitSpawnOnImprovementDOW() const
+{
+	return m_bBestUnitSpawnOnImpDOW;
+}
+ImprovementTypes CvTraitEntry::GetBestSpawnUnitImprovement() const
+{
+	return m_iBestUnitImprovement;
 }
 #endif
 /// Accessor:: cheaper purchase of tiles for culture border expansion
@@ -632,6 +651,10 @@ bool CvTraitEntry::IsNoOpenTrade() const
 {
 	return m_bNoOpenTrade;
 }
+bool CvTraitEntry::IsGoldenAgeOnWar() const
+{
+	return m_bGoldenAgeOnWar;
+}
 int CvTraitEntry::GetTourismGABonus() const
 {
 	return m_iTourismGABonus;
@@ -671,6 +694,10 @@ int CvTraitEntry::GetStartingSpyRank() const
 int CvTraitEntry::GetQuestYieldModifier() const
 {
 	return m_iQuestYieldModifier;
+}
+int CvTraitEntry::GetPolicyGEorGM() const
+{
+	return m_iPolicyGEorGM;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1231,6 +1258,18 @@ int CvTraitEntry::GetGoldenAgeFromVictory() const
 {
 	return m_iGoldenAgeFromVictory;
 }
+int CvTraitEntry::GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const
+{
+	CvAssertMsg((int)eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
+	CvAssertMsg((int)eDomain > -1, "Index out of bounds");
+	return m_piNumPledgesDomainProdMod ? m_piNumPledgesDomainProdMod[(int)eDomain] : 0;
+}
+int CvTraitEntry::GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
+{
+	CvAssertMsg((int)eUnitClass < GC.getNumUnitClassInfos(), "Index out of bounds");
+	CvAssertMsg((int)eUnitClass > -1, "Index out of bounds");
+	return m_piFreeUnitClassesDOW ? m_piFreeUnitClassesDOW[(int)eUnitClass] : 0;
+}
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 int CvTraitEntry::GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const
@@ -1744,6 +1783,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bUniqueBeliefsOnly					= kResults.GetBool("UniqueBeliefsOnly");
 	m_bNoNaturalReligionSpread				= kResults.GetBool("NoNaturalReligionSpread");
 	m_bNoOpenTrade							= kResults.GetBool("NoOpenTrade");
+	m_bGoldenAgeOnWar						= kResults.GetBool("GoldenAgeOnWar");
 	m_iTourismToGAP							= kResults.GetInt("TourismToGAP");
 	m_iEventTourismBoost					= kResults.GetInt("EventTourismBoost");
 	m_iEventGP								= kResults.GetInt("EventGP");
@@ -1754,6 +1794,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iStartingSpyRank						= kResults.GetInt("StartingSpyRank");
 	m_iQuestYieldModifier					= kResults.GetInt("MinorQuestYieldModifier");
 	m_iWonderProductionModifierToBuilding	= kResults.GetInt("WonderProductionModifierToBuilding");
+	m_iPolicyGEorGM							= kResults.GetInt("PolicyGEorGM");
+	m_iGAGarrisonCityRangeStrikeModifier	= kResults.GetInt("GAGarrisonCityRangeStrikeModifier");
+	m_bBestUnitSpawnOnImpDOW				= kResults.GetBool("BestUnitSpawnOnImpDOW");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -1811,6 +1854,11 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	}
 
 #if defined(MOD_BALANCE_CORE)
+	szTextVal = kResults.GetText("BestUnitImprovement");
+	if(szTextVal)
+	{
+		m_iBestUnitImprovement = (ImprovementTypes)GC.getInfoTypeForString(szTextVal, true);
+	}
 	szTextVal = kResults.GetText("FreeBuildingPrereqTech");
 	if(szTextVal)
 	{
@@ -1951,6 +1999,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #if defined(MOD_BALANCE_CORE)
 	kUtility.SetYields(m_paiGAPToYield, "Trait_GAPToYield", "TraitType", szTraitType);
 	kUtility.SetYields(m_paiMountainRangeYield, "Trait_MountainRangeYield", "TraitType", szTraitType);
+	kUtility.PopulateArrayByValue(m_piNumPledgesDomainProdMod, "Domains", "Trait_NumPledgeDomainProdMod", "DomainType", "TraitType", szTraitType, "Modifier");
+	kUtility.PopulateArrayByValue(m_piFreeUnitClassesDOW, "UnitClasses", "Trait_FreeUnitClassesDOW", "UnitClassType", "TraitType", szTraitType, "Number");
 #endif
 	const int iNumTerrains = GC.getNumTerrainInfos();
 
@@ -2750,6 +2800,14 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bNoOpenTrade  = true;
 			}
+			if (trait->IsGoldenAgeOnWar())
+			{
+				m_bGoldenAgeOnWar = true;
+			}
+			if (trait->IsBestUnitSpawnOnImprovementDOW())
+			{
+				m_bBestUnitSpawnOnImpDOW = true;
+			}
 			m_iTourismToGAP += trait->GetTourismToGAP();
 			m_iEventTourismBoost += trait->GetEventTourismBoost();
 			m_iGrowthBoon += trait->GetGrowthBoon();
@@ -2764,6 +2822,9 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iStartingSpyRank += trait->GetStartingSpyRank();
 			m_iQuestYieldModifier += trait->GetQuestYieldModifier();
 			m_iWonderProductionModifierToBuilding += trait->GetWonderProductionModifierToBuilding();
+			m_iPolicyGEorGM += trait->GetPolicyGEorGM();
+			m_iGAGarrisonCityRangeStrikeModifier += trait->GetGoldenAgeGarrisonedCityRangeStrikeModifier();
+			m_iBestUnitImprovement = trait->GetBestSpawnUnitImprovement();
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
@@ -3147,7 +3208,17 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_abNoTrain[iUnitClass] = trait->NoTrain((UnitClassTypes)iUnitClass);
 			}
+#if defined(MOD_BALANCE_CORE)
+			for(int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
+			{
+				m_piNumPledgesDomainProdMod[iDomain] = trait->GetNumPledgeDomainProductionModifier((DomainTypes) iDomain);
+			}
 
+			for(int iUnitClass = 0; iUnitClass < GC.getNumUnitClassInfos(); iUnitClass++)
+			{
+				m_piFreeUnitClassesDOW[iUnitClass] = trait->GetFreeUnitClassesDOW((UnitClassTypes) iUnitClass);
+			}
+#endif
 			FreeTraitUnit traitUnit;
 			traitUnit.m_iFreeUnit = (UnitTypes)trait->GetFreeUnitClassType();
 			if(traitUnit.m_iFreeUnit != NO_UNITCLASS)
@@ -3193,6 +3264,8 @@ void CvPlayerTraits::Uninit()
 #if defined(MOD_BALANCE_CORE)
 	m_abTerrainClaimBoost.clear();
 	m_paiMovesChangeUnitClass.clear();
+	m_piNumPledgesDomainProdMod.clear();
+	m_piFreeUnitClassesDOW.clear();
 #endif
 	m_paiMaintenanceModifierUnitCombat.clear();
 	m_ppaaiImprovementYieldChange.clear();
@@ -3300,9 +3373,14 @@ void CvPlayerTraits::Reset()
 	m_bUniqueBeliefsOnly = false;
 	m_bNoNaturalReligionSpread = false;
 	m_bNoOpenTrade = false;
+	m_bGoldenAgeOnWar = false;
 	m_iTourismToGAP = 0;
 	m_iEventTourismBoost = 0;
 	m_iWonderProductionModifierToBuilding = 0;
+	m_iPolicyGEorGM = 0;
+	m_iGAGarrisonCityRangeStrikeModifier = 0;
+	m_bBestUnitSpawnOnImpDOW = false;
+	m_iBestUnitImprovement = NO_IMPROVEMENT;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -3548,7 +3626,21 @@ void CvPlayerTraits::Reset()
 		m_abTerrainClaimBoost[iTerrain] = false;
 #endif
 	}
+#if defined(MOD_BALANCE_CORE)
+	m_piNumPledgesDomainProdMod.clear();
+	m_piNumPledgesDomainProdMod.resize(NUM_DOMAIN_TYPES);
+	for(int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
+	{
+		m_piNumPledgesDomainProdMod[iDomain] = 0;
+	}
 
+	m_piFreeUnitClassesDOW.clear();
+	m_piFreeUnitClassesDOW.resize(GC.getNumUnitClassInfos());
+	for(int iUnitClass = 0; iUnitClass < GC.getNumUnitClassInfos(); iUnitClass++)
+	{
+		m_piFreeUnitClassesDOW[iUnitClass] = 0;
+	}
+#endif
 	m_aiResourceQuantityModifier.clear();
 	m_aiResourceQuantityModifier.resize(GC.getNumResourceInfos());
 
@@ -4143,6 +4235,87 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 		}
 	}
 	return bResult;
+}
+
+void CvPlayerTraits::SpawnBestUnitsOnImprovementDOW(CvCity *pCity)
+{
+	CvPlot* pLoopPlot;
+	UnitTypes eBestLandUnit = NO_UNIT;
+	int iStrengthBestLandCombat = 0;
+	UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
+	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+	{
+		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+		if(pkUnitClassInfo)
+		{
+			const UnitTypes eUnit = (UnitTypes) m_pPlayer->getCivilizationInfo().getCivilizationUnits(eUnitClass);
+			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+			if(pUnitEntry)
+			{
+				if(!pCity->canTrain(eUnit))
+				{
+					continue;
+				}
+				if(pUnitEntry->GetRangedCombat() > 0)
+				{
+					continue;
+				}
+				if(pUnitEntry->GetDomainType() == DOMAIN_LAND)
+				{
+					bool bBad = false;
+					ResourceTypes eResource;
+					for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+					{
+						eResource = (ResourceTypes) iResourceLoop;
+						int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
+						if (iNumResource > 0)
+						{
+							if(m_pPlayer->getNumResourceAvailable(eResource, true) < iNumResource)
+							{
+								bBad = true;
+								break;
+							}
+						}
+					}
+					if(bBad)
+					{
+						continue;
+					}
+					int iCombatLandStrength = (std::max(1, pUnitEntry->GetCombat()));
+					if(iCombatLandStrength > iStrengthBestLandCombat)
+					{
+						iStrengthBestLandCombat = iCombatLandStrength;
+						eBestLandUnit = eUnit;
+					}
+				}
+			}
+		}
+	}
+	if(eBestLandUnit == NO_UNIT)
+	{
+		eBestLandUnit = eWarrior;
+	}
+	if(eBestLandUnit != NO_UNIT)
+	{
+		for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
+		{
+			pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
+			if(pLoopPlot != NULL)
+			{
+				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+				{
+					if(pLoopPlot->getImprovementType() == this->GetBestSpawnUnitImprovement())
+					{
+						CvUnit* pkUnit = m_pPlayer->initUnit(eBestLandUnit, pLoopPlot->getX(), pLoopPlot->getY());
+						pCity->addProductionExperience(pkUnit);
+						if (!pkUnit->jumpToNearestValidPlot())
+							pkUnit->kill(false);
+					}
+				}
+			}
+		}
+	}
 }
 #endif
 /// Should unique luxuries appear beneath this tile?
@@ -5053,6 +5226,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_bUniqueBeliefsOnly, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bNoNaturalReligionSpread, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bNoOpenTrade, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bGoldenAgeOnWar, false);
 	MOD_SERIALIZE_READ(66, kStream, m_iGrowthBoon, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSDefense, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iAllianceCSStrength, 0);
@@ -5067,6 +5241,10 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(74, kStream, m_iStartingSpyRank, 0);
 	MOD_SERIALIZE_READ(74, kStream, m_iQuestYieldModifier, 0);
 	MOD_SERIALIZE_READ(74, kStream, m_iWonderProductionModifierToBuilding, 0);
+	MOD_SERIALIZE_READ(74, kStream, m_iPolicyGEorGM, 0);
+	MOD_SERIALIZE_READ(74, kStream, m_iGAGarrisonCityRangeStrikeModifier, 0);
+	MOD_SERIALIZE_READ(74, kStream, m_bBestUnitSpawnOnImpDOW, false);
+	MOD_SERIALIZE_READ(74, kStream, m_iBestUnitImprovement, NO_IMPROVEMENT);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -5336,7 +5514,10 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, &m_iStrategicResourceQuantityModifier[0], GC.getNumTerrainInfos());
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiResourceQuantityModifier);
-
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_piNumPledgesDomainProdMod;
+	kStream >> m_piFreeUnitClassesDOW;
+#endif
 	kStream >> iNumEntries;
 	m_abNoTrain.clear();
 	for (int i = 0; i < iNumEntries; i++)
@@ -5584,6 +5765,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bUniqueBeliefsOnly);
 	MOD_SERIALIZE_WRITE(kStream, m_bNoNaturalReligionSpread);
 	MOD_SERIALIZE_WRITE(kStream, m_bNoOpenTrade);
+	MOD_SERIALIZE_WRITE(kStream, m_bGoldenAgeOnWar);
 	MOD_SERIALIZE_WRITE(kStream, m_iGrowthBoon);
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSDefense);
 	MOD_SERIALIZE_WRITE(kStream, m_iAllianceCSStrength);
@@ -5598,6 +5780,10 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iStartingSpyRank);
 	MOD_SERIALIZE_WRITE(kStream, m_iQuestYieldModifier);
 	MOD_SERIALIZE_WRITE(kStream, m_iWonderProductionModifierToBuilding);
+	MOD_SERIALIZE_WRITE(kStream, m_iPolicyGEorGM);
+	MOD_SERIALIZE_WRITE(kStream, m_iGAGarrisonCityRangeStrikeModifier);
+	MOD_SERIALIZE_WRITE(kStream, m_bBestUnitSpawnOnImpDOW);
+	MOD_SERIALIZE_WRITE(kStream, m_iBestUnitImprovement);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);
@@ -5705,7 +5891,10 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	
 	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, &m_iStrategicResourceQuantityModifier[0], GC.getNumTerrainInfos());
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes>(kStream, m_aiResourceQuantityModifier);
-
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_piNumPledgesDomainProdMod;
+	kStream << m_piFreeUnitClassesDOW;
+#endif
 	kStream << m_abNoTrain.size();
 	for (uint ui = 0; ui < m_abNoTrain.size(); ui++)
 	{

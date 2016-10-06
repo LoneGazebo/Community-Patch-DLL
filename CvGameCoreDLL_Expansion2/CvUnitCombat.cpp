@@ -3380,7 +3380,8 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 	}
 
 #if defined(MOD_EVENTS_RED_COMBAT_ENDED)
-		if (MOD_EVENTS_RED_COMBAT_ENDED) {
+		if (MOD_EVENTS_RED_COMBAT_ENDED) 
+		{
 			// RED : CombatEnded
 			// iAttackingPlayer, iAttackingUnit, attackerDamage, attackerFinalDamage, attackerMaxHP
 			// iDefendingPlayer, iDefendingUnit, defenderDamage, defenderFinalDamage, defenderMaxHP
@@ -3579,7 +3580,10 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 
 	if(pDefender->getExtraWithdrawal() > 0 && pDefender->CanWithdrawFromMelee(kAttacker))
 	{
-		pDefender->DoWithdrawFromMelee(kAttacker);
+		if(!pDefender->isEmbarked())
+		{
+			pDefender->DoWithdrawFromMelee(kAttacker);
+		}
 
 		if(kAttacker.getOwner() == GC.getGame().getActivePlayer())
 		{

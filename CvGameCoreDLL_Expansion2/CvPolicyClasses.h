@@ -172,6 +172,7 @@ public:
 	int GetInternalTradeRouteYieldModifier() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetInternalTradeRouteYieldModifierCapital() const;
+	BuildingClassTypes GetNewCityFreeBuilding() const;
 #endif
 	int GetSharedReligionTourismModifier() const;
 	int GetTradeRouteTourismModifier() const;
@@ -488,6 +489,7 @@ private:
 	int m_iInternalTradeRouteYieldModifier;
 #if defined(MOD_BALANCE_CORE)
 	int m_iInternalTradeRouteYieldModifierCapital;
+	BuildingClassTypes m_eNewCityFreeBuilding;
 #endif
 
 	int m_iSharedReligionTourismModifier;

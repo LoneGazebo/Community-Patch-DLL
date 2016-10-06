@@ -86,6 +86,9 @@ public:
 	int GetResourceQuantityFromImprovement() const;
 	int GetUnitFreePromotion() const;
 	int GetWonderProductionModifier() const;
+	int GetUnitPlotExperience() const;
+	int GetGAUnitPlotExperience() const;
+	bool IsExperience() const;
 #endif
 	int GetImprovementPillage() const;
 	void SetImprovementPillage(int i);
@@ -197,6 +200,8 @@ public:
 	int* GetAdjacentResourceYieldChangesArray (int i);
 	int GetAdjacentTerrainYieldChanges(int i, int j) const;
 	int* GetAdjacentTerrainYieldChangesArray(int i);
+	int GetAdjacentPlotYieldChanges(int i, int j) const;
+	int* GetAdjacentPlotYieldChangesArray(int i);
 #endif
 
 	int GetTechYieldChanges(int i, int j) const;
@@ -248,6 +253,9 @@ protected:
 	int m_iImprovementResourceQuantity;
 	int m_iUnitFreePromotionImprovement;
 	int m_iWonderProductionModifier;
+	int m_iUnitPlotExperience;
+	int m_iGAUnitPlotExperience;
+	bool m_bIsExperience;
 #endif
 	int m_iImprovementPillage;
 	int m_iImprovementUpgrade;
@@ -338,6 +346,7 @@ protected:
 	int** m_ppiAdjacentImprovementYieldChanges;
 	int** m_ppiAdjacentTerrainYieldChanges;
 	int** m_ppiAdjacentResourceYieldChanges;
+	int** m_ppiAdjacentPlotYieldChanges;
 #endif
 
 	int** m_ppiTechYieldChanges;

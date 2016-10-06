@@ -3955,9 +3955,10 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	CvPlayer& kPlayer = GET_PLAYER(GetCity()->getOwner());
 	CvUnit* newUnit = kPlayer.initUnit(eUnit, GetCity()->getX(), GetCity()->getY());
 
-#if defined(MOD_BALANCE_CORE)
-	if(!bIsFree)
+	// Bump up the count
+	if(bIncrementCount && !bCountAsProphet)
 	{
+#if defined(MOD_BALANCE_CORE)
 		if(kPlayer.GetPlayerTraits()->IsGPWLTKD())
 		{
 			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
@@ -3977,11 +3978,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 				}
 			}
 		}
-	}
 #endif
-	// Bump up the count
-	if(bIncrementCount && !bCountAsProphet)
-	{
 		if(newUnit->IsGreatGeneral())
 		{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
@@ -4084,19 +4081,24 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
 			if (MOD_GLOBAL_SEPARATE_GP_COUNTERS) 
 			{
-				if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")) {
+				if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+				{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 					kPlayer.incrementGreatMerchantsCreated(bIsFree);
 #else
 					kPlayer.incrementGreatMerchantsCreated();
 #endif
-				} else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")) {
+				}
+				else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+				{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 					kPlayer.incrementGreatScientistsCreated(bIsFree);
 #else
 					kPlayer.incrementGreatScientistsCreated();
 #endif
-				} else {
+				}
+				else
+				{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 					kPlayer.incrementGreatEngineersCreated(bIsFree);
 #else
@@ -4115,6 +4117,27 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	}
 	if(bCountAsProphet || newUnit->getUnitInfo().IsFoundReligion())
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(kPlayer.GetPlayerTraits()->IsGPWLTKD())
+		{
+			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iWLTKD /= 100;
+			if(iWLTKD > 0)
+			{
+				GetCity()->ChangeWeLoveTheKingDayCounter(iWLTKD);
+				CvNotifications* pNotifications = kPlayer.GetNotifications();
+				if(pNotifications)
+				{
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
+					strText <<  newUnit->getNameKey() << GetCity()->getNameKey();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
+					strSummary << GetCity()->getNameKey();
+					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), GetCity()->getX(), GetCity()->getY(), -1);
+				}
+			}
+		}
+#endif
 #if defined(MOD_BUGFIX_MINOR)
 		if (bIncrementCount)
 #endif

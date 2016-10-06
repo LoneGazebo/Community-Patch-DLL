@@ -5243,39 +5243,41 @@ void CvHomelandAI::ExecuteGeneralMoves()
 	// Do we have an Apollo program to stay clear of?
 	bool bHaveApolloInCapital = false;
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-	if (!MOD_GLOBAL_BREAK_CIVILIAN_1UPT) {
-#endif
-	ProjectTypes eApolloProgram = (ProjectTypes) GC.getSPACE_RACE_TRIGGER_PROJECT();
-	if(eApolloProgram != NO_PROJECT)
+	if (!MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
 	{
-		if(GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApolloProgram) > 0)
+#endif
+		ProjectTypes eApolloProgram = (ProjectTypes) GC.getSPACE_RACE_TRIGGER_PROJECT();
+		if(eApolloProgram != NO_PROJECT)
 		{
-			bHaveApolloInCapital = true;
+			if(GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApolloProgram) > 0)
+			{
+				bHaveApolloInCapital = true;
+			}
 		}
-	}
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
 	}
 #endif
 	// Do we have a holy city to stay clear of?
 	bool bKeepHolyCityClear = false;
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-	if (!MOD_GLOBAL_BREAK_CIVILIAN_1UPT) {
-#endif
-	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eMyReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
-	const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
-	if(pMyReligion)
+	if (!MOD_GLOBAL_BREAK_CIVILIAN_1UPT) 
 	{
-		pHolyCityPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
-		if(pHolyCityPlot != NULL)
+#endif
+		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+		ReligionTypes eMyReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+		const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
+		if(pMyReligion)
 		{
-			pHolyCity = pHolyCityPlot->getPlotCity();
-			if(pHolyCity && (pHolyCity->getOwner() == m_pPlayer->GetID()))
+			pHolyCityPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
+			if(pHolyCityPlot != NULL)
 			{
-				bKeepHolyCityClear = true;
+				pHolyCity = pHolyCityPlot->getPlotCity();
+				if(pHolyCity && (pHolyCity->getOwner() == m_pPlayer->GetID()))
+				{
+					bKeepHolyCityClear = true;
+				}
 			}
 		}
-	}
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
 	}
 #endif

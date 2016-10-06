@@ -12876,8 +12876,12 @@ void CvGame::SpawnArchaeologySitesHistorically()
 
 		CvPlot* pPlot = theMap.plotByIndexUnchecked(i);
 		const ResourceTypes eResource = pPlot->getResourceType();
-
+#if defined(MOD_BALANCE_CORE)
+		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pPlot->getImprovementType());
+		if (pPlot->isWater() || !pPlot->isValidMovePlot(BARBARIAN_PLAYER) || (pImprovementInfo && pImprovementInfo->IsPermanent()))
+#else
 		if (pPlot->isWater() || !pPlot->isValidMovePlot(BARBARIAN_PLAYER))
+#endif
 		{
 			historicalDigSites[i].m_eArtifactType = NO_GREAT_WORK_ARTIFACT_CLASS;
 			historicalDigSites[i].m_eEra = NO_ERA;
