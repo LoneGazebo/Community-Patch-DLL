@@ -5482,6 +5482,33 @@ int CvPlot::ComputeYieldFromAdjacentTerrain(CvImprovementEntry& kImprovement, Yi
 
 	return iRtnValue;
 }
+
+int CvPlot::ComputeYieldFromAdjacentPlot(CvImprovementEntry& kImprovement, YieldTypes eYield) const
+{
+	CvPlot* pAdjacentPlot;
+	int iRtnValue = 0;
+
+	for(int iJ = 0; iJ < GC.getNumPlotInfos(); iJ++)
+	{
+		PlotTypes ePlot = (PlotTypes)iJ;
+		if(ePlot != NO_PLOT)
+		{
+			if(kImprovement.GetAdjacentPlotYieldChanges(ePlot, eYield) > 0)
+			{
+				for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				{
+					pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+					if(pAdjacentPlot && pAdjacentPlot->getPlotType() == ePlot)
+					{
+						iRtnValue += kImprovement.GetAdjacentPlotYieldChanges(ePlot, eYield);
+					}
+				}
+			}
+		}
+	}
+
+	return iRtnValue;
+}
 #endif
 //	--------------------------------------------------------------------------------
 #if defined(MOD_GLOBAL_STACKING_RULES)
@@ -8174,6 +8201,22 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							pAdjacentPlot->updateYield();
 						}
 					}
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getPlotType() != NO_PLOT && pAdjacentPlot->getOwner() == eBuilder)
+					{	
+						bool bUp2 = false;
+						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
+						{
+							if(pImprovement2->GetAdjacentPlotYieldChanges(pAdjacentPlot->getPlotType(), (YieldTypes)iK) > 0)
+							{
+								bUp2 = true;								
+								break;
+							}
+						}
+						if(bUp2)
+						{
+							pAdjacentPlot->updateYield();
+						}
+					}
 				}
 			}
 		}
@@ -8198,6 +8241,22 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							}
 						}
 						if(bUp)
+						{
+							pAdjacentPlot->updateYield();
+						}
+					}
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getPlotType() != NO_PLOT && pAdjacentPlot->getOwner() == eBuilder)
+					{	
+						bool bUp2 = false;
+						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
+						{
+							if(pImprovement2->GetAdjacentPlotYieldChanges(pAdjacentPlot->getPlotType(), (YieldTypes)iK) > 0)
+							{
+								bUp2 = true;								
+								break;
+							}
+						}
+						if(bUp2)
 						{
 							pAdjacentPlot->updateYield();
 						}
@@ -9898,7 +9957,10 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 		CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
 
 		iYield += kPlayer.getImprovementYieldChange(eImprovement, eYield);
-		iYield += kPlayer.GetPlayerTraits()->GetImprovementYieldChange(eImprovement, eYield);
+		if(!kPlayer.GetPlayerTraits()->IsTradeRouteOnly())
+		{
+			iYield += kPlayer.GetPlayerTraits()->GetImprovementYieldChange(eImprovement, eYield);
+		}
 		iYield += kTeam.getImprovementYieldChange(eImprovement, eYield);
 
 		if(bIsFreshWater)
@@ -10055,23 +10117,70 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 #if defined(MOD_BALANCE_CORE)
 		if(kPlayer.GetPlayerTraits()->IsTradeRouteOnly())
 		{
-			if((getFeatureType() == NO_FEATURE) && (getOwner() == kPlayer.GetID()))
+			if(getOwner() == kPlayer.GetID())
 			{
-				int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
-				if(iBonus > 0)
+#if defined(MOD_USE_TRADE_FEATURES)
+				if(getFeatureType() == NO_FEATURE && !MOD_USE_TRADE_FEATURES)
+#endif
 				{
-					if(IsCityConnection(ePlayer) || IsTradeUnitRoute())
+					int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+					if(iBonus > 0)
 					{
-						int iScale = 0;
-						int iEra = (kPlayer.GetCurrentEra() + 1);
-
-						iScale = ((iBonus * iEra) / 4);
-
-						if(iScale <= 0)
+						if(IsCityConnection(ePlayer) || IsTradeUnitRoute())
 						{
-							iScale = 1;
+							int iScale = 0;
+							int iEra = (kPlayer.GetCurrentEra() + 1);
+
+							iScale = ((iBonus * iEra) / 4);
+
+							if(iScale <= 0)
+							{
+								iScale = 1;
+							}
+							iYield += iScale;
 						}
-						iYield += iScale;
+					}
+				}
+#if defined(MOD_USE_TRADE_FEATURES)
+				else if(MOD_USE_TRADE_FEATURES)
+#endif
+				{
+					int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+					if(iBonus > 0)
+					{
+						if(IsCityConnection(ePlayer) || IsTradeUnitRoute())
+						{
+							int iScale = 0;
+							int iEra = (kPlayer.GetCurrentEra() + 1);
+
+							iScale = ((iBonus * iEra) / 4);
+
+							if(iScale <= 0)
+							{
+								iScale = 1;
+							}
+							iYield += iScale;
+						}
+					}
+				}
+				if(eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
+				{
+					int iBonus2 = kPlayer.GetPlayerTraits()->GetImprovementYieldChange(eImprovement, eYield);
+					if(iBonus2 > 0)
+					{
+						if(IsCityConnection(ePlayer) || IsTradeUnitRoute() || IsAdjacentToTradeRoute())
+						{
+							int iScale = 0;
+							int iEra = (kPlayer.GetCurrentEra() + 1);
+
+							iScale = ((iBonus2 * iEra) / 2);
+
+							if(iScale <= 0)
+							{
+								iScale = 1;
+							}
+							iYield += iScale;
+						}
 					}
 				}
 			}
@@ -10079,7 +10188,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		else
 		{
 #endif
-		iYield += kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+			iYield += kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
 #if defined(MOD_BALANCE_CORE)
 		}
 #endif
@@ -10259,6 +10368,22 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 					}
 				}
 			}
+			if(ePlayer != NO_PLAYER && getPlotType() != NO_PLOT && getOwner() == ePlayer)
+			{
+				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
+					{
+						CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
+						if(pImprovement2 && pImprovement2->GetAdjacentPlotYieldChanges(getPlotType(), eYield) > 0)
+						{
+							iYield += pImprovement2->GetAdjacentPlotYieldChanges(getPlotType(), eYield);
+						}
+					}
+				}
+			}
 		}
 #endif
 		// Extra yield for terrain
@@ -10347,6 +10472,29 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			if(isMountain() && !isFreshWater())
 			{
 				iYield += kYield.getMinCityMountainNoFreshWater();
+			}
+			if(pCity->HasGarrison())
+			{
+				CvUnit* pUnit = pCity->GetGarrisonedUnit();
+				if(pUnit != NULL)
+				{
+					for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+					{
+						const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
+						CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
+						if(pkPromotionInfo)
+						{
+							if(pkPromotionInfo->GetGarrisonYield(eYield))
+							{
+								if(pUnit->isHasPromotion(eLoopPromotion))
+								{
+									int igarrisonstrength = pUnit->GetBaseCombatStrength();
+									iYield += ((pkPromotionInfo->GetGarrisonYield(eYield) * igarrisonstrength) / 8);
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 #endif
@@ -13209,15 +13357,59 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 				{
 					if(IsCityConnection(ePlayer) || IsTradeUnitRoute())
 					{
-						if (getFeatureType() == NO_FEATURE && getOwner() == GET_PLAYER(ePlayer).GetID())
+						if (getOwner() == GET_PLAYER(ePlayer).GetID())
 						{
-							int iBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
-							if(iBonus > 0)
+#if defined(MOD_USE_TRADE_FEATURES)
+							if(getFeatureType() == NO_FEATURE && !MOD_USE_TRADE_FEATURES)
+#endif
+							{
+								int iBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+								if(iBonus > 0)
+								{
+									int iScale = 0;
+									int iEra = (GET_PLAYER(ePlayer).GetCurrentEra() + 1);
+
+									iScale = ((iBonus * iEra) / 4);
+
+									if(iScale <= 0)
+									{
+										iScale = 1;
+									}
+									iYield += iScale;
+								}
+							}
+#if defined(MOD_USE_TRADE_FEATURES)
+							else if(MOD_USE_TRADE_FEATURES)
+#endif
+							{
+								int iBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+								if(iBonus > 0)
+								{
+									int iScale = 0;
+									int iEra = (GET_PLAYER(ePlayer).GetCurrentEra() + 1);
+
+									iScale = ((iBonus * iEra) / 4);
+
+									if(iScale <= 0)
+									{
+										iScale = 1;
+									}
+									iYield += iScale;
+								}
+							}
+						}
+					}
+					int iBonus2 = GET_PLAYER(ePlayer).GetPlayerTraits()->GetImprovementYieldChange(eImprovement, eYield);
+					if(iBonus2 > 0)
+					{
+						if (getOwner() == GET_PLAYER(ePlayer).GetID())
+						{
+							if(IsCityConnection(ePlayer) || IsTradeUnitRoute() || IsAdjacentToTradeRoute())
 							{
 								int iScale = 0;
 								int iEra = (GET_PLAYER(ePlayer).GetCurrentEra() + 1);
 
-								iScale = ((iBonus * iEra) / 4);
+								iScale = ((iBonus2 * iEra) / 2);
 
 								if(iScale <= 0)
 								{
@@ -13359,6 +13551,22 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 						if(pImprovement2 && pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield) > 0)
 						{
 							iYield += pImprovement2->GetAdjacentTerrainYieldChanges(getTerrainType(), eYield);
+						}
+					}
+				}
+			}
+			if(ePlayer != NO_PLAYER && getPlotType() != NO_PLOT && getOwner() == ePlayer)
+			{
+				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->getOwner() == ePlayer)
+					{
+						CvImprovementEntry* pImprovement2 = GC.getImprovementInfo(pAdjacentPlot->getImprovementType());
+						if(pImprovement2 && pImprovement2->GetAdjacentPlotYieldChanges(getPlotType(), eYield) > 0)
+						{
+							iYield += pImprovement2->GetAdjacentPlotYieldChanges(getPlotType(), eYield);
 						}
 					}
 				}
@@ -14278,6 +14486,40 @@ bool CvPlot::IsWithinDistanceOfUnit(PlayerTypes ePlayer, UnitTypes eOtherUnit, i
 	return false;
 }
 
+bool CvPlot::IsWithinDistanceOfCity(const CvUnit* eThisUnit, int iDistance, bool bIsFriendly, bool bIsEnemy) const
+{
+	if(eThisUnit != NULL)
+	{
+		for (int i = -iDistance; i <= iDistance; ++i) 
+		{
+			for (int j = -iDistance; j <= iDistance; ++j) 
+			{
+				int iX = eThisUnit->getX(); int iY = eThisUnit->getY();
+				CvPlot* pLoopPlot = ::plotXYWithRangeCheck(iX, iY, i, j, iDistance);		
+				if (pLoopPlot != NULL)
+				{
+					if(pLoopPlot->isCity())
+					{
+						if(bIsFriendly && pLoopPlot->isFriendlyCity(*eThisUnit, true))
+						{
+							return true;
+						}
+						else if(bIsEnemy && pLoopPlot->isEnemyCity(*eThisUnit))
+						{
+							return true;
+						}
+						else if(!bIsFriendly && !bIsEnemy)
+						{
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
 bool CvPlot::IsWithinDistanceOfUnitCombatType(PlayerTypes ePlayer, UnitCombatTypes eUnitCombat, int iDistance, bool bIsFriendly, bool bIsEnemy) const
 {
 	int iX = getX(); int iY = getY();
@@ -14640,6 +14882,20 @@ bool CvPlot::IsAdjacentToUnitPromotion(PlayerTypes ePlayer, PromotionTypes eUnit
 					}
 				}
 			}
+		}
+	}
+	return false;
+}
+
+bool CvPlot::IsAdjacentToTradeRoute() const
+{
+	int iX = getX(); int iY = getY();
+	for (int iDirection = 0; iDirection < NUM_DIRECTION_TYPES; iDirection++) 
+	{
+		CvPlot* pLoopPlot = plotDirection(iX, iY, (DirectionTypes) iDirection);		
+		if (pLoopPlot != NULL && pLoopPlot->IsTradeUnitRoute())
+		{
+			return true;
 		}
 	}
 	return false;

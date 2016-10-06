@@ -232,9 +232,17 @@ public:
 	bool IsIgnoreZOC() const;
 	bool IsSapper() const;
 #if defined(MOD_BALANCE_CORE)
+	bool IsNearbyCityPromotion() const;
+	bool IsNearbyFriendlyCityPromotion() const;
+	bool IsNearbyEnemyCityPromotion() const;
 	bool IsNearbyPromotion() const;
-	int NearbyRange() const;
+	bool IsFriendlyLands() const;
+	int GetNearbyRange() const;
+	UnitTypes getRequiredUnit() const;
+	UnitTypes GetConvertDomainUnit() const;
+	DomainTypes GetConvertDomain() const;
 	PromotionTypes AddedFromNearbyPromotion() const;
+	int GetStackedGreatGeneralExperience() const;
 #endif
 	bool IsCanHeavyCharge() const;
 	bool HasPostCombatPromotions() const;
@@ -254,6 +262,7 @@ public:
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldFromKills(int i) const;
 	int GetYieldFromBarbarianKills(int i) const;
+	int GetGarrisonYield(int i) const;
 #endif
 	int GetUnitCombatModifierPercent(int i) const;
 	int GetUnitClassModifierPercent(int i) const;
@@ -476,9 +485,17 @@ protected:
 	bool m_bPostCombatPromotionsExclusive;
 	bool m_bSapper;
 #if defined(MOD_BALANCE_CORE)
+	bool m_bIsNearbyCityPromotion;
+	bool m_bIsNearbyFriendlyCityPromotion;
+	bool m_bIsNearbyEnemyCityPromotion;
 	bool m_bIsNearbyPromotion;
+	bool m_bIsFriendlyLands;
 	int m_iNearbyRange;
 	PromotionTypes m_eAddedFromNearbyPromotion;
+	UnitTypes m_eRequiredUnit;
+	UnitTypes m_eConvertDomainUnit;
+	DomainTypes m_eConvertDomain;
+	int m_iStackedGreatGeneralExperience;
 #endif
 	bool m_bCanHeavyCharge;
 
@@ -495,6 +512,7 @@ protected:
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int* m_piYieldFromKills;
 	int* m_piYieldFromBarbarianKills;
+	int* m_piGarrisonYield;
 #endif
 	int* m_piUnitCombatModifierPercent;
 	int* m_piUnitClassModifierPercent;

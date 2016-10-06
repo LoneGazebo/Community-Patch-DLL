@@ -1433,6 +1433,81 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 
 						//Update Diplo.
 						kDefendingPlayer.GetDiplomacyAI()->DoSomeoneDeclaredWarOnMe(GetID());
+#if defined(MOD_BALANCE_CORE)
+						//Do a golden age on war if we can
+						if(kAttackingPlayer.GetPlayerTraits()->IsGoldenAgeOnWar())
+						{
+							kAttackingPlayer.changeGoldenAgeTurns(kAttackingPlayer.getGoldenAgeLength(), kAttackingPlayer.GetGoldenAgeProgressMeter());
+						}
+						if(kDefendingPlayer.GetPlayerTraits()->IsGoldenAgeOnWar())
+						{
+							kDefendingPlayer.changeGoldenAgeTurns(kDefendingPlayer.getGoldenAgeLength(), kDefendingPlayer.GetGoldenAgeProgressMeter());
+						}
+						// Best unit on an improvement DOW?
+						if(kAttackingPlayer.GetPlayerTraits()->IsBestUnitSpawnOnImprovementDOW())
+						{
+							CvCity* pLoopCity;
+							int iLoop;
+							for(pLoopCity = kAttackingPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kAttackingPlayer.nextCity(&iLoop))
+							{
+								kAttackingPlayer.GetPlayerTraits()->SpawnBestUnitsOnImprovementDOW(pLoopCity);
+							}
+						}
+						if(kDefendingPlayer.GetPlayerTraits()->IsBestUnitSpawnOnImprovementDOW())
+						{
+							CvCity* pLoopCity;
+							int iLoop;
+							for(pLoopCity = kDefendingPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kDefendingPlayer.nextCity(&iLoop))
+							{
+								kDefendingPlayer.GetPlayerTraits()->SpawnBestUnitsOnImprovementDOW(pLoopCity);
+							}
+						}
+						// Get a free unit on DOW?
+						for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+						{
+							const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+							CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+							if(pkUnitClassInfo)
+							{
+								if(kAttackingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass) != NO_UNITCLASS)
+								{
+									for(int iUnitLoop = 0; iUnitLoop < kAttackingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass); iUnitLoop++)
+									{
+										const UnitTypes eUnit = (UnitTypes) kAttackingPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);
+										if(eUnit != NO_UNIT)
+										{
+											CvCity* pCapital1 = kAttackingPlayer.getCapitalCity();
+											if(pCapital1 != NULL)
+											{
+												CvUnit* pkUnit = kAttackingPlayer.initUnit(eUnit, pCapital1->getX(), pCapital1->getY());
+												pCapital1->addProductionExperience(pkUnit);
+												if (!pkUnit->jumpToNearestValidPlot())
+													pkUnit->kill(false);
+											}
+										}
+									}
+								}
+								if(kDefendingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass) != NO_UNITCLASS)
+								{
+									for(int iUnitLoop = 0; iUnitLoop < kDefendingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass); iUnitLoop++)
+									{
+										const UnitTypes eUnit = (UnitTypes) kDefendingPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);
+										if(eUnit != NO_UNIT)
+										{
+											CvCity* pCapital2 = kDefendingPlayer.getCapitalCity();
+											if(pCapital2 != NULL)
+											{
+												CvUnit* pkUnit = kDefendingPlayer.initUnit(eUnit, pCapital2->getX(), pCapital2->getY());
+												pCapital2->addProductionExperience(pkUnit);
+												if (!pkUnit->jumpToNearestValidPlot())
+													pkUnit->kill(false);
+											}
+										}
+									}
+								}
+							}
+						}
+#endif
 #if defined(MOD_DIPLOMACY_AUTO_DENOUNCE)
 						if (MOD_DIPLOMACY_AUTO_DENOUNCE && kAttackingPlayer.isHuman() && !kDefendingPlayer.isHuman())
 						{
@@ -8073,6 +8148,19 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				iUnitClass = kPlayer.GetPlayerTraits()->GetNextFreeUnit();
 			}
 #if defined(MOD_BALANCE_CORE)
+			int iLoop;
+			CvUnit* pLoopUnit;
+			for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+			{
+				if(pLoopUnit->isFreeUpgrade())
+				{
+					UnitTypes eUpgradeUnit = pLoopUnit->GetUpgradeUnitType();
+					if(eUpgradeUnit != NO_UNIT && kPlayer.canTrain(eUpgradeUnit, false, false, true))
+					{
+						pLoopUnit->DoUpgrade(true);
+					}
+				}
+			}
 			if(kPlayer.getCapitalCity() != NULL)
 			{
 				//Free Happiness
@@ -8788,7 +8876,28 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 		{
 			DLLUI->setDirty(Soundtrack_DIRTY_BIT, true);
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			ePlayer = (PlayerTypes) iPlayerLoop;
+			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+			if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+			{
+				int iLoop;
+				CvUnit* pLoopUnit;
+				for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+				{
+					if(pLoopUnit->isUnitEraUpgrade())
+					{
+						if((GC.getUnitInfo(pLoopUnit->getUnitType())->GetEraCombatStrength(eNewValue) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eNewValue))
+						{
+							pLoopUnit->SetBaseCombatStrength(GC.getUnitInfo(pLoopUnit->getUnitType())->GetEraCombatStrength(eNewValue));
+						}
+					}
+				}
+			}
+		}
+#endif
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 		if(pkScriptSystem)
 		{

@@ -52,6 +52,14 @@ CvUnitEntry::CvUnitEntry(void) :
 #if defined(MOD_BALANCE_CORE)
 	m_iNumFreeLux(0),
 	m_iBeliefUnlock(NO_BELIEF),
+	m_bCultureFromExperienceOnDisband(false),
+	m_bIsConvertUnit(false),
+	m_bFreeUpgrade(false),
+	m_bUnitEraUpgrade(false),
+	m_bIsConvertOnDamage(false),
+	m_eConvertUnit(NO_UNIT),
+	m_iDamageThreshold(0),
+	m_bIsConvertOnFullHP(0),
 #endif
 	m_bSpreadReligion(false),
 	m_bRemoveHeresy(false),
@@ -170,6 +178,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_paeGreatWorks(NULL),
 #if defined(MOD_BALANCE_CORE)
 	m_paeGreatPersonEra(NULL),
+	m_piEraCombatStrength(NULL),
 #endif
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	m_iNumberStackingUnits(0),
@@ -207,7 +216,8 @@ CvUnitEntry::~CvUnitEntry(void)
 	SAFE_DELETE_ARRAY(m_paszUnitNames);
 	SAFE_DELETE_ARRAY(m_paeGreatWorks);
 #if defined(MOD_BALANCE_CORE)
-	SAFE_DELETE_ARRAY(m_paeGreatPersonEra);	
+	SAFE_DELETE_ARRAY(m_paeGreatPersonEra);
+	SAFE_DELETE_ARRAY(m_piEraCombatStrength);
 #endif
 
 }
@@ -256,6 +266,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iNumFreeLux = kResults.GetInt("NumFreeLux");
+	m_bFreeUpgrade = kResults.GetBool("FreeUpgrade");
 #endif
 	m_bSpreadReligion = kResults.GetBool("SpreadReligion");
 	m_bRemoveHeresy = kResults.GetBool("RemoveHeresy");
@@ -371,6 +382,14 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	szTextVal = kResults.GetText("BeliefRequired");
 	m_iBeliefUnlock = GC.getInfoTypeForString(szTextVal, true);
+	m_bCultureFromExperienceOnDisband = kResults.GetBool("CulExpOnDisbandUpgrade");
+	m_bIsConvertUnit = kResults.GetBool("IsConvertUnit");
+	m_bUnitEraUpgrade = kResults.GetBool("UnitEraUpgrade");
+	m_bIsConvertOnDamage = kResults.GetBool("ConvertOnDamage");
+	m_iDamageThreshold = kResults.GetInt("DamageThreshold");
+	szTextVal = kResults.GetText("ConvertUnit");
+	m_eConvertUnit = (UnitTypes)GC.getInfoTypeForString(szTextVal, true);
+	m_bIsConvertOnFullHP = kResults.GetBool("ConvertOnFullHP");
 #endif
 
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
@@ -443,6 +462,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 #if defined(MOD_BALANCE_CORE)
 	kUtility.PopulateArrayByExistence(m_pbBuildOnFound, "BuildingClasses", "Unit_BuildOnFound", "BuildingClassType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassPurchaseRequireds, "BuildingClasses", "Unit_BuildingClassPurchaseRequireds", "BuildingClassType", "UnitType", szUnitType);
+	kUtility.PopulateArrayByValue(m_piEraCombatStrength, "Eras", "Unit_EraCombatStrength", "EraType", "UnitType", szUnitType, "CombatStrength");
 #endif
 	//TechTypes
 	{
@@ -761,6 +781,10 @@ int CvUnitEntry::GetNumInfPerEra() const
 int CvUnitEntry::GetNumFreeLux() const
 {
 	return m_iNumFreeLux;
+}
+bool CvUnitEntry::IsFreeUpgrade() const
+{
+	return m_bFreeUpgrade;
 }
 /// Belief Unlock only (if faith purchasing enabled)
 int CvUnitEntry::GetBeliefUnlock() const
@@ -1206,6 +1230,34 @@ int CvUnitEntry::StackCombat() const
 {
 	return m_iStackCombat;
 }
+bool CvUnitEntry::IsCultureFromExperienceDisbandUpgrade() const
+{
+	return m_bCultureFromExperienceOnDisband;
+}
+bool CvUnitEntry::IsConvertUnit() const
+{
+	return m_bIsConvertUnit;
+}
+bool CvUnitEntry::IsConvertOnDamage() const
+{
+	return m_bIsConvertOnDamage;
+}
+bool CvUnitEntry::IsUnitEraUpgrade() const
+{
+	return m_bUnitEraUpgrade;
+}
+int CvUnitEntry::GetDamageThreshold() const
+{
+	return m_iDamageThreshold;
+}
+UnitTypes CvUnitEntry::GetConvertUnit() const
+{
+	return m_eConvertUnit;
+}
+bool CvUnitEntry::IsConvertOnFullHP() const
+{
+	return m_bIsConvertOnFullHP;
+}
 #endif
 #if defined(MOD_CARGO_SHIPS)
 int CvUnitEntry::CargoCombat() const
@@ -1351,6 +1403,13 @@ bool CvUnitEntry::GetBuildingClassPurchaseRequireds(int i) const
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pbBuildingClassPurchaseRequireds ? m_pbBuildingClassPurchaseRequireds[i] : false;
+}
+/// Does this Unit get a new combat strength when reaching a new Era?
+int CvUnitEntry::GetEraCombatStrength(int i) const
+{
+	CvAssertMsg(i < GC.getNumEraInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piEraCombatStrength ? m_piEraCombatStrength[i] : -1;
 }
 #endif
 

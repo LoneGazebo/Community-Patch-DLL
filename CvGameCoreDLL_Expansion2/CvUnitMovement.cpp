@@ -108,6 +108,16 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		// Is a unit's movement consumed for entering rough terrain?
 		return INT_MAX;
 	}
+#if defined(MOD_BALANCE_CORE)
+	// This is a special Domain unit that can disembark and becomes a land unit. End Turn like normal disembarkation.
+	else if(pUnit->getDomainType() == DOMAIN_SEA && pUnit->isConvertUnit())
+	{
+		if(pToPlot->isCoastalLand(1) && pFromPlot->isWater())
+		{
+			return INT_MAX;
+		}
+	}
+#endif
 	else if (bFullCostEmbarkStateChange)
 	{
 		//embark/disembark ends turn
@@ -126,6 +136,15 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	{
 		iRegularCost = iMoveDenominator;
 	}
+#if defined(MOD_CARGO_SHIPS)
+	else if (pUnit->isCargo() && pUnit->getDomainType() == DOMAIN_LAND && GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+	{
+		if(pToPlot->isCoastalLand(1) && pFromPlot->isWater())
+		{
+			iRegularCost = 0;
+		}
+	}
+#endif
 	else if(pUnit->flatMovementCost() || pUnit->getDomainType() == DOMAIN_AIR)
 	{
 		iRegularCost = iMoveDenominator;

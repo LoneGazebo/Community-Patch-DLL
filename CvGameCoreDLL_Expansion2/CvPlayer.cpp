@@ -2617,6 +2617,10 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 #endif
 
 		CvUnit* pNewUnit = initUnit(eUnit, pBestPlot->getX(), pBestPlot->getY(), eUnitAI);
+		if(getCapitalCity())
+		{
+			getCapitalCity()->addProductionExperience(pNewUnit);
+		}
 		CvAssert(pNewUnit != NULL);
 		if (pNewUnit == NULL)
 			return NULL;
@@ -9388,7 +9392,7 @@ bool CvPlayer::CanLiberatePlayerCity(PlayerTypes ePlayer)
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE_JFD)
-CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract)
+CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)
 #else
 CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped)
 #endif
@@ -9407,7 +9411,7 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 	if(NULL != pUnit)
 	{
 #if defined(MOD_BALANCE_CORE_JFD)
-		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract);
+		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
 #else
 		pUnit->init(pUnit->GetID(), eUnit, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
 #endif
@@ -9425,7 +9429,7 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 
 	return pUnit;
 }
-CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped)
+CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped, ContractTypes eContract, bool bHistoric)
 {
 	CvAssertMsg(eUnit != NO_UNIT, "Unit is not assigned a valid value");
 	if (eUnit == NO_UNIT)
@@ -9440,7 +9444,7 @@ CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
 	{
-		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
+		pUnit->initWithNameOffset(pUnit->GetID(), eUnit, nameOffset, ((eUnitAI == NO_UNITAI) ? pkUnitDef->GetDefaultUnitAIType() : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped, eContract, bHistoric);
 
 #if !defined(NO_TUTORIALS)
 		// slewis - added for the tutorial
@@ -13706,7 +13710,8 @@ void CvPlayer::found(int iX, int iY)
 								pCity->GetCityBuildings()->SetNumRealBuilding(eLoopBuilding, 1);
 
 #if defined(MOD_EVENTS_CITY)
-								if (MOD_EVENTS_CITY) {
+								if (MOD_EVENTS_CITY)
+								{
 									GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, pCity->getOwner(), pCity->GetID(), eLoopBuilding, false, false);
 								}
 #endif
@@ -22572,6 +22577,101 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 		GC.GetEngineUserInterface()->setDirty(Policies_DIRTY_BIT, true);
 	}
 #if defined(MOD_BALANCE_CORE)
+	int iPolicyGEorGM = GetPlayerTraits()->GetPolicyGEorGM();
+	if(iPolicyGEorGM > 0)
+	{
+		CvCity* pLoopCity;
+		int iLoop;
+		int iValue = iPolicyGEorGM * (GetCurrentEra() + 1);
+		SpecialistTypes eBestSpecialist = NO_SPECIALIST;
+		int iRandom = GC.getGame().getJonRandNum(100, "Random GE or GM value");
+		if(iRandom <= 33)
+		{
+			eBestSpecialist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER");
+		}
+		else if(iRandom > 34 && iRandom <= 66)
+		{
+			eBestSpecialist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST");
+		}
+		else if(iRandom > 66)
+		{
+			eBestSpecialist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT");			
+		}
+		if(eBestSpecialist != NULL)
+		{
+			for(pLoopCity = this->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = this->nextCity(&iLoop))
+			{
+				if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER"))
+				{
+					pLoopCity->changeProduction(iValue);
+				}
+				else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT"))
+				{
+					this->GetTreasury()->ChangeGold(iValue);
+				}
+				else if(eBestSpecialist == (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_SCIENTIST"))
+				{
+					TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+					if(eCurrentTech == NO_TECH)
+					{
+						changeOverflowResearch(iValue);
+						if(getOverflowResearch() <= 0)
+						{
+							setOverflowResearch(0);
+						}
+					}
+					else
+					{
+						GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, GetID());
+						if(GET_TEAM(getTeam()).GetTeamTechs()->GetResearchProgress(eCurrentTech) <= 0)
+						{
+							GET_TEAM(getTeam()).GetTeamTechs()->SetResearchProgress(eCurrentTech, 0, GetID());
+						}
+					}
+				}
+				CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
+				if(pkSpecialistInfo)
+				{
+					int iGPThreshold = pLoopCity->GetCityCitizens()->GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+					iGPThreshold *= 100;
+					//Get % of threshold for test.
+					iGPThreshold *= iPolicyGEorGM;
+					iGPThreshold /= 100;
+				
+					pLoopCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, iGPThreshold);
+					if(GetID() == GC.getGame().getActivePlayer())
+					{
+						iGPThreshold /= 100;
+						char text[256] = {0};
+						float fDelay = 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_PEOPLE]", iGPThreshold);
+						DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
+						CvNotifications* pNotification = GetNotifications();
+						if(pNotification)
+						{
+							CvString strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS", iGPThreshold);
+							CvString strSummary;
+							// Class specific specialist message
+							if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+							{
+								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_MERCHANT", iGPThreshold);
+							}
+							else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
+							{
+								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_ENGINEER", iGPThreshold);
+							}
+							else if((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+							{
+								strMessage = GetLocalizedText("TXT_KEY_POLICY_ADOPT_GP_BONUS_SCIENTIST", iGPThreshold);
+							}
+							strSummary = GetLocalizedText("TXT_KEY_POLICY_ADOPT_SUMMARY_GP_BONUS");
+							pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, -1, -1, -1);
+						}
+					}
+				}
+			}
+		}
+	}
 	int iLoop;
 	doInstantYield(INSTANT_YIELD_TYPE_POLICY_UNLOCK);
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) 
@@ -23224,6 +23324,10 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 				pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, -1, -1, GetID());
 			}
 		}
+		if(iChange > 0 && GetPlayerTraits()->GetGoldenAgeGarrisonedCityRangeStrikeModifier() > 0)
+		{
+			ChangeGarrisonedCityRangeStrikeModifier(GetPlayerTraits()->GetGoldenAgeGarrisonedCityRangeStrikeModifier() * 1);
+		}
 #endif
 		if(bOldGoldenAge != isGoldenAge())
 		{
@@ -23297,6 +23401,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 						pLoopCity->GetCityCulture()->CalculateBaseTourism();
 					}
 				}
+				ChangeGarrisonedCityRangeStrikeModifier(GetPlayerTraits()->GetGoldenAgeGarrisonedCityRangeStrikeModifier() * -1);
 #endif
 			}
 
@@ -25682,6 +25787,28 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 
 		if (pNewGreatPeople)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(GetPlayerTraits()->IsGPWLTKD())
+			{
+				CvCity* pCapital = getCapitalCity();
+				int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+				iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iWLTKD /= 100;
+				if(iWLTKD > 0)
+				{
+					pCapital->ChangeWeLoveTheKingDayCounter(iWLTKD);
+					CvNotifications* pNotifications = GetNotifications();
+					if(pNotifications)
+					{
+						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
+						strText <<  pNewGreatPeople->getNameKey() << pCapital->getNameKey();
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
+						strSummary << pCapital->getNameKey();
+						pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), -1);
+					}
+				}
+			}
+#endif
 			// Bump up the count
 			if(pNewGreatPeople->IsGreatGeneral())
 			{
@@ -25778,32 +25905,39 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 			else
 			{
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
-				if (MOD_GLOBAL_SEPARATE_GP_COUNTERS) {
-					if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")) {
+				if (MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+				{
+					if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+					{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 						incrementGreatMerchantsCreated(bIsFree);
 #else
 						incrementGreatMerchantsCreated();
 #endif
-					} else if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")) {
+					}
+					else if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+					{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 						incrementGreatScientistsCreated(bIsFree);
 #else
 						incrementGreatScientistsCreated();
 #endif
-					} else {
+					}
+					else
+					{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 						incrementGreatEngineersCreated(bIsFree);
 #else
 						incrementGreatEngineersCreated();
 #endif
 					}
-				} else
+				}
+				else
 #endif
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
-				incrementGreatPeopleCreated(bIsFree);
+					incrementGreatPeopleCreated(bIsFree);
 #else
-				incrementGreatPeopleCreated();
+					incrementGreatPeopleCreated();
 #endif
 			}
 
@@ -29123,7 +29257,6 @@ void CvPlayer::setCombatExperience(int iExperience)
 #endif
 				{
 					// Figure out which Promotion is the one which makes a unit a Great General
-					PromotionTypes eGreatGeneralPromotion = NO_PROMOTION;
 					for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 					{
 						const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
@@ -29132,55 +29265,48 @@ void CvPlayer::setCombatExperience(int iExperience)
 						{
 							if(pkPromotionInfo->IsGreatGeneral())
 							{
-								eGreatGeneralPromotion = eLoopPromotion;
-								break;
-							}
-						}
-					}
-
-					// If GG promotion exists, find a unit which gets it for free (i.e. the Great General unit itself)
-					if(eGreatGeneralPromotion != NO_PROMOTION)
-					{
-						for(int iI = 0; iI < GC.getNumUnitInfos(); iI++)
-						{
-							const UnitTypes eLoopUnit = static_cast<UnitTypes>(iI);
-							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
-							if(pkUnitInfo)
-							{
-								if(pkUnitInfo->GetFreePromotions(eGreatGeneralPromotion))
+								for(int iI = 0; iI < GC.getNumUnitInfos(); iI++)
 								{
-									// Is this the right unit of this class for this civ?
-									const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits((UnitClassTypes)pkUnitInfo->GetUnitClassType());
-
-									if(eUnit == eLoopUnit)
+									const UnitTypes eLoopUnit = static_cast<UnitTypes>(iI);
+									CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
+									if(pkUnitInfo)
 									{
-#if defined(MOD_GLOBAL_LOCAL_GENERALS)
-										if(pFromUnit)
+										if(pkUnitInfo->GetFreePromotions(eLoopPromotion))
 										{
-											CUSTOMLOG("Create Great General at (%d, %d) from unit %s", pFromUnit->plot()->getX(), pFromUnit->plot()->getY(), pFromUnit->getName().GetCString());
+											// Is this the right unit of this class for this civ?
+											const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits((UnitClassTypes)pkUnitInfo->GetUnitClassType());
+
+											if(eUnit == eLoopUnit)
+											{
+#if defined(MOD_GLOBAL_LOCAL_GENERALS)
+												if(pFromUnit)
+												{
+													CUSTOMLOG("Create Great General at (%d, %d) from unit %s", pFromUnit->plot()->getX(), pFromUnit->plot()->getY(), pFromUnit->getName().GetCString());
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
-											createGreatGeneral(eUnit, pFromUnit->plot()->getX(), pFromUnit->plot()->getY(), false);
+													createGreatGeneral(eUnit, pFromUnit->plot()->getX(), pFromUnit->plot()->getY(), false);
 #else
-											createGreatGeneral(eUnit, pFromUnit->plot()->getX(), pFromUnit->plot()->getY());
+													createGreatGeneral(eUnit, pFromUnit->plot()->getX(), pFromUnit->plot()->getY());
 #endif
-										}
-										else
-										{
+												}
+												else
+												{
 #endif
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
-											pBestCity->createGreatGeneral(eUnit, false);
+													pBestCity->createGreatGeneral(eUnit, false);
 #else
-											pBestCity->createGreatGeneral(eUnit);
+													pBestCity->createGreatGeneral(eUnit);
 #endif
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
-										}
+												}
 #endif
 #if defined(MOD_UNITS_XP_TIMES_100)
-										setCombatExperienceTimes100(getCombatExperienceTimes100() - iExperienceThresholdTimes100);
+												setCombatExperienceTimes100(getCombatExperienceTimes100() - iExperienceThresholdTimes100);
 #else
-										setCombatExperience(getCombatExperience() - iExperienceThreshold);
+												setCombatExperience(getCombatExperience() - iExperienceThreshold);
 #endif
-										break;
+												break;
+											}
+										}
 									}
 								}
 							}
@@ -29342,8 +29468,6 @@ void CvPlayer::setNavalCombatExperience(int iExperience)
 				if(pBestCity)
 #endif
 				{
-					// Figure out which Promotion is the one which makes a unit a Great Admiral
-					PromotionTypes eGreatAdmiralPromotion = NO_PROMOTION;
 					for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 					{
 						const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iI);
@@ -29352,60 +29476,55 @@ void CvPlayer::setNavalCombatExperience(int iExperience)
 						{
 							if(pkPromotionInfo->IsGreatAdmiral())
 							{
-								eGreatAdmiralPromotion = eLoopPromotion;
-							}
-						}
-					}
-
-					// If GA promotion exists, find a unit which gets it for free (i.e. the Great Admiral unit itself)
-					if(eGreatAdmiralPromotion != NO_PROMOTION)
-					{
-						for(int iI = 0; iI < GC.getNumUnitInfos(); iI++)
-						{
-							const UnitTypes eLoopUnit = static_cast<UnitTypes>(iI);
-							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
-							if(pkUnitInfo)
-							{
-								if(pkUnitInfo->GetFreePromotions(eGreatAdmiralPromotion))
+								for(int iI = 0; iI < GC.getNumUnitInfos(); iI++)
 								{
-									// Is this the right unit of this class for this civ?
-									const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits((UnitClassTypes)pkUnitInfo->GetUnitClassType());
-
-									if(eUnit == eLoopUnit)
+									const UnitTypes eLoopUnit = static_cast<UnitTypes>(iI);
+									CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
+									if(pkUnitInfo)
 									{
-#if defined(MOD_GLOBAL_LOCAL_GENERALS)
-										if(pFromUnit)
+										if(pkUnitInfo->GetFreePromotions(eLoopPromotion))
 										{
-											CUSTOMLOG("Create Great Admiral at (%d, %d) from unit %s", pFromUnit->plot()->getX(), pFromUnit->plot()->getY(), pFromUnit->getName().GetCString());
+											// Is this the right unit of this class for this civ?
+											const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits((UnitClassTypes)pkUnitInfo->GetUnitClassType());
+
+											if(eUnit == eLoopUnit)
+											{
+#if defined(MOD_GLOBAL_LOCAL_GENERALS)
+												if(pFromUnit)
+												{
+													CUSTOMLOG("Create Great Admiral at (%d, %d) from unit %s", pFromUnit->plot()->getX(), pFromUnit->plot()->getY(), pFromUnit->getName().GetCString());
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
-											createGreatAdmiral(eUnit, pFromUnit->plot()->getX(), pFromUnit->plot()->getY(), false);
+													createGreatAdmiral(eUnit, pFromUnit->plot()->getX(), pFromUnit->plot()->getY(), false);
 #else
-											createGreatAdmiral(eUnit, pFromUnit->plot()->getX(), pFromUnit->plot()->getY());
+													createGreatAdmiral(eUnit, pFromUnit->plot()->getX(), pFromUnit->plot()->getY());
 #endif
 
 #if defined(MOD_PROMOTIONS_FLAGSHIP)
-											if (MOD_PROMOTIONS_FLAGSHIP) {
-												pFromUnit->setHasPromotion((PromotionTypes)GC.getPROMOTION_FLAGSHIP(), true);
-											}
+													if (MOD_PROMOTIONS_FLAGSHIP)
+													{
+														pFromUnit->setHasPromotion((PromotionTypes)GC.getPROMOTION_FLAGSHIP(), true);
+													}
 #endif
-										}
-										else
-										{
+												}
+												else
+												{
 #endif
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
-											pBestCity->createGreatAdmiral(eUnit, false);
+													pBestCity->createGreatAdmiral(eUnit, false);
 #else
-											pBestCity->createGreatAdmiral(eUnit);
+													pBestCity->createGreatAdmiral(eUnit);
 #endif
 #if defined(MOD_GLOBAL_LOCAL_GENERALS)
-										}
+												}
 #endif
 #if defined(MOD_UNITS_XP_TIMES_100)
-										setNavalCombatExperienceTimes100(getNavalCombatExperienceTimes100() - iExperienceThresholdTimes100);
+												setNavalCombatExperienceTimes100(getNavalCombatExperienceTimes100() - iExperienceThresholdTimes100);
 #else
-										setNavalCombatExperience(getNavalCombatExperience() - iExperienceThreshold);
+												setNavalCombatExperience(getNavalCombatExperience() - iExperienceThreshold);
 #endif
-										break;
+												break;
+											}
+										}
 									}
 								}
 							}
@@ -38364,6 +38483,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 	}
+	ChangeNumCitiesFreeChosenBuilding(pPolicy->GetNewCityFreeBuilding(), INT_MAX);
 #endif
 
 	// Store off number of newly built cities that will get a free building
@@ -39889,7 +40009,32 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 		CvAssert(false);
 		return;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(GetPlayerTraits()->IsGPWLTKD())
+	{
+		CvCity* pCapital = getCapitalCity();
+		int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+		iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iWLTKD /= 100;
+		if(iWLTKD > 0)
+		{
+			pCapital->ChangeWeLoveTheKingDayCounter(iWLTKD);
+			CvNotifications* pNotifications = GetNotifications();
+			if(pNotifications)
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
+				strText <<  pGreatPeopleUnit->getNameKey() << pCapital->getNameKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
+				strSummary << pCapital->getNameKey();
+				pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), -1);
+			}
+		}
+	}
+	if(pGreatPeopleUnit->IsCombatUnit())
+	{
+		getCapitalCity()->addProductionExperience(pGreatPeopleUnit);
+	}
+#endif
 	ChangeNumGreatPeople(1);
 
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
@@ -39995,7 +40140,32 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 		CvAssert(false);
 		return;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(GetPlayerTraits()->IsGPWLTKD())
+	{
+		CvCity* pCapital = getCapitalCity();
+		int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+		iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iWLTKD /= 100;
+		if(iWLTKD > 0)
+		{
+			pCapital->ChangeWeLoveTheKingDayCounter(iWLTKD);
+			CvNotifications* pNotifications = GetNotifications();
+			if(pNotifications)
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
+				strText <<  pGreatPeopleUnit->getNameKey() << pCapital->getNameKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
+				strSummary << pCapital->getNameKey();
+				pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), -1);
+			}
+		}
+	}
+	if(pGreatPeopleUnit->IsCombatUnit())
+	{
+		getCapitalCity()->addProductionExperience(pGreatPeopleUnit);
+	}
+#endif
 	ChangeNumGreatPeople(1);
 #if !defined(MOD_GLOBAL_LOCAL_GENERALS)
 	CvPlot *pSpawnPlot = GetGreatAdmiralSpawnPlot(pGreatPeopleUnit);
