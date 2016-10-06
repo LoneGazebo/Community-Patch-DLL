@@ -3213,6 +3213,9 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bMustAllowRangedAtt
 				pGarrison->PushMission(CvTypes::getMISSION_FORTIFY());
 			else
 				pGarrison->PushMission(CvTypes::getMISSION_SKIP());
+
+			//do not call finishMoves() else the garrison will not heal!
+			UnitProcessed( pGarrison->GetID() );
 		}
 		else if ( !pCity->isInDangerOfFalling() )
 		{
