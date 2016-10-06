@@ -1015,7 +1015,7 @@ private:
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)
 struct STacticalAssignment
 {
-	enum eAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_ENDTURN };
+	enum eAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_ENDTURN, A_BLOCKED };
 
 	eAssignmentType eType;
 	int iUnitID;
@@ -1049,9 +1049,9 @@ struct SUnitStats
 	//convenience constructor
 	SUnitStats(const CvUnit* pUnit, eMovementStrategy eStrategy_) :
 		iUnitID(pUnit->GetID()), iPlotIndex(pUnit->plot()->GetPlotIndex()), iAttacksLeft(pUnit->getNumAttacks() - pUnit->getNumAttacksMadeThisTurn()), 
-		iMovesLeft(pUnit->getMoves()), eLastAssignment(STacticalAssignment::A_ENDTURN), eStrategy(eStrategy_) {}
+		iMovesLeft(pUnit->getMoves()), eLastAssignment(STacticalAssignment::A_INITIAL), eStrategy(eStrategy_) {}
 	SUnitStats(int iUnit, int iPlot, int iAttacks, int iMoves, eMovementStrategy eStrategy_) : 
-		iUnitID(iUnit), iPlotIndex(iPlot), iAttacksLeft(iAttacks), iMovesLeft(iMoves), eLastAssignment(STacticalAssignment::A_ENDTURN), eStrategy(eStrategy_) {}
+		iUnitID(iUnit), iPlotIndex(iPlot), iAttacksLeft(iAttacks), iMovesLeft(iMoves), eLastAssignment(STacticalAssignment::A_INITIAL), eStrategy(eStrategy_) {}
 
 	bool isCombatUnit() const { return eStrategy==MS_FIRSTLINE || eStrategy==MS_SECONDLINE || eStrategy==MS_THIRDLINE; }
 	bool isSupportUnit() const { return eStrategy==MS_SUPPORT; }
@@ -1119,6 +1119,7 @@ protected:
 	map<int,ReachablePlots> reachablePlotLookup; //reachable plots, only for those units where it's different from parent
 	map<int,set<int>> rangeAttackPlotLookup; //plots for a potential ranged attack, only for those units where it's different from parent
 	set<int> eliminatedEnemies; //plot indices for killed enemy units, to be ignored for ZOC
+	size_t nTotalEnemies; //termination condition
 
 	//set in constructor, constant afterwards
 	PlayerTypes ePlayer;
@@ -1154,11 +1155,11 @@ public:
 	CvTacticalPosition(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget);
 	~CvTacticalPosition() { for (size_t i=0; i<childPositions.size(); i++) delete childPositions[i]; }
 
-	bool isComplete() const { return availableUnits.empty(); }
+	bool isComplete() const;
 	void updateTacticalPlotTypes(int iStartPlot = -1);
 	bool makeNextAssignments(int iMaxBranches);
 	void addTacticalPlot(const CvPlot* pPlot, PlayerTypes ePlayer);
-	void addAvailableUnit(const CvUnit* pUnit, const CvPlot* pAssumedPlot);
+	void addAvailableUnit(const CvUnit* pUnit);
 	int countChildren() const;
 
 	const CvTacticalPlot& getTactPlot(int plotindex) const;
