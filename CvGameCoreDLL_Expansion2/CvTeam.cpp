@@ -4683,6 +4683,26 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
 		m_abAggressorPacifier[eIndex] = bAggressorPacifier;
 #endif
 		m_abAtWar[eIndex] = bNewValue;
+#if defined(MOD_BALANCE_CORE)
+		for(int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
+		{
+			PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
+			CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
+			if(kAttackingPlayer.isAlive() && kAttackingPlayer.getTeam() == GetID())
+			{
+				for (int iDefendingPlayer = 0; iDefendingPlayer < MAX_MAJOR_CIVS; iDefendingPlayer++)
+				{
+					PlayerTypes eDefendingPlayer = (PlayerTypes)iDefendingPlayer;
+					CvPlayerAI& kDefendingPlayer = GET_PLAYER(eDefendingPlayer);
+					if(kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eIndex)
+					{
+						kAttackingPlayer.recomputeGreatPeopleModifiers();
+						kDefendingPlayer.recomputeGreatPeopleModifiers();
+					}
+				}
+			}
+		}
+#endif
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	}
 #endif

@@ -4313,7 +4313,23 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		CvBarbarians::DoCityActivationNotice(pNewCity->plot());
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	UnitTypes eFreeUnitConquest = GetPlayerTraits()->GetFreeUnitOnConquest();
+	if(eFreeUnitConquest != NO_UNIT)
+	{
+		if(pNewCity->GetNumTimesOwned(GetID()) <= 1 && canTrain(eFreeUnitConquest))
+		{
+			CvUnit* pkUnit = initUnit(eFreeUnitConquest, pNewCity->getX(), pNewCity->getY());
+			CvCity* pCapital = getCapitalCity();
+			if(pCapital != NULL)
+			{
+				pCapital->addProductionExperience(pkUnit);
+			}
+			if (!pkUnit->jumpToNearestValidPlot())
+					pkUnit->kill(false);
+		}
+	}
+#endif
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem && pNewCity != NULL)
 	{
@@ -25508,6 +25524,10 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	m_iGreatPeopleRateModifier += m_pTraits->GetGreatPeopleRateModifier();
 	m_iGreatGeneralRateModifier += m_pTraits->GetGreatGeneralRateModifier();
 	m_iGreatScientistRateModifier += m_pTraits->GetGreatScientistRateModifier();
+#if defined(MOD_BALANCE_CORE)
+	m_iGreatGeneralRateModifier += m_pTraits->GetGGGARateModifierFromDenunciationsAndWars();
+	m_iGreatAdmiralRateModifier += m_pTraits->GetGGGARateModifierFromDenunciationsAndWars();
+#endif
 
 	// Then get from current policies
 	m_iGreatPeopleRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_PERSON_RATE);
@@ -29822,6 +29842,12 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 				PlayerTypes eLoopPlayer = (PlayerTypes) iLoop;
 				SetIncomingUnitCountdown(eLoopPlayer, -1);
 				SetIncomingUnitType(eLoopPlayer, NO_UNIT);
+#if defined(MOD_BALANCE_CORE)
+				// forget any denouncing
+				GetDiplomacyAI()->SetDenouncedPlayer(eLoopPlayer, false);
+				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetDenouncedPlayer(GetID(), false);
+				GET_PLAYER(eLoopPlayer).recomputeGreatPeopleModifiers(); //if we are getting any modifiers from denouncement
+#endif
 			}
 
 			GC.getGame().GetGameDeals().DoCancelAllDealsWithPlayer(GetID());
