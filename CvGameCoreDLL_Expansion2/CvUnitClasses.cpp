@@ -1582,9 +1582,11 @@ void CvUnitEntry::DoUpdatePower()
 	if(GetDomainType() == DOMAIN_SEA)
 	{
 #if defined(MOD_BUGFIX_UNIT_POWER_CALC)
-		if (!MOD_BUGFIX_UNIT_POWER_CALC) {
+		if (!MOD_BUGFIX_UNIT_POWER_CALC)
+		{
 #if defined(MOD_BUGFIX_UNIT_POWER_NAVAL_CONSISTENCY)
-			if (!MOD_BUGFIX_UNIT_POWER_NAVAL_CONSISTENCY) {
+			if (!MOD_BUGFIX_UNIT_POWER_NAVAL_CONSISTENCY)
+			{
 				// We can either ignore this or divide naval melee attacks by two, but if we leave this alone Destroyers are more than twice as powerful as Battleships!!!
 #endif
 #endif

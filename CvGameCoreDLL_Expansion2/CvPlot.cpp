@@ -4782,13 +4782,14 @@ int CvPlot::getMaxFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 							{
 								if(!pLoopUnit->IsStackingUnit() && !pUnit->IsStackingUnit())
 								{
-								iNumUnitsOfSameType++;
+									iNumUnitsOfSameType++;
 								}
 								if(pLoopUnit->IsStackingUnit())
 								{
 									iNumUnitsOfSameType++;
 									// We really don't want stacking units to stack with other stacking units, they are meant to stack with non stacking unit so add an increment.
-									if(pUnit->IsStackingUnit())
+									// Also don't want plot unit limit to be exceeded if we are embarked. Rules are different there strict 1 UPT unless it's a sea improvement that allows it.
+									if(pUnit->IsStackingUnit() && !pUnit->isEmbarked())
 									{
 										iNumUnitsOfSameType++;
 									}

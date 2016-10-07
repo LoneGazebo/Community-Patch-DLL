@@ -111,6 +111,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iGAGarrisonCityRangeStrikeModifier(0),
 	m_bBestUnitSpawnOnImpDOW(false),
 	m_iBestUnitImprovement(NO_IMPROVEMENT),
+	m_iGGGARateFromDenunciationsAndWars(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -157,6 +158,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_eFreeCapitalBuilding(NO_BUILDING),
 	m_eFreeBuildingPrereqTech(NO_TECH),
 	m_eCapitalFreeBuildingPrereqTech(NO_TECH),
+	m_eFreeUnitOnConquest(NO_UNIT),
 #endif
 	m_eFreeBuildingOnConquest(NO_BUILDING),
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
@@ -405,6 +407,10 @@ bool CvTraitEntry::IsBestUnitSpawnOnImprovementDOW() const
 ImprovementTypes CvTraitEntry::GetBestSpawnUnitImprovement() const
 {
 	return m_iBestUnitImprovement;
+}
+int CvTraitEntry::GetGGGARateFromDenunciationsAndWars() const
+{
+	return m_iGGGARateFromDenunciationsAndWars;
 }
 #endif
 /// Accessor:: cheaper purchase of tiles for culture border expansion
@@ -914,6 +920,11 @@ BuildingTypes CvTraitEntry::GetFreeBuilding() const
 BuildingTypes CvTraitEntry::GetFreeCapitalBuilding() const
 {
 	return m_eFreeCapitalBuilding;
+}
+/// Does this civ get a free unit when it conquers a city?
+UnitTypes CvTraitEntry::GetFreeUnitOnConquest() const
+{
+	return m_eFreeUnitOnConquest;
 }
 #endif
 /// Accessor: free building in each city conquered
@@ -1797,6 +1808,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iPolicyGEorGM							= kResults.GetInt("PolicyGEorGM");
 	m_iGAGarrisonCityRangeStrikeModifier	= kResults.GetInt("GAGarrisonCityRangeStrikeModifier");
 	m_bBestUnitSpawnOnImpDOW				= kResults.GetBool("BestUnitSpawnOnImpDOW");
+	m_iGGGARateFromDenunciationsAndWars		= kResults.GetInt("GGGARateFromDenunciationsAndWars");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -1930,6 +1942,12 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	if(szTextVal)
 	{
 		m_eFreeCapitalBuilding = (BuildingTypes)GC.getInfoTypeForString(szTextVal, true);
+	}
+	szTextVal = kResults.GetText("FreeUnitOnConquest");
+
+	if(szTextVal)
+	{
+		m_eFreeUnitOnConquest = (UnitTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
 #endif
 
@@ -2825,6 +2843,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iPolicyGEorGM += trait->GetPolicyGEorGM();
 			m_iGAGarrisonCityRangeStrikeModifier += trait->GetGoldenAgeGarrisonedCityRangeStrikeModifier();
 			m_iBestUnitImprovement = trait->GetBestSpawnUnitImprovement();
+			m_iGGGARateFromDenunciationsAndWars += trait->GetGGGARateFromDenunciationsAndWars();
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
@@ -3381,6 +3400,7 @@ void CvPlayerTraits::Reset()
 	m_iGAGarrisonCityRangeStrikeModifier = 0;
 	m_bBestUnitSpawnOnImpDOW = false;
 	m_iBestUnitImprovement = NO_IMPROVEMENT;
+	m_iGGGARateFromDenunciationsAndWars = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -4104,6 +4124,22 @@ BuildingTypes CvPlayerTraits::GetFreeCapitalBuilding() const
 
 	return NO_BUILDING;
 }
+UnitTypes CvPlayerTraits::GetFreeUnitOnConquest() const
+{
+	for(size_t iI = 0; iI < m_vPotentiallyActiveLeaderTraits.size(); iI++)
+	{
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(m_vPotentiallyActiveLeaderTraits[iI]);
+		if(pkTraitInfo && HasTrait(m_vPotentiallyActiveLeaderTraits[iI]))
+		{
+			if(pkTraitInfo->GetFreeUnitOnConquest() != NO_UNIT)
+			{
+				return pkTraitInfo->GetFreeUnitOnConquest();
+			}
+		}
+	}
+
+	return NO_UNIT;
+}
 #endif
 
 /// Does each conquered city get a free building?
@@ -4503,6 +4539,20 @@ TechTypes CvPlayerTraits::GetCapitalFreeBuildingPrereqTech() const
 	}
 
 	return NO_TECH;
+}
+int CvPlayerTraits::GetGGGARateModifierFromDenunciationsAndWars() const
+{
+	int iResult = 0;
+	if(GetGGGARateFromDenunciationsAndWars() > 0)
+	{		
+		int iNumOfDenoucesmodifer = GetGGGARateFromDenunciationsAndWars() * m_pPlayer->GetDiplomacyAI()->GetNumDenouncements();
+		int iNumOfWarsmodifer = GetGGGARateFromDenunciationsAndWars() * GET_TEAM(m_pPlayer->getTeam()).getAtWarCount(true);
+
+		iResult = iNumOfDenoucesmodifer + iNumOfWarsmodifer;
+
+		return iResult;
+	}
+	return iResult;
 }
 #endif
 
@@ -5245,6 +5295,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(74, kStream, m_iGAGarrisonCityRangeStrikeModifier, 0);
 	MOD_SERIALIZE_READ(74, kStream, m_bBestUnitSpawnOnImpDOW, false);
 	MOD_SERIALIZE_READ(74, kStream, m_iBestUnitImprovement, NO_IMPROVEMENT);
+	MOD_SERIALIZE_READ(74, kStream, m_iGGGARateFromDenunciationsAndWars, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -5784,6 +5835,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iGAGarrisonCityRangeStrikeModifier);
 	MOD_SERIALIZE_WRITE(kStream, m_bBestUnitSpawnOnImpDOW);
 	MOD_SERIALIZE_WRITE(kStream, m_iBestUnitImprovement);
+	MOD_SERIALIZE_WRITE(kStream, m_iGGGARateFromDenunciationsAndWars);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);

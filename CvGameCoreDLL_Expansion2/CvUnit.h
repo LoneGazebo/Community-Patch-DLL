@@ -227,11 +227,7 @@ public:
 	void unloadAll();
 	const CvUnit* getTransportUnit() const;
 	CvUnit* getTransportUnit();
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	const CvUnit* getStackingUnit() const;
-	CvUnit* getStackingUnit();
-	void setStackingUnit(CvUnit* pStackingUnit);
-#endif
+
 	bool isCargo() const;
 	void setTransportUnit(CvUnit* pTransportUnit);
 
@@ -1898,9 +1894,6 @@ protected:
 	IDInfo m_combatUnit;
 	IDInfo m_combatCity;
 	IDInfo m_transportUnit;
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	IDInfo m_stackingUnit;
-#endif
 
 	std::vector<int> m_extraDomainModifiers;
 

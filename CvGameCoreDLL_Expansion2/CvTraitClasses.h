@@ -137,6 +137,7 @@ public:
 	int GetGoldenAgeGarrisonedCityRangeStrikeModifier() const;
 	bool IsBestUnitSpawnOnImprovementDOW() const;
 	ImprovementTypes GetBestSpawnUnitImprovement() const;
+	int GetGGGARateFromDenunciationsAndWars() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -187,6 +188,7 @@ public:
 	BuildingTypes GetFreeBuilding() const;
 #if defined(MOD_BALANCE_CORE)
 	BuildingTypes GetFreeCapitalBuilding() const;
+	UnitTypes GetFreeUnitOnConquest() const;
 #endif
 	BuildingTypes GetFreeBuildingOnConquest() const;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
@@ -421,6 +423,7 @@ protected:
 	int m_iGAGarrisonCityRangeStrikeModifier;
 	bool m_bBestUnitSpawnOnImpDOW;
 	ImprovementTypes m_iBestUnitImprovement;
+	int m_iGGGARateFromDenunciationsAndWars;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -473,6 +476,7 @@ protected:
 	BuildingTypes m_eFreeCapitalBuilding;
 	TechTypes m_eFreeBuildingPrereqTech;
 	TechTypes m_eCapitalFreeBuildingPrereqTech;
+	UnitTypes m_eFreeUnitOnConquest;
 #endif
 	BuildingTypes m_eFreeBuildingOnConquest;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
@@ -983,6 +987,10 @@ public:
 	{
 		m_iBestUnitImprovement = eType;
 	};
+	int GetGGGARateFromDenunciationsAndWars() const
+	{
+		return m_iGGGARateFromDenunciationsAndWars;
+	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const
@@ -1464,10 +1472,12 @@ public:
 	TechTypes GetCapitalFreeBuildingPrereqTech() const;
 	int GetWonderProductionToBuildingDiscount(BuildingTypes eBuilding);
 	void SpawnBestUnitsOnImprovementDOW(CvCity *pCity);
+	int GetGGGARateModifierFromDenunciationsAndWars() const;
 #endif
 	BuildingTypes GetFreeBuilding() const;
 #if defined(MOD_BALANCE_CORE)
 	BuildingTypes GetFreeCapitalBuilding() const;
+	UnitTypes GetFreeUnitOnConquest() const;
 #endif
 	BuildingTypes GetFreeBuildingOnConquest() const;
 	void SetDefeatedBarbarianCampGuardType(UnitTypes eType)
@@ -1611,6 +1621,7 @@ private:
 	int m_iGAGarrisonCityRangeStrikeModifier;
 	bool m_bBestUnitSpawnOnImpDOW;
 	ImprovementTypes m_iBestUnitImprovement;
+	int m_iGGGARateFromDenunciationsAndWars;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1700,6 +1711,7 @@ private:
 	BuildingTypes m_eFreeBuilding;
 #if defined(MOD_BALANCE_CORE)
 	BuildingTypes m_eFreeCapitalBuilding;
+	UnitTypes m_eFreeUnitOnConquest;
 #endif
 	BuildingTypes m_eFreeBuildingOnConquest;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)

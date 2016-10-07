@@ -883,6 +883,12 @@ ALTER TABLE Units ADD DamageThreshold INTEGER DEFAULT 0;
 -- Unit will convert to the original UnitType when Max Hip Points are restored. Must define "ConvertUnit" Type to the original Unit.
 ALTER TABLE Units ADD ConvertOnFullHP BOOLEAN DEFAULT 0;
 
+-- Does this Civ get a GG/GA Rate Modifier bonus from denunciations and wars?
+ALTER TABLE Traits ADD COLUMN 'GGGARateFromDenunciationsAndWars' INTEGER DEFAULT 0;
+
+-- Does this civ get a free Unit.Type on Conquest? Must be able to train it first....
+ALTER TABLE Traits ADD FreeUnitOnConquest TEXT DEFAULT NULL REFERENCES Units(Type);
+
 -- CSD
 
 -- Insert SQL Rules Here 

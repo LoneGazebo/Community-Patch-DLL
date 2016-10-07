@@ -219,14 +219,14 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 #if defined(MOD_BARBARIAN_GG_GA_POINTS)
 		if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
 		{
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, true);
+			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, true);
 		}
 		else
 		{
 #if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !pkCity->isBarbarian()); // Kind of irrelevant, as cities don't get XP!
+			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !pkCity->isBarbarian()); // Kind of irrelevant, as cities don't get XP!
 #else
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !pkCity->isBarbarian());
+			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !pkCity->isBarbarian());
 #endif
 		}
 #else
@@ -367,14 +367,14 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 #if defined(MOD_BARBARIAN_GG_GA_POINTS)
 		if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
 		{
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, true);
+			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, true);
 		}
 		else
 		{
 #if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, pkDefender->isGGFromBarbarians() || !kAttacker.isBarbarian());
+			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, pkDefender->isGGFromBarbarians() || !kAttacker.isBarbarian());
 #else
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !kAttacker.isBarbarian());
+			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !kAttacker.isBarbarian());
 #endif
 		}
 #else	
@@ -389,14 +389,14 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 #if defined(MOD_BARBARIAN_GG_GA_POINTS)
 		if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
 		{
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, true);
+			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, true);
 		}
 		else
 		{
 #if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || !pkDefender->isBarbarian());
+			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || !pkDefender->isBarbarian());
 #else
-		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !pkDefender->isBarbarian());
+			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !pkDefender->isBarbarian());
 #endif
 		}
 #else	
@@ -866,34 +866,48 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == eDefenderOwner);
 #if defined(MOD_BUGFIX_BARB_GP_XP)
 	bool bGeneralsXP = !kAttacker.isBarbarian();
-	if (MOD_BUGFIX_BARB_GP_XP) {
-		if (!plot.isCity()) {
+	if (MOD_BUGFIX_BARB_GP_XP)
+	{
+		if (!plot.isCity())
+		{
 			bGeneralsXP = !pkDefender->isBarbarian();
-		} else {
+		} 
+		else
+		{
 			bGeneralsXP = !plot.getPlotCity()->isBarbarian();
 		}
 	}
+#if defined(MOD_BARBARIAN_GG_GA_POINTS)
+	if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
+	{
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, true);
+	}
+	else
+	{
 #if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || bGeneralsXP);
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || bGeneralsXP);
+#else
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
+#endif
+	}
 #else
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
 #endif
-#else
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || !kAttacker.isBarbarian());
-#else
-	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !kAttacker.isBarbarian());
-#endif
 
+#else
 #if defined(MOD_BARBARIAN_GG_GA_POINTS)
-		if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
-		{
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, true);
-		}
-		else
-		{
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
-		}
+	if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
+	{
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, true);
+	}
+	else
+	{
+#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || bGeneralsXP);
+#else
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
+#endif
+	}
 #else
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
 #endif
@@ -904,18 +918,18 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_DEFENDER, kAttacker.maxXPValue());
 	pkCombatInfo->setInBorders(BATTLE_UNIT_DEFENDER, plot.getOwner() == kAttacker.getOwner());
 #if defined(MOD_BARBARIAN_GG_GA_POINTS)
-		if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
-		{
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, true);
-		}
-		else
-		{
+	if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
+	{
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, true);
+	}
+	else
+	{
 #if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, (!plot.isCity() && pkDefender->isGGFromBarbarians()) || (!bBarbarian && !kAttacker.isBarbarian()));
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, (!plot.isCity() && pkDefender->isGGFromBarbarians()) || (!bBarbarian && !kAttacker.isBarbarian()));
 #else
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !bBarbarian && !kAttacker.isBarbarian());
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !bBarbarian && !kAttacker.isBarbarian());
 #endif
-		}
+	}
 #else
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !bBarbarian && !kAttacker.isBarbarian());
 #endif
@@ -1010,20 +1024,20 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == eDefenderOwner);
 
 #if defined(MOD_BARBARIAN_GG_GA_POINTS)
-		if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
-		{
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, true);
-		}
-		else
-		{
+	if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
+	{
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, true);
+	}
+	else
+	{
 #if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !kAttacker.isBarbarian()); // Kind of irrelevant, as cities don't get XP!
-#else
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !kAttacker.isBarbarian());
-#endif
-		}
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !kAttacker.isBarbarian()); // Kind of irrelevant, as cities don't get XP!
 #else
 		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !kAttacker.isBarbarian());
+#endif
+	}
+#else
+	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !kAttacker.isBarbarian());
 #endif
 
 	int iExperience = /*2*/ GC.getEXPERIENCE_DEFENDING_UNIT_RANGED();
@@ -1031,18 +1045,18 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_DEFENDER, MAX_INT);
 	pkCombatInfo->setInBorders(BATTLE_UNIT_DEFENDER, plot.getOwner() == kAttacker.getOwner());
 #if defined(MOD_BARBARIAN_GG_GA_POINTS)
-		if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
-		{
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, true);
-		}
-		else
-		{
+	if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
+	{
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, true);
+	}
+	else
+	{
 #if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, pkDefender->isGGFromBarbarians() || !bBarbarian && !kAttacker.isBarbarian());
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, pkDefender->isGGFromBarbarians() || !bBarbarian && !kAttacker.isBarbarian());
 #else
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !bBarbarian && !kAttacker.isBarbarian());
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !bBarbarian && !kAttacker.isBarbarian());
 #endif
-		}
+	}
 #else
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !bBarbarian && !kAttacker.isBarbarian());
 #endif
@@ -1793,36 +1807,51 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == eDefenderOwner);
 #if defined(MOD_BUGFIX_BARB_GP_XP)
 	bool bGeneralsXP = !kAttacker.isBarbarian();
-	if (MOD_BUGFIX_BARB_GP_XP) {
-		if (!plot.isCity()) {
-			bGeneralsXP = !pkDefender->isBarbarian();
-		} else {
-			bGeneralsXP = !plot.getPlotCity()->isBarbarian();
-		}
-	}
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || bGeneralsXP);
-#else
-	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
-#endif
-#else
-#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || !kAttacker.isBarbarian());
-#else
-	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, !kAttacker.isBarbarian());
-#endif
-#endif
-#if defined(MOD_BARBARIAN_GG_GA_POINTS)
-		if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
+	if (MOD_BUGFIX_BARB_GP_XP)
+	{
+		if (!plot.isCity())
 		{
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, true);
+			bGeneralsXP = !pkDefender->isBarbarian();
 		}
 		else
 		{
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
+			bGeneralsXP = !plot.getPlotCity()->isBarbarian();
 		}
+	}
+#if defined(MOD_BARBARIAN_GG_GA_POINTS)
+	if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
+	{
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, true);
+	}
+	else
+	{
+#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || bGeneralsXP);
+#else
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
+#endif
+	}
 #else
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
+#endif
+
+#else
+#if defined(MOD_BARBARIAN_GG_GA_POINTS)
+	if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
+	{
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, true);
+	}
+	else
+	{
+#if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, kAttacker.isGGFromBarbarians() || bGeneralsXP);
+#else
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
+#endif
+	}
+#else
+	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_ATTACKER, bGeneralsXP);
+#endif
 #endif
 
 	iExperience = /*2*/ GC.getEXPERIENCE_DEFENDING_UNIT_AIR();
@@ -1831,18 +1860,18 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	pkCombatInfo->setInBorders(BATTLE_UNIT_DEFENDER, plot.getOwner() == kAttacker.getOwner());
 
 #if defined(MOD_BARBARIAN_GG_GA_POINTS)
-		if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
-		{
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, true);
-		}
-		else
-		{
+	if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
+	{
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, true);
+	}
+	else
+	{
 #if defined(MOD_TRAITS_GG_FROM_BARBARIANS) || defined(MOD_PROMOTIONS_GG_FROM_BARBARIANS)
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, (!plot.isCity() && pkDefender->isGGFromBarbarians()) || !bBarbarian);
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, (!plot.isCity() && pkDefender->isGGFromBarbarians()) || !bBarbarian);
 #else
-			pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !bBarbarian);
+		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !bBarbarian);
 #endif
-		}
+	}
 #else
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !bBarbarian);
 #endif

@@ -29745,6 +29745,9 @@ void CvDiplomacyAI::SetDenouncedPlayer(PlayerTypes ePlayer, bool bValue)
 	if(bValue != IsDenouncedPlayer(ePlayer))
 	{
 		m_pabDenouncedPlayer[ePlayer] = bValue;
+#if defined(MOD_BALANCE_CORE)
+		m_pPlayer->recomputeGreatPeopleModifiers();
+#endif
 	}
 }
 

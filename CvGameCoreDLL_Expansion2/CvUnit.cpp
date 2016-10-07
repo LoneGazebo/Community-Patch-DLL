@@ -323,9 +323,6 @@ CvUnit::CvUnit() :
 	, m_eGreatPeopleDirectiveType("CvUnit::m_eGreatPeopleDirectiveType", m_syncArchive)
 	, m_combatUnit()
 	, m_transportUnit()
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	, m_stackingUnit()
-#endif
 	, m_extraDomainModifiers()
 	, m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility("CvUnit::m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility", m_syncArchive, "")
 	, m_strScriptData("CvUnit::m_szScriptData", m_syncArchive)
@@ -1861,9 +1858,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 
 	m_combatUnit.reset();
 	m_transportUnit.reset();
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	m_stackingUnit.reset();
-#endif
 	m_extraDomainModifiers.clear();
 
 	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
@@ -3118,6 +3112,7 @@ void CvUnit::doTurn()
 	DoImprovementExperience(plot());
 	DoStackedGreatGeneralExperience(plot());
 	DoConvertOnDamageThreshold(plot());
+	DoNearbyUnitPromotion(this, plot());
 #endif
 }
 //	--------------------------------------------------------------------------------
@@ -19104,31 +19099,6 @@ if (!bDoEvade)
 			GC.getMap().plotManager().AddUnit(GetIDInfo(), iX, iY, iMapLayer);
 		}
 #if defined(MOD_BALANCE_CORE)
-		bool bZero = false;
-		if(IsGainsXPFromScouting())
-		{
-#if defined(MOD_UNITS_XP_TIMES_100)
-			if(getExperienceTimes100() <= (GC.getBALANCE_SCOUT_XP_MAXIMUM() * 100))
-#else
-			if(getExperience() <= GC.getBALANCE_SCOUT_XP_MAXIMUM())
-#endif
-			{
-				int iExperience = GC.getBALANCE_SCOUT_XP_BASE();
-				iExperience += GetNumTilesRevealedThisTurn();
-				iExperience /= 6;
-				if(iExperience > 0)
-				{
-					//Up to max barb value - rest has to come through combat!
-#if defined(MOD_UNITS_XP_TIMES_100)
-					changeExperienceTimes100(iExperience * 100);
-#else
-					changeExperience(iExperience);
-#endif
-					bZero = true;
-				}
-			}
-		}
-#if defined(MOD_BALANCE_CORE)
 		if(IsCombatUnit())
 		{
 			pUnitNode = pNewPlot->headUnitNode();
@@ -19138,6 +19108,7 @@ if (!bDoEvade)
 				pUnitNode = pNewPlot->nextUnitNode(pUnitNode);
 				if (pLoopUnit != NULL)
 				{
+#if defined(MOD_GLOBAL_STACKING_RULES)
 					if(MOD_GLOBAL_STACKING_RULES)
 					{
 						if(pLoopUnit->IsStackingUnit())
@@ -19152,14 +19123,11 @@ if (!bDoEvade)
 							}
 						}
 					}
-					DoNearbyUnitPromotion(pLoopUnit, pNewPlot);
-					if(MOD_CARGO_SHIPS)
-					{
-						DoCargoPromotions(*pLoopUnit);
-					}
+#endif
 				}
 			}
 		}
+		DoNearbyUnitPromotion(this, pNewPlot);
 		if(isConvertUnit())
 		{
 			CvUnit* pConvertUnit = NULL;
@@ -19192,30 +19160,6 @@ if (!bDoEvade)
 				pConvertUnit->setupGraphical();
 				pConvertUnit->finishMoves();
 			}
-		}
-#endif
-		if(IsGainsYieldFromScouting())
-		{
-			bool bSea = false;
-			if(getDomainType() == DOMAIN_SEA)
-			{
-				bSea = true;
-			}
-			CvCity* pCity = GC.getMap().findCity(getX(), getY(), getOwner(), getTeam());
-
-			if(pCity == NULL)
-			{
-				pCity = GET_PLAYER(getOwner()).getCapitalCity();
-			}
-			if(pCity != NULL)
-			{
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_SCOUTING, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pCity, bSea, true, false, NO_YIELD, this);
-				bZero = true;
-			}
-		}
-		if(bZero)
-		{
-			SetNumTilesRevealedThisTurn(0);
 		}
 #endif
 		// Moving into a City (friend or foe)
@@ -19316,7 +19260,76 @@ if (!bDoEvade)
 		{
 			load();
 		}
+#if defined(MOD_CARGO_SHIPS)
+		if(IsCombatUnit())
+		{
+			if(MOD_CARGO_SHIPS)
+			{
+				pUnitNode = pNewPlot->headUnitNode();
+				while(pUnitNode != NULL)
+				{
+					pLoopUnit = ::getUnit(*pUnitNode);
+					pUnitNode = pNewPlot->nextUnitNode(pUnitNode);
+					if (pLoopUnit != NULL)
+					{				
+						if(pLoopUnit->IsCargoCombatUnit() && pLoopUnit->hasCargo())
+						{
+							DoCargoPromotions(*pLoopUnit);
+						}
+					}
+				}
+			}
+		}
+#endif
+#if defined(MOD_BALANCE_CORE)
+		bool bZero = false;
+		if(IsGainsXPFromScouting())
+		{
+#if defined(MOD_UNITS_XP_TIMES_100)
+			if(getExperienceTimes100() <= (GC.getBALANCE_SCOUT_XP_MAXIMUM() * 100))
+#else
+			if(getExperience() <= GC.getBALANCE_SCOUT_XP_MAXIMUM())
+#endif
+			{
+				int iExperience = GC.getBALANCE_SCOUT_XP_BASE();
+				iExperience += GetNumTilesRevealedThisTurn();
+				iExperience /= 6;
+				if(iExperience > 0)
+				{
+					//Up to max barb value - rest has to come through combat!
+#if defined(MOD_UNITS_XP_TIMES_100)
+					changeExperienceTimes100(iExperience * 100);
+#else
+					changeExperience(iExperience);
+#endif
+					bZero = true;
+				}
+			}
+		}
+		if(IsGainsYieldFromScouting())
+		{
+			bool bSea = false;
+			if(getDomainType() == DOMAIN_SEA)
+			{
+				bSea = true;
+			}
+			CvCity* pCity = GC.getMap().findCity(getX(), getY(), getOwner(), getTeam());
 
+			if(pCity == NULL)
+			{
+				pCity = GET_PLAYER(getOwner()).getCapitalCity();
+			}
+			if(pCity != NULL)
+			{
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_SCOUTING, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pCity, bSea, true, false, NO_YIELD, this);
+				bZero = true;
+			}
+		}
+		if(bZero)
+		{
+			SetNumTilesRevealedThisTurn(0);
+		}
+#endif
 		// Can someone can see the plot we moved our Unit into?
 		TeamTypes eTeamLoop;
 		for(iI = 0; iI < MAX_CIV_TEAMS; iI++)
@@ -19508,6 +19521,7 @@ if (!bDoEvade)
 				pUnitNode = pOldPlot->nextUnitNode(pUnitNode);
 				if (pLoopUnit != NULL)
 				{
+#if defined(MOD_GLOBAL_STACKING_RULES)
 					if(MOD_GLOBAL_STACKING_RULES)
 					{
 						if(pLoopUnit->IsStackingUnit())
@@ -19522,17 +19536,16 @@ if (!bDoEvade)
 							}
 						}
 					}
+#endif
+#if defined(MOD_CARGO_SHIPS)
 					if(MOD_CARGO_SHIPS)
 					{
 						if(pLoopUnit->IsCargoCombatUnit() && !pLoopUnit->hasCargo())
 						{
-							if(!pLoopUnit->hasCargo())
-							{
-								RemoveCargoPromotions(*pLoopUnit);
-								pLoopUnit->SetBaseCombatStrength(pLoopUnit->getUnitInfo().GetCombat());
-							}
+							RemoveCargoPromotions(*pLoopUnit);
 						}
 					}
+#endif
 				}
 			}
 		}
@@ -22637,10 +22650,10 @@ void CvUnit::DoStackedGreatGeneralExperience(const CvPlot* pPlot)
 					if(pkPromotionInfo->GetStackedGreatGeneralExperience() > 0)
 					{
 						iExperience += pkPromotionInfo->GetStackedGreatGeneralExperience();
-					}
-					if(IsCombatUnit() && HasPromotion(eLoopPromotion))
-					{
-						changeExperienceTimes100(iExperience * 100);
+						if(IsCombatUnit() && HasPromotion(eLoopPromotion))
+						{
+							changeExperienceTimes100(iExperience * 100);
+						}
 					}
 				}
 			}
@@ -25553,10 +25566,6 @@ void CvUnit::read(FDataStream& kStream)
 	kStream >> m_combatUnit.iID;
 	kStream >> m_transportUnit.eOwner;
 	kStream >> m_transportUnit.iID;
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	kStream >> m_stackingUnit.eOwner;
-	kStream >> m_stackingUnit.iID;
-#endif
 	kStream >> m_missionAIUnit.eOwner;
 	kStream >> m_missionAIUnit.iID;
 	kStream >> m_extraDomainModifiers;
@@ -25637,10 +25646,6 @@ void CvUnit::write(FDataStream& kStream) const
 	kStream << m_combatUnit.iID;
 	kStream << m_transportUnit.eOwner;
 	kStream << m_transportUnit.iID;
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	kStream << m_stackingUnit.eOwner;
-	kStream << m_stackingUnit.iID;
-#endif
 	kStream << m_missionAIUnit.eOwner;
 	kStream << m_missionAIUnit.iID;
 	kStream << m_extraDomainModifiers;
@@ -25805,7 +25810,7 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 			else
 			{
 #endif
-			return false;
+				return false;
 #if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			}
 #endif
@@ -25893,14 +25898,17 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 
 #if defined(MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY)
 				// if the defender is a sub
-				if (MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY && pLoopUnit->getInvisibleType() == 0) {
+				if (MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY && pLoopUnit->getInvisibleType() == 0)
+				{
 					// if the plot is ice, unless the attacker is also a sub, ignore them
-					if (pTargetPlot->getFeatureType() == FEATURE_ICE && this->getInvisibleType() != 0) {
+					if (pTargetPlot->getFeatureType() == FEATURE_ICE && this->getInvisibleType() != 0)
+					{
 						continue;
 					}
 
 					// if the attacker is an archer type unit, ignore them
-					if (this->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true)) {
+					if (this->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true))
+					{
 						continue;
 					}
 				}
@@ -29652,33 +29660,7 @@ bool CvUnit::IsCargoCombatUnit() const
 	VALIDATE_OBJECT
 	return getUnitInfo().CargoCombat()>0;
 }
-const CvUnit* CvUnit::getStackingUnit() const
-{
-	VALIDATE_OBJECT
-	return getUnit(m_stackingUnit);
-}
-
 //	--------------------------------------------------------------------------------
-CvUnit* CvUnit::getStackingUnit()
-{
-	VALIDATE_OBJECT
-	return getUnit(m_stackingUnit);
-}
-void CvUnit::setStackingUnit(CvUnit* pStackingUnit)
-{
-	VALIDATE_OBJECT
-	if(pStackingUnit != NULL)
-	{
-		if(pStackingUnit->IsStackingUnit())
-		{
-			m_stackingUnit = pStackingUnit->GetIDInfo();
-		}
-	}
-	else
-	{
-		m_stackingUnit.reset();
-	}
-}
 #endif
 #if defined(MOD_CARGO_SHIPS)
 void CvUnit::DoCargoPromotions(CvUnit& cargounit)
@@ -29780,5 +29762,6 @@ void CvUnit::RemoveCargoPromotions(CvUnit& cargounit)
 	{
 		cargounit.setHasPromotion(ePromotionPolynesiaCargo, false);
 	}
+	cargounit.SetBaseCombatStrength(cargounit.getUnitInfo().GetCombat());
 }
 #endif
