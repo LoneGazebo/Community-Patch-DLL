@@ -769,6 +769,10 @@ public:
 	{
 		return MUFORMATION_CLOSE_CITY_DEFENSE;
 	}
+	virtual bool CanTacticalAIInterruptOperation() const
+	{
+		return true;
+	}
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 private:

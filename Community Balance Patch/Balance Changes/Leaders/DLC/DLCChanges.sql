@@ -127,8 +127,7 @@ VALUES
 INSERT INTO Improvement_YieldAdjacentSameType
 	(ImprovementType, YieldType, Yield)
 VALUES
-	('IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1),
-	('IMPROVEMENT_MOAI', 'YIELD_PRODUCTION', 1);
+	('IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1);
 
 INSERT INTO Building_Flavors
 	(BuildingType, FlavorType, Flavor)
@@ -144,7 +143,8 @@ VALUES
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
 VALUES
-	('IMPROVEMENT_TERRACE_FARM', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_TERRACE_FARM', 'YIELD_PRODUCTION', 2),
+	('IMPROVEMENT_TERRACE_FARM', 'YIELD_CULTURE', 1),
 	('IMPROVEMENT_MOAI', 'YIELD_PRODUCTION', 1);
 
 INSERT INTO Trait_YieldFromConquest
@@ -253,8 +253,9 @@ VALUES
 INSERT INTO Trait_MountainRangeYield
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_GOLD', '3'),
-	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_FOOD', '3');
+	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_GOLD', '2'),
+	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_SCIENCE', '2'),
+	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_FAITH', '1');
 
 INSERT INTO Trait_UnimprovedFeatureYieldChanges
 	(TraitType, FeatureType, YieldType, Yield)

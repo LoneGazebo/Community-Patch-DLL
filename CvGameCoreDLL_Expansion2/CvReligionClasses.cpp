@@ -8226,6 +8226,12 @@ int CvReligionAI::ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot)
 		if(eResource != NO_RESOURCE)
 		{
 			iRtnValue += pEntry->GetResourceYieldChange(eResource, iI);
+#if defined(MOD_BALANCE_CORE)
+			if (pEntry->GetResourceQuantityModifier(eResource) > 0)
+			{
+				iRtnValue += (pEntry->GetResourceQuantityModifier(eResource) / 2);
+			}
+#endif
 			// Improvement
 			int iNumImprovementInfos = GC.getNumImprovementInfos();
 			for(int jJ = 0; jJ < iNumImprovementInfos; jJ++)

@@ -466,16 +466,21 @@ bool isPromotionValid(PromotionTypes ePromotion, UnitTypes eUnit, bool bLeader, 
 		return true;
 	}
 
-	// If this isn't a combat Unit, no Promotion
+	// If this isn't a combat Unit, no Promotion if not valid
 	if(unitInfo->GetUnitCombatType() == NO_UNITCOMBAT)
 	{
-		return false;
+		if(!::IsPromotionValidForCivilianUnitType(ePromotion, eUnit))
+		{
+			return false;
+		}
 	}
-
 	// Is this a valid Promotion for the UnitCombatType?
-	if(!::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
+	if(unitInfo->GetUnitCombatType() != NO_UNITCOMBAT)
 	{
-		return false;
+		if(!::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
+		{
+			return false;
+		}
 	}
 
 	if(!bLeader && promotionInfo->IsLeader())

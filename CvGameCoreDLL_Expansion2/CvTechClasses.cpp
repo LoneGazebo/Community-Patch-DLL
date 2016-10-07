@@ -1337,7 +1337,15 @@ bool CvPlayerTechs::CanEverResearch(TechTypes eTech) const
 	{
 		return false;
 	}
-
+#if defined(MOD_ERA_RESTRICTION)
+	if(MOD_ERA_RESTRICTION)
+	{
+		if(GET_TEAM(m_pPlayer->getTeam()).GetCurrentEra() < pkTechInfo->GetEra())
+		{
+			return false;
+		}
+	}
+#endif
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
 	{

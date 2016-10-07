@@ -172,6 +172,7 @@ public:
 	int GetInternalTradeRouteYieldModifier() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetInternalTradeRouteYieldModifierCapital() const;
+	BuildingClassTypes GetNewCityFreeBuilding() const;
 #endif
 	int GetSharedReligionTourismModifier() const;
 	int GetTradeRouteTourismModifier() const;
@@ -270,6 +271,7 @@ public:
 	bool GetNoUnhappyIsolation() const;
 	bool GetDoubleBorderGA() const;
 	int GetIncreasedQuestInfluence() const;
+	int GetGreatScientistBeakerModifier() const;
 	int GetCitadelBoost() const;
 	int GetPuppetProdMod() const;
 	int GetOccupiedProdMod() const;
@@ -487,6 +489,7 @@ private:
 	int m_iInternalTradeRouteYieldModifier;
 #if defined(MOD_BALANCE_CORE)
 	int m_iInternalTradeRouteYieldModifierCapital;
+	BuildingClassTypes m_eNewCityFreeBuilding;
 #endif
 
 	int m_iSharedReligionTourismModifier;
@@ -596,6 +599,7 @@ private:
 	bool m_bNoUnhappinessExpansion;
 	bool m_bNoUnhappyIsolation;
 	bool m_bDoubleBorderGA;
+	int m_iGreatScientistBeakerModifier;
 	int m_iIncreasedQuestInfluence;
 	int m_iPuppetProdMod;
 	int m_iOccupiedProdMod;

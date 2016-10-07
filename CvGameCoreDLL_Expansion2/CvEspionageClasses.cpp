@@ -1,5 +1,5 @@
-﻿/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -566,7 +566,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 							Localization::String strNotification;
 							if (pSpy->m_bIsThief)
 							{
-								strSummary = Localization::Lookup("HEIST TIME");
+								strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_GW_S");
 								strSummary << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 								strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_GW");
 								strNotification << GetSpyRankName(pSpy->m_eRank);

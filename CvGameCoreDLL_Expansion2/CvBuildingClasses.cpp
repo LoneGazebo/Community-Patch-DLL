@@ -59,6 +59,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iVotesPerGPT(0),
 	m_bRequiresRail(false),
 	m_bDummy(false),
+	m_iResourceQuantityToPlace(0),
 #endif
 	m_iSpecialistType(NO_SPECIALIST),
 	m_iSpecialistCount(0),
@@ -331,6 +332,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_pbBuildingClassNeededAnywhere(NULL),
 	m_pbBuildingClassNeededNowhere(NULL),
 	m_piNumSpecFreeUnits(NULL),
+	m_piNumResourceToPlace(NULL),
 #endif
 	m_piNumFreeUnits(NULL),
 	m_bArtInfoEraVariation(false),
@@ -436,6 +438,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededAnywhere);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededNowhere);
 	SAFE_DELETE_ARRAY(m_piNumSpecFreeUnits);
+	SAFE_DELETE_ARRAY(m_piNumResourceToPlace);
 #endif
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
@@ -731,6 +734,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iVotesPerGPT = kResults.GetInt("VotesPerGPT");
 	m_bRequiresRail = kResults.GetBool("RequiresRail");
 	m_bDummy = kResults.GetBool("IsDummy");
+	m_iResourceQuantityToPlace = kResults.GetInt("ResourceQuantityToPlace");
 #endif
 	szTextVal = kResults.GetText("FreePromotion");
 	m_iFreePromotion = GC.getInfoTypeForString(szTextVal, true);
@@ -853,6 +857,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByValue(m_paiBuildingClassLocalHappiness, "BuildingClasses", "Building_BuildingClassLocalHappiness", "BuildingClassType", "BuildingType", szBuildingType, "Happiness");
 	kUtility.PopulateArrayByValue(m_paiSpecificGreatPersonRateModifier, "Specialists", "Building_SpecificGreatPersonRateModifier", "SpecialistType", "BuildingType", szBuildingType, "Modifier");
 	kUtility.PopulateArrayByValue(m_piNumSpecFreeUnits, "Units", "Building_FreeSpecUnits", "UnitType", "BuildingType", szBuildingType, "NumUnits");
+	kUtility.PopulateArrayByValue(m_piNumResourceToPlace, "Resources", "Building_ResourcePlotsToPlace", "ResourceType", "BuildingType", szBuildingType, "NumPlots");
 #endif
 	//kUtility.PopulateArrayByExistence(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByValue(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType, "NumUnits");
@@ -1438,6 +1443,10 @@ bool CvBuildingEntry::IsRequiresRail() const
 bool CvBuildingEntry::IsDummy() const
 {
 	return m_bDummy;
+}
+int CvBuildingEntry::GetResourceQuantityToPlace() const
+{
+	return m_iResourceQuantityToPlace;
 }
 #endif
 
@@ -2969,6 +2978,12 @@ int CvBuildingEntry::GetNumFreeSpecialUnits(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piNumSpecFreeUnits ? m_piNumSpecFreeUnits[i] : -1;
 }
+int CvBuildingEntry::GetNumResourcesToPlace(int i) const
+{
+	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piNumResourceToPlace ? m_piNumResourceToPlace[i] : -1;
+}
 #endif
 /// Free units which appear near the capital
 int CvBuildingEntry::GetNumFreeUnits(int i) const
@@ -3717,6 +3732,10 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 #if defined(MOD_BALANCE_CORE)
 	//Spawns a permanent resource? Can't sell.
 	if(kBuilding.GrantsRandomResourceTerritory())
+	{
+		return false;
+	}
+	if(kBuilding.GetResourceQuantityToPlace())
 	{
 		return false;
 	}

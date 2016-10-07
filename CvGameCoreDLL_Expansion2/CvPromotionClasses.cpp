@@ -205,9 +205,17 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bPostCombatPromotionsExclusive(false),
 	m_bSapper(false),
 #if defined(MOD_BALANCE_CORE)
+	m_bIsNearbyCityPromotion(false),
+	m_bIsNearbyFriendlyCityPromotion(false),
+	m_bIsNearbyEnemyCityPromotion(false),
 	m_bIsNearbyPromotion(false),
+	m_bIsFriendlyLands(false),
 	m_iNearbyRange(0),
 	m_eAddedFromNearbyPromotion(NO_PROMOTION),
+	m_eRequiredUnit(NO_UNIT),
+	m_eConvertDomainUnit(NO_UNIT),
+	m_eConvertDomain(NO_DOMAIN),
+	m_iStackedGreatGeneralExperience(0),
 #endif
 	m_bCanHeavyCharge(false),
 	m_piTerrainAttackPercent(NULL),
@@ -220,6 +228,7 @@ CvPromotionEntry::CvPromotionEntry():
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_piYieldFromKills(NULL),
 	m_piYieldFromBarbarianKills(NULL),
+	m_piGarrisonYield(NULL),
 #endif
 	m_piUnitCombatModifierPercent(NULL),
 	m_piUnitClassModifierPercent(NULL),
@@ -262,6 +271,7 @@ CvPromotionEntry::~CvPromotionEntry(void)
 #if defined(MOD_API_UNIFIED_YIELDS)
 	SAFE_DELETE_ARRAY(m_piYieldFromKills);
 	SAFE_DELETE_ARRAY(m_piYieldFromBarbarianKills);
+	SAFE_DELETE_ARRAY(m_piGarrisonYield);
 #endif
 	SAFE_DELETE_ARRAY(m_piUnitCombatModifierPercent);
 	SAFE_DELETE_ARRAY(m_piUnitClassModifierPercent);
@@ -405,10 +415,21 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bPostCombatPromotionsExclusive = kResults.GetBool("PostCombatPromotionsExclusive");
 	m_bSapper = kResults.GetBool("Sapper");
 #if defined(MOD_BALANCE_CORE)
+	m_bIsNearbyCityPromotion = kResults.GetBool("IsNearbyCityPromotion");
+	m_bIsNearbyFriendlyCityPromotion = kResults.GetBool("IsNearbyFriendlyCityPromotion");
+	m_bIsNearbyEnemyCityPromotion = kResults.GetBool("IsNearbyEnemyCityPromotion");
 	m_bIsNearbyPromotion = kResults.GetBool("IsNearbyPromotion");
+	m_bIsFriendlyLands = kResults.GetBool("IsFriendlyLands");
 	m_iNearbyRange = kResults.GetInt("NearbyRange");
 	const char* szAddedFromNearbyPromotion = kResults.GetText("AddedFromNearbyPromotion");
 	m_eAddedFromNearbyPromotion = (PromotionTypes)GC.getInfoTypeForString(szAddedFromNearbyPromotion, true);
+	const char* szUnitType = kResults.GetText("RequiredUnit");
+	m_eRequiredUnit = (UnitTypes)GC.getInfoTypeForString(szUnitType, true);
+	const char* szConvertDomainUnit = kResults.GetText("ConvertDomainUnit");
+	m_eConvertDomainUnit = (UnitTypes)GC.getInfoTypeForString(szConvertDomainUnit, true);
+	const char* szConvertDomain = kResults.GetText("ConvertDomain");
+	m_eConvertDomain = (DomainTypes)GC.getInfoTypeForString(szConvertDomain, true);
+	m_iStackedGreatGeneralExperience = kResults.GetInt("StackedGreatGeneralXP");
 #endif
 	m_bCanHeavyCharge = kResults.GetBool("HeavyCharge");
 
@@ -724,6 +745,32 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 			const int iYield = pResults->GetInt("Yield");
 			m_piYieldFromKills[iYieldID] = iYield;
+		}
+	}
+	//UnitPromotions_GarrisonYield
+	{
+		kUtility.InitializeArray(m_piGarrisonYield, NUM_YIELD_TYPES, 0);
+
+		std::string sqlKey = "UnitPromotions_GarrisonYield";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if(pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID as YieldID, UnitPromotions_GarrisonYield.* from UnitPromotions_GarrisonYield inner join Yields on YieldType = Yields.Type where PromotionType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		CvAssert(pResults);
+		if(!pResults) return false;
+
+		pResults->Bind(1, szPromotionType);
+
+		while(pResults->Step())
+		{
+			const int iYieldID = pResults->GetInt("YieldID");
+			CvAssert(iYieldID > -1 && iYieldID < iNumYields);
+
+			const int iYield = pResults->GetInt("Yield");
+			m_piGarrisonYield[iYieldID] = iYield;
 		}
 	}
 
@@ -1947,19 +1994,49 @@ bool CvPromotionEntry::IsSapper() const
 }
 
 #if defined(MOD_BALANCE_CORE)
+bool CvPromotionEntry::IsNearbyCityPromotion() const
+{
+	return m_bIsNearbyCityPromotion;
+}
+bool CvPromotionEntry::IsNearbyFriendlyCityPromotion() const
+{
+	return m_bIsNearbyFriendlyCityPromotion;
+}
+bool CvPromotionEntry::IsNearbyEnemyCityPromotion() const
+{
+	return m_bIsNearbyEnemyCityPromotion;
+}
 bool CvPromotionEntry::IsNearbyPromotion() const
 {
 	return m_bIsNearbyPromotion;
 }
-
-int CvPromotionEntry::NearbyRange() const
+bool CvPromotionEntry::IsFriendlyLands() const
+{
+	return m_bIsFriendlyLands;
+}
+int CvPromotionEntry::GetNearbyRange() const
 {
 	return m_iNearbyRange;
 }
-
+UnitTypes CvPromotionEntry::getRequiredUnit() const
+{
+	return m_eRequiredUnit;
+}
+UnitTypes CvPromotionEntry::GetConvertDomainUnit() const
+{
+	return m_eConvertDomainUnit;
+}
+DomainTypes CvPromotionEntry::GetConvertDomain() const
+{
+	return m_eConvertDomain;
+}
 PromotionTypes CvPromotionEntry::AddedFromNearbyPromotion() const
 {
 	return m_eAddedFromNearbyPromotion;
+}
+int CvPromotionEntry::GetStackedGreatGeneralExperience() const
+{
+	return m_iStackedGreatGeneralExperience;
 }
 #endif
 
@@ -2073,6 +2150,19 @@ int CvPromotionEntry::GetYieldFromKills(int i) const
 	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromKills)
 	{
 		return m_piYieldFromKills[i];
+	}
+
+	return 0;
+}
+
+int CvPromotionEntry::GetGarrisonYield(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < NUM_YIELD_TYPES && m_piGarrisonYield)
+	{
+		return m_piGarrisonYield[i];
 	}
 
 	return 0;

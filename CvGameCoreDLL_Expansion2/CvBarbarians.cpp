@@ -139,7 +139,7 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	CvGame& kGame = GC.getGame();
 	// Default to between 8 and 12 turns per spawn
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	int iNumTurnsToSpawn = 10 + kGame.getSmallFakeRandNum(10,*pPlot);
+	int iNumTurnsToSpawn = 6 + kGame.getSmallFakeRandNum(10,*pPlot);
 #else
 	int iNumTurnsToSpawn = 8 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
 #endif
@@ -198,7 +198,7 @@ void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 	// Default to between 8 and 12 turns per spawn
 	//bumped a bit - too many barbs gets annoying.
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	int iNumTurnsToSpawn = 10 + kGame.getSmallFakeRandNum(10,*pPlot);
+	int iNumTurnsToSpawn = 6 + kGame.getSmallFakeRandNum(10,*pPlot);
 #else
 	int iNumTurnsToSpawn = 15 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
 #endif
@@ -246,6 +246,11 @@ void CvBarbarians::DoCityAttacked(CvPlot* pPlot)
 
 	// Halve the amount of time to spawn
 	int iNewValue = iCounter / 2;
+	iNewValue--;
+	if (iNewValue <= 0)
+	{
+		iNewValue = 0;
+	}
 
 	m_aiPlotBarbCitySpawnCounter[pPlot->GetPlotIndex()] = iNewValue;
 }
@@ -258,6 +263,14 @@ void CvBarbarians::DoCampAttacked(CvPlot* pPlot)
 
 	// Halve the amount of time to spawn
 	int iNewValue = iCounter / 2;
+#if defined(MOD_BALANCE_CORE)
+	//And reduce by one to 'round up' a change.
+	iNewValue--;
+	if (iNewValue <= 0)
+	{
+		iNewValue = 0;
+	}
+#endif
 
 	m_aiPlotBarbCampSpawnCounter[pPlot->GetPlotIndex()] = iNewValue;
 }
@@ -788,9 +801,19 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eU
 			if(bValid)
 			{
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-				iValue = 1 + kGame.getSmallFakeRandNum(9, pArea->GetID());
+				iValue = 1 + (kGame.getSmallFakeRandNum(10, pArea->GetID()) * 100);
 #else
 				iValue = (1 + kGame.getJonRandNum(1000, "Barb Unit Selection"));
+#endif
+#if defined(MOD_BALANCE_CORE)
+				if (pPlot->getImprovementType() != NO_IMPROVEMENT && kUnit.GetRangedCombat() > 0)
+				{
+					iValue += 100;
+				}
+				if (pPlot->getImprovementType() == NO_IMPROVEMENT && kUnit.GetRange() == 1)
+				{
+					iValue += 100;
+				}
 #endif
 
 				if(kUnit.GetUnitAIType(eUnitAI))
@@ -886,28 +909,11 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 	if (pPlot && pPlot->GetNumCombatUnits() == 0)
 	{
 		UnitTypes eUnit;
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
-		if(pPlot->getImprovementType() == eCamp)
-		{
 #if defined(MOD_EVENTS_BARBARIANS)
-			eUnit = GetRandomBarbarianUnitType(pPlot, UNITAI_FAST_ATTACK);
+		eUnit = GetRandomBarbarianUnitType(pPlot, UNITAI_RANGED);
 #else
-			eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pPlot->getArea()), UNITAI_RANGED);
+		eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pPlot->getArea()), UNITAI_RANGED);
 #endif
-		}
-		else
-		{
-#endif
-#if defined(MOD_EVENTS_BARBARIANS)
-			eUnit = GetRandomBarbarianUnitType(pPlot, UNITAI_FAST_ATTACK);
-#else
-			eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pPlot->getArea()), UNITAI_FAST_ATTACK);
-#endif
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		}
-#endif
-
 		if (eUnit != NO_UNIT)
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY)

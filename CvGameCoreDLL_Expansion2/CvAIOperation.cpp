@@ -1081,7 +1081,7 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 				pArmy->SetXY(pCenterOfMass->getX(), pCenterOfMass->getY());
 
 				//get where we want to be next
-				pRtnValue = GetPlotXInStepPath(pCenterOfMass,pGoalPlot,pArmy->GetMovementRate()+1,true);
+				pRtnValue = GetPlotXInStepPath(pCenterOfMass,pGoalPlot,pArmy->GetMovementRate(),true);
 				if (!pRtnValue)
 				{
 					// Can't plot a path, probably due to change of control of hexes.  Will probably abort the operation
@@ -3612,11 +3612,13 @@ bool CvAIOperationCivilian::IsEscorted()
 		CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[0]);
 
 		//the unit to be escorted is always the first one
-		/*CvUnit* pCivilian =*/ pThisArmy->GetFirstUnit();
+		CvUnit* pCivilian = pThisArmy->GetFirstUnit();
+		if (!pCivilian)
+			return false;
 		//the second unit would be the first escort
 		CvUnit* pEscort = pThisArmy->GetNextUnit();
 
-		return pEscort;
+		return pEscort != NULL;
 	}
 }
 

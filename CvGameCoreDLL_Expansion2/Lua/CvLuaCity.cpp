@@ -5168,6 +5168,8 @@ int CvLuaCity::lGetModFromWLTKD(lua_State* L)
 			const CvReligion* pReligion = pReligions->GetReligion(eReligion, ePlayer);
 			iRtnValue = pReligion->m_Beliefs.GetYieldFromWLTKD((YieldTypes)eYield);
 		}
+		iRtnValue += GET_PLAYER(ePlayer).GetYieldFromWLTKD((YieldTypes)eYield);
+		iRtnValue += pkCity->GetYieldFromWLTKD((YieldTypes)eYield);
 	}
 	lua_pushinteger(L, iRtnValue);
 

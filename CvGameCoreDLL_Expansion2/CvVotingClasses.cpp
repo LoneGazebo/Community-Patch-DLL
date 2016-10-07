@@ -5270,7 +5270,7 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							if((eLoopPlayer != NO_PLAYER) && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != ePlayer))
 							{
-								if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eReligion) || (GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(eLoopPlayer) == eReligion))
+								if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eReligion))
 								{
 									iReligionAlly++;
 								}
@@ -5281,7 +5281,7 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 					if(pkPlot != NULL && pkPlot->getOwner() == ePlayer)
 					{
 						iVotes += it->GetEffects()->iVotesForFollowingReligion;
-						iVotes += iReligionAlly++;
+						iVotes += iReligionAlly;
 						return iVotes;
 					}
 					//What if we share the faith, but didn't create it?
@@ -11768,10 +11768,24 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				iScore += 20;
 			}
+#if defined(MOD_BALANCE_CORE)
+			if (bFoundedReligion)
+			{ 
+				iScore += 100;
+			}
+			else
+			{
+				iScore += -25;
+			}
+#endif
 		}
 		else
 		{
+#if defined(MOD_BALANCE_CORE)
+			iScore += -100;
+#else
 			iScore += -30;
+#endif
 		}
 
 		const CvReligion* pkTargetReligion = GC.getGame().GetGameReligions()->GetReligion(eTargetReligion, GetPlayer()->GetID());
@@ -11820,7 +11834,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 		else if (GetPlayer()->GetReligions()->GetReligionCreatedByPlayer() != NO_RELIGION && GetPlayer()->GetReligions()->GetReligionCreatedByPlayer() != eTargetReligion)
 		{
+#if defined(MOD_BALANCE_CORE)
+			iScore += -40;
+#else
 			iScore += -20;
+#endif
 		}
 	}
 	// World Ideology

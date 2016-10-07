@@ -1,5 +1,5 @@
-﻿/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -578,7 +578,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				}
 				else if(bAlone)
 				{
-					iValue *= 2;
+					iValue *= 4;
 				}
 				if(iValue > 0)
 				{
@@ -607,7 +607,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				}
 				else if(bAlone)
 				{
-					iValue /= 2;
+					iValue /= 4;
 				}
 				if(iValue > 0)
 				{
@@ -1234,14 +1234,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	{
 		if(iGPT < 0)
 		{
-			//Every -1 GPT = -40 penalty.
-			if(!!bAtWar)
+			//Every -1 GPT = -50 penalty.
+			if(!bAtWar)
 			{
-				iBonus += iGPT * 40;
-			}
-			else
-			{
-				iBonus += iGPT;
+				iBonus += iGPT * 50;
 			}
 		}
 	}
@@ -1256,9 +1252,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		int iDemand = kPlayer.getNumMilitaryUnits();
 		int iPercent = (iDemand * 100) / iSupply;
-		int iRemainder = (150 - iPercent);
+		int iRemainder = (140 - iPercent);
 
-		//Closer we get to cap over 50%, fewer units we should be making.
+		//Closer we get to cap over 40%, fewer units we should be making.
 		iBonus *= iRemainder;
 		iBonus /= 100;
 	}

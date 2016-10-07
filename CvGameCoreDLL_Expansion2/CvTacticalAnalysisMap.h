@@ -416,6 +416,39 @@ public:
 	{
 		m_iEnemyRangedStrength += iRangedStrength;
 	};
+
+	inline int GetFriendlyNavalStrength() const
+	{
+		return m_iFriendlyNavalStrength;
+	};
+	inline void AddFriendlyNavalStrength(int iStrength)
+	{
+		m_iFriendlyNavalStrength += iStrength;
+	};
+	inline int GetEnemyNavalStrength() const
+	{
+		return m_iEnemyNavalStrength;
+	};
+	inline void AddEnemyNavalStrength(int iStrength)
+	{
+		m_iEnemyNavalStrength += iStrength;
+	};
+	inline int GetFriendlyNavalRangedStrength() const
+	{
+		return m_iFriendlyNavalRangedStrength;
+	};
+	inline void AddFriendlyNavalRangedStrength(int iRangedStrength)
+	{
+		m_iFriendlyNavalRangedStrength += iRangedStrength;
+	};
+	inline int GetEnemyNavalRangedStrength() const
+	{
+		return m_iEnemyNavalRangedStrength;
+	};
+	inline void AddEnemyNavalRangedStrength(int iRangedStrength)
+	{
+		m_iEnemyNavalRangedStrength += iRangedStrength;
+	};
 	inline int GetFriendlyUnitCount() const
 	{
 		return m_iFriendlyUnitCount;
@@ -496,6 +529,7 @@ public:
 	{
 		m_iFriendlyNavalUnitCount += iUnitCount;
 	};
+
 	inline int GetDominanceZoneValue() const
 	{
 		return m_iZoneValue;
@@ -543,6 +577,10 @@ private:
 	int m_iEnemyStrength;
 	int m_iFriendlyRangedStrength;
 	int m_iEnemyRangedStrength;
+	int m_iFriendlyNavalStrength;
+	int m_iEnemyNavalStrength;
+	int m_iFriendlyNavalRangedStrength;
+	int m_iEnemyNavalRangedStrength;
 	int m_iFriendlyUnitCount;
 	int m_iEnemyUnitCount;
 	int m_iFriendlyRangedUnitCount;

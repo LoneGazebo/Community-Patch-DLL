@@ -861,68 +861,88 @@ void CvHomelandAI::FindHomelandTargets()
 			}
 #if defined(MOD_BALANCE_CORE)
 			// ... possible naval sentry point?
-			else if(pLoopPlot->isWater() && 
+			if (pLoopPlot->isWater() &&
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 			{
-				int iDistance = m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot);
-				
-				if(iDistance > 3)
-					continue;
-
-				int iWeight = 0;
-				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+				CvCity* pWorkingCity = pLoopPlot->getWorkingCity();
+				if (pWorkingCity != NULL && pWorkingCity->getOwner() == m_pPlayer->GetID() && pWorkingCity->isCoastal())
 				{
-					iWeight += 25;
-				}
-				
-				if(iDistance == 3)
-				{
-					iWeight += 50;
-				}
-				else if(iDistance == 2)
-				{
-					iWeight += 30;
-				}
-				else if(iDistance == 1)
-				{
-					iWeight += 20;
-				}
-				if(pLoopPlot->getNumUnits() > 0)
-				{
-					CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-					if(pUnit != NULL)
+					if (!m_pPlayer->IsCityAlreadyTargeted(pWorkingCity, DOMAIN_SEA, 50))
 					{
-						if(pUnit->IsCivilianUnit())
-						{
-							iWeight += 25;
-						}
-						else if(pUnit->isEmbarked())
+						int iDistance = m_pPlayer->GetCityDistanceInEstimatedTurns(pLoopPlot);
+
+						if (iDistance > 3)
+							continue;
+
+						int iWeight = 0;
+						if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 						{
 							iWeight += 50;
 						}
-					}
-				}
-				CvCity* pWorkingCity = pLoopPlot->getWorkingCity();
-				if(pWorkingCity != NULL && pWorkingCity->getOwner() == m_pPlayer->GetID())
-				{
-					if(m_pPlayer->getNumCities() > 1 && pWorkingCity->GetThreatCriteria() != -1)
-					{
-						//More cities = more threat.
-						int iThreat = (m_pPlayer->getNumCities() - pWorkingCity->GetThreatCriteria()) * 10;
-						if(iThreat > 0)
+
+						if (iDistance == 3)
 						{
-							iWeight += iThreat;
+							iWeight += 50;
+						}
+						else if (iDistance == 2)
+						{
+							iWeight += 100;
+						}
+						else if (iDistance == 1)
+						{
+							iWeight += 25;
+						}
+						if (pLoopPlot->getNumUnits() > 0)
+						{
+							CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
+							if (pUnit != NULL)
+							{
+								if (pUnit->IsCivilianUnit())
+								{
+									iWeight += 25;
+								}
+								else if (pUnit->isEmbarked() && pUnit->getDomainType() != DOMAIN_SEA)
+								{
+									iWeight += 50;
+								}
+							}
+						}
+
+
+						if (m_pPlayer->getNumCities() > 1 && pWorkingCity->GetThreatCriteria() != -1)
+						{
+							//More cities = more threat.
+							int iThreat = (m_pPlayer->getNumCities() - pWorkingCity->GetThreatCriteria()) * 10;
+							if (iThreat > 0)
+							{
+								iWeight += iThreat;
+							}
+						}
+						if (m_pPlayer->IsAtWar())
+						{
+							if (pWorkingCity->isInDangerOfFalling() || pWorkingCity->isUnderSiege() || pWorkingCity->IsBlockaded(true))
+							{
+								iWeight *= 10;
+							}
+							if (pWorkingCity->IsBastion())
+							{
+								iWeight *= 5;
+							}
+							if (pWorkingCity->getDamage() > 0)
+							{
+								iWeight *= 2;
+							}
+						}
+						if (iWeight > 0)
+						{
+							newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT_NAVAL);
+							newTarget.SetTargetX(pLoopPlot->getX());
+							newTarget.SetTargetY(pLoopPlot->getY());
+							newTarget.SetAuxData(pLoopPlot);
+							newTarget.SetAuxIntData(iWeight);
+							m_TargetedNavalSentryPoints.push_back(newTarget);
 						}
 					}
-				}
-				if(iWeight > 0)
-				{
-					newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT_NAVAL);
-					newTarget.SetTargetX(pLoopPlot->getX());
-					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxData(pLoopPlot);
-					newTarget.SetAuxIntData(iWeight);
-					m_TargetedNavalSentryPoints.push_back(newTarget);
 				}
 			}
 #endif
@@ -1533,7 +1553,7 @@ void CvHomelandAI::PlotSentryMoves()
 
 			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 			{
-				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 4);
+				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 5);
 				if(pSentry)
 				{
 					ExecuteMoveToTarget(pSentry, pTarget, 0);
@@ -1556,14 +1576,9 @@ void CvHomelandAI::PlotSentryMoves()
 #if defined(MOD_BALANCE_CORE)
 void CvHomelandAI::PlotSentryNavalMoves()
 {
-	if (m_pPlayer->IsAtWar())
-		return;
-
 	// Do we have any targets of this type?
 	if(!m_TargetedNavalSentryPoints.empty())
 	{
-		// Prioritize them (LATER)
-
 		// See how many moves of this type we can execute
 		for(unsigned int iI = 0; iI < m_TargetedNavalSentryPoints.size(); iI++)
 		{
@@ -1575,21 +1590,13 @@ void CvHomelandAI::PlotSentryNavalMoves()
 
 			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 			{
-				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 4);
+				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, MAX_INT);
 				if(pSentry)
 				{
 					if(pSentry->plot() == pTarget)
 					{
 						//Remove all status if not fortified so we can see if it is possible to fortify.
-						if(pSentry->getFortifyTurns() <= 0)
-						{
-							pSentry->SetActivityType(NO_ACTIVITY);
-						}
-						if(pSentry->canFortify(pSentry->plot()))
-						{
-							pSentry->PushMission(CvTypes::getMISSION_FORTIFY());
-						}
-						else if(pSentry->canSentry(pSentry->plot()))
+						if(pSentry->canSentry(pSentry->plot()))
 						{
 							pSentry->PushMission(CvTypes::getMISSION_ALERT());
 						}
@@ -5236,39 +5243,41 @@ void CvHomelandAI::ExecuteGeneralMoves()
 	// Do we have an Apollo program to stay clear of?
 	bool bHaveApolloInCapital = false;
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-	if (!MOD_GLOBAL_BREAK_CIVILIAN_1UPT) {
-#endif
-	ProjectTypes eApolloProgram = (ProjectTypes) GC.getSPACE_RACE_TRIGGER_PROJECT();
-	if(eApolloProgram != NO_PROJECT)
+	if (!MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
 	{
-		if(GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApolloProgram) > 0)
+#endif
+		ProjectTypes eApolloProgram = (ProjectTypes) GC.getSPACE_RACE_TRIGGER_PROJECT();
+		if(eApolloProgram != NO_PROJECT)
 		{
-			bHaveApolloInCapital = true;
+			if(GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApolloProgram) > 0)
+			{
+				bHaveApolloInCapital = true;
+			}
 		}
-	}
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
 	}
 #endif
 	// Do we have a holy city to stay clear of?
 	bool bKeepHolyCityClear = false;
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-	if (!MOD_GLOBAL_BREAK_CIVILIAN_1UPT) {
-#endif
-	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eMyReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
-	const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
-	if(pMyReligion)
+	if (!MOD_GLOBAL_BREAK_CIVILIAN_1UPT) 
 	{
-		pHolyCityPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
-		if(pHolyCityPlot != NULL)
+#endif
+		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+		ReligionTypes eMyReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+		const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
+		if(pMyReligion)
 		{
-			pHolyCity = pHolyCityPlot->getPlotCity();
-			if(pHolyCity && (pHolyCity->getOwner() == m_pPlayer->GetID()))
+			pHolyCityPlot = GC.getMap().plot(pMyReligion->m_iHolyCityX, pMyReligion->m_iHolyCityY);
+			if(pHolyCityPlot != NULL)
 			{
-				bKeepHolyCityClear = true;
+				pHolyCity = pHolyCityPlot->getPlotCity();
+				if(pHolyCity && (pHolyCity->getOwner() == m_pPlayer->GetID()))
+				{
+					bKeepHolyCityClear = true;
+				}
 			}
 		}
-	}
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
 	}
 #endif

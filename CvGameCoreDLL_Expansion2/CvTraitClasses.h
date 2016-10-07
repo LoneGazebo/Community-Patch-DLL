@@ -118,6 +118,7 @@ public:
 	bool IsUniqueBeliefsOnly() const;
 	bool IsNoNaturalReligionSpread() const;
 	bool IsNoOpenTrade() const;
+	bool IsGoldenAgeOnWar() const;
 	int  GetGrowthBoon() const;
 	int GetAllianceCSDefense() const;
 	int GetAllianceCSStrength() const;
@@ -132,6 +133,11 @@ public:
 	int GetStartingSpyRank() const;
 	int GetQuestYieldModifier() const;
 	int GetWonderProductionModifierToBuilding() const;
+	int GetPolicyGEorGM() const;
+	int GetGoldenAgeGarrisonedCityRangeStrikeModifier() const;
+	bool IsBestUnitSpawnOnImprovementDOW() const;
+	ImprovementTypes GetBestSpawnUnitImprovement() const;
+	int GetGGGARateFromDenunciationsAndWars() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -182,6 +188,7 @@ public:
 	BuildingTypes GetFreeBuilding() const;
 #if defined(MOD_BALANCE_CORE)
 	BuildingTypes GetFreeCapitalBuilding() const;
+	UnitTypes GetFreeUnitOnConquest() const;
 #endif
 	BuildingTypes GetFreeBuildingOnConquest() const;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
@@ -254,6 +261,8 @@ public:
 	int GetMovesChangeUnitClass(const int unitClassID) const;
 	int GetGAPToYield(int i) const;
 	int GetMountainRangeYield(int i) const;
+	int GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const;
+	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const;
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
@@ -405,10 +414,16 @@ protected:
 	int m_iTourismGABonus;
 	bool m_bNoNaturalReligionSpread;
 	bool m_bNoOpenTrade;
+	bool m_bGoldenAgeOnWar;
 	int m_iTourismToGAP;
 	int m_iEventTourismBoost;
 	int m_iEventGP;
 	int m_iWonderProductionModifierToBuilding;
+	int m_iPolicyGEorGM;
+	int m_iGAGarrisonCityRangeStrikeModifier;
+	bool m_bBestUnitSpawnOnImpDOW;
+	ImprovementTypes m_iBestUnitImprovement;
+	int m_iGGGARateFromDenunciationsAndWars;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -461,6 +476,7 @@ protected:
 	BuildingTypes m_eFreeCapitalBuilding;
 	TechTypes m_eFreeBuildingPrereqTech;
 	TechTypes m_eCapitalFreeBuildingPrereqTech;
+	UnitTypes m_eFreeUnitOnConquest;
 #endif
 	BuildingTypes m_eFreeBuildingOnConquest;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
@@ -548,6 +564,8 @@ protected:
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;
 	bool m_bCombatBoostNearNaturalWonder;
+	int* m_piNumPledgesDomainProdMod;
+	int* m_piFreeUnitClassesDOW;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiBuildingClassYieldChanges;
@@ -889,6 +907,10 @@ public:
 	{
 		return m_bNoOpenTrade;
 	};
+	bool IsGoldenAgeOnWar() const
+	{
+		return m_bGoldenAgeOnWar;
+	};
 	int GetGrowthBoon() const
 	{
 		return m_iGrowthBoon;
@@ -944,6 +966,30 @@ public:
 	int GetWonderProductionModifierToBuilding() const
 	{
 		return m_iWonderProductionModifierToBuilding;
+	};
+	int GetPolicyGEorGM() const
+	{
+		return m_iPolicyGEorGM;
+	};
+	int GetGoldenAgeGarrisonedCityRangeStrikeModifier() const
+	{
+		return m_iGAGarrisonCityRangeStrikeModifier;
+	};
+	bool IsBestUnitSpawnOnImprovementDOW() const
+	{
+		return m_bBestUnitSpawnOnImpDOW;
+	};
+	ImprovementTypes GetBestSpawnUnitImprovement()
+	{
+		return m_iBestUnitImprovement;
+	};
+	void SetBestSpawnUnitImprovement(ImprovementTypes eType)
+	{
+		m_iBestUnitImprovement = eType;
+	};
+	int GetGGGARateFromDenunciationsAndWars() const
+	{
+		return m_iGGGARateFromDenunciationsAndWars;
 	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1245,6 +1291,16 @@ public:
 	{
 		return ((uint)eResource < m_aiResourceQuantityModifier.size())?m_aiResourceQuantityModifier[(int)eResource]:0;
 	};
+#if defined(MOD_BALANCE_CORE)
+	int GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const
+	{
+		return m_piNumPledgesDomainProdMod[(int)eDomain];
+	};
+	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
+	{
+		return m_piFreeUnitClassesDOW[(int)eUnitClass];
+	}
+#endif
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetMovesChangeUnitClass(const int unitClassID) const;
@@ -1415,10 +1471,13 @@ public:
 	TechTypes GetFreeBuildingPrereqTech() const;
 	TechTypes GetCapitalFreeBuildingPrereqTech() const;
 	int GetWonderProductionToBuildingDiscount(BuildingTypes eBuilding);
+	void SpawnBestUnitsOnImprovementDOW(CvCity *pCity);
+	int GetGGGARateModifierFromDenunciationsAndWars() const;
 #endif
 	BuildingTypes GetFreeBuilding() const;
 #if defined(MOD_BALANCE_CORE)
 	BuildingTypes GetFreeCapitalBuilding() const;
+	UnitTypes GetFreeUnitOnConquest() const;
 #endif
 	BuildingTypes GetFreeBuildingOnConquest() const;
 	void SetDefeatedBarbarianCampGuardType(UnitTypes eType)
@@ -1543,6 +1602,7 @@ private:
 	bool m_bUniqueBeliefsOnly;
 	bool m_bNoNaturalReligionSpread;
 	bool m_bNoOpenTrade;
+	bool m_bGoldenAgeOnWar;
 	int m_iTourismToGAP;
 	int m_iEventTourismBoost;
 	int m_iGrowthBoon;
@@ -1557,6 +1617,11 @@ private:
 	int m_iStartingSpyRank;
 	int m_iQuestYieldModifier;
 	int m_iWonderProductionModifierToBuilding;
+	int m_iPolicyGEorGM;
+	int m_iGAGarrisonCityRangeStrikeModifier;
+	bool m_bBestUnitSpawnOnImpDOW;
+	ImprovementTypes m_iBestUnitImprovement;
+	int m_iGGGARateFromDenunciationsAndWars;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1646,6 +1711,7 @@ private:
 	BuildingTypes m_eFreeBuilding;
 #if defined(MOD_BALANCE_CORE)
 	BuildingTypes m_eFreeCapitalBuilding;
+	UnitTypes m_eFreeUnitOnConquest;
 #endif
 	BuildingTypes m_eFreeBuildingOnConquest;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
@@ -1702,6 +1768,8 @@ private:
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;
 	bool m_bCombatBoostNearNaturalWonder;
+	std::vector<int> m_piNumPledgesDomainProdMod;
+	std::vector<int> m_piFreeUnitClassesDOW;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;

@@ -334,13 +334,13 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					// Happiness
 					if (pRewardInfo->GetHappiness() != 0)
 					{
-						iModifier += pRewardInfo->GetHappiness() * (20 - kPlayer.GetHappiness());
+						iModifier += pRewardInfo->GetHappiness() * (50 - kPlayer.GetHappiness());
 					}
 
 					// Free Social Policy
 					if (pRewardInfo->GetFreeSocialPolicies() > 0)
 					{
-						iModifier += (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned() * 5);
+						iModifier += (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned() * 20);
 					}
 
 					EconomicAIStrategyTypes eStrategyCultureGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CULTURE");
@@ -349,7 +349,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{			
 						if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
 						{
-							iModifier += 66;
+							iModifier += 250;
 						}
 					}
 
@@ -358,7 +358,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
 						{
-							iModifier += 66;
+							iModifier += 250;
 						}
 					}
 
@@ -367,11 +367,11 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier() > 0)
 						{
-							iModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier();
+							iModifier += (pRewardInfo->GetGoldenAgePoints() + kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier()) * 5;
 						}
 						else
 						{
-							iModifier += kPlayer.getGoldenAgeModifier();
+							iModifier += (pRewardInfo->GetGoldenAgePoints() + kPlayer.getGoldenAgeModifier()) * 5;
 						}
 					}
 
@@ -382,7 +382,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{		
 						if(eStrategyUNGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyUNGS))
 						{
-							iModifier += 50;
+							iModifier += 250;
 						}
 					}
 					EconomicAIStrategyTypes eStrategySpaceShip = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");
@@ -391,7 +391,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(eStrategySpaceShip != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategySpaceShip))
 						{
-							iModifier += 50;
+							iModifier += 250;
 						}
 					}
 					
@@ -423,20 +423,20 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 						{
 							if(eStrategyConquest != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
 							{
-								iModifier += 50;
+								iModifier += 150;
 							}
 						}
 						if (pRewardInfo->GetBaseFreeUnits() > 0)
 						{
 							if(eStrategyConquest != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
 							{
-								iModifier += 50;
+								iModifier += 150;
 							}
 						}
 						// Temporary Culture Modifier
 						if (pRewardInfo->GetNumFreeGreatPeople() > 0)
 						{
-							iModifier += 50;
+							iModifier += 250;
 						}
 					}
 #endif

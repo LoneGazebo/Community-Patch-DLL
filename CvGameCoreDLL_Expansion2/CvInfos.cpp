@@ -3993,6 +3993,7 @@ CvBuildInfo::CvBuildInfo() :
 #if defined(MOD_BALANCE_CORE)
 	m_iTechObsolete(NO_TECH),
 	m_bKillOnlyCivilian(false),
+	m_bFreeBestDomainUnit(false),
 #endif
 	m_iImprovement(NO_IMPROVEMENT),
 	m_iRoute(NO_ROUTE),
@@ -4051,6 +4052,10 @@ int CvBuildInfo::getTechPrereq() const
 }
 
 #if defined(MOD_BALANCE_CORE)
+bool CvBuildInfo::IsFreeBestDomainUnit() const
+{
+	return m_bFreeBestDomainUnit;
+}
 //------------------------------------------------------------------------------
 int CvBuildInfo::getTechObsolete() const
 {
@@ -4195,6 +4200,7 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bKillOnlyCivilian = kResults.GetBool("KillOnlyCivilian");
 	const char* szObsoleteTech = kResults.GetText("ObsoleteTech");
 	m_iTechObsolete = GC.getInfoTypeForString(szObsoleteTech, true);
+	m_bFreeBestDomainUnit = kResults.GetBool("IsFreeBestDomainUnit");
 #endif
 
 	const char* szImprovementType = kResults.GetText("ImprovementType");

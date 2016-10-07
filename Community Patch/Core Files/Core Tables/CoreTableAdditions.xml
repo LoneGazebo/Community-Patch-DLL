@@ -16,6 +16,12 @@
 		<Column name="UnitType" type="text" reference="Units(Type)"/>
 		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
 	</Table>
+	<!-- Allows you to define a unit with a different Combat Strength in a specific Era. -->
+	<Table name="Unit_EraCombatStrength">
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="EraType" type="text" reference="Eras(Type)"/>
+		<Column name="CombatStrength" type="integer" default="0"/>
+	</Table>
 	<!-- Allows you to define any building to be given to any # of cities by any policy. -->
 	<Table name="Policy_FreeBuilding">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
@@ -219,7 +225,14 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
-
+	
+	<!-- BUILDING: Grants a free Resource in your territory and will try to place it on X number of plots. Entry 'ResourceQuantityToPlace' in Buildings must be set to a value of the quantity you desire that will be placed on X plot -->
+	<Table name="Building_ResourcePlotsToPlace">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="NumPlots" type="integer" default="0"/>
+	</Table>
+	
 	<!-- BUILDING: Allows you to define a building to grant a yield when an owned unit is victorious, where X is the number below.  -->
 	<Table name="Building_YieldFromVictory">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
@@ -532,7 +545,21 @@
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
 	</Table>
-
+	
+	<!-- TRAIT: Allows you to define a domain production modifier based on the number of city state pledges. -->
+	<Table name="Trait_NumPledgeDomainProdMod">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)"/>
+		<Column name="Modifier" type="integer"/>
+	</Table>
+	
+	<!-- TRAIT: Allows you to define a the number unitclasses that spawn on or around your capital on a DOW -->
+	<Table name="Trait_FreeUnitClassesDOW">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<Column name="Number" type="integer"/>
+	</Table>
+	
 	<!-- RESOURCES: Allows Resources to grant bonuses if you control a monopoly of the resource. Must have DEALS functions enabled to use. -->
 	<Table name="Resource_YieldChangeFromMonopoly">
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
@@ -644,8 +671,21 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
+	<!-- Improvement: allows an improvement to boost the base yield of an adjacent plot (works with hills where Improvement_AdjacentTerrainYieldChanges doesn't) -->
+	<Table name="Improvement_AdjacentPlotYieldChanges">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="PlotType" type="text" reference="Plots(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
 	<!-- Promotion: Unit gains a bonus from revealing tiles. Value is equal to the number of tiles explored this turn. -->
 	<Table name="UnitPromotions_YieldFromScouting">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<!-- Promotion: City gains extra yield on the plot itself with this promotion set -->
+	<Table name="UnitPromotions_GarrisonYield">
 		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>

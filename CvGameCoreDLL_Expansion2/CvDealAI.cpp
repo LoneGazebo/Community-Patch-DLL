@@ -1,5 +1,5 @@
-﻿/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -6487,11 +6487,14 @@ bool CvDealAI::IsOfferPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal, bool bEqual
 
 			DoAddItemsToDealForPeaceTreaty(eOtherPlayer, pDeal, ePeaceTreatyTheyreWillingToOffer, /*bMeSurrendering*/ false);
 		}
-
-		// Add the peace items to the deal so that we actually stop the war
-		int iPeaceTreatyLength = GC.getGame().getGameSpeedInfo().getPeaceDealDuration();
-		pDeal->AddPeaceTreaty(eMyPlayer, iPeaceTreatyLength);
-		pDeal->AddPeaceTreaty(eOtherPlayer, iPeaceTreatyLength);
+		else
+		{
+			// Add the peace items to the deal so that we actually stop the war
+			int iPeaceTreatyLength = GC.getGame().getGameSpeedInfo().getPeaceDealDuration();
+			pDeal->AddPeaceTreaty(eMyPlayer, iPeaceTreatyLength);
+			pDeal->AddPeaceTreaty(eOtherPlayer, iPeaceTreatyLength);
+			DoAddPlayersAlliesToTreaty(eOtherPlayer, pDeal);
+		}
 
 		result = true;
 	}
@@ -6552,13 +6555,11 @@ bool CvDealAI::IsOfferPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal, bool bEqual
 		else
 		{
 			// if the case is that we both want white peace, don't forget to add the city-states into the peace deal.
+			int iPeaceTreatyLength = GC.getGame().getGameSpeedInfo().getPeaceDealDuration();
+			pDeal->AddPeaceTreaty(eMyPlayer, iPeaceTreatyLength);
+			pDeal->AddPeaceTreaty(eOtherPlayer, iPeaceTreatyLength);
 			DoAddPlayersAlliesToTreaty(eOtherPlayer, pDeal);
 		}
-
-		int iPeaceTreatyLength = GC.getGame().getGameSpeedInfo().getPeaceDealDuration();
-		pDeal->AddPeaceTreaty(eMyPlayer, iPeaceTreatyLength);
-		pDeal->AddPeaceTreaty(eOtherPlayer, iPeaceTreatyLength);
-
 		result = true;
 	}
 
