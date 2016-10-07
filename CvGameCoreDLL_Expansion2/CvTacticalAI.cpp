@@ -11860,6 +11860,10 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 		if (unit.eLastAssignment == STacticalAssignment::A_MOVE && plot.iPlotIndex != unit.iPlotIndex)
 			return result;
 
+		//check if this is actual movement or whether we simply end the turn
+		if (plot.iPlotIndex != unit.iPlotIndex)
+			result.eType = STacticalAssignment::A_MOVE;
+
 		//stay on target. hard cutoff!
 		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pCurrentPlot);
 		if (iPlotDistance>3)
@@ -11877,10 +11881,6 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 		int iDistanceScore = iDistanceScores[unit.eStrategy][currentPlot.getType()];
 		if (iDistanceScore<0)
 			return result;
-
-		//check if this is actual movement or whether we simply end the turn
-		if (plot.iPlotIndex != unit.iPlotIndex)
-			result.eType = STacticalAssignment::A_MOVE;
 
 		//check all plots we could possibly attack from here
 		std::vector<int> vDamageRatios;
@@ -12070,6 +12070,9 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer)
 
 void CvTacticalPlot::changeNeighboringSupportUnitCount(CvTacticalPosition& currentPosition, int iChange)
 {
+	if (!pPlot)
+		return;
+
 	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
 	for (int i = 0; i < 6; i++)
 	{
@@ -12254,6 +12257,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 			possibleMoves.erase(possibleMoves.begin()+endTurnMoveIndex);
 	}
 
+	//note: we don't filter out blocked moves. the unit will be considered blocked in this case, even if we have valid but bad moves
 	std::sort(possibleMoves.begin(),possibleMoves.end());
 	for (size_t i=0; i<possibleMoves.size() && i<(size_t)nMaxCount; i++)
 		preferredMoves.push_back( possibleMoves[i] );
@@ -12261,7 +12265,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 	return preferredMoves;
 }
 
-bool CvTacticalPosition::makeNextAssignments(int iMaxBranchesPerUnit)
+bool CvTacticalPosition::makeNextAssignments(int iMaxBranches)
 {
 	/*
 	abstract:
@@ -12286,11 +12290,15 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranchesPerUnit)
 		{
 			CvTacticalPlot& currentPlot = getTactPlot( itUnit->iPlotIndex );
 			currentPlot.changeNeighboringSupportUnitCount( *this, -1 );
-			getPreferredAssignmentsForUnit(*itUnit,iMaxBranchesPerUnit);
+			getPreferredAssignmentsForUnit(*itUnit,iMaxBranches);
 			currentPlot.changeNeighboringSupportUnitCount( *this, +1 );
 		}
 		else
-			thisUnitChoices = getPreferredAssignmentsForUnit(*itUnit,iMaxBranchesPerUnit);
+			thisUnitChoices = getPreferredAssignmentsForUnit(*itUnit,iMaxBranches);
+
+		//oops we're blocked with no valid move
+		if (thisUnitChoices.empty())
+			thisUnitChoices.push_back( STacticalAssignment(itUnit->iPlotIndex,itUnit->iPlotIndex,itUnit->iUnitID,0,itUnit->isCombatUnit(),0,STacticalAssignment::A_BLOCKED) );
 
 		choicePerUnit[itUnit->iUnitID] = thisUnitChoices;
 		overAllChoices.insert( overAllChoices.end(), thisUnitChoices.begin(), thisUnitChoices.end() );
@@ -12303,7 +12311,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranchesPerUnit)
 		vector<STacticalAssignment> movesToAdd;
 
 		//don't check all possibilities, only the best ones
-		if (iNewBranches > (int)overAllChoices.size()/2)
+		if (iNewBranches > iMaxBranches*2)
 			break;
 
 		if (isBlockedMove(*itMove))
@@ -12328,17 +12336,15 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranchesPerUnit)
 				}
 			}
 
-			//oops we're blocked and no way to move
+			//oops we're blocked with no valid move
 			if (movesToAdd.empty())
-			{
-				itMove->eType = STacticalAssignment::A_BLOCKED;
-				itMove->iToPlotIndex = itMove->iFromPlotIndex;
-				itMove->iScore = 0;
-				movesToAdd.push_back(*itMove);
-			}
+				movesToAdd.push_back( STacticalAssignment(itMove->iFromPlotIndex,itMove->iFromPlotIndex,itMove->iUnitID,0,itMove->bIsCombat,0,STacticalAssignment::A_BLOCKED) );
 		}
-		else 
-			findCompatibleMoves(*itMove,overAllChoices,movesToAdd);
+		else
+			movesToAdd.push_back(*itMove);
+
+		//try to add some more moves
+		findCompatibleMoves(movesToAdd,overAllChoices);
 
 		if (!movesToAdd.empty())
 		{
@@ -12399,18 +12405,15 @@ bool CvTacticalPosition::movesAreEquivalent(const vector<STacticalAssignment>& s
 	return equal(A.begin(), A.end(), B.begin(), PrAssignmentIsEqual());
 }
 
-void CvTacticalPosition::findCompatibleMoves(const STacticalAssignment& initial, const vector<STacticalAssignment>& choice, vector<STacticalAssignment>& result) const
+void CvTacticalPosition::findCompatibleMoves(vector<STacticalAssignment>& chosen, const vector<STacticalAssignment>& choice) const
 {
-	result.clear();
-	result.push_back(initial);
-
 	for (vector<STacticalAssignment>::const_iterator itChoice = choice.begin(); itChoice != choice.end(); ++itChoice)
 	{
 		if (isBlockedMove(*itChoice))
 			continue;
 
 		bool bAllCompatible = true;
-		for (vector<STacticalAssignment>::const_iterator itChosen = result.begin(); itChosen != result.end(); ++itChosen)
+		for (vector<STacticalAssignment>::const_iterator itChosen = chosen.begin(); itChosen != chosen.end(); ++itChosen)
 		{
 			if (!movesAreCompatible(*itChosen,*itChoice))
 			{
@@ -12420,7 +12423,7 @@ void CvTacticalPosition::findCompatibleMoves(const STacticalAssignment& initial,
 		}
 
 		if (bAllCompatible)
-			result.push_back(*itChoice);
+			chosen.push_back(*itChoice);
 	}
 }
 
@@ -12553,8 +12556,10 @@ void CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 	
 	CvTacticalPlot& oldTactPlot = getTactPlot(newAssignment.iFromPlotIndex);
 	CvTacticalPlot& newTactPlot = getTactPlot(newAssignment.iToPlotIndex);
-	if (!newTactPlot.isValid() || !oldTactPlot.isValid())
-		return;
+	//tactical plots are only touched for "real" moves. blocked units may be on invalid plots.
+	if (newAssignment.eType != STacticalAssignment::A_BLOCKED)
+		if (!newTactPlot.isValid() || !oldTactPlot.isValid())
+			return;
 
 	//i know what you did last summer!
 	itUnit->eLastAssignment = newAssignment.eType;
@@ -12678,11 +12683,6 @@ void CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 void CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, PlayerTypes ePlayer)
 {
 	if (!pPlot)
-		return;
-
-	//try to stay on target. hard cutoff.
-	int iPlotDistance = plotDistance(*getTarget(),*pPlot);
-	if (iPlotDistance>3)
 		return;
 
 	map<int, int>::iterator it = tacticalPlotLookup.find(pPlot->GetPlotIndex());
@@ -12891,14 +12891,14 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const CTacticalUnitArray& vU
 	for(size_t i=0; i<vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits.getUnit(i);
-		if (pUnit)
+		if (pUnit && plotDistance(*pUnit->plot(),*pTarget)<=5) //ignore units which are too far away
 		{
 			initialPosition->addAvailableUnit(pUnit);
 			ourUnits.insert(pUnit->GetID());
 		}
 	}
 
-	//create the tactical plots around the target. 
+	//create the tactical plots around the target (up to distance 5)
 	//not equivalent to the union of all reachable plots: we need to consider unreachable enemies as well!
 	for (int i=0; i<RING5_PLOTS; i++)
 	{
@@ -12965,7 +12965,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const CTacticalUnitArray& vU
 
 	//debugging
 	timer.EndPerfTest();
-	OutputDebugString(CvString::format("--> tested %d possible positions in %.2fms\n", initialPosition->countChildren(), timer.GetDeltaInSeconds()*1000).c_str());
+	OutputDebugString(CvString::format("--> tested %d possible positions for %d units in %.2fms\n", initialPosition->countChildren(), ourUnits.size(), timer.GetDeltaInSeconds()*1000).c_str());
 	if (0) //if needed we can set the instruction pointer here
 		initialPosition->exportToDotFile("c:\\temp\\graph.dot");
 

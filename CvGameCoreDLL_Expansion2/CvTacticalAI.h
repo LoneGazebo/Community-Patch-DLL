@@ -1137,7 +1137,7 @@ protected:
 	CvTacticalPosition* addChild();
 	void addAssignment(STacticalAssignment newAssignment);
 	bool isBlockedMove(const STacticalAssignment& move) const;
-	void findCompatibleMoves(const STacticalAssignment& initial, const vector<STacticalAssignment>& choice, vector<STacticalAssignment>& result) const;
+	void findCompatibleMoves(vector<STacticalAssignment>& chosen, const vector<STacticalAssignment>& choice) const;
 	bool movesAreCompatible(const STacticalAssignment& A, const STacticalAssignment& B) const;
 	bool movesAreEquivalent(const vector<STacticalAssignment>& seqA, const vector<STacticalAssignment>& seqB) const;
 	int findBlockingUnitAtPlot(int iPlotIndex) const;
