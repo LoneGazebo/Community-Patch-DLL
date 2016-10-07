@@ -3034,53 +3034,34 @@ int CvBuilderTaskingAI::ScorePlot()
 	}
 
 	int iDefense = 0;
-	bool bBad = false;
 	//Fort test.
-	if(!m_pPlayer->isHuman())
+	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+	if (eFort != NO_IMPROVEMENT && eImprovement == eFort)
 	{
-		ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
-		if (eFort != NO_IMPROVEMENT)
+		//Is this a good spot for a defensive building?
+		if(eResource == NO_RESOURCE)
 		{
-			if(eImprovement == eFort)
+			if(m_pTargetPlot->getOwner() == m_pPlayer->GetID())
 			{
-				//Is this a good spot for a defensive building?
-				if(eResource == NO_RESOURCE)
-				{
-					if(m_pTargetPlot->getOwner() == m_pPlayer->GetID())
-					{
-						for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
-						{
-							CvPlot* pAdjacentPlot = plotDirection(m_pTargetPlot->getX(), m_pTargetPlot->getY(), ((DirectionTypes) iDirectionLoop));
-							if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() == eFort)
-							{
-								bBad = true;
-								break;
-							}
-						}
-						if(bBad)
-						{
-							return -1;
-						}
-						iDefense = m_pTargetPlot->GetDefenseBuildValue(m_pPlayer->GetID());
-						if(iDefense > iScore)
-						{
-							iScore = iDefense;
-						}
-					}
-				}
-			}
-			//Looking to build something else on top of a fort? It'd better be good.
-			else if((eImprovement != eFort) && (m_pTargetPlot->getImprovementType() != NO_IMPROVEMENT))
-			{
-				if(m_pTargetPlot->getImprovementType() == eFort)
-				{
-					iDefense = m_pTargetPlot->GetDefenseBuildValue(m_pPlayer->GetID());
-				}
-				if((iDefense * 3) > (iScore * 2))
-				{
+				iDefense = m_pTargetPlot->GetDefenseBuildValue(m_pPlayer->GetID());
+				if(iDefense==0)
 					return -1;
-				}
+
+				if(iDefense > iScore)
+					iScore = iDefense;
 			}
+		}
+	}
+	//Looking to build something else on top of a fort? It'd better be good.
+	else if((eImprovement != eFort) && (m_pTargetPlot->getImprovementType() != NO_IMPROVEMENT))
+	{
+		if(m_pTargetPlot->getImprovementType() == eFort)
+		{
+			iDefense = m_pTargetPlot->GetDefenseBuildValue(m_pPlayer->GetID());
+		}
+		if((iDefense * 3) > (iScore * 2))
+		{
+			return -1;
 		}
 	}
 #endif
