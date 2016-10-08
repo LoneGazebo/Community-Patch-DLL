@@ -884,14 +884,13 @@ private:
 	void ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDominanceZone* pZone, bool bOffensive);
 	void ExecuteWithdrawMoves();
 	void ExecuteEscortEmbarkedMoves();
-	void MoveUpReliefUnits(CvTacticalTarget& kTarget);
 
 	// Internal low-level utility routines
 #if defined(MOD_AI_SMART_RANGED_UNITS)
 	CvPlot* GetBestRepositionPlot(CvUnit* unitH, CvPlot* plotTarget, int iAcceptableDanger);
 #endif
 	bool FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0, bool bRangedOnly=false);
-	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, bool bNoRangedUnits=false, bool bNavalOnly=false, bool bMustMoveThrough=false, bool bIncludeBlockedUnits=false);
+	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, bool bNoRangedUnits=false, bool bNavalOnly=false);
 	bool FindUnitsForPillage(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain);
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot);
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
@@ -1070,12 +1069,12 @@ public:
 
 	int getPlotIndex() const { return pPlot ? pPlot->GetPlotIndex() : -1; }
 	eTactPlotType getType() const { return eType; }
-	int getNumAdjacentEnemies() const { return nEnemyUnitsAdjacent; }
-	int getNumAdjacentFriendlies() const { return nFriendlyUnitsAdjacent; }
-	bool isEnemy() const { return bBlockedByEnemyCity || bBlockedByEnemyUnit; }
+	int getNumAdjacentEnemies() const { return nEnemyCombatUnitsAdjacent; }
+	int getNumAdjacentFriendlies() const { return nFriendlyCombatUnitsAdjacent; }
+	bool isEnemy() const { return bBlockedByEnemyCity || bBlockedByEnemyCombatUnit; }
 	bool isEnemyCity() const { return bBlockedByEnemyCity; }
-	bool isEnemyCombatUnit() const { return bBlockedByEnemyUnit; }
-	bool isFriendlyCombatUnit() const { return bBlockedByFriendlyUnit; }
+	bool isEnemyCombatUnit() const { return bBlockedByEnemyCombatUnit; }
+	bool isFriendlyCombatUnit() const { return bBlockedByFriendlyCombatUnit; }
 	void setDamage(int iDamage) { iDamageDealt = iDamage; }
 	int getDamage() const { return iDamageDealt; }
 	void setInitialState(const CvPlot* plot, PlayerTypes ePlayer); //set initial state depending on current plot status
@@ -1087,13 +1086,13 @@ public:
 
 protected:
 	const CvPlot* pPlot;
-	int nEnemyUnitsAdjacent;
-	int nFriendlyUnitsAdjacent;
+	int nEnemyCombatUnitsAdjacent;
+	int nFriendlyCombatUnitsAdjacent;
 	int nSupportUnitsAdjacent;
 	//note that blocked by neutral cannot occur, we don't even create tactical plots in that case!
 	bool bBlockedByEnemyCity;
-	bool bBlockedByEnemyUnit;
-	bool bBlockedByFriendlyUnit;
+	bool bBlockedByEnemyCombatUnit;
+	bool bBlockedByFriendlyCombatUnit;
 	bool bSupportUnitPresent;
 	eTactPlotType eType;
 	int iDamageDealt;
