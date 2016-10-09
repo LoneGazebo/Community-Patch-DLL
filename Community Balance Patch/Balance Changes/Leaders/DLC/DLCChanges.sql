@@ -254,7 +254,7 @@ INSERT INTO Trait_MountainRangeYield
 	(TraitType, YieldType, Yield)
 VALUES
 	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_GOLD', '2'),
-	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_SCIENCE', '2'),
+	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_SCIENCE', '1'),
 	('TRAIT_GREAT_ANDEAN_ROAD', 'YIELD_FAITH', '1');
 
 INSERT INTO Trait_UnimprovedFeatureYieldChanges

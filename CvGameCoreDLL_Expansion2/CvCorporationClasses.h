@@ -232,8 +232,9 @@ public:
 	bool IsCorporationFreeFranchiseAbovePopular() const;
 	void SetCorporationFreeFranchiseAbovePopular(bool bValue);
 
-private:
 	void DestroyCorporation();
+
+private:
 
 	CvPlayer* m_pPlayer;
 	CorporationTypes m_eFoundedCorporation;

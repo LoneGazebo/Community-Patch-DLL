@@ -8416,10 +8416,16 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 				{
 					if(pkUnitInfo->GetResourceQuantityRequirement(eResource) > 0)
 					{
-						continue;
+						bValid = false;
+						break;
 					}
+					
 				}
 			}
+		}
+		if (pkUnitInfo->GetResourceType() != NO_RESOURCE)
+		{
+			continue;
 		}
 
 		// Unit has combat strength, make sure it isn't only defensive (and with no ranged combat ability)

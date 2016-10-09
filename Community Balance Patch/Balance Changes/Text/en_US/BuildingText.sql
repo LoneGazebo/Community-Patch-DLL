@@ -562,7 +562,7 @@ SET Text = '+25% generation of [ICON_GREAT_PEOPLE] Great People in the City, and
 WHERE Tag = 'TXT_KEY_WONDER_LEANING_TOWER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Requires completion of Rationalism Branch. A Great Scientist appears near the City where the Wonder was built. Reduces [ICON_HAPPINESS_3] Illiteracy in all cities. 50% more [ICON_RESEARCH] Science generated from Research Agreements. If Research Agreements are disabled, provides a +25% [ICON_RESEARCH] Science bonus in the City in which it is built.'
+SET Text = 'A Great Scientist appears near the City where the Wonder was built. Reduces [ICON_HAPPINESS_3] Illiteracy in all cities. 50% more [ICON_RESEARCH] Science generated from Research Agreements. If Research Agreements are disabled, provides a +25% [ICON_RESEARCH] Science bonus in the City in which it is built.'
 WHERE Tag = 'TXT_KEY_WONDER_PORCELAIN_TOWER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US

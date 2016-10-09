@@ -339,6 +339,8 @@ bool IsTestCityStrategy_NeedHappinessConnection(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessPillage(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessReligion(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessStarve(CvCity *pCity);
+
+
 int GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding, YieldTypes eYield);
 int GetBuildingGrandStrategyValue(CvCity *pCity, BuildingTypes eBuilding, PlayerTypes ePlayer);
 int GetBuildingPolicyValue(CvCity *pCity, BuildingTypes eBuilding);

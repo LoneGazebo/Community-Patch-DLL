@@ -2485,7 +2485,17 @@ local function GetReligionTooltip(city)
 							beliefs = {Players[city:GetOwner()]:GetBeliefInPantheon()}
 						end
 						for _,beliefID in pairs( beliefs or {} ) do
-							religionTip = religionTip .. "[NEWLINE][ICON_BULLET]"..L(GameInfo.Beliefs[ beliefID ].Description)
+							if(GameInfo.Beliefs[beliefID].Pantheon) then
+								religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_PANTHEON") .. ": " .. L(GameInfo.Beliefs[ beliefID ].Description)
+							elseif(GameInfo.Beliefs[beliefID].Founder) then
+								religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_FOUNDER") .. ": " .. L(GameInfo.Beliefs[ beliefID ].Description)
+							elseif(GameInfo.Beliefs[beliefID].Follower) then
+								religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_FOLLOWER") .. ": " .. L(GameInfo.Beliefs[ beliefID ].Description)
+							elseif(GameInfo.Beliefs[beliefID].Enhancer) then
+								religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_ENHANCER") .. ": " .. L(GameInfo.Beliefs[ beliefID ].Description)
+							elseif(GameInfo.Beliefs[beliefID].Reformation) then
+								religionTip = religionTip .. "[NEWLINE][ICON_BULLET] ".. L("TXT_KEY_RO_BELIEF_TYPE_REFORMATION") .. ": " .. L(GameInfo.Beliefs[ beliefID ].Description)
+							end
 						end
 						tips:insert( 1, religionTip )
 					else

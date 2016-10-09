@@ -2682,7 +2682,12 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			GET_PLAYER(getOwner()).changeNumResourceUsed((ResourceTypes) iResourceLoop, -getUnitInfo().GetResourceQuantityRequirement(iResourceLoop));
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if (isTrade() || IsCivilianUnit() || isNoSupply() || isContractUnit())
+	{
+		GET_PLAYER(getOwner()).changeNumFreeUnits(-1);
+	}
+#endif
 	//////////////////////////////////////////////////////////////////////////
 	// WARNING: This next statement will delete 'this'
 	// ANYTHING BELOW HERE MUST NOT REFERENCE THE UNIT!
@@ -2831,7 +2836,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 							pkCapturedUnit->kill(false);
 							pkCapturedUnit = NULL;
 						}
-						if(pkCapturedUnit->IsCombatUnit())
+						if (pkCapturedUnit != NULL && pkCapturedUnit->IsCombatUnit())
 						{
 							if(!pkCapturedUnit->jumpToNearestValidPlot())
 							{
@@ -13932,26 +13937,32 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 			return false;
 
 		// Resource Requirements
+#if defined(MOD_BALANCE_CORE)
+		if (!isBarbarian())
+		{
+#endif
 		int iNumOfThisResourceAvailable;
 		ResourceTypes eResource;
 		int iNumResourceNeeded;
-		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			eResource = (ResourceTypes) iResourceLoop;
+			eResource = (ResourceTypes)iResourceLoop;
 			iNumResourceNeeded = pUpgradeUnitInfo->GetResourceQuantityRequirement(eResource);
 
-			if(iNumResourceNeeded > 0)
+			if (iNumResourceNeeded > 0)
 			{
 				// Amount we have lying around
 				iNumOfThisResourceAvailable = kPlayer.getNumResourceAvailable(eResource);
 				// Amount this old unit is using
 				iNumOfThisResourceAvailable += m_pUnitInfo->GetResourceQuantityRequirement(eResource);
 
-				if(iNumOfThisResourceAvailable <= 0 || iNumOfThisResourceAvailable < iNumResourceNeeded)
+				if (iNumOfThisResourceAvailable <= 0 || iNumOfThisResourceAvailable < iNumResourceNeeded)
 					return false;
 			}
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		if(getDomainType() == DOMAIN_AIR)
 		{
 			// Yes! upgrade if in territory and on a carrier. Community Patch knows how to Retrofit bitch on a Carrier!

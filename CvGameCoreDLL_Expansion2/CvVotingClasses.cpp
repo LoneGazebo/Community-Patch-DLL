@@ -11763,26 +11763,26 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		bool bMajorityReligion = GetPlayer()->GetReligions()->HasReligionInMostCities(eTargetReligion);
 		if (bMajorityReligion)
 		{
-			iScore += 40;
+			iScore += 100;
 			if (bSeekingDiploVictory)
 			{
-				iScore += 20;
+				iScore += 100;
 			}
 #if defined(MOD_BALANCE_CORE)
 			if (bFoundedReligion)
 			{ 
-				iScore += 100;
+				iScore += 500;
 			}
 			else
 			{
-				iScore += -25;
+				iScore += -50;
 			}
 #endif
 		}
 		else
 		{
 #if defined(MOD_BALANCE_CORE)
-			iScore += -100;
+			iScore += -500;
 #else
 			iScore += -30;
 #endif
@@ -11796,21 +11796,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			if(pPlot)
 			{
 				CvCity* pHolyCity = pPlot->getPlotCity();
-				if (pHolyCity && pHolyCity->getOwner() == GetPlayer()->GetID())
-				{
-					iScore += 10;
-					if (bSeekingCultureVictory)
-					{
-						iScore += 30;
-					}
-				}
-#ifdef AUI_VOTING_TWEAKED_WORLD_RELIGION
-				else
+				if (pHolyCity && pHolyCity->getOwner() != GetPlayer()->GetID())
 				{
 					// Don't let someone going for culture get away with a world religion easily
-					if (pHolyCity && GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(pHolyCity->getOwner()) > GUESS_CONFIDENCE_UNSURE)
+					if (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(pHolyCity->getOwner()) == GUESS_CONFIDENCE_POSITIVE)
 					{
-						if (GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE") == GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(pHolyCity->getOwner()))
+						if (GET_PLAYER(pHolyCity->getOwner()).GetDiplomacyAI()->IsCloseToCultureVictory())
 						{
 							if (bMajorityReligion)
 							{
@@ -11818,24 +11809,23 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 							}
 							else
 							{
-								iScore += -200;
+								iScore += -300;
 							}
 						}
 
 					}
 				}
-#endif // AUI_VOTING_TWEAKED_WORLD_RELIGION
 			}
 		}
 
 		if (bFoundedReligion)
 		{
-			iScore += 40;
+			iScore += 100;
 		}
 		else if (GetPlayer()->GetReligions()->GetReligionCreatedByPlayer() != NO_RELIGION && GetPlayer()->GetReligions()->GetReligionCreatedByPlayer() != eTargetReligion)
 		{
 #if defined(MOD_BALANCE_CORE)
-			iScore += -40;
+			iScore += -50;
 #else
 			iScore += -20;
 #endif

@@ -437,7 +437,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 
 	// If just now can afford missionary, add a notification
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
-	bool bSendFaithPurchaseNotification = (kPlayer.GetFaithPurchaseType() == NO_AUTOMATIC_FAITH_PURCHASE);
+	bool bSendFaithPurchaseNotification = (kPlayer.isHuman() && kPlayer.GetFaithPurchaseType() == NO_AUTOMATIC_FAITH_PURCHASE);
 
 	if (bSendFaithPurchaseNotification) {
 		if (MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY) {
@@ -2311,7 +2311,7 @@ void CvGameReligions::DoUpdateReligion(PlayerTypes ePlayer)
 		for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
 		{
 			//We own this holy city? It is ours to work with now.
-			if(!it->m_bPantheon)
+			if (!it->m_eReligion != RELIGION_PANTHEON)
 			{
 				CvPlot* pHolyCityPlot = NULL;
 				pHolyCityPlot = GC.getMap().plot(it->m_iHolyCityX, it->m_iHolyCityY);
@@ -2336,10 +2336,10 @@ void CvGameReligions::DoUpdateReligion(PlayerTypes ePlayer)
 		else if(iNumHolyCities > 1)
 		{
 			ReligionTypes eBestReligion = NO_RELIGION;
-			int iBestValue = 0;
+			int iBestValue = -1;
 			for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
 			{
-				if(!it->m_bPantheon)
+				if(!it->m_eReligion != RELIGION_PANTHEON)
 				{
 					CvPlot* pHolyCityPlot = NULL;
 					pHolyCityPlot = GC.getMap().plot(it->m_iHolyCityX, it->m_iHolyCityY);
@@ -2353,7 +2353,7 @@ void CvGameReligions::DoUpdateReligion(PlayerTypes ePlayer)
 						}
 						if(it->m_eFounder == ePlayer)
 						{
-							iValue += 10;
+							iValue += 5;
 						}
 						if(it->m_bEnhanced)
 						{
@@ -2367,23 +2367,6 @@ void CvGameReligions::DoUpdateReligion(PlayerTypes ePlayer)
 						{
 							eBestReligion = it->m_eReligion;
 							iBestValue = iValue;
-						}
-						//Are we tied? Well, we need a breaker, so let's double up on enhanced/reformer status.
-						else if(iValue == iBestValue)
-						{
-							if(it->m_bEnhanced)
-							{
-								iValue += 1;
-							}
-							if(it->m_bReformed)
-							{
-								iValue += 1;
-							}
-							if(iValue > iBestValue)
-							{
-								eBestReligion = it->m_eReligion;
-								iBestValue = iValue;
-							}
 						}
 					}
 				}

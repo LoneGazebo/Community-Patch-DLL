@@ -587,6 +587,12 @@ public:
 	void SetOtherPlayerNumMajorsConquered(PlayerTypes ePlayer, int iValue);
 	void ChangeOtherPlayerNumMajorsConquered(PlayerTypes ePlayer, int iChange);
 
+#if defined(MOD_BALANCE_CORE)
+	int GetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer) const;
+	void SetNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTimesTheyPlottedAgainstUs(PlayerTypes ePlayer, int iChange);
+#endif
+
 	// Get the amount of warmonger hatred they generated
 	int GetOtherPlayerWarmongerAmount(PlayerTypes ePlayer);
 #if defined(MOD_API_EXTENSIONS)
@@ -1699,6 +1705,7 @@ private:
 		char m_aiOtherPlayerNumMajorsConquered[MAX_MAJOR_CIVS];
 
 #if defined(MOD_API_EXTENSIONS)
+		char m_aiTheyPlottedAgainstUs[MAX_MAJOR_CIVS];
 		int m_aiOtherPlayerWarmongerAmountTimes100[MAX_MAJOR_CIVS];
 #else
 		int m_aiOtherPlayerWarmongerAmount[MAX_MAJOR_CIVS];
@@ -2051,6 +2058,7 @@ private:
 	char* m_paiOtherPlayerNumMajorsAttacked;
 	char* m_paiOtherPlayerNumMajorsConquered;
 #if defined(MOD_API_EXTENSIONS)
+	char* m_paiTheyPlottedAgainstUs;
 	int*  m_paiOtherPlayerWarmongerAmountTimes100;
 #else
 	int*  m_paiOtherPlayerWarmongerAmount;

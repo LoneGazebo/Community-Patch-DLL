@@ -429,7 +429,7 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 	bool bMustBeDeepWaterNaval = false;
 	if(IsNavalOperation())
 	{
-		bMustBeDeepWaterNaval = OperationalAIHelpers::NeedOceanMoves(m_eOwner, pMusterPlot, pTargetPlot);
+		bMustBeDeepWaterNaval = pThisArmy->NeedOceanMoves();
 
 		CvPlot* pAdjacentPlot = NULL;
 		if(pMusterPlot->isCoastalLand())
@@ -503,7 +503,7 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 
 bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvArmyAI* pArmy)
 {
-	if (!pMusterPlot || !pTargetPlot)
+	if (!pMusterPlot || !pTargetPlot || pArmy == NULL)
 		return false;
 
 	//anything to do?
@@ -522,15 +522,14 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 
 	CvString strMsg;
 
-	CvMultiUnitFormationInfo* thisFormation = NULL;
-	if(pArmy != NULL)
-	{
-		thisFormation = GC.getMultiUnitFormationInfo(pArmy->GetFormationIndex());
-	}
+	//Every turn, expand our search until we fill this up (or abort).
+	int iTurns = (GC.getGame().getGameTurn() - GetTurnStarted());
+	iTurns += GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY();
+
+	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(pArmy->GetFormationIndex());
 
 	if (IsNavalOperation())
 	{
-		//todo: optimize this, it's double pathfinding
 		bool bMustBeDeepWaterNaval = pArmy->NeedOceanMoves();
 
 		SPathFinderUserData data(m_eOwner,PT_GENERIC_SAME_AREA,m_eEnemy);
@@ -538,21 +537,21 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 		if (GC.GetStepFinder().DoesPathExist(pMusterPlot, pTargetPlot, data))
 		{
 			ReachablePlots turnsFromMuster;
-			SPathFinderUserData data(m_eOwner,PT_GENERIC_REACHABLE_PLOTS,-1,GC.getAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY());
+			SPathFinderUserData data(m_eOwner, PT_GENERIC_REACHABLE_PLOTS, -1, iTurns);
 			turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 
 			WeightedUnitIdVector UnitChoices;
 			int iLoop = 0;
 			for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 			{
-				int iDistance = GC.getAI_TACTICAL_RECRUIT_RANGE();
-				if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,turnsFromMuster,pTargetPlot,true,bMustBeDeepWaterNaval,iDistance, thisFormation))
+				int iDistance = (GC.getAI_TACTICAL_RECRUIT_RANGE() + iTurns);
+				if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,turnsFromMuster,pTargetPlot,true,bMustBeDeepWaterNaval,iDistance, thisFormation, pArmy))
 				{
 					// When in doubt prefer units in our own territory
 					if (pLoopUnit->plot() && pLoopUnit->plot()->getOwner() != m_eOwner)
 						iDistance++;
 
-					UnitChoices.push_back(pLoopUnit->GetID(), 10000 - iDistance*30 + pLoopUnit->GetPower());
+					UnitChoices.push_back(pLoopUnit->GetID(), (10000 + pLoopUnit->GetPower()) - (iDistance * 30));
 				}
 			}
 
@@ -616,7 +615,7 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 		int iLoop = 0;
 		for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 		{
-			int iDistance = GC.getAI_TACTICAL_RECRUIT_RANGE();
+			int iDistance = (GC.getAI_TACTICAL_RECRUIT_RANGE() + iTurns);
 			if (OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit,pMusterPlot,turnsFromMuster,pTargetPlot,false,false,iDistance, thisFormation))
 			{
 				// When in doubt prefer units in our own territory
@@ -927,6 +926,7 @@ bool CvAIOperation::Move()
 		GET_PLAYER(m_eOwner).GetTacticalAI()->PlotArmyMovesEscort(pThisArmy);
 		break;
 	case AI_OPERATION_MOVETYPE_COMBAT:
+	case AI_OPERATION_MOVETYPE_COMBAT_ESCORT:
 		GET_PLAYER(m_eOwner).GetTacticalAI()->PlotArmyMovesCombat(pThisArmy);
 		break;
 	default:
@@ -1619,12 +1619,13 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 	m_eCurrentState = AI_OPERATION_STATE_RECRUITING_UNITS;
 	LogOperationSpecialMessage("Initial stage is recruiting");
 
+	SetTurnStarted(GC.getGame().getGameTurn());
+
 	//see if we can switch to gathering stage
 	CheckTransitionToNextStage();
 	//maybe we can even switch to movement stage
 	CheckTransitionToNextStage();
 
-	SetTurnStarted(GC.getGame().getGameTurn());
 	LogOperationStart();
 	return true;
 }
@@ -1881,24 +1882,63 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 				{
 					bInPlace = true;
 				}
-				else if (GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy)) //check for nearby enemy (but not for sneak attacks)
+				if (!bInPlace) //check for nearby enemy (for sneak attacks)
 				{
+					CvPlot *pOtherTarget = NULL;
 					for (CvUnit* pUnit = pThisArmy->GetFirstUnit(); pUnit; pUnit = pThisArmy->GetNextUnit())
 					{
 						for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 						{
 							CvPlot* pAdjacentPlot = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
 
-							if(pAdjacentPlot != NULL && ((pAdjacentPlot->getOwner() == m_eEnemy) || (pAdjacentPlot->getNumDefenders(m_eEnemy) > 0)))
+							if (GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy))
 							{
-								pTarget = pAdjacentPlot;
-								bInPlace = true;
-								break;
+								if (pAdjacentPlot != NULL && ((pAdjacentPlot->getOwner() == m_eEnemy) || (pAdjacentPlot->getNumDefenders(m_eEnemy) > 0)))
+								{
+									pOtherTarget = pAdjacentPlot;
+									bInPlace = true;
+									break;
+								}
+							}
+							else
+							{
+								if (pAdjacentPlot != NULL && (pAdjacentPlot->getOwner() == m_eEnemy))
+								{
+									pOtherTarget = pAdjacentPlot;
+									bInPlace = true;
+									break;
+								}
 							}
 						}
 
 						if (bInPlace)
 							break;
+					}
+					if (pOtherTarget != NULL)
+					{
+						// Notify tactical AI to focus on this area
+						if (GetTargetType() != AI_TACTICAL_TARGET_NONE)
+						{
+							CvTemporaryZone zone;
+							if (pOtherTarget->getWorkingCity() != NULL && pOtherTarget->getWorkingCity()->getOwner() == m_eEnemy)
+							{
+								zone.SetX(pOtherTarget->getWorkingCity()->getX());
+								zone.SetY(pOtherTarget->getWorkingCity()->getY());
+							}
+							else
+							{
+								zone.SetX(pOtherTarget->getX());
+								zone.SetY(pOtherTarget->getY());
+							}
+
+							zone.SetTargetType(GetTargetType());
+							zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+							if (IsNavalOperation() && !IsCivilianOperation())
+							{
+								zone.SetNavalInvasion(true);
+							}
+							GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
+						}
 					}
 				}
 
@@ -3872,7 +3912,7 @@ bool OperationalAIHelpers::IsSlotRequired(PlayerTypes ePlayer, const OperationSl
 }
 
 bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, const ReachablePlots& turnsFromMuster, 
-														CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iDistance, CvMultiUnitFormationInfo* thisFormation)
+														CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iDistance, CvMultiUnitFormationInfo* thisFormation, CvArmyAI* pArmy)
 {
 	if (!pLoopUnit->canRecruitFromTacticalAI() || pLoopUnit->isTrade())
 		return false;
@@ -3940,19 +3980,46 @@ bool OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlo
 	//Check formation entry here.
 	if(thisFormation != NULL)
 	{
-		bool bGood = false;
-		for(int iI = 0; iI < thisFormation->getNumFormationSlotEntries(); iI++)
+		if (pArmy)
 		{
-			const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);
-			if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
+			bool bGood = false;
+			for (int iI = 0; iI < thisFormation->getNumFormationSlotEntries(); iI++)
 			{
-				bGood = true;
-				break;
+				CvArmyFormationSlot* pSlot = pArmy->GetFormationSlot(iI);
+				if (!pSlot)
+					return false;
+
+				const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);
+				if (pSlot->GetUnitID() == ARMYSLOT_NO_UNIT)
+				{
+					if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
+					{
+						bGood = true;
+						break;
+					}
+				}
+			}
+			if (!bGood)
+			{
+				return false;
 			}
 		}
-		if(!bGood)
+		else
 		{
-			return false;
+			bool bGood = false;
+			for (int iI = 0; iI < thisFormation->getNumFormationSlotEntries(); iI++)
+			{
+				const CvFormationSlotEntry& thisSlotEntry = thisFormation->getFormationSlotEntry(iI);
+				if (unitInfo->GetUnitAIType(thisSlotEntry.m_primaryUnitType) || unitInfo->GetUnitAIType(thisSlotEntry.m_secondaryUnitType))
+				{
+					bGood = true;
+					break;
+				}
+			}
+			if (!bGood)
+			{
+				return false;
+			}
 		}
 	}
 	
@@ -4117,32 +4184,6 @@ CvPlot* OperationalAIHelpers::FindEnemies(PlayerTypes ePlayer, PlayerTypes eEnem
 	}
 
 	return pBestPlot;	
-}
-
-
-bool OperationalAIHelpers::NeedOceanMoves(PlayerTypes ePlayer, CvPlot* pMusterPlot, CvPlot* pTargetPlot)
-{
-	SPathFinderUserData data( ePlayer, PT_GENERIC_SAME_AREA, NO_PLAYER );
-	data.iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
-	int iOceanLength = GC.GetStepFinder().GetPathLengthInPlots(pMusterPlot, pTargetPlot, data);
-
-	if (iOceanLength<0)
-		//oh, what now? this really shouldn't happen		
-		return false;
-
-	//now try without ocean for comparison
-	data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
-	int iNoOceanLength = GC.GetStepFinder().GetPathLengthInPlots(pMusterPlot, pTargetPlot, data);
-
-	//obvious
-	if (iNoOceanLength<0)
-		return true;
-
-	//let's define it this way
-	if (iNoOceanLength > iOceanLength*2)
-		return true;
-
-	return false;
 }
 
 /// Find our port operation operations against this enemy should leave from

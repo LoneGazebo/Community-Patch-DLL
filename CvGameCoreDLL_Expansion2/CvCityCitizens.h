@@ -162,6 +162,10 @@ public:
 
 	int GetSpecialistCount(SpecialistTypes eIndex) const;
 	int GetTotalSpecialistCount() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetSpecialistSlots(SpecialistTypes eIndex) const;
+	int GetSpecialistSlotsTotal() const;
+#endif
 
 	int GetBuildingGreatPeopleRateChanges(SpecialistTypes eSpecialist) const;
 	void ChangeBuildingGreatPeopleRateChanges(SpecialistTypes eSpecialist, int iChange);
@@ -214,6 +218,9 @@ private:
 	int m_iNumDefaultSpecialists;
 	int m_iNumForcedDefaultSpecialists;
 	int* m_aiSpecialistCounts;
+#if defined(MOD_BALANCE_CORE)
+	int* m_aiSpecialistSlots;
+#endif
 	int* m_aiSpecialistGreatPersonProgressTimes100;
 	int* m_aiNumSpecialistsInBuilding;
 	int* m_aiNumForcedSpecialistsInBuilding;

@@ -478,6 +478,9 @@ public:
 	int foodDifference(bool bBottom = true) const;
 	int foodDifferenceTimes100(bool bBottom = true, CvString* toolTipSink = NULL) const;
 	int growthThreshold() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetUnhappinessFromCitySpecialists();
+#endif
 
 	int productionLeft() const;
 	int hurryCost(HurryTypes eHurry, bool bExtra) const;
@@ -516,7 +519,10 @@ public:
 	bool isAdjacentToArea(int iAreaID) const;
 	bool isMatchingArea(const CvPlot* pTestPlot) const;
 	bool hasSharedAdjacentArea(const CvCity* pOtherCity) const;
-
+#if defined(MOD_BALANCE_CORE)
+	void setDistanceToOtherCity(CvCity* pOtherCity, int iValue);
+	int getDistanceToOtherCity(CvCity* pOtherCity) const;
+#endif
 	void SetGarrison(CvUnit* pUnit);
 	bool HasGarrison() const;
 	CvUnit* GetGarrisonedUnit() const;
@@ -741,6 +747,15 @@ public:
 	int GetTradeRouteRecipientBonus() const;
 	void ChangeTradeRouteRecipientBonus(int iChange);
 
+	int GetTradeRouteSeaGoldBonus() const;
+	void ChangeTradeRouteSeaGoldBonus(int iChange);
+
+	int GetTradeRouteLandGoldBonus() const;
+	void ChangeTradeRouteLandGoldBonus(int iChange);
+
+	int GetNumTradeRouteBonus() const;
+	void ChangeNumTradeRouteBonus(int iChange);
+
 	bool isAreaBorderObstacle() const;
 
 	bool IsResistance() const;
@@ -766,6 +781,9 @@ public:
 	void UpdateComboHappiness();
 	void SetComboHappiness(int iValue);
 	int GetComboUnhappiness() const;
+	void SetBuildingClassHappinessFromReligion(int iValue);
+	int GetBuildingClassHappinessFromReligion() const;
+	void UpdateBuildingClassHappinessFromReligion();
 	int getHappinessDelta() const;
 	int getThresholdSubtractions(YieldTypes eYield, int iMod = 0) const;
 	int getThresholdAdditions() const;
@@ -797,6 +815,15 @@ public:
 	int getUnhappinessFromReligion() const;
 
 	int getUnhappinessAggregated() const;
+	
+	int GetNumPillagedPlots() const;
+	void SetNumPillagedPlots(int iValue);
+	void ChangeNumPillagedPlots(int iValue);
+
+	int GetGrowthFromTourism() const;
+	void SetGrowthFromTourism(int iValue);
+	void ChangeGrowthFromTourism(int iValue);
+	void UpdateGrowthFromTourism();
 #endif
 	int GetHappinessFromBuildings() const;
 	int GetBaseHappinessFromBuildings() const;
@@ -923,7 +950,8 @@ public:
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	int getEconomicValue(PlayerTypes ePossibleNewOwner = NO_PLAYER, int iNumTurnsForDepreciation = 100) const;
+	void updateEconomicValue();
+	int getEconomicValue(PlayerTypes ePossibleNewOwner) const;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void SetRank(int iRank);
@@ -1134,6 +1162,9 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void SetPurchased(BuildingClassTypes eBuildingClass, bool bValue);
 	bool IsPurchased(BuildingClassTypes eBuildingClass);
+
+	void SetBestForNationalWonder(BuildingClassTypes eBuildingClass, bool bValue);
+	bool IsBestForNationalWonder(BuildingClassTypes eBuildingClass);
 #endif
 	// END Base Yield
 
@@ -1369,7 +1400,6 @@ public:
 	void invalidatePopulationRankCache();
 	void invalidateYieldRankCache(YieldTypes eYield = NO_YIELD);
 
-	bool CommitToBuildingUnitForOperation();
 	UnitTypes GetUnitForOperation();
 	virtual bool IsBuildingUnitForOperation() const
 	{
@@ -1555,6 +1585,9 @@ protected:
 	FAutoVariable<int, CvCity> m_iNukeModifier;
 	FAutoVariable<int, CvCity> m_iTradeRouteTargetBonus;
 	FAutoVariable<int, CvCity> m_iTradeRouteRecipientBonus;
+	FAutoVariable<int, CvCity> m_iTradeRouteSeaGoldBonus;
+	FAutoVariable<int, CvCity> m_iTradeRouteLandGoldBonus;
+	FAutoVariable<int, CvCity> m_iNumTradeRouteBonus;
 	FAutoVariable<int, CvCity> m_iCultureUpdateTimer;
 	FAutoVariable<int, CvCity> m_iCitySizeBoost;
 	FAutoVariable<int, CvCity> m_iSpecialistFreeExperience;
@@ -1663,6 +1696,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iChangeMinorityUnhappiness;
 	FAutoVariable<int, CvCity> m_iTradeRouteSeaDistanceModifier;
 	FAutoVariable<int, CvCity> m_iTradeRouteLandDistanceModifier;
+	FAutoVariable<std::vector<int>, CvCity> m_aiEconomicValue;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromReligion;
 #if defined(MOD_BALANCE_CORE)
@@ -1687,6 +1721,7 @@ protected:
 
 	FAutoVariable<std::vector<bool>, CvCity> m_abEverOwned;
 #if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<bool>, CvCity> m_abIsBestForNationalWonder;
 	FAutoVariable<std::vector<bool>, CvCity> m_abIsPurchased;
 	FAutoVariable<std::vector<bool>, CvCity> m_abTraded;
 	FAutoVariable<std::vector<bool>, CvCity> m_abPaidAdoptionBonus;
@@ -1728,6 +1763,9 @@ protected:
 
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvCity> m_iComboUnhappiness;
+	FAutoVariable<int, CvCity> m_iPillagedPlots;
+	FAutoVariable<int, CvCity> m_iGrowthFromTourism;
+	FAutoVariable<int, CvCity> m_iBuildingClassHappinessFromReligion;
 	FAutoVariable<std::vector<int>, CvCity> m_vClosestNeighbors;
 	std::vector<int> m_vAttachedUnits;
 #endif

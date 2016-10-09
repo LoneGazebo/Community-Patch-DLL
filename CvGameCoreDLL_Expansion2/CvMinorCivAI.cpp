@@ -14535,7 +14535,7 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 #endif
 
-	if(!IsUnitSpawningDisabled(eMajor))
+	if(!IsUnitSpawningDisabled(eMajor) && GET_PLAYER(eMajor).GetNumUnitsOutOfSupply() <= 0)
 	{
 		// Minor must have Capital
 		CvCity* pMinorCapital = GetPlayer()->getCapitalCity();

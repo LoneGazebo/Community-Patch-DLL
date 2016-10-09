@@ -3950,7 +3950,7 @@ bool CvPlot::isActiveVisible() const
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
-bool CvPlot::isVisibleToCivTeam(bool bNoObserver) const
+bool CvPlot::isVisibleToCivTeam(bool bNoObserver, bool bNoMinor) const
 #else
 bool CvPlot::isVisibleToCivTeam() const
 #endif
@@ -3962,6 +3962,10 @@ bool CvPlot::isVisibleToCivTeam() const
 #if defined(MOD_BALANCE_CORE)
 		//Skip observer here.
 		if(bNoObserver && GET_TEAM((TeamTypes)iI).isObserver())
+		{
+			continue;
+		}
+		if (bNoMinor && GET_TEAM((TeamTypes)iI).isMinorCiv())
 		{
 			continue;
 		}
@@ -5958,10 +5962,14 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			FeatureTypes eFeature = getFeatureType();
 			if(eFeature != NO_FEATURE)
 			{
+				if (eNewValue != NO_PLAYER)
+				{
+					GET_PLAYER(eNewValue).SetNWOwned(eFeature, true);
+				}
 				PromotionTypes eFreePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getPromotionIfOwned();
 				if(eFreePromotion != NO_PROMOTION && eNewValue != NO_PLAYER)
 				{
-					if(!GET_PLAYER(eNewValue).IsFreePromotion(eFreePromotion))
+					if (!GET_PLAYER(eNewValue).IsFreePromotion(eFreePromotion))
 					{
 						GET_PLAYER(eNewValue).ChangeFreePromotionCount(eFreePromotion, 1);
 					}
@@ -5974,6 +5982,10 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 #if defined(MOD_BALANCE_CORE)
 				if(eFeature != NO_FEATURE)
 				{
+					if (eOldOwner != NO_PLAYER)
+					{
+						GET_PLAYER(eOldOwner).SetNWOwned(eFeature, false);
+					}
 					PromotionTypes eFreePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getPromotionIfOwned();
 					if(eFreePromotion != NO_PROMOTION && eOldOwner != NO_PLAYER)
 					{
@@ -7173,6 +7185,10 @@ ResourceTypes CvPlot::getResourceType(TeamTypes eTeam) const
 	{
 		if(m_eResourceType != NO_RESOURCE)
 		{
+#if defined(MOD_BALANCE_CORE_BARBARIAN_THEFT)
+			if (MOD_BALANCE_CORE_BARBARIAN_THEFT && (getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT()))
+				return NO_RESOURCE;
+#endif
 			CvGame& Game = GC.getGame();
 			bool bDebug = Game.isDebugMode() || GET_TEAM(eTeam).isObserver();
 
@@ -8348,6 +8364,17 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 #if defined(MOD_GLOBAL_STACKING_RULES)
 		calculateAdditionalUnitsFromImprovement();
 #endif
+		if (getWorkingCity() != NULL)
+		{
+			if (bPillaged)
+			{
+				getWorkingCity()->ChangeNumPillagedPlots(1);
+			}
+			else
+			{
+				getWorkingCity()->ChangeNumPillagedPlots(-1);
+			}
+		}
 		updateYield();
 
 		// Quantified Resource changes

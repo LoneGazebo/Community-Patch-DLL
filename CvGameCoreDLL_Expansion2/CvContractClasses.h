@@ -181,7 +181,6 @@ public:
 	int GetNumActivePlayerContracts() const;
 
 	void SetActiveContract(ContractTypes eContract, bool bValue);
-	void SetActiveContractTurns(ContractTypes eContract, int iValue);
 	void StartContract(ContractTypes eContract);
 	void EndContract(ContractTypes eContract);
 
@@ -197,7 +196,6 @@ public:
 private:
 	
 	CvPlayer* m_pPlayer;
-	std::vector<bool> m_abActiveContract;
 
 };
 

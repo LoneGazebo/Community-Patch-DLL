@@ -65,7 +65,7 @@
 			<Text>I'd rather invest in infrastructure.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3_HELP">
-			<Text>Spend {1_YieldCost}. A Harbor is constructed in the City.</Text>
+			<Text>Spend {1_Scaled}. A Harbor is constructed in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_1_SUCCESSFUL">
 			<Text>The fishermen from {2_City} succeeded on their voyage, and have returned with a large haul of fish!{5_Help}</Text>

@@ -2702,8 +2702,10 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, const CvAStarNode* node, i
 	int iRouteFactor = 1;
 
 	// super duper low costs for moving along routes - don't check for pillaging
-	if (pFromPlot->getRouteType() != NO_ROUTE && pToPlot->getRouteType() != NO_ROUTE)
-		iRouteFactor = 4;
+	if (pFromPlot->getRouteType() == ROUTE_RAILROAD && pToPlot->getRouteType() != ROUTE_RAILROAD)
+		iRouteFactor = 7;
+	else if (pFromPlot->getRouteType() != ROUTE_ROAD && pToPlot->getRouteType() != ROUTE_ROAD)
+		iRouteFactor = 5;
 	// low costs for moving along rivers
 	else if (pFromPlot->isRiver() && pToPlot->isRiver() && !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iRouteFactor = 2;
@@ -2740,6 +2742,11 @@ int TradeRouteLandValid(const CvAStarNode* parent, const CvAStarNode* node, int,
 	CvMap& kMap = GC.getMap();
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
+
+	if (pToPlot->isCity())
+	{
+		return TRUE;
+	}
 
 	if (pToPlot->isWater() || !pToPlot->isRevealed(pCacheData->GetTeam()))
 	{
