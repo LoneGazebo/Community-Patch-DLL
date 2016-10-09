@@ -861,7 +861,7 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 			continue;
 		}
 
-		if (iAlternativeTurnsAway*2 < iMoveTurnsAway)
+		if (iAlternativeTurnsAway != INT_MAX && iAlternativeTurnsAway*2 < iMoveTurnsAway)
 		{
 			//pretent we would have to move much further, which will reduce the score of the directives for this plot
 			iMoveTurnsAway *= 2;

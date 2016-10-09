@@ -1732,6 +1732,11 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, int, const
 	iCost += pTerrain ? pTerrain->getInfluenceCost() : 0;
 	iCost += pFeature ? pFeature->getInfluenceCost() : 0;
 
+	//going along routes is cheaper
+	bool bIsRoute = (pFromPlot->isRoute() && !pFromPlot->IsRoutePillaged() && pToPlot->isRoute() && !pToPlot->IsRoutePillaged());
+	if (bIsRoute)
+		iCost /= 2;
+
 	return max(1,iCost)*PATH_BASE_COST;
 }
 
