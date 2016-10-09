@@ -205,7 +205,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_DEFENDER_FAITH' AND EXISTS (SELECT * FROM COMMUNITY 
 
 -- Jesuit Education 
 UPDATE Language_en_US
-SET Text = 'May build Universities, Public Schools, and Research Labs with [ICON_PEACE] Faith. These buildings produce +6 [ICON_RESEARCH] Science each.'
+SET Text = 'May build Universities, Public Schools, and Research Labs with [ICON_PEACE] Faith. These buildings produce +5 [ICON_RESEARCH] Science each.'
 WHERE Tag = 'TXT_KEY_BELIEF_JESUIT_EDUCATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Religious Fervor (Now The One True Faith)
