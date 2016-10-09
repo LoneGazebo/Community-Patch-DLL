@@ -1,5 +1,5 @@
-﻿/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -829,7 +829,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if (iOwnCityDistance <= iMinDistance)
 		{
 			//this case should be handled by the distance check in CanFound() also
-			iValueModifier -= (20*iTotalPlotValue) / 100;
+			iValueModifier -= (30*iTotalPlotValue) / 100;
 			if (pDebug) vQualifiersNegative.push_back("(V) too close to existing friendly city");
 		}
 

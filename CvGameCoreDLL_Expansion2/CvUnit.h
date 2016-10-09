@@ -119,7 +119,7 @@ public:
 	};
 
 #if defined(MOD_BALANCE_CORE)
-	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT);
+	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true);
 #else
 	void init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0);
 #endif
@@ -127,7 +127,7 @@ public:
 	void initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	void initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT);
+	void initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true);
 #else
 	void initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical=true, int iMapLayer = DEFAULT_UNIT_MAP_LAYER, int iNumGoodyHutsPopped = 0);
 #endif
@@ -228,11 +228,7 @@ public:
 	void unloadAll();
 	const CvUnit* getTransportUnit() const;
 	CvUnit* getTransportUnit();
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	const CvUnit* getStackingUnit() const;
-	CvUnit* getStackingUnit();
-	void setStackingUnit(CvUnit* pStackingUnit);
-#endif
+
 	bool isCargo() const;
 	void setTransportUnit(CvUnit* pTransportUnit);
 
@@ -1168,10 +1164,12 @@ public:
 	bool IsHalfNearSapper(const CvCity* pTargetCity) const;
 	int GetNearbyUnitClassModifierFromUnitClass(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClassRange, int iUnitClassModifier, const CvPlot* pAtPlot = NULL) const;
-	void DoNearbyUnitPromotion(CvPlot* pPlot = NULL);
-
+	void DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot = NULL);
+	void DoImprovementExperience(const CvPlot* pPlot = NULL);
 	bool IsStrongerDamaged() const;
 	void ChangeIsStrongerDamaged(int iChange);
+	void DoStackedGreatGeneralExperience(const CvPlot* pPlot = NULL);
+	void DoConvertOnDamageThreshold(const CvPlot* pPlot = NULL);
 #endif
 
 	bool IsCanHeavyCharge() const;
@@ -1376,6 +1374,12 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int getYieldFromScouting(YieldTypes eIndex) const;
 	void changeYieldFromScouting(YieldTypes eIndex, int iChange);
+	bool isCultureFromExperienceDisbandUpgrade() const;
+	bool isConvertUnit() const;
+	bool isFreeUpgrade() const;
+	bool isUnitEraUpgrade() const;
+	bool isConvertOnDamage() const;
+	bool isConvertOnFullHP() const;
 #endif
 
 	int getExtraUnitCombatModifier(UnitCombatTypes eIndex) const;
@@ -1598,7 +1602,7 @@ public:
 	bool IsWithinDistanceOfUnitClass(UnitClassTypes eUnitClass, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsWithinDistanceOfUnitCombatType(UnitCombatTypes eUnitCombat, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsWithinDistanceOfUnitPromotion(PromotionTypes eUnitPromotion, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
-
+	bool IsWithinDistanceOfCity(int iDistance, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsAdjacentToUnit(UnitTypes eOtherUnit, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsAdjacentToUnitClass(UnitClassTypes eUnitClass, bool bIsFriendly, bool bIsEnemy) const;
 	bool IsAdjacentToUnitCombatType(UnitCombatTypes eUnitCombat, bool bIsFriendly, bool bIsEnemy) const;
@@ -1892,9 +1896,6 @@ protected:
 	IDInfo m_combatUnit;
 	IDInfo m_combatCity;
 	IDInfo m_transportUnit;
-#if defined(MOD_GLOBAL_STACKING_RULES)
-	IDInfo m_stackingUnit;
-#endif
 
 	std::vector<int> m_extraDomainModifiers;
 

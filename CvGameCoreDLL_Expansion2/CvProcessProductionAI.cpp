@@ -142,6 +142,9 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
+	if (kPlayer.isMinorCiv())
+		return iTempWeight;
+
 	int iModifier = 0;
 
 	//Bonus % additive. All values below will be added to this and combined with real value at end.
@@ -151,30 +154,33 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	//WAR
 	///////
 	//Fewer processes while at war.
-	int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
-	if(iNumWar > 0)
+	if (!m_pCity->IsPuppet())
 	{
-		iBonus -= (iNumWar * 50);
-		if(kPlayer.getNumCities() > 1 && m_pCity->GetThreatCriteria() != -1)
+		int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
+		if (iNumWar > 0)
 		{
-			//More cities = more threat.
-			int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatCriteria()) * 25;
-			if(iThreat > 0)
+			iBonus -= (iNumWar * 50);
+			if (kPlayer.getNumCities() > 1 && m_pCity->GetThreatCriteria() != -1)
 			{
-				iBonus -= iThreat;
+				//More cities = more threat.
+				int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatCriteria()) * 25;
+				if (iThreat > 0)
+				{
+					iBonus -= iThreat;
+				}
 			}
-		}
-		if(m_pCity->IsBastion())
-		{
-			iBonus -= 100;
-		}
-		if(m_pCity->IsBlockaded(true))
-		{
-			iBonus -= 100;
-		}
-		if(m_pCity->IsBlockadedWaterAndLand())
-		{
-			iBonus -= 100;
+			if (m_pCity->IsBastion())
+			{
+				iBonus -= 100;
+			}
+			if (m_pCity->IsBlockaded(true))
+			{
+				iBonus -= 100;
+			}
+			if (m_pCity->IsBlockadedWaterAndLand())
+			{
+				iBonus -= 100;
+			}
 		}
 	}
 	//Tiny army? Eek!
@@ -299,6 +305,10 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		CvLeagueProjectEntry* pInfo = GC.getLeagueProjectInfo(eLeagueProject);
 		if (pInfo && pInfo->GetProcess() == eProcess)
 		{
+			if (m_pCity->getProductionProcess() == eProcess)
+			{
+				iModifier += 250;
+			}
 			if (GC.getGame().GetGameLeagues()->CanContributeToLeagueProject(m_pCity->getOwner(), eLeagueProject))
 			{
 				FStaticVector<LeagueProjectRewardTypes, 4, true, c_eCiv5GameplayDLL> veRewards;
@@ -334,13 +344,13 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					// Happiness
 					if (pRewardInfo->GetHappiness() != 0)
 					{
-						iModifier += pRewardInfo->GetHappiness() * (20 - kPlayer.GetHappiness());
+						iModifier += pRewardInfo->GetHappiness() * (50 - kPlayer.GetHappiness());
 					}
 
 					// Free Social Policy
 					if (pRewardInfo->GetFreeSocialPolicies() > 0)
 					{
-						iModifier += (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned() * 5);
+						iModifier += (kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned() * 20);
 					}
 
 					EconomicAIStrategyTypes eStrategyCultureGS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CULTURE");
@@ -349,7 +359,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{			
 						if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
 						{
-							iModifier += 66;
+							iModifier += 250;
 						}
 					}
 
@@ -358,7 +368,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
 						{
-							iModifier += 66;
+							iModifier += 250;
 						}
 					}
 
@@ -367,11 +377,11 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier() > 0)
 						{
-							iModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier();
+							iModifier += (pRewardInfo->GetGoldenAgePoints() + kPlayer.GetPlayerTraits()->GetGoldenAgeDurationModifier()) * 5;
 						}
 						else
 						{
-							iModifier += kPlayer.getGoldenAgeModifier();
+							iModifier += (pRewardInfo->GetGoldenAgePoints() + kPlayer.getGoldenAgeModifier()) * 5;
 						}
 					}
 
@@ -382,7 +392,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{		
 						if(eStrategyUNGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyUNGS))
 						{
-							iModifier += 50;
+							iModifier += 250;
 						}
 					}
 					EconomicAIStrategyTypes eStrategySpaceShip = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");
@@ -391,7 +401,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						if(eStrategySpaceShip != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategySpaceShip))
 						{
-							iModifier += 50;
+							iModifier += 250;
 						}
 					}
 					
@@ -423,20 +433,20 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 						{
 							if(eStrategyConquest != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
 							{
-								iModifier += 50;
+								iModifier += 150;
 							}
 						}
 						if (pRewardInfo->GetBaseFreeUnits() > 0)
 						{
 							if(eStrategyConquest != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
 							{
-								iModifier += 50;
+								iModifier += 150;
 							}
 						}
 						// Temporary Culture Modifier
 						if (pRewardInfo->GetNumFreeGreatPeople() > 0)
 						{
-							iModifier += 50;
+							iModifier += 250;
 						}
 					}
 #endif
@@ -451,7 +461,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 
 	if(m_pCity->IsPuppet())
 	{
-		iTempWeight *= (60 + iModifier);
+		iTempWeight *= (75 + iModifier);
 		iTempWeight /= 100;
 	}
 	else

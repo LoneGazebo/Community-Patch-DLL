@@ -32,11 +32,6 @@ UPDATE CustomModOptions SET Value = 0 WHERE Name = 'ALTERNATE_ASSYRIA_TRAIT';
 -- Activates Active Diplomacy in DLL for Multiplayer trade deals between Human and AI
 UPDATE CustomModOptions SET Value = 1 WHERE Name = 'ACTIVE_DIPLOMACY';
 
-INSERT INTO Language_en_US
-			(Tag,										Text)
-SELECT		'TXT_KEY_SCIENCE_BOOST_CONQUEST_ASSYRIA',	'Your soldiers found [ICON_RESEARCH] Science during the conquest of {1_Name}!'
-WHERE EXISTS (SELECT * FROM CustomModOptions WHERE Name='ALTERNATE_ASSYRIA_TRAIT' AND Value= 1 );
-
 --Diplo Distances
 --2
 UPDATE Defines

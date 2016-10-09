@@ -200,7 +200,7 @@ int CvWonderProductionAI::GetWeight(BuildingTypes eBldg)
 }
 
 /// Recommend highest-weighted wonder, also return total weight of all buildable wonders
-BuildingTypes CvWonderProductionAI::ChooseWonder(bool bAdjustForOtherPlayers, int& iWonderWeight)
+BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers */, int& iWonderWeight)
 {
 	int iBldgLoop;
 	int iWeight;
@@ -239,7 +239,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bAdjustForOtherPlayers, in
 		if(pkBuildingInfo)
 		{
 			CvBuildingEntry& kBuilding = *pkBuildingInfo;
-			const CvBuildingClassInfo& kBuildingClassInfo = kBuilding.GetBuildingClassInfo();
+//			const CvBuildingClassInfo& kBuildingClassInfo = kBuilding.GetBuildingClassInfo();
 
 			// Make sure this wonder can be built now
 #if defined(MOD_AI_SMART_V3)
@@ -255,51 +255,6 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bAdjustForOtherPlayers, in
 				bool bAlreadyStarted = pWonderCity->GetCityBuildings()->GetBuildingProduction(eBuilding) > 0;
 				int iTempWeight = bAlreadyStarted ? m_WonderAIWeights.GetWeight(iBldgLoop) * 25 : m_WonderAIWeights.GetWeight(iBldgLoop);
 
-				// Don't build the UN if you aren't going for the diplo victory
-				if(pkBuildingInfo->IsDiplomaticVoting())
-				{
-					int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
-					int iSecuredVotes = 0;
-					TeamTypes myTeamID = m_pPlayer->getTeam();
-					PlayerTypes myPlayerID = m_pPlayer->GetID();
-
-					// Loop through Players to see if they'll vote for this player
-					PlayerTypes eLoopPlayer;
-					TeamTypes eLoopTeam;
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-					{
-						eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-						if(GET_PLAYER(eLoopPlayer).isAlive())
-						{
-							eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
-
-							// Liberated?
-							if(GET_TEAM(eLoopTeam).GetLiberatedByTeam() == myTeamID)
-							{
-								iSecuredVotes++;
-							}
-
-							// Minor civ?
-							else if(GET_PLAYER(eLoopPlayer).isMinorCiv())
-							{
-								// Best Relations?
-								if(GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly() == myPlayerID)
-								{
-									iSecuredVotes++;
-								}
-							}
-						}
-					}
-
-					int iNumberOfPlayersWeNeedToBuyOff = MAX(0, iVotesNeededToWin - iSecuredVotes);
-
-					if(!m_pPlayer->GetDiplomacyAI() || !m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory() || m_pPlayer->GetTreasury()->GetGold() < iNumberOfPlayersWeNeedToBuyOff * 500 )
-					{
-						iTempWeight = 0;
-					}
-				}
-
 				iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(iTempWeight, iTurnsRequired);
 #if defined(MOD_BALANCE_CORE)
 				if(iWeight > 0)
@@ -307,20 +262,6 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bAdjustForOtherPlayers, in
 					iWeight = pWonderCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight, 0, 0, 1);
 				}
 #endif
-				if(bAdjustForOtherPlayers && ::isWorldWonderClass(kBuildingClassInfo))
-				{
-					// Adjust weight for this wonder down based on number of other players currently working on it
-					int iNumOthersConstructing = 0;
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-						if(GET_PLAYER(eLoopPlayer).getBuildingClassMaking((BuildingClassTypes)kBuilding.GetBuildingClassType()) > 0)
-						{
-							iNumOthersConstructing++;
-						}
-					}
-					iWeight = iWeight / (1 + iNumOthersConstructing);
-				}
 
 				m_Buildables.push_back(iBldgLoop, iWeight);
 			}

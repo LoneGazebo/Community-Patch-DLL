@@ -67,6 +67,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetNumFreeLux() const;
 	int GetBeliefUnlock() const;
+	bool IsFreeUpgrade() const;
 #endif
 	bool IsSpreadReligion() const;
 	int GetReligionSpreads() const;
@@ -192,7 +193,13 @@ public:
 	int GetCooldown() const;
 	int GetGlobalFaithCooldown() const;
 	bool IsMounted() const;
-
+	bool IsCultureFromExperienceDisbandUpgrade() const;
+	bool IsConvertUnit() const;
+	bool IsUnitEraUpgrade() const;
+	bool IsConvertOnDamage() const;
+	int GetDamageThreshold() const;
+	UnitTypes GetConvertUnit() const;
+	bool IsConvertOnFullHP() const;
 #endif
 	// Accessor Functions (Arrays)
 	int GetPrereqAndTechs(int i) const;
@@ -215,6 +222,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool GetBuildOnFound(int i) const;
 	bool GetBuildingClassPurchaseRequireds(int i) const;
+	int GetEraCombatStrength(int i) const;
 #endif
 	bool GetFreePromotions(int i) const;
 
@@ -265,6 +273,7 @@ private:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iNumFreeLux;
+	bool m_bFreeUpgrade;
 #endif
 	bool m_bSpreadReligion;
 	int m_iReligionSpreads;
@@ -351,6 +360,13 @@ private:
 	int m_iCooldown;
 	int m_iGlobalFaithCooldown;
 	int m_iBeliefUnlock;
+	bool m_bCultureFromExperienceOnDisband;
+	bool m_bIsConvertUnit;
+	bool m_bUnitEraUpgrade;
+	bool m_bIsConvertOnDamage;
+	int m_iDamageThreshold;
+	UnitTypes m_eConvertUnit;
+	bool m_bIsConvertOnFullHP;
 #endif
 	int m_iCultureBombRadius;
 	int m_iGoldenAgeTurns;
@@ -407,6 +423,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	bool* m_pbBuildOnFound;
 	bool* m_pbBuildingClassPurchaseRequireds;
+	int* m_piEraCombatStrength;
 #endif
 	bool* m_pbFreePromotions;
 

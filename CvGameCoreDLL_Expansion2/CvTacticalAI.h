@@ -789,9 +789,15 @@ private:
 	// Internal turn update routines - commandeered unit processing
 	void UpdatePostures();
 	AITacticalPosture SelectPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture);
+#if defined(MOD_BALANCE_CORE)
+	AITacticalPosture SelectNavalPosture(CvTacticalDominanceZone* pZone, AITacticalPosture eLastPosture);
+#endif
 	void EstablishTacticalPriorities();
 	void EstablishBarbarianPriorities();
 	void FindTacticalTargets();
+#if defined(MOD_BALANCE_CORE)
+	void PrioritizeNavalTargets();
+#endif
 	void ProcessDominanceZones();
 	void AssignTacticalMove(CvTacticalMove move);
 	void AssignBarbarianMoves();
@@ -975,6 +981,9 @@ private:
 	// Lists of targets for the turn
 	TacticalList m_AllTargets;
 	TacticalList m_ZoneTargets;
+#if defined(MOD_BALANCE_CORE)
+	TacticalList m_NavalTargets;
+#endif
 
 	FStaticVector<CvTacticalPosture, SAFE_ESTIMATE_NUM_CITIES, true, c_eCiv5GameplayDLL, 0> m_Postures; //persistent!
 

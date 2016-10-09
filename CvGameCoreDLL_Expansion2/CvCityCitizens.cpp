@@ -31,6 +31,9 @@
 CvCityCitizens::CvCityCitizens()
 {
 	m_aiSpecialistCounts = NULL;
+#if defined(MOD_BALANCE_CORE)
+	m_aiSpecialistSlots = NULL;
+#endif
 	m_aiSpecialistGreatPersonProgressTimes100 = NULL;
 	m_aiNumSpecialistsInBuilding = NULL;
 	m_aiNumForcedSpecialistsInBuilding = NULL;
@@ -60,6 +63,9 @@ void CvCityCitizens::Uninit()
 	if(m_bInited)
 	{
 		SAFE_DELETE_ARRAY(m_aiSpecialistCounts);
+#if defined(MOD_BALANCE_CORE)
+		SAFE_DELETE_ARRAY(m_aiSpecialistSlots);
+#endif
 		SAFE_DELETE_ARRAY(m_aiSpecialistGreatPersonProgressTimes100);
 		SAFE_DELETE_ARRAY(m_aiNumSpecialistsInBuilding);
 		SAFE_DELETE_ARRAY(m_aiNumForcedSpecialistsInBuilding);
@@ -102,6 +108,14 @@ void CvCityCitizens::Reset()
 	{
 		m_aiSpecialistCounts[iI] = 0;
 	}
+#if defined(MOD_BALANCE_CORE)
+	CvAssertMsg(m_aiSpecialistSlots == NULL, "about to leak memory, CvCityCitizens::m_aiSpecialistSlots");
+	m_aiSpecialistSlots = FNEW(int[GC.getNumSpecialistInfos()], c_eCiv5GameplayDLL, 0);
+	for (iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+	{
+		m_aiSpecialistSlots[iI] = 0;
+	}
+#endif
 
 	CvAssertMsg(m_aiSpecialistGreatPersonProgressTimes100==NULL, "about to leak memory, CvCityCitizens::m_aiSpecialistGreatPersonProgressTimes100");
 	m_aiSpecialistGreatPersonProgressTimes100 = FNEW(int[GC.getNumSpecialistInfos()], c_eCiv5GameplayDLL, 0);
@@ -164,6 +178,9 @@ void CvCityCitizens::Read(FDataStream& kStream)
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiSpecialistCounts, GC.getNumSpecialistInfos());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiSpecialistGreatPersonProgressTimes100, GC.getNumSpecialistInfos());
+#if defined(MOD_BALANCE_CORE)
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiSpecialistSlots, GC.getNumSpecialistInfos());
+#endif
 
 	BuildingArrayHelpers::Read(kStream, m_aiNumSpecialistsInBuilding);
 	BuildingArrayHelpers::Read(kStream, m_aiNumForcedSpecialistsInBuilding);
@@ -215,7 +232,9 @@ void CvCityCitizens::Write(FDataStream& kStream)
 
 	CvInfosSerializationHelper::WriteHashedDataArray<SpecialistTypes, int>(kStream, m_aiSpecialistCounts, GC.getNumSpecialistInfos());
 	CvInfosSerializationHelper::WriteHashedDataArray<SpecialistTypes, int>(kStream, m_aiSpecialistGreatPersonProgressTimes100, GC.getNumSpecialistInfos());
-
+#if defined(MOD_BALANCE_CORE)
+	CvInfosSerializationHelper::WriteHashedDataArray<SpecialistTypes, int>(kStream, m_aiSpecialistSlots, GC.getNumSpecialistInfos());
+#endif
 	BuildingArrayHelpers::Write(kStream, m_aiNumSpecialistsInBuilding, GC.getNumBuildingInfos());
 	BuildingArrayHelpers::Write(kStream, m_aiNumForcedSpecialistsInBuilding, GC.getNumBuildingInfos());
 
@@ -1419,8 +1438,14 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 		if(pkBuildingInfo)
 		{
 			// Have this Building in the City?
-			if(GetCity()->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			if (GetCity()->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
+#if defined(MOD_BALANCE_CORE)
+				if (pkBuildingInfo->GetSpecialistType() != NO_SPECIALIST)
+				{
+					m_aiSpecialistSlots[pkBuildingInfo->GetSpecialistType()] = pkBuildingInfo->GetSpecialistCount();
+				}
+#endif
 				// Can't add more than the max
 				if(IsCanAddSpecialistToBuilding(eBuilding))
 				{
@@ -1583,7 +1608,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		//Increase penalty based on function of excess food value and growth thresholds. 
 		int iFoodNeeded = (m_pCity->growthThreshold() * 100);
 		int iRemainder = 0;
-		iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 3), 1));
+		iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 5), 1));
 		if((eFocus == CITY_AI_FOCUS_TYPE_FOOD || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth)
 		{
 			iPenalty += iRemainder;
@@ -1641,12 +1666,12 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			}
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 			{
-				iValue *= 5;
+				iValue *= 4;
 			}
 			if(eYield == YIELD_FOOD)
 			{
 				//More bonus = less need for food
-				iYield *= (GC.getAI_CITIZEN_VALUE_FOOD() - iFoodConsumptionBonus);
+				iYield *= max(1, (GC.getAI_CITIZEN_VALUE_FOOD() - iFoodConsumptionBonus));
 				if(eFocus == CITY_AI_FOCUS_TYPE_FOOD)
 				{
 					iYield *= 5;
@@ -1751,7 +1776,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			}
 		}
 	}
-	int iGPPYieldValue = pSpecialistInfo->getGreatPeopleRateChange() * 3; // TODO: un-hardcode this
+	int iGPPYieldValue = pSpecialistInfo->getGreatPeopleRateChange() * 2; // TODO: un-hardcode this
 	if(eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
 	{
 		iGPPYieldValue *= 5;
@@ -1781,6 +1806,10 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 	{
 		iMod += GetPlayer()->getGreatScientistRateModifier();
+		if (GetPlayer()->GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+		{
+			iMod *= 2;
+		}
 	}
 	else if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 	{ 
@@ -1789,6 +1818,10 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier();
 		}
 		iMod += GetPlayer()->getGreatWriterRateModifier();
+		if (GetPlayer()->GetDiplomacyAI()->IsGoingForCultureVictory())
+		{
+			iMod *= 2;
+		}
 	}
 	else if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 	{
@@ -1797,6 +1830,10 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier();
 		}
 		iMod += GetPlayer()->getGreatArtistRateModifier();
+		if (GetPlayer()->GetDiplomacyAI()->IsGoingForCultureVictory())
+		{
+			iMod *= 2;
+		}
 	}
 	else if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 	{
@@ -1805,19 +1842,35 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier();
 		}
 		iMod += GetPlayer()->getGreatMusicianRateModifier();
+		if (GetPlayer()->GetDiplomacyAI()->IsGoingForCultureVictory())
+		{
+			iMod *= 2;
+		}
 	}
 	else if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 	{
 		iMod += GetPlayer()->getGreatMerchantRateModifier();
+		if (GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory())
+		{
+			iMod *= 2;
+		}
 	}
 	else if((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
 	{
 		iMod += GetPlayer()->getGreatEngineerRateModifier();
+		if (GetPlayer()->GetDiplomacyAI()->IsGoingForWorldConquest())
+		{
+			iMod *= 2;
+		}
 	}
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	else if(MOD_DIPLOMACY_CITYSTATES && (UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 	{
 		iMod += GetPlayer()->getGreatDiplomatRateModifier();
+		if (GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory())
+		{
+			iMod *= 2;
+		}
 	}
 #endif
 
@@ -1879,20 +1932,10 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	//Penalties
 	//////////
 	int iHappinessYieldValue = 0;
-	CvCity* pAssumeCityAnnexed = NULL;
-	CvCity* pAssumeCityPuppeted = NULL;
-	if(m_pCity->IsPuppet())
-	{
-		pAssumeCityPuppeted = m_pCity;
-	}
-	if(m_pCity->IsOccupied() && !m_pCity->IsNoOccupiedUnhappiness())
-	{
-		pAssumeCityAnnexed = m_pCity;
-	}
 
-	iHappinessYieldValue = (GET_PLAYER(m_pCity->getOwner()).GetUnhappinessFromCitySpecialists(pAssumeCityAnnexed, pAssumeCityPuppeted) / 100);
+	iHappinessYieldValue = m_pCity->GetUnhappinessFromCitySpecialists();
 
-	iValue -= (iHappinessYieldValue * 8);
+	iValue -= iHappinessYieldValue;
 	iValue -= iPenalty;
 
 	//Bonus for art-producing specialists
@@ -3305,7 +3348,11 @@ void CvCityCitizens::DoSpecialists()
 					if(!GET_PLAYER(GetCity()->getOwner()).isMinorCiv())
 					{
 						// Reset progress on this Specialist
+#if defined(MOD_BALANCE_CORE)
+						DoResetSpecialistGreatPersonProgressTimes100(eSpecialist, (iGPThreshold * 100));
+#else
 						DoResetSpecialistGreatPersonProgressTimes100(eSpecialist);
+#endif
 
 						// Now... actually create the GP!
 						const UnitClassTypes eUnitClass = (UnitClassTypes) pkSpecialistInfo->getGreatPeopleUnitClass();
@@ -3660,6 +3707,33 @@ int CvCityCitizens::GetSpecialistCount(SpecialistTypes eIndex) const
 	return m_aiSpecialistCounts[eIndex];
 }
 
+#if defined(MOD_BALANCE_CORE)
+int CvCityCitizens::GetSpecialistSlots(SpecialistTypes eIndex) const
+{
+	CvAssert(eIndex > -1);
+	CvAssert(eIndex < GC.getNumSpecialistInfos());
+
+	return m_aiSpecialistSlots[eIndex];
+}
+int CvCityCitizens::GetSpecialistSlotsTotal() const
+{
+	int iNumSpecialists = 0;
+	SpecialistTypes eSpecialist;
+
+	for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
+	{
+		eSpecialist = (SpecialistTypes)iSpecialistLoop;
+
+		if (eSpecialist != (SpecialistTypes)GC.getDEFAULT_SPECIALIST())
+		{
+			iNumSpecialists += GetSpecialistSlots(eSpecialist);
+		}
+	}
+
+	return iNumSpecialists;
+}
+#endif
+
 /// Count up all the Specialists we have here
 int CvCityCitizens::GetTotalSpecialistCount() const
 {
@@ -3728,12 +3802,19 @@ void CvCityCitizens::ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes
 }
 
 /// Reset Specialist progress
+#if defined(MOD_BALANCE_CORE)
+void CvCityCitizens::DoResetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex, int iAmountToRemove)
+#else
 void CvCityCitizens::DoResetSpecialistGreatPersonProgressTimes100(SpecialistTypes eIndex)
+#endif
 {
 	CvAssert(eIndex > -1);
 	CvAssert(eIndex < GC.getNumSpecialistInfos());
-
+#if defined(MOD_BALANCE_CORE)
+	m_aiSpecialistGreatPersonProgressTimes100[eIndex] -= iAmountToRemove;
+#else
 	m_aiSpecialistGreatPersonProgressTimes100[eIndex] = 0;
+#endif
 }
 
 /// How many Specialists are assigned to eBuilding?
@@ -3944,9 +4025,10 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	CvPlayer& kPlayer = GET_PLAYER(GetCity()->getOwner());
 	CvUnit* newUnit = kPlayer.initUnit(eUnit, GetCity()->getX(), GetCity()->getY());
 
-#if defined(MOD_BALANCE_CORE)
-	if(!bIsFree)
+	// Bump up the count
+	if(bIncrementCount && !bCountAsProphet)
 	{
+#if defined(MOD_BALANCE_CORE)
 		if(kPlayer.GetPlayerTraits()->IsGPWLTKD())
 		{
 			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
@@ -3966,11 +4048,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 				}
 			}
 		}
-	}
 #endif
-	// Bump up the count
-	if(bIncrementCount && !bCountAsProphet)
-	{
 		if(newUnit->IsGreatGeneral())
 		{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
@@ -4073,19 +4151,24 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
 			if (MOD_GLOBAL_SEPARATE_GP_COUNTERS) 
 			{
-				if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")) {
+				if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+				{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 					kPlayer.incrementGreatMerchantsCreated(bIsFree);
 #else
 					kPlayer.incrementGreatMerchantsCreated();
 #endif
-				} else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")) {
+				}
+				else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+				{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 					kPlayer.incrementGreatScientistsCreated(bIsFree);
 #else
 					kPlayer.incrementGreatScientistsCreated();
 #endif
-				} else {
+				}
+				else
+				{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 					kPlayer.incrementGreatEngineersCreated(bIsFree);
 #else
@@ -4104,6 +4187,27 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	}
 	if(bCountAsProphet || newUnit->getUnitInfo().IsFoundReligion())
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(kPlayer.GetPlayerTraits()->IsGPWLTKD())
+		{
+			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iWLTKD /= 100;
+			if(iWLTKD > 0)
+			{
+				GetCity()->ChangeWeLoveTheKingDayCounter(iWLTKD);
+				CvNotifications* pNotifications = kPlayer.GetNotifications();
+				if(pNotifications)
+				{
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
+					strText <<  newUnit->getNameKey() << GetCity()->getNameKey();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
+					strSummary << GetCity()->getNameKey();
+					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), GetCity()->getX(), GetCity()->getY(), -1);
+				}
+			}
+		}
+#endif
 #if defined(MOD_BUGFIX_MINOR)
 		if (bIncrementCount)
 #endif

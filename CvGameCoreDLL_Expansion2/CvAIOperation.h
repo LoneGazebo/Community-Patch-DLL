@@ -71,6 +71,7 @@ enum AIOperationMovementType
     INVALID_AI_OPERATION_MOVE_TYPE = -1,
     AI_OPERATION_MOVETYPE_ESCORT,	//try to move somewhere while avoiding combat
     AI_OPERATION_MOVETYPE_COMBAT,	//try to move somewhere while expecting combat
+	AI_OPERATION_MOVETYPE_COMBAT_ESCORT, //Hybrid
 };
 
 enum AIOperationAbortReason
@@ -769,6 +770,10 @@ public:
 	{
 		return MUFORMATION_CLOSE_CITY_DEFENSE;
 	}
+	virtual bool CanTacticalAIInterruptOperation() const
+	{
+		return true;
+	}
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 private:
@@ -1006,7 +1011,7 @@ public:
 
 	CvAIOperationNavalInvasion() {}
 	virtual ~CvAIOperationNavalInvasion() {}
-	virtual AIOperationMovementType GetMoveType() const { return AI_OPERATION_MOVETYPE_ESCORT; }
+	virtual AIOperationMovementType GetMoveType() const { return AI_OPERATION_MOVETYPE_COMBAT_ESCORT; }
 	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iAreaID, CvCity* pTarget = NULL, CvCity* pMuster = NULL, bool bOceanMoves = false);
 
 	virtual bool IsNavalOperation() const
@@ -1034,7 +1039,7 @@ class CvAIOperationNavalInvasionSneaky : public CvAIOperationNavalInvasion
 public:
 	CvAIOperationNavalInvasionSneaky();
 	virtual ~CvAIOperationNavalInvasionSneaky();
-	virtual AIOperationMovementType GetMoveType() const { return AI_OPERATION_MOVETYPE_ESCORT; }
+	virtual AIOperationMovementType GetMoveType() const { return AI_OPERATION_MOVETYPE_COMBAT_ESCORT; }
 	virtual int GetOperationType() const
 	{
 		return AI_OPERATION_NAVAL_INVASION_SNEAKY;
@@ -1058,7 +1063,7 @@ class CvAIOperationNavalInvasionCityState : public CvAIOperationNavalInvasionSne
 public:
 	CvAIOperationNavalInvasionCityState() {}
 	virtual ~CvAIOperationNavalInvasionCityState() {}
-	virtual AIOperationMovementType GetMoveType() const { return AI_OPERATION_MOVETYPE_ESCORT; }
+	virtual AIOperationMovementType GetMoveType() const { return AI_OPERATION_MOVETYPE_COMBAT_ESCORT; }
 	virtual int GetOperationType() const
 	{
 		return AI_OPERATION_NAVAL_INVASION_CITY_STATE;
@@ -1123,8 +1128,7 @@ namespace OperationalAIHelpers
 	CvPlot* FindBestBarbCamp(PlayerTypes ePlayer, CvPlot** ppMuster);
 	CvPlot* FindEnemies(PlayerTypes ePlayer, PlayerTypes eEnemy, DomainTypes eDomain, bool bHomelandOnly, int iRefArea, CvPlot* pRefPlot);
 	bool IsSlotRequired(PlayerTypes ePlayer, const OperationSlot& thisOperationSlot);
-	bool IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, const ReachablePlots& turnsFromMuster, CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iDistance, CvMultiUnitFormationInfo* thisFormation = NULL);
-	bool NeedOceanMoves(PlayerTypes ePlayer, CvPlot* pMusterPlot, CvPlot* pTargetPlot);
+	bool IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, CvPlot* pMusterPlot, const ReachablePlots& turnsFromMuster, CvPlot* pTargetPlot, bool bMustNaval, bool bMustBeDeepWaterNaval, int& iDistance, CvMultiUnitFormationInfo* thisFormation = NULL, CvArmyAI* pThisArmy = NULL);
 	CvCity* GetNearestCoastalCityFriendly(PlayerTypes ePlayer, CvPlot* pRefPlot);
 	CvCity* GetNearestCoastalCityFriendly(PlayerTypes ePlayer, PlayerTypes eEnemy);
 	CvCity* GetNearestCoastalCityEnemy(PlayerTypes ePlayer, PlayerTypes eEnemy);

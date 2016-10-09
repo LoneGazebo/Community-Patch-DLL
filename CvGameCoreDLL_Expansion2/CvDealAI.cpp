@@ -1,5 +1,5 @@
-﻿/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1388,6 +1388,9 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 	// While we have a big number shall we apply some modifiers to it?
 	if(bFromMe)
 	{
+		//Let's not drain ourselves. Always keep at least 5GPT.
+		if (!bNumGPTFromValue && (iGPTorValue >= (GetPlayer()->calculateGoldRate() - 4)))
+			return MAX_INT;
 		int iModifier;
 #if defined(MOD_BALANCE_CORE)
 		if(bNumGPTFromValue)
@@ -6143,6 +6146,10 @@ void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontChange
 					iNumGPT = min(iNumGPT, GET_PLAYER(eThem).calculateGoldRate());
 #if defined(MOD_BALANCE_CORE)
 					int iItemValue = GetGPTforForValueExchange(iNumGPT, false, iDealDuration, /*bFromMe*/ false, eThem, bUseEvenValue, /*bRoundUp*/ false);
+					if (iItemValue == MAX_INT)
+					{
+						return;
+					}
 					int iAmountOverWeWillRequest = iTotalValue;
 					int iPercentOverWeWillRequest = 0;
 					if(GET_PLAYER(eThem).isHuman())
@@ -6487,11 +6494,14 @@ bool CvDealAI::IsOfferPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal, bool bEqual
 
 			DoAddItemsToDealForPeaceTreaty(eOtherPlayer, pDeal, ePeaceTreatyTheyreWillingToOffer, /*bMeSurrendering*/ false);
 		}
-
-		// Add the peace items to the deal so that we actually stop the war
-		int iPeaceTreatyLength = GC.getGame().getGameSpeedInfo().getPeaceDealDuration();
-		pDeal->AddPeaceTreaty(eMyPlayer, iPeaceTreatyLength);
-		pDeal->AddPeaceTreaty(eOtherPlayer, iPeaceTreatyLength);
+		else
+		{
+			// Add the peace items to the deal so that we actually stop the war
+			int iPeaceTreatyLength = GC.getGame().getGameSpeedInfo().getPeaceDealDuration();
+			pDeal->AddPeaceTreaty(eMyPlayer, iPeaceTreatyLength);
+			pDeal->AddPeaceTreaty(eOtherPlayer, iPeaceTreatyLength);
+			DoAddPlayersAlliesToTreaty(eOtherPlayer, pDeal);
+		}
 
 		result = true;
 	}
@@ -6552,13 +6562,11 @@ bool CvDealAI::IsOfferPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal, bool bEqual
 		else
 		{
 			// if the case is that we both want white peace, don't forget to add the city-states into the peace deal.
+			int iPeaceTreatyLength = GC.getGame().getGameSpeedInfo().getPeaceDealDuration();
+			pDeal->AddPeaceTreaty(eMyPlayer, iPeaceTreatyLength);
+			pDeal->AddPeaceTreaty(eOtherPlayer, iPeaceTreatyLength);
 			DoAddPlayersAlliesToTreaty(eOtherPlayer, pDeal);
 		}
-
-		int iPeaceTreatyLength = GC.getGame().getGameSpeedInfo().getPeaceDealDuration();
-		pDeal->AddPeaceTreaty(eMyPlayer, iPeaceTreatyLength);
-		pDeal->AddPeaceTreaty(eOtherPlayer, iPeaceTreatyLength);
-
 		result = true;
 	}
 
@@ -7251,7 +7259,7 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	// Set that this CvDeal is a demand
 	pDeal->SetDemandingPlayer(GetPlayer()->GetID());
 #if defined(MOD_BALANCE_CORE)
-	int iIdealValue = 40 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
+	int iIdealValue = 50 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
 	if(GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) <= STRENGTH_AVERAGE)
 	{
 		iIdealValue *= 5;

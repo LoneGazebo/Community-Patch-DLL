@@ -128,6 +128,7 @@ public:
 	int GetVotesPerGPT() const;
 	bool IsRequiresRail() const;
 	bool IsDummy() const;
+	int GetResourceQuantityToPlace() const;
 #endif
 	int GetSpecialistType() const;
 	int GetSpecialistCount() const;
@@ -469,6 +470,7 @@ public:
 	bool IsBuildingClassNeededAnywhere(int i) const;
 	bool IsBuildingClassNeededNowhere(int i) const;
 	int GetNumFreeSpecialUnits(int i) const;
+	int GetNumResourcesToPlace(int i) const;
 #endif
 	int GetNumFreeUnits(int i) const;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
@@ -547,6 +549,7 @@ private:
 	int m_iVotesPerGPT;
 	bool m_bRequiresRail;
 	bool m_bDummy;
+	int m_iResourceQuantityToPlace;
 #endif
 	int m_iSpecialistType;
 	int m_iSpecialistCount;
@@ -846,6 +849,7 @@ private:
 	bool* m_pbBuildingClassNeededAnywhere;
 	bool* m_pbBuildingClassNeededNowhere;
 	int* m_piNumSpecFreeUnits;
+	int* m_piNumResourceToPlace;
 #endif
 	int* m_piNumFreeUnits;
 
@@ -1009,6 +1013,10 @@ public:
 #else
 	int GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int GetThemingBonusIndex(BuildingTypes eBuilding) const;
+	void SetThemingBonusIndex(BuildingTypes eBuilding, int iIndex);
+#endif
 
 	int GetLandmarksTourismPercent() const;
 	void ChangeLandmarksTourismPercent(int iChange);
@@ -1063,6 +1071,7 @@ private:
 	int* m_paiNumFreeBuilding;
 #if defined(MOD_BALANCE_CORE)
 	int* m_paiFirstTimeBuilding;
+	int* m_paiThemingBonusIndex;
 #endif
 
 #if defined(MOD_BALANCE_CORE)

@@ -1233,6 +1233,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int getTechObsolete() const;
 	bool isKillOnlyCivilian() const;
+	bool IsFreeBestDomainUnit() const;
 #endif
 	int getImprovement() const;
 	int getRoute() const;
@@ -1269,6 +1270,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	bool m_bKillOnlyCivilian;
 	int m_iTechObsolete;
+	bool m_bFreeBestDomainUnit;
 #endif
 	int m_iImprovement;
 	int m_iRoute;

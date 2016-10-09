@@ -400,12 +400,13 @@ public:
 #else
 	int GetCultureFromImprovements() const;
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	void UpdateThemingBonusIndex(BuildingClassTypes eBuildingClass);
+#endif
 	void LogGreatWorks (FILogFile* pLog);
 
 private:
 	int GetThemingBonusIndex(BuildingClassTypes eBuildingClass) const;
-
 	CvCity *m_pCity;
 };
 

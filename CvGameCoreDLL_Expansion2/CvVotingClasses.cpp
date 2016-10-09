@@ -5270,7 +5270,7 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							if((eLoopPlayer != NO_PLAYER) && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != ePlayer))
 							{
-								if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eReligion) || (GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(eLoopPlayer) == eReligion))
+								if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eReligion))
 								{
 									iReligionAlly++;
 								}
@@ -5281,7 +5281,7 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 					if(pkPlot != NULL && pkPlot->getOwner() == ePlayer)
 					{
 						iVotes += it->GetEffects()->iVotesForFollowingReligion;
-						iVotes += iReligionAlly++;
+						iVotes += iReligionAlly;
 						return iVotes;
 					}
 					//What if we share the faith, but didn't create it?
@@ -11763,15 +11763,29 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		bool bMajorityReligion = GetPlayer()->GetReligions()->HasReligionInMostCities(eTargetReligion);
 		if (bMajorityReligion)
 		{
-			iScore += 40;
+			iScore += 100;
 			if (bSeekingDiploVictory)
 			{
-				iScore += 20;
+				iScore += 100;
 			}
+#if defined(MOD_BALANCE_CORE)
+			if (bFoundedReligion)
+			{ 
+				iScore += 500;
+			}
+			else
+			{
+				iScore += -50;
+			}
+#endif
 		}
 		else
 		{
+#if defined(MOD_BALANCE_CORE)
+			iScore += -500;
+#else
 			iScore += -30;
+#endif
 		}
 
 		const CvReligion* pkTargetReligion = GC.getGame().GetGameReligions()->GetReligion(eTargetReligion, GetPlayer()->GetID());
@@ -11782,21 +11796,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			if(pPlot)
 			{
 				CvCity* pHolyCity = pPlot->getPlotCity();
-				if (pHolyCity && pHolyCity->getOwner() == GetPlayer()->GetID())
-				{
-					iScore += 10;
-					if (bSeekingCultureVictory)
-					{
-						iScore += 30;
-					}
-				}
-#ifdef AUI_VOTING_TWEAKED_WORLD_RELIGION
-				else
+				if (pHolyCity && pHolyCity->getOwner() != GetPlayer()->GetID())
 				{
 					// Don't let someone going for culture get away with a world religion easily
-					if (pHolyCity && GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(pHolyCity->getOwner()) > GUESS_CONFIDENCE_UNSURE)
+					if (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(pHolyCity->getOwner()) == GUESS_CONFIDENCE_POSITIVE)
 					{
-						if (GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE") == GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(pHolyCity->getOwner()))
+						if (GET_PLAYER(pHolyCity->getOwner()).GetDiplomacyAI()->IsCloseToCultureVictory())
 						{
 							if (bMajorityReligion)
 							{
@@ -11804,23 +11809,26 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 							}
 							else
 							{
-								iScore += -200;
+								iScore += -300;
 							}
 						}
 
 					}
 				}
-#endif // AUI_VOTING_TWEAKED_WORLD_RELIGION
 			}
 		}
 
 		if (bFoundedReligion)
 		{
-			iScore += 40;
+			iScore += 100;
 		}
 		else if (GetPlayer()->GetReligions()->GetReligionCreatedByPlayer() != NO_RELIGION && GetPlayer()->GetReligions()->GetReligionCreatedByPlayer() != eTargetReligion)
 		{
+#if defined(MOD_BALANCE_CORE)
+			iScore += -50;
+#else
 			iScore += -20;
+#endif
 		}
 	}
 	// World Ideology

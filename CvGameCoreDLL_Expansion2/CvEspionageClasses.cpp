@@ -1,5 +1,5 @@
-﻿/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	� 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -566,7 +566,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 							Localization::String strNotification;
 							if (pSpy->m_bIsThief)
 							{
-								strSummary = Localization::Lookup("HEIST TIME");
+								strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_GW_S");
 								strSummary << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 								strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_GW");
 								strNotification << GetSpyRankName(pSpy->m_eRank);
@@ -5183,7 +5183,7 @@ void CvPlayerEspionage::BuildStealableGWList(PlayerTypes ePlayer)
 											
 											CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWorkIndex];
 
-											int CultureCost = GET_PLAYER(ePlayer).getNextPolicyCost() * 5;
+											int CultureCost = GET_PLAYER(ePlayer).getNextPolicyCost() * 8;
 											if (CultureCost > iMaxCultureCost)
 											{
 												iMaxCultureCost = CultureCost;
@@ -5209,7 +5209,7 @@ void CvPlayerEspionage::BuildStealableGWList(PlayerTypes ePlayer)
 
 											CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWorkIndex];
 
-											int CultureCost = GET_PLAYER(ePlayer).getNextPolicyCost() * 5;
+											int CultureCost = GET_PLAYER(ePlayer).getNextPolicyCost() * 8;
 											if (CultureCost > iMaxCultureCost)
 											{
 												iMaxCultureCost = CultureCost;
@@ -5235,7 +5235,7 @@ void CvPlayerEspionage::BuildStealableGWList(PlayerTypes ePlayer)
 
 											CvGreatWork work = GC.getGame().GetGameCulture()->m_CurrentGreatWorks[iGreatWorkIndex];
 
-											int CultureCost = GET_PLAYER(ePlayer).getNextPolicyCost() * 5;
+											int CultureCost = GET_PLAYER(ePlayer).getNextPolicyCost() * 8;
 											if (CultureCost > iMaxCultureCost)
 											{
 												iMaxCultureCost = CultureCost;
@@ -7092,6 +7092,9 @@ Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 			{
 				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNameKey();
 			}
+#if defined(MOD_BALANCE_CORE)
+			m_pPlayer->GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer, 1);
+#endif
 		}
 		else if(m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer == NO_PLAYER)  // if we don't know who the intrigue information is about
 		{
@@ -7178,6 +7181,9 @@ Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 					strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNameKey();
 				}
 			}
+#if defined(MOD_BALANCE_CORE)
+			m_pPlayer->GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer, 1);
+#endif
 		}
 		// other player is target
 		else if(m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer != NO_PLAYER && m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer != MAX_MAJOR_CIVS)
@@ -7268,6 +7274,9 @@ Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 					strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNameKey();
 				}
 			}
+#if defined(MOD_BALANCE_CORE)
+			m_pPlayer->GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer, 1);
+#endif
 		}
 		// other player is target
 		else if(m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer != NO_PLAYER && m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer != MAX_MAJOR_CIVS)
@@ -7355,6 +7364,9 @@ Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 			{
 				strResult << pBuildingInfo->GetTextKey();
 			}
+#if defined(MOD_BALANCE_CORE)
+			m_pPlayer->ChangeNumCivsConstructingWonder(m_aIntrigueNotificationMessages[uiIndex].m_eBuilding, 1);
+#endif
 		}
 		else if (m_aIntrigueNotificationMessages[uiIndex].m_eProject != NO_PROJECT)
 		{

@@ -8241,7 +8241,18 @@ void CvGame::doTurn()
 
 	if(isNetworkMultiPlayer())
 	{//autosave after doing a turn
+#if defined(MOD_BALANCE_CORE)
+		if (GC.getGame().isOption(GAMEOPTION_DYNAMIC_TURNS) || GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
+		{
+			gDLL->AutoSave(false, true);
+		}
+		else
+		{
+#endif
 		gDLL->AutoSave(false);
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 	}
 
 	gDLL->PublishNewGameTurn(getGameTurn());
@@ -8419,10 +8430,16 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 				{
 					if(pkUnitInfo->GetResourceQuantityRequirement(eResource) > 0)
 					{
-						continue;
+						bValid = false;
+						break;
 					}
+					
 				}
 			}
+		}
+		if (pkUnitInfo->GetResourceType() != NO_RESOURCE)
+		{
+			continue;
 		}
 
 		// Unit has combat strength, make sure it isn't only defensive (and with no ranged combat ability)
@@ -12879,8 +12896,12 @@ void CvGame::SpawnArchaeologySitesHistorically()
 
 		CvPlot* pPlot = theMap.plotByIndexUnchecked(i);
 		const ResourceTypes eResource = pPlot->getResourceType();
-
+#if defined(MOD_BALANCE_CORE)
+		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pPlot->getImprovementType());
+		if (pPlot->isWater() || !pPlot->isValidMovePlot(BARBARIAN_PLAYER) || (pImprovementInfo && pImprovementInfo->IsPermanent()))
+#else
 		if (pPlot->isWater() || !pPlot->isValidMovePlot(BARBARIAN_PLAYER))
+#endif
 		{
 			historicalDigSites[i].m_eArtifactType = NO_GREAT_WORK_ARTIFACT_CLASS;
 			historicalDigSites[i].m_eEra = NO_ERA;

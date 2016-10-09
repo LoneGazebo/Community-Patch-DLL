@@ -49,17 +49,17 @@
 	SELECT 'BALANCE_HAPPINESS_CAPITAL_MODIFIER', '25'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- 	Base Value of Test - Modifier to tech % cost. 1.55 is default.
+-- 	Base Value of Test - Modifier to tech % cost. 1.60 is default.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '1.55'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '1.60'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Base increase of threshold values based on # of citizens in cities you own. Modifier increases as cities grow. 100 is default. (Function is 'Need + ((CityPop x Value (134))/100)'. This value is added to City as a % modifier to needs.)
 
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER', '100'
+	SELECT 'BALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER', '110'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 -- Value by which yield/threshold difference is modified. Base value is 1%.
