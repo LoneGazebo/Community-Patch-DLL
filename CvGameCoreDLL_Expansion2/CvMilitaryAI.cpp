@@ -1451,7 +1451,7 @@ bool CvMilitaryAI::IsCurrentAttackTarget(CvCity* pCity)
 
 	return false;
 }
-bool CvMilitaryAI::GetCachedAttackTarget(PlayerTypes eEnemy, AIOperationTypes eAIOperationType)
+bool CvMilitaryAI::HaveCachedAttackTarget(PlayerTypes eEnemy, AIOperationTypes eAIOperationType)
 {
 	CachedTargetsMap::iterator itE = m_cachedTargets.find(eEnemy);
 	if (itE != m_cachedTargets.end())

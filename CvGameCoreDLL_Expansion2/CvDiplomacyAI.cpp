@@ -4449,9 +4449,9 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	//Target capacity should matter! If we can't get to them, let's not try to war on them!
 	if(!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()) && (viApproachWeights[MAJOR_CIV_APPROACH_WAR] > 0 || viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] > 0))
 	{
-		bool bTargetLand = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_CITY_SNEAK_ATTACK);
-		bool bTargetSeaPure = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_ONLY_CITY_ATTACK);
-		bool bTargetSea = GetPlayer()->GetMilitaryAI()->GetCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_INVASION_SNEAKY);
+		bool bTargetLand = GetPlayer()->GetMilitaryAI()->HaveCachedAttackTarget(ePlayer, AI_OPERATION_CITY_SNEAK_ATTACK);
+		bool bTargetSeaPure = GetPlayer()->GetMilitaryAI()->HaveCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_ONLY_CITY_ATTACK);
+		bool bTargetSea = GetPlayer()->GetMilitaryAI()->HaveCachedAttackTarget(ePlayer, AI_OPERATION_NAVAL_INVASION_SNEAKY);
 		if(!bTargetLand && !bTargetSeaPure && !bTargetSea)
 		{
 			CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_CITY_SNEAK_ATTACK, ePlayer);
