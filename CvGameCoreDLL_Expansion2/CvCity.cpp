@@ -28488,9 +28488,11 @@ int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender, const CvPlot* pInPlo
 	else if (!pDefender->isRangedSupportFire() && !pDefender->getDomainType() == DOMAIN_SEA)
 #endif
 	{
-		iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false, pInPlot, plot());
-		if (iDefenderStrength==0)
-			iDefenderStrength = pDefender->GetMaxDefenseStrength(pInPlot, NULL, /*bFromRangedAttack*/ true);
+		//have to consider embarkation explicitly
+		if ( (!pInPlot && pDefender->isEmbarked()) || (pInPlot && pInPlot->needsEmbarkation(pDefender) && pDefender->CanEverEmbark()) )
+			iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
+		else
+			iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, NULL, false, false, pInPlot, plot());
 	}
 	else
 	{
