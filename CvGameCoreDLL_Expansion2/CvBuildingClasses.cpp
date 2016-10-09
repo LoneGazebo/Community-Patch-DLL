@@ -3455,6 +3455,7 @@ CvCityBuildings::CvCityBuildings():
 	m_paiNumFreeBuilding(NULL),
 #if defined(MOD_BALANCE_CORE)
 	m_paiFirstTimeBuilding(NULL),
+	m_paiThemingBonusIndex(NULL),
 #endif
 	m_iNumBuildings(0),
 	m_iBuildingProductionModifier(0),
@@ -3508,6 +3509,9 @@ void CvCityBuildings::Init(CvBuildingXMLEntries* pPossibleBuildings, CvCity* pCi
 #if defined(MOD_BALANCE_CORE)
 	CvAssertMsg(m_paiFirstTimeBuilding==NULL, "about to leak memory, CvCityBuildings::m_paiFirstTimeBuilding");
 	m_paiFirstTimeBuilding = FNEW(int[iNumBuildings], c_eCiv5GameplayDLL, 0);
+
+	CvAssertMsg(m_paiThemingBonusIndex == NULL, "about to leak memory, CvCityBuildings::m_paiThemingBonusIndex");
+	m_paiThemingBonusIndex = FNEW(int[iNumBuildings], c_eCiv5GameplayDLL, 0);
 #endif
 
 	m_aBuildingYieldChange.clear();
@@ -3527,6 +3531,7 @@ void CvCityBuildings::Uninit()
 	SAFE_DELETE_ARRAY(m_paiNumFreeBuilding);
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_paiFirstTimeBuilding);
+	SAFE_DELETE_ARRAY(m_paiThemingBonusIndex);
 #endif
 }
 
@@ -3556,6 +3561,7 @@ void CvCityBuildings::Reset()
 		m_paiNumFreeBuilding[iI] = 0;
 #if defined(MOD_BALANCE_CORE)
 		m_paiFirstTimeBuilding[iI] = 0;
+		m_paiThemingBonusIndex[iI] = -1;
 #endif
 	}
 
@@ -3593,6 +3599,7 @@ void CvCityBuildings::Read(FDataStream& kStream)
 	BuildingArrayHelpers::Read(kStream, m_paiNumFreeBuilding);
 #if defined(MOD_BALANCE_CORE)
 	BuildingArrayHelpers::Read(kStream, m_paiFirstTimeBuilding);
+	BuildingArrayHelpers::Read(kStream, m_paiThemingBonusIndex);
 #endif
 
 	kStream >> m_aBuildingYieldChange;
@@ -3642,6 +3649,7 @@ void CvCityBuildings::Write(FDataStream& kStream)
 	BuildingArrayHelpers::Write(kStream, m_paiNumFreeBuilding, iNumBuildings);
 #if defined(MOD_BALANCE_CORE)
 	BuildingArrayHelpers::Write(kStream, m_paiFirstTimeBuilding, iNumBuildings);
+	BuildingArrayHelpers::Write(kStream, m_paiThemingBonusIndex, iNumBuildings);
 #endif
 
 	kStream << m_aBuildingYieldChange;
@@ -4873,7 +4881,21 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
 	}
 	return iRtnValue;
 }
-
+#if defined(MOD_BALANCE_CORE)
+int CvCityBuildings::GetThemingBonusIndex(BuildingTypes eBuilding) const
+{
+	return m_paiThemingBonusIndex[eBuilding];
+}
+void CvCityBuildings::SetThemingBonusIndex(BuildingTypes eBuilding, int iIndex)
+{
+	CvAssertMsg(eBuilding >= 0, "eBuilding expected to be >= 0");
+	CvAssertMsg(eBuilding < m_pBuildings->GetNumBuildings(), "eBuilding expected to be < m_pBuildings->GetNumBuildings()");
+	if (GetThemingBonusIndex(eBuilding) != iIndex)
+	{
+		m_paiThemingBonusIndex[eBuilding] = iIndex;
+	}
+}
+#endif
 /// Accessor: Get tourism converted from culture from Improvements and Wonders
 int CvCityBuildings::GetLandmarksTourismPercent() const
 {

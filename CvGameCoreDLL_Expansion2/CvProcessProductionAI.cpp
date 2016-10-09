@@ -142,6 +142,9 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
+	if (kPlayer.isMinorCiv())
+		return iTempWeight;
+
 	int iModifier = 0;
 
 	//Bonus % additive. All values below will be added to this and combined with real value at end.
@@ -151,30 +154,33 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	//WAR
 	///////
 	//Fewer processes while at war.
-	int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
-	if(iNumWar > 0)
+	if (!m_pCity->IsPuppet())
 	{
-		iBonus -= (iNumWar * 50);
-		if(kPlayer.getNumCities() > 1 && m_pCity->GetThreatCriteria() != -1)
+		int iNumWar = kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false);
+		if (iNumWar > 0)
 		{
-			//More cities = more threat.
-			int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatCriteria()) * 25;
-			if(iThreat > 0)
+			iBonus -= (iNumWar * 50);
+			if (kPlayer.getNumCities() > 1 && m_pCity->GetThreatCriteria() != -1)
 			{
-				iBonus -= iThreat;
+				//More cities = more threat.
+				int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatCriteria()) * 25;
+				if (iThreat > 0)
+				{
+					iBonus -= iThreat;
+				}
 			}
-		}
-		if(m_pCity->IsBastion())
-		{
-			iBonus -= 100;
-		}
-		if(m_pCity->IsBlockaded(true))
-		{
-			iBonus -= 100;
-		}
-		if(m_pCity->IsBlockadedWaterAndLand())
-		{
-			iBonus -= 100;
+			if (m_pCity->IsBastion())
+			{
+				iBonus -= 100;
+			}
+			if (m_pCity->IsBlockaded(true))
+			{
+				iBonus -= 100;
+			}
+			if (m_pCity->IsBlockadedWaterAndLand())
+			{
+				iBonus -= 100;
+			}
 		}
 	}
 	//Tiny army? Eek!
@@ -299,6 +305,10 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		CvLeagueProjectEntry* pInfo = GC.getLeagueProjectInfo(eLeagueProject);
 		if (pInfo && pInfo->GetProcess() == eProcess)
 		{
+			if (m_pCity->getProductionProcess() == eProcess)
+			{
+				iModifier += 250;
+			}
 			if (GC.getGame().GetGameLeagues()->CanContributeToLeagueProject(m_pCity->getOwner(), eLeagueProject))
 			{
 				FStaticVector<LeagueProjectRewardTypes, 4, true, c_eCiv5GameplayDLL> veRewards;
@@ -451,7 +461,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 
 	if(m_pCity->IsPuppet())
 	{
-		iTempWeight *= (60 + iModifier);
+		iTempWeight *= (75 + iModifier);
 		iTempWeight /= 100;
 	}
 	else

@@ -7972,6 +7972,23 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 	if(pTech->IsAllowsEmbarking())
 	{
 		changeCanEmbarkCount(iChange);
+#if defined(MOD_BALANCE_CORE)	
+		PlayerTypes eLoopPlayer;
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+			// Must be on this team
+			if (GET_PLAYER(eLoopPlayer).getTeam() != GetID())
+				continue;
+
+			// Player not ever alive
+			if (!GET_PLAYER(eLoopPlayer).isEverAlive())
+				continue;
+
+			GET_PLAYER(eLoopPlayer).GetMilitaryAI()->RefreshDistanceCaches();
+		}
+#endif
 	}
 
 	if(pTech->IsAllowsDefensiveEmbarking())
@@ -7982,6 +7999,23 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 	if(pTech->IsEmbarkedAllWaterPassage())
 	{
 		changeEmbarkedAllWaterPassage(iChange);
+#if defined(MOD_BALANCE_CORE)	
+		PlayerTypes eLoopPlayer;
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+			// Must be on this team
+			if (GET_PLAYER(eLoopPlayer).getTeam() != GetID())
+				continue;
+
+			// Player not ever alive
+			if (!GET_PLAYER(eLoopPlayer).isEverAlive())
+				continue;
+
+			GET_PLAYER(eLoopPlayer).GetMilitaryAI()->RefreshDistanceCaches();
+		}
+#endif
 	}
 
 	if(pTech->GetEmbarkedMoveChange() != 0)

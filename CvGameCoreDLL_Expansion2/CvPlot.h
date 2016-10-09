@@ -249,7 +249,7 @@ public:
 	bool isActiveVisible(bool bDebug) const;
 	bool isActiveVisible() const;
 #if defined(MOD_BALANCE_CORE)
-	bool isVisibleToCivTeam(bool bNoObserver = false) const;
+	bool isVisibleToCivTeam(bool bNoObserver = false, bool bNoMinor = false) const;
 #else
 	bool isVisibleToCivTeam() const;
 #endif

@@ -298,7 +298,12 @@ void CvPlayerAI::AI_unitUpdate()
 		GetTacticalAI()->Update();
 
 		// Skip homeland AI processing if a barbarian
-		if(m_eID != BARBARIAN_PLAYER)
+		bool bDoBarbs = false;
+		if (m_eID == BARBARIAN_PLAYER && GET_PLAYER(m_eID).getNumCities() > 0)
+		{
+			bDoBarbs = true;
+		}
+		if ((m_eID == BARBARIAN_PLAYER && bDoBarbs) || (m_eID != BARBARIAN_PLAYER))
 		{
 			// Now its the homeland AI's turn.
 			GetHomelandAI()->RecruitUnits();
@@ -1011,10 +1016,10 @@ void CvPlayerAI::AI_launch(VictoryTypes eVictory)
 
 	launch(eVictory);
 }
-OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity)
+OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, bool& bCitySameAsMuster)
 {
 	OperationSlot thisSlot;
-
+	OperationSlot bestSlot;
 	// search through our operations till we find one that needs a unit
 	std::map<int, CvAIOperation*>::iterator iter;
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
@@ -1023,22 +1028,31 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity)
 		if(pThisOperation)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if(pThisOperation->IsNavalOperation())
+			CvPlot *pMusterPlot = pThisOperation->GetMusterPlot();
+
+			if (!pMusterPlot)
+				continue;
+
+			if (pThisOperation->IsNavalOperation() && !pCity->isMatchingArea(pMusterPlot))
 			{
-				CvPlot *pMusterPlot = pThisOperation->GetMusterPlot();
-				if (!pMusterPlot || !pCity->isMatchingArea(pMusterPlot))
 					continue;
 			}				
 #endif
 			thisSlot = pThisOperation->PeekAtNextUnitToBuild();
-			if(thisSlot.IsValid())
+			if (thisSlot.IsValid() && OperationalAIHelpers::IsSlotRequired(GetID(), thisSlot))
 			{
+				bestSlot = thisSlot;
+			}
+
+			if (pCity == pMusterPlot->getWorkingCity())
+			{
+				bCitySameAsMuster = true;
 				break;
 			}
 		}
 	}
 
-	return thisSlot;
+	return bestSlot;
 }
 
 
@@ -2107,7 +2121,7 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, CvUnit* pUnit)
 	//Return score if we can't embark and they aren't on our landmass.
 	if(pCity->getArea() != pUnit->plot()->getArea())
 	{
-		if(!CanCrossOcean())
+		if(!GET_TEAM(getTeam()).canEmbark())
 		{
 			return iScore;
 		}
@@ -2138,7 +2152,7 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, CvUnit* pUnit)
 		return iScore;
 	}
 
-	iScore = 100;
+	iScore = 500;
 
 	// Subtract distance (XML value important here!)
 	int iDistance = (plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY()) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE());
@@ -2158,7 +2172,7 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, CvUnit* pUnit)
 	//Let's downplay far/distant minors without full embarkation.
 	else if((pCity->getArea() != pUnit->getArea()) && !GET_PLAYER(GetID()).CanCrossOcean())
 	{
-		iDistance *= 2;
+		iDistance *= 4;
 	}
 
 	//If this is way too far away, let's not penalize it too much.

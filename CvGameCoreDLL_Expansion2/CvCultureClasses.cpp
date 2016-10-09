@@ -781,6 +781,10 @@ void CvGameCulture::MoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildin
 #if defined(MOD_BALANCE_CORE)
 	if(pCity1 != NULL)
 	{
+		if ((BuildingClassTypes)iBuildingClass1 != NO_BUILDINGCLASS)
+		{
+			pCity1->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClass1);
+		}
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			YieldTypes eYield = (YieldTypes) iI;
@@ -794,6 +798,10 @@ void CvGameCulture::MoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildin
 	}
 	if(pCity2 != NULL)
 	{
+		if ((BuildingClassTypes)iBuildingClass2 != NO_BUILDINGCLASS)
+		{
+			pCity2->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClass2);
+		}
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			YieldTypes eYield = (YieldTypes) iI;
@@ -1579,27 +1587,51 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 #if defined(MOD_BALANCE_CORE)
 	if(bSecondUpdate || bUpdate)
 	{
-		int iLoop;
-		CvCity* pLoopCity = NULL;
-		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		std::vector<CvCity*> CityList;
+		for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
 		{
-			for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
+			CvCity* pCity = m_pPlayer->getCity(itBuilding->m_iCityID);
+			if (pCity != NULL)
 			{
-				if(m_pPlayer->getCity(itBuilding->m_iCityID) == pLoopCity)
+				CvBuildingEntry *pkEntry = GC.getBuildingInfo(itBuilding->m_eBuilding);
+				if (pkEntry)
 				{
-					for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-					{
-						YieldTypes eYield = (YieldTypes) iI;
-						if(eYield == NO_YIELD)
-							continue;
-
-						pLoopCity->UpdateCityYields(eYield);
-					}
-					pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
-					pLoopCity->GetCityCulture()->CalculateBaseTourism();
-					//Only once per city.
-					break;
+					pCity->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)pkEntry->GetBuildingClassType());
 				}
+			}
+		}
+		for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
+		{
+			CvCity* pCity = m_pPlayer->getCity(itBuilding->m_iCityID);
+			if (pCity != NULL)
+			{
+				bool bAlreadyChecked = false;
+				if (CityList.size() > 0)
+				{
+					for (uint ui = 0; ui < CityList.size(); ui++)
+					{
+						if (pCity == CityList[ui])
+						{
+							bAlreadyChecked = true;
+							break;
+						}
+					}
+				}
+
+				if (bAlreadyChecked)
+					continue;
+
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				{
+					YieldTypes eYield = (YieldTypes) iI;
+					if(eYield == NO_YIELD)
+						continue;
+
+					pCity->UpdateCityYields(eYield);
+				}
+				pCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+				pCity->GetCityCulture()->CalculateBaseTourism();
+				CityList.push_back(pCity);
 			}
 		}
 	}
@@ -7519,6 +7551,9 @@ int CvCityCulture::GetThemingBonusIndex(BuildingClassTypes eBuildingClass) const
 		{
 			if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
+#if defined(MOD_BALANCE_CORE)
+				return m_pCity->GetCityBuildings()->GetThemingBonusIndex(eBuilding);
+#else
 				CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
 				if (pkBuilding)
 				{
@@ -7537,11 +7572,53 @@ int CvCityCulture::GetThemingBonusIndex(BuildingClassTypes eBuildingClass) const
 
 					return CultureHelpers::GetThemingBonusIndex(m_pCity->getOwner(), pkBuilding, aGreatWorkIndices);
 				}
+#endif
 			}
 		}
 	}
 	return -1;
 }
+#if defined(MOD_BALANCE_CORE)
+/// Which of the theming bonuses for this building is active
+void CvCityCulture::UpdateThemingBonusIndex(BuildingClassTypes eBuildingClass)
+{
+	vector<int> aGreatWorkIndices;
+	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
+	if (pkCivInfo)
+	{
+		BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eBuildingClass);
+		if (NO_BUILDING != eBuilding)
+		{
+			if (m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			{
+				CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+				if (pkBuilding)
+				{
+					int iNumSlots = pkBuilding->GetGreatWorkCount();
+					if (m_pCity->GetCityBuildings()->GetNumGreatWorksInBuilding(eBuildingClass) < iNumSlots)
+					{
+						m_pCity->GetCityBuildings()->SetThemingBonusIndex(eBuilding , -1);
+						return;
+					}
+
+					// Store info on the attributes of all our Great Works
+					for (int iI = 0; iI < iNumSlots; iI++)
+					{
+						int iGreatWork = m_pCity->GetCityBuildings()->GetBuildingGreatWork(eBuildingClass, iI);
+						aGreatWorkIndices.push_back(iGreatWork);
+					}
+
+					int iValue = CultureHelpers::GetThemingBonusIndex(m_pCity->getOwner(), pkBuilding, aGreatWorkIndices);
+
+					m_pCity->GetCityBuildings()->SetThemingBonusIndex(eBuilding, iValue);
+					return;
+				}
+			}
+			m_pCity->GetCityBuildings()->SetThemingBonusIndex(eBuilding, -1);
+		}
+	}
+}
+#endif
 
 // HELPER FUNCTIONS
 

@@ -1013,6 +1013,10 @@ public:
 #else
 	int GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int GetThemingBonusIndex(BuildingTypes eBuilding) const;
+	void SetThemingBonusIndex(BuildingTypes eBuilding, int iIndex);
+#endif
 
 	int GetLandmarksTourismPercent() const;
 	void ChangeLandmarksTourismPercent(int iChange);
@@ -1067,6 +1071,7 @@ private:
 	int* m_paiNumFreeBuilding;
 #if defined(MOD_BALANCE_CORE)
 	int* m_paiFirstTimeBuilding;
+	int* m_paiThemingBonusIndex;
 #endif
 
 #if defined(MOD_BALANCE_CORE)

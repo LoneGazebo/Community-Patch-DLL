@@ -1388,6 +1388,9 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 	// While we have a big number shall we apply some modifiers to it?
 	if(bFromMe)
 	{
+		//Let's not drain ourselves. Always keep at least 5GPT.
+		if (!bNumGPTFromValue && (iGPTorValue >= (GetPlayer()->calculateGoldRate() - 4)))
+			return MAX_INT;
 		int iModifier;
 #if defined(MOD_BALANCE_CORE)
 		if(bNumGPTFromValue)
@@ -6143,6 +6146,10 @@ void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontChange
 					iNumGPT = min(iNumGPT, GET_PLAYER(eThem).calculateGoldRate());
 #if defined(MOD_BALANCE_CORE)
 					int iItemValue = GetGPTforForValueExchange(iNumGPT, false, iDealDuration, /*bFromMe*/ false, eThem, bUseEvenValue, /*bRoundUp*/ false);
+					if (iItemValue == MAX_INT)
+					{
+						return;
+					}
 					int iAmountOverWeWillRequest = iTotalValue;
 					int iPercentOverWeWillRequest = 0;
 					if(GET_PLAYER(eThem).isHuman())
@@ -7252,7 +7259,7 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	// Set that this CvDeal is a demand
 	pDeal->SetDemandingPlayer(GetPlayer()->GetID());
 #if defined(MOD_BALANCE_CORE)
-	int iIdealValue = 40 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
+	int iIdealValue = 50 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
 	if(GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) <= STRENGTH_AVERAGE)
 	{
 		iIdealValue *= 5;

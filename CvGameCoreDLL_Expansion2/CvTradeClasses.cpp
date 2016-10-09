@@ -617,6 +617,18 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 #endif
 #endif
 #if defined(MOD_BALANCE_CORE_DEALS)
+	if (eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
+	{
+		if (pDestCity->getOwner() != NO_PLAYER && GET_PLAYER(pDestCity->getOwner()).isMajorCiv())
+		{
+			int iGrowthTourism = GET_PLAYER(pOriginCity->getOwner()).GetCulture()->GetInfluenceTradeRouteGrowthBonus(pDestCity->getOwner());
+			if (iGrowthTourism != 0)
+			{
+				pOriginCity->ChangeGrowthFromTourism(iGrowthTourism);
+			}
+		}
+
+	}
 	if(MOD_BALANCE_CORE_DEALS && (eConnectionType == TRADE_CONNECTION_INTERNATIONAL))
 	{
 		if(!GET_PLAYER(eDestPlayer).isHuman() && !GET_PLAYER(eDestPlayer).isMinorCiv() && !GET_PLAYER(eOriginPlayer).isMinorCiv())
@@ -1060,6 +1072,40 @@ bool CvGameTrade::EmptyTradeRoute(int iIndex)
 			pkUnit->kill(false);
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	if (kTradeConnection.m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
+	{
+		int iDestX = kTradeConnection.m_iDestX;
+		int iDestY = kTradeConnection.m_iDestY;
+		int iOriginX = kTradeConnection.m_iOriginX;
+		int iOriginY = kTradeConnection.m_iOriginY;
+		//Free lump resource when you complete an international trade route.
+		CvPlot* pOriginPlot = GC.getMap().plot(iOriginX, iOriginY);
+		CvPlot* pDestPlot = GC.getMap().plot(iDestX, iDestY);
+
+		CvCity* pOriginCity = NULL;
+		CvCity* pDestCity = NULL;
+		if (pOriginPlot != NULL)
+		{
+			pOriginCity = pOriginPlot->getPlotCity();
+		}
+		if (pDestPlot != NULL)
+		{
+			pDestCity = pDestPlot->getPlotCity();
+		}
+		if (pOriginCity != NULL && pDestCity != NULL)
+		{
+			if (pDestCity->getOwner() != NO_PLAYER && GET_PLAYER(pDestCity->getOwner()).isMajorCiv())
+			{
+				int iGrowthTourism = GET_PLAYER(pOriginCity->getOwner()).GetCulture()->GetInfluenceTradeRouteGrowthBonus(pDestCity->getOwner());
+				if (iGrowthTourism != 0)
+				{
+					pOriginCity->ChangeGrowthFromTourism(-iGrowthTourism);
+				}
+			}
+		}
+	}
+#endif
 
 	//reset to default
 	kTradeConnection = TradeConnection();
@@ -2740,37 +2786,14 @@ int CvPlayerTrade::GetTradeConnectionYourBuildingValueTimes100(const TradeConnec
 	if (bAsOriginPlayer)
 	{
 		CvCity* pOriginCity = CvGameTrade::GetOriginCity(kTradeConnection);
-		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
-		{
-			BuildingTypes eBuilding = (BuildingTypes)GET_PLAYER(pOriginCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(iI);
-			if(eBuilding != NO_BUILDING)
-			{
-				CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
-				if (!pBuildingEntry)
-				{
-					continue;
-				}
 
-				if (pBuildingEntry && pOriginCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()))
-				{
-					if (pBuildingEntry->GetTradeRouteSeaGoldBonus() > 0 && kTradeConnection.m_eDomain == DOMAIN_SEA)
-					{
-#if defined(MOD_BUGFIX_MINOR)
-						iBonus += pBuildingEntry->GetTradeRouteSeaGoldBonus() * pOriginCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID());
-#else
-						iBonus += pBuildingEntry->GetTradeRouteSeaGoldBonus();
-#endif
-					}
-					else if (pBuildingEntry->GetTradeRouteLandGoldBonus() > 0 && kTradeConnection.m_eDomain == DOMAIN_LAND)
-					{
-#if defined(MOD_BUGFIX_MINOR)
-						iBonus += pBuildingEntry->GetTradeRouteLandGoldBonus() * pOriginCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID());
-#else
-						iBonus += pBuildingEntry->GetTradeRouteLandGoldBonus();
-#endif
-					}
-				}
-			}
+		if (kTradeConnection.m_eDomain == DOMAIN_SEA)
+		{
+			iBonus += pOriginCity->GetTradeRouteSeaGoldBonus();
+		}
+		else if (kTradeConnection.m_eDomain == DOMAIN_LAND)
+		{
+			iBonus += pOriginCity->GetTradeRouteLandGoldBonus();
 		}
 	}
 

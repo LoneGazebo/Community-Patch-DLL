@@ -295,12 +295,12 @@ FDataStream& operator>>(FDataStream& loadFrom, ContractTypes& writeTo)
 // CvPlayerContracts
 //=====================================
 /// Constructor
-CvPlayerContracts::CvPlayerContracts():
-	m_pPlayer(NULL)
+CvPlayerContracts::CvPlayerContracts() :
+m_pPlayer(NULL)
 {
 }
 
-	/// Destructor
+/// Destructor
 CvPlayerContracts::~CvPlayerContracts()
 {
 	Uninit();
@@ -321,40 +321,7 @@ void CvPlayerContracts::Uninit()
 /// Reset
 void CvPlayerContracts::Reset()
 {
-	VALIDATE_OBJECT
-	Uninit();
 
-	m_abActiveContract.clear();
-	m_abActiveContract.resize(GC.getNumContractInfos());
-	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
-	{
-		m_abActiveContract[iI] = false;
-	}
-}
-
-/// Serialization read
-void CvPlayerContracts::Read(FDataStream& kStream)
-{
-	VALIDATE_OBJECT
-	Reset();
-
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-
-	kStream >> m_abActiveContract;
-}
-
-/// Serialization write
-void CvPlayerContracts::Write(FDataStream& kStream)
-{
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
-
-	kStream << m_abActiveContract;
 }
 
 CvContract* CvPlayerContracts::GetContract(ContractTypes eContract)
@@ -371,10 +338,7 @@ CvContract* CvPlayerContracts::GetContract(ContractTypes eContract)
 }
 bool CvPlayerContracts::PlayerHasContract(ContractTypes eContract) const
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eContract >= 0, "eContract expected to be >= 0");
-	CvAssertMsg(eContract < GC.GetNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
-	return m_abActiveContract[eContract];
+	return m_pPlayer->PlayerHasContract(eContract);
 }
 bool CvPlayerContracts::PlayerHasAnyContract() const
 {
@@ -388,15 +352,10 @@ bool CvPlayerContracts::PlayerHasAnyContract() const
 	}
 	return false;
 }
+
 void CvPlayerContracts::SetActiveContract(ContractTypes eContract, bool bValue)
 {
-	VALIDATE_OBJECT
-	CvAssertMsg(eContract >= 0, "eContract expected to be >= 0");
-	CvAssertMsg(eContract < GC.GetNumContractInfos(), "eContract expected to be < GC.GetNumContractInfos()");
-	if(m_abActiveContract[eContract] != bValue)
-	{
-		m_abActiveContract[eContract] = bValue;
-	}
+	m_pPlayer->SetActiveContract(eContract, bValue);
 }
 
 //Found a contract - this is the core starter for contracts.

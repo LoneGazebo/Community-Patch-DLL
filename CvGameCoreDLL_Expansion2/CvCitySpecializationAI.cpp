@@ -1376,32 +1376,16 @@ CvCity* CvCitySpecializationAI::FindBestWonderCity() const
 	int iBestProduction = 0;
 	int iProduction;
 
-	// First, see if we already have a wonder underway somewhere.  If so that's our wonder city
-	pLoopCity = NULL;//GetWonderBuildCity();
-
-	CvBuildingEntry* pkProductionBuildingInfo = NULL;
-	if(pLoopCity != NULL && pLoopCity->getProductionBuilding() != NO_BUILDING)
+	if (m_eNextWonderDesired != NO_BUILDING)
 	{
-		pkProductionBuildingInfo = GC.getBuildingInfo(pLoopCity->getProductionBuilding());
-	}
-
-	if(pkProductionBuildingInfo && m_pPlayer->GetWonderProductionAI()->IsWonder(*pkProductionBuildingInfo))
-	{
-		if(!pLoopCity->IsPuppet())
+		for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
-			return pLoopCity;
-		}
-	}
-	else if(m_eNextWonderDesired != NO_BUILDING)
-	{
-		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-		{
-			if(!pLoopCity->IsPuppet())
+			if (!pLoopCity->IsPuppet())
 			{
-				if(pLoopCity->canConstruct(m_eNextWonderDesired))
+				if (pLoopCity->canConstruct(m_eNextWonderDesired))
 				{
 					iProduction = pLoopCity->getCurrentProductionDifference(true, false);
-					if(pLoopCity->GetCityStrategyAI()->GetDefaultSpecialization() == GetWonderSpecialization())
+					if (pLoopCity->GetCityStrategyAI()->GetDefaultSpecialization() == GetWonderSpecialization())
 					{
 						iProduction = (iProduction * 3) / 2;
 					}
@@ -1409,7 +1393,7 @@ CvCity* CvCitySpecializationAI::FindBestWonderCity() const
 					// factor in Marble, etc.
 					iProduction = (iProduction * (100 + pLoopCity->GetWonderProductionModifier())) / 100;
 
-					if(iProduction > iBestProduction)
+					if (iProduction > iBestProduction)
 					{
 						pBestCity = pLoopCity;
 						iBestProduction = iProduction;

@@ -171,6 +171,28 @@ struct SCachedTarget
 };
 
 typedef std::map<PlayerTypes,std::map<AIOperationTypes,SCachedTarget>> CachedTargetsMap;
+
+struct SCachedWaterDistance
+{
+	SCachedWaterDistance() :
+		iWaterDistance(0)
+	{
+	}
+	int iWaterDistance;
+};
+
+typedef std::map<CvCity*, std::map<CvCity*, SCachedWaterDistance>> CachedWaterDistancesMap;
+
+struct SCachedLandDistance
+{
+	SCachedLandDistance() :
+		iLandDistance(0)
+	{
+	}
+	int iLandDistance;
+};
+
+typedef std::map<CvCity*, std::map<CvCity*, SCachedLandDistance>> CachedLandDistancesMap;
 #endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -255,9 +277,13 @@ public:
 	void ClearCachedTargets();
 	CvMilitaryTarget FindBestAttackTargetCached(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL, bool bCheckWar = false);
 	CvMilitaryTarget FindBestAttackTargetGlobal(AIOperationTypes eAIOperationType, int* piWinningScore = NULL, bool bCheckWar = false);
+
+	int GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOtherCity);
+	int GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOtherCity);
+	void RefreshDistanceCaches();
 #endif
 	CvMilitaryTarget FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
-	void CheckApproachFromLandAndSea(PlayerTypes eEnemy, CvMilitaryTarget& target, AIOperationTypes eAIOperationType);
+	void CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOperationTypes eAIOperationType);
 	int ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOperationType);
 	CityAttackApproaches EvaluateMilitaryApproaches(CvCity* pCity, bool bAttackByLand, bool bAttackBySea);
 
@@ -443,6 +469,8 @@ private:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	CachedTargetsMap m_cachedTargets;
+	CachedWaterDistancesMap m_cachedWaterDistances;
+	CachedLandDistancesMap m_cachedLandDistances;
 #endif
 
 	// Data recomputed each turn (no need to serialize)

@@ -28,6 +28,7 @@ enum AIHomelandTargetType
     AI_HOMELAND_TARGET_HOME_ROAD,
     AI_HOMELAND_TARGET_ANCIENT_RUIN,
 	AI_HOMELAND_TARGET_ANTIQUITY_SITE,
+	AI_HOMELAND_TARGET_UNASSIGNED,
 };
 
 // Object stored in the list of move priorities (m_MovePriorityList)
@@ -352,6 +353,9 @@ private:
 	void PlotArchaeologistMoves();
 	void PlotAirliftMoves();
 	void ReviewUnassignedUnits();
+#if defined(MOD_BALANCE_CORE)
+	void ExecuteUnassignedUnitMoves();
+#endif
 
 	// Routines to execute homeland moves
 	void ExecuteFirstTurnSettlerMoves();
@@ -403,6 +407,7 @@ private:
 	void EliminateAdjacentSentryPoints();
 #if defined(MOD_BALANCE_CORE)
 	void EliminateAdjacentNavalSentryPoints();
+	void EliminateAdjacentUnassignedPoints();
 #endif
 	void EliminateAdjacentHomelandRoads();
 	bool FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime);
@@ -412,6 +417,9 @@ private:
 	bool MoveToUsingSafeEmbark(CvUnit* pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo, int iFlags);
 
 	CvPlot* FindArchaeologistTarget(CvUnit *pUnit);
+#if defined(MOD_BALANCE_CORE)
+	CvPlot* FindUnassignedTarget(CvUnit *pUnit);
+#endif
 	void UnitProcessed(int iID);
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	bool ExecuteWorkerMove(CvUnit* pUnit, bool bSecondary = false);
@@ -447,6 +455,7 @@ private:
 	std::vector<CvHomelandTarget> m_TargetedAntiquitySites;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<CvHomelandTarget> m_TargetedNavalSentryPoints;
+	std::vector<CvHomelandTarget> m_TargetedHomeUnassignedPlots;
 #endif
 
 	// Targeting ranges (pulled in from GlobalAIDefines.XML)

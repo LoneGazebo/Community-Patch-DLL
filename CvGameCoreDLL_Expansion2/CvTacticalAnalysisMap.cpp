@@ -231,7 +231,7 @@ TacticalMoveZoneType CvTacticalDominanceZone::GetZoneType() const
 CvTacticalAnalysisMap::CvTacticalAnalysisMap(void) :
 	m_iDominancePercentage(25),
 	m_iUnitStrengthMultiplier(5),
-	m_iTacticalRange(10),
+	m_iTacticalRange(6),
 	m_ePlayer(NO_PLAYER),
 	m_iTurnBuilt(-1)
 {
@@ -255,7 +255,7 @@ void CvTacticalAnalysisMap::Init(PlayerTypes ePlayer)
 	m_iDominancePercentage = GC.getAI_TACTICAL_MAP_DOMINANCE_PERCENTAGE();
 
 	m_iTurnBuilt = -1;
-	m_iTacticalRange = 10;
+	m_iTacticalRange = 6;
 	m_iUnitStrengthMultiplier = 5;
 
 }
@@ -339,7 +339,7 @@ void CvTacticalAnalysisMap::Refresh()
 			Init(m_ePlayer);
 
 		m_iTurnBuilt = GC.getGame().getGameTurn();
-		m_iTacticalRange = ((GC.getAI_TACTICAL_RECRUIT_RANGE() + GC.getGame().getCurrentEra()) * 2) / 3;  // Have this increase as game goes on
+		m_iTacticalRange = ((GC.getAI_TACTICAL_RECRUIT_RANGE() + GC.getGame().getCurrentEra()) * 3) / 5;  // Have this increase as game goes on
 		m_iUnitStrengthMultiplier = GC.getAI_TACTICAL_MAP_UNIT_STRENGTH_MULTIPLIER() * m_iTacticalRange;
 
 		AI_PERF_FORMAT("AI-perf.csv", ("Tactical Analysis Map, Turn %d, %s", GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription()) );
@@ -765,7 +765,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 		{
 			// Start with strength of the city itself
 			int iCityHitPoints = pClosestCity->GetMaxHitPoints() - pClosestCity->getDamage();
-			int iStrength = m_iTacticalRange * pClosestCity->getStrengthValue() * iCityHitPoints / GC.getMAX_CITY_HIT_POINTS();
+			int iStrength = pClosestCity->getStrengthValue() * iCityHitPoints / GC.getMAX_CITY_HIT_POINTS();
 
 			if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
 			{
@@ -822,9 +822,14 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 					if (iDistance > m_iTacticalRange)
 						continue;
 
-					//if on another continent, they can't easily take part in the fight
-					if (!pClosestCity->isMatchingArea(pLoopUnit->plot()))
+					else if (iDistance > (m_iTacticalRange / 2))
 						bReducedStrength = true;
+					else
+					{
+						//if on another continent, they can't easily take part in the fight
+						if (!pClosestCity->isMatchingArea(pLoopUnit->plot()))
+							bReducedStrength = true;
+					}
 				}
 				else
 				{
@@ -1120,6 +1125,10 @@ void CvTacticalAnalysisMap::LogZones()
 					szLogMsg += " (Temp)";
 				}
 			}
+			if (pZone->IsNavalInvasion())
+			{
+				szLogMsg += ", NAVAL INVASION";
+			}
 
 			GET_PLAYER(m_ePlayer).GetTacticalAI()->LogTacticalMessage(szLogMsg, true /*bSkipLogDominanceZone*/);
 		}
@@ -1256,6 +1265,10 @@ eTacticalDominanceFlags CvTacticalAnalysisMap::ComputeDominance(CvTacticalDomina
 				if (pZone->GetEnemyNavalUnitCount() <= 0 || pZone->GetEnemyNavalUnitCount() < pZone->GetFriendlyNavalUnitCount())
 				{
 					pZone->SetNavalInvasion(true);
+				}
+				else
+				{
+					pZone->SetNavalInvasion(false);
 				}
 
 				int iRatio = ((pZone->GetFriendlyStrength() + pZone->GetFriendlyRangedStrength()) * 100) / (pZone->GetEnemyStrength() + pZone->GetEnemyRangedStrength());

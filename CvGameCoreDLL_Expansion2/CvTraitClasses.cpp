@@ -3660,6 +3660,8 @@ void CvPlayerTraits::Reset()
 	{
 		m_piFreeUnitClassesDOW[iUnitClass] = 0;
 	}
+
+	m_eFreeUnitOnConquest = NO_UNIT;
 #endif
 	m_aiResourceQuantityModifier.clear();
 	m_aiResourceQuantityModifier.resize(GC.getNumResourceInfos());
@@ -5566,8 +5568,19 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_aiResourceQuantityModifier);
 #if defined(MOD_BALANCE_CORE)
-	kStream >> m_piNumPledgesDomainProdMod;
-	kStream >> m_piFreeUnitClassesDOW;
+	kStream >> iNumEntries;
+	m_piNumPledgesDomainProdMod.clear();
+	for (int iI = 0; iI < iNumEntries; iI++)
+	{
+		kStream >> m_piNumPledgesDomainProdMod[iI];
+	}
+
+	kStream >> iNumEntries;
+	m_piFreeUnitClassesDOW.clear();
+	for (int iI = 0; iI < iNumEntries; iI++)
+	{
+		kStream >> m_piFreeUnitClassesDOW[iI];
+	}
 #endif
 	kStream >> iNumEntries;
 	m_abNoTrain.clear();
