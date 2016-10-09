@@ -9392,7 +9392,11 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iRange, AITacticalTarg
 
 			//Ranged naval unit? Let's get a water plot (naval melee can enter cities, don't care for others)
 			if(!pPlot->isWater() && pUnit->isRanged() && pUnit->getDomainType() == DOMAIN_SEA)
+			{
 				pPlot = MilitaryAIHelpers::GetCoastalPlotNearPlot(pPlot);
+				if(!pPlot)
+					continue;
+			}
 	
 			//see how far the unit can go
 			if (reachablePlots.empty())
