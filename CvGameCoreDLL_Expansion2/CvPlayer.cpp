@@ -1716,12 +1716,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiYieldRateModifier.resize(NUM_YIELD_TYPES, 0);
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	m_paiJFDPoliticPercent.clear();
-	m_paiJFDPoliticPercent.resize(MAX_CIV_PLAYERS, 0);
-
-	m_paiResourceOverValue.clear();
-	m_paiResourceOverValue.resize(GC.getNumResourceInfos(), 0);
-
 	m_aiGlobalTourismAlreadyReceived.clear();
 	m_aiGlobalTourismAlreadyReceived.resize(NUM_MINOR_CIV_QUEST_TYPES, 0);
 
@@ -1757,9 +1751,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiGoldenAgeYieldMod.clear();
 	m_aiGoldenAgeYieldMod.resize(NUM_YIELD_TYPES, 0);
-
-	m_paiBuildingClassCulture.clear();
-	m_paiBuildingClassCulture.resize(NUM_YIELD_TYPES, 0);
 
 	m_aiDomainFreeExperiencePerGreatWorkGlobal.clear();
 	m_aiDomainFreeExperiencePerGreatWorkGlobal.resize(NUM_DOMAIN_TYPES, 0);
@@ -1799,6 +1790,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_abActiveContract.clear();
 	m_abActiveContract.resize(GC.getNumContractInfos(), false);
+
+	m_aistrInstantYield.clear();
+	m_aistrInstantYield.resize(NUM_INSTANT_YIELD_TYPES);
 #endif
 
 	m_aiCapitalYieldRateModifier.clear();
@@ -1909,14 +1903,20 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_paiHurryModifier.clear();
 		m_paiHurryModifier.resize(GC.getNumHurryInfos(), 0);
 #if defined(MOD_BALANCE_CORE)
+		m_paiJFDPoliticPercent.clear();
+		m_paiJFDPoliticPercent.resize(MAX_CIV_PLAYERS, 0);
+
+		m_paiResourceOverValue.clear();
+		m_paiResourceOverValue.resize(GC.getNumResourceInfos(), 0);
+
 		m_paiNumCitiesFreeChosenBuilding.clear();
 		m_paiNumCitiesFreeChosenBuilding.resize(GC.getNumBuildingClassInfos(), 0);
 
-		m_aistrInstantYield.clear();
-		m_aistrInstantYield.resize(NUM_INSTANT_YIELD_TYPES);
-
 		m_paiNumCivsConstructingWonder.clear();
 		m_paiNumCivsConstructingWonder.resize(GC.getNumBuildingInfos(), 0);
+
+		m_paiBuildingClassCulture.clear();
+		m_paiBuildingClassCulture.resize(NUM_YIELD_TYPES, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		m_pabHasGlobalMonopoly.clear();
@@ -13882,7 +13882,7 @@ void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlo
 			if(pkUnitEntry->GetBuildOnFound(eBuildingClass))
 			{
 				const BuildingTypes eFreeBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
-				if(pCity->isValidBuildingLocation(eFreeBuilding) && pCity->canConstruct(eFreeBuilding))
+				if(pCity->isValidBuildingLocation(eFreeBuilding))
 				{
 					pCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 1, true);
 				}

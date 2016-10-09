@@ -291,7 +291,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 		if (kPlayer.GetCitySpecializationAI()->GetWonderBuildCity() != m_pCity)
 		{
-			iValue = 300;
+			iValue = 100;
 		}
 		int iNumCivsAlreadyBuilding = kPlayer.GetNumCivsConstructingWonder(eBuilding);
 		if (iNumCivsAlreadyBuilding > 0)
@@ -957,6 +957,17 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(pkBuildingInfo->GetBuildingClassType()))
 	{
 		iBonus *= 5;
+	}
+
+	if (isWorldWonderClass(kBuildingClassInfo))
+	{
+		int iTurnMax = 15;
+		iTurnMax *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iTurnMax /= 100;
+		if (m_pCity->getProductionTurnsLeft(eBuilding, 0) > iTurnMax)
+		{
+			iBonus /= 2;
+		}
 	}
 
 	/////
