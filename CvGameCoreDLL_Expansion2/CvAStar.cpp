@@ -1717,6 +1717,11 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, int, const
 	iCost += pTerrain ? pTerrain->getInfluenceCost() : 0;
 	iCost += pFeature ? pFeature->getInfluenceCost() : 0;
 
+	//going along routes is cheaper
+	bool bIsRoute = (pFromPlot->isRoute() && !pFromPlot->IsRoutePillaged() && pToPlot->isRoute() && !pToPlot->IsRoutePillaged());
+	if (bIsRoute)
+		iCost /= 2;
+
 	return max(1,iCost)*PATH_BASE_COST;
 }
 
@@ -2704,7 +2709,7 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, const CvAStarNode* node, i
 	// super duper low costs for moving along routes - don't check for pillaging
 	if (pFromPlot->getRouteType() == ROUTE_RAILROAD && pToPlot->getRouteType() != ROUTE_RAILROAD)
 		iRouteFactor = 7;
-	else if (pFromPlot->getRouteType() != ROUTE_ROAD && pToPlot->getRouteType() != ROUTE_ROAD)
+	else if (pFromPlot->getRouteType() == ROUTE_ROAD && pToPlot->getRouteType() == ROUTE_ROAD)
 		iRouteFactor = 5;
 	// low costs for moving along rivers
 	else if (pFromPlot->isRiver() && pToPlot->isRiver() && !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))

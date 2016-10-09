@@ -469,6 +469,10 @@ void CvBarbarians::DoCamps()
 				iNumCampsInExistence++;
 			}
 
+			//Discount all owned plots.
+			if (pLoopPlot->getOwner() != NO_PLAYER)
+				continue;
+
 			if(pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(BARBARIAN_PLAYER))
 				continue;
 
