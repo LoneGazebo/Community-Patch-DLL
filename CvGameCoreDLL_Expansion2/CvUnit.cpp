@@ -13392,9 +13392,15 @@ bool CvUnit::build(BuildTypes eBuild)
 					if(eBestUnit != NO_UNIT)
 					{
 						CvUnit* pkUnit = kPlayer.initUnit(eBestUnit, pPlot->getX(), pPlot->getY());
-						kPlayer.getCapitalCity()->addProductionExperience(pkUnit);
-						if (!pkUnit->jumpToNearestValidPlot())
+						bool bJumpSuccess = pkUnit->jumpToNearestValidPlot();
+						if (bJumpSuccess)
+						{
+							kPlayer.getCapitalCity()->addProductionExperience(pkUnit);
+						}
+						else
+						{
 							pkUnit->kill(false);
+						}
 					}
 				}
 #endif
@@ -22755,7 +22761,9 @@ bool CvUnit::IsGreatGeneral() const
 	VALIDATE_OBJECT
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if(getUnitInfo().GetUnitAIType(UNITAI_GENERAL) && !IsCombatUnit())
+	if(IsCombatUnit())
+		return false;
+	if(getUnitInfo().GetUnitAIType(UNITAI_GENERAL))
 	{
 		return true;
 	}
@@ -22784,7 +22792,9 @@ bool CvUnit::IsGreatAdmiral() const
 	VALIDATE_OBJECT
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if(getUnitInfo().GetUnitAIType(UNITAI_ADMIRAL) && !IsCombatUnit())
+	if(IsCombatUnit())
+		return false;
+	if(getUnitInfo().GetUnitAIType(UNITAI_ADMIRAL))
 	{
 		return true;
 	}

@@ -200,6 +200,7 @@ public:
 	int GetDamageThreshold() const;
 	UnitTypes GetConvertUnit() const;
 	bool IsConvertOnFullHP() const;
+	bool IsWarOnly() const;
 #endif
 	// Accessor Functions (Arrays)
 	int GetPrereqAndTechs(int i) const;
@@ -367,6 +368,7 @@ private:
 	int m_iDamageThreshold;
 	UnitTypes m_eConvertUnit;
 	bool m_bIsConvertOnFullHP;
+	bool m_bWarOnly;
 #endif
 	int m_iCultureBombRadius;
 	int m_iGoldenAgeTurns;
