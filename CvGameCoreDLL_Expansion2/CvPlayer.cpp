@@ -4369,12 +4369,15 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		{
 			CvUnit* pkUnit = initUnit(eFreeUnitConquest, pNewCity->getX(), pNewCity->getY());
 			CvCity* pCapital = getCapitalCity();
-			if(pCapital != NULL)
+			bool bJumpSuccess = pkUnit->jumpToNearestValidPlot();
+			if (bJumpSuccess && pCapital != NULL)
 			{
 				pCapital->addProductionExperience(pkUnit);
 			}
-			if (!pkUnit->jumpToNearestValidPlot())
-					pkUnit->kill(false);
+			else
+			{
+				pkUnit->kill(false);
+			}
 		}
 	}
 #endif
@@ -13981,6 +13984,14 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 			return false;
 		}
 	}
+
+	if(pUnitInfo.IsWarOnly())
+	{
+		if(!IsAtWarAnyMajor())
+		{
+			return false;
+		}
+	}
 #endif
 
 	// One City Challenge
@@ -14416,8 +14427,12 @@ bool CvPlayer::canBarbariansTrain(UnitTypes eUnit, bool bIgnoreUniqueUnitStatus,
 	{
 		return false;
 	}
-
-	if (pUnitInfo.GetSpecialUnitType() != NO_SPECIALUNIT)
+	//Had to set it this way because Barbarian land units are "SPECIALUNIT_CARGO_ARMY" in MOD_CARGO_SHIPS. Need to be able to spawn them.
+	SpecialUnitTypes eSpedcialPeople = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
+	SpecialUnitTypes eSpedcialFighter = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER");
+	SpecialUnitTypes eSpedcialStealth = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_STEALTH");
+	SpecialUnitTypes eSpedcialMissile = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_MISSILE");
+	if ((pUnitInfo.GetSpecialUnitType() == eSpedcialPeople) || (pUnitInfo.GetSpecialUnitType() == eSpedcialFighter) || (pUnitInfo.GetSpecialUnitType() == eSpedcialStealth) || (pUnitInfo.GetSpecialUnitType() == eSpedcialMissile))
 	{
 		return false;
 	}
@@ -39023,7 +39038,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								else
 								{
 									pNewUnit = initUnit(eUnit, iX, iY);
-									getCapitalCity()->addProductionExperience(pNewUnit);
 								}
 
 								CvAssert(pNewUnit);
@@ -39037,7 +39051,15 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #else
 										incrementGreatGeneralsCreated();
 #endif
-										pNewUnit->jumpToNearestValidPlot();
+										bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
+										if (bJumpSuccess)
+										{
+											getCapitalCity()->addProductionExperience(pNewUnit);
+										}
+										else
+										{
+											pNewUnit->kill(false);
+										}
 									}
 									else if(pNewUnit->IsGreatAdmiral())
 									{
@@ -39050,6 +39072,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 										if (pNewUnit->plot() != pSpawnPlot)
 										{
 											pNewUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
+											getCapitalCity()->addProductionExperience(pNewUnit);
 										}
 									}
 									else if(pNewUnit->getUnitInfo().IsFoundReligion())
@@ -39159,34 +39182,41 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									else if(pNewUnit->IsGreatPerson())
 									{
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
-										if (MOD_GLOBAL_SEPARATE_GP_COUNTERS) {
-											if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")) {
+										if (MOD_GLOBAL_SEPARATE_GP_COUNTERS) 
+										{
+											if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+											{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 												incrementGreatMerchantsCreated(MOD_GLOBAL_TRULY_FREE_GP);
 #else
 												incrementGreatMerchantsCreated();
 #endif
-											} else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")) {
+											}
+											else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+											{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 												incrementGreatScientistsCreated(MOD_GLOBAL_TRULY_FREE_GP);
 #else
 												incrementGreatScientistsCreated();
 #endif
-											} else {
+											}
+											else
+											{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 												incrementGreatEngineersCreated(MOD_GLOBAL_TRULY_FREE_GP);
 #else
 												incrementGreatEngineersCreated();
 #endif
 											}
-										} else
+										}
+										else
 #endif
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
-										incrementGreatPeopleCreated(MOD_GLOBAL_TRULY_FREE_GP);
+											incrementGreatPeopleCreated(MOD_GLOBAL_TRULY_FREE_GP);
 #else
-										incrementGreatPeopleCreated();
+											incrementGreatPeopleCreated();
 #endif
-										pNewUnit->jumpToNearestValidPlot();
+											pNewUnit->jumpToNearestValidPlot();
 									}
 									else
 									{
@@ -41451,7 +41481,7 @@ void CvPlayer::UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell)
 		if (!pLoopUnit)
 			continue;
 		
-		if (pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsCityAttackSupport())
+		if ((pLoopUnit->IsGreatGeneral() || pLoopUnit->GetGreatGeneralCount() > 0) || (pLoopUnit->IsGreatAdmiral() || pLoopUnit->GetGreatAdmiralCount() > 0) || pLoopUnit->IsCityAttackSupport())
 			m_unitsAreaEffectPositive.push_back( pLoopUnit->GetID() );
 
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)

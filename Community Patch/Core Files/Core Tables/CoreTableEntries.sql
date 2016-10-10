@@ -889,6 +889,9 @@ ALTER TABLE Traits ADD COLUMN 'GGGARateFromDenunciationsAndWars' INTEGER DEFAULT
 -- Does this civ get a free Unit.Type on Conquest? Must be able to train it first....
 ALTER TABLE Traits ADD FreeUnitOnConquest TEXT DEFAULT NULL REFERENCES Units(Type);
 
+-- Can this unit only be trained during War?
+ALTER TABLE Units ADD WarOnly BOOLEAN DEFAULT 0;
+
 -- CSD
 
 -- Insert SQL Rules Here 
