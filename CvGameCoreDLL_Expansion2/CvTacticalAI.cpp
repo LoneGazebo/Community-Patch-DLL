@@ -13376,7 +13376,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const CTacticalUnitArray& vU
 		{
 			//another twist. there may be "unrelated" friendly units standing around and blocking tiles
 			CvUnit* pDefender = pPlot->getBestDefender(vUnits.getOwner());
-			if (!pDefender || ourUnits.find(pDefender->GetID())!=ourUnits.end())
+			if (!pDefender || pDefender->isEmbarked() || ourUnits.find(pDefender->GetID())!=ourUnits.end())
 				initialPosition->addTacticalPlot(pPlot, vUnits.getOwner());
 		}
 	}
