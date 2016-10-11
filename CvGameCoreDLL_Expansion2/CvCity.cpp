@@ -12442,6 +12442,28 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									pFreeUnit = owningPlayer.initUnit(eUnit, getX(), getY());
 #if defined(MOD_BALANCE_CORE)
 								}
+								if(pFreeUnit->IsGreatPerson())
+								{
+									if(owningPlayer.GetPlayerTraits()->IsGPWLTKD())
+									{
+										int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+										iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+										iWLTKD /= 100;
+										if(iWLTKD > 0)
+										{
+											this->ChangeWeLoveTheKingDayCounter(iWLTKD);
+											CvNotifications* pNotifications = owningPlayer.GetNotifications();
+											if(pNotifications)
+											{
+												Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
+												strText <<  pFreeUnit->getNameKey() << this->getNameKey();
+												Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
+												strSummary << this->getNameKey();
+												pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), this->getX(), this->getY(), -1);
+											}
+										}
+									}
+								}
 #endif
 								// Bump up the count
 								if(pFreeUnit->IsGreatGeneral())
@@ -12574,25 +12596,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
 									if (MOD_GLOBAL_SEPARATE_GP_COUNTERS)
 									{
-										if(owningPlayer.GetPlayerTraits()->IsGPWLTKD())
-										{
-											int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
-											iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-											iWLTKD /= 100;
-											if(iWLTKD > 0)
-											{
-												this->ChangeWeLoveTheKingDayCounter(iWLTKD);
-												CvNotifications* pNotifications = owningPlayer.GetNotifications();
-												if(pNotifications)
-												{
-													Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
-													strText <<  pFreeUnit->getNameKey() << this->getNameKey();
-													Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
-													strSummary << this->getNameKey();
-													pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), this->getX(), this->getY(), -1);
-												}
-											}
-										}
 										if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 										{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
@@ -12625,15 +12628,15 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #else
 										owningPlayer.incrementGreatPeopleCreated();
 #endif
-										bool bJumpSuccess = pFreeUnit->jumpToNearestValidPlot();
-										if (bJumpSuccess)
-										{
+									bool bJumpSuccess = pFreeUnit->jumpToNearestValidPlot();
+									if (bJumpSuccess)
+									{
 											addProductionExperience(pFreeUnit);
-										}
-										else
-										{
-											pFreeUnit->kill(false);
-										}
+									}
+									else
+									{
+										pFreeUnit->kill(false);
+									}
 								}
 							}
 						}
@@ -12698,8 +12701,29 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #endif
 #if defined(MOD_BALANCE_CORE)
 								}
+								if(pFreeUnit->IsGreatPerson())
+								{
+									if(owningPlayer.GetPlayerTraits()->IsGPWLTKD())
+									{
+										int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+										iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+										iWLTKD /= 100;
+										if(iWLTKD > 0)
+										{
+											this->ChangeWeLoveTheKingDayCounter(iWLTKD);
+											CvNotifications* pNotifications = owningPlayer.GetNotifications();
+											if(pNotifications)
+											{
+												Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
+												strText <<  pFreeUnit->getNameKey() << this->getNameKey();
+												Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
+												strSummary << this->getNameKey();
+												pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), this->getX(), this->getY(), -1);
+											}
+										}
+									}
+								}
 #endif
-
 								// Bump up the count
 								if(pFreeUnit->IsGreatGeneral())
 								{
@@ -12831,25 +12855,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
 									if (MOD_GLOBAL_SEPARATE_GP_COUNTERS)
 									{
-										if(owningPlayer.GetPlayerTraits()->IsGPWLTKD())
-										{
-											int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
-											iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-											iWLTKD /= 100;
-											if(iWLTKD > 0)
-											{
-												this->ChangeWeLoveTheKingDayCounter(iWLTKD);
-												CvNotifications* pNotifications = owningPlayer.GetNotifications();
-												if(pNotifications)
-												{
-													Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
-													strText <<  pFreeUnit->getNameKey() << this->getNameKey();
-													Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
-													strSummary << this->getNameKey();
-													pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), this->getX(), this->getY(), -1);
-												}
-											}
-										}
 										if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 										{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
@@ -12882,15 +12887,15 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #else
 										owningPlayer.incrementGreatPeopleCreated();
 #endif
-										bool bJumpSuccess = pFreeUnit->jumpToNearestValidPlot();
-										if (bJumpSuccess)
-										{
-											addProductionExperience(pFreeUnit);
-										}
-										else
-										{
-											pFreeUnit->kill(false);
-										}
+									bool bJumpSuccess = pFreeUnit->jumpToNearestValidPlot();
+									if (bJumpSuccess)
+									{
+										addProductionExperience(pFreeUnit);
+									}
+									else
+									{
+										pFreeUnit->kill(false);
+									}
 								}
 #if defined(MOD_BALANCE_CORE)
 							}

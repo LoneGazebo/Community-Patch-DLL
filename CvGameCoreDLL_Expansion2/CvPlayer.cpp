@@ -40546,23 +40546,26 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 		return;
 	}
 #if defined(MOD_BALANCE_CORE)
-	CvCity* pCity = pGreatPeopleUnit->plot()->getWorkingCity();
-	if (pCity != NULL && pCity->getOwner() == GetID())
+	if(GetPlayerTraits()->IsGPWLTKD() && pGreatPeopleUnit != NULL)
 	{
-		int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
-		iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iWLTKD /= 100;
-		if (iWLTKD > 0)
+		CvCity* pCity = pGreatPeopleUnit->plot()->getWorkingCity();
+		if (pCity != NULL && pCity->getOwner() == GetID())
 		{
-			pCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
-			CvNotifications* pNotifications = GetNotifications();
-			if (pNotifications)
+			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iWLTKD /= 100;
+			if (iWLTKD > 0)
 			{
-				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
-				strText << pGreatPeopleUnit->getNameKey() << pCity->getNameKey();
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
-				strSummary << pCity->getNameKey();
-				pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
+				pCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+				CvNotifications* pNotifications = GetNotifications();
+				if (pNotifications)
+				{
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
+					strText << pGreatPeopleUnit->getNameKey() << pCity->getNameKey();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
+					strSummary << pCity->getNameKey();
+					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
+				}
 			}
 		}
 	}
