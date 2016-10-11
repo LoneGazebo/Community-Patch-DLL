@@ -1650,13 +1650,15 @@ void CvTacticalAI::FindTacticalTargets()
 					newTarget.SetAuxIntData(50);
 					m_AllTargets.push_back(newTarget);
 				}
-				// ... undefended camp?
+				// ... undefended camp? But just because there's no visible defender doesn't mean it's undefended
 				else if (pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() && !m_pPlayer->isMinorCiv())
 				{
+					int iBaseScore = pLoopPlot->isVisible(m_pPlayer->getTeam()) ? 50 : 30;
+
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
 					newTarget.SetTargetPlayer(BARBARIAN_PLAYER);
 					newTarget.SetAuxData((void*)pLoopPlot);
-					newTarget.SetAuxIntData(m_pPlayer->isBarbarian() ? 5 : 30);
+					newTarget.SetAuxIntData(m_pPlayer->isBarbarian() ? 5 : iBaseScore - min(20,m_pPlayer->GetCityDistanceInPlots(pLoopPlot)) );
 					m_AllTargets.push_back(newTarget);
 				}
 
@@ -1754,7 +1756,7 @@ void CvTacticalAI::FindTacticalTargets()
 					m_AllTargets.push_back(newTarget);
 				}
 
-				// ... enemy civilian (or embarked) unit?
+				// ... neutral combat unit or enemy civilian unit? (enemy combat unit has already been checked above)
 				else if (pLoopPlot->isVisibleOtherUnit(m_pPlayer->GetID()))
 				{
 					CvUnit* pTargetUnit = pLoopPlot->getUnitByIndex(0);
@@ -2543,8 +2545,8 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 				continue;
 			}
 
-			//If don't have units to actually conquer, get out.
-			if(!FindUnitsWithinStrikingDistance(pPlot, true /*bNoRanged*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlocked*/))
+			//If don't have units to actually conquer, ignore.
+			if(!TacticalAIHelpers::HaveAtLastXMeleeUnitsAroundTarget(m_pPlayer->GetID(),pCity->plot(),2, 1))
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -2553,7 +2555,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 					strCityName = pCity->getName();
 					strLogString.Format("No units to capture city of ");
 					strLogString += strCityName;
-					strTemp.Format(", withdrawing, X: %d, Y: %d, ", pCity->getX(), pCity->getY());
+					strTemp.Format(", skipping, X: %d, Y: %d, ", pCity->getX(), pCity->getY());
 					strLogString += strTemp + strPlayerName;
 				}
 				pTarget = GetNextZoneTarget();
@@ -2565,7 +2567,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 			pTarget->SetAuxIntData(iRequiredDamage);
 			// If we have the city already down to minimum, don't use ranged... Only try to capture.
 			bool bNoRangedUnits = (iRequiredDamage <= 1);
-			if(FindUnitsWithinStrikingDistance(pPlot, bNoRangedUnits, false /*bNavalOnly*/, true /*bMustMoveThrough*/, false /*bIncludeBlockedUnits*/))
+			if(FindUnitsWithinStrikingDistance(pPlot, bNoRangedUnits, false /*bNavalOnly*/))
 			{
 				if(ComputeTotalExpectedDamage(pTarget, pPlot) >= iRequiredDamage) 
 				{
@@ -2639,7 +2641,8 @@ bool CvTacticalAI::PlotDamageCityMoves()
 			}
 
 			//If don't have units nearby to actually conquer, and bad dominance flag, get out.
-			if (pZone && pZone->GetDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && !IsTemporaryZoneCity(pCity) && !FindUnitsWithinStrikingDistance(pPlot, true /*bNoRanged*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlocked*/, true))
+			if (pZone && pZone->GetDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && !IsTemporaryZoneCity(pCity) && 
+				!TacticalAIHelpers::HaveAtLastXMeleeUnitsAroundTarget(m_pPlayer->GetID(),pCity->plot(),4,2))
 			{
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -2662,7 +2665,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 			// If we have the city already down to minimum, don't use ranged... Only try to capture.
 			bool bNoRangedUnits = (iRequiredDamage <= 1);
 			//ideally we should check unit danger, respectively if it can survive an attack
-			if(FindUnitsWithinStrikingDistance(pPlot, bNoRangedUnits, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/, true))
+			if(FindUnitsWithinStrikingDistance(pPlot, bNoRangedUnits, false /*bNavalOnly*/))
 			{
 				int iExpectedDamage = ComputeTotalExpectedDamage(pTarget, pPlot);
 
@@ -2757,8 +2760,8 @@ bool CvTacticalAI::PlotNavalDamageCityMoves()
 				continue;
 			}
 
-			//If don't have units nearby to actually conquer, and bad dominance flag, get out.
-			if (pZone && !FindUnitsWithinStrikingDistance(pPlot, true /*bNoRanged*/, true /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlocked*/, true))
+			//If don't have units nearby to actually conquer, get out.
+			if (!TacticalAIHelpers::HaveAtLastXMeleeUnitsAroundTarget(m_pPlayer->GetID(),pCity->plot(),4, 1))
 			{
 				if (GC.getLogging() && GC.getAILogging())
 				{
@@ -2781,7 +2784,7 @@ bool CvTacticalAI::PlotNavalDamageCityMoves()
 			// If we have the city already down to minimum, don't use ranged... Only try to capture.
 			bool bNoRangedUnits = (iRequiredDamage <= 1);
 			//ideally we should check unit danger, respectively if it can survive an attack
-			if (FindUnitsWithinStrikingDistance(pPlot, bNoRangedUnits, true /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/, true))
+			if (FindUnitsWithinStrikingDistance(pPlot, bNoRangedUnits, true /*bNavalOnly*/))
 			{
 				int iExpectedDamage = ComputeTotalExpectedDamage(pTarget, pPlot);
 
@@ -2845,7 +2848,7 @@ void CvTacticalAI::PlotBarbarianCampMoves()
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		if(FindClosestUnit(pPlot,8,false))
+		if(FindClosestUnit(pPlot,4,false))
 		{
 			// Queue best one up to capture it
 			ExecuteBarbarianCampMove(pPlot);
@@ -6646,7 +6649,7 @@ void CvTacticalAI::MoveUpReliefUnits(CvTacticalTarget& kTarget)
 
 		if (pUnit->IsCanAttackWithMove())
 		{
-			if (!TacticalAIHelpers::HaveEnoughMeleeUnitsAroundTarget(pUnit->getOwner(), &kTarget))
+			if (!TacticalAIHelpers::HaveAtLastXMeleeUnitsAroundTarget(pUnit->getOwner(), pTargetPlot, 2, 2))
 			{
 				if (MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, pUnit->getDomainType(), 12))
 				{
@@ -9970,7 +9973,7 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(CvUnit* pUnit)
 	int iBestValue = MAX_INT;
 	CvTacticalTarget* pTarget;
 
-	SPathFinderUserData data(pUnit, 0, m_iSeaBarbarianRange/2);
+	SPathFinderUserData data(pUnit, 0, m_iSeaBarbarianRange/3); //assume 3 moves per turn
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 	ReachablePlots movePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 
@@ -12492,30 +12495,21 @@ bool TacticalAIHelpers::KillUnitIfPossible(CvUnit* pAttacker, CvUnit* pDefender)
 	return false;
 }
 
-bool TacticalAIHelpers::HaveEnoughMeleeUnitsAroundTarget(PlayerTypes ePlayer, CvTacticalTarget* pTarget)
+bool TacticalAIHelpers::HaveAtLastXMeleeUnitsAroundTarget(PlayerTypes ePlayer, CvPlot* pTarget, int iRange, int iReqUnits)
 {
 	if (!pTarget)
 		return true;
 
 	int iCount = 0;
-	int iReqUnits = 2;
-	if (pTarget->GetTargetType()==AI_TACTICAL_TARGET_CITY || pTarget->GetTargetType()==AI_TACTICAL_TARGET_CITY_TO_DEFEND)
-		iReqUnits = 4;
-
-	// Look at spaces adjacent to target
-	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
+	for(int iI = 0; iI < RING_PLOTS[max(1,min(5,iRange))]; iI++)
 	{
-		CvPlot* pLoopPlot = iterateRingPlots(pTarget->GetTargetX(), pTarget->GetTargetY(), iI);
+		CvPlot* pLoopPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), iI);
 		if (!pLoopPlot)
 			continue;
 
-		int iDistanceToTarget = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pTarget->GetTargetX(), pTarget->GetTargetY());
-		if (iDistanceToTarget>2)
-			continue;
-
+		//melee combat units - include units which have spent their moves and embarked units
 		CvUnit* pUnit = pLoopPlot->getBestDefender(ePlayer);
-		//melee combat 
-		if (pUnit && !pUnit->isRanged() && pUnit->IsCanAttackWithMove())
+		if (pUnit && pUnit->IsCanAttackWithMove())
 			iCount++;
 
 		if (iCount>=iReqUnits)
