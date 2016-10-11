@@ -6435,6 +6435,7 @@ void CvTacticalAI::ExecuteAttack(CvPlot* pTargetPlot, eAggressionLevel eAggLvl)
 	//will not necessarily attack only the target plot when other targets are present!
 
 	//todos:
+	//
 	// - embarked units are ignored. too much hassle
 	// - danger calc not updated after killing an enemy
 	// - defensive variant
@@ -7880,7 +7881,7 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 		}
 	}
 
-	// Make attacks
+	// Make attacks - this includes melee attacks but only very safe ones
 	if(FindUnitsWithinStrikingDistance(pTargetPlot))
 		ExecuteAttack(pTargetPlot, AL_LOW);
 #else
@@ -12133,8 +12134,8 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pEnemy, pUnit, pUnitPlot, iDamageReceived, true, iPrevDamage);
 		iOriginalHitPoints = pEnemy->GetMaxHitPoints() - pEnemy->getDamage();
 
-		//special: if there are enemy units around, try to attack those first
-		if (tactPlot.getNumAdjacentEnemies()>0)
+		//special: if there are multiple enemy units around, try to attack those first
+		if (tactPlot.getNumAdjacentEnemies()>1)
 			iDamageDealt /= 2;
 	}
 	else if (tactPlot.isEnemyCombatUnit())
@@ -12254,7 +12255,9 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 			{
 				ScoreAttack(currentPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), result);
 				if ( pCurrentPlot==assumedPosition.getTarget() )
-					result.iScore += 10; //a slight boost for attacking the "real" target
+					result.iScore += 15; //a slight boost for attacking the "real" target
+				else
+					result.iScore += 5; //a bonus to make attacks more competive with moves - each frontline plot gets a +8
 			}
 		}
 	}
@@ -12788,30 +12791,40 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches)
 	return (iNewBranches>0);
 }
 
+ //assumption is that A is executed before B
 bool CvTacticalPosition::movesAreCompatible(const STacticalAssignment& A, const STacticalAssignment& B) const
 {
-	bool bAisPlotChange = A.eType == STacticalAssignment::A_MOVE || A.eType == STacticalAssignment::A_MELEEKILL;
-	bool bBisPlotChange = B.eType == STacticalAssignment::A_MOVE || B.eType == STacticalAssignment::A_MELEEKILL;
+	bool AisPlotChange = A.eType == STacticalAssignment::A_MOVE || A.eType == STacticalAssignment::A_MELEEKILL;
+	bool BisPlotChange = B.eType == STacticalAssignment::A_MOVE || B.eType == STacticalAssignment::A_MELEEKILL;
 
 	if (A.iUnitID == B.iUnitID)
 		return false;
 
-	if (bAisPlotChange && bBisPlotChange)
-		if (A.iToPlotIndex == B.iToPlotIndex)
-			return false;
+	if (A.bIsCombat && B.bIsCombat)
+	{
+		if (AisPlotChange && BisPlotChange)
+			if (A.iToPlotIndex == B.iToPlotIndex)
+				return false;
 
-	if (bAisPlotChange && !bBisPlotChange)
-		if (A.iToPlotIndex == B.iFromPlotIndex)
-			return false;
+		if (AisPlotChange && !BisPlotChange)
+			if (A.iToPlotIndex == B.iFromPlotIndex)
+				return false;
 
-	if (!bAisPlotChange && bBisPlotChange)
-		if (A.iFromPlotIndex == B.iToPlotIndex)
-			return false;
+		if (!AisPlotChange && BisPlotChange)
+			if (A.iFromPlotIndex == B.iToPlotIndex)
+				return false;
+	}
 
-	//don't really need to check this, but better be safe
-	if (!bAisPlotChange && !bBisPlotChange)
-		if (A.iFromPlotIndex == B.iFromPlotIndex)
-			return false;
+	//note that some combinations are guaranteed not to occur (hopefully)
+	//- move out from the same plot (for combat units)
+	//- move into plot before attack / kill
+	//- ...
+
+	bool AisKill = A.eType == STacticalAssignment::A_RANGEKILL || A.eType == STacticalAssignment::A_MELEEKILL;
+	bool BisAttack = B.eType == STacticalAssignment::A_RANGEATTACK || B.eType == STacticalAssignment::A_MELEEKILL;
+
+	if (AisKill && BisAttack)
+		return false;
 
 	return true;
 }
@@ -13363,7 +13376,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const CTacticalUnitArray& vU
 		{
 			//another twist. there may be "unrelated" friendly units standing around and blocking tiles
 			CvUnit* pDefender = pPlot->getBestDefender(vUnits.getOwner());
-			if (!pDefender || !pDefender->isEmbarked() || ourUnits.find(pDefender->GetID())!=ourUnits.end())
+			if (!pDefender || ourUnits.find(pDefender->GetID())!=ourUnits.end())
 				initialPosition->addTacticalPlot(pPlot, vUnits.getOwner());
 		}
 	}
