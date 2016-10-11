@@ -3351,7 +3351,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 		if(pUnit)
 		{
 #if defined(MOD_BALANCE_CORE_SETTLER_MOVE)
-			if( MOD_BALANCE_CORE_SETTLER_MOVE && GC.getSETTLER_MOVE_ON_START() > 0 )
+			if( MOD_BALANCE_CORE_SETTLER_MOVE && GC.getSETTLER_MOVE_ON_START() > 0 && m_pPlayer->isMajorCiv())
 			{
 				int iInitialPlotValue = 0;
 				int iAdjacentValue = 0;

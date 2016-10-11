@@ -2707,7 +2707,9 @@ int TradeRouteLandPathCost(const CvAStarNode* parent, const CvAStarNode* node, i
 	int iRouteFactor = 1;
 
 	// super duper low costs for moving along routes - don't check for pillaging
-	if (pFromPlot->getRouteType() != NO_ROUTE && pToPlot->getRouteType() != NO_ROUTE)
+	if (pFromPlot->getRouteType() == ROUTE_RAILROAD && pToPlot->getRouteType() == ROUTE_RAILROAD)
+		iRouteFactor = 7;
+	else if (pFromPlot->getRouteType() == ROUTE_ROAD && pToPlot->getRouteType() == ROUTE_ROAD)
 		iRouteFactor = 5;
 	// low costs for moving along rivers
 	else if (pFromPlot->isRiver() && pToPlot->isRiver() && !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))

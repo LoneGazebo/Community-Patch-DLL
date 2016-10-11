@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2409,7 +2409,15 @@ bool CvBuilderTaskingAI::IsImprovementBeneficial(CvPlot* pPlot, const CvBuildInf
 		else
 		{
 			CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
-			if(pkOldImprovementInfo && !pkOldImprovementInfo->IsCreatedByGreatPerson() && !pkOldImprovementInfo->IsSpecificCivRequired())
+			bool bResourceAlreadyLinked = false;
+			if (pPlot->getResourceType(m_pPlayer->getTeam()) != NO_RESOURCE)
+			{
+				if (pkOldImprovementInfo && pkOldImprovementInfo->IsImprovementResourceMakesValid(pPlot->getResourceType(m_pPlayer->getTeam())))
+				{
+					bResourceAlreadyLinked = true;
+				}
+			}
+			if (pkOldImprovementInfo && !bResourceAlreadyLinked && !pkOldImprovementInfo->IsCreatedByGreatPerson() && !pkOldImprovementInfo->IsSpecificCivRequired())
 			{
 				return true;
 			}
@@ -2709,6 +2717,21 @@ int CvBuilderTaskingAI::ScorePlot()
 				iScore /= 10;
 			}
 		}
+		//No improvement? Let's not default to great person improvements here.
+		else
+		{
+			if (pImprovement->IsCreatedByGreatPerson())
+			{
+				if (m_pTargetPlot->getResourceType(pCity->getTeam()) == NO_RESOURCE)
+				{
+					iScore *= 2;
+				}
+				else
+				{
+					iScore /= 10;
+				}
+			}
+		}
 
 		//Improvement grants resource? Let's weight this based on flavors.
 		ResourceTypes eResourceFromImprovement = (ResourceTypes)pImprovement->GetResourceFromImprovement();
@@ -2750,7 +2773,7 @@ int CvBuilderTaskingAI::ScorePlot()
 			{
 				if(!m_bEvaluateAdjacent || !pkImprovementInfo->IsInAdjacentFriendly())
 				{
-					iScore *= 25;
+					iScore *= 5;
 				}
 				else if(m_bEvaluateAdjacent && pkImprovementInfo->IsInAdjacentFriendly() && (m_pTargetPlot->getOwner() != m_pPlayer->GetID()))
 				{
@@ -2904,27 +2927,27 @@ int CvBuilderTaskingAI::ScorePlot()
 
 			if(iAdjacentValue > 0)
 			{
-				iScore *= (5 + m_pTargetPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield));
+				iScore *= (1 + m_pTargetPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield));
 			}
 			if(iAdjacentTwoValue > 0)
 			{
-				iScore *= (6 + m_pTargetPlot->ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield));
+				iScore *= (1 + m_pTargetPlot->ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield));
 			}
 			if(iAdjacentOtherValue > 0)
 			{
-				iScore *= (7 + m_pTargetPlot->ComputeYieldFromOtherAdjacentImprovement(*pImprovement, eYield));
+				iScore *= (1 + m_pTargetPlot->ComputeYieldFromOtherAdjacentImprovement(*pImprovement, eYield));
 			}
 			if(iAdjacentTerrainValue > 0)
 			{
-				iScore *= (7 + m_pTargetPlot->ComputeYieldFromAdjacentTerrain(*pImprovement, eYield));
+				iScore *= (1 + m_pTargetPlot->ComputeYieldFromAdjacentTerrain(*pImprovement, eYield));
 			}
 			if(iAdjacentResourceValue > 0)
 			{
-				iScore *= (7 + m_pTargetPlot->ComputeYieldFromAdjacentResource(*pImprovement, eYield));
+				iScore *= (1 + m_pTargetPlot->ComputeYieldFromAdjacentResource(*pImprovement, eYield));
 			}
 			if(iAdjacentPlotValue > 0)
 			{
-				iScore *= (7 + m_pTargetPlot->ComputeYieldFromAdjacentPlot(*pImprovement, eYield));
+				iScore *= (1 + m_pTargetPlot->ComputeYieldFromAdjacentPlot(*pImprovement, eYield));
 			}
 
 		}
@@ -2967,10 +2990,23 @@ int CvBuilderTaskingAI::ScorePlot()
 	}
 	if(bRouteBenefit)
 	{
-		if(m_pTargetPlot->IsCityConnection(m_pPlayer->GetID()) && (m_pTargetPlot->IsRouteRailroad() || m_pTargetPlot->IsRouteRoad()))
-			iScore *= 4;
+		if (m_pTargetPlot->getResourceType(m_pPlayer->getTeam()) == NO_RESOURCE)
+		{
+			if (m_pTargetPlot->IsCityConnection(m_pPlayer->GetID()) && (m_pTargetPlot->IsRouteRailroad() || m_pTargetPlot->IsRouteRoad()))
+				iScore *= 4;
+			else
+				iScore /= 2;
+		}
 		else
-			iScore /= 2;
+		{
+			if (m_pTargetPlot->IsCityConnection(m_pPlayer->GetID()) && (m_pTargetPlot->IsRouteRailroad() || m_pTargetPlot->IsRouteRoad()))
+			{
+				iScore *= 3; 
+				iScore /= 2;
+			}
+			else
+				iScore /= 4;
+		}
 	}
 
 	//Great improvements are great!
@@ -2981,13 +3017,13 @@ int CvBuilderTaskingAI::ScorePlot()
 		{
 			return 0;
 		}
-		iScore *= 5;
+		iScore *= 2;
 	}
 
 	//City adjacenct improvement? Ramp it up!
 	if(pImprovement->IsAdjacentCity() && m_pTargetPlot->GetAdjacentCity() != NULL)
 	{
-		iScore *= 10;
+		iScore *= 5;
 	}
 	//Holy Sites should be built near Holy Cities.
 	ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
@@ -3008,7 +3044,7 @@ int CvBuilderTaskingAI::ScorePlot()
 	{
 		if(pImprovement->IsImprovementResourceMakesValid(eResource))
 		{
-			iScore *= 10;
+			iScore *= 2;
 		}
 	}
 	//Do we have unimproved plots nearby? If so, let's not worry about replacing improvements right now.
@@ -3037,11 +3073,11 @@ int CvBuilderTaskingAI::ScorePlot()
 			//if population is higher than # of plots, increase value. Otherwise, reduce it.
 			if(iNumWorkedPlots > iNumWorkedPlots)
 			{
-				iScore *= (iNumWorkedPlots - iNumImprovedPlots);
+				iScore += ((iNumWorkedPlots - iNumImprovedPlots) * 2);
 			}
 			else
 			{
-				iScore /= max(2, (iNumImprovedPlots - iNumWorkedPlots));
+				iScore /= max(1, (iNumImprovedPlots - iNumWorkedPlots));
 			}
 		}
 	}

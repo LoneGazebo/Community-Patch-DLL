@@ -469,6 +469,10 @@ void CvBarbarians::DoCamps()
 				iNumCampsInExistence++;
 			}
 
+			//Discount all owned plots.
+			if (pLoopPlot->getOwner() != NO_PLAYER)
+				continue;
+
 			if(pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(BARBARIAN_PLAYER))
 				continue;
 
@@ -870,12 +874,14 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eU
 	}
 
 #if defined(MOD_EVENTS_BARBARIANS)
-	if (MOD_EVENTS_BARBARIANS) {
+	if (MOD_EVENTS_BARBARIANS)
+	{
 		int iValue = 0;
 		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_BarbariansCampGetSpawnUnit, pPlot->getX(), pPlot->getY(), eBestUnit) == GAMEEVENTRETURN_VALUE) {
 			// Defend against modder stupidity!
 			UnitTypes eUnitType = (UnitTypes)iValue;
-			if (eUnitType != NO_UNIT && GC.getUnitInfo(eUnitType) != NULL) {
+			if (eUnitType != NO_UNIT && GC.getUnitInfo(eUnitType) != NULL)
+			{
 				eBestUnit = eUnitType;
 			}
 		}

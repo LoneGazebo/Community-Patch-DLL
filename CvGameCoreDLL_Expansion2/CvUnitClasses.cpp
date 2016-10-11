@@ -60,6 +60,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_eConvertUnit(NO_UNIT),
 	m_iDamageThreshold(0),
 	m_bIsConvertOnFullHP(0),
+	m_bWarOnly(0),
 #endif
 	m_bSpreadReligion(false),
 	m_bRemoveHeresy(false),
@@ -390,6 +391,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	szTextVal = kResults.GetText("ConvertUnit");
 	m_eConvertUnit = (UnitTypes)GC.getInfoTypeForString(szTextVal, true);
 	m_bIsConvertOnFullHP = kResults.GetBool("ConvertOnFullHP");
+	m_bWarOnly = kResults.GetBool("WarOnly");
 #endif
 
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
@@ -1257,6 +1259,10 @@ UnitTypes CvUnitEntry::GetConvertUnit() const
 bool CvUnitEntry::IsConvertOnFullHP() const
 {
 	return m_bIsConvertOnFullHP;
+}
+bool CvUnitEntry::IsWarOnly() const
+{
+	return m_bWarOnly;
 }
 #endif
 #if defined(MOD_CARGO_SHIPS)

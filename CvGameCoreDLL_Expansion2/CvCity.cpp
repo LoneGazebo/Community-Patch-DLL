@@ -9167,11 +9167,11 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 				else
 				{
 #endif
-				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND");
-				strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_RESOURCE_DEMAND");
-				strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
-				pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND");
+					strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_RESOURCE_DEMAND");
+					strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+					pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 #if defined(MOD_BALANCE_CORE)
 				}
 #endif
@@ -9254,11 +9254,11 @@ void CvCity::DoTestResourceDemanded()
 					else
 					{
 #endif
-					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD");
-					strText << GC.getResourceInfo(eResource)->GetTextKey() << getNameKey();
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD");
-					strSummary << getNameKey();
-					pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD");
+						strText << GC.getResourceInfo(eResource)->GetTextKey() << getNameKey();
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD");
+						strSummary << getNameKey();
+						pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 #if defined(MOD_BALANCE_CORE)
 					}
 #endif
@@ -12440,8 +12440,29 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 								{
 #endif
 									pFreeUnit = owningPlayer.initUnit(eUnit, getX(), getY());
-									addProductionExperience(pFreeUnit);
 #if defined(MOD_BALANCE_CORE)
+								}
+								if(pFreeUnit->IsGreatPerson())
+								{
+									if(owningPlayer.GetPlayerTraits()->IsGPWLTKD())
+									{
+										int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+										iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+										iWLTKD /= 100;
+										if(iWLTKD > 0)
+										{
+											this->ChangeWeLoveTheKingDayCounter(iWLTKD);
+											CvNotifications* pNotifications = owningPlayer.GetNotifications();
+											if(pNotifications)
+											{
+												Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
+												strText <<  pFreeUnit->getNameKey() << this->getNameKey();
+												Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
+												strSummary << this->getNameKey();
+												pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), this->getX(), this->getY(), -1);
+											}
+										}
+									}
 								}
 #endif
 								// Bump up the count
@@ -12452,8 +12473,15 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #else
 									owningPlayer.incrementGreatGeneralsCreated();
 #endif
-									if (!pFreeUnit->jumpToNearestValidPlot())
-										pFreeUnit->kill(false);	// Could not find a valid spot!
+									bool bJumpSuccess = pFreeUnit->jumpToNearestValidPlot();
+									if (bJumpSuccess)
+									{
+										addProductionExperience(pFreeUnit);
+									}
+									else
+									{
+										pFreeUnit->kill(false);
+									}
 								}
 								else if(pFreeUnit->IsGreatAdmiral())
 								{
@@ -12466,6 +12494,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									if (pFreeUnit->plot() != pSpawnPlot)
 									{
 										pFreeUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
+										addProductionExperience(pFreeUnit);
 									}
 								}
 								else if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
@@ -12567,25 +12596,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
 									if (MOD_GLOBAL_SEPARATE_GP_COUNTERS)
 									{
-										if(owningPlayer.GetPlayerTraits()->IsGPWLTKD())
-										{
-											int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
-											iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-											iWLTKD /= 100;
-											if(iWLTKD > 0)
-											{
-												this->ChangeWeLoveTheKingDayCounter(iWLTKD);
-												CvNotifications* pNotifications = owningPlayer.GetNotifications();
-												if(pNotifications)
-												{
-													Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
-													strText <<  pFreeUnit->getNameKey() << this->getNameKey();
-													Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
-													strSummary << this->getNameKey();
-													pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), this->getX(), this->getY(), -1);
-												}
-											}
-										}
 										if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 										{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
@@ -12614,15 +12624,21 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									else
 #endif
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
-									owningPlayer.incrementGreatPeopleCreated(MOD_GLOBAL_TRULY_FREE_GP);
+										owningPlayer.incrementGreatPeopleCreated(MOD_GLOBAL_TRULY_FREE_GP);
 #else
-									owningPlayer.incrementGreatPeopleCreated();
+										owningPlayer.incrementGreatPeopleCreated();
 #endif
-									if (!pFreeUnit->jumpToNearestValidPlot())
-										pFreeUnit->kill(false);	// Could not find a valid spot!
+									bool bJumpSuccess = pFreeUnit->jumpToNearestValidPlot();
+									if (bJumpSuccess)
+									{
+											addProductionExperience(pFreeUnit);
+									}
+									else
+									{
+										pFreeUnit->kill(false);
+									}
 								}
 							}
-
 						}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -12671,7 +12687,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 								{
 #endif
 									pFreeUnit = owningPlayer.initUnit(eFreeUnitType, getX(), getY());
-									addProductionExperience(pFreeUnit);
 #if defined(MOD_BALANCE_CORE)
 									if(pFreeUnit && pFreeUnit->isTrade())
 									{
@@ -12686,8 +12701,29 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #endif
 #if defined(MOD_BALANCE_CORE)
 								}
+								if(pFreeUnit->IsGreatPerson())
+								{
+									if(owningPlayer.GetPlayerTraits()->IsGPWLTKD())
+									{
+										int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+										iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+										iWLTKD /= 100;
+										if(iWLTKD > 0)
+										{
+											this->ChangeWeLoveTheKingDayCounter(iWLTKD);
+											CvNotifications* pNotifications = owningPlayer.GetNotifications();
+											if(pNotifications)
+											{
+												Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
+												strText <<  pFreeUnit->getNameKey() << this->getNameKey();
+												Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
+												strSummary << this->getNameKey();
+												pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), this->getX(), this->getY(), -1);
+											}
+										}
+									}
+								}
 #endif
-
 								// Bump up the count
 								if(pFreeUnit->IsGreatGeneral())
 								{
@@ -12696,8 +12732,15 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #else
 									owningPlayer.incrementGreatGeneralsCreated();
 #endif
-									if (!pFreeUnit->jumpToNearestValidPlot())
-										pFreeUnit->kill(false);	// Could not find a valid spot!
+									bool bJumpSuccess = pFreeUnit->jumpToNearestValidPlot();
+									if (bJumpSuccess)
+									{
+										addProductionExperience(pFreeUnit);
+									}
+									else
+									{
+										pFreeUnit->kill(false);
+									}
 								}
 								else if(pFreeUnit->IsGreatAdmiral())
 								{
@@ -12710,6 +12753,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									if (pFreeUnit->plot() != pSpawnPlot)
 									{
 										pFreeUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
+										addProductionExperience(pFreeUnit);
 									}
 								}
 								else if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
@@ -12811,25 +12855,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
 									if (MOD_GLOBAL_SEPARATE_GP_COUNTERS)
 									{
-										if(owningPlayer.GetPlayerTraits()->IsGPWLTKD())
-										{
-											int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
-											iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-											iWLTKD /= 100;
-											if(iWLTKD > 0)
-											{
-												this->ChangeWeLoveTheKingDayCounter(iWLTKD);
-												CvNotifications* pNotifications = owningPlayer.GetNotifications();
-												if(pNotifications)
-												{
-													Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
-													strText <<  pFreeUnit->getNameKey() << this->getNameKey();
-													Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
-													strSummary << this->getNameKey();
-													pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), this->getX(), this->getY(), -1);
-												}
-											}
-										}
 										if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 										{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
@@ -12862,8 +12887,15 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #else
 										owningPlayer.incrementGreatPeopleCreated();
 #endif
-										if (!pFreeUnit->jumpToNearestValidPlot())
-											pFreeUnit->kill(false);	// Could not find a valid spot!
+									bool bJumpSuccess = pFreeUnit->jumpToNearestValidPlot();
+									if (bJumpSuccess)
+									{
+										addProductionExperience(pFreeUnit);
+									}
+									else
+									{
+										pFreeUnit->kill(false);
+									}
 								}
 #if defined(MOD_BALANCE_CORE)
 							}
@@ -12878,10 +12910,16 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						if(eFreeSpecUnitType != NO_UNIT)
 						{
 							pFreeUnit = owningPlayer.initUnit(eUnit, getX(), getY());
+						}
+						bool bJumpSuccess = pFreeUnit->jumpToNearestValidPlot();
+						if (bJumpSuccess)
+						{
 							addProductionExperience(pFreeUnit);
 						}
-						if (!pFreeUnit->jumpToNearestValidPlot())
-							pFreeUnit->kill(false);	// Could not find a valid spot!
+						else
+						{
+							pFreeUnit->kill(false);
+						}
 					}
 #endif
 				}

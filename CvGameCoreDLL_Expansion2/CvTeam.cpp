@@ -1476,13 +1476,28 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 										const UnitTypes eUnit = (UnitTypes) kAttackingPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);
 										if(eUnit != NO_UNIT)
 										{
-											CvCity* pCapital1 = kAttackingPlayer.getCapitalCity();
-											if(pCapital1 != NULL)
+											CvCity* pCapital = kAttackingPlayer.getCapitalCity();
+											if(pCapital != NULL)
 											{
-												CvUnit* pkUnit = kAttackingPlayer.initUnit(eUnit, pCapital1->getX(), pCapital1->getY());
-												pCapital1->addProductionExperience(pkUnit);
-												if (!pkUnit->jumpToNearestValidPlot())
+												CvUnit* pkUnit = kAttackingPlayer.initUnit(eUnit, pCapital->getX(), pCapital->getY());
+												CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
+												bool bJumpSuccess = pkUnit->jumpToNearestValidPlot();
+												if (!pkUnit->IsCombatUnit() && !bJumpSuccess)
+												{
 													pkUnit->kill(false);
+												}
+												else if (pUnitInfo != NULL && pUnitInfo->IsWarOnly() && GET_TEAM(kAttackingPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)pUnitInfo->GetPrereqAndTech()) && bJumpSuccess)
+												{
+													pCapital->addProductionExperience(pkUnit);
+												}
+												else if (kAttackingPlayer.canTrain(eUnit, false, false) && bJumpSuccess)
+												{
+													pCapital->addProductionExperience(pkUnit);
+												}
+												else
+												{
+													pkUnit->kill(false);
+												}
 											}
 										}
 									}
@@ -1494,13 +1509,28 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 										const UnitTypes eUnit = (UnitTypes) kDefendingPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);
 										if(eUnit != NO_UNIT)
 										{
-											CvCity* pCapital2 = kDefendingPlayer.getCapitalCity();
-											if(pCapital2 != NULL)
+											CvCity* pCapital = kDefendingPlayer.getCapitalCity();
+											if(pCapital != NULL)
 											{
-												CvUnit* pkUnit = kDefendingPlayer.initUnit(eUnit, pCapital2->getX(), pCapital2->getY());
-												pCapital2->addProductionExperience(pkUnit);
-												if (!pkUnit->jumpToNearestValidPlot())
+												CvUnit* pkUnit = kDefendingPlayer.initUnit(eUnit, pCapital->getX(), pCapital->getY());
+												CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
+												bool bJumpSuccess = pkUnit->jumpToNearestValidPlot();
+												if (!pkUnit->IsCombatUnit() && !bJumpSuccess)
+												{
 													pkUnit->kill(false);
+												}
+												else if (pUnitInfo != NULL && pUnitInfo->IsWarOnly() && GET_TEAM(kDefendingPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)pUnitInfo->GetPrereqAndTech()) && bJumpSuccess)
+												{
+													pCapital->addProductionExperience(pkUnit);
+												}
+												else if (kDefendingPlayer.canTrain(eUnit, false, false) && bJumpSuccess)
+												{
+													pCapital->addProductionExperience(pkUnit);
+												}
+												else
+												{
+													pkUnit->kill(false);
+												}
 											}
 										}
 									}
