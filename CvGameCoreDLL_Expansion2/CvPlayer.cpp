@@ -5382,7 +5382,7 @@ void CvPlayer::DoEvents()
 			if (IsEventValid(eEvent))
 			{
 				veValidEvents.push_back(eEvent);
-				iTotalWeight = pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
+				iTotalWeight += pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
 			}
 		}
 	}
@@ -10596,6 +10596,9 @@ void CvPlayer::doTurn()
 	}
 	else
 	{
+#if defined(MOD_BALANCE_CORE)
+		UpdateCityThreatCriteria();
+#endif
 		doTurnPostDiplomacy();
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -10622,7 +10625,6 @@ void CvPlayer::doTurn()
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	UpdateCityThreatCriteria();
 	for (int iInstantYield = 0; iInstantYield < NUM_INSTANT_YIELD_TYPES; iInstantYield++)
 	{
 		InstantYieldType eInstantYield = (InstantYieldType)iInstantYield;

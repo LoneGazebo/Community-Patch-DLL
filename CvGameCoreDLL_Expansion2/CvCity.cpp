@@ -3623,7 +3623,7 @@ void CvCity::DoEvents()
 			if (IsCityEventValid(eEvent))
 			{
 				veValidEvents.push_back(eEvent);
-				iTotalWeight = pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
+				iTotalWeight += pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
 			}
 		}
 	}
