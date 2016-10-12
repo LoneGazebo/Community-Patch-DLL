@@ -11340,7 +11340,16 @@ public:
 protected:
 	virtual void OnSymInit(LPCSTR, DWORD, LPCSTR) { /*dummy*/ }
 	virtual void OnLoadModule(LPCSTR, LPCSTR, DWORD64, DWORD, DWORD, LPCSTR, LPCSTR, ULONGLONG) { /*dummy*/ }
-	virtual void OnOutput(LPCSTR szText) { if (m_pLog && strstr(szText,"ERROR")==NULL && strstr(szText,"not available")==NULL ) m_pLog->Msg(szText); }
+	virtual void OnOutput(LPCSTR szText) 
+	{ 
+		if (strstr(szText,"ERROR")==NULL && strstr(szText,"not available")==NULL) 
+		{
+			if (m_pLog)
+				m_pLog->Msg(szText);
+			else
+				OutputDebugString(szText);
+		}
+	}
 	FILogFile* m_pLog;
 };
 
