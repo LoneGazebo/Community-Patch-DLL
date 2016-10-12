@@ -1080,6 +1080,7 @@ public:
 	eTactPlotType getType() const { return eType; }
 	int getNumAdjacentEnemies() const { return nEnemyCombatUnitsAdjacent; }
 	int getNumAdjacentFriendlies() const { return nFriendlyCombatUnitsAdjacent; }
+	int getNumAdjacentFirstlineFriendlies() const { return nFriendlyFirstlineUnitsAdjacent; }
 	bool isEnemy() const { return bBlockedByEnemyCity || bBlockedByEnemyCombatUnit; }
 	bool isEnemyCity() const { return bBlockedByEnemyCity; }
 	bool isEnemyCombatUnit() const { return bBlockedByEnemyCombatUnit; }
@@ -1095,9 +1096,11 @@ public:
 
 protected:
 	const CvPlot* pPlot;
-	int nEnemyCombatUnitsAdjacent;
-	int nFriendlyCombatUnitsAdjacent;
-	int nSupportUnitsAdjacent;
+	int nEnemyCombatUnitsAdjacent; //for figuring out the frontline
+	int nFriendlyCombatUnitsAdjacent; //for flanking
+	int nFriendlyFirstlineUnitsAdjacent; //ranged units need cover
+	int nSupportUnitsAdjacent; //for general bonus
+
 	//note that blocked by neutral cannot occur, we don't even create tactical plots in that case!
 	bool bBlockedByEnemyCity;
 	bool bBlockedByEnemyCombatUnit;

@@ -12205,9 +12205,13 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	case AL_LOW:
 		if ( iDamageDealt/2 < iDamageReceived )
 			result.iScore = -1; //don't do it
+		if ( pUnit->GetCurrHitPoints() - iDamageReceived < pUnit->GetMaxHitPoints()/2 )
+			result.iScore = -1; //don't do it
 		break;
 	case AL_MEDIUM:
 		if ( iDamageDealt < iDamageReceived && iExtraDamage == 0 )
+			result.iScore = -1; //don't do it
+		if ( pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints()/2 )
 			result.iScore = -1; //don't do it
 		break;
 	case AL_HIGH:
@@ -12341,10 +12345,18 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 					iDamageScore += vDamageRatios[i] / 4; 
 			}
 
-			//try to stay away from enemies if we can attack from afar
-			//the reverse works automatically, range 1 units only get points if they close in
-			if (currentPlot.getNumAdjacentEnemies()>0 && iMaxRange>1)
-				iDamageScore /= 2;
+			//ranged specialties
+			if (iMaxRange>1)
+			{
+				//try to stay away from enemies if we can attack from afar
+				//the reverse works automatically, range 1 units only get points if they close in
+				if (currentPlot.getNumAdjacentEnemies()>0)
+					iDamageScore /= 2;
+
+				//ranged units are vulnerable without melee
+				if (currentPlot.getNumAdjacentFirstlineFriendlies()==0)
+					iDamageScore /= 2;
+			}
 		}
 
 		//temporary score
@@ -12440,6 +12452,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer)
 	pPlot = NULL;
 	nEnemyCombatUnitsAdjacent = 0;
 	nFriendlyCombatUnitsAdjacent = 0;
+	nFriendlyFirstlineUnitsAdjacent = 0;
 	nSupportUnitsAdjacent = 0;
 
 	setInitialState(plot,ePlayer);
@@ -12453,6 +12466,7 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer)
 		pPlot=plot;
 		nEnemyCombatUnitsAdjacent = pPlot->GetNumEnemyUnitsAdjacent(GET_PLAYER(ePlayer).getTeam(),pPlot->getDomain());
 		nFriendlyCombatUnitsAdjacent = pPlot->GetNumFriendlyUnitsAdjacent(GET_PLAYER(ePlayer).getTeam(),pPlot->getDomain());
+		nFriendlyFirstlineUnitsAdjacent = 0; //don't know this yet
 
 		//embarked units don't count as combat unit ...
 		CvUnit* pDefender = pPlot->getBestDefender(ePlayer);
@@ -12514,6 +12528,7 @@ void CvTacticalPlot::findType(const CvTacticalPosition& currentPosition, set<int
 	eTactPlotType eOldType = eType;
 	nFriendlyCombatUnitsAdjacent = 0;
 	nEnemyCombatUnitsAdjacent = 0;
+	nFriendlyFirstlineUnitsAdjacent = 0;
 	
 	bool bEnemyCityAdjacent = false;
 	int iFL = 0, iSL = 0, iTL = 0;
@@ -12540,6 +12555,10 @@ void CvTacticalPlot::findType(const CvTacticalPosition& currentPosition, set<int
 					iSL++;
 				if (tactPlot.getType() == TP_THIRDLINE)
 					iTL++;
+
+				//let's hope it's the right kind of unit
+				if (tactPlot.getType() == TP_FRONTLINE && tactPlot.bBlockedByFriendlyCombatUnit)
+					nFriendlyFirstlineUnitsAdjacent++;
 			}
 		}
 	}
