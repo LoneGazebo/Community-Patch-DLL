@@ -495,7 +495,7 @@ public:
 	int GetYieldModifierNaturalWonder(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
 	int GetMaxYieldModifierPerFollower(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER) const;
 
-	bool IsBuildingClassEnabled(BuildingClassTypes eType) const;
+	bool IsBuildingClassEnabled(BuildingClassTypes eType, PlayerTypes ePlayer = NO_PLAYER) const;
 	bool IsFaithBuyingEnabled(EraTypes eEra, PlayerTypes ePlayer = NO_PLAYER) const;
 #if defined(MOD_BALANCE_CORE)
 	bool IsSpecificFaithBuyingEnabled(UnitTypes eUnit, PlayerTypes ePlayer = NO_PLAYER) const;

@@ -156,6 +156,20 @@ CvGame::CvGame() :
 	m_endTurnTimer.Start();
 	m_endTurnTimer.Stop();
 
+	// RNG quality test
+	/*
+	vector<int> result(1000, 0);
+	for (size_t i = 0; i < 1e6; i++)
+	{
+		int j = m_jonRand.get(1000);
+		result[j]++;
+	}
+	for (size_t i = 0; i < result.size(); i++)
+	{
+		OutputDebugString(CvString::format("%03d\t%03d\n",i,result[i]).c_str());
+	}
+	*/
+
 	reset(NO_HANDICAP, true);
 }
 

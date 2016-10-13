@@ -185,6 +185,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bHalfSpecialistFood(false),
 #if defined(MOD_BALANCE_CORE)
 	m_bHalfSpecialistFoodCapital(false),
+	m_iStealGWSlowerModifier(0),
+	m_iStealGWFasterModifier(0),
 	m_iEventTourism(0),
 	m_iEventTourismCS(0),
 	m_iMonopolyModFlat(0),
@@ -520,6 +522,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bHalfSpecialistUnhappiness = kResults.GetBool("HalfSpecialistUnhappiness");
 	m_bHalfSpecialistFood = kResults.GetBool("HalfSpecialistFood");
 #if defined(MOD_BALANCE_CORE)
+	m_iStealGWSlowerModifier = kResults.GetInt("StealGWSlowerModifier");
+	m_iStealGWFasterModifier = kResults.GetInt("StealGWFasterModifier");
 	m_bHalfSpecialistFoodCapital = kResults.GetBool("HalfSpecialistFoodCapital");
 	m_iEventTourism = kResults.GetInt("EventTourism");
 	m_iEventTourismCS = kResults.GetInt("EventTourismCS");
@@ -2037,6 +2041,14 @@ bool CvPolicyEntry::IsHalfSpecialistFood() const
 bool CvPolicyEntry::IsHalfSpecialistFoodCapital() const
 {
 	return m_bHalfSpecialistFoodCapital;
+}
+int CvPolicyEntry::GetStealGWSlowerModifier() const
+{
+	return m_iStealGWSlowerModifier;
+}
+int CvPolicyEntry::GetStealGWFasterModifier() const
+{
+	return m_iStealGWFasterModifier;
 }
 int CvPolicyEntry::GetEventTourism() const
 {
@@ -3793,6 +3805,12 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 #if defined(MOD_BALANCE_CORE)
 			case POLICYMOD_GREAT_ENGINEER_RATE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatEngineerRateModifier();
+				break;
+			case POLICYMOD_STEAL_GW_SLOWER_MODIFIER:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetStealGWSlowerModifier();
+				break;
+			case POLICYMOD_STEAL_GW_FASTER_MODIFIER:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetStealGWFasterModifier();
 				break;
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -5814,7 +5832,23 @@ void CvPlayerPolicies::AddFlavorAsStrategies(int iPropagatePercent)
 		iFlavorValue = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavor);
 
 //		Boost flavor even further based on in-game conditions
-		
+#if defined(MOD_BALANCE_CORE)
+		if (m_pPlayer->GetCurrentEra() < eMedieval)
+		{
+			if (m_pPlayer->GetDiplomacyAI()->GetMeanness() > 6 && iFlavor == GC.getInfoTypeForString("FLAVOR_OFFENSE"))
+			{
+				iFlavorValue += m_pPlayer->GetDiplomacyAI()->GetMeanness();
+			}
+			if (m_pPlayer->GetDiplomacyAI()->GetBoldness() > 6 && iFlavor == GC.getInfoTypeForString("FLAVOR_EXPANSION"))
+			{
+				iFlavorValue += m_pPlayer->GetDiplomacyAI()->GetBoldness();
+			}
+			if (m_pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness() > 6 && iFlavor == GC.getInfoTypeForString("FLAVOR_WONDER"))
+			{
+				iFlavorValue += m_pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness();
+			}
+		}
+#endif
 
 		EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
 		if (eStrategyLosingMoney == NO_ECONOMICAISTRATEGY)

@@ -3658,7 +3658,7 @@ bool CvAIOperationCivilian::IsEscorted()
 		//the second unit would be the first escort
 		CvUnit* pEscort = pThisArmy->GetNextUnit();
 
-		return pEscort;
+		return pEscort != NULL;
 	}
 }
 

@@ -5385,7 +5385,7 @@ void CvPlayer::DoEvents()
 			if (IsEventValid(eEvent))
 			{
 				veValidEvents.push_back(eEvent);
-				iTotalWeight = pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
+				iTotalWeight += pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
 			}
 		}
 	}
@@ -10473,7 +10473,7 @@ void CvPlayer::doTurn()
 	DoUpdateUprisings();
 	DoUpdateCityRevolts();
 	CalculateNetHappiness();
-	SetBestNationalWonderCities();
+	SetBestWonderCities();
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
@@ -10599,6 +10599,9 @@ void CvPlayer::doTurn()
 	}
 	else
 	{
+#if defined(MOD_BALANCE_CORE)
+		UpdateCityThreatCriteria();
+#endif
 		doTurnPostDiplomacy();
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -10625,7 +10628,6 @@ void CvPlayer::doTurn()
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	UpdateCityThreatCriteria();
 	for (int iInstantYield = 0; iInstantYield < NUM_INSTANT_YIELD_TYPES; iInstantYield++)
 	{
 		InstantYieldType eInstantYield = (InstantYieldType)iInstantYield;
@@ -14765,7 +14767,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
 				if(pReligion)
 				{
-					if(pReligion->m_Beliefs.IsBuildingClassEnabled(eBuildingClass))
+					if(pReligion->m_Beliefs.IsBuildingClassEnabled(eBuildingClass, GetID()))
 					{
 						if(pkBuildingInfo->GetNationalFollowerPopRequired() > 0)
 						{
@@ -18746,7 +18748,11 @@ int CvPlayer::DoDifficultyBonus()
 	{				
 		GetTreasury()->ChangeGold(iYieldHandicap);
 		ChangeGoldenAgeProgressMeter(iYieldHandicap);
-		changeJONSCulture(iYieldHandicap);
+
+		if (getNumCities() > 1)
+		{
+			changeJONSCulture(iYieldHandicap);
+		}
 
 		if(getCapitalCity() != NULL)
 		{
@@ -39643,6 +39649,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	{
 		GetEspionage()->UpdateSpies();
 	}
+#if defined(MOD_BALANCE_CORE)
+	if (pPolicy->GetStealGWFasterModifier() != 0)
+	{
+		GetEspionage()->UpdateSpies();
+	}
+#endif
 
 	CvPlot *pLoopPlot;
 	ResourceTypes eResource;
@@ -42219,7 +42231,7 @@ void CvPlayer::ChangeNumGreatPeople(int iValue)
 	}
 }
 #if defined(MOD_BALANCE_CORE)
-void CvPlayer::SetBestNationalWonderCities()
+void CvPlayer::SetBestWonderCities()
 {
 	int iGPT = GetTreasury()->CalculateBaseNetGold();
 	
@@ -42230,8 +42242,11 @@ void CvPlayer::SetBestNationalWonderCities()
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
 		CvBuildingEntry* pkeBuildingInfo = GC.getBuildingInfo(eBuilding);
 
-		//Not national wonder? Skip
-		if (!pkeBuildingInfo || !::isNationalWonderClass(pkeBuildingInfo->GetBuildingClassInfo()) || !::isLimitedWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
+		//Not wonder? Skip
+		if (!pkeBuildingInfo)
+			continue;
+
+		if (!::isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()) && !::isNationalWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
 			continue;
 
 		//Can't construct?
@@ -42252,7 +42267,7 @@ void CvPlayer::SetBestNationalWonderCities()
 		for (pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
 		{
 			//Reset here.
-			pLoopCity->SetBestForNationalWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), false);
+			pLoopCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), false);
 
 			if (!pLoopCity->canConstruct(eBuilding))
 				continue;
@@ -42277,6 +42292,8 @@ void CvPlayer::SetBestNationalWonderCities()
 			//Best? Do it!
 			int iValue = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 1000, iLandRoutes, iWaterRoutes, iGPT, false, true);
 
+			iValue += (-10 * pLoopCity->getProductionTurnsLeft(eBuilding, 0));
+
 			//Made it this far? Let's register the capital as valid as a failsafe.
 			if (pLoopCity->isCapital())
 			{
@@ -42290,7 +42307,7 @@ void CvPlayer::SetBestNationalWonderCities()
 		}
 		if (pBestCity != NULL)
 		{
-			pBestCity->SetBestForNationalWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), true);
+			pBestCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), true);
 			if ((GC.getLogging() && GC.getAILogging()))
 			{
 				CvString playerName;
@@ -42310,7 +42327,7 @@ void CvPlayer::SetBestNationalWonderCities()
 		//No city? Set capital as best.
 		else if (getCapitalCity() != NULL && iValidCities > 0)
 		{
-			getCapitalCity()->SetBestForNationalWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), true);
+			getCapitalCity()->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), true);
 			if ((GC.getLogging() && GC.getAILogging()))
 			{
 				CvString playerName;

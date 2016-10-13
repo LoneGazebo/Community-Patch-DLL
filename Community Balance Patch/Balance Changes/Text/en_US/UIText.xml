@@ -349,13 +349,13 @@
 			<Text>[NEWLINE][ICON_BULLET]Mandarin Bureaucracy ([ICON_GOLDEN_AGE]): {1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA">
-			<Text>The birth of a {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day", giving the city a +50% [ICON_FOOD] growth bonus!</Text>
+			<Text>The birth of a {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day", giving the city a +75% [ICON_FOOD] growth bonus!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA">
 			<Text>{1_CityName:textkey} loves the Empress!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_RESOURCE">
-			<Text>The aquisition of {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day", giving the city a +50% [ICON_FOOD] growth bonus!</Text>
+			<Text>The aquisition of {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day", giving the city a +75% [ICON_FOOD] growth bonus!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_RESOURCE">
 			<Text>{1_CityName:textkey} loves the Empress!</Text>
@@ -364,7 +364,7 @@
 			<Text>[NEWLINE][ICON_BULLET]We Love the Empress Day Modifier: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND_UA">
-			<Text>The City of {1_CityName:textkey} wants {2_ResourceName:textkey}! Connecting that resource to your trade network will cause the city to enter "We Love the Empress Day," increasing its [ICON_FOOD] Growth rate by 50%!</Text>
+			<Text>The City of {1_CityName:textkey} wants {2_ResourceName:textkey}! Connecting that resource to your trade network will cause the city to enter "We Love the Empress Day," increasing its [ICON_FOOD] Growth rate by 75%!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA">
 			<Text>This City is in "We Love the Empress Day", which increases [ICON_FOOD] growth!</Text>
