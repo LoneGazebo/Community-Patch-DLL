@@ -7620,6 +7620,41 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 #if defined(MOD_BALANCE_CORE)
 	if (GET_PLAYER(ePlayer).HasCityAboutToBeConquered() && !m_pPlayer->HasCityAboutToBeConquered())
 	{
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			CvString strOutBuf;
+			CvString strBaseString;
+			CvString playerName;
+			CvString otherPlayerName;
+			CvString strDesc;
+			CvString strLogName;
+
+			// Find the name of this civ and city
+			playerName = m_pPlayer->getCivilizationShortDescription();
+
+			// Open the log file
+			if (GC.getPlayerAndCityAILogSplit())
+			{
+				strLogName = "DiplomacyAI_Peace_Log" + playerName + ".csv";
+			}
+			else
+			{
+				strLogName = "DiplomacyAI_Peace_Log.csv";
+			}
+
+			FILogFile* pLog;
+			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+			// Get the leading info for this line
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
+			strBaseString += playerName + " VS. " + otherPlayerName;
+
+			strOutBuf.Format("No peace! We're about to score, and our cities are safe!");
+
+			strBaseString += strOutBuf;
+			pLog->Msg(strBaseString);
+		}
 		return false;
 	}
 	if(GET_PLAYER(ePlayer).isMinorCiv())
@@ -7750,7 +7785,7 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 		
 		CvCity* pLoopCity;
 		int iOurDanger = 0;
-		int iThierDanger = 0;
+		int iTheirDanger = 0;
 		int iLoop;
 		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
@@ -7778,24 +7813,26 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 
 			if(pLoopCity->isUnderSiege())
 			{
-				iThierDanger++;
+				iTheirDanger++;
 			}
 			if(pLoopCity->isInDangerOfFalling())
 			{
-				iThierDanger++;
+				iTheirDanger++;
 			}
 			if (pLoopCity->IsBlockaded(false) || pLoopCity->IsBlockaded(true))
 			{
-				iThierDanger++;
+				iTheirDanger++;
 			}
 		}
 		
 		iWantPeace += iOurDanger * 2;
-		iWantPeace += (iThierDanger * -2);
+		iWantPeace += (iTheirDanger * -2);
 
-		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1)
+		//Num of turns since they captured a city?
+		if(GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID()) > 1)
 		{
-			iWantPeace += (GetPlayerNumTurnsSinceCityCapture(ePlayer) / 2);
+			//Longer lag time in war = bigger desire for peace.
+			iWantPeace += ((GetPlayerNumTurnsSinceCityCapture(ePlayer) + GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPlayerNumTurnsSinceCityCapture(m_pPlayer->GetID())) / 4);
 		}
 		if(m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireUnhappy())
 		{

@@ -2348,7 +2348,7 @@ public:
 	// End New Victory Stuff
 
 #if defined(MOD_BALANCE_CORE)
-	void SetBestNationalWonderCities();
+	void SetBestWonderCities();
 #endif
 	void DoAdoptedGreatPersonCityStatePolicy();
 	bool IsAlliesGreatPersonBiasApplied() const;

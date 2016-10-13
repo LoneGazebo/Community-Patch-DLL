@@ -238,7 +238,7 @@ void CvDeal::ClearItems()
 	m_iDuration = -1;
 	m_iStartTurn = -1;
 	m_bConsideringForRenewal = false;
-	m_bCheckedForRenewal = false;
+	m_bCheckedForRenewal = true;
 	m_bDealCancelled = false;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = false;

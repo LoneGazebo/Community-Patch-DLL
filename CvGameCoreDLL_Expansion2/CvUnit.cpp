@@ -15268,7 +15268,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	// Great General nearby
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	int iAuraEffectChange = 0;
-	if(IsNearGreatGeneral(iAuraEffectChange) && !IsIgnoreGreatGeneralBenefit())
+	if(IsNearGreatGeneral(iAuraEffectChange) && !IsIgnoreGreatGeneralBenefit() && !bIgnoreUnitAdjacency)
 #else
 	if(IsNearGreatGeneral() && !IsIgnoreGreatGeneralBenefit())
 #endif

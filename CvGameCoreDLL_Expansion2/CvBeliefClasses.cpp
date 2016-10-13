@@ -3152,9 +3152,22 @@ int CvReligionBeliefs::GetMaxYieldModifierPerFollower(YieldTypes eYieldType, Pla
 }
 
 /// Does this belief allow a building to be constructed?
-bool CvReligionBeliefs::IsBuildingClassEnabled(BuildingClassTypes eType) const
+bool CvReligionBeliefs::IsBuildingClassEnabled(BuildingClassTypes eType, PlayerTypes ePlayer) const
 {
-	return m_paiBuildingClassEnabled[(int)eType];
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		if (IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer))
+		{
+			if (pBeliefs->GetEntry(*it)->IsBuildingClassEnabled((int)eType))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 /// Is there a belief that allows faith buying of units

@@ -369,7 +369,7 @@ CvCity::CvCity() :
 	, m_iTurnsSinceRankAnnouncement("CvCity::m_iTurnsSinceRankAnnouncement", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
-	, m_abIsBestForNationalWonder("CvCity::m_abIsBestForNationalWonder", m_syncArchive)
+	, m_abIsBestForWonder("CvCity::m_abIsBestForWonder", m_syncArchive)
 	, m_abIsPurchased("CvCity::m_abIsPurchased", m_syncArchive)
 	, m_abTraded("CvCity::m_abTraded", m_syncArchive)
 	, m_abPaidAdoptionBonus("CvCity::m_abPaidAdoptionBonus", m_syncArchive)
@@ -1569,12 +1569,12 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 
 	m_abEverOwned.resize(REALLY_MAX_PLAYERS);
 #if defined(MOD_BALANCE_CORE)
-	m_abIsBestForNationalWonder.resize(GC.getNumBuildingClassInfos());
+	m_abIsBestForWonder.resize(GC.getNumBuildingClassInfos());
 	m_abIsPurchased.resize(GC.getNumBuildingClassInfos());
 	for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
 		m_abIsPurchased.setAt(iI, false);
-		m_abIsBestForNationalWonder.setAt(iI, false);
+		m_abIsBestForWonder.setAt(iI, false);
 	}
 	m_abTraded.resize(REALLY_MAX_PLAYERS);
 #endif
@@ -7802,7 +7802,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		if(eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eReligion, getOwner());
-			if(pReligion == NULL || !pReligion->m_Beliefs.IsBuildingClassEnabled((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
+			if(pReligion == NULL || !pReligion->m_Beliefs.IsBuildingClassEnabled((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), getOwner()))
 			{
 				return false;
 			}
@@ -22910,22 +22910,22 @@ bool CvCity::IsPurchased(BuildingClassTypes eBuildingClass)
 	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eIndex expected to be < MAX_PLAYERS");
 	return m_abIsPurchased[eBuildingClass];
 }
-void CvCity::SetBestForNationalWonder(BuildingClassTypes eBuildingClass, bool bValue)
+void CvCity::SetBestForWonder(BuildingClassTypes eBuildingClass, bool bValue)
 {
 	VALIDATE_OBJECT
 		CvAssertMsg(eBuildingClass >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eIndex expected to be < MAX_PLAYERS");
-	if (m_abIsBestForNationalWonder[eBuildingClass] != bValue)
+	if (m_abIsBestForWonder[eBuildingClass] != bValue)
 	{
-		m_abIsBestForNationalWonder.setAt(eBuildingClass, bValue);
+		m_abIsBestForWonder.setAt(eBuildingClass, bValue);
 	}
 }
-bool CvCity::IsBestForNationalWonder(BuildingClassTypes eBuildingClass)
+bool CvCity::IsBestForWonder(BuildingClassTypes eBuildingClass)
 {
 	VALIDATE_OBJECT
 		CvAssertMsg(eBuildingClass >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eIndex expected to be < MAX_PLAYERS");
-	return m_abIsBestForNationalWonder[eBuildingClass];
+	return m_abIsBestForWonder[eBuildingClass];
 }
 
 #endif
@@ -26671,7 +26671,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					return false;
 				}
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-				if(pReligion == NULL || !pReligion->m_Beliefs.IsBuildingClassEnabled((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
+				if(pReligion == NULL || !pReligion->m_Beliefs.IsBuildingClassEnabled((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), getOwner()))
 				{
 					return false;
 				}

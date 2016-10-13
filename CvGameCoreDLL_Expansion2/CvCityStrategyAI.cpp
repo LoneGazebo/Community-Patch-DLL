@@ -5209,9 +5209,6 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	if(pkBuildingInfo == NULL)
 		return 0;
 
-	if (pCity == NULL)
-		return 0;
-
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 
 	//Start with 0 value for modifier.
@@ -5315,7 +5312,11 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 		{
 			if(pkBuildingInfo->GetUnitCombatProductionModifier((int)eUnitCombat) > 0)
 			{
-				iDiploValue += pkBuildingInfo->GetUnitCombatProductionModifier((int)eUnitCombat) + pCity->getUnitCombatProductionModifier(eUnitCombat);
+				iDiploValue += pkBuildingInfo->GetUnitCombatProductionModifier((int)eUnitCombat);
+				if (pCity != NULL)
+				{
+					iDiploValue += pCity->getUnitCombatProductionModifier(eUnitCombat);
+				}
 			}
 		}
 	}
@@ -5327,9 +5328,16 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	}
 	if(pkBuildingInfo->GetAlwaysHeal() > 0)
 	{
-		if (pCity->IsBastion())
+		if (pCity != NULL)
 		{
-			iConquestValue += 50;
+			if (pCity->IsBastion())
+			{
+				iConquestValue += 50;
+			}
+			else
+			{
+				iConquestValue += 25;
+			}
 		}
 		else
 		{
@@ -5368,10 +5376,6 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	}
 
 
-	if(pkBuildingInfo->GetFreeTechs() > 0)
-	{
-		iScienceValue += 50;
-	}
 	if(pkBuildingInfo->GetGlobalSpaceProductionModifier() > 0)
 	{
 		iScienceValue += pkBuildingInfo->GetGlobalSpaceProductionModifier();
@@ -5802,6 +5806,11 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	if(pkBuildingInfo->IsAllowsPuppetPurchase() && pCity->IsPuppet())
 	{
 		iValue += (100 + pCity->getPopulation()) * 5;
+	}
+	if (pkBuildingInfo->GetFreeTechs() > 0)
+	{
+		//Earlier techs pretty useful...
+		iValue += (200 + (GC.getNumTechInfos() - GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->GetNumTechsKnown()));
 	}
 	for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
 	{

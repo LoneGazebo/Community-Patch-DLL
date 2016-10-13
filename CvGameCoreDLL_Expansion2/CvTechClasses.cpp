@@ -1303,6 +1303,41 @@ void CvPlayerTechs::SetGSPriorities()
 
 			}
 		}
+		//Let's look at grandstrategy values for units as well and add those in to techs.
+		for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
+		{
+			const UnitTypes eUnit = static_cast<UnitTypes>(iUnitLoop);
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+
+			if (pkUnitInfo && pkUnitInfo->GetPrereqAndTech() == iTechLoop)
+			{
+				int iTechGSValue = 0;
+				if (pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0)
+				{
+					iTechGSValue = pkUnitInfo->GetRange() > 0 ? pkUnitInfo->GetRangedCombat() : pkUnitInfo->GetCombat();
+				}
+				if (bSeekingConquestVictory)
+				{
+					iTechGSValue /= 10;
+				}
+				else
+				{
+					iTechGSValue /= 20;
+				}
+				if (pkUnitInfo->IsFound() || pkUnitInfo->IsFoundAbroad() || pkUnitInfo->IsFoundMid() || pkUnitInfo->IsFoundLate())
+				{
+					m_piGSTechPriority[iTechLoop] += 10;
+				}
+				if (bSeekingScienceVictory && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
+				{
+					if (iTechGSValue > 0)
+					{
+						m_piGSTechPriority[iTechLoop] += 10;
+					}
+				}
+
+			}
+		}
 	}
 }
 #endif

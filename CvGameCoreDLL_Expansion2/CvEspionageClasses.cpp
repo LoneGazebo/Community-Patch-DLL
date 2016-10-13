@@ -3969,13 +3969,15 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex)
 			iBaseYieldRate /= 10000;
 			int iCityEspionageModifier = pCity->GetEspionageModifier();
 			int iPlayerEspionageModifier = GET_PLAYER(eCityOwner).GetEspionageModifier();
+			int iTheirPoliciesEspionageModifier = GET_PLAYER(eCityOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_GW_SLOWER_MODIFIER);
+			int iMyPoliciesEspionageModifier = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_GW_FASTER_MODIFIER);
 #if defined(MOD_BALANCE_CORE_SPIES)
 			int iUnhappinessMod = 0;
 			if (pCity->getPopulation() > 0)
 			{
 				iUnhappinessMod = (((pCity->getUnhappyCitizenCount() * 3) * 100) / pCity->getPopulation());
 			}
-			int iFinalModifier = (iBaseYieldRate * (100 + iUnhappinessMod + iCityEspionageModifier + iPlayerEspionageModifier)) / 100;
+			int iFinalModifier = (iBaseYieldRate * (100 + iUnhappinessMod + iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iMyPoliciesEspionageModifier)) / 100;
 #else
 			int iFinalModifier = (iBaseYieldRate * (100 + iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iMyPoliciesEspionageModifier)) / 100;
 #endif

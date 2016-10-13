@@ -9085,6 +9085,11 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
 		if(pLoopUnit)
 		{
+
+			//Don't grab civilians for this!
+			if (pLoopUnit->IsCivilianUnit())
+				continue;
+
 			//To effectively skip all non-naval units
 			if(bNavalOnly && pLoopUnit->getDomainType() != DOMAIN_SEA)
 				continue;

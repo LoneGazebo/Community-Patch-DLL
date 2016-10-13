@@ -1163,8 +1163,8 @@ public:
 	void SetPurchased(BuildingClassTypes eBuildingClass, bool bValue);
 	bool IsPurchased(BuildingClassTypes eBuildingClass);
 
-	void SetBestForNationalWonder(BuildingClassTypes eBuildingClass, bool bValue);
-	bool IsBestForNationalWonder(BuildingClassTypes eBuildingClass);
+	void SetBestForWonder(BuildingClassTypes eBuildingClass, bool bValue);
+	bool IsBestForWonder(BuildingClassTypes eBuildingClass);
 #endif
 	// END Base Yield
 
@@ -1721,7 +1721,7 @@ protected:
 
 	FAutoVariable<std::vector<bool>, CvCity> m_abEverOwned;
 #if defined(MOD_BALANCE_CORE)
-	FAutoVariable<std::vector<bool>, CvCity> m_abIsBestForNationalWonder;
+	FAutoVariable<std::vector<bool>, CvCity> m_abIsBestForWonder;
 	FAutoVariable<std::vector<bool>, CvCity> m_abIsPurchased;
 	FAutoVariable<std::vector<bool>, CvCity> m_abTraded;
 	FAutoVariable<std::vector<bool>, CvCity> m_abPaidAdoptionBonus;
