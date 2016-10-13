@@ -281,33 +281,23 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			}
 		}
 	}
-	
-	if (isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo))
+	if (isNationalWonderClass(kBuildingClassInfo) || isWorldWonderClass(kBuildingClassInfo))
 	{
-		//Sanitize...
+		if (!bNationalWonderCheck)
+		{
+			if (!m_pCity->IsBestForWonder((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
+			{
+				return 0;
+			}
+		}
 		if (iValue > 1000)
 		{
 			iValue = 1000;
-		}
-		if (kPlayer.GetCitySpecializationAI()->GetWonderBuildCity() != m_pCity)
-		{
-			iValue = 100;
 		}
 		int iNumCivsAlreadyBuilding = kPlayer.GetNumCivsConstructingWonder(eBuilding);
 		if (iNumCivsAlreadyBuilding > 0)
 		{
-			iValue -= (150 * iNumCivsAlreadyBuilding);
-		}
-	}
-	else if (!bNationalWonderCheck && (isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo)))
-	{
-		if (!m_pCity->IsBestForNationalWonder((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
-		{
-			return 0;
-		}
-		if (iValue > 1000)
-		{
-			iValue = 1000;
+			iValue -= (200 * iNumCivsAlreadyBuilding);
 		}
 	}
 	else
@@ -957,17 +947,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(pkBuildingInfo->GetBuildingClassType()))
 	{
 		iBonus *= 5;
-	}
-
-	if (isWorldWonderClass(kBuildingClassInfo))
-	{
-		int iTurnMax = 15;
-		iTurnMax *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iTurnMax /= 100;
-		if (m_pCity->getProductionTurnsLeft(eBuilding, 0) > iTurnMax)
-		{
-			iBonus /= 2;
-		}
 	}
 
 	/////

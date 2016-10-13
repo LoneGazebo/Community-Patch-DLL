@@ -139,7 +139,7 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	CvGame& kGame = GC.getGame();
 	// Default to between 8 and 12 turns per spawn
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	int iNumTurnsToSpawn = 7 + kGame.getSmallFakeRandNum(10,*pPlot);
+	int iNumTurnsToSpawn = 8 + kGame.getSmallFakeRandNum(10,*pPlot);
 #else
 	int iNumTurnsToSpawn = 8 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
 #endif
@@ -198,7 +198,7 @@ void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 	// Default to between 8 and 12 turns per spawn
 	//bumped a bit - too many barbs gets annoying.
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	int iNumTurnsToSpawn = 7 + kGame.getSmallFakeRandNum(10,*pPlot);
+	int iNumTurnsToSpawn = 8 + kGame.getSmallFakeRandNum(10,*pPlot);
 #else
 	int iNumTurnsToSpawn = 15 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
 #endif
@@ -468,6 +468,10 @@ void CvBarbarians::DoCamps()
 			{
 				iNumCampsInExistence++;
 			}
+
+			//Discount all owned plots.
+			if (pLoopPlot->getOwner() != NO_PLAYER)
+				continue;
 
 			if(pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(BARBARIAN_PLAYER))
 				continue;
@@ -870,12 +874,14 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eU
 	}
 
 #if defined(MOD_EVENTS_BARBARIANS)
-	if (MOD_EVENTS_BARBARIANS) {
+	if (MOD_EVENTS_BARBARIANS)
+	{
 		int iValue = 0;
 		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_BarbariansCampGetSpawnUnit, pPlot->getX(), pPlot->getY(), eBestUnit) == GAMEEVENTRETURN_VALUE) {
 			// Defend against modder stupidity!
 			UnitTypes eUnitType = (UnitTypes)iValue;
-			if (eUnitType != NO_UNIT && GC.getUnitInfo(eUnitType) != NULL) {
+			if (eUnitType != NO_UNIT && GC.getUnitInfo(eUnitType) != NULL)
+			{
 				eBestUnit = eUnitType;
 			}
 		}

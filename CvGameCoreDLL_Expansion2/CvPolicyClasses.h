@@ -191,6 +191,8 @@ public:
 	bool IsHalfSpecialistFood() const;
 #if defined(MOD_BALANCE_CORE)
 	bool IsHalfSpecialistFoodCapital() const;
+	int GetStealGWSlowerModifier() const;
+	int GetStealGWFasterModifier() const;
 	int GetEventTourism() const;
 	int GetEventTourismCS() const;
 	int GetMonopolyModFlat() const;
@@ -514,6 +516,8 @@ private:
 	bool m_bHalfSpecialistUnhappiness;
 	bool m_bHalfSpecialistFood;
 #if defined(MOD_BALANCE_CORE)
+	int m_iStealGWSlowerModifier;
+	int m_iStealGWFasterModifier;
 	bool m_bHalfSpecialistFoodCapital;
 	int m_iEventTourism;
 	int m_iEventTourismCS;
@@ -797,6 +801,8 @@ enum PolicyModifierType
 	POLICYMOD_GREAT_MUSICIAN_RATE,
 	POLICYMOD_GREAT_MERCHANT_RATE,
 #if defined(MOD_BALANCE_CORE)
+	POLICYMOD_STEAL_GW_SLOWER_MODIFIER,
+	POLICYMOD_STEAL_GW_FASTER_MODIFIER,
 	POLICYMOD_GREAT_ENGINEER_RATE,
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)

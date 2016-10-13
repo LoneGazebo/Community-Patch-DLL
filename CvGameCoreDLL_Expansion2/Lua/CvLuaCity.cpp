@@ -5162,7 +5162,7 @@ int CvLuaCity::lGetModFromWLTKD(lua_State* L)
 	{
 		const PlayerTypes ePlayer = pkCity->getOwner();
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer();
+		ReligionTypes eReligion = pkCity->GetCityReligions()->GetReligiousMajority();
 		if(eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eReligion, ePlayer);

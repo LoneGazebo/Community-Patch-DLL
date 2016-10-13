@@ -4369,12 +4369,15 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		{
 			CvUnit* pkUnit = initUnit(eFreeUnitConquest, pNewCity->getX(), pNewCity->getY());
 			CvCity* pCapital = getCapitalCity();
-			if(pCapital != NULL)
+			bool bJumpSuccess = pkUnit->jumpToNearestValidPlot();
+			if (bJumpSuccess && pCapital != NULL)
 			{
 				pCapital->addProductionExperience(pkUnit);
 			}
-			if (!pkUnit->jumpToNearestValidPlot())
-					pkUnit->kill(false);
+			else
+			{
+				pkUnit->kill(false);
+			}
 		}
 	}
 #endif
@@ -10470,7 +10473,7 @@ void CvPlayer::doTurn()
 	DoUpdateUprisings();
 	DoUpdateCityRevolts();
 	CalculateNetHappiness();
-	SetBestNationalWonderCities();
+	SetBestWonderCities();
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
@@ -13983,6 +13986,14 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 			return false;
 		}
 	}
+
+	if(pUnitInfo.IsWarOnly())
+	{
+		if(!IsAtWarAnyMajor())
+		{
+			return false;
+		}
+	}
 #endif
 
 	// One City Challenge
@@ -14418,8 +14429,12 @@ bool CvPlayer::canBarbariansTrain(UnitTypes eUnit, bool bIgnoreUniqueUnitStatus,
 	{
 		return false;
 	}
-
-	if (pUnitInfo.GetSpecialUnitType() != NO_SPECIALUNIT)
+	//Had to set it this way because Barbarian land units are "SPECIALUNIT_CARGO_ARMY" in MOD_CARGO_SHIPS. Need to be able to spawn them.
+	SpecialUnitTypes eSpedcialPeople = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
+	SpecialUnitTypes eSpedcialFighter = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER");
+	SpecialUnitTypes eSpedcialStealth = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_STEALTH");
+	SpecialUnitTypes eSpedcialMissile = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_MISSILE");
+	if ((pUnitInfo.GetSpecialUnitType() == eSpedcialPeople) || (pUnitInfo.GetSpecialUnitType() == eSpedcialFighter) || (pUnitInfo.GetSpecialUnitType() == eSpedcialStealth) || (pUnitInfo.GetSpecialUnitType() == eSpedcialMissile))
 	{
 		return false;
 	}
@@ -14752,7 +14767,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
 				if(pReligion)
 				{
-					if(pReligion->m_Beliefs.IsBuildingClassEnabled(eBuildingClass))
+					if(pReligion->m_Beliefs.IsBuildingClassEnabled(eBuildingClass, GetID()))
 					{
 						if(pkBuildingInfo->GetNationalFollowerPopRequired() > 0)
 						{
@@ -18733,7 +18748,11 @@ int CvPlayer::DoDifficultyBonus()
 	{				
 		GetTreasury()->ChangeGold(iYieldHandicap);
 		ChangeGoldenAgeProgressMeter(iYieldHandicap);
-		changeJONSCulture(iYieldHandicap);
+
+		if (getNumCities() > 1)
+		{
+			changeJONSCulture(iYieldHandicap);
+		}
 
 		if(getCapitalCity() != NULL)
 		{
@@ -39025,7 +39044,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								else
 								{
 									pNewUnit = initUnit(eUnit, iX, iY);
-									getCapitalCity()->addProductionExperience(pNewUnit);
 								}
 
 								CvAssert(pNewUnit);
@@ -39039,7 +39057,15 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #else
 										incrementGreatGeneralsCreated();
 #endif
-										pNewUnit->jumpToNearestValidPlot();
+										bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
+										if (bJumpSuccess)
+										{
+											getCapitalCity()->addProductionExperience(pNewUnit);
+										}
+										else
+										{
+											pNewUnit->kill(false);
+										}
 									}
 									else if(pNewUnit->IsGreatAdmiral())
 									{
@@ -39052,6 +39078,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 										if (pNewUnit->plot() != pSpawnPlot)
 										{
 											pNewUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
+											getCapitalCity()->addProductionExperience(pNewUnit);
 										}
 									}
 									else if(pNewUnit->getUnitInfo().IsFoundReligion())
@@ -39161,34 +39188,41 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									else if(pNewUnit->IsGreatPerson())
 									{
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
-										if (MOD_GLOBAL_SEPARATE_GP_COUNTERS) {
-											if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")) {
+										if (MOD_GLOBAL_SEPARATE_GP_COUNTERS) 
+										{
+											if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+											{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 												incrementGreatMerchantsCreated(MOD_GLOBAL_TRULY_FREE_GP);
 #else
 												incrementGreatMerchantsCreated();
 #endif
-											} else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")) {
+											}
+											else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+											{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 												incrementGreatScientistsCreated(MOD_GLOBAL_TRULY_FREE_GP);
 #else
 												incrementGreatScientistsCreated();
 #endif
-											} else {
+											}
+											else
+											{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 												incrementGreatEngineersCreated(MOD_GLOBAL_TRULY_FREE_GP);
 #else
 												incrementGreatEngineersCreated();
 #endif
 											}
-										} else
+										}
+										else
 #endif
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
-										incrementGreatPeopleCreated(MOD_GLOBAL_TRULY_FREE_GP);
+											incrementGreatPeopleCreated(MOD_GLOBAL_TRULY_FREE_GP);
 #else
-										incrementGreatPeopleCreated();
+											incrementGreatPeopleCreated();
 #endif
-										pNewUnit->jumpToNearestValidPlot();
+											pNewUnit->jumpToNearestValidPlot();
 									}
 									else
 									{
@@ -39615,6 +39649,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	{
 		GetEspionage()->UpdateSpies();
 	}
+#if defined(MOD_BALANCE_CORE)
+	if (pPolicy->GetStealGWFasterModifier() != 0)
+	{
+		GetEspionage()->UpdateSpies();
+	}
+#endif
 
 	CvPlot *pLoopPlot;
 	ResourceTypes eResource;
@@ -40518,23 +40558,26 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 		return;
 	}
 #if defined(MOD_BALANCE_CORE)
-	CvCity* pCity = pGreatPeopleUnit->plot()->getWorkingCity();
-	if (pCity != NULL && pCity->getOwner() == GetID())
+	if(GetPlayerTraits()->IsGPWLTKD() && pGreatPeopleUnit != NULL)
 	{
-		int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
-		iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iWLTKD /= 100;
-		if (iWLTKD > 0)
+		CvCity* pCity = pGreatPeopleUnit->plot()->getWorkingCity();
+		if (pCity != NULL && pCity->getOwner() == GetID())
 		{
-			pCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
-			CvNotifications* pNotifications = GetNotifications();
-			if (pNotifications)
+			int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+			iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iWLTKD /= 100;
+			if (iWLTKD > 0)
 			{
-				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
-				strText << pGreatPeopleUnit->getNameKey() << pCity->getNameKey();
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
-				strSummary << pCity->getNameKey();
-				pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
+				pCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+				CvNotifications* pNotifications = GetNotifications();
+				if (pNotifications)
+				{
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
+					strText << pGreatPeopleUnit->getNameKey() << pCity->getNameKey();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA");
+					strSummary << pCity->getNameKey();
+					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
+				}
 			}
 		}
 	}
@@ -41453,7 +41496,7 @@ void CvPlayer::UpdateAreaEffectUnits(bool bCheckSpecialPlotAsWell)
 		if (!pLoopUnit)
 			continue;
 		
-		if (pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsCityAttackSupport())
+		if ((pLoopUnit->IsGreatGeneral() || pLoopUnit->GetGreatGeneralCount() > 0) || (pLoopUnit->IsGreatAdmiral() || pLoopUnit->GetGreatAdmiralCount() > 0) || pLoopUnit->IsCityAttackSupport())
 			m_unitsAreaEffectPositive.push_back( pLoopUnit->GetID() );
 
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
@@ -42188,7 +42231,7 @@ void CvPlayer::ChangeNumGreatPeople(int iValue)
 	}
 }
 #if defined(MOD_BALANCE_CORE)
-void CvPlayer::SetBestNationalWonderCities()
+void CvPlayer::SetBestWonderCities()
 {
 	int iGPT = GetTreasury()->CalculateBaseNetGold();
 	
@@ -42199,8 +42242,11 @@ void CvPlayer::SetBestNationalWonderCities()
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
 		CvBuildingEntry* pkeBuildingInfo = GC.getBuildingInfo(eBuilding);
 
-		//Not national wonder? Skip
-		if (!pkeBuildingInfo || !::isNationalWonderClass(pkeBuildingInfo->GetBuildingClassInfo()) || !::isLimitedWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
+		//Not wonder? Skip
+		if (!pkeBuildingInfo)
+			continue;
+
+		if (!::isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()) && !::isNationalWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
 			continue;
 
 		//Can't construct?
@@ -42221,7 +42267,7 @@ void CvPlayer::SetBestNationalWonderCities()
 		for (pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
 		{
 			//Reset here.
-			pLoopCity->SetBestForNationalWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), false);
+			pLoopCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), false);
 
 			if (!pLoopCity->canConstruct(eBuilding))
 				continue;
@@ -42246,6 +42292,8 @@ void CvPlayer::SetBestNationalWonderCities()
 			//Best? Do it!
 			int iValue = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 1000, iLandRoutes, iWaterRoutes, iGPT, false, true);
 
+			iValue += (-10 * pLoopCity->getProductionTurnsLeft(eBuilding, 0));
+
 			//Made it this far? Let's register the capital as valid as a failsafe.
 			if (pLoopCity->isCapital())
 			{
@@ -42259,7 +42307,7 @@ void CvPlayer::SetBestNationalWonderCities()
 		}
 		if (pBestCity != NULL)
 		{
-			pBestCity->SetBestForNationalWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), true);
+			pBestCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), true);
 			if ((GC.getLogging() && GC.getAILogging()))
 			{
 				CvString playerName;
@@ -42279,7 +42327,7 @@ void CvPlayer::SetBestNationalWonderCities()
 		//No city? Set capital as best.
 		else if (getCapitalCity() != NULL && iValidCities > 0)
 		{
-			getCapitalCity()->SetBestForNationalWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), true);
+			getCapitalCity()->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), true);
 			if ((GC.getLogging() && GC.getAILogging()))
 			{
 				CvString playerName;

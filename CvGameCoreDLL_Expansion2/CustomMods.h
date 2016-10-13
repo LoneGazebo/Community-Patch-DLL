@@ -40,18 +40,6 @@
 //END MULTIPLAYER INSTRUCTIONS
 ////////////////////////////////////////
 
-/////////////////////////
-// INSTRUCTIONS FOR INCREASING THE NUMBER OF CIVS
-/////////////////////////////
-
-// UN-COMMENT out the line below to raise the max number of civilizations to 43.
-//#define MOD_GLOBAL_MAX_MAJOR_CIVS 43
-// WARNING! You will need to use OR include (if making a modpack) the '43 Civs CP MOD' from the CP downloads folder to use this!
-
-////////////////////////////
-//END 43 CIV INSTRUCTIONS
-///////////////////////////////////
-
 /// simpler algorithm for scoring exploration plots
 #define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
 /// use globally unique ids for cities, units etc

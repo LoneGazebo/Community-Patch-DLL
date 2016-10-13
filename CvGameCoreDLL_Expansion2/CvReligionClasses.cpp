@@ -9683,7 +9683,7 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion)
 	{
 		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
-			if (pMyReligion->m_Beliefs.IsBuildingClassEnabled((BuildingClassTypes)iI))
+			if (pMyReligion->m_Beliefs.IsBuildingClassEnabled((BuildingClassTypes)iI, m_pPlayer->GetID()))
 			{
 				BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings((BuildingClassTypes)iI);
 				if(eBuilding != NO_BUILDING)
