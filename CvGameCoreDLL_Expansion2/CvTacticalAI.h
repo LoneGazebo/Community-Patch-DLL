@@ -1223,7 +1223,7 @@ namespace TacticalAIHelpers
 	bool IsCaptureTargetInRange(CvUnit* pUnit);
 
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)
-	bool FindBestAssignmentsForUnits(const CTacticalUnitArray& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, int iMaxBranches, int iMaxFinishedPositions, vector<STacticalAssignment>& result);
+	bool FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, int iMaxBranches, int iMaxFinishedPositions, vector<STacticalAssignment>& result);
 	bool ExecuteUnitAssignments(PlayerTypes ePlayer, const vector<STacticalAssignment>& vAssignments);
 #endif
 
