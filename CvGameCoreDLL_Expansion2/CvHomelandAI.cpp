@@ -1615,7 +1615,7 @@ void CvHomelandAI::PlotSentryNavalMoves()
 
 			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 			{
-				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, MAX_INT);
+				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 12);
 				if(pSentry)
 				{
 					if(pSentry->plot() == pTarget)
@@ -3700,9 +3700,13 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 		if (!pBestPlot && pUnit->movesLeft() > 0)
 		{
 			//check at least 5 candidates
-			pBestPlot = GetBestExploreTarget(pUnit, 5, 9);
+			pBestPlot = GetBestExploreTarget(pUnit, 5, 8);
 
-			//if nothing found, retry with larger distance - but this is sloooooow
+			//if nothing found, retry with larger distance - but this is slow
+			if (!pBestPlot)
+				pBestPlot = GetBestExploreTarget(pUnit, 5, 23);
+
+			//if still nothing found, retry with even larger distance - but this is sloooooow
 			if (!pBestPlot)
 				pBestPlot = GetBestExploreTarget(pUnit, 5, 42);
 

@@ -2573,10 +2573,8 @@ int CvMilitaryAI::GetNumberCivsAtWarWith() const
 	return iRtnValue;
 }
 
-/// Which city is in the most danger now?
-CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder, bool bIncludeFutureThreats)
+vector<CvCity*> CvMilitaryAI::GetThreatenedCities(bool bIncludeFutureThreats)
 {
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	std::vector<std::pair<CvCity*,int>> vCities;
 	struct sort_pred {
 		bool operator()(const std::pair<CvCity*,int> &left, const std::pair<CvCity*,int> &right) {
@@ -2619,34 +2617,31 @@ CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder, bool bIncludeFutureThrea
 			int iNeutral = 0;
 			int iBad = 0;
 			int iSuperBad = 0;
-			//check the wider area for enemy tiles. may also be on another landmass
-			int iRange = 5;
-			for(int iX = -iRange; iX <= iRange; iX++)
-			{
-				for(int iY = -iRange; iY <= iRange; iY++)
-				{
-					CvPlot* pLoopNearbyPlot = plotXYWithRangeCheck(pLoopCity->getX(), pLoopCity->getY(), iX, iY, iRange);
 
-					//Don't want them adjacent to cities, but we do want to check for plot ownership.
-					if (pLoopNearbyPlot != NULL && pLoopNearbyPlot->isRevealed(m_pPlayer->getTeam()) && (pLoopCity->plot() != pLoopNearbyPlot))
+			//check the wider area for enemy tiles. may also be on another landmass
+			for(int i=2; i<RING5_PLOTS; i++)
+			{
+				CvPlot* pLoopNearbyPlot = iterateRingPlots(pLoopCity->plot(), i);
+
+				//Don't want them adjacent to cities, but we do want to check for plot ownership.
+				if (pLoopNearbyPlot != NULL && pLoopNearbyPlot->isRevealed(m_pPlayer->getTeam()))
+				{
+					if((pLoopNearbyPlot->getOwner() != m_pPlayer->GetID()) && (pLoopNearbyPlot->getOwner() != NO_PLAYER) && !(GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv()))
 					{
-						if((pLoopNearbyPlot->getOwner() != m_pPlayer->GetID()) && (pLoopNearbyPlot->getOwner() != NO_PLAYER) && !(GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv()))
+						PlayerTypes pNeighborNearby = pLoopNearbyPlot->getOwner();
+						if(pNeighborNearby != NULL)
 						{
-							PlayerTypes pNeighborNearby = pLoopNearbyPlot->getOwner();
-							if(pNeighborNearby != NULL)
+							if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) == MAJOR_CIV_OPINION_NEUTRAL)
 							{
-								if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) == MAJOR_CIV_OPINION_NEUTRAL)
-								{
-									iNeutral++;
-								}
-								else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) == MAJOR_CIV_OPINION_COMPETITOR)
-								{
-									iBad++;
-								}
-								else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) < MAJOR_CIV_OPINION_COMPETITOR)
-								{
-									iSuperBad++;
-								}
+								iNeutral++;
+							}
+							else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) == MAJOR_CIV_OPINION_COMPETITOR)
+							{
+								iBad++;
+							}
+							else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) < MAJOR_CIV_OPINION_COMPETITOR)
+							{
+								iSuperBad++;
 							}
 						}
 					}
@@ -2670,68 +2665,22 @@ CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder, bool bIncludeFutureThrea
 	}
 
 	std::stable_sort(vCities.begin(), vCities.end(), sort_pred());
-	if (iOrder<0 || iOrder>=(int)vCities.size()) 
-		return NULL;
+
+	vector<CvCity*> result;
+	for (size_t i=0; i<vCities.size(); i++)
+		result.push_back(vCities[i].first);
+
+	return result;
+}
+
+/// Which city is in the most danger now?
+CvCity* CvMilitaryAI::GetMostThreatenedCity(bool bIncludeFutureThreats)
+{
+	vector<CvCity*> allCities = GetThreatenedCities(bIncludeFutureThreats);
+	if (allCities.empty())
+		return 0;
 	else
-		return vCities[iOrder].first;
-
-#else
-
-	// slewis - this is slow, but I did it quickly!
-	FFastVector<CvCity*> m_apCities;
-	m_apCities.push_back_copy(NULL, iOrder + 1);
-
-	for(int iCycle = 0; iCycle < iOrder + 1; iCycle++)
-	{
-		CvCity* pCity = NULL;
-		int iHighestThreatValue = 0;
-
-		CvCity* pLoopCity;
-		int iLoopCity = 0;
-		for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
-		{
-			bool bCityAlreadyExamined = false;
-			for(uint ui = 0; ui < m_apCities.size(); ui++)
-			{
-				if(pLoopCity == m_apCities[ui])
-				{
-					bCityAlreadyExamined = true;
-					break;
-				}
-			}
-			if(bCityAlreadyExamined)
-			{
-				continue;
-			}
-
-			int iThreatValue = pLoopCity->getThreatValue();
-			iThreatValue = iThreatValue * pLoopCity->getPopulation();
-
-			if(pLoopCity->isCapital())
-			{
-				iThreatValue = (iThreatValue * GC.getAI_MILITARY_CITY_THREAT_WEIGHT_CAPITAL()) / 100;
-			}
-
-			if(iThreatValue > iHighestThreatValue)
-			{
-				pCity = pLoopCity;
-				iHighestThreatValue = iThreatValue;
-			}
-		}
-
-		if(pCity)
-		{
-			m_apCities[iCycle] = pCity;
-		}
-		else
-		{
-			// we didn't find a city, so bail
-			break;
-		}
-	}
-
-	return m_apCities[iOrder];
-#endif
+		return allCities.front();
 }
 
 /// How big is our military compared to the recommended size?
