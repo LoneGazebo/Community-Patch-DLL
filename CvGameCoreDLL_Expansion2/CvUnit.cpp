@@ -26772,56 +26772,37 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 	if (m_kLastPath.empty() || !HaveCachedPathTo(pDestPlot,iFlags))
 		return ComputePath(pDestPlot, iFlags, iMaxTurns);
 
-	//visibility might have changed because of this same unit's movement
-	CvPlot* pkPathDest = m_kLastPath.GetFinalPlot();
-	if (pkPathDest)
+	CvPlot* pkNextPlot = m_kLastPath.GetFirstPlot();
+	if (pkNextPlot)
 	{
-		// Was the path destination invisible at the time of generation? See if it is visible now.
-		if ( m_kLastPath.back().GetFlag(CvPathNode::PLOT_INVISIBLE) && pkPathDest->isVisible(getTeam()))
-		{
-			// The path destination is now visible, recalculate now in case it can't be reached (occupied)
-			SPathFinderUserData data(this,iFlags,iMaxTurns);
-			SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), pkPathDest->getX(), pkPathDest->getY(), data);
-			bHaveValidPath = !!newPath;
+		bHaveValidPath = ComputePath(pDestPlot, iFlags, iMaxTurns);
+	}
+	// Was the next plot invisible at the time of generation? See if it is visible now.
+	else if ( m_kLastPath.front().GetFlag(CvPathNode::PLOT_INVISIBLE) && pkNextPlot->isVisible(getTeam()))
+	{
+		int iModifiedFlags = iFlags;
 
-			if (!bHaveValidPath && pDestPlot != pkPathDest)
-			{
-				// Hmm, failed for some reason, re-do the entire path
-				bHaveValidPath = ComputePath(pDestPlot, iFlags, iMaxTurns);
-			}
-		}
+		//do we need to stay there?
+		if (m_kLastPath.front().m_iMoves == 0)
+			iModifiedFlags |= CvUnit::MOVEFLAG_DESTINATION;
+
+		//normally we would allow an attack at the destination
+		//since it was invisible we didn't even know that there's a unit there
+		//but we do allow attacks on cities
+		if (pkNextPlot!=pDestPlot || !pDestPlot->isEnemyCity(*this))
+			iModifiedFlags ^= CvUnit::MOVEFLAG_ATTACK;
+
+		if ( canMoveInto(*pkNextPlot,iModifiedFlags) )
+			//no problem, continue
+			bHaveValidPath = true;
 		else
-		{
-			// Was the next plot we are stepping into invisible at the time of generation?
-			if (m_kLastPath.front().GetFlag((int)CvPathNode::PLOT_INVISIBLE))
-			{
-				// We are trying to move into a plot that is invisible and we want to continue out into the darkness.  We have to recalculate our path.
-				// Since we have already done a path find to the destination once, we can now just path find to how far out we can get in this turn.
-				CvPlot* pkTurnDest = m_kLastPath.GetTurnDestinationPlot(1);
-				if (pkTurnDest)
-				{
-					SPathFinderUserData data(this,iFlags,iMaxTurns);
-					SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), pkTurnDest->getX(), pkTurnDest->getY(), data);
-					bHaveValidPath = !!newPath;
-
-					if (!bHaveValidPath && pDestPlot != pkTurnDest)
-					{
-						// Hmm, failed for some reason, re-do the entire path
-						bHaveValidPath = ComputePath(pDestPlot, iFlags, iMaxTurns);
-					}
-				}
-				else
-				{
-					// Can't find the dest in the path, regenerate
-					bHaveValidPath = ComputePath(pDestPlot, iFlags, iMaxTurns);
-				}
-			}
-			else
-			{
-				// The path is still good, just use the next node
-				bHaveValidPath = IsCachedPathValid();
-			}
-		}
+			//need to recompute
+			bHaveValidPath = ComputePath(pDestPlot, iFlags, iMaxTurns);
+	}
+	else
+	{
+		// The path is still good, just use the next node
+		bHaveValidPath = IsCachedPathValid();
 	}
 
 	return bHaveValidPath;

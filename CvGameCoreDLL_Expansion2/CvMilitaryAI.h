@@ -321,7 +321,8 @@ public:
 	};
 #endif
 
-	CvCity* GetMostThreatenedCity(int iIndex = 0, bool bIncludeFutureThreats=true); // pass in 0 for the most threatened city, 1 for the second most threatened, 2 for the third, etc.
+	CvCity* GetMostThreatenedCity(bool bIncludeFutureThreats=true);
+	vector<CvCity*> GetThreatenedCities(bool bIncludeFutureThreats=true);
 
 	int GetPercentOfRecommendedMilitarySize() const;
 	int GetPowerOfStrongestBuildableUnit(DomainTypes eDomain);
