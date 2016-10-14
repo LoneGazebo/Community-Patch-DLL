@@ -61,6 +61,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iDamageThreshold(0),
 	m_bIsConvertOnFullHP(0),
 	m_bWarOnly(0),
+	m_bConvertEnemyUnitToBarbarian(false),
 #endif
 	m_bSpreadReligion(false),
 	m_bRemoveHeresy(false),
@@ -180,6 +181,8 @@ CvUnitEntry::CvUnitEntry(void) :
 #if defined(MOD_BALANCE_CORE)
 	m_paeGreatPersonEra(NULL),
 	m_piEraCombatStrength(NULL),
+	m_ppiEraUnitCombatType(NULL),
+	m_ppiEraUnitPromotions(NULL),
 #endif
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	m_iNumberStackingUnits(0),
@@ -219,6 +222,14 @@ CvUnitEntry::~CvUnitEntry(void)
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_paeGreatPersonEra);
 	SAFE_DELETE_ARRAY(m_piEraCombatStrength);
+	if(m_ppiEraUnitCombatType != NULL)
+	{
+		CvDatabaseUtility::SafeDelete2DArray(m_ppiEraUnitCombatType);
+	}
+	if(m_ppiEraUnitPromotions != NULL)
+	{
+		CvDatabaseUtility::SafeDelete2DArray(m_ppiEraUnitPromotions);
+	}
 #endif
 
 }
@@ -392,6 +403,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_eConvertUnit = (UnitTypes)GC.getInfoTypeForString(szTextVal, true);
 	m_bIsConvertOnFullHP = kResults.GetBool("ConvertOnFullHP");
 	m_bWarOnly = kResults.GetBool("WarOnly");
+	m_bConvertEnemyUnitToBarbarian = kResults.GetBool("ConvertEnemyUnitToBarbarian");
 #endif
 
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
@@ -439,6 +451,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	//Arrays
 	const char* szUnitType = GetType();
+	const size_t lenUnitType = strlen(szUnitType);
 
 	kUtility.SetFlavors(m_piFlavorValue, "Unit_Flavors", "UnitType", szUnitType);
 
@@ -596,7 +609,61 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		pMovementRates->Reset();
 
 	}
+#if defined(MOD_BALANCE_CORE)
+	//Populate m_ppiEraUnitCombatType
+	{
+		const int iNumUnitCombats = kUtility.MaxRows("UnitCombatInfos");
+		const int iNumEras = kUtility.MaxRows("Eras");
+		kUtility.Initialize2DArray(m_ppiEraUnitCombatType, iNumUnitCombats, iNumEras);
 
+		std::string sqlKey = "Units - EraCombatType";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(sqlKey, "select UnitCombatInfos.ID as UnitCombatInfosID, Eras.ID as ErasID, Value from Unit_EraCombatType inner join UnitCombatInfos on UnitCombatType = UnitCombatInfos.Type inner join Eras on EraType = Eras.Type where UnitType = ?");
+		}
+
+		pResults->Bind(1, szUnitType, lenUnitType, false);
+
+		while(pResults->Step())
+		{
+			const int UnitCombatInfosID = pResults->GetInt(0);
+			const int ErasID = pResults->GetInt(1);
+			const int Value = pResults->GetInt(2);
+
+			m_ppiEraUnitCombatType[UnitCombatInfosID][ErasID] = Value;
+		}
+
+		pResults->Reset();
+	}
+
+	//Populate m_ppiEraUnitPromotions
+	{
+		const int iNumPromotions = kUtility.MaxRows("UnitPromotions");
+		const int iNumEras = kUtility.MaxRows("Eras");
+		kUtility.Initialize2DArray(m_ppiEraUnitPromotions, iNumPromotions, iNumEras);
+
+		std::string sqlKey = "Units - EraUnitPromotions";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(sqlKey, "select UnitPromotions.ID as UnitPromotionsID, Eras.ID as ErasID, Value from Unit_EraUnitPromotions inner join UnitPromotions on PromotionType = UnitPromotions.Type inner join Eras on EraType = Eras.Type where UnitType = ?");
+		}
+
+		pResults->Bind(1, szUnitType, lenUnitType, false);
+
+		while(pResults->Step())
+		{
+			const int UnitPromotionsID = pResults->GetInt(0);
+			const int ErasID = pResults->GetInt(1);
+			const int Value = pResults->GetInt(2);
+
+			m_ppiEraUnitPromotions[UnitPromotionsID][ErasID] = Value;
+		}
+
+		pResults->Reset();
+	}
+#endif
 	// Calculate military Power and cache it
 	DoUpdatePower();
 
@@ -1264,6 +1331,10 @@ bool CvUnitEntry::IsWarOnly() const
 {
 	return m_bWarOnly;
 }
+bool CvUnitEntry::IsConvertEnemyUnitToBarbarian() const
+{
+	return m_bConvertEnemyUnitToBarbarian;
+}
 #endif
 #if defined(MOD_CARGO_SHIPS)
 int CvUnitEntry::CargoCombat() const
@@ -1416,6 +1487,34 @@ int CvUnitEntry::GetEraCombatStrength(int i) const
 	CvAssertMsg(i < GC.getNumEraInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piEraCombatStrength ? m_piEraCombatStrength[i] : -1;
+}
+
+/// Accessor:: Does this Unit have a different CombatType in a new Era?
+int CvUnitEntry::GetUnitNewEraCombatType(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < GC.getNumEraInfos(), "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiEraUnitCombatType ? m_ppiEraUnitCombatType[i][j] : 0;
+}
+int* CvUnitEntry::GetUnitNewEraCombatTypeChangesArray(int i)
+{
+	return m_ppiEraUnitCombatType[i];
+}
+/// Accessor:: Does this Unit get promotions in a new Era?
+int CvUnitEntry::GetUnitNewEraPromotions(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumPromotionInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < GC.getNumEraInfos(), "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiEraUnitPromotions ? m_ppiEraUnitPromotions[i][j] : 0;
+}
+
+int* CvUnitEntry::GetUnitNewEraPromotionsChangesArray(int i)
+{
+	return m_ppiEraUnitPromotions[i];
 }
 #endif
 

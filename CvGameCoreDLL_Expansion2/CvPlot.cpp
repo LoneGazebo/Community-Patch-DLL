@@ -2708,6 +2708,11 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 							{
 								return false;
 							}
+							CvImprovementEntry *pkImprovement2 = GC.getImprovementInfo(eAdjacentImprovement);
+							if (pkImprovement2 && eAdjacentImprovement != NO_IMPROVEMENT && pkImprovement2->GetImprovementMakesValid(eImprovement))
+							{
+								return false;
+							}
 							int iBuildProgress = pAdjacentPlot->getBuildProgress(eBuild);
 							if (iBuildProgress > 0)
 							{

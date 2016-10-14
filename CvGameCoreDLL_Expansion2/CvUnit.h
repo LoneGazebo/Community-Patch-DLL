@@ -479,7 +479,8 @@ public:
 	SpecialUnitTypes getSpecialUnitType() const;
 	bool IsGreatPerson() const;
 	UnitTypes getCaptureUnitType(CivilizationTypes eCivilization) const;
-	UnitCombatTypes getUnitCombatType() const;
+	int getUnitCombatType() const;
+	void setUnitCombatType(UnitCombatTypes eCombat);
 #if defined(MOD_GLOBAL_PROMOTION_CLASSES)
 	UnitCombatTypes getUnitPromotionType() const;
 #endif
@@ -1380,6 +1381,7 @@ public:
 	bool isUnitEraUpgrade() const;
 	bool isConvertOnDamage() const;
 	bool isConvertOnFullHP() const;
+	bool isConvertEnemyUnitToBarbarian() const;
 #endif
 
 	int getExtraUnitCombatModifier(UnitCombatTypes eIndex) const;
@@ -1937,6 +1939,7 @@ protected:
 	FAutoVariable<ActivityTypes, CvUnit> m_eActivityType;
 	FAutoVariable<AutomateTypes, CvUnit> m_eAutomateType;
 	FAutoVariable<UnitAITypes, CvUnit> m_eUnitAIType;
+	FAutoVariable<int, CvUnit> m_eCombatType;
 
 	//not serialized
 	std::vector<CvPlot*> m_unitMoveLocs;

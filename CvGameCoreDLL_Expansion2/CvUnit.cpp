@@ -350,6 +350,7 @@ CvUnit::CvUnit() :
 	, m_iMapLayer("CvUnit::m_iMapLayer", m_syncArchive, DEFAULT_UNIT_MAP_LAYER)
 	, m_iNumGoodyHutsPopped("CvUnit::m_iNumGoodyHutsPopped", m_syncArchive)
 	, m_iLastGameTurnAtFullHealth("CvUnit::m_iLastGameTurnAtFullHealth", m_syncArchive, -1)
+	, m_eCombatType("CvUnit::m_eCombatType", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
 	, m_iOriginCity("CvUnit::m_iOriginCity", m_syncArchive)
 	, m_iCannotBeCapturedCount("CvUnit::m_iCannotBeCapturedCount", m_syncArchive)
@@ -610,13 +611,30 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	if(isUnitEraUpgrade())
 	{
 		EraTypes eEra;
-		int iNumEraInfos = GC.getNumEraInfos();
-		for(int iEraLoop = 0; iEraLoop < iNumEraInfos; iEraLoop++)
+		for(int iEraLoop = 0; iEraLoop < GC.getNumEraInfos(); iEraLoop++)
 		{
 			eEra = (EraTypes) iEraLoop;
 			if((m_pUnitInfo->GetEraCombatStrength(eEra) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eEra))
 			{
 				SetBaseCombatStrength(m_pUnitInfo->GetEraCombatStrength(eEra));
+			}
+			UnitCombatTypes eUnitCombatClass;
+			for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+			{
+				eUnitCombatClass = (UnitCombatTypes) iI;
+				if((m_pUnitInfo->GetUnitNewEraCombatType(eUnitCombatClass, eEra) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eEra))
+				{
+					setUnitCombatType(eUnitCombatClass);
+				}
+			}
+			PromotionTypes ePromotion;
+			for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+			{
+				ePromotion = (PromotionTypes) iI;
+				if((m_pUnitInfo->GetUnitNewEraPromotions(ePromotion, eEra) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eEra))
+				{
+					setHasPromotion(ePromotion, true);
+				}
 			}
 		}
 	}
@@ -638,7 +656,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 		}
 	}
 
-	const UnitCombatTypes unitCombatType = getUnitCombatType();
+	const int unitCombatType = getUnitCombatType();
 	if(unitCombatType != NO_UNITCOMBAT)
 	{
 		// Any free Promotions to apply?
@@ -1194,7 +1212,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 	}
 
-	const UnitCombatTypes unitCombatType = getUnitCombatType();
+	const int unitCombatType = getUnitCombatType();
 	if(unitCombatType != NO_UNITCOMBAT)
 	{
 		// Any free Promotions to apply?
@@ -1218,6 +1236,27 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			if((m_pUnitInfo->GetEraCombatStrength(eEra) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eEra))
 			{
 				SetBaseCombatStrength(m_pUnitInfo->GetEraCombatStrength(eEra));
+			}
+			for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+			{
+				UnitCombatTypes eUnitCombatClass;
+				for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+				{
+					eUnitCombatClass = (UnitCombatTypes) iI;
+					if((m_pUnitInfo->GetUnitNewEraCombatType(eUnitCombatClass, eEra) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eEra))
+					{
+						setUnitCombatType(eUnitCombatClass);
+					}
+				}
+				PromotionTypes ePromotion;
+				for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+				{
+					ePromotion = (PromotionTypes) iI;
+					if((m_pUnitInfo->GetUnitNewEraPromotions(ePromotion, eEra) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eEra))
+					{
+						setHasPromotion(ePromotion, true);
+					}
+				}
 			}
 		}
 	}
@@ -1842,6 +1881,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_eUnitType = eUnit;
 	m_pUnitInfo = (NO_UNIT != m_eUnitType) ? GC.getUnitInfo(m_eUnitType) : NULL;
 	m_iBaseCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetCombat() : 0;
+	m_eCombatType = (NO_UNIT != m_eUnitType) ? (UnitCombatTypes)m_pUnitInfo->GetUnitCombatType() : NO_UNITCOMBAT;
 #if defined(MOD_API_EXTENSIONS)
 	m_iBaseRangedCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetRangedCombat() : 0;
 #endif
@@ -2503,24 +2543,27 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	}
 	
 #if defined(MOD_EVENTS_UNIT_PREKILL)
-	if (MOD_EVENTS_UNIT_PREKILL) {
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitPrekill, getOwner(), GetID(), getUnitType(), getX(), getY(), bDelay, ePlayer);
-	} else {
-#endif
-	if (pkScriptSystem) 
+	if (MOD_EVENTS_UNIT_PREKILL)
 	{
-		CvLuaArgsHandle args;
-		args->Push(((int)getOwner()));
-		args->Push(GetID());
-		args->Push(getUnitType());
-		args->Push(getX());
-		args->Push(getY());
-		args->Push(bDelay);
-		args->Push(ePlayer);
-
-		bool bResult;
-		LuaSupport::CallHook(pkScriptSystem, "UnitPrekill", args.get(), bResult);
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitPrekill, getOwner(), GetID(), getUnitType(), getX(), getY(), bDelay, ePlayer);
 	}
+	else
+	{
+#endif
+		if (pkScriptSystem) 
+		{
+			CvLuaArgsHandle args;
+			args->Push(((int)getOwner()));
+			args->Push(GetID());
+			args->Push(getUnitType());
+			args->Push(getX());
+			args->Push(getY());
+			args->Push(bDelay);
+			args->Push(ePlayer);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "UnitPrekill", args.get(), bResult);
+		}
 #if defined(MOD_EVENTS_UNIT_PREKILL)
 	}
 #endif
@@ -14401,10 +14444,19 @@ UnitTypes CvUnit::getCaptureUnitType(CivilizationTypes eCivilization) const
 
 
 //	--------------------------------------------------------------------------------
-UnitCombatTypes CvUnit::getUnitCombatType() const
+int CvUnit::getUnitCombatType() const
 {
 	VALIDATE_OBJECT
-	return ((UnitCombatTypes)(m_pUnitInfo->GetUnitCombatType()));
+	return m_eCombatType;
+}
+
+void CvUnit::setUnitCombatType(UnitCombatTypes eCombat)
+{
+	VALIDATE_OBJECT
+	if(getUnitCombatType() != eCombat)
+	{
+		m_eCombatType = eCombat;
+	}
 }
 
 #if defined(MOD_GLOBAL_PROMOTION_CLASSES)
@@ -15550,7 +15602,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		// Unit Combat type Modifier
 		if(pOtherUnit->getUnitCombatType() != NO_UNITCOMBAT)
 		{
-			iTempModifier = unitCombatModifier(pOtherUnit->getUnitCombatType());
+			iTempModifier = unitCombatModifier((UnitCombatTypes)pOtherUnit->getUnitCombatType());
 			iModifier += iTempModifier;
 #if defined(MOD_BALANCE_CORE)
 			CvUnitEntry* pUnitInfo = GC.getUnitInfo(pOtherUnit->getUnitType());
@@ -16289,7 +16341,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 		// Unit combat modifier VS other unit
 		if(pOtherUnit->getUnitCombatType() != NO_UNITCOMBAT)
-			iModifier += unitCombatModifier(pOtherUnit->getUnitCombatType());
+			iModifier += unitCombatModifier((UnitCombatTypes)pOtherUnit->getUnitCombatType());
 
 		// Domain modifier VS other unit
 		iModifier += domainModifier(pOtherUnit->getDomainType());
@@ -19463,6 +19515,75 @@ if (!bDoEvade)
 #endif
 										{
 											ClearMissionQueue();
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				// Have a unit that'll convert an enemy unit into a Barbarian?
+				if(isConvertEnemyUnitToBarbarian())
+				{
+					CvUnit* pConvertUnit = NULL;
+					int iDamageTheshold = this->getUnitInfo().GetDamageThreshold();
+					CvUnit* pAdjacentUnit = pAdjacentPlot->getBestDefender(NO_PLAYER);
+					if(pAdjacentUnit != NULL && pAdjacentUnit->IsCombatUnit() && !pAdjacentUnit->isBarbarian())
+					{
+						int iExistingDamage = pAdjacentUnit->getDamage();
+						if(GET_PLAYER(getOwner()).IsAtWarWith(pAdjacentUnit->getOwner()))
+						{
+							if(iExistingDamage > iDamageTheshold)
+							{
+								CvPlayer* pBarbPlayer = &GET_PLAYER(BARBARIAN_PLAYER);
+								pConvertUnit = pBarbPlayer->initUnit(pAdjacentUnit->getUnitType(), pAdjacentUnit->getX(), pAdjacentUnit->getY(), pAdjacentUnit->AI_getUnitAIType(), NO_DIRECTION, true /*bNoMove*/, false);
+								pConvertUnit->convert(pAdjacentUnit, false);
+								pConvertUnit->setupGraphical();
+								pConvertUnit->setDamage(iExistingDamage, BARBARIAN_PLAYER);
+								pConvertUnit->finishMoves();
+
+								CvNotifications* pNotifications = GET_PLAYER(this->getOwner()).GetNotifications();
+								if(pNotifications)
+								{
+									CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHAOS_CONVERSION");
+									CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHAOS_CONVERSION");
+									pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pAdjacentUnit->getX(), pAdjacentUnit->getY(), -1);
+								}
+							}
+						}
+					}
+				}
+				// Is this unit running into a unit that might convert it into a barbarian??
+				else if(IsCombatUnit() && !isBarbarian())
+				{
+					CvUnit* pConvertUnit = NULL;
+					int iExistingDamage = getDamage();
+					if(pAdjacentPlot->getNumUnits() > 0)
+					{
+						for(int iNearbyUnitLoop = 0; iNearbyUnitLoop < pAdjacentPlot->getNumUnits(); iNearbyUnitLoop++)
+						{
+							const CvUnit* const adjUnit = pAdjacentPlot->getUnitByIndex(iNearbyUnitLoop);
+							if(adjUnit != NULL && adjUnit->isConvertEnemyUnitToBarbarian())
+							{
+								int iDamageTheshold = adjUnit->getUnitInfo().GetDamageThreshold();
+								if(GET_PLAYER(getOwner()).IsAtWarWith(adjUnit->getOwner()))
+								{
+									if(iExistingDamage > iDamageTheshold)
+									{
+
+										CvPlayer* pBarbPlayer = &GET_PLAYER(BARBARIAN_PLAYER);
+										pConvertUnit = pBarbPlayer->initUnit(this->getUnitType(), this->getX(), this->getY(), this->AI_getUnitAIType(), NO_DIRECTION, true /*bNoMove*/, false);
+										pConvertUnit->convert(this, false);
+										pConvertUnit->setupGraphical();
+										pConvertUnit->setDamage(iExistingDamage, BARBARIAN_PLAYER);
+										pConvertUnit->finishMoves();
+
+										CvNotifications* pNotifications = GET_PLAYER(adjUnit->getOwner()).GetNotifications();
+										if(pNotifications)
+										{
+											CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHAOS_CONVERSION");
+											CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHAOS_CONVERSION");
+											pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, this->getX(), this->getY(), -1);
 										}
 									}
 								}
@@ -28546,7 +28667,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iTemp + iFlavorOffense * 11;
 
 		//Raw power is better for mounted/armor units
-		const UnitCombatTypes unitCombatType = getUnitCombatType();
+		const int unitCombatType = getUnitCombatType();
 		if(unitCombatType == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true))
 		{
 			iValue *= 3;
@@ -28572,7 +28693,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iTemp + iFlavorOffense * 11;
 
 		//Raw power is better for archer units than all others
-		const UnitCombatTypes unitCombatType = getUnitCombatType();
+		const int unitCombatType = getUnitCombatType();
 		if(unitCombatType == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true))
 		{
 			iValue *= 3;
@@ -29663,6 +29784,11 @@ bool CvUnit::isConvertOnFullHP() const
 {
 	VALIDATE_OBJECT
 	return getUnitInfo().IsConvertOnFullHP();
+}
+bool CvUnit::isConvertEnemyUnitToBarbarian() const
+{
+	VALIDATE_OBJECT
+	return getUnitInfo().IsConvertEnemyUnitToBarbarian();
 }
 #endif
 #if defined(MOD_GLOBAL_STACKING_RULES)

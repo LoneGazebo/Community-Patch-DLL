@@ -29795,7 +29795,8 @@ void CvPlayer::changeNavalCombatExperience(int iChange)
 #endif
 {
 #if defined(MOD_UNITS_XP_TIMES_100)
-	if (!MOD_UNITS_XP_TIMES_100) {
+	if (!MOD_UNITS_XP_TIMES_100)
+	{
 		// If NOT using XP times 100, remove any fractional part
 		iChangeTimes100 -= (iChangeTimes100 % 100);
 	}

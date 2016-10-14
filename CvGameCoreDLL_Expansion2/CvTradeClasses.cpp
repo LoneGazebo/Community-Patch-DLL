@@ -3649,6 +3649,24 @@ void CvPlayerTrade::UpdateTradeConnectionValues (void)
 				pTrade->SetDestYields(ui,uiYields,GetTradeConnectionValueTimes100(*pConnection, (YieldTypes)uiYields, false));
 			}
 		}
+		if(m_pPlayer->GetPlayerTraits()->IsTradeRouteMinorInfluenceAdmiralPoints())
+		{
+			if(pTrade->IsConnectionInternational(*pConnection) && GET_PLAYER(pTrade->GetDestCity(*pConnection)->getOwner()).isMinorCiv() && GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(pTrade->GetDestCity(*pConnection)->getOwner()).getTeam()))
+			{
+				int iInfluence = GC.getGame().getGameSpeedInfo().getGoldGiftMod() / 100;
+				if (pConnection->m_eDomain == DOMAIN_LAND)
+				{
+					GET_PLAYER(pTrade->GetDestCity(*pConnection)->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iInfluence);
+					m_pPlayer->changeNavalCombatExperienceTimes100(iInfluence * 100);
+				}
+				else if (pConnection->m_eDomain == DOMAIN_SEA)
+				{
+					iInfluence *= 2;
+					GET_PLAYER(pTrade->GetDestCity(*pConnection)->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iInfluence);
+					m_pPlayer->changeNavalCombatExperienceTimes100(iInfluence * 100);
+				}
+			}
+		}
 	}
 }
 
@@ -3862,7 +3880,8 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 	if (iRouteIndex != -1)
 	{
 		int nPlots = pTrade->GetTradeConnection(iRouteIndex).m_aPlotList.size();
-		if (nPlots > 0) {
+		if (nPlots > 0)
+		{
 			if (nPlots > MAX_PLOTS_TO_DISPLAY)
 				nPlots = MAX_PLOTS_TO_DISPLAY;
 			for (uint ui = 0; ui < (uint)nPlots; ui++) 
@@ -3876,6 +3895,24 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 			if(eConnectionType != TRADE_CONNECTION_INTERNATIONAL)
 			{
 				m_pPlayer->GetTreasury()->DoInternalTradeRouteGoldBonus();
+			}
+			if(m_pPlayer->GetPlayerTraits()->IsTradeRouteMinorInfluenceAdmiralPoints())
+			{
+				if(eConnectionType == TRADE_CONNECTION_INTERNATIONAL && GET_PLAYER(pDestCity->getOwner()).isMinorCiv() && GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(pDestCity->getOwner()).getTeam()))
+				{
+					int iInfluence = GC.getGame().getGameSpeedInfo().getGoldGiftMod() / 100;
+					if (eDomain == DOMAIN_LAND)
+					{
+						GET_PLAYER(pDestCity->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iInfluence);
+						m_pPlayer->changeNavalCombatExperienceTimes100(iInfluence * 100);
+					}
+					else if (eDomain == DOMAIN_SEA)
+					{
+						iInfluence *= 2;
+						GET_PLAYER(pDestCity->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iInfluence);
+						m_pPlayer->changeNavalCombatExperienceTimes100(iInfluence * 100);
+					}
+				}
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)

@@ -8977,6 +8977,24 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 						{
 							pLoopUnit->SetBaseCombatStrength(GC.getUnitInfo(pLoopUnit->getUnitType())->GetEraCombatStrength(eNewValue));
 						}
+						UnitCombatTypes eUnitCombatClass;
+						for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+						{
+							eUnitCombatClass = (UnitCombatTypes) iI;
+							if((GC.getUnitInfo(pLoopUnit->getUnitType())->GetUnitNewEraCombatType(eUnitCombatClass, eNewValue) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eNewValue))
+							{
+								pLoopUnit->setUnitCombatType(eUnitCombatClass);
+							}
+						}
+						PromotionTypes ePromotion;
+						for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+						{
+							ePromotion = (PromotionTypes) iI;
+							if((GC.getUnitInfo(pLoopUnit->getUnitType())->GetUnitNewEraPromotions(ePromotion, eNewValue) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eNewValue))
+							{
+								pLoopUnit->setHasPromotion(ePromotion, true);
+							}
+						}
 					}
 				}
 			}
