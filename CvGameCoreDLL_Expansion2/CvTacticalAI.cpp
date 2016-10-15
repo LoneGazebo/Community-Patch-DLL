@@ -5012,6 +5012,9 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 /// Queues up attacks on enemy units on or adjacent to army's desired center
 void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 {
+	if (!pArmy)
+		return;
+
 	int iRange = 5;
 	int iMinDist = INT_MAX;
 	int iResult = -1;
@@ -8741,10 +8744,14 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, bool bNoRang
 				
 		// there are no other civilians here
 		if (!bIsCityTarget && (pLoopUnit->IsCityAttackSupport() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsGreatAdmiral()))
-			continue;	
+			continue;
 
-		// Don't pull melee units out of camps to attack.
-		if(pLoopUnit->isBarbarian() && !pLoopUnit->isRanged() && (pLoopUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT()))
+		// Garrisons have special moves
+		if (pLoopUnit->IsGarrisoned())
+			continue;
+
+		// Don't pull barbarian units out of camps to attack.
+		if(pLoopUnit->isBarbarian() && (pLoopUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT()))
 			continue;
 
 		// Only time ranged units aren't selected for city attack is when it needs to be captured
@@ -13409,6 +13416,10 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 				initialPosition->addTacticalPlot(pPlot, ePlayer);
 		}
 	}
+
+	//are there enemies?
+	if (initialPosition->isComplete())
+		return true;
 
 	//find out which plot is frontline, second line etc
 	initialPosition->updateTacticalPlotTypes();
