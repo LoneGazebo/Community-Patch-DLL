@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 10/14/2016 2:40:55 PM -->
+<GameData>
+	<!-- POLICY: Allows you to define a modifier (+X%) to any type of yield of international trade routes (other than FOOD and PRODUCTION)
+	Interops with UNIFIED_YIELD changes to allow faith, culture, etc. -->
+	<Table name="Policy_InternationalRouteYieldModifiers">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"></Column>
+		<Column name="YieldType" type="text" reference="Yields(Type)"></Column>
+		<Column name="Yield" type="integer" default="0"></Column>
+	</Table>
+</GameData>
