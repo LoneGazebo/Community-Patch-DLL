@@ -1825,6 +1825,7 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SP
 	PlayerTypes ePlayer = data.ePlayer;
 	RouteTypes eRoute = (RouteTypes)data.iTypeParameter;
 
+	CvPlot* pOldPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 
@@ -1838,12 +1839,13 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SP
 		//what else can count as road depends on the player type
 		if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad())
 		{
-			if(pNewPlot->isRiver())
+			if(pNewPlot->isRiver() && pOldPlot->isRiver())
 				ePlotRoute = ROUTE_ROAD;
 		}
 		if(kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus())
 		{
-			if(pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE)
+			if( (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE) && 
+				(pOldPlot->getFeatureType() == FEATURE_FOREST || pOldPlot->getFeatureType() == FEATURE_JUNGLE))
 				ePlotRoute = ROUTE_ROAD;
 		}
 	}
