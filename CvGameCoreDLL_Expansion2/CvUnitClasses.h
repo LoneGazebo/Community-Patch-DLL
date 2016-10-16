@@ -201,6 +201,7 @@ public:
 	UnitTypes GetConvertUnit() const;
 	bool IsConvertOnFullHP() const;
 	bool IsWarOnly() const;
+	bool IsConvertEnemyUnitToBarbarian() const;
 #endif
 	// Accessor Functions (Arrays)
 	int GetPrereqAndTechs(int i) const;
@@ -224,6 +225,10 @@ public:
 	bool GetBuildOnFound(int i) const;
 	bool GetBuildingClassPurchaseRequireds(int i) const;
 	int GetEraCombatStrength(int i) const;
+	int GetUnitNewEraCombatType(int i, int j) const;
+	int* GetUnitNewEraCombatTypeChangesArray(int i);
+	int GetUnitNewEraPromotions(int i, int j) const;
+	int* GetUnitNewEraPromotionsChangesArray(int i);
 #endif
 	bool GetFreePromotions(int i) const;
 
@@ -369,6 +374,7 @@ private:
 	UnitTypes m_eConvertUnit;
 	bool m_bIsConvertOnFullHP;
 	bool m_bWarOnly;
+	bool m_bConvertEnemyUnitToBarbarian;
 #endif
 	int m_iCultureBombRadius;
 	int m_iGoldenAgeTurns;
@@ -426,6 +432,8 @@ private:
 	bool* m_pbBuildOnFound;
 	bool* m_pbBuildingClassPurchaseRequireds;
 	int* m_piEraCombatStrength;
+	int** m_ppiEraUnitCombatType;
+	int** m_ppiEraUnitPromotions;
 #endif
 	bool* m_pbFreePromotions;
 

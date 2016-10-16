@@ -112,6 +112,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bBestUnitSpawnOnImpDOW(false),
 	m_iBestUnitImprovement(NO_IMPROVEMENT),
 	m_iGGGARateFromDenunciationsAndWars(0),
+	m_bTradeRouteMinorInfluenceAP(false),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -704,6 +705,10 @@ int CvTraitEntry::GetQuestYieldModifier() const
 int CvTraitEntry::GetPolicyGEorGM() const
 {
 	return m_iPolicyGEorGM;
+}
+bool CvTraitEntry::IsTradeRouteMinorInfluenceAdmiralPoints() const
+{
+	return m_bTradeRouteMinorInfluenceAP;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1809,6 +1814,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iGAGarrisonCityRangeStrikeModifier	= kResults.GetInt("GAGarrisonCityRangeStrikeModifier");
 	m_bBestUnitSpawnOnImpDOW				= kResults.GetBool("BestUnitSpawnOnImpDOW");
 	m_iGGGARateFromDenunciationsAndWars		= kResults.GetInt("GGGARateFromDenunciationsAndWars");
+	m_bTradeRouteMinorInfluenceAP			= kResults.GetBool("TradeRouteMinorInfluenceAP");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -2826,6 +2832,10 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bBestUnitSpawnOnImpDOW = true;
 			}
+			if (trait->IsTradeRouteMinorInfluenceAdmiralPoints())
+			{
+				m_bTradeRouteMinorInfluenceAP = true;
+			}
 			m_iTourismToGAP += trait->GetTourismToGAP();
 			m_iEventTourismBoost += trait->GetEventTourismBoost();
 			m_iGrowthBoon += trait->GetGrowthBoon();
@@ -3401,6 +3411,7 @@ void CvPlayerTraits::Reset()
 	m_bBestUnitSpawnOnImpDOW = false;
 	m_iBestUnitImprovement = NO_IMPROVEMENT;
 	m_iGGGARateFromDenunciationsAndWars = 0;
+	m_bTradeRouteMinorInfluenceAP = false;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -5297,6 +5308,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(74, kStream, m_bBestUnitSpawnOnImpDOW, false);
 	MOD_SERIALIZE_READ(74, kStream, m_iBestUnitImprovement, NO_IMPROVEMENT);
 	MOD_SERIALIZE_READ(74, kStream, m_iGGGARateFromDenunciationsAndWars, 0);
+	MOD_SERIALIZE_READ(74, kStream, m_bTradeRouteMinorInfluenceAP, false);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -5838,6 +5850,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bBestUnitSpawnOnImpDOW);
 	MOD_SERIALIZE_WRITE(kStream, m_iBestUnitImprovement);
 	MOD_SERIALIZE_WRITE(kStream, m_iGGGARateFromDenunciationsAndWars);
+	MOD_SERIALIZE_WRITE(kStream, m_bTradeRouteMinorInfluenceAP);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);

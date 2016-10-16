@@ -138,6 +138,7 @@ public:
 	bool IsBestUnitSpawnOnImprovementDOW() const;
 	ImprovementTypes GetBestSpawnUnitImprovement() const;
 	int GetGGGARateFromDenunciationsAndWars() const;
+	bool IsTradeRouteMinorInfluenceAdmiralPoints() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -424,6 +425,7 @@ protected:
 	bool m_bBestUnitSpawnOnImpDOW;
 	ImprovementTypes m_iBestUnitImprovement;
 	int m_iGGGARateFromDenunciationsAndWars;
+	bool m_bTradeRouteMinorInfluenceAP;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -990,6 +992,10 @@ public:
 	int GetGGGARateFromDenunciationsAndWars() const
 	{
 		return m_iGGGARateFromDenunciationsAndWars;
+	};
+	bool IsTradeRouteMinorInfluenceAdmiralPoints() const
+	{
+		return m_bTradeRouteMinorInfluenceAP;
 	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1622,6 +1628,7 @@ private:
 	bool m_bBestUnitSpawnOnImpDOW;
 	ImprovementTypes m_iBestUnitImprovement;
 	int m_iGGGARateFromDenunciationsAndWars;
+	bool m_bTradeRouteMinorInfluenceAP;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
