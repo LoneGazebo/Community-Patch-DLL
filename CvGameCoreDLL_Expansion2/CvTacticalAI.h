@@ -870,7 +870,7 @@ private:
 	void ExecutePlunderTradeUnit(CvPlot* pTargetPlot);
 	void ExecuteParadropPillage(CvPlot* pTargetPlot);
 #ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
-	void ExecuteAttack(CvPlot* pTargetPlot, eAggressionLevel eAggLvl);
+	void ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl);
 #endif
 	void ExecuteAttack(CvTacticalTarget* target, CvPlot* pTargetPlot, bool bPreserveMeleeUnits=true);
 	void ExecuteRepositionMoves();

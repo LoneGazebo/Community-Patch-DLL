@@ -2571,7 +2571,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 				if(ComputeTotalExpectedDamage(pTarget, pPlot) >= iRequiredDamage) 
 				{
 #ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
-					ExecuteAttack(pPlot, AL_HIGH);
+					ExecuteAttackWithUnits(pPlot, AL_HIGH);
 #else
 					// If so, execute moves to take it
 					ExecuteAttack(pTarget, pPlot, false);
@@ -2694,7 +2694,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 
 					// Fire away!
 #ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
-					ExecuteAttack(pPlot, iMeleeCount<3 ? AL_MEDIUM : AL_HIGH);
+					ExecuteAttackWithUnits(pPlot, iMeleeCount<3 ? AL_MEDIUM : AL_HIGH);
 #else
 					ExecuteAttack(pTarget, pPlot, iMeleeCount<3);
 #endif
@@ -2817,7 +2817,7 @@ bool CvTacticalAI::PlotNavalDamageCityMoves()
 
 					// Fire away!
 #ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
-					ExecuteAttack(pPlot, iMeleeCount<3 ? AL_MEDIUM : AL_HIGH);
+					ExecuteAttackWithUnits(pPlot, iMeleeCount<3 ? AL_MEDIUM : AL_HIGH);
 #else
 					ExecuteAttack(pTarget, pPlot, iMeleeCount<3);
 #endif
@@ -2893,6 +2893,16 @@ void CvTacticalAI::PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bM
 				iRequiredDamage = pDefender->GetCurrHitPoints();
 				pTarget->SetAuxIntData(iRequiredDamage);
 
+#ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
+				// Start by applying damage from city bombards
+				for(unsigned int iI = 0; iI < m_CurrentMoveCities.size(); iI++)
+				{
+					CvCity* pCity = m_pPlayer->getCity(m_CurrentMoveCities[iI].GetID());
+					if(pCity != NULL && PerformAttack(pCity, pTarget))
+						return; //target was killed
+				}
+#endif
+
 				if(!bMustBeAbleToKill)
 				{
 					// Put in any attacks where we'll inflict at least equal damage
@@ -2925,7 +2935,7 @@ void CvTacticalAI::PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bM
 					}
 
 #ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
-					ExecuteAttack(pPlot, bAttackAtPoorOdds ? AL_HIGH : AL_MEDIUM);
+					ExecuteAttackWithUnits(pPlot, bAttackAtPoorOdds ? AL_HIGH : AL_MEDIUM);
 #else
 					ExecuteAttack(pTarget, pPlot, !bAttackAtPoorOdds);
 #endif
@@ -2961,7 +2971,7 @@ void CvTacticalAI::PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bM
 						}
 
 #ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
-						ExecuteAttack(pPlot, AL_MEDIUM);
+						ExecuteAttackWithUnits(pPlot, AL_MEDIUM);
 #else
 						ExecuteAttack(pTarget, pPlot, false);
 #endif
@@ -6427,7 +6437,7 @@ void CvTacticalAI::ExecuteParadropPillage(CvPlot* pTargetPlot)
 }
 
 #ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
-void CvTacticalAI::ExecuteAttack(CvPlot* pTargetPlot, eAggressionLevel eAggLvl)
+void CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl)
 {
 	//evaluate many possible unit assignments around the target plot and choose the best one
 	//will not necessarily attack only the target plot when other targets are present!
@@ -7870,8 +7880,6 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 		bool bCityCanAttack = FindCitiesWithinStrikingDistance(pTargetPlot);
 		if(bCityCanAttack)
 		{
-			ComputeTotalExpectedCityBombardDamage(pDefender);
-
 			// Start by applying damage from city bombards
 			for(unsigned int iI = 0; iI < m_CurrentMoveCities.size(); iI++)
 			{
@@ -7888,7 +7896,7 @@ bool CvTacticalAI::ExecuteSafeBombards(CvTacticalTarget& kTarget)
 
 	// Make attacks - this includes melee attacks but only very safe ones
 	if(FindUnitsWithinStrikingDistance(pTargetPlot))
-		ExecuteAttack(pTargetPlot, AL_LOW);
+		ExecuteAttackWithUnits(pTargetPlot, AL_LOW);
 #else
 	CvTacticalUnit unit;
 	CvCity* pTargetCity = 0;
@@ -8095,7 +8103,7 @@ bool CvTacticalAI::ExecuteFlankAttack(CvTacticalTarget& kTarget)
 	CvPlot* pTargetPlot = GC.getMap().plot(kTarget.GetTargetX(), kTarget.GetTargetY());
 	CvUnit* pDefender = pTargetPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
 	if(pDefender && FindUnitsWithinStrikingDistance(pTargetPlot))
-		ExecuteAttack(pTargetPlot, AL_MEDIUM);
+		ExecuteAttackWithUnits(pTargetPlot, AL_MEDIUM);
 #endif
 	return false;
 }
