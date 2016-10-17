@@ -4653,11 +4653,11 @@ bool CvPlot::isVisibleOtherUnit(PlayerTypes ePlayer) const
 	return false;
 }
 
-bool CvPlot::isVisibleNeutralCombatUnit(PlayerTypes ePlayer) const
+bool CvPlot::isNeutralCombatUnit(PlayerTypes ePlayer, bool bCheckVisibility) const
 {
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
-	if (!isVisible(eTeam))
+	if (bCheckVisibility && !isVisible(eTeam))
 		return false;
 
 	CvAssertMsg(ePlayer != NO_PLAYER, "Source player must be valid");
@@ -10829,7 +10829,22 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 			if(isVisible(eTeam))
 			{
 				eResult = VISIBILITY_CHANGE_TO_VISIBLE;
-				bool bOldRevealed = isRevealed(eTeam);
+
+				//are we seeing this plot for the first time?
+				if(bInformExplorationTracking && !isRevealed(eTeam))
+				{
+					// slewis - ghetto-tastic hack. ugh
+					for(int iI = 0; iI < MAX_PLAYERS; iI++)
+					{
+						CvPlayerAI& playerI = GET_PLAYER((PlayerTypes)iI);
+						if(playerI.isAlive())
+						{
+							if(playerI.getTeam() == eTeam)
+								playerI.GetEconomicAI()->SetExplorationPlotsDirty();
+						}
+					}
+				}
+
 #if defined(MOD_API_EXTENSIONS)
 				if (!setRevealed(eTeam, true, pUnit))	// Change to revealed, returns true if the visibility was changed
 #else
@@ -10844,56 +10859,6 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 						updateFog(true);
 						updateVisibility();
 					}
-				}
-
-				if(bInformExplorationTracking && !bOldRevealed)
-				{
-					// slewis - ghetto-tastic hack. ugh
-					for(int iI = 0; iI < MAX_PLAYERS; iI++)
-					{
-						CvPlayerAI& playerI = GET_PLAYER((PlayerTypes)iI);
-						if(playerI.isAlive())
-						{
-							if(playerI.getTeam() == eTeam)
-								playerI.GetEconomicAI()->SetExplorationPlotsDirty();
-						}
-					}
-#if defined(MOD_BALANCE_CORE)
-					if(pUnit) 
-					{
-						bool bYield = pUnit->IsGainsYieldFromScouting();
-						if((pUnit->IsGainsXPFromScouting() || bYield) && !GET_TEAM(eTeam).isBarbarian() && !GET_TEAM(eTeam).isMinorCiv())
-						{
-#if defined(MOD_UNITS_XP_TIMES_100)
-							if((pUnit->getExperienceTimes100() < (GC.getBALANCE_SCOUT_XP_MAXIMUM() * 100)) || bYield)
-#else
-							if((pUnit->getExperience() < GC.getBALANCE_SCOUT_XP_MAXIMUM()) || pUnit->IsGainsYieldFromScouting())
-#endif
-							{
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-								if(IsNaturalWonder(true))
-#else
-								if(IsNaturalWonder())
-#endif
-								{
-									pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE());
-								}
-								else if(isGoody())
-								{
-									pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() / 3);
-								}
-								else if(getResourceType(pUnit->getTeam()) != NO_RESOURCE)
-								{
-									pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() / 4);
-								}
-								else
-								{
-									pUnit->ChangeNumTilesRevealedThisTurn(1);
-								}	
-							}
-						}
-					}
-#endif
 				}
 
 				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
@@ -11269,7 +11234,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 		}
 
 		// Natural Wonder
-		if(eTeam != BARBARIAN_TEAM)
+		if(eTeam != BARBARIAN_TEAM && bNewValue)
 		{
 			if(getFeatureType() != NO_FEATURE)
 			{
@@ -11564,6 +11529,39 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 
 		if(bNewValue)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pUnit && pUnit->IsGainsXPFromScouting() && !GET_TEAM(eTeam).isBarbarian() && !GET_TEAM(eTeam).isMinorCiv())
+			{
+#if defined(MOD_UNITS_XP_TIMES_100)
+				if(pUnit->getExperienceTimes100() < (GC.getBALANCE_SCOUT_XP_MAXIMUM() * 100))
+#else
+				if((pUnit->getExperience() < GC.getBALANCE_SCOUT_XP_MAXIMUM()) || pUnit->IsGainsYieldFromScouting())
+#endif
+				{
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+					if(IsNaturalWonder(true))
+#else
+					if(IsNaturalWonder())
+#endif
+					{
+						pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE());
+					}
+					else if(isGoody())
+					{
+						pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() / 3);
+					}
+					else if(getResourceType(pUnit->getTeam()) != NO_RESOURCE)
+					{
+						pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() / 4);
+					}
+					else
+					{
+						pUnit->ChangeNumTilesRevealedThisTurn(1);
+					}	
+				}
+			}
+#endif
+
 			if(pInterface->GetHeadSelectedUnit() != NULL)
 			{
 				// This is what determines if the camera jumps quickly or slowly - if we're revealing new plots go slower.  The following function sets this flag

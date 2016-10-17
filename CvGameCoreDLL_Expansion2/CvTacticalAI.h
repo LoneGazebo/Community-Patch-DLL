@@ -1083,12 +1083,13 @@ public:
 	int getNumAdjacentFirstlineFriendlies() const { return nFriendlyFirstlineUnitsAdjacent; }
 	bool isEnemy() const { return bBlockedByEnemyCity || bBlockedByEnemyCombatUnit; }
 	bool isEnemyCity() const { return bBlockedByEnemyCity; }
+	bool isEnemyCivilian() const { return bEnemyCivilianPresent; }
 	bool isEnemyCombatUnit() const { return bBlockedByEnemyCombatUnit; }
 	bool isFriendlyCombatUnit() const { return bBlockedByFriendlyCombatUnit; }
 	void setDamage(int iDamage) { iDamageDealt = iDamage; }
 	int getDamage() const { return iDamageDealt; }
 	void setInitialState(const CvPlot* plot, PlayerTypes ePlayer); //set initial state depending on current plot status
-	void update(CvTacticalPosition& currentPosition, bool bFriendlyCombatUnitPresent, bool bEnemyCombatUnitPresent, bool bEnemyCityPresent, bool bSupportPresent);	//set fictional state
+	void update(CvTacticalPosition& currentPosition, bool bFriendlyCombatUnitPresent, bool bEnemyUnitPresent, bool bEnemyCityPresent, bool bSupportPresent);	//set fictional state
 	void findType(const CvTacticalPosition& currentPosition, set<int>& outstandingUpdates);
 	bool isValid() const { return pPlot!=NULL; }
 	bool hasSupportBonus() const { return bSupportUnitPresent || nSupportUnitsAdjacent>0; } //not 100% correct because general has range 2
@@ -1104,6 +1105,7 @@ protected:
 	//note that blocked by neutral cannot occur, we don't even create tactical plots in that case!
 	bool bBlockedByEnemyCity;
 	bool bBlockedByEnemyCombatUnit;
+	bool bEnemyCivilianPresent;
 	bool bBlockedByFriendlyCombatUnit;
 	bool bSupportUnitPresent;
 	eTactPlotType eType;
@@ -1152,6 +1154,7 @@ protected:
 	bool movesAreCompatible(const STacticalAssignment& A, const STacticalAssignment& B) const;
 	bool movesAreEquivalent(const vector<STacticalAssignment>& seqA, const vector<STacticalAssignment>& seqB) const;
 	int findBlockingUnitAtPlot(int iPlotIndex) const;
+	vector<int> getPlotsMadeVisibleByMove(const STacticalAssignment& assignment) const;
 
 	//finding a particular unit
 	struct PrMatchingUnit
@@ -1169,7 +1172,8 @@ public:
 	bool isComplete() const;
 	void updateTacticalPlotTypes(int iStartPlot = -1);
 	bool makeNextAssignments(int iMaxBranches);
-	void addTacticalPlot(const CvPlot* pPlot, PlayerTypes ePlayer);
+	bool haveTacticalPlot(const CvPlot* pPlot) const;
+	void addTacticalPlot(const CvPlot* pPlot);
 	void addAvailableUnit(const CvUnit* pUnit);
 	int countChildren() const;
 

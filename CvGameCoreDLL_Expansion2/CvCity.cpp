@@ -7047,7 +7047,7 @@ void CvCity::updateEconomicValue()
 }
 int CvCity::getEconomicValue(PlayerTypes ePossibleOwner) const
 {
-	return m_aiEconomicValue[ePossibleOwner];
+	return ePossibleOwner!=NO_PLAYER ? m_aiEconomicValue[ePossibleOwner] : 0;
 }
 
 #endif
