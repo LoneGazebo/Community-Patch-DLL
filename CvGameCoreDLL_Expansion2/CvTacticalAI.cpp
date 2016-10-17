@@ -4189,6 +4189,9 @@ void CvTacticalAI::PlotSteamrollMoves()
 {
 	m_TempTargets.clear();
 
+	//try capture first! will only do something if we have enough firepower.
+	PlotCaptureCityMoves();
+
 	// See if there are any kill attacks we can make.
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true, true);
 	PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true, true);
@@ -12161,7 +12164,13 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	}
 	else if (tactPlot.isEnemyCombatUnit())
 	{
-		CvUnit* pEnemy = pTestPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(), pUnit, true);
+		CvUnit* pEnemy = pTestPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(), pUnit, true, true); //ignore the official visibility
+		if (!pEnemy)
+		{
+			OutputDebugString("expected enemy unit not present!\n");
+			result.iScore = -1;
+			return;
+		}
 		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy, pUnit, pUnitPlot, iDamageReceived, true, iPrevDamage);
 		iOriginalHitPoints = pEnemy->GetCurrHitPoints();
 	}
@@ -12279,6 +12288,9 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 			if (iDistance == 1)
 			{
 				ScoreAttack(currentPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), result);
+				if (result.iScore<0)
+					return result;
+
 				if ( pCurrentPlot==assumedPosition.getTarget() )
 					result.iScore += 15; //a slight boost for attacking the "real" target
 				else
@@ -12334,8 +12346,9 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 						//we just care for the score here but let's reuse the scoring function
 						STacticalAssignment temp; 
 						//if aggression is low, we won't actually execute the attack but we do want to move into place, so use AL_HIGH here
-						ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, AL_HIGH, temp); 
-						vDamageRatios.push_back(temp.iScore);
+						ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, AL_HIGH, temp);
+						if (temp.iScore>0)
+							vDamageRatios.push_back(temp.iScore);
 					}
 				}
 			}
@@ -12361,7 +12374,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 					iDamageScore += vDamageRatios[i];
 				else if (i < iAttacksHereThisTurn+pUnit->getNumAttacks())
 					//if we can't attack now, we don't like it as much
-					iDamageScore += vDamageRatios[i] / 4; 
+					iDamageScore += vDamageRatios[i] / 8; 
 			}
 
 			//ranged specialties
@@ -12500,9 +12513,9 @@ void CvTacticalPlot::setInitialState(const CvPlot* plot, PlayerTypes ePlayer)
 		CvUnit* pDefender = pPlot->getBestDefender(ePlayer);
 		bBlockedByFriendlyCombatUnit = (pDefender != NULL && !pDefender->isEmbarked());
 
-		bBlockedByEnemyCombatUnit = (pPlot->getVisibleEnemyDefender(ePlayer) != NULL);
+		bBlockedByEnemyCombatUnit = pPlot->isEnemyUnit(ePlayer,true,false); //visibility is checked elsewhere!
 		bBlockedByEnemyCity = (pPlot->isCity() && GET_PLAYER(ePlayer).IsAtWarWith(pPlot->getOwner()));
-		bEnemyCivilianPresent = !bBlockedByEnemyCombatUnit && pPlot->isVisibleEnemyUnit(ePlayer);
+		bEnemyCivilianPresent = !bBlockedByEnemyCombatUnit && pPlot->isEnemyUnit(ePlayer,false,false); //visibility is checked elsewhere!
 
 		//general handling is a bit awkward
 		int iDummy = 0;
@@ -12700,6 +12713,9 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 				if (currentPlot.isValid() && currentPlot.isEnemy() && assumedUnitPlot.isValid()) //still alive?
 				{
 					ScoreAttack(currentPlot, pUnit, assumedUnitPlot, getAggressionLevel(), move);
+					if (move.iScore<0)
+						continue;
+
 					if ( *it==getTarget()->GetPlotIndex() )
 						move.iScore += 10; //a slight boost for attacking the "real" target
 
@@ -13183,7 +13199,7 @@ void CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		{
 			//since it was invisible before, we know there are no friendly units around
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(newlyVisible[i]);
-			if (pPlot && !pPlot->isNeutralCombatUnit(ePlayer,false)) //can't use the official visiblity here 
+			if (pPlot && !pPlot->isNeutralUnit(ePlayer,true,false)) //can't use the official visiblity here 
 			{
 				addTacticalPlot(pPlot);
 				updateTacticalPlotTypes(pPlot->GetPlotIndex());
@@ -13376,7 +13392,7 @@ void CvTacticalPosition::dumpPlotStatus(const char* fname) const
 	ofstream out(fname);
 	if (out)
 	{
-		out << "x,y,enemy,friendly,nAdjEnemy,nAdjFriendly,nAdjFirstline,type\n"; 
+		out << "#x,y,enemy,friendly,nAdjEnemy,nAdjFriendly,nAdjFirstline,type\n"; 
 		for (vector<CvTacticalPlot>::const_iterator it = tactPlots.begin(); it != tactPlots.end(); ++it)
 		{
 			CvPlot* pPlot =  GC.getMap().plotByIndexUnchecked( it->getPlotIndex() );
@@ -13475,8 +13491,8 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 	{
 		CvPlot* pPlot = iterateRingPlots(pTarget,i);
 
-		//important: we skip plots with neutral units!
-		if (pPlot && pPlot->isVisible( GET_PLAYER(ePlayer).getTeam() ) && !pPlot->isNeutralCombatUnit(ePlayer,true))
+		//for the inital setup we use the official visibility. skip plots with neutral combat units!
+		if (pPlot && pPlot->isVisible( GET_PLAYER(ePlayer).getTeam() ) && !pPlot->isNeutralUnit(ePlayer,true,true))
 		{
 			//another twist. there may be "unrelated" friendly units standing around and blocking tiles
 			//note: embarked units don't block the plot (although they are ignored for the attack)

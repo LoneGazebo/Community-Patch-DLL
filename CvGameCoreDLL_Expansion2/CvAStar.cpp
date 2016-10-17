@@ -73,7 +73,6 @@ protected:
 int giKnownCostWeight = 1;
 int giHeuristicCostWeight = 1;
 int giLastStartIndex = 0;
-int giLastDestinationIndex = 0;
 
 unsigned int saiRuntimeHistogram[100] = {0};
 
@@ -384,24 +383,13 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	if ( timer.GetDeltaInSeconds()>0.1 && data.ePathType!=PT_UNIT_REACHABLE_PLOTS && data.ePathType!=PT_GENERIC_REACHABLE_PLOTS )
 	{
 		//debug hook
-		bool bShowCallstack = false;
-		int iDestinationIndex = GC.getMap().plotNum(m_iXdest, m_iYdest);
 		int iStartIndex = GC.getMap().plotNum(m_iXstart, m_iYstart);
 		if (iStartIndex==giLastStartIndex && iStartIndex>0)
 		{
 			OutputDebugString("Repeated pathfinding start\n");
-			bShowCallstack = true;
-		}
-		if (iDestinationIndex==giLastDestinationIndex && iDestinationIndex>0)
-		{
-			OutputDebugString("Repeated pathfinding destination\n");
-			bShowCallstack = true;
+			gStackWalker.ShowCallstack();
 		}
 		giLastStartIndex = iStartIndex;
-		giLastDestinationIndex = iDestinationIndex;
-
-		//if (bShowCallstack)
-		//	gStackWalker.ShowCallstack();
 
 		int iNumPlots = GC.getMap().numPlots();
 		CvUnit* pUnit = m_sData.iUnitID>0 ? GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID) : NULL;
