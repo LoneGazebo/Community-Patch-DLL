@@ -3587,7 +3587,12 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						}
 					}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+					if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->IsConquestOfTheWorld() && GET_PLAYER(kTradeConnection.m_eDestOwner).isGoldenAge())
+					{
+						iValue *= 2;
+					}
+#endif
 					int iModifier = 100;
 					int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
 					iModifier += iDomainModifier;
@@ -3642,6 +3647,12 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						}
 					}
 #endif
+#if defined(MOD_BALANCE_CORE)
+					if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->IsConquestOfTheWorld() && GET_PLAYER(kTradeConnection.m_eDestOwner).isGoldenAge())
+					{
+						iValue *= 2;
+					}
+#endif
 					int iModifier = 100;
 					int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
 					iModifier += iDomainModifier;
@@ -3693,24 +3704,6 @@ void CvPlayerTrade::UpdateTradeConnectionValues (void)
 			for (uint uiYields = 0; uiYields < NUM_YIELD_TYPES; uiYields++)
 			{
 				pTrade->SetDestYields(ui,uiYields,GetTradeConnectionValueTimes100(*pConnection, (YieldTypes)uiYields, false));
-			}
-		}
-		if(m_pPlayer->GetPlayerTraits()->IsTradeRouteMinorInfluenceAdmiralPoints())
-		{
-			if(pTrade->IsConnectionInternational(*pConnection) && GET_PLAYER(pTrade->GetDestCity(*pConnection)->getOwner()).isMinorCiv() && GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(pTrade->GetDestCity(*pConnection)->getOwner()).getTeam()))
-			{
-				int iInfluence = GC.getGame().getGameSpeedInfo().getGoldGiftMod() / 100;
-				if (pConnection->m_eDomain == DOMAIN_LAND)
-				{
-					GET_PLAYER(pTrade->GetDestCity(*pConnection)->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iInfluence);
-					m_pPlayer->changeNavalCombatExperienceTimes100(iInfluence * 100);
-				}
-				else if (pConnection->m_eDomain == DOMAIN_SEA)
-				{
-					iInfluence *= 2;
-					GET_PLAYER(pTrade->GetDestCity(*pConnection)->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iInfluence);
-					m_pPlayer->changeNavalCombatExperienceTimes100(iInfluence * 100);
-				}
 			}
 		}
 	}
@@ -3941,24 +3934,6 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 			if(eConnectionType != TRADE_CONNECTION_INTERNATIONAL)
 			{
 				m_pPlayer->GetTreasury()->DoInternalTradeRouteGoldBonus();
-			}
-			if(m_pPlayer->GetPlayerTraits()->IsTradeRouteMinorInfluenceAdmiralPoints())
-			{
-				if(eConnectionType == TRADE_CONNECTION_INTERNATIONAL && GET_PLAYER(pDestCity->getOwner()).isMinorCiv() && GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(pDestCity->getOwner()).getTeam()))
-				{
-					int iInfluence = GC.getGame().getGameSpeedInfo().getGoldGiftMod() / 100;
-					if (eDomain == DOMAIN_LAND)
-					{
-						GET_PLAYER(pDestCity->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iInfluence);
-						m_pPlayer->changeNavalCombatExperienceTimes100(iInfluence * 100);
-					}
-					else if (eDomain == DOMAIN_SEA)
-					{
-						iInfluence *= 2;
-						GET_PLAYER(pDestCity->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iInfluence);
-						m_pPlayer->changeNavalCombatExperienceTimes100(iInfluence * 100);
-					}
-				}
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -6183,6 +6158,13 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	{
 		iScore *= MAX(5, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(true));
 	}
+#if defined(MOD_BALANCE_CORE)
+	// turn it up some for Conquest of the World player during golden ages
+	if(m_pPlayer->GetPlayerTraits()->IsConquestOfTheWorld() && m_pPlayer->isGoldenAge())
+	{
+		iScore *= 5;
+	}
+#endif
 
 	return (iScore * 10) / (iDistance + iDangerSum);
 }

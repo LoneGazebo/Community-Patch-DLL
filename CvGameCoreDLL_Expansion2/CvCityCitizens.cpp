@@ -4048,6 +4048,39 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 				}
 			}
 		}
+		if(newUnit->isWLKTKDOnBirth())
+		{
+			CvCity* pLoopCity;
+			int iLoop;
+			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL && pLoopCity->getOwner() == kPlayer.GetID())
+				{
+					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iWLTKD /= 100;
+					if (iWLTKD > 0)
+					{
+						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+						CvNotifications* pNotifications = kPlayer.GetNotifications();
+						if (pNotifications)
+						{
+							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT");
+							strText << newUnit->getNameKey() << pLoopCity->getNameKey();
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UNIT");
+							strSummary << pLoopCity->getNameKey();
+							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pLoopCity->getX(), pLoopCity->getY(), -1);
+						}
+					}
+				}
+			}
+		}
+		if(newUnit->isGoldenAgeOnBirth())
+		{
+			int iGoldenAgeTurns = kPlayer.getGoldenAgeLength();
+			int iValue = kPlayer.GetGoldenAgeProgressMeter();
+			kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+		}
 #endif
 		if(newUnit->IsGreatGeneral())
 		{
@@ -4206,6 +4239,39 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), GetCity()->getX(), GetCity()->getY(), -1);
 				}
 			}
+		}
+		if(newUnit->isWLKTKDOnBirth())
+		{
+			CvCity* pLoopCity;
+			int iLoop;
+			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL && pLoopCity->getOwner() == kPlayer.GetID())
+				{
+					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iWLTKD /= 100;
+					if (iWLTKD > 0)
+					{
+						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+						CvNotifications* pNotifications = kPlayer.GetNotifications();
+						if (pNotifications)
+						{
+							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT");
+							strText << newUnit->getNameKey() << pLoopCity->getNameKey();
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UNIT");
+							strSummary << pLoopCity->getNameKey();
+							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pLoopCity->getX(), pLoopCity->getY(), -1);
+						}
+					}
+				}
+			}
+		}
+		if(newUnit->isGoldenAgeOnBirth())
+		{
+			int iGoldenAgeTurns = kPlayer.getGoldenAgeLength();
+			int iValue = kPlayer.GetGoldenAgeProgressMeter();
+			kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
 		}
 #endif
 #if defined(MOD_BUGFIX_MINOR)

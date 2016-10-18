@@ -422,6 +422,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		iDefense += (pkBuildingInfo->GetDefenseModifier() / 5);
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(pkBuildingInfo->GetBuildingDefenseModifier() > 0)
+	{
+		iDefense += pkBuildingInfo->GetBuildingDefenseModifier() / 5;
+	}
+#endif
 	if(pkBuildingInfo->GetExtraCityHitPoints() > 0)
 	{
 		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 5);

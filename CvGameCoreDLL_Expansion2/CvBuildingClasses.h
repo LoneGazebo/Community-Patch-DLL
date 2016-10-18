@@ -232,6 +232,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetLocalUnhappinessModifier() const;
 	int GetGlobalBuildingGoldMaintenanceMod() const;
+	int GetBuildingDefenseModifier() const;
 #endif
 	int GetHappinessPerCity() const;
 	int GetHappinessPerXPolicies() const;
@@ -317,6 +318,7 @@ public:
 	bool IsReligious() const;
 	bool IsBorderObstacle() const;
 #if defined(MOD_BALANCE_CORE)
+	bool IsAnyBodyOfWater() const;
 	int GetBorderObstacleCity() const;
 	int GetBorderObstacleWater() const;
 	int GetWLTKDTurns() const;
@@ -614,6 +616,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int m_iLocalUnhappinessModifier;
 	int m_iGlobalBuildingGoldMaintenanceMod;
+	int m_iBuildingDefenseModifier;
 #endif
 	int m_iHappinessPerCity;
 	int m_iHappinessPerXPolicies;
@@ -703,6 +706,7 @@ private:
 	bool m_bBuildAnywhere;
 	int m_iTradeReligionModifier;
 	int m_iFreeArtifacts;
+	bool m_bAnyWater;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int m_iCannotFailSpies;

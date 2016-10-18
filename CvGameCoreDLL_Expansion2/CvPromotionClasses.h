@@ -243,6 +243,7 @@ public:
 	DomainTypes GetConvertDomain() const;
 	PromotionTypes AddedFromNearbyPromotion() const;
 	int GetStackedGreatGeneralExperience() const;
+	int GetPillageBonusStrengthPercent() const;
 #endif
 	bool IsCanHeavyCharge() const;
 	bool HasPostCombatPromotions() const;
@@ -496,6 +497,7 @@ protected:
 	UnitTypes m_eConvertDomainUnit;
 	DomainTypes m_eConvertDomain;
 	int m_iStackedGreatGeneralExperience;
+	int m_iPillageBonusStrength;
 #endif
 	bool m_bCanHeavyCharge;
 

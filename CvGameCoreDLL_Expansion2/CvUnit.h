@@ -1382,6 +1382,8 @@ public:
 	bool isConvertOnDamage() const;
 	bool isConvertOnFullHP() const;
 	bool isConvertEnemyUnitToBarbarian() const;
+	bool isWLKTKDOnBirth() const;
+	bool isGoldenAgeOnBirth() const;
 #endif
 
 	int getExtraUnitCombatModifier(UnitCombatTypes eIndex) const;

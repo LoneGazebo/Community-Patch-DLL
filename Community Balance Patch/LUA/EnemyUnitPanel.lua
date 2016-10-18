@@ -479,7 +479,13 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_SAPPED" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 			end
-
+			-- Conquest of the World
+			iModifier = pMyPlayer:GetTraitConquestOfTheWorldCityAttackMod(pPlot);
+			if (iModifier ~= 0 and pMyPlayer:IsGoldenAge()) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_BONUS_CONQUEST_OF_WORLD" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
 			-- Blockaded
 			if (pCity:IsBlockadedTest()) then
 				iModifier = (GameDefines["SAPPED_CITY_ATTACK_MODIFIER"] / 2);
@@ -1991,7 +1997,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 		
 		local theirPlayerID = theirUnit:GetOwner();
 		local theirPlayer = Players[theirPlayerID];
-		
+		local myPlot = myCity:Plot();
 		local theirPlot = theirUnit:GetPlot();
 		
 		-- Empire Unhappy
@@ -2270,7 +2276,15 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_SAPPED" );
 			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 		end
-		
+		-- Conquest of the World
+		if myPlot ~= nil then
+			iModifier = theirPlayer:GetTraitConquestOfTheWorldCityAttackMod(myPlot);
+			if (iModifier ~= 0 and theirPlayer:IsGoldenAge()) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_BONUS_CONQUEST_OF_WORLD" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+		end
 		-- Civ Trait Bonus
 		iModifier = theirPlayer:GetTraitGoldenAgeCombatModifier();
 		if (iModifier ~= 0 and theirPlayer:IsGoldenAge()) then

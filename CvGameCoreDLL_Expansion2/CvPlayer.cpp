@@ -3072,6 +3072,23 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 #endif
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(GetPlayerTraits()->IsConquestOfTheWorld())
+		{
+			if (!pOldCity->isEverOwned(GetID()))
+			{
+				int iValue = GetGoldenAgeProgressMeter();
+				if(isGoldenAge())
+				{
+					changeGoldenAgeTurns(3, iValue);
+				}
+				else
+				{
+					changeGoldenAgeTurns(5, iValue);
+				}
+			}
+		}
+#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	if (!pOldCity->isEverOwned(GetID()))
@@ -3557,11 +3574,14 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	if(bIsMinorCivBuyout)
 	{
 #if defined(MOD_GLOBAL_CS_LIBERATE_AFTER_BUYOUT)
-		if (MOD_GLOBAL_CS_LIBERATE_AFTER_BUYOUT) {
+		if (MOD_GLOBAL_CS_LIBERATE_AFTER_BUYOUT)
+		{
 			pNewCity->setPreviousOwner(eOldOwner);
 			pNewCity->setOriginalOwner(eOriginalOwner);
 			pNewCity->setGameTurnFounded(iGameTurnFounded);
-		} else {
+		}
+		else
+		{
 #endif
 			pNewCity->setPreviousOwner(NO_PLAYER);
 			pNewCity->setOriginalOwner(m_eID);
@@ -10468,70 +10488,74 @@ void CvPlayer::doTurn()
 	{
 		RefreshCSAlliesFriends();
 #endif
-	DoUpdateCramped();
+		DoUpdateCramped();
 
-	DoUpdateUprisings();
-	DoUpdateCityRevolts();
-	CalculateNetHappiness();
-	SetBestWonderCities();
+		DoUpdateUprisings();
+		DoUpdateCityRevolts();
+		CalculateNetHappiness();
+		SetBestWonderCities();
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if(MOD_BALANCE_CORE_HAPPINESS)
-	{
-		if(GC.getLogging() && GC.getAILogging())
+		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			CvString playerName;
-			FILogFile* pLog;
-			CvString strBaseString;
-			CvString strOutBuf;
-			CvString strFileName = "CustomMods.csv";
-			playerName = getCivilizationShortDescription();
-			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-			strBaseString += playerName + ", ";
-			strOutBuf.Format("Happiness: %d, Gold: %d, Defense: %d, Science: %d, Culture: %d", GetExcessHappiness() , getUnhappinessFromCityGold(), getUnhappinessFromCityDefense(), getUnhappinessFromCityScience(), getUnhappinessFromCityCulture());
-			strBaseString += strOutBuf;
-			pLog->Msg(strBaseString);
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString playerName;
+				FILogFile* pLog;
+				CvString strBaseString;
+				CvString strOutBuf;
+				CvString strFileName = "CustomMods.csv";
+				playerName = getCivilizationShortDescription();
+				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += playerName + ", ";
+				strOutBuf.Format("Happiness: %d, Gold: %d, Defense: %d, Science: %d, Culture: %d", GetExcessHappiness() , getUnhappinessFromCityGold(), getUnhappinessFromCityDefense(), getUnhappinessFromCityScience(), getUnhappinessFromCityCulture());
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
 		}
-	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	//Reset every turn for CS events.
-	for(int iQuestLoop = 0; iQuestLoop < NUM_MINOR_CIV_QUEST_TYPES; iQuestLoop++)
-	{
-		SetGlobalTourismAlreadyReceived((MinorCivQuestTypes)iQuestLoop, 0);
-	}
+		//Reset every turn for CS events.
+		for(int iQuestLoop = 0; iQuestLoop < NUM_MINOR_CIV_QUEST_TYPES; iQuestLoop++)
+		{
+			SetGlobalTourismAlreadyReceived((MinorCivQuestTypes)iQuestLoop, 0);
+		}
 
-	GetCorporations()->DoTurn();
+		GetCorporations()->DoTurn();
 	
-	//Reset for reevaluation of citystrategy AI
-	countCitiesFeatureSurrounded(true);
+		//Reset for reevaluation of citystrategy AI
+		countCitiesFeatureSurrounded(true);
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
-	if(MOD_BALANCE_CORE_AFRAID_ANNEX)
-	{
-		if(GetPlayerTraits()->IsBullyAnnex() && !IsEmpireVeryUnhappy() && !isHuman())
+		if(MOD_BALANCE_CORE_AFRAID_ANNEX)
 		{
-			PlayerTypes eLoopPlayer;
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			if(GetPlayerTraits()->IsBullyAnnex() && !IsEmpireVeryUnhappy() && !isHuman())
 			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if(GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).isAlive())
+				PlayerTypes eLoopPlayer;
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 				{
-					if(GET_PLAYER(eLoopPlayer).GetMinorCivAI()->CanMajorBullyUnit(GetID()))
+					eLoopPlayer = (PlayerTypes) iPlayerLoop;
+					if(GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).isAlive())
 					{
-						GC.getGame().DoMinorBullyUnit(GetID(), eLoopPlayer);
+						if(GET_PLAYER(eLoopPlayer).GetMinorCivAI()->CanMajorBullyUnit(GetID()))
+						{
+							GC.getGame().DoMinorBullyUnit(GetID(), eLoopPlayer);
+						}
 					}
 				}
 			}
 		}
-	}
 #endif
-	if(GetPlayerTraits()->IsEndOfMayaLongCount())
-	{
-		ChangeNumMayaBoosts(1);
-	}
+		if(GetPlayerTraits()->IsEndOfMayaLongCount())
+		{
+			ChangeNumMayaBoosts(1);
+		}
 #if defined(MOD_BALANCE_CORE)
+		if(GetPlayerTraits()->IsTradeRouteMinorInfluenceAdmiralPoints())
+		{
+			DoTradeInfluenceAP();
+		}
 	}
 #endif
 	bool bHasActiveDiploRequest = false;
@@ -24386,7 +24410,7 @@ void CvPlayer::DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnitType
 	}
 }
 #if defined(MOD_BALANCE_CORE)
-void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPersonTypes eGreatPerson, BuildingTypes eBuilding, int iPassYield, bool bEraScale, PlayerTypes ePlayer, CvPlot* pPlot, bool bSuppress, CvCity* pCity, bool bDomainSea, bool bInternational, bool bEvent, YieldTypes ePassYield, CvUnit* pUnit)
+void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPersonTypes eGreatPerson, BuildingTypes eBuilding, int iPassYield, bool bEraScale, PlayerTypes ePlayer, CvPlot* pPlot, bool bSuppress, CvCity* pCity, bool bDomainSea, bool bInternational, bool bEvent, YieldTypes ePassYield, CvUnit* pUnit, TerrainTypes ePassTerrain)
 {
 
 	//No minors or barbs here, please!
@@ -24394,6 +24418,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 		return;
 
 	YieldTypes eYield;
+	TerrainTypes eTerrain;
 
 	ReligionTypes eReligion = NO_RELIGION;
 	ReligionTypes eLocalReligion = NO_RELIGION;
@@ -24569,6 +24594,17 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					if(pReligion)
 					{
 						iValue += pReligion->m_Beliefs.GetYieldPerBorderGrowth(eYield, GetID());
+					}
+					for(int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+					{
+						eTerrain = (TerrainTypes) iI;
+
+						if(eTerrain == NO_TERRAIN)
+							continue;
+						if(eTerrain == ePassTerrain)
+						{
+							iValue += GetPlayerTraits()->GetYieldChangeFromTileEarnTerrainType(eTerrain, eYield);
+						}
 					}
 					break;
 				}
@@ -25693,8 +25729,8 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	m_iGreatGeneralRateModifier += m_pTraits->GetGreatGeneralRateModifier();
 	m_iGreatScientistRateModifier += m_pTraits->GetGreatScientistRateModifier();
 #if defined(MOD_BALANCE_CORE)
-	m_iGreatGeneralRateModifier += m_pTraits->GetGGGARateModifierFromDenunciationsAndWars();
-	m_iGreatAdmiralRateModifier += m_pTraits->GetGGGARateModifierFromDenunciationsAndWars();
+	m_iGreatGeneralRateModifier += (m_pTraits->GetGGGARateFromDenunciationsAndWars()) * (GetDiplomacyAI()->GetNumDenouncements() + GET_TEAM(getTeam()).getAtWarCount(true));
+	m_iGreatAdmiralRateModifier += (m_pTraits->GetGGGARateFromDenunciationsAndWars()) * (GetDiplomacyAI()->GetNumDenouncements() + GET_TEAM(getTeam()).getAtWarCount(true));
 #endif
 
 	// Then get from current policies
@@ -32948,7 +32984,45 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 		}
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+void CvPlayer::DoTradeInfluenceAP()
+{
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	int iOwner = GetID();
+	if(GetPlayerTraits()->IsTradeRouteMinorInfluenceAdmiralPoints())
+	{
+		for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
+		{
+			const TradeConnection* pConnection = &(pTrade->GetTradeConnection(ui));
 
+			if (pTrade->IsTradeRouteIndexEmpty(ui))
+			{
+				continue;
+			}
+
+			if (pConnection->m_eOriginOwner == iOwner && pConnection->m_eDestOwner != iOwner)
+			{
+				bool bMinorCiv = GET_PLAYER(pConnection->m_eDestOwner).isMinorCiv();
+				if(bMinorCiv)
+				{
+					int iInfluence = GC.getGame().getGameSpeedInfo().getGoldGiftMod() / 100;
+					if (pConnection->m_eDomain == DOMAIN_LAND)
+					{
+						GET_PLAYER(pConnection->m_eDestOwner).GetMinorCivAI()->ChangeFriendshipWithMajor((PlayerTypes)iOwner, iInfluence);
+						changeNavalCombatExperienceTimes100(iInfluence * 100);
+					}
+					else if (pConnection->m_eDomain == DOMAIN_SEA)
+					{
+						iInfluence *= 2;
+						GET_PLAYER(pConnection->m_eDestOwner).GetMinorCivAI()->ChangeFriendshipWithMajor((PlayerTypes)iOwner, iInfluence);
+						changeNavalCombatExperienceTimes100(iInfluence * 100);
+					}
+				}
+			}
+		}
+	}
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Units in the ether coming towards us?
 void CvPlayer::DoIncomingUnits()
@@ -40448,6 +40522,39 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 			}
 		}
 	}
+	if(pGreatPeopleUnit->isWLKTKDOnBirth())
+	{
+		CvCity* pLoopCity;
+		int iLoop;
+		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if(pLoopCity != NULL && pLoopCity->getOwner() == GetID())
+			{
+				int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+				iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iWLTKD /= 100;
+				if (iWLTKD > 0)
+				{
+					pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+					CvNotifications* pNotifications = GetNotifications();
+					if (pNotifications)
+					{
+						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT");
+						strText << pGreatPeopleUnit->getNameKey() << pLoopCity->getNameKey();
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UNIT");
+						strSummary << pLoopCity->getNameKey();
+						pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pLoopCity->getX(), pLoopCity->getY(), -1);
+					}
+				}
+			}
+		}
+	}
+	if(pGreatPeopleUnit->isGoldenAgeOnBirth())
+	{
+		int iGoldenAgeTurns = getGoldenAgeLength();
+		int iValue = GetGoldenAgeProgressMeter();
+		changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+	}
 	if(pGreatPeopleUnit->IsCombatUnit())
 	{
 		getCapitalCity()->addProductionExperience(pGreatPeopleUnit);
@@ -40581,6 +40688,39 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 				}
 			}
 		}
+	}
+	if(pGreatPeopleUnit->isWLKTKDOnBirth())
+	{
+		CvCity* pLoopCity;
+		int iLoop;
+		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if(pLoopCity != NULL && pLoopCity->getOwner() == GetID())
+			{
+				int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+				iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iWLTKD /= 100;
+				if (iWLTKD > 0)
+				{
+					pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+					CvNotifications* pNotifications = GetNotifications();
+					if (pNotifications)
+					{
+						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT");
+						strText << pGreatPeopleUnit->getNameKey() << pLoopCity->getNameKey();
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UNIT");
+						strSummary << pLoopCity->getNameKey();
+						pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pLoopCity->getX(), pLoopCity->getY(), -1);
+					}
+				}
+			}
+		}
+	}
+	if(pGreatPeopleUnit->isGoldenAgeOnBirth())
+	{
+		int iGoldenAgeTurns = getGoldenAgeLength();
+		int iValue = GetGoldenAgeProgressMeter();
+		changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
 	}
 	if(pGreatPeopleUnit->IsCombatUnit())
 	{

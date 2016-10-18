@@ -2843,6 +2843,11 @@ int CvBuilderTaskingAI::ScorePlot()
 						}
 					}
 				}
+				// if it's Iroquois building forests give it even more weight since it connects cities.
+				else if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && pkImprovementInfo->GetCreatedFeature() != NO_FEATURE)
+				{
+					iScore *= 5;
+				}
 				else
 				{
 					iScore *= 2;

@@ -62,6 +62,8 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bIsConvertOnFullHP(0),
 	m_bWarOnly(0),
 	m_bConvertEnemyUnitToBarbarian(false),
+	m_bWLTKD(false),
+	m_bGoldenAge(false),
 #endif
 	m_bSpreadReligion(false),
 	m_bRemoveHeresy(false),
@@ -404,6 +406,8 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bIsConvertOnFullHP = kResults.GetBool("ConvertOnFullHP");
 	m_bWarOnly = kResults.GetBool("WarOnly");
 	m_bConvertEnemyUnitToBarbarian = kResults.GetBool("ConvertEnemyUnitToBarbarian");
+	m_bWLTKD = kResults.GetBool("WLTKDFromBirth");
+	m_bGoldenAge = kResults.GetBool("GoldenAgeFromBirth");
 #endif
 
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
@@ -1334,6 +1338,14 @@ bool CvUnitEntry::IsWarOnly() const
 bool CvUnitEntry::IsConvertEnemyUnitToBarbarian() const
 {
 	return m_bConvertEnemyUnitToBarbarian;
+}
+bool CvUnitEntry::IsWLTKDFromBirth() const
+{
+	return m_bWLTKD;
+}
+bool CvUnitEntry::IsGoldenAgeFromBirth() const
+{
+	return m_bGoldenAge;
 }
 #endif
 #if defined(MOD_CARGO_SHIPS)

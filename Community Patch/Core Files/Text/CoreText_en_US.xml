@@ -6601,6 +6601,24 @@
 		<Row Tag="TXT_KEY_PRODMOD_PLEDGES_UNIT_DOMAIN">
 			<Text>[NEWLINE][ICON_BULLET]Modifier for Unit Domain from Pledges: {1_Num}%</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_NUM_SPECIALISTS">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Number of Specialists: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT">
+			<Text>The birth of a {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the King Day"!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UNIT">
+			<Text>{1_CityName:textkey} loves the King!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CONQUEST_OF_WORLD_UNIT">
+			<Text>{1_CityName:textkey} has found us a military unit to serve!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CONQUEST_OF_WORLD_UNIT">
+			<Text>Nomads from {2_CityName:textkey} have formed a unit of {1_Resource:textkey} ready to serve us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_BONUS_CONQUEST_OF_WORLD">
+			<Text>Golden Age Conquest Of The World Bonus</Text>
+		</Row>
 	</Language_en_US>
 	<PostDefines>
 		<Row Name="PROMOTION_DEEPWATER_EMBARKATION">

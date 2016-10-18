@@ -89,6 +89,7 @@ public:
 	int GetUnitPlotExperience() const;
 	int GetGAUnitPlotExperience() const;
 	bool IsExperience() const;
+	FeatureTypes GetCreatedFeature() const;
 #endif
 	int GetImprovementPillage() const;
 	void SetImprovementPillage(int i);
@@ -256,6 +257,7 @@ protected:
 	int m_iUnitPlotExperience;
 	int m_iGAUnitPlotExperience;
 	bool m_bIsExperience;
+	FeatureTypes m_eCreatesFeature;
 #endif
 	int m_iImprovementPillage;
 	int m_iImprovementUpgrade;

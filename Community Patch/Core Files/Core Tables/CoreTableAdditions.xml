@@ -540,6 +540,13 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- TRAIT: Allows you to define a yield that is gained every time you acquire a tile on a specific terrain type -->
+	<Table name="Trait_YieldFromTileEarnTerrainType">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 	<!-- TRAIT: Allows you to define a yield that is gained in Capital based on # of historic events you have completed. -->
 	<Table name="Trait_YieldFromHistoricEvent">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>

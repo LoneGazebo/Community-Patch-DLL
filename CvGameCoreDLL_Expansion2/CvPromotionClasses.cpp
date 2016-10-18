@@ -216,6 +216,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_eConvertDomainUnit(NO_UNIT),
 	m_eConvertDomain(NO_DOMAIN),
 	m_iStackedGreatGeneralExperience(0),
+	m_iPillageBonusStrength(0),
 #endif
 	m_bCanHeavyCharge(false),
 	m_piTerrainAttackPercent(NULL),
@@ -364,7 +365,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bMountainsDoubleMove = kResults.GetBool("MountainsDoubleMove");
 #endif
 #if defined(MOD_PROMOTIONS_CROSS_MOUNTAINS)
-	if (MOD_PROMOTIONS_CROSS_MOUNTAINS) {
+	if (MOD_PROMOTIONS_CROSS_MOUNTAINS)
+	{
 		m_bCanCrossMountains = kResults.GetBool("CanCrossMountains");
 	}
 #endif
@@ -430,6 +432,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	const char* szConvertDomain = kResults.GetText("ConvertDomain");
 	m_eConvertDomain = (DomainTypes)GC.getInfoTypeForString(szConvertDomain, true);
 	m_iStackedGreatGeneralExperience = kResults.GetInt("StackedGreatGeneralXP");
+	m_iPillageBonusStrength = kResults.GetInt("PillageBonusStrength");
 #endif
 	m_bCanHeavyCharge = kResults.GetBool("HeavyCharge");
 
@@ -2037,6 +2040,10 @@ PromotionTypes CvPromotionEntry::AddedFromNearbyPromotion() const
 int CvPromotionEntry::GetStackedGreatGeneralExperience() const
 {
 	return m_iStackedGreatGeneralExperience;
+}
+int CvPromotionEntry::GetPillageBonusStrengthPercent() const
+{
+	return m_iPillageBonusStrength;
 }
 #endif
 

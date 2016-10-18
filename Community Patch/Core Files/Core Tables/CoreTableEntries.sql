@@ -903,6 +903,33 @@ ALTER TABLE Units ADD ConvertEnemyUnitToBarbarian BOOLEAN DEFAULT 0;
 -- Civ gets an influence boost and Great Admiral Points when sending a Trade Route to a minor Civ.
 ALTER TABLE Traits ADD COLUMN 'TradeRouteMinorInfluenceAP' BOOLEAN DEFAULT 0;
 
+-- Can this building be built next to any body of water?
+ALTER TABLE Buildings ADD AnyWater BOOLEAN DEFAULT 0;
+
+-- Promotion grants additional combat strength if on a pillaged improvement
+ALTER TABLE UnitPromotions ADD COLUMN 'PillageBonusStrength' INTEGER DEFAULT 0;
+
+-- Improvement can create a feature. Best implemented on Tiles that don't have features.
+ALTER TABLE Improvements ADD COLUMN 'CreatesFeature' INTEGER DEFAULT 0;
+
+-- Start a WLTKD when this unit is born or gained. GP's only.
+ALTER TABLE Units ADD WLTKDFromBirth BOOLEAN DEFAULT 0;
+
+-- Civ cities gets a production modifier (from 1%) for every specialist that they have.
+ALTER TABLE Traits ADD COLUMN 'ProdModFromNumSpecialists' BOOLEAN DEFAULT 0;
+
+-- Player during a Golden Age receives a City Attack modifier definable.
+ALTER TABLE Traits ADD COLUMN 'ConquestOfTheWorldCityAttack' INTEGER DEFAULT 0;
+
+-- Internal trade route yields doubled during Golden Ages, starts a Golden Age when conquering a city and extends if already in Golden Age.
+ALTER TABLE Traits ADD COLUMN 'ConquestOfTheWorld' BOOLEAN DEFAULT 0;
+
+-- Start a GoldenAge when this unit is born or gained. GP's only.
+ALTER TABLE Units ADD GoldenAgeFromBirth BOOLEAN DEFAULT 0;
+
+-- Define a defense modifier to a building, like GlobalDefenseModifier (but only local).
+ALTER TABLE Buildings ADD BuildingDefenseModifier INTEGER DEFAULT 0;
+
 -- CSD
 
 -- Insert SQL Rules Here 

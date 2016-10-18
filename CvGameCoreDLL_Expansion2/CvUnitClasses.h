@@ -202,6 +202,8 @@ public:
 	bool IsConvertOnFullHP() const;
 	bool IsWarOnly() const;
 	bool IsConvertEnemyUnitToBarbarian() const;
+	bool IsWLTKDFromBirth() const;
+	bool IsGoldenAgeFromBirth() const;
 #endif
 	// Accessor Functions (Arrays)
 	int GetPrereqAndTechs(int i) const;
@@ -375,6 +377,8 @@ private:
 	bool m_bIsConvertOnFullHP;
 	bool m_bWarOnly;
 	bool m_bConvertEnemyUnitToBarbarian;
+	bool m_bWLTKD;
+	bool m_bGoldenAge;
 #endif
 	int m_iCultureBombRadius;
 	int m_iGoldenAgeTurns;
