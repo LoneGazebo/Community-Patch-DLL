@@ -3489,6 +3489,21 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 			continue;
 		}
 
+		//performance: if we have a leftover path and the target is a good, then reuse it!
+		const CvPathNodeArray& lastPath = pUnit->GetPathNodeArray();
+		if (!lastPath.empty())
+		{
+			CvPlot* pDestPlot = lastPath.GetFinalPlot();
+			const std::vector<SPlotWithScore>& vExplorePlots = m_pPlayer->GetEconomicAI()->GetExplorationPlots(pUnit->getDomainType());
+
+			SPlotWithScore dummy(pDestPlot,0);
+			if ( std::find( vExplorePlots.begin(),vExplorePlots.end(),dummy ) != vExplorePlots.end() )
+			{
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, false, false, MISSIONAI_EXPLORE, pDestPlot);
+				continue;
+			}
+		}
+
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 		if(pkScriptSystem)
 		{

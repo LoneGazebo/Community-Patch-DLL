@@ -1042,7 +1042,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		// Default for this zone
 		else
 		{
-			eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
+			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 		}
 		break;
 	}
@@ -3292,7 +3292,7 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bFirstPas
 		{
 			szTargetName = "Improved Resource";
 		}
-		else
+		else if (eTarget == AI_TACTICAL_TARGET_IMPROVEMENT)
 		{
 			szTargetName = "Improvement";
 		}
@@ -11752,6 +11752,10 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		if (pPlot->isVisibleToEnemy(pUnit->getOwner()))
 			iDanger+=10;
 
+		//don't stay here, try to get away even if it means temporarily moving to a higher danger plot
+		if (pPlot->IsEnemyCityAdjacent(pUnit->getTeam(),NULL))
+			iDanger+=20;
+
 		//use city distance as tiebreaker
 		iDanger = iDanger * 10 + iCityDistance;
 
@@ -12380,11 +12384,11 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 				//ranged units are vulnerable without melee
 				if (currentPlot.getNumAdjacentFirstlineFriendlies()==0)
 					iDamageScore /= 2;
-
-				//isolated ranged unit? bad
-				if (currentPlot.getNumAdjacentFriendlies()==0)
-					iDamageScore /= 2;
 			}
+
+			//isolated unit? bad. chicken and egg problem for the algorithm though.
+			if (currentPlot.getNumAdjacentFriendlies()==0)
+				iDamageScore /= 2;
 		}
 
 		//temporary score
@@ -12393,6 +12397,14 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 		//bonus for capturing a civilian
 		if (currentPlot.isEnemyCivilian())
 			result.iScore += 10;
+
+		//does it make sense to pillage here?
+		if (result.eType == STacticalAssignment::A_ENDTURN && unit.iMovesLeft > 0 && 
+			pUnit->canPillage(pAssumedUnitPlot) && pUnit->getDamage() > GC.getPILLAGE_HEAL_AMOUNT())
+		{
+			result.iScore += 2;
+			result.eType = STacticalAssignment::A_PILLAGE;
+		}
 	}
 
 	//will we end the turn here?
@@ -13217,11 +13229,12 @@ bool CvTacticalPosition::addAssignment(STacticalAssignment newAssignment)
 		if (newAssignment.iRemainingMoves==0)
 			iUnitEndTurnPlot = newAssignment.iToPlotIndex;
 		break;
+	case STacticalAssignment::A_PILLAGE:
 	case STacticalAssignment::A_ENDTURN:
 	case STacticalAssignment::A_BLOCKED:
 		itUnit->iMovesLeft = 0;
 		iUnitEndTurnPlot = newAssignment.iToPlotIndex;
-		//todo: mark end turn plot?
+		//todo: mark end turn plot? as opposed to transient blocks
 		break;
 	}
 
@@ -13683,6 +13696,11 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pToPlot->getX(), pToPlot->getY(), CvUnit::MOVEFLAG_ATTACK);
 			bPostcondition = (pUnit->plot() == pToPlot) && !(pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit)); //enemy gone
 			break;
+		case STacticalAssignment::A_PILLAGE:
+			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+			bPrecondition = true;
+			bPostcondition = true;
+			break;
 		case STacticalAssignment::A_ENDTURN:
 			if (pUnit->canFortify(pUnit->plot()))
 				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
@@ -13698,6 +13716,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
 			else
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+			//do not mark the unit as processed, it can be reused for other tasks!
 			bPrecondition = true;
 			bPostcondition = true;
 			break;
@@ -13764,5 +13783,6 @@ const char* assignmentTypeNames[] =
 	"RANGEATTACK", 
 	"RANGEKILL", 
 	"ENDTURN",
-	"BLOCKED"
+	"BLOCKED",
+	"PILLAGE"
 };
