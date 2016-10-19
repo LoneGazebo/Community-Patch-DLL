@@ -153,6 +153,22 @@ void CvDistanceMapPlots::Update()
 	m_bDirty = false;
 }
 
+void CvDistanceMap::Dump(const char* filename)
+{
+	ofstream out(filename);
+	if (out)
+	{
+		out << "#x,y,water,distance,id,owner\n"; 
+		for (int i=0; i<GC.getMap().numPlots(); i++)
+		{
+			CvPlot* pPlot =  GC.getMap().plotByIndexUnchecked(i);
+			out << pPlot->getX() << "," << pPlot->getY() << "," << (pPlot->isWater() ? 1 : 0) << "," 
+				<< GetClosestFeatureDistance(*pPlot) << "," << GetClosestFeatureID(*pPlot) << "," << GetClosestFeatureOwner(*pPlot) << "\n";
+		}
+	}
+	out.close();
+
+}
 
 //	-----------------------------------------------------------------------------------------------
 void CvDistanceMap::SetDirty()

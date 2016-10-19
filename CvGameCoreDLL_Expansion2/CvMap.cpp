@@ -468,6 +468,7 @@ void CvMap::uninit()
 
 	m_iGridWidth = 0;
 	m_iGridHeight = 0;
+	m_iGridWidthHex = 0;
 	m_iGridSize = 0;
 	m_iLandPlots = 0;
 	m_iOwnedPlots = 0;
@@ -490,7 +491,7 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 	// set grid size
 	// initially set in terrain cell units
 	//
-	m_iGridWidth = (CvPreGame::worldSize() != NO_WORLDSIZE) ?  getWorldInfo().getGridWidth(): 0;	//todotw:tcells wide
+	m_iGridWidth = (CvPreGame::worldSize() != NO_WORLDSIZE) ?  getWorldInfo().getGridWidth(): 0;
 	m_iGridHeight = (CvPreGame::worldSize() != NO_WORLDSIZE) ? getWorldInfo().getGridHeight(): 0;
 
 	// allow grid size override
@@ -500,7 +501,9 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 		m_iGridHeight	= pInitInfo->m_iGridH;
 	}
 
+	m_iGridWidthHex = xToHexspaceX(m_iGridWidth,0) - xToHexspaceX(0,m_iGridHeight);
 	m_iGridSize = m_iGridHeight * m_iGridWidth;
+
 	m_iLandPlots = 0;
 	m_iOwnedPlots = 0;
 	m_iNumNaturalWonders = 0;
@@ -1462,6 +1465,7 @@ void CvMap::Read(FDataStream& kStream)
 
 	kStream >> m_iGridWidth;
 	kStream >> m_iGridHeight;
+	m_iGridWidthHex = xToHexspaceX(m_iGridWidth,0) - xToHexspaceX(0,m_iGridHeight);
 	m_iGridSize = m_iGridHeight * m_iGridWidth;
 	kStream >> m_iLandPlots;
 	kStream >> m_iOwnedPlots;

@@ -34,6 +34,12 @@ int dxWrap(int iDX)
 	return wrapCoordDifference(iDX, kMap.getGridWidth(), kMap.isWrapX());
 }
 
+int dxzWrapHex(int iDX)
+{
+	const CvMap& kMap = GC.getMap();
+	return wrapCoordDifference(iDX, kMap.getGridWidthHex(), kMap.isWrapX());
+}
+
 int dyWrap(int iDY)
 {
 	const CvMap& kMap = GC.getMap();
@@ -84,13 +90,15 @@ int plotDistance(int iX1, int iY1, int iX2, int iY2)
 {
 	int iX1H = xToHexspaceX(iX1,iY1);
 	int iX2H = xToHexspaceX(iX2,iY2);
+
 	//reconstruct the Z coordinate
 	int iZ1H = -iX1H-iY1;
 	int iZ2H = -iX2H-iY2;
 
-	int iDX = dxWrap(iX2H - iX1H);
+	//todo: fixme. wrapping does not work correctly for large distances
+	int iDX = dxzWrapHex(iX2H - iX1H);
 	int iDY = dyWrap(iY2 - iY1);
-	int iDZ = dxWrap(iZ2H - iZ1H); //this is by design, dx and dz have the same range
+	int iDZ = dxzWrapHex(iZ2H - iZ1H);
 
 	return (abs(iDX) + abs(iDY) + abs(iDZ)) / 2;
 }

@@ -6903,7 +6903,11 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingR
 			return pHolyCity;
 		}
 
-		if(pUnit && (!pUnit->CanSpreadReligion(pLoopCity->plot()) || pUnit->GetDanger(pLoopCity->plot())>0))
+		CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
+		if (pZone && pZone->GetEnemyStrength()>0)
+			continue;
+
+		if(pUnit && !pUnit->CanSpreadReligion(pLoopCity->plot()))
 			continue;
 
 		// Otherwise score this city

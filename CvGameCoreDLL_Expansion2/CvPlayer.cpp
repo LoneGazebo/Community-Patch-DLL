@@ -10676,6 +10676,12 @@ void CvPlayer::doTurnPostDiplomacy()
 			UpdateAreaEffectUnits();
 			GET_TEAM(getTeam()).ClearWarDeclarationCache();
 			UpdateCurrentAndFutureWars();
+
+			if (0)
+			{
+				m_pCityDistanceTurns->Dump( CvString::format("c:\\temp\\CityDistanceTurns_Player%d.csv", m_eID.get()).c_str() );
+				m_pCityDistancePlots->Dump( CvString::format("c:\\temp\\CityDistancePlots_Player%d.csv", m_eID.get()).c_str() );
+			}
 		}
 
 		if(!isBarbarian())

@@ -23,6 +23,7 @@ public:
 	virtual int GetClosestFeatureID(const CvPlot& pPlot);
 	virtual int GetClosestFeatureOwner(const CvPlot& pPlot);
 
+	void Dump(const char* filename);
 	void SetDirty();
 	bool IsDirty() const
 	{
