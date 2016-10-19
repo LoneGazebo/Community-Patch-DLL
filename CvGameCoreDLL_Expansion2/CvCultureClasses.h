@@ -264,7 +264,7 @@ public:
 	int GetInfluenceSurveillanceTime(PlayerTypes ePlayer) const;
 	int GetInfluenceCityStateSpyRankBonus(PlayerTypes eCityStatePlayer) const;
 	int GetInfluenceMajorCivSpyRankBonus(PlayerTypes ePlayer) const;
-	CvString GetInfluenceSpyRankTooltip (CvString szName, CvString iRank, PlayerTypes ePlayer);
+	CvString GetInfluenceSpyRankTooltip (CvString szName, CvString iRank, PlayerTypes ePlayer, bool bNoBasicHelp = false, int iSpyID = -1);
 	int GetTourism();
 	int GetTourismModifierWith(PlayerTypes ePlayer) const;
 	CvString GetTourismModifierWithTooltip(PlayerTypes ePlayer) const;

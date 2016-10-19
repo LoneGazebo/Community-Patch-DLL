@@ -112,6 +112,10 @@ CvTraitEntry::CvTraitEntry() :
 	m_bBestUnitSpawnOnImpDOW(false),
 	m_iBestUnitImprovement(NO_IMPROVEMENT),
 	m_iGGGARateFromDenunciationsAndWars(0),
+	m_bTradeRouteMinorInfluenceAP(false),
+	m_bProdModFromNumSpecialists(false),
+	m_iConquestOfTheWorldCityAttack(0),
+	m_bConquestOfTheWorld(false),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -227,6 +231,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bCombatBoostNearNaturalWonder(false),
 	m_piNumPledgesDomainProdMod(NULL),
 	m_piFreeUnitClassesDOW(NULL),
+	m_ppiYieldFromTileEarnTerrainType(NULL),
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiBuildingClassYieldChanges(NULL),
@@ -281,6 +286,9 @@ CvTraitEntry::~CvTraitEntry()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiCityYieldFromUnimprovedFeature);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiUnimprovedFeatureYieldChanges);
+#if defined(MOD_BALANCE_CORE)
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldFromTileEarnTerrainType);
+#endif
 }
 
 /// Accessor:: Modifier to experience needed for new level
@@ -704,6 +712,22 @@ int CvTraitEntry::GetQuestYieldModifier() const
 int CvTraitEntry::GetPolicyGEorGM() const
 {
 	return m_iPolicyGEorGM;
+}
+bool CvTraitEntry::IsTradeRouteMinorInfluenceAdmiralPoints() const
+{
+	return m_bTradeRouteMinorInfluenceAP;
+}
+bool CvTraitEntry::IsProductionModFromNumSpecialists() const
+{
+	return m_bProdModFromNumSpecialists;
+}
+int CvTraitEntry::GetConquestOfTheWorldCityAttack() const
+{
+	return m_iConquestOfTheWorldCityAttack;
+}
+bool CvTraitEntry::IsConquestOfTheWorld() const
+{
+	return m_bConquestOfTheWorld;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1196,6 +1220,17 @@ int CvTraitEntry::GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldType
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
 	return m_ppiImprovementYieldChanges ? m_ppiImprovementYieldChanges[eIndex1][eIndex2] : 0;
 }
+
+#if defined(MOD_BALANCE_CORE)
+int CvTraitEntry::GetYieldFromTileEarnTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiYieldFromTileEarnTerrainType ? m_ppiYieldFromTileEarnTerrainType[eIndex1][eIndex2] : 0;
+}
+#endif
 
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 /// Accessor:: Extra yield from a plot
@@ -1809,6 +1844,10 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iGAGarrisonCityRangeStrikeModifier	= kResults.GetInt("GAGarrisonCityRangeStrikeModifier");
 	m_bBestUnitSpawnOnImpDOW				= kResults.GetBool("BestUnitSpawnOnImpDOW");
 	m_iGGGARateFromDenunciationsAndWars		= kResults.GetInt("GGGARateFromDenunciationsAndWars");
+	m_bTradeRouteMinorInfluenceAP			= kResults.GetBool("TradeRouteMinorInfluenceAP");
+	m_bProdModFromNumSpecialists			= kResults.GetBool("ProdModFromNumSpecialists");
+	m_iConquestOfTheWorldCityAttack			= kResults.GetInt("ConquestOfTheWorldCityAttack");
+	m_bConquestOfTheWorld					= kResults.GetBool("ConquestOfTheWorld");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -2101,6 +2140,28 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		pResults->Reset();
 	}
 #if defined(MOD_BALANCE_CORE)
+	//Populate m_ppiYieldFromTileEarnTerrainType
+	{
+		kUtility.Initialize2DArray(m_ppiYieldFromTileEarnTerrainType, "Terrains", "Yields");
+
+		std::string strKey("Trait_YieldFromTileEarnTerrainType");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Trait_YieldFromTileEarnTerrainType inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while(pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiYieldFromTileEarnTerrainType[TerrainID][YieldID] = yield;
+		}
+	}
 	//Populate m_MovesChangeUnitClass
 	{
 		const int iNumUnitClasses = kUtility.MaxRows("UnitClasses");
@@ -2826,6 +2887,18 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bBestUnitSpawnOnImpDOW = true;
 			}
+			if (trait->IsTradeRouteMinorInfluenceAdmiralPoints())
+			{
+				m_bTradeRouteMinorInfluenceAP = true;
+			}
+			if (trait->IsProductionModFromNumSpecialists())
+			{
+				m_bProdModFromNumSpecialists = true;
+			}
+			if (trait->IsConquestOfTheWorld())
+			{
+				m_bConquestOfTheWorld = true;
+			}
 			m_iTourismToGAP += trait->GetTourismToGAP();
 			m_iEventTourismBoost += trait->GetEventTourismBoost();
 			m_iGrowthBoon += trait->GetGrowthBoon();
@@ -2844,6 +2917,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iGAGarrisonCityRangeStrikeModifier += trait->GetGoldenAgeGarrisonedCityRangeStrikeModifier();
 			m_iBestUnitImprovement = trait->GetBestSpawnUnitImprovement();
 			m_iGGGARateFromDenunciationsAndWars += trait->GetGGGARateFromDenunciationsAndWars();
+			m_iConquestOfTheWorldCityAttack += trait->GetConquestOfTheWorldCityAttack();
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
@@ -3054,7 +3128,18 @@ void CvPlayerTraits::InitPlayerTraits()
 						m_ppaaiImprovementYieldChange[iImprovementLoop] = yields;
 					}
 				}
-
+#if defined(MOD_BALANCE_CORE)
+				for(int iTerrainLoop = 0; iTerrainLoop < GC.getNumTerrainInfos(); iTerrainLoop++)
+				{
+					int iChange = trait->GetYieldFromTileEarnTerrainType((TerrainTypes)iTerrainLoop, (YieldTypes)iYield);
+					if(iChange > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromTileEarnTerrainType[iTerrainLoop];
+						yields[iYield] = (m_ppiYieldFromTileEarnTerrainType[iTerrainLoop][iYield] + iChange);
+						m_ppiYieldFromTileEarnTerrainType[iTerrainLoop] = yields;
+					}
+				}
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 				for(int iPlotLoop = 0; iPlotLoop < GC.getNumPlotInfos(); iPlotLoop++)
 				{
@@ -3285,6 +3370,7 @@ void CvPlayerTraits::Uninit()
 	m_paiMovesChangeUnitClass.clear();
 	m_piNumPledgesDomainProdMod.clear();
 	m_piFreeUnitClassesDOW.clear();
+	m_ppiYieldFromTileEarnTerrainType.clear();
 #endif
 	m_paiMaintenanceModifierUnitCombat.clear();
 	m_ppaaiImprovementYieldChange.clear();
@@ -3401,6 +3487,10 @@ void CvPlayerTraits::Reset()
 	m_bBestUnitSpawnOnImpDOW = false;
 	m_iBestUnitImprovement = NO_IMPROVEMENT;
 	m_iGGGARateFromDenunciationsAndWars = 0;
+	m_bTradeRouteMinorInfluenceAP = false;
+	m_bProdModFromNumSpecialists = false;
+	m_iConquestOfTheWorldCityAttack = 0;
+	m_bConquestOfTheWorld = false;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -3490,6 +3580,10 @@ void CvPlayerTraits::Reset()
 
 	m_ppaaiImprovementYieldChange.clear();
 	m_ppaaiImprovementYieldChange.resize(GC.getNumImprovementInfos());
+#if defined(MOD_BALANCE_CORE)
+	m_ppiYieldFromTileEarnTerrainType.clear();
+	m_ppiYieldFromTileEarnTerrainType.resize(GC.getNumTerrainInfos());
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	m_ppiPlotYieldChange.clear();
 	m_ppiPlotYieldChange.resize(GC.getNumPlotInfos());
@@ -3592,6 +3686,7 @@ void CvPlayerTraits::Reset()
 		for(int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
 		{
 			m_ppiTerrainYieldChange[iTerrain] = yield;
+			m_ppiYieldFromTileEarnTerrainType[iTerrain] = yield;
 		}
 		m_iYieldFromKills[iYield] = 0;
 		m_iYieldFromBarbarianKills[iYield] = 0;
@@ -3841,7 +3936,17 @@ int CvPlayerTraits::GetImprovementYieldChange(ImprovementTypes eImprovement, Yie
 
 	return m_ppaaiImprovementYieldChange[(int)eImprovement][(int)eYield];
 }
+int CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const
+{
+	CvAssertMsg(eImprovement < GC.getNumTerrainInfos(),  "Invalid eImprovement parameter in call to CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetYieldChangeFromTileEarnTerrainType()");
 
+	if(eTerrain == NO_TERRAIN)
+	{
+		return 0;
+	}
+	return m_ppiYieldFromTileEarnTerrainType[(int)eTerrain][(int)eYield];
+}
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 /// Extra yield from this plot
 int CvPlayerTraits::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const
@@ -4421,9 +4526,12 @@ void CvPlayerTraits::AddUniqueLuxuries(CvCity *pCity)
 		if (eResourceToGive != NO_RESOURCE)
 		{
 #if defined(MOD_EVENTS_AREA_RESOURCES)
-			if (MOD_EVENTS_AREA_RESOURCES) {
+			if (MOD_EVENTS_AREA_RESOURCES)
+			{
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlaceResource, m_pPlayer->GetID(), eResourceToGive, m_iUniqueLuxuryQuantity, pCity->getX(), pCity->getY());
-			} else {
+			}
+			else 
+			{
 #endif
 				pCity->plot()->setResourceType(NO_RESOURCE, 0, true);
 				pCity->plot()->setResourceType(eResourceToGive, m_iUniqueLuxuryQuantity, true);
@@ -4540,20 +4648,6 @@ TechTypes CvPlayerTraits::GetCapitalFreeBuildingPrereqTech() const
 	}
 
 	return NO_TECH;
-}
-int CvPlayerTraits::GetGGGARateModifierFromDenunciationsAndWars() const
-{
-	int iResult = 0;
-	if(GetGGGARateFromDenunciationsAndWars() > 0)
-	{		
-		int iNumOfDenoucesmodifer = GetGGGARateFromDenunciationsAndWars() * m_pPlayer->GetDiplomacyAI()->GetNumDenouncements();
-		int iNumOfWarsmodifer = GetGGGARateFromDenunciationsAndWars() * GET_TEAM(m_pPlayer->getTeam()).getAtWarCount(true);
-
-		iResult = iNumOfDenoucesmodifer + iNumOfWarsmodifer;
-
-		return iResult;
-	}
-	return iResult;
 }
 #endif
 
@@ -5297,6 +5391,10 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(74, kStream, m_bBestUnitSpawnOnImpDOW, false);
 	MOD_SERIALIZE_READ(74, kStream, m_iBestUnitImprovement, NO_IMPROVEMENT);
 	MOD_SERIALIZE_READ(74, kStream, m_iGGGARateFromDenunciationsAndWars, 0);
+	MOD_SERIALIZE_READ(74, kStream, m_bTradeRouteMinorInfluenceAP, false);
+	MOD_SERIALIZE_READ(74, kStream, m_bProdModFromNumSpecialists, false);
+	MOD_SERIALIZE_READ(74, kStream, m_iConquestOfTheWorldCityAttack, 0);
+	MOD_SERIALIZE_READ(74, kStream, m_bConquestOfTheWorld, false);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -5587,9 +5685,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	}
 
 #if defined(MOD_BALANCE_CORE)
-
-	kStream >> m_piNumPledgesDomainProdMod;
-	kStream >> m_piFreeUnitClassesDOW;
+	MOD_SERIALIZE_READ_ARRAY(88, kStream, &m_piNumPledgesDomainProdMod[0], int, NUM_DOMAIN_TYPES, 0);
+	MOD_SERIALIZE_READ_ARRAY(88, kStream, &m_piFreeUnitClassesDOW[0], int, GC.getNumUnitClassInfos(), 0);
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, &m_ppiYieldFromTileEarnTerrainType[0], NUM_YIELD_TYPES);
 
 	kStream >> iNumEntries;
 	m_paiMovesChangeUnitClass.clear();
@@ -5838,6 +5936,10 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bBestUnitSpawnOnImpDOW);
 	MOD_SERIALIZE_WRITE(kStream, m_iBestUnitImprovement);
 	MOD_SERIALIZE_WRITE(kStream, m_iGGGARateFromDenunciationsAndWars);
+	MOD_SERIALIZE_WRITE(kStream, m_bTradeRouteMinorInfluenceAP);
+	MOD_SERIALIZE_WRITE(kStream, m_bProdModFromNumSpecialists);
+	MOD_SERIALIZE_WRITE(kStream, m_iConquestOfTheWorldCityAttack);
+	MOD_SERIALIZE_WRITE(kStream, m_bConquestOfTheWorld);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);
@@ -5959,9 +6061,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 		kStream << m_aFreeTraitUnits[ui].m_ePrereqTech;
 	}
 #if defined(MOD_BALANCE_CORE)
-	kStream << m_piNumPledgesDomainProdMod;
-
-	kStream << m_piFreeUnitClassesDOW;
+	MOD_SERIALIZE_WRITE_CONSTARRAY(kStream, &m_piNumPledgesDomainProdMod[0], int, NUM_DOMAIN_TYPES);
+	MOD_SERIALIZE_WRITE_CONSTARRAY(kStream, &m_piFreeUnitClassesDOW[0], int, GC.getNumUnitClassInfos());
+	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, &m_ppiYieldFromTileEarnTerrainType[0], NUM_YIELD_TYPES);
 
 	kStream << 	m_paiMovesChangeUnitClass.size();
 	for(uint ui = 0; ui < m_paiMovesChangeUnitClass.size(); ui++)

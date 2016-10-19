@@ -12,6 +12,7 @@
 #include "CvDiplomacyAI.h"
 #include "CvMinorCivAI.h"
 #if defined(MOD_BALANCE_CORE)
+#include "CvDealAI.h"
 #include "CvMilitaryAI.h"
 #include "CvDiplomacyRequests.h"
 #include "CvCitySpecializationAI.h"
@@ -238,7 +239,7 @@ void CvDeal::ClearItems()
 	m_iDuration = -1;
 	m_iStartTurn = -1;
 	m_bConsideringForRenewal = false;
-	m_bCheckedForRenewal = true;
+	m_bCheckedForRenewal = false;
 	m_bDealCancelled = false;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsGift = false;
@@ -338,10 +339,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	CvTeam* pFromTeam = &GET_TEAM(eFromTeam);
 	CvTeam* pToTeam = &GET_TEAM(eToTeam);
 
-	CvDeal* pRenewDeal = pFromPlayer->GetDiplomacyAI()->GetDealToRenew();
+	CvDeal* pRenewDeal = pFromPlayer->GetDiplomacyAI()->GetDealToRenew(NULL, eToPlayer);
 	if (!pRenewDeal)
 	{
-		pRenewDeal = pToPlayer->GetDiplomacyAI()->GetDealToRenew();
+		pRenewDeal = pToPlayer->GetDiplomacyAI()->GetDealToRenew(NULL, eToPlayer);
 	}
 #if defined(MOD_BALANCE_CORE)
 	bool bHumanToHuman = false;
@@ -385,7 +386,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 		{
 			// Can't exchange GPT for lump Gold - we aren't a bank.
-			if(GetGoldPerTurnTrade(ePlayer) > 0 || GetGoldPerTurnTrade(eToPlayer) > 0)
+			if(GetGoldPerTurnTrade(eToPlayer) > 0)
 				return false;
 		}
 		if(!bHumanToHuman)
@@ -412,7 +413,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 		{
 			// Can't exchange GPT for lump Gold - we aren't a bank.
-			if(GetGoldTrade(ePlayer) > 0 || GetGoldTrade(eToPlayer) > 0)
+			if(GetGoldTrade(eToPlayer) > 0)
 				return false;
 		}
 		if(!bHumanToHuman)
@@ -576,7 +577,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 #if defined(MOD_BALANCE_CORE)
 			if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType() == NO_PEACE_TREATY_TYPE)
 			{
-				if (pFromPlayer->getTeam() != pToPlayer->getTeam() && (!pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer) || !pToPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer)))
+				if (pFromTeam != pToTeam && !pToTeam->HasEmbassyAtTeam(eFromTeam))
 					return false;
 			}
 #endif
@@ -1443,13 +1444,14 @@ int CvDeal::GetNumResource(PlayerTypes ePlayer, ResourceTypes eResource)
 	int iNumInRenewDeal = 0;
 	int iNumInExistingDeal = 0;
 
-	CvDeal* pRenewDeal = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetDealToRenew();
-	if (!pRenewDeal)
+	PlayerTypes eOtherPlayer = GetOtherPlayer(ePlayer);
+	CvDeal* pRenewDeal = NULL;
+	if (eOtherPlayer != NO_PLAYER)
 	{
-		PlayerTypes eOtherPlayer = GetOtherPlayer(ePlayer);
-		if (eOtherPlayer != NO_PLAYER)
+		pRenewDeal = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetDealToRenew(NULL, eOtherPlayer);
+		if (!pRenewDeal)
 		{
-			pRenewDeal = GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDealToRenew();
+			pRenewDeal = GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDealToRenew(NULL, ePlayer);
 		}
 	}
 
@@ -1495,6 +1497,30 @@ int CvDeal::GetNumCities(PlayerTypes ePlayer)
 		}
 	}
 	return iNumCities;
+}
+bool CvDeal::IsCityInDeal(PlayerTypes ePlayer, int iCityID)
+{
+	if (ePlayer == NO_PLAYER)
+		return 0;
+
+	TradedItemList::iterator it;
+	// remove any that are in this deal
+	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if (it->m_eItemType == TRADE_ITEM_CITIES && it->m_eFromPlayer == ePlayer)
+		{
+			CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
+			if (pCity != NULL)
+			{
+				if (it->m_iData1 == pCity->getX() &&
+					it->m_iData2 == pCity->getY())
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 #endif
 /// What kind of Peace Treaty (if any) is this Deal?
@@ -4987,6 +5013,10 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 		{
 			CvString playerName = GET_PLAYER(pDeal->GetFromPlayer()).getCivilizationShortDescription();
 		}
+		int iEvenValueImOffering;
+		int iEvenValueTheyreOffering;
+		int iTotalValueFrom = GET_PLAYER(pDeal->GetFromPlayer()).GetDealAI()->GetDealValue(pDeal, iEvenValueImOffering, iEvenValueTheyreOffering, /*bUseEvenValue*/ false, true);
+		int iTotalValueTo = GET_PLAYER(pDeal->GetToPlayer()).GetDealAI()->GetDealValue(pDeal, iEvenValueImOffering, iEvenValueTheyreOffering, /*bUseEvenValue*/ false, true);
 #endif
 		CvString otherPlayerName;
 
@@ -4995,11 +5025,11 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 		// Open the log file
 		if(GC.getPlayerAndCityAILogSplit())
 		{
-			strLogName = "DiplomacyAI_Messages_Log_" + playerName + ".csv";
+			strLogName = "DiplomacyAI_TradeAgreements_Log_" + playerName + ".csv";
 		}
 		else
 		{
-			strLogName = "DiplomacyAI_Messages_Log.csv";
+			strLogName = "DiplomacyAI_TradeAgreements_Log.csv";
 		}
 
 		FILogFile* pLog;
@@ -5187,6 +5217,11 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 			OutputDebugString("\n");
 #endif
 		}
+
+		strTemp.Format("DEAL COMPLETE: Deal Value Sender: %d ; Deal Value Recipient: %d", iTotalValueFrom, iTotalValueTo);
+		strOutBuf = strTemp;
+
+		pLog->Msg(strOutBuf);
 	}
 }
 #if defined(MOD_BALANCE_CORE)
@@ -5207,11 +5242,11 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted,
 		// Open the log file
 		if(GC.getPlayerAndCityAILogSplit())
 		{
-			strLogName = "DiplomacyAI_Messages_Log_" + playerName + ".csv";
+			strLogName = "DiplomacyAI_TradeAgreements_Log_" + playerName + ".csv";
 		}
 		else
 		{
-			strLogName = "DiplomacyAI_Messages_Log.csv";
+			strLogName = "DiplomacyAI_TradeAgremeents_Log.csv";
 		}
 
 		FILogFile* pLog;
@@ -5547,6 +5582,128 @@ uint CvGameDeals::GetNumHistoricDeals(PlayerTypes ePlayer, uint iMaxCount)
 
 	return iCount;
 }
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+CvDeal* CvGameDeals::GetCurrentDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint index)
+{
+	DealList::iterator iter;
+	DealList::iterator end = m_CurrentDeals.end();
+
+	uint iCount = 0;
+	for (iter = m_CurrentDeals.begin(); iter != end; ++iter)
+	{
+		if ((iter->m_eToPlayer == ePlayer || iter->m_eFromPlayer == ePlayer) && 
+			(iter->m_eToPlayer == eOtherPlayer || iter->m_eFromPlayer == eOtherPlayer) &&
+			(iCount++ == index))
+		{
+			return &(*iter);
+		}
+	}
+
+	return NULL;
+}
+
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+CvDeal* CvGameDeals::GetHistoricDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint index)
+{
+#if defined(MOD_ACTIVE_DIPLOMACY)
+	if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+	{
+		//iterate backwards, usually the latest deals are most interesting
+		uint iCount = 0;
+		for (int i = m_HistoricalDeals.size() - 1; i >= 0; --i)
+		{
+			CvDeal& kDeal = m_HistoricalDeals[i];
+			if ((kDeal.m_eToPlayer == ePlayer || kDeal.m_eFromPlayer == ePlayer) &&
+				(kDeal.m_eToPlayer == eOtherPlayer || kDeal.m_eFromPlayer == eOtherPlayer) &&
+				(iCount++ == index))
+			{
+				return &kDeal;
+			}
+		}
+	}
+	else
+	{
+		DealList::iterator iter;
+		DealList::iterator end = m_HistoricalDeals.end();
+
+		uint iCount = 0;
+		for (iter = m_HistoricalDeals.begin(); iter != end; ++iter)
+		{
+			if ((iter->m_eToPlayer == ePlayer || iter->m_eFromPlayer == ePlayer) &&
+				(iter->m_eToPlayer == eOtherPlayer || iter->m_eFromPlayer == eOtherPlayer) &&
+				(iCount++ == index))
+			{
+				return &(*iter);
+			}
+		}
+	}
+#else
+	DealList::iterator iter;
+	DealList::iterator end = m_HistoricalDeals.end();
+
+	uint iCount = 0;
+	for (iter = m_HistoricalDeals.begin(); iter != end; ++iter)
+	{
+		if ((iter->m_eToPlayer == ePlayer ||
+			iter->m_eFromPlayer == ePlayer) &&
+			(iCount++ == index))
+		{
+			return &(*iter);
+		}
+	}
+#endif
+	return NULL;
+}
+
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+uint CvGameDeals::GetNumCurrentDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer)
+{
+	DealList::iterator iter;
+	DealList::iterator end = m_CurrentDeals.end();
+
+	uint iCount = 0;
+	for (iter = m_CurrentDeals.begin(); iter != end; ++iter)
+	{
+		if ((iter->m_eToPlayer == ePlayer || iter->m_eFromPlayer == ePlayer) &&
+			(iter->m_eToPlayer == eOtherPlayer || iter->m_eFromPlayer == eOtherPlayer))
+		{
+			++iCount;
+		}
+	}
+
+	return iCount;
+}
+
+
+// ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
+uint CvGameDeals::GetNumHistoricDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount)
+
+{
+	DealList::iterator iter;
+	DealList::iterator end = m_HistoricalDeals.end();
+
+	uint iCount = 0;
+	for (iter = m_HistoricalDeals.begin(); iter != end; ++iter)
+	{
+		if ((iter->m_eToPlayer == ePlayer || iter->m_eFromPlayer == ePlayer) &&
+			(iter->m_eToPlayer == eOtherPlayer || iter->m_eFromPlayer == eOtherPlayer))
+		{
+			++iCount;
+			if (iCount == iMaxCount)
+				break;
+		}
+	}
+
+	return iCount;
+}
+
 //------------------------------------------------------------------------------
 uint CvGameDeals::CreateDeal()
 {

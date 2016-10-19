@@ -1294,11 +1294,10 @@ void CvPlayerTechs::SetGSPriorities()
 			if(pkBuildingInfo && pkBuildingInfo->GetPrereqAndTech() == iTechLoop)
 			{
 				int iTechGSValue = CityStrategyAIHelpers::GetBuildingGrandStrategyValue(NULL, eBuilding, m_pPlayer->GetID());
-				iTechGSValue /= 10;
-				
-				if(iTechGSValue > 0)
+				if (iTechGSValue > 0)
 				{
-					m_piGSTechPriority[iTechLoop] += iTechGSValue;
+					iTechGSValue /= 10;
+					m_piGSTechPriority[iTechLoop] += max(1, iTechGSValue);
 				}
 
 			}
@@ -1324,9 +1323,12 @@ void CvPlayerTechs::SetGSPriorities()
 				{
 					iTechGSValue /= 20;
 				}
+
+				m_piGSTechPriority[iTechLoop] += max(iTechGSValue, 1);
+
 				if (pkUnitInfo->IsFound() || pkUnitInfo->IsFoundAbroad() || pkUnitInfo->IsFoundMid() || pkUnitInfo->IsFoundLate())
 				{
-					m_piGSTechPriority[iTechLoop] += 10;
+					m_piGSTechPriority[iTechLoop] += 5;
 				}
 				if (bSeekingScienceVictory && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
 				{

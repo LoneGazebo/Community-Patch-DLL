@@ -183,6 +183,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	int GetNumCities(PlayerTypes ePlayer);
+	bool IsCityInDeal(PlayerTypes ePlayer, int iCityID);
 #endif
 
 	// Methods to add a CvTradedItem to a deal
@@ -303,6 +304,11 @@ public:
 	CvDeal* GetHistoricDeal(PlayerTypes ePlayer, uint indx);
 	uint GetNumCurrentDeals(PlayerTypes ePlayer);
 	uint GetNumHistoricDeals(PlayerTypes ePlayer, uint iMaxCount=UINT_MAX);
+
+	CvDeal* GetCurrentDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint index);
+	CvDeal* GetHistoricDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint indx);
+	uint GetNumCurrentDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
+	uint GetNumHistoricDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
 
 	uint CreateDeal();
 	CvDeal* GetDeal(uint index);

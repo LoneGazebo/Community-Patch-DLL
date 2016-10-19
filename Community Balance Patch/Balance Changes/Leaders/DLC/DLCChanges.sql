@@ -27,6 +27,9 @@ UPDATE Traits
 SET BullyAnnex = '1'
 WHERE Type = 'TRAIT_TERROR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
+DELETE FROM Trait_MovesChangeUnitCombats
+WHERE TraitType = 'TRAIT_TERROR';
+
 -- Polynesia -- Boost Range of Moai
 UPDATE Traits
 Set NearbyImprovementBonusRange = '3'
@@ -37,7 +40,7 @@ Set NearbyImprovementCombatBonus = '20'
 WHERE Type = 'TRAIT_WAYFINDING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Builds
-Set PrereqTech = 'TECH_THE_WHEEL'
+Set PrereqTech = 'TECH_MASONRY'
 WHERE Type = 'BUILD_MOAI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Improvements
@@ -122,7 +125,7 @@ VALUES
 INSERT INTO Improvement_TechYieldChanges
 	(ImprovementType, TechType, YieldType, Yield)
 VALUES
-	('IMPROVEMENT_MOAI', 'TECH_CONSTRUCTION', 'YIELD_PRODUCTION', 1);
+	('IMPROVEMENT_MOAI', 'TECH_ENGINEERING', 'YIELD_PRODUCTION', 1);
 
 INSERT INTO Improvement_YieldAdjacentSameType
 	(ImprovementType, YieldType, Yield)

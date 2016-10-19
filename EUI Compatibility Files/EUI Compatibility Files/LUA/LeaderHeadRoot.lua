@@ -71,6 +71,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 
 	playerLeaderInfo = GameInfo.Leaders[player:GetLeaderType()];
 
+	playerLeaderInfo = GameInfo.Leaders[player:GetLeaderType()];	
 	-- Mood
 	local iApproach = pActivePlayer:GetApproachTowardsUsGuess(g_iAIPlayer);
 	local strMoodText = Locale.ConvertTextKey("TXT_KEY_EMOTIONLESS");

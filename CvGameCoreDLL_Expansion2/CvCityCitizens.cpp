@@ -1440,12 +1440,6 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 			// Have this Building in the City?
 			if (GetCity()->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
-#if defined(MOD_BALANCE_CORE)
-				if (pkBuildingInfo->GetSpecialistType() != NO_SPECIALIST)
-				{
-					m_aiSpecialistSlots[pkBuildingInfo->GetSpecialistType()] = pkBuildingInfo->GetSpecialistCount();
-				}
-#endif
 				// Can't add more than the max
 				if(IsCanAddSpecialistToBuilding(eBuilding))
 				{
@@ -3715,6 +3709,16 @@ int CvCityCitizens::GetSpecialistSlots(SpecialistTypes eIndex) const
 
 	return m_aiSpecialistSlots[eIndex];
 }
+void CvCityCitizens::ChangeNumSpecialistSlots(SpecialistTypes eIndex, int iValue)
+{
+	CvAssert(eIndex > -1);
+	CvAssert(eIndex < GC.getNumSpecialistInfos());
+
+	if (m_aiSpecialistSlots[eIndex] != iValue)
+	{
+		m_aiSpecialistSlots[eIndex] = iValue;
+	}
+}
 int CvCityCitizens::GetSpecialistSlotsTotal() const
 {
 	int iNumSpecialists = 0;
@@ -4048,6 +4052,39 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 				}
 			}
 		}
+		if(newUnit->isWLKTKDOnBirth())
+		{
+			CvCity* pLoopCity;
+			int iLoop;
+			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL && pLoopCity->getOwner() == kPlayer.GetID())
+				{
+					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iWLTKD /= 100;
+					if (iWLTKD > 0)
+					{
+						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+						CvNotifications* pNotifications = kPlayer.GetNotifications();
+						if (pNotifications)
+						{
+							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT");
+							strText << newUnit->getNameKey() << pLoopCity->getNameKey();
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UNIT");
+							strSummary << pLoopCity->getNameKey();
+							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pLoopCity->getX(), pLoopCity->getY(), -1);
+						}
+					}
+				}
+			}
+		}
+		if(newUnit->isGoldenAgeOnBirth())
+		{
+			int iGoldenAgeTurns = kPlayer.getGoldenAgeLength();
+			int iValue = kPlayer.GetGoldenAgeProgressMeter();
+			kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+		}
 #endif
 		if(newUnit->IsGreatGeneral())
 		{
@@ -4206,6 +4243,39 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), GetCity()->getX(), GetCity()->getY(), -1);
 				}
 			}
+		}
+		if(newUnit->isWLKTKDOnBirth())
+		{
+			CvCity* pLoopCity;
+			int iLoop;
+			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL && pLoopCity->getOwner() == kPlayer.GetID())
+				{
+					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iWLTKD /= 100;
+					if (iWLTKD > 0)
+					{
+						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+						CvNotifications* pNotifications = kPlayer.GetNotifications();
+						if (pNotifications)
+						{
+							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT");
+							strText << newUnit->getNameKey() << pLoopCity->getNameKey();
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UNIT");
+							strSummary << pLoopCity->getNameKey();
+							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pLoopCity->getX(), pLoopCity->getY(), -1);
+						}
+					}
+				}
+			}
+		}
+		if(newUnit->isGoldenAgeOnBirth())
+		{
+			int iGoldenAgeTurns = kPlayer.getGoldenAgeLength();
+			int iValue = kPlayer.GetGoldenAgeProgressMeter();
+			kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
 		}
 #endif
 #if defined(MOD_BUGFIX_MINOR)

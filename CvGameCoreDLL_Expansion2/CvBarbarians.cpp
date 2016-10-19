@@ -139,10 +139,16 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	CvGame& kGame = GC.getGame();
 	// Default to between 8 and 12 turns per spawn
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	int iNumTurnsToSpawn = 8 + kGame.getSmallFakeRandNum(10,*pPlot);
+	int iNumTurnsToSpawn = 7 + kGame.getSmallFakeRandNum(10,*pPlot);
 #else
 	int iNumTurnsToSpawn = 8 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
 #endif
+
+	if (GC.getGame().isOption(GAMEOPTION_CHILL_BARBARIANS))
+	{
+		iNumTurnsToSpawn *= 3;
+		iNumTurnsToSpawn /= 2;
+	}
 
 	// Raging
 	if (kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
@@ -198,10 +204,16 @@ void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 	// Default to between 8 and 12 turns per spawn
 	//bumped a bit - too many barbs gets annoying.
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	int iNumTurnsToSpawn = 8 + kGame.getSmallFakeRandNum(10,*pPlot);
+	int iNumTurnsToSpawn = 7 + kGame.getSmallFakeRandNum(10,*pPlot);
 #else
 	int iNumTurnsToSpawn = 15 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
 #endif
+
+	if (GC.getGame().isOption(GAMEOPTION_CHILL_BARBARIANS))
+	{
+		iNumTurnsToSpawn *= 3;
+		iNumTurnsToSpawn /= 2;
+	}
 
 	// Raging
 	if (kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
@@ -715,7 +727,7 @@ void CvBarbarians::DoCamps()
 						}
 
 						// Add another Unit adjacent to the Camp to stir up some trouble (JON: Disabled for now 09/12/09)
-						if (MOD_BALANCE_CORE_BARBARIAN_THEFT)
+						if (!GC.getGame().isOption(GAMEOPTION_CHILL_BARBARIANS))
 						{
 							DoSpawnBarbarianUnit(pLoopPlot, true, true);
 						}

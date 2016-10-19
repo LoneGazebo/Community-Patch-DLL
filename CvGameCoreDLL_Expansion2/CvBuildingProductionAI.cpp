@@ -422,6 +422,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		iDefense += (pkBuildingInfo->GetDefenseModifier() / 5);
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(pkBuildingInfo->GetBuildingDefenseModifier() > 0)
+	{
+		iDefense += pkBuildingInfo->GetBuildingDefenseModifier() / 5;
+	}
+#endif
 	if(pkBuildingInfo->GetExtraCityHitPoints() > 0)
 	{
 		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 5);
@@ -576,14 +582,14 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	////Happiness (CBP)
 	////////
 
-
-	if(kPlayer.IsEmpireUnhappy())
+	
+	if(pkBuildingInfo->GetHappiness() > 0 || pkBuildingInfo->GetHappinessPerCity() > 0 || pkBuildingInfo->GetHappinessPerXPolicies() > 0 || pkBuildingInfo->GetUnmoddedHappiness() > 0)
 	{
-		if(pkBuildingInfo->GetHappiness() > 0 || pkBuildingInfo->GetHappinessPerCity() > 0 || pkBuildingInfo->GetHappinessPerXPolicies() > 0 || pkBuildingInfo->GetUnmoddedHappiness() > 0)
-		{
-			iBonus += kPlayer.GetUnhappiness() * 15;
-			bGoodforGPTHappiness = true;
-		}
+		iBonus += kPlayer.GetUnhappiness() * 50;
+		bGoodforGPTHappiness = true;
+	}
+	if (kPlayer.IsEmpireUnhappy())
+	{
 		int iNumBuildingInfos = GC.getNumBuildingInfos();
 		for(int iI = 0; iI < iNumBuildingInfos; iI++)
 		{
@@ -596,70 +602,74 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				if(pkBuildingInfo->GetBuildingClassHappiness(pkLoopBuilding->GetBuildingClassType()) > 0)
 				{
-					iBonus += (kPlayer.getBuildingClassCount((BuildingClassTypes)pkLoopBuilding->GetBuildingClassType()) * 10);
+					iBonus += (kPlayer.getBuildingClassCount((BuildingClassTypes)pkLoopBuilding->GetBuildingClassType()) * 25);
 					bGoodforGPTHappiness = true;
 				}
 			}
 		}
 	}
 
-	FlavorTypes eFlavorScience = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE");
-	FlavorTypes eFlavorGold = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD");
-	FlavorTypes eFlavorCulture = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE");
-	FlavorTypes eFlavorDefense = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_CITY_DEFENSE");
-	FlavorTypes eFlavorReligion = (FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION");
-
 	if (MOD_BALANCE_CORE_HAPPINESS)
 	{
 		bool bTested = false;
 		//Only checking for buildings that matter, and only once per test (based on prioritization of city happiness logic.
-		if ((pkBuildingInfo->GetFlavorValue(eFlavorGold) > 0) || (pkBuildingInfo->GetPovertyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() != 0))
+		int iPoverty = pkBuildingInfo->GetPovertyHappinessChangeBuilding() + pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal();
+		int iIlliteracy = pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() + pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal();
+		int iDefense = pkBuildingInfo->GetDefenseHappinessChangeBuilding() + pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal();
+		int iBoredom = pkBuildingInfo->GetUnculturedHappinessChangeBuilding() + pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal();
+		int iReligion = pkBuildingInfo->GetMinorityHappinessChangeBuilding() + pkBuildingInfo->GetMinorityHappinessChangeBuildingGlobal();
+		if (iPoverty < 0)
 		{
 			int iUnhappyGold = m_pCity->getUnhappinessFromGold();
 			if (iUnhappyGold > 0)
 			{
+				iPoverty *= -1;
 				bTested = true;
-				iBonus += (iUnhappyGold * 25);
+				iBonus += (iUnhappyGold * max(2, iPoverty));
 				bGoodforGPTHappiness = true;
 			}
 		}
-		else if (!bTested && ((pkBuildingInfo->GetFlavorValue(eFlavorDefense) > 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal() != 0)))
+		else if (!bTested && (iDefense < 0))
 		{
 			int iUnhappyDefense = m_pCity->getUnhappinessFromDefense();
 			if (iUnhappyDefense > 0)
 			{
+				iDefense *= -1;
 				bTested = true;
-				iBonus += (iUnhappyDefense * 25);
+				iBonus += (iUnhappyDefense * max(2, iDefense));
 				bGoodforGPTHappiness = true;
 			}
 		}
-		else if (!bTested && ((pkBuildingInfo->GetFlavorValue(eFlavorReligion) > 0) || (pkBuildingInfo->GetMinorityHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetMinorityHappinessChangeBuildingGlobal() != 0)))
+		else if (!bTested && (iReligion < 0))
 		{
 			int iUnhappyReligion = m_pCity->getUnhappinessFromReligion();
 			if (iUnhappyReligion > 0)
 			{
+				iReligion *= -1;
 				bTested = true;
-				iBonus += (iUnhappyReligion * 25);
+				iBonus += (iUnhappyReligion * max(2, iReligion));
 				bGoodforGPTHappiness = true;
 			}
 		}
-		else if (!bTested && ((pkBuildingInfo->GetFlavorValue(eFlavorCulture) > 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal() != 0)))
+		else if (!bTested && (iBoredom < 0))
 		{
 			int iUnhappyCulture = m_pCity->getUnhappinessFromCulture();
 			if (iUnhappyCulture > 0)
 			{
+				iBoredom *= -1;
 				bTested = true;
-				iBonus += (iUnhappyCulture * 25);
+				iBonus += (iUnhappyCulture * max(2, iBoredom));
 				bGoodforGPTHappiness = true;
 			}
 		}
-		else if (!bTested && ((pkBuildingInfo->GetFlavorValue(eFlavorScience) > 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal() != 0)))
+		else if (!bTested && (iIlliteracy < 0))
 		{
 			int iUnhappyScience = m_pCity->getUnhappinessFromScience();
 			if (iUnhappyScience > 0)
 			{
+				iIlliteracy *= -1;
 				bTested = true;
-				iBonus += (iUnhappyScience * 25);
+				iBonus += (iUnhappyScience * max(2, iIlliteracy));
 				bGoodforGPTHappiness = true;
 			}
 		}
@@ -837,6 +847,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				}
 				bGoodforGPTHappiness = true;
 			}
+			//Puppets should focus on yield buildings.
+			if (m_pCity->IsPuppet())
+			{
+				iYieldValue *= 5;
+				iYieldTrait *= 5;
+			}
 		}
 
 		iBonus += iYieldValue;
@@ -848,9 +864,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	/////////////////////
 	if(pkBuildingInfo->GetGoldMaintenance() > 0 && !bGoodforGPTHappiness)
 	{
-		if (iGPT <= pkBuildingInfo->GetGoldMaintenance())
+		//Maintenace getting close to our GPT? Let's minimize this.
+		if (iGPT <= (pkBuildingInfo->GetGoldMaintenance() * 2))
 		{
-			iBonus += ((pkBuildingInfo->GetGoldMaintenance() * iGPT) / 10);
+			iBonus -= (pkBuildingInfo->GetGoldMaintenance() * 5);
 		}
 	}
 
@@ -956,7 +973,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	iValue *= (iBonus + 100);
 	iValue /= 100;
 
-	if(bInterruptBuildings)
+	if(bInterruptBuildings && !m_pCity->IsPuppet())
 	{
 		iValue /= 5;
 	}

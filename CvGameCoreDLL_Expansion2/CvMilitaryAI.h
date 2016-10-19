@@ -446,6 +446,7 @@ private:
 	void LogMilitaryStatus();
 	void LogAvailableForces();
 	void LogScrapUnit(CvUnit* pUnit, bool bDeficit, bool bConquest);
+	void LogGiftUnit(CvUnit* pUnit, bool bDeficit, bool bConquest);
 	void LogAttackTargets(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES, true>& weightedTargetList);
 	void LogChosenTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, CvMilitaryTarget& target);
 	CvString GetLogFileName(CvString& playerName, bool bSummary=false) const;

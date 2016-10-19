@@ -1119,6 +1119,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	owningPlayer.CalculateNetHappiness();
 
+	updateEconomicValue();
+
 	AI_init();
 
 	if (GC.getGame().getGameTurn() == 0)
@@ -3205,7 +3207,7 @@ void CvCity::UpdateNearbySettleSites()
 				iDanger = GET_PLAYER(getOwner()).GetPlotDanger(*pPlot);
 				if(iDanger < 1000)
 				{
-					iValue = ((1000 - iDanger) * iValue) / 8250;
+					iValue = ((1000 - iDanger) * iValue) / 8000;
 
 					if(iValue > iBestValue)
 					{
@@ -3530,7 +3532,7 @@ void CvCity::DoEvents()
 	}
 
 	//Let's loop through all events.
-	FStaticVector<CityEventTypes, 256, true, c_eCiv5GameplayDLL, 0> veValidEvents;
+	CvWeightedVector<CityEventTypes, 256, true> veValidEvents;
 	int iTotalWeight = 0;
 
 	for(int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
@@ -3614,7 +3616,7 @@ void CvCity::DoEvents()
 			//most expensive check last
 			if (IsCityEventValid(eEvent))
 			{
-				veValidEvents.push_back(eEvent);
+				veValidEvents.push_back(eEvent, pkEventInfo->getRandomChance() + GetEventIncrement(eEvent));
 				iTotalWeight += pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
 			}
 		}
@@ -3622,6 +3624,7 @@ void CvCity::DoEvents()
 
 	if(veValidEvents.size() > 0)
 	{
+		veValidEvents.SortItems();
 		if(GC.getLogging())
 		{
 			CvString strBaseString;
@@ -3645,16 +3648,19 @@ void CvCity::DoEvents()
 
 			//which one is it?
 			int iWeight = 0;
-			for (size_t iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
+			for (int iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
 			{
-				CityEventTypes eEvent = veValidEvents[iLoop];
+				CityEventTypes eEvent = veValidEvents.GetElement(iLoop);
 				CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
 				if (!pkEventInfo)
 					continue;
 
-				iWeight += pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
+				iWeight = veValidEvents.GetWeight(iLoop);
 				if (iRandIndex < iWeight)
+				{
 					eChosenEvent = eEvent;
+					break;
+				}
 			}
 
 			if (eChosenEvent != NO_EVENT_CITY)
@@ -3684,9 +3690,9 @@ void CvCity::DoEvents()
 		}
 	}
 
-	for (size_t iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
+	for (int iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
 	{
-		CityEventTypes eEvent = veValidEvents[iLoop];
+		CityEventTypes eEvent = veValidEvents.GetElement(iLoop);
 		if (eEvent != NO_EVENT)
 		{
 			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
@@ -9165,11 +9171,11 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 				else
 				{
 #endif
-					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND");
-					strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_RESOURCE_DEMAND");
-					strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
-					pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND");
+				strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_RESOURCE_DEMAND");
+				strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+				pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 #if defined(MOD_BALANCE_CORE)
 				}
 #endif
@@ -9252,11 +9258,11 @@ void CvCity::DoTestResourceDemanded()
 					else
 					{
 #endif
-						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD");
-						strText << GC.getResourceInfo(eResource)->GetTextKey() << getNameKey();
-						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD");
-						strSummary << getNameKey();
-						pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD");
+					strText << GC.getResourceInfo(eResource)->GetTextKey() << getNameKey();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD");
+					strSummary << getNameKey();
+					pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 #if defined(MOD_BALANCE_CORE)
 					}
 #endif
@@ -11326,6 +11332,20 @@ int CvCity::getGeneralProductionModifiers(CvString* toolTipSink) const
 		}
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsProductionModFromNumSpecialists())
+	{
+		if(GetCityCitizens()->GetTotalSpecialistCount() > 0)
+		{
+			int iTempMod = GetCityCitizens()->GetTotalSpecialistCount();
+			iMultiplier += iTempMod;
+			if(toolTipSink && iTempMod)
+			{
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_NUM_SPECIALISTS", iTempMod);
+			}
+		}
+	}
+#endif
 	return iMultiplier;
 }
 
@@ -12461,6 +12481,39 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 											}
 										}
 									}
+									if(pFreeUnit->isWLKTKDOnBirth())
+									{
+										CvCity* pLoopCity;
+										int iLoop;
+										for(pLoopCity = owningPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = owningPlayer.nextCity(&iLoop))
+										{
+											if(pLoopCity != NULL && pLoopCity->getOwner() == owningPlayer.GetID())
+											{
+												int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+												iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+												iWLTKD /= 100;
+												if (iWLTKD > 0)
+												{
+													pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+													CvNotifications* pNotifications = owningPlayer.GetNotifications();
+													if (pNotifications)
+													{
+														Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT");
+														strText << pFreeUnit->getNameKey() << pLoopCity->getNameKey();
+														Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UNIT");
+														strSummary << pLoopCity->getNameKey();
+														pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pLoopCity->getX(), pLoopCity->getY(), -1);
+													}
+												}
+											}
+										}
+									}
+									if(pFreeUnit->isGoldenAgeOnBirth())
+									{
+										int iGoldenAgeTurns = owningPlayer.getGoldenAgeLength();
+										int iValue = owningPlayer.GetGoldenAgeProgressMeter();
+										owningPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+									}
 								}
 #endif
 								// Bump up the count
@@ -12719,6 +12772,39 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 												pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), this->getX(), this->getY(), -1);
 											}
 										}
+									}
+									if(pFreeUnit->isWLKTKDOnBirth())
+									{
+										CvCity* pLoopCity;
+										int iLoop;
+										for(pLoopCity = owningPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = owningPlayer.nextCity(&iLoop))
+										{
+											if(pLoopCity != NULL && pLoopCity->getOwner() == owningPlayer.GetID())
+											{
+												int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+												iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+												iWLTKD /= 100;
+												if (iWLTKD > 0)
+												{
+													pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+													CvNotifications* pNotifications = owningPlayer.GetNotifications();
+													if (pNotifications)
+													{
+														Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT");
+														strText << pFreeUnit->getNameKey() << pLoopCity->getNameKey();
+														Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UNIT");
+														strSummary << pLoopCity->getNameKey();
+														pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pLoopCity->getX(), pLoopCity->getY(), -1);
+													}
+												}
+											}
+										}
+									}
+									if(pFreeUnit->isGoldenAgeOnBirth())
+									{
+										int iGoldenAgeTurns = owningPlayer.getGoldenAgeLength();
+										int iValue = owningPlayer.GetGoldenAgeProgressMeter();
+										owningPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
 									}
 								}
 #endif
@@ -13145,7 +13231,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 #endif
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		GetCityBuildings()->ChangeBuildingDefenseMod(pBuildingInfo->GetBuildingDefenseModifier() * iChange);
+#endif
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
 		changeFreeExperience(pBuildingInfo->GetFreeExperience() * iChange);
 		ChangeMaxAirUnits(pBuildingInfo->GetAirModifier() * iChange);
@@ -13380,6 +13468,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				UpdateYieldFromCorporationFranchises((YieldTypes)iI);
 			}
+		}
+		if (pBuildingInfo->GetSpecialistType() != NO_SPECIALIST && pBuildingInfo->GetSpecialistCount() > 0)
+		{
+			GetCityCitizens()->ChangeNumSpecialistSlots((SpecialistTypes)pBuildingInfo->GetSpecialistType(), (pBuildingInfo->GetSpecialistCount() * iChange));
 		}
 #endif
 		changeMaxFoodKeptPercent(pBuildingInfo->GetFoodKept() * iChange);
@@ -16399,7 +16491,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BORDERS, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BORDERS, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this, false, true, false, NO_YIELD, NULL, pPlotToAcquire->getTerrainType());
 #endif
 #if defined(MOD_BALANCE_CORE)
 		if(pPlotToAcquire->getTerrainType() != NO_TERRAIN && GET_PLAYER(getOwner()).GetPlayerTraits()->TerrainClaimBoost(pPlotToAcquire->getTerrainType()))
@@ -25483,6 +25575,118 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 						pUnit->DoUpgrade(true);
 					}
 				}
+				if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsConquestOfTheWorld())
+				{
+					if(pUnit && (pUnit->isFound() || pUnit->IsFoundMid()))
+					{
+						UnitTypes eBestLandUnit = NO_UNIT;
+						int iStrengthBestLandCombat = 0;
+						for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+						{
+							const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+							CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+							if(pkUnitClassInfo)
+							{
+								const UnitTypes eUnit = (UnitTypes) getCivilizationInfo().getCivilizationUnits(eUnitClass);
+								CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+								if(pUnitEntry)
+								{
+									if(!canTrain(eUnit))
+									{
+										continue;
+									}
+									if(pUnitEntry->GetRangedCombat() > 0)
+									{
+										continue;
+									}
+									if(pUnitEntry->GetDomainType() == DOMAIN_LAND)
+									{
+										bool bBad = false;
+										ResourceTypes eResource;
+										for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+										{
+											eResource = (ResourceTypes) iResourceLoop;
+											int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
+											if (iNumResource > 0)
+											{
+												if(GET_PLAYER(getOwner()).getNumResourceAvailable(eResource, true) < iNumResource)
+												{
+													bBad = true;
+													break;
+												}
+											}
+										}
+										if(bBad)
+										{
+											continue;
+										}
+										int iCombatLandStrength = (std::max(1, pUnitEntry->GetCombat()));
+										if(iCombatLandStrength > iStrengthBestLandCombat)
+										{
+											iStrengthBestLandCombat = iCombatLandStrength;
+											eBestLandUnit = eUnit;
+										}
+									}
+								}
+							}
+						}
+						if(eBestLandUnit != NO_UNIT)
+						{
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestLandUnit);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = CreateUnit(eBestLandUnit, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit2 = GET_PLAYER(getOwner()).getUnit(iResult);
+									if (!pUnit2->jumpToNearestValidPlot())
+									{
+										pUnit2->kill(false);	// Could not find a valid spot!
+									}
+									CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+									if (pNotifications)
+									{
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONQUEST_OF_WORLD_UNIT");
+										strText << pUnit2->getNameKey() << getNameKey();
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CONQUEST_OF_WORLD_UNIT");
+										strSummary << getNameKey();
+										pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pUnit2->getX(), pUnit2->getY(), -1);
+									}
+								}
+							}
+						}
+						else
+						{
+							UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
+							CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eWarrior);
+							if(pkbUnitEntry)
+							{
+								UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+								int iResult = CreateUnit(eWarrior, eUnitAI);
+								CvAssertMsg(iResult != -1, "Unable to create unit");
+								if (iResult != -1)
+								{
+									CvUnit* pUnit2 = GET_PLAYER(getOwner()).getUnit(iResult);
+									if (!pUnit2->jumpToNearestValidPlot())
+									{
+										pUnit2->kill(false);	// Could not find a valid spot!
+									}
+									CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+									if (pNotifications)
+									{
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONQUEST_OF_WORLD_UNIT");
+										strText << pUnit2->getNameKey() << getNameKey();
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CONQUEST_OF_WORLD_UNIT");
+										strSummary << getNameKey();
+										pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pUnit2->getX(), pUnit2->getY(), -1);
+									}
+								}
+							}
+						}
+					}
+				}
 #endif
 #if defined(MOD_EVENTS_CITY)
 				if (MOD_EVENTS_CITY) {
@@ -28419,7 +28623,19 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 		if(!bFoundTerrain)
 			return false;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(pkBuildingInfo->IsAnyBodyOfWater())
+	{
+		if(plot()->isFreshWater_cached() || isCoastal(pkBuildingInfo->GetMinAreaSize()))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+#endif
 	return true;
 }
 

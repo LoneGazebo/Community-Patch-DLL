@@ -1,4 +1,0 @@
-ALTER TABLE UnitPromotions
-  ADD EmbarkedDeepWater INTEGER DEFAULT 0;
-
-INSERT INTO CustomModDbUpdates(Name, Value) VALUES('PROMOTIONS_DEEP_WATER_EMBARKATION', 1);

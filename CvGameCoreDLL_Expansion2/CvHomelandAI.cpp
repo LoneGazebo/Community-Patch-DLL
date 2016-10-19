@@ -1246,7 +1246,7 @@ void CvHomelandAI::PlotFirstTurnSettlerMoves()
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && !pUnit->isHuman())
 		{
-			if(m_pPlayer->getNumCities() == 0 && m_CurrentMoveUnits.size() == 0)
+			if(m_pPlayer->getNumCities() == 0)
 			{
 #if defined(MOD_BALANCE_CORE_SETTLER_MOVE)
 				if(pUnit->canFound(NULL))
@@ -1565,7 +1565,7 @@ void CvHomelandAI::PlotSentryMoves()
 
 			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 			{
-				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 5);
+				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 6);
 				if(pSentry)
 				{
 					ExecuteMoveToTarget(pSentry, pTarget, 0);
@@ -1602,7 +1602,7 @@ void CvHomelandAI::PlotSentryNavalMoves()
 
 			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 			{
-				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 12);
+				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 15);
 				if(pSentry)
 				{
 					if(pSentry->plot() == pTarget)

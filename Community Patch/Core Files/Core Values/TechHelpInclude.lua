@@ -5,36 +5,40 @@
 function GetHelpTextForTech( iTechID )
 	local pTechInfo = GameInfo.Technologies[iTechID];
 	
-	local pActiveTeam = Teams[Game.GetActiveTeam()];
-	local pActivePlayer = Players[Game.GetActivePlayer()];
-	local pTeamTechs = pActiveTeam:GetTeamTechs();
-	local iTechCost = pActivePlayer:GetResearchCost(iTechID);
-	
 	local strHelpText = "";
 
-	-- Name
-	strHelpText = strHelpText .. Locale.ToUpper(Locale.ConvertTextKey( pTechInfo.Description ));
+	if(Game) then
+		local pActiveTeam = Teams[Game.GetActiveTeam()];
+		local pActivePlayer = Players[Game.GetActivePlayer()];
+		local pTeamTechs = pActiveTeam:GetTeamTechs();
+		local iTechCost = pActivePlayer:GetResearchCost(iTechID);
+	
+		local strHelpText = "";
 
-	-- Do we have this tech?
-	if (pTeamTechs:HasTech(iTechID)) then
-		strHelpText = strHelpText .. " [COLOR_POSITIVE_TEXT](" .. Locale.ConvertTextKey("TXT_KEY_RESEARCHED") .. ")[ENDCOLOR]";
-	end
+		-- Name
+		strHelpText = strHelpText .. Locale.ToUpper(Locale.ConvertTextKey( pTechInfo.Description ));
 
-	-- Cost/Progress
-	strHelpText = strHelpText .. "[NEWLINE]-------------------------[NEWLINE]";
+		-- Do we have this tech?
+		if (pTeamTechs:HasTech(iTechID)) then
+			strHelpText = strHelpText .. " [COLOR_POSITIVE_TEXT](" .. Locale.ConvertTextKey("TXT_KEY_RESEARCHED") .. ")[ENDCOLOR]";
+		end
+
+		-- Cost/Progress
+		strHelpText = strHelpText .. "[NEWLINE]-------------------------[NEWLINE]";
 	
-	local iProgress = pActivePlayer:GetResearchProgress(iTechID);
-	local bShowProgress = true;
+		local iProgress = pActivePlayer:GetResearchProgress(iTechID);
+		local bShowProgress = true;
 	
-	-- Don't show progres if we have 0 or we're done with the tech
-	if (iProgress == 0 or pTeamTechs:HasTech(iTechID)) then
-		bShowProgress = false;
-	end
+		-- Don't show progres if we have 0 or we're done with the tech
+		if (iProgress == 0 or pTeamTechs:HasTech(iTechID)) then
+			bShowProgress = false;
+		end
 	
-	if (bShowProgress) then
-		strHelpText = strHelpText .. " " .. Locale.ConvertTextKey("TXT_KEY_TECH_HELP_COST_WITH_PROGRESS", iProgress, iTechCost);
-	else
-		strHelpText = strHelpText .. " " .. Locale.ConvertTextKey("TXT_KEY_TECH_HELP_COST", iTechCost);
+		if (bShowProgress) then
+			strHelpText = strHelpText .. " " .. Locale.ConvertTextKey("TXT_KEY_TECH_HELP_COST_WITH_PROGRESS", iProgress, iTechCost);
+		else
+			strHelpText = strHelpText .. " " .. Locale.ConvertTextKey("TXT_KEY_TECH_HELP_COST", iTechCost);
+		end
 	end
 	
 	-- Leads to...

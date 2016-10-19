@@ -54,7 +54,7 @@ WHERE Type = 'POLICY_COLLECTIVE_RULE' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Citizenship (Now Free Labor)
 UPDATE Policies
-SET WorkerSpeedModifier = '25'
+SET WorkerSpeedModifier = '50'
 WHERE Type = 'POLICY_CITIZENSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Republic (Now Civil Engineers)

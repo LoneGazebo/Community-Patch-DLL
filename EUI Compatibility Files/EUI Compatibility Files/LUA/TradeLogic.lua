@@ -682,6 +682,8 @@ function DoUpdateButtons()
 				local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR", iCurrent);
 				if(iCurrent == -1) then
 					Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_IMPOSSIBLE");
+				elseif(iCurrent == 0) then
+					Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_ACCEPTABLE");
 				end
 				local Maxstr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR", iMax);
 				if(iMax == -1) then
@@ -702,6 +704,8 @@ function DoUpdateButtons()
 			local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE", iCurrent);
 			if(iCurrent == -1) then
 				Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_IMPOSSIBLE");
+			elseif(iCurrent == 0) then
+				Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_ACCEPTABLE");
 			end
 			local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_TT");
 			Controls.PeaceValue:SetText(Valuestr);

@@ -138,6 +138,10 @@ public:
 	bool IsBestUnitSpawnOnImprovementDOW() const;
 	ImprovementTypes GetBestSpawnUnitImprovement() const;
 	int GetGGGARateFromDenunciationsAndWars() const;
+	bool IsTradeRouteMinorInfluenceAdmiralPoints() const;
+	bool IsProductionModFromNumSpecialists() const;
+	int GetConquestOfTheWorldCityAttack() const;
+	bool IsConquestOfTheWorld() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -263,6 +267,7 @@ public:
 	int GetMountainRangeYield(int i) const;
 	int GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const;
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const;
+	int GetYieldFromTileEarnTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const;
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
@@ -424,6 +429,10 @@ protected:
 	bool m_bBestUnitSpawnOnImpDOW;
 	ImprovementTypes m_iBestUnitImprovement;
 	int m_iGGGARateFromDenunciationsAndWars;
+	bool m_bTradeRouteMinorInfluenceAP;
+	bool m_bProdModFromNumSpecialists;
+	int m_iConquestOfTheWorldCityAttack;
+	bool m_bConquestOfTheWorld;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -540,6 +549,7 @@ protected:
 	int* m_paiGAPToYield;
 	int* m_paiMountainRangeYield;
 	int* m_piMovesChangeUnitClasses;
+	int** m_ppiYieldFromTileEarnTerrainType;
 #endif
 	int* m_piMaintenanceModifierUnitCombats;
 	int** m_ppiImprovementYieldChanges;
@@ -589,7 +599,7 @@ protected:
 	int** m_ppiSpecialistYieldChanges;
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiGreatPersonExpendedYield;
-	int ** m_ppiGreatPersonBornYield;
+	int** m_ppiGreatPersonBornYield;
 	int* m_piGoldenAgeGreatPersonRateModifier;
 	int* m_piPerPuppetGreatPersonRateModifier;
 	int* m_piGreatPersonGWAM;
@@ -991,6 +1001,22 @@ public:
 	{
 		return m_iGGGARateFromDenunciationsAndWars;
 	};
+	bool IsTradeRouteMinorInfluenceAdmiralPoints() const
+	{
+		return m_bTradeRouteMinorInfluenceAP;
+	};
+	bool IsProductionModFromNumSpecialists() const
+	{
+		return m_bProdModFromNumSpecialists;
+	}
+	int GetConquestOfTheWorldCityAttack() const
+	{
+		return m_iConquestOfTheWorldCityAttack;
+	}
+	bool IsConquestOfTheWorld() const
+	{
+		return m_bConquestOfTheWorld;
+	}
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const
@@ -1304,6 +1330,7 @@ public:
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetMovesChangeUnitClass(const int unitClassID) const;
+	int GetYieldChangeFromTileEarnTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const;
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
@@ -1472,7 +1499,6 @@ public:
 	TechTypes GetCapitalFreeBuildingPrereqTech() const;
 	int GetWonderProductionToBuildingDiscount(BuildingTypes eBuilding);
 	void SpawnBestUnitsOnImprovementDOW(CvCity *pCity);
-	int GetGGGARateModifierFromDenunciationsAndWars() const;
 #endif
 	BuildingTypes GetFreeBuilding() const;
 #if defined(MOD_BALANCE_CORE)
@@ -1622,6 +1648,10 @@ private:
 	bool m_bBestUnitSpawnOnImpDOW;
 	ImprovementTypes m_iBestUnitImprovement;
 	int m_iGGGARateFromDenunciationsAndWars;
+	bool m_bTradeRouteMinorInfluenceAP;
+	bool m_bProdModFromNumSpecialists;
+	int m_iConquestOfTheWorldCityAttack;
+	bool m_bConquestOfTheWorld;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1744,6 +1774,7 @@ private:
 	std::vector<int> m_paiMaintenanceModifierUnitCombat;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_paiMovesChangeUnitClass;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTileEarnTerrainType;
 #endif
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;

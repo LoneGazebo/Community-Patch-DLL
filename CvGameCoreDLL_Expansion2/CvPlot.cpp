@@ -2266,6 +2266,10 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 #if defined(MOD_BALANCE_CORE)
 	if(getFeatureType() != NO_FEATURE)
 	{
+		if(pkImprovementInfo->GetCreatedFeature() != NO_FEATURE && (getFeatureType() == FEATURE_JUNGLE || getFeatureType() == FEATURE_FOREST))
+		{
+			return false;
+		}
 #if defined(MOD_PSEUDO_NATURAL_WONDER)
 		if(GC.getFeatureInfo(getFeatureType())->IsNaturalWonder(true))
 #else
@@ -2702,6 +2706,11 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 						{
 							ImprovementTypes eAdjacentImprovement =  pAdjacentPlot->getImprovementType();
 							if (eAdjacentImprovement != NO_IMPROVEMENT && eAdjacentImprovement == eImprovement)
+							{
+								return false;
+							}
+							CvImprovementEntry *pkImprovement2 = GC.getImprovementInfo(eAdjacentImprovement);
+							if (pkImprovement2 && eAdjacentImprovement != NO_IMPROVEMENT && pkImprovement2->GetImprovementMakesValid(eImprovement))
 							{
 								return false;
 							}
@@ -9192,7 +9201,40 @@ void CvPlot::updateWorkingCity()
 			{
 				// Remove citizen
 				pOldWorkingCity->GetCityCitizens()->SetWorkingPlot(this, false);
+#if defined(MOD_BALANCE_CORE)
+				if (getImprovementType() != NO_IMPROVEMENT && getResourceType(pOldWorkingCity->getTeam()) != NO_RESOURCE)
+				{
+					if (GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
+					{
+						// Activate Resource city link?
+						if (GetResourceLinkedCity() == pOldWorkingCity)
+							SetResourceLinkedCityActive(false);
+							SetResourceLinkedCity(NULL);
+					}
+					else if (GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson())
+					{
+						// Activate Resource city link?
+						if (GetResourceLinkedCity() == pOldWorkingCity)
+							SetResourceLinkedCityActive(false);
+							SetResourceLinkedCity(NULL);
+					}
+					else if (GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+					{
+						// Activate Resource city link?
+						if (GetResourceLinkedCity() == pOldWorkingCity)
+							SetResourceLinkedCityActive(false);
+							SetResourceLinkedCity(NULL);
+					}
+				}
+#endif
 			}
+#if defined(MOD_BALANCE_CORE)
+			if (getImprovementType() != NO_IMPROVEMENT && getResourceType(pBestCity->getTeam()) != NO_RESOURCE)
+			{
+				SetResourceLinkedCity(pBestCity);
+				SetResourceLinkedCityActive(true);
+			}
+#endif
 
 			CvAssertMsg(isOwned(), "isOwned is expected to be true");
 			CvAssertMsg(!isBeingWorked(), "isBeingWorked did not return false as expected");
@@ -12010,7 +12052,38 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 						setResourceType(NO_RESOURCE, 0);
 					}
 				}
+				if(newImprovementEntry.GetCreatedFeature() != NO_FEATURE)
+				{
+					setImprovementType(NO_IMPROVEMENT);
+					setFeatureType(newImprovementEntry.GetCreatedFeature());
 
+					if(getResourceType() == NO_RESOURCE)
+					{
+						ResourceTypes newResource = NO_RESOURCE;
+						int iSpeed = GC.getGameSpeedInfo(GC.getGame().getGameSpeedType())->getGoldPercent() / 67;
+						if((GC.getGame().getJonRandNum(100, "Chance for ressource") / iSpeed) < 10)
+						{
+							for(int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+							{
+								CvResourceInfo* thisResourceInfo = GC.getResourceInfo((ResourceTypes) iI);
+								if(thisResourceInfo)
+								{
+									if(thisResourceInfo->isFeature(getFeatureType()))
+									{
+										// Good we passed. Now let's add a resource.
+										ResourceTypes eResource = (ResourceTypes)GC.getGame().getJonRandNum(iI, "rolling for resources we can place");
+										newResource =  eResource;
+										break;
+									}
+								}
+							}
+						}
+						if(newResource != NO_RESOURCE)
+						{
+							setResourceType(newResource, 1);
+						}
+					}
+				}
 				// If we want to prompt the user about archaeology, let's record that
 				if (newImprovementEntry.IsPromptWhenComplete())
 				{

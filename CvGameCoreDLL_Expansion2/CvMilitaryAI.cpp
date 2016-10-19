@@ -4751,16 +4751,44 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 	{
 		if(pLandUnit)
 		{
-			pLandUnit->scrap();
-			LogScrapUnit(pLandUnit, bInDeficit, bConquestGrandStrategy);
+			bool bGifted = false;
+			PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget();
+			if (eMinor != NO_PLAYER)
+			{
+				GET_PLAYER(eMinor).AddIncomingUnit(m_pPlayer->GetID(), pLandUnit);
+				bGifted = true;
+			}
+			if (!bGifted)
+			{
+				pLandUnit->scrap();
+				LogScrapUnit(pLandUnit, bInDeficit, bConquestGrandStrategy);
+			}
+			else
+			{
+				LogGiftUnit(pLandUnit, bInDeficit, bConquestGrandStrategy);
+			}
 		}
 	}
 	else if(iNavalScore < MAX_INT)
 	{
 		if(pNavalUnit)
 		{
-			pNavalUnit->scrap();
-			LogScrapUnit(pNavalUnit, bInDeficit, bConquestGrandStrategy);
+			bool bGifted = false;
+			PlayerTypes eMinor = m_pPlayer->GetBestGiftTarget();
+			if (eMinor != NO_PLAYER)
+			{
+				GET_PLAYER(eMinor).AddIncomingUnit(m_pPlayer->GetID(), pNavalUnit);
+				bGifted = true;
+			}
+			if (!bGifted)
+			{
+				pNavalUnit->scrap();
+				LogScrapUnit(pNavalUnit, bInDeficit, bConquestGrandStrategy);
+			}
+			else
+			{
+				LogGiftUnit(pNavalUnit, bInDeficit, bConquestGrandStrategy);
+			}
 		}
 	}
 }
@@ -5709,6 +5737,54 @@ void CvMilitaryAI::LogScrapUnit(CvUnit* pUnit, bool bDeficit, bool bConquest)
 		pLog->Msg(strOutBuf);
 	}
 }
+/// Log that a unit is being gifted
+void CvMilitaryAI::LogGiftUnit(CvUnit* pUnit, bool bDeficit, bool bConquest)
+{
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strOutBuf;
+		CvString strTemp;
+		CvString playerName;
+		FILogFile* pLog;
+
+		// Open the right file
+		playerName = m_pPlayer->getCivilizationShortDescription();
+		pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+
+		strOutBuf.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strOutBuf += playerName + ", ";
+
+		strTemp.Format("Gifting unit %s to City-State, X: %d, Y: %d, ", pUnit->getUnitInfo().GetDescription(), pUnit->getX(), pUnit->getY());
+		strOutBuf += strTemp;
+		if (bDeficit)
+		{
+			strOutBuf += "IN DEFICIT, ";
+		}
+		else
+		{
+			strOutBuf += "Finances ok, ";
+		}
+		if (bConquest)
+		{
+			strOutBuf += "CONQUEST, ";
+		}
+		else
+		{
+			strOutBuf += "Other GS, ";
+		}
+		if (pUnit->getDomainType() == DOMAIN_LAND)
+		{
+			strTemp.Format("Num Land Units: %d, In Armies %d, Rec Size: %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecommendedMilitarySize);
+		}
+		else
+		{
+			strTemp.Format("Num Naval Units: %d, In Armies %d, Rec: %d ", m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecNavySize);
+		}
+		strOutBuf += strTemp;
+		pLog->Msg(strOutBuf);
+	}
+}
+
 
 /// Log a message to the high-level summary log
 void CvMilitaryAI::LogMilitarySummaryMessage(const CvString& strMsg)

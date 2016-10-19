@@ -552,11 +552,6 @@ public:
 	void SetReformation(bool bValue);
 	bool IsReformation() const;
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-	void SetSpyCooldown(int iNewValue);
-	int GetSpyCooldown() const;
-	void ChangeSpyCooldown(int iValue);
-#endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, int iX, int iY, int iExistingDelay);
@@ -1121,7 +1116,7 @@ public:
 	void DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnit);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD, CvUnit* pUnit = NULL);
+	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD, CvUnit* pUnit = NULL, TerrainTypes ePassTerrain = NO_TERRAIN);
 	void addInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	void setInstantYieldText(InstantYieldType iType, CvString strInstantYield);
 	CvString getInstantYieldText(InstantYieldType iType)  const;
@@ -1940,9 +1935,13 @@ public:
 
 	// Incoming Units
 	void DoIncomingUnits();
-
+#if defined(MOD_BALANCE_CORE)
+	void DoTradeInfluenceAP();
+#endif
 	void DoDistanceGift(PlayerTypes eFromPlayer, CvUnit* pUnit);
+	bool CanGiftUnit(PlayerTypes eToPlayer);
 	void AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit);
+	PlayerTypes GetBestGiftTarget();
 
 	UnitTypes GetIncomingUnitType(PlayerTypes eFromPlayer) const;
 	void SetIncomingUnitType(PlayerTypes eFromPlayer, UnitTypes eUnitType);
@@ -2711,9 +2710,6 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCenterOfMassX;
 	FAutoVariable<int, CvPlayer> m_iCenterOfMassY;
 	FAutoVariable<bool, CvPlayer> m_bIsReformation;
-#endif
-#if defined(MOD_BALANCE_CORE_SPIES)
-	FAutoVariable<int, CvPlayer> m_iSpyCooldown;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	FAutoVariable<int, CvPlayer> m_iBaseLuxuryHappiness;

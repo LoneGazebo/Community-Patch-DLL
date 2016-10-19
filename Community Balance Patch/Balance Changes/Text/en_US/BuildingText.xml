@@ -545,7 +545,7 @@
 			<Text>Court Chapel</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_COURT_CHAPEL_HELP">
-			<Text>Allows for a Musician specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_GREAT_WORK] Great Work of Music. Can only be constructed via the Sovereignty Policy.</Text>
+			<Text>Allows for an Artist specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_GREAT_WORK] Great Work of Art. Can only be constructed via the Sovereignty Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_COURT_CHAPEL_PEDIA">
 			<Text>A chapel is a religious place of fellowship, prayer and worship that is attached to a larger, often nonreligious institution or that is considered an extension of a primary religious institution. It may be part of a larger structure or complex, such as a college, hospital, palace, prison, funeral home, church, synagogue or mosque, located on board a military or commercial ship, or it may be an entirely free-standing building, sometimes with its own grounds. Many military installations have chapels for the use of military personnel, normally under the leadership of a military chaplain.</Text>

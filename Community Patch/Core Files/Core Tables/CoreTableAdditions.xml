@@ -22,6 +22,20 @@
 		<Column name="EraType" type="text" reference="Eras(Type)"/>
 		<Column name="CombatStrength" type="integer" default="0"/>
 	</Table>
+	<!-- Allows you to define a new combat type for this unit when it reaches a new era. (Value must be set to 1 to trigger)-->
+	<Table name="Unit_EraCombatType">
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="UnitCombatType" type="text" reference="UnitCombatInfos(Type)"/>
+		<Column name="EraType" type="text" reference="Eras(Type)"/>
+		<Column name="Value" type="integer" default="0"/>
+	</Table>
+	<!-- Allows you to define new promotions that are added to a unit when it upgrades to a new era. (Value must be set to 1 to trigger)-->
+	<Table name="Unit_EraUnitPromotions">
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
+		<Column name="EraType" type="text" reference="Eras(Type)"/>
+		<Column name="Value" type="integer" default="0"/>
+	</Table>
 	<!-- Allows you to define any building to be given to any # of cities by any policy. -->
 	<Table name="Policy_FreeBuilding">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
@@ -523,6 +537,13 @@
 	<!-- TRAIT: Allows you to define a yield that is gained every time you acquire a tile -->
 	<Table name="Trait_YieldFromTileEarn">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- TRAIT: Allows you to define a yield that is gained every time you acquire a tile on a specific terrain type -->
+	<Table name="Trait_YieldFromTileEarnTerrainType">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>

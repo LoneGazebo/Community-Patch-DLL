@@ -1,10 +1,10 @@
 -- Ahmad -- Boost Kasbah, Ability
 UPDATE Trait_YieldChangesPerTradePartner
-SET Yield = '3'
+SET Yield = '4'
 WHERE YieldType = 'YIELD_GOLD' AND TraitType = 'TRAIT_GATEWAY_AFRICA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Trait_YieldChangesPerTradePartner
-SET Yield = '3'
+SET Yield = '4'
 WHERE YieldType = 'YIELD_CULTURE' AND TraitType = 'TRAIT_GATEWAY_AFRICA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Improvement_Yields
@@ -200,7 +200,7 @@ SET GoldenAgeGreatWriterRateModifier = '0'
 WHERE Type = 'TRAIT_CARNIVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET WLTKDCultureBoost = '20'
+SET WLTKDCultureBoost = '25'
 WHERE Type = 'TRAIT_CARNIVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
@@ -268,7 +268,7 @@ VALUES
 INSERT INTO Trait_YieldChangesPerTradePartner
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_GATEWAY_AFRICA', 'YIELD_GOLDEN_AGE_POINTS', 3);
+	('TRAIT_GATEWAY_AFRICA', 'YIELD_GOLDEN_AGE_POINTS', 4);
 
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
@@ -327,8 +327,8 @@ VALUES
 INSERT INTO Trait_GAPToYield
 	(TraitType, YieldType, Yield)
 VALUES
-	('TRAIT_CARNIVAL', 'YIELD_TOURISM', 40),
-	('TRAIT_CARNIVAL', 'YIELD_GOLD', 40);
+	('TRAIT_CARNIVAL', 'YIELD_TOURISM', 50),
+	('TRAIT_CARNIVAL', 'YIELD_GOLD', 50);
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)

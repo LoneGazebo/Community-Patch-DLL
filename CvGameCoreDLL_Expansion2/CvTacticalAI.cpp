@@ -3399,7 +3399,7 @@ void CvTacticalAI::PlotBlockadeImprovementMoves()
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		if(FindUnitsForPillage(pPlot, 1, 10, 100, DOMAIN_SEA))
+		if(FindUnitsForPillage(pPlot, 4, 10, 100, DOMAIN_SEA))
 		{
 			// Queue best one up to capture it
 			ExecuteNavalBlockadeMove(pPlot);

@@ -104,6 +104,10 @@ public:
 	int GetAdvancedActions();
 	int m_iTurnActivated;
 	int m_iActionsDone;
+	int m_iCooldown;
+	void ChangeAdvancedActionsCooldown(int iValue);
+	void SetAdvancedActionsCooldown(int iValue);
+	int GetAdvancedActionsCooldown();
 #endif
 };
 
@@ -158,6 +162,7 @@ struct IntrigueNotificationMessage
 	int m_iCityX;
 	int m_iCityY;
 	CvString m_strSpyName;
+	int iSpyID;
 	bool m_bShared;
 };
 typedef FStaticVector<CvEspionageSpy, 14, false, c_eCiv5GameplayDLL > SpyList;
@@ -189,6 +194,8 @@ public:
 	void ProcessSpy(uint uiSpyIndex);
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void DoAdvancedAction(uint uiSpyIndex);
+	CvString GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, bool bNoBasic);
+	CvString GetCityPotentialInfo(CvCity* pCity, bool bNoBasic);
 #endif
 	void UncoverIntrigue(uint uiSpyIndex);
 #if defined(MOD_BALANCE_CORE)

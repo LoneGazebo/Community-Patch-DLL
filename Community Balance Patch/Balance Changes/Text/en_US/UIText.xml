@@ -606,16 +606,16 @@
 			<Text>[NEWLINE][ICON_BULLET]Piety Modifer: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_PIETY">
-			<Text>{1_Num} {2_IconString} from Piety</Text>
+			<Text>{1_Num} {2_IconString} from following the [ICON_RELIGION] Majority Religion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_FAITH_FROM_PIETY">
-			<Text>{1_Num} [ICON_PEACE] from Piety</Text>
+			<Text>{1_Num} [ICON_PEACE] from following the [ICON_RELIGION] Majority Religion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_FAITH_FROM_CS_ALLIANCE">
 			<Text>{1_Num} [ICON_PEACE] from City-State Alliances</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_FROM_PIETY">
-			<Text>{1_Num} [ICON_CULTURE] from Piety</Text>
+			<Text>{1_Num} [ICON_CULTURE] from following the [ICON_RELIGION] Majority Religion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_FAITH_FROM_POP">
 			<Text>{1_Num} [ICON_PEACE] from [ICON_CITIZEN] Population</Text>

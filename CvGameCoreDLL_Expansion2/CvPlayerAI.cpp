@@ -69,7 +69,8 @@ void CvPlayerAI::initStatics()
 
 void CvPlayerAI::freeStatics()
 {
-	SAFE_DELETE_ARRAY(m_aPlayers);
+	delete[] m_aPlayers;
+	m_aPlayers = NULL;
 }
 
 // Public Functions...
@@ -298,12 +299,7 @@ void CvPlayerAI::AI_unitUpdate()
 		GetTacticalAI()->Update();
 
 		// Skip homeland AI processing if a barbarian
-		bool bDoBarbs = false;
-		if (m_eID == BARBARIAN_PLAYER && GET_PLAYER(m_eID).getNumCities() > 0)
-		{
-			bDoBarbs = true;
-		}
-		if ((m_eID == BARBARIAN_PLAYER && bDoBarbs) || (m_eID != BARBARIAN_PLAYER))
+		if(m_eID != BARBARIAN_PLAYER)
 		{
 			// Now its the homeland AI's turn.
 			GetHomelandAI()->RecruitUnits();

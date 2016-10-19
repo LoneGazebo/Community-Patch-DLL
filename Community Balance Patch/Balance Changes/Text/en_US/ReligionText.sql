@@ -271,7 +271,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_TEXTS_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Reliquary (Now Tithes)
 UPDATE Language_en_US
-SET Text = 'Holy City receives +200 [ICON_GOLD] Gold when each City first converts to this Religion, and gains +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith for every 4 followers of this Religion in Foreign Cities.'
+SET Text = 'Holy City receives +200 [ICON_GOLD] Gold when each City first converts to this Religion, and gains +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith for every 6 followers of this Religion in Foreign Cities.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIQUARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

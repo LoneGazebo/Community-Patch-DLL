@@ -111,6 +111,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_iLocalUnhappinessModifier(0),
 	m_iGlobalBuildingGoldMaintenanceMod(0),
+	m_iBuildingDefenseModifier(0),
 #endif
 	m_iHappinessPerCity(0),
 	m_iHappinessPerXPolicies(0),
@@ -183,6 +184,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bWater(false),
 	m_bRiver(false),
 	m_bFreshWater(false),
+	m_bAnyWater(false),
 #if defined(MOD_API_EXTENSIONS)
 	m_bAddsFreshWater(false),
 	m_bPurchaseOnly(false),
@@ -481,6 +483,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bWater = kResults.GetBool("Water");
 	m_bRiver = kResults.GetBool("River");
 	m_bFreshWater = kResults.GetBool("FreshWater");
+	m_bAnyWater = kResults.GetBool("AnyWater");
 #if defined(MOD_API_EXTENSIONS)
 	m_bAddsFreshWater = kResults.GetBool("AddsFreshWater");
 	m_bPurchaseOnly = kResults.GetBool("PurchaseOnly");
@@ -590,6 +593,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #if defined(MOD_BALANCE_CORE)
 	m_iLocalUnhappinessModifier = kResults.GetInt("LocalUnhappinessModifier");
 	m_iGlobalBuildingGoldMaintenanceMod = kResults.GetInt("GlobalBuildingGoldMaintenanceMod");
+	m_iBuildingDefenseModifier = kResults.GetInt("BuildingDefenseModifier");
 #endif
 	m_iHappinessPerCity = kResults.GetInt("HappinessPerCity");
 	m_iHappinessPerXPolicies = kResults.GetInt("HappinessPerXPolicies");
@@ -1816,6 +1820,13 @@ bool CvBuildingEntry::IsAllowsRangeStrike() const
 {
 	return m_bAllowsRangeStrike;
 }
+#if defined(MOD_BALANCE_CORE)
+// This is an actual Modifier where as GetDefenseModifier is just building Hit Points
+int CvBuildingEntry::GetBuildingDefenseModifier() const
+{
+	return m_iBuildingDefenseModifier;
+}
+#endif
 
 /// Modifier to city defense
 int CvBuildingEntry::GetDefenseModifier() const
@@ -2163,6 +2174,10 @@ bool CvBuildingEntry::IsBorderObstacle() const
 	return m_bBorderObstacle;
 }
 #if defined(MOD_BALANCE_CORE)
+bool CvBuildingEntry::IsAnyBodyOfWater() const
+{
+	return m_bAnyWater;
+}
 /// Is this an obstacle for just the tiles around your city?
 int CvBuildingEntry::GetBorderObstacleCity() const
 {

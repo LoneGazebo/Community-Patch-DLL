@@ -975,7 +975,7 @@ WHERE Type = 'RESOURCE_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='C
 
 -- DOF too soon buffer:
 UPDATE Defines
-SET Value = '50'
+SET Value = '75'
 WHERE Name = 'DOF_TURN_BUFFER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 -- Operational AI changes
@@ -1281,6 +1281,9 @@ UPDATE Defines
 SET Value = '15'
 WHERE Name = 'PEACE_WILLINGNESS_ACCEPT_THRESHOLD_ARMISTICE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
+UPDATE AICityStrategy_Flavors
+SET Flavor = '10' 
+WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING' AND AICityStrategyType = 'AICITYSTRATEGY_IS_PUPPET';
 
 -- Set Forbidden Palace to 2 votes for CP (we'll reset in CBP)
 UPDATE Buildings
@@ -1322,3 +1325,7 @@ UPDATE GreatWorks SET Image = 'artifact.dds' WHERE GreatWorkClassType = 'GREAT_W
 -- Ice
 UPDATE Features SET NoImprovement = 'true' WHERE Type = 'FEATURE_ICE';
 
+-- Shrink Citadel
+UPDATE ArtDefine_Landmarks
+SET Scale= '0.8'
+WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_CITADEL';

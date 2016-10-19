@@ -350,6 +350,7 @@ CvUnit::CvUnit() :
 	, m_iMapLayer("CvUnit::m_iMapLayer", m_syncArchive, DEFAULT_UNIT_MAP_LAYER)
 	, m_iNumGoodyHutsPopped("CvUnit::m_iNumGoodyHutsPopped", m_syncArchive)
 	, m_iLastGameTurnAtFullHealth("CvUnit::m_iLastGameTurnAtFullHealth", m_syncArchive, -1)
+	, m_eCombatType("CvUnit::m_eCombatType", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
 	, m_iOriginCity("CvUnit::m_iOriginCity", m_syncArchive)
 	, m_iCannotBeCapturedCount("CvUnit::m_iCannotBeCapturedCount", m_syncArchive)
@@ -547,7 +548,8 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 					SetGreatWork(getUnitInfo().GetGreatWorks(iI));
 					GC.getGame().addGreatPersonBornName(strName);
 #if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
-					if (MOD_GLOBAL_NO_LOST_GREATWORKS) {
+					if (MOD_GLOBAL_NO_LOST_GREATWORKS)
+					{
 						// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
 						setGreatName(strName);
 					}
@@ -610,13 +612,30 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 	if(isUnitEraUpgrade())
 	{
 		EraTypes eEra;
-		int iNumEraInfos = GC.getNumEraInfos();
-		for(int iEraLoop = 0; iEraLoop < iNumEraInfos; iEraLoop++)
+		for(int iEraLoop = 0; iEraLoop < GC.getNumEraInfos(); iEraLoop++)
 		{
 			eEra = (EraTypes) iEraLoop;
 			if((m_pUnitInfo->GetEraCombatStrength(eEra) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eEra))
 			{
 				SetBaseCombatStrength(m_pUnitInfo->GetEraCombatStrength(eEra));
+			}
+			UnitCombatTypes eUnitCombatClass;
+			for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+			{
+				eUnitCombatClass = (UnitCombatTypes) iI;
+				if((m_pUnitInfo->GetUnitNewEraCombatType(eUnitCombatClass, eEra) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eEra))
+				{
+					setUnitCombatType(eUnitCombatClass);
+				}
+			}
+			PromotionTypes ePromotion;
+			for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+			{
+				ePromotion = (PromotionTypes) iI;
+				if((m_pUnitInfo->GetUnitNewEraPromotions(ePromotion, eEra) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eEra))
+				{
+					setHasPromotion(ePromotion, true);
+				}
 			}
 		}
 	}
@@ -631,6 +650,10 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 #if defined(MOD_BALANCE_CORE)
 			if(GC.getPromotionInfo(ePromotion)->GetBarbarianCombatBonus() > 0 && isBarbarian())
 				continue;
+
+			PromotionTypes ePromotionRoughTerrain = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_ROUGH_TERRAIN_ENDS_TURN");
+			if(ePromotion == ePromotionRoughTerrain && kPlayer.GetPlayerTraits()->IsConquestOfTheWorld())
+				continue;
 #endif
 
 			if(!GC.getPromotionInfo(ePromotion)->IsHoveringUnit())	// Hovering units handled above
@@ -638,7 +661,7 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 		}
 	}
 
-	const UnitCombatTypes unitCombatType = getUnitCombatType();
+	const UnitCombatTypes unitCombatType = (UnitCombatTypes)getUnitCombatType();
 	if(unitCombatType != NO_UNITCOMBAT)
 	{
 		// Any free Promotions to apply?
@@ -1027,7 +1050,8 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			SetGreatWork(getUnitInfo().GetGreatWorks(vfPossibleUnits[iRoll]));
 			GC.getGame().addGreatPersonBornName(strName);
 #if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
-			if (MOD_GLOBAL_NO_LOST_GREATWORKS) {
+			if (MOD_GLOBAL_NO_LOST_GREATWORKS)
+			{
 				// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
 				setGreatName(strName);
 			}
@@ -1056,7 +1080,8 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				SetGreatWork(getUnitInfo().GetGreatWorks(vfPossibleUnits[iRoll]));
 				GC.getGame().addGreatPersonBornName(strName);
 #if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
-				if (MOD_GLOBAL_NO_LOST_GREATWORKS) {
+				if (MOD_GLOBAL_NO_LOST_GREATWORKS)
+				{
 					// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
 					setGreatName(strName);
 				}
@@ -1073,8 +1098,10 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			CvString strName = getUnitInfo().GetUnitNames(iIndex);
 			
 #if defined(MOD_EVENTS_UNIT_DATA)
-			if (MOD_EVENTS_UNIT_DATA) {
-				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanHaveName, getOwner(), GetID(), iIndex) == GAMEEVENTRETURN_FALSE) {
+			if (MOD_EVENTS_UNIT_DATA)
+			{
+				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanHaveName, getOwner(), GetID(), iIndex) == GAMEEVENTRETURN_FALSE)
+				{
 					continue;
 				}
 			}
@@ -1083,8 +1110,10 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			if(!GC.getGame().isGreatPersonBorn(strName))
 			{
 #if defined(MOD_EVENTS_UNIT_DATA)
-				if (MOD_EVENTS_UNIT_DATA) {
-					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanHaveGreatWork, getOwner(), GetID(), getUnitInfo().GetGreatWorks(iIndex)) == GAMEEVENTRETURN_FALSE) {
+				if (MOD_EVENTS_UNIT_DATA)
+				{
+					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanHaveGreatWork, getOwner(), GetID(), getUnitInfo().GetGreatWorks(iIndex)) == GAMEEVENTRETURN_FALSE)
+					{
 						continue;
 					}
 				}
@@ -1093,7 +1122,8 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				SetGreatWork(getUnitInfo().GetGreatWorks(iIndex));
 				GC.getGame().addGreatPersonBornName(strName);
 #if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
-				if (MOD_GLOBAL_NO_LOST_GREATWORKS) {
+				if (MOD_GLOBAL_NO_LOST_GREATWORKS)
+				{
 					// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
 					setGreatName(strName);
 				}
@@ -1189,12 +1219,16 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		{
 			ePromotion = (PromotionTypes) iI;
 
+			PromotionTypes ePromotionRoughTerrain = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_ROUGH_TERRAIN_ENDS_TURN");
+			if(ePromotion == ePromotionRoughTerrain && kPlayer.GetPlayerTraits()->IsConquestOfTheWorld())
+				continue;
+
 			if(!GC.getPromotionInfo(ePromotion)->IsHoveringUnit())	// Hovering units handled above
 				setHasPromotion(ePromotion, true);
 		}
 	}
 
-	const UnitCombatTypes unitCombatType = getUnitCombatType();
+	const UnitCombatTypes unitCombatType = (UnitCombatTypes)getUnitCombatType();
 	if(unitCombatType != NO_UNITCOMBAT)
 	{
 		// Any free Promotions to apply?
@@ -1218,6 +1252,27 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			if((m_pUnitInfo->GetEraCombatStrength(eEra) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eEra))
 			{
 				SetBaseCombatStrength(m_pUnitInfo->GetEraCombatStrength(eEra));
+			}
+			for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+			{
+				UnitCombatTypes eUnitCombatClass;
+				for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+				{
+					eUnitCombatClass = (UnitCombatTypes) iI;
+					if((m_pUnitInfo->GetUnitNewEraCombatType(eUnitCombatClass, eEra) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eEra))
+					{
+						setUnitCombatType(eUnitCombatClass);
+					}
+				}
+				PromotionTypes ePromotion;
+				for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+				{
+					ePromotion = (PromotionTypes) iI;
+					if((m_pUnitInfo->GetUnitNewEraPromotions(ePromotion, eEra) > 0) && (GET_TEAM(kPlayer.getTeam()).GetCurrentEra() >= eEra))
+					{
+						setHasPromotion(ePromotion, true);
+					}
+				}
 			}
 		}
 	}
@@ -1842,6 +1897,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_eUnitType = eUnit;
 	m_pUnitInfo = (NO_UNIT != m_eUnitType) ? GC.getUnitInfo(m_eUnitType) : NULL;
 	m_iBaseCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetCombat() : 0;
+	m_eCombatType = (NO_UNIT != m_eUnitType) ? (UnitCombatTypes)m_pUnitInfo->GetUnitCombatType() : NO_UNITCOMBAT;
 #if defined(MOD_API_EXTENSIONS)
 	m_iBaseRangedCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetRangedCombat() : 0;
 #endif
@@ -2503,24 +2559,27 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	}
 	
 #if defined(MOD_EVENTS_UNIT_PREKILL)
-	if (MOD_EVENTS_UNIT_PREKILL) {
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitPrekill, getOwner(), GetID(), getUnitType(), getX(), getY(), bDelay, ePlayer);
-	} else {
-#endif
-	if (pkScriptSystem) 
+	if (MOD_EVENTS_UNIT_PREKILL)
 	{
-		CvLuaArgsHandle args;
-		args->Push(((int)getOwner()));
-		args->Push(GetID());
-		args->Push(getUnitType());
-		args->Push(getX());
-		args->Push(getY());
-		args->Push(bDelay);
-		args->Push(ePlayer);
-
-		bool bResult;
-		LuaSupport::CallHook(pkScriptSystem, "UnitPrekill", args.get(), bResult);
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitPrekill, getOwner(), GetID(), getUnitType(), getX(), getY(), bDelay, ePlayer);
 	}
+	else
+	{
+#endif
+		if (pkScriptSystem) 
+		{
+			CvLuaArgsHandle args;
+			args->Push(((int)getOwner()));
+			args->Push(GetID());
+			args->Push(getUnitType());
+			args->Push(getX());
+			args->Push(getY());
+			args->Push(bDelay);
+			args->Push(ePlayer);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "UnitPrekill", args.get(), bResult);
+		}
 #if defined(MOD_EVENTS_UNIT_PREKILL)
 	}
 #endif
@@ -6064,6 +6123,9 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 	{
 		return false;
 	}
+
+	if (GET_PLAYER(pPlot->getOwner()).GetIncomingUnitCountdown(m_eOwner) != -1)
+		return false;
 
 	if(pPlot->getOwner() == getOwner())
 	{
@@ -14372,10 +14434,19 @@ UnitTypes CvUnit::getCaptureUnitType(CivilizationTypes eCivilization) const
 
 
 //	--------------------------------------------------------------------------------
-UnitCombatTypes CvUnit::getUnitCombatType() const
+int CvUnit::getUnitCombatType() const
 {
 	VALIDATE_OBJECT
-	return ((UnitCombatTypes)(m_pUnitInfo->GetUnitCombatType()));
+	return m_eCombatType;
+}
+
+void CvUnit::setUnitCombatType(UnitCombatTypes eCombat)
+{
+	VALIDATE_OBJECT
+	if(getUnitCombatType() != eCombat)
+	{
+		m_eCombatType = eCombat;
+	}
 }
 
 #if defined(MOD_GLOBAL_PROMOTION_CLASSES)
@@ -15365,7 +15436,16 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 				iModifier += kPlayer.GetCityStateCombatModifier();
 #endif
 			}
-
+#if defined(MOD_BALANCE_CORE)
+			// Bonus against Major Civ Cities
+			if(pBattlePlot->isCity() && GET_PLAYER(pBattlePlot->getOwner()).isMajorCiv())
+			{
+				if(kPlayer.isGoldenAge())
+				{
+					iModifier += kPlayer.GetPlayerTraits()->GetConquestOfTheWorldCityAttack();
+				}
+			}
+#endif
 			// Founder Belief bonus (this must be a city controlled by an enemy)
 			CvCity* pPlotCity = pBattlePlot->getWorkingCity();
 			if(pPlotCity)
@@ -15519,7 +15599,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		// Unit Combat type Modifier
 		if(pOtherUnit->getUnitCombatType() != NO_UNITCOMBAT)
 		{
-			iTempModifier = unitCombatModifier(pOtherUnit->getUnitCombatType());
+			iTempModifier = unitCombatModifier((UnitCombatTypes)pOtherUnit->getUnitCombatType());
 			iModifier += iTempModifier;
 #if defined(MOD_BALANCE_CORE)
 			CvUnitEntry* pUnitInfo = GC.getUnitInfo(pOtherUnit->getUnitType());
@@ -16258,7 +16338,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 		// Unit combat modifier VS other unit
 		if(pOtherUnit->getUnitCombatType() != NO_UNITCOMBAT)
-			iModifier += unitCombatModifier(pOtherUnit->getUnitCombatType());
+			iModifier += unitCombatModifier((UnitCombatTypes)pOtherUnit->getUnitCombatType());
 
 		// Domain modifier VS other unit
 		iModifier += domainModifier(pOtherUnit->getDomainType());
@@ -16355,6 +16435,16 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iModifier += kPlayer.GetCityStateCombatModifier();
 #endif
 		}
+#if defined(MOD_BALANCE_CORE)
+		// Bonus against Major Civ Cities
+		if(GET_PLAYER(pCity->getOwner()).isMajorCiv())
+		{
+			if(kPlayer.isGoldenAge())
+			{
+				iModifier += pTraits->GetConquestOfTheWorldCityAttack();
+			}
+		}
+#endif
 	}
 
 	// Ranged attack mod
@@ -19443,6 +19533,75 @@ if (!bDoEvade)
 						}
 					}
 				}
+				// Have a unit that'll convert an enemy unit into a Barbarian?
+				if(isConvertEnemyUnitToBarbarian())
+				{
+					CvUnit* pConvertUnit = NULL;
+					int iDamageTheshold = this->getUnitInfo().GetDamageThreshold();
+					CvUnit* pAdjacentUnit = pAdjacentPlot->getBestDefender(NO_PLAYER);
+					if(pAdjacentUnit != NULL && pAdjacentUnit->IsCombatUnit() && !pAdjacentUnit->isBarbarian())
+					{
+						int iExistingDamage = pAdjacentUnit->getDamage();
+						if(GET_PLAYER(getOwner()).IsAtWarWith(pAdjacentUnit->getOwner()))
+						{
+							if(iExistingDamage > iDamageTheshold)
+							{
+								CvPlayer* pBarbPlayer = &GET_PLAYER(BARBARIAN_PLAYER);
+								pConvertUnit = pBarbPlayer->initUnit(pAdjacentUnit->getUnitType(), pAdjacentUnit->getX(), pAdjacentUnit->getY(), pAdjacentUnit->AI_getUnitAIType(), NO_DIRECTION, true /*bNoMove*/, false);
+								pConvertUnit->convert(pAdjacentUnit, false);
+								pConvertUnit->setupGraphical();
+								pConvertUnit->setDamage(iExistingDamage, BARBARIAN_PLAYER);
+								pConvertUnit->finishMoves();
+
+								CvNotifications* pNotifications = GET_PLAYER(this->getOwner()).GetNotifications();
+								if(pNotifications)
+								{
+									CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHAOS_CONVERSION");
+									CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHAOS_CONVERSION");
+									pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pAdjacentUnit->getX(), pAdjacentUnit->getY(), -1);
+								}
+							}
+						}
+					}
+				}
+				// Is this unit running into a unit that might convert it into a barbarian??
+				else if(IsCombatUnit() && !isBarbarian())
+				{
+					CvUnit* pConvertUnit = NULL;
+					int iExistingDamage = getDamage();
+					if(pAdjacentPlot->getNumUnits() > 0)
+					{
+						for(int iNearbyUnitLoop = 0; iNearbyUnitLoop < pAdjacentPlot->getNumUnits(); iNearbyUnitLoop++)
+						{
+							const CvUnit* const adjUnit = pAdjacentPlot->getUnitByIndex(iNearbyUnitLoop);
+							if(adjUnit != NULL && adjUnit->isConvertEnemyUnitToBarbarian())
+							{
+								int iDamageTheshold = adjUnit->getUnitInfo().GetDamageThreshold();
+								if(GET_PLAYER(getOwner()).IsAtWarWith(adjUnit->getOwner()))
+								{
+									if(iExistingDamage > iDamageTheshold)
+									{
+
+										CvPlayer* pBarbPlayer = &GET_PLAYER(BARBARIAN_PLAYER);
+										pConvertUnit = pBarbPlayer->initUnit(this->getUnitType(), this->getX(), this->getY(), this->AI_getUnitAIType(), NO_DIRECTION, true /*bNoMove*/, false);
+										pConvertUnit->convert(this, false);
+										pConvertUnit->setupGraphical();
+										pConvertUnit->setDamage(iExistingDamage, BARBARIAN_PLAYER);
+										pConvertUnit->finishMoves();
+
+										CvNotifications* pNotifications = GET_PLAYER(adjUnit->getOwner()).GetNotifications();
+										if(pNotifications)
+										{
+											CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHAOS_CONVERSION");
+											CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHAOS_CONVERSION");
+											pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, this->getX(), this->getY(), -1);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
@@ -22522,7 +22681,7 @@ void CvUnit::DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot)
 						}
 					}
 				}				
-				else if(pkPromotionInfo->IsNearbyCityPromotion() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
+				if(pkPromotionInfo->IsNearbyCityPromotion() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
 				{
 					if(!pUnit->IsWithinDistanceOfCity(pkPromotionInfo->GetNearbyRange(), true, true))
 					{
@@ -22536,7 +22695,7 @@ void CvUnit::DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot)
 						}
 					}
 				}
-				else if(pkPromotionInfo->IsNearbyFriendlyCityPromotion() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
+				if(pkPromotionInfo->IsNearbyFriendlyCityPromotion() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
 				{
 					if(!pUnit->IsWithinDistanceOfCity(pkPromotionInfo->GetNearbyRange(), true, false))
 					{
@@ -22550,7 +22709,7 @@ void CvUnit::DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot)
 						}
 					}
 				}
-				else if(pkPromotionInfo->IsNearbyEnemyCityPromotion() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
+				if(pkPromotionInfo->IsNearbyEnemyCityPromotion() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
 				{
 					if(!pUnit->IsWithinDistanceOfCity(pkPromotionInfo->GetNearbyRange(), false, true))
 					{
@@ -22564,7 +22723,7 @@ void CvUnit::DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot)
 						}
 					}
 				}
-				else if(pkPromotionInfo->IsFriendlyLands() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
+				if(pkPromotionInfo->IsFriendlyLands() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
 				{
 					if(!pPlot->IsFriendlyTerritory(pUnit->getOwner()))
 					{
@@ -22576,6 +22735,17 @@ void CvUnit::DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot)
 						{
 							pUnit->setHasPromotion(eLoopPromotion, true);
 						}
+					}
+				}
+				if(pkPromotionInfo->GetPillageBonusStrengthPercent() > 0 && pUnit->HasPromotion(eLoopPromotion))
+				{
+					if(pPlot->IsImprovementPillaged())
+					{
+						pUnit->SetBaseCombatStrength(pUnit->getUnitInfo().GetCombat() + ((pkPromotionInfo->GetPillageBonusStrengthPercent() * pUnit->getUnitInfo().GetCombat()) / 100));
+					}
+					else
+					{
+						pUnit->SetBaseCombatStrength(pUnit->getUnitInfo().GetCombat());
 					}
 				}
 			}
@@ -22692,7 +22862,7 @@ void CvUnit::DoConvertOnDamageThreshold(const CvPlot* pPlot)
 				}
 			}
 		}
-		else if(this->isConvertOnFullHP())
+		if(this->isConvertOnFullHP())
 		{
 			CvUnit* pConvertUnit = NULL;
 			if(this->getDamage() == 0)
@@ -28499,7 +28669,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iTemp + iFlavorOffense * 11;
 
 		//Raw power is better for mounted/armor units
-		const UnitCombatTypes unitCombatType = getUnitCombatType();
+		const UnitCombatTypes unitCombatType = (UnitCombatTypes)getUnitCombatType();
 		if(unitCombatType == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true))
 		{
 			iValue *= 3;
@@ -28525,7 +28695,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iTemp + iFlavorOffense * 11;
 
 		//Raw power is better for archer units than all others
-		const UnitCombatTypes unitCombatType = getUnitCombatType();
+		const UnitCombatTypes unitCombatType = (UnitCombatTypes)getUnitCombatType();
 		if(unitCombatType == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true))
 		{
 			iValue *= 3;
@@ -29616,6 +29786,21 @@ bool CvUnit::isConvertOnFullHP() const
 {
 	VALIDATE_OBJECT
 	return getUnitInfo().IsConvertOnFullHP();
+}
+bool CvUnit::isConvertEnemyUnitToBarbarian() const
+{
+	VALIDATE_OBJECT
+	return getUnitInfo().IsConvertEnemyUnitToBarbarian();
+}
+bool CvUnit::isWLKTKDOnBirth() const
+{
+	VALIDATE_OBJECT
+	return getUnitInfo().IsWLTKDFromBirth();
+}
+bool CvUnit::isGoldenAgeOnBirth() const
+{
+	VALIDATE_OBJECT
+	return getUnitInfo().IsGoldenAgeFromBirth();
 }
 #endif
 #if defined(MOD_GLOBAL_STACKING_RULES)
