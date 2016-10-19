@@ -173,10 +173,6 @@ public:
 	{
 		return m_iGridHeight;
 	}
-	inline int getGridWidthHex() const
-	{
-		return m_iGridWidthHex;
-	}
 
 	int getLandPlots();
 	void changeLandPlots(int iChange);
@@ -324,7 +320,6 @@ protected:
 
 	int m_iGridWidth;
 	int m_iGridHeight;
-	int m_iGridWidthHex; // not serialized, computed from regular size
 	int m_iGridSize; // not serialized as it is always w*h
 	int m_iLandPlots;
 	int m_iOwnedPlots;
