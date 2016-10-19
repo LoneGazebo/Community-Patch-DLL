@@ -77,10 +77,12 @@ typedef FStaticVector<int, 152* 96, true, c_eCiv5GameplayDLL, 0> CvPlotsVector; 
 class CvPlayer
 {
 	friend class CvPlayerPolicies;
+private:
+	CvPlayer(const CvPlayer&); //hide copy constructor
+	CvPlayer& operator=(const CvPlayer&); //hide assignment operator
 
 public:
 	typedef std::map<unsigned int, int> TurnData;
-
 
 	CvPlayer();
 	virtual ~CvPlayer();

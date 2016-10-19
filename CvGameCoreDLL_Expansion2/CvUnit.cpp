@@ -4638,8 +4638,6 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage) cons
 				{
 					return true;
 				}
-
-				kTheirTeam = GET_TEAM(GET_PLAYER(eMinorAlly).getTeam());
 			} 
 			else 
 #endif
