@@ -162,7 +162,7 @@ CvUnit::CvUnit() :
 	, m_iRiverCrossingNoPenaltyCount("CvUnit::m_iRiverCrossingNoPenaltyCount", m_syncArchive)
 	, m_iEnemyRouteCount("CvUnit::m_iEnemyRouteCount", m_syncArchive)
 	, m_iRivalTerritoryCount("CvUnit::m_iRivalTerritoryCount", m_syncArchive)
-	, m_iMustSetUpToRangedAttackCount("CvUnit::m_iMustSetUpToRangedAttackCount", m_syncArchive)
+	, m_iIsSlowInEnemyLandCount("CvUnit::m_iIsSlowInEnemyLandCount", m_syncArchive)
 	, m_iRangeAttackIgnoreLOSCount("CvUnit::m_iRangeAttackIgnoreLOSCount", m_syncArchive)
 	, m_iCityAttackOnlyCount("CvUnit::m_iCityAttackOnlyCount", m_syncArchive)
 	, m_iCaptureDefeatedEnemyCount("CvUnit::m_iCaptureDefeatedEnemyCount", m_syncArchive)
@@ -1696,7 +1696,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iRiverCrossingNoPenaltyCount = 0;
 	m_iEnemyRouteCount = 0;
 	m_iRivalTerritoryCount = 0;
-	m_iMustSetUpToRangedAttackCount = 0;
+	m_iIsSlowInEnemyLandCount = 0;
 	m_iRangeAttackIgnoreLOSCount = 0;
 	m_iCityAttackOnlyCount = 0;
 	m_iCaptureDefeatedEnemyCount = 0;
@@ -15030,25 +15030,25 @@ bool CvUnit::canCoexistWithEnemyUnit(TeamTypes eTeam) const
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getMustSetUpToRangedAttackCount() const
+int CvUnit::getIsSlowInEnemyLandCount() const
 {
 	VALIDATE_OBJECT
-	return m_iMustSetUpToRangedAttackCount;
+	return m_iIsSlowInEnemyLandCount;
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::isMustSetUpToRangedAttack() const
+bool CvUnit::isSlowInEnemyLand() const
 {
 	VALIDATE_OBJECT
-	return getMustSetUpToRangedAttackCount() > 0;
+	return getIsSlowInEnemyLandCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::changeMustSetUpToRangedAttackCount(int iChange)
+void CvUnit::changeIsSlowInEnemyLandCount(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iMustSetUpToRangedAttackCount = (m_iMustSetUpToRangedAttackCount + iChange);
-	CvAssert(getMustSetUpToRangedAttackCount() >= 0);
+	m_iIsSlowInEnemyLandCount = (m_iIsSlowInEnemyLandCount + iChange);
+	CvAssert(getIsSlowInEnemyLandCount() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -25235,7 +25235,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeRiverCrossingNoPenaltyCount((thisPromotion.IsRiver()) ? iChange : 0);
 		changeEnemyRouteCount((thisPromotion.IsEnemyRoute()) ? iChange : 0);
 		changeRivalTerritoryCount((thisPromotion.IsRivalTerritory()) ? iChange : 0);
-		changeMustSetUpToRangedAttackCount((thisPromotion.IsMustSetUpToRangedAttack()) ? iChange : 0);
+		changeIsSlowInEnemyLandCount((thisPromotion.IsMustSetUpToRangedAttack()) ? iChange : 0);
 		changeRangedSupportFireCount((thisPromotion.IsRangedSupportFire()) ? iChange : 0);
 		changeAlwaysHealCount((thisPromotion.IsAlwaysHeal()) ? iChange : 0);
 		changeHealOutsideFriendlyCount((thisPromotion.IsHealOutsideFriendly()) ? iChange : 0);

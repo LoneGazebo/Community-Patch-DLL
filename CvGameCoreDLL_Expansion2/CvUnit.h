@@ -255,9 +255,9 @@ public:
 	int GetRangeAttackIgnoreLOSCount() const;
 	void ChangeRangeAttackIgnoreLOSCount(int iChange);
 
-	bool canSetUpForRangedAttack(const CvPlot* pPlot) const;
-	bool isSetUpForRangedAttack() const;
-	void setSetUpForRangedAttack(bool bValue);
+	bool canSetUpForRangedAttack(const CvPlot* pPlot) const; //no longer used
+	bool isSetUpForRangedAttack() const; //no longer used
+	void setSetUpForRangedAttack(bool bValue); //no longer used
 
 	bool IsCityAttackSupport() const;
 	void ChangeCityAttackOnlyCount(int iChange);
@@ -534,9 +534,9 @@ public:
 	bool isBlastTourism() const;
 	bool canCoexistWithEnemyUnit(TeamTypes eTeam) const;
 
-	bool isMustSetUpToRangedAttack() const;
-	int getMustSetUpToRangedAttackCount() const;
-	void changeMustSetUpToRangedAttackCount(int iChange);
+	bool isSlowInEnemyLand() const; //used to be setup for ranged attack
+	int getIsSlowInEnemyLandCount() const;
+	void changeIsSlowInEnemyLandCount(int iChange);
 
 	bool isRangedSupportFire() const;
 	int getRangedSupportFireCount() const;
@@ -1693,7 +1693,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iRiverCrossingNoPenaltyCount;
 	FAutoVariable<int, CvUnit> m_iEnemyRouteCount;
 	FAutoVariable<int, CvUnit> m_iRivalTerritoryCount;
-	FAutoVariable<int, CvUnit> m_iMustSetUpToRangedAttackCount;
+	FAutoVariable<int, CvUnit> m_iIsSlowInEnemyLandCount;
 	FAutoVariable<int, CvUnit> m_iRangeAttackIgnoreLOSCount;
 	FAutoVariable<int, CvUnit> m_iCityAttackOnlyCount;
 	FAutoVariable<int, CvUnit> m_iCaptureDefeatedEnemyCount;
