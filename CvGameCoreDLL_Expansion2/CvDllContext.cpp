@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -49,16 +49,6 @@
 
 CvDllGameContext* CvDllGameContext::s_pSingleton = NULL;
 HANDLE CvDllGameContext::s_hHeap = INVALID_HANDLE_VALUE;
-
-//---------
-//#define DEBUG_UNIT_MOVES
-#if defined (DEBUG_UNIT_MOVES)
-int g_iTargetX = -1;
-int g_iTargetY = -1;
-CvUnit* g_pLastUnit = NULL;
-int g_iCurPlotIndex = 0;
-#endif
-//---------
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -1056,31 +1046,6 @@ void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 {
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pUnit);
 
-#if defined(DEBUG_UNIT_MOVES)
-	std::vector<STacticalPlot> vResult;
-	CvPlot *pTarget = GC.getMap().plot(g_iTargetX,g_iTargetY);
-
-	if (g_pLastUnit != pkUnit)
-	{
-		g_pLastUnit = pkUnit;
-		g_iCurPlotIndex = 0;
-	}
-
-	TacticalAIHelpers::GetPreferredPlotsForUnit(pkUnit,pTarget,true,vResult);
-	if (g_iCurPlotIndex < vResult.size())
-	{
-		CvPlot* pPlot = GC.getMap().plot(vResult[g_iCurPlotIndex].m_iX, vResult[g_iCurPlotIndex].m_iY);
-		if(pPlot)
-		{
-			auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
-			GC.GetEngineUserInterface()->AddHexToUIRange(pDllPlot.get());
-		}
-	}
-
-	g_iCurPlotIndex++;
-	if (g_iCurPlotIndex==5)
-		g_iCurPlotIndex = 0;
-#else
 	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_IGNORE_STACKING,1);
 	data.ePathType = PT_UNIT_REACHABLE_PLOTS;
 
@@ -1095,7 +1060,6 @@ void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 			GC.GetEngineUserInterface()->AddHexToUIRange(pDllPlot.get());
 		}
 	}
-#endif
 }
 
 //------------------------------------------------------------------------------

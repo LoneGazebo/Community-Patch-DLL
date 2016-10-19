@@ -5073,7 +5073,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 #if defined(MOD_GLOBAL_CAPTURE_AFTER_ATTACKING)
 			// If there are only enemy civilians in the plot, then we don't need remaining attacks to capture them
 			// eg a worker in a barbarian camp where we just killed the defender
-			if (plot.getBestDefender(NO_PLAYER) != ((CvUnit*) NULL))
+			if (plot.getBestDefender(NO_PLAYER) != NULL)
 			{
 				return false;
 			}
@@ -6910,53 +6910,24 @@ int CvUnit::getNegatorPromotion()
 	return m_iNegatorPromotion;
 }
 #endif
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::canSetUpForRangedAttack(const CvPlot* /*pPlot*/) const
 {
-	VALIDATE_OBJECT
-	if(!isMustSetUpToRangedAttack())
-	{
-		return false;
-	}
-
-	if(isSetUpForRangedAttack())
-	{
-		return false;
-	}
-
-	if(isEmbarked())
-		return false;
-
-	if(movesLeft() <= 0)
-	{
-		return false;
-	}
-
-	return true;
+	return false; //no longer used
 }
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isSetUpForRangedAttack() const
 {
-	VALIDATE_OBJECT
-	return m_bSetUpForRangedAttack;
+	return true; //no longer used
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::setSetUpForRangedAttack(bool bValue)
+void CvUnit::setSetUpForRangedAttack(bool /*bValue*/)
 {
-	VALIDATE_OBJECT
-	if(isSetUpForRangedAttack() != bValue)
-	{
-		m_bSetUpForRangedAttack = bValue;
-
-		if(bValue)
-		{
-			changeMoves(-GC.getMOVE_DENOMINATOR());
-		}
-	}
+	return; //no longer used
 }
-
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::canEmbarkAtPlot(const CvPlot* pPlot) const
@@ -14989,7 +14960,6 @@ bool CvUnit::canCoexistWithEnemyUnit(TeamTypes eTeam) const
 	return false;
 }
 
-
 //	--------------------------------------------------------------------------------
 int CvUnit::getMustSetUpToRangedAttackCount() const
 {
@@ -15011,7 +14981,6 @@ void CvUnit::changeMustSetUpToRangedAttackCount(int iChange)
 	m_iMustSetUpToRangedAttackCount = (m_iMustSetUpToRangedAttackCount + iChange);
 	CvAssert(getMustSetUpToRangedAttackCount() >= 0);
 }
-
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getRangedSupportFireCount() const
@@ -15632,13 +15601,13 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 
 //	--------------------------------------------------------------------------------
 /// What is the max strength of this Unit when attacking?
-int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender) const
+int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, bool bIgnoreAdjacencyBonus) const
 {
 	VALIDATE_OBJECT
 	if(GetBaseCombatStrength() == 0)
 		return 0;
 
-	int iModifier = GetGenericMaxStrengthModifier(pDefender, pToPlot, /*bIgnoreFlanking*/ false, pFromPlot);
+	int iModifier = GetGenericMaxStrengthModifier(pDefender, pToPlot, bIgnoreAdjacencyBonus, pFromPlot);
 
 	// Generic Attack bonus
 	int iTempModifier = getAttackModifier();
@@ -16058,7 +16027,7 @@ void CvUnit::SetBaseRangedCombatStrength(int iStrength)
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, const CvPlot* pTargetPlot, const CvPlot* pFromPlot) const
+int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreAdjacency) const
 {
 	VALIDATE_OBJECT
 
@@ -16138,7 +16107,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Great General nearby
 #if defined(MOD_PROMOTIONS_AURA_CHANGE)
 	int iAuraEffectChange = 0;
-	if(IsNearGreatGeneral(iAuraEffectChange) && !IsIgnoreGreatGeneralBenefit())
+	if(IsNearGreatGeneral(iAuraEffectChange) && !IsIgnoreGreatGeneralBenefit() && !bIgnoreAdjacency)
 #else
 	if(IsNearGreatGeneral() && !IsIgnoreGreatGeneralBenefit())
 #endif
@@ -16579,7 +16548,7 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, const CvPlot* pTargetPlot, const CvPlot* pFromPlot) const
+int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage, const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreAdjacency) const
 {
 	VALIDATE_OBJECT
 	if (pFromPlot == NULL)
@@ -16598,7 +16567,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		}
 	}
 
-	int iAttackerStrength = GetMaxRangedCombatStrength(pDefender, pCity, true, /*bForRangedAttack*/ true, pTargetPlot, pFromPlot);
+	int iAttackerStrength = GetMaxRangedCombatStrength(pDefender, pCity, true, /*bForRangedAttack*/ true, pTargetPlot, pFromPlot, bIgnoreAdjacency);
 	if (iAttackerStrength==0)
 		return 0;
 
@@ -18799,10 +18768,14 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 	eOldActivityType = GetActivityType();
 
+	/* ---------
+	// no longer used!
+	// ---------
 	if(isSetUpForRangedAttack())
 	{
 		setSetUpForRangedAttack(false);
 	}
+	*/
 
 	if(!bGroup || isCargo())
 	{
@@ -25730,6 +25703,9 @@ bool CvUnit::canRangeStrike() const
 		return false;
 	}
 
+	/* ---------
+	// no longer used!
+	// ---------
 	if(isMustSetUpToRangedAttack())
 	{
 		if(!isSetUpForRangedAttack())
@@ -25737,6 +25713,7 @@ bool CvUnit::canRangeStrike() const
 			return false;
 		}
 	}
+	*/
 
 	if(isOutOfAttacks())
 	{
@@ -25764,19 +25741,16 @@ bool CvUnit::canRangeStrike() const
 	return true;
 }
 
-#if defined(MOD_AI_SMART_RANGED_UNITS)
-
-bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot) const
-{
-	if (!pSourcePlot)
-		pSourcePlot = plot();
-#else
-
 bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 {
-	VALIDATE_OBJECT
-	const CvPlot* pSourcePlot = plot();
-#endif
+	return canEverRangeStrikeAt(iX,iY,plot(),false);
+}
+
+bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, bool bIgnoreVisibility) const
+{
+	if (!pSourcePlot)
+		return false;
+
 	const CvPlot* pTargetPlot = GC.getMap().plot(iX, iY);
 
 	// Plot null?
@@ -25786,7 +25760,7 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 	}
 
 	// Plot not visible?
-	if(!pTargetPlot->isVisible(getTeam()))
+	if(!bIgnoreVisibility && !pTargetPlot->isVisible(getTeam()))
 	{
 		return false;
 	}
@@ -25797,7 +25771,6 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 	if (bIsEmbarkedAttackingLand)
 		return false;
 #endif
-
 
 	// In Range?
 	if(plotDistance(pSourcePlot->getX(), pSourcePlot->getY(), pTargetPlot->getX(), pTargetPlot->getY()) > GetRange())
@@ -26574,8 +26547,7 @@ bool CvUnit::SentryAlert() const
 				CvPlot* pPlot = ::plotXYWithRangeCheck(getX(), getY(), iX, iY, iRange);
 				if(NULL != pPlot)
 				{
-					// because canSeePlot() adds one to the range internally
-					if(plot()->canSeePlot(pPlot, getTeam(), (iRange - 1), NO_DIRECTION))
+					if(plot()->canSeePlot(pPlot, getTeam(), iRange, NO_DIRECTION))
 					{
 						if(pPlot->isVisibleEnemyUnit(this))
 						{

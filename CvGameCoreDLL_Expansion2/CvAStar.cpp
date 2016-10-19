@@ -34,6 +34,7 @@
 #define PATH_END_TURN_FOREIGN_TERRITORY							(PATH_BASE_COST*10)		//per turn end plot outside of our territory
 #define PATH_END_TURN_NO_ROUTE									(PATH_BASE_COST*10)		//when in doubt, prefer to end the turn on a plot with a route
 #define PATH_END_TURN_WATER										(PATH_BASE_COST*20)		//embarkation should be avoided (land units only)
+#define PATH_END_TURN_INVISIBLE_WEIGHT							(PATH_BASE_COST*10)		//when in doubt, prefer routes through visible areas
 #define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*90)		//one of these is worth 1.5 plots of detour
 #define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*150)	//one of these is worth 2.5 plots of detour
 #define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_BASE_COST*210)	//one of these is worth 3.5 plots of detour
@@ -73,7 +74,6 @@ protected:
 int giKnownCostWeight = 1;
 int giHeuristicCostWeight = 1;
 int giLastStartIndex = 0;
-int giLastDestinationIndex = 0;
 
 unsigned int saiRuntimeHistogram[100] = {0};
 
@@ -384,24 +384,13 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	if ( timer.GetDeltaInSeconds()>0.1 && data.ePathType!=PT_UNIT_REACHABLE_PLOTS && data.ePathType!=PT_GENERIC_REACHABLE_PLOTS )
 	{
 		//debug hook
-		bool bShowCallstack = false;
-		int iDestinationIndex = GC.getMap().plotNum(m_iXdest, m_iYdest);
 		int iStartIndex = GC.getMap().plotNum(m_iXstart, m_iYstart);
 		if (iStartIndex==giLastStartIndex && iStartIndex>0)
 		{
 			OutputDebugString("Repeated pathfinding start\n");
-			bShowCallstack = true;
-		}
-		if (iDestinationIndex==giLastDestinationIndex && iDestinationIndex>0)
-		{
-			OutputDebugString("Repeated pathfinding destination\n");
-			bShowCallstack = true;
+			gStackWalker.ShowCallstack();
 		}
 		giLastStartIndex = iStartIndex;
-		giLastDestinationIndex = iDestinationIndex;
-
-		//if (bShowCallstack)
-		//	gStackWalker.ShowCallstack();
 
 		int iNumPlots = GC.getMap().numPlots();
 		CvUnit* pUnit = m_sData.iUnitID>0 ? GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID) : NULL;
@@ -888,8 +877,18 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 	kToNodeCacheData.bContainsEnemyCity = pPlot->isEnemyCity(*pUnit);
 	if (kToNodeCacheData.bPlotVisibleToTeam)
 	{
-		kToNodeCacheData.bContainsVisibleEnemy = pPlot->isVisibleEnemyUnit(pUnit);
-		kToNodeCacheData.bContainsVisibleEnemyDefender = pPlot->isVisibleEnemyDefender(pUnit);
+		bool bIgnore = false;
+		if (finder->HaveFlag(CvUnit::MOVEFLAG_SELECTIVE_ZOC))
+		{
+			const set<int>& ignoreEnemies = finder->GetData().plotsToIgnoreForZOC;
+			bIgnore = (ignoreEnemies.find(pPlot->GetPlotIndex()) != ignoreEnemies.end());
+		}
+
+		if (!bIgnore)
+		{
+			kToNodeCacheData.bContainsVisibleEnemy = pPlot->isVisibleEnemyUnit(pUnit);
+			kToNodeCacheData.bContainsVisibleEnemyDefender = pPlot->isVisibleEnemyDefender(pUnit);
+		}
 	}
 	else
 	{
@@ -1149,6 +1148,10 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 	//danger check
 	if ( pUnitDataCache->DoDanger() )
 	{
+		//invisible plots might be dangerous without us knowing
+		if (!pToPlot->isVisible(eUnitTeam))
+			iCost += PATH_END_TURN_INVISIBLE_WEIGHT;
+
 		//note: this includes an overkill factor because usually not all enemy units will attack this one unit
 		int iPlotDanger = kToNodeCacheData.iPlotDanger;
 		//we should give more weight to the first end-turn plot, the danger values for future stops are less concrete
@@ -1180,7 +1183,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 
 //	--------------------------------------------------------------------------------
 /// Standard path finder - compute cost of a move
-int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData&, CvAStar* finder)
+int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPathFinderUserData& data, CvAStar* finder)
 {
 	int iStartMoves = parent->m_iMoves;
 	int iTurns = parent->m_iTurns;
@@ -1230,7 +1233,12 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, int, const SPat
 		int iMaxMoves = pUnitDataCache->baseMoves(pToPlot->getDomain())*GC.getMOVE_DENOMINATOR(); //important, use the cached value
 
 		if (bCheckZOC)
-			iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves);
+		{
+			if (finder->HaveFlag(CvUnit::MOVEFLAG_SELECTIVE_ZOC))
+				iMovementCost = CvUnitMovement::MovementCostSelectiveZOC(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves, data.plotsToIgnoreForZOC);
+			else
+				iMovementCost = CvUnitMovement::MovementCost(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves);
+		}
 		else
 			iMovementCost = CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iStartMoves, iMaxMoves);
 	}
@@ -1429,7 +1437,7 @@ int PathAdd(CvAStarNode*, CvAStarNode* node, int operation, const SPathFinderUse
 	if(operation == ASNC_INITIALADD)
 	{
 		//in this case we did not call PathCost() before, so we have to set the initial values here
-		node->m_iMoves = pUnit->movesLeft();
+		node->m_iMoves = finder->GetData().iStartMoves;
 		node->m_iTurns = 1;
 
 		UpdateNodeCacheData(node,pUnit,pCacheData->DoDanger(),finder);
@@ -1810,6 +1818,7 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SP
 	PlayerTypes ePlayer = data.ePlayer;
 	RouteTypes eRoute = (RouteTypes)data.iTypeParameter;
 
+	CvPlot* pOldPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 
@@ -1823,12 +1832,13 @@ int RouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SP
 		//what else can count as road depends on the player type
 		if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad())
 		{
-			if(pNewPlot->isRiver())
+			if(pNewPlot->isRiver() && pOldPlot->isRiver())
 				ePlotRoute = ROUTE_ROAD;
 		}
 		if(kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus())
 		{
-			if(pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE)
+			if( (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE) && 
+				(pOldPlot->getFeatureType() == FEATURE_FOREST || pOldPlot->getFeatureType() == FEATURE_JUNGLE))
 				ePlotRoute = ROUTE_ROAD;
 		}
 	}
@@ -2919,6 +2929,7 @@ SPathFinderUserData::SPathFinderUserData(const CvUnit* pUnit, int _iFlags, int _
 	iTypeParameter = -1; //typical invalid enum
 	iMaxNormalizedDistance = INT_MAX;
 	iMinMovesLeft = 0;
+	iStartMoves = pUnit->getMoves();
 }
 
 //	---------------------------------------------------------------------------

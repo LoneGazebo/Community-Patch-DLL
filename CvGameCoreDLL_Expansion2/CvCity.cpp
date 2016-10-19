@@ -1474,7 +1474,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iCityRank = 0;
 	m_iTurnsSinceRankAnnouncement = 0;
-	m_aiEconomicValue.resize(MAX_MAJOR_CIVS);
+	m_aiEconomicValue.resize(MAX_MAJOR_CIVS,0);
 #endif
 	m_aiBaseYieldRateFromReligion.resize(NUM_YIELD_TYPES);
 #if defined(MOD_BALANCE_CORE)	
@@ -1646,10 +1646,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
 		m_abUnitInvestment.setAt(iI, false);
-	}
-	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		m_aiEconomicValue.setAt(iI, 0);
 	}
 #endif
 
@@ -2048,11 +2044,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		}
 
 		m_aiEconomicValue.clear();
-		m_aiEconomicValue.resize(MAX_MAJOR_CIVS);
-		for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-		{
-			m_aiEconomicValue.setAt(iI, 0);
-		}
+		m_aiEconomicValue.resize(MAX_MAJOR_CIVS,0);
 #endif
 		
 	}
@@ -6985,10 +6977,12 @@ void CvCity::updateEconomicValue()
 			validResources.push_back(eResource, iResourceQuantity);
 		} //owned plots
 	} //all plots
-	PlayerTypes ePossibleOwner;
+
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		ePossibleOwner = (PlayerTypes)iPlayerLoop;
+		PlayerTypes ePossibleOwner = (PlayerTypes)iPlayerLoop;
+		m_aiEconomicValue.setAt(iPlayerLoop, 0); //everybody gets a new value
+
 		if (ePossibleOwner != NO_PLAYER && GET_PLAYER(ePossibleOwner).isAlive())
 		{
 			int iResourceValue = 0;
@@ -7037,20 +7031,24 @@ void CvCity::updateEconomicValue()
 				}
 			}
 
-			int iTotal = (iYieldValue + iResourceValue);
-			if (getEconomicValue(ePossibleOwner) != iTotal)
-			{
-				m_aiEconomicValue.setAt(ePossibleOwner, iTotal);
-			}
+			m_aiEconomicValue.setAt(ePossibleOwner, iYieldValue + iResourceValue);
 		}
 	}
 }
-int CvCity::getEconomicValue(PlayerTypes ePossibleOwner) const
+
+int CvCity::getEconomicValue(PlayerTypes ePossibleOwner)
 {
+	if (ePossibleOwner==NO_PLAYER || ePossibleOwner>=MAX_MAJOR_CIVS)
+		return 0;
+
+	if ((int)m_aiEconomicValue.size() <= ePossibleOwner)
+		updateEconomicValue();
+
 	return m_aiEconomicValue[ePossibleOwner];
 }
 
 #endif
+
 #if defined(MOD_BALANCE_CORE_SPIES)
 void CvCity::SetRank(int iRank)
 {
@@ -28566,14 +28564,13 @@ bool CvCity::CanRangeStrikeNow() const
 	{
 		for(int iDY = -iRange; iDY <= iRange; iDY++)
 		{
-			CvPlot* pTargetPlot = plotXY(iX, iY, iDX, iDY);
-			bool bCanRangeStrike = true;
-
+			CvPlot* pTargetPlot = plotXYWithRangeCheck(iX, iY, iDX, iDY, iRange);
 			if(!pTargetPlot)
 			{
 				continue;
 			}
 
+			bool bCanRangeStrike = true;
 			if(!bIndirectFireAllowed)
 			{
 				if(!pPlot->canSeePlot(pTargetPlot, eTeam, iRange, NO_DIRECTION))
@@ -28581,7 +28578,6 @@ bool CvCity::CanRangeStrikeNow() const
 					bCanRangeStrike = false;
 				}
 			}
-
 
 			if(bCanRangeStrike)
 			{

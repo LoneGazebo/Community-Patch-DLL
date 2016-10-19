@@ -6664,7 +6664,7 @@ CvPlot* MilitaryAIHelpers::GetCoastalPlotNearPlot(CvPlot *pTarget)
 			pAdjacentPlot->isShallowWater() && //coastal
 			pAdjacentPlot->getFeatureType()==NO_FEATURE && //no ice
 			pAdjacentPlot->isLake()==false && //no lake
-			pAdjacentPlot->countPassableNeighbors(true)>2) //no bays
+			pAdjacentPlot->countPassableNeighbors(DOMAIN_SEA)>2) //no bays
 		{
 			return pAdjacentPlot;
 		}

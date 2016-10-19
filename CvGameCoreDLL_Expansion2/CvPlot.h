@@ -169,7 +169,7 @@ public:
 	int getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int iNowExtra, int iThenExtra) const;
 	int getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity** ppCity) const;
 
-	CvUnit* getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bTestPotentialEnemy = false, bool bTestCanMove = false, bool bNoncombatAllowed = false) const;
+	CvUnit* getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bIgnoreVisibility = false, bool bTestCanMove = false, bool bNoncombatAllowed = false) const;
 	CvUnit* getBestGarrison(PlayerTypes eOwner) const;
 	CvUnit* getSelectedUnit() const;
 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;
@@ -206,7 +206,7 @@ public:
 	int GetNumAdjacentMountains() const;
 	int GetNumPassableNeighbors(int iRings, PlayerTypes ePlayer, DomainTypes eDomain) const;
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	int countPassableNeighbors(bool bWater, CvPlot** aPassableNeighbors=NULL) const;
+	int countPassableNeighbors(DomainTypes eDomain=NO_DOMAIN, CvPlot** aPassableNeighbors=NULL) const;
 	bool IsChokePoint() const;
 	bool IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const;
 #endif
@@ -317,6 +317,9 @@ public:
 	bool isVisibleEnemyUnit(PlayerTypes ePlayer) const;
 	bool isVisibleEnemyUnit(const CvUnit* pUnit) const;
 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;
+
+	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility) const;
+	bool isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility) const;
 
 	//units which can cause or lift a blockade
 	bool IsBlockadeUnit(PlayerTypes ePlayer, bool bFriendly) const;

@@ -950,19 +950,6 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 #endif
-			// ... enemy civilian (or embarked) unit?
-			else if(pLoopPlot->isVisibleOtherUnit(m_pPlayer->GetID()))
-			{
-				CvUnit* pTargetUnit = pLoopPlot->getUnitByIndex(0);
-				if(!pTargetUnit->isDelayedDeath() && atWar(eTeam, pTargetUnit->getTeam()) && !pTargetUnit->IsCanDefend())
-				{
-					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
-					newTarget.SetTargetX(pLoopPlot->getX());
-					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxData(pLoopPlot);
-					m_TargetedAncientRuins.push_back(newTarget);
-				}
-			}
 			// ... empty barb camp?
 			else if(pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() && pLoopPlot->getNumDefenders(BARBARIAN_PLAYER) <= 0)
 			{

@@ -22,7 +22,6 @@
 //
 class CvRandom;
 class CvGame;
-class CvPlayerAI;
 class CvStepFinder;
 class CvTwoLayerPathFinder;
 class CvInterface;

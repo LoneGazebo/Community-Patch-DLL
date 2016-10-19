@@ -19,20 +19,20 @@ typedef std::vector<std::pair<PlayerTypes,int>> DangerUnitVector;
 typedef std::vector<std::pair<PlayerTypes,int>> DangerCityVector;
 typedef std::set<std::pair<PlayerTypes,int>> UnitSet;
 
-struct SUnitStats
+struct SUnitInfo
 {
-	SUnitStats(const CvUnit* pUnit=NULL)
+	SUnitInfo(const CvUnit* pUnit=NULL)
 	{
 		m_pUnit = pUnit;
 		m_x = pUnit ? pUnit->plot()->getX() : 0;
 		m_y = pUnit ? pUnit->plot()->getY() : 0;
 		m_damage = pUnit ? pUnit->getDamage() : 0;
 	}
-	const bool operator<(const SUnitStats& rhs) const
+	const bool operator<(const SUnitInfo& rhs) const
 	{
 		return m_pUnit<rhs.m_pUnit;
 	}
-	const bool operator==(const SUnitStats& rhs) const
+	const bool operator==(const SUnitInfo& rhs) const
 	{
 		return (m_pUnit==rhs.m_pUnit && m_x==rhs.m_x && m_y==rhs.m_y && m_damage==rhs.m_damage);
 	}
@@ -68,7 +68,7 @@ struct CvDangerPlotContents
 		m_apCities.clear();
 
 		//reset cache
-		m_lastUnit = SUnitStats(NULL);
+		m_lastUnit = SUnitInfo(NULL);
 		m_lastResult = 0;
 	};
 
@@ -93,7 +93,7 @@ struct CvDangerPlotContents
 	DangerCityVector m_apCities;
 
 	//caching ...
-	SUnitStats m_lastUnit;
+	SUnitInfo m_lastUnit;
 	int m_lastResult;
 };
 

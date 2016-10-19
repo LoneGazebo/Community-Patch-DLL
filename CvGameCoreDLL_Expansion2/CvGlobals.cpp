@@ -4647,11 +4647,8 @@ bool CvGlobals::GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, 
 				{
 					strOut += "V ";
 				}
-				if(pCell->IsEnemyCanMovePast())
-				{
-					strOut += "A+ ";
-				}
-				else if(pCell->IsNotVisibleToEnemy())
+
+				if(pCell->IsNotVisibleToEnemy())
 				{
 					strOut += "N ";
 				}
@@ -4662,14 +4659,6 @@ bool CvGlobals::GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, 
 				if(pCell->IsFriendlyTurnEndTile())
 				{
 					strOut += "E ";
-				}
-				if(pCell->IsWithinRangeOfTarget())
-				{
-					strOut += "T ";
-				}
-				if(pCell->IsHelpsProvidesFlankBonus())
-				{
-					strOut += "F ";
 				}
 				if(pCell->GetDominanceZone() != -1)
 				{

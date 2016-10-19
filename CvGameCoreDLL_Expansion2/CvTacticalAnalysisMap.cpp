@@ -421,12 +421,10 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 
 		//for ranged every plot we can enter with movement left is a base for attack
 		int iMinMovesLeft = pUnit->IsCanAttackRanged() ? 1 : 0;
-		if (pUnit->isMustSetUpToRangedAttack())
-			iMinMovesLeft += GC.getMOVE_DENOMINATOR();
 
 		//be a bit conservative here, use ZOC - if one of our units is killed, this is not correct anymore
 		//therefore we later do a dilation filter on the cells
-		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),tiles,false,true,false,iMinMovesLeft);
+		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit,pUnit->plot(),tiles,false,true,false,iMinMovesLeft,-1,set<int>());
 
 		for (ReachablePlots::iterator moveTile=tiles.begin(); moveTile!=tiles.end(); ++moveTile)
 		{
@@ -435,10 +433,9 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 
 			if (pUnit->IsCanAttackRanged())
 			{
-				m_pCells[iPlotIndex].SetEnemyCanMovePast(true);
 				std::set<int> rangedPlots;
 				//this generates some overlap, but preventing that is about as bad as ignoring it
-				TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,pMoveTile,rangedPlots);
+				TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,pMoveTile,rangedPlots,false,false);
 				for (std::set<int>::iterator attackTile=rangedPlots.begin(); attackTile!=rangedPlots.end(); ++attackTile)
 				{
 					m_pCells[*attackTile].SetSubjectToAttack(true);
@@ -448,8 +445,6 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 			{
 				//for melee every tile he can move into can be attacked
 				m_pCells[iPlotIndex].SetSubjectToAttack(true);
-				if (moveTile->iMovesLeft>0)
-					m_pCells[iPlotIndex].SetEnemyCanMovePast(true);
 			}
 		}
 	}
@@ -527,44 +522,10 @@ void CvTacticalAnalysisMap::ClearDynamicFlags()
 	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		// Erase this cell
-		m_pCells[iI].SetWithinRangeOfTarget(false);
-		m_pCells[iI].SetHelpsProvidesFlankBonus(false);
 		m_pCells[iI].SetSafeForDeployment(false);
 		m_pCells[iI].SetDeploymentScore(0);
 		m_pCells[iI].SetTargetDistance(INT_MAX);
 		m_pCells[iI].SetHasLOS(false);
-	}
-}
-
-// Mark cells we can use to bomb a specific target
-void CvTacticalAnalysisMap::SetTargetFlankBonusCells(CvPlot* pTarget)
-{
-	CvPlot* pLoopPlot;
-	int iCellIndex;
-
-	// No flank attacks on units at sea (where all combat is bombards)
-	//if(pTarget->isWater())
-	//{
-	//	return;
-	//}
-
-	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		pLoopPlot = plotDirection(pTarget->getX(), pTarget->getY(), ((DirectionTypes)iI));
-		if(pLoopPlot != NULL)
-		{
-			iCellIndex = GC.getMap().plotNum(pLoopPlot->getX(), pLoopPlot->getY());
-			if(m_pCells[iCellIndex].IsRevealed() && !m_pCells[iCellIndex].IsImpassableTerrain() && !m_pCells[iCellIndex].IsImpassableTerritory())
-			{
-				if(!m_pCells[iCellIndex].IsFriendlyCity() && !m_pCells[iCellIndex].IsEnemyCity() && !m_pCells[iCellIndex].IsNeutralCity())
-				{
-					if(!m_pCells[iCellIndex].IsFriendlyTurnEndTile() && !m_pCells[iCellIndex].IsEnemyCombatUnit())
-					{
-						m_pCells[iCellIndex].SetHelpsProvidesFlankBonus(true);
-					}
-				}
-			}
-		}
 	}
 }
 
