@@ -147,7 +147,6 @@ public:
 	ContractList m_InactiveContracts;
 };
 
-
 FDataStream& operator>>(FDataStream&, CvGameContracts&);
 FDataStream& operator<<(FDataStream&, const CvGameContracts&);
 
@@ -161,13 +160,13 @@ FDataStream& operator<<(FDataStream&, const CvGameContracts&);
 class CvPlayerContracts
 {
 public:
-	CvPlayerContracts(void);
-	virtual ~CvPlayerContracts(void);
+	CvPlayerContracts();
+	virtual ~CvPlayerContracts();
 	void Init(CvPlayer* pPlayer);
 	void Uninit();
 	void Reset();
-	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	virtual void Read(FDataStream& kStream);
+	virtual void Write(FDataStream& kStream) const;
 
 	CvContract* GetContract(ContractTypes eContract);
 
@@ -198,9 +197,6 @@ private:
 	CvPlayer* m_pPlayer;
 
 };
-
-FDataStream& operator>>(FDataStream&, CvPlayerContracts&);
-FDataStream& operator<<(FDataStream&, const CvPlayerContracts&);
 
 #endif
 #endif

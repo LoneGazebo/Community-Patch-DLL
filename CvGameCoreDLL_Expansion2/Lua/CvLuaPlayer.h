@@ -1168,6 +1168,7 @@ protected:
 	static int lIsDiplomaticMarriage(lua_State* L);
 	static int lIsGPWLTKD(lua_State* L);
 	static int lIsCarnaval(lua_State* L);
+	static int lGetTraitConquestOfTheWorldCityAttackMod(lua_State* L);
 #endif
 	static int lIsUsingMayaCalendar(lua_State* L);
 	static int lGetMayaCalendarString(lua_State* L);

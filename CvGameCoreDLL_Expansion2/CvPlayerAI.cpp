@@ -69,8 +69,7 @@ void CvPlayerAI::initStatics()
 
 void CvPlayerAI::freeStatics()
 {
-	delete[] m_aPlayers;
-	m_aPlayers = NULL;
+	SAFE_DELETE_ARRAY(m_aPlayers);
 }
 
 // Public Functions...

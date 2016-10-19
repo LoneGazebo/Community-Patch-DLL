@@ -748,6 +748,13 @@ CvPlayer::~CvPlayer()
 	SAFE_DELETE(m_pDiplomacyAI);
 	SAFE_DELETE(m_pReligions);
 	SAFE_DELETE(m_pReligionAI);
+	SAFE_DELETE(m_pPlayerTechs);
+	SAFE_DELETE(m_pFlavorManager);
+	SAFE_DELETE(m_pTacticalAI);
+	SAFE_DELETE(m_pHomelandAI);
+	SAFE_DELETE(m_pMinorCivAI);
+	SAFE_DELETE(m_pDealAI);
+	SAFE_DELETE(m_pBuilderTaskingAI);
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE(m_pCorporations);
 	SAFE_DELETE(m_pContracts);

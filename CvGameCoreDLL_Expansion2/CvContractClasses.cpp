@@ -309,8 +309,8 @@ CvPlayerContracts::~CvPlayerContracts()
 /// Initialize class data
 void CvPlayerContracts::Init(CvPlayer* pPlayer)
 {
-	m_pPlayer = pPlayer;
 	Reset();
+	m_pPlayer = pPlayer;
 }
 
 /// Cleanup
@@ -321,7 +321,7 @@ void CvPlayerContracts::Uninit()
 /// Reset
 void CvPlayerContracts::Reset()
 {
-
+	m_pPlayer = NULL;
 }
 
 CvContract* CvPlayerContracts::GetContract(ContractTypes eContract)
@@ -644,7 +644,7 @@ void CvPlayerContracts::Read(FDataStream& kStream)
 }
 
 /// Serialization write
-void CvPlayerContracts::Write(FDataStream& kStream)
+void CvPlayerContracts::Write(FDataStream& kStream) const
 {
 	// Current version number
 	uint uiVersion = 1;

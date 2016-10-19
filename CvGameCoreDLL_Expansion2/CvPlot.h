@@ -1139,13 +1139,17 @@ void ClearPlotDeltas();
 struct SPlotWithScore
 {
 	SPlotWithScore(CvPlot* pPlot_, int score_) : pPlot(pPlot_), score(score_) {}
-    bool operator<(const SPlotWithScore& other) const
+    bool operator<(const SPlotWithScore& other) const //for sorting
     {
         return score < other.score;
     }
     bool operator<(const int ref) const
     {
         return score < ref;
+    }
+    bool operator==(const SPlotWithScore& other) const //for std::find
+    {
+        return pPlot == other.pPlot;
     }
 
 	CvPlot* pPlot;

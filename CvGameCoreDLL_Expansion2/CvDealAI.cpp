@@ -169,6 +169,11 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 			bDealAcceptable = true;
 			pDeal->SetRequestingPlayer(NO_PLAYER);
 		}
+		else if (GetPlayer()->GetDiplomacyAI()->IsOfferingGift(eFromPlayer))
+		{
+			bDealAcceptable = true;
+			GetPlayer()->GetDiplomacyAI()->SetOfferingGift(eFromPlayer, false);
+		}
 		//Getting 'error' values in this deal? It is bad, abort!
 		else if((iValueTheyreOffering == INT_MAX) || (iValueImOffering == INT_MAX) || (iDealValueToMe == INT_MAX))
 		{

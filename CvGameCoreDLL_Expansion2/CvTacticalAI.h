@@ -1023,7 +1023,7 @@ private:
 #if defined(MOD_CORE_NEW_DEPLOYMENT_LOGIC)
 struct STacticalAssignment
 {
-	enum eAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_ENDTURN, A_BLOCKED };
+	enum eAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_ENDTURN, A_BLOCKED, A_PILLAGE };
 
 	eAssignmentType eType;
 	int iUnitID;
@@ -1177,7 +1177,7 @@ public:
 	bool makeNextAssignments(int iMaxBranches);
 	bool haveTacticalPlot(const CvPlot* pPlot) const;
 	void addTacticalPlot(const CvPlot* pPlot);
-	void addAvailableUnit(const CvUnit* pUnit);
+	bool addAvailableUnit(const CvUnit* pUnit);
 	int countChildren() const;
 
 	const CvTacticalPlot& getTactPlot(int plotindex) const;
