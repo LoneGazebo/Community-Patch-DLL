@@ -206,7 +206,7 @@ public:
 	int GetNumAdjacentMountains() const;
 	int GetNumPassableNeighbors(int iRings, PlayerTypes ePlayer, DomainTypes eDomain) const;
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	int countPassableNeighbors(bool bWater, CvPlot** aPassableNeighbors=NULL) const;
+	int countPassableNeighbors(DomainTypes eDomain=NO_DOMAIN, CvPlot** aPassableNeighbors=NULL) const;
 	bool IsChokePoint() const;
 	bool IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const;
 #endif

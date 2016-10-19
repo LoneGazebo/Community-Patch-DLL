@@ -421,8 +421,6 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 
 		//for ranged every plot we can enter with movement left is a base for attack
 		int iMinMovesLeft = pUnit->IsCanAttackRanged() ? 1 : 0;
-		if (pUnit->isMustSetUpToRangedAttack())
-			iMinMovesLeft += GC.getMOVE_DENOMINATOR();
 
 		//be a bit conservative here, use ZOC - if one of our units is killed, this is not correct anymore
 		//therefore we later do a dilation filter on the cells
@@ -437,7 +435,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 			{
 				std::set<int> rangedPlots;
 				//this generates some overlap, but preventing that is about as bad as ignoring it
-				TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,pMoveTile,rangedPlots,false);
+				TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,pMoveTile,rangedPlots,false,false);
 				for (std::set<int>::iterator attackTile=rangedPlots.begin(); attackTile!=rangedPlots.end(); ++attackTile)
 				{
 					m_pCells[*attackTile].SetSubjectToAttack(true);

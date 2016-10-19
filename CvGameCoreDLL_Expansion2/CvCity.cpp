@@ -7038,13 +7038,13 @@ void CvCity::updateEconomicValue()
 
 int CvCity::getEconomicValue(PlayerTypes ePossibleOwner)
 {
+	if (ePossibleOwner==NO_PLAYER || ePossibleOwner>=MAX_MAJOR_CIVS)
+		return 0;
+
 	if ((int)m_aiEconomicValue.size() <= ePossibleOwner)
 		updateEconomicValue();
 
-	if (ePossibleOwner!=NO_PLAYER && ePossibleOwner<(int)m_aiEconomicValue.size())
-		return m_aiEconomicValue[ePossibleOwner];
-	else
-		return 0;
+	return m_aiEconomicValue[ePossibleOwner];
 }
 
 #endif
@@ -28564,14 +28564,13 @@ bool CvCity::CanRangeStrikeNow() const
 	{
 		for(int iDY = -iRange; iDY <= iRange; iDY++)
 		{
-			CvPlot* pTargetPlot = plotXY(iX, iY, iDX, iDY);
-			bool bCanRangeStrike = true;
-
+			CvPlot* pTargetPlot = plotXYWithRangeCheck(iX, iY, iDX, iDY, iRange);
 			if(!pTargetPlot)
 			{
 				continue;
 			}
 
+			bool bCanRangeStrike = true;
 			if(!bIndirectFireAllowed)
 			{
 				if(!pPlot->canSeePlot(pTargetPlot, eTeam, iRange, NO_DIRECTION))
@@ -28579,7 +28578,6 @@ bool CvCity::CanRangeStrikeNow() const
 					bCanRangeStrike = false;
 				}
 			}
-
 
 			if(bCanRangeStrike)
 			{

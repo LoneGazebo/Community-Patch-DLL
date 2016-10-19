@@ -1091,7 +1091,8 @@ public:
 	void setInitialState(const CvPlot* plot, PlayerTypes ePlayer); //set initial state depending on current plot status
 	void update(CvTacticalPosition& currentPosition, bool bFriendlyCombatUnitPresent, bool bEnemyUnitPresent, bool bEnemyCityPresent, bool bSupportPresent);	//set fictional state
 	void findType(const CvTacticalPosition& currentPosition, set<int>& outstandingUpdates);
-	bool isValid() const { return pPlot!=NULL; }
+	bool isValid() const { return bValid; }
+	void setValid(bool bState) { bValid=bState; }
 	bool hasSupportBonus() const { return bSupportUnitPresent || nSupportUnitsAdjacent>0; } //not 100% correct because general has range 2
 	void changeNeighboringSupportUnitCount(CvTacticalPosition& currentPosition, int iChange);
 
@@ -1103,6 +1104,7 @@ protected:
 	int nSupportUnitsAdjacent; //for general bonus
 
 	//note that blocked by neutral cannot occur, we don't even create tactical plots in that case!
+	bool bValid;
 	bool bBlockedByEnemyCity;
 	bool bBlockedByEnemyCombatUnit;
 	bool bEnemyCivilianPresent;
@@ -1148,13 +1150,14 @@ protected:
 	bool getRangeAttackPlotsForUnit(int iUnit, set<int>& out) const;
 	vector<STacticalAssignment> getPreferredAssignmentsForUnit(SUnitStats unit, int nMaxCount) const;
 	CvTacticalPosition* addChild();
-	void addAssignment(STacticalAssignment newAssignment);
+	bool removeChild(CvTacticalPosition* pChild);
+	bool addAssignment(STacticalAssignment newAssignment);
 	bool isBlockedMove(const STacticalAssignment& move) const;
-	void findCompatibleMoves(vector<STacticalAssignment>& chosen, const vector<STacticalAssignment>& choice) const;
+	void findCompatibleMoves(vector<STacticalAssignment>& chosen, const vector<STacticalAssignment>& choice, size_t nMaxCombinedMoves) const;
 	bool movesAreCompatible(const STacticalAssignment& A, const STacticalAssignment& B) const;
 	bool movesAreEquivalent(const vector<STacticalAssignment>& seqA, const vector<STacticalAssignment>& seqB) const;
 	int findBlockingUnitAtPlot(int iPlotIndex) const;
-	vector<int> getPlotsMadeVisibleByMove(const STacticalAssignment& assignment) const;
+	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible, vector<int>& madeInvisible) const;
 
 	//finding a particular unit
 	struct PrMatchingUnit
@@ -1210,8 +1213,8 @@ namespace TacticalAIHelpers
 									bool bCheckTerritory, bool bCheckZOC, bool bAllowEmbark, 
 									int iMinMovesLeft, int iStartMoves, const set<int>& plotsToIgnoreForZOC);
 
-	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, std::set<int>& resultSet, bool bOnlyWithEnemy);
-	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlots& basePlots, std::set<int>& resultSet, bool bOnlyWithEnemy);
+	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, std::set<int>& resultSet, bool bOnlyWithEnemy, bool bIgnoreVisibility);
+	int GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlots& basePlots, std::set<int>& resultSet, bool bOnlyWithEnemy,  bool bIgnoreVisibility);
 
 	bool PerformRangedAttackWithoutMoving(CvUnit* pUnit);
 	bool PerformOpportunityAttack(CvUnit* pUnit, const CvPlot* pTarget);

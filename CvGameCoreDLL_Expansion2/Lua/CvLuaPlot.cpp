@@ -1993,7 +1993,8 @@ int CvLuaPlot::lCanSeePlot(lua_State* L)
 	bool bCanSee = false;
 	if(pkThisPlot)
 	{
-		bCanSee = pkThisPlot->canSeePlot(pkThatPlot, eTeam, iRange, eFacingDirection);
+		//need to add one to the range to maintain backward compatibility
+		bCanSee = pkThisPlot->canSeePlot(pkThatPlot, eTeam, iRange + 1, eFacingDirection);
 	}
 
 	lua_pushboolean(L, bCanSee);

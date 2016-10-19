@@ -1874,8 +1874,6 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 //	--------------------------------------------------------------------------------
 bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const
 {
-	iRange++;
-
 	if(pPlot == NULL)
 	{
 		return false;
@@ -1892,7 +1890,6 @@ bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, Direct
 	int destY = pPlot->getY();
 
 	int iDistance = plotDistance(startX, startY, destX,  destY);
-
 	if(iDistance <= iRange)
 	{
 		//find displacement
@@ -1907,7 +1904,7 @@ bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, Direct
 		dy = dyWrap(dy);
 
 		//check if in facing direction
-		if(shouldProcessDisplacementPlot(dx, dy, iRange - 1, eFacingDirection))
+		if(shouldProcessDisplacementPlot(dx, dy, iRange, eFacingDirection))
 		{
 			if(iDistance == 1)
 			{
@@ -3679,7 +3676,7 @@ int CvPlot::GetNumPassableNeighbors(int iRings, PlayerTypes ePlayer, DomainTypes
 }
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-int CvPlot::countPassableNeighbors(bool bWater, CvPlot** aPassableNeighbors) const
+int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighbors) const
 {
 	int iPassable = 0;
 	CvPlot* pAdjacentPlot;
@@ -3689,7 +3686,7 @@ int CvPlot::countPassableNeighbors(bool bWater, CvPlot** aPassableNeighbors) con
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 		if(pAdjacentPlot != NULL)
 		{
-			if (bWater == pAdjacentPlot->isWater() && !pAdjacentPlot->isImpassable(BARBARIAN_TEAM))
+			if ( (eDomain==NO_DOMAIN || eDomain==pAdjacentPlot->getDomain()) && !pAdjacentPlot->isImpassable(BARBARIAN_TEAM))
 			{
 				if (aPassableNeighbors)
 					aPassableNeighbors[iPassable] = pAdjacentPlot;
@@ -3707,7 +3704,7 @@ bool CvPlot::IsChokePoint() const
 		return false;
 
 	CvPlot* aPassableNeighbors[NUM_DIRECTION_TYPES];
-	int iPassable = countPassableNeighbors(false, aPassableNeighbors);
+	int iPassable = countPassableNeighbors(DOMAIN_LAND, aPassableNeighbors);
 
 	//a plot is a chokepoint if it has between two and four passable land plots as neighbors
 	if (iPassable<2 || iPassable>4)
@@ -3718,7 +3715,7 @@ bool CvPlot::IsChokePoint() const
 	CvPlot* aPassableNeighborsNonPeninsula[NUM_DIRECTION_TYPES];
 	for (int iI = 0; iI<iPassable; iI++)
 	{
-		if (aPassableNeighbors[iI]->countPassableNeighbors(false,NULL)>2)
+		if (aPassableNeighbors[iI]->countPassableNeighbors(DOMAIN_SEA,NULL)>2)
 		{
 			aPassableNeighborsNonPeninsula[iPassableAndNoPeninsula] = aPassableNeighbors[iI];
 			iPassableAndNoPeninsula++;
@@ -15566,32 +15563,28 @@ void CvPlot::UpdatePlotsWithLOS()
 	m_vPlotsWithLineOfSightToHere2.clear();
 	m_vPlotsWithLineOfSightToHere3.clear();
 
-	int iMaxRange = 3;
-	for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
+	for (int i=RING1_PLOTS; i<RING2_PLOTS; i++)
 	{
-		for(int iDY = -iMaxRange; iDY <= iMaxRange; iDY++)
-		{
-			CvPlot* pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
-			if(pLoopPlot != NULL)
-			{
-				int iDistance = plotDistance(*this,*pLoopPlot);
-				switch (iDistance)
-				{
-				case 2:
-					if (pLoopPlot->canSeePlot(this, NO_TEAM, 2, NO_DIRECTION))
-						m_vPlotsWithLineOfSightToHere2.push_back(pLoopPlot);
-					if (this->canSeePlot(pLoopPlot, NO_TEAM, 2, NO_DIRECTION))
-						m_vPlotsWithLineOfSightFromHere2.push_back(pLoopPlot);
-					break;
-				case 3:
-					if (pLoopPlot->canSeePlot(this, NO_TEAM, 3, NO_DIRECTION))
-						m_vPlotsWithLineOfSightToHere3.push_back(pLoopPlot);
-					if (this->canSeePlot(pLoopPlot, NO_TEAM, 3, NO_DIRECTION))
-						m_vPlotsWithLineOfSightFromHere3.push_back(pLoopPlot);
-					break;
-				}
-			}
-		}
+		CvPlot* pLoopPlot = iterateRingPlots(this,i);
+		if (!pLoopPlot)
+			continue;
+
+		if (pLoopPlot->canSeePlot(this, NO_TEAM, 2, NO_DIRECTION))
+			m_vPlotsWithLineOfSightToHere2.push_back(pLoopPlot);
+		if (this->canSeePlot(pLoopPlot, NO_TEAM, 2, NO_DIRECTION))
+			m_vPlotsWithLineOfSightFromHere2.push_back(pLoopPlot);
+	}
+
+	for (int i=RING2_PLOTS; i<RING3_PLOTS; i++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(this,i);
+		if (!pLoopPlot)
+			continue;
+
+		if (pLoopPlot->canSeePlot(this, NO_TEAM, 3, NO_DIRECTION))
+			m_vPlotsWithLineOfSightToHere3.push_back(pLoopPlot);
+		if (this->canSeePlot(pLoopPlot, NO_TEAM, 3, NO_DIRECTION))
+			m_vPlotsWithLineOfSightFromHere3.push_back(pLoopPlot);
 	}
 }
 

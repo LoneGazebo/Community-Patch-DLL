@@ -103,12 +103,32 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	// preparation done, now here comes the interesting part
 	//----
 
+	//check border obstacle - great wall ends the turn
+	TeamTypes eToTeam = pToPlot->getTeam();
+	TeamTypes eFromTeam = pFromPlot->getTeam();
+	if(eToTeam != NO_TEAM && eUnitTeam != eToTeam && eToTeam != eFromTeam)
+	{
+		CvTeam& kToPlotTeam = GET_TEAM(eToTeam);
+		CvPlayer& kToPlotPlayer = GET_PLAYER(pToPlot->getOwner());
+
+		if(!kToPlotTeam.IsAllowsOpenBordersToTeam(eUnitTeam))
+		{
+			//only applies on land
+			if(kToPlotTeam.isBorderObstacle() || kToPlotPlayer.isBorderObstacle())
+			{
+				if(!pToPlot->isWater() && pUnit->getDomainType() == DOMAIN_LAND)
+				{
+					return INT_MAX;
+				}
+			}
+		}
+	}
+
 	if(pToPlot->isRoughGround() && pUnit->IsRoughTerrainEndsTurn() && !(bRouteFrom && bRouteTo))
 	{
 		// Is a unit's movement consumed for entering rough terrain?
 		return INT_MAX;
 	}
-#if defined(MOD_BALANCE_CORE)
 	// This is a special Domain unit that can disembark and becomes a land unit. End Turn like normal disembarkation.
 	else if(pUnit->getDomainType() == DOMAIN_SEA && pUnit->isConvertUnit())
 	{
@@ -117,7 +137,6 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			return INT_MAX;
 		}
 	}
-#endif
 	else if (bFullCostEmbarkStateChange)
 	{
 		//embark/disembark ends turn
@@ -203,6 +222,40 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			iRegularCost *= 2;
 		}
 #endif
+
+		//extra movement cost in some instances
+		bool bSlowDown = false;
+		if(eToTeam != NO_TEAM && eUnitTeam != eToTeam)
+		{
+			CvTeam& kToPlotTeam = GET_TEAM(eToTeam);
+			if(!kToPlotTeam.IsAllowsOpenBordersToTeam(eUnitTeam))
+			{
+				//unit itself may have a negative trait ...
+				bSlowDown = pUnit->isMustSetUpToRangedAttack(); //todo: rename this trait!
+
+				if (!bSlowDown)
+				{
+					//city might have special defense buildings
+					CvCity* pCity = pToPlot->getWorkingCity();
+					if (pCity)
+					{
+						if(!pToPlot->isWater() && pUnit->getDomainType() == DOMAIN_LAND)
+						{
+							bSlowDown = (pCity->GetBorderObstacleCity() > 0);
+						}
+						if(pToPlot->isWater() && (pUnit->getDomainType() == DOMAIN_SEA || pToPlot->needsEmbarkation(pUnit)))
+						{
+							bSlowDown = (pCity->GetBorderObstacleWater() > 0);
+						}
+					}
+				}
+			}
+		}
+
+		if (bSlowDown)
+		{
+			iRegularCost += iMoveDenominator;
+		}
 	}
 
 	//check routes
@@ -228,65 +281,6 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		int iRouteFlatCost = std::max(iFromFlatMovementCost * iBaseMoves, iToFlatMovementCost * iBaseMoves);
 
 		iRegularCost = std::min(iRegularCost, std::min(iRouteCost,iRouteFlatCost));
-	}
-
-	//check border obstacles
-	TeamTypes eTeam = pToPlot->getTeam();
-	if(eTeam != NO_TEAM)
-	{
-		CvTeam* pPlotTeam = &GET_TEAM(eTeam);
-		CvPlayer* pPlotPlayer = &GET_PLAYER(pToPlot->getOwner());
-
-		// Great Wall increases movement cost by 1
-		if(pPlotTeam->isBorderObstacle() || pPlotPlayer->isBorderObstacle())
-		{
-			if(!pToPlot->isWater() && pUnit->getDomainType() == DOMAIN_LAND)
-			{
-				// Don't apply penalty to OUR team or teams we've given open borders to
-				if(eUnitTeam != eTeam && !pPlotTeam->IsAllowsOpenBordersToTeam(eUnitTeam))
-				{
-					iRegularCost += iMoveDenominator;
-				}
-			}
-		}
-#if defined(MOD_BALANCE_CORE)
-		else if (eUnitTeam != eTeam)
-		{
-			//cheap checks first
-			if(!pToPlot->isWater() && pUnit->getDomainType() == DOMAIN_LAND)
-			{
-				//Plots worked by city with movement debuff reduce movement speed.
-				CvCity* pCity = pToPlot->getWorkingCity();
-				if(pCity != NULL)
-				{
-					if(pCity->GetBorderObstacleCity() > 0)
-					{
-						// Don't apply penalty to OUR team or teams we've given open borders to
-						if(!pPlotTeam->IsAllowsOpenBordersToTeam(eUnitTeam))
-						{
-							iRegularCost += iMoveDenominator;
-						}
-					}
-				}
-			}
-			if(pToPlot->isWater() && (pUnit->getDomainType() == DOMAIN_SEA || pToPlot->needsEmbarkation(pUnit)))
-			{
-				//Plots worked by city with movement debuff reduce movement speed.
-				CvCity* pCity = pToPlot->getWorkingCity();
-				if(pCity != NULL)
-				{
-					if(pCity->GetBorderObstacleWater() > 0)
-					{
-						// Don't apply penalty to OUR team or teams we've given open borders to
-						if(!pPlotTeam->IsAllowsOpenBordersToTeam(eUnitTeam))
-						{
-							iRegularCost += iMoveDenominator;
-						}
-					}
-				}
-			}
-		}
-#endif
 	}
 
 	return iRegularCost;

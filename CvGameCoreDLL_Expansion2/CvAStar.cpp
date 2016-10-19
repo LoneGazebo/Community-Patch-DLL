@@ -34,6 +34,7 @@
 #define PATH_END_TURN_FOREIGN_TERRITORY							(PATH_BASE_COST*10)		//per turn end plot outside of our territory
 #define PATH_END_TURN_NO_ROUTE									(PATH_BASE_COST*10)		//when in doubt, prefer to end the turn on a plot with a route
 #define PATH_END_TURN_WATER										(PATH_BASE_COST*20)		//embarkation should be avoided (land units only)
+#define PATH_END_TURN_INVISIBLE_WEIGHT							(PATH_BASE_COST*10)		//when in doubt, prefer routes through visible areas
 #define PATH_END_TURN_LOW_DANGER_WEIGHT							(PATH_BASE_COST*90)		//one of these is worth 1.5 plots of detour
 #define PATH_END_TURN_HIGH_DANGER_WEIGHT						(PATH_BASE_COST*150)	//one of these is worth 2.5 plots of detour
 #define PATH_END_TURN_MORTAL_DANGER_WEIGHT						(PATH_BASE_COST*210)	//one of these is worth 3.5 plots of detour
@@ -1147,6 +1148,10 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 	//danger check
 	if ( pUnitDataCache->DoDanger() )
 	{
+		//invisible plots might be dangerous without us knowing
+		if (!pToPlot->isVisible(eUnitTeam))
+			iCost += PATH_END_TURN_INVISIBLE_WEIGHT;
+
 		//note: this includes an overkill factor because usually not all enemy units will attack this one unit
 		int iPlotDanger = kToNodeCacheData.iPlotDanger;
 		//we should give more weight to the first end-turn plot, the danger values for future stops are less concrete

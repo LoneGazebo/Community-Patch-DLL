@@ -534,6 +534,8 @@ public:
 	bool canCoexistWithEnemyUnit(TeamTypes eTeam) const;
 
 	bool isMustSetUpToRangedAttack() const;
+	int getMustSetUpToRangedAttackCount() const;
+	void changeMustSetUpToRangedAttackCount(int iChange);
 
 	bool isRangedSupportFire() const;
 	int getRangedSupportFireCount() const;
@@ -1402,11 +1404,8 @@ public:
 	bool isPotentialEnemy(TeamTypes eTeam, const CvPlot* pPlot = NULL) const;
 
 	bool canRangeStrike() const;
-#if defined(MOD_AI_SMART_RANGED_UNITS)
-	bool canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot=NULL) const;
-#else
+	bool canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, bool bIgnoreVisibility) const;
 	bool canEverRangeStrikeAt(int iX, int iY) const;
-#endif
 	bool canRangeStrikeAt(int iX, int iY, bool bNeedWar = true, bool bNoncombatAllowed = true) const;
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
@@ -1690,8 +1689,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iRiverCrossingNoPenaltyCount;
 	FAutoVariable<int, CvUnit> m_iEnemyRouteCount;
 	FAutoVariable<int, CvUnit> m_iRivalTerritoryCount;
-	//to be removed
-		FAutoVariable<int, CvUnit> m_iMustSetUpToRangedAttackCount;
+	FAutoVariable<int, CvUnit> m_iMustSetUpToRangedAttackCount;
 	FAutoVariable<int, CvUnit> m_iRangeAttackIgnoreLOSCount;
 	FAutoVariable<int, CvUnit> m_iCityAttackOnlyCount;
 	FAutoVariable<int, CvUnit> m_iCaptureDefeatedEnemyCount;

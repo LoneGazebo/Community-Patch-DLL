@@ -6910,22 +6910,23 @@ int CvUnit::getNegatorPromotion()
 	return m_iNegatorPromotion;
 }
 #endif
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::canSetUpForRangedAttack(const CvPlot* /*pPlot*/) const
 {
-	return false;
+	return false; //no longer used
 }
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::isSetUpForRangedAttack() const
 {
-	return false;
+	return true; //no longer used
 }
 
 //	--------------------------------------------------------------------------------
 void CvUnit::setSetUpForRangedAttack(bool /*bValue*/)
 {
-	return;
+	return; //no longer used
 }
 
 //	--------------------------------------------------------------------------------
@@ -14960,11 +14961,25 @@ bool CvUnit::canCoexistWithEnemyUnit(TeamTypes eTeam) const
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::getMustSetUpToRangedAttackCount() const
+{
+	VALIDATE_OBJECT
+	return m_iMustSetUpToRangedAttackCount;
+}
+
+//	--------------------------------------------------------------------------------
 bool CvUnit::isMustSetUpToRangedAttack() const
 {
 	VALIDATE_OBJECT
-	//no longer used
-	return false;
+	return getMustSetUpToRangedAttackCount() > 0;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeMustSetUpToRangedAttackCount(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iMustSetUpToRangedAttackCount = (m_iMustSetUpToRangedAttackCount + iChange);
+	CvAssert(getMustSetUpToRangedAttackCount() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -18753,10 +18768,14 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 	eOldActivityType = GetActivityType();
 
+	/* ---------
+	// no longer used!
+	// ---------
 	if(isSetUpForRangedAttack())
 	{
 		setSetUpForRangedAttack(false);
 	}
+	*/
 
 	if(!bGroup || isCargo())
 	{
@@ -25048,8 +25067,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeRiverCrossingNoPenaltyCount((thisPromotion.IsRiver()) ? iChange : 0);
 		changeEnemyRouteCount((thisPromotion.IsEnemyRoute()) ? iChange : 0);
 		changeRivalTerritoryCount((thisPromotion.IsRivalTerritory()) ? iChange : 0);
-		//no longer used!
-		//changeMustSetUpToRangedAttackCount((thisPromotion.IsMustSetUpToRangedAttack()) ? iChange : 0);
+		changeMustSetUpToRangedAttackCount((thisPromotion.IsMustSetUpToRangedAttack()) ? iChange : 0);
 		changeRangedSupportFireCount((thisPromotion.IsRangedSupportFire()) ? iChange : 0);
 		changeAlwaysHealCount((thisPromotion.IsAlwaysHeal()) ? iChange : 0);
 		changeHealOutsideFriendlyCount((thisPromotion.IsHealOutsideFriendly()) ? iChange : 0);
@@ -25685,6 +25703,9 @@ bool CvUnit::canRangeStrike() const
 		return false;
 	}
 
+	/* ---------
+	// no longer used!
+	// ---------
 	if(isMustSetUpToRangedAttack())
 	{
 		if(!isSetUpForRangedAttack())
@@ -25692,6 +25713,7 @@ bool CvUnit::canRangeStrike() const
 			return false;
 		}
 	}
+	*/
 
 	if(isOutOfAttacks())
 	{
@@ -25719,19 +25741,16 @@ bool CvUnit::canRangeStrike() const
 	return true;
 }
 
-#if defined(MOD_AI_SMART_RANGED_UNITS)
-
-bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot) const
-{
-	if (!pSourcePlot)
-		pSourcePlot = plot();
-#else
-
 bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 {
-	VALIDATE_OBJECT
-	const CvPlot* pSourcePlot = plot();
-#endif
+	return canEverRangeStrikeAt(iX,iY,plot(),false);
+}
+
+bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, bool bIgnoreVisibility) const
+{
+	if (!pSourcePlot)
+		return false;
+
 	const CvPlot* pTargetPlot = GC.getMap().plot(iX, iY);
 
 	// Plot null?
@@ -25741,7 +25760,7 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 	}
 
 	// Plot not visible?
-	if(!pTargetPlot->isVisible(getTeam()))
+	if(!bIgnoreVisibility && !pTargetPlot->isVisible(getTeam()))
 	{
 		return false;
 	}
@@ -25752,7 +25771,6 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 	if (bIsEmbarkedAttackingLand)
 		return false;
 #endif
-
 
 	// In Range?
 	if(plotDistance(pSourcePlot->getX(), pSourcePlot->getY(), pTargetPlot->getX(), pTargetPlot->getY()) > GetRange())
@@ -26529,8 +26547,7 @@ bool CvUnit::SentryAlert() const
 				CvPlot* pPlot = ::plotXYWithRangeCheck(getX(), getY(), iX, iY, iRange);
 				if(NULL != pPlot)
 				{
-					// because canSeePlot() adds one to the range internally
-					if(plot()->canSeePlot(pPlot, getTeam(), (iRange - 1), NO_DIRECTION))
+					if(plot()->canSeePlot(pPlot, getTeam(), iRange, NO_DIRECTION))
 					{
 						if(pPlot->isVisibleEnemyUnit(this))
 						{
