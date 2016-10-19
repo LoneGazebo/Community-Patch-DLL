@@ -13328,10 +13328,10 @@ void CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot)
 	}
 }
 
-void CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
+bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 {
 	if (!pUnit)
-		return;
+		return false;
 
 	SUnitStats::eMovementStrategy eStrategy = SUnitStats::MS_NONE;
 	switch (pUnit->getUnitInfo().GetDefaultUnitAIType())
@@ -13359,6 +13359,12 @@ void CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 				eStrategy = SUnitStats::MS_FIRSTLINE;
 			break;
 
+		//explorers are an edge case, the visibility can be useful, so include them
+		//they shouldn't fight if the odds are bad
+		case UNITAI_EXPLORE:
+			eStrategy = SUnitStats::MS_FIRSTLINE;
+			break;
+
 		//combat support, stay out of danger
 		case UNITAI_GENERAL:
 		case UNITAI_ADMIRAL:
@@ -13373,7 +13379,7 @@ void CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 		case UNITAI_ICBM:
 		default:
 			//skip the unit (other civilians as well)
-			return;
+			return false;
 	}
 
 	availableUnits.push_back( SUnitStats( pUnit, eStrategy ) );
@@ -13388,6 +13394,8 @@ void CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 	set<int> rangeAttackPlots;
 	TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,pUnit->plot(),rangeAttackPlots,true,false); //use official visibility here
 	rangeAttackPlotLookup[pUnit->GetID()] = rangeAttackPlots;
+
+	return true;
 }
 
 int CvTacticalPosition::countChildren() const
@@ -13530,10 +13538,8 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		CvUnit* pUnit = vUnits[i];
 		//ignore units which are too far away. also ignore embarked units, too difficult to get it right
 		if (pUnit && plotDistance(*pUnit->plot(),*pTarget)<=5 && !pUnit->isEmbarked() && pUnit->canMove()) 
-		{
-			initialPosition->addAvailableUnit(pUnit);
-			ourUnits.insert(pUnit->GetID());
-		}
+			if (initialPosition->addAvailableUnit(pUnit))
+				ourUnits.insert(pUnit->GetID());
 	}
 
 	//create the tactical plots around the target (up to distance 5)

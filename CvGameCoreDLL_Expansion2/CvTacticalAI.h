@@ -1177,7 +1177,7 @@ public:
 	bool makeNextAssignments(int iMaxBranches);
 	bool haveTacticalPlot(const CvPlot* pPlot) const;
 	void addTacticalPlot(const CvPlot* pPlot);
-	void addAvailableUnit(const CvUnit* pUnit);
+	bool addAvailableUnit(const CvUnit* pUnit);
 	int countChildren() const;
 
 	const CvTacticalPlot& getTactPlot(int plotindex) const;
