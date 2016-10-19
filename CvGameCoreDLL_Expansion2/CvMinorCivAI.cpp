@@ -4343,9 +4343,12 @@ bool CvMinorCivQuest::DoFinishQuest()
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_BUILD_X_COMPLETE");
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_BUILD_X_COMPLETE");
 	}
-	else if(m_eType == MINOR_CIV_QUEST_UNIT_STEAL_FROM)
+	else if (m_eType == MINOR_CIV_QUEST_UNIT_STEAL_FROM)
 	{
+		PlayerTypes eTargetCityState = (PlayerTypes)GetPrimaryData();
+		const char* strTargetNameKey = GET_PLAYER(eTargetCityState).getNameKey();
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_STEAL_FROM_COMPLETE");
+		strMessage << strTargetNameKey;
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_STEAL_FROM_COMPLETE");
 
 	}
@@ -14548,9 +14551,7 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 			return;
 #endif
 		}
-#if defined(MOD_GLOBAL_CS_GIFTS_LOCAL_XP)
-		CvCity* pSpawnCity = pMinorCapital;
-#endif
+
 		CvPlot* pMinorCapitalPlot = pMinorCapital->plot();
 		if(pMinorCapitalPlot == NULL)
 		{
@@ -14561,10 +14562,21 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 			return;
 #endif
 		}
-
+#if defined(MOD_GLOBAL_CS_GIFTS_LOCAL_XP)
+		CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
+		CvCity* pSpawnCity = NULL;
+		if (pMajorCapital == NULL)
+		{
+			pSpawnCity = pMinorCapital;
+		}
+		else
+		{
+			pSpawnCity = pMajorCapital;
+		}
+#endif
+		int iX = pSpawnCity->getX();
+		int iY = pSpawnCity->getY();
 		CvCity* pMajorCity = GET_PLAYER(eMajor).GetClosestCityByEstimatedTurns(pMinorCapitalPlot);
-		int iX = pMinorCapital->getX();
-		int iY = pMinorCapital->getY();
 #if defined(MOD_GLOBAL_CS_GIFTS)
 		if(!bLocal && pMajorCity != NULL)
 #else
@@ -16526,7 +16538,7 @@ void CvMinorCivAI::DoElection()
 
 			apSpy[ui] = &(pPlayerEspionage->m_aSpyList[iSpyID]);
 
-			iVotes += (pCityEspionage->m_aiAmount[eEspionagePlayer] * (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER))) / 100;
+			iVotes += (pCityEspionage->m_aiAmount[eEspionagePlayer] * (100 + GET_PLAYER(eEspionagePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER))) / 100;
 
 			// now that votes are counted, remove the progress from the spy
 			pCityEspionage->ResetProgress(eEspionagePlayer);

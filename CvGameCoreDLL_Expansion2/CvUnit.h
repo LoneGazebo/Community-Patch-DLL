@@ -115,6 +115,7 @@ public:
 		MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN	= 0x20000, //no embarkation on approximate target tile
 		MOVEFLAG_IGNORE_ZOC						= 0x40000, //ignore zones of control
 		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x80000, //pretend we can enter everybody's territory
+		MOVEFLAG_SELECTIVE_ZOC					= 0x100000, //ignore ZOC from enemy units on given plots
 	};
 
 #if defined(MOD_BALANCE_CORE)
@@ -479,7 +480,8 @@ public:
 	SpecialUnitTypes getSpecialUnitType() const;
 	bool IsGreatPerson() const;
 	UnitTypes getCaptureUnitType(CivilizationTypes eCivilization) const;
-	UnitCombatTypes getUnitCombatType() const;
+	int getUnitCombatType() const;
+	void setUnitCombatType(UnitCombatTypes eCombat);
 #if defined(MOD_GLOBAL_PROMOTION_CLASSES)
 	UnitCombatTypes getUnitPromotionType() const;
 #endif
@@ -558,7 +560,7 @@ public:
 	int GetBaseCombatStrengthConsideringDamage() const;
 
 	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacency, const CvPlot* pFromPlot = NULL) const;
-	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender) const;
+	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, bool bIgnoreAdjacencyBonus = false) const;
 	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, bool bFromRangedAttack = false) const;
 	int GetEmbarkedUnitDefense() const;
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -571,9 +573,10 @@ public:
 #if defined(MOD_API_EXTENSIONS)
 	void SetBaseRangedCombatStrength(int iStrength);
 #endif
-	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
+	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, 
+									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreAdjacency = false) const;
 	int GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
-	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
+	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bIgnoreAdjacency = false) const;
 
 	bool canAirAttack() const;
 	bool canAirDefend(const CvPlot* pPlot = NULL) const;
@@ -1380,6 +1383,9 @@ public:
 	bool isUnitEraUpgrade() const;
 	bool isConvertOnDamage() const;
 	bool isConvertOnFullHP() const;
+	bool isConvertEnemyUnitToBarbarian() const;
+	bool isWLKTKDOnBirth() const;
+	bool isGoldenAgeOnBirth() const;
 #endif
 
 	int getExtraUnitCombatModifier(UnitCombatTypes eIndex) const;
@@ -1402,11 +1408,8 @@ public:
 	bool isPotentialEnemy(TeamTypes eTeam, const CvPlot* pPlot = NULL) const;
 
 	bool canRangeStrike() const;
-#if defined(MOD_AI_SMART_RANGED_UNITS)
-	bool canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot=NULL) const;
-#else
+	bool canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, bool bIgnoreVisibility) const;
 	bool canEverRangeStrikeAt(int iX, int iY) const;
-#endif
 	bool canRangeStrikeAt(int iX, int iY, bool bNeedWar = true, bool bNoncombatAllowed = true) const;
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
@@ -1871,7 +1874,8 @@ protected:
 	FAutoVariable<bool, CvUnit> m_bInfoBarDirty;
 	FAutoVariable<bool, CvUnit> m_bNotConverting;
 	FAutoVariable<bool, CvUnit> m_bAirCombat;
-	FAutoVariable<bool, CvUnit> m_bSetUpForRangedAttack;
+	//to be removed
+		FAutoVariable<bool, CvUnit> m_bSetUpForRangedAttack;
 	FAutoVariable<bool, CvUnit> m_bEmbarked;
 	FAutoVariable<bool, CvUnit> m_bPromotedFromGoody;
 	FAutoVariable<bool, CvUnit> m_bAITurnProcessed;
@@ -1937,6 +1941,7 @@ protected:
 	FAutoVariable<ActivityTypes, CvUnit> m_eActivityType;
 	FAutoVariable<AutomateTypes, CvUnit> m_eAutomateType;
 	FAutoVariable<UnitAITypes, CvUnit> m_eUnitAIType;
+	FAutoVariable<int, CvUnit> m_eCombatType;
 
 	//not serialized
 	std::vector<CvPlot*> m_unitMoveLocs;

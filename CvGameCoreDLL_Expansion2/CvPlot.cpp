@@ -1874,8 +1874,6 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 //	--------------------------------------------------------------------------------
 bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const
 {
-	iRange++;
-
 	if(pPlot == NULL)
 	{
 		return false;
@@ -1892,7 +1890,6 @@ bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, Direct
 	int destY = pPlot->getY();
 
 	int iDistance = plotDistance(startX, startY, destX,  destY);
-
 	if(iDistance <= iRange)
 	{
 		//find displacement
@@ -1907,7 +1904,7 @@ bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, Direct
 		dy = dyWrap(dy);
 
 		//check if in facing direction
-		if(shouldProcessDisplacementPlot(dx, dy, iRange - 1, eFacingDirection))
+		if(shouldProcessDisplacementPlot(dx, dy, iRange, eFacingDirection))
 		{
 			if(iDistance == 1)
 			{
@@ -2269,6 +2266,10 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 #if defined(MOD_BALANCE_CORE)
 	if(getFeatureType() != NO_FEATURE)
 	{
+		if(pkImprovementInfo->GetCreatedFeature() != NO_FEATURE && (getFeatureType() == FEATURE_JUNGLE || getFeatureType() == FEATURE_FOREST))
+		{
+			return false;
+		}
 #if defined(MOD_PSEUDO_NATURAL_WONDER)
 		if(GC.getFeatureInfo(getFeatureType())->IsNaturalWonder(true))
 #else
@@ -2705,6 +2706,11 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 						{
 							ImprovementTypes eAdjacentImprovement =  pAdjacentPlot->getImprovementType();
 							if (eAdjacentImprovement != NO_IMPROVEMENT && eAdjacentImprovement == eImprovement)
+							{
+								return false;
+							}
+							CvImprovementEntry *pkImprovement2 = GC.getImprovementInfo(eAdjacentImprovement);
+							if (pkImprovement2 && eAdjacentImprovement != NO_IMPROVEMENT && pkImprovement2->GetImprovementMakesValid(eImprovement))
 							{
 								return false;
 							}
@@ -3152,7 +3158,7 @@ CvUnit* CvPlot::getBestGarrison(PlayerTypes eOwner) const
 }
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bTestPotentialEnemy, bool bTestCanMove, bool bNoncombatAllowed) const
+CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bIgnoreVisibility, bool bTestCanMove, bool bNoncombatAllowed) const
 {
 	const IDInfo* pUnitNode = headUnitNode();
 	CvUnit* pLoopUnit = NULL;
@@ -3167,20 +3173,17 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
 		{
 			if((eOwner ==  NO_PLAYER) || (pLoopUnit->getOwner() == eOwner))
 			{
-				if((eAttackingPlayer == NO_PLAYER) || (!(pLoopUnit->isInvisible(GET_PLAYER(eAttackingPlayer).getTeam(), false)) && isVisible(GET_PLAYER(eAttackingPlayer).getTeam())))
+				if((eAttackingPlayer == NO_PLAYER) || bIgnoreVisibility || (!(pLoopUnit->isInvisible(GET_PLAYER(eAttackingPlayer).getTeam(), false)) && isVisible(GET_PLAYER(eAttackingPlayer).getTeam())))
 				{
 					if(!bTestAtWar || eAttackingPlayer == NO_PLAYER || pLoopUnit->isEnemy(GET_PLAYER(eAttackingPlayer).getTeam(), this) || (NULL != pAttacker && pAttacker->isEnemy(GET_PLAYER(pLoopUnit->getOwner()).getTeam(), this)))
 					{
-						if(!bTestPotentialEnemy || (eAttackingPlayer == NO_PLAYER) ||  pLoopUnit->isPotentialEnemy(GET_PLAYER(eAttackingPlayer).getTeam(), this) || (NULL != pAttacker && pAttacker->isPotentialEnemy(GET_PLAYER(pLoopUnit->getOwner()).getTeam(), this)))
+						if(!bTestCanMove || (pLoopUnit->canMove() && !(pLoopUnit->isCargo())))
 						{
-							if(!bTestCanMove || (pLoopUnit->canMove() && !(pLoopUnit->isCargo())))
+							if((pAttacker == NULL) || (pAttacker->getDomainType() != DOMAIN_AIR) || (pLoopUnit->getDamage() < pAttacker->GetRangedCombatLimit()))
 							{
-								if((pAttacker == NULL) || (pAttacker->getDomainType() != DOMAIN_AIR) || (pLoopUnit->getDamage() < pAttacker->GetRangedCombatLimit()))
+								if(pLoopUnit->isBetterDefenderThan(pBestUnit, pAttacker))
 								{
-									if(pLoopUnit->isBetterDefenderThan(pBestUnit, pAttacker))
-									{
-										pBestUnit = pLoopUnit;
-									}
+									pBestUnit = pLoopUnit;
 								}
 							}
 						}
@@ -3682,7 +3685,7 @@ int CvPlot::GetNumPassableNeighbors(int iRings, PlayerTypes ePlayer, DomainTypes
 }
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-int CvPlot::countPassableNeighbors(bool bWater, CvPlot** aPassableNeighbors) const
+int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighbors) const
 {
 	int iPassable = 0;
 	CvPlot* pAdjacentPlot;
@@ -3692,7 +3695,7 @@ int CvPlot::countPassableNeighbors(bool bWater, CvPlot** aPassableNeighbors) con
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 		if(pAdjacentPlot != NULL)
 		{
-			if (bWater == pAdjacentPlot->isWater() && !pAdjacentPlot->isImpassable(BARBARIAN_TEAM))
+			if ( (eDomain==NO_DOMAIN || eDomain==pAdjacentPlot->getDomain()) && !pAdjacentPlot->isImpassable(BARBARIAN_TEAM))
 			{
 				if (aPassableNeighbors)
 					aPassableNeighbors[iPassable] = pAdjacentPlot;
@@ -3710,7 +3713,7 @@ bool CvPlot::IsChokePoint() const
 		return false;
 
 	CvPlot* aPassableNeighbors[NUM_DIRECTION_TYPES];
-	int iPassable = countPassableNeighbors(false, aPassableNeighbors);
+	int iPassable = countPassableNeighbors(DOMAIN_LAND, aPassableNeighbors);
 
 	//a plot is a chokepoint if it has between two and four passable land plots as neighbors
 	if (iPassable<2 || iPassable>4)
@@ -3721,7 +3724,7 @@ bool CvPlot::IsChokePoint() const
 	CvPlot* aPassableNeighborsNonPeninsula[NUM_DIRECTION_TYPES];
 	for (int iI = 0; iI<iPassable; iI++)
 	{
-		if (aPassableNeighbors[iI]->countPassableNeighbors(false,NULL)>2)
+		if (aPassableNeighbors[iI]->countPassableNeighbors(DOMAIN_SEA,NULL)>2)
 		{
 			aPassableNeighborsNonPeninsula[iPassableAndNoPeninsula] = aPassableNeighbors[iI];
 			iPassableAndNoPeninsula++;
@@ -4642,6 +4645,73 @@ bool CvPlot::isVisibleOtherUnit(PlayerTypes ePlayer) const
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
 			{
 				if(isOtherTeam(pLoopUnit, eTeam))
+				{
+					return true;
+				}
+			}
+		}
+		while(pUnitNode != NULL);
+	}
+
+	return false;
+}
+
+bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility) const
+{
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	if (bCheckVisibility && !isVisible(eTeam))
+		return false;
+
+	CvAssertMsg(ePlayer != NO_PLAYER, "Source player must be valid");
+	const IDInfo* pUnitNode = m_units.head();
+	if(pUnitNode)
+	{
+		do
+		{
+			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+			pUnitNode = m_units.next(pUnitNode);
+
+			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
+			{
+				if (bCombat != pLoopUnit->IsCanDefend())
+					continue;
+
+				if(isOtherTeam(pLoopUnit, eTeam) && isEnemy(pLoopUnit,eTeam,false))
+				{
+					return true;
+				}
+			}
+		}
+		while(pUnitNode != NULL);
+	}
+
+	return false;
+}
+
+
+bool CvPlot::isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility) const
+{
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	if (bCheckVisibility && !isVisible(eTeam))
+		return false;
+
+	CvAssertMsg(ePlayer != NO_PLAYER, "Source player must be valid");
+	const IDInfo* pUnitNode = m_units.head();
+	if(pUnitNode)
+	{
+		do
+		{
+			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+			pUnitNode = m_units.next(pUnitNode);
+
+			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
+			{
+				if (bCombat != pLoopUnit->IsCanDefend())
+					continue;
+
+				if(isOtherTeam(pLoopUnit, eTeam) && !isEnemy(pLoopUnit,eTeam,false))
 				{
 					return true;
 				}
@@ -9131,7 +9201,40 @@ void CvPlot::updateWorkingCity()
 			{
 				// Remove citizen
 				pOldWorkingCity->GetCityCitizens()->SetWorkingPlot(this, false);
+#if defined(MOD_BALANCE_CORE)
+				if (getImprovementType() != NO_IMPROVEMENT && getResourceType(pOldWorkingCity->getTeam()) != NO_RESOURCE)
+				{
+					if (GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
+					{
+						// Activate Resource city link?
+						if (GetResourceLinkedCity() == pOldWorkingCity)
+							SetResourceLinkedCityActive(false);
+							SetResourceLinkedCity(NULL);
+					}
+					else if (GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson())
+					{
+						// Activate Resource city link?
+						if (GetResourceLinkedCity() == pOldWorkingCity)
+							SetResourceLinkedCityActive(false);
+							SetResourceLinkedCity(NULL);
+					}
+					else if (GC.getImprovementInfo(getImprovementType())->IsAdjacentCity())
+					{
+						// Activate Resource city link?
+						if (GetResourceLinkedCity() == pOldWorkingCity)
+							SetResourceLinkedCityActive(false);
+							SetResourceLinkedCity(NULL);
+					}
+				}
+#endif
 			}
+#if defined(MOD_BALANCE_CORE)
+			if (getImprovementType() != NO_IMPROVEMENT && getResourceType(pBestCity->getTeam()) != NO_RESOURCE)
+			{
+				SetResourceLinkedCity(pBestCity);
+				SetResourceLinkedCityActive(true);
+			}
+#endif
 
 			CvAssertMsg(isOwned(), "isOwned is expected to be true");
 			CvAssertMsg(!isBeingWorked(), "isBeingWorked did not return false as expected");
@@ -10799,7 +10902,22 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 			if(isVisible(eTeam))
 			{
 				eResult = VISIBILITY_CHANGE_TO_VISIBLE;
-				bool bOldRevealed = isRevealed(eTeam);
+
+				//are we seeing this plot for the first time?
+				if(bInformExplorationTracking && !isRevealed(eTeam))
+				{
+					// slewis - ghetto-tastic hack. ugh
+					for(int iI = 0; iI < MAX_PLAYERS; iI++)
+					{
+						CvPlayerAI& playerI = GET_PLAYER((PlayerTypes)iI);
+						if(playerI.isAlive())
+						{
+							if(playerI.getTeam() == eTeam)
+								playerI.GetEconomicAI()->SetExplorationPlotsDirty();
+						}
+					}
+				}
+
 #if defined(MOD_API_EXTENSIONS)
 				if (!setRevealed(eTeam, true, pUnit))	// Change to revealed, returns true if the visibility was changed
 #else
@@ -10814,56 +10932,6 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 						updateFog(true);
 						updateVisibility();
 					}
-				}
-
-				if(bInformExplorationTracking && !bOldRevealed)
-				{
-					// slewis - ghetto-tastic hack. ugh
-					for(int iI = 0; iI < MAX_PLAYERS; iI++)
-					{
-						CvPlayerAI& playerI = GET_PLAYER((PlayerTypes)iI);
-						if(playerI.isAlive())
-						{
-							if(playerI.getTeam() == eTeam)
-								playerI.GetEconomicAI()->SetExplorationPlotsDirty();
-						}
-					}
-#if defined(MOD_BALANCE_CORE)
-					if(pUnit) 
-					{
-						bool bYield = pUnit->IsGainsYieldFromScouting();
-						if((pUnit->IsGainsXPFromScouting() || bYield) && !GET_TEAM(eTeam).isBarbarian() && !GET_TEAM(eTeam).isMinorCiv())
-						{
-#if defined(MOD_UNITS_XP_TIMES_100)
-							if((pUnit->getExperienceTimes100() < (GC.getBALANCE_SCOUT_XP_MAXIMUM() * 100)) || bYield)
-#else
-							if((pUnit->getExperience() < GC.getBALANCE_SCOUT_XP_MAXIMUM()) || pUnit->IsGainsYieldFromScouting())
-#endif
-							{
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-								if(IsNaturalWonder(true))
-#else
-								if(IsNaturalWonder())
-#endif
-								{
-									pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE());
-								}
-								else if(isGoody())
-								{
-									pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() / 3);
-								}
-								else if(getResourceType(pUnit->getTeam()) != NO_RESOURCE)
-								{
-									pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() / 4);
-								}
-								else
-								{
-									pUnit->ChangeNumTilesRevealedThisTurn(1);
-								}	
-							}
-						}
-					}
-#endif
 				}
 
 				for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
@@ -11239,7 +11307,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 		}
 
 		// Natural Wonder
-		if(eTeam != BARBARIAN_TEAM)
+		if(eTeam != BARBARIAN_TEAM && bNewValue)
 		{
 			if(getFeatureType() != NO_FEATURE)
 			{
@@ -11534,6 +11602,39 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 
 		if(bNewValue)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pUnit && pUnit->IsGainsXPFromScouting() && !GET_TEAM(eTeam).isBarbarian() && !GET_TEAM(eTeam).isMinorCiv())
+			{
+#if defined(MOD_UNITS_XP_TIMES_100)
+				if(pUnit->getExperienceTimes100() < (GC.getBALANCE_SCOUT_XP_MAXIMUM() * 100))
+#else
+				if((pUnit->getExperience() < GC.getBALANCE_SCOUT_XP_MAXIMUM()) || pUnit->IsGainsYieldFromScouting())
+#endif
+				{
+#if defined(MOD_PSEUDO_NATURAL_WONDER)
+					if(IsNaturalWonder(true))
+#else
+					if(IsNaturalWonder())
+#endif
+					{
+						pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE());
+					}
+					else if(isGoody())
+					{
+						pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() / 3);
+					}
+					else if(getResourceType(pUnit->getTeam()) != NO_RESOURCE)
+					{
+						pUnit->ChangeNumTilesRevealedThisTurn(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() / 4);
+					}
+					else
+					{
+						pUnit->ChangeNumTilesRevealedThisTurn(1);
+					}	
+				}
+			}
+#endif
+
 			if(pInterface->GetHeadSelectedUnit() != NULL)
 			{
 				// This is what determines if the camera jumps quickly or slowly - if we're revealing new plots go slower.  The following function sets this flag
@@ -11951,7 +12052,38 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 						setResourceType(NO_RESOURCE, 0);
 					}
 				}
+				if(newImprovementEntry.GetCreatedFeature() != NO_FEATURE)
+				{
+					setImprovementType(NO_IMPROVEMENT);
+					setFeatureType(newImprovementEntry.GetCreatedFeature());
 
+					if(getResourceType() == NO_RESOURCE)
+					{
+						ResourceTypes newResource = NO_RESOURCE;
+						int iSpeed = GC.getGameSpeedInfo(GC.getGame().getGameSpeedType())->getGoldPercent() / 67;
+						if((GC.getGame().getJonRandNum(100, "Chance for ressource") / iSpeed) < 10)
+						{
+							for(int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+							{
+								CvResourceInfo* thisResourceInfo = GC.getResourceInfo((ResourceTypes) iI);
+								if(thisResourceInfo)
+								{
+									if(thisResourceInfo->isFeature(getFeatureType()))
+									{
+										// Good we passed. Now let's add a resource.
+										ResourceTypes eResource = (ResourceTypes)GC.getGame().getJonRandNum(iI, "rolling for resources we can place");
+										newResource =  eResource;
+										break;
+									}
+								}
+							}
+						}
+						if(newResource != NO_RESOURCE)
+						{
+							setResourceType(newResource, 1);
+						}
+					}
+				}
 				// If we want to prompt the user about archaeology, let's record that
 				if (newImprovementEntry.IsPromptWhenComplete())
 				{
@@ -15504,32 +15636,28 @@ void CvPlot::UpdatePlotsWithLOS()
 	m_vPlotsWithLineOfSightToHere2.clear();
 	m_vPlotsWithLineOfSightToHere3.clear();
 
-	int iMaxRange = 3;
-	for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
+	for (int i=RING1_PLOTS; i<RING2_PLOTS; i++)
 	{
-		for(int iDY = -iMaxRange; iDY <= iMaxRange; iDY++)
-		{
-			CvPlot* pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
-			if(pLoopPlot != NULL)
-			{
-				int iDistance = plotDistance(*this,*pLoopPlot);
-				switch (iDistance)
-				{
-				case 2:
-					if (pLoopPlot->canSeePlot(this, NO_TEAM, 2, NO_DIRECTION))
-						m_vPlotsWithLineOfSightToHere2.push_back(pLoopPlot);
-					if (this->canSeePlot(pLoopPlot, NO_TEAM, 2, NO_DIRECTION))
-						m_vPlotsWithLineOfSightFromHere2.push_back(pLoopPlot);
-					break;
-				case 3:
-					if (pLoopPlot->canSeePlot(this, NO_TEAM, 3, NO_DIRECTION))
-						m_vPlotsWithLineOfSightToHere3.push_back(pLoopPlot);
-					if (this->canSeePlot(pLoopPlot, NO_TEAM, 3, NO_DIRECTION))
-						m_vPlotsWithLineOfSightFromHere3.push_back(pLoopPlot);
-					break;
-				}
-			}
-		}
+		CvPlot* pLoopPlot = iterateRingPlots(this,i);
+		if (!pLoopPlot)
+			continue;
+
+		if (pLoopPlot->canSeePlot(this, NO_TEAM, 2, NO_DIRECTION))
+			m_vPlotsWithLineOfSightToHere2.push_back(pLoopPlot);
+		if (this->canSeePlot(pLoopPlot, NO_TEAM, 2, NO_DIRECTION))
+			m_vPlotsWithLineOfSightFromHere2.push_back(pLoopPlot);
+	}
+
+	for (int i=RING2_PLOTS; i<RING3_PLOTS; i++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(this,i);
+		if (!pLoopPlot)
+			continue;
+
+		if (pLoopPlot->canSeePlot(this, NO_TEAM, 3, NO_DIRECTION))
+			m_vPlotsWithLineOfSightToHere3.push_back(pLoopPlot);
+		if (this->canSeePlot(pLoopPlot, NO_TEAM, 3, NO_DIRECTION))
+			m_vPlotsWithLineOfSightFromHere3.push_back(pLoopPlot);
 	}
 }
 

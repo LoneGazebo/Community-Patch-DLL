@@ -90,7 +90,7 @@ WHERE Type = 'BELIEF_GODDESS_LOVE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Typ
 -- Religious Settlements
 
 UPDATE Beliefs
-SET PlotCultureCostModifier = '-20'
+SET PlotCultureCostModifier = '-25'
 WHERE Type = 'BELIEF_RELIGIOUS_SETTLEMENTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of Festivals

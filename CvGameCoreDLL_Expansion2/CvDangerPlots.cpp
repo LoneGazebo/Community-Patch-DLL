@@ -89,8 +89,6 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 
 	//for ranged every plot we can enter with movement left is a base for attack
 	int iMinMovesLeft = pLoopUnit->IsCanAttackRanged() ? 1 : 0;
-	if (pLoopUnit->isMustSetUpToRangedAttack())
-		iMinMovesLeft += GC.getMOVE_DENOMINATOR();
 
 	//specialty for barbarian who won't leave camp
 	if (pLoopUnit->isBarbarian() && pLoopUnit->plot()->getImprovementType()==(ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT())
@@ -98,13 +96,13 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 
 	//use the worst case assumption here, no ZOC (all intervening units have been killed)
 	ReachablePlots reachablePlots;
-	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit,pLoopUnit->plot(),reachablePlots,true,false,false,iMinMovesLeft);
+	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit,pLoopUnit->plot(),reachablePlots,true,false,false,iMinMovesLeft,-1,set<int>());
 
 	if (pLoopUnit->IsCanAttackRanged())
 	{
 		//for ranged every tile we can enter with movement left is a base for attack
 		std::set<int> attackableTiles;
-		TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit,reachablePlots,attackableTiles);
+		TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit,reachablePlots,attackableTiles,false,false);
 
 		for (std::set<int>::iterator attackTile=attackableTiles.begin(); attackTile!=attackableTiles.end(); ++attackTile)
 		{
@@ -281,7 +279,7 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 					if (pEnemy)
 					{
 						int iAttackerDamage = 0; //to be ignored
-						iThreatValue += TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pLoopCity,pEnemy,iAttackerDamage);
+						iThreatValue += TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pLoopCity,pEnemy,pEnemy->plot(),iAttackerDamage);
 					}
 				}
 			}
@@ -547,14 +545,6 @@ bool CvDangerPlots::ShouldIgnoreUnit(CvUnit* pUnit, bool bIgnoreVisibility)
 		return true;
 	}
 #endif // AUI_DANGER_PLOTS_SHOULD_IGNORE_UNIT_MAJORS_SEE_BARBARIANS_IN_FOG
-
-	CvPlot* pPlot = pUnit->plot();
-	CvAssertMsg(pPlot, "Plot is null?")
-
-	if(NULL != pPlot && !pPlot->isVisibleOtherUnit(m_ePlayer) && !bIgnoreVisibility)
-	{
-		return true;
-	}
 
 	return false;
 }
@@ -873,7 +863,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, AirActionType iAirActio
 		return GetAirUnitDamage(pUnit, iAirAction);
 
 	//simple caching for speedup
-	SUnitStats unitStats(pUnit);
+	SUnitInfo unitStats(pUnit);
 	if (unitStats==m_lastUnit)
 		return m_lastResult;
 

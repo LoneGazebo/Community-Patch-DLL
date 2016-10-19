@@ -383,6 +383,8 @@ public:
 	void DoAddWantsDefensivePactWithPlayer(PlayerTypes ePlayer);
 	void DoCancelWantsDefensivePactWithPlayer(PlayerTypes ePlayer);
 	bool IsCanMakeDefensivePactRightNow(PlayerTypes ePlayer);
+
+	bool IsGoodChoiceForDefensivePact(PlayerTypes ePlayer);
 #endif
 	/////////////////////////////////////////////////////////
 	// Issues of Dispute
@@ -1412,7 +1414,7 @@ public:
 	void SetDeclarationLogTurnForIndex(int iIndex, int iNewValue);
 	void ChangeDeclarationLogTurnForIndex(int iIndex, int iChange);
 
-	CvDeal* GetDealToRenew(int* piDealType = NULL);
+	CvDeal* GetDealToRenew(int* piDealType = NULL, PlayerTypes eOtherPlayer = NO_PLAYER);
 	void ClearDealToRenew();
 
 	void KilledPlayerCleanup (PlayerTypes eKilledPlayer);

@@ -321,7 +321,8 @@ public:
 	};
 #endif
 
-	CvCity* GetMostThreatenedCity(int iIndex = 0, bool bIncludeFutureThreats=true); // pass in 0 for the most threatened city, 1 for the second most threatened, 2 for the third, etc.
+	CvCity* GetMostThreatenedCity(bool bIncludeFutureThreats=true);
+	vector<CvCity*> GetThreatenedCities(bool bIncludeFutureThreats=true);
 
 	int GetPercentOfRecommendedMilitarySize() const;
 	int GetPowerOfStrongestBuildableUnit(DomainTypes eDomain);
@@ -445,6 +446,7 @@ private:
 	void LogMilitaryStatus();
 	void LogAvailableForces();
 	void LogScrapUnit(CvUnit* pUnit, bool bDeficit, bool bConquest);
+	void LogGiftUnit(CvUnit* pUnit, bool bDeficit, bool bConquest);
 	void LogAttackTargets(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES, true>& weightedTargetList);
 	void LogChosenTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, CvMilitaryTarget& target);
 	CvString GetLogFileName(CvString& playerName, bool bSummary=false) const;

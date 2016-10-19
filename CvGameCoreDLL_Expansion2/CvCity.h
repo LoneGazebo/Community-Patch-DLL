@@ -951,7 +951,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	void updateEconomicValue();
-	int getEconomicValue(PlayerTypes ePossibleNewOwner) const;
+	int getEconomicValue(PlayerTypes ePossibleNewOwner);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void SetRank(int iRank);

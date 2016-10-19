@@ -2633,6 +2633,12 @@ int CvBuilderTaskingAI::ScorePlot()
 	}
 #endif
 	CvCity* pCity = m_pTargetPlot->getWorkingCity();
+	//Great improvements are great!
+	if (pImprovement->IsCreatedByGreatPerson() && pImprovement->GetCultureBombRadius() <= 0)
+	{
+		if (!m_bEvaluateAdjacent && !pCity)
+			return 0;
+	}
 	if(pCity)
 	{
 		CvCityStrategyAI* pCityStrategy = pCity->GetCityStrategyAI();
@@ -2693,7 +2699,7 @@ int CvBuilderTaskingAI::ScorePlot()
 		}
 #if defined(MOD_BALANCE_CORE)
 		//Plots with resources on them need emphasis, especially if they offer happiness.
-		if(m_pTargetPlot->getResourceType(pCity->getTeam()) != NO_RESOURCE)
+		if (!pImprovement->IsCreatedByGreatPerson() && m_pTargetPlot->getResourceType(pCity->getTeam()) != NO_RESOURCE)
 		{
 			iScore *= 2;
 			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(m_pTargetPlot->getResourceType(pCity->getTeam()));
@@ -2712,23 +2718,23 @@ int CvBuilderTaskingAI::ScorePlot()
 		if(m_pTargetPlot->getImprovementType() != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(m_pTargetPlot->getImprovementType());
-			if(pkImprovementInfo && (pkImprovementInfo->IsCreatedByGreatPerson() || (pkImprovementInfo->GetYieldChangePerEra(YIELD_CULTURE) > 0)))
+			if(pkImprovementInfo && (pkImprovementInfo->IsAdjacentCity() || pkImprovementInfo->IsCreatedByGreatPerson() || (pkImprovementInfo->GetYieldChangePerEra(YIELD_CULTURE) > 0)))
 			{
 				iScore /= 10;
 			}
 		}
-		//No improvement? Let's not default to great person improvements here.
+		//Improvement? Let's not default to great person improvements here.
 		else
 		{
 			if (pImprovement->IsCreatedByGreatPerson())
 			{
 				if (m_pTargetPlot->getResourceType(pCity->getTeam()) == NO_RESOURCE)
 				{
-					iScore *= 2;
+					iScore *= 5;
 				}
 				else
 				{
-					iScore /= 10;
+					iScore /= 15;
 				}
 			}
 		}
@@ -2756,7 +2762,7 @@ int CvBuilderTaskingAI::ScorePlot()
 					}
 					if(iResult > 0)
 					{
-						iScore += iResult;
+						iScore += iResult * 5;
 					}
 				}
 			}
@@ -2842,6 +2848,11 @@ int CvBuilderTaskingAI::ScorePlot()
 							LogInfo(strTemp, m_pPlayer);
 						}
 					}
+				}
+				// if it's Iroquois building forests give it even more weight since it connects cities.
+				else if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && pkImprovementInfo->GetCreatedFeature() != NO_FEATURE)
+				{
+					iScore *= 5;
 				}
 				else
 				{
@@ -3007,17 +3018,6 @@ int CvBuilderTaskingAI::ScorePlot()
 			else
 				iScore /= 4;
 		}
-	}
-
-	//Great improvements are great!
-	if(pImprovement->IsCreatedByGreatPerson())
-	{
-		//Not adjacent and not a culture bomb? No outside city borders!
-		if(!m_bEvaluateAdjacent && !pCity && pImprovement->GetCultureBombRadius() <= 0)
-		{
-			return 0;
-		}
-		iScore *= 2;
 	}
 
 	//City adjacenct improvement? Ramp it up!

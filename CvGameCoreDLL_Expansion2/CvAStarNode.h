@@ -141,7 +141,7 @@ public:
 //-------------------------------------------------------------------------------------------------
 struct SPathFinderUserData
 {
-	SPathFinderUserData() : ePathType(PT_GENERIC_ANY_AREA), iFlags(0), ePlayer(NO_PLAYER), iUnitID(0), iTypeParameter(-1), iMaxTurns(INT_MAX), iMaxNormalizedDistance(INT_MAX), iMinMovesLeft(0) {}
+	SPathFinderUserData() : ePathType(PT_GENERIC_ANY_AREA), iFlags(0), ePlayer(NO_PLAYER), iUnitID(0), iTypeParameter(-1), iMaxTurns(INT_MAX), iMaxNormalizedDistance(INT_MAX), iMinMovesLeft(0), iStartMoves(60) {}
 	SPathFinderUserData(const CvUnit* pUnit, int iFlags=0, int iMaxTurns=INT_MAX);
 	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, int iTypeParameter=-1, int iMaxTurns=INT_MAX);
 
@@ -158,6 +158,8 @@ struct SPathFinderUserData
 	int			iMaxTurns;
 	int			iMaxNormalizedDistance;
 	int			iMinMovesLeft;
+	int			iStartMoves;
+	set<int>	plotsToIgnoreForZOC;
 };
 
 //-------------------------------------------------------------------------------------------------

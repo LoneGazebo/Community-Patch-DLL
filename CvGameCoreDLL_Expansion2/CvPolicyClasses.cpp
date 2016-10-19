@@ -313,6 +313,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldFromMinorDemand(NULL),
 	m_piYieldFromWLTKD(NULL),
 #endif
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+	m_piInternationalRouteYieldModifiers(NULL),
+#endif
 	m_ppiBuildingClassYieldModifiers(NULL),
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_piFlavorValue(NULL),
@@ -385,6 +388,9 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromMinorDemand);
 	SAFE_DELETE_ARRAY(m_piYieldFromWLTKD);
 #endif
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+	SAFE_DELETE_ARRAY(m_piInternationalRouteYieldModifiers);
+#endif 
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
 }
@@ -1019,6 +1025,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldChangeWorldWonder, "Policy_YieldChangeWorldWonder", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromMinorDemand, "Policy_YieldFromMinorDemand", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromWLTKD, "Policy_WLTKDYieldMod", "PolicyType", szPolicyType);
+#endif
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+	kUtility.SetYields(m_piInternationalRouteYieldModifiers, "Policy_InternationalRouteYieldModifiers", "PolicyType", szPolicyType);
 #endif
 
 	//ImprovementCultureChanges
@@ -2276,6 +2285,23 @@ int* CvPolicyEntry::GetYieldModifierArray() const
 {
 	return m_piYieldModifier;
 }
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+/// Change to traderoute yield modifier by type
+int CvPolicyEntry::GetInternationalRouteYieldModifier(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piInternationalRouteYieldModifiers ? m_piInternationalRouteYieldModifiers[i] : -1;
+}
+
+/// Mimic of m_piYieldModifier array getter
+/* not needed
+int* CvPolicyEntry::GetInternationalRouteYieldModifiersArray() const
+{
+	return m_piInternationalRouteYieldModifiers;
+}
+*/
+#endif
 
 /// Change to yield in every City by type
 int CvPolicyEntry::GetCityYieldChange(int i) const
@@ -3970,6 +3996,20 @@ int CvPlayerPolicies::GetYieldModifier(YieldTypes eYieldType)
 
 	return rtnValue;
 }
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+int CvPlayerPolicies::GetInternationalRouteYieldModifier(YieldTypes eYield)
+{
+	int totalModifiersFromPolicies = 0;
+	for (int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
+	{
+		if(m_pabHasPolicy[i] && !IsPolicyBlocked((PolicyTypes)i))
+		{
+			totalModifiersFromPolicies += m_pPolicies->GetPolicyEntry(i)->GetInternationalRouteYieldModifier(eYield);
+		}
+	}
+	return totalModifiersFromPolicies;
+}
+#endif
 
 /// Get yield modifier from policies for a specific building class
 int CvPlayerPolicies::GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType)

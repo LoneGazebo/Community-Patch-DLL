@@ -385,33 +385,31 @@ function RefreshMonopolies()
 	local resources = {};
 	for pResource in GameInfo.Resources() do
 		local eResource = pResource.ID;
-		if(Game.GetResourceUsageType(eResource) ~= ResourceUsageTypes.RESOURCEUSAGE_BONUS) then
+		if(pResource.IsMonopoly == 1) then
 			local ePlayer = ChooseMonopolyPlayer(eResource);
 
 			local iMonopolyPercent = 0;
 			local szResourceName = Locale.ConvertTextKey( pResource.Description );
 			local szCivName = 0;
-			local bValid = true;
+			local bValid = IsResourceValid(eResource, ePlayer);
+
 			if( ePlayer ~= -1 ) then
 				iMonopolyPercent = Players[ePlayer]:GetMonopolyPercent(eResource);
 				szCivName = Locale.ConvertTextKey(GetPlayerCiv(ePlayer).Description);
-				bValid = IsMonopolyValidType(ePlayer, eResource);
 			end
-		
-			if(IsResourceValid(eResource, ePlayer)) then
-				if(bValid) then
-					-- Build control for hookup
-					local info = {
-						ResourceIcon = pResource.IconString,
-						ResourceName = szResourceName,
-						ResourceID = eResource,
-						Resource = pResource,
-						CivName = szCivName,
-						PlayerID = ePlayer,
-						MonopolyPercent = iMonopolyPercent,
-					};
-					table.insert(resources, info);
-				end
+
+			if(bValid) then
+				-- Build control for hookup
+				local info = {
+					ResourceIcon = pResource.IconString,
+					ResourceName = szResourceName,
+					ResourceID = eResource,
+					Resource = pResource,
+					CivName = szCivName,
+					PlayerID = ePlayer,
+					MonopolyPercent = iMonopolyPercent,
+				};
+				table.insert(resources, info);
 			end
 		end
 	end
@@ -427,17 +425,50 @@ function RefreshMonopolies()
 	Controls.MonopolyResourcesScrollPanel:CalculateInternalSize();
 end
 
-function IsResourceValid(eResource,ePlayer)
+function IsResourceValid(eResource, ePlayer)
+
 	local iTotal = Map.GetNumResources(eResource);
-	
-	-- If player exists,  then check if he has an instance of the resource - if so, then show it
-	if(ePlayer ~= -1) then
-		local iNumResources = Players[ePlayer]:GetNumResourceTotal(eResource, false) + Players[ePlayer]:GetResourceExport(eResource);
-		return iTotal > 0 or iNumResources > 0;
-	-- If player does not exist, then check if it's on the map only
-	else
-		return iTotal > 0;
+
+	if(iTotal <= 0) then
+		return false;
 	end
+
+	if(g_MonopolyResourceType == "All") then	
+		--print( "Looking at all resources" );
+		if(ePlayer ~= -1) then
+			local iNumResources = Players[ePlayer]:GetNumResourceTotal(eResource, false) + Players[ePlayer]:GetResourceExport(eResource);
+			return iTotal > 0 or iNumResources > 0;
+		else
+		-- If player does not exist, then check if it's on the map only
+			return iTotal > 0;
+		end
+	elseif(g_MonopolyResourceType == "Global") then
+		--print( "Looking at global resources" );
+		if(ePlayer ~= -1) then
+			return Players[ePlayer]:HasGlobalMonopoly(eResource);
+		else
+			return false;
+		end
+	elseif(g_MonopolyResourceType == "Strategic") then
+		--print( "Looking at strategic resources" );
+		if(ePlayer ~= -1) then
+			return Players[ePlayer]:HasStrategicMonopoly(eResource);
+		else
+			return false;
+		end
+	elseif(g_MonopolyResourceType == "Potential") then
+		--print( "Looking at potential resources" );
+		if(ePlayer ~= -1) then
+			if(not Players[ePlayer]:HasGlobalMonopoly(eResource) and not Players[ePlayer]:HasStrategicMonopoly(eResource)) then
+				return Players[ePlayer]:GetMonopolyPercent(eResource) > 0;
+			end
+		else
+			return false;
+		end
+	end
+
+	return false;
+	--end
 end
 
 -- Get the player we want to display on a monopoly instance
@@ -449,32 +480,6 @@ function ChooseMonopolyPlayer( eResource )
 	-- Greatest
 	local eGreatest = Game.GetGreatestPlayerResourceMonopoly( eResource );
 	return eGreatest;
-end
-
--- Player can choose what type of monopoly he will evaluate
-function IsMonopolyValidType( ePlayer, eResource )
-	local bStrategicResource = Game.GetResourceUsageType(eResource) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC;
-	
-	-- must have a valid player
-	if(ePlayer == -1) then
-		return;
-	end
-	
-	local pPlayer = Players[ePlayer];
-
-	if(g_MonopolyResourceType == "All") then
-		return true;
-	elseif(g_MonopolyResourceType == "Global") then
-		return pPlayer:HasGlobalMonopoly(eResource);
-	elseif(g_MonopolyResourceType == "Strategic") then
-		return pPlayer:HasStrategicMonopoly(eResource);
-	elseif(g_MonopolyResourceType == "Potential") then
-		if(not pPlayer:HasGlobalMonopoly(eResource) and not pPlayer:HasStrategicMonopoly(eResource)) then
-			return pPlayer:GetMonopolyPercent(eResource) > 0;
-		end
-	end
-
-	return false;
 end
 
 function HookupResourceInstance(info)

@@ -950,19 +950,6 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 #endif
-			// ... enemy civilian (or embarked) unit?
-			else if(pLoopPlot->isVisibleOtherUnit(m_pPlayer->GetID()))
-			{
-				CvUnit* pTargetUnit = pLoopPlot->getUnitByIndex(0);
-				if(!pTargetUnit->isDelayedDeath() && atWar(eTeam, pTargetUnit->getTeam()) && !pTargetUnit->IsCanDefend())
-				{
-					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
-					newTarget.SetTargetX(pLoopPlot->getX());
-					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxData(pLoopPlot);
-					m_TargetedAncientRuins.push_back(newTarget);
-				}
-			}
 			// ... empty barb camp?
 			else if(pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() && pLoopPlot->getNumDefenders(BARBARIAN_PLAYER) <= 0)
 			{
@@ -1259,7 +1246,7 @@ void CvHomelandAI::PlotFirstTurnSettlerMoves()
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && !pUnit->isHuman())
 		{
-			if(m_pPlayer->getNumCities() == 0 && m_CurrentMoveUnits.size() == 0)
+			if(m_pPlayer->getNumCities() == 0)
 			{
 #if defined(MOD_BALANCE_CORE_SETTLER_MOVE)
 				if(pUnit->canFound(NULL))
@@ -1578,7 +1565,7 @@ void CvHomelandAI::PlotSentryMoves()
 
 			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 			{
-				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 5);
+				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 6);
 				if(pSentry)
 				{
 					ExecuteMoveToTarget(pSentry, pTarget, 0);
@@ -1615,7 +1602,7 @@ void CvHomelandAI::PlotSentryNavalMoves()
 
 			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 			{
-				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, MAX_INT);
+				CvUnit *pSentry = GetBestUnitToReachTarget(pTarget, 15);
 				if(pSentry)
 				{
 					if(pSentry->plot() == pTarget)
@@ -3700,9 +3687,13 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 		if (!pBestPlot && pUnit->movesLeft() > 0)
 		{
 			//check at least 5 candidates
-			pBestPlot = GetBestExploreTarget(pUnit, 5, 9);
+			pBestPlot = GetBestExploreTarget(pUnit, 5, 8);
 
-			//if nothing found, retry with larger distance - but this is sloooooow
+			//if nothing found, retry with larger distance - but this is slow
+			if (!pBestPlot)
+				pBestPlot = GetBestExploreTarget(pUnit, 5, 23);
+
+			//if still nothing found, retry with even larger distance - but this is sloooooow
 			if (!pBestPlot)
 				pBestPlot = GetBestExploreTarget(pUnit, 5, 42);
 

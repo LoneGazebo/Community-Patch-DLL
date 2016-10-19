@@ -654,6 +654,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Diplomatic Units!
 		if(MOD_DIPLOMACY_CITYSTATES &&  pkUnitEntry->GetUnitAIType(UNITAI_MESSENGER))
 		{
+			if (GC.getGame().GetNumMinorCivsAlive() <= 0)
+				return 0;
+
 			int iInfluence = 0;
 			//Promotion Bonus
 			for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)

@@ -653,6 +653,8 @@ function DoUpdateButtons()
 				local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR", iCurrent);
 				if(iCurrent == -1) then
 					Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_IMPOSSIBLE");
+				elseif(iCurrent == 0) then
+					Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_ACCEPTABLE");
 				end
 				local Maxstr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAX_STR", iMax);
 				if(iMax == -1) then
@@ -673,6 +675,8 @@ function DoUpdateButtons()
 			local Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE", iCurrent);
 			if(iCurrent == -1) then
 				Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_IMPOSSIBLE");
+			elseif(iCurrent == 0) then
+				Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_ACCEPTABLE");
 			end
 			local ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_TT");
 			Controls.PeaceValue:SetText(Valuestr);
@@ -3042,7 +3046,9 @@ function GetVoteTooltip(pLeague, iVoteIndex, bRepeal, iNumVotes)
 			local sVoteChoice = pLeague:GetTextForChoice(tVote.VoteDecision, tVote.VoteChoice);
 			local sProposalInfo = "";
 			if (GameInfo.Resolutions[tVote.Type] ~= nil and GameInfo.Resolutions[tVote.Type].Help ~= nil) then
-				sProposalInfo = sProposalInfo .. Locale.Lookup(GameInfo.Resolutions[tVote.Type].Help);
+				--CBP
+				sProposalInfo = sProposalInfo .. GetVoteText(pLeague, iVoteIndex, bRepeal, iNumVotes);
+				sProposalInfo = sProposalInfo .. "[NEWLINE][NEWLINE]" .. Locale.Lookup(GameInfo.Resolutions[tVote.Type].Help);
 			end
 			
 			if (bRepeal) then

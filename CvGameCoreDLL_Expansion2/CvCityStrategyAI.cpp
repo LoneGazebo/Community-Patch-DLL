@@ -917,7 +917,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	int iLoop;
 	for(const CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 	{
-		if(pLoopCity && !pLoopCity->IsPuppet())
+		if(pLoopCity != NULL)
 		{
 			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
 			for (size_t i=0; i<vBuildings.size(); i++)
@@ -995,8 +995,6 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 			}
 		}
 	}
-
-	ReweightPreCheckByCost();
 
 	m_BuildablesPrecheck.SortItems();
 
@@ -1119,6 +1117,8 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg /* = NO_BUILDI
 	}
 
 	m_Buildables.SortItems();
+
+	ReweightByCost();
 
 	LogPossibleBuildsPostCheck();
 
@@ -4831,57 +4831,68 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (eSpecialist != NO_SPECIALIST)
 	{
 		int iNumNewSpecialists = pkBuildingInfo->GetSpecialistCount();
-		int iExistingSpecialists = pCity->GetCityCitizens()->GetSpecialistCount(eSpecialist);
-		int iSpecialistSlots = pCity->GetCityCitizens()->GetSpecialistSlots(eSpecialist);
-
-		int iSpecialistYield = 0;
-
-		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-		if (pkSpecialistInfo)
+		if (iNumNewSpecialists > 0)
 		{
-			iSpecialistYield = pkSpecialistInfo->getYieldChange(eYield);
+			int iExistingSpecialists = pCity->GetCityCitizens()->GetSpecialistCount(eSpecialist);
+			//Total slots.
+			int iSpecialistSlots = pCity->GetCityCitizens()->GetSpecialistSlots(eSpecialist);
 
-			if (eYield == YIELD_CULTURE)
-			{
-				iSpecialistYield += pkSpecialistInfo->getCulturePerTurn();
-				iSpecialistYield += kPlayer.GetSpecialistCultureChange();
-			}
-			
-			iSpecialistYield += kPlayer.getSpecialistExtraYield(eSpecialist, eYield) + kPlayer.getSpecialistExtraYield(eYield) + kPlayer.GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, eYield);
-			iSpecialistYield += pCity->GetEventSpecialistYield(eSpecialist, eYield);
-			iSpecialistYield += pCity->getSpecialistExtraYield(eSpecialist, eYield);
-			iSpecialistYield += kPlayer.getSpecialistYieldChange(eSpecialist, eYield);
+			int iSpecialistYield = 0;
 
-			ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
-			if (eMajority >= RELIGION_PANTHEON)
+			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+			if (pkSpecialistInfo)
 			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
-				if (pReligion)
+				iSpecialistYield = pkSpecialistInfo->getYieldChange(eYield);
+
+				if (eYield == YIELD_CULTURE)
 				{
-					iSpecialistYield += pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield, pCity->getOwner());
+					iSpecialistYield += pkSpecialistInfo->getCulturePerTurn();
+					iSpecialistYield += kPlayer.GetSpecialistCultureChange();
+				}
+
+				iSpecialistYield += kPlayer.getSpecialistExtraYield(eSpecialist, eYield) + kPlayer.getSpecialistExtraYield(eYield) + kPlayer.GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, eYield);
+				iSpecialistYield += pCity->GetEventSpecialistYield(eSpecialist, eYield);
+				iSpecialistYield += pCity->getSpecialistExtraYield(eSpecialist, eYield);
+				iSpecialistYield += kPlayer.getSpecialistYieldChange(eSpecialist, eYield);
+
+				ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
+				if (eMajority >= RELIGION_PANTHEON)
+				{
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
+					if (pReligion)
+					{
+						iSpecialistYield += pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield, pCity->getOwner());
+					}
 				}
 			}
-		}
-		//Alright, we got the specialist yields.
-		if (iSpecialistYield > 0)
-		{
-			//More than one? Multiply!
-			iSpecialistYield *= iNumNewSpecialists;
+			//Alright, we got the specialist yields.
+			if (iSpecialistYield > 0)
+			{
+				//More than one? Multiply!
+				iSpecialistYield *= iNumNewSpecialists;
 
-			//If this is our first specialist, double the value.
-			if (iSpecialistSlots == 0)
-			{
-				iFlatYield += iSpecialistYield * 2;
-			}
-			//We have slots already? If we have open slots we aren't using, halve the value.
-			else if ((iSpecialistSlots - iExistingSpecialists) != 0)
-			{
-				iFlatYield += (iSpecialistYield / 2);
-			}
-			//Growing normally? Value should increase based on number of specialists already here (to encourage clumping)!
-			else
-			{
-				iFlatYield += (iExistingSpecialists + iSpecialistYield);
+				//If this is our first specialist, double the value.
+				if (iSpecialistSlots == 0)
+				{
+					iSpecialistYield *= 10;
+
+					iFlatYield += (iSpecialistYield * iNumNewSpecialists);
+				}
+				//We have slots already? If we have open slots we aren't using, reduce the value.
+				else if ((iSpecialistSlots - iExistingSpecialists) != 0)
+				{
+					iSpecialistYield *= 2;
+					iSpecialistYield /= 3;
+
+					iFlatYield += (iSpecialistYield * max(1, iExistingSpecialists));
+				}
+				//Growing normally? Value should increase based on number of specialists already here (to encourage clumping)!
+				else
+				{
+					iSpecialistYield *= 3;
+					iSpecialistYield /= 2;
+					iFlatYield += (iExistingSpecialists * iSpecialistYield);
+				}
 			}
 		}
 	}
@@ -5041,8 +5052,8 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	//If we are deficient in this yield, increase the flat yield's value to compensate.
 	if (pCity->GetCityStrategyAI()->GetFocusYield() == eYield || pCity->GetCityStrategyAI()->IsYieldDeficient(eYield))
 	{
-		iFlatYield *= 2;
-		iModifier *= 2;
+		iFlatYield *= 10;
+		iModifier *= 3;
 	}
 
 	//Math time! Let's see how this affects our city.
@@ -5050,14 +5061,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	int iActualIncrease = 0;
 	if (iFlatYield > 0)
 	{
-		//Flat yields become less useful as the game goes on.
-		iFlatYield -= (iEra / 2);
-
 		iDelta = iYieldRate - max(1, iFlatYield);
 		if (iDelta <= 0)
 		{
 			//Yield value here greater than our yield output in this city? We need this badly!
-			iDelta *= -3;
+			iDelta *= -10;
 		}
 
 		//And here's what the value represents.
@@ -5717,7 +5725,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 
 	if(pkBuildingInfo->GetExtraSpies() > 0 || pkBuildingInfo->GetEspionageModifier() < 0 || pkBuildingInfo->GetGlobalEspionageModifier() < 0 || pkBuildingInfo->GetSpyRankChange() > 0 || pkBuildingInfo->GetInstantSpyRankChange() > 0)
 	{
-		iValue += ((kPlayer.GetEspionage()->GetNumSpies() + kPlayer.GetPlayerTraits()->GetExtraSpies() * 10) + (pkBuildingInfo->GetEspionageModifier() * -1) + (pkBuildingInfo->GetGlobalEspionageModifier() * -1) + (pkBuildingInfo->GetSpyRankChange() + pkBuildingInfo->GetInstantSpyRankChange() * 10));
+		iValue += ((kPlayer.GetEspionage()->GetNumSpies() + kPlayer.GetPlayerTraits()->GetExtraSpies() * 10) + (pkBuildingInfo->GetEspionageModifier() * -5) + (pkBuildingInfo->GetGlobalEspionageModifier() * -10) + (pkBuildingInfo->GetSpyRankChange() + pkBuildingInfo->GetInstantSpyRankChange() * 100));
 
 		if(kPlayer.GetEspionageModifier() != 0)
 		{
@@ -5725,7 +5733,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		}
 		if (kPlayer.GetEspionageModifier() == 0)
 		{
-			iValue += 50;
+			iValue += 100;
 		}
 		if(kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER) != 0)
 		{

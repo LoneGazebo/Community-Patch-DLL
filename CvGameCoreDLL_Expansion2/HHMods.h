@@ -7,4 +7,9 @@
 #define HH_MOD_NATURAL_WONDER_MODULARITY
 //see: CvPolicyClasses@ CvPolicyEntry; CvPlayer@ CvPlayer
 
+//Modifiers for each yield of international trade routes; secondary table Policy_InternationalRouteYieldModifiers (schema same as Policy_YieldFromBarbarianKills)
+// -- FOOD and PRODUCTION not supported
+#define HH_MOD_API_TRADEROUTE_MODIFIERS
+//see: CvPolicyClasses@ CvPolicyEntry, CvPlayerPolicies; CvTradeClasses@ CvPlayerTrade
+
 #endif

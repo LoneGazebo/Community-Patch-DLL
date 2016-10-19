@@ -109,14 +109,6 @@ public:
 	{
 		SetBit(TACTICAL_FLAG_SUBJECT_TO_ENEMY_ATTACK, bNewValue);
 	};
-	bool IsEnemyCanMovePast()
-	{
-		return GetBit(TACTICAL_FLAG_ENEMY_CAN_REACH_WITH_MOVES);
-	};
-	void SetEnemyCanMovePast(bool bNewValue)
-	{
-		SetBit(TACTICAL_FLAG_ENEMY_CAN_REACH_WITH_MOVES, bNewValue);
-	};
 	bool IsFriendlyTurnEndTile()
 	{
 		return GetBit(TACTICAL_FLAG_FRIENDLY_TURN_END_TILE);
@@ -202,22 +194,6 @@ public:
 		SetBit(TACTICAL_FLAG_UNCLAIMED_TERRITORY, bNewValue);
 	};
 
-	bool IsWithinRangeOfTarget()
-	{
-		return GetBit(TACTICAL_FLAG_WITHIN_RANGE_OF_TARGET);
-	};
-	void SetWithinRangeOfTarget(bool bNewValue)
-	{
-		SetBit(TACTICAL_FLAG_WITHIN_RANGE_OF_TARGET, bNewValue);
-	};
-	bool IsHelpsProvidesFlankBonus()
-	{
-		return GetBit(TACTICAL_FLAG_CAN_USE_TO_FLANK);
-	};
-	void SetHelpsProvidesFlankBonus(bool bNewValue)
-	{
-		SetBit(TACTICAL_FLAG_CAN_USE_TO_FLANK, bNewValue);
-	};
 	bool IsSafeForDeployment()
 	{
 		return GetBit(TACTICAL_FLAG_SAFE_DEPLOYMENT);
@@ -640,10 +616,9 @@ public:
 
 	// Routines to update the map
 	void ClearDynamicFlags();
-	void SetTargetFlankBonusCells(CvPlot* pTarget);
 
 	// Range variable to keep dominance zones and tactical AI in sync
-	int GetTacticalRange() const {return m_iTacticalRange;};
+	int GetTacticalRange() const {return m_iTacticalRange;}
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	void Dump();

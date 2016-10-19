@@ -1143,6 +1143,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetTotalValueToMe);
 	Method(GetRandomIntrigue);
 	Method(GetCachedValueOfPeaceWithHuman);
+	Method(GetSpyChanceAtCity);
+	Method(GetCityPotentialInfo);
 #endif
 	Method(GetNumSpies);
 	Method(GetNumUnassignedSpies);
@@ -1622,7 +1624,7 @@ int CvLuaPlayer::lHasStrategicMonopoly(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
 	const int bResult = pkPlayer->HasStrategicMonopoly(eResource);
-	lua_pushinteger(L, bResult);
+	lua_pushboolean(L, bResult);
 	return 1;
 }
 #endif
@@ -3129,7 +3131,9 @@ int CvLuaPlayer::lGetInfluenceSpyRankTooltip(lua_State* L)
 	CvString szSpyName = lua_tostring(L, 2);
 	CvString szRank = lua_tostring(L, 3);
 	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 4);
-	const CvString szResult = pkPlayer->GetCulture()->GetInfluenceSpyRankTooltip(szSpyName, szRank, eOtherPlayer);
+	bool bNoBasicHelp = luaL_optbool(L, 5, false);
+	int iSpyID = luaL_optint(L, 6, -1);
+	const CvString szResult = pkPlayer->GetCulture()->GetInfluenceSpyRankTooltip(szSpyName, szRank, eOtherPlayer, bNoBasicHelp, iSpyID);
 	lua_pushstring(L, szResult);
 	return 1;
 }
@@ -12956,7 +12960,24 @@ int CvLuaPlayer::lGetTotalValueToMeNormal(lua_State* L)
 	if(iResult == INT_MAX || iResult == (INT_MAX * -1))
 	{
 		iResult = -1;
+		lua_pushinteger(L, iResult);
+		return 1;
 	}
+	int iDealSumValue = iValueImOffering + iValueTheyreOffering;
+
+	int iAmountOverWeWillRequest = iDealSumValue;
+	iAmountOverWeWillRequest *= pkThisPlayer->GetDealAI()->GetDealPercentLeewayWithHuman();
+	iAmountOverWeWillRequest /= 100;
+
+	int iAmountUnderWeWillOffer = (iDealSumValue * -1);
+	iAmountUnderWeWillOffer *= pkThisPlayer->GetDealAI()->GetDealPercentLeewayWithHuman();
+	iAmountUnderWeWillOffer /= 100;
+
+	if (iResult <= iAmountOverWeWillRequest && iResult >= iAmountUnderWeWillOffer)
+	{
+		iResult = 0;
+	}
+ 
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -12975,6 +12996,23 @@ int CvLuaPlayer::lGetTotalValueToMe(lua_State* L)
 	if((iResult == INT_MAX) || (iResult == (INT_MAX * -1)))
 	{
 		iResult = -1;
+		lua_pushinteger(L, iResult);
+		return 1;
+	}
+	
+	int iDealSumValue = iValueImOffering + iValueTheyreOffering;
+
+	int iAmountOverWeWillRequest = iDealSumValue;
+	iAmountOverWeWillRequest *= pkThisPlayer->GetDealAI()->GetDealPercentLeewayWithHuman();
+	iAmountOverWeWillRequest /= 100;
+
+	int iAmountUnderWeWillOffer = (iDealSumValue * -1);
+	iAmountUnderWeWillOffer *= pkThisPlayer->GetDealAI()->GetDealPercentLeewayWithHuman();
+	iAmountUnderWeWillOffer /= 100;
+
+	if (iResult <= iAmountOverWeWillRequest && iResult >= iAmountUnderWeWillOffer)
+	{
+		iResult = 0;
 	}
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -12993,6 +13031,27 @@ int CvLuaPlayer::lGetCachedValueOfPeaceWithHuman(lua_State* L)
 		iResult = -1;
 	}
 	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetSpyChanceAtCity(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
+	int iSpyIndex = lua_tointeger(L, 3);
+	bool bNoBasic = lua_toboolean(L, 4);
+
+	lua_pushstring(L, pkPlayerEspionage->GetSpyChanceAtCity(pkCity, iSpyIndex, bNoBasic));
+	return 1;
+}
+int CvLuaPlayer::lGetCityPotentialInfo(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
+	bool bNoBasic = lua_toboolean(L, 3);
+
+	lua_pushstring(L, pkPlayerEspionage->GetCityPotentialInfo(pkCity, bNoBasic));
 	return 1;
 }
 //------------------------------------------------------------------------------

@@ -9382,7 +9382,7 @@ void CvLeagueAI::DoProposals(CvLeague* pLeague)
 	}
 }
 
-CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes eFromPlayer)
+CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes eFromPlayer, bool bFlippedLogic)
 {
 	VoteCommitmentList vDesired;
 
@@ -9435,7 +9435,15 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 						VoteCommitment temp;
 						temp.iResolutionID = it->GetID();
 #if defined(MOD_BALANCE_CORE_DEALS)
-						int iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
+						int iVotes = 0;
+						if (bFlippedLogic)
+						{
+							iVotes =pLeague->GetPotentialVotesForMember(eFromPlayer, GetPlayer()->GetID());
+						}
+						else
+						{
+							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
+						}	
 						temp.iNumVotes = iVotes;
 #else
 						temp.iNumVotes = pLeague->GetCoreVotesForMember(eFromPlayer);
@@ -9473,7 +9481,15 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 						VoteCommitment temp;
 						temp.iResolutionID = it->GetID();
 #if defined(MOD_BALANCE_CORE_DEALS)
-						int iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
+						int iVotes = 0;
+						if (bFlippedLogic)
+						{
+							iVotes = pLeague->GetPotentialVotesForMember(eFromPlayer, GetPlayer()->GetID());
+						}
+						else
+						{
+							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
+						}
 						temp.iNumVotes = iVotes;
 #else
 						temp.iNumVotes = pLeague->GetCoreVotesForMember(eFromPlayer);
@@ -9497,7 +9513,15 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 					{
 						int iChoice = vChoices[i];
 #if defined(MOD_BALANCE_CORE_DEALS)
-						int iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
+						int iVotes = 0;
+						if (bFlippedLogic)
+						{
+							iVotes = pLeague->GetPotentialVotesForMember(eFromPlayer, GetPlayer()->GetID());
+						}
+						else
+						{
+							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
+						}
 						DesireLevels eDesire = EvaluateVoteForTrade(it->GetID(), iChoice, iVotes, /*bRepeal*/false);
 #else
 						DesireLevels eDesire = EvaluateVoteForTrade(it->GetID(), iChoice, pLeague->GetCoreVotesForMember(eFromPlayer), /*bRepeal*/false);
@@ -9514,7 +9538,15 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 						VoteCommitment temp;
 						temp.iResolutionID = it->GetID();
 #if defined(MOD_BALANCE_CORE_DEALS)
-						int iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
+						int iVotes = 0;
+						if (bFlippedLogic)
+						{
+							iVotes = pLeague->GetPotentialVotesForMember(eFromPlayer, GetPlayer()->GetID());
+						}
+						else
+						{
+							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
+						}
 						temp.iNumVotes = iVotes;
 #else
 						temp.iNumVotes = pLeague->GetCoreVotesForMember(eFromPlayer);
@@ -9535,7 +9567,15 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 					{
 						int iChoice = vChoices[i];
 #if defined(MOD_BALANCE_CORE_DEALS)
-						int iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
+						int iVotes = 0;
+						if (bFlippedLogic)
+						{
+							iVotes = pLeague->GetPotentialVotesForMember(eFromPlayer, GetPlayer()->GetID());
+						}
+						else
+						{
+							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
+						}
 						DesireLevels eDesire = EvaluateVoteForTrade(it->GetID(), iChoice, iVotes, /*bRepeal*/true);
 #else
 						DesireLevels eDesire = EvaluateVoteForTrade(it->GetID(), iChoice, pLeague->GetCoreVotesForMember(eFromPlayer), /*bRepeal*/true);
@@ -9552,7 +9592,15 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 						VoteCommitment temp;
 						temp.iResolutionID = it->GetID();
 #if defined(MOD_BALANCE_CORE_DEALS)
-						int iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
+						int iVotes = 0;
+						if (bFlippedLogic)
+						{
+							iVotes = pLeague->GetPotentialVotesForMember(eFromPlayer, GetPlayer()->GetID());
+						}
+						else
+						{
+							iVotes = pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eFromPlayer);
+						}
 						temp.iNumVotes = iVotes;
 #else
 						temp.iNumVotes = pLeague->GetCoreVotesForMember(eFromPlayer);

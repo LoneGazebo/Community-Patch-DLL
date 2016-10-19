@@ -3215,6 +3215,29 @@ int CvPlayerTrade::GetTradeConnectionCorporationModifierTimes100(const TradeConn
 	return iModifier;
 }
 #endif
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+//	--------------------------------------------------------------------------------
+int CvPlayerTrade::GetTradeConnectionPolicyModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
+{
+	if (bAsOriginPlayer) {
+		CvCity* pOriginCity = CvGameTrade::GetOriginCity(kTradeConnection);
+		if (pOriginCity == NULL)
+		{
+			return 0;
+		}
+		return GET_PLAYER(pOriginCity->getOwner()).GetPlayerPolicies()->GetInternationalRouteYieldModifier(eYield);
+	}
+	else {
+		CvCity* pDestCity = CvGameTrade::GetDestCity(kTradeConnection);
+		if (pDestCity == NULL)
+		{
+			return 0;
+		}
+		return GET_PLAYER(pDestCity->getOwner()).GetPlayerPolicies()->GetInternationalRouteYieldModifier(eYield);
+	}
+	//return 0;
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
 {
@@ -3252,6 +3275,9 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					int iCorporationModifier = GetTradeConnectionCorporationModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iOpenBordersModifier = GetTradeConnectionOpenBordersModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 #endif
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+					int iPolicyModifier = GetTradeConnectionPolicyModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
+#endif
 
 					iValue = iBaseValue;
 					iValue += iOriginPerTurnBonus;
@@ -3272,6 +3298,9 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 #if defined(MOD_BALANCE_CORE)
 					iModifier += iCorporationModifier;
 					iModifier += iOpenBordersModifier;
+#endif
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+					iModifier += iPolicyModifier;
 #endif
 
 					iValue *= iModifier;
@@ -3310,6 +3339,10 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					int iCorporationModifier = GetTradeConnectionCorporationModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					iModifier += iCorporationModifier;
 #endif
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+					int iPolicyModifier = GetTradeConnectionPolicyModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
+					iModifier += iPolicyModifier;
+#endif
 				
 					iValue *= iModifier;
 					iValue /= 100;
@@ -3317,6 +3350,9 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 				}
 #endif
 				break;
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+/// TODO: Integrate modifier logic into the PRODUCTION and FOOD cases of international trade
+#endif
 #if defined(MOD_BALANCE_CORE)
 			case YIELD_PRODUCTION:
 				{
@@ -3449,6 +3485,9 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
 						int iDestRiverModifier = GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, eYield, false);
 						int iTraitBonus = GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, false);
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+						int iPolicyModifier = GetTradeConnectionPolicyModifierTimes100(kTradeConnection, eYield, false /*bAsOriginPlayer*/);
+#endif
 
 						iValue = iBaseValue;
 						iValue += iYourBuildingBonus;
@@ -3462,6 +3501,9 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 
 						iModifier += iDomainModifier;
 						iModifier += iDestRiverModifier;
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+						iModifier += iPolicyModifier;
+#endif
 
 						iValue *= iModifier;
 						iValue /= 100;
@@ -3485,6 +3527,10 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 #endif
 
 						int iModifier = 100;
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+						int iPolicyModifier = GetTradeConnectionPolicyModifierTimes100(kTradeConnection, eYield, false /*bAsOriginPlayer*/);
+						iModifier += iPolicyModifier;
+#endif
 
 						iValue = iBaseValue;
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -3541,7 +3587,12 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						}
 					}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+					if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->IsConquestOfTheWorld() && GET_PLAYER(kTradeConnection.m_eDestOwner).isGoldenAge())
+					{
+						iValue *= 2;
+					}
+#endif
 					int iModifier = 100;
 					int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
 					iModifier += iDomainModifier;
@@ -3594,6 +3645,12 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 							int iDelta = ((iStartCityPop - iEndCityPop) / 3);
 							iValue += max((iDelta * 100), 100);
 						}
+					}
+#endif
+#if defined(MOD_BALANCE_CORE)
+					if(GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->IsConquestOfTheWorld() && GET_PLAYER(kTradeConnection.m_eDestOwner).isGoldenAge())
+					{
+						iValue *= 2;
 					}
 #endif
 					int iModifier = 100;
@@ -3862,7 +3919,8 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 	if (iRouteIndex != -1)
 	{
 		int nPlots = pTrade->GetTradeConnection(iRouteIndex).m_aPlotList.size();
-		if (nPlots > 0) {
+		if (nPlots > 0)
+		{
 			if (nPlots > MAX_PLOTS_TO_DISPLAY)
 				nPlots = MAX_PLOTS_TO_DISPLAY;
 			for (uint ui = 0; ui < (uint)nPlots; ui++) 
@@ -6100,6 +6158,13 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	{
 		iScore *= MAX(5, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(true));
 	}
+#if defined(MOD_BALANCE_CORE)
+	// turn it up some for Conquest of the World player during golden ages
+	if(m_pPlayer->GetPlayerTraits()->IsConquestOfTheWorld() && m_pPlayer->isGoldenAge())
+	{
+		iScore *= 5;
+	}
+#endif
 
 	return (iScore * 10) / (iDistance + iDangerSum);
 }

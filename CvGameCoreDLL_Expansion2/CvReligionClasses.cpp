@@ -2286,7 +2286,7 @@ void CvGameReligions::DoUpdateReligion(PlayerTypes ePlayer)
 	{
 		if(it->m_eFounder == ePlayer)
 		{
-			if(!it->m_bPantheon)
+			if (it->m_eReligion != RELIGION_PANTHEON)
 			{
 				//If we founded a religion, but no longer control the holy city, it isn't ours anymore!
 				//I guess this technically means we could found another one...
@@ -2311,7 +2311,7 @@ void CvGameReligions::DoUpdateReligion(PlayerTypes ePlayer)
 		for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
 		{
 			//We own this holy city? It is ours to work with now.
-			if (!it->m_eReligion != RELIGION_PANTHEON)
+			if (it->m_eReligion != RELIGION_PANTHEON)
 			{
 				CvPlot* pHolyCityPlot = NULL;
 				pHolyCityPlot = GC.getMap().plot(it->m_iHolyCityX, it->m_iHolyCityY);
@@ -2339,7 +2339,7 @@ void CvGameReligions::DoUpdateReligion(PlayerTypes ePlayer)
 			int iBestValue = -1;
 			for(it = m_CurrentReligions.begin(); it != m_CurrentReligions.end(); it++)
 			{
-				if(!it->m_eReligion != RELIGION_PANTHEON)
+				if(it->m_eReligion != RELIGION_PANTHEON)
 				{
 					CvPlot* pHolyCityPlot = NULL;
 					pHolyCityPlot = GC.getMap().plot(it->m_iHolyCityX, it->m_iHolyCityY);
@@ -4394,10 +4394,10 @@ int CvPlayerReligions::GetSpyPressure(PlayerTypes ePlayer) const
 {
 	int iRtnValue = 0;
 	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
-	if(eReligion == NO_RELIGION)
-	{
-		eReligion = GetReligionInMostCities();
-	}
+	//if(eReligion == NO_RELIGION)
+	//{
+	//	eReligion = GetReligionInMostCities();
+	//}
 	if (eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
@@ -8212,7 +8212,7 @@ int CvReligionAI::ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot)
 #if defined(MOD_BALANCE_CORE)
 			if (pEntry->GetResourceQuantityModifier(eResource) > 0)
 			{
-				iRtnValue += (pEntry->GetResourceQuantityModifier(eResource) / 2);
+				iRtnValue += (pEntry->GetResourceQuantityModifier(eResource) / 10);
 			}
 #endif
 			// Improvement

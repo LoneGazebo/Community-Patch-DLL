@@ -164,6 +164,7 @@ public:
 	int GetTotalSpecialistCount() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetSpecialistSlots(SpecialistTypes eIndex) const;
+	void ChangeNumSpecialistSlots(SpecialistTypes eIndex, int iValue);
 	int GetSpecialistSlotsTotal() const;
 #endif
 

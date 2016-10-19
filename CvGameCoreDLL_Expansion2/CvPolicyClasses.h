@@ -336,6 +336,10 @@ public:
 	int GetYieldFromWLTKD(int i) const;
 	int* GetYieldFromWLTKDArray() const;
 #endif
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+	int GetInternationalRouteYieldModifier(int i) const;
+	/* int* GetInternationalRouteYieldModifiersArray */
+#endif
 	int GetBuildingClassYieldModifiers(int i, int j) const;
 	int GetBuildingClassYieldChanges(int i, int j) const;
 	int GetFlavorValue(int i) const;
@@ -673,6 +677,9 @@ private:
 	int* m_piYieldFromMinorDemand;
 	int* m_piYieldFromWLTKD;
 #endif
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+	int* m_piInternationalRouteYieldModifiers;
+#endif
 	int** m_ppiBuildingClassYieldModifiers;
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_piFlavorValue;
@@ -884,6 +891,9 @@ public:
 	int GetYieldModifier(YieldTypes eYieldType);
 	int GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
+#if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
+	int GetInternationalRouteYieldModifier(YieldTypes eYieldType);
+#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetReligionBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
 #endif

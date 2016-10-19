@@ -296,7 +296,7 @@ FDataStream& operator>>(FDataStream& loadFrom, ContractTypes& writeTo)
 //=====================================
 /// Constructor
 CvPlayerContracts::CvPlayerContracts() :
-m_pPlayer(NULL)
+	m_pPlayer(NULL)
 {
 }
 
@@ -632,6 +632,24 @@ CvContractEntry* CvPlayerContracts::GetContractEntry(ContractTypes eContract)
 		return NULL;
 
 	return GC.getContractInfo(pContract->m_eContract);
+}
+
+/// Serialization read
+void CvPlayerContracts::Read(FDataStream& kStream)
+{
+	// Version number to maintain backwards compatibility
+	uint uiVersion;
+	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
+}
+
+/// Serialization write
+void CvPlayerContracts::Write(FDataStream& kStream)
+{
+	// Current version number
+	uint uiVersion = 1;
+	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 }
 
 //=====================================
