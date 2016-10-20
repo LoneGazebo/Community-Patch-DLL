@@ -18,6 +18,9 @@ class CvTeamTechs;
 
 class CvTeam
 {
+private:
+	CvTeam(const CvTeam&); //hide copy constructor
+	CvTeam& operator=(const CvTeam&); //hide assignment operator
 
 public:
 	CvTeam();

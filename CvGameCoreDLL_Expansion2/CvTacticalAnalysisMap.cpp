@@ -240,14 +240,6 @@ CvTacticalAnalysisMap::CvTacticalAnalysisMap(void) :
 /// Destructor
 CvTacticalAnalysisMap::~CvTacticalAnalysisMap(void)
 {
-	m_iDominancePercentage = 0;
-	m_iUnitStrengthMultiplier = 0;
-	m_iTacticalRange = 0;
-	m_ePlayer = NO_PLAYER;
-	m_iTurnBuilt = 0;
-	m_pCells.clear();
-	m_DominanceZones.clear();
-	m_iTurnBuilt = -1;
 }
 
 /// Initialize

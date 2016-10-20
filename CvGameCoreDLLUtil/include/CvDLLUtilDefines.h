@@ -36,6 +36,7 @@
 #define MAX_TEAMS											(MAX_PLAYERS)
 #define BARBARIAN_PLAYER									((PlayerTypes)MAX_CIV_PLAYERS)
 #define BARBARIAN_TEAM										((TeamTypes)MAX_CIV_TEAMS)
+
 #define OBSERVER_TEAM										((TeamTypes)(MAX_MAJOR_CIVS-1))		//This only works because observer mode is multiplayer/debug only																																		//and multiplayer only supports 12 max players 																																	//(due to map player restrictions)
 
 #define MAX_DAMAGE_MEMBER_COUNT								32

@@ -1541,7 +1541,11 @@ CvBeliefEntry* CvBeliefXMLEntries::GetEntry(int index)
 //=====================================
 /// Constructor
 CvReligionBeliefs::CvReligionBeliefs():
+#if !defined(MOD_BALANCE_CORE_BELIEFS)
 	m_paiBuildingClassEnabled(NULL)
+#else
+m_iNeedThisToCompile(-1)
+#endif
 {
 	Reset();
 }
@@ -1560,7 +1564,7 @@ CvReligionBeliefs::CvReligionBeliefs(const CvReligionBeliefs& source)
 	m_BeliefLookup = source.m_BeliefLookup;
 	m_eReligion = source.m_eReligion;
 #endif
-
+#if !defined(MOD_BALANCE_CORE_BELIEFS)
 	m_paiBuildingClassEnabled = FNEW(int[GC.getNumBuildingClassInfos()], c_eCiv5GameplayDLL, 0);
 	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
@@ -1572,12 +1576,15 @@ CvReligionBeliefs::CvReligionBeliefs(const CvReligionBeliefs& source)
 
 		m_paiBuildingClassEnabled[iI] = source.m_paiBuildingClassEnabled[iI];
 	}
+#endif
 }
 
 /// Deallocate memory created in initialize
 void CvReligionBeliefs::Uninit()
 {
+#if !defined(MOD_BALANCE_CORE_BELIEFS)
 	SAFE_DELETE_ARRAY(m_paiBuildingClassEnabled);
+#endif
 }
 
 /// Reset data members
@@ -1626,10 +1633,11 @@ void CvReligionBeliefs::Reset()
 
 	m_ReligionBeliefs.clear();
 #if defined(MOD_BALANCE_CORE)
+	m_iNeedThisToCompile = -1;
 	m_eReligion = NO_RELIGION;
 	m_BeliefLookup = std::vector<int>(GC.GetGameBeliefs()->GetNumBeliefs(),0);
 #endif
-
+#if !defined(MOD_BALANCE_CORE_BELIEFS)
 	m_paiBuildingClassEnabled = FNEW(int[GC.getNumBuildingClassInfos()], c_eCiv5GameplayDLL, 0);
 	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
@@ -1641,6 +1649,7 @@ void CvReligionBeliefs::Reset()
 
 		m_paiBuildingClassEnabled[iI] = 0;
 	}
+#endif
 }
 #if defined(MOD_BALANCE_CORE)
 void CvReligionBeliefs::SetReligion(ReligionTypes eReligion)
@@ -1700,7 +1709,6 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 
 	m_eObsoleteEra = belief->GetObsoleteEra();
 	m_eResourceRevealed = belief->GetResourceRevealed();
-#endif
 	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
 		if (belief->IsBuildingClassEnabled(iI))
@@ -1708,7 +1716,6 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 			m_paiBuildingClassEnabled[iI]++;
 		}
 	}
-#if !defined(MOD_BALANCE_CORE_BELIEFS)
 	if(belief->GetSpreadModifierDoublingTech() != NO_TECH)
 	{
 		m_eSpreadModifierDoublingTech = belief->GetSpreadModifierDoublingTech();
@@ -3778,8 +3785,9 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 		m_BeliefLookup[iBeliefIndex] = 1;
 #endif
 	}
-
+#if !defined(MOD_BALANCE_CORE)
 	BuildingClassArrayHelpers::Read(kStream, m_paiBuildingClassEnabled);
+#endif
 }
 
 /// Serialization write
@@ -3838,8 +3846,9 @@ void CvReligionBeliefs::Write(FDataStream& kStream) const
 	{
 		CvInfosSerializationHelper::WriteHashed(kStream, (BeliefTypes)m_ReligionBeliefs[i]);
 	}
-
+#if !defined(MOD_BALANCE_CORE)
 	BuildingClassArrayHelpers::Write(kStream, m_paiBuildingClassEnabled, GC.getNumBuildingClassInfos());
+#endif
 }
 
 /// BELIEF HELPER CLASSES

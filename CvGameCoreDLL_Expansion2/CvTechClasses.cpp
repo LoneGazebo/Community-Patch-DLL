@@ -1296,8 +1296,7 @@ void CvPlayerTechs::SetGSPriorities()
 				int iTechGSValue = CityStrategyAIHelpers::GetBuildingGrandStrategyValue(NULL, eBuilding, m_pPlayer->GetID());
 				if (iTechGSValue > 0)
 				{
-					iTechGSValue /= 10;
-					m_piGSTechPriority[iTechLoop] += max(1, iTechGSValue);
+					m_piGSTechPriority[iTechLoop]++;
 				}
 
 			}
@@ -1305,37 +1304,26 @@ void CvPlayerTechs::SetGSPriorities()
 		//Let's look at grandstrategy values for units as well and add those in to techs.
 		for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
 		{
-			const UnitTypes eUnit = static_cast<UnitTypes>(iUnitLoop);
+			UnitTypes eUnit = (UnitTypes)iUnitLoop;
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 
 			if (pkUnitInfo && pkUnitInfo->GetPrereqAndTech() == iTechLoop)
 			{
-				int iTechGSValue = 0;
 				if (pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0)
 				{
-					iTechGSValue = pkUnitInfo->GetRange() > 0 ? pkUnitInfo->GetRangedCombat() : pkUnitInfo->GetCombat();
+					m_piGSTechPriority[iTechLoop]++;
+					if (bSeekingConquestVictory)
+					{
+						m_piGSTechPriority[iTechLoop]++;
+					}
 				}
-				if (bSeekingConquestVictory)
-				{
-					iTechGSValue /= 10;
-				}
-				else
-				{
-					iTechGSValue /= 20;
-				}
-
-				m_piGSTechPriority[iTechLoop] += max(iTechGSValue, 1);
-
 				if (pkUnitInfo->IsFound() || pkUnitInfo->IsFoundAbroad() || pkUnitInfo->IsFoundMid() || pkUnitInfo->IsFoundLate())
 				{
-					m_piGSTechPriority[iTechLoop] += 5;
+					m_piGSTechPriority[iTechLoop]++;
 				}
 				if (bSeekingScienceVictory && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
 				{
-					if (iTechGSValue > 0)
-					{
-						m_piGSTechPriority[iTechLoop] += 10;
-					}
+					m_piGSTechPriority[iTechLoop]++;
 				}
 
 			}

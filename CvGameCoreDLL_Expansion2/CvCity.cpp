@@ -1476,7 +1476,11 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iCityRank = 0;
 	m_iTurnsSinceRankAnnouncement = 0;
-	m_aiEconomicValue.resize(MAX_MAJOR_CIVS,0);
+	m_aiEconomicValue.resize(MAX_MAJOR_CIVS);
+	for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+	{
+		m_aiEconomicValue.setAt(iI, 0);
+	}
 #endif
 	m_aiBaseYieldRateFromReligion.resize(NUM_YIELD_TYPES);
 #if defined(MOD_BALANCE_CORE)	
@@ -2044,9 +2048,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 				m_ppaiEventFeatureYield[iI][iJ] = 0;
 			}
 		}
-
-		m_aiEconomicValue.clear();
-		m_aiEconomicValue.resize(MAX_MAJOR_CIVS,0);
 #endif
 		
 	}
@@ -22996,15 +22997,15 @@ void CvCity::SetPurchased(BuildingClassTypes eBuildingClass, bool bValue)
 bool CvCity::IsPurchased(BuildingClassTypes eBuildingClass)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eBuildingClass >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eIndex expected to be < MAX_PLAYERS");
+	CvAssertMsg(eBuildingClass >= 0, "eBuildingClass expected to be >= 0");
+	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eBuildingClass expected to be < GC.getNumBuildingClassInfos()");
 	return m_abIsPurchased[eBuildingClass];
 }
 void CvCity::SetBestForWonder(BuildingClassTypes eBuildingClass, bool bValue)
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eBuildingClass >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eIndex expected to be < MAX_PLAYERS");
+		CvAssertMsg(eBuildingClass >= 0, "eBuildingClass expected to be >= 0");
+	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eBuildingClass expected to be < GC.getNumBuildingClassInfos()");
 	if (m_abIsBestForWonder[eBuildingClass] != bValue)
 	{
 		m_abIsBestForWonder.setAt(eBuildingClass, bValue);
@@ -23013,8 +23014,8 @@ void CvCity::SetBestForWonder(BuildingClassTypes eBuildingClass, bool bValue)
 bool CvCity::IsBestForWonder(BuildingClassTypes eBuildingClass)
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(eBuildingClass >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eIndex expected to be < MAX_PLAYERS");
+		CvAssertMsg(eBuildingClass >= 0, "eBuildingClass expected to be >= 0");
+	CvAssertMsg(eBuildingClass < GC.getNumBuildingClassInfos(), "eBuildingClass expected to be < GC.getNumBuildingClassInfos()");
 	return m_abIsBestForWonder[eBuildingClass];
 }
 

@@ -490,7 +490,7 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 	// set grid size
 	// initially set in terrain cell units
 	//
-	m_iGridWidth = (CvPreGame::worldSize() != NO_WORLDSIZE) ?  getWorldInfo().getGridWidth(): 0;	//todotw:tcells wide
+	m_iGridWidth = (CvPreGame::worldSize() != NO_WORLDSIZE) ?  getWorldInfo().getGridWidth(): 0;
 	m_iGridHeight = (CvPreGame::worldSize() != NO_WORLDSIZE) ? getWorldInfo().getGridHeight(): 0;
 
 	// allow grid size override
@@ -501,6 +501,7 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 	}
 
 	m_iGridSize = m_iGridHeight * m_iGridWidth;
+
 	m_iLandPlots = 0;
 	m_iOwnedPlots = 0;
 	m_iNumNaturalWonders = 0;

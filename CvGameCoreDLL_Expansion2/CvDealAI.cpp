@@ -8884,7 +8884,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 
 		if(bWar)
 		{
-			return iItemValue;
+			return (iItemValue / 2);
 		}
 
 		// Add deal value based on number of wars player is currently fighting (including with minors)

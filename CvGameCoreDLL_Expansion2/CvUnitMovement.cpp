@@ -231,7 +231,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			if(!kToPlotTeam.IsAllowsOpenBordersToTeam(eUnitTeam))
 			{
 				//unit itself may have a negative trait ...
-				bSlowDown = pUnit->isMustSetUpToRangedAttack(); //todo: rename this trait!
+				bSlowDown = pUnit->isSlowInEnemyLand();
 
 				if (!bSlowDown)
 				{

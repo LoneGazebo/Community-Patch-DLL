@@ -4638,8 +4638,6 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage) cons
 				{
 					return true;
 				}
-
-				kTheirTeam = GET_TEAM(GET_PLAYER(eMinorAlly).getTeam());
 			} 
 			else 
 #endif
@@ -10640,6 +10638,7 @@ bool CvUnit::found()
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
+	plot()->verifyUnitValidPlot();
 	int iMaxRange = 3;
 	for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
 	{
@@ -15032,25 +15031,25 @@ bool CvUnit::canCoexistWithEnemyUnit(TeamTypes eTeam) const
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getMustSetUpToRangedAttackCount() const
+int CvUnit::getIsSlowInEnemyLandCount() const
 {
 	VALIDATE_OBJECT
 	return m_iMustSetUpToRangedAttackCount;
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::isMustSetUpToRangedAttack() const
+bool CvUnit::isSlowInEnemyLand() const
 {
 	VALIDATE_OBJECT
-	return getMustSetUpToRangedAttackCount() > 0;
+	return getIsSlowInEnemyLandCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::changeMustSetUpToRangedAttackCount(int iChange)
+void CvUnit::changeIsSlowInEnemyLandCount(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iMustSetUpToRangedAttackCount = (m_iMustSetUpToRangedAttackCount + iChange);
-	CvAssert(getMustSetUpToRangedAttackCount() >= 0);
+	CvAssert(getIsSlowInEnemyLandCount() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -25237,7 +25236,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeRiverCrossingNoPenaltyCount((thisPromotion.IsRiver()) ? iChange : 0);
 		changeEnemyRouteCount((thisPromotion.IsEnemyRoute()) ? iChange : 0);
 		changeRivalTerritoryCount((thisPromotion.IsRivalTerritory()) ? iChange : 0);
-		changeMustSetUpToRangedAttackCount((thisPromotion.IsMustSetUpToRangedAttack()) ? iChange : 0);
+		changeIsSlowInEnemyLandCount((thisPromotion.IsMustSetUpToRangedAttack()) ? iChange : 0);
 		changeRangedSupportFireCount((thisPromotion.IsRangedSupportFire()) ? iChange : 0);
 		changeAlwaysHealCount((thisPromotion.IsAlwaysHeal()) ? iChange : 0);
 		changeHealOutsideFriendlyCount((thisPromotion.IsHealOutsideFriendly()) ? iChange : 0);

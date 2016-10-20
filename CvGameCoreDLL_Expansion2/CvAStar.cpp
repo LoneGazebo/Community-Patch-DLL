@@ -2260,7 +2260,7 @@ bool CvStepFinder::Configure(PathType ePathType)
 	switch(ePathType)
 	{
 	case PT_GENERIC_REACHABLE_PLOTS:
-		SetFunctionPointers(NULL, NULL, StepHeuristic, StepCostEstimate, StepValid, StepAddWithTurnsFromCost, NULL, NULL, NULL, NULL, NULL);
+		SetFunctionPointers(NULL, NULL, StepHeuristic, StepCostEstimate, StepValidAnyArea, StepAddWithTurnsFromCost, NULL, NULL, NULL, NULL, NULL);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_GENERIC_SAME_AREA:

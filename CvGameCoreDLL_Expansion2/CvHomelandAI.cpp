@@ -5175,6 +5175,8 @@ void CvHomelandAI::ExecuteProphetMoves()
 						}
 					}
 				}
+				else
+					MoveCivilianToSafety(pUnit);
 			}
 			break;
 

@@ -3062,7 +3062,7 @@ int CvLuaUnit::lIsRanged(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaUnit::lIsMustSetUpToRangedAttack(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvUnit::isMustSetUpToRangedAttack);
+	return BasicLuaMethod(L, &CvUnit::isSlowInEnemyLand); //note that this promotion has been redefined
 }
 //------------------------------------------------------------------------------
 int CvLuaUnit::lCanSetUpForRangedAttack(lua_State* L)
