@@ -760,7 +760,7 @@ void CvPlot::verifyUnitValidPlot()
 						{
 							// Unit not allowed to be here
 #if defined(MOD_GLOBAL_STACKING_RULES)
-							if(getMaxFriendlyUnitsOfType(pLoopUnit) > /*1*/ getUnitLimit() || isCity())
+							if(getMaxFriendlyUnitsOfType(pLoopUnit) > /*1*/ getUnitLimit())
 #else
 							if(getMaxFriendlyUnitsOfType(pLoopUnit) > /*1*/ GC.getPLOT_UNIT_LIMIT())
 #endif
