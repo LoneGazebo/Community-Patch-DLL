@@ -1091,6 +1091,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsDiplomaticMarriage);
 	Method(IsGPWLTKD);
 	Method(IsCarnaval);
+	Method(GetTraitConquestOfTheWorldCityAttackMod);
 #endif
 	Method(IsUsingMayaCalendar);
 	Method(GetMayaCalendarString);
@@ -11160,6 +11161,31 @@ int CvLuaPlayer::lGetTraitGoldenAgeCombatModifier(lua_State* L)
 	}
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+int CvLuaPlayer::lGetTraitConquestOfTheWorldCityAttackMod(lua_State* L)
+{
+	int iRtnValue = 0;
+
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	if(pkPlot && pkPlayer)
+	{
+		if(pkPlayer->isGoldenAge())
+		{
+			CvCity* pPlotCity = pkPlot->getWorkingCity();
+			if(pPlotCity)
+			{
+				if(!GET_PLAYER(pPlotCity->getOwner()).isMinorCiv())
+				{
+					iRtnValue = pkPlayer->GetPlayerTraits()->GetConquestOfTheWorldCityAttack();
+				}
+			}
+		}
+	}
+	lua_pushinteger(L, iRtnValue);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetTraitCityStateCombatModifier(lua_State* L)
 {

@@ -10638,6 +10638,7 @@ bool CvUnit::found()
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
+	plot()->verifyUnitValidPlot();
 	int iMaxRange = 3;
 	for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
 	{

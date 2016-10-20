@@ -38,8 +38,6 @@
 #if defined(MOD_BALANCE_CORE)
 #include "CvDistanceMap.h"
 #include "CvBarbarians.h"
-#include "CvCorporationClasses.h"
-#include "CvContractClasses.h"
 #endif
 #include "CvCityConnections.h"
 #include "CvNotifications.h"
@@ -739,26 +737,22 @@ CvPlayer::~CvPlayer()
 	SAFE_DELETE(m_pCityDistanceTurns);
 	SAFE_DELETE(m_pCityDistancePlots);
 #endif
-	SAFE_DELETE(m_pPlayerPolicies);
-	SAFE_DELETE(m_pEconomicAI);
-	SAFE_DELETE(m_pMilitaryAI);
-	SAFE_DELETE(m_pCitySpecializationAI);
-	SAFE_DELETE(m_pWonderProductionAI);
-	SAFE_DELETE(m_pGrandStrategyAI);
-	SAFE_DELETE(m_pDiplomacyAI);
-	SAFE_DELETE(m_pReligions);
-	SAFE_DELETE(m_pReligionAI);
-#if defined(MOD_BALANCE_CORE)
-	SAFE_DELETE(m_pCorporations);
-	SAFE_DELETE(m_pContracts);
-#endif
-	SAFE_DELETE(m_pPlayerTechs);
-	SAFE_DELETE(m_pFlavorManager);
-	SAFE_DELETE(m_pTacticalAI);
-	SAFE_DELETE(m_pHomelandAI);
-	SAFE_DELETE(m_pMinorCivAI);
-	SAFE_DELETE(m_pDealAI);
-	SAFE_DELETE(m_pBuilderTaskingAI);
+	delete m_pPlayerPolicies;
+	delete m_pEconomicAI;
+	delete m_pMilitaryAI;
+	delete m_pCitySpecializationAI;
+	delete m_pWonderProductionAI;
+	delete m_pGrandStrategyAI;
+	delete m_pDiplomacyAI;
+	delete m_pReligions;
+	delete m_pReligionAI;
+	delete m_pPlayerTechs;
+	delete m_pFlavorManager;
+	delete m_pTacticalAI;
+	delete m_pHomelandAI;
+	delete m_pMinorCivAI;
+	delete m_pDealAI;
+	delete m_pBuilderTaskingAI;
 	SAFE_DELETE(m_pCityConnections);
 	SAFE_DELETE(m_pNotifications);
 	SAFE_DELETE(m_pDiplomacyRequests);
@@ -769,6 +763,10 @@ CvPlayer::~CvPlayer()
 	SAFE_DELETE(m_pTrade);
 	SAFE_DELETE(m_pTradeAI);
 	SAFE_DELETE(m_pLeagueAI);
+#if defined(MOD_BALANCE_CORE)
+	delete m_pCorporations;
+	delete m_pContracts;
+#endif
 }
 
 
@@ -25936,6 +25934,10 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 
 	// Note: this is the same transport method (though without a delay) as a Militaristic city-state gifting a unit
 	CvCity* pMajorCity = GetClosestCityByEstimatedTurns(pMinorPlot);
+	if (pMajorCity == NULL && getCapitalCity() != NULL)
+	{
+		pMajorCity = getCapitalCity();
+	}
 	int iX = pMinorCapital->getX();
 	int iY = pMinorCapital->getY();
 	if(pMajorCity != NULL)

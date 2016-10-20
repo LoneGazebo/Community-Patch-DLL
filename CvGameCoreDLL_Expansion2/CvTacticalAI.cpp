@@ -1658,7 +1658,7 @@ void CvTacticalAI::FindTacticalTargets()
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
 					newTarget.SetTargetPlayer(BARBARIAN_PLAYER);
 					newTarget.SetAuxData((void*)pLoopPlot);
-					newTarget.SetAuxIntData(m_pPlayer->isBarbarian() ? 5 : iBaseScore - min(20,m_pPlayer->GetCityDistanceInPlots(pLoopPlot)) );
+					newTarget.SetAuxIntData(iBaseScore);
 					m_AllTargets.push_back(newTarget);
 				}
 

@@ -182,13 +182,13 @@ class CvPlayerCorporations
 	friend void CvGameCorporations::DestroyCorporation(CorporationTypes eCorporation);
 
 public:
-	CvPlayerCorporations(void);
-	~CvPlayerCorporations(void);
+	CvPlayerCorporations();
+	~CvPlayerCorporations();
 	void Init(CvPlayer* pPlayer);
 	void Uninit();
 	void Reset();
-	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream);
+	virtual void Read(FDataStream& kStream);
+	virtual void Write(FDataStream& kStream) const;
 
 	CvCorporation* GetCorporation() const;
 

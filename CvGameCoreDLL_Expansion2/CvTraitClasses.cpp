@@ -5685,9 +5685,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_READ_ARRAY(88, kStream, &m_piNumPledgesDomainProdMod[0], int, NUM_DOMAIN_TYPES, 0);
-	MOD_SERIALIZE_READ_ARRAY(88, kStream, &m_piFreeUnitClassesDOW[0], int, GC.getNumUnitClassInfos(), 0);
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, &m_ppiYieldFromTileEarnTerrainType[0], NUM_YIELD_TYPES);
+	kStream >> m_piNumPledgesDomainProdMod;
+	kStream >> m_piFreeUnitClassesDOW;
+	kStream >> m_ppiYieldFromTileEarnTerrainType;
 
 	kStream >> iNumEntries;
 	m_paiMovesChangeUnitClass.clear();
@@ -6061,9 +6061,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 		kStream << m_aFreeTraitUnits[ui].m_ePrereqTech;
 	}
 #if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_WRITE_CONSTARRAY(kStream, &m_piNumPledgesDomainProdMod[0], int, NUM_DOMAIN_TYPES);
-	MOD_SERIALIZE_WRITE_CONSTARRAY(kStream, &m_piFreeUnitClassesDOW[0], int, GC.getNumUnitClassInfos());
-	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, &m_ppiYieldFromTileEarnTerrainType[0], NUM_YIELD_TYPES);
+	kStream << m_piNumPledgesDomainProdMod;
+	kStream << m_piFreeUnitClassesDOW;
+	kStream << m_ppiYieldFromTileEarnTerrainType;
 
 	kStream << 	m_paiMovesChangeUnitClass.size();
 	for(uint ui = 0; ui < m_paiMovesChangeUnitClass.size(); ui++)

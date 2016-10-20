@@ -589,6 +589,7 @@ private:
 
 	// Arrays
 	int* m_paiBuildingClassEnabled;
+	int m_iNeedThisToCompile;
 };
 
 namespace CvBeliefHelpers
