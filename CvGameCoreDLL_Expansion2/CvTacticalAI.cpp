@@ -13617,6 +13617,12 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		//is this a completed position or did we run into a dead end?
 		else if (current->isComplete())
 			closedPositions.push_back(current);
+
+		if (openPositionsHeap.size()>2000)
+		{
+			OutputDebugString( "warning: terminating because of endless loop!\n" );
+			break;
+		}
 	}
 	
 	if (!closedPositions.empty())
