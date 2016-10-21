@@ -1590,13 +1590,9 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 
 	//this is for the army
 	if (!pDeployPlot)
-		pDeployPlot = GetPlotXInStepPath(pMusterPlot,pTargetPlot,GetDeployRange(),false);
-
-	if (!pDeployPlot && IsNavalOperation() && pTargetPlot->isWater())
-	{
 		pDeployPlot = pTargetPlot;
-	}
-	if (!pDeployPlot)
+
+	if (IsNavalOperation() && pDeployPlot->isWater())
 	{
 		if (GC.getLogging() && GC.getAILogging())
 			LogOperationSpecialMessage("Cannot set up operation - no path to target!");
@@ -1882,7 +1878,9 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 				{
 					bInPlace = true;
 				}
-				if (!bInPlace) //check for nearby enemy (for sneak attacks)
+
+				//check for nearby enemy (for sneak attacks)
+				if (!bInPlace && (GetOperationType()==AI_OPERATION_NAVAL_INVASION_SNEAKY || GetOperationType()==AI_OPERATION_CITY_SNEAK_ATTACK) ) 
 				{
 					CvPlot *pOtherTarget = NULL;
 					for (CvUnit* pUnit = pThisArmy->GetFirstUnit(); pUnit; pUnit = pThisArmy->GetNextUnit())
@@ -1891,29 +1889,18 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 						{
 							CvPlot* pAdjacentPlot = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
 
-							if (GET_PLAYER(m_eOwner).IsAtWarWith(m_eEnemy))
+							if (pAdjacentPlot != NULL && pAdjacentPlot->getNumDefenders(m_eEnemy) > 0)
 							{
-								if (pAdjacentPlot != NULL && ((pAdjacentPlot->getOwner() == m_eEnemy) || (pAdjacentPlot->getNumDefenders(m_eEnemy) > 0)))
-								{
-									pOtherTarget = pAdjacentPlot;
-									bInPlace = true;
-									break;
-								}
-							}
-							else
-							{
-								if (pAdjacentPlot != NULL && (pAdjacentPlot->getOwner() == m_eEnemy))
-								{
-									pOtherTarget = pAdjacentPlot;
-									bInPlace = true;
-									break;
-								}
+								pOtherTarget = pAdjacentPlot;
+								bInPlace = true;
+								break;
 							}
 						}
 
 						if (bInPlace)
 							break;
 					}
+
 					if (pOtherTarget != NULL)
 					{
 						// Notify tactical AI to focus on this area
