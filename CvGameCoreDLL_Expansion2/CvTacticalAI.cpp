@@ -12752,7 +12752,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(S
 	return possibleMoves;
 }
 
-bool CvTacticalPosition::makeNextAssignments(int iMaxBranches)
+bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxAssignmentsPerBranch)
 {
 	/*
 	abstract:
@@ -12798,7 +12798,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches)
 		vector<STacticalAssignment> movesToAdd;
 
 		//don't check all possibilities, only the best ones
-		if (iNewBranches > iMaxBranches)
+		if (iNewBranches == iMaxBranches)
 			break;
 
 		if (isBlockedMove(*itMove))
@@ -12834,27 +12834,61 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches)
 		//	note that this is a performance / memory optimization to keep the tree smaller
 		//	however in many cases the assignments are not independent in the sense that they influence each others' score
 		//	so it would be better to do the moves one by one
-		findCompatibleMoves(movesToAdd,overAllChoices,3);
+		findCompatibleMoves(movesToAdd,overAllChoices,iMaxAssignmentsPerBranch);
 
 		if (!movesToAdd.empty())
 		{
 			//check if we already did something equivalent
 			bool bHaveEquivalent = false;
 			for (map<int,vector<STacticalAssignment>>::iterator itPrevMoves = newAssignments.begin(); itPrevMoves != newAssignments.end(); ++itPrevMoves)
+				//not a perfect check but good enough
 				if (movesAreEquivalent(movesToAdd,itPrevMoves->second))
 				{
 					bHaveEquivalent = true;
 					break;
 				}
 
-			if (!bHaveEquivalent)
+			if (bHaveEquivalent)
+				continue;
+
+			CvTacticalPosition* pNewChild = addChild();
+			if (!pNewChild)
+				continue;
+
+			for (vector<STacticalAssignment>::iterator itNewMove = movesToAdd.begin(); itNewMove != movesToAdd.end(); ++itNewMove)
 			{
-				CvTacticalPosition* pNewChild = addChild();
-				if (pNewChild)
+				if (!pNewChild->addAssignment(*itNewMove))
 				{
-					for (vector<STacticalAssignment>::iterator itNewMove = movesToAdd.begin(); itNewMove != movesToAdd.end(); ++itNewMove)
+					removeChild(pNewChild);
+					pNewChild = NULL;
+					break;
+				}
+			}
+
+			if (pNewChild)
+			{
+				//check some candidates for redundancy
+				bool bRedundant = false;
+				if (parentPosition)
+				{
+					const vector<CvTacticalPosition*>& siblings = parentPosition->getChildren();
+					for (vector<CvTacticalPosition*>::const_iterator itSibling = siblings.begin(); itSibling != siblings.end(); ++itSibling)
 					{
-						if (!pNewChild->addAssignment(*itNewMove))
+						if (*itSibling == this)
+							continue;
+
+						const vector<CvTacticalPosition*>& nephews = (*itSibling)->getChildren();
+						for (vector<CvTacticalPosition*>::const_iterator itNephew = nephews.begin(); itNephew != nephews.end(); ++itNephew)
+						{
+							//not a perfect check but good enough
+							if (movesAreEquivalent(pNewChild->getAssignments(),(*itNephew)->getAssignments()))
+							{
+								bRedundant = true;
+								break;
+							}
+						}
+
+						if (bRedundant)
 						{
 							removeChild(pNewChild);
 							pNewChild = NULL;
@@ -12862,13 +12896,13 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches)
 						}
 					}
 				}
+			}
 
-				if (pNewChild)
-				{
-					//remember for later
-					newAssignments[iNewBranches] = movesToAdd;
-					iNewBranches++;
-				}
+			if (pNewChild)
+			{
+				//remember for later
+				newAssignments[iNewBranches] = movesToAdd;
+				iNewBranches++;
 			}
 		}
 	}
@@ -12923,7 +12957,7 @@ bool CvTacticalPosition::movesAreEquivalent(const vector<STacticalAssignment>& s
 	{
 		//sort by unit id and movetype as tiebreaker
 		bool operator()(const STacticalAssignment& lhs, const STacticalAssignment& rhs) const 
-			{ return (lhs.iUnitID < rhs.iUnitID) || (lhs.iUnitID < rhs.iUnitID && lhs.eType < rhs.eType); } 
+			{ return (lhs.iUnitID < rhs.iUnitID) || (lhs.iUnitID == rhs.iUnitID && lhs.eType < rhs.eType); } 
 	};
 	struct PrAssignmentIsEqual
 	{
@@ -13600,13 +13634,14 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const { return lhs->getScore() > rhs->getScore(); } 
 	};
 
+	int iMaxAssignmentsPerBranch = ourUnits.size() / 3 + 1;
 	while (!openPositionsHeap.empty() && (int)closedPositions.size()<iMaxFinishedPositions)
 	{
 		pop_heap( openPositionsHeap.begin(), openPositionsHeap.end(), PrPositionIsBetterHeap() );
 		CvTacticalPosition* current = openPositionsHeap.back(); openPositionsHeap.pop_back();
 
 		//here the magic happens
-		if (current->makeNextAssignments(iMaxBranches))
+		if (current->makeNextAssignments(iMaxBranches,iMaxAssignmentsPerBranch))
 		{
 			for (vector<CvTacticalPosition*>::const_iterator it = current->getChildren().begin(); it != current->getChildren().end(); ++it)
 			{
@@ -13618,9 +13653,10 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		else if (current->isComplete())
 			closedPositions.push_back(current);
 
-		if (openPositionsHeap.size()>10000)
+		if (openPositionsHeap.size()>4000)
 		{
 			OutputDebugString( "warning: terminating because of endless loop!\n" );
+			closedPositions.push_back(current);
 			break;
 		}
 	}

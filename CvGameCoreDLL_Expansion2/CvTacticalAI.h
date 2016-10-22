@@ -1174,7 +1174,7 @@ public:
 
 	bool isComplete() const;
 	void updateTacticalPlotTypes(int iStartPlot = -1);
-	bool makeNextAssignments(int iMaxBranches);
+	bool makeNextAssignments(int iMaxBranches, int iMaxAssignmentsPerBranch);
 	bool haveTacticalPlot(const CvPlot* pPlot) const;
 	void addTacticalPlot(const CvPlot* pPlot);
 	bool addAvailableUnit(const CvUnit* pUnit);
