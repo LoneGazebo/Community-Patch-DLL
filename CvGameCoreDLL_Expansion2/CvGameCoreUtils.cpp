@@ -31,13 +31,13 @@ int RING_PLOTS[6] = {RING0_PLOTS,RING1_PLOTS,RING2_PLOTS,RING3_PLOTS,RING4_PLOTS
 int dxWrap(int iDX)
 {
 	const CvMap& kMap = GC.getMap();
-	return wrapCoordDifference(abs(iDX), kMap.getGridWidth(), kMap.isWrapX());
+	return wrapCoordDifference(iDX, kMap.getGridWidth(), kMap.isWrapX());
 }
 
 int dyWrap(int iDY)
 {
 	const CvMap& kMap = GC.getMap();
-	return wrapCoordDifference(abs(iDY), kMap.getGridHeight(), kMap.isWrapY());
+	return wrapCoordDifference(iDY, kMap.getGridHeight(), kMap.isWrapY());
 }
 
 CvPlot* plotXY(int iX, int iY, int iDX, int iDY)
@@ -89,13 +89,12 @@ int plotDistance(int iX1, int iY1, int iX2, int iY2)
 	int iZ1H = -iX1H-iY1;
 	int iZ2H = -iX2H-iY2;
 
-	//todo: fix the unwrapping
+	//todo: fixme. wrapping does not work correctly for large distances
 	int iDX = dxWrap(iX2H - iX1H);
 	int iDY = dyWrap(iY2 - iY1);
-	int iDZ = dxWrap(iZ2H - iZ1H); //x and z same range
+	int iDZ = dxWrap(iZ2H - iZ1H); //x and z have same range
 
-	//unwrapping returns absolute values
-	return (iDX+iDY+iDZ)/2;
+	return (abs(iDX) + abs(iDY) + abs(iDZ)) / 2;
 }
 
 int plotDistance(const CvPlot& plotA, const CvPlot& plotB)
@@ -229,12 +228,15 @@ CvPlot* iterateRingPlots(int iX, int iY, int iIndex)
 
 int getRingIterationIndex(const CvPlot* pCenter, const CvPlot* pPlot)
 {
+	int iWrappedDX = dxWrap(pPlot->getX() - pCenter->getX());
+	int iWrappedDY = dyWrap(pPlot->getY() - pCenter->getY());
+
 	// convert to hex-space coordinates - the coordinate system axes are E and NE (not orthogonal)
 	int iCenterHexX = xToHexspaceX(pCenter->getX(), pCenter->getY());
-	int iPlotHexX = xToHexspaceX(pPlot->getX(), pPlot->getY());
+	int iPlotHexX = xToHexspaceX(pCenter->getX() + iWrappedDX, pCenter->getY() + iWrappedDY);
 
 	int iDX = dxWrap(iPlotHexX - iCenterHexX);
-	int iDY = dyWrap(iPlotHexX - iCenterHexX);
+	int iDY = iWrappedDY;
 
 	// Regardless of the working radius, we need to offset into the array by the maximum radius
 	return GC.getRingIterationIndexHex((iDX + MAX_CITY_RADIUS), (iDY + MAX_CITY_RADIUS));

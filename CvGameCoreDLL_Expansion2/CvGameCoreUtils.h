@@ -51,9 +51,21 @@ inline float range(float fNum, float fLow, float fHigh)
 	}
 }
 
-inline int wrapCoordDifference(int iDiff, int iRange, bool bWrap)
+inline int wrapCoordDifference(int iDiff, uint uiRange, bool bWrap)
 {
-	return bWrap ? min(iDiff,iRange-iDiff) : iDiff;
+	if(bWrap)
+	{
+		if(iDiff > (int)(uiRange >> 1))		// Using an unsigned int so we can safely assume that value >> 1 == value / 2
+		{
+			return (iDiff - (int)uiRange);
+		}
+		else if(iDiff < -(int)(uiRange >> 1))
+		{
+			return (iDiff + (int)uiRange);
+		}
+	}
+
+	return iDiff;
 }
 
 int dxWrap(int iDX);

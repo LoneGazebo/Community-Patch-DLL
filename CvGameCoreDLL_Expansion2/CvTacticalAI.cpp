@@ -13618,7 +13618,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 		else if (current->isComplete())
 			closedPositions.push_back(current);
 
-		if (openPositionsHeap.size()>2000)
+		if (openPositionsHeap.size()>10000)
 		{
 			OutputDebugString( "warning: terminating because of endless loop!\n" );
 			break;
