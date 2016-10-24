@@ -6535,13 +6535,13 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 			}
 
 			bool bAttack = pEvalPlot->isEnemyCity(*pUnit);
-			CvUnit* pDefender = pEvalPlot->getBestDefender(NO_PLAYER,m_pPlayer->GetID(),pUnit);
+			CvUnit* pDefender = pEvalPlot->getBestDefender(NO_PLAYER);
 			if (pDefender)
 			{
 				if ( m_pPlayer->IsAtWarWith(pDefender->getOwner()) )
 					bAttack = true;
 				else
-					continue; //must be a neutral unit
+					continue; //must be a neutral unit or one of ours
 			}
 
 			if (bAttack)
@@ -6569,6 +6569,9 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 			if (it2!=it && plotDistance(*(it2->pPlot),*(it->pPlot))==1)
 				it2->iScore += 10;
 		}
+
+		if (it->pPlot->IsFriendlyUnitAdjacent(m_pPlayer->getTeam(),true))
+			it->iScore += 10;
 	}
 
 	//ok let's go
@@ -6582,7 +6585,7 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 		last = remove_if( choices.begin(), choices.end(), PrUnitMatch(next.pUnit) ); choices.erase(last,choices.end());
 
 		next.pUnit->PushMission( CvTypes::getMISSION_MOVE_TO(), next.pPlot->getX(), next.pPlot->getY(), next.bAttack ? CvUnit::MOVEFLAG_ATTACK : 0 );
-		if (!next.pUnit->canMove())
+		if (!next.pUnit->canMove()) //not all units end their turn after disembark - they can still be used for other moves!
 			UnitProcessed(next.pUnit->GetID());
 	}
 
