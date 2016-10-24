@@ -3219,23 +3219,24 @@ int CvPlayerTrade::GetTradeConnectionCorporationModifierTimes100(const TradeConn
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeConnectionPolicyModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
 {
-	if (bAsOriginPlayer) {
-		CvCity* pOriginCity = CvGameTrade::GetOriginCity(kTradeConnection);
+	if (bAsOriginPlayer) 
+	{
+		CvCity* pOriginCity = GC.getGame().GetGameTrade()->GetOriginCity(kTradeConnection);
 		if (pOriginCity == NULL)
 		{
 			return 0;
 		}
 		return GET_PLAYER(pOriginCity->getOwner()).GetPlayerPolicies()->GetInternationalRouteYieldModifier(eYield);
 	}
-	else {
-		CvCity* pDestCity = CvGameTrade::GetDestCity(kTradeConnection);
+	else 
+	{
+		CvCity* pDestCity = GC.getGame().GetGameTrade()->GetDestCity(kTradeConnection);
 		if (pDestCity == NULL)
 		{
 			return 0;
 		}
 		return GET_PLAYER(pDestCity->getOwner()).GetPlayerPolicies()->GetInternationalRouteYieldModifier(eYield);
 	}
-	//return 0;
 }
 #endif
 //	--------------------------------------------------------------------------------

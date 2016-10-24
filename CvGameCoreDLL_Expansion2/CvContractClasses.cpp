@@ -309,8 +309,8 @@ CvPlayerContracts::~CvPlayerContracts()
 /// Initialize class data
 void CvPlayerContracts::Init(CvPlayer* pPlayer)
 {
-	Reset();
 	m_pPlayer = pPlayer;
+	Reset();
 }
 
 /// Cleanup
@@ -321,7 +321,7 @@ void CvPlayerContracts::Uninit()
 /// Reset
 void CvPlayerContracts::Reset()
 {
-	m_pPlayer = NULL;
+
 }
 
 CvContract* CvPlayerContracts::GetContract(ContractTypes eContract)
@@ -632,24 +632,6 @@ CvContractEntry* CvPlayerContracts::GetContractEntry(ContractTypes eContract)
 		return NULL;
 
 	return GC.getContractInfo(pContract->m_eContract);
-}
-
-/// Serialization read
-void CvPlayerContracts::Read(FDataStream& kStream)
-{
-	// Version number to maintain backwards compatibility
-	uint uiVersion;
-	kStream >> uiVersion;
-	MOD_SERIALIZE_INIT_READ(kStream);
-}
-
-/// Serialization write
-void CvPlayerContracts::Write(FDataStream& kStream) const
-{
-	// Current version number
-	uint uiVersion = 1;
-	kStream << uiVersion;
-	MOD_SERIALIZE_INIT_WRITE(kStream);
 }
 
 //=====================================

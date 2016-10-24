@@ -2294,13 +2294,11 @@ int CvPolicyEntry::GetInternationalRouteYieldModifier(int i) const
 	return m_piInternationalRouteYieldModifiers ? m_piInternationalRouteYieldModifiers[i] : -1;
 }
 
-/// Mimic of m_piYieldModifier array getter
-/* not needed
-int* CvPolicyEntry::GetInternationalRouteYieldModifiersArray() const
+int* CvPolicyEntry::GetInternationalRouteYieldModifiersArray()
 {
 	return m_piInternationalRouteYieldModifiers;
 }
-*/
+
 #endif
 
 /// Change to yield in every City by type

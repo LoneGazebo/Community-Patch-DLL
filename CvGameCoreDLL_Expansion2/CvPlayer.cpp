@@ -651,6 +651,7 @@ CvPlayer::CvPlayer() :
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_paiNumCitiesFreeChosenBuilding("CvPlayer::m_paiNumCitiesFreeChosenBuilding", m_syncArchive)
+	, m_pabFreeChosenBuildingNewCity("CvPlayer::m_pabFreeChosenBuildingNewCity", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	, m_pabHasGlobalMonopoly("CvPlayer::m_pabHasGlobalMonopoly", m_syncArchive)
@@ -737,22 +738,22 @@ CvPlayer::~CvPlayer()
 	SAFE_DELETE(m_pCityDistanceTurns);
 	SAFE_DELETE(m_pCityDistancePlots);
 #endif
-	delete m_pPlayerPolicies;
-	delete m_pEconomicAI;
-	delete m_pMilitaryAI;
-	delete m_pCitySpecializationAI;
-	delete m_pWonderProductionAI;
-	delete m_pGrandStrategyAI;
-	delete m_pDiplomacyAI;
-	delete m_pReligions;
-	delete m_pReligionAI;
-	delete m_pPlayerTechs;
-	delete m_pFlavorManager;
-	delete m_pTacticalAI;
-	delete m_pHomelandAI;
-	delete m_pMinorCivAI;
-	delete m_pDealAI;
-	delete m_pBuilderTaskingAI;
+	SAFE_DELETE(m_pPlayerPolicies);
+	SAFE_DELETE(m_pEconomicAI);
+	SAFE_DELETE(m_pMilitaryAI);
+	SAFE_DELETE(m_pCitySpecializationAI);
+	SAFE_DELETE(m_pWonderProductionAI);
+	SAFE_DELETE(m_pGrandStrategyAI);
+	SAFE_DELETE(m_pDiplomacyAI);
+	SAFE_DELETE(m_pReligions);
+	SAFE_DELETE(m_pReligionAI);
+	SAFE_DELETE(m_pPlayerTechs);
+	SAFE_DELETE(m_pFlavorManager);
+	SAFE_DELETE(m_pTacticalAI);
+	SAFE_DELETE(m_pHomelandAI);
+	SAFE_DELETE(m_pMinorCivAI);
+	SAFE_DELETE(m_pDealAI);
+	SAFE_DELETE(m_pBuilderTaskingAI);
 	SAFE_DELETE(m_pCityConnections);
 	SAFE_DELETE(m_pNotifications);
 	SAFE_DELETE(m_pDiplomacyRequests);
@@ -764,8 +765,8 @@ CvPlayer::~CvPlayer()
 	SAFE_DELETE(m_pTradeAI);
 	SAFE_DELETE(m_pLeagueAI);
 #if defined(MOD_BALANCE_CORE)
-	delete m_pCorporations;
-	delete m_pContracts;
+	SAFE_DELETE(m_pCorporations);
+	SAFE_DELETE(m_pContracts);
 #endif
 }
 
@@ -1127,6 +1128,7 @@ void CvPlayer::uninit()
 	m_paiNumCitiesFreeChosenBuilding.clear();
 	m_aistrInstantYield.clear();
 	m_paiNumCivsConstructingWonder.clear();
+	m_pabFreeChosenBuildingNewCity.clear();
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_pabHasGlobalMonopoly.clear();
@@ -1905,6 +1907,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_paiNumCitiesFreeChosenBuilding.clear();
 		m_paiNumCitiesFreeChosenBuilding.resize(GC.getNumBuildingClassInfos(), 0);
+
+		m_pabFreeChosenBuildingNewCity.clear();
+		m_pabFreeChosenBuildingNewCity.resize(GC.getNumBuildingClassInfos(), false);
 
 		m_paiNumCivsConstructingWonder.clear();
 		m_paiNumCivsConstructingWonder.resize(GC.getNumBuildingInfos(), 0);
@@ -3869,7 +3874,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if(pkBuildingClassInfo)
 			{
 				int iNumFreeBuildings = GetNumCitiesFreeChosenBuilding(eBuildingClass);
-				if(iNumFreeBuildings > 0)
+				if (iNumFreeBuildings > 0 || IsFreeChosenBuildingNewCity(eBuildingClass))
 				{
 					const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
 					if(NO_BUILDING != eBuilding)
@@ -9348,7 +9353,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 		GET_PLAYER(ePlayer).GetMinorCivAI()->DoLiberationByMajor(eOldOwner, eConquerorTeam);
 	}
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(ePlayer).isMajorCiv())
+	else if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() == getTeam())
 	{
 		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).DoBecomeVassal(getTeam(), true);
 	}
@@ -17928,6 +17933,22 @@ void CvPlayer::ChangeNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingCla
 	m_paiNumCitiesFreeChosenBuilding.setAt(eBuildingClass, (m_paiNumCitiesFreeChosenBuilding[eBuildingClass] + iChange));
 	CvAssert(GetNumCitiesFreeChosenBuilding(eBuildingClass) >= 0);
 }
+
+/// Cities remaining to get a free building
+bool CvPlayer::IsFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_pabFreeChosenBuildingNewCity[eBuildingClass];
+}
+
+//	--------------------------------------------------------------------------------
+/// Changes number of cities remaining to get a free building
+void CvPlayer::ChangeFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass, bool bValue)
+{
+	m_pabFreeChosenBuildingNewCity.setAt(eBuildingClass, bValue);
+}
+
 /// Reformation Unlock
 void CvPlayer::SetReformation(bool bValue)
 {
@@ -39223,7 +39244,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							{
 								if(pLoopCity->isValidBuildingLocation(eBuilding))
 								{
-									if(GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0)
+									if (GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || IsFreeChosenBuildingNewCity(eBuildingClass))
 									{
 										if(pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
 										{
@@ -39251,7 +39272,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 	}
-	ChangeNumCitiesFreeChosenBuilding(pPolicy->GetNewCityFreeBuilding(), INT_MAX);
+	if (pPolicy->GetNewCityFreeBuilding() != NO_BUILDINGCLASS)
+	{
+		ChangeFreeChosenBuildingNewCity(pPolicy->GetNewCityFreeBuilding(), true);
+	}
 #endif
 
 	// Store off number of newly built cities that will get a free building
@@ -39600,6 +39624,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									else
 									{
 										pNewUnit->jumpToNearestValidPlot();
+										if (pNewUnit && getCapitalCity() != NULL)
+										{
+											getCapitalCity()->addProductionExperience(pNewUnit);
+										}
 									}
 								}
 							}
@@ -40421,7 +40449,6 @@ void CvPlayer::Read(FDataStream& kStream)
 	m_pReligionAI->Read(kStream);
 #if defined(MOD_BALANCE_CORE)
 	m_pCorporations->Read(kStream);
-	m_pContracts->Read(kStream);
 #endif
 	m_pPlayerTechs->Read(kStream);
 	m_pFlavorManager->Read(kStream);
@@ -40648,7 +40675,6 @@ void CvPlayer::Write(FDataStream& kStream) const
 	m_pReligionAI->Write(kStream);
 #if defined(MOD_BALANCE_CORE)
 	m_pCorporations->Write(kStream);
-	m_pContracts->Write(kStream);
 #endif
 	m_pPlayerTechs->Write(kStream);
 	m_pFlavorManager->Write(kStream);

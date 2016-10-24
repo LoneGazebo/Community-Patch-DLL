@@ -588,8 +588,8 @@ private:
 #endif
 
 	// Arrays
-	int* m_paiBuildingClassEnabled;
-	int m_iNeedThisToCompile;
+	// int* m_paiBuildingClassEnabled;
+	//int m_iNeedThisToCompile;
 };
 
 namespace CvBeliefHelpers

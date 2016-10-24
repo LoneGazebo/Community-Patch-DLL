@@ -7,14 +7,12 @@ function GetHelpTextForTech( iTechID )
 	
 	local strHelpText = "";
 
-	if(Game) then
+	if(Game ~= nil) then
 		local pActiveTeam = Teams[Game.GetActiveTeam()];
 		local pActivePlayer = Players[Game.GetActivePlayer()];
 		local pTeamTechs = pActiveTeam:GetTeamTechs();
 		local iTechCost = pActivePlayer:GetResearchCost(iTechID);
 	
-		local strHelpText = "";
-
 		-- Name
 		strHelpText = strHelpText .. Locale.ToUpper(Locale.ConvertTextKey( pTechInfo.Description ));
 

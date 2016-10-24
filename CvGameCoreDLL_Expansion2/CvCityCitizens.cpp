@@ -4058,7 +4058,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			int iLoop;
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
-				if(pLoopCity != NULL && pLoopCity->getOwner() == kPlayer.GetID())
+				if(pLoopCity != NULL)
 				{
 					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
 					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -4250,7 +4250,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			int iLoop;
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
-				if(pLoopCity != NULL && pLoopCity->getOwner() == kPlayer.GetID())
+				if(pLoopCity != NULL)
 				{
 					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
 					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();

@@ -494,7 +494,7 @@
 			<Text>Everlasting Youth</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_EVERLASTING_YOUTH_HELP">
-			<Text>Unit heals every turn regardless of actions taken.</Text>
+			<Text>Units heal for an additional +10 Hit Points.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

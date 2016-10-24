@@ -2223,6 +2223,10 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 				{
 					bMelee = true;
 				}
+				if ((pkPromotionInfo->GetCityAttackPlunderModifier() > 0) || (pkPromotionInfo->GetHPHealedIfDefeatEnemy() > 0))
+				{
+					bMelee = true;
+				}
 				//If we're losing standard promotions because of a combatclass change, let's replace with some experience.
 				if(!isRanged() && pUnit->HasPromotion(ePromotion) && pUnit->isRanged() && bRanged && !bFree)
 				{
@@ -5161,6 +5165,15 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 				return false;	// Can't advance into an enemy city
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	else
+	{
+		if (!IsCivilianUnit() && plot.isCity() && plot.getOwner() != getOwner())
+		{
+			return false;
+		}
+	}
+#endif
 
 	if(getDomainType() == DOMAIN_AIR)
 	{
@@ -10638,7 +10651,6 @@ bool CvUnit::found()
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	plot()->verifyUnitValidPlot();
 	int iMaxRange = 3;
 	for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
 	{

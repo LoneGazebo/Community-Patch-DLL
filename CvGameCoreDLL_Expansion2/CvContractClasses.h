@@ -165,8 +165,6 @@ public:
 	void Init(CvPlayer* pPlayer);
 	void Uninit();
 	void Reset();
-	virtual void Read(FDataStream& kStream);
-	virtual void Write(FDataStream& kStream) const;
 
 	CvContract* GetContract(ContractTypes eContract);
 
@@ -195,7 +193,6 @@ public:
 private:
 	
 	CvPlayer* m_pPlayer;
-
 };
 
 #endif
