@@ -1318,13 +1318,26 @@ public:
 		return ((uint)eResource < m_aiResourceQuantityModifier.size())?m_aiResourceQuantityModifier[(int)eResource]:0;
 	};
 #if defined(MOD_BALANCE_CORE)
+	int GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
+	{
+		return ((uint)eGreatPerson < m_aiPerPuppetGreatPersonRateModifier.size()) ? m_aiPerPuppetGreatPersonRateModifier[(int)eGreatPerson] : 0;
+	};
+	int GetGreatPersonGWAM(GreatPersonTypes eGreatPerson) const
+	{
+		return ((uint)eGreatPerson < m_aiGreatPersonGWAM.size()) ? m_aiGreatPersonGWAM[(int)eGreatPerson] : 0;
+	};
+	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
+	{
+		return ((uint)eGreatPerson < m_aiGoldenAgeGreatPersonRateModifier.size()) ? m_aiGoldenAgeGreatPersonRateModifier[(int)eGreatPerson] : 0;
+	};
+
 	int GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const
 	{
-		return m_piNumPledgesDomainProdMod[(int)eDomain];
+		return ((uint)eDomain < m_aiNumPledgesDomainProdMod.size()) ? m_aiNumPledgesDomainProdMod[(int)eDomain] : 0;
 	};
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 	{
-		return m_piFreeUnitClassesDOW[(int)eUnitClass];
+		return ((uint)eUnitClass < m_aiFreeUnitClassesDOW.size()) ? m_aiFreeUnitClassesDOW[(int)eUnitClass] : 0;
 	}
 #endif
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
@@ -1469,9 +1482,7 @@ public:
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const;
 	int GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const;
-	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
-	int GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
-	int GetGreatPersonGWAM(GreatPersonTypes eGreatPerson) const;
+	
 	int GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield) const;
 #endif
 	int GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const;
@@ -1799,8 +1810,6 @@ private:
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;
 	bool m_bCombatBoostNearNaturalWonder;
-	std::vector<int> m_piNumPledgesDomainProdMod;
-	std::vector<int> m_piFreeUnitClassesDOW;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;
@@ -1829,9 +1838,11 @@ private:
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonExpendedYield;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonBornYield;
-	std::vector<int> m_piGoldenAgeGreatPersonRateModifier;
-	std::vector<int> m_piPerPuppetGreatPersonRateModifier;
-	std::vector<int> m_piGreatPersonGWAM;
+	std::vector<int> m_aiNumPledgesDomainProdMod;
+	std::vector<int> m_aiFreeUnitClassesDOW;
+	std::vector<int> m_aiGoldenAgeGreatPersonRateModifier;
+	std::vector<int> m_aiPerPuppetGreatPersonRateModifier;
+	std::vector<int> m_aiGreatPersonGWAM;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiCityYieldFromUnimprovedFeature;
 #endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiUnimprovedFeatureYieldChange;

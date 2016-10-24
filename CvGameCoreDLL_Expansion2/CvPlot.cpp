@@ -760,7 +760,7 @@ void CvPlot::verifyUnitValidPlot()
 						{
 							// Unit not allowed to be here
 #if defined(MOD_GLOBAL_STACKING_RULES)
-							if(getMaxFriendlyUnitsOfType(pLoopUnit) > /*1*/ getUnitLimit() || isCity())
+							if(getMaxFriendlyUnitsOfType(pLoopUnit) > /*1*/ getUnitLimit())
 #else
 							if(getMaxFriendlyUnitsOfType(pLoopUnit) > /*1*/ GC.getPLOT_UNIT_LIMIT())
 #endif
@@ -7442,7 +7442,7 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer) const
 				{
 					eMajority = pWorkingCity->GetCityReligions()->GetReligiousMajority();
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
-					if (pReligion && pReligion->m_Beliefs.GetResourceQuantityModifier(eResource) > 0)
+					if (pReligion && pReligion->m_Beliefs.GetResourceQuantityModifier(eResource, pWorkingCity->getOwner()) > 0)
 					{
 						int iQuantityMod = pReligion->m_Beliefs.GetResourceQuantityModifier(eResource);
 						iRtnValue *= 100 + iQuantityMod;

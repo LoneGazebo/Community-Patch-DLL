@@ -489,8 +489,9 @@ CvPlayerCorporations::~CvPlayerCorporations(void)
 /// Initialize class data
 void CvPlayerCorporations::Init(CvPlayer* pPlayer)
 {
-	Reset();
 	m_pPlayer = pPlayer;
+
+	Reset();
 }
 
 /// Cleanup
@@ -509,7 +510,6 @@ void CvPlayerCorporations::Uninit()
 /// Reset
 void CvPlayerCorporations::Reset()
 {
-	m_pPlayer = NULL;
 }
 
 /// Serialization read

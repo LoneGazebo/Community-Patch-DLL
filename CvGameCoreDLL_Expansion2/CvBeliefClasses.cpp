@@ -1540,11 +1540,13 @@ CvBeliefEntry* CvBeliefXMLEntries::GetEntry(int index)
 // CvReligionBeliefs
 //=====================================
 /// Constructor
-CvReligionBeliefs::CvReligionBeliefs():
+CvReligionBeliefs::CvReligionBeliefs() :
 #if !defined(MOD_BALANCE_CORE_BELIEFS)
-	m_paiBuildingClassEnabled(NULL)
+m_paiBuildingClassEnabled(NULL)
 #else
-m_iNeedThisToCompile(-1)
+m_ReligionBeliefs(NULL),
+m_BeliefLookup(NULL),
+m_eReligion(NO_RELIGION)
 #endif
 {
 	Reset();
@@ -1633,7 +1635,6 @@ void CvReligionBeliefs::Reset()
 
 	m_ReligionBeliefs.clear();
 #if defined(MOD_BALANCE_CORE)
-	m_iNeedThisToCompile = -1;
 	m_eReligion = NO_RELIGION;
 	m_BeliefLookup = std::vector<int>(GC.GetGameBeliefs()->GetNumBeliefs(),0);
 #endif
@@ -1771,7 +1772,7 @@ bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligi
 		}
 		if(eReligion != NO_RELIGION && pBeliefs->GetEntry(eBelief)->IsEnhancerBelief())
 		{
-			if(pCity != NULL && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
+			if (pCity != NULL && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
 			{
 				return false;
 			}

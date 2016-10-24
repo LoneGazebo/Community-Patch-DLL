@@ -285,7 +285,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	if(kPlayer.isMinorCiv())
 	{
 		int iNumUnits = kPlayer.getNumMilitaryUnits();
-		int iEra = (kPlayer.GetCurrentEra() + 1) * 3;
+		int iEra = (kPlayer.GetCurrentEra() + 1) * 2;
 		if (iNumUnits >= iEra)
 		{
 			return 0;

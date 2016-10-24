@@ -3960,7 +3960,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// AT WAR RIGHT NOW
 	////////////////////////////////////
 
-	for(iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
@@ -3999,7 +3999,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	// Look at Approaches we've already adopted for players we feel more strongly about
 	if(bLookAtOtherPlayers)
 	{
-		for(iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
@@ -4067,8 +4067,43 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	}
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		if(IsVassal(ePlayer))
+	if (MOD_DIPLOMACY_CIV4_FEATURES) 
+	{
+		//Master? Let's consider opinion of other people
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetNumVassals() > 0)
+		{
+			TeamTypes eLoopTeam;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+				if (IsPlayerValid(eLoopPlayer))
+				{
+					eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+					if (GET_TEAM(eLoopTeam).IsVassal(GET_PLAYER(ePlayer).getTeam()))
+					{
+						// Add opinion of vassal into this.
+						switch (GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false))
+						{
+						case MAJOR_CIV_APPROACH_HOSTILE:
+							viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 5;
+							break;
+						case MAJOR_CIV_APPROACH_WAR:
+							viApproachWeights[MAJOR_CIV_APPROACH_WAR] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 5;
+							break;
+						case MAJOR_CIV_APPROACH_DECEPTIVE:
+							viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_DECEPTIVE] * 2;
+							break;
+						case MAJOR_CIV_APPROACH_GUARDED:
+							viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += viApproachWeightsPersonality[MAJOR_CIV_APPROACH_GUARDED] * 2;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		else if (IsVassal(ePlayer))
 		{
 			// Change approach based on how we are treated
 			// todo: magic numbers
@@ -4419,8 +4454,25 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		// If we're already at war with this player don't cancel out the weight for them!
 		if(!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
 		{
-			viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
-			viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+			if (MOD_DIPLOMACY_CIV4_FEATURES)
+			{
+				//If a vassal reduce but do not remove the value.
+				if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassalOfSomeone())
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_WAR] * 5;
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] -= viApproachWeightsPersonality[MAJOR_CIV_APPROACH_HOSTILE] * 5;
+				}
+				else
+				{
+					viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
+					viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+				}
+			}
+			else
+			{
+				viApproachWeights[MAJOR_CIV_APPROACH_WAR] = 0;
+				viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] = 0;
+			}
 		}
 		else
 		{
@@ -4457,13 +4509,28 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 			CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_CITY_SNEAK_ATTACK, ePlayer);
 			if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
 			{
-				if(!target.m_bNoLandPath)
+				if(target.m_bAttackBySea)
 				{
 					bTargetSea = true;		
 				}
-				else
+				if (!target.m_bNoLandPath)
 				{
 					bTargetLand = true;
+				}
+			}
+			else
+			{
+				CvMilitaryTarget target = GetPlayer()->GetMilitaryAI()->FindBestAttackTargetCached(AI_OPERATION_NAVAL_ONLY_CITY_ATTACK, ePlayer);
+				if (target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
+				{
+					if (target.m_bAttackBySea)
+					{
+						bTargetSea = true;
+					}
+					if (!target.m_bNoLandPath)
+					{
+						bTargetLand = true;
+					}
 				}
 			}
 		}
@@ -29645,6 +29712,10 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		// This guy is our master
 		if(GET_TEAM(m_pPlayer->getTeam()).GetMaster() == GET_PLAYER(ePlayer).getTeam())
 		{
+			if (GET_TEAM(m_pPlayer->getTeam()).IsVoluntaryVassal(GET_PLAYER(ePlayer).getTeam()))
+			{
+				iWeight += -50;
+			}
 			VassalTreatmentTypes eVassalTreatment = GetVassalTreatmentLevel(ePlayer);
 			// Content vassals have a huge weight against denouncing
 			if(eVassalTreatment == VASSAL_TREATMENT_CONTENT)

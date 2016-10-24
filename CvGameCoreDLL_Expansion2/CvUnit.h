@@ -1693,7 +1693,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iRiverCrossingNoPenaltyCount;
 	FAutoVariable<int, CvUnit> m_iEnemyRouteCount;
 	FAutoVariable<int, CvUnit> m_iRivalTerritoryCount;
-	FAutoVariable<int, CvUnit> m_iMustSetUpToRangedAttackCount;
+	FAutoVariable<int, CvUnit> m_iIsSlowInEnemyLandCount;
 	FAutoVariable<int, CvUnit> m_iRangeAttackIgnoreLOSCount;
 	FAutoVariable<int, CvUnit> m_iCityAttackOnlyCount;
 	FAutoVariable<int, CvUnit> m_iCaptureDefeatedEnemyCount;

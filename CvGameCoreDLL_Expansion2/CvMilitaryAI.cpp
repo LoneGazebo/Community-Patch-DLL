@@ -1974,24 +1974,57 @@ void CvMilitaryAI::CheckApproachFromLandAndSea(CvMilitaryTarget& target, AIOpera
 		
 	if (!target.m_bNoLandPath && iWaterLength != -1)
 	{
-		int iEvalLandApproach = EvaluateMilitaryApproaches(target.m_pTargetCity, true, false);
-		int iEvalSeaApproach = EvaluateMilitaryApproaches(target.m_pTargetCity, false, true);
-		//Is their city relatively difficult to access via land? Go for a sea attack then.
-		if (iEvalLandApproach == ATTACK_APPROACH_RESTRICTED && iEvalSeaApproach > iEvalLandApproach)
+		if (eAIOperationType == AI_OPERATION_NAVAL_INVASION || eAIOperationType == AI_OPERATION_NAVAL_INVASION_SNEAKY)
 		{
-			target.m_bAttackBySea = true;
-			if (m_pPlayer->CanCrossOcean())
+			int iEvalInvasionApproach = EvaluateMilitaryApproaches(target.m_pTargetCity, true, true);
+			if (iEvalInvasionApproach == ATTACK_APPROACH_RESTRICTED)
 			{
-				target.m_bOcean = true;
-				target.m_iPathLength = iWaterLength;
+				target.m_bAttackBySea = false;
 				return;
 			}
 			else
 			{
-				target.m_iPathLength = iWaterLength;
-				return;
+				int iEvalLandApproach = EvaluateMilitaryApproaches(target.m_pTargetCity, true, false);
+				int iEvalSeaApproach = EvaluateMilitaryApproaches(target.m_pTargetCity, false, true);
+				//Is their city relatively difficult to access via land? Go for a sea attack then.
+				if (iEvalLandApproach == ATTACK_APPROACH_RESTRICTED && iEvalSeaApproach > iEvalLandApproach)
+				{
+					target.m_bAttackBySea = true;
+					if (m_pPlayer->CanCrossOcean())
+					{
+						target.m_bOcean = true;
+						target.m_iPathLength = iWaterLength;
+						return;
+					}
+					else
+					{
+						target.m_iPathLength = iWaterLength;
+						return;
+					}
+				}
 			}
 		}
+		else
+		{
+			int iEvalLandApproach = EvaluateMilitaryApproaches(target.m_pTargetCity, true, false);
+			int iEvalSeaApproach = EvaluateMilitaryApproaches(target.m_pTargetCity, false, true);
+			//Is their city relatively difficult to access via land? Go for a sea attack then.
+			if (iEvalLandApproach == ATTACK_APPROACH_RESTRICTED && iEvalSeaApproach > iEvalLandApproach)
+			{
+				target.m_bAttackBySea = true;
+				if (m_pPlayer->CanCrossOcean())
+				{
+					target.m_bOcean = true;
+					target.m_iPathLength = iWaterLength;
+					return;
+				}
+				else
+				{
+					target.m_iPathLength = iWaterLength;
+					return;
+				}
+			}
+		}	
 	}
 	if (!target.m_bNoLandPath && target.m_pMusterCity->getArea() == target.m_pTargetCity->getArea())
 	{
@@ -2412,15 +2445,25 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 			if ( !pCity->isMatchingArea(pLoopPlot) )
 				bBlocked = true;
 
-			if(bAttackByLand && !bAttackBySea)
+			if (bAttackByLand && !bAttackBySea)
 				//siege weapons cannot set up here
-				if(	pLoopPlot->isWater() )
+				if (pLoopPlot->isWater())
 					bBlocked = true;
 
-			if(bAttackBySea && !bAttackByLand)
+			if (bAttackBySea && !bAttackByLand)
 				//ships cannot go here
-				if( !pLoopPlot->isWater() )
+				if (!pLoopPlot->isWater())
 					bBlocked = true;
+
+			//Invasion logic slightly different - we need lots of coastal plots.
+			if (bAttackBySea && bAttackByLand)
+			{
+				if (!pLoopPlot->isCoastalLand())
+					iNumTough++;
+
+				if (!pLoopPlot->isShallowWater())
+					iNumTough++;
+			}
 
 			//todo: what about air attack?
 
@@ -2432,7 +2475,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 				iNumTough++;
 		}
 	}
-	iNumBlocked = (iNumTough / 15) + iNumBlocked;
+	iNumBlocked = (iNumTough / 20) + iNumBlocked;
 	iTotal = (iNumBlocked * 100) / /*36*/ iNumPlots;
 	//We want a number between 0 and 100
 	if (iTotal<10)

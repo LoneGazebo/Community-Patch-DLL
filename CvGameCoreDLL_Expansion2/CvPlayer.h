@@ -550,6 +550,9 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingClass) const;
 	void ChangeNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingClass, int iChange);
+
+	bool IsFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass) const;
+	void ChangeFreeChosenBuildingNewCity(BuildingClassTypes eBuildingClass, bool bValue);
 	
 	void SetReformation(bool bValue);
 	bool IsReformation() const;
@@ -3200,6 +3203,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumCitiesFreeChosenBuilding;
+	FAutoVariable<std::vector<int>, CvPlayer> m_pabFreeChosenBuildingNewCity;
 #endif
 
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabLoyalMember;

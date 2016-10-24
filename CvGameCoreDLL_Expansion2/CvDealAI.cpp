@@ -1399,7 +1399,7 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 	}
 	else
 	{
-		if (iGPTorValue > (GetPlayer()->calculateGoldRate() - 2))
+		if (bFromMe && iGPTorValue > (GetPlayer()->calculateGoldRate() - 2))
 			return MAX_INT;
 
 		iValueTimes100 = (iGPTorValue * iNumTurns);

@@ -162,7 +162,7 @@ CvUnit::CvUnit() :
 	, m_iRiverCrossingNoPenaltyCount("CvUnit::m_iRiverCrossingNoPenaltyCount", m_syncArchive)
 	, m_iEnemyRouteCount("CvUnit::m_iEnemyRouteCount", m_syncArchive)
 	, m_iRivalTerritoryCount("CvUnit::m_iRivalTerritoryCount", m_syncArchive)
-	, m_iMustSetUpToRangedAttackCount("CvUnit::m_iMustSetUpToRangedAttackCount", m_syncArchive)
+	, m_iIsSlowInEnemyLandCount("CvUnit::m_iIsSlowInEnemyLandCount", m_syncArchive)
 	, m_iRangeAttackIgnoreLOSCount("CvUnit::m_iRangeAttackIgnoreLOSCount", m_syncArchive)
 	, m_iCityAttackOnlyCount("CvUnit::m_iCityAttackOnlyCount", m_syncArchive)
 	, m_iCaptureDefeatedEnemyCount("CvUnit::m_iCaptureDefeatedEnemyCount", m_syncArchive)
@@ -1696,7 +1696,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iRiverCrossingNoPenaltyCount = 0;
 	m_iEnemyRouteCount = 0;
 	m_iRivalTerritoryCount = 0;
-	m_iMustSetUpToRangedAttackCount = 0;
+	m_iIsSlowInEnemyLandCount = 0;
 	m_iRangeAttackIgnoreLOSCount = 0;
 	m_iCityAttackOnlyCount = 0;
 	m_iCaptureDefeatedEnemyCount = 0;
@@ -2220,6 +2220,10 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 				}
 				// Note: might be more Promotions than this for melee but these are the essentials of Drill and Shock. Things like Attack wounded, etc. can apply to ranged units on conversion from melee.
 				if((pkPromotionInfo->GetRoughAttackPercent() > 0) || (pkPromotionInfo->GetRoughDefensePercent() > 0) || (pkPromotionInfo->GetOpenAttackPercent() > 0) || (pkPromotionInfo->GetOpenDefensePercent()))
+				{
+					bMelee = true;
+				}
+				if ((pkPromotionInfo->GetCityAttackPlunderModifier() > 0) || (pkPromotionInfo->GetHPHealedIfDefeatEnemy() > 0))
 				{
 					bMelee = true;
 				}
@@ -5161,6 +5165,15 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 				return false;	// Can't advance into an enemy city
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	else
+	{
+		if (!IsCivilianUnit() && plot.isCity() && plot.getOwner() != getOwner())
+		{
+			return false;
+		}
+	}
+#endif
 
 	if(getDomainType() == DOMAIN_AIR)
 	{
@@ -10638,7 +10651,6 @@ bool CvUnit::found()
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	plot()->verifyUnitValidPlot();
 	int iMaxRange = 3;
 	for(int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
 	{
@@ -15034,7 +15046,7 @@ bool CvUnit::canCoexistWithEnemyUnit(TeamTypes eTeam) const
 int CvUnit::getIsSlowInEnemyLandCount() const
 {
 	VALIDATE_OBJECT
-	return m_iMustSetUpToRangedAttackCount;
+	return m_iIsSlowInEnemyLandCount;
 }
 
 //	--------------------------------------------------------------------------------
@@ -15048,7 +15060,7 @@ bool CvUnit::isSlowInEnemyLand() const
 void CvUnit::changeIsSlowInEnemyLandCount(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iMustSetUpToRangedAttackCount = (m_iMustSetUpToRangedAttackCount + iChange);
+	m_iIsSlowInEnemyLandCount = (m_iIsSlowInEnemyLandCount + iChange);
 	CvAssert(getIsSlowInEnemyLandCount() >= 0);
 }
 
@@ -25236,7 +25248,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeRiverCrossingNoPenaltyCount((thisPromotion.IsRiver()) ? iChange : 0);
 		changeEnemyRouteCount((thisPromotion.IsEnemyRoute()) ? iChange : 0);
 		changeRivalTerritoryCount((thisPromotion.IsRivalTerritory()) ? iChange : 0);
-		changeIsSlowInEnemyLandCount((thisPromotion.IsMustSetUpToRangedAttack()) ? iChange : 0);
+		changeIsSlowInEnemyLandCount((thisPromotion.IsMustSetUpToRangedAttack()) ? iChange : 0); //intended. promotion purpose was redefined
 		changeRangedSupportFireCount((thisPromotion.IsRangedSupportFire()) ? iChange : 0);
 		changeAlwaysHealCount((thisPromotion.IsAlwaysHeal()) ? iChange : 0);
 		changeHealOutsideFriendlyCount((thisPromotion.IsHealOutsideFriendly()) ? iChange : 0);

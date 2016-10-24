@@ -51,7 +51,7 @@ SET IconAtlasAchieved = 'POLICY_A_ATLAS_EXP2'
 WHERE Type = 'POLICY_TRADE_UNIONS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Policies
-SET InvestmentModifier = '-15'
+SET InvestmentModifier = '-10'
 WHERE Type = 'POLICY_TRADE_UNIONS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 
 -- Entrepreneurship
@@ -99,7 +99,7 @@ WHERE PolicyType = 'POLICY_MERCANTILISM' AND EXISTS (SELECT * FROM COMMUNITY WHE
 INSERT INTO Policy_YieldFromConstruction
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_COMMERCE', 'YIELD_GOLD', 25);
+	('POLICY_COMMERCE', 'YIELD_GOLD', 15);
 
 INSERT INTO Policy_HurryModifiers
 	(PolicyType, HurryType, HurryCostModifier)

@@ -199,7 +199,7 @@
 
 	<!-- Promotion Instance -->
 	<Instance Name="EarnedPromotionInstance">
-		<Container ID="EarnedPromotion" Size="26,26" >
+		<Container ID="EarnedPromotion" Size="26,26" ConsumeMouse="1">
 			<Image ID="UnitPromotionImage" Anchor="C,C" Size="32,32" Texture="Promotions256.dds"/>
 		</Container>
 	</Instance>

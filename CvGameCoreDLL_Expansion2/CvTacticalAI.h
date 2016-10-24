@@ -869,6 +869,7 @@ private:
 	void ExecutePillage(CvPlot* pTargetPlot);
 	void ExecutePlunderTradeUnit(CvPlot* pTargetPlot);
 	void ExecuteParadropPillage(CvPlot* pTargetPlot);
+	void ExecuteLandingOperation(CvPlot* pTargetPlot);
 #ifdef MOD_CORE_NEW_DEPLOYMENT_LOGIC
 	void ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl);
 #endif
@@ -899,6 +900,7 @@ private:
 	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, bool bNoRangedUnits=false, bool bNavalOnly=false);
 	bool FindUnitsForPillage(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain);
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot);
+	bool FindEmbarkedUnitsAroundTarget(CvPlot *pTargetPlot, int iMaxDistance);
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
 
 	int GetRecruitRange() const;
@@ -1174,7 +1176,7 @@ public:
 
 	bool isComplete() const;
 	void updateTacticalPlotTypes(int iStartPlot = -1);
-	bool makeNextAssignments(int iMaxBranches);
+	bool makeNextAssignments(int iMaxBranches, int iMaxAssignmentsPerBranch);
 	bool haveTacticalPlot(const CvPlot* pPlot) const;
 	void addTacticalPlot(const CvPlot* pPlot);
 	bool addAvailableUnit(const CvUnit* pUnit);

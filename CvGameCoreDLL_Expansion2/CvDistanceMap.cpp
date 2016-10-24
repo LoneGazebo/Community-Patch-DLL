@@ -158,11 +158,14 @@ void CvDistanceMap::Dump(const char* filename)
 	ofstream out(filename);
 	if (out)
 	{
-		out << "#x,y,water,distance,id,owner\n"; 
+		out << "#x,y,hx,hz,water,distance,id,owner\n"; 
 		for (int i=0; i<GC.getMap().numPlots(); i++)
 		{
 			CvPlot* pPlot =  GC.getMap().plotByIndexUnchecked(i);
-			out << pPlot->getX() << "," << pPlot->getY() << "," << (pPlot->isWater() ? 1 : 0) << "," 
+			int xHex = xToHexspaceX(pPlot->getX(),pPlot->getY());
+			int zHex = -xHex-pPlot->getY();
+
+			out << pPlot->getX() << "," << pPlot->getY() << "," << xHex << "," << zHex << "," << (pPlot->isWater() ? 1 : 0) << "," 
 				<< GetClosestFeatureDistance(*pPlot) << "," << GetClosestFeatureID(*pPlot) << "," << GetClosestFeatureOwner(*pPlot) << "\n";
 		}
 	}

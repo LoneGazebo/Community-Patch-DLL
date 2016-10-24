@@ -338,7 +338,7 @@ public:
 #endif
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int GetInternationalRouteYieldModifier(int i) const;
-	/* int* GetInternationalRouteYieldModifiersArray */
+	int* GetInternationalRouteYieldModifiersArray();
 #endif
 	int GetBuildingClassYieldModifiers(int i, int j) const;
 	int GetBuildingClassYieldChanges(int i, int j) const;
