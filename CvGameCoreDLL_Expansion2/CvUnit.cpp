@@ -5581,38 +5581,26 @@ bool CvUnit::jumpToNearestValidPlot()
 
 		if(pLoopPlot && pLoopPlot->isValidDomainForLocation(*this) && isMatchingDomain(pLoopPlot))
 		{
-			if(canMoveInto(*pLoopPlot))
+			//need to check for invisible units as well ...
+			if(canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION) && pLoopPlot->getNumUnits()==0 )
 			{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-				if(pLoopPlot->getMaxFriendlyUnitsOfType(this) < pLoopPlot->getUnitLimit())
-#else
-				if(pLoopPlot->getMaxFriendlyUnitsOfType(this) < GC.getPLOT_UNIT_LIMIT())
-#endif
+				if((getDomainType() != DOMAIN_AIR) || pLoopPlot->isFriendlyCity(*this, true))
 				{
-					// Can only jump to a plot if we can enter the territory, and it's NOT enemy territory OR we're a barb
-					if(canEnterTerritory(pLoopPlot->getTeam()) && (isBarbarian() || !isEnemy(pLoopPlot->getTeam(), pLoopPlot)) && !pLoopPlot->isMountain())
+					if(getDomainType() != DOMAIN_SEA || (pLoopPlot->isFriendlyCity(*this, true) && pLoopPlot->isCoastalLand()) || (pLoopPlot->isWater() && !pLoopPlot->isLake()))
 					{
-						CvAssertMsg(!atPlot(*pLoopPlot), "atPlot(pLoopPlot) did not return false as expected");
-
-						if((getDomainType() != DOMAIN_AIR) || pLoopPlot->isFriendlyCity(*this, true))
+						if(pLoopPlot->isRevealed(getTeam()))
 						{
-							if(getDomainType() != DOMAIN_SEA || (pLoopPlot->isFriendlyCity(*this, true) && pLoopPlot->isCoastalLand()) || (pLoopPlot->isWater() && !pLoopPlot->isLake()))
+							int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
+
+							if(pNearestCity != NULL)
 							{
-								if(pLoopPlot->isRevealed(getTeam()))
-								{
-									int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
+								iValue += plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pNearestCity->getX(), pNearestCity->getY());
+							}
 
-									if(pNearestCity != NULL)
-									{
-										iValue += plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pNearestCity->getX(), pNearestCity->getY());
-									}
-
-									if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
-									{
-										iBestValue = iValue;
-										pBestPlot = pLoopPlot;
-									}
-								}
+							if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
+							{
+								iBestValue = iValue;
+								pBestPlot = pLoopPlot;
 							}
 						}
 					}
@@ -5657,59 +5645,36 @@ bool CvUnit::jumpToNearestValidPlot()
 bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 {
 	VALIDATE_OBJECT
-	CvPlot* pLoopPlot;
-	CvPlot* pBestPlot;
-	int iValue;
-	int iBestValue;
-
+	CvPlot* pBestPlot = NULL;
+	int iBestValue = INT_MAX;
 	CvAssertMsg(!isAttacking(), "isAttacking did not return false as expected");
 	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
 
-	iBestValue = INT_MAX;
-	pBestPlot = NULL;
-
-	for(int iDX = -iRange; iDX <= iRange; iDX++)
+	iRange = min(max(1,iRange),5);
+	for(int i=1; i<RING_PLOTS[iRange]; i++)
 	{
-		for(int iDY = -iRange; iDY <= iRange; iDY++)
+		CvPlot* pLoopPlot = iterateRingPlots( plot(), i );
+
+		if(pLoopPlot && pLoopPlot->isValidDomainForLocation(*this) && isMatchingDomain(pLoopPlot))
 		{
-			pLoopPlot	= plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
-
-			if(pLoopPlot != NULL)
+			//need to check for invisible units as well ...
+			if(canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION) && pLoopPlot->getNumUnits()==0 )
 			{
-				if(pLoopPlot->isValidDomainForLocation(*this) && isMatchingDomain(pLoopPlot))
+				if((getDomainType() != DOMAIN_AIR) || pLoopPlot->isFriendlyCity(*this, true))
 				{
-					if(canMoveInto(*pLoopPlot))
+					if(pLoopPlot->isRevealed(getTeam()))
 					{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-						if(pLoopPlot->getMaxFriendlyUnitsOfType(this) < pLoopPlot->getUnitLimit())
-#else
-						if(pLoopPlot->getMaxFriendlyUnitsOfType(this) < GC.getPLOT_UNIT_LIMIT())
-#endif
+						int iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
+
+						if(pLoopPlot->area() != area())
 						{
-							// Can only jump to a plot if we can enter the territory, and it's NOT enemy territory OR we're a barb
-							if(canEnterTerritory(pLoopPlot->getTeam()) && (isBarbarian() || !isEnemy(pLoopPlot->getTeam(), pLoopPlot)))
-							{
-								CvAssertMsg(!atPlot(*pLoopPlot), "atPlot(pLoopPlot) did not return false as expected");
+							iValue *= 3;
+						}
 
-								if((getDomainType() != DOMAIN_AIR) || pLoopPlot->isFriendlyCity(*this, true))
-								{
-									if(pLoopPlot->isRevealed(getTeam()))
-									{
-										iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
-
-										if(pLoopPlot->area() != area())
-										{
-											iValue *= 3;
-										}
-
-										if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
-										{
-											iBestValue = iValue;
-											pBestPlot = pLoopPlot;
-										}
-									}
-								}
-							}
+						if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
+						{
+							iBestValue = iValue;
+							pBestPlot = pLoopPlot;
 						}
 					}
 				}
@@ -5726,6 +5691,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 								pBestPlot->getX(), pBestPlot->getY(), getX(), getY());
 			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
+		ClearMissionQueue(); //do this before changing the position in case we have queued moves
 		setXY(pBestPlot->getX(), pBestPlot->getY(), false, true, pBestPlot->isVisibleToWatchingHuman(), false);
 	}
 	else
@@ -5742,97 +5708,6 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 
 	return true;
 }
-#if defined(MOD_BALANCE_CORE)
-//	--------------------------------------------------------------------------------
-bool CvUnit::jumpToNearestValidPlotWithinRangeIgnoreEnemy(int iRange)
-{
-	VALIDATE_OBJECT
-	CvPlot* pLoopPlot;
-	CvPlot* pBestPlot;
-	int iValue;
-	int iBestValue;
-
-	CvAssertMsg(!isAttacking(), "isAttacking did not return false as expected");
-	CvAssertMsg(!isFighting(), "isFighting did not return false as expected");
-
-	iBestValue = INT_MAX;
-	pBestPlot = NULL;
-
-	for(int iDX = -iRange; iDX <= iRange; iDX++)
-	{
-		for(int iDY = -iRange; iDY <= iRange; iDY++)
-		{
-			pLoopPlot	= plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
-
-			if(pLoopPlot != NULL)
-			{
-				if(pLoopPlot->isValidDomainForLocation(*this) && isMatchingDomain(pLoopPlot))
-				{
-					if(canMoveInto(*pLoopPlot))
-					{
-#if defined(MOD_GLOBAL_STACKING_RULES)
-						if(pLoopPlot->getMaxFriendlyUnitsOfType(this) < pLoopPlot->getUnitLimit())
-#else
-						if(pLoopPlot->getMaxFriendlyUnitsOfType(this) < GC.getPLOT_UNIT_LIMIT())
-#endif
-						{
-							// Can only jump to a plot if we can enter the territory, and it's NOT enemy territory OR we're a barb
-							if(canEnterTerritory(pLoopPlot->getTeam()))
-							{
-								CvAssertMsg(!atPlot(*pLoopPlot), "atPlot(pLoopPlot) did not return false as expected");
-
-								if((getDomainType() != DOMAIN_AIR) || pLoopPlot->isFriendlyCity(*this, true))
-								{
-									if(pLoopPlot->isRevealed(getTeam()))
-									{
-										iValue = (plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) * 2);
-
-										if(pLoopPlot->area() != area())
-										{
-											iValue *= 3;
-										}
-
-										if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot)<2))
-										{
-											iBestValue = iValue;
-											pBestPlot = pLoopPlot;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	if(pBestPlot != NULL)
-	{
-		if(GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogString;
-			strLogString.Format("Jump to nearest valid plot within range by %s , X: %d, Y: %d, From X: %d, From Y: %d", getName().GetCString(),
-								pBestPlot->getX(), pBestPlot->getY(), getX(), getY());
-			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(strLogString);
-		}
-		setXY(pBestPlot->getX(), pBestPlot->getY(), false, true, pBestPlot->isVisibleToWatchingHuman(), false);
-	}
-	else
-	{
-		if(GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogString;
-			strLogString.Format("Can't find a valid plot within range for %s, X: %d, Y: %d", getName().GetCString(), getX(), getY());
-			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(strLogString);
-		}
-		CUSTOMLOG("jumpToNearestValidPlotWithinRange(%i) failed for unit %s at plot (%i, %i)", iRange, getName().GetCString(), getX(), getY());
-		return false;
-	}
-
-	return true;
-}
-#endif
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const

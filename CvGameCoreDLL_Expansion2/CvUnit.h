@@ -203,9 +203,6 @@ public:
 	void move(CvPlot& pPlot, bool bShow);
 	bool jumpToNearestValidPlot();
 	bool jumpToNearestValidPlotWithinRange(int iRange);
-#if defined(MOD_BALANCE_CORE)
-	bool jumpToNearestValidPlotWithinRangeIgnoreEnemy(int iRange);
-#endif
 
 	bool canScrap(bool bTestVisible = false) const;
 	void scrap();
