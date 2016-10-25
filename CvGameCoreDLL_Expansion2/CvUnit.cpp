@@ -5620,7 +5620,7 @@ bool CvUnit::jumpToNearestValidPlot()
 		}
 		else
 		{
-			strLogString.Format("Can't find a valid plot within range. %s deleted, X: %d, Y: %d", getName().GetCString(), getX(), getY());
+			strLogString.Format("Can't find a valid plot for %s at, X: %d, Y: %d", getName().GetCString(), getX(), getY());
 			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 	}
@@ -5628,16 +5628,13 @@ bool CvUnit::jumpToNearestValidPlot()
 	if(pBestPlot != NULL)
 	{
 		ClearMissionQueue(); //do this before changing the position in case we have queued moves
-		setXY(pBestPlot->getX(), pBestPlot->getY());
-		SetActivityType(ACTIVITY_AWAKE);
+		setXY(pBestPlot->getX(), pBestPlot->getY(), false, false);
+		return true;
 	}
 	else
 	{
-		CUSTOMLOG("jumpToNearestValidPlot failed for unit %s at plot (%i, %i)", getName().GetCString(), getX(), getY());
 		return false;
 	}
-
-	return true;
 }
 
 
@@ -5692,7 +5689,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 		ClearMissionQueue(); //do this before changing the position in case we have queued moves
-		setXY(pBestPlot->getX(), pBestPlot->getY(), false, true, pBestPlot->isVisibleToWatchingHuman(), false);
+		setXY(pBestPlot->getX(), pBestPlot->getY(), false, false);
 	}
 	else
 	{
