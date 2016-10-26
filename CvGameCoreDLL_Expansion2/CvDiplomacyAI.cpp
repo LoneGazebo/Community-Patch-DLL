@@ -16985,7 +16985,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				{
 					pRenewDeal->m_bCheckedForRenewal = true;
 				}
-				ClearDealToRenew();
 				szText = GetDiploStringForMessage(eMessageType);
 				CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
 			}

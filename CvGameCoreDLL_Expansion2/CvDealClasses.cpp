@@ -342,7 +342,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	CvDeal* pRenewDeal = pFromPlayer->GetDiplomacyAI()->GetDealToRenew(NULL, eToPlayer);
 	if (!pRenewDeal)
 	{
-		pRenewDeal = pToPlayer->GetDiplomacyAI()->GetDealToRenew(NULL, eToPlayer);
+		pRenewDeal = pToPlayer->GetDiplomacyAI()->GetDealToRenew(NULL, ePlayer);
 	}
 #if defined(MOD_BALANCE_CORE)
 	bool bHumanToHuman = false;
