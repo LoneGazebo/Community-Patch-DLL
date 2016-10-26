@@ -3773,7 +3773,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				}
 			}
 		}
-		if (pBestPlot == NULL) //no target
+		else //no target
 		{
 			if(pUnit->isHuman())
 			{
@@ -3784,9 +3784,9 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 					strLogString.Format("%s Explorer (human) found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
-				UnitProcessed(pUnit->GetID());
+				//don't call UnitProcessed, it seems it can cause a hang
+				m_CurrentTurnUnits.remove(pUnit->GetID());
 				pUnit->SetAutomateType(NO_AUTOMATE);
-				CancelActivePlayerEndTurn();
 				continue;
 			}
 			else
@@ -7895,15 +7895,11 @@ void CvHomelandAI::LogPatrolMessage(const CvString& strMsg, CvUnit* pPatrolUnit 
 /// Remove a unit that we've allocated from list of units to move this turn
 void CvHomelandAI::UnitProcessed(int iID)
 {
-	CvUnit* pUnit;
-
 	m_CurrentTurnUnits.remove(iID);
-	pUnit = m_pPlayer->getUnit(iID);
 
-	CvAssert(pUnit);
-	if(!pUnit) return;
-
-	pUnit->SetTurnProcessed(true);
+	CvUnit* pUnit = m_pPlayer->getUnit(iID);
+	if(!pUnit)
+		pUnit->SetTurnProcessed(true);
 }
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
