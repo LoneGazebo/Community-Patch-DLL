@@ -142,6 +142,9 @@ public:
 	bool IsProductionModFromNumSpecialists() const;
 	int GetConquestOfTheWorldCityAttack() const;
 	bool IsConquestOfTheWorld() const;
+	bool IsFreeUpgrade() const;
+	bool IsWarsawPact() const;
+	bool IsFreeZuluPikemanToImpi() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -288,6 +291,8 @@ public:
 	int GetYieldFromSettle(int i) const;
 	int GetYieldFromConquest(int i) const;
 	int GetVotePerXCSAlliance() const;
+	int GetVotePerXCSFollowingYourReligion() const;
+	int GetChanceToConvertReligiousUnits() const;
 	int GetGoldenAgeFromVictory() const;
 	bool IsFreeGreatWorkOnConquest() const;
 	bool IsPopulationBoostReligion() const;
@@ -433,6 +438,9 @@ protected:
 	bool m_bProdModFromNumSpecialists;
 	int m_iConquestOfTheWorldCityAttack;
 	bool m_bConquestOfTheWorld;
+	bool m_bFreeUpgrade;
+	bool m_bWarsawPact;
+	bool m_bFreeZuluPikemanToImpi;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -570,6 +578,8 @@ protected:
 	int* m_piYieldFromSettle;
 	int* m_piYieldFromConquest;
 	int m_iVotePerXCSAlliance;
+	int m_iVotePerXCSFollowingFollowingYourReligion;
+	int m_iChanceToConvertReligiousUnits;
 	int m_iGoldenAgeFromVictory;
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;
@@ -1008,15 +1018,27 @@ public:
 	bool IsProductionModFromNumSpecialists() const
 	{
 		return m_bProdModFromNumSpecialists;
-	}
+	};
 	int GetConquestOfTheWorldCityAttack() const
 	{
 		return m_iConquestOfTheWorldCityAttack;
-	}
+	};
 	bool IsConquestOfTheWorld() const
 	{
 		return m_bConquestOfTheWorld;
-	}
+	};
+	bool IsFreeUpgrade() const
+	{
+		return m_bFreeUpgrade;
+	};
+	bool IsFreeZuluPikemanToImpi() const
+	{
+		return m_bFreeZuluPikemanToImpi;
+	};
+	bool IsWarsawPact() const
+	{
+		return m_bWarsawPact;
+	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const
@@ -1402,31 +1424,39 @@ public:
 	int GetVotePerXCSAlliance() const
 	{
 		return m_iVotePerXCSAlliance;
-	}
+	};
+	int GetVotePerXCSFollowingYourReligion() const
+	{
+		return m_iVotePerXCSFollowingFollowingYourReligion;
+	};
+	int GetChanceToConvertReligiousUnits() const
+	{
+		return m_iChanceToConvertReligiousUnits;
+	};
 	int GetGoldenAgeFromVictory() const
 	{
 		return m_iGoldenAgeFromVictory;
-	}
+	};
 	bool IsFreeGreatWorkOnConquest() const
 	{
 		return m_bFreeGreatWorkOnConquest;
-	}
+	};
 	bool IsPopulationBoostReligion() const
 	{
 		return m_bPopulationBoostReligion;
-	}
+	};
 	bool IsCombatBoostNearNaturalWonder() const
 	{
 		return m_bCombatBoostNearNaturalWonder;
-	}
+	};
 	int GetGAPToYield(YieldTypes eYield) const
 	{
 		return m_iGAPToYield[(int)eYield];
-	}
+	};
 	int GetMountainRangeYield(YieldTypes eYield) const
 	{
 		return m_iMountainRangeYield[(int)eYield];
-	}
+	};
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
@@ -1663,6 +1693,9 @@ private:
 	bool m_bProdModFromNumSpecialists;
 	int m_iConquestOfTheWorldCityAttack;
 	bool m_bConquestOfTheWorld;
+	bool m_bFreeUpgrade;
+	bool m_bWarsawPact;
+	bool m_bFreeZuluPikemanToImpi;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1806,6 +1839,8 @@ private:
 	int m_iYieldFromSettle[NUM_YIELD_TYPES];
 	int m_iYieldFromConquest[NUM_YIELD_TYPES];
 	int m_iVotePerXCSAlliance;
+	int m_iVotePerXCSFollowingFollowingYourReligion;
+	int m_iChanceToConvertReligiousUnits;
 	int m_iGoldenAgeFromVictory;
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;

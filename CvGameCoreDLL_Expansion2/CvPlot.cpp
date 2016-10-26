@@ -2279,6 +2279,13 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 			return false;
 		}
 	}
+	if(getImprovementType() != NO_IMPROVEMENT)
+	{
+		if(pkImprovementInfo->IsNewOwner())
+		{
+			return false;
+		}
+	}
 #endif
 
 	bValid = false;
@@ -2584,7 +2591,12 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 			return false;
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(thisBuildInfo.IsKillImprovement() && getResourceType() != NO_RESOURCE)
+	{
+		return false;
+	}
+#endif
 	if(thisBuildInfo.IsRemoveRoute())
 	{
 		if(!getPlotCity() && getRouteType() != NO_ROUTE)
@@ -6170,7 +6182,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						iQuantity = 1;
 					}
 
-					if(eOldOwner != NO_PLAYER && eResourceFromImprovement != NO_IMPROVEMENT)
+					if(eOldOwner != NO_PLAYER && eResourceFromImprovement != NO_RESOURCE && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
 					{
 						GET_PLAYER(eOldOwner).changeNumResourceTotal(eResourceFromImprovement, (-1 * iQuantity), true);
 					}
@@ -6399,10 +6411,9 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						iQuantity = 1;
 					}
 
-					if(eResourceFromImprovement != NO_RESOURCE)
+					if(eResourceFromImprovement != NO_RESOURCE && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
 					{
 						GET_PLAYER(eNewValue).changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
-
 					}
 #endif
 					// Maintenance change!
@@ -7743,7 +7754,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					iQuantity = 1;
 				}
-				if(eResourceFromImprovement != NO_RESOURCE)
+				if(eResourceFromImprovement != NO_RESOURCE && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
 				{
 					GET_PLAYER(eOldBuilder).changeNumResourceTotal(eResourceFromImprovement, (-1 * iQuantity), true);
 				}
@@ -7952,7 +7963,16 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 				if(eResourceFromImprovement != NO_RESOURCE)
 				{
-					owningPlayer.changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
+					if(getResourceType() == NO_RESOURCE)
+					{
+						setResourceType(eResourceFromImprovement, iQuantity);
+						if(GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
+							SetResourceLinkedCityActive(true);
+					}
+					else if(getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement)
+					{
+						owningPlayer.changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
+					}
 				}
 #endif
 
@@ -8505,11 +8525,11 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 				iQuantity = 1;
 			}
 
-			if(bPillaged && (eResourceFromImprovement != NO_RESOURCE))
+			if(bPillaged && (eResourceFromImprovement != NO_RESOURCE) && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
 			{
 				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, (-1 * iQuantity), true);
 			}
-			else if(!bPillaged && (eResourceFromImprovement != NO_RESOURCE))
+			else if(!bPillaged && (eResourceFromImprovement != NO_RESOURCE) && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
 			{
 				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
 			}
@@ -12084,6 +12104,31 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 						}
 					}
 				}
+				if(newImprovementEntry.IsNewOwner())
+				{
+					int iBestCityID = -1;
+					int iBestCityDistance = -1;
+					int iDistance;
+					CvCity* pLoopCity = NULL;
+					int iLoop = 0;
+					for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+					{
+						CvPlot* pPlot = pLoopCity->plot();
+						if(pPlot)
+						{
+							iDistance = plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY());
+							if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
+							{
+								iBestCityID = pLoopCity->GetID();
+								iBestCityDistance = iDistance;
+							}
+						}
+					}
+					if(getOwner() == NO_PLAYER)
+					{
+						setOwner(GetPlayerResponsibleForImprovement(), iBestCityID);
+					}
+				}
 				// If we want to prompt the user about archaeology, let's record that
 				if (newImprovementEntry.IsPromptWhenComplete())
 				{
@@ -14296,6 +14341,24 @@ bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage) const
 							}
 						}
 					}
+				}
+			}
+		}
+	}
+	for(int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
+	{
+		const PromotionTypes eLoopPromotion = static_cast<PromotionTypes>(iJ);
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eLoopPromotion);
+		if(pkPromotionInfo != NULL)
+		{
+			if(pkPromotionInfo->GetNearbyEnemyDamage() > 0)
+			{
+				if(IsWithinDistanceOfUnitPromotion(ePlayer, eLoopPromotion, 1, false, true))
+				{
+					iDamage = pkPromotionInfo->GetNearbyEnemyDamage();
+					if(piCitadelDamage)
+						*piCitadelDamage = iDamage;
+					return true;
 				}
 			}
 		}

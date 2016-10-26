@@ -1234,6 +1234,8 @@ public:
 	int getTechObsolete() const;
 	bool isKillOnlyCivilian() const;
 	bool IsFreeBestDomainUnit() const;
+	bool IsKillImprovement() const;
+	bool IsCultureBoost() const;
 #endif
 	int getImprovement() const;
 	int getRoute() const;
@@ -1271,6 +1273,8 @@ protected:
 	bool m_bKillOnlyCivilian;
 	int m_iTechObsolete;
 	bool m_bFreeBestDomainUnit;
+	bool m_bKillImprovement;
+	bool m_bCultureBoost;
 #endif
 	int m_iImprovement;
 	int m_iRoute;

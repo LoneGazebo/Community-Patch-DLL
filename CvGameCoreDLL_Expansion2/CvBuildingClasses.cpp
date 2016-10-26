@@ -346,6 +346,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppaiImprovementYieldChange(NULL),
 	m_ppaiImprovementYieldChangeGlobal(NULL),
 	m_ppaiSpecialistYieldChangeLocal(NULL),
+	m_paiResourceHappinessChange(NULL),
 #endif
 	m_ppaiSpecialistYieldChange(NULL),
 	m_ppaiResourceYieldModifier(NULL),
@@ -441,6 +442,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededNowhere);
 	SAFE_DELETE_ARRAY(m_piNumSpecFreeUnits);
 	SAFE_DELETE_ARRAY(m_piNumResourceToPlace);
+	SAFE_DELETE_ARRAY(m_paiResourceHappinessChange);
 #endif
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
@@ -840,6 +842,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByValue(m_paiHurryModifier, "HurryInfos", "Building_HurryModifiers", "HurryType", "BuildingType", szBuildingType, "HurryCostModifier");
 #if defined(MOD_BALANCE_CORE)
 	kUtility.PopulateArrayByValue(m_paiHurryModifierLocal, "HurryInfos", "Building_HurryModifiersLocal", "HurryType", "BuildingType", szBuildingType, "HurryCostModifier");
+	kUtility.PopulateArrayByValue(m_paiResourceHappinessChange, "Resources", "Building_ResourceHappinessChange", "ResourceType", "BuildingType", szBuildingType, "HappinessChange");
 #endif
 
 	//kUtility.PopulateArrayByValue(m_piProductionTraits, "Traits", "Building_ProductionTraits", "TraitType", "BuildingType", szBuildingType, "Trait");
@@ -3224,6 +3227,12 @@ int CvBuildingEntry::GetSpecificGreatPersonRateModifier(int i) const
 	CvAssertMsg(i < GC.getNumSpecialistInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_paiSpecificGreatPersonRateModifier ? m_paiSpecificGreatPersonRateModifier[i] : -1;
+}
+int CvBuildingEntry::GetResourceHappiness(int i) const
+{
+	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_paiResourceHappinessChange ? m_paiResourceHappinessChange[i] : -1;
 }
 #endif
 /// Amount of extra Happiness per turn a BuildingClass provides

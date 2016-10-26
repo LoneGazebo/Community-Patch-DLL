@@ -1469,69 +1469,56 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 							CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 							if(pkUnitClassInfo)
 							{
-								if(kAttackingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass) != NO_UNITCLASS)
+								CvPlot* pNewUnitPlot;
+								UnitTypes eLoopUnit;
+								int iDefaultAI;
+								int iUnitAttackerClass = kAttackingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass);
+								int iUnitDefenderClass = kDefendingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass);
+								for(int iJ = 0; iJ < iUnitAttackerClass != NULL; iJ++)
 								{
-									for(int iUnitLoop = 0; iUnitLoop < kAttackingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass); iUnitLoop++)
+									const CvCivilizationInfo& playerCivilization = kAttackingPlayer.getCivilizationInfo();
+									eLoopUnit = (UnitTypes)playerCivilization.getCivilizationUnits(eUnitClass);
+									iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
+									bool bWarOnly = GC.GetGameUnits()->GetEntry(eLoopUnit)->IsWarOnly();
+									bool bCombat = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetCombat() > 0;
+									bool bPrereqTech = GET_TEAM(kAttackingPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.GetGameUnits()->GetEntry(eLoopUnit)->GetPrereqAndTech());
+									if(!bCombat)
 									{
-										const UnitTypes eUnit = (UnitTypes) kAttackingPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);
-										if(eUnit != NO_UNIT)
+										pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+									}
+									else if(bWarOnly && bPrereqTech)
+									{
+										pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+									}
+									else
+									{
+										if(kAttackingPlayer.canTrain(eLoopUnit, false, false, true))
 										{
-											CvCity* pCapital = kAttackingPlayer.getCapitalCity();
-											if(pCapital != NULL)
-											{
-												CvUnit* pkUnit = kAttackingPlayer.initUnit(eUnit, pCapital->getX(), pCapital->getY());
-												CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
-												bool bJumpSuccess = pkUnit->jumpToNearestValidPlot();
-												if (!pkUnit->IsCombatUnit() && !bJumpSuccess)
-												{
-													pkUnit->kill(false);
-												}
-												else if (pUnitInfo != NULL && pUnitInfo->IsWarOnly() && GET_TEAM(kAttackingPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)pUnitInfo->GetPrereqAndTech()) && bJumpSuccess)
-												{
-													pCapital->addProductionExperience(pkUnit);
-												}
-												else if (kAttackingPlayer.canTrain(eUnit, false, false) && bJumpSuccess)
-												{
-													pCapital->addProductionExperience(pkUnit);
-												}
-												else
-												{
-													pkUnit->kill(false);
-												}
-											}
+											pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
 										}
 									}
 								}
-								if(kDefendingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass) != NO_UNITCLASS)
+								for(int iK = 0; iK < iUnitDefenderClass != NULL; iK++)
 								{
-									for(int iUnitLoop = 0; iUnitLoop < kDefendingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass); iUnitLoop++)
+									const CvCivilizationInfo& playerCivilization = kDefendingPlayer.getCivilizationInfo();
+									eLoopUnit = (UnitTypes)playerCivilization.getCivilizationUnits(eUnitClass);
+									iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
+									bool bWarOnly = GC.GetGameUnits()->GetEntry(eLoopUnit)->IsWarOnly();
+									bool bCombat = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetCombat() > 0;
+									bool bPrereqTech = GET_TEAM(kDefendingPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.GetGameUnits()->GetEntry(eLoopUnit)->GetPrereqAndTech());
+									if(!bCombat)
 									{
-										const UnitTypes eUnit = (UnitTypes) kDefendingPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);
-										if(eUnit != NO_UNIT)
+										pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+									}
+									else if(bWarOnly && bPrereqTech)
+									{
+										pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+									}
+									else
+									{
+										if(kDefendingPlayer.canTrain(eLoopUnit, false, false, true))
 										{
-											CvCity* pCapital = kDefendingPlayer.getCapitalCity();
-											if(pCapital != NULL)
-											{
-												CvUnit* pkUnit = kDefendingPlayer.initUnit(eUnit, pCapital->getX(), pCapital->getY());
-												CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
-												bool bJumpSuccess = pkUnit->jumpToNearestValidPlot();
-												if (!pkUnit->IsCombatUnit() && !bJumpSuccess)
-												{
-													pkUnit->kill(false);
-												}
-												else if (pUnitInfo != NULL && pUnitInfo->IsWarOnly() && GET_TEAM(kDefendingPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)pUnitInfo->GetPrereqAndTech()) && bJumpSuccess)
-												{
-													pCapital->addProductionExperience(pkUnit);
-												}
-												else if (kDefendingPlayer.canTrain(eUnit, false, false) && bJumpSuccess)
-												{
-													pCapital->addProductionExperience(pkUnit);
-												}
-												else
-												{
-													pkUnit->kill(false);
-												}
-											}
+											pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
 										}
 									}
 								}
@@ -8236,12 +8223,27 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			CvUnit* pLoopUnit;
 			for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 			{
-				if(pLoopUnit->isFreeUpgrade())
+				if(pLoopUnit->isFreeUpgrade() || kPlayer.GetPlayerTraits()->IsFreeUpgrade())
 				{
 					UnitTypes eUpgradeUnit = pLoopUnit->GetUpgradeUnitType();
 					if(eUpgradeUnit != NO_UNIT && kPlayer.canTrain(eUpgradeUnit, false, false, true))
 					{
 						pLoopUnit->DoUpgrade(true);
+					}
+				}
+				if(kPlayer.GetPlayerTraits()->IsFreeZuluPikemanToImpi())
+				{
+					UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
+					UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
+					if(pLoopUnit != NULL && pLoopUnit->getUnitClassType() == ePikemanClass && kPlayer.canTrain(eZuluImpi, false, false, true))
+					{
+						CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
+						if(pkcUnitEntry)
+						{
+							UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
+							CvUnit* pZuluImpi = kPlayer.initUnit(eZuluImpi, pLoopUnit->getX(), pLoopUnit->getY(), eZuluImpiAI);
+							pZuluImpi->convert(pLoopUnit, true);
+						}
 					}
 				}
 			}

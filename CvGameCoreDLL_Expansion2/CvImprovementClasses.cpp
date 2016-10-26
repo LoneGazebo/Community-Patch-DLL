@@ -99,6 +99,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iGAUnitPlotExperience(0),
 	m_bIsExperience(false),
 	m_eCreatesFeature(NO_FEATURE),
+	m_bNewOwner(false),
 #endif
 	m_iImprovementPillage(NO_IMPROVEMENT),
 	m_iImprovementUpgrade(NO_IMPROVEMENT),
@@ -334,6 +335,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bIsExperience = kResults.GetBool("IsExperience");
 	const char* szFeatureType = kResults.GetText("CreatesFeature");
 	m_eCreatesFeature = (FeatureTypes)GC.getInfoTypeForString(szFeatureType, true);
+	m_bNewOwner = kResults.GetBool("NewOwner");
 #endif
 	m_bNoTwoAdjacent = kResults.GetBool("NoTwoAdjacent");
 	m_bAdjacentLuxury = kResults.GetBool("AdjacentLuxury");
@@ -904,6 +906,10 @@ bool CvImprovementEntry::IsExperience() const
 FeatureTypes CvImprovementEntry::GetCreatedFeature() const
 {
 	return m_eCreatesFeature;
+}
+bool CvImprovementEntry::IsNewOwner() const
+{
+	return m_bNewOwner;
 }
 #endif
 /// Returns the type of improvement that results from this improvement being pillaged

@@ -4336,7 +4336,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			int iTraitPotential = 0;
 			//The Base INTs
 			int iNumAllies = 0;
-
+			int iNumMinorFollowingRel = 0;
 			// Loop through all minors and get the total number we've met.
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
@@ -4348,6 +4348,10 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 					{
 						iNumAllies++;
 					}
+					if (GET_PLAYER(eMinor).GetMinorCivAI()->IsSameReligionAsMajor(ePlayer))
+					{
+						iNumMinorFollowingRel++;
+					}
 				}
 			}
 			if(iNumAllies != 0)
@@ -4356,6 +4360,14 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 				if(iTraitPotential != 0)
 				{
 					iTraitVotes = (iNumAllies / iTraitPotential);
+				}
+			}
+			if(iNumMinorFollowingRel != 0)
+			{
+				iTraitPotential = GET_PLAYER(ePlayer).GetPlayerTraits()->GetVotePerXCSFollowingYourReligion();
+				if(iTraitPotential != 0)
+				{
+					iTraitVotes = (iNumMinorFollowingRel / iTraitPotential);
 				}
 			}
 
