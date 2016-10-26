@@ -7898,7 +7898,7 @@ void CvHomelandAI::UnitProcessed(int iID)
 	m_CurrentTurnUnits.remove(iID);
 
 	CvUnit* pUnit = m_pPlayer->getUnit(iID);
-	if(!pUnit)
+	if(pUnit)
 		pUnit->SetTurnProcessed(true);
 }
 
