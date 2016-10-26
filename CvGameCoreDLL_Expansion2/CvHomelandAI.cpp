@@ -3577,7 +3577,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 		
 		//first check our immediate neighborhood (ie the tiles we can reach within one turn)
 		ReachablePlots eligiblePlots;
-		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), eligiblePlots, true, true, false);
+		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), eligiblePlots, true, true, pUnit->isEmbarked());
 		for (ReachablePlots::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
 		{
 			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->iPlotIndex);
@@ -7898,7 +7898,7 @@ void CvHomelandAI::UnitProcessed(int iID)
 	m_CurrentTurnUnits.remove(iID);
 
 	CvUnit* pUnit = m_pPlayer->getUnit(iID);
-	if(!pUnit)
+	if(pUnit)
 		pUnit->SetTurnProcessed(true);
 }
 
