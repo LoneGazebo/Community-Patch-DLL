@@ -3500,6 +3500,8 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 			if ( std::find( vExplorePlots.begin(),vExplorePlots.end(),dummy ) != vExplorePlots.end() )
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, false, false, MISSIONAI_EXPLORE, pDestPlot);
+				if(!pUnit->canMove())
+					UnitProcessed(pUnit->GetID());
 				continue;
 			}
 		}
