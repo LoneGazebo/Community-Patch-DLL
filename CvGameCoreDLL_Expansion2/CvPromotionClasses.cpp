@@ -210,6 +210,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bIsNearbyEnemyCityPromotion(false),
 	m_bIsNearbyPromotion(false),
 	m_bIsFriendlyLands(false),
+	m_bEnemyLands(false),
 	m_iNearbyRange(0),
 	m_eAddedFromNearbyPromotion(NO_PROMOTION),
 	m_eRequiredUnit(NO_UNIT),
@@ -217,6 +218,13 @@ CvPromotionEntry::CvPromotionEntry():
 	m_eConvertDomain(NO_DOMAIN),
 	m_iStackedGreatGeneralExperience(0),
 	m_iPillageBonusStrength(0),
+	m_iReligiousPressureModifier(0),
+	m_iAdjacentCityDefesneMod(0),
+	m_iNearbyEnemyDamage(0),
+	m_eAdjacentSameType(NO_PROMOTION),
+	m_iMilitaryProductionModifier(0),
+	m_piYieldModifier(NULL),
+	m_bHighSeaRaider(false),
 #endif
 	m_bCanHeavyCharge(false),
 	m_piTerrainAttackPercent(NULL),
@@ -268,6 +276,7 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_piFeatureDefensePercent);
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piYieldFromScouting);
+	SAFE_DELETE_ARRAY(m_piYieldModifier);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	SAFE_DELETE_ARRAY(m_piYieldFromKills);
@@ -422,6 +431,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bIsNearbyEnemyCityPromotion = kResults.GetBool("IsNearbyEnemyCityPromotion");
 	m_bIsNearbyPromotion = kResults.GetBool("IsNearbyPromotion");
 	m_bIsFriendlyLands = kResults.GetBool("IsFriendlyLands");
+	m_bEnemyLands = kResults.GetBool("EnemyLands");
 	m_iNearbyRange = kResults.GetInt("NearbyRange");
 	const char* szAddedFromNearbyPromotion = kResults.GetText("AddedFromNearbyPromotion");
 	m_eAddedFromNearbyPromotion = (PromotionTypes)GC.getInfoTypeForString(szAddedFromNearbyPromotion, true);
@@ -433,6 +443,13 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_eConvertDomain = (DomainTypes)GC.getInfoTypeForString(szConvertDomain, true);
 	m_iStackedGreatGeneralExperience = kResults.GetInt("StackedGreatGeneralXP");
 	m_iPillageBonusStrength = kResults.GetInt("PillageBonusStrength");
+	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
+	m_iAdjacentCityDefesneMod = kResults.GetInt("AdjacentCityDefenseMod");
+	m_iNearbyEnemyDamage = kResults.GetInt("NearbyEnemyDamage");
+	const char* szAdjacentSameType = kResults.GetText("AdjacentSameType");
+	m_eAdjacentSameType = (PromotionTypes)GC.getInfoTypeForString(szAdjacentSameType, true);
+	m_iMilitaryProductionModifier = kResults.GetInt("MilitaryProductionModifier");
+	m_bHighSeaRaider = kResults.GetBool("HighSeaRaider");
 #endif
 	m_bCanHeavyCharge = kResults.GetBool("HeavyCharge");
 
@@ -696,6 +713,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
+	kUtility.SetYields(m_piYieldModifier, "UnitPromotions_YieldModifiers", "PromotionType", szPromotionType);
 	//UnitPromotions_YieldFromScouting
 	{
 		kUtility.InitializeArray(m_piYieldFromScouting, NUM_YIELD_TYPES, 0);
@@ -2017,6 +2035,10 @@ bool CvPromotionEntry::IsFriendlyLands() const
 {
 	return m_bIsFriendlyLands;
 }
+bool CvPromotionEntry::IsEnemyLands() const
+{
+	return m_bEnemyLands;
+}
 int CvPromotionEntry::GetNearbyRange() const
 {
 	return m_iNearbyRange;
@@ -2024,6 +2046,10 @@ int CvPromotionEntry::GetNearbyRange() const
 UnitTypes CvPromotionEntry::getRequiredUnit() const
 {
 	return m_eRequiredUnit;
+}
+PromotionTypes CvPromotionEntry::GetAdjacentSameType() const
+{
+	return m_eAdjacentSameType;
 }
 UnitTypes CvPromotionEntry::GetConvertDomainUnit() const
 {
@@ -2044,6 +2070,26 @@ int CvPromotionEntry::GetStackedGreatGeneralExperience() const
 int CvPromotionEntry::GetPillageBonusStrengthPercent() const
 {
 	return m_iPillageBonusStrength;
+}
+int CvPromotionEntry::GetReligiousPressureModifier() const
+{
+	return m_iReligiousPressureModifier;
+}
+int CvPromotionEntry::GetAdjacentCityDefenseMod() const
+{
+	return m_iAdjacentCityDefesneMod;
+}
+int CvPromotionEntry::GetNearbyEnemyDamage() const
+{
+	return m_iNearbyEnemyDamage;
+}
+int CvPromotionEntry::GetMilitaryProductionModifier() const
+{
+	return m_iMilitaryProductionModifier;
+}
+bool CvPromotionEntry::IsHighSeaRaider() const
+{
+	return m_bHighSeaRaider;
 }
 #endif
 
@@ -2135,6 +2181,18 @@ int CvPromotionEntry::GetFeatureDefensePercent(int i) const
 	return -1;
 }
 #if defined(MOD_BALANCE_CORE)
+/// Modifier to yield by type
+int CvPromotionEntry::GetYieldModifier(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldModifier)
+	{
+		return m_piYieldModifier[i];
+	}
+
+	return 0;
+}
 int CvPromotionEntry::GetYieldFromScouting(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");

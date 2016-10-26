@@ -237,6 +237,7 @@ public:
 	bool IsNearbyEnemyCityPromotion() const;
 	bool IsNearbyPromotion() const;
 	bool IsFriendlyLands() const;
+	bool IsEnemyLands() const;
 	int GetNearbyRange() const;
 	UnitTypes getRequiredUnit() const;
 	UnitTypes GetConvertDomainUnit() const;
@@ -244,6 +245,12 @@ public:
 	PromotionTypes AddedFromNearbyPromotion() const;
 	int GetStackedGreatGeneralExperience() const;
 	int GetPillageBonusStrengthPercent() const;
+	int GetReligiousPressureModifier() const;
+	int GetAdjacentCityDefenseMod() const;
+	int GetNearbyEnemyDamage() const;
+	PromotionTypes GetAdjacentSameType() const;
+	int GetMilitaryProductionModifier() const;
+	bool IsHighSeaRaider() const;
 #endif
 	bool IsCanHeavyCharge() const;
 	bool HasPostCombatPromotions() const;
@@ -259,6 +266,7 @@ public:
 	int GetFeatureDefensePercent(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetYieldFromScouting(int i) const;
+	int GetYieldModifier(int i) const;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldFromKills(int i) const;
@@ -491,6 +499,7 @@ protected:
 	bool m_bIsNearbyEnemyCityPromotion;
 	bool m_bIsNearbyPromotion;
 	bool m_bIsFriendlyLands;
+	bool m_bEnemyLands;
 	int m_iNearbyRange;
 	PromotionTypes m_eAddedFromNearbyPromotion;
 	UnitTypes m_eRequiredUnit;
@@ -498,6 +507,12 @@ protected:
 	DomainTypes m_eConvertDomain;
 	int m_iStackedGreatGeneralExperience;
 	int m_iPillageBonusStrength;
+	int m_iReligiousPressureModifier;
+	int m_iAdjacentCityDefesneMod;
+	int m_iNearbyEnemyDamage;
+	PromotionTypes m_eAdjacentSameType;
+	int m_iMilitaryProductionModifier;
+	bool m_bHighSeaRaider;
 #endif
 	bool m_bCanHeavyCharge;
 
@@ -510,6 +525,7 @@ protected:
 	int* m_piFeatureDefensePercent;
 #if defined(MOD_BALANCE_CORE)
 	int* m_piYieldFromScouting;
+	int* m_piYieldModifier;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int* m_piYieldFromKills;

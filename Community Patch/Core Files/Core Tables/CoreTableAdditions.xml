@@ -48,7 +48,12 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
-
+	<!-- Allows you to define resources from workable plots that give happiness when this building is constructed. -->
+	<Table name="Building_ResourceHappinessChange">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="HappinessChange" type="integer" default="0"/>
+	</Table>
 	<!-- Allows you to define expeirence gained by units produced in city based on total # of writing works in city -->
 	<Table name="Building_DomainFreeExperiencePerGreatWorkGlobal">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
@@ -707,6 +712,12 @@
 	</Table>
 	<!-- Promotion: City gains extra yield on the plot itself with this promotion set -->
 	<Table name="UnitPromotions_GarrisonYield">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<!-- Promotion: City gains %Yield modifier from a Unit in this city (unit can be combat or civilian) -->
+	<Table name="UnitPromotions_YieldModifiers">
 		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>

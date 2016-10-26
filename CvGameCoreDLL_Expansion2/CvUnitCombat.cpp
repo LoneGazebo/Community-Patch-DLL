@@ -4286,9 +4286,18 @@ void CvUnitCombat::ApplyPostCombatTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser
 			pkWinner->changeDamage(-pkWinner->getHPHealedIfDefeatEnemy());
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(pkWinner->isExtraAttackHealthOnKill())
+	{
+		int iHealAmount = min(pkWinner->getDamage(), GC.getPILLAGE_HEAL_AMOUNT());
+		pkWinner->changeMoves(60);
+		pkWinner->setMadeAttack(false);
+		pkWinner->changeDamage(-iHealAmount);
+	}
+#endif
 #if defined(MOD_BUGFIX_MINOR)
 	// If the modder wants the healing to be negative (ie additional damage), then let it be
-	else if(pkWinner->getHPHealedIfDefeatEnemy() < 0 && (pkLoser->getOwner() != BARBARIAN_PLAYER || !(pkWinner->IsHealIfDefeatExcludeBarbarians())))
+	else if(pkWinner->getHPHealedIfDefeatEnemy() < 0 && (pkLoser->getOwner() != BARBARIAN_PLAYER || !(pkWinner->IsHealIfDefeatExcludeBarbarians()) || !(pkWinner->isExtraAttackHealthOnKill())))
 	{
 		if(pkWinner->getHPHealedIfDefeatEnemy() <= (pkWinner->getDamage() - pkWinner->GetMaxHitPoints()))
 		{

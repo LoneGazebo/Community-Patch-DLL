@@ -3181,6 +3181,8 @@ void CvUnit::doTurn()
 	DoStackedGreatGeneralExperience(plot());
 	DoConvertOnDamageThreshold(plot());
 	DoNearbyUnitPromotion(this, plot());
+	DoConvertEnemyUnitToBarbarian(plot());
+	DoConvertReligiousUnitsToMilitary(plot());
 #endif
 }
 //	--------------------------------------------------------------------------------
@@ -3736,7 +3738,7 @@ void CvUnit::DoLocationPromotions(bool bSpawn, CvPlot* pOldPlot, CvPlot* pNewPlo
 				}
 			}
 		}
-		//Improvement that provides free promotion? Only if player owns them. Do NOT CHANGE!
+		//Improvement that provides free promotion? Only if player owns them.
 		ImprovementTypes eNeededImprovement = pNewPlot->getImprovementType();
 		if(eNeededImprovement != NO_IMPROVEMENT)
 		{
@@ -13447,6 +13449,42 @@ bool CvUnit::build(BuildTypes eBuild)
 						}
 					}
 				}
+				if(pkBuildInfo->IsCultureBoost())
+				{
+					float fDelay = 0.5f;
+					int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 2;
+					kPlayer.changeJONSCulture(iValue);
+					if(kPlayer.getCapitalCity() != NULL)
+					{
+						kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+					}
+					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
+						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+					}
+				}
+				if(pkBuildInfo->IsKillImprovement())
+				{
+					if(pPlot != NULL && pPlot->getResourceType() == NO_RESOURCE)
+					{
+						ResourceTypes eResourceFromImprovement = (ResourceTypes)pkImprovementInfo->GetResourceFromImprovement();
+						int iQuantity = pkImprovementInfo->GetResourceQuantityFromImprovement();
+						if(iQuantity <= 0)
+						{
+							iQuantity = 1;
+						}
+						if(eResourceFromImprovement != NO_RESOURCE)
+						{
+							pPlot->setResourceType(eResourceFromImprovement, iQuantity);
+							if(pPlot->GetResourceLinkedCity() != NULL && !pPlot->IsResourceLinkedCityActive())
+								pPlot->SetResourceLinkedCityActive(true);
+						}
+					}
+					pPlot->setImprovementType(NO_IMPROVEMENT);
+				}
 #endif
 			}
 #if defined(GLOBAL_ALPINE_PASSES)
@@ -19475,7 +19513,18 @@ if (!bDoEvade)
 				{
 					kOurTeam.meet(pAdjacentPlot->getTeam(), false);
 				}
-
+#if defined(MOD_BALANCE_CORE)
+				if(pAdjacentPlot->isCity())
+				{
+					CvCity* pAdjCity = pAdjacentPlot->getPlotCity();
+					{
+						if(pAdjCity != NULL && !isEnemy(pAdjCity->getTeam()))
+						{
+							pAdjCity->updateStrengthValue();
+						}
+					}
+				}
+#endif
 				// Have a naval unit here?
 				if(isBarbarian() && getDomainType() == DOMAIN_SEA && pAdjacentPlot->isWater())
 				{
@@ -19544,79 +19593,11 @@ if (!bDoEvade)
 						}
 					}
 				}
-				// Have a unit that'll convert an enemy unit into a Barbarian?
-				if(isConvertEnemyUnitToBarbarian())
-				{
-					CvUnit* pConvertUnit = NULL;
-					int iDamageTheshold = this->getUnitInfo().GetDamageThreshold();
-					CvUnit* pAdjacentUnit = pAdjacentPlot->getBestDefender(NO_PLAYER);
-					if(pAdjacentUnit != NULL && pAdjacentUnit->IsCombatUnit() && !pAdjacentUnit->isBarbarian())
-					{
-						int iExistingDamage = pAdjacentUnit->getDamage();
-						if(GET_PLAYER(getOwner()).IsAtWarWith(pAdjacentUnit->getOwner()))
-						{
-							if(iExistingDamage > iDamageTheshold)
-							{
-								CvPlayer* pBarbPlayer = &GET_PLAYER(BARBARIAN_PLAYER);
-								pConvertUnit = pBarbPlayer->initUnit(pAdjacentUnit->getUnitType(), pAdjacentUnit->getX(), pAdjacentUnit->getY(), pAdjacentUnit->AI_getUnitAIType(), NO_DIRECTION, true /*bNoMove*/, false);
-								pConvertUnit->convert(pAdjacentUnit, false);
-								pConvertUnit->setupGraphical();
-								pConvertUnit->setDamage(iExistingDamage, BARBARIAN_PLAYER);
-								pConvertUnit->finishMoves();
-
-								CvNotifications* pNotifications = GET_PLAYER(this->getOwner()).GetNotifications();
-								if(pNotifications)
-								{
-									CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHAOS_CONVERSION");
-									CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHAOS_CONVERSION");
-									pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pAdjacentUnit->getX(), pAdjacentUnit->getY(), -1);
-								}
-							}
-						}
-					}
-				}
-				// Is this unit running into a unit that might convert it into a barbarian??
-				else if(IsCombatUnit() && !isBarbarian())
-				{
-					CvUnit* pConvertUnit = NULL;
-					int iExistingDamage = getDamage();
-					if(pAdjacentPlot->getNumUnits() > 0)
-					{
-						for(int iNearbyUnitLoop = 0; iNearbyUnitLoop < pAdjacentPlot->getNumUnits(); iNearbyUnitLoop++)
-						{
-							const CvUnit* const adjUnit = pAdjacentPlot->getUnitByIndex(iNearbyUnitLoop);
-							if(adjUnit != NULL && adjUnit->isConvertEnemyUnitToBarbarian())
-							{
-								int iDamageTheshold = adjUnit->getUnitInfo().GetDamageThreshold();
-								if(GET_PLAYER(getOwner()).IsAtWarWith(adjUnit->getOwner()))
-								{
-									if(iExistingDamage > iDamageTheshold)
-									{
-
-										CvPlayer* pBarbPlayer = &GET_PLAYER(BARBARIAN_PLAYER);
-										pConvertUnit = pBarbPlayer->initUnit(this->getUnitType(), this->getX(), this->getY(), this->AI_getUnitAIType(), NO_DIRECTION, true /*bNoMove*/, false);
-										pConvertUnit->convert(this, false);
-										pConvertUnit->setupGraphical();
-										pConvertUnit->setDamage(iExistingDamage, BARBARIAN_PLAYER);
-										pConvertUnit->finishMoves();
-
-										CvNotifications* pNotifications = GET_PLAYER(adjUnit->getOwner()).GetNotifications();
-										if(pNotifications)
-										{
-											CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHAOS_CONVERSION");
-											CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHAOS_CONVERSION");
-											pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, this->getX(), this->getY(), -1);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
 		DoLocationPromotions(false, pOldPlot, pNewPlot);
+		DoConvertEnemyUnitToBarbarian(pNewPlot);
 #endif
 
 		if(pOldPlot != NULL && getDomainType() == DOMAIN_SEA)
@@ -19653,6 +19634,27 @@ if (!bDoEvade)
 
 	if(pOldPlot != NULL)
 	{
+#if defined(MOD_BALANCE_CORE)
+		CvPlot* pAdjacentOldPlot;
+		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		{
+			pAdjacentOldPlot = plotDirection(pOldPlot->getX(), pOldPlot->getY(), ((DirectionTypes)iI));
+
+			if(pAdjacentOldPlot != NULL)
+			{
+				if(pAdjacentOldPlot->isCity())
+				{
+					CvCity* pAdjOldCity = pAdjacentOldPlot->getPlotCity();
+					{
+						if(pAdjOldCity != NULL && !isEnemy(pAdjOldCity->getTeam()))
+						{
+							pAdjOldCity->updateStrengthValue();
+						}
+					}
+				}
+			}
+		}
+#endif
 		if(hasCargo())
 		{
 			pUnitNode = pOldPlot->headUnitNode();
@@ -22736,16 +22738,55 @@ void CvUnit::DoNearbyUnitPromotion(CvUnit* pUnit, const CvPlot* pPlot)
 				}
 				if(pkPromotionInfo->IsFriendlyLands() && pkPromotionInfo->getRequiredUnit() == pUnit->getUnitType())
 				{
-					if(!pPlot->IsFriendlyTerritory(pUnit->getOwner()))
-					{
-						pUnit->setHasPromotion(eLoopPromotion, false);
-					}
-					else
+					if(pPlot->IsFriendlyTerritory(pUnit->getOwner()) || (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).HasSameIdeology(pUnit->getOwner()) && GET_TEAM(pPlot->getTeam()).IsAllowsOpenBordersToTeam(pUnit->getTeam())))
 					{
 						if(::IsPromotionValidForUnitCombatType(eLoopPromotion, pUnit->getUnitType()))
 						{
 							pUnit->setHasPromotion(eLoopPromotion, true);
 						}
+					}
+					else
+					{
+						pUnit->setHasPromotion(eLoopPromotion, false);
+					}
+				}
+				if(pkPromotionInfo->IsEnemyLands())
+				{
+					for(int iJ = 0; iJ < MAX_PLAYERS; iJ++)
+					{
+						CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iJ);
+						if(kPlayer.GetPlayerTraits()->IsWarsawPact())
+						{
+							if(GET_TEAM(pUnit->getTeam()).isAtWar(GET_TEAM(kPlayer.getTeam()).GetID()))
+							{
+								if((pPlot->getTeam() != NO_TEAM && pPlot->getTeam() == GET_TEAM(kPlayer.getTeam()).GetID()) || (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMinorCiv() && GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->GetFriendshipLevelWithMajor(kPlayer.GetID()) >= 1) || (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).HasSameIdeology(kPlayer.GetID()) && GET_TEAM(pPlot->getTeam()).IsAllowsOpenBordersToTeam(GET_TEAM(kPlayer.getTeam()).GetID())))
+								{
+									pUnit->setHasPromotion(eLoopPromotion, true);
+								}
+								else
+								{
+									pUnit->setHasPromotion(eLoopPromotion, false);
+								}
+							}
+							else
+							{
+								if(pUnit->HasPromotion(eLoopPromotion))
+								{
+									pUnit->setHasPromotion(eLoopPromotion, false);
+								}
+							}
+						}
+					}
+				}
+				if(pkPromotionInfo->GetAdjacentSameType() != NO_PROMOTION)
+				{
+					if(pUnit->HasPromotion(pkPromotionInfo->GetAdjacentSameType()) && pUnit->IsAdjacentToUnitPromotion(pkPromotionInfo->GetAdjacentSameType(), true, false))
+					{
+						pUnit->setHasPromotion(eLoopPromotion, true);
+					}
+					else
+					{
+						pUnit->setHasPromotion(eLoopPromotion, false);
 					}
 				}
 				if(pkPromotionInfo->GetPillageBonusStrengthPercent() > 0 && pUnit->HasPromotion(eLoopPromotion))
@@ -22902,6 +22943,212 @@ void CvUnit::DoConvertOnDamageThreshold(const CvPlot* pPlot)
 					pConvertUnit->convert(this, false);
 					pConvertUnit->finishMoves();
 					pConvertUnit->setMoves(pConvertUnit->maxMoves());
+				}
+			}
+		}
+	}
+}
+// Have a unit that'll convert an enemy unit into a Barbarian?
+void CvUnit::DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot)
+{
+	if (pPlot == NULL)
+	{
+		pPlot = plot();
+	}
+	if(pPlot != NULL)
+	{
+		CvPlot* pAdjacentPlot;
+		for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		{
+			pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+
+			if(pAdjacentPlot != NULL)
+			{
+				if(isConvertEnemyUnitToBarbarian())
+				{
+					CvUnit* pConvertUnit = NULL;
+					int iDamageTheshold = this->getUnitInfo().GetDamageThreshold();
+					CvUnit* pAdjacentUnit = pAdjacentPlot->getBestDefender(NO_PLAYER);
+					if(pAdjacentUnit != NULL && pAdjacentUnit->IsCombatUnit() && !pAdjacentUnit->isBarbarian())
+					{
+						int iExistingDamage = pAdjacentUnit->getDamage();
+						if(GET_PLAYER(getOwner()).IsAtWarWith(pAdjacentUnit->getOwner()))
+						{
+							if(iExistingDamage > iDamageTheshold)
+							{
+								CvPlayer* pBarbPlayer = &GET_PLAYER(BARBARIAN_PLAYER);
+								pConvertUnit = pBarbPlayer->initUnit(pAdjacentUnit->getUnitType(), pAdjacentUnit->getX(), pAdjacentUnit->getY(), pAdjacentUnit->AI_getUnitAIType(), NO_DIRECTION, true /*bNoMove*/, false);
+								pConvertUnit->convert(pAdjacentUnit, false);
+								pConvertUnit->setupGraphical();
+								pConvertUnit->setDamage(iExistingDamage, BARBARIAN_PLAYER);
+								pConvertUnit->finishMoves();
+
+								CvNotifications* pNotifications = GET_PLAYER(this->getOwner()).GetNotifications();
+								if(pNotifications)
+								{
+									CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHAOS_CONVERSION");
+									CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHAOS_CONVERSION");
+									pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pAdjacentUnit->getX(), pAdjacentUnit->getY(), -1);
+								}
+							}
+						}
+					}
+				}
+				// Is this unit running into a unit that might convert it into a barbarian??
+				else if(IsCombatUnit() && !isBarbarian())
+				{
+					CvUnit* pConvertUnit = NULL;
+					int iExistingDamage = getDamage();
+					if(pAdjacentPlot->getNumUnits() > 0)
+					{
+						for(int iNearbyUnitLoop = 0; iNearbyUnitLoop < pAdjacentPlot->getNumUnits(); iNearbyUnitLoop++)
+						{
+							const CvUnit* const adjUnit = pAdjacentPlot->getUnitByIndex(iNearbyUnitLoop);
+							if(adjUnit != NULL && adjUnit->isConvertEnemyUnitToBarbarian())
+							{
+								int iDamageTheshold = adjUnit->getUnitInfo().GetDamageThreshold();
+								if(GET_PLAYER(getOwner()).IsAtWarWith(adjUnit->getOwner()))
+								{
+									if(iExistingDamage > iDamageTheshold)
+									{
+
+										CvPlayer* pBarbPlayer = &GET_PLAYER(BARBARIAN_PLAYER);
+										pConvertUnit = pBarbPlayer->initUnit(this->getUnitType(), this->getX(), this->getY(), this->AI_getUnitAIType(), NO_DIRECTION, true /*bNoMove*/, false);
+										pConvertUnit->convert(this, false);
+										pConvertUnit->setupGraphical();
+										pConvertUnit->setDamage(iExistingDamage, BARBARIAN_PLAYER);
+										pConvertUnit->finishMoves();
+
+										CvNotifications* pNotifications = GET_PLAYER(adjUnit->getOwner()).GetNotifications();
+										if(pNotifications)
+										{
+											CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHAOS_CONVERSION");
+											CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHAOS_CONVERSION");
+											pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, this->getX(), this->getY(), -1);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
+{
+	if (pPlot == NULL)
+	{
+		pPlot = plot();
+	}
+	if(pPlot != NULL)
+	{
+		CvUnit* pConvertUnit = NULL;
+		if(m_pUnitInfo->IsFoundReligion() || m_pUnitInfo->IsSpreadReligion() || m_pUnitInfo->IsRemoveHeresy())
+		{
+			for(int iI = 0; iI < MAX_PLAYERS; iI++)
+			{
+				CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
+				if(kPlayer.GetPlayerTraits()->GetChanceToConvertReligiousUnits() > 0)
+				{
+					if(pPlot->getTeam() == GET_TEAM(kPlayer.getTeam()).GetID())
+					{
+						if(GC.getGame().getJonRandNum(100, "Chance for conversion") <= kPlayer.GetPlayerTraits()->GetChanceToConvertReligiousUnits())
+						{
+							UnitTypes eBestLandUnit = NO_UNIT;
+							int iStrengthBestLandCombat = 0;
+							for(int iJ = 0; iJ < GC.getNumUnitClassInfos(); iJ++)
+							{
+								const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iJ);
+								CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+								if(pkUnitClassInfo)
+								{
+									const UnitTypes eUnit = (UnitTypes) kPlayer.getCivilizationInfo().getCivilizationUnits(eUnitClass);
+									CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+									if(pUnitEntry)
+									{
+										if(!kPlayer.canTrain(eUnit))
+										{
+											continue;
+										}
+										if(pUnitEntry->GetRangedCombat() > 0)
+										{
+											continue;
+										}
+										if(pUnitEntry->GetDomainType() == DOMAIN_LAND)
+										{
+											bool bBad = false;
+											ResourceTypes eResource;
+											for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+											{
+												eResource = (ResourceTypes) iResourceLoop;
+												int iNumResource = pUnitEntry->GetResourceQuantityRequirement(eResource);
+												if (iNumResource > 0)
+												{
+													if(kPlayer.getNumResourceAvailable(eResource, true) < iNumResource)
+													{
+														bBad = true;
+														break;
+													}
+												}
+											}
+											if(bBad)
+											{
+												continue;
+											}
+											int iCombatLandStrength = (std::max(1, pUnitEntry->GetCombat()));
+											if(iCombatLandStrength > iStrengthBestLandCombat)
+											{
+												iStrengthBestLandCombat = iCombatLandStrength;
+												eBestLandUnit = eUnit;
+											}
+										}
+									}
+								}
+							}
+							if(eBestLandUnit != NO_UNIT)
+							{
+								CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eBestLandUnit);
+								if(pkbUnitEntry)
+								{
+									UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+									pConvertUnit = kPlayer.initUnit(eBestLandUnit, this->getX(), this->getY(), eUnitAI, NO_DIRECTION, true);
+									pConvertUnit->convert(this, false);
+									CvNotifications* pNotifications = kPlayer.GetNotifications();
+									if (pNotifications)
+									{
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_HUSSITE_CONVERSION");
+										strText << pConvertUnit->getNameKey() << kPlayer.getNameKey();
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_HUSSITE_CONVERSION");
+										strSummary << kPlayer.getNameKey();
+										pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pConvertUnit->getX(), pConvertUnit->getY(), -1);
+									}
+								}
+							}
+							else
+							{
+								UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
+								CvUnitEntry* pkbUnitEntry = GC.getUnitInfo(eWarrior);
+								if(pkbUnitEntry)
+								{
+									UnitAITypes eUnitAI = pkbUnitEntry->GetDefaultUnitAIType();
+									pConvertUnit = kPlayer.initUnit(eWarrior, this->getX(), this->getY(), eUnitAI, NO_DIRECTION, true);
+									pConvertUnit->convert(this, false);
+									CvNotifications* pNotifications = kPlayer.GetNotifications();
+									if (pNotifications)
+									{
+										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_HUSSITE_CONVERSION");
+										strText << pConvertUnit->getNameKey() << kPlayer.getNameKey();
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_HUSSITE_CONVERSION");
+										strSummary << kPlayer.getNameKey();
+										pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pConvertUnit->getX(), pConvertUnit->getY(), -1);
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -29812,6 +30059,21 @@ bool CvUnit::isGoldenAgeOnBirth() const
 {
 	VALIDATE_OBJECT
 	return getUnitInfo().IsGoldenAgeFromBirth();
+}
+bool CvUnit::isCultureBoost() const
+{
+	VALIDATE_OBJECT
+	return getUnitInfo().IsCultureBoost();
+}
+bool CvUnit::isExtraAttackHealthOnKill() const
+{
+	VALIDATE_OBJECT
+	return getUnitInfo().IsExtraAttackHealthOnKill();
+}
+bool CvUnit::isHighSeaRaider() const
+{
+	VALIDATE_OBJECT
+	return getUnitInfo().IsHighSeaRaider();
 }
 #endif
 #if defined(MOD_GLOBAL_STACKING_RULES)

@@ -116,6 +116,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_bProdModFromNumSpecialists(false),
 	m_iConquestOfTheWorldCityAttack(0),
 	m_bConquestOfTheWorld(false),
+	m_bFreeUpgrade(false),
+	m_bWarsawPact(false),
+	m_bFreeZuluPikemanToImpi(false),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -225,6 +228,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_piYieldFromSettle(NULL),
 	m_piYieldFromConquest(NULL),
 	m_iVotePerXCSAlliance(0),
+	m_iVotePerXCSFollowingFollowingYourReligion(0),
+	m_iChanceToConvertReligiousUnits(0),
 	m_iGoldenAgeFromVictory(0),
 	m_bFreeGreatWorkOnConquest(false),
 	m_bPopulationBoostReligion(false),
@@ -728,6 +733,18 @@ int CvTraitEntry::GetConquestOfTheWorldCityAttack() const
 bool CvTraitEntry::IsConquestOfTheWorld() const
 {
 	return m_bConquestOfTheWorld;
+}
+bool CvTraitEntry::IsFreeUpgrade() const
+{
+	return m_bFreeUpgrade;
+}
+bool CvTraitEntry::IsWarsawPact() const
+{
+	return m_bWarsawPact;
+}
+bool CvTraitEntry::IsFreeZuluPikemanToImpi() const
+{
+	return m_bFreeZuluPikemanToImpi;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1300,6 +1317,14 @@ int CvTraitEntry::GetVotePerXCSAlliance() const
 {
 	return m_iVotePerXCSAlliance;
 }
+int CvTraitEntry::GetVotePerXCSFollowingYourReligion() const
+{
+	return m_iVotePerXCSFollowingFollowingYourReligion;
+}
+int CvTraitEntry::GetChanceToConvertReligiousUnits() const
+{
+	return m_iChanceToConvertReligiousUnits;
+}
 int CvTraitEntry::GetGoldenAgeFromVictory() const
 {
 	return m_iGoldenAgeFromVictory;
@@ -1848,6 +1873,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bProdModFromNumSpecialists			= kResults.GetBool("ProdModFromNumSpecialists");
 	m_iConquestOfTheWorldCityAttack			= kResults.GetInt("ConquestOfTheWorldCityAttack");
 	m_bConquestOfTheWorld					= kResults.GetBool("ConquestOfTheWorld");
+	m_bFreeUpgrade							= kResults.GetBool("FreeUpgrade");
+	m_bWarsawPact							= kResults.GetBool("WarsawPact");
+	m_bFreeZuluPikemanToImpi				= kResults.GetBool("FreeZuluPikemanToImpi");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -2330,6 +2358,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piYieldFromSettle, "Trait_YieldFromSettle", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromConquest, "Trait_YieldFromConquest", "TraitType", szTraitType);
 	m_iVotePerXCSAlliance = kResults.GetInt("VotePerXCSAlliance");
+	m_iVotePerXCSFollowingFollowingYourReligion = kResults.GetInt("VotePerXCSFollowingYourReligion");
+	m_iChanceToConvertReligiousUnits = kResults.GetInt("ChanceToConvertReligiousUnits");
 	m_iGoldenAgeFromVictory = kResults.GetInt("GoldenAgeFromVictory");
 	m_bFreeGreatWorkOnConquest = kResults.GetBool("FreeGreatWorkOnConquest");
 	m_bPopulationBoostReligion = kResults.GetBool("PopulationBoostReligion");
@@ -2899,6 +2929,18 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bConquestOfTheWorld = true;
 			}
+			if (trait->IsFreeUpgrade())
+			{
+				m_bFreeUpgrade = true;
+			}
+			if (trait->IsWarsawPact())
+			{
+				m_bWarsawPact = true;
+			}
+			if (trait->IsFreeZuluPikemanToImpi())
+			{
+				m_bFreeZuluPikemanToImpi = true;
+			}
 			m_iTourismToGAP += trait->GetTourismToGAP();
 			m_iEventTourismBoost += trait->GetEventTourismBoost();
 			m_iGrowthBoon += trait->GetGrowthBoon();
@@ -3166,6 +3208,8 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iYieldFromSettle[iYield] = trait->GetYieldFromSettle(iYield);
 				m_iYieldFromConquest[iYield] = trait->GetYieldFromConquest(iYield);
 				m_iVotePerXCSAlliance = trait->GetVotePerXCSAlliance();
+				m_iVotePerXCSFollowingFollowingYourReligion = trait->GetVotePerXCSFollowingYourReligion();
+				m_iChanceToConvertReligiousUnits = trait->GetChanceToConvertReligiousUnits();
 				m_iGoldenAgeFromVictory = trait->GetGoldenAgeFromVictory();
 				if(trait->IsFreeGreatWorkOnConquest())
 				{
@@ -3489,6 +3533,9 @@ void CvPlayerTraits::Reset()
 	m_bProdModFromNumSpecialists = false;
 	m_iConquestOfTheWorldCityAttack = 0;
 	m_bConquestOfTheWorld = false;
+	m_bFreeUpgrade = false;
+	m_bWarsawPact = false;
+	m_bFreeZuluPikemanToImpi = false;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -3651,6 +3698,8 @@ void CvPlayerTraits::Reset()
 		m_iYieldFromCSAlly[iYield] = 0;
 		m_iYieldFromCSFriend[iYield] = 0;
 		m_iVotePerXCSAlliance = 0;
+		m_iVotePerXCSFollowingFollowingYourReligion = 0;
+		m_iChanceToConvertReligiousUnits = 0;
 		m_iGoldenAgeFromVictory = 0;
 		m_bFreeGreatWorkOnConquest = false;
 		m_bPopulationBoostReligion = false;
@@ -5370,6 +5419,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(74, kStream, m_bProdModFromNumSpecialists, false);
 	MOD_SERIALIZE_READ(74, kStream, m_iConquestOfTheWorldCityAttack, 0);
 	MOD_SERIALIZE_READ(74, kStream, m_bConquestOfTheWorld, false);
+	MOD_SERIALIZE_READ(88, kStream, m_bFreeUpgrade, false);
+	MOD_SERIALIZE_READ(88, kStream, m_bWarsawPact, false);
+	MOD_SERIALIZE_READ(88, kStream, m_bFreeZuluPikemanToImpi, false);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -5663,21 +5715,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_aiPerPuppetGreatPersonRateModifier;
 	kStream >> m_aiGreatPersonGWAM;
 	kStream >> m_aiGoldenAgeGreatPersonRateModifier;
-
-	kStream >> iNumEntries;
-	m_aiNumPledgesDomainProdMod.clear();
-	for (int iI = 0; iI < iNumEntries; iI++)
-	{
-		kStream >> m_aiNumPledgesDomainProdMod[iI];
-	}
-
-	kStream >> iNumEntries;
-	m_aiFreeUnitClassesDOW.clear();
-	for (int iI = 0; iI < iNumEntries; iI++)
-	{
-		kStream >> m_aiFreeUnitClassesDOW[iI];
-	}
-
+	kStream >> m_aiNumPledgesDomainProdMod;
+	kStream >> m_aiFreeUnitClassesDOW;
 	kStream >> m_ppiYieldFromTileEarnTerrainType;
 
 	kStream >> iNumEntries;
@@ -5757,6 +5796,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_bCombatBoostNearNaturalWonder, false);
 	MOD_SERIALIZE_READ(66, kStream, m_iVotePerXCSAlliance, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iGoldenAgeFromVictory, 0);
+	MOD_SERIALIZE_READ(88, kStream, m_iVotePerXCSFollowingFollowingYourReligion, 0);
+	MOD_SERIALIZE_READ(88, kStream, m_iChanceToConvertReligiousUnits, 0);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!
@@ -5928,6 +5969,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bProdModFromNumSpecialists);
 	MOD_SERIALIZE_WRITE(kStream, m_iConquestOfTheWorldCityAttack);
 	MOD_SERIALIZE_WRITE(kStream, m_bConquestOfTheWorld);
+	MOD_SERIALIZE_WRITE(kStream, m_bFreeUpgrade);
+	MOD_SERIALIZE_WRITE(kStream, m_bWarsawPact);
+	MOD_SERIALIZE_WRITE(kStream, m_bFreeZuluPikemanToImpi);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);
@@ -6052,18 +6096,8 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_aiPerPuppetGreatPersonRateModifier;
 	kStream << m_aiGreatPersonGWAM;
 	kStream << m_aiGoldenAgeGreatPersonRateModifier;
-
-	kStream << m_aiNumPledgesDomainProdMod.size();
-	for (uint ui = 0; ui < m_aiNumPledgesDomainProdMod.size(); ui++)
-	{
-		kStream << m_aiNumPledgesDomainProdMod[ui];
-	}
-	kStream << m_aiFreeUnitClassesDOW.size();
-	for (uint ui = 0; ui < m_aiFreeUnitClassesDOW.size(); ui++)
-	{
-		kStream << m_aiFreeUnitClassesDOW[ui];
-	}
-
+	kStream << m_aiNumPledgesDomainProdMod;
+	kStream << m_aiFreeUnitClassesDOW;
 	kStream << m_ppiYieldFromTileEarnTerrainType;
 
 	kStream << 	m_paiMovesChangeUnitClass.size();
@@ -6112,6 +6146,8 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bCombatBoostNearNaturalWonder);
 	MOD_SERIALIZE_WRITE(kStream, m_iVotePerXCSAlliance);
 	MOD_SERIALIZE_WRITE(kStream, m_iGoldenAgeFromVictory);
+	MOD_SERIALIZE_WRITE(kStream, m_iVotePerXCSFollowingFollowingYourReligion);
+	MOD_SERIALIZE_WRITE(kStream, m_iChanceToConvertReligiousUnits);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!

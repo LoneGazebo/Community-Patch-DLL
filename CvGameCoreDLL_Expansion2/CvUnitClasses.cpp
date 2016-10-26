@@ -64,6 +64,9 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bConvertEnemyUnitToBarbarian(false),
 	m_bWLTKD(false),
 	m_bGoldenAge(false),
+	m_bCultureBoost(0),
+	m_bExtraAttackHealthOnKill(false),
+	m_bHighSeaRaider(false),
 #endif
 	m_bSpreadReligion(false),
 	m_bRemoveHeresy(false),
@@ -408,6 +411,9 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bConvertEnemyUnitToBarbarian = kResults.GetBool("ConvertEnemyUnitToBarbarian");
 	m_bWLTKD = kResults.GetBool("WLTKDFromBirth");
 	m_bGoldenAge = kResults.GetBool("GoldenAgeFromBirth");
+	m_bCultureBoost = kResults.GetBool("CultureBoost");
+	m_bExtraAttackHealthOnKill = kResults.GetBool("ExtraAttackHealthOnKill");
+	m_bHighSeaRaider = kResults.GetBool("HighSeaRaider");
 #endif
 
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
@@ -1346,6 +1352,18 @@ bool CvUnitEntry::IsWLTKDFromBirth() const
 bool CvUnitEntry::IsGoldenAgeFromBirth() const
 {
 	return m_bGoldenAge;
+}
+bool CvUnitEntry::IsCultureBoost() const
+{
+	return m_bCultureBoost;
+}
+bool CvUnitEntry::IsExtraAttackHealthOnKill() const
+{
+	return m_bExtraAttackHealthOnKill;
+}
+bool CvUnitEntry::IsHighSeaRaider() const
+{
+	return m_bHighSeaRaider;
 }
 #endif
 #if defined(MOD_CARGO_SHIPS)
