@@ -19702,7 +19702,7 @@ if (!bDoEvade)
 #if defined(MOD_CARGO_SHIPS)
 					if(MOD_CARGO_SHIPS)
 					{
-						if(pLoopUnit->IsCargoCombatUnit() && !pLoopUnit->hasCargo())
+						if(pLoopUnit->IsCargoCombatUnit())
 						{
 							RemoveCargoPromotions(*pLoopUnit);
 						}
@@ -30172,28 +30172,35 @@ void CvUnit::RemoveCargoPromotions(CvUnit& cargounit)
 		}
 	}
 	PromotionTypes ePromotionArmySupport = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_SUPPORT", true);
-	if(cargounit.isHasPromotion(ePromotionArmySupport))
+	if(cargounit.getCargo() >= 0)
 	{
-		cargounit.setHasPromotion(ePromotionArmySupport, false);
+		PromotionTypes ePromotionScoutShip = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_SCOUT_SHIP", true);
+		if(cargounit.isHasPromotion(ePromotionScoutShip))
+		{
+			scoutPromcheck = true;
+		}
+		if(!scoutcheck && scoutPromcheck)
+		{
+			cargounit.setHasPromotion(ePromotionScoutShip, false);
+		}
+		PromotionTypes ePromotionPolynesiaCargo = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_POLYNESIA_CARGO", true);
+		if(cargounit.isHasPromotion(ePromotionPolynesiaCargo))
+		{
+			allembarkProm = true;
+		}
+		if(!allembark && allembarkProm)
+		{
+			cargounit.setHasPromotion(ePromotionPolynesiaCargo, false);
+		}
+		cargounit.SetBaseCombatStrength(cargounit.getUnitInfo().GetCombat() + ((cargounit.getUnitInfo().GetCombat() * cargounit.getUnitInfo().CargoCombat() * cargounit.getCargo()) / 100));
 	}
-	PromotionTypes ePromotionScoutShip = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_SCOUT_SHIP", true);
-	if(cargounit.isHasPromotion(ePromotionScoutShip))
+	if(!cargounit.hasCargo())
 	{
-		scoutPromcheck = true;
+		if(cargounit.isHasPromotion(ePromotionArmySupport))
+		{
+			cargounit.setHasPromotion(ePromotionArmySupport, false);
+		}
+		cargounit.SetBaseCombatStrength(cargounit.getUnitInfo().GetCombat());
 	}
-	if(!scoutcheck && scoutPromcheck)
-	{
-		cargounit.setHasPromotion(ePromotionScoutShip, false);
-	}
-	PromotionTypes ePromotionPolynesiaCargo = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_POLYNESIA_CARGO", true);
-	if(cargounit.isHasPromotion(ePromotionPolynesiaCargo))
-	{
-		allembarkProm = true;
-	}
-	if(!allembark && allembarkProm)
-	{
-		cargounit.setHasPromotion(ePromotionPolynesiaCargo, false);
-	}
-	cargounit.SetBaseCombatStrength(cargounit.getUnitInfo().GetCombat());
 }
 #endif
