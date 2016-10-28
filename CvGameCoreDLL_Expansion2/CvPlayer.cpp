@@ -42350,10 +42350,10 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	}
 
 	//prefer settling close in the beginning
-	int iTimeOffset = (30 * GC.getGame().getGameTurn()) / max(500, GC.getGame().getMaxTurns());
+	int iTimeOffset = (24 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
 
 	//basic search area around existing cities. value at eval distance is scaled to zero.
-	int iEvalDistance = 12 + iTimeOffset;
+	int iEvalDistance = 10 + iTimeOffset;
 	if(IsCramped())
 		iEvalDistance += iTimeOffset;
 
