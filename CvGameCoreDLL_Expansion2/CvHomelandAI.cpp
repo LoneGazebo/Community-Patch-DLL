@@ -2156,9 +2156,9 @@ void CvHomelandAI::ExecutePatrolMoves()
 	//get the most exposed cities and their surrounding plots
 	std::vector<CvPlot*> vLandTargets, vWaterTargets;
 	if (iUnitsLand>0)
-		vLandTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), false, iUnitsLand);
+		vLandTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), false);
 	if (iUnitsSea>0)
-		vWaterTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), true, iUnitsSea);
+		vWaterTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), true);
 
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_REACHABLE_PLOTS,-1,23);
 	std::map<CvPlot*,ReachablePlots> mapReachablePlots;
@@ -2179,17 +2179,15 @@ void CvHomelandAI::ExecutePatrolMoves()
 		//the target we're looking at depends on the domain of the unit
 		std::vector<CvPlot*>& vTargets = (pUnit->getDomainType()==DOMAIN_SEA) ? vWaterTargets : vLandTargets;
 
-		int iBestTurns = INT_MAX;
 		CvPlot* pBestTarget = NULL;
 		for (size_t i=0; i<vTargets.size(); i++)
 		{
 			SMovePlot dummy(pUnit->plot()->GetPlotIndex(),0,0);
 			ReachablePlots::const_iterator itPlot = mapReachablePlots[vTargets[i]].find(dummy);
-			if (itPlot!=mapReachablePlots[vTargets[i]].end() && itPlot->iTurns<iBestTurns)
+			if (itPlot!=mapReachablePlots[vTargets[i]].end())
 			{
-
 				//try not to create a unit carpet without any space to move
-				for(int iJ = 0; iJ < RING5_PLOTS; iJ++)
+				for(int iJ = 0; iJ < RING4_PLOTS; iJ++)
 				{
 					CvPlot* pLoopPlot = iterateRingPlots(vTargets[i], iJ);
 
@@ -2211,8 +2209,8 @@ void CvHomelandAI::ExecutePatrolMoves()
 
 					if (pUnit->canMoveInto(*vTargets[i]) && pLoopPlot->getDomain()==pUnit->getDomainType())
 					{
-						iBestTurns = itPlot->iTurns;
 						pBestTarget = GC.getMap().plotByIndexUnchecked(itPlot->iPlotIndex);
+						break;
 					}
 				}
 			}
@@ -8705,9 +8703,7 @@ std::vector<CvPlot*> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bo
 		int iEnemyPower = pZone->GetEnemyStrength();
 
 		if(bWater)
-		{
 			iEnemyPower += pZone->GetEnemyNavalUnitCount() * 100;
-		}
 
 		iEnemyPower += (GET_PLAYER(ePlayer).getNumCities() - pZoneCity->GetThreatCriteria()) * 100;
 
@@ -8724,17 +8720,15 @@ std::vector<CvPlot*> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bo
 
 			if (std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
 				iEnemyPower += pOtherZone->GetNeutralStrength();
+			else
+				iEnemyPower += pOtherZone->GetNeutralStrength()/2;
 
 			CvCity* pOtherZoneCity = pOtherZone->GetZoneCity();
 			if (pOtherZoneCity)
-			{
 				iEnemyPower += (GET_PLAYER(ePlayer).getNumCities() - pOtherZoneCity->GetThreatCriteria()) * 100;
-			}
 
 			if(bWater)
-			{
 				iEnemyPower += pZone->GetEnemyNavalUnitCount() * 100;
-			}
 
 			//different domain counts less
 			int iScale = (pOtherZone->IsWater() != pZone->IsWater()) ? 3 : 1;
