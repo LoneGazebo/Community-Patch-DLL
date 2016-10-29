@@ -240,6 +240,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_paiUnitCombatFreeExperiences(NULL),
 	m_paiBuildingClassCultureChanges(NULL),
 	m_paiBuildingClassProductionModifiers(NULL),
+	m_paiUnitClassProductionModifiers(NULL),
 	m_paiBuildingClassTourismModifiers(NULL),
 	m_paiBuildingClassHappiness(NULL),
 	m_paiFreeUnitClasses(NULL),
@@ -342,6 +343,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_paiUnitCombatFreeExperiences);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassCultureChanges);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassProductionModifiers);
+	SAFE_DELETE_ARRAY(m_paiUnitClassProductionModifiers);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassTourismModifiers);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
 	SAFE_DELETE_ARRAY(m_paiFreeUnitClasses);
@@ -700,6 +702,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	kUtility.PopulateArrayByValue(m_paiBuildingClassCultureChanges, "BuildingClasses", "Policy_BuildingClassCultureChanges", "BuildingClassType", "PolicyType", szPolicyType, "CultureChange");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassProductionModifiers, "BuildingClasses", "Policy_BuildingClassProductionModifiers", "BuildingClassType", "PolicyType", szPolicyType, "ProductionModifier");
+	kUtility.PopulateArrayByValue(m_paiUnitClassProductionModifiers, "UnitClasses", "Policy_UnitClassProductionModifiers", "UnitClassType", "PolicyType", szPolicyType, "ProductionModifier");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassTourismModifiers, "BuildingClasses", "Policy_BuildingClassTourismModifiers", "BuildingClassType", "PolicyType", szPolicyType, "TourismModifier");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassHappiness, "BuildingClasses", "Policy_BuildingClassHappiness", "BuildingClassType", "PolicyType", szPolicyType, "Happiness");
 
@@ -2970,6 +2973,13 @@ int CvPolicyEntry::GetBuildingClassProductionModifier(int i) const
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_paiBuildingClassProductionModifiers[i];
+}
+/// Production modifier for a specific UnitClass
+int CvPolicyEntry::GetUnitClassProductionModifiers(int i) const
+{
+	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_paiUnitClassProductionModifiers[i];
 }
 
 /// Tourism modifier for a specific BuildingClass

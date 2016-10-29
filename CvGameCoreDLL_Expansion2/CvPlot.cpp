@@ -7859,6 +7859,12 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		{
 			CvImprovementEntry& newImprovementEntry = *GC.getImprovementInfo(eNewValue);
 
+#if defined(MOD_BALANCE_CORE)
+			if (newImprovementEntry.IsPermanent())
+			{
+				ClearArchaeologicalRecord();
+			}
+#endif
 			// If this improvement can add culture to nearby improvements, update them as well
 #if defined(MOD_API_UNIFIED_YIELDS)
 			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)

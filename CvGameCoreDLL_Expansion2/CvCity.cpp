@@ -3208,7 +3208,7 @@ void CvCity::UpdateNearbySettleSites()
 				iDanger = GET_PLAYER(getOwner()).GetPlotDanger(*pPlot);
 				if(iDanger < 1000)
 				{
-					iValue = ((1000 - iDanger) * iValue) / 8000;
+					iValue = ((1000 - iDanger) * iValue) / 7250;
 
 					if(iValue > iBestValue)
 					{
@@ -7094,6 +7094,10 @@ void CvCity::SetEspionageRanking(int iPotential, bool bNotify)
 		iRank = ((iPotential * 100) / GC.getGame().GetLargestSpyPotential());
 		//Rank time - 10 is worst, 1 is best
 		iRank /= 10;
+		if (iRank <= 0)
+		{
+			iRank = 1;
+		}
 	}
 	//Seed rank warning and update rank.
 	DoRankIncreaseWarning(iRank, bNotify);
@@ -11396,6 +11400,16 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink) const
 		iMultiplier += iTempMod;
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_CAPITAL_SETTLER_PLAYER", iTempMod);
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	// Class Production Bonus
+	if (thisPlayer.GetUnitClassProductionModifier((UnitClassTypes)pkUnitInfo->GetUnitClassType()) != 0)
+	{
+		iTempMod = GET_PLAYER(getOwner()).GetUnitClassProductionModifier((UnitClassTypes)pkUnitInfo->GetUnitClassType());
+		iMultiplier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_UNIT_CLASS", iTempMod);
+	}
+#endif
 
 	// Domain bonus
 	iTempMod = getDomainProductionModifier((DomainTypes)(pkUnitInfo->GetDomainType()));

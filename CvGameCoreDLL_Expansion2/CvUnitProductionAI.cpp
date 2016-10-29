@@ -259,9 +259,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		return 0;
 
 	//Sanitize...
-	if(iTempWeight > 1000)
+	if(iTempWeight > 1250)
 	{
-		iTempWeight = 1000;
+		iTempWeight = 1250;
 	}
 
 	if (!pkUnitEntry)
@@ -528,14 +528,14 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Carriers? Only if we need them.
 		if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_CARRIER_SEA)
 		{
-			int iAircraft = kPlayer.GetMilitaryAI()->GetNumFreeCarrier();
-			if(iAircraft <= 0)
+			int iSlots = kPlayer.GetMilitaryAI()->GetNumFreeCarrier();
+			if (iSlots <= 0)
 			{
-				return 0;
+				iBonus += 100;
 			}
 			else
 			{
-				iBonus += (25 * iAircraft);
+				iBonus += (-10 * iSlots);
 			}
 		}
 		//Need Explorers?
@@ -625,7 +625,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			else
 			{
-				iBonus += (5 * iAircraft);
+				iBonus += (25 * iAircraft);
 			}
 		}
 
@@ -648,6 +648,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				iBonus += 50;
 			}
+		}
+
+		int iProductionBonus = kPlayer.GetUnitClassProductionModifier((UnitClassTypes)pkUnitEntry->GetUnitClassType());
+		if (iProductionBonus > 0)
+		{
+			iBonus += (iProductionBonus / 2);
 		}
 		
 #if defined(MOD_DIPLOMACY_CITYSTATES)	
@@ -898,7 +904,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		//Already have a settler out? Ignore.
 		int iNumSettlers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
-		if(iNumSettlers > 0)
+		if(iNumSettlers > 1)
 		{
 			return 0;
 		}
@@ -929,7 +935,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eEarlyExpand))
 				{
-					iFlavorExpansion += 1;
+					iFlavorExpansion += 3;
 				}
 			}
 
@@ -954,11 +960,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 			if(kPlayer.IsEmpireUnhappy() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
 			{
-				iFlavorExpansion -= 2;
+				iFlavorExpansion -= 3;
 			}
 			if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
 			{
-				iFlavorExpansion -= 1;
+				iFlavorExpansion -= 2;
 			}
 
 			MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");

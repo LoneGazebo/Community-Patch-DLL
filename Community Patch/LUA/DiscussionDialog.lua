@@ -91,19 +91,6 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 	
 	local strMoodInfo = GetMoodInfo(g_iAIPlayer);
 	Controls.MoodText:SetToolTipString(strMoodInfo);
-
-	-- CBP
-	-- Warscore
-	if (pActiveTeam:IsAtWar(g_iAITeam)) then
-		local iWarScore = Players[iActivePlayer]:GetWarScore(g_iAIPlayer);
-		local strWarScore = Locale.ConvertTextKey("TXT_KEY_WAR_SCORE", iWarScore);
-
-		Controls.WarScore:SetText(strWarScore);
-	
-		local strWarInfo = Locale.ConvertTextKey("TXT_KEY_WAR_SCORE_EXPLANATION");
-		Controls.WarScore:SetToolTipString(strWarInfo);
-	end
-	-- END
 	
 	local bMyMode = false;
 	

@@ -370,6 +370,13 @@
 		<Column name="YieldMod" type="integer" default="0"/>
 	</Table>
 
+	<!-- POLICY: Allows you to define a unit class that gains a production boost -->
+	<Table name="Policy_UnitClassProductionModifiers">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<Column name="ProductionModifier" type="integer"/>
+	</Table>
+
 	<!-- POLICY: Allows you to define a yield that is granted by a building if your majority religion is present -->
 	<Table name="Policy_ReligionYieldMod">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>

@@ -686,6 +686,9 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void SetNWOwned(FeatureTypes eFeature, bool bValue);
 	bool IsNWOwned(FeatureTypes eFeature) const;
+
+	void ChangeUnitClassProductionModifier(UnitClassTypes eUnitClass, int iValue);
+	int GetUnitClassProductionModifier(UnitClassTypes eUnitClass) const;
 #endif
 
 	int GetHappinessFromLuxury(ResourceTypes eResource) const;
@@ -3039,6 +3042,7 @@ protected:
 	FAutoVariable<std::vector<bool>, CvPlayer> m_abEventFired;
 	FAutoVariable<int, CvPlayer> m_iPlayerEventCooldown;
 	FAutoVariable<std::vector<bool>, CvPlayer> m_abNWOwned;
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiUnitClassProductionModifiers;
 #endif
 	FAutoVariable<int, CvPlayer> m_iFreeSpecialist;
 	FAutoVariable<int, CvPlayer> m_iCultureBombTimer;

@@ -577,6 +577,7 @@ CvPlayer::CvPlayer() :
 	, m_abEventFired("CvPlayer::m_abEventFired", m_syncArchive)
 	, m_iPlayerEventCooldown("CvPlayer::m_iPlayerEventCooldown", m_syncArchive)
 	, m_abNWOwned("CvPlayer::m_abNWOwned", m_syncArchive)
+	, m_paiUnitClassProductionModifiers("CvPlayer::m_paiUnitClassProductionModifiers", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_iPovertyUnhappinessMod("CvPlayer::m_iPovertyUnhappinessMod", m_syncArchive)
@@ -1780,6 +1781,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_abNWOwned.clear();
 	m_abNWOwned.resize(GC.getNumFeatureInfos(), false);
+
+	m_paiUnitClassProductionModifiers.clear();
+	m_paiUnitClassProductionModifiers.resize(GC.getNumUnitClassInfos(), 0);
 
 	m_aiCityYieldModFromMonopoly.clear();
 	m_aiCityYieldModFromMonopoly.resize(NUM_YIELD_TYPES, 0);
@@ -4843,7 +4847,6 @@ void CvPlayer::DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID)
 
 	// Give the city back to the liberated player
 	GET_PLAYER(ePlayer).acquireCity(pCity, false, true);
-	pCity->SetPuppet(false);
 
 	// Now verify the player is alive
 	GET_PLAYER(ePlayer).verifyAlive();
@@ -9326,7 +9329,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 #else
 	GET_PLAYER(ePlayer).acquireCity(pCity, false, true);
 #endif
-	pCity->SetPuppet(false);
 
 	if (!GET_PLAYER(ePlayer).isMinorCiv())
 	{
@@ -20626,6 +20628,21 @@ void CvPlayer::SetNWOwned(FeatureTypes eFeature, bool bValue)
 bool CvPlayer::IsNWOwned(FeatureTypes eFeature) const
 {
 	return m_abNWOwned[eFeature];
+}
+
+void CvPlayer::ChangeUnitClassProductionModifier(UnitClassTypes eUnitClass, int iValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eUnitClass >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass expected to be < GC.getNumUnitClassInfos()");
+	m_paiUnitClassProductionModifiers.setAt(eUnitClass, m_paiUnitClassProductionModifiers[eUnitClass] + iValue);
+}
+int CvPlayer::GetUnitClassProductionModifier(UnitClassTypes eUnitClass) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eUnitClass >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass expected to be < GC.getNumUnitClassInfos()");
+	return m_paiUnitClassProductionModifiers[eUnitClass];
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -38631,6 +38648,16 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 	}
+	for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+	{
+		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+		if (pkUnitClassInfo && pPolicy->GetUnitClassProductionModifiers(iI) != 0)
+		{
+			ChangeUnitClassProductionModifier(eUnitClass, (pPolicy->GetUnitClassProductionModifiers(iI) * iChange));
+		}
+	}
+	
 #endif
 	ChangeAbleToAnnexCityStatesCount((pPolicy->IsAbleToAnnexCityStates()) ? iChange : 0);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
@@ -42541,10 +42568,10 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, int iTargetArea, bool& 
 	}
 
 	//prefer settling close in the beginning
-	int iTimeOffset = (30 * GC.getGame().getGameTurn()) / max(500, GC.getGame().getMaxTurns());
+	int iTimeOffset = (24 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
 
 	//basic search area around existing cities. value at eval distance is scaled to zero.
-	int iEvalDistance = 12 + iTimeOffset;
+	int iEvalDistance = 10 + iTimeOffset;
 	if(IsCramped())
 		iEvalDistance += iTimeOffset;
 

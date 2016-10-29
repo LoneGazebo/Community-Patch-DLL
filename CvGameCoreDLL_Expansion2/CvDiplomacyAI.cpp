@@ -21246,103 +21246,79 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 		CvDeal* pTargetDeal = NULL;
 		CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
 
-		for(int iDealTypes = 0; iDealTypes < 2; iDealTypes++)
+		int iNumDeals = kGameDeals.GetNumHistoricDealsWithPlayer(ePlayer, GetPlayer()->GetID(), 12);
+
+		for(int iDeal = 0; iDeal < iNumDeals; iDeal++)
 		{
-			int iNumDeals = 0;
-			if(iDealTypes == 0)
+			CvDeal* pCurrentDeal = kGameDeals.GetHistoricDealWithPlayer(ePlayer, GetPlayer()->GetID(), iDeal);
+
+			// if this deal has already been renewed or cancelled, then move along
+			if (pCurrentDeal->m_bConsideringForRenewal || pCurrentDeal->m_bDealCancelled || pCurrentDeal->m_bCheckedForRenewal || pCurrentDeal->m_bIsGift)
 			{
-				iNumDeals = kGameDeals.GetNumHistoricDealsWithPlayer(ePlayer, GetPlayer()->GetID(), 12);
-			}
-			else
-			{
-				iNumDeals = kGameDeals.GetNumCurrentDealsWithPlayer(ePlayer, GetPlayer()->GetID());
+				continue;
 			}
 
-			for(int iDeal = 0; iDeal < iNumDeals; iDeal++)
+			// if they don't involve the player, bail
+			if(!(pCurrentDeal->m_eFromPlayer == m_pPlayer->GetID() || pCurrentDeal->m_eToPlayer == m_pPlayer->GetID()))
 			{
-				CvDeal* pCurrentDeal = NULL;
-				if(iDealTypes == 0)
+				continue;
+			}
+
+			// if the deal can be renewed (no peace treaties, etc)
+			if(!pCurrentDeal->IsPotentiallyRenewable())
+			{
+				continue;
+			}
+
+			// Check to see if the deal is still active
+			if(pCurrentDeal->m_iFinalTurn > GC.getGame().getElapsedGameTurns())
+			{
+				continue;
+			}
+
+			//If historic, only look at turns that expired less than 20 turns earlier.
+			if ((pCurrentDeal->m_iFinalTurn + 20) < GC.getGame().getElapsedGameTurns())
+			{
+				continue;
+			}
+
+			bool bCanTradeItems = true;
+
+			// if the deal can be fully renewed
+			TradedItemList::iterator it;
+			CvDeal kTempDeal;
+
+			pCurrentDeal->m_bConsideringForRenewal = true;
+
+			for(it = pCurrentDeal->m_TradedItems.begin(); it != pCurrentDeal->m_TradedItems.end(); ++it)
+			{
+				PlayerTypes eOtherPlayer;
+				if (it->m_eFromPlayer == pCurrentDeal->m_eFromPlayer)
 				{
-					pCurrentDeal = kGameDeals.GetHistoricDealWithPlayer(ePlayer, GetPlayer()->GetID(), iDeal);
+					eOtherPlayer = pCurrentDeal->m_eToPlayer;
 				}
 				else
 				{
-					pCurrentDeal = kGameDeals.GetCurrentDealWithPlayer(ePlayer, GetPlayer()->GetID(), iDeal);
+					eOtherPlayer = pCurrentDeal->m_eFromPlayer;
 				}
 
-				// if this deal has already been renewed or cancelled, then move along
-				if (pCurrentDeal->m_bConsideringForRenewal || pCurrentDeal->m_bDealCancelled || pCurrentDeal->m_bCheckedForRenewal || pCurrentDeal->m_bIsGift)
+				if(!kTempDeal.IsPossibleToTradeItem(it->m_eFromPlayer, eOtherPlayer, it->m_eItemType, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1))
 				{
-					continue;
+					bCanTradeItems = false;
+					break;
 				}
-
-				// if they don't involve the player, bail
-				if(!(pCurrentDeal->m_eFromPlayer == m_pPlayer->GetID() || pCurrentDeal->m_eToPlayer == m_pPlayer->GetID()))
-				{
-					continue;
-				}
-
-				// if the deal can be renewed (no peace treaties, etc)
-				if(!pCurrentDeal->IsPotentiallyRenewable())
-				{
-					continue;
-				}
-
-				// Check to see if the deal is still active
-				if(pCurrentDeal->m_iFinalTurn > GC.getGame().getElapsedGameTurns())
-				{
-					continue;
-				}
-
-				//If historic, only look at turns that expired less than 20 turns earlier.
-				if (iDealTypes == 0 && ((pCurrentDeal->m_iFinalTurn + 20) < GC.getGame().getElapsedGameTurns()))
-				{
-					continue;
-				}
-
-				bool bCanTradeItems = true;
-
-				// if the deal can be fully renewed
-				TradedItemList::iterator it;
-				CvDeal kTempDeal;
-
-				pCurrentDeal->m_bConsideringForRenewal = true;
-
-				for(it = pCurrentDeal->m_TradedItems.begin(); it != pCurrentDeal->m_TradedItems.end(); ++it)
-				{
-					PlayerTypes eOtherPlayer;
-					if (it->m_eFromPlayer == pCurrentDeal->m_eFromPlayer)
-					{
-						eOtherPlayer = pCurrentDeal->m_eToPlayer;
-					}
-					else
-					{
-						eOtherPlayer = pCurrentDeal->m_eFromPlayer;
-					}
-
-					if(!kTempDeal.IsPossibleToTradeItem(it->m_eFromPlayer, eOtherPlayer, it->m_eItemType, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1))
-					{
-						bCanTradeItems = false;
-						break;
-					}
-				}
-
-				pCurrentDeal->m_bConsideringForRenewal = false;
-
-				if(!bCanTradeItems)
-				{
-					continue;
-				}
-
-				//We are considering the deal? Cool.
-				pTargetDeal = pCurrentDeal;
-				break;
 			}
 
-			if (pTargetDeal)
+			pCurrentDeal->m_bConsideringForRenewal = false;
+
+			if(!bCanTradeItems)
 			{
-				break;
+				continue;
 			}
+
+			//We are considering the deal? Cool.
+			pTargetDeal = pCurrentDeal;
+			break;
 		}
 		if (pTargetDeal)
 		{
@@ -34332,40 +34308,17 @@ void CvDiplomacyAI::ClearDealToRenew()
 	CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
 	int iNumMarkedToRenew = 0;
 
-	for(int iDealTypes = 0; iDealTypes < 2; iDealTypes++)
+	int iNumDeals = kGameDeals.GetNumHistoricDeals(m_pPlayer->GetID());
+
+	for(int iDeal = 0; iDeal < iNumDeals; iDeal++)
 	{
-		int iNumDeals = 0;
-		if(iDealTypes == 0)
-		{
-#if defined(MOD_BALANCE_CORE)
-			iNumDeals = kGameDeals.GetNumHistoricDeals(m_pPlayer->GetID());
-#else
-			iNumDeals = kGameDeals.GetNumHistoricDeals(m_pPlayer->GetID(),12);
-#endif
-		}
-		else
-		{
-			iNumDeals = kGameDeals.GetNumCurrentDeals(m_pPlayer->GetID());
-		}
+		CvDeal* pCurrentDeal = kGameDeals.GetHistoricDeal(m_pPlayer->GetID(), iDeal);
 
-		for(int iDeal = 0; iDeal < iNumDeals; iDeal++)
+		if (pCurrentDeal->m_bConsideringForRenewal)
 		{
-			CvDeal* pCurrentDeal = NULL;
-			if(iDealTypes == 0)
-			{
-				pCurrentDeal = kGameDeals.GetHistoricDeal(m_pPlayer->GetID(), iDeal);
-			}
-			else
-			{
-				pCurrentDeal = kGameDeals.GetCurrentDeal(m_pPlayer->GetID(), iDeal);
-			}
-
-			if (pCurrentDeal->m_bConsideringForRenewal)
-			{
-				iNumMarkedToRenew++;
-				CvAssertMsg(iNumMarkedToRenew <= 1, "iNumMarkedToRenew is greater than one. Too many deals are being renewed at the same time.");
-				pCurrentDeal->m_bConsideringForRenewal = false;
-			}
+			iNumMarkedToRenew++;
+			CvAssertMsg(iNumMarkedToRenew <= 1, "iNumMarkedToRenew is greater than one. Too many deals are being renewed at the same time.");
+			pCurrentDeal->m_bConsideringForRenewal = false;
 		}
 	}
 }

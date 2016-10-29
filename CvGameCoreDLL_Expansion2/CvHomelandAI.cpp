@@ -2156,9 +2156,9 @@ void CvHomelandAI::ExecutePatrolMoves()
 	//get the most exposed cities and their surrounding plots
 	std::vector<CvPlot*> vLandTargets, vWaterTargets;
 	if (iUnitsLand>0)
-		vLandTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), false, iUnitsLand);
+		vLandTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), false);
 	if (iUnitsSea>0)
-		vWaterTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), true, iUnitsSea);
+		vWaterTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), true);
 
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_GENERIC_REACHABLE_PLOTS,-1,23);
 	std::map<CvPlot*,ReachablePlots> mapReachablePlots;
@@ -2179,17 +2179,15 @@ void CvHomelandAI::ExecutePatrolMoves()
 		//the target we're looking at depends on the domain of the unit
 		std::vector<CvPlot*>& vTargets = (pUnit->getDomainType()==DOMAIN_SEA) ? vWaterTargets : vLandTargets;
 
-		int iBestTurns = INT_MAX;
 		CvPlot* pBestTarget = NULL;
 		for (size_t i=0; i<vTargets.size(); i++)
 		{
 			SMovePlot dummy(pUnit->plot()->GetPlotIndex(),0,0);
 			ReachablePlots::const_iterator itPlot = mapReachablePlots[vTargets[i]].find(dummy);
-			if (itPlot!=mapReachablePlots[vTargets[i]].end() && itPlot->iTurns<iBestTurns)
+			if (itPlot!=mapReachablePlots[vTargets[i]].end())
 			{
-
 				//try not to create a unit carpet without any space to move
-				for(int iJ = 0; iJ < RING5_PLOTS; iJ++)
+				for(int iJ = 0; iJ < RING4_PLOTS; iJ++)
 				{
 					CvPlot* pLoopPlot = iterateRingPlots(vTargets[i], iJ);
 
@@ -2211,8 +2209,8 @@ void CvHomelandAI::ExecutePatrolMoves()
 
 					if (pUnit->canMoveInto(*vTargets[i]) && pLoopPlot->getDomain()==pUnit->getDomainType())
 					{
-						iBestTurns = itPlot->iTurns;
 						pBestTarget = GC.getMap().plotByIndexUnchecked(itPlot->iPlotIndex);
+						break;
 					}
 				}
 			}
@@ -3500,6 +3498,8 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 			if ( std::find( vExplorePlots.begin(),vExplorePlots.end(),dummy ) != vExplorePlots.end() )
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, false, false, MISSIONAI_EXPLORE, pDestPlot);
+				if(!pUnit->canMove())
+					UnitProcessed(pUnit->GetID());
 				continue;
 			}
 		}
@@ -3575,7 +3575,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 		
 		//first check our immediate neighborhood (ie the tiles we can reach within one turn)
 		ReachablePlots eligiblePlots;
-		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), eligiblePlots, true, true, false);
+		TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), eligiblePlots, true, true, pUnit->isEmbarked());
 		for (ReachablePlots::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
 		{
 			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->iPlotIndex);
@@ -3771,7 +3771,7 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 				}
 			}
 		}
-		if (pBestPlot == NULL) //no target
+		else //no target
 		{
 			if(pUnit->isHuman())
 			{
@@ -3782,9 +3782,9 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 					strLogString.Format("%s Explorer (human) found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
-				UnitProcessed(pUnit->GetID());
+				//don't call UnitProcessed, it seems it can cause a hang
+				m_CurrentTurnUnits.remove(pUnit->GetID());
 				pUnit->SetAutomateType(NO_AUTOMATE);
-				CancelActivePlayerEndTurn();
 				continue;
 			}
 			else
@@ -7893,15 +7893,11 @@ void CvHomelandAI::LogPatrolMessage(const CvString& strMsg, CvUnit* pPatrolUnit 
 /// Remove a unit that we've allocated from list of units to move this turn
 void CvHomelandAI::UnitProcessed(int iID)
 {
-	CvUnit* pUnit;
-
 	m_CurrentTurnUnits.remove(iID);
-	pUnit = m_pPlayer->getUnit(iID);
 
-	CvAssert(pUnit);
-	if(!pUnit) return;
-
-	pUnit->SetTurnProcessed(true);
+	CvUnit* pUnit = m_pPlayer->getUnit(iID);
+	if(pUnit)
+		pUnit->SetTurnProcessed(true);
 }
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
@@ -8707,9 +8703,7 @@ std::vector<CvPlot*> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bo
 		int iEnemyPower = pZone->GetEnemyStrength();
 
 		if(bWater)
-		{
 			iEnemyPower += pZone->GetEnemyNavalUnitCount() * 100;
-		}
 
 		iEnemyPower += (GET_PLAYER(ePlayer).getNumCities() - pZoneCity->GetThreatCriteria()) * 100;
 
@@ -8726,17 +8720,15 @@ std::vector<CvPlot*> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bo
 
 			if (std::find(vFutureEnemies.begin(),vFutureEnemies.end(),pOtherZone->GetOwner())!=vFutureEnemies.end())
 				iEnemyPower += pOtherZone->GetNeutralStrength();
+			else
+				iEnemyPower += pOtherZone->GetNeutralStrength()/2;
 
 			CvCity* pOtherZoneCity = pOtherZone->GetZoneCity();
 			if (pOtherZoneCity)
-			{
 				iEnemyPower += (GET_PLAYER(ePlayer).getNumCities() - pOtherZoneCity->GetThreatCriteria()) * 100;
-			}
 
 			if(bWater)
-			{
 				iEnemyPower += pZone->GetEnemyNavalUnitCount() * 100;
-			}
 
 			//different domain counts less
 			int iScale = (pOtherZone->IsWater() != pZone->IsWater()) ? 3 : 1;
