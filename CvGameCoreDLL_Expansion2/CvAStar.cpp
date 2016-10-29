@@ -939,6 +939,10 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, bool bDoDanger,
 	else
 		kToNodeCacheData.iPlotDanger = 0;
 
+	//special for approximate pathfinding - don't hang around on dangerous plots
+	if (DestinationReached(node->m_iX,node->m_iY,finder->GetData(),finder) && kToNodeCacheData.iPlotDanger>5 && !bIsDestination)
+		kToNodeCacheData.bCanEnterTerrainPermanent = false;
+
 	//done!
 	kToNodeCacheData.iGenerationID = finder->GetCurrentGenerationID();
 }

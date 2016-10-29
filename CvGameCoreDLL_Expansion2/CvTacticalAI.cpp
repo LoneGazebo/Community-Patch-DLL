@@ -8415,7 +8415,11 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 			CvCity* pNearestCity = m_pPlayer->GetClosestCityByEstimatedTurns(pUnit->plot());
 			if(pNearestCity != NULL && pUnit->CanReachInXTurns(pNearestCity->plot(),5))
 			{
-				if(MoveToEmptySpaceNearTarget(pUnit, pNearestCity->plot(), pUnit->getDomainType(), 42))
+				bool bMoveMade = pUnit->IsCivilianUnit() ?
+					MoveToUsingSafeEmbark(pUnit,pNearestCity->plot(),true,0) :
+					MoveToEmptySpaceNearTarget(pUnit, pNearestCity->plot(), pUnit->getDomainType(), 42);
+
+				if (bMoveMade)
 				{
 					pUnit->finishMoves();
 					UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
@@ -9554,15 +9558,6 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 	if (!pUnit || !pTarget)
 		return false;
 
-	//nothing to do?
-	if ( (plotDistance(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY()) < 3) && 
-		 (eDomain == NO_DOMAIN || pTarget->getDomain() == eDomain) &&
-		 (pUnit->plot()->isAdjacentToArea(pTarget->getArea()) ) )
-	{
-		pUnit->PushMission(CvTypes::getMISSION_SKIP());
-		return true;
-	}
-
 	int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_SAFE_EMBARK;
 	if (eDomain==pTarget->getDomain())
 		iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
@@ -9572,6 +9567,8 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 	{
 		bool bResult = MoveToUsingSafeEmbark(pUnit, pTarget, true, iFlags);
 		TacticalAIHelpers::PerformRangedAttackWithoutMoving(pUnit);
+		if (pUnit->canMove())
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 		return bResult;
 	}
 
