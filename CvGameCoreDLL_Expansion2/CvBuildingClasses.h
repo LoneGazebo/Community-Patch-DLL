@@ -511,6 +511,7 @@ public:
 	int GetBuildingClassLocalYieldChange(int i, int j) const;
 	int GetBuildingClassLocalHappiness(int i) const;
 	int GetSpecificGreatPersonRateModifier(int) const;
+	int GetResourceHappiness(int i) const;
 #endif
 	int GetBuildingClassHappiness(int i) const;
 
@@ -876,6 +877,7 @@ private:
 	int** m_ppiBuildingClassLocalYieldChanges;
 	int* m_paiBuildingClassLocalHappiness;
 	int* m_paiSpecificGreatPersonRateModifier;
+	int* m_paiResourceHappinessChange;
 #endif
 	int* m_paiBuildingClassHappiness;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)

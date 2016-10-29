@@ -930,6 +930,60 @@ ALTER TABLE Units ADD GoldenAgeFromBirth BOOLEAN DEFAULT 0;
 -- Define a defense modifier to a building, like GlobalDefenseModifier (but only local).
 ALTER TABLE Buildings ADD BuildingDefenseModifier INTEGER DEFAULT 0;
 
+-- Promotion grants additional combat strength if on a pillaged improvement
+ALTER TABLE UnitPromotions ADD COLUMN 'ReligiousPressureModifier' INTEGER DEFAULT 0;
+
+-- Trait allows player to have every unit upgraded once tech is reached.
+ALTER TABLE Traits ADD COLUMN 'FreeUpgrade' BOOLEAN DEFAULT 0;
+
+-- Gain a culture boost equal to 4X the culture per turn when this unit is born. GP's only
+ALTER TABLE Units ADD CultureBoost BOOLEAN DEFAULT 0;
+
+-- Unit gets extra attacks and partial health is restored upon killing an enemy unit.
+ALTER TABLE Units ADD ExtraAttackHealthOnKill BOOLEAN DEFAULT 0;
+
+-- Kills Improvement if set to 1 (use this to reveal a resource on the map, when build is finished etc.)
+ALTER TABLE Builds ADD KillImprovement BOOLEAN DEFAULT 0;
+
+-- Trait allows player to have every unit upgraded once tech is reached.
+ALTER TABLE Traits ADD COLUMN 'VotePerXCSFollowingYourReligion' INTEGER DEFAULT 0;
+
+-- Trait allows player a % chance to convert religious units when they enter player's territory.
+ALTER TABLE Traits ADD COLUMN 'ChanceToConvertReligiousUnits' INTEGER DEFAULT 0;
+
+-- When a unit with this promotion is adjacent to a city, city strength value is boosted by X %.
+ALTER TABLE UnitPromotions ADD COLUMN 'AdjacentCityDefenseMod' INTEGER DEFAULT 0;
+
+-- Traveling Citadel.
+ALTER TABLE UnitPromotions ADD COLUMN 'NearbyEnemyDamage' INTEGER DEFAULT 0;
+
+-- Enemy Units gain the "EnemyLands" promotio when in your territory or Friendly City States or Player's that follow the same Ideology. Must define "EnemyLands" promotion type for this to work (see below).
+ALTER TABLE Traits ADD COLUMN 'WarsawPact' BOOLEAN DEFAULT 0;
+
+-- Units gain this promotion when "WarsawPact" Player is set.
+ALTER TABLE UnitPromotions ADD COLUMN 'EnemyLands' BOOLEAN DEFAULT 0;
+
+-- Unit gains this promotion when adjacent when adjacent to a unit and both units have this Prereq Promotion defined as AdjacentSameType = 'PROMOTION_X'
+ALTER TABLE UnitPromotions ADD AdjacentSameType TEXT DEFAULT NULL REFERENCES UnitPromotions(Type);
+
+-- Build adds an instant yield of culture to Player's culture pool.
+ALTER TABLE Builds ADD CultureBoost BOOLEAN DEFAULT 0;
+
+-- When a unit (civilian or combat) with this promotion is stationed in a City, City gains X% modifier towards building military units.
+ALTER TABLE UnitPromotions ADD COLUMN 'MilitaryProductionModifier' INTEGER DEFAULT 0;
+
+-- Unit gets the "HighSeaRaider" Promotion Entry (if defined) when it plunders a Trade Route.
+ALTER TABLE Units ADD HighSeaRaider BOOLEAN DEFAULT 0;
+
+-- Units gains this promotion when its Unit Entry is a HighSeaRaider
+ALTER TABLE UnitPromotions ADD COLUMN 'HighSeaRaider' BOOLEAN DEFAULT 0;
+
+-- Zulu Pikeman Class Upgrade immediately to Impi's upon discovering Impi tech, assuming Impi is not a Pikeman, but a Renaissance Unit.
+ALTER TABLE Traits ADD COLUMN 'FreeZuluPikemanToImpi' BOOLEAN DEFAULT 0;
+
+-- Improvement grants new Ownership if plot is not owned.
+ALTER TABLE Improvements ADD COLUMN 'NewOwner' BOOLEAN DEFAULT 0;
+
 -- CSD
 
 -- Insert SQL Rules Here 

@@ -1170,6 +1170,8 @@ public:
 	void ChangeIsStrongerDamaged(int iChange);
 	void DoStackedGreatGeneralExperience(const CvPlot* pPlot = NULL);
 	void DoConvertOnDamageThreshold(const CvPlot* pPlot = NULL);
+	void DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot = NULL);
+	void DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot = NULL);
 #endif
 
 	bool IsCanHeavyCharge() const;
@@ -1383,6 +1385,9 @@ public:
 	bool isConvertEnemyUnitToBarbarian() const;
 	bool isWLKTKDOnBirth() const;
 	bool isGoldenAgeOnBirth() const;
+	bool isCultureBoost() const;
+	bool isExtraAttackHealthOnKill() const;
+	bool isHighSeaRaider() const;
 #endif
 
 	int getExtraUnitCombatModifier(UnitCombatTypes eIndex) const;

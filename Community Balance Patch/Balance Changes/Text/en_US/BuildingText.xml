@@ -567,7 +567,7 @@
 			<Text>The ancient Harappan and Indus Valley Civilizations of Northwest South Asia, including Pakistan and parts of India, were prominent in hydraulic engineering, and had many water supply and sanitation devices that were the first of their kind. Among other things, they contained the world's earliest known system of flush toilets. These existed in many homes, and were connected to a common sewerage pipe. Most houses also had private wells. City walls functioned as a barrier against floods, and massive reservoirs were often constructed along these walls to collect this floodwater to save for droughts.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_HELP">
-			<Text>Unique Indian replacement for the Aqueduct. Carries over 20% of [ICON_FOOD] Food after City growth. Grants +1 [ICON_PRODUCTION] Production from Flood Plains and +1 [ICON_FOOD] Food from Lakes and Farms. Reduces [ICON_HAPPINESS_3] Poverty slightly.</Text>
+			<Text>Unique Indian replacement for the Aqueduct. Carries over 20% of [ICON_FOOD] Food after City growth. Grants +1 [ICON_PRODUCTION] Production from Flood Plains and +2 [ICON_FOOD] Food from Lakes, Oases, and Farms. Reduces [ICON_HAPPINESS_3] Poverty slightly.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY">
 			<Text>Build these unique Aqueducts to rapidly increase your city's population size and productivity, especially if the city is settled on or near Flood Plainss.</Text>

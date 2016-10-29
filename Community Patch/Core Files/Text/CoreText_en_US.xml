@@ -2735,6 +2735,10 @@
 			<Text>Cannot have Gold Per Turn and Gold in same trade.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PRODMOD_UNIT_CLASS">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Unit Class: {1_Num}%</Text>
+		</Row>
+
 		<!-- Regular Deal Details - Lua -->
 		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE">
 			<Text>Deal Value for Them: {1_Num}.</Text>
@@ -2746,7 +2750,7 @@
 			<Text>Deal Value for Them: Acceptable</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_TT">
-			<Text>AI's current valuation of the trade items in this Deal. If the value here is not [COLOR_POSITIVE_TEXT]Acceptable[ENDCOLOR] or a [COLOR_POSITIVE_TEXT]positive number[ENDCOLOR], the AI will refuse to accept the Deal.</Text>
+			<Text>AI's current valuation of the trade items in this Deal. If the value here is 'Impossible' or too negative, the AI will refuse to accept the Deal.</Text>
 		</Row>
 
 		<!-- No Supply -->

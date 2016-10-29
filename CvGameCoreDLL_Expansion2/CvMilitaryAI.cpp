@@ -1382,6 +1382,11 @@ int CvMilitaryAI::GetCachedAttackTargetWaterDistance(CvCity* pCity, CvCity* pOth
 }
 int CvMilitaryAI::GetCachedAttackTargetLandDistance(CvCity* pCity, CvCity* pOtherCity)
 {
+	if (pCity->getArea() != pOtherCity->getArea())
+	{
+		return -1;
+	}
+
 	int iDistance = -1;
 	bool bFoundInCache = false;
 	CachedLandDistancesMap::iterator itE = m_cachedLandDistances.find(pCity);
@@ -2210,7 +2215,8 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 			{
 				if(GET_TEAM(GET_PLAYER(eAlly).getTeam()).isAtWar(GetPlayer()->getTeam()))
 				{
-					fDesirability /= 50;
+					fDesirability *= 100;
+					fDesirability /= max(1, GC.getAI_MILITARY_CAPTURING_ORIGINAL_CAPITAL());
 				}
 			}
 			else
@@ -2294,13 +2300,13 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	//Closest City? Emphasize.
 	if(pBestCity == target.m_pTargetCity && !bMinorButMajorWar)
 	{
-		fDesirability *= 10;
+		fDesirability *= 20;
 	}
 
 	//Muster already targeted by operation? De-emphasize.
 	if (m_pPlayer->IsMusterCityAlreadyTargeted(target.m_pMusterCity, eDomain, 0, -1))
 	{
-		fDesirability /= 4;
+		fDesirability /= 2;
 	}
 
 	//Naval invasion? Let's target the same cities that we're moving on purely.
@@ -2308,12 +2314,12 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	{
 		if (eAIOperationType == AI_OPERATION_NAVAL_INVASION && m_pPlayer->IsCityAlreadyTargeted(target.m_pTargetCity, eDomain, 0, -1, AI_OPERATION_NAVAL_ONLY_CITY_ATTACK))
 		{
-			fDesirability *= 10;
+			fDesirability *= 15;
 		}
 		//Same, but flipped.
 		else if (eAIOperationType == AI_OPERATION_NAVAL_ONLY_CITY_ATTACK && m_pPlayer->IsCityAlreadyTargeted(target.m_pTargetCity, eDomain, 0, -1, AI_OPERATION_NAVAL_INVASION))
 		{
-			fDesirability *= 10;
+			fDesirability *= 15;
 		}
 	}
 	else
@@ -2323,11 +2329,11 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 		{
 			if (eAIOperationType == AI_OPERATION_CITY_BASIC_ATTACK && m_pPlayer->IsCityAlreadyTargeted(target.m_pTargetCity, NO_DOMAIN, 50, -1, AI_OPERATION_NAVAL_ONLY_CITY_ATTACK))
 			{
-				fDesirability *= 10;
+				fDesirability *= 15;
 			}
 			else if (eAIOperationType == AI_OPERATION_NAVAL_ONLY_CITY_ATTACK && m_pPlayer->IsCityAlreadyTargeted(target.m_pTargetCity, NO_DOMAIN, 50, -1, AI_OPERATION_CITY_BASIC_ATTACK))
 			{
-				fDesirability *= 10;
+				fDesirability *= 15;
 			}
 		}
 	}
@@ -2376,7 +2382,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	// Economic value of target
 	float fEconomicValue = 1.0;
 	fEconomicValue = (float)target.m_pTargetCity->getEconomicValue( GetPlayer()->GetID() );
-	fEconomicValue = sqrt(fEconomicValue/100);
+	fEconomicValue = sqrt(fEconomicValue/150);
 
 	//everything together now
 	int iRtnValue = (int)(100 * fDistWeightInterpolated * fApproachMultiplier * fStrengthRatio * fDesirability * fEconomicValue);
@@ -2780,6 +2786,10 @@ void CvMilitaryAI::LogAttackTargets(AIOperationTypes eAIOperationType, PlayerTyp
 		{
 			strBaseString += "Pure Naval Attack, ";
 		}
+		else if (eAIOperationType == AI_OPERATION_NAVAL_INVASION)
+		{
+			strBaseString += "Naval Invasion, ";
+		}
 		else
 		{
 			strBaseString += "City State Attack, ";
@@ -2861,6 +2871,10 @@ void CvMilitaryAI::LogChosenTarget(AIOperationTypes eAIOperationType, PlayerType
 		else if(eAIOperationType == AI_OPERATION_NAVAL_ONLY_CITY_ATTACK)
 		{
 			strBaseString += "Pure Naval Attack, ";
+		}
+		else if (eAIOperationType == AI_OPERATION_NAVAL_INVASION)
+		{
+			strBaseString += "Naval Invasion, ";
 		}
 		else
 		{

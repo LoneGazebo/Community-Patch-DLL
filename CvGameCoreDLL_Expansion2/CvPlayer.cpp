@@ -577,6 +577,7 @@ CvPlayer::CvPlayer() :
 	, m_abEventFired("CvPlayer::m_abEventFired", m_syncArchive)
 	, m_iPlayerEventCooldown("CvPlayer::m_iPlayerEventCooldown", m_syncArchive)
 	, m_abNWOwned("CvPlayer::m_abNWOwned", m_syncArchive)
+	, m_paiUnitClassProductionModifiers("CvPlayer::m_paiUnitClassProductionModifiers", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_iPovertyUnhappinessMod("CvPlayer::m_iPovertyUnhappinessMod", m_syncArchive)
@@ -1781,6 +1782,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_abNWOwned.clear();
 	m_abNWOwned.resize(GC.getNumFeatureInfos(), false);
 
+	m_paiUnitClassProductionModifiers.clear();
+	m_paiUnitClassProductionModifiers.resize(GC.getNumUnitClassInfos(), 0);
+
 	m_aiCityYieldModFromMonopoly.clear();
 	m_aiCityYieldModFromMonopoly.resize(NUM_YIELD_TYPES, 0);
 
@@ -2645,6 +2649,57 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		if (pNewUnit == NULL)
 			return NULL;
 #if defined(MOD_BALANCE_CORE)
+		if(pNewUnit->isWLKTKDOnBirth())
+		{
+			CvCity* pLoopCity;
+			int iLoop;
+			for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL && pLoopCity->getOwner() == GetID())
+				{
+					int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+					iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iWLTKD /= 100;
+					if (iWLTKD > 0)
+					{
+						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+						CvNotifications* pNotifications = GetNotifications();
+						if (pNotifications)
+						{
+							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT");
+							strText << pNewUnit->getNameKey() << pLoopCity->getNameKey();
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UNIT");
+							strSummary << pLoopCity->getNameKey();
+							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pLoopCity->getX(), pLoopCity->getY(), -1);
+						}
+					}
+				}
+			}
+		}
+		if(pNewUnit->isGoldenAgeOnBirth())
+		{
+			int iGoldenAgeTurns = getGoldenAgeLength();
+			int iValue = GetGoldenAgeProgressMeter();
+			changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+		}
+		if(pNewUnit->isCultureBoost())
+		{
+			int iValue = GetTotalJONSCulturePerTurn() * 4;
+			changeJONSCulture(iValue);
+			if(getCapitalCity() != NULL)
+			{
+				getCapitalCity()->ChangeJONSCultureStored(iValue);
+			}
+			CvNotifications* pNotifications = GetNotifications();
+			if (pNotifications)
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_UNIT");
+				strText << pNewUnit->getNameKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CULTURE_UNIT");
+				strSummary << pNewUnit->getNameKey();
+				pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pNewUnit->getX(), pNewUnit->getY(), -1);
+			}
+		}
 		if(pNewUnit->getUnitInfo().IsSpreadReligion())
 		{
 			ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
@@ -4792,7 +4847,6 @@ void CvPlayer::DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID)
 
 	// Give the city back to the liberated player
 	GET_PLAYER(ePlayer).acquireCity(pCity, false, true);
-	pCity->SetPuppet(false);
 
 	// Now verify the player is alive
 	GET_PLAYER(ePlayer).verifyAlive();
@@ -9275,7 +9329,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 #else
 	GET_PLAYER(ePlayer).acquireCity(pCity, false, true);
 #endif
-	pCity->SetPuppet(false);
 
 	if (!GET_PLAYER(ePlayer).isMinorCiv())
 	{
@@ -20576,6 +20629,21 @@ bool CvPlayer::IsNWOwned(FeatureTypes eFeature) const
 {
 	return m_abNWOwned[eFeature];
 }
+
+void CvPlayer::ChangeUnitClassProductionModifier(UnitClassTypes eUnitClass, int iValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eUnitClass >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass expected to be < GC.getNumUnitClassInfos()");
+	m_paiUnitClassProductionModifiers.setAt(eUnitClass, m_paiUnitClassProductionModifiers[eUnitClass] + iValue);
+}
+int CvPlayer::GetUnitClassProductionModifier(UnitClassTypes eUnitClass) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eUnitClass >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass expected to be < GC.getNumUnitClassInfos()");
+	return m_paiUnitClassProductionModifiers[eUnitClass];
+}
 #endif
 //	--------------------------------------------------------------------------------
 /// Extra Happiness from every connected Luxury
@@ -26023,6 +26091,57 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
 						}
 					}
+				}
+			}
+			if(pNewGreatPeople->isWLKTKDOnBirth())
+			{
+				CvCity* pLoopCity;
+				int iLoop;
+				for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				{
+					if(pLoopCity != NULL && pLoopCity->getOwner() == GetID())
+					{
+						int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+						iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iWLTKD /= 100;
+						if (iWLTKD > 0)
+						{
+							pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+							CvNotifications* pNotifications = GetNotifications();
+							if (pNotifications)
+							{
+								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT");
+								strText << pNewGreatPeople->getNameKey() << pLoopCity->getNameKey();
+								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UNIT");
+								strSummary << pLoopCity->getNameKey();
+								pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pLoopCity->getX(), pLoopCity->getY(), -1);
+							}
+						}
+					}
+				}
+			}
+			if(pNewGreatPeople->isGoldenAgeOnBirth())
+			{
+				int iGoldenAgeTurns = getGoldenAgeLength();
+				int iValue = GetGoldenAgeProgressMeter();
+				changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+			}
+			if(pNewGreatPeople->isCultureBoost())
+			{
+				int iValue = GetTotalJONSCulturePerTurn() * 4;
+				changeJONSCulture(iValue);
+				if(getCapitalCity() != NULL)
+				{
+					getCapitalCity()->ChangeJONSCultureStored(iValue);
+				}
+				CvNotifications* pNotifications = GetNotifications();
+				if (pNotifications)
+				{
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_UNIT");
+					strText << pNewGreatPeople->getNameKey();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CULTURE_UNIT");
+					strSummary << pNewGreatPeople->getNameKey();
+					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pNewGreatPeople->getX(), pNewGreatPeople->getY(), -1);
 				}
 			}
 #endif
@@ -38529,6 +38648,16 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 	}
+	for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+	{
+		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+		if (pkUnitClassInfo && pPolicy->GetUnitClassProductionModifiers(iI) != 0)
+		{
+			ChangeUnitClassProductionModifier(eUnitClass, (pPolicy->GetUnitClassProductionModifiers(iI) * iChange));
+		}
+	}
+	
 #endif
 	ChangeAbleToAnnexCityStatesCount((pPolicy->IsAbleToAnnexCityStates()) ? iChange : 0);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
@@ -39447,6 +39576,59 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 								if (pNewUnit)
 								{
+#if defined(MOD_BALANCE_CORE)
+									if(pNewUnit->isWLKTKDOnBirth())
+									{
+										CvCity* pLoopCity;
+										int iLoop;
+										for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+										{
+											if(pLoopCity != NULL && pLoopCity->getOwner() == GetID())
+											{
+												int iWLTKD = (GC.getCITY_RESOURCE_WLTKD_TURNS() / 2);
+												iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+												iWLTKD /= 100;
+												if (iWLTKD > 0)
+												{
+													pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD);
+													CvNotifications* pNotifications = GetNotifications();
+													if (pNotifications)
+													{
+														Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT");
+														strText << pNewUnit->getNameKey() << pLoopCity->getNameKey();
+														Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UNIT");
+														strSummary << pLoopCity->getNameKey();
+														pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pLoopCity->getX(), pLoopCity->getY(), -1);
+													}
+												}
+											}
+										}
+									}
+									if(pNewUnit->isGoldenAgeOnBirth())
+									{
+										int iGoldenAgeTurns = getGoldenAgeLength();
+										int iValue = GetGoldenAgeProgressMeter();
+										changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+									}
+									if(pNewUnit->isCultureBoost())
+									{
+										int iValue = GetTotalJONSCulturePerTurn() * 4;
+										changeJONSCulture(iValue);
+										if(getCapitalCity() != NULL)
+										{
+											getCapitalCity()->ChangeJONSCultureStored(iValue);
+										}
+										CvNotifications* pNotifications = GetNotifications();
+										if (pNotifications)
+										{
+											Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_UNIT");
+											strText << pNewUnit->getNameKey();
+											Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CULTURE_UNIT");
+											strSummary << pNewUnit->getNameKey();
+											pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pNewUnit->getX(), pNewUnit->getY(), -1);
+										}
+									}
+#endif
 									if(pNewUnit->IsGreatGeneral())
 									{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
@@ -40881,6 +41063,24 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 		int iValue = GetGoldenAgeProgressMeter();
 		changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
 	}
+	if(pGreatPeopleUnit->isCultureBoost())
+	{
+		int iValue = GetTotalJONSCulturePerTurn() * 4;
+		changeJONSCulture(iValue);
+		if(getCapitalCity() != NULL)
+		{
+			getCapitalCity()->ChangeJONSCultureStored(iValue);
+		}
+		CvNotifications* pNotifications = GetNotifications();
+		if (pNotifications)
+		{
+			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_UNIT");
+			strText << pGreatPeopleUnit->getNameKey();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CULTURE_UNIT");
+			strSummary << pGreatPeopleUnit->getNameKey();
+			pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pGreatPeopleUnit->getX(), pGreatPeopleUnit->getY(), -1);
+		}
+	}
 	if(pGreatPeopleUnit->IsCombatUnit())
 	{
 		getCapitalCity()->addProductionExperience(pGreatPeopleUnit);
@@ -41047,6 +41247,24 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 		int iGoldenAgeTurns = getGoldenAgeLength();
 		int iValue = GetGoldenAgeProgressMeter();
 		changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+	}
+	if(pGreatPeopleUnit->isCultureBoost())
+	{
+		int iValue = GetTotalJONSCulturePerTurn() * 4;
+		changeJONSCulture(iValue);
+		if(getCapitalCity() != NULL)
+		{
+			getCapitalCity()->ChangeJONSCultureStored(iValue);
+		}
+		CvNotifications* pNotifications = GetNotifications();
+		if (pNotifications)
+		{
+			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_UNIT");
+			strText << pGreatPeopleUnit->getNameKey();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CULTURE_UNIT");
+			strSummary << pGreatPeopleUnit->getNameKey();
+			pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pGreatPeopleUnit->getX(), pGreatPeopleUnit->getY(), -1);
+		}
 	}
 	if(pGreatPeopleUnit->IsCombatUnit())
 	{
@@ -44280,7 +44498,17 @@ bool CvPlayer::HasIdeology(PolicyBranchTypes iPolicyBranchType) const
 {
 	return HasPolicyBranch(iPolicyBranchType);
 }
-
+bool CvPlayer::HasSameIdeology(PlayerTypes ePlayer) const
+{
+	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
+	PolicyBranchTypes eMyIdeology = GetPlayerPolicies()->GetLateGamePolicyTree();
+	PolicyBranchTypes eTheirIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
+	if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology == eTheirIdeology)
+	{
+		return true;
+	}
+	return false;
+}
 bool CvPlayer::HasProject(ProjectTypes iProjectType) const
 {
 	return (GET_TEAM(getTeam()).getProjectCount(iProjectType) > 0);

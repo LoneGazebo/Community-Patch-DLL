@@ -4085,6 +4085,24 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			int iValue = kPlayer.GetGoldenAgeProgressMeter();
 			kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
 		}
+		if(newUnit->isCultureBoost())
+		{
+			int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 4;
+			kPlayer.changeJONSCulture(iValue);
+			if(kPlayer.getCapitalCity() != NULL)
+			{
+				kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+			}
+			CvNotifications* pNotifications = kPlayer.GetNotifications();
+			if (pNotifications)
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_UNIT");
+				strText << newUnit->getNameKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CULTURE_UNIT");
+				strSummary << newUnit->getNameKey();
+				pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), newUnit->getX(), newUnit->getY(), -1);
+			}
+		}
 #endif
 		if(newUnit->IsGreatGeneral())
 		{
@@ -4276,6 +4294,24 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			int iGoldenAgeTurns = kPlayer.getGoldenAgeLength();
 			int iValue = kPlayer.GetGoldenAgeProgressMeter();
 			kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+		}
+		if(newUnit->isCultureBoost())
+		{
+			int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 4;
+			kPlayer.changeJONSCulture(iValue);
+			if(kPlayer.getCapitalCity() != NULL)
+			{
+				kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+			}
+			CvNotifications* pNotifications = kPlayer.GetNotifications();
+			if (pNotifications)
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_UNIT");
+				strText << newUnit->getNameKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CULTURE_UNIT");
+				strSummary << newUnit->getNameKey();
+				pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), newUnit->getX(), newUnit->getY(), -1);
+			}
 		}
 #endif
 #if defined(MOD_BUGFIX_MINOR)
