@@ -2942,6 +2942,12 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 			iTime += GET_TEAM(eTeam).getBuildTimeChange(eBuild);
 		}
 	}
+#if defined(MOD_CIV6_WORKER)
+	if (ePlayer != NO_PLAYER && GC.getBuildInfo(eBuild)->getRoute() != NO_ROUTE && GET_PLAYER(ePlayer).GetRouteCostMod() != 0){
+		iTime *= (100 + GET_PLAYER(ePlayer).GetRouteCostMod());
+		iTime /= 100;
+	}
+#endif
 
 	// Repair is either 3 turns or the original build time, whichever is shorter
 	if(GC.getBuildInfo(eBuild)->isRepair())
@@ -12014,6 +12020,8 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 	if(pkBuildInfo == NULL)
 		return false;
 
+	CUSTOMLOG("changeBuildProgress: iChange=%i for pkBuildInfo.cost=%i", iChange, pkBuildInfo->getCost());
+
 	if(iChange != 0)
 	{
 		if(NULL == m_paiBuildProgress)
@@ -12034,6 +12042,9 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 				m_eImprovementTypeUnderConstruction = eImprovement;
 			}
 		}
+
+
+		CUSTOMLOG("changeBuildProgress: getBuildProgress(eBuild)=%i, getBuildTime(eBuild, ePlayer)=%i", getBuildProgress(eBuild), getBuildTime(eBuild, ePlayer));
 
 		m_paiBuildProgress[eBuild] += iChange;
 		CvAssert(getBuildProgress(eBuild) >= 0);

@@ -142,6 +142,9 @@ public:
 	int GetNewCityExtraPopulation() const;
 	int GetFreeFoodBox() const;
 	int GetImprovementGoldMaintenanceMod() const;
+#if defined(MOD_CIV6_WORKER)
+	int GetRouteCostMod() const;
+#endif
 	int GetBuildingGoldMaintenanceMod() const;
 	int GetUnitGoldMaintenanceMod() const;
 	int GetUnitSupplyMod() const;
@@ -469,6 +472,9 @@ private:
 	int m_iNewCityExtraPopulation;
 	int m_iFreeFoodBox;
 	int m_iImprovementGoldMaintenanceMod;
+#if defined(MOD_CIV6_WORKER)
+	int m_iRouteCostMod;
+#endif
 	int m_iBuildingGoldMaintenanceMod;
 	int m_iUnitGoldMaintenanceMod;
 	int m_iUnitSupplyMod;

@@ -1228,6 +1228,9 @@ public:
 
 	int getTime() const;
 	int getCost() const;
+#if defined(MOD_CIV6_WORKER)
+	int getBuilderCost() const;
+#endif
 	int getCostIncreasePerImprovement() const;
 	int getTechPrereq() const;
 #if defined(MOD_BALANCE_CORE)
@@ -1267,6 +1270,9 @@ public:
 protected:
 	int m_iTime;
 	int m_iCost;
+#if defined(MOD_CIV6_WORKER)
+	int m_iBuilderCost;
+#endif
 	int m_iCostIncreasePerImprovement;
 	int m_iTechPrereq;
 #if defined(MOD_BALANCE_CORE)
