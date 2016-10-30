@@ -4247,9 +4247,10 @@ void CvTacticalAI::PlotSurgicalCityStrikeMoves()
 		}
 
 		// Take any other really good attacks we've set up
-		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
-		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
-		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
+		// Don't need to be able to kill them - if we ignore them they might attack our siege units
+		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false);
+		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false);
+		PlotDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false);
 
 		PlotCloseOnTarget(false /*bCheckDominance*/);
 	}
@@ -4429,12 +4430,12 @@ void CvTacticalAI::PlotCloseOnTarget(bool bCheckDominance)
 
 		ExecuteCloseOnTarget(target, pZone, true);
 	}
-	else if (!pZone->IsWater() && pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY && pZone->GetZoneCity() != NULL)
+	else if (pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY && pZone->GetZoneCity() != NULL)
 	{
 		bool bCanSeeCity = pZone->GetZoneCity()->plot()->isVisible(m_pPlayer->getTeam());
 
 		// If we can't see the city, be careful advancing on it.  We want to be sure we're not heavily outnumbered
-		//Exception for temporary targets - we need to press offensiv here.
+		//Exception for temporary targets - we need to press the offensive here.
 		if(IsTemporaryZoneCity(pZone->GetZoneCity()) || bCanSeeCity || pZone->GetFriendlyStrength()*3 > pZone->GetEnemyStrength()*2)
 		{
 			target.SetTargetType(AI_TACTICAL_TARGET_CITY);
@@ -4446,25 +4447,6 @@ void CvTacticalAI::PlotCloseOnTarget(bool bCheckDominance)
 			ExecuteCloseOnTarget(target, pZone, true);
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	else if (pZone->IsWater() && pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY && pZone->GetZoneCity() != NULL)
-	{
-		bool bCanSeeCity = pZone->GetZoneCity()->plot()->isVisible(m_pPlayer->getTeam());
-
-		// If we can't see the city, be careful advancing on it.  We want to be sure we're not heavily outnumbered
-		//Exception for temporary targets - we need to press offensiv here.
-		if (IsTemporaryZoneCity(pZone->GetZoneCity()) || bCanSeeCity || pZone->GetEnemyNavalUnitCount() <= pZone->GetFriendlyNavalUnitCount())
-		{
-			target.SetTargetType(AI_TACTICAL_TARGET_CITY);
-			target.SetTargetPlayer(pZone->GetZoneCity()->getOwner());
-			target.SetTargetX(pZone->GetZoneCity()->plot()->getX());
-			target.SetTargetY(pZone->GetZoneCity()->plot()->getY());
-			target.SetDominanceZone(pZone->GetDominanceZoneID());
-
-			ExecuteCloseOnTarget(target, pZone, true);
-		}
-	}
-#endif
 }
 
 /// Log that we couldn't find assignments for some units
@@ -12289,6 +12271,9 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(assumedPlot.getPlotIndex());
 	CvPlot* pTestPlot = GC.getMap().plotByIndexUnchecked(tactPlot.getPlotIndex());
 
+	bool bFlankModifierOffensive = false;
+	bool bFlankModifierDefensive = false;
+
 	if (tactPlot.isEnemyCity()) //a plot can be both a city and a unit - in that case we would attack the city
 	{
 		CvCity* pEnemy = pTestPlot->getPlotCity();
@@ -12314,6 +12299,9 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 		}
 		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy, pUnit, pUnitPlot, iDamageReceived, true, iPrevDamage);
 		iOriginalHitPoints = pEnemy->GetCurrHitPoints();
+
+		bFlankModifierDefensive = pEnemy->GetFlankAttackModifier() > 0;
+		bFlankModifierOffensive = pUnit->GetFlankAttackModifier() > 0;
 	}
 
 	//fake general bonus
@@ -12324,14 +12312,14 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	}
 	
 	//problem is flanking affects combat strength, not damage, so the effect is nonlinear. anyway just assume 10%
-	if (tactPlot.getNumAdjacentFriendlies()>0 && tactPlot.getNumAdjacentEnemies()==0 )
+	if (bFlankModifierOffensive && tactPlot.getNumAdjacentFriendlies()>1 ) //we need a second friendly. the first one is us!
 	{
 		iDamageDealt += iDamageDealt/10;
 		iDamageReceived -= iDamageReceived/10;
 	}
 
 	//flanking bonus for enemy. if both apply we simply assume they cancel each other
-	if (tactPlot.getNumAdjacentFriendlies()==0 && tactPlot.getNumAdjacentEnemies()>0 )
+	if (bFlankModifierDefensive && tactPlot.getNumAdjacentEnemies()>0 )
 	{
 		iDamageDealt -= iDamageDealt/10;
 		iDamageReceived += iDamageReceived/10;
@@ -12376,13 +12364,13 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, CvUnit* pUnit, const CvTactical
 	case AL_LOW:
 		if ( iDamageDealt/2 < iDamageReceived )
 			result.iScore = -1; //don't do it
-		if ( pUnit->GetCurrHitPoints() - iDamageReceived < pUnit->GetMaxHitPoints()/2 )
+		if ( iDamageReceived > 0 && pUnit->GetCurrHitPoints() - iDamageReceived < pUnit->GetMaxHitPoints()/2 )
 			result.iScore = -1; //don't do it
 		break;
 	case AL_MEDIUM:
 		if ( iDamageDealt < iDamageReceived && iExtraDamage == 0 )
 			result.iScore = -1; //don't do it
-		if ( pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints()/2 )
+		if ( iDamageReceived > 0 && pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints()/2 )
 			result.iScore = -1; //don't do it
 		break;
 	case AL_HIGH:
