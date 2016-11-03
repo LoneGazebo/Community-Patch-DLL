@@ -13612,7 +13612,7 @@ bool CvUnit::build(BuildTypes eBuild)
 				//special mod for route construction (used by a policy)
 				if (pkBuildInfo->getRoute() != NO_ROUTE)
 				{
-					iCostThisTurn *= 100 + kPlayer.GetRouteCostMod();
+					iCostThisTurn *= 100 + kPlayer.GetRouteBuilderCostMod();
 					iCostThisTurn /= 100;
 				}
 				//half cost for repair (todo: do not hardcode it)

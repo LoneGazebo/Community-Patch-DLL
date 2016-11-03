@@ -133,7 +133,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iFreeFoodBox(0),
 	m_iImprovementGoldMaintenanceMod(0),
 #if defined(MOD_CIV6_WORKER)
-	m_iRouteCostMod(0),
+	m_iRouteBuilderCostMod(0),
 #endif
 	m_iBuildingGoldMaintenanceMod(0),
 	m_iUnitGoldMaintenanceMod(0),
@@ -523,7 +523,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iFreeFoodBox = kResults.GetInt("FreeFoodBox");
 	m_iImprovementGoldMaintenanceMod = kResults.GetInt("RouteGoldMaintenanceMod");
 #if defined(MOD_CIV6_WORKER)
-	m_iRouteCostMod = kResults.GetInt("RouteCostMod");
+	m_iRouteBuilderCostMod = kResults.GetInt("RouteBuilderCostMod");
 #endif
 	m_iBuildingGoldMaintenanceMod = kResults.GetInt("BuildingGoldMaintenanceMod");
 	m_iUnitGoldMaintenanceMod = kResults.GetInt("UnitGoldMaintenanceMod");
@@ -1792,9 +1792,9 @@ int CvPolicyEntry::GetImprovementGoldMaintenanceMod() const
 
 #if defined(MOD_CIV6_WORKER)
 /// Route cost Modifier (e.g. 50 = 150% normal cost)
-int CvPolicyEntry::GetRouteCostMod() const
+int CvPolicyEntry::GetRouteBuilderCostMod() const
 {
-	return m_iRouteCostMod;
+	return m_iRouteBuilderCostMod;
 }
 #endif
 

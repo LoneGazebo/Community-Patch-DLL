@@ -143,7 +143,7 @@ public:
 	int GetFreeFoodBox() const;
 	int GetImprovementGoldMaintenanceMod() const;
 #if defined(MOD_CIV6_WORKER)
-	int GetRouteCostMod() const;
+	int GetRouteBuilderCostMod() const;
 #endif
 	int GetBuildingGoldMaintenanceMod() const;
 	int GetUnitGoldMaintenanceMod() const;
@@ -473,7 +473,7 @@ private:
 	int m_iFreeFoodBox;
 	int m_iImprovementGoldMaintenanceMod;
 #if defined(MOD_CIV6_WORKER)
-	int m_iRouteCostMod;
+	int m_iRouteBuilderCostMod;
 #endif
 	int m_iBuildingGoldMaintenanceMod;
 	int m_iUnitGoldMaintenanceMod;

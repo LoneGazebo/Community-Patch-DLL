@@ -260,7 +260,7 @@ CvPlayer::CvPlayer() :
 	, m_iGoldPerMilitaryUnit("CvPlayer::m_iGoldPerMilitaryUnit", m_syncArchive)
 	, m_iImprovementGoldMaintenanceMod("CvPlayer::m_iImprovementGoldMaintenanceMod", m_syncArchive)
 #if defined(MOD_CIV6_WORKER)
-	, m_iRouteCostMod("CvPlayer::m_iRouteCostMod", m_syncArchive)
+	, m_iRouteBuilderCostMod("CvPlayer::m_iRouteBuilderCostMod", m_syncArchive)
 #endif
 	, m_iBuildingGoldMaintenanceMod("CvPlayer::m_iBuildingGoldMaintenanceMod", m_syncArchive)
 	, m_iUnitGoldMaintenanceMod("CvPlayer::m_iUnitGoldMaintenanceMod", m_syncArchive)
@@ -893,7 +893,12 @@ void CvPlayer::init(PlayerTypes eID)
 		GetTreasury()->ChangeCityConnectionTradeRouteGoldChange(GetPlayerTraits()->GetCityConnectionTradeRouteChange());
 		changeWonderProductionModifier(GetPlayerTraits()->GetWonderProductionModifier());
 		ChangeImprovementGoldMaintenanceMod(GetPlayerTraits()->GetImprovementMaintenanceModifier());
-		// TODO ChangeRouteCostMod(GetPlayerTraits()->GetRouteCostModifier());
+#if defined(MOD_CIV6_WORKER)
+		CUSTOMLOG("CVPlayer::Traitschanges  : GetPlayerTraits()->GetRouteBuilderCostModifier()=%i",
+			GetPlayerTraits()->GetRouteBuilderCostModifier());
+		//ditch it, i don't use it and it doesn't work for whatever reason.
+		//ChangeRouteBuilderCostMod(GetPlayerTraits()->GetRouteBuilderCostModifier());
+#endif
 
 		for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 		{
@@ -1439,7 +1444,7 @@ void CvPlayer::uninit()
 	m_iGoldPerMilitaryUnit = 0;
 	m_iImprovementGoldMaintenanceMod = 0;
 #if defined(MOD_CIV6_WORKER)
-	m_iRouteCostMod = 0;
+	m_iRouteBuilderCostMod = 0;
 #endif
 	m_iBuildingGoldMaintenanceMod = 0;
 	m_iUnitGoldMaintenanceMod = 0;
@@ -26496,6 +26501,33 @@ void CvPlayer::changeWorkerSpeedModifier(int iChange)
 	m_iWorkerSpeedModifier = (m_iWorkerSpeedModifier + iChange);
 }
 
+#if defined(MOD_CIV6_ROADS)
+//	--------------------------------------------------------------------------------
+int  CvPlayer::GetImprovementBuilderCost(BuildTypes iBuild) const
+{
+	//get the build
+	if (iBuild >= 0 && iBuild < GC.getNumBuildInfos())
+	{
+		CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes)iBuild);
+
+		int buildercost = pkBuildInfo->getBuilderCost();
+
+		//if road, use RouteBuilderCostMod
+		if (pkBuildInfo->getRoute() != NO_ROUTE)
+		{
+			buildercost *= 100 + GetRouteBuilderCostMod();
+			buildercost /= 100;
+		}
+
+		CUSTOMLOG("CVPLAYER::GetImprovementBuilderCost  : pkBuildInfo->getBuilderCost()=%i , GetRouteBuilderCostMod()=%i, buildercost=%i",
+			pkBuildInfo->getBuilderCost(), GetRouteBuilderCostMod(), buildercost);
+
+		return buildercost;
+	}
+	CUSTOMLOG("CVPLAYER::GetImprovementBuilderCost wrong iBuild: %i", iBuild);
+	return 0;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getImprovementCostModifier() const
@@ -26869,17 +26901,20 @@ void CvPlayer::ChangeImprovementGoldMaintenanceMod(int iChange)
 
 #if defined(MOD_CIV6_WORKER)
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetRouteCostMod() const
+int CvPlayer::GetRouteBuilderCostMod() const
 {
-	return m_iRouteCostMod;
+	return m_iRouteBuilderCostMod;
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::ChangeRouteCostMod(int iChange)
+void CvPlayer::ChangeRouteBuilderCostMod(int iChange)
 {
+	CUSTOMLOG("CVPLAYER::ChangeRouteBuilderCostMod  : m_iRouteBuilderCostMod=%i , iChange=%i",
+		m_iRouteBuilderCostMod, iChange);
+
 	if (iChange != 0)
 	{
-		m_iRouteCostMod = (m_iRouteCostMod + iChange);
+		m_iRouteBuilderCostMod = (m_iRouteBuilderCostMod + iChange);
 	}
 }
 #endif
@@ -38631,7 +38666,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeSettlerProductionModifier(pPolicy->GetSettlerProductionModifier() * iChange);
 	changeCapitalSettlerProductionModifier(pPolicy->GetCapitalSettlerProductionModifier() * iChange);
 	ChangeImprovementGoldMaintenanceMod(pPolicy->GetImprovementGoldMaintenanceMod() * iChange);
-	ChangeRouteCostMod(pPolicy->GetRouteCostMod() * iChange);
+#if defined(MOD_CIV6_WORKER)
+	CUSTOMLOG("CVPlayer::Policieschanges  : m_iRouteBuilderCostMod=%i , iChange=%i", 
+		pPolicy->GetRouteBuilderCostMod(), iChange);
+	ChangeRouteBuilderCostMod(pPolicy->GetRouteBuilderCostMod() * iChange);
+#endif
 	ChangeBuildingGoldMaintenanceMod(pPolicy->GetBuildingGoldMaintenanceMod() * iChange);
 	ChangeUnitGoldMaintenanceMod(pPolicy->GetUnitGoldMaintenanceMod() * iChange);
 	ChangeUnitSupplyMod(pPolicy->GetUnitSupplyMod() * iChange);
