@@ -12515,20 +12515,26 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 					iDamageScore += vDamageRatios[i];
 				else if (i < iAttacksHereThisTurn+pUnit->getNumAttacks())
 					//if we can't attack now, we don't like it as much
-					iDamageScore += vDamageRatios[i] / 8; 
+					iDamageScore += vDamageRatios[i] / 4;
 			}
 
-			//ranged specialties
-			if (iMaxRange>1)
+			//ranged specialties (don't check range because it's about skirmishers as well)
+			if (pUnit->isRanged())
 			{
-				//try to stay away from enemies if we can attack from afar
-				//the reverse works automatically, range 1 units only get points if they close in
-				if (currentPlot.getNumAdjacentEnemies()>0)
-					iDamageScore /= 2;
+				if (iAttacksHereThisTurn>0)
+				{
+					//try to stay away from enemies if we can attack from afar
+					//the reverse works automatically, range 1 units only get points if they close in
+					if (currentPlot.getNumAdjacentEnemies()>0)
+						iDamageScore /= 2;
 
-				//ranged units are vulnerable without melee
-				if (currentPlot.getNumAdjacentFirstlineFriendlies()==0)
-					iDamageScore /= 2;
+					//ranged units are vulnerable without melee
+					if (currentPlot.getNumAdjacentFirstlineFriendlies()==0)
+						iDamageScore /= 2;
+				}
+				else
+					//ranged units don't like to park next to enemies at all if we cannot attack
+					iDamageScore = 0;
 			}
 
 			//isolated unit? bad. chicken and egg problem for the algorithm though.
@@ -13866,7 +13872,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			bPostcondition = pToPlot->isEnemyUnit(ePlayer,true,true) || pToPlot->isEnemyCity(*pUnit); //enemy should survive
 			break;
 		case STacticalAssignment::A_RANGEKILL:
-			bPostcondition = (pUnit->plot() == pFromPlot) && pToPlot->isEnemyUnit(ePlayer,true,true); //defending unit present. does not apply to cities
+			bPrecondition = (pUnit->plot() == pFromPlot) && pToPlot->isEnemyUnit(ePlayer,true,true); //defending unit present. does not apply to cities
 			if (bPrecondition)
 				pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pToPlot->getX(), pToPlot->getY());
 			bPostcondition = !pToPlot->isEnemyUnit(ePlayer,true,true); //defending unit is gone
