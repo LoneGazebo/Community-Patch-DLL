@@ -422,6 +422,10 @@ CvUnit::CvUnit() :
 #if defined(MOD_BALANCE_CORE)
 	, m_yieldFromScouting("CvUnit::m_yieldFromScouting", m_syncArchive/*, true*/)
 #endif
+#if defined(MOD_CORE_DEBUGGING)
+	, m_iPrevPlotIdx1(0)
+	, m_iPrevPlotIdx2(0)
+#endif
 {
 	initPromotions();
 	OBJECT_ALLOCATED
@@ -27853,6 +27857,16 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	//potential deadlock in pathfinder, be careful
 	if (!GET_PLAYER(getOwner()).isTurnActive())
 		return;
+
+	if (eMission==CvTypes::getMISSION_MOVE_TO() || eMission==CvTypes::getMISSION_EMBARK() || eMission==CvTypes::getMISSION_DISEMBARK())
+	{
+		CvPlot* pToPlot = GC.getMap().plot(iData1, iData2);
+		if (HaveRepetition(pToPlot->GetPlotIndex(), GC.getGame().getGameTurn()))
+		{
+			OutputDebugString("warning, unit moving in a loop!\n");
+		}
+		PushPrevPlot( pToPlot->GetPlotIndex(), GC.getGame().getGameTurn() );
+	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	if (MOD_BALANCE_CORE_MILITARY_LOGGING && eMission==CvTypes::getMISSION_MOVE_TO())

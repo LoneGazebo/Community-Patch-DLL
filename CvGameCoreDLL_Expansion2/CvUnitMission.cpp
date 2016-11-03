@@ -660,6 +660,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps, int iETA)
 						}
 						else //cannot move
 						{
+							OutputDebugString("invalid move order!\n");
 							bDone = true;
 						}
 

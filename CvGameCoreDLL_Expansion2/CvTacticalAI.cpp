@@ -7224,6 +7224,7 @@ void CvTacticalAI::ExecuteHeals()
 
 					if (bFlee)
 					{
+						//todo: allow suitably occupied plots here and do a swap
 						pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
 						if (pBetterPlot)
 							ExecuteMoveToPlotIgnoreDanger( pUnit, pBetterPlot );
@@ -11840,7 +11841,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 	CvWeightedVector<CvPlot*, 8, true> aDangerList;
 
 	ReachablePlots eligiblePlots;
-	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), eligiblePlots, true, true, true);
+	TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), eligiblePlots, true, true, true /*always true we sort out embarkation below*/);
 
 	for (ReachablePlots::iterator it=eligiblePlots.begin(); it!=eligiblePlots.end(); ++it)
 	{
@@ -11858,7 +11859,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		int iDanger = kPlayer.GetPlotDanger(*pPlot, pUnit);
 
 		int iCityDistance = kPlayer.GetCityDistanceInEstimatedTurns(pPlot);
-		//when in doubt, prefer to move
+		//when in doubt, prefer to move - being stuck looks stupid
 		if (pUnit->atPlot(*pPlot))
 			iCityDistance++;
 
@@ -12435,7 +12436,14 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 	{
 		//check if this is actual movement or whether we simply end the turn
 		if (plot.iPlotIndex != unit.iPlotIndex)
+		{
 			result.eType = STacticalAssignment::A_MOVE;
+
+			//prevent two moves in a row, that is inefficient and can lead to "shuttling" behavior
+			//we only consider plots which can be reached in one turn anyway. parthian moves still work.
+			if (unit.eLastAssignment == STacticalAssignment::A_MOVE)
+				return result;
+		}
 
 		//stay on target. hard cutoff!
 		int iPlotDistance = plotDistance(*assumedPosition.getTarget(),*pCurrentPlot);

@@ -29,10 +29,6 @@ CvHomelandUnit::CvHomelandUnit() :
 	, m_iAuxData(0)
 	, m_iMovesToTarget(0)
 	, m_pTarget(NULL)
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	, m_iPrevPlotIdx1(0)
-	, m_iPrevPlotIdx2(0)
-#endif
 {
 }
 
@@ -3731,44 +3727,25 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 
 		if(pBestPlot && pBestPlot != pUnit->plot())
 		{
-			//make sure we're not in an endless loop
-			if ((pBestPlot->GetPlotIndex() == it->GetPrevPlot1()) && (pCurPlot->GetPlotIndex() == it->GetPrevPlot2()))
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, false, false, MISSIONAI_EXPLORE, pBestPlot);
+
+			// Only mark as done if out of movement - we'll do a second pass later
+			if (!pUnit->canMove())
+				UnitProcessed(pUnit->GetID());
+
+			if (GC.getLogging() && GC.getAILogging())
 			{
-				CvAssertMsg(!pUnit->atPlot(*pBestPlot), "Exploring unit is already at the best place to explore");
-
-				if (GC.getLogging() && GC.getAILogging())
+				CvString strLogString;
+				CvString strTemp = pUnit->getUnitInfo().GetDescription();
+				if (bFoundNearbyExplorePlot)
 				{
-					CvString strTemp = pUnit->getUnitInfo().GetDescription();
-					CvString msg = CvString::format("Warning: Explorer %s is maybe caught in a loop at %d,%d\n", strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY());
-					LogHomelandMessage(msg);
+					strLogString.Format("%s Explored to nearby target, To X: %d, Y: %d, From X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY(), iUnitX, iUnitY);
 				}
-
-				//reset
-				pBestPlot = NULL;
-			}
-			else
-			{
-				it->PushPrevPlot(pCurPlot->GetPlotIndex());
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_TERRITORY_NO_ENEMY | CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE, false, false, MISSIONAI_EXPLORE, pBestPlot);
-
-				// Only mark as done if out of movement - we'll do a second pass later
-				if (!pUnit->canMove())
-					UnitProcessed(pUnit->GetID());
-
-				if (GC.getLogging() && GC.getAILogging())
+				else
 				{
-					CvString strLogString;
-					CvString strTemp = pUnit->getUnitInfo().GetDescription();
-					if (bFoundNearbyExplorePlot)
-					{
-						strLogString.Format("%s Explored to nearby target, To X: %d, Y: %d, From X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY(), iUnitX, iUnitY);
-					}
-					else
-					{
-						strLogString.Format("%s Explored to distant target, To X: %d, Y: %d, From X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY(), iUnitX, iUnitY);
-					}
-					LogHomelandMessage(strLogString);
+					strLogString.Format("%s Explored to distant target, To X: %d, Y: %d, From X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY(), iUnitX, iUnitY);
 				}
+				LogHomelandMessage(strLogString);
 			}
 		}
 		else //no target

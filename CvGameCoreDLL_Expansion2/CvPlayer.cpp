@@ -5071,7 +5071,7 @@ void CvPlayer::UpdateBestMilitaryCities()
 				{
 					CvString strCity = pBestDomainCity->getName();
 					CvString strLogString;
-					strLogString.Format("***************** New Military Domain City Chosen: %s. ****************", strCity.c_str());
+					strLogString.Format("***************** New Military Domain City Chosen for domain %d: %s. ****************", eTestDomain, strCity.c_str());
 					GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
 				SetBestMilitaryCityDomain(pBestDomainCity->GetID(), eTestDomain);
@@ -5129,7 +5129,7 @@ void CvPlayer::UpdateBestMilitaryCities()
 				{
 					CvString strCity = pBestCombatClassCity->getName();
 					CvString strLogString;
-					strLogString.Format("***************** New Military Combat Class City Chosen: %s. ****************", strCity.c_str());
+					strLogString.Format("***************** New Military Combat Class City Chosen for class %d: %s. ****************", eUnitCombatClass, strCity.c_str());
 					GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
 			}
