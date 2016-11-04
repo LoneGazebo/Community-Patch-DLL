@@ -11665,13 +11665,18 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, const CvPlot* pT
 	CvCity* pTargetCity = pTargetPlot->getPlotCity();
 	CvUnit* pTargetUnit = pTargetPlot->getVisibleEnemyDefender( pUnit->getOwner() );
 
-	//cannot attack if the city changed owner
+	//cannot attack if not at war
 	CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
 	if (pTargetCity && kPlayer.IsAtPeaceWith(pTargetCity->getOwner()))
 		return false;
 
 	//cannot attack if unit has been killed
 	if (pTargetUnit && (pTargetUnit->isDelayedDeath() || GET_PLAYER(pUnit->getOwner()).IsAtPeaceWith(pTargetUnit->getOwner())))
+		return false;
+
+	//cannot attack if no attacks left
+	int iAttacksLeft = pUnit->getNumAttacks() - pUnit->getNumAttacksMadeThisTurn();
+	if (iAttacksLeft==0)
 		return false;
 
 	//ranged attack. 
@@ -12532,7 +12537,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 					if (currentPlot.getNumAdjacentFirstlineFriendlies()==0)
 						iDamageScore /= 2;
 				}
-				else
+				else if (currentPlot.getNumAdjacentEnemies()>0 || currentPlot.getNumAdjacentFirstlineFriendlies()==0)
 					//ranged units don't like to park next to enemies at all if we cannot attack
 					iDamageScore = 0;
 			}
@@ -12560,9 +12565,17 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 
 	//will we end the turn here?
 	bool bEndTurn = (result.iToPlotIndex == unit.iPlotIndex) || result.iRemainingMoves == 0;
+
 	//the danger value reflects any defensive terrain bonuses
 	//todo: danger calculation must take into account killed units
 	int iDanger = bEndTurn ? pUnit->GetDanger(pCurrentPlot) : 0;
+
+	//can happen with garrisons
+	if (iDanger==INT_MAX)
+	{
+		result.iScore = 1;
+		return result;
+	}
 	
 	//extra penalty for high danger plots
 	//todo: take into account self damage from previous attacks
@@ -12572,7 +12585,7 @@ STacticalAssignment ScorePlotForCombatUnit(const SUnitStats unit, SMovePlot plot
 	//todo: take into account mobility at the proposed plot
 	//todo: take into account ZOC when ending the turn
 
-	//adjust the score -danger values are mostly useless but maybe useful as tiebreaker 
+	//adjust the score - danger values are mostly useless but maybe useful as tiebreaker 
 	result.iScore = result.iScore*10 - iDanger;
 
 	return result;

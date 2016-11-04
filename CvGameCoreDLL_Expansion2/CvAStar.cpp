@@ -1934,7 +1934,10 @@ int WaterRouteValid(const CvAStarNode* parent, const CvAStarNode* node, int, con
 
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
-	if(!(pNewPlot->isRevealed(eTeam)))
+	if(!pNewPlot || !pNewPlot->isRevealed(eTeam))
+		return FALSE;
+
+	if(pNewPlot->getOwner()!=NO_PLAYER && !pNewPlot->IsFriendlyTerritory(ePlayer))
 		return FALSE;
 
 	CvCity* pCity = pNewPlot->getPlotCity();
