@@ -2579,11 +2579,9 @@ CvPlayer* CvCity::GetPlayer()
 void CvCity::doTurn()
 {
 	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doTurn, Turn %03d, %s, %s,", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
-
 	VALIDATE_OBJECT
-	CvPlot* pLoopPlot;
 
-	if(getDamage() > 0)
+	if(getDamage() > 0 && !IsBlockadedWaterAndLand())
 	{
 		CvAssertMsg(m_iDamage <= GetMaxHitPoints(), "Somehow a city has more damage than hit points. Please show this to a gameplay programmer immediately.");
 
@@ -2596,6 +2594,7 @@ void CvCity::doTurn()
 		iBuildingDefense *= (100 + m_pCityBuildings->GetBuildingDefenseMod());
 		iBuildingDefense /= 100;
 		iHitsHealed += iBuildingDefense / 500;
+
 #if defined(MOD_BALANCE_CORE)
 		if(!GET_PLAYER(getOwner()).IsAtWar())
 		{
@@ -2604,10 +2603,12 @@ void CvCity::doTurn()
 #endif
 		changeDamage(-iHitsHealed);
 	}
+
 	if(getDamage() < 0)
 	{
 		setDamage(0);
 	}
+
 #if defined(MOD_BALANCE_CORE)
 	//See if we are a defense-necessary city.
 	TestBastion();
@@ -2830,7 +2831,7 @@ void CvCity::doTurn()
 
 			for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 			{
-				pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
+				CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
 
 				if(pLoopPlot != NULL)
 				{

@@ -920,7 +920,7 @@ private:
 	bool IsExpectedToDamageWithRangedAttack(CvUnit* pAttacker, CvPlot* pTarget, int iMinDamage=0);
 
 	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot, DomainTypes eDomain, int iMaxTurns);
-	bool MoveToUsingSafeEmbark(CvUnit* pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo, int iFlags);
+	bool MoveToUsingSafeEmbarkButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot, int iFlags);
 
 	CvPlot* FindBestBarbarianLandMove(CvUnit* pUnit);
 	CvPlot* FindPassiveBarbarianLandMove(CvUnit* pUnit);

@@ -3902,55 +3902,19 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				continue;
 			}
 
-			// if there's nothing else to do, move to the safest spot nearby
 #if defined(MOD_AI_SECONDARY_WORKERS)
 			// Only move primary workers (actual civilian workers/workboats) or embarked secondary workers (combat units) to safety
 			if (bSecondary && !pUnit->isEmbarked())
 			{
 				continue;
 			}
-
-			if(MoveCivilianToGarrison(pUnit))
-#else
-			if(MoveCivilianToSafety(pUnit, true /*bIgnoreUnits*/))
 #endif
-			{
-				if(GC.getLogging() && GC.GetBuilderAILogging())
-				{
-					// Open the log file
-					CvString strFileName = "BuilderTaskingLog.csv";
-					FILogFile* pLog;
-					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 
-					// write in data
-					CvString strLog;
-					CvString strTemp;
-
-					CvString strPlayerName;
-					strPlayerName = m_pPlayer->getCivilizationShortDescription();
-					strLog += strPlayerName;
-					strLog += ",";
-
-					strTemp.Format("%d,", GC.getGame().getGameTurn()); // turn
-					strLog += strTemp;
-
-					strTemp.Format("%d,", pUnit->GetID()); // unit id
-					strLog += strTemp;
-
-					strLog += "2nd Safety,";
-
-					pLog->Msg(strLog);
-				}
-
-				// slewis - this was removed because a unit would eat all its moves. So if it didn't do anything this turn, it wouldn't be able to work 
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
-				if (!m_pPlayer->isHuman())
-				{
-					pUnit->finishMoves();
-				}
-				UnitProcessed(pUnit->GetID());
-				continue;
-			}
+			// if there's nothing else to do, move to the safest spot nearby
+			if (pUnit->GetDanger()>0)
+				MoveCivilianToSafety(pUnit, true /*bIgnoreUnits*/);
+			else
+				MoveCivilianToGarrison(pUnit);
 
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			pUnit->finishMoves();
@@ -4072,7 +4036,7 @@ void CvHomelandAI::ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlag
 	else
 	{
 		// Best units have already had a full path check to the target, so just add the move
-		MoveToUsingSafeEmbark(pUnit, pTarget, true, iFlags);
+		MoveToUsingSafeEmbarkButDontEndTurn(pUnit, pTarget, iFlags);
 		if(bFinishMoves)
 		{
 			pUnit->finishMoves();
@@ -4501,7 +4465,8 @@ void CvHomelandAI::ExecuteScientistMoves()
 			}
 			break;
 		case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
-			ExecuteWorkerMove(pUnit);
+			if (!ExecuteWorkerMove(pUnit))
+				MoveCivilianToSafety(pUnit);
 			break;
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
 			MoveCivilianToSafety(pUnit);
@@ -4529,7 +4494,8 @@ void CvHomelandAI::ExecuteEngineerMoves()
 		switch(eDirective)
 		{
 		case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
-			ExecuteWorkerMove(pUnit);
+			if (!ExecuteWorkerMove(pUnit))
+				MoveCivilianToSafety(pUnit);
 			break;
 		case GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE:
 			ExecuteGoldenAgeMove(pUnit);
@@ -4974,7 +4940,8 @@ void CvHomelandAI::ExecuteMerchantMoves()
 			// handled by economic AI
 			break;
 		case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
-			ExecuteWorkerMove(pUnit);
+			if (!ExecuteWorkerMove(pUnit))
+				MoveCivilianToSafety(pUnit);
 			break;
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
 			MoveCivilianToSafety(pUnit);
@@ -5003,7 +4970,8 @@ void CvHomelandAI::ExecuteProphetMoves()
 		switch(eDirective)
 		{
 		case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
-			ExecuteWorkerMove(pUnit);
+			if (!ExecuteWorkerMove(pUnit))
+				MoveCivilianToSafety(pUnit);
 			break;
 
 		case GREAT_PEOPLE_DIRECTIVE_USE_POWER:
@@ -5278,7 +5246,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				else
 				{
 					//continue moving to target
-					if (MoveToUsingSafeEmbark(pUnit, pTargetPlot, true, 0))
+					if (MoveToUsingSafeEmbarkButDontEndTurn(pUnit, pTargetPlot, 0))
 					{
 						vPlotsToAvoid.push_back(pTargetPlot);
 						pUnit->finishMoves();
@@ -5603,7 +5571,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				// Move normally to this city
 				else if(pChosenCity)
 				{
-					MoveToUsingSafeEmbark(pUnit,pChosenCity->plot(),true,0);
+					MoveToUsingSafeEmbarkButDontEndTurn(pUnit,pChosenCity->plot(),0);
 					pUnit->finishMoves();
 					UnitProcessed(pUnit->GetID());
 
@@ -6801,7 +6769,7 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 				LogHomelandMessage(strLogString);
 			}
 
-			MoveToUsingSafeEmbark(pUnit, pBestPlot, true, 0);
+			MoveToUsingSafeEmbarkButDontEndTurn(pUnit, pBestPlot, 0);
 			return true;
 		}
 	}
@@ -6954,7 +6922,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 				LogHomelandMessage(strLogString);
 			}
 
-			MoveToUsingSafeEmbark(pUnit, pBestPlot, true, 0);
+			MoveToUsingSafeEmbarkButDontEndTurn(pUnit, pBestPlot, 0);
 			return true;
 		}
 	}
@@ -8049,55 +8017,6 @@ bool CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 		break;
 		}
 	}
-	else
-	{
-		if(GC.getLogging() && GC.GetBuilderAILogging())
-		{
-			CvString strFileName = "BuilderTaskingLog.csv";
-			FILogFile* pLog;
-			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-			pLog->Msg("builder has no directive");
-		}
-
-		if (pUnit->GetDanger()>0)
-			MoveCivilianToSafety(pUnit);
-		else
-		{
-			//try to spread them out in case something comes up
-			int iLoopCity = 0;
-			int iMaxUnits = INT_MAX;
-			CvPlot* pTarget = NULL;
-			for(CvCity *pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
-			{
-				CvPlot* pCityPlot = pLoopCity->plot();
-				if (pCityPlot == pUnit->plot())
-					break;
-
-				int iFirstUnitID = 0;
-				int iNumUnits = pCityPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType(),iFirstUnitID);
-
-				//if we are the first unit in the plot, we stay. other have to move, if present
-				if (iFirstUnitID == pUnit->GetID())
-				{
-					pTarget = NULL;
-					break;
-				}
-
-				if (iNumUnits < iMaxUnits)
-				{
-					iMaxUnits = iNumUnits;
-					pTarget = pCityPlot;
-				}
-				
-				//no point in continuing
-				if (iMaxUnits==0)
-					break;
-			}
-
-			if (pTarget)
-				MoveToEmptySpaceNearTarget(pUnit,pTarget,DOMAIN_LAND,23);
-		}
-	}
 
 	return false;
 }
@@ -8295,12 +8214,9 @@ void CvHomelandAI::ClearCurrentMoveHighPriorityUnits()
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 
-bool CvHomelandAI::MoveToUsingSafeEmbark(CvUnit* pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo, int iFlags)
+bool CvHomelandAI::MoveToUsingSafeEmbarkButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot, int iFlags)
 {
 	int iMoveFlags = iFlags | CvUnit::MOVEFLAG_SAFE_EMBARK;
-	if (!bMustBeSafeOnLandToo)
-		iMoveFlags |= CvUnit::MOVEFLAG_IGNORE_DANGER;
-
 	if(pUnit->GeneratePath(pTargetPlot,iMoveFlags))
 	{
 		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), iMoveFlags);
@@ -8352,7 +8268,7 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, Do
 
 	int iTurns = pUnit->TurnsToReachTarget(pTarget, iFlags, iMaxTurns);
 	if (iTurns <= iMaxTurns)
-		return MoveToUsingSafeEmbark(pUnit, pTarget, true, iFlags);
+		return MoveToUsingSafeEmbarkButDontEndTurn(pUnit, pTarget, iFlags);
 
 	return false;
 }

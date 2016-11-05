@@ -7635,11 +7635,13 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible, bool bCheckMovement
 		}
 	}
 
-
 	if(healRate(pPlot) <= 0)
-	{
 		return false;
-	}
+
+	//can't heal in a blockaded city
+	CvCity* pCity = pPlot->getPlotCity();
+	if (pCity && pCity->IsBlockadedWaterAndLand())
+		return false;
 
 	return true;
 }

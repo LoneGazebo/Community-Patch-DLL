@@ -389,7 +389,7 @@ private:
 	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
 
 	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, DomainTypes eDomain, int iMaxTurns);
-	bool MoveToUsingSafeEmbark(CvUnit* pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo, int iFlags);
+	bool MoveToUsingSafeEmbarkButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot, int iFlags);
 
 	CvPlot* FindArchaeologistTarget(CvUnit *pUnit);
 #if defined(MOD_BALANCE_CORE)
