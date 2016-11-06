@@ -1171,7 +1171,12 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 			else if (iPlotDanger >= pUnit->GetCurrHitPoints())
 				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
 			else if (iPlotDanger > 0 )
-				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
+			{
+				if (kToNodeCacheData.bIsNonNativeDomain) //embarked paths are often shorter, so add a penalty ...
+					iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
+				else
+					iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
+			}
 		}
 		else //civilian
 		{
@@ -1179,7 +1184,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 			if (iPlotDanger > pUnit->GetCurrHitPoints())
 				iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*4*iFutureFactor;
 			else if (iPlotDanger > 0)
-				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
+				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
 		}
 	}
 
@@ -1400,7 +1405,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, int, const SPa
 				return FALSE;
 
 			//don't move to dangerous water plots (unless the current plot is dangerous too)
-			if (finder->HaveFlag(CvUnit::MOVEFLAG_SAFE_EMBARK) && kToNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.iPlotDanger>10 && kFromNodeCacheData.iPlotDanger<10 )
+			if (finder->HaveFlag(CvUnit::MOVEFLAG_SAFE_EMBARK) && kToNodeCacheData.bIsNonNativeDomain && kToNodeCacheData.iPlotDanger>10 && kFromNodeCacheData.iPlotDanger<kToNodeCacheData.iPlotDanger*2)
 				return FALSE;
 
 			//embark required and possible?

@@ -27860,7 +27860,8 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	if (!GET_PLAYER(getOwner()).isTurnActive())
 		return;
 
-	if (eMission==CvTypes::getMISSION_MOVE_TO() || eMission==CvTypes::getMISSION_EMBARK() || eMission==CvTypes::getMISSION_DISEMBARK())
+	//if (eMission==CvTypes::getMISSION_MOVE_TO() || eMission==CvTypes::getMISSION_EMBARK() || eMission==CvTypes::getMISSION_DISEMBARK())
+	if (eMission==CvTypes::getMISSION_EMBARK() || eMission==CvTypes::getMISSION_DISEMBARK())
 	{
 		CvPlot* pToPlot = GC.getMap().plot(iData1, iData2);
 		if (HaveRepetition(pToPlot->GetPlotIndex(), GC.getGame().getGameTurn()))
@@ -27869,6 +27870,8 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 		}
 		PushPrevPlot( pToPlot->GetPlotIndex(), GC.getGame().getGameTurn() );
 	}
+	else
+		PushPrevPlot( 0, GC.getGame().getGameTurn() );
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	if (MOD_BALANCE_CORE_MILITARY_LOGGING && eMission==CvTypes::getMISSION_MOVE_TO())
