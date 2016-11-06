@@ -1175,6 +1175,7 @@ public:
 	~CvTacticalPosition() { for (size_t i=0; i<childPositions.size(); i++) delete childPositions[i]; }
 
 	bool isComplete() const;
+	bool isOffensive() const;
 	void updateTacticalPlotTypes(int iStartPlot = -1);
 	bool makeNextAssignments(int iMaxBranches, int iMaxAssignmentsPerBranch);
 	bool haveTacticalPlot(const CvPlot* pPlot) const;

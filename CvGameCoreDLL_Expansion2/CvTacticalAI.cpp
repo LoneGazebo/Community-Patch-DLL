@@ -5056,7 +5056,7 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 		TacticalAIHelpers::FindBestAssignmentsForUnits(vUnits, pTargetPlot, AL_MEDIUM, 3, 23, vAssignments);
 		iCount++;
 	}
-	while (!TacticalAIHelpers::ExecuteUnitAssignments(m_pPlayer->GetID(), vAssignments) && iCount < 4);
+	while (!vAssignments.empty() && !TacticalAIHelpers::ExecuteUnitAssignments(m_pPlayer->GetID(), vAssignments) && iCount < 4);
 }
 
 /// Store off a new unit that needs to move as part of an operational AI formation
@@ -6453,7 +6453,7 @@ void CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 		TacticalAIHelpers::FindBestAssignmentsForUnits(vUnits, pTargetPlot, eAggLvl, 3, 23, vAssignments);
 		iCount++;
 	}
-	while (!TacticalAIHelpers::ExecuteUnitAssignments(m_pPlayer->GetID(), vAssignments) && iCount < 4);
+	while (!vAssignments.empty() && !TacticalAIHelpers::ExecuteUnitAssignments(m_pPlayer->GetID(), vAssignments) && iCount < 4);
 }
 
 void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
@@ -13227,9 +13227,24 @@ int CvTacticalPosition::findBlockingUnitAtPlot(int iPlotIndex) const
 	return 0;
 }
 
+//are there units left or all enemies gone?
 bool CvTacticalPosition::isComplete() const
 { 
 	return availableUnits.empty() || eliminatedEnemies.size()==nTotalEnemies;
+}
+
+//check that we're not just shuffling around units
+bool CvTacticalPosition::isOffensive() const
+{ 
+	for (vector<STacticalAssignment>::const_iterator it=assignedMoves.begin(); it!=assignedMoves.end(); ++it)
+		if (it->eType==STacticalAssignment::A_MELEEATTACK ||
+			it->eType==STacticalAssignment::A_MELEEKILL ||
+			it->eType==STacticalAssignment::A_RANGEATTACK ||
+			it->eType==STacticalAssignment::A_RANGEKILL ||
+			it->eType==STacticalAssignment::A_PILLAGE)
+			return true;
+
+	return false;
 }
 
 void CvTacticalPosition::updateTacticalPlotTypes(int iStartPlot)
@@ -13814,7 +13829,7 @@ bool TacticalAIHelpers::FindBestAssignmentsForUnits(const vector<CvUnit*>& vUnit
 			}
 		}
 		//is this a completed position or did we run into a dead end?
-		else if (current->isComplete())
+		else if (current->isComplete() && current->isOffensive())
 			closedPositions.push_back(current);
 
 		if (openPositionsHeap.size()>4000)
