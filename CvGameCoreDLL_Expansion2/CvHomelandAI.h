@@ -87,26 +87,6 @@ public:
 		return m_pTarget;
 	};
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
-
-	void PushPrevPlot(int iIdx)
-	{
-		m_iPrevPlotIdx2 = m_iPrevPlotIdx1;
-		m_iPrevPlotIdx1 = iIdx;
-	}
-
-	int GetPrevPlot1() const
-	{
-		return m_iPrevPlotIdx1;
-	}
-
-	int GetPrevPlot2() const
-	{
-		return m_iPrevPlotIdx2;
-	}
-
-#endif
-
 	// Stores extra integer data
 	//   For potential upgradeable units stores the unit type since that's a convenient way to sort them
 	int GetAuxIntData() const
@@ -122,11 +102,6 @@ private:
 	int m_iID;
 	int m_iAuxData;
 	int m_iMovesToTarget;
-
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	//to detect endless loops
-	int m_iPrevPlotIdx1, m_iPrevPlotIdx2;
-#endif
 
 	CvPlot* m_pTarget;
 };
@@ -414,7 +389,7 @@ private:
 	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
 
 	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, DomainTypes eDomain, int iMaxTurns);
-	bool MoveToUsingSafeEmbark(CvUnit* pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo, int iFlags);
+	bool MoveToUsingSafeEmbarkButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot, int iFlags);
 
 	CvPlot* FindArchaeologistTarget(CvUnit *pUnit);
 #if defined(MOD_BALANCE_CORE)

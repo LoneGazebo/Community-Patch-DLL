@@ -6581,8 +6581,8 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedAirCarriers(CvPlayer* pPlayer)
 
 	CvUnit* pLoopUnit;
 	int iLoop;
-	SpecialUnitTypes eSpecialUnitPlane = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER");
-	for(pLoopUnit = pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iLoop))
+	SpecialUnitTypes eSpecialUnitPlane = (SpecialUnitTypes)GC.getInfoTypeForString("SPECIALUNIT_FIGHTER");
+	for (pLoopUnit = pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iLoop))
 	{
 		if (pLoopUnit->getSpecialUnitType() == eSpecialUnitPlane)
 		{
@@ -6590,8 +6590,8 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedAirCarriers(CvPlayer* pPlayer)
 		}
 		else if (pLoopUnit->isAircraftCarrier())
 		{
-			iNumTotalCargoSpace += pLoopUnit->cargoSpace();
-			if (pLoopUnit->getCargo()==0)
+			iNumTotalCargoSpace += pLoopUnit->cargoSpaceAvailable(eSpecialUnitPlane);
+			if (pLoopUnit->getCargo() == 0)
 				iNumEmptyCarriers++;
 
 			iNumTotalCargoSpace += pLoopUnit->cargoSpace();
@@ -6601,14 +6601,22 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedAirCarriers(CvPlayer* pPlayer)
 
 	CvCity* pLoopCity;
 	int iLoopCity = 0;
-	for(pLoopCity = pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoopCity))
+	for (pLoopCity = pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoopCity))
 	{
-		if(pLoopCity != NULL)
+		if (pLoopCity != NULL)
 		{
 			iNumTotalCargoSpace += pLoopCity->GetMaxAirUnits();
 		}
 	}
-	pPlayer->GetMilitaryAI()->SetNumFreeCarrier(iCarrierCargo - iNumLoadableAirUnits);
+	if (iNumLoadableAirUnits > 0)
+	{
+		pPlayer->GetMilitaryAI()->SetNumFreeCarrier(iCarrierCargo - iNumLoadableAirUnits);
+	}
+	else
+	{
+		pPlayer->GetMilitaryAI()->SetNumFreeCarrier(-1);
+	}
+
 	pPlayer->GetMilitaryAI()->SetNumFreeCargo(iNumTotalCargoSpace - iNumLoadableAirUnits);
 
 	if (iNumEmptyCarriers==0 && iNumLoadableAirUnits>2*iCarrierCargo)

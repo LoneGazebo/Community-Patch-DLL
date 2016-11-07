@@ -322,19 +322,19 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if(kPlayer.getNumCities() > 1 && m_pCity->GetThreatCriteria() != -1)
 		{
 			//More cities = more threat.
-			int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatCriteria()) * 250;
+			int iThreat = (kPlayer.getNumCities() - m_pCity->GetThreatCriteria());
 			if(iThreat > 0)
 			{
-				iBonus -= iThreat;
+				iBonus -= iThreat * 2;
 			}
 		}
 		if(m_pCity->IsBastion())
 		{
-			iBonus -= (iNumWar * 500);
+			iBonus -= (iNumWar * 100);
 		}
 		if(m_pCity->IsBlockadedWaterAndLand() || m_pCity->IsBlockaded(true) || m_pCity->IsBlockaded(false))
 		{
-			iBonus -= (iNumWar * 500);
+			iBonus -= (iNumWar * 150);
 		}
 	}
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -461,7 +461,14 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{	
 		if(iNumLandConnection <= 0)
 		{
-			iBonus -= 100;
+			if (pkBuildingInfo->GetTradeRouteLandDistanceModifier() > 0)
+			{
+				iBonus -= 100;
+			}
+			else
+			{
+				iBonus -= 25;
+			}
 		}
 		else
 		{
@@ -509,7 +516,14 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			if(iNumSeaConnection <= 0)
 			{
-				return 0;
+				if (pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0)
+				{
+					iBonus -= 100;
+				}
+				else
+				{
+					iBonus -= 25;
+				}
 			}
 			//Higher value the higher the number of routes.
 			iBonus += iNumSeaConnection;
@@ -951,7 +965,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			EraTypes eEra = (EraTypes)pEntry->GetEra();
 			if(eEra != NO_ERA)
 			{
-				int iEraValue = kPlayer.GetCurrentEra() - eEra;
+				int iEraValue = ((kPlayer.GetCurrentEra() * 5) - eEra);
 				if (iEraValue > 0)
 				{
 					iBonus += (100 * iEraValue);

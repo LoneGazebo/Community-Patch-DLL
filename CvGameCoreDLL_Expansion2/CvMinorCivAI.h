@@ -492,7 +492,7 @@ public:
 
 	int GetEffectiveFriendshipWithMajorTimes100(PlayerTypes ePlayer);
 	int GetBaseFriendshipWithMajorTimes100(PlayerTypes ePlayer) const;
-	void SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest = false);
+	void SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest = false, bool bFromCoup = false);
 	void ChangeFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iChange, bool bFromQuest = false);
 
 	int GetEffectiveFriendshipWithMajor(PlayerTypes ePlayer);

@@ -4256,16 +4256,6 @@ int CvPlayerCulture::GetInfluenceTradeRouteGrowthBonus(PlayerTypes ePlayer) cons
 int CvPlayerCulture::GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) const
 {
 	int iRtnValue = 0;
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	{
-		int iTechDifference = GC.getGame().GetGameTrade()->GetTechDifference(m_pPlayer->GetID(), ePlayer);
-		if (iTechDifference <= 0)
-		{
-			return 0;
-		}
-	}
-#endif
 	if (ePlayer < MAX_MAJOR_CIVS)
 	{
 		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);

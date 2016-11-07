@@ -202,6 +202,10 @@ protected:
 	static int lGetBuildType(lua_State* L);
 	static int lWorkRate(lua_State* L);
 
+#if defined(MOD_CIV6_WORKER)
+	static int lGetBuilderStrength(lua_State* L);
+#endif
+
 	static int lIsNoBadGoodies(lua_State* L);
 	static int lIsOnlyDefensive(lua_State* L);
 

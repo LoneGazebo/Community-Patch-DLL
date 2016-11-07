@@ -9189,6 +9189,40 @@ void CvEspionageAI::DoTurn()
 			}
 		}
 	}
+	// go through spy list again and put spies in locations where they are needed
+	for (uint uiSpy = 0; uiSpy < pEspionage->m_aSpyList.size(); uiSpy++)
+	{
+		// dead spies are not processed
+#if defined(MOD_API_ESPIONAGE)
+		if (pEspionage->m_aSpyList[uiSpy].m_eSpyState == SPY_STATE_DEAD || pEspionage->m_aSpyList[uiSpy].m_eSpyState == SPY_STATE_TERMINATED)
+#else
+		if (pEspionage->m_aSpyList[uiSpy].m_eSpyState == SPY_STATE_DEAD)
+#endif
+		{
+			continue;
+		}
+		//Unassigned spies remaining? Defend!
+		if (pEspionage->m_aSpyList[uiSpy].m_eSpyState == SPY_STATE_UNASSIGNED)
+		{
+			CvCity* pPlayerCity;
+			int iCityLoop;
+			for (pPlayerCity = m_pPlayer->firstCity(&iCityLoop); pPlayerCity != NULL; pPlayerCity = m_pPlayer->nextCity(&iCityLoop))
+			{
+				if (pPlayerCity == NULL)
+					continue;
+
+				// if a spy is already in this city, skip it
+				if (pEspionage->GetSpyIndexInCity(pPlayerCity) != -1)
+				{
+					continue;
+				}
+
+				pEspionage->MoveSpyTo(pPlayerCity, uiSpy, false);
+				iCorrectlyAssignedDefenseSpies++;
+				break;
+			}
+		}
+	}
 }
 
 /// Checks to see if there are any technologies to steal

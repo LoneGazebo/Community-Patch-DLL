@@ -177,6 +177,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_ppiAdjacentTerrainYieldChanges(NULL),
 	m_ppiAdjacentResourceYieldChanges(NULL),
 	m_ppiAdjacentPlotYieldChanges(NULL),
+	m_ppiFeatureYieldChanges(NULL),
 #endif
 	m_ppiTechYieldChanges(NULL),
 	m_ppiTechNoFreshWaterYieldChanges(NULL),
@@ -221,6 +222,10 @@ CvImprovementEntry::~CvImprovementEntry(void)
 	if(m_ppiAdjacentPlotYieldChanges != NULL)
 	{
 		CvDatabaseUtility::SafeDelete2DArray(m_ppiAdjacentPlotYieldChanges);
+	}
+	if (m_ppiFeatureYieldChanges != NULL)
+	{
+		CvDatabaseUtility::SafeDelete2DArray(m_ppiFeatureYieldChanges);
 	}
 #endif
 	if(m_paImprovementResource != NULL)
@@ -600,6 +605,38 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 		pResults->Reset();
 	}
+
+	//m_ppiFeatureYieldChanges
+	{
+		const int iNumFeatures = kUtility.MaxRows("Features");
+		CvAssertMsg(iNumFeatures > 0, "Num Feature Infos <= 0");
+		kUtility.Initialize2DArray(m_ppiFeatureYieldChanges, iNumFeatures, iNumYields);
+
+		std::string strKey = "Features - FeatureYieldChanges";
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Features.ID as FeatureID, Yield from Improvement_FeatureYieldChanges inner join Yields on YieldType = Yields.Type inner join Features on FeatureType = Features.Type where ImprovementType = ?");
+		}
+
+		pResults->Bind(1, szImprovementType, lenImprovementType, false);
+
+		while (pResults->Step())
+		{
+			const int yield_idx = pResults->GetInt(0);
+			CvAssert(yield_idx > -1);
+
+			const int feature_idx = pResults->GetInt(1);
+			CvAssert(feature_idx > -1);
+
+			const int yield = pResults->GetInt(2);
+
+			m_ppiFeatureYieldChanges[feature_idx][yield_idx] = yield;
+		}
+
+		pResults->Reset();
+	}
+	
 #endif
 	const int iNumTechs = GC.getNumTechInfos();
 	CvAssertMsg(iNumTechs > 0, "Num Tech Infos <= 0");
@@ -1418,6 +1455,19 @@ int CvImprovementEntry::GetAdjacentPlotYieldChanges(int i, int j) const
 int* CvImprovementEntry::GetAdjacentPlotYieldChangesArray(int i)
 {
 	return m_ppiAdjacentPlotYieldChanges[i];
+}
+
+int CvImprovementEntry::GetFeatureYieldChanges(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiFeatureYieldChanges[i][j];
+}
+int* CvImprovementEntry::GetFeatureYieldChangesArray(int i)
+{
+	return m_ppiFeatureYieldChanges[i];
 }
 #endif
 

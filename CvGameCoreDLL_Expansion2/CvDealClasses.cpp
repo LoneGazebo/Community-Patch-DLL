@@ -339,11 +339,13 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	CvTeam* pFromTeam = &GET_TEAM(eFromTeam);
 	CvTeam* pToTeam = &GET_TEAM(eToTeam);
 
+#if !defined(MOD_BALANCE_CORE) 
 	CvDeal* pRenewDeal = pFromPlayer->GetDiplomacyAI()->GetDealToRenew(NULL, eToPlayer);
 	if (!pRenewDeal)
 	{
 		pRenewDeal = pToPlayer->GetDiplomacyAI()->GetDealToRenew(NULL, ePlayer);
 	}
+#endif
 #if defined(MOD_BALANCE_CORE)
 	bool bHumanToHuman = false;
 	if(pFromPlayer->isHuman() && pToPlayer->isHuman())
@@ -461,9 +463,9 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			//int iNumAvailable = GetNumResource(ePlayer, eResource, true);
 
 			int iNumAvailable = pFromPlayer->getNumResourceAvailable(eResource, false);
-			int iNumInRenewDeal = 0;
+#if !defined(MOD_BALANCE_CORE) 
 			int iNumInExistingDeal = 0;
-
+			int iNumInRenewDeal = 0;
 			if (pRenewDeal)
 			{
 				// count any that are in the renew deal
@@ -499,6 +501,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				}
 			}
 			else
+#endif
 			{
 				// Offering up more of a Resource than we have available
 				if(iNumAvailable < iResourceQuantity)
@@ -512,6 +515,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 			if(eUsage == RESOURCEUSAGE_LUXURY)
 			{
+#if !defined(MOD_BALANCE_CORE) 
 				if (pRenewDeal)
 				{
 					// Can't trade Luxury if the other player already has one
@@ -521,6 +525,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					}
 				}
 				else
+#endif
 				{
 					// Can't trade Luxury if the other player already has one
 					if(pToPlayer->getNumResourceAvailable(eResource) > 0)
@@ -654,6 +659,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 		
 		bool bIgnoreExistingOP = true;
+#if !defined(MOD_BALANCE_CORE)
 		if (pRenewDeal)
 		{
 			// count any that are in the renew deal
@@ -672,6 +678,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				bIgnoreExistingOP = false;
 			}
 		}
+#endif
 
 		// Already has OP
 		if(pFromTeam->IsAllowsOpenBordersToTeam(eToTeam) && bIgnoreExistingOP)

@@ -132,6 +132,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iNewCityExtraPopulation(0),
 	m_iFreeFoodBox(0),
 	m_iImprovementGoldMaintenanceMod(0),
+#if defined(MOD_CIV6_WORKER)
+	m_iRouteCostMod(0),
+#endif
 	m_iBuildingGoldMaintenanceMod(0),
 	m_iUnitGoldMaintenanceMod(0),
 	m_iUnitSupplyMod(0),
@@ -283,6 +286,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iExtraMoves(0),
 	m_iMaxCorporations(0),
 	m_iRazingSpeedBonus(0),
+	m_iExtraSupplyPerPopulation(0),
 	m_bNoPartisans(false),
 	m_piConquerorYield(NULL),
 	m_piFounderYield(NULL),
@@ -519,6 +523,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iNewCityExtraPopulation = kResults.GetInt("NewCityExtraPopulation");
 	m_iFreeFoodBox = kResults.GetInt("FreeFoodBox");
 	m_iImprovementGoldMaintenanceMod = kResults.GetInt("RouteGoldMaintenanceMod");
+#if defined(MOD_CIV6_WORKER)
+	m_iRouteCostMod = kResults.GetInt("RouteCostMod");
+#endif
 	m_iBuildingGoldMaintenanceMod = kResults.GetInt("BuildingGoldMaintenanceMod");
 	m_iUnitGoldMaintenanceMod = kResults.GetInt("UnitGoldMaintenanceMod");
 	m_iUnitSupplyMod = kResults.GetInt("UnitSupplyMod");
@@ -620,6 +627,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iExtraMoves = kResults.GetInt("ExtraMoves");
 	m_iMaxCorporations = kResults.GetInt("MaxCorporations");
 	m_iRazingSpeedBonus = kResults.GetInt("RazingSpeedBonus");
+	m_iExtraSupplyPerPopulation = kResults.GetInt("ExtraSupplyPerPopulation");
 	m_bNoPartisans = kResults.GetBool("NoPartisans");
 	m_bNoUnhappinessExpansion = kResults.GetBool("NoUnhappinessExpansion");
 	m_bNoUnhappyIsolation = kResults.GetBool("NoUnhappyIsolation");
@@ -1784,6 +1792,14 @@ int CvPolicyEntry::GetImprovementGoldMaintenanceMod() const
 	return m_iImprovementGoldMaintenanceMod;
 }
 
+#if defined(MOD_CIV6_WORKER)
+/// Route cost Modifier (e.g. 50 = 150% normal cost)
+int CvPolicyEntry::GetRouteCostMod() const
+{
+	return m_iRouteCostMod;
+}
+#endif
+
 /// Building upkeep cost Modifier (e.g. 50 = 150% normal cost)
 int CvPolicyEntry::GetBuildingGoldMaintenanceMod() const
 {
@@ -2704,6 +2720,11 @@ int CvPolicyEntry::GetMaxCorps() const
 int CvPolicyEntry::GetRazingSpeedBonus() const
 {
 	return m_iRazingSpeedBonus;
+}
+/// Does this Policy grant more military units?
+int CvPolicyEntry::GetExtraSupplyPerPopulation() const
+{
+	return m_iExtraSupplyPerPopulation;
 }
 /// Does this Policy grant faster razing?
 bool CvPolicyEntry::IsNoPartisans() const

@@ -3988,6 +3988,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvDiploModifierInfo& writeTo)
 CvBuildInfo::CvBuildInfo() :
 	m_iTime(0),
 	m_iCost(0),
+#if defined(MOD_CIV6_WORKER)
+	m_iBuilderCost(0),
+#endif
 	m_iCostIncreasePerImprovement(0),
 	m_iTechPrereq(NO_TECH),
 #if defined(MOD_BALANCE_CORE)
@@ -4042,6 +4045,13 @@ int CvBuildInfo::getCost() const
 {
 	return m_iCost;
 }
+#if defined(MOD_CIV6_WORKER)
+//------------------------------------------------------------------------------
+int CvBuildInfo::getBuilderCost() const
+{
+	return m_iBuilderCost;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvBuildInfo::getCostIncreasePerImprovement() const
 {
@@ -4196,6 +4206,9 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	m_iTime = kResults.GetInt("Time");
 	m_iCost = kResults.GetInt("Cost");
+#if defined(MOD_CIV6_WORKER)
+	m_iBuilderCost = kResults.GetInt("BuilderCost");
+#endif
 	m_iCostIncreasePerImprovement = kResults.GetInt("CostIncreasePerImprovement");
 	m_bKill = kResults.GetBool("Kill");
 	m_bRepair = kResults.GetBool("Repair");

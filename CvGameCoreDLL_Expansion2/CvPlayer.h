@@ -1244,6 +1244,11 @@ public:
 	int GetImprovementGoldMaintenanceMod() const;
 	void ChangeImprovementGoldMaintenanceMod(int iChange);
 
+#if defined(MOD_CIV6_WORKER)
+	int GetRouteCostMod() const;
+	void ChangeRouteCostMod(int iChange);
+#endif
+
 	int GetBuildingGoldMaintenanceMod() const;
 	void ChangeBuildingGoldMaintenanceMod(int iChange);
 
@@ -1259,7 +1264,18 @@ public:
 	int GetNumMaintenanceFreeUnits(DomainTypes eDomain = NO_DOMAIN, bool bOnlyCombatUnits = false) const;
 
 	int getNumMilitaryUnits() const;
+#if defined(MOD_BATTLE_ROYALE)
+	/*Changes to allow finer details of the Military Units that the Player has*/
+	int getNumMilitaryLandUnits() const;
+	int getNumMilitarySeaUnits() const;
+	int getNumMilitaryAirUnits() const;
+	int GetMilitarySeaMight() const;
+	int GetMilitaryAirMight() const;
+	int GetMilitaryLandMight() const;
+	void changeNumMilitaryUnits(int iChange, DomainTypes eDomain);
+#else
 	void changeNumMilitaryUnits(int iChange);
+#endif
 
 	int getHappyPerMilitaryUnit() const;
 	void changeHappyPerMilitaryUnit(int iChange);
@@ -2327,6 +2343,9 @@ public:
 	void UpdateCurrentAndFutureWars();
 	//to check whether peace is a good idea
 	bool HasCityAboutToBeConquered() const;
+
+	int GetExtraSupplyPerPopulation() const;
+	void ChangeExtraSupplyPerPopulation(int iValue);
 #endif
 
 	int GetNumNaturalWondersDiscoveredInArea() const;
@@ -2681,7 +2700,11 @@ protected:
 	};
 
 	void updateMightStatistics();
+#if defined(MOD_BATTLE_ROYALE)
+	int calculateMilitaryMight(DomainTypes eDomain = NO_DOMAIN) const;
+#else
 	int calculateMilitaryMight() const;
+#endif
 	int calculateEconomicMight() const;
 	int calculateProductionMight() const;
 
@@ -2949,6 +2972,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iGoldPerUnit;
 	FAutoVariable<int, CvPlayer> m_iGoldPerMilitaryUnit;
 	FAutoVariable<int, CvPlayer> m_iImprovementGoldMaintenanceMod;
+#if defined(MOD_CIV6_WORKER)
+	FAutoVariable<int, CvPlayer> m_iRouteCostMod;
+#endif
 	FAutoVariable<int, CvPlayer> m_iBuildingGoldMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iUnitGoldMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iUnitSupplyMod;
@@ -3043,6 +3069,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iPlayerEventCooldown;
 	FAutoVariable<std::vector<bool>, CvPlayer> m_abNWOwned;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiUnitClassProductionModifiers;
+	FAutoVariable<int, CvPlayer> m_iExtraSupplyPerPopulation;
 #endif
 	FAutoVariable<int, CvPlayer> m_iFreeSpecialist;
 	FAutoVariable<int, CvPlayer> m_iCultureBombTimer;
@@ -3396,6 +3423,14 @@ protected:
 	std::vector<int> m_plotsAreaEffectPositiveFromTraits;
 	std::vector<PlayerTypes> m_playersWeAreAtWarWith;
 	std::vector<PlayerTypes> m_playersAtWarWithInFuture;
+#endif
+#if defined(MOD_BATTLE_ROYALE)
+	FAutoVariable<int, CvPlayer> m_iNumMilitarySeaUnits;
+	FAutoVariable<int, CvPlayer> m_iNumMilitaryAirUnits;
+	FAutoVariable<int, CvPlayer> m_iNumMilitaryLandUnits;
+	FAutoVariable<int, CvPlayer> m_iMilitarySeaMight;
+	FAutoVariable<int, CvPlayer> m_iMilitaryAirMight;
+	FAutoVariable<int, CvPlayer> m_iMilitaryLandMight;
 #endif
 
 };

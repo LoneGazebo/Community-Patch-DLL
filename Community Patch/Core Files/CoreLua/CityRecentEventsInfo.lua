@@ -18,9 +18,9 @@ local spWidth, spHeight = Controls.ItemScrollPanel:GetSizeVal();
 local heightOffset = screenSizeY - 1020;
 
 spHeight = spHeight + heightOffset;
-Controls.ItemScrollPanel:SetSizeVal(spWidth, spHeight); 
-Controls.ItemScrollPanel:CalculateInternalSize();
-Controls.ItemScrollPanel:ReprocessAnchoring();
+-- Controls.ItemScrollPanel:SetSizeVal(spWidth, spHeight); 
+-- Controls.ItemScrollPanel:CalculateInternalSize();
+-- Controls.ItemScrollPanel:ReprocessAnchoring();
 
 local bpWidth, bpHeight = Controls.BottomPanel:GetSizeVal();
 --bpHeight = bpHeight * heightRatio;
@@ -163,9 +163,9 @@ function DisplayData()
 		end
 
 		local buttonWidth, buttonHeight = itemInstance.Button:GetSizeVal();
-		local descWidth, descHeight = itemInstance.CityRecentEventChoiceHelpText:GetSizeVal();
+		local descWidth, descHeight = itemInstance.CityRecentEventInfoStack:GetSizeVal();
 
-		local newHeight = math.max(150, descHeight + 40);	
+		local newHeight = math.max(100, descHeight + 0);	
 		
 		itemInstance.Button:SetSizeVal(buttonWidth, newHeight);
 		itemInstance.Box:SetSizeVal(buttonWidth, newHeight);

@@ -203,9 +203,6 @@ public:
 	void move(CvPlot& pPlot, bool bShow);
 	bool jumpToNearestValidPlot();
 	bool jumpToNearestValidPlotWithinRange(int iRange);
-#if defined(MOD_BALANCE_CORE)
-	bool jumpToNearestValidPlotWithinRangeIgnoreEnemy(int iRange);
-#endif
 
 	bool canScrap(bool bTestVisible = false) const;
 	void scrap();
@@ -443,6 +440,11 @@ public:
 
 	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible = false, bool bTestGold = true) const;
 	bool build(BuildTypes eBuild);
+
+#if defined(MOD_CIV6_WORKER)
+	int getBuilderStrength() const;
+	void setBuilderStrength(const int newPower);
+#endif
 
 	bool canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const;
 	void promote(PromotionTypes ePromotion, int iLeaderUnitId);
@@ -1494,6 +1496,20 @@ public:
 	void SetMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit* pNewUnit);
 	CvUnit* GetMissionAIUnit();
 
+#if defined(MOD_CORE_DEBUGGING)
+	void PushPrevPlot(int iIdx, int iTurn)
+	{
+		m_iPrevPlotIdx2 = m_iPrevPlotIdx1;
+		m_iPrevPlotIdx1 = (iIdx & 0xFFFF) + (iTurn << 16);
+	}
+
+	bool HaveRepetition(int iIdx, int iTurn)
+	{
+		int iTest =(iIdx & 0xFFFF) + (iTurn << 16);
+		return m_iPrevPlotIdx2 == iTest;
+	}
+#endif
+
 #if defined(MOD_API_EXTENSIONS) || defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
 	inline bool IsCivilianUnit() const
 	{
@@ -1913,6 +1929,10 @@ protected:
 	CvUnitPromotions  m_Promotions;
 	CvUnitReligion* m_pReligion;
 
+#if defined(MOD_CIV6_WORKER)
+	FAutoVariable<int, CvUnit> m_iBuilderStrength;
+#endif
+
 	FAutoVariable<std::map<TerrainTypes,int>, CvUnit> m_terrainDoubleMoveCount;
 	FAutoVariable<std::map<FeatureTypes,int>, CvUnit> m_featureDoubleMoveCount;
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
@@ -2020,6 +2040,11 @@ private:
 	int m_iTactMoveSetTurn;
 	int m_iHomelandMoveSetTurn;
 	AIHomelandMove m_eHomelandMove;
+#endif
+
+#if defined(MOD_CORE_DEBUGGING)
+	//to detect endless loops
+	int m_iPrevPlotIdx1, m_iPrevPlotIdx2;
 #endif
 
 	friend class CvLuaUnit;
