@@ -1141,6 +1141,7 @@ protected:
 	//set in constructor, constant afterwards
 	PlayerTypes ePlayer;
 	eAggressionLevel eAggression;
+	float fUnitNumberRatio;
 	CvPlot* pTargetPlot;
 	int iID;
 
@@ -1182,6 +1183,8 @@ public:
 	void addTacticalPlot(const CvPlot* pPlot);
 	bool addAvailableUnit(const CvUnit* pUnit);
 	int countChildren() const;
+	float getUnitNumberRatio() const;
+	void updateUnitNumberRatio();
 
 	const CvTacticalPlot& getTactPlot(int plotindex) const;
 	CvTacticalPlot& getTactPlot(int plotindex);

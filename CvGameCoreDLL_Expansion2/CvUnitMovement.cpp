@@ -227,8 +227,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		bool bSlowDown = false;
 		if(eToTeam != NO_TEAM && eUnitTeam != eToTeam)
 		{
-			CvTeam& kToPlotTeam = GET_TEAM(eToTeam);
-			if(!kToPlotTeam.IsAllowsOpenBordersToTeam(eUnitTeam))
+			if(!pToPlot->IsFriendlyTerritory(kPlayer.GetID()))
 			{
 				//unit itself may have a negative trait ...
 				bSlowDown = pUnit->isSlowInEnemyLand();

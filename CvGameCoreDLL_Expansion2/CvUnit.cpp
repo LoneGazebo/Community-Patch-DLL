@@ -20129,6 +20129,10 @@ void CvUnit::setGameTurnCreated(int iNewValue)
 //	--------------------------------------------------------------------------------
 int CvUnit::getDamage() const
 {
+	//for debugging - hook in here and mouse over a unit to get the current tactical zone info
+	if (0)
+		OutputDebugString( getTacticalZoneInfo().c_str() );
+
 	VALIDATE_OBJECT
 	return m_iDamage;
 }
