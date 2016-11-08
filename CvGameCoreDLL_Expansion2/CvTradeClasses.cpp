@@ -573,9 +573,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int iTargetTurns = GD_INT_GET(TRADE_ROUTE_BASE_TARGET_TURNS); // how many turns do we want the cycle to consume
 	iTargetTurns = iTargetTurns * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
-	CUSTOMLOG("CvTradeClasse::MOD_CIV6_ROADS  : getTradeRouteSpeedMod=%i , getTechCostPerTurnMultiplier=%i", 
-		GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod(), GC.getGame().getGameSpeedInfo().getTechCostPerTurnMultiplier());
-
+	
 	int iEra = GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra();
 	if(iEra <= 0)
 	{
@@ -588,13 +586,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	int iCircuitsToComplete = 1; // how many circuits do we want this trade route to run to reach the target turns
 	if (iTurnsPerCircuit != 0)
 	{
-#if defined(MOD_CIV6_ROADS)
 		iCircuitsToComplete = max(iTargetTurns / iTurnsPerCircuit, 2);
-		CUSTOMLOG("CvTradeClasse::MOD_CIV6_ROADS  : iTargetTurns=%i , iTurnsPerCircuit=%i", iTargetTurns, iTurnsPerCircuit);
-
-#else
-		iCircuitsToComplete = max(iTargetTurns / iTurnsPerCircuit, 2);
-#endif
 	}
 
 	m_aTradeConnections[iNewTradeRouteIndex].m_iCircuitsCompleted = 0;
@@ -2542,8 +2534,11 @@ void CvPlayerTrade::MoveUnits (void)
 								// i didn't go by plot->changeBuildProgress to not fire unwanted things, like "BuildFinished".
 								// so it's mostly a copy-paste from the road section of this method
 								RouteTypes autoBuildRoadType = ROUTE_ROAD;
-								//TODO: check if the rairoad is unlocked (by tech).
-								if (GET_PLAYER(pTradeConnection->m_eOriginOwner).GetCurrentEra() >= GD_INT_GET(TRADE_ROUTE_CS_FRIEND_GOLD))
+								//TODO: check if the rairoad is unlocked (by tech or by era).
+								int minEra = GD_INT_GET(TRADE_ROUTE_CREATE_RAILROADS_ERA);
+								int iTech = GD_INT_GET(TRADE_ROUTE_CREATE_RAILROADS_TECH_ID);
+								if ((GET_PLAYER(pTradeConnection->m_eOriginOwner).GetCurrentEra() >= minEra)
+									&& (iTech >= 0 && iTech < GC.getNumTechInfos() && GET_TEAM(GET_PLAYER(pTradeConnection->m_eOriginOwner).getTeam()).GetTeamTechs()->HasTech((TechTypes)iTech)))
 								{
 									autoBuildRoadType = ROUTE_RAILROAD;
 								}
