@@ -210,3 +210,19 @@ int CvLuaTeamTech::lGetResearchLeft(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeamTechs::GetResearchLeft);
 }
+
+#if defined(MOD_CIV6_EUREKA)
+//------------------------------------------------------------------------------
+//int GetResearchLeft(TechTypes eTech);
+int CvLuaTeamTech::lGetEurekaCounter(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvTeamTechs::GetEurekaCounter);
+}
+//------------------------------------------------------------------------------
+//int ChangeResearchProgressPercent(TechTypes eIndex, int iChange);
+int CvLuaTeamTech::lChangeEurekaCounter(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvTeamTechs::SetEurekaCounter);
+}
+#endif
+
