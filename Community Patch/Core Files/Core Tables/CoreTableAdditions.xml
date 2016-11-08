@@ -370,6 +370,13 @@
 		<Column name="YieldMod" type="integer" default="0"/>
 	</Table>
 
+	<!-- POLICY: Allows you to define a unit class that gains a production boost -->
+	<Table name="Policy_UnitClassProductionModifiers">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<Column name="ProductionModifier" type="integer"/>
+	</Table>
+
 	<!-- POLICY: Allows you to define a yield that is granted by a building if your majority religion is present -->
 	<Table name="Policy_ReligionYieldMod">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
@@ -701,6 +708,13 @@
 	<Table name="Improvement_AdjacentPlotYieldChanges">
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="PlotType" type="text" reference="Plots(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<!-- Improvement: allows an improvement to boost the base yield of an adjacent improvement -->
+	<Table name="Improvement_FeatureYieldChanges">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>

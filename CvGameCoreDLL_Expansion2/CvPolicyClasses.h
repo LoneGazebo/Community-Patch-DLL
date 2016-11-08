@@ -142,6 +142,9 @@ public:
 	int GetNewCityExtraPopulation() const;
 	int GetFreeFoodBox() const;
 	int GetImprovementGoldMaintenanceMod() const;
+#if defined(MOD_CIV6_WORKER)
+	int GetRouteCostMod() const;
+#endif
 	int GetBuildingGoldMaintenanceMod() const;
 	int GetUnitGoldMaintenanceMod() const;
 	int GetUnitSupplyMod() const;
@@ -254,6 +257,7 @@ public:
 	int GetBuildingClassCultureChange(int i) const;
 	int GetBuildingClassHappiness(int i) const;
 	int GetBuildingClassProductionModifier(int i) const;
+	int GetUnitClassProductionModifiers(int i) const;
 	int GetBuildingClassTourismModifier(int i) const;
 	int GetNumFreeUnitsByClass(int i) const;
 	int GetTourismByUnitClassCreated(int i) const;
@@ -303,6 +307,7 @@ public:
 	int GetMaxCorps() const;
 	int GetRazingSpeedBonus() const;
 	bool IsNoPartisans() const;
+	int GetExtraSupplyPerPopulation() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -468,6 +473,9 @@ private:
 	int m_iNewCityExtraPopulation;
 	int m_iFreeFoodBox;
 	int m_iImprovementGoldMaintenanceMod;
+#if defined(MOD_CIV6_WORKER)
+	int m_iRouteCostMod;
+#endif
 	int m_iBuildingGoldMaintenanceMod;
 	int m_iUnitGoldMaintenanceMod;
 	int m_iUnitSupplyMod;
@@ -592,6 +600,7 @@ private:
 	int* m_paiHurryModifier;
 	int* m_paiBuildingClassCultureChanges;
 	int* m_paiBuildingClassProductionModifiers;
+	int* m_paiUnitClassProductionModifiers;
 	int* m_paiBuildingClassTourismModifiers;
 	int* m_paiBuildingClassHappiness;
 	int* m_paiFreeUnitClasses;
@@ -632,6 +641,7 @@ private:
 	int m_iExtraMoves;
 	int m_iMaxCorporations;
 	int m_iRazingSpeedBonus;
+	int m_iExtraSupplyPerPopulation;
 	bool m_bNoPartisans;
 	bool m_bCorporationOfficesAsFranchises;
 	bool m_bCorporationFreeFranchiseAbovePopular;

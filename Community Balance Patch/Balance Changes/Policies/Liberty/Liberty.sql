@@ -54,8 +54,13 @@ WHERE Type = 'POLICY_COLLECTIVE_RULE' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Citizenship (Now Free Labor)
 UPDATE Policies
-SET WorkerSpeedModifier = '50'
+SET WorkerSpeedModifier = '25'
 WHERE Type = 'POLICY_CITIZENSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+INSERT INTO Policy_UnitClassProductionModifiers
+	(PolicyType, UnitClassType, ProductionModifier)
+VALUES
+	('POLICY_CITIZENSHIP', 'UNITCLASS_WORKER', 25);
 
 -- Republic (Now Civil Engineers)
 UPDATE Policies

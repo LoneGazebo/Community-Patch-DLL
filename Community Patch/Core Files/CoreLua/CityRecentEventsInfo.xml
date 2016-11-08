@@ -12,11 +12,14 @@
 
 		<Button Anchor="L,T" Offset="10,0" ID="GoToCity" Size="32,32" Texture="IconFrame32Search.dds" />
 
-		<Label Anchor="L,T" Offset="50,5" Font="TwCenMT24" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="850" ID="CityRecentEventChoiceLocation" />
-		<Label Anchor="L,T" Offset="35,30" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="850" ID="CityRecentParentEventTitle" />
-		<Label Anchor="L,T" Offset="35,50" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="850" ID="CityRecentEventChoiceTitle" />
-		<Label Anchor="L,T" Offset="35,70" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="850" ID="CityRecentEventChoiceDuration" />
-		<Label Anchor="L,T" Offset="35,90" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="850" ID="CityRecentEventChoiceHelpText" />
+		<Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="15" ID="CityRecentEventInfoStack">
+			<Label Anchor="L,T" Offset="50,5" Font="TwCenMT24" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="850" ID="CityRecentEventChoiceLocation" />
+			<Label Anchor="L,T" Offset="35,0" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="850" ID="CityRecentParentEventTitle" />
+			<Label Anchor="L,T" Offset="35,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="850" ID="CityRecentEventChoiceTitle" />
+			<Label Anchor="L,T" Offset="35,0" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="850" ID="CityRecentEventChoiceDuration" />
+			<Label Anchor="L,T" Offset="35,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" WrapWidth="850" ID="CityRecentEventChoiceHelpText" />
+			<Image Hidden="0" Anchor="L,T" Offset="0,0" Texture="bar500x2.dds" Size="500.1" />
+		</Stack>
 		</Button>
 	</Instance>
 	<!-- BOTTOM PANEL-->
@@ -26,12 +29,12 @@
 			<PullDown  Anchor="L,C" Offset="20,0" Style="GenericPullDown" ScrollThreshold="110" Size="260,27" AutoSizePopUp="1" SpaceForScroll="1" ID="SortByPullDown" />
 		</Box>
 		
-		<ScrollPanel Anchor="L,T" Size="955,360" Offset="5,50" Vertical="1" ID="ItemScrollPanel" AutoScrollBar="0">
+		<ScrollPanel Anchor="L,T" Size="955,420" Offset="5,50" Vertical="1" ID="ItemScrollPanel" AutoScrollBar="0">
 			<!-- Scroll Controls -->
-			<ScrollBar Style="VertSlider" Length="360" Offset="0,18" Anchor="L,T" AnchorSide="I,I"/>
+			<ScrollBar Style="VertSlider" Length="384" Offset="0,18" Anchor="L,T" AnchorSide="I,I"/>
 			<UpButton Offset="0,0" Style="ScrollBarUp" Anchor="L,T" AnchorSide="I,I"/>
 			<DownButton Offset="0,0" Style="ScrollBarDown" Anchor="L,B" AnchorSide="I,I"/>
-			<Stack Anchor="L,T" Offset="18,0" StackGrowth="Bottom" Padding="0" ID="ItemStack">
+			<Stack Anchor="L,T" Offset="18,0" StackGrowth="Bottom" Padding="5" ID="ItemStack">
 			<Stack ID="CityRecentEventsStack" Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" Color="0.0.0.0"/>
 			</Stack>
 			

@@ -1589,8 +1589,8 @@
 			<Description>TXT_KEY_PROMOTION_ANTI_AIR</Description>
 			<Help>TXT_KEY_PROMOTION_ANTI_AIR_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PortraitIndex>59</PortraitIndex>
-			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PortraitIndex>19</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ANTI_AIR</PediaEntry>
 		</Replace>
@@ -1600,8 +1600,8 @@
 			<Help>TXT_KEY_PROMOTION_ANTI_AIR_II_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_ANTI_AIR</PromotionPrereqOr1>
-			<PortraitIndex>59</PortraitIndex>
-			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PortraitIndex>20</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ANTI_AIR_II</PediaEntry>
 		</Replace>

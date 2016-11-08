@@ -1438,6 +1438,10 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 
 	ResourceUsageTypes eUsage = pkResourceInfo->getResourceUsage();
 #if defined(MOD_BALANCE_CORE)
+	//Integer zero check...
+	if (iNumTurns <= 0)
+		iNumTurns = 1;
+
 	if(iResourceQuantity == 0)
 	{
 		return 0;
@@ -7140,7 +7144,7 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	// Set that this CvDeal is a demand
 	pDeal->SetDemandingPlayer(GetPlayer()->GetID());
 #if defined(MOD_BALANCE_CORE)
-	int iIdealValue = 50 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
+	int iIdealValue = 150 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
 	if(GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) <= STRENGTH_AVERAGE)
 	{
 		iIdealValue *= 5;
@@ -7188,6 +7192,11 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	}
 	DoAddThirdPartyWarToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
 	if(iValueTheyreOffering >= iIdealValue && pDeal->m_TradedItems.size() > 0)
+	{
+		return true;
+	}
+	DoAddThirdPartyPeaceToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+	if (iValueTheyreOffering >= iIdealValue && pDeal->m_TradedItems.size() > 0)
 	{
 		return true;
 	}

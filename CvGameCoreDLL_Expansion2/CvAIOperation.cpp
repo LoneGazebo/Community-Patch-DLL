@@ -1592,14 +1592,8 @@ bool CvAIOperation::SetupWithSingleArmy(CvPlot * pMusterPlot, CvPlot * pTargetPl
 	if (!pDeployPlot)
 		pDeployPlot = pTargetPlot;
 
-	if (IsNavalOperation() && pDeployPlot->isWater())
-	{
-		if (GC.getLogging() && GC.getAILogging())
-			LogOperationSpecialMessage("Cannot set up operation - no path to target!");
-
-		SetToAbort( AI_ABORT_LOST_PATH );
-		return false;
-	}
+	//do not check whether the domain is correct, trust the caller
+	//IsNavalOperation() is not detailed enough to judge
 
 	pArmyAI->SetGoalPlot(pDeployPlot);
 	pArmyAI->SetXY(pMusterPlot->getX(), pMusterPlot->getY());
@@ -1882,50 +1876,31 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 				//check for nearby enemy (for sneak attacks)
 				if (!bInPlace && (GetOperationType()==AI_OPERATION_NAVAL_INVASION_SNEAKY || GetOperationType()==AI_OPERATION_CITY_SNEAK_ATTACK) ) 
 				{
-					CvPlot *pOtherTarget = NULL;
+					int nVisible = 0;
 					for (CvUnit* pUnit = pThisArmy->GetFirstUnit(); pUnit; pUnit = pThisArmy->GetNextUnit())
 					{
-						for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-						{
-							CvPlot* pAdjacentPlot = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
+						if (pUnit->plot()->isVisible( GET_PLAYER(m_eEnemy).getTeam() ))
+							nVisible++;
+					}
 
-							if (pAdjacentPlot != NULL && pAdjacentPlot->getNumDefenders(m_eEnemy) > 0)
+					//the jig is up
+					if (nVisible>2)
+					{
+						bInPlace = true;
+
+						CvPlot *pOtherTarget = NULL;
+						for (int i=0; i<RING3_PLOTS; i++)
+						{
+							CvPlot* pTestPlot = iterateRingPlots( pCenterOfMass, i );
+							if (pTestPlot && pTestPlot->getOwner()==m_eEnemy && pTestPlot->getWorkingCity())
 							{
-								pOtherTarget = pAdjacentPlot;
-								bInPlace = true;
+								pOtherTarget = pTestPlot;
 								break;
 							}
 						}
 
-						if (bInPlace)
-							break;
-					}
-
-					if (pOtherTarget != NULL)
-					{
-						// Notify tactical AI to focus on this area
-						if (GetTargetType() != AI_TACTICAL_TARGET_NONE)
-						{
-							CvTemporaryZone zone;
-							if (pOtherTarget->getWorkingCity() != NULL && pOtherTarget->getWorkingCity()->getOwner() == m_eEnemy)
-							{
-								zone.SetX(pOtherTarget->getWorkingCity()->getX());
-								zone.SetY(pOtherTarget->getWorkingCity()->getY());
-							}
-							else
-							{
-								zone.SetX(pOtherTarget->getX());
-								zone.SetY(pOtherTarget->getY());
-							}
-
-							zone.SetTargetType(GetTargetType());
-							zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
-							if (IsNavalOperation() && !IsCivilianOperation())
-							{
-								zone.SetNavalInvasion(true);
-							}
-							GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
-						}
+						if (pOtherTarget != NULL)
+							pTarget = pOtherTarget;
 					}
 				}
 

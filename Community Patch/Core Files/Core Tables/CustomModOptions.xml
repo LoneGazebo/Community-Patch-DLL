@@ -1032,6 +1032,13 @@
 	<Row Class="6" Name="NO_RANDOM_TEXT_CIVS" Value="0"/>
 	<!-- Promotions from buildings now retroactive for all units made from that city. -->
 	<Row Class="6" Name="BALANCE_RETROACTIVE_PROMOS" Value="0"/>
+	
+	<!-- Roads are built automatically whne a trade route end. -->
+	<Row Class="6" Name="CIV6_ROADS" Value="0"/>
+	
+	<!-- You can use the BuilderStrength to limit the number of improvement and repair a unit can makes. -->
+	<Row Class="6" Name="CIV6_TYPE_WORKER" Value="0"/>
+	
   </CustomModOptions>
 
 	<!-- Events for JFD Piety -->

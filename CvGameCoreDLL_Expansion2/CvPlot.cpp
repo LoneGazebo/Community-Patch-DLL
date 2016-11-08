@@ -2942,6 +2942,12 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 			iTime += GET_TEAM(eTeam).getBuildTimeChange(eBuild);
 		}
 	}
+#if defined(MOD_CIV6_WORKER)
+	if (ePlayer != NO_PLAYER && GC.getBuildInfo(eBuild)->getRoute() != NO_ROUTE && GET_PLAYER(ePlayer).GetRouteCostMod() != 0){
+		iTime *= (100 + GET_PLAYER(ePlayer).GetRouteCostMod());
+		iTime /= 100;
+	}
+#endif
 
 	// Repair is either 3 turns or the original build time, whichever is shorter
 	if(GC.getBuildInfo(eBuild)->isRepair())
@@ -7858,8 +7864,9 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		if(m_eImprovementType != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry& newImprovementEntry = *GC.getImprovementInfo(eNewValue);
+
 #if defined(MOD_BALANCE_CORE)
-			if(newImprovementEntry.IsPermanent())
+			if (newImprovementEntry.IsPermanent())
 			{
 				ClearArchaeologicalRecord();
 			}
@@ -7968,16 +7975,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 				if(eResourceFromImprovement != NO_RESOURCE)
 				{
-					if(getResourceType() == NO_RESOURCE)
-					{
-						setResourceType(eResourceFromImprovement, iQuantity);
-						if(GetResourceLinkedCity() != NULL && !IsResourceLinkedCityActive())
-							SetResourceLinkedCityActive(true);
-					}
-					else if(getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement)
-					{
-						owningPlayer.changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
-					}
+					owningPlayer.changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
 				}
 #endif
 
@@ -8171,6 +8169,19 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						}
 					}
 				}
+#if defined(MOD_BALANCE_CORE)
+				//Resource from improvement - change ownership if needed.
+				ResourceTypes eResourceFromImprovement = (ResourceTypes)GC.getImprovementInfo(eOldImprovement)->GetResourceFromImprovement();
+				int iQuantity = GC.getImprovementInfo(eOldImprovement)->GetResourceQuantityFromImprovement();
+				if (iQuantity <= 0)
+				{
+					iQuantity = 1;
+				}
+				if (eResourceFromImprovement != NO_RESOURCE)
+				{
+					owningPlayer.changeNumResourceTotal(eResourceFromImprovement, -iQuantity, true);
+				}
+#endif
 			}
 		}
 
@@ -9938,6 +9949,12 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 	{
 		iYield += pImprovement->GetHillsYieldChange(eYield);
 	}
+#if defined(MOD_BALANCE_CORE)
+	if (getFeatureType() != NO_FEATURE)
+	{
+		iYield += pImprovement->GetFeatureYieldChanges(getFeatureType(), eYield);
+	}
+#endif
 
 	// Check to see if there's a bonus to apply before doing any looping
 	if(pImprovement->GetAdjacentCityYieldChange(eYield) > 0 ||
@@ -10485,6 +10502,16 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			{
 				iYield += pWorkingCity->GetFeatureExtraYield(getFeatureType(), eYield);
 			}
+#if defined(MOD_BALANCE_CORE)
+			if (getImprovementType() != NO_IMPROVEMENT)
+			{
+				CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
+				if (pImprovement)
+				{
+					iYield += pImprovement->GetFeatureYieldChanges(getFeatureType(), eYield);
+				}
+			}
+#endif
 		}
 #if defined(MOD_BALANCE_CORE)
 		// Extra yield for improvements

@@ -1203,6 +1203,11 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 
 			BuilderDirective::BuilderDirectiveType eDirectiveType = BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE;
 			int iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_RESOURCE_IMPROVEMENTS();
+
+			//if we're building a great person improvement, putting it on a resource is the last resort ...
+			if (pkImprovementInfo->IsCreatedByGreatPerson())
+				iWeight = GC.getBUILDER_TASKING_BASELINE_BUILD_IMPROVEMENTS();
+
 			if(eBuild == m_eRepairBuild)
 			{
 				eDirectiveType = BuilderDirective::REPAIR;
@@ -1234,10 +1239,14 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 				}
 			}
 
-			int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild), iInvestedImprovementTime + iMoveTurnsAway);
+			int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild), iInvestedImprovementTime);
 			iWeight += iBuildTimeWeight;
 
-			iWeight += GetResourceWeight(eResource, eImprovement, pPlot->getNumResource());
+			int iResourceWeight = GetResourceWeight(eResource, eImprovement, pPlot->getNumResource());
+			if (pkImprovementInfo->IsCreatedByGreatPerson())
+				iWeight += iResourceWeight / 4; //prefer to build this somewhere else
+			else
+				iWeight += iResourceWeight;
 
 #if defined(MOD_BALANCE_CORE)
 			iWeight = min(iWeight,0x7FFF);
@@ -1537,7 +1546,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 #endif
 		iWeight = GetBuildCostWeight(iWeight, pPlot, eBuild);
 
-		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild), iMoveTurnsAway);
+		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild));
 		iWeight += iBuildTimeWeight;
 
 		if(m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && bWillRemoveForestOrJungle)
@@ -1660,7 +1669,7 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, int iM
 	}
 
 	iWeight = GetBuildCostWeight(iWeight, pPlot, eRouteBuild);
-	iWeight += GetBuildTimeWeight(pUnit, pPlot, eRouteBuild, false, iMoveTurnsAway);
+	iWeight += GetBuildTimeWeight(pUnit, pPlot, eRouteBuild, false);
 	iWeight *= pPlot->GetBuilderAIScratchPadValue();
 	iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
 
@@ -1782,7 +1791,7 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 #endif
 
 	iWeight = GetBuildCostWeight(iWeight, pPlot, eChopBuild);
-	int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eChopBuild, false, iMoveTurnsAway);
+	int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eChopBuild, false);
 	iWeight += iBuildTimeWeight;
 	iWeight *= iProduction; // times the amount that the plot produces from the chopping
 
@@ -1929,7 +1938,7 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 		iWeight = iWeight / (iMoveTurnsAway/*iTurnsAway*/ + 1);
 #endif
 		iWeight = GetBuildCostWeight(iWeight, pPlot, m_eFalloutRemove);
-		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, m_eFalloutRemove, false, iMoveTurnsAway);
+		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, m_eFalloutRemove, false);
 		iWeight += iBuildTimeWeight;
 #if defined(MOD_BALANCE_CORE)
 		iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
@@ -2261,9 +2270,7 @@ int CvBuilderTaskingAI::GetBuildTimeWeight(CvUnit* pUnit, CvPlot* pPlot, BuildTy
 		}
 	}
 
-	iBuildTime += iAdditionalTime;
-
-	return 10000 / iBuildTime;
+	return 10000 / ((iBuildTime*100) + iAdditionalTime);
 }
 
 /// Return the weight of this resource
@@ -2306,7 +2313,7 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, ImprovementTy
 		int iModifier = GC.getBUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE() * pkResource->getHappiness();
 
 		if(m_pPlayer->getNumResourceAvailable(eResource) > 0)
-			iModifier /= 2; 
+			iModifier /= 10; 
 
 		iWeight *= iModifier;
 	}

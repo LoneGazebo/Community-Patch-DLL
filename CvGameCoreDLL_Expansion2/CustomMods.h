@@ -40,6 +40,13 @@
 //END MULTIPLAYER INSTRUCTIONS
 ////////////////////////////////////////
 
+///////////////////////
+// BATTLE ROYALE CODE
+//////////////////////
+
+//If you enable this, you can do an 'observer' mode human player (i.e. submarine in ice) to do the battle royale! Includes code for CSV export of data
+#define MOD_BATTLE_ROYALE
+
 /// simpler algorithm for scoring exploration plots
 #define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
 /// use globally unique ids for cities, units etc
@@ -378,6 +385,11 @@
 #define MOD_BALANCE_CORE_EVENTS						(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_EVENTS())
 #define MOD_NO_RANDOM_TEXT_CIVS						(MOD_COMMUNITY_PATCH && gCustomMods.isNO_RANDOM_TEXT_CIVS())
 #define MOD_BALANCE_RETROACTIVE_PROMOS				(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_RETROACTIVE_PROMOS())
+
+// Add a "worker cost" to improvement and delete the worker when he expands all his "strength"
+#define MOD_CIV6_WORKER								gCustomMods.isCIV6_TYPE_WORKER()
+// Roads are created by trade routes.
+#define MOD_CIV6_ROADS								gCustomMods.isCIV6_ROADS()
 
 #endif
 // Changes melee ship units to be cargo carrying units with added promotions for ship and cargo
@@ -1440,6 +1452,9 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_EVENTS);
 	MOD_OPT_DECL(NO_RANDOM_TEXT_CIVS);
 	MOD_OPT_DECL(BALANCE_RETROACTIVE_PROMOS);
+
+	MOD_OPT_DECL(CIV6_WORKER);
+	MOD_OPT_DECL(CIV6_ROADS);
 
 	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES);
 	MOD_OPT_DECL(CARGO_SHIPS);

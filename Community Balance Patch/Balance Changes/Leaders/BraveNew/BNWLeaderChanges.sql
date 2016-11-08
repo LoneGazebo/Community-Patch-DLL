@@ -215,6 +215,23 @@ UPDATE Builds
 SET PrereqTech = 'TECH_CALENDAR'
 WHERE Type = 'BUILD_BRAZILWOOD_CAMP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Improvements
+SET NoTwoAdjacent = '1'
+WHERE Type = 'IMPROVEMENT_BRAZILWOOD_CAMP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Improvements
+SET ImprovementResource = 'RESOURCE_BRAZILWOOD'
+WHERE Type = 'IMPROVEMENT_BRAZILWOOD_CAMP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Improvements
+SET ImprovementResourceQuantity = '1'
+WHERE Type = 'IMPROVEMENT_BRAZILWOOD_CAMP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+INSERT INTO Improvement_ValidFeatures
+	(ImprovementType, FeatureType)
+VALUES
+	('IMPROVEMENT_BRAZILWOOD_CAMP', 'FEATURE_FOREST');
+
 INSERT INTO Units
 	(Class, Type, Combat, Cost, FaithCost, WorkRate, RequiresFaithPurchaseEnabled, Moves, PrereqTech, ObsoleteTech, CombatClass, Domain, NoBadGoodies, DefaultUnitAI, Description, Civilopedia, Strategy, Help, Pillage, MilitarySupport, GoodyHutUpgradeUnitClass, MilitaryProduction, AdvancedStartCost, XPValueAttack, XPValueDefense, UnitArtInfo, UnitFlagAtlas, UnitFlagIconOffset, PortraitIndex, IconAtlas, MoveRate)
 VALUES
